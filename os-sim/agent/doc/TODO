@@ -1,0 +1,12 @@
+TODO for ossim-agent
+====================
+
+ * New logging level, for dummies :)
+
+ * Plugins, plugins, plugins..
+
+ * Receive and manage framework requests:
+   - control plugins (start, stop, enable, disable)  [DONE]
+   - configure agent (listconfig, modifyconfig, ..)
+   - Monitors.
+

@@ -1,0 +1,105 @@
+#! /bin/sh
+#
+
+### BEGIN INIT INFO
+# Provides:          ossim-agent
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Should-Start:      $syslog $network $remote_fs $time
+# Should-Stop:       $syslog $network $remote_fs $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Open Source Security Information Management Agent
+# Description:       An agent in OSSIM is a python script that gathers
+#                    and sends the output of the different plugin or tool
+#                    to the correlation engine for further process.
+#
+### END INIT INFO
+
+set -e
+
+. /lib/lsb/init-functions
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="OSSIM Agent"
+NAME=ossim-agent
+DAEMON=/usr/bin/$NAME
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+
+# Gracefully exit if the package has been removed.
+test -x $DAEMON || exit 0
+
+# Read config file if it is present.
+#if [ -r /etc/default/$NAME ]
+#then
+#	. /etc/default/$NAME
+#fi
+
+#
+#	Function that starts the daemon/service.
+#
+d_start() {
+    start-stop-daemon --quiet --start --pidfile $PIDFILE \
+        --exec $DAEMON -- -d > /dev/null
+}
+
+#
+#	Function that stops the daemon/service.
+#
+d_stop() {
+	start-stop-daemon --quiet --stop \
+        --pidfile $PIDFILE > /dev/null
+}
+
+d_restart() {
+    d_stop
+    rm -rf /var/run/ossim-agent.pid
+    sleep 1
+    d_start
+}
+
+case "$1" in
+  start)
+    log_daemon_msg "Starting $DESC" "$NAME"
+    if d_start ; then
+        log_end_msg $?
+    else
+        log_end_msg $?
+    fi
+	;;
+
+#starting is only used by monit 
+  starting)
+    rm -rf /var/run/ossim-agent.pid
+    log_daemon_msg "Starting $DESC" "$NAME"
+    if d_start ; then
+        log_end_msg $?
+    else
+        log_end_msg $?
+    fi
+        ;;
+
+  stop)
+    log_daemon_msg "Stopping $DESC" "$NAME"
+    if d_stop ; then
+        log_end_msg $?
+    else
+        log_end_msg $?
+    fi
+	;;
+  restart|force-reload)
+    log_daemon_msg "Restarting $DESC" "$NAME"
+    if d_restart ; then
+        log_end_msg $?
+    else
+        log_end_msg $?
+    fi
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

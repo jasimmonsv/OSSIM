@@ -1,0 +1,345 @@
+#!/usr/bin/perl
+$ret = `ps ax|grep -v grep| grep acid-backup|wc -l`;
+$ret =~ s/\s*//g;
+if ($ret>1) {
+  print "Another acid-backup already running, exiting...\n";
+  exit(0);
+}
+
+# Script 
+#
+# 2004-02-11 Fabio Ospitia Trujillo <fot@ossim.net>
+# 2008-05-19 jmalbarracin
+$|=1;
+
+use lib "/usr/share/ossim/include";
+use ossim_conf;
+use DBI;
+use POSIX;
+use Compress::Zlib;
+use Date::Manip;
+
+my $db_name = "snort";
+my %timestamp_table_names = ();
+my %sidcid_table_names = ();
+my %ac_table_names = ();
+
+$timestamp_table_names{"acid_event"} = 1;
+$timestamp_table_names{"acid_event_input"} = 1;
+
+$sidcid_table_names{"icmphdr"} = 1;
+$sidcid_table_names{"iphdr"} = 1;
+$sidcid_table_names{"udphdr"} = 1;
+$sidcid_table_names{"tcphdr"} = 1;
+$sidcid_table_names{"opt"} = 1;
+$sidcid_table_names{"extra_data"} = 1;
+
+$ac_table_names{"ac_alerts_ipdst"} = 1;
+$ac_table_names{"ac_alerts_ipsrc"} = 1;
+$ac_table_names{"ac_alerts_sid"} = 1;
+$ac_table_names{"ac_alerts_signature"} = 1;
+$ac_table_names{"ac_dstaddr_ipdst"} = 1;
+$ac_table_names{"ac_dstaddr_ipsrc"} = 1;
+$ac_table_names{"ac_dstaddr_sid"} = 1;
+$ac_table_names{"ac_dstaddr_signature"} = 1;
+$ac_table_names{"ac_layer4_dport"} = 1;
+$ac_table_names{"ac_layer4_dport_ipdst"} = 1;
+$ac_table_names{"ac_layer4_dport_ipsrc"} = 1;
+$ac_table_names{"ac_layer4_dport_sid"} = 1;
+$ac_table_names{"ac_layer4_dport_signature"} = 1;
+$ac_table_names{"ac_layer4_sport"} = 1;
+$ac_table_names{"ac_layer4_sport_ipdst"} = 1;
+$ac_table_names{"ac_layer4_sport_ipsrc"} = 1;
+$ac_table_names{"ac_layer4_sport_sid"} = 1;
+$ac_table_names{"ac_layer4_sport_signature"} = 1;
+$ac_table_names{"ac_sensor_ipdst"} = 1;
+$ac_table_names{"ac_sensor_ipsrc"} = 1;
+$ac_table_names{"ac_sensor_sid"} = 1;
+$ac_table_names{"ac_sensor_signature"} = 1;
+$ac_table_names{"ac_srcaddr_ipdst"} = 1;
+$ac_table_names{"ac_srcaddr_ipsrc"} = 1;
+$ac_table_names{"ac_srcaddr_sid"} = 1;
+$ac_table_names{"ac_srcaddr_signature"} = 1;
+
+my $backup_dir = $ossim_conf::ossim_data->{"backup_dir"};
+#my $backup_dir = "/root/pruebas_backup";
+my $backup_day = $ossim_conf::ossim_data->{"backup_day"};
+
+# Data Source 
+my $snort_type = $ossim_conf::ossim_data->{"snort_type"};
+my $snort_name = $ossim_conf::ossim_data->{"snort_base"};
+my $snort_host = $ossim_conf::ossim_data->{"snort_host"};
+my $snort_port = $ossim_conf::ossim_data->{"snort_port"};
+my $snort_user = $ossim_conf::ossim_data->{"snort_user"};
+my $snort_pass = $ossim_conf::ossim_data->{"snort_pass"};
+#$snort_pass = "ossim";
+#$snort_name = "snort";
+
+my $snort_dsn = "DBI:" . $snort_type . ":" . $snort_name . ":" . $snort_host . ":" . $snort_port;
+#my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
+#my $snort_conn = DBI->connect("DBI:mysql:snort:localhost", $snort_user, $snort_pass) or die "Can't connect to Database\n";
+
+my $cmdline = "mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port $snort_name";
+my $cmdlinedump = "mysqldump -u$snort_user -p$snort_pass -h$snort_host -P$snort_port $snort_name";
+
+my $sec_1day = 60 * 60 * 24;
+my $sec_curr = (int (time () / $sec_1day)+ 1 ) * $sec_1day;
+my $sec_yesterday = $sec_curr - $sec_1day;
+#$backup_day = 40;
+my $sec_backup = $sec_curr - ($sec_1day * $backup_day);
+
+# MAIN
+backup_to_file ($cmdlinedump);
+delete_outframe ($cmdline);
+
+# FUNCTIONS
+
+# Main function for backup (generates .sql files with mysqldump)
+sub backup_to_file {
+    my $mysqldump = shift;
+
+    my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
+    ###my query = "SELECT DISTINCT date(timestamp) as date FROM acid_event ORDER BY date ASC"; #TARDA UN PUTO HUEVO (O NO)
+    my $query = "SELECT min(timestamp) FROM acid_event";
+    my $stm = $snort_conn->prepare($query);
+    $stm->execute();
+
+    return unless (my $row = $stm->fetchrow_arrayref);
+
+    unless ($row->[0] =~ m/^(\d+)-(\d+)-(\d+)*/) {
+		return;
+    }
+    $stm->finish;
+    $snort_conn->disconnect;
+    
+    my $pdate = convertTime("$3-$2-$1 00:00:00");
+    my $mindate = DateCalc(ParseDate("today"),"-30 days");
+    $mindate =~  s/^(....)(..)(..)/$1-$2-$3 /;
+    $mindate = convertTime($mindate);
+    my $sec = ($pdate < $mindate) ? $mindate : $pdate;
+		
+    #my $sec = POSIX::mktime(0, 0, 0, $d, $m - 1, $y - 1900);
+    
+	# Loop from min timestamp of events to backup day (day by day)
+	while ($sec <= $sec_yesterday) {
+		my $date = POSIX::strftime ("%Y-%m-%d", localtime($sec));
+		my $file_insert = "$backup_dir/insert-".POSIX::strftime ("%Y%m%d", localtime($sec)).".sql";
+		my $file_delete = "$backup_dir/delete-".POSIX::strftime ("%Y%m%d", localtime($sec)).".sql";
+		
+		print "Backup day: $date: ";
+		
+		# If gzip file exists
+		if (-e "$file_insert.gz") {
+		    print (" File exists! $file_insert.gz\n");
+		    $sec += $sec_1day;
+		    next;
+		}
+		
+		open (D,">$file_delete");
+		print D "set autocommit=0;\n";
+		#my $fd_insert = POSIX::open($file_insert, &POSIX::O_CREAT | &POSIX::O_WRONLY | &POSIX::O_TRUNC, 0640) or die "Can't open file log $file_insert";
+		#my $fd_delete = POSIX::open($file_delete, &POSIX::O_CREAT | &POSIX::O_WRONLY | &POSIX::O_TRUNC, 0640) or die "Can't open file log $file_delete";
+
+		#my $where = "WHERE event.timestamp >= '$date 00:00:00' AND event.timestamp <= '$date 23:59:59'";
+		#my $where = "timestamp like '$date%'";
+		
+		my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
+		# Get sid,cid from day
+		my %sidcid = ();
+		#$sql = "select sid,max(cid) as maxcid,min(cid) as mincid from acid_event where timestamp >= '$date 00:00:00' AND timestamp <= '$date 23:59:59' group by sid";
+		$sql = "select sid,max(cid) as maxcid,min(cid) as mincid from acid_event where timestamp like '$date%' group by sid";
+		my $sth = $snort_conn->prepare($sql);
+        my $maxcid = 0;
+        my $mincid = 0;
+		$sth->execute();
+		$sth->bind_columns(\$sid,\$maxcid,\$mincid);
+		while ($sth->fetch()) {
+			$sidcid{$sid}{'min'} = $mincid;
+			$sidcid{$sid}{'max'} = $maxcid;
+		}
+		$sth->finish;
+		$snort_conn->disconnect;
+        
+        # no data for this date
+        if ($maxcid==0 && $mincid==0) {
+            print (" Skipping $date with no events\n");
+            $sec += $sec_1day;
+            next;
+        }
+        
+		# Create sidcid tables dump
+		my $table_name = join (" ",keys %sidcid_table_names);
+		foreach $sid (keys %sidcid) {
+			# INSERT
+			# -f force continue on error
+			my $where = "sid=".$sid." AND cid <= ".$sidcid{$sid}{'max'}." AND cid >= ".$sidcid{$sid}{'min'};
+			###my $eventdump = 'mysqldump -u '.$snort_user.' -p'.$snort_pass.' -h '.$snort_host'. '.$db_name.' '.$table_name.' -n -t -f --no-autocommit --insert-ignore -w "'.$where.'" >> "'.$file_insert.'"';
+			my $eventdump = $mysqldump.' '.$table_name.' -n -t -f --no-autocommit --insert-ignore -w "'.$where.'" >> "'.$file_insert.'"';
+			print ".";
+			system ($eventdump);
+			# DELETE
+			foreach $t (keys %sidcid_table_names) {
+				$delstr = "DELETE FROM $t WHERE ".$where.";\n";
+				print D $delstr;
+			}
+		}
+		
+		# Create timestamp tables dump
+		# INSERT
+		my $table_name = join (" ",keys %timestamp_table_names);
+		my $where = "timestamp between '$date 00:00:00' AND '$date 23:59:59'";
+		#my $where = "timestamp like '$date%'";
+		my $eventdump = $mysqldump.' '.$table_name.' -n -t -f --no-autocommit --insert-ignore -w "'.$where.'" >> "'.$file_insert.'"';
+		print "->";
+		system ($eventdump);
+		# DELETE
+		foreach $t (keys %timestamp_table_names) {
+			$delstr = "DELETE FROM $t WHERE ".$where.";\n";
+			print D $delstr;
+		}
+		
+		
+		#backup_event ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_icmphdr ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_iphdr ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_udphdr ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_tcphdr ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_opt ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_data ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_extra_data ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_ossim_event ($snort_conn, $where, $fd_insert, $fd_delete);
+		#backup_acid_event ($snort_conn, $where, $fd_insert, $fd_delete);
+
+		#POSIX::close($fd_insert);
+		#POSIX::close($fd_delete);
+
+		# If file is empty
+		if (-z "$file_insert") {
+		    unlink ($file_insert);
+		    unlink ($file_delete);
+		    $sec += $sec_1day;
+		    next;
+		}
+
+		# Gzip the files
+		#backup_gzip("$file_insert", "$file_insert.gz");
+		#backup_gzip("$file_delete", "$file_delete.gz");
+
+		# Delete data
+		#backup_execute_file($snort_conn, $file_delete);
+
+		# Remove files
+		#unlink ($file_insert);
+		#unlink ($file_delete);
+		
+		# AC Tables
+		# INSERT
+		my $where = "day = '".$date."'";
+		my $ac_table = join (" ",keys %ac_table_names);
+		my $eventdump = $mysqldump.' '.$ac_table.' -n -t -f --no-autocommit -w "'.$where.'" >> "'.$file_insert.'"';
+		print ".";
+		system ($eventdump);
+		
+		# DELETE
+		print "<-";
+		foreach my $t (keys %ac_table_names) {
+			$delstr = "DELETE FROM $t WHERE ".$where.";\n";
+			print D $delstr;
+		}
+		print D "commit;\n";
+		close D;
+		
+		system ("gzip -f $file_insert");
+		system ("gzip -f $file_delete");
+		print "OK\n";
+		$sec += $sec_1day;
+    }
+	print "BACKUP DONE\n";
+}
+
+sub delete_outframe {
+	my $cmd = shift;
+	my $date_frame = POSIX::strftime ("%Y-%m-%d", localtime($sec_backup));
+	my $file_outframe = "$backup_dir/delete_outframe-".$date_frame.".sql";
+	open (DF,">$file_outframe");
+	#print DF "set autocommit=0;\n";
+	# Get sid,cid from day
+	my %sidcid = ();
+	my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
+	$sql = "select sid,max(cid) as maxcid,min(cid) as mincid from acid_event where timestamp < '$date_frame 00:00:00' group by sid";
+	my $sth = $snort_conn->prepare($sql);
+	$sth->execute();
+	$sth->bind_columns(\$sid,\$maxcid,\$mincid);
+	while ($sth->fetch()) {
+		$sidcid{$sid}{'min'} = $mincid;
+		$sidcid{$sid}{'max'} = $maxcid;
+	}
+	$sth->finish;
+	$snort_conn->disconnect;
+	
+	# Create sidcid tables dump
+	my $table_name = join (" ",keys %sidcid_table_names);
+	foreach $sid (keys %sidcid) {
+		my $where = "sid=".$sid." AND cid <= ".$sidcid{$sid}{'max'}." AND cid >= ".$sidcid{$sid}{'min'};
+		# DELETE
+		foreach $t (keys %sidcid_table_names) {
+			$delstr = "DELETE FROM $t WHERE ".$where.";\n";
+			print DF $delstr;
+		}
+	}
+	
+	# Create event timestamp dump
+	# DELETE
+	my $table_name = join (" ",keys %timestamp_table_names);
+	my $where = "timestamp < '$date_frame 00:00:00'";
+	foreach $t (keys %timestamp_table_names) {
+		$delstr = "DELETE FROM $t WHERE ".$where.";\n";
+		print DF $delstr;
+	}
+	
+	# AC Tables
+	my $where = "day < '".$date_frame."'";
+	# DELETE
+	foreach my $t (keys %ac_table_names) {
+		$delstr = "DELETE FROM $t WHERE ".$where.";\n";
+		print DF $delstr;
+	}
+	#print DF "commit;\n";
+	close DF;
+	print "DELETING < $date_frame\n";
+	system ("$cmd < '$file_outframe'");
+	unlink ($file_outframe);
+	print "DELETE DONE\n";
+}
+
+# Executes the files generated by backup_to_file
+sub backup_execute_file {
+    my ($conn, $file) = @_;
+
+    open (INPUT, "$file") or die "Can't open file log $file";
+    while (<INPUT>) {
+	s/\;//;
+	my $stm = $conn->prepare($_);
+	$stm->execute();
+    }
+    close (INPUT);
+
+}
+
+sub convertTime {
+  #expects time in yyyy-mm-dd hh:mm:ss format
+  my( $time ) = shift;
+  my( $year, $month, $day, $hour, $minute, $sec ) = split( /\W/, $time );
+  my $oneday = 24 * 3600; #for convenience
+  my $utime = $sec + ($minute * 60) + ($hour * 3600); ## time in seconds on the day in question
+  $year -= 1970;
+  my @months = (31,28,31,30,31,30,31,31,30,31,30,31);
+  for (my $i=0; $i < ($month-1); $i++ ) {
+    $utime += ($months[$i] * $oneday);
+  }
+  $utime += ((($year - ($year%4))/4) * $oneday); ## take leap years into account
+  if( ($year%4)==0 && $month < 3 ) { $utime -= $oneday; }
+  $utime += (($day-1) * $oneday);
+  $utime += ($year * 365 * $oneday);
+  return $utime;
+}

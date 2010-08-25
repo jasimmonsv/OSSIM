@@ -1,0 +1,119 @@
+A:LINK     { text-decoration:none; }
+A:ACTIVE   { text-decoration:none; }
+A:VISITED  { text-decoration:none; }
+A:HOVER    { text-decoration:underline; }
+
+.blue    { font-family:verdana; font-size:11px; color:#0E3C70; text-decoration:none; font-weight:bold }
+.bluep   { font-family:verdana; font-size:10px; color:#0E3C70; font-weight:normal }
+.bluepn  { font-family:verdana; font-size:10px; color:#0E3C70; font-weight:bold }
+
+.white  { font-family:verdana; font-size:11px; color:#FFFFFF; text-decoration:none; font-weight:bold }
+.whitep   { font-family:verdana; font-size:10px; color:#FFFFFF; font-weight:normal }
+.whitepn  { font-family:verdana; font-size:10px; color:#FFFFFF; font-weight:bold }
+
+.black    { font-family:verdana; font-size:11px; color:#000000; text-decoration:none; font-weight:bold }
+.blackp   { font-family:verdana; font-size:10px; color:#000000; font-weight:normal }
+.blackpn  { font-family:verdana; font-size:10px; color:#000000; font-weight:bold }
+
+.capsule {
+	background:url('../pixmaps/statusbar/bg_capsule.gif') no-repeat 50% 50%;
+	text-align:center; width:45px; height:18px;
+	padding-bottom:1px; white-space: nowrap;
+}
+.bartitle {
+	padding-right:10px;
+	text-align:right;
+	white-space: nowrap;
+}
+.vsep {
+	background:url('../pixmaps/statusbar/bg_dot.gif') repeat-x center;
+	width:90%; height:5px;
+}
+.canvas {
+	border:1px solid #CCCCCC;
+	background:#FFFFFF;
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+	-moz-border-radius-bottomleft: 8px;
+	-moz-border-radius-bottomright: 8px;
+	-webkit-border-bottom-right-radius: 8px;
+	-webkit-border-bottom-left-radius: 8px;
+}
+#basic-accordian{
+	padding:0px;
+}
+
+.accordion_headings {
+	padding:0px 10px 0px 5px;
+	border-bottom:1px solid #FFFFFF;
+	height:32px; line-height:32px;
+	background:#D2D2D2; cursor:pointer; 
+	font-family:arial; font-size:11px; color:#000000; font-weight:bold; text-decoration:none;
+}
+
+div.accordion_headings:hover {
+	background:url('../pixmaps/menu/bg_menusel.gif') repeat-x 50% 50%;
+	height:32px; line-height:32px;
+	vertical-align:middle;
+	color:#FFFFFF;
+}
+
+.schild {
+	margin:0 auto;
+	cursor:pointer;
+}
+
+div.schild:hover {
+	background:#CFEF95; /*D1D7DF */
+}
+
+.accordion_child {
+	padding:0px;
+	background:#EBEBEB;
+}
+
+.header_highlight {
+	background:url('../pixmaps/menu/bg_menusel.gif') repeat-x 50% 50%;
+	height:32px; line-height:32px;
+	color:#FFFFFF;
+}
+
+.opc  {
+	border-bottom:1px solid #FFFFFF;
+	height:25px; cursor:pointer;
+	line-height:25px; text-align:left;
+	background:#EDEDED;
+	font-family:arial; font-size:11px; color:#000000; text-decoration:none;
+}
+
+div.opc:hover {
+	background:#D2D2D2;
+	text-decoration:underline;
+}
+
+.opcon {
+	border-bottom:1px solid #FFFFFF;
+	height:25px;
+	line-height:25px; text-align:left;
+	background:#FFFFFF;
+	font-family:arial; font-size:11px; color:#000000; text-decoration:none;
+	cursor:pointer;
+}
+
+.cell  {
+	height:25px;
+	line-height:25px; text-align:left;
+}
+.right {
+	width:25px; padding:0px 0px 0px 15px;
+	text-align:center;
+}
+.lnkon   { font-family:arial; font-size:11px; color:#000000; text-decoration:none; font-weight:bold; }
+.lnk       { font-family:arial; font-size:11px; color:#000000; text-decoration:none; }
+.help     { font-family:arial; font-size:11px; color:#0E3C70; text-decoration:none; font-weight:bold }
+
+.outmenu {
+	padding:0px 10px 0px 9px; height:25px;
+	line-height:25px; text-align:left;
+	font-family:arial; font-size:11px; color:#000000; text-decoration:none;
+}

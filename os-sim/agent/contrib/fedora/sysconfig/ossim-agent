@@ -1,0 +1,5 @@
+# -c <config file>
+# -d  : daemon mode
+# -v  : verbose mode 
+# -vv : debug mode 
+OPTIONS="-d -c /etc/ossim/agent/config.cfg"

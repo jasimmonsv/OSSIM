@@ -1,0 +1,2 @@
+insert into plugin VALUES(1587,1,'squidguard','Accesses identified in squidguards blacklist');
+insert into plugin_sid VALUES(1587,1,NULL,NULL,3,1,'SquidGuard detects access to spyware site','0.0000'),(1587,2,NULL,NULL,3,1,'SquidGuard detects access to phishing site','0.0000'),(1587,3,NULL,NULL,3,1,'SquidGuard detects access to hacking site','0.0000'),(1587,4,NULL,NULL,3,1,'SquidGuard detects access to proxy site','0.0000'),(1587,5,NULL,NULL,3,1,'SquidGuard detects access to virusinfected site','0.0000');

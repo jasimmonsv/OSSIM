@@ -1,0 +1,60 @@
+#!/bin/sh
+# Startup script for ossim-agent
+#
+# description: Open Source Security Information Management AGENT
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+[ -f /usr/share/ossim/agent/agent ] || exit 0
+
+prog="ossim-agent"
+
+start() {
+    echo -n $"Starting $prog: " 
+    daemon /usr/share/ossim/agent/agent &
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+stop() {
+    if test "x`pidofproc agent`" != x; then
+	echo -n $"Stopping $prog: "
+	killproc agent
+	echo
+    fi
+    RETVAL=$?
+    return $RETVAL
+}
+
+case "$1" in
+	start)
+	    start
+	    ;;
+	
+	stop)
+	    stop
+	    ;;
+	
+	status)
+	    status agent
+	    ;;
+	restart)
+	    stop
+	    start
+	    ;;
+	condrestart)
+	    if test "x`pidof agent`" != x; then
+		stop
+		start
+	    fi
+	    ;;
+	
+	*)
+	    echo $"Usage: $0 {start|stop|restart|condrestart|status}"
+	    exit 1
+
+esac
+
+exit $RETVAL

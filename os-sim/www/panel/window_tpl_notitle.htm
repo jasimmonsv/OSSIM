@@ -1,0 +1,56 @@
+<style type="text/css">
+    .hb{
+        padding-top:0px;
+        margin-bottom:0px;
+        font-size:12px;
+        font-family:arial,verdana,geneva,sans-serif;
+        color:#cccccc;
+        font-weight:bold;
+    }
+    .hb a,.hb a:visited{
+        font-family:arial,verdana,geneva,sans-serif;
+        text-decoration:underline;
+        color:#3f3f3f;
+    }
+    .hb small {
+        color:#3f3f3f;
+    }
+    .ymymd {
+        background: #ffffff;
+        border: 0px solid #a4a4a4;
+    }
+    .t1 { background:#eeeeee; border:1px solid #cccccc; padding:2px 0px 2px 0px }
+</style>
+<!-- Window Template -->
+<div id="window_%ID%">
+    <div class="ymymdi">
+        <div class="ymymd">
+<!-- Window Title Bar -->
+<div class="hd" id="76889_bx">
+<table border=0 cellpadding=0 cellspacing=0 width="100%">
+    <tr>
+        <td width="100%" valign="bottom" align="right" class="hb t1" NOWRAP style="border-bottom:1px solid #cccccc">
+            <small><font color="bbbbbb" style="font-size:8px"><a href="#"
+                      onmouseover="javascript: Control.Tip.show('%HELP_MSG%');"
+                      onmouseout="javascript:  Control.Tip.hide()";><font color="bbbbbb"><img src="../pixmaps/helptip_icon.gif" alt="help" border="0"></font></a>
+            </font></small>
+            <small>%CONFIG%</small>&nbsp;
+        </td>
+    </tr>
+</table>
+</div>
+<!-- Window Contents -->
+<div id="window_1_contents" style="display:block">
+    <table cellpadding=0 cellspacing=0 border=0 width="100%" style="border-left:1px solid #cccccc;border-bottom:1px solid #cccccc;border-right:1px solid #cccccc">
+        <tr>
+            <td style="padding:4px;">
+                <div class="article_atomic" id="window_1_value">
+                %CONTENTS%
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+</div></div></div>
+<!-- /Window -->

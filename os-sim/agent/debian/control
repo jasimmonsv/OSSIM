@@ -1,0 +1,26 @@
+Source: ossim-agent
+Section: net
+Priority: optional
+Maintainer: David Gil <dgil@ossim.net>
+Build-Depends: debhelper (>= 7), docbook-to-man, python-support (>= 0.5.3)
+Standards-Version: 3.7.2
+
+Package: ossim-agent
+Architecture: all
+Suggests: arpwatch, nmap, ntop, osiris, p0f, pads, snort, tcptrack
+Depends: ${python:Depends}, lsb-base (>= 3.0-6), python-adodb, python-mysqldb, python-pymssql, openvas-scanner, alienvault-dummy-sensor
+Description: Open Source Security Information Management (Agent)
+ OSSIM is a distribution of open source products that are integrated
+ to provide an infrastructure for security monitoring. It provides a
+ framework for centralizing, organizing, and improving detection and
+ display for monitoring security events.
+ .
+ OSSIM unify network monitoring, security, correlation and
+ qualification in one single tool.
+ .
+ An agent in OSSIM is set of python script that gathers and sends the
+ output of the different plugin or tool to the correlation engine for
+ further process.
+ .
+  Homepage: http://www.ossim.net
+

@@ -1,0 +1,22 @@
+<html>
+<head>
+<title>Bindows gauge sample</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script type="text/javascript" src="bindows_gauges/bindows_gauges.js"></script>
+</head>
+<body>
+<div id="gaugeDiv" style="width: 150; height: 150" ></div>
+<script type="text/javascript">
+	var gauge = bindows.loadGaugeIntoDiv("gauge.xml", "gaugeDiv");
+
+	// dynamically update the gauge at runtime
+	var t = 0;
+	function updateGauge() {
+		t += 100;
+		gauge.needle.setValue( 50 + 50 * Math.sin(t/1000) );
+	}
+	updateGauge();
+	setInterval(updateGauge, 100);
+</script>
+</body>
+</html>

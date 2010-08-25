@@ -1,0 +1,3 @@
+recursive-include ossim_agent *.py
+recursive-include etc *.cfg
+include doc/*

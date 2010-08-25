@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head profile="http://gmpg.org/xfn/11">
+	<title>Slightly ThickerBox 1.7</title>
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/interface.js"></script>
+	<script type="text/javascript" src="js/thickbox.js"></script>
+	<link rel="stylesheet" href="css/thickbox.css" type="text/css" media="screen" />
+</head>
+
+<body>
+
+<h1>Slightly ThickerBox 1.7</h1>
+
+<div>
+	<a href="images/2006_P5042379.JPG" class="thickbox" rel="Group1" title="Caption 1" target="_blank"><img src="images/thumbnail_2006_P5042379.JPG" /></a>
+	<a href="images/2006_P5032376.JPG" class="thickbox" rel="Group1" title="Caption 2" target="_blank"><img src="images/thumbnail_2006_P5032376.JPG" /></a>
+	<a href="images/2006_P4302371.JPG" class="thickbox" rel="Group1" title="Caption 3" target="_blank"><img src="images/thumbnail_2006_P4302371.JPG" /></a>
+</div>
+<div>
+	<a href="images/2006_P4302369.JPG" class="thickbox" rel="Group2" title="Caption 4" target="_blank"><img src="images/thumbnail_2006_P4302369.JPG" /></a>
+	<!-- Only used for local testing.
+	<a href="movies/DSCF1287.mpg?width=240&height=320" class="thickbox" rel="Group2" title="Caption 4" target="_blank">MPEG Video (13.7MB)</a>
+	<a href="movies/DSCF1287U.avi?width=240&height=320" class="thickbox" rel="Group2" title="Caption 4" target="_blank">AVI Video (278MB)</a>
+	-->
+</div>
+<form style="display: inline;">
+<select>
+	<option>This will show how Slightly Thickerbox handles select elements</option>
+</select>
+<select style="display: none;">
+	<option>This Select Element should stay hidden</option>
+</select>
+</form>
+<!-- applet code="ptviewer.class" name="pano360" width=400 height=300 archive="http://www.duncane.plus.com/albums/course/applets/ptviewer.jar" id="pano360">
+			<param name=file value="http://www.duncane.plus.com/albums/course/panoramas/15thtee.jpg">
+			<param name="auto" value="0.25">
+
+			<param name="autoTime" value="60">
+			<param name="pan" value="170">
+			Java needed. Click the link below for help.
+		  </applet -->
+<div>
+	<a href="ajax_test.html?width=250&height=50" class="thickbox" rel="AjaxGroup" title="Caption 4" target="_blank">AJAX Test</a>
+	<a href="ajax_test2.html?width=250&height=50" class="thickbox" rel="AjaxGroup" title="Caption 4" target="_blank">AJAX Test</a>
+	<a href="ajax_test3.html?width=250&height=50" class="thickbox" rel="AjaxGroup" title="Caption 4" target="_blank">AJAX Test</a>
+</div>
+
+<p>
+	Download links:
+	<ul>
+		<li><a href="SlightlyThickerBox.zip">Download without sample images (28 KB)</a></li>
+		<li><a href="SlightlyThickerBoxWithImages.zip">Download with sample images (1,344 KB)</a></li>
+	</ul>
+</p>
+
+<p>Slightly ThickerBox is a modification of <a href="http://codylindley.com/">Cody Lindley's</a> Thickbox script.  I modified it for use on my <a href="http://www.jasons-toolbox.com/WordPress/">Jason's Toolbox Redesign</a>.  The modifications allow the script to generate "Previous Image" and "Next Image" links.  The result is that you can use Slightly ThickerBox to create <a href="http://www.jasons-toolbox.com/DropGallery/">image galleries</a>.  In addition, you can create groups of galleries by setting a "rel" attribute on the links.  (I also moved the Caption and Close link to the top and made the script case insensitive.)</p>
+
+<p>NEW (08/31/2006):  Updated Slightly Thickerbox to use <a href="http://jquery.com/" target="_blank">JQuery 1.0.1</a> and the updated version of <a href="http://interface.eyecon.ro/" target="_blank">Interface Elements for JQuery</a>.</p>
+
+<p>NEW (08/03/2006):  You can now add movies (MPEG or AVI) to a Slightly Thickerbox group.  You can also group AJAX pages together.  See the demo above.  This could be used as a quick and easy way to put together an online presentation.  I've also done a lot of backend code restructuring, but that won't concern most of you.  If you were calling the TB_Show function directly, you'll need to change your reference to TB_ShowObj and pass it a reference to the object you want to display.  For example:</p>
+
+<p>
+	<blockquote>
+		TB_ShowObj(document.getElementByID("FirstElement"))
+	</blockquote>
+</p>
+
+<p>Finally, I've added support for the <a href="http://interface.eyecon.ro/" target="_blank">Interface Elements for JQuery</a>.  This is a JQuery plugin that, among other things, adds some more advanced animation capabilities.  If you include the Interface Elements scripts (included with the download, see below for the code), then Slightly Thickerbox will use the advanced animation capabilities automatically.  Otherwise, Slightly Thickerbox will use the built-in animation capabilities that JQuery possesses.</p>
+
+<p>To use Slightly ThickerBox, add the following HEAD section of your website.</p>
+
+<p>
+	<blockquote>
+		&lt;script type="text/javascript" src="js/jquery.js">&lt;/script&gt;<br />
+		&lt;script type="text/javascript" src="js/interface.js"&gt;&lt;/script&gt;<br />
+		&lt;script type="text/javascript" src="js/thickbox.js"&gt;&lt;/script&gt;<br />
+		&lt;link rel="stylesheet" href="css/thickbox.css" type="text/css" media="screen" /&gt;
+	</blockquote>
+</p>
+
+<p>If you don't want to use the advanced animation effects that Interface elements for JQuery possesses, you would add the following to the HEAD section of your website instead.</p>
+
+<p>
+	<blockquote>
+		&lt;script type="text/javascript" src="js/jquery.js">&lt;/script&gt;<br />
+		&lt;script type="text/javascript" src="js/thickbox.js"&gt;&lt;/script&gt;<br />
+		&lt;link rel="stylesheet" href="css/thickbox.css" type="text/css" media="screen" /&gt;
+	</blockquote>
+</p>
+
+<p>Now, where you want the images to appear, add the following code:</p>
+
+<p>
+	<blockquote>
+		&lt;a href="Filename.jpg" class="thickbox" rel="GroupName" title="Caption goes here" target="_blank"&gt;&lt;img src="Thumbnail.jpg" /&gt;&lt;/a&gt;
+	</blockquote>
+</p>
+
+<p>The result can be seen above.  (Click one of the images or text links.)  Note:  The rel attribute is optional.  If you leave it out, all Slightly Thickerbox items will be linked together.</p>
+
+<p>Known Bugs (any suggestions on how to solve these bugs would be appreciated):</p>
+
+<ul>
+	<li>Java Applets appear in front of Slightly Thickerbox items</li>
+	<li>Sound from movies still plays in background when Previous/Next/Close links are clicked.</li>
+</ul>
+
+</body>
+</html>

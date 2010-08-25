@@ -1,0 +1,12 @@
+Template: ossim-mysql/database
+Type: text
+Description: OSSIM needs a configured database to log to.
+ After the package is installed, create the database structure using the 
+ following commands:
+    cd /usr/share/doc/ossim-mysql/contrib/
+    zcat create_mysql.sql.gz ossim_*.sql.gz | mysql ossim -p
+    zcat create_snort_tbls_mysql.sql.gz \
+        create_acid_tbls_mysql.sql.gz  | mysql snort -p
+ Use -u and -h mysql options if you need to specify a non-default user and
+ host.
+

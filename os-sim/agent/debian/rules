@@ -1,0 +1,101 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+export DH_COMPAT=5
+export DH_PYCOMPAT=2
+
+PKG_NAME=ossim-agent
+PKG_DIR=$(CURDIR)/debian/$(PKG_NAME)
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	rm -rf build
+	find . | grep py[co]$$ | xargs rm -f
+	python setup.py clean
+	dh_prep
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+
+	# Add here commands to install the package into debian/ossim-agent.
+	#
+
+	# man page
+	docbook-to-man doc/ossim-agent.xml > debian/$(PKG_NAME).8 
+
+	# library
+	install -d $(PKG_DIR)/usr/share/$(PKG_NAME)/ossim_agent
+	cp -r ossim_agent/*.py $(PKG_DIR)/usr/share/$(PKG_NAME)/ossim_agent/
+
+	# script
+	install -d $(PKG_DIR)/usr/bin/
+	install -m 774 ossim-agent $(PKG_DIR)/usr/bin/$(PKG_NAME)
+
+	# Update version
+	OSSIM_VERSION=`head -n 1 debian/changelog | cut -f 2 -d "(" | cut -f 2 -d ":" | cut -f 1 -d ")"`; echo ${OSSIM_VERSION}
+
+	# configuration
+	install -d $(PKG_DIR)/etc/ossim/agent/
+	cp -r etc/agent/*.cfg $(PKG_DIR)/etc/ossim/agent/
+	cp -r etc/agent/*.cfg.orig $(PKG_DIR)/etc/ossim/agent/
+	cp etc/logrotate.d/ossim-agent debian/ossim-agent.logrotate
+
+	# plugins
+	install -d $(PKG_DIR)/etc/ossim/agent/plugins
+	cp -r etc/agent/plugins/*.cfg $(PKG_DIR)/etc/ossim/agent/plugins
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs doc/ChangeLog
+	dh_installdocs -A doc/README.plugins doc/TODO
+	dh_installexamples
+	dh_installlogrotate
+#	dh_installinfo
+	dh_installinit --no-restart-on-upgrade --no-start
+	dh_installman debian/$(PKG_NAME).8
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_pysupport /usr/share/$(PKG_NAME)/ossim_agent
+#	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

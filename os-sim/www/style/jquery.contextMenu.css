@@ -1,0 +1,72 @@
+/* Generic context menu styles */
+.contextMenu {
+	position: absolute;
+	z-index: 99999;
+	border: solid 1px #CCC;
+	background: #EEE;
+	padding: 0px;
+	margin: 0px;
+	display: none;
+}
+
+.contextMenu LI {
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+.contextMenu A {
+	color: #333;
+	text-decoration: none;
+	display: block;
+	line-height: 20px;
+	height: 20px;
+	background-position: 6px center;
+	background-repeat: no-repeat;
+	outline: none;
+	padding: 1px 10px 1px 5px;
+	padding-left: 28px;
+}
+
+.contextMenu A:hover {
+    background-position: 6px center;
+    background-repeat: no-repeat;
+}
+
+.contextMenu LI.hover A {
+	color: #FFF;
+    text-decoration:none;
+	background: #3399FF;
+}
+
+.contextMenu LI.disabled A {
+	color: #AAA;
+	cursor: default;
+}
+
+.contextMenu LI.hover.disabled A {
+	background: transparent;
+}
+
+.contextMenu LI.separator {
+	border-top: solid 1px #CCC;
+}
+
+/*
+	Adding Icons
+	
+	You can add icons to the context menu by adding
+	classes to the respective LI element(s)
+*/
+
+.contextMenu LI.report A { background-image: url(../pixmaps/reports.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.search A { background-image: url(../pixmaps/funnel--plus.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.tickets A { background-image: url(../pixmaps/tickets.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.alarms A { background-image: url(../pixmaps/alarms.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.sim A { background-image: url(../pixmaps/sim.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.sem A { background-image: url(../pixmaps/sem.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.vulns A { background-image: url(../pixmaps/vulns.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.kndb A { background-image: url(../pixmaps/kdb.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.ntop A { background-image: url(../pixmaps/ntop.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.flows A { background-image: url(../pixmaps/menu/monitors.gif); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.nagios A { background-image: url(../pixmaps/nagios.png); background-repeat:no-repeat; font-weight:bold; }

@@ -1,0 +1,262 @@
+a {
+  background: transparent;
+  color: #17457c;
+  text-decoration: none;
+}
+
+a:hover {
+  background: transparent;
+  color: #97A6B6;
+  text-decoration: underline;
+}
+
+a.selected {
+    color: #97A6B6;
+    background: transparent;
+    text-decoration: underline;
+}
+
+h1 {
+  background: #7f7f7f;
+  color: white;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  padding: 5px;
+  margin-bottom: 30px;
+  font-weight: bold;
+  font-size: 110%;
+  text-align: center;
+}
+
+h2 {
+  font-weight: bold;
+  clear: both;
+  font-size: 110%;
+  text-align: center;
+}
+
+
+table {
+    color: black;
+    border-style: solid;
+    border-color: #bbbbbb;
+    border-width: 1px;
+    /*text-align: center;*/
+}
+input, textarea, select {
+    border: solid;
+    border-style: solid;
+    border-width: 1px;
+    color: #222;
+    border-color: #888;
+    background: #fdfdfd;
+    font-family: verdana,arial,helvetica,sans-serif;
+    font-size:  8pt;
+}
+
+table {
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+}
+
+th {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+input, textarea {
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
+
+
+.ne0   { font-family:arial; font-size:9px; color:#000000; }
+.ne    { font-family:arial; font-size:10px; color:#000000; }
+.ne01  { font-family:arial; font-size:10px; color:#000000; font-weight:bold;}
+.ne1   { font-family:arial; font-size:12px; color:#000000; font-weight:normal; text-decoration:none; }
+.ne11r  { font-family:arial; font-size:12px; color:#CC0000; font-weight:bold; text-decoration:none; }
+.ne11  { font-family:arial; font-size:12px; color:#000000; font-weight:bold; text-decoration:none; }
+.ne1u  { font-family:arial; font-size:11px; color:#000000; font-weight:bold; text-decoration:underline; }
+.ne1n  { font-family:arial; font-size:11px; color:#000000; text-decoration:none; }
+.ne1b  { font-family:arial; font-size:11px; color:#000000; font-weight:bold; text-decoration:none; }
+.ne12  { font-family:arial; font-size:14px; color:#000000; font-weight:bold; text-decoration:none; }
+.ne13  { font-family:arial; font-size:14px; color:#000000; font-weight:normal;}
+.ne14  { font-family:arial; font-size:17px; color:#000000; font-weight:bold; text-decoration:none; }
+.ne2   { font-family:arial; font-size:42px; color:#000000; font-weight:bold;text-decoration:none;}
+.ne21  { font-family:arial; font-size:13px; color:#000000; font-weight:normal; text-decoration:none;}
+.ne22  { font-family:arial; font-size:13px; color:#000000; font-weight:bold; text-decoration:none;}
+.ne3   { font-family:arial; font-size:24px; color:#000000; font-weight:bold; text-decoration:none;}
+
+.ne30  { font-family:arial; font-size:18px; color:#000000; font-weight:bold; text-decoration:none;}
+.ne31  { font-family:arial; font-size:20px; color:#000000; font-weight:bold; text-decoration:none;}
+.ne32  { font-family:arial; font-size:22px; color:#000000; font-weight:bold; text-decoration:none;}
+.ne4   { font-family:arial; font-size:16px; color:#000000; font-weight:bold; text-decoration:none;}
+.ne5   { font-family:arial; font-size:16px; color:#000000; text-decoration:none;}
+.ne6   { font-family:arial; font-size:12px; color:#000000; font-weight:bold; text-decoration:none;}
+.ne7   { font-family:arial; font-size:15px; color:#000000; text-decoration:none;}
+
+.cn1   { font-family:courier new,arial; font-size:11px; color:#000000; text-decoration:none; }
+.cn2   { font-family:courier new,arial; font-size:12px; color:#000000; text-decoration:none; }
+.cn21  { font-family:courier new,arial; font-size:12px; color:#000000; font-weight:bold; text-decoration:none; }
+.cn3   { font-family:courier new,arial; font-size:12px; color:#0000FF; text-decoration:none; }
+.cnb   { font-family:courier new,arial; font-size:11px; color:#000000; text-decoration:none; font-style: italic; background-color:transparent; border:none; }
+.cnbs  { font-family:courier new,arial; font-size:11px; color:#000000; text-decoration:underline; font-style: italic; background-color:transparent; border:none; }
+
+.uln A:hover { text-decoration:underline; }
+
+.bl1   { font-family:arial; font-size:9px; color:#FFFFFF;  text-decoration:none;}
+.bl11  { font-family:arial; font-size:10px; color:#FFFFFF; font-weight:bold; text-decoration:none; }
+.bl12  { font-family:arial; font-size:13px; color:#FFFFFF; font-weight:bold; text-decoration:none; }
+.bl12 A:hover { text-decoration:underline; }
+.bl13  { font-family:arial; font-size:14px; color:#FFFFFF; text-decoration:none; }
+.bl14  { font-family:arial; font-size:14px; color:#FFFFFF; font-weight:bold; text-decoration:none; }
+.bl16  { font-family:arial; font-size:16px; color:#FFFFFF; font-weight:bold; text-decoration:none; }
+.bl2   { font-family:arial; font-size:12px; color:#FFFFFF; font-weight:bold; text-decoration:none; }
+.bl21  { font-family:arial; font-size:12px; color:#FFFFFF; text-decoration:none; }
+.bl22  { font-family:arial; font-size:22px; color:#FFFFFF; font-weight:bold; text-decoration:none;}
+.bl3   { font-family:arial; font-size:24px; color:#FFFFFF; font-weight:bold; text-decoration:none;}
+
+.ro1   { font-family:arial; font-size:12px; color:#FF0000; }
+.ro11  { font-family:arial; font-size:14px; color:#FF0000; font-weight:bold; }
+.ro12  { font-family:arial; font-size:12px; color:#EE2024; font-weight:bold; text-decoration:none; }
+
+.az    { font-family:arial; font-size:11px; color:#0000FF; text-decoration:none; }
+.az0   { font-family:arial; font-size:10px; color:#0000FF; text-decoration:none; }
+.az01  { font-family:arial; font-size:11px; color:#0000FF; font-weight:bold; text-decoration:none; }
+.az1   { font-family:arial; font-size:12px; color:#0000FF; text-decoration:none; }
+.az11  { font-family:arial; font-size:12px; color:#0000FF; font-weight:bold; text-decoration:none; }
+.az12  { font-family:arial; font-size:14px; color:#0000FF; font-weight:bold; text-decoration:none; }
+.az12b { font-family:arial; font-size:13px; color:#556587; font-weight:bold; text-decoration:none; }
+.az15  { font-family:arial; font-size:12px; color:#000099; text-decoration:none; }
+.az16  { font-family:arial; font-size:14px; color:#000099; font-weight:bold; }
+.az17  { font-family:arial; font-size:12px; color:#000099; font-weight:bold; }
+.az18  { font-family:arial; font-size:12px; color:#0033CC; }
+.az2   { font-family:arial; font-size:11px; color:#0000FF; font-weight:bold; text-decoration:none; }
+.az22  { font-family:arial; font-size:13px; color:#0000FF; text-decoration:none; }
+.az21  { font-family:arial; font-size:13px; color:#0000FF; font-weight:bold; text-decoration:none; }
+.az3   { font-family:arial; font-size:12px; color:#7F91EB; font-weight:bold; text-decoration:none; }
+.az40  { font-family:arial; font-size:9px; color:#556587; text-decoration:none; }
+.az4   { font-family:arial; font-size:11px; color:#556587; font-weight:bold; text-decoration:none; }
+.az4n  { font-family:arial; font-size:11px; color:#556587; text-decoration:none; }
+.az41  { font-family:arial; font-size:12px; color:#3A6176; font-weight:bold; text-decoration:none; }
+.az42  { font-family:arial; font-size:12px; color:#E718A7; font-weight:bold; text-decoration:none; }
+.az5   { font-family:arial; font-size:11px; color:#4A55E4; text-decoration:none; }
+.az51  { font-family:arial; font-size:12px; color:#4A55E4; text-decoration:none; }
+.az6   { font-family:arial; font-size:24px; color:#4A55E4; text-decoration:none; }
+.az7   { font-family:arial; font-size:22px; color:#FF00CC; font-weight:bold; text-decoration:none; }
+.az72  { font-family:arial; font-size:22px; color:#333399; font-weight:bold; text-decoration:none; }
+.az72s  { font-family:arial; font-size:22px; color:#333399; font-weight:bold; text-decoration:underline; }
+.az8   { font-family:arial; font-size:14px; color:#4A55E4; font-weight:bold; text-decoration:none; }
+.az9   { font-family:arial; font-size:16px; color:#556587; font-weight:bold; text-decoration:underline; }
+.az9 A:hover { color:white; text-decoration:none; }
+
+.az13  { font-family:arial; font-size:12px; color:#0063dc; text-decoration:none; }
+.az14  { font-family:arial; font-size:12px; color:#0063dc; font-weight:bold; text-decoration:none; }
+.az131 { font-family:arial; font-size:11px; color:#0063dc; text-decoration:none; }
+.az141 { font-family:arial; font-size:11px; color:#0063dc; font-weight:bold; text-decoration:none; }
+.az132 { font-family:arial; font-size:10px; color:#0063dc; text-decoration:none; }
+.az142 { font-family:arial; font-size:10px; color:#0063dc; font-weight:bold; text-decoration:none; }
+
+
+.na1   { font-family:arial; font-size:11px; color:#EC8B22; text-decoration:none; }
+.na11  { font-family:arial; font-size:11px; color:#EC8B22; font-weight:bold; text-decoration:none; }
+.na2   { font-family:arial; font-size:20px; color:#EC8B22; font-weight:bold; text-decoration:none; }
+.na21  { font-family:arial; font-size:11px; color:#FF4C12; text-decoration:none; }
+
+.ma1   { font-family:arial; font-size:40px; color:#800000; font-weight:bold; }
+.ma2   { font-family:arial; font-size:11px; color:#800000; font-weight:bold; }
+.ma3   { font-family:arial; font-size:12px; color:#800000; font-weight:bold; }
+.ma4   { font-family:arial; font-size:14px; color:#800000; font-weight:bold; text-decoration:none; }
+.ma5   { font-family:arial; font-size:11px; color:#800000; text-decoration:underline; }
+.ma6   { font-family:arial; font-size:10px; color:#800000; font-weight:bold; }
+
+.gr9   { font-family:arial; font-size:9px; color:gray; text-decoration:none; }
+.gr0   { font-family:arial; font-size:10px; color:gray; font-weight:bold; text-decoration:none; }
+.gr    { font-family:arial; font-size:11px; color:gray; text-decoration:none; }
+.gr11  { font-family:arial; font-size:12px; color:gray; text-decoration:none; }
+.gr12  { font-family:arial; font-size:14px; color:#AAAAAA; font-weight:bold; text-decoration:none; }
+.gr14  { font-family:arial; font-size:20px; color:#AAAAAA; font-weight:bold; text-decoration:none; }
+.gr1   { font-family:arial; font-size:14px; color:#666666; font-weight:bold; text-decoration:none; }
+.gr2_  { font-family:arial; font-size:12px; color:#6D6D6D; font-weight:bold; }
+.gr2   { font-family:arial; font-size:12px; color:#0000cf; font-weight:bold; }
+.gris1 { font-family:arial; font-size:12px; color:#666666; font-weight:bold; text-decoration:none; }
+.gr3   { font-family:arial; font-size:16px; color:#606060; text-decoration:none; }
+.gr4   { font-family:arial; font-size:12px; color:#606060; text-decoration:none; }
+.gr5   { font-family:arial; font-size:12px; color:#C8CCFF; text-decoration:none; }
+.gr6   { font-family:arial; font-size:11px; color:#606060; text-decoration:none; }
+
+.ve    { font-family:arial; font-size:11px; color:#2B9B30; }
+.ve1   { font-family:arial; font-size:12px; color:#339966; }
+.ve11  { font-family:arial; font-size:12px; color:#339966; font-weight:bold; }
+.ve4   { font-family:arial; font-size:14px; color:#296020; font-weight:bold; text-decoration:underline; }
+.ro1   { font-family:arial; font-size:12px; color:#FF0000; }
+
+.i     { border-style:solid; border-color:#000000; border-width:1px; font-family:arial; font-size:12px; font-weight:bold; color:#000000; }
+.ig    { border-style:solid; border-color:#888888; border-width:1px; font-family:arial; font-size:12px; }
+.b     { border-style:solid; border-color:#000000; border-width:1px; font-family:arial; font-size:12px; font-weight:bold; color:#000000; }
+.b1    { border-style:solid; border-color:#000000; border-width:1px; font-family:arial; font-size:10px; color:#000000; }
+.p     { font-size:11px; }
+
+.bcm1  { font-family:arial; font-size:13px; font-weight:bold; color:#800000; text-decoration:none; }
+.bcm2  { font-family:arial; font-size:13px; font-weight:bold; color:#EEEECC; text-decoration:none; }
+.bcmg1 { font-family:arial; font-size:15px; font-weight:bold; color:#800000; text-decoration:none; }
+.bcmg2 { font-family:arial; font-size:15px; font-weight:bold; color:#EEEECC; text-decoration:none; }
+
+.s     { font-family:arial; font-size:14px; color:#556587; font-weight:bold; text-decoration:none; }
+.u     { font-family:arial; font-size:14px; color:#FFFFFF; font-weight:bold; text-decoration:none; }
+.ss    { font-family:arial; font-size:12px; color:#556587; font-weight:bold; text-decoration:none; }
+.uu    { font-family:arial; font-size:12px; color:#FFFFFF; font-weight:bold; text-decoration:none; }
+.rs    { font-family:arial; font-size:12px; color:#FF5555; font-weight:bold; text-decoration:none; }
+.ru    { font-family:arial; font-size:12px; color:#FFFFFF; font-weight:bold; text-decoration:none; }
+
+.bb    { font-family:arial; font-size:14px; text-decoration:underline; color:#FFFFFF; font-weight:bold; border:1px solid #000066; background-color:#000066; }
+.bg    { font-family:arial; font-size:14px; text-decoration:underline; color:#AAAAAA; font-weight:bold; border:1px solid #000066; background-color:#000066; }
+.bbs   { font-family:arial; font-size:14px; text-decoration:underline; color:#FFFFFF; font-weight:bold; border:1px solid #000066; background-color:#000066; cursor:pointer; }
+.bgs   { font-family:arial; font-size:14px; text-decoration:underline; color:#AAAAAA; font-weight:bold; border:1px solid #000066; background-color:#000066; cursor:pointer; }
+
+.bb1   { font-family:arial; font-size:13px; color:#FFFFFF; font-weight:bold; border:1px solid #FFFFFF; background-color:#000066; }
+.bg1   { font-family:arial; font-size:13px; color:#AAAAAA; font-weight:bold; border:1px solid #AAAAAA; background-color:#000066; }
+.bb1s  { font-family:arial; font-size:13px; text-decoration:underline; color:#FFFFFF; font-weight:bold; border:1px solid #FFFFFF; background-color:#000066; cursor:pointer; }
+.bg1s  { font-family:arial; font-size:13px; text-decoration:underline; color:#AAAAAA; font-weight:bold; border:1px solid #AAAAAA; background-color:#000066; cursor:pointer; }
+
+.tab   { background-image:url('images/foff.gif'); padding-top:8px }
+.taba  { background-image:url('images/fba.gif'); }
+.tabaon { background-image:url('images/fbaon.gif'); }
+.tabon { background-image:url('images/fon.gif'); }
+.tabfn { background-image:url('images/fn.gif'); }
+.tabfna { background-image:url('images/fnba.gif'); }
+
+.ann     { font-family:arial; font-size:13px; font-weight: bold; text-decoration:none; border:1px solid #ddd; background-color:#eee; padding:3px; margin-bottom:10px; }
+.frame { border: 1px solid #08459C; }
+.grey   { font-family:arial; font-size:9px; color:#EEEEEE; }
+.title  { font-family:arial; font-size:60px; color:#800000; font-weight:bold; }
+.date{ font-family:arial; font-size:10px; font-style:italic }
+.visible { display:block; }
+.hidden { display:none;overflow:hidden; }
+
+.cyellow { background-color: #FFFFDD; }
+.cyellow2 { background-color: #FFFFBB; }
+.cgray1 { background-color: #EEEEEE; }
+.cgray2 { background-color: #F2F2F2; }
+
+.noborder {
+    border-width: 0px;
+}
+.nobborder {
+	border-width: 0px;
+	text-align: left;
+	background: transparent;
+}
+.btn
+{
+   background: #cccccc url(../pixmaps/theme/bg_button.png) 50% 50% repeat-x; font-size: 10px; color: #222222; text-align: center;
+}
+input.btn:hover
+{
+   border:1px solid #02A705;
+   background: #4AC600 url(../pixmaps/theme/bg_button_on.png) 50% 50% repeat-x; color: #FFFFFF;
+}
+
+

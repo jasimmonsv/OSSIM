@@ -1,0 +1,325 @@
+ossim-agent (1:2.3-1) unstable; urgency=low
+
+  * Fixed VLAN capabilities in the unified 2 parser
+
+ -- Alberto Roman <aroman@ossim.net>  Tue, 22 Jun 2010 11:41:53 +0100
+
+ossim-agent (1:2.3) unstable; urgency=low
+
+  * new version with some fixes.
+
+ -- Alberto Roman <aroman@ossim.net>  Tue, 22 Jun 2010 11:41:53 +0100
+
+ossim-agent (1:2.2.4-1) unstable; urgency=low
+
+  * new version.
+
+ -- Alberto Roman <aroman@ossim.net>  Tue, 18 May 2010 11:41:53 +0100
+
+ossim-agent (1:2.2.4) unstable; urgency=low
+
+  * Distributed agent scanning.
+  * Some bookmark support	
+
+ -- Alberto Roman <aroman@ossim.net>  Tue, 18 May 2010 11:41:53 +0100
+
+ossim-agent (1:2.2) unstable; urgency=low
+
+  * New version
+
+ -- Dominique Karg <dk@ossim.net>  Fri, 19 Feb 2010 11:41:53 +0100
+
+ossim-agent (1:2.1.7-3) unstable; urgency=low
+
+  * New plugins
+  * Alberto, don't mess with my versions :P
+
+ -- Dominique Karg <dk@ossim.net>  Wed, 16 Dec 2009 11:41:53 +0100
+
+ossim-agent (1:2.1.4-3) unstable; urgency=low
+
+  * Agent performance enhancements
+
+ -- Dominique Karg <dk@ossim.net>  Mon, 21 Sep 2009 11:41:53 +0100
+
+ossim-agent (1:2.1.4-2) unstable; urgency=low
+
+  * Fix netscreen NSM plugin.
+
+ -- Dominique Karg <dk@ossim.net>  Wed, 16 Sep 2009 11:41:53 +0100
+
+ossim-agent (1:2.1.4-1) unstable; urgency=low
+
+  * New release.
+
+ -- Dominique Karg <dk@ossim.net>  Wed, 16 Sep 2009 11:40:53 +0100
+
+ossim-agent (1:2.1.3-1) unstable; urgency=low
+
+  * New Radiator plugin along with updated Apache and Bind plugins.
+
+ -- Dominique Karg <dk@ossim.net>  Tue, 14 Jul 2009 11:40:53 +0100
+
+ossim-agent (1:2.1-4) unstable; urgency=low
+
+  * Add Lucent Brick plugin
+
+ -- Dominique Karg <dk@ossim.net>  Tue, 14 Jul 2009 11:40:53 +0100
+
+ossim-agent (1:2.1-3) unstable; urgency=low
+
+  * Fix normalize_date
+
+ -- Dominique Karg <dk@ossim.net>  Mon, 13 Jul 2009 11:40:53 +0100
+
+ossim-agent (1:2.1-2) unstable; urgency=low
+
+  * Minor version bumps for installer CD generation tests.
+
+ -- Dominique Karg <dk@ossim.net>  Thu, 09 Jul 2009 11:40:53 +0100
+
+ossim-agent (1:2.1-1) unstable; urgency=low
+
+  * Minor version bumps for installer CD generation tests.
+
+ -- Dominique Karg <dk@ossim.net>  Thu, 09 Jul 2009 11:40:53 +0100
+
+ossim-agent (1:2.1) unstable; urgency=low
+
+  * Prepare for release. Unifiy versioning information
+
+ -- Dominique Karg <dk@ossim.net>  Thu, 09 Jul 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090610-1) unstable; urgency=low
+
+  * Don't break postinst, removing since it hasn't been tested and has broken
+    lots of installations.
+  * TODO: Fix version assignment in postinst
+
+ -- Dominique Karg <dk@ossim.net>  Wed, 10 Jun 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090604-1) unstable; urgency=low
+
+  * New plugins
+
+ -- Dominique Karg <dk@ossim.net>  Thu, 04 Jun 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090526-1) unstable; urgency=low
+
+  * Bugfixes.
+  * A bunch of new plugins: sidewinder, sitescope, exchange, dhcp,
+    wmi-monitor.
+  * Send timestamp to server upon launch.
+
+ -- Dominique Karg <dk@ossim.net>  Tue, 26 May 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090512-1) unstable; urgency=low
+
+  * Bugfixes
+  * Monitor rule fixes
+
+ -- Dominique Karg <dk@ossim.net>  Tue, 12 May 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090428-1) unstable; urgency=low
+
+  * Monitor rule fixes
+  * New whois monitor
+
+ -- Dominique Karg <dk@ossim.net>  Tue, 28 Apr 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090415-1) unstable; urgency=low
+
+  * New Fortigate plugin
+  * Fix some Monitor plugin chars
+
+ -- Dominique Karg <dk@ossim.net>  Wed, 15 Apr 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090401-1) unstable; urgency=low
+
+  * Fix a snort parser problem when traffic contains vlan headers
+  * Fix agent restart, it could get stuck due to an old pidfile at times
+
+ -- Dominique Karg <dk@ossim.net>  Wed, 01 Apr 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090330-1) unstable; urgency=low
+
+  * New release
+  * Disable output server pro by default
+
+ -- Dominique Karg <dk@ossim.net>  Mon, 30 Mar 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090324-1) unstable; urgency=low
+
+  * New release
+  * normalize_date improvements
+
+ -- Dominique Karg <dk@ossim.net>  Tue, 24 Mar 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090313-1) unstable; urgency=low
+
+  * New release
+  * Add python-mssql as dependency
+  * Really add config.cfg.orig
+  * BSD --> GPL
+
+ -- Dominique Karg <dk@ossim.net>  Fri, 13 Mar 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090310-1) unstable; urgency=low
+
+  * New release
+  * New plugins
+  * Add config.cfg.orig
+  * Fortigate plugin fixes
+
+ -- Dominique Karg <dk@ossim.net>  Tue, 10 Mar 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090303-1) unstable; urgency=low
+
+  * New release
+  * New plugin
+
+ -- Dominique Karg <dk@ossim.net>  Tue, 03 Mar 2009 11:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090227-1) unstable; urgency=low
+
+  * New release, bugfixes.
+
+ -- Dominique Karg <dk@ossim.net>  Fri, 27 Feb 2009 17:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090226-1) unstable; urgency=low
+
+  * CVS snapshot.
+
+ -- Dominique Karg <dk@ossim.net>  Thu, 26 Feb 2009 17:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-4+cvs20090224) unstable; urgency=low
+
+  * CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Tue, 24 Feb 2009 10:40:53 +0100
+
+ossim-agent (1:1.0.0~rc1-3) unstable; urgency=low
+
+  * CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Tue, 25 Nov 2008 12:16:33 +0100
+
+ossim-agent (1:1.0.0~rc1-2) unstable; urgency=low
+
+  * New upstream release
+  * Epoch change broke some things. Thx dgil :P
+
+ -- DK <dk@ossim.net>  Tue, 03 Sep 2008 10:18:42 +0100
+
+ossim-agent (1:1.0.0~rc1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Juan Manuel Lorenzo <juanma@ossim.net>  Tue, 19 Aug 2008 10:18:42 +0100
+
+ossim-agent (1:0.9.9-4) unstable; urgency=low
+
+  * Fix some small issues with OSSEC multiline logs
+  * Fix snort unified prefix in snortunified.cfg
+
+ -- Juan Manuel Lorenzo <juanma@ossim.net>  Fri, 07 Mar 2008 11:32:02 +0100
+
+ossim-agent (1:0.9.9-3) unstable; urgency=low
+
+  * New upstream release.
+  * Fix security issues
+
+ -- Juan Manuel Lorenzo <juanma@ossim.net>  Fri, 22 Feb 2008 16:31:00 +0100
+
+ossim-agent (1:0.9.9-2) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Juan Manuel Lorenzo <juanma@ossim.net>  Wed, 20 Feb 2008 17:50:00 +0100
+
+ossim-agent (1:0.9.9-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- David Gil <dgil@ossim.net>  Tue, 19 Feb 2008 11:49:17 +0100
+
+ossim-agent (1:0.9.9~rc5+cvs20071026-1) unstable; urgency=low
+
+  * New CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Fri, 26 Oct 2007 08:04:26 +0200
+
+ossim-agent (1:0.9.9~rc5+cvs20071023-1) unstable; urgency=low
+
+  * New CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Tue, 23 Oct 2007 09:27:18 +0200
+
+ossim-agent (1:0.9.9~rc5-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- David Gil <dgil@ossim.net>  Tue, 09 Aug 2007 11:27:28 +0200
+
+ossim-agent (1:0.9.9~rc4-10) unstable; urgency=low
+
+  * New CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Mon, 16 Jul 2007 12:06:40 +0200
+
+ossim-agent (1:0.9.9~rc4-9) unstable; urgency=low
+
+  * New CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Thu, 28 Jun 2007 15:31:58 +0200
+
+ossim-agent (1:0.9.9~rc4-8) unstable; urgency=low
+
+  * New CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Mon, 25 Jun 2007 16:52:16 +0200
+
+ossim-agent (1:0.9.9~rc4-7) unstable; urgency=low
+
+  * New CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Wed, 13 Jun 2007 10:42:27 +0200
+
+ossim-agent (1:0.9.9~rc4-6) unstable; urgency=low
+
+  * New CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Tue, 22 May 2007 10:33:46 +0200
+
+ossim-agent (1:0.9.9~rc4-5) unstable; urgency=low
+
+  * New CVS snapshot.
+
+ -- David Gil <dgil@ossim.net>  Tue, 17 Apr 2007 17:02:50 +0200
+
+ossim-agent (1:0.9.9~rc4-4) unstable; urgency=low
+
+  * New CVS snapshot.
+  * debian/control: 
+    + Added a couple of plugins to the suggests field.
+    + Moved python-adodb from suggest to recommends field.
+
+ -- David Gil <dgil@ossim.net>  Wed, 11 Apr 2007 00:07:35 +0200
+
+ossim-agent (1:0.9.9~rc4-3) unstable; urgency=low
+
+  * Fixed ossim-agent.init script.
+
+ -- David Gil <dgil@ossim.net>  Mon, 02 Apr 2007 13:40:48 +0200
+
+ossim-agent (1:0.9.9~rc4-2) unstable; urgency=low
+
+  * Release
+
+ -- Juan Manuel Lorenzo <juanma@ossim.net>  Sun, 01 Apr 2007 00:00:00 +0200
+
+ossim-agent (1:0.9.9~rc4-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- David Gil <dgil@ossim.net>  Sat, 31 Mar 2007 13:12:36 +0200

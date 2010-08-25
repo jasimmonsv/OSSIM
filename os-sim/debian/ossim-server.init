@@ -1,0 +1,84 @@
+#! /bin/sh
+#
+
+set -e
+
+. /lib/lsb/init-functions
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="OSSIM Server"
+NAME=ossim-server
+DAEMON=/usr/bin/$NAME
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+
+# Gracefully exit if the package has been removed.
+test -x $DAEMON || exit 0
+
+# Default options
+OPTS="-d -c /etc/ossim/server/config.xml"
+
+# Read config file if it is present.
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+#
+#	Function that starts the daemon/service.
+#
+d_start() {
+    start-stop-daemon --start --quiet --pidfile $PIDFILE \
+        --exec $DAEMON -- $OPTS -d > /dev/null
+}
+
+#
+#	Function that stops the daemon/service.
+#
+d_stop() {
+	start-stop-daemon --quiet --stop --oknodo --pidfile $PIDFILE > /dev/null
+}
+
+d_restart() {
+    d_stop
+    sleep 1
+    d_start
+}
+
+#
+#	Function that sends a SIGHUP to the daemon/service.
+#
+d_reload() {
+	start-stop-daemon --stop --quiet --pidfile $PIDFILE \
+		--name $NAME --signal 1
+}
+
+case "$1" in
+  start)
+    log_daemon_msg "Starting $DESC" "$NAME"
+	if d_start ; then
+        log_end_msg $?
+    else
+        log_end_msg $?
+    fi
+	;;
+  stop)
+    log_daemon_msg "Stopping $DESC" "$NAME"
+    if d_stop ; then
+        log_end_msg $?
+    else
+        log_end_msg $?
+    fi
+	;;
+  restart|force-reload)
+    log_daemon_msg "Restarting $DESC" "$NAME"
+    if d_restart ; then
+        log_end_msg $?
+    else
+        log_end_msg $?
+    fi
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

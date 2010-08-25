@@ -1,0 +1,6 @@
+usr/lib/perl5/
+usr/share/ossim/scripts/
+usr/share/ossim/scripts/correlation/
+usr/share/ossim/scripts/extract_nessus/
+usr/share/ossim/scripts/extract_osvdb/
+etc/ossim/framework/
