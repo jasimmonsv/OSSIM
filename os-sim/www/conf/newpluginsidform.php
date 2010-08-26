@@ -66,16 +66,13 @@ $reliability = GET('reliability');
 $priority = GET('priority');
 
 ossim_valid($plugin, OSS_DIGIT, 'illegal:' . _("plugin"));
-if (ossim_error()) {
-   die(ossim_error());
-}
 ossim_valid($name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("name"));
 ossim_valid($sid, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("sid"));
 ossim_valid($reliability, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("reliability"));
 ossim_valid($priority, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("priority"));
 
 if (ossim_error()) {
-   ossim_error();
+   die(ossim_error());
 }
 
 $db = new ossim_db();

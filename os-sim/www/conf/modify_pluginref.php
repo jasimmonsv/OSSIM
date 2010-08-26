@@ -121,7 +121,7 @@ if ($message != "") {
     echo "<center>$message</center>";
 }
 ?>
-<table align="center">
+<table align="center" class="transparent">
 <form name="frules" method="get">
 <input type="hidden" name="id" value="<?=$id1?>">
 <input type="hidden" name="ref_id" value="<?=$id2?>">
@@ -134,9 +134,7 @@ if ($message != "") {
 <?php
 $plugin_list = Plugin::get_list($conn, "ORDER BY id", 0);
 if ($message==""){ ?>
-	<tr>
-		<td class="" colspan=2><?=_('Change Reference')?></td>
-	</tr>
+	<tr><th colspan="2" style="padding:5px;font-size:12px"><?php echo _("Change Cross-Correlation rule") ?></th></tr>
 	<tr>
         <td class="nobborder" style="text-align:center;padding:20px"><?=_("Plugin ID:")?> 
 		<select name="plugin_id1" onchange="load_sid(1,document.frules.plugin_id1.value);">
@@ -202,7 +200,7 @@ if ($message==""){ ?>
 	</tr>
 	
 	<tr>
-		<td colspan="2" class="nobborder" style="text-align:center"><input type="button" class="btn" value="<?=_('Change ruled')?>" onclick="formsubmit()">&nbsp;<input type="button" class="btn" value="<?=_('BACK')?>" onclick="document.location='pluginref2.php'"></td>
+		<td colspan="2" class="nobborder" style="text-align:center"><input type="button" class="btn" value="<?=_('Change rule')?>" onclick="formsubmit()">&nbsp;<input type="button" class="btn" value="<?=_('BACK')?>" onclick="document.location='pluginref2.php'"></td>
 	</tr>
 	<? } ?>
 </form>	

@@ -50,9 +50,11 @@ echo gettext("Priority and Reliability configuration"); ?> </title>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
   <script type="text/javascript" src="../js/urlencode.js"></script>
+  <script type="text/javascript" src="../js/greybox.js"></script>
 </head>
 <body>
 
@@ -78,6 +80,13 @@ include ("../hmenu.php"); ?>
 			padding:0px; margin:0px;
 		}
 	</style>
+	<!-- 
+	<table width="100%">
+		<tr>
+			<td align="left" style="padding-top:10px;padding-bottom:10px;text-align:left"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo _("Insert Rule")?>" title="<?php echo _("Insert Rule")?>" align="absmiddle"></img> <a href="pluginrefrules.php" class="greybox"><?php echo _("<b>Insert</b> Cross-Correlation Rule")?></a></td>
+		</tr>
+	</table>
+	 -->
 	<table id="flextable" style="display:none"></table>
 	<script>
 	function get_width(id) {
@@ -85,6 +94,29 @@ include ("../hmenu.php"); ?>
 			return document.getElementById(id).offsetWidth-20;
 		else
 			return 700;
+	}
+	function action(com,grid) {
+		var items = $('.trSelected', grid);
+		if (com=='<?=_("Delete selected")?>') {
+			//Delete host by ajax
+			if (typeof(items[0]) != 'undefined') {
+				var aux = items[0].id.substr(3);
+				var auxarr = aux.split(/\_/);
+				document.location.href = 'delete_pluginref.php?id='+auxarr[0]+'&sid='+auxarr[1]+'&ref_id='+auxarr[2]+'&ref_sid='+auxarr[3];
+			}
+			else alert('You must select a rule');
+		}
+		else if (com=='<?=_("Modify")?>') {
+			if (typeof(items[0]) != 'undefined') {
+				var aux = items[0].id.substr(3);
+				var auxarr = aux.split(/\_/);
+				document.location.href = 'modify_pluginref.php?id='+auxarr[0]+'&sid='+auxarr[1]+'&ref_id='+auxarr[2]+'&ref_sid='+auxarr[3];
+			}
+			else alert('You must select a rule');
+		}
+		else if (com=='<?=_("New")?>') {
+			document.location.href = 'pluginrefrules.php'
+		}
 	}
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_('Saving column layout')?>...',false);
@@ -100,19 +132,17 @@ include ("../hmenu.php"); ?>
 		});
 	}
 	$(document).ready(function() {
+		$("a.greybox").click(function(){
+			var t = this.title || $(this).text() || this.href;
+			GB_show(t,this.href,300,700);
+			return false;
+		});
 		$("#flextable").flexigrid({
 			url: 'getpluginref.php',
 			dataType: 'xml',
 			colModel : [
 			<?php
 $default = array(
-    "Action" => array(
-        _('Action'),
-        50,
-        'false',
-        'center',
-        false
-    ) ,
     "name" => array(
         _('Plugin Name'),
         100,
@@ -145,6 +175,14 @@ $default = array(
 list($colModel, $sortname, $sortorder) = print_layout($layout, $default, "id", "asc");
 echo "$colModel\n";
 ?>
+				],
+			buttons : [
+				{name: '<?=_("New")?>', bclass: 'add', onpress : action},
+				{separator: true},
+				{name: '<?=_("Modify")?>', bclass: 'modify', onpress : action},
+				{separator: true},
+				{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
+				{separator: true}
 				],
 			searchitems : [
 				{display: '<?=_('Plugin Name')?>', name : 'name', isdefault: true},

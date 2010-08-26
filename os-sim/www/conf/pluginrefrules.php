@@ -108,7 +108,7 @@ if ($plugin_id1!="" && $plugin_id2!="" && $plugin_sid1!="" && $plugin_sid2!="") 
 }
 
 ?>
-<table align="center">
+<table align="center" style="border:0px;background-color:transparent">
 <form name="frules" method="get">
 <input type="hidden" name="plugin_sid1" value="">
 <input type="hidden" name="plugin_sid2" value="">
@@ -116,13 +116,11 @@ if ($plugin_id1!="" && $plugin_id2!="" && $plugin_sid1!="" && $plugin_sid2!="") 
 $plugin_list = Plugin::get_list($conn, "ORDER BY id", 0);
 ?>
 	<? if ($message != "") { ?>
-	<tr><td class="" colspan=2 id="message" class="nobborder" style="text-align:center">
+	<tr><td class="" colspan=2 id="message" class="nobborder" style="text-align:center;border:0px">
 	<?=$message?>
 	</td></tr>
 	<? } ?>
-	<tr>
-		<td class="" colspan=2><?=_('New Reference')?></td>
-	</tr>
+	<tr><th colspan="2" style="padding:5px;font-size:12px"><?php echo _("Insert new Cross-Correlation rule") ?></th></tr>
 	<tr>
         <td class="nobborder" style="text-align:center;padding:20px"><?=_("Plugin ID:")?> 
 		<select name="plugin_id1" onchange="load_sid(1,document.frules.plugin_id1.value);">
@@ -158,7 +156,11 @@ $plugin_list = Plugin::get_list($conn, "ORDER BY id", 0);
 	</tr>
 	
 	<tr>
-		<td colspan="2" class="nobborder" style="text-align:center"><input type="button" class="btn" value="<?=_("Create rule")?>" onclick="formsubmit()"></td></tr>
+		<td colspan="2" class="nobborder" style="text-align:center">
+			<input type="button" class="btn" value="<?php echo _("BACK") ?>" onclick="document.location.href='pluginref2.php'">
+			&nbsp;<input type="button" class="btn" value="<?=_("Create rule")?>" onclick="formsubmit()">
+		</td>
+	</tr>
 </form>	
 </table>
 

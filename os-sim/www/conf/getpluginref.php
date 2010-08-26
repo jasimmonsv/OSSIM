@@ -92,10 +92,10 @@ if ($plugin_list = Plugin_reference::get_list2($conn, "$where ORDER BY $order $l
         $sid = $plugin->get_plugin_sid();
         $ref_id = $plugin->get_reference_id();
         $ref_sid = $plugin->get_reference_sid();
-        $xml.= "<row id='$id'>";
+        $xml.= "<row id='$id"."_"."$sid"."_"."$ref_id"."_"."$ref_sid'>";
         $lnk = "<a href='modify_pluginref.php?id=$id&sid=$sid&ref_id=$ref_id&ref_sid=$ref_sid'><img src='../pixmaps/script--pencil.png' alt='Edit' title='Edit' border=0></a>";
         $lnk_del = "<a href='delete_pluginref.php?id=$id&sid=$sid&ref_id=$ref_id&ref_sid=$ref_sid'><img src='../pixmaps/cross-circle-frame.png' border=0 alt='Delete' title='Delete'></a>";
-		$xml.= "<cell><![CDATA[" . $lnk . "&nbsp;&nbsp;".$lnk_del."]]></cell>";
+		//$xml.= "<cell><![CDATA[" . $lnk . "&nbsp;&nbsp;".$lnk_del."]]></cell>";
         $xml.= "<cell><![CDATA[" . Plugin::get_name_by_id($conn,$id) . "]]></cell>";
 		$xml.= "<cell><![CDATA[" . Plugin_sid::get_name_by_idsid($conn,$id,$sid) . "]]></cell>";
         $xml.= "<cell><![CDATA[" . Plugin::get_name_by_id($conn,$ref_id) . "]]></cell>";
