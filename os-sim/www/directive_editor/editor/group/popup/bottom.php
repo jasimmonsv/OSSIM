@@ -7,45 +7,45 @@
 
 		<script type="text/javascript" language="JavaScript">
 
-			function cancel() {
+	function cancel() {
         var fenetre = window.parent.window.parent.document.getElementById('fenetre');
         var fond = window.parent.window.parent.document.getElementById('fond');
         fenetre.childNodes[0].src = "";
 				fenetre.style.display = 'none';
 				fond.style.display = 'none';
-			}
+	}
       
-			function ok(param) {
-
+	function ok(param) {
+alert(window.parent.document.getElementById("bottom"));
         var chemin = window.parent.window.parent.document.getElementById("bottom").contentWindow;
-				if (param == "directive_id") {
+		if (param == "directive_id") {
 
-					var chks = parent.frames[0].document.getElementsByName("chk");
+			var chks = parent.frames[0].document.getElementsByName("chk");
 
-					var result = "";
+			var result = "";
 
-					for (i = 0; i < chks.length; i++) {
+			for (i = 0; i < chks.length; i++) {
 
-						var new_value = chks[i].value;
+				var new_value = chks[i].value;
 
-						if (chks[i].checked != "") {
+				if (chks[i].checked != "") {
 
-							comma = (result == "") ? "" : ",";
-							result += comma + new_value;
-						}
-					}
-
-					var list = chemin.document.getElementById("list");
-
-					list.value =result;
-
-					list.title = list.value;
-
-					chemin.onChangelist();
-
-					cancel();
+					comma = (result == "") ? "" : ",";
+					result += comma + new_value;
 				}
+			}
+
+			var list = chemin.document.getElementById("list");
+
+			list.value =result;
+
+			list.title = list.value;
+
+			chemin.onChangelist();
+
+			cancel();
 		}
+	}
 
 		</script>
 	</head>
@@ -96,13 +96,6 @@ if (ossim_error()) {
     die(ossim_error());
 }
 ?>
-		
-    <div style="
-      background-color:#17457c;
-      width:100%;
-      position:fixed;
-      height:2px;
-      left:0px;"></div>
 		<center>
 			<button style="width: 80px; margin-top:8px; cursor:pointer;"
 				id="cancel"

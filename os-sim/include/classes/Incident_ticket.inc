@@ -165,6 +165,7 @@ class Incident_ticket {
             'transferred' => array(
                 OSS_ALPHA,
                 OSS_NULLABLE,
+                OSS_DIGIT,
                 'error:' . _("Invalid transferred login format")
             ) ,
             'tag' => array(
@@ -363,7 +364,8 @@ class Incident_ticket {
         $body_tpl = Incident_ticket::get_email_template('body');
         $subject = Incident_ticket::build_email_template($subject_tpl, $values);
         $body = Incident_ticket::build_email_template($body_tpl, $values);
-        $users = Incident::get_subscribed_users($conn, $incident_id);
+        $users = Incident::get_subscribed_users($conn, $incident_id, $values['IN_CHARGE_LOGIN']);
+        
         $error = '';
         foreach($users as $user) {
             if (!$user['email']) {
@@ -489,12 +491,26 @@ class Incident_ticket {
         // In charge details
         //
         $login = $incident->get_in_charge();
-        list($in_charge) = Session::get_list($conn, "WHERE login = '$login'");
-        $values['IN_CHARGE_LOGIN'] = $login;
-        $values['IN_CHARGE_NAME'] = $in_charge->get_name();
-        $values['IN_CHARGE_EMAIL'] = $in_charge->get_email();
-        $values['IN_CHARGE_DPTO'] = $in_charge->get_department();
-        $values['IN_CHARGE_COMPANY'] = $in_charge->get_company();
+        
+        if (preg_match("/^\d+$/",$login)) { 
+            $all_entities = $name_entities = array();
+            $all_entities = Acl::get_entities($conn);
+            foreach($all_entities[0] as $data_entities) $name_entities[$data_entities["id"]] = $data_entities["name"];
+
+            $values['IN_CHARGE_LOGIN'] = $login;
+            $values['IN_CHARGE_NAME'] = $name_entities[$login];
+            $values['IN_CHARGE_EMAIL'] = "";
+            $values['IN_CHARGE_DPTO'] = "";
+            $values['IN_CHARGE_COMPANY'] = "";
+        } else {
+            list($in_charge) = Session::get_list($conn, "WHERE login = '$login'");
+            $values['IN_CHARGE_LOGIN'] = $login;
+            $values['IN_CHARGE_NAME'] = $in_charge->get_name();
+            $values['IN_CHARGE_EMAIL'] = $in_charge->get_email();
+            $values['IN_CHARGE_DPTO'] = $in_charge->get_department();
+            $values['IN_CHARGE_COMPANY'] = $in_charge->get_company();
+        }
+        
         return $values;
     }
     function get_email_template($type) {

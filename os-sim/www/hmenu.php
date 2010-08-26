@@ -71,11 +71,13 @@ if ($menu_opc != "" && $menu_sopc != "") {
     }
     include ("menu_options.php");
 ?>
-<div style="position:absolute;left:0px;top:0px;width:100%;background:#8E8E8E">
-	<table width="100%" class="noborder" border=0 cellpadding=0 cellspacing=0 style="background:transparent"><tr>
-	<td style="width:15px;border-bottom:1px solid #8E8E8E;vertical-align:bottom">&nbsp;</td>
-	<td class="nobborder" style="padding-top:7px">
-		<table class="noborder" border=0 cellpadding=0 cellspacing=0 style="background:transparent"><tr>
+<div style="position:absolute;left:0px;top:0px;width:100%;background:#8E8E8E;">
+	<table width="100%" class="noborder" border='0' cellpadding='0' cellspacing='0' style="background:transparent;">
+		<tr>
+			<td style="width:15px;border-bottom:1px solid #8E8E8E;vertical-align:bottom">&nbsp;</td>
+			<td class="nobborder" style="padding-top:7px;">
+				<table class="noborder" width="100%" border='0' cellpadding='0' cellspacing='0' style="background:transparent;">
+					<tr>
 	<?php
     if (!isset($language)) $language = "";
     if ($hmenu[$menu_opc]) {
@@ -93,67 +95,81 @@ if ($menu_opc != "" && $menu_sopc != "") {
             if ($op["id"] == $menu_sopc) {
                 $help = $j;
 ?>
-				<td style="vertical-align:bottom" class="nobborder">
-					<table class="noborder" border=0 cellpadding=0 cellspacing=0 height="26"><tr>
-					<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl<?php echo ($j > 0) ? "2" : "" ?>.gif" border=0></td>
-					<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding:0px 15px 0px 15px" nowrap><a href="<?php echo $url ?>" <?php echo ($op["target"] != "") ? "target='" . $op["target"] . "'" : "" ?> class="gristabon"><?php echo $txtsopc ?></a></td>
-					<td width="16" class="nobborder"><img src="../pixmaps/menu/tsr<?php echo ($j == $tabs) ? "2" : "" ?>.gif" border=0></td>
-					<tr></table>
-				</td>
-		<?php
-            } else {
-?>
-				<td style="vertical-align:bottom" class="nobborder">
-					<table class="noborder" border=0 cellpadding=0 cellspacing=0 height="26"><tr>
-					<?php
-                if ($hmenu[$menu_opc][$j - 1]["id"] != $menu_sopc) { ?><td width="16" class="nobborder"><img src="../pixmaps/menu/tul<?php echo ($j == 0) ? "2" : "" ?>.gif" border=0></td><?php
-                } ?>
-					<td class="nobborder" height="26" style="background:url(../pixmaps/menu/bgtu.gif) repeat-x bottom left;padding:0px 10px 0px 10px" nowrap><a href="<?php echo $url
-?>" <?php echo ($op["target"] != "") ? "target='" . $op["target"] . "'" : "" ?> class="gristab"><?php echo $txtsopc ?></a></td>
-					<?php
-                if ($j == $tabs) { ?><td width="16" class="nobborder"><img src="../pixmaps/menu/tur.gif" border=0></td><?php
-                } ?>
-					<tr></table>
-				</td>
-		<?php
-            }
-        }
-    }
-?>
-		<td style="width:100%;border-bottom:1px solid #8E8E8E;vertical-align:bottom">&nbsp;</td>
-		</tr></table>
-	</td>
+						<td style="vertical-align:bottom" class="nobborder">
+							<table class="noborder" border='0' cellpadding='0' cellspacing='0' height="26">
+								<tr>
+									<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl<?php echo ($j > 0) ? "2" : "" ?>.gif" border='0'></td>
+									<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding:0px 15px 0px 15px" nowrap='nowrap'>
+										<a href="<?php echo $url ?>" <?php echo ($op["target"] != "") ? "target='" . $op["target"] . "'" : "" ?> class="gristabon"><?php echo $txtsopc ?></a>
+									</td>
+									<td width="16" class="nobborder"><img src="../pixmaps/menu/tsr<?php echo ($j == $tabs) ? "2" : "" ?>.gif" border='0'></td>
+								</tr>
+							</table>
+						</td>
+				<?php
+					} else {
+		?>
+						<td style="vertical-align:bottom" class="nobborder">
+							<table class="noborder" border='0' cellpadding='0' cellspacing='0' height="26">
+								<tr>
+								<?php
+								if ($hmenu[$menu_opc][$j - 1]["id"] != $menu_sopc) { ?>
+									<td width="16" class="nobborder"><img src="../pixmaps/menu/tul<?php echo ($j == 0) ? "2" : "" ?>.gif" border='0'></td>
+									<?php } ?>
+									<td class="nobborder" height="26" style="background:url(../pixmaps/menu/bgtu.gif) repeat-x bottom left;padding:0px 10px 0px 10px" nowrap='nowrap'>
+										<a href="<?php echo $url ?>" <?php echo ($op["target"] != "") ? "target='" . $op["target"] . "'" : "" ?> class="gristab"><?php echo $txtsopc ?></a>
+									</td>
+									<?php
+									if ($j == $tabs) { ?><td width="16" class="nobborder"><img src="../pixmaps/menu/tur.gif"  border='0'></td>
+									<?php } ?>
+								</tr>
+							</table>
+						</td>
+				<?php
+					}
+				}
+			}
+		?>
+						<td style="width:100%;border-bottom:1px solid #8E8E8E;vertical-align:bottom">&nbsp;</td>
+					</tr>
+				</table>
+			</td>
     
-    <td style="vertical-align:bottom;text-align:right;border:0px none" nowrap>
+			<td style="vertical-align:bottom;text-align:right;border:0px none;" nowrap='nowrap'>
 
-        <table cellpadding=0 cellspacing=0 border=0 align="right" style="margin:0px;padding:0px;background-color:transparent;border:0px none">
-        <tr>
-        <? if (count($rmenu[$menu_sopc])>0) {
-           foreach ($rmenu[$menu_sopc] as $i => $ropc) { ?>
-            <td align="right" class="white" style="background-color:transparent;border:0px none" nowrap>
-            <?=($i>0) ? "&nbsp;|&nbsp;" : "" ?><a class="white" href="<?=$ropc["url"]?>"<?=($ropc["target"]!="") ? "target='".$ropc["target"]."'" : "" ?>><?=$ropc["name"]?></a>
-            </td>
-        <?   }  
-           } 
-           if ($hmenu[$menu_opc][$help]["help"]!="") {
-         ?>
-           <td style="vertical-align:bottom;padding:0px;padding-left:15px" class="nobborder">
-				<table class="noborder" border=0 cellpadding=0 cellspacing=0 height="26"><tr>
-				<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl.gif" border=0></td>
-				<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding-right:4px" nowrap>
-					<a href="<?=$hmenu[$menu_opc][$help]["help"]?>"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" title="<?=_("Help")?>"></b></a>
-				</td>
-				<!--<td width="16" class="nobborder"><img src="../pixmaps/menu/tsr<?php echo ($j == $tabs) ? "2" : "" ?>.gif" border=0></td>-->
-				<tr></table>
-		   </td>
-        <?   }  ?>
-        </tr>
-        </table>
-
-    </td>
-	<!--<td style="width:5px;border-bottom:1px solid #8E8E8E;vertical-align:bottom">&nbsp;</td>-->
-	</tr></table>
+				<table align='right' cellpadding='0' cellspacing='0' border='0' style="margin:0px;padding:0px;background-color:transparent;border:0px none;">
+					<tr>
+					<? if (count($rmenu[$menu_sopc])>0) {
+					   foreach ($rmenu[$menu_sopc] as $i => $ropc) { ?>
+						<td align="right" class="white" style="background-color:transparent;border:0px none;" nowrap='nowrap'>
+						<?=($i>0) ? "&nbsp;|&nbsp;" : "" ?><a class="white" href="<?=$ropc["url"]?>"<?=($ropc["target"]!="") ? "target='".$ropc["target"]."'" : "" ?>><?=$ropc["name"]?></a>
+						</td>
+					<?   }  
+					   } 
+					   if ($hmenu[$menu_opc][$help]["help"]!="") {
+					 ?>
+					   <td align="right" style="vertical-align:bottom;padding:0px;padding-left:15px;" class="nobborder">
+							<table class="noborder" border='0' cellpadding='0' cellspacing='0' height="26">
+								<tr>
+									<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl.gif" border='0'></td>
+									<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding-right:4px" nowrap='nowrap'>
+										<a href="<?=$hmenu[$menu_opc][$help]["help"]?>"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" title="<?=_("Help")?>"></b></a>
+									</td>
+									<!--<td width="16" class="nobborder"><img src="../pixmaps/menu/tsr<?php echo ($j == $tabs) ? "2" : "" ?>.gif" border='0'></td>-->
+								</tr>
+							</table>
+					   </td>
+					<?   }  ?>
+					</tr>
+				</table>
+			</td>
+			<!--<td style="width:5px;border-bottom:1px solid #8E8E8E;vertical-align:bottom">&nbsp;</td>-->
+		</tr>
+	</table>
 </div>
-<table width="100%" class="noborder" style="background-color:transparent" border=0 cellpadding=0 cellspacing=0><tr><td height="36" class="nobborder">&nbsp;</td></tr></table>
+
+<table width="100%" class="noborder" style="background-color:transparent;" border='0' cellpadding='0' cellspacing='0'>
+	<tr><td height="36" class="nobborder">&nbsp;</td></tr>
+</table>
 <?php
 } ?>

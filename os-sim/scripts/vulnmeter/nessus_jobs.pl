@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl -w 
 #
 ###############################################################################
 #
@@ -146,6 +146,7 @@ use MIME::Base64;
 use Net::IP;
 #use Net::Nslookup;
 #use Net::Netmask;
+use Date::Manip;
 use MIME::Lite;
 use Date::Calc qw( Delta_DHMS Add_Delta_YMD Days_in_Month );
 use Getopt::Std;
@@ -3328,31 +3329,102 @@ sub get_prefs {
 sub gen_sched_next_scan {
     my ( $schedid, $schedule_type ) = @_;
 
-    my ( $sth_sel, $sql );
+    my ( $sth_sel, $sql, $next_run );   
 
     #RECODED TO ELIMINATE THE NON-SENSE
-    if ($schedule_type eq "D") {
-        $sql = qq{ SELECT next_CHECK + INTERVAL 1 DAY FROM vuln_job_schedule WHERE id='$schedid' };
-    } elsif ($schedule_type eq "W") {
-        $sql = qq{ SELECT next_CHECK + INTERVAL 7 DAY FROM vuln_job_schedule WHERE id='$schedid' };
-    } elsif ($schedule_type eq "M") {
-        $sql = qq{ SELECT next_CHECK + INTERVAL 1 MONTH FROM vuln_job_schedule WHERE id='$schedid' };
-    };
+    
+    if ($schedule_type ne "NW") {
+        if ($schedule_type eq "D") {
+            $sql = qq{ SELECT next_CHECK + INTERVAL 1 DAY FROM vuln_job_schedule WHERE id='$schedid' };
+        } elsif ($schedule_type eq "O") {
+            $sql = qq{ DELETE FROM vuln_job_schedule WHERE id='$schedid' };
+        } elsif ($schedule_type eq "W") {
+            $sql = qq{ SELECT next_CHECK + INTERVAL 7 DAY FROM vuln_job_schedule WHERE id='$schedid' };
+        } elsif ($schedule_type eq "M") {
+            $sql = qq{ SELECT next_CHECK + INTERVAL 1 MONTH FROM vuln_job_schedule WHERE id='$schedid' }; 
+        };
 
-    $sth_sel = $dbh->prepare( $sql );
-    $sth_sel->execute(  );
-    my ( $next_run ) = $sth_sel->fetchrow_array(  );
+        if ($schedule_type ne "O") {
+            $sth_sel = $dbh->prepare( $sql );
+            $sth_sel->execute(  );
+            $next_run = $sth_sel->fetchrow_array(  ); 
 
-    $next_run  =~ s/://g;
-    $next_run  =~ s/-//g;
-    $next_run  =~ s/\s//g;
+            $next_run  =~ s/://g;
+            $next_run  =~ s/-//g;
+            $next_run  =~ s/\s//g;
+        }
+        else {
+            safe_db_write ( $sql, 4 );
+            $next_run = "00000000000000"; 
+        }
+    }
+    else {
+        my %day_of_week = ("Su" => "sunday", 
+                           "Mo" => "monday",
+                           "Tu" => "tuesday",
+                           "We" => "wednesday",
+                           "Th" => "thursday",
+                           "Fr" => "friday", 
+                           "Sa" => "saturday");
+        
+        my %day_of_month = ("1" => "first", 
+                            "2" => "second",
+                            "3" => "third",
+                            "4" => "fourth",
+                            "5" => "fifth");
+                            
+        my %months = ("1" => "january", 
+                      "2" => "february",
+                      "3" => "march",
+                      "4" => "april",
+                      "5" => "may",
+                      "6" => "june", 
+                      "7" => "july",
+                      "8" => "august",
+                      "9" => "september",
+                      "10" => "october",
+                      "11" => "november",
+                      "12" => "december");
+                            
+
+        $sql = qq{ SELECT day_of_week, day_of_month, next_CHECK FROM vuln_job_schedule WHERE id='$schedid' };
+        $sth_sel = $dbh->prepare( $sql );
+        $sth_sel->execute(  );
+        my ( $day_of_week_db, $day_of_month_db, $next_check_db ) = $sth_sel->fetchrow_array(  );
+
+        my ($year, $month) = (localtime(time()))[5,4];
+        $year+=1900;
+        $month+=1;
+
+        my $m;
+
+        do {
+            $month+=1;
+            if($month==13){
+                $month=1; 
+                $year++;
+            }
+            $next_run = ParseDate($day_of_month{$day_of_month_db}." ".$day_of_week{$day_of_week_db}." in ".$months{$month}." ".$year);
+            #print $day_of_month{$day_of_month_db}." ".$day_of_week{$day_of_week_db}." in ".$months{$month}." ".$year."\n";
+            $m = $next_run;
+            $m =~ s/^....(..).*/$1/;
+            $m =~ s/^0(.)/$1/;
+        } while($m ne $month);
+
+        $next_check_db =~ s/........(......)/$1/;
+        $next_run =~ s/^(........).*/$1/;
+        $next_run = $next_run.$next_check_db; # date and time
+
+    }
 
     logwriter( "\tnextscan=$next_run", 4 );
 
-    $sql = qq{ UPDATE vuln_job_schedule SET next_CHECK='$next_run' WHERE id='$schedid' };
-    safe_db_write ( $sql, 4 );            #use insert/update routine
+    if ($schedule_type ne "O") {
+        $sql = qq{ UPDATE vuln_job_schedule SET next_CHECK='$next_run' WHERE id='$schedid' };
+        safe_db_write ( $sql, 4 );            #use insert/update routine   
+    }
 
-    return $next_run;
+    return $next_run; 
 }
 
 sub get_live_subnets {

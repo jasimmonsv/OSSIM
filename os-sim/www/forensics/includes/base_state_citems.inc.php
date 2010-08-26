@@ -269,7 +269,7 @@ class SingleElementCriteria extends BaseCriteria {
         $_SESSION[$this->export_name] = & $this->criteria;
     }
     function Sanitize() {
-        $this->SanitizeElement();
+    	$this->SanitizeElement();
     }
     function GetFormItemCnt() {
         return -1;
@@ -726,6 +726,25 @@ class PluginGroupCriteria extends SingleElementCriteria {
         return $tmp;
     }
 }; /* PluginGroupCriteria */
+class UserDataCriteria extends SingleElementCriteria {
+    function Init() {
+        $this->criteria = "";
+    }
+    function Clear() {
+    }
+    function SanitizeElement() {
+        //$this->criteria = CleanVariable($this->criteria, VAR_DIGIT);
+    }
+    function PrintForm() {
+    }
+    function ToSQL() {
+    }
+    function Description() {
+        $tmp = "";
+        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("User data") . ' = (' . $this->criteria .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        return $tmp;
+    }
+}; /* UserDataCriteria */
 class SensorCriteria extends SingleElementCriteria {
     function Init() {
         $this->criteria = "";

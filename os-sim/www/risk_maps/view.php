@@ -38,7 +38,28 @@
 require_once 'ossim_db.inc';
 require_once 'classes/Session.inc';
 require_once 'classes/User_config.inc';
+require_once 'ossim_conf.inc';
+$conf = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
+
 Session::logcheck("MenuControlPanel", "BusinessProcesses");
+
+function mapAllowed($perms_arr,$version) {
+	if (Session::am_i_admin()) return true;
+	$ret = false;
+	foreach ($perms_arr as $perm=>$val) {
+		// ENTITY
+		if (preg_match("/^\d+$/",$perm)) {
+			if (preg_match("/pro/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) {
+				$ret = true;
+			}
+		// USER
+		} elseif (Session::get_session_user() == $perm) {
+			$ret = true;
+		}
+	}
+	return $ret;
+}
 
 $can_edit = false;
 
@@ -110,11 +131,21 @@ if ($_GET['default'] != "" && $map != "")
 $hide_others=1;
 
 ossim_valid($map, OSS_DIGIT, 'illegal:'._("type"));
-
 if (ossim_error()) {
-die(ossim_error());
+	die(ossim_error());
 }
 
+$perms = array();
+$query = "SELECT map,perm FROM risk_maps";
+$result = $conn->Execute($query);
+while (!$result->EOF) {
+	$perms[$result->fields['map']][$result->fields['perm']]++;
+    $result->MoveNext();
+}
+if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
+	echo "<br><br><center>"._("You don't have permission to see this Map $map.")."</center>";
+	exit;
+}
 ?>
 <script>
 	template_begin = '<table border=0 cellspacing=0 cellpadding=1 style="background-color:BGCOLOR"><tr><td colspan=2 class=ne1 align=center><i>NAME</i></td></tr><tr><td><a href="URL"><img src="ICON" width="SIZE" border=0></a></td><td>'
@@ -267,8 +298,9 @@ if(!$hide_others){
 	$maps = explode("\n",`ls -1 'maps' | grep -v CVS`);
 	$i=0; $n=0; $txtmaps = ""; $linkmaps = "";
 	foreach ($maps as $ico) if (trim($ico)!="") {
-	        if(!getimagesize("maps/" . $ico)){ continue;}
+	    if(!getimagesize("maps/" . $ico)){ continue;}
 		$n = str_replace("map","",str_replace(".jpg","",$ico));
+		if (is_array($perms[$n]) && !mapAllowed($perms[$n],$version)) continue;
 		$txtmaps .= "<td><a href='$SCRIPT_NAME?map=$n'><img src='maps/$ico' border=".(($map==$n) ? "2" : "0")." width=100 height=100></a></td>";
 		$i++; if ($i % 4 == 0) {
 			$txtmaps .= "</tr><tr>";

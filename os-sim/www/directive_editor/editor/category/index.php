@@ -87,20 +87,14 @@ echo $js_dir_category . '/category.js'; ?>"></script>
 	</head>
 
 	<body>
-  <div style="
-      background-color:#17457c;
-      width:100%;
-      position:fixed;
-      height:2px;
-      left:0px;"></div><br>
 	<!-- #################### main container #################### -->
 	<form method="POST" action="../../include/utils.php?query=save_category">
-	<table class="container" style="border-width: 0px" align="center">
+	<table class="container" style="border-width: 0px;background-color:transparent" align="center">
 	<tr>
 
 	<!-- #################### left container #################### -->
 	<td class="container" style="vertical-align: top">
-	<table class="container">
+	<table class="container" style="background-color:transparent">
 
 	<tr><td class="container">
 	<?php

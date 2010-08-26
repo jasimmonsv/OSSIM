@@ -38,6 +38,7 @@ require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
 Session::useractive("session/login.php");
 ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <title>OSSIM (Open Source Security Information Management)</title>
@@ -54,11 +55,15 @@ $version = $config->get_conf("ossim_server_version", FALSE);
 //
 ?>
 <table border=0 cellpadding=0 cellspacing=0 width="100%">
-<tr><td id="ossimlogo" style="background:url('pixmaps/top/bg_header.gif') repeat-x bottom left;height:65">
-  <table border=0 cellpadding=0 cellspacing=0 height="65">
-  <tr><td style="padding-left:10px"><img src="pixmaps/top/logo<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" border=0></td></tr>
-  </table>
-</td></tr>
+<tr>
+	<td id="ossimlogo" style="background:url('pixmaps/top/bg_header.gif') repeat-x bottom left;height:65">
+		<table border=0 cellpadding=0 cellspacing=0 height="65">
+		<tr>
+			<td style="padding-left:10px"><img src="pixmaps/top/logo<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" border='0'></td>
+		</tr>
+	  </table>
+	</td>
+</tr>
 <tr><td style="background:url('pixmaps/top/bg_darkgray.gif') repeat-x top left;height:2">&nbsp;</td></tr>
 </table>
 

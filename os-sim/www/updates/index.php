@@ -206,21 +206,21 @@ echo gettext("Updates"); ?> </title>
 	function updatenow(f) {
 		f.value_5.value=f.last.value;  
 		f.value_5.disabled = false;
-		f.submit();
-        
+		f.submit();  
+
 		top.frames['topmenu'].window.location.href='../top.php?option=0&soption=0';
 		top.frames['header'].location.reload();
 		//document.location.href='../panel/panel.php';
 	}
 	<?php
-	$update_checking = intval(GET('checking'));
-	?>
-	function init() {
-        <? if ($update_checking==1) { ?> updatenow(document.fs); <? } ?>
-		<? if ($update_checking==2) { ?> document.fs.submit(); <? } ?>  
-	} 
+    $update_checking = intval(GET('checking'));
+    ?>
+    function init() {
+        <? if ($update_checking==1) { ?> updatenow(document.fs); <? } ?> 
+        <? if ($update_checking==2) { ?> document.fs.submit(); <? } ?>
+    }
 </script>
-
+ 
 </head>
 <body onload="init()">
   <div id="numeroDiv" style="position:absolute; z-index:999; left:0px; top:0px; height:80px; visibility:hidden; display:none"></div>
@@ -322,7 +322,7 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
         command shell:");?><br><br>
             <b>apt-get update<br>
                apt-get dist-upgrade<br>
-			   ossim-reconfig</b>  
+               ossim-reconfig</b>  
            </p>
         </td>
     </tr>

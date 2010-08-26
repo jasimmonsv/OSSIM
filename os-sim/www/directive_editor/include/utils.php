@@ -429,8 +429,10 @@ elseif ($query == "add_rule") {
     $id = $_GET['id'];
     unset($_SESSION['rule']);
     list($id_dir, $id_rule, $id_father) = explode("-", $id);
+    $level = 1;
     if ($id_father != 0) {
-        $newlevel = $tab_rules[$id_father]->level + 1;
+        $level = $tab_rules[$id_father]->level;
+    	$newlevel = $tab_rules[$id_father]->level + 1;
         $tab_rules[$id_father]->nb_child = $tab_rules[$id_father]->nb_child + 1;
     } else {
         $newlevel = 1;
@@ -446,7 +448,8 @@ elseif ($query == "add_rule") {
         $posFinal=strrpos($directive_xml,'/');
         $directive_xml=substr($directive_xml, $posFinal+1);
     }
-    echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=$newlevel&action=add_rule&id=" . $id . "&directive_xml=" . $directive_xml . "','right')\"></body></html>";
+    //echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=$newlevel&action=add_rule&id=" . $id . "&directive_xml=" . $directive_xml . "','right')\"></body></html>";
+    echo "<script type='text/javascript'>document.location.href='../editor/rule/index.php?directive=$id_dir&level=$level&id=$id&nlevel=$newlevel'</script>";
 }
 /* create a new rule object with parameters from the form*/
 elseif ($query == "save_rule") {
@@ -504,6 +507,7 @@ elseif ($query == "save_rule") {
     $rule->sticky_different = $_POST["sticky_different"];
     $rule->iface = $_POST["iface"];
     $rule->filename = $_POST["filename"];
+    $rule->username = $_POST["username"];
     $rule->password = $_POST["password"];
     $rule->userdata1 = stripslashes($_POST["userdata1"]);
     $rule->userdata2 = stripslashes($_POST["userdata2"]);
@@ -645,7 +649,7 @@ elseif ($query == "save_directive") {
 	}
 	$XML_FILE = "/etc/ossim/server/".$_POST['category'];
 	$OLD_XML_FILE = "/etc/ossim/server/".$_POST['category_old'];
-    $dom = open_file($XML_FILE);
+	$dom = open_file($XML_FILE);
     $new_directive = $directive;
     $new_directive->id = $new_id;
     $new_directive->priority = $new_priority;
@@ -664,7 +668,7 @@ elseif ($query == "save_directive") {
         $directives->append_child($node);
         $dom->dump_file($XML_FILE);
         $new_rule_id = $new_id . "-1-0";
-        insert_dir_in_group($new_id, $new_group);
+        //insert_dir_in_group($new_id, $new_group);
         echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_directive->id . "&level=1&action=add_rule&id=" . $new_rule_id . "&nlevel=1'\"></body></html>";
     }
     /* if it amends an existing directive */
@@ -688,7 +692,7 @@ elseif ($query == "save_directive") {
         if ($OLD_XML_FILE == $XML_FILE) $dom2 = $dom;
         /* if changes category */
         else {
-            echo "Change category<br>";
+            //echo "Change category<br>";
 			$dom2 = open_file($OLD_XML_FILE);
         }
         $tab_directive = $dom2->get_elements_by_tagname('directive');
@@ -713,7 +717,6 @@ elseif ($query == "save_directive") {
     set_groups($old_id, $new_id, $new_group);
     $infolog = array($new_name);
     Log_action::log(85, $infolog);
-
     echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_directive->id . "&level=1'\"></body></html>";
 }
 /* Delete a directive */
@@ -760,7 +763,7 @@ elseif ($query == "add_directive") {
     $_SESSION['directive'] = serialize($directive);
     release_file($XML_FILE);
 
-    echo "<html><body onload=\"window.open('../right.php?add=1&directive=" . $id . "&level=1&action=edit_dir&id=" . $id . "&onlydir=$onlydir','right')\"></body></html>";
+    echo "<html><body onload=\"window.open('../right.php?add=1&directive=" . $id . "&level=1&action=edit_dir&id=" . $id . "&onlydir=$onlydir&xml_file=" . $category->xml_file . "','right')\"></body></html>";
 }
 /* copy a directive */
 elseif ($query == "copy_directive") {

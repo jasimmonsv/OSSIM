@@ -311,6 +311,7 @@ function PrintCriteria($caller) {
     $criteria_arr['meta'] = $cs->criteria['sensor']->Description();
     $criteria_arr['meta'].= $cs->criteria['plugin']->Description();
     $criteria_arr['meta'].= $cs->criteria['plugingroup']->Description();
+    $criteria_arr['meta'].= $cs->criteria['userdata']->Description();
     $criteria_arr['meta'].= $cs->criteria['sourcetype']->Description();
     $criteria_arr['meta'].= $cs->criteria['category']->Description();    
     $criteria_arr['meta'].= $cs->criteria['sig']->Description();
@@ -593,6 +594,7 @@ function ProcessCriteria() {
     $sensor = $cs->criteria['sensor']->criteria;
     $plugin = $cs->criteria['plugin']->criteria;
     $plugingroup = $cs->criteria['plugingroup']->criteria;
+    $userdata = $cs->criteria['userdata']->criteria;
     $sourcetype = $cs->criteria['sourcetype']->criteria;
     $category = $cs->criteria['category']->criteria;
     $time = $cs->criteria['time']->criteria;
@@ -649,6 +651,13 @@ function ProcessCriteria() {
             $tmp_meta = $tmp_meta . " AND ($pg_ids) ";
         else
             $tmp_meta = $tmp_meta." AND (acid_event.plugin_id=-1 AND acid_event.plugin_sid=-1)";
+    }
+    /* User Data */
+    //print_r($_SESSION);
+    //echo "User Data:$userdata";
+    if ($userdata != "") {
+    	$data_join_sql = ",extra_data ";
+    	$tmp_meta .= " AND acid_event.sid=extra_data.sid AND acid_event.cid=extra_data.cid AND (extra_data.userdata1 LIKE \"%$userdata%\" OR extra_data.userdata2 LIKE \"%$userdata%\" OR extra_data.userdata3 LIKE \"%$userdata%\" OR extra_data.userdata4 LIKE \"%$userdata%\" OR extra_data.userdata5 LIKE \"%$userdata%\" OR extra_data.userdata6 LIKE \"%$userdata%\" OR extra_data.userdata7 LIKE \"%$userdata%\" OR extra_data.userdata8 LIKE \"%$userdata%\" OR extra_data.userdata9 LIKE \"%$userdata%\")";
     }
     /* Source Type */
     if (trim($sourcetype) != "") $tmp_meta = $tmp_meta . " AND acid_event.plugin_id in (" . GetPluginListBySourceType($sourcetype) . ")";
@@ -869,7 +878,7 @@ function ProcessCriteria() {
     $join_sql = $join_sql . $data_join_sql;
     $csql[0] = $join_sql;
     $csql[1] = $criteria_sql;
-    // print_r($csql);
+    //print_r($csql);
     return $csql;
 }
 ?>

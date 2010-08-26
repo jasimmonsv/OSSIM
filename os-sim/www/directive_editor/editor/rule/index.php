@@ -68,6 +68,7 @@ $reliability2_width = "68px";
 		<link type="text/css" rel="stylesheet"
 			href="<?php
 echo $css_dir . '/directives.css'; ?>" />
+		<link rel="stylesheet" type="text/css" href="../../../style/greybox.css"/>
 
 		<style>
 			input.editable {width: <?php
@@ -75,7 +76,8 @@ echo $right_text_width; ?>}
 			select.editable {width: <?php
 echo $right_select_width; ?>}
 		</style>
-
+		<script type="text/javascript" src="../../../js/jquery-1.3.2.min.js"></script>
+		<script type="text/javascript" src="../../../js/greybox.js"></script>
 		<script type="text/javascript" language="javascript"
 			src="<?php
 echo $js_dir . '/editor.js'; ?>"></script>
@@ -134,27 +136,35 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
     }
     
    function open_frame(url){
-    var iframe = window.parent.document.getElementById('fenetre');
+		var title = "";
+		if (url.match(/top\=from/)) title = "<?php echo _("From")." ("._("Network").")" ?>";
+		if (url.match(/top\=to/)) title = "<?php echo _("To")." ("._("Network").")" ?>";
+		if (url.match(/top\=plugin\_sid/)) title = "<?php echo _("Plugin Sid") ?>";
+		if (url.match(/top\=plugin\_id/)) title = "<?php echo _("Plugin Id") ?>";
+		GB_show(title,'../../'+url,400,'90%');
+	/*
+	var iframe = window.parent.document.getElementById('fenetre');
     var fond = window.parent.document.getElementById('fond');
     iframe.childNodes[0].src = url;    
     taille();
     fond.style.display = 'block';
     iframe.style.display = 'block';
+	*/
    }
 
-		function change_page(){
-			var page1 = window.document.getElementById('page1');
-			var page2 = window.document.getElementById('page2');
+	function change_page(){
+		var page1 = window.document.getElementById('page1');
+		var page2 = window.document.getElementById('page2');
 
-			if (page1.style.display == 'block'){
-				page1.style.display = 'none';
-				page2.style.display = 'block';
-			}
-			else{
-				page1.style.display = 'block';
-				page2.style.display = 'none';
-			}
+		if (page1.style.display == 'block'){
+			page1.style.display = 'none';
+			page2.style.display = 'block';
 		}
+		else{
+			page1.style.display = 'block';
+			page2.style.display = 'none';
+		}
+	}
    </script>
 	</head>
 
@@ -172,12 +182,6 @@ echo isList($rule->port_to) ? $rule->port_to : ''; ?>',
 		'<?php
 echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 	)">
-  <div style="
-      background-color:#17457c;
-      width:100%;
-      position:fixed;
-      height:2px;
-      left:0px; top:0px;"></div><br>
 	<!-- #################### main container #################### -->
   <form method="POST" action="../../include/utils.php?query=save_rule">
 
@@ -262,7 +266,7 @@ echo $id; ?>" />
 echo getPluginType($rule->plugin_id); ?>" />
 		<input type="button" style="width: 100px; cursor:pointer;"
 			value="<?php
-echo gettext('Cancel'); ?>"
+echo gettext('Back'); ?>"
 			onclick="onClickCancel(<?php
 echo $directive . ',' . $new_level; ?>)"
 		/>
@@ -322,7 +326,7 @@ echo gettext('Previous'); ?>"
 						</span>
 						<input type="button" style="width: 100px; cursor:pointer;"
 							value="<?php
-echo gettext('Cancel'); ?>"
+echo gettext('Back'); ?>"
 							onclick="onClickCancel(<?php
 echo $directive . ',' . $new_level; ?>)"
 						/>

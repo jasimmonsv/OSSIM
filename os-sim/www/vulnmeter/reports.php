@@ -34,23 +34,31 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
 require_once 'classes/Host.inc';
+require_once 'classes/Sensor.inc';
+require_once 'classes/Incident.inc';
 
 $value = GET('value');
 $type = GET('type');
 $report_name = POST('report_name');
 $delete = GET('delete');
+$assignto = (POST('transferred_user')!="")? POST('transferred_user'):POST('transferred_entity');
 
-ossim_valid($value, OSS_TEXT, OSS_NULLABLE, 'illegal: value');
+ossim_valid($value, OSS_TEXT, OSS_NULLABLE, 'illegal: value');  
 ossim_valid($type, OSS_ALPHA, OSS_NULLABLE, 'illegal: type');
 ossim_valid($report_name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("Report name"));
 ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal: delete');
+ossim_valid($assignto, OSS_DIGIT, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal: delete');
+
+if($assignto=="") $assignto = Session::get_session_user();
 
 if (ossim_error()) {
     die(ossim_error());
 }
 $db = new ossim_db();
 $dbconn = $db->connect();
-$config = $GLOBALS["CONF"];
+
+$conf = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
 
 $net = "";
 $hosts = array();
@@ -94,10 +102,17 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
         $report_key = substr(preg_replace("/\D/", "", uniqid(md5(rand()), true)),0,15);
         
         $dbconn->execute("INSERT INTO vuln_nessus_reports ( username, name, sid, scantime, report_type, report_key ) VALUES (
-        '".Session::get_session_user()."', '".$report_name."', 0, '".$scantime_import."', 'I', '".$report_key."' )");
+        '".$assignto."', '".$report_name."', 0, '".$scantime_import."', 'I', '".$report_key."' )");
         
         $result_id_report = $dbconn->execute("SELECT report_id FROM vuln_nessus_reports WHERE scantime='$scantime_import' AND report_key='$report_key' ORDER BY scantime DESC LIMIT 1 ");
         $report_id_import = $result_id_report->fields["report_id"];
+        
+        if(POST('submit')==_("Import & asset insertion")) {
+            $sensors = array();
+            $sensor_list = Sensor::get_list($dbconn);
+            foreach($sensor_list as $sensor)
+                $sensors[] = $sensor->get_name();
+        }
         
         foreach($hostHash as $ip => $data){
             if(preg_match('/(\d+)\.(\d+)\.(\d+)\.(\d+)/',$ip)){
@@ -105,19 +120,26 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
             }
             else {
                 $hostname = $ip;
-                $ip = Host::hostname2ip($dbconn, $hostname);
+                
+                $ip = Host::hostname2ip($dbconn, $hostname, true);
+                
                 if($ip==""){
-                    $unresolved_host_names[] = $hostname;
+                    $unresolved_host_names[] = $hostname; 
                     continue;
                 }
             }
             
+            if(POST('submit')==_("Import & asset insertion") && Host::in_host($dbconn,$ip)=="") {
+                Host::insert($dbconn, $ip, $hostname, 2, 60, 60, "", 0, 0, "", $sensors, ""); 
+            
+            }
+            
             // latest results
             $report_keyl = substr(preg_replace("/\D/", "", uniqid(md5(rand()), true)),0,15);
-            $dbconn->execute("DELETE FROM vuln_nessus_latest_reports WHERE report_id = inet_aton('".$ip."') AND username='".Session::get_session_user()."' AND sid=0");
-            $dbconn->execute("DELETE FROM vuln_nessus_latest_results WHERE report_id = inet_aton('".$ip."') AND username='".Session::get_session_user()."' AND sid=0");
+            $dbconn->execute("DELETE FROM vuln_nessus_latest_reports WHERE report_id = inet_aton('".$ip."') AND username='".$assignto."' AND sid=0");
+            $dbconn->execute("DELETE FROM vuln_nessus_latest_results WHERE report_id = inet_aton('".$ip."') AND username='".$assignto."' AND sid=0");
             $dbconn->execute("INSERT INTO vuln_nessus_latest_reports ( report_id, username, name, fk_name, sid, scantime, report_type, report_key, cred_used, note, failed )
-                                VALUES (inet_aton('".$ip."'), '".Session::get_session_user()."', '$ip', NULL, '0', '".$scantime_import."', 'I', '$report_keyl', NULL, '', '0' )");
+                                VALUES (inet_aton('".$ip."'), '".$assignto."', '$ip', NULL, '0', '".$scantime_import."', 'I', '$report_keyl', NULL, '', '0' )");
             
             // load fps
             $host_fp = array();
@@ -132,9 +154,9 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
                 // table vuln_nessus_results
                 $sql_results = "INSERT INTO vuln_nessus_results ( report_id, scantime, hostip, hostname, record_type, service, port, protocol , app, scriptid,
                                 risk, msg, falsepositive ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                
+                                
                 $params = array(
-                    $report_id_import,
+                    $report_id_import, 
                     $scantime_import,
                     $ip,
                     $hostname,
@@ -158,7 +180,7 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
                 
                 $params = array(
                     Host::ip2ulong($ip),
-                    Session::get_session_user(),
+                    $assignto,
                     0,
                     $scantime_import,
                     $info["record"],
@@ -174,15 +196,16 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
                     $fp
                 );
                 if ($dbconn->Execute($sql_results, $params) === false) {
-                    print 'error inserting result: ' . $dbconn->ErrorMsg() . '<BR>';
+                    print 'error inserting result: ' . $dbconn->ErrorMsg() . '<BR>'; 
                     exit;
                 }
-            }
+                update_ossim_incidents ($dbconn, $conf->get_conf("vulnerability_incident_threshold"), $ip, $info["port"], $info["risk"], $info["desc"], $info["scanid"], Session::get_session_user(), $assignto);
+            } 
             // update field results_sent in vuln_nessus_latest_reports
             $result_vuln_host=$dbconn->execute("SELECT count( * ) AS vulnerability FROM (SELECT DISTINCT hostip, port, protocol, app, scriptid, msg, risk
                         FROM vuln_nessus_latest_results WHERE report_id =inet_aton('$ip') AND falsepositive='N') AS t GROUP BY hostip");
             $vuln_host = $result_vuln_host->fields['vulnerability'];
-            $dbconn->execute("UPDATE vuln_nessus_latest_reports SET results_sent=$vuln_host WHERE report_id=inet_aton('$ip') AND username='".Session::get_session_user()."'");
+            $dbconn->execute("UPDATE vuln_nessus_latest_reports SET results_sent=$vuln_host WHERE report_id=inet_aton('$ip') AND username='".$assignto."'");
         }
     }
 }
@@ -196,7 +219,9 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/greybox.css"/> 
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+  <script type="text/javascript" src="../js/greybox.js"></script>
   <style type="text/css">
   img.downclick { cursor:pointer; }
   </style>
@@ -210,10 +235,27 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
             else
                 $(this).attr('src','../pixmaps/theme/ltP_nesi.gif')
         });
+        GB_TYPE = 'w';
+        $("a.greybox").click(function(){
+            dest = $(this).attr('href');
+            GB_show($(this).attr('gtitle'),dest,$(this).attr('gheight'),400);
+            return false;
+        });
     });
     function confirmDelete(key){
         var ans = confirm("Are you sure you want to delete this report?");
         if (ans) document.location.href='reports.php?delete='+key;
+    }
+    function switch_user(select) {
+        if(select=='entity' && $('#transferred_entity').val()!=''){
+            $('#user').val('');
+        }
+        else if (select=='user' && $('#transferred_user').val()!=''){
+            $('#entity').val('');
+        }
+    }
+    function GB_onclose() {
+        document.location.href='reports.php';
     }
   </script>
 <head>
@@ -293,9 +335,6 @@ ossim_valid($sortdir, "DESC", "ASC", OSS_NULLABLE, 'illegal:' . _("Sort Dir"));
 if (ossim_error()) {
     die(_("Invalid Parameter sortdir"));
 }
-
-$conf = $GLOBALS["CONF"];
-$version = $conf->get_conf("ossim_server_version", FALSE);
 
 $arruser = array();
 
@@ -780,13 +819,185 @@ echo "</table>";
 ?>
 <form method="post" action="reports.php" enctype="multipart/form-data">
 <table border="0" cellpadding="0" cellspacing="0" width="885"><tr><td class="headerpr" style="border: 0pt none;"><?=_("Import file results in nbe format")?></td></tr></table>
-<table border="0" cellpadding="0" cellspacing="0" width="885">
+<table border="0" cellpadding="2" cellspacing="2" width="885">
     <tr>
-        <td class="nobborder" width="230" style="padding:7px 0px 7px 0px;text-align:right;"><?=_("Report Name:")?></td>
-        <td class="nobborder" width="175" style="padding:7px 0px 7px 5px;text-align:left;"><input name="report_name" type="text" style="width: 146px;"></td>
-        <td class="nobborder" width="30" style="padding:7px 0px 7px 0px;text-align:right;"><?=_("File:")?></td>
-        <td class="nobborder" width="320" style="padding:7px 0px 7px 5px;text-align:left;"><input name="nbe_file" type="file" size="25"></td>
-        <td class="nobborder" width="130" style="padding:8px 0px 7px 0px;text-align:center;"><input class="btn" type="submit" value="<?=_("Upload")?>"></td>
+        <th width="100"><?=_("Report Name")?></th> 
+        <td width="785" class="nobborder" style="text-align:left;padding-left:5px;"><input name="report_name" type="text" style="width: 146px;"></td>
+    </tr>
+    <tr>
+        <th width="100"><?=_("File")?></th>
+        <td width="785" class="nobborder" style="text-align:left;padding-left:5px;"><input name="nbe_file" type="file" size="25"></td>
+    </tr>
+                <?
+                $users = Session::get_list($dbconn);
+
+                $conf = $GLOBALS["CONF"];
+                $version = $conf->get_conf("ossim_server_version", FALSE);
+
+                if(preg_match("/pro/i",$version)) {
+                    $users_pro_login = array();
+                    $users_pro = array();
+                    $entities_pro = array();
+                    
+                    if(Session::am_i_admin()) { // admin in professional version
+                        list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+                        $entities_types_aux = Acl::get_entities_types($dbconn);
+                        $entities_types = array();
+
+                        foreach ($entities_types_aux as $etype) { 
+                            $entities_types[$etype['id']] = $etype;
+                        }
+                        
+                        ?>
+                        <tr>
+                            <th><?php echo _("Assign To") ?></th>
+                            <td style="text-align:left;padding-left:5px;" class="nobborder">
+                                <table width="400" cellspacing="0" cellpadding="0" class="transparent">
+                                    <tr>
+                                        <td class="nobborder"><?php echo _("User:");?></td>
+                                        <td class="nobborder">
+                                          <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
+                                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                                            <?php
+                                            foreach($users as $u) if(Session::get_session_user()!=$u->get_login()){ ?>
+                                                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
+                                            <?php
+                                            } ?>
+                                          </select>
+                                        </td>
+                                        <td style="padding:0px 5px 0px 5px;text-align:center;" class="nobborder"><?php echo _("OR");?></td>
+                                        <td class="nobborder"><?php echo _("Entity:");?></td>
+                                        <td class="nobborder">
+                                            <select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
+                                            <option value=""><? if (count($entities_all) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
+                                            <?php
+                                                foreach ( $entities_all as $entity ) {
+                                                ?>
+                                                <option value="<?php echo $entity["id"]; ?>"><?php echo $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr> 
+                <?}
+                    elseif(Acl::am_i_proadmin()) { // pro admin
+                        //users
+                        $users_admin = Acl::get_my_users($dbconn,Session::get_session_user()); 
+                        foreach ($users_admin as $u){
+                            if($u["login"]!=Session::get_session_user()){
+                                $users_pro_login[] = $u["login"];
+                            }
+                        }
+                        //if(!in_array(Session::get_session_user(), $users_pro_login) && $incident_in_charge!=Session::get_session_user())   $users_pro_login[] = Session::get_session_user();
+                        
+                        //entities
+                        list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+                        list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
+                        $entities_list = array_keys($entities_admin);
+                        
+                        $entities_types_aux = Acl::get_entities_types($dbconn);
+                        $entities_types = array();
+
+                        foreach ($entities_types_aux as $etype) { 
+                            $entities_types[$etype['id']] = $etype;
+                        }
+                        
+                        //save entities for proadmin
+                        foreach ( $entities_all as $entity ) if(in_array($entity["id"], $entities_list)) {
+                            $entities_pro[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+                        }
+                        
+                        // filter users
+                        foreach($users as $u) {
+                            if (!in_array($u->get_login(),$users_pro_login)) continue;
+                            $users_pro[$u->get_login()] = format_user($u, false);
+                        }
+                        ?>
+                        <tr>
+                            <th><?php echo _("Assign To") ?></th>
+                            <td style="text-align:left;padding-left:5px;" class="nobborder">
+                                <table width="400" cellspacing="0" cellpadding="0" class="transparent">
+                                    <tr>
+                                        <td class="nobborder"><?php echo _("User:");?></td>
+                                        <td class="nobborder">
+                                          <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
+                                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                                            <?php
+                                            foreach($users_pro as $loginu => $nameu) { ?>
+                                                <option value="<?php echo $loginu; ?>"><?php echo $nameu; ?></option>
+                                            <?php
+                                            } ?>
+                                          </select>
+                                        </td>
+                                        <td style="padding:0px 5px 0px 5px;text-align:center;" class="nobborder"><?php echo _("OR");?></td>
+                                        <td class="nobborder"><?php echo _("Entity:");?></td>
+                                        <td class="nobborder">
+                                            <select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
+                                            <option value=""><? if (count($entities_pro) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
+                                            <?php
+                                                foreach ( $entities_pro as $entity_id => $entity_name ) {
+                                                ?>
+                                                <option value="<?php echo $entity_id; ?>"><?php echo $entity_name;?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr> 
+                    <?
+                    }
+                    else { // normal user
+                            $brothers = Acl::get_brothers($dbconn,Session::get_session_user());
+                            foreach ($brothers as $brother){
+                                $users_pro_login[] = $brother["login"];
+                            }
+                            //if(!in_array(Session::get_session_user(), $users_pro_login))   $users_pro_login[] = Session::get_session_user();
+                            // filter users
+                                foreach($users as $u) {
+                                    if (!in_array($u->get_login(),$users_pro_login)) continue;
+                                    $users_pro[$u->get_login()] = format_user($u, false);
+                                }
+                            ?>
+                                <tr>
+                                    <th><?php echo _("Assign To") ?></th>
+                                    <td style="text-align:left;padding-left:5px;" class="nobborder">
+                                      <select name="transferred_user">
+                                        <option value=""><? if (count($users_pro) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                                        <?php
+                            foreach($users_pro as $loginu => $nameu) { ?>
+                                    <option value="<?php echo $loginu ?>"><?php echo $nameu ?></option>
+                            <?php
+                            } ?>
+                                      </select>
+                                    </td>
+                                </tr>
+                            <?
+                    }
+                }
+                else {
+                    ?>
+                    <tr>
+                        <th><?php echo _("Assign To") ?></th>
+                        <td style="text-align:left;padding-left:5px;" class="nobborder">
+                          <select name="transferred_user">
+                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                            <?php
+                            foreach($users as $u) if ($u->get_login()!=Session::get_session_user()) { ?>
+                                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
+                            <?php
+                            } ?>
+                          </select>
+                        </td>
+                    </tr> 
+                <?}?>
+    <tr>
+        <td colspan="5" style="text-align:center;padding:15px 0px 5px 0px;" class="nobborder"> 
+            <input class="btn" name="submit" type="submit" value="<?=_("Import")?>">&nbsp;&nbsp;
+            <input class="btn" name="submit" type="submit" value="<?=_("Import & asset insertion")?>">
+        </td>
     </tr>
 </table>
 </form>
@@ -898,41 +1109,40 @@ function pop_hosthash($dbconn, $results) {
         
         $risk = "7";
 
-    $alldesc = explode('\n',$desc);
-    $strd = "";
-    foreach ($alldesc as $desc) {
-
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Serious/s", $desc))          $risk = "1";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Critical/s", $desc))         $risk = "1";   
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*High/s", $desc))             $risk = "2";
-        if (preg_match('/Risk [fF]actor\s*:\s*(..)*Medium/s', $desc))           $risk = "3";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Medium\/Low/s", $desc))      $risk = "4";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Low\/Medium/s", $desc))      $risk = "5";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Low/s", $desc))              $risk = "6";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Info/s", $desc))             $risk = "7";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*[nN]one/s", $desc))          $risk = "7";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Passed/s", $desc))           $risk = "6";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Unknown/s", $desc))          $risk = "3";
-        if (preg_match("/Risk [fF]actor\s*:\s*(..)*Failed/s", $desc))           $risk = "2";
+        $alldesc = explode('\n',$desc);
+        $strd = "";
+        foreach ($alldesc as $desc) {
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Serious/s", $desc))          $risk = "1";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Critical/s", $desc))         $risk = "1";   
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*High/s", $desc))             $risk = "2";
+          if (preg_match('/Risk [fF]actor\s*:\s*(..)*Medium/s', $desc))           $risk = "3";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Medium\/Low/s", $desc))      $risk = "4";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Low\/Medium/s", $desc))      $risk = "5";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Low/s", $desc))              $risk = "6";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Info/s", $desc))             $risk = "7";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*[nN]one/s", $desc))          $risk = "7";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Passed/s", $desc))           $risk = "6";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Unknown/s", $desc))          $risk = "3";
+          if (preg_match("/Risk [fF]actor\s*:\s*(..)*Failed/s", $desc))           $risk = "2";
         
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Serious((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Critical((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*High((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Medium((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Medium\/Low((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Low\/Medium((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Low((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Info((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*[nN]one to High((..)(..)?|(\s)+| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*[nN]one((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Passed((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Unknown((..)(..)?| \/ |$)/", "", $desc);
-        $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Failed((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Serious((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Critical((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*High((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Medium((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Medium\/Low((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Low\/Medium((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Low((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Info((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*[nN]one to High((..)(..)?|(\s)+| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*[nN]one((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Passed((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Unknown((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Failed((..)(..)?| \/ |$)/", "", $desc);
         
-        $strd .= $desc.'\n';
-    }
-    $desc = $strd;
-          
+          $strd .= $desc.'\n';
+        }
+        $desc = $strd;
+        
         if ($custom_risks[$scanid]!="")     $risk = $custom_risks[$scanid];
         
         $service = trim($service);
@@ -963,5 +1173,143 @@ function get_custom_risks($dbconn) {
         $result->MoveNext();
     }
     return ($plugins);
+}
+function format_user($user, $html = true, $show_email = false) {
+    if (is_a($user, 'Session')) {
+        $login = $user->get_login();
+        $name = $user->get_name();
+        $depto = $user->get_department();
+        $company = $user->get_company();
+        $mail = $user->get_email();
+    } elseif (is_array($user)) {
+        $login = $user['login'];
+        $name = $user['name'];
+        $depto = $user['department'];
+        $company = $user['company'];
+        $mail = $user['email'];
+    } else {
+        return '';
+    }
+    $ret = $name;
+    if ($depto && $company) $ret.= " / $depto / $company";
+    if ($mail && $show_email) $ret = "$ret &lt;$mail&gt;";
+    if ($login) $ret = "<label title=\"Login: $login\">$ret</label>";
+    if ($mail) {
+        $ret = '<a href="mailto:' . $mail . '">' . $ret . '</a>';
+    } else {
+        $ret = "$ret <font size=small color=red><i>(No email)</i></font>";
+    }
+    return $html ? $ret : strip_tags($ret);
+}
+function update_ossim_incidents ($dbconn, $vuln_incident_threshold, $hostip, $port, $risk, $desc, $scanid, $currentuser, $assignto) { 
+    $id_pending = 65001;
+    $id_false_positive = 6002;
+
+    $risk = 8 - $risk;
+    
+    if($vuln_incident_threshold >= $risk) return;
+
+    $sql_inc = $dbconn->execute("SELECT incident_id FROM incident_vulns WHERE ip = '$hostip' AND port = '$port' AND nessus_id = '$scanid'");
+    $id_inc = $sql_inc->fields["incident_id"];
+    
+    if($id_inc!="") {
+        $dbconn->execute("UPDATE incident SET last_update = now() WHERE id = '$id_inc'");
+        $sql_inc = $dbconn->execute("SELECT priority FROM incident WHERE status='Closed' and id = '$id_inc'");
+        $priority = $sql_inc->fields["priority"];
+        
+        if($priority!="") {
+            $sql_inc = $dbconn->execute("SELECT incident_id FROM incident_tag WHERE incident_tag.incident_id = '$id_inc' AND incident_tag.tag_id = '$id_false_positive'");
+            $hash_false_incident = $sql_inc->fields["incident_id"];
+            if($hash_false_incident=="") {
+                $dbconn->execute("UPDATE incident SET status = 'Open' WHERE id = '$id_inc'");
+                $ticket_id = genID($dbconn,"incident_ticket_seq");
+                $dbconn->execute("INSERT INTO incident_ticket (id, incident_id, date, status, priority, users, description) values ('$ticket_id', '$id_inc', now(), 'Open', '$priority', '$assignto','Automatic open of the incident')");
+            }
+        }
+    }
+    else {
+        $sql_inc = $dbconn->execute("SELECT name,reliability,priority FROM plugin_sid where plugin_id = 3001 and sid = '$scanid'");
+        $name_psid = $sql_inc->fields["name"];
+        $reliability_psid = $sql_inc->fields["reliability"];
+        $priority_psid = $sql_inc->fields["priority"]; 
+        
+        $vuln_name = ""; 
+        if($name_psid != "") $vuln_name = $name_psid;
+        else $vuln_name = "Vulnerability - Unknown detail";
+        
+        $priority = calc_priority($dbconn, $risk, $hostip, $scanid);
+        $dbconn->execute("INSERT INTO incident(title, date, ref, type_id, priority, status, last_update, in_charge, submitter, event_start, event_end) VALUES('$vuln_name', now(), 'Vulnerability', 'Nessus Vulnerability', '$priority', 'Open', now(), '$assignto', '$currentuser', '0000-00-00 00:00:00', '0000-00-00 00:00:00')");
+        
+        $sql_inc = $dbconn->execute("SELECT MAX(id) id from incident");
+        $incident_id = $sql_inc->fields["id"];
+        
+        #sanity check
+        $desc = str_replace ("\"", "'", $desc);
+        $desc = trim($desc);
+        $incident_vulns_id = genID($dbconn, "incident_vulns_seq");
+        $dbconn->execute("INSERT INTO incident_vulns(id, incident_id, ip, port, nessus_id, risk, description) VALUES('$incident_vulns_id', '$incident_id', '$hostip', '$port', '$scanid', '$risk', \"$desc\")");
+        $dbconn->execute("INSERT INTO incident_tag(tag_id, incident_id) VALUES($id_pending, '$incident_id')");
+        Incident::insert_subscription($dbconn, $incident_id, $assignto); 
+    }
+    
+    
+}
+function genID($dbconn, $table) {
+    
+    $dbconn->execute("UPDATE $table SET id=LAST_INSERT_ID(id+1)");
+    $last_id_query = $dbconn->execute("SELECT LAST_INSERT_ID() as lastid");
+
+    return $last_id_query->fields["lastid"];
+}
+function calc_priority($dbconn, $risk, $hostip, $nessusid) {
+    
+    # If it's not set, set it to 1
+    $risk_value = 1;
+    
+    if ($risk == "NOTE") {
+        $risk_value = 0;
+    }
+    elseif ($risk == "INFO") {
+        $risk_value = 1;
+    }
+    elseif ($risk == "Security Note") {
+        $risk_value = 1;
+    }
+    elseif ($risk == "LOW") {
+        $risk_value = 3;
+    }
+    elseif ($risk == "Security Warning") {
+        $risk_value = 3;
+    }
+    elseif ($risk == "MEDIUM") {
+        $risk_value = 5;
+    }
+    elseif ($risk == "HIGH") {
+        $risk_value = 8;
+    }
+    elseif ($risk == "Security Hole") {
+        $risk_value = 8;
+    }
+    elseif ($risk == "REPORT") {
+        $risk_value = 10;
+    }
+
+    $sql_inc = $dbconn->execute("SELECT asset FROM host WHERE ip = '$hostip'");
+    $asset = $sql_inc->fields["asset"];
+    
+    if ($asset == "") {
+        $asset = 0;
+    }
+    
+    $sql_inc = $dbconn->execute("SELECT reliability FROM plugin_sid WHERE sid = '$nessusid'");
+    $reliability = $sql_inc->fields["reliability"];
+    
+    if ($reliability == "") {
+        $reliability = 0;
+    }
+    
+    # FIXME: check this formula once the values are clear. This is most definetivley wrong.
+    $priority = intval( ($risk_value + $asset + $reliability) / 1.9 ); 
+    return $priority;
 }
 ?>

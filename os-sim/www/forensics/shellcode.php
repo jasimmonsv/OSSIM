@@ -47,6 +47,7 @@ include ("base_conf.php");
 include ("$BASE_path/includes/base_constants.inc.php");
 include ("$BASE_path/includes/base_include.inc.php");
 ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <TITLE>Forensics Console : Alert</TITLE><LINK rel="stylesheet" type="text/css" HREF="styles/ossim_style.css">

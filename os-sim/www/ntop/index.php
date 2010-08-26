@@ -37,7 +37,7 @@
 require_once ('classes/Session.inc');
 Session::logcheck("MenuMonitors", "MonitorsNetwork");
 ?>
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
   <title> <?php
@@ -84,7 +84,7 @@ if (!$conf->get_conf("use_ntop_rewrite")) {
 //$fr_down = preg_replace("/https?:\/\/(.*?)\//","/ntop/",$fr_down);
 ?>
 <frameset rows="35,*" border="0" frameborder="0">
-	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>">
+	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>" scrolling='no'>
 	<frameset rows="40,*" border="0" frameborder="0">
 		<frame id="fr_up" src="<?php echo $fr_up ?>">
 		<frame id="fr_down" src="" name="ntop">

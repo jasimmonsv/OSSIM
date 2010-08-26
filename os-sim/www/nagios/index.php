@@ -79,7 +79,7 @@ if ($opc == "reporting") $fr_down = $nagios_link . "/cgi-bin/trends.cgi";
 if (GET('fr_down') != "") $fr_down = GET('fr_down');
 ?>
 <frameset rows="35,*" border="0" frameborder="0">
-	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>">
+	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>" scrolling='no'>
 	<frameset rows="40,*" border="0" frameborder="0">
 		<frame src="<?php
 echo $fr_up ?>">

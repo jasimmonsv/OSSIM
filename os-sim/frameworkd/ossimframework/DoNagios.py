@@ -232,17 +232,14 @@ class DoNagios(threading.Thread):
 
         for port in services:
             i+=1
-            query = "select h.ip,h.hostname, hs.service_type from host_services hs, host_scan h_sc, host h where (hs.protocol=6 or hs.protocol=0) and hs.port=%s and hs.ip=h_sc.host_ip and h_sc.plugin_id=2007 and hs.nagios=1 and h.ip=inet_ntoa(hs.ip) group by h.ip order by h.ip" % port['port']
+            query = "select h.hostname, hs.service_type from host_services hs, host_scan h_sc, host h where (hs.protocol=6 or hs.protocol=0) and hs.port=%s and hs.ip=h_sc.host_ip and h_sc.plugin_id=2007 and hs.nagios=1 and h.ip=inet_ntoa(hs.ip) group by h.ip order by h.ip" % port['port']
             hosts = db.exec_query(query)
             list = ""
-            iplist = []
-	
             for host in hosts:
                 if list != "":
                     list += ","
 
                 list += host['hostname']
-                iplist.append((host['ip'],host['hostname']))
 
             if list != "":
                 k = nagios_host_service(list, port['port'], host['service_type'], "check_tcp!%d" % port['port'], "0", self._tmp_conf)
@@ -251,9 +248,6 @@ class DoNagios(threading.Thread):
 
                 hg = nagios_host_group_service(self.serv_port(port['port']),self.serv_name(port['port']),list,self._tmp_conf)
                 hg.write()
-            for (ip,hostname) in iplist:
-                h = nagios_host(ip,hostname,"",self._tmp_conf)
-                h.write()
 
         if port is not None and port in services:
             logger.debug("Changes where applied! Reloading Nagios config.")

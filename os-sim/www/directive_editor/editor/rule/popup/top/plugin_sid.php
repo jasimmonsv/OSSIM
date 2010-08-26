@@ -69,10 +69,6 @@ $vars = '&amp;plugin_id=' . $plugin_id . '&amp;plugin_sid=' . $plugin_sid . '&am
 $plugins = Plugin::get_list($conn, 'WHERE id = ' . $plugin_id);
 $title = $plugins[0]->get_name() . " ($plugin_id)";
 ?>
-
-		<h1><?php
-echo gettext("Plugin Sid"); ?></h1>
-
 		<h2><?php
 echo $title; ?></h2>
 
@@ -80,8 +76,7 @@ echo $title; ?></h2>
 			<table>
 				<tr>
 					<th width="70px">
-						<button class="th" id="all" onclick="onClickAll()">+</button>/
-						<button class="th" id="inv" onclick="onClickInv()">-</button>
+						<a href="" id="all" onclick="onClickAll();return false"><?php echo _("Check All") ?></a>
 					</th>
 					<th>
 						<button class="th"

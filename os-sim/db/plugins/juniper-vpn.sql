@@ -24,5 +24,4 @@ INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, r
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1609, 16, NULL, NULL, 'Juniper-VPN: Write Error' ,3, 3);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1609, 17, NULL, NULL, 'Juniper-VPN: Read Error' ,3, 3);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1609, 18, NULL, NULL, 'Juniper-VPN: Password Real Restriction Failed' ,3, 3);
-INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1609, 19, NULL, NULL, 'Juniper-VPN: Network Connect' ,3, 3);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1609, 999, NULL, NULL, 'Juniper-VPN: Generic Message' ,1, 1);

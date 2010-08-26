@@ -180,7 +180,7 @@ if (!$printing_ag) {
            <TR>
              <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintCriteria($caller);
+    	PrintCriteria($caller);
     }
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';

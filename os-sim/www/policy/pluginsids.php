@@ -62,7 +62,7 @@ $conn = $db->connect();
     <script type="text/javascript" src="../js/jquery.tmpl.1.1.1.js"></script>
     <script type="text/javascript" src="../js/ui.multiselect.js"></script>
     <script type="text/javascript" src="../js/combos.js"></script>    
-    <script type="text/javascript" src="../js/split.js"></script>
+    <script type="text/javascript" src="../js/split.js"></script>    
     <script>
         var customDataParser = function(data) {
             if ( typeof data == 'string' ) {

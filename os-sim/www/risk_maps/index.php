@@ -36,11 +36,32 @@
 * Classes list:
 */
 require_once 'classes/Session.inc';
+require_once 'ossim_conf.inc';
+$conf = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
+
 Session::logcheck("MenuControlPanel", "BusinessProcesses");
 
 if (!Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit")) {
 print _("You don't have permissions to edit risk indicators");
 exit();
+}
+
+function mapAllowed($perms_arr,$version) {
+	if (Session::am_i_admin()) return true;
+	$ret = false;
+	foreach ($perms_arr as $perm=>$val) {
+		// ENTITY
+		if (preg_match("/^\d+$/",$perm)) {
+			if (preg_match("/pro/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) {
+				$ret = true;
+			}
+		// USER
+		} elseif (Session::get_session_user() == $perm) {
+			$ret = true;
+		}
+	}
+	return $ret;
 }
 
 function check_writable_relative($dir){
@@ -121,7 +142,7 @@ ossim_valid($name, OSS_ALPHA, OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, ".,%", 'illega
 ossim_valid($map, OSS_DIGIT, 'illegal:'._("type"));
 
 if (ossim_error()) {
-die(ossim_error());
+	die(ossim_error());
 }
 
 // Cleanup a bit
@@ -170,6 +191,19 @@ if ($erase_element != "") {
 require_once 'ossim_db.inc';
 $db = new ossim_db();
 $conn = $db->connect();
+
+$perms = array();
+$query = "SELECT map,perm FROM risk_maps";
+$result = $conn->Execute($query);
+while (!$result->EOF) {
+	$perms[$result->fields['map']][$result->fields['perm']]++;
+    $result->MoveNext();
+}
+if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
+	echo "<br><br><center>"._("You don't have permission to see this Map.")."</center>";
+	exit;
+}
+
 
 // perm check
 $sensor_where = "";

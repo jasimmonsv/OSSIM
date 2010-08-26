@@ -60,10 +60,6 @@ if (ossim_error()) {
     die(ossim_error());
 }
 ?>
-
-		<h1><?php
-echo gettext("From"); ?></h1>
-
 		<center>
 			<table>
 				<tr>

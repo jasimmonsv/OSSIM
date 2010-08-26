@@ -13,12 +13,25 @@ body {
 }
 
 a {
-	background: transparent;
-	color: #17457c;
-	text-decoration: none;
+  background: transparent;
+  color: #17457c;
+  /*color:#111111;*/
+  text-decoration: none;
 }
 
-h1 { margin-bottom: 15px; padding:5px; border: 1px solid #038D16; background: #cccccc url(../../pixmaps/theme/ui-bg_highlight-soft_75_4DC903_1x100.png) 50% 50% repeat-x; font-size: 12px; color: #FFFFFF; font-weight: bold; text-align: center; }
+a:hover {
+  background: transparent;
+  color: #888888;
+  text-decoration: underline;
+}
+
+a.selected {
+    color: #e7700c;
+    background: transparent;
+    text-decoration: underline;
+}
+
+h1 { margin-bottom: 15px; padding:5px; border: 1px solid rgb(202, 202, 202); background: transparent url(../../pixmaps/fondo_col.gif) 50% 50% repeat-x; font-size: 12px; color: rgb(51, 51, 51); font-weight: bold; text-align: center; }
 
 
 h2 {
@@ -41,7 +54,7 @@ table {
 }
 
 .container {
-	background: #eee;
+	/*background: #eee;*/
 	border-width: 0px;
 }
 .noborder {
@@ -92,25 +105,37 @@ input[disabled] {
 }
 
 input[type=button] {
-	border: solid;
-	border-style: solid;
-	border-width: 1px;
-	color: #11334f;
-	background: #abb7c7;
-	border-color: #7f7f7f;
-	font-family: verdana,arial,helvetica,sans-serif;
-	height: 20px;
+	border-width: 0px !important;
+	#border-left-color:#C9C9C9 !important;
+	#border-top-color:#C9C9C9 !important;
+	#border-right-color:#B3B3B3 !important;
+	#border-bottom-color:#B3B3B3 !important;
+    color: #FFFFFF !important;
+	height:24px !important;
+	background-color: transparent !important;
+    #background: url(/ossim/pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+	background: url(../../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+    padding-bottom:2px !important;
+    font-family: arial,verdana,helvetica,sans-serif !important;
+    font-size: 12px !important;
+	font-weight:bold !important;
 }
 
 input[type=submit] {
-	border: solid;
-	border-style: solid;
-	border-width: 1px;
-	color: #11334f;
-	background: #abb7c7;
-	border-color: #7f7f7f;
-	font-family: verdana,arial,helvetica,sans-serif;
-	height: 20px;
+	border-width: 0px !important;
+	#border-left-color:#C9C9C9 !important;
+	#border-top-color:#C9C9C9 !important;
+	#border-right-color:#B3B3B3 !important;
+	#border-bottom-color:#B3B3B3 !important;
+    color: #FFFFFF !important;
+	height:24px !important;
+	background-color: transparent !important;
+    #background: url(/ossim/pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+	background: url(../../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+    padding-bottom:2px !important;
+    font-family: arial,verdana,helvetica,sans-serif !important;
+    font-size: 12px !important;
+	font-weight:bold !important;
 }
 
 input[disabled] {
@@ -118,15 +143,20 @@ input[disabled] {
 }
 
 button {
-	border: solid;
-	border-style: solid;
-	border-width: 1px;
-	color: #11334f;
-	background: #abb7c7;
-	border-color: #7f7f7f;
-	font-family: verdana,arial,helvetica,sans-serif;
-	font-size: 8pt;
-	height: 20px
+	border-width: 0px !important;
+	#border-left-color:#C9C9C9 !important;
+	#border-top-color:#C9C9C9 !important;
+	#border-right-color:#B3B3B3 !important;
+	#border-bottom-color:#B3B3B3 !important;
+    color: #FFFFFF !important;
+	height:24px !important;
+	background-color: transparent !important;
+    #background: url(/ossim/pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+	background: url(../../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+    padding-bottom:2px !important;
+    font-family: arial,verdana,helvetica,sans-serif !important;
+    font-size: 12px !important;
+	font-weight:bold !important;
 }
 
 button.th {
@@ -138,6 +168,13 @@ button.th {
 
 button[disabled] {
 	color: #bbbbbb;
+}
+
+input[type=button]:hover
+{
+	color:white !important;
+	background: url(../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important;
+	padding-bottom:2px !important;
 }
 
 div.menuhide {

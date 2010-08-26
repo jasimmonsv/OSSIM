@@ -116,12 +116,12 @@ $conn = $db->connect();
 // Close selected tickets
 
 if (GET('close')==_("Close selected")) {
-    foreach ($_GET as $k => $v)
+    foreach ($_GET as $k => $v) {
         if (preg_match("/^ticket\d+/",$k) && $v!="") {
         $idprio = explode("_",$v);
         if (is_numeric($idprio[0]) && is_numeric($idprio[1]))
           Incident_ticket::insert($conn, $idprio[0], "Closed", $idprio[1], Session::get_session_user(), " ", "", "", array(), null);
-        
+        }
     }
 }
 $criteria = array(
@@ -386,7 +386,7 @@ if ($total_incidents) {
     <tr <?php
         if ($row++ % 2) echo 'bgcolor="#EFEFEF"'; ?> valign="center">
       <td>
-        <input type="checkbox" name="ticket<?php echo $row ?>" value="<?php echo $incident->get_id()."_".$incident->get_priority() ?>">
+        <input type="checkbox" name="ticket<?php echo $row ?>" value="<?php echo $incident->get_id()."_".$incident->get_priority() ?>" <?php if ($incident->get_in_charge_name($conn) != Session::get_session_user() && !Session::am_i_admin()) echo "disabled" ?>>
       </td>
       <td>
         <a href="incident.php?id=<?php echo $incident->get_id() ?>">
@@ -412,7 +412,16 @@ if ($total_incidents) {
       <td><?php echo Incident::get_priority_in_html($priority) ?></td>
       <td NOWRAP><?php echo $incident->get_date() ?></td>
       <td NOWRAP><?php echo $incident->get_life_time() ?></td>
-      <td><?php echo $incident->get_in_charge_name($conn) ?></td>
+      <?php
+      if (preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) {
+            list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$incident->get_in_charge_name($conn));
+            $in_charge_name = $entity_name." [".$entity_type."]";
+      }
+      else {
+        $in_charge_name = $incident->get_in_charge_name($conn);
+      }
+      ?>
+      <td><?php echo $in_charge_name ?></td>
       <td><?php echo $incident->get_submitter() ?>&nbsp</td>
       <td><?php echo $incident->get_type() ?></td>
       <td><?php

@@ -266,7 +266,7 @@ if ($Use_Auth_System == 1) {
 							<td align="right">
 								<table>
 									<tr>
-										<td><input type="submit" class="button" value="IP" name="submit">&nbsp;<input type="submit" class="button" value="Signature" id="signature" name="submit">&nbsp;<input type="submit" class="button" value="Payload" name="submit"></td>
+										<td><input type="submit" class="button" value="IP" name="submit" style='width:30px'>&nbsp;<input type="submit" class="button" value="Signature" id="signature" name="submit">&nbsp;<input type="submit" class="button" value="Payload" name="submit"></td>
 									</tr>
 								</table>
 							</td>
@@ -367,6 +367,17 @@ if ($Use_Auth_System == 1) {
 																	</select>
 																</div>
 															</div>
+														</td>
+													</tr>
+													<tr class="noborder">
+														<td>
+															<table style="border:0px">
+																<tr>
+																	<td><?php echo _("User Data")?>:</td>
+																	<td style="padding-left:10px"><input type="text" name="userdata" style="width:158px" value="<?php echo $_SESSION["userdata"] ?>"></input></td>
+																	<td><input type="button" class="button" value="<?php echo _("Search")?>" onclick="this.form.bsf.click()" style="height:18px"></input></td>
+																</tr>
+															</table>
 														</td>
 													</tr>
 													<tr class="noborder">

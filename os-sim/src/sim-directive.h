@@ -146,7 +146,6 @@ gchar*            sim_directive_backlog_to_string               (SimDirective   
 gchar*            sim_directive_backlog_event_get_insert_clause (SimDirective     *directive,
 								 SimEvent         *event);
 void							sim_directive_backlog_get_uuid(SimDirective *directive,uuid_t out);
-void sim_organizer_create_event_directive(SimDirective *backlog,SimEvent *event);
 G_END_DECLS
 
 #ifdef __cplusplus

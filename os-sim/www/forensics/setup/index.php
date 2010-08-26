@@ -64,7 +64,7 @@ if ((ini_get('error_reporting') & E_WARNING) > 0) $error_reporting_str.= '[WARNI
 if ((ini_get('error_reporting') & E_PARSE) > 0) $error_reporting_str.= '[PARSE]';
 $error_reporting_str.= '</font>&nbsp;';
 ?>
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- Forensics Console -->
 <HTML>
 

@@ -10,4 +10,5 @@ INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, r
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1591, 2, NULL, NULL, 'IRON_PORT: msg dropped by filter' ,1, 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1591, 3, NULL, NULL, 'IRON_PORT: spam quarantine' ,1, 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1591, 4, NULL, NULL, 'IRON_PORT: spam positive' ,1, 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (1591, 5, NULL, NULL, 'IRON_PORT: invalid DNS Response' ,1, 1);
 

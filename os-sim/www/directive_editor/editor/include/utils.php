@@ -296,11 +296,12 @@ elseif ($query == "edit_rule") {
     $rule_id = $_GET["id"];
     list($id_dir, $id_rule, $id_father) = explode("-", $rule_id);
     $_SESSION['rule'] = serialize($tab_rules[$id_rule]);
-    echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=" . $tab_rules[$id_rule]->level . "&action=edit_rule&id=" . $rule_id . "','right')\"></body></html>";
+    //echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=" . $tab_rules[$id_rule]->level . "&action=edit_rule&id=" . $rule_id . "','right')\"></body></html>";
+    echo "<script type='text/javascript'>document.location.href='../viewer/index.php?directive=$id_dir&level=".$tab_rules[$id_rule]->level."'</script>";
 }
 /* Create a new rule object and edit this new rule*/
 elseif ($query == "add_rule") {
-    $directive = unserialize($_SESSION['directive']);
+	$directive = unserialize($_SESSION['directive']);
     $tab_rules = $directive->rules;
     $id = $_GET['id'];
     unset($_SESSION['rule']);
@@ -313,7 +314,8 @@ elseif ($query == "add_rule") {
     }
     $temp = new Rule($id, $newlevel, "", "New rule", "", "", "ANY", "ANY", "ANY", "ANY", "ANY", "ANY", "ANY", "1", "None", "0", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "", "", "", "", "", "", "", "", "", "", "", "", "");
     $_SESSION['rule'] = serialize($temp);
-    echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=$newlevel&action=add_rule&id=" . $id . "','right')\"></body></html>";
+    //echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=$newlevel&action=add_rule&id=" . $id . "','right')\"></body></html>";
+    echo "<script type='text/javascript'>document.location.href='../viewer/index.php?directive=$id_dir&level=$newlevel'</script>";
 }
 /* create a new rule object with parameters from the form*/
 elseif ($query == "save_rule") {

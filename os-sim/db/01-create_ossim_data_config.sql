@@ -171,4 +171,4 @@ INSERT INTO config (conf , value) VALUES ('server_remote_logger_ossim_url', '');
 INSERT INTO config (conf,  value) VALUES ('network_auto_discovery', '0');
 INSERT INTO config (conf , value) VALUES ('nedi_autodiscovery', '0');
         
-INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.3.1');
+INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.3');

@@ -203,9 +203,7 @@ function load_tree(filter) {
 	$.ajax({
 		type: "GET",
 		url: "base_payload_tshark_tree.php",
-		data: "cid=<?php echo $cid
-?>&sid=<?php echo $sid
-?>",
+		data: "cid=<?php echo $cid?>&sid=<?php echo $sid?>",
 		success: function(msg) { 
 			//alert (msg);
 			$(layer).html(msg);
@@ -226,4 +224,4 @@ $(function(){
 });
 </script>
 <div id="loading"></div>
-<div id="container" style="width:350px;"></div>
+<div id="container" style="width:350px;line-height:16px"></div>

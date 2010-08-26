@@ -88,7 +88,7 @@ function toggle_info(id) {
     
 </script>
 <center>
-<table width="85%" class="noborder" style="background:transparent;" cellspacing="0" cellpadding="0">
+<table width="90%" class="noborder" style="background:transparent;" cellspacing="0" cellpadding="0">
     <tr><td style="text-align:right;" class="nobborder">
     <form><input type="button" class="button" onclick="document.location.href='modifyplugingroupsform.php?action=new'" value="<?=_("Insert new group")?>"></form>
     </td>
@@ -96,7 +96,7 @@ function toggle_info(id) {
 </table>
 </center>
 <br>
-<table width="85%" align="center" class="noborder" cellspacing="0" cellpadding="0">
+<table width="90%" align="center" class="noborder" cellspacing="0" cellpadding="0">
     <tr>
         <td height="34" class="plfieldhdr pall"><?php echo _("ID") ?></td>
         <td height="34" class="plfieldhdr ptop pbottom pright"><?php echo _("Name") ?></td>

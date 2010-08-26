@@ -55,7 +55,7 @@ foreach ($plugin_list as $p) {
 	if ($i) $sayt_list .= ",";
 	$sayt_list .= "{ txt:\"".$p->get_name()."\", id: \"".$p->get_id()."\" }";
 	$plist .= "plist['".$p->get_name()."'] = '".$p->get_id()."';\n";
-    $plugins[$p->get_id()] = array($p->get_name(),$p->get_description());
+	$plugins[$p->get_id()] = array($p->get_name(),$p->get_description());
 	$i++;
 }
 $sayt_list .= "]";
@@ -170,7 +170,7 @@ function GB_onclose() {
 
 </script>
 <form id="myform" name="myform" action="modifyplugingroups.php?action=<?= GET('action') ?>&id=<?= $group_id ?>&withoutmenu=<?= GET('withoutmenu') ?>" method="POST" style="margin:0px" onsubmit="return chk()">
-<table align="center" width="85%" cellspacing="0" class="noborder">
+<table align="center" width="90%" cellspacing="0" class="noborder">
     <tr>
         <td width="10%" height="34" class="plfieldhdr pall" nowrap><?= _("Group ID") ?></td>
         <td width="22%" height="34" class="plfieldhdr ptop pbottom pright"><?= _("Name") . required() ?></td>

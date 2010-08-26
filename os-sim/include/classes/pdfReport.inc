@@ -230,11 +230,11 @@ class PdfReport{
                     <tr>
                         <td width="50%" class="nobborder" style="text-align:right;" nowrap>
                         <a class="sbutton" href="'.$this->getUrlActual().'" target="_blank" title="'._("Generate PDF").'">
-                            <img src="../pixmaps/pdf_button.png" align="absmiddle"> Download PDF
+                            <img src="../pixmaps/pdf_button.png" align="absmiddle"> '._("Download PDF").'
                         </a>
                         </td>
                         <td  width="50%" class="nobborder" style="text-align:left;padding-left:10px;" nowrap>
-                        <a class="sbutton" href="javascript:;" onclick="toggleDivEmail();" title="'._("Send PDF by e-mail").'"><img src="../pixmaps/emailButton.png" align="absmiddle"> Send by e-mail</a>
+                        <a class="sbutton" href="javascript:;" onclick="toggleDivEmail();" title="'._("Send PDF by e-mail").'"><img src="../pixmaps/emailButton.png" align="absmiddle"> '._("Send by e-mail").'</a>
                         </td>
                    </tr>
                </table>
@@ -472,6 +472,8 @@ class Html{
     public function newImage($url,$format,$path='',$session=true){
         if($path=='root'){
             $url=$this->getRootUrl().$url;
+        }elseif($path=='external'){
+            $url=$url;
         }else{
             $url=$this->getMainUrl().$url;
         }

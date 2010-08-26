@@ -246,6 +246,18 @@ function get_directive_file($directive_id,$XML_RET="") {
     }
     return NULL;
 }
+function get_directive_real_file($directive_id) {
+	$categories = unserialize($_SESSION['categories']);
+    foreach($categories as $category) {
+	    $lines = file("/etc/ossim/server/".$category->xml_file);
+		foreach ($lines as $line) {
+			if (preg_match("/directive id\=\"$directive_id\"/",$line)) {
+				return $category->xml_file;
+			}
+		}
+    }
+    return "";
+}
 function get_category_by_id($category_id) {
     // browses the elements of $_SESSION['categories']
     // search the one witch has the right id

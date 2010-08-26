@@ -103,7 +103,7 @@ $profiles{'Info||C|admin|1|1'} = "infos|settings";
 $profiles{'DOS|Denial of Service|C|admin|1|1'} = "denial|destructive_attack|flood|kill_host";
 $profiles{'Web Scan||F|admin|1|1'} = "CGI abuses|CGI abuses : XSS|Web Servers";
 $profiles{'Stealth||C|admin|1|1'} = "infos|scanner|settings";
-$profiles{'Default|Non Destructive Global Scan|C|admin|2|2'} = "attack|end|infos|init|mixed|scanner|settings";
+$profiles{'Default|Non Destructive Global Scan|C|0|2|2'} = "attack|end|infos|init|mixed|scanner|settings";
 
 
 my $dbhost = `grep db_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbhost);

@@ -39,6 +39,27 @@ require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/User_config.inc';
+require_once 'ossim_conf.inc';
+
+function mapAllowed($perms_arr,$version) {
+	if (Session::am_i_admin()) return true;
+	$ret = false;
+	foreach ($perms_arr as $perm=>$val) {
+		// ENTITY
+		if (preg_match("/^\d+$/",$perm)) {
+			if (preg_match("/pro/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) {
+				$ret = true;
+			}
+		// USER
+		} elseif (Session::get_session_user() == $perm) {
+			$ret = true;
+		}
+	}
+	return $ret;
+}
+
+$conf = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
 
 $db = new ossim_db();
 $conn = $db->connect();
@@ -76,42 +97,98 @@ if ($erase_element != "") {
 		$_SESSION["riskmap"] = $map = 1;
 	}
 }
+
+$perms = array();
+$query = "SELECT map,perm FROM risk_maps";
+$result = $conn->Execute($query);
+while (!$result->EOF) {
+	$perms[$result->fields['map']][$result->fields['perm']]++;
+    $result->MoveNext();
+}
 ?>
 <html>
 <head>
 <title><?= _("Alarms") ?> - <?= _("View")?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="./custom_style.css">
+<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../js/greybox.js"></script>
+<script type="text/javascript">
+  // GrayBox
+	$(document).ready(function(){
+		GB_TYPE = 'w';
+		$("a.greyboxo").click(function(){
+			var t = this.title || $(this).text() || this.href;
+			GB_show(t,this.href,250,500);
+			return false;
+		});
+	});
+  
+  </script>
 <style type="text/css">
 	.itcanbemoved { position:absolute; }
 </style>
 </head>
 <body leftmargin=5 topmargin=5 class="ne1">
- <?
-	$maps = explode("\n",`ls -1 'maps' | grep -v CVS`);
-	$i=0; $n=0; $txtmaps = ""; $mn=-1;
-	foreach ($maps as $ico) if (trim($ico)!="") {
-		if(!getimagesize("maps/" . $ico)) { continue;}
-		$n = str_replace("map","",str_replace(".jpg","",$ico));
-		$defaultborder = ($n == $default_map) ? " style='text-decoration:italic'" : " style='font-weight:bold;font-size:12px'";
-		$deftxt = ($n == $default_map) ? _("DEFAULT MAP") : _("Set as Default");
-		if (intval($n)>$mn) $mn=intval($n);
-		$txtmaps .= "<td><a href='view.php?map=$n'><img src='maps/$ico' border=".(($map==$n) ? "2" : "0")." width=150 height=150></a>";
-		$txtmaps .= "<a href='changemap.php?map=$map&delete=".urlencode("$ico")."' title='"._("Delete map")."'><img src='images/delete.png' border=0></a><br><a href='changemap.php?map=$map&default=$n' class='ne'$defaultborder>$deftxt</a></td>";
-		$i++; if ($i % 5 == 0) {
-			$txtmaps .= "</tr><tr>";
-		}
-	}
- ?> 
- <table align="center">
- <tr><td class="ne1" align="center" colspan="5">
- <form action="changemap.php" method=post name=f1 enctype="multipart/form-data">
- <?= _("Upload map file") ?>: <input type=hidden value="<? echo $map ?>" name=map>
- <input type=hidden name=name value="map<? echo ($mn+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
- <input type=submit value="<?= _("Upload") ?>" class="btn" style="font-size:12px">
- </form>
- </td></tr>
- <tr><? echo $txtmaps ?></tr>
- </table>
+<table align="center" style="border:0px">
+	<tr>
+		<td class="ne1" align="center" colspan="5">
+			<form action="changemap.php" method=post name=f1 enctype="multipart/form-data">
+			<?= _("Upload map file") ?>: <input type=hidden value="<? echo $map ?>" name=map>
+			<input type=hidden name=name value="map<? echo ($mn+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
+			<input type=submit value="<?= _("Upload") ?>" class="btn" style="font-size:12px">
+			</form>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table style="border:0px">
+				<tr>
+				<?
+				$maps = explode("\n",`ls -1 'maps' | grep -v CVS`);
+				$i=0; $n=0; $txtmaps = ""; $mn=-1;
+				foreach ($maps as $ico) if (trim($ico)!="") {
+					if(!getimagesize("maps/" . $ico)) { continue;}
+					$n = str_replace("map","",str_replace(".jpg","",$ico));
+					if (is_array($perms[$n]) && !mapAllowed($perms[$n],$version)) continue;
+					$defaultborder = ($n == $default_map) ? " style='text-decoration:italic'" : " style='font-weight:bold;font-size:12px'";
+					$deftxt = ($n == $default_map) ? _("DEFAULT MAP") : _("Set as Default");
+					if (intval($n)>$mn) $mn=intval($n);
+					?>
+					<td>
+						<table style="background-color:<?php echo ($n == $default_map) ? "#F2F2F2" : "#FFFFFF"?>">
+							<tr><td class="text-align:right" align="right"><a href='changemap.php?map=<?php echo $map?>&delete=<?php echo urlencode($ico)?>' title='<?php echo _("Delete map") ?>'><img src='../pixmaps/cross-circle-frame.png' border=0></a></td></tr>
+							<tr>
+								<td>
+									<a href='view.php?map=<?php echo $n?>'><img src='maps/<?php echo $ico?>' border='<?php echo (($map==$n) ? "1" : "0")?>' width=150 height=150></a>
+								</td>
+							</tr>
+							<tr>
+								<td align="center">
+									<?php if (Session::am_i_admin() || (preg_match("/pro/i",$version) && Acl::am_i_proadmin())) {?>
+				                    <a class="greyboxo" href="change_user.php?id_map=<?php echo $n?>" title="<?=("Change owner")?>"><img src="../pixmaps/group.png" title="<?_("Change owner")?>" alt="<?_("Change owner")?>" border="0"></a>&nbsp;
+						            <? } ?>
+									<?php if ($n == $default_map) { ?>
+									<font style=""><?php echo _("DEFAULT MAP") ?></font>
+									<?php } else {?>
+									<input type="button" onclick="document.location.href='changemap.php?map=<?php echo $map?>&default=<?php echo $n?>'" value="<?php echo $deftxt?>" class="btn"></input>
+									<?php }?>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<?php 
+					$i++; if ($i % 5 == 0) {
+					?>
+					</tr><tr>
+					<?php }
+				}
+				?> 
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
 </body>
 </html>

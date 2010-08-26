@@ -197,8 +197,7 @@ $postParams = array( 'disp','op', 'rid', 'sname', 'notify_email', 'schedule_type
                      'ip_list', 'ip_start', 'ip_end', 'named_list', 'subnet', 'system', 'cred_type', 'credid', 'acc',
                      'domain', 'accpass', 'acctype', 'passtype', 'passstore', 'job_id','wpolicies', 'wfpolicies', 
                      'upolicies', 'cidr', 'custadd_type', 'cust_plugins', 'sched_id', 'is_enabled', 'submit', 'process',
-                     'isvm', 'sen', 'hostlist', 'pluginlist','user','entity','hosts_alive','scan_locally'
-                   );
+                     'isvm', 'sen', 'hostlist', 'pluginlist','user','entity','hosts_alive','scan_locally','nthweekday');
 
  $daysMap = array ( 
      "0" => "NONE", 
@@ -893,7 +892,7 @@ function tab_discovery () {
     global $component, $uroles, $editdata, $scheduler, $username, $useremail, $dbconn, $disp,
           $enScanRequestImmediate, $enScanRequestRecur, $timeout, $smethod,$SVRid, $sid, $ip_list,
           $schedule_type, $ROYEAR, $ROday, $ROMONTH, $time_hour, $time_min, $dayofweek, $dayofmonth,
-          $sname,$user,$entity,$hosts_alive,$scan_locally;
+          $sname,$user,$entity,$hosts_alive,$scan_locally,$version,$nthweekday;
           
     global $pluginOptions, $enComplianceChecks, 
           $profileid;
@@ -934,7 +933,7 @@ function tab_discovery () {
      if ( isset($editdata['notify'] )) { $enotify = $editdata['notify']; } else { $enotify = "$useremail"; }
      if ( isset($editdata['time'] )) { list( $time_hour, $time_min, $time_sec) = split(':', $editdata['time'] ); }
 
-     $arrTypes = array( "N", "O", "D", "W", "M" );
+     $arrTypes = array( "N", "O", "D", "W", "M" , "NW");
      foreach ( $arrTypes as $type ) {
          $sTYPE[$type] = "";
      }
@@ -947,7 +946,9 @@ function tab_discovery () {
      if ( isset($editdata['schedule_type'] )) {  
         $sTYPE[$editdata['schedule_type']] = "CHECKED"; 
         if ($editdata['schedule_type']=='D') $ni=2;
+        elseif ($editdata['schedule_type']=='O') $ni=3;
         elseif ($editdata['schedule_type']=='W') $ni=4;
+        elseif ($editdata['schedule_type']=='NW') $ni=6;
         else $ni=5;
         $show = "<br><script language=javascript>showLayer('idSched', $ni);</script>";
      } ELSE { 
@@ -975,6 +976,9 @@ function tab_discovery () {
             }
         if ($schedule_type=="M") {
              $show .= "<br><script language=javascript>showLayer('idSched', 5);</script>";
+            }
+        if ($schedule_type=="NW") {
+             $show .= "<br><script language=javascript>showLayer('idSched', 6);</script>";
             }
      }
 
@@ -1040,17 +1044,47 @@ EOT;
    //   LEFT JOIN vuln_nessus_settings_users t2 ON t1.id = t2.sid 
    //   WHERE t1.type = 'G' OR t2.username='$username' 
    //   ORDER BY t1.name";
+   
+   $query = "";
+
    if ($username == "admin") {
         $query = "SELECT distinct(t1.id), t1.name, t1.description 
                  FROM vuln_nessus_settings t1 WHERE deleted='0'
                  ORDER BY t1.name";
     }
-   else{
-        $query = "SELECT distinct(t1.id), t1.name, t1.description 
-                  FROM vuln_nessus_settings t1
-                  WHERE deleted='0' AND (t1.name = 'Default' OR t1.owner='$username') 
-                  ORDER BY t1.name";
-   }
+    else if(preg_match("/pro|demo/i",$version)){
+        if (Acl::am_i_proadmin()) {
+            $pro_users = array();
+            
+            $entities_list = Acl::get_user_entities($current_user);   
+            //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
+            //$entities_list = array_keys($entities_admin);
+        
+            $users = Acl::get_my_users($dbconn, Session::get_session_user());
+            foreach ($users as $us) {
+                $pro_users[] = $us["login"];
+            }
+            $query = "SELECT distinct(t1.id), t1.name, t1.description FROM vuln_nessus_settings t1
+                      WHERE deleted = '0' and (name='Default' or owner in ('0','".implode("','", array_merge($entities_list,$pro_users))."')) ORDER BY t1.name";
+        }
+        else {
+            $tmp = array();
+            $entities = Acl::get_user_entities($username);
+            foreach ($entities as $entity) {
+                $tmp[] = "'".$entity."'";
+            }
+            if (count($tmp) > 0) $user_where = "owner in ('0','$username',".implode(", ", $tmp).")";
+            else $user_where = "owner in ('0','$username')";
+            
+            $query = "SELECT distinct(t1.id), t1.name, t1.description FROM vuln_nessus_settings t1
+                      WHERE deleted = '0' and (name='Default' or $user_where) ORDER BY t1.name"; 
+        }
+    } else {
+        $query = "SELECT distinct(t1.id), t1.name, t1.description FROM vuln_nessus_settings t1
+                     WHERE deleted = '0' and (name='Default' or owner in ('0','$username') ORDER BY t1.name";
+    }                          
+    //var_dump($query); 
+    
    $result=$dbconn->execute($query);
 
    while (!$result->EOF) {
@@ -1106,6 +1140,7 @@ if ( $scheduler || $enScanRequestRecur ) {
         <input type="radio" name="schedule_type" value="D" onClick="showLayer('idSched', 2)" $sTYPE[D]>Daily</input><br>
         <input type="radio" name="schedule_type" value="W" onClick="showLayer('idSched', 4)" $sTYPE[W]>Day of the Week</input><br>
         <input type="radio" name="schedule_type" value="M" onClick="showLayer('idSched', 5)"  $sTYPE[M]>Day of the Month</input><br>
+        <input type="radio" name="schedule_type" value="NW" onClick="showLayer('idSched', 6)"  $sTYPE[NW]>N<sup>th</sup> weekday of the month</input><br>
 EOT;
 }      
      $discovery .= <<<EOT
@@ -1163,7 +1198,7 @@ EOT;*/
                 <option value="We" $day[We] >Wednesday</option>
                 <option value="Th" $day[Th] >Thursday</option>
                 <option value="Fr" $day[Fr] >Friday</option>
-                <option value="Sa" $day[Sa] >Saturaday</option>
+                <option value="Sa" $day[Sa] >Saturday</option>
               </select>
             </td>
           </tr>
@@ -1183,6 +1218,41 @@ EOT;
 
             $discovery .= <<<EOT
             </select></td>
+          </tr>
+        </table>
+      </div>
+      <div id="idSched6" class="forminput">
+        <table width="100%">
+          <tr>
+            <th align="right">Day of week</th><td colspan="2" class="noborder">
+              <select name="dayofweek">
+                <option value="0" SELECTED >Select week day to run</option>
+                <option value="Su" $day[Su] >Sunday</option>
+                <option value="Mo" $day[Mo] >Monday</option>
+                <option value="Tu" $day[Tu] >Tuesday</option>
+                <option value="We" $day[We] >Wednesday</option>
+                <option value="Th" $day[Th] >Thursday</option>
+                <option value="Fr" $day[Fr] >Friday</option>
+                <option value="Sa" $day[Sa] >Saturday</option>
+              </select>
+            </td>
+          </tr>
+        </table>
+        <br>
+        <table width="100%">
+          <tr>
+            <th align="right">N<sup>th</sup> weekday</th><td colspan="2" class="noborder">
+              <select name="nthweekday">
+EOT;
+                $discovery .="<option value='0' SELECTED >Select nth weekday to run</option>";
+                $discovery .="<option value='1'".(($dayofmonth==1) ? " selected":"").">First</option>";
+                $discovery .="<option value='2'".(($dayofmonth==2) ? " selected":"").">Second</option>";
+                $discovery .="<option value='3'".(($dayofmonth==3) ? " selected":"").">Third</option>";
+                $discovery .="<option value='4'".(($dayofmonth==4) ? " selected":"").">Fourth</option>";
+                $discovery .="<option value='5'".(($dayofmonth==5) ? " selected":"").">Fifth</option>"; 
+            $discovery .= <<<EOT
+              </select>
+            </td>
           </tr>
         </table>
       </div>
@@ -1213,8 +1283,6 @@ EOT;
             </select></td>
           </tr>
         </table>
-      </div>
-      <div id="idSched6"  class="forminput">
       </div>
     </tr>
     
@@ -1268,7 +1336,7 @@ EOT;
                   $discovery .= "<select name=\"user\" id=\"user\" onchange=\"switch_user('user');return false;\">";
                   $discovery .= "<option value=\"none\">"._("Not assign")."</option>";
                   foreach ($users as $user) {
-                    $discovery .= "<option value=\"".$user["login"]."\"".(($editdata["username"]==$user["login"] || $user_selected==$user["login"]) ? " selected":"").">".$user1["login"]."</option>";
+                    $discovery .= "<option value=\"".$user["login"]."\"".(($editdata["username"]==$user["login"] || $user_selected==$user["login"]) ? " selected":"").">".$user["login"]."</option>";
                   }
                   $discovery .= "</select>";
                   $discovery .= "<tr><td class=\"nobborder\">&nbsp;</td><td class=\"nobborder\">"._("OR")."</td></tr>";
@@ -1538,7 +1606,7 @@ function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $RO
      $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list,
      $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
      $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
-     $is_enabled, $hosts_alive, $scan_locally) {
+     $is_enabled, $hosts_alive, $scan_locally, $nthweekday) {
 
      global $wdaysMap, $daysMap, $allowscan, $uroles, $username, $schedOptions, $adminmail, $mailfrom, $dbk, $dbconn;
      
@@ -1637,8 +1705,8 @@ EOT;*/
           $requested_run = sprintf("%04d%02d%02d%06d", $ROYEAR, $ROMONTH, $ROday, $run_time );
           $sched_message = "No reccurring Jobs Necessary";
           //var_dump($schedule_type);
-          //$recurring = True;
-          //$reccur_type = "Run Once";
+          $recurring = True;
+          $reccur_type = "Run Once";
 
       break;
    case "D":
@@ -1688,6 +1756,28 @@ EOT;*/
           $recurring = True;
           $sched_message = "Schedule Reccurring";
           $reccur_type = "Montly";
+          
+      break;
+   case "NW":
+        $dayweektonum = array(
+            "Mo" => 1,
+            "Tu" => 2,
+            "We" => 3,
+            "Th" => 4,
+            "Fr" => 5,
+            "Sa" => 6,
+            "Su" => 7);
+   
+        $next_day = nthweekdaymonth(date("Y"), date("n"), 1, $dayweektonum[$dayofweek], $nthweekday); 
+        
+        
+        $requested_run = sprintf("%08d%06d", $next_day, $run_time );
+        
+        $dayofmonth = $nthweekday;
+        
+        $recurring = True;
+        $sched_message = "Schedule Reccurring";
+        $reccur_type = "Nth weekday of the month";
           
       break;
    default:
@@ -2128,11 +2218,6 @@ EOT;*/
         echo "<tr><td class=\"nobborder\" style=\"text-align:center;\">";
         echo "<form action=\"sched.php\" method=\"post\">";
         ?>
-        <!--$op, $sched_id, $sname, $notify_email, $schedule_type, $ROYEAR,$ROMONTH, $ROday,
-     $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list,
-     $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
-     $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
-     $is_enabled, $hosts_alive, $scan_locally-->
               <input type="hidden" name="sname" value="<?=$sname?>"/>
               <? $SVRid = str_replace("'","",$SVRid); ?>
               <input type="hidden" name="SVRid" value="<?=$SVRid?>"/>
@@ -2145,6 +2230,7 @@ EOT;*/
               <input type="hidden" name="time_hour" value="<?=$time_hour?>"/>
               <input type="hidden" name="time_min" value="<?=$time_min?>"/>
               <input type="hidden" name="dayofweek" value="<?=$dayofweek?>"/>
+              <input type="hidden" name="nthweekday" value="<?=$nthweekday?>"/>
               <input type="hidden" name="dayofmonth" value="<?=$dayofmonth?>"/>
               <input type="hidden" name="ip_list" value="<?=str_replace("\\r\\n",";;",$ip_list)?>"/>
               <?if(is_numeric($username)) {?>
@@ -2415,7 +2501,7 @@ switch($disp) {
         $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list,
         $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
         $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
-        $is_enabled, $hosts_alive, $scan_locally);
+        $is_enabled, $hosts_alive, $scan_locally, $nthweekday);
     }
    break;
 
@@ -2448,6 +2534,32 @@ function createHiddenDiv($name, $num, $data) {
    $text .= $data;
    $text .= "</div>";
    return $text;
+}
+
+function nthweekdaymonth($year, $month, $day, $dayofweek, $nthweekday) { 
+
+    $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+    $firstdaymonth = mktime(0, 0, 0, $month, $day, $year);
+    $weekday = date("N", $firstdaymonth);
+    
+    if($weekday == $dayofweek) {
+        $nextday = $day+(7*($nthweekday-1));
+    }
+    elseif($dayofweek > $weekday) {
+        $nextday = (($dayofweek-$weekday)+$day)+(7*($nthweekday-1));
+    }
+    else {
+        $nextday = ($day+(7-$weekday)+$dayofweek+(7*($nthweekday-1)));
+    }
+    if ($nextday > $days_in_month || ($nextday < date("d") && $month==date("n"))){
+        $month = ($month==12)? 1: ++$month;
+        $year = ($month==1)? $year++: $year;
+        
+        return nthweekdaymonth($year, $month, $day, $dayofweek, $nthweekday);
+    }
+    else
+        return(date("Ymd", mktime(0, 0, 0, $month, $nextday, $year)));
 }
 
 ?>

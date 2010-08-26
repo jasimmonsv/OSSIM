@@ -92,8 +92,8 @@ input, textarea, select
     font-family: arial,verdana,helvetica,sans-serif;
     font-size: 8pt;
 }
-.button
-{
+
+.button{
     border-width: 0px;
 	#border-left-color:#C9C9C9;
 	#border-top-color:#C9C9C9;
@@ -109,14 +109,14 @@ input, textarea, select
     font-size: 12px;
 	font-weight:bold;
 }
-input.button:hover
-{
+
+.button:hover{
 	color:white;
 	background: url(../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x;
 	padding-bottom:2px;
 }
-a:hover
-{
+
+a:hover{
     background-color: transparent;
     background-image: none;
     background-repeat: repeat;

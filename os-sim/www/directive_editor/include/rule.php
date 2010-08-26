@@ -237,6 +237,12 @@ class Rule {
      * @access private
      * @var string
      */
+    var $username;
+    /**
+     * The interface field of the rule (ie ).
+     * @access private
+     * @var string
+     */
     var $password;
     /**
      * The groups field of the rule (ie ).
@@ -283,7 +289,7 @@ class Rule {
     /**
      * The constructor.
      */
-    function Rule($id, $level, $rule, $name, $plugin_id, $plugin_type, $plugin_sid, $from, $port_from, $to, $port_to, $protocol, $sensor, $occurrence, $time_out, $reliability, $condition, $value, $interval, $absolute, $sticky, $sticky_different, $userdata1 = "", $userdata2 = "", $userdata3 = "", $userdata4 = "", $userdata5 = "", $userdata6 = "", $userdata7 = "", $userdata8 = "", $userdata9 = "", $filename = "", $iface = "", $password = "") {
+    function Rule($id, $level, $rule, $name, $plugin_id, $plugin_type, $plugin_sid, $from, $port_from, $to, $port_to, $protocol, $sensor, $occurrence, $time_out, $reliability, $condition, $value, $interval, $absolute, $sticky, $sticky_different, $userdata1 = "", $userdata2 = "", $userdata3 = "", $userdata4 = "", $userdata5 = "", $userdata6 = "", $userdata7 = "", $userdata8 = "", $userdata9 = "", $filename = "", $iface = "", $username = "", $password = "") {
         $this->id = $id;
         $this->level = $level;
         $this->rule = $rule;
@@ -317,6 +323,7 @@ class Rule {
         $this->userdata9 = $userdata9;
         $this->filename = $filename;
         $this->iface = $iface;
+        $this->username = $username;
         $this->password = $password;
     }
     /* Check if the curent rule is a new rule */
@@ -376,13 +383,13 @@ class Rule {
             <a TARGET ="_self" href="../viewer/index.php?directive=<?php
                 echo $directive_id
 ?>&level=<?php
-                echo $level + 1 ?>"><img border="0" src="../viewer/img/fleched.gif"></a>
+                echo $level + 1 ?>"><img border="0" src="../viewer/img/flechedf.gif"></a>
     <?php
             } elseif ($this->nb_child > 0) { ?>
             <a TARGET ="_self" href="../viewer/index.php?directive=<?php
                 echo $directive_id
 ?>&level=<?php
-                echo $ilevel ?>"><img border="0" src="../viewer/img/flecheb.gif"></a>
+                echo $ilevel ?>"><img border="0" src="../viewer/img/flechebf.gif"></a>
     <?php
             } ?>
         </td>
@@ -398,48 +405,48 @@ class Rule {
             //addRule button
             if (!$this->is_new()) {
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=add_rule&id=" . $newid . "\" TITLE=\"" . gettext("Add a rule") . "\">+</a>";
+                print "<a TARGET=\"right\" href=\"../include/utils.php?query=add_rule&id=" . $newid . "\" TITLE=\"" . gettext("Add a rule") . "\"><img src='../../pixmaps/plus-small.png' border='0'></img></a>";
                 print '</td>';
                 //removeRule button
                 print '<td>';
-                print "<a onclick=\"javascript:if (confirm('" . gettext("Are you sure you want to delete this rule ?") . "')) { window.open('../include/utils.php?query=del_rule&id=" . $this->id . "','right'); }\" style=\"marging-left:20px; cursor:pointer\" TITLE=\"" . gettext("Delete this rule") . "\">x</a>";
+                print "<a onclick=\"javascript:if (confirm('" . gettext("Are you sure you want to delete this rule ?") . "')) { window.open('../include/utils.php?query=del_rule&id=" . $this->id . "','right'); }\" style=\"marging-left:20px; cursor:pointer\" TITLE=\"" . gettext("Delete this rule") . "\"><img src='../../pixmaps/cross-small.png' border='0'></img></a>";
                 print '</td>';
                 //copy button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=copy_rule&id=" . $this->id . "\" TITLE=\"" . gettext("Copy this rule") . "\">C</a>";
+                print "<a TARGET=\"right\" href=\"../include/utils.php?query=copy_rule&id=" . $this->id . "\" TITLE=\"" . gettext("Copy this rule") . "\"><img src='../../pixmaps/copy-small.png' border='0'></img></a>";
                 print '</td>';
                 //left button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=left&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule left (previous correlation level)") . "\">&larr;</a>";
+                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=left&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule left (previous correlation level)") . "\"><img src='../../pixmaps/arrow-180-small.png' border='0'></img></a>";
                 print '</td>';
                 //right button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=right&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule right (next correlation level)") . "\">&rarr;</a>";
+                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=right&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule right (next correlation level)") . "\"><img src='../../pixmaps/arrow-000-small.png' border='0'></img></a>";
                 print '</td>';
                 //up button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=up&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule up (same correlation level)") . "\">&uarr;</a>";
+                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=up&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule up (same correlation level)") . "\"><img src='../../pixmaps/arrow-090-small.png' border='0'></img></a>";
                 print '</td>';
                 //down button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=down&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule down (same correlation level)") . "\">&darr;</a>";
+                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=down&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule down (same correlation level)") . "\"><img src='../../pixmaps/arrow-270-small.png' border='0'></img></a>";
                 print '</td>';
             } else {
                 print '<td>&nbsp&nbsp&nbsp&nbsp&nbsp</td>';
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=del_new_rule&level=" . $uplevel . "\" TITLE=\"Delete this rule.\">-</a>";
+                print "<a TARGET=\"right\" href=\"../include/utils.php?query=del_new_rule&level=" . $uplevel . "\" TITLE=\"Delete this rule.\"><img src='../../pixmaps/minus-small.png' border='0'></img></a>";
                 print '</td>';
                 for ($i = 0; $i < 5; $i++) print '<td>&nbsp&nbsp&nbsp&nbsp&nbsp</td>';
             }
             if ($this->is_new()) { ?>        
-        <td><a TARGET="right" href="../include/utils.php?query=add_rule&id=<?php
+        <td><a href="../include/utils.php?query=add_rule&id=<?php
                 echo $this->id ?>&level=<?php
                 echo $this->level ?>" TITLE="<?php
                 echo gettext("Click to modify this rule"); ?>"><?php
                 echo $this->name; ?></a></td>
        <?php
             } else { ?>
-        <td><a class="greybox" href="../include/utils.php?query=edit_rule&id=<?php
+        <td><a href="../include/utils.php?query=edit_rule&id=<?php
                 echo $this->id ?>" TITLE="<?php
                 echo gettext("Modify this rule"); ?>"><?php
                 echo $this->name; ?></a></td>
@@ -561,6 +568,7 @@ class Rule {
         if ($this->userdata9 != NULL && $this->userdata9 != "") $node->set_attribute("userdata9", $this->userdata9);
         if ($this->filename != NULL && $this->filename != "") $node->set_attribute("filename", $this->filename);
         if ($this->iface != NULL && $this->iface != "") $node->set_attribute("interface", $this->iface);
+        if ($this->username != NULL && $this->username != "") $node->set_attribute("username", $this->username);
         if ($this->password != NULL && $this->password != "") $node->set_attribute("password", $this->password);
         if ($this->nb_child > 0) {
             $temp = $dom->create_element('rules');

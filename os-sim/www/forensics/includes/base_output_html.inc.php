@@ -31,7 +31,7 @@ defined('_BASE_INC') or die('Accessing this file directly is not allowed.');
 function PrintBASESubHeader($page_title, $page_name, $back_link, $refresh = 0, $page = "") {
     GLOBAL $debug_mode, $BASE_VERSION, $BASE_path, $BASE_urlpath, $html_no_cache, $max_script_runtime, $Use_Auth_System, $stat_page_refresh_time, $base_style, $refresh_stat_page, $ossim_servers, $sensors, $hosts, $database_servers, $DBlib_path, $DBtype, $db_connect_method, $alert_dbname, $alert_host, $alert_port, $alert_user, $alert_password;
     if (ini_get("safe_mode") != true) set_time_limit($max_script_runtime);
-    echo '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- ' . _TITLE . $BASE_VERSION . ' -->
 <HTML>
   <HEAD><meta http-equiv="Content-Type" content="text/html; charset=' . _CHARSET . '">';

@@ -106,7 +106,7 @@ class Directive {
     /**
      * Prints on the output the HTML code.
      */
-    function printDirective($level) {
+    function printDirective($level,$xml_file="") {
         $id = $this->id;
         $name = $this->name;
         $priority = $this->priority;
@@ -121,7 +121,7 @@ class Directive {
         <a TARGET="right" href="../right.php?directive=<?php
         echo $this->id; ?>&level=<?php
         echo $_GET['level']; ?>&action=edit_dir&id=<?php
-        echo $this->id; ?>" TITLE="<?php
+        echo $this->id; ?>&xml_file=<?php echo $xml_file?>" TITLE="<?php
         echo gettext("Click to modify this directive"); ?>"><?php
         print "$name<br>"._("Directive")." $id ("._("Priority").": $priority ) "; ?></a></th></tr>
       <tr>

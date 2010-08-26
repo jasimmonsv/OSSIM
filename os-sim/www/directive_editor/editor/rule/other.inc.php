@@ -116,7 +116,7 @@ echo gettext("password"); ?>
 				padding-left: 5px; padding-right: 8px"
 				colspan="3"
 			>
-				<input type="text" style="width: 120px"
+				<input type="password" style="width: 120px"
 					name="password"
 					id="password"
 					value="<?php

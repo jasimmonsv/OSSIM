@@ -946,9 +946,11 @@ function hostsummary( ){
      $htmldetails .= "<tr><td colspan=11 class='nobborder' style='text-align:right'>";
    	 $tp = intval($hi/$maxpag); $tp += ($hi % $maxpag == 0) ? 0 : 1;
      $htmldetails .= $first." ".$previous;
+         $pbr = 1;
    	 for ($p=1;$p<=$tp;$p++) {
    	    $pg = ($p==$pag) ? "<b>$p</b>" : $p;
-   	 	$htmldetails .= "<a href='javascript:;' onclick=\"jumptopage('?$url&pag=$p')\" style='padding:0px 5px 0px 5px'>$pg</a>";
+            $htmldetails .= "<a href='javascript:;' onclick=\"jumptopage('?$url&pag=$p')\" style='padding:0px 5px 0px 5px'>$pg</a>";
+            if ($pbr++ % 30 == 0) $htmldetails .= "<br>";
    	 }
      $next = "<font color=\"#626262\">  "._("Next")." ></font>";
      $last = "<font color=\"#626262\"> "._("Last")." >></font>";
@@ -1358,6 +1360,7 @@ EOT;
 EOT;
             }
          }
+
          //}
          // Add False Positive Indicator/link
          if ($enableFP && ($sql_uid==$user || $uroles['admin'])) {
@@ -1416,6 +1419,8 @@ echo "<img alt=\""._("Mark as false positive")."\" src=\"images/true.gif\" title
 
             }
          }
+$pticket = "ref=Vulnerability&ip=$hostip&port=$service_num&nessus_id=$scriptid&risk=$tmprisk&type=Nessus Vulnerability"; 
+echo "&nbsp;&nbsp;&nbsp;<a title=\""._("New ticket")."\" class=\"greybox\" href=\"new_vuln_ticket.php?$pticket\"><img style=\"padding-bottom:2px;\" src=\"../pixmaps/incident.png\" border=\"0\" alt=\"i\" width=\"12\"></a>&nbsp;&nbsp;";
          echo "</td></tr>";
          $result1->MoveNext();
       }

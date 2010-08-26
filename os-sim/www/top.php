@@ -135,7 +135,7 @@ if (!isset($soption)) {
 }
 $keys = array_keys($menu);
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><title>Ossim Menu</title>
 <link rel="stylesheet" type="text/css" href="style/top.css">
@@ -158,12 +158,12 @@ function init() {
 }
 </script>
 
-<body leftmargin=0 topmargin=0 marginwidth=0 marginheight=0 onload="init()" bgcolor="#D2D2D2">
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' onload="init()" bgcolor="#D2D2D2">
 
-<table width="100%" height="100%" border=0 cellpadding=0 cellspacing=0 style="border:1px solid #AAAAAA">
+<table width="100%" height="100%" border='0' cellpadding='0' cellspacing='0' style="border:1px solid #AAAAAA">
 <tr><td valign="top">
 
-<table width="100%" border=0 cellpadding=0 cellspacing=0>
+<table width="100%" border='0' cellpadding='0' cellspacing='0'>
 <!--<tr><td style="background:#678297 url(pixmaps/top/blueshadow.gif) top left" align="center" height="40" class="white"> :: Operation :: </td></tr> -->
 <tr><td>
 
@@ -251,15 +251,15 @@ foreach($menu as $name => $opc) if ($name != "Logout") {
 
 </td></tr>
 <tr><td height="26" class="outmenu">
-		<img src="pixmaps/user-green.png" width="12" border=0 align="absmiddle"> &nbsp; <a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1";?>" target="main"><font color="black">My Profile</font></a>
+		<img src="pixmaps/user-green.png" width="12" border=0 align="absmiddle"> &nbsp; <a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1";?>" target="main"><font color="black"><?php echo _("My Profile")?></font></a>
 </td></tr>
 <tr><td height="26" class="outmenu">
-		<img src="pixmaps/menu/logout.png" border=0 align="absmiddle"> &nbsp; <a href="session/login.php?action=logout"><font color="black">Logout</font></a> [<font color="gray"><?php
+		<img src="pixmaps/menu/logout.png" border=0 align="absmiddle"> &nbsp; <a href="session/login.php?action=logout"><font color="black"><?php echo _("Logout")?></font></a> [<font color="gray"><?php
 echo $_SESSION["_user"] ?></font>]
  </td></tr>
  <tr><td height='1' bgcolor='#EEEEEE'></td></tr>
  <tr><td height="26" class="outmenu">
-		<img src="pixmaps/menu/maximizep.png" border=0 align="absmiddle"> &nbsp; <a href="#" onClick="fullwin()"><font color="black">Maximize</font></a>
+		<img src="pixmaps/menu/maximizep.png" border=0 align="absmiddle"> &nbsp; <a href="#" onClick="fullwin()"><font color="black"><?php echo _("Maximize")?></font></a>
 </td></tr>
 </table>
 

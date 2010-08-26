@@ -54,12 +54,12 @@ $test = preg_match($pattern, $_SERVER['HTTP_USER_AGENT']);
 if ($test == 0) $cols = "262,100%";
 else $cols = "280,100%";
 ?>
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
   </head>
 	<frameset rows="35,*" frameborder=0 framespacing=0>
-	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>">
-		<frameset id="frames" cols="<?php echo $cols ?>" frameborder="yes" border=2 framespacing=0>
+	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>" scrolling='no'>
+		<frameset id="frames" cols="<?php echo $cols ?>" frameborder="no" border='0' framespacing='0'>
 			<?php
 if ($_GET['directive'] != '') {
     $action = $_GET['action'];

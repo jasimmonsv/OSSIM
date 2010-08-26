@@ -106,7 +106,7 @@ class Directive {
     /**
      * Prints on the output the HTML code.
      */
-    function printDirective($level) {
+    function printDirective($level,$xml_file="") {
         $id = $this->id;
         $name = $this->name;
         $priority = $this->priority;
@@ -118,12 +118,12 @@ class Directive {
     <table align="center">
       <tr><th colspan=<?php
         echo $level + 19; ?>>
-        <a TARGET="right" href="../right.php?directive=<?php
+        <a TARGET="right" style="font-size:13px" href="../right.php?directive=<?php
         echo $this->id; ?>&level=<?php
         echo $_GET['level']; ?>&action=edit_dir&id=<?php
-        echo $this->id; ?>" TITLE="<?php
-        echo gettext("Click to modify this directive"); ?>"><?php
-        print "$name<br>"._("Directive")." $id ("._("Priority").": $priority ) "; ?></a></th></tr>
+        echo $this->id; ?>&xml_file=<?php echo $xml_file?>" TITLE="<?php
+        echo gettext("Click to modify this directive"); ?>"><img src="../../pixmaps/tables/table_edit.png" align="absmiddle" border="0"></img>&nbsp;<?php
+        print "$name<br><font style='font-size:10px'>"._("Directive")." $id ("._("Priority").": $priority )</font> "; ?></a></th></tr>
       <tr>
  		<?php
         for ($i = 0; $i < $level; $i++) print '<td>&nbsp&nbsp&nbsp&nbsp&nbsp</td>';
@@ -137,14 +137,10 @@ class Directive {
                 $jsAddRule='';
             }
           ?>
-		<td>&nbsp&nbsp<a TARGET="right" <?php echo $jsAddRule; ?> href="<?php echo $urlAddRule; ?>" TITLE="<?php
-        echo gettext("Add a rule at this directive"); ?>">+</a>&nbsp&nbsp</td>
-		<td>&nbsp&nbsp<a onclick="javascript:if (confirm('<?php
-        echo gettext("Are you sure you want to delete all rules ?"); ?>')) { window.open('../include/utils.php?query=del_all_rule','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php
-        echo gettext("Delete all rules of this directive"); ?>">x</a>&nbsp&nbsp</td>
-    
-    <td colspan="5">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<a TARGET="right" href="../include/utils.php?query=copy_directive&id=<?php echo $id ?>" TITLE="<?php echo gettext("Copy this directive to a new"); ?>"><?php echo gettext("Copy"); ?></a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td>
-		
+		<td>&nbsp&nbsp<a <?php echo $jsAddRule; ?> href="<?php echo $urlAddRule; ?>" TITLE="<?php echo gettext("Add a rule at this directive"); ?>"><img src="../../pixmaps/plus.png" border="0"></img></a></td>
+		<td>&nbsp&nbsp<a onclick="javascript:if (confirm('<?php echo gettext("Are you sure you want to delete all rules ?"); ?>')) { window.open('../include/utils.php?query=del_all_rule','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php echo gettext("Delete all rules of this directive"); ?>"><img src="../../pixmaps/cross.png" border="0"></img></a></td>
+    	<td>&nbsp&nbsp<a TARGET="right" href="../include/utils.php?query=copy_directive&id=<?php echo $id ?>" TITLE="<?php echo gettext("Copy this directive to a new"); ?>"><img src="../../pixmaps/copy.png" border="0"></img></a></td>
+		<td colspan="4"></td>
         <th> <?php
         echo gettext("Name"); ?> </th>
         <th> <?php
@@ -304,7 +300,7 @@ function init_directive($directive, &$tab_rules, $level, $father) {
                 $ind = $_POST['ind'];
                 $dir_id = $_POST['dir_id'];
                 $id = $dir_id . '-' . $ind . '-' . $father;
-                $temp = new Rule($id, $level, $rule, $rule->get_attribute('name') , $rule->get_attribute('plugin_id') , $rule->get_attribute('type') , $rule->get_attribute('plugin_sid') , $rule->get_attribute('from') , $rule->get_attribute('port_from') , $rule->get_attribute('to') , $rule->get_attribute('port_to') , $rule->get_attribute('protocol') , $rule->get_attribute('sensor') , $rule->get_attribute('occurrence') , $rule->get_attribute('time_out') , $rule->get_attribute('reliability') , $rule->get_attribute('condition') , $rule->get_attribute('value') , $rule->get_attribute('interval') , $rule->get_attribute('absolute') , $rule->get_attribute('sticky') , $rule->get_attribute('sticky_different') , $rule->get_attribute('userdata1') , $rule->get_attribute('userdata2') , $rule->get_attribute('userdata3') , $rule->get_attribute('userdata4') , $rule->get_attribute('userdata5') , $rule->get_attribute('userdata6') , $rule->get_attribute('userdata7') , $rule->get_attribute('userdata8') , $rule->get_attribute('userdata9') , $rule->get_attribute('filename') , $rule->get_attribute('interface') , $rule->get_attribute('password'));
+                $temp = new Rule($id, $level, $rule, $rule->get_attribute('name') , $rule->get_attribute('plugin_id') , $rule->get_attribute('type') , $rule->get_attribute('plugin_sid') , $rule->get_attribute('from') , $rule->get_attribute('port_from') , $rule->get_attribute('to') , $rule->get_attribute('port_to') , $rule->get_attribute('protocol') , $rule->get_attribute('sensor') , $rule->get_attribute('occurrence') , $rule->get_attribute('time_out') , $rule->get_attribute('reliability') , $rule->get_attribute('condition') , $rule->get_attribute('value') , $rule->get_attribute('interval') , $rule->get_attribute('absolute') , $rule->get_attribute('sticky') , $rule->get_attribute('sticky_different') , $rule->get_attribute('userdata1') , $rule->get_attribute('userdata2') , $rule->get_attribute('userdata3') , $rule->get_attribute('userdata4') , $rule->get_attribute('userdata5') , $rule->get_attribute('userdata6') , $rule->get_attribute('userdata7') , $rule->get_attribute('userdata8') , $rule->get_attribute('userdata9') , $rule->get_attribute('filename') , $rule->get_attribute('interface') , $rule->get_attribute('username') , $rule->get_attribute('password'));
                 $tab_rules[$ind] = $temp;
                 if ($rule->has_child_nodes()) {
                     $rules = $rule->child_nodes();
@@ -348,6 +344,7 @@ function do_directive($directive, &$tab_rules, $dom) {
 /* Check if the directive id is free */
 function is_free($directive_id,$XML_FILE="") {
     if ($XML_FILE == "") $XML_FILE = get_directive_file($directive_id);
+    //if (!file_exists($XML_FILE)) return "false";
     init_file($XML_FILE);
     $dom = domxml_open_file($XML_FILE, DOMXML_LOAD_SUBSTITUTE_ENTITIES);
     $count = 1;

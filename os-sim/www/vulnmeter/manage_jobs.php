@@ -348,25 +348,28 @@ else {
 
        switch ($schedtype) {
        case "N":
-          $stt="Once (Now)";
+          $stt = _("Once (Now)");
           break;
        case "O":
-          $stt="Once";
+          $stt = _("Once");
           break;
        case "D":
-          $stt="Daily";
+          $stt = _("Daily");
           break;
        case "W":
-          $stt="Weekly";
+          $stt = _("Weekly");
           break;
        case "M":
-          $stt="Monthly";
+          $stt = _("Monthly");
           break;
        case "Q":
-          $stt="Quarterly";
+          $stt = _("Quarterly");
           break;
        case "H":
-          $stt="On Hold";
+          $stt = _("On Hold");
+          break;
+       case "NW":
+          $stt = _("N<sup>th</sup> weekday of the month");
           break;
        default:
           $stt="&nbsp;";
@@ -437,16 +440,59 @@ $num_pages = ceil($jobCount/$pagesize);
 //echo "jobCount:[".$jobCount."]";
 //echo "page:[".$page."]";
 $out = all_jobs(($page-1)*$pagesize,$pagesize);
-
-if ($out!=0 && $page!=$num_pages){
-    if ($page==1 && $page==$num_pages){ echo '<center><< '._("First").' <'._(" Previous").'&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;'._("Next").' >&nbsp;'._("Last").' >></center>'; } 
-    elseif ($page==1){ echo '<center><< '._("First").' < '._("Previous").'&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;<a href="manage_jobs.php?page='.($page+1).'">'._("Next").' ></a>&nbsp;<a href="manage_jobs.php?page='.$num_pages.'">'._("Last").' >></a></center>';}
-    elseif($page == $num_pages) {echo '<center><a href="manage_jobs.php?page=1"><< '._("First").'</a>&nbsp;<a href="manage_jobs.php?page='.($page-1).'">< '._("Previous").'</a>&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;'._("Next").'>&nbsp;'._("Last").' >></center>';}
-    else {echo '<center><a href="manage_jobs.php?page=1"><< '._("First").'</a>&nbsp;<a href="manage_jobs.php?page='.($page-1).'">< '._("Previous").'</a>&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;<a href="manage_jobs.php?page='.($page+1).'">'._("Next").' ></a>&nbsp;<a href="manage_jobs.php?page='.$num_pages.'">'._("Last").' >></a></center>';}
-    echo "<br>";
-    }
+?>
+<table width="90%" align="center" class="transparent">
+    <tr><td style="text-align:center;padding-top:5px;" class="nobborder">
+        <a href="javascript:;" onclick="$('#legend').toggle();$('#message_show').toggle();$('#message_hide').toggle();" colspan="2"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0">
+            <span id="message_show"><?=_("Show legend")?></span>
+            <span id="message_hide" style="display:none"><?=_("Hide legend")?></span>
+        </a>
+        </td>
+        <td class="nobborder" valign="top" style="padding-top:5px;">
+        <?
+        
+        if ($out!=0 && $page!=$num_pages){
+            if ($page==1 && $page==$num_pages){ echo '<center><< '._("First").' <'._(" Previous").'&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;'._("Next").' >&nbsp;'._("Last").' >></center>'; } 
+            elseif ($page==1){ echo '<center><< '._("First").' < '._("Previous").'&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;<a href="manage_jobs.php?page='.($page+1).'">'._("Next").' ></a>&nbsp;<a href="manage_jobs.php?page='.$num_pages.'">'._("Last").' >></a></center>';}
+            elseif($page == $num_pages) {echo '<center><a href="manage_jobs.php?page=1"><< '._("First").'</a>&nbsp;<a href="manage_jobs.php?page='.($page-1).'">< '._("Previous").'</a>&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;'._("Next").'>&nbsp;'._("Last").' >></center>';}
+            else {echo '<center><a href="manage_jobs.php?page=1"><< '._("First").'</a>&nbsp;<a href="manage_jobs.php?page='.($page-1).'">< '._("Previous").'</a>&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;<a href="manage_jobs.php?page='.($page+1).'">'._("Next").' ></a>&nbsp;<a href="manage_jobs.php?page='.$num_pages.'">'._("Last").' >></a></center>';}
+            //echo "<br>";
+            }
+    ?>
+        </td>
+    </tr>
+    <tr>
+        <td width="110" class="nobborder">
+            <table width="100%" cellpadding="3" cellspacing="3" id="legend" style="display:none;">
+                <tr>       
+                    <th colspan="2" style="padding-right: 3px;">
+                        <div style="float: left; width: 60%; text-align: right;padding-top:3px;"><b><?=_("Legend")?></b></div>
+                        <div style="float: right; width: 18%; padding-top: 2px; padding-bottom: 2px; text-align: right;"><a style="cursor: pointer; text-align: right;" onclick="$('#legend').toggle();$('#message_show').toggle();$('#message_hide').toggle();"><img src="../pixmaps/cross-circle-frame.png" alt="Close" title="Close" align="absmiddle" border="0"></a></div>
+                    </th>
+                </tr>
+                <tr>
+                    <td bgcolor="#EFFFF7" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Completed")?></td>
+                </tr>
+                <tr>
+                    <td bgcolor="#EFE1E0" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Failed")?></td>
+                </tr>
+                <tr>
+                    <td bgcolor="#D1E7EF" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Running")?></td>
+                </tr>
+                <tr>
+                    <td bgcolor="#DFF7FF" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Sheduled")?></td>
+                </tr>
+                <tr>
+                    <td bgcolor="#FFFFDF" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Timeout")?></td>
+                </tr> 
+            </table>
+        </td>
+        <td class="nobborder">&nbsp;
+        </td>
+    </tr>
+</table>
+<?
 }
-
 
 switch($disp) {
 

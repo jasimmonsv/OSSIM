@@ -27,7 +27,7 @@ include_once ("../base_common.php");
 include_once ("setup_db.inc.php");
 if (file_exists('../base_conf.php')) die("If you wish to re-run the setup routine, please either move OR delete your previous base_conf file first.");
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- Forensics Console -->
 <HTML>
 

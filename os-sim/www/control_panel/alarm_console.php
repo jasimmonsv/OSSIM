@@ -168,6 +168,26 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 	});
 	$('#widgetCalendar div.datepicker').css('position', 'absolute');
   }
+
+	function bg_delete() {
+		var params = "";
+		$(".alarm_check").each(function()
+		{
+			if ($(this).attr('checked') == true) {
+		    	params += "&"+$(this).attr('name')+"=1";
+			}
+		});
+		$('#loading_div').html("<img src='../pixmaps/loading.gif'>");
+		$.ajax({
+			type: "POST",
+			url: "alarms_check_delete.php",
+			data: "background=1&unique_id=<?php echo $unique_id ?>"+params,
+			success: function(msg){
+				$('#loading_div').html("");
+				document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+			}
+		});
+	}
   </script>
 
 </head>
@@ -384,7 +404,7 @@ if (!isset($_GET["hide_search"])) {
 				<a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>"><?php
     echo gettext("Delete ALL alarms"); ?></a> <br><br>
-				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Are you sure?")?>')) document.fchecks.submit();" class="btn">
+				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Are you sure?")?>')) bg_delete();" class="btn">
 				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="btn">
 				<br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
 				<div id="divadvanced" style="display:none"><a href="<?php
@@ -434,7 +454,7 @@ if (!isset($_GET["hide_search"])) {
 } ?>
 <br>
     <table width="100%" border=0 cellspacing=1 cellpadding=0>
-      
+      <tr><td colspan="11" id="loading_div" style="border:0px"></td></tr>
 	  <tr>
         <td colspan="11" style="border-bottom:0px solid white" nowrap>
 			<table class="transparent" width="100%">
@@ -642,7 +662,7 @@ if ($count > 0) {
         $datemark = $date_slices[0];
 ?>
       <tr>
-        <td class="nobborder"><input style="border:none" type="checkbox" name="check_<?php echo $backlog_id ?>_<?php echo $alarm->get_event_id() ?>" id="check_<?php echo $backlog_id ?>" value="1"></td>
+        <td class="nobborder"><input style="border:none" type="checkbox" name="check_<?php echo $backlog_id ?>_<?php echo $alarm->get_event_id() ?>" id="check_<?php echo $backlog_id ?>" class="alarm_check" value="1"></td>
         <td class="nobborder" nowrap id="plus<?php echo $inf + 1 ?>">
            <? if ($backlog_id && $id==1505) { ?>
            <a href="" onclick="show_alarm('<?php echo $backlog_id ?>','<?php echo $inf + 1 ?>');return false;"><img align='absmiddle' src='../pixmaps/plus-small.png' border='0'></a><?php echo ++$inf ?>

@@ -60,11 +60,7 @@ if (ossim_error()) {
 
 	<body>
 <center>
-		<table class="transparent" width="100%"><tr><th style="padding:5px;font-size:12px"><?php
-echo gettext("Plugin Id"); ?></th></tr></table>
-
-		
-			<table>
+		<table>
 				<tr>
 					<th>&nbsp;</th>
 				<th>

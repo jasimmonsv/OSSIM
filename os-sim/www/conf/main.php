@@ -1388,7 +1388,7 @@ if (REQUEST("reset")) {
     exit;
 }
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
   <title> <?php echo gettext("Advanced Configuration"); ?> </title>
@@ -1579,7 +1579,7 @@ include ("../hmenu.php");
   
   <table align=center>
   <tr>
-  <td>
+  <td class="noborder">
   
   <div id="basic-accordian" align="center">
 <?php
@@ -1696,23 +1696,21 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
   </div>
   
   </td>
-  <td valign='top'>
+  <td valign='top' class="noborder">
 <?php
 submit();
 ?> 
 	Find word :<input type="text" name="word" value="<?php echo $s ?>">
-	<br/><br/>
+	<br><br>
 	<input type='hidden' name="adv" value="<?php
 	echo ($advanced) ? "1" : "" ?>">
 	<input type="submit" VALUE="<?=_('search')?>" class="btn" style="font-size:12px">
 	<input type="hidden" name="nconfs" value="<?php
-	echo $count ?>" />
+	echo $count ?>">
 	</form>
 
 </td>
 </tr>
 </table>
-
 </body>
 </html>
-

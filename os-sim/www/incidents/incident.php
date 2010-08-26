@@ -86,6 +86,14 @@ echo gettext("OSSIM Framework"); ?> </title>
 			return false;
 		});
 	});
+    function switch_user(select) {
+        if(select=='entity' && $('#transferred_entity').val()!=''){
+            $('#user').val('');
+        }
+        else if (select=='user' && $('#transferred_user').val()!=''){
+            $('#entity').val('');
+        }
+    }
   </script>
   
 <style>
@@ -175,7 +183,18 @@ if ($incident->get_status($conn) == "Closed") {
 ?>      </td></tr>
             <tr><td style="text-align:left;padding-left:10px;">
             <!--<hr/>-->
-            <?php echo _("In charge") ?>: <b style="color: darkblue"><?php echo $incident->get_in_charge_name($conn) ?></b><br/>
+            <?php 
+            if (!preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) {
+                $in_charge_name = $incident->get_in_charge_name($conn);
+            }
+            else {
+                $querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=".$incident->get_in_charge_name($conn);
+                $resulte=$conn->execute($querye);
+                list($entity_name, $entity_type) = $resulte->fields;
+                $in_charge_name = $entity_name." [".$entity_type."]";
+            }
+            ?>
+            <?php echo _("In charge") ?>: <b style="color: darkblue"><?php echo $in_charge_name; ?></b><br/>
             <?php echo _("Submitter") ?>: <b><?php echo $incident->get_submitter() ?></b>
             </td></tr>
             <tr><td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
@@ -484,6 +503,8 @@ for ($i = 0; $i < count($tickets_list); $i++) {
       action="manageincident.php?action=newticket&incident_id=<?php echo $id
 ?>"
       ENCTYPE="multipart/form-data">
+      <input type="hidden" name="prev_status" value="<?php echo $incident_status ?>"></input>
+      <input type="hidden" name="prev_prio" value="<?php echo $priority ?>"></input>
 <!--<table align="center" width="100%" style="border-width: 0px" cellspacing="5">-->
 <table align="center" width="100%" cellspacing="2">
 <tr><td valign="top">
@@ -521,52 +542,161 @@ for ($i = 1; $i <= 10; $i++) { ?>
          </td>
     </tr>
     
-    <?if(preg_match("/pro/i",$version) && !Session::am_i_admin()) {
+    <?if(preg_match("/pro/i",$version)) {
         $users_pro_login = array();
         $users_pro = array();
-        // users
-        if(Acl::am_i_proadmin()) {
+        $entities_pro = array();
+        
+        if(Session::am_i_admin()) { // admin in professional version
+            list($entities_all,$num_entities) = Acl::get_entities($conn);
+            $entities_types_aux = Acl::get_entities_types($conn);
+            $entities_types = array();
+
+            foreach ($entities_types_aux as $etype) { 
+                $entities_types[$etype['id']] = $etype;
+            }
+            
+            ?>
+            <tr>
+                <th><?php echo _("Transfer To") ?></th>
+                <td style="text-align: left">
+                    <table width="85%" cellspacing="0" cellpadding="0" class="transparent">
+                        <tr>
+                            <td><?php echo _("User:");?></td>
+                            <td>
+                              <select name="transferred_user" id="user" style="width:140px;" onchange="switch_user('user');return false;">
+                                <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                                <?php
+                                foreach($users as $u) { ?>
+                                <?php
+                                    if ($u->get_login() == $incident_in_charge) continue; // Don't add current in charge
+                                     ?>
+                                                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
+                                            <?php
+                                } ?>
+                              </select>
+                            </td>
+                            <td style="padding:0px 5px 0px 5px;text-align:center;"><?php echo _("OR");?></td>
+                            <td><?php echo _("Entity:");?></td>
+                            <td>
+                                <select name="transferred_entity" id="entity" style="width:140px;" onchange="switch_user('entity');return false;">
+                                <option value=""><? if (count($entities_all) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
+                                <?php
+                                    foreach ( $entities_all as $entity ) if($entity["id"]!=$incident_in_charge) {
+                                    ?>
+                                    <option value="<?php echo $entity["id"]; ?>"><?php echo $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";?></option>
+                                    <?php } ?>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <script>chg_prio_str();</script>
+            </tr> 
+    <?}
+        elseif(Acl::am_i_proadmin()) { // pro admin
+            //users
             $users_admin = Acl::get_my_users($conn,Session::get_session_user()); 
             foreach ($users_admin as $u){
                 if($u["login"]!=Session::get_session_user()){
                     $users_pro_login[] = $u["login"];
                 }
             }
+            if(!in_array(Session::get_session_user(), $users_pro_login) && $incident_in_charge!=Session::get_session_user())   $users_pro_login[] = Session::get_session_user();
+            
+            //entities
+            list($entities_all,$num_entities) = Acl::get_entities($conn);
+            list($entities_admin,$num) = Acl::get_entities_admin($conn,Session::get_session_user());
+            $entities_list = array_keys($entities_admin);
+            
+            $entities_types_aux = Acl::get_entities_types($conn);
+            $entities_types = array();
 
-        }
-        else {
-            $brothers = Acl::get_brothers($conn,Session::get_session_user());
-            foreach ($brothers as $brother){
-                $users_pro_login[] = $brother["login"];
+            foreach ($entities_types_aux as $etype) { 
+                $entities_types[$etype['id']] = $etype;
             }
+            
+            //save entities for proadmin
+            foreach ( $entities_all as $entity ) if(in_array($entity["id"], $entities_list)) {
+                $entities_pro[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+            }
+            
+            // filter users
+            foreach($users as $u) {
+                if (($u->get_login() == $incident_in_charge) || !in_array($u->get_login(),$users_pro_login)) continue;
+                $users_pro[$u->get_login()] = format_user($u, false);
+            }
+            ?>
+            <tr>
+                <th><?php echo _("Transfer To") ?></th>
+                <td style="text-align: left"> 
+                    <table width="85%" cellspacing="0" cellpadding="0" class="transparent">
+                        <tr>
+                            <td><?php echo _("User:");?></td>
+                            <td>
+                              <select name="transferred_user" id="user" style="width:140px;" onchange="switch_user('user');return false;">
+                                <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                                <?php
+                                foreach($users_pro as $loginu => $nameu) { ?>
+                                    <option value="<?php echo $loginu; ?>"><?php echo $nameu; ?></option>
+                                <?php
+                                } ?>
+                              </select>
+                            </td>
+                            <td style="padding:0px 5px 0px 5px;text-align:center;"><?php echo _("OR");?></td>
+                            <td><?php echo _("Entity:");?></td>
+                            <td>
+                                <select name="transferred_entity" style="width:140px;" id="entity" onchange="switch_user('entity');return false;">
+                                <option value=""><? if (count($entities_pro) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
+                                <?php
+                                    foreach ( $entities_pro as $entity_id => $entity_name ) if($entity_id!=$incident_in_charge) {
+                                    ?>
+                                    <option value="<?php echo $entity_id; ?>"><?php echo $entity_name;?></option>
+                                    <?php } ?>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <script>chg_prio_str();</script>
+            </tr> 
+        <?
         }
-        // filter users
-        foreach($users as $u) {
-            if (($u->get_login() == $incident_in_charge) || !in_array($u->get_login(),$users_pro_login)) continue;
-            $users_pro[$u->get_login()] = format_user($u, false);
-        }
-    ?>
-        <tr>
-            <th><?php echo _("Transfer To") ?></th>
-            <td style="text-align: left">
-              <select name="transferred">
-                <option value=""><? if (count($users_pro) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+        elseif(!preg_match("/^\d+$/",$incident_in_charge) && Session::get_session_user()==$incident_in_charge) { // normal user and incident_in_charge isn't entity
+                $brothers = Acl::get_brothers($conn,Session::get_session_user());
+                foreach ($brothers as $brother){
+                    $users_pro_login[] = $brother["login"]; 
+                }
+                if(!in_array(Session::get_session_user(), $users_pro_login) && $incident_in_charge!=Session::get_session_user())   $users_pro_login[] = Session::get_session_user();
+                // filter users
+                    foreach($users as $u) {
+                        if (($u->get_login() == $incident_in_charge) || !in_array($u->get_login(),$users_pro_login)) continue;
+                        $users_pro[$u->get_login()] = format_user($u, false); 
+                    }
+                ?>
+                    <tr>
+                        <th><?php echo _("Transfer To") ?></th>
+                        <td style="text-align: left">
+                          <select name="transferred_user" style="width:140px;">
+                            <option value=""><? if (count($users_pro) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                            <?php
+                foreach($users_pro as $loginu => $nameu) { ?>
+                        <option value="<?php echo $loginu ?>"><?php echo $nameu ?></option>
                 <?php
-    foreach($users_pro as $loginu => $nameu) { ?>
-            <option value="<?php echo $loginu ?>"><?php echo $nameu ?></option>
-    <?php
-    } ?>
-              </select>
-            </td>
-            <script>chg_prio_str();</script>
-        </tr>
-    <?}
+                } ?>
+                          </select>
+                        </td>
+                        <script>chg_prio_str();</script>
+                    </tr>
+                <?
+        }
+    }
     else {
         ?>
         <tr>
             <th><?php echo _("Transfer To") ?></th>
             <td style="text-align: left">
-              <select name="transferred">
+              <select name="transferred_user" style="width:140px;">
                 <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
                 <?php
     foreach($users as $u) { ?>

@@ -1,9 +1,10 @@
-<div style="position:absolute;left:0px;top:0px;width:100%;background:#8E8E8E" class="noborder">
-	<table width="100%" border=0 cellpadding=0 cellspacing=0 style="background:transparent" class="noborder"><tr>
-	<td style="width:15px;vertical-align:bottom" class="noborder">&nbsp;</td>
-	<td style="padding-top:7px" class="noborder">
-		<table border=0 cellpadding=0 cellspacing=0 style="background:transparent" class="noborder"><tr>
-	<?php
+<div style="position:absolute;left:0px;top:0px;width:100%;background:#8E8E8E;" class="noborder">
+	<table width="100%" border='0' cellpadding='0' cellspacing='0' style="background:transparent" class="noborder">
+	<tr>
+		<td style="width:15px;vertical-align:bottom" class="noborder">&nbsp;</td>
+		<td style="padding-top:7px" class="noborder">
+			<table border='0' cellpadding='0' cellspacing='0' style="background:transparent;" class="noborder"><tr>
+<?php
 /*****************************************************************************
 *
 *    License:
@@ -74,26 +75,31 @@
 			}
 			$on = ($panel_id == $tab_id) ? "on" : "";
 			$url = "?panel_id=$tab_id";
-			$txt = "<table cellpadding=0 cellspacing=0 border=0 class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='$url' class='gristab$on'>". $tabsmerge[$tab_id]["tab_name"]."</a></td></tr></table>";
+			$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='$url' class='gristab$on'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
 			if ($panel_id == $tab_id) { ?>
 					<td style="vertical-align:bottom" class="noborder">
-						<table border=0 cellpadding=0 cellspacing=0 height="26" class="noborder"><tr>
-						<td width="16" class="noborder"><img src="../pixmaps/menu/tsl<?php echo ($j > 0) ? "2" : "" ?>.gif" border=0></td>
-						<td style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding:0px 15px 0px 15px" class="noborder" nowrap><?php echo $txt ?></td>
-						<td width="16" class="noborder"><img src="../pixmaps/menu/tsr<?php echo ($j == $ctabs) ? "2" : "" ?>.gif" border=0></td>
-						<tr></table>
+						<table border='0' cellpadding='0' cellspacing='0' height="26" class="noborder">
+							<tr>
+								<td width="16" class="noborder"><img src="../pixmaps/menu/tsl<?php echo ($j > 0) ? "2" : "" ?>.gif" border='0'/></td>
+								<td style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding:0px 15px 0px 15px" class="noborder" nowrap='nowrap'><?php echo $txt ?></td>
+								<td width="16" class="noborder"><img src="../pixmaps/menu/tsr<?php echo ($j == $ctabs) ? "2" : "" ?>.gif" border='0'></td>
+							</tr>
+						</table>
 					</td>
+														
 			<?php
 				$selected = true;
 			} else { ?>
 					<td style="vertical-align:bottom" class="noborder">
-						<table border=0 cellpadding=0 cellspacing=0 height="26" class="transparent"><tr>
-						<?php if (!$selected) { ?><td width="16" class="noborder"><img src="../pixmaps/menu/tul<?php echo ($j == 0) ? "2" : "" ?>.gif" border=0></td><?php } ?>
-						<td height="26" style="background:url(../pixmaps/menu/bgtu.gif) repeat-x bottom left;padding:0px 10px 0px 10px" class="noborder" nowrap><?php echo $txt ?></td>
-						<?php if ($j == $ctabs) { ?>
-						<td width="16" class="noborder"><img src="../pixmaps/menu/tur.gif" border=0></td>
-						<?php } ?>
-						<tr></table>
+						<table border='0' cellpadding='0' cellspacing='0' height="26" class="transparent">
+							<tr>
+							<?php if (!$selected) { ?><td width="16" class="noborder"><img src="../pixmaps/menu/tul<?php echo ($j == 0) ? "2" : "" ?>.gif" border='0'></td><?php } ?>
+							<td height="26" style="background:url(../pixmaps/menu/bgtu.gif) repeat-x bottom left;padding:0px 10px 0px 10px" class="noborder" nowrap='nowrap'><?php echo $txt ?></td>
+							<?php if ($j == $ctabs) { ?>
+							<td width="16" class="noborder"><img src="../pixmaps/menu/tur.gif" border='0'></td>
+							<?php } ?>
+							</tr>
+						</table>
 					</td>
 			<?php
 				$selected = false;
@@ -103,71 +109,83 @@
 //}
 }
 ?>
-		<td style="width:100%;vertical-align:bottom" class="noborder">&nbsp;</td>
-		</tr></table>
-	</td>
-	<td style="vertical-align:bottom;text-align:right;background-color:#8E8E8E" class="noborder" nowrap>
-
-		<table cellpadding=0 cellspacing=0 border=0 width="100%" style="background:transparent;display: <?php
-$can_edit || $show_edit ? 'inline' : 'none' ?>; margin: 0px; padding: 0px;" class="noborder">
-		<tr><td align="<?($tabsavt[$_GET['panel_id']] == "") ? "left" : "right"?>" class="noborder" nowrap style="color:white;padding-right:5px;padding-bottom:2px">
-		<?php
-	
-if ($tabsavt[$panel_id] == "") {
-if ($can_edit) { ?>
-		<small>
-		    <?php echo _("Panel config") ?>:
-		    <?php echo _("Geom") ?>: <input id="rows" type="text" size="2" style="height:10px;width:15px;font-size:10px" value="<?php echo $rows ?>"> x
-		    <input id="cols" type="text" size="2" style="height:10px;width:15px;font-size:10px" value="<?php echo $cols ?>">
-		    <a style="color:#FFFFFF" href="#" onClick="javascript:
-		        panel_save($('rows').value, $('cols').value);
-		        panel_load($('rows').value, $('cols').value);
-		        "><?php echo _("Apply") ?></a>	|
-		</small>
-		<?php
-}
-?>
-		</td><td align="right" class="noborder" nowrap>
-			<small class="white">
-
-		<?php if ($show_edit && !$can_edit) { ?>
-		    <a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit=1&panel_id=<?php echo $panel_id ?>"><?php
-            echo gettext("Edit"); ?></a> 
-			| 		
-		<?php
-		} else if ($show_edit && $can_edit) { ?>
-			<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit=0&panel_id=<?php echo $panel_id ?>"><?php
-			echo gettext("No Edit"); ?></a>
-		<?php } ?>
-		|
-<? }else 
-    { 
-	   echo "<small class='white'>"; 
-	} 
-?>
-	<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&panel_id=<?php echo $panel_id ?>"><?php
-	echo gettext("Edit Tabs"); ?></a>	|
-	[<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?fullscreen=1&panel_id=<?php echo $panel_id ?>" target="popup" onClick="wopen('<?php echo $_SERVER['SCRIPT_NAME'] ?>?fullscreen=1&panel_id=<?php echo $panel_id ?>', 'popup', 800, 600); return false;"><?php echo _("Fullscreen") ?></a>]
-
-	</small></td>
-			<td style="vertical-align:bottom;padding:0px;padding-left:15px" class="nobborder">
-				<table class="noborder" border=0 cellpadding=0 cellspacing=0 align="right" height="26"><tr>
-				<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl.gif" border=0></td>
-				<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding-right:4px" nowrap>
-					<a href="javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboard:dashboard','DashboardHelp');" sltyle="color:black;text-decoration:none"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" alt="<?=_("Help")?>"></a>
-				</td>
-				<!--<td width="16" class="nobborder"><img src="../pixmaps/menu/tsr2.gif" border=0></td>-->
-				<tr></table>
-		   </td>
-			<!--</td><td width="20">&nbsp;</td><td><a style="color:#FFFFFF;text-decoration:none;" href="javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:control_panel','Dashboard Help');" class="white"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" alt="<?=_("Help")?>">&nbsp;<b><?=_("Help")?></b></a></td></tr>-->
+						<td style="width:100%;vertical-align:bottom" class="noborder">&nbsp;</td>
+					</tr>
+				</table>
+	    	</td>
+											
+			<td style="vertical-align:bottom;text-align:right;background-color:#8E8E8E" class="noborder" nowrap='nowrap'>
+				<table cellpadding='0' cellspacing='0' border='0' width="100%" style="background:transparent;display: <?php
+							$can_edit || $show_edit ? 'inline' : 'none' ?>; margin: 0px; padding: 0px;" class="noborder">
+					<tr>
+						<td align="<?($tabsavt[$_GET['panel_id']] == "") ? "left" : "right"?>" class="noborder" nowrap='nowrap' style="color:white;padding-right:5px;padding-bottom:2px">
+							<?php
+							if ($tabsavt[$panel_id] == "") 
+							{
+								if ($can_edit) 
+								{ ?>
+									<small>
+										<?php echo _("Panel config") ?>:
+										<?php echo _("Geom") ?>: <input id="rows" type="text" size="2" style="height:10px;width:15px;font-size:10px" value="<?php echo $rows ?>"> x
+										<input id="cols" type="text" size="2" style="height:10px;width:15px;font-size:10px" value="<?php echo $cols ?>">
+										<a style="color:#FFFFFF" href="#" onClick="javascript:
+											panel_save($('rows').value, $('cols').value);
+											panel_load($('rows').value, $('cols').value);
+											"><?php echo _("Apply") ?></a>	|
+									</small>
+								<?php
+								}
+								?>
+						</td>
+						
+						<td align="right" class="noborder" nowrap='nowrap'>
+							<small class="white">
+								<?php if ($show_edit && !$can_edit) { ?>
+									<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit=1&panel_id=<?php echo $panel_id ?>"><?php
+									echo gettext("Edit"); ?></a> 
+									| 		
+								<?php
+								} else if ($show_edit && $can_edit) { ?>
+									<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit=0&panel_id=<?php echo $panel_id ?>"><?php
+									echo gettext("No Edit"); ?></a>
+									|
+							<?php } ?>
+								<? }
+								else 
+									{ 
+									   echo "<small class='white'>"; 
+									} 
+								?>
+								<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&panel_id=<?php echo $panel_id ?>"><?php
+								echo gettext("Edit Tabs"); ?></a>	|
+								[<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?fullscreen=1&panel_id=<?php echo $panel_id ?>" target="popup" onClick="wopen('<?php echo $_SERVER['SCRIPT_NAME'] ?>?fullscreen=1&panel_id=<?php echo $panel_id ?>', 'popup', 800, 600); return false;"><?php echo _("Fullscreen") ?></a>]
+							</small>
+						</td>
+						
+						<td style="vertical-align:bottom;padding:0px;padding-left:15px" class="nobborder">
+							<table class="noborder" border='0' cellpadding='0' cellspacing='0' align="right" height="26">
+							<tr>
+								<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl.gif" border='0'></td>
+								<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding-right:4px" nowrap='nowrap'>
+									<a href="javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboard:dashboard','DashboardHelp');" sltyle="color:black;text-decoration:none"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" alt="<?=_("Help")?>"></a>
+								</td>
+							</tr>
+							</table>
+						</td>
+						
+					</tr>		
+				</table>
+			</td>	
+				
+				
+			</td>
+		</tr>
 	</table>
-
-
-	</td>
-	<!--<td style="width:15px;vertical-align:bottom" class="noborder">&nbsp;</td>-->
-	</tr></table>
 </div>
-<table width="100%" class="noborder" border=0 cellpadding=0 cellspacing=0 style="background:transparent"><tr><td height="35" class="noborder">&nbsp;</td>
-    </tr></table>
+
+
+<table width="100%" class="noborder" border='0' cellpadding='0' cellspacing='0' style="background:transparent;">
+	<tr><td height="35" class="noborder">&nbsp;</td></tr>
+</table>
 
 

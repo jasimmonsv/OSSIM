@@ -54,7 +54,8 @@ $date_from = POST('date_from');
 $date_to = POST('date_to');
 $num_alarms_page = POST('num_alarms_page');
 $hide_closed = POST('hide_closed');
-$sensor_query = GET('sensor_query');
+$sensor_query = POST('sensor_query');
+$background = (POST('background') != "") ? 1 : 0;
 ossim_valid($only_close, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_close"));
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, '.', 'illegal:' . _("order"));
 ossim_valid($query, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("query"));
@@ -86,6 +87,6 @@ foreach($_POST as $key => $value) {
 ?>
 <html>
 <head><title>Delete Selected Alarms</title></head>
-<body><script>document.location.href='alarm_console.php?hide_closed=<?=$hide_closed?>&query=<?=$query?>&directive_id=<?=$directive_id?>&inf=<?=$inf?>&sup=<?=$sup?>&order=<?=$order?>&src_ip=<?=$src_ip?>&dst_ip=<?=$dst_ip?>&num_alarms_page=<?=$num_alarms_page?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>&sensor_query=<?=$sensor_query?>'</script></body>
+<?php if (!$background) { ?><body><script>document.location.href='alarm_console.php?hide_closed=<?=$hide_closed?>&query=<?=$query?>&directive_id=<?=$directive_id?>&inf=<?=$inf?>&sup=<?=$sup?>&order=<?=$order?>&src_ip=<?=$src_ip?>&dst_ip=<?=$dst_ip?>&num_alarms_page=<?=$num_alarms_page?>&date_from=<?=$date_from?>&date_to=<?=$date_to?>&sensor_query=<?=$sensor_query?>'</script></body><?php } ?>
 </html>
 <? } ?>

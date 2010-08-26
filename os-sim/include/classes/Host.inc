@@ -232,7 +232,8 @@ class Host {
         return $list;
 	}
     function insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="") {
-        settype($asset, "int");
+
+        settype($asset, "int");  
         settype($threshold_c, "int");
         settype($threshold_a, "int");
         settype($alert, "int");
@@ -487,7 +488,7 @@ class Host {
             else return $ip;
         }
     }
-	function hostname2ip($conn, $hostname) {
+	function hostname2ip($conn, $hostname, $resolv=false) {
         $sql = "SELECT * FROM host WHERE hostname = ?";
         $params = array(
             $hostname
@@ -510,6 +511,9 @@ class Host {
 			if (!$rs->EOF) {
 				return $rs->fields["ip"];
 			}
+            elseif ($resolv) {
+                return trim(`/usr/bin/dig $hostname A +short | /usr/bin/tail -1`); 
+            }
 			else return "";
         }
     }

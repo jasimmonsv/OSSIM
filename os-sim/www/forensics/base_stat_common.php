@@ -449,7 +449,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
         $report_type = ($_GET['proto'] == '6') ? 1 : (($_GET['proto'] == '17') ? 2 : 0);
 ?>
 			<td align="center" style='border-right:1px solid #CACACA;border-top:1px solid #CACACA;<? if ($color == "#28BC04") echo "color:white" ?>' bgcolor="<?php echo $color
-?>"><a href="base_stat_uaddr.php?sort_order=occur_d&addr_type=3" <?php if ($color == "#28BC04") echo "style='color:white'" ?>><?php echo _SCUNIADDRESS . "</a>" . $pdf . $csv . $unique_src_ip_cnt_info[1] . "<font style='text-decoration:$addrtype1'>" . _SCSOURCE . "</font>" . $unique_src_ip_cnt_info[2] . " | " . $unique_dst_ip_cnt_info[1] . "<font style='text-decoration:$addrtype2'>" . _SCDEST . "</font>" . $unique_dst_ip_cnt_info[2] ?></td>
+?>"><?php echo _SCUNIADDRESS . $pdf . $csv . $unique_src_ip_cnt_info[1] . "<font style='text-decoration:$addrtype1'>" . _SCSOURCE . "</font>" . $unique_src_ip_cnt_info[2] . " | " . $unique_dst_ip_cnt_info[1] . "<font style='text-decoration:$addrtype2'>" . _SCDEST . "</font>" . $unique_dst_ip_cnt_info[2] ?></td>
 	  <?php
         //$li_style = (preg_match("/base_stat_ports\.php/",$_SERVER['SCRIPT_NAME'])) ? " style='color:#F37914'" : "";
         $color = (preg_match("/base_stat_ports\.php/", $_SERVER['SCRIPT_NAME']) && $_GET['port_type'] == 1) ? "#28BC04" : "#FFFFFF";

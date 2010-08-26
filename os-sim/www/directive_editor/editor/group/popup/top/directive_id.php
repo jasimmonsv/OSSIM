@@ -69,18 +69,13 @@ foreach($table_dir as $dir) {
     $table[$dir->get_attribute('id') ] = $dir->get_attribute('name');
 }
 ksort($table);
-?>
-
-		<h1><?php
+?><h1><?php
 echo gettext("List of directives"); ?></h1>
-
-
 		<center>
 			<table>
 				<tr>
 					<th width="70px">
-						<button class="th" id="all" onclick="onClickAll()">+</button>/
-						<button class="th" id="inv" onclick="onClickInv()">-</button>
+						<a href="" onclick="onClickAll();return false"><?php echo _("Check All")?></a>
 					</th>
 					<th>
 						<?php
@@ -91,7 +86,6 @@ echo gettext("Id"); ?>
 echo gettext("Name"); ?>
 					</th>
 				</tr>
-
 <?php
 $none_checked = 'true';
 $default_checked = '';
@@ -103,7 +97,6 @@ foreach($table as $cle => $valeur) {
     }
     if ($checked != '') $none_checked = 'false';
 ?>
-
 				<tr>
 					<td>
 						<input type="checkbox"
@@ -125,10 +118,8 @@ foreach($table as $cle => $valeur) {
 
 <?php
 } ?>
-
 			</table>
 		</center>
-
 		<script type="text/javascript" language="JavaScript">
 			window.open(
 				"../bottom.php?param=directive_id" +
@@ -137,7 +128,6 @@ echo $none_checked; ?>",
 				"bottom"
 			);
 		</script>
-
 	</body>
 </html>
 

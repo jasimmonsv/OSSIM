@@ -61,17 +61,11 @@ if ($addr_type == SOURCE_IP) {
     $page_title = _UNISADD;
     $results_title = _SUASRCIP;
     $addr_type_name = "ip_src";
-} elseif ($addr_type == DEST_IP) {
+} else {
+    if ($addr_type != DEST_IP) ErrorMessage(_SUAERRCRITADDUNK);
     $page_title = _UNIDADD;
     $results_title = _SUADSTIP;
     $addr_type_name = "ip_dst";
-// SRC OR DST = type 3
-} elseif ($addr_type == 3) {
-	$page_title = _("Unique Addresses");
-	$results_title = _("Unique Addresses");
-	$addr_type_name = "ip_src_dst";
-} else {
-	ErrorMessage(_SUAERRCRITADDUNK);
 }
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
@@ -171,7 +165,7 @@ if ($use_ac) {
             (select count(distinct ac_srcaddr_signature.plugin_id, ac_srcaddr_signature.plugin_sid) from ac_srcaddr_signature where ac_srcaddr_ipsrc.ip_src=ac_srcaddr_signature.ip_src $sqlb) as num_sig,
             (select count(distinct(ip_dst)) from ac_srcaddr_ipdst where ac_srcaddr_ipsrc.ip_src=ac_srcaddr_ipdst.ip_src $sqlc) as num_dip
             FROM ac_srcaddr_ipsrc $where GROUP BY ip_src HAVING num_events>0 $orderby";
-    } elseif ($addr_type_name == "ip_dst") {
+    } else {
         if (preg_match("/timestamp/", $criteria_clauses[1])) {
             $where = "WHERE " . str_replace("timestamp", "day", $criteria_clauses[1]);
             $sqla = " and ac_dstaddr_ipdst.day=ac_dstaddr_sid.day";
@@ -185,35 +179,6 @@ if ($use_ac) {
             (select count(distinct ac_dstaddr_signature.plugin_id, ac_dstaddr_signature.plugin_sid) from ac_dstaddr_signature where ac_dstaddr_ipdst.ip_dst=ac_dstaddr_signature.ip_dst $sqlb) as num_sig,
             (select count(distinct(ip_src)) from ac_dstaddr_ipsrc where ac_dstaddr_ipdst.ip_dst=ac_dstaddr_ipsrc.ip_dst $sqlc) as num_sip
             FROM ac_dstaddr_ipdst $where GROUP BY ip_dst HAVING num_events>0 $orderby";
-    // SRC OR DST
-    } else {
-    	if (preg_match("/timestamp/", $criteria_clauses[1])) {
-            $where = "WHERE " . str_replace("timestamp", "day", $criteria_clauses[1]);
-            $sqla = " and ac_srcaddr_ipsrc.day=ac_srcaddr_sid.day";
-            $sqlb = " and ac_srcaddr_ipsrc.day=ac_srcaddr_signature.day";
-            $sqlc = " and ac_srcaddr_ipsrc.day=ac_srcaddr_ipdst.day";
-        }
-        $orderby = str_replace("acid_event.", "", $sort_sql[1]);
-        $sql1 = "SELECT ip_src as ip,
-            sum(cid) as num_events,
-            (select count(distinct(sid)) from ac_srcaddr_sid where ac_srcaddr_ipsrc.ip_src=ac_srcaddr_sid.ip_src $sqla) as num_sensors,
-            (select count(distinct ac_srcaddr_signature.plugin_id, ac_srcaddr_signature.plugin_sid) from ac_srcaddr_signature where ac_srcaddr_ipsrc.ip_src=ac_srcaddr_signature.ip_src $sqlb) as num_sig,
-            (select count(distinct(ip_dst)) from ac_srcaddr_ipdst where ac_srcaddr_ipsrc.ip_src=ac_srcaddr_ipdst.ip_src $sqlc) as num_ip
-            FROM ac_srcaddr_ipsrc $where GROUP BY ip_src HAVING num_events>0 $orderby";
-       	if (preg_match("/timestamp/", $criteria_clauses[1])) {
-            $where = "WHERE " . str_replace("timestamp", "day", $criteria_clauses[1]);
-            $sqla = " and ac_dstaddr_ipdst.day=ac_dstaddr_sid.day";
-            $sqlb = " and ac_dstaddr_ipdst.day=ac_dstaddr_signature.day";
-            $sqlc = " and ac_dstaddr_ipdst.day=ac_dstaddr_ipsrc.day";
-        }
-        $orderby = str_replace("acid_event.", "", $sort_sql[1]);
-        $sql2 = "SELECT ip_dst as ip,
-            sum(cid) as num_events,
-            (select count(distinct(sid)) from ac_dstaddr_sid where ac_dstaddr_ipdst.ip_dst=ac_dstaddr_sid.ip_dst $sqla) as num_sensors,
-            (select count(distinct ac_dstaddr_signature.plugin_id, ac_dstaddr_signature.plugin_sid) from ac_dstaddr_signature where ac_dstaddr_ipdst.ip_dst=ac_dstaddr_signature.ip_dst $sqlb) as num_sig,
-            (select count(distinct(ip_src)) from ac_dstaddr_ipsrc where ac_dstaddr_ipdst.ip_dst=ac_dstaddr_ipsrc.ip_dst $sqlc) as num_ip
-            FROM ac_dstaddr_ipdst $where GROUP BY ip_dst HAVING num_events>0 $orderby";
-        $sql = "SELECT ip,sum(num_events) as num_events,sum(num_sensors) as num_sensors,sum(num_sig) as num_sig,sum(num_ip) as num_ip FROM (($sql1) UNION ($sql2)) uni GROUP BY ip";
     }
 }
 //echo $sql;

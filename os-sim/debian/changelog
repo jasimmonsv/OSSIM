@@ -1,8 +1,14 @@
+ossim (1:2.4.0-1) ossim; urgency=low
+
+  * Change to 2.4.0 branch
+
+ -- Carlos Terron <cterron@alienvault.com>  Fri, 13 Aug 2010 14:31:00 +0100
+
 ossim (1:2.3.1-8) ossim; urgency=low
 
   * Multiple fix
 
-  -- jdelacasa <jdelacasa@alienvault.com> Fri, 10 Aug 2010 13:22:00 +0100
+ -- jdelacasa <jdelacasa@alienvault.com>  Fri, 10 Aug 2010 13:22:00 +0100
 
 ossim (1:2.3.1-7) ossim; urgency=low 
 

@@ -44,12 +44,12 @@ echo gettext("Global Properties"); ?>
 		</tr>
 		<!-- ##### name ##### -->
 		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px;border:0px">
 				<?php
 echo gettext("Name"); ?>
 			</td>
 			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
+				padding-left: 5px; padding-right: 8px;border:0px"
 				colspan="6"
 			>
 				<input type="text" style="width: 100%"
@@ -70,13 +70,13 @@ echo $category->xml_file; ?>')"
 		</tr>
 		<!-- ##### xml file ##### -->
 		<tr>
-			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px">
+			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px;border:0px">
 				<?php
 echo gettext("XML File"); ?>
 			</td>
 			<td style="width: <?php
 echo $xml_file_width; ?>;
-				text-align: left; padding-left: 5px"
+				text-align: left; padding-left: 5px;border:0px"
 			>
 				<input type="text" style="width: <?php
 echo $xml_file_width; ?>"
@@ -95,13 +95,13 @@ echo $category->xml_file; ?>')"
 				/>
 			</td>
 			<!-- ##### mini ##### -->
-			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px">
+			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px;border:0px">
 				<?php
 echo gettext("Mini"); ?>
 			</td>
 			<td style="width: <?php
 echo $mini_width; ?>;
-				text-align: left; padding-left: 5px"
+				text-align: left; padding-left: 5px;border:0px"
 			>
 				<input type="text" style="width: <?php
 echo $mini_width; ?>"
@@ -119,13 +119,13 @@ echo $category->id; ?>')"
 				/>
 			</td>
 			<!-- ##### maxi ##### -->
-			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px">
+			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px;border:0px">
 				<?php
 echo gettext("Maxi"); ?>
 			</td>
 			<td style="width: <?php
 echo $maxi_width; ?>;
-				text-align: left; padding-left: 5px"
+				text-align: left; padding-left: 5px;border:0px"
 			>
 				<input type="text" style="width: <?php
 echo $maxi_width; ?>"

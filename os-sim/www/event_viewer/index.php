@@ -48,6 +48,7 @@ $groups_config = $config->get($login, 'event_viewer', 'php');
 $date_to = GET('date_to') ? GET('date_to') : date('Y-m-d');
 $date_from = GET('date_from') ? GET('date_from') : date('Y-m-d');
 ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
   <title><?php echo _("OSSIM Framework") ?></title>
@@ -122,6 +123,8 @@ $(document).ready(function(){
 <body>
 <?php
 include ("../hmenu.php"); ?>
+<div style="text-align: left;border:1px solid red;background-color:#f7edec;padding:5px"><?php echo _("<b>Warning</b>: This tab will be removed in the next release. Now you should
+customize the SIEM tab in order to have custom columns in the next release.") ?></div>
 <div style="text-align: right"><b>
 <a href="<?php echo $conf->get_conf("acid_link") . "/" . $conf->get_conf("event_viewer") . "_qry_main.php?&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d" ?>"><?php echo _("Go to SIEM Events") ?></a>
 </b></div>

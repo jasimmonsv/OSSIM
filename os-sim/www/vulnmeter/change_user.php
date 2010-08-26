@@ -153,7 +153,7 @@ if($id!="" && (($entity!="" && $entity!="none") || ($user!="" && $user!="none"))
 }
 
 if($entity=="" && $user=="") {
-    $query = "SELECT username FROM vuln_jobs where report_id=$id";
+    $query = "(SELECT username FROM vuln_jobs where report_id=$id) UNION (SELECT username FROM vuln_nessus_reports where report_id=$id)";
     $result = $dbconn->Execute($query);
     $user_name = $result->fields['username'];
 }

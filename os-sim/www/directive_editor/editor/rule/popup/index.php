@@ -74,7 +74,7 @@ if ($top == 'plugin_id') {
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html>
-	<frameset rows="100%,40">
+	<frameset rows="100%,60">
 		<frame src="top/<?php
 echo $top; ?>.php<?php
 echo $variables; ?>" name="top" frameborder="0">

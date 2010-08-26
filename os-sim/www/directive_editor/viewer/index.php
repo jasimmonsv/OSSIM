@@ -96,6 +96,11 @@ $(document).ready(function(){
 		GB_show(t,this.href,520,'90%');
 		return false;
 	});
+	$("a.greybox_200").click(function(){
+		var t = this.title || $(this).text() || this.href;
+		GB_show(t,this.href,200,'90%');
+		return false;
+	});
 });
 </SCRIPT>
 </head>
@@ -111,6 +116,7 @@ require_once ('classes/Alarm.inc');
 require_once ('classes/Repository.inc');
 $directive_id = GET('directive');
 $directive_xml = $_GET['directive_xml'];
+if ($directive_xml == "" && $directive_id != "") $directive_xml = get_directive_real_file($directive_id);
 $category_mini = $_GET['category_mini'];
 $level = GET('level');
 $action = GET('action');
@@ -175,7 +181,7 @@ if (!empty($directive_id)) {
         release_file($XML_FILE);
     }
     if (!empty($directive_id)) {
-        $direct->printDirective($level);
+        $direct->printDirective($level,$directive_xml);
     }
     
 ?>
@@ -317,22 +323,23 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
 <th> <?php
     echo gettext("Maxi");?>--><?
     $categories = unserialize($_SESSION['categories']);
-    foreach($categories as $category) { ?>
-<tr><td><a onclick="javascript:if (confirm('<?php
+    $i = 0;
+    foreach($categories as $category) { $color = ($i%2 == 0) ? "#F2F2F2" : "#FFFFFF"; ?>
+<tr><td style="border:0px;background-color:<?php echo $color?>"><a onclick="javascript:if (confirm('<?php
         echo gettext("Are you sure you want to delete this category ?"); ?>')) { window.open('../include/utils.php?query=delete_category&id=<?php
         echo $category->id; ?>','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php
-        echo gettext("Delete this category"); ?>">x</a>
-<td><a href="../right.php?action=edit_file&id=<?php
-        echo $category->id; ?>" TARGET="right" TITLE="<?php
+        echo gettext("Delete this category"); ?>"><img src="../../pixmaps/cross-circle-frame.png" border="0" alt="<?php echo _("Delete")?>" title="<?php echo _("Delete")?>"></img></a>
+<td style="border:0px;background-color:<?php echo $color?>"><a href="../editor/category/index.php?id=<?php
+        echo $category->id; ?>" class="greybox_200" TITLE="<?php
         echo gettext("Click to modify this category"); ?>"><?php
         echo gettext($category->name); ?></a>
 <!--<td> <?php
         echo $category->mini; ?>
 <td> <?php
         echo $category->maxi; ?>--><?
-    } ?>
-<tr><td colspan="2" class="center nobborder"><a href="../right.php?action=add_file&id=0" TARGET="right" TITLE="<?php
-    echo gettext("Add a new category"); ?>"><?php
+    $i++; } ?>
+<tr><td colspan="2" class="center nobborder"><a href="../editor/category/index.php?id=0" class="greybox_200" TITLE="<?php
+    echo gettext("Add a new category"); ?>"><img src="../../pixmaps/plus-small.png" border="0" align="absmiddle"></img> <?php
     echo "<b>".gettext("New")."</b>"; ?></a>
 </table>
 
@@ -352,9 +359,9 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
 <tr><td><a onclick="javascript:if (confirm('<?php
         echo gettext("Are you sure you want to delete this group ?"); ?>')) { window.open('../include/utils.php?query=delete_group&name=<?php
         echo $group->name; ?>','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php
-        echo gettext("Delete this group"); ?>">x</a>
-<td><a href="../right.php?action=edit_group&id=<?php
-        echo $group->name; ?>" TARGET="right" TITLE="<?php
+        echo gettext("Delete this group"); ?>"><img src="../../pixmaps/cross-circle-frame.png" border="0" alt="<?php echo _("Delete")?>" title="<?php echo _("Delete")?>"></img></a>
+<td><a href="../editor/group/index.php?name=<?php
+        echo $group->name; ?>&framed=1" class="greybox" TITLE="<?php
         echo gettext("Click to modify this group"); ?>"><?php
         echo gettext($group->name); ?></a>
 <td style="text-align:left"> <?php
@@ -366,13 +373,14 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
         $value = "";
         foreach($group->list as $dir) {
             if ($value != "") $value.= "<br>";
-            $value.= $dir . " : <a href=\"index.php?level=1&amp;directive=" . $dir . "\" target=\"right\" TITLE=\"" . gettext("Edit this directive") . "\">" . $table[$dir] . "</a>";
+            $xml_file = get_directive_real_file($dir);
+            $value.= $dir . " : <a href=\"index.php?level=1&amp;directive=" . $dir . "&amp;directive_xml=" . $xml_file . "\" target=\"right\" TITLE=\"" . gettext("Edit this directive") . "\">" . $table[$dir] . "</a>";
         }
         print $value;
     } ?>
-<tr><td><a href="../right.php?action=add_group&id=0" TARGET="right" TITLE="<?php
-    echo gettext("Add a new group"); ?>"><?php
-    echo gettext("New"); ?></a>
+<tr><td colspan="3" class="center nobborder"><a href="../editor/group/index.php?name=0&framed=1" class="greybox" TITLE="<?php
+    echo gettext("Add a new group"); ?>"><img src="../../pixmaps/plus-small.png" border="0" align="absmiddle"></img> <?php
+    echo "<b>".gettext("New")."</b>"; ?></a>
 </table>
 
 

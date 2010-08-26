@@ -55,8 +55,8 @@ function isMod() {
 function onClickChk() {
 
 	var ok = parent.frames[1].document.getElementById("ok");
-	ok.disabled = (isNone()) ? "disabled" : "";
-
+	ok.disabled = (isNone()) ? true : false;
+	
 	var is_mod = document.getElementById("is_mod");
 	if (is_mod) is_mod.value = "true";
 }

@@ -100,8 +100,7 @@ if ($rule->plugin_id != "") echo '<b>&nbsp;' . getPluginName($rule->plugin_id) .
 			<td style="vertical-align: top">
 				<input type="button" style="width: 25px; cursor:pointer;"
 					value="..." 
-          onclick="open_frame('editor/rule/popup/index.php?top=plugin_id&plugin_id='+ getElt('plugin_id').value);"  
-        />
+          onclick="open_frame('editor/rule/popup/index.php?top=plugin_id&plugin_id='+ getElt('plugin_id').value);"/>
 					<!--
 					open_frame('editor/rule/popup/index.php?top=plugin_id&plugin_id='+ getElt('plugin_id').value)
 				/-->

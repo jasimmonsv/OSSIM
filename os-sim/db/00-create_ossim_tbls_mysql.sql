@@ -2357,7 +2357,7 @@ CREATE TABLE IF NOT EXISTS `custom_report_profiles` (
 `color3` varchar(64) NOT NULL,
 `color4` varchar(64) NOT NULL,
 PRIMARY KEY (`name`)
-) ;
+);
 
 DROP TABLE IF EXISTS `custom_report_types`;
 CREATE TABLE IF NOT EXISTS `custom_report_types` (
@@ -2371,3 +2371,9 @@ CREATE TABLE IF NOT EXISTS `custom_report_types` (
 PRIMARY KEY (`id`)
 );
 
+DROP TABLE IF EXISTS `risk_maps`;
+CREATE TABLE IF NOT EXISTS `risk_maps` (
+  `map` varchar(64) NOT NULL,
+  `perm` varchar(64) NOT NULL,
+  PRIMARY KEY (`map`,`perm`)
+);

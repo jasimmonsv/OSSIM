@@ -44,6 +44,8 @@ require_once 'classes/Incident_event.inc';
 require_once 'classes/Incident_metric.inc';
 require_once 'classes/Incident_anomaly.inc';
 require_once 'classes/Incident_vulnerability.inc';
+require_once ('ossim_conf.inc');
+
 $db = new ossim_db();
 $conn = $db->connect();
 $edit = GET('action') && GET('action') == 'edit' ? true : false;
@@ -208,6 +210,17 @@ echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript">
+      function switch_user(select) {
+        if(select=='entity' && $('#transferred_entity').val()!=''){
+            $('#user').val('');
+        }
+        else if (select=='user' && $('#transferred_user').val()!=''){
+            $('#entity').val('');
+        }
+    }
+  </script>
 </head>
 <body>
 <?php
@@ -218,19 +231,180 @@ include ("../hmenu.php"); ?>
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />
 <input type="hidden" name="ref" value="<?php echo $ref ?>" />
 <input type="hidden" name="incident_id" value="<?php echo $incident_id ?>" />
-<table align="center">
+<input type="hidden" name="submitter" value="<?php echo $submitter ?>" />
+<table align="center" width="550">
   <tr>
     <th><?php echo _("Title") ?></th>
     <td class="left">
       <input type="text" name="title" size="40" value="<?php echo $title ?>" />
     </td>
   </tr>
-  <tr>
-    <th><?php echo _("Submitter") ?></th>
-    <td class="left">
-      <input type="text" name="submitter" size="40" value="<?php echo $submitter ?>" />
-    </td>
-  </tr>
+    
+<?
+$users = Session::get_list($conn);
+
+$conf = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
+
+if(preg_match("/pro/i",$version)) {
+    $users_pro_login = array();
+    $users_pro = array();
+    $entities_pro = array();
+    
+    if(Session::am_i_admin()) { // admin in professional version
+        list($entities_all,$num_entities) = Acl::get_entities($conn);
+        $entities_types_aux = Acl::get_entities_types($conn);
+        $entities_types = array();
+
+        foreach ($entities_types_aux as $etype) { 
+            $entities_types[$etype['id']] = $etype;
+        }
+        
+        ?>
+        <tr>
+            <th><?php echo _("Assign To") ?></th>
+            <td style="text-align: left">
+                <table width="400" cellspacing="0" cellpadding="0" class="transparent">
+                    <tr>
+                        <td class="nobborder"><?php echo _("User:");?></td>
+                        <td class="nobborder">
+                          <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
+                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                            <?php
+                            foreach($users as $u) if(Session::get_session_user()!=$u->get_login()){ ?>
+                                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
+                            <?php
+                            } ?>
+                          </select>
+                        </td>
+                        <td style="padding:0px 5px 0px 5px;text-align:center;" class="nobborder"><?php echo _("OR");?></td>
+                        <td class="nobborder"><?php echo _("Entity:");?></td>
+                        <td class="nobborder">
+                            <select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
+                            <option value=""><? if (count($entities_all) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
+                            <?php
+                                foreach ( $entities_all as $entity ) {
+                                ?>
+                                <option value="<?php echo $entity["id"]; ?>"><?php echo $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";?></option>
+                                <?php } ?>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr> 
+<?}
+    elseif(Acl::am_i_proadmin()) { // pro admin
+        //users
+        $users_admin = Acl::get_my_users($conn,Session::get_session_user()); 
+        foreach ($users_admin as $u){
+            if($u["login"]!=Session::get_session_user()){
+                $users_pro_login[] = $u["login"];
+            }
+        }
+        //if(!in_array(Session::get_session_user(), $users_pro_login) && $incident_in_charge!=Session::get_session_user())   $users_pro_login[] = Session::get_session_user();
+        
+        //entities
+        list($entities_all,$num_entities) = Acl::get_entities($conn);
+        list($entities_admin,$num) = Acl::get_entities_admin($conn,Session::get_session_user());
+        $entities_list = array_keys($entities_admin);
+        
+        $entities_types_aux = Acl::get_entities_types($conn);
+        $entities_types = array();
+
+        foreach ($entities_types_aux as $etype) { 
+            $entities_types[$etype['id']] = $etype;
+        }
+        
+        //save entities for proadmin
+        foreach ( $entities_all as $entity ) if(in_array($entity["id"], $entities_list)) {
+            $entities_pro[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+        }
+        
+        // filter users
+        foreach($users as $u) {
+            if (!in_array($u->get_login(),$users_pro_login)) continue;
+            $users_pro[$u->get_login()] = format_user($u, false);
+        }
+        ?>
+        <tr>
+            <th><?php echo _("Assign To") ?></th>
+            <td style="text-align: left;">
+                <table width="400" cellspacing="0" cellpadding="0" class="transparent">
+                    <tr>
+                        <td class="nobborder"><?php echo _("User:");?></td>
+                        <td class="nobborder">
+                          <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
+                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                            <?php
+                            foreach($users_pro as $loginu => $nameu) { ?>
+                                <option value="<?php echo $loginu; ?>"><?php echo $nameu; ?></option>
+                            <?php
+                            } ?>
+                          </select>
+                        </td>
+                        <td style="padding:0px 5px 0px 5px;text-align:center;" class="nobborder"><?php echo _("OR");?></td>
+                        <td class="nobborder"><?php echo _("Entity:");?></td>
+                        <td class="nobborder">
+                            <select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
+                            <option value=""><? if (count($entities_pro) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
+                            <?php
+                                foreach ( $entities_pro as $entity_id => $entity_name ) {
+                                ?>
+                                <option value="<?php echo $entity_id; ?>"><?php echo $entity_name;?></option>
+                                <?php } ?>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr> 
+    <?
+    }
+    else { // normal user
+            $brothers = Acl::get_brothers($conn,Session::get_session_user());
+            foreach ($brothers as $brother){
+                $users_pro_login[] = $brother["login"];
+            }
+            //if(!in_array(Session::get_session_user(), $users_pro_login))   $users_pro_login[] = Session::get_session_user();
+            // filter users
+                foreach($users as $u) {
+                    if (!in_array($u->get_login(),$users_pro_login)) continue;
+                    $users_pro[$u->get_login()] = format_user($u, false);
+                }
+            ?>
+                <tr>
+                    <th><?php echo _("Assign To") ?></th>
+                    <td style="text-align: left">
+                      <select name="transferred_user">
+                        <option value=""><? if (count($users_pro) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                        <?php
+            foreach($users_pro as $loginu => $nameu) { ?>
+                    <option value="<?php echo $loginu ?>"><?php echo $nameu ?></option>
+            <?php
+            } ?>
+                      </select>
+                    </td>
+                </tr>
+            <?
+    }
+}
+else {
+    ?>
+    <tr>
+        <th><?php echo _("Assign To") ?></th>
+        <td style="text-align: left">
+          <select name="transferred_user">
+            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+            <?php
+            foreach($users as $u) if ($u->get_login()!=Session::get_session_user()) { ?>
+                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
+            <?php
+            } ?>
+          </select>
+        </td>
+    </tr> 
+<?}?>
   <tr>
     <th><?php echo _("Priority") ?></th>
     <td class="left">
@@ -514,3 +688,32 @@ if (($ref == "Alarm") or ($ref == "Event")) {
 
 </body>
 </html>
+<?php
+function format_user($user, $html = true, $show_email = false) {
+    if (is_a($user, 'Session')) {
+        $login = $user->get_login();
+        $name = $user->get_name();
+        $depto = $user->get_department();
+        $company = $user->get_company();
+        $mail = $user->get_email();
+    } elseif (is_array($user)) {
+        $login = $user['login'];
+        $name = $user['name'];
+        $depto = $user['department'];
+        $company = $user['company'];
+        $mail = $user['email'];
+    } else {
+        return '';
+    }
+    $ret = $name;
+    if ($depto && $company) $ret.= " / $depto / $company";
+    if ($mail && $show_email) $ret = "$ret &lt;$mail&gt;";
+    if ($login) $ret = "<label title=\"Login: $login\">$ret</label>";
+    if ($mail) {
+        $ret = '<a href="mailto:' . $mail . '">' . $ret . '</a>';
+    } else {
+        $ret = "$ret <font size=small color=red><i>(No email)</i></font>";
+    }
+    return $html ? $ret : strip_tags($ret);
+}
+?>

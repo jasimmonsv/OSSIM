@@ -34,10 +34,17 @@
 * Function list:
 * Classes list:
 */
-$directive_xml = preg_replace("/.*\//","",$_SESSION['XML_FILE']);
+//$directive_xml = preg_replace("/.*\//","",$_SESSION['XML_FILE']);
+if ($directive_xml == "") {
+	$directive_xml = GET('xml_file');
+	ossim_valid($xml_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+	if (ossim_error()) {
+	    die(ossim_error());
+	}
+}
 ?>	
 	<!-- #################### global properties ##################### -->
-	<table width="<?php echo $left_table_width; ?>">
+	<table width="<?php echo $left_table_width; ?>" style="background-color:#F2F2F2">
 		<tr>
 			<th colspan="5">
 				<?php echo gettext("Global Properties"); ?>
@@ -45,22 +52,22 @@ $directive_xml = preg_replace("/.*\//","",$_SESSION['XML_FILE']);
 		</tr>
 		<!-- ##### name ##### -->
 		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px;border:0px">
 				<?php echo gettext("Name"); ?>
 			</td>
-			<td style="width: 100%; text-align: left; padding-left: 5px; padding-right: 8px" colspan="4">
+			<td style="width: 100%; text-align: left; padding-left: 5px; padding-right: 8px;border:0px" colspan="4">
 				<input type="text" style="width: 100%" name="name" id="name" value="<?php echo str_replace("'", "", str_replace("\"", "", $directive->name)); ?>" title="<?php echo str_replace("'", "", str_replace("\"", "", $directive->name)); ?>" onkeypress="onKeyPressElt(this,event)" onchange="onChangeName()" onblur="onChangeName()" onfocus="onFocusName()">
 			</td>
 		</tr>
 		<!-- ##### id ##### -->
 		<tr>
-			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px">
+			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px;border:0px">
 				<?php
 echo gettext("Id"); ?>
 			</td>
 			<td style="width: <?php
 echo $select_width; ?>;
-				text-align: left; padding-left: 5px"
+				text-align: left; padding-left: 5px;border:0px"
 			>
 				<?
 $categories = unserialize($_SESSION['categories']);
@@ -90,7 +97,7 @@ foreach($categories as $category) {
 				</select>
 			</td>
 			<td style="width: <?php
-echo $id_width; ?>; text-align: left"
+echo $id_width; ?>; text-align: left;border:0px"
 			>
 				<input type="text" style="width: <?php
 echo $id_width; ?>"
@@ -107,13 +114,13 @@ echo $directive->id; ?>)"
 echo $directive->id; ?>)"
 				/>
 			</td>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px;border:0px">
 				<?php
 echo gettext("Priority"); ?>
 			</td>
 			<td style="width: <?php
 echo $priority_width; ?>;
-				text-align: left; padding-left: 5px"
+				text-align: left; padding-left: 5px;border:0px"
 			>
 				<select style="width: <?php
 echo $priority_width; ?>"
@@ -130,51 +137,56 @@ for ($i = 0; $i <= 5; $i++) {
 			</td>
 		</tr>
 		<!-- ##### list of groups ##### -->
+		<tr><td colspan="5" style="border:0px">&nbsp;</td></tr>
+		<tr><th colspan="5"><?php echo _("Groups")?></th></tr>
 		<tr>
-			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Groups"); ?>
-			</td>
-			<td style="width: 100%;
-				text-align: left; padding-left: 5px"
-				colspan="3"
-			>
-				<?php
-$groups = unserialize($_SESSION['groups']);
-$list = "";
-foreach($groups as $group) {
-    if (in_array($directive->id, $group->list)) {
-        if ($list != "") $list.= ",";
-        $list.= $group->name;
-    }
-    $list = trim($list);
-}
-?>
-				<input type="text" style="width: 100%"
-					name="list"
-					id="list"
-					value="<?php
-print $list; ?>"
-					title="<?php
-print $list; ?>"
-					onkeypress="onKeyPressElt(this,event)"
-					onchange="onChangelist('<?php
-print $list; ?>')"
-					onblur="onChangelist('<?php
-print $list; ?>')"
-				/>
-			</td>
-			<td style="vertical-align: top">
-				<input type="button" style="width: 25px; cursor:pointer;"
-					id="popup_plugin_sid"
-					value="..."
-					onclick="open_frame(
-            'editor/directive/popup/index.php' +
-						'?top=groups' +
-						'&directive=' + getElt('iddir').value +
-						'&list=' + getElt('list').value
-					)"
-				/>
+			<td colspan="5">
+				<div style="height:300px;overflow:auto">
+					<table width="100%">
+						<tr>
+							<th width="70px">
+								<a href="" onclick="onClickAll();return false"><?php echo _("Check All")?></a>
+							</th>
+							<th>
+								<?php echo gettext("Name"); ?>
+							</th>
+							<th>
+								<?php echo gettext("Directives"); ?>
+							</th>
+						</tr>
+						<?php
+						$default_checked = '';
+						foreach($groups as $group) {
+						    if (in_array($group->name, split(',', $list))) {
+						        $checked = ($default_checked == '') ? ' checked="checked"' : '';
+						    } else {
+						        $checked = $default_checked;
+						    }
+						    $list_dir = "";
+						    foreach($group->list as $dir) {
+						        if ($list_dir != "") $list_dir.= "<br>";
+						        $list_dir.= $dir . " : " . $table[$dir];
+						    }
+						?>
+						<tr>
+							<td>
+								<input type="checkbox"
+									name="chk"
+									onclick="check_group(this.value,this.checked)"
+									value="<?php echo $group->name; ?>"
+									<?php echo $checked; ?>>
+							</td>
+							<td style="background: #eeeeee">
+								<?php echo $group->name; ?>
+							</td>
+							<td style="text-align:left; background: #eeeeee">
+								<?php echo $list_dir; ?>
+							</td>
+						</tr>
+						<?php
+						} ?>
+					</table>
+				</div>
 			</td>
 		</tr>
 	</table>

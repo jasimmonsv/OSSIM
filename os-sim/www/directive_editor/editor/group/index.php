@@ -49,10 +49,31 @@ require_once ('../../include/directive.php');
 dbConnect();
 /* get the group */
 $group = get_group_by_name($_GET['name']);
+$framed = ($_GET['framed'] != "") ? 1 : 0;
 if (!isset($group)) $group = new Group(NULL, NULL, NULL, NULL);
 $_SESSION['group'] = serialize($group);
 /* width */
 $list_width = '300px';
+
+if (!$dom = domxml_open_file('/etc/ossim/server/directives.xml', DOMXML_LOAD_SUBSTITUTE_ENTITIES)) {
+    echo "Error while parsing the document\n";
+    exit;
+}
+$table = array();
+$table_dir = $dom->get_elements_by_tagname('directive');
+foreach($table_dir as $dir) {
+    $table[$dir->get_attribute('id') ] = $dir->get_attribute('name');
+}
+ksort($table);
+
+$list = "";
+if ($group->list != null) {
+    foreach($group->list as $dir) {
+        if ($list != "") $list.= ",";
+        $list.= $dir;
+    }
+    $list = trim($list);
+}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -63,6 +84,7 @@ $list_width = '300px';
 		<link type="text/css" rel="stylesheet"
 			href="<?php
 echo $css_dir . '/directives.css'; ?>" />
+<link rel="stylesheet" type="text/css" href="../../style/greybox.css"/>
 
 		<style>
 			input.editable {width: <?php
@@ -74,7 +96,8 @@ echo $right_select_width; ?>}
 		<script type="text/javascript" language="javascript"
 			src="<?php
 echo $js_dir . '/editor.js'; ?>"></script>
-
+<script type="text/javascript" src="../../js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../../js/greybox.js"></script>
 		<script type="text/javascript" language="javascript"
 			src="<?php
 echo $js_dir . '/editableSelectBox.js'; ?>"></script>
@@ -128,40 +151,70 @@ echo $js_dir_group . '/group.js'; ?>"></script>
          
     }
 
-		function open_frame(url){
-    var iframe = window.parent.document.getElementById('fenetre');
-    var fond = window.parent.document.getElementById('fond');
-    iframe.childNodes[0].src = url;    
-    taille();
-    fond.style.display = 'block';
-    iframe.style.display = 'block';
-   }
+	function open_frame(url){
+		<?php if ($framed) { ?>
+		document.location.href="../../"+url;
+		<?php } else {?>
+		GB_show('Group edit',url,520,'90%');
+		<?php }?>
+		/*
+	    var iframe = window.parent.document.getElementById('fenetre');
+	    var fond = window.parent.document.getElementById('fond');
+	    iframe.childNodes[0].src = url;    
+	    taille();
+	    fond.style.display = 'block';
+	    iframe.style.display = 'block';
+	    */
+	   }
+	function check_directive(directive_id,checked) {
+		var dir_string = document.getElementById('list').value;
+		
+		if (checked == true) {
+			// Add to list
+			if (dir_string != "") dir_string = dir_string + "," + directive_id;
+			else dir_string = directive_id;
+		} else {
+			var aux = dir_string.split(/\,/);
+			dir_string = "";
+			for (i = 0; i < aux.length; i++) {
+				// Delete from list
+				if (aux[i] != directive_id) {
+					if (dir_string != "") dir_string = dir_string + "," + aux[i];
+					else dir_string = aux[i];
+				}
+			}
+		}
+		document.getElementById('list').value = dir_string;
+	}
 		</script>
 
 	</head>
 
 	<body>
-  <div style="
-      background-color:#17457c;
-      width:100%;
-      position:fixed;
-      height:2px;
-      left:0px;"></div><br>
 	<!-- #################### main container #################### -->
 	<form method="POST" action="../../include/utils.php?query=save_group">
-	<table class="container" style="border-width: 0px" align="center">
+	<input type="hidden" style="width: <?php echo $list_width; ?>"
+		name="list"
+		id="list"
+		value="<?php print $list; ?>"
+		title="<?php print $list; ?>"
+		onkeypress="onKeyPressElt(this,event)"
+		onchange="onChangelist('<?php print $list; ?>')"
+		onblur="onChangelist('<?php print $list; ?>')">
+	</input>
+	<table class="container" width="100%" style="border-width: 0px;background-color:transparent" align="center">
 	<tr>
 
 	<!-- #################### left container #################### -->
-	<td class="container" style="vertical-align: top">
-	<table class="container">
+	<td class="container" style="vertical-align: top;border:0px">
+	<table width="100%" class="container" style="background-color:transparent">
 
-	<tr><td class="container">
+	<tr><td class="container" style="border:0px">
 	<?php
 include ("$base_dir/directive_editor/editor/group/global.inc.php"); ?>
 	</td></tr>
 
-	<tr><td class="container">
+	<tr><td class="container" style="border:0px">
 		<input type="button" class="btn" style="width: 100px"
 			value="<?php
 echo gettext('Cancel'); ?>"

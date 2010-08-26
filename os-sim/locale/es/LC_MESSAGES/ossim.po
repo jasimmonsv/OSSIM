@@ -685,6 +685,10 @@ msgstr "Nombre del Activo"
 msgid "Assets"
 msgstr "Activo"
 
+#: www/business_processes/bp_list.php:59
+msgid "Analysis"
+msgstr "An&aacute;lisis"
+
 #: www/business_processes/bp_list.php:383
 msgid "Assets Management"
 msgstr "Gesti&oacute;n de activos"
@@ -1924,7 +1928,7 @@ msgstr "IPv4 num&eacute;rica con puntos"
 
 #: www/top.php:499
 msgid "Downloads"
-msgstr ""
+msgstr "Descargas"
 
 #: www/nagios/menu.php:122
 msgid "Downtime"
@@ -3595,8 +3599,8 @@ msgid "Maxi"
 msgstr ""
 
 #: www/session/login.php:165
-msgid "Maximize"
-msgstr ""
+#msgid "Maximize"
+#msgstr ""
 
 #: www/directive_editor/viewer/index.php:312 www/directives/directive.php:481
 msgid ""
@@ -5811,7 +5815,7 @@ msgstr "Sab"
 #: www/directive_editor/editor/rule/index.php:173
 #: www/directive_editor/editor/category/index.php:81
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 #: www/risk_maps/index.php:632
 msgid "Save Changes"
@@ -8698,7 +8702,7 @@ msgstr "directorio bibliotecas rrdtool"
 
 #: www/event_viewer/configure_event_viewer.php:345
 msgid "save"
-msgstr "salvar"
+msgstr "guardar"
 
 #: www/event_viewer/configure_event_viewer.php:252
 msgid "save column"
@@ -8962,6 +8966,525 @@ msgstr "a&ntilde;o"
 #: www/control_panel/show_image.php:23
 msgid "zoom"
 msgstr ""
+
+#: www/top.php:254
+msgid "My Profile"
+msgstr "Mi Perfil"
+
+#: www/menu_options.php.php:775
+msgid "Policy & Actions"
+msgstr "Pol&iacute;tica y acciones"
+
+#: www/menu_options.php.php:809
+msgid "Correlation Directives"
+msgstr "Directivas de correlaci&oacute;n" 
+
+msgid "Intelligence"
+msgstr "Inteligencia"
+
+#: www/top.php:262
+msgid "Maximize"
+msgstr "Maximizar"
+
+#: www/menu_options.php :1252
+msgid "Net Discovery"
+msgstr "Descubrimiento de red"
+
+msgid "Collection"
+msgstr "Colecci&oacute;n"
+
+msgid "System"
+msgstr "Sistema"
+
+msgid "Asset Search"
+msgstr "B&uacute;squeda de activos"
+
+msgid "SIEM Components"
+msgstr "Componentes SIEM"
+
+msgid "Knowledge DB"
+msgstr "BD de conocimiento"
+
+msgid "Report List"
+msgstr "Lista de Informes"
+
+msgid "Family"
+msgstr "Familia"
+
+msgid "Subtitle"
+msgstr "Subt&iacute;tulo"
+
+msgid "Header"
+msgstr "Cabecera"
+
+msgid "Footers"
+msgstr "Pie de p&aacute;gina"
+
+msgid "Modules"
+msgstr "M&oacute;dulos"
+
+msgid "Filters, Actions and Options"
+msgstr "Filtros, Acciones y Opciones"
+
+msgid "Ungrouped"
+msgstr "Desagrupados"
+
+msgid "Grouped"
+msgstr "Agrupados"
+
+msgid "Unique"
+msgstr "&Uacute;nico"
+
+msgid "Do not refresh console"
+msgstr "No recargar la consola"
+
+msgid "Alarm name"
+msgstr "Nombre de la alarma"
+
+msgid "Directive ID"
+msgstr "ID Directiva"
+
+msgid "Delete Selected"
+msgstr "Borrar Seleccionados"
+
+msgid "Close Selected"
+msgstr "Cerrar Seleccionados"
+
+msgid "Used Ports"
+msgstr "Puertos Usados"
+
+msgid "Alarms by Risk"
+msgstr "Alarmas por Riesgo"
+
+msgid "Tickets by status"
+msgstr "Tickets por estado"
+
+msgid "Tickets by user in charge"
+msgstr "Tickets por usuario encargado"
+
+msgid "Tickets by type"
+msgstr "Tickets por tipo"
+
+msgid "Tickets type"
+msgstr "Tipo de ticket"
+
+msgid "Closed Tickets By Month"
+msgstr "Tickets cerrados por mes"
+
+msgid "New Document"
+msgstr "Nuevo Documento"
+
+msgid "Attach"
+msgstr "Adjuntar"
+
+msgid "Please, type a search term"
+msgstr "Por favor, escriba un t&eacute;rmino de b&uacute;squeda"
+
+msgid "Owner"
+msgstr "Propietario"
+
+msgid "Knowledge DB Document Search"
+msgstr "B&uacute;squeda de Documentos BD Conocimiento"
+
+msgid "Current Search Criteria"
+msgstr "Criterios de B&uacute;squeda Actuales"
+
+msgid "Clear All Criteria"
+msgstr "Borrar todos los criterios"
+
+msgid "Signature"
+msgstr "Firma"
+
+msgid "Real Time"
+msgstr "Tiempo Real"
+
+msgid "Query Results"
+msgstr "Resultados de la consulta"
+
+msgid "Predefined Views"
+msgstr "Vistas Predefinidas"
+
+msgid "Statistical Overview"
+msgstr "Vir las Estad&iacute;sticas"
+
+msgid "Administration"
+msgstr "Administrai&oacute;n"
+
+msgid "Time Profile"
+msgstr "Perfil de Tiempo"
+
+msgid "Time Criteria"
+msgstr "Criterio de Tiempo"
+
+msgid "Monthly"
+msgstr "Mensual"
+
+msgid "Daily"
+msgstr "Diario"
+
+msgid "Hourly"
+msgstr "Cada hora"
+
+msgid "Report Name"
+msgstr "Nombre del Informe"
+
+msgid "Default Settings"
+msgstr "Configuraci&oacute;n Predeterminada"
+
+msgid "New Custom Report"
+msgstr "Nuevo Informe Personalizado"
+
+msgid "Asset Structure"
+msgstr "Estructura de Activos"
+
+msgid "Structure"
+msgstr "Estructura"
+
+msgid "Duplicate Selected"
+msgstr "Duplicar Seleccionados"
+
+msgid "Select a Predefined Search"
+msgstr "Seleccionar B&uacute;squeda Predefinida"
+
+msgid "Asset Advanced Search"
+msgstr "B&uacute;squeda Avanzada de Activos"
+
+msgid "Predefined Searches"
+msgstr "B&uacute;squedas Predefinidas"
+
+msgid "Save Curretn"
+msgstr "Guardar Actual"
+
+msgid "Databases"
+msgstr "Bases de Datos"
+
+msgid "Default Group"
+msgstr "Grupo Predeterminado"
+
+msgid "Reloaded policies"
+msgstr "Recargar pol&iacute;ticas"
+
+msgid "Default Group Policy objects"
+msgstr "Grupo Predeterminado de Pol&iacute;tica de Objetos"
+
+msgid "Edit Policy groups"
+msgstr "Editar Grupos de Pol&iacute;ticas"
+
+msgid "Enable/Disable"
+msgstr "Activar/Desactivar"
+
+msgid "Correlation Rules"
+msgstr "Reglas de Correlaci&oacute;n"
+
+msgid "Traffic"
+msgstr "Tr&aacute;fico"
+
+msgid "Channel"
+msgstr "Canal"
+
+msgid "Statistics timeslot"
+msgstr "Estad&iacute;sticas del horario"
+
+msgid "Packets"
+msgstr "Paquetes"
+
+msgid "Current Network Status"
+msgstr "Estado Actual de la Red"
+
+msgid "Host Status Totals"
+msgstr "Estados Totales de los Equipos"
+
+msgid "Service Status Totals"
+msgstr "Estados Totales de los Servicios"
+
+msgid "Service Overview For All Host Groups"
+msgstr "Vista del Servicio para todos los Grupos de Equipos"
+
+msgid "User Activity"
+msgstr "Actividad del Usuario"
+
+msgid "Software Upgrade"
+msgstr "Actualizaci&oacute;n de Software"
+
+msgid "Vulnerability Scanner"
+msgstr "Esc&aacute;ner de Vulnerabilidad"
+
+msgid "Updates"
+msgstr "Actualizaciones"
+
+msgid "Automatic Ticket Generation"
+msgstr "Generaci&oacute;n Autom&aacute;tica de Ticket"
+
+msgid "Find word"
+msgstr "Buscar palabra"
+
+msgid "Multilevel Tree"
+msgstr "&Aacute;rbol Multinivel"
+
+msgid "Update Notification"
+msgstr "Notificaci&oacute;n de Actualizaci&oacute;n"
+
+msgid "Configure updates"
+msgstr "Configuraci&oacute;n de Actualizaciones"
+
+msgid "User Profile"
+msgstr "Perfil del Usuario"
+
+msgid "Ask to change password at next login"
+msgstr "Solicitar cambio de contraseña en el siguiente inicio de sesi&oacute;n"
+
+msgid "Small"
+msgstr "Pequen&acute;o"
+
+msgid "Big"
+msgstr "Grande"
+
+msgid "Size"
+msgstr "Taman&acute;o"
+
+msgid "Transparent"
+msgstr "Transparente"
+
+msgid "White"
+msgstr "Blanco"
+
+msgid "Default"
+msgstr "Por defecto"
+
+msgid "Browse all"
+msgstr "Ver todos"
+
+msgid "Choose from list"
+msgstr "Elegir de la lista"
+
+msgid "Upload your own icon"
+msgstr "Subir tu propio icono"
+
+msgid "Background"
+msgstr "Fondo"
+
+msgid "Click to link to host/network report"
+msgstr "Marcar para unirse al host/informe de red"
+
+msgid "Default icons"
+msgstr "Iconos por defecto"
+
+msgid "Country Flags"
+msgstr "Banderas de pa&iacute;ses"
+
+msgid "Compliance"
+msgstr "Conformidad"
+
+msgid "Security"
+msgstr "Seguridad"
+
+msgid "Events by Sensor"
+msgstr "Eventos por Sensor"
+
+msgid "Top 10 hosts risk"
+msgstr "Top 10 hosts en riesgo"
+
+msgid "Availavility"
+msgstr "Disponibilidad"
+
+msgid "Protocol Distribution"
+msgstr "Distribuci&oacute;n de Protocolo"
+
+msgid "Top 10 net risk"
+msgstr "Top 10 redes en riesgo"
+
+msgid "Top 10 net group risk"
+msgstr "Top 10 grupos de redes en riesgo"
+
+msgid "Current day throughput"
+msgstr "Rendimiento d&iacute;a actual"
+
+msgid "TCP Protocols"
+msgstr "Protocolos TCP"
+
+msgid "Internal netwok 12h traffic"
+msgstr "Tr&aacute;fico interno de red en 12h"
+
+msgid "Event Sources"
+msgstr "Fuentes de Eventos"
+
+msgid "Alarms by Type"
+msgstr "Alarmas por Tipo"
+
+msgid "Event destinations"
+msgstr "Destinos de Eventos"
+
+msgid "Aggregated daily risk"
+msgstr "Riesgos agregados al d&iacute;a"
+
+msgid "Vulnerabilities Report"
+msgstr "Informe de Vulnerabilidades"
+
+msgid "By Severity"
+msgstr "Por Gravedad"
+
+msgid "By Services"
+msgstr "Por Servicios"
+
+msgid "Current Vulnerablities"
+msgstr "Vulnerabilidades Actuales"
+
+msgid "Installed software"
+msgstr "Software Instalado"
+
+msgid "Dashboards"
+msgstr "Cuadros de mando"
+
+msgid "Layouts"
+msgstr "Dise&ntilde;os"
+
+msgid "Run"
+msgstr "Ejecutar"
+
+#: www/report/wizard_custom_reports.php:417
+msgid "Clone"
+msgstr "Clonar"
+
+msgid "Custom Run"
+msgstr "Ejecuci&oacute;n Personalizada"
+
+msgid "Show details"
+msgstr "Mostrar detalles"
+
+msgid "Owner:"
+msgstr "Propietario:"
+
+msgid "Permissions:"
+msgstr "Permisos:"
+
+msgid "Hide details"
+msgstr "Ocultar detalles"
+
+msgid "Creation date:"
+msgstr "Fecha de creaci&oacute;n:"
+
+msgid "Modification date:"
+msgstr "Fecha de modificaci&oacute;n:"
+
+msgid "All user"
+msgstr "Todos los usuarios"
+
+msgid "Layout:"
+msgstr "Dise&ntilde;o:"
+
+msgid "Assets:"
+msgstr "Activos:"
+
+msgid "Date from:"
+msgstr "Desde:"
+
+msgid "Date to:"
+msgstr "Hasta:"
+
+msgid "Date from"
+msgstr "Desde"
+
+msgid "Date to"
+msgstr "Hasta"
+
+msgid "Date range:"
+msgstr "Rango:"
+
+msgid "Date range"
+msgstr "Rango"
+
+msgid "All Assets"
+msgstr "Todos los activos"
+
+msgid "Download PDF"
+msgstr "Descargar PDF"
+
+msgid "Send by e-mail"
+msgstr "Enviar por e-mail"
+
+msgid "Send"
+msgstr "Enviar"
+
+msgid "(Click To Zoom)"
+msgstr "(Click para ampliar)"
+
+msgid "New Layout"
+msgstr "Nuevo dise&ntilde;o"
+
+msgid "Backg."
+msgstr "Fondo"
+
+msgid "Foreg."
+msgstr "Fuente"
+
+msgid "Name:"
+msgstr "Nombre:"
+
+msgid "Background Color"
+msgstr "Color de fondo"
+
+msgid "Foreground Color"
+msgstr "Color de fuente"
+
+msgid "Left footer:"
+msgstr "Pie izquierdo:"
+
+msgid "Right footer:"
+msgstr "Pie derecho:"
+
+msgid "Restore Original"
+msgstr "Restaurar Original"
+
+msgid "Click To Zoom"
+msgstr "Click para ampliar"
+
+msgid "Only .gif, .png and .jpg files"
+msgstr "S&oacute;lo ficheros .gif, .png y .jpg"
+
+msgid "* Parameters accepted in footers"
+msgstr "* Par&aacute;metros aceptados en los pies"
+
+msgid "Owner of the report"
+msgstr "Propietario del reporte"
+
+msgid "Current page"
+msgstr "P&aacute;gina actual"
+
+msgid "Total pages"
+msgstr "Total de p&aacute;ginas"
+
+msgid "Custom parameters"
+msgstr "Par&aacute;metros personalizados"
+
+msgid " Loading Reporting Modules available "
+msgstr " Cargando m&oacute;dulos de informes disponibles "
+
+msgid " Reporting Modules available "
+msgstr " M&oacute;dulos de informes disponibles "
+
+msgid "Taxonomy Available"
+msgstr "Taxonom&iacute;a disponible"
+
+msgid "Create new report from this modules"
+msgstr "Crear nuevo informe desde este m&oacute;dulo"
+
+msgid "Report Options"
+msgstr "Opciones del Informe"
+
+msgid "Host Name/IP"
+msgstr "Nombre Host/IP"
+
+msgid "Network/CIDR"
+msgstr "Red/CIDR"
+
+msgid "Customize"
+msgstr "Personalizar"
+
+msgid "Manager"
+msgstr "Administrador"
+
+msgid "Modify Colors"
+msgstr "Modificar Colores"
 
 #~ msgid ""
 #~ "\n"
@@ -9316,3 +9839,8 @@ msgstr ""
 
 #~ msgid "yes"
 #~ msgstr "s&iacute;"
+
+
+
+
+

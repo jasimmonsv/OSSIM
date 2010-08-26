@@ -103,9 +103,9 @@ function insert_dir_in_group($dir_id, $group_name) {
     $table = $dom->get_elements_by_tagname('group');
     foreach($table as $lign) {
         if (in_array($lign->get_attribute('name') , split(',', $group_name))) {
-            $new_child = $dom->create_element('append-directive');
+        	$new_child = $dom->create_element('append-directive');
             $new_child->set_attribute("directive_id", $dir_id);
-            $lign->append_child($new_child);
+            //$lign->append_child($new_child);
         }
     }
     $dom->dump_file($file);

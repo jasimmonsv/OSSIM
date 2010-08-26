@@ -35,6 +35,21 @@
  * It keeps the code cleaner
  */
 
+
+function hosts_to_insert($dbconn, $report_id) {
+    $in_assets = array();
+    $ips = array();
+
+    $result = $dbconn->Execute("SELECT distinct v.hostIP FROM vuln_nessus_results v,host h WHERE v.report_id='$report_id' AND v.hostIP NOT IN (SELECT ip FROM host)");
+    while ( !$result->EOF ) {
+        if(Session::hostAllowed($dbconn,$result->fields["hostIP"])) {
+            $ips[] = $result->fields["hostIP"];
+        }
+        $result->MoveNext();
+    }
+    return $ips;
+}
+
 function host_ip_name(){
     global $dbconn;
     $hosts_nets = array();
@@ -2870,6 +2885,15 @@ function cellprint ($map, $data, $entry, $color="", $image, $class, $random) {
              echo "<a href=\"$link\" alt=\"$linkName\" title=\"$linkName\" $target>
                 <img src=\"" .  $linkData['icon'] . "\" alt=\"$linkName\" $onclick ></img></a>";
           }
+            $ips = array();
+            if(!preg_match("/scansubmit/",$link)) {
+                $ips = hosts_to_insert($dbconn, $entry["report_id"]);
+                ?>
+                <a class="greybox" gtitle="<?php echo _("Make this scan job visible for:")?>" gheight="170" href="change_user.php?id=<?php echo $entry["report_id"];?>"><img src="../pixmaps/group.png" title="<?php echo _("Change owner")?>" alt="<?php echo _("Change owner")?>" border="2"></a>
+                <?php
+            }
+            if(count($ips)>0)
+                echo "<a class='greybox' gtitle='"._("Insert into assets:")."' gheight='".(110+count($ips)*20)."' href='add_hosts.php?report_id=".$entry["report_id"]."'><img src='../pixmaps/theme/host_add.png' title='Add Hosts to Assets' alt='Add Hosts to Assets' border='0'></a>";
             if($entry["report_type"]=="I")  echo "<a href=\"javascript:;\" onclick=\"confirmDelete('".$entry["report_id"]."')\" alt=\""._("Delete Imported Report")."\" title=\""._("Delete Imported Report")."\" ><img src=\"images/delete.gif\" alt=\""._("Delete Imported Report")."\"></img></a>";
             echo "</td>";
        }

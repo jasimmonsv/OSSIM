@@ -54,6 +54,7 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 $opensource = (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) ? true : false;
 $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
 <head>
 <title> <?php echo gettext("AlienVault - ".($opensource ? "Open Source SIM" : ($demo ? "Professional SIEM Demo" : "Professional SIEM"))); ?> </title>
@@ -63,10 +64,10 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 <link rel="Shortcut Icon" type="image/x-icon" href="favicon.ico">
 </head>
 <frameset rows="66,*" border="0" frameborder="0" id="ossimframeset">
-<frame src="header.php" name="header" scrolling="no" marginwidth=0 marginheight=0>
+<frame src="header.php" name="header" scrolling="no" marginwidth='0' marginheight='0'>
 <frameset cols="180,*" border="0" frameborder="0">
-	<frame src="top.php?option=<?php echo $option ?>&soption=<?php echo $soption ?>&url=<?php echo urlencode($url) ?>" name="topmenu" scrolling="no" marginwidth=0 marginheight=0>
-	<frame src="#" name="main" id="maincontent" marginwidth=0 marginheight=0>
+	<frame src="top.php?option=<?php echo $option ?>&soption=<?php echo $soption ?>&url=<?php echo urlencode($url) ?>" name="topmenu" scrolling="no" marginwidth='0' marginheight='0'>
+	<frame src="#" name="main" id="maincontent" marginwidth='0' marginheight='0'>
 </frameset>
 </frameset>
 </html>
