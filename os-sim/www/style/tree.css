@@ -6,7 +6,7 @@ div.ui-dynatree-container
 	font-family: tahoma, arial, helvetica;
 	font-size: 9pt; /* font size should not be too big */
 	white-space: nowrap; 
-	padding: 3px;
+	padding: 3px 3px 20px 4px;
 	
 	background-color: white; 
 	border: 1px dotted gray;
@@ -37,6 +37,11 @@ div.ui-dynatree-container div
 {
     clear: both;
 }
+div.ui-dynatree-container div span
+{
+    float: left;
+}
+
 .ui-dynatree-title {
   line-height:16px; margin-bottom:0px;
 }
