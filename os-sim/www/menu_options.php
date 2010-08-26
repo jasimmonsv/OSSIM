@@ -208,14 +208,14 @@ if (Session::menu_perms("MenuEvents", "EventsForensics")) { $events = 1;
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:SIEM','EventHelp')"
     );
 }
-
+/*
 if (Session::menu_perms("MenuEvents", "EventsViewer")) { $events = 1; $hmenu["Forensics"][] = array(
     "name" => gettext("Custom") ,
     "id" => "Events Viewer",
     "url" => "event_viewer/index.php",
     "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:event_viewer','EventHelp')"
 );
-}
+}*/
 if (Session::menu_perms("MenuEvents", "ReportsWireless")) { $events = 1;
     $hmenu["Forensics"][] = array(
        "name" => gettext("Wireless") ,
@@ -557,7 +557,7 @@ if (!$opensource && Session::menu_perms("MenuPolicy", "PolicyHosts") && Session:
       "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:structure','Help');"
     );
     if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
-	   $rmenu["Structure"][] = array(
+	   $rmenu["Assets"][] = array(
 		"name" => gettext("OCS Inventory") ,
 		"target" => "main",
 		"url" => "../policy/ocs_index.php?hmenu=Assets&smenu=Inventory"
@@ -861,26 +861,21 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $c
     $menu["Intelligence"][] = array(
         "name" => gettext("Cross Correlation") ,
         "id" => "Cross Correlation",
-        "url" => "conf/pluginref.php"
+        "url" => "conf/pluginref2.php"
     );
     $hmenu["Cross Correlation"][] = array(
-        "name" => gettext("Plugin reference") ,
+        "name" => gettext("Rules") ,
         "id" => "Cross Correlation",
-        "url" => "conf/pluginref.php",
+        "url" => "conf/pluginref2.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:cross_correlation','Help');"
     );
-	$hmenu["Cross Correlation"][] = array(
-        "name" => gettext("Correlation Rules") ,
-        "id" => "Cross Correlation Rules",
-        "url" => "conf/pluginrefrules.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:cross_correlation','Help');"
-    );
-	$hmenu["Cross Correlation"][] = array(
+	/*
+    $hmenu["Cross Correlation"][] = array(
         "name" => gettext("Edit Rules") ,
         "id" => "Edit Rules",
         "url" => "conf/pluginref2.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:cross_correlation','Help');"
-    );
+    );*/
 }
 
 /* if (Session::menu_perms("MenuReports", "Help")) *//* if ($correlation) $menu["Intelligence"][] = array(
