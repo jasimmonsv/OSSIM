@@ -285,7 +285,7 @@ $profiles = $config->get_all($user, "inv_search");
 								<td class="nobborder" width="500">
 									<table style="background:url(../pixmaps/background_gray1.gif) repeat-x;border:1px solid #AAAAAA" cellpadding="4" width="100%">
 										<tr>
-											<td width="100" nowrap class="nobborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333"><?=_("Network")?>:</td>
+											<td width="50" nowrap class="nobborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?=_("Network")?>:</td>
 											<td class="nobborder" style="padding-top:15px;padding-bottom:15px"><input type="text" name="value_1" id="value_1" onkeypress="handleEnter(this, event)" value="<? if (preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$net_search)) echo $net_search; else echo "Any"; ?>" onfocus="init_sayt(1)" style="width:100%;color:<? if (preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$net_search)) echo "black"; else echo "#BBBBBB"; ?>;font-size:14px"></td>
 											<td class="nobborder" style="padding-right:40px" width="30"><div class="scriptinfo" data="<?=base64_encode("<i>"._("Type the")." <b>"._("Network Name")."</b> "._("or")." <b>"._("IP range")."</b></i>")?>"><font style="font-weight:bold;font-size:15px;color:#666666">?</font></div></td>
 										</tr>
@@ -296,7 +296,7 @@ $profiles = $config->get_all($user, "inv_search");
 								<td class="nobborder">
 									<table style="background:url(../pixmaps/background_gray2.gif) repeat-x;border:1px solid #999999" cellpadding="4" width="100%">
 										<tr>
-											<td width="100" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333"><?=_("Inventory")?>:</td>
+											<td width="50" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?=_("Inventory")?>:</td>
 											<td class="noborder" style="padding-top:15px;padding-bottom:15px"><input type="text" name="value_2" id="value_2" onkeypress="handleEnter(this, event)" value="Any" onfocus="init_sayt(2)" style="width:100%;color:#BBBBBB;font-size:14px"></td>
 											<td class="nobborder" style="padding-right:40px" width="30"><div class="scriptinfo" data="<?=base64_encode("<i>"._("Type here the")." <b>"._("Service")."</b> "._("or the")._(" OS")."</i>")?>"><font style="font-weight:bold;font-size:15px;color:#666666">?</font></div></td>
 										</tr>
@@ -307,7 +307,7 @@ $profiles = $config->get_all($user, "inv_search");
 								<td class="nobborder">
 									<table style="background:url(../pixmaps/background_gray3.gif) repeat-x;border:1px solid #888888" cellpadding="4" width="100%">
 										<tr>
-											<td width="100" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333"><?=_("Vulnerability")?>:</td>
+											<td width="50" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?=_("Vulnerability")?>:</td>
 											<td class="noborder" style="padding-top:15px;padding-bottom:15px"><input type="text" name="value_3" id="value_3" onkeypress="handleEnter(this, event)" value="Any" onfocus="init_field(3)" style="width:100%;color:#BBBBBB;font-size:14px"></td>
 											<td class="nobborder" style="padding-right:40px" width="30"><div class="scriptinfo" data="<?=base64_encode("<i>"._("Type here the")." <b>"._("Vuln name")."</b> "._("or")." <b>"._("CVE")."</i>")?>"><font style="font-weight:bold;font-size:15px;color:#666666">?</font></div></td>
 										</tr>
@@ -318,7 +318,7 @@ $profiles = $config->get_all($user, "inv_search");
 								<td class="nobborder">
 									<table style="background:url(../pixmaps/background_gray4.gif) repeat-x;border:1px solid #777777" cellpadding="4" width="100%">
 										<tr>
-											<td width="100" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333"><?=_("Tickets")?>:</td>
+											<td width="50" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?=_("Tickets")?>:</td>
 											<td class="noborder" style="padding-top:15px;padding-bottom:15px"><input type="text" name="value_4" id="value_4" onkeypress="handleEnter(this, event)" value="Any" onfocus="init_field(4)" style="width:100%;color:#BBBBBB;font-size:14px"></td>
 											<td class="nobborder" style="padding-right:40px" width="30"><div class="scriptinfo" data="<?=base64_encode("<i>"._("Type here the")." <b>"._("ticket, alarm")."</b> "._("or")." <b>"._("KDB document")."</i>")?>"><font style="font-weight:bold;font-size:15px;color:#666666">?</font></div></td>
 										</tr>
@@ -329,7 +329,7 @@ $profiles = $config->get_all($user, "inv_search");
 								<td class="nobborder">
 									<table style="background:url(../pixmaps/background_gray5.gif) repeat-x;border:1px solid #666666" cellpadding="4" width="100%">
 										<tr>
-											<td width="100" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333"><?=_("Security Events")?>:</td>
+											<td width="50" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?=_("Security Events")?>:</td>
 											<td class="noborder" style="padding-top:15px;padding-bottom:15px"><input type="text" name="value_5" id="value_5" onkeypress="handleEnter(this, event)" value="Any" onfocus="init_field(5)" style="width:100%;color:#BBBBBB;font-size:14px"></td>
 											<td class="nobborder" style="padding-right:40px" width="30"><div class="scriptinfo" data="<?=base64_encode("<i>"._("Type here the")." <b>"._("SIM event")."</b></i>")?>"><font style="font-weight:bold;font-size:15px;color:#666666">?</font></div></td>
 										</tr>

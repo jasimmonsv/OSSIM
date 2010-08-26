@@ -104,13 +104,13 @@ if (GET('basic')) {
 		"type"=>"Incidents",
 		"subtype"=>"Incident contains",
 		"match"=>"LIKE",
-		"query"=>"SELECT DISTINCT a.src_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from' AND i.date <= '$date_to' AND i.title %op% ? 
+		"query"=>"SELECT DISTINCT a.src_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from' AND i.date <= '$date_to' AND a.src_ips != '' AND i.title %op% ? 
 			UNION 
-			SELECT DISTINCT a.dst_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from' AND i.date <= '$date_to' AND i.title %op% ? 
+			SELECT DISTINCT a.dst_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from' AND i.date <= '$date_to' AND a.dst_ips != '' AND i.title %op% ? 
 			UNION 
-			SELECT DISTINCT inet_ntoa(a.src_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from' AND a.timestamp <= '$date_to' AND p.name %op% ?
+			SELECT DISTINCT inet_ntoa(a.src_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from' AND a.timestamp <= '$date_to' AND a.src_ip != '' AND p.name %op% ? 
 			UNION 
-			SELECT DISTINCT inet_ntoa(a.dst_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from' AND a.timestamp <= '$date_to' AND p.name %op% ?
+			SELECT DISTINCT inet_ntoa(a.dst_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from' AND a.timestamp <= '$date_to' AND a.dst_ip != '' AND p.name %op% ? 
 			UNION
 			SELECT r.keyname as ip FROM repository d,repository_relationships r WHERE d.id=r.id_document AND r.type='host' AND keyname!='' AND d.text %op% ?",
 		"query_match"=>"text");
