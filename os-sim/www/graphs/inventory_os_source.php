@@ -10,7 +10,7 @@ Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 $db = new ossim_db();
 $conn = $db->connect();
 
-$query = "select count(*) as num, osname as name from ocsweb.hardware group by name order by num desc limit 10;";
+$query = "select count(*) as num, osname from ocsweb.hardware group by osname order by num desc limit 10;";
 
 
 // PHP/SWF Chart License - Licensed to ossim.com. For distribution with ossim only. No other redistribution / usage allowed.
@@ -52,11 +52,12 @@ array_push($values, " ");
 while (!$rs->EOF)
 {
 
-array_push($legend, $rs->fields["name"]);
+array_push($legend, $rs->fields["osname"]);
 array_push($values, $rs->fields["num"]);
 
 $rs->MoveNext();
 }
+
 $chart['chart_data'] = array($legend, $values);
 SendChartData ( $chart );
 
