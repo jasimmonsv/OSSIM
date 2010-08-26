@@ -153,36 +153,6 @@ if (!$uroles['admin']) {
         }
         else {
             $data_dir = $GLOBALS["CONF"]->get_conf("data_dir");
-            /*$query = "TRUNCATE vuln_nessus_category";
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_family";
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_plugins";
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_preferences"; 
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_preferences_defaults";
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_settings";
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_settings_category";
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_settings_family";
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_settings_plugins";
-            $result=$dbconn->execute($query);
-            
-            $query = "TRUNCATE vuln_nessus_settings_preferences";
-            $result=$dbconn->execute($query);*/
-            
             echo "<table width=\"900\" class=\"noborder\" style=\"background:transparent;\">";
             echo "<tr><td class=\"nobborder\" style=\"text-align:left;padding-left:9px;\">";
             echo _("Launching updateplugins.pl, please wait for a few seconds...be patient.")."&nbsp;&nbsp;";
@@ -320,15 +290,16 @@ function createHiddenDiv($name, $num, $data) {
 function CheckScanner(){
     $result = "";
     $arr_out = array();
-    $command = "export HOME='/tmp';".$GLOBALS["CONF"]->db_conf["nessus_path"]." -qxp ".$GLOBALS["CONF"]->db_conf["nessus_host"]." ".$GLOBALS["CONF"]->db_conf["nessus_port"]." ".$GLOBALS["CONF"]->db_conf["nessus_user"]." ".$GLOBALS["CONF"]->db_conf["nessus_pass"]." 2>&1";
+    $command = "export HOME='/tmp';".$GLOBALS["CONF"]->db_conf["nessus_path"]." -qxP ".$GLOBALS["CONF"]->db_conf["nessus_host"]." ".$GLOBALS["CONF"]->db_conf["nessus_port"]." ".$GLOBALS["CONF"]->db_conf["nessus_user"]." ".$GLOBALS["CONF"]->db_conf["nessus_pass"]." | grep max_hosts 2>&1";
     //print_r($command);
     exec($command,$arr_out);
+    $out = implode(" ",$arr_out);
 
-    if (preg_match("/host not found|could not open a connection|login failed|could not connect|no se pudo conectar/i", implode(" ",$arr_out))){
-        return ("Check scanner failed:<br>".implode("<br>",$arr_out));
+    if (preg_match("/host not found|could not open a connection|login failed|could not connect/i",$out)) {
+        return _("Scanner check failed").":<br>".implode("<br>",$arr_out));
     }
-    else if(count($arr_out)<20){
-        return ("Check scanner seems failed");
+    else if (!preg_match("/max_hosts/i",$out)) {
+        return _("Scanner check failed");
     }
     return $result;
 }
