@@ -69,7 +69,11 @@ ossim_valid($file, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("file"));
 if (ossim_error()) {
     die(ossim_error());
 }
-echo '<embed src="' . $file . '" type="image/svg+xml"
- pluginspage="http://www.adobe.com/svg/viewer/install/" 
- style="border: 1px solid black; padding:5px;"/>';
+if (preg_match("/svg/",$file)) {
+  echo '<embed src="' . $file . '" type="image/svg+xml"
+         pluginspage="http://www.adobe.com/svg/viewer/install/" 
+         style="border: 1px solid black; padding:5px;"/>';
+} else {
+  echo '<img src="'.$file.'" style="border: 1px solid black; padding:5px;width:99%"/>';
+}
 ?>

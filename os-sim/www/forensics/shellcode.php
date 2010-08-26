@@ -133,8 +133,10 @@ if (preg_match("/failed/i", $lines[1])) {
 //system($command);
 $tmp2 = tempnam("/tmp", "dot");
 $salida2 = shell_exec('/opt/libemu/bin/sctest -Sgs 1000000 -G ' . $tmp2 . ' < ' . $tmp);
-$tmp3 = "tmp/test.svg";
-$salida3 = shell_exec('dot -Tsvg ' . $tmp2 . ' -o ' . $tmp3);
+//$tmp3 = "tmp/test.svg";
+//$salida3 = shell_exec('dot -Tsvg ' . $tmp2 . ' -o ' . $tmp3);
+$tmp3 = "tmp/test.png";
+$salida3 = shell_exec('dot -Tpng ' . $tmp2 . ' -o ' . $tmp3);
 echo "<a href=\"graph.php?file=$tmp3\"><center><img src=\"graphviz.png\"/><br><br><b>View Graph</b></center></a>";
 ?>
 

@@ -119,8 +119,8 @@ function PrintPacketLookupBrowseButtons2($seq, $order_by_tmp, $where_tmp, $db, &
     }
     $result2->baseFreeRows();
 }
-function showShellcodeAnalysisLink($cid, $sid) {
-    $url = '<center><a href="shellcode.php?cid=' . $cid . '&amp;sid=' . $sid . '">Shellcode Analysis</a></center>';
+function showShellcodeAnalysisLink($cid, $sid, $signature) {
+    $url = (!preg_match("/shellcode/i",$signature)) ? '' : '<center><a href="shellcode.php?cid=' . $cid . '&amp;sid=' . $sid . '">Shellcode Analysis</a></center>';
     return $url;
 }
 function PrintPacketLookupBrowseButtons($seq, $save_sql, $db, &$previous_button, &$next_button) {
@@ -662,7 +662,7 @@ if (in_array($plugin_id, $snort_ids)) {
     echo ("<br><br>" . PrintCleanURL());
     echo ("<br>" . PrintBinDownload($db, $cid, $sid));
     echo ("<br>" . PrintPcapDownload($db, $cid, $sid));
-    echo ("<br>" . showShellcodeAnalysisLink($cid, $sid));
+    echo ("<br>" . showShellcodeAnalysisLink($cid, $sid, $plugin_sid_name));
 } else {
     echo '<br><TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="90%">
            <TR><TD class="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>Log';
