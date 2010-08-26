@@ -183,14 +183,14 @@ $tags = Event_viewer::get_tags();
     <? if ($edit) {
             $rel=0;
             foreach($_SESSION['views'][$_SESSION['current_cview']]['cols'] as $label) { ?>
-                <option value="<?=$label?>" selected="selected"><?=$label?></option>
+                <option value="<?=$label?>" selected="selected"><?=($tags[$label] != "") ? $tags[$label] : $label?></option>
     <?      }
        		foreach($tags as $label => $descr) if (!in_array($label,$_SESSION['views'][$_SESSION['current_cview']]['cols'])) { ?>
-        		<option value="<?=$label?>"><?=$label?></option>
+        		<option value="<?=$label?>"><?=$descr?></option>
     		<? } 
        } else {
       		foreach($tags as $label => $descr) { ?>
-       		<option value="<?=$label?>"><?=$label?></option>
+       		<option value="<?=$label?>"><?=$descr?></option>
    		<? }
 	   }
 	?>
