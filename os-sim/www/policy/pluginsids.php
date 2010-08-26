@@ -129,8 +129,9 @@ $conn = $db->connect();
         $plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id AND sid in ($sids)");
         foreach($plugin_list as $plugin) {
             $id = $plugin->get_sid();
-            $name = trim($plugin->get_name());
-            echo "<option value='$id' selected>$id $name</option>\n";
+            $name = "$id - ".trim($plugin->get_name());
+            if (strlen($name)>73) $name=substr($name,0,70)."...";
+            echo "<option value='$id' selected>$name</option>\n";
         }
     }
     ?>

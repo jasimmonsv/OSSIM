@@ -21,8 +21,9 @@ $plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$plugin_id $more ORD
 if ($plugin_list[0]->foundrows>150) echo "Total=".$plugin_list[0]->foundrows."\n";
 foreach($plugin_list as $plugin) {
     $id = $plugin->get_sid();
-    $name = trim($plugin->get_name());
-    echo "$id=$id&nbsp;&nbsp;$name\n";
+    $name = "$id - ".trim($plugin->get_name());
+    if (strlen($name)>73) $name=substr($name,0,70)."...";
+    echo "$id=$name\n";
 }
 $db->close($conn);
 

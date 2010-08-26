@@ -73,7 +73,7 @@ if (GET('action') == 'edit') {
     $where = "plugin_group_descr.group_id=$group_id";
     $list = Plugingroup::get_list($conn, $where);
     if (count($list) != 1) {
-        die("Invalid ID");
+        die(_("Empty PLuginGroup ID"));
     }
     $plug_ed = $list[0];
     $name = $plug_ed->get_name();
@@ -209,7 +209,12 @@ function GB_onclose() {
     ?>
     <tr class="<?=$bgclass?>" txt="sid<?=$id?>">    
         <td class="noborder pleft <?=$bbottom?>" nowrap>
-        	<table class="noborder" style="background:transparent"><tr><td class="nobborder"><a href="modifyplugingroupsform.php?action=<?= GET('action') ?>&id=<?= $group_id ?>&withoutmenu=<?= GET('withoutmenu') ?>&delete=<?= $id ?>" title="<?=_("Delete Data Source from group")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" border="0"></a></td>
+        	<table class="noborder" style="background:transparent"><tr><td class="nobborder">
+        	<? if (count($plugs)>1) { ?><a href="modifyplugingroupsform.php?action=<?= GET('action') ?>&id=<?= $group_id ?>&withoutmenu=<?= GET('withoutmenu') ?>&delete=<?= $id ?>" title="<?=_("Delete Data Source from group")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" border="0"></a>
+        	<? } else { ?>
+        	<a href="javascript:;" title="<?=_("Add another Data Source defore delete this")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" class="disabled" border="0"></a>
+        	<? } ?>
+        	</td>
         	<td class="nobborder"><?= $id ?></td></tr></table>
         </td>	
         <td class="noborder pleft pright <?=$bbottom?>"><?= $plugins[$id][0] ?></td>

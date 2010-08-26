@@ -220,6 +220,10 @@ body {
 img {
 	border:0;
 }
+img.disabled {
+	opacity: .40;
+	filter:Alpha(Opacity=40);
+}
 
 a {
   background: transparent;
