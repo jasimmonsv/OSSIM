@@ -336,7 +336,11 @@ foreach($incident->get_subscribed_users($conn, $id) as $u) {
 ?>
                 </td><td style="text-align: right;" NOWRAP>
                   <select name="login">
+                    <?php if (count($users) < 1) { ?>
+                    <option value="">- <?=_("No users found")?> -</option>
+                    <?php } else { ?> 
                     <option value=""></option>
+                    <?php } ?>
                     <?php
 foreach($users as $u) { ?>
                         <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
@@ -635,7 +639,7 @@ for ($i = 1; $i <= 10; $i++) { ?>
                             <td><?php echo _("User:");?></td>
                             <td>
                               <select name="transferred_user" id="user" style="width:140px;" onchange="switch_user('user');return false;">
-                                <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                                <option value=""><? if (count($users_pro) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
                                 <?php
                                 foreach($users_pro as $loginu => $nameu) { ?>
                                     <option value="<?php echo $loginu; ?>"><?php echo $nameu; ?></option>
@@ -697,7 +701,7 @@ for ($i = 1; $i <= 10; $i++) { ?>
             <th><?php echo _("Transfer To") ?></th>
             <td style="text-align: left">
               <select name="transferred_user" style="width:140px;">
-                <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+                <option value=""><? if (count($users) < 1 || (count($users) == 1 && $users[0]->get_login() == $incident_in_charge)) { ?>- <?=_("No users found")?> -<? } ?></option>
                 <?php
     foreach($users as $u) { ?>
                     <?php
