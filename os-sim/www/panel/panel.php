@@ -119,6 +119,7 @@ if (GET('edit_tabs') == 1) {
     //var_dump($tabs);
     if (GET('mode')) {
         $tab_id = intval(GET('tab_id'));
+        if (!$tab_id) $tab_id=1;
         $tab_name = GET('tab_name');
     	if (strlen($tab_name) > 25) {
 			$tab_name = substr($tab_name,0,25);
