@@ -182,7 +182,7 @@ if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="") {
 		echo "<br>&nbsp;<a href='base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d' style='font-family:arial;font-size:11px'><u>Click here to continue</u></a>";
 		exit;
 	}
-	error_reporting(E_ALL);
+	error_reporting(E_ALL ^ E_NOTICE);
 }
 
 $port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
