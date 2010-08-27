@@ -57,7 +57,7 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
 <head>
-<title> <?php echo gettext("AlienVault - ".($opensource ? "Open Source SIM" : ($demo ? "Professional SIEM Demo" : "Professional SIEM"))); ?> </title>
+<title> <?php echo gettext("AlienVault - ".($opensource ? "Open Source SIEM" : ($demo ? "Professional SIEM Demo" : "Professional SIEM"))); ?> </title>
 <link rel="alternate" title="OSSIM Alarm Console"
 	href="<?php echo "$ossim_link/feed/alarm_console.php" ?>"
 	type="application/rss+xml">
