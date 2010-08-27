@@ -296,7 +296,7 @@ function CheckScanner(){
     $out = implode(" ",$arr_out);
 
     if (preg_match("/host not found|could not open a connection|login failed|could not connect/i",$out)) {
-        return _("Scanner check failed").":<br>".implode("<br>",$arr_out));
+        return _("Scanner check failed").":<br>".implode("<br>",$arr_out);
     }
     else if (!preg_match("/max_hosts/i",$out)) {
         return _("Scanner check failed");
