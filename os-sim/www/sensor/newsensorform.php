@@ -93,11 +93,12 @@ echo gettext("Priority"); ?> </th>
       </select>
     </td>
   </tr>
-  <tr>
+  <!-- <tr>
     <th> <?php
 echo gettext("Port"); ?> </th>
     <td class="left"><input type="text" value="40002" name="port"></td>
-  </tr>
+  </tr> -->
+  <input type="hidden" value="40002" name="port">
   <tr>
     <th> <?php
 echo gettext("Description"); ?> </th>

@@ -142,14 +142,15 @@ if ($sensor->get_priority() == 10) echo " SELECTED "; ?>
       </select>
     </td>
   </tr>
-  <tr>
+  <!-- <tr>
     <th> <?php
 echo gettext("Port"); ?> </th>
     <td class="nobborder left">
         <input type="text" name="port" 
                value="<?php
 echo $sensor->get_port(); ?>"></td>
-  </tr>
+  </tr> -->
+  <input type="hidden" name="port" value="<?php echo $sensor->get_port(); ?>">
   <tr>
     <th> <?php
 echo gettext("Description"); ?> </th>

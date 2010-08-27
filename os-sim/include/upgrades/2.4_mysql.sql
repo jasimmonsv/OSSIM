@@ -3,6 +3,7 @@ SET AUTOCOMMIT=0;
 BEGIN;
 
 ALTER TABLE `vuln_job_schedule` CHANGE `schedule_type` `schedule_type` ENUM( 'O','D', 'W', 'M', 'NW' ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'M';
+DELETE FROM `user_config` WHERE category='policy' AND name='sensors_layout';
 
 INSERT INTO `custom_report_types` VALUES(500, 'Historical View', 'Network', 'Network/HistoricalView.php', 'Interface:INTERFACE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1);
 INSERT INTO `custom_report_types` VALUES(501, 'Global TCP/UDP Protocol Distribution', 'Network', 'Network/GlobalTCPUDPProtocolDistribution.php', 'Interface:INTERFACE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1);

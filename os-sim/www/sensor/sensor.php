@@ -281,7 +281,7 @@ $default = array(
         40,
         'true',
         'center',
-        false
+        true
     ) ,
     "version" => array(
         _('Version'),
