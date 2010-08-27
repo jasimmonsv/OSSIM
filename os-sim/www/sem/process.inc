@@ -187,7 +187,7 @@ function get_lines($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-
     $status = exec("wc -l $cache_file_name | cut -f 1 -d \" \"", $result);
     return $result[0];
 }
-function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17 00:00:02", $offset = 0, $sort_order = "date", $what = "logs", $uniqueid = "0000000000", $forced_max=51) {
+function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17 00:00:02", $offset = 0, $sort_order = "date", $what = "logs", $uniqueid = "0000000000", $forced_max=51, $mute=0) {
     $forced_max++;
     $tope = $forced_max;
 	if ($offset == -1) { $tope = 50000; $offset = 0; }
@@ -349,7 +349,7 @@ function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17
     $total_lines = 0;
     }
     */
-    if ($what == "logs" && $tope != 50000) {
+    if ($what == "logs" && $tope != 50000 && !$mute) {
         //	print "$cmd";
         //print "<center><b>$total_lines total lines</b> - Time Range: <b>$start <-> $end</b></center>";
         print _("Time Range").": <b>$start <-> $end</b>";
