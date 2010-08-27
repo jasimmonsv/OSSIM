@@ -304,13 +304,13 @@ foreach($result as $res) if ($cont++ < $numResult) {
                 $alt = 1;
             }
             $verified = - 1;
+            $data = $matches[10];
             if ($signature != '') {
                 $sig_dec = base64_decode($signature);
-                $verified = 0;
-                $pub_key = openssl_pkey_get_public($config["pubkey"]);
+                $pub_key = openssl_get_publickey($config["pubkey"]); // openssl_pkey_get_public
                 $verified = openssl_verify($data, $sig_dec, $pub_key);
+                //error_log("$data\n$signature\n", 3, "/tmp/validate");
             }
-            $data = $matches[10];
             $encoded_data = base64_encode($data);
             $data = "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;'>";
         }
@@ -343,11 +343,11 @@ foreach($result as $res) if ($cont++ < $numResult) {
                 }
                 if ($verified >= 0) {
                     if ($verified == 1) {
-                        $data.= '<img src="' . $config["verified_graph"] . '" height=15 width=15 alt="V" />';
+                        $data.= '<img src="' . $config["verified_graph"] . '" height=15 width=15 title="Valid" />';
                     } else if ($verified == 0) {
-                        $data.= '<img src="' . $config["failed_graph"] . '" height=15 width=15 alt="F" />';
+                        $data.= '<img src="' . $config["failed_graph"] . '" height=15 width=15 title="Wrong" />';
                     } else {
-                        $data.= '<img src="' . $config["error_graph"] . '" height=15 width=15 alt="E" />';
+                        $data.= '<img src="' . $config["error_graph"] . '" height=15 width=15 title="Error" />';
                         $data.= openssl_error_string();
                     }
                 }
@@ -356,7 +356,7 @@ foreach($result as $res) if ($cont++ < $numResult) {
 		$data_out = $matches[10];
         // fin para coger
         if($htmlResult){
-            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="validate.php?log=' . $encoded_data . "&start=$start&end=$end&logfile=$logfile" . '" class="thickbox" rel="AjaxGroup" onclick="GB_show(\''._("Validate signature").'\',this.href,300,600);return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
+            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="validate.php?log=' . urlencode($encoded_data) . '&start=' . $start . '&end=' . $end . '&logfile=' . $logfile . '&signature=' . urlencode($signature) . '"  class="thickbox" rel="AjaxGroup" onclick="GB_show(\''._("Validate signature").'\',this.href,300,600);return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
             $data.= "</td>";
             $line.= $data;
         }

@@ -48,10 +48,11 @@ Session::logcheck("MenuEvents", "ControlPanelSEM");
 $config = parse_ini_file("everything.ini");
 $cache_dir = $config["cache_dir"];
 $locate_db = $config["locate_db"];
-$log_line = base64_decode($_GET["log"]);
-$start = $_GET["start"];
-$end = $_GET["end"];
-$logfile = $_GET["logfile"];
+$signature = GET("signature");
+$log_line = base64_decode(GET("log"));
+$start = GET("start");
+$end = GET("end");
+$logfile = GET("logfile");
 
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
@@ -81,15 +82,24 @@ if ($logfile != "") {
         print $res[0];
         if (preg_match("/\s+(\d+)\s+(.*$)/", $res[0], $matches)) {
             $found_str = _("Found in")." $result "._("at line number")." " . $matches[1];
-            //error_log("$found_str\n", 3, "/tmp/validate");
             $validate_file = $result;
             break;
         }
     }
 }
 $verified = 0;
+//print_r($found_str.$validate_file);
 if ($validate_file != "" && file_exists($validate_file)) {
-    if (file_exists($validate_file . ".sig")) {
+
+    // signature in string
+    if ($signature!="") {
+    	$sig_dec = base64_decode($signature);
+        $pub_key = openssl_get_publickey($config["pubkey"]);
+        $verified = openssl_verify( $log_line, $sig_dec, $pub_key);
+        //error_log("$log_line\n$signature\n", 3, "/tmp/validate");
+
+	// signature en filename.sig
+    } elseif (file_exists($validate_file . ".sig")) {
         $signature = file_get_contents($validate_file . ".sig");
         $sig_dec = base64_decode($signature);
         $f = fopen("/tmp/sig_decoded", "wb");
@@ -97,12 +107,13 @@ if ($validate_file != "" && file_exists($validate_file)) {
         fclose($f);
         //$pub_key = openssl_pkey_get_public($config["pubkey"]);
         //$verified = openssl_verify( $data, $sig_dec, $pub_key);
-        $cmdv = "openssl dgst -sha1 -verify /var/ossim/keys/rsapub.pem -signature /tmp/sig_decoded '" . $validate_file . "'";
+        $cmdv = "openssl dgst -sha1 -verify ".trim(str_replace("file://","",$config["pubkey"]))." -signature /tmp/sig_decoded '" . $validate_file . "'";
         //error_log("$cmdv\n", 3, "/tmp/validate");
         $status = exec($cmdv, $res);
         $verified = (preg_match("/Verified OK/i", $status)) ? 1 : 0;
+
     } else {
-        print _("Signature file not found. If the event is less than one hour old it will not be generated yet.");
+        print str_replace("SIGFILE","<b>$validate_file.sig</b>",_("Signature file SIGFILE not found.<br>If the event is less than one hour old it will not be generated yet."));
         exit;
     }
 } else {
@@ -110,12 +121,11 @@ if ($validate_file != "" && file_exists($validate_file)) {
     exit;
 }
 if ($verified == 1) {
-    $verification_str = _("Verification")." <font color=\"green\">"._("OK")."</font><br/>";
+    $verification_str = _("Verification")." <font color=\"green\"><b>"._("OK")."</b></font><br/>";
 } else if ($verified == 0) {
-    $verification_str = _("Verification failed");
+    $verification_str = _("Verification")." <font color=\"red\"><b>"._("Failed")."</b></font>";
 } else {
-    $verification_str = _("Verification failed")." ";
-    $verification_str.= openssl_error_string();
+    $verification_str = _("Verification")." <font color=\"red\"><b>"._("Failed")."</b></font>"." ";
     $verification_str.= openssl_error_string();
 }
 ?>
