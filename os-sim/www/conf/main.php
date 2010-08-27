@@ -152,8 +152,8 @@ $CONFIG = array(
             ) ,
 			"server_sign" => array(
                 "type" => array(
-                    "yes" => _("Yes") ,
-                    "no" => _("No")
+                    "yes" => _("Line") ,
+                    "no" => _("Block")
                 ) ,
 				"id" => "sign_select",
                 "help" => gettext("Sign") ,
