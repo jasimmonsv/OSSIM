@@ -75,6 +75,9 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
                 if len(line) > 0:
                     command = line.split()[0]
 
+                    # set sane default response
+                    response = ""
+
                     # check if we are a "control" request message
                     if command == "control":
                         # spawn our control timer
