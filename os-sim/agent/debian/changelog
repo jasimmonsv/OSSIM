@@ -1,3 +1,9 @@
+ossim-agent (1:2.4.0) unstable; urgency=low
+
+  * New release
+
+ -- Jdelacasa <jdelacasa@alienvault.com>  Tue, 22 Jun 2010 11:41:53 +0100
+
 ossim-agent (1:2.3-1) unstable; urgency=low
 
   * Fixed VLAN capabilities in the unified 2 parser
