@@ -42,7 +42,7 @@ if ($_SESSION["deletetask"] != "") {
     }
     $tmp_result->baseFreeRows();
     //
-    if (!$tasks) echo _("Processing events, please wait...");
+    if (!$tasks) echo _("Processing events. Please be patience, this may take several minutes...");
 } else {
     echo $msg;
 }
