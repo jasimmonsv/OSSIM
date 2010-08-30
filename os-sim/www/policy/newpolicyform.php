@@ -409,7 +409,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 		txt = "<?=_('Policy Group')?>: <b> " + document.fop.group.options[document.fop.group.selectedIndex].text + "</b><br>";
 		txt = txt + "<?=_('Description')?>: <i> " + document.fop.descr.value + "</i><br>";
 		txt = txt + "<?=_('Active')?>: <b> " + ($("input[name='active']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
-		txt = txt + "<?=_('Sign')?>: <b> " + ($("input[name='sign']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+		txt = txt + "<?=_('Sign')?>: <b> " + ($("input[name='sign']:checked").val()==1 ? "<?=_('Line')?>" : "<?=_('Block')?>") + "</b><br>";
 		txt = txt + "<?=_('Logger')?>: <b> " + ($("input[name='sem']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
 		txt = txt + "<?=_('SIEM')?>: <b> " + ($("input[name='sim']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
 		putit("#tdmore",txt);
@@ -1133,8 +1133,8 @@ if ($action_list2 = Action::get_list($conn)) {
   <tr id="sign">
     <th id="sign_text"<?php echo ($sem == 0) ? " class='thgray'" : "" ?>> <?php echo _("Sign") . required() ?> </th>
     <td class="left">
-    <input type="radio" name="sign" value="1" <?php echo ($sign == 1) ? "checked='checked'" : "" ?><?php if ($sem == 0) echo " disabled" ?>> <?php echo _("Yes"); ?>
-    <input type="radio" name="sign" value="0" <?php echo ($sign == 0) ? "checked='checked'" : "" ?><?php if ($sem == 0) echo " disabled" ?>> <?php echo _("No"); ?>
+    <input type="radio" name="sign" value="1" <?php echo ($sign == 1) ? "checked='checked'" : "" ?><?php if ($sem == 0) echo " disabled" ?>> <?php echo _("Line"); ?>
+    <input type="radio" name="sign" value="0" <?php echo ($sign == 0) ? "checked='checked'" : "" ?><?php if ($sem == 0) echo " disabled" ?>> <?php echo _("Block"); ?>
     </td>
   </tr>
   <tr id="rtitle">

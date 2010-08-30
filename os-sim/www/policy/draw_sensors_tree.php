@@ -60,7 +60,7 @@ $buffer .= "[ {title: '"._("Sensors")."', key:'key1', isFolder:true, icon:'../..
 if (count($sensors) > 0) {
     $buffer .= ", children:[";
     $j = 1;
-    $buffer .= "{  key:'key1.1.$j', url:'any', icon:'../../pixmaps/theme/server.png', title:'ANY' },\n";
+    $buffer .= "{  key:'key1.1.$j', url:'ANY', icon:'../../pixmaps/theme/server.png', title:'ANY' },\n";
     foreach($sensors as $ip => $sname) {
         $buffer .= (($j > 1) ? "," : "") . "{ key:'key1.1.$j', url:'$sname', icon:'../../pixmaps/theme/server.png', title:'$sname ($ip)' }\n";
         $j++;
