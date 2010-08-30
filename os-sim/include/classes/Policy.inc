@@ -164,7 +164,7 @@ class Policy {
             $where = "";
             $params = array();
         }
-        $sql = "SELECT
+        /*$sql = "SELECT
                     plugin_group_descr.group_id,
                     plugin_group_descr.name,
                     policy_plugin_group_reference.policy_id
@@ -174,14 +174,25 @@ class Policy {
                     plugin_group_descr.group_id = policy_plugin_group_reference.group_id
                 $where
                 ORDER BY
-                    plugin_group_descr.name";
+                    plugin_group_descr.name";*/
+        $sql = "SELECT
+                    plugin_group_descr.group_id,
+                    plugin_group_descr.name,
+                    policy_plugin_group_reference.policy_id
+                FROM
+                    policy_plugin_group_reference
+                LEFT JOIN plugin_group_descr ON
+                    policy_plugin_group_reference.group_id = plugin_group_descr.group_id
+                $where
+                ORDER BY
+                    plugin_group_descr.name";                    
         if (!$rs = $conn->Execute($sql, $params)) {
             die($conn->ErrorMsg());
         }
         while (!$rs->EOF) {
             $list[] = array(
-                'id' => $rs->fields['group_id'],
-                'name' => $rs->fields['name'],
+                'id' => ($rs->fields['group_id']!="") ? $rs->fields['group_id'] : 0,
+                'name' => ($rs->fields['name']!="") ? $rs->fields['name'] : "ANY",
                 'policy_id' => $rs->fields['policy_id']
             );
             $rs->MoveNext();

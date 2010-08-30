@@ -385,6 +385,17 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 		for (var i=0,txt=''; i<elems.length; i++) txt = txt + elems[i] + "<br>";
 		putit("#tdports",txt);
 		//
+		if ($('#plugin_ANY').is(":checked")) {
+			$(':checkbox').each(function(i){ 
+				if ($(this).attr('id').match(/^plugin/) && !$(this).attr('id').match(/^plugin_ANY/))
+					$(this).attr("disabled", "disabled").attr('checked',false);
+			});
+		} else {
+			$(':checkbox').each(function(i){ 
+				if ($(this).attr('id').match(/^plugin/)) $(this).removeAttr("disabled");
+			});
+		}
+		//
 		txt = '';
 		$(':checkbox:checked').each(function(i){ 
 			if ($(this).attr('id').match(/^plugin/)) txt = txt + $(this).attr('id').substr(7) + "<br>";
@@ -596,7 +607,7 @@ if ($id != "") {
             $plugingroups[] = $pgroup['id'];
         }
         if ($sensor_list = $policy->get_sensors($conn)) foreach($sensor_list as $sensor) {
-            $sensors[] = $sensor->get_sensor_name();
+            $sensors[] = str_replace("any","ANY",$sensor->get_sensor_name());
         }
         $policy_time = $policy->get_time($conn);
         $timearr[0] = $policy_time->get_begin_day();
@@ -802,6 +813,10 @@ foreach($ports as $pgrp) echo "<option value='$pgrp'>$pgrp"; ?>
         </font><br/>
     </th>
     <td class="left nobborder" valign="top" id="plugins">
+    	<table class="left noborder" cellpadding="0" cellspacing="0">
+    	<tr><td class="nobborder"><input type="checkbox" id="plugin_ANY" onclick="drawpolicy()" name="plugins[0]" <?php echo (in_array(0 , $plugingroups)) ? "checked='checked'" : "" ?>> <?=_("ANY")?>
+    	</td></tr>
+    	<tr><td class="nobborder" id="plugins">
 <?php
 /* ===== plugin groups ==== */
 foreach(Plugingroup::get_list($conn) as $g) {
@@ -809,7 +824,8 @@ foreach(Plugingroup::get_list($conn) as $g) {
     <input type="checkbox" id="plugin_<?php echo $g->get_name() ?>" onclick="drawpolicy()" name="plugins[<?php echo $g->get_id() ?>]" <?php echo (in_array($g->get_id() , $plugingroups)) ? "checked='checked'" : "" ?>> <a href="../policy/modifyplugingroupsform.php?action=edit&id=<?php echo $g->get_id() ?>&withoutmenu=1" class="greybox" title="<?=_('View plugin group')?>"><?php echo $g->get_name() ?></a><br/>
 <?php
 } ?>
-
+		</td></tr>
+		</table>
     </td>
   </tr>
   </table>
