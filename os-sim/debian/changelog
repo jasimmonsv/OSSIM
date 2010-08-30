@@ -32,7 +32,7 @@ ossim (1:2.3.1-5) ossim; urgency=low
 
 ossim (1:2.3.1-4) ossim; urgency=low
 
-  * Multiple Fixes
+  * Multiple Fixes. Thanks to Nahuel Grisolia	(www.bonsai-sec.com) for some of them
 
   -- Alberto Roman <aroman@ossim.net>  Fri, 23 Jul 2010 11:20:46 +0100
 
