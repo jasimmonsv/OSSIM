@@ -1219,8 +1219,8 @@ $CONFIG = array(
         )
     ) ,
     "IncidentGeneration" => array(
-        "title" => gettext("Automatic Ticket Generation") ,
-        "desc" => gettext("Automatic Ticket Generation parameters") ,
+        "title" => gettext("Tickets") ,
+        "desc" => gettext("Tickets parameters") ,
         "advanced" => 0,
         "conf" => array(
             "alarms_generate_incidents" => array(
@@ -1232,6 +1232,12 @@ $CONFIG = array(
                 "desc" => gettext("Open Tickets for new alarms automatically?") ,
                 "advanced" => 0
             ) ,
+            "tickets_max_days" => array(
+                "type" => "text",
+                "help" => gettext("") ,
+                "desc" => gettext("Maximum days for email notification") ,
+                "advanced" => 0
+            )
         )
     ) ,
 
