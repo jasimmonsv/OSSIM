@@ -3,6 +3,7 @@ include ("classes/Security.inc");
 include("nfsen_functions.php");
 include("../nfsen/conf.php");
 $name = GET('name');
+$ip = GET('ip');
 $port = GET('port');
 $color = "#".GET('color');
 $type = GET('type');
@@ -29,7 +30,7 @@ if (ossim_error()) {
 			unset($nfsen_sensors[$name]);
 			set_nfsen_sensors($nfsen_sensors);
 			nfsen_reset($nfsen_dir);
-			echo "'$name' sensor "._(" has been removed from nfsen");
+			echo str_replace("IP",$ip,_("IP now is not configured as a Flow collector"));
 		}
 	} elseif ($status) {
 		is_running($name);
@@ -41,7 +42,7 @@ if (ossim_error()) {
 		$nfsen_sensors[$name]['type'] = $type;
 		set_nfsen_sensors($nfsen_sensors);
 		nfsen_reset();
-		echo _("nfsen is now running for")." '$name'";
+		echo str_replace("IP",$ip,str_replace("PORT",$port,_("You should now configure your Flows generator to send Flows to IP port PORT")));
 	}
 }
 ?>

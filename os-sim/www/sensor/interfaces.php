@@ -128,7 +128,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 	$('#netflow_hdr').html("<img src='../pixmaps/loading.gif' width='15'>");
 	$.ajax({
 		type: "GET",
-		url: "nfsen_config.php?name="+name+"&port="+port+"&type="+type+"&color="+color,
+		url: "nfsen_config.php?ip=<?=urlencode($sensor)?>&name="+name+"&port="+port+"&type="+type+"&color="+color,
 		data: "",
 		success: function(msg){
 			if (msg != "You must fill all inputs") {
@@ -146,7 +146,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   function is_running() {
 	$.ajax({
 		type: "GET",
-		url: "nfsen_config.php?name=<?=$name?>&status=1",
+		url: "nfsen_config.php?ip=<?=urlencode($sensor)?>&name=<?=$name?>&status=1",
 		data: "",
 		success: function(msg){
 			$('#nfsen_port').attr('disabled', 'disabled');
@@ -168,7 +168,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 	$('#netflow_hdr').html("<img src='../pixmaps/loading.gif' width='15'>");
 	$.ajax({
 		type: "GET",
-		url: "nfsen_config.php?name=<?=$name?>&restart=1",
+		url: "nfsen_config.php?ip=<?=urlencode($sensor)?>&name=<?=$name?>&restart=1",
 		data: "",
 		success: function(msg){
 			if (msg.match(/<?=$name?>: collector did not start/)) {
@@ -188,7 +188,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 	$('#netflow_hdr').html("<img src='../pixmaps/loading.gif' width='15'>");
 	$.ajax({
 		type: "GET",
-		url: "nfsen_config.php?name=<?=$name?>&delete=1",
+		url: "nfsen_config.php?ip=<?=urlencode($sensor)?>&name=<?=$name?>&delete=1",
 		data: "",
 		success: function(msg){
 			if (msg != "") {
