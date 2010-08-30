@@ -812,7 +812,7 @@ foreach($ports as $pgrp) echo "<option value='$pgrp'>$pgrp"; ?>
           <a href="../policy/plugingroups.php?withoutmenu=1" class="greybox"> <?php echo gettext("View all plugin groups"); ?></a>
         </font><br/>
     </th>
-    <td class="left nobborder" valign="top" id="plugins">
+    <td class="left nobborder" valign="top">
     	<table class="left noborder" cellpadding="0" cellspacing="0">
     	<tr><td class="nobborder"><input type="checkbox" id="plugin_ANY" onclick="drawpolicy()" name="plugins[0]" <?php echo (in_array(0 , $plugingroups)) ? "checked='checked'" : "" ?>> <?=_("ANY")?>
     	</td></tr>
