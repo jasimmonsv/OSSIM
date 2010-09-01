@@ -1250,6 +1250,15 @@ if (Session::menu_perms("MenuTools", "ToolsScan")) { $tools = 1;
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
     );
 }
+
+$hmenu["Sysinfo"][] = array(
+    "name" => gettext("System Status") ,
+    "id" => "Sysinfo",
+    "url" => "sysinfo/sysinfo.php",
+    "target" => "info", 
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:sysinfo','Help');"
+);
+    
 /*
 if (Session::menu_perms("MenuTools", "ToolsRuleViewer")) $menu["Tools"][] = array(
 "name" => gettext("Rule Viewer") ,
