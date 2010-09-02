@@ -1706,7 +1706,7 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
 <?php
 submit();
 ?> 
-	Find word :<input type="text" name="word" value="<?php echo $s ?>">
+	<?php echo _("Find word:");?><input type="text" name="word" value="<?php echo $s ?>">
 	<br><br>
 	<input type='hidden' name="adv" value="<?php
 	echo ($advanced) ? "1" : "" ?>">

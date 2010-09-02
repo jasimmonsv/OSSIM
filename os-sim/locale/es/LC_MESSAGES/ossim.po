@@ -573,7 +573,7 @@ msgstr ""
 msgid ""
 "Any vulnerability with a higher risk level than this value will get inserted "
 "automatically into DB."
-msgstr ""
+msgstr "Cualquier vulnerabilidad con un nivel de riesgo m&aacute;s alto que este valor se insertar&aacute;"
 
 #: www/conf/main.php:207
 msgid "Apache-rewrite ntop"
@@ -1550,11 +1550,11 @@ msgstr "Fecha: "
 
 #: www/backup/index.php:93
 msgid "Dates in Database"
-msgstr "Base de Datos"
+msgstr "Fechas en BD"
 
 #: www/backup/index.php:91
 msgid "Dates to Restore"
-msgstr "ruta a snort"
+msgstr "Fechas para restaurar"
 
 #: www/report/pdfreportform.php:160
 msgid "Day"
@@ -1886,7 +1886,7 @@ msgstr "Direcotrio para el panel de configuraci&oacute;n de archivos no existe"
 #: www/conf/main.php:337 www/conf/main.php:348 www/conf/main.php:359
 #: www/conf/main.php:370
 msgid "Disabled"
-msgstr ""
+msgstr "Deshabilitado"
 
 #: www/conf/main.php:829
 msgid "Distributed Scanning"
@@ -2067,7 +2067,7 @@ msgstr ""
 
 #: www/conf/main.php:1055
 msgid "Enable LDAP for login"
-msgstr ""
+msgstr "Habilitar LDAP para login"
 
 #: www/conf/main.php:319
 msgid "Enable Listener"
@@ -2091,7 +2091,7 @@ msgstr ""
 
 #: www/conf/main.php:995
 msgid "Enable User Log"
-msgstr ""
+msgstr "Habilitar log de usuario"
 
 #: www/host/newhostform.php:204 www/host/modifyhostform.php:228
 #: www/net/newnetform.php:151
@@ -2385,7 +2385,7 @@ msgstr ""
 
 #: www/conf/main.php:759
 msgid "Forensics Active Event Window"
-msgstr ""
+msgstr "Ventana de eventos activa del forense"
 
 #: www/conf/main.php:264
 msgid "Frameworkd Directory"
@@ -2512,7 +2512,7 @@ msgstr ""
 
 #: www/conf/main.php:509
 msgid "Global Threshold"
-msgstr ""
+msgstr "Umbral global"
 
 #: www/control_panel/alarm_console.php:194
 msgid "Go"
@@ -2784,7 +2784,7 @@ msgstr "Horas"
 
 #: www/conf/main.php:758
 msgid "How many days in the past do you want to keep Events in forensics?"
-msgstr ""
+msgstr "&iquest;Cu&aacute;ntos d&iacute;as atr&aacute;s desea conservar los eventos en el forense?"
 
 #: www/directive_editor/viewer/index.php:164 www/directives/directive.php:326
 msgid "How many times we have to match a unique"
@@ -3334,7 +3334,7 @@ msgstr "&Uacute;timo a&ntilde;o"
 
 #: www/conf/main.php:1062
 msgid "Ldap server address"
-msgstr ""
+msgstr "Direcci&oacute;n del servidor LDAP"
 
 #: www/control_panel/global_score.php:1272
 msgid "Legend"
@@ -3422,13 +3422,13 @@ msgstr ""
 
 #: www/conf/main.php:40
 msgid "Locale File Directory"
-msgstr ""
+msgstr "Configuraci&oacute;n regional"
 
 #: www/conf/main.php:39
 msgid ""
 "Location of the ossim.mo localization files. You shouldn't need to change "
 "this."
-msgstr ""
+msgstr "Ruta de los archivos ossim.mo. No ser&aacute; necesario cambiarla."
 
 #: www/sensor/editsensor.php:409
 msgid "Log file"
@@ -3436,11 +3436,11 @@ msgstr "Fichero de Log"
 
 #: www/conf/main.php:1006
 msgid "Log to syslog"
-msgstr ""
+msgstr "Log a syslog"
 
 #: www/session/users.php:40 www/session/login.php:164
 msgid "Login"
-msgstr "Acceder"
+msgstr ""
 
 #: www/conf/main.php:1031
 msgid "Login methods"
@@ -3856,14 +3856,14 @@ msgstr "NOTA: El usuario por defecto es admin-admin"
 #: www/session/modifyuserform.php:186 www/session/modifyuserform.php:225
 #: www/session/newuserform.php:175 www/session/newuserform.php:194
 msgid "NOTE: No selection allows ALL"
-msgstr "NOTA: Sin selecci&oacute; significa TODO"
+msgstr "NOTA: Sin selecci&oacute;n significa TODO"
 
 #: www/netscan/index.php:111
 msgid ""
 "NOTE: This tool is a nmap frontend. In order to use all nmap functionality, "
 "you need root privileges."
 msgstr ""
-"NOTA: Esta P&acute;gina es un frontend de nmap. Para utilizar\n"
+"NOTA: Esta p&aacute;gina es un frontal de nmap. Para utilizar\n"
 "           las funcionalidades de nmap, se necesitan privilegios de root."
 
 #: www/report/anomalies.php:105
@@ -4666,7 +4666,7 @@ msgstr ""
 
 #: www/conf/main.php:32
 msgid "Obsolete, configure at Configuration -> Users"
-msgstr ""
+msgstr "Obsoleto, configurar en Configuraci&oacute;n -> Usuarios"
 
 #: www/conf/main.php:828
 msgid ""
@@ -4905,7 +4905,7 @@ msgstr ""
 
 #: www/backup/index.php:146
 msgid "Percent"
-msgstr ""
+msgstr "Porcentaje"
 
 #: www/nagios/menu.php:128 www/nagios/menu.php:154
 msgid "Performance Info"
@@ -5070,7 +5070,7 @@ msgstr ""
 
 #: www/netscan/index.php:65
 msgid "Please, select the network you want to scan:"
-msgstr "Por favor, seleccione la red que desea an&aacute;lisisear:"
+msgstr "Por favor, seleccione la red que desea escanear:"
 
 #: include/panel/plugins/custom_sql.php:100
 msgid "Plot Shadow"
@@ -5394,7 +5394,7 @@ msgstr "Protocolos"
 
 #: www/sem/index.php:638
 msgid "Purge"
-msgstr ""
+msgstr "Eliminar"
 
 #: www/control_panel/alarm_console.php:557
 msgid "Purge orphaned events"
@@ -5497,7 +5497,7 @@ msgstr "Visor de eventos en tiempo real"
 
 #: www/conf/main.php:502
 msgid "Recovery Ratio"
-msgstr ""
+msgstr "Raz&oacute;n de recuperaci&oacute;n"
 
 #: www/conf/pluginref.php:89
 msgid "Reference id"
@@ -5608,7 +5608,7 @@ msgstr "Informes"
 
 #: www/conf/main.php:1044
 msgid "Require a valid ossim user for login"
-msgstr ""
+msgstr "Pedir un usuario de OSSIM v&aacute;lido para el login"
 
 #: www/upgrade/index.php:131
 msgid "Required"
@@ -6545,7 +6545,7 @@ msgstr ""
 
 #: www/top.php:62
 msgid "System Upgrade Needed"
-msgstr "Actualizaci&oacute;n del Sistema Requerida"
+msgstr "Actualizaci&oacute;n necesaria"
 
 #: www/port/newsingleportform.php:31
 msgid "TCP"
@@ -7000,7 +7000,7 @@ msgstr ""
 
 #: www/downloads/index.php:15
 msgid "Tool Downloads"
-msgstr ""
+msgstr "Descargas de herramientas"
 
 #: www/top.php:75
 msgid "Tools"
@@ -7394,7 +7394,7 @@ msgstr "Configuraci&oacute;n del registro de usuarios"
 #: www/business_processes/asset_edit.php:35 www/session/modifyuserform.php:70
 #: www/session/newuserform.php:63
 msgid "User login"
-msgstr "Nombre de usuario"
+msgstr "Login de usuario"
 
 #: www/session/modifyuserform.php:28 www/session/modifyuserform.php:29
 #: www/session/modifyuserform.php:74 www/session/changepassform.php:21
@@ -8601,6 +8601,9 @@ msgstr "de por s&iacute;"
 msgid "perms"
 msgstr "permisos"
 
+msgid "Perms"
+msgstr "Permisos"
+
 #: www/host/modifyhost.php:50 www/host/newhost.php:49
 msgid "persistence"
 msgstr "persistencia"
@@ -9203,6 +9206,9 @@ msgstr "Vista del Servicio para todos los Grupos de Equipos"
 msgid "User Activity"
 msgstr "Actividad del Usuario"
 
+msgid "User activity"
+msgstr "Actividad del Usuario"
+
 msgid "Software Upgrade"
 msgstr "Actualizaci&oacute;n de Software"
 
@@ -9231,7 +9237,7 @@ msgid "User Profile"
 msgstr "Perfil del Usuario"
 
 msgid "Ask to change password at next login"
-msgstr "Solicitar cambio de contraseña en el siguiente inicio de sesi&oacute;n"
+msgstr "Solicitar cambio de contrase&ntilde;a en el siguiente inicio de sesi&oacute;n"
 
 msgid "Small"
 msgstr "Pequen&acute;o"
@@ -9271,9 +9277,6 @@ msgstr "Iconos por defecto"
 
 msgid "Country Flags"
 msgstr "Banderas de pa&iacute;ses"
-
-msgid "Compliance"
-msgstr "Conformidad"
 
 msgid "Security"
 msgstr "Seguridad"
@@ -9485,6 +9488,231 @@ msgstr "Administrador"
 
 msgid "Modify Colors"
 msgstr "Modificar Colores"
+
+msgid "System Status"
+msgstr "Estado del sistema"
+
+msgid "Loading... please wait!"
+msgstr "Cargando... &iexcl;por favor espere!"
+
+msgid "Restore"
+msgstr "Restaurar"
+
+msgid "For this purpose you can use suphp, or change group to the web-user and set suid to nmap binary (<b>chgrp www-data /usr/bin/nmap ; chmod 4750 /usr/bin/nmap</b>)."
+msgstr "Para este prop&oacute;sito puede usar suphp, o cambiar el grupo al usuario-web y establecer el suid al binario de nmap (<b>chgrp www-data /usr/bin/nmap ; chmod 4750 /usr/bin/nmap</b>)."
+
+msgid "<b>Manual input</b> examples"
+msgstr "Ejemplos de <b>entrada manual</b>"
+
+msgid "Fast Scan"
+msgstr "Escaneo R&aacute;pido"
+
+msgid "Full Scan"
+msgstr "Escaneo Completo"
+
+msgid "<b>Full mode</b> will be much slower but will include OS, services, service versions and MAC address into the inventory"
+msgstr "El <b>modo completo</b> ser&aacute; m&aacute;s lento pero incluir&aacute; SO, servicios, versiones de los servicios y direcci&oacute;n MAC en el inventario"
+
+msgid "<b>Fast mode</b> will scan fewer ports than the default scan"
+msgstr "El <b>modo r&aacute;pido</b> explorar&aacute; menos puertos que el escaneo por defecto"
+
+msgid "<b>Paranoid</b> and <b>Sneaky</b> modes are for IDS evasion<br/>"
+msgstr "Los modos <b>Paranoid</b> y <b>Sneaky</b> son para la evasi&oacute;n de los IDS<br/>"
+
+msgid "<b>Polite</b> mode slows down the scan to use less bandwidth and target machine resources<br/>"
+msgstr "El modo <b>Polite</b> ralentiza el escaneo para usar menos ancho de banda y recursos de la máquina objetivo<br/>"
+
+msgid "<b>Aggressive</b> and <b>Insane</b> modes speed up the scan (fast and reliable networks)<br/>"
+msgstr "Los modos <b>Aggressive</b> y <b>Insane</b> aceleran el escaneo (redes fiables y r&aacute;pidas)<br/>"
+
+msgid "Enable full scan"
+msgstr "Habilitar escaneo completo"
+
+msgid "Timing template"
+msgstr "Plantilla de tiempo"
+
+msgid "Discover"
+msgstr "Descrubir"
+
+msgid "Manage Remote Scans"
+msgstr "Administrar Escaneos Remotos"
+
+msgid "Net discover options"
+msgstr "Opciones del descubrimiento de red"
+
+msgid "Find word:"
+msgstr "Buscar palabra:"
+
+msgid "Vulnerability Ticket Threshold"
+msgstr "Umbral de los ticket de vulnerabilidad"
+
+msgid "Vulnerability Scanner configuration"
+msgstr "Configuraci&oacute;n del esc&aacute;ner de Vulnerabilidad"
+
+msgid "Login methods/options"
+msgstr "M&eacute;todos/opciones del login"
+
+msgid "Setup main login methods/options"
+msgstr "Configuraci&oacute;n de los m&eacute;todos/opciones del login principal"
+
+msgid "Show welcome message at next login"
+msgstr "Mostrar mensaje de bienvenida en siguiente login"
+
+msgid "Password Expire"
+msgstr "Caducidad Password"
+
+msgid "Enable auto update-checking"
+msgstr "Habilitar auto chequeo de actualizaciones"
+
+msgid "Open Tickets for new alarms automatically?"
+msgstr "&iquest;Abrir tickets para nuevas alarmas autom&aacute;ticamente?"
+
+msgid "Maximum days for email notification"
+msgstr "M&aacute;ximo de d&iacute;as para notificaci&oacute;n por e-mail"
+
+msgid "Password expires in 90 days"
+msgstr "La password expira en 90 d&iacute;as"
+
+msgid "The system will check once a day for updated packages, rules, directives, etc. No system information will be sent, it just gest a file with dates and update messages using wget."
+msgstr "El sistema chequear&aacute; una vez al d&iacute;a los paquetes actualizados, reglas, directivas, etc.<br> No se enviar&aacute; ninguna informaci&oacute;n del sistema, s&oacute;lo se recupera un fichero con las fechas y mensajes de actualizaci&oacute;n usando wget."
+
+msgid "Enabling this option will lead to automatic ticket generation upong arrival of alarms."
+msgstr "Al habilitar esta opci&oacute;n dar&aacute; lugar a la generaci&oacute;n autom&aacute;tica de tickets con la llegada de alarmas."
+
+msgid "Entity"
+msgstr "Entidad"
+
+msgid "Add Entity"
+msgstr "A&ntilde;adir entidad"
+
+msgid "Remove Entity"
+msgstr "Eliminar entidad"
+
+msgid "From Template"
+msgstr "Desde plantilla"
+
+msgid "Inherits"
+msgstr "Heredados"
+
+msgid "Sensors:"
+msgstr "Sensores:"
+
+msgid "Menus:"
+msgstr "Men&uacute;s:"
+
+msgid "Policy:"
+msgstr "Pol&iacute;tica:"
+
+msgid "Entities"
+msgstr "Entidades"
+
+msgid "Templates"
+msgstr "Plantillas"
+
+msgid "Entities Types"
+msgstr "Tipos de entidades"
+
+msgid "Inherit Sensors"
+msgstr "Heredar Sensores"
+
+msgid "Inherit Assets"
+msgstr "Heredar Activos"
+
+msgid "Inherit Menus"
+msgstr "Heredar Men&uacute;s"
+
+msgid "Inherit Policies"
+msgstr "Heredar Pol&iacute;ticas"
+
+msgid "Insert new type"
+msgstr "Insertar nuevo tipo"
+
+msgid "New Entity"
+msgstr "Nueva Entidad"
+
+msgid "Address:"
+msgstr "Direcci&oacute;n:"
+
+msgid "Type:"
+msgstr "Tipo:"
+
+msgid "Admin User:"
+msgstr "Usuario Admin:"
+
+msgid "Parent:"
+msgstr "Padre:"
+
+msgid "From Parent Template"
+msgstr "Desde la plantilla padre"
+
+msgid "You could set the <b>admin</b> later"
+msgstr "Podr&aacute;s seleccionar el <b>admin</b> m&aacute;s tarde"
+
+msgid "General Info"
+msgstr "Informaci&oacute;n General"
+
+msgid "New Template"
+msgstr "Nueva Plantilla"
+
+msgid "Allowed Assets"
+msgstr "Activos Permitidos"
+
+msgid "Allowed Sensors"
+msgstr "Sensores Permitidos"
+
+msgid "Allowed Sections"
+msgstr "Secciones Permitidas"
+
+msgid "Granularity"
+msgstr "Granularidad"
+
+msgid "Insert new plugin sid"
+msgstr "Insertar nuevo plugin sid"
+
+msgid "Displaying {from} to {to} of {total} plugins"
+msgstr "Mostrando del {from} al {to} de {total} plugins"
+
+msgid "You must select a plugin"
+msgstr "Debe seleccionar un plugin"
+
+msgid "Show all"
+msgstr "Mostrar todo"
+
+msgid "Save Configuration"
+msgstr "Guardar Configuraci&oacute;n"
+
+msgid "Acknowledge Updates"
+msgstr "Reconocer Actualizaciones"
+
+msgid "Latest Updates"
+msgstr "&Uacute;ltimas actualizaciones"
+
+msgid "Remember that to upgrade the system you need to do the following in the command shell:"
+msgstr "Recuerde que para actualizar el sistema tiene que ejecutar lo siguiente en la shell:"
+
+msgid "Proxy url"
+msgstr "Url Proxy"
+
+msgid "Proxy User"
+msgstr "Usuario Proxy"
+
+msgid "Proxy Password"
+msgstr "Password Proxy"
+
+msgid "Last update timestamp"
+msgstr "Fecha &uacute;ltima actualizaci&oacute;n"
+
+msgid "Add Plugin"
+msgstr "A&ntilde;adir Plugin"
+
+msgid "SIDs Search"
+msgstr "Buscar SIDs"
+
+msgid "Plugin Description / SIDs"
+msgstr "Plugin Descripci&oacute;n / SIDs"
+
+msgid "Plugin Name"
+msgstr "Nombre del Plugin"
 
 #~ msgid ""
 #~ "\n"

@@ -163,9 +163,9 @@ if (is_array($net_list) && !empty($net_list)) {
         </select>
         <br/>
         <small style="color:grey">
-           <b>Paranoid</b> and <b>Sneaky</b> modes are for IDS evasion<br/>
-           <b>Polite</b> mode slows down the scan to use less bandwidth and target machine resources<br/>
-           <b>Aggressive</b> and <b>Insane</b> modes speed up the scan (fast and reliable networks)
+           <?php echo _("<b>Paranoid</b> and <b>Sneaky</b> modes are for IDS evasion<br/>");?>
+           <?php echo _("<b>Polite</b> mode slows down the scan to use less bandwidth and target machine resources<br/>");?>
+           <?php echo _("<b>Aggressive</b> and <b>Insane</b> modes speed up the scan (fast and reliable networks)<br/>");?>
          </small>
       </td>
     </tr>
