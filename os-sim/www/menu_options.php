@@ -477,6 +477,13 @@ if ($opensource) {
            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:layouts','Help');"
         );
         $hmenu["Reporting Server"][] = array(
+            "name" => gettext("Scheduler"),
+            "id" => "Scheduler",
+            "target" => "main",
+            "url" => "report/wizard_scheduler.php",
+            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:scheduler','Help');"
+        );        
+        $hmenu["Reporting Server"][] = array(
            "name" => gettext("FOSS Reports"),
            "id" => "OSReports",
            "target" => "main",
@@ -689,7 +696,7 @@ if (Session::menu_perms("MenuPolicy", "5DSearch")) { $assets = 1;
 
 }
 
-/*
+
 if(Session::am_i_admin()) {
     $menu["Assets"][] = array(
         "name" => gettext("Asset Discovery") ,
@@ -715,7 +722,7 @@ if(Session::am_i_admin()) {
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
     );
 }
-*/
+
 
 if (Session::menu_perms("MenuPolicy", "PolicyServers") || Session::menu_perms("MenuPolicy", "PolicySensors")) { $assets = 1;
     if (Session::menu_perms("MenuPolicy", "PolicySensors")) {
