@@ -42,7 +42,7 @@ $id = (GET('id')!="")? GET('id'):POST('id');
 $sids = POST('sids');
 
 ossim_valid($id, OSS_DIGIT, 'illegal:' . _("ID"));
-ossim_valid($sids, OSS_NULLABLE, OSS_DIGIT, ",", "ANY", OSS_SPACE);
+ossim_valid($sids, OSS_NULLABLE, OSS_DIGIT, ",-", "ANY", OSS_SPACE);
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -126,7 +126,19 @@ $conn = $db->connect();
     <select id="pluginsids" class="multiselect" multiple="multiple" name="sids[]">
     <?
     if ($sids!="ANY" && $sids!="") {
-        $plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id AND sid in ($sids)");
+    	$sids = explode(",",$sids);
+    	$range = "";
+    	$sin = array();
+    	foreach ($sids as $sid) {
+    		if (preg_match("/(\d+)-(\d+)/",$sid,$found)) {
+    			$range .= " OR (sid BETWEEN ".$found[1]." AND ".$found[2].")"; 
+    		} else { 
+    			$sin[] = $sid;
+    		}
+    	}
+    	if (count($sin)>0) $where = "sid in (".implode(",",$sin).") $range";
+    	else $where = preg_replace("/^ OR /","",$range);
+        $plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id AND ($where)");
         foreach($plugin_list as $plugin) {
             $id = $plugin->get_sid();
             $name = "$id - ".trim($plugin->get_name());
