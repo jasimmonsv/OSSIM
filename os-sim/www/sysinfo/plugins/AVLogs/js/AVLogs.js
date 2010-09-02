@@ -56,86 +56,105 @@
 
 "use strict";
 
-var AVPackages_show = false;
+var AVLogs_show = false;
 /**
  * insert content into table
  * @param {jQuery} xml plugin-XML
  */
-function AVPackages_populate(xml) {
-    var color = "";
+ 
+function toogle_details(id) {
+    $('.log'+id).toggle();
+    if ($('#img'+id).attr('src').match(/plus/)){
+        $('#img'+id).attr('src','../pixmaps/minus-small.png');
+        $('#img'+id).attr('title','Hide details');
+        $('#img'+id).attr('alt','Hide details');
+    }
+    else {
+        $('#img'+id).attr('src','../pixmaps/plus-small.png');
+        $('#img'+id).attr('title','Show details');
+        $('#img'+id).attr('alt','Show details');
+    }
+}
+
+function AVLogs_populate(xml) {
     var html = "";
-    $("#Plugin_AVPackagesTable").html(" ");
-    html += "   <thead>\n";
-    html += "    <tr>\n";
-    html += "     <th>" + genlang(2, true, "AVPackages") + "</th>\n";
-    html += "     <th>" + genlang(3, true, "AVPackages") + "</th>\n";
-    html += "     <th>" + genlang(4, true, "AVPackages") + "</th>\n";
-    html += "     <th>" + genlang(5, true, "AVPackages") + "</th>\n";
-    html += "    </tr>\n";
-    html += "   </thead>";
-    $("Plugins Plugin_AVPackages Packages Item", xml).each(function AVPackages_getitem(idp) {
-        //if(idp==0) {
-        //    html += "<tr><th style=\"font-weight:bold\">" + genlang(1, true, "AVPackages") + "</th></tr>\n";
-        //}
+    var color = "";
+    $("#Plugin_AVLogsTable").html(" ");
+    $("Plugins Plugin_AVLogs Files Item", xml).each(function AVLogs_getitem(idp) {
         color = "";
         if(idp%2==1) {
             color = " class=\"even\"";
         }
         html += "    <tr" + color + ">\n";
-        html += "      <th style=\"font-weight:normal\">" +  $(this).attr("Status") + "</th>\n";
-        html += "      <th style=\"font-weight:normal\">" +  $(this).attr("Name") + "</th>\n";
-        html += "      <th style=\"font-weight:normal\">" +  $(this).attr("Version") + "</th>\n";
-        html += "      <th style=\"font-weight:normal\">" +  $(this).attr("Description") + "</th>\n";
+        html += "      <th style=\"font-weight:normal;text-align:right;width:150px;\">";
+        html +=             $(this).attr("Name") + ":<a href=\"\" onclick=\"toogle_details('" + idp + "');return false;\"><img id=\"img" +idp+ "\" width=\"16\" align=\"absmiddle\" src=\"../pixmaps/plus-small.png\" border=\"0\" alt=\"Show details\" title=\"Show details\">\n";
+        html += "      </th>\n";
+        html += "      <th>&nbsp;</th>\n";
         html += "    </tr>\n";
-        AVPackages_show = true;
+        
+        if(parseInt($("Log", this).size())==0) {
+            html += "    <tr class=\"log"+idp+" even\" style=\"display:none;\">\n";
+            html += "      <th style=\"width:150px\">&nbsp;</th>\n";
+            html += "      <th style=\"text-align:left;font-weight:normal;color:#AAAAAA;\">" +  genlang(2, true, "AVLogs") + "</th>\n";
+            html += "    </tr>\n";
+        }
+        else {
+            $("Log", this).each(function AVLogs_getlog(ldp) {
+                html += "    <tr class=\"log"+idp+" even\" style=\"display:none\">\n";
+                html += "      <th style=\"width:150px\">&nbsp;</th>\n";
+                html += "      <th style=\"text-align:left;font-weight:normal;\">" +  $(this).attr("Line") + "</th>\n";
+                html += "    </tr>\n";
+            });
+        }
+        AVLogs_show = true;
     });
 
-    $("#Plugin_AVPackagesTable").append(html);
+    $("#Plugin_AVLogsTable").append(html);
 }
 
-function AVPackages_buildTable() {
+function AVLogs_buildTable() {
     var html = "";
 
-    html += "<table id=\"Plugin_AVPackagesTable\" cellspacing=\"0\">\n";
+    html += "<table id=\"Plugin_AVLogsTable\" cellspacing=\"0\">\n";
     html += "  <thead>\n";
     html += "  </thead>\n";
     html += "  <tbody>\n";
     html += "  </tbody>\n";
     html += "</table>\n";
-    $("#Plugin_AVPackages").append(html);
+    $("#Plugin_AVLogs").append(html);
 }
 
 /**
  * load the xml via ajax
  */
-function AVPackages_request() {
+function AVLogs_request() {
     $.ajax({
-        url: "xml.php?plugin=AVPackages",
+        url: "xml.php?plugin=AVLogs",
         dataType: "xml",
-        error: function AVPackages_error() {
-        $.jGrowl("Error loading XML document for Plugin AVPackages!");
+        error: function AVLogs_error() {
+        $.jGrowl("Error loading XML document for Plugin AVLogs!");
     },
-    success: function AVPackages_buildblock(xml) {
+    success: function AVLogs_buildblock(xml) {
         populateErrors(xml);
-        AVPackages_populate(xml);
-        if (AVPackages_show) {
-            plugin_translate("AVPackages");
-            $("#Plugin_AVPackages").show();
+        AVLogs_populate(xml);
+        if (AVLogs_show) {
+            plugin_translate("AVLogs");
+            $("#Plugin_AVLogs").show();
         }
     }
     });
 }
 
-$(document).ready(function AVPackages_buildpage() {
-    $("#footer").before(buildBlock("AVPackages", 1, true)); 
-    $("#Plugin_AVPackages").css("width", "100%").css("border","1px solid #AAAAAA").css("margin-left", "0px");
+$(document).ready(function AVLogs_buildpage() {
+    $("#footer").before(buildBlock("AVLogs", 1, true)); 
+    $("#Plugin_AVLogs").css("width", "100%").css("border","1px solid #AAAAAA").css("margin-left", "0px");
 
-    AVPackages_buildTable();
+    AVLogs_buildTable();
 
-    AVPackages_request();
+    AVLogs_request();
 
-    $("#Reload_AVPackagesTable").click(function AVPackages_reload(id) {
-        AVPackages_request();
-        $("#DateTime_AVPackages").html("(" + genlang(1, true, "AVPackages") + ":&nbsp;" + datetime() + ")");
+    $("#Reload_AVLogsTable").click(function AVLogs_reload(id) {
+        AVLogs_request();
+        $("#DateTime_AVLogs").html("(" + genlang(1, true, "AVLogs") + ":&nbsp;" + datetime() + ")");
     });
 });

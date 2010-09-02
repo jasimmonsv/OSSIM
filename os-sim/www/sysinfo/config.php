@@ -75,7 +75,7 @@ define('PSI_ADD_PATHS', false);
  * - BAT      - show battery state on a laptop
  * - ipmi     - show IPMI status
  */
-define('PSI_PLUGINS', 'PSStatus,Quota,AVPackages,PS');
+define('PSI_PLUGINS', 'PSStatus,Quota,AVPackages,AVLogs,PS');
 
 
 // ********************************

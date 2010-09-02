@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <!-- $Id: en.xml 346 2010-01-17 10:15:56Z jacky672 $ -->
+  <!--
+    phpSysInfo language file Language: English Created by: Mieczyslaw Nalewaj
+  -->
+<tns:translationPlugin language="english" charset="utf-8"
+  xmlns:tns="http://phpsysinfo.sourceforge.net/translation-plugin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://phpsysinfo.sourceforge.net/translation-plugin ../../../language/translation-plugin.xsd">
+  <expression id="plugin_avlogs_001" name="AVLogs_title">
+    <exp>AlienVault SIEM - Logs</exp>
+  </expression>
+  <expression id="plugin_avlogs_002" name="AVLogs_empty">
+    <exp>Empty</exp>
+  </expression>
+</tns:translationPlugin>
