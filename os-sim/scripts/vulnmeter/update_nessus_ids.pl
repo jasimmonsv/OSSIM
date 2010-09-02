@@ -39,11 +39,6 @@ use warnings;
 
 $| = 1;
 
-my $dsn = "dbi:mysql:".$ossim_conf::ossim_data->{"ossim_base"}.":".$ossim_conf::ossim_data->{"ossim_host"}.":".$ossim_conf::ossim_data->{"ossim_port"};
-my $dbh = DBI->connect($dsn, $ossim_conf::ossim_data->{"ossim_user"},
-$ossim_conf::ossim_data->{"ossim_pass"})
-    or die "Can't connect to DBI\n";
-
 
 my $nessus = $ossim_conf::ossim_data->{"nessus_path"};
 my $nessus_user = $ossim_conf::ossim_data->{"nessus_user"};
@@ -96,6 +91,11 @@ $plugin_prio_hash{$temp_plugin_id} = $risk_level;
 
 close(PLUGINS);
 print "plugins fetched\n";
+
+my $dsn = "dbi:mysql:".$ossim_conf::ossim_data->{"ossim_base"}.":".$ossim_conf::ossim_data->{"ossim_host"}.":".$ossim_conf::ossim_data->{"ossim_port"};
+my $dbh = DBI->connect($dsn, $ossim_conf::ossim_data->{"ossim_user"},
+$ossim_conf::ossim_data->{"ossim_pass"})
+    or die "Can't connect to DBI\n";
 
 my $query = "SELECT * from plugin_sid where plugin_id = 3001;";
 
