@@ -80,7 +80,8 @@ foreach my $file (@files) {
 			$lastdate = $currentdate; # last selected event date
 			#
 			$jumprow = 0;
-			if ($grep_str eq "") {
+			#if ($grep_str eq "") {
+			if ($filter eq "") {
 				# calc jump row
 				$jumprow = 1;
 				%timeline = ();
@@ -105,7 +106,8 @@ foreach my $file (@files) {
 			$read_lines = $total_lines = 0;
 			if (!-e $file && -e $file.".gz") { $file .= ".gz"; }
 			$cmd = ($file =~ /\.gz$/) ? "zcat \"$file\" | $order_by |" : "$order_by \"$file\" |";
-			$cmd .= " $grep_str |" if ($grep_str ne "");
+			#$cmd .= " $grep_str |" if ($grep_str ne "");
+			$cmd .= " php grep_filter.php \"$filter\" |" if ($filter ne "");
 			print "Reading $file $jumprow $complete_lines $lines_threshold $start $end $lastdate '$filter' '$cmd'\n" if ($debug);
 			if ($debug_log ne "") {
 				open (L,">>$debug_log");
