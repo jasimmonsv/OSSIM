@@ -124,7 +124,7 @@ class PdfReport{
         }
     }
 
-    public function sendPdfEmail($title,$email){
+    public function sendPdfEmail($title,$email,$pdfName=null){
         /**/
         $conf = $GLOBALS["CONF"];
         $from=$conf->get_conf("from");
@@ -142,13 +142,17 @@ class PdfReport{
                     ';
         $fileName=$this->getNameTemp();
         /**/
-        try{
-            // obtenemos el pdf
-            $attachment=$this->getPdf('servidor');
-        } catch (Exception $e) {
-          echo $e->getMessage(); //Boring error messages from anything else!
+        if($pdfName==null){
+            try{
+                // obtenemos el pdf
+                $attachment=$this->getPdf('servidor');
+            } catch (Exception $e) {
+              echo $e->getMessage(); //Boring error messages from anything else!
+            }
+        }else{
+            // el pdf ya estaba generado
+            $attachment='/usr/share/ossim/scripts/report/'.$pdfName.'.pdf';
         }
-
         require_once('classes/PHPMailer.inc');
         include("classes/PHPMailerSMTP.inc");  // optional, gets called from within class.phpmailer.php if not already loaded
 
@@ -288,17 +292,20 @@ class Html{
         )
     );
     private $footerContent;
+    private $protocol;
 
     private function setMainUrl(){
-        $port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
-        $_SERVER["APACHE_PORT"] = (is_array($port) && intval($port[0])>0) ? intval($port[0]) : 80;
-        $this->mainUrl = 'http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"].'/ossim/';
+        //$port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
+        //$_SERVER["APACHE_PORT"] = (is_array($port) && intval($port[0])>0) ? intval($port[0]) : 80;
+        //echo $this->getProtocol().'//'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"].'/ossim/';
+        $this->mainUrl = $this->getProtocol().'//'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["SERVER_PORT"].'/ossim/';
     }
 
     private function getRootUrl(){
-        $port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
-        $_SERVER["APACHE_PORT"] = (is_array($port) && intval($port[0])>0) ? intval($port[0]) : 80;
-        return 'http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"].'/';
+        //$port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
+        //$_SERVER["APACHE_PORT"] = (is_array($port) && intval($port[0])>0) ? intval($port[0]) : 80;
+        //$this->getProtocol().'//'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"].'/';
+        return $this->getProtocol().'//'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["SERVER_PORT"].'/';
     }
 
     private function setLinkStylesheet(){
@@ -309,7 +316,20 @@ class Html{
         return $this->mainUrl;
     }
 
+    private function setProtocol(){
+        if(empty($_SERVER["HTTPS"])){
+            $this->protocol='http:';
+        }else{
+            $this->protocol='https:';
+        }
+    }
+
+    private function getProtocol(){
+        return $this->protocol;
+    }
+
     public function __construct($name,$title='',$imagenHeader='',$style='',$styleCss=array(),$footerContent=array()) {
+        $this->setProtocol();
         $this->setMainUrl();
         $this->setFooterContent($footerContent);
         $this->setName($name);

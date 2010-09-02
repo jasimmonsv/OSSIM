@@ -11,6 +11,25 @@ INSERT INTO `custom_report_types` VALUES(501, 'Global TCP/UDP Protocol Distribut
 INSERT INTO `custom_report_types` VALUES(502, 'Throughput', 'Network', 'Network/Throughput.php', 'Interface:INTERFACE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1);
 INSERT INTO `custom_report_types` VALUES(145, 'Top Events', 'Logger', 'Logger/List.php', 'Top Logger Events List:top:text:OSS_DIGIT:25:250;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:', '', 1);
 
+UPDATE custom_report_types SET inputs = 'Logo:logo:FILE:OSS_NULLABLE::' WHERE name='Title Page' and type='Title Page';
+
+DROP TABLE IF EXISTS `custom_report_scheduler`;
+CREATE TABLE IF NOT EXISTS `custom_report_scheduler` (
+  `id` int(11) NOT NULL auto_increment,
+  `schedule_type` varchar(20) NOT NULL,
+  `schedule` text NOT NULL,
+  `next_launch` datetime NOT NULL,
+  `id_report` varchar(100) NOT NULL,
+  `name_report` varchar(100) NOT NULL,
+  `email` varchar(255) default NULL,
+  `date_from` date default NULL,
+  `date_to` date default NULL,
+  `date_range` varchar(30) default NULL,
+  `assets` tinytext,
+  PRIMARY KEY  (`id`)
+);
+
+DROP TABLE IF EXISTS `risk_maps`;
 CREATE TABLE IF NOT EXISTS `risk_maps` (
   `map` varchar(64) NOT NULL,
   `perm` varchar(64) NOT NULL,
