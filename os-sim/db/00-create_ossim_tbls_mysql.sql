@@ -2371,6 +2371,22 @@ CREATE TABLE IF NOT EXISTS `custom_report_types` (
 PRIMARY KEY (`id`)
 );
 
+DROP TABLE IF EXISTS `custom_report_scheduler`;
+CREATE TABLE IF NOT EXISTS `custom_report_scheduler` (
+  `id` int(11) NOT NULL auto_increment,
+  `schedule_type` varchar(20) NOT NULL,
+  `schedule` text NOT NULL,
+  `next_launch` datetime NOT NULL,
+  `id_report` varchar(100) NOT NULL,
+  `name_report` varchar(100) NOT NULL,
+  `email` varchar(255) default NULL,
+  `date_from` date default NULL,
+  `date_to` date default NULL,
+  `date_range` varchar(30) default NULL,
+  `assets` tinytext,
+  PRIMARY KEY  (`id`)
+);
+
 DROP TABLE IF EXISTS `risk_maps`;
 CREATE TABLE IF NOT EXISTS `risk_maps` (
   `map` varchar(64) NOT NULL,

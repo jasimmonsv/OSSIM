@@ -2632,6 +2632,8 @@ void sim_organizer_create_event_directive(SimDirective *backlog,SimEvent *event)
 																									// and actualize the alarm after reinjecting & reprioritizing if we already know it?
 																									// Maybe we shouldn't update all the alarms/backlogs in memory, just the alarm of the 
 																									// current backlog instead of all of them.
+		uuid_generate(new_event->uuid);
+		sim_directive_backlog_get_uuid(backlog,new_event->uuid_backlog);
 
 //			sim_container_push_event (ossim.container, new_event);
 

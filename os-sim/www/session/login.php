@@ -197,6 +197,12 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
   <link rel="Shortcut Icon" type="image/x-icon" href="../favicon.ico">
 <script>
 if (location.href != top.location.href) top.location.href = location.href;
+var newwindow;
+function new_wind(url,name)
+{ 
+        newwindow=window.open(url,name,'height=768,width=1024,scrollbars=yes');
+        if (window.focus) {newwindow.focus()}
+}
 </script>
 </head>
 <?php
@@ -221,7 +227,8 @@ if ($failed) { ?>
 <table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class=nobborder><tr><td class="nobborder">
 <table align="center" class="noborder" style="background-color:white">
 
-  <tr> <td class="nobborder" style="text-align:center;padding:30px 20px 0px 20px">
+  <tr><td class="noborder" style="text-align:right"><a href="javascript:new_wind('http://www.ossim.net/dokuwiki/doku.php?id=user_manual:introduction','Help')"><img src="../pixmaps/help_icon_gray.png" border="0"></a></td></tr>
+  <tr> <td class="nobborder" style="text-align:center;padding:20px 20px 0px 20px">
        <img src="../pixmaps/ossim<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" />
   </td> </tr>
  
@@ -300,8 +307,9 @@ if ($first_login=="yes") { // first login
 <table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class=nobborder><tr><td class="nobborder">
 <table align="center" class="noborder" style="background-color:white">
 
+  <tr><td class="noborder" style="text-align:right"><a href="javascript:new_wind('http://www.ossim.net/dokuwiki/doku.php?id=user_manual:introduction','Help')"><img src="../pixmaps/help_icon_gray.png" border="0"></a></td></tr>
   <tr> <td class="nobborder" style="text-align:center;padding:10px 20px 0px 20px">
-       <img src="../pixmaps/ossim.png" alt="open source SIM logo" />
+       <img src="../pixmaps/ossim<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" />
   </td> </tr>
  
   <tr>

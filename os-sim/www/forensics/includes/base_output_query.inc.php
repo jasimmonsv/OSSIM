@@ -131,7 +131,7 @@ class QueryResultsOutput {
 				$print_title = "";
 				if ($title['key'] == "L4-proto") $width = " width=60";
 				elseif (preg_match("/INPUT/",$title['key'])) $width = " width=30";
-				elseif ($title['key'] == "Risk" || $title['key'] == "Rel" || $title['key'] == "Prio" || $title['key'] == "Asst") $width = " width=40";
+				elseif ($title['key'] == "Risk" || $title['key'] == "Rel" || $title['key'] == "Prio" || $title['key'] == "Asst") $width = "";
 				//elseif ($title['key'] == _TIMESTAMP) $width = " width=130";
 				//elseif ($title['key'] == _NBSOURCEADDR || $title['key'] == _NBDESTADDR) $width = " width=140";
 				else $width = "";

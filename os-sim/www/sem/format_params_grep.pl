@@ -14,13 +14,16 @@ return " grep -v -i \"$1='$2'\" ";
 		return " grep -i \"$netfield='$value\" ";
 	}
 	elsif ($1 eq "id" || $1 eq "fdate" || $1 eq "date" || $1 eq "plugin_id" || $1 eq "sensor" || $1 eq "src_ip" || $1 eq "dst_ip" || $1 eq "src_port" || $1 eq "dst_port" || $1 eq "tzone"|| $1 eq "data"){
-		return " grep -i \"$1='$2'\" ";
+		$aux = $2;
+		$par = $1;
+		$aux =~ s/'+//g;
+		return " egrep -i \"$par='$aux'\" ";
 	} elsif ($1 eq "ip") {
 		return " egrep -i \"src_ip='$2'|dst_ip='$2'\" "
 	} elsif ($1 eq "net") {
 		return " egrep -i \"src_ip='$2|dst_ip='$2\" "
 	} else {
-		return " grep -i \"$1=$2\" ";
+		return " egrep -i \"$1=$2\" ";
 	}
 
 }
@@ -32,6 +35,8 @@ exit;
 
 $grep_str = "";
 
+$ARGV[0] =~ s/ or /|/ig;
+
 @args = split(/\s+/, $ARGV[0]);
 
 $first = 1;
@@ -39,7 +44,7 @@ $first = 1;
 $negation = 0;
 
 foreach $arg (@args){
-	if($arg eq "and") {next;}
+	if($arg eq "and" || $arg eq "AND") {next;}
 	if($arg eq " ") {next;}
 	if($arg eq "") {next;}
   
@@ -47,7 +52,7 @@ foreach $arg (@args){
 		$ret = &complex($arg);
 		$grep_str .= "|" unless $first == 1;
 		$first = 0;
-    $grep_str .= $ret; 
+    	$grep_str .= $ret;
 		next;
 	}
 
@@ -57,9 +62,9 @@ foreach $arg (@args){
 		$grep_str .= "|" unless $first == 1;
 		$first = 0;
 		 if($negation){
-			 $grep_str .= " grep -i -v '$arg' ";
+			 $grep_str .= " egrep -i -v '$arg' ";
 		 } else {
-			 $grep_str .= " grep -i '$arg' ";
+			 $grep_str .= " egrep -i '$arg' ";
 		 }
 		$negation = 0;
 	}

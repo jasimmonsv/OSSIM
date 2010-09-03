@@ -222,6 +222,7 @@ if (POST('insert')) {
                     $plug_groups[] = $group_id;
                     $ids = Plugingroup::get_list($conn, "plugin_group.group_id=$group_id");
                     if ($ids[0]) foreach($ids[0]->get_plugins() as $plg) $plug_ids[] = $plg['id'];
+                    else $plug_ids[] = 0; // ANY
                 }
             }
             if (!count($plug_groups)) {

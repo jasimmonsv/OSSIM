@@ -191,7 +191,7 @@ define('OSS_MIDDLEDOT', '\Â·');
 define('OSS_COLON', ':');
 define('OSS_AT', '@');
 define('OSS_MAC', 'a-fA-F0-9:');
-define('OSS_PUNC_EXT', '\'"\.\!#\$%\^&\*_\-\=\+\:;,@\[\]\{\}\|\?\\\(\)\/ºª' . OSS_SPACE);
+define('OSS_PUNC_EXT', '\'"\.\!#\$%\^&\*_\-\=\+\:;,@\[\]\{\}\|\?\\\(\)\/ºª·' . OSS_SPACE);
 // Temporary fix, need to check out each and every OSS_PUNC use throughout the code
 define('OSS_PUNC', '\.,:@_\-\/\?&\=' . OSS_SPACE);
 define('OSS_SLASH', '\/');

@@ -1677,8 +1677,10 @@ function DisplayProcessing() {
                     # capture errors
                     if (preg_match("/ error /i",$line,$found)) $errors[] = $line;                   
                     # print results
+                    $line = preg_replace("/\(\s(\d)/","(\\1",$line); // Patch for ( 0.3)
+                    $line = preg_replace("/(\d)\sM/","\\1M",$line); // Patch for 1.2 M(99.6) 
                     if (preg_match($regex,preg_replace('/\s*/', ' ', $line),$found)) {
-                        foreach ($found as $ki => $field) if ($ki>0) {
+                    	foreach ($found as $ki => $field) if ($ki>0) {
                             $wrap = ($ki==1) ? "nowrap" : "";
                             $field = preg_replace("/(\:\d+)\.0$/","\\1",$field);
                             if (preg_match("/(\d+\.\d+\.\d+\.\d+)(.*)/",$field,$fnd)) {

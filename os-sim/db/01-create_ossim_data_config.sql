@@ -170,5 +170,7 @@ INSERT INTO config (conf , value) VALUES ('server_remote_logger_pass', '');
 INSERT INTO config (conf , value) VALUES ('server_remote_logger_ossim_url', '');
 INSERT INTO config (conf,  value) VALUES ('network_auto_discovery', '0');
 INSERT INTO config (conf , value) VALUES ('nedi_autodiscovery', '0');
-        
-INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.3');
+
+INSERT INTO config (conf , value) VALUES ('tickets_max_days', '15');
+
+INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4');

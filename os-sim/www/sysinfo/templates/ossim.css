@@ -1,0 +1,173 @@
+/*****************************************************************************
+*
+*    License:
+*
+*   Copyright (c) 2003-2006 ossim.net
+*   Copyright (c) 2007-2010 AlienVault
+*   All rights reserved.
+*
+*   This package is free software; you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation; version 2 dated June, 1991.
+*   You may not use, modify or distribute this program under any other version
+*   of the GNU General Public License.
+*
+*   This package is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this package; if not, write to the Free Software
+*   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+*   MA  02110-1301  USA
+*
+*
+* On Debian GNU/Linux systems, the complete text of the GNU General
+* Public License can be found in `/usr/share/common-licenses/GPL-2'.
+*
+* Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+****************************************************************************/
+
+/*
+ $Id: phpsysinfo.css 364 2010-02-20 08:20:36Z jacky672 $
+ */
+a {
+    text-decoration: none;
+    color: #c9c9c9;
+}
+
+a:hover {
+    text-decoration: underline;
+}* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    height: 100%;
+    /*background: url("../gfx/html.gif");*/
+}
+
+body {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    margin: 0 auto;
+    padding: 5px 25px 0 25px;
+    font: 0.75em arial, tahoma, helvetica, sans-serif;
+    color: #000;
+    background: #fff;
+}
+
+#select {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    width: 370px;
+    text-align: right;
+}
+
+#select select {
+    width: 100px;
+}
+
+#vitals, #network {
+    width:48%;
+    float:left;
+    margin: 10px 0 0 0;
+    border: 1px solid #AAAAAA;
+}
+#hardware {
+    width:48%;
+    float:right;
+    margin: 10px 0 0 10px;
+    border: 1px solid #AAAAAA;
+}
+#memory, #filesystem {
+    width:100%;
+    float:left;
+    margin: 10px 0 0 0;
+    border: 1px solid #AAAAAA;
+    padding:0px;
+}
+
+table {
+    width: 100%;
+}
+
+th, td, h3 {
+    padding: 4px 10px 2px 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+h3 {
+    font-size: 120%;
+}
+
+.even {
+    background: #EEEEEE;
+}
+
+#footer {
+    clear: both;
+    color: #c9c9c9;
+    margin: 12px;
+    padding: 13px 25px;
+    line-height: 18px;
+}
+
+.bar {
+    background: #C1DC70 url("../gfx/html.gif");
+}
+
+p {
+    padding: 4px 10px 2px 10px;
+    line-height: 1.6;
+    text-align: left;
+    vertical-align: top;
+}
+
+.right {
+    text-align: right;
+    padding-right: 20px;
+}
+
+#pciTable, #ideTable, #scsiTable, #usbTable {
+    padding: 0px 30px;
+}
+
+h1 {
+    text-align:center;
+    height:35px;
+    border:1px solid #AAAAAA;
+    line-height:35px;
+    background:url('../../pixmaps/fondo_col.gif') 50% 50% repeat-x;
+    color:#222222;
+    font-size:14px;
+    font-weight:bold;
+    text-transform: uppercase;
+}
+h2 {
+    background: url('../../pixmaps/fondo_hdr2.png') repeat-x;
+    font-size: 14px;
+    font-weight: bold;
+    text-align:center;
+    height:38px;
+    border-bottom:1px solid #AAAAAA;
+    line-height:38px;
+    color:#222222;
+    margin:0px;
+    text-transform: uppercase;
+}
+#container {
+    width:96%;
+}
+#loader {
+    width:90%;
+    height:18px;
+    text-align:center;
+    margin-bottom:10px;
+}

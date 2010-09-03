@@ -103,6 +103,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
+  <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
   <script type="text/javascript" src="../js/urlencode.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
   <style type="text/css">
@@ -111,7 +112,6 @@ echo gettext("OSSIM Framework"); ?> </title>
   .bgreen { background: #28BC04 !important; }
   .fwhite { color:white !important;}
   .fblack { color:black !important;}
-
   </style>
 
 </head>
@@ -193,9 +193,9 @@ function GB_onclose() {
     </tr>
     <tr>
         <td class="pleft"></td>
-        <td>
+        <td nowrap>
             <input type="hidden" id="pluginid" name="pluginid" value="0">
-            <input type="text" id="filter" name="filter" size="18" value="">&nbsp;&nbsp;<input type="submit" value="<?=_("Add Plugin")?>" class="lbutton">
+            <input type="text" id="filter" name="filter" size="18" value="">&nbsp;<a href="allplugins.php" class="greyboxp" title="<?=_("Explore all plugins")?>"><img src="../pixmaps/list.png" align="absmiddle" border="0"></a>&nbsp;<input type="submit" value="<?=_("Add Plugin")?>" class="lbutton"><a href="javascript:;" class="scriptinfo" txt="<?=_("Type the name of the plugin or double-click to show the plugin list")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>
         </td>
         <td class="pright"></td>
     </tr>
@@ -224,10 +224,10 @@ function GB_onclose() {
             <td class="nobborder right" style="padding-right:10px" NOWRAP>
                 <span id="errorsid<?= $id ?>" style="background: red; display: none"></span>
                 <span id="editsid<?= $id ?>" NOWRAP>
-                    <b><?=_("Signature IDs")?></b>:&nbsp;
+                    <b><?=_("Signature IDs")?></b>:<a href="javascript:;" class="scriptinfo" txt="<?=_("All SIDs: ANY or 0<br>SIDs separated by coma: 3,4,5<br>SID range: 30-40<br>Individual selection clicking on magnifying glass icon")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>&nbsp;
                     <input id="sid<?=$id?>" onBlur="javascript:return validate_sids_str('<?= $id ?>')"
                     type="text" name="sids[<?=$id?>]" value="<?=$sids?>" size="45" style="height:18px"> 
-                    <a href="pluginsids.php?id=<?= $id ?>" name="sid<?= $id ?>" class="greybox"><img src="../pixmaps/search_icon.png" border=0 align="top"></a>
+                    <a href="pluginsids.php?id=<?= $id ?>" name="sid<?= $id ?>" class="greybox" title="<?=_("Add/Edit event types selection")?>"><img src="../pixmaps/magadd.png" border=0 align="absmiddle"></a>&nbsp;<a href="allpluginsids.php?id=<?=$id?>" txt="sid<?= $id ?>" class="greyboxe" title="<?=_("Explore selected event types")?>"><img src="../pixmaps/magfit.png" align="absmiddle" border="0"></a>
                 </span>
             </td>
             </tr></table>
@@ -236,8 +236,8 @@ function GB_onclose() {
     <? } ?>
     <tr>
         <td class="pleft"></td>
-        <td>
-            <input type="text" id="sidsearch" name="sidsearch" size="17" value="">&nbsp;&nbsp;<input type="button" value="<?=_("SIDs Search")?>" class="lbutton" onclick="pluginsid_search()">
+        <td nowrap>
+            <input type="text" id="sidsearch" name="sidsearch" size="19" value="">&nbsp;&nbsp;<input type="button" value="<?=_("SIDs Search")?>" class="lbutton" onclick="pluginsid_search()"><a href="javascript:;" class="scriptinfo" txt="<?=_("Search all event types matching this pattern")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>
         </td>
         <td class="pright" style="text-align:left">
             <span id="loading" style="display:none"><img src="../pixmaps/theme/loading.gif" border="0"></span>
@@ -293,25 +293,43 @@ $(document).ready(function(){
         GB_show("Signature IDs",this.href+"&field="+urlencode(sids),410,"90%");
         return false;
     });
+    $("a.greyboxe").click(function(){
+        field_id = $(this).attr('txt');
+        sids = $('#'+field_id).val();
+        GB_show("<?=_("Explore selected event types")?>",this.href+"&sids="+urlencode(sids),410,"90%");
+        return false;
+    });
+    $("a.greyboxp").click(function(){
+        GB_show("<?=_("Explore all plugins")?>",this.href,410,"90%");
+        return false;
+    });
+    $(".scriptinfo").simpletip({
+        position: 'right',
+        offset: [0, -10],
+        baseClass: 'stooltip',
+        onBeforeShow: function() { 
+            this.update(this.getParent().attr('txt'));
+        }
+    });
     var sayts = <?=$sayt_list?>;
     $("#filter").focus().autocomplete(sayts, {
         minChars: 0,
         width: 150,
         autoFill: true,
         mustMatch: true,
-		max: 100,
+		max: 200,
 		matchContains: true,
         formatItem: function(row, i, max) {
             return row.txt;
         }
     }).result(function(event, item) {
-        $("#pluginid").val(item.id);
+        if (typeof item != 'undefined') $("#pluginid").val(item.id);
     });
     $('.blank,.lightgray').disableTextSelect().dblclick(function(event) {
         field_id = $(this).attr('txt');
         sids = $('#'+field_id).val();
         id = field_id.substr(3);
-        GB_show("Signature IDs","pluginsids.php?id="+id+"&field="+urlencode(sids),430,"90%");
+        GB_show("Signature IDs","pluginsids.php?id="+id+"&field="+urlencode(sids),410,"90%");
         return false;
     });
     $('#sidsearch').bind('keypress', function(e){

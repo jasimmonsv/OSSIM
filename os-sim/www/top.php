@@ -261,6 +261,15 @@ echo $_SESSION["_user"] ?></font>]
  <tr><td height="26" class="outmenu">
 		<img src="pixmaps/menu/maximizep.png" border=0 align="absmiddle"> &nbsp; <a href="#" onClick="fullwin()"><font color="black"><?php echo _("Maximize")?></font></a>
 </td></tr>
+<?php
+if(Session::am_i_admin()){
+?>
+    <tr><td height="26" class="outmenu">
+        <img src="pixmaps/menu/gear.png" border=0 align="absmiddle"> &nbsp; <a href="sysinfo/index.php" target="main"><font color="black"><?php echo _("System Status")?></font></a>
+    </td></tr>
+<?php 
+}
+?>
 </table>
 
 </td><!-- <td style="background:url('pixmaps/menu/dg_gray.gif') repeat-y top left;width:6"><img src="pixmaps/menu/dg_gray.gif"></td> -->

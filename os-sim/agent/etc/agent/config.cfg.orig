@@ -82,6 +82,7 @@ aladdin=/etc/ossim/agent/plugins/aladdin.cfg
 apache=/etc/ossim/agent/plugins/apache.cfg
 arpwatch=/etc/ossim/agent/plugins/arpwatch.cfg
 arpalert=/etc/ossim/agent/plugins/arpalert.cfg
+aruba=/etc/ossim/agent/plugins/aruba.cfg
 avast=/etc/ossim/agent/plugins/avast.cfg
 bind=/etc/ossim/agent/plugins/bind.cfg
 bro-ids=/etc/ossim/agent/plugins/bro-ids.cfg

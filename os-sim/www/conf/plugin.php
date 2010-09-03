@@ -118,28 +118,28 @@ include ("../hmenu.php"); ?>
 			<?php
 $default = array(
     "id" => array(
-        'Id',
+        _('Id'),
         50,
         'true',
         'center',
         false
     ) ,
     "name" => array(
-        'Name',
+        _('Name'),
         120,
         'true',
         'center',
         false
     ) ,
     "type" => array(
-        'Type',
+        _('Type'),
         80,
         'true',
         'center',
         false
     ) ,
     "description" => array(
-        'Description',
+        _('Description'),
         560,
         'true',
         'left',

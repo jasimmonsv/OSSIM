@@ -39,11 +39,6 @@ use warnings;
 
 $| = 1;
 
-my $dsn = "dbi:mysql:".$ossim_conf::ossim_data->{"ossim_base"}.":".$ossim_conf::ossim_data->{"ossim_host"}.":".$ossim_conf::ossim_data->{"ossim_port"};
-my $dbh = DBI->connect($dsn, $ossim_conf::ossim_data->{"ossim_user"},
-$ossim_conf::ossim_data->{"ossim_pass"})
-    or die "Can't connect to DBI\n";
-
 
 my $nessus = $ossim_conf::ossim_data->{"nessus_path"};
 my $nessus_user = $ossim_conf::ossim_data->{"nessus_user"};
@@ -62,40 +57,45 @@ my $key;
 my $id;
 
 while(<PLUGINS>){
-if(/^([^\|]*)\|[^\|]*\|([^\|]*)\|.*\\n(.*)$/){
+    my @plugin_data = split(/\|/,$_);
+    if ($#plugin_data > 3) {
+        $id = $plugin_data[0];
+        my $temp_risk = $plugin_data[$#plugin_data];
+        my $risk_level = 2;
+        my $rel = $plugin_data[2];
+        if ($id =~ /\./){
+            my @tmp = split(/\./, $id);
+            $id = $tmp[$#tmp];
+        }
+        $plugin_rel_hash{$id} = $rel;
+        my $temp_plugin_id = $id;
 
-$id = $1;
-my $temp_risk = $3;
-my $risk_level = 2;
-my $rel = $2;
-if ($id =~ /\./){
-    my @tmp = split(/\./, $id);
-    $id = $tmp[$#tmp];
-}
-$plugin_rel_hash{$id} = $rel;
-my $temp_plugin_id = $id;
+            if ($temp_risk =~ /Risk factor :\W*(\w*)/) {
+            my $risk=$1; 
+            $risk =~ s/ \(.*|if.*//g; 
+            $risk =~ s/ //g;        
+            if ($risk eq "Verylow/none") { $risk_level = 1 }
+            if ($risk eq "Low") { $risk_level = 1 }
+            if ($risk eq "Low/Medium") { $risk_level = 2 }
+            if ($risk eq "Medium/Low") { $risk_level = 2 }
+            if ($risk eq "Medium") { $risk_level = 3 }
+            if ($risk eq "Medium/High") { $risk_level = 3 }
+            if ($risk eq "High/Medium") { $risk_level = 4 }
+            if ($risk eq "High") { $risk_level = 4 }
+            if ($risk eq "Veryhigh") { $risk_level = 5 }
+            }
 
-    if ($temp_risk =~ /Risk factor : (.*)/) {
-    my $risk=$1; 
-    $risk =~ s/ \(.*|if.*//g; 
-    $risk =~ s/ //g;        
-    if ($risk eq "Verylow/none") { $risk_level = 1 }
-    if ($risk eq "Low") { $risk_level = 1 }
-    if ($risk eq "Low/Medium") { $risk_level = 2 }
-    if ($risk eq "Medium/Low") { $risk_level = 2 }
-    if ($risk eq "Medium") { $risk_level = 3 }
-    if ($risk eq "Medium/High") { $risk_level = 3 }
-    if ($risk eq "High/Medium") { $risk_level = 4 }
-    if ($risk eq "High") { $risk_level = 4 }
-    if ($risk eq "Veryhigh") { $risk_level = 5 }
+        $plugin_prio_hash{$temp_plugin_id} = $risk_level; 
     }
-
-$plugin_prio_hash{$temp_plugin_id} = $risk_level; 
-}
 }
 
 close(PLUGINS);
 print "plugins fetched\n";
+
+my $dsn = "dbi:mysql:".$ossim_conf::ossim_data->{"ossim_base"}.":".$ossim_conf::ossim_data->{"ossim_host"}.":".$ossim_conf::ossim_data->{"ossim_port"};
+my $dbh = DBI->connect($dsn, $ossim_conf::ossim_data->{"ossim_user"},
+$ossim_conf::ossim_data->{"ossim_pass"})
+    or die "Can't connect to DBI\n";
 
 my $query = "SELECT * from plugin_sid where plugin_id = 3001;";
 

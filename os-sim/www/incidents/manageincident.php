@@ -64,7 +64,8 @@ if (ossim_error()) {
     die(ossim_error());
 }
 $user = Session::get_session_user();
-if ($id != "" && !in_array($user, Incident::get_users_list($conn, $id))) {
+//if ($id != "" && !in_array($user, Incident::get_users_list($conn, $id))) {
+if ($id != "" && !Incident::user_incident_perms($conn, $user, $id)) {
 	die_error(_("Sorry, you are not allowed to perform this action"));
 }
 /*

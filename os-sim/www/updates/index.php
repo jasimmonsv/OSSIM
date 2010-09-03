@@ -318,8 +318,7 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
     <tr>
         <td style="text-align:center" colspan="3" class="nobborder"> 
            <p style ="border: 3px dotted rgb(134, 134, 134); margin-left: 10px; margin-right: 10px; padding: 5px; text-align: center; background-color: rgb(225, 225, 225);">
-           <?php echo _("Remember that to upgrade the system you need to do the following in the
-        command shell:");?><br><br>
+           <?php echo _("Remember that to upgrade the system you need to do the following in the command shell:");?><br><br>
             <b>apt-get update<br>
                apt-get dist-upgrade<br>
                ossim-reconfig</b>  
