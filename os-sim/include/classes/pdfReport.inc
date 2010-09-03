@@ -442,6 +442,7 @@ class Html{
     }
 
     public function getHeaderFooter(){
+    	require_once("classes/Util.inc");
         if(count($this->footerContent)==0){
             $this->footerContent=array(
                 'left'=>'User: '.$this->getUser().' / [[date_y]]-[[date_m]]-[[date_d]] [[date_h]]:[[date_i]]:[[date_s]]',
@@ -452,7 +453,7 @@ class Html{
         $html='<page_header>
         <table cellpadding=0 cellspacing=0 class="w100">
             <tr>
-                <td class="right w100 title">'.$this->title.'</td>
+                <td class="right w100 title">'.Util::utf8_encode2($this->title).'</td>
             </tr>
         </table><br>
     </page_header>

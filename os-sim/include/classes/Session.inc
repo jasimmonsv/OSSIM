@@ -876,7 +876,7 @@ class Session {
         // get sha1 from unique md5 pass
         $db = new ossim_db();
         $conn = $db->connect();
-		$pass = md5($this->pass);
+		//$pass = md5($this->pass);
 		$sql = "SELECT pass FROM users WHERE login = ?";
 		$params = array( $user );
         if ($rs = & $conn->Execute($sql, $params) && (!$rs->EOF)) {
