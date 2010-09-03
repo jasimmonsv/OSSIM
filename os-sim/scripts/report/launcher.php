@@ -34,6 +34,28 @@
 * Function list:
 * Classes list:
 */
+function getUniqueId($user) {
+    // get user
+    $user = base64_decode($user);
+    $user_explode=explode(';',$user);
+    $user_explode=$user_explode[1];
+    
+    $conn=connectBdOssim();
+    $results = mysql_query('SELECT pass FROM users WHERE login="'.$user_explode.'"', $conn) or die(mysql_error());
+
+    if (mysql_num_rows($results)>0) {
+         while ($rowResults = mysql_fetch_assoc($results)) {
+             $pass = $rowResults['pass'];
+         }
+
+         $return=sha1($pass);
+    }else{
+        $return=sha1(md5($user_explode));
+    }
+
+    mysql_close($conn);
+    return $return;
+}
 
 function connectBdOssim(){
     $userdb=trim(`grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
@@ -57,16 +79,17 @@ function getScheduler(){
     if (mysql_num_rows($results)>0) {
      while ($rowResults = mysql_fetch_assoc($results)) {
          $return[]=array(
-                 'schedule_type'=>$rowResults['schedule_type'],
-                 'schedule'=>$rowResults['schedule'],
-                 'next_launch'=>$rowResults['next_launch'],
-                 'id_report'=>$rowResults['id_report'],
-                 'name_report'=>$rowResults['name_report'],
-                 'email'=>$rowResults['email'],
-                 'date_from'=>$rowResults['date_from'],
-                 'date_to'=>$rowResults['date_to'],
-                 'date_range'=>$rowResults['date_range'],
-                 'assets'=>$rowResults['assets']
+                'id'=>$rowResults['id'],
+                'schedule_type'=>$rowResults['schedule_type'],
+                'schedule'=>$rowResults['schedule'],
+                'next_launch'=>$rowResults['next_launch'],
+                'id_report'=>$rowResults['id_report'],
+                'name_report'=>$rowResults['name_report'],
+                'email'=>$rowResults['email'],
+                'date_from'=>$rowResults['date_from'],
+                'date_to'=>$rowResults['date_to'],
+                'date_range'=>$rowResults['date_range'],
+                'assets'=>$rowResults['assets']
              );
      }
     }
@@ -90,6 +113,8 @@ function getUserWeb(){
 }
 
 $server=trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+$urlPdf='/usr/share/ossim/www/tmp/scheduler';
+
 $server='http://'.$server.'/ossim';
 $user='admin';
 $pass=base64_encode(getUserWeb());
@@ -108,35 +133,12 @@ if (($result=searchString($output,$txtError))!==FALSE) {
     exit();
 }
 
-$arrayTemp=array(
-    array(
-    'time_execute'=>'',
-    'id_report'=>'cHJ1ZWViaXRhO2FkbWlu',
-    'name_report'=>'prueebita',
-    'email'=>'fjnavarro@alienvault.com',
-    'date_from'=>'',
-    'date_to'=>'',
-    'date_range'=>'last15',
-    'assets'=>'ALL_ASSETS',
-    ),
-    array(
-    'time_execute'=>'',
-    'id_report'=>'QWxhcm0gUmVwb3J0O2FkbWlu',
-    'name_report'=>'Alarm Report',
-    'email'=>'fjnavarro@alienvault.com',
-    'date_from'=>'2010-06-09',
-    'date_to'=>'2010-07-09',
-    'date_range'=>'',
-    'assets'=>'HOST:192.168.10.1',
-    )
-        );
-
 // vamos lanzando los reportes
 foreach (getScheduler() as $value){
     // comprobamos que sea la hora para lanzarlo
     if(checkTimeExecute($value['next_launch'])){
-        // nombre pdf temporal
-        $pdfName=date('YmdHis').$value['id_report'].rand();
+        // nombre pdf
+        $pdfName=$value['id'];
 
         // Personalizamos los parámetros del reporte
         $params='save=1&assets='.$value['assets'];
@@ -151,15 +153,21 @@ foreach (getScheduler() as $value){
         // Lanzamos el reporte
         $step3=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'" -O -');
 
+        // ruta en la que guardar los pdfs
+        $dirUser=getUniqueId($value['id_report']);
+        $dirUserPdf=$urlPdf.'/'.$dirUser.'/';
+        newFolder($dirUserPdf);
+
         // Generamos el pdf
-        $step4=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&run='.$value['id_report'].'" -O '.$pdfName.'.pdf');
+        $step4=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&run='.$value['id_report'].'" -O '.$dirUserPdf.$pdfName.'.pdf');
 
         // Enviamos por email el pdf
         $listEmails=explode(';',$value['email']);
         foreach($listEmails as $value2){
             if($value2!=';'){
                 unset($output);
-                $step5=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$value['name_report'].'" -O -',$output);
+                $step5=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$value['name_report'].'" -O -',$output);
+                
                 if (($result=searchString($output,$txtError3))!==FALSE) {
                     echo $result;
                 }
@@ -174,6 +182,14 @@ foreach (getScheduler() as $value){
             }
         }
 
+        // update next launch
+        $schedule=array(
+                'type_name'=>$value['schedule_type'],
+                'next_launch'=>$value['next_launch'],
+                'data'=>unserialize($value['schedule'])
+        );
+        updateNextLaunch($schedule,$value['id']);
+
         // Erase pdf
         clean(null,$pdfName);
     }
@@ -183,6 +199,7 @@ clean($cookieName);
 
 /* Functions */
 function checkTimeExecute($date){
+
     $arrTime = localtime(time(), true);
     $year = 1900 + $arrTime["tm_year"];
        $mon = 1 + $arrTime["tm_mon"];
@@ -197,7 +214,7 @@ function checkTimeExecute($date){
        $hour = ($arrTime["tm_hour"]<10) ? "0".$arrTime["tm_hour"] : $arrTime["tm_hour"];
        $min = ($arrTime["tm_min"]<10) ? "0".$arrTime["tm_min"] : $arrTime["tm_min"];
        $sec = ($arrTime["tm_sec"]<10) ? "0".$arrTime["tm_sec"] : $arrTime["tm_sec"];
-       echo $date.'=='.$year.'-'.$mon.'-'.$mday.' '.$hour.':00:00';
+       
        if($date==$year.'-'.$mon.'-'.$mday.' '.$hour.':00:00'){
            return true;
        }else{
@@ -208,7 +225,7 @@ function checkTimeExecute($date){
 
 function clean($cookieName,$pdfName=null){
     if($pdfName!==null){
-        @unlink($pdfName.'.pdf');
+        //@unlink($pdfName.'.pdf');
     }
     if($cookieName!==null){
         @unlink($cookieName);
@@ -222,5 +239,56 @@ function searchString($output,$txtError){
         }
     }
     return FALSE;
+}
+
+function newFolder($name){
+    if (file_exists($name)) {
+        return false;
+    }else{
+        mkdir($name,0755,true);
+        return true;
+    }
+}
+
+function lastDayOfMonth($month = '', $year = '')
+{
+   if (empty($month)) {
+      $month = date('m');
+   }
+   if (empty($year)) {
+      $year = date('Y');
+   }
+   $result = strtotime("{$year}-{$month}-01");
+   $result = strtotime('-1 second', strtotime('+1 month', $result));
+   return date('d', $result);
+}
+
+function updateNextLaunch($schedule,$id){
+    switch($schedule['type_name']){
+        case 'Run Once':
+            $next_launch='0000-00-00 00:00:00';
+            break;
+        case 'Daily':
+             $next_launch=date("Y-m-d H:i:s", strtotime('+1 day',strtotime($schedule['next_launch'])));
+            break;
+        case 'Day of the Week':
+            $next_launch=date("Y-m-d H:i:s", strtotime('next '.$schedule['data']['dayofweek'],strtotime($schedule['next_launch'])));
+            break;
+        case 'Day of the Month':
+            /*Revisar*/
+            $next_launch=date("Y-m-d H:i:s", strtotime('next '.$schedule['data']['dayofweek'],strtotime($schedule['next_launch'])));
+            /*Revisar*/
+            break;
+        default:
+            $next_launch='0000-00-00 00:00:00';
+            break;
+    }
+
+    // update bd
+    $conn=connectBdOssim();
+    $results = mysql_query('UPDATE `custom_report_scheduler` SET `next_launch`="'.$next_launch.'" WHERE `id`="'.$id.'"', $conn) or die(mysql_error());
+    
+    mysql_close($conn);
+    return true;
 }
 ?>

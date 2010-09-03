@@ -73,6 +73,11 @@ done
 #	mkdir /usr/share/ossim/www/tmp/
 #fi
 chown -R www-data:www-data /usr/share/ossim/www/tmp/
+if [ ! -d /usr/share/ossim/www/tmp/scheduler ]; then
+        mkdir /usr/share/ossim/www/tmp/scheduler
+fi
+chown www-data:www-data /usr/share/ossim/www/tmp/headers/
+chown www-data:www-data /usr/share/ossim/www/tmp/scheduler/
 
 # Vuln meters
 if [ ! -d /usr/share/ossim/www/vulnmeter/tmp/ ]; then

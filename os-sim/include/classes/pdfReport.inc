@@ -124,7 +124,7 @@ class PdfReport{
         }
     }
 
-    public function sendPdfEmail($title,$email,$pdfName=null){
+    public function sendPdfEmail($title,$email,$pdfName=null,$dirUser=null){
         /**/
         $conf = $GLOBALS["CONF"];
         $from=$conf->get_conf("from");
@@ -151,7 +151,8 @@ class PdfReport{
             }
         }else{
             // el pdf ya estaba generado
-            $attachment='/usr/share/ossim/scripts/report/'.$pdfName.'.pdf';
+            $attachment='/usr/share/ossim/www/tmp/scheduler/'.$dirUser.'/'.$pdfName.'.pdf';
+
         }
         require_once('classes/PHPMailer.inc');
         include("classes/PHPMailerSMTP.inc");  // optional, gets called from within class.phpmailer.php if not already loaded
