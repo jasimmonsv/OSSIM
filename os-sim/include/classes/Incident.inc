@@ -454,9 +454,9 @@ class Incident {
         }
         
     }
-    function get_list($conn, $args = "") {
+    function get_list($conn, $args = "", $user = "") {
         require_once ('classes/Session.inc');
-        $user = Session::get_session_user();
+        if ($user == "" || (is_array($user) && count($user) < 1)) $user = Session::get_session_user();
         $list = array();
         $sql = "SELECT incident.id," . "incident.title," . "incident.date, " . "incident.ref, " . "incident.type_id as type, " . "incident.submitter as submitter, " . "incident.priority, " . "incident.in_charge, " . "incident.status, " . "incident.last_update, " . "incident.event_start, " . "incident.event_end " . "FROM incident $args";
 
@@ -467,9 +467,37 @@ class Incident {
                 // XXX This should be improved, this is doing 2 queries
                 //     per record
                 $allowed = Incident::get_users_list($conn, $rs->fields["id"]);
-                if (in_array($user, $allowed)) {
-                    $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
+                //print_r($allowed);
+                if (is_array($user)) {
+                	$flag = false;
+                	foreach ($user as $u) {
+                		if (in_array($u, $allowed)) {
+	                    	$flag = true;
+                		}
+                	}
+                	if ($flag) {
+                		$list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
+                	}
+                } else {
+                	if (in_array($user, $allowed)) {
+                    	$list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
+                	}
                 }
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }
+	function get_list_all($conn, $args = "") {
+        require_once ('classes/Session.inc');
+        $list = array();
+        $sql = "SELECT incident.id," . "incident.title," . "incident.date, " . "incident.ref, " . "incident.type_id as type, " . "incident.submitter as submitter, " . "incident.priority, " . "incident.in_charge, " . "incident.status, " . "incident.last_update, " . "incident.event_start, " . "incident.event_end " . "FROM incident $args";
+
+        if (!$rs = & $conn->Execute(OssimQuery($sql))) {
+            die($conn->ErrorMsg());
+        } else {
+            while (!$rs->EOF) {
+                $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
                 $rs->MoveNext();
             }
         }
@@ -942,7 +970,8 @@ class Incident {
         }
         
         if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
-        if (is_array($incident_list = Incident::get_list($conn, "WHERE incident.id = $incident_id")) && count($incident_list) > 0) {
+        
+        if (is_array($incident_list = Incident::get_list($conn, "WHERE incident.id = $incident_id", $user_tmp)) && count($incident_list) > 0) {
             $incident = $incident_list[0];
             if ($user == $incident->get_in_charge($conn) || (preg_match("/pro/i",$version) && in_array($incident->get_in_charge($conn),$user_tmp))) return true;
         }
