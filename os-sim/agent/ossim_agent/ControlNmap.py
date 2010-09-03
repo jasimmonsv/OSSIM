@@ -279,7 +279,7 @@ class NmapManager:
                     logger.debug("Skipping inactive host")
 
             # end the report transaction
-            report.append(base_response + ' count="%d" ackend\n' % active_hosts)
+            report.append(base_response + ' count="%d" ack\n' % active_hosts)
 
             # clear the node(s)
             xml.unlink()
