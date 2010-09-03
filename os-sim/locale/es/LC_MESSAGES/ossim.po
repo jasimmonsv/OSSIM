@@ -172,7 +172,7 @@ msgstr ""
 
 #: www/conf/main.php:86
 msgid "ADODB Path"
-msgstr ""
+msgstr "Ruta ADODB"
 
 #: www/report/pdfreport.php:209
 msgid "ALARMS"
@@ -773,7 +773,7 @@ msgstr ""
 
 #: www/conf/main.php:672
 msgid "BPs RRD Path"
-msgstr ""
+msgstr "Ruta RRD BPs"
 
 #: www/host/newhostform.php:227 www/host/modifyhostform.php:249
 msgid "BSD/OS"
@@ -846,27 +846,27 @@ msgstr "Copia de Seguridad"
 
 #: www/conf/main.php:738
 msgid "Backup DB Host"
-msgstr ""
+msgstr "Equipo BD Backup"
 
 #: www/conf/main.php:717
 msgid "Backup DB Name"
-msgstr ""
+msgstr "Nombre BD Backup"
 
 #: www/conf/main.php:731
 msgid "Backup DB Password"
-msgstr ""
+msgstr "Password BD Backup"
 
 #: www/conf/main.php:745
 msgid "Backup DB Port"
-msgstr ""
+msgstr "Puerto BD Backup"
 
 #: www/conf/main.php:710
 msgid "Backup DB Type"
-msgstr ""
+msgstr "Tipo BD Backup"
 
 #: www/conf/main.php:724
 msgid "Backup DB User"
-msgstr ""
+msgstr "Usuario BD Backup"
 
 #: www/backup/index.php:139
 msgid "Backup Events"
@@ -874,7 +874,7 @@ msgstr "Copia de Seguridad de Eventos"
 
 #: www/conf/main.php:752
 msgid "Backup File Directory"
-msgstr ""
+msgstr "Ruta de Backup"
 
 #: www/backup/index.php:88
 msgid "Backup Manager"
@@ -2043,7 +2043,7 @@ msgstr ""
 
 #: www/conf/main.php:374
 msgid "Enable Backups"
-msgstr ""
+msgstr "Habilitar Backups"
 
 #: www/conf/main.php:352
 msgid "Enable BusinesProcesses"
@@ -2051,19 +2051,19 @@ msgstr ""
 
 #: www/conf/main.php:275
 msgid "Enable ControlPanelRRD"
-msgstr ""
+msgstr "Habilitar Panel de control RRD"
 
 #: www/conf/main.php:308
 msgid "Enable DB Optimizations"
-msgstr ""
+msgstr "Habilitar optimizaciones DB"
 
 #: www/conf/main.php:297
 msgid "Enable DoNagios"
-msgstr ""
+msgstr "Habilitar DoNagios"
 
 #: www/conf/main.php:363
 msgid "Enable EventStats"
-msgstr ""
+msgstr "Habilitar EventStats"
 
 #: www/conf/main.php:1055
 msgid "Enable LDAP for login"
@@ -2071,7 +2071,7 @@ msgstr "Habilitar LDAP para login"
 
 #: www/conf/main.php:319
 msgid "Enable Listener"
-msgstr ""
+msgstr "Habilitar Listener"
 
 #: include/panel/Ajax_Panel.php:289
 msgid "Enable Metrics for this panel?"
@@ -2079,7 +2079,7 @@ msgstr ""
 
 #: www/conf/main.php:218
 msgid "Enable Munin"
-msgstr ""
+msgstr "Habilitar Munin"
 
 #: www/conf/main.php:341
 msgid "Enable SOC functionality"
@@ -2087,7 +2087,7 @@ msgstr ""
 
 #: www/conf/main.php:330
 msgid "Enable Scheduler"
-msgstr ""
+msgstr "Habilitar Scheduler"
 
 #: www/conf/main.php:995
 msgid "Enable User Log"
@@ -2258,7 +2258,7 @@ msgstr ""
 
 #: www/conf/main.php:686
 msgid "EventStats RRD Path"
-msgstr ""
+msgstr "Ruta RRD EventStats"
 
 #: www/report/menu.php:83 www/hids/index.php:34 www/riskmeter/options.php:44
 #: www/top.php:68
@@ -2275,11 +2275,11 @@ msgstr "Panel Ejecutivo"
 
 #: www/conf/main.php:533
 msgid "Executive Panel Config Directory"
-msgstr ""
+msgstr "Directorio configuraci&oacute;n panel ejecutivo"
 
 #: www/conf/main.php:526
 msgid "Executive Panel plugin Directory"
-msgstr ""
+msgstr "Directorio del plugin del panel ejecutivo"
 
 #: www/vulnmeter/index.php:81
 msgid "Exiting"
@@ -2389,11 +2389,11 @@ msgstr "Ventana de eventos activa del forense"
 
 #: www/conf/main.php:264
 msgid "Frameworkd Directory"
-msgstr ""
+msgstr "Directorio Frameworkd"
 
 #: www/conf/main.php:257
 msgid "Frameworkd Port"
-msgstr ""
+msgstr "Puerto Frameworkd"
 
 #: www/vulnmeter/do_nessus.php:674
 msgid "Frameworkd said:"
@@ -2405,7 +2405,7 @@ msgstr ""
 
 #: www/conf/main.php:100
 msgid "FreePDF Path"
-msgstr ""
+msgstr "Ruta FreePDF"
 
 #: www/conf/main.php:25 www/session/modifyuserform.php:94
 #: www/session/users.php:124 www/session/newuserform.php:103
@@ -2450,7 +2450,7 @@ msgstr ""
 
 #: www/conf/main.php:182
 msgid "GLPI Link"
-msgstr ""
+msgstr "Enlace GLPI"
 
 #: www/ntop/menu.php:225
 msgid "Gateways"
@@ -2508,7 +2508,7 @@ msgstr ""
 
 #: www/conf/main.php:651
 msgid "Global Qualification RRD Path"
-msgstr ""
+msgstr "Ruta RRD calificaci&oacute;n global"
 
 #: www/conf/main.php:509
 msgid "Global Threshold"
@@ -2681,7 +2681,7 @@ msgstr "Problemas de equipos"
 
 #: www/conf/main.php:637
 msgid "Host Qualification RRD Path"
-msgstr ""
+msgstr "Ruta RRD calificaci&oacute;n de equipo"
 
 #: www/report/menu.php:50 www/top.php:254
 msgid "Host Report"
@@ -3246,7 +3246,7 @@ msgstr ""
 
 #: www/conf/main.php:93
 msgid "JPGraph Path"
-msgstr ""
+msgstr "Ruta JPGRaph"
 
 #: www/conf/main.php:26 www/session/modifyuserform.php:95
 #: www/session/users.php:125 www/session/newuserform.php:104
@@ -3470,11 +3470,11 @@ msgstr "METRICAS"
 
 #: www/conf/main.php:623
 msgid "MRTG Path"
-msgstr ""
+msgstr "Ruta MRTG"
 
 #: www/conf/main.php:630
 msgid "MRTG RRD Files"
-msgstr ""
+msgstr "Ficheros RRD MRTG"
 
 #: www/host/newhostform.php:236 www/incidents/index.php:336
 #: www/netscan/scan_util.php:64 www/control_panel/anomalies.php:332
@@ -3826,7 +3826,7 @@ msgstr "Mes"
 
 #: www/conf/main.php:225
 msgid "Munin Link"
-msgstr ""
+msgstr "Enlace Munin"
 
 #: www/host/newhostform.php:160 www/host/modifyhostform.php:161
 #: www/host/host.php:69
@@ -3880,7 +3880,7 @@ msgstr ""
 
 #: www/conf/main.php:168
 msgid "Nagios Configuration file Path"
-msgstr ""
+msgstr "Ruta fichero configuraci&oacute;n Nagios"
 
 #: www/net/net.php:153
 msgid "Nagios DISABLED"
@@ -3892,7 +3892,7 @@ msgstr "Nagios HABILITADO"
 
 #: www/conf/main.php:161
 msgid "Nagios Link"
-msgstr ""
+msgstr "Enlace Nagios"
 
 #: www/host/hostgroup.php:31 www/net/net.php:30 www/net/netgroup.php:29
 msgid "Nagios action"
@@ -3900,7 +3900,7 @@ msgstr "Acci&oacute;n Nagios"
 
 #: www/conf/main.php:175
 msgid "Nagios reload command"
-msgstr ""
+msgstr "Comando recarga Nagios"
 
 #: www/directive_editor/include/directive.php:108
 #: www/directive_editor/editor/include/directive.php:108
@@ -4031,7 +4031,7 @@ msgstr "Red"
 
 #: www/conf/main.php:644
 msgid "Net Qualification RRD Path"
-msgstr ""
+msgstr "Ruta RRD calificaci&oacute;n de red"
 
 #: www/netscan/index.php:51 www/top.php:474
 msgid "Net Scan"
@@ -4456,11 +4456,11 @@ msgstr "Notificaciones"
 
 #: www/conf/main.php:154
 msgid "Ntop Link"
-msgstr ""
+msgstr "Enlace Ntop"
 
 #: www/conf/main.php:679
 msgid "Ntop RRD Path"
-msgstr ""
+msgstr "Ruta RRD Ntop"
 
 #: www/business_processes/bp_list.php:388
 msgid "Num. Assets"
@@ -4493,7 +4493,7 @@ msgstr ""
 
 #: www/conf/main.php:189
 msgid "OCS Link"
-msgstr ""
+msgstr "Enlace OCS"
 
 #: www/directive_editor/editor/group/popup/bottom.php:75
 #: www/directive_editor/editor/rule/popup/bottom.php:203
@@ -4638,27 +4638,27 @@ msgstr ""
 
 #: www/conf/main.php:485
 msgid "OSVDB DB Host"
-msgstr ""
+msgstr "Equipo BD OSVDB"
 
 #: www/conf/main.php:464
 msgid "OSVDB DB Name"
-msgstr ""
+msgstr "Nombre BD OSVDB"
 
 #: www/conf/main.php:478
 msgid "OSVDB DB Password"
-msgstr ""
+msgstr "Password BD OSVDB"
 
 #: www/conf/main.php:457
 msgid "OSVDB DB Type"
-msgstr ""
+msgstr "Tipo BD OSVDB"
 
 #: www/conf/main.php:471
 msgid "OSVDB DB User"
-msgstr ""
+msgstr "Usuario BD OSVDB"
 
 #: www/conf/main.php:196
 msgid "OVCP Link"
-msgstr ""
+msgstr "Enlace OVCP"
 
 #: www/risk_maps/reports.php:12 www/risk_maps/nessus_report.php:13
 msgid "Object report"
@@ -4781,11 +4781,11 @@ msgstr ""
 
 #: www/conf/main.php:79
 msgid "Ossim Link"
-msgstr ""
+msgstr "Enlace Ossim"
 
 #: www/conf/main.php:48
 msgid "Ossim Server"
-msgstr ""
+msgstr "Servidor OSSIM"
 
 #: www/conf/main.php:78
 msgid "Ossim web link. Usually located under /ossim/"
@@ -4816,7 +4816,7 @@ msgstr "Reportes PDF"
 msgid ""
 "PHP Configuration (graphs, acls, database api) and links to other "
 "applications"
-msgstr ""
+msgstr "Configuraci&oacute;n PHP (gr&aacute;ficos, acls, api DB) y enlaces a otras aplicaciones"
 
 #: www/upgrade/index.php:61
 msgid "PHP POST script ended"
@@ -4840,27 +4840,27 @@ msgstr "PHP-domxml  no cargado"
 
 #: www/conf/main.php:564
 msgid "PHPGacl DB Host"
-msgstr ""
+msgstr "Equipo BD PHPGacl"
 
 #: www/conf/main.php:571
 msgid "PHPGacl DB Name"
-msgstr ""
+msgstr "Nombre BD PHPGacl"
 
 #: www/conf/main.php:585
 msgid "PHPGacl DB Password"
-msgstr ""
+msgstr "Password BD PHPGacl"
 
 #: www/conf/main.php:557
 msgid "PHPGacl DB Type"
-msgstr ""
+msgstr "Tipo BD PHPGacl"
 
 #: www/conf/main.php:578
 msgid "PHPGacl DB User"
-msgstr ""
+msgstr "Usuario BD PHPGacl"
 
 #: www/conf/main.php:550
 msgid "PHPGacl Path"
-msgstr ""
+msgstr "Ruta PHPGacl"
 
 #: www/riskmeter/index.php:99
 msgid "Page Refresh"
@@ -5403,7 +5403,7 @@ msgstr "Limpiar los eventos huerfanos"
 #: www/policy/policy.php:43 www/server/server.php:97
 #: www/server/newserver.php:39 www/server/modifyserver.php:38
 msgid "Qualify"
-msgstr ""
+msgstr "Calificar"
 
 #: www/policy/newpolicyform.php:454 www/policy/modifypolicyform.php:729
 #: www/server/newserverform.php:73 www/server/modifyserverform.php:91
@@ -5432,7 +5432,7 @@ msgstr "Configuraci&oacute;n RRD (graficando)"
 
 #: www/conf/main.php:602
 msgid "RRD Draw graph link"
-msgstr ""
+msgstr "Ruta gr&aacute;ficas RRD"
 
 #: www/host/newhostgroupform.php:130 www/host/newhostform.php:119
 #: www/host/modifyhostgroupform.php:116 www/host/modifyhostform.php:112
@@ -5461,11 +5461,11 @@ msgstr "Perfil RRD eliminado"
 
 #: www/conf/main.php:616
 msgid "RRDTool Lib Path"
-msgstr ""
+msgstr "Ruta bibliotecas RRDTool"
 
 #: www/conf/main.php:609
 msgid "RRDTool Path"
-msgstr ""
+msgstr "Ruta RRDTool"
 
 #: include/panel/plugins/rss.php:15
 msgid "RSS Feed"
@@ -5660,7 +5660,7 @@ msgstr ""
 
 #: www/conf/main.php:147
 msgid "Resolve IPs"
-msgstr ""
+msgstr "Resolver IPs"
 
 #: include/panel/plugins/custom_cloud.php:52
 msgid "Resolve hostname on column?"
@@ -6073,7 +6073,7 @@ msgstr ""
 
 #: www/conf/main.php:56
 msgid "Server Address (it's usually 127.0.0.1)"
-msgstr ""
+msgstr "Direcci&oacute;n del servidor (normalmente 127.0.0.1)"
 
 #: www/conf/main.php:55 www/server/newserverform.php:24
 msgid "Server IP"
@@ -6085,7 +6085,7 @@ msgstr "Nombre del Servidor"
 
 #: www/conf/main.php:62
 msgid "Server Port (default:40001)"
-msgstr ""
+msgstr "Puerto del servidor (por defecto:40001)"
 
 #: www/server/deleteserver.php:52
 msgid "Server deleted"
@@ -6140,7 +6140,7 @@ msgstr ""
 
 #: www/conf/main.php:658
 msgid "Service level RRD Path"
-msgstr ""
+msgstr "Ruta RRD nivel de servicio"
 
 #: www/ntop/menu.php:193
 msgid "Service statistic"
@@ -6288,27 +6288,27 @@ msgstr "Snort"
 
 #: www/conf/main.php:433
 msgid "Snort DB Host"
-msgstr ""
+msgstr "Equipo BD Snort"
 
 #: www/conf/main.php:412
 msgid "Snort DB Name"
-msgstr ""
+msgstr "Nombre BD Snort"
 
 #: www/conf/main.php:426
 msgid "Snort DB Password"
-msgstr ""
+msgstr "Password BD Snort"
 
 #: www/conf/main.php:440
 msgid "Snort DB Port"
-msgstr ""
+msgstr "Puerto BD Snort"
 
 #: www/conf/main.php:405
 msgid "Snort DB Type"
-msgstr ""
+msgstr "Tipo BD Snort"
 
 #: www/conf/main.php:419
 msgid "Snort DB User"
-msgstr ""
+msgstr "Usuario BD Snort"
 
 #: www/sensor/editsensor.php:181
 msgid "Snort configuration"
@@ -6320,11 +6320,11 @@ msgstr "Base de datos y ruta de configuraci&oacute;n de Snort"
 
 #: www/conf/main.php:391
 msgid "Snort location"
-msgstr ""
+msgstr "Ruta Snort"
 
 #: www/conf/main.php:398
 msgid "Snort rule location"
-msgstr ""
+msgstr "Ruta reglas Snort"
 
 #: include/ossim_error.inc:336
 msgid "Snort rules where not found at: %1%"
@@ -6561,7 +6561,7 @@ msgstr ""
 
 #: www/conf/main.php:693
 msgid "TTF Location"
-msgstr ""
+msgstr "Ruta TTF"
 
 #: www/panel/panel.php:75
 msgid "Tab Icon"
@@ -7309,7 +7309,7 @@ msgstr "Usar Antialilasing"
 
 #: www/conf/main.php:136
 msgid "Use SVG Graphics"
-msgstr ""
+msgstr "Usar gr&aacute;ficos SVG"
 
 #: www/conf/main.php:974
 msgid "Use Scanmap 3D"
@@ -7675,11 +7675,11 @@ msgstr "Usuario incorrecto"
 
 #: www/conf/main.php:114
 msgid "XAJAX JS Path"
-msgstr ""
+msgstr "Ruta XAJAX JS"
 
 #: www/conf/main.php:107
 msgid "XAJAX PHP Path"
-msgstr ""
+msgstr "Ruta XAJAX PHP"
 
 #: www/directive_editor/editor/category/global.inc.php:32
 msgid "XML File"
@@ -9714,6 +9714,63 @@ msgstr "Plugin Descripci&oacute;n / SIDs"
 msgid "Plugin Name"
 msgstr "Nombre del Plugin"
 
+msgid "Explore all plugins"
+msgstr "Ver todos los plugins"
+
+msgid "Highlight"
+msgstr "Resaltar"
+
+msgid "Explore selected event types"
+msgstr "Ver tipos de eventos seleccionados"
+
+msgid "Add/Edit event types selection"
+msgstr "A&ntilde;adir/Editar la selecci&oacute;n de tipos de evento"
+
+msgid "Use proxy for auto update-checking"
+msgstr "Usar proxy para el chequeo de actualizaciones"
+
+msgid "Cross-Correlate"
+msgstr "Correlaci&oacute;n cruzada"
+
+msgid "Forward Alarms"
+msgstr "Reenviar alarmas"
+
+msgid "Forward Events"
+msgstr "Reenviar eventos"
+
+msgid "Alarms to syslog"
+msgstr "Alarmas a syslog"
+
+msgid "Remote Logger"
+msgstr "Logger remoto"
+
+msgid "Remote Logger user"
+msgstr "Usuario Logger remoto"
+
+msgid "Remote Logger password"
+msgstr "Password Logger remoto"
+
+msgid "Remote Logger OSSIM Url"
+msgstr "Url OSSIM Logger remoto"
+
+msgid "Enable AlarmTicketGeneration"
+msgstr "Habilitar generaci&oacute;n de tickets de alarmas"
+
+msgid "Enable Alarm Grouping"
+msgstr "Habilitar agrupaci&oacute;n de alarmas"
+
+msgid "RRD Profiles definition"
+msgstr "Definici&oacute;n de perfiles RRD"
+
+msgid "Ticket trend RRD Path"
+msgstr "Ruta RRD Ticket trend"
+
+msgid "Scanner Login"
+msgstr "Login esc&aacute;ner"
+
+msgid "Scanner Password"
+msgstr "Password esc&aacute;ner"
+
 #~ msgid ""
 #~ "\n"
 #~ "                For security reasons, bad characters have been skipped"
@@ -9938,10 +9995,6 @@ msgstr "Nombre del Plugin"
 
 #~ msgid "Ocurrence"
 #~ msgstr "Ocurrencia"
-
-#~ msgid "PHP Configuration (graphs, acls, database api)"
-#~ msgstr ""
-#~ "Configuraci&oacute;n PHP (gr&aacute;ficos, acls, api de bases de datos)"
 
 #~ msgid "Passive"
 #~ msgstr "Pasivo"
