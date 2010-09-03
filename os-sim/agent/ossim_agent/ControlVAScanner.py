@@ -215,63 +215,38 @@ class VAScannerManager:
         report_file = self.__get_report_file(filename)
         if report_file != "":
 
-
             logger.debug("Generating report from: %s" % report_file)
 
-            # read in the XML report
-            xml = parse(report_file)
+            # read in the NBE report
+            f = open(report_file, 'r')
 
-            # search through all available host nodes
-            hosts = xml.getElementsByTagName("host")
-            logger.debug("Hosts: %d" % len(hosts))
+            current_target = ""
+            hosts = {}
 
-            # list of active hosts (ie up)
-            active_hosts = 0
+            # loop through the lines
+            for line in f:
 
-            for host in hosts:
-                host_return = ""
-                host_is_active = False
+                elements = line.rstrip("\n").split("|")
 
-                # loop through any availale information
-                for node in host.childNodes:
-                    if node.nodeName == "status":
-                        host_is_active = ( node.attributes["state"].value == "up" )
+                try:
+                    if elements[0] == "results" and len(elements) == 4:
+                        if elements[2] != current_target:
+                            current_target = elements[2]
+                            hosts[current_target] = ""
 
-                    if node.nodeName == "address":
-                        if node.attributes["addrtype"].value == "ipv4":
-                            host_return += ' ip="%s"' % (node.attributes["addr"].value)
+                        if current_target != "":
+                            hosts[current_target] += ' service="%s"' % elements[3]
 
-                        elif node.attributes["addrtype"].value == "mac":
-                            host_return += ' mac="%s"' % (node.attributes["addr"].value)
+                except Exception as e:
+                    print e
 
-                            if "vendor" in node.attributes.keys():
-                                host_return += ' vendor="%s"' % (node.attributes["vendor"].value)
-                            else:
-                                host_return += ' vendor="unknown"'
+            f.close()
 
-                    elif node.nodeName == "ports":
-                        for port in node.childNodes:
-                            if port.nodeName == "port":
-                                host_return += ' port="%s|%s"' % (port.attributes["portid"].value, port.attributes["protocol"].value)
-
-                    elif node.nodeName == "os":
-                        for n in node.childNodes:
-                            if n.nodeName == "osmatch":
-                                host_return += ' os="%s" os_accuracy="%s"' % (n.attributes["name"].value, n.attributes["accuracy"].value)
-
-                # only interested in active hosts
-                if host_is_active:
-                    report.append(base_response + '%s ack\n' % host_return)
-                    active_hosts += 1
-                    logger.debug("Found active host")
-                else:
-                    logger.debug("Skipping inactive host")
+            for k in hosts.keys():
+                report.append(base_response + '%s ack\n' % hosts[k])
 
             # end the report transaction
-            report.append(base_response + ' count="%d" ackend\n' % active_hosts)
-
-            # clear the node(s)
-            xml.unlink()
+            report.append(base_response + ' count="%d" ack\n' % len(hosts.keys()))
 
         return report
 
