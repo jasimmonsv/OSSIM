@@ -403,7 +403,14 @@ class Incident_ticket {
         foreach($list as $ticket) {
             $login = $ticket->get_user();
             list($author) = Session::get_list($conn, "WHERE login = '$login'");
-            $history.= $ticket->get_date() . ' ' . $author->get_name() . ' <' . $author->get_email() . ">\n" . "------------------------------------------------------\n" . _("Description") . ":\n" . $ticket->get_description() . "\n\n" . _("Action") . ":\n" . $ticket->get_action() . "\n\n";
+            if (!$author) {
+            	$author_name = _("Unknown");
+            	$author_mail = _("Unknown");
+            } else {
+            	$author_name = $author->get_email();
+            	$author_mail = $author->get_email();
+            }
+            $history.= $ticket->get_date() . ' ' . $author_name . ' <' . $author_mail . ">\n" . "------------------------------------------------------\n" . _("Description") . ":\n" . $ticket->get_description() . "\n\n" . _("Action") . ":\n" . $ticket->get_action() . "\n\n";
         }
         $values['TICKET_HISTORY'] = $history;
         $history = '';
@@ -411,7 +418,14 @@ class Incident_ticket {
         foreach($list as $ticket) {
             $login = $ticket->get_user();
             list($author) = Session::get_list($conn, "WHERE login = '$login'");
-            $history.= $ticket->get_date() . ' ' . $author->get_name() . ' <' . $author->get_email() . ">\n" . "------------------------------------------------------\n" . _("Description") . ":\n" . $ticket->get_description() . "\n\n" . _("Action") . ":\n" . $ticket->get_action() . "\n\n";
+        	if (!$author) {
+            	$author_name = _("Unknown");
+            	$author_mail = _("Unknown");
+            } else {
+            	$author_name = $author->get_email();
+            	$author_mail = $author->get_email();
+            }
+            $history.= $ticket->get_date() . ' ' . $author_name. ' <' . $author_mail . ">\n" . "------------------------------------------------------\n" . _("Description") . ":\n" . $ticket->get_description() . "\n\n" . _("Action") . ":\n" . $ticket->get_action() . "\n\n";
         }
         $values['TICKET_INVERSE_HISTORY'] = $history;
         //
@@ -504,11 +518,22 @@ class Incident_ticket {
             $values['IN_CHARGE_COMPANY'] = "";
         } else {
             list($in_charge) = Session::get_list($conn, "WHERE login = '$login'");
+        	if (!$in_charge) {
+            	$in_charge_name = _("Unknown");
+            	$in_charge_mail = _("Unknown");
+            	$in_charge_dep = _("Unknown");
+            	$in_charge_com = _("Unknown");
+            } else {
+            	$in_charge_name = $in_charge->get_name();
+            	$in_charge_mail = $in_charge->get_email();
+            	$in_charge_dep = $in_charge->get_department();
+            	$in_charge_com = $in_charge->get_company();
+            }
             $values['IN_CHARGE_LOGIN'] = $login;
-            $values['IN_CHARGE_NAME'] = $in_charge->get_name();
-            $values['IN_CHARGE_EMAIL'] = $in_charge->get_email();
-            $values['IN_CHARGE_DPTO'] = $in_charge->get_department();
-            $values['IN_CHARGE_COMPANY'] = $in_charge->get_company();
+            $values['IN_CHARGE_NAME'] = $in_charge_name;
+            $values['IN_CHARGE_EMAIL'] = $in_charge_mail;
+            $values['IN_CHARGE_DPTO'] = $in_charge_department;
+            $values['IN_CHARGE_COMPANY'] = $in_charge_company;
         }
         
         return $values;
