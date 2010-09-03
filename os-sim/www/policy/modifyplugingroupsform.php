@@ -145,11 +145,9 @@ function validate_sids_str(id)
     return false;
 }
 
-function chk(id) {
-	if ($('#pname').val()=="") {
-		alert("<?=_("Plugin group name can not be empty")?>");
-		$('#pname').focus();
-		return false;
+function chk() {
+	while (jQuery.trim($('#pname').val()) == "") {
+		$('#pname').val(prompt("<?=_("Please enter a Plugin group name:")?>"," "));
 	}
 	if ($('#pluginid').val()=="0") {
 		var autofillp = plist[$('#filter').val()];
@@ -195,7 +193,7 @@ function GB_onclose() {
         <td class="pleft"></td>
         <td nowrap>
             <input type="hidden" id="pluginid" name="pluginid" value="0">
-            <input type="text" id="filter" name="filter" size="18" value="">&nbsp;<a href="allplugins.php" class="greyboxp" title="<?=_("Explore all plugins")?>"><img src="../pixmaps/list.png" align="absmiddle" border="0"></a>&nbsp;<input type="submit" value="<?=_("Add Plugin")?>" class="lbutton"><a href="javascript:;" class="scriptinfo" txt="<?=_("Type the name of the plugin or double-click to show the plugin list")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>
+            <input type="text" id="filter" name="filter" size="18" value="">&nbsp;<a href="allplugins.php" class="greyboxp" title="<?=_("Explore all plugins")?>"><img src="../pixmaps/plus.png" align="absmiddle" border="0"></a>&nbsp;<input type="submit" value="<?=_("Add Plugin")?>" class="lbutton"><a href="javascript:;" class="scriptinfo" txt="<?=_("Type the name of the plugin or double-click to show the plugin list")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>
         </td>
         <td class="pright"></td>
     </tr>

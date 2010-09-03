@@ -57,7 +57,7 @@ $conn = $db->connect();
 		    $('.blank,.lightgray').disableTextSelect().click(function(event) {
 		        field_id = $(this).attr('pid');
 		        $("#pluginid",window.parent.document).val(field_id);
-		        $("#myform",window.parent.document).submit();
+		        if (window.parent.chk()) $("#myform",window.parent.document).submit();
 		        return false;
 		    });
 		});
