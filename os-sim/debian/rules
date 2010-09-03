@@ -23,7 +23,7 @@ configure-stamp:
 
 #	for patch in contrib/patches/*.patch; do \
 #		patch -p0 < $$patch ; \
-#	done
+##	done
 
 	ln -sf /usr/share/misc/config.sub .
 	ln -sf /usr/share/misc/config.guess .
