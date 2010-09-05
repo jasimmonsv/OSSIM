@@ -237,8 +237,8 @@ class VAScannerManager:
                         if current_target != "":
                             hosts[current_target] += ' service="%s"' % elements[3]
 
-                except Exception as e:
-                    print e
+                except:
+                    logger.debug("Unexpected execption handled.")
 
             f.close()
 
