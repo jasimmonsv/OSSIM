@@ -877,7 +877,8 @@ function ProcessCriteria() {
     if ($sig_join) $join_sql = $join_sql . $sig_join_sql;
     $join_sql = $join_sql . $data_join_sql;
     $csql[0] = $join_sql;
-    $csql[1] = preg_replace("/ AND \)/"," )",preg_replace("/ OR \)/"," )",$criteria_sql));
+    $criteria_sql = preg_replace("/AND\s+\)/"," )",preg_replace("/OR\s+\)/"," )",$criteria_sql));
+    $csql[1] = $criteria_sql;
     //print_r($csql);
     return $csql;
 }

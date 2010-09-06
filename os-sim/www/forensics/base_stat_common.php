@@ -305,6 +305,8 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
     $unique_dst_ip_cnt_info[0] = _SCDSTIP;
     $unique_dst_ip_cnt_info[1] = " " . BuildUniqueAddressLink(2,"","color:black;font-weight:bold");
     $unique_dst_ip_cnt_info[2] = "</a>";
+    $unique_ip_cnt_info[1] = " <a style='color:black;font-weight:bold' href=\"base_stat_uaddress.php?sort_order=occur_d\">";
+    $unique_ip_cnt_info[2] = "</a>";
     $unique_links_info[0] = _SCUNILINKS;
     $unique_links_info[1] = " <a style='color:black;font-weight:bold' href=\"base_stat_iplink.php?sort_order=events_d&fqdn=no\">";
     $unique_links_info[2] = "</a>";
@@ -433,11 +435,14 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 		//$dst_lnk = "<a href='base_stat_uaddr.php?addr_type=".$_GET['addr_type']."&addhomeips=dst' title='Add home networks IPs to current search criteria'><img src='images/homelan.png' border=0 align='absmiddle'></a>";
 
         //$li_style = (preg_match("/base_stat_uaddr\.php/",$_SERVER['SCRIPT_NAME'])) ? " style='color:#F37914'" : "";
-        $color = (preg_match("/base_stat_uaddr\.php/", $_SERVER['SCRIPT_NAME'])) ? "#28BC04" : "#FFFFFF";
+        $color = (preg_match("/base_stat_uaddr/", $_SERVER['SCRIPT_NAME'])) ? "#28BC04" : "#FFFFFF";
         if ($color == "#28BC04") { $unique_src_ip_cnt_info[1] = str_replace(":black",":white",$unique_src_ip_cnt_info[1]);
                                     $unique_dst_ip_cnt_info[1] = str_replace(":black",":white",$unique_dst_ip_cnt_info[1]);
-                                    $pdf = "<a href=\"javascript:;\" onclick=\"javascript:$('#UniqueAddress_Report_Type').val('".intval($_GET['addr_type'])."');$('#UniqueAddress_Report').submit();return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">&nbsp;";
-                                    $csv = "<a href=\"csv.php?rtype=$unique_addr_report_type&addr_type=".intval($_GET['addr_type'])."\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
+                                    $unique_ip_cnt_info[1] = str_replace(":black",":white",$unique_ip_cnt_info[1]);
+                                    $pdf = "&nbsp;<a href=\"javascript:;\" onclick=\"javascript:$('#UniqueAddress_Report_Type').val('".intval($_GET['addr_type'])."');$('#UniqueAddress_Report').submit();return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">&nbsp;";
+                                    $csv = "<a href=\"csv.php?rtype=$unique_addr_report_type&addr_type=".intval($_GET['addr_type'])."\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a>&nbsp;";
+                                   if ($_GET['addr_type'] == '1') $unique_src_ip_cnt_info[2] .= $pdf . $csv;
+                                   if ($_GET['addr_type'] == '2') $unique_dst_ip_cnt_info[2] .= $pdf . $csv;                                   
                                   }
         else { $pdf = "<br>"; $csv="";}
 		// echo "  <li$li_style>"._SCUNIADDRESS.
@@ -449,7 +454,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
         $report_type = ($_GET['proto'] == '6') ? 1 : (($_GET['proto'] == '17') ? 2 : 0);
 ?>
 			<td align="center" style='border-right:1px solid #CACACA;border-top:1px solid #CACACA;<? if ($color == "#28BC04") echo "color:white" ?>' bgcolor="<?php echo $color
-?>"><?php echo _SCUNIADDRESS . $pdf . $csv . $unique_src_ip_cnt_info[1] . "<font style='text-decoration:$addrtype1'>" . _SCSOURCE . "</font>" . $unique_src_ip_cnt_info[2] . " | " . $unique_dst_ip_cnt_info[1] . "<font style='text-decoration:$addrtype2'>" . _SCDEST . "</font>" . $unique_dst_ip_cnt_info[2] ?></td>
+?>"><?php echo $unique_ip_cnt_info[1] . _SCUNIADDRESS . $unique_ip_cnt_info[2] . "<br>" . $unique_src_ip_cnt_info[1] . "<font style='text-decoration:$addrtype1'>" . _SCSOURCE . "</font>" . $unique_src_ip_cnt_info[2] . " | " . $unique_dst_ip_cnt_info[1] . "<font style='text-decoration:$addrtype2'>" . _SCDEST . "</font>" . $unique_dst_ip_cnt_info[2] ?></td>
 	  <?php
         //$li_style = (preg_match("/base_stat_ports\.php/",$_SERVER['SCRIPT_NAME'])) ? " style='color:#F37914'" : "";
         $color = (preg_match("/base_stat_ports\.php/", $_SERVER['SCRIPT_NAME']) && $_GET['port_type'] == 1) ? "#28BC04" : "#FFFFFF";
