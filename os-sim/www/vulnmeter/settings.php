@@ -1007,7 +1007,7 @@ function edit_serverprefs($sid) {
     navbar( $sid );
 
    // get the profile prefs for use later
-   $sql = "SELECT t.nessusgroup, t.nessus_id, t.field, 
+     /* $sql = "SELECT t.nessusgroup, t.nessus_id, t.field, 
        t.type, d.value, n.value, t.category
        FROM vuln_nessus_preferences_defaults t
           LEFT JOIN vuln_nessus_preferences d
@@ -1015,7 +1015,15 @@ function edit_serverprefs($sid) {
           LEFT JOIN vuln_nessus_settings_preferences n
              ON t.nessus_id = n.nessus_id
                 and n.sid = $sid
+       order by category desc, nessusgroup, nessus_id";*/
+   $sql = "SELECT t.nessusgroup, t.nessus_id, t.field, 
+       t.type, t.value, n.value, t.category
+       FROM vuln_nessus_preferences_defaults t
+          LEFT JOIN vuln_nessus_settings_preferences n
+             ON t.nessus_id = n.nessus_id
+                and n.sid = $sid
        order by category desc, nessusgroup, nessus_id";
+       
    $result=$dbconn->execute($sql);
    if($result === false) { // SQL error
       echo _("Error").": "._("There was an error with the DB lookup").": ".
@@ -2075,7 +2083,7 @@ function formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn)
    # to help make it easier for new fields to be added into the structure
    #
     $retstr = "";
-    if ( is_null($value)) {
+    if ( is_null($value) || $value=="") {
         if ($type == "R") {
             $value = explode(";", $default);
             $value = $value[0];
@@ -2087,7 +2095,7 @@ function formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn)
 
     if ($type == "C") {
       # Checkbox code here
-        $retstr="<tr><td style='text-align:left;'>$field</td><td><INPUT type=\"checkbox\" name=\"$vname\" value=\"yes\"";
+        $retstr="<tr><td style='text-align:left;width:65%'>$field</td><td><INPUT type=\"checkbox\" name=\"$vname\" value=\"yes\"";
         if ($value=="yes") {
             $retstr.=" checked";
         }
@@ -2095,24 +2103,23 @@ function formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn)
     }
     elseif ($type == "R") {
       # Radio button code here
-        $retstr="<tr><td style='text-align:left;'>$field</td><td>";
+        $retstr="<tr><td style='text-align:left;width:65%'>$field</td><td>";
         $array = explode(";", $default);
         foreach($array as $myoption) {
-            $retstr.="<INPUT type=\"radio\" name=\"$vname\" value=\"$myoption\"";
-            if ($value == $myoption) {
-       $retstr.=" checked";
-            }
-            $retstr.="> $myoption</td></tr>";
+            $retstr.="<INPUT type=\"radio\" name=\"$vname\" value=\"".trim($myoption)."\"";
+            if ($value == $myoption) $retstr.=" checked";
+            $retstr.="> $myoption </option>&nbsp;";
         }
+        $retstr.="</td></tr>";
     }
     elseif ($type == "P") {
       # Password code here
         #$retstr="$nessus_id $field <INPUT type=\"password\" name=\"$vname\" value=\"$value\"><BR>";
-        $retstr="<tr><td style='text-align:left;'>$field</td><td><INPUT type=\"password\" name=\"$vname\" value=\"$value\"></td></tr>";
+        $retstr="<tr><td style='text-align:left;width:65%'>$field</td><td><INPUT type=\"password\" name=\"$vname\" value=\"$value\"></td></tr>";
     }
     else {
       # Assume it is a text box
-        $retstr="<tr><td style='text-align:left;'>$field</td><td><INPUT type=\"text\" name=\"$vname\" value=\"$value\"></td></tr>";
+        $retstr="<tr><td style='text-align:left;width:65%'>$field</td><td><INPUT type=\"text\" name=\"$vname\" value=\"$value\"></td></tr>";
     }
     $retstr .= "\n";
     return $retstr;
