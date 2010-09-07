@@ -41,7 +41,7 @@ Session::logcheck("MenuConfiguration", "ConfigurationMain");
 require_once 'ossim_conf.inc';
 require_once 'classes/Security.inc';
 $ossim_conf = $GLOBALS["CONF"];
-
+$system_lang = trim(`/usr/bin/locale|grep LANG|cut -f 2 -d "="|head -1`);
 $CONFIG = array(
     "Language" => array(
         "title" => gettext("Language") ,
@@ -58,18 +58,19 @@ $CONFIG = array(
                     "pt_BR" => gettext("Brazilian Portuguese") ,
                     "zh_CN" => gettext("Simplified Chinese") ,
                     "zh_TW" => gettext("Traditional Chinese") ,
-                    "ru_RU.UTF-8" => gettext("Russian")
+                    "ru_RU.UTF-8" => gettext("Russian"),
+					$system_lang => gettext("Default Language")        
                 ) ,
                 "help" => gettext("Obsolete, configure at Configuration -> Users") ,
                 "desc" => gettext("Language") ,
                 "advanced" => 0
-            ) ,
+            ) /*,
             "locale_dir" => array(
                 "type" => "text",
                 "help" => gettext("Location of the ossim.mo localization files. You shouldn't need to change this.") ,
                 "desc" => gettext("Locale File Directory") ,
                 "advanced" => 0
-            )
+            )*/
         )
     ) ,
     "Ossim Server" => array(
@@ -105,8 +106,8 @@ $CONFIG = array(
                     "no" => _("No")
                 ) ,
 				"id" => "qualify_select",
-                "help" => gettext("Qualify") ,
-                "desc" => gettext("Qualify") ,
+                "help" => gettext("Qualification") ,
+                "desc" => gettext("Qualification") ,
                 "advanced" => 1
             ) ,
 			"server_correlate" => array(
@@ -115,8 +116,8 @@ $CONFIG = array(
                     "no" => _("No")
                 ) ,
 				"id" => "correlate_select",
-                "help" => gettext("Correlate") ,
-                "desc" => gettext("Correlate") ,
+                "help" => gettext("Correlation") ,
+                "desc" => gettext("Correlation") ,
                 "advanced" => 1
             ) ,
 			"server_cross_correlate" => array(
@@ -125,8 +126,8 @@ $CONFIG = array(
                     "no" => _("No")
                 ) ,
 				"id" => "cross_correlate_select",
-                "help" => gettext("Cross-Correlate") ,
-                "desc" => gettext("Cross-Correlate") ,
+                "help" => gettext("Cross-correlation") ,
+                "desc" => gettext("Cross-correlation") ,
                 "advanced" => 1
             ) ,
 			"server_store" => array(
@@ -135,8 +136,8 @@ $CONFIG = array(
                     "no" => _("No")
                 ) ,
 				"id" => "store_select",
-                "help" => gettext("Store") ,
-                "desc" => gettext("Store") ,
+                "help" => gettext("SQL Storage") ,
+                "desc" => gettext("SQL Storage") ,
                 "advanced" => 1
             ) ,
 			"server_sem" => array(
@@ -167,8 +168,8 @@ $CONFIG = array(
                     "no" => _("No")
                 ) ,
 				"id" => "forward_alarm_select",
-                "help" => gettext("Forward Alarms") ,
-                "desc" => gettext("Forward Alarms") ,
+                "help" => gettext("Alarm forwarding") ,
+                "desc" => gettext("Alarm forwarding") ,
                 "advanced" => 1,
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
@@ -178,8 +179,8 @@ $CONFIG = array(
                     "no" => _("No")
                 ) ,
 				"id" => "forward_event_select",
-                "help" => gettext("Forward Events") ,
-                "desc" => gettext("Forward Events") ,
+                "help" => gettext("Events forwarding") ,
+                "desc" => gettext("Events forwarding") ,
                 "advanced" => 1,
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
@@ -232,7 +233,7 @@ $CONFIG = array(
         "desc" => gettext("PHP Configuration (graphs, acls, database api) and links to other applications") ,
         "advanced" => 1,
         "conf" => array(
-            "ossim_link" => array(
+            /*"ossim_link" => array(
                 "type" => "text",
                 "help" => gettext("Ossim web link. Usually located under /ossim/") ,
                 "desc" => gettext("Ossim Link") ,
@@ -285,7 +286,7 @@ $CONFIG = array(
                 "help" => gettext("") ,
                 "desc" => gettext("Use SVG Graphics") ,
                 "advanced" => 1
-            ) ,
+            ) ,*/
             "use_resolv" => array(
                 "type" => array(
                     "0" => gettext("No") ,
@@ -298,13 +299,13 @@ $CONFIG = array(
             "ntop_link" => array(
                 "type" => "text",
                 "help" => gettext("") ,
-                "desc" => gettext("Ntop Link") ,
+                "desc" => gettext("Default Ntop Link") ,
                 "advanced" => 1
             ) ,
             "nagios_link" => array(
                 "type" => "text",
                 "help" => gettext("") ,
-                "desc" => gettext("Nagios Link") ,
+                "desc" => gettext("Default Nagios Link") ,
                 "advanced" => 1
             ) ,
             "nagios_cfgs" => array(
@@ -319,24 +320,24 @@ $CONFIG = array(
                 "desc" => gettext("Nagios reload command") ,
                 "advanced" => 1
             ) ,
-            "glpi_link" => array(
+            /*"glpi_link" => array(
                 "type" => "text",
                 "help" => gettext("") ,
                 "desc" => gettext("GLPI Link") ,
                 "advanced" => 1
-            ) ,
+            ) ,*/
             "ocs_link" => array(
                 "type" => "text",
                 "help" => gettext("") ,
                 "desc" => gettext("OCS Link") ,
                 "advanced" => 1
             ) ,
-            "ovcp_link" => array(
+            /*"ovcp_link" => array(
                 "type" => "text",
                 "help" => gettext("") ,
                 "desc" => gettext("OVCP Link") ,
                 "advanced" => 1
-            ) ,
+            ) ,*/
             "use_ntop_rewrite" => array(
                 "type" => array(
                     "0" => gettext("No") ,
@@ -355,12 +356,12 @@ $CONFIG = array(
                 "desc" => gettext("Enable Munin") ,
                 "advanced" => 1
             ) ,
-            "munin_link" => array(
+            /*"munin_link" => array(
                 "type" => "text",
                 "help" => gettext("") ,
                 "desc" => gettext("Munin Link") ,
                 "advanced" => 1
-            ) ,
+            ) ,*/
             "md5_salt" => array(
                 "type" => "text",
                 "help" => gettext("") ,

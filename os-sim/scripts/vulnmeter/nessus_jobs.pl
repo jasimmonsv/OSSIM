@@ -2326,6 +2326,42 @@ sub process_results {
         if ( $hostHash{$host}{'site'}   ) {      $ip_site = $hostHash{$host}{'site'};    }
 	if ( $hostHash{$host}{'checks'} ) {  $localchecks = $hostHash{$host}{'checks'};  }
 	if ( $hostHash{$host}{'rating'} ) {  $rating_text = $hostHash{$host}{'rating'};  }
+    
+    #before delete extract data
+    my $sql_extract_data = qq{SELECT count(risk) as count, risk FROM vuln_nessus_latest_results
+                                        WHERE report_id = inet_aton('$hostip') and username = '$username' and sid = '$sid' 
+                                        AND falsepositive='N' GROUP BY risk};
+    logwriter( $sql_extract_data, 5 );    
+                                        
+    my $sth_extract=$dbh->prepare($sql_extract_data); 
+    $sth_extract->execute;
+    
+    my @risks_stats = ("0","0","0","0","0");
+    
+    while ( my ( $risk_count, $risk )=$sth_extract->fetchrow_array ) {
+        if($risk==7) {
+            $risks_stats[4] = $risk_count;
+        }
+        if($risk==6) {
+            $risks_stats[3] = $risk_count;
+        }
+        if($risk==3) {
+            $risks_stats[2] = $risk_count; 
+        }
+        if($risk==2) {
+            $risks_stats[1] = $risk_count;
+        }
+        if($risk==1) {
+            $risks_stats[0] = $risk_count;
+        }
+    }
+    my $last_string = join(";",@risks_stats);
+    
+    #delete vuln_nessus_latest_results results
+    $sql_delete = qq{ DELETE FROM vuln_nessus_latest_results WHERE report_id = inet_aton('$hostip') and username = '$username' and sid = '$sid' };
+    logwriter( $sql_delete, 5 );
+    $sth_del = $dbh->prepare( $sql_delete );
+    $sth_del->execute;
 
 	$hostname = trim( $hostname );	    #INITIALLY SET IT TO " ";
         #LOOKUP HOSTID
@@ -2452,11 +2488,7 @@ sub process_results {
             } #FINISH CREATE/UPDATE INCIDENTS
             if ( !$isTop100Scan ) {	#LOAD INTOTO vuln_nessus_results
                 if ( !defined( $sql_insert ) || $sql_insert eq "" ) {
-                    #delete vuln_nessus_latest_results results
-                    $sql_delete = qq{ DELETE FROM vuln_nessus_latest_results WHERE report_id = inet_aton('$hostip') and username = '$username' and sid = '$sid' };
-                    logwriter( $sql_delete, 5 );
-                    $sth_del = $dbh->prepare( $sql_delete );
-                    $sth_del->execute;
+
                     #FIRST ITERATION OR RESET VARIABLE AFTER IMPORTING 100 RECORDS
                     $sql_insert = "INSERT INTO vuln_nessus_results ( report_id, scantime, hostip, hostname, record_type, service, port, protocol , app, scriptid, risk, msg, falsepositive )\nVALUES\n";
                     $sql_insert2 = "INSERT INTO vuln_nessus_latest_results ( report_id, username, sid, scantime, hostip, hostname, record_type, service, port, protocol , app, scriptid, risk, msg, falsepositive )\nVALUES\n";
@@ -2469,7 +2501,7 @@ sub process_results {
                     my @arr = split(/\./, rand() );
                     if ( $arr[1] && is_number($arr[1]) ) { $rpt_key = $arr[1]; }
                     else { $rpt_key = 0; }
-                    $sqli = qq{ INSERT INTO vuln_nessus_latest_reports ( report_id, username, name, fk_name, sid, scantime, report_type, scantype, report_key, cred_used, note, failed ) VALUES (inet_aton('$hostip'), '$username', '$hostip', NULL, '$sid', '$scantime', 'N', '$scantype', '$rpt_key', NULL, '', '0' ) ON DUPLICATE KEY UPDATE name='$hostip',scantime='$scantime' };
+                    $sqli = qq{ INSERT INTO vuln_nessus_latest_reports ( report_id, username, name, fk_name, sid, scantime, report_type, scantype, report_key, cred_used, note, failed ) VALUES (inet_aton('$hostip'), '$username', '$hostip', NULL, '$sid', '$scantime', 'N', '$scantype', '$rpt_key', NULL, '0;0;0;0;0','0' ) ON DUPLICATE KEY UPDATE name='$hostip',scantime='$scantime',failed=results_sent,note='$last_string' };
                     logwriter( $sqli, 5 );
                     $sth_ins = $dbh->prepare( $sqli );
                     $sth_ins->execute;
@@ -2615,7 +2647,16 @@ sub process_results {
         #    my $ex = qx{ $cmd };
         #}
     }
-
+    
+    my $cmde = qq{/usr/bin/php /usr/share/ossim/scripts/vulnmeter/send_notification.php '$report_id'};
+    logwriter("Send email for report_id: $report_id ...", 5);
+    open(EMAIL,"$cmde 2>&1 |") or die "failed to fork :$!\n";
+    while(<EMAIL>){
+        chomp;
+        logwriter("send_notification output: $_", 5);
+    }
+    close EMAIL; 
+    
     return TRUE;
 }
 

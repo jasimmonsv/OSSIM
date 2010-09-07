@@ -36,10 +36,8 @@
  */
 require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
-require_once 'classes/Upgrade.inc';
 require_once 'classes/WebIndicator.inc';
 Session::useractive("session/login.php");
-$upgrade = new Upgrade();
 require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
 $ntop_link = $conf->get_conf("ntop_link", FALSE);
@@ -64,23 +62,6 @@ if (!isset($sensor_nagios['host'])) {
 }
 $menu = array();
 $hmenu = array();
-if (Session::am_i_admin() && $upgrade->needs_upgrade()) {
-    $menu["Upgrade"][] = array(
-        "name" => gettext("System Upgrade Needed") ,
-        "id" => "Upgrade",
-        "url" => "upgrade/index.php"
-    );
-    $hmenu["Upgrade"][] = array(
-        "name" => gettext("Software Upgrade") ,
-        "id" => "Upgrade",
-        "url" => "upgrade/"
-    );
-    $hmenu["Upgrade"][] = array(
-        "name" => gettext("Update Notification") ,
-        "id" => "Updates",
-        "url" => "updates/index.php"
-    );
-}
 $placeholder = gettext("Dashboard");
 $placeholder = gettext("Events");
 $placeholder = gettext("Monitors");

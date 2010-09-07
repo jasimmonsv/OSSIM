@@ -40,6 +40,25 @@ $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 $prodemo = (preg_match("/demo/i",$version)) ? true : false;
+require_once 'classes/Upgrade.inc';
+$upgrade = new Upgrade();
+if (Session::am_i_admin() && $upgrade->needs_upgrade()) {
+    $menu["Upgrade"][] = array(
+        "name" => gettext("System Upgrade Needed") ,
+        "id" => "Upgrade",
+        "url" => "upgrade/index.php"
+    );
+    $hmenu["Upgrade"][] = array(
+        "name" => gettext("Software Upgrade") ,
+        "id" => "Upgrade",
+        "url" => "upgrade/"
+    );
+    $hmenu["Upgrade"][] = array(
+        "name" => gettext("Update Notification") ,
+        "id" => "Updates",
+        "url" => "updates/index.php"
+    );
+}
 /* Dashboards */
 $dashboards = 0;
 if (Session::menu_perms("MenuControlPanel", "ControlPanelExecutive")) { $dashboards = 1; $menu["Dashboards"][] = array(
@@ -127,6 +146,11 @@ if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { $incidents = 1
         "url" => "report/sec_report.php?section=all&type=alarm",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:alarms:report','Help');"
     );
+    $rmenu["Alarms"][] = array(
+          "name" => gettext("Edit Tags"),
+          "target" => "main",
+          "url" => "tags_edit.php"
+        );
 }
 if (Session::menu_perms("MenuIncidents", "IncidentsIncidents")) { $incidents = 1;
     $menu["Incidents"][] = array(
@@ -1188,18 +1212,18 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session:
     $menu["Configuration"][] = array(
         "name" => gettext("Software Upgrade") ,
         "id" => "Upgrade",
-        "url" => "upgrade/"
+        "url" => "updates/"
     );
-    $hmenu["Upgrade"][] = array(
+    /*$hmenu["Upgrade"][] = array(
         "name" => gettext("Software Upgrade") ,
         "id" => "Upgrade",
         "url" => "upgrade/",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:software_upgrade','Help');"
-    );
+    );*/
     $hmenu["Upgrade"][] = array(
         "name" => gettext("Update Notification") ,
-        "id" => "Updates",
-        "url" => "updates/index.php",
+        "id" => "Upgrade",
+        "url" => "updates/",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:update_notification','Help');"
     );
 }
