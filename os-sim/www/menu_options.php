@@ -1193,18 +1193,18 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session:
     $menu["Configuration"][] = array(
         "name" => gettext("Software Upgrade") ,
         "id" => "Upgrade",
-        "url" => "upgrade/"
+        "url" => "updates/"
     );
-    $hmenu["Upgrade"][] = array(
+    /*$hmenu["Upgrade"][] = array(
         "name" => gettext("Software Upgrade") ,
         "id" => "Upgrade",
         "url" => "upgrade/",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:software_upgrade','Help');"
-    );
+    );*/
     $hmenu["Upgrade"][] = array(
         "name" => gettext("Update Notification") ,
-        "id" => "Updates",
-        "url" => "updates/index.php",
+        "id" => "Upgrade",
+        "url" => "updates/",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:update_notification','Help');"
     );
 }

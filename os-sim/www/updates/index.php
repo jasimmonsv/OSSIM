@@ -53,7 +53,7 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => gettext("The system will check once a day for updated packages, rules, directives, etc. No system information will be sent, it just gest a file with dates and update messages using wget.") ,
+                "help" => gettext("The system will check once a day for updated packages, rules, directives, etc.<br>No system information will be sent, it just gest a file with dates and update messages using wget.") ,
                 "desc" => gettext("Enable auto update-checking") ,
                 "advanced" => 0
             ) ,
@@ -70,22 +70,25 @@ $CONFIG = array(
                 "type" => "text",
                 "help" => gettext("Enter the full path including a trailing slash, i.e., 'http://192.168.1.60:3128/'") ,
                 "desc" => gettext("Proxy url") ,
+                "class" => "proxy",
                 "advanced" => 1
             ) ,
             "proxy_user" => array(
                 "type" => "text",
                 "help" => gettext("") ,
                 "desc" => gettext("Proxy User") ,
+                "class" => "proxy",
                 "advanced" => 1
             ) ,
             "proxy_password" => array(
                 "type" => "password",
                 "help" => gettext("") ,
                 "desc" => gettext("Proxy Password") ,
+                "class" => "proxy",
                 "advanced" => 1
             ) ,
             "last_update" => array(
-                "type" => "text",
+                "type" => "hidden",
                 "help" => gettext("") ,
                 "desc" => gettext("Last update timestamp") ,
                 "advanced" => 1
@@ -148,6 +151,7 @@ if (POST('update')) {
 echo gettext("Updates"); ?> </title>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <script src="../js/jquery-1.3.2.min.js" type="text/javascript" ></script>
   <style type="text/css">
 	.semiopaque { opacity:0.9; MozOpacity:0.9; KhtmlOpacity:0.9; filter:alpha(opacity=90); background-color:#B5C3CF }
   </style>
@@ -172,15 +176,17 @@ echo gettext("Updates"); ?> </title>
 		}  
 		if (tempX < 0){tempX = 0}
 		if (tempY < 0){tempY = 0}
+		
 		var dh = document.body.clientHeight+ window.scrollY;
 		if (document.getElementById("numeroDiv").offsetHeight+tempY > dh)
 			tempY = tempY - (document.getElementById("numeroDiv").offsetHeight + tempY - dh)
-		document.getElementById("numeroDiv").style.left = tempX
-		document.getElementById("numeroDiv").style.top = tempY 
+		document.getElementById("numeroDiv").style.left = tempX+"px";
+		document.getElementById("numeroDiv").style.top = tempY+"px"; 
 		return true
 	}
 	
 	function ticketon(name,desc) { 
+		
 		if (document.getElementById) {
 			var txt1 = '<table border=0 cellpadding=8 cellspacing=0 class="semiopaque"><tr><td class=nobborder style="line-height:18px;width:300px" nowrap><b>'+ name +'</b><br>'+ desc +'</td></tr></table>'
 			document.getElementById("numeroDiv").innerHTML = txt1
@@ -194,6 +200,13 @@ echo gettext("Updates"); ?> </title>
 			document.getElementById("numeroDiv").style.visibility = 'hidden'
 			document.getElementById("numeroDiv").style.display = 'none'
 			document.getElementById("numeroDiv").innerHTML = ''
+		}
+	}
+
+	function doaction(id) {
+		if (id=='#value_1') {
+			if ($(id).val()=='yes') $('.proxy').show();
+			else $('.proxy').hide();
 		}
 	}
 	
@@ -218,6 +231,7 @@ echo gettext("Updates"); ?> </title>
     function init() {
         <? if ($update_checking==1) { ?> updatenow(document.fs); <? } ?> 
         <? if ($update_checking==2) { ?> document.fs.submit(); <? } ?>
+        doaction('#value_1');
     }
 </script>
  
@@ -268,8 +282,8 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
         }
         $var = ($type["desc"] != "") ? $type["desc"] : $conf;
 ?>
-    <tr <?php
-        if (in_array($conf, $arr)) echo "bgcolor=#FE9B52" ?>>
+    <tr <?php if (in_array($conf, $arr)) echo "bgcolor=#FE9B52" ?>
+    <?php if ($type["class"]!="") echo " class=".$type["class"]; ?>>
 
       <input type="hidden" name="conf_<?php
         echo $count ?>"
@@ -283,7 +297,7 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
         $disabled = ($type["disabled"] == 1 || $ossim_conf->is_in_file($conf)) ? "class=\"disabled\" disabled" : "";
         /* select */
         if (is_array($type["type"])) {
-            $input.= "<select name=\"value_$count\" $disabled>";
+            $input.= "<select name=\"value_$count\" id=\"value_$count\" $disabled onchange=\"doaction('#value_$count')\">";
             if ($conf_value == "") $input.= "<option value=''>";
             foreach($type["type"] as $option_value => $option_text) {
                 $input.= "<option ";
@@ -293,13 +307,13 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
             $input.= "</select>";
         }
         /* input */
+        elseif ($type["type"]=="hidden") {
+            $input.= "<input type=\"hidden\" 
+                    name=\"value_$count\" value=\"$conf_value\"/> $conf_value";
+        }        
+        /* input */
         else {
-            $input.= "<input ";
-            //if ($ossim_conf->is_in_file($conf)) {
-            //   $input .= " class=\"disabled\" ";
-            //    $input .= " DISABLED ";
-            //}
-            $input.= "type=\"" . $type["type"] . "\" size=\"30\" 
+            $input.= "<input type=\"" . $type["type"] . "\" size=\"30\" 
                     name=\"value_$count\" value=\"$conf_value\" $disabled/>";
         }
         echo $input;
