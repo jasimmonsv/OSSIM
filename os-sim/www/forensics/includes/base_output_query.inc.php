@@ -104,11 +104,11 @@ class QueryResultsOutput {
         }
         echo '<TABLE CELLSPACING=0 CELLPADDING=0 BORDER=0 style="border:1px solid #AAAAAA" WIDTH="100%" BGCOLOR="#000000">' . "\n" . "<TR><TD>\n" . '<TABLE CELLSPACING=0 CELLPADDING=0 BORDER=0 WIDTH="100%" BGCOLOR="#FFFFFF">' . "\n" . "\n\n<!-- Query Results Title Bar -->\n   <TR>\n";
         reset($this->qroHeader);
-        $flag = 0;
+        $flag = 0; 
         $checkbox = 0;
 		if ($custom) $allowed_cols = $_SESSION['views'][$_SESSION['current_cview']]['cols'];
 		else $allowed_cols = array("");
-        //print_r($allowed_cols);
+        //print_r($allowed_cols); print_r($current_cols_titles);
         // print custom headers and pdf headers
         if (isset($htmlPdfReport)) $htmlPdfReport->set("<tr>\n");
         //$wp = floor(100/count($allowed_cols));
@@ -123,9 +123,10 @@ class QueryResultsOutput {
 		foreach ($allowed_cols as $colname) {
 			$coltitle = $current_cols_titles[$colname];
 			while ($title = each($this->qroHeader)) {
+			//print_r($title);
 				if ($custom) { // Custom view only
 					if (preg_match("/INPUT/",$title['key']) && $checkbox){ continue; }
-					elseif ($coltitle != preg_replace("/\&nbsp.*/","",$title['key']) && $checkbox) continue;
+					elseif ($colname != preg_replace("/\&nbsp.*/","",$title['key']) && $checkbox) continue;
 					$checkbox=1;
 				}
 				$print_title = "";
@@ -138,6 +139,7 @@ class QueryResultsOutput {
 				//$border = ($title['key'] == "L4-proto" || $title['key'] == "Last" || $title['key'] == "Total Events" || (preg_match("/(Dest\.|Src\.).+Addr\./",$title['key']) && $_GET['addr_type']>0) || !$flag) ? "border-bottom:1px solid #AAAAAA;" : "border-right:1px solid #AAAAAA;border-bottom:1px solid #AAAAAA;";
                 $border = ($field>0 ? "border-left:1px solid #AAAAAA;" : "")."border-bottom:1px solid #AAAAAA;";
 				$flag = 1;
+				$title['key'] = ($current_cols_titles[$title['key']]!="") ? $current_cols_titles[$title['key']] : $title['key'] ;
 				if (!preg_match("/INPUT/",$title['key']) && isset($this->qroHeader2[$title['key']])) {
 					// Add asc and desc link icons
 					$sort_keys = array_keys($title["value"]);

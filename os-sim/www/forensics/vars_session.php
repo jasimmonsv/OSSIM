@@ -211,7 +211,7 @@ $current_cols_titles = array(
     "IP_DST_FQDN" => _("Dst IP FQDN"),     
     "PORT_SRC" => _("Src Port"),
     "PORT_DST" => _("Dst Port"),
-    "ASSET" => _("Asset "),
+    "ASSET" => _("Asset &nbsp;<br>S<img src='images/arrow-000-small.gif' border=0 align=absmiddle>D"),
     "PRIORITY" => _("Prio"),
     "RELIABILITY" => _("Rel"),
     "RISK" => _("Risk"),
