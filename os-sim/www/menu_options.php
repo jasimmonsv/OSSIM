@@ -127,6 +127,11 @@ if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { $incidents = 1
         "url" => "report/sec_report.php?section=all&type=alarm",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:alarms:report','Help');"
     );
+    $rmenu["Alarms"][] = array(
+          "name" => gettext("Edit Tags"),
+          "target" => "main",
+          "url" => "tags_edit.php"
+        );
 }
 if (Session::menu_perms("MenuIncidents", "IncidentsIncidents")) { $incidents = 1;
     $menu["Incidents"][] = array(
