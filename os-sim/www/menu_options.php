@@ -58,6 +58,7 @@ if (Session::am_i_admin() && $upgrade->needs_upgrade()) {
         "id" => "Updates",
         "url" => "updates/index.php"
     );
+    $GLOBALS['ossim_last_error'] = false;
 }
 /* Dashboards */
 $dashboards = 0;
