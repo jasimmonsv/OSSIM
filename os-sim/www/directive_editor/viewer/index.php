@@ -384,342 +384,537 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
 </table>
 
 
-<hr/><h2 style="text-align: left;"><?php
-    echo gettext("Element of a directive"); ?></h2>
-
-<h3 style="text-align: left;">Type</h3>
-<?php
-    echo gettext("What type of rule is this. There are two possible types as of today"); ?> :
-<ol>
-<li> <?php
-    echo gettext("Detector"); ?> <br/>
-<?php
-    echo gettext("Detector rules are those received automatically from the agent as they are recorded. This includes snort, spade, apache, etc"); ?> ...
-<li> <?php
-    echo gettext("Monitor"); ?> <br/>
-<?php
-    echo gettext("Monitor rules must be queried by the server ntop data and ntop sessions"); ?> .
-</ol>
-<h3 style="text-align: left;">Name</h3>
-<?php
-    echo gettext("The  rule name shown within the event database when the level is matched"); ?> .<br/>
-<?php
-    echo gettext("Accepts: UTF-8 compliant string"); ?> .
-<h3 style="text-align: left;">Priority</h3>
-<?php
-    echo gettext("When we talk about priority we're talking about threat. It's the importance of the isolated attack. It has nothing to do with your equipment or environment, it only measures the relative importance of the attack"); ?> .<br/>
-<?php
-    echo gettext("This will become clear using a couple of examples"); ?> .
-<ol>
-<li> <?php
-    echo gettext("Your unix server running samba gets attacked by the sasser worm"); ?> .<br/>
-<?php
-    echo gettext("The attack") . " "; ?>
-<i> <?php
-    echo gettext("per se") . " "; ?></i>
-<?php
-    echo gettext("is dangerous, it has compromised thousands of hosts and is very easy to accomplish. But. does it really matter to you? Surely not, but it's a big security hole so it'll have a high priority"); ?> .
-<li> <?php
-    echo gettext("You're running a CVS server on an isolated network that is only accessible by your friends and has only access to the outside. Some new exploit tested by one of your friends hits it"); ?> .<br/>
-<?php
-    echo gettext("Again, the attack is dangerous, it could compromise your machine but surely your host is patched against that particular attack and you don't mind being a test-platform for one of your friends"); ?> .
-</ol>
-<?php
-    echo gettext("Default value"); ?> : 1.
-<h3 style="text-align: left;"> Reliability </h3>
-<?php
-    echo gettext("When talking about classic risk-assessment this would be called") . " "; ?> &quot;
-<?php
-    echo gettext("probability") . " "; ?> &quot;.
-<?php
-    echo gettext("Since it's quite difficult to determine how probable it is that our network being attacked through one or another vulnerability, we'll transform this term into something more IDS related: reliability"); ?> .<br/>
-<?php
-    echo gettext("Surely many of you have seen unreliable signatures on every available NIDS. A host pinging a non-live destination is able to rise hundreds of thousands spade events a day. Snort's recent http-inspect functionality for example, although good implemented needs some heavy tweaking in order to be reliable or you'll get thousands of false positives a day"); ?> .<br/>
-<?php
-    echo gettext("Coming back to our worm example. If a hosts connects to 5 different hosts on their own subnet using port 445, that could be a normal behaviour. Unreliable for IDS purposes. What happens if they connect to 15 hosts? We're starting to get suspicious. And what if they contact 500 different hosts in less than an hour? That's strange and the attack is getting more and more reliable"); ?> .<br/>
-<?php
-    echo gettext("Each rule has it's own reliability, determining how reliable this particular rule is within the whole attack chain"); ?> .<br/>
-<?php
-    echo gettext("Accepts: 0-10. Can be specified as absolute value (i.e. 7) or relative (i.e. +2 means two more than the previous level)"); ?> .<br/>
-<?php
-    echo gettext("Default value"); ?> : 1.
-<h3 style="text-align: left;"> Ocurrence </h3>
-<?php
-    echo gettext("How many times we have to match a unique") . " "; ?>
-&quot;from, to, port_from, port_to, plugin_id &amp; plugin_sid&quot; <?php
-    echo " " . gettext("in order to advance one correlation level"); ?> .
-<h3 style="text-align: left;">Time_out</h3>
-<?php
-    echo gettext("We wait a fixed amount of seconds until a rule expires and the directives lifetime is over"); ?> .
-<h3 style="text-align: left;">From</h3>
-<?php
-    echo gettext("Source IP. There are various possible values for this field"); ?> :
-<ol>
-<li>ANY<br/>
-<?php
-    echo gettext("Just that, any ip address would match"); ?> .<br/>
-<li> <?php
-    echo gettext("Dotted numerical Ipv4"); ?> (x.x.x.x)<br/>
-<?php
-    echo gettext("Self explaining"); ?> .<br/>
-<li> <?php
-    echo gettext("Comma separated Ipv4 addresses without netmask"); ?> .<br/>
-<?php
-    echo gettext("You can use any number of ip addresses separated by commas"); ?> .<br/>
-<li> <?php
-    echo gettext("Using a network name"); ?> .<br/>
-<?php
-    echo gettext("You can use any network name defined via web"); ?> .<br/>
-<li> <?php
-    echo gettext("Relative"); ?> .<br/>
-<?php
-    echo gettext("This is used to reference ip addresses from previous levels. This should be easier to understand using examples"); ?> <br/>
-1:SRC_IP <?php
-    echo gettext("means use the source ip referenced within the previous rule"); ?> .<br/>
-2:DST_IP <?php
-    echo gettext("means use the destination ip referenced two rules below as source address"); ?> .<br/>
-<li> <?php
-    echo gettext("Negated"); ?> .<br/>
-<?php
-    echo gettext("You can also use negated elements. I.e."); ?> :<br/>
-&quot;!192.168.2.203,INTERNAL_NETWORK&quot;.<br/>
-<?php
-    echo gettext("If ") . " "; ?> INTERNAL_NETWORK == 192.168.2.0/24
-<?php
-    echo " " . gettext("this would match the whole class C except"); ?> 192.168.2.203.
-</ol>
-<h3 style="text-align: left;">To</h3>
-<?php
-    echo gettext("Destination IP. There are various possible values for this field"); ?> :
-<ol>
-<li>ANY<br/>
-<?php
-    echo gettext("Just that, any ip address would match"); ?> .<br/>
-<li> <?php
-    echo gettext("Dotted numerical Ipv4"); ?> (x.x.x.x)<br/>
-<?php
-    echo gettext("Self explaining"); ?> .<br/>
-<li> <?php
-    echo gettext("Comma separated Ipv4 addresses without netmask"); ?> .<br/>
-<?php
-    echo gettext("You can use any number of ip addresses separated by commas"); ?> .<br/>
-<li> <?php
-    echo gettext("Using a network name"); ?> .<br/>
-<?php
-    echo gettext("You can use any network name defined via web"); ?> .<br/>
-<li> <?php
-    echo gettext("Relative"); ?> .<br/>
-<?php
-    echo gettext("This is used to reference ip addresses from previous levels. This should be easier to understand using examples"); ?> <br/>
-1:SRC_IP <?php
-    echo gettext("means use the source ip referenced within the previous rule"); ?> .<br/>
-2:DST_IP <?php
-    echo gettext("means use the destination ip referenced two rules below as source address"); ?> .<br/>
-<li> <?php
-    echo gettext("Negated"); ?> .<br/>
-<?php
-    echo gettext("You can also use negated elements. I.e."); ?> :<br/>
-&quot;!192.168.2.203,INTERNAL_NETWORK&quot;.<br/>
-<?php
-    echo gettext("If") . " "; ?> INTERNAL_NETWORK == 192.168.2.0/24
-<?php
-    echo " " . gettext("this would match the whole class C except") . " "; ?> 192.168.2.203.
-</ol>
-<?php
-    echo gettext("The") . " "; ?> &quot;To&quot; <?php
-    echo " " . gettext("field is the field used when referencing monitor data that has no source"); ?> .<br/>
-<?php
-    echo gettext("Both \"From\" and \"To\" fields should accept input from the database in the near future. Host and Network objects are on the TODO list."); ?>
-<h3 style="text-align: left;">Sensor</h3>
-<?php
-    echo gettext("Sensor IP. There are various possible values for this field"); ?> :
-<ol>
-<li>ANY<br/>
-<?php
-    echo gettext("Just that, any ip address would match"); ?> .<br/>
-<li> <?php
-    echo gettext("Dotted numerical Ipv4"); ?> (x.x.x.x)<br/>
-<?php
-    echo gettext("Self explaining"); ?> .<br/>
-<li> <?php
-    echo gettext("Comma separated Ipv4 addresses without netmask"); ?> .<br/>
-<?php
-    echo gettext("You can use any number of ip addresses separated by commas"); ?> .<br/>
-<li> <?php
-    echo gettext("Using a sensor name"); ?> .<br/>
-<?php
-    echo gettext("You can use any sensor name defined via web"); ?> .<br/>
-<li> <?php
-    echo gettext("Relative"); ?> .<br/>
-<?php
-    echo gettext("This is used to reference sensor ip addresses from previous levels. This should be easier to understand using examples"); ?> <br/>
-1:SENSOR <?php
-    echo gettext("means use the sensor ip referenced within the previous rule"); ?> .<br/>
-<li> <?php
-    echo gettext("Negated"); ?> .<br/>
-<?php
-    echo gettext("You can also use negated elements. I.e."); ?> :<br/>
-&quot;!192.168.2.203&quot;.<br/>
-</ol>
-
-<h3 style="text-align: left;">Port_from / Port_to</h3>
-<?php
-    echo gettext("This can be a port number or a sequence of comma separated port numbers. ANY port can also be used"); ?>.<br/>
-<?php
-    echo gettext("Hint: 1:DST_PORT or 1:SRC_PORT would mean level 1 src and dest port respectively. They can be used too. (level 2 would be 2:DST_PORT for example)"); ?>.
-<br> <br>
-<?php
-    echo gettext("Also you can negate ports. This will negate ports 22 and 21 in the directive"); ?>:
-<br><br>
+<hr/><h3><?php echo _("Directive Rules") ?></h3> 
+<div class="level3"> 
+ 
+</div> 
+ 
+<h4><?php echo _("Detector Rule elements") ?></h4> 
+<div class="level4"> 
+ 
+</div> 
+ 
+<h5>type</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("What type of rule is this. There are two possible types as of today :") ?>
+</p> 
+<ul> 
+<li class="level1"><div class="li"> monitor</div> 
+</li> 
+<li class="level1"><div class="li"> detector</div> 
+</li> 
+</ul> 
+ 
+<p> 
+<?php echo _("As we are talking about detector rule elements. Type will take detector as value. Eg: type=\"detector\"") ?>
+</p> 
+ 
+</div> 
+ 
+<h5>name</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("The name of the rule describes what the system expects to collect in order to satisfy the condition of the rule for the correlation. This name Eg: name=\"100 <acronym title=\"Secure Shell\">SSH</acronym> Auth Failed events\"") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>reliability</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Reliability value of every event generated within the directive. It can be an absolute value 0-10 or incremental +2, +6. When using an incremental value, this will be added to the value that has taken the reliability field in the last event generated within this directive.") ?>
+</p> 
+ 
+<p> 
+<?php echo _("By assigning the value of reliability for each of the rules is important to remember the formula for calculating the risk in OSSIM. Using high-reliability values at the lowest levels of correlation will get a large number of alarms even when low-valued assets is involved.") ?>
+</p> 
+ 
+<p> 
+Eg: reliability="3" reliability="+3"
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>occurrence</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Number of events matching the conditions given in the rule that have to be collected before the directive generates an event. The first level doesn’t have an occurrences value as it will always be one. ") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>time_out</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn’t have a time_out value.") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>from</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Source IP. There are various possible values for this field :") ?>
+</p> 
+<ul> 
+<li class="level1"><div class="li"> <strong>ANY</strong>: <?php echo _("Just that, any ip address would match .") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining .") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Comma separated Ipv4 addresses without netmask") ?></strong></div> 
+</li> 
+<li class="level1"><div class="li"> <?php echo _("Network Name: You can use any network name defined via web (<em>Assets -> Networks</em>) .") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong>Relative value</strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples ") ?></div> 
+<ul> 
+<li class="level2"><div class="li"> <?php echo _("1:SRC_IP means use the source ip that matched the condition defined by the previous rule as source ip address.") ?></div> 
+</li> 
+<li class="level2"><div class="li"> <?php echo _("2:DST_IP means use the destination ip that matched the condition defined two rules below as destination ip address .") ?></div> 
+</li> 
+</ul> 
+</li> 
+<li class="level1"><div class="li"> <strong>Negated elements</strong>: <?php echo _("You can also use negated elements. I.e. : \"!192.168.2.203,INTERNAL_NETWORK\".") ?> </div> 
+<ul> 
+<li class="level2"><div class="li"> <?php echo _("If INTERNAL_NETWORK == 192.168.2.0/24 this would match the whole class C except 192.168.2.203.") ?></div> 
+</li> 
+</ul> 
+</li> 
+<li class="level1"><div class="li"> <strong>HOME_NET</strong>: <?php echo _("This will match only when the Source IP belongs to your Assets, this means that is has been included in the OSSIM inventory as a host or that it belongs to a network or network group that is within your inventory.") ?></div> 
+</li> 
+</ul> 
+ 
+</div> 
+ 
+<h5>to</h5> 
+<div class="level5"> 
+ 
+<p> 
+Destination IP. <?php echo _("There are various possible values for this field:") ?>
+</p> 
+<ul> 
+<li class="level1"><div class="li"> <strong>ANY</strong>: <?php echo _("Just that, any ip address would match.") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining .") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Comma separated Ipv4 addresses without netmask") ?></strong></div> 
+</li> 
+<li class="level1"><div class="li"> Network Name: <?php echo _("You can use any network name defined via web (<em>Assets -> Networks</em>) .") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong>Relative value</strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples") ?> </div> 
+<ul> 
+<li class="level2"><div class="li"> <?php echo _("1:SRC_IP means use the source ip that matched the condition defined by the previous rule as source ip address.") ?></div> 
+</li> 
+<li class="level2"><div class="li"> <?php echo _("2:DST_IP means use the destination ip that matched the condition defined two rules below as destination ip address .") ?></div> 
+</li> 
+</ul> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Negated elements") ?></strong>: <?php echo _("You can also use negated elements. I.e. : \"!192.168.2.203,INTERNAL_NETWORK\".") ?> </div> 
+<ul> 
+<li class="level2"><div class="li"> <?php echo _("If INTERNAL_NETWORK == 192.168.2.0/24 this would match the whole class C except 192.168.2.203.") ?></div> 
+</li> 
+</ul> 
+</li> 
+<li class="level1"><div class="li"> <strong>HOME_NET</strong>: <?php echo _("This will match only when the Source IP belongs to your Assets, this means that is has been included in the OSSIM inventory as a host or that it belongs to a network or network group that is within your inventory.") ?></div> 
+</li> 
+</ul> 
+ 
+</div> 
+ 
+<h5>sensor</h5> 
+<div class="level5"> 
+ 
+<p> 
+ 
+* <strong>ANY</strong>: <?php echo _("Just that, any OSSIM Sensor would match .") ?>
+</p> 
+<ul> 
+<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining .") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Comma separated Ipv4 addresses without netmask") ?></strong></div> 
+</li> 
+<li class="level1"><div class="li"> Sensor Name: <?php echo _("You can use any Sensor name defined via web (<em>Assets -> SIEM Components -> Sensors</em>) .") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong>Relative value</strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples") ?> </div> 
+<ul> 
+<li class="level2"><div class="li"> <?php echo _("1:SENSOR means use the Sensor that matched the condition defined by the previous rule") ?></div> 
+</li> 
+</ul> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Negated elements") ?></strong>: <?php echo _("You can also use negated elements, separated by comma. I.e. : \"!192.168.2.203,ANY\".") ?> </div> 
+</li> 
+</ul> 
+ 
+</div> 
+ 
+<h5>port_to</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("This can be a port number or a sequence of comma separated port numbers. ANY port can also be used.") ?>
+<?php echo _("Hint: 1:DST_PORT or 1:SRC_PORT would mean level 1 src and dest port respectively. They can be used too. (level 2 would be 2:DST_PORT for example). ") ?>
+</p> 
+ 
+<p> 
+<?php echo _("Also you can negate ports. This will negate ports 22 and 21 in the directive: ") ?>
+</p> 
+ 
+<p> 
 port="!22,25,110,!21"
-
-
-<h3 style="text-align: left;">Protocol</h3>
-<?php
-    echo gettext("This can be one of the following strings"); ?>:<br><br>
-<li> TCP
-<li> UDP
-<li> ICMP
-<li> Host_ARP_Event
-<li> Host_OS_Event
-<li> Host_Service_Event
-<li> Host_IDS_Event
-<li> Information_Event
-<br><br>
-<li> <?php
-    echo gettext("Additionally, you can put just a number with the protocol"); ?>.
-<br><br>
-<?php
-    echo gettext("Although Host_ARP_Event, Host_OS_Event, etc, are not really a protocol, you can use them if you want to do directives with ARP, OS, IDS or Service events. You can also use relative referencing like in 1:TCP, 2:Host_ARP_Event, etc.."); ?>.
-<br><br>
-<?php
-    echo gettext("You can negate the protocol also like this"); ?>:
-protocol="!Host_ARP_Event,UDP,!ICMP"
-<?php
-    echo gettext("This will negate Host_ARP_Event and ICMP, but will match with UDP"); ?>.
-<br/>
-
-
-<h3 style="text-align: left;">Plugin_id</h3>
-<?php
-    echo gettext("The numerical id assigned to the referenced plugin"); ?>.
-<h3 style="text-align: left;">Plugin_sid</h3>
-<?php
-    echo gettext("The nummerical sub-id assigned to each plugins events, functions or the like"); ?>.<br/>
-<?php
-    echo gettext("For example, plugin id 1001 (snort) references it.s rules as normal plugin_sids"); ?>.<br/>
-<?php
-    echo gettext("Plugin id 1501 (apache) uses the response codes as plugin_sid"); ?> (200 OK, 404 NOT FOUND, ...)<br/>
-<?php
-    echo gettext("ANY can be used too for plugin_sid"); ?>.
-<br><br><?php
-    echo gettext("You can negate plugin_sid's: plugin_sid=\"1,2,3,!4\" will negate just the plugin_sid 4"); ?>.
-
-<h3 style="text-align: left;">Condition</h3>
-<?php
-    echo gettext("This parameter and the following three are only valid for \"monitor\" and certain \"detector\" type rules"); ?>.<br/>
-<?php
-    echo gettext("The logical condition that has to be met for the rule to match"); ?>:
-<ol>
-<li>eq - <?php
-    echo gettext("Equal"); ?>
-<li>ne - <?php
-    echo gettext("Not equal"); ?>
-<li>lt - <?php
-    echo gettext("Less than"); ?>
-<li>gt - <?php
-    echo gettext("Greater than"); ?>
-<li>le - <?php
-    echo gettext("Less or equal"); ?>
-<li>ge - <?php
-    echo gettext("Greater or equal"); ?>
-</ol>
-<h3 style="text-align: left;">Value</h3>
-<?php
-    echo gettext("The value that has to be matched using the previous directives"); ?>.
-<h3 style="text-align: left;">Interval</h3>
-<?php
-    echo gettext("This value is similar to time_out but used for \"monitor\" type rules"); ?>.
-<h3 style="text-align: left;">Absolute</h3>
-<?php
-    echo gettext("Determines if the provided value is absolute or relative"); ?>.<br/>
-<?php
-    echo gettext("For example, providing 1000 as a value, gt as condition and 60 (seconds) as interval, querying ntop for HttpSentBytes would mean"); ?>:<br/>
-<ul>
-<li><?php
-    echo gettext("Absolute true: Match if the host has more than 1000 http sent bytes within the next 60 seconds. Report back when (and only if) this absolute value is reached"); ?>.
-<li><?php
-    echo gettext("Absolute false: Match if the host shows an increase of 1000 http sent bytes within the next 60 seconds. Report back as soon as this difference is reached (if it was reached...)"); ?>
-</ul>
-<h3 style="text-align: left;">Sticky</h3>
-<?php
-    echo gettext("A bit more difficult to explain. Take the worm rule. At the end we want to match 20000 connections involving the same source host and same destination port but we want to avoid 20000 directives from spawning so this is our little helper. Just set this to true or false depending on how you want the system to behave. If it's true, all the vars that aren't ANY or fixed (fixed means defined source or dest host, port or plugin id or sid.) are going to be made sticky so they won't spawn another directive"); ?>.<br/>
-<?php
-    echo gettext("In our example at level 2 there are two vars that are going to be fixed at correlation level 2: 1:SRC_IP and 1:DST_PORT. Of course plugin_id is already fixed (1104 == spade) and all the other ANY vars are still going to be ANY"); ?>.
-<h3 style="text-align: left;">Sticky_different</h3>
-<?php
-    echo gettext("Only suitable for rules with more than one occurrence. We want to make sure that the specified parameter happens X times (occurrence) and that all the occurrences are different"); ?>.<br/>
-<?php
-    echo gettext("Take one example. A straight-ahead port-scanning rule. Fix destination with the previous sticky and set sticky_different=\"1:DST_PORT\". This will assure we're going to match \"X occurrences\" against the same hosts having X different destination ports"); ?>.<br/>
-<?php
-    echo gettext("In our worm rule the most important var is the DST_IP because as the number increases the reliability increases as well. Which (normally operating) host is going to do thousands of connections for the same port against different hosts"); ?>??<br/>
-<h3 style="text-align: left;">Groups</h3>
-<?php
-    echo gettext("As sticky but involving more than one directive. If an event matches against a directive defined within a group and the group is set as \"sticky\" it won't match any other directive"); ?>.
-<br><br>
-<h3 style="text-align: left;">Username, password, filename, userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9</h3>
-<?php
-    echo gettext("This keywords are optional. They can be used to store special data from agents. Obviously, this only will work if the event has this modificators. The following things are accpeted"); ?>:<br>
-<?php
-    echo gettext("You can insert any string to match here. If you want that this matches with any keyword, you can skip these keywords, or use ANY as the value"); ?>. <br/>
-<ol>
-<li> ANY <br> <?php
-    echo gettext("Just that, this will match with any word. You can also avoid this keyword, and it will match too"); ?>.
-<li> <?php
-    echo gettext("Comma separated list"); ?><br>
-<?php
-    echo gettext("You can use any number of words separated by commas"); ?>
-<li> <?php
-    echo gettext("Relative value"); ?><br>
-<?php
-    echo gettext("This is used to reference keywords from previous levels, for example"); ?>:<br>
-1:FILENAME -> <?php
-    echo gettext("Means use the filename referenced in the first rule level"); ?><br>
-2:USERDATA5 -> <?php
-    echo gettext("Means use some data from USERDATA5 keyword referenced in the second rule level"); ?>
-<li> <?php
-    echo gettext("Negated: You can also use negated keywords, i.e"); ?>: <br>
-"!johndoe,foobar".<br>
-<?php
-    echo gettext("This will match with foobar, but not johndoe"); ?>
-</ol>
-<?php
-    echo gettext("Here you can see an example of what can be done"); ?>: <br>
-
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>port_from</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("This can be a port number or a sequence of comma separated port numbers. ANY port can also be used.") ?>
+<?php echo _("Hint: 1:DST_PORT or 1:SRC_PORT would mean level 1 src and dest port respectively. They can be used too. (level 2 would be 2:DST_PORT for example). ") ?>
+</p> 
+ 
+<p> 
+<?php echo _("Also you can negate ports. This will negate ports 22 and 21 in the directive: ") ?>
+</p> 
+ 
+<p> 
+port="!22,25,110,!21"
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>protocol</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("This can be one of the following strings:") ?>
+ 
+</p> 
+<ul> 
+<li class="level1"><div class="li"> TCP</div> 
+</li> 
+<li class="level1"><div class="li"> UDP</div> 
+</li> 
+<li class="level1"><div class="li"> ICMP</div> 
+</li> 
+<li class="level1"><div class="li"> Host_ARP_Event</div> 
+</li> 
+<li class="level1"><div class="li"> Host_<acronym title="Operating System">OS</acronym>_Event</div> 
+</li> 
+<li class="level1"><div class="li"> Host_Service_Event</div> 
+</li> 
+<li class="level1"><div class="li"> Host_IDS_Event</div> 
+</li> 
+<li class="level1"><div class="li"> Information_Event </div> 
+</li> 
+</ul> 
+ 
+<p> 
+ 
+<?php echo _("Additionally, you can put just a number with the protocol. ") ?>
+</p> 
+ 
+<p> 
+<?php echo _("Although Host_ARP_Event, Host_<acronym title=\"Operating System\">OS</acronym>_Event, etc, are not really a protocol, you can use them if you want to do directives with ARP, <acronym title=\"Operating System\">OS</acronym>, IDS or Service events. You can also use relative referencing like in 1:TCP, 2:Host_ARP_Event, etc…") ?>
+</p> 
+ 
+<p> 
+<?php echo _("You can negate the protocol also like this: protocol=\"!Host_ARP_Event,UDP,!ICMP\" This will negate Host_ARP_Event and ICMP, but will match with UDP. ") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>plugin_id</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Numerical identifier of the tool that provides the information (Events in detector rules and indicators in monitor rules)") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>plugin_sid</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Numerical identifier of the type of event within the tool defined by plugin_id that must met the condition defined by the directive rule. plugin_sid can take ANY as value, or a relative value when it is being used in a second or higher correlation level: Eg plugin_sid=\"1:PLUGIN_SID\"") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>sticky</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("When the events arrive to the correlation engine they will try to be correlated inside directives whose correlation has been started") ?>
+</p> 
+ 
+<p> 
+<?php echo _("Using sticky we avoid those events to start the correlation of the same directive again, as they may also meet the conditions given by the same directive.") ?>
+Eg: sticky="true" or sticky="false"
+</p> 
+ 
+</div> 
+ 
+<h5>sticky_different</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("This variable can be associated to any field in rules with more than one occurrence, to make all the occurrences have a different value in one of the fields.") ?>
+</p> 
+ 
+<p> 
+Eg: sticky_different="DST_PORT" <?php echo _("(All the events matching the rule must have a different destination port (Port scanning detection))") ?>
+</p> 
+ 
+</div> 
+ 
+<h5>Username, password, filename, userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("This keywords are optional. They can be used to store special data from agents. Obviously, this only will work if the event has this modificators. The following things are accpeted:") ?>
+<?php echo _("You can insert any string to match here. If you want that this matches with any keyword, you can skip these keywords, or use ANY as the value. ") ?>
+</p> 
+<ul> 
+<li class="level1"><div class="li"> <strong>ANY</strong>: <?php echo _("Just that, this will match with any word. You can also avoid this keyword, and it will match too.") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Comma separated list") ?></strong>:<?php echo _("You can use any number of words separated by commas") ?></div> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Relative value") ?></strong>: <?php echo _("This is used to reference keywords from previous levels, for example:") ?></div> 
+<ul> 
+<li class="level2"><div class="li"> 1:FILENAME -> <?php echo _("Means use the filename referenced in the first rule level") ?></div> 
+</li> 
+<li class="level2"><div class="li"> 2:USERDATA5 -> <?php echo _("Means use some data from USERDATA5 keyword referenced in the second rule level") ?></div> 
+</li> 
+</ul> 
+</li> 
+<li class="level1"><div class="li"> <strong><?php echo _("Negated") ?></strong>: <?php echo _("You can also use negated keywords, i.e: \"!johndoe,foobar\". This will match with foobar, but not johndoe") ?></div> 
+<ul> 
+<li class="level2"><div class="li"> <?php echo _("Here you can see an example of what can be done:") ?> </div> 
+</li> 
+</ul> 
+</li> 
+</ul> 
+ 
+<p> 
 username="one,two,three,!four4444,five" filename="1:FILENAME,/etc/password,!/etc/shadow" userdata5="el cocherito lere me dijo anoche lere,!2:USERDATA5"
-<br><br>
-NOTE: There are some kind of events that stores by default some of that fields:<br>
-<li>  Arpwatch events:&nbsp;&nbsp;&nbsp; Userdata1 = MAC
-<li>  Pads events:&nbsp;&nbsp;&nbsp; Userdata1 = application ; Userdata2 = service
-<li>  P0f Events:&nbsp;&nbsp;&nbsp; Userdata1 = O.S.<br>
-<li>  Syslog Events:&nbsp;&nbsp;&nbsp; Username = dest username ; Userdata1 = src username ; Userdata2 = src user uid ; Userdata3 = service<br>
-
-<br>
-<hr/><h2 style="text-align: left;">Risk</h2>
-<?php
-    echo gettext("The main formula for risk calculation would look like this"); ?>:<br/>
-
-Risk = (<?php
-    echo gettext("Asset") . " * " . gettext("Priority") . " * " . gettext("Reliability"); ?>) / 25<br/>
-<?php
-    echo gettext("Where"); ?>:<ul>
-<li><?php
-    echo gettext("Asset"); ?> (0-5).
-<li><?php
-    echo gettext("Priority"); ?> (0-5).
-<li><?php
-    echo gettext("Reliability"); ?> (0-10).
-</ul>
+</p> 
+ 
+<p> 
+NOTE: There are some kind of events that stores by default some of that fields:
+</p> 
+<ul> 
+<li class="level1"><div class="li"> Arpwatch events:    Userdata1 = MAC</div> 
+</li> 
+<li class="level1"><div class="li"> Pads events:    Userdata1 = application ; Userdata2 = service</div> 
+</li> 
+<li class="level1"><div class="li"> P0f Events:    Userdata1 = O.S.</div> 
+</li> 
+<li class="level1"><div class="li"> Syslog Events:    Username = dest username ; Userdata1 = src username ; Userdata2 = src user uid ; Userdata3 = service</div> 
+</li> 
+</ul> 
+ 
+</div> 
+ 
+<h4>Monitor Rule elements</h4> 
+<div class="level4"> 
+ 
+</div> 
+ 
+<h5>type</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("What type of rule is this. There are two possible types as of today :") ?>
+</p> 
+<ul> 
+<li class="level1"><div class="li"> monitor</div> 
+</li> 
+<li class="level1"><div class="li"> detector</div> 
+</li> 
+</ul> 
+ 
+<p> 
+<?php echo _("As we are talking about monitor rule elements. Type will take monitor as value. Eg: type=\"monitor\"") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>name</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("The rule name should describe the type of information that we obtain when querying the tool or device during correlation using the monitor plugin.") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>reliability</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Reliability value of every event generated within the directive. It can be an absolute value 0-10 or incremental +2, +6. When using an incremental value, this will be added to the value that has taken the reliability field in the last event generated within this directive.") ?>
+</p> 
+ 
+<p> 
+<?php echo _("By assigning the value of reliability for each of the rules is important to remember the formula for calculating the risk in OSSIM. Using high-reliability values at the lowest levels of correlation will get a large number of alarms even when low-valued assets is involved.") ?>
+</p> 
+ 
+<p> 
+Eg: reliability="3" reliability="+3"
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>plugin_id</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Numerical identifier of the monitor plugin that will query the device or application to feed the correlation engine with indicators while correlation takes place. ") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>plugin_sid</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Numerical identifier of the request or query that has to be executed. In this case we can <strong>not</strong> use ANY or a relative value.") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>time_out</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn’t have a time_out value.") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>condition</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("The condition field establishes a logical relation between the value field and the value returned in the monitor plugin request. It can take the following values:") ?>
+</p> 
+ 
+<p> 
+<center> 
+ 
+</p> 
+<table class="inline"> 
+	<tr class="row0"> 
+		<th class="col0"><strong>eq</strong></th><td class="col1">equal</td> 
+	</tr> 
+	<tr class="row1"> 
+		<th class="col0"><strong>ne</strong></th><td class="col1">non equal</td> 
+	</tr> 
+	<tr class="row2"> 
+		<th class="col0"><strong>lt</strong></th><td class="col1">less than</td> 
+	</tr> 
+	<tr class="row3"> 
+		<th class="col0"><strong>gt</strong></th><td class="col1">greater than</td> 
+	</tr> 
+	<tr class="row4"> 
+		<th class="col0"><strong>le</strong></th><td class="col1">less or equal</td> 
+	</tr> 
+	<tr class="row5"> 
+		<th class="col0"><strong>ge</strong></th><td class="col1">greater or equal</td> 
+	</tr> 
+</table> 
+ 
+<p> 
+</center> 
+</p> 
+ 
+</div> 
+ 
+<h5>value</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("This field sets the value that has to be compared with the value returned by the collector after doing the monitor request.") ?>
+</p> 
+ 
+<p> 
+Value must be an integer. Eg: value="333"
+</p> 
+ 
+</div> 
+ 
+<h5>time_out</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. ") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>interval</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("This value of this field sets the waiting time between each monitor request before the rule is discarded because the time defined by time_out is over. ") ?>
+ 
+</p> 
+ 
+</div> 
+ 
+<h5>absolute</h5> 
+<div class="level5"> 
+ 
+<p> 
+<?php echo _("This value sets if the value that has to be compared is relative or absolute.") ?>
+</p> 
+<ul> 
+<li class="level1"><div class="li"> Absolute true:  <?php echo _("If the host has more than 1000 bytes  sent during the next  60 seconds. There will be an answer if in 60 seconds  this value is reached.") ?> absolute="true"</div> 
+</li> 
+<li class="level1"><div class="li"> Absolute false: <?php echo _("If the  host shows an increase of more than 1000 bytes sent. There will be an answer if the host  shows this increase in 60 seconds.") ?> absolute="false"</div> 
+</li> 
+</ul> 
+ 
+</div> 
+ 
+<h5>from, to, port_from, port, to, protocol, sensor,Username, password, filename, userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9</h5> 
+<div class="level5"> 
+ 
+<p> 
+ 
+<?php echo _("In monitor type rules, these fields are not used to define a condition that must be matched by the events arriving to the the OSSIM server. These fields will be used to send information to the collector in order to be used in the query that is done through a monitor plugin.") ?>
+</p> 
+ 
+<p> 
+<?php echo _("For this reason it does <strong>not</strong> makes sense to use values such as HOME_NET or ANY. You will need to write the value that has to be send to the build the query of the monitor plugin: Eg: from=\"192.168.2.2\" or use a relative value such as from=\"1:SRC_IP\" to send to the monitor plugin the ip address that matched as source ip in the previous correlation level.") ?> 
+ 
+</p> 
+ 
+</div>
 <?php
 }
 ?>
