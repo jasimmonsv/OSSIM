@@ -1212,7 +1212,7 @@ $hmenu["Incidents Email Template"][] = array(
 if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session::am_i_admin()) { $configuration = 1;
     $menu["Configuration"][] = array(
         "name" => gettext("Software Upgrade") ,
-        "id" => "Upgrade",
+        "id" => "Update",
         "url" => "updates/"
     );
     /*$hmenu["Upgrade"][] = array(
@@ -1221,9 +1221,9 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session:
         "url" => "upgrade/",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:software_upgrade','Help');"
     );*/
-    $hmenu["Upgrade"][] = array(
+    $hmenu["Update"][] = array(
         "name" => gettext("Update Notification") ,
-        "id" => "Upgrade",
+        "id" => "Update",
         "url" => "updates/",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:update_notification','Help');"
     );
