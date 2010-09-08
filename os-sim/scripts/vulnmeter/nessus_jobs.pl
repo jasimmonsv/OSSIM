@@ -2648,14 +2648,21 @@ sub process_results {
         #}
     }
     
-    my $cmde = qq{/usr/bin/php /usr/share/ossim/scripts/vulnmeter/send_notification.php '$report_id'};
-    logwriter("Send email for report_id: $report_id ...", 5);
-    open(EMAIL,"$cmde 2>&1 |") or die "failed to fork :$!\n";
-    while(<EMAIL>){
-        chomp;
-        logwriter("send_notification output: $_", 5);
+    my $sql_check_email = qq{ SELECT meth_Wfile FROM vuln_jobs WHERE report_id = '$report_id' };
+    logwriter( $sql_check_email, 5 );
+    my $sth_check = $dbh->prepare( $sql_check_email );
+    $sth_check->execute;
+    my ( $semail ) = $sth_check->fetchrow_array; 
+    if($semail eq "1") {
+        my $cmde = qq{/usr/bin/php /usr/share/ossim/scripts/vulnmeter/send_notification.php '$report_id'};
+        logwriter("Send email for report_id: $report_id ...", 5);
+        open(EMAIL,"$cmde 2>&1 |") or die "failed to fork :$!\n";
+        while(<EMAIL>){
+            chomp;
+            logwriter("send_notification output: $_", 5);
+        }
+        close EMAIL;
     }
-    close EMAIL; 
     
     return TRUE;
 }
