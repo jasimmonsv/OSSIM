@@ -1,12 +1,47 @@
+#
+# License:
+#
+#    Copyright (c) 2003-2006 ossim.net
+#    Copyright (c) 2007-2010 AlienVault
+#    All rights reserved.
+#
+#    This package is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; version 2 dated June, 1991.
+#    You may not use, modify or distribute this program under any other version
+#    of the GNU General Public License.
+#
+#    This package is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this package; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+#    MA  02110-1301  USA
+#
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL-2'.
+#
+# Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+#
+
+#
+# GLOBAL IMPORTS
+#
+import commands, datetime, os, string, threading, time
+
+#
+# LOCAL IMPORTS
+#
 from Config import Conf, Plugin
 from Output import Output
 from Logger import *
 from Task import Task
 from Stats import Stats
 logger = Logger.logger
-import time
-import datetime
-import threading, string, time, os, commands, datetime
 
 class Watchdog(threading.Thread):
 
@@ -32,6 +67,7 @@ class Watchdog(threading.Thread):
     # sensor info
     AGENT_DATE                  = "agent-date agent_date=\"%s\" tzone=\"%s\"\n"
 
+
     def __init__(self, conf, plugins):
 
         self.conf = conf
@@ -43,12 +79,23 @@ class Watchdog(threading.Thread):
     # find the process ID of a running program
     def pidof(program):
 
-        pid = string.split(commands.getoutput('pidof %s' % program), ' ')
-        if pid[0] == '':
+        cmd = "ps aux | grep %s | grep -v grep | awk '{print $2}'" % program
+        process = os.popen(cmd)
+        data = process.read()
+        status = process.close()
+
+        if status is not None:
+            logger.debug("%s failed with exit code %d" % (cmd, status))
             return None
+
+        if data == '':
+            return None
+        
         else:
-            return pid[0]
+            return data.split("\n")[0]
+
     pidof = staticmethod(pidof)
+
 
     def start_process(plugin, notify=True):
 
@@ -65,24 +112,31 @@ class Watchdog(threading.Thread):
             timeout = 300
             start = datetime.datetime.now()
             plugin.start_time = float(time.time())
+
             while not task.Done():
                 time.sleep(0.1)
                 now = datetime.datetime.now()
+
                 if (now - start).seconds> timeout:
                     task.Kill()
                     logger.warning("Could not start %s, returning after %s second(s) wait time." % (command, timeout))
 
         # notify result to server
         if notify:
+
             if not process:
                 logger.debug("plugin (%s) has an unknown state" % (name))
                 Output.plugin_state(Watchdog.PLUGIN_UNKNOWN_STATE_MSG % (id))
+
             elif Watchdog.pidof(process) is not None:
                 logger.info(WATCHDOG_PROCESS_STARTED % (process, id))
                 Output.plugin_state(Watchdog.PLUGIN_START_STATE_MSG % (id))
+
             else:
                 logger.warning(WATCHDOG_ERROR_STARTING_PROCESS % (process, id))
+
     start_process = staticmethod(start_process)
+
 
     def stop_process(plugin, notify=True):
 
@@ -99,14 +153,18 @@ class Watchdog(threading.Thread):
         # notify result to server
         if notify:
             time.sleep(1)
+
             if not process:
                 logger.debug("plugin (%s) has an unknown state" % (name))
                 Output.plugin_state(Watchdog.PLUGIN_UNKNOWN_STATE_MSG % (id))
+
             elif Watchdog.pidof(process) is None:
                 logger.info(WATCHDOG_PROCESS_STOPPED % (process, id))
                 Output.plugin_state(Watchdog.PLUGIN_STOP_STATE_MSG % (id))
+
             else:
                 logger.warning(WATCHDOG_ERROR_STOPPING_PROCESS % (process, id))
+
     stop_process = staticmethod(stop_process)
 
 
@@ -122,7 +180,9 @@ class Watchdog(threading.Thread):
         if notify:
             logger.info("plugin (%s) is now enabled" % (name))
             Output.plugin_state(Watchdog.PLUGIN_ENABLE_STATE_MSG % (id))
+
     enable_process = staticmethod(enable_process)
+
 
     def disable_process(plugin, notify=True):
 
@@ -136,6 +196,7 @@ class Watchdog(threading.Thread):
         if notify:
             logger.info("plugin (%s) is now disabled" % (name))
             Output.plugin_state(Watchdog.PLUGIN_DISABLE_STATE_MSG % (id))
+
     disable_process = staticmethod(disable_process)
 
 
@@ -152,14 +213,17 @@ class Watchdog(threading.Thread):
            plugin.getboolean("config", "enable"):
 
             current_time = time.time()
+
             if plugin.has_option("config", "restart_interval"):
                 restart_interval = plugin.getint("config", "restart_interval")
+
             else:
                 restart_interval = 3600
 
             if not hasattr(plugin, 'start_time'):
                 # The plugin was started before agent startup
                 plugin.start_time = float(time.time())
+
             else:
                 if plugin.start_time + restart_interval < current_time:
                     logger.debug("Plugin %s must be restarted" % (name))
@@ -172,11 +236,12 @@ class Watchdog(threading.Thread):
         first_run = True
 
         while 1:
-	   
-	    t = datetime.datetime.now()
-	    tzone = str(self.conf.get("plugin-defaults", "tzone"))
-	    Output.plugin_state(self.AGENT_DATE % (str(time.mktime(t.timetuple())),tzone))
-	    #logger.info(self.AGENT_DATE % (str(time.mktime(t.timetuple())),tzone))
+       
+            t = datetime.datetime.now()
+            tzone = str(self.conf.get("plugin-defaults", "tzone"))
+            Output.plugin_state(self.AGENT_DATE % (str(time.mktime(t.timetuple())),tzone))
+            #logger.info(self.AGENT_DATE % (str(time.mktime(t.timetuple())),tzone))
+
             for plugin in self.plugins:
 
                 id      = plugin.get("config", "plugin_id")
@@ -199,7 +264,6 @@ class Watchdog(threading.Thread):
                     # check for for plugin restart
                     self._restart_services(plugin)
 
-
                 # 3) process is not running
                 else:
                     logger.debug("plugin (%s) is not running" % (name))
@@ -210,6 +274,7 @@ class Watchdog(threading.Thread):
                     if plugin.getboolean("config", "start") and \
                        plugin.getboolean("config", "enable"):
                         self.start_process(plugin)
+
                         if self.pidof(process) is not None and not first_run:
                             Stats.watchdog_restart(process)
 
@@ -217,6 +282,7 @@ class Watchdog(threading.Thread):
                 if plugin.getboolean("config", "enable"):
                     logger.debug("plugin (%s) is enabled" % (name))
                     Output.plugin_state(self.PLUGIN_ENABLE_STATE_MSG % (id))
+
                 else:
                     logger.debug("plugin (%s) is disabled" % (name))
                     Output.plugin_state(self.PLUGIN_DISABLE_STATE_MSG % (id))
@@ -233,7 +299,6 @@ class Watchdog(threading.Thread):
             # stop service (if stop=yes in plugin configuration)
             if plugin.getboolean("config", "stop"):
                 self.stop_process(plugin=plugin, notify=False)
-
 
 # vim:ts=4 sts=4 tw=79 expandtab:
 
