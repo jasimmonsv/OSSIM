@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `risk_maps` (
 
 
 -- From now on, always add the date of the new releases to the .sql files
--- UPDATE config SET value="2010-07-23" WHERE conf="last_update";
+UPDATE config SET value="2010-09-08" WHERE conf="last_update";
 
 -- WARNING! Keep this at the end of this file
 -- WARNING! Keep this at the end of this file
