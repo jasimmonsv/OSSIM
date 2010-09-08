@@ -1592,7 +1592,7 @@ msgstr ""
 
 #: www/conf/main.php:751
 msgid "Defaults to /var/lib/ossim/backup/"
-msgstr ""
+msgstr "Por defecto a /var/lib/ossim/backup/"
 
 #: www/conf/main.php:796
 msgid "Defaults to port 1241"
@@ -1890,7 +1890,7 @@ msgstr "Deshabilitado"
 
 #: www/conf/main.php:829
 msgid "Distributed Scanning"
-msgstr ""
+msgstr "Escaneo distribuido"
 
 #: www/policy/newpolicyform.php:212 www/policy/policy.php:101
 #: www/policy/modifypolicyform.php:291
@@ -3839,7 +3839,7 @@ msgstr "NMAP no encontrado"
 
 #: www/conf/main.php:928
 msgid "NMap Binary Path"
-msgstr ""
+msgstr "Ruta Binario NMap"
 
 #: www/control_panel/backlog.php:146
 msgid "NO"
@@ -4671,7 +4671,7 @@ msgstr "Obsoleto, configurar en Configuraci&oacute;n -> Usuarios"
 #: www/conf/main.php:828
 msgid ""
 "Obsolete, distributed is very recommended even if you only got one sensor."
-msgstr ""
+msgstr "Obsoleto, distribuido es muy recomendable, incluso si s&oacute;lo tiene un sensor."
 
 #: www/directive_editor/include/directive.php:111
 #: www/directive_editor/editor/include/directive.php:111
@@ -4728,7 +4728,7 @@ msgstr "Solo el administrador puede hacer eso"
 
 #: www/conf/main.php:789
 msgid "Only for non distributed scans"
-msgstr ""
+msgstr "S&oacute;lo para escaneos no distribuidos"
 
 #: www/directive_editor/viewer/index.php:296 www/directives/directive.php:465
 msgid ""
@@ -7213,7 +7213,7 @@ msgstr ""
 
 #: www/conf/main.php:622
 msgid "Unused."
-msgstr ""
+msgstr "No se usa."
 
 #: www/session/users.php:104 www/session/users.php:111
 msgid "Update"
@@ -7313,7 +7313,7 @@ msgstr "Usar gr&aacute;ficos SVG"
 
 #: www/conf/main.php:974
 msgid "Use Scanmap 3D"
-msgstr ""
+msgstr "Usar Scanmap 3D"
 
 #: www/scan/hostscan.php:37
 msgid ""
@@ -9571,7 +9571,7 @@ msgid "Maximum days for email notification"
 msgstr "M&aacute;ximo de d&iacute;as para notificaci&oacute;n por e-mail"
 
 msgid "Password expires in 90 days"
-msgstr "La password expira en 90 d&iacute;as"
+msgstr "La contrase&ntilde;a expira en 90 d&iacute;as"
 
 msgid "The system will check once a day for updated packages, rules, directives, etc. No system information will be sent, it just gest a file with dates and update messages using wget."
 msgstr "El sistema chequear&aacute; una vez al d&iacute;a los paquetes actualizados, reglas, directivas, etc.<br> No se enviar&aacute; ninguna informaci&oacute;n del sistema, s&oacute;lo se recupera un fichero con las fechas y mensajes de actualizaci&oacute;n usando wget."
@@ -9747,6 +9747,12 @@ msgstr "Logger remoto"
 msgid "Remote Logger user"
 msgstr "Usuario Logger remoto"
 
+msgid "Remote OSSIM Logger user"
+msgstr "Usuario OSSIM Logger remoto"
+
+msgid "Remote OSSIM Logger password"
+msgstr "Contrase&ntilde;a OSSIM Logger remoto"
+
 msgid "Remote Logger password"
 msgstr "Password Logger remoto"
 
@@ -9770,6 +9776,84 @@ msgstr "Login esc&aacute;ner"
 
 msgid "Scanner Password"
 msgstr "Password esc&aacute;ner"
+
+msgid "Scanner Binary location"
+msgstr "Ruta binario esc&aacute;ner"
+
+msgid "Scanner Updater location"
+msgstr "Ruta actualizador esc&aacute;ner"
+
+msgid "Scan output path"
+msgstr "Ruta salida esc&aacute;ner"
+
+msgid "Action Responses"
+msgstr "Acci&oacute;n de respuestas"
+
+msgid "Setup action responses"
+msgstr "Configuraci&oacute;n de acci&oacute;n de respuestas"
+
+msgid "Domain Controller IP"
+msgstr "IP controlador de dominio"
+
+msgid "Admin Account"
+msgstr "Cuenta de administrador"
+
+msgid "Network SNMP Community"
+msgstr "Comunidad de red SNMP"
+
+msgid "Policy settings"
+msgstr "Configuraci&oacute;n de pol&iacute;tica"
+
+msgid "Mail Server Configuration"
+msgstr "Configuraci&oacute;n del servidor de correo"
+
+msgid "Mail Server Configuration settings"
+msgstr "Ajustes de configuraci&oacute;n del servidor de correo"
+
+msgid "From Address"
+msgstr "Direcci&oacute;n de"
+
+msgid "SMTP Server IP Address"
+msgstr "Direcci&oacute;n IP servidor SMTP"
+
+msgid "SMTP Server port"
+msgstr "Puerto servidor SMTP"
+
+msgid "SMTP Username"
+msgstr "Usuario SMTP"
+
+msgid "SMTP Password"
+msgstr "Contrase&ntilde;a SMTP"
+
+msgid "Use SSL protocol" 
+msgstr "Usar protocolo SSL"
+
+msgid "Enter the full path including a trailing slash, i.e., 'http://192.168.1.60:3128/'"
+msgstr "Introduzca la ruta completa incluyendo una barra, es decir, 'http://192.168.1.60:3128/'"
+
+msgid "Vulnerability scanner used. OpenVAS is used by default."
+msgstr "Esc&aacute;ner de vulnerabilidades usado. Por defecto OpenVAS."
+
+msgid "Scanner host"
+msgstr "Equipo esc&aacute;ner"
+
+msgid "Scanner port"
+msgstr "Puerto esc&aacute;ner"
+
+msgid "Defaults to port 1241 on Nessus, 9390 on OpenVAS"
+msgstr "Puerto por defecto 1241 para Nessus y 9390 para OpenVAS"
+
+msgid "Where will scanning results be located"
+msgstr "Donde se almacenar&aacute;n los escaneos"
+
+msgid "Alarm forwarding"
+msgstr "Reenv&iacute;o de alarmas"
+
+msgid "Events forwarding"
+msgstr "Reenv&iacute;o de eventos"
+
+msgid "Remote Logger Url"
+msgstr "Url Logger remoto"
 
 #~ msgid ""
 #~ "\n"
