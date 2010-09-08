@@ -1893,7 +1893,7 @@ CREATE TABLE IF NOT EXISTS `vuln_job_schedule` (
   `username` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `fk_name` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
   `job_TYPE` enum('C','M','R','S') character set utf8 collate utf8_unicode_ci NOT NULL default 'M' COMMENT 'CRON, MANUAL, REQ, SYSTEM',
-  `schedule_type` enum('D','W','M') character set utf8 collate utf8_unicode_ci NOT NULL default 'M',
+  `schedule_type` enum('O','D', 'W', 'M', 'NW') character set utf8 collate utf8_unicode_ci NOT NULL default 'M',
   `day_of_week` enum('Su','Mo','Tu','We','Th','Fr','Sa') character set utf8 collate utf8_unicode_ci NOT NULL default 'Mo',
   `day_of_month` int(2) unsigned NOT NULL default '1',
   `time` time NOT NULL default '00:00:00',

@@ -432,7 +432,10 @@ class Html{
     }
 
     public function setBookmark($name,$level=0){
-        $this->set('<bookmark title="'.$name.'" level="'.$level.'" ></bookmark>');
+		$name=Util::utf8_encode2($name);
+		if($name!='&nbsp;'){
+			$this->set('<bookmark title="'.$name.'" level="'.$level.'" ></bookmark>');
+		}
     }
 
     public function pageBreak(){
