@@ -892,7 +892,7 @@ function tab_discovery () {
     global $component, $uroles, $editdata, $scheduler, $username, $useremail, $dbconn, $disp,
           $enScanRequestImmediate, $enScanRequestRecur, $timeout, $smethod,$SVRid, $sid, $ip_list,
           $schedule_type, $ROYEAR, $ROday, $ROMONTH, $time_hour, $time_min, $dayofweek, $dayofmonth,
-          $sname,$user,$entity,$hosts_alive,$scan_locally,$version,$nthweekday;
+          $sname,$user,$entity,$hosts_alive,$scan_locally,$version,$nthweekday,$semail;
           
     global $pluginOptions, $enComplianceChecks, 
           $profileid;
@@ -1363,7 +1363,13 @@ EOT;
                   $discovery .="</td></tr>";
             }
        }
-      
+      $discovery .= "<tr><td>"._("Send an email notification when finished:");
+      $discovery .= "</td>";
+      $discovery .= "<td style=\"text-align:left;\">";
+      $discovery .= "<input type=\"radio\" name=\"semail\" value=\"0\"".(((count($editdata)<=1 && intval($semail)==0) || intval($editdata['meth_Wfile'])==0)? " checked":"")."/>"._("No");
+      $discovery .= "<input type=\"radio\" name=\"semail\" value=\"1\"".(((count($editdata)<=1 && intval($semail)==1) || intval($editdata['meth_Wfile'])==1)? " checked":"")."/>"._("Yes");
+      $discovery .= "</td></tr>";
+
       $targets_message = _("Targets")."<br>"._("(Hosts/Networks)")."<br>";
       
       $discovery .= "<tr><td valign=\"top\" align=\"Right\" width=\"20%\" class=\"noborder\"><br>";
@@ -1606,7 +1612,7 @@ function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $RO
      $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list,
      $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
      $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
-     $is_enabled, $hosts_alive, $scan_locally, $nthweekday) {
+     $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail) {
 
      global $wdaysMap, $daysMap, $allowscan, $uroles, $username, $schedOptions, $adminmail, $mailfrom, $dbk, $dbconn;
      
@@ -1944,7 +1950,7 @@ EOT;*/
          }
       }
       if ( $audit_data != "" ) {
-         $arrAudits[$check] = "'$audit_data'";
+         $arrAudits[$check] = "'$audit_data'"; 
       } else {
          $arrAudits[$check] = "NULL";
       }
@@ -2062,10 +2068,10 @@ EOT;*/
             //   meth_CPLUGINS=$plugs_list, meth_Wcheck=$arrAudits[w], meth_Wfile=$arrAudits[f], meth_Ucheck=$arrAudits[u],
             //   meth_TIMEOUT='$timeout', next_CHECK='$requested_run' WHERE id='$sched_id' LIMIT 1";
          
-            $query[] = "UPDATE vuln_job_schedule SET name='$sname', username='$username', fk_name=$fk_name, job_TYPE='$jobType',
+            $query[] = "UPDATE vuln_job_schedule SET name='$sname', username='$username', fk_name='".Session::get_session_user()."', job_TYPE='$jobType',
                         schedule_type='$schedule_type', day_of_week='$dayofweek', day_of_month='$dayofmonth', time='$time_value',
                         meth_TARGET=$target_list, meth_CRED=$I3crID, meth_VSET='$sid', meth_CUSTOM='$custadd_type',
-                        meth_CPLUGINS=$plugs_list, meth_Wcheck=$arrAudits[w], meth_Wfile=$arrAudits[f], meth_Ucheck='$scan_locally',
+                        meth_CPLUGINS=$plugs_list, meth_Wcheck=$arrAudits[w], meth_Wfile=$semail, meth_Ucheck='$scan_locally',
                         meth_TIMEOUT='$timeout', next_CHECK='$requested_run' WHERE id='$sched_id' LIMIT 1";
                         
                         
@@ -2078,9 +2084,9 @@ EOT;*/
                     $target_list = implode("\n",$targets);
                     $query[] = "INSERT INTO vuln_job_schedule ( name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, 
                                 time, email, meth_TARGET, meth_CRED, meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, 
-                                meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', $fk_name, '$jobType',
+                                meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', '".Session::get_session_user()."', '$jobType',
                                 '$schedule_type', '$dayofweek', '$dayofmonth', '$time_value', '$notify_sensor', '$target_list',
-                                $I3crID, '$sid', '$custadd_type', $plugs_list, $arrAudits[w], $arrAudits[f], '$scan_locally',
+                                $I3crID, '$sid', '$custadd_type', $plugs_list, $arrAudits[w], $semail, '$scan_locally',
                                 '$timeout', $SVRid, '$requested_run', '$insert_time', '1' ) ";
                     $sjobs_names [] = $sname.$i;
                     $i++;
@@ -2091,7 +2097,7 @@ EOT;*/
             //                time, email, meth_TARGET, meth_CRED, meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, 
             //                meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', $fk_name, '$jobType',
             //                '$schedule_type', '$dayofweek', '$dayofmonth', '$time_value', '', '$target_list',
-            //                $I3crID, '$sid', '$custadd_type', $plugs_list, $arrAudits[w], $arrAudits[f], '$scan_locally',
+            //                $I3crID, '$sid', '$custadd_type', $plugs_list, $arrAudits[w], $arrAudits[f], '$scan_locally', 
             //                '$timeout', $SVRid, '$requested_run', '$insert_time', '1' ) ";
             //    $sjobs_names [] = $sname;
             //}
@@ -2105,15 +2111,15 @@ EOT;*/
                     $query[] = "INSERT INTO vuln_jobs ( name, username, fk_name, job_TYPE, meth_SCHED, meth_TARGET,  meth_CRED,
                         meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED,
                         scan_SUBMIT, scan_next, scan_PRIORITY, status, notify, authorized, author_uname ) VALUES ( '$sname',
-                        '$username', $fk_name, '$jobType', '$schedule_type', '$target_list', $I3crID, '$sid', '$custadd_type', $plugs_list,
-                        $arrAudits[w], $arrAudits[f], $arrAudits[u], '$timeout', $SVRid, '$insert_time', '$requested_run', '3',
-                        'S', '$notify_sensor', '$scan_locally', 'ACL' ) ";
+                        '$username', '".Session::get_session_user()."', '$jobType', '$schedule_type', '$target_list', $I3crID, '$sid', '$custadd_type', $plugs_list,
+                        $arrAudits[w], $semail, $arrAudits[u], '$timeout', $SVRid, '$insert_time', '$requested_run', '3',
+                        'S', '$notify_sensor', '$scan_locally', 'ACL' ) "; 
                     $jobs_names [] = $sname.$i;
                     $i++;
                 }
             //} 
             //else {
-            //    $query[] = "INSERT INTO vuln_jobs ( name, username, fk_name, job_TYPE, meth_SCHED, meth_TARGET,  meth_CRED,
+            //    $query[] = "INSERT INTO vuln_jobs ( name, username, fk_name, job_TYPE, meth_SCHED, meth_TARGET,  meth_CRED, 
             //        meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED,
             //        scan_SUBMIT, scan_next, scan_PRIORITY, status, notify, authorized, author_uname ) VALUES ( '$sname',
             //        '$username', $fk_name, '$jobType', '$schedule_type', '$target_list', $I3crID, '$sid', '$custadd_type', $plugs_list,
@@ -2242,8 +2248,8 @@ EOT;*/
               <?
               }?>
               <input type="hidden" name="hosts_alive" value="<?=$hosts_alive?>"/>
-              <input type="hidden" name="scan_locally" value="<?=$scan_locally?>"/>
-              
+              <input type="hidden" name="scan_locally" value="<?=$scan_locally?>"/> 
+              <input type="hidden" name="semail" value="<?=$semail?>"/>
         <?
         echo "<input type=\"submit\" value=\""._("Back")."\" class=\"btn\"/> &nbsp; ";
         echo "<input value=\""._("Continue")."\" class=\"btn\" type=\"button\" onclick=\"document.location.href='manage_jobs.php?hmenu=Vulnerabilities&smenu=Jobs'\"></form>";
@@ -2501,7 +2507,7 @@ switch($disp) {
         $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list,
         $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
         $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
-        $is_enabled, $hosts_alive, $scan_locally, $nthweekday);
+        $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail);
     }
    break;
 
