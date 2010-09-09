@@ -37,11 +37,13 @@
 require_once ('classes/Security.inc');
 require_once ('ossim_db.inc');
 require_once ('classes/Alarm.inc');
+require_once ('classes/Tags.inc');
 /* connect to db */
 $db = new ossim_db();
 $conn = $db->connect();
 $param_unique_id = POST('unique_id');
 $only_close = POST('only_close');
+$move_tag = POST('move_tag');
 $order = POST('order');
 $query = POST('query');
 $norefresh = POST('norefresh');
@@ -57,6 +59,7 @@ $hide_closed = POST('hide_closed');
 $sensor_query = POST('sensor_query');
 $background = (POST('background') != "") ? 1 : 0;
 ossim_valid($only_close, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_close"));
+ossim_valid($move_tag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("move_tag"));
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, '.', 'illegal:' . _("order"));
 ossim_valid($query, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("query"));
 ossim_valid($norefresh, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("norefresh"));
@@ -79,7 +82,8 @@ if (check_uniqueid($prev_unique_id,$param_unique_id)) {
 foreach($_POST as $key => $value) {
     if (preg_match("/check_(\d+)_(\d+)/", $key, $found)) {
         if ($only_close) Alarm::close($conn, $found[2]);
-		else Alarm::delete_from_backlog($conn, $found[1], $found[2]);
+		elseif ($move_tag) Tags::set_alarm_tag($conn,$found[1],$move_tag);
+        else Alarm::delete_from_backlog($conn, $found[1], $found[2]);
         //echo "<tr><td class='nobborder'>Alarm deleted: <font color='red'><b>" . $found[1] . "-" . $found[2] . "</b></font></td></tr>";
     }
 }

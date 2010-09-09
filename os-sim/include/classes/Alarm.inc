@@ -100,7 +100,8 @@ class Alarm {
     var $rule_level;
     var $alarm;
     var $sid_name;
-    function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $rule_level = "", $alarm = 1) {
+    var $id_tag;
+    function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $rule_level = "", $alarm = 1, $id_tag="") {
         $this->event_id = intval($event_id);
         $this->backlog_id = intval($backlog_id);
         $this->timestamp = $timestamp;
@@ -119,6 +120,7 @@ class Alarm {
         $this->rule_level = intval($rule_level);
         $this->alarm = $alarm;
         $this->sid_name = $sid_name;
+        $this->id_tag = $id_tag;
         if (is_array($sensors)) $this->sensors = $sensors;
         else $this->sensors = array(
             $sensors
@@ -192,6 +194,9 @@ class Alarm {
     }
     function get_sid_name() {
         return $this->sid_name;
+    }
+	function get_id_tag() {
+        return $this->id_tag;
     }
     /* used by statusbar */
     function get_count($conn, $src_ip = "", $dst_ip = "", $hide_closed = 1) {
@@ -465,11 +470,13 @@ class Alarm {
 			$sql_where .= $sensor_str;
 		} else $sensor_join = "";
 		
+		$tag_left_join = " LEFT JOIN alarm_tags on alarm_tags.id_alarm=a.backlog_id";
+		
 		// ... ", a.timestamp + 0 AS timestamp" what is this?
         $sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, 
                   inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip)
-                FROM alarm a,plugin_sid p$sensor_join$directive_join $sql_where $order $limit";
-        //echo "SQL1: ".$sql."<br>";
+                FROM alarm a$tag_left_join,plugin_sid p$sensor_join$directive_join$tag_join $sql_where $order $limit";
+        echo "SQL1: ".$sql."<br>";
         //exit;
 		// Sensor order exception:
 		if ($order == "ORDER BY sensor") {
@@ -500,7 +507,7 @@ class Alarm {
             if ((Session::hostAllowed($conn, $rs->fields["inet_ntoa(src_ip)"])) or (Session::hostAllowed($conn, $rs->fields["inet_ntoa(dst_ip)"])) or ($sensor_allowed)) {
                 $rs->fields["src_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["src_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["src_port"]] : $rs->fields["src_port"];
                 $rs->fields["dst_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] : $rs->fields["dst_port"];
-				$list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(a.src_ip)"], $rs->fields["inet_ntoa(a.dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], "", 1);
+				$list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(a.src_ip)"], $rs->fields["inet_ntoa(a.dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], "", 1, $rs->fields["id_tag"]);
             }
             $rs->MoveNext();
         }
@@ -612,7 +619,7 @@ class Alarm {
                     ((Session::hostAllowed($conn, $db_src)) or (Session::hostAllowed($conn, $db_dst)))) {
                         $inf++;
                         $maxrisk = ($rs->fields["risk_c"] > $rs->fields["risk_a"]) ? $rs->fields["risk_c"] : $rs->fields["risk_a"];
-                        $list[] = new Alarm($event_id, $array_backlog_id, $rs->fields["timestamp"], $array_since, $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(src_ip)"], $rs->fields["inet_ntoa(dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $array_sensor, $rs->fields["snort_sid"], $rs->fields["snort_cid"], "", 1);
+                        $list[] = new Alarm($event_id, $array_backlog_id, $rs->fields["timestamp"], $array_since, $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(src_ip)"], $rs->fields["inet_ntoa(dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $array_sensor, $rs->fields["snort_sid"], $rs->fields["snort_cid"], "", "", 1);
                     }
                 }
                 //                    $rs->MoveNext();

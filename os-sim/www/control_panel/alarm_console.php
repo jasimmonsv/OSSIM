@@ -188,6 +188,13 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 			}
 		});
 	}
+
+	function set_hand_cursor() {
+		document.body.style.cursor = 'pointer';
+	  }
+	  function set_pointer_cursor() {
+		document.body.style.cursor = 'default';
+	  }
   </script>
 
 </head>
@@ -206,6 +213,7 @@ require_once ('classes/Plugin_sid.inc');
 require_once ('classes/Port.inc');
 require_once ('classes/Sensor.inc');
 require_once ('classes/Util.inc');
+require_once ('classes/Tags.inc');
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 /* default number of events per page */
@@ -237,6 +245,10 @@ $_nets_ips = $_host_ips = $_host = array();
 foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
 $networks = implode(",",$_nets_ips);
 $hosts_ips = array_keys($hosts);
+
+$tags = Tags::get_list($conn);
+$tags_html = Tags::get_list_html($conn);
+
 // By default only show alarms from the past week
 /*
 // DK 2007/04/02
@@ -278,6 +290,7 @@ if (!empty($delete)) {
 	else die(ossim_error("Can't do this action for security reasons..."));
 }
 if (!empty($close)) {
+	print_r($close);exit;
 	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::close($conn, $close);
 	else die(ossim_error("Can't do this action for security reasons..."));
 }
@@ -410,6 +423,22 @@ if (!isset($_GET["hide_search"])) {
 				<div id="divadvanced" style="display:none"><a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?purge=1&unique_id=<?=$unique_id?>"><?php
     echo gettext("Remove events without an associated alarm"); ?></a></div>
+    			<br><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Move to tag") ?></a> 
+				   <div style="position:relative"> 
+						<div id="tags" style="position:absolute;right:0;top:0;display:none">
+						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+							<?php if (count($tags) < 1) { ?>
+							<tr><td><?php echo _("No tags found.") ?></td></tr>
+							<?php } else { ?>
+							<? foreach ($tags as $tag) { ?>
+							<tr>
+								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tag->get_id() ?>';document.fchecks.submit();" style="border:1px solid #888888;background-color:<?php echo '#'.$tag->get_bgcolor()?>;color:<?php echo '#'.$tag->get_fgcolor()?>;font-weight:<?php echo ($tag->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tag->get_italic()) ? "italic" : "none" ?>"><?php echo $tag->get_name()?></td></tr></table></td>
+							</tr>
+							<?php } ?>
+							<?php } ?>
+						</table>
+						</div>
+					</div>
 			</td></tr>
 		</table>
 	</td>
@@ -460,7 +489,30 @@ if (!isset($_GET["hide_search"])) {
 			<table class="transparent" width="100%">
 				<tr>
 					<td width="200" class="nobborder">
-						&nbsp;
+						<table class="transparent">
+							<?php if (count($tags) < 1) { ?>
+							<tr><td><?php echo _("No tags found.") ?> <a href="tags_edit.php"><?php echo _("Click here to create") ?></a></td></tr>
+							<?php } else { ?>
+							<tr><td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by tag") ?></a></td></tr>
+							<tr>
+								<td class="nobborder">
+									<div style="position:relative">
+									<div id="tags_filter" style="display:none;border:0px;position:absolute">
+									<table>
+									<? foreach ($tags as $tag) { ?>
+									<tr>
+										<td class="nobborder">
+											<table class="transparent" cellpadding="2"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="filter_by_tag(<?php echo $tag->get_id() ?>);" style="border:1px solid #888888;background-color:<?php echo '#'.$tag->get_bgcolor()?>;color:<?php echo '#'.$tag->get_fgcolor()?>;font-weight:<?php echo ($tag->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tag->get_italic()) ? "italic" : "none" ?>"><?php echo $tag->get_name()?></td></tr></table>
+										</td>
+									</tr>
+									<?php } ?>
+									</table>
+									</div>
+									</div>
+								</td>
+							</tr>
+							<?php } ?>
+						</table>
 					</td>
 					<td class="nobborder center">
 <?php
@@ -591,6 +643,7 @@ echo gettext("Action"); ?> </td>
 	  <form name="fchecks" action="alarms_check_delete.php" method="post">
 	  <input type="hidden" name="hide_closed" value="<?=$hide_closed?>">
 	  <input type="hidden" name="only_close" value="">
+	  <input type="hidden" name="move_tag" value="">
 	  <input type="hidden" name="unique_id" value="<?=$unique_id?>">
 	  <input type="hidden" name="date_from" value="<?php echo $date_from ?>">
 	  <input type="hidden" name="date_to" value="<?php echo $date_to ?>">
@@ -616,6 +669,7 @@ if ($count > 0) {
         $id = $alarm->get_plugin_id();
         $sid = $alarm->get_plugin_sid();
         $backlog_id = $alarm->get_backlog_id();
+        $id_tag = $alarm->get_id_tag();
         /* get plugin_id and plugin_sid names */
         /*
         * never used ?
@@ -670,26 +724,25 @@ if ($count > 0) {
            <img align='absmiddle' src='../pixmaps/plus-small-gray.png' border='0'><font style="color:gray"><?php echo ++$inf ?></font>
            <? } ?>
         </td>
-        <td class="nobborder" style="padding-left:20px"><b>
-<?php
+        <td class="nobborder" style="padding-left:20px">
+        <?php
         $alarm_name = ereg_replace("directive_event: ", "", $sid_name);
         $alarm_name = Util::translate_alarm($conn, $alarm_name, $alarm);
         $alarm_name_orig = $alarm_name;
         if ($backlog_id && $id==1505) {
             $events_link = "events.php?backlog_id=$backlog_id";
-            $alarm_name = "
-                <a href=\"\"  onclick=\"show_alarm('" . $backlog_id . "','" . ($inf) . "');return false;\">
-                  $alarm_name
-                </a>
-                ";
+            $alarm_name = "<a href=\"\"  onclick=\"show_alarm('" . $backlog_id . "','" . ($inf) . "');return false;\">$alarm_name</a>";
         } else {
             $events_link = $_SERVER["SCRIPT_NAME"];
             /*$alarm_link = Util::get_acid_pair_link($date, $alarm->get_src_ip() , $alarm->get_dst_ip());*/
             $alarm_link = Util::get_acid_single_event_link ($alarm->get_snort_sid(), $alarm->get_snort_cid());
             $alarm_name = "<a href=\"" . $alarm_link . "\">$alarm_name</a>";
         }
-        echo $alarm_name;
-
+        ?>
+        <table class="transparent"><tr>
+        <?php if ($tags_html[$id_tag] != "") { ?><td class="nobborder"><?php echo $tags_html[$id_tag]; ?></td><?php } ?>
+        <td class="nobborder"><b><?php echo $alarm_name; ?></b>
+		<?php
         if ($backlog_id && $id==1505) {
             $aid = $alarm->get_event_id();
             #$summary = Alarm::get_total_events($conn, $backlog_id);
@@ -700,7 +753,9 @@ if ($count > 0) {
         }
         echo "<br><font color=\"#AAAAAA\" style=\"font-size: 8px;\">(" . $event_count_label . ")</font>";
 ?>
-        </b></td>
+        </td>
+        </tr></table>
+        </td>
         
         <!-- risk -->
 <?php
