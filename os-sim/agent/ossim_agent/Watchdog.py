@@ -77,32 +77,42 @@ class Watchdog(threading.Thread):
 
 
     # find the process ID of a running program
-    def pidof(program):
+    def pidof(program, program_aux=""):
 
-        cmd = "ps aux | grep %s | grep -v grep | awk '{print $2}'" % program
+        cmd = "pidof %s" % program
         process = os.popen(cmd)
-        data = process.read()
+        data = process.read().strip()
         status = process.close()
 
-        if status is not None:
-            logger.debug("%s failed with exit code %d" % (cmd, status))
-            return None
+        if status is not None or data == "":
+            if program_aux != "":
+                cmd = "ps aux | grep %s | grep -v grep | awk '{print $2}'" % program_aux
+                process = os.popen(cmd)
+                data = process.read().strip()
+                status = process.close()
 
-        if data == '':
-            return None
+                if status is not None:
+                    return None
+
+                if data == "":
+                    logger.debug(cmd)
+                    return None
         
-        else:
-            return data.split("\n")[0]
+            else:
+                return None
+
+        return data.split("\n")[0]
 
     pidof = staticmethod(pidof)
 
 
     def start_process(plugin, notify=True):
 
-        id      = plugin.get("config", "plugin_id")
-        process = plugin.get("config", "process")
-        name    = plugin.get("config", "name")
-        command = plugin.get("config", "startup")
+        id          = plugin.get("config", "plugin_id")
+        process     = plugin.get("config", "process")
+        process_aux = plugin.get("config", "process_aux")
+        name        = plugin.get("config", "name")
+        command     = plugin.get("config", "startup")
 
         # start service
         if command:
@@ -128,7 +138,7 @@ class Watchdog(threading.Thread):
                 logger.debug("plugin (%s) has an unknown state" % (name))
                 Output.plugin_state(Watchdog.PLUGIN_UNKNOWN_STATE_MSG % (id))
 
-            elif Watchdog.pidof(process) is not None:
+            elif Watchdog.pidof(process, process_aux) is not None:
                 logger.info(WATCHDOG_PROCESS_STARTED % (process, id))
                 Output.plugin_state(Watchdog.PLUGIN_START_STATE_MSG % (id))
 
@@ -140,10 +150,11 @@ class Watchdog(threading.Thread):
 
     def stop_process(plugin, notify=True):
 
-        id      = plugin.get("config", "plugin_id")
-        process = plugin.get("config", "process")
-        name    = plugin.get("config", "name")
-        command = plugin.get("config", "shutdown")
+        id          = plugin.get("config", "plugin_id")
+        process     = plugin.get("config", "process")
+        process_aux = plugin.get("config", "process_aux")
+        name        = plugin.get("config", "name")
+        command     = plugin.get("config", "shutdown")
 
         # stop service
         if command:
@@ -158,7 +169,7 @@ class Watchdog(threading.Thread):
                 logger.debug("plugin (%s) has an unknown state" % (name))
                 Output.plugin_state(Watchdog.PLUGIN_UNKNOWN_STATE_MSG % (id))
 
-            elif Watchdog.pidof(process) is None:
+            elif Watchdog.pidof(process, process_aux) is None:
                 logger.info(WATCHDOG_PROCESS_STOPPED % (process, id))
                 Output.plugin_state(Watchdog.PLUGIN_STOP_STATE_MSG % (id))
 
@@ -244,9 +255,10 @@ class Watchdog(threading.Thread):
 
             for plugin in self.plugins:
 
-                id      = plugin.get("config", "plugin_id")
-                process = plugin.get("config", "process")
-                name    = plugin.get("config", "name")
+                id          = plugin.get("config", "plugin_id")
+                process     = plugin.get("config", "process")
+                process_aux = plugin.get("config", "process_aux")
+                name        = plugin.get("config", "name")
 
                 logger.debug("Checking process %s for plugin %s." \
                     % (process, name))
@@ -257,7 +269,7 @@ class Watchdog(threading.Thread):
                     Output.plugin_state(self.PLUGIN_UNKNOWN_STATE_MSG % (id))
 
                 # 2) process is running
-                elif self.pidof(process) is not None:
+                elif self.pidof(process, process_aux) is not None:
                     logger.debug("plugin (%s) is running" % (name))
                     Output.plugin_state(self.PLUGIN_START_STATE_MSG % (id))
 
@@ -275,7 +287,7 @@ class Watchdog(threading.Thread):
                        plugin.getboolean("config", "enable"):
                         self.start_process(plugin)
 
-                        if self.pidof(process) is not None and not first_run:
+                        if self.pidof(process, process_aux) is not None and not first_run:
                             Stats.watchdog_restart(process)
 
                 # send plugin enable/disable state
