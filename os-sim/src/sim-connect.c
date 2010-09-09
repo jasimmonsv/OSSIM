@@ -230,8 +230,9 @@ sim_connect_send_alarm(gpointer data)
 
 //signals actually not used
 //  old_action=signal(SIGPIPE, pipe_handler);
-
+	sim_util_block_signal (SIGPIPE);
   error = gnet_io_channel_writen (iochannel, buffer, n, &n);
+	sim_util_unblock_signal (SIGPIPE);
 
 
   //error = gnet_io_channel_readn (iochannel, buffer, n, &n);
@@ -242,19 +243,23 @@ sim_connect_send_alarm(gpointer data)
     //back to the queue so we dont loose the action/response
     sim_container_push_ar_event (ossim.container, event);
     g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_connect_send_alarm: message could not be sent.. reseting"); 
+/*
     if(buffer)
 	    g_free (buffer);
 
     g_free (aux);
+
+*/
     gnet_tcp_socket_delete (socket);
     iochannel=NULL;
   }else
     g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_connect_send_alarm: message sent succesfully: %s", buffer);
 
   //Cose conn
-
-  g_free (buffer);
-  g_free (aux);
+	if (buffer)
+	  g_free (buffer);
+	if (aux)
+	  g_free (aux);
 
   buffer=NULL;
   aux=NULL;
