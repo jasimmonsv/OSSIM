@@ -127,6 +127,10 @@ install: build
 	install -d $(TMP)/ossim-utils/usr/share/ossim/scripts/vulnmeter/tmp/
 	install -m755 scripts/vulnmeter/*.pl $(TMP)/ossim-utils/usr/share/ossim/scripts/vulnmeter/
 	install -m755 scripts/vulnmeter/*.php $(TMP)/ossim-utils/usr/share/ossim/scripts/vulnmeter/
+	install -d $(TMP)/ossim-utils/usr/share/ossim/scripts/report/
+	install -d $(TMP)/ossim-utils/usr/share/ossim/scripts/incidents/
+	install -m755 scripts/report/*.php $(TMP)/ossim-utils/usr/share/ossim/scripts/report/
+	install -m755 scripts/incidents/*.php $(TMP)/ossim-utils/usr/share/ossim/scripts/incidents/
 	install -m644 scripts/*.ossim $(TMP)/ossim-utils/usr/share/ossim/scripts/
 	install -m755 scripts/*.sh $(TMP)/ossim-utils/usr/share/ossim/scripts/
 	install -m755 scripts/*.php $(TMP)/ossim-utils/usr/share/ossim/scripts/
