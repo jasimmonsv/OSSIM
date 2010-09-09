@@ -115,7 +115,7 @@ if (!$order_by) {
     $order_mode = 'ASC';
 }
 $criteria['status'] = "Open";
-$incident_list = Incident::search($conn, $criteria, $order_by, $order_mode);
+$incident_list = Incident::search($conn, $criteria, $order_by, $order_mode, 1, 999);
 $unresolved_incidents = count($incident_list);
 $incident_list = Incident::get_list($conn, "ORDER BY date DESC");
 $incident_date1 = ($incident_list[0]) ? $incident_list[0]->get_date() : 0;
