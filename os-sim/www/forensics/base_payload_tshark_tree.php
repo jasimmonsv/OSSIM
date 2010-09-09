@@ -66,35 +66,38 @@ echo "</pre>";
 <?php
 if (file_exists($pdmlfile) && filesize($pdmlfile) > 0) {
     $i = 1;
-    $xml = simplexml_load_file($pdmlfile);
-    foreach($xml->packet->proto as $key => $xml_entry) {
-        $atr_tit = $xml_entry->attributes();
-        if ($atr_tit['name'] != "eth") {
-            if ($atr_tit['name'] == "geninfo") $img = "information.png";
-            elseif ($atr_tit['name'] == "tcp" || $atr_tit['name'] == "udp") $img = "proto.png";
-            elseif ($atr_tit['name'] == "ip") $img = "flow_chart.png";
-            elseif ($atr_tit['name'] == "frame") $img = "wrench.png";
-            elseif ($atr_tit['name'] == "eth") $img = "eth.png";
-            else $img = "host_os.png";
-            echo "<li id=\"key1.$i\"  data=\"isFolder:true, icon:'../../images/$img'\"><b>" . strtoupper($atr_tit['name']) . "</b>\n<ul>\n";
-            $j = 1;
-            foreach($xml_entry as $key2 => $xml_entry2) {
-                $k = 1;
-                $atr = $xml_entry2->attributes();
-                $showname = ($atr_tit['name'] == "geninfo") ? $atr['showname'] . ": <b>" . $atr['show'] . "</b>" : preg_replace("/(.*?):(.*)/", "\\1: <b>\\2</b>", $atr['showname']);
-                echo "<li id=\"key1.$i.$j\" data=\"isFolder:true, icon:'../../images/host.png'\">" . $showname . "\n";
-                echo "<ul>";
-                foreach($atr as $key3 => $value) {
-                    if ($key3 == "showname") continue;
-                    echo "<li id=\"key1.$i.$j.$k\" data=\"isFolder:false, icon:'../../images/host.png'\">" . $key3 . ": <b>" . $value . "</b>\n";
-                    $k++;
-                }
-                echo "</ul>\n";
-                $j++;
-            }
-            echo "</ul>\n";
-            $i++;
-        }
+    if ($xml = @simplexml_load_file($pdmlfile)) {
+	    foreach($xml->packet->proto as $key => $xml_entry) {
+	        $atr_tit = $xml_entry->attributes();
+	        if ($atr_tit['name'] != "eth") {
+	            if ($atr_tit['name'] == "geninfo") $img = "information.png";
+	            elseif ($atr_tit['name'] == "tcp" || $atr_tit['name'] == "udp") $img = "proto.png";
+	            elseif ($atr_tit['name'] == "ip") $img = "flow_chart.png";
+	            elseif ($atr_tit['name'] == "frame") $img = "wrench.png";
+	            elseif ($atr_tit['name'] == "eth") $img = "eth.png";
+	            else $img = "host_os.png";
+	            echo "<li id=\"key1.$i\"  data=\"isFolder:true, icon:'../../images/$img'\"><b>" . strtoupper($atr_tit['name']) . "</b>\n<ul>\n";
+	            $j = 1;
+	            foreach($xml_entry as $key2 => $xml_entry2) {
+	                $k = 1;
+	                $atr = $xml_entry2->attributes();
+	                $showname = ($atr_tit['name'] == "geninfo") ? $atr['showname'] . ": <b>" . $atr['show'] . "</b>" : preg_replace("/(.*?):(.*)/", "\\1: <b>\\2</b>", $atr['showname']);
+	                echo "<li id=\"key1.$i.$j\" data=\"isFolder:true, icon:'../../images/host.png'\">" . $showname . "\n";
+	                echo "<ul>";
+	                foreach($atr as $key3 => $value) {
+	                    if ($key3 == "showname") continue;
+	                    echo "<li id=\"key1.$i.$j.$k\" data=\"isFolder:false, icon:'../../images/host.png'\">" . $key3 . ": <b>" . $value . "</b>\n";
+	                    $k++;
+	                }
+	                echo "</ul>\n";
+	                $j++;
+	            }
+	            echo "</ul>\n";
+	            $i++;
+	        }
+	    }
+    } else {
+      echo "<li id=\"key1\"  data=\"isFolder:false, icon:'../../images/information.png'\"><b>" . _("Error in pcap format!") . "</b>\n";
     }
     echo "</ul>";
 }
