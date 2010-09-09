@@ -42,7 +42,8 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include <stdlib.h>
 #include <limits.h>
 #include <regex.h>
-
+#include <signal.h>
+#include <errno.h>
 #include "sim-inet.h"
 #include "sim-util.h"
 
@@ -1263,6 +1264,43 @@ sim_normalize_host_mac (gchar *old_mac)
 
   g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_normalize_host_mac good mac: %s", good_mac);
   return good_mac;
+}
+
+gboolean
+sim_util_block_signal(int sig){
+	sigset_t sigmask;
+	sigaddset(&sigmask,sig);
+	gboolean result = TRUE;
+	if (pthread_sigmask(SIG_BLOCK,&sigmask,NULL)){
+		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "%s: Error blocking signal",__FUNCTION__);
+		result = FALSE;
+	}
+	return result;
+}
+gboolean
+sim_util_unblock_signal(int sig){
+	sigset_t sigmask;
+	sigaddset(&sigmask,sig);
+	gboolean result = TRUE;
+	/* Consume any pending SIGNAL*/
+	sigset_t pending;
+	sigpending(&pending);
+	if (sigismember(&pending,sig)){
+		struct timespec nowait = {0,0};
+		int res;
+		do{
+			res = sigtimedwait(&sigmask,NULL,&nowait);
+		}while (res == -1 && errno == EINTR);
+	}
+	if (pthread_sigmask(SIG_UNBLOCK,&sigmask,NULL)){
+		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "%s: Error unblocking signal",__FUNCTION__);
+		result = FALSE;
+	}
+	return result;
+}
+gboolean
+sim_util_wait_for_signal(int sig){
+	
 }
 
 // vim: set tabstop=2 sts=2 noexpandtab:

@@ -30,7 +30,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 
 #include <gnet.h>
 #include <string.h>
-
+#include <signal.h>
 #include "sim-config.h"	//server role.
 #include "os-sim.h"
 #include "sim-session.h"
@@ -3933,8 +3933,9 @@ sim_session_write (SimSession  *session,
   // cipher
 
   g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_session_write: %s", str);
-
+	sim_util_block_signal(SIGPIPE);
   error = gnet_io_channel_writen (session->_priv->io, str, strlen(str), &n);
+	sim_util_unblock_signal(SIGPIPE);
 
   g_free (str);
 
@@ -3961,8 +3962,9 @@ sim_session_write_from_buffer (SimSession	*session,
   g_return_val_if_fail (session != NULL, 0);
   g_return_val_if_fail (SIM_IS_SESSION (session), 0);
   g_return_val_if_fail (session->_priv->io != NULL, 0);
-			
+	sim_util_block_signal (SIGPIPE);	
   error = gnet_io_channel_writen (session->_priv->io, buffer, strlen (buffer), &n);
+	sim_util_unblock_signal (SIGPIPE); 
 		
 	if	(error != G_IO_ERROR_NONE)
   {
