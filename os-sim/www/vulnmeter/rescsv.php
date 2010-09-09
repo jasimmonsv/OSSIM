@@ -413,14 +413,16 @@ echo "<th ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."widt
              WHERE report_id='$report_id' and hostip='$hostip' and msg<>''
              order by risk ASC, result_id ASC";*/
         if($ipl=="all") {
-            $query1 = "select distinct t2.hostname, t1.service, t1.risk, t1.falsepositive, t1.msg, t1.scriptid FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
+            $query1 = "select distinct t2.hostname, t1.service, t1.risk, t1.falsepositive, t1.msg, t1.scriptid, v.name FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
+                 LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id=inet_aton('$hostip')  ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user')":"")." and t1.hostip='$hostip' and t1.msg<>'' and t1.falsepositive<>'Y'
                  order by t1.risk ASC, t1.result_id ASC";
         }
         else {
-            $query1 = "select distinct t2.hostname, t1.service, t1.risk, t1.falsepositive, t1.msg, t1.scriptid FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
+            $query1 = "select distinct t2.hostname, t1.service, t1.risk, t1.falsepositive, t1.msg, t1.scriptid, v.name FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
+                 LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE 1=1 ".(($treport!="")? "AND t1.scantime=$scantime":"").((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') ":"")." AND t1.report_id in ($report_id) and t1.hostip='$hostip' and t1.msg<>'' and t1.falsepositive<>'Y'
                  order by t1.risk ASC, t1.result_id ASC";
         }
@@ -428,7 +430,7 @@ echo "<th ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."widt
         $result1 = $dbconn->execute($query1);
         $arrResults="";
 
-          while ( list($hostname, $service, $risk, $falsepositive, $msg, $scriptid) = $result1->fields ){
+          while ( list($hostname, $service, $risk, $falsepositive, $msg, $scriptid, $pname) = $result1->fields ){
               if($hostname=="") $hostname = "unknown";
               $tmpport1=preg_split("/\(|\)/",$service);
               if (sizeof($tmpport1)==1) { $tmpport1[1]=$tmpport1[0]; }
@@ -444,7 +446,7 @@ echo "<th ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."widt
              echo "    <td style='text-align:center'>$service</td>
                        <td style='text-align:center'>$risk_txt</td>
                        <td style='text-align:center'>$scriptid</td>
-                       <td ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"").">$msg</td>";
+                       <td ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"").">$pname<br>$msg</td>";
                $result1->MoveNext();
           }
           $result->MoveNext();

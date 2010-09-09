@@ -100,6 +100,7 @@ echo gettext("Vulnmeter"); ?> </title>
    color: #303030;
    background-color: #f5f5b5;
    border: 1px solid #DECA7E;
+   width:500px;
    
    font-family: arial;
    font-size: 11px;
@@ -1193,7 +1194,8 @@ echo "<th>"._("Description")."</th>";
 echo "</tr>";
 
     if($ipl=="all"){
-        $query = "select distinct 0, service, risk, falsepositive, msg, scriptid from vuln_nessus_latest_results 
+        $query = "select distinct 0, r.service, r.risk, r.falsepositive, r.msg, r.scriptid, v.name from vuln_nessus_latest_results as r
+                LEFT JOIN vuln_nessus_plugins as v ON v.id=r.scriptid
                 WHERE hostip='$hostip' $query_byuser and msg<>''";
     }
     else if ($treport=="latest" || $ipl!=""){
@@ -1203,13 +1205,15 @@ echo "</tr>";
                 ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username='$user' " : "");*/
                 
                 
-      $query = "select distinct 0, service, risk, falsepositive, msg, scriptid from vuln_nessus_latest_results 
+      $query = "select distinct 0, r.service, r.risk, r.falsepositive, r.msg, r.scriptid, v.name from vuln_nessus_latest_results as r
+                LEFT JOIN vuln_nessus_plugins as v ON v.id=r.scriptid
                 WHERE report_id in ($report_id) and sid in ($sid) and hostip='$hostip' and msg<>''".
                 (($scantime!="" && $ipl=="")? " AND scantime=$scantime":"").
                 ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "");
     }
     else {
-              $query = "select distinct 0, t1.service, t1.risk, t1.falsepositive, t1.msg, t1.scriptid from vuln_nessus_results t1
+              $query = "select distinct 0, t1.service, t1.risk, t1.falsepositive, t1.msg, t1.scriptid, v.name from vuln_nessus_results t1
+                LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                 WHERE report_id in ($report_id) and hostip='$hostip' and msg<>''".
                 (($scantime!="" && $ipl=="")? " AND scantime=$scantime":"").
                 ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "");
@@ -1231,7 +1235,8 @@ echo "</tr>";
                   $risk, 
                   $falsepositive, 
                   $msg, 
-                  $scriptid) = $result1->fields ) {
+                  $scriptid,
+                  $pname) = $result1->fields ) {
          $tmpport1=preg_split("/\(|\)/",$service);
          if (sizeof($tmpport1)==1) { $tmpport1[1]=$tmpport1[0]; }
    #echo "$tmpport1[0] $tmpport1[1]<BR>";
@@ -1247,7 +1252,8 @@ echo "</tr>";
                               $falsepositive, 
                               $result_id, 
                               $msg, 
-                              $scriptid );
+                              $scriptid,
+                              $pname);
          $result1->MoveNext();
       }
 
@@ -1266,7 +1272,8 @@ echo "</tr>";
                $falsepositive, 
                $resid, 
                $msg, 
-               $scriptid ) = $value;
+               $scriptid,
+               $pname) = $value;
 
 // No need to do this anymore as the HTML entities are converted when
 // importing the results
@@ -1316,7 +1323,9 @@ echo "</tr>";
 
          $tmprisk = getrisk($risk);
 
-         $msg = str_replace("\\r", "", $msg);
+         $msg = preg_replace("/^\<br\>/i","",str_replace("\\r", "", $msg));
+         $msg = preg_replace("/(Solution|Overview|Synopsis|Description|See also|Plugin output|References|Vulnerability Insight|Impact|Impact Level|Affected Software\/OS|Fix|Information about this scan)\s*:/","<b>\\1:</b>",$msg);
+ 
          // output the table cells
          $ancla = $hostip."_".$levels[$tmprisk];
 
@@ -1329,7 +1338,8 @@ echo "<td>$tmprisk&nbsp;&nbsp;<img align=\"absmiddle\" src=\"".$images[$tmprisk]
          echo <<<EOT
 <td>$scriptid</td>
 <td width="70%" style="text-align:left;">
-<A class="msg" NAME="$resid"></a><a name="$ancla"></a>$msg
+<A class="msg" NAME="$resid"></a><a name="$ancla"></a>
+<p align="center" style="font-weight:bold">$pname</p>$msg
 <font size="1">
 <br><br>
 </font>

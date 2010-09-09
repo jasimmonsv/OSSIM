@@ -665,24 +665,27 @@ WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_
    //          ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC";
 
    if($ipl!="all") {
-       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.msg, t1.scriptid
+       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.msg, t1.scriptid, v.name
                  FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
+                 LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
                  ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC"; 
     }
     else {
-       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.msg, t1.scriptid
+       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.msg, t1.scriptid, v.name
                  FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
+                 LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
                  ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC"; 
     }
+    //echo $query;
    $eid = "";
    $result=$dbconn->Execute($query);
 
    //$arrResults="";
-   while( list($hostIP, $hostname, $service, $service_num, $service_proto, $app, $risk, $msg, $scriptid ) = $result->fields) {	
+   while( list($hostIP, $hostname, $service, $service_num, $service_proto, $app, $risk, $msg, $scriptid, $pname ) = $result->fields) {
       if($hostname=="") $hostname="unknown";
       $arrResults[$hostIP][]=array(
          'hostname' => $hostname, 
@@ -693,7 +696,8 @@ WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_
              'risk' => $risk,
          'scriptid' => $scriptid,
         'exception' => $eid, 
-              'msg' => preg_replace('/(<br\\s*?\/??>)+/i', "\n", $msg));
+              'msg' => preg_replace('/(<br\\s*?\/??>)+/i', "\n", $msg),
+              'pname'=> $pname);
       $result->MoveNext();
    }
 
@@ -743,12 +747,13 @@ WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_
 
       	 $risk = getrisk($risk_value);
 
-         $info = "$exception
-                    "._("Risk").": $actual_risk
-                    "._("Application").": $vuln[application]
-                    "._("Port").": $vuln[port]
-                    "._("Protocol").": $vuln[protocol]
-                    "._("ScriptID").": $vuln[scriptid]\n";
+         $info = "$exception 
+                    $vuln[pname]
+                    Risk: $actual_risk
+                    Application: $vuln[application]
+                    Port: $vuln[port]
+                    Protocol: $vuln[protocol]
+                    ScriptID: $vuln[scriptid]\n";
 
          #$info=htmlspecialchars_decode($info);
          $msg=trim($vuln['msg']);
