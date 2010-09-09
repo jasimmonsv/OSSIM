@@ -105,9 +105,13 @@ class Conf(ConfigParser):
 
     # same as ConfigParser.get() but stripping values with " and '
     def get(self, section, option):
-        value = ConfigParser.get(self, section, option)
-        value = self._strip_value(value)
-        # value = string.lower(value)
+        try:
+            value = ConfigParser.get(self, section, option)
+            value = self._strip_value(value)
+
+        except:
+            value = ""
+
         return value
 
 
