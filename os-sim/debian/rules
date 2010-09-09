@@ -140,6 +140,7 @@ install: build
 	install -d $(TMP)/ossim-utils/usr/share/ossim/scripts/sem/
 	install -m755 scripts/sem/*.sh $(TMP)/ossim-utils/usr/share/ossim/scripts/sem/
 	install -m755 scripts/sem/*.pl $(TMP)/ossim-utils/usr/share/ossim/scripts/sem/
+	install -m755 scripts/sem/*.php $(TMP)/ossim-utils/usr/share/ossim/scripts/sem/
 	install -m755 scripts/correlation/*.pl $(TMP)/ossim-utils/usr/share/ossim/scripts/correlation/
 	install -m755 scripts/extract_nessus/*.pl $(TMP)/ossim-utils/usr/share/ossim/scripts/extract_nessus/
 	install -m755 scripts/extract_osvdb/*.pl $(TMP)/ossim-utils/usr/share/ossim/scripts/extract_osvdb/
