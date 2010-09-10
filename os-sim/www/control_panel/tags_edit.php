@@ -64,13 +64,14 @@ if (GET('mode') == "insert") {
 		$id = Tags::insert($conn,$name,$bgcolor,$fgcolor,$italic,$bold);
 		$msg = _("Tag successfully created.");
 	}
-} elseif (GET('mode') == "update") {
+} elseif (GET('mode') == "update" && $id != "") {
 	if ($name == "") {
 		$msg = _("You must type a name for the tab.");
 	} else {
 		Tags::update($conn,$id,$name,$bgcolor,$fgcolor,$italic,$bold);
 		$msg = _("Tag successfully saved.");
 	}
+	$id = "";
 }
 
 if (GET('delete') != "") {
@@ -124,11 +125,12 @@ if (GET('delete') != "") {
 $tags = Tags::get_list($conn);
 if ($id != "") {
 	$aux_tag = Tags::get_list($conn,"WHERE id=$id");
-	$tag_selected = $aux_tag[0]->get_bgcolor."_".$aux_tag[1]->get_bgcolor;
-	$aux = explode("_",$tag_selected);
-	$bgcolor = "#".$aux[0];
-	$fgcolor = "#".$aux[1];
-	$tag_name = $aux_tag[0]->get_name(); 
+	$tag_selected = $aux_tag[0]->get_bgcolor()."_".$aux_tag[0]->get_fgcolor();
+	$bgcolor = "#".$aux_tag[0]->get_bgcolor();
+	$fgcolor = "#".$aux_tag[0]->get_fgcolor();
+	$tag_name = $aux_tag[0]->get_name();
+	$italic = $aux_tag[0]->get_italic();
+	$bold = $aux_tag[0]->get_bold();
 } else {
 	$tag_selected = "dee5f2_5a6986";
 	$aux = explode("_",$tag_selected);
@@ -145,8 +147,9 @@ if (count($tags) < 1) {
 			<table class="transparent">
 				<? foreach ($tags as $tag) { ?>
 				<tr>
-					<td class="nobborder"><a href="tags_edit.php?delete=<?php echo $tag->get_id() ?>" onclick="if(!confirm('<?php echo _("Are you sure?") ?>')) return false;"><img src="../pixmaps/cross-circle-frame.png" border="0" alt="<?php echo _("Delete") ?>" title="<?php echo _("Delete") ?>"></img></a></td>
-					<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tag->get_bgcolor()?>;color:<?php echo '#'.$tag->get_fgcolor()?>;font-weight:<?php echo ($tag->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tag->get_italic()) ? "italic" : "none" ?>"><?php echo $tag->get_name()?></td></tr></table></td>
+					<td class="nobborder"><a href="tags_edit.php?id=<?php echo $tag->get_id() ?>"><img src="../vulnmeter/images/pencil.png" border="0" alt="<?php echo _("Modify") ?>" title="<?php echo _("Modify") ?>"></img></a></td>
+					<td class="nobborder"><a href="tags_edit.php?delete=<?php echo $tag->get_id() ?>" onclick="if(!confirm('<?php echo _("Are you sure?") ?>')) return false;"><img src="../vulnmeter/images/delete.gif" border="0" alt="<?php echo _("Delete") ?>" title="<?php echo _("Delete") ?>"></img></a></td>
+					<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td style="font-size:10px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tag->get_bgcolor()?>;color:<?php echo '#'.$tag->get_fgcolor()?>;font-weight:<?php echo ($tag->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tag->get_italic()) ? "italic" : "none" ?>"><?php echo $tag->get_name()?></td></tr></table></td>
 				</tr>
 				<?php } ?>
 			</table>
@@ -155,6 +158,7 @@ if (count($tags) < 1) {
 <?php } ?>
 	<tr><td class="nobborder">&nbsp;</td></tr>
 	<form>
+	<input type="hidden" name="id" value="<?php echo $id ?>"></input>
 	<input type="hidden" name="mode" value="<?php echo ($id != "") ? "update" : "insert" ?>"></input>
 	<input type="hidden" id="newbgcolor" name="newbgcolor" value="<?php echo str_replace("#","",$bgcolor) ?>"></input>
 	<input type="hidden" id="newfgcolor" name="newfgcolor" value="<?php echo str_replace("#","",$fgcolor) ?>"></input>
@@ -163,15 +167,15 @@ if (count($tags) < 1) {
 			<table width="100%">
 				<tr>
 					<td class="right nobborder"><?php echo _("New tag name") ?>:</td>
-					<td class="nobborder"><input type="text" value="" id="newname" name="newname" onkeyup="change_preview()"></input></td>
+					<td class="nobborder"><input type="text" id="newname" name="newname" onkeyup="change_preview()" value="<?php echo $tag_name ?>"></input></td>
 				</tr>
 				<tr>
 					<td class="right nobborder"><?php echo _("Italic") ?>:</td>
-					<td class="nobborder"><input type="checkbox" value="1" id="newitalic" name="newitalic" onclick="change_preview()"></input></td>
+					<td class="nobborder"><input type="checkbox" value="1" id="newitalic" name="newitalic" onclick="change_preview()" <?php if ($italic) echo "checked" ?>></input></td>
 				</tr>
 				<tr>
 					<td class="right nobborder"><?php echo _("Bold") ?>:</td>
-					<td class="nobborder"><input type="checkbox" value="1" id="newbold" name="newbold" onclick="change_preview()"></input></td>
+					<td class="nobborder"><input type="checkbox" value="1" id="newbold" name="newbold" onclick="change_preview()" <?php if ($bold) echo "checked" ?>></input></td>
 				</tr>
 				<tr>
 					<td class="right nobborder"><?php echo _("Style color") ?>:</td>
@@ -213,14 +217,14 @@ if (count($tags) < 1) {
 					<td class="right nobborder" style="padding-top:20px"><?php echo _("Preview") ?>:</td>
 					<td class="left nobborder" style="padding-top:20px">
 						<table class="transparent" cellpadding="4">
-							<tr><td id="preview" style="border:0px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;font-size:10px;background-color:<?php echo $bgcolor ?>;color:<?php echo $fgcolor ?>"><?php echo $tag_name ?></td></tr>
+							<tr><td id="preview" style="border:0px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;font-size:10px;background-color:<?php echo $bgcolor ?>;color:<?php echo $fgcolor ?>;font-style:<?php echo ($italic) ? "italic" : "normal" ?>;font-weight:<?php echo ($bold) ? "bold" : "normal" ?>"><?php echo $tag_name ?></td></tr>
 						</table>
 					</td>
 				</tr>
 			</table>
 		</td>
 	</tr>
-	<tr><td class="center nobborder"><input type="submit" value="<?php echo _("Save tag")?>"></input></td></tr>
+	<tr><td class="center nobborder"><input type="submit" value="<?php echo ($id != "") ? _("Modify") : _("Create")?>"></input></td></tr>
 	</form>
 </table>
 </body>
