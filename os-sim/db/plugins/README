@@ -98,7 +98,10 @@
  |	1619 | SymantecEPM	  | detector |
  |	1620 | FortiAnalyzer	  | detector |
  |	1621 | Fortiguard	  | detector |
- |	1623 | Aruba	  | detector |
+ |	1622 | Enterasys-RMatrix  | detector | 
+ |	1623 | Aruba		  | detector |
+ |	1624 | Enterasys-NAC	  | detector |
+ |      1625 | SCOM               | detector |
  +-----------+--------------------+----------+
  |      1801 | forensics-db-1     | detector |
  +-----------+--------------------+----------+
