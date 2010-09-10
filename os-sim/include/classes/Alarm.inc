@@ -376,7 +376,7 @@ class Alarm {
         }
         return $list;
     }
-    function get_list3($conn, $src_ip, $dst_ip, $hide_closed = 1, $order, $inf = null, $sup = null, $from_date = null, $to_date = null, $query = "", $directive_id = "", $sensor = "") {
+    function get_list3($conn, $src_ip, $dst_ip, $hide_closed = 1, $order, $inf = null, $sup = null, $from_date = null, $to_date = null, $query = "", $directive_id = "", $sensor = "", $tag = "") {
         $list = array();
         $where = array();
         // Pre-Selected Ports (Granada 27 de mayo 2009)
@@ -471,12 +471,17 @@ class Alarm {
 		} else $sensor_join = "";
 		
 		$tag_left_join = " LEFT JOIN alarm_tags on alarm_tags.id_alarm=a.backlog_id";
+		if ($tag != "") {
+			$tag_left_join = "";
+			$tag_join = ",alarm_tags tg";
+			$sql_where .= " AND a.backlog_id=tg.id_alarm AND tg.id_tag=$tag";
+		}
 		
 		// ... ", a.timestamp + 0 AS timestamp" what is this?
         $sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, 
                   inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip)
                 FROM alarm a$tag_left_join,plugin_sid p$sensor_join$directive_join$tag_join $sql_where $order $limit";
-        echo "SQL1: ".$sql."<br>";
+        //echo "SQL1: ".$sql."<br>";
         //exit;
 		// Sensor order exception:
 		if ($order == "ORDER BY sensor") {
