@@ -148,7 +148,7 @@ if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { $incidents = 1
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:alarms:report','Help');"
     );
     $rmenu["Alarms"][] = array(
-          "name" => gettext("Edit Tags"),
+          "name" => gettext("Edit labels"),
           "target" => "main",
           "url" => "tags_edit.php"
         );

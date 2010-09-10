@@ -425,7 +425,7 @@ if (!isset($_GET["hide_search"])) {
 				<div id="divadvanced" style="display:none"><a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?purge=1&unique_id=<?=$unique_id?>"><?php
     echo gettext("Remove events without an associated alarm"); ?></a></div>
-    			<br><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Move to tag") ?></a> 
+    			<br><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Move to label") ?></a> 
 				   <div style="position:relative"> 
 						<div id="tags" style="position:absolute;right:0;top:0;display:none">
 						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
@@ -501,7 +501,7 @@ if (!isset($_GET["hide_search"])) {
 							</tr>
 							<?php } else { ?>
 							<tr>
-								<td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by tag") ?></a></td>
+								<td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by label") ?></a></td>
 								<td class="nobborder" nowrap>
 								<?php if ($tag != "") { ?>
 								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=">Remove filter</a></td></tr></table>

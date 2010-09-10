@@ -117,7 +117,7 @@ if (GET('delete') != "") {
 <body>
 <?php include ("../hmenu.php"); ?>
 <table class="transparent" align="center">
-	<tr><th style="padding:3px"><?php echo _("Tags for alarms") ?></th></tr>
+	<tr><th style="padding:3px"><?php echo _("Alarms labels") ?></th></tr>
 	<?php if ($msg != "") { ?>
 	<tr><td class="nobborder"><?php echo $msg ?></td></tr>
 	<?php } ?>
@@ -137,10 +137,12 @@ if ($id != "") {
 	$bgcolor = "#".$aux[0];
 	$fgcolor = "#".$aux[1];
 	$tag_name = "";
+	$italic = "";
+	$bold = "";
 }
 if (count($tags) < 1) {
 ?>
-	<tr><td class="center nobborder"><?php echo _("No tags created") ?>.</td></tr>
+	<tr><td class="center nobborder"><?php echo _("No labels created") ?>.</td></tr>
 <?php } else { ?>
 	<tr>
 		<td class="nobborder">
@@ -166,7 +168,7 @@ if (count($tags) < 1) {
 		<td class="nobborder">
 			<table width="100%">
 				<tr>
-					<td class="right nobborder"><?php echo _("New tag name") ?>:</td>
+					<td class="right nobborder"><?php echo _("New label name") ?>:</td>
 					<td class="nobborder"><input type="text" id="newname" name="newname" onkeyup="change_preview()" value="<?php echo $tag_name ?>"></input></td>
 				</tr>
 				<tr>
