@@ -76,7 +76,7 @@ class Tags {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-                $list[] = new Tags($rs->fields["id"], $rs->fields["name"], $rs->fields["bgcolor"], $rs->fields["fgcolor"], $rs->fields["italic"], $version, $rs->fields["bold"]);
+                $list[] = new Tags($rs->fields["id"], $rs->fields["name"], $rs->fields["bgcolor"], $rs->fields["fgcolor"], $rs->fields["italic"], $rs->fields["bold"]);
                 $rs->MoveNext();
             }
         }
@@ -89,7 +89,7 @@ class Tags {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-                $list[$rs->fields["id"]] = '<table class="transparent" cellpadding="2"><tr><td style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:1px solid #888888;background-color:#'.$rs->fields["bgcolor"].';color:#'.$rs->fields["fgcolor"].';font-weight:'.(($rs->fields["bold"]) ? "bold" : "normal").';text-decoration:'.(($rs->fields["italic"]) ? "italic" : "none").'" nowrap>'.$rs->fields["name"].'</td></tr></table>';
+                $list[$rs->fields["id"]] = '<table class="transparent" cellpadding="4"><tr><td style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#'.$rs->fields["bgcolor"].';color:#'.$rs->fields["fgcolor"].';font-weight:'.(($rs->fields["bold"]) ? "bold" : "normal").';font-style:'.(($rs->fields["italic"]) ? "italic" : "none").'" nowrap>'.$rs->fields["name"].'</td></tr></table>';
                 $rs->MoveNext();
             }
         }

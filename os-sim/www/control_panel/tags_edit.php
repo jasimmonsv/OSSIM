@@ -100,14 +100,16 @@ if (GET('delete') != "") {
 	$('#preview').css('background-color','#'+aux[0]);
 	$('#preview').css('color','#'+aux[1]);
 	var text = $('#newname').val();
-	if (text == "") text = 'a';
 	$('#preview').html(text);
   }
   function change_preview() {
 	  var text = $('#newname').val();
-	  if (text == "") text = 'a';
-	  $('.preset').html(text);
+	  //$('.preset').html(text);
 	  $('#preview').html(text);
+	  if ($('#newitalic').attr('checked')) $('#preview').css('font-style','italic');
+	  else $('#preview').css('font-style','normal');
+	  if ($('#newbold').attr('checked')) $('#preview').css('font-weight','bold');
+	  else $('#preview').css('font-weight','normal');
   }
   </script>
 </head>
@@ -132,7 +134,7 @@ if ($id != "") {
 	$aux = explode("_",$tag_selected);
 	$bgcolor = "#".$aux[0];
 	$fgcolor = "#".$aux[1];
-	$tag_name = "a";
+	$tag_name = "";
 }
 if (count($tags) < 1) {
 ?>
@@ -144,7 +146,7 @@ if (count($tags) < 1) {
 				<? foreach ($tags as $tag) { ?>
 				<tr>
 					<td class="nobborder"><a href="tags_edit.php?delete=<?php echo $tag->get_id() ?>" onclick="if(!confirm('<?php echo _("Are you sure?") ?>')) return false;"><img src="../pixmaps/cross-circle-frame.png" border="0" alt="<?php echo _("Delete") ?>" title="<?php echo _("Delete") ?>"></img></a></td>
-					<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:1px solid #888888;background-color:<?php echo '#'.$tag->get_bgcolor()?>;color:<?php echo '#'.$tag->get_fgcolor()?>;font-weight:<?php echo ($tag->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tag->get_italic()) ? "italic" : "none" ?>"><?php echo $tag->get_name()?></td></tr></table></td>
+					<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tag->get_bgcolor()?>;color:<?php echo '#'.$tag->get_fgcolor()?>;font-weight:<?php echo ($tag->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tag->get_italic()) ? "italic" : "none" ?>"><?php echo $tag->get_name()?></td></tr></table></td>
 				</tr>
 				<?php } ?>
 			</table>
@@ -164,37 +166,45 @@ if (count($tags) < 1) {
 					<td class="nobborder"><input type="text" value="" id="newname" name="newname" onkeyup="change_preview()"></input></td>
 				</tr>
 				<tr>
+					<td class="right nobborder"><?php echo _("Italic") ?>:</td>
+					<td class="nobborder"><input type="checkbox" value="1" id="newitalic" name="newitalic" onclick="change_preview()"></input></td>
+				</tr>
+				<tr>
+					<td class="right nobborder"><?php echo _("Bold") ?>:</td>
+					<td class="nobborder"><input type="checkbox" value="1" id="newbold" name="newbold" onclick="change_preview()"></input></td>
+				</tr>
+				<tr>
 					<td class="right nobborder"><?php echo _("Style color") ?>:</td>
 					<td class="nobborder">
 						<table class="transparent" cellspacing="4" cellpadding="2">
 							<tr>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="dee5f2_5a6986" style="font-size:10px;border:1px solid #888888;background-color:#dee5f2;color:#5a6986;text-decoration:<?php echo ($tag_selected == "dee5f2_5a6986") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="e0ecff_206cff" style="font-size:10px;border:1px solid #888888;background-color:#e0ecff;color:#206cff;text-decoration:<?php echo ($tag_selected == "e0ecff_206cff") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="dfe2ff_0000cc" style="font-size:10px;border:1px solid #888888;background-color:#dfe2ff;color:#0000cc;text-decoration:<?php echo ($tag_selected == "dfe2ff_0000cc") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="e0d5f9_5229a3" style="font-size:10px;border:1px solid #888888;background-color:#e0d5f9;color:#5229a3;text-decoration:<?php echo ($tag_selected == "e0d5f9_5229a3") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="fde9f4_854f61" style="font-size:10px;border:1px solid #888888;background-color:#fde9f4;color:#854f61;text-decoration:<?php echo ($tag_selected == "fde9f4_854f61") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="ffe3e3_cc0000" style="font-size:10px;border:1px solid #888888;background-color:#ffe3e3;color:#cc0000;text-decoration:<?php echo ($tag_selected == "ffe3e3_cc0000") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="dee5f2_5a6986" style="font-size:10px;border:1px solid #888888;background-color:#dee5f2;color:#5a6986;text-decoration:<?php echo ($tag_selected == "dee5f2_5a6986") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="e0ecff_206cff" style="font-size:10px;border:1px solid #888888;background-color:#e0ecff;color:#206cff;text-decoration:<?php echo ($tag_selected == "e0ecff_206cff") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="dfe2ff_0000cc" style="font-size:10px;border:1px solid #888888;background-color:#dfe2ff;color:#0000cc;text-decoration:<?php echo ($tag_selected == "dfe2ff_0000cc") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="e0d5f9_5229a3" style="font-size:10px;border:1px solid #888888;background-color:#e0d5f9;color:#5229a3;text-decoration:<?php echo ($tag_selected == "e0d5f9_5229a3") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="fde9f4_854f61" style="font-size:10px;border:1px solid #888888;background-color:#fde9f4;color:#854f61;text-decoration:<?php echo ($tag_selected == "fde9f4_854f61") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="ffe3e3_cc0000" style="font-size:10px;border:1px solid #888888;background-color:#ffe3e3;color:#cc0000;text-decoration:<?php echo ($tag_selected == "ffe3e3_cc0000") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
 							</tr><tr>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="5a6986_dee5f2" style="font-size:10px;border:1px solid #888888;background-color:#5a6986;color:#dee5f2;text-decoration:<?php echo ($tag_selected == "5a6986_dee5f2") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="206cff_e0ecff" style="font-size:10px;border:1px solid #888888;background-color:#206cff;color:#e0ecff;text-decoration:<?php echo ($tag_selected == "206cff_e0ecff") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="0000cc_dfe2ff" style="font-size:10px;border:1px solid #888888;background-color:#0000cc;color:#dfe2ff;text-decoration:<?php echo ($tag_selected == "0000cc_dfe2ff") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="5229a3_e0d5f9" style="font-size:10px;border:1px solid #888888;background-color:#5229a3;color:#e0d5f9;text-decoration:<?php echo ($tag_selected == "5229a3_e0d5f9") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="854f61_fde9f4" style="font-size:10px;border:1px solid #888888;background-color:#854f61;color:#fde9f4;text-decoration:<?php echo ($tag_selected == "854f61_fde9f4") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="cc0000_ffe3e3" style="font-size:10px;border:1px solid #888888;background-color:#cc0000;color:#ffe3e3;text-decoration:<?php echo ($tag_selected == "cc0000_ffe3e3") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="5a6986_dee5f2" style="font-size:10px;border:1px solid #888888;background-color:#5a6986;color:#dee5f2;text-decoration:<?php echo ($tag_selected == "5a6986_dee5f2") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="206cff_e0ecff" style="font-size:10px;border:1px solid #888888;background-color:#206cff;color:#e0ecff;text-decoration:<?php echo ($tag_selected == "206cff_e0ecff") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="0000cc_dfe2ff" style="font-size:10px;border:1px solid #888888;background-color:#0000cc;color:#dfe2ff;text-decoration:<?php echo ($tag_selected == "0000cc_dfe2ff") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="5229a3_e0d5f9" style="font-size:10px;border:1px solid #888888;background-color:#5229a3;color:#e0d5f9;text-decoration:<?php echo ($tag_selected == "5229a3_e0d5f9") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="854f61_fde9f4" style="font-size:10px;border:1px solid #888888;background-color:#854f61;color:#fde9f4;text-decoration:<?php echo ($tag_selected == "854f61_fde9f4") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="cc0000_ffe3e3" style="font-size:10px;border:1px solid #888888;background-color:#cc0000;color:#ffe3e3;text-decoration:<?php echo ($tag_selected == "cc0000_ffe3e3") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
 							</tr><tr>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="fff0e1_ec7000" style="font-size:10px;border:1px solid #888888;background-color:#fff0e1;color:#ec7000;text-decoration:<?php echo ($tag_selected == "fff0e1_ec7000") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="fadcb3_b36d00" style="font-size:10px;border:1px solid #888888;background-color:#fadcb3;color:#b36d00;text-decoration:<?php echo ($tag_selected == "fadcb3_b36d00") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="f3e7b3_ab8b00" style="font-size:10px;border:1px solid #888888;background-color:#f3e7b3;color:#ab8b00;text-decoration:<?php echo ($tag_selected == "f3e7b3_ab8b00") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="ffffd4_636330" style="font-size:10px;border:1px solid #888888;background-color:#ffffd4;color:#636330;text-decoration:<?php echo ($tag_selected == "ffffd4_636330") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="f9ffef_64992c" style="font-size:10px;border:1px solid #888888;background-color:#f9ffef;color:#64992c;text-decoration:<?php echo ($tag_selected == "f9ffef_64992c") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="f1f5ec_006633" style="font-size:10px;border:1px solid #888888;background-color:#f1f5ec;color:#006633;text-decoration:<?php echo ($tag_selected == "f1f5ec_006633") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="fff0e1_ec7000" style="font-size:10px;border:1px solid #888888;background-color:#fff0e1;color:#ec7000;text-decoration:<?php echo ($tag_selected == "fff0e1_ec7000") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="fadcb3_b36d00" style="font-size:10px;border:1px solid #888888;background-color:#fadcb3;color:#b36d00;text-decoration:<?php echo ($tag_selected == "fadcb3_b36d00") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="f3e7b3_ab8b00" style="font-size:10px;border:1px solid #888888;background-color:#f3e7b3;color:#ab8b00;text-decoration:<?php echo ($tag_selected == "f3e7b3_ab8b00") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="ffffd4_636330" style="font-size:10px;border:1px solid #888888;background-color:#ffffd4;color:#636330;text-decoration:<?php echo ($tag_selected == "ffffd4_636330") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="f9ffef_64992c" style="font-size:10px;border:1px solid #888888;background-color:#f9ffef;color:#64992c;text-decoration:<?php echo ($tag_selected == "f9ffef_64992c") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="f1f5ec_006633" style="font-size:10px;border:1px solid #888888;background-color:#f1f5ec;color:#006633;text-decoration:<?php echo ($tag_selected == "f1f5ec_006633") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
 							</tr><tr>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="ec7000_f8f4f0" style="font-size:10px;border:1px solid #888888;background-color:#ec7000;color:#f8f4f0;text-decoration:<?php echo ($tag_selected == "ec7000_f8f4f0") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="b36d00_fadcb3" style="font-size:10px;border:1px solid #888888;background-color:#b36d00;color:#fadcb3;text-decoration:<?php echo ($tag_selected == "b36d00_fadcb3") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="ab8b00_f3e7b3" style="font-size:10px;border:1px solid #888888;background-color:#ab8b00;color:#f3e7b3;text-decoration:<?php echo ($tag_selected == "ab8b00_f3e7b3") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="636330_ffffd4" style="font-size:10px;border:1px solid #888888;background-color:#636330;color:#ffffd4;text-decoration:<?php echo ($tag_selected == "636330_ffffd4") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="64992c_f9ffef" style="font-size:10px;border:1px solid #888888;background-color:#64992c;color:#f9ffef;text-decoration:<?php echo ($tag_selected == "64992c_f9ffef") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
-								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="006633_f1f5ec" style="font-size:10px;border:1px solid #888888;background-color:#006633;color:#f1f5ec;text-decoration:<?php echo ($tag_selected == "006633_f1f5ec") ? "underline" : "none" ?>"><?php echo $tag_name ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="ec7000_f8f4f0" style="font-size:10px;border:1px solid #888888;background-color:#ec7000;color:#f8f4f0;text-decoration:<?php echo ($tag_selected == "ec7000_f8f4f0") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="b36d00_fadcb3" style="font-size:10px;border:1px solid #888888;background-color:#b36d00;color:#fadcb3;text-decoration:<?php echo ($tag_selected == "b36d00_fadcb3") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="ab8b00_f3e7b3" style="font-size:10px;border:1px solid #888888;background-color:#ab8b00;color:#f3e7b3;text-decoration:<?php echo ($tag_selected == "ab8b00_f3e7b3") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="636330_ffffd4" style="font-size:10px;border:1px solid #888888;background-color:#636330;color:#ffffd4;text-decoration:<?php echo ($tag_selected == "636330_ffffd4") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="64992c_f9ffef" style="font-size:10px;border:1px solid #888888;background-color:#64992c;color:#f9ffef;text-decoration:<?php echo ($tag_selected == "64992c_f9ffef") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
+								<td class="preset" onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="set_id(this.id)" id="006633_f1f5ec" style="font-size:10px;border:1px solid #888888;background-color:#006633;color:#f1f5ec;text-decoration:<?php echo ($tag_selected == "006633_f1f5ec") ? "underline" : "none" ?>"><?php echo _("Label") ?></td>
 							</tr>
 						</table>
 					</td>
@@ -202,8 +212,8 @@ if (count($tags) < 1) {
 				<tr>
 					<td class="right nobborder" style="padding-top:20px"><?php echo _("Preview") ?>:</td>
 					<td class="left nobborder" style="padding-top:20px">
-						<table class="transparent" cellpadding="2">
-							<tr><td id="preview" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;font-size:10px;border:1px solid #888888;background-color:<?php echo $bgcolor ?>;color:<?php echo $fgcolor ?>"><?php echo $tag_name ?></td></tr>
+						<table class="transparent" cellpadding="4">
+							<tr><td id="preview" style="border:0px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;font-size:10px;background-color:<?php echo $bgcolor ?>;color:<?php echo $fgcolor ?>"><?php echo $tag_name ?></td></tr>
 						</table>
 					</td>
 				</tr>

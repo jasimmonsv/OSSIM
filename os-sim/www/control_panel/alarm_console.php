@@ -434,7 +434,7 @@ if (!isset($_GET["hide_search"])) {
 							<?php } else { ?>
 							<? foreach ($tags as $tg) { ?>
 							<tr>
-								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:1px solid #888888;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
+								<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
 							</tr>
 							<?php } ?>
 							<tr>
@@ -516,7 +516,7 @@ if (!isset($_GET["hide_search"])) {
 									<? foreach ($tags as $tg) { ?>
 									<tr>
 										<td class="nobborder">
-											<table class="transparent" cellpadding="2"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:1px solid #888888;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
+											<table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
 										</td>
 										<td class="nobborder">
 										<?php if ($tag == $tg->get_id()) { ?>
