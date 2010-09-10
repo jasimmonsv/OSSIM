@@ -952,7 +952,7 @@ class Incident {
     * of the incident, instead returns False
     */
     function user_incident_perms($conn, $user, $incident_id) {
-        require_once 'ossim_acl.inc';
+        /*require_once 'ossim_acl.inc';
         require_once ('ossim_conf.inc');
         
         $conf = $GLOBALS["CONF"];
@@ -978,6 +978,10 @@ class Incident {
             if ($user == $incident->get_in_charge($conn) || (preg_match("/pro/i",$version) && in_array($incident->get_in_charge($conn),$user_tmp))) return true;
         }
         return false;
+        */
+        if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
+        $incident_list = Incident::search($conn, array( 'incident_id' => $incident_id ));
+        return (count($incident_list)>0) ? true : false;
     }
     /*
     * @deprecated

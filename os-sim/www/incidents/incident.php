@@ -373,8 +373,18 @@ for ($i = 0; $i < count($tickets_list); $i++) {
     $transferred = $ticket->get_transferred();
     $creator = Session::get_list($conn, "WHERE login='$creator'");
     $creator = count($creator) == 1 ? $creator[0] : false;
-    $in_charge = Session::get_list($conn, "WHERE login='$in_charge'");
-    $in_charge = count($in_charge) == 1 ? $in_charge[0] : false;
+    
+    if (preg_match("/^\d+$/",$in_charge)) {
+        $querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=$in_charge";
+        $resulte=$conn->execute($querye);
+        list($entity_name, $entity_type) = $resulte->fields;
+        $in_charge_name = $entity_name." [".$entity_type."]";
+    } else {
+    	$in_charge = Session::get_list($conn, "WHERE login='$in_charge'");
+    	$in_charge = count($in_charge) == 1 ? $in_charge[0] : false;
+    	$in_charge_name = format_user($in_charge);
+    }
+    
     $transferred = Session::get_list($conn, "WHERE login='$transferred'");
     $transferred = count($transferred) == 1 ? $transferred[0] : false;
     $descrip = $ticket->get_description();
@@ -438,7 +448,7 @@ for ($i = 0; $i < count($tickets_list); $i++) {
                 <table class="noborder">
                 <tr><th>            
                     <b><?php echo _("Status") ?>: </b></th><td nowrap style="text-align:left;padding-left:5px;"><?php
-                    Incident::colorize_status($status) ?>
+                    Incident::colorize_status($status); ?>
                 </td></tr>
                 <tr valign="middle">
                     <th><b><?php echo _("Priority"); ?>: </b></th>
@@ -447,9 +457,10 @@ for ($i = 0; $i < count($tickets_list); $i++) {
                     </td>
                 </tr>
                 <?php
-        if (!$transferred) { ?>
+        if (!$transferred) { 
+            ?>
                 <tr><th>
-                    <b><?php echo _("In charge") ?>: </b></th><td nowrap style="text-align:left;padding-left:5px;"><?php echo format_user($in_charge) ?>
+                    <b><?php echo _("In charge") ?>: </b></th><td nowrap style="text-align:left;padding-left:5px;"><?php echo $in_charge_name ?>
                 </td></tr>
                 <?php
         } else { ?>
