@@ -54,7 +54,7 @@ $_SESSION['alarms_unique_id'] = $unique_id;
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
   <?php if (GET('norefresh') == "") { ?>
   <script type="text/javascript">
-	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>'",60000);
+	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>'",60000);
   </script>
   <?php } ?>
   <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
@@ -235,7 +235,8 @@ $norefresh = GET('norefresh');
 $query = (GET('query') != "") ? GET('query') : "";
 $directive_id = GET('directive_id');
 $sensor_query = GET('sensor_query');
-$params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&sensor_query=$sensor_query";
+$tag = GET('tag');
+$params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&sensor_query=$sensor_query&tag=$tag";
 
 $sensors = $hosts = $ossim_servers = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
@@ -282,6 +283,7 @@ ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to dat
 ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($num_alarms_page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("field number of alarms per page"));
 ossim_valid($sensor_query, OSS_IP_ADDR, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("sensor_query"));
+ossim_valid($tag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("tag"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -343,12 +345,12 @@ foreach ($sensors as $s_ip=>$s_name) {
 }
 
 // Eficiencia mejorada (Granada, junio 2009)
-list($alarm_list, $count) = Alarm::get_list3($conn, $src_ip, $dst_ip, $hide_closed, "ORDER BY $order", $inf, $sup, $date_from, $date_to, $query, $directive_id, $sensor_query);
+list($alarm_list, $count) = Alarm::get_list3($conn, $src_ip, $dst_ip, $hide_closed, "ORDER BY $order", $inf, $sup, $date_from, $date_to, $query, $directive_id, $sensor_query, $tag);
 if (!isset($_GET["hide_search"])) {
 ?>
 
 <form method="GET">
-
+<input type="hidden" name="tag" value="<?php echo $tag ?>">
 <input type="hidden" name="date_from" id="date_from"  value="<?php echo $date_from ?>">
 <input type="hidden" name="date_to" id="date_to" value="<?php echo $date_to ?>">
 
@@ -430,11 +432,14 @@ if (!isset($_GET["hide_search"])) {
 							<?php if (count($tags) < 1) { ?>
 							<tr><td><?php echo _("No tags found.") ?></td></tr>
 							<?php } else { ?>
-							<? foreach ($tags as $tag) { ?>
+							<? foreach ($tags as $tg) { ?>
 							<tr>
-								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tag->get_id() ?>';document.fchecks.submit();" style="border:1px solid #888888;background-color:<?php echo '#'.$tag->get_bgcolor()?>;color:<?php echo '#'.$tag->get_fgcolor()?>;font-weight:<?php echo ($tag->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tag->get_italic()) ? "italic" : "none" ?>"><?php echo $tag->get_name()?></td></tr></table></td>
+								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:1px solid #888888;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
 							</tr>
 							<?php } ?>
+							<tr>
+								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td class="nobborder"><a href="" onclick="document.fchecks.move_tag.value='0';document.fchecks.submit();return false"><?php echo _("Remove selected") ?></a></td></tr></table></td>
+							</tr>
 							<?php } ?>
 						</table>
 						</div>
@@ -491,18 +496,32 @@ if (!isset($_GET["hide_search"])) {
 					<td width="200" class="nobborder">
 						<table class="transparent">
 							<?php if (count($tags) < 1) { ?>
-							<tr><td><?php echo _("No tags found.") ?> <a href="tags_edit.php"><?php echo _("Click here to create") ?></a></td></tr>
+							<tr>
+								<td class="nobborder"><?php echo _("No tags found.") ?> <a href="tags_edit.php"><?php echo _("Click here to create") ?></a></td>
+							</tr>
 							<?php } else { ?>
-							<tr><td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by tag") ?></a></td></tr>
+							<tr>
+								<td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by tag") ?></a></td>
+								<td class="nobborder" nowrap>
+								<?php if ($tag != "") { ?>
+								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=">Remove filter</a></td></tr></table>
+								<?php } ?>
+								</td>
+							</tr>
 							<tr>
 								<td class="nobborder">
 									<div style="position:relative">
 									<div id="tags_filter" style="display:none;border:0px;position:absolute">
 									<table>
-									<? foreach ($tags as $tag) { ?>
+									<? foreach ($tags as $tg) { ?>
 									<tr>
 										<td class="nobborder">
-											<table class="transparent" cellpadding="2"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="filter_by_tag(<?php echo $tag->get_id() ?>);" style="border:1px solid #888888;background-color:<?php echo '#'.$tag->get_bgcolor()?>;color:<?php echo '#'.$tag->get_fgcolor()?>;font-weight:<?php echo ($tag->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tag->get_italic()) ? "italic" : "none" ?>"><?php echo $tag->get_name()?></td></tr></table>
+											<table class="transparent" cellpadding="2"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:1px solid #888888;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;text-decoration:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
+										</td>
+										<td class="nobborder">
+										<?php if ($tag == $tg->get_id()) { ?>
+										<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag="><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Remove filter") ?>" title="<?php echo _("Remove filter") ?>"></img></a>
+										<?php } ?>
 										</td>
 									</tr>
 									<?php } ?>
@@ -510,6 +529,7 @@ if (!isset($_GET["hide_search"])) {
 									</div>
 									</div>
 								</td>
+								<td class="nobborder"></td>
 							</tr>
 							<?php } ?>
 						</table>
@@ -644,6 +664,7 @@ echo gettext("Action"); ?> </td>
 	  <input type="hidden" name="hide_closed" value="<?=$hide_closed?>">
 	  <input type="hidden" name="only_close" value="">
 	  <input type="hidden" name="move_tag" value="">
+	  <input type="hidden" name="tag" value="<?php echo $tag ?>">
 	  <input type="hidden" name="unique_id" value="<?=$unique_id?>">
 	  <input type="hidden" name="date_from" value="<?php echo $date_from ?>">
 	  <input type="hidden" name="date_to" value="<?php echo $date_to ?>">
