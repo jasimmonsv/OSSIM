@@ -2532,7 +2532,7 @@ sub process_results {
             }
             $vuln_resume{$hostip}++;
             # incidents
-            update_ossim_incidents($hostip, $port, $risk, $desc, $scanid);
+            update_ossim_incidents($hostip, $port, $risk, $desc, $scanid, $username);
         } #END FOR EACH RECORD
         
         #CHECK FOR RECORDS WHICH REMAIN NOT INSERTED FOR HOST  
@@ -4537,6 +4537,7 @@ sub update_ossim_incidents {
         my $risk = shift;
         my $desc = shift;
         my $scanid = shift;
+        my $username = shift;
         
         my ($sql_inc, $sth_inc);
         
@@ -4571,7 +4572,7 @@ sub update_ossim_incidents {
                 my ($hash_false_incident) = $sth_inc->fetchrow_array;
                 $sth_inc->finish;
                 if ($hash_false_incident eq "") {
-                    $sql_inc = qq{ UPDATE incident SET status = 'Open' WHERE id = '$id_inc' };
+                    $sql_inc = qq{ UPDATE incident SET status = 'Open' WHERE id = '$id_inc', in_charge = '$username' };
                     safe_db_write( $sql_inc, 4 );
                     my $ticket_id = genID("incident_ticket_seq");
                     my $sql_ticket = qq { INSERT INTO incident_ticket (id, incident_id, date, status, priority, users, description) values ('$ticket_id', '$id_inc', now(), 'Open', '$priority', 'admin','Automatic open of the incident') };
@@ -4595,7 +4596,7 @@ sub update_ossim_incidents {
                 $vuln_name = "Vulnerability - Unknown detail";
             }
             my $priority = calc_priority($risk, $hostip, $scanid);
-            $sql_inc = qq{ INSERT INTO incident(title, date, ref, type_id, priority, status, last_update, in_charge, submitter, event_start, event_end) VALUES('$vuln_name', now(), 'Vulnerability', 'Nessus Vulnerability', '$priority', 'Open', now(), 'admin', 'nessus', '0000-00-00 00:00:00', '0000-00-00 00:00:00') };
+            $sql_inc = qq{ INSERT INTO incident(title, date, ref, type_id, priority, status, last_update, in_charge, submitter, event_start, event_end) VALUES('$vuln_name', now(), 'Vulnerability', 'Nessus Vulnerability', '$priority', 'Open', now(), '$username', 'nessus', '0000-00-00 00:00:00', '0000-00-00 00:00:00') };
             safe_db_write ($sql_inc, 4);
             # TODO: change this for a sequence
             $sql_inc = qq{ SELECT MAX(id) id from incident };

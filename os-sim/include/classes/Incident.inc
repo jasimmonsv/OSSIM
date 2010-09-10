@@ -793,25 +793,27 @@ class Incident {
             $db = new ossim_db();
             $dbconn = $db->connect();
             if (Acl::am_i_proadmin()) {
-                list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
-                $user_tmp = array_keys($entities_admin);
+                //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
+                //$user_tmp = array_keys($entities_admin);
             
                 $users = Acl::get_my_users($dbconn, Session::get_session_user());
                 foreach ($users as $us) {
                     $user_tmp[] = $us["login"];
                 }
+                $entities = Acl::get_user_entities($user);
+                foreach ($entities as $entity) {
+                    $user_tmp[] = $entity;
+                }                
             }
             else {
-                $tmp = array();
-                $entities = Acl::get_user_entities($username);
+                $entities = Acl::get_user_entities($user);
                 foreach ($entities as $entity) {
                     $user_tmp[] = $entity;
                 }
-                $brothers = Acl::get_brothers($dbconn,Session::get_session_user());
-                foreach ($brothers as $brother){
-                    $user_tmp[] = $brother["login"]; 
-                }
-                
+                //$brothers = Acl::get_brothers($dbconn,Session::get_session_user());
+                //foreach ($brothers as $brother){
+                //    $user_tmp[] = $brother["login"]; 
+                //}
             }
             $db->close($dbconn);
         }
@@ -822,11 +824,11 @@ class Incident {
         if ($user != ACL_DEFAULT_OSSIM_ADMIN) {
             if (preg_match("/incident_event/",$w) || preg_match("/incident_alarm/",$w)
                 || preg_match("/incident_metric/",$w) || preg_match("/incident_vulns/",$w)) {
-                $sql .= ", incident_subscrip WHERE incident_subscrip.incident_id=incident.id AND incident_subscrip.login in ($user_where)";
+                $sql .= "LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE incident_subscrip.login in ($user_where)";
             } else {
                 $incident_ticket = (!preg_match("/incident_ticket/",$from)) ? true : false;
-                $sql .= (($incident_ticket) ? " LEFT JOIN incident_ticket ON incident_ticket.incident_id = incident.id" : "").", incident_subscrip WHERE ".((!$incident_ticket) ? "incident_ticket.incident_id=incident.id AND" : "")." incident_subscrip.incident_id=incident.id AND ";
-                $sql .= "(incident_ticket.users in ($user_where) OR incident_ticket.in_charge in ($user_where) OR incident_ticket.transferred in ($user_where) OR incident_subscrip.login in ($user_where))";
+                $sql .= (($incident_ticket) ? " LEFT JOIN incident_ticket ON incident_ticket.incident_id = incident.id" : "")." LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE ".((!$incident_ticket) ? "incident_ticket.incident_id=incident.id AND" : "");
+                $sql .= "(incident.in_charge in ($user_where) OR incident_ticket.users in ($user_where) OR incident_ticket.in_charge in ($user_where) OR incident_ticket.transferred in ($user_where) OR incident_subscrip.login in ($user_where))";
             }
             if (count($where)) $sql.= "\n AND $w";
         } else {
