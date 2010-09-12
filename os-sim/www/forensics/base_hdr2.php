@@ -403,7 +403,8 @@ if ($Use_Auth_System == 1) {
 									
 									<td style="text-align:right; padding: 5px 5px 10px 0px; width:50%">
 									
-									<?php $display= (!empty($_SESSION["sourcetype"]) || $_SESSION["category"][0] !=0 ) ? "" : "display:none;" ?>
+									<?php //$display= (!empty($_SESSION["sourcetype"]) || $_SESSION["category"][0] !=0 ) ? "" : "display:none;"
+									$display = "display:none"; ?>
 																		
 									<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#taxonomy').toggle(); $('#mfilters').hide();"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Taxonomy Filters")?></a>
 									   <div style="position:relative; z-index:2; text-align:left;">
