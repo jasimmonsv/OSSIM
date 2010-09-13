@@ -1594,6 +1594,8 @@ class Incident {
         return $list;
     }
     function incidents_by_user($conn, $open_only = true,$host=null) {
+    	$conf = $GLOBALS["CONF"];
+		$version = $conf->get_conf("ossim_server_version", FALSE);
         $list = array();
         $status = array();
         $args = "";
@@ -1643,6 +1645,10 @@ class Incident {
             $arrayReturn=array();
             // inicialmente la aplicación obtiene los datos sin indice textual, 0 es key 1 es valor
             foreach($arrayContenedor as $key => $value){
+	        	if (preg_match("/pro/i",$version) && preg_match("/^\d+$/",$key)) {
+		           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
+		           $key = $entity_name." [".$entity_type."]";
+		        }
                 $arrayReturn[]=array(0=>$key,1=>$value);
             }
             //
@@ -1652,6 +1658,10 @@ class Incident {
 
         arsort($status);
         foreach($status as $key => $value) {
+        	if (preg_match("/pro/i",$version) && preg_match("/^\d+$/",$key)) {
+	           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
+	           $key = $entity_name." [".$entity_type."]";
+	        }
             array_push($list, array(
                 $key,
                 $value
