@@ -2,11 +2,17 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+ALTER TABLE custom_report_scheduler ADD save_in_repository tinyint(1) NOT NULL DEFAULT '1';
+ALTER TABLE `host` ADD `fqdns` VARCHAR( 255 ) NOT NULL AFTER `hostname` ;
+ALTER TABLE `host` ADD INDEX `search` ( `hostname` ,`fqdns` );
+DELETE FROM `user_config` WHERE  CONVERT(`user_config`.`category` USING utf8) = 'policy' AND CONVERT(`user_config`.`name` USING utf8) = 'host_layout';
+
+
 CREATE TABLE IF NOT EXISTS alarm_tags (
   id_alarm int(11) NOT NULL,
   id_tag int(11) NOT NULL,
   PRIMARY KEY (id_alarm)
-) ENGINE=MyISAM;
+);
 
 CREATE TABLE IF NOT EXISTS `tags_alarm` (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -16,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `tags_alarm` (
   italic int(1) NOT NULL DEFAULT '0',
   bold tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (id)
-) ENGINE=MyISAM;
+);
        
 
 DROP TRIGGER IF EXISTS auto_incidents;

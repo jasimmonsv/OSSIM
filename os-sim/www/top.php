@@ -58,7 +58,7 @@ $ovcp_link = $conf->get_conf("ovcp_link", FALSE);
 $nagios_link = $conf->get_conf("nagios_link", FALSE);
 $sensor_nagios = parse_url($nagios_link);
 if (!isset($sensor_nagios['host'])) {
-    $sensor_nagios['host'] = $_SERVER['SERVER_NAME'];
+    $sensor_nagios['host'] = $_SERVER['SERVER_ADDR'];
 }
 $menu = array();
 $hmenu = array();
