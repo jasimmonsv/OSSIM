@@ -2,11 +2,16 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+ALTER TABLE custom_report_scheduler ADD save_in_repository tinyint(1) NOT NULL DEFAULT '1';
+ALTER TABLE `host` ADD `fqdns` VARCHAR( 255 ) NOT NULL AFTER `hostname` ;
+ALTER TABLE `host` ADD INDEX `search` ( `hostname` ,`fqdns` );
+DELETE FROM user_config WHERE category = 'policy' AND name = 'host_layout';
+
 CREATE TABLE IF NOT EXISTS alarm_tags (
   id_alarm int(11) NOT NULL,
   id_tag int(11) NOT NULL,
   PRIMARY KEY (id_alarm)
-) ENGINE=MyISAM;
+);
 
 CREATE TABLE IF NOT EXISTS `tags_alarm` (
   id int(11) NOT NULL AUTO_INCREMENT,
@@ -16,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `tags_alarm` (
   italic int(1) NOT NULL DEFAULT '0',
   bold tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (id)
-) ENGINE=MyISAM;
+);
        
 
 DROP TRIGGER IF EXISTS auto_incidents;
@@ -85,8 +90,25 @@ END
 
 DELIMITER ";"
 
+ALTER TABLE `event` MODIFY `uuid` CHAR(36) ASCII;
+ALTER TABLE `backlog` MODIFY `uuid` CHAR(36) ASCII;
+ALTER TABLE `backlog_event` MODIFY `uuid` CHAR(36) ASCII;
+ALTER TABLE `backlog_event` MODIFY `uuid_event` CHAR(36) ASCII;
+ALTER TABLE `alarm` MODIFY `uuid_event` CHAR(36) ASCII;
+ALTER TABLE `alarm` MODIFY `uuid_backlog` CHAR(36) ASCII;
+
+-- Assing uuid to tables and 
+UPDATE event SET uuid=UPPER(UUID()) WHERE uuid IS NULL;
+COMMIT;
+UPDATE backlog SET uuid=UPPER(UUID()) WHERE uuid IS NULL;
+COMMIT;
+UPDATE backlog_event,backlog,event SET backlog_event.uuid=backlog.uuid,backlog_event.uuid_event=event.uuid WHERE backlog.id = backlog_event.backlog_id AND backlog_event.event_id = event.id;
+COMMIT;
+UPDATE alarm,backlog,event SET alarm.uuid_event = event.uuid,alarm.uuid_backlog = backlog.uuid WHERE alarm.event_id = event.id AND alarm.backlog_id = backlog.id;
+COMMIT;
+
 -- From now on, always add the date of the new releases to the .sql files
-UPDATE config SET value="2010-09-09" WHERE conf="last_update";
+UPDATE config SET value="2010-09-13" WHERE conf="last_update";
 
 -- WARNING! Keep this at the end of this file
 -- WARNING! Keep this at the end of this file
