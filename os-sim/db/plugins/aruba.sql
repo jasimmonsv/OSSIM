@@ -51,4 +51,10 @@ INSERT INTO `plugin_sid` (`plugin_id`, `sid`, `reliability`, `priority`, `name`)
 (1623, 45, 1, 1, 'Aruba: authmgr - RADIUS reject'),
 (1623, 46, 1, 1, 'Aruba: authmgr - User authenticated'),
 (1623, 47, 1, 1, 'Aruba: authmgr - User de-authenticated'),
-(1623, 48, 1, 1, 'Aruba: sapd - Interfering AP detected');
+(1623, 48, 1, 1, 'Aruba: sapd - Interfering AP detected'),
+(1623, 49, 1, 1, 'Aruba: authmgr - Deny'),
+(1623, 50, 1, 1, 'Aruba: authmgr - Permit'),
+(1623, 51, 1, 1, 'Aruba: fpcli - User logged in'),
+(1623, 52, 1, 1, 'Aruba: fpcli - User logged out'),
+(1623, 53, 1, 1, 'Aruba: fpcli - User command'),
+(1623, 54, 1, 1, 'Aruba: stm - Blacklist add');
