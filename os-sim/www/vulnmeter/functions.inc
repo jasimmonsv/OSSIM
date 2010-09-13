@@ -676,13 +676,13 @@ function stats_severity_services($type, $filter="") {
     $colors = array();
     
     if($filter!="" && preg_match('/\//',$filter)){
-        $ips = Net::expand_CIDR($filter);
-        $filter = implode("', '",$ips);
+        $ips = Net::expand_CIDR($filter,"SHORT");
+        $filter = " and inet_aton(hostIP) between inet_aton('".$ips[0]."') and inet_aton('".$ips[1]."')";
     }
     
-    if($filter==""|| $type=="hn") {
+    if($filter=="" || $type=="hn") {
         $query = "SELECT count(*) AS total, risk, hostIP
-              FROM (SELECT DISTINCT port, protocol, app, scriptid, msg, risk, hostIP FROM vuln_nessus_latest_results where ".((in_array("admin", $arruser))? "" : "username in ('$user') and ")."falsepositive='N'".(($filter!="")?" and hostIP in ('$filter')":"").") AS t
+              FROM (SELECT DISTINCT port, protocol, app, scriptid, msg, risk, hostIP FROM vuln_nessus_latest_results where ".((in_array("admin", $arruser))? "" : "username in ('$user') and ")."falsepositive='N' $filter) AS t
               GROUP BY risk";
     }
     else if($type=="service"){
@@ -734,7 +734,7 @@ function stats_severity_services($type, $filter="") {
     
     if($filter==""|| $type=="hn"){
         $query = "SELECT count(*) AS total, port, protocol, app, hostIP FROM (
-                    SELECT DISTINCT port, protocol, app, hostIP FROM vuln_nessus_latest_results where ".((in_array("admin", $arruser))? "" : "username in ('$user') and ")."falsepositive='N'".(($filter!="")?" and hostIP in ('$filter')":"").") AS t
+                    SELECT DISTINCT port, protocol, app, hostIP FROM vuln_nessus_latest_results where ".((in_array("admin", $arruser))? "" : "username in ('$user') and ")."falsepositive='N' $filter) AS t
                     WHERE port >0 GROUP BY port, protocol, app ORDER BY total DESC limit 10";
     }
     else if($type=="service"){
@@ -882,8 +882,8 @@ function stats_networks_hosts($type, $filter="") {
     
     
     if($filter!="" && preg_match('/\//',$filter)){
-        $ips = Net::expand_CIDR($filter);
-        $filter = implode("', '",$ips);
+        $ips = Net::expand_CIDR($filter,"SHORT");
+        $filter = " and inet_aton(hostIP) between inet_aton('".$ips[0]."') and inet_aton('".$ips[1]."')";
     }
     
     $queryf = "";
@@ -892,7 +892,7 @@ function stats_networks_hosts($type, $filter="") {
     $top10h = $top10n = $nips = array();
     
     if($type=="hn" && $filter!="") {
-        $queryf = " and hostIP in ('$filter')";
+        $queryf = $filter;
     }
     else if($type=="service"){
         $queryf = " and service like '%$filter%'";
