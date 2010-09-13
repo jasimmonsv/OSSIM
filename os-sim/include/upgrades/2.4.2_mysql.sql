@@ -5,7 +5,7 @@ BEGIN;
 ALTER TABLE custom_report_scheduler ADD save_in_repository tinyint(1) NOT NULL DEFAULT '1';
 ALTER TABLE `host` ADD `fqdns` VARCHAR( 255 ) NOT NULL AFTER `hostname` ;
 ALTER TABLE `host` ADD INDEX `search` ( `hostname` ,`fqdns` );
-DELETE FROM user_config WHERE category = 'policy' name = 'host_layout';
+DELETE FROM user_config WHERE category = 'policy' AND name = 'host_layout';
 
 CREATE TABLE IF NOT EXISTS alarm_tags (
   id_alarm int(11) NOT NULL,
