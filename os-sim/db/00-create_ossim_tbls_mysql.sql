@@ -793,7 +793,7 @@ CREATE TABLE event (
         userdata8       TEXT,
         userdata9       TEXT,
 	rulename	TEXT,
-	uuid		TEXT,
+	uuid		CHAR(36) ASCII,
         PRIMARY KEY (id)
 );
 CREATE INDEX event_idx ON event (timestamp);
@@ -807,7 +807,7 @@ CREATE TABLE backlog (
     directive_id    INTEGER NOT NULL,
     timestamp    TIMESTAMP NOT NULL,
     matched        TINYINT,
-		uuid	TEXT,
+		uuid	CHAR(36) ASCII,
     PRIMARY KEY (id)
 );
 
@@ -822,8 +822,8 @@ CREATE TABLE backlog_event (
     occurrence    INTEGER,
     rule_level    INTEGER,
     matched        TINYINT,
-		uuid				TEXT,
-		uuid_event	TEXT,
+		uuid				CHAR(36) ASCII,
+		uuid_event	CHAR(36) ASCII,
     PRIMARY KEY (backlog_id, event_id)
 );
 
@@ -958,8 +958,8 @@ CREATE TABLE alarm (
         snort_sid       INTEGER UNSIGNED,
         snort_cid       INTEGER UNSIGNED,
         efr             INTEGER (11) NOT NULL DEFAULT 0,
-		uuid_event      TEXT,
-		uuid_backlog    TEXT,
+		uuid_event      CHAR(36) ASCII,
+		uuid_backlog    CHAR(36) ASCII,
         PRIMARY KEY (backlog_id),
         KEY `timestamp` (`timestamp`),
         KEY `src_ip` (`src_ip`),
