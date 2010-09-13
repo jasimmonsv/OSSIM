@@ -557,7 +557,7 @@ for ($i = 1; $i <= 10; $i++) { ?>
          </td>
     </tr>
     
-    <?if(preg_match("/pro/i",$version)) {
+    <? if(preg_match("/pro|demo/i",$version)) {
         $users_pro_login = array();
         $users_pro = array();
         $entities_pro = array();

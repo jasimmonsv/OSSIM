@@ -74,6 +74,8 @@ echo gettext("OSSIM Framework"); ?> </title>
 include ("../hmenu.php"); ?>
 
 <?php
+$conf = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
 $vars = array(
     'order_by' => OSS_LETTER . OSS_SCORE,
     'order_mode' => OSS_LETTER,
@@ -413,7 +415,7 @@ if ($total_incidents) {
       <td NOWRAP><?php echo $incident->get_date() ?></td>
       <td NOWRAP><?php echo $incident->get_life_time() ?></td>
       <?php
-      if (preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) {
+      if (preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) {
             list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$incident->get_in_charge_name($conn));
             $in_charge_name = $entity_name." [".$entity_type."]";
       }
