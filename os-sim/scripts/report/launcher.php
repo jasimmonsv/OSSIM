@@ -89,7 +89,8 @@ function getScheduler(){
                 'date_from'=>$rowResults['date_from'],
                 'date_to'=>$rowResults['date_to'],
                 'date_range'=>$rowResults['date_range'],
-                'assets'=>$rowResults['assets']
+                'assets'=>$rowResults['assets'],
+				'save_in_repository'=>$rowResults['save_in_repository']
              );
      }
     }
@@ -137,8 +138,19 @@ if (($result=searchString($output,$txtError))!==FALSE) {
 foreach (getScheduler() as $value){
     // comprobamos que sea la hora para lanzarlo
     if(checkTimeExecute($value['next_launch'])){
+		
+		// ruta en la que guardar los pdfs
+        $dirUser=getUniqueId($value['id_report']).'/'.$value['id'].'/';
+        $dirUserPdf=$urlPdf.'/'.$dirUser;
+        newFolder($dirUserPdf);
+		
+		if($value['save_in_repository']=='0'){
+			// limpiamos los pdf que haya
+			clean(null,$dirUserPdf);
+		}
+	
         // nombre pdf
-        $pdfName=$value['id'];
+        $pdfName=time();
 
         // Personalizamos los parámetros del reporte
         $params='save=1&assets='.$value['assets'];
@@ -152,11 +164,6 @@ foreach (getScheduler() as $value){
 
         // Lanzamos el reporte
         $step3=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'" -O -');
-
-        // ruta en la que guardar los pdfs
-        $dirUser=getUniqueId($value['id_report']);
-        $dirUserPdf=$urlPdf.'/'.$dirUser.'/';
-        newFolder($dirUserPdf);
 
         // Generamos el pdf
         $step4=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&run='.$value['id_report'].'" -O '.$dirUserPdf.$pdfName.'.pdf');
@@ -189,9 +196,10 @@ foreach (getScheduler() as $value){
                 'data'=>unserialize($value['schedule'])
         );
         updateNextLaunch($schedule,$value['id']);
+		
+		// Cambiamos los permisos del pdf y su directorio
+		$step6=exec('chown -R "www-data" '.$dirUserPdf);
 
-        // Erase pdf
-        clean(null,$pdfName);
     }
 }
 // The end
@@ -199,7 +207,6 @@ clean($cookieName);
 
 /* Functions */
 function checkTimeExecute($date){
-
     $arrTime = localtime(time(), true);
     $year = 1900 + $arrTime["tm_year"];
        $mon = 1 + $arrTime["tm_mon"];
@@ -223,9 +230,13 @@ function checkTimeExecute($date){
     
 }
 
-function clean($cookieName,$pdfName=null){
-    if($pdfName!==null){
-        //@unlink($pdfName.'.pdf');
+function clean($cookieName,$dirUser=null){
+    if($dirUser!==null){
+		foreach(scandir($dirUser) as $value){
+			if($value!='.'&&$value!='..'){
+				if (!is_dir($dirUser.'/'.$value)) unlink($dirUser.'/'.$value);
+			}
+		}
     }
     if($cookieName!==null){
         @unlink($cookieName);
