@@ -480,8 +480,8 @@ echo "
 <input type="hidden" name="op" value="search">&nbsp;&nbsp;&nbsp;
 EOT;*/
 echo '<input type="hidden" name="withoutmenu" value="'.GET('withoutmenu').'">';
-echo "<input type=\"submit\" name=\"submit\" value=\""._("Find")."\" class=\"btn\">";
-if(Session::am_i_admin()) echo "&nbsp;<input type='hidden' name='confirm_delete' id='confirm_delete' value='0'><input type=\"submit\" name=\"seldelete\" value=\""._("Delete selected")."\" onclick=\"$('#confirm_delete').val('1')\" class=\"btn\">";
+echo "<input type=\"submit\" name=\"submit\" value=\""._("Find")."\" class=\"button\">";
+if(Session::am_i_admin()) echo "&nbsp;<input type='hidden' name='confirm_delete' id='confirm_delete' value='0'><input type=\"submit\" name=\"seldelete\" value=\""._("Delete selected")."\" onclick=\"$('#confirm_delete').val('1')\" class=\"button\">";
      echo <<<EOT
 </form>
 </center>

@@ -253,22 +253,21 @@ function showDiv(num, name, max)
 
 
 function showDivSettings(num, name, max)
-{
-    //starting at one, loop through until the number chosen by the user
+{    //starting at one, loop through until the number chosen by the user
     for(i = 0; i <= max; i++){
         var b = name + i;
         var style = 'none';
         //change visibility to block, or 'visible'
         if(i == num) {
             style = 'block';
-            if ($("#b"+i).hasClass("menu")){
-                $("#b"+i).removeClass("menu");
-                $("#b"+i).addClass("menuon");
+            if ($("#b"+i).hasClass("button")){
+                $("#b"+i).removeClass("button");
+                $("#b"+i).addClass("buttonon");
             }
         }
-        else if ($("#b"+i).hasClass("menuon")){
-            $("#b"+i).removeClass("menuon");
-            $("#b"+i).addClass("menu");
+        else if ($("#b"+i).hasClass("buttonon")){
+            $("#b"+i).removeClass("buttonon");
+            $("#b"+i).addClass("button");
         }
         document.getElementById(b).style.display = style;
     }

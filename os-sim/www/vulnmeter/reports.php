@@ -214,7 +214,6 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
 <html>
 <head>
   <title> <?php echo gettext("Vulnmeter"); ?> </title>
-  <meta http-equiv="refresh" content="60">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
@@ -577,7 +576,7 @@ echo "
 <input type="hidden" name="op" value="search">&nbsp;&nbsp;&nbsp;
 EOT;
 echo '<input type="hidden" name="withoutmenu" value="'.GET('withoutmenu').'">';
-echo "<input type=\"submit\" name=\"submit\" value=\""._("Find")."\" class=\"btn\">";
+echo "<input type=\"submit\" name=\"submit\" value=\""._("Find")."\" class=\"button\">";
      echo <<<EOT
 </form>
 </center>
@@ -995,8 +994,8 @@ echo "</table>";
                 <?}?>
     <tr>
         <td colspan="5" style="text-align:center;padding:15px 0px 5px 0px;" class="nobborder"> 
-            <input class="btn" name="submit" type="submit" value="<?=_("Import")?>">&nbsp;&nbsp;
-            <input class="btn" name="submit" type="submit" value="<?=_("Import & asset insertion")?>">
+            <input class="button" name="submit" type="submit" value="<?=_("Import")?>">&nbsp;&nbsp;
+            <input class="button" name="submit" type="submit" value="<?=_("Import & asset insertion")?>">
         </td>
     </tr>
 </table>
@@ -1109,7 +1108,7 @@ function pop_hosthash($dbconn, $results) {
         
         $risk = "7";
 
-        $alldesc = explode('\n',$desc);
+        $alldesc = explode('\n',str_ireplace('Risk factor :\n','Risk factor :',str_ireplace('Risk factor :\n\n','Risk factor :',str_ireplace('Risk factor:\n','Risk factor:',str_ireplace('Risk factor:\n\n','Risk factor:',$desc)))));
         $strd = "";
         foreach ($alldesc as $desc) {
           if (preg_match("/Risk [fF]actor\s*:\s*(..)*Serious/s", $desc))          $risk = "1";

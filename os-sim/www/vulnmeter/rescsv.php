@@ -404,8 +404,10 @@ echo "<th ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."widt
 
 
     $query = "select distinct hostip from ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." where report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user')":"")." $query_host and falsepositive='N' order by INET_ATON(hostip) ASC";
-    //error_log($query,3,"/tmp/error.log");
+    
     $result = $dbconn->execute($query);
+    
+    //error_log($query."\n",3,"/tmp/error_rescsv2.log");      
 
     while ( list($hostip) = $result->fields ) {
 
@@ -424,13 +426,14 @@ echo "<th ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."widt
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE 1=1 ".(($treport!="")? "AND t1.scantime=$scantime":"").((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') ":"")." AND t1.report_id in ($report_id) and t1.hostip='$hostip' and t1.msg<>'' and t1.falsepositive<>'Y'
-                 order by t1.risk ASC, t1.result_id ASC";
+                 order by t1.risk ASC, t1.result_id ASC"; 
         }
-        
+        //error_log($query1."\n",3,"/tmp/error_rescsv2.log");   
         $result1 = $dbconn->execute($query1);
         $arrResults="";
 
           while ( list($hostname, $service, $risk, $falsepositive, $msg, $scriptid, $pname) = $result1->fields ){
+            //error_log($risk."\n",3,"/tmp/error_rescsv2.log");  
               if($hostname=="") $hostname = "unknown";
               $tmpport1=preg_split("/\(|\)/",$service);
               if (sizeof($tmpport1)==1) { $tmpport1[1]=$tmpport1[0]; }
@@ -446,7 +449,8 @@ echo "<th ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."widt
              echo "    <td style='text-align:center'>$service</td>
                        <td style='text-align:center'>$risk_txt</td>
                        <td style='text-align:center'>$scriptid</td>
-                       <td ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"").">$pname<br>$msg</td>";
+                       <td ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"").">$pname<br>$msg</td>"; 
+             echo "</tr>";
                $result1->MoveNext();
           }
           $result->MoveNext();

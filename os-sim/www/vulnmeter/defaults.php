@@ -154,9 +154,9 @@ case "POST" :
         echo "<tr><td style=\"padding-top:5px;\">";
         echo "<form>";
         echo "<center>";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=1'\" value=\""._("Preferences")."\" class=\"".(($prefs==1||$prefs=="")? "menuon":"menu")."\">&nbsp;&nbsp;&nbsp;";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=3'\" value=\""._("Plugins")."\" class=\"".(($prefs==3)? "menuon":"menu")."\">&nbsp;&nbsp;&nbsp;";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=4'\" value=\""._("View Configuration File")."\" class=\"".(($prefs==4)? "menuon":"menu")."\"><br><br>";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=1'\" value=\""._("Preferences")."\" class=\"".(($prefs==1||$prefs=="")? "buttonon":"button")."\">&nbsp;&nbsp;&nbsp;";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=3'\" value=\""._("Plugins")."\" class=\"".(($prefs==3)? "buttonon":"button")."\">&nbsp;&nbsp;&nbsp;";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=4'\" value=\""._("View Configuration File")."\" class=\"".(($prefs==4)? "buttonon":"button")."\"><br><br>";
         echo "</center>";
         echo "</form>";
 //        echo "<A href=\"defaults.php?prefs=1\">Preferences</A> | ";
@@ -218,7 +218,7 @@ case "POST" :
       //logAccess( "Display default preferences table" );
             $lastvalue = "";
         print "<center>";
-        print "<form method=\"post\" action=\"defaults.php\"><input type=\"hidden\" name=\"prefs\" value=\"1\"><input type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"btn\"><BR><BR>";
+        print "<form method=\"post\" action=\"defaults.php\"><input type=\"hidden\" name=\"prefs\" value=\"1\"><input type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button\"><BR><BR>";
         print "<table border=\"0\">";
 		while(!$result->EOF) {
                 $counter++;
@@ -232,7 +232,7 @@ case "POST" :
                 $result->MoveNext();
             }
 
-            echo "</table><BR><BR><INPUT type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"btn\"><BR><BR>
+            echo "</table><BR><BR><INPUT type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button\"><BR><BR>
             </form>
             </center></td></tr></table></center>";
         }
@@ -244,9 +244,9 @@ case "POST" :
         echo "<tr><td class=\"nobborder\" style=\"padding-top:5px;padding-bottom:10px;\">";
         echo "<form>";
         echo "<center>";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=1'\" value=\""._("Preferences")."\" class=\"".(($prefs==1)? "menuon":"menu")."\">&nbsp;&nbsp;&nbsp;";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=3'\" value=\""._("Plugins")."\" class=\"".(($prefs==3)? "menuon":"menu")."\">&nbsp;&nbsp;&nbsp;";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=4'\" value=\""._("View Configuration File")."\" class=\"".(($prefs==4)? "menuon":"menu")."\"><br><br>";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=1'\" value=\""._("Preferences")."\" class=\"".(($prefs==1)? "buttonon":"button")."\">&nbsp;&nbsp;&nbsp;";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=3'\" value=\""._("Plugins")."\" class=\"".(($prefs==3)? "buttonon":"button")."\">&nbsp;&nbsp;&nbsp;";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=4'\" value=\""._("View Configuration File")."\" class=\"".(($prefs==4)? "buttonon":"button")."\"><br><br>";
         echo "</center>";
         echo "</form>";
 //        echo "<A href=\"defaults.php?prefs=1\">Preferences</A> | <A href=\"defaults.php?prefs=3\">Plugins</A> | <A href=\"defaults.php?prefs=4\">View Configuration File</a><BR><BR>";
@@ -322,9 +322,9 @@ case "POST" :
         echo "<tr><td style=\"padding-top:5px;\" class=\"nobborder\">";
         echo "<form>";
         echo "<center>";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=1'\" value=\""._("Preferences")."\" class=\"".(($prefs==1)? "menuon":"menu")."\">&nbsp;&nbsp;&nbsp;";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=3'\" value=\""._("Plugins")."\" class=\"".(($prefs==3)? "menuon":"menu")."\">&nbsp;&nbsp;&nbsp;";
-        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=4'\" value=\""._("View Configuration File")."\" class=\"".(($prefs==4)? "menuon":"menu")."\"><br><br>";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=1'\" value=\""._("Preferences")."\" class=\"".(($prefs==1)? "buttonon":"button")."\">&nbsp;&nbsp;&nbsp;";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=3'\" value=\""._("Plugins")."\" class=\"".(($prefs==3)? "buttonon":"button")."\">&nbsp;&nbsp;&nbsp;";
+        echo "<input type=\"button\" onclick=\"document.location.href='defaults.php?prefs=4'\" value=\""._("View Configuration File")."\" class=\"".(($prefs==4)? "buttonon":"button")."\"><br><br>";
         echo "</center>";
         echo "</form>";
 //        echo "<A href=\"defaults.php?prefs=1\">Preferences</A> |
@@ -380,7 +380,7 @@ case "POST" :
         list($penabled)=$result->fields;
 
         echo "<tr><td colspan=2>$penabled "._("Nessus plugins")."</td></tr>\n";
-        echo "<tr><td colspan=2><input type=\"submit\" name=\"AllPlugins\" value=\""._("Enable All")."\" class=\"btn\">&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"NonDOS\" value=\""._("Enable Non DOS")."\" class=\"btn\">&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"DisableAll\" value=\""._("Disable All")."\" class=\"btn\"><FONT SIZE=\"1\"><BR><BR></FONT><input type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"btn\"></td></tr>";
+        echo "<tr><td colspan=2><input type=\"submit\" name=\"AllPlugins\" value=\""._("Enable All")."\" class=\"button\">&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"NonDOS\" value=\""._("Enable Non DOS")."\" class=\"button\">&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"DisableAll\" value=\""._("Disable All")."\" class=\"button\"><FONT SIZE=\"1\"><BR><BR></FONT><input type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button\"></td></tr>";
 
 
         $result=$dbconn->Execute("SELECT distinct name FROM vuln_nessus_family where name<>'' order by name");
@@ -402,7 +402,7 @@ case "POST" :
         }
 
         echo "</table>";
-        echo "<BR><BR><input type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"btn\"><BR><BR></form></CENTER></div>";
+        echo "<BR><BR><input type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button\"><BR><BR></form></CENTER></div>";
 		echo "</td></tr>";
         echo "</table>";
         echo "</center>";
