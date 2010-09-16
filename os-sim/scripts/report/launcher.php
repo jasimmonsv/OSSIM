@@ -209,25 +209,29 @@ clean($cookieName);
 function checkTimeExecute($date){
     $arrTime = localtime(time(), true);
     $year = 1900 + $arrTime["tm_year"];
-       $mon = 1 + $arrTime["tm_mon"];
-       if(count($mon)<2){
-           $mon='0'.$mon;
-       }
-       $mday =  $arrTime["tm_mday"];
-       if(count($mday)<2){
-           $mday='0'.$mday;
-       }
-       $wday =  $arrTime["tm_wday"];
-       $hour = ($arrTime["tm_hour"]<10) ? "0".$arrTime["tm_hour"] : $arrTime["tm_hour"];
-       $min = ($arrTime["tm_min"]<10) ? "0".$arrTime["tm_min"] : $arrTime["tm_min"];
-       $sec = ($arrTime["tm_sec"]<10) ? "0".$arrTime["tm_sec"] : $arrTime["tm_sec"];
-       
-       if($date==$year.'-'.$mon.'-'.$mday.' '.$hour.':00:00'){
-           return true;
-       }else{
-           return false;
-       }
+	$mon = 1 + $arrTime["tm_mon"];
+	$mon=completionDate($mon);
+
+	$mday =  $arrTime["tm_mday"];
+	$mday=completionDate($mday);
+
+	$wday =  $arrTime["tm_wday"];
+	$hour = ($arrTime["tm_hour"]<10) ? "0".$arrTime["tm_hour"] : $arrTime["tm_hour"];
+
+	if(substr($date,0,13)==$year.'-'.$mon.'-'.$mday.' '.$hour){
+	   return true;
+	}else{
+	   return false;
+	}
     
+}
+
+function completionDate($date){
+	if(strlen($date)<2){
+		$date='0'.$date;
+	}
+	
+	return $date;
 }
 
 function clean($cookieName,$dirUser=null){
@@ -261,8 +265,7 @@ function newFolder($name){
     }
 }
 
-function lastDayOfMonth($month = '', $year = '')
-{
+function lastDayOfMonth($month = '', $year = ''){
    if (empty($month)) {
       $month = date('m');
    }
@@ -286,9 +289,21 @@ function updateNextLaunch($schedule,$id){
             $next_launch=date("Y-m-d H:i:s", strtotime('next '.$schedule['data']['dayofweek'],strtotime($schedule['next_launch'])));
             break;
         case 'Day of the Month':
-            /*Revisar*/
-            $next_launch=date("Y-m-d H:i:s", strtotime('next '.$schedule['data']['dayofweek'],strtotime($schedule['next_launch'])));
-            /*Revisar*/
+			$next_launch_explode=explode('-',$schedule['next_launch']);
+
+			$Cyear=$next_launch_explode[0];
+			$Cmonth=$next_launch_explode[1];
+			do{
+				$Cmonth++;
+				if($Cmonth>12){
+					$Cmonth=1;
+					$Cyear++;
+				}
+			}while($schedule['data']['dayofmonth']>lastDayOfMonth($Cmonth,$Cyear));
+			
+			$Cmonth=completionDate($Cmonth);
+			
+			$next_launch=$Cyear.'-'.$Cmonth.'-'.$schedule['data']['dayofmonth'].' '.$schedule['data']['time_hour'].':00:00';
             break;
         default:
             $next_launch='0000-00-00 00:00:00';
