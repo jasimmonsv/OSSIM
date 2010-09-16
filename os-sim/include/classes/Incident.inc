@@ -514,12 +514,26 @@ class Incident {
 			elseif ($found[1] >= 8) $host_ip = preg_replace("/\.\d+\.\d+\.\d+\/.*/","",$host_ip);
 			$host_where = "a.src_ips LIKE '$host_ip%' OR a.dst_ips LIKE '$host_ip%' OR a.src_ips LIKE ',$host_ip%' OR a.dst_ips LIKE ',$host_ip%'";
             $host_where_2 = "a.ip LIKE '$host_ip%'";
+            $host_where_3 = "a.target LIKE '$host_ip%'";
             } else {
                 $host_where = "a.src_ips LIKE '%$host_ip%' OR a.dst_ips LIKE '%$host_ip%'";
                 $host_where_2 = "a.ip LIKE '%$host_ip%'";
+                $host_where_3 = "a.target LIKE '%$host_ip%'"; 
             }
 		
 		//$sql = "SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND ($host_where) $args";
+        /*$sql = "(SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_alarm a 
+                    WHERE i.id=a.incident_id AND ($host_where) $args)
+                UNION
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.ip as src_ips FROM incident i,incident_vulns a 
+                    WHERE i.id=a.incident_id AND ($host_where_2) $args)
+                UNION
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_event a 
+                    WHERE i.id=a.incident_id AND ($host_where) $args)
+                UNION
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.ip as src_ips FROM incident i,incident_anomaly a 
+                    WHERE i.id=a.incident_id AND ($host_where_2) $args)
+                ";*/
         $sql = "(SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_alarm a 
                     WHERE i.id=a.incident_id AND ($host_where) $args)
                 UNION
@@ -531,8 +545,11 @@ class Incident {
                 UNION
                 (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.ip as src_ips FROM incident i,incident_anomaly a 
                     WHERE i.id=a.incident_id AND ($host_where_2) $args)
+                UNION
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.target as src_ips FROM incident i,incident_metric a 
+                    WHERE i.id=a.incident_id AND ($host_where_3) $args)
                 ";
-        //error_log("$sql\n", 3, "/tmp/incident.log");
+        //error_log("$sql\n", 3, "/tmp/incident.log"); 
         //echo "***";
         //echo $sql;
         //echo "***";
