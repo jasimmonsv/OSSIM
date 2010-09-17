@@ -45,4 +45,4 @@ if (!isset($noDisplayMenu)) {
     <a class="largemenuitem" href="http://base.secureideas.net" target="_new">BASE</a> <?php
 echo $BASE_VERSION . _FOOTER; ?>
 </div>
-<br />
+
