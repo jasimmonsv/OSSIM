@@ -55,6 +55,7 @@ echo gettext("Update host"); ?> </h1>
 require_once ('classes/Security.inc');
 $insert = POST('insert');
 $hostname = POST('hostname');
+$fqdns = POST('fqdns');
 $latitude = POST('latitude');
 $longitude = POST('longitude');
 $ip = POST('ip');
@@ -76,7 +77,15 @@ $nagios = POST('nagios');
 $sensor_name = POST('name');
 $rrd_profile = POST('rrd_profile');
 ossim_valid($insert, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("insert"));
-ossim_valid($hostname, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("hostname"));
+ossim_valid($hostname, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("hostname"));
+
+$fqdns_list = explode (",", $fqdns);
+
+if ( !empty ($fqdns_list) && is_array ($fqdns_list))
+foreach ($fqdns_list as $k => $fqdn)
+	ossim_valid($fqdn, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("FQDN/Aliases"));
+
+
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("ip"));
 ossim_valid($id, OSS_NULLABLE, OSS_ALPHA, OSS_SCORE, 'illegal:' . _("id"));
 ossim_valid($threshold_a, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("threshold_a"));
@@ -118,7 +127,7 @@ if (!empty($insert)) {
     require_once 'classes/Host_scan.inc';
     $db = new ossim_db();
     $conn = $db->connect();
-    Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude);
+    Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
     Host_scan::delete($conn, $ip, 3001);
     Host_scan::delete($conn, $ip, 2007);
     if (!empty($nessus)) Host_scan::insert($conn, $ip, 3001);

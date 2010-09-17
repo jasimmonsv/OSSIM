@@ -956,6 +956,10 @@ div.pGroup {
 	{
 		background: #e4e4e4 url(../pixmaps/tables/table_duplicate.png) no-repeat center left;
 	}
+.flexigrid div.fbutton .i_csv, .flexigrid div.ibutton .i_csv, .flexigrid div.rbutton .i_csv
+	{
+		background: #e4e4e4 url(../pixmaps/tables/document-csv.png) no-repeat center left;
+	}
 .flexigrid div.fbutton .yesno, .flexigrid div.ibutton .yesno, .flexigrid div.rbutton .yesno
 	{
 		background: #e4e4e4 url(../pixmaps/theme/yesno.png) no-repeat center left;
@@ -1075,6 +1079,8 @@ div.pGroup {
 .contextMenu LI.delete A { background-image: url(../pixmaps/tables/table_row_delete.png); }
 .contextMenu LI.duplicate A:hover { font-weight:bold; background-color: #e4e4e4; }
 .contextMenu LI.duplicate A { background-image: url(../pixmaps/tables/table_duplicate.png); }
+.contextMenu LI.i_csv A:hover { font-weight:bold; background-color: #e4e4e4; }
+.contextMenu LI.i_csv A { background-image: url(../pixmaps/tables/document-csv.png); }
 
 .contextMenu LI.moveup A:hover { font-weight:bold; background-color: #eeeeee; }
 .contextMenu LI.moveup A { background-color: #F8F8F8; background-image: url(../pixmaps/theme/arrow-skip-090.png); }

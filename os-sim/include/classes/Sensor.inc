@@ -538,6 +538,7 @@ class Sensor {
 	
 	function sensor_exists($conn,$sensor) {
 		$sensor_list = Sensor::get_all($conn, "ORDER BY name");
+		
 		foreach ($sensor_list as $s) {
 			if ($s->get_name() == $sensor || $s->get_ip() == $sensor) return true;
 		}

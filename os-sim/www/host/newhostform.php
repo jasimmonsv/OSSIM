@@ -180,6 +180,18 @@ if (empty($scan)) {
 ?>
 
   <tr>
+    <th> 
+	<?php echo gettext("FQDN/Aliases"); ?> 
+	<a style="cursor:pointer; text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Comma-separated FQDN or aliases")?></div>">
+	<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a>
+	<br/>
+	</th>
+    <td class="left">
+      <textarea name="fqdns" rows="2" cols="40"><?=REQUEST('fqdns')?></textarea>
+    </td>
+  </tr>
+  
+  <tr>
     <th> <?php echo gettext("Description"); ?> </th>
     <td class="left">
       <textarea name="descr" rows="3" cols="40"><?=REQUEST('descr')?></textarea>
@@ -224,12 +236,12 @@ echo gettext("5"); ?> </option>
   <tr>
     <th> <?php
 echo gettext("Sensors"); ?>
-<a style="cursor:pointer; text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'>Define which sensors has visibility of this host</div>">
+<a style="cursor:pointer; text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Define which sensors has visibility of this host")?></div>">
 <img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a>
 <br/>
         <font size="-2">
           <a href="../sensor/newsensorform.php">
-	  <?php echo gettext("Insert new sensor"); ?> ?</a>
+		<?=gettext("Insert new sensor");?>?</a>
         </font>
 
     </th>
@@ -262,7 +274,7 @@ if ($sensor_list = Sensor::get_all($conn, "ORDER BY name")) {
   </tr>
   
   
-<tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.advanced').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">Advanced</a></td></tr>
+<tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.advanced').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"><?=gettext("Advanced")?></a></td></tr>
 
 <tr class="advanced" style="display:none;">
     <th> <?php echo gettext("Scan options"); ?> </th>
@@ -335,7 +347,7 @@ foreach(RRD_Config::get_profile_list($conn) as $profile) {
 if (empty($scan)) {
 ?>
   
-  <tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.inventory').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">Inventory</a></td></tr>
+  <tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.inventory').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"><?=gettext("Inventory")?></a></td></tr>
 
   <tr class="inventory" style="display:none;">
     <th> <?php
@@ -392,18 +404,18 @@ if (empty($scan)) {
 } /* if ($scan) */
 ?>
 
-<tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.geolocation').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">Geolocation Info</a></td></tr>
+<tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.geolocation').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"><?=gettext("Geolocation Info")?></a></td></tr>
 
 
 <tr class="geolocation" style="display:none;">
     <th> <?php
-    echo gettext("Latitude"); ?></th>
+    echo gettext("Latitude");?></th>
     <td class="left"><input type="text" size="25" name="latitude" value="<?=REQUEST('latitude')?>"></td>
 </tr>
 
 <tr class="geolocation" style="display:none;">
     <th> <?php
-    echo gettext("Longitude"); ?></th>
+    echo gettext("Longitude");?></th>
     <td class="left"><input type="text" size="25" name="longitude"value="<?=REQUEST('longitude')?>"></td>
 </tr>
 

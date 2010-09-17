@@ -60,6 +60,7 @@ function print_error($message){
 require_once ('classes/Security.inc');
 $insert = POST('insert');
 $hostname = POST('hostname');
+$fqdns = POST('fqdns');
 $latitude = POST('latitude');
 $longitude = POST('longitude');
 $ip = POST('ip');
@@ -81,6 +82,13 @@ $sensor_name = POST('name');
 $rrd_profile = POST('rrd_profile');
 ossim_valid($insert, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("insert"));
 ossim_valid($hostname, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("hostname"));
+
+$fqdns_list = explode (",", $fqdns);
+
+if ( !empty ($fqdns_list) && is_array ($fqdns_list))
+foreach ($fqdns_list as $k => $fqdn)
+	ossim_valid($fqdn, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("FQDN/Aliases"));
+
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("ip"));
 ossim_valid($id, OSS_NULLABLE, OSS_ALPHA, OSS_SCORE, 'illegal:' . _("id"));
 ossim_valid($threshold_a, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("threshold_a"));
@@ -122,6 +130,7 @@ if (ossim_error() || count($sensors)==0) {
 <form method="post" action="newhostform.php">
       <input type="hidden" name="insert" value="<?=$insert?>">
       <input type="hidden" name="hostname" value="<?=$hostname?>">
+	  <input type="hidden" name="fqdns" value="<?=$fqdns?>">
       <input type="hidden" name="latitude" value="<?=$latitude?>">
       <input type="hidden" name="longitude" value="<?=$longitude?>">
       <input type="hidden" name="ip" value="<?=$ip?>">
@@ -186,14 +195,18 @@ if (!empty($insert)) {
     require_once 'classes/Util.inc';
     $db = new ossim_db();
     $conn = $db->connect();
-    if (!Host::in_host($conn, $ip)) {
-        Host::insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude);
-    } else {
-        Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude);
-    }
-    if (!empty($nessus)) Host_scan::insert($conn, $ip, 3001, 0);
-    else Host_scan::delete($conn, $ip, 3001, 0);
-    if (!empty($nagios)) {
+	
+	if (!Host::in_host($conn, $ip)) 
+        Host::insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
+    else
+		Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
+		
+	if (!empty($nessus)) 
+		Host_scan::insert($conn, $ip, 3001, 0);
+    else 
+		Host_scan::delete($conn, $ip, 3001, 0);
+    
+	if (!empty($nagios)) {
         if (!Host_scan::in_host_scan($conn, $ip, 2007)) Host_scan::insert($conn, $ip, 2007, "", $hostname, $sensors, $sensors);
     } else {
         if (Host_scan::in_host_scan($conn, $ip, 2007)) Host_scan::delete($conn, $ip, 2007);

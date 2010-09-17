@@ -73,7 +73,30 @@ function ids(){
 	//		$compositeLog->addLogger(IDS_Log_Database::getInstance($init));
 			$compositeLog->addLogger(IDS_Log_File::getInstance($init));
 			$compositeLog->execute($result);
-			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br>".$result));
+			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br/>".$result));
+		}
+	} catch (Exception $e) {
+		printf('An error occured: %s',$e->getMessage());
+	}
+}
+
+function ids_valid($data){
+	try {
+		$request = array(
+			'INPUT' => $data
+		);
+		$init = IDS_Init::init('/usr/share/ossim/include/php-ids.ini');
+		$init->config['General']['scan_keys'] = true;
+		$ids = new IDS_Monitor($request, $init);
+		$result = $ids->run();
+		if (!$result->isEmpty()) {
+			require_once 'IDS/Log/Composite.php';
+			require_once 'IDS/Log/File.php';
+
+			$compositeLog = new IDS_Log_Composite();
+			$compositeLog->addLogger(IDS_Log_File::getInstance($init));
+			$compositeLog->execute($result);
+			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br/>".$result));
 		}
 	} catch (Exception $e) {
 		printf('An error occured: %s',$e->getMessage());
@@ -319,7 +342,7 @@ function ossim_valid() {
         //
         if (preg_match('/^regex:(.+)$/', $p, $m)) {
             if (!preg_match('/^' . $m[1] . '$/', $subject)) {
-                $subject = htmlentities($subject, ENT_COMPAT, "UTF-8");
+                $subject = htmlentities($subject);
                 return ossim_set_error("$error_msg " . ("(the string '<b>$subject</b>' has not a valid format)"));
             }
             continue;
@@ -334,8 +357,8 @@ function ossim_valid() {
 		$not = $m[0];
         if ($not == " ") $not = _("spaces");
         if ($not == "\r" || $not == "\n") $not = _("breaklines");
-        $subject = htmlentities($subject, ENT_COMPAT, "UTF-8");
-        return ossim_set_error("$error_msg " . sprintf(_("(\"%s\" not allowed)") , $not) . "<br>Introduced string: '<b>$subject</b>'");
+        $subject = htmlentities($subject);
+        return ossim_set_error("$error_msg " . sprintf(_("(\"%s\" not allowed)") , $not) . "<br/>Introduced string: '<b>$subject</b>'");
     }
     return true;
 }
@@ -343,6 +366,22 @@ function ossim_set_error($error) {
     $GLOBALS['ossim_last_error'] = $error;
     return false;
 }
+
+function ossim_clean_error() {
+    $GLOBALS['ossim_last_error'] = false;
+    return true;
+}
+
+function ossim_get_error_clean() {
+    $error=$GLOBALS['ossim_last_error'];
+	$normalize = explode("<br/>", $error);
+	if (count($normalize) == 2 )
+		$error = $normalize[0].".&nbsp;&nbsp;".utf8_encode($normalize[1]);
+		
+	return $error;
+		
+}
+
 function ossim_error($error_msg = null) {
     static $ossim_warn = false;
     $error = $error_msg ? $error_msg : $GLOBALS['ossim_last_error'];
@@ -361,14 +400,14 @@ function valid_ip($ip) {
     if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
         return true;
     }
-    ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br>Entered ip: '<b>$ip</b>'");
+    ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$ip</b>'");
     return false;
 }
 function valid_cidr($cidr) {
     if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $cidr, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) {
         return true;
     }
-    ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br>Entered CIDR: '<b>$cidr</b>'");
+    ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<b>$cidr</b>'");
     return false;
 }
 function valid_ipcidr($ip) {
@@ -378,7 +417,7 @@ function valid_ipcidr($ip) {
 	if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) {
         return true;
     }
-    ossim_set_error(_("Invalid IP/CIDR address. Format allowed: nnn.nnn.nnn.nnn/nn?") . "<br>Entered ip: '<b>$ip</b>'");
+    ossim_set_error(_("Invalid IP/CIDR address. Format allowed: nnn.nnn.nnn.nnn/nn?") . "<br/>Entered ip: '<b>$ip</b>'");
     return false;
 }
 function valid_quotes($value) {
