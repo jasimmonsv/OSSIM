@@ -848,7 +848,7 @@ if ($count > 0) {
         <!-- end sensor -->
 
 
-        <td nowrap style="padding-left:3px;padding-right:3px" class="nobborder">
+        <td style="padding-left:3px;padding-right:3px" class="center nobborder">
         <?php
         $acid_link = Util::get_acid_events_link($since, $date, "time_a");
         echo "
@@ -858,7 +858,7 @@ if ($count > 0) {
             ";
 ?>
         </td>
-        <td nowrap style="padding-left:3px;padding-right:3px" class="nobborder">
+        <td style="padding-left:3px;padding-right:3px" class="center nobborder">
         <?php
         $acid_link = Util::get_acid_events_link($since, $date, "time_d");
         echo "
