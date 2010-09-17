@@ -150,7 +150,7 @@ if ($pag=="" || $pag<1) $pag=1;
 
 $arruser = array();
 
-if(!preg_match("/pro/i",$version)){
+if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
 }

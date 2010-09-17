@@ -337,7 +337,7 @@ if (ossim_error()) {
 
 $arruser = array();
 
-if(!preg_match("/pro/i",$version)){
+if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
 }
@@ -824,7 +824,7 @@ echo "</table>";
         <td width="785" class="nobborder" style="text-align:left;padding-left:5px;"><input name="report_name" type="text" style="width: 146px;"></td>
     </tr>
     <tr>
-        <th width="100"><?=_("File")?></th>
+        <th width="100"><?=_("File")?></th> 
         <td width="785" class="nobborder" style="text-align:left;padding-left:5px;"><input name="nbe_file" type="file" size="25"></td>
     </tr>
                 <?
@@ -833,7 +833,7 @@ echo "</table>";
                 $conf = $GLOBALS["CONF"];
                 $version = $conf->get_conf("ossim_server_version", FALSE);
 
-                if(preg_match("/pro/i",$version)) {
+                if(preg_match("/pro|demo/i",$version)) {
                     $users_pro_login = array();
                     $users_pro = array();
                     $entities_pro = array();

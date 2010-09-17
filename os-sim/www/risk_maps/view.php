@@ -50,7 +50,7 @@ function mapAllowed($perms_arr,$version) {
 	foreach ($perms_arr as $perm=>$val) {
 		// ENTITY
 		if (preg_match("/^\d+$/",$perm)) {
-			if (preg_match("/pro/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) {
+			if (preg_match("/pro|demo/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) {
 				$ret = true;
 			}
 		// USER

@@ -1214,7 +1214,7 @@ $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
 $arruser = array();
-if(!preg_match("/pro/i",$version)){
+if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
 }
@@ -1419,7 +1419,7 @@ else {
            if (Session::am_i_admin()) {
                 $sInfo.="<a class=\"greybox\" href=\"change_user.php?id=$report_id\"><img align=\"absmiddle\" src=\"../pixmaps/group.png\" title=\""._("Change owner")."\" alt=\""._("Change owner")."\" border=\"0\"></a>&nbsp;";
            }
-           else if(preg_match("/pro/i",$version)){
+           else if(preg_match("/pro|demo/i",$version)){
                 if(Acl::am_i_proadmin()) {
                     $sInfo.="<a class=\"greybox\" href=\"change_user.php?id=$report_id\"><img align=\"absmiddle\" src=\"../pixmaps/group.png\" title=\""._("Change owner")."\" alt=\""._("Change owner")."\" border=\"0\"></a>&nbsp;";
                 }
@@ -1429,7 +1429,7 @@ else {
            $sInfo.="<a href=\"rescsv.php?scantime=$id_report&amp;key=$report_key&amp;scantype=M\" target=\"_blank\"><img align=\"absmiddle\" src=\"./images/page_white_excel.png\" border=\"0\" title=\""._("View report")."\" alt=\""._("View report")."\"></a>&nbsp;";
 
            $user_name_filter = array();
-            if(preg_match("/pro/i",$version)){
+            if(preg_match("/pro|demo/i",$version)){
                 if (Acl::am_i_proadmin()) {
                     $user_name_filter = Acl::get_user_entities();
                     $users = Acl::get_my_users($dbconn, Session::get_session_user()); 

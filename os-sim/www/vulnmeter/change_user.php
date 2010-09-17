@@ -163,7 +163,7 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 echo "<center>";
 echo "<form action=\"change_user.php\" method=\"get\">";
 echo "<input type=\"hidden\" name=\"id\" value=\"".$id."\">";
-if(!preg_match("/pro/i",$version)){
+if(!preg_match("/pro|demo/i",$version)){
     $users = Session::get_list($dbconn);
     echo "<table class=\"transparent\"><tr><td class=\"nobborder\">";
     echo _("User:")."</td>";

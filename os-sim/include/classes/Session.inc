@@ -81,7 +81,7 @@ require_once 'ossim_acl.inc';
 /* global configuration */
 require_once 'ossim_conf.inc';
 
-if ((preg_match("/pro/",$conf->get_conf("ossim_server_version", FALSE)) || preg_match("/demo/",$conf->get_conf("ossim_server_version", FALSE))) && !$force_gacl)
+if ((preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) || preg_match("/demo/",$conf->get_conf("ossim_server_version", FALSE))) && !$force_gacl)
 	include "Acl.inc";
 else {
 

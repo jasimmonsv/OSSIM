@@ -35,7 +35,7 @@ require_once('classes/Session.inc');
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
-if (!Session::am_i_admin() && (preg_match("/pro/i",$version) && !Acl::am_i_proadmin())) {
+if (!Session::am_i_admin() && (preg_match("/pro|demo/i",$version) && !Acl::am_i_proadmin())) {
 	echo "<br><br><center>"._("You don't have permission to see this page.")."</center>";
 	exit;
 }
@@ -102,7 +102,7 @@ while (!$result->EOF) {
     $result->MoveNext();
 }
 
-if (preg_match("/pro/i",$version)) {
+if (preg_match("/pro|demo/i",$version)) {
 	$entities_types_aux = Acl::get_entities_types($dbconn);
 	$entities_types = array();
 	foreach ($entities_types_aux as $etype) { 
@@ -124,7 +124,7 @@ if (preg_match("/pro/i",$version)) {
     </tr>
     <?php } ?>
     <?php
-if (!preg_match("/pro/i",$version)) {
+if (!preg_match("/pro|demo/i",$version)) {
     $users = Session::get_list($dbconn);
     ?>
     <tr>

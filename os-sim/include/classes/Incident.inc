@@ -806,7 +806,7 @@ class Incident {
         $user = Session::get_session_user();
         
         
-        if(preg_match("/pro/i",$version)) {
+        if(preg_match("/pro|demo/i",$version)) {
             $db = new ossim_db();
             $dbconn = $db->connect();
             if (Acl::am_i_proadmin()) {
@@ -975,7 +975,7 @@ class Incident {
         $conf = $GLOBALS["CONF"];
         $version = $conf->get_conf("ossim_server_version", FALSE);
         
-        if(preg_match("/pro/i",$version)) {
+        if(preg_match("/pro|demo/i",$version)) {
             $user_tmp = array();
             if (Acl::am_i_proadmin()) {
                 list($entities_admin,$num) = Acl::get_entities_admin($conn,Session::get_session_user());
@@ -992,7 +992,7 @@ class Incident {
         
         if (is_array($incident_list = Incident::get_list($conn, "WHERE incident.id = $incident_id", $user_tmp)) && count($incident_list) > 0) {
             $incident = $incident_list[0];
-            if ($user == $incident->get_in_charge($conn) || (preg_match("/pro/i",$version) && in_array($incident->get_in_charge($conn),$user_tmp))) return true;
+            if ($user == $incident->get_in_charge($conn) || (preg_match("/pro|demo/i",$version) && in_array($incident->get_in_charge($conn),$user_tmp))) return true;
         }
         return false;
         */
@@ -1662,7 +1662,7 @@ class Incident {
             $arrayReturn=array();
             // inicialmente la aplicación obtiene los datos sin indice textual, 0 es key 1 es valor
             foreach($arrayContenedor as $key => $value){
-	        	if (preg_match("/pro/i",$version) && preg_match("/^\d+$/",$key)) {
+	        	if (preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$key)) {
 		           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
 		           $key = $entity_name." [".$entity_type."]";
 		        }
@@ -1675,7 +1675,7 @@ class Incident {
 
         arsort($status);
         foreach($status as $key => $value) {
-        	if (preg_match("/pro/i",$version) && preg_match("/^\d+$/",$key)) {
+        	if (preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$key)) {
 	           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
 	           $key = $entity_name." [".$entity_type."]";
 	        }

@@ -47,7 +47,7 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 
 while (!$rs->EOF)
 {
-    if(preg_match("/pro/i",$version) && preg_match("/^\d+$/",$rs->fields["in_charge"])) {
+    if(preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$rs->fields["in_charge"])) {
         list($name, $type) = Acl::get_entity_name_type($conn,$rs->fields["in_charge"]);
         if($type!="" && $name!="")
             array_push($legend, $name." [".$type."]");

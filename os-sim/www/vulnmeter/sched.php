@@ -1303,7 +1303,7 @@ EOT;
             $discovery .= "<option value=\"".$user->get_login()."\"".(($editdata["username"]==$user->get_login() || $user_selected==$user->get_login())? " selected":"").">".$user->get_login()."</option>";
           }
           $discovery .= "</select>";
-          if(preg_match("/pro/i",$version)){
+          if(preg_match("/pro|demo/i",$version)){
               $discovery .= "<tr><td class=\"nobborder\">&nbsp;</td><td class=\"nobborder\">"._("OR")."</td></tr>";
               $discovery .= "<tr><td class=\"nobborder\">"._("Entity:")."</td><td class=\"nobborder\">";
               $entities_types_aux = Acl::get_entities_types($dbconn);
@@ -1324,7 +1324,7 @@ EOT;
           $discovery .="</table>";
           $discovery .="</td></tr>";
       }
-       else if(preg_match("/pro/i",$version)) {
+       else if(preg_match("/pro|demo/i",$version)) {
             if(Acl::am_i_proadmin()) {
                   $discovery .= "<tr><td>"._("Make this scan job visible for:")."</td>";
 

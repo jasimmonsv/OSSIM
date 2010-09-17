@@ -315,7 +315,7 @@ if(Session::am_i_admin()) {?>
                             <?}?>
                         </select>
                     </td>
-                    <?if(preg_match("/pro/i",$version)){?>
+                    <?if(preg_match("/pro|demo/i",$version)){?>
                         <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?>&nbsp;&nbsp;</td>
                         <td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
                         <?
@@ -341,7 +341,7 @@ if(Session::am_i_admin()) {?>
         </td>
     </tr>
 <? }
-else if(preg_match("/pro/i",$version)) {
+else if(preg_match("/pro|demo/i",$version)) {
     if(Acl::am_i_proadmin()) { ?>
     <tr>
         <td><?php echo _("Make this profile available for");?></td>
@@ -606,8 +606,8 @@ if(Session::am_i_admin()) {?>
                             <?}?>
                         </select>
                     </td>
-                    <?if(preg_match("/pro/i",$version)){?>
-                        <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?>&nbsp;&nbsp;</td>
+                    <?if(preg_match("/pro|demo/i",$version)){?>
+                        <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?>&nbsp;&nbsp;</td> 
                         <td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
                         <?
                         $entities_types_aux = Acl::get_entities_types($dbconn);
@@ -632,7 +632,7 @@ if(Session::am_i_admin()) {?>
         </td>
     </tr>
 <? }
-else if(preg_match("/pro/i",$version)) { 
+else if(preg_match("/pro|demo/i",$version)) { 
     if(Acl::am_i_proadmin()) { ?>
     <tr>
         <th><?php echo _("Make this profile available for");?></th>

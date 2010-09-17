@@ -59,7 +59,7 @@ foreach($_plugin as $id => $name) $plugins .= '{ txt:"'.$name.'", id: "'.$id.'" 
 
 // User Log lists
 $session_list = Session::get_list($conn, "ORDER BY login");
-if (preg_match("/pro/",$conf->get_conf("ossim_server_version", FALSE)) && !Session::am_i_admin()) {
+if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) && !Session::am_i_admin()) {
 	require_once('classes/Acl.inc');
 	$myusers = Acl::get_my_users($conn,Session::get_session_user());
 	if (count($myusers) > 0) $is_pro_admin = 1;

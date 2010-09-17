@@ -21,7 +21,7 @@ $user = "";
 $user_name_filter = "";
 
 if(!Session::am_i_admin()) {
-    if(!preg_match("/pro/i",$version)){
+    if(!preg_match("/pro|demo/i",$version)){
         $user = Session::get_session_user();
     }
     else {
