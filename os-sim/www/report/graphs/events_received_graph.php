@@ -127,7 +127,7 @@ exit();
 <script language="javascript" type="text/javascript" src="../../js/excanvas.pack.js"></script>
 <script type="text/javascript" src="../../js/jquery.flot.pie.js"></script>
 </head>
-<body>
+<body scroll="no">
 <?
 if ($type == "event") {
     $title = _("ALERTS RECEIVED");

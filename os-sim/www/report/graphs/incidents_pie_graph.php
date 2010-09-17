@@ -43,12 +43,14 @@ require_once 'classes/Security.inc';
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="">
 <head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-
 <script type="text/javascript" src="../../js/jquery-1.3.1.js"></script>
+<script language="javascript" type="text/javascript" src="../../js/excanvas.pack.js"></script>
 <script type="text/javascript" src="../../js/jquery.flot.pie.js"></script>
 </head>
-<body>
+<body scroll="no">
 <?
 $by = GET('by');
 ossim_valid($by, OSS_ALPHA, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Target"));
@@ -138,6 +140,7 @@ $graph->Stroke();*/
 }
 .legendColorBox { border:0 none; }
 .legendLabel { border:0 none; }
+div.legend { text-align:left; }
 div.legend table { border:0 none; }
 div.legend td { text-align:left; font-size:11px; font-family:arial }
 </style><table cellpadding=0 cellspacing=0 width="100%" align="center" class="noborder">
