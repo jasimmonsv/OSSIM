@@ -235,6 +235,7 @@ function import_assets_csv($filename){
 		//Sensors
 		if ( !empty ($param[6]) )
 		{
+			$sensor_name = array();
 			$sensor_list = explode(",", $param[6]);
 			
 			foreach ($sensor_list as $k => $sensor)
@@ -248,7 +249,6 @@ function import_assets_csv($filename){
 				}
 				else
 				{
-					
 					if ( Sensor::sensor_exists($conn, $sensor) == false )
 					{
 						$response ['line_errors'][$cont][] = array("Sensors", "IP $sensor isn't a sensor");
@@ -292,15 +292,10 @@ function import_assets_csv($filename){
 			
 						
 			if (!Host::in_host($conn, $ip)) 
-			{
-				echo "Inserto para IP $ip<br/>";
 				Host::insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
-			}
 			else
-			{
-				echo "Update para IP $ip<br/>";
 				Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
-			}
+			
 		}
 		
 	}
