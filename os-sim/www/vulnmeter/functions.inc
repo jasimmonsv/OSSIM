@@ -678,6 +678,8 @@ function stats_severity_services($type, $filter="") {
     if($filter!="" && preg_match('/\//',$filter)){
         $ips = Net::expand_CIDR($filter,"SHORT");
         $filter = " and inet_aton(hostIP) between inet_aton('".$ips[0]."') and inet_aton('".$ips[1]."')";
+    } elseif ($type=="hn") {
+    	$filter = " and hostIP like '%$filter%'";
     }
     
     if($filter=="" || $type=="hn") {
@@ -884,6 +886,8 @@ function stats_networks_hosts($type, $filter="") {
     if($filter!="" && preg_match('/\//',$filter)){
         $ips = Net::expand_CIDR($filter,"SHORT");
         $filter = " and inet_aton(hostIP) between inet_aton('".$ips[0]."') and inet_aton('".$ips[1]."')";
+    } elseif ($type=="hn") {
+    	$filter = " and hostIP like '%$filter%'";
     }
     
     $queryf = "";

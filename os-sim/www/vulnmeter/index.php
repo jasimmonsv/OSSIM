@@ -385,12 +385,12 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
           else if ((int)$tokens[1]>24)
                 $q = $bytes[0].".".$bytes[1].".".$bytes[2].".".$bytes[3];
       }
-      if (preg_match("/\//",$value)) {
+      //if (preg_match("/\//",$value)) {
         $queryw = " AND t1.name LIKE '$q%' $query_onlyuser order by $sortby $sortdir";
-      }
-      else {
-        $queryw = " AND t1.name LIKE '$q' $query_onlyuser order by $sortby $sortdir";
-      }
+      //}
+      //else {
+      //  $queryw = " AND t1.name LIKE '$q' $query_onlyuser order by $sortby $sortdir";
+      //}
 
       $queryl = " limit $offset,$pageSize";
       if (!preg_match("/\//",$value)) {
