@@ -78,7 +78,7 @@ if ($by == "user") {
 }
 $data_pie = array();
 foreach($list as $l) {
-    $data_pie[$l[1]] = $l[0];
+    $data_pie[$l[0]] = $l[1];
     //$legend[] = $l[0];
     //$data[] = $l[1];
 }
@@ -156,7 +156,7 @@ div.legend td { text-align:left; font-size:11px; font-family:arial }
 <script>
 	$(function () {
 		$.plot($("#graph"), [
-		<? $i=0;foreach ($data_pie as $data => $label) if ($i<10) { ?>
+		<? $i=0;foreach ($data_pie as $label => $data) if ($i<10) { ?>
 			<?=($i++==0) ? "" : ","?>{ label: "<?=$label?>",  data: <?=$data?>}
 		<? } ?>
 		], 

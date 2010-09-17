@@ -1666,7 +1666,7 @@ class Incident {
 		           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
 		           $key = $entity_name." [".$entity_type."]";
 		        }
-                $arrayReturn[]=array(0=>$key,1=>$value);
+                if ($key!=" []") $arrayReturn[]=array(0=>$key,1=>$value);
             }
             //
 
@@ -1679,7 +1679,7 @@ class Incident {
 	           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
 	           $key = $entity_name." [".$entity_type."]";
 	        }
-            array_push($list, array(
+            if ($key!=" []") array_push($list, array(
                 $key,
                 $value
             ));
