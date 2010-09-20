@@ -267,9 +267,9 @@ $qs->SaveState();
 	<input type="radio" name="resolution" onclick="$('#ftl').submit()" value="h"<?=($resolution=="h") ? " checked" : ""?>> <?=_("Hours")?>&nbsp;
 	<input type="radio" name="resolution" onclick="$('#ftl').submit()" value="d"<?=($resolution=="d") ? " checked" : ""?>> <?=_("Days")?>&nbsp;
 </td>
-<td align="right" style="padding-top:3px" onchange="$('#ftl').submit()">
+<td align="right" style="padding-top:3px">
 	<img src="../pixmaps/arrow_green.gif" border=0 align="absmiddle"> <?=_("Events to draw")?>: 
-	<select name="max">
+	<select name="max" onchange="$('#ftl').submit()">
 		<option<?=($max=="50") ? " selected" : ""?>>50</option>
 		<option<?=($max=="100") ? " selected" : ""?>>100</option>
 		<option<?=($max=="250") ? " selected" : ""?>>250</option>

@@ -44,8 +44,13 @@ while( !$rs->EOF ) {
 	$xml .= " icon='$flag'>";
 	
 	
-	$xml .= htmlentities("<div class='bubble_desc'>".$rs->fields['dataV1']."<br/><br/><div class='txt_desc'>".$rs->fields['dataV3'].":<img src='".$rs->fields['dataV4']."'/> -> ".$rs->fields['dataV5'].":<img src='".$rs->fields['dataV6']."'/></div><div class='df'>".$format_date."</div></div>");
-	$xml .="</event>"; 
+	$inside = "<div class='bubble_desc'>".$rs->fields['dataV1']."<br/><br/><div class='txt_desc'>".$rs->fields['dataV3'];
+	if ($rs->fields['dataV4']!="") $inside .= " <img src='".$rs->fields['dataV4']."'/>";
+	$inside .= " -> ".$rs->fields['dataV5'];
+	if ($rs->fields['dataV6']!="") $inside .= " <img src='".$rs->fields['dataV6']."'/>";
+	$inside .= "</div><div class='df'>".$format_date."</div></div>";
+
+	$xml .= htmlentities($inside)."</event>"; 
 	$rs->MoveNext();
 }
 			
