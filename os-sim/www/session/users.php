@@ -135,10 +135,11 @@ if ($session_list = Session::get_list($conn, "ORDER BY $order")) {
         $company = $session->get_company();
         $department = $session->get_department();
         $language = $session->get_language();
+        $is_admin = $session->get_is_admin();
         $color = ($i++ % 2 == 0) ? "bgcolor='#f2f2f2'" : "" ;
 ?>
     <tr <?=$color?>>
-      <td><b><?php echo $login; ?></b></td>
+      <td style="padding:2px"><?php if ($is_admin || $login == ACL_DEFAULT_OSSIM_ADMIN) { ?><img src="../pixmaps/user-business.png" align="absmiddle" alt="admin"> <?php } ?><b><?php echo $login; ?></b></td>
       <td><?php
         echo $name; ?>&nbsp;</td>
       <td><?php

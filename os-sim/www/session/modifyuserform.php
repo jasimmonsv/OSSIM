@@ -218,7 +218,16 @@ echo $user->get_department(); ?>" /></td>
    <input type="radio" name="first_login" value="0" checked> <?php echo _("No"); ?> 
     </td>
 </tr>
+<?php if ($user->get_login() != ACL_DEFAULT_OSSIM_ADMIN) { ?>
+<tr>
+  <th><?php echo _("Global Admin") ?></th>
+    <td align="center">
+   <input type="radio" name="is_admin" value="1" <?php if ($user->get_is_admin()) echo "checked"?>> <?php echo _("Yes"); ?>
+   <input type="radio" name="is_admin" value="0" <?php if (!$user->get_is_admin()) echo "checked"?>> <?php echo _("No"); ?> 
+    </td>
+</tr>
 <?php
+}
 if ($user->get_login() != 'admin') { ?>
 <!--
 <tr>
