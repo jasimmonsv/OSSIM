@@ -37,7 +37,7 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
-ini_set('memory_limit', '256M');
+ini_set('memory_limit', '512M');
 ini_set("max_execution_time","300");
 $unique_id = uniqid("alrm_");
 $prev_unique_id = $_SESSION['alarms_unique_id'];
