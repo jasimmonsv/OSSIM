@@ -136,6 +136,7 @@ Timeline._Band.prototype.softPaint=function(){this._etherPainter.softPaint();
 this._softPaintDecorators();
 this._softPaintEvents();
 };
+
 Timeline._Band.prototype.setBandShiftAndWidth=function(A,D){var C=this._keyboardInput.parentNode;
 var B=A+Math.floor(D/2);
 if(this._timeline.isHorizontal()){this._div.style.top=A+"px";
@@ -147,6 +148,9 @@ this._div.style.width=D+"px";
 C.style.left=B+"px";
 C.style.top="-1em";
 }};
+
+
+
 Timeline._Band.prototype.getViewWidth=function(){if(this._timeline.isHorizontal()){return this._div.offsetHeight;
 }else{return this._div.offsetWidth;
 }};
@@ -2682,8 +2686,8 @@ if(!F.documentElement&&G.responseStream){F.load(G.responseStream);
 }finally{A.hideLoadingMessage();
 }};
 this.showLoadingMessage();
-window.setTimeout(function(){SimileAjax.XmlHttp.get(B,E,C);
-},0);
+//window.setTimeout(function(){SimileAjax.XmlHttp.get(B,E,C);},0);
+SimileAjax.XmlHttp.get(B,E,C);
 };
 Timeline._Impl.prototype.loadJSON=function(url,f){var tl=this;
 var fError=function(statusText,status,xmlhttp){alert("Failed to load json data from "+url+"\n"+statusText);

@@ -12,8 +12,9 @@ function setHeight(e){
 	if(e.contentDocument){
 		e.height = e.contentDocument.body.offsetHeight + 35;
 	} else {
-		e.height = e.contentWindow.document.body.scrollHeight;
+		e.height = e.contentWindow.document.body.scrollHeight + 35;
 	}
+	
 }
 
 function addEvent(obj, evType, fn){
