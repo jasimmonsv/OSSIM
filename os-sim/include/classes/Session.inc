@@ -99,7 +99,8 @@ class Session {
     var $language;
 	var $enabled;
 	var $allowed_sensors;
-    function Session($login, $pass, $allowed_nets, $name = "", $email = "", $company = "", $department = "", $language = "", $enabled = 1) {
+	var $is_admin;
+    function Session($login, $pass, $allowed_nets, $name = "", $email = "", $company = "", $department = "", $language = "", $enabled = 1, $is_admin = 0) {
         $this->login = strtolower($login);
         $this->name = $name;
         $this->email = $email;
@@ -110,6 +111,7 @@ class Session {
         $this->language = $language;
 		$this->enabled = $enabled;
 		$this->allowed_sensors = explode(",",$this->allowedSensors($this->login));
+		$this->is_admin = $is_admin;
     }
     function get_login() {
         global $login;
@@ -139,6 +141,9 @@ class Session {
     function get_department() {
         return $this->department;
     }
+    function get_is_admin() {
+    	return $this->is_admin;
+    }
     function get_list($conn, $args = "") {
         $list = array();
         $query = OssimQuery("SELECT * FROM users $args");
@@ -147,7 +152,7 @@ class Session {
         } else {
             $list = array();
             while (!$rs->EOF) {
-                $list[] = new Session($rs->fields["login"], $rs->fields["pass"], $rs->fields["allowed_nets"], $rs->fields["name"], $rs->fields["email"], $rs->fields["company"], $rs->fields["department"], $rs->fields["language"], $rs->fields["enabled"]);
+                $list[] = new Session($rs->fields["login"], $rs->fields["pass"], $rs->fields["allowed_nets"], $rs->fields["name"], $rs->fields["email"], $rs->fields["company"], $rs->fields["department"], $rs->fields["language"], $rs->fields["enabled"], $rs->fields["is_admin"]);
                 $rs->MoveNext();
             }
         }
@@ -256,6 +261,7 @@ class Session {
         if ($rs = & $conn->Execute($sql, $params) && (!$rs->EOF)) {
 			$db->close($conn);
 			$_SESSION['_user_language'] = $rs->fields['language'];
+			$_SESSION['_is_admin'] = $rs->fields['is_admin'];
 			ossim_set_lang($rs->fields['language']);
 			return true;
         }
@@ -357,6 +363,7 @@ class Session {
     function menu_perms($menu, $submenu) {
         $gacl = $GLOBALS['ACL'];
         if (!isset($_SESSION["_user"])) return true;
+        if (Session::am_i_admin()) return true;
         if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
             if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
                 return false;
@@ -399,15 +406,17 @@ class Session {
             header("Location: $login_location");
             exit;
         }
-        if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
-            if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
-                echo "<p align=\"center\">
-                    <b>You don't have permission to see this page</b></p>";
-                echo "<p align=\"center\">[ User: " . $_SESSION["_user"] . "]</p>";
-                echo "<p align=\"center\">[ <a href=\"/ossim/session/login.php?action=logout\"
-                      title=\"Logout\"><font color=\"black\">Logout</font></a> ]</p>";
-                exit;
-            }
+        if (!Session::am_i_admin()) {
+	        if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
+	            if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
+	                echo "<p align=\"center\">
+	                    <b>You don't have permission to see this page</b></p>";
+	                echo "<p align=\"center\">[ User: " . $_SESSION["_user"] . "]</p>";
+	                echo "<p align=\"center\">[ <a href=\"/ossim/session/login.php?action=logout\"
+	                      title=\"Logout\"><font color=\"black\">Logout</font></a> ]</p>";
+	                exit;
+	            }
+	        }
         }
     }
     function logcheck_ext($menu, $submenu, $axo_sec, $axo_val, $login_location = "../session/login.php") {
@@ -602,7 +611,7 @@ class Session {
     }
     /* return true if we are admin user */
     function am_i_admin() {
-        return ($_SESSION["_user"] == ACL_DEFAULT_OSSIM_ADMIN);
+        return ($_SESSION["_user"] == ACL_DEFAULT_OSSIM_ADMIN || $_SESSION["_is_admin"]);
     }
     function is_expert() {
         $db = new ossim_db();
@@ -691,11 +700,11 @@ class Session {
         );
         Log_action::log(4, $infolog);
     }
-    function update($conn, $login, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdb_users, $first_login) {
+    function update($conn, $login, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdb_users, $first_login, $is_admin = 0) {
         global $ACL_MAIN_MENU;
         global $ACL_OPTIONS;
         /* modify OSSIM database */
-        $sql = "UPDATE users SET name = ?, allowed_nets = ?, email = ?, company = ?, department = ?, language = ?, first_login = ? WHERE login = ?";
+        $sql = "UPDATE users SET name = ?, allowed_nets = ?, email = ?, company = ?, department = ?, language = ?, first_login = ?, is_admin = ? WHERE login = ?";
         $params = array(
             $name,
             $nets,
@@ -704,6 +713,7 @@ class Session {
             $department,
             $language,
             $first_login,
+            $is_admin,
 			$login
         );
         ossim_set_lang($language);
@@ -773,9 +783,9 @@ class Session {
         );
         Log_action::log(6, $infolog);
     }
-	function update_noperms($conn, $login, $name, $email, $company, $department, $language, $first_login) {
+	function update_noperms($conn, $login, $name, $email, $company, $department, $language, $first_login, $is_admin = 0) {
         /* modify OSSIM database */
-        $sql = "UPDATE users SET name = ?, email = ?, company = ?, department = ?, language = ?, first_login = ? WHERE login = ?";
+        $sql = "UPDATE users SET name = ?, email = ?, company = ?, department = ?, language = ?, first_login = ?, is_admin = ? WHERE login = ?";
         $params = array(
             $name,
             $email,
@@ -783,6 +793,7 @@ class Session {
             $department,
             $language,
 			$first_login,
+			$is_admin,
             $login
         );
         ossim_set_lang($language);

@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `tags_alarm` (
   PRIMARY KEY (id)
 );
        
+ALTER TABLE  `users` ADD  `is_admin` BOOL NOT NULL DEFAULT  '0';
 
 DROP TRIGGER IF EXISTS auto_incidents;
 
