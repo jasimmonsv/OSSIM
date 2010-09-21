@@ -543,9 +543,9 @@ EOT;
        $data['vSerious'] = 0;
        
        $queryt = "SELECT count(*) AS total, risk, hostIP FROM (
-                    SELECT DISTINCT port, protocol, app, scriptid, msg, risk, hostIP
+                    SELECT DISTINCT port, protocol, app, scriptid, risk, hostIP
                     FROM vuln_nessus_latest_results where falsepositive='N'".((in_array("admin", $arruser))? "": " and username in ('".$user."')").") AS t GROUP BY risk, hostIP";
-       
+       //echo "$queryt<br>";
        
        $resultt = $dbconn->Execute($queryt);
          while(list($riskcount, $risk, $hostIP)=$resultt->fields) {
@@ -587,7 +587,7 @@ EOT;
 
          $query_risk = "SELECT risk FROM vuln_nessus_latest_results WHERE report_id = ".$data['report_id'];
          $query_risk.= " AND username = '".$data['username']."' AND sid =".$data['sid']." AND falsepositive='N'";
-         //echo "[$query_risk]";
+         //echo "[$query_risk]<br>";
          
          $result_risk = $dbconn->Execute($query_risk);
          while(!$result_risk->EOF) {

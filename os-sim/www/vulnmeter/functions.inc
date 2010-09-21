@@ -97,7 +97,7 @@ function tooltip_hosts($hosts,$ipsnames){
 function subjobs ($name, $scan_submit, $data) {
     $result=array();
     foreach($data as $entry) {
-        if($entry['jobname']==$name && $entry['scan_submit']==$scan_submit){
+        if($entry['jobname']==$name && $entry['scan_submit']==$scan_submit && $entry['sid']!=0){
             $result[] = $entry;
         }
     }
@@ -2672,6 +2672,7 @@ function drawTable($map, $data, $summary = "") {
         $job_name = $entry['jobname'];
         $scan_submit = $entry['scan_submit'];
         $scantime = $entry['scantime'];
+
         $agg = subjobs($job_name,$scan_submit,$data);
         if (count($agg)>1) {
             //print_r($agg);
@@ -2780,7 +2781,7 @@ function drawTableLatest($map, $data, $summary = "") {
                 $entry['plink'] = "respdf.php?ipl=$ip&scantype=M";
                 $entry['xlink'] = "rescsv.php?ipl=$ip&scantype=M";
                 
-                $query_lr = "select count(*) as total,risk from (select distinct port,protocol,app,scriptid,msg,risk from vuln_nessus_latest_results where report_id=$ip and falsepositive='N') as t group by risk";
+                $query_lr = "select count(*) as total,risk from (select distinct port,protocol,app,scriptid, risk from vuln_nessus_latest_results where report_id=$ip and falsepositive='N') as t group by risk";
 
                 $result_lr=$dbconn->Execute($query_lr);
                 while(!$result_lr->EOF) {

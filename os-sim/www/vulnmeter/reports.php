@@ -92,13 +92,16 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
     }
     else {
         $unresolved_host_names = array();
-    
-        $results_nbe = get_results_from_file ($dest);
+        
+        $results_file = array();
+        $results_file = get_results_from_file ($dest);
+        $results_nbe = $results_file["results"]; 
+        $scantime_import = $results_file["scan_end"];
+        
         unlink($dest);
         
         $hostHash = pop_hosthash ($dbconn, $results_nbe);
 
-        $scantime_import = date("YmdHis");
         $report_key = substr(preg_replace("/\D/", "", uniqid(md5(rand()), true)),0,15);
         
         $dbconn->execute("INSERT INTO vuln_nessus_reports ( username, name, sid, scantime, report_type, report_key ) VALUES (
@@ -202,7 +205,7 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
                 update_ossim_incidents ($dbconn, $conf->get_conf("vulnerability_incident_threshold"), $ip, $info["port"], $info["risk"], $info["desc"], $info["scanid"], Session::get_session_user(), $assignto);
             } 
             // update field results_sent in vuln_nessus_latest_reports
-            $result_vuln_host=$dbconn->execute("SELECT count( * ) AS vulnerability FROM (SELECT DISTINCT hostip, port, protocol, app, scriptid, msg, risk
+            $result_vuln_host=$dbconn->execute("SELECT count( * ) AS vulnerability FROM (SELECT DISTINCT hostip, port, protocol, app, scriptid, risk
                         FROM vuln_nessus_latest_results WHERE report_id =inet_aton('$ip') AND falsepositive='N') AS t GROUP BY hostip");
             $vuln_host = $result_vuln_host->fields['vulnerability'];
             $dbconn->execute("UPDATE vuln_nessus_latest_reports SET results_sent=$vuln_host WHERE report_id=inet_aton('$ip') AND username='".$assignto."'");
@@ -337,6 +340,7 @@ if (ossim_error()) {
 
 $arruser = array();
 
+
 if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
@@ -392,6 +396,7 @@ function delete_results( $scantime, $scantype, $reporttype, $key, $sortby, $allr
 
          $query = "DELETE FROM vuln_nessus_reports WHERE report_id='$report_id'";
          $result=$dbconn->execute($query);
+
 
       }
       echo "<font face=\"Verdana\" color=\"#666666\" size=\"2\">Vulnerability test results have been deleted.<BR></font>";
@@ -669,9 +674,19 @@ EOT;
         //$data['vLow'] = $data['vLow'];
         //$data['vInfo'] = $data['vInfo'];
         //$data['scan_submit'] = $data['scan_submit'];
-            
-        $list = explode("\n", trim($data['meth_target']));
+        $list = array();
+        if($data["report_type"]=="I") {
+            $result = $dbconn->execute("SELECT DISTINCT hostIP FROM vuln_nessus_results WHERE report_id =".$data['report_id']);
 
+            while (!$result->EOF) {
+                $list[] = $result->fields["hostIP"];
+                $result->MoveNext();
+            }
+        }
+        else {
+            $list = explode("\n", trim($data['meth_target']));
+        }
+        //var_dump($list);
         if(count($list)==1) {
             $list[0]=trim($list[0]);
             if($list[0]!=""){
@@ -765,6 +780,7 @@ EOT;
 
       drawTable($fieldMap, $tdata, "Hosts");
 
+
    }
 
    // draw the pager again, if viewing all hosts
@@ -824,7 +840,7 @@ echo "</table>";
         <td width="785" class="nobborder" style="text-align:left;padding-left:5px;"><input name="report_name" type="text" style="width: 146px;"></td>
     </tr>
     <tr>
-        <th width="100"><?=_("File")?></th> 
+        <th width="100"><?=_("File")?></th>
         <td width="785" class="nobborder" style="text-align:left;padding-left:5px;"><input name="nbe_file" type="file" size="25"></td>
     </tr>
                 <?
@@ -1006,10 +1022,17 @@ echo "</center>";
 require_once('footer.php');
 
 function get_results_from_file ($outfile) {
+    $result = array();
     $issues = array();
+    
     $compliance_plugins = array("21156", "21157", "24760");
     $lines = file($outfile);
+    $scan_end = date("YmdHis");
     foreach ($lines as $line) {
+        if (preg_match("/scan_end/s", $line)) {
+            $tmp = explode("|",$line);
+            $scan_end = date("YmdHis",strtotime($tmp[4])); 
+        }
         $host = $domain = $scan_id = $description = $service = $app = $port = $proto = $rec_type = $risk_type  = "";
         list( $rec_type, $domain, $host, $service, $scan_id, $risk_type, $description ) = explode("|", $line);
         if ($rec_type == "results") {
@@ -1073,7 +1096,9 @@ function get_results_from_file ($outfile) {
             }
         }
     }
-    return($issues);
+    $result["results"] = $issues;
+    $result["scan_end"] = $scan_end;
+    return ($result);
 }
 function pop_hosthash($dbconn, $results) {
     
@@ -1124,19 +1149,19 @@ function pop_hosthash($dbconn, $results) {
           if (preg_match("/Risk [fF]actor\s*:\s*(..)*Unknown/s", $desc))          $risk = "3";
           if (preg_match("/Risk [fF]actor\s*:\s*(..)*Failed/s", $desc))           $risk = "2";
         
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Serious((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Critical((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*High((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Medium((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Medium\/Low((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Low\/Medium((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Low((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Info((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*[nN]one to High((..)(..)?|(\s)+| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*[nN]one((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Passed((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Unknown((..)(..)?| \/ |$)/", "", $desc);
-          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Failed((..)(..)?| \/ |$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Serious( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Critical( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*High( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Medium( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Medium\/Low( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Low\/Medium( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Low( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Info( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*[nN]one to High( \/ |(.n)(.n)?|(\s)+|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*[nN]one( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Passed( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Unknown( \/ |(.n)(.n)?|$)/", "", $desc);
+          $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Failed( \/ |(.n)(.n)?|$)/", "", $desc);
         
           $strd .= $desc.'\n';
         }
@@ -1148,16 +1173,17 @@ function pop_hosthash($dbconn, $results) {
         $desc = trim($desc);
         if($desc[0]=="\\" && $desc[1]=='n') $desc = substr($desc, 2);
         
-        $desc = str_replace('\n','<br>',$desc);
+        $desc = str_replace('\n',"\n",$desc);
         
         if(intval($scanid)>=60000)  $record_type = "C";
             else    $record_type = "N";
             
 
+
         
         $key = $port.$proto.$scanid;
         $hostHash[$host]['results'][$key] = array( 'scanid' => $scanid, 'port' => $port, 'app' => $app, 'service' => $service,
-            'proto' => $proto, 'risk' => $risk, 'record' => $record_type, 'desc' => $desc );
+            'proto' => $proto, 'risk' => $risk, 'record' => $record_type, 'desc' => htmlspecialchars($desc, ENT_QUOTES) );
         
         
     }
