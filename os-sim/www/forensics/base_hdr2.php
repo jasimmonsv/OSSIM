@@ -859,6 +859,22 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 		
 		
 	}
+	function delete_view(name){
+		$.ajax({
+			type: "GET",
+			url: "custom_view_delete.php",
+			data: "name="+name,
+			success: function(msg) {
+				if (msg != "") {
+					alert(msg);
+				} else {
+					var url = "base_qry_main.php?num_result_rows=-1&submit=Query+DB";
+					document.location.href=url;
+				}
+			}
+		});
+	}
+	
     function GB_hide() { document.location.reload() }
     function fill_subcategories() {
     	var idcat = $('#category').val();
