@@ -114,18 +114,19 @@ if (!$order_by) {
     $order_by = 'life_time';
     $order_mode = 'ASC';
 }
-$criteria['status'] = "Open";
-$incident_list = Incident::search($conn, $criteria, $order_by, $order_mode, 1, 999);
-$unresolved_incidents = count($incident_list);
-$incident_list = Incident::get_list($conn, "ORDER BY date DESC");
+$incident_list = Incident::search($conn, array("status"=>"Open"), $order_by, $order_mode, 1, 10);
+$unresolved_incidents = Incident::search_count($conn);
+//$incident_list = Incident::get_list($conn, "ORDER BY date DESC");
+$incident_list = Incident::search($conn, array(), "date", "DESC", 1, 1);
 $incident_date1 = ($incident_list[0]) ? $incident_list[0]->get_date() : 0;
-$incident_ticket_list = Incident_ticket::get_list($conn, "ORDER BY date DESC");
+$incident_ticket_list = Incident_ticket::get_list($conn, "ORDER BY date DESC LIMIT 1");
 $incident_date2 = ($incident_ticket_list[0]) ? $incident_ticket_list[0]->get_date() : 0;
 if ($incident_list[0] || $incident_ticket_list[0]) {
     $incident_date = (strtotime($incident_date1) > strtotime($incident_date2)) ? $incident_date1 : $incident_date2;
     if ($incident_date == 0) $incident_date = "__/__/__ --:--:--";
 }
-$incident_list = Incident::get_list($conn, "ORDER BY priority DESC");
+//$incident_list = Incident::get_list($conn, "ORDER BY priority DESC");
+$incident_list = Incident::search($conn, array(), "priority", "DESC", 1, 1);
 $incident_max_priority = ($incident_list[0]) ? $incident_list[0]->get_priority() : "-";
 $incident_max_priority_id = ($incident_list[0]) ? $incident_list[0]->get_id() : "0";
 // Get unresolved ALARMS

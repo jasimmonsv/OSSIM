@@ -471,9 +471,8 @@ class Incident {
                 if (is_array($user)) {
                 	$flag = false;
                 	foreach ($user as $u) {
-                		if (in_array($u, $allowed)) {
+                		if (in_array($u, $allowed))
 	                    	$flag = true;
-                		}
                 	}
                 	if ($flag) {
                 		$list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
@@ -807,8 +806,8 @@ class Incident {
         
         
         if(preg_match("/pro|demo/i",$version)) {
-            $db = new ossim_db();
-            $dbconn = $db->connect();
+            $dbaux = new ossim_db();
+            $dbconn = $dbaux->connect();
             if (Acl::am_i_proadmin()) {
                 //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
                 //$user_tmp = array_keys($entities_admin);
@@ -832,13 +831,13 @@ class Incident {
                 //    $user_tmp[] = $brother["login"]; 
                 //}
             }
-            $db->close($dbconn);
+            $dbaux->close($dbconn);
         }
         if(!in_array($user, $user_tmp))   $user_tmp[] = $user; 
         
         $user_where = "'".implode("', '", $user_tmp)."'";
 
-        if ($user != ACL_DEFAULT_OSSIM_ADMIN) {
+        if (!Session::am_i_admin()) { //  $user != ACL_DEFAULT_OSSIM_ADMIN
             if (preg_match("/incident_event/",$w) || preg_match("/incident_alarm/",$w)
                 || preg_match("/incident_metric/",$w) || preg_match("/incident_vulns/",$w)) {
                 $sql .= "LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE incident_subscrip.login in ($user_where)";
@@ -893,6 +892,7 @@ class Incident {
     * (user, in_charge, transferred and subscribed to incidents)
     */
     function get_users_list($conn, $incident_id) {
+    	if (Session::am_i_admin()) return array(ACL_DEFAULT_OSSIM_ADMIN);
         $list = array();
         $query = OssimQuery("SELECT users, in_charge, transferred FROM incident_ticket WHERE incident_id = " . $incident_id);
         if (!$rs = & $conn->Execute($query)) {
@@ -996,7 +996,7 @@ class Incident {
         }
         return false;
         */
-        if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
+        if (Session::am_i_admin()) return true; // $user == ACL_DEFAULT_OSSIM_ADMIN
         $incident_list = Incident::search($conn, array( 'incident_id' => $incident_id ));
         return (count($incident_list)>0) ? true : false;
     }
