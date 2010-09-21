@@ -123,7 +123,7 @@ function PrintPredefinedViews() {
 								 $style = 'font-weight: bold;';
 								 $opacidad = '';
 								 $boton1 ="<a style='cursor:pointer;' onclick=\"save_view('save_".$i."');\"><img id='save_".$i."' src='../pixmaps/disk-gray.png' alt='"._('Save Current')."' title='"._('Save')."' border='0'/></a>&nbsp;";
-								 $boton2 ="<a style='cursor:pointer;' onclick=\"GB_show('"._('Edit custom view')."','custom_view_edit.php?edit=1',420,600);\"><img src='../vulnmeter/images/pencil.png' alt='"._('Modify')."' title='"._('Modify')."' border='0'/></a>";
+								 $boton2 ="<a style='cursor:pointer;' onclick=\"GB_show('"._('Edit custom view')."','custom_view_edit.php?edit=1',460,600);\"><img src='../vulnmeter/images/pencil.png' alt='"._('Modify')."' title='"._('Modify')."' border='0'/></a>";
 							  }
 							  else{
 								 $style='';
@@ -144,7 +144,7 @@ function PrintPredefinedViews() {
 				</tr>
 				<tr>
 					<td style='text-align: center; padding: 7px; font-size: 10px;' class="noborder">
-					  <input type="button" value="<?=_("Create New View")?>" onclick="GB_show('<?=_("Create new custom view")?>','custom_view_edit.php',420,600);" class="button">
+					  <input type="button" value="<?=_("Create New View")?>" onclick="GB_show('<?=_("Create new custom view")?>','custom_view_edit.php',460,600);" class="button">
 					</td>
 				</tr>
 			</table>
