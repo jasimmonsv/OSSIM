@@ -42,7 +42,7 @@ $save = GET('save');
 $name = GET('name');
 $oldname = GET('oldname');
 $columns = GET('selected_cols');
-$save_criteria = GET('save_criteria');
+$save_criteria = (GET('save_criteria') != "") ? 1 : 0;
 ossim_valid($edit, OSS_NULLABLE, OSS_DIGIT, "Invalid: edit");
 ossim_valid($save, OSS_NULLABLE, OSS_ALPHA, "Invalid: save");
 ossim_valid($name, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: name");
@@ -107,6 +107,9 @@ if ($save == "insert") {
 			$_SESSION['view_name_changed'] = $name; // Uses when closes greybox
 		}
 		$_SESSION['views'][$name]['cols'] = $columns_arr;
+		if (!$save_criteria) {
+			$_SESSION['views'][$name]['data'] = array();
+		}
 		$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
 		$edit = 1;
 		$msg = "<font style='color:green'>"._("The view has been successfully updated.")."</font>";
