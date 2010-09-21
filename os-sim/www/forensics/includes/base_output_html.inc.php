@@ -136,7 +136,7 @@ function PrintPredefinedViews() {
 							
 							<td class="noborder <?=$color?>" style="padding: 0px 90px 3px 5px; text-align: left;"><a style="cursor:pointer;<?=$style?>" onclick="change_view('<?=$name?>');" id="view_<?= $name?>"><span><?=$name?></span></a></td>
 							<td class="noborder <?=$color?>" style="<?=$opacidad?> padding-right:5px;"><?=$boton1.$boton2;?></td>
-							<td class="noborder <?=$color?>" <?php if ($name == "default") { ?>style="<?=$opacidad?>"<?php } ?>><?php if ($name != "default") { ?><a style="cursor:pointer" onclick="delete_view('<?php echo $name?>')"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Delete") ?>" title="<?php echo _("Delete") ?>"></img></a><?php } ?></td>
+							<td class="noborder <?=$color?>" <?php if ($name == "default") { ?>style="<?=$opacidad?>"<?php } ?>><?php if ($name != "default") { ?><a style="cursor:pointer" onclick="if(confirm('<?php echo _("Are you sure?")?>')) delete_view('<?php echo $name?>')"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Delete") ?>" title="<?php echo _("Delete") ?>"></img></a><?php } ?></td>
 						</tr>
 						<? } ?>
 					</table>
