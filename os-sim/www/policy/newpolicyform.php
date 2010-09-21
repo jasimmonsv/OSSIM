@@ -806,7 +806,7 @@ foreach($ports as $pgrp) echo "<option value='$pgrp'>$pgrp"; ?>
   <tr>
     <th style="background-position:top"> <?php echo _("Plugin Groups") . required() ?> <br/>
         <font size="-2">
-          <a href="../policy/modifyplugingroupsform.php?action=new&withoutmenu=1" class="greybox"> <?php echo gettext("Insert new plugin group"); ?>? </a>
+          <a href="../policy/modifyplugingroupsform.php?action=new&withoutmenu=1" class="greybox"> <?php echo gettext("Insert new plugin group?"); ?> </a>
         </font><br/>
         <font size="-2">
           <a href="../policy/plugingroups.php?withoutmenu=1" class="greybox"> <?php echo gettext("View all plugin groups"); ?></a>

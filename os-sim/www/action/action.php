@@ -98,7 +98,7 @@ include ("../hmenu.php"); ?>
 	}
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='Delete selected') {
+		if (com=='<?php echo _("Delete selected");?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
 				$("#flextable").changeStatus('<?=_("Deleting action")?>...',false);
@@ -113,11 +113,11 @@ include ("../hmenu.php"); ?>
 			}
 			else alert('<?=_("You must select a action")?>');
 		}
-		else if (com=='Modify') {
+		else if (com=='<?php echo _("Modify");?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyactionform.php?id='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a action")?>');
 		}
-		else if (com=='New') {
+		else if (com=='<?php echo _("New");?>') {
 			document.location.href = 'newactionform.php'
 		}
 	}

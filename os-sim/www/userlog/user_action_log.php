@@ -80,10 +80,10 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 /* delete logs*/
-if($action=="Delete All" && $_SESSION['_user']=="admin"){
+if($action==_("Delete All") && $_SESSION['_user']=="admin"){
     Log_action::delete_by_user_code($conn, $user, $code);
 }
-else if($action=="Delete Selected" && $_SESSION['_user']=="admin"){
+else if($action==_("Delete Selected") && $_SESSION['_user']=="admin"){
     foreach ($_GET as $key => $value){
         if(preg_match('/\|/', $key)) {
             $tmp = array();
@@ -126,7 +126,7 @@ require_once ('classes/Session.inc');
 ?>
                 <option <?php
 if ("" == $user) echo " selected " ?>
-                 value="">All</option>"; ?>
+                 value=""><?php echo _("All");?></option>"; ?>
         <?php
 if ($session_list = Session::get_list($conn, "ORDER BY login")) {
     foreach($session_list as $session) {
@@ -148,7 +148,7 @@ if ($session_list = Session::get_list($conn, "ORDER BY login")) {
         <select name="code" onChange="document.forms['logfilter'].submit()">
             <option <?php
 if ("" == $code) echo " selected " ?>
-                 value="">All</option>"; ?>
+                 value=""><?php echo _("All");?></option>"; ?>
         <?php
 if ($code_list = Log_config::get_list($conn, "ORDER BY descr")) {
     foreach($code_list as $code_log) {
@@ -176,8 +176,8 @@ if ($code_list = Log_config::get_list($conn, "ORDER BY descr")) {
         <center>
             <input type="hidden" name="user" value="<?=$user?>">
             <input type="hidden" name="code" value="<?=$code?>">
-            <input name="action" type="submit" value="Delete All">&nbsp;&nbsp;&nbsp;
-            <input name="action" type="submit" value="Delete Selected">
+            <input name="action" type="submit" value="<?php echo _("Delete All");?>">&nbsp;&nbsp;&nbsp;
+            <input name="action" type="submit" value="<?php echo _("Delete Selected");?>">
         </center><br>
     <?}?>
         <table width="100%">
