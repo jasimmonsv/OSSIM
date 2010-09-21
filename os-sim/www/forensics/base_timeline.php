@@ -281,8 +281,9 @@ $qs->SaveState();
 </tr>
 </table>
 </form>
-<script src="js/autoHeight.js" type="text/javascript"></script>
-<IFRAME style="width:100%;margin:5px 0px 0px 0px;padding:0px;border:1px solid #CCCCCC;" frameborder="0" scrolling="no" name="forum" class="autoHeight" src="base_timeline_ifr.php?resolution=<?=$resolution?>"> </IFRAME>
+
+<IFRAME style="width:100%; height: 430px; margin:5px 0px 0px 0px;padding:0px;border:1px solid #CCCCCC;" frameborder="0" scrolling="no" name="forum" src="base_timeline_ifr.php?resolution=<?=$resolution?>"></IFRAME>
+
 <?
 PrintBASESubFooter();
 echo "</body>\r\n</html>";

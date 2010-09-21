@@ -22,6 +22,10 @@ require_once ('classes/Security.inc');
 Session::logcheck("MenuEvents", "EventsForensics");
 require_once 'ossim_db.inc';
 
+$iu1 = "Timeline.DateTime.MINUTE";
+$iu2 = "Timeline.DateTime.HOUR";
+$intpx  = 20;
+
 switch ( GET('resolution')){
 	
 	case "s":
@@ -47,11 +51,6 @@ switch ( GET('resolution')){
 		$iu2 = "Timeline.DateTime.MONTH";
 		$intpx  = 50;
 	break;
-	
-	default:
-		$iu1 = "Timeline.DateTime.MINUTE";
-		$iu2 = "Timeline.DateTime.HOUR";
-
 }
 
 
@@ -59,7 +58,7 @@ switch ( GET('resolution')){
 $db = new ossim_db();
 $conn = $db->connect();
 
-$sql = "SELECT * FROM `datawarehouse`.`report_data` WHERE id_report_data_type = 33 AND USER = ? AND dataI1 = 49";
+$sql = "SELECT * FROM `datawarehouse`.`report_data` WHERE id_report_data_type = 33 AND USER = ? ORDER BY dataV2 ASC LIMIT 0,1";
 
 $user = $_SESSION['_user'];
 settype($user, "string");
@@ -79,9 +78,8 @@ else
 	$t = explode(":", $date[1]);
 
 	$timestamp = mktime($t[0], $t[1], $t[2], $d[1], $d[2], $d[0]);
-	$format_date = date("M d Y G:i:s", $timestamp)." GMT";
-
-	$init_date = $format_date;
+	$init_date = date("M d Y G:i:s", $timestamp)." GMT";
+	
 }
 
 ?>
@@ -109,8 +107,6 @@ a:hover {text-decoration: underline;}
 
 .df { color: #4e487d; text-align: center;}
 
-/*#tm { overflow-x:hidden; overflow-y:scroll;}*/
-
 
 </style>
 <!--<script type='text/javascript' src="http://static.simile.mit.edu/timeline/api-2.3.0/timeline-api.js?bundle=true" type="text/javascript"></script>-->
@@ -125,7 +121,6 @@ a:hover {text-decoration: underline;}
 <script type='text/javascript'>
 var tl = null;
 	function onLoad() {
-	$('.timeline-message-container').css('display', 'block');
 	var eventSource = new Timeline.DefaultEventSource();
 	
 	var date = "<?=$init_date?>";
@@ -151,8 +146,7 @@ var tl = null;
 	bandInfos[1].highlight = true;
 	tl = Timeline.create(document.getElementById("tm"), bandInfos);
 	Timeline.loadXML("base_timeline_xml.php", function(xml, url) { eventSource.loadXML(xml, url); });
-	
-	$('.timeline-message-container').css('display', 'none');
+		
 	}
 
 	var resizeTimerID = null;
@@ -168,22 +162,23 @@ var tl = null;
 
 </head>
 <body onload="onLoad();" onresize="onResize();">
-<div id="tm" class="timeline-default" style="height:400px;margin:0px;padding:0px"></div>
+	<div id="tm" class="timeline-default" style="height:400px;margin:0px;padding:0px"></div>
 
-<div class="timeline-message-container" style='display: block'>
-	<div style="height: 33px; background: url(js/timeline_ajax/images/message-top-left.png) no-repeat scroll left top transparent; padding-left: 44px;">
-		<div style="height: 33px; background: url(js/timeline_ajax/images/message-top-right.png) no-repeat scroll right top transparent;"></div>
-	</div>
-	<div style="background: url(js/timeline_ajax/images/message-left.png) repeat-y scroll left top transparent; padding-left: 44px;">
-		<div style="background: url(js/timeline_ajax/images/message-right.png) repeat-y scroll right top transparent; padding-right: 44px;">
-			<div class="timeline-message"><img src="js/timeline_js/images/progress-running.gif"> Loading...</div>
+	<div class="timeline-message-container" style='display: block'>
+		<div style="height: 33px; background: url(js/timeline_ajax/images/message-top-left.png) no-repeat scroll left top transparent; padding-left: 44px;">
+			<div style="height: 33px; background: url(js/timeline_ajax/images/message-top-right.png) no-repeat scroll right top transparent;"></div>
+		</div>
+		
+		<div style="background: url(js/timeline_ajax/images/message-left.png) repeat-y scroll left top transparent; padding-left: 44px;">
+			<div style="background: url(js/timeline_ajax/images/message-right.png) repeat-y scroll right top transparent; padding-right: 44px;">
+				<div class="timeline-message"><img src="js/timeline_js/images/progress-running.gif"> Loading...</div>
+			</div>
+		</div>
+		
+		<div style="height: 55px; background: url(js/timeline_ajax/images/message-bottom-left.png) no-repeat scroll left bottom transparent; padding-left: 44px;">
+			<div style="height: 55px; background: url(js/timeline_ajax/images/message-bottom-right.png) no-repeat scroll right bottom transparent;"></div>
 		</div>
 	</div>
-	<div style="height: 55px; background: url(js/timeline_ajax/images/message-bottom-left.png) no-repeat scroll left bottom transparent; padding-left: 44px;">
-		<div style="height: 55px; background: url(js/timeline_ajax/images/message-bottom-right.png) no-repeat scroll right bottom transparent;"></div>
-	</div>
-</div>
-
 
 </body>
 </html>

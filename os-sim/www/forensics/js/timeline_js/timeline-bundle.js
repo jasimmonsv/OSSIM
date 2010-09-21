@@ -2295,19 +2295,27 @@ var F=G.documentElement.getAttribute("date-time-format");
 var E=this._events.getUnit().getParser(F);
 var D=G.documentElement.firstChild;
 var I=false;
-while(D!=null){if(D.nodeType==1){var L="";
-if(D.firstChild!=null&&D.firstChild.nodeType==3){L=D.firstChild.nodeValue;
-}var B=(D.getAttribute("isDuration")===null&&D.getAttribute("durationEvent")===null)||D.getAttribute("isDuration")=="false"||D.getAttribute("durationEvent")=="false";
-var K=new Timeline.DefaultEventSource.Event({id:D.getAttribute("id"),start:E(D.getAttribute("start")),end:E(D.getAttribute("end")),latestStart:E(D.getAttribute("latestStart")),earliestEnd:E(D.getAttribute("earliestEnd")),instant:B,text:D.getAttribute("title"),description:L,image:this._resolveRelativeURL(D.getAttribute("image"),C),link:this._resolveRelativeURL(D.getAttribute("link"),C),icon:this._resolveRelativeURL(D.getAttribute("icon"),C),color:D.getAttribute("color"),textColor:D.getAttribute("textColor"),hoverText:D.getAttribute("hoverText"),classname:D.getAttribute("classname"),tapeImage:D.getAttribute("tapeImage"),tapeRepeat:D.getAttribute("tapeRepeat"),caption:D.getAttribute("caption"),eventID:D.getAttribute("eventID"),trackNum:D.getAttribute("trackNum")});
-K._node=D;
-K.getProperty=function(M){return this._node.getAttribute(M);
-};
-K.setWikiInfo(H,J);
-this._events.add(K);
-I=true;
-}D=D.nextSibling;
-}if(I){this._fire("onAddMany",[]);
+while(D!=null){
+	if(D.nodeType==1){
+		var L="";
+		if(D.firstChild!=null&&D.firstChild.nodeType==3){
+			L=D.firstChild.nodeValue;
+		}
+		var B=(D.getAttribute("isDuration")===null&&D.getAttribute("durationEvent")===null)||D.getAttribute("isDuration")=="false"||D.getAttribute("durationEvent")=="false";
+		var K=new Timeline.DefaultEventSource.Event({id:D.getAttribute("id"),start:E(D.getAttribute("start")),end:E(D.getAttribute("end")),latestStart:E(D.getAttribute("latestStart")),earliestEnd:E(D.getAttribute("earliestEnd")),instant:B,text:D.getAttribute("title"),description:L,image:this._resolveRelativeURL(D.getAttribute("image"),C),link:this._resolveRelativeURL(D.getAttribute("link"),C),icon:this._resolveRelativeURL(D.getAttribute("icon"),C),color:D.getAttribute("color"),textColor:D.getAttribute("textColor"),hoverText:D.getAttribute("hoverText"),classname:D.getAttribute("classname"),tapeImage:D.getAttribute("tapeImage"),tapeRepeat:D.getAttribute("tapeRepeat"),caption:D.getAttribute("caption"),eventID:D.getAttribute("eventID"),trackNum:D.getAttribute("trackNum")});
+		K._node=D;
+		K.getProperty=function(M){return this._node.getAttribute(M);};
+		K.setWikiInfo(H,J);
+
+		this._events.add(K);
+		I=true;
+}
+D=D.nextSibling;
+}
+if(I){this._fire("onAddMany",[]);
+$('.timeline-message-container').css('display', 'none');
 }};
+
 Timeline.DefaultEventSource.prototype.loadJSON=function(H,B){var D=this._getBaseURL(B);
 var J=false;
 if(H&&H.events){var I=("wikiURL" in H)?H.wikiURL:null;

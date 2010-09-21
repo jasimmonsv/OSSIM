@@ -4,6 +4,7 @@ function doIframe(){
 		if (/\bautoHeight\b/.test(o[i].className)){
 			setHeight(o[i]);
 			addEvent(o[i],'load', doIframe);
+			
 		}
 	}
 }
@@ -20,15 +21,19 @@ function setHeight(e){
 function addEvent(obj, evType, fn){
 	if(obj.addEventListener)
 	{
-	obj.addEventListener(evType, fn,false);
+	obj.addEventListener(evType, fn, false);
 	return true;
-	} else if (obj.attachEvent){
-	var r = obj.attachEvent("on"+evType, fn);
-	return r;
-	} else {
-	return false;
+	
+	} 
+	else if (obj.attachEvent){
+		var r = obj.attachEvent("on"+evType, fn);
+		return r;
+	} 
+	else {
+		return false;
 	}
 }
+
 
 if (document.getElementById && document.createTextNode){
  addEvent(window,'load', doIframe);	
