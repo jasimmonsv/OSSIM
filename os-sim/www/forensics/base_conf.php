@@ -252,7 +252,7 @@ $event_cache_auto_update = 1;
 *   1 : yes
 *   0 : no
 */
-$maintain_history = 1;
+$maintain_history = 0;
 /* Level of detail to display on the main page.
 *
 * Note: The presence of summary statistics will slow page loading time
