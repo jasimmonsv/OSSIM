@@ -84,7 +84,7 @@ if (!$cs->criteria['ossim_asset_dst']->isEmpty() && $cs->criteria['ossim_asset_d
 if (!$cs->criteria['ossim_type']->isEmpty()) $criteria_arr['meta']['Type'] = $cs->criteria['ossim_type']->Description();
 
 // IP
-if ((!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty()) && $cs->criteria['ip_addr']->Description != "") {
+if ((!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty()) && $cs->criteria['ip_addr']->Description() != "") {
 	$criteria_arr['ip']['IP Addr'] = $cs->criteria['ip_addr']->Description_full();
 	//$criteria_arr['ip']['IP Field'] = $cs->criteria['ip_field']->Description();
 } else {
