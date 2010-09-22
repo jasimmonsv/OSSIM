@@ -46,6 +46,7 @@ $criteria_arr = array();
 $tmp_len = strlen($save_criteria);
 
 // META
+/*
 $criteria_arr['meta']['Sensor'] = '<I> ' . _ANY . ' </I>';
 $criteria_arr['meta']['Plugin'] = '<I> ' . _ANY . ' </I>';
 $criteria_arr['meta']['Plugin Group'] = '<I> ' . _ANY . ' </I>';
@@ -62,7 +63,7 @@ $criteria_arr['meta']['Priority'] = '<I> ' . _ANY . ' </I>';
 $criteria_arr['meta']['Reliability'] = '<I> ' . _ANY . ' </I>';
 $criteria_arr['meta']['Asset Dst'] = '<I> ' . _ANY . ' </I>';
 $criteria_arr['meta']['Type'] = '<I> ' . _ANY . ' </I>';
-
+*/
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
 $db->baseDBConnect($db_connect_method, $alert_dbname, $alert_host, $alert_port, $alert_user, $alert_password);
 
@@ -76,7 +77,7 @@ if (!$cs->criteria['sig']->isEmpty() && $cs->criteria['sig']->Description() != "
 if (!$cs->criteria['sig_class']->isEmpty()) $criteria_arr['meta']['Sig Class'] = $cs->criteria['sig_class']->Description();
 if (!$cs->criteria['sig_priority']->isEmpty() && $cs->criteria['sig_priority']->Description() != "") $criteria_arr['meta']['Sig Prio'] = $cs->criteria['sig_priority']->Description();
 if (!$cs->criteria['ag']->isEmpty()) $criteria_arr['meta']['ag'] = $cs->criteria['ag']->Description();
-if (!$cs->criteria['time']->isEmpty()) $criteria_arr['meta']['Time'] = $cs->criteria['time']->Description();
+if (!$cs->criteria['time']->isEmpty()) $criteria_arr['meta']['Time'] = $cs->criteria['time']->Description_full();
 if (!$cs->criteria['ossim_risk_a']->isEmpty()) $criteria_arr['meta']['Risk'] = $cs->criteria['ossim_risk_a']->Description();
 if (!$cs->criteria['ossim_priority']->isEmpty() && $cs->criteria['ossim_priority']->Description() != "") $criteria_arr['meta']['Priority'] = $cs->criteria['ossim_priority']->Description();
 if (!$cs->criteria['ossim_reliability']->isEmpty() && $cs->criteria['ossim_reliability']->Description() != "") $criteria_arr['meta']['Reliability'] = $cs->criteria['ossim_reliability']->Description();
@@ -84,22 +85,22 @@ if (!$cs->criteria['ossim_asset_dst']->isEmpty() && $cs->criteria['ossim_asset_d
 if (!$cs->criteria['ossim_type']->isEmpty()) $criteria_arr['meta']['Type'] = $cs->criteria['ossim_type']->Description();
 
 // IP
+//$criteria_arr['ip']['IP Addr'] = '<I> ' . _ANY . ' </I>';
 if ((!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty()) && $cs->criteria['ip_addr']->Description() != "") {
 	$criteria_arr['ip']['IP Addr'] = $cs->criteria['ip_addr']->Description_full();
 	//$criteria_arr['ip']['IP Field'] = $cs->criteria['ip_field']->Description();
-} else {
-	$criteria_arr['ip']['IP Addr'] = '<I> ' . _ANY . ' </I>';
-	//$criteria_arr['ip']['IP Field'] = '<I> ' . _ANY . ' </I>';
 }
 
 // LAYER4
+/*
 $criteria_arr['layer4']['TCP Port'] = '<I> none </I>';
 //$criteria_arr['layer4']['TCP Flags'] = '<I> none </I>';
 //$criteria_arr['layer4']['TCP Field'] = '<I> none </I>';
 $criteria_arr['layer4']['UPD Port'] = '<I> none </I>';
 //$criteria_arr['layer4']['UDP Field'] = '<I> none </I>';
 $criteria_arr['layer4']['ICMP Field'] = '<I> none </I>';
-$criteria_arr['layer4']['RawIP Field'] = '<I> none </I>';		
+$criteria_arr['layer4']['RawIP Field'] = '<I> none </I>';
+*/		
 if ($cs->criteria['layer4']->Get() == "TCP") {
 	if (!$cs->criteria['tcp_port']->isEmpty() || !$cs->criteria['tcp_flags']->isEmpty() || !$cs->criteria['tcp_field']->isEmpty()) {
 		$criteria_arr['layer4']['TCP Port'] = $cs->criteria['tcp_port']->Description();
@@ -122,10 +123,9 @@ if ($cs->criteria['layer4']->Get() == "TCP") {
 }
 
 /* Payload ************** */
+//$criteria_arr['payload']['Data'] = '<I> ' . _ANY . ' </I>';
 if (!$cs->criteria['data']->isEmpty()) {
 	$criteria_arr['payload']['Data'] = $cs->criteria['data']->Description();
-} else {
-	$criteria_arr['payload']['Data'] = '<I> ' . _ANY . ' </I>';
 }
 
 // Report Data
@@ -145,6 +145,7 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 </HEAD>
 <body>
 <table width="100%">
+	<?php if (is_array($criteria_arr['meta'])) { ?>
 	<tr>
 		<td>
 			<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
@@ -156,8 +157,10 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 						<table width="100%">
 							<?php foreach ($criteria_arr['meta'] as $meta=>$val) { ?>
 							<tr>
-								<th width="50%" align="right" style="padding-right:10px"><?php echo $meta ?></th>
-								<td width="50%" align="left"><?php echo preg_replace("/\<a (.*?)\<\/a\>|\&nbsp;|,\s+$/i","",$val) ?></td>
+								<th align="center" style="padding-right:10px;font-size:12px;background-color:#EEEEEE"><?php echo $meta ?></th>
+							</tr>
+							<tr>
+								<td align="center"><?php echo preg_replace("/\<a /i","<a target='main' ",$val) ?></td>
 							</tr>
 							<?php } ?>
 						</table>
@@ -166,6 +169,8 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 			</TABLE>
 		</td>
 	</tr>
+	<?php } ?>
+	<?php if (is_array($criteria_arr['payload'])) { ?>
 	<tr>
 		<td>
 			<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
@@ -177,8 +182,10 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 						<table width="100%">
 							<?php foreach ($criteria_arr['payload'] as $meta=>$val) { ?>
 							<tr>
-								<th width="50%" align="right" style="padding-right:10px"><?php echo $meta ?></th>
-								<td width="50%" align="left"><?php echo preg_replace("/\<a (.*?)\<\/a\>|\&nbsp;/i","",$val) ?></td>
+								<th align="center" style="padding-right:10px;font-size:12px;background-color:#EEEEEE"><?php echo $meta ?></th>
+							</tr>
+							<tr>
+								<td align="center"><?php echo preg_replace("/\<a /i","<a target='main' ",$val) ?></td>
 							</tr>
 							<?php } ?>
 						</table>
@@ -187,6 +194,8 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 			</TABLE>
 		</td>
 	</tr>
+	<?php } ?>
+	<?php if (is_array($criteria_arr['ip'])) { ?>
 	<tr>
 		<td>
 			<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
@@ -198,8 +207,10 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 						<table width="100%">
 							<?php foreach ($criteria_arr['ip'] as $meta=>$val) { ?>
 							<tr>
-								<th width="50%" align="right" style="padding-right:10px"><?php echo $meta ?></th>
-								<td width="50%" align="left"><?php echo preg_replace("/\<a (.*?)\<\/a\>|\&nbsp;/i","",$val) ?></td>
+								<th align="center" style="padding-right:10px;font-size:12px;background-color:#EEEEEE"><?php echo $meta ?></th>
+							</tr>
+							<tr>
+								<td align="center"><?php echo preg_replace("/\<a /i","<a target='main' ",$val) ?></td>
 							</tr>
 							<?php } ?>
 						</table>
@@ -208,6 +219,8 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 			</TABLE>
 		</td>
 	</tr>
+	<?php } ?>
+	<?php if (is_array($criteria_arr['layer4'])) { ?>
 	<tr>
 		<td>
 			<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
@@ -219,8 +232,10 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 						<table width="100%">
 							<?php foreach ($criteria_arr['layer4'] as $meta=>$val) { ?>
 							<tr>
-								<th width="50%" align="right" style="padding-right:10px"><?php echo $meta ?></th>
-								<td width="50%" align="left"><?php echo preg_replace("/\<a (.*?)\<\/a\>|\&nbsp;/i","",$val) ?></td>
+								<th align="center" style="padding-right:10px;font-size:12px;background-color:#EEEEEE"><?php echo $meta ?></th>
+							</tr>
+							<tr>
+								<td align="center"><?php echo preg_replace("/\<a /i","<a target='main' ",$val) ?></td>
 							</tr>
 							<?php } ?>
 						</table>
@@ -229,6 +244,7 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 			</TABLE>
 		</td>
 	</tr>
+	<?php } ?>
 </table>
 </body>
 </html>
