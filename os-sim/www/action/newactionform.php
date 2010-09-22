@@ -132,6 +132,10 @@ if (REQUEST('insert_action')) {
             $error = new OssimNotice();
             $error->display("FORM_NOFILL");
         }
+    } elseif ($action_type == "ticket") {
+        Action::insert($conn, $action_type, $cond, $on_risk, $descr);
+        message_ok();
+        exit();
     }
 }
 function message_ok() {
@@ -304,6 +308,8 @@ if ($action_type == "email") {
     submit();
 } elseif ($action_type == "exec") {
     exec_form();
+    submit();
+} elseif ($action_type == "ticket") {
     submit();
 }
 ?>
