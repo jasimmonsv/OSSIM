@@ -439,6 +439,7 @@ CREATE TABLE action_type (
 
 INSERT INTO action_type (_type, descr) VALUES ("email", "send an email message");
 INSERT INTO action_type (_type, descr) VALUES ("exec", "execute an external program");
+INSERT INTO action_type (_type, descr) VALUES ("ticket", "open new ticket if policy matches");
 
 
 DROP TABLE IF EXISTS action_email;
