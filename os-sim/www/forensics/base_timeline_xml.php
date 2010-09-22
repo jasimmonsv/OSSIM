@@ -3,14 +3,14 @@
 header("Content-type: application/xml"); 
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsForensics");
-
+require_once ('vars_session.php');
 require_once 'ossim_db.inc';
 
 $db = new ossim_db();
 $conn = $db->connect();
 $xml = "";
 
-$sql = "SELECT * FROM `datawarehouse`.`report_data` WHERE id_report_data_type = 33 AND USER = ? ";
+$sql = "SELECT * FROM `datawarehouse`.`report_data` WHERE id_report_data_type = $events_report_type AND USER = ? ";
 
 $user = $_SESSION['_user'];
 settype($user, "string");

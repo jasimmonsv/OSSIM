@@ -48,8 +48,8 @@ $qs->AddCannedQuery("most_frequent", $freq_num_alerts, _MOSTFREQALERTS, "occur_d
 $qs->AddCannedQuery("last_alerts", $last_num_ualerts, _LASTALERTS, "last_d");
 $qs->MoveView($submit); /* increment the view if necessary */
 $page_title = _ALERTTITLE;
-if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
-else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
+if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 0);
+else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 0);
 /* Connect to the Alert database */
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
 $db->baseDBConnect($db_connect_method, $alert_dbname, $alert_host, $alert_port, $alert_user, $alert_password);
@@ -282,7 +282,7 @@ $qs->SaveState();
 </table>
 </form>
 
-<IFRAME style="width:100%; height: 430px; margin:5px 0px 0px 0px;padding:0px;border:1px solid #CCCCCC;" frameborder="0" scrolling="no" name="forum" src="base_timeline_ifr.php?resolution=<?=$resolution?>"></IFRAME>
+<IFRAME style="width:100%; height: 450px; margin:5px 0px 0px 0px;padding:0px;border:1px solid #CCCCCC;" frameborder="0" scrolling="no" name="forum" src="base_timeline_ifr.php?resolution=<?=$resolution?>"></IFRAME>
 
 <?
 PrintBASESubFooter();
