@@ -1142,6 +1142,16 @@ class IPAddressCriteria extends MultipleElementCriteria {
 		}
         return $tmp2;
     }
+	function Description_full() {
+		$tmp2 = "";
+		if ($this->criteria_cnt > 0) {
+			$tmp2 = $this->PrintElement(0,($this->criteria_cnt>1 ? false : true));
+			for ($i = 1; $i < $this->criteria_cnt; $i++) {
+				$tmp2 .= $this->PrintElement($i);
+			}
+		}
+        return $tmp2;
+    }
 }; /* IPAddressCriteria */
 class IPFieldCriteria extends ProtocolFieldCriteria {
     /*

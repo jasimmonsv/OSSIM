@@ -44,106 +44,89 @@ $cs->ReadState();
 $criteria_arr = array();
 
 $tmp_len = strlen($save_criteria);
-//$save_criteria .= $cs->criteria['sensor']->Description();
-//$save_criteria .= $cs->criteria['sig']->Description();
-//$save_criteria .= $cs->criteria['sig_class']->Description();
-//$save_criteria .= $cs->criteria['sig_priority']->Description();
-//$save_criteria .= $cs->criteria['ag']->Description();
-//$save_criteria .= $cs->criteria['time']->Description();
-//$criteria_arr['meta'] = preg_replace ("/\[\d+\,\d+.*\]\s*/","",$cs->criteria['sensor']->Description());
-$criteria_arr['meta'] = $cs->criteria['sensor']->Description();
-$criteria_arr['meta'].= $cs->criteria['plugin']->Description();
-$criteria_arr['meta'].= $cs->criteria['plugingroup']->Description();
-$criteria_arr['meta'].= $cs->criteria['userdata']->Description();
-$criteria_arr['meta'].= $cs->criteria['sourcetype']->Description();
-$criteria_arr['meta'].= $cs->criteria['category']->Description();
-$criteria_arr['meta'].= $cs->criteria['sig']->Description();
-$criteria_arr['meta'].= $cs->criteria['sig_class']->Description();
-$criteria_arr['meta'].= $cs->criteria['sig_priority']->Description();
-$criteria_arr['meta'].= $cs->criteria['ag']->Description();
-$criteria_arr['meta'].= $cs->criteria['time']->Description();
-$criteria_arr['meta'].= $cs->criteria['ossim_risk_a']->Description();
-$criteria_arr['meta'].= $cs->criteria['ossim_priority']->Description();
-$criteria_arr['meta'].= $cs->criteria['ossim_reliability']->Description();
-$criteria_arr['meta'].= $cs->criteria['ossim_asset_dst']->Description();
-$criteria_arr['meta'].= $cs->criteria['ossim_type']->Description();
-if ($criteria_arr['meta'] == "") {
-$criteria_arr['meta'].= '<I> ' . _ANY . ' </I>';
-$save_criteria.= '<I> ' . _ANY . ' </I>';
-}
-$save_criteria.= '&nbsp;&nbsp;</TD>';
-$save_criteria.= '<TD>';
-if (!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty()) {
-$criteria_arr['ip'] = $cs->criteria['ip_addr']->Description();
-$criteria_arr['ip'].= $cs->criteria['ip_field']->Description();
-$save_criteria.= $cs->criteria['ip_addr']->Description();
-$save_criteria.= $cs->criteria['ip_field']->Description();
+
+// META
+$criteria_arr['meta']['Sensor'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Plugin'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Plugin Group'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Userdata'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Source Type'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Category'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Signature'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Sig Class'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Sig Prio'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['ag'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Time'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Risk'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Priority'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Reliability'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Asset Dst'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Type'] = '<I> ' . _ANY . ' </I>';
+
+$db = NewBASEDBConnection($DBlib_path, $DBtype);
+$db->baseDBConnect($db_connect_method, $alert_dbname, $alert_host, $alert_port, $alert_user, $alert_password);
+
+if (!$cs->criteria['sensor']->isEmpty()) $criteria_arr['meta']['Sensor'] = $cs->criteria['sensor']->Description();
+if (!$cs->criteria['plugin']->isEmpty()) $criteria_arr['meta']['Plugin'] = $cs->criteria['plugin']->Description();
+if (!$cs->criteria['plugingroup']->isEmpty()) $criteria_arr['meta']['Plugin Group'] = $cs->criteria['plugingroup']->Description();
+if (!$cs->criteria['userdata']->isEmpty()) $criteria_arr['meta']['Userdata'] = $cs->criteria['userdata']->Description();
+if (!$cs->criteria['sourcetype']->isEmpty()) $criteria_arr['meta']['Source Type'] = $cs->criteria['sourcetype']->Description();
+if (!$cs->criteria['category']->isEmpty() && $cs->criteria['category']->Description() != "") $criteria_arr['meta']['Category'] = $cs->criteria['category']->Description();
+if (!$cs->criteria['sig']->isEmpty() && $cs->criteria['sig']->Description() != "") $criteria_arr['meta']['Signature'] = $cs->criteria['sig']->Description();
+if (!$cs->criteria['sig_class']->isEmpty()) $criteria_arr['meta']['Sig Class'] = $cs->criteria['sig_class']->Description();
+if (!$cs->criteria['sig_priority']->isEmpty() && $cs->criteria['sig_priority']->Description() != "") $criteria_arr['meta']['Sig Prio'] = $cs->criteria['sig_priority']->Description();
+if (!$cs->criteria['ag']->isEmpty()) $criteria_arr['meta']['ag'] = $cs->criteria['ag']->Description();
+if (!$cs->criteria['time']->isEmpty()) $criteria_arr['meta']['Time'] = $cs->criteria['time']->Description();
+if (!$cs->criteria['ossim_risk_a']->isEmpty()) $criteria_arr['meta']['Risk'] = $cs->criteria['ossim_risk_a']->Description();
+if (!$cs->criteria['ossim_priority']->isEmpty() && $cs->criteria['ossim_priority']->Description() != "") $criteria_arr['meta']['Priority'] = $cs->criteria['ossim_priority']->Description();
+if (!$cs->criteria['ossim_reliability']->isEmpty() && $cs->criteria['ossim_reliability']->Description() != "") $criteria_arr['meta']['Reliability'] = $cs->criteria['ossim_reliability']->Description();
+if (!$cs->criteria['ossim_asset_dst']->isEmpty() && $cs->criteria['ossim_asset_dst']->Description() != "") $criteria_arr['meta']['Asset Dst'] = $cs->criteria['ossim_asset_dst']->Description();
+if (!$cs->criteria['ossim_type']->isEmpty()) $criteria_arr['meta']['Type'] = $cs->criteria['ossim_type']->Description();
+
+// IP
+if ((!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty()) && $cs->criteria['ip_addr']->Description != "") {
+	$criteria_arr['ip']['IP Addr'] = $cs->criteria['ip_addr']->Description_full();
+	//$criteria_arr['ip']['IP Field'] = $cs->criteria['ip_field']->Description();
 } else {
-$save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
-$criteria_arr['ip'] = '<I> ' . _ANY . ' </I>';
+	$criteria_arr['ip']['IP Addr'] = '<I> ' . _ANY . ' </I>';
+	//$criteria_arr['ip']['IP Field'] = '<I> ' . _ANY . ' </I>';
 }
-$save_criteria.= '&nbsp;&nbsp;</TD>';
-$save_criteria.= '<TD CLASS="layer4title">';
-$save_criteria.= $cs->criteria['layer4']->Description();
-$save_criteria.= '</TD><TD>';
+
+// LAYER4
+$criteria_arr['layer4']['TCP Port'] = '<I> none </I>';
+//$criteria_arr['layer4']['TCP Flags'] = '<I> none </I>';
+//$criteria_arr['layer4']['TCP Field'] = '<I> none </I>';
+$criteria_arr['layer4']['UPD Port'] = '<I> none </I>';
+//$criteria_arr['layer4']['UDP Field'] = '<I> none </I>';
+$criteria_arr['layer4']['ICMP Field'] = '<I> none </I>';
+$criteria_arr['layer4']['RawIP Field'] = '<I> none </I>';		
 if ($cs->criteria['layer4']->Get() == "TCP") {
-if (!$cs->criteria['tcp_port']->isEmpty() || !$cs->criteria['tcp_flags']->isEmpty() || !$cs->criteria['tcp_field']->isEmpty()) {
-$criteria_arr['layer4'] = $cs->criteria['tcp_port']->Description();
-$criteria_arr['layer4'].= $cs->criteria['tcp_flags']->Description();
-$criteria_arr['layer4'].= $cs->criteria['tcp_field']->Description();
-$save_criteria.= $cs->criteria['tcp_port']->Description();
-$save_criteria.= $cs->criteria['tcp_flags']->Description();
-$save_criteria.= $cs->criteria['tcp_field']->Description();
-} else {
-$criteria_arr['layer4'] = '<I> ' . _ANY . ' </I>';
-$save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
-}
-$save_criteria.= '&nbsp;&nbsp;</TD>';
+	if (!$cs->criteria['tcp_port']->isEmpty() || !$cs->criteria['tcp_flags']->isEmpty() || !$cs->criteria['tcp_field']->isEmpty()) {
+		$criteria_arr['layer4']['TCP Port'] = $cs->criteria['tcp_port']->Description();
+		//$criteria_arr['layer4']['TCP Flags'] = $cs->criteria['tcp_flags']->Description();
+		//$criteria_arr['layer4']['TCP Field'] = $cs->criteria['tcp_field']->Description();
+	}
 } else if ($cs->criteria['layer4']->Get() == "UDP") {
-if (!$cs->criteria['udp_port']->isEmpty() || !$cs->criteria['udp_field']->isEmpty()) {
-$criteria_arr['layer4'] = $cs->criteria['udp_port']->Description();
-$criteria_arr['layer4'].= $cs->criteria['udp_field']->Description();
-$save_criteria.= $cs->criteria['udp_port']->Description();
-$save_criteria.= $cs->criteria['udp_field']->Description();
-} else {
-$criteria_arr['layer4'] = '<I> ' . _ANY . ' </I>';
-$save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
-}
-$save_criteria.= '&nbsp;&nbsp;</TD>';
+	if (!$cs->criteria['udp_port']->isEmpty() || !$cs->criteria['udp_field']->isEmpty()) {
+		$criteria_arr['layer4']['UPD Port'] = $cs->criteria['udp_port']->Description();
+		//$criteria_arr['layer4']['UDP Field'] = $cs->criteria['udp_field']->Description();
+	}
 } else if ($cs->criteria['layer4']->Get() == "ICMP") {
-if (!$cs->criteria['icmp_field']->isEmpty()) {
-$criteria_arr['layer4'] = $cs->criteria['icmp_field']->Description();
-$save_criteria.= $cs->criteria['icmp_field']->Description();
-} else {
-$criteria_arr['layer4'] = '<I> ' . _ANY . ' </I>';
-$save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
-}
-$save_criteria.= '&nbsp;&nbsp;</TD>';
+	if (!$cs->criteria['icmp_field']->isEmpty()) {
+		$criteria_arr['layer4']['ICMP Field'] = $cs->criteria['icmp_field']->Description();
+	}
 } else if ($cs->criteria['layer4']->Get() == "RawIP") {
-if (!$cs->criteria['rawip_field']->isEmpty()) {
-$criteria_arr['layer4'] = $cs->criteria['rawip_field']->Description();
-$save_criteria.= $cs->criteria['rawip_field']->Description();
-} else {
-$criteria_arr['layer4'] = '<I> ' . _ANY . ' </I>';
-$save_criteria.= '<I> &nbsp&nbsp ' . _ANY . ' </I>';
+	if (!$cs->criteria['rawip_field']->isEmpty()) {
+		$criteria_arr['layer4']['RawIP Field'] = $cs->criteria['rawip_field']->Description();
+	}
 }
-$save_criteria.= '&nbsp;&nbsp;</TD>';
-} else {
-$criteria_arr['layer4'] = '<I> ' . _NONE . ' </I>';
-$save_criteria.= '<I> &nbsp;&nbsp; ' . _NONE . ' </I></TD>';
-}
+
 /* Payload ************** */
-$save_criteria.= '
-<TD>';
 if (!$cs->criteria['data']->isEmpty()) {
-$criteria_arr['payload'] = $cs->criteria['data']->Description();
-$save_criteria.= $cs->criteria['data']->Description();
+	$criteria_arr['payload']['Data'] = $cs->criteria['data']->Description();
 } else {
-$criteria_arr['payload'] = '<I> ' . _ANY . ' </I>';
-$save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
+	$criteria_arr['payload']['Data'] = '<I> ' . _ANY . ' </I>';
 }
-$save_criteria.= '&nbsp;&nbsp;</TD>';
-if (!setlocale(LC_TIME, _LOCALESTR1)) if (!setlocale(LC_TIME, _LOCALESTR2)) setlocale(LC_TIME, _LOCALESTR3);
 
 // Report Data
 $report_data = array();
@@ -168,6 +151,18 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 				<TR>
 					<TD height="27" align="center" style="background:url('../pixmaps/fondo_col.gif') repeat-x;border:1px solid #CACACA;color:#333333;font-size:14px;font-weight:bold">META</TD>
 				</TR>
+				<tr>
+					<td>
+						<table width="100%">
+							<?php foreach ($criteria_arr['meta'] as $meta=>$val) { ?>
+							<tr>
+								<th width="50%" align="right" style="padding-right:10px"><?php echo $meta ?></th>
+								<td width="50%" align="left"><?php echo preg_replace("/\<a (.*?)\<\/a\>|\&nbsp;|,\s+$/i","",$val) ?></td>
+							</tr>
+							<?php } ?>
+						</table>
+					</td>
+				</tr>
 			</TABLE>
 		</td>
 	</tr>
@@ -177,6 +172,18 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 				<TR>
 					<TD height="27" align="center" style="background:url('../pixmaps/fondo_col.gif') repeat-x;border:1px solid #CACACA;color:#333333;font-size:14px;font-weight:bold">PAYLOAD</TD>
 				</TR>
+				<tr>
+					<td>
+						<table width="100%">
+							<?php foreach ($criteria_arr['payload'] as $meta=>$val) { ?>
+							<tr>
+								<th width="50%" align="right" style="padding-right:10px"><?php echo $meta ?></th>
+								<td width="50%" align="left"><?php echo preg_replace("/\<a (.*?)\<\/a\>|\&nbsp;/i","",$val) ?></td>
+							</tr>
+							<?php } ?>
+						</table>
+					</td>
+				</tr>
 			</TABLE>
 		</td>
 	</tr>
@@ -186,6 +193,18 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 				<TR>
 					<TD height="27" align="center" style="background:url('../pixmaps/fondo_col.gif') repeat-x;border:1px solid #CACACA;color:#333333;font-size:14px;font-weight:bold">IP</TD>
 				</TR>
+				<tr>
+					<td>
+						<table width="100%">
+							<?php foreach ($criteria_arr['ip'] as $meta=>$val) { ?>
+							<tr>
+								<th width="50%" align="right" style="padding-right:10px"><?php echo $meta ?></th>
+								<td width="50%" align="left"><?php echo preg_replace("/\<a (.*?)\<\/a\>|\&nbsp;/i","",$val) ?></td>
+							</tr>
+							<?php } ?>
+						</table>
+					</td>
+				</tr>
 			</TABLE>
 		</td>
 	</tr>
@@ -195,10 +214,21 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 				<TR>
 					<TD height="27" align="center" style="background:url('../pixmaps/fondo_col.gif') repeat-x;border:1px solid #CACACA;color:#333333;font-size:14px;font-weight:bold">LAYER 4</TD>
 				</TR>
+				<tr>
+					<td>
+						<table width="100%">
+							<?php foreach ($criteria_arr['layer4'] as $meta=>$val) { ?>
+							<tr>
+								<th width="50%" align="right" style="padding-right:10px"><?php echo $meta ?></th>
+								<td width="50%" align="left"><?php echo preg_replace("/\<a (.*?)\<\/a\>|\&nbsp;/i","",$val) ?></td>
+							</tr>
+							<?php } ?>
+						</table>
+					</td>
+				</tr>
 			</TABLE>
 		</td>
 	</tr>
 </table>
-<?php print_r($criteria_arr) ?>
 </body>
 </html>
