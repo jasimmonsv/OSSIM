@@ -930,7 +930,7 @@ class TimeCriteria extends MultipleElementCriteria {
 	function Description_full() {
         $tmp = "";
         if (isset($this->criteria[1][1]) && $this->criteria[1][1] != " ") {
-        	$tmp = $tmp . '' . htmlspecialchars($this->criteria[0][0]) . ' Date of events between: <b>';
+        	$tmp = $tmp . '' . htmlspecialchars($this->criteria[0][0]) . ' Date of events between <b>';
             /* date */
         	$i = 0;
             if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
@@ -955,7 +955,7 @@ class TimeCriteria extends MultipleElementCriteria {
         	$op = $this->criteria[$i][1];
             $op = str_replace(">=","after",$op);
             $op = str_replace("<=","before",$op);
-            $tmp = $tmp . '' . htmlspecialchars($this->criteria[$i][0]) . ' Date of events ' . $op . ': <b>';
+            $tmp = $tmp . '' . htmlspecialchars($this->criteria[$i][0]) . ' Date of events ' . $op . ' <b>';
             /* date */
             if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
             else $tmp = $tmp . (($this->criteria[$i][2] == " ") ? "* / " : $this->criteria[$i][2] . " / ") . (($this->criteria[$i][3] == "") ? "* / " : $this->criteria[$i][3] . " / ") . (($this->criteria[$i][4] == " ") ? "*  " : $this->criteria[$i][4] . " ");
@@ -1187,7 +1187,6 @@ class IPAddressCriteria extends MultipleElementCriteria {
 	function Description_full() {
 		$tmp2 = "";
 		if ($this->criteria_cnt > 0) {
-			$tmp2 = $this->PrintElement(0,($this->criteria_cnt>1 ? false : true));
 			for ($i = 0; $i < $this->criteria_cnt; $i++) {
 				$tmp2 .= $this->PrintElement($i,(($i < $this->criteria_cnt-1) ? false : true));
 			}
