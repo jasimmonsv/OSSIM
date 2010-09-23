@@ -840,14 +840,19 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationDirectives")) { $correla
     $menu["Intelligence"][] = array(
         "name" => gettext("Correlation Directives") ,
         "id" => "Directives",
-        "url" => "directive_editor/index.php"
+        "url" => "directive_editor/main.php"
     );
     $hmenu["Directives"][] = array(
         "name" => gettext("Directives") ,
         "id" => "Directives",
         "target" => "main",
-        "url" => "directive_editor/index.php",
+        "url" => "directive_editor/main.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:correlation_directives:directives','Help');"
+    );
+    $rmenu["Directives"][] = array(
+        "name" => gettext("Numbering and Groups"),
+        "target" => "main",
+        "url" => "numbering.php"
     );
     if (Session::menu_perms("MenuIntelligence", "ComplianceMapping")) {
         $hmenu["Directives"][] = array(

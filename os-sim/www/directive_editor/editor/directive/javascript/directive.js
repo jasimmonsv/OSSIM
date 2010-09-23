@@ -185,7 +185,7 @@ function onClickCancel2() {
 
 	/* reload the page */
 	window.open(
-		"../../viewer/index.php",
-		"right"
+		"../../main.php",
+		"main"
 	);
 }

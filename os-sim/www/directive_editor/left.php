@@ -119,7 +119,7 @@ function show() {
 			</script>
 		</head>
 
-		<body id="leftmenu" style="overflow-x:hidden">
+		<body id="leftmenu" style="overflow-x:hidden" onload="hide()">
 			<table width="100%" height="100%" cellpadding=0 cellspacing=0 style="border:0px;background-color:transparent">
 			<tr>
 			<td width="12" align="left" height="100" style="border-bottom:0px;border-left:4px solid #a2a2a2;visibility:hidden" id="showtab" valign="top"><a href="" onclick="show();return false;"><img src="../pixmaps/btn_minimize_right.gif" alt="" border="0"></img></a></td>
