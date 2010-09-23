@@ -21,8 +21,8 @@ $wehavedata = 0;
 %sensor_stats = ();
 %sensor_folders = ();
 #open (F,"find $folder | grep \".log\$\" |");
-$head = (!$force) ? "| head -48" : "";
-$find = "locate.findutils -d /var/ossim/logs/locate.index $folder | grep -E \"count.total\$\" | sort -ur $head";
+$head = (!$force) ? "| grep -E \"count.total\$\" | sort -ur | head -64" : "| sort -ur";
+$find = "locate.findutils -d /var/ossim/logs/locate.index $folder $head";
 #print "$find\n" if ($debug);
 open (F,"$find |");
 LOG: while ($file=<F>) {
