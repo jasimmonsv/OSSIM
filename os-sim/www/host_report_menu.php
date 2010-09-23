@@ -121,7 +121,7 @@ if (!$opensource) { ?>
 <? } ?>
 <? if ($ipsearch) { ?>
 <li class="search"><a href="#filter"><?=_("Filter by IP")?></a></li>
-<li class="search"><a href="#unique"><?=_("Show Unique Events")?></a></li>
+<li class="search"><a href="#unique"><?=_("Analyze Asset")?></a></li>
 <? } else { ?>
 <li class="sim"><a href="#filter"><?=_("SIEM Events")?></a></li>
 <? } ?>
