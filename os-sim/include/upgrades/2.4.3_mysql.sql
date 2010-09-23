@@ -4,7 +4,7 @@ BEGIN;
 
 UPDATE custom_report_types SET inputs=CONCAT(inputs,";Source:source:select:OSS_ALPHA:EVENTSOURCE:") WHERE file='SIEM/List.php' AND name!="List" AND inputs not like '%EVENTSOURCE%';
 
-INSERT IGNORE INTO  `action_type` (`_type` , `descr`) VALUES ('ticket',  'open new ticket if policy matches');
+INSERT IGNORE INTO  `action_type` (`_type` , `descr`) VALUES ('ticket',  'generate ticket');
 
 -- From now on, always add the date of the new releases to the .sql files
 UPDATE config SET value="2010-09-21" WHERE conf="last_update";
