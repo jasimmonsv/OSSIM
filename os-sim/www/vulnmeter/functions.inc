@@ -679,7 +679,13 @@ function stats_severity_services($type, $filter="") {
         $ips = Net::expand_CIDR($filter,"SHORT");
         $filter = " and inet_aton(hostIP) between inet_aton('".$ips[0]."') and inet_aton('".$ips[1]."')";
     } elseif ($type=="hn") {
-    	$filter = " and hostIP like '%$filter%'";
+        if (preg_match("/\,/",$filter)) {
+            $q = implode("','",explode(",",$filter));
+            $filter = " AND hostIP in ('$q')";
+        }
+        else {
+            $filter = " and hostIP like '%$filter%'";
+        }
     }
     
     if($filter=="" || $type=="hn") {
@@ -698,7 +704,7 @@ function stats_severity_services($type, $filter="") {
               GROUP BY risk";
     }
     
-    //echo $query;
+    
     
     $result = $dbconn->Execute($query);
     
@@ -887,16 +893,23 @@ function stats_networks_hosts($type, $filter="") {
         $ips = Net::expand_CIDR($filter,"SHORT");
         $filter = " and inet_aton(hostIP) between inet_aton('".$ips[0]."') and inet_aton('".$ips[1]."')";
     } elseif ($type=="hn") {
-    	$filter = " and hostIP like '%$filter%'";
+        if (preg_match("/\,/",$filter)) {
+          $q = implode("','",explode(",",$filter));
+          $filter = " AND hostIP in ('$q')";
+        }
+        else {
+            $filter = " and hostIP like '%$filter%'";
+        }
     }
     
     $queryf = "";
 
     // top 10 hosts and networks
-    $top10h = $top10n = $nips = array();
+    $top10h = $top10n = $nips = $others = array();
     
     if($type=="hn" && $filter!="") {
         $queryf = $filter;
+        //var_dump($filter);
     }
     else if($type=="service"){
         $queryf = " and service like '%$filter%'";
@@ -922,6 +935,8 @@ function stats_networks_hosts($type, $filter="") {
                 $nips[$net] = $ips;
                 $top10n[$net]+=$result->fields["vulnerability"];
             } else {
+                if(trim($ip)!="")
+                $others[] = trim($ip);
                 $top10n["Others"]+=$result->fields["vulnerability"];
             }
         }
@@ -956,7 +971,7 @@ function stats_networks_hosts($type, $filter="") {
                     ?>
                     <tr>
                         <td class="noborder" style="text-align:right;padding:5px 5px 0px 5px;" valign="top" width="50%">
-                            <a target='main' href="?value=<?=urlencode($nips[$host])?>&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities"><?=((GET('value')==$nips[$host]) ? "<b>$host</b>" : "$host [$val]")?></a>
+                            <a target='main' href="?value=<?=urlencode((($nips[$host]!="") ? $nips[$host] : implode(",", $others)))?>&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities"><?=((GET('value')==$nips[$host]) ? "<b>$host</b>" : "$host [$val]")?></a>
                         </td>
                         <td class="noborder" width="50%" valign="top" style="text-align:left;padding:5px 5px 0px 5px;">
                         <?
@@ -2781,8 +2796,8 @@ function drawTableLatest($map, $data, $summary = "") {
                 $entry['plink'] = "respdf.php?ipl=$ip&scantype=M";
                 $entry['xlink'] = "rescsv.php?ipl=$ip&scantype=M";
                 
-                $query_lr = "select count(*) as total,risk from (select distinct port,protocol,app,scriptid, risk from vuln_nessus_latest_results where report_id=$ip and falsepositive='N') as t group by risk";
-
+                $query_lr = "select count(*) as total,risk from (select distinct port, protocol, app, scriptid, msg, risk, hostIP from vuln_nessus_latest_results where report_id=$ip and falsepositive='N') as t group by risk";
+                //echo "[$query_lr]";
                 $result_lr=$dbconn->Execute($query_lr);
                 while(!$result_lr->EOF) {
                     list ($total, $trik) = $result_lr->fields;
@@ -2798,7 +2813,7 @@ function drawTableLatest($map, $data, $summary = "") {
                         $entry['vSerious'] = $total;
                     $result_lr->MoveNext();
                 }
-                
+
                 $random = rand(0,999999);
                 $entry['scantime'] = '';
 
@@ -2808,8 +2823,10 @@ function drawTableLatest($map, $data, $summary = "") {
                 foreach($agg as $entry2) {
                     $entry2['jobname'] = date("Y-m-d H:i:s",strtotime($entry2['scantime']));
                     $entry2['report_id']='';
-                    if($i!=count($agg)) cellprintlatest($map, $data, $entry2, "#dfdfdf", "ltL_nes2.gif","",$random);
-                        else    cellprintlatest($map, $data, $entry2, "#dfdfdf", "ltL_ne2.gif","",$random);
+                    if($i!=count($agg))
+                        cellprintlatest($map, $data, $entry2, "#dfdfdf", "ltL_nes2.gif","",$random);
+                    else
+                        cellprintlatest($map, $data, $entry2, "#dfdfdf", "ltL_ne2.gif","",$random);
                     $i++;
                 }
             }

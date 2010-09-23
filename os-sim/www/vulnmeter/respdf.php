@@ -424,9 +424,6 @@ if ($report_id) {
        $result->MoveNext();
     }
 
-    //$query = "SELECT DISTINCT hostIP, localChecks FROM vuln_host_stats WHERE report_id='$report_id' order BY hostIP";
-    //$result = $dbconn->execute($query);
-
     //initialise variable for number of hosts while loop
     //$hostchecks = array();
     //while ($row = $result->fields) {
@@ -434,33 +431,19 @@ if ($report_id) {
     //   $result->MoveNext();
     //}
 
-
-/*    $query = "SELECT COUNT( risk ) AS count, COUNT( t2.id ) AS ecount, risk
-FROM vuln_nessus_results t1
-LEFT JOIN vuln_exceptions t2 ON t1.scriptid = t2.plugin
-AND t1.port = t2.port
-AND t2.hostip = 'ALL' AND t2.status = 'Approved'
-WHERE report_id = '$report_id'
-AND record_type = 'N' $query_host
-GROUP BY risk";*/
    if ($ipl=="all") {
-        $query = "select count(*) as count, risk from (select distinct hostIP, port,protocol,app,scriptid,risk
+        $query = "select count(*) as count, risk from (select distinct hostIP, port, protocol, app, scriptid, risk, msg
         from vuln_nessus_latest_results where report_id in($report_id) and falsepositive='N' $query_byuser) as t group by risk";
    }
    else if ($ipl!="") {
-        $query = "select count(*) as count, risk from (select distinct port,protocol,app,scriptid,risk
+        $query = "select count(*) as count, risk from (select distinct port, protocol, app, scriptid, risk, msg
         from vuln_nessus_latest_results where report_id=$report_id and falsepositive='N' $query_byuser) as t group by risk";
    }
    else {
-        /*$query = "SELECT COUNT( risk ) AS count, risk
-                FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
-                WHERE report_id in ($report_id)
-                AND record_type = 'N'".(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")."$query_host AND t1.falsepositive<>'Y'
-                GROUP BY risk";*/
-        $query = "SELECT COUNT( risk ) AS count, risk
+        $query = "SELECT COUNT( risk ) AS count, risk FROM (SELECT DISTINCT t1.hostIP, t1.risk, t1.port, t1.protocol, t1.app, t1.scriptid, t1.msg
                 FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                 WHERE report_id in ($report_id)".((!in_array("admin", $arruser) &&($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")."$query_host AND t1.falsepositive<>'Y'
-                GROUP BY risk";
+                ) as t GROUP BY risk";
 
     }
     
@@ -549,31 +532,22 @@ GROUP BY risk";*/
        //$pdf->Cell(20, 6, $check_text,1,0,'C');
        $host_risk = array ( 0,0,0,0,0,0,0,0);
 
-/*       $query1 = "SELECT COUNT( risk ) AS count, COUNT( t2.id ) AS ecount, risk
-FROM vuln_nessus_results t1
-LEFT JOIN vuln_exceptions t2 ON t1.scriptid = t2.plugin AND t1.port = t2.port AND t2.hostip = 'ALL' AND t2.status = 'Approved'
-WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_critical
-    and falsepositive <> 'Y' group by t1.hostIP, risk";*/
-
     if ($ipl=="all") {
-        $query1 = "select count(*) as count,risk from (select distinct hostIP, port,protocol,app,scriptid,risk
+        $query1 = "select count(*) as count,risk from (select distinct hostIP, port,protocol,app,scriptid,risk,msg
         from vuln_nessus_latest_results where report_id=INET_ATON('$hostIP') and falsepositive='N' $query_byuser) as t group by risk";
     }
     
     else if ($ipl!="") {
-        $query1 = "select count(*) as count,risk from (select distinct port,protocol,app,scriptid,risk
+        $query1 = "select count(*) as count,risk from (select distinct port,protocol,app,scriptid,risk,msg
         from vuln_nessus_latest_results where report_id=$report_id and falsepositive='N' $query_byuser) as t group by risk";
     }
     else {
-/*       $query1 = "SELECT COUNT( risk ) AS count, risk
-        FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
-        WHERE report_id in ($report_id) and t1.hostIP='$hostIP'".(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")."AND record_type='N' $query_critical
-        and falsepositive <> 'Y' group by t1.hostIP, risk";*/
-    $query1 = "SELECT COUNT( risk ) AS count, risk
-        FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
-        WHERE report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : ""). " and t1.hostIP='$hostIP'".(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_critical
-        and falsepositive <> 'Y' group by t1.hostIP, risk";
+    $query1 = "SELECT COUNT( risk ) AS count, risk FROM (SELECT DISTINCT risk, port, protocol, app, scriptid, msg, hostIP
+        FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
+        WHERE report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : ""). " and hostIP='$hostIP'".(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_critical
+        and falsepositive <> 'Y') as t1 group by hostIP, risk";
     }
+       //echo "$query1<br><br>";
        $ecount = 0;
        $result1 = $dbconn->Execute($query1);
 
@@ -620,7 +594,7 @@ WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_
                  AND risk='7' AND falsepositive='N'
            ORDER BY result_id ASC";*/
            
-      $query="SELECT hostip, service, port, protocol, app, risk FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
+      $query="SELECT distinct hostip, service, port, protocol, app, risk, msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
            WHERE report_id in ($report_id)".(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host ".(($treport=="latest" || $ipl!="")? " $query_byuser ":"")."
                  AND msg='' 
                  AND risk='7' AND falsepositive='N'
@@ -629,7 +603,7 @@ WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_
       $result1=$dbconn->execute($query); 
       // put it into an array for reference later
       $portResults=array();
-      while(list($hostIP, $service, $service_num, $service_proto, $app, $risk) = $result1->fields) {
+      while(list($hostIP, $service, $service_num, $service_proto, $app, $risk, $msg) = $result1->fields) {
          $portResults[$hostIP][]=array( 'service_num' => $service_num, 
                                  'service_proto' => $service_proto, 
                                  'service' => $service, 
@@ -653,53 +627,43 @@ WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_
    //get hostname at the time of the scan, else may fall back to the host table for stuff that may not be resolved otherwise.
    //need some assurance it is not false, routers etc, should be flagged as static address on the devices added to the host table
 
-   /*$query = "SELECT t1.hostIP, t1.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.msg, t1.scriptid, t2.eid
-             FROM vuln_nessus_results t1
-             LEFT JOIN vuln_exceptions t2 ON t1.scriptid = t2.plugin AND t1.port = t2.port AND t2.hostip = 'ALL' AND t2.status = 'Approved'
-             WHERE report_id='$report_id' AND record_type='N' $query_host $query_critical
-             ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC";*/
-
-   //$query = "SELECT t1.hostIP, t1.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.msg, t1.scriptid
-   //          FROM vuln_nessus_results t1
-   //          WHERE report_id='$report_id' AND record_type='N' $query_host $query_critical
-   //          ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC";
 
    if($ipl!="all") {
-       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.scriptid, v.name
+       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.scriptid, v.name, t1.msg
                  FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
                  ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC";
                  
-        $query_msg = "SELECT t1.msg
+        /*$query_msg = "SELECT t1.msg
                  FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
-                 ORDER BY t1.scantime DESC LIMIT 0,1";
+                 ORDER BY t1.scantime DESC LIMIT 0,1";*/
     }
     else {
-       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.scriptid, v.name
+       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.scriptid, v.name, t1.msg
                  FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
                  ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC";
-        $query_msg = "SELECT t1.msg
+        /*$query_msg = "SELECT t1.msg
                  FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
-                 ORDER BY t1.scantime DESC LIMIT 0,1";
+                 ORDER BY t1.scantime DESC LIMIT 0,1";*/
     }
     //echo $query;
    $eid = "";
    $result=$dbconn->Execute($query);
 
    //$arrResults="";
-   while( list($hostIP, $hostname, $service, $service_num, $service_proto, $app, $risk, $scriptid, $pname ) = $result->fields) {
-      $msg = get_msg($dbconn,$query_msg);
+   while( list($hostIP, $hostname, $service, $service_num, $service_proto, $app, $risk, $scriptid, $pname, $msg) = $result->fields) {
+      //$msg = get_msg($dbconn,$query_msg);
       
       if($hostname=="") $hostname="unknown";
       $arrResults[$hostIP][]=array(

@@ -151,13 +151,15 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
                 $host_fp[$result_fps->fields['scriptid']][$result_fps->fields['service']] = 1;
                 $result_fps->MoveNext();
             }
-            
-            foreach ($data["results"] as $id_result => $info){
-                $fp = (intval($host_fp[$info["$scanid"]][$info["service"]]) == 1) ? 'Y' : 'N';
+            //var_dump($host_fp);
+            foreach ($data["results"] as $info){
+                //vardump($info["$scanid"]);
+                //vardump($info["$scanid"]);
+                $fp = (intval($host_fp[$info["scanid"]][$info["service"]]) == 1) ? 'Y' : 'N';
                 // table vuln_nessus_results
                 $sql_results = "INSERT INTO vuln_nessus_results ( report_id, scantime, hostip, hostname, record_type, service, port, protocol , app, scriptid,
                                 risk, msg, falsepositive ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                                
+
                 $params = array(
                     $report_id_import, 
                     $scantime_import,
@@ -630,8 +632,9 @@ EOT;
          $data['vMed'] = 0;
          $data['vLow'] = 0;
          $data['vInfo'] = 0;
-
-         $query_risk = "SELECT risk FROM vuln_nessus_results WHERE report_id = ".$data['report_id'];
+         
+         // query for reports for each IP
+         $query_risk = "SELECT distinct risk, port, protocol, app, scriptid, msg, hostIP FROM vuln_nessus_results WHERE report_id = ".$data['report_id'];
          $query_risk.= " AND falsepositive='N'";
          
          $result_risk = $dbconn->Execute($query_risk);
@@ -1072,18 +1075,20 @@ function get_results_from_file ($outfile) {
                     }
                 }
                 $risk_value = "";
-                if ( $description == "[PASSED]" ) {
+                if (preg_match('/\[PASSED\]/', $description)) {
                     $risk_value = "Risk factor : \n\nPassed\n";
-                } else if ( $description == "[FAILED]" ) {
+                } else if (preg_match('/\[FAILED\]/', $description)) {
                     $risk_value = "Risk factor : \n\nFailed\n";
                 } else {
                     $risk_value = "Risk factor : \n\nUnknown\n";
                 }
                 $description .= "$risk_value";
             }
+            //if($scan_id ==22869) { echo "debug1<br>"; var_dump($description);}
             if ( $description!="" ) {   #ENSURE WE HAVE SOME DATA
                 $description = preg_replace("/\\\/", "\\\\", $description);
                 $description = preg_replace("/\\\\n/", "\\n", $description);
+
                 $temp = array(
                     "Port"            => $port,
                     "Host"            => $host,
@@ -1134,7 +1139,7 @@ function pop_hosthash($dbconn, $results) {
         $risk = "7";
 
         $alldesc = explode('\n',str_ireplace('Risk factor :\n','Risk factor :',str_ireplace('Risk factor :\n\n','Risk factor :',str_ireplace('Risk factor:\n','Risk factor:',str_ireplace('Risk factor:\n\n','Risk factor:',$desc)))));
-        $strd = "";
+        $strd =array();
         foreach ($alldesc as $desc) {
           if (preg_match("/Risk [fF]actor\s*:\s*(..)*Serious/s", $desc))          $risk = "1";
           if (preg_match("/Risk [fF]actor\s*:\s*(..)*Critical/s", $desc))         $risk = "1";   
@@ -1163,26 +1168,27 @@ function pop_hosthash($dbconn, $results) {
           $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Unknown( \/ |(.n)(.n)?|$)/", "", $desc);
           $desc = preg_replace("/Risk [fF]actor\s*:\s*.*Failed( \/ |(.n)(.n)?|$)/", "", $desc);
         
-          $strd .= $desc.'\n';
+          $strd[]= $desc;
         }
-        $desc = $strd;
+        $desc = implode("\n", $strd);
+        $desc = preg_replace("/(\\n)+$/", "\\1", $desc);
+        $desc = preg_replace("/(\\n\\n)\\n\\n/", "\\1", $desc);
         
         if ($custom_risks[$scanid]!="")     $risk = $custom_risks[$scanid];
         
         $service = trim($service);
+        //if($scanid ==22869) { echo "debug2<br>"; var_dump($desc);}
         $desc = trim($desc);
-        if($desc[0]=="\\" && $desc[1]=='n') $desc = substr($desc, 2);
+        //if($desc[0]=="\\" && $desc[1]=='n') $desc = substr($desc, 2);
         
-        $desc = str_replace('\n',"\n",$desc);
+        //$desc = str_replace('\n',"\n",$desc);
+        //if($scanid ==22869) { echo "debug3<br>"; var_dump($desc);echo "<br><br><br>";}
         
         if(intval($scanid)>=60000)  $record_type = "C";
             else    $record_type = "N";
-            
-
-
         
-        $key = $port.$proto.$scanid;
-        $hostHash[$host]['results'][$key] = array( 'scanid' => $scanid, 'port' => $port, 'app' => $app, 'service' => $service,
+        //$key = $port.$proto.$scanid;
+        $hostHash[$host]['results'][] = array( 'scanid' => $scanid, 'port' => $port, 'app' => $app, 'service' => $service,
             'proto' => $proto, 'risk' => $risk, 'record' => $record_type, 'desc' => htmlspecialchars($desc, ENT_QUOTES) );
         
         

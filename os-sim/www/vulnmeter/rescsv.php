@@ -416,35 +416,35 @@ echo "<th ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."widt
              WHERE report_id='$report_id' and hostip='$hostip' and msg<>''
              order by risk ASC, result_id ASC";*/
         if($ipl=="all") {
-            $query1 = "select distinct t2.hostname, t1.service, t1.risk, t1.falsepositive, t1.scriptid, v.name FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
+            $query1 = "select distinct t2.hostname, t1.service, t1.risk, t1.falsepositive, t1.scriptid, v.name, t1.msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id=inet_aton('$hostip')  ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user')":"")." and t1.hostip='$hostip' and t1.msg<>'' and t1.falsepositive<>'Y'
                  order by t1.risk ASC, t1.result_id ASC";
-            $query_msg = "select t1.msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
+            /*$query_msg = "select t1.msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id=inet_aton('$hostip')  ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user')":"")." and t1.hostip='$hostip' and t1.msg<>'' and t1.falsepositive<>'Y'
-                 ORDER BY t1.scantime DESC LIMIT 0,1";
+                 ORDER BY t1.scantime DESC LIMIT 0,1";*/
         }
         else {
-            $query1 = "select distinct t2.hostname, t1.service, t1.risk, t1.falsepositive, t1.scriptid, v.name FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
+            $query1 = "select distinct t2.hostname, t1.service, t1.risk, t1.falsepositive, t1.scriptid, v.name, t1.msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE 1=1 ".(($treport!="")? "AND t1.scantime=$scantime":"").((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') ":"")." AND t1.report_id in ($report_id) and t1.hostip='$hostip' and t1.msg<>'' and t1.falsepositive<>'Y'
                  order by t1.risk ASC, t1.result_id ASC";
-            $query_msg = "select t1.msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
+            /*$query_msg = "select t1.msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE 1=1 ".(($treport!="")? "AND t1.scantime=$scantime":"").((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') ":"")." AND t1.report_id in ($report_id) and t1.hostip='$hostip' and t1.msg<>'' and t1.falsepositive<>'Y'
-                 order by t1.risk ASC, t1.result_id ASC";
+                 order by t1.risk ASC, t1.result_id ASC";*/
         }
         //error_log($query1."\n",3,"/tmp/error_rescsv2.log");   
         $result1 = $dbconn->execute($query1);
         $arrResults="";
 
-          while ( list($hostname, $service, $risk, $falsepositive, $scriptid, $pname) = $result1->fields ){
-            $msg = get_msg($dbconn,$query_msg);
+          while ( list($hostname, $service, $risk, $falsepositive, $scriptid, $pname, $msg) = $result1->fields ){
+            //$msg = get_msg($dbconn,$query_msg);
             //error_log($risk."\n",3,"/tmp/error_rescsv2.log");  
               if($hostname=="") $hostname = "unknown";
               $tmpport1=preg_split("/\(|\)/",$service);
@@ -474,7 +474,7 @@ echo "</table>";
 
 // start the output
 //header('Content-Type: text/tab-separated-values');
-//header('Content-Disposition: attachment; filename="scanresults.txt"');
+//header('Content-Disposition: attachment; filename="scanresults.txt"'); 
 //echo $data;
 function get_msg($dbconn,$query_msg) {
     $result=$dbconn->execute($query_msg);
