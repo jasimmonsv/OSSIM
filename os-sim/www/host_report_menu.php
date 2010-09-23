@@ -16,9 +16,13 @@ document.write('<script type="text/javascript" src="../js/jquery-1.3.2.min.js"><
 					if (action=='filter') {
 						var aux = $(el).attr('id').split(/;/);
 						var ip = aux[0];
-						url = "../forensics/base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d";
-						url = url + "&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_both&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D="+ip+"&ip_addr%5B0%5D%5B8%5D=+";
+						url = "../forensics/base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_both&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D="+ip+"&ip_addr%5B0%5D%5B8%5D=+";
 						document.location.href = url;
+					} else if (action=='unique') {
+						var aux = $(el).attr('id').split(/;/);
+						var ip = aux[0];
+						url = "../forensics/base_stat_alerts.php?clear_allcriteria=1&sort_order=occur_d&hmenu=Forensics&smenu=Forensics&ip_addr_cnt=1&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_both&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D="+ip+"&ip_addr%5B0%5D%5B8%5D=+";
+						top.frames['main'].document.location.href = url;
 					} else if (action=='tickets') {
 						var aux = $(el).attr('id').split(/;/);
 						var ip = aux[0];
@@ -117,6 +121,7 @@ if (!$opensource) { ?>
 <? } ?>
 <? if ($ipsearch) { ?>
 <li class="search"><a href="#filter"><?=_("Filter by IP")?></a></li>
+<li class="search"><a href="#unique"><?=_("Show Unique Events")?></a></li>
 <? } else { ?>
 <li class="sim"><a href="#filter"><?=_("SIEM Events")?></a></li>
 <? } ?>

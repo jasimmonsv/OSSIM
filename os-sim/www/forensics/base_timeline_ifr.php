@@ -98,6 +98,28 @@ else
 	
 }
 
+$sql = "SELECT * FROM `datawarehouse`.`report_data` WHERE id_report_data_type = $events_report_type AND USER = ? ORDER BY dataV2 DESC LIMIT 0,1";
+
+$params = array(
+	$user
+);
+
+			
+if (!$rs = $conn->Execute($sql, $params)) {
+	print 'Error: ' . $conn->ErrorMsg() . '<br/>';
+	exit;
+}
+else
+{
+	$date = explode (" ",  $rs->fields['dataV2']);
+	$d = explode("-", $date[0]);
+	$t = explode(":", $date[1]);
+
+	$timestamp = mktime($t[0], $t[1], $t[2], $d[1], $d[2], $d[0]);
+	$end_date = date("M d Y G:i:s", $timestamp)." GMT";
+	
+}
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
@@ -174,7 +196,18 @@ a:hover {text-decoration: underline;}
 			})
 		];
 		bandInfos[0].syncWith = 1;
-		bandInfos[0].highlight = true;
+		bandInfos[0].highlight = true;   
+        bandInfos[0].decorators = [
+            new Timeline.SpanHighlightDecorator({
+                startDate:  "<?=$init_date?>",
+                endDate:    "<?=$end_date?>",
+                startLabel: "<?=_("first event")?>",
+                endLabel:   "<?=_("last event")?>",
+                color:      "#28BC04",
+                opacity:    10,
+                theme:      mytheme
+            })
+        ];        
 		tl = Timeline.create(document.getElementById("tm"), bandInfos);
 		Timeline.loadXML("base_timeline_xml.php", function(xml, url) { eventSource.loadXML(xml, url); });
 		
@@ -190,7 +223,17 @@ a:hover {text-decoration: underline;}
 			}, 500);
 		}
 	}
+    
+    function pageForward() {
+            var maxDate = tl.getBand(0).getMaxVisibleDate();
+            tl.getBand(0).setMinVisibleDate(maxDate);
+    }
 
+    function pageBack() {
+            var minDate = tl.getBand(0).getMinVisibleDate();
+            tl.getBand(0).setMaxVisibleDate(minDate);
+    }
+    
 	// highlight controls
 	function centerSimileAjax(date) {
 	    tl.getBand(0).setCenterVisibleDate(SimileAjax.DateTime.parseGregorianDateTime(date));
@@ -216,7 +259,7 @@ a:hover {text-decoration: underline;}
 	    td = tr.insertCell(0);
 	    
 	    var input = document.createElement("input");
-	    input.type = "text";
+	    input.type = "text"; input.size = 12;
 	    SimileAjax.DOM.registerEvent(input, "keypress", handler);
 	    td.appendChild(input);
 	    
@@ -224,12 +267,12 @@ a:hover {text-decoration: underline;}
 	        td = tr.insertCell(i + 1);
 	        
 	        input = document.createElement("input");
-	        input.type = "text";
+	        input.type = "text"; input.size = 12;
 	        SimileAjax.DOM.registerEvent(input, "keypress", handler);
 	        td.appendChild(input);
 	        
 	        var divColor = document.createElement("div");
-	        divColor.style.height = "0.5em";
+	        divColor.style.height = "4px";
 	        divColor.style.background = theme.event.highlightColors[i];
 	        td.appendChild(divColor);
 	    }
@@ -323,7 +366,9 @@ a:hover {text-decoration: underline;}
 	<div id="tm" class="timeline-default" style="height:380px;margin:0px;padding:0px"></div>
 	<div id="controls" style="padding-top:0px;color:gray;font-size:11px;float:left"></div> 
 	<div id="marks" style="padding-top:5px;color:gray;font-size:11px;float:right">
-	<!-- <a href="javascript:;" style="color:gray;font-size:11px">Add Mark</a> -->
+	<a href="javascript:pageBack();" style="color:gray;font-size:11px"><<|</a>&nbsp;&nbsp;
+	<a href="javascript:pageForward();" style="color:gray;font-size:11px">|>></a>
+    
 	</div>
 
 	<div class="timeline-message-container" style='display: block'>
