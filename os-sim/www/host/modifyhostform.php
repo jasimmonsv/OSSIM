@@ -182,6 +182,19 @@ if (GET('newport') != "") {
               <b><?php echo $host->get_ip(); ?></b>
             </td>
 	  </tr>
+	  
+	  
+	<tr>
+		<th> 
+			<?php echo gettext("FQDN/Aliases"); ?> 
+			<a style="cursor:pointer; text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Comma-separated FQDN or aliases")?></div>">
+			<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a>
+			<br/>
+		</th>
+		<td class="left">
+		  <textarea name="fqdns" rows="2" cols="40"><?php $fqdns = $host->get_fqdns(); echo ($fqdns != "NULL") ? $fqdns : ""; ?></textarea>
+		</td>
+	</tr>
 
           <tr>
             <th> <?php
@@ -228,7 +241,7 @@ if (GET('newport') != "") {
 	<tr>
 		<th> <?php
 			echo gettext("Sensors"); ?>
-			<a style="cursor:pointer; text-decoration: none;" class="sensor_info" txt="<div style='width: 150px; white-space: normal; font-weight: normal;'>Define which sensors has visibility of this host</div>">
+			<a style="cursor:pointer; text-decoration: none;" class="sensor_info" txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Define which sensors has visibility of this host")?></div>">
 				<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/>
 			</a><br/>
 			<font size="-2">
@@ -268,7 +281,7 @@ if (GET('newport') != "") {
             </td>
 	  </tr>
 
-          <tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.advanced').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">Advanced</a></td></tr>
+          <tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.advanced').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"><?=gettext("Advanced")?></a></td></tr>
           
           <tr class="advanced" style="display:none;">
             <th> <?php echo gettext("Scan options"); ?> </th>
@@ -354,7 +367,7 @@ if (GET('newport') != "") {
 	  </tr>
 	-->
 	  
-        <tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.inventory').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">Inventory</a></td></tr>
+        <tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.inventory').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"><?=gettext("Inventory")?></a></td></tr>
         <tr class="inventory" style="display:none;">
             <th> <?php echo gettext("OS"); ?> </th>
             <td class="left">
@@ -411,7 +424,7 @@ if (GET('newport') != "") {
             </td>
 	  </tr>
 
-	<tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.geolocation').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">Geolocation Info</a></td></tr>
+	<tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.geolocation').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"><?=gettext("Geolocation Info")?></a></td></tr>
         
         <tr class="geolocation" style="display:none;">
         <th> <?php

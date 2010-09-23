@@ -123,7 +123,7 @@ function PrintPredefinedViews() {
 								 $style = 'font-weight: bold;';
 								 $opacidad = '';
 								 $boton1 ="<a style='cursor:pointer;' onclick=\"save_view('save_".$i."');\"><img id='save_".$i."' src='../pixmaps/disk-gray.png' alt='"._('Save Current')."' title='"._('Save')."' border='0'/></a>&nbsp;";
-								 $boton2 ="<a style='cursor:pointer;' onclick=\"GB_show('"._('Edit custom view')."','custom_view_edit.php?edit=1',420,600);\"><img src='../vulnmeter/images/pencil.png' alt='"._('Modify')."' title='"._('Modify')."' border='0'/></a>";
+								 $boton2 ="<a style='cursor:pointer;' onclick=\"GB_show('"._('Edit custom view')."','custom_view_edit.php?edit=1',460,600);\"><img src='../vulnmeter/images/pencil.png' alt='"._('Modify')."' title='"._('Modify')."' border='0'/></a>";
 							  }
 							  else{
 								 $style='';
@@ -136,6 +136,7 @@ function PrintPredefinedViews() {
 							
 							<td class="noborder <?=$color?>" style="padding: 0px 90px 3px 5px; text-align: left;"><a style="cursor:pointer;<?=$style?>" onclick="change_view('<?=$name?>');" id="view_<?= $name?>"><span><?=$name?></span></a></td>
 							<td class="noborder <?=$color?>" style="<?=$opacidad?> padding-right:5px;"><?=$boton1.$boton2;?></td>
+							<td class="noborder <?=$color?>" <?php if ($name == "default") { ?>style="<?=$opacidad?>"<?php } ?>><?php if ($name != "default") { ?><a style="cursor:pointer" onclick="if(confirm('<?php echo _("Are you sure?")?>')) delete_view('<?php echo $name?>')"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Delete") ?>" title="<?php echo _("Delete") ?>"></img></a><?php } ?></td>
 						</tr>
 						<? } ?>
 					</table>
@@ -143,7 +144,7 @@ function PrintPredefinedViews() {
 				</tr>
 				<tr>
 					<td style='text-align: center; padding: 7px; font-size: 10px;' class="noborder">
-					  <input type="button" value="<?=_("Create New View")?>" onclick="GB_show('<?=_("Create new custom view")?>','custom_view_edit.php',420,600);" class="button">
+					  <input type="button" value="<?=_("Create New View")?>" onclick="GB_show('<?=_("Create new custom view")?>','custom_view_edit.php',460,600);" class="button">
 					</td>
 				</tr>
 			</table>

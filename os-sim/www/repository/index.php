@@ -257,7 +257,7 @@ foreach($repository_list as $repository_object) {
             if (Session::am_i_admin()) {?>
                     <a class="greyboxo" href="change_user.php?id_document=<?=$repository_object->id_document?>" title="<?=("Change owner")?>"><img src="../pixmaps/group.png" title="<?_("Change owner")?>" alt="<?_("Change owner")?>" border="0"></a>
                 <?}
-            else if(preg_match("/pro/i",$version)){
+            else if(preg_match("/pro|demo/i",$version)){
                 if(Acl::am_i_proadmin()) {?>
                     <a class="greyboxo" href="change_user.php?id_document=<?=$repository_object->id_document?>" title="<?=("Change owner")?>"><img src="../pixmaps/group.png" title="<?_("Change owner")?>" alt="<?_("Change owner")?>" border="0"></a>
                 <?}

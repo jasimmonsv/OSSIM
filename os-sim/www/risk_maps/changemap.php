@@ -47,7 +47,7 @@ function mapAllowed($perms_arr,$version) {
 	foreach ($perms_arr as $perm=>$val) {
 		// ENTITY
 		if (preg_match("/^\d+$/",$perm)) {
-			if (preg_match("/pro/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) {
+			if (preg_match("/pro|demo/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) {
 				$ret = true;
 			}
 		// USER
@@ -166,7 +166,7 @@ while (!$result->EOF) {
 							</tr>
 							<tr>
 								<td align="center">
-									<?php if (Session::am_i_admin() || (preg_match("/pro/i",$version) && Acl::am_i_proadmin())) {?>
+									<?php if (Session::am_i_admin() || (preg_match("/pro|demo/i",$version) && Acl::am_i_proadmin())) {?>
 				                    <a class="greyboxo" href="change_user.php?id_map=<?php echo $n?>" title="<?=("Change owner")?>"><img src="../pixmaps/group.png" title="<?_("Change owner")?>" alt="<?_("Change owner")?>" border="0"></a>&nbsp;
 						            <? } ?>
 									<?php if ($n == $default_map) { ?>

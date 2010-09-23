@@ -537,7 +537,7 @@ EOT;
         $func = "tab_" . $tkey;
         echo $func;
         if($schedTabs != "") { $schedTabs .= " &nbsp;&nbsp;&nbsp; "; }
-        $schedTabs .= "<input type=\"button\" onClick=\"showDiv($i, 'section', $numTabs);return false;\" value=\"" . $tname . "\" class=\"btn\">";
+        $schedTabs .= "<input type=\"button\" onClick=\"showDiv($i, 'section', $numTabs);return false;\" value=\"" . $tname . "\" class=\"button\">";
         $schedContent .= createHiddenDiv($tkey,$i,$func());
         
         $i++;
@@ -553,13 +553,13 @@ EOT;
 //     }
 
 if ($disp=="edit_sched")
-    echo "<br><center><input type=\"submit\" name=\"submit\" value=\""._("Update Job")."\" onClick=\"return checkForm();\" class=\"btn\">";
+    echo "<br><center><input type=\"submit\" name=\"submit\" value=\""._("Update Job")."\" onClick=\"return checkForm();\" class=\"button\">";
 else if($smethod=="inmediately")
-    echo "<br><center><input type=\"submit\" name=\"submit\" value=\""._("Run Now")."\" onClick=\"return checkForm();\" class=\"btn\">";
+    echo "<br><center><input type=\"submit\" name=\"submit\" value=\""._("Run Now")."\" onClick=\"return checkForm();\" class=\"button\">";
 else
-    echo "<br><center><input type=\"submit\" name=\"submit\" value=\"$txt_submit\" onClick=\"return checkForm();\" class=\"btn\">";
+    echo "<br><center><input type=\"submit\" name=\"submit\" value=\"$txt_submit\" onClick=\"return checkForm();\" class=\"button\">";
     echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"javascript:;\" onclick=\"simulation();\"><img src=\"../pixmaps/arrow_green.gif\" align=\"absmiddle\" border=\"0\"> "._("Configuration Check")."</a>";
-   // echo "&nbsp;&nbsp;<input type=\"button\" name=\"simulate\" value=\""._("Simulate")."\" onClick=\"simulation();\" class=\"btn\">&nbsp;<span id='ld'></span>";
+   // echo "&nbsp;&nbsp;<input type=\"button\" name=\"simulate\" value=\""._("Simulate")."\" onClick=\"simulation();\" class=\"button\">&nbsp;<span id='ld'></span>";
     echo "<br><br><span id='sresult'></span></center></form></div>";
 
 
@@ -1303,7 +1303,7 @@ EOT;
             $discovery .= "<option value=\"".$user->get_login()."\"".(($editdata["username"]==$user->get_login() || $user_selected==$user->get_login())? " selected":"").">".$user->get_login()."</option>";
           }
           $discovery .= "</select>";
-          if(preg_match("/pro/i",$version)){
+          if(preg_match("/pro|demo/i",$version)){
               $discovery .= "<tr><td class=\"nobborder\">&nbsp;</td><td class=\"nobborder\">"._("OR")."</td></tr>";
               $discovery .= "<tr><td class=\"nobborder\">"._("Entity:")."</td><td class=\"nobborder\">";
               $entities_types_aux = Acl::get_entities_types($dbconn);
@@ -1324,7 +1324,7 @@ EOT;
           $discovery .="</table>";
           $discovery .="</td></tr>";
       }
-       else if(preg_match("/pro/i",$version)) {
+       else if(preg_match("/pro|demo/i",$version)) {
             if(Acl::am_i_proadmin()) {
                   $discovery .= "<tr><td>"._("Make this scan job visible for:")."</td>";
 
@@ -2251,8 +2251,8 @@ EOT;*/
               <input type="hidden" name="scan_locally" value="<?=$scan_locally?>"/> 
               <input type="hidden" name="semail" value="<?=$semail?>"/>
         <?
-        echo "<input type=\"submit\" value=\""._("Back")."\" class=\"btn\"/> &nbsp; ";
-        echo "<input value=\""._("Continue")."\" class=\"btn\" type=\"button\" onclick=\"document.location.href='manage_jobs.php?hmenu=Vulnerabilities&smenu=Jobs'\"></form>";
+        echo "<input type=\"submit\" value=\""._("Back")."\" class=\"button\"/> &nbsp; ";
+        echo "<input value=\""._("Continue")."\" class=\"button\" type=\"button\" onclick=\"document.location.href='manage_jobs.php?hmenu=Vulnerabilities&smenu=Jobs'\"></form>";
         echo "</td></tr>";
         echo "</table>";
         echo "</center>";

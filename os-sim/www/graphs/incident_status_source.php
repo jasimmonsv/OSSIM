@@ -15,7 +15,7 @@ $conn = $db->connect();
 //$query = "select DISTINCT u.status, count(*) as num from (( SELECT DISTINCT i.status, i.id FROM incident i WHERE i.in_charge = '".$_SESSION['_user']."' ) UNION ( SELECT DISTINCT t.status, t.incident_id AS id FROM incident_ticket t WHERE t.in_charge = '".$_SESSION['_user']."' )) u group by u.status;";
 
 $user = $_SESSION['_user'];
-if ($user == ACL_DEFAULT_OSSIM_ADMIN) {
+if (Session::am_i_admin()) {
 	$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* 
 	FROM incident";
 } else {

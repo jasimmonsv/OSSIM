@@ -56,14 +56,10 @@ $_SESSION['views'] = $config->get($login, 'custom_views', 'php', "siem");
 if ($_SESSION['views']['default'] == "") {
 	$_SESSION['views']['default']['cols'] = array('SIGNATURE','DATE','IP_PORTSRC','IP_PORTDST','ASSET','PRIORITY','RELIABILITY','RISK','IP_PROTO');
 	$session_data = $_SESSION;
-	unset($session_data['_user']);
-	unset($session_data['_user_language']);
-	unset($session_data['_mdspw']);
-	unset($session_data['back_list']);
-	unset($session_data['back_list_cnt']);
-	unset($session_data['current_cview']);
-	unset($session_data['views']);
-	unset($session_data['ports_cache']);
+	foreach ($_SESSION as $k => $v) {
+	if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event).*/",$k))
+		unset($session_data[$k]);
+	}
 	$_SESSION['views']['default']['data'] = $session_data;
 	$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
 }

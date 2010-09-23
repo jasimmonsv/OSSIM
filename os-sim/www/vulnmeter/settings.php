@@ -232,7 +232,7 @@ echo "<input type=button onclick=\"document.location.href='settings.php?disp=edi
 echo "<input type=button onclick=\"document.location.href='settings.php?disp=linkplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='linkplugins')? "menuon":"menu")."\" style=\"display:none;\" value=\""._("ImPLUGINS")."\">";
 echo "<input type=button onclick=\"document.location.href='settings.php?disp=editprefs&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editprefs')? "menuon":"menu")."\" value=\""._("PREFS")."\">&nbsp;&nbsp;&nbsp;";
 
-//<input type=button onclick="document.location.href='settings.php?disp=editusers&amp;sid=$sid'" class="btn" value="USERS">&nbsp;&nbsp;&nbsp;
+//<input type=button onclick="document.location.href='settings.php?disp=editusers&amp;sid=$sid'" class="button" value="USERS">&nbsp;&nbsp;&nbsp;
 echo "<input type=button onclick=\"document.location.href='settings.php?disp=viewconfig&amp;sid=$sid'\" class=\"".(($_GET['disp']=='viewconfig')? "menuon":"menu")."\" value=\""._("VIEW CONFIG")."\">&nbsp;&nbsp;&nbsp;";
 echo "</form>";
 
@@ -315,7 +315,7 @@ if(Session::am_i_admin()) {?>
                             <?}?>
                         </select>
                     </td>
-                    <?if(preg_match("/pro/i",$version)){?>
+                    <?if(preg_match("/pro|demo/i",$version)){?>
                         <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?>&nbsp;&nbsp;</td>
                         <td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
                         <?
@@ -341,7 +341,7 @@ if(Session::am_i_admin()) {?>
         </td>
     </tr>
 <? }
-else if(preg_match("/pro/i",$version)) {
+else if(preg_match("/pro|demo/i",$version)) {
     if(Acl::am_i_proadmin()) { ?>
     <tr>
         <td><?php echo _("Make this profile available for");?></td>
@@ -512,7 +512,7 @@ EOT;
 </table></div>
 <br>
 EOT;
-   echo "<input type=\"submit\" name=\"submit\" class=\"btn\" value=\""._("Save")."\"><br><br>";
+   echo "<input type=\"submit\" name=\"submit\" class=\"button\" value=\""._("Save")."\"><br><br>";
    echo <<<EOT
 </form></CENTER>
 EOT;
@@ -606,8 +606,8 @@ if(Session::am_i_admin()) {?>
                             <?}?>
                         </select>
                     </td>
-                    <?if(preg_match("/pro/i",$version)){?>
-                        <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?>&nbsp;&nbsp;</td>
+                    <?if(preg_match("/pro|demo/i",$version)){?>
+                        <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?>&nbsp;&nbsp;</td> 
                         <td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
                         <?
                         $entities_types_aux = Acl::get_entities_types($dbconn);
@@ -632,7 +632,7 @@ if(Session::am_i_admin()) {?>
         </td>
     </tr>
 <? }
-else if(preg_match("/pro/i",$version)) { 
+else if(preg_match("/pro|demo/i",$version)) { 
     if(Acl::am_i_proadmin()) { ?>
     <tr>
         <th><?php echo _("Make this profile available for");?></th>
@@ -831,7 +831,7 @@ echo "<th>"._("Intelligent")."</th></tr>";
    }
    echo "</table></div></center><BR>";
 
-   echo "<input type=\"submit\" name=\"submit\" value=\""._("Update")."\" class=\"btn\">
+   echo "<input type=\"submit\" name=\"submit\" value=\""._("Update")."\" class=\"button\">
       </form><BR><BR>";
 
 }
@@ -862,9 +862,9 @@ echo "<b>$pcount</b> "._("Nessus plugins available")." - <b>$penabled</b> - "._(
 <input type="hidden" name="fam" value="$fam" >
 EOT;
 
-echo "<input type=\"submit\" name=\"AllPlugins\" value=\""._("Enable All")."\" class=\"btn\">&nbsp;&nbsp;&nbsp;";
-echo "<input type=\"submit\" name=\"NonDOS\" value=\""._("Enable Non DOS")."\" class=\"btn\">&nbsp;&nbsp;&nbsp;";
-echo "<input type=\"submit\" name=\"DisableAll\" value=\""._("Disable All")."\" class=\"btn\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=\"submit\" name=\"AllPlugins\" value=\""._("Enable All")."\" class=\"button\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=\"submit\" name=\"NonDOS\" value=\""._("Enable Non DOS")."\" class=\"button\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=\"submit\" name=\"DisableAll\" value=\""._("Disable All")."\" class=\"button\">&nbsp;&nbsp;&nbsp;";
    echo <<<EOT
 </form>
 </center>
@@ -992,7 +992,7 @@ function import_plugins ( $sid, $importplugins, $preenable, $bEnable ) {
    </td></tr> 
    <tr><td><input type="checkbox" name="bEnable" value="1" checked ><b>Enable the following plugins</b></option></td></tr>  
    <tr><td valign="top"><textarea name="importplugins" style="WIDTH: 400px; HEIGHT: 300px"></textarea></td></tr>
-   <tr><td align="right"><input type="submit" value="Import" class="btn">
+   <tr><td align="right"><input type="submit" value="Import" class="button">
    </td></tr>
    </table>
    </center>
@@ -1051,7 +1051,7 @@ print "<table>";
       $result->MoveNext();
    }
    echo "</table>";
-   echo "<BR><INPUT type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"btn\">
+   echo "<BR><INPUT type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button\">
                     </form></center><BR>";
 
 }
@@ -1113,8 +1113,8 @@ EOT;
      echo <<<EOT
 
 </SELECT></td>
-<td><input type='button' value='<< Add' onclick="move2(this.form.unauthorized,this.form.authorized )" class="btn"><br/><br>
-<input type='button' value='Remove >>' onclick="move2(this.form.authorized,this.form.unauthorized)" class="btn"></td>
+<td><input type='button' value='<< Add' onclick="move2(this.form.unauthorized,this.form.authorized )" class="button"><br/><br>
+<input type='button' value='Remove >>' onclick="move2(this.form.authorized,this.form.unauthorized)" class="button"></td>
      <td valign=top align="left">
           <select name="unauth_users[]" id="unauthorized" style="WIDTH: 187px; HEIGHT: 200px" multiple="multiple" size=20>\n";
 EOT;
@@ -1134,7 +1134,7 @@ EOT;
      echo <<<EOT
 </select>
 </td></tr>
-<tr><td colspan="3"><input type='submit' name='submit' value='Update Access' class='btn'></input></td></tr>
+<tr><td colspan="3"><input type='submit' name='submit' value='Update Access' class='button'></input></td></tr>
 </TABLE></CENTER></form>
 EOT;
 
@@ -1770,9 +1770,9 @@ echo "</table>";
 echo "<center>";
 echo "<p>";
 echo "<form>";
-echo "<input type=button onclick=\"document.location.href='settings.php?disp=new'\" value=\""._("Create New Profile")."\" class=\"btn\">&nbsp;&nbsp;&nbsp;&nbsp;";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=new'\" value=\""._("Create New Profile")."\" class=\"button\">&nbsp;&nbsp;&nbsp;&nbsp;";
 if($username=="admin"){
-    echo "<input type=button onclick=\"document.location.href='defaults.php'\" value=\""._("Edit default profile")."\" class=\"btn\">";
+    echo "<input type=button onclick=\"document.location.href='defaults.php'\" value=\""._("Edit default profile")."\" class=\"button\">";
 }
 echo "</form>";
 echo "</p>";
@@ -2203,11 +2203,11 @@ function createHiddenDiv($name, $num, $data, $fam, $sid) {
    }
    #$text .= "</span>";
    $text .= "</table><br>\n";
-   $text .= "<input type='button' name='cbAll' value='"._("Check All")."' onclick=\"CheckEm(this, 'family".$num."', true);\" class=\"btn\"/>";
+   $text .= "<input type='button' name='cbAll' value='"._("Check All")."' onclick=\"CheckEm(this, 'family".$num."', true);\" class=\"button\"/>";
    $text .= "&nbsp;&nbsp;";
-   $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEm(this, 'family".$num."', false);\" class=\"btn\"/>";
+   $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEm(this, 'family".$num."', false);\" class=\"button\"/>";
    $text .= "&nbsp;&nbsp;";
-   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"btn\"></form>";
+   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button\"></form>";
    $text .= "</div></center>\n";
    return $text;
 }
@@ -2264,11 +2264,11 @@ function createHiddenDivCve($name, $num, $data, $cve, $sid) {
    }
    #$text .= "</span>";
    $text .= "</table><br>\n";
-   $text .= "<input type='button' name='cbAll' value='"._("Check All")."' onclick=\"CheckEm(this, 'cve".$num."', true);\" class=\"btn\"/>";
+   $text .= "<input type='button' name='cbAll' value='"._("Check All")."' onclick=\"CheckEm(this, 'cve".$num."', true);\" class=\"button\"/>";
    $text .= "&nbsp;&nbsp;";
-   $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEm(this, 'cve".$num."', false);\" class=\"btn\"/>";
+   $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEm(this, 'cve".$num."', false);\" class=\"button\"/>";
    $text .= "&nbsp;&nbsp;";
-   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"btn\"></form>";
+   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button\"></form>";
    $text .= "</div></center>\n";
    return $text;
 }

@@ -343,7 +343,7 @@ a:hover { text-decoration: underline; }
 			var aux = links[row].split(", ");
 			year_str = aux[1];
 		}
-		$('<div id="tooltip" class="tooltipLabel" onclick="parent.graph_by_date( \''+col+'\', <?=$row?>, 0, \''+links[row]+'\', \'\', \'<?if ($t_year != "") echo $t_year; else { ?>'+year_str+'<? } ?>\',\'<?=$t_month?>\')">'+links[row]+': <a href="javascript:parent.graph_by_date( \''+col+'\', <?=$row?>, 0, \''+links[row]+'\', \'\', \'<?if ($t_year != "") echo $t_year; else { ?>'+year_str+'<? } ?>\',\'<?=$t_month?>\')" style="font-size:10px;">' + contents + '<a></div>').css( {
+		$('<div id="tooltip" class="tooltipLabel" onclick="parent.graph_by_date( \''+col+'\', <?=$row?>, 0, \''+links[row]+'\', \'\', \'<?if ($t_year != "") echo $t_year; else { ?>'+year_str+'<? } ?>\',\'<?=$t_month?>\')">'+links[row]+': <a href="javascript:parent.graph_by_date( \''+col+'\', <?=$row?>, 0, \''+links[row]+'\', \'\', \'<?if ($t_year != "") echo $t_year; else { ?>'+year_str+'<? } ?>\',\'<?=$t_month?>\')" style="font-size:10px;">' + contents + '</a></div>').css( {
             position: 'absolute',
             display: 'none',
             top: y - 10,

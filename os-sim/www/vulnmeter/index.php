@@ -178,7 +178,7 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 
 $arruser = array();
 
-if(!preg_match("/pro/i",$version)){
+if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
 }
@@ -385,12 +385,12 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
           else if ((int)$tokens[1]>24)
                 $q = $bytes[0].".".$bytes[1].".".$bytes[2].".".$bytes[3];
       }
-      if (preg_match("/\//",$value)) {
+      //if (preg_match("/\//",$value)) {
         $queryw = " AND t1.name LIKE '$q%' $query_onlyuser order by $sortby $sortdir";
-      }
-      else {
-        $queryw = " AND t1.name LIKE '$q' $query_onlyuser order by $sortby $sortdir";
-      }
+      //}
+      //else {
+      //  $queryw = " AND t1.name LIKE '$q' $query_onlyuser order by $sortby $sortdir";
+      //}
 
       $queryl = " limit $offset,$pageSize";
       if (!preg_match("/\//",$value)) {
@@ -480,8 +480,8 @@ echo "
 <input type="hidden" name="op" value="search">&nbsp;&nbsp;&nbsp;
 EOT;*/
 echo '<input type="hidden" name="withoutmenu" value="'.GET('withoutmenu').'">';
-echo "<input type=\"submit\" name=\"submit\" value=\""._("Find")."\" class=\"btn\">";
-if(Session::am_i_admin()) echo "&nbsp;<input type='hidden' name='confirm_delete' id='confirm_delete' value='0'><input type=\"submit\" name=\"seldelete\" value=\""._("Delete selected")."\" onclick=\"$('#confirm_delete').val('1')\" class=\"btn\">";
+echo "<input type=\"submit\" name=\"submit\" value=\""._("Find")."\" class=\"button\">";
+if(Session::am_i_admin()) echo "&nbsp;<input type='hidden' name='confirm_delete' id='confirm_delete' value='0'><input type=\"submit\" name=\"seldelete\" value=\""._("Delete selected")."\" onclick=\"$('#confirm_delete').val('1')\" class=\"button\">";
      echo <<<EOT
 </form>
 </center>
@@ -543,9 +543,9 @@ EOT;
        $data['vSerious'] = 0;
        
        $queryt = "SELECT count(*) AS total, risk, hostIP FROM (
-                    SELECT DISTINCT port, protocol, app, scriptid, msg, risk, hostIP
+                    SELECT DISTINCT port, protocol, app, scriptid, risk, hostIP
                     FROM vuln_nessus_latest_results where falsepositive='N'".((in_array("admin", $arruser))? "": " and username in ('".$user."')").") AS t GROUP BY risk, hostIP";
-       
+       //echo "$queryt<br>";
        
        $resultt = $dbconn->Execute($queryt);
          while(list($riskcount, $risk, $hostIP)=$resultt->fields) {
@@ -587,7 +587,7 @@ EOT;
 
          $query_risk = "SELECT risk FROM vuln_nessus_latest_results WHERE report_id = ".$data['report_id'];
          $query_risk.= " AND username = '".$data['username']."' AND sid =".$data['sid']." AND falsepositive='N'";
-         //echo "[$query_risk]";
+         //echo "[$query_risk]<br>";
          
          $result_risk = $dbconn->Execute($query_risk);
          while(!$result_risk->EOF) {

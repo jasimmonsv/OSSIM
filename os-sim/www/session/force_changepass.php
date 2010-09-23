@@ -43,7 +43,7 @@ $db = new ossim_db();
 $conn = $db->connect();
 $user = Session::get_session_user();
 
-if (preg_match("/pro/",$conf->get_conf("ossim_server_version", FALSE))) Acl::changefirst($conn, $user);
+if (preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version", FALSE))) Acl::changefirst($conn, $user);
 else Session::changefirst($conn, $user);
 
 $conf = $GLOBALS["CONF"];
@@ -78,7 +78,7 @@ if ($pass1 != "") {
 	} elseif ($pass1 == $oldpass) {
 		$msg = _("You must change your old password.");
 	} else {
-		if (preg_match("/pro/",$conf->get_conf("ossim_server_version", FALSE)))
+		if (preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version", FALSE)))
 			Acl::changepass($conn, $user, $pass1);
 		else
 			Session::changepass($conn, $user, $pass1);

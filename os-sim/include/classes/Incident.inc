@@ -471,9 +471,8 @@ class Incident {
                 if (is_array($user)) {
                 	$flag = false;
                 	foreach ($user as $u) {
-                		if (in_array($u, $allowed)) {
+                		if (in_array($u, $allowed))
 	                    	$flag = true;
-                		}
                 	}
                 	if ($flag) {
                 		$list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
@@ -514,12 +513,26 @@ class Incident {
 			elseif ($found[1] >= 8) $host_ip = preg_replace("/\.\d+\.\d+\.\d+\/.*/","",$host_ip);
 			$host_where = "a.src_ips LIKE '$host_ip%' OR a.dst_ips LIKE '$host_ip%' OR a.src_ips LIKE ',$host_ip%' OR a.dst_ips LIKE ',$host_ip%'";
             $host_where_2 = "a.ip LIKE '$host_ip%'";
+            $host_where_3 = "a.target LIKE '$host_ip%'";
             } else {
                 $host_where = "a.src_ips LIKE '%$host_ip%' OR a.dst_ips LIKE '%$host_ip%'";
                 $host_where_2 = "a.ip LIKE '%$host_ip%'";
+                $host_where_3 = "a.target LIKE '%$host_ip%'"; 
             }
 		
 		//$sql = "SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND ($host_where) $args";
+        /*$sql = "(SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_alarm a 
+                    WHERE i.id=a.incident_id AND ($host_where) $args)
+                UNION
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.ip as src_ips FROM incident i,incident_vulns a 
+                    WHERE i.id=a.incident_id AND ($host_where_2) $args)
+                UNION
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_event a 
+                    WHERE i.id=a.incident_id AND ($host_where) $args)
+                UNION
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.ip as src_ips FROM incident i,incident_anomaly a 
+                    WHERE i.id=a.incident_id AND ($host_where_2) $args)
+                ";*/
         $sql = "(SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_alarm a 
                     WHERE i.id=a.incident_id AND ($host_where) $args)
                 UNION
@@ -531,8 +544,11 @@ class Incident {
                 UNION
                 (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.ip as src_ips FROM incident i,incident_anomaly a 
                     WHERE i.id=a.incident_id AND ($host_where_2) $args)
+                UNION
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.target as src_ips FROM incident i,incident_metric a 
+                    WHERE i.id=a.incident_id AND ($host_where_3) $args)
                 ";
-        //error_log("$sql\n", 3, "/tmp/incident.log");
+        //error_log("$sql\n", 3, "/tmp/incident.log"); 
         //echo "***";
         //echo $sql;
         //echo "***";
@@ -789,9 +805,9 @@ class Incident {
         $user = Session::get_session_user();
         
         
-        if(preg_match("/pro/i",$version)) {
-            $db = new ossim_db();
-            $dbconn = $db->connect();
+        if(preg_match("/pro|demo/i",$version)) {
+            $dbaux = new ossim_db();
+            $dbconn = $dbaux->connect();
             if (Acl::am_i_proadmin()) {
                 //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
                 //$user_tmp = array_keys($entities_admin);
@@ -815,13 +831,13 @@ class Incident {
                 //    $user_tmp[] = $brother["login"]; 
                 //}
             }
-            $db->close($dbconn);
+            $dbaux->close($dbconn);
         }
         if(!in_array($user, $user_tmp))   $user_tmp[] = $user; 
         
         $user_where = "'".implode("', '", $user_tmp)."'";
 
-        if ($user != ACL_DEFAULT_OSSIM_ADMIN) {
+        if (!Session::am_i_admin()) { //  $user != ACL_DEFAULT_OSSIM_ADMIN
             if (preg_match("/incident_event/",$w) || preg_match("/incident_alarm/",$w)
                 || preg_match("/incident_metric/",$w) || preg_match("/incident_vulns/",$w)) {
                 $sql .= "LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE incident_subscrip.login in ($user_where)";
@@ -876,6 +892,7 @@ class Incident {
     * (user, in_charge, transferred and subscribed to incidents)
     */
     function get_users_list($conn, $incident_id) {
+    	if (Session::am_i_admin()) return array(ACL_DEFAULT_OSSIM_ADMIN);
         $list = array();
         $query = OssimQuery("SELECT users, in_charge, transferred FROM incident_ticket WHERE incident_id = " . $incident_id);
         if (!$rs = & $conn->Execute($query)) {
@@ -958,7 +975,7 @@ class Incident {
         $conf = $GLOBALS["CONF"];
         $version = $conf->get_conf("ossim_server_version", FALSE);
         
-        if(preg_match("/pro/i",$version)) {
+        if(preg_match("/pro|demo/i",$version)) {
             $user_tmp = array();
             if (Acl::am_i_proadmin()) {
                 list($entities_admin,$num) = Acl::get_entities_admin($conn,Session::get_session_user());
@@ -975,11 +992,11 @@ class Incident {
         
         if (is_array($incident_list = Incident::get_list($conn, "WHERE incident.id = $incident_id", $user_tmp)) && count($incident_list) > 0) {
             $incident = $incident_list[0];
-            if ($user == $incident->get_in_charge($conn) || (preg_match("/pro/i",$version) && in_array($incident->get_in_charge($conn),$user_tmp))) return true;
+            if ($user == $incident->get_in_charge($conn) || (preg_match("/pro|demo/i",$version) && in_array($incident->get_in_charge($conn),$user_tmp))) return true;
         }
         return false;
         */
-        if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
+        if (Session::am_i_admin()) return true; // $user == ACL_DEFAULT_OSSIM_ADMIN
         $incident_list = Incident::search($conn, array( 'incident_id' => $incident_id ));
         return (count($incident_list)>0) ? true : false;
     }
@@ -1594,6 +1611,8 @@ class Incident {
         return $list;
     }
     function incidents_by_user($conn, $open_only = true,$host=null) {
+    	$conf = $GLOBALS["CONF"];
+		$version = $conf->get_conf("ossim_server_version", FALSE);
         $list = array();
         $status = array();
         $args = "";
@@ -1643,7 +1662,11 @@ class Incident {
             $arrayReturn=array();
             // inicialmente la aplicación obtiene los datos sin indice textual, 0 es key 1 es valor
             foreach($arrayContenedor as $key => $value){
-                $arrayReturn[]=array(0=>$key,1=>$value);
+	        	if (preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$key)) {
+		           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
+		           $key = $entity_name." [".$entity_type."]";
+		        }
+                if ($key!=" []") $arrayReturn[]=array(0=>$key,1=>$value);
             }
             //
 
@@ -1652,7 +1675,11 @@ class Incident {
 
         arsort($status);
         foreach($status as $key => $value) {
-            array_push($list, array(
+        	if (preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$key)) {
+	           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
+	           $key = $entity_name." [".$entity_type."]";
+	        }
+            if ($key!=" []") array_push($list, array(
                 $key,
                 $value
             ));

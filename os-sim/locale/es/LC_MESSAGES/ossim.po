@@ -614,11 +614,11 @@ msgstr "Archivando"
 #: www/signature/deletesignature.php:30 www/session/deleteuser.php:40
 #: www/policy/deletepolicy.php:29 www/scan/deletehostscan.php:31
 msgid "Are you sure"
-msgstr "¿Est&aacute; usted seguro?"
+msgstr "&iquest;Est&aacute; usted seguro?"
 
 #: www/conf/main.php:1149
 msgid "Are you sure ?"
-msgstr "¿Est&aacute; seguro?"
+msgstr "&iquest;Est&aacute; seguro?"
 
 #: www/directive_editor/include/directive.php:101
 #: www/directive_editor/editor/include/directive.php:101
@@ -648,7 +648,7 @@ msgstr ""
 
 #: www/sensor/deletesensor.php:32 www/server/deleteserver.php:32
 msgid "Are you sure?"
-msgstr "¿Est&aacute; seguro?"
+msgstr "&iquest;Est&aacute; seguro?"
 
 #: www/conf/main.php:942
 msgid "Arpwatch Binary Path"
@@ -683,7 +683,7 @@ msgstr "Nombre del Activo"
 
 #: www/business_processes/bp_list.php:59
 msgid "Assets"
-msgstr "Activo"
+msgstr "Activos"
 
 #: www/business_processes/bp_list.php:59
 msgid "Analysis"
@@ -1257,8 +1257,8 @@ msgid ""
 msgstr ""
 "Volviendo a nuesto ejemplo del gusano. Un equipo que se conecta a 5 "
 "m&aacute;quinas distintas de su propia subred al puerto 445, puede representar un "
-"comportamiento normal. No es fiable para un IDS ¿Qu&eacute; ocurre si se conecta "
-"contra 15 m&aacute;quinas? Empieza a ser sospechoso ¿Y si se comunica con 500 "
+"comportamiento normal. No es fiable para un IDS &iquest;Qu&eacute; ocurre si se conecta "
+"contra 15 m&aacute;quinas? Empieza a ser sospechoso &iquest;Y si se comunica con 500 "
 "m&aacute;quinas en menos de una hora? Es extra&ntilde;o y el ataque comiena a ser m&aacute;s y "
 "m&aacute;s fiable."
 
@@ -1297,7 +1297,7 @@ msgstr "Compromiso"
 
 #: www/directive_editor/editor/rule/monitor.inc.php:31
 msgid "Condition"
-msgstr ""
+msgstr "Condici&oacute;n"
 
 #: include/panel/plugins/config_exchange.php:36
 msgid "Config Import"
@@ -1909,7 +1909,7 @@ msgstr ""
 
 #: www/policy/newpolicyform.php:476 www/policy/modifypolicyform.php:751
 msgid "Does not apply to targets without associated database."
-msgstr ""
+msgstr "No se aplica a los targets sin base de datos asociada."
 
 #: www/ntop/menu.php:234
 msgid "Domains"
@@ -2897,7 +2897,7 @@ msgstr "Imagenes (php jpgraph)"
 
 #: www/policy/newpolicyform.php:476 www/policy/modifypolicyform.php:751
 msgid "Implicit value is always No for them."
-msgstr ""
+msgstr "El valor impl&iacute;cito es siempre No."
 
 #: include/panel/plugins/config_exchange.php:41
 msgid "Import text"
@@ -3074,7 +3074,7 @@ msgstr "Insertar nueva configuraci&oacute;n de an&aacute;lisis de equipo"
 
 #: www/policy/newpolicyform.php:42 www/policy/newpolicyform.php:111
 msgid "Insert new host?"
-msgstr "¿Insertar nuevo equipo?"
+msgstr "&iquest;Insertar nuevo equipo?"
 
 #: www/policy/modifypolicyform.php:55 www/policy/modifypolicyform.php:150
 msgid "Insert new net"
@@ -3082,7 +3082,7 @@ msgstr "Isertar nueva red"
 
 #: www/policy/newpolicyform.php:39 www/policy/newpolicyform.php:108
 msgid "Insert new net?"
-msgstr "¿Insertar nueva red?"
+msgstr "&iquest;Insertar nueva red?"
 
 #: www/net/newnetgroupform.php:43 www/net/net.php:173
 #: www/net/modifynetgroupform.php:57 www/net/newnetform.php:15
@@ -3094,8 +3094,8 @@ msgid "Insert new network group"
 msgstr "Insertar nuevo grupo de red"
 
 #: www/policy/newpolicyform.php:227 www/policy/modifypolicyform.php:318
-msgid "Insert new plugin group"
-msgstr "Insertar nuevo grupo de plugins"
+msgid "Insert new plugin group?"
+msgstr "&iquest;Insertar nuevo grupo de plugins?"
 
 #: www/policy/policy.php:256
 msgid "Insert new policy"
@@ -3108,7 +3108,7 @@ msgstr "Isertar nuevo grupo de puertos"
 
 #: www/policy/newpolicyform.php:177
 msgid "Insert new port group?"
-msgstr "¿Insertar nuevo grupo de puertos?"
+msgstr "&iquest;Insertar nuevo grupo de puertos?"
 
 #: www/host/newhostgroupform.php:133 www/host/newhostform.php:122
 #: www/host/modifyhostgroupform.php:118 www/host/modifyhostform.php:115
@@ -3139,7 +3139,13 @@ msgstr "Insertar nuevo sensor"
 
 #: www/policy/newpolicyform.php:244 www/policy/newpolicyform.php:370
 msgid "Insert new sensor?"
-msgstr "¿Insertar nuevo sensor?"
+msgstr "&iquest;Insertar nuevo sensor?"
+
+msgid "Insert new net group?"
+msgstr "&iquest;Insertar nuevo grupo de redes?"
+
+msgid "Insert new host group?"
+msgstr "&iquest;Insertar nuevo grupo de equipos?"
 
 #: www/policy/modifypolicyform.php:622 www/server/server.php:249
 #: www/server/newserverform.php:15
@@ -3224,7 +3230,7 @@ msgstr "Est&aacute; OSSIM server ejecutandose en"
 
 #: include/ossim_error.inc:192 include/ossim_error.inc:206
 msgid "Is Ossim framework running at %1% ?"
-msgstr "¿ Est&aacute; el framework OSSIM ejecutandose en %1% ?"
+msgstr "&iquest; Est&aacute; el framework OSSIM ejecutandose en %1% ?"
 
 #: www/vulnmeter/do_nessus.php:249 www/vulnmeter/scheduler.php:66
 msgid ""
@@ -4253,7 +4259,7 @@ msgstr "Nueva ventana"
 #: www/maps/new.php:36 www/maps/positions_map.php:131 www/sem/process.php:95
 #: www/sem/process.php:236
 msgid "Next"
-msgstr ""
+msgstr "Siguiente"
 
 #: www/conf/pluginref.php:70 www/userlog/user_action_log.php:165
 #: www/userlog/user_action_log.php:235 www/control_panel/mac.php:144
@@ -5142,7 +5148,7 @@ msgstr "Sid Plugin"
 
 #: www/sensor/sensor_plugins.php:161
 msgid "Plugin status"
-msgstr ""
+msgstr "Estado del plugin"
 
 #: www/control_panel/event_panel.php:422
 msgid "Plugin_id"
@@ -5376,7 +5382,7 @@ msgstr "Nombre de Procesos"
 
 #: www/sensor/sensor_plugins.php:159
 msgid "Process Status"
-msgstr ""
+msgstr "Estado del proceso"
 
 #: www/rrd_conf/rrd_conf.php:41 www/rrd_conf/new_rrd_conf.php:23
 #: www/rrd_conf/modify_rrd_conf_form.php:37
@@ -5664,7 +5670,7 @@ msgstr "Resolver IPs"
 
 #: include/panel/plugins/custom_cloud.php:52
 msgid "Resolve hostname on column?"
-msgstr "¿Resolver nombre de host en la columna?"
+msgstr "&iquest;Resolver nombre de host en la columna?"
 
 #: www/response/deleteresponse.php:22
 msgid "Response ID"
@@ -6751,7 +6757,7 @@ msgstr ""
 #: www/incidents/incidenttag.php:134
 #, php-format
 msgid "There are %d incidents using this tag. Do you really want to delete it?"
-msgstr "Hay %d incidencias que usan esta etiqueta. ¿Realmente desea borrarla?"
+msgstr "Hay %d incidencias que usan esta etiqueta. &iquest;Realmente desea borrarla?"
 
 #: include/ossim_error.inc:121
 msgid "There are missing fields"
@@ -7824,7 +7830,7 @@ msgid ""
 "substituted by it's matching value upon action execution"
 msgstr ""
 "Usted puede usar las siguientes palabras clave en los campos que ser&aacute;"
-"n tomadospara sustituir los valores emparejados para la ejecuci&oacute;n de "
+"n tomados para sustituir los valores emparejados para la ejecuci&oacute;n de "
 "una acci&oacute;n"
 
 #: www/action/modifyactionform.php:160
@@ -8294,7 +8300,7 @@ msgid ""
 "security hole so it'll have a high priority"
 msgstr ""
 "es peligroso, pero ha comprometido miles de equipos y es muy f&aacute;cil de "
-"llevar a cabo. Pero, ¿a usted le afecta? Seguramente no, pero is un "
+"llevar a cabo. Pero, &iquest;a usted le afecta? Seguramente no, pero is un "
 "importante agujero de seguridad as&iacute; que tendr&aacute; una alta prioridad"
 
 #: www/report/anomalies.php:85
@@ -9050,6 +9056,9 @@ msgstr "ID Directiva"
 msgid "Delete Selected"
 msgstr "Borrar Seleccionados"
 
+msgid "Delete selected"
+msgstr "Borrar seleccionados"
+
 msgid "Close Selected"
 msgstr "Cerrar Seleccionados"
 
@@ -9145,6 +9154,9 @@ msgstr "Estructura"
 
 msgid "Duplicate Selected"
 msgstr "Duplicar Seleccionados"
+
+msgid "Duplicate selected"
+msgstr "Duplicar seleccionados"
 
 msgid "Select a Predefined Search"
 msgstr "Seleccionar B&uacute;squeda Predefinida"
@@ -9735,7 +9747,13 @@ msgstr "Correlaci&oacute;n cruzada"
 msgid "Forward Alarms"
 msgstr "Reenviar alarmas"
 
+msgid "Forward alarms"
+msgstr "Reenviar alarmas"
+
 msgid "Forward Events"
+msgstr "Reenviar eventos"
+
+msgid "Forward events"
 msgstr "Reenviar eventos"
 
 msgid "Alarms to syslog"
@@ -9855,6 +9873,60 @@ msgstr "Reenv&iacute;o de eventos"
 msgid "Remote Logger Url"
 msgstr "Url Logger remoto"
 
+msgid "UP or ENABLED"
+msgstr "ARRIBA o HABILITADO"
+
+msgid "DOWN or DISABLED"
+msgstr "ABAJO o DESHABILITADO"
+
+msgid "Totals"
+msgstr "Totales"
+
+msgid "Last SIEM Event"
+msgstr "&Uacute;timo evento de SIEM"
+
+msgid "Delete All"
+msgstr "Eliminar Todos"
+
+msgid "Reload Policies"
+msgstr "Recargar pol&iacute;ticas"
+
+msgid "policy"
+msgstr "pol&iacute;tica"
+
+msgid "Policy Consequences"
+msgstr "Consecuencias de la pol&iacute;tica"
+
+msgid "Install in"
+msgstr "Instalar en"
+
+msgid "Insert new port?"
+msgstr "&iquest;Insertar nuevo puerto?"
+
+msgid "View all plugin groups"
+msgstr "Ver todos los grupos de plugins"
+
+msgid "Insert new policy group?"
+msgstr "&iquest;Insertar nuevo grupo de pol&iacute;ticas?"
+
+msgid "Policy group"
+msgstr "Grupo de pol&iacute;ticas"
+
+msgid "Insert new action?"
+msgstr "&iquest;Insertar nueva acci&oacute;n?"
+
+msgid "Define logical condition"
+msgstr "Definir condici&oacute;n l&oacute;gica"
+
+msgid "Python boolean expression"
+msgstr "Expresi&oacute;n booleana de Python"
+
+msgid "Only if this is an alarm"
+msgstr "S&oacute;lo si se trata de una alarma"
+
+msgid "Only on risk increase"
+msgstr "Cuando se incrementa el riesgo"
+
 #~ msgid ""
 #~ "\n"
 #~ "                For security reasons, bad characters have been skipped"
@@ -9965,7 +10037,7 @@ msgstr "Url Logger remoto"
 
 #~ msgid "Detected uncompleted 0.9.9 schema (CVS version?). "
 #~ msgstr ""
-#~ "Se detect&oacute; un esquema 0.9.9 incompleto (¿versi&oacute;n CVS?). "
+#~ "Se detect&oacute; un esquema 0.9.9 incompleto (&iquest;versi&oacute;n CVS?). "
 
 #~ msgid "Device"
 #~ msgstr "Dispositivo"
@@ -10173,7 +10245,7 @@ msgstr "Url Logger remoto"
 #~ msgstr "findelineas"
 
 #~ msgid "button instead.\\n\\nContinue anyway?"
-#~ msgstr "bot&oacute;n en lugar de otro.\\n\\n¿Continuar de todas maneras?"
+#~ msgstr "bot&oacute;n en lugar de otro.\\n\\n&iquest;Continuar de todas maneras?"
 
 #~ msgid "column"
 #~ msgstr "columna"

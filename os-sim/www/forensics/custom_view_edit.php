@@ -42,11 +42,13 @@ $save = GET('save');
 $name = GET('name');
 $oldname = GET('oldname');
 $columns = GET('selected_cols');
+$save_criteria = (GET('save_criteria') != "") ? 1 : 0;
 ossim_valid($edit, OSS_NULLABLE, OSS_DIGIT, "Invalid: edit");
 ossim_valid($save, OSS_NULLABLE, OSS_ALPHA, "Invalid: save");
 ossim_valid($name, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: name");
 ossim_valid($oldname, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: oldname");
 ossim_valid($columns, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, "Invalid: columns");
+ossim_valid($save_criteria, OSS_NULLABLE, OSS_DIGIT, "Invalid: save criteria");
 $columns_arr = explode(",",$columns);
 if (ossim_error()) {
     die(ossim_error());
@@ -70,16 +72,16 @@ if ($save == "insert") {
 		// Columns
 		$_SESSION['views'][$name]['cols'] = $columns_arr;
 		// Filters
-		$session_data = $_SESSION;
-		unset($session_data['_user']);
-		unset($session_data['_user_language']);
-		unset($session_data['_mdspw']);
-		unset($session_data['back_list']);
-		unset($session_data['back_list_cnt']);
-		unset($session_data['current_cview']);
-		unset($session_data['views']);
-		unset($session_data['ports_cache']);
-		$_SESSION['views'][$name]['data'] = $session_data;
+		if ($save_criteria) {
+			$session_data = $_SESSION;
+			foreach ($_SESSION as $k => $v) {
+			if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event).*/",$k))
+				unset($session_data[$k]);
+			}
+			$_SESSION['views'][$name]['data'] = $session_data;
+		} else {
+			$_SESSION['views'][$name]['data'] = array();
+		}
 		$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
 		$created = 1;
 	}
@@ -105,6 +107,9 @@ if ($save == "insert") {
 			$_SESSION['view_name_changed'] = $name; // Uses when closes greybox
 		}
 		$_SESSION['views'][$name]['cols'] = $columns_arr;
+		if (!$save_criteria) {
+			$_SESSION['views'][$name]['data'] = array();
+		}
 		$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
 		$edit = 1;
 		$msg = "<font style='color:green'>"._("The view has been successfully updated.")."</font>";
@@ -197,6 +202,7 @@ $tags = Event_viewer::get_tags();
     </select>
 	</td></tr>
 	<tr><td class="center nobborder" id="msg">&nbsp;<?=$msg?></td></tr>
+    <tr><td class="center nobborder"><input type="checkbox" name="save_criteria" value="1" checked></input> <?php echo _("Include custom search criteria in this predefined view") ?></td></tr>
     <tr><td class="center nobborder">
 		<?php if ($_SESSION['current_cview'] == "default" && $edit) {?>
 		<?=_("View Name")?>: <input type="text" value="default" style="color:gray" disabled><input type="hidden" name="name" value="default">

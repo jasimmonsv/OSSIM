@@ -1,3 +1,10 @@
+ossim (1:2.4.2-1) ossim; urgency=low
+
+  * Multiple fixes
+  * New labels classification for Alarms
+  * Timeline analysis in Forensics Console
+  * Assets imports
+
 ossim (1:2.4.1-1) ossim; urgency=low
 
   * New report types and multiple fixes

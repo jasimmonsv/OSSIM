@@ -440,7 +440,7 @@ function event_max_occurrences($date_from,$date_to) {
         echo $NUM_HOSTS
 ?>&type=<?php
         echo $report_type ?>&date_from=<?=urlencode($date_from)?>&date_to=<?=urlencode($date_to)?>" alt="<?=_("events graph")?>"
-        frameborder="0" style="width:350px;height:400px;border: 0px solid rgb(170, 170, 170)"> </iframe><?
+        frameborder="0" style="margin:0px;padding:0px;width:430px;height:430px;border: 0px solid rgb(170, 170, 170);text-align:center"> </iframe><?
     
     /*
 ?>

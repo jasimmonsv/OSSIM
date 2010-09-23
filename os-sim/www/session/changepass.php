@@ -70,13 +70,13 @@ if (!POST("user") || !POST("pass1") || !POST("pass2")) {
     $error = new OssimError();
     $error->display("FORM_MISSING_FIELDS");
 }
-if (($_SESSION["_user"] != ACL_DEFAULT_OSSIM_ADMIN) && (($_SESSION["_user"] != $user) && !POST("oldpass"))) {
+if (!Session::am_i_admin() && (($_SESSION["_user"] != $user) && !POST("oldpass"))) {
     require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("FORM_MISSING_FIELDS");
 }
 /* check for old password if not actual user or admin */
-if ((($_SESSION["_user"] != $user) && $_SESSION["_user"] != ACL_DEFAULT_OSSIM_ADMIN) && !is_array($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($oldpass) . "'"))) {
+if ((($_SESSION["_user"] != $user) && !Session::am_i_admin()) && !is_array($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($oldpass) . "'"))) {
     require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("BAD_OLD_PASSWORD");
@@ -88,7 +88,7 @@ if (0 != strcmp($pass1, $pass2)) {
     $error->display("PASSWORDS_MISMATCH");
 }
 /* only the user himself or the admin can change passwords */
-if ((POST('user') != $_SESSION["_user"]) && ($_SESSION["_user"] != ACL_DEFAULT_OSSIM_ADMIN)) {
+if ((POST('user') != $_SESSION["_user"]) && !Session::am_i_admin()) {
     die(ossim_error(_("To change the password for other user is not allowed")));
 }
 /* check OK, insert into DB */

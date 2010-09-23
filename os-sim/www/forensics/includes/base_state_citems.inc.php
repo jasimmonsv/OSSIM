@@ -927,6 +927,48 @@ class TimeCriteria extends MultipleElementCriteria {
         if ($tmp != "") $tmp = $tmp . $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
         return $tmp;
     }
+	function Description_full() {
+        $tmp = "";
+        if (isset($this->criteria[1][1]) && $this->criteria[1][1] != " ") {
+        	$tmp = $tmp . '' . htmlspecialchars($this->criteria[0][0]) . ' Date of events between <b>';
+            /* date */
+        	$i = 0;
+            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
+            else $tmp = $tmp . (($this->criteria[$i][2] == " ") ? "* / " : $this->criteria[$i][2] . " / ") . (($this->criteria[$i][3] == "") ? "* / " : $this->criteria[$i][3] . " / ") . (($this->criteria[$i][4] == " ") ? "*  " : $this->criteria[$i][4] . " ");
+            $tmp = $tmp . ' ';
+            /* time */
+            if ($this->criteria[$i][5] == "" && $this->criteria[$i][6] == "" && $this->criteria[$i][7] == "") $tmp = $tmp;
+            else $tmp = $tmp . (($this->criteria[$i][5] == "") ? "* : " : $this->criteria[$i][5] . " : ") . (($this->criteria[$i][6] == "") ? "* : " : $this->criteria[$i][6] . " : ") . (($this->criteria[$i][7] == "") ? "*  " : $this->criteria[$i][7] . " ");
+            $tmp = $tmp . $this->criteria[$i][8] . ' ' . $this->criteria[$i][9];
+            $tmp = $tmp." ";
+            /* date */
+            $i = 1;
+            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
+            else $tmp = $tmp . (($this->criteria[$i][2] == " ") ? "* / " : $this->criteria[$i][2] . " / ") . (($this->criteria[$i][3] == "") ? "* / " : $this->criteria[$i][3] . " / ") . (($this->criteria[$i][4] == " ") ? "*  " : $this->criteria[$i][4] . " ");
+            $tmp = $tmp . ' ';
+            /* time */
+            if ($this->criteria[$i][5] == "" && $this->criteria[$i][6] == "" && $this->criteria[$i][7] == "") $tmp = $tmp;
+            else $tmp = $tmp . (($this->criteria[$i][5] == "") ? "* : " : $this->criteria[$i][5] . " : ") . (($this->criteria[$i][6] == "") ? "* : " : $this->criteria[$i][6] . " : ") . (($this->criteria[$i][7] == "") ? "*  " : $this->criteria[$i][7] . " ");
+            $tmp = $tmp . $this->criteria[$i][8] . ' ' . $this->criteria[$i][9];
+        } elseif (isset($this->criteria[0][1]) && $this->criteria[0][1] != " ") {
+        	$i = 0;
+        	$op = $this->criteria[$i][1];
+            $op = str_replace(">=","after",$op);
+            $op = str_replace("<=","before",$op);
+            $tmp = $tmp . '' . htmlspecialchars($this->criteria[$i][0]) . ' Date of events ' . $op . ' <b>';
+            /* date */
+            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
+            else $tmp = $tmp . (($this->criteria[$i][2] == " ") ? "* / " : $this->criteria[$i][2] . " / ") . (($this->criteria[$i][3] == "") ? "* / " : $this->criteria[$i][3] . " / ") . (($this->criteria[$i][4] == " ") ? "*  " : $this->criteria[$i][4] . " ");
+            $tmp = $tmp . ' ';
+            /* time */
+            if ($this->criteria[$i][5] == "" && $this->criteria[$i][6] == "" && $this->criteria[$i][7] == "") $tmp = $tmp;
+            else $tmp = $tmp . "(" . (($this->criteria[$i][5] == "") ? "* : " : $this->criteria[$i][5] . " : ") . (($this->criteria[$i][6] == "") ? "00 : " : $this->criteria[$i][6] . " : ") . (($this->criteria[$i][7] == "") ? "00  " : $this->criteria[$i][7] . " ")."h)";
+            $tmp = $tmp . $this->criteria[$i][8] . ' ' . $this->criteria[$i][9];
+            $tmp = $tmp."</b>";
+        }
+        if ($tmp != "") $tmp = $tmp . $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        return $tmp;
+    }
 }; /* TimeCriteria */
 class IPAddressCriteria extends MultipleElementCriteria {
     /*
@@ -1139,6 +1181,15 @@ class IPAddressCriteria extends MultipleElementCriteria {
 				$tmp2 .= "<font class='grisclaro'>[ ".($this->criteria_cnt-2)." more ... ]</font><br>".$this->PrintElement($this->criteria_cnt-1);
 			else
 				$tmp2 .= $this->PrintElement(1);
+		}
+        return $tmp2;
+    }
+	function Description_full() {
+		$tmp2 = "";
+		if ($this->criteria_cnt > 0) {
+			for ($i = 0; $i < $this->criteria_cnt; $i++) {
+				$tmp2 .= $this->PrintElement($i,(($i < $this->criteria_cnt-1) ? false : true));
+			}
 		}
         return $tmp2;
     }

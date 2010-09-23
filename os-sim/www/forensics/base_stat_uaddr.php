@@ -228,7 +228,10 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
             $country_img = "";
             $slnk = ($homelan!="") ? $current_url."/forensics/images/homelan.png" : "";
         }
-        qroPrintEntry('&nbsp;&nbsp;' . BuildAddressLink($currentIP, 32) . $currentIP . '</A>&nbsp;' . $country_img . $homelan);
+        $sip_aux = ($sensors[$currentIP] != "") ? $sensors[$currentIP] : (($hosts[$currentIP] != "") ? $hosts[$currentIP] : $currentIP);
+        $div = '<div id="'.$currentIP.';'.$ip_aux.'" class="HostReportMenu">';
+		$bdiv = '</div>';        
+        qroPrintEntry($div . BuildAddressLink($currentIP, 32) . $currentIP . '</A>&nbsp;' . $country_img . $homelan . $bdiv, 'center','','nowrap');
     }
     if ($resolve_IP == 1) qroPrintEntry('&nbsp;&nbsp;' . baseGetHostByAddr($currentIP, $db, $dns_cache_lifetime) . '&nbsp;&nbsp;');
     /* Print # of Occurances */

@@ -147,11 +147,17 @@ echo gettext("OSSIM Framework"); ?> </title>
 			else alert('You must select a host');
 		}
 		else if (com=='<?=_("New")?>') {
-			document.location.href = 'newhostform.php'
+			document.location.href = 'newhostform.php';
 		}
 		else if (com=='<?=_("Apply")?>') {
-			document.location.href = '../conf/reload.php?what=hosts&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>'
+			document.location.href = '../conf/reload.php?what=hosts&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>';
 		}
+		else if (com=='<?=_("Import CSV")?>') {
+			document.location.href = 'import_hosts.php';
+		}
+		
+		
+		
 	}
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
@@ -213,7 +219,8 @@ echo gettext("OSSIM Framework"); ?> </title>
 
             if (com == 'new')
               document.location.href = 'newhostform.php';
-
+			
+			
 	}
 
 	$("#flextable").flexigrid({
@@ -224,7 +231,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 $default = array(
     "hostname" => array(
         _("Hostname"),
-        180,
+        140,
         'true',
         'left',
         false
@@ -236,23 +243,31 @@ $default = array(
         'center',
         false
     ),
+	
+	"fqdns" => array(
+        _("FQDN/Aliases"),
+        150,
+        'false',
+        'center',
+        false
+    ) ,
     "desc" => array(
         _("Description"),
-        250,
+        185,
         'false',
         'left',
         false
     ) ,
     "asset" => array(
         _("Asset"),
-        40,
+        30,
         'true',
         'center',
         false
     ) ,
     "sensors" => array(
         _("Sensors"),
-        225,
+        180,
         'false',
         'center',
         false
@@ -302,14 +317,14 @@ $default = array(
     ) ,
     "repository" => array(
         _("Knowledge DB"),
-        80,
+        95,
         'false',
         'center',
         false
     ) ,
     "scantype" => array(
         _("Nagios"),
-        50,
+        45,
         'false',
         'center',
         false
@@ -327,6 +342,8 @@ echo "$colModel\n";
 			{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
 			{separator: true},
 			{name: '<?=_("Duplicate selected")?>', bclass: 'duplicate', onpress : action},
+			{separator: true},
+			{name: '<?=_("Import CSV")?>', bclass: 'i_csv', onpress : action},
 			{separator: true},
 			{name: '<?=_("Apply")?>', bclass: '<?php echo (WebIndicator::is_on("Reload_hosts")) ? "reload_red" : "reload" ?>', onpress : action},
 			{separator: true}

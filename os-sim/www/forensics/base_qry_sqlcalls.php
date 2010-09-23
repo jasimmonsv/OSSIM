@@ -340,7 +340,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     // <TR>
     //qroPrintEntryHeader((($colored_alerts == 1) ? GetSignaturePriority($myrow[2], $db) : $i) , $colored_alerts);
     qroPrintEntryHeader($i , $colored_alerts);
-    $tmp_rowid = "#" . (($qs->GetCurrentView() * $show_rows) + $i) . "-(" . $myrow["sid"] . "-" . $myrow["cid"] . ")";
+    $rowid = ($qs->GetCurrentView() * $show_rows) + $i;
+    $tmp_rowid = "#" . $rowid . "-(" . $myrow["sid"] . "-" . $myrow["cid"] . ")";
     // <TD>
     // 1- Checkbox
     qroPrintEntry('<INPUT TYPE="checkbox" NAME="action_chk_lst[' . $i . ']" VALUE="' . htmlspecialchars($tmp_rowid) . '">',"","","","style='border-left:1px solid white;border-top:1px solid white'");
@@ -569,7 +570,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         $current_url."/forensics/bar2.php?value=" . $current_oprio . "&max=5",
         $current_url."/forensics/bar2.php?value=" . $current_oreli . "&max=9",
         $current_url."/forensics/bar2.php?value=" . $current_oriskc . "&value2=" . $current_oriska . "&max=9&range=1",
-        IPProto2str($current_proto),0,0,0
+        IPProto2str($current_proto),$rowid,$myrow["sid"],$myrow["cid"]
     );
 }
 $result->baseFreeRows();

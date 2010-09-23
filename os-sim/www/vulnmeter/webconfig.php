@@ -205,7 +205,7 @@ if (!$uroles['admin']) {
 
             } 
             elseif($section['settingSection']!="Compliance" && $section['settingSection']!="Lists" && $section['settingSection']!="Mail"){
-               $settingTabs .= "<input id=\"b$i\" type=\"button\" onClick=\"showDivSettings($i, 'section',$numSections);return false;\" value=\"".$section['settingSection']."\" class=\"".(($section['settingSection']=="Auth")?"menuon":"menu")."\">&nbsp;&nbsp;";
+               $settingTabs .= "<input id=\"b$i\" type=\"button\" onClick=\"showDivSettings($i, 'section',$numSections);return false;\" value=\"".$section['settingSection']."\" class=\"".(($section['settingSection']=="Auth")?"buttonon":"button")."\">&nbsp;&nbsp;";
             }
             $settingContent .= createHiddenDiv($section['settingSection'], $i, $result2);
                $i++;
@@ -218,21 +218,21 @@ if (!$uroles['admin']) {
    echo "<input type='hidden' name='op' value='save'>";
    echo "<p>" . $settingTabs . "</p>\n";
    echo $settingContent;
-   echo "<p><input type='submit' name='submit' value='"._("Save")."' class='btn'></p>";
+   echo "<p><input type='submit' name='submit' value='"._("Save")."' class='button'></p>";
    if(Session::get_session_user()=="admin"){
         echo "<center>";
         ?>
         <table width="900" class="transparent">
             <tr>
                 <td class="nobborder" style="text-align:center;">
-                <input type="button" onclick="checking();document.location.href='webconfig.php?action=migrate'" value="<?=_("Recreate Scanner DB (can be used for Nessus < -- > OpenVAS migration)")?>">&nbsp;&nbsp;&nbsp;
+                <input type="button" class="button" onclick="checking();document.location.href='webconfig.php?action=migrate'" value="<?=_("Recreate Scanner DB (can be used for Nessus < -- > OpenVAS migration)")?>">&nbsp;&nbsp;&nbsp;
                 <img style="display:none;" id="loading_image" width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?=_("Loading")?>" title="<?=_("Loading")?>">&nbsp;&nbsp;
                 <span id="loading_message"><span>
                 </td>
             </tr>
             <tr>
                 <td style="padding-top:8px;text-align:center;" class="nobborder">
-                    <input type="button" onclick="checking();document.location.href='webconfig.php?action=update'" value="<?=_("Update Scanner DB")?>">
+                    <input type="button" class="button" onclick="checking();document.location.href='webconfig.php?action=update'" value="<?=_("Update Scanner DB")?>">
                 </td>
             </tr>
         </table>

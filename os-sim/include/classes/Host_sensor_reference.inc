@@ -97,7 +97,7 @@ class Host_sensor_reference {
                 $sensor_name
             );
             if ($conn->Execute($sql, $params) === false) {
-                print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
+                print 'Error inserting: ' . $conn->ErrorMsg() . '<BR>';
                 exit;
             }
         }
@@ -108,10 +108,12 @@ class Host_sensor_reference {
             $host_ip,
             $sensor_name
         );
+		
         if ($conn->Execute($sql, $params) === false) {
-            print 'error deleting: ' . $conn->ErrorMsg() . '<BR>';
+            print 'Error deleting: ' . $conn->ErrorMsg() . '<br/>';
             exit;
         }
+		
     }
     function in_host_sensor_reference($conn, $ip, $sensor_name) {
         $sql = "SELECT * FROM host_sensor_reference WHERE host_ip = ? AND sensor_name = ?";

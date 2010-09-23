@@ -97,7 +97,7 @@ function tooltip_hosts($hosts,$ipsnames){
 function subjobs ($name, $scan_submit, $data) {
     $result=array();
     foreach($data as $entry) {
-        if($entry['jobname']==$name && $entry['scan_submit']==$scan_submit){
+        if($entry['jobname']==$name && $entry['scan_submit']==$scan_submit && $entry['sid']!=0){
             $result[] = $entry;
         }
     }
@@ -676,13 +676,15 @@ function stats_severity_services($type, $filter="") {
     $colors = array();
     
     if($filter!="" && preg_match('/\//',$filter)){
-        $ips = Net::expand_CIDR($filter);
-        $filter = implode("', '",$ips);
+        $ips = Net::expand_CIDR($filter,"SHORT");
+        $filter = " and inet_aton(hostIP) between inet_aton('".$ips[0]."') and inet_aton('".$ips[1]."')";
+    } elseif ($type=="hn") {
+    	$filter = " and hostIP like '%$filter%'";
     }
     
-    if($filter==""|| $type=="hn") {
+    if($filter=="" || $type=="hn") {
         $query = "SELECT count(*) AS total, risk, hostIP
-              FROM (SELECT DISTINCT port, protocol, app, scriptid, msg, risk, hostIP FROM vuln_nessus_latest_results where ".((in_array("admin", $arruser))? "" : "username in ('$user') and ")."falsepositive='N'".(($filter!="")?" and hostIP in ('$filter')":"").") AS t
+              FROM (SELECT DISTINCT port, protocol, app, scriptid, msg, risk, hostIP FROM vuln_nessus_latest_results where ".((in_array("admin", $arruser))? "" : "username in ('$user') and ")."falsepositive='N' $filter) AS t
               GROUP BY risk";
     }
     else if($type=="service"){
@@ -734,7 +736,7 @@ function stats_severity_services($type, $filter="") {
     
     if($filter==""|| $type=="hn"){
         $query = "SELECT count(*) AS total, port, protocol, app, hostIP FROM (
-                    SELECT DISTINCT port, protocol, app, hostIP FROM vuln_nessus_latest_results where ".((in_array("admin", $arruser))? "" : "username in ('$user') and ")."falsepositive='N'".(($filter!="")?" and hostIP in ('$filter')":"").") AS t
+                    SELECT DISTINCT port, protocol, app, hostIP FROM vuln_nessus_latest_results where ".((in_array("admin", $arruser))? "" : "username in ('$user') and ")."falsepositive='N' $filter) AS t
                     WHERE port >0 GROUP BY port, protocol, app ORDER BY total DESC limit 10";
     }
     else if($type=="service"){
@@ -882,8 +884,10 @@ function stats_networks_hosts($type, $filter="") {
     
     
     if($filter!="" && preg_match('/\//',$filter)){
-        $ips = Net::expand_CIDR($filter);
-        $filter = implode("', '",$ips);
+        $ips = Net::expand_CIDR($filter,"SHORT");
+        $filter = " and inet_aton(hostIP) between inet_aton('".$ips[0]."') and inet_aton('".$ips[1]."')";
+    } elseif ($type=="hn") {
+    	$filter = " and hostIP like '%$filter%'";
     }
     
     $queryf = "";
@@ -892,7 +896,7 @@ function stats_networks_hosts($type, $filter="") {
     $top10h = $top10n = $nips = array();
     
     if($type=="hn" && $filter!="") {
-        $queryf = " and hostIP in ('$filter')";
+        $queryf = $filter;
     }
     else if($type=="service"){
         $queryf = " and service like '%$filter%'";
@@ -1214,7 +1218,7 @@ $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
 $arruser = array();
-if(!preg_match("/pro/i",$version)){
+if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
 }
@@ -1419,7 +1423,7 @@ else {
            if (Session::am_i_admin()) {
                 $sInfo.="<a class=\"greybox\" href=\"change_user.php?id=$report_id\"><img align=\"absmiddle\" src=\"../pixmaps/group.png\" title=\""._("Change owner")."\" alt=\""._("Change owner")."\" border=\"0\"></a>&nbsp;";
            }
-           else if(preg_match("/pro/i",$version)){
+           else if(preg_match("/pro|demo/i",$version)){
                 if(Acl::am_i_proadmin()) {
                     $sInfo.="<a class=\"greybox\" href=\"change_user.php?id=$report_id\"><img align=\"absmiddle\" src=\"../pixmaps/group.png\" title=\""._("Change owner")."\" alt=\""._("Change owner")."\" border=\"0\"></a>&nbsp;";
                 }
@@ -1429,7 +1433,7 @@ else {
            $sInfo.="<a href=\"rescsv.php?scantime=$id_report&amp;key=$report_key&amp;scantype=M\" target=\"_blank\"><img align=\"absmiddle\" src=\"./images/page_white_excel.png\" border=\"0\" title=\""._("View report")."\" alt=\""._("View report")."\"></a>&nbsp;";
 
            $user_name_filter = array();
-            if(preg_match("/pro/i",$version)){
+            if(preg_match("/pro|demo/i",$version)){
                 if (Acl::am_i_proadmin()) {
                     $user_name_filter = Acl::get_user_entities();
                     $users = Acl::get_my_users($dbconn, Session::get_session_user()); 
@@ -2668,6 +2672,7 @@ function drawTable($map, $data, $summary = "") {
         $job_name = $entry['jobname'];
         $scan_submit = $entry['scan_submit'];
         $scantime = $entry['scantime'];
+
         $agg = subjobs($job_name,$scan_submit,$data);
         if (count($agg)>1) {
             //print_r($agg);
@@ -2776,7 +2781,7 @@ function drawTableLatest($map, $data, $summary = "") {
                 $entry['plink'] = "respdf.php?ipl=$ip&scantype=M";
                 $entry['xlink'] = "rescsv.php?ipl=$ip&scantype=M";
                 
-                $query_lr = "select count(*) as total,risk from (select distinct port,protocol,app,scriptid,msg,risk from vuln_nessus_latest_results where report_id=$ip and falsepositive='N') as t group by risk";
+                $query_lr = "select count(*) as total,risk from (select distinct port,protocol,app,scriptid, risk from vuln_nessus_latest_results where report_id=$ip and falsepositive='N') as t group by risk";
 
                 $result_lr=$dbconn->Execute($query_lr);
                 while(!$result_lr->EOF) {

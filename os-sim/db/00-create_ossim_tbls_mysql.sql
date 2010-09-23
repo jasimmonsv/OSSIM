@@ -439,6 +439,7 @@ CREATE TABLE action_type (
 
 INSERT INTO action_type (_type, descr) VALUES ("email", "send an email message");
 INSERT INTO action_type (_type, descr) VALUES ("exec", "execute an external program");
+INSERT INTO action_type (_type, descr) VALUES ("ticket", "generate ticket");
 
 
 DROP TABLE IF EXISTS action_email;
@@ -1063,6 +1064,7 @@ CREATE TABLE users (
     language varchar(12) DEFAULT 'en_GB' NOT NULL,
     enabled TINYINT(1) NOT NULL DEFAULT '1',
 	first_login TINYINT(1) NOT NULL DEFAULT '1',
+	is_admin TINYINT(1) NOT NULL DEFAULT '0',
     entities varchar(64) DEFAULT '' NOT NULL,
     template_sensors int(11) DEFAULT 0 NOT NULL,
     template_assets int(11) DEFAULT 0 NOT NULL,

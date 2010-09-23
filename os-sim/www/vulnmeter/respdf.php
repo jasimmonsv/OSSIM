@@ -105,7 +105,7 @@ $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
 $arruser = array();
-if(!preg_match("/pro/i",$version)){
+if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
 }
@@ -444,11 +444,11 @@ WHERE report_id = '$report_id'
 AND record_type = 'N' $query_host
 GROUP BY risk";*/
    if ($ipl=="all") {
-        $query = "select count(*) as count, risk from (select distinct hostIP, port,protocol,app,scriptid,msg,risk
+        $query = "select count(*) as count, risk from (select distinct hostIP, port,protocol,app,scriptid,risk
         from vuln_nessus_latest_results where report_id in($report_id) and falsepositive='N' $query_byuser) as t group by risk";
    }
    else if ($ipl!="") {
-        $query = "select count(*) as count, risk from (select distinct port,protocol,app,scriptid,msg,risk
+        $query = "select count(*) as count, risk from (select distinct port,protocol,app,scriptid,risk
         from vuln_nessus_latest_results where report_id=$report_id and falsepositive='N' $query_byuser) as t group by risk";
    }
    else {
@@ -556,12 +556,12 @@ WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_
     and falsepositive <> 'Y' group by t1.hostIP, risk";*/
 
     if ($ipl=="all") {
-        $query1 = "select count(*) as count,risk from (select distinct hostIP, port,protocol,app,scriptid,msg,risk
+        $query1 = "select count(*) as count,risk from (select distinct hostIP, port,protocol,app,scriptid,risk
         from vuln_nessus_latest_results where report_id=INET_ATON('$hostIP') and falsepositive='N' $query_byuser) as t group by risk";
     }
     
     else if ($ipl!="") {
-        $query1 = "select count(*) as count,risk from (select distinct port,protocol,app,scriptid,msg,risk
+        $query1 = "select count(*) as count,risk from (select distinct port,protocol,app,scriptid,risk
         from vuln_nessus_latest_results where report_id=$report_id and falsepositive='N' $query_byuser) as t group by risk";
     }
     else {
@@ -665,27 +665,42 @@ WHERE report_id='$report_id' and t1.hostIP='$hostIP' AND record_type='N' $query_
    //          ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC";
 
    if($ipl!="all") {
-       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.msg, t1.scriptid, v.name
+       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.scriptid, v.name
                  FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
-                 ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC"; 
+                 ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC";
+                 
+        $query_msg = "SELECT t1.msg
+                 FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
+                 LEFT JOIN host t2 on t1.hostip = t2.ip
+                 LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
+                 WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
+                 ORDER BY t1.scantime DESC LIMIT 0,1";
     }
     else {
-       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.msg, t1.scriptid, v.name
+       $query = "SELECT distinct t1.hostIP, t2.hostname, t1.service, t1.port, t1.protocol, t1.app, t1.risk, t1.scriptid, v.name
                  FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
                  LEFT JOIN host t2 on t1.hostip = t2.ip
                  LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                  WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
-                 ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC"; 
+                 ORDER BY INET_ATON(t1.hostIP) ASC, t1.risk ASC";
+        $query_msg = "SELECT t1.msg
+                 FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." t1
+                 LEFT JOIN host t2 on t1.hostip = t2.ip
+                 LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
+                 WHERE t1.report_id in ($report_id) ".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND t1.username in ('$user') " : "").(($treport=="latest" && $ipl=="")? " AND scantime=$scantime " : " ")." $query_host $query_critical and t1.falsepositive<>'Y'
+                 ORDER BY t1.scantime DESC LIMIT 0,1";
     }
     //echo $query;
    $eid = "";
    $result=$dbconn->Execute($query);
 
    //$arrResults="";
-   while( list($hostIP, $hostname, $service, $service_num, $service_proto, $app, $risk, $msg, $scriptid, $pname ) = $result->fields) {
+   while( list($hostIP, $hostname, $service, $service_num, $service_proto, $app, $risk, $scriptid, $pname ) = $result->fields) {
+      $msg = get_msg($dbconn,$query_msg);
+      
       if($hostname=="") $hostname="unknown";
       $arrResults[$hostIP][]=array(
          'hostname' => $hostname, 
@@ -839,7 +854,10 @@ function getriskcolor($risk)
     return $risk;
 }
 
-
+function get_msg($dbconn,$query_msg) {
+    $result=$dbconn->execute($query_msg);
+    return ($result->fields["msg"]);
+}
 
 ?>
 

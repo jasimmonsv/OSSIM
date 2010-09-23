@@ -164,7 +164,7 @@ if (POST('title') != "" && POST('doctext') != "") {
                           ?>
                           </select>
                           <?
-                          if(preg_match("/pro/i",$version)){?>
+                          if(preg_match("/pro|demo/i",$version)){?>
                               <tr><td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?></td></tr>
                               <tr><td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
                               <?
@@ -194,7 +194,7 @@ if (POST('title') != "" && POST('doctext') != "") {
                     </td>
                 </tr>
                 <?}
-                else if(preg_match("/pro/i",$version)) {
+                else if(preg_match("/pro|demo/i",$version)) {
                     if(Acl::am_i_proadmin()) {?>
                     <tr>
                         <td class="nobborder">

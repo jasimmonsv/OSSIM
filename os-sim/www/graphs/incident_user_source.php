@@ -4,6 +4,8 @@ require_once ('classes/Alarm.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Security.inc');
 require_once ('charts.php');
+require_once ('classes/Session.inc');
+require_once ('ossim_conf.inc'); 
 
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
@@ -40,13 +42,22 @@ print $conn->ErrorMsg();
 exit();
 }
 
+$conf = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
+
 while (!$rs->EOF)
 {
+    if(preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$rs->fields["in_charge"])) {
+        list($name, $type) = Acl::get_entity_name_type($conn,$rs->fields["in_charge"]);
+        if($type!="" && $name!="")
+            array_push($legend, $name." [".$type."]");
+    }
+    else {
+        array_push($legend, $rs->fields["in_charge"]);
+    }
+    array_push($values, $rs->fields["num"]);
 
-array_push($legend, $rs->fields["in_charge"]);
-array_push($values, $rs->fields["num"]);
-
-$rs->MoveNext();
+    $rs->MoveNext();
 }
 
 $chart['chart_data'] = array($legend, $values);

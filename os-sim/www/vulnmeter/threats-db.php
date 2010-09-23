@@ -248,7 +248,7 @@ EOT;
     </tr>
   </table><br>
 EOT;
-  echo "<center><input type=\"submit\" value=\""._("Search")."\" class=\"btn\" /></center>";
+  echo "<center><input type=\"submit\" value=\""._("Search")."\" class=\"button\" /></center>";
 	echo <<<EOT
 </form>
 <br>
@@ -460,10 +460,10 @@ EOT;
         if ($previous >0 || $next > 0){
             echo "<tr><td class=\"nobborder\" style=\"text-align:center;\" colSpan=\"12\" height=\"18\">"; 
             if ($previous > 0) {
-                echo "<input type=\"submit\" name=\"increment\" value=\"Previous\" class=\"btn\">&nbsp;&nbsp;&nbsp;";
+                echo "<input type=\"submit\" name=\"increment\" value=\"Previous\" class=\"button\">&nbsp;&nbsp;&nbsp;";
             }
             if ($next > 0) {
-                echo "<input type=\"submit\" name=\"increment\" value=\"Next\" class=\"btn\">";
+                echo "<input type=\"submit\" name=\"increment\" value=\"Next\" class=\"button\">";
             }
          echo "</td></tr></table></form>";
         }

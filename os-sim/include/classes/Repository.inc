@@ -140,7 +140,7 @@ class Repository {
         */
         if(Session::am_i_admin())
             $user_where = "";
-        else if(preg_match("/pro/i",$version)){
+        else if(preg_match("/pro|demo/i",$version)){
             if(Acl::am_i_proadmin()){
                 $tmp = array();
                 $entities_list = Acl::get_user_entities($current_user);

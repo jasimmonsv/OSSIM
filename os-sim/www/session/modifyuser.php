@@ -67,6 +67,7 @@ $department = POST('department');
 $language = POST('language');
 $frommenu = POST('frommenu');
 $first_login = POST('first_login');
+$is_admin = POST('is_admin');
 //$copy_panels = POST('copy_panels');
 //ossim_valid($copy_panels, OSS_DIGIT, 'illegal:' . _("Copy Panels"));
 ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
@@ -81,6 +82,7 @@ ossim_valid($department, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' .
 ossim_valid($language, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Language"));
 ossim_valid($frommenu, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("frommenu"));
 ossim_valid($first_login, OSS_DIGIT, 'illegal:' . _("First Login"));
+ossim_valid($is_admin, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("is admin"));
 
 $kdbperms = "";
 $langchanged = 0;
@@ -151,11 +153,11 @@ elseif (POST("insert")) {
     }
     if (Session::am_i_admin()) {
 		require_once("classes/Util.inc");
-		Session::update($conn, $user, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdbperms, $first_login);
+		Session::update($conn, $user, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdbperms, $first_login, $is_admin);
 		Util::clean_json_cache_files("",$user);
 	}
 	else {
-		Session::update_noperms($conn, $user, $name, $email, $company, $department, $language, $first_login);
+		Session::update_noperms($conn, $user, $name, $email, $company, $department, $language, $first_login, $is_admin);
 	}
 	
 	if ($user == Session::get_session_user() && $language != $_SESSION['_user_language']) {
@@ -166,11 +168,13 @@ elseif (POST("insert")) {
     
 	// PASSWORD
 	if (POST("pass1") && POST("pass2")) {
-		if (($_SESSION["_user"] != ACL_DEFAULT_OSSIM_ADMIN) && (($_SESSION["_user"] != $user) && !POST("oldpass"))) {
+		/*
+		if (!Session::am_i_admin() && (($_SESSION["_user"] != $user) && !POST("oldpass"))) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
 			$error->display("FORM_MISSING_FIELDS");
 		}
+		*/
 		if (0 != strcmp($pass1, $pass2)) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
@@ -184,7 +188,7 @@ elseif (POST("insert")) {
 			$error->display("BAD_OLD_PASSWORD");
 		}*/
 		/* only the user himself or the admin can change passwords */
-		if ((POST('user') != $_SESSION["_user"]) && ($_SESSION["_user"] != ACL_DEFAULT_OSSIM_ADMIN)) {
+		if ((POST('user') != $_SESSION["_user"]) && !Session::am_i_admin()) {
 			die(ossim_error(_("To change the password for other user is not allowed")));
 		}
 		Session::changepass($conn, $user, $pass1);

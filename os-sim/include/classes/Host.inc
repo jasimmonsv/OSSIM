@@ -35,6 +35,7 @@
 * - Host()
 * - get_ip()
 * - get_hostname()
+* - get_fdqns()
 * - get_asset()
 * - get_threshold_c()
 * - get_threshold_a()
@@ -76,6 +77,7 @@ require_once 'classes/WebIndicator.inc';
 class Host {
     var $ip;
     var $hostname;
+	var $fqdns;
     var $lat;
     var $lon;
     var $asset;
@@ -87,9 +89,10 @@ class Host {
     var $nat;
     var $descr;
 
-    function Host($ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $descr, $foundrows = 0, $lat = "", $lon = "") {
+    function Host($ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $descr, $foundrows = 0, $lat = "", $lon = "", $fqdns="") {
         $this->ip = htmlentities($ip);
         $this->hostname = htmlentities($hostname);
+		$this->fqdns = htmlentities($fqdns);
         $this->asset = intval($asset);
         $this->threshold_c = intval($threshold_c);
         $this->threshold_a = intval($threshold_a);
@@ -107,6 +110,9 @@ class Host {
     }
     function get_hostname() {
         return $this->hostname;
+    }
+	function get_fqdns() {
+        return $this->fqdns;
     }
     function get_asset() {
         return $this->asset;
@@ -180,7 +186,7 @@ class Host {
             }
             while (!$rs->EOF) {
                 if (Session::hostAllowed($conn, $rs->fields["ip"])) {
-                    $list[] = new Host($rs->fields["ip"], $rs->fields["hostname"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["nat"], $rs->fields["descr"], $foundrows,$rs->fields["lat"],$rs->fields["lon"]);
+                    $list[] = new Host($rs->fields["ip"], $rs->fields["hostname"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["nat"], $rs->fields["descr"], $foundrows, $rs->fields["lat"], $rs->fields["lon"], $rs->fields["fqdns"]);
                 }
                 $rs->MoveNext();
             }
@@ -214,6 +220,8 @@ class Host {
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         
 		$query = OssimQuery("SELECT $select FROM host $where $order");
+		
+				
 	    //echo "SELECT $select FROM host h $where $order<br>";
 		$list = array();
         if (!$rs = & $conn->Execute($query)) {
@@ -225,24 +233,27 @@ class Host {
                 else $foundrows = $rf->fields["total"];
             }
             while (!$rs->EOF) {
-                $list[] = new Host($rs->fields["ip"], $rs->fields["hostname"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["nat"], $rs->fields["descr"], $foundrows);
+                $list[] = new Host($rs->fields["ip"], $rs->fields["hostname"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["nat"], $rs->fields["descr"], $foundrows, $rs->fields["lat"], $rs->fields["lon"], $rs->fields["fqdns"]);
                 $rs->MoveNext();
             }
         }
         return $list;
 	}
-    function insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="") {
+	
+    function insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="", $fqdns="") {
 
-        settype($asset, "int");  
+        settype($fqdns, "string");  
+		settype($asset, "int");  
         settype($threshold_c, "int");
         settype($threshold_a, "int");
         settype($alert, "int");
         settype($persistence, "int");
-        $sql = "INSERT INTO host (ip, hostname, asset, threshold_c, threshold_a, rrd_profile, 
-                alert, persistence, nat, descr, lat, lon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO host (ip, hostname, fqdns, asset, threshold_c, threshold_a, rrd_profile, 
+                alert, persistence, nat, descr, lat, lon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $params = array(
             $ip,
             $hostname,
+			$fqdns,
             $asset,
             $threshold_c,
             $threshold_a,
@@ -250,14 +261,18 @@ class Host {
             $alert,
             $persistence,
             $nat,
-            $descr, $lat, $lon
+            $descr, 
+			$lat, 
+			$lon
         );
-        if ($conn->Execute($sql, $params) === false) {
-            print 'error inserting host: ' . $conn->ErrorMsg() . '<BR>';
+		
+		if ($conn->Execute($sql, $params) === false) {
+            print 'Error inserting host: ' . $conn->ErrorMsg() . '<br/>';
             exit;
         } else {
             Host_sensor_reference::insert($conn, $ip, $sensors);
         }
+		
         require_once 'classes/Sensor.inc';
         $sensor_list = Sensor::get_list($conn);
         if (is_array($sensor_list)) {
@@ -274,7 +289,8 @@ class Host {
                     $os,
                     $db_sensor_list[$sensor]
                 );
-                $conn->Execute($sql, $params);
+				
+				$conn->Execute($sql, $params);
             }
             if ($mac != "") {
                 $sql = "INSERT INTO host_mac (ip, mac, date, vendor, anom, sensor) 
@@ -296,19 +312,22 @@ class Host {
         WebIndicator::set_on("Reload_hosts");
         WebIndicator::set_on("ReloadPolicy");
     }
-    function update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="") {
-        settype($asset, "int");
+	
+	function update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="", $fqdns="") {
+        settype($fqdns, "string");  
+		settype($asset, "int");
         settype($threshold_c, "int");
         settype($threshold_a, "int");
         settype($alert, "int");
         settype($persistence, "int");
-        $sql = "UPDATE host SET hostname = ?, ip = ?, asset = ?, threshold_c = ?,
+        $sql = "UPDATE host SET hostname = ?, fqdns = ?, ip = ?, asset = ?, threshold_c = ?,
                 threshold_a = ?, rrd_profile = ?, alert = ?, persistence = ?, nat = ?,
                 descr = ?, lat = ?, lon = ? WHERE ip = ?";
-        //printr($lat); exit;
+       		
         $conn->Debug = 1;
         $params = array(
             $hostname,
+			$fqdns,
             $ip,
             $asset,
             $threshold_c,
@@ -322,14 +341,16 @@ class Host {
 			$lon,
             $ip
         );
-        if ($conn->Execute($sql, $params) === false) {
-            print 'error updating: ' . $conn->ErrorMsg() . '<BR>';
+		
+		if ($conn->Execute($sql, $params) === false) {
+            print 'Error updating: ' . $conn->ErrorMsg() . '<br/>';
             exit;
         }
+		
         /* update sensor info */
         Host_sensor_reference::delete($conn, $ip);
-        Host_sensor_reference::insert($conn, $ip, $sensors);
-        require_once 'classes/Sensor.inc';
+		Host_sensor_reference::insert($conn, $ip, $sensors);
+		require_once 'classes/Sensor.inc';
         $sensor_list = Sensor::get_list($conn);
         if (is_array($sensor_list)) {
             foreach($sensor_list as $aux) {
@@ -568,7 +589,8 @@ class Host {
         $params = array(
             $ip
         );
-        if (!$rs = & $conn->Execute($sql, $params)) {
+		
+		if (!$rs = & $conn->Execute($sql, $params)) {
             print $conn->ErrorMsg();
         }
         return $rs->fields[0];

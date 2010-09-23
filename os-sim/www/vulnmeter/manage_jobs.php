@@ -192,7 +192,7 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 
 $arruser = array();
 
-if(!preg_match("/pro/i",$version)){
+if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
 }
@@ -298,9 +298,9 @@ echo "<center>";
 status($arruser, $user);
 echo "<br>";
 echo "<form>";
-echo "<input type=\"button\" onclick=\"document.location.href='sched.php?smethod=schedule&hosts_alive=1&scan_locally=1'\" value=\""._("New Scan Job")."\" class=\"btn\">";
+echo "<input type=\"button\" onclick=\"document.location.href='sched.php?smethod=schedule&hosts_alive=1&scan_locally=1'\" value=\""._("New Scan Job")."\" class=\"button\">";
 echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-echo "<input type=\"button\" onclick=\"document.location.href='sched.php?smethod=inmediately&hosts_alive=1&scan_locally=1'\" value=\""._("Run Scan Now")."\" class=\"btn\">";
+echo "<input type=\"button\" onclick=\"document.location.href='sched.php?smethod=inmediately&hosts_alive=1&scan_locally=1'\" value=\""._("Run Scan Now")."\" class=\"button\">";
 echo "</form>";
 echo "</center>";
 echo "<br>";

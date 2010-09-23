@@ -481,29 +481,7 @@ if ($Use_Auth_System == 1) {
 
 <!--<tr><td style="padding-top:5px"><table width="100%" cellpadding=0 cellspacing=0 border=0><tr><td style="background:url('../pixmaps/points.gif') repeat-x"><img src="../pixmaps/points.gif"></td></tr></table></td></tr>-->
 
-<tr>
-	<td>
-		<table>
-			<tr>
-				<td>
-					<table width='100%'><tr>
-					<td>
-						<table cellpadding="0" cellspacing="0">
-						<tr>
-						</tr><td><?=_("Time frame selection")?>:&nbsp;</td>
-						<td style='text-align:left;'>
-							<div id="widget">
-								<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
-								<div id="widgetCalendar"></div>
-							</div>
-						</td>
-						</tr>
-						</table>
-					</td>
-					<td></td>
-					</tr></table>
-				</td>
-				<?php
+<?php
 $urltimecriteria = $_SERVER['SCRIPT_NAME'];
 $params = "";
 // Clicked from qry_alert or clicked from Time profile must return to main
@@ -515,6 +493,39 @@ if ($_GET["sort_order"] != "") $params.= "&sort_order=" . $_GET["sort_order"];
 //print_r($_GET);
 
 ?>
+
+<tr>
+	<td>
+		<table>
+			<tr>
+				<td>
+					<table width='100%'><tr>
+					<td>
+						<table cellpadding="0" cellspacing="0">
+						<tr>
+						<td><?=_("Time frame selection")?>:&nbsp;</td>
+						<td style='text-align:left;'>
+							<div id="widget">
+								<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
+								<div id="widgetCalendar"></div>
+							</div>
+						</td>
+						</tr>
+						</table>
+					</td>
+					<td align="right">
+						<? if (preg_match("/base_qry_main|base_timeline/", $urltimecriteria)) { ?>
+                        <table cellpadding="0" cellspacing="0">
+						<tr>
+						<td><?=_("Timeline analysis")?>:&nbsp;</td>
+						<td style='text-align:left;'><a href="base_timeline.php"><img src="images/timeline.png" border="0"></a></td>
+						</tr>
+						</table>
+						<? } ?>
+					</td>
+					</tr></table>
+				</td>
+				
 			</tr>
 			<tr>
 				<td nowrap>
@@ -610,7 +621,7 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 	var url = new Array(50)
 	function showTooltip(x, y, contents, link) {
 		link = link.replace(".","");
-		$('<div id="tooltip" class="tooltipLabel" onclick="document.location.href=\'' + url[link] + '&submit=Query DB\'"><a href="' + url[link] + '&submit=Query DB" style="font-size:10px;">' + contents + '<a></div>').css( {
+		$('<div id="tooltip" class="tooltipLabel" onclick="document.location.href=\'' + url[link] + '&submit=Query DB\'"><a href="' + url[link] + '&submit=Query DB" style="font-size:10px;">' + contents + '</a></div>').css( {
 			position: 'absolute',
 			display: 'none',
 			top: y - 28,
@@ -765,6 +776,7 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 		});
 		$('#widgetCalendar div.datepicker').css('position', 'absolute');
 		$('.ndc').disableTextSelect();
+		if (typeof gen_timeline == 'function') gen_timeline();
 	}
 	function bgtask() {
 		$.ajax({
@@ -847,6 +859,22 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 		
 		
 	}
+	function delete_view(name){
+		$.ajax({
+			type: "GET",
+			url: "custom_view_delete.php",
+			data: "name="+name,
+			success: function(msg) {
+				if (msg != "") {
+					alert(msg);
+				} else {
+					var url = "base_qry_main.php?num_result_rows=-1&submit=Query+DB";
+					document.location.href=url;
+				}
+			}
+		});
+	}
+	
     function GB_hide() { document.location.reload() }
     function fill_subcategories() {
     	var idcat = $('#category').val();

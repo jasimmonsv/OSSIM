@@ -1617,8 +1617,11 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 	      sim_container_db_insert_backlog_ul (ossim.container, ossim.dbossim, backlog);
 	      sim_container_db_insert_backlog_event_ul (ossim.container, ossim.dbossim, backlog, event);
 	      event->backlog_id = sim_directive_get_backlog_id (backlog); //FIXME: is this lost?
-				if (generate_root_rule_event)
+				if (generate_root_rule_event){
 					sim_organizer_create_event_directive(backlog,event);
+					generate_root_rule_event = FALSE;
+				}
+	
 
 				
 				

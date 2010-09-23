@@ -34,6 +34,7 @@
 * Function list:
 * Classes list:
 */
+
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . "GMT");
 header("Cache-Control: no-cache, must-revalidate");
@@ -78,9 +79,11 @@ ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
 ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("field"));
 ossim_valid($order, "()", OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, 'illegal:' . _("order"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
+
 if (empty($order)) $order = "hostname";
 if (!empty($ip_range)) $search = 'WHERE inet_aton(ip) >= inet_aton("' . $ip_range[0] . '") and inet_aton(ip) <= inet_aton("' . $ip_range[1] . '")';
 elseif (!empty($by_ip)) $search = "WHERE ip like '%$search%'";
@@ -106,10 +109,13 @@ foreach($host_list as $host) {
     $xml.= "<row id='$ip'>";
 	$name = "<a style='font-weight:bold;' href=\"./modifyhostform.php?ip=".urlencode($ip)."\">" . htmlentities($host->get_hostname()) . "</a>" . Host_os::get_os_pixmap($conn, $ip);
     $xml.= "<cell><![CDATA[" . $name . "]]></cell>";
-    $xml.= "<cell><![CDATA[" . $ip . "]]></cell>";
-    $desc = $host->get_descr();
+	$xml.= "<cell><![CDATA[" . $ip . "]]></cell>";
+    $fqdns= $host->get_fqdns();
+    if ($fqdns == "") $fqdns = "&nbsp;";
+	$xml.= "<cell><![CDATA[" . utf8_encode($fqdns) . "]]></cell>";
+	$desc = $host->get_descr();
     if ($desc == "") $desc = "&nbsp;";
-    $xml.= "<cell><![CDATA[" . utf8_encode($desc) . "]]></cell>";
+	$xml.= "<cell><![CDATA[" . utf8_encode($desc) . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $host->get_asset() . "]]></cell>";
     $sensors = "";
     if ($sensor_list = $host->get_sensors($conn))

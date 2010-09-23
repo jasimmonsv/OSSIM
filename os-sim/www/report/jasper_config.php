@@ -91,7 +91,7 @@ Session::logcheck("MenuReports", "ReportsReportServer");
                                 $tempJS='';
 
                                 foreach($result as $key => $report){ $i++;
-                          
+
                                   $reportOrd[$report['name']]='<tr class="CLASS_KEY">
                                           <td colspan="2" class="reportName" style="text-align: left; padding-left: 30px">
                                                   <h3>'._($report['label']).'</h3>';
@@ -324,6 +324,11 @@ Session::logcheck("MenuReports", "ReportsReportServer");
                                if (Session::menu_perms("MenuEvents", "EventsForensics")) {
                                    $class = ($key++%2==0) ? "par" : "impar";
                                     echo str_replace("CLASS_KEY",$class,$reportOrd['Security_Report']);
+                               }
+                                //
+                               if (Session::menu_perms("MenuEvents", "EventsForensics")) {
+                                   $class = ($key++%2==0) ? "par" : "impar";
+                                    echo str_replace("CLASS_KEY",$class,$reportOrd['Security_DB_Events']);
                                }
                                 //
                                if (Session::menu_perms("MenuEvents", "EventsForensics")) {

@@ -418,7 +418,16 @@ function PrintCriteria($caller) {
 	<TR>
 		<TD style="padding-top:10px;padding-bottom:10px">
 			<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 WIDTH="100%">
-				<TR><TD height="27" align="center" style="background:url('../pixmaps/fondo_col.gif') repeat-x;border:1px solid #CACACA;color:#333333;font-size:14px;font-weight:bold">&nbsp;Current Search Criteria&nbsp;&nbsp; [<a href="base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB" style="font-weight:normal;color:black">...Clear All Criteria...</a>]</TD></TR>
+				<TR><TD height="27" align="center" style="background:url('../pixmaps/fondo_col.gif') repeat-x;border:1px solid #CACACA">
+					<table width="100%">
+						<tr>
+							<td width="20"></td>
+							<td style="text-align:center;color:#333333;font-size:14px;font-weight:bold">&nbsp;<?php echo _("Current Search Criteria")?>&nbsp;&nbsp; [<a href="base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB" style="font-weight:normal;color:black">...Clear All Criteria...</a>]</td>
+							<td width="20"><a href="base_view_criteria.php" onclick="GB_show('<?=_("Current Search Criteria")?>','base_view_criteria.php',420,600);return false"><img src="../pixmaps/ui-scroll-pane-detail.png" border="0" alt="<?php echo _("View entire current search criteria") ?>" title="<?php echo _("View entire current search criteria") ?>"></img></a></td>
+						</tr>
+					</table>
+					</TD>
+				</TR>
 				<TR>
 					<TD style="border:1px solid #CACACA">
 						<table cellpadding=0 cellspacing=0 border=0 WIDTH="100%">
