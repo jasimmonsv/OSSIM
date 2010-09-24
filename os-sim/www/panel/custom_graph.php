@@ -97,12 +97,12 @@ function mydie($errno, $errstr = '', $errfile = '', $errline = '') {
                 
         }
         $err = "$errprefix: $err in '$errfile' line $errline";
+	}
+	$error = new JpGraphError();
+	$error->Raise($err);
+	exit;
 }
-$error = new JpGraphError();
-$error->Raise($err);
-exit;
-}
-set_error_handler('mydie');
+set_error_handler('mydie',E_ERROR | E_PARSE);
 $ajax = & new Window_Panel_Ajax();
 $filename = (GET('panel_id') >= 1000) ? $configs_dir."/".$tabsavt[GET('panel_id')]['tab_file'] : null;
 $all_options = $ajax->loadConfig(GET('id'),$filename);
