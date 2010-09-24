@@ -42,6 +42,9 @@ require_once ("include/utils.php");
 require_once ('include/category.php');
 require_once ('include/directive.php');
 
+init_groups();
+init_categories();
+
 function xml_backdata($file) {
 	$ret = array();
 	$lines = file('/etc/ossim/server/'.$file);
@@ -59,6 +62,7 @@ $xml = domxml_open_file($XML_FILE, DOMXML_LOAD_SUBSTITUTE_ENTITIES);
 ?>
 	<html>
 		<head>
+			<link rel="stylesheet" href="../style/style.css" />
 			<link rel="stylesheet" href="style/directives.css" />
 			<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 			<script type="text/javascript" language="javascript">
@@ -116,37 +120,40 @@ function show() {
 	document.getElementById('showtab').style.visibility = 'hidden';
 	document.getElementById('leftmenu').style.overflow = 'auto';
 }
+function background_delete(id,xml_file) {
+	var url = './include/utils.php?query=delete_directive&id='+id+'&directive_xml='+xml_file;
+	$.ajax({
+		type: "GET",
+		url: url,
+		data: "",
+		success: function(msg){
+			document.location.reload();
+		}
+	});
+}
 			</script>
 		</head>
 
-		<body id="leftmenu" style="overflow-x:hidden" onload="hide()">
-			<table width="100%" height="100%" cellpadding=0 cellspacing=0 style="border:0px;background-color:transparent">
+		<body id="leftmenu" style="overflow-x:hidden">
+		
+<?php include("../hmenu.php") ?>
+		
+			<table align="center" width="300" cellpadding=0 cellspacing=0 style="border:0px;background-color:transparent">
 			<tr>
-			<td width="12" align="left" height="100" style="border-bottom:0px;border-left:4px solid #a2a2a2;visibility:hidden" id="showtab" valign="top"><a href="" onclick="show();return false;"><img src="../pixmaps/btn_minimize_right.gif" alt="" border="0"></img></a></td>
 			<td style="border:0px" valign="top">
 			<!-- <h1 align="center" style="margin-top:5px">Directive List</h1> -->
 			<table width="100%" style="border:0px;background-color:transparent">
-				<tr>
-				<td style="border:0px;padding-top:10px">
+				
 			<?php
 $categories = unserialize($_SESSION['categories']);
 ?>
-			<input type="button" onclick="if (confirm('<?php
-echo gettext('Are you sure you want to restart the OSSIM server ?'); ?>')) {restart();}"
-				alt="<?php
-echo gettext('Click to restart the OSSIM server'); ?>"
-				title="<?php
-echo gettext('Click to restart the OSSIM server'); ?>"
-				value="<?php echo gettext('Restart server'); ?>"></input>
-				</td></tr>
-				<tr><td style="border:0px;padding:10px">
-			<a href="include/utils.php?xml_file=<?php echo $categories[0]->xml_file?>&query=add_directive&id=<?php echo $categories[0]->id?>&onlydir=1" target="right" style="marging-left:20px;font-size:12px;color:black" TITLE="<?php
-echo gettext("Click to add a directive"); ?>"><img src="../pixmaps/plus.png" border="0" align="absmiddle"> <?php
-echo gettext("<b>Add</b> directive"); ?></a>
-				</td></tr>
+				<tr>
+					<th style="font-size:14px">Current Categories</th>
+				</tr>
 				<tr><td style="border:0px">
       <?php
 $tab = $xml->get_elements_by_tagname('directive');
+$total = 0;
 foreach($categories as $category) {
 	$xmldata = xml_backdata($category->xml_file);
     $tab_this_category = array();
@@ -161,6 +168,7 @@ foreach($categories as $category) {
 		}
     }
     if (count($tab_this_category) >= 0) {
+    	$total += count($tab_this_category);
     	ksort($tab_this_category);
         $id_div = explode(".", $category->xml_file);
         $id_div = $id_div[0];
@@ -189,10 +197,10 @@ foreach($categories as $category) {
 		                 alt="<?=_("Click here to view or hide this type of directives.")?>"
 		                 style="cursor:pointer"/>
         			</td>
-        			<td style="text-align:left;border:0px"><?php echo gettext(ucwords($name_div)); ?></td>
+        			<td style="text-align:left;border:0px;font-size:12px"><?php echo gettext(ucwords($name_div)); ?><?php if (count($tab_this_category) > 0) { ?> <font style="color:#666666;font-size:10px">[<?php echo count($tab_this_category) ?> <?php echo _("directive"); if (count($tab_this_category) > 1) echo "s"; ?>]</font><?php } ?></td>
         			<td width="20" align="right" style="border:0px">
-            		<span id="add_dir" name="add_dir"><a href="include/utils.php?xml_file=<?php echo $category->xml_file?>&query=add_directive&id=<?php
-      				  echo $category->id . $onlydir; ?>" target="right" style="marging-left:20px;" TITLE="<?php
+            		<span id="add_dir" name="add_dir"><a href="index.php?action=add_directive&xml_file=<?php echo $category->xml_file?>&id=<?php
+      				  echo $category->id . $onlydir; ?>" style="marging-left:20px;" TITLE="<?php
       				  echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a></span>
         			</td>
         		</tr>
@@ -217,8 +225,7 @@ foreach($categories as $category) {
 					<tr>
 					  <td style="text-align: center;background-color:<?php echo $color?>;border:0px" width="20px">
 					    <a onclick="javascript:if (confirm('<?php
-            echo gettext("Are you sure you want to delete this directive ?"); ?>')) { window.open('./include/utils.php?query=delete_directive&id=<?php
-            echo $directive->get_attribute('id'); ?>&directive_xml=<?=$category->xml_file?>','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php
+            echo gettext("Are you sure you want to delete this directive ?"); ?>')) { background_delete(<?php echo $directive->get_attribute('id'); ?>,'<?=$category->xml_file?>'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php
             echo gettext("Delete this directive"); ?>"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Delete")?>" title="<?php echo _("Delete")?>" border="0"></img></a>
             </td>
 						<td style="text-align: left;background-color:<?php echo $color?>;border:0px">
@@ -226,8 +233,8 @@ foreach($categories as $category) {
             echo $dir_id; ?>
             </td>
 						<td style="text-align: left;background-color:<?php echo $color?>;border:0px" width="100%">
-						  <a href="viewer/index.php?level=1&amp;directive=<?php
-            echo $dir_id; ?>&amp;directive_xml=<?=$category->xml_file?>&category_mini=<?=$category->mini?>" target="right" TITLE="<?php
+						  <a href="index.php?level=1&amp;directive=<?php
+            echo $dir_id; ?>&amp;directive_xml=<?=$category->xml_file?>&category_mini=<?=$category->mini?>" TITLE="<?php
             echo gettext("Edit this directive"); ?>"><?php
             echo $directive->get_attribute('name'); ?></a>
 						</td>
@@ -241,9 +248,15 @@ foreach($categories as $category) {
 } ?>
 			</td></tr></table>
 		</td>
-		<td valign="top" style="border-bottom:0px;border-right:4px solid #a2a2a2" width="12" align="right">
-			<a href="" onclick="hide();return false;"><img src="../pixmaps/btn_minimize_left.gif" alt="" border="0"></img></a>
-		</td>
-	</tr></table>
+	</tr>
+	<tr>
+		<td class="nobborder center" style="font-size:18px;padding-top:20px;color:#333333"><?php echo "<b>".$total."</b> "._("directives found in the system.") ?></td>
+	</tr>
+	<tr><td style="border:0px;padding:10px">
+			<a href="index.php?action=add_directive&xml_file=<?php echo $categories[0]->xml_file?>&id=<?php echo $categories[0]->id?>" style="marging-left:20px;font-size:12px;color:black" TITLE="<?php
+echo gettext("Click to add a directive"); ?>"><img src="../pixmaps/plus.png" border="0" align="absmiddle"> <?php
+echo gettext("<b>Add</b> directive"); ?></a>
+				</td></tr>
+	</table>
     </body>
 	</html>

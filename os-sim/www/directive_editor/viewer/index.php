@@ -298,6 +298,11 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
 			</table>
 		</td>
 	</tr>
+	<tr>
+		<td class="nobborder center" colspan="5" style="padding-top:20px">
+			<input type="button" style="width: 100px" value="<?php echo _("Back")?>" onclick="window.open('../main.php','main')"></input>
+		</td>
+	</tr>
 </table>
 
 <?php

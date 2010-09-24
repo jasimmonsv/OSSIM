@@ -643,6 +643,8 @@ function reportsummary( ){   //GENERATE REPORT SUMMARY
                     order by t1.SCAN_END DESC";
    $result=$dbconn->execute($query);
    
+   //print_r($query);
+   
    if ($treport=="latest" || $ipl!="") {
         //list( $id_profile, $query_uid, $job_name, $profile_name, $profile_desc, $host_name ) =$result->fields;
         $lprofiles = array();
@@ -720,12 +722,12 @@ function vulnbreakdown(){   //GENERATE CHART
 
    if ($ipl=="all") {
         $query ="select count(*) as total,risk 
-                    from (select distinct port,protocol,app,scriptid,risk,hostIP from vuln_nessus_latest_results where falsepositive='N' $query_byuser)
+                    from (select distinct port, protocol, app, scriptid, risk, hostIP, msg from vuln_nessus_latest_results where falsepositive='N' $query_byuser)
                     as t group by risk";
    }
    
    else if ($ipl!="") {
-        $query = "select count(*) as total,risk from (select distinct port,protocol,app,scriptid,risk
+        $query = "select count(*) as total,risk from (select distinct port, protocol, app, scriptid, risk, msg, hostIP
         from vuln_nessus_latest_results where falsepositive='N'".(($ipl!="all")?" and report_id=$report_id":"")." $query_byuser) as t group by risk";
    }
    else {/*
@@ -736,10 +738,10 @@ function vulnbreakdown(){   //GENERATE CHART
             AND scriptid <> 10180".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")."
             GROUP BY risk";*/
         $query = "SELECT count(risk) as count, risk
-                FROM `".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."`
+                FROM ( SELECT DISTINCT risk, port, protocol, app, scriptid, msg, hostIP FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
                 WHERE report_id in ($report_id) $query_host".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "")."
                 AND scriptid <> 10180".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")." AND falsepositive='N'".
-                (($scantime!="")? " AND scantime=$scantime":"")." GROUP BY risk";
+                (($scantime!="")? " AND scantime=$scantime":"").") AS t GROUP BY risk";
     }
     
    $result=$dbconn->Execute($query);
@@ -889,11 +891,11 @@ function hostsummary( ){
          <td>$tmp_host&nbsp;</td><td>$hostname&nbsp;</td>";
       $prevrisk=0;
       if ($ipl=="all"){
-            $query2 = "select count(*) as total,risk from (select distinct port, hostIP, protocol,app,scriptid,risk 
+            $query2 = "select count(*) as total,risk from (select distinct port, hostIP, protocol, app, scriptid, risk, msg
                       from vuln_nessus_latest_results where report_id=inet_aton('$hostip') and falsepositive='N' $query_byuser) as t group by risk";
       }
       else if($ipl!="") {
-        $query2 = "select count(*) as total,risk from (select distinct port,protocol,app,scriptid,risk 
+        $query2 = "select count(*) as total,risk from (select distinct port, protocol, app, scriptid, risk, msg
                   from vuln_nessus_latest_results where report_id=$report_id and falsepositive='N' $query_byuser) as t group by risk";
       }
       else {
@@ -903,11 +905,11 @@ function hostsummary( ){
                         AND falsepositive<>'Y' AND scriptid <>10180".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")."
                         GROUP BY risk";*/
             $query2 = "SELECT count(risk) as count, risk
-                        FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
+                        FROM (SELECT DISTINCT risk, port, protocol, app, scriptid, msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
                         WHERE report_id  in ($report_id) AND hostip='$hostip' 
                         AND scriptid <>10180".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")." and falsepositive='N'".
                         (($scantime!="")? "and scantime = $scantime":"").
-                        ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "")." GROUP BY risk";
+                        ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "").")as t GROUP BY risk";
       }
       $drawtable=0;
 
@@ -1197,41 +1199,40 @@ echo "<th>"._("Description")."</th>";
 echo "</tr>";
 
     if($ipl=="all"){
-        $query = "select distinct 0, r.service, r.risk, r.falsepositive, r.scriptid, v.name from vuln_nessus_latest_results as r
+        $query = "select distinct 0, r.service, r.risk, r.falsepositive, r.scriptid, v.name, r.msg
+                FROM vuln_nessus_latest_results as r
                 LEFT JOIN vuln_nessus_plugins as v ON v.id=r.scriptid
                 WHERE hostip='$hostip' $query_byuser and msg<>''";
-        $query_msg = "select r.msg from vuln_nessus_latest_results as r
+      /*  $query_msg = "select r.msg from vuln_nessus_latest_results as r
                 LEFT JOIN vuln_nessus_plugins as v ON v.id=r.scriptid
-                WHERE hostip='$hostip' $query_byuser and msg<>'' ORDER BY r.scantime DESC LIMIT 0,1";
+                WHERE hostip='$hostip' $query_byuser and msg<>'' ORDER BY r.scantime DESC LIMIT 0,1";*/
     }
     else if ($treport=="latest" || $ipl!=""){
-     /* $query = "select distinct 0, service, risk, falsepositive, msg, scriptid, result_id from ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")." 
-                WHERE report_id in ($report_id)".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")." and hostip='$hostip' and msg<>''".
-                (($scantime!="" && $ipl=="")? " AND scantime=$scantime":"").
-                ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username='$user' " : "");*/
-      $query = "select distinct 0, r.service, r.risk, r.falsepositive, r.scriptid, v.name from vuln_nessus_latest_results as r
+      $query = "select distinct 0, r.service, r.risk, r.falsepositive, r.scriptid, v.name, r.msg
+                FROM vuln_nessus_latest_results as r
                 LEFT JOIN vuln_nessus_plugins as v ON v.id=r.scriptid
                 WHERE report_id in ($report_id) and sid in ($sid) and hostip='$hostip' and msg<>''".
                 (($scantime!="" && $ipl=="")? " AND scantime=$scantime":"").
                 ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "");
-       $query_msg = "select r.msg from vuln_nessus_latest_results as r
+    /*   $query_msg = "select r.msg from vuln_nessus_latest_results as r
                 LEFT JOIN vuln_nessus_plugins as v ON v.id=r.scriptid
                 WHERE report_id in ($report_id) and sid in ($sid) and hostip='$hostip' and msg<>''".
                 (($scantime!="" && $ipl=="")? " AND scantime=$scantime":"").
-                ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : " ")."ORDER BY r.scantime DESC LIMIT 0,1";
+                ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : " ")."ORDER BY r.scantime DESC LIMIT 0,1";*/
     }
     else {
-              $query = "select distinct 0, t1.service, t1.risk, t1.falsepositive, t1.scriptid, v.name from vuln_nessus_results t1
+              $query = "select distinct 0, t1.service, t1.risk, t1.falsepositive, t1.scriptid, v.name, t1.msg
+                FROM vuln_nessus_results t1
                 LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                 WHERE report_id in ($report_id) and hostip='$hostip' and msg<>''".
                 (($scantime!="" && $ipl=="")? " AND scantime=$scantime":"").
                 ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "");
                 
-              $query_msg = "select t1.msg from vuln_nessus_results t1
+            /*  $query_msg = "select t1.msg from vuln_nessus_results t1
                 LEFT JOIN vuln_nessus_plugins as v ON v.id=t1.scriptid
                 WHERE report_id in ($report_id) and hostip='$hostip' and msg<>''".
                 (($scantime!="" && $ipl=="")? " AND scantime=$scantime":"").
-                ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : " ")."ORDER BY t1.scantime DESC LIMIT 0,1";
+                ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : " ")."ORDER BY t1.scantime DESC LIMIT 0,1";*/
     }
       //echo $scantime;
       //echo "bucle:$query";
@@ -1250,8 +1251,9 @@ echo "</tr>";
                   $risk, 
                   $falsepositive, 
                   $scriptid,
-                  $pname) = $result1->fields ) {
-         $msg = get_msg($dbconn,$query_msg); // to avoid same messages
+                  $pname,
+                  $msg ) = $result1->fields ) {
+         //$msg = get_msg($dbconn,$query_msg); // to avoid same messages
          $tmpport1=preg_split("/\(|\)/",$service);
          if (sizeof($tmpport1)==1) { $tmpport1[1]=$tmpport1[0]; }
    #echo "$tmpport1[0] $tmpport1[1]<BR>";

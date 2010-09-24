@@ -1967,6 +1967,9 @@ sub build_hostlist {
 #this is the heart of the inprotect code ( this feeds host_tracking (culumative/results) database tables ).
 sub pop_hosthash {
     my (@issues ) = @{$_[0]};
+    
+    logwriter("Number of results: ".$#issues, 5);
+    
 
     my ( $sth_sel, $sql, $domain, $hostname, $mac_address, $report_key, $report_type, $record_type );
 
@@ -1993,7 +1996,7 @@ sub pop_hosthash {
     #}
     logwriter( "LOADED ALL Netblocks", 5 ); 
 
-    my $i = 0;
+    my $ih = 0;
 
     #GET POPULATE HOSTHASH WITH HOSTNAME /DOMAIN FROM PLUGIN 10150
     logwriter( "nessus_scan: Start Populating HostHash", 5 );
@@ -2001,6 +2004,7 @@ sub pop_hosthash {
         my $issue = $_;
         my ($scanid, $host, $hostname, $hostip, $service, $app, $port, $proto, $desc,
             $record_type, $domain, $mac_address, $os, $org, $site, $sRating, $sCheck, $sLogin ) = " ";
+
 
         $scanid = $issue->{ScanID};
         $scanid =~ s/.*\.(\d+)$/$1/g;
@@ -2162,13 +2166,14 @@ sub pop_hosthash {
         $service = htmlspecialchars($service);
         $desc = htmlspecialchars($desc);
 
-        $i++;
         #print "i=$i\n 'scanid' => $scanid, 'port' => $port, 'desc' => $desc, 'service' => $service, 'proto' => $proto \n";
-        my $key = $port.$proto.$scanid; # my $key = $i;
+        #my $key = $port.$proto.$scanid;
+        my $key = $ih; 
         $hostHash{$host}{'results'}{$key} = { 'scanid' => $scanid, 'port' => $port, 'app' => $app, 'service' => $service,
             'proto' => $proto, 'risk' => $risk, 'record' => $record_type, 'desc' => $desc };
+        $ih++;
     }
-    logwriter( "nessus_scan: Finished Populating HostHash", 5 );
+    logwriter( "nessus_scan: Finished Populating HostHash: $ih", 5 );
 
 
     return (%hostHash);
@@ -2418,11 +2423,14 @@ sub process_results {
             my $isCheck = "0"; #IS A COMPLIANCE CHECK SCRIPTID ( NOT A TENABLE PLUGIN ID )
 
             $scanid = $hostHash{$host}{'results'}{$record}{'scanid'};
+            logwriter("debug1: ".$scanid, 4 ); #DEBUGGG
             $service = $hostHash{$host}{'results'}{$record}{'service'};
             $app = $hostHash{$host}{'results'}{$record}{'app'};
             $proto = $hostHash{$host}{'results'}{$record}{'proto'};
             $port = $hostHash{$host}{'results'}{$record}{'port'};
             $desc = $hostHash{$host}{'results'}{$record}{'desc'};
+            $desc =~ s/^(\\n|\n)+//g;
+            $desc =~ s/(\\n|\n)+$//g;
             $risk = $hostHash{$host}{'results'}{$record}{'risk'};
             $domain = $hostHash{$host}{'results'}{$record}{'domain'};
             $record_type = $hostHash{$host}{'results'}{$record}{'record'};
@@ -2437,7 +2445,7 @@ sub process_results {
 	    #$desc=~ s/\\/\\\\/g;        #FIX TO ENSURE "\" BACKSLASHES ARE INSERTED.
 
             logwriter( "record=$record\t 'scanid' => [$scanid], 'port' => [$port], 'record' => [$record_type], 'service' => [$service],"
-                ." 'proto' => [$proto], 'risk' => [$risk], 'desc' => [$desc]\n", 5);
+                ." 'proto' => [$proto], 'risk' => [$risk], 'desc' => [$desc]\n", 4); 
 
             if ( defined( $host_id ) && $host_id > 0 ) { #CREATE/UPDATE INCIDENTS
                 if ( $scanid < 60000 ) {	#ALLOW TO SPECIFY RISK LEVEL TO TRACK

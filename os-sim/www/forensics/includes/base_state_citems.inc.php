@@ -770,15 +770,16 @@ class SensorCriteria extends SingleElementCriteria {
 			if ($sensor_str == "") $sensor_str = "0";
 			$where_sensor = " WHERE sid in (" . $sensor_str . ")";
 		}
-		$temp_sql = "SELECT sid, hostname, interface, filter FROM sensor$where_sensor";
+		$temp_sql = "SELECT * FROM sensor$where_sensor";
 		$tmp_result = $this->db->baseExecute($temp_sql);
         $varjs = "var sensortext = Array(); var sensorvalue = Array();\n";
         $sensor_sid_names = array();
 		if ($tmp_result->row) {
             $i = 0;
             while ($myrow = $tmp_result->baseFetchRow()) {
-                $sname = GetSensorName($myrow[0], $this->db);
-                $sensor_sid_names[$sname] .= (($sensor_sid_names[$sname] != "") ? "," : "").$myrow[0];
+                //$sname = GetSensorName($myrow["sid"], $this->db);
+                $sname = ($myrow["sensor"]!="") ? $myrow["sensor"] : preg_replace("/-.*/","",$myrow["hostname"]);
+                $sensor_sid_names[$sname] .= (($sensor_sid_names[$sname] != "") ? "," : "").$myrow["sid"];
 				//echo '<OPTION VALUE="' . $myrow[0] . '" ' . chk_select($this->criteria, $myrow[0]) . '>' . '[' . $myrow[0] . '] ' . $sname;
                 //$varjs.= "sensortext[$i] = '$sname';\n";
                 //$varjs.= "sensorvalue[$i] = '" . $myrow[0] . "';\n";

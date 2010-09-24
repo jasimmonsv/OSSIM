@@ -469,9 +469,9 @@ function GetTimeDataSet(&$xdata, $chart_type, $data_source, $min_threshold, $cri
         $cnt = 0;
         while ($myrow = $result->baseFetchRow()) {
             if ($myrow[1] >= $min_threshold) {
-                $result2 = $db->baseExecute("SELECT hostname FROM sensor where sid=" . $myrow[0]);
+                $result2 = $db->baseExecute("SELECT * FROM sensor where sid=" . $myrow[0]);
                 $sensor_name = $result2->baseFetchRow();
-                $xdata[$cnt][0] = $sensor_name[0];
+                $xdata[$cnt][0] = ($sensor_name["sensor"]!="") ? $sensor_name["sensor"] : $sensor_name["hostname"];
                 $result2->baseFreeRows();
                 $xdata[$cnt][1] = $myrow[1];
                 ++$cnt;

@@ -369,10 +369,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
     }
     else if($type=="hn" && $value!="") {
       $selRadio[4] = "CHECKED";
-      if (!preg_match("/\//",$value)) {
-        $q = $value;
-      }
-      else {
+      if (preg_match("/\//",$value)) {
           $tokens = explode("/", $value);
           $bytes = explode(".",$tokens[0]);
 
@@ -384,13 +381,18 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
                 $q = $bytes[0].".";
           else if ((int)$tokens[1]>24)
                 $q = $bytes[0].".".$bytes[1].".".$bytes[2].".".$bytes[3];
+          //
+          $queryw = " AND t1.name LIKE '$q%' $query_onlyuser order by $sortby $sortdir";
       }
-      //if (preg_match("/\//",$value)) {
-        $queryw = " AND t1.name LIKE '$q%' $query_onlyuser order by $sortby $sortdir";
-      //}
-      //else {
-      //  $queryw = " AND t1.name LIKE '$q' $query_onlyuser order by $sortby $sortdir";
-      //}
+      elseif (preg_match("/\,/",$value)) {
+          $q = implode("','",explode(",",$value));
+          $queryw = " AND t1.name in ('$q') $query_onlyuser order by $sortby $sortdir";
+          $q = "Othets";
+      }
+      else {
+          $q = $value;
+          $queryw = " AND t1.name LIKE '$q%' $query_onlyuser order by $sortby $sortdir";
+      }
 
       $queryl = " limit $offset,$pageSize";
       if (!preg_match("/\//",$value)) {
@@ -543,7 +545,7 @@ EOT;
        $data['vSerious'] = 0;
        
        $queryt = "SELECT count(*) AS total, risk, hostIP FROM (
-                    SELECT DISTINCT port, protocol, app, scriptid, risk, hostIP
+                    SELECT DISTINCT port, protocol, app, scriptid, msg, risk, hostIP
                     FROM vuln_nessus_latest_results where falsepositive='N'".((in_array("admin", $arruser))? "": " and username in ('".$user."')").") AS t GROUP BY risk, hostIP";
        //echo "$queryt<br>";
        
@@ -584,8 +586,8 @@ EOT;
          $data['vMed'] = 0;
          $data['vLow'] = 0;
          $data['vInfo'] = 0;
-
-         $query_risk = "SELECT risk FROM vuln_nessus_latest_results WHERE report_id = ".$data['report_id'];
+         // query for reports for each IP
+         $query_risk = "SELECT distinct risk, port, protocol, app, scriptid, msg, hostIP FROM vuln_nessus_latest_results WHERE report_id = ".$data['report_id'];
          $query_risk.= " AND username = '".$data['username']."' AND sid =".$data['sid']." AND falsepositive='N'";
          //echo "[$query_risk]<br>";
          

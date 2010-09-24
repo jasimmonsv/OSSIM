@@ -42,6 +42,9 @@ require_once ('include/groups.php');
 require_once ("include/utils.php");
 ossim_valid($_GET["enable"], OSS_LETTER, OSS_DIGIT, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("enable"));
 ossim_valid($_GET["disable"], OSS_LETTER, OSS_DIGIT, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("disable"));
+ossim_valid($_GET["id"], OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
+ossim_valid($_GET["directive"], OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
+ossim_valid($_GET["xml_file"], OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -61,14 +64,20 @@ else $cols = "280,100%";
 	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>" scrolling='no'>
 		<frameset id="frames" cols="<?php echo $cols ?>" frameborder="no" border='0' framespacing='0'>
 			<?php
-if ($_GET['directive'] != '') {
+if ($_GET['directive'] != '' || $_GET['action'] == "add_directive") {
     $action = $_GET['action'];
-    if ($action == 'add_rule') {
+    if ($action == 'add_directive') {
+    	$id = $_GET['id'];
+    	$xml_file = $_GET['xml_file'];
+    	$right = "include/utils.php?query=add_directive&id=$id&xml_file=$xml_file&onlydir=1";
+    	$scroll = "no";
+    }
+    elseif ($action == 'add_rule') {
         $id = $_GET['id'];
         $right = "include/utils.php?query=add_rule&id=$id";
         $scroll = "no";
     }
-    if ($action == 'copy_directive') {
+    elseif ($action == 'copy_directive') {
         $id = $_GET['id'];
         $right = "right.php?directive=$id&level=1&action=edit_dir&id=$id";
         $scroll = "no";
