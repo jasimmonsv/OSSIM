@@ -848,7 +848,7 @@ elseif ($query == "save_category") {
     }
     // modify directives.xml now
     enable_category(str_replace(" ", "-", $_POST["name"]) , str_replace(" ", "_", $_POST["xml_file"]));
-    echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php'\"></body></html>";
+    echo "<html><body onload=\"top.frames['main'].document.location.href='../numbering.php'\"></body></html>";
 }
 /* delete a category */
 elseif ($query == "delete_category") {
@@ -903,7 +903,7 @@ elseif ($query == "save_group") {
         $groups->append_child($new_node);
         $dom->dump_file($file);
     }
-    echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php'\"></body></html>";
+    echo "<html><body onload=\"top.frames['main'].document.location.href='../numbering.php'\"></body></html>";
 }
 /* delete a group */
 elseif ($query == "delete_group") {

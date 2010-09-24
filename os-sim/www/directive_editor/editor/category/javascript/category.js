@@ -305,7 +305,7 @@ function onClickCancel(directive, level) {
 
 	/* reload the page */
 	window.open(
-		"../../viewer/index.php",
-		"right"
+		"../../numbering.php",
+		"main"
 	);
 }
