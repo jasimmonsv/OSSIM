@@ -220,7 +220,7 @@ my $track_progress     = 0;
 my $time_to_die        = 0;
 my $use_scanlite       = 0;
 my $notify_by_email    = 0;
-my $compliance_plugins = "21156 21157 24760";
+my $compliance_plugins = "21156 21157 24760 46689";
 my $isComplianceAudit  = FALSE;
 my $isNessusScan       = FALSE;
 my $isTop100Scan       = FALSE;
@@ -2429,6 +2429,7 @@ sub process_results {
             $proto = $hostHash{$host}{'results'}{$record}{'proto'};
             $port = $hostHash{$host}{'results'}{$record}{'port'};
             $desc = $hostHash{$host}{'results'}{$record}{'desc'};
+            $desc =~ s/^ *| *$//g;
             $desc =~ s/^(\\n|\n)+//g;
             $desc =~ s/(\\n|\n)+$//g;
             $risk = $hostHash{$host}{'results'}{$record}{'risk'};
@@ -3691,17 +3692,19 @@ sub get_results_from_file {
                         #if ( defined( $tmp_scan_id) && $tmp_scan_id >= 60000 ) { $scan_id = $tmp_scan_id; }
                     }
                 }
-
-                my $risk_value = "";
-                if ( $description =~ m/\[PASSED\]/ ) {
-                    $risk_value = "Risk factor : \n\nPassed\n";
-                } elsif ( $description =~ m/\[FAILED\]/ ) {
-                    $risk_value = "Risk factor : \n\nFailed\n";
-                } else {
-                    $risk_value = "Risk factor : \n\nUnknown\n";
-                }
-                $description .= "$risk_value";
-                logwriter("set compliance description: $risk_value",5);
+                $description =~ s/\[PASSED\]/Severity Info/g;
+                $description =~ s/\[FAILED\]/Severity High/g;
+                
+                #my $risk_value = "";
+                #if ( $description =~ m/\[PASSED\]/ ) {
+                #    $risk_value = "Risk factor : \n\nPassed\n";
+                #} elsif ( $description =~ m/\[FAILED\]/ ) {
+                #    $risk_value = "Risk factor : \n\nFailed\n";
+                #} else {
+                #    $risk_value = "Risk factor : \n\nUnknown\n";
+                #}
+                #$description .= "$risk_value";
+                #logwriter("set compliance description: $risk_value",5);Ç
             }
 
             if ( $description ) {   #ENSURE WE HAVE SOME DATA
