@@ -62,13 +62,13 @@ function GetSensorName($sid, $db) {
     $name = "";
     $multiple = (preg_match("/\,/", $sid)) ? true : false;
     if ($multiple) $sid = preg_replace("/\s*\,.*/", "", $sid);
-    $tmp_sql = "SELECT sid, hostname, interface, filter FROM sensor WHERE sid='" . $sid . "'";
+    $tmp_sql = "SELECT * FROM sensor WHERE sid='" . $sid . "'";
     $tmp_result = $db->baseExecute($tmp_sql);
     if ($tmp_result) {
 		$myrow = $tmp_result->baseFetchRow();
         if ($myrow == "") $name = "Unknown";
 		else {
-			$name =  $myrow[1];
+			$name =  ($myrow["sensor"]!="") ? $myrow["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow["hostname"]));
 		}
     }
 	else {
@@ -79,28 +79,31 @@ function GetSensorName($sid, $db) {
 }
 function GetSensorSids($db) {
     $sensors = array();
-    $temp_sql = "SELECT sid,hostname FROM sensor";
+    $temp_sql = "SELECT * FROM sensor";
     //echo $temp_sql;
     $tmp_result = $db->baseExecute($temp_sql);
     while ($myrow = $tmp_result->baseFetchRow()) {
-        $ipname = split("-", $myrow[1], 2);
-        $sensors[$ipname[0]][] = $myrow[0];
+    	$ipname = ($myrow["sensor"]!="") ? $myrow["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow["hostname"]));
+    	$sensors[$ipname][] = $myrow["sid"];
     }
     $tmp_result->baseFreeRows();
     return $sensors;
 }
 function GetSensorPluginSids($db,$sensor_keys) {
     $sensors = array();
-    $temp_sql = "SELECT sid,hostname FROM sensor";
+    $temp_sql = "SELECT * FROM sensor";
     $tmp_result = $db->baseExecute($temp_sql);
-    while ($myrow = $tmp_result->baseFetchRow()) if (preg_match("/-/", $myrow[1])) {
-        $ipname = split("-", $myrow[1], 2);
-        $ipname[1] = preg_replace("/^ossec.*/","ossec",$ipname[1]);
-        //check perms on sensor
-        if ($sensor_keys['all'] || $sensor_keys[$ipname[0]]) $sensors[$ipname[1]][] = $myrow[0];
-    } else {
-        if ($sensor_keys['all'] || $sensor_keys[$ipname[0]]) $sensors["snort"][] = $myrow[0];
-    }
+    while ($myrow = $tmp_result->baseFetchRow())
+	    if (preg_match("/-/", $myrow["hostname"])) {
+	        $ipname = split("-", $myrow["hostname"], 2);
+	        $ipname[1] = preg_replace("/^ossec.*/","ossec",$ipname[1]);
+	        $ip = ($myrow["sensor"]!="") ? $myrow["sensor"] : $ipname[0];
+	        //check perms on sensor
+	        if ($sensor_keys['all'] || $sensor_keys[$ip]) $sensors[$ipname[1]][] = $myrow["sid"];
+	    } else {
+	    	$ip = ($myrow["sensor"]!="") ? $myrow["sensor"] : $myrow["hostname"];
+	        if ($sensor_keys['all'] || $sensor_keys[$ip]) $sensors["snort"][] = $myrow["sid"];
+	    }
     $tmp_result->baseFreeRows();
     return $sensors;
 }

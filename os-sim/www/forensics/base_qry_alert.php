@@ -253,12 +253,12 @@ if ($plugin_id == "" || $plugin_sid == "") {
     exit(0);
 }
 /* Get sensor parameters: */
-$sql4 = "SELECT hostname, interface, filter, encoding, detail FROM sensor  WHERE sid='" . filterSql($sid,$db) . "'";
+$sql4 = "SELECT * FROM sensor  WHERE sid='" . filterSql($sid,$db) . "'";
 $result4 = $db->baseExecute($sql4);
 $myrow4 = $result4->baseFetchRow();
 $result4->baseFreeRows();
-$encoding = $myrow4[3];
-$detail = $myrow4[4];
+$encoding = $myrow4["encoding"];
+$detail = $myrow4["detail"];
 $payload = "";
 /* Get plugin id & sid */
 //$sql5 = "select ossim_event.plugin_id, ossim_event.plugin_sid, ossim.plugin.name, ossim.plugin_sid.name, extra_data.filename, extra_data.username, extra_data.password, extra_data.userdata1, extra_data.userdata2, extra_data.userdata3, extra_data.userdata4, extra_data.userdata5, extra_data.userdata6, extra_data.userdata7, extra_data.userdata8, extra_data.userdata9 from ossim_event, ossim.plugin, ossim.plugin_sid join extra_data on extra_data.sid = '" . intval($sid) . "' and extra_data.cid = '" . intval($cid) . "' where ossim.plugin_sid.plugin_id = ossim.plugin.id and ossim.plugin_sid.sid = ossim_event.plugin_sid and ossim_event.plugin_id = ossim.plugin.id and ossim_event.sid = '" . intval($sid) . "' and ossim_event.cid = '" . intval($cid) . "'";
@@ -324,8 +324,8 @@ echo '  <TR>
                        <TD class="header">', _SENSOR . ' ' . _ADDRESS, '</TD>
                        <TD class="header">' . _INTERFACE . '</TD>
                   </TR>
-                  <TR><TD class="plfield">' . htmlspecialchars($myrow4[0]) . '</TD>
-                      <TD class="plfield">' . (($myrow4[1] == "") ? "&nbsp;<I>" . _NONE . "</I>&nbsp;" : $myrow4[1]) . '</TD>
+                  <TR><TD class="plfield">' . htmlspecialchars(($myrow4["sensor"]!="") ? $myrow4["sensor"] : $myrow4["hostname"]) . '</TD>
+                      <TD class="plfield">' . (($myrow4["interface"] == "") ? "&nbsp;<I>" . _NONE . "</I>&nbsp;" : $myrow4["interface"]) . '</TD>
                   </TR>
                  </TABLE>     
           </TR>';
@@ -336,7 +336,7 @@ if ($resolve_IP == 1) {
                   <TR><TD CLASS="iptitle" ALIGN=CENTER ROWSPAN=2>FQDN</TD>
                        <TD class="plfieldhdr">' . _SENSOR . ' ' . _NAME . '</TD>
                   </TR>
-                  <TR><TD class="plfield">' . (baseGetHostByAddr($myrow4[0], $db, $dns_cache_lifetime)) . '</TD>
+                  <TR><TD class="plfield">' . (baseGetHostByAddr(($myrow4["sensor"]!="") ? $myrow4["sensor"] : $myrow4["hostname"], $db, $dns_cache_lifetime)) . '</TD>
                   </TR>
                  </TABLE>     
             </TR>';
