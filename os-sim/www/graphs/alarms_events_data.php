@@ -44,13 +44,14 @@ require_once 'charts.php';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 function GetSensorSids($conn2) {
-	$query = "SELECT sid,hostname FROM sensor";
+	$query = "SELECT * FROM sensor";
 	if (!$rs = & $conn2->Execute($query)) {
 		print $conn2->ErrorMsg();
 		exit();
 	}
 	while (!$rs->EOF) {
-		$ret[preg_replace("/\-.*/","",$rs->fields['hostname'])][] = $rs->fields['sid'];
+		$sname = ($rs->fields['sensor']!="") ? $rs->fields['sensor'] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$rs->fields['hostname']));
+		$ret[$sname][] = $rs->fields['sid'];
 		$rs->MoveNext();
 	}
 	return $ret;

@@ -233,11 +233,11 @@ class Event_viewer {
 		$dbsock = new ossim_db();
 		$db = $dbsock->snort_connect();
 		$sensors = array();
-		$temp_sql = "SELECT sid,hostname FROM sensor";
+		$temp_sql = "SELECT * FROM sensor";
 		$rs = $db->Execute($temp_sql);
 		while (!$rs->EOF) {
-			$ipname = split("-", $rs->fields['hostname'], 2);
-			$sensors[$ipname[0]][] = $rs->fields['sid'];
+			$sname = ($myrow->fields["sensor"]) ? $myrow->fields["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow->fields['hostname']));
+			$sensors[$sname][] = $rs->fields['sid'];
 			$rs->MoveNext();
 		}
 		return $sensors;

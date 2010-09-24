@@ -44,20 +44,20 @@ require_once ('charts.php');
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 function GetSensorName($sid, $db) {
-    $name = "";
+    $sname = "";
     $multiple = (preg_match("/\,/", $sid)) ? true : false;
     if ($multiple) $sid = preg_replace("/\,.*/", "", $sid);
-    $temp_sql = "SELECT sid, hostname, interface, filter FROM sensor WHERE sid='" . $sid . "'";
+    $temp_sql = "SELECT * FROM sensor WHERE sid='" . $sid . "'";
     $myrow = & $db->Execute($temp_sql);
     if ($myrow) {
-        if ($multiple) {
-            $name = preg_replace("/\-.*/", "", $myrow->fields[1]);
-        } else {
-            $name = $myrow->fields[1] . ':' . $myrow->fields[2];
-            if ($myrow->fields[3] != "") $name = $name . ':' . $myrow->fields[3];
+    	$plugin = explode("-",$myrow->fields['hostname'],2);
+    	$sname = ($myrow->fields["sensor"]) ? $myrow->fields["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow->fields['hostname'])) . '-' . $plugin[1];
+        if (!$multiple) {
+            $sname .= ':' . $myrow->fields["interface"];
+            if ($myrow->fields["filter"] != "") $sname .= ':' . $myrow->fields["filter"];
         }
     }
-    return $name;
+    return $sname;
 }
 $db = new ossim_db();
 $conn = $db->snort_connect();
@@ -79,7 +79,7 @@ if (Session::allowedSensors() != "") {
 	$sensorkeys = array();
 	foreach ($sensorlist as $s) {
 		$sensorkeys[$s]++;
-		$wheresensor .= ($wheresensor != "") ? " OR ac_sensor_sid.sid='$s'" : " WHERE ac_sensor_sid.sid='$s'";
+		//$wheresensor .= ($wheresensor != "") ? " OR ac_sensor_sid.sid='$s'" : " WHERE ac_sensor_sid.sid='$s'";
 	}
 	// SENSOR Filter mysql layer (not implemented)
 	$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt, (select count(distinct(ip_src)) from ac_sensor_ipsrc where ac_sensor_sid.sid=ac_sensor_ipsrc.sid and ac_sensor_sid.day=ac_sensor_ipsrc.day) as saddr_cnt, (select count(distinct(ip_dst)) from ac_sensor_ipdst where ac_sensor_sid.sid=ac_sensor_ipdst.sid and ac_sensor_sid.day=ac_sensor_ipdst.day) as daddr_cnt, min(ac_sensor_sid.first_timestamp) as first_timestamp, max(ac_sensor_sid.last_timestamp) as last_timestamp FROM ac_sensor_sid FORCE INDEX(primary) GROUP BY ac_sensor_sid.sid LIMIT 20";
@@ -94,7 +94,7 @@ if (!$rs = & $conn->Execute($query)) {
 $data = array();
 while (!$rs->EOF) {
     // SENSOR Filter PHP layer
-	$sensor_plugin = explode("-", GetSensorName($rs->fields["sid"], $conn));
+	$sensor_plugin = explode("-", GetSensorName($rs->fields["sid"], $conn), 2);
     if (Session::allowedSensors() == "" || $sensorkeys[$sensor_plugin[0]] > 0) {
 		$plugin = ($sensor_plugin[1] != "") ? preg_replace("/:.*/", "", $sensor_plugin[1]) : "snort";
 		$sensor_plugin[0] = preg_replace("/:.*/", "", $sensor_plugin[0]);

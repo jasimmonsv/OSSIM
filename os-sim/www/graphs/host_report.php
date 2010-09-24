@@ -49,22 +49,6 @@ require_once ('charts.php');
 
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
-function GetSensorName($sid, $db) {
-    $name = "";
-    $multiple = (preg_match("/\,/", $sid)) ? true : false;
-    if ($multiple) $sid = preg_replace("/\,.*/", "", $sid);
-    $temp_sql = "SELECT sid, hostname, interface, filter FROM sensor WHERE sid='" . $sid . "'";
-    $myrow = & $db->Execute($temp_sql);
-    if ($myrow) {
-        if ($multiple) {
-            $name = preg_replace("/\-.*/", "", $myrow->fields[1]);
-        } else {
-            $name = $myrow->fields[1] . ':' . $myrow->fields[2];
-            if ($myrow->fields[3] != "") $name = $name . ':' . $myrow->fields[3];
-        }
-    }
-    return $name;
-}
 $db = new ossim_db();
 $conn = $db->snort_connect();
 $conn_ossim = $db->connect();

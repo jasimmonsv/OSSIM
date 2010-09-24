@@ -359,7 +359,7 @@ var hosts = new Array(<?php echo count($hosts) ?>)
 <?php
 	$sids = array();
     //if ($rs = & $snort_conn->Execute("select sid,hostname from sensor")) {
-    if ($rs = & $snort_conn->Execute("select distinct sensor.sid,hostname from sensor,acid_event where acid_event.sid=sensor.sid and acid_event.timestamp>".strtotime("-1 days"))) {
+    if ($rs = & $snort_conn->Execute("select distinct sensor.sid,sensor.hostname from sensor,acid_event where acid_event.sid=sensor.sid and acid_event.timestamp>".strtotime("-1 days"))) {
         while (!$rs->EOF) {
             $plugid = explode("-", $rs->fields["hostname"]);
             if ($plugid[1] == "") $plugid[1] = "snort";
