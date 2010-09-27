@@ -2676,7 +2676,7 @@ function drawTable($map, $data, $summary = "") {
                echo "<th>$fieldName</th>";
             }
          } else {
-            echo "<th width='48'>&nbsp;</th>";
+            echo "<th>&nbsp;</th>";
          }
       }
    }
@@ -2897,7 +2897,7 @@ function cellprint ($map, $data, $entry, $color="", $image, $class, $random) {
              echo "<td nowrap>$entry[$fieldValue]</td>";
           }
        } else {
-          echo "<td nowrap width='100'>";
+          echo "<td nowrap width='120'>";
           foreach($fieldValue as $linkName=>$linkData) {
              $onclick = "";
              $target = "";

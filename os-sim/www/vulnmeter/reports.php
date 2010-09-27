@@ -29,7 +29,7 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
-
+ini_set("max_execution_time","360");
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
@@ -803,7 +803,7 @@ echo "<a href=\"reports.php?offset=$next".$url_allres.$url_filter."\" class=\"pa
 echo "<center>";
 if ($error_importing!="" || count($unresolved_host_names)>0) {
 ?>
-    <table width="885"  cellspacing="0" cellpadding="0" class="transparent">
+    <table width="90%" cellspacing="0" cellpadding="0" class="transparent">
         <?if($error_importing!="") {?>
             <tr>
                 <td class="nobborder" style="text-align:center;padding:10px 0px 10px 0px;"><span style="color:red"><b><?=$error_importing?></b></span></td>
@@ -821,7 +821,7 @@ if ($error_importing!="" || count($unresolved_host_names)>0) {
     </table>
 <?
 }
-echo "<table cellspacing=\"8\" cellpadding=\"0\" class=\"noborder\" width=\"900\" style=\"background-color:transparent\">";
+echo "<table cellspacing=\"8\" cellpadding=\"0\" class=\"noborder\" width=\"90%\" style=\"background-color:transparent\">";
 echo "<tr><td class=\"nobborder\">";
 switch($disp) {
    case "delete":
@@ -836,8 +836,8 @@ echo "</td></tr>";
 echo "</table>";
 ?>
 <form method="post" action="reports.php" enctype="multipart/form-data">
-<table border="0" cellpadding="0" cellspacing="0" width="885"><tr><td class="headerpr" style="border: 0pt none;"><?=_("Import file results in nbe format")?></td></tr></table>
-<table border="0" cellpadding="2" cellspacing="2" width="885">
+<table border="0" cellpadding="0" cellspacing="0" width="90%"><tr><td class="headerpr" style="border: 0pt none;"><?=_("Import file results in nbe format")?></td></tr></table>
+<table border="0" cellpadding="2" cellspacing="2" width="90%">
     <tr>
         <th width="100"><?=_("Report Name")?></th> 
         <td width="785" class="nobborder" style="text-align:left;padding-left:5px;"><input name="report_name" type="text" style="width: 146px;"></td>
@@ -1032,9 +1032,9 @@ function get_results_from_file ($outfile) {
     $lines = file($outfile);
     $scan_end = date("YmdHis");
     foreach ($lines as $line) {
-        if (preg_match("/scan_end/s", $line)) {
+        if (preg_match("/host_end|scan_end/s", $line)) {
             $tmp = explode("|",$line);
-            $scan_end = date("YmdHis",strtotime($tmp[4])); 
+            if (trim($tmp[4])!="") $scan_end = date("YmdHis",strtotime($tmp[4]));
         }
         $host = $domain = $scan_id = $description = $service = $app = $port = $proto = $rec_type = $risk_type  = "";
         list( $rec_type, $domain, $host, $service, $scan_id, $risk_type, $description ) = explode("|", $line);
