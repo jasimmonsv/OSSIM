@@ -3038,7 +3038,6 @@ sim_container_get_sensor_by_ia_ul (SimContainer  *container,
   g_return_val_if_fail (container, NULL);
   g_return_val_if_fail (SIM_IS_CONTAINER (container), NULL);
   g_return_val_if_fail (ia, NULL);
-
   list = container->_priv->sensors;
   while (list)
   {
@@ -3049,10 +3048,8 @@ sim_container_get_sensor_by_ia_ul (SimContainer  *container,
 		  found = TRUE;
 			return sensor;
 		}
-
     list = list->next;
   }
-
   if (!found)
     return NULL;
 

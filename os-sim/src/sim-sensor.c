@@ -217,8 +217,33 @@ sim_sensor_new_from_hostname (gchar *sensor_ip)
 	
 	if (sensor->_priv->ia = gnet_inetaddr_new_nonblock (sensor_ip, 0))
 		return sensor;
-	else
+	else{
+		g_object_unref( G_OBJECT(sensor));
 		return NULL;
+	}
+}
+
+SimSensor *
+sim_sensor_new_from_socket (GTcpSocket *socket){
+	g_return_val_if_fail (socket, NULL);
+	SimSensor *sensor = NULL;
+	sensor = SIM_SENSOR(g_object_new (SIM_TYPE_SENSOR,NULL));
+	if (sensor){
+		sensor->_priv->ia = gnet_tcp_socket_get_remote_inetaddr (socket);
+		sensor->_priv->port  = gnet_inetaddr_get_port (sensor->_priv->ia);
+	}
+	return sensor;
+}
+
+SimSensor *
+sim_sensor_new_from_ia (GInetAddr *ia){
+	g_return_val_if_fail (ia, NULL);
+	SimSensor * sensor = NULL;
+	sensor =  SIM_SENSOR(g_object_new (SIM_TYPE_SENSOR,NULL));
+	if (sensor){
+		sensor->_priv->ia = gnet_inetaddr_clone (ia);
+	}
+	return sensor;
 }
 
 

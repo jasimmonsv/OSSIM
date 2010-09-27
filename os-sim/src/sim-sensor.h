@@ -84,6 +84,8 @@ SimSensor*        sim_sensor_new_from_hostname               (gchar *sensor_ip);
 
 SimSensor*        sim_sensor_new_from_dm                     (GdaDataModel     *dm,
 							      gint              row);
+SimSensor *				sim_sensor_new_from_socket 								(GTcpSocket    *socket);
+SimSensor *				sim_sensor_new_from_ia 										(GInetAddr *ia);
 
 SimSensor*        sim_sensor_clone                           (SimSensor   *sensor);
 

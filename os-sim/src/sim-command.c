@@ -1519,6 +1519,7 @@ sim_command_scan (SimCommand    *command,
   g_return_if_fail (SIM_IS_COMMAND (command));
   g_return_if_fail (buffer != NULL);
 	SimSensor *sensor = NULL;
+	gchar *ip_st;
 	if ((scanner = (GScanner*)g_private_get(privScanner))==NULL){
 	                   scanner = sim_command_start_scanner();
 	                   g_private_set(privScanner,scanner);
@@ -1640,6 +1641,12 @@ sim_command_scan (SimCommand    *command,
 			/*Commands from sensors or Children Servers*/
 						
       case SIM_COMMAND_SYMBOL_EVENT:
+#if 0
+				ip_st = gnet_inetaddr_get_canonical_name (sim_session_get_ia (session));
+				g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"Event from session IP:%s",ip_st);
+				if (ip_st)
+					g_free (ip_st);
+#endif
 				sensor = 	sim_container_get_sensor_by_ia (ossim.container, sim_session_get_ia(session));
 				if (sensor != NULL && sim_sensor_get_agent_version (sensor)!=NULL ){
 					/* Check if the sensor has a scan function*/

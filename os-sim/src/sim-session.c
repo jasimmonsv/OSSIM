@@ -31,6 +31,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include <gnet.h>
 #include <string.h>
 #include <signal.h>
+#include <assert.h>
 #include "sim-config.h"	//server role.
 #include "os-sim.h"
 #include "sim-session.h"
@@ -65,6 +66,7 @@ struct _SimSessionPrivate {
   GIOChannel	*io;
 
   GInetAddr		*ia;
+	gint 		    port;
   gint				seq;
   gboolean		close;
   gboolean		connect;
@@ -170,7 +172,7 @@ sim_session_instance_init (SimSession *session)
 
   session->_priv->io = NULL;
   session->_priv->ia = NULL;
-
+	session->_priv->port = 0;
   session->_priv->seq = 0;
 
   session->_priv->connect = FALSE;
@@ -342,6 +344,7 @@ sim_session_cmd_connect (SimSession  *session,
   g_return_if_fail (SIM_IS_COMMAND (command));
   
   sensor = sim_container_get_sensor_by_ia (ossim.container, session->_priv->ia);
+	
   session->_priv->sensor = sensor;	//if the connection is from a server or frameworkd, this will be NULL.
 	
   switch (command->data.connect.type)
@@ -372,6 +375,16 @@ sim_session_cmd_connect (SimSession  *session,
 			g_message ("Sensor agent doesn't send version info. Closing connection");
 			sim_session_close (session);
 			return; 
+		}
+		if (!sensor){
+			gchar *s = NULL;
+			s = gnet_inetaddr_get_canonical_name (session->_priv->ia);
+			g_message ("Sensor '%s' is not in memory list. Appening it",s);
+			sensor = sim_sensor_new_from_ia (session->_priv->ia);
+			assert (sensor!=NULL);
+			sim_container_append_sensor (ossim.container,sensor);
+			if (s)
+				g_free (s);
 		}
 		if (!sim_sensor_set_agent_version (sensor,command->data.connect.version)){
 			gchar *c;
