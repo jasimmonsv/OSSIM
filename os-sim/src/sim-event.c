@@ -32,6 +32,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 
 #include "sim-event.h"
 #include "sim-util.h"
+#include "os-sim.h"
 #include <config.h>
 
 #include <time.h>
@@ -536,6 +537,11 @@ sim_event_get_insert_clause (SimEvent   *event)
   gint     c;
   gint     a;
 	gchar		 uuidtext[37];
+	gchar *e_filename = NULL,*e_username = NULL,*e_password = NULL;
+	gchar *e_userdata1 = NULL,*e_userdata2 = NULL, *e_userdata3 = NULL;
+	gchar *e_userdata4 = NULL,*e_userdata5 = NULL, *e_userdata6 = NULL;
+	gchar *e_userdata7 = NULL,*e_userdata8 = NULL, *e_userdata9 = NULL;
+	
   g_return_val_if_fail (event, NULL);
   g_return_val_if_fail (SIM_IS_EVENT (event), NULL);
 
@@ -556,6 +562,56 @@ sim_event_get_insert_clause (SimEvent   *event)
 		uuid_unparse_upper(event->uuid,uuidtext);	
 	}else{
 		uuidtext[0]='\0';
+	}	
+	/* Escape de character data*/
+	/* ossimdb */
+	if (event->filename){
+		e_filename = g_new0 (gchar,strlen(event->filename)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->filename,e_filename);
+	}
+	if (event->username){
+		e_username = g_new0 (gchar, strlen(event->username)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->username,e_username);
+	}
+	if (event->password){
+		e_password = g_new0 (gchar, strlen(event->password)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->password,e_password);
+	}
+	if (event->userdata1){
+		e_userdata1 = g_new0 (gchar,strlen(event->userdata1)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata1,e_userdata1);	
+	}
+	if (event->userdata2){
+		e_userdata2 = g_new0 (gchar,strlen(event->userdata2)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata2,e_userdata2);	
+	}
+	if (event->userdata3){
+		e_userdata3 = g_new0 (gchar,strlen(event->userdata3)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata3,e_userdata3);	
+	}
+	if (event->userdata4){
+		e_userdata4 = g_new0 (gchar,strlen(event->userdata4)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata4,e_userdata4);	
+	}
+	if (event->userdata5){
+		e_userdata5 = g_new0 (gchar,strlen(event->userdata5)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata5,e_userdata5);	
+	}
+	if (event->userdata6){
+		e_userdata6 = g_new0 (gchar,strlen(event->userdata6)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata6,e_userdata6);	
+	}
+	if (event->userdata7){
+		e_userdata7 = g_new0 (gchar,strlen(event->userdata7)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata7,e_userdata7);	
+	}
+	if (event->userdata8){
+		e_userdata8 = g_new0 (gchar,strlen(event->userdata8)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata8,e_userdata8);	
+	}
+	if (event->userdata9){
+		e_userdata9 = g_new0 (gchar,strlen(event->userdata9)*2+1);
+		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata9,e_userdata9);	
 	}
   query = g_strdup_printf ("INSERT INTO event "
 			   "(id, timestamp, sensor, interface, type, plugin_id, plugin_sid, " 
@@ -592,20 +648,53 @@ sim_event_get_insert_clause (SimEvent   *event)
 			   event->alarm,
 			   event->snort_sid,
 			   event->snort_cid,
-				 (event->filename) ? event->filename : "",
-				 (event->username) ? event->username : "",
-				 (event->password) ? event->password : "",
-				 (event->userdata1) ? event->userdata1 : "",
-				 (event->userdata2) ? event->userdata2 : "",
-				 (event->userdata3) ? event->userdata3 : "",
-				 (event->userdata4) ? event->userdata4 :  "",
-				 (event->userdata5) ? event->userdata5 : "",
-				 (event->userdata6) ? event->userdata6 : "",
-				 (event->userdata7) ? event->userdata7 : "",
-				 (event->userdata8) ? event->userdata8 : "",
-				 (event->userdata9) ? event->userdata9 : "",
+				 (event->filename) ? e_filename : "",
+				 (event->username) ? e_username : "",
+				 (event->password) ? e_password : "",
+				 (event->userdata1) ? e_userdata1 : "",
+				 (event->userdata2) ? e_userdata2 : "",
+				 (event->userdata3) ? e_userdata3 : "",
+				 (event->userdata4) ? e_userdata4 :  "",
+				 (event->userdata5) ? e_userdata5 : "",
+				 (event->userdata6) ? e_userdata6 : "",
+				 (event->userdata7) ? e_userdata7 : "",
+				 (event->userdata8) ? e_userdata8 : "",
+				 (event->userdata9) ? e_userdata9 : "",
 				 (event->rulename)  ? event->rulename : "" ,
 				 (uuid_is_null(event->uuid)!=1) ? uuidtext : "");
+	/* Free memory*/
+	if (e_filename)
+		g_free (e_filename);
+	if (e_username)
+		g_free (e_username);
+	if (e_password)
+		g_free (e_password);
+	if (e_userdata1)
+		g_free (e_userdata1);
+	if (e_userdata2)
+		g_free (e_userdata2);
+	if (e_userdata3)
+		g_free (e_userdata3);
+	if (e_userdata4)
+		g_free (e_userdata4);
+	if (e_userdata5)
+		g_free (e_userdata5);
+	if (e_userdata6)
+		g_free (e_userdata6);
+	if (e_userdata7)
+		g_free (e_userdata7);
+	if (e_userdata8)
+		g_free (e_userdata8);
+	if (e_userdata9)
+		g_free (e_userdata9);
+
+
+
+
+
+
+
+
 
   return query;
 }
@@ -1095,7 +1184,7 @@ sim_event_sanitize (SimEvent *event)
 
 	//sim_string_remove_char (event->data, ';'); 
 	//sim_string_remove_char (event->log, ';'); 
-	
+	return;	
 	sim_string_substitute_char (event->data, ';', ','); 
 	sim_string_substitute_char (event->log, ';', ','); 
 	sim_string_substitute_char (event->userdata1, ';', ','); 

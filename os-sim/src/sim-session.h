@@ -34,13 +34,10 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include <glib.h>
 #include <glib-object.h>
 #include <gnet.h>
-
 #include "sim-enums.h"
 #include "sim-command.h"
 #include "sim-config.h"
 #include "sim-database.h"
-#include "sim-sensor.h"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,7 +74,6 @@ G_BEGIN_DECLS
 typedef struct _SimSession        SimSession;
 typedef struct _SimSessionClass   SimSessionClass;
 typedef struct _SimSessionPrivate SimSessionPrivate;
-
 struct _SimSession {
   GObject parent;
 
@@ -129,6 +125,9 @@ void							sim_session_wait_fully_stablished						(SimSession *session);
 void							sim_session_set_id													(SimSession *session,
 																															gint id);
 gint							sim_session_get_id													(SimSession *session);
+void							sim_session_set_event_scan_fn								(SimSession *session,gboolean (*pf)(SimCommand *,GScanner*));
+gboolean				  (*sim_session_get_event_scan_fn             (SimSession *session))(SimCommand *,GScanner*);
+
 
 G_END_DECLS
 

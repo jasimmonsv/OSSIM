@@ -88,6 +88,7 @@ struct _SimSessionPrivate {
 											//frameworkd that sent a msg to this server, asking for data in a children server. I.e. server1->server2->server3. 
 											//server1 asks to server2 for the sensors connected to server3. We store in the session id the same id that server1
 											//sent us, and it will be kept during all the messages.
+	gboolean (*agent_scan_fn)(SimCommand *,GScanner*);
 
 };
 
@@ -184,6 +185,8 @@ sim_session_instance_init (SimSession *session)
 	session->_priv->initial_mutex = g_mutex_new();
 
 	session->_priv->id = 0;
+	// Init de scannner to NULL
+	session->_priv->agent_scan_fn = NULL;
 }
 
 /* Public Methods */
@@ -364,7 +367,23 @@ sim_session_cmd_connect (SimSession  *session,
 
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_session_cmd_connect: hostname: %s", sim_session_get_hostname(session));
 
-	
+	if (session->type == SIM_SESSION_TYPE_SENSOR){
+		if (command->data.connect.version == NULL){
+			g_message ("Sensor agent doesn't send version info. Closing connection");
+			sim_session_close (session);
+			return; 
+		}
+		if (!sim_sensor_set_agent_version (sensor,command->data.connect.version)){
+			gchar *c;
+			c = gnet_inetaddr_get_canonical_name (session->_priv->ia);
+			g_message ("Bad version '%s' from agent at ip '%s'. Closing connection",command->data.connect.version,
+				c!=NULL ? c: "Unknown ip address");
+			if (c)
+				g_free (c);
+			sim_session_close (session);
+			return;
+		}
+	}
 	if (session->type != SIM_SESSION_TYPE_NONE)
 	{
 	  cmd = sim_command_new_from_type (SIM_COMMAND_TYPE_OK);
@@ -3658,7 +3677,8 @@ sim_session_read (SimSession  *session)
 //			return FALSE; 
 		}
 
-    cmd = sim_command_new_from_buffer (buffer); //this gets the command and all of the parameters associated.
+    cmd = sim_command_new_from_buffer (buffer,session); //this gets the command and all of the parameters associated.
+		
 
 		if (!cmd)
 		{
@@ -4275,7 +4295,30 @@ sim_session_get_id (SimSession *session)
   g_return_val_if_fail (SIM_IS_SESSION (session), -1);
 
   return session->_priv->id; 
-} 
+}
+void sim_session_set_sensor(SimSession *session,SimSensor *sensor){
+	g_return_if_fail (session!=NULL);
+	g_return_if_fail (sensor!=NULL);
+	g_return_if_fail (SIM_IS_SESSION (session));
+	g_return_if_fail (SIM_IS_SENSOR (sensor));
+	session->_priv->sensor = sensor;
+}
+
+void							sim_session_set_event_scan_fn								(SimSession *session,gboolean (*pf)(SimCommand *,GScanner*)){
+	g_return_if_fail (session!=NULL);
+	g_return_if_fail (SIM_IS_SESSION (session));
+	g_return_if_fail (pf!=NULL);
+	session->_priv->agent_scan_fn = pf;
+
+}
+gboolean				  (*sim_session_get_event_scan_fn             (SimSession *session))(SimCommand *,GScanner*){
+	g_return_if_fail (session!=NULL);
+	g_return_if_fail (SIM_IS_SESSION (session));
+	return session->_priv->agent_scan_fn;
+
+}
+
+
 
 
 

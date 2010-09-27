@@ -38,7 +38,9 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include "os-sim.h"
 #include <config.h>
 #include "sim-scanner-tokens.h"
-
+#include "sim-sensor.h"
+#include <assert.h>
+#include <sim-session.h>
 /*
  * Remember that when the server sends something, the keywords are written in
  * sim_command_get_string(), not here. This command_symbols are just the
@@ -653,9 +655,9 @@ enum
   DESTROY,
   LAST_SIGNAL
 };
-
 static gboolean sim_command_scan												(SimCommand    *command,
-																												 const gchar   *buffer);
+																												 const gchar   *buffer,
+																												SimSession  	 *session);
 static gboolean sim_command_connect_scan								(SimCommand    *command,
 																										      GScanner      *scanner);
 static gboolean sim_command_session_append_plugin_scan	(SimCommand    *command,
@@ -698,6 +700,9 @@ static gboolean sim_command_plugin_disabled_scan				(SimCommand    *command,
 																										      GScanner      *scanner);
 static gboolean sim_command_event_scan									(SimCommand    *command,
 																											    GScanner      *scanner);
+static gboolean sim_command_event_scan_base64						(SimCommand    *command,
+																											    GScanner      *scanner);
+
 static gboolean sim_command_reload_plugins_scan					(SimCommand    *command,
 																										     GScanner      *scanner);
 static gboolean sim_command_reload_sensors_scan					(SimCommand    *command,
@@ -736,6 +741,16 @@ static gboolean	sim_command_agent_date_scan 						(SimCommand    *command,
 static GPrivate *privScanner=NULL;
 static gpointer parent_class = NULL;
 static gint sim_server_signals[LAST_SIGNAL] = { 0 };
+/* Versions -> Agent map functions*/
+static const struct {
+	gchar *name;
+	gboolean (*pf)(SimCommand *,GScanner*);
+} agents_parsers_table[]={
+	{"2.1",sim_command_event_scan},
+	{"2.3.1",sim_command_event_scan_base64},
+	{NULL,NULL}
+};
+
 
 /*
  * Init the TLS system for all the threads
@@ -1057,6 +1072,8 @@ sim_command_new (void)
   SimCommand *command = NULL;
 
   command = SIM_COMMAND (g_object_new (SIM_TYPE_COMMAND, NULL));
+	if (command)
+		command->pf_event_scan = sim_command_event_scan;
 
   return command;
 }
@@ -1068,15 +1085,41 @@ sim_command_new (void)
  *
  */
 SimCommand*
-sim_command_new_from_buffer (const gchar    *buffer)
+sim_command_new_from_buffer (const gchar    *buffer,SimSession *session)
 {
   SimCommand *command = NULL;
-
+	SimSensor  *sensor;
   g_return_val_if_fail (buffer, NULL);
 
   command = SIM_COMMAND (g_object_new (SIM_TYPE_COMMAND, NULL));
+	g_return_val_if_fail (command, NULL);
+	/* Check for current version */
+	/* Default parsing functions, must be changed later*/
+	command->pf_event_scan = sim_command_event_scan;	
+#if 0
+	sensor = 	sim_container_get_sensor_by_ia (ossim.container, sim_session_get_ia(session));
+	if (sensor != NULL && sim_sensor_get_agent_version (sensor)!=NULL ){
+		/* Check if the sensor has a scan function*/
+		gboolean (*pf_scan)(SimCommand *,GScanner *) = NULL;
+		if ((pf_scan = sim_session_get_event_scan_fn (session)) == NULL){
+				int i = 0;
+				while (agents_parsers_table[i].name!=NULL){
+					if (strcmp(sim_sensor_get_agent_version(sensor),agents_parsers_table[i].name) == 0){
+						pf_scan = agents_parsers_table[i].pf;	
+						sim_session_set_event_scan_fn (session, pf_scan);
+						g_log(G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"Changing parser to:%016x in sessin %016x inx:%d",pf_scan,session,i);
+						break;
+					}
+					i++;
+				}	
+				assert(pf_scan!=NULL);	
+		}
+		//g_log(G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"Changing parser to:%016x in sessin %016x",pf_scan,session);
+		command->pf_event_scan = pf_scan;
+	}
+#endif
 
-  if (!sim_command_scan (command, buffer))
+  if (!sim_command_scan (command, buffer,session))
 	{
 		if (SIM_IS_COMMAND (command))
 			g_object_unref(command);
@@ -1465,7 +1508,8 @@ for (i = 0; i < G_N_ELEMENTS (snort_event_data_symbols); i++)
  */
 static gboolean
 sim_command_scan (SimCommand    *command,
-								  const gchar   *buffer)
+								  const gchar   *buffer,
+									SimSession		*session)
 {
   GScanner    *scanner;
 	gboolean OK=TRUE; //if a problem appears in the command scanning, we'll return.
@@ -1474,6 +1518,7 @@ sim_command_scan (SimCommand    *command,
   g_return_if_fail (command != NULL);
   g_return_if_fail (SIM_IS_COMMAND (command));
   g_return_if_fail (buffer != NULL);
+	SimSensor *sensor = NULL;
 	if ((scanner = (GScanner*)g_private_get(privScanner))==NULL){
 	                   scanner = sim_command_start_scanner();
 	                   g_private_set(privScanner,scanner);
@@ -1507,7 +1552,7 @@ sim_command_scan (SimCommand    *command,
       case SIM_COMMAND_SYMBOL_SERVER_GET_SENSOR_PLUGINS:
 					  if (!sim_command_server_get_sensor_plugins_scan (command, scanner))
 							OK=FALSE;
-	          break;
+          break;
 		  case SIM_COMMAND_SYMBOL_SERVER_SET_DATA_ROLE:
 					  if (!sim_command_server_set_data_role_scan (command, scanner))
 							OK=FALSE;
@@ -1595,9 +1640,36 @@ sim_command_scan (SimCommand    *command,
 			/*Commands from sensors or Children Servers*/
 						
       case SIM_COMMAND_SYMBOL_EVENT:
+				sensor = 	sim_container_get_sensor_by_ia (ossim.container, sim_session_get_ia(session));
+				if (sensor != NULL && sim_sensor_get_agent_version (sensor)!=NULL ){
+					/* Check if the sensor has a scan function*/
+					gboolean (*pf_scan)(SimCommand *,GScanner *) = NULL;
+					if ((pf_scan = sim_session_get_event_scan_fn (session)) == NULL){
+					int i = 0;
+					while (agents_parsers_table[i].name!=NULL){
+					if (strcmp(sim_sensor_get_agent_version(sensor),agents_parsers_table[i].name) == 0){
+						pf_scan = agents_parsers_table[i].pf;	
+						sim_session_set_event_scan_fn (session, pf_scan);
+						g_log(G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"Changing parser to:%016x in sessin %016x inx:%d",pf_scan,session,i);
+						break;
+					}
+					i++;
+				}	
+				assert(pf_scan!=NULL);	
+				}	
+		//g_log(G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"Changing parser to:%016x in sessin %016x",pf_scan,session);
+				command->pf_event_scan = pf_scan;
+			}
+
+						assert(command->pf_event_scan!=NULL);
+						if (!command->pf_event_scan (command, scanner))
+							OK = FALSE;
+						break;
+#if 0
 					  if (!sim_command_event_scan (command, scanner))
 							OK=FALSE;
         	  break;
+#endif
       case SIM_COMMAND_SYMBOL_HOST_OS_EVENT:
 					  if (!sim_command_host_os_event_scan (command, scanner))
 							OK=FALSE;
@@ -3240,6 +3312,703 @@ sim_command_plugin_disabled_scan (SimCommand    *command,
     }
   }
   while(scanner->token != G_TOKEN_EOF);
+	return TRUE;
+}
+/*
+ * BASE64 VERSION of sim_command_event_scan
+ */
+static gboolean
+sim_command_event_scan_base64 (SimCommand    *command,
+												GScanner      *scanner)
+{
+  struct tm      tm;	//needed to check the time parameter.
+	gsize base64len;
+  g_return_if_fail (command != NULL);
+  g_return_if_fail (SIM_IS_COMMAND (command));
+  g_return_if_fail (scanner != NULL);
+
+  command->type = SIM_COMMAND_TYPE_EVENT;
+  command->data.event.type = NULL;
+  command->data.event.id = 0;
+  command->data.event.date = 0;
+  command->data.event.date_str = NULL; //be carefull, if you insert some event without this parameter, you'll get unix date: 1970/01/01
+  command->data.event.sensor = NULL;
+  command->data.event.interface = NULL;
+
+  command->data.event.plugin_id = 0;
+  command->data.event.plugin_sid = 0;
+
+  command->data.event.protocol = NULL;
+  command->data.event.src_ip = NULL;
+  command->data.event.src_port = 0;
+  command->data.event.dst_ip = NULL;
+  command->data.event.dst_port = 0;
+
+  command->data.event.condition = NULL;
+  command->data.event.value = NULL;
+  command->data.event.interval = 0;
+
+  command->data.event.data = NULL;
+  command->data.event.snort_sid = 0;
+  command->data.event.snort_cid = 0;
+
+  command->data.event.priority = 0;
+  command->data.event.reliability = 0;
+  command->data.event.asset_src = 2;
+  command->data.event.asset_dst = 2;
+  command->data.event.risk_a = 0;
+  command->data.event.risk_c = 0;
+  command->data.event.alarm = FALSE;
+  command->data.event.event = NULL;
+
+	command->data.event.filename = NULL;
+	command->data.event.username = NULL;
+	command->data.event.password = NULL;
+	command->data.event.userdata1 = NULL;
+	command->data.event.userdata2 = NULL;
+	command->data.event.userdata3 = NULL;
+	command->data.event.userdata4 = NULL;
+	command->data.event.userdata5 = NULL;
+	command->data.event.userdata6 = NULL;
+	command->data.event.userdata7 = NULL;
+	command->data.event.userdata8 = NULL;
+	command->data.event.userdata9 = NULL;
+	command->data.event.is_prioritized = FALSE;
+
+  g_scanner_set_scope (scanner, SIM_COMMAND_SCOPE_EVENT);
+  do
+  {
+    g_scanner_get_next_token (scanner);
+ 
+    switch (scanner->token)
+    {
+	    case SIM_COMMAND_SYMBOL_TYPE:
+					  g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+	  
+					  if (scanner->token != G_TOKEN_STRING)
+				    {
+	    			  command->type = SIM_COMMAND_TYPE_NONE;
+				      break;
+	    			}
+					  command->data.event.type = g_strdup (scanner->value.v_string);
+    	      break;
+						
+      case SIM_COMMAND_SYMBOL_ID:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+							break;
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.id = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the id issued from the remote server: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+						
+      case SIM_COMMAND_SYMBOL_PLUGIN_ID:
+					  g_scanner_get_next_token (scanner); /* = */
+					  g_scanner_get_next_token (scanner); /* value */
+	  
+					  if (scanner->token != G_TOKEN_STRING)
+				    {
+				      command->type = SIM_COMMAND_TYPE_NONE;
+	    			  break;
+				    }
+
+            if (sim_string_is_number (scanner->value.v_string, 0))
+					  	command->data.event.plugin_id = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the plugin_id issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+
+        	  break;
+						
+      case SIM_COMMAND_SYMBOL_PLUGIN_SID:
+					  g_scanner_get_next_token (scanner); /* = */
+					  g_scanner_get_next_token (scanner); /* value */
+	  
+					  if (scanner->token != G_TOKEN_STRING)
+				    {
+	    			  command->type = SIM_COMMAND_TYPE_NONE;
+					    break;
+				    }
+            if (sim_string_is_number (scanner->value.v_string, 0))
+					  	command->data.event.plugin_sid = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the plugin_sid issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+
+        	  break;
+						
+      case SIM_COMMAND_SYMBOL_DATE:
+					  g_scanner_get_next_token (scanner); /* = */
+					  g_scanner_get_next_token (scanner); /* value */
+
+					  if (scanner->token != G_TOKEN_STRING)
+				    {
+				      command->type = SIM_COMMAND_TYPE_NONE;
+	    			  break;
+				    }
+	          if (sim_string_is_number (scanner->value.v_string, 1))
+		          command->data.event.date = strtol(scanner->value.v_string,(char **)NULL,10);
+						else
+						{
+              g_message("Error: event incorrect. Please check the date issued from the agent: %s", scanner->value.v_string);
+              return FALSE;														 
+						}
+          	break;
+
+      case SIM_COMMAND_SYMBOL_DATE_STRING:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+
+            command->data.event.date_str = g_strdup (scanner->value.v_string);
+            break;
+
+      case SIM_COMMAND_SYMBOL_DATE_TZONE:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            if (sim_string_is_number (scanner->value.v_string, 1))
+              command->data.event.tzone = strtol(scanner->value.v_string,(char **)NULL,10);
+            else
+            {
+              g_message("Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+            break;
+
+			case SIM_COMMAND_SYMBOL_SENSOR:
+					  g_scanner_get_next_token (scanner); /* = */
+	  				g_scanner_get_next_token (scanner); /* value */
+
+					  if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						if (gnet_inetaddr_is_canonical (scanner->value.v_string))
+							command->data.event.sensor = g_strdup (scanner->value.v_string);
+						else
+            {
+              g_message("Error: event incorrect. Please check the sensor issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+						
+			case SIM_COMMAND_SYMBOL_INTERFACE:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}	
+						command->data.event.interface = g_strdup (scanner->value.v_string);
+						break;
+						
+			case SIM_COMMAND_SYMBOL_PRIORITY:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.priority = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the priority issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+
+						break;
+						
+			case SIM_COMMAND_SYMBOL_PROTOCOL:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						command->data.event.protocol = g_strdup (scanner->value.v_string);
+						break;
+						
+			case SIM_COMMAND_SYMBOL_SRC_IP:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						if (gnet_inetaddr_is_canonical (scanner->value.v_string))
+							command->data.event.src_ip = g_strdup (scanner->value.v_string);
+						else
+            {
+              g_message("Error: event incorrect. Please check the src ip issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+						
+			case SIM_COMMAND_SYMBOL_SRC_PORT:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.src_port = strtol (scanner->value.v_string, (char **) NULL, 10);
+						else
+            {
+              g_message("Error: event incorrect. Please check the src_port issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+
+						break;
+						
+			case SIM_COMMAND_SYMBOL_DST_IP:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						if (gnet_inetaddr_is_canonical (scanner->value.v_string))
+							command->data.event.dst_ip = g_strdup (scanner->value.v_string);
+						else
+            {
+              g_message("Error: event incorrect. Please check the dst ip issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+						
+			case SIM_COMMAND_SYMBOL_DST_PORT:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.dst_port = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the dst_port issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+						
+			case SIM_COMMAND_SYMBOL_CONDITION:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						command->data.event.condition = g_strdup (scanner->value.v_string);
+						break;
+						
+			case SIM_COMMAND_SYMBOL_VALUE:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						command->data.event.value = g_strdup (scanner->value.v_string);
+						break;
+						
+			case SIM_COMMAND_SYMBOL_INTERVAL:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.interval = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the interval issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+
+						break;
+						
+			case SIM_COMMAND_SYMBOL_DATA:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						//command->data.event.data = g_strdup (scanner->value.v_string);
+						command->data.event.data = g_base64_decode(scanner->value.v_string,&base64len);
+						break;
+
+			case SIM_COMMAND_SYMBOL_LOG:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						command->data.event.log = g_base64_decode (scanner->value.v_string,&base64len);
+						break;
+
+			case SIM_COMMAND_SYMBOL_SNORT_SID:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.snort_sid = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the snort_sid issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+
+			case SIM_COMMAND_SYMBOL_SNORT_CID:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.snort_cid = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the snort_cid issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+
+			case SIM_COMMAND_SYMBOL_ASSET_SRC:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.asset_src = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the asset src issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+		
+			case SIM_COMMAND_SYMBOL_ASSET_DST:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.asset_dst = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the asset dst issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+						
+			case SIM_COMMAND_SYMBOL_RISK_A:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 1)) //this can be float...
+							command->data.event.risk_a = strtod (scanner->value.v_string, (char **) NULL);
+            else
+            {
+              g_message("Error: event incorrect. Please check the Risk_A issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+
+			case SIM_COMMAND_SYMBOL_RISK_C:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 1)) //this can be float
+							command->data.event.risk_c = strtod (scanner->value.v_string, (char **) NULL);
+            else
+            {
+              g_message("Error: event incorrect. Please check the Risk_C issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+
+						break;
+						
+			case SIM_COMMAND_SYMBOL_RELIABILITY:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+            if (sim_string_is_number (scanner->value.v_string, 0))
+							command->data.event.reliability = strtol (scanner->value.v_string, (char **) NULL, 10);
+            else
+            {
+              g_message("Error: event incorrect. Please check the reliability issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+
+						break;
+
+			case SIM_COMMAND_SYMBOL_ALARM:
+						g_scanner_get_next_token (scanner); /* = */
+						g_scanner_get_next_token (scanner); /* value */
+
+						if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+
+						if (!g_ascii_strcasecmp (scanner->value.v_string, "TRUE"))
+							command->data.event.alarm = TRUE;
+						break;
+
+      case SIM_COMMAND_SYMBOL_FILENAME:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.filename = g_strdup (scanner->value.v_string);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERNAME:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.username = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_PASSWORD:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.password = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA1:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata1 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA2:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata2 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA3:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata3 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA4:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata4 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA5:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata5 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA6:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata6 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA7:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata7 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA8:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata8 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+      case SIM_COMMAND_SYMBOL_USERDATA9:
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+            command->data.event.userdata9 = g_base64_decode (scanner->value.v_string,&base64len);
+            break;
+
+     
+            g_scanner_get_next_token (scanner); /* = */
+            g_scanner_get_next_token (scanner); /* value */
+
+            if (scanner->token != G_TOKEN_STRING)
+            {
+              command->type = SIM_COMMAND_TYPE_NONE;
+              break;
+            }
+
+            if (!g_ascii_strcasecmp (scanner->value.v_string, "true"))
+              command->data.event.is_prioritized = TRUE;
+            else
+              command->data.event.is_prioritized = FALSE;
+            break;
+			default:
+					  if (scanner->token == G_TOKEN_EOF)
+					    break;
+					  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_command_event_scan: error symbol unknown; Symbol number:%d. Event Rejected.",scanner->token);								
+						return FALSE; //we will return with the first rare token
+    }
+  }
+  while(scanner->token != G_TOKEN_EOF);
+
 	return TRUE;
 }
 

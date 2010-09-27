@@ -57,6 +57,12 @@ struct _SimSensorPrivate {
 static gpointer parent_class = NULL;
 static gint sim_inet_signals[LAST_SIGNAL] = { 0 };
 
+static gchar *sim_sensor_versions[]={
+	"2.1", // Current agent version
+	"2.3.1", // base64 encode version
+	NULL
+};
+
 /* GType Functions */
 
 static void 
@@ -125,6 +131,31 @@ sim_sensor_instance_init (SimSensor *sensor)
 }
 
 /* Public Methods */
+
+gchar *
+sim_sensor_get_agent_version(SimSensor *sensor){
+ 	g_return_val_if_fail (sensor!=NULL,NULL);
+ 	g_return_val_if_fail (SIM_IS_SENSOR(sensor),NULL);
+ 	return sensor->_priv->version;
+}
+
+
+gboolean
+sim_sensor_set_agent_version(SimSensor *sensor,const gchar *v){
+ 	g_return_if_fail (sensor!=NULL);
+ 	g_return_if_fail (SIM_IS_SENSOR(sensor));
+	int i;
+	gboolean r = FALSE;
+	/* Check for supported version*/
+	for (i=0;sim_sensor_versions[i]!=NULL && !r;i++){
+		if (strcmp (sim_sensor_versions[i],v) == 0){
+			sensor->_priv->version = g_strdup (v);
+			r = TRUE;
+		}
+	}
+	return r;
+}
+
 
 GType
 sim_sensor_get_type (void)
