@@ -51,6 +51,9 @@ struct _SimSensorPrivate {
   GHashTable  *plugins; //SimPlugin
 
 	event_kind	event_number;
+	gchar 			*version;
+
+	
 	
 };
 
