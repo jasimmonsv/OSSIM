@@ -173,4 +173,4 @@ INSERT INTO config (conf , value) VALUES ('nedi_autodiscovery', '0');
 
 INSERT INTO config (conf , value) VALUES ('tickets_max_days', '15');
 
-INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4');
+INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.2');

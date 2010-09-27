@@ -1001,6 +1001,24 @@ CREATE TABLE alarm_groups (
         PRIMARY KEY  (group_id)
 );            
 
+DROP TABLE IF EXISTS alarm_tags;
+CREATE TABLE alarm_tags (
+  id_alarm int(11) NOT NULL,
+  id_tag int(11) NOT NULL,  
+  PRIMARY KEY (id_alarm)    
+);
+
+DROP TABLE IF EXISTS `tags_alarm`;
+CREATE TABLE `tags_alarm` (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    name varchar(128) NOT NULL,
+    bgcolor varchar(7) NOT NULL,
+    fgcolor varchar(7) NOT NULL,
+    italic int(1) NOT NULL DEFAULT '0',
+    bold tinyint(1) NOT NULL DEFAULT '0',
+    PRIMARY KEY (id)
+);
+                      
 --
 -- Table: plugin_reference
 --
