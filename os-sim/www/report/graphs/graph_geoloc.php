@@ -44,6 +44,7 @@ $graph->yaxis->Hide();
 
 
 $pays = array();
+$data = array();
 
 // DB DATA from datawarehouse.geo
 require_once ('ossim_db.inc');
