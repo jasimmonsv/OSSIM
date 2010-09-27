@@ -1028,7 +1028,7 @@ function get_results_from_file ($outfile) {
     $result = array();
     $issues = array();
     
-    $compliance_plugins = array("21156", "21157", "24760", "46689");
+    $compliance_plugins = array("21156", "21157", "24760", "33814", "33929", "33930", "33931", "40472", "42083", "46689");
     $lines = file($outfile);
     $scan_end = date("YmdHis");
     foreach ($lines as $line) {
@@ -1074,7 +1074,7 @@ function get_results_from_file ($outfile) {
                         }
                     }
                 }
-                /*$risk_value = "";
+                $risk_value = "";
                 if (preg_match('/\[PASSED\]/', $description)) {
                     $risk_value = "Risk factor : \n\nPassed\n";
                 } else if (preg_match('/\[FAILED\]/', $description)) {
@@ -1082,10 +1082,8 @@ function get_results_from_file ($outfile) {
                 } else {
                     $risk_value = "Risk factor : \n\nUnknown\n";
                 }
-                $description .= "$risk_value";*/
+                $description .= $risk_value;
 
-                $description = preg_replace('/\[PASSED\]/','Severity Info',$description);
-                $description = preg_replace('/\[FAILED\]/','Severity High',$description);
             }
             //if($scan_id ==22869) { echo "debug1<br>"; var_dump($description);}
             if ( $description!="" ) {   #ENSURE WE HAVE SOME DATA

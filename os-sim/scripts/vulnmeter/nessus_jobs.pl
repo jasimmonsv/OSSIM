@@ -220,7 +220,7 @@ my $track_progress     = 0;
 my $time_to_die        = 0;
 my $use_scanlite       = 0;
 my $notify_by_email    = 0;
-my $compliance_plugins = "21156 21157 24760 46689";
+my $compliance_plugins = "21156 21157 24760 33814 33929 33930 33931 40472 42083 46689";
 my $isComplianceAudit  = FALSE;
 my $isNessusScan       = FALSE;
 my $isTop100Scan       = FALSE;
@@ -2130,7 +2130,7 @@ sub pop_hosthash {
         $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Info/s);
         $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s);
         #$risk='8' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Exception/s);       #EXCEPTIONS ARE CALCULATED FROM EXCEPTION DATA NOT BY A STORED RISK VALUE
-        $risk='6'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
+        $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
         $risk='3' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Unknown/s);         #PLAN TO RECLASSIFY Compliance Audit Values
         $risk='2' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Failed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
 
@@ -3692,19 +3692,17 @@ sub get_results_from_file {
                         #if ( defined( $tmp_scan_id) && $tmp_scan_id >= 60000 ) { $scan_id = $tmp_scan_id; }
                     }
                 }
-                $description =~ s/\[PASSED\]/Severity Info/g;
-                $description =~ s/\[FAILED\]/Severity High/g;
                 
-                #my $risk_value = "";
-                #if ( $description =~ m/\[PASSED\]/ ) {
-                #    $risk_value = "Risk factor : \n\nPassed\n";
-                #} elsif ( $description =~ m/\[FAILED\]/ ) {
-                #    $risk_value = "Risk factor : \n\nFailed\n";
-                #} else {
-                #    $risk_value = "Risk factor : \n\nUnknown\n";
-                #}
-                #$description .= "$risk_value";
-                #logwriter("set compliance description: $risk_value",5);Ç
+                my $risk_value = "";
+                if ( $description =~ m/\[PASSED\]/ ) {
+                    $risk_value = "Risk factor : \n\nPassed\n";
+                } elsif ( $description =~ m/\[FAILED\]/ ) {
+                    $risk_value = "Risk factor : \n\nFailed\n";
+                } else {
+                    $risk_value = "Risk factor : \n\nUnknown\n";
+                }
+                $description .= "$risk_value";
+                logwriter("set compliance description: $risk_value",5);
             }
 
             if ( $description ) {   #ENSURE WE HAVE SOME DATA
