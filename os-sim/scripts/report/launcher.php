@@ -114,9 +114,10 @@ function getUserWeb(){
 }
 
 $server=trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+$https=trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
 $urlPdf='/usr/share/ossim/www/tmp/scheduler';
 
-$server='http://'.$server.'/ossim';
+$server='http'.(($https=="yes") ? "s" : "").'://'.$server.'/ossim';
 $user='admin';
 $pass=base64_encode(getUserWeb());
 $cookieName=date('YmdHis').rand().'.txt';
@@ -127,7 +128,7 @@ $txtError2=array('error'=>'<p>PDF Sent OK</p>','msg'=>'PDF Sent OK');
 $txtError3=array('error'=>'<strong>Invalid address:','msg'=>'fail: Send pdf, error email');
 
 // Nos logeamos
-$step1=exec('wget --cookies=on --keep-session-cookies --save-cookies='.$cookieName.' --post-data="user='.$user.'&pass='.$pass.'" "'.$server.'/session/login.php" -O -',$output);
+$step1=exec('wget -q --no-check-certificate --cookies=on --keep-session-cookies --save-cookies='.$cookieName.' --post-data="user='.$user.'&pass='.$pass.'" "'.$server.'/session/login.php" -O -',$output);
 if (($result=searchString($output,$txtError))!==FALSE) {
     echo $result;
     clean($cookieName);
@@ -160,20 +161,20 @@ foreach (getScheduler() as $value){
             $params.='&date_range='.$value['date_range'];
         }
 
-        $step2=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_custom_run.php?run='.$value['id_report'].'&'.$params.'" -O -');
+        $step2=exec('wget -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_custom_run.php?run='.$value['id_report'].'&'.$params.'" -O -');
 
         // Lanzamos el reporte
-        $step3=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'" -O -');
+        $step3=exec('wget -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'" -O -');
 
         // Generamos el pdf
-        $step4=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&run='.$value['id_report'].'" -O '.$dirUserPdf.$pdfName.'.pdf');
+        $step4=exec('wget -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&run='.$value['id_report'].'" -O '.$dirUserPdf.$pdfName.'.pdf');
 
         // Enviamos por email el pdf
         $listEmails=explode(';',$value['email']);
         foreach($listEmails as $value2){
             if($value2!=';'){
                 unset($output);
-                $step5=exec('wget --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$value['name_report'].'" -O -',$output);
+                $step5=exec('wget -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$value['name_report'].'" -O -',$output);
                 
                 if (($result=searchString($output,$txtError3))!==FALSE) {
                     echo $result;
