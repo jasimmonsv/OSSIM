@@ -60,7 +60,9 @@ struct _SimCommand {
   SimCommandType      type;
   gint                id;
 	gchar								*buffer;	//here will be stored the original buffer received so we can resend it later
-
+	gint								agentVersion;
+	/* Funtion pointer*/	
+	gboolean (*pf_event_scan)(SimCommand *,GScanner *scanner);	
   union {
     struct {
       gchar          *username;
@@ -402,7 +404,7 @@ struct _SimCommandClass {
 
 GType             sim_command_get_type                        (void);
 SimCommand*       sim_command_new                             (void);
-SimCommand*       sim_command_new_from_buffer                 (const gchar     *buffer);
+//SimCommand*       sim_command_new_from_buffer                 (const gchar     *buffer,SimSession *session);
 SimCommand*       sim_command_new_from_type                   (SimCommandType   type);
 SimCommand*       sim_command_new_from_rule                   (SimRule         *rule);
 
