@@ -153,7 +153,7 @@ foreach (getScheduler() as $value){
         // nombre pdf
         $pdfName=time();
 
-        // Personalizamos los parámetros del reporte
+        // Personalizamos los parï¿½metros del reporte
         $params='save=1&assets='.$value['assets'];
         if(empty($value['date_range'])){
             $params.='&date_from='.$value['date_from'].'&date_to='.$value['date_to'].'&date_range=custom';
@@ -183,7 +183,7 @@ foreach (getScheduler() as $value){
             
         }
         if(count($listEmails)>1){
-            // Teníamos emails que enviar
+            // Tenï¿½amos emails que enviar
             // Enviado bien
             if (($result=searchString($output,$txtError2))!==FALSE) {
                 echo $result;
@@ -288,6 +288,8 @@ function updateNextLaunch($schedule,$id){
             break;
         case 'Day of the Week':
             $next_launch=date("Y-m-d H:i:s", strtotime('next '.$schedule['data']['dayofweek'],strtotime($schedule['next_launch'])));
+            $next_launch=explode(' ',$next_launch);
+            $next_launch=$next_launch[0].' '.$schedule['data']['time_hour'].':00:00';
             break;
         case 'Day of the Month':
 			$next_launch_explode=explode('-',$schedule['next_launch']);
