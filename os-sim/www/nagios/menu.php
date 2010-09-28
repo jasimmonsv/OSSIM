@@ -74,7 +74,7 @@ if ($path[0] != "/") {
     $path = "/" . $path;
 }
 $port = isset($nagios_default["port"]) ? ":" . $nagios_default["port"] : "";
-$nagios = "$scheme://$sensor" . "$port" . "$path";
+$nagios = (($sensor!=$_SERVER["SERVER_ADDR"]) ? "$scheme://$sensor"."$port" : "")  . "$path";
 ?>
 
 <table class="noborder"><td><td valign="top" class="nobborder" nowrap>
