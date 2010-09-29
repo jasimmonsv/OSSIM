@@ -172,11 +172,11 @@ class CIDR {
 		if($ipl_start>0 && $ipl_end<0) $delta=($ipl_end+4294967296)-$ipl_start;
 		else $delta=$ipl_end-$ipl_start;
 		$netmask=str_pad(decbin($delta),32,"0","STR_PAD_LEFT");
-		if(ip2long($ip_start)==0 && substr_count($netmask,"1")==32) return "0.0.0.0/0";
-		if($delta<0 or ($delta>0 && $delta%2==0)) return NULL;
+		if(ip2long($ip_start)==0 && substr_count($netmask,"1")==32) return array("0.0.0.0/0");
+		if($delta<0 or ($delta>0 && $delta%2==0)) return array();
 		for($mask=0;$mask<32;$mask++) if($netmask[$mask]==1) break;
-		if(substr_count($netmask,"0")!=$mask) return NULL;
-		return "$ip_start/$mask";
+		if(substr_count($netmask,"0")!=$mask) return array();
+		return array("$ip_start/$mask");
 	}
 }
 ?>
