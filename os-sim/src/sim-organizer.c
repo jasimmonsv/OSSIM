@@ -246,7 +246,7 @@ SimRule *arule;
 		if (uuid_is_null(event->uuid)){
 			uuid_generate(event->uuid);
 		}
-		sim_event_sanitize (event); //do some checks.
+		//sim_event_sanitize (event); //do some checks.
 			
     config = sim_server_get_config (ossim.server);
 
@@ -1621,7 +1621,6 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 					sim_organizer_create_event_directive(backlog,event);
 					generate_root_rule_event = FALSE;
 				}
-	
 
 				
 				
@@ -1715,27 +1714,31 @@ sim_organizer_correlation (SimOrganizer  *organizer,
  */
 gint
 sim_organizer_snort_sensor_get_sid (SimDatabase  *db_snort,
-																    gchar        *hostname, //sensor name
-																    gchar        *interface,
+																    SimEvent     *event,
 																    gchar        *plugin_name)
 {
   GdaDataModel  *dm;
   GdaValue      *value;
+  GdaValue      *value2;
   guint         sid = 0;
   gchar         *query;
   gchar         *insert;
   gint           row;
+	gchar					*hostname = NULL;
   
   g_return_val_if_fail (db_snort, 0);
   g_return_val_if_fail (SIM_IS_DATABASE (db_snort), 0);
-  g_return_val_if_fail (hostname, 0);
-  g_return_val_if_fail (interface, 0);
+
+	if (event->device)
+		hostname = event->device;
+	else
+    hostname = event->sensor;
 
   /* SID */
   if (plugin_name)
-    query = g_strdup_printf ("SELECT sid FROM sensor WHERE hostname = '%s-%s' AND interface = '%s'", hostname, plugin_name, interface);
+    query = g_strdup_printf ("SELECT sid, sensor FROM sensor WHERE hostname = '%s-%s' AND interface = '%s'", hostname, plugin_name, event->interface);
   else
-    query = g_strdup_printf ("SELECT sid FROM sensor WHERE hostname = '%s' AND interface = '%s'", hostname, interface);
+    query = g_strdup_printf ("SELECT sid, sensor FROM sensor WHERE hostname = '%s' AND interface = '%s'", hostname, event->interface);
 
   dm = sim_database_execute_single_command (db_snort, query);
   if (dm)
@@ -1752,16 +1755,16 @@ sim_organizer_snort_sensor_get_sid (SimDatabase  *db_snort,
     else //if it's the first time that this kind of event is saw
 		{
 	  	if (plugin_name)
-	    	insert = g_strdup_printf ("INSERT INTO sensor (hostname, interface, encoding, last_cid) "
-				      "VALUES ('%s-%s', '%s', 2, 0)", hostname, plugin_name, interface);
+	    	insert = g_strdup_printf ("INSERT INTO sensor (hostname, interface, encoding, last_cid, sensor) "
+				      "VALUES ('%s-%s', '%s', 2, 0, '%s')", hostname, plugin_name, event->interface, event->sensor);
 			else
-	    	insert = g_strdup_printf ("INSERT INTO sensor (hostname, interface, detail, encoding, last_cid) "
-				      "VALUES ('%s', '%s', 1, 0, 0)", hostname, interface);
+	    	insert = g_strdup_printf ("INSERT INTO sensor (hostname, interface, detail, encoding, last_cid, sensor) "
+				      "VALUES ('%s', '%s', 1, 0, 0, '%s')", hostname, event->interface, event->sensor);
 
 		  sim_database_execute_no_query (db_snort, insert);
 
 	  	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_organizer_snort_sensor_get_sid sid2: %d. Query: %s",sid, insert);
-	  	sid = sim_organizer_snort_sensor_get_sid (db_snort, hostname, interface, plugin_name);
+	  	sid = sim_organizer_snort_sensor_get_sid (db_snort, event, plugin_name);
 	  	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_organizer_snort_sensor_get_sid sid3: %d. Query: %s",sid, insert);
 		  g_free (insert);
 		}
@@ -1888,7 +1891,7 @@ sim_organizer_snort_event_update_acid_event (SimDatabase  *db_snort,
 		 
 	strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime ((time_t *) &event->time));
 
-  query = g_strdup_printf ("INSERT INTO acid_event (sid, cid, timestamp, ip_src, ip_dst, ip_proto, layer4_sport, layer4_dport, ossim_priority, ossim_reliability, ossim_asset_src, ossim_asset_dst, ossim_risk_c, ossim_risk_a, plugin_id, plugin_sid) VALUES (%u, %u, '%s', %u, %u, %d, %u, %u, %u, %u, %u, %u, %d, %d, %d, %d)", 
+  query = g_strdup_printf ("INSERT INTO acid_event (sid, cid, timestamp, ip_src, ip_dst, ip_proto, layer4_sport, layer4_dport, ossim_priority, ossim_reliability, ossim_asset_src, ossim_asset_dst, ossim_risk_c, ossim_risk_a, plugin_id, plugin_sid ) VALUES (%u, %u, '%s', %u, %u, %d, %u, %u, %u, %u, %u, %u, %d, %d, %d, %d)", 
 sid, 
 cid, 
 timestamp,
@@ -2084,6 +2087,12 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
   g_return_if_fail (SIM_IS_EVENT (event));
   g_return_if_fail (sid > 0);
   g_return_if_fail (cid > 0);
+	gchar *e_filename = NULL,*e_username=NULL,*e_password = NULL;
+	gchar *e_userdata1  = NULL,*e_userdata2 = NULL,*e_userdata3 = NULL,*e_userdata4 = NULL,*e_userdata5 = NULL;
+	gchar *e_userdata6 = NULL,*e_userdata7 = NULL,*e_userdata8 = NULL ,*e_userdata9 = NULL; 
+	gchar *e_data;
+	GdaConnection *conn;
+	conn = sim_database_get_conn (db_snort);
 
 /*	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_organizer_snort_extra_data_insert: event->filename: %s", event->filename);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_organizer_snort_extra_data_insert: event->username: %s", event->username);
@@ -2098,6 +2107,7 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_organizer_snort_extra_data_insert: event->userdata8: %s", event->userdata8);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_organizer_snort_extra_data_insert: event->userdata9: %s", event->userdata9);
 */
+#if 0
   SimPacket *packet;
   if (event->packet) //if it's a snort event
   {
@@ -2105,17 +2115,85 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
     gchar *payload;
     payload = sim_bin2hex(event->packet->payload, event->packet->payloadlen);
 		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,"update_snort_database: snort payload %s",payload);
+	}
+#endif 
+		/* Escape the characte*/
+		if (event->filename){
+			e_filename = g_new0(gchar,strlen(event->filename)*2+1);
+			gda_connection_escape_string (conn,event->filename,e_filename);
+		}
+		if (event->username){
+			e_username = g_new0(gchar,strlen(event->username)*2+1);
+			gda_connection_escape_string (conn,event->username,e_username);
+		}
+		if (event->password){
+			e_password = g_new0(gchar,strlen(event->password)*2+1);
+			gda_connection_escape_string (conn,event->password,e_password);
+		}
+		if (event->userdata1){
+			e_userdata1 = g_new0(gchar,strlen(event->userdata1)*2+1);
+		 	gda_connection_escape_string (conn,event->userdata1,e_userdata1);
+		
+		}
+		if (event->userdata2){
+			e_userdata2 = g_new0(gchar,strlen(event->userdata2)*2+1);
+			gda_connection_escape_string (conn,event->userdata2,e_userdata2);
+		}
+		if (event->userdata3){
+			e_userdata3 = g_new0(gchar,strlen(event->userdata3)*2+1);
+			gda_connection_escape_string (conn,event->userdata3,e_userdata3);
 
+		}
+		if (event->userdata4){
+			e_userdata4 = g_new0(gchar,strlen(event->userdata4)*2+1);
+			gda_connection_escape_string (conn,event->userdata4,e_userdata4);
+		}
+		if (event->userdata5){
+			e_userdata5 = g_new0(gchar,strlen(event->userdata5)*2+1);
+			gda_connection_escape_string (conn,event->userdata5,e_userdata5);
+		}
+		if (event->userdata6){
+			e_userdata6 = g_new0(gchar,strlen(event->userdata6)*2+1);
+			gda_connection_escape_string (conn,event->userdata6,e_userdata6);
+		}
+		if (event->userdata7){
+			e_userdata7 = g_new0(gchar,strlen(event->userdata7)*2+1);
+			gda_connection_escape_string (conn,event->userdata7,e_userdata7);
+		}
+		if (event->userdata8){
+			e_userdata8 = g_new0(gchar,strlen(event->userdata8)*2+1);
+			gda_connection_escape_string (conn,event->userdata8,e_userdata8);
+		}
+		if (event->userdata9){
+			e_userdata9 = g_new0(gchar,strlen(event->userdata9)*2+1);
+			gda_connection_escape_string (conn,event->userdata9,e_userdata9);
+		}
+		if (event->data){
+			e_data = g_new0(gchar,strlen(event->data)*2+1);
+			gda_connection_escape_string (conn,event->data,e_data);
+		}
+			
 
   //  aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename, event->username, event->password ,event->userdata1 ,event->userdata2 ,event->userdata3 ,event->userdata4 ,event->userdata5 ,event->userdata6 ,event->userdata7 ,event->userdata8 ,event->userdata9, payload);
-    aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename ? event->filename : "", event->username ? event->username : "", event->password ? event->password : "" ,event->userdata1 ? event->userdata1: "", event->userdata2 ? event->userdata2 : "" , event->userdata3 ? event->userdata3 : "", event->userdata4 ? event->userdata4 : "", event->userdata5 ? event->userdata5 : "" , event->userdata6 ? event->userdata6 : "", event->userdata7 ? event->userdata7 : "", event->userdata8 ? event->userdata8 : "", event->userdata9 ? event->userdata9 : "", payload ? payload : "");
+	if (event->packet){
+	  gchar *payload;
+    payload = sim_bin2hex(event->packet->payload, event->packet->payloadlen);
+		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,"update_snort_database: snort payload %s",payload);
+    aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename ? e_filename : "", event->username ? e_username : "", event->password ? e_password : "" ,event->userdata1 ? e_userdata1: "", event->userdata2 ? e_userdata2 : "" , event->userdata3 ? e_userdata3 : "",
+	 event->userdata4 ? e_userdata4 : "", event->userdata5 ? e_userdata5 : "" ,
+	 event->userdata6 ? e_userdata6 : "", event->userdata7 ? e_userdata7 : "",
+	 event->userdata8 ? e_userdata8 : "", event->userdata9 ? e_userdata9 : "", payload ? payload : "");
     g_free (payload);
   }
   else
   {
     g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,"update_snort_database: no snort payload %s", event->data);
 //    aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename, event->username, event->password ,event->userdata1 ,event->userdata2 ,event->userdata3 ,event->userdata4 ,event->userdata5 ,event->userdata6 ,event->userdata7 ,event->userdata8 ,event->userdata9, event->data);
-		aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename ? event->filename : "", event->username ? event->username : "", event->password ? event->password : "" ,event->userdata1 ? event->userdata1: "", event->userdata2 ? event->userdata2 : "" , event->userdata3 ? event->userdata3 : "", event->userdata4 ? event->userdata4 : "", event->userdata5 ? event->userdata5 : "" , event->userdata6 ? event->userdata6 : "", event->userdata7 ? event->userdata7 : "", event->userdata8 ? event->userdata8 : "", event->userdata9 ? event->userdata9 : "", event->data ? event->data : "");
+		aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename ? e_filename : "", event->username ? e_username : "", event->password ? e_password : "" ,event->userdata1 ? e_userdata1: "", event->userdata2 ? e_userdata2 : "" , event->userdata3 ? e_userdata3 : "",
+	 event->userdata4 ? e_userdata4 : "", event->userdata5 ? e_userdata5 : "" ,
+	 event->userdata6 ? e_userdata6 : "", event->userdata7 ? e_userdata7 : "",
+	 event->userdata8 ? e_userdata8 : "", event->userdata9 ? e_userdata9 : "", event->data ? e_data: "");
+
   }
   aux1 = g_strdup_printf ("INSERT IGNORE INTO extra_data (sid, cid, filename, username, password, userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9, data_payload) VALUES ");
   aux3 = g_strconcat (aux1, aux2, NULL);
@@ -2123,6 +2201,34 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
   g_free (aux1);
   g_free (aux2);
   g_free (aux3);
+	/* Free the escape strings*/
+	if (e_filename)
+		g_free (e_filename);
+	if (e_username)
+		g_free (e_username);
+	if (e_password)
+		g_free (e_password);
+	if (e_userdata1)
+		g_free (e_userdata1);
+	if (e_userdata2)
+		g_free (e_userdata2);
+	if (e_userdata3)
+		g_free (e_userdata3);
+	if (e_userdata4)
+		g_free (e_userdata4);
+	if (e_userdata5)
+		g_free (e_userdata5);
+	if (e_userdata6)
+		g_free (e_userdata6);
+	if (e_userdata7)
+		g_free (e_userdata7);
+	if (e_userdata8)
+		g_free (e_userdata8);
+	if (e_userdata9)
+		g_free (e_userdata9);
+	if (e_data){
+		g_free (e_data);
+	}
 }
 
 /*
@@ -2354,7 +2460,7 @@ sim_organizer_snort (SimOrganizer	*organizer,
 		guint snort_sid;
 		guint snort_cid;
 		
-	  snort_sid = sim_organizer_snort_sensor_get_sid (ossim.dbsnort,event->sensor, event->interface, NULL);
+	  snort_sid = sim_organizer_snort_sensor_get_sid (ossim.dbsnort, event, NULL);
   	snort_cid = sim_organizer_snort_event_get_max_cid (ossim.dbsnort, snort_sid);
 	  snort_cid++;
   	event->snort_sid = snort_sid; //sensor ID
@@ -2413,8 +2519,7 @@ sim_organizer_snort (SimOrganizer	*organizer,
 			}	
 			
       sid = sim_organizer_snort_sensor_get_sid (ossim.dbsnort,
-																								event->sensor,
-																								event->interface,
+																								event,
 																								sim_plugin_get_name (plugin));
 			
       cid = sim_organizer_snort_event_get_max_cid (ossim.dbsnort,
