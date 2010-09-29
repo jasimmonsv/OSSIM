@@ -155,28 +155,28 @@ if ($use_ac) {
         if (preg_match("/timestamp/", $criteria_clauses[1])) {
             $where = "WHERE " . str_replace("timestamp", "day", $criteria_clauses[1]);
             $sqla = " and ac_srcaddr_ipsrc.day=ac_srcaddr_sid.day";
-            $sqlb = " and ac_srcaddr_ipsrc.day=ac_srcaddr_signature.day";
+            $sqlb = " and ac_srcaddr_ipsrc.day=ac_alerts_ipsrc.day";
             $sqlc = " and ac_srcaddr_ipsrc.day=ac_srcaddr_ipdst.day";
         }
         $orderby = str_replace("acid_event.", "", $sort_sql[1]);
         $sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT ip_src,
             sum(cid) as num_events,
             (select count(distinct(sid)) from ac_srcaddr_sid where ac_srcaddr_ipsrc.ip_src=ac_srcaddr_sid.ip_src $sqla) as num_sensors,
-            (select count(distinct ac_srcaddr_signature.plugin_id, ac_srcaddr_signature.plugin_sid) from ac_srcaddr_signature where ac_srcaddr_ipsrc.ip_src=ac_srcaddr_signature.ip_src $sqlb) as num_sig,
+            (select count(distinct ac_alerts_ipsrc.plugin_id, ac_alerts_ipsrc.plugin_sid) from ac_alerts_ipsrc where ac_srcaddr_ipsrc.ip_src=ac_alerts_ipsrc.ip_src $sqlb) as num_sig,
             (select count(distinct(ip_dst)) from ac_srcaddr_ipdst where ac_srcaddr_ipsrc.ip_src=ac_srcaddr_ipdst.ip_src $sqlc) as num_dip
             FROM ac_srcaddr_ipsrc $where GROUP BY ip_src HAVING num_events>0 $orderby";
     } else {
         if (preg_match("/timestamp/", $criteria_clauses[1])) {
             $where = "WHERE " . str_replace("timestamp", "day", $criteria_clauses[1]);
             $sqla = " and ac_dstaddr_ipdst.day=ac_dstaddr_sid.day";
-            $sqlb = " and ac_dstaddr_ipdst.day=ac_dstaddr_signature.day";
+            $sqlb = " and ac_dstaddr_ipdst.day=ac_alerts_ipdst.day";
             $sqlc = " and ac_dstaddr_ipdst.day=ac_dstaddr_ipsrc.day";
         }
         $orderby = str_replace("acid_event.", "", $sort_sql[1]);
         $sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT ip_dst,
             sum(cid) as num_events,
             (select count(distinct(sid)) from ac_dstaddr_sid where ac_dstaddr_ipdst.ip_dst=ac_dstaddr_sid.ip_dst $sqla) as num_sensors,
-            (select count(distinct ac_dstaddr_signature.plugin_id, ac_dstaddr_signature.plugin_sid) from ac_dstaddr_signature where ac_dstaddr_ipdst.ip_dst=ac_dstaddr_signature.ip_dst $sqlb) as num_sig,
+            (select count(distinct ac_alerts_ipdst.plugin_id, ac_alerts_ipdst.plugin_sid) from ac_alerts_ipdst where ac_dstaddr_ipdst.ip_dst=ac_alerts_ipdst.ip_dst $sqlb) as num_sig,
             (select count(distinct(ip_src)) from ac_dstaddr_ipsrc where ac_dstaddr_ipdst.ip_dst=ac_dstaddr_ipsrc.ip_dst $sqlc) as num_sip
             FROM ac_dstaddr_ipdst $where GROUP BY ip_dst HAVING num_events>0 $orderby";
     }

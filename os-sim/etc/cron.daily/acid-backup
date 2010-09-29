@@ -41,7 +41,7 @@ $ac_table_names{"ac_alerts_signature"} = 1;
 $ac_table_names{"ac_dstaddr_ipdst"} = 1;
 $ac_table_names{"ac_dstaddr_ipsrc"} = 1;
 $ac_table_names{"ac_dstaddr_sid"} = 1;
-$ac_table_names{"ac_dstaddr_signature"} = 1;
+#$ac_table_names{"ac_dstaddr_signature"} = 1;
 $ac_table_names{"ac_layer4_dport"} = 1;
 $ac_table_names{"ac_layer4_dport_ipdst"} = 1;
 $ac_table_names{"ac_layer4_dport_ipsrc"} = 1;
@@ -59,7 +59,7 @@ $ac_table_names{"ac_sensor_signature"} = 1;
 $ac_table_names{"ac_srcaddr_ipdst"} = 1;
 $ac_table_names{"ac_srcaddr_ipsrc"} = 1;
 $ac_table_names{"ac_srcaddr_sid"} = 1;
-$ac_table_names{"ac_srcaddr_signature"} = 1;
+#$ac_table_names{"ac_srcaddr_signature"} = 1;
 
 my $backup_dir = $ossim_conf::ossim_data->{"backup_dir"};
 #my $backup_dir = "/root/pruebas_backup";

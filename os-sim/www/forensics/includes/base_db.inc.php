@@ -471,11 +471,11 @@ function ClearDataTables($db) {
     $db->baseExecute("TRUNCATE ac_srcaddr_ipdst");
     $db->baseExecute("TRUNCATE ac_srcaddr_ipsrc");
     $db->baseExecute("TRUNCATE ac_srcaddr_sid");
-    $db->baseExecute("TRUNCATE ac_srcaddr_signature");
+    //$db->baseExecute("TRUNCATE ac_srcaddr_signature");
     $db->baseExecute("TRUNCATE ac_dstaddr_ipdst");
     $db->baseExecute("TRUNCATE ac_dstaddr_ipsrc");
     $db->baseExecute("TRUNCATE ac_dstaddr_sid");
-    $db->baseExecute("TRUNCATE ac_dstaddr_signature");
+    //$db->baseExecute("TRUNCATE ac_dstaddr_signature");
     $db->baseExecute("TRUNCATE ac_layer4_sport");
     $db->baseExecute("TRUNCATE ac_layer4_sport_sid");
     $db->baseExecute("TRUNCATE ac_layer4_sport_signature");

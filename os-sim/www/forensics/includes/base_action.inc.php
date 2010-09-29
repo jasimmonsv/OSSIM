@@ -1202,12 +1202,12 @@ function PurgeAlert_ac($sid, $cid, $db) {
             // AC_SRCADDR
             $delsql.= "update ignore ac_srcaddr_ipsrc set cid=cid-1 WHERE ip_src=$ip_src and day='$day' and cid>0;\n";
             $delsql.= "delete from ac_srcaddr_sid WHERE ip_src=$ip_src and day='$day' and sid=$sid;\n";
-            $delsql.= "delete from ac_srcaddr_signature WHERE ip_src=$ip_src and day='$day' and plugin_id=$plugin_id and plugin_sid=$plugin_sid;\n";
+            //$delsql.= "delete from ac_srcaddr_signature WHERE ip_src=$ip_src and day='$day' and plugin_id=$plugin_id and plugin_sid=$plugin_sid;\n";
             $delsql.= "delete from ac_srcaddr_ipdst WHERE ip_src=$ip_src and day='$day' and ip_dst=$ip_dst;\n";
             // AC_DSTADDR
             $delsql.= "update ignore ac_dstaddr_ipdst set cid=cid-1 WHERE ip_dst=$ip_dst and day='$day' and cid>0;\n";
             $delsql.= "delete from ac_dstaddr_sid WHERE ip_dst=$ip_dst and day='$day' and sid=$sid;\n";
-            $delsql.= "delete from ac_dstaddr_signature WHERE ip_dst=$ip_dst and day='$day' and plugin_id=$plugin_id and plugin_sid=$plugin_sid;\n";
+            //$delsql.= "delete from ac_dstaddr_signature WHERE ip_dst=$ip_dst and day='$day' and plugin_id=$plugin_id and plugin_sid=$plugin_sid;\n";
             $delsql.= "delete from ac_dstaddr_ipsrc WHERE ip_dst=$ip_dst and day='$day' and ip_src=$ip_src;\n";
             // AC_LAYER4_SRC
             $delsql.= "update ignore ac_layer4_sport set cid=cid-1 WHERE layer4_sport=$layer4_sport and ip_proto=$ip_proto and day='$day' and cid>0;\n";
