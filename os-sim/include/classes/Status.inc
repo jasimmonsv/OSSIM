@@ -46,17 +46,7 @@ class Status {
         $this->conn = $db->connect();
         $this->snort = $db->snort_connect();
 	}
-    function get_SIM ($ip_src="",$ip_dst="",$from_date="",$to_date="",$limit=5) {
-        require_once ('ossim_db.inc');
-		$dbsock = new ossim_db();
-		$db = $dbsock->snort_connect();
-		
-		if ($from_date == "") {
-			$from_date = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
-			$today = date("Y-m-d");
-		} else $today = $from_date;
-		if ($to_date == "") $to_date = strftime("%Y-%m-%d %H:%M:%S", time());
-		
+	function get_sim_sensor_filter ($db) {
 		// User sensor filtering
 		$sensor_where = "";
 		if (Session::allowedSensors() != "") {
@@ -68,9 +58,9 @@ class Status {
 			if ($sensor_str == "") $sensor_str = "0";
 			$sensor_where = " AND acid_event.sid in (" . $sensor_str . ")";
 		}
-		
-		$ip_where = "";
-		// Network Filtering
+		return $sensor_where;
+	}
+	function get_sim_ip_filter ($ip_src,$ip_dst) {
 		$network = 0;
 		if (preg_match("/\/\d+/",$ip_src) && preg_match("/\/\d+/",$ip_dst)) {
 			$network = 1;
@@ -90,6 +80,23 @@ class Status {
 			$ip_where_dst = "acid_event.ip_dst=INET_ATON('$ip_dst')";
 			$ip_where_src = "acid_event.ip_src=INET_ATON('$ip_src')";
 		}
+	}
+    function get_SIM ($ip_src="",$ip_dst="",$from_date="",$to_date="",$limit=5) {
+        require_once ('ossim_db.inc');
+		$dbsock = new ossim_db();
+		$db = $dbsock->snort_connect();
+		
+		if ($from_date == "") {
+			$from_date = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
+			$today = date("Y-m-d");
+		} else $today = $from_date;
+		if ($to_date == "") $to_date = strftime("%Y-%m-%d %H:%M:%S", time());
+		
+		// User sensor filtering
+		$sensor_where = Status::get_sim_sensor_filter($db);
+		
+		// IP Filtering
+		$ip_where = Status::get_sim_ip_filter($ip_src,$ip_dst);
 		
 		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.sid, plugin_sid.name as sig_name, acid_event.cid, acid_event.plugin_sid, timestamp, acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto, acid_event.ossim_type, acid_event.ossim_priority, acid_event.ossim_reliability, acid_event.ossim_asset_src, acid_event.ossim_asset_dst, acid_event.ossim_risk_c, acid_event.ossim_risk_a, acid_event.layer4_sport, acid_event.layer4_dport FROM acid_event FORCE INDEX (timestamp) LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 AND (timestamp >='$today' AND timestamp <= '$to_date')$sensor_where$ip_where ORDER BY timestamp DESC";
 		//echo $sql;
@@ -115,117 +122,13 @@ class Status {
 				$i++;
             }
         }
-		
-		// Ports
-		$sql = "SELECT DISTINCT layer4_dport, MIN(ip_proto), COUNT(acid_event.cid) as num_events, COUNT( DISTINCT acid_event.sid) as num_sensors, COUNT( DISTINCT plugin_id, plugin_sid ) as num_sig, COUNT( DISTINCT ip_src ) as num_sip, COUNT( DISTINCT ip_dst ) as num_dip, MIN(timestamp) as first_timestamp, MAX(timestamp) as last_timestamp FROM acid_event WHERE ip_proto IN (6, 17) AND 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date')$ip_where GROUP BY layer4_dport ORDER BY num_events DESC LIMIT 15";
-		//echo $sql;
-		$ports = array();
-		if (!$rs = $db->Execute($sql)) {
-            print $db->ErrorMsg();
-			var_dump($rs);
-        } else {
-            while (!$rs->EOF) {
-				$ports[$rs->fields['layer4_dport']] = $rs->fields['num_events'];
-				$rs->MoveNext();
-			}
-		}
-		
-		// IP sources
-		$sql = "SELECT DISTINCT ip_src, COUNT(acid_event.cid) as num_events, COUNT( DISTINCT acid_event.sid) as num_sensors, COUNT( DISTINCT plugin_id, plugin_sid ) as num_sig, COUNT( DISTINCT ip_dst ) as num_dip FROM acid_event WHERE 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date') AND $ip_where_dst GROUP BY ip_src ORDER BY num_events DESC LIMIT 10";
-		$ip_sources = array();
-		if (!$rs = $db->Execute($sql)) {
-            print $db->ErrorMsg();
-			var_dump($rs);
-        } else {
-            while (!$rs->EOF) {
-				$ip_sources[long2ip($rs->fields['ip_src'])] = $rs->fields['num_events'];
-				$rs->MoveNext();
-			}
-		}
-		
-		// IP destinations
-		$sql = "SELECT DISTINCT ip_dst, COUNT(acid_event.cid) as num_events, COUNT( DISTINCT acid_event.sid) as num_sensors, COUNT( DISTINCT plugin_id, plugin_sid ) as num_sig, COUNT( DISTINCT ip_src ) as num_sip FROM acid_event WHERE 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date') AND $ip_where_src GROUP BY ip_dst ORDER BY num_events DESC LIMIT 10";
-		$ip_dest = array();
-		if (!$rs = $db->Execute($sql)) {
-            print $db->ErrorMsg();
-			var_dump($rs);
-        } else {
-            while (!$rs->EOF) {
-				$ip_dest[long2ip($rs->fields['ip_dst'])] = $rs->fields['num_events'];
-				$rs->MoveNext();
-			}
-		}
-		
-		list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
-		// General Graph
-		$sqlgraph = "SELECT count(plugin_sid) as sig_cnt, day(timestamp) as intervalo, monthname(timestamp) as suf FROM acid_event WHERE (timestamp >='$from_date' AND timestamp <='$to_date')$sensor_where$ip_where GROUP BY intervalo,suf ORDER BY suf,intervalo";
-		
-		$gplot = array();
-		$numevents = 0;
-		if (!$rs = $db->Execute($sqlgraph)) {
-			print $db->ErrorMsg();
-			var_dump($rs);
-		} else {
-			$yy = $y;
-			while (!$rs->EOF) {
-				$label = trim($rs->fields['intervalo'] . " " . $rs->fields['suf']);
-				//echo "Label:$label value:".$rs->fields['sig_cnt']."<br>";
-				if (isset($yy[$label]) && $yy[$label] == 0) $yy[$label] = $rs->fields['sig_cnt'];
-				//$yy[$label] = $rs->fields['sig_cnt'];
-				$numevents += $rs->fields['sig_cnt'];
-				$rs->MoveNext();
-			}
-			//print_r($yy);
-			$gplot = $yy;
-		}
-		
-		// Unique Events
-		$sql = "SELECT DISTINCT acid_event.sid,acid_event.cid,acid_event.plugin_id,acid_event.plugin_sid, count(plugin_sid) as sig_cnt, min(timestamp), max(timestamp), plugin_sid.name as sig_name, count(DISTINCT(acid_event.sid)), count(DISTINCT(ip_src)), count(DISTINCT(ip_dst)), ip_src, ip_dst FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 $sensor_where$ip_where AND (timestamp >='$from_date' AND timestamp <='$to_date') GROUP BY sig_name";
-		//echo $sql;
-		$list2 = array();
-		if (!$rs = $db->Execute($sql)) {
-            print $db->ErrorMsg();
-			var_dump($rs);
-        } else {
-			$i = 0;
-            while (!$rs->EOF) {
-				$list2[] = array("plugin_id"=>$rs->fields['plugin_id'],"plugin_sid"=>$rs->fields['plugin_sid'],"sig_cnt"=>$rs->fields['sig_cnt'],"min(timestamp)"=>$rs->fields['min(timestamp)'],"max(timestamp)"=>$rs->fields['max(timestamp)'],"sig_name"=>$rs->fields['sig_name'],"ip_src"=>$rs->fields['count(DISTINCT(ip_src))'],"ip_dst"=>$rs->fields['count(DISTINCT(ip_dst))'],"num_sensors"=>$rs->fields['count(DISTINCT(acid_event.sid))'],"ip_s"=>$rs->fields['ip_src'],"ip_d"=>$rs->fields['ip_dst'],"sid"=>$rs->fields['sid'],"cid"=>$rs->fields['cid']);
-				$rs->MoveNext();
-				$i++;
-            }
-        }
-		
-		$sqlgraph = "SELECT count(plugin_id) as sig_cnt, day(timestamp) as intervalo, monthname(timestamp) as suf FROM acid_event WHERE (timestamp >='$from_date' AND timestamp <='$to_date')$sensor_where$ip_where AND plugin_id=PLUGINID AND plugin_sid=PLUGINSID GROUP BY intervalo,suf ORDER BY suf,intervalo";
-		$i = 0;
-		$plots = array();
-		foreach ($list2 as $ev) {
-			if ($i > $limit) continue;
-			$sig_name = $ev['sig_name'];
-			$plugin_id = $ev['plugin_id'];
-			$plugin_sid = $ev['plugin_sid'];
-			$sqlgr = str_replace("PLUGINID", $plugin_id, $sqlgraph);
-			$sqlgr = str_replace("PLUGINSID", $plugin_sid, $sqlgr);
-			//echo $sqlgr."<br>";
-			//continue;
-			if (!$rs = $db->Execute($sqlgr)) {
-				print $db->ErrorMsg();
-				var_dump($rs);
-			} else {
-				$yy = $y;
-				while (!$rs->EOF) {
-					$label = trim($rs->fields['intervalo'] . " " . $rs->fields['suf']);
-					//echo "Label:$label value:".$rs->fields['sig_cnt']."<br>";
-					if (isset($yy[$label]) && $yy[$label] == 0) $yy[$label] = $rs->fields['sig_cnt'];
-					//$yy[$label] = $rs->fields['sig_cnt'];
-					$rs->MoveNext();
-				}
-				//print_r($yy);
-				$plots[$i] = $yy;
-				$i++;
-			}
-		}
 		if ($risks[$highrisk] == "") { $risknum = 0; $highrisk = "-"; }
 		else $risknum = $risks[$highrisk];
+		
+		list($ports,$ip_sources,$ip_dest) = Status::get_SIM_Clouds($ip_src,$ip_dst);
+		$gplot = Status::get_SIM_Plot($ip_src,$ip_dst,$from_date,$to_date);
+		list($list2,$plots,$numevents) = Status::get_SIM_Unique($ip_src,$ip_dst,$from_date,$to_date,$limit);
+		
         return array($list,$foundrows,$highrisk,$risknum,$date,$list2,$i,$plots,$ports,$ip_sources,$ip_dest,$gplot,$numevents);
     }
 	function get_SIM_light ($ip_src="",$ip_dst="") {
@@ -236,38 +139,10 @@ class Status {
 		$from_date = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
 		
 		// User sensor filtering
-		$sensor_where = "";
-		if (Session::allowedSensors() != "") {
-			$user_sensors = explode(",",Session::allowedSensors());
-			$snortsensors = Event_viewer::GetSensorSids($db);
-			$sensor_str = "";
-			foreach ($user_sensors as $user_sensor)
-				if (count($snortsensors[$user_sensor]) > 0) $sensor_str .= ($sensor_str != "") ? ",".implode(",",$snortsensors[$user_sensor]) : implode(",",$snortsensors[$user_sensor]);
-			if ($sensor_str == "") $sensor_str = "0";
-			$sensor_where = " AND acid_event.sid in (" . $sensor_str . ")";
-		}
+		$sensor_where = Status::get_sim_sensor_filter($db);
 		
-		$ip_where = "";
-		// Network Filtering
-		$network = 0;
-		if (preg_match("/\/\d+/",$ip_src) && preg_match("/\/\d+/",$ip_dst)) {
-			$network = 1;
-			$exp = CIDR::expand_CIDR($ip_src,"SHORT","IP");
-			$src_s_range = $exp[0];
-			$src_e_range = end($exp);
-			$exp = CIDR::expand_CIDR($ip_dst,"SHORT","IP");
-			$dst_s_range = $exp[0];
-			$dst_e_range = end($exp);
-			$ip_where = " AND ((acid_event.ip_src>=INET_ATON('$src_s_range') AND acid_event.ip_src<=INET_ATON('$src_e_range')) OR (acid_event.ip_dst>=INET_ATON('$dst_s_range') AND acid_event.ip_dst<=INET_ATON('$dst_e_range')))";
-			$ip_where_dst = "(acid_event.ip_dst>=INET_ATON('$dst_s_range') AND acid_event.ip_dst<=INET_ATON('$dst_e_range'))";
-			$ip_where_src = "(acid_event.ip_src>=INET_ATON('$src_s_range') AND acid_event.ip_src<=INET_ATON('$src_e_range'))";
-		}
-		// HOST Filtering
-		if ($ip_src!="" && $ip_dst!="" && !$network) {
-			$ip_where = " AND (acid_event.ip_src=INET_ATON('$ip_src') OR acid_event.ip_dst=INET_ATON('$ip_dst'))";
-			$ip_where_dst = "acid_event.ip_dst=INET_ATON('$ip_dst')";
-			$ip_where_src = "acid_event.ip_src=INET_ATON('$ip_src')";
-		}
+		// IP Filtering
+		$ip_where = Status::get_sim_ip_filter($ip_src,$ip_dst);
 		
 		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.sid, plugin_sid.name as sig_name, acid_event.cid, acid_event.plugin_sid, timestamp, acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto, acid_event.ossim_type, acid_event.ossim_priority, acid_event.ossim_reliability, acid_event.ossim_asset_src, acid_event.ossim_asset_dst, acid_event.ossim_risk_c, acid_event.ossim_risk_a, acid_event.layer4_sport, acid_event.layer4_dport FROM acid_event FORCE INDEX (timestamp) LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 AND (timestamp >='".date("Y-m-d")."')$sensor_where$ip_where ORDER BY timestamp DESC";
 		
@@ -295,6 +170,201 @@ class Status {
         }
 		return array($list,$foundrows,$highrisk,$risknum,$date);
 	}
+	function get_SIM_Resume ($ip_src="",$ip_dst="",$from_date="",$to_date="") {
+        require_once ('ossim_db.inc');
+		$dbsock = new ossim_db();
+		$db = $dbsock->snort_connect();
+		$foundrows = 0;
+		$highrisk = "-";
+		$date = "-";
+		$risknum = 0;
+		
+		// User sensor filtering
+		$sensor_where = Status::get_sim_sensor_filter($db);
+		
+		// IP Filtering
+		$ip_where = Status::get_sim_ip_filter($ip_src,$ip_dst);
+		
+		$sql = "SELECT count(*) as total,max(timestamp) as maxtime,max(ossim_risk_c) as maxrisk FROM acid_event FORCE INDEX (timestamp) WHERE (timestamp BETWEEN '$from_date' AND '$to_date') $sensor_where$ip_where";
+		if (!$rs = $db->Execute($sql)) {
+			print $db->ErrorMsg();
+			var_dump($rs);
+        } else {
+            if (!$rs->EOF) {
+				$foundrows = $rs->fields['total'];
+				$date = $rs->fields['maxtime'];
+				$highrisk = $rs->fields['maxrisk'];
+            }
+        }
+		$sql = "SELECT count(*) as total FROM acid_event FORCE INDEX (timestamp) WHERE ossim_risk_c=$highrisk AND (timestamp BETWEEN '$from_date' AND '$to_date') $sensor_where$ip_where";
+		if (!$rs = $db->Execute($sql)) {
+			print $db->ErrorMsg();
+			var_dump($rs);
+        } else {
+            if (!$rs->EOF) {
+				$risknum = $rs->fields['total'];
+            }
+        }
+		return array($foundrows,$highrisk,$risknum,$date);
+	}
+	function get_SIM_Clouds ($ip_src="",$ip_dst="") {
+		require_once ('ossim_db.inc');
+		$dbsock = new ossim_db();
+		$db = $dbsock->snort_connect();
+		
+		if ($from_date == "") {
+			$from_date = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
+			$today = date("Y-m-d");
+		} else $today = $from_date;
+		if ($to_date == "") $to_date = strftime("%Y-%m-%d %H:%M:%S", time());
+		
+		// User sensor filtering
+		//$sensor_where = Status::get_sim_sensor_filter($db);
+		
+		// IP Filtering
+		$ip_where = Status::get_sim_ip_filter($ip_src,$ip_dst);
+	
+		// Ports
+		//$sql = "SELECT DISTINCT layer4_dport, MIN(ip_proto), COUNT(acid_event.cid) as num_events, COUNT( DISTINCT acid_event.sid) as num_sensors, COUNT( DISTINCT plugin_id, plugin_sid ) as num_sig, COUNT( DISTINCT ip_src ) as num_sip, COUNT( DISTINCT ip_dst ) as num_dip, MIN(timestamp) as first_timestamp, MAX(timestamp) as last_timestamp FROM acid_event WHERE ip_proto IN (6, 17) AND 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date')$ip_where GROUP BY layer4_dport ORDER BY num_events DESC LIMIT 15";
+		$sql = "SELECT DISTINCT layer4_dport, COUNT(acid_event.cid) as num_events FROM acid_event WHERE ip_proto IN (6, 17) AND 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date')$ip_where GROUP BY layer4_dport ORDER BY num_events DESC LIMIT 15";
+		$ports = array();
+		if (!$rs = $db->Execute($sql)) {
+            print $db->ErrorMsg();
+			var_dump($rs);
+        } else {
+            while (!$rs->EOF) {
+				$ports[$rs->fields['layer4_dport']] = $rs->fields['num_events'];
+				$rs->MoveNext();
+			}
+		}
+		
+		// IP sources
+		//$sql = "SELECT DISTINCT ip_src, COUNT(acid_event.cid) as num_events, COUNT( DISTINCT acid_event.sid) as num_sensors, COUNT( DISTINCT plugin_id, plugin_sid ) as num_sig, COUNT( DISTINCT ip_dst ) as num_dip FROM acid_event WHERE 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date') AND $ip_where_dst GROUP BY ip_src ORDER BY num_events DESC LIMIT 10";
+		$sql = "SELECT DISTINCT ip_src, COUNT(acid_event.cid) as num_events FROM acid_event WHERE 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date') $ip_where_dst GROUP BY ip_src ORDER BY num_events DESC LIMIT 10";
+		$ip_sources = array();
+		if (!$rs = $db->Execute($sql)) {
+            print $db->ErrorMsg();
+			var_dump($rs);
+        } else {
+            while (!$rs->EOF) {
+				$ip_sources[long2ip($rs->fields['ip_src'])] = $rs->fields['num_events'];
+				$rs->MoveNext();
+			}
+		}
+		
+		// IP destinations
+		//$sql = "SELECT DISTINCT ip_dst, COUNT(acid_event.cid) as num_events, COUNT( DISTINCT acid_event.sid) as num_sensors, COUNT( DISTINCT plugin_id, plugin_sid ) as num_sig, COUNT( DISTINCT ip_src ) as num_sip FROM acid_event WHERE 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date') AND $ip_where_src GROUP BY ip_dst ORDER BY num_events DESC LIMIT 10";
+		$sql = "SELECT DISTINCT ip_dst, COUNT(acid_event.cid) as num_events FROM acid_event WHERE 1$sensor_where AND (timestamp >='$from_date' AND timestamp <='$to_date') $ip_where_src GROUP BY ip_dst ORDER BY num_events DESC LIMIT 10";
+		$ip_dest = array();
+		if (!$rs = $db->Execute($sql)) {
+            print $db->ErrorMsg();
+			var_dump($rs);
+        } else {
+            while (!$rs->EOF) {
+				$ip_dest[long2ip($rs->fields['ip_dst'])] = $rs->fields['num_events'];
+				$rs->MoveNext();
+			}
+		}
+		
+		return array($ports,$ip_sources,$ip_dest);
+	}
+	function get_SIM_Unique ($ip_src="",$ip_dst="",$from_date="",$to_date="",$limit) {
+		require_once ('ossim_db.inc');
+		$dbsock = new ossim_db();
+		$db = $dbsock->snort_connect();
+		$numevents = 0;
+		
+		// User sensor filtering
+		$sensor_where = Status::get_sim_sensor_filter($db);
+		
+		// IP Filtering
+		$ip_where = Status::get_sim_ip_filter($ip_src,$ip_dst);
+		
+		// Unique Events
+		$sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT acid_event.sid,acid_event.cid,acid_event.plugin_id,acid_event.plugin_sid, count(plugin_sid) as sig_cnt, min(timestamp), max(timestamp), plugin_sid.name as sig_name, count(DISTINCT(acid_event.sid)), count(DISTINCT(ip_src)), count(DISTINCT(ip_dst)), ip_src, ip_dst FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 $sensor_where$ip_where AND (timestamp >='$from_date' AND timestamp <='$to_date') GROUP BY sig_name LIMIT $limit";
+		//echo $sql;
+		$events = array();
+		if (!$rs = $db->Execute($sql)) {
+            print $db->ErrorMsg();
+			var_dump($rs);
+        } else {
+            if (!$rf = $db->Execute("SELECT FOUND_ROWS() as total")) print $db->ErrorMsg();
+            else $numevents = $rf->fields["total"];
+        	while (!$rs->EOF) {
+				$events[] = array("plugin_id"=>$rs->fields['plugin_id'],"plugin_sid"=>$rs->fields['plugin_sid'],"sig_cnt"=>$rs->fields['sig_cnt'],"min(timestamp)"=>$rs->fields['min(timestamp)'],"max(timestamp)"=>$rs->fields['max(timestamp)'],"sig_name"=>$rs->fields['sig_name'],"ip_src"=>$rs->fields['count(DISTINCT(ip_src))'],"ip_dst"=>$rs->fields['count(DISTINCT(ip_dst))'],"num_sensors"=>$rs->fields['count(DISTINCT(acid_event.sid))'],"ip_s"=>$rs->fields['ip_src'],"ip_d"=>$rs->fields['ip_dst'],"sid"=>$rs->fields['sid'],"cid"=>$rs->fields['cid']);
+				$rs->MoveNext();
+            }
+        }
+        
+        list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
+		$sqlgraph = "SELECT count(plugin_id) as sig_cnt, day(timestamp) as intervalo, monthname(timestamp) as suf FROM acid_event WHERE (timestamp >='$from_date' AND timestamp <='$to_date')$sensor_where$ip_where AND plugin_id=PLUGINID AND plugin_sid=PLUGINSID GROUP BY intervalo,suf ORDER BY suf,intervalo";
+		$i = 0;
+		$plots = array();
+		foreach ($events as $ev) {
+			if ($i > $limit) continue;
+			$sig_name = $ev['sig_name'];
+			$plugin_id = $ev['plugin_id'];
+			$plugin_sid = $ev['plugin_sid'];
+			$sqlgr = str_replace("PLUGINID", $plugin_id, $sqlgraph);
+			$sqlgr = str_replace("PLUGINSID", $plugin_sid, $sqlgr);
+			//echo $sqlgr."<br>";
+			//continue;
+			if (!$rs = $db->Execute($sqlgr)) {
+				print $db->ErrorMsg();
+				var_dump($rs);
+			} else {
+				$yy = $y;
+				while (!$rs->EOF) {
+					$label = trim($rs->fields['intervalo'] . " " . $rs->fields['suf']);
+					//echo "Label:$label value:".$rs->fields['sig_cnt']."<br>";
+					if (isset($yy[$label]) && $yy[$label] == 0) $yy[$label] = $rs->fields['sig_cnt'];
+					//$yy[$label] = $rs->fields['sig_cnt'];
+					$rs->MoveNext();
+				}
+				//print_r($yy);
+				$plots[$i] = $yy;
+				$i++;
+			}
+		}
+        
+        return array($events,$plots,$numevents);
+	}
+	function get_SIM_Plot ($ip_src="",$ip_dst="",$from_date="",$to_date="") {
+		require_once ('ossim_db.inc');
+		$dbsock = new ossim_db();
+		$db = $dbsock->snort_connect();
+		
+		// User sensor filtering
+		$sensor_where = Status::get_sim_sensor_filter($db);
+		
+		// IP Filtering
+		$ip_where = Status::get_sim_ip_filter($ip_src,$ip_dst);
+		
+		list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
+		// General Graph
+		$sqlgraph = "SELECT count(plugin_sid) as sig_cnt, day(timestamp) as intervalo, monthname(timestamp) as suf FROM acid_event WHERE (timestamp >='$from_date' AND timestamp <='$to_date')$sensor_where$ip_where GROUP BY intervalo,suf ORDER BY suf,intervalo";
+		
+		$gplot = array();
+		$numevents = 0;
+		if (!$rs = $db->Execute($sqlgraph)) {
+			print $db->ErrorMsg();
+			var_dump($rs);
+		} else {
+			$yy = $y;
+			while (!$rs->EOF) {
+				$label = trim($rs->fields['intervalo'] . " " . $rs->fields['suf']);
+				//echo "Label:$label value:".$rs->fields['sig_cnt']."<br>";
+				if (isset($yy[$label]) && $yy[$label] == 0) $yy[$label] = $rs->fields['sig_cnt'];
+				//$yy[$label] = $rs->fields['sig_cnt'];
+				$numevents += $rs->fields['sig_cnt'];
+				$rs->MoveNext();
+			}
+			//print_r($yy);
+			$gplot = $yy;
+		}
+		return $gplot;
+	}
+	
     function get_SEM ($query,$start,$end,$sort_order,$uniqueid=1234,$host="") {
 		require_once ("classes/Host.inc");
 		require_once ("../sem/process.inc");
@@ -388,6 +458,36 @@ class Status {
 		return array($result,$sem_numrows,$date,$sem_wplot_y,$sem_wplot_x);
     }
 	
+	function get_SEM_Resume ($start,$end,$host="") {
+		$start = preg_replace("/(\d\d\d\d)-(\d\d)-(\d\d).*/","\\1\\2\\3",$start);
+		$end = preg_replace("/(\d\d\d\d)-(\d\d)-(\d\d).*/","\\1\\2\\3",$end);
+		require_once ("classes/CIDR.inc");
+		require_once ('ossim_db.inc');
+		$db = new ossim_db();
+		$conn = $db->connect();
+		
+		$ip_filter = "1";
+		if ($host != "") {
+			if (preg_match("/\/(\d+)/",$host,$found)) {
+				$range = CIDR::expand_CIDR($host);
+				$ip_filter = "(inet_aton(value) >= ".$range[0]." AND inet_aton(value) <= ".$range[1].")";
+			}
+			else $ip_filter = "value = '$host'";
+		}
+		
+		$sql = "SELECT sum(counter) as total, max(day) as maxdate FROM sem_stats WHERE day >= '$start' AND day <= '$end' AND (type='src_ip' OR type='dst_ip') AND ($ip_filter)";
+		if (!$rs = $conn->Execute($sql)) {
+			print $conn->ErrorMsg();
+			var_dump($rs);
+        } else {
+            if (!$rs->EOF) {
+				$sem_numrows = $rs->fields['total'];
+				$date = preg_replace("/(\d\d\d\d)(\d\d)(\d\d)/","\\1-\\2-\\3",$rs->fields['maxdate']);
+            }
+        }
+		return array($sem_numrows,$date);
+    }
+    
 	function get_anomalies ($conn,$host="") {
 		require_once 'classes/RRD_anomaly.inc';
 		$start = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60));
@@ -500,27 +600,38 @@ class Status {
 		}
 		else $ip_where = "e.ip_src=INET_ATON('$host') OR e.ip_dst=INET_ATON('$host')";
 		
-		$sql = "SELECT SQL_CALC_FOUND_ROWS timestamp, ossim_priority as priority FROM acid_event e WHERE e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
-        
+		//$sql = "SELECT SQL_CALC_FOUND_ROWS timestamp, ossim_priority as priority FROM acid_event e WHERE e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
+        $sql = "SELECT count(*) as total, max(timestamp) as maxtime, max(ossim_priority) as priority FROM acid_event e WHERE e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
+		
 		$max_date = "-";
 		$max_prio = 0;
-		$prios = array();
-		//echo $sql;
+		$prionum = 0;
+		$foundrows = 0;
+		
 		if (!$rs = & $conn->Execute($sql)) {
             print $conn->ErrorMsg();
         }
 		else {
-			if (!$rf = $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
-            else $foundrows = $rf->fields["total"];
-			while (!$rs->EOF) {
-				if ($rs->fields['priority'] > $max_prio) $max_prio = $rs->fields['priority'];
-				$prios[$max_prio]++;
-				if ($max_date == "-") $max_date = $rs->fields['timestamp'];
-				$rs->MoveNext();
+			if (!$rs->EOF) {
+				$foundrows = $rs->fields['total'];
+				$max_date = ($rs->fields['maxtime'] != "") ? $rs->fields['maxtime'] : "-";
+				$max_prio = $rs->fields['priority'];
 			}
 		}
-		if ($prios[$highrisk] == "") { $prionum = 0; $max_prio = "-"; }
-		else $prionum = $prios[$max_prio];
+		
+		if ($foundrows > 0) {
+			$sql = "SELECT count(*) as total FROM acid_event e WHERE e.ossim_priority=$max_prio AND e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
+			//echo $sql;
+			if (!$rs = & $conn->Execute($sql)) {
+	            print $conn->ErrorMsg();
+	        }
+			else {
+				if (!$rs->EOF) {
+					$prionum = $rs->fields['total'];
+				}
+			}
+		}
+		
 		return array($max_date,$foundrows,$max_prio,$prionum);
 	}
 	

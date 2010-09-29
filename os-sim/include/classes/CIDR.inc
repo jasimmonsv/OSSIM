@@ -146,16 +146,37 @@ class CIDR {
 		return CIDR::maskToCIDR(long2ip(-($ipinput & -($ipinput))));
 	}
 	function rangeToCIDRList($startIPinput,$endIPinput) {
+		/*
 		$start = $startIPinput; // need long ip
 		$end = $endIPinput;
-		while($end >= $start) {
+		$listCIDRs = array();
+		$break = 0;
+		while($end >= $start && !$break) {
 			$maxsize = CIDR::maxBlock($start);
 			$maxdiff = 32 - intval(log($end - $start + 1)/log(2));
-			$size = ($maxsize > $maxdiff)?$maxsize:$maxdiff;
+			$size = ($maxsize < $maxdiff)?$maxsize:$maxdiff;
 			$listCIDRs[] = long2ip($start) . "/$size";
-			$start += pow(2, (32 - $size));
+			$inc = pow(2, (32 - $size));
+			if ($inc > 0) {
+				$start += $inc;
+			} else {
+				$break = 1;
+			}
 		}
 		return $listCIDRs;
+		*/
+		$ip_start = long2ip($startIPinput);
+		$ip_end = long2ip($endIPinput);
+		$ipl_start=$startIPinput;
+		$ipl_end=$endIPinput;
+		if($ipl_start>0 && $ipl_end<0) $delta=($ipl_end+4294967296)-$ipl_start;
+		else $delta=$ipl_end-$ipl_start;
+		$netmask=str_pad(decbin($delta),32,"0","STR_PAD_LEFT");
+		if(ip2long($ip_start)==0 && substr_count($netmask,"1")==32) return "0.0.0.0/0";
+		if($delta<0 or ($delta>0 && $delta%2==0)) return NULL;
+		for($mask=0;$mask<32;$mask++) if($netmask[$mask]==1) break;
+		if(substr_count($netmask,"0")!=$mask) return NULL;
+		return "$ip_start/$mask";
 	}
 }
 ?>
