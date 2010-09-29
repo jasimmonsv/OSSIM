@@ -75,7 +75,7 @@ if ($save == "insert") {
 		if ($save_criteria) {
 			$session_data = $_SESSION;
 			foreach ($_SESSION as $k => $v) {
-			if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event).*/",$k))
+			if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|siem_current_query|siem_current_query_graph).*/",$k))
 				unset($session_data[$k]);
 			}
 			$_SESSION['views'][$name]['data'] = $session_data;
@@ -114,8 +114,7 @@ if ($save == "insert") {
 		$edit = 1;
 		$msg = "<font style='color:green'>"._("The view has been successfully updated.")."</font>";
 	}
-}
- elseif ($save == _("Default view")) { 
+} elseif ($save == _("Default view")) { 
     require_once('classes/User_config.inc');
     $login = Session::get_session_user();
     $db = new ossim_db();
@@ -126,8 +125,7 @@ if ($save == "insert") {
     $config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
     $edit = 1;
     $msg = "<font style='color:green'>"._("The view has been successfully updated.")."</font>";
-}
- elseif ($save == "delete") {
+} elseif ($save == "delete") {
 	if ($_SESSION['current_cview'] == "default") {
 		$msg = "<font style='color:red'>"._("You cannot delete 'default' view.")."</font>";
 	} else {
@@ -141,6 +139,40 @@ if ($save == "insert") {
 		$_SESSION['current_cview'] = "default";
 		$deleted = 1;
 	}
+} elseif ($save == "report" && Session::am_i_admin()) {
+	$columns = implode(",",$columns_arr);
+	$query1 = $_SESSION['siem_current_query'];
+	$query1 = preg_replace("/AND \( timestamp \>\='[^\']+'\s*AND timestamp \<\='[^\']+' \) /i","",$query1);
+	$query1 = preg_replace("/AND \( timestamp \>\=\'[^\']+\' \)\s*/","",$query1);
+	$query2 = $_SESSION['siem_current_query_graph'];
+	$query2 = preg_replace("/AND \( timestamp \>\='[^\']+'\s*AND timestamp \<\='[^\']+' \) /i","",$query2);
+	$query2 = preg_replace("/AND \( timestamp \>\=\'[^\']+\' \)\s*/","",$query2);
+	
+	if ($query1 != "" && $query2 != "" && $columns != "") {
+		$db = new ossim_db();
+		$conn = $db->connect();
+		
+		$id = 0;
+		$query = "SELECT max(id) as maxid FROM custom_report_types WHERE file='SIEM/List.php' OR file='SIEM/CustomList.php'";
+		if (!$rs = & $conn->Execute($query)) {
+	            print $conn->ErrorMsg();
+	    } else {
+	        if (!$rs->EOF) {
+	            $id = $rs->fields['maxid'];
+	            $id++;
+	        }
+	    }
+		
+		$sql = "INSERT INTO custom_report_types (id,name,type,file,inputs,custom_report_types.sql) VALUES ($id,\"$name\",'Custom SIEM Events','SIEM/CustomList.php','Number of Events:top:text:OSS_DIGIT:25:250',\"$query1;$query2;$columns\")";
+		if ($conn->Execute($sql)) {
+			$msg = "<font style='color:green'>"._("The report has been successfully created as ")."'$name'"."</font>";
+		} else {
+			$msg = "<font style='color:red'>"._("Error creating a new report type.")."</font>";
+		}
+	} else {
+		$msg = "<font style='color:red'>"._("Error creating a new report type.")."</font>";
+	}
+	
 }
 $tags = Event_viewer::get_tags();
 //print_r($tags);
@@ -205,13 +237,14 @@ $tags = Event_viewer::get_tags();
     <tr><td class="center nobborder"><input type="checkbox" name="save_criteria" value="1" checked></input> <?php echo _("Include custom search criteria in this predefined view") ?></td></tr>
     <tr><td class="center nobborder">
 		<?php if ($_SESSION['current_cview'] == "default" && $edit) {?>
-		<?=_("View Name")?>: <input type="text" value="default" style="color:gray" disabled><input type="hidden" name="name" value="default">
+		<?=_("View Name")?>: <input type="text" value="default" style="color:gray;width:100px" disabled><input type="hidden" name="name" value="default">
 		<?php } else {?>
-		<?=_("View Name")?>: <input type="text" name="name" value="<? if ($edit) echo $_SESSION['current_cview'] ?>" <? if ($edit) { ?>onkeyup="document.getElementById('saveasbutton').disabled='';document.getElementById('saveasbutton').style.color='black'"<?php }?>>
+		<?=_("View Name")?>: <input type="text" name="name" style="width:100px" value="<? if ($edit) echo $_SESSION['current_cview'] ?>" <? if ($edit) { ?>onkeyup="document.getElementById('saveasbutton').disabled='';document.getElementById('saveasbutton').style.color='black'"<?php }?>>
 		<?php }?>
 		<input type="button" onclick="document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=($edit) ? _("Save") : _("Create")?>">
         <? if ($_SESSION['current_cview'] == "default") {?> &nbsp;<input type="button" onclick="$('#action').val('<?=_("Default view")?>');document.fcols.submit()" value="<?=_("Restore Default")?>"> <? } ?>  
 		<? if ($edit && $_SESSION['current_cview'] != "default") { ?>&nbsp;<input type="button" onclick="document.fcols.save.value='insert';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?php echo _("Save As")?>" id="saveasbutton" style="color:gray" disabled>&nbsp;<input type="button" onclick="if(confirm('<?=_("Are you sure?")?>')) { document.fcols.save.value='delete';document.fcols.submit() }" value="<?=_("Delete")?>"><? } ?>
+		<?php if (Session::am_i_admin() && $edit) { ?>&nbsp;<input type="button" onclick="document.fcols.save.value='report';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=_("Save as Report")?>"><?php } ?>
 		&nbsp;<input type="button" onclick="parent.GB_hide()" value="<?=_("Close window")?>">
 		
 	</td></tr>

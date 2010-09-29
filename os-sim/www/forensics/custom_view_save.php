@@ -36,7 +36,7 @@ $conn = $db->connect();
 $config = new User_config($conn);
 $session_data = $_SESSION;
 foreach ($_SESSION as $k => $v) {
-	if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event).*/",$k))
+	if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|siem_current_query|siem_current_query_graph).*/",$k))
 		unset($session_data[$k]);
 } 
 $_SESSION['views'][$_SESSION['current_cview']]['data'] = $session_data;

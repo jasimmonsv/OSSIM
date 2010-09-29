@@ -165,6 +165,8 @@ if ($debug_mode > 0) {
 //$result = ""; // $qs->ExecuteOutputQuery($sql, $db);
 //echo $sql."<br>";
 
+$_SESSION['siem_current_query'] = $sql;
+
 $result = $qs->ExecuteOutputQuery($sql, $db);
 $et->Mark("Retrieve Query Data");
 // Optimization UPDATE using SQL_CALC_FOUND_ROWS (2/02/2009 - Granada)
@@ -255,6 +257,9 @@ switch ($tr) {
 $sqlgraph = "SELECT COUNT(acid_event.cid) as num_events, $interval FROM acid_event " . $join_sql . $where_sql . $criteria_sql . $grpby;
 //echo $sqlgraph."<br>";
 /* Print the current view number and # of rows */
+
+$_SESSION['siem_current_query_graph'] = $sqlgraph;
+
 $qs->PrintResultCnt($sqlgraph, $trdata); //base_state_query.inc.php
 // COLUMNS of Events Table (with ORDER links)
 $htmlPdfReport->set('<table cellpadding=2 cellspacing=0 class="w100">');
