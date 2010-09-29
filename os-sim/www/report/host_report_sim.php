@@ -257,7 +257,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
 		<td style="text-align:center">
 			<table align="center" style="width:auto">
 				<tr>
-					<td nowrap style="text-align:left"><b><?=$sim_numevents?></b> SIEM total events<br> in <b>week range</b></td>
+					<td nowrap style="text-align:left"><b><?=$sim_numevents?></b> SIEM total unique events<br> in <b>week range</b></td>
 					<td><?=$graph.$plot?></td>
 				</tr>
 			</table>
