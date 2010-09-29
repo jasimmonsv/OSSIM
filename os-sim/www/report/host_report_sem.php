@@ -51,10 +51,10 @@ else $lnk = "ip=$host";
 	<tr>
 		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=src_ip=$host OR dst_ip=$host")?>" target="topmenu">Logger Events</a></td>
 	</tr>
-	<? if (count($sem_events_year) > 0) { ?>
+	<? if (count($sem_events_week) > 0) { ?>
 	<?
 	// GRAPH
-	list($x, $y, $xticks, $xlabels) = Status::range_graphic("month");
+	list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
 	//include ("host_report_sem_graph.php");
 	$graph = '<div id="plotareasem" class="plot"></div>';
 	$xticks = $sem_wplot_x;
@@ -62,7 +62,7 @@ else $lnk = "ip=$host";
 	foreach ($xticks as $tick=>$val) {
 		$xlabels[$tick] = $tick;
 	}
-	$plot = plot_graphic("plotareasem", 60, 800, $sem_yplot_x, $sem_yplot_y, $xticks, $xlabels, false, "239, 214, 209");
+	$plot = plot_graphic("plotareasem", 60, 800, $sem_wplot_x, $sem_wplot_y, $xticks, $xlabels, false, "239, 214, 209");
 	?>
 	<tr>
 		<td style="text-align:center">
@@ -86,7 +86,7 @@ else $lnk = "ip=$host";
 				<?
 				$inc_counter = 1 + $offset;
 				$cont = 0;
-				foreach($sem_events_year as $res) if ($cont++ < 5) {
+				foreach($sem_events_week as $res) if ($cont++ < 5) {
 					$bgcolor = (($cont)%2==0) ? "#EFE0E0" : "#FFFFFF";
 					$res = str_replace("<", "", $res);
 					$res = str_replace(">", "", $res);
@@ -198,7 +198,7 @@ else $lnk = "ip=$host";
 			</table>
 		</td>
 	</tr>
-	<tr><td><table><tr><td style="text-align:left"><b><?=$sem_foundrows_year?></b> <?=gettext("Logger total events")?> <?=_("in")?> <b><?=_("year range")?></b></td><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=$lnk")?>" target='topmenu'><b><?=gettext("More")?> >></b></a></td></tr></table></td></tr>
+	<tr><td><table><tr><td style="text-align:left"><b><?=$sem_foundrows_week?></b> <?=gettext("Logger total events")?> <?=_("in")?> <b><?=_("week range")?></b></td><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=$lnk")?>" target='topmenu'><b><?=gettext("More")?> >></b></a></td></tr></table></td></tr>
 	<? } else { ?>
 	<tr>
 		<td class="nobborder" style="text-align:center"><?=gettext("No Logger Events found for")?> <i><?=$host?></i></td>

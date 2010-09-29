@@ -114,7 +114,15 @@ ob_flush();
 flush();
 usleep(500000);
 // Get SIM Events
-list($sim_events,$sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date,$unique_events,$event_cnt,$plots,$sim_ports,$sim_ipsrc,$sim_ipdst,$sim_gplot,$sim_numevents) = Status::get_SIM($host,$host);
+$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60));
+$date_from_week = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 7));
+$date_to = strftime("%Y-%m-%d %H:%M:%S", time());
+$limit = 5;
+list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resume($host,$host,$date_from,$date_to);
+//list($sim_events,$sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date,$unique_events,$event_cnt,$plots,$sim_ports,$sim_ipsrc,$sim_ipdst,$sim_gplot,$sim_numevents) = Status::get_SIM($host,$host);
+list($sim_ports,$sim_ipsrc,$sim_ipdst) = Status::get_SIM_Clouds($host,$host);
+$sim_gplot = Status::get_SIM_Plot($host,$host,$date_from_week,$date_to);
+list($unique_events,$plots,$sim_numevents) = Status::get_SIM_Unique($host,$host,$date_from,$date_to,$limit);
 if ($event_cnt < 1) $event_cnt = 1;
 
 ?><script type="text/javascript">$("#pbar").progressBar(40);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("Logger Events")?></b>...');</script><?
@@ -128,7 +136,7 @@ $start_year = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 365));
 $end = strftime("%Y-%m-%d %H:%M:%S", time());
 list($sem_events,$sem_foundrows) = Status::get_SEM("",$start,$end,"date",1234,$host);
 list($sem_events_week,$sem_foundrows_week,$sem_date,$sem_wplot_y,$sem_wplot_x) = Status::get_SEM("",$start_week,$end,"none",1234,$host);
-list($sem_events_year,$sem_foundrows_year,$sem_date_year,$sem_yplot_y,$sem_yplot_x) = Status::get_SEM("",$start_year,$end,"none",1234,$host);
+//list($sem_events_year,$sem_foundrows_year,$sem_date_year,$sem_yplot_y,$sem_yplot_x) = Status::get_SEM("",$start_year,$end,"none",1234,$host);
 
 ?><script type="text/javascript">$("#pbar").progressBar(50);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("Anomalies")?></b>...');</script><?
 ob_flush();
