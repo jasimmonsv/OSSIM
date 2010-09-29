@@ -120,6 +120,7 @@ $p1->SetSize(0.5);
 $p1->SetStartAngle(290);
 $p1->SetAngle(50);
 $p1->SetCenter(0.35);
+
 $p1->SetLegends($legend);
 //$colors=array("#C835ED", "red", "orange", "green", "#eeeeee");
 //$colors=array("#C835ED", "red", "orange", "#FFD700", "#F0E68C");
