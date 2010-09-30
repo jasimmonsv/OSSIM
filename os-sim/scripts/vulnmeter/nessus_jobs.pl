@@ -184,6 +184,7 @@ $CONFIG{'UPDATEPLUGINS'} = 0;
 $CONFIG{'DATABASEDSN'} = "DBI:mysql";
 $CONFIG{'DATABASEUSER'} = $dbuser;
 $CONFIG{'DATABASEPASSWORD'} = $dbpass;
+$CONFIG{'nameservers'} = "";
 
 my ( $dbh, $sth_sel, $sql );   #DATABASE HANDLE TO BE USED THROUGHOUT PROGRAM
 my %nessus_vars = ();
@@ -2448,53 +2449,53 @@ sub process_results {
             logwriter( "record=$record\t 'scanid' => [$scanid], 'port' => [$port], 'record' => [$record_type], 'service' => [$service],"
                 ." 'proto' => [$proto], 'risk' => [$risk], 'desc' => [$desc]\n", 4); 
 
-            if ( defined( $host_id ) && $host_id > 0 ) { #CREATE/UPDATE INCIDENTS
-                if ( $scanid < 60000 ) {	#ALLOW TO SPECIFY RISK LEVEL TO TRACK
-                    $sql = qq{ SELECT id FROM vuln_Incidents WHERE host_id='$host_id' AND scriptid='$scanid' AND service='$service' LIMIT 1 };
-                    logwriter( $sql, 5 );
-                    $sth_sel = $dbh->prepare( $sql );
-                    $sth_sel->execute;
-                    my ( $incident_id ) = $sth_sel->fetchrow_array;
+            #if ( defined( $host_id ) && $host_id > 0 ) { #CREATE/UPDATE INCIDENTS
+                #if ( $scanid < 60000 ) {	#ALLOW TO SPECIFY RISK LEVEL TO TRACK
+                    #$sql = qq{ SELECT id FROM vuln_Incidents WHERE host_id='$host_id' AND scriptid='$scanid' AND service='$service' LIMIT 1 };
+                    #logwriter( $sql, 5 );
+                    #$sth_sel = $dbh->prepare( $sql );
+                    #$sth_sel->execute;
+                    #my ( $incident_id ) = $sth_sel->fetchrow_array;
 
                     #PLUGINS HIGHER THAN 60000 is mapped as compliance check
-                    if ( $scanid >= 60000 ) { $isCheck = "1"; }	 # INCASE DECIDE TO TRACKING COMPLAINCE PER INCIDENTS TABLE
+                    #if ( $scanid >= 60000 ) { $isCheck = "1"; }	 # INCASE DECIDE TO TRACKING COMPLAINCE PER INCIDENTS TABLE
 
-                    if ( defined($incident_id ) && $incident_id ne "" ) {
-                        $sql = qq{ UPDATE vuln_Incidents SET risk='$risk', msg='$desc', isCompCheck='$isCheck',
-                            date_lastseen='$scantime', date_resolved=NULL, status='open' WHERE id="$incident_id" };
-                    } else {
-                        $sql = qq{ INSERT INTO vuln_Incidents ( host_id, scriptid, service, risk, msg, isCompCheck, 
-                            date_open, date_lastseen ) VALUES ( '$host_id', '$scanid', '$service', '$risk', '$desc', '$isCheck', '$scantime', '$scantime' );};
-                    }
-                    safe_db_write ( $sql, 4 );
+                    #if ( defined($incident_id ) && $incident_id ne "" ) {
+                    #    $sql = qq{ UPDATE vuln_Incidents SET risk='$risk', msg='$desc', isCompCheck='$isCheck',
+                    #        date_lastseen='$scantime', date_resolved=NULL, status='open' WHERE id="$incident_id" };
+                    #} else {
+                    #    $sql = qq{ INSERT INTO vuln_Incidents ( host_id, scriptid, service, risk, msg, isCompCheck, 
+                    #        date_open, date_lastseen ) VALUES ( '$host_id', '$scanid', '$service', '$risk', '$desc', '$isCheck', '$scantime', '$scantime' );};
+                    #}
+                    #safe_db_write ( $sql, 4 );
 
 		    #UPDATE vuln_host_software
-		    if ( $scanid eq "20811" ) {
+		    #if ( $scanid eq "20811" ) {
 		        #update_vuln_host_software ( $host_id, $scantime, $desc );
-		    }
+		    #}
 
 		    #UPDATE vuln_host_services
-		    if ( $scanid eq "10456" ) {
+		    #if ( $scanid eq "10456" ) {
 				#update_host_service ( $host_id, $scantime, $desc );
-		    }
+		    #}
 
 		    #UPDATE HOST_ADMINSGROUP
-		    if ( $scanid eq "10902" ) {
+		    #if ( $scanid eq "10902" ) {
 				#update_host_admins ( $host_id, $scantime, $desc );
-		    }
+		    #}
 
 		    #UPDATE vuln_host_users
-		    if ( $scanid eq "10860" ) {
+		    #if ( $scanid eq "10860" ) {
 				#update_vuln_host_users ( $host_id, $scantime, $desc );
-		    }
+		    #}
 
 		    #UPDATE HOST_DISABLEDUSERS
-		    if ( $scanid eq "10913" ) {	#WILL NOT IMPORT IF USER PLUGIN WAS NOT IMPORTED FIRST
+		    #if ( $scanid eq "10913" ) {	#WILL NOT IMPORT IF USER PLUGIN WAS NOT IMPORTED FIRST
 				#update_host_disabled_users ( $host_id, $scantime, $desc );
-		    }
+		    #}
 
-                }
-            } #FINISH CREATE/UPDATE INCIDENTS
+            #    }
+            #} #FINISH CREATE/UPDATE INCIDENTS
             if ( !$isTop100Scan ) {	#LOAD INTOTO vuln_nessus_results
                 if ( !defined( $sql_insert ) || $sql_insert eq "" ) {
 

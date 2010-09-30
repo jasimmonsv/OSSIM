@@ -86,11 +86,12 @@ if($delete!=""){
 
 //Imported nessus files 
 if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
-    $dest = $GLOBALS["CONF"]->db_conf["nessus_rpt_path"]."/tmp/import".md5($report_name).".nbe";
+    $dest = $GLOBALS["CONF"]->db_conf["nessus_rpt_path"]."tmp/import".md5($report_name).".nbe";
     if(!copy($_FILES['nbe_file']['tmp_name'], $dest)) {
         $error_importing =_("Error importing file");
     }
     else {
+        /*
         $unresolved_host_names = array();
         
         $results_file = array();
@@ -211,7 +212,14 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
                         FROM vuln_nessus_latest_results WHERE report_id =inet_aton('$ip') AND falsepositive='N') AS t GROUP BY hostip");
             $vuln_host = $result_vuln_host->fields['vulnerability'];
             $dbconn->execute("UPDATE vuln_nessus_latest_reports SET results_sent=$vuln_host WHERE report_id=inet_aton('$ip') AND username='".$assignto."'");
+        }*/
+        if(POST('submit')==_("Import & asset insertion")) {
+            system("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 1 > /dev/null");
         }
+        else {
+            system("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 0 > /dev/null");
+        }
+        unlink($dest); 
     }
 }
 ?>
