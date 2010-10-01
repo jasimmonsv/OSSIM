@@ -302,6 +302,11 @@ sim_container_new (SimConfig  *config)
 
 	if (sim_database_is_local(ossim.dbossim))
 	{
+    //Update server version
+    gchar *query= g_strdup_printf("REPLACE INTO config(conf,value) VALUES (\"ossim_server_version\",\"%s\");", ossim.version);
+    sim_database_execute_no_query(ossim.dbossim, query);
+
+
 	    // We dont nedd to remove them in database. Just replace if needed
 			// sim_container_db_delete_plugin_sid_directive_ul (container, ossim.dbossim);
 	  sim_container_db_delete_backlogs_ul (container, ossim.dbossim);
@@ -4319,7 +4324,14 @@ sim_container_db_load_policies_ul (SimContainer  *container,
 				plugin_group_id = gda_value_get_integer (value);		
 					
 			//	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_container_db_load_policies_ul plugin_id: %d", plugin_group->plugin);
-
+        if (plugin_group_id == 0)
+        {
+          Plugin_PluginSid *plugin_group = g_new0 (Plugin_PluginSid, 1);
+          plugin_group->plugin_id = 0;
+          sim_policy_append_plugin_group (policy, plugin_group); //appends the plugin_group.
+        }
+				else
+				{
 				query3 = g_strdup_printf ("SELECT plugin_id, plugin_sid FROM plugin_group WHERE group_id = %d", plugin_group_id);
 	      GdaDataModel  *dm3;
         dm3 = sim_database_execute_single_command (database, query3);
@@ -4382,6 +4394,7 @@ sim_container_db_load_policies_ul (SimContainer  *container,
 					g_message ("POLICY PLUGIN_GROUP DATA MODEL ERROR");
 				
 				g_free (query3);
+				}
       }			
       g_object_unref(dm2);
     }

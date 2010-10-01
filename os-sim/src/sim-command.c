@@ -314,6 +314,7 @@ static const struct
   { "fdate", SIM_COMMAND_SYMBOL_DATE_STRING },
   { "tzone", SIM_COMMAND_SYMBOL_DATE_TZONE },
   { "sensor", SIM_COMMAND_SYMBOL_SENSOR },
+  { "device", SIM_COMMAND_SYMBOL_DEVICE },
   { "interface", SIM_COMMAND_SYMBOL_INTERFACE },
   { "priority", SIM_COMMAND_SYMBOL_PRIORITY },
   { "protocol", SIM_COMMAND_SYMBOL_PROTOCOL },
@@ -828,6 +829,8 @@ sim_command_impl_finalize (GObject  *gobject)
 
 		      if (cmd->data.event.sensor)
 						g_free (cmd->data.event.sensor);
+		      if (cmd->data.event.device)
+						g_free (cmd->data.event.device);
 		      if (cmd->data.event.interface)
 						g_free (cmd->data.event.interface);
       
@@ -4040,6 +4043,7 @@ sim_command_event_scan (SimCommand    *command,
   command->data.event.date = 0;
   command->data.event.date_str = NULL; //be carefull, if you insert some event without this parameter, you'll get unix date: 1970/01/01
   command->data.event.sensor = NULL;
+  command->data.event.device = NULL;
   command->data.event.interface = NULL;
 
   command->data.event.plugin_id = 0;
@@ -4221,7 +4225,25 @@ sim_command_event_scan (SimCommand    *command,
               return FALSE;
             }
 						break;
-						
+
+				case SIM_COMMAND_SYMBOL_DEVICE:
+					  g_scanner_get_next_token (scanner); /* = */
+	  				g_scanner_get_next_token (scanner); /* value */
+
+					  if (scanner->token != G_TOKEN_STRING)
+						{
+							command->type = SIM_COMMAND_TYPE_NONE;
+							break;
+						}
+						if (gnet_inetaddr_is_canonical (scanner->value.v_string))
+							command->data.event.device = g_strdup (scanner->value.v_string);
+						else
+            {
+              g_message("Error: event incorrect. Please check the device issued from the agent: %s", scanner->value.v_string);
+              return FALSE;
+            }
+						break;
+					
 			case SIM_COMMAND_SYMBOL_INTERFACE:
 						g_scanner_get_next_token (scanner); /* = */
 						g_scanner_get_next_token (scanner); /* value */
@@ -7013,6 +7035,9 @@ sim_command_get_event (SimCommand     *command)
   if (command->data.event.sensor) 
     event->sensor = g_strdup (command->data.event.sensor);
 	
+  if (command->data.event.device) 
+    event->device = g_strdup (command->data.event.device);
+
 	if (!(ia_temp = gnet_inetaddr_new_nonblock (event->sensor, 0)))
 	{ //sanitize
 	  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_command_get_event: Error: please specify sensor IP");

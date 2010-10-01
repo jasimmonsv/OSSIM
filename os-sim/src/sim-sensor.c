@@ -52,14 +52,11 @@ struct _SimSensorPrivate {
 
 	event_kind	event_number;
 	gchar 			*version;
-
-	
 	
 };
 
 static gpointer parent_class = NULL;
 static gint sim_inet_signals[LAST_SIGNAL] = { 0 };
-
 static gchar *sim_sensor_versions[]={
 	"2.1", // Current agent version
 	"2.3.1", // base64 encode version
@@ -82,6 +79,8 @@ sim_sensor_impl_finalize (GObject  *gobject)
 
   if (sensor->_priv->ia)
     gnet_inetaddr_unref (sensor->_priv->ia);
+	if (sensor->_priv->version)
+		g_free(sensor->_priv->version);
 
   list = sim_sensor_get_plugins (sensor);
   while (list)
@@ -130,23 +129,22 @@ sim_sensor_instance_init (SimSensor *sensor)
 	sensor->_priv->event_number.host_mac_events = 0;
 	sensor->_priv->event_number.host_ids_events = 0;
 	sensor->_priv->event_number.host_service_events = 0;
+	sensor->_priv->version = NULL;
 
 }
 
 /* Public Methods */
 
-gchar *
+gchar * 
 sim_sensor_get_agent_version(SimSensor *sensor){
- 	g_return_val_if_fail (sensor!=NULL,NULL);
- 	g_return_val_if_fail (SIM_IS_SENSOR(sensor),NULL);
- 	return sensor->_priv->version;
+	g_return_val_if_fail (sensor!=NULL,NULL);
+	g_return_val_if_fail (SIM_IS_SENSOR(sensor),NULL);
+	return sensor->_priv->version;
 }
-
-
 gboolean
 sim_sensor_set_agent_version(SimSensor *sensor,const gchar *v){
- 	g_return_if_fail (sensor!=NULL);
- 	g_return_if_fail (SIM_IS_SENSOR(sensor));
+	g_return_if_fail (sensor!=NULL);
+	g_return_if_fail (SIM_IS_SENSOR(sensor));
 	int i;
 	gboolean r = FALSE;
 	/* Check for supported version*/
@@ -158,6 +156,7 @@ sim_sensor_set_agent_version(SimSensor *sensor,const gchar *v){
 	}
 	return r;
 }
+
 
 
 GType
@@ -705,5 +704,6 @@ sim_sensor_debug_print	(SimSensor *sensor)
   g_free (ip);
 
 }
+
 
 // vim: set tabstop=2:

@@ -2,7 +2,7 @@
 License:
 
    Copyright (c) 2003-2006 ossim.net
-   Copyright (c) 2007-2009 AlienVault
+   Copyright (c) 2007-2010 AlienVault
    All rights reserved.
 
    This package is free software; you can redistribute it and/or modify

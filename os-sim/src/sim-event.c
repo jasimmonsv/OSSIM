@@ -66,6 +66,8 @@ sim_event_impl_finalize (GObject  *gobject)
 
   if (event->sensor)
     g_free (event->sensor);
+  if (event->device)
+    g_free (event->device);
   if (event->interface)
     g_free (event->interface);
   if (event->src_ia)
@@ -136,6 +138,7 @@ sim_event_instance_init (SimEvent *event)
 	event->tzone = 0;
 
   event->sensor = NULL;
+  event->device = NULL;
   event->interface = NULL;
 
   event->plugin_id = 0;
@@ -318,6 +321,7 @@ sim_event_clone (SimEvent       *event)
   new_event->time = event->time;
 
   (event->sensor) ? new_event->sensor = g_strdup (event->sensor) : NULL;
+  (event->device) ? new_event->device = g_strdup (event->device) : NULL;
   (event->interface) ? new_event->interface = g_strdup (event->interface) : NULL;
 
   new_event->plugin_id = event->plugin_id;
@@ -422,6 +426,9 @@ sim_event_print (SimEvent   *event)
 
   if (event->sensor)
       g_print (" sensor=\"%s\"", event->sensor);
+  if (event->device)
+      g_print (" device=\"%s\"", event->device);
+
   if (event->interface)
       g_print (" interface=\"%s\"", event->interface);
 
@@ -490,31 +497,31 @@ sim_event_print (SimEvent   *event)
 			g_print (" rulename=\"%s\"",event->rulename);
 
 	if (event->userdata1)
-      g_print (" username1=\"%s\"", event->userdata1);
+      g_print (" userdata1=\"%s\"", event->userdata1);
 
 	if (event->userdata2)
-      g_print (" username2=\"%s\"", event->userdata2);
+      g_print (" userdata2=\"%s\"", event->userdata2);
 
 	if (event->userdata3)
-      g_print (" username3=\"%s\"", event->userdata3);
+      g_print (" userdata3=\"%s\"", event->userdata3);
 
 	if (event->userdata4)
-      g_print (" username4=\"%s\"", event->userdata4);
+      g_print (" userdata4=\"%s\"", event->userdata4);
 
 	if (event->userdata5)
-      g_print (" username5=\"%s\"", event->userdata5);
+      g_print (" userdata5=\"%s\"", event->userdata5);
 
 	if (event->userdata6)
-      g_print (" username6=\"%s\"", event->userdata6);
+      g_print (" userdata6=\"%s\"", event->userdata6);
 
 	if (event->userdata7)
-      g_print (" username7=\"%s\"", event->userdata7);
+      g_print (" userdata7=\"%s\"", event->userdata7);
 
 	if (event->userdata8)
-      g_print (" username8=\"%s\"", event->userdata8);
+      g_print (" userdata8=\"%s\"", event->userdata8);
 
 	if (event->userdata9)
-      g_print (" username9=\"%s\"", event->userdata9);
+      g_print (" userdata9=\"%s\"", event->userdata9);
 	if (!uuid_is_null(event->uuid)){
 		gchar uuidtext[37];
 		uuid_unparse_upper(event->uuid,uuidtext);
@@ -1062,6 +1069,8 @@ sim_event_to_string (SimEvent	*event)
 
   if (event->sensor)
     g_string_append_printf (str, "sensor=\"%s\" ", event->sensor);
+   if (event->device)
+    g_string_append_printf (str, "device=\"%s\" ", event->device);
   
   if (event->interface)
     g_string_append_printf (str, "interface=\"%s\" ", event->interface);

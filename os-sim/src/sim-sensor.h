@@ -125,9 +125,8 @@ inline	void			sim_sensor_add_number_host_os_events				(SimSensor	*sensor);
 inline	void			sim_sensor_add_number_host_mac_events				(SimSensor	*sensor);
 inline	void			sim_sensor_add_number_host_service_events		(SimSensor	*sensor);
 inline	void			sim_sensor_add_number_host_ids_events				(SimSensor	*sensor);
-
-inline gchar *		sim_sensor_get_agent_version								(SimSensor *);
-gboolean 					sim_sensor_set_agent_version								(SimSensor *,const char *);
+inline  gchar *		sim_sensor_get_agent_version										  (SimSensor  *sensor);
+gboolean						sim_sensor_set_agent_version	                    (SimSensor   *sensor,const gchar*);
 void							sim_sensor_debug_events_number							(SimSensor  *sensor); //debug function
 void							sim_sensor_reset_events_number							(SimSensor	*sensor);
 event_kind				sim_sensor_get_events_number								(SimSensor *sensor);

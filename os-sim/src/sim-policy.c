@@ -1198,7 +1198,7 @@ sim_policy_match (SimPolicy        *policy,
     Plugin_PluginSid *plugin_group = (Plugin_PluginSid *) list->data;
     g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               plugin_id: %d",plugin_group->plugin_id);
 		gint cmp = plugin_group->plugin_id;
-		if (plugin_id == 0) //if match (0 is ANY)
+		if (cmp == 0) //if match (0 is ANY)
     {
       found = TRUE;
       break;

@@ -229,6 +229,7 @@ struct _SimCommand {
       gchar             *date_str;
       gint              tzone;
       gchar             *sensor;
+      gchar             *device;
       gchar             *interface;
 
       /* Plugin Info */
