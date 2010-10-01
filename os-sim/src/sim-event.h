@@ -118,6 +118,7 @@ struct _SimEvent {
   time_t              diff_time; //as soon as the event arrives, this is setted. Here is stored the difference between the parsed time from agent log
 																	//line, and the time when the event arrives to server.
   gchar             *sensor;
+  gchar             *device;
   gchar             *interface;
   gint                tzone;
 
