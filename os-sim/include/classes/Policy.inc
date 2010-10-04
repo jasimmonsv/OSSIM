@@ -258,11 +258,11 @@ class Policy {
     function activate($conn, $id, $action='null') {
         // Toggle active field
         if($action=='null'){
-            $active='not active';
+            $active='not active WHERE policy.order';
         }else{
-            $active=(int)$action;
+            $active=((int)$action).' WHERE policy.id';
         }
-        $sql = "UPDATE policy SET active=".$active." WHERE policy.order=$id";
+        $sql = "UPDATE policy SET active=".$active."=$id";
         if (!$conn->Execute($sql)) {
             die($conn->ErrorMsg());
         }
