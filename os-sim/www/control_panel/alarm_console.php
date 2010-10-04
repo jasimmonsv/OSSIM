@@ -54,7 +54,7 @@ $_SESSION['alarms_unique_id'] = $unique_id;
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
   <?php if (GET('norefresh') == "") { ?>
   <script type="text/javascript">
-	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>'",60000);
+	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>'",60000);
   </script>
   <?php } ?>
   <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
@@ -236,6 +236,8 @@ $query = (GET('query') != "") ? GET('query') : "";
 $directive_id = GET('directive_id');
 $sensor_query = GET('sensor_query');
 $tag = GET('tag');
+$num_events = GET('num_events');
+$num_events_op = GET('num_events_op');
 $params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&sensor_query=$sensor_query&tag=$tag";
 
 $sensors = $hosts = $ossim_servers = array();
@@ -284,6 +286,8 @@ ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'il
 ossim_valid($num_alarms_page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("field number of alarms per page"));
 ossim_valid($sensor_query, OSS_IP_ADDR, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("sensor_query"));
 ossim_valid($tag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("tag"));
+ossim_valid($num_events, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_events"));
+ossim_valid($num_events_op, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("num_events_op"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -345,7 +349,7 @@ foreach ($sensors as $s_ip=>$s_name) {
 }
 
 // Eficiencia mejorada (Granada, junio 2009)
-list($alarm_list, $count) = Alarm::get_list3($conn, $src_ip, $dst_ip, $hide_closed, "ORDER BY $order", $inf, $sup, $date_from, $date_to, $query, $directive_id, $sensor_query, $tag);
+list($alarm_list, $count) = Alarm::get_list3($conn, $src_ip, $dst_ip, $hide_closed, "ORDER BY $order", $inf, $sup, $date_from, $date_to, $query, $directive_id, $sensor_query, $tag, $num_events, $num_events_op);
 if (!isset($_GET["hide_search"])) {
 ?>
 
@@ -398,6 +402,13 @@ if (!isset($_GET["hide_search"])) {
 			    </td>
 			    <td style="text-align: left; border-width: 0px">
 			        <input type="text" size=3 name="num_alarms_page" value="<?php echo $ROWS ?>">
+			        &nbsp;<b><?php echo _("Number of events in alarm") ?></b>:
+			        &nbsp;<select name="num_events_op">
+			        	<option value="less" <?php if ($num_events_op == "less") echo "selected"?>>&lt;</option>
+			        	<option value="more" <?php if ($num_events_op == "more") echo "selected"?>>&gt;</option>
+			        	<option value="eq" <?php if ($num_events_op == "eq") echo "selected"?>>=</option>
+			        </select>
+			        &nbsp;<input type="text" name="num_events" size=3 value="<?php echo $num_events ?>"></input>
 			    </td>
 			</tr>
 			<tr>
@@ -439,7 +450,7 @@ if (!isset($_GET["hide_search"])) {
 								<td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by label") ?></a></td>
 								<td class="nobborder" nowrap>
 								<?php if ($tag != "") { ?>
-								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=">Remove filter</a></td></tr></table>
+								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>&tag=">Remove filter</a></td></tr></table>
 								<?php } ?>
 								</td>
 							</tr>
@@ -451,11 +462,11 @@ if (!isset($_GET["hide_search"])) {
 									<? foreach ($tags as $tg) { ?>
 									<tr>
 										<td class="nobborder">
-											<table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
+											<table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
 										</td>
 										<td class="nobborder">
 										<?php if ($tag == $tg->get_id()) { ?>
-										<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag="><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Remove filter") ?>" title="<?php echo _("Remove filter") ?>"></img></a>
+										<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>&tag="><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Remove filter") ?>" title="<?php echo _("Remove filter") ?>"></img></a>
 										<?php } ?>
 										</td>
 									</tr>
@@ -482,7 +493,7 @@ if (!isset($_GET["hide_search"])) {
 ?>
 			    <input style="border:none" name="hide_closed" type="checkbox" value="1" 
 			        onClick="document.location='<?php
-    echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>'"
+    echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>'"
 			        <?php
     if ($hide_closed) echo " checked " ?> 
 			    /> <?php
@@ -544,10 +555,10 @@ if (!isset($_GET["hide_search"])) {
 /*
 * prev and next buttons
 */
-$inf_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($sup - $ROWS) . "&inf=" . ($inf - $ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query";
-$sup_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($sup + $ROWS) . "&inf=" . ($inf + $ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query";
-$first_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($ROWS) . "&inf=0&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query";
-$last_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($count) . "&inf=" . ((floor($count/$ROWS))*$ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query";
+$inf_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($sup - $ROWS) . "&inf=" . ($inf - $ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
+$sup_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($sup + $ROWS) . "&inf=" . ($inf + $ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
+$first_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($ROWS) . "&inf=0&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
+$last_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($count) . "&inf=" . ((floor($count/$ROWS))*$ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
 if ($src_ip) {
 	$inf_link.= "&src_ip=$src_ip";
     $sup_link.= "&src_ip=$src_ip";
@@ -627,39 +638,39 @@ echo ossim_db::get_order("plugin_id", $order) .
 		<td style="background-color:#9DD131;font-weight:bold">#</td>
         <td width="25%" style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("plugin_sid", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query"
+echo ossim_db::get_order("plugin_sid", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Alarm"); ?> </a></td>
         <td style="background-color:#9DD131;padding-left:3px;padding-right:3px;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("risk", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query"
+echo ossim_db::get_order("risk", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Risk"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("sensor", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query"
+echo ossim_db::get_order("sensor", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Sensor"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"> <?php
 echo gettext("Since"); ?> </td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("timestamp", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>"> 
+echo ossim_db::get_order("timestamp", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>"> 
             <?php
 echo gettext("Last"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("src_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query"
+echo ossim_db::get_order("src_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Source"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("dst_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query"
+echo ossim_db::get_order("dst_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Destination"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("status", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query"
+echo ossim_db::get_order("status", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Status"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"> <?php
@@ -683,6 +694,8 @@ echo gettext("Action"); ?> </td>
 	  <input type="hidden" name="sup" value="<?=$sup?>">
 	  <input type="hidden" name="num_alarms_page" value="<?=$num_alarms_page?>">
 	  <input type="hidden" name="sensor_query" value="<?=$sensor_query?>">
+	  <input type="hidden" name="num_events" value="<?=$num_events?>">
+	  <input type="hidden" name="num_events_op" value="<?=$num_events_op?>">
 	  
 
 <?php

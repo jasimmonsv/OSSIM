@@ -376,7 +376,7 @@ class Alarm {
         }
         return $list;
     }
-    function get_list3($conn, $src_ip, $dst_ip, $hide_closed = 1, $order, $inf = null, $sup = null, $from_date = null, $to_date = null, $query = "", $directive_id = "", $sensor = "", $tag = "") {
+    function get_list3($conn, $src_ip, $dst_ip, $hide_closed = 1, $order, $inf = null, $sup = null, $from_date = null, $to_date = null, $query = "", $directive_id = "", $sensor = "", $tag = "", $num_events = "", $num_events_op = "") {
         $list = array();
         $where = array();
         // Pre-Selected Ports (Granada 27 de mayo 2009)
@@ -475,6 +475,14 @@ class Alarm {
 			$tag_left_join = "";
 			$tag_join = ",alarm_tags tg";
 			$sql_where .= " AND a.backlog_id=tg.id_alarm AND tg.id_tag=$tag";
+		}
+		
+		if ($num_events != "" && $num_events_op != "") {
+			if ($num_events_op == "less") $num_events_op = "<";
+			elseif ($num_events_op == "more") $num_events_op = ">";
+			elseif ($num_events_op == "eq") $num_events_op = "=";
+			else $num_events_op = "=";
+			$sql_where .= " AND a.backlog_id in (select backlog_id from (SELECT count(*) as total_events,backlog_event.backlog_id FROM backlog_event, event WHERE event.id = backlog_event.event_id AND event.plugin_id<>1505 GROUP BY backlog_id having total_events $num_events_op $num_events) as bk)";
 		}
 		
 		// ... ", a.timestamp + 0 AS timestamp" what is this?
