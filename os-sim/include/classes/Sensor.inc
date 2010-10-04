@@ -410,6 +410,10 @@ class Sensor {
         );
         Log_action::log(35, $infolog);
         WebIndicator::set_on("Reload_sensors");
+        // clean cache sensors
+        require_once "classes/Util.inc";
+        Util::clean_json_cache_files("sensors");
+        //
         WebIndicator::set_on("ReloadPolicy");
     }
     /*

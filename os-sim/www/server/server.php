@@ -163,21 +163,21 @@ $db->close($conn);
 
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='Delete selected') {
+		if (com=='<?php echo _('Delete selected')?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
 				document.location.href = 'deleteserver.php?confirm=yes&name='+urlencode(items[0].id.substr(3))
 			}
 			else alert('<?=_("You must select a server")?>');
 		}
-		else if (com=='Modify') {
+		else if (com=='<?php echo _('Modify')?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyserverform.php?name='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a server")?>');
 		}
-		else if (com=='New') {
+		else if (com=='<?php echo _('New')?>') {
 			document.location.href = 'newserverform.php'
 		}
-		else if (com=='Reload') {
+		else if (com=='<?php echo _('Reload')?>') {
 			document.location.href = '../conf/reload.php?what=servers&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>'
 		}
 	}
@@ -196,7 +196,7 @@ $db->close($conn);
             var ip = id;
             var hostname = id;
 
-            if (com=='hostreport') {
+            if (com=='<?php echo _('hostreport')?>') {
                 var url = "../report/host_report.php?hostname="+hostname;
                 if (hostname == ip) var title = "<?=_("Host Report")?>: "+ip;
                 else var title = "<?=_("Host Report")?>: "+hostname+"("+ip+")";
@@ -205,7 +205,7 @@ $db->close($conn);
                 wnd.focus()
             }
 
-            if (com=='delete') {
+            if (com=='<?php echo _('delete')?>') {
                 //Delete host by ajax
                 if (typeof(hostname) != 'undefined') {
                         document.location.href = 'deleteserver.php?confirm=yes&name='+urlencode(hostname)
@@ -213,12 +213,12 @@ $db->close($conn);
                 else alert('<?=_("Server unselected")?>');
             }
 
-            if (com=='modify') {
+            if (com=='<?php echo _('modify')?>') {
                 if (typeof(hostname) != 'undefined') document.location.href = 'modifyserverform.php?name='+urlencode(hostname)
                 else alert('<?=_("Server unselected")?>');
             }
 
-            if (com == 'newport')
+            if (com == '<?php echo _('newport')?>')
               document.location.href = 'newserverform.php';
 	}
 

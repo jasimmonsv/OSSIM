@@ -140,8 +140,14 @@ foreach($policy_list as $policy) {
     }
     $xml.= "<cell><![CDATA[" . $plugingroups . "]]></cell>";
     $sensors = "";
+    empty($sensor_exist);
+    $sensor_exist=$policy->exist_sensors($conn);
     if ($sensor_list = $policy->get_sensors($conn)) foreach($sensor_list as $sensor) {
         $sensors.= ($sensors == "" ? "" : "<br/>") . $sensor->get_sensor_name();
+        if($sensor_exist[$sensor->get_sensor_name()]=='false'){
+            $sensors='<div title="'._('sensor non-existent').'">'.$sensors;
+            $sensors.= '<a href="newpolicyform.php?id='.$id.'&sensorNoExist=true#tabs-5"><img style="vertical-align: middle" src="../pixmaps/tables/cross-small-circle.png" /></a></div>';
+        }
     }
     $xml.= "<cell><![CDATA[" . $sensors . "]]></cell>";
     if ($policy_time = $policy->get_time($conn)) {

@@ -606,8 +606,12 @@ if ($id != "") {
         foreach($policy->get_plugingroups($conn, $policy->get_id()) as $pgroup) {
             $plugingroups[] = $pgroup['id'];
         }
+        empty($sensor_exist);
+        $sensor_exist=$policy->exist_sensors($conn);
         if ($sensor_list = $policy->get_sensors($conn)) foreach($sensor_list as $sensor) {
-            $sensors[] = str_replace("any","ANY",$sensor->get_sensor_name());
+           if($sensor_exist[$sensor->get_sensor_name()]!='false'){
+               $sensors[] = str_replace("any","ANY",$sensor->get_sensor_name());
+            }
         }
         $policy_time = $policy->get_time($conn);
         $timearr[0] = $policy_time->get_begin_day();
@@ -836,6 +840,13 @@ foreach(Plugingroup::get_list($conn) as $g) {
 </div>
 
 <div id="tabs-5">
+<?php if(GET('sensorNoExist')=='true'){ ?>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        load_sensors_tree();
+      })
+    </script>
+<?php } ?>
 <table align="center">
   <tr>
     <th style="background-position:top center"><?php echo _("Sensors") . required() ?><br/>

@@ -199,6 +199,25 @@ class Policy {
         }
         return $list;
     }
+    function exist_sensors($conn){
+        $list_sensor_reference=$this->get_sensors($conn);
+        $list = array();
+        // check sensor exist
+        foreach($list_sensor_reference as $sensor){
+            if(count(Policy_sensor_reference::exist_sensors($conn, $sensor->get_sensor_name()))==0){
+                if($sensor->get_sensor_name()=='ANY'||$sensor->get_sensor_name()=='any'){
+                    $exist='true';
+                }else{
+                    $exist='false';
+                }
+            }else{
+                $exist='true';
+            }
+            $list[$sensor->get_sensor_name()]=$exist;
+        }
+
+        return $list;
+    }
     function get_time($conn) {
         return Policy_time::get_list($conn, $this->id);
     }
@@ -236,9 +255,14 @@ class Policy {
     }
     return $list;
     }*/
-    function activate($conn, $id) {
+    function activate($conn, $id, $action='null') {
         // Toggle active field
-        $sql = "UPDATE policy SET active=not active WHERE policy.order=$id";
+        if($action=='null'){
+            $active='not active';
+        }else{
+            $active=(int)$action;
+        }
+        $sql = "UPDATE policy SET active=".$active." WHERE policy.order=$id";
         if (!$conn->Execute($sql)) {
             die($conn->ErrorMsg());
         }

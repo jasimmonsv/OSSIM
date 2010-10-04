@@ -37,6 +37,23 @@
 */
 require_once ('classes/Session.inc');
 Session::logcheck("MenuPolicy", "PolicyHosts");
+require_once 'classes/Host.inc';
+require_once 'classes/Host_scan.inc';
+require_once 'ossim_db.inc';
+require_once 'classes/Sensor.inc';
+require_once 'classes/RRD_config.inc';
+require_once 'classes/Security.inc';
+require_once 'classes/Frameworkd_socket.inc';
+require_once 'classes/Port.inc';
+
+
+$ip = GET('ip');
+ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("ip"));
+if (ossim_error()) {
+    die(ossim_error());
+}
+$db = new ossim_db();
+$conn = $db->connect();
 ?>
 
 <html>
@@ -46,8 +63,10 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
   <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
+  <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 
   <script type="text/javascript">
   $(document).ready(function(){
@@ -63,6 +82,29 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
                         }
         });
 
+        // Autocomplete ports
+        var ports = [
+            <?php
+            $ports = Port::get_list($conn);
+            
+            $nports=count($ports);
+            foreach ($ports as $key => $port){
+            ?>
+{ txt:"<?php echo $port->get_port_number()."-".$port->get_protocol_name(); ?>", id: "<?php echo $port->get_port_number()."-".$port->get_protocol_name(); ?>" }<?php if($nports>1&&$key<($nports-1)){ echo ','; }}?>
+        ];
+        $("#port").autocomplete(ports, {
+            minChars: 0,
+            width: 300,
+            max: 100,
+            matchContains: true,
+            autoFill: true,
+            formatItem: function(row, i, max) {
+                return row.txt;
+            }
+        }).result(function(event, item) {
+            //$(".hosts").val('');
+            $('#newport').val(item.id);
+        });
     });
   </script>
 </head>
@@ -72,21 +114,6 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
 
 <?php
-require_once 'classes/Host.inc';
-require_once 'classes/Host_scan.inc';
-require_once 'ossim_db.inc';
-require_once 'classes/Sensor.inc';
-require_once 'classes/RRD_config.inc';
-require_once 'classes/Security.inc';
-require_once 'classes/Frameworkd_socket.inc';
-require_once 'classes/Port.inc';
-$ip = GET('ip');
-ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("ip"));
-if (ossim_error()) {
-    die(ossim_error());
-}
-$db = new ossim_db();
-$conn = $db->connect();
 if ($host_list = Host::get_list($conn, "WHERE ip = '$ip'")) {
     $host = $host_list[0];
 }
@@ -120,6 +147,11 @@ if (GET('edit') == _("Modify")) {
         $s->close();
     } else echo _("Couldn't connect to frameworkd")."...<br>";
 }
+if(GET('deleteService')!=null){
+    $explode=explode('-',GET('deleteService'));
+
+    Host_services::deleteUnit($conn, $ip, $explode[0], $explode[1], $explode[2]);
+}
 /* services update */
 if (GET('update') == 'services') {
     $conf = $GLOBALS["CONF"];
@@ -145,8 +177,13 @@ if (GET('update') == 'services') {
     }
 }
 
-if (GET('newport') != "") {
-	$aux = explode("-",GET('newport'));
+if (GET('newport') != ""||GET('port')!="") {
+        if(GET('newport')== ""){
+            $newPort=GET('port');
+        }else{
+            $newPort=GET('newport');
+        }
+	$aux = explode("-",$newPort);
 	$port_number = $aux[0];
 	$protocol_name = $aux[1];
 	$newport_nagios = (GET('newportnagios') != "") ? 1 : 0;
@@ -156,7 +193,13 @@ if (GET('newport') != "") {
 		die(ossim_error());
 	}
 	$date = strftime("%Y-%m-%d %H:%M:%S");
-	Host_services::insert($conn, $ip, $port_number, $date, $_SERVER["SERVER_ADDR"], $protocol_name, "unknown", "unknown", "unknown", 1, $newport_nagios); // origin = 0 (pads), origin = 1 (nmap)
+
+        $serviceName=getservbyport($port_number,$protocol_name);
+        if($serviceName==''){
+            $serviceName='unknown';
+        }
+
+	Host_services::insert($conn, $ip, $port_number, $date, $_SERVER["SERVER_ADDR"], $protocol_name, $serviceName, "unknown", "unknown", 1, $newport_nagios); // origin = 0 (pads), origin = 1 (nmap)
 	if ($newport_nagios) {
 	
 	}
@@ -468,8 +511,7 @@ if (GET('newport') != "") {
 		if ($services_list = Host_services::get_ip_data($conn, $ip, '1')) { ?>
 		<tr>
 			<td colspan="2" class="nobborder">
-				<form method="GET" action="<?php
-				echo $_SERVER['SCRIPT_NAME'] ?>">
+				<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>">
 				<input type="hidden" name="ip" value="<?=GET('ip')?>">
 				<table width="450px">
 					<tr>
@@ -481,6 +523,7 @@ if (GET('newport') != "") {
 						echo gettext("Date"); ?> </th>
 						<th> <?php
 						echo gettext("Nagios"); ?> </th>
+                                                <td> </td>
 					</tr>
 					<?php
 					foreach($services_list as $services) {
@@ -498,13 +541,15 @@ if (GET('newport') != "") {
 							if ($services['nagios']) echo "CHECKED"; ?>>
 							<input type="hidden" name="nagios<?php
 							echo $servs++; ?>" value="<?php
-							echo $services['port'] ?>"></td>
+							echo $services['port'] ?>">
+                                                </td>
+                                                <td><a href="modifyhostform.php?ip=<?php echo $ip; ?>&deleteService=<?php echo $services['port'].'-'.$services['protocol'].'-'.$services['service']; ?>"><img src="../vulnmeter/images/delete.gif" width="16" height="16" border="0" /></a></td>
 					</tr>
 					<?php
 					}
 					if ($servs > 0) { ?>
 					<tr><td colspan="3"></td>
-						<td class="nobborder">
+						<td class="nobborder" style="text-align:center">
 						<input type="submit" name="edit" value="<?=_("Modify")?>" class="btn" style="font-size:12px">
 						<input type="hidden" name="host" value="<?php echo $ip ?>" >
 						<input type="hidden" name="origin" value="<?php echo GET('origin') ?>" >
@@ -527,11 +572,15 @@ if (GET('newport') != "") {
                                                             <tr><th colspan="3"><?=_("Add new service")?></th></tr>
                                                             <tr>
                                                                 <td class="nobborder" style="text-align: right;" width="48%">
-                                                                    <? $ports = Port::get_list($conn); ?>
+                                                                    <? /*$ports2 = Port::get_list($conn); ?>
                                                                     <select name="newport">
-                                                                    <? foreach ($ports as $port)?>
-                                                                        <option value="<?=$port->get_port_number()."-".$port->get_protocol_name()?>"><?=$port->get_port_number()."-".$port->get_protocol_name()?></option>
+                                                                    <? foreach ($ports2 as $port3)?>
+                                                                        <option value="<?=$port3->get_port_number()."-".$port3->get_protocol_name()?>"><?=$port3->get_port_number()."-".$port3->get_protocol_name()?></option>
                                                                     </select>
+                                                                     *
+                                                                     */?>
+                                                                    <input type="hidden" id="newport" name="newport" value="<?php //echo $assetst?>"/>
+                                                                    <input type="text" name="port" style="width: 180px; height:20px; color: black;" id="port" />
                                                                 </td>
                                                                 <td class="nobborder" width="30%" style="text-align: left;"><input type="checkbox" name="newportnagios" value="1"><span style="padding-left: 5px;">Nagios</span></td>
                                                                 <td class="nobborder" width="20%" style="text-align: right;"><input type="submit" value="<?=_("OK")?>" class="btn"></td>

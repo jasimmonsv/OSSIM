@@ -174,7 +174,7 @@ if ($diff_arr) {
         
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='Delete selected') {
+		if (com=='<?php echo _("Delete selected")?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
 				var sdata = items[0].id.substr(3).split('#');

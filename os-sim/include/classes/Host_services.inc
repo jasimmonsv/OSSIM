@@ -610,6 +610,17 @@ class Host_services {
             exit;
         }
     }
+
+    function deleteUnit($conn, $host, $port, $protocol, $service) {
+        $sql = 'DELETE from host_services where ip = inet_aton("'.$host.'") AND port = '.$port.' AND protocol = '.$protocol.' AND service = "'.$service.'" ';
+        $params = array();
+
+        if ($conn->Execute($sql, $params) === false) {
+            print 'error deleting: ' . $conn->ErrorMsg() . '<BR>';
+            exit;
+        }
+    }
+
     function set_nagios($conn, $host, $port, $flag = 1) {
         if ($flag != 0 && $flag != 1) $flag = 1;
         $sql = "update host_services set nagios=? where ip=inet_aton(?) and port=? ";

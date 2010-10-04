@@ -190,10 +190,12 @@ input.button:hover
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
+    text-decoration: none;
 }
-span.buttonlink:hover
+span.buttonlink:hover, a.buttonlink:hover
 {
 	background: transparent url(../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important;
+        text-decoration: none;
 }
 
 pre {

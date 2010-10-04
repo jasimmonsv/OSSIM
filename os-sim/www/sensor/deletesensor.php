@@ -47,7 +47,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
-
+<?php include ("../hmenu.php"); ?>
   <h1> <?php
 echo gettext("Delete sensor"); ?> </h1>
 
@@ -79,6 +79,38 @@ require_once 'classes/Sensor.inc';
 require_once 'classes/Sensor_interfaces.inc';
 $db = new ossim_db();
 $conn = $db->connect();
+//
+require_once 'classes/Policy_sensor_reference.inc';
+$list_policy_sensor_reference=Policy_sensor_reference::get_policy_by_sensor($conn,$name);
+
+if(count($list_policy_sensor_reference)!=0){
+    // this sensor have a policy
+    if (GET('policyConfirm')!='yes') {
+        ?>
+            <p> <strong><?php
+            echo gettext("This sensor have a Policy"); ?></strong>, <?php
+            echo gettext("Are you sure?"); ?> </p>
+            <p><a
+              href="<?php
+            echo $_SERVER["SCRIPT_NAME"] . "?name=$name&confirm=yes&policyConfirm=yes"; ?>" class="buttonlink">
+              <?php
+            echo gettext("Yes"); ?></a>
+              &nbsp;&nbsp;&nbsp;<a href="sensor.php" class="buttonlink">
+              <?php
+            echo gettext("No"); ?></a>
+            </p>
+            <?php
+            exit();
+    }else{
+        // delete sensor and deactivate policy
+        require_once 'classes/Policy.inc';
+        foreach($list_policy_sensor_reference as $policy_sensor_reference){
+            Policy::activate($conn, $policy_sensor_reference->get_policy_id(),'0');
+        }
+    }
+
+}
+//
 if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $name)) {
     foreach($sensor_interface_list as $s_int) {
         Sensor_interfaces::delete_interfaces($conn, $name, $s_int->get_interface());
@@ -92,7 +124,7 @@ $db->close($conn);
 echo gettext("Sensor deleted"); ?> </p>
     <script>document.location.href="sensor.php"</script>
 <?php
-// update indicators on top frame
+// update indicators on top frame*/
 $OssimWebIndicator->update_display();
 ?>
 

@@ -107,5 +107,36 @@ class Policy_sensor_reference {
             exit;
         }
     }
+    function get_policy_by_sensor($conn, $sensor_name) {
+        $list = array();
+        $query = OssimQuery('SELECT * FROM policy_sensor_reference
+                    WHERE sensor_name ="'.$sensor_name.'"');
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } else {
+            $list = array();
+            while (!$rs->EOF) {
+                $list[] = new Policy_sensor_reference($rs->fields["policy_id"], $rs->fields["sensor_name"]);
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }
+    function exist_sensors($conn, $sensor_name){
+        $list = array();
+        $query = OssimQuery('SELECT * FROM sensor
+                    WHERE name ="'.$sensor_name.'"');
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } else {
+            $list = array();
+            
+            while (!$rs->EOF) {
+                $list[] = $rs->fields['name'];
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }
 }
 ?>

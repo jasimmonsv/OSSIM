@@ -110,18 +110,18 @@ echo gettext("OSSIM Framework"); ?> </title>
 
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='Delete selected') {
+		if (com=='<?php echo _('Delete selected')?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
 				document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(items[0].id.substr(3))
 			}
 			else alert('<?=_("You must select a database server")?>');
 		}
-		else if (com=='Modify') {
+		else if (com=='<?php echo _('Modify')?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifydbsform.php?name='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a database server")?>');
 		}
-		else if (com=='New') {
+		else if (com=='<?php echo _('New')?>') {
 			document.location.href = 'newdbsform.php'
 		}
 	}
@@ -216,7 +216,7 @@ echo "$colModel\n";
 ?>
 			],
 		buttons : [
-			{name: '<?=_("New")?>', bclass: 'add', onpress : action},
+			{name: '<?php echo _("New")?>', bclass: 'add', onpress : action},
 			{separator: true},
 			{name: '<?=_("Modify")?>', bclass: 'modify', onpress : action},
 			{separator: true},
