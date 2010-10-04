@@ -165,7 +165,7 @@ if ($save == "insert") {
 		
 		$sql = "INSERT INTO custom_report_types (id,name,type,file,inputs,custom_report_types.sql) VALUES ($id,\"$name\",'Custom SIEM Events','SIEM/CustomList.php','Number of Events:top:text:OSS_DIGIT:25:250',\"$query1;$query2;$columns\")";
 		if ($conn->Execute($sql)) {
-			$msg = "<font style='color:green'>"._("The report has been successfully created as ")."'$name'"."</font>";
+			$msg = "<font style='color:green'>"._("The report has been successfully created as ")."'Custom SIEM Events - $name'"."</font>";
 		} else {
 			$msg = "<font style='color:red'>"._("Error creating a new report type.")."</font>";
 		}
