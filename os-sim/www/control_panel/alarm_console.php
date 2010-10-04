@@ -417,7 +417,7 @@ if (!isset($_GET["hide_search"])) {
 		<table class="noborder">
 			<tr><td class="nobborder">
 				<a href="<?php
-    echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>"><?php
+    echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>" onclick="if(!confirm('<?php echo _("Are you sure?") ?>')) return false;"><?php
     echo gettext("Delete ALL alarms"); ?></a> <br><br>
 				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Are you sure?")?>')) bg_delete();" class="btn">
 				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="btn">
