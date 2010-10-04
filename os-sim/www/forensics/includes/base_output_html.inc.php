@@ -99,7 +99,7 @@ function PrintCustomViews() {
 function PrintPredefinedViews() {
 	?>
 
-   <a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#views').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Predefined Views")?></a>
+   <a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#views').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Custom Views")?></a>
    <div style="position:relative">
 		<div id="views" style="position:absolute;right:0;top:0;display:none">
 			<table cellpadding='0' cellspacing='0' align="center" >

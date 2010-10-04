@@ -31,7 +31,12 @@
 #
 # GLOBAL IMPORTS
 #
-import os, sys, time, signal, string, thread
+import os
+import sys
+import time
+import signal
+import string
+import thread
 
 #
 # LOCAL IMPORTS
@@ -68,6 +73,7 @@ class Agent:
         self.conf = Conf()
         if self.options.config_file:
             conffile = self.options.config_file
+
         else:
             conffile = self.conf.DEFAULT_CONFIG_FILE
 
@@ -77,9 +83,10 @@ class Agent:
         aliases = Aliases()
         aliases.read([os.path.join(os.path.dirname(conffile), "aliases.cfg")])
 
-        # list of plugins
+        # list of plugins and total number of rules within them
         self.plugins = []
         self.nrules = 0
+
         for name, path in self.conf.hitems("plugins").iteritems():
             if os.path.exists(path):
                 plugin = Plugin()
@@ -95,8 +102,7 @@ class Agent:
                                - 1 # [config]
 
             else:
-                logger.error("Can not read plugin configuration (%s) at (%s)" \
-                    % (name, path))
+                logger.error("Unable to read plugin configuration (%s) at (%s)" % (name, path))
 
         # server connection (only available if output-server is enabled)
         self.conn = None
@@ -112,6 +118,7 @@ class Agent:
 
 
     def init_logger(self):
+        """Initiate the logger. """
 
         # open file handlers (main and error logs)
         if self.conf.has_option("log", "file"):
@@ -205,8 +212,10 @@ class Agent:
                 if not id in self.conn_plugin_set:
                     SCPro = ServerConnPro(self.conf, id)
                     self.conn_plugin_set.append(id)
+
                     if SCPro.connect(attempts=0, waittime=30):
                         self.conn_plugins[id] = SCPro.get_conn()
+
                         # init server output
                         if self.conf.has_section("output-server-pro"):
                             if self.conf.getboolean("output-server-pro", "enable"):
@@ -218,9 +227,8 @@ class Agent:
                         logger.error("Server connection for plugin %s is now disabled!" % id)
 
 
-
-    # check if there is already a running instance
     def check_pid(self):
+        """Check if a running instance of the agent already exists. """
 
         pidfile = self.conf.get("daemon", "pid")
 
@@ -232,6 +240,7 @@ class Agent:
         elif os.path.isfile(pidfile):
             try:
                 os.remove(pidfile)
+
             except OSError, e:
                 logger.warning(e)
 
@@ -266,6 +275,7 @@ class Agent:
          
             try:
                 pid = os.fork()
+
             except OSError, e:
                 raise Exception, "%s [%d]" % (e.strerror, e.errno)
                 sys.exit(1)
@@ -277,6 +287,7 @@ class Agent:
                 # attempt to fork a second child
                 try:
                     pid = os.fork()   # Fork a second child.
+
                 except OSError, e:
                     raise Exception, "%s [%d]" % (e.strerror, e.errno)
                     sys.exit(1)
@@ -303,6 +314,7 @@ class Agent:
             for fd in range(0, maxfd):
                 try:
                     os.close(fd)
+
                 except OSError:      # ERROR, fd wasn't open to begin with (ignored)
                     pass
 
@@ -312,38 +324,11 @@ class Agent:
             return(0)
 
 
-    def daemonize(self):
-        """
-        2007/04/32 DK: Buggy, left here for testing / double checking.
-        Should be removed soon as well as the commented reference below.
-        """
-
-        # Install a handler for the terminate signals
-        signal.signal(signal.SIGTERM, self.terminate)
-
-        # -d command-line argument
-        if self.options.daemon:
-            self.conf.set("daemon", "daemon", "True")
-
-        if self.conf.getboolean("daemon", "daemon") and \
-           self.options.verbose is None:
-            Logger.remove_console_handler()
-            logger.info("Forking into background..")
-
-            try:
-                pid = os.fork()
-                if pid > 0:
-                    open(self.conf.get("daemon", "pid"), 'w').write("%d" % pid)
-                    sys.exit(0)
-            except OSError, e:
-                logger.critical("fork failed: %s" % (e))
-                sys.exit(1)
-
-
     def init_plugin_conns(self):
 
         for plugin in self.plugins:
             id = plugin.get("DEFAULT", "plugin_id")
+
             if id > 0:
                 thread.start_new_thread(self.connect_server_pro, (id,))
 
@@ -353,42 +338,57 @@ class Agent:
         for plugin in self.plugins:
             if plugin.get("config", "type") == "detector":
                 plugin_id = plugin.get("DEFAULT","plugin_id")
-                if plugin.get("config", "source") == "log":
-                        if plugin_id in self.conn_plugins:
-                            parser = ParserLog(self.conf, plugin, self.conn_plugins[plugin_id])
-                        else:
-                            parser = ParserLog(self.conf, plugin, None)
-                        parser.start()
-                        self.detector_objs.append(parser)
-                elif plugin.get("config","source") == "snortlog":
-                        if plugin_id in self.conn_plugins:
-                                parser = ParserUnifiedSnort(self.conf,plugin, self.conn_plugins[plugin_id])
-                        else:
-                                parser = ParserUnifiedSnort(self.conf,plugin, None)
-                        parser.start()
-                        self.detector_objs.append(parser)
-                elif plugin.get("config","source") == "database":
-                        if plugin_id in self.conn_plugins:
-                                parser = ParserDatabase(self.conf, plugin, self.conn_plugins[plugin_id])
-                        else:
-                                parser = ParserDatabase(self.conf, plugin, None)
-                        parser.start()
-                        self.detector_objs.append(parser)
-                elif plugin.get("config","source") == "wmi":
-                        if plugin_id in self.conn_plugins:
-                                parser = ParserWMI(self.conf, plugin, self.conn_plugins[plugin_id])
-                        else:
-                                parser = ParserWMI(self.conf, plugin, None)
-                        parser.start()
-                elif plugin.get("config","source") == "sdee":
-                        if plugin_id in self.conn_plugins:
-                                parser = ParserSDEE(self.conf, plugin, self.conn_plugins[plugin_id])
-                        else:
-                                parser = ParserSDEE(self.conf, plugin, None)
-                        parser.start()                    
-                        self.detector_objs.append(parser)
-        logger.info("%d detector rules loaded" % (self.nrules))
 
+                if plugin.get("config", "source") == "log":
+                    if plugin_id in self.conn_plugins:
+                        parser = ParserLog(self.conf, plugin, self.conn_plugins[plugin_id])
+
+                    else:
+                        parser = ParserLog(self.conf, plugin, None)
+
+                    parser.start()
+                    self.detector_objs.append(parser)
+
+                elif plugin.get("config","source") == "snortlog":
+                    if plugin_id in self.conn_plugins:
+                        parser = ParserUnifiedSnort(self.conf,plugin, self.conn_plugins[plugin_id])
+
+                    else:
+                        parser = ParserUnifiedSnort(self.conf,plugin, None)
+
+                    parser.start()
+                    self.detector_objs.append(parser)
+
+                elif plugin.get("config","source") == "database":
+                    if plugin_id in self.conn_plugins:
+                        parser = ParserDatabase(self.conf, plugin, self.conn_plugins[plugin_id])
+
+                    else:
+                        parser = ParserDatabase(self.conf, plugin, None)
+
+                    parser.start()
+                    self.detector_objs.append(parser)
+
+                elif plugin.get("config","source") == "wmi":
+                    if plugin_id in self.conn_plugins:
+                        parser = ParserWMI(self.conf, plugin, self.conn_plugins[plugin_id])
+
+                    else:
+                        parser = ParserWMI(self.conf, plugin, None)
+
+                    parser.start()
+
+                elif plugin.get("config","source") == "sdee":
+                    if plugin_id in self.conn_plugins:
+                        parser = ParserSDEE(self.conf, plugin, self.conn_plugins[plugin_id])
+
+                    else:
+                        parser = ParserSDEE(self.conf, plugin, None)
+
+                    parser.start()                    
+                    self.detector_objs.append(parser)
+
+        logger.info("%d detector rules loaded" % (self.nrules))
 
 
     def init_watchdog(self):
@@ -403,7 +403,7 @@ class Agent:
 
     def shutdown(self):
 
-        logger.warning("Kill signal received, exiting..")
+        logger.warning("Kill signal received, exiting...")
 
         # Remove the pid file
         pidfile = self.conf.get("daemon", "pid")
@@ -411,11 +411,13 @@ class Agent:
             f = open(pidfile)
             pid_from_file = f.readline()
             f.close()
+
             try:
                 # don't remove the ossim-agent.pid file if it 
                 # belongs to other ossim-agent process
                 if pid_from_file == str(os.getpid()):
                     os.remove(pidfile)
+
             except OSError, e:
                 logger.warning(e)
 
@@ -449,26 +451,26 @@ class Agent:
     # Wait for a Control-C and kill all threads
     def waitforever(self):
         timer = 0
+
         while 1:
             time.sleep(1)
             timer += 1
+
             if timer > 30:
                 Stats.log_stats()
                 timer = 0
 
 
     def main(self):
-
         try:
             self.check_pid()
             self.createDaemon()
             self.init_stats()
             self.init_logger()
-            #self.daemonize()
+
             thread.start_new_thread(self.connect_server, ())
 
             self.connect_framework()
-            #thread.start_new_thread(self.connect_framework, ())
 
             self.init_plugin_conns()
             self.init_output()
@@ -476,11 +478,14 @@ class Agent:
             self.init_plugins()
             self.init_watchdog()
             self.waitforever()
+
         except KeyboardInterrupt:
             self.shutdown()
+
         except AgentCritical, e:
             logger.critical(e)
             self.shutdown()
+
         except Exception, e:
             logger.error("Unexpected exception: " + str(e))
 

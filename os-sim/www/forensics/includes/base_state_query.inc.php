@@ -231,7 +231,7 @@ class QueryState {
                 }
                 echo "</tr></table></div>\n";
             }
-        } else printf("<P style='color:red'><B>" . _("No events matching your search criteria have been found. Try fewer conditions.") . "</B>&nbsp;<a href='base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB'>[..." . _("Clear All Criteria") . "...]</a><P>\n");
+        } else printf("<P style='color:#22971F'><B>" . _("No events matching your search criteria have been found. Try fewer conditions.") . "</B>&nbsp;<a href='base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB'>[..." . _("Clear All Criteria") . "...]</a><P>\n");
     }
     function SaveReportData($data,$type=0) {
         GLOBAL $db;

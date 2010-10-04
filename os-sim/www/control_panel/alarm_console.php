@@ -417,7 +417,7 @@ if (!isset($_GET["hide_search"])) {
 		<table class="noborder">
 			<tr><td class="nobborder">
 				<a href="<?php
-    echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>"><?php
+    echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>" onclick="if(!confirm('<?php echo _("Are you sure?") ?>')) return false;"><?php
     echo gettext("Delete ALL alarms"); ?></a> <br><br>
 				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Are you sure?")?>')) bg_delete();" class="btn">
 				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="btn">
@@ -425,26 +425,51 @@ if (!isset($_GET["hide_search"])) {
 				<div id="divadvanced" style="display:none"><a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?purge=1&unique_id=<?=$unique_id?>"><?php
     echo gettext("Remove events without an associated alarm"); ?></a></div>
-    			<br><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Move to label") ?></a> 
-				   <div style="position:relative"> 
-						<div id="tags" style="position:absolute;right:0;top:0;display:none">
-						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+    			
+			</td></tr>
+			<tr>
+				<td class="nobborder">
+					<table class="transparent">
 							<?php if (count($tags) < 1) { ?>
-							<tr><td><?php echo _("No tags found.") ?></td></tr>
-							<?php } else { ?>
-							<? foreach ($tags as $tg) { ?>
 							<tr>
-								<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
+								<td class="nobborder"><?php echo _("No tags found.") ?> <a href="tags_edit.php"><?php echo _("Click here to create") ?></a></td>
 							</tr>
-							<?php } ?>
+							<?php } else { ?>
 							<tr>
-								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td class="nobborder"><a href="" onclick="document.fchecks.move_tag.value='0';document.fchecks.submit();return false"><?php echo _("Remove selected") ?></a></td></tr></table></td>
+								<td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by label") ?></a></td>
+								<td class="nobborder" nowrap>
+								<?php if ($tag != "") { ?>
+								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=">Remove filter</a></td></tr></table>
+								<?php } ?>
+								</td>
+							</tr>
+							<tr>
+								<td class="nobborder">
+									<div style="position:relative">
+									<div id="tags_filter" style="display:none;border:0px;position:absolute">
+									<table>
+									<? foreach ($tags as $tg) { ?>
+									<tr>
+										<td class="nobborder">
+											<table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
+										</td>
+										<td class="nobborder">
+										<?php if ($tag == $tg->get_id()) { ?>
+										<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag="><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Remove filter") ?>" title="<?php echo _("Remove filter") ?>"></img></a>
+										<?php } ?>
+										</td>
+									</tr>
+									<?php } ?>
+									</table>
+									</div>
+									</div>
+								</td>
+								<td class="nobborder"></td>
 							</tr>
 							<?php } ?>
 						</table>
-						</div>
-					</div>
-			</td></tr>
+				</td>
+			</tr>
 		</table>
 	</td>
 	<td class="nobborder" style="text-align:center">
@@ -494,45 +519,25 @@ if (!isset($_GET["hide_search"])) {
 			<table class="transparent" width="100%">
 				<tr>
 					<td width="200" class="nobborder">
-						<table class="transparent">
+						<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Apply label to selected alarms") ?></a> 
+				   <div style="position:relative"> 
+						<div id="tags" style="position:absolute;right:0;top:0;display:none">
+						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
 							<?php if (count($tags) < 1) { ?>
-							<tr>
-								<td class="nobborder"><?php echo _("No tags found.") ?> <a href="tags_edit.php"><?php echo _("Click here to create") ?></a></td>
-							</tr>
+							<tr><td><?php echo _("No tags found.") ?></td></tr>
 							<?php } else { ?>
+							<? foreach ($tags as $tg) { ?>
 							<tr>
-								<td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by label") ?></a></td>
-								<td class="nobborder" nowrap>
-								<?php if ($tag != "") { ?>
-								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=">Remove filter</a></td></tr></table>
-								<?php } ?>
-								</td>
+								<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
 							</tr>
+							<?php } ?>
 							<tr>
-								<td class="nobborder">
-									<div style="position:relative">
-									<div id="tags_filter" style="display:none;border:0px;position:absolute">
-									<table>
-									<? foreach ($tags as $tg) { ?>
-									<tr>
-										<td class="nobborder">
-											<table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
-										</td>
-										<td class="nobborder">
-										<?php if ($tag == $tg->get_id()) { ?>
-										<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query" ?>&tag="><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Remove filter") ?>" title="<?php echo _("Remove filter") ?>"></img></a>
-										<?php } ?>
-										</td>
-									</tr>
-									<?php } ?>
-									</table>
-									</div>
-									</div>
-								</td>
-								<td class="nobborder"></td>
+								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td class="nobborder"><a href="" onclick="document.fchecks.move_tag.value='0';document.fchecks.submit();return false"><?php echo _("Remove selected") ?></a></td></tr></table></td>
 							</tr>
 							<?php } ?>
 						</table>
+						</div>
+					</div>
 					</td>
 					<td class="nobborder center">
 <?php
