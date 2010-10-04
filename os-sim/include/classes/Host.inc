@@ -446,7 +446,8 @@ class Host {
 	}
     // get lists of sensors/hosts 
     function get_ips_and_hostname($conn,$checkperm=false) {
-        $allowed_sensors = array();
+        if (Session::am_i_admin()) { $checkperm = false; }
+    	$allowed_sensors = array();
         $asensors_str = Session::allowedSensors();
 		if ($checkperm && $asensors_str != "") $allowed_sensors = explode(",",$asensors_str);
 		$sensors = array();
