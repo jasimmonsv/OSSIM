@@ -16,7 +16,10 @@ if (ossim_error()) {
 $db = new ossim_db();
 $conn = $db->connect();
 $more = "";
-if ($q != "") $more = "AND name like '%$q%'";
+if ($q != "") {
+	$more = (preg_match("/^\d+$/",$q)) ? "AND sid like '$q%'" : "AND name like '%$q%'";
+}
+
 $plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$plugin_id $more ORDER BY sid LIMIT 150");
 if ($plugin_list[0]->foundrows>150) echo "Total=".$plugin_list[0]->foundrows."\n";
 foreach($plugin_list as $plugin) {
