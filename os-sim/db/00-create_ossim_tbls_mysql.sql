@@ -702,7 +702,7 @@ CREATE TABLE plugin (
     name        VARCHAR (100) NOT NULL,
     description    TEXT,
     source_type    text,
-	vendor         text,
+    vendor         text,
     PRIMARY KEY (id)
 );
 
