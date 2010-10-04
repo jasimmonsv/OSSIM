@@ -478,9 +478,8 @@ class Alarm {
 		}
 		
 		if ($num_events != "" && $num_events_op != "") {
-			if ($num_events_op == "less") $num_events_op = "<";
-			elseif ($num_events_op == "more") $num_events_op = ">";
-			elseif ($num_events_op == "eq") $num_events_op = "=";
+			if ($num_events_op == "less") $num_events_op = "<=";
+			elseif ($num_events_op == "more") $num_events_op = ">=";
 			else $num_events_op = "=";
 			$sql_where .= " AND a.backlog_id in (select backlog_id from (SELECT count(*) as total_events,backlog_event.backlog_id FROM backlog_event, event WHERE event.id = backlog_event.event_id AND event.plugin_id<>1505 GROUP BY backlog_id having total_events $num_events_op $num_events) as bk)";
 		}

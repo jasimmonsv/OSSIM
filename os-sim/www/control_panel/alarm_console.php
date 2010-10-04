@@ -404,9 +404,8 @@ if (!isset($_GET["hide_search"])) {
 			        <input type="text" size=3 name="num_alarms_page" value="<?php echo $ROWS ?>">
 			        &nbsp;<b><?php echo _("Number of events in alarm") ?></b>:
 			        &nbsp;<select name="num_events_op">
-			        	<option value="less" <?php if ($num_events_op == "less") echo "selected"?>>&lt;</option>
-			        	<option value="more" <?php if ($num_events_op == "more") echo "selected"?>>&gt;</option>
-			        	<option value="eq" <?php if ($num_events_op == "eq") echo "selected"?>>=</option>
+			        	<option value="less" <?php if ($num_events_op == "less") echo "selected"?>>&lt;=</option>
+			        	<option value="more" <?php if ($num_events_op == "more") echo "selected"?>>&gt;=</option>
 			        </select>
 			        &nbsp;<input type="text" name="num_events" size=3 value="<?php echo $num_events ?>"></input>
 			    </td>
