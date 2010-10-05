@@ -39,12 +39,14 @@ $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 $msg = "";
 $edit = GET('edit');
 $save = GET('save');
+$forcesave = GET('forcesave');
 $name = GET('name');
 $oldname = GET('oldname');
 $columns = GET('selected_cols');
 $save_criteria = (GET('save_criteria') != "") ? 1 : 0;
 ossim_valid($edit, OSS_NULLABLE, OSS_DIGIT, "Invalid: edit");
 ossim_valid($save, OSS_NULLABLE, OSS_ALPHA, "Invalid: save");
+ossim_valid($forcesave, OSS_NULLABLE, OSS_DIGIT, "Invalid: forcesave");
 ossim_valid($name, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: name");
 ossim_valid($oldname, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: oldname");
 ossim_valid($columns, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, "Invalid: columns");
@@ -152,6 +154,16 @@ if ($save == "insert") {
 		$db = new ossim_db();
 		$conn = $db->connect();
 		
+		$curid = 0;
+		$query = "SELECT id FROM custom_report_types WHERE name=\"$name\"";
+		if (!$rs = & $conn->Execute($query)) {
+	            print $conn->ErrorMsg();
+	    } else {
+	        if (!$rs->EOF) {
+	            $curid = $rs->fields['id'];
+	        }
+	    }
+		
 		$id = 0;
 		$query = "SELECT max(id) as maxid FROM custom_report_types WHERE file='SIEM/List.php' OR file='SIEM/CustomList.php'";
 		if (!$rs = & $conn->Execute($query)) {
@@ -163,9 +175,13 @@ if ($save == "insert") {
 	        }
 	    }
 		
-		$sql = "INSERT INTO custom_report_types (id,name,type,file,inputs,custom_report_types.sql) VALUES ($id,\"$name\",'Custom SIEM Events','SIEM/CustomList.php','Number of Events:top:text:OSS_DIGIT:25:250',\"$query1;$query2;$columns\")";
+		if ($curid > 0) {
+	    	$sql = "UPDATE custom_report_types SET name=\"$name\",type='Custom SIEM Events',file='SIEM/CustomList.php',inputs='Number of Events:top:text:OSS_DIGIT:25:250',custom_report_types.sql=\"$query1;$query2;$columns\" WHERE id=$curid";
+		} else {
+			$sql = "INSERT INTO custom_report_types (id,name,type,file,inputs,custom_report_types.sql) VALUES ($id,\"$name\",'Custom SIEM Events','SIEM/CustomList.php','Number of Events:top:text:OSS_DIGIT:25:250',\"$query1;$query2;$columns\")";
+		}
 		if ($conn->Execute($sql)) {
-			$msg = "<font style='color:green'>"._("The report has been successfully created as ")."'Custom SIEM Events - $name'"."</font>";
+			$msg = ($curid > 0) ? "<font style='color:green'>"._("The report has been successfully updated")."</font>" : "<font style='color:green'>"._("The report has been successfully created as ")."'Custom SIEM Events - $name'"."</font>";
 		} else {
 			$msg = "<font style='color:red'>"._("Error creating a new report type.")."</font>";
 		}
@@ -197,6 +213,9 @@ $tags = Event_viewer::get_tags();
 				nodeComparator: function (node1,node2){ return 1 },
 				dividerLocation: 0.5,
 			});
+			<?php if (Session::am_i_admin() && $forcesave) { ?>
+			document.fcols.save.value='report';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit();
+			<?php } ?>
         });
     </script>
 </head>
