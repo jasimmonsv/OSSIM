@@ -15264,7 +15264,8 @@ INSERT INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`
 (164, 'Top Alarms by Risk', 'Alarms', 'Alarms/TopAlarmsByRisk.php', 'Top Alarms by Risk:top:text:OSS_DIGIT:15:50;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:', '', 29),
 (181, 'Business real impact risks', 'B & C', 'BusinessAndComplianceISOPCI/BusinessPotentialImpactsRisks.php', '', '', 1),
 (180, 'Thread', 'B & C', 'BusinessAndComplianceISOPCI/ThreatOverview.php', '', '', 1),
-(200, 'Vulnerabilities', 'Vulnerabilities', 'Vulnerabilities/Vulnerabilities.php', 'Serious:serious:checkbox:OSS_NULLABLE.OSS_DIGIT:1;High:high:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Medium:medium:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Low:low:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Info:info:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1),
+(200, 'Vulnerabilities Details', 'Vulnerabilities Details', 'Vulnerabilities/Vulnerabilities.php', 'Serious:serious:checkbox:OSS_NULLABLE.OSS_DIGIT:1;High:high:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Medium:medium:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Low:low:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Info:info:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1),
+(201, 'Vulnerabilities Summary', 'Vulnerabilities Summary', 'Vulnerabilities/Vulnerabilities.php', 'Serious:serious:checkbox:OSS_NULLABLE.OSS_DIGIT:1;High:high:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Medium:medium:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Low:low:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Info:info:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1),
 (240, 'RRD Global Anomalies', 'Anomalies', 'Anomalies/RRDGlobalAnomalies.php', '', '', 1),
 (260, 'Tickets By Status', 'Tickets Status', 'TicketsStatus/TicketsByStatus.php', '', '', 1),
 (280, 'Day', 'Metrics', 'Metrics/Day.php', '', '', 1),
@@ -15777,6 +15778,8 @@ INSERT INTO `custom_report_types` (`id`,`name`,`type`,`file`,`inputs`,`sql`,`dr`
 INSERT INTO `custom_report_types` (`id`,`name`,`type`,`file`,`inputs`,`sql`,`dr`) VALUES (512, 'Throughput', 'Network', 'Network/Throughput.php', 'Interface:INTERFACE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1);
 INSERT INTO `custom_report_types` (`id`,`name`,`type`,`file`,`inputs`,`sql`,`dr`) VALUES (513, 'Throughput', 'Network', 'Network/Throughput.php', 'Interface:INTERFACE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1);
 INSERT INTO `custom_report_types` (`id`,`name`,`type`,`file`,`inputs`,`sql`,`dr`) VALUES (514, 'Throughput', 'Network', 'Network/Throughput.php', 'Interface:INTERFACE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1);
+INSERT INTO `custom_report_types` (`id`,`name`,`type`,`file`,`inputs`,`sql`,`dr`) VALUES (515, 'NetFlows - Trafic Graphs', 'Network', 'Network/TraficGraphs.php', 'TCP:tcp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;UDP:udp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;ICMP:icmp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;ANY:any:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1);
+INSERT INTO `custom_report_types` (`id`,`name`,`type`,`file`,`inputs`,`sql`,`dr`) VALUES (516, 'NetFlows - Trafic Details', 'Network', 'Network/NetFlows.php', 'Source:SOURCE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT;Top Flows:top:text:OSS_DIGIT:20:500;Type List:Type_list:radiobuttons:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1);
 
 INSERT INTO `custom_report_types` (`id`,`name`,`type`,`file`,`inputs`,`sql`,`dr`) VALUES (284, 'Global Admin Metrics', 'Metrics', 'Metrics/GlobalAdminMetrics.php', '', '', 1);
 

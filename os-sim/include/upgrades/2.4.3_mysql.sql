@@ -3,10 +3,14 @@ SET AUTOCOMMIT=0;
 BEGIN;
 
 UPDATE custom_report_types SET inputs=CONCAT(inputs,";Source:source:select:OSS_ALPHA:EVENTSOURCE:") WHERE file='SIEM/List.php' AND name!="List" AND inputs not like '%EVENTSOURCE%';
+UPDATE custom_report_types SET `name` = 'Vulnerabilities Details',`type` = 'Vulnerabilities Details' WHERE id =200;
+
 INSERT IGNORE INTO  `action_type` (`_type` , `descr`) VALUES ('ticket',  'generate ticket');
 REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES
 (515, 'NetFlows - Trafic Graphs', 'Network', 'Network/TraficGraphs.php', 'TCP:tcp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;UDP:udp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;ICMP:icmp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;ANY:any:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1),
-(516, 'NetFlows - Trafic Details', 'Network', 'Network/NetFlows.php', 'Source:SOURCE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT;Top Flows:top:text:OSS_DIGIT:20:500;Type List:Type_list:radiobuttons:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1);
+(516, 'NetFlows - Trafic Details', 'Network', 'Network/NetFlows.php', 'Source:SOURCE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT;Top Flows:top:text:OSS_DIGIT:20:500;Type List:Type_list:radiobuttons:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT', '', 1),
+(201, 'Vulnerabilities Summary', 'Vulnerabilities Summary', 'Vulnerabilities/Vulnerabilities.php', 'Serious:serious:checkbox:OSS_NULLABLE.OSS_DIGIT:1;High:high:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Medium:medium:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Low:low:checkbox:OSS_NULLABLE.OSS_DIGIT:1;Info:info:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1);
+
 
 use snort;
 DROP PROCEDURE IF EXISTS addcol;
