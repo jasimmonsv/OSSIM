@@ -819,6 +819,7 @@ CREATE TABLE IF NOT EXISTS `sensor` (
   `detail` tinyint(4) default NULL,
   `encoding` tinyint(4) default NULL,
   `last_cid` int(10) unsigned NOT NULL,
+  `sensor` text NOT NULL,
   PRIMARY KEY  (`sid`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=206 ;
 

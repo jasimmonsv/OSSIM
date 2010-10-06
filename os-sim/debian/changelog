@@ -1,3 +1,10 @@
+ossim (1:2.4.3-1) ossim; urgency=low
+
+  * Multiple fixes
+  * New reports: Netflows, Vuln Summary and Details
+  * Any Forensic "Custom View" can added as subreport
+  * Reports export/import feature
+
 ossim (1:2.4.2-1) ossim; urgency=low
 
   * Multiple fixes
