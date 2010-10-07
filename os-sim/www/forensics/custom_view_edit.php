@@ -155,7 +155,8 @@ if ($save == "insert") {
 		$conn = $db->connect();
 		
 		$curid = 0;
-		$query = "SELECT id FROM custom_report_types WHERE name=\"$name\"";
+		$name = str_replace('"','',$name);
+		$query = "SELECT id FROM custom_report_types WHERE name=\"$name\" and file='SIEM/CustomList.php'";
 		if (!$rs = & $conn->Execute($query)) {
 	            print $conn->ErrorMsg();
 	    } else {
@@ -164,15 +165,11 @@ if ($save == "insert") {
 	        }
 	    }
 		
-		$id = 0;
-		$query = "SELECT max(id) as maxid FROM custom_report_types WHERE file='SIEM/List.php' OR file='SIEM/CustomList.php'";
-		if (!$rs = & $conn->Execute($query)) {
-	            print $conn->ErrorMsg();
-	    } else {
-	        if (!$rs->EOF) {
-	            $id = $rs->fields['maxid'];
-	            $id++;
-	        }
+		$id = 3000;
+	    $result = $conn->Execute("select max(id)+1 from custom_report_types where id>2999");
+	    if ( !$result->EOF ) {
+	        $id = intval($result->fields[0]);
+	        if (!$id) $id=3000;
 	    }
 		
 		if ($curid > 0) {
