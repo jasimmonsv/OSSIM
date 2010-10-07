@@ -71,7 +71,6 @@ class nediDiscovery:
 	def closeDB(self):
 		self.db.close()
 
-
 	def checkDevices(self):
 		sql = "select name,ip,os,description from nedi.devices;"
 		data = self.db.exec_query(sql)
@@ -91,12 +90,13 @@ class nediDiscovery:
 		data = self.db.exec_query(sql)
 		for node in data:
 			ip = self.inet_ntoa(node['ip'])
+			print "*** %s %s" % (ip, node['ip'])
 			name = node['name']
-			mac= node['mac']
+			mac = node['mac']
 			device = node['device']
 			vlanId = node['vlanid']
 			if not self.hostExist(ip):
-				if ip != "0.0.0.0":
+				if ip != "0.0.0.0" and ip != 0 and ip != "0":
 					if name == "-" or name == "":
 						name = ip
 					self.insertHost(ip, self.getOssimSensor(), name, "")
@@ -107,14 +107,14 @@ class nediDiscovery:
 				else:
 					nmac = self.convertMac(mac)
 					ip = self.getIpFromMac(nmac)
-					if ip:
+					if ip and not self.hostExist(ip):
 						print ip, nmac
 						if name == "-" or name == "":
 							name = ip
 						self.insertHost(ip, self.getOssimSensor(), name, "")
 						for vlan in self.vlans:
 							if device  == vlan['device'] and node['vlanid'] == vlan['vlanid']:
-								self.insertHostIntoHostGroup(ip, "%s_%s"%(vlan['vlanname'], vlan['device']))						
+								self.insertHostIntoHostGroup(ip, "%s_%s"%(vlan['vlanname'], vlan['device']))				
 
 	def convertMac(self, mac):
 		#080087808f4a
@@ -128,7 +128,6 @@ class nediDiscovery:
 			i = i + 1
 		return data[0:len(data)-1]
 		
-	
 	def getIpFromMac(self, mac):
 		sql = "SELECT inet_ntoa(ip) from host_mac where mac = '%s'" % mac
 		data = self.db.exec_query(sql)
@@ -136,20 +135,18 @@ class nediDiscovery:
 			return False
 		return data[0]['inet_ntoa(ip)']
 		
-		
 	def insertHost(self, ip, sensorName, name, descr):
-		print name
 		name = name.replace("'","")
 		sql = "INSERT INTO ossim.host(ip, hostname, asset, threshold_c, threshold_a, alert, persistence, descr) values ('%s', '%s', %d, 1000, 1000, 0, 0, '%s');" % (ip, name, 2, descr)
 		self.db.exec_query(sql)
 		logger.debug(sql)
-		sql = "INSERT INTO ossim.host_sensor_reference(host_ip, sensor_name) values ('%s', '%s');" % (ip, sensorName)
-		self.db.exec_query(sql)
-		logger.info(sql)
+		#sql = "INSERT INTO ossim.host_sensor_reference(host_ip, sensor_name) values ('%s', '%s');" % (ip, sensorName)
+		#self.db.exec_query(sql)
+		#logger.info(sql)
 		
 	
 	def insertHostIntoHostGroup(self, ip, hostGroupName):
-		sql = "INSERT INTO host_group_reference(host_group_name, host_ip) values ('%s', '%s')" % (hostGroupName, ip)
+		sql = "REPLACE INTO host_group_reference(host_group_name, host_ip) values ('%s', '%s')" % (hostGroupName, ip)
 		self.db.exec_query(sql)
 		logger.debug(sql)		
 		
@@ -187,13 +184,12 @@ class nediDiscovery:
 		logger.debug(sql)
 		if data == []:
 			return False
-		print "Existe"
 		return True		
 		
 	def hostExist(self, host):
 		sql = "select ip from ossim.host where ip = '%s';" % host
-		data = self.db.exec_query(sql)
-		logger.debug(sql)
+		print sql
+		data = self.db.exec_query(sql)		
 		if data == []:
 			return False
 		print "Existe"
@@ -210,7 +206,7 @@ class nediDiscovery:
 			self.closeDB()
 			time.sleep(self._interval)
 	
-		#TODO
+	#TODO
 	def launchNediDiscovery(self):
 		#Feed nedi seedlist file with device information ip/community
 		self.feedSeedList()
@@ -245,4 +241,4 @@ class nediDiscovery:
 if __name__ == '__main__':
 	n = nediDiscovery()
 	n.loop()
-								
+

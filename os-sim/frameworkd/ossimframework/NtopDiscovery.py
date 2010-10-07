@@ -33,6 +33,7 @@
 Initial module for Auto Asset Discovery via NTOP
 
 - Req: Ntop dev version with .py scripts to extract needed information
+- Req: Firewall open 3000 from the framework
 
 '''
 
@@ -80,17 +81,32 @@ class ntopDiscovery:
 		data = self.db.exec_query(sql)
 		logger.debug(sql)
 		return data
+	
+	def getSensorNetworks(self, ip):
+		sql = "select n.ips from ossim.net as n, ossim.sensor as s, net_sensor_reference as nsr where s.ip = '%s' and nsr.sensor_name = s.name and n.name = nsr.net_name;" % ip
+		data = self.db.exec_query(sql)
+		logger.debug(sql)
+		nets = []
+		for n in data:
+			nets.append(n['ips'])
+		return nets
 		
 	def insertHost(self, ip, sensorName, name):
 		name = name.replace("'","")
 		sql = "INSERT INTO ossim.host(ip, hostname, asset, threshold_c, threshold_a, alert, persistence) values ('%s', '%s', %d, 1000, 1000, 0, 0);" % (ip, name, 2)
 		self.db.exec_query(sql)
 		logger.debug(sql)
-		sql = "INSERT INTO ossim.host_sensor_reference(host_ip, sensor_name) values ('%s', '%s');" % (ip, sensorName)
+		#sql = "INSERT INTO ossim.host_sensor_reference(host_ip, sensor_name) values ('%s', '%s');" % (ip, sensorName)
+		#self.db.exec_query(sql)
+		#logger.debug(sql)
+	
+	def insertHostName(self, ip, name):
+		name = name.replace("'","")
+		sql = "update host set hostname = '%s' where ip = '%s';" % (name, ip)
+		logger.debug(sql)
 		self.db.exec_query(sql)
-		logger.debug(sql)		
-		
-	def process(self, ip, sensorName, data):
+			
+	def process(self, ip, sensorName, data, nets):
 		logger.debug("Processing NTOP data from %s" % ip)
 		data = data.split("\n")
 		for row in csv.reader(data, delimiter=',', quoting=csv.QUOTE_NONE):
@@ -100,17 +116,47 @@ class ntopDiscovery:
 				print ip
 				mac = row[1]
 				name = row[2]
-				if ip != "" and name != "" and  self.validateIp(ip) and not self.hostExist(ip) and not self.blacklisted(ip):
-					self.insertHost(ip, sensorName, name)
-		
+				if not self.hostExist(ip):
+					if ip != "" and name != "" and  self.validateIp(ip) and not self.blacklisted(ip) and self.hostInNetworks(ip, nets):
+						self.insertHost(ip, sensorName, name)
+						self.insertSensorReference(ip, sensorName)
+				else:
+					if not self.hostHasName(ip):
+						self.insertHostName(ip, name)
+					if not self.hostHasSensor(ip, sensorName):
+						self.insertSensorReference(ip, sensorName)
+						
 	def hostExist(self, host):
 		sql = "select ip from ossim.host where ip = '%s';" % host
 		data = self.db.exec_query(sql)
 		logger.debug(sql)
 		if data == []:
 			return False
-		print "Existe"
+		logger.debug("Existe")
 		return True
+	
+	def hostHasName(self, host):
+		sql = "select hostname from ossim.host where ip = '%s';" % host
+		logger.debug(sql)
+		data = self.db.exec_query(sql)
+		if len(data) > 0 and data[0]["hostname"] != host:
+			return True
+		else:
+			return False
+		return False
+	
+	def hostHasSensor(self, host, sname):
+		sql = "select host_ip from host_sensor_reference where host_ip = '%s' and sensor_name = '%s';" % (host, sname)
+		logger.debug(sql)
+		data = self.db.exec_query(sql)
+		if data == []:
+			return False
+		return True
+	
+	def insertSensorReference(self, host, sname):
+		sql = "INSERT INTO host_sensor_reference (host_ip, sensor_name) values ('%s', '%s');" % (host, sname)
+		self.db.exec_query(sql)
+		logger.debug(sql)
 		
 	def loop(self):
 		while True:
@@ -120,9 +166,10 @@ class ntopDiscovery:
 				ip = s['ip']
 				port = "3000"
 				name = s['name']
+				nets = self.getSensorNetworks(ip)
 				data = self.getDataFromSensor(ip,port)
 				if data != None:
-					self.process(ip, name, data)
+					self.process(ip, name, data, nets)
 			self.getSensors()
 			self.closeDB()
 			time.sleep(self._interval)
@@ -143,6 +190,10 @@ class ntopDiscovery:
 			return True
 		if ip == "0.0.0.0":
 			return True
+	
+	def hostInNetworks(self, ip, nets):
+		#IMPLEMENTAR
+		return True
 
 if __name__ == '__main__':
 	n = ntopDiscovery()
