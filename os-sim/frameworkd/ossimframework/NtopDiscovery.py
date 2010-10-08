@@ -198,7 +198,7 @@ class NtopDiscovery(threading.Thread):
 		return True
 
 if __name__ == '__main__':
-	n = ntopDiscovery()
+	n = NtopDiscovery()
 	n.loop()
 
 
