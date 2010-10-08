@@ -61,6 +61,7 @@ class Framework:
                 "DoNagios",
 #                "AlarmGroup",
 #                "AlarmIncidentGeneration",
+		"NtopDiscovery",
             ]
 
 
@@ -176,7 +177,7 @@ class Framework:
 
             if str(conf[conf_entry]).lower() in ('1', 'yes', 'true'):
                 logger.info(c.upper() + " is enabled")
-
+		print conf_entry
                 exec "from %s import %s" % (c, c)
                 exec "t = %s()" % (c)
                 t.start()
@@ -184,7 +185,21 @@ class Framework:
             else:
                 logger.info(c.upper() + " is disabled")
 
+	#Autodiscovery
 
+	#Ntop
+	if str(conf["network_auto_discovery"]) in ('1', 'yes', 'true'):
+		logger.info("NtopDiscovery" + " is enabled")
+		exec "from %s import %s" % ("NtopDiscovery", "NtopDiscovery")
+		exec "t = %s()" % ("NtopDiscovery")
+		t.start()
+
+	#Nedi
+	if str(conf["nedi_autodiscovery"]) in  ('1', 'yes', 'true'):	
+		logger.info("nediDiscovery" + " is enabled")
+		exec "from %s import %s" % ("nediDiscovery", "nediDiscovery")
+		exec "t = %s()" % ("nediDiscovery")
+		t.start()
 
 if __name__ == "__main__" :
    

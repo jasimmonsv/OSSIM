@@ -45,16 +45,18 @@ from Logger import Logger
 import Const
 import time
 import re
+import threading
 
 logger = Logger.logger
 
-class ntopDiscovery:
+class NtopDiscovery(threading.Thread):
 	_interval = 100
 	
 	def __init__(self):
 		self._tmp_conf = OssimConf (Const.CONFIG_FILE)
 		#Implement cache with timeout?????
 		self.cache = []
+		threading.Thread.__init__(self)
 
 	def connectDB(self):
 		self.db = OssimDB()
@@ -158,7 +160,7 @@ class ntopDiscovery:
 		self.db.exec_query(sql)
 		logger.debug(sql)
 		
-	def loop(self):
+	def run(self):
 		while True:
 			self.connectDB()
 			sensors = self.getSensors()
@@ -198,4 +200,5 @@ class ntopDiscovery:
 if __name__ == '__main__':
 	n = ntopDiscovery()
 	n.loop()
+
 

@@ -47,6 +47,8 @@ import re
 import socket
 import struct
 import os
+import threading
+
 
 logger = Logger.logger
 
@@ -54,7 +56,7 @@ nedi_script_file = "/var/nedi/nedi.pl"
 nedi_seedlist_file = "/etc/nedi/seedlist"
 nedi_config_file = "/etc/nedi/nedi.conf"
 
-class nediDiscovery:
+class nediDiscovery(threading.Thread):
 	_interval = 3600
 	
 	def __init__(self):
@@ -195,7 +197,7 @@ class nediDiscovery:
 		print "Existe"
 		return True
 	
-	def loop(self):
+	def start(self):
 		while True:
 			self.connectDB()
 			self.launchNediDiscovery()
