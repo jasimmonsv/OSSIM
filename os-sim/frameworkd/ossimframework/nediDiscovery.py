@@ -48,7 +48,7 @@ import socket
 import struct
 import os
 import threading
-
+from Inventory import *
 
 logger = Logger.logger
 
@@ -61,6 +61,7 @@ class nediDiscovery(threading.Thread):
 	
 	def __init__(self):
 		self._tmp_conf = OssimConf (Const.CONFIG_FILE)
+		self.inv = Inventory()
 		self.vlans = []
 		
 	def connectDB(self):
@@ -83,8 +84,8 @@ class nediDiscovery(threading.Thread):
 			sensorIp = self.getOssimSensor()
 			sensorName = 'opensourcesim'
 			descr = d['description']
-			if ip != "" and name != "" and  self.validateIp(ip) and not self.hostExist(ip):
-				self.insertHost(ip, sensorName, name, descr)
+			if ip != "" and name != "" and  self.inv.validateIp(ip) and not self.inv.hostExist(ip):
+				self.inv.insertHost(ip, sensorName, name, descr)
 				self.insertOS(ip, os, sensorIp)
 	
 	def chekNodes(self):
@@ -97,23 +98,23 @@ class nediDiscovery(threading.Thread):
 			mac = node['mac']
 			device = node['device']
 			vlanId = node['vlanid']
-			if not self.hostExist(ip):
+			if not self.inv.hostExist(ip):
 				if ip != "0.0.0.0" and ip != 0 and ip != "0":
 					if name == "-" or name == "":
 						name = ip
-					self.insertHost(ip, self.getOssimSensor(), name, "")
+					self.inv.insertHost(ip, self.getOssimSensor(), name, "")
 					#Check if the host is in some hostgroup based on vlan and device
 					for vlan in self.vlans:
 						if device  == vlan['device'] and node['vlanid'] == vlan['vlanid']:
 							self.insertHostIntoHostGroup(ip, "%s_%s"%(vlan['vlanname'], vlan['device']))
 				else:
 					nmac = self.convertMac(mac)
-					ip = self.getIpFromMac(nmac)
-					if ip and not self.hostExist(ip):
+					ip = self.inv.getIpFromMac(nmac)
+					if ip and not self.inv.hostExist(ip):
 						print ip, nmac
 						if name == "-" or name == "":
 							name = ip
-						self.insertHost(ip, self.getOssimSensor(), name, "")
+						self.inv.insertHost(ip, self.getOssimSensor(), name, "")
 						for vlan in self.vlans:
 							if device  == vlan['device'] and node['vlanid'] == vlan['vlanid']:
 								self.insertHostIntoHostGroup(ip, "%s_%s"%(vlan['vlanname'], vlan['device']))				
@@ -129,22 +130,6 @@ class nediDiscovery(threading.Thread):
 				data = data + mac[i].upper()
 			i = i + 1
 		return data[0:len(data)-1]
-		
-	def getIpFromMac(self, mac):
-		sql = "SELECT inet_ntoa(ip) from host_mac where mac = '%s'" % mac
-		data = self.db.exec_query(sql)
-		if data == []:
-			return False
-		return data[0]['inet_ntoa(ip)']
-		
-	def insertHost(self, ip, sensorName, name, descr):
-		name = name.replace("'","")
-		sql = "INSERT INTO ossim.host(ip, hostname, asset, threshold_c, threshold_a, alert, persistence, descr) values ('%s', '%s', %d, 1000, 1000, 0, 0, '%s');" % (ip, name, 2, descr)
-		self.db.exec_query(sql)
-		logger.debug(sql)
-		#sql = "INSERT INTO ossim.host_sensor_reference(host_ip, sensor_name) values ('%s', '%s');" % (ip, sensorName)
-		#self.db.exec_query(sql)
-		#logger.info(sql)
 		
 	
 	def insertHostIntoHostGroup(self, ip, hostGroupName):
@@ -167,7 +152,6 @@ class nediDiscovery(threading.Thread):
 		data = self.db.exec_query(sql)
 		return data[0]['ip']
 		
-		
 	def vlanToHostGroup(self):
 		#{'device': 'NA_SSEEARGUELLESL4', 'vlanname': 'PROTECCIONES', 'vlanid': 9}]
 		for vlan in self.vlans:
@@ -187,15 +171,6 @@ class nediDiscovery(threading.Thread):
 		if data == []:
 			return False
 		return True		
-		
-	def hostExist(self, host):
-		sql = "select ip from ossim.host where ip = '%s';" % host
-		print sql
-		data = self.db.exec_query(sql)		
-		if data == []:
-			return False
-		print "Existe"
-		return True
 	
 	def start(self):
 		while True:
@@ -229,13 +204,6 @@ class nediDiscovery(threading.Thread):
 	def inet_ntoa(self, ip):
 		return socket.inet_ntoa(struct.pack('!L',int(ip)))
 		
-	def validateIp(self, ip_str):
-		pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
-		if re.match(pattern, ip_str):
-			return True
-		else:
-			return False
-
 	def getVlans(self):
 		sql = "select * from nedi.vlans;"
 		self.vlans = self.db.exec_query(sql)
@@ -243,4 +211,3 @@ class nediDiscovery(threading.Thread):
 if __name__ == '__main__':
 	n = nediDiscovery()
 	n.loop()
-

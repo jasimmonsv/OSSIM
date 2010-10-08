@@ -120,10 +120,10 @@ class Inventory:
 		self.closeDB()
 		return nets
 
-	def insertHost(self, ip, sensorName, name):
+	def insertHost(self, ip, sensorName, name, descr):
 		self.connectDB()
 		name = name.replace("'","")
-		sql = "INSERT INTO ossim.host(ip, hostname, asset, threshold_c, threshold_a, alert, persistence) values ('%s', '%s', %d, 1000, 1000, 0, 0);" % (ip, name, 2)
+		sql = "INSERT INTO ossim.host(ip, hostname, asset, threshold_c, threshold_a, alert, persistence, descr) values ('%s', '%s', %d, 1000, 1000, 0, 0, '%s');" % (ip, name, 2, descr)
 		self.db.exec_query(sql)
 		logger.debug(sql)
 		self.closeDB()
@@ -181,15 +181,33 @@ class Inventory:
 		self.closeDB()
 
 	def validateIp(self, ip_str):
-		pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
-		if re.match(pattern, ip_str):
-			return True
-		else:
+		#pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
+		#pattern = "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+		try:
+			pattern = "^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+			if re.match(pattern, ip_str):
+				return True
+			else:
+				return False
+		except:
 			return False
+	
+	def getIpFromMac(self, mac):
+		self.connectDB()
+		sql = "SELECT inet_ntoa(ip) from host_mac where mac = '%s'" % mac
+		data = self.db.exec_query(sql)
+		if data == []:
+			self.closeDB()
+			return False
+		self.closeDB()
+		return data[0]['inet_ntoa(ip)']
 
 	def hostInNetworks(self, ip, nets):
-		#IMPLEMENTAR
+		#TODO
 		return True
+	
+	def insertHostMac(self, ip, mac):
+		pass
 		
 	
 if __name__ == '__main__':

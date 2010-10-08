@@ -92,7 +92,7 @@ class NtopDiscovery(threading.Thread):
 				name = row[2]
 				if not self.inv.hostExist(ip):
 					if ip != "" and name != "" and  self.inv.validateIp(ip) and not self.blacklisted(ip) and self.inv.hostInNetworks(ip, nets):
-						self.inv.insertHost(ip, sensorName, name)
+						self.inv.insertHost(ip, sensorName, name, "")
 						self.inv.insertSensorReference(ip, sensorName)
 				else:
 					if not self.inv.hostHasName(ip):
@@ -128,5 +128,4 @@ class NtopDiscovery(threading.Thread):
 if __name__ == '__main__':
 	n = NtopDiscovery()
 	n.start()
-
 
