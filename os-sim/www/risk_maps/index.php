@@ -550,7 +550,7 @@ function toggleLayer( whichLayer )
 			var iconbg = "transparent";
 		}
 		var content = template_begin.replace('NAME',name).replace('ICON',icon).replace('SIZE',size).replace('SIZE',size).replace('BGCOLOR',iconbg) + valor + template_end
-        document.getElementById('alarma'+id).innerHTML = content;
+        if (typeof(document.getElementById('alarma'+id)) != null) document.getElementById('alarma'+id).innerHTML = content;
         document.f.state.value = ""
         //changed = 1;
     }
