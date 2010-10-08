@@ -46,6 +46,7 @@ import Const
 import time
 import re
 import threading
+from Inventory import *
 
 logger = Logger.logger
 
@@ -55,6 +56,7 @@ class NtopDiscovery(threading.Thread):
 	def __init__(self):
 		self._tmp_conf = OssimConf (Const.CONFIG_FILE)
 		#Implement cache with timeout?????
+		self.inv = Inventory()
 		self.cache = []
 		threading.Thread.__init__(self)
 
@@ -77,36 +79,6 @@ class NtopDiscovery(threading.Thread):
 			print msg
 			logger.error("Error retrieving NTOP information from %s - msg:%s" % (ip, msg))
 			return None
-
-	def getSensors(self):
-		sql = "SELECT name, ip from sensor;"
-		data = self.db.exec_query(sql)
-		logger.debug(sql)
-		return data
-	
-	def getSensorNetworks(self, ip):
-		sql = "select n.ips from ossim.net as n, ossim.sensor as s, net_sensor_reference as nsr where s.ip = '%s' and nsr.sensor_name = s.name and n.name = nsr.net_name;" % ip
-		data = self.db.exec_query(sql)
-		logger.debug(sql)
-		nets = []
-		for n in data:
-			nets.append(n['ips'])
-		return nets
-		
-	def insertHost(self, ip, sensorName, name):
-		name = name.replace("'","")
-		sql = "INSERT INTO ossim.host(ip, hostname, asset, threshold_c, threshold_a, alert, persistence) values ('%s', '%s', %d, 1000, 1000, 0, 0);" % (ip, name, 2)
-		self.db.exec_query(sql)
-		logger.debug(sql)
-		#sql = "INSERT INTO ossim.host_sensor_reference(host_ip, sensor_name) values ('%s', '%s');" % (ip, sensorName)
-		#self.db.exec_query(sql)
-		#logger.debug(sql)
-	
-	def insertHostName(self, ip, name):
-		name = name.replace("'","")
-		sql = "update host set hostname = '%s' where ip = '%s';" % (name, ip)
-		logger.debug(sql)
-		self.db.exec_query(sql)
 			
 	def process(self, ip, sensorName, data, nets):
 		logger.debug("Processing NTOP data from %s" % ip)
@@ -118,70 +90,29 @@ class NtopDiscovery(threading.Thread):
 				print ip
 				mac = row[1]
 				name = row[2]
-				if not self.hostExist(ip):
-					if ip != "" and name != "" and  self.validateIp(ip) and not self.blacklisted(ip) and self.hostInNetworks(ip, nets):
-						self.insertHost(ip, sensorName, name)
-						self.insertSensorReference(ip, sensorName)
+				if not self.inv.hostExist(ip):
+					if ip != "" and name != "" and  self.inv.validateIp(ip) and not self.blacklisted(ip) and self.inv.hostInNetworks(ip, nets):
+						self.inv.insertHost(ip, sensorName, name)
+						self.inv.insertSensorReference(ip, sensorName)
 				else:
-					if not self.hostHasName(ip):
-						self.insertHostName(ip, name)
-					if not self.hostHasSensor(ip, sensorName):
+					if not self.inv.hostHasName(ip):
+						self.inv.insertHostName(ip, name)
+					if not self.inv.hostHasSensor(ip, sensorName):
 						self.insertSensorReference(ip, sensorName)
-						
-	def hostExist(self, host):
-		sql = "select ip from ossim.host where ip = '%s';" % host
-		data = self.db.exec_query(sql)
-		logger.debug(sql)
-		if data == []:
-			return False
-		logger.debug("Existe")
-		return True
-	
-	def hostHasName(self, host):
-		sql = "select hostname from ossim.host where ip = '%s';" % host
-		logger.debug(sql)
-		data = self.db.exec_query(sql)
-		if len(data) > 0 and data[0]["hostname"] != host:
-			return True
-		else:
-			return False
-		return False
-	
-	def hostHasSensor(self, host, sname):
-		sql = "select host_ip from host_sensor_reference where host_ip = '%s' and sensor_name = '%s';" % (host, sname)
-		logger.debug(sql)
-		data = self.db.exec_query(sql)
-		if data == []:
-			return False
-		return True
-	
-	def insertSensorReference(self, host, sname):
-		sql = "INSERT INTO host_sensor_reference (host_ip, sensor_name) values ('%s', '%s');" % (host, sname)
-		self.db.exec_query(sql)
-		logger.debug(sql)
+					
 		
 	def run(self):
 		while True:
-			self.connectDB()
-			sensors = self.getSensors()
+			sensors = self.inv.getSensors()
 			for s in sensors:
 				ip = s['ip']
 				port = "3000"
 				name = s['name']
-				nets = self.getSensorNetworks(ip)
+				nets = self.inv.getSensorNetworks(ip)
 				data = self.getDataFromSensor(ip,port)
 				if data != None:
 					self.process(ip, name, data, nets)
-			self.getSensors()
-			self.closeDB()
 			time.sleep(self._interval)
-	
-	def validateIp(self, ip_str):
-		pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
-		if re.match(pattern, ip_str):
-			return True
-		else:
-			return False
 			
 	def blacklisted(self, ip):
 		if ip[0:3] == "224":
@@ -193,12 +124,9 @@ class NtopDiscovery(threading.Thread):
 		if ip == "0.0.0.0":
 			return True
 	
-	def hostInNetworks(self, ip, nets):
-		#IMPLEMENTAR
-		return True
 
 if __name__ == '__main__':
 	n = NtopDiscovery()
-	n.loop()
+	n.start()
 
 
