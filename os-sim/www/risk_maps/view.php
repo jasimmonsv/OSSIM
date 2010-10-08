@@ -61,6 +61,20 @@ function mapAllowed($perms_arr,$version) {
 	return $ret;
 }
 
+function is_in_assets($conn,$name,$type) {
+	if ($type == "host") {
+		$sql = "SELECT * FROM host WHERE hostname=\"$name\"";
+	} elseif ($type == "sensor") {
+		$sql = "SELECT * FROM sensor WHERE name=\"$name\"";
+	} elseif ($type == "net") {
+		$sql = "SELECT * FROM net WHERE name=\"$name\"";
+	} elseif ($type == "host_group") {
+		$sql = "SELECT * FROM host_group WHERE name=\"$name\"";
+	}
+	$result = $conn->Execute($sql);
+	return (!$result->EOF) ? 1 : 0;
+}
+
 $can_edit = false;
 
 if (Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit")) {
@@ -327,6 +341,7 @@ if(!$hide_others){
 				$icon = $aux[0]; $bgcolor = $aux[1];
 			} else $bgcolor = "transparent";
 			$has_perm = 0;
+			$in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
 			if ($rs->fields['type'] == "host") {
 				foreach ($hosts as $hip=>$hname) if ($hname == $rs->fields['type_name']) $has_perm = 1;
 			} elseif ($rs->fields['type'] == "sensor" || $rs->fields['type'] == "server") {
@@ -337,6 +352,14 @@ if(!$hide_others){
 				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
 			} else $has_perm = 1;
 			if (Session::am_i_admin()) $has_perm = 1;
+			if (!$in_assets) {
+				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				$rs->fields["url"]="javascript:alert('Warning: this element is not in inventory.');return false;";
+				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><a href=\"".$rs->fields["url"]."\"><img src=\"../pixmaps/marker--exclamation.png\" width=\"".$size."\" height=\"".$size."\" border=0></a></td><td>";
+				echo "<table border=0 cellspacing=0 cellpadding=1><tr><td><a href='' class=ne11>R</a></td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+				echo "</td></tr></table></div>\n";
+				$rs->MoveNext(); continue;
+			}
 			if (!$has_perm) { $rs->MoveNext(); continue; }
 			echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
 			if ($rs->fields["url"]=="") $rs->fields["url"]="javascript:;";
@@ -349,11 +372,13 @@ if(!$hide_others){
 
 	$query = "select * from risk_indicators where name='rect' AND map= ?";
 	$params = array($map);
-        if (!$rs = &$conn->Execute($query, $params)) {
-            print $conn->ErrorMsg();        
+    
+	if (!$rs = &$conn->Execute($query, $params)) {
+        print $conn->ErrorMsg();        
 	} else {
         while (!$rs->EOF){
-			$has_perm = 0;
+        	$has_perm = 0;
+			$in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
 			if ($rs->fields['type'] == "host") {
 				foreach ($hosts as $hip=>$hname) if ($hname == $rs->fields['type_name']) $has_perm = 1;
 			} elseif ($rs->fields['type'] == "sensor" || $rs->fields['type'] == "server") {
@@ -364,6 +389,12 @@ if(!$hide_others){
 				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
 			} else $has_perm = 1;
 			if (Session::am_i_admin()) $has_perm = 1;
+			if (!$in_assets) {
+				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				echo "<a href=\"javascript:alert('Warning: this element is not in inventory.');return false;\" target=\"_blank\" style=\"text-decoration:none\"><table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table></a>";
+				echo "</div>\n";
+				$rs->MoveNext(); continue;
+			}
 			if (!$has_perm) { $rs->MoveNext(); continue; }
 			echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
 			if ($rs->fields["url"]=="") $rs->fields["url"]="javascript:;";
