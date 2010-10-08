@@ -63,6 +63,19 @@ function mapAllowed($perms_arr,$version) {
 	}
 	return $ret;
 }
+function is_in_assets($conn,$name,$type) {
+	if ($type == "host") {
+		$sql = "SELECT * FROM host WHERE hostname=\"$name\"";
+	} elseif ($type == "sensor") {
+		$sql = "SELECT * FROM sensor WHERE name=\"$name\"";
+	} elseif ($type == "net") {
+		$sql = "SELECT * FROM net WHERE name=\"$name\"";
+	} elseif ($type == "host_group") {
+		$sql = "SELECT * FROM host_group WHERE name=\"$name\"";
+	}
+	$result = $conn->Execute($sql);
+	return (!$result->EOF) ? 1 : 0;
+}
 
 function check_writable_relative($dir){
 $uid = posix_getuid();
@@ -901,6 +914,7 @@ if(0){
 				$icon = $aux[0]; $bgcolor = $aux[1];
 			} else $bgcolor = "transparent";
 			$has_perm = 0;
+			$in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
 			if ($rs->fields['type'] == "host") {
 				foreach ($hosts as $hip=>$hname) if ($hname == $rs->fields['type_name']) $has_perm = 1;
 			} elseif ($rs->fields['type'] == "sensor" || $rs->fields['type'] == "server") {
@@ -911,6 +925,19 @@ if(0){
 				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
 			} else $has_perm = 1;
 			if (Session::am_i_admin()) $has_perm = 1;
+			if (!$in_assets) {
+				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
+				echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
+				echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
+				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
+				echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
+				echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
+				echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
+				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"visibility:hidden;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><img src=\"".preg_replace("/\#.+/","",str_replace("//","/",$rs->fields["icon"]))."\" width=\"".$size."\" height=\"".$size."\" border=0></td><td>";
+				echo "<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+				echo "</td></tr></table></div>\n";
+			}
 			if (!$has_perm) { $rs->MoveNext(); continue; }
 			echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
 			echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
@@ -934,6 +961,7 @@ if(0){
 	} else {
 		while (!$rs->EOF) {
 			$has_perm = 0;
+			$in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
 			if ($rs->fields['type'] == "host") {
 				foreach ($hosts as $hip=>$hname) if ($hname == $rs->fields['type_name']) $has_perm = 1;
 			} elseif ($rs->fields['type'] == "sensor" || $rs->fields['type'] == "server") {
@@ -944,6 +972,14 @@ if(0){
 				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
 			} else $has_perm = 1;
 			if (Session::am_i_admin()) $has_perm = 1;
+			if (!$in_assets) {
+				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
+				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
+				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
+				echo "</div>\n";
+				$rs->MoveNext(); continue;
+			}
 			if (!$has_perm) { $rs->MoveNext(); continue; }
 			echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
 			echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";

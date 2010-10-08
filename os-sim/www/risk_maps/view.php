@@ -356,7 +356,7 @@ if(!$hide_others){
 				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
 				$rs->fields["url"]="javascript:alert('Warning: this element is not in inventory.');return false;";
 				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><a href=\"".$rs->fields["url"]."\"><img src=\"../pixmaps/marker--exclamation.png\" width=\"".$size."\" height=\"".$size."\" border=0></a></td><td>";
-				echo "<table border=0 cellspacing=0 cellpadding=1><tr><td><a href='' class=ne11>R</a></td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+				echo "<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
 				echo "</td></tr></table></div>\n";
 				$rs->MoveNext(); continue;
 			}
@@ -364,7 +364,7 @@ if(!$hide_others){
 			echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
 			if ($rs->fields["url"]=="") $rs->fields["url"]="javascript:;";
 			echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><a href=\"".$rs->fields["url"]."\"><img src=\"".$rs->fields["icon"]."\" width=\"".$size."\" height=\"".$size."\" border=0></a></td><td>";
-			echo "<table border=0 cellspacing=0 cellpadding=1><tr><td><a href='' class=ne11>R</a></td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+			echo "<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
 			echo "</td></tr></table></div>\n";
 			$rs->MoveNext();
 		}

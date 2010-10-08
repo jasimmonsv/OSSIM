@@ -70,29 +70,34 @@ if (!$rs = &$conn->Execute($query, $params)) {
 
         $what = "name"; $ips = $name;
 
+        $in_assets = 1;
+        
         if(in_array($type, $host_types)){
             if($type == "host") $what = "hostname";                
             $query = "select ip from $type where $what = ?";
             $params = array($name);
             if ($rs3 = &$conn->Execute($query, $params)) {
                 $name = $rs3->fields["ip"];
+                if ($rs3->EOF) $in_assets = 0;
             }
         } elseif ($type == "net") {
             $query = "select ips from net where name = ?";
             $params = array($name);
             if ($rs3 = &$conn->Execute($query, $params)) {
                 $ips = $rs3->fields["ips"];
+                if ($rs3->EOF) $in_assets = 0;
             }
         } elseif ($type == "host_group") {
             $query = "select host_ip from host_group_reference where host_group_name = ?";
             $params = array($name);
             if ($rs3 = &$conn->Execute($query, $params)) {
-                $iph = array();
+                $iphg = array();
                 while (!$rs3->EOF) {
                     $iphg[] = "'".$rs3->fields["host_ip"]."'";
                     $rs3->MoveNext();
                 }
-                $ips = implode(",",$iphg);
+                $ips = (count($iphg) > 0) ? implode(",",$iphg) : "'0.0.0.0'";
+                if (count($iphg) == 0) $in_assets = 0;
             }
         }
         $params = ($type == "host_group") ? array() : array($name);
@@ -161,7 +166,7 @@ if (!$rs = &$conn->Execute($query, $params)) {
         $a_url = "../nagios/index.php?sensor=".urlencode(($type == "host_group") ? $a_ip : $ips)."&hmenu=Availability&smenu=Availability";
         
         $change_div = "changeDiv('".$rs->fields["id"]."','".$rs->fields["name"]."','".$rs->fields["url"]."','".$rs->fields["icon"]."',$new_value,'$r_url','$v_url','$a_url','$ips',".$rs->fields["size"].");\n";
-		echo $change_div;
+		if ($in_assets) echo $change_div;
         $rs->MoveNext();
         }
 }
