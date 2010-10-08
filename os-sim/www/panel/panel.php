@@ -49,11 +49,12 @@ require_once 'classes/Util.inc';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 function gettabsavt($configs_dir) {
+	$user = Session::get_session_user();
 	$tabsavt = array();
 	if (is_dir($configs_dir)) {
 		if ($dh = opendir($configs_dir)) {
 			while (($file = readdir($dh)) !== false) {
-				if (preg_match("/\.avt/",$file)) {
+				if (preg_match("/^$user.*\.avt/",$file)) {
 					list($avt_id,$avt_values) = getavt($file,$configs_dir);
 					$tabsavt[$avt_id] = $avt_values;
 				}
