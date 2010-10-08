@@ -417,7 +417,7 @@ function channel_validate (&$channels, $opts) {
 	$err = 0;
 	foreach ( $channels as $channel ) {
 		if ( array_key_exists($channel, $_liveprofile['channel'] ) ) {
-			echo "CH: ".$channel."<br>";
+			//echo "CH: ".$channel."<br>";
 			$verified[] = $channel;
 		} else{
 			SetMessage('error', _("Channel")." '$channel' "._("does not exist in profile 'live'"));
