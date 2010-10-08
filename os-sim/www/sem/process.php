@@ -87,6 +87,10 @@ foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
 $networks = implode(",",$_nets_ips);
 $hosts_ips = array_keys($hosts);
 
+if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
+	$a = "data='".$a."'";
+}
+
 if (preg_match("/(.*plugin_id!=)(\S+)(.*)/", $a, $matches) || preg_match("/(.*plugin_id=)(\S+)(.*)/", $a, $matches)) {
     $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
     $query = "select id from plugin where name like '" . $plugin_name . "%' order by id";
@@ -129,6 +133,7 @@ $user = $_SESSION["_user"];
 //$status = exec($cmd, $result);
 $result = array();
 //echo "$cmd $user";
+
 if($debug_log!=""){
 	$handle = fopen($debug_log, "a+");
 	fputs($handle,"============================== PROCESS.php ".date("Y-m-d H:i:s")." ==============================\n");
@@ -193,7 +198,7 @@ $cont = 0;
 if (isset($export)) {
 	if (is_dir("/var/ossim/logs/searches")) {
 		// dir
-		$outdir = "/var/ossim/logs/searches/$user"."_"."$start"."_"."$end"."_"."$sort_order"."_"."$a";
+		$outdir = "/var/ossim/logs/searches/$user"."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a);
 		if (!is_dir($outdir)) mkdir($outdir);
 		$outfilename = $outdir."/results.txt";
 		// file
