@@ -47,8 +47,11 @@ class Inventory:
 		self._tmp_conf = OssimConf (Const.CONFIG_FILE)
 		self.properties = {}
 		self.sources = {}
+		self.credentialTypes()
+		
 		self.loadProperties()
 		self.loadSources()
+		self.loadCredentialTypes()
 		
 	def connectDB(self):
 		self.db = OssimDB()
@@ -74,6 +77,14 @@ class Inventory:
 		data = self.db.exec_query(sql)
 		for d in data:
 			self.sources[d["name"]] = (d["id"], d["priority"])
+		self.closeDB()
+	
+	def loadCredentialTypes(self):
+		self.connectDB()
+		sql = "select id, name from credential_type;"
+		data = self.db.exec_query(sql)
+		for d in data:
+			self.credentialTypes[d["name"]] = d["id"]
 		self.closeDB()
 		
 	def insertProp(self, host, prop, source, value, extra):
@@ -208,6 +219,26 @@ class Inventory:
 	
 	def insertHostMac(self, ip, mac):
 		pass
+	
+	def generateCPE(self, osname, osversion, extra):
+		#TODO
+		#Windows
+		version = ""
+		verTable = {"4\.0.*" : "cpe:/o:microsoft:windows_nt",
+					"5\.0" : "cpe:/o:microsoft:windows_2000", 
+					"5\.1" : "cpe:/o:microsoft:windows_xp",
+					"5\.2" : "cpe:/o:microsoft:windows_server_2003"
+ 					
+					}
+		if osname.find("Windows") != -1:
+			pass
+	
+	def getHostWithCredentials(self, ctype):
+		self.connectDB()
+		sql = "select ip, username, password, extra from credentials where type = %d and value = ;" % self.credentialTypes[ctype]
+		data = self.db.exec_query(sql)
+		self.closeDB()
+		return data
 		
 	
 if __name__ == '__main__':
