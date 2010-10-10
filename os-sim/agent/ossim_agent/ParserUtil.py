@@ -99,13 +99,13 @@ def resolv_port(port):
 def resolv_iface(iface):
     """Normalize interface name."""
 
-   if re.match("(ext|wan1).*",iface):
-       iface = "ext"
+    if re.match("(ext|wan1).*", iface):
+        iface = "ext"
 
-   elif re.match("(int|port|dmz|wan).*",iface):
-       iface = "int"
+    elif re.match("(int|port|dmz|wan).*",iface):
+        iface = "int"
 
-   return iface
+    return iface
 
 
 def md5sum(datastring):

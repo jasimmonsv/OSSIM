@@ -142,7 +142,7 @@ class SDEE:
             self._force = kwargs['force']
 
         except:
-        self._force = 'no'
+            self._force = 'no'
 
 
     def data(self):
