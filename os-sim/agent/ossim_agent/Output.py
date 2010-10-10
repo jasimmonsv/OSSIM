@@ -1,23 +1,72 @@
-from Event import Event
+#
+# License:
+#
+#    Copyright (c) 2003-2006 ossim.net
+#    Copyright (c) 2007-2010 AlienVault
+#    All rights reserved.
+#
+#    This package is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; version 2 dated June, 1991.
+#    You may not use, modify or distribute this program under any other version
+#    of the GNU General Public License.
+#
+#    This package is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this package; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+#    MA  02110-1301  USA
+#
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL-2'.
+#
+# Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+#
+
+#
+# GLOBAL IMPORTS
+#
+import os
+import re
+import string
+import sys
+
+#
+# LOCAL IMPORTS
+#
 from Config import Conf, CommandLineOptions
+from Event import Event
 from Exceptions import AgentCritical
 from Logger import Logger
+
+#
+# GLOBAL VARIABLES
+#
 logger = Logger.logger
 
-import string, os, sys, re
+
 
 class OutputPlugins:
 
     def _open_file(self, file):
         dir = file.rstrip(os.path.basename(file))
+
         if not os.path.isdir(dir):
             try:
                 os.makedirs(dir, 0755)
+
             except OSError, e:
                 raise AgentCritical("Error creating directory (%s): %s" % \
                     (dir, e))
+
         try:
             fd = open(file, 'a')
+
         except IOError, e:
             raise AgentCritical("Error opening file (%s): %s" % (file, e))
 
@@ -26,9 +75,17 @@ class OutputPlugins:
     #
     # the following methods must be overriden in child classes
     #
-    def event(self, e): pass
-    def shutdown(self): pass
-    def plugin_state(self, msg): pass
+    def event(self, e):
+        pass
+
+
+    def shutdown(self):
+        pass
+
+
+    def plugin_state(self, msg):
+        pass
+
 
 
 class OutputPlain(OutputPlugins):
@@ -41,15 +98,18 @@ class OutputPlain(OutputPlugins):
         self.plain = self._open_file(self.conf.get("output-plain", "file"))
         self.activated = True
 
+
     def event(self, e):
         if self.activated:
             self.plain.write(str(e))
             self.plain.flush()
 
+
     def plugin_state(self, msg):
         if self.activated:
             self.plain.write(msg)
             self.plain.flush()
+
 
     def shutdown(self):
         logger.info("Closing Plain file..")
@@ -67,11 +127,15 @@ class OutputServer(OutputPlugins):
         self.send_events = False
         self.conf = Conf()
         self.options = CommandLineOptions().get_options()
+
         if self.options.config_file:
             conffile = self.options.config_file
+
         else:
             conffile = self.conf.DEFAULT_CONFIG_FILE
+
         self.conf.read([conffile])
+
         if self.conf.has_section("output-server"):
             if self.conf.getboolean("output-server", "send_events"):
                 self.send_events = True
@@ -81,6 +145,7 @@ class OutputServer(OutputPlugins):
         if self.activated and self.send_events:
             try:
                 self.conn.send(str(e))
+
             except:
                 return
 
@@ -89,6 +154,7 @@ class OutputServer(OutputPlugins):
         if self.activated:
             try:
                 self.conn.send(msg)
+
             except:
                 return
 
@@ -97,6 +163,8 @@ class OutputServer(OutputPlugins):
         self.conn.close()
         self.activated = False
 
+
+
 class OutputServerPro(OutputPlugins):
 
     def __init__(self, conn):
@@ -104,23 +172,29 @@ class OutputServerPro(OutputPlugins):
         self.conn = conn
         self.activated = True
 
+
     def match_event(self, e):
         return True
         regexp = ".*plugin_id=\"" + self.conn.get_id() + "\".*"
+
         if re.match(regexp, str(e)) is not None:
-                return True
+            return True
         else:
-                return False
+            return False
+
 
     def event(self, e):
         if self.match_event(e) and self.activated:
             try:
                 self.conn.send(str(e))
+
             except:
                 return
 
+
     def shutdown(self):
         self.activated = False
+
 
 
 class OutputCSV(OutputPlugins):
@@ -142,21 +216,27 @@ class OutputCSV(OutputPlugins):
     def __write_csv_header(self):
 
         header = ''
+
         for attr in Event.EVENT_ATTRS:
             header += "%s," % (attr)
         self.csv.write(header.rstrip(",") + "\n")
         self.csv.flush()
 
+
     def __write_csv_event(self, e):
 
         event = ''
+
         for attr in e.EVENT_ATTRS:
             if e[attr] is not None:
                 event += "%s," % (string.replace(e[attr], ',', ' '))
+
             else:
                 event += ","
+
         self.csv.write(event.rstrip(',') + "\n")
         self.csv.flush()
+
 
     def event(self, e):
 
@@ -170,6 +250,7 @@ class OutputCSV(OutputPlugins):
         self.csv.flush()
         self.csv.close()
         self.activated = False
+
 
 
 class OutputDB(OutputPlugins):
@@ -192,6 +273,7 @@ class OutputDB(OutputPlugins):
         self.conn.connect(type, host, base, user, password)
         self.activated = True
 
+
     def event(self, e):
 
         if self.conn is not None and e["event_type"] == "event" \
@@ -199,21 +281,29 @@ class OutputDB(OutputPlugins):
 
             # build query
             query = 'INSERT INTO event ('
+
             for attr in e.EVENT_ATTRS:
                 query += "%s," % (attr)
+
             query = query.rstrip(',')
             query += ") VALUES ("
+
             for attr in e.EVENT_ATTRS:
                 value = ''
+
                 if e[attr] is not None:
                     value = e[attr]
+
                 query += "'%s'," % (value)
+
             query = query.rstrip(',')
             query += ");"
 
             logger.debug(query)
+
             try:
                 self.conn.exec_query(query)
+
             except Exception, e:
                 logger.error(": Error executing query (%s)" % (e))
 
@@ -224,8 +314,9 @@ class OutputDB(OutputPlugins):
         self.activated = False
 
 
-# different ways to log ossim events (Event objects)
+
 class Output:
+    """Different ways to log ossim events (Event objects)."""
 
     _outputs = []
     plain_output = server_output = server_output_pro = csv_output = db_output = False
@@ -234,46 +325,63 @@ class Output:
         if Output.plain_output is False:
             Output._outputs.append(OutputPlain(conf))
             Output.plain_output = True
+
     add_plain_output = staticmethod(add_plain_output)
+
 
     def add_server_output(conn):
         if Output.server_output is False:
             Output._outputs.append(OutputServer(conn))
             Output.server_output = True
+
     add_server_output = staticmethod(add_server_output)
+
 
     def add_server_output_pro(conn):
         Output._outputs.append(OutputServerPro(conn))
         Output.server_output_pro = True
+
     add_server_output_pro = staticmethod(add_server_output_pro)
+
 
     def add_csv_output(conf):
         if Output.csv_output is False:
             Output._outputs.append(OutputCSV(conf))
             Output.csv_output = True
+
     add_csv_output = staticmethod(add_csv_output)
+
 
     def add_db_output(conf):
         if Output.db_output is False:
             Output._outputs.append(OutputDB(conf))
             Output.db_output = True
+
     add_db_output = staticmethod(add_db_output)
+
 
     def event(e):
         logger.info(str(e).rstrip())
+
         for output in Output._outputs:
             output.event(e)
+
     event = staticmethod(event)
+
 
     def plugin_state(msg):
         logger.info(str(msg).rstrip())
+
         for output in Output._outputs:
             output.plugin_state(msg)
+
     plugin_state = staticmethod(plugin_state)
+
 
     def shutdown():
         for output in Output._outputs:
             output.shutdown()
+
     shutdown =  staticmethod(shutdown)
 
 
@@ -284,6 +392,5 @@ if __name__ == "__main__":
     Output.event(event)
     Output.add_csv_output()
     Output.event(event)
-
 
 # vim:ts=4 sts=4 tw=79 expandtab:
