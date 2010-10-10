@@ -1,13 +1,56 @@
-import threading, time
+#
+# License:
+#
+#    Copyright (c) 2003-2006 ossim.net
+#    Copyright (c) 2007-2010 AlienVault
+#    All rights reserved.
+#
+#    This package is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; version 2 dated June, 1991.
+#    You may not use, modify or distribute this program under any other version
+#    of the GNU General Public License.
+#
+#    This package is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this package; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+#    MA  02110-1301  USA
+#
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL-2'.
+#
+# Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+#
 
-from Logger import Logger
-logger = Logger.logger
-from Output import Output
+#
+# GLOBAL IMPORTS
+#
+import threading
+import time
+
+#
+# LOCAL IMPORTS
+#
 import Config
-import Event
-from Threshold import EventConsolidation
-from Stats import Stats
 from ConnPro import ServerConnPro
+import Event
+from Logger import Logger
+from Output import Output
+from Stats import Stats
+from Threshold import EventConsolidation
+
+#
+# GLOBAL VARIABLES
+#
+logger = Logger.logger
+
+
 
 class Detector(threading.Thread):
 
@@ -23,20 +66,24 @@ class Detector(threading.Thread):
                      self._plugin.get("config", "plugin_id")))
         threading.Thread.__init__(self)
 
+
     def _event_os_cached(self, event):
 
         if isinstance(event, Event.EventOS):
             import string
             current_os = string.join(string.split(event["os"]), ' ')
             previous_os = self.os_hash.get(event["host"], '')
+
             if current_os == previous_os:
                 return True
+
             else:
                 # Fallthrough and add to cache
                 self.os_hash[event["host"]] = \
                     string.join(string.split(event["os"]), ' ')
 
         return False
+
 
     def _exclude_event(self, event):
         
@@ -51,12 +98,13 @@ class Detector(threading.Thread):
         return False
 
     def _thresholding(self):
-        #
-        # This section should contain:
-        # - Absolute thresholding by plugin, src, etc...
-        # - Time based thresholding
-        # - Consolidation
-        #
+        """
+        This section should contain:
+          - Absolute thresholding by plugin, src, etc...
+          - Time based thresholding
+          - Consolidation
+        """
+
         self.consolidation.process()
 
 
@@ -112,6 +160,7 @@ class Detector(threading.Thread):
 
         return event
 
+
     def send_message(self, event):
 
         if self._event_os_cached(event):
@@ -143,16 +192,22 @@ class Detector(threading.Thread):
 
         Stats.new_event(event)
 
+
     def stop(self):
         #self.consolidation.clear()
         pass
 
-    # must be overriden in child classes
     def process(self):
+        """Process method placeholder.
+
+        NOTE: Must be overriden in child classes.
+        """
         pass
+
 
     def run(self):
         self.process()
+
 
 
 class ParserSocket(Detector):
@@ -161,10 +216,13 @@ class ParserSocket(Detector):
         self.process()
 
 
+
 class ParserDatabase(Detector):
 
     def process(self):
         self.process()
+
+
 
 class ParserWMI(Detector):
 
