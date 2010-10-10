@@ -1,7 +1,49 @@
-from Logger import Logger
+#
+# License:
+#
+#    Copyright (c) 2003-2006 ossim.net
+#    Copyright (c) 2007-2010 AlienVault
+#    All rights reserved.
+#
+#    This package is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; version 2 dated June, 1991.
+#    You may not use, modify or distribute this program under any other version
+#    of the GNU General Public License.
+#
+#    This package is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this package; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+#    MA  02110-1301  USA
+#
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL-2'.
+#
+# Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+#
+
+#
+# GLOBAL IMPORTS
+#
 from time import mktime, strptime
 
+#
+# LOCAL IMPORTS
+#
+from Logger import Logger
+
+#
+# GLOBAL VARIABLES
+#
 logger = Logger.logger
+
+
 
 class Event:
 
@@ -40,19 +82,24 @@ class Event:
         "tzone"
     ]
 
+
     def __init__(self):
         self.event = {}
         self.event["event_type"] = self.EVENT_TYPE
+
 
     def __setitem__(self, key, value):
 
         if key in self.EVENT_ATTRS:
             self.event[key] = self.sanitize_value(value)
+
             if key == "date":
                 # The date in seconds anf fdate as string
                 self.event["fdate"]=self.event[key]
+
                 try:
                     self.event["date"]=int(mktime(strptime(self.event[key],"%Y-%m-%d %H:%M:%S")))
+
                 except:
                     logger.warning("There was an error parsing date (%s)" %\
                         (self.event[key]))
@@ -60,26 +107,34 @@ class Event:
         elif key != 'event_type':
             logger.warning("Bad event attribute: %s" % (key))
 
+
     def __getitem__(self, key):
         return self.event.get(key, None)
 
-    # event representation
+
     def __repr__(self):
+        """Event representation."""
         event = self.EVENT_TYPE
+
         for attr in self.EVENT_ATTRS:
             if self[attr]:
                 event += ' %s="%s"' % (attr, self[attr])
+
         return event + "\n"
 
-    # return the internal hash
+
     def dict(self):
+        # return the internal hash
         return self.event
+
 
     def sanitize_value(self, string):
         return str(string).strip().replace("\"", "\\\"").replace("'", "")
 
 
+
 class EventOS(Event):
+
     EVENT_TYPE = 'host-os-event'
     EVENT_ATTRS = [
         "host",
@@ -94,7 +149,10 @@ class EventOS(Event):
         "fdate",
     ]
 
+
+
 class EventMac(Event):
+
     EVENT_TYPE = 'host-mac-event'
     EVENT_ATTRS = [
         "host",
@@ -110,7 +168,10 @@ class EventMac(Event):
         "fdate",
     ]
 
+
+
 class EventService(Event):
+
     EVENT_TYPE = 'host-service-event'
     EVENT_ATTRS = [
         "host",
@@ -128,7 +189,10 @@ class EventService(Event):
         "fdate",
     ]
 
+
+
 class EventHids(Event):
+
     EVENT_TYPE = 'host-ids-event'
     EVENT_ATTRS = [
         "host",
@@ -197,7 +261,11 @@ class WatchRule(Event):
         "filename",
         "username",
     ]
+
+
+
 class Snort(Event):
+
     EVENT_TYPE = 'snort-event'
     EVENT_ATTRS = [
         "sensor",
