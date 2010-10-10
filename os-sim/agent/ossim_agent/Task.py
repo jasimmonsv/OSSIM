@@ -1,4 +1,42 @@
 #
+# License:
+#
+#    Copyright (c) 2003-2006 ossim.net
+#    Copyright (c) 2007-2010 AlienVault
+#    All rights reserved.
+#
+#    This package is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; version 2 dated June, 1991.
+#    You may not use, modify or distribute this program under any other version
+#    of the GNU General Public License.
+#
+#    This package is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this package; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+#    MA  02110-1301  USA
+#
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL-2'.
+#
+# Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+#
+
+#
+# GLOBAL IMPORTS
+#
+import os
+import signal
+import sys
+import time
+
+#
 __version__ = '$Id: Task.py,v 1.2 2009/02/13 14:42:53 dkarg Exp $'
 #
 # (C) Rob W.W. Hooft, Nonius BV, 1998, 1999, 2000
@@ -7,10 +45,11 @@ __version__ = '$Id: Task.py,v 1.2 2009/02/13 14:42:53 dkarg Exp $'
 # See: <http://starship.python.net/crew/hooft/>
 # Distribute freely.
 #
-import sys,os,signal,time
 
 class error(Exception):
     pass
+
+
 
 class _ready(Exception):
     pass
@@ -18,13 +57,17 @@ class _ready(Exception):
 def which(filename):
     """Find the file 'filename' in the execution path. If no executable
        file is found, return None"""
+
     for dir in os.environ['PATH'].split(os.pathsep):
         fn=os.path.join(dir,filename)
+
         if os.path.exists(fn):
             if os.stat(fn)[0]&0111:
                 return fn
+
     else:
         return None
+
 
     def Kill(self,signal=signal.SIGTERM):
         """Send a signal to the running subprocess.
@@ -34,10 +77,13 @@ def which(filename):
            return value:
                see os.kill()
         """
+
         if self.status is None:
             # Only if it is not already finished
             return os.kill(self.pid,signal)
-    
+
+
+
 class Task:
     """Manage asynchronous subprocess tasks.
        This differs from the 'subproc' package!
@@ -65,23 +111,30 @@ class Task:
        Public methods:
            __init__, __str__, Run, Wait, Kill, Done, Status.
     """
+
+
     def __init__(self,command):
         """Constructor.
            arguments:
                command: the command to run, in the form of a string,
                         or a tuple or list of words.
            """
+
         if type(command)==type(''):
             self.cmd=command
             self.words=command.split()
+
         elif type(command)==type([]) or type(command)==type(()):
             # Surround each word by ' '. Limitation: words cannot contain ' chars
             self.cmd="'"+"' '".join(command)+"'"
             self.words=tuple(command)
+
         else:
             raise error("command must be tuple, list, or string")
+
         self.pid=None
         self.status=None
+
 
     def Run(self,usesh=0,detach=0,stdout=None,stdin=None,stderr=None):
         """Actually run the process.
@@ -105,64 +158,85 @@ class Task:
                             If None, the stdin of the parent will be used.
                stderr=None: filename to use as stderr for the child process.
                             If None, the stderr of the parent will be used.
-           return value:                            
+           return value:
                None
         """
         if self.pid!=None:
             raise error("Second run on task forbidden")
+
         self.pid=os.fork()
+
         if not self.pid:
             for fn in range(3,256): # Close all non-standard files in a safe way
                 try:
                     os.close(fn)
+
                 except os.error:
                     pass
+
             if stdout: # Replace stdout by file
                 os.close(1)
                 i=os.open(stdout,os.O_CREAT|os.O_WRONLY|os.O_TRUNC,0666)
+
                 if i!=1:
                     sys.stderr.write("stdout not opened on 1!\n")
+
             if stdin: # Replace stdin by file
                 os.close(0)
                 i=os.open(stdin,os.O_RDONLY)
+
                 if i!=0:
                     sys.stderr.write("stdin not opened on 0!\n")
+
             if stderr: # Replace stderr by file
                 os.close(2)
                 i=os.open(stderr,os.O_CREAT|os.O_WRONLY|os.O_TRUNC,0666)
+
                 if i!=2:
                     sys.stdout.write("stderr not opened on 2!\n")
+
             try:
                 if detach:
                     os.execv('/bin/sh',('sh','-c',self.cmd+'&'))
+
                 elif usesh:
                     os.execv('/bin/sh',('sh','-c',self.cmd))
+
                 elif self.words[0]=='/':
                     os.execv(self.words[0],self.words)
+
                 else:
                     os.execvp(self.words[0],self.words)
+
             except:
                 print self.words
                 sys.stderr.write("Subprocess '%s' execution failed!\n"%self.cmd)
                 sys.exit(1)
+
         else:
             # Mother process
             if detach:
                 # Should complete "immediately"
                 self.Wait()
 
+
     def TextAbortableWait(self,text):
         print text
+
         try:
             return self.Wait()
+
         except KeyboardInterrupt:
             print "Interrupted."
             stat=self.Status()
+
             if stat is None:
                 # The process has not died yet. Kill it.
                 self.Kill(signal=2)
+
             return self.Wait()
-            
+
+
     def AbortableWait(self,interval=0.1,master=None,text=None):
         """Wait for the subprocess to terminate. Allowing user to abort using
            a Tkinter Dialog window.
@@ -178,35 +252,46 @@ class Task:
            return value:
                the exit status of the subprocess (0 if successful).
            """
+
         if master is None:
             return self.TextAbortableWait(text)
+
         import Pmw
         d=Pmw.MessageDialog(master,
                             message_text=text,
                             title='Working...',
                             buttons=('Abort',),
                             command=self._buttonkill)
+
         try:
             from misc import config
             d.configure(message_background=config.bgbusy)
+
         except ImportError:
             pass
+
         d.component('message').pack(ipadx=15,ipady=15)
         def doit(d=d,self=self,idlefunc=master.update,interval=interval):
             d.update()
             self.Wait(idlefunc=idlefunc,interval=interval)
             raise _ready
+
         d.configure(activatecommand=doit)
+
         try:
             try:
                 d.activate()
+
             except _ready:
                 pass
+
         finally:
             d.deactivate()
             d.destroy()
+
         return self.status
-    
+
+
     def Wait(self,idlefunc=None,interval=0.1):
         """Wait for the subprocess to terminate.
            If the process has already terminated, this function will return
@@ -229,6 +314,7 @@ class Task:
         if self.status!=None:
             # Already finished
             return self.status
+
         if callable(idlefunc):
             while 1:
                 try:
@@ -253,6 +339,7 @@ class Task:
                     return 0
         elif idlefunc:
             raise error("Non-callable idle function")
+
         else:
             while 1:
                 try:
@@ -271,10 +358,12 @@ class Task:
                     print "WARNING: Unfindable process. Somebody else asked for my status!"
                     self.status=0
                     return 0
-                
+
+
     def _buttonkill(self,arg):
         self.Kill()
-        
+
+
     def Kill(self,signal=signal.SIGTERM):
         """Send a signal to the running subprocess.
            optional arguments:
@@ -289,6 +378,7 @@ class Task:
         else:
             print "DBG> trying to send signal to finished program"
 
+
     def Done(self):
         """Ask whether the process has already finished.
            return value:
@@ -297,15 +387,19 @@ class Task:
         """
         if self.status!=None:
             return 1
+
         else:
             pid,status=os.waitpid(self.pid,os.WNOHANG)
+
             if pid==self.pid:
                 #print "OK:",pid,status
                 self.status=status
                 return 1
+
             else:
                 #print "NOK:",pid,status
                 return 0
+
 
     def Status(self):
         """Ask for the status of the task.
@@ -315,6 +409,7 @@ class Task:
         """
         self.Done()
         return self.status
+
 
     def __str__(self):
         if self.pid!=None:
@@ -326,9 +421,11 @@ class Task:
             s2="prepared"
         return "<%s: '%s', %s>"%(self.__class__.__name__,self.cmd,s2)
 
+
 class Attach:
     def __init__(self,pid):
         self.pid=pid
+
 
     def Kill(self,signal=signal.SIGTERM):
         """Send a signal to the attached process.
@@ -340,13 +437,18 @@ class Attach:
         """
         return os.kill(self.pid,signal)
 
+
     def Status(self):
         try:
             self.Kill(signal=0)
+
         except OSError:
             return 0 # Terminated (or owned by someone else)
+
         return None # Still running
-        
+
+
+
 if __name__=="__main__":
     ################
     print "Testing simple program run"
