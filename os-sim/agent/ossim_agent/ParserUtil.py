@@ -1,9 +1,51 @@
-# Set of functions to be used in plugin configuration
+#
+# License:
+#
+#    Copyright (c) 2003-2006 ossim.net
+#    Copyright (c) 2007-2010 AlienVault
+#    All rights reserved.
+#
+#    This package is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; version 2 dated June, 1991.
+#    You may not use, modify or distribute this program under any other version
+#    of the GNU General Public License.
+#
+#    This package is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this package; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+#    MA  02110-1301  USA
+#
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL-2'.
+#
+# Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+#
 
-import socket, re, time, datetime, md5
+#
+# GLOBAL IMPORTS
+#
+import datetime
+import md5
+import re
+import socket
+import time
+
+#
+# LOCAL IMPORTS
+#
 from SiteProtectorMap import *
 from NetScreenMap import *
 
+#
+# GLOBAL VARIABLES
+#
 HOST_RESOLV_CACHE = {}
 
 PROTO_TABLE = {
@@ -12,8 +54,10 @@ PROTO_TABLE = {
     '17':   'udp',
 }
 
-# translate a host name to IPv4 address
+"""Set of functions to be used in plugin configuration."""
+
 def resolv(host):
+    """Translate a host name to IPv4 address."""
 
     if HOST_RESOLV_CACHE.has_key(host):
         return HOST_RESOLV_CACHE[host]
@@ -21,36 +65,43 @@ def resolv(host):
     try:
         addr = socket.gethostbyname(host)
         HOST_RESOLV_CACHE[host] = addr
+
     except socket.gaierror:
         return host
 
     return addr
 
-# translate an IPv4 address to host name	 
-def resolv_ip(addr):	 
- 	 
-    try:	 
-        host = socket.gethostbyaddr(addr)	 
-    except socket.gaierror:	 
-        return host	 
- 	 
+
+def resolv_ip(addr):
+    """Translate an IPv4 address to host name."""
+
+    try:
+        host = socket.gethostbyaddr(addr)
+
+    except socket.gaierror:
+        return host
+
     return host
 
-# translate a port name into it's number
+
 def resolv_port(port):
+    """Translate a port name into it's number."""
 
     try:
         port = socket.getservbyname(port)
+
     except socket.error:
         return port
 
     return port
 
-# normalize interface name
+
 def resolv_iface(iface):
+    """Normalize interface name."""
 
    if re.match("(ext|wan1).*",iface):
        iface = "ext"
+
    elif re.match("(int|port|dmz|wan).*",iface):
        iface = "int"
 
@@ -60,39 +111,39 @@ def resolv_iface(iface):
 def md5sum(datastring):
     return md5.new(datastring).hexdigest();
 
+
 def snort_id(id):
     return str(1000 + int(id))
 
-def normalize_protocol(protocol):
 
-#
-#   fill protocols table reading /etc/protocols
-#
-#    try:
-#        fd = open('/etc/protocols')
-#    except IOError:
-#        pass
-#    else:
-#        pattern = re.compile("(\w+)\s+(\d+)\s+\w+")
-#        for line in fd.readlines():
-#            result = pattern.search(line)
-#            if result:
-#                proto_name   = result.groups()[0]
-#                proto_number = result.groups()[1]
-#                if not proto_table.has_key(proto_number):
-#                    proto_table[proto_number] = proto_name
-#        fd.close()
-#
+def normalize_protocol(protocol):
+    """Fill protocols table reading /etc/protocols.
+
+    try:
+        fd = open('/etc/protocols')
+    except IOError:
+        pass
+    else:
+        pattern = re.compile("(\w+)\s+(\d+)\s+\w+")
+        for line in fd.readlines():
+            result = pattern.search(line)
+            if result:
+                proto_name   = result.groups()[0]
+                proto_number = result.groups()[1]
+                if not proto_table.has_key(proto_number):
+                    proto_table[proto_number] = proto_name
+        fd.close()
+    """
 
     if PROTO_TABLE.has_key(str(protocol)):
         return PROTO_TABLE[str(protocol)]
-    
+
     return str(protocol).lower()
 
 
 ### normalize_date function ###
 
-# convert date strings to isoformat 
+# convert date strings to isoformat
 # you must tag regular expressions with the following names:
 # <year>, <month>, <minute>, <hour>, <minute>, <second>
 # or <timestamp> for timestamps
@@ -143,9 +194,10 @@ DATE_REGEXPS = [
 
 ]
 
-## for adding new date formats you should only
-## add a new regexp in the above array
 def normalize_date(string):
+    """For adding new date formats you should only
+    add a new regexp in the above array
+    """
 
     for pattern in DATE_REGEXPS:
         result = pattern.search(string)
@@ -156,35 +208,44 @@ def normalize_date(string):
 
         ### put here all sanity transformations you need
         if dict.has_key('timestamp'):
-            (dict['year'], dict['month'], dict['day'], 
+            (dict['year'], dict['month'], dict['day'],
              dict['hour'], dict['minute'], dict['second'], a, b, c) = \
                 time.localtime(float(dict['timestamp']))
+
         else:
             # year
             if dict.has_key('year') and not dict['year']:
                 dict['year'] = \
                     time.strftime('%Y', time.localtime(time.time()))
+
             elif not dict.has_key('year'):
                 dict['year'] = \
                     time.strftime('%Y', time.localtime(time.time()))
+
             elif len(dict['year']) == 2:
                 dict['year'] = '20' + str(dict['year'])
+
             # month
             if not dict.has_key('month'):
                 dict['month'] = \
                     time.strftime('%m', time.localtime(time.time()))
+
             elif dict.has_key('month') and not dict['month']:
                 dict['month'] = \
                     time.strftime('%m', time.localtime(time.time()))
+
             elif len(dict['month']) == 1:
                 dict['month'] = '0' + str(dict['month'])
-            # day 
+
+            # day
             if not dict.has_key('day'):
                 dict['day'] = \
                     time.strftime('%d', time.localtime(time.time()))
+
             elif dict.has_key('day') and not dict['day']:
                 dict['day'] = \
                     time.strftime('%d', time.localtime(time.time()))
+
             elif len(dict['day']) == 1:
                 dict['day'] = '0' + str(dict['day'])
 
@@ -193,12 +254,15 @@ def normalize_date(string):
                 try:
                     dict['month'] = \
                         time.strftime('%m', time.strptime(dict['month'], "%b"))
+
                 except ValueError:
                     try:
                         dict['month'] = \
                             time.strftime('%m', time.strptime(dict['month'], "%B"))
+
                     except ValueError:
                         pass
+
             # seconds
             if not dict.has_key('second'):
                 dict['second'] = 00
@@ -212,8 +276,10 @@ def normalize_date(string):
                                      hour   = int(dict['hour']),
                                      minute = int(dict['minute']),
                                      second = int(dict['second'])).isoformat(' ')
+
         except:
             print "There was an error in normalize_date() function"
+
         else:
             return date
 
@@ -227,9 +293,11 @@ def upper(string):
 def hextoint(string):
     try:
         return int(string, 16)
+
     except ValueError:
         pass
-        
+
+
 def intrushield_sid(mcafee_sid,mcafee_name):
     # All McAfee Intrushield id are divisible by 256, and this length doesn't fit in OSSIM's table
     mcafee_sid = hextoint(mcafee_sid)/256
@@ -240,6 +308,7 @@ def intrushield_sid(mcafee_sid,mcafee_name):
 
     # Ugly method to avoid duplicated sids
     mcafee_hash2 = 0
+
     for i in range(0,len(mcafee_name)):
         mcafee_hash2 = mcafee_hash2 + ord( mcafee_name[i] )
 
@@ -260,8 +329,10 @@ def netscreen_idp_sid(message):
 def checkValue(val):
     if val is not None and val != 0 and val != "0" and val != "" and val != "" and val != 1 and val != "1":
         return 1
+
     elif val is not None:
         return 0
+
     else:
         return None
 
