@@ -1,7 +1,50 @@
-import os, time
+#
+# License:
+#
+#    Copyright (c) 2003-2006 ossim.net
+#    Copyright (c) 2007-2010 AlienVault
+#    All rights reserved.
+#
+#    This package is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; version 2 dated June, 1991.
+#    You may not use, modify or distribute this program under any other version
+#    of the GNU General Public License.
+#
+#    This package is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this package; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+#    MA  02110-1301  USA
+#
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL-2'.
+#
+# Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+#
 
+#
+# GLOBAL IMPORTS
+#
+import os
+import time
+
+#
+# LOCAL IMPORTS
+#
 from Logger import Logger
+
+#
+# GLOBAL VARIABLES
+#
 logger = Logger.logger
+
+
 
 class Stats:
 
@@ -14,16 +57,22 @@ class Stats:
 
     def set_file(file):
         Stats.file = file
+
     set_file = staticmethod(set_file)
 
+    
     def startup():
         Stats.dates['startup'] = time.ctime(time.time())
+    
     startup = staticmethod(startup)
 
+    
     def shutdown():
         Stats.dates['shutdown'] = time.ctime(time.time())
+    
     shutdown = staticmethod(shutdown)
 
+    
     def new_event(event):
 
         if not Stats.events.has_key(event['plugin_id']):
@@ -39,31 +88,41 @@ class Stats:
 
         # events by plugin_id
         Stats.events[event['plugin_id']] += 1
+    
     new_event = staticmethod(new_event)
 
+    
     def watchdog_restart(plugin):
         Stats.watchdog['total'] += 1
+    
         if not Stats.watchdog.has_key(plugin):
             Stats.watchdog[plugin] = 0
+        
         Stats.watchdog[plugin] += 1
+    
     watchdog_restart = staticmethod(watchdog_restart)
 
 
     def server_reconnect():
         Stats.server_reconnects += 1
+    
     server_reconnect = staticmethod(server_reconnect)
 
+    
     def log_stats():
         logger.debug("Agent was started at: %s" % (Stats.dates['startup']))
         logger.info("Total events captured: %d" % (Stats.events['total']))
         if Stats.watchdog['total'] > 0:
             logger.warning("Apps restarted by watchdog: %d" % \
                 (Stats.watchdog['total']))
+        
         if Stats.server_reconnects > 0:
             logger.warning("Server reconnections attempts: %d" % \
                 (Stats.server_reconnects))
+    
     log_stats = staticmethod(log_stats)
 
+    
     def __summary():
         summary  = "\n-------------------------\n"
         summary += " Agent execution summary:\n"
@@ -77,10 +136,12 @@ class Stats:
         summary += "  + Total events: %d" % (Stats.events['total'])
         summary += " (Detector: %d, Monitor: %d)\n" % \
             (Stats.events['detector'], Stats.events['monitor'])
+        
         for plugin_id, n_events in Stats.events.iteritems():
             if not plugin_id:
                 if n_events:
                     summary += "    - plugin_id unkown: %d\n" % (int(n_events))
+            
             elif plugin_id.isdigit():
                 summary += "    - plugin_id %s: %d\n" % (plugin_id, n_events)
 
@@ -91,6 +152,7 @@ class Stats:
         # wathdog restarts
         summary += "  + Apps restarted by watchdog: %d\n" % \
             (Stats.watchdog['total'])
+        
         for process, n_restarts in Stats.watchdog.iteritems():
             if process != 'total':
                 summary += "    - process %s: %d\n" % (process, n_restarts)
@@ -102,8 +164,10 @@ class Stats:
 
         logger.info(summary)
         return summary
+    
     __summary = staticmethod(__summary)
 
+    
     def stats():
         summary = Stats.__summary()
         if not Stats.file:
@@ -114,6 +178,7 @@ class Stats:
         if not os.path.isdir(dir):
             try:
                 os.makedirs(dir, 0755)
+            
             except OSError, e:
                 logger.error(
                     "Can not create stats directory (%s): %s" % (dir, e))
@@ -121,8 +186,10 @@ class Stats:
 
         try:
             fd = open(Stats.file, 'a+')
+        
         except IOError, e:
             logger.warning("Error opening stats file: " + str(e))
+        
         else:
             fd.write(summary)
             fd.write ("\n\n");
@@ -131,5 +198,4 @@ class Stats:
             logger.info("Agent statistics written in %s" % (Stats.file))
 
     stats = staticmethod(stats)
-
 
