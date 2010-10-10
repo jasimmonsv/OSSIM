@@ -1,12 +1,53 @@
+#
+# License:
+#
+#    Copyright (c) 2003-2006 ossim.net
+#    Copyright (c) 2007-2010 AlienVault
+#    All rights reserved.
+#
+#    This package is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; version 2 dated June, 1991.
+#    You may not use, modify or distribute this program under any other version
+#    of the GNU General Public License.
+#
+#    This package is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this package; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+#    MA  02110-1301  USA
+#
+#
+# On Debian GNU/Linux systems, the complete text of the GNU General
+# Public License can be found in `/usr/share/common-licenses/GPL-2'.
+#
+# Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+#
+
+#
+# GLOBAL IMPORTS
+#
 import time
 
+#
+# LOCAL IMPORTS
+#
 import Config
+from EventList import EventList
 from Logger import Logger
+from Output import Output
+from Stats import Stats
+
+#
+# GLOBAL VARIABLES
+#
 logger = Logger.logger
 
-from Output import Output
-from EventList import EventList
-from Stats import Stats
+
 
 class EventConsolidation:
 
@@ -15,11 +56,13 @@ class EventConsolidation:
     MAX_TIME = 60.0
     EVENT_OCCURRENCES = "occurrences" # event field for occurrences value
 
+
     def __init__(self, conf):
         self._conf = conf
         self.__event_list = EventList()
         self.start_time = time.time()
         self.enable = self.__is_consolidation_enable()
+
 
     def __is_consolidation_enable(self):
 
@@ -52,14 +95,17 @@ class EventConsolidation:
         # 1) consolidation by plugin
         if self._conf.has_option(section, "by_plugin"):
             plugins = Config.split_sids(self._conf.get(section, "by_plugin"))
+
             if str(event["plugin_id"]) in plugins:
                 return True
 
         # 2) consolidation by src_ip
         for target in ("src_ip", "dst_ip", "sensor"):
             option = "by_" + target
+
             if self._conf.has_option(section, option):
                 ips = Config.split_sids(self._conf.get(section, option))
+
                 if event[target]:
                     if str(event[target]) in ips:
                         return True
@@ -96,6 +142,7 @@ class EventConsolidation:
 
         for e in events_to_remove:
             self.__event_list.removeRule(e)
+
         del events_to_remove
 
 
@@ -122,12 +169,16 @@ class EventConsolidation:
                 event_tmp[str_event] = 1
 
             # restore non comparable attributes
-            if date: event["date"] = date
-            if log:  event["log"] = log
+            if date:
+                event["date"] = date
+
+            if log:
+                event["log"] = log
 
         # remove duplicated events
         for e in events_to_remove:
             self.__event_list.removeRule(e)
+
         del events_to_remove
 
         # fill "occurrences" field
@@ -140,13 +191,16 @@ class EventConsolidation:
             str_event = str(event).strip()
             if event_tmp.has_key(str_event):
                 occurrences = int(event_tmp[str_event])
+
                 if occurrences > 1:
                     event[EventConsolidation.EVENT_OCCURRENCES] = \
                         str(occurrences)
 
-            if date: event["date"] = date
-            if log:  event["log"] = log
+            if date:
+                event["date"] = date
 
+            if log:
+                event["log"] = log
 
         self.clear()
 
@@ -158,8 +212,10 @@ class EventConsolidation:
 
         section = EventConsolidation.CONSOLIDATION_SECTION
         restart_time = self._conf.getfloat(section, "time")
+
         if restart_time > EventConsolidation.MAX_TIME:
             restart_time = EventConsolidation.MAX_TIME
+
         current_time = time.time()
 
         if self.start_time + restart_time < current_time:
@@ -172,6 +228,7 @@ class EventConsolidation:
 
     def __len__(self):
         return len(self.__event_list)
+
 
 
 if __name__ == "__main__":
