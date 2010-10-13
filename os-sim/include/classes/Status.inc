@@ -201,14 +201,16 @@ class Status {
 				$highrisk = $rs->fields['maxrisk'];
             }
         }
-		$sql = "SELECT count(*) as total FROM acid_event FORCE INDEX (timestamp) WHERE ossim_risk_c=$highrisk AND (timestamp BETWEEN '$from_date 00:00:00' AND '$to_date  23:59:59') $sensor_where $ip_where";
-		if (!$rs = $db->Execute($sql)) {
-			print $db->ErrorMsg();
-			var_dump($rs);
-        } else {
-            if (!$rs->EOF) {
-				$risknum = $rs->fields['total'];
-            }
+        if ($highrisk != "-" && $highrisk != "") {
+			$sql = "SELECT count(*) as total FROM acid_event FORCE INDEX (timestamp) WHERE ossim_risk_c=$highrisk AND (timestamp BETWEEN '$from_date 00:00:00' AND '$to_date  23:59:59') $sensor_where $ip_where";
+			if (!$rs = $db->Execute($sql)) {
+				print $db->ErrorMsg();
+				var_dump($rs);
+	        } else {
+	            if (!$rs->EOF) {
+					$risknum = $rs->fields['total'];
+	            }
+	        }
         }
 		return array($foundrows,$highrisk,$risknum,$date);
 	}
