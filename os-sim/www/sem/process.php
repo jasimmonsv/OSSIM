@@ -109,7 +109,6 @@ if (preg_match("/(.*sensor!=)(\S+)(.*)/", $a, $matches) || preg_match("/(.*senso
     $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
     $plugin_name = str_replace("'","",$plugin_name);
     $query = "select ip from sensor where name like '" . $plugin_name . "%'";
-    echo $query;
     if (!$rs = & $conn->Execute($query)) {
         print $conn->ErrorMsg();
         exit();

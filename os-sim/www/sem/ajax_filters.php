@@ -39,19 +39,38 @@ $mode = GET('mode');
 $filter_name = GET('filter_name');
 $start = GET('start');
 $end = GET('end');
-$query = GET('query');
+$query_sensor = GET('query_sensor');
+$query_source = GET('query_source');
+$query_destination = GET('query_destination');
+$query_data = GET('query_data');
+$op1 = (GET('op1') != "") ? GET('op1') : "and";
+$op2 = (GET('op2') != "") ? GET('op2') : "or";
+$op3 = (GET('op3') != "") ? GET('op3') : "and";
+$query = $query_data."@".$query_source."@".$query_destination."@".$query_sensor;
 ossim_valid($mode, OSS_ALPHA, 'illegal:' . _("mode"));
 ossim_valid($filter_name, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, 'illegal:' . _("filter_name"));
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("end date"));
-ossim_valid($query, OSS_TEXT, OSS_NULLABLE, '[', ']', 'illegal:' . _("query"));
+ossim_valid($query_sensor, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("query_sensor"));
+ossim_valid($query_source, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("query_source"));
+ossim_valid($query_destination, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("query_destination"));
+ossim_valid($query_data, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("query_data"));
+ossim_valid($op1, OSS_ALPHA, 'illegal:' . _("op1"));
+ossim_valid($op2, OSS_ALPHA, 'illegal:' . _("op2"));
+ossim_valid($op3, OSS_ALPHA, 'illegal:' . _("op3"));
 if (ossim_error()) {
     die(ossim_error());
 }
 if ($mode == "new") {
 	$_SESSION['logger_filters'][$filter_name]['start_aaa'] = $start;
 	$_SESSION['logger_filters'][$filter_name]['end_aaa'] = $end;
-	$_SESSION['logger_filters'][$filter_name]['query'] = $query;
+	$_SESSION['logger_filters'][$filter_name]['query'] = $query_data;
+	$_SESSION['logger_filters'][$filter_name]['query_source'] = $query_source;
+	$_SESSION['logger_filters'][$filter_name]['query_destination'] = $query_destination;
+	$_SESSION['logger_filters'][$filter_name]['query_sensor'] = $query_sensor;
+	$_SESSION['logger_filters'][$filter_name]['op1'] = $op1;
+	$_SESSION['logger_filters'][$filter_name]['op2'] = $op2;
+	$_SESSION['logger_filters'][$filter_name]['op3'] = $op3;
 	$uconfig->set(Session::get_session_user(), 'logger_filters', $_SESSION['logger_filters'], 'php', 'logger');
 	?>
         <input type="hidden" name="filter" id="filter" value="<?php echo $filter_name; ?>" />
@@ -92,7 +111,7 @@ if ($mode == "load") {
 	$filters = $uconfig->get(Session::get_session_user(), 'logger_filters', 'php', "logger");
 	$filter = $filters[$filter_name];
         ?>
-        <input type="hidden" name="filter_data" id="filter_data" value="##<?php echo $filter['start_aaa']."##".$filter['end_aaa']."##".$filter['query']; ?>##" />
+        <input type="hidden" name="filter_data" id="filter_data" value="##<?php echo $filter['start_aaa']."##".$filter['end_aaa']."##".$filter['query']."##".$filter['query_source']."##".$filter['query_destination']."##".$filter['query_sensor']."##".$filter['op1']."##".$filter['op2']."##".$filter['op3']; ?>##" />
         <input type="hidden" name="filter" id="filter" value="<?php echo $filter_name; ?>" />
         <ul>
         <? $i=0;

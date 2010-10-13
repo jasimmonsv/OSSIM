@@ -830,11 +830,17 @@ function save_filter(filter_name) {
 	//var filter_name = document.getElementById('filter').value;
 	var start = document.getElementById('start').value;
 	var end = document.getElementById('end').value;
-	var query = document.getElementById('searchbox').value;
+	var query_sensor = document.getElementById('query_sensor').value;
+	var query_source = document.getElementById('query_source').value;
+	var query_destination = document.getElementById('query_destination').value;
+	var query_data = document.getElementById('query_data').value;
+	var op1 = document.getElementById('op1').value;
+	var op2 = document.getElementById('op2').value;
+	var op3 = document.getElementById('op3').value;
 	document.getElementById('filter_msg').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif">';
 	$.ajax({
 		type: "GET",
-		url: "ajax_filters.php?mode=new&filter_name="+filter_name+"&start="+start+"&end="+end+"&query="+query,
+		url: "ajax_filters.php?mode=new&filter_name="+filter_name+"&start="+start+"&end="+end+"&query_sensor="+query_sensor+"&query_source="+query_source+"&query_destination="+query_destination+"&query_data="+query_data+"&op1="+op1+"&op2="+op2+"&op3="+op3,
 		data: "",
 		success: function(msg) {
 			document.getElementById('filter_msg').innerHTML = "";
@@ -845,13 +851,19 @@ function new_filter() {
 	var filter_name = document.getElementById('filter_name').value;
 	var start = document.getElementById('start').value;
 	var end = document.getElementById('end').value;
-	var query = document.getElementById('searchbox').value;
+	var query_sensor = document.getElementById('query_sensor').value;
+	var query_source = document.getElementById('query_source').value;
+	var query_destination = document.getElementById('query_destination').value;
+	var query_data = document.getElementById('query_data').value;
+	var op1 = document.getElementById('op1').value;
+	var op2 = document.getElementById('op2').value;
+	var op3 = document.getElementById('op3').value;
 	if (filter_name == "") alert("<?=_("You must type a name for the new filter.")?>");
 	else {
 		document.getElementById('filter_msg').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif">';
 		$.ajax({
 			type: "GET",
-			url: "ajax_filters.php?mode=new&filter_name="+filter_name+"&start="+start+"&end="+end+"&query="+query,
+			url: "ajax_filters.php?mode=new&filter_name="+filter_name+"&start="+start+"&end="+end+"&query_sensor="+query_sensor+"&query_source="+query_source+"&query_destination="+query_destination+"&query_data="+query_data+"&op1="+op1+"&op2="+op2+"&op3="+op3,
 			data: "",
 			success: function(msg) {
 				document.getElementById('filter_box').innerHTML = msg;
@@ -872,16 +884,22 @@ function change_filter(filter_name) {
 				document.getElementById('start_aaa').value = filter_data[1];
 				document.getElementById('end_aaa').value = filter_data[2];
 				//document.getElementById('searchbox').value = filter_data[3];
-				var new_query = filter_data[3];
-				if (new_query.match(/@/)) {
-					var aux = new_query.split("@");
-					document.getElementById('query_sensor').value = aux[0];
-					document.getElementById('query_source').value = aux[1];
-					document.getElementById('query_destination').value = aux[2];
-					document.getElementById('query_data').value = aux[3];
-				} else {
-					document.getElementById('query_data').value = new_query;
-				}
+				var new_query_data = filter_data[3];
+				var new_query_source = filter_data[4];
+				var new_query_destination = filter_data[5];
+				var new_query_sensor = filter_data[6];
+				var new_op1 = (filter_data[7] != "") ? filter_data[7] : "and";
+				var new_op2 = (filter_data[8] != "") ? filter_data[8] : "or";
+				var new_op3 = (filter_data[9] != "") ? filter_data[9] : "and";
+
+				document.getElementById('query_sensor').value = new_query_sensor;
+				document.getElementById('query_source').value = new_query_source;
+				document.getElementById('query_destination').value = new_query_destination;
+				document.getElementById('query_data').value = new_query_data;
+				$('#op1').val(new_op1);
+				$('#op2').val(new_op2);
+				$('#op3').val(new_op3);
+				
                 document.getElementById('filter_box').innerHTML = msg;
 				setFixed2();
 			}
