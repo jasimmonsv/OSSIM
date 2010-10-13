@@ -582,6 +582,7 @@ INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, reliability, prior
 INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, reliability, priority, name) VALUES(7043, 18142, NULL, NULL, 1,1, "ossec: User account unlocked.");
 INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, reliability, priority, name) VALUES(7043, 18143, NULL, NULL, 1,1, "ossec: Security enabled group created.");
 INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, reliability, priority, name) VALUES(7043, 18144, NULL, NULL, 1,1, "ossec: Security enabled group deleted.");
+INSERT INTO plugin_sid (plugin_id,sid,category_id,class_id,reliability,priority,name,aro,subcategory_id) VALUES (7006,18149,2,NULL,1,1,'ossec: Windows user logoff.','0.0000',27);
 INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, reliability, priority, name) VALUES(7090, 18170, NULL, NULL, 1,1, "ossec: Windows DC integrity check on decrypted field failed.");
 INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, reliability, priority, name) VALUES(7090, 18171, NULL, NULL, 1,1, "ossec: Windows DC - Possible replay attack.");
 INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, reliability, priority, name) VALUES(7090, 18172, NULL, NULL, 1,1, "ossec: Windows DC - Clock skew too great.");
