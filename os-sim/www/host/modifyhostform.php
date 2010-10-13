@@ -212,6 +212,7 @@ if (GET('newport') != ""||GET('port')!="") {
 	<table>
 	  <form method="post" action="modifyhost.php">
 	  <input type="hidden" name="insert" value="insert">
+	  <input type="hidden" name="hostname_old" value="<?php echo $host->get_hostname() ?>">
 	  <tr>
             <th> <?php echo gettext("Hostname"); ?></th>
             <td class="left"><input type="text" name="hostname" size="25" value="<?php

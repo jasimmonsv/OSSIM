@@ -55,6 +55,7 @@ echo gettext("Update host"); ?> </h1>
 require_once ('classes/Security.inc');
 $insert = POST('insert');
 $hostname = POST('hostname');
+$hostname_old = POST('hostname_old');
 $fqdns = POST('fqdns');
 $latitude = POST('latitude');
 $longitude = POST('longitude');
@@ -78,6 +79,7 @@ $sensor_name = POST('name');
 $rrd_profile = POST('rrd_profile');
 ossim_valid($insert, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("insert"));
 ossim_valid($hostname, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("hostname"));
+ossim_valid($hostname_old, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("hostname_old"));
 
 $fqdns_list = explode (",", $fqdns);
 
@@ -128,6 +130,11 @@ if (!empty($insert)) {
     $db = new ossim_db();
     $conn = $db->connect();
     Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
+    if ($hostname != $hostname_old) {
+    	$query = "UPDATE risk_indicators SET type_name=? WHERE type='host' AND type_name=?";
+		$params = array($hostname,$hostname_old);
+        $conn->Execute($query, $params);
+    }
     Host_scan::delete($conn, $ip, 3001);
     Host_scan::delete($conn, $ip, 2007);
     if (!empty($nessus)) Host_scan::insert($conn, $ip, 3001);

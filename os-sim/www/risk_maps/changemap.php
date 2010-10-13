@@ -95,6 +95,12 @@ if ($erase_element != "") {
 	if (getimagesize("maps/".$erase_element)) {
 		unlink("maps/" . $erase_element);
 		$_SESSION["riskmap"] = $map = 1;
+		preg_match("/(\d+)\./",$erase_element,$found);
+		$map_id = $found[1];
+		if ($map_id > 0) {
+			$query = "DELETE FROM risk_indicators WHERE map=$map_id";
+			$result = $conn->Execute($query);
+		}
 	}
 }
 
@@ -158,7 +164,7 @@ while (!$result->EOF) {
 					?>
 					<td>
 						<table style="background-color:<?php echo ($n == $default_map) ? "#F2F2F2" : "#FFFFFF"?>">
-							<tr><td class="text-align:right" align="right"><a href='changemap.php?map=<?php echo $map?>&delete=<?php echo urlencode($ico)?>' title='<?php echo _("Delete map") ?>'><img src='../pixmaps/cross-circle-frame.png' border=0></a></td></tr>
+							<tr><td class="text-align:right" align="right"><a href='changemap.php?map=<?php echo $map?>&delete=<?php echo urlencode($ico)?>' onclick="if (!confirm('<?php echo _("Are you sure?") ?>')) return false" title='<?php echo _("Delete map") ?>'><img src='../pixmaps/cross-circle-frame.png' border=0></a></td></tr>
 							<tr>
 								<td>
 									<a href='view.php?map=<?php echo $n?>'><img src='maps/<?php echo $ico?>' border='<?php echo (($map==$n) ? "1" : "0")?>' width=150 height=150></a>
