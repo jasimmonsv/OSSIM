@@ -296,7 +296,7 @@ $snort_ids = range(1000, 1500);
 // ojo antes GetTagTriger(BuildSigByID($myrow2[0], $db, 1, $plugin_id) , $db, $sid, $cid))
 echo '
        <BLOCKQUOTE>
-       <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" width="90%">
+       <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="100%">
           <TR><TD CLASS="header3" WIDTH=50 ALIGN=CENTER ROWSPAN=4>Meta</TD>
               <TD>
                   <TABLE BORDER=0 CELLPADDING=4>
@@ -334,7 +334,7 @@ if ($resolve_IP == 1) {
               <TD>
                 <TABLE BORDER=0 CELLPADDING=4>
                   <TR><TD CLASS="iptitle" ALIGN=CENTER ROWSPAN=2>FQDN</TD>
-                       <TD class="plfieldhdr">' . _SENSOR . ' ' . _NAME . '</TD>
+                       <TD class="header">' . _SENSOR . ' ' . _NAME . '</TD>
                   </TR>
                   <TR><TD class="plfield">' . (baseGetHostByAddr(($myrow4["sensor"]!="") ? $myrow4["sensor"] : $myrow4["hostname"], $db, $dns_cache_lifetime)) . '</TD>
                   </TR>
@@ -352,9 +352,9 @@ echo ' <TR>
 <TR><TD CLASS="metatitle" ALIGN=CENTER ROWSPAN='.($num+1).'>'._ALERTGROUP.'</TD>';
 
 if ( $num > 0 )
-echo '        <TD class="plfieldhdr">'._ID.'</TD>
-<TD class="plfieldhdr">'._NAME.'</TD>
-<TD class="plfieldhdr">'._DESC.'</TD></TR>';
+echo '        <TD class="header">'._ID.'</TD>
+<TD class="header">'._NAME.'</TD>
+<TD class="header">'._DESC.'</TD></TR>';
 else
 echo '        <TD class="plfield">&nbsp;&nbsp;<I>'._NONE.'</I>&nbsp;</TD></TR>';
 
@@ -384,7 +384,7 @@ if ($myrow2 = $result2->baseFetchRow()) {
         $result3 = $db->baseExecute($sql3);
         $num_opt = $result3->baseRecordCount();
         echo '<br>
-           <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="90%">
+           <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="100%">
               <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=3 ALIGN=CENTER>IP';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
@@ -427,8 +427,8 @@ if ($myrow2 = $result2->baseFetchRow()) {
                   <TD>
                     <TABLE BORDER=0 CELLPADDING=4>
                       <TR><TD CLASS="iptitle" ALIGN=CENTER ROWSPAN=2>FQDN</TD>
-                           <TD class="plfieldhdr">' . _SOURCENAME . '</TD>
-                           <TD class="plfieldhdr">' . _DESTNAME . '</TD>
+                           <TD class="header">' . _SOURCENAME . '</TD>
+                           <TD class="header">' . _DESTNAME . '</TD>
                       </TR>
                       <TR><TD class="plfield">' . (baseGetHostByAddr(baseLong2IP($myrow2[0]) , $db, $dns_cache_lifetime)) . '</TD>
                           <TD class="plfield">' . (baseGetHostByAddr(baseLong2IP($myrow2[1]) , $db, $dns_cache_lifetime)) . '</TD>
@@ -445,9 +445,9 @@ if ($myrow2 = $result2->baseFetchRow()) {
         $layer4_proto = $myrow2[11];
         if ($num_opt > 0) {
             echo '            <TD></TD>
-                           <TD class="plfieldhdr">' . _CODE . '</TD>
-                           <TD class="plfieldhdr">' . _LENGTH . '</TD>
-                           <TD class="plfieldhdr" ALIGN=CENTER>' . _DATA . '</TD>';
+                           <TD class="header">' . _CODE . '</TD>
+                           <TD class="header">' . _LENGTH . '</TD>
+                           <TD class="header" ALIGN=CENTER>' . _DATA . '</TD>';
             for ($i = 0; $i < $num_opt; $i++) {
                 $myrow3 = $result3->baseFetchRow();
                 echo '    <TR><TD>#' . ($i + 1) . '</TD>';
@@ -478,7 +478,7 @@ if ($layer4_proto == "6") {
         $result3 = $db->baseExecute($sql3);
         $num_opt = $result3->baseRecordCount();
         echo '<br>
-               <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="90%">
+               <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="100%">
                   <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>TCP';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
@@ -590,7 +590,7 @@ if ($layer4_proto == "17") {
     $result2 = $db->baseExecute($sql2);
     if ($myrow2 = $result2->baseFetchRow()) {
         echo '<br>
-               <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="90%">
+               <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="100%">
                   <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>UDP</TD>';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
@@ -619,7 +619,7 @@ if ($layer4_proto == "1") {
     $result2 = $db->baseExecute($sql2);
     if ($myrow2 = $result2->baseFetchRow()) {
         echo '<br>
-               <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="90%">
+               <TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="100%">
                   <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>ICMP';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
@@ -650,21 +650,21 @@ if ($plugin_id==1505 && $plugin_sid!="") {
         $kdb = $myrow2[0];
     }
     if ($kdb!="") {
-        echo '<br><TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="90%">
+        echo '<br><TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="100%">
            <TR><TD class="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>KDB</TD><TD class="header4" valign="top" style="padding-left:5px">' . $kdb . 
            '</TD></TR></TABLE>';
     }
 }
 
 if (in_array($plugin_id, $snort_ids)) {
-    echo '<br><TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="90%">
+    echo '<br><TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="100%">
            		<TR><TD class="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER valign="top">Payload';
     echo ("<br><br>" . PrintCleanURL());
     echo ("<br>" . PrintBinDownload($db, $cid, $sid));
     echo ("<br>" . PrintPcapDownload($db, $cid, $sid));
     echo ("<br>" . showShellcodeAnalysisLink($cid, $sid, $plugin_sid_name));
 } else {
-    echo '<br><TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="90%">
+    echo '<br><TABLE BORDER=0 cellpadding=2 cellspacing=0 class="bborder" WIDTH="100%">
            <TR><TD class="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>Log';
 }
 echo '       <TD>';
@@ -739,16 +739,16 @@ if ($payload) {
             echo '<TABLE BORDER=0>';
             echo '<TR>';
             if ($ICMPitype == "5") {
-                echo '<TD class="plfieldhdr">Gateway IP</TD>';
-                echo '<TD class="plfieldhdr">Gateway Name</TD>';
+                echo '<TD class="header">Gateway IP</TD>';
+                echo '<TD class="header">Gateway Name</TD>';
             }
-            echo '<TD class="plfieldhdr">Protocol</TD>';
-            echo '<TD class="plfieldhdr">Org.Source<BR>IP</TD>';
-            echo '<TD class="plfieldhdr">Org.Source<BR>Name</TD>';
-            if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="plfieldhdr">Org.Source<BR>Port</TD>';
-            echo '<TD class="plfieldhdr">Org.Destination<BR>IP</TD>';
-            echo '<TD class="plfieldhdr">Org.Destination<BR>Name</TD>';
-            if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="plfieldhdr">Org.Destination<BR>Port</TD>';
+            echo '<TD class="header">Protocol</TD>';
+            echo '<TD class="header">Org.Source IP</TD>';
+            echo '<TD class="header">Org.Source Name</TD>';
+            if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="header">Org.Source<BR>Port</TD>';
+            echo '<TD class="header">Org.Destination IP</TD>';
+            echo '<TD class="header">Org.Destination Name</TD>';
+            if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="header">Org.Destination<BR>Port</TD>';
             echo '</TR>';
             echo '<TR>';
             if ($ICMPitype == "5") {
