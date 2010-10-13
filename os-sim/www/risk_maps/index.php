@@ -207,10 +207,11 @@ $conn = $db->connect();
 
 $perms = array();
 $query = "SELECT map,perm FROM risk_maps";
-$result = $conn->Execute($query);
-while (!$result->EOF) {
-	$perms[$result->fields['map']][$result->fields['perm']]++;
+if ($result = $conn->Execute($query)) {
+  while (!$result->EOF) {
+    $perms[$result->fields['map']][$result->fields['perm']]++;
     $result->MoveNext();
+  }
 }
 if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
 	echo "<br><br><center>"._("You don't have permission to see this Map.")."</center>";
