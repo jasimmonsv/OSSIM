@@ -230,7 +230,7 @@ function display_info ( var1, var2, var3, var4, var5, var6 ){
 function getSearchQuery() {
 	var search_string = "";
 	if (document.getElementById('query_sensor').value != "") {
-		search_string = "sensor='"+document.getElementById('query_source').value+"'";
+		search_string = "sensor='"+document.getElementById('query_sensor').value+"'";
 	}
 	if (document.getElementById('query_source').value != "") {
 		if (search_string != "") search_string += " "+document.getElementById('op1').value+" ";
@@ -270,7 +270,7 @@ function MakeRequest()
 	var sort = escape(document.getElementById('sort').value);
 
         var txtexport = document.getElementById('txtexport').value;
-alert();
+
 	$.ajax({
 		type: "GET",
 		url: "process.php?query=" + str + "&offset=" + offset + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid
@@ -962,7 +962,7 @@ require_once ("manage_querys.php");
 											<td class="nobborder" style="text-align:left;font-size:11px;font-weight:bold;color:#222222"><?=_("Sensor")?>
 											<br></br><input type="text" name="query_sensor" id="query_sensor" style="width:180px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
 											<td valign="bottom">
-												<select name="op1">
+												<select name="op1" id="op1">
 													<option value="and">AND</option>
 													<option value="or">OR</option>
 												</select>
@@ -970,15 +970,15 @@ require_once ("manage_querys.php");
 											<td class="nobborder" style="text-align:left;font-size:11px;font-weight:normal;color:#222222"><?=_("Source")?>
 											<br></br><input type="text" name="query_source" id="query_source" style="width:180px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
 											<td valign="bottom">
-												<select name="op2">
-													<option value="and">AND</option>
+												<select name="op2" id="op2">
 													<option value="or">OR</option>
+													<option value="and">AND</option>
 												</select>
 											</td>
 											<td class="nobborder" style="text-align:left;font-size:11px;font-weight:normal;color:#222222"><?=_("Destination")?>
 											<br></br><input type="text" name="query_destination" id="query_destination" style="width:180px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
 											<td valign="bottom">
-												<select name="op3">
+												<select name="op3" id="op3">
 													<option value="and">AND</option>
 													<option value="or">OR</option>
 												</select>
