@@ -58,7 +58,8 @@ class Host_sensor_reference {
         return $this->sensor_name;
     }
     function get_list($conn, $ip) {
-        $sql = "SELECT * FROM host_sensor_reference WHERE host_ip = ?";
+	$sql = "SELECT hs.* FROM sensor s, host_sensor_reference hs
+		WHERE hs.host_ip = ? AND s.name = hs.sensor_name ORDER BY s.priority DESC,s.name ASC";
         $params = array(
             $ip
         );

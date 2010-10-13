@@ -54,7 +54,9 @@ $db = new ossim_db();
 $conn = $db->connect();
 $sensor = GET('sensor');
 $opc = GET('opc');
+$nagios_lnk = GET('nagios_link');
 ossim_valid($sensor, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor"));
+ossim_valid($nagios_lnk, OSS_TEXT, OSS_NULLABLE, "\/\?\=\.\-\_", 'illegal:' . _("Nagios Link"));
 ossim_valid($opc, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Default option"));
 if (ossim_error()) {
     die(ossim_error());
@@ -73,7 +75,7 @@ $nagios_link = $conf->get_conf("nagios_link");
 if ($nagios_link[0] != "/" && strpos($nagios_link, "http" != 0)) {
     $nagios_link = "/" . $nagios_link;
 }
-$fr_down = $nagios_link . "/cgi-bin/status.cgi?hostgroup=all";
+$fr_down = $nagios_link . (($nagios_lnk!="") ? $nagios_lnk : "/cgi-bin/status.cgi?hostgroup=all");
 if ($opc == "reporting") $fr_down = $nagios_link . "/cgi-bin/trends.cgi";
 
 if (GET('fr_down') != "") $fr_down = GET('fr_down');

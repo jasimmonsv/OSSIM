@@ -181,6 +181,7 @@ class Host_group {
         }
         return $attack;
     }
+
     function get_sensors($conn, $name = "") {
         if ($name != "") {
             return Host_group_sensor_reference::get_list($conn, $name);
@@ -188,24 +189,17 @@ class Host_group {
             return Host_group_sensor_reference::get_list($conn, $this->name);
         }
     }
-    /*
-    function get_sensors_list($conn, $name){
-    $sensors = array();
-    $hosts = Host_group::get_hosts($conn, $name);
     
-    foreach($hosts as $host){
-    $name = $host->get_host_name();
-    
-    $sensor_list = Host_sensor_reference::get_list($conn, $name);
-    if(is_array($sensor_list)){
-    foreach($sensor_list as $sensor){
-    if(!in_array($sensor->get_sensor_name(), $sensors)) array_push($sensors, $sensor->get_sensor_name());
+    function get_related_sensors($conn, $name){
+	require_once("classes/Sensor.inc");
+    	$sensors = array();
+	$related = Host_group_sensor_reference::get_list($conn, $name);
+    	foreach($related as $rl) {
+		$sensors[Sensor::get_sensor_ip($conn,$rl->get_sensor_name())]++;
+    	}
+    	return array_keys($sensors);
     }
-    }
-    }
-    return $sensors;
-    }
-    */
+
     function insert($conn, $name, $threshold_c, $threshold_a, $rrd_profile, $sensors, $hosts, $descr) {
         settype($threshold_c, "int");
         settype($threshold_a, "int");

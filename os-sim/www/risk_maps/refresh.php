@@ -80,6 +80,13 @@ if (!$rs = &$conn->Execute($query, $params)) {
                 $name = $rs3->fields["ip"];
                 if ($rs3->EOF) $in_assets = 0;
             }
+            // related sensor
+            $sensor = $name;
+            if ($type == "host") {
+                require_once 'classes/Host.inc';
+                $sensors = Host::get_related_sensors($conn,$name);
+                $sensor = ($sensors[0]!="") ? $sensors[0] : $name;
+            }
         } elseif ($type == "net") {
             $query = "select ips from net where name = ?";
             $params = array($name);
@@ -87,6 +94,10 @@ if (!$rs = &$conn->Execute($query, $params)) {
                 $ips = $rs3->fields["ips"];
                 if ($rs3->EOF) $in_assets = 0;
             }
+            // related sensor
+            require_once 'classes/Net.inc';
+            $sensors = Net::get_related_sensors($conn,$name);
+            $sensor = ($sensors[0]!="") ? $sensors[0] : $name;
         } elseif ($type == "host_group") {
             $query = "select host_ip from host_group_reference where host_group_name = ?";
             $params = array($name);
@@ -99,6 +110,10 @@ if (!$rs = &$conn->Execute($query, $params)) {
                 $ips = (count($iphg) > 0) ? implode(",",$iphg) : "'0.0.0.0'";
                 if (count($iphg) == 0) $in_assets = 0;
             }
+            // related sensor{
+            require_once 'classes/Host_group.inc';
+            $sensors = Host_group::get_related_sensors($conn,$name);
+            $sensor = ($sensors[0]!="") ? $sensors[0] : $name;
         }
         $params = ($type == "host_group") ? array() : array($name);
 
@@ -163,7 +178,8 @@ if (!$rs = &$conn->Execute($query, $params)) {
         $ips = ($type=="net") ? $ips : $name;
         $r_url = "../control_panel/show_image.php?ip=".urlencode(($type == "host_group") ? $r_ip : $name)."&range=year&what=compromise&start=N-1Y&end=N&type=$gtype&zoom=1&hmenu=Risk&smenu=Metrics";
         $v_url = "../vulnmeter/index.php?value=".urlencode(($type == "host_group") ? $v_ip : $ips)."&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities";
-        $a_url = "../nagios/index.php?sensor=".urlencode(($type == "host_group") ? $a_ip : $ips)."&hmenu=Availability&smenu=Availability";
+        //$a_url = "../nagios/index.php?sensor=".urlencode($sensor)."&hmenu=Availability&smenu=Availability&detail=".urlencode(($type == "host_group") ? $a_ip : $ips)."";
+        $a_url = "../nagios/index.php?sensor=".urlencode($sensor)."&hmenu=Availability&smenu=Availability&nagios_link=".urlencode("/cgi-bin/status.cgi?host=all");
         
         $change_div = "changeDiv('".$rs->fields["id"]."','".$rs->fields["name"]."','".$rs->fields["url"]."','".$rs->fields["icon"]."',$new_value,'$r_url','$v_url','$a_url','$ips',".$rs->fields["size"].");\n";
 		if ($in_assets) echo $change_div;
