@@ -871,8 +871,18 @@ function change_filter(filter_name) {
 			if (filter_data[0] != "" && filter_data[1] != "") {
 				document.getElementById('start_aaa').value = filter_data[1];
 				document.getElementById('end_aaa').value = filter_data[2];
-				document.getElementById('searchbox').value = filter_data[3];
-                                document.getElementById('filter_box').innerHTML = msg;
+				//document.getElementById('searchbox').value = filter_data[3];
+				var new_query = filter_data[3];
+				if (new_query.match(/@/)) {
+					var aux = new_query.split("@");
+					document.getElementById('query_sensor').value = aux[0];
+					document.getElementById('query_source').value = aux[1];
+					document.getElementById('query_destination').value = aux[2];
+					document.getElementById('query_data').value = aux[3];
+				} else {
+					document.getElementById('query_data').value = new_query;
+				}
+                document.getElementById('filter_box').innerHTML = msg;
 				setFixed2();
 			}
 			else alert("Error: "+msg);
