@@ -271,9 +271,10 @@ sub set_filters {
 					set_taxonomy_filters($atom,$and_num,$or_num);
 				}
 				# Some fields filter
-				elsif ($1 eq "id" || $1 eq "fdate" || $1 eq "date" || $1 eq "plugin_id" || $1 eq "sensor" || $1 eq "src_ip" || $1 eq "dst_ip" || $1 eq "src_port" || $1 eq "dst_port" || $1 eq "tzone"|| $1 eq "data"){
+				elsif ($1 eq "id" || $1 eq "fdate" || $1 eq "date" || $1 eq "plugin_id" || $1 eq "sensor" || $1 eq "src_ip" || $1 eq "dst_ip" || $1 eq "ip_src" || $1 eq "ip_dst" || $1 eq "src_port" || $1 eq "dst_port" || $1 eq "tzone"|| $1 eq "data"){
 					$aux = $2;
 					$par = $1;
+					$par =~ s/ip\_(...)/$1_ip/;
 					$aux =~ s/'+//g;
 					$aux = quotemeta $aux if ($par eq "data");
 					$filters{$and_num}{$or_num}{$par} = $aux; $or_num++;
