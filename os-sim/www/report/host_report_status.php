@@ -122,7 +122,7 @@ list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resu
 //list($sim_events,$sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date,$unique_events,$event_cnt,$plots,$sim_ports,$sim_ipsrc,$sim_ipdst,$sim_gplot,$sim_numevents) = Status::get_SIM($host,$host);
 list($sim_ports,$sim_ipsrc,$sim_ipdst) = Status::get_SIM_Clouds($host,$host);
 $sim_gplot = Status::get_SIM_Plot($host,$host,$date_from_week,$date_to);
-list($unique_events,$plots,$sim_numevents) = Status::get_SIM_Unique($host,$host,$date_from,$date_to,$limit);
+list($unique_events,$plots,$sim_numevents) = Status::get_SIM_Unique($host,$host,$date_from_week,$date_to,$limit);
 if ($event_cnt < 1) $event_cnt = 1;
 
 ?><script type="text/javascript">$("#pbar").progressBar(40);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("Logger Events")?></b>...');</script><?
