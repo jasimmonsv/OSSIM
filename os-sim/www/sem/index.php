@@ -38,7 +38,7 @@ require_once ("classes/Util.inc");
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/User_config.inc');
-include("classes/Databases.inc");
+include("classes/Server.inc");
 Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ('../graphs/charts.php');
 header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
@@ -59,7 +59,7 @@ $param_query = GET("query") ? GET("query") : "";
 $param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31));
 $param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
 
-$database_servers = Databases::get_list($conn_aux);
+$database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
 $logger_servers = array();
 if (GET('num_servers') != "") {
 	$num_servers = GET('num_servers');
@@ -932,19 +932,18 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 				<tr bgcolor='#EEEEEE'>
 					<td><input type="checkbox" onclick="document.serverform.submit()" name="local" value="local" <?php if ($logger_servers["local"]) echo "checked" ?>></input></td>
 					<td><img src='../server/getdbsicon.php?name=local' border=0 width='16' height='16'></td>
-					<td><a href='<?php echo $actual_url."server=local" ?>'><?php echo _("Local") ?></a></td>
+					<td><?php echo _("Local") ?></td>
 				</tr>			
 				<?php
 				$i = 1;
 				foreach ($database_servers as $db) {
 					$i++;
-					$svar = base64_encode($db->get_ip().":".$db->get_port().":".$db->get_user().":".$db->get_pass());
 					$name = $db->get_name();
 					?>
 					<tr bgcolor='#EEEEEE'>
 						<td><input type="checkbox" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) echo "checked" ?>></input></td>
-						<td><img src='../server/getdbsicon.php?name=<?php echo urlencode($db->get_ip()) ?>' border=0 width='16' height='16'></td>
-						<td><a href='<?php echo $actual_url."server=".$svar ?>'><?php echo $name ?></a></td>
+						<td></td>
+						<td><?php echo $name ?></td>
 					</tr>
 				<?php } ?>
 			</table>
@@ -1000,60 +999,31 @@ require_once ("manage_querys.php");
 		<tr><td class="nobborder" align="center" style="text-align:center">
 			<table class="transparent" align="center">
 				<tr>
-					<td>
-						<table>
-							<tr>
-								<td>
-									<table width='100%'>
-										
-										<tr>
-											<td class="nobborder" style="text-align:left;font-size:11px;font-weight:bold;color:#222222"><?=_("Sensor")?>
-											<br></br><input type="text" name="query_sensor" id="query_sensor" style="width:180px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
-											<td valign="bottom">
-												<select name="op1" id="op1">
-													<option value="and">AND</option>
-													<option value="or">OR</option>
-												</select>
-											</td>
-											<td class="nobborder" style="text-align:left;font-size:11px;font-weight:normal;color:#222222"><?=_("Source")?>
-											<br></br><input type="text" name="query_source" id="query_source" style="width:180px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
-											<td valign="bottom">
-												<select name="op2" id="op2">
-													<option value="or">OR</option>
-													<option value="and">AND</option>
-												</select>
-											</td>
-											<td class="nobborder" style="text-align:left;font-size:11px;font-weight:normal;color:#222222"><?=_("Destination")?>
-											<br></br><input type="text" name="query_destination" id="query_destination" style="width:180px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
-											<td valign="bottom">
-												<select name="op3" id="op3">
-													<option value="and">AND</option>
-													<option value="or">OR</option>
-												</select>
-											</td>
-											<td class="nobborder" style="text-align:left;font-size:11px;font-weight:bold;color:#222222"><?=_("Search Data")?>
-											<br></br><input type="text" name="query_data" id="query_data" style="width:250px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
-										</tr>
-										
-									</table>
-								</td>
-							</tr>
-							<tr>
-								<td align="center">
-									<table>
-										<tr>
-										<td class="nobborder"><input type="button" class="button" onclick="doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:23px"></td>
-										<td class="nobborder" style="padding:10px">
+					<td class="nobborder" style="font-size:18px;font-weight:bold;color:#222222"><?=_("Search")?>:</td>
+					<!--
+					<a href="javascript:toggleLayer('saved_searches');" onMouseOver="showTip('<?php echo $help_entries["saved_searches"] ?>','lightblue','300')" onMouseOut="hideTip()"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="Toggle Graph"> <small><font color="#AAAAAA"><?php echo _("Saved Searches") ?></font></small></a>
+
+						
+						<a href="javascript:AddQuery()" onMouseOver="showTip('<?php echo $help_entries["saved_searches"] ?>','lightblue','300')" onMouseOut="hideTip()"><img src="<?php echo $config["save_graph"] ?>" border="0" style="vertical-align:middle; padding-left:5px; padding-right:5px;"></a>
+						-->
+						<!--<input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"><a onMouseOver="showTip('<?php echo $help_entries["play"] ?>','lightblue','300')" onMouseOut="hideTip()" href="javascript:doQuery()" title="<?php echo _("Submit Query") ?>"><img src="<?php echo $config["play_graph"]; ?>" border="0" align="middle" style="padding-left:5px; padding-right:5px;"></a>-->
+					<td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td>
+					<td class="nobborder"><input type="button" class="button" onclick="doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:20px"></td>
+                                        <?php /*
+					<!--<a href="javascript:ClearSearch()" onMouseOver="showTip('<?php echo $help_entries["clear"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="#999999"><small><?php echo _("Clear Query"); ?></small></font></a>-->
+					<td class="nobborder"><input type="button" onclick="ClearSearch()" value="<?php echo _("Clear Query"); ?>" class="button" style="height:20px"></td>
+                                         */?>
+					<td class="nobborder" style="padding:10px">
                                             <input type="hidden" name="txtexport" id="txtexport" value="noExport" />
                                             <a onclick="doQuery('exportScreen')" href="#" alt="<?php echo _("Export screen")?>"><img src="../pixmaps/exportScreen.png" border="0" title="<?php echo _("Export screen")?>" alt="<?php echo _("Export screen")?>" /></a>
                                             <a onclick="doQuery('exportEntireQuery')" href="#" alt="<?php echo _("Export entire query")?>"><img src="../pixmaps/exportQuery.png" border="0" title="<?php echo _("Export entire query")?>" alt="<?php echo _("Export entire query")?>" /></a>
-										</td>
-										<td class="nobborder">
-					                    	<a href="#" id="href_download" style="display:none;"><img align="absmiddle" title="<?=_("Download")?>" alt="<?=_("Download")?>" style="display:none;" id="img_download" src="../pixmaps/download.png" border="0" width="15"></a>
-					                    </td>
-					                    <td class="nobborder">
-					                    	<a href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Predefined Searches")?></b></a>
-					                        <div style="position:relative">
+					</td>
+					<td class="nobborder">
+                                            <a href="#" id="href_download" style="display:none;"><img align="absmiddle" title="<?=_("Download")?>" alt="<?=_("Download")?>" style="display:none;" id="img_download" src="../pixmaps/download.png" border="0" width="15"></a>
+                                        </td>
+                                        <td class="nobborder">
+                                            <a href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Predefined Searches")?></b></a>
+                                            <div style="position:relative">
                                                     <div id="searches" style="position:absolute;right:0;top:0;display:none">
                                                         <table cellpadding=0 cellspacing=0 align="center">
                                                             <tr>
@@ -1093,31 +1063,7 @@ require_once ("manage_querys.php");
                                                         </table>
                                                     </div>
                                             </div>
-                     						</td>
-										</tr>
-									</table>
-								</td>
-							</tr>
-							<!--
-							<tr>
-								<td class="nobborder" style="font-size:18px;font-weight:bold;color:#222222"><?=_("Search")?>:</td>-->
-								<!--
-								<a href="javascript:toggleLayer('saved_searches');" onMouseOver="showTip('<?php echo $help_entries["saved_searches"] ?>','lightblue','300')" onMouseOut="hideTip()"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="Toggle Graph"> <small><font color="#AAAAAA"><?php echo _("Saved Searches") ?></font></small></a>
-			
-									
-									<a href="javascript:AddQuery()" onMouseOver="showTip('<?php echo $help_entries["saved_searches"] ?>','lightblue','300')" onMouseOut="hideTip()"><img src="<?php echo $config["save_graph"] ?>" border="0" style="vertical-align:middle; padding-left:5px; padding-right:5px;"></a>
-									-->
-									<!--<input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"><a onMouseOver="showTip('<?php echo $help_entries["play"] ?>','lightblue','300')" onMouseOut="hideTip()" href="javascript:doQuery()" title="<?php echo _("Submit Query") ?>"><img src="<?php echo $config["play_graph"]; ?>" border="0" align="middle" style="padding-left:5px; padding-right:5px;"></a>-->
-								<!-- <td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td>
-								<td class="nobborder"><input type="button" class="button" onclick="doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:20px"></td>
-							</tr> -->
-						</table>
-					</td>
-                                        <?php /*
-					<!--<a href="javascript:ClearSearch()" onMouseOver="showTip('<?php echo $help_entries["clear"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="#999999"><small><?php echo _("Clear Query"); ?></small></font></a>-->
-					<td class="nobborder"><input type="button" onclick="ClearSearch()" value="<?php echo _("Clear Query"); ?>" class="button" style="height:20px"></td>
-                                         */?>
-					
+                                        </td>
 				</tr>
 			</table>
 		</tr>
