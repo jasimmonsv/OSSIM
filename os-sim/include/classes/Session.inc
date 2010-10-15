@@ -286,6 +286,34 @@ class Session {
         $db->close($conn);
         return false;
 	}
+	function login_exists() {
+		global $_SESSION;
+		$db = new ossim_db();
+        $conn = $db->connect();
+        $login = $this->login;
+		$sql = "SELECT * FROM users WHERE login = ?";
+		$params = array(
+            $login
+        );
+        if ($rs = & $conn->Execute($sql, $params) && (!$rs->EOF)) {
+			$db->close($conn);
+			return true;
+        }
+        $db->close($conn);
+        return false;
+	}
+	function login_disable() {
+		global $_SESSION;
+		$db = new ossim_db();
+        $conn = $db->connect();
+        $login = $this->login;
+		$sql = "UPDATE users SET enabled=0 WHERE login = ?";
+		$params = array(
+            $login
+        );
+        $conn->Execute($sql, $params);
+		$db->close($conn);
+	}
 	function first_login() {
 		global $_SESSION;
 		$db = new ossim_db();

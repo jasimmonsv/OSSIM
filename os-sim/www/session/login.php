@@ -134,12 +134,21 @@ if (REQUEST('user')) {
 	$is_disabled = $session->is_disabled();
 	$first_userlogin = $session->first_login();
 	$last_pass_change = $session->last_pass_change();
+	$login_exists = $session->login_exists();
 	
 	if ($login_return != true) {
 		$failed = true;
         $bad_pass = true;
+        if ($login_exists) {
+        	$_SESSION['bad_pass'][$user]++;
+	        if ($_SESSION['bad_pass'][$user] > 6) {
+	        	$disabled = true;
+	        	$session->login_disable();
+	        }
+        }
 	} else {
-        $first_login = $conf->get_conf("first_login", FALSE);
+        $_SESSION['bad_pass'] = "";
+		$first_login = $conf->get_conf("first_login", FALSE);
         if ($first_login == "" || $first_login == 0 || $first_login == "no") {
             $accepted = "yes";
         }
@@ -288,6 +297,7 @@ if ($failed) { ?>
   <?php
 	if ($is_disabled) echo "<p><font color=\"red\">" . gettext("The User")." <b>$user</b> "._("is ")."<b>"._("disabled")."</b>."._(" Please contact the administrator.") . "</font></p>";
 	elseif (isset($bad_pass)) echo "<p><font color=\"red\">" . gettext("Wrong User & Password") . "</font></p>";
+	if ($disabled) echo "<p><font color=\"red\">" . _("This user has been disabled for security reasons. Please contact with the administrator.") . "</font></p>";
 ?>
 
 </body>
