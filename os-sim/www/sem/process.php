@@ -128,7 +128,6 @@ echo '<img src="../pixmaps/arrow_green.gif">';
 $time1 = microtime(true);
 $cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $numResult);
 
-
 $user = $_SESSION["_user"];
 
 //$status = exec($cmd, $result);
@@ -142,7 +141,19 @@ if($debug_log!=""){
 	fclose($handle);
 }
 
-$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null", "r");
+// LOCAL OR REMOTE fetch
+if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers']) > 1 || (count($_SESSION['logger_servers']) == 1 && !$_SESSION['logger_servers']['local']))) {
+	$cmd = str_replace("fetchall.pl","fetchremote.pl",$cmd);
+	$servers_string = "";
+	foreach ($_SESSION['logger_servers'] as $key=>$val) {
+		$servers_string .= ($servers_string != "") ? ",".$val : $val;
+	}
+	echo "$cmd '$user' $servers_string 2>>/dev/null";exit;
+	$fp = popen("$cmd '$user' $servers_string 2>>/dev/null", "r");
+} else {
+	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null", "r");
+}
+
 while (!feof($fp)) {
     $line = trim(fgets($fp));
     if ($line != "") $result[] = $line;

@@ -38,6 +38,7 @@ require_once ("classes/Util.inc");
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/User_config.inc');
+include("classes/Databases.inc");
 Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ('../graphs/charts.php');
 header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
@@ -50,13 +51,38 @@ if (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) {
 	echo "<html><body><a href='http://www.alienvault.com/information.php?interest=ProfessionalSIEM' target='_blank' title='Proffesional SIEM'><img src='../pixmaps/sem_pro.png' border=0></a></body></tml>";
 	exit;
 }
+$db_aux = new ossim_db();
+$conn_aux = $db_aux->connect();
+
 //
 $param_query = GET("query") ? GET("query") : "";
 $param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31));
 $param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
+
+$database_servers = Databases::get_list($conn_aux);
+$logger_servers = array();
+if (GET('num_servers') != "") {
+	$num_servers = GET('num_servers');
+	if (GET('local')) $logger_servers['local'] = "127.0.0.1";
+	foreach ($database_servers as $db) {
+		$name = $db->get_name();
+		$ip = $db->get_ip();
+		ossim_valid(GET($name), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal: server '.$name);
+		if (GET($name) != "") {
+			$logger_servers[$name] = $ip;
+		}
+	}
+} else {
+	$num_servers = 1;
+	$logger_servers['local'] = "127.0.0.1";
+}
+
+$_SESSION['logger_servers'] = $logger_servers;
+
 ossim_valid($param_query, OSS_TEXT, OSS_NULLABLE, '[', ']', 'illegal:' . _("query"));
 ossim_valid($param_start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("start date"));
 ossim_valid($param_end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("end date"));
+ossim_valid($num_servers, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_servers"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -74,8 +100,6 @@ if($config["debug"]==1){
 $uniqueid = uniqid(rand() , true);
 
 // Filters
-$db_aux = new ossim_db();
-$conn_aux = $db_aux->connect();
 $uconfig = new User_config($conn_aux);
 
 $_SESSION['logger_filters'] = $uconfig->get(Session::get_session_user(), 'logger_filters', 'php', "logger");
@@ -227,26 +251,6 @@ function display_info ( var1, var2, var3, var4, var5, var6 ){
 	hideLayer("by_date");
 }
 
-function getSearchQuery() {
-	var search_string = "";
-	if (document.getElementById('query_sensor').value != "") {
-		search_string = "sensor='"+document.getElementById('query_sensor').value+"'";
-	}
-	if (document.getElementById('query_source').value != "") {
-		if (search_string != "") search_string += " "+document.getElementById('op1').value+" ";
-		search_string += "ip_src='"+document.getElementById('query_source').value+"'";
-	}
-	if (document.getElementById('query_destination').value != "") {
-		if (search_string != "") search_string += " "+document.getElementById('op2').value+" ";
-		search_string += "ip_dst='"+document.getElementById('query_destination').value+"'";
-	}
-	if (document.getElementById('query_data').value != "") {
-		if (search_string != "") search_string += " "+document.getElementById('op3').value+" ";
-		search_string += "data='"+document.getElementById('query_data').value+"'";
-	}
-	return search_string;
-}
-
 function MakeRequest()
 {
     if(document.getElementById('txtexport').value=='noExport') {
@@ -258,8 +262,8 @@ function MakeRequest()
         //
         document.getElementById('ResponseDiv').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading events...'); ?>';
 
-        //var str = escape(document.getElementById('searchbox').value);
-        var str = getSearchQuery();
+        var str = escape(document.getElementById('searchbox').value);
+        
         //alert(str);
 	<? if (GET('query') != "")  { ?>
 	var str = "<?php echo GET('query')?>";
@@ -830,17 +834,12 @@ function save_filter(filter_name) {
 	//var filter_name = document.getElementById('filter').value;
 	var start = document.getElementById('start').value;
 	var end = document.getElementById('end').value;
-	var query_sensor = document.getElementById('query_sensor').value;
-	var query_source = document.getElementById('query_source').value;
-	var query_destination = document.getElementById('query_destination').value;
-	var query_data = document.getElementById('query_data').value;
-	var op1 = document.getElementById('op1').value;
-	var op2 = document.getElementById('op2').value;
-	var op3 = document.getElementById('op3').value;
+	var query = document.getElementById('searchbox').value;
+	
 	document.getElementById('filter_msg').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif">';
 	$.ajax({
 		type: "GET",
-		url: "ajax_filters.php?mode=new&filter_name="+filter_name+"&start="+start+"&end="+end+"&query_sensor="+query_sensor+"&query_source="+query_source+"&query_destination="+query_destination+"&query_data="+query_data+"&op1="+op1+"&op2="+op2+"&op3="+op3,
+		url: "ajax_filters.php?mode=new&filter_name="+filter_name+"&start="+start+"&end="+end+"&query="+query,
 		data: "",
 		success: function(msg) {
 			document.getElementById('filter_msg').innerHTML = "";
@@ -851,19 +850,14 @@ function new_filter() {
 	var filter_name = document.getElementById('filter_name').value;
 	var start = document.getElementById('start').value;
 	var end = document.getElementById('end').value;
-	var query_sensor = document.getElementById('query_sensor').value;
-	var query_source = document.getElementById('query_source').value;
-	var query_destination = document.getElementById('query_destination').value;
-	var query_data = document.getElementById('query_data').value;
-	var op1 = document.getElementById('op1').value;
-	var op2 = document.getElementById('op2').value;
-	var op3 = document.getElementById('op3').value;
+	var query = document.getElementById('searchbox').value;
+	
 	if (filter_name == "") alert("<?=_("You must type a name for the new filter.")?>");
 	else {
 		document.getElementById('filter_msg').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif">';
 		$.ajax({
 			type: "GET",
-			url: "ajax_filters.php?mode=new&filter_name="+filter_name+"&start="+start+"&end="+end+"&query_sensor="+query_sensor+"&query_source="+query_source+"&query_destination="+query_destination+"&query_data="+query_data+"&op1="+op1+"&op2="+op2+"&op3="+op3,
+			url: "ajax_filters.php?mode=new&filter_name="+filter_name+"&start="+start+"&end="+end+"&query="+query,
 			data: "",
 			success: function(msg) {
 				document.getElementById('filter_box').innerHTML = msg;
@@ -883,23 +877,8 @@ function change_filter(filter_name) {
 			if (filter_data[0] != "" && filter_data[1] != "") {
 				document.getElementById('start_aaa').value = filter_data[1];
 				document.getElementById('end_aaa').value = filter_data[2];
-				//document.getElementById('searchbox').value = filter_data[3];
-				var new_query_data = filter_data[3];
-				var new_query_source = filter_data[4];
-				var new_query_destination = filter_data[5];
-				var new_query_sensor = filter_data[6];
-				var new_op1 = (filter_data[7] != "") ? filter_data[7] : "and";
-				var new_op2 = (filter_data[8] != "") ? filter_data[8] : "or";
-				var new_op3 = (filter_data[9] != "") ? filter_data[9] : "and";
-
-				document.getElementById('query_sensor').value = new_query_sensor;
-				document.getElementById('query_source').value = new_query_source;
-				document.getElementById('query_destination').value = new_query_destination;
-				document.getElementById('query_data').value = new_query_data;
-				$('#op1').val(new_op1);
-				$('#op2').val(new_op2);
-				$('#op3').val(new_op3);
-				
+				document.getElementById('searchbox').value = filter_data[3];
+								
                 document.getElementById('filter_box').innerHTML = msg;
 				setFixed2();
 			}
@@ -937,6 +916,47 @@ function delete_filter(filter_name) {
 </ul>
 <?php
 include ("../hmenu.php"); ?>
+
+<table border=0 cellpadding=0 cellspacing=0 align="right">
+<?
+if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers")) { 
+	// session server
+	?>
+	<form name="serverform">
+	<tr>
+		<td align='left'><b><?php echo _("Logger remote servers") ?></b>&nbsp;<a href='javascript:;' onclick='$("#dbs").toggle();$("#imgplus").attr("src",(($("#imgplus").attr("src").match(/plus/)) ? "../pixmaps/minus-small.png" : "../pixmaps/plus-small.png"))'><img src='../pixmaps/plus-small.png' border=0 id='imgplus'></a></td>
+	</tr>
+	<tr style='display:none' id='dbs'>
+		<td colspan=2 style='border:1px solid #CCCCCC;background-color:#EEEEEE'>
+			<table border=0 cellpadding=1 cellspacing=0>
+				<tr bgcolor='#EEEEEE'>
+					<td><input type="checkbox" onclick="document.serverform.submit()" name="local" value="local" <?php if ($logger_servers["local"]) echo "checked" ?>></input></td>
+					<td><img src='../server/getdbsicon.php?name=local' border=0 width='16' height='16'></td>
+					<td><a href='<?php echo $actual_url."server=local" ?>'><?php echo _("Local") ?></a></td>
+				</tr>			
+				<?php
+				$i = 1;
+				foreach ($database_servers as $db) {
+					$i++;
+					$svar = base64_encode($db->get_ip().":".$db->get_port().":".$db->get_user().":".$db->get_pass());
+					$name = $db->get_name();
+					?>
+					<tr bgcolor='#EEEEEE'>
+						<td><input type="checkbox" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) echo "checked" ?>></input></td>
+						<td><img src='../server/getdbsicon.php?name=<?php echo urlencode($db->get_ip()) ?>' border=0 width='16' height='16'></td>
+						<td><a href='<?php echo $actual_url."server=".$svar ?>'><?php echo $name ?></a></td>
+					</tr>
+				<?php } ?>
+			</table>
+		</td>
+	</tr>
+	<input type="hidden" name="num_servers" value="<?php echo $i ?>"></input>
+	</form>
+<?php
+}
+?>
+</table>
+
 <a href="javascript:toggleLayer('by_date');"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph by date")?>"> <small><font color="black"><?=_("Graphs by dates")?></font></small></a>
 <center style="margin:0px">
 <div id="by_date">
