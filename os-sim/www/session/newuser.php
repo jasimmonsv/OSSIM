@@ -69,6 +69,8 @@ $first_login = POST('first_login');
 //ossim_valid($copy_panels, OSS_DIGIT, 'illegal:' . _("Copy Panels"));
 ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_SPACE, 'illegal:' . _("Name"));
+ossim_valid($pass1, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass1"));
+ossim_valid($pass2, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass2"));
 ossim_valid($email, OSS_MAIL_ADDR, OSS_NULLABLE, 'illegal:' . _("e-mail"));
 ossim_valid($nnets, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nnets"));
 ossim_valid($nsensors, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nsensors"));
@@ -89,6 +91,14 @@ elseif (0 != strcmp($pass1, $pass2)) {
     require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORDS_MISMATCH");
+} elseif (strlen($pass1) < 7) {
+	require_once ("ossim_error.inc");
+    $error = new OssimError();
+    $error->display("PASSWORD_SIZE");
+} elseif (!preg_match("/\d/",$pass1) || !preg_match("/[a-zA-Z]/",$pass1)) {
+	require_once ("ossim_error.inc");
+    $error = new OssimError();
+    $error->display("PASSWORD_ALPHANUM");
 }
 /* check OK, insert into DB */
 elseif (POST("insert")) {

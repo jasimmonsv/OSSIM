@@ -74,14 +74,18 @@ echo gettext("OSSIM Framework"); ?> </title>
 	}
 function checkpasslength() {
 	if ($('#pass1').val() != "") {
-	if ($('#pass1').val().length < 5) {
-		alert("<?=_("Minimum password size is 5 characters")?>");
+	if ($('#pass1').val().length < 7) {
+		alert("<?=_("Minimum password size is 7 characters")?>");
 		return 0;
 	} else return 1;
 	} else return 1;
 }
 function checkpass() {
-	if (document.fmodify.pass1.value != document.fmodify.pass2.value) {
+	if (document.fmodify.pass1.value.match(/[0-9]/) == null || document.fmodify.pass1.value.match(/[a-zA-Z]/) == null) {
+		alert("<?=_("Password must have numeric and alphanumeric characters")?>");
+		return 0;
+	}
+	else if (document.fmodify.pass1.value != document.fmodify.pass2.value) {
 		alert("<?=_("Mismatches in passwords")?>");
 		return 0;
 	} else return 1;

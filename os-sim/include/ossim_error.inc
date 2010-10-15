@@ -200,7 +200,17 @@ class OssimError extends OssimMainError {
         /* Password mismatch */
         $this->errors["PASSWORDS_MISMATCH"] = array(
             "short_descr" => gettext("Authentication failure") ,
-            "long_descr" => gettext("Old password is not correct") ,
+            "long_descr" => gettext("Passwords mismatch") ,
+        );
+        /* Password lenght */
+        $this->errors["PASSWORD_SIZE"] = array(
+            "short_descr" => gettext("Authentication failure") ,
+            "long_descr" => gettext("Minimum password size is 7 characters") ,
+        );
+        /* Password lenght */
+        $this->errors["PASSWORD_ALPHANUM"] = array(
+            "short_descr" => gettext("Authentication failure") ,
+            "long_descr" => gettext("Password must have numeric and alphanumeric characters") ,
         );
         /* Only admin can do that */
         $this->errors["ONLY_ADMIN"] = array(

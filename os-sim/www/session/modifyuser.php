@@ -179,6 +179,14 @@ elseif (POST("insert")) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
 			$error->display("PASSWORDS_MISMATCH");
+		} elseif (strlen($pass1) < 7) {
+			require_once ("ossim_error.inc");
+		    $error = new OssimError();
+		    $error->display("PASSWORD_SIZE");
+		} elseif (!preg_match("/\d/",$pass1) || !preg_match("/[a-zA-Z]/",$pass1)) {
+			require_once ("ossim_error.inc");
+		    $error = new OssimError();
+		    $error->display("PASSWORD_ALPHANUM");
 		}
 		/* check for old password if not actual user or admin */
 		/*
