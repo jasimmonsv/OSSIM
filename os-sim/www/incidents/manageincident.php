@@ -40,6 +40,7 @@ require_once 'classes/Security.inc';
 Session::logcheck("MenuIncidents", "IncidentsIncidents");
 require_once 'ossim_db.inc';
 require_once 'classes/Incident.inc';
+require_once 'classes/Incident_type.inc';
 require_once 'classes/Incident_ticket.inc';
 require_once 'classes/Incident_tag.inc';
 function die_error($msg = null, $append = null) {
@@ -551,6 +552,31 @@ if ($action == 'newincident') {
         if($transferred=="") $transferred = Session::get_session_user();
         
         $incident_id = Incident::insert_vulnerability($conn, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description, $transferred);
+   } /*elseif vulnerability*/
+    /* insert new custom incident */
+    elseif (GET('ref') == 'Custom') {
+        $vars = array(
+            'title',
+            'type',
+            'submitter',
+            'priority',
+            'transferred_user',
+            'transferred_entity'
+        );
+        foreach($vars as $v) {
+            $$v = GET("$v"); 
+        }
+        $fields = array();
+        foreach ($_GET as $k => $v) if (preg_match("/^custom/",$k)) {
+        	$k = base64_decode(str_replace("custom_","",$k));
+        	$fields[$k] = $v;
+        }
+        
+        if($transferred_user!="")   $transferred = $transferred_user;
+        if($transferred_entity!="") $transferred = $transferred_entity;
+        if($transferred=="") $transferred = Session::get_session_user();
+        
+        $incident_id = Incident::insert_custom($conn, $title, $type, $submitter, $priority, $transferred, $fields);
     }
     if (ossim_error()) {
         die_error();

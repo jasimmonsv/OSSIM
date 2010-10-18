@@ -49,15 +49,19 @@ require_once ("ossim_db.inc");
 class Incident_type {
     var $id;
     var $descr;
-    function Incident_type($id, $descr) {
+    function Incident_type($id, $descr, $keywords="") {
         $this->id = $id;
         $this->descr = $descr;
+        $this->keywords = $keywords;
     }
     function get_id() {
         return $this->id;
     }
     function get_descr() {
         return $this->descr;
+    }
+    function get_keywords() {
+        return $this->keywords;
     }
     function get_list($conn, $args = "") {
         $list = array();
@@ -66,17 +70,18 @@ class Incident_type {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-                $list[] = new Incident_type($rs->fields["id"], $rs->fields["descr"]);
+                $list[] = new Incident_type($rs->fields["id"], $rs->fields["descr"], $rs->fields["keywords"]);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
-    function insert($conn, $id, $descr) {
-        $sql = "INSERT into incident_type ( id, descr) VALUES   (?, ?)";
+    function insert($conn, $id, $descr, $keywords="") {
+        $sql = "INSERT into incident_type ( id, descr, keywords) VALUES   (?, ?, ?)";
         $params = array(
             $id,
-            $descr
+            $descr,
+            $keywords
         );
         if ($conn->Execute($sql, $params) == false) {
             print 'Error inserting: ' . $conn->ErrorMsg() . '<BR>';
@@ -85,12 +90,20 @@ class Incident_type {
         $infolog = array($id);
         Log_action::log(53, $infolog);
     }
-    function update($conn, $id, $descr) {
-        $sql = "UPDATE incident_type SET descr= ? WHERE id = ?";
-        $params = array(
-            $descr,
-            $id
-        );
+    function update($conn, $id, $descr, $keywords="") {
+    	if ($keywords=="custom") {
+	        $sql = "UPDATE incident_type SET descr= ?,keywords=TRIM(CONCAT(keywords,' custom')) WHERE id = ?";
+	        $params = array(
+	            $descr,
+	            $id
+	        );
+	    } else {
+	        $sql = "UPDATE incident_type SET descr= ?,keywords=TRIM(REPLACE(keywords,'custom','')) WHERE id = ?";
+	        $params = array(
+	            $descr,
+	            $id
+	        );
+	    }
         if ($conn->Execute($sql, $params) == false) {
             print 'Error updating: ' . $conn->ErrorMsg() . '<BR>';
             exit;
@@ -118,5 +131,44 @@ class Incident_type {
         $infolog = array($id);
         Log_action::log(54, $infolog);
     }
+    //
+    // CUSTOM TYPES
+    //
+    function insert_custom($conn, $id, $name) {
+        $sql = "INSERT IGNORE into incident_custom_types ( id, name) VALUES (?, ?)";
+        $params = array(
+            $id,
+            $name
+        );
+        if ($conn->Execute($sql, $params) == false) {
+            print 'Error inserting: ' . $conn->ErrorMsg() . '<BR>';
+            exit;
+        }
+    }
+    function get_custom_list($conn, $id) {
+        $list = array();
+        $query = OssimQuery("SELECT * FROM incident_custom_types WHERE id=?");
+        if (!$rs = & $conn->Execute($query,array($id))) {
+            print $conn->ErrorMsg();
+        } else {
+            while (!$rs->EOF) {
+                $list[] = $rs->fields["name"];
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }    
+    function delete_custom($conn, $id, $name) {
+        $sql = "DELETE FROM incident_custom_types WHERE id=? AND name=?";
+        $params = array(
+            $id,
+            $name
+        );
+        if ($conn->Execute($sql, $params) == false) {
+            print 'Error inserting: ' . $conn->ErrorMsg() . '<BR>';
+            exit;
+        }
+    }
+
 }
 ?>

@@ -230,8 +230,12 @@ if (!$type) echo "selected" ?>>
 echo gettext("ALL"); ?>
               </option>
               <?php
+$customs = array();
 foreach(Incident_type::get_list($conn) as $itype) {
     $id = $itype->get_id();
+    if (preg_match("/custom/",$itype->get_keywords())) {
+    	$customs[] = $itype->get_id();
+    }
 ?>
                   <option <?php
     if ($type == $id) echo "selected" ?> value="<?php echo $id ?>">
@@ -291,8 +295,8 @@ echo gettext("Low"); ?>
             </select>
           </td>
           <td nowrap style="border-width: 0px;">
-            <input type="submit" name="filter" value="<?=_("Search")?>" class="btn" style="font-size:12px"/>
-            <input type="submit" name="close" value="<?=_("Close selected")?>" class="btn" style="font-size:12px"/>
+            <input type="submit" name="filter" value="<?=_("Search")?>" class="button" style="font-size:12px"/>
+            <input type="submit" name="close" value="<?=_("Close selected")?>" class="button" style="font-size:12px"/>
           </td>
         </tr>
       </tr>
@@ -480,27 +484,30 @@ $db->close($conn);
         <form id="formnewincident" method="GET">
            <table valign="center" align="center" class="noborder">
              <tr><td class="noborder" valign="center" align="center">
-               <img src="../pixmaps/plus.png" />
-                 </td>
-                 <td class="noborder" valign="center" align="center">
                    <?=_("Create new ticket of type: ")?>
                  </td>
                  <td class="noborder" valign="center" align="center">
            <select id="selectnewincident">
              <optgroup label="<?=_('Generic')?>">
-             <option
-             value="newincident.php?ref=Alarm&title=New+Alarm+incident&priority=1&src_ips=&src_ports=&dst_ips=&dst_ports="><?=_("Alarm")?></option>
-             <option value="newincident.php?ref=Event&title=New+Event+incident&priority=1&src_ips=&src_ports=&dst_ips=&dst_ports="><?=_("Event")?></option>
-             <option value="newincident.php?ref=Metric&title=New+Metric+incident&priority=1&target=&metric_type=&metric_value=0"><?=_("Metric")?></option>
-             <option value="newincident.php?ref=Vulnerability&title=New+Vulnerability+incident&priority=1&ip=&port=&nessus_id=&risk=&description="><?=_("Vulnerability")?></option>
+	             <option value="newincident.php?ref=Alarm&title=<?=urlencode(_("New Alarm incident"))?>&priority=1&src_ips=&src_ports=&dst_ips=&dst_ports="><?=_("Alarm")?></option>
+	             <option value="newincident.php?ref=Event&title=<?=urlencode(_("New Event incident"))?>&priority=1&src_ips=&src_ports=&dst_ips=&dst_ports="><?=_("Event")?></option>
+	             <option value="newincident.php?ref=Metric&title=<?=urlencode(_("New Metric incident"))?>&priority=1&target=&metric_type=&metric_value=0"><?=_("Metric")?></option>
+	             <option value="newincident.php?ref=Vulnerability&title=<?=urlencode(_("New Vulnerability incident"))?>&priority=1&ip=&port=&nessus_id=&risk=&description="><?=_("Vulnerability")?></option>
              </optgroup>
              <optgroup label="<?=_('Anomalies')?>">
-             <option value="newincident.php?ref=Anomaly&title=New+Mac+Anomaly+Incident&priority=1&anom_type=mac"><?=_("Mac")?></option>
-             <option value="newincident.php?ref=Anomaly&title=New+OS+Anomaly+Incident&priority=1&anom_type=os"><?=_("OS")?></option>
-             <option value="newincident.php?ref=Anomaly&title=New+Service+Anomaly+Incident&priority=1&anom_type=service"><?=_("Services")?></option>
+	             <option value="newincident.php?ref=Anomaly&title=<?=urlencode(_("New Mac Anomaly incident"))?>&priority=1&anom_type=mac"><?=_("Mac")?></option>
+	             <option value="newincident.php?ref=Anomaly&title=<?=urlencode(_("New OS Anomaly incident"))?>&priority=1&anom_type=os"><?=_("OS")?></option>
+	             <option value="newincident.php?ref=Anomaly&title=<?=urlencode(_("New Service Anomaly incident"))?>&priority=1&anom_type=service"><?=_("Services")?></option>
              </optgroup>
+             <? if (count($customs)>0) { ?>
+             <optgroup label="<?=_('Custom')?>">
+             <? foreach ($customs as $custom) { ?>
+	             <option value="newincident.php?ref=Custom&title=<?=urlencode(_("New Custom incident"))?>&type=<?=urlencode($custom)?>&priority=1"><?=$custom?></option>
+	         <? } ?>
+             </optgroup> 
+             <? } ?>
            </select>
-           <input type="button" value="<?=_("GO")?>" onclick='javascript: self.location.href=this.form.selectnewincident.options[this.form.selectnewincident.selectedIndex].value;' />
+           <input type="button" class="button" value="<?=_("Create")?>" onclick='javascript: self.location.href=this.form.selectnewincident.options[this.form.selectnewincident.selectedIndex].value;' />
         </form>
         <!-- end of new incident form -->
     

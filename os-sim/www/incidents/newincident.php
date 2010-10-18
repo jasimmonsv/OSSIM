@@ -39,6 +39,7 @@ require_once 'classes/Security.inc';
 Session::logcheck("MenuIncidents", "IncidentsIncidents");
 require_once 'ossim_db.inc';
 require_once 'classes/Incident.inc';
+require_once 'classes/Incident_type.inc';
 require_once 'classes/Incident_alarm.inc';
 require_once 'classes/Incident_event.inc';
 require_once 'classes/Incident_metric.inc';
@@ -674,13 +675,25 @@ if (($ref == "Alarm") or ($ref == "Event")) {
     </td>
   </tr>
 
+
 <?php
+} elseif ($ref == "Custom") {
+	$fields = Incident_type::get_custom_list($conn,$type);
+	foreach ($fields as $field) {
+		$fld = "custom_".base64_encode($field);
+		echo "<tr>
+				<th>$field</th>
+    		    <td style='border-width: 0px;text-align:left'>
+        		   <textarea name='$fld' rows='3' cols='80' wrap='hard'></textarea>
+    		    </td>
+    		  </tr>\n";
+	}
 }
 ?>
 
 <tr>
-    <td colspan="2">
-      <input type="submit" value="<?=_("OK")?>" class="btn" />
+    <td colspan="2" class="noborder">
+      <input type="submit" value="<?=_("OK")?>" class="button" />
     </td>
   </tr>
 </table>

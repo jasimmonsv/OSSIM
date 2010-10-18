@@ -45,6 +45,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 </head>
 <body>
 
@@ -62,16 +63,19 @@ require_once ('ossim_db.inc');
 require_once ("classes/Incident_type.inc");
 $db = new ossim_db();
 $conn = $db->connect();
+//
+$custom_fields = array();
 if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) {
     $inctype = $inctype_list[0];
+    $custom = (preg_match("/custom/",$inctype->get_keywords())) ? 1 : 0;
+    $custom_fields = Incident_type::get_custom_list($conn,$inctype_id);
 }
 ?>
 
-<form method="post" action="modifyincidenttype.php">
+<form method="post" id="crt" action="modifyincidenttype.php">
 <table align="center">
-  <input type="hidden" name="modify" value="modify" />
-  <input type="hidden" name="id" value="<?php
-echo $inctype->get_id(); ?>" />
+  <input type="hidden" id="modify" name="modify" value="modify" />
+  <input type="hidden" name="id" value="<?php echo $inctype->get_id(); ?>" />
   <tr>
     <th> <?php
 echo gettext("Ticket type"); ?> </th>
@@ -87,9 +91,33 @@ echo $inctype->get_descr(); ?></textarea>
     </td>
   </tr>
   <tr>
+    <th> <?php
+echo gettext("Custom"); ?> </th>
+    <td class="left">
+      <input type="checkbox" name="custom" onclick="$('#custom_type').toggle()" value="1"<?=($custom) ? " checked" : ""?>>
+    </td>
+  </tr>   
+  <tr id="custom_type" <?=(!$custom) ? "style='display:none'" : ""?>>
+  	<th><?=_("Custom fields")?>:</th>
+  	<td>
+  		<table align="center" class="noborder">
+  		<tr>
+  			<td class="noborder"><input type="text" id="custom_name" name="custom_name"></td>
+  			<td class="noborder"><input type="submit" onclick="$('#modify').val('add')" value="<?=_("Add")?>" class="button"></td>
+  		</tr>
+  		<? foreach ($custom_fields as $cf) { ?>
+  		<tr>
+  			<td class="noborder"><?=$cf?></td>
+  			<td class="noborder"><a href="javascript:;" onclick="$('#custom_name').val('<?=$cf?>');$('#modify').val('delete');$('#crt').submit();"><img src="../vulnmeter/images/delete.gif" border="0"></a></td>
+  		</tr>
+  		<? } ?>
+  		</table>
+  	</td>
+  </tr>
+  <tr>
     <td colspan="2" style="text-align:center;" class="nobborder">
-      <input type="submit" value="<?=_("OK")?>" class="btn">
-      <input type="reset" value="<?=_("reset")?>" class="btn">
+      <input type="submit" value="<?=_("Modify")?>" class="button">
+      <input type="reset" value="<?=_("reset")?>" class="button">
     </td>
   </tr>
 </table>

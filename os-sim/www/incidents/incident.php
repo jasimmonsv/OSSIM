@@ -164,10 +164,13 @@ foreach($incident_tags as $tag_id) {
 $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 ?>
 
-    <td height="100%"><b><table width="100%" height="100%"><tr height="100%"><td height="100%"><?php echo $name
-?></b></td></tr></table></td>
-    <td class="left" height="100%">
-        <table width="100%" height="100%"><tr height="100%"><td height="100%">
+    <td>
+    	<table width="100%" class="noborder"><tr>
+    	<td><?php echo $name ?></b></td>
+    	</tr></table>
+    </td>
+    <td class="left">
+        <table width="100%" class="noborder"><tr><td>
         <tr><td>
             <table class="noborder" width="100%">
             <tr><td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
@@ -249,6 +252,11 @@ if ($ref == 'Alarm' or $ref == 'Event') {
         // Osvdb end
         echo "<b>IP:</b> " . $vulnerability_data->get_ip() . "<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity(nl2br($vulnerability_data->get_description())) . "<br>";
     }
+} elseif ($ref == 'Custom') {
+    $custom_list = $incident->get_custom($conn);
+    foreach($custom_list as $custom_name => $custom_value) {
+        echo "<b>$custom_name:</b> $custom_value<br>\n";
+    }
 }
 ?>
         </td></tr>
@@ -257,10 +265,17 @@ if ($ref == 'Alarm' or $ref == 'Event') {
     </td>
     <!-- end incident data -->
 
-    <td height="100%"><table width="100%" height="100%"><tr height="100%"><td height="100%"><?php
-Incident::colorize_status($incident->get_status($conn)) ?></td></tr></table></td>
-    <td height="100%"><table width="100%" height="100%"><tr height="100%"><td height="100%"><?php echo Incident::get_priority_in_html($priority) ?>
-    </td></tr></table></td>
+    <td>
+    	<table width="100%" class="noborder"><tr>
+    		<td><?php Incident::colorize_status($incident->get_status($conn)) ?></td>
+    	</tr></table>
+	</td>
+    <td>
+    	<table width="100%" class="noborder"><tr>
+    		<td><?php echo Incident::get_priority_in_html($priority) ?>
+    	</td></tr>
+    	</table>
+    </td>
 
 	<td valign="top">
 	<?php
@@ -303,22 +318,14 @@ if ($_GET['id_incident'] != "") { ?>
 	</td>
 	
     <td>
-        <table width="100%" height="100%"><tr height="100%"><td height="100%">
-            <form action="#" method="get">
-            <input type="button" name="submit_edit" class="btn" value="<?php echo _("Edit comment") ?>"
-                   style="width: 10em;"
-                   onClick="document.location = 'newincident.php?action=edit&ref=<?php echo $ref ?>&incident_id=<?php echo $id ?>';"
-                   /><br/>
-              
-            <input type="button" name="submit_delete" class="btn" value="<?php echo _("Delete comment") ?>"
-                   style="width: 10em; color: red;"
-                   onClick="c = confirm('<?php echo _("This action will erase the Ticket as well as all the comments on this ticket. Do you want to continue?") ?>'); if (c) document.location = 'manageincident.php?action=delincident&incident_id=<?php echo $id ?>';"
-                   /><br/>
+        <table width="100%" class="noborder">
+        	<tr><td>
+            <a href='newincident.php?action=edit&ref=<?php echo $ref ?>&incident_id=<?php echo $id ?>'><img src="../vulnmeter/images/pencil.png" border="0" align="absmiddle" title="<?php echo _("Edit comment") ?>"></a>
 
-            <input type="button" name="add_ticket" class="btn" value="<?php echo _("New comment") ?>"
-                   style="width: 10em;" onclick="document.location = '#anchor';"/>
-     
-            </form>
+            <a href='javascript:;' onClick="c = confirm('<?php echo _("This action will erase the Ticket as well as all the comments on this ticket. Do you want to continue?") ?>'); if (c) document.location = 'manageincident.php?action=delincident&incident_id=<?php echo $id ?>';"><img src="../pixmaps/delete.gif" border="0" align="absmiddle" title="<?php echo _("Delete comment") ?>"></a>
+             
+            <a href='#anchor'><img src="../pixmaps/tables/table_row_insert.png" border="0" align="absmiddle" title="<?php echo _("New comment") ?>"></a>  
+            
             </td></tr>
         </table>
     </td>
@@ -326,7 +333,7 @@ if ($_GET['id_incident'] != "") { ?>
   <tr>
     <td width="20" colspan="6" style="text-align: left;" nowrap>
             <form action="manageincident.php?action=subscrip&incident_id=<?php echo $id ?>" method="POST">
-                <table width="100%" style="border-width: 0px;">
+                <table width="100%" class="noborder">
                 <tr><td><b><?php echo _("Email changes to") ?>:</b></td>
                 <td width="45%" style="text-align: left;">
                 <?php
@@ -347,8 +354,8 @@ foreach($users as $u) { ?>
                     <?php
 } ?>
                   </select>
-                  <input type="submit" class="btn" name="subscribe" value="<?=_("Subscribe")?>">&nbsp;
-                  <input type="submit" class="btn" name="unsubscribe" value="<?=_("Unsubscribe")?>">
+                  <input type="submit" class="button" name="subscribe" value="<?=_("Subscribe")?>">&nbsp;
+                  <input type="submit" class="button" name="unsubscribe" value="<?=_("Unsubscribe")?>">
                 </td></tr></table>
             </form>
     </td>
@@ -412,7 +419,7 @@ for ($i = 0; $i < count($tickets_list); $i++) {
     //
     if (($i == count($tickets_list) - 1) && (Session::am_i_admin() || $creator == Session::get_session_user())) {
 ?>
-            <input type="button" name="deleteticket" class="btn"
+            <input type="button" name="deleteticket" class="button"
                    value="<?php echo _("Delete ticket") ?>"
                    onclick="javascript: document.location = 'manageincident.php?action=delticket&ticket_id=<?php echo $ticket_id ?>&incident_id=<?php echo $id ?>'"
             >
@@ -743,7 +750,7 @@ for ($i = 1; $i <= 10; $i++) { ?>
     <tr>
         <td>&nbsp;</td>
         <td align="center" style="text-align: center">
-        <input type="submit" class="btn" name="add_ticket" value="<?php echo _("Add ticket") ?>"/>
+        <input type="submit" class="button" name="add_ticket" value="<?php echo _("Add ticket") ?>"/>
     </td></tr>
     </table>
 

@@ -652,7 +652,7 @@ class Incident {
             }
         }
         if ($opts['attach_name']) {
-            $where[] = "UPPER(incident_file.name) LIKE ? " . "AND incident_file.incident_id=incident.id";
+            $where[] = "UPPER(incident_file.name) LIKE ? AND incident_file.incident_id=incident.id";
             $parms[] = '%' . strtoupper($opts['attach_name']) . '%';
         }
         if ($opts['submitter']) {
@@ -676,7 +676,7 @@ class Incident {
             //
             // Search over tickets description and action
             //
-            $t = "(UPPER(incident_ticket.description) LIKE ?) " . "OR (UPPER(incident_ticket.action) LIKE ?)";
+            $t = "(UPPER(incident_ticket.description) LIKE ?) OR (UPPER(incident_ticket.action) LIKE ?)";
             $all_parms = array_merge($all_parms, $parms, array(
                 $text,
                 $text
@@ -699,7 +699,7 @@ class Incident {
             // search over the IPs in event
             //
             $tmp_w = $where;
-            $tmp_w[] = "(UPPER(incident_event.src_ips) LIKE ? " . "OR UPPER(incident_event.dst_ips) LIKE ?) " . "AND incident_event.incident_id = incident.id";
+            $tmp_w[] = "(UPPER(incident_event.src_ips) LIKE ? OR UPPER(incident_event.dst_ips) LIKE ?) AND incident_event.incident_id = incident.id";
             $sqls[] = Incident::_build_sql($sql, $tmp_w);
             $all_parms = array_merge($all_parms, $parms, array(
                 $text,
@@ -709,7 +709,7 @@ class Incident {
             // search over the IPs in alarm
             //
             $tmp_w = $where;
-            $tmp_w[] = "(UPPER(incident_alarm.src_ips) LIKE ? " . "OR UPPER(incident_alarm.dst_ips) LIKE ?) " . "AND incident_alarm.incident_id = incident.id";
+            $tmp_w[] = "(UPPER(incident_alarm.src_ips) LIKE ? OR UPPER(incident_alarm.dst_ips) LIKE ?) AND incident_alarm.incident_id = incident.id";
             $sqls[] = Incident::_build_sql($sql, $tmp_w);
             $all_parms = array_merge($all_parms, $parms, array(
                 $text,
@@ -719,7 +719,7 @@ class Incident {
             // search over the IPs in alarm
             //
             $tmp_w = $where;
-            $tmp_w[] = "(UPPER(incident_metric.target) LIKE ?) " . "AND incident_metric.incident_id = incident.id";
+            $tmp_w[] = "(UPPER(incident_metric.target) LIKE ?) AND incident_metric.incident_id = incident.id";
             $sqls[] = Incident::_build_sql($sql, $tmp_w);
             $all_parms = array_merge($all_parms, $parms, array(
                 $text
@@ -728,11 +728,20 @@ class Incident {
             // Search over the IPs in vulnerabilities
             //
             $tmp_w = $where;
-            $tmp_w[] = "(UPPER(incident_vulns.ip) = ?) " . "AND incident_vulns.incident_id = incident.id";
+            $tmp_w[] = "(UPPER(incident_vulns.ip) = ?) AND incident_vulns.incident_id = incident.id";
             $sqls[] = Incident::_build_sql($sql, $tmp_w);
             $all_parms = array_merge($all_parms, $parms, array(
                 str_replace('%', '', $text)
             ));
+            //
+            // Search over custom fields
+            //
+            $tmp_w = $where;
+            $tmp_w[] = "(incident_custom.content like ?) AND incident_custom.incident_id = incident.id";
+            $sqls[] = Incident::_build_sql($sql, $tmp_w);
+            $all_parms = array_merge($all_parms, $parms, array(
+                $text
+            ));            
             //
             // Build the final big UNION SQL and params
             //
@@ -839,7 +848,7 @@ class Incident {
 
         if (!Session::am_i_admin()) { //  $user != ACL_DEFAULT_OSSIM_ADMIN
             if (preg_match("/incident_event/",$w) || preg_match("/incident_alarm/",$w)
-                || preg_match("/incident_metric/",$w) || preg_match("/incident_vulns/",$w)) {
+                || preg_match("/incident_metric/",$w) || preg_match("/incident_vulns/",$w) || preg_match("/incident_custom/",$w) ) {
                 $sql .= "LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE incident_subscrip.login in ($user_where)";
             } else {
                 $incident_ticket = (!preg_match("/incident_ticket/",$from)) ? true : false;
@@ -888,6 +897,19 @@ class Incident {
         require_once ('classes/Incident_vulnerability.inc');
         return Incident_vulnerability::get_list($conn, "WHERE incident_id = " . $this->id . " ORDER BY id");
     }
+    function get_custom($conn) {
+		$list = array();
+        $query = OssimQuery("SELECT * FROM incident_custom WHERE incident_id=".$this->id);
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } else {
+            while (!$rs->EOF) {
+                $list[$rs->fields["name"]] = $rs->fields["content"];
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }   
     /* get users that are part of an incident (the main Admin included)
     * (user, in_charge, transferred and subscribed to incidents)
     */
@@ -1071,7 +1093,7 @@ class Incident {
         if (empty($event_end)) $event_end = "now";
         $event_start = date('Y-m-d H:i:s', strtotime($event_start));
         $event_end = date('Y-m-d H:i:s', strtotime($event_end));
-        $query = "INSERT INTO incident " . "(title, type_id, ref, submitter, priority, " . "in_charge, status, date, last_update, event_start, event_end) " . "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO incident (title, type_id, ref, submitter, priority, in_charge, status, date, last_update, event_start, event_end) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $date = date('Y-m-d H:i:s');
         $params = array(
             $title,
@@ -1182,6 +1204,25 @@ class Incident {
             $description
         );
         if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
+        return $last_id;
+    }
+    function insert_custom($conn, $title, $type, $submitter, $priority, $in_charge="", $fields=array()) {
+        foreach($fields as $value) {
+            if (!ossim_valid($value, OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field"))) return false;
+        }
+        $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Custom", "", "", $in_charge);
+        if (ossim_error()) return false;
+        foreach ($fields as $name => $value) {
+	        $sql = "INSERT INTO incident_custom 
+	                (incident_id, name, content) 
+	                VALUES (?, ?, ?)";
+	        $params = array(
+	            $last_id,
+	            $name,
+	            $value
+	        );
+	        if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
+	    }
         return $last_id;
     }
     /*
@@ -1351,6 +1392,7 @@ class Incident {
         $conn->Execute("DELETE FROM incident_subscrip  WHERE incident_id=$id");
         $conn->Execute("DELETE FROM incident_tag    WHERE incident_id=$id");
         $conn->Execute("DELETE FROM incident_vulns  WHERE incident_id=$id");
+        $conn->Execute("DELETE FROM incident_custom  WHERE incident_id=$id");
         $conn->Execute("DELETE FROM incident WHERE id=$id");
         $conn->CompleteTrans();
         if ($conn->HasFailedTrans()) {

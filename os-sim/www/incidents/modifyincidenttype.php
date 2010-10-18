@@ -55,8 +55,13 @@ echo gettext("Modify Action type"); ?> </h1>
 require_once 'classes/Security.inc';
 $inctype_id = POST('id');
 $inctype_descr = POST('descr');
+$action = POST('modify');
+$custom = intval(POST('custom'));
+$custom_name = strtoupper(POST('custom_name'));
 ossim_valid($inctype_descr, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, 'illegal:' . _("Description"));
 ossim_valid($inctype_id, OSS_ALPHA, OSS_SPACE, OSS_PUNC, 'illegal:' . _("id"));
+ossim_valid($custom_name, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Custom field name"));
+ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("action"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -69,19 +74,24 @@ require_once ('ossim_db.inc');
 require_once ('classes/Incident_type.inc');
 $db = new ossim_db();
 $conn = $db->connect();
-Incident_type::update($conn, $inctype_id, $inctype_descr);
+
+if ($action=="modify") {
+	Incident_type::update($conn, $inctype_id, $inctype_descr,(($custom==1) ? "custom" : ""));
+	$location = "incidenttype.php";
+} elseif ($action=="add" && trim($custom_name)!="") {
+	Incident_type::insert_custom($conn, $inctype_id, $custom_name);
+	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
+} elseif ($action=="delete" && trim($custom_name)!="") {
+	Incident_type::delete_custom($conn, $inctype_id, $custom_name);
+	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
+}
 $db->close($conn);
 ?>
     <p> <?php
 echo gettext("Action type succesfully updated"); ?> </p>
 <?php
-$location = "incidenttype.php";
-sleep(2);
-echo "<script>
-///history.go(-1);
-window.location='$location';
-</script>
-";
+sleep(1);
+echo "<script>window.location='$location';</script>";
 ?>
 </body>
 </html>

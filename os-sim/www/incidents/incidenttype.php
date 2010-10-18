@@ -68,11 +68,16 @@ if ($inctype_list = Incident_type::get_list($conn, "")) {
         <th><?php
     echo gettext("Description"); ?></th>
         <th><?php
+    echo gettext("Custom"); ?></th>
+        <th><?php
     echo gettext("Actions"); ?></th>
     </tr>    
     
 <?php
     foreach($inctype_list as $inctype) {
+		$custom = (preg_match("/custom/",$inctype->get_keywords())) ? "tick.png" : "cross.png";
+		$custom_fields = Incident_type::get_custom_list($conn,$inctype->get_id());
+		$alt = (preg_match("/custom/",$inctype->get_keywords())) ? implode(",",$custom_fields) : "";
 ?>
         <tr>
             <td><?php
@@ -86,18 +91,16 @@ if ($inctype_list = Incident_type::get_list($conn, "")) {
         }
 ?>
             </td>
-            <td>
             <?php
         if (!("Generic" == $inctype->get_id()) && !("Nessus Vulnerability" == $inctype->get_id())) {
-            echo "[<a
-            href=\"modifyincidenttypeform.php?id=" . $inctype->get_id() . "\"> " . gettext("Modify") . " </a>] [
-            <a href=\"deleteincidenttype.php?confirm=1&inctype_id=" . $inctype->get_id() . "\"> " . gettext("Delete") . " 
-            </a>]";
+            echo "<td align='center'><img src='../pixmaps/$custom' title='$alt' border='0'></td>";
+            echo "<td><a
+            href=\"modifyincidenttypeform.php?id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/pencil.png' border='0' title='"._("Modify type")."'> </a>
+            <a href=\"deleteincidenttype.php?confirm=1&inctype_id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/delete.gif' border='0' title='"._("Delete type")."'> </a></td>";
         } else {
-            echo " -- ";
+            echo "<td> -- </td><td> -- </td>";
         }
 ?>
-            </td>
         </tr>
 <?php
     }
@@ -111,7 +114,7 @@ if ($inctype_list = Incident_type::get_list($conn, "")) {
 }
 ?>
     <tr>
-    <td colspan="3" align="center"><a href="newincidenttypeform.php"><?php
+    <td colspan="4" align="center" style="height:30px"><a href="newincidenttypeform.php" class="buttonlink"><?php
 echo gettext("Add new type"); ?></a><td>
     </tr>
     </table>

@@ -72,9 +72,16 @@ echo gettext("Description"); ?> </th>
     </td>
   </tr>
   <tr>
+    <th> <?php
+echo gettext("Custom"); ?> </th>
+    <td class="left">
+      <input type="checkbox" name="custom" value="1">
+    </td>
+  </tr>  
+  <tr>
     <td colspan="2" align="center" valign="top">
-      <input type="submit" value="<?=_("OK")?>" class="btn">
-      <input type="reset" value="<?=_("reset")?>" class="btn">
+      <input type="submit" value="<?=_("OK")?>" class="button">
+      <input type="reset" value="<?=_("reset")?>" class="button">
     </td>
   </tr>
 </table>

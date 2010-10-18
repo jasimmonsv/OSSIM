@@ -55,6 +55,7 @@ echo gettext("New Ticket type"); ?> </h1>
 require_once 'classes/Security.inc';
 $inctype_id = POST('id');
 $inctype_descr = POST('descr');
+$custom = intval(POST('custom'));
 ossim_valid($inctype_descr, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, 'illegal:' . _("Description"));
 ossim_valid($inctype_id, OSS_ALPHA, OSS_SPACE, OSS_PUNC, 'illegal:' . _("id"));
 if (ossim_error()) {
@@ -66,24 +67,19 @@ if (POST('insert')) {
     $db = new ossim_db();
     $conn = $db->connect();
     require_once ("classes/Incident_type.inc");
-    Incident_type::insert($conn, $inctype_id, $inctype_descr);
+    Incident_type::insert($conn, $inctype_id, $inctype_descr,(($custom==1) ? "custom" : ""));
     $db->close($conn);
 ?>
-    <p> <?php
+    <br><br><p> <?php
     echo gettext("New Ticket type  succesfully inserted"); ?> </p>
 <?php
-    $location = "incidenttype.php";
-    sleep(2);
-    echo "<script>
-///history.go(-1);
-window.location='$location';
-</script>
-";
+    $location = ($custom==1) ? "modifyincidenttypeform.php?id=".urlencode($inctype_id) : "incidenttype.php";
+    sleep(1);
+    echo "<script>window.location='$location';</script>";
 ?>
 <?php
 }
 ?>
-
 
 </body>
 </html>
