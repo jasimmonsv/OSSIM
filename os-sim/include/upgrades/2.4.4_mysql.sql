@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS `incident_custom_types` (
   name varchar(255) NOT NULL,
   PRIMARY KEY (id,name)
 );
-                    
+
+INSERT IGNORE INTO log_config (code, log, descr, priority) VALUES (092, 1, '%1%', 1);
                     
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
