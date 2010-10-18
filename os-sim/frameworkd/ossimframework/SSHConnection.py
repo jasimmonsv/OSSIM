@@ -86,8 +86,3 @@ if __name__ == '__main__':
 	#print conn.execute('dpkg -l')
 	#conn.logout()
 
-'''
-
-
-
-'''

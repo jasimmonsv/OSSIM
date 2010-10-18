@@ -54,7 +54,7 @@ class OCSInventory():
 	
 	def getOCSHosts(self):
 		self.connectDB()
-		sql = "select id,name,osname,osversion,ipaddr,workgroup,description from ocsweb.hardware;"
+		sql = "select id,name,osname,osversion,ipaddr,workgroup,description,oscomments from ocsweb.hardware;"
 		data = self.db.exec_query(sql)
 		self.closeDB()
 		return data
@@ -67,7 +67,24 @@ class OCSInventory():
 			self.closeDB()
 			return data[0]["macaddr"]
 		
-	
+'''
+"SMB/WindowsVersion", "(4\.0)", "cpe:/o:microsoft:windows_nt",
+"SMB/WindowsVersion", "(5\.0)", "cpe:/o:microsoft:windows_2000",
+"SMB/WindowsVersion", "(5\.0)", "cpe:/o:microsoft:windows_server_2000",
+"SMB/WindowsVersion", "(5\.1)", "cpe:/o:microsoft:windows_xp",
+"SMB/WindowsVersion", "(5\.2)", "cpe:/o:microsoft:windows_server_2003",
+"SMB/WinNT4/ServicePack", "(Service Pack 1)", "cpe:/o:microsoft:windows_nt:4.0:sp1",
+"SMB/WinNT4/ServicePack", "(Service Pack 2)", "cpe:/o:microsoft:windows_nt:4.0:sp2",
+"SMB/WinNT4/ServicePack", "(Service Pack 3)", "cpe:/o:microsoft:windows_nt:4.0:sp3",
+"SMB/WinNT4/ServicePack", "(Service Pack 4)", "cpe:/o:microsoft:windows_nt:4.0:sp4",
+"SMB/WinNT4/ServicePack", "(Service Pack 5)", "cpe:/o:microsoft:windows_nt:4.0:sp5",
+"SMB/WinNT4/ServicePack", "(Service Pack 6)", "cpe:/o:microsoft:windows_nt:4.0:sp6",
+"SMB/WinXP/ServicePack",  "(Service Pack 1)", "cpe:/o:microsoft:windows_xp::sp1",
+"SMB/WinXP/ServicePack",  "(Service Pack 2)", "cpe:/o:microsoft:windows_xp::sp2",
+"SMB/WinXP/ServicePack",  "(Service Pack 3)", "cpe:/o:microsoft:windows_xp::sp3",
+"SMB/Win2003/ServicePack", "(Service Pack 1)", "cpe:/o:microsoft:windows_server_2003::sp1",
+"SMB/Win2003/ServicePack", "(Service Pack 2)", "cpe:/o:microsoft:windows_server_2003::sp2",
+'''
 if __name__ == '__main__':
 	ocs = OCSInventory()
 	ocs.run()

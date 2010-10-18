@@ -227,7 +227,10 @@ class Inventory:
 		verTable = {"4\.0.*" : "cpe:/o:microsoft:windows_nt",
 					"5\.0" : "cpe:/o:microsoft:windows_2000", 
 					"5\.1" : "cpe:/o:microsoft:windows_xp",
-					"5\.2" : "cpe:/o:microsoft:windows_server_2003"
+					"5\.2" : "cpe:/o:microsoft:windows_server_2003",
+					#CHECK
+					"6\.0" : "cpe:/o:microsoft:windows_vista",
+					"7\.0" : "cpe:/o:microsoft:windows_7",
  					
 					}
 		if osname.find("Windows") != -1:
