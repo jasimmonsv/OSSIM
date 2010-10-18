@@ -358,7 +358,11 @@ function ossim_valid() {
         if ($not == " ") $not = _("spaces");
         if ($not == "\r" || $not == "\n") $not = _("breaklines");
         $subject = htmlentities($subject);
-        return ossim_set_error("$error_msg " . sprintf(_("(\"%s\" not allowed)") , $not) . "<br/>Introduced string: '<b>$subject</b>'");
+        if (preg_match("/Password/i",$error_msg)) {
+        	return ossim_set_error("$error_msg " . sprintf(_("(\"%s\" not allowed)") , $not)); 
+        } else {
+        	return ossim_set_error("$error_msg " . sprintf(_("(\"%s\" not allowed)") , $not) . "<br/>Introduced string: '<b>$subject</b>'");
+        }
     }
     return true;
 }
