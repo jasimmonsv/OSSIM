@@ -61,8 +61,11 @@ class OssimMainError {
         $this->style = "border-style: dotted; " . "border-width: 3px;" . "margin-left: 50px;" . "margin-right: 50px;" . "padding: 5px;" . "text-align: center;" . "border-color: " . $this->_border_color . ";" . "background-color: " . $this->_bg_color . ";";
         $this->action = "/* no action */";
     }
-    function display($error_code, $extrainfo = NULL) {
+    function display($error_code, $extrainfo = NULL, $option = "") {
         print $this->get($error_code, $extrainfo);
+        if ($option == "noback") {
+        	$this->action = "die();";
+        }
         eval($this->action);
     }
     function get($error_code, $extrainfo = NULL) {
