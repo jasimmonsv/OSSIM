@@ -81,7 +81,7 @@ function checkpasslength() {
 	} else return 1;
 }
 function checkpass() {
-	if (document.fmodify.pass1.value != "" && (document.fmodify.pass1.value.match(/[0-9]/) == null || document.fmodify.pass1.value.match(/[a-zA-Z]/) == null)) {
+	if (document.fnewuser.pass1.value != "" && (document.fnewuser.pass1.value.match(/[0-9]/) == null || document.fnewuser.pass1.value.match(/[a-zA-Z]/) == null)) {
 		alert("<?=_("Password must have numeric and alphanumeric characters")?>");
 		return 0;
 	}

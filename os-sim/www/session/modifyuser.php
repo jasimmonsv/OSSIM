@@ -175,6 +175,7 @@ elseif (POST("insert")) {
 			$error->display("FORM_MISSING_FIELDS");
 		}
 		*/
+		$recent_pass = Log_action::get_last_pass($conn);
 		if (0 != strcmp($pass1, $pass2)) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
@@ -187,6 +188,10 @@ elseif (POST("insert")) {
 			require_once ("ossim_error.inc");
 		    $error = new OssimError();
 		    $error->display("PASSWORD_ALPHANUM");
+		} elseif (in_array(md5($pass1),$recent_pass)) {
+			require_once ("ossim_error.inc");
+		    $error = new OssimError();
+		    $error->display("PASSWORD_RECENT");
 		}
 		/* check for old password if not actual user or admin */
 		/*
