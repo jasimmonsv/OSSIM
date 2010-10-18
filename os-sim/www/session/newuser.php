@@ -81,6 +81,10 @@ ossim_valid($first_login, OSS_DIGIT, 'illegal:' . _("First Login"));
 if (ossim_error()) {
     die(ossim_error());
 }
+require_once ('ossim_db.inc');
+$db = new ossim_db();
+$conn = $db->connect();
+$recent_pass = Log_action::get_last_pass($conn);
 if (!Session::am_i_admin()) {
     require_once ("ossim_error.inc");
     $error = new OssimError();
@@ -99,10 +103,13 @@ elseif (0 != strcmp($pass1, $pass2)) {
 	require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORD_ALPHANUM");
+} elseif (in_array(md5($pass1),$recent_pass)) {
+	require_once ("ossim_error.inc");
+    $error = new OssimError();
+    $error->display("PASSWORD_RECENT");
 }
 /* check OK, insert into DB */
 elseif (POST("insert")) {
-    require_once ('ossim_db.inc');
     require_once ('ossim_acl.inc');
     require_once ('classes/Session.inc');
     require_once ('classes/Net.inc');
@@ -113,8 +120,6 @@ elseif (POST("insert")) {
             else $perms[$key] = false;
         }
     }
-    $db = new ossim_db();
-    $conn = $db->connect();
 	
     
     User_config::copy_panel($conn, "admin", $user);

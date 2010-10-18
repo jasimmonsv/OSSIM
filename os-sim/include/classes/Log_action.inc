@@ -159,6 +159,18 @@ OFFSET $inf");
         }
         return $list;
     }
+    function get_last_pass($conn) {
+    	$query = "SELECT DISTINCT info FROM log_action WHERE code=92 ORDER BY date DESC LIMIT 4";
+    	if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+            return array();
+        }
+        while (!$rs->EOF) {
+            $list[] = $rs->fields["info"];
+            $rs->MoveNext();
+        }
+        return $list;
+    }
     function get_count($conn, $cfilter) {
         $query = OssimQuery("SELECT count(*) AS count FROM log_action $cfilter
         ");

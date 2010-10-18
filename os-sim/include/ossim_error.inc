@@ -61,8 +61,11 @@ class OssimMainError {
         $this->style = "border-style: dotted; " . "border-width: 3px;" . "margin-left: 50px;" . "margin-right: 50px;" . "padding: 5px;" . "text-align: center;" . "border-color: " . $this->_border_color . ";" . "background-color: " . $this->_bg_color . ";";
         $this->action = "/* no action */";
     }
-    function display($error_code, $extrainfo = NULL) {
+    function display($error_code, $extrainfo = NULL, $option = "") {
         print $this->get($error_code, $extrainfo);
+        if ($option == "noback") {
+        	$this->action = "die();";
+        }
         eval($this->action);
     }
     function get($error_code, $extrainfo = NULL) {
@@ -89,7 +92,7 @@ class OssimError extends OssimMainError {
         /* call to main error class */
         $this->OssimMainError();
         /* action after display error */
-        $this->action = 'echo "<br/><br/><a href=\"javascript:history.back();\">' . gettext("Back") . '</a>"; die();';
+        $this->action = 'echo "<br/><br/><center><a href=\"javascript:history.back();\"><b>' . gettext("Back") . '</b></a></center>"; die();';
         /* specific errors */
         /* PHP-adodb */
         $this->errors["ADODB_PATH"] = array(
@@ -211,6 +214,11 @@ class OssimError extends OssimMainError {
         $this->errors["PASSWORD_ALPHANUM"] = array(
             "short_descr" => gettext("Authentication failure") ,
             "long_descr" => gettext("Password must have numeric and alphanumeric characters") ,
+        );
+        /* Password recent */
+        $this->errors["PASSWORD_RECENT"] = array(
+            "short_descr" => gettext("Password saving failure") ,
+            "long_descr" => gettext("This password is recently used. Try another") ,
         );
         /* Only admin can do that */
         $this->errors["ONLY_ADMIN"] = array(

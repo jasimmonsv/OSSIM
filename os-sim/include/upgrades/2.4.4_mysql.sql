@@ -5,6 +5,10 @@ BEGIN;
 INSERT INTO plugin_sid (plugin_id,sid,category_id,class_id,reliability,priority,name,aro,subcategory_id) VALUES (7006,18149,2,NULL,1,1,'ossec: Windows user logoff.','0.0000',27);
 INSERT INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES (202, 'Theats Database', 'Vulnerabilities', 'Vulnerabilities/TheatsDatabase.php', 'Keywords:keywords:text:OSS_NULLABLE::20;CVE:cve:text:OSS_NULLABLE::20;Risk Factor:riskFactor:select:OSS_ALPHA:ALL,Info,Low,Medium,High,Serious:;Detail:detail:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1);
 
+INSERT IGNORE INTO log_config (code, log, descr, priority) VALUES (092, 1, '%1%', 1);
+
+ALTER TABLE  `incident` CHANGE  `ref`  `ref` ENUM(  'Alarm',  'Alert',  'Event',  'Metric',  'Anomaly',  'Vulnerability',  'Custom' ) NOT NULL DEFAULT  'Alarm';
+
 DROP TABLE IF EXISTS `incident_custom`;
 CREATE TABLE IF NOT EXISTS `incident_custom` (
   id int(11) NOT NULL auto_increment,
@@ -20,7 +24,6 @@ CREATE TABLE IF NOT EXISTS `incident_custom_types` (
   name varchar(255) NOT NULL,
   PRIMARY KEY (id,name)
 );
-                    
                     
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
