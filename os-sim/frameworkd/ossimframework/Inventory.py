@@ -47,8 +47,7 @@ class Inventory:
 		self._tmp_conf = OssimConf (Const.CONFIG_FILE)
 		self.properties = {}
 		self.sources = {}
-		self.credentialTypes()
-		
+		self.credentialTypes = {}
 		self.loadProperties()
 		self.loadSources()
 		self.loadCredentialTypes()
@@ -92,6 +91,24 @@ class Inventory:
 		sql = "INSERT INTO host_properties (ip, date, property_ref, source_id, value, extra) VALUES ('%s', now(), %d, %d, '%s', '%s');" % (host, self.properties[prop], self.sources[source][0], value, extra)
 		self.db.exec_query(sql)
 		self.closeDB()
+		
+	def getProps(self, ip):
+		self.connectDB()
+		sql = "select distinct(property_ref) from host_properties where ip = '%s';" % ip
+		data = self.db.exec_query(sql)
+		props = []
+		for d in data:
+			props.append(d["property_ref"])
+		self.closeDB()
+		return props
+
+	def updateProp(self, ip, prop, source, value, extra):
+		self.connectDB()
+		sql = "UPDATE host_properties SET source_id = %d, date = now(), value = '%s', extra = '%s' where ip = '%s' and property_ref = %d" % (self.sources[source][0], value, extra, ip, self.properties[prop])
+		print sql
+		logger.debug(sql)
+		self.db.exec_query(sql)
+		self.closeDB()
 	
 	def getPropByHost(self, host, prop):
 		self.connectDB()
@@ -105,7 +122,6 @@ class Inventory:
 		sql = "SELECT ip from ossim.host;"
 		logger.debug(sql)
 		data = self.db.exec_query(sql)
-		print data
 		hosts = []
 		for d in data:
 			hosts.append(d["ip"])

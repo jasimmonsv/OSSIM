@@ -37,20 +37,40 @@ class OCSInventory():
 	
 	def process(self):
 		self.ossimHosts = self.inv.getListOfHosts()
+		print self.ossimHosts
 		ocsHosts = self.getOCSHosts()
 		for host in ocsHosts:
 			ip = host['ipaddr']
 			#Check if host is valid
 			if self.inv.validateIp(ip):
 				#Check if host exists
-				if not host in self.ossimHosts:
+				if not ip in self.ossimHosts:
 					#Add host to ossim Database
 					print "Adding %s" % ip
 					self.inv.insertHost(ip, None, host['name'], host['description'])
 					mac = self.getMACfromHost(host['id'], ip)
 					self.inv.insertProp(ip, "macAddress", "OCS", mac, None)
 					self.inv.insertProp(ip, "workgroup", "OCS", host['workgroup'], None)
-					
+					self.inv.insertProp(ip, "operating-system", "OCS", host['osname'], None)
+				else:
+					print "Updating"
+					#Host previously discovered
+					#OCS has the highest priority to replace properties
+					props = self.inv.getProps(ip)
+					if self.inv.properties["macAddress"] not in props:
+						mac = self.getMACfromHost(host['id'], ip)
+						self.inv.insertProp(ip, "macAddress", "OCS", mac, None)
+					else:
+						mac = self.getMACfromHost(host['id'], ip)
+						self.inv.updateProp(ip, "macAddress", "OCS", mac, None)				
+					if self.inv.properties["workgroup"] not in props:		
+						self.inv.insertProp(ip, "workgroup", "OCS", host['workgroup'], None)
+					else:
+						self.inv.updateProp(ip, "workgroup", "OCS", host['workgroup'], None)
+					if self.inv.properties["operating-system"] not in props:	
+						self.inv.insertProp(ip, "operating-system", "OCS", host['osname'], None)
+					else:
+						self.inv.updateProp(ip, "operating-system", "OCS", host['osname'], None)
 	
 	def getOCSHosts(self):
 		self.connectDB()
@@ -59,6 +79,9 @@ class OCSInventory():
 		self.closeDB()
 		return data
 	
+	def getSoftware(self):
+		pass
+		
 	def getMACfromHost(self, id, ip):
 		self.connectDB()
 		sql = "select MACADDR from ocsweb.networks where HARDWARE_ID = %d and IPADDRESS = '%s';" % (id, ip)
@@ -67,24 +90,6 @@ class OCSInventory():
 			self.closeDB()
 			return data[0]["macaddr"]
 		
-'''
-"SMB/WindowsVersion", "(4\.0)", "cpe:/o:microsoft:windows_nt",
-"SMB/WindowsVersion", "(5\.0)", "cpe:/o:microsoft:windows_2000",
-"SMB/WindowsVersion", "(5\.0)", "cpe:/o:microsoft:windows_server_2000",
-"SMB/WindowsVersion", "(5\.1)", "cpe:/o:microsoft:windows_xp",
-"SMB/WindowsVersion", "(5\.2)", "cpe:/o:microsoft:windows_server_2003",
-"SMB/WinNT4/ServicePack", "(Service Pack 1)", "cpe:/o:microsoft:windows_nt:4.0:sp1",
-"SMB/WinNT4/ServicePack", "(Service Pack 2)", "cpe:/o:microsoft:windows_nt:4.0:sp2",
-"SMB/WinNT4/ServicePack", "(Service Pack 3)", "cpe:/o:microsoft:windows_nt:4.0:sp3",
-"SMB/WinNT4/ServicePack", "(Service Pack 4)", "cpe:/o:microsoft:windows_nt:4.0:sp4",
-"SMB/WinNT4/ServicePack", "(Service Pack 5)", "cpe:/o:microsoft:windows_nt:4.0:sp5",
-"SMB/WinNT4/ServicePack", "(Service Pack 6)", "cpe:/o:microsoft:windows_nt:4.0:sp6",
-"SMB/WinXP/ServicePack",  "(Service Pack 1)", "cpe:/o:microsoft:windows_xp::sp1",
-"SMB/WinXP/ServicePack",  "(Service Pack 2)", "cpe:/o:microsoft:windows_xp::sp2",
-"SMB/WinXP/ServicePack",  "(Service Pack 3)", "cpe:/o:microsoft:windows_xp::sp3",
-"SMB/Win2003/ServicePack", "(Service Pack 1)", "cpe:/o:microsoft:windows_server_2003::sp1",
-"SMB/Win2003/ServicePack", "(Service Pack 2)", "cpe:/o:microsoft:windows_server_2003::sp2",
-'''
 if __name__ == '__main__':
 	ocs = OCSInventory()
 	ocs.run()
