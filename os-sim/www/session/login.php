@@ -139,14 +139,14 @@ if (REQUEST('user')) {
 	if ($login_return != true) {
 		$failed = true;
         $bad_pass = true;
-        if ($login_exists) {
+        if ($login_exists && !$is_disabled) {
         	$_SESSION['bad_pass'][$user]++;
 	        if ($_SESSION['bad_pass'][$user] > 6) {
 	        	$disabled = true;
 	        	$session->login_disable();
 	        }
         }
-	} else {
+	} elseif (!$is_disabled) {
         $_SESSION['bad_pass'] = "";
 		$first_login = $conf->get_conf("first_login", FALSE);
         if ($first_login == "" || $first_login == 0 || $first_login == "no") {

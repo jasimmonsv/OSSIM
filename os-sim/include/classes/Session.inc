@@ -274,12 +274,26 @@ class Session {
         $conn = $db->connect();
 		$pass = md5($this->pass);
         $login = $this->login;
-		$sql = "SELECT * FROM users WHERE login = ? AND pass = ?";
+		$sql = "SELECT * FROM users WHERE login = ? AND enabled=0";
 		$params = array(
-            $login,
-            $pass
+            $login
         );
-        if ($rs = & $conn->Execute($sql, $params) && (!$rs->EOF)) {
+		if ($rs = & $conn->Execute($sql, $params) && (!$rs->EOF)) {
+			$sql2 = "SELECT date as lastdate FROM log_action WHERE code=93 AND info = 'User $login disabled for security reasons' ORDER BY date DESC";
+			if ($rs2 = & $conn->Execute($sql2) && (!$rs2->EOF)) {
+				$lastdate = $rs2->fields['lastdate'];
+				if (time() - strtotime($lastdate) >= 60*30) { // 30 minutes and enable
+					$sql3 = "DELETE FROM log_action WHERE code=93 AND info = 'User $login disabled for security reasons'";
+					$conn->Execute($sql3);
+					$sql3 = "UPDATE users SET enabled=1 WHERE login=?";
+					$conn->Execute($sql3,$params);
+					$db->close($conn);
+					return false;
+				} else {
+					$db->close($conn);
+					return true;
+				}
+			}
 			$db->close($conn);
 			return true;
         }
