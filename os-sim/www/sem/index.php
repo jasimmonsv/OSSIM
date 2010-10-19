@@ -137,6 +137,11 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
 <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 <script type="text/javascript" src="../js/greybox.js"></script>
 <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
+<!-- <script src="../js/jquery-ui-1.8.core-and-interactions.min.js" type="text/javascript" charset="utf-8"></script> -->
+<script src="../js/jquery-ui-1.8.core-and-interactions.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../js/jquery-ui-1.8.autocomplete.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../js/tag-it.js" type="text/javascript" charset="utf-8"></script>
+
 
 <script type="text/javascript" src="../js/jquery.flot.pie.js"></script>
 <script src="../js/datepicker.js" type="text/javascript"></script>
@@ -228,6 +233,93 @@ background-color: white;
 .header{
 line-height:28px; height: 28px; background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 0% 0%; color: rgb(51, 51, 51); font-size: 12px; font-weight: bold; text-align:center;
 }
+
+ol, ul, li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+}
+.ui-autocomplete {
+	background-color: #D3E7AF;
+	position: absolute;
+	cursor: default;
+}
+.ui-autocomplete .ui-menu-item {
+}
+.ui-autocomplete  .ui-menu-item a {
+	display:block;
+	padding:4px 6px;
+	text-decoration:none;
+	line-height:12px;
+}
+.ui-autocomplete .ui-menu-item a.ui-state-hover,
+.ui-autocomplete .ui-menu-item a.ui-state-active {
+	background-color:#28BC04;
+	color:#fff;
+	margin:0;
+}
+.ui-autocomplete-loading {
+	background: white url(../pixmaps/loading.gif) right center no-repeat;
+}
+
+ul.tagit {
+	padding:1px 5px;
+	border-style:solid;
+	border-width:1px;
+	border-color:#C6C6C6;
+	overflow:auto;
+}
+ul.tagit li {
+	-moz-border-radius:5px 5px 5px 5px;
+	display: block;
+	float: left;
+	margin:2px 5px 2px 5px;
+}
+ul.tagit li.tagit-choice {
+	background-color:#D3E7AF;
+	border:2px solid #ADDF53;
+	padding:2px 4px 3px;
+	font-size:13px;
+}
+ul.tagit li.tagit-choice:hover {
+	background-color:#C0E380;
+	border-color:#AEDF52;
+}
+ul.tagit li.tagit-new {
+	padding:2px 4px 3px;
+	padding:2px 4px 1px;
+	padding:2px 4px 1px 3px;
+}
+
+ul.tagit li.tagit-choice input {
+	display:block;
+	float:left;
+	margin:2px 5px 2px 0;
+}
+ul.tagit li.tagit-choice a.close {
+	color:#777777;
+	cursor:pointer;
+	font-size:12px;
+	font-weight:bold;
+	outline:medium none;
+	padding:2px 0 2px 3px;
+	text-decoration:none;
+}
+ul.tagit input[type="text"] {
+	-moz-box-sizing:border-box;
+	border:none;
+	margin:0;
+	padding:0;
+	width:200px;
+	height:24px;
+	border-color:#C6C6C6;
+	background-color:#FFFFFF;
+	color:#333333;
+	font-size:13px;
+}
+
 </style>
 
 <script>
@@ -251,6 +343,10 @@ function display_info ( var1, var2, var3, var4, var5, var6 ){
 	hideLayer("by_date");
 }
 
+function is_operator (value) {
+	return (value == "and" || value == "AND" || value == "or" || value == "OR") ? 1 : 0;
+}
+
 function MakeRequest()
 {
     if(document.getElementById('txtexport').value=='noExport') {
@@ -260,11 +356,39 @@ function MakeRequest()
 	// Used for main query
 	document.getElementById('loading').style.display = "block";
         //
-        document.getElementById('ResponseDiv').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading events...'); ?>';
+    document.getElementById('ResponseDiv').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading events...'); ?>';
 
-        var str = escape(document.getElementById('searchbox').value);
-        
-        //alert(str);
+    var str = "";
+    var prev_atom = "";
+    $('.search_atom').each(function(){
+		var cur_atom = this.value;
+		cur_atom = cur_atom.replace(":","=");
+		if (!is_operator(cur_atom) && !cur_atom.match(/\=/)) {
+			cur_atom = "data="+cur_atom;
+		}
+		/* first atom */
+		if (prev_atom == "") {
+			str = cur_atom;
+		}
+		/* default operator AND if not specified */
+		else if (prev_atom != "" && !is_operator(prev_atom) && !is_operator(cur_atom)) {
+			str += " AND "+cur_atom;
+		}
+		/* other case */
+		else {
+			str += " "+cur_atom;
+		}
+    	prev_atom = cur_atom;
+    });
+    str = escape(str);
+/*
+    $('#mytags').tag_input.parents("ul").children(".tagit-choice").each(function(i){
+		n = $(this).children("input").val();
+		alert(n);
+	})*/
+    //var str = escape(document.getElementById('searchbox').value);
+
+    //alert(str);
 	<? if (GET('query') != "")  { ?>
 	var str = "<?php echo GET('query')?>";
 	<? } ?>
@@ -314,6 +438,7 @@ function MakeRequest()
                     });
 		}
 	});
+	return false;
 }
 
 function RequestLines()
@@ -737,7 +862,7 @@ function monthToNumber(m)
 	}
 }
 
-function SubmitForm() { document.forms[0].submit(); }
+function SubmitForm() { /*document.forms[0].submit();*/ MakeRequest(); }
 
 function EnterSubmitForm(evt) {
   var evt = (evt) ? evt : ((event) ? event : null);
@@ -821,6 +946,14 @@ $(document).ready(function(){
 		return false;
 	});
 	$('#widgetCalendar div.datepicker').css('position', 'absolute');
+
+	/* AUTOCOMPLETE SEARCH */
+	<?php 
+	list($sensors, $hosts) = Host::get_ips_and_hostname($conn_aux);
+	?>
+	$("#mytags").tagit({
+		availableTags: ["data"<?php foreach ($sensors as $ip=>$name) { ?>, "sensor:<?php echo $name?>"<?php } ?><?php $top = 0; foreach ($hosts as $ip=>$name) if ($top < 20) { ?>, "source:<?php echo $name?>", "destination:<?php echo $name ?>"<?php $top++; } ?>]
+	});
 	
 });
 function change_calendar() {
@@ -970,7 +1103,8 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 </div>-->
 <!-- Misc internal vars -->
 <form id="search" action="javascript:MakeRequest();">
-<input type="hidden" id="cursor" value="">
+<input type="hidden" id="searchbox"></input>
+<input type="hidden" name="cursor" id="cursor" value="">
 <script>
 document.getElementById('cursor').value = document.body.style.cursor;
 </script>
@@ -996,7 +1130,7 @@ require_once ("manage_querys.php");
 <tr>
 <td nowrap class="nobborder">
 	<table cellspacing="0" width="100%" id="searchtable" style="border: 1px solid rgb(170, 170, 170);border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px;background:url(../pixmaps/fondo_hdr2.png) repeat-x">
-		<tr><td class="nobborder" align="center" style="text-align:center">
+		<tr><td class="nobborder" align="center" style="text-align:center;padding-top:10px;padding-bottom:10px">
 			<table class="transparent" align="center">
 				<tr>
 					<td class="nobborder" style="font-size:18px;font-weight:bold;color:#222222"><?=_("Search")?>:</td>
@@ -1007,7 +1141,12 @@ require_once ("manage_querys.php");
 						<a href="javascript:AddQuery()" onMouseOver="showTip('<?php echo $help_entries["saved_searches"] ?>','lightblue','300')" onMouseOut="hideTip()"><img src="<?php echo $config["save_graph"] ?>" border="0" style="vertical-align:middle; padding-left:5px; padding-right:5px;"></a>
 						-->
 						<!--<input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"><a onMouseOver="showTip('<?php echo $help_entries["play"] ?>','lightblue','300')" onMouseOut="hideTip()" href="javascript:doQuery()" title="<?php echo _("Submit Query") ?>"><img src="<?php echo $config["play_graph"]; ?>" border="0" align="middle" style="padding-left:5px; padding-right:5px;"></a>-->
-					<td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td>
+					<td>
+					<div style="clear:both">
+					<ul id="mytags" style="list-style: none"></ul>
+					</div>
+					</td>
+					<!-- <td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td> -->
 					<td class="nobborder"><input type="button" class="button" onclick="doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:20px"></td>
                                         <?php /*
 					<!--<a href="javascript:ClearSearch()" onMouseOver="showTip('<?php echo $help_entries["clear"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="#999999"><small><?php echo _("Clear Query"); ?></small></font></a>-->

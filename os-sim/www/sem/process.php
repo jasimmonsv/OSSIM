@@ -353,9 +353,9 @@ foreach($result as $res) if ($cont++ < $numResult) {
                         }
                     }
                     if ($red) {
-                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
+                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
                     } else {
-                        $data.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
+                        $data.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
                     }
                 }
                 if ($verified >= 0) {
