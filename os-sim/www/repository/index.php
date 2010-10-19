@@ -225,7 +225,7 @@ foreach($repository_list as $repository_object) {
 								<td class="center nobborder"><?php echo $repository_object->date
 ?></td><?
     $username = $repository_object->user;
-    if(preg_match('/\d+/', $repository_object->user)) {
+    if(preg_match("/pro|demo/i",$version) && preg_match('/\d+/', $repository_object->user)) {
         list($entities_all, $num_entities) = Acl::get_entities($conn, $repository_object->user);
         $username = $entities_all[$repository_object->user]['name'];
     }?>

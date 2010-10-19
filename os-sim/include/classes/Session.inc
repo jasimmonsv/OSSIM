@@ -243,7 +243,7 @@ class Session {
         global $_SESSION;
         $db = new ossim_db();
         $conn = $db->connect();
-        $pass = md5($password);
+        $pass = (preg_match('/^[A-Fa-f0-9]{32}$/',$password)) ? $password : md5($password);
         $sql1 = "SELECT * FROM users WHERE login = ?";
         $params1 = array(
             $login
