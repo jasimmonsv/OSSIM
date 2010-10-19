@@ -142,6 +142,7 @@ function PrintPacketLookupBrowseButtons($seq, $save_sql, $db, &$previous_button,
     }
     $result2->baseFreeRows();
 }
+
 /*
 *  Need to import $submit and set the $QUERY_STRING early to support
 *  the back button.  Otherwise, the value of $submit will not be passed
@@ -309,11 +310,37 @@ echo '
 						<TD></td></TR>
                     <TR><TD CLASS="plfield" nowrap>' . ($sid . " - " . $cid) . '</TD>
                         <TD CLASS="plfield" nowrap>' . htmlspecialchars($timestamp) . '</TD>
-                        <TD CLASS="plfield">' . html_entity_decode(htmlspecialchars(str_replace("##", "", BuildSigByPlugin($plugin_id, $plugin_sid, $db)))) . '</TD>
+                        <TD CLASS="plfield">';
+	$htmlTriggeredSignature=html_entity_decode(htmlspecialchars(str_replace("##", "", BuildSigByPlugin($plugin_id, $plugin_sid, $db))));
+	echo $htmlTriggeredSignature.'</TD>
                         <TD CLASS="plfield">' . $plugin_name . '</TD>
                         <TD CLASS="plfield">' . $plugin_id . '</TD>
                         <TD CLASS="plfield">' . $plugin_sid . '</TD>
-						'.(($_GET['minimal_view'] == "") ? '<TD CLASS="plfield"><a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$plugin_id.'&sid='.$plugin_sid.'\',200,400)" class="greybox"><img src="../pixmaps/pencil.png" border="0" alt="'._("Modify Rel/Prio").'" title="'._("Modify Rel/Prio").'"></a></td>' : '').'</TR>
+						'.(($_GET['minimal_view'] == "") ? '<TD CLASS="plfield"><a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$plugin_id.'&sid='.$plugin_sid.'\',200,400)" class="greybox"><img src="../pixmaps/pencil.png" border="0" alt="'._("Modify Rel/Prio").'" title="'._("Modify Rel/Prio").'"></a></td>' : '');
+'<a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-0033" target="_blank"><img src="manage_references_icon.php?id=5" alt="cve" title="cve" border="0"></a> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2007-5976" target="_blank"><img src="manage_references_icon.php?id=5" alt="cve" title="cve" border="0"></a> pads: New service detectedArray
+';
+	
+	//<--
+	$return;
+	foreach(explode('http://cve.mitre.org/cgi-bin/cvename.cgi?name=',$htmlTriggeredSignature) as $key => $value ){
+		if($key!=0){
+			$posIni=strpos($value,"'");
+			if($posIni!==false){
+				$return[]='CVE-'.substr($value,0,$posIni);
+			}
+		}
+	}
+	if(!empty($return)){
+		$arrayData='data='.implode('__',$return).'&plugin_id='.$plugin_id.'&plugin_sid='.$plugin_sid;
+	?>
+		<TD CLASS="plfield">
+			<a href="javascript:;" title="<?php echo _("Info from OSVDB");?>" class="greybox" onclick="GB_show('Info from OSVDB','osvdb_info.php?<?php echo $arrayData; ?>',450,'90%')"><img src="../vulnmeter/images/osvdb.png" border="0"></a>
+		</TD>
+		<?php
+	}
+	//-->
+	
+echo '</TR>
                   </TABLE>
               </TD>
            </TR>';

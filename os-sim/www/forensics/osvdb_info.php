@@ -1,4 +1,4 @@
-<?
+<?php
 /*****************************************************************************
 *
 *    License:
@@ -32,7 +32,7 @@
 
 require_once('ossim_conf.inc');
 require_once ('classes/Session.inc');
-Session::logcheck("MenuEvents", "EventsVulnerabilities");
+Session::logcheck("MenuEvents", "EventsForensics");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -46,13 +46,26 @@ echo gettext("Vulnmeter"); ?> </title>
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
-<?
-
-$scriptid = $_GET["scriptid"];
-
-ossim_valid($scriptid, OSS_DIGIT, 'illegal:' . _("scriptid"));
+<?php
+// get params
+//
+$data=GET('data');
+ossim_valid($data, 'illegal:' . _("data"));
 if (ossim_error()) {
-    die(_("Invalid Parameter scriptid"));
+    die(_("Invalid Parameter data"));
+}
+$data=explode('__',$data);
+//
+$plugin_id=GET('plugin_id');
+ossim_valid($plugin_id, OSS_DIGIT, 'illegal:' . _("plugin_id"));
+if (ossim_error()) {
+    die(_("Invalid Parameter plugin_id"));
+}
+//
+$plugin_sid=GET('plugin_sid');
+ossim_valid($plugin_sid, OSS_DIGIT, 'illegal:' . _("plugin_sid"));
+if (ossim_error()) {
+    die(_("Invalid Parameter plugin_sid"));
 }
 
 $path_conf = $GLOBALS["CONF"];
@@ -80,14 +93,49 @@ if ($old) {
 $cve_references = array();
 $bugtraq_references = array();
 
+/*
 $dbconn->Execute('use ossim');
 $query = "select cve_id, bugtraq_id from vuln_nessus_plugins
             where id=$scriptid";
 //echo $query;
 $result = $dbconn->Execute($query);
+*/
 
-$cve_references = explode(", ",str_replace("CVE-", "",$result->fields['cve_id']));
-$bugtraq_references = explode(", ",$result->fields['bugtraq_id']);
+// Conectamos con refern_system para obtener el id de bugtraq
+$dbconn->Execute('use snort');
+$query = 'SELECT ref_system_id FROM reference_system WHERE ref_system_name LIKE " bugtraq"';
+$result = $dbconn->Execute($query);
+$idBugTraq=$result->fields['ref_system_id'];
+if(empty($idBugTraq)){
+	die(_('Error: no exist bugtraq'));
+}
+
+// Obtenemos los sig_reference que tiene el plugin y pluginsid
+$query = 'SELECT ref_id FROM sig_reference WHERE plugin_id='.$plugin_id.' AND plugin_sid='.$plugin_sid;
+$result = $dbconn->Execute($query);
+$sigReference='';
+while (!$result->EOF){
+	$sigReference[]=$result->fields['ref_id'];
+    $result->MoveNext();
+}
+if(empty($sigReference)){
+	echo _('Error: no exist bugtraq');
+	return;
+}
+// obtenemos los bugtraq
+$bugtraq_references='';
+foreach($sigReference as $value){
+	$query = 'SELECT ref_tag FROM reference WHERE ref_system_id='.$idBugTraq.' AND ref_id='.$value;
+	$result = $dbconn->Execute($query);
+	
+	while (!$result->EOF){
+		$bugtraq_references[]=$result->fields['ref_tag'];
+    	$result->MoveNext();
+	}
+}
+//
+//$cve_references = explode(", ",str_replace("CVE-", "",$result->fields['cve_id']));
+//$bugtraq_references = explode(", ",$result->fields['bugtraq_id']);
 
 $cve_data = "";
 foreach ($cve_references as $cve) {
@@ -95,6 +143,9 @@ foreach ($cve_references as $cve) {
 }
 $cve_data = substr($cve_data,0,strlen($cve_data)-1);
 
+if(empty($bugtraq_references)){
+	$bugtraq_references=array();
+}
 $bugtraq_data = "";
 foreach ($bugtraq_references as $bug) {
     $bugtraq_data = $bugtraq_data."'".$bug."',";
@@ -121,7 +172,7 @@ $vulns_ids = substr($vulns_ids,0,strlen($vulns_ids)-1);
 
 if ($vulns_ids=="") $vulns_ids = "0";
 
-$query = "select id, description, solution from osvdb.vulnerabilities where id in ($vulns_ids)";
+$query = "select id, description, solution, title from osvdb.vulnerabilities where id in ($vulns_ids)";
 //print $query;
 $result = $dbconn->Execute($query);
 
@@ -148,9 +199,10 @@ while ( !$result->EOF ) {
                     WHERE ci.vulnerability_id = '".$result->fields['id']."' AND ci.classification_id = c.id AND c.classification_type_id = ct.id";
         
         $result_cl = $dbconn->Execute($sql_cl);
-		if($result_cl->EOF){
+        if($result_cl->EOF){
         	echo "<tr><td style=\"text-align:left;\" class='noborder'>".$result->fields['title']."</td></tr>";
         }
+        //
         while ( !$result_cl->EOF ) {
             echo "<tr><td style=\"text-align:left;\" class='noborder'><b>".$result_cl->fields['ctname'].":</b> ".$result_cl->fields['longname']."</td></tr>";
             $result_cl->MoveNext();

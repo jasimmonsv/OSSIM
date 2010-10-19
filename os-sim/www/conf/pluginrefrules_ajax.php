@@ -53,7 +53,7 @@ if ($plugin_id == "") exit;
 $db = new ossim_db();
 $conn = $db->connect();
 
-$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$plugin_id ORDER BY sid", 0);
+$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$plugin_id ORDER BY name", 0);
 ?>
 <?=($num==2) ? "Reference" : "Plugin"?> SID: 
 <select id="sidajax<?=$num?>" onchange="document.frules.plugin_sid<?=$num?>.value=this.value<? if (GET('manage')) { ?>;load_refs()<? } ?>" style="width:200px">

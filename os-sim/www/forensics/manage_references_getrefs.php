@@ -74,7 +74,7 @@ if ($myrow = $result->baseFetchRow()) {
 		<th colspan="4"><?=_("References found")?></th>
 	</tr>
 	<tr>
-		<td width="50" nowrap><img src="manage_references_icon.php?id=<?=$myrow['ref_system_id']?>" border="0"> <?=$myrow['ref_system_name']?></td>
+		<td width="100" nowrap><img src="manage_references_icon.php?id=<?=$myrow['ref_system_id']?>" border="0"> <?=$myrow['ref_system_name']?></td>
 		<td><?=$myrow['ref_tag']?></td>
 		<td width="20"><a href="javascript:;" onclick="ref_delete_plugin(<?=$plugin_id?>,<?=$plugin_sid?>,<?=$myrow['ref_id']?>);return false;"><img src="../pixmaps/tables/table_row_delete.png" border="0"></a></td>
 	</tr>
