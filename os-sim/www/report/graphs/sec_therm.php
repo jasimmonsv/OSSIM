@@ -45,7 +45,10 @@ require_once 'classes/Session.inc';
 require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 require_once 'ossim_conf.inc';
-Session::logcheck("MenuControlPanel", "ControlPanelMetrics");
+if (!Session::menu_perms("MenuControlPanel", "ControlPanelMetrics")) {
+  readfile("../../pixmaps/therm/therm_gray.jpg");
+  exit();
+}
 $db = new ossim_db();
 $conn = $db->connect();
 $user = Session::get_session_user();

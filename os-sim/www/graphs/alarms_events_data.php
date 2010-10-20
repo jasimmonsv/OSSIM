@@ -268,19 +268,19 @@ $query = "SELECT * FROM
 (select count(*)".$_2Week_div." as 2Weeks from alarm where alarm.timestamp > DATE_ADD(CURDATE(), ".$_2Week.") and alarm.timestamp < ".$_2Week_interv."$sensor_where_ossim) as 2Weeks ;";
 //echo $query."\n\n";
 if ($sensor_where != "")
-$query2 = "SELECT * FROM
-(select count(*) as Today from acid_event where timestamp > CURDATE()$sensor_where) as Today,
-(select count(*) as Yesterd from acid_event where timestamp > DATE_ADD(CURDATE(), INTERVAL -1 DAY) and timestamp <= CURDATE()$sensor_where) as Yesterd,
-(select count(*)".$_2Ago_div." as 2DAgo  from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_2Ago.") and timestamp <= ".$_2Ago_interv."$sensor_where ) as 2DAgo,
-(select count(*)".$_Week_div." as Week from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_Week.") and timestamp <= ".$_Week_interv."$sensor_where) as Seamana,
-(select count(*)".$_2Week_div." as 2Weeks from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_2Week.") and timestamp <= ".$_2Week_interv."$sensor_where) as 2Weeks;";
+	$query2 = "SELECT * FROM
+	(select count(*) as Today from acid_event where timestamp > CURDATE()$sensor_where) as Today,
+	(select count(*) as Yesterd from acid_event where timestamp > DATE_ADD(CURDATE(), INTERVAL -1 DAY) and timestamp <= CURDATE()$sensor_where) as Yesterd,
+	(select count(*)".$_2Ago_div." as 2DAgo  from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_2Ago.") and timestamp <= ".$_2Ago_interv."$sensor_where ) as 2DAgo,
+	(select count(*)".$_Week_div." as Week from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_Week.") and timestamp <= ".$_Week_interv."$sensor_where) as Seamana,
+	(select count(*)".$_2Week_div." as 2Weeks from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_2Week.") and timestamp <= ".$_2Week_interv."$sensor_where) as 2Weeks;";
 else
-$query2 = "SELECT * FROM
-(select sum(sig_cnt) as Today from ac_alerts_signature where day >= CURDATE()) as Today,
-(select sum(sig_cnt) as Yesterd from ac_alerts_signature where day >= DATE_ADD(CURDATE(), INTERVAL -1 DAY) and day < CURDATE()) as Yesterd,
-(select sum(sig_cnt)".$_2Ago_div." as 2DAgo  from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_2Ago.") and day <= ".$_2Ago_interv." ) as 2DAgo,
-(select sum(sig_cnt)".$_Week_div." as Week from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_Week.") and day <= ".$_Week_interv.") as Seamana,
-(select sum(sig_cnt)".$_2Week_div." as 2Weeks from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_2Week.") and day <= ".$_2Week_interv.") as 2Weeks;";
+	$query2 = "SELECT * FROM
+	(select sum(sig_cnt) as Today from ac_alerts_signature where day >= CURDATE()) as Today,
+	(select sum(sig_cnt) as Yesterd from ac_alerts_signature where day >= DATE_ADD(CURDATE(), INTERVAL -1 DAY) and day < CURDATE()) as Yesterd,
+	(select sum(sig_cnt)".$_2Ago_div." as 2DAgo  from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_2Ago.") and day <= ".$_2Ago_interv." ) as 2DAgo,
+	(select sum(sig_cnt)".$_Week_div." as Week from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_Week.") and day <= ".$_Week_interv.") as Seamana,
+	(select sum(sig_cnt)".$_2Week_div." as 2Weeks from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_2Week.") and day <= ".$_2Week_interv.") as 2Weeks;";
 //echo $query2;
 //echo $query2;
 /*

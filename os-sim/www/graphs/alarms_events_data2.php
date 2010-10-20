@@ -82,10 +82,10 @@ if (Session::allowedSensors() != "") {
 	}
 	if (count($sids) > 0) {
 		$sensor_where = " AND acid_event.plugin_id=alarm.plugin_id AND acid_event.plugin_sid=alarm.plugin_sid AND acid_event.sid in (".implode(",",$sids).")";
-		$sensor_where_ac = " AND acid_event.plugin_id=ac.plugin_id AND acid_event.plugin_sid=ac.plugin_sid AND acid_event.sid in (".implode(",",$sids).")";
+		$sensor_where_ac = " WHERE acid_event.sid in (".implode(",",$sids).")";
 	} else {
 		$sensor_where = " AND acid_event.plugin_id=alarm.plugin_id AND acid_event.plugin_sid=alarm.plugin_sid AND acid_event.sid in (0)"; // Vacio
-		$sensor_where_ac = " AND acid_event.plugin_id=ac.plugin_id AND acid_event.plugin_sid=ac.plugin_sid AND acid_event.sid in (0)"; // Vacio
+		$sensor_where_ac = " WHERE acid_event.sid in (0)"; // Vacio
 	}
 	$sensor_join = ($counter == 1) ? "snort.acid_event as acid_event," : "acid_event,";
 }
@@ -102,12 +102,20 @@ switch ($counter) {
     case 2:
         //$query = "select count(*) as num, snort.signature.sig_name as name from snort.event, snort.signature where snort.signature.sig_id = snort.event.signature$sensor_where group by snort.event.signature order by num desc limit 7;";
         //$query = "select count(*) as num, plugin_sid.name from acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid where 1=1 $sensor_where group by name order by num desc limit 7";
-        $query = "select sum(ac.sig_cnt) as num, plugin_sid.name from $sensor_join ac_alerts_signature as ac LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=ac.plugin_id AND plugin_sid.sid=ac.plugin_sid WHERE 1=1 $sensor_where_ac group by name order by num desc limit 7";
+        if ($sensor_where_ac!="")
+	        $query = "SELECT count(*) as num, plugin_sid.name FROM ".str_replace(",","",$sensor_join)." LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid $sensor_where_ac GROUP BY name ORDER BY num DESC LIMIT 7";
+		else
+	        $query = "SELECT sum(ac.sig_cnt) as num, plugin_sid.name FROM ac_alerts_signature AS ac LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=ac.plugin_id AND plugin_sid.sid=ac.plugin_sid GROUP BY name ORDER BY num DESC LIMIT 7";
+		
 		break;
 
     default:
         //$query = "select count(*) as num, plugin_sid.name from acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid where 1=1 $sensor_where group by name order by num desc limit 7";
-		$query = "select sum(ac.sig_cnt) as num, plugin_sid.name from $sensor_join ac_alerts_signature as ac LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=ac.plugin_id AND plugin_sid.sid=ac.plugin_sid WHERE 1=1 $sensor_where_ac group by name order by num desc limit 7";
+        if ($sensor_where_ac!="")
+	        $query = "SELECT count(*) as num, plugin_sid.name FROM ".str_replace(",","",$sensor_join)." LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid $sensor_where_ac GROUP BY name ORDER BY num DESC LIMIT 7";
+		else
+	        $query = "SELECT sum(ac.sig_cnt) as num, plugin_sid.name FROM ac_alerts_signature AS ac LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=ac.plugin_id AND plugin_sid.sid=ac.plugin_sid GROUP BY name ORDER BY num DESC LIMIT 7";
+
         $chart['chart_type'] = "column";
         break;
 }
