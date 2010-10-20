@@ -53,7 +53,6 @@ class OCSInventory():
 					self.inv.insertProp(ip, "workgroup", "OCS", host['workgroup'], None)
 					self.inv.insertProp(ip, "operating-system", "OCS", host['osname'], None)
 				else:
-					print "Updating"
 					#Host previously discovered
 					#OCS has the highest priority to replace properties
 					props = self.inv.getProps(ip)
@@ -67,10 +66,15 @@ class OCSInventory():
 						self.inv.insertProp(ip, "workgroup", "OCS", host['workgroup'], None)
 					else:
 						self.inv.updateProp(ip, "workgroup", "OCS", host['workgroup'], None)
-					if self.inv.properties["operating-system"] not in props:	
-						self.inv.insertProp(ip, "operating-system", "OCS", host['osname'], None)
+					
+					#OS
+					cpe = self.inv.generateCPE(host['osname'], host['osversion'], host['oscomments'])
+					if not cpe:
+						cpe = host['oscomments']	
+					if self.inv.properties["operating-system"] not in props:
+						self.inv.insertProp(ip, "operating-system", "OCS", host['osname'], cpe)
 					else:
-						self.inv.updateProp(ip, "operating-system", "OCS", host['osname'], None)
+						self.inv.updateProp(ip, "operating-system", "OCS", host['osname'], cpe)
 	
 	def getOCSHosts(self):
 		self.connectDB()
@@ -79,7 +83,7 @@ class OCSInventory():
 		self.closeDB()
 		return data
 	
-	def getSoftware(self):
+	def getSoftware(self, ip):
 		pass
 		
 	def getMACfromHost(self, id, ip):

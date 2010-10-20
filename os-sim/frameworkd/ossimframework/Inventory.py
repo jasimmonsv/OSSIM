@@ -39,6 +39,7 @@ import socket
 import struct
 import os
 import threading
+import SubnetTree
 
 logger = Logger.logger
 
@@ -140,6 +141,7 @@ class Inventory:
 		self.connectDB()
 		sql = "select n.ips from ossim.net as n, ossim.sensor as s, ossim.net_sensor_reference as nsr where s.ip = '%s' and nsr.sensor_name = s.name and n.name = nsr.net_name;" % ip
 		data = self.db.exec_query(sql)
+		print sql
 		logger.debug(sql)
 		nets = []
 		for n in data:
@@ -230,8 +232,14 @@ class Inventory:
 		return data[0]['inet_ntoa(ip)']
 
 	def hostInNetworks(self, ip, nets):
-		#TODO
-		return True
+		t = SubnetTree.SubnetTree()
+		for n in nets:
+			print "XX : %s" % n
+			t[n] = n
+		if ip in t:
+			return True
+		return False
+		
 	
 	def insertHostMac(self, ip, mac):
 		pass
@@ -240,17 +248,34 @@ class Inventory:
 		#TODO
 		#Windows
 		version = ""
-		verTable = {"4\.0.*" : "cpe:/o:microsoft:windows_nt",
+		verTable = {"4\.0" : "cpe:/o:microsoft:windows_nt",
 					"5\.0" : "cpe:/o:microsoft:windows_2000", 
 					"5\.1" : "cpe:/o:microsoft:windows_xp",
 					"5\.2" : "cpe:/o:microsoft:windows_server_2003",
-					#CHECK
 					"6\.0" : "cpe:/o:microsoft:windows_vista",
 					"7\.0" : "cpe:/o:microsoft:windows_7",
- 					
 					}
 		if osname.find("Windows") != -1:
-			pass
+			#Check verTable
+			for v in verTable.keys():
+				p = re.compile(v)
+				if p.match(osversion):
+					version = verTable[v]
+					
+					#Check Service Pack
+					rp = re.compile("Service Pack (\d+)")
+					if extra.find("Service Pack") != -1:
+						m = rp.match(extra)
+						if m:
+							sp = m.group(1)
+							version = version + "::sp%s" % sp
+					break
+					
+		if version != "":
+			return version
+		else:
+			return None
+			
 	
 	def getHostWithCredentials(self, ctype):
 		self.connectDB()
