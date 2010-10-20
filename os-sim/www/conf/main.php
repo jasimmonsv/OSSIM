@@ -864,6 +864,12 @@ $CONFIG = array(
                 "help" => gettext("How many days in the past do you want to keep Events in forensics?") ,
                 "desc" => gettext("Forensics Active Event Window") ,
                 "advanced" => 0
+            ) ,
+            "backup_netflow" => array(
+                "type" => "text",
+                "help" => gettext("How many days in the past do you want to keep Flows in Netflows?") ,
+                "desc" => gettext("Active Netflow Window") ,
+                "advanced" => 0
             )
         )
     ) ,

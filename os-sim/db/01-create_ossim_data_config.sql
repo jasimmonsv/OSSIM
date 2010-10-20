@@ -45,6 +45,7 @@ INSERT INTO config (conf, value) VALUES ('backup_host', 'localhost');
 INSERT INTO config (conf, value) VALUES ('backup_port', '3306');
 INSERT INTO config (conf, value) VALUES ('backup_dir', '/var/lib/ossim/backup');
 INSERT INTO config (conf, value) VALUES ('backup_day', '5');
+INSERT INTO config (conf, value) VALUES ('backup_netflow', '45');
 INSERT INTO config (conf, value) VALUES ('nessus_user', 'ossim');
 INSERT INTO config (conf, value) VALUES ('nessus_pass', 'ossim');
 INSERT INTO config (conf, value) VALUES ('nessus_host', 'localhost');

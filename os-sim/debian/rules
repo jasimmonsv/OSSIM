@@ -103,6 +103,7 @@ install: build
 	# rename to acid-backup
 	install -m755 etc/cron.daily/acid-backup $(TMP)/ossim-framework/etc/cron.daily/acid-backup
 	install -m755 etc/cron.daily/check-tickets $(TMP)/ossim-framework/etc/cron.daily/check-tickets
+	install -m755 etc/cron.daily/clean-flows $(TMP)/ossim-framework/etc/cron.daily/clean-flows
 	install -m755 etc/cron.d/ossim-scanner-job $(TMP)/ossim-framework/etc/cron.d/ossim-scanner-job
 
 	install -m644 etc/logrotate.d/ossim-framework $(TMP)/ossim-framework/etc/logrotate.d/
