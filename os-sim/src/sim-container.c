@@ -3323,7 +3323,7 @@ sim_container_db_load_hosts_ul (SimContainer  *container,
   SimHost       *host;
   GdaDataModel  *dm;
   gint           row;
-  gchar         *query = "SELECT * FROM host";
+  gchar         *query = "SELECT ip, hostname, asset FROM host";
 
   g_return_if_fail (container);
   g_return_if_fail (SIM_IS_CONTAINER (container));
@@ -3647,7 +3647,7 @@ sim_container_db_load_nets_ul (SimContainer  *container,
   GInetAddr     *ia;
   gint           row;
   gint           row2;
-  gchar         *query = "SELECT * FROM net";
+  gchar         *query = "SELECT name, ips, asset FROM net";
   gchar         *query2;
 
   g_return_if_fail (container);
@@ -5094,7 +5094,7 @@ sim_container_db_load_host_levels_ul (SimContainer  *container,
   SimHostLevel  *host_level;
   GdaDataModel  *dm;
   gint           row;
-  gchar         *query = "SELECT * FROM host_qualification";
+  gchar         *query = "SELECT host_ip, compromise, attack FROM host_qualification";
 
   g_return_if_fail (container);
   g_return_if_fail (SIM_IS_CONTAINER (container));
@@ -5651,7 +5651,7 @@ sim_container_db_load_net_levels_ul (SimContainer  *container,
   SimNetLevel   *net_level;
   GdaDataModel  *dm;
   gint           row;
-  gchar         *query = "SELECT * FROM net_qualification";
+  gchar         *query = "SELECT net_name, compromise, attack FROM net_qualification";
 
   g_return_if_fail (container);
   g_return_if_fail (SIM_IS_CONTAINER (container));
@@ -7361,7 +7361,7 @@ sim_container_policy_has_actions_in_db(SimDatabase *database, gint policy_id)
 	GdaDataModel  *dm;
 	gchar *query;
 
-	query = g_strdup_printf ("SELECT * FROM policy_actions WHERE policy_id = %d", policy_id);
+	query = g_strdup_printf ("SELECT policy_id, action_id FROM policy_actions WHERE policy_id = %d", policy_id);
 	dm = sim_database_execute_single_command (database, query);
 
 	if (dm)
