@@ -16,9 +16,11 @@
 ** Built upon work by the BASE Project Team <kjohnson@secureideas.net>
 */
 // PDF REPORT
+/*
 require_once ('classes/pdfReport.inc');
 $pdfReport = new PdfReport($siem_events_title);
 $htmlPdfReport = new Html($siem_events_title,$siem_events_title,'','font-size:10px');
+*/
 // GEOIP
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
@@ -260,9 +262,16 @@ $sqlgraph = "SELECT COUNT(acid_event.cid) as num_events, $interval FROM acid_eve
 
 $_SESSION['siem_current_query_graph'] = $sqlgraph;
 
+// do we need load extradata?
+$need_extradata = 0;
+foreach ($_SESSION['views'][$_SESSION['current_cview']]['cols'] as $field) {
+	if (preg_match("/^(USERDATA|USERNAME|FILENAME)/i",$field))
+		$need_extradata=1;
+}
+
 $qs->PrintResultCnt($sqlgraph, $trdata); //base_state_query.inc.php
 // COLUMNS of Events Table (with ORDER links)
-$htmlPdfReport->set('<table cellpadding=2 cellspacing=0 class="w100">');
+//$htmlPdfReport->set('<table cellpadding=2 cellspacing=0 class="w100">');
 $qro->PrintHeader('',1);
 $i = 0;
 $hosts_ips = array_keys($hosts);
@@ -272,6 +281,15 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     unset($cell_more);
     unset($cell_pdfdata);
     unset($cell_align);
+    // Load extra data if neccesary
+    if ($need_extradata && !array_key_exists("USERNAME",$myrow)) {
+		$rs_ed = $qs->ExecuteOutputQuery("SELECT userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9,username,password,filename FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
+	    while ($row_ed = $rs_ed->baseFetchRow()) {
+	    	foreach ($row_ed as $k => $v) $myrow[$k] = $v;
+	    }
+	    $rs_ed->baseFreeRows();
+	}
+    //
     // SID, CID, PLUGIN_*
     $cell_data['SID'] = $myrow["sid"];
     $cell_align['SID'] = "center";
@@ -544,18 +562,19 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	// X- ExtraData
 	$cell_data['USERNAME'] = $myrow['username'];
 	$cell_data['PASSWORD'] = $myrow['password'];
+	$cell_data['FILENAME'] = $myrow['filename'];
 	for ($u = 1; $u < 10; $u++)
 		$cell_data['USERDATA'.$u] = $myrow['userdata'.$u];
 
     $cc = ($i % 2 == 0) ? "class='par'" : "";
-    $htmlPdfReport->set("<tr $cc>\n");
+    //$htmlPdfReport->set("<tr $cc>\n");
     foreach ($_SESSION['views'][$_SESSION['current_cview']]['cols'] as $colname) {
         if ($cell_data[$colname] == "") $cell_data[$colname] = "<font style='color:gray'><i>Empty</i></font>";
         qroPrintEntry($cell_data[$colname], $cell_align[$colname],"",$cell_more[$colname]);
         $w = ($current_cols_widths[$colname]!="") ? "style='width:".$current_cols_widths[$colname]."'" : "";
-        $htmlPdfReport->set("<td class='siem' $w align='".$cell_align[$colname]."'>".($cell_pdfdata[$colname]!="" ? $cell_pdfdata[$colname] : $cell_data[$colname])."</td>\n");
+        //$htmlPdfReport->set("<td class='siem' $w align='".$cell_align[$colname]."'>".($cell_pdfdata[$colname]!="" ? $cell_pdfdata[$colname] : $cell_data[$colname])."</td>\n");
     }
-    $htmlPdfReport->set("</tr>\n");
+    //$htmlPdfReport->set("</tr>\n");
 
     qroPrintEntryFooter();
     $i++;
@@ -585,8 +604,8 @@ $qs->PrintAlertActionButtons();
 $qs->SaveReportData($report_data,$events_report_type);
 $et->PrintForensicsTiming();
 geoip_close($gi);
-$htmlPdfReport->set('</table>');
-$pdfReport->setHtml($htmlPdfReport->get());
+//$htmlPdfReport->set('</table>');
+//$pdfReport->setHtml($htmlPdfReport->get());
 ?>
 
 

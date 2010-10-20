@@ -578,12 +578,12 @@ function ProcessCriteria() {
     $rawip_join_sql = " LEFT JOIN iphdr ON acid_event.sid=iphdr.sid AND acid_event.cid=iphdr.cid ";
     $sig_join_sql= " LEFT JOIN ossim.plugin_sid ON acid_event.plugin_id=plugin_sid.plugin_id AND acid_event.plugin_sid=plugin_sid.sid ";
     $sig_join = false;
-    //$data_join_sql = ",extra_data ";
-    $data_join_sql = " LEFT JOIN extra_data ON acid_event.sid=extra_data.sid AND acid_event.cid=extra_data.cid ";
+    //$data_join_sql = " LEFT JOIN extra_data ON acid_event.sid=extra_data.sid AND acid_event.cid=extra_data.cid ";
+    $data_join_sql = "";
     $ag_join_sql = " LEFT JOIN acid_ag_alert ON acid_event.sid=acid_ag_alert.ag_sid AND acid_event.cid=acid_ag_alert.ag_cid ";
     //$sig_join_sql = "";
-    //$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.sid, acid_event.cid, signature, timestamp, " . "acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto, " . "acid_event.ossim_type, acid_event.ossim_priority, acid_event.ossim_reliability, " . "acid_event.ossim_asset_src, acid_event.ossim_asset_dst, " . "acid_event.ossim_risk_c, acid_event.ossim_risk_a, " . "acid_event.layer4_sport, acid_event.layer4_dport FROM acid_event";
-    $sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.userdata1,extra_data.userdata2,extra_data.userdata3,extra_data.userdata4,extra_data.userdata5,extra_data.userdata6,extra_data.userdata7,extra_data.userdata8,extra_data.userdata9,extra_data.username,extra_data.password,extra_data.filename FROM acid_event";
+    //$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.userdata1,extra_data.userdata2,extra_data.userdata3,extra_data.userdata4,extra_data.userdata5,extra_data.userdata6,extra_data.userdata7,extra_data.userdata8,extra_data.userdata9,extra_data.username,extra_data.password,extra_data.filename FROM acid_event";
+    $sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.* FROM acid_event";
     // This needs to be examined!!! -- Kevin
     $where_sql = " WHERE ";
     //$where_sql = "";
@@ -665,6 +665,7 @@ function ProcessCriteria() {
     //print_r($_SESSION);
     //echo "User Data:$userdata";
     if ($userdata != "") {
+		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.userdata1,extra_data.userdata2,extra_data.userdata3,extra_data.userdata4,extra_data.userdata5,extra_data.userdata6,extra_data.userdata7,extra_data.userdata8,extra_data.userdata9,extra_data.username,extra_data.password,extra_data.filename FROM acid_event";    
     	$data_join_sql = ",extra_data ";
     	$tmp_meta .= " AND acid_event.sid=extra_data.sid AND acid_event.cid=extra_data.cid AND (extra_data.userdata1 LIKE \"%$userdata%\" OR extra_data.userdata2 LIKE \"%$userdata%\" OR extra_data.userdata3 LIKE \"%$userdata%\" OR extra_data.userdata4 LIKE \"%$userdata%\" OR extra_data.userdata5 LIKE \"%$userdata%\" OR extra_data.userdata6 LIKE \"%$userdata%\" OR extra_data.userdata7 LIKE \"%$userdata%\" OR extra_data.userdata8 LIKE \"%$userdata%\" OR extra_data.userdata9 LIKE \"%$userdata%\")";
     }
@@ -881,6 +882,8 @@ function ProcessCriteria() {
 	//print_r("criteria_ sql: [".$criteria_sql."]");
 	//print_r("tmp_payload: [".$tmp_payload."]");
     if (!$cs->criteria['data']->isEmpty()) {
+    	$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.userdata1,extra_data.userdata2,extra_data.userdata3,extra_data.userdata4,extra_data.userdata5,extra_data.userdata6,extra_data.userdata7,extra_data.userdata8,extra_data.userdata9,extra_data.username,extra_data.password,extra_data.filename FROM acid_event";    
+    	$data_join_sql = ",extra_data ";
         $criteria_sql = $criteria_sql . $tmp_payload;
     }
     if ($sig_join) $join_sql = $join_sql . $sig_join_sql;
