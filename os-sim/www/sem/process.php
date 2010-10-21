@@ -78,12 +78,13 @@ if (ossim_error()) {
 $db = new ossim_db();
 $conn = $db->connect();
 
-$sensors = $hosts = $ossim_servers = array();
+$sensors = $hosts = $ossim_servers = array(); $hostnames = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
 $networks = "";
 $_nets = Net::get_all($conn);
-$_nets_ips = $_host_ips = $_host = array();
-foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
+$_nets_ips = $_host_ips = $_host = array(); $netnames = array();
+foreach ($_nets as $_net) { $_nets_ips[] = $_net->get_ips(); $netnames[$_net->get_name()] = $_net->get_ips(); }
+foreach ($hosts as $ip=>$name) { $hostnames[$name] = $ip; }
 $networks = implode(",",$_nets_ips);
 $hosts_ips = array_keys($hosts);
 
@@ -91,35 +92,54 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 	$a = "data='".$a."'";
 }
 
-if (preg_match("/(.*plugin_id!=)(\S+)(.*)/", $a, $matches) || preg_match("/(.*plugin_id=)(\S+)(.*)/", $a, $matches)) {
-    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
-    $query = "select id from plugin where name like '" . $plugin_name . "%' order by id";
-    if (!$rs = & $conn->Execute($query)) {
-        print $conn->ErrorMsg();
-        exit();
-    }
-    if ($plugin_id = $rs->fields["id"] != "") {
-        $plugin_id = $rs->fields["id"];
-    } else {
-        $plugin_id = $matches[2];
-    }
-    $a = $matches[1] . $plugin_id . $matches[3];
+$atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
+foreach ($atoms as $atom) {
+	if (preg_match("/plugin(\!?\=)(.+)/", $atom, $matches)) {
+	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
+	    $query = "select id from plugin where name like '" . $plugin_name . "%' order by id";
+	    if (!$rs = & $conn->Execute($query)) {
+	        print $conn->ErrorMsg();
+	        exit();
+	    }
+	    if ($plugin_id = $rs->fields["id"] != "") {
+	        $plugin_id = $rs->fields["id"];
+	    } else {
+	        $plugin_id = $matches[2];
+	    }
+	    $a = str_replace("plugin".$matches[1].$matches[2],"plugin_id".$matches[1].$plugin_id,$a);
+	}
+	if (preg_match("/sensor(\!?\=)(\S+)/", $atom, $matches)) {
+	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
+	    $plugin_name = str_replace("'","",$plugin_name);
+	    $query = "select ip from sensor where name like '" . $plugin_name . "%'";
+	    if (!$rs = & $conn->Execute($query)) {
+	        print $conn->ErrorMsg();
+	        exit();
+	    }
+	    if ($rs->fields["ip"] != "") {
+	        $sensor_ip = $rs->fields["ip"];
+	    } else {
+	        $sensor_ip = $matches[2];
+	    }
+	    $a = str_replace("sensor".$matches[1].$matches[2],"sensor".$matches[1].$sensor_ip,$a);
+	}
+	if (preg_match("/(source|destination)(\!?\=)(\S+)/", $atom, $matches)) {
+	    $field = $matches[1];
+	    $field = str_replace("source","src",$field);
+	    $field = str_replace("destination","dst",$field);
+		$op = $matches[2];
+	    $name = $matches[3];
+	    if ($netnames[$name] != "") {
+	    	$resolv = $netnames[$name];
+	    	$field .= "_net";
+	    } elseif ($hostnames[$name] != "") {
+	    	$resolv = $hostnames[$name];
+	    	$field .= "_ip";
+	    }
+		$a = str_replace($matches[1].$matches[2].$matches[3],$field.$op.$resolv,$a);
+	}
 }
-if (preg_match("/(.*sensor!=)(\S+)(.*)/", $a, $matches) || preg_match("/(.*sensor=)(\S+)(.*)/", $a, $matches)) {
-    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
-    $plugin_name = str_replace("'","",$plugin_name);
-    $query = "select ip from sensor where name like '" . $plugin_name . "%'";
-    if (!$rs = & $conn->Execute($query)) {
-        print $conn->ErrorMsg();
-        exit();
-    }
-    if ($plugin_id = $rs->fields["ip"] != "") {
-        $plugin_id = $rs->fields["ip"];
-    } else {
-        $plugin_id = $matches[2];
-    }
-    $a = $matches[1] . $plugin_id . $matches[3];
-}
+
 $_SESSION["forensic_query"] = $a;
 $_SESSION["forensic_start"] = $start;
 $_SESSION["forensic_end"] = $end;
@@ -132,8 +152,8 @@ $user = $_SESSION["_user"];
 
 //$status = exec($cmd, $result);
 $result = array();
-//echo "$cmd $user";
-
+echo "$cmd $user";
+exit;
 if($debug_log!=""){
 	$handle = fopen($debug_log, "a+");
 	fputs($handle,"============================== PROCESS.php ".date("Y-m-d H:i:s")." ==============================\n");

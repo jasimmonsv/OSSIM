@@ -36,7 +36,31 @@
 require_once ('classes/Security.inc');
 require_once ('classes/Host.inc');
 require_once ('classes/Net.inc');
+require_once ('classes/Plugingroup.inc');
 require_once ('ossim_db.inc');
+function GetSourceTypes($db) {
+    $srctypes = array();
+    $temp_sql = "select distinct source_type from ossim.plugin where source_type is not null order by source_type";
+    $tmp_result = $db->Execute($temp_sql);
+    while (!$tmp_result->EOF) {
+        $myrow = $tmp_result->fields;
+        $srctypes[] = $myrow["source_type"];
+        $tmp_result->MoveNext();
+    }
+    $tmp_result->free();
+    return $srctypes;
+}
+function GetPlugins($db) {
+    $plugins = array();
+    $temp_sql = "select name from plugin";
+    $tmp_result = $db->Execute($temp_sql);
+    while (!$tmp_result->EOF) {
+        $plugins[] = $tmp_result->fields["name"];
+        $tmp_result->MoveNext();
+    }
+    $tmp_result->free();
+    return $plugins;
+}
 $db = new ossim_db();
 $conn = $db->connect();
 
@@ -53,24 +77,51 @@ $top = 10;
 if (trim($str) != "") {
 	list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
 	$nets = Net::get_list($conn);
+	$plugins = GetPlugins($conn);
+	$sourcetypes = GetSourceTypes($conn);
+	$plugingroups = Plugingroup::get_list($conn);
 	
+	foreach ($plugingroups as $group) {
+		$groupname = $group->get_name();
+		if ((preg_match("/^$qstr/i",$groupname)) && count($data) < $top) {
+			$data[] = array("name"=>"<b>plugin group = </b>$groupname");
+			$data[] = array("name"=>"<b>plugin group != </b>$groupname");
+		}
+	}
+	foreach ($sourcetypes as $sourcetype) {
+		if ((preg_match("/^$qstr/i",$sourcetype)) && count($data) < $top) {
+			$data[] = array("name"=>"<b>source type = </b>$sourcetype");
+			$data[] = array("name"=>"<b>source type != </b>$sourcetype");
+		}
+	}
+	foreach ($plugins as $plugin) {
+		if ((preg_match("/^$qstr/i",$plugin)) && count($data) < $top) {
+			$data[] = array("name"=>"<b>plugin = </b>$plugin");
+			$data[] = array("name"=>"<b>plugin != </b>$plugin");
+		}
+	}
 	foreach ($sensors as $ip=>$name) {
 		if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>sensor</b>:$name");
+			$data[] = array("name"=>"<b>sensor = </b>$name");
+			$data[] = array("name"=>"<b>sensor != </b>$name");
 		}
 	}
 	foreach ($hosts as $ip=>$name) {
 		if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>source</b>:$name");
-			$data[] = array("name"=>"<b>destination</b>:$name");
+			$data[] = array("name"=>"<b>source = </b>$name");
+			$data[] = array("name"=>"<b>source != </b>$name");
+			$data[] = array("name"=>"<b>destination = </b>$name");
+			$data[] = array("name"=>"<b>destination != </b>$name");
 		}
 	}
 	foreach ($nets as $net) {
 		$ip = $net->get_ips();
 		$name = $net->get_name();
 		if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>source</b>:$name");
-			$data[] = array("name"=>"<b>destination</b>:$name");
+			$data[] = array("name"=>"<b>source = </b>$name");
+			$data[] = array("name"=>"<b>source != </b>$name");
+			$data[] = array("name"=>"<b>destination = </b>$name");
+			$data[] = array("name"=>"<b>destination != </b>$name");
 		}
 	}
 }

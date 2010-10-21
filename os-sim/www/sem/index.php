@@ -362,7 +362,8 @@ function MakeRequest()
     var prev_atom = "";
     $('.search_atom').each(function(){
 		var cur_atom = this.value;
-		cur_atom = cur_atom.replace(":","=");
+		cur_atom = cur_atom.replace(" = ","=");
+		cur_atom = cur_atom.replace(" != ","!=");
 		if (!is_operator(cur_atom) && !cur_atom.match(/\=/)) {
 			cur_atom = "data="+cur_atom;
 		}

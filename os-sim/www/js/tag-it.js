@@ -98,6 +98,8 @@
 			el  = "<li class=\"tagit-choice\">\n";
 			el += value + "\n";
 			el += "<a class=\"close\">x</a>\n";
+			value = value.replace(/\<b\>/g,"");
+			value = value.replace(/\<\/b\>/g,"");
 			el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
 			el += "</li>\n";
 			var li_search_tags = this.tag_input.parent();
