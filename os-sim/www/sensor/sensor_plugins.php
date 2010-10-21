@@ -53,6 +53,43 @@ function contenido(id) {
 	if ($("#icono"+id_icono).attr('src') == "../pixmaps/server--plus.png") { $("#icono"+id_icono).attr('src','../pixmaps/server--minus.png');  }
 	else { $("#icono"+id_icono).attr('src','../pixmaps/server--plus.png'); }
 }
+function load_lead(pid) {
+    $.ajax({
+        type: "GET",
+        url: "get_sensor_leads.php?pid="+pid,
+        data: "",
+        success: function(msg) {
+              $('#plugin_'+pid).html(msg);
+              $('#plugin_'+pid).show();
+              $('#selector_'+pid).show();
+              mark(pid);
+        }
+    });
+}
+function mark(id) {
+	var y = $('#yellow_'+id).val()*3600;
+	var r = $('#red_'+id).val()*3600; // need seconds
+	var now = new Date; // Generic JS date object
+	var unixtime_ms = now.getTime(); // Returns milliseconds since the epoch
+	var unixtime = parseInt(unixtime_ms / 1000);
+	$('#plugin_'+id+' .trc').each(function(){
+		var eventdate = parseInt($(this).attr('txt'));
+		var img = "";
+		var bgcolor = "";
+		if (unixtime - eventdate >= r) {
+			img = "../pixmaps/flag_red.png";
+			bgcolor = "#FFDFDF";
+		} else if (unixtime - eventdate >= y) {
+			img = "../pixmaps/flag_yellow.png";
+			bgcolor = "#FFFBCF";
+		} else {
+			img = "../pixmaps/flag_green.png";
+			bgcolor = "#CFFFD1";
+		}
+		$(this).css("background-color",bgcolor);
+		$('td img',this).attr("src",img);
+	});
+}
 </script>
 <? include ("../host_report_menu.php") ?>
 </head>
@@ -225,7 +262,7 @@ foreach($sensor_list as $sensor) {
 <tr><td class="noborder"></td>
 <td class="noborder">
 <div id="<?php echo "capa" . $capa ?>" style="display:<?=($ip_get==$ip) ? "block" : "none"?>">
-  <table class="noborder" width="100%"><tr>
+  <table class="noborder" width="100%" height="100%"><tr height="100%">
   <td class="nobborder" width="36" height="100%">
 	  <table border=0 cellpadding=0 cellspacing=0 width="36" height="100%" class="noborder">
 	  <tr><td class="nobborder" height="29"><img src="../pixmaps/bktop.gif" border=0></td></tr>
@@ -234,9 +271,10 @@ foreach($sensor_list as $sensor) {
 	  <tr><td class="nobborder" style="background:url(../pixmaps/bkbg.gif) repeat-y">&nbsp;</td></tr>
 	  <tr><td class="nobborder" height="29"><img src="../pixmaps/bkdown.gif" border=0></td></tr>
 	  </table>
-  </td><td class="nobborder" style="background:#E0EFC2">
-  <table align="center">
+  </td><td class="nobborder" style="background:#E0EFC2;padding:5px">
+  <table align="left" width="100%">
     <tr>
+      <th></th>
       <th> <?php
     echo gettext("Plugin"); ?> </th>
       <th> <?php
@@ -251,7 +289,7 @@ foreach($sensor_list as $sensor) {
     echo gettext("Last SIEM Event"); ?> </th>
     </tr>
 <?php
-    if ($sensor_plugins_list) {
+    if ($sensor_plugins_list) {	
         foreach($sensor_plugins_list as $sensor_plugin) {
             if ($sensor_plugin["sensor"] == $ip) {
                 $id = $sensor_plugin["plugin_id"];
@@ -265,6 +303,7 @@ foreach($sensor_list as $sensor) {
                 $event = Plugin::get_latest_SIM_Event($conn_snort,$id,$plugin_name);
 ?>
     <tr>
+      <td width="16"><a href="javascript:;" onclick="load_lead('<?=$id?>')"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"></a></td>
       <td><?php
                 echo $plugin_name ?></td>
 <?php
@@ -320,6 +359,24 @@ foreach($sensor_list as $sensor) {
 			</tr></table>
 	  </td>
     </tr>
+    <tr>
+    	<td colspan="2" id="selector_<?=$id?>" style="display:none;padding-left:10px;border-bottom:none">
+    		<form style="margin:0px"><table class="noborder center">
+    		<tr>
+    			<td class="noborder"><img src="../pixmaps/flag_yellow.png" border="0"></td>
+    			<td class="noborder"><input type="text" size="4" id="yellow_<?=$id?>" value="12"> <?=_("hours")?></td>
+    		</tr>
+    		<tr>
+    			<td class="noborder"><img src="../pixmaps/flag_red.png" border="0"></td>
+    			<td class="noborder"><input type="text" size="4" id="red_<?=$id?>" value="48"> <?=_("hours")?></td>
+    		</tr>
+    		<tr>
+    			<td colspan="2" class="noborder" align="center"><input type="button" class="button" onclick="mark('<?=$id?>')" value="<?=_("Mark")?>"></td>
+    		</tr>
+    		</table></form>
+    	</td>    
+    	<td colspan="5" id="plugin_<?=$id?>" style="display:none;padding-left:0px;border-bottom:none"></td>
+    </tr>
 <?php
             } // if
             
@@ -327,7 +384,7 @@ foreach($sensor_list as $sensor) {
         
 ?>
     <tr>
-      <td colspan="5">
+      <td colspan="7">
         <a href="<?php
         echo $_SERVER["SCRIPT_NAME"] . "?sensor=$ip" ?>"> <?=_("Refresh")?> </a>
       </td>
@@ -375,6 +432,7 @@ $db->close($conn);
 $db->close($conn_snort);
 ?>
   <br/>
+  <style type="text/css"> html,body { height : auto !important; height:100%; min-height:100%; } </style>
 </body>
 </html>
 
