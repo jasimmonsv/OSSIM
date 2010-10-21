@@ -166,6 +166,17 @@ if (empty($scan)) {
       <div id="loading" style="display:inline"></div>
     </td>
   </tr>
+  <tr>
+    <th> 
+	<?php echo gettext("FQDN/Aliases"); ?> 
+	<a style="cursor:pointer; text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Comma-separated FQDN or aliases")?></div>">
+	<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a>
+	<br/>
+	</th>
+    <td class="left">
+      <textarea name="fqdns" rows="2" cols="40"><?=REQUEST('fqdns')?></textarea>
+    </td>
+  </tr>
   
 <?php
 } else {
@@ -178,18 +189,6 @@ if (empty($scan)) {
 <?php
 }
 ?>
-
-  <tr>
-    <th> 
-	<?php echo gettext("FQDN/Aliases"); ?> 
-	<a style="cursor:pointer; text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Comma-separated FQDN or aliases")?></div>">
-	<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a>
-	<br/>
-	</th>
-    <td class="left">
-      <textarea name="fqdns" rows="2" cols="40"><?=REQUEST('fqdns')?></textarea>
-    </td>
-  </tr>
   
   <tr>
     <th> <?php echo gettext("Description"); ?> </th>
@@ -387,6 +386,22 @@ if (empty($scan)) {
     echo gettext("Mac Vendor"); ?></th>
     <td class="left"><input type="text" size="25" name="mac_vendor" value="<?=REQUEST('mac_vendor')?>"/></td>
   </tr>
+
+	<tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.geolocation').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"><?=gettext("Geolocation Info")?></a></td></tr>
+	
+	
+	<tr class="geolocation" style="display:none;">
+	    <th> <?php
+	    echo gettext("Latitude");?></th>
+	    <td class="left"><input type="text" size="25" name="latitude" value="<?=REQUEST('latitude')?>"></td>
+	</tr>
+	
+	<tr class="geolocation" style="display:none;">
+	    <th> <?php
+	    echo gettext("Longitude");?></th>
+	    <td class="left"><input type="text" size="25" name="longitude"value="<?=REQUEST('longitude')?>"></td>
+	</tr>
+
 <?php
 } else {
 ?>
@@ -404,20 +419,6 @@ if (empty($scan)) {
 } /* if ($scan) */
 ?>
 
-<tr><td style="text-align: left; border:none; padding-top:3px;"><a onclick="$('.geolocation').toggle()" style="cursor:pointer;"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"><?=gettext("Geolocation Info")?></a></td></tr>
-
-
-<tr class="geolocation" style="display:none;">
-    <th> <?php
-    echo gettext("Latitude");?></th>
-    <td class="left"><input type="text" size="25" name="latitude" value="<?=REQUEST('latitude')?>"></td>
-</tr>
-
-<tr class="geolocation" style="display:none;">
-    <th> <?php
-    echo gettext("Longitude");?></th>
-    <td class="left"><input type="text" size="25" name="longitude"value="<?=REQUEST('longitude')?>"></td>
-</tr>
 
   <tr>
     <td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
@@ -425,6 +426,7 @@ if (empty($scan)) {
       <input type="reset" value="<?php echo gettext("reset"); ?>" class="btn" style="font-size:12px">
     </td>
   </tr>
+  
 </table>
 </form>
 

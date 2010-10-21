@@ -89,7 +89,7 @@ function update_db($global_info, $scan) {
                     $sensors[] = $global_info[$name];
                 }
             }
-            $hosts[] = gethostbyaddr($ip);
+            $hosts[] = $ip; //gethostbyaddr($ip);
             if (Host::in_host($conn, $ip)) {
                 echo "* " . gettext("Updating ") . "$ip..<br/>";
                 Host::update($conn, $ip, gethostbyaddr($ip) , $global_info["asset"], $global_info["threshold_c"], $global_info["threshold_a"], $global_info["rrd_profile"], 0, 0, $global_info["nat"], $sensors, $global_info["descr"], $scan["$ip"]["os"], $scan["$ip"]["mac"], $scan["$ip"]["mac_vendor"]);
