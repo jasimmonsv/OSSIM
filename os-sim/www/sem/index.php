@@ -261,7 +261,7 @@ ol, ul, li {
 	margin:0;
 }
 .ui-autocomplete-loading {
-	background: white url(../pixmaps/loading.gif) right center no-repeat;
+	background: white url(../pixmaps/loading3.gif) right center no-repeat;
 }
 
 ul.tagit {
@@ -278,13 +278,13 @@ ul.tagit li {
 	margin:2px 5px 2px 5px;
 }
 ul.tagit li.tagit-choice {
-	background-color:#D3E7AF;
-	border:2px solid #ADDF53;
+	background-color:#F8F8F8;
+	border:1px solid #ADDF53;
 	padding:2px 4px 3px;
 	font-size:13px;
 }
 ul.tagit li.tagit-choice:hover {
-	background-color:#C0E380;
+	background-color:#D3E7AF;
 	border-color:#AEDF52;
 }
 ul.tagit li.tagit-new {
