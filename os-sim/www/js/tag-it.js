@@ -57,7 +57,20 @@
 		});
 
 		tag_input.autocomplete({
-			source: options.availableTags, 
+			source: function(req, add){
+				//pass request to server
+				$.getJSON("autocomplete.php?str="+tag_input.val(), req, function(data) {  
+					//create array for response objects  
+					var suggestions = [];  
+					//process response  
+					$.each(data, function(i, val){  
+						suggestions.push(val.name);  
+					});  
+					
+					//pass array to callback  
+					add(suggestions);  
+				});  
+			},
 			select: function(event,ui){
 				if (is_new (ui.item.value)) {
 					create_choice (ui.item.value);
