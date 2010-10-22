@@ -948,7 +948,7 @@ class Alarm {
 	        }
 	        if (!$rs->EOF) $this->event_data = $rs->fields;
 	    }
-        return $this->event_data[$key];
+        return @htmlentities($this->event_data[$key],ENT_QUOTES);
     }
 }
 ?>
