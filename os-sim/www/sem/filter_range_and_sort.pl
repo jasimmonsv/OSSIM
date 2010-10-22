@@ -383,7 +383,7 @@ sub debug_filters {
 		foreach $key2 (keys %{$filters{$key1}}) {
 			print "\tOR\n" if ($key2 > 1);
 			foreach $type (keys %{$filters{$key1}{$key2}}) {
-				if ($type eq "plugin_id_sid" || $type eq "plugin_id") {
+				if ($type eq "plugin_id_sid") {
 					foreach $pid (keys %{$filters{$key1}{$key2}{$type}}) {
 						foreach $psid (keys %{$filters{$key1}{$key2}{$type}{$pid}}) {
 							print "   Plugin id-sid = $pid - $psid\n";

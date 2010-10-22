@@ -242,7 +242,8 @@ ol, ul, li {
 	outline: 0;
 }
 .ui-autocomplete {
-	background-color: #D3E7AF;
+	background-color: #F8F8F8;
+	border:1px solid #CCCCCC;
 	position: absolute;
 	cursor: default;
 }
@@ -278,13 +279,13 @@ ul.tagit li {
 	margin:2px 5px 2px 5px;
 }
 ul.tagit li.tagit-choice {
-	background-color:#F8F8F8;
+	background-color:#D3E7AF;
 	border:1px solid #ADDF53;
 	padding:2px 4px 3px;
 	font-size:13px;
 }
 ul.tagit li.tagit-choice:hover {
-	background-color:#D3E7AF;
+	background-color:#C0E380;
 	border-color:#AEDF52;
 }
 ul.tagit li.tagit-new {
@@ -1179,7 +1180,7 @@ require_once ("manage_querys.php");
 					</div>
 					</td>
 					<!-- <td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td> -->
-					<td class="nobborder"><input type="button" class="button" onclick="doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:20px"></td>
+					<td class="nobborder"><input type="button" class="button" onclick="doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
                                         <?php /*
 					<!--<a href="javascript:ClearSearch()" onMouseOver="showTip('<?php echo $help_entries["clear"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="#999999"><small><?php echo _("Clear Query"); ?></small></font></a>-->
 					<td class="nobborder"><input type="button" onclick="ClearSearch()" value="<?php echo _("Clear Query"); ?>" class="button" style="height:20px"></td>

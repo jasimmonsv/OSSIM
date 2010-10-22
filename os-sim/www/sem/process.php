@@ -124,7 +124,7 @@ foreach ($atoms as $atom) {
 	    } else {
 	        $plugin_id = $matches[2];
 	    }
-	    $a = str_replace("plugin".$matches[1].$matches[2],"plugin_id".$matches[1].$plugin_id,$a);
+	    $a = str_replace("plugin".$matches[1].$matches[2],"plugin_id".$matches[1]."'".$plugin_id."'",$a);
 	}
 	if (preg_match("/sensor(\!?\=)(\S+)/", $atom, $matches)) {
 	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
@@ -206,6 +206,7 @@ $user = $_SESSION["_user"];
 				<span class="progressBar" id="pbar"></span>
 			</td>
 			<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
+			<td><input type="button" onclick="parent.KillProcess()" value="<?php echo _("Stop") ?>"></input></td>
 		</tr>
 	</table>
 </div>
@@ -242,6 +243,7 @@ $perc = 1;
 $ndays = dateDiff($start,$end);
 if ($ndays < 1) $ndays = 1;
 $inc = 100/$ndays;
+$num_lines = 0;
 while (!feof($fp)) {
     $line = trim(fgets($fp));
     if ($line != "") $result[] = $line;
@@ -252,7 +254,7 @@ while (!feof($fp)) {
     	?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?>...');</script><?php
     	$perc += $inc;
     	if ($perc > 100) $perc = 100;
-    }
+    } elseif ($line != "") { $num_lines++; }
 }
 ?><script type="text/javascript">$("#loading").hide();</script><?php
 fclose($fp);
@@ -260,7 +262,7 @@ $time2 = microtime(true);
 $totaltime = round($time2 - $time1, 2);
 //print "</td><td class=\"nobborder\" width=\"10\">&nbsp;</td><td class=\"nobborder\" style=\"text-align:right;\" nowrap>"._("Parsing time").": <b>$totaltime</b> "._("seconds").".</td></tr></table>";
 //$num_lines = get_lines($a, $start, $end, $offset, $sort_order, "logs", $uniqueid);
-$num_lines = count($result);
+
 // Avoid graphs being drawn with more than 100000 events
 if ($num_lines > 500000) {
 ?>
@@ -527,7 +529,7 @@ if ($num_lines > 50) { //if($num_lines > $offset + 50){
 <br>
 </div>
 </body>
-<script type="text/javascript">parent.SetFromIframe($("#processcontent").html())</script>
+<script type="text/javascript">$("#pbar").progressBar(100);parent.SetFromIframe($("#processcontent").html())</script>
 <?php 
 ob_end_flush();
 ?>
