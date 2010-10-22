@@ -347,6 +347,35 @@ function is_operator (value) {
 	return (value == "and" || value == "AND" || value == "or" || value == "OR") ? 1 : 0;
 }
 
+function SetFromIframe(content) {
+	HandleResponse(content);
+	$("#processcontent").show();
+    document.getElementById('txtexport').value = 'noExport';
+    /*
+    $('.HostReportMenu').contextMenu({
+            menu: 'myMenu'
+            },
+            function(action, el, pos) {
+            var aux = $(el).attr('id').split(/;/);
+            var ip = aux[0];
+            var hostname = aux[1];
+            var url = "../report/host_report.php?host="+ip+"&hostname="+hostname+"&greybox=1";
+            if (hostname == ip) var title = "Host Report: "+ip;
+            else var title = "Host Report: "+hostname+"("+ip+")";
+            GB_show(title,url,450,'90%');
+            }
+    );
+    */
+    load_contextmenu();
+    $(".scriptinfo").simpletip({
+            position: 'right',
+            onBeforeShow: function() {
+                    var ip = this.getParent().attr('ip');
+                    this.load('../control_panel/alarm_netlookup.php?ip=' + ip);
+            }
+    });
+}
+
 function MakeRequest()
 {
     if(document.getElementById('txtexport').value=='noExport') {
@@ -354,9 +383,9 @@ function MakeRequest()
         $("#img_download").hide();
     }
 	// Used for main query
-	document.getElementById('loading').style.display = "block";
+	//document.getElementById('loading').style.display = "block";
         //
-    document.getElementById('ResponseDiv').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading events...'); ?>';
+    //document.getElementById('ResponseDiv').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading events...'); ?>';
 
     var str = "";
     var prev_atom = "";
@@ -398,8 +427,10 @@ function MakeRequest()
 	var end = escape(document.getElementById('end').value);
 	var sort = escape(document.getElementById('sort').value);
 
-        var txtexport = document.getElementById('txtexport').value;
-
+    var txtexport = document.getElementById('txtexport').value;
+    document.getElementById('ResponseDiv').innerHTML = "";
+	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
+	return false;
 	$.ajax({
 		type: "GET",
 		url: "process.php?query=" + str + "&offset=" + offset + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid
@@ -1285,7 +1316,14 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 	</tr>
 	</table>
 </form>
-<a href="javascript:getGraphs();" id="graphs_link"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph")?>"> <small><font color="black"><?php echo _("Stats") ?></font></small></a>
+<table width="100%">
+<tr>
+<td width="50"><a href="javascript:getGraphs();" id="graphs_link"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph")?>"> <small><font color="black"><?php echo _("Stats") ?></font></small></a></td>
+<td><div id="loadingProcess">
+<iframe id="processframe" src="" width="100%" height="30" frameborder="0" scrolling="no"></iframe>
+</div></td>
+</tr>
+</table>
 <div id="test" onMouseOver="showTip('<?php echo $help_entries["graphs"] ?>','lightblue','300')" onMouseOut="hideTip()" style="z-index:50;display:none">
 </div>
 <?

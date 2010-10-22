@@ -34,6 +34,7 @@
 * Function list:
 * Classes list:
 */
+ob_start();
 set_time_limit(300);
 require_once ('classes/Security.inc');
 require_once ("classes/Session.inc");
@@ -42,6 +43,19 @@ require_once ("classes/Host.inc");
 require_once ("classes/Net.inc");
 require_once ("process.inc");
 require_once ('ossim_db.inc');
+function dateDiff($startDate, $endDate)
+{
+    // Parse dates for conversion
+    $startArry = date_parse($startDate);
+    $endArry = date_parse($endDate);
+
+    // Convert dates to Julian Days
+    $start_date = gregoriantojd($startArry["month"], $startArry["day"], $startArry["year"]);
+    $end_date = gregoriantojd($endArry["month"], $endArry["day"], $endArry["year"]);
+
+    // Return difference
+    return round(($end_date - $start_date), 0);
+}
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 
@@ -94,6 +108,10 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
 foreach ($atoms as $atom) {
+	if (preg_match("/source type(\!?\=)(.+)/", $atom, $matches)) {
+	    $source_type = $matches[2];
+	    $a = str_replace("source type".$matches[1].$matches[2],"taxonomy".$matches[1]."'".$source_type."-0-0'",$a);
+	}
 	if (preg_match("/plugin(\!?\=)(.+)/", $atom, $matches)) {
 	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
 	    $query = "select id from plugin where name like '" . $plugin_name . "%' order by id";
@@ -143,17 +161,63 @@ foreach ($atoms as $atom) {
 $_SESSION["forensic_query"] = $a;
 $_SESSION["forensic_start"] = $start;
 $_SESSION["forensic_end"] = $end;
-print "<table width=\"100%\" class=\"noborder\" style=\"background-color:transparent;\"><tr><td class=\"nobborder\" nowrap>";
-echo '<img src="../pixmaps/arrow_green.gif">';
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+<link rel="stylesheet" href="../forensics/styles/ossim_style.css">
+
+<script type="text/javascript" src="jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../js/jquery.progressbar.min.js"></script>
+<style type="text/css">
+.level11  {  background:url(../pixmaps/statusbar/level11.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level10  {  background:url(../pixmaps/statusbar/level10.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level9  {  background:url(../pixmaps/statusbar/level9.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level8  {  background:url(../pixmaps/statusbar/level8.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level7  {  background:url(../pixmaps/statusbar/level7.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level6  {  background:url(../pixmaps/statusbar/level6.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level5  {  background:url(../pixmaps/statusbar/level5.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level4  {  background:url(../pixmaps/statusbar/level4.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level3  {  background:url(../pixmaps/statusbar/level3.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level2  {  background:url(../pixmaps/statusbar/level2.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level1  {  background:url(../pixmaps/statusbar/level1.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level0  {  background:url(../pixmaps/statusbar/level0.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.tag_cloud { padding: 3px; text-decoration: none; }
+.tag_cloud:link  { color: #17457C; }
+.tag_cloud:visited { color: #17457C; }
+.tag_cloud:hover { color: #ffffff; background: #17457C; }
+.tag_cloud:active { color: #ffffff; background: #ACFC65; }
+a {
+	font-size:10px;
+}
+</style>
+</head>
+<body>
+<?php
 $time1 = microtime(true);
-$cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $numResult);
-
+$cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $numResult, 1);
 $user = $_SESSION["_user"];
-
+?>
+<div id="loading" style="position:absolute;top:0;left:30%">
+	<table class="noborder" style="background-color:white">
+		<tr>
+			<td class="nobborder" style="text-align:center">
+				<span class="progressBar" id="pbar"></span>
+			</td>
+			<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$("#pbar").progressBar();
+	$("#pbar").progressBar(1);
+</script>
+<?php
 //$status = exec($cmd, $result);
 $result = array();
-echo "$cmd $user";
-exit;
+//echo "$cmd $user";exit;
+
 if($debug_log!=""){
 	$handle = fopen($debug_log, "a+");
 	fputs($handle,"============================== PROCESS.php ".date("Y-m-d H:i:s")." ==============================\n");
@@ -174,15 +238,27 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null", "r");
 }
 
+$perc = 1;
+$ndays = dateDiff($start,$end);
+if ($ndays < 1) $ndays = 1;
+$inc = 100/$ndays;
 while (!feof($fp)) {
     $line = trim(fgets($fp));
     if ($line != "") $result[] = $line;
+	if (preg_match("/Searching in (\d\d\d\d\d\d\d\d)/",$line,$found)) {
+    	ob_flush();
+		flush();
+		$sdate = date("d F Y",strtotime($found[1]));
+    	?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?>...');</script><?php
+    	$perc += $inc;
+    	if ($perc > 100) $perc = 100;
+    }
 }
-
+?><script type="text/javascript">$("#loading").hide();</script><?php
 fclose($fp);
 $time2 = microtime(true);
 $totaltime = round($time2 - $time1, 2);
-print "</td><td class=\"nobborder\" width=\"10\">&nbsp;</td><td class=\"nobborder\" style=\"text-align:right;\" nowrap>"._("Parsing time").": <b>$totaltime</b> "._("seconds").".</td></tr></table>";
+//print "</td><td class=\"nobborder\" width=\"10\">&nbsp;</td><td class=\"nobborder\" style=\"text-align:right;\" nowrap>"._("Parsing time").": <b>$totaltime</b> "._("seconds").".</td></tr></table>";
 //$num_lines = get_lines($a, $start, $end, $offset, $sort_order, "logs", $uniqueid);
 $num_lines = count($result);
 // Avoid graphs being drawn with more than 100000 events
@@ -194,6 +270,13 @@ if ($num_lines > 500000) {
 	</script>
 <?php
 }
+?>
+<div id="processcontent" style="display:none">
+<?php
+print "<table width=\"100%\" class=\"noborder\" style=\"background-color:transparent;\"><tr><td class=\"nobborder\" nowrap>";
+echo '<img src="../pixmaps/arrow_green.gif">';
+print _("Time Range").": <b>$start <-> $end</b>";
+print "</td><td class=\"nobborder\" width=\"10\">&nbsp;</td><td class=\"nobborder\" style=\"text-align:right;\" nowrap>"._("Parsing time").": <b>$totaltime</b> "._("seconds").".</td></tr></table>";
 $alt = 0;
 print "<center>\n";
 if ($offset != 0 && $num_lines > 0) {
@@ -442,3 +525,9 @@ if ($num_lines > 50) { //if($num_lines > $offset + 50){
 ?>
 </center>
 <br>
+</div>
+</body>
+<script type="text/javascript">parent.SetFromIframe($("#processcontent").html())</script>
+<?php 
+ob_end_flush();
+?>
