@@ -169,7 +169,7 @@ foreach my $file (@files) {
 						#print "found $complete_lines;$_;$currentdate;$lines_threshold\n" if ($debug);
 						last LINE if ($read_lines>=$lines_threshold); # jump innecesary events
 					} #else {
-						#print "MAL $data != ".$filters{1}{1}{'data'}."\n";
+						#print "MAL $plugin_id != ".$filters{1}{1}{'plugin_id'}." -> ".$filters{1}{1}{'plugin_id'}{1501}."\n" if ($plugin_id == 1501);
 					#}
 				}
 			}
@@ -277,7 +277,12 @@ sub set_filters {
 					$par =~ s/ip\_(...)/$1_ip/;
 					$aux =~ s/'+//g;
 					$aux = quotemeta $aux if ($par eq "data");
-					$filters{$and_num}{$or_num}{$par} = $aux; $or_num++;
+					if ($par eq "plugin_id") {
+						$filters{$and_num}{$or_num}{$par}{$aux}++;
+					} else {
+						$filters{$and_num}{$or_num}{$par} = $aux;
+					}
+					$or_num++;
 				}
 				# IP filter (2 push for src OR dst sentence)
 				elsif ($1 eq "ip") {
@@ -383,7 +388,7 @@ sub debug_filters {
 		foreach $key2 (keys %{$filters{$key1}}) {
 			print "\tOR\n" if ($key2 > 1);
 			foreach $type (keys %{$filters{$key1}{$key2}}) {
-				if ($type eq "plugin_id_sid") {
+				if ($type eq "plugin_id_sid" || $type eq "plugin_id") {
 					foreach $pid (keys %{$filters{$key1}{$key2}{$type}}) {
 						foreach $psid (keys %{$filters{$key1}{$key2}{$type}{$pid}}) {
 							print "   Plugin id-sid = $pid - $psid\n";

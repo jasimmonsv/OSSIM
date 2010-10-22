@@ -206,7 +206,7 @@ $user = $_SESSION["_user"];
 				<span class="progressBar" id="pbar"></span>
 			</td>
 			<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
-			<td><input type="button" onclick="parent.KillProcess()" value="<?php echo _("Stop") ?>"></input></td>
+			<td><input type="button" onclick="parent.KillProcess()" class="button" value="<?php echo _("Stop") ?>"></input></td>
 		</tr>
 	</table>
 </div>
