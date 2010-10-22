@@ -211,35 +211,35 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
   <script type="text/javascript">
   var open = false;
   
-  function toggle_group (group_id,name,ip_src,ip_dst,time) {
+  function toggle_group (group_id,ip_src,ip_dst,time) {
 	document.getElementById(group_id).innerHTML = "<img src='../pixmaps/loading.gif'>";
 	$.ajax({
 		type: "GET",
-		url: "alarm_group_response.php?name="+name+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>",
+		url: "alarm_group_response.php?name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>",
 		data: "",
 		success: function(msg){
 			//alert (msg);
 			document.getElementById(group_id).innerHTML = msg;
 			plus = "plus"+group_id;
-			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"','"+time+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>";
+			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>";
 		}
 	});
   }
-  function untoggle_group (group_id,name,ip_src,ip_dst,time) {
+  function untoggle_group (group_id,ip_src,ip_dst,time) {
 	plus = "plus"+group_id;
-	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"','"+time+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+ip_src+"','"+ip_dst+"','"+time+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
 	document.getElementById(group_id).innerHTML = "";
   }
   function opencloseAll () {
 	if (!open) {
 	<? foreach ($alarm_group as $group) { ?>
-	toggle_group('<?=$group['group_id']?>','<?=base64_encode($group['name'])?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');
+	toggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');
 	<? } ?>
 	open = true;
 	document.getElementById('expandcollapse').src='../pixmaps/minus.png';
 	} else {
 	<? foreach ($alarm_group as $group) { ?>
-	untoggle_group('<?=$group['group_id']?>','<?=base64_encode($group['name'])?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');
+	untoggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');
 	<? } ?>
 	open = false;
 	document.getElementById('expandcollapse').src='../pixmaps/plus.png';
@@ -543,6 +543,7 @@ $tree_count = 0;
 	</tr>
 <? foreach($alarm_group as $group) { 
 		$group_id = $group['group_id'];
+		$_SESSION[$group_id] = $group['name'];
 		$ocurrences = $group['group_count'];
 		if ($group['date'] != $lastday) {
 			$lastday = $group['date'];
@@ -599,7 +600,7 @@ $tree_count = 0;
 		<? } ?>
 	<tr>
 		<td class="nobborder"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>' <?if (!$owner_take) echo "disabled"?>></td>
-		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?=base64_encode($group['name'])?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
+		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
 		<th style='text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
 		<th width='10%' style='text-align: center; border-width: 0px; background: <?=$background?>'><?=$owner?></th>
 		<th width='20%' style='text-align: center; border-width: 0px; background: <?=$background?>;padding:3px'>

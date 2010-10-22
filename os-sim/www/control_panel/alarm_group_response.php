@@ -70,7 +70,7 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $src_ip = GET('ip_src');
 $dst_ip = GET('ip_dst');
 $timestamp = GET('timestamp');
-$name = base64_decode(GET('name'));
+$name = $_SESSION[GET('name')];
 $hide_closed = GET('hide_closed');
 
 ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
