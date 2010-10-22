@@ -510,6 +510,7 @@ class Session {
 		$gacl = $GLOBALS['ACL'];
 		static $allowedSensorsCache;
         if (!$user) $user = Session::get_session_user();
+        if ($user == ACL_DEFAULT_OSSIM_ADMIN) return 1;
         if (isset($allowedSensorsCache["$user"])) 
 	    $allowsensors = $allowedSensorsCache["$user"];
         else 
@@ -527,6 +528,7 @@ class Session {
         }
         if ($host == "ANY") return true;
         if (!$user) $user = Session::get_session_user();
+        if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
         if (isset($hostAllowedCache["$user"]["$host"])) {
             return $hostAllowedCache["$user"]["$host"];
         }
@@ -557,6 +559,7 @@ class Session {
         }
         if ($group == "ANY") return true;
         if (!$user) $user = Session::get_session_user();
+        if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
         if (isset($groupAllowedCache["$user"]["$group"])) {
             return $groupAllowedCache["$user"]["$group"];
         }
@@ -579,6 +582,7 @@ class Session {
         }
         if ($group == "ANY") return true;
         if (!$user) $user = Session::get_session_user();
+        if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
         if (isset($groupAllowedCache["$user"]["$group"])) {
             return $groupAllowedCache["$user"]["$group"];
         }
@@ -606,11 +610,12 @@ class Session {
             exit();
         }
         if ($net == "ANY") return true;
+        if (!$user) $user = Session::get_session_user();
+        if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
 		if (preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$net)) {
 			require_once('classes/Net.inc');
 			$net = Net::get_name_by_ip($conn,$net);
 		}
-        if (!$user) $user = Session::get_session_user();
         if (isset($netAllowedCache["$user"]["$net"])) {
             return $netAllowedCache["$user"]["$net"];
         }
