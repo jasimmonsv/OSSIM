@@ -71,7 +71,16 @@ class Util {
             "/DST_PORT/" => "get_dst_port()",
             "/PROTOCOL/" => "get_protocol()",
             "/PLUGIN_ID/" => "get_plugin_id()",
-            "/PLUGIN_SID/" => "get_plugin_sid()"
+            "/PLUGIN_SID/" => "get_plugin_sid()",
+            "/USERDATA1/" => 'get_event_data($conn,"userdata1")',
+            "/USERDATA2/" => 'get_event_data($conn,"userdata2")',
+            "/USERDATA3/" => 'get_event_data($conn,"userdata3")',
+            "/USERDATA4/" => 'get_event_data($conn,"userdata4")',
+            "/USERDATA5/" => 'get_event_data($conn,"userdata5")',
+            "/USERDATA6/" => 'get_event_data($conn,"userdata6")',
+            "/USERDATA7/" => 'get_event_data($conn,"userdata7")',
+            "/USERDATA8/" => 'get_event_data($conn,"userdata8")',
+            "/USERDATA9/" => 'get_event_data($conn,"userdata9")'
         );
         foreach($translations as $k => $v) {
             $pattern = '$name = preg_replace("' . $k . '", %s, $name);';

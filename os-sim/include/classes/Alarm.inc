@@ -101,6 +101,7 @@ class Alarm {
     var $alarm;
     var $sid_name;
     var $id_tag;
+    var $event_data;
     function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $rule_level = "", $alarm = 1, $id_tag="") {
         $this->event_id = intval($event_id);
         $this->backlog_id = intval($backlog_id);
@@ -121,6 +122,7 @@ class Alarm {
         $this->alarm = $alarm;
         $this->sid_name = $sid_name;
         $this->id_tag = $id_tag;
+        $this->event_data = array();
         if (is_array($sensors)) $this->sensors = $sensors;
         else $this->sensors = array(
             $sensors
@@ -935,6 +937,18 @@ class Alarm {
             // delete from backlog_event
             $conn->Execute("DELETE FROM backlog_event WHERE backlog_id IS NULL");
         }
+    }
+    // extra userdata fields from event table
+    function get_event_data($conn,$key="id") {
+    	if (empty($this->event_data)) {
+	        $sql = "SELECT * FROM event WHERE id=".$this->event_id;
+	        if (!$rs = & $conn->Execute($sql)) {
+	            print $conn->ErrorMsg();
+	            exit;
+	        }
+	        if (!$rs->EOF) $this->event_data = $rs->fields;
+	    }
+        return $this->event_data[$key];
     }
 }
 ?>
