@@ -610,16 +610,18 @@ function closeLayer( whichLayer )
 
 function SetSearch(content)
 {
-// Add to search bar, perform search
-  var saved = document.getElementById('searchbox').value+' ';
-  //document.getElementById('searchbox').value = saved.replace(/\s.*\=.*/,"") + " " + content;
-  if (content.match(/src_ip/)) saved = saved.replace(/ src_ip\=(.+?) /,'');
-  if (content.match(/src_port/)) saved = saved.replace(/ src_port\=(.+?) /,'');
-  if (content.match(/dst_ip/)) saved = saved.replace(/ dst_ip\=(.+?) /,'');
-  if (content.match(/dst_port/)) saved = saved.replace(/ dst_port\=(.+?) /,'');
-  if (content.match(/sensor/)) saved = saved.replace(/ sensor\=(.+?) /,'');
-  if (content.match(/plugin_id/)) saved = saved.replace(/ plugin_id\=(.+?) /,'');
-  document.getElementById('searchbox').value = saved + " " + content;
+  var value = content;
+  
+  var el = "";
+	el  = "<li class=\"tagit-choice\">\n";
+	el += value + "\n";
+	el += "<a class=\"close\">x</a>\n";
+	value = value.replace(/\<b\>/g,"");
+	value = value.replace(/\<\/b\>/g,"");
+	el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
+	el += "</li>\n";
+  $(el).insertBefore ($('#mytags').children(".tagit-new"));
+  //document.getElementById('searchbox').value = final_str;
   MakeRequest();
 }
 
@@ -1045,7 +1047,8 @@ function change_filter(filter_name) {
 			if (filter_data[0] != "" && filter_data[1] != "") {
 				document.getElementById('start_aaa').value = filter_data[1];
 				document.getElementById('end_aaa').value = filter_data[2];
-				document.getElementById('searchbox').value = filter_data[3];
+				$('#mytags').children(".tagit-choice").remove();
+				SetSearch(filter_data[3]);
 								
                 document.getElementById('filter_box').innerHTML = msg;
 				setFixed2();

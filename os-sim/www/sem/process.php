@@ -150,8 +150,8 @@ foreach ($atoms as $atom) {
 	    if ($netnames[$name] != "") {
 	    	$resolv = $netnames[$name];
 	    	$field .= "_net";
-	    } elseif ($hostnames[$name] != "") {
-	    	$resolv = $hostnames[$name];
+	    } else {
+	    	$resolv = ($hostnames[$name] != "") ? $hostnames[$name] : $name;
 	    	$field .= "_ip";
 	    }
 		$a = str_replace($matches[1].$matches[2].$matches[3],$field.$op.$resolv,$a);
@@ -404,8 +404,8 @@ foreach($result as $res) if ($cont++ < $numResult) {
             $line = "<tr".(($colort%2==0) ? " style=\"background-color: #F2F2F2\"" : "").">
             <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $inc_counter . "</td>
             <td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($matches[2]) . "</td>";
-            //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin_id=' + this.innerHTML)\"\">$plugin</span></td>";
-        $line.= "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('plugin_id=' + this.innerHTML)\"\">$plugin</a></td>";
+            //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin=' + this.innerHTML)\"\">$plugin</span></td>";
+        $line.= "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('<b>plugin</b>=' + this.innerHTML)\"\">$plugin</a></td>";
             $line.="<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'>";
             //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . htmlspecialchars($sensor_name) . "</span></td><td nowrap>$src_div";
             //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . htmlspecialchars($src_ip_name) . "</span></div>:";
@@ -413,11 +413,11 @@ foreach($result as $res) if ($cont++ < $numResult) {
             //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_ip=' + this.innerHTML)\"\">" . htmlspecialchars($dst_ip_name) . "</span></div>:";
             //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_port=' + this.innerHTML)\"\">" . htmlspecialchars($matches[9]) . "</span>$country_img_dst</td>";
 
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('sensor=$sensor')\"\">" . htmlspecialchars($sensor_name) . "</a></td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('src_ip=$src_ip')\"\">" . htmlspecialchars($src_ip_name) . "</a></div>:";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('src_port=".$matches[8]."')\"\">" . htmlspecialchars($matches[8]) . "</a>$country_img_src $homelan_src</td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('dst_ip=$dst_ip')\"\">" . htmlspecialchars($dst_ip_name) . "</a></div>:";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('dst_port=".$matches[9]."')\"\">" . htmlspecialchars($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name')\"\">" . htmlspecialchars($sensor_name) . "</a></td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>source</b>=$src_ip')\"\">" . htmlspecialchars($src_ip_name) . "</a></div>:";
+            $line.= "<a href=\"#\">" . htmlspecialchars($matches[8]) . "</a>$country_img_src $homelan_src</td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>destination</b>=$dst_ip')\"\">" . htmlspecialchars($dst_ip_name) . "</a></div>:";
+            $line.= "<a href=\"#\">" . htmlspecialchars($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
             if ($alt) {
                 $color = "grey";
                 $alt = 0;
@@ -458,9 +458,9 @@ foreach($result as $res) if ($cont++ < $numResult) {
                         }
                     }
                     if ($red) {
-                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
+                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('data=" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
                     } else {
-                        $data.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
+                        $data.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('data=" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
                     }
                 }
                 if ($verified >= 0) {
