@@ -59,6 +59,9 @@ $param_query = GET("query") ? GET("query") : "";
 $param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31));
 $param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
 
+$_SESSION['graph_type'] = "last_month";
+$_SESSION['cat'] = "Oct%2C+2010";
+
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
 $logger_servers = array();
 if (GET('num_servers') != "") {
@@ -681,7 +684,6 @@ function setFixed(start, end, gtype, datef)
 	$('#widgetCalendar').DatePickerClear();
 	var date_arr = new Array; date_arr[0] = start; date_arr[1] = end;
 	$('#widgetCalendar').DatePickerSetDate(date_arr, 0);
-	
 	RequestLines();
 	MakeRequest();
 }
@@ -925,10 +927,10 @@ $(document).ready(function(){
 	//UpdateByDate('forensic.php?graph_type=all&cat=');
 	$('#date4').addClass('negrita');
 	bold_dates('date4');
-	UpdateByDate('forensic.php?graph_type=month&cat=<?php echo urlencode(date("M, Y")) ?>');
 	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
-	
-	setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_month','<?php echo urlencode(date("Y")) ?>');
+	RequestLines();
+	MakeRequest();
+	//setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_month','<?php echo urlencode(date("Y")) ?>');
 	$("#start_aaa,#end_aaa").change(function(objEvent){
 		CalendarOnChange();
 	});
@@ -1337,9 +1339,9 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 <script>
 <?php
 if ($param_start != "" && $param_end != "" && date_parse($param_start) && date_parse($param_end)) {
-    print "setFixed('$param_start', '$param_end', '', '');\n";
+    //print "setFixed('$param_start', '$param_end', '', '');\n";
 } else {
-    print "RequestLines();MakeRequest();\n";
+    //print "RequestLines();MakeRequest();\n";
 }
 ?>
 </script>
