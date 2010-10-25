@@ -65,6 +65,9 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 $str = GET('str');
+
+$str = str_replace("=","",$str);
+
 $qstr = quotemeta($str);
 
 ossim_valid($str, OSS_DIGIT, OSS_SPACE, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("str"));
@@ -124,6 +127,16 @@ if (trim($str) != "") {
 			$data[] = array("name"=>"<b>destination != </b>$name");
 		}
 	}
+}
+if (count($data) < 1) {
+	$data[] = array("name"=>"<b>data = </b>$str");
+	$data[] = array("name"=>"<b>data != </b>$str");
+	$data[] = array("name"=>"<b>sensor = </b>$str");
+	$data[] = array("name"=>"<b>sensor != </b>$str");
+	$data[] = array("name"=>"<b>source = </b>$str");
+	$data[] = array("name"=>"<b>source != </b>$str");
+	$data[] = array("name"=>"<b>destination = </b>$str");
+	$data[] = array("name"=>"<b>destination != </b>$str");
 }
 //echo JSON to page  
 $response = "(" . json_encode($data) . ")";  

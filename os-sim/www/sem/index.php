@@ -1090,15 +1090,15 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 	?>
 	<form name="serverform">
 	<tr>
-		<td align='left'><b><?php echo _("Logger remote servers") ?></b>&nbsp;<a href='javascript:;' onclick='$("#dbs").toggle();$("#imgplus").attr("src",(($("#imgplus").attr("src").match(/plus/)) ? "../pixmaps/minus-small.png" : "../pixmaps/plus-small.png"))'><img src='../pixmaps/plus-small.png' border=0 id='imgplus'></a></td>
-	</tr>
-	<tr style='display:none' id='dbs'>
-		<td colspan=2 style='border:1px solid #CCCCCC;background-color:#EEEEEE'>
-			<table border=0 cellpadding=1 cellspacing=0>
+		<td align='left' style="padding-right:10px">
+		<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#rservers').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Remote Servers")?></a>
+			<div style="position:relative; z-index:1">
+			<div id="rservers" style="position:absolute;left:0;top:0;display:none;border:1px solid gray">
+				<table border=0 cellpadding=1 cellspacing=0 width="100%">
 				<tr bgcolor='#EEEEEE'>
 					<td><input type="checkbox" onclick="document.serverform.submit()" name="local" value="local" <?php if ($logger_servers["local"]) echo "checked" ?>></input></td>
 					<td><img src='../server/getdbsicon.php?name=local' border=0 width='16' height='16'></td>
-					<td><?php echo _("Local") ?></td>
+					<td style="padding-right:20px"><?php echo _("Local") ?></td>
 				</tr>			
 				<?php
 				$i = 1;
@@ -1109,10 +1109,12 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 					<tr bgcolor='#EEEEEE'>
 						<td><input type="checkbox" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) echo "checked" ?>></input></td>
 						<td></td>
-						<td><?php echo $name ?></td>
+						<td style="padding-right:20px"><?php echo $name ?></td>
 					</tr>
 				<?php } ?>
-			</table>
+				</table>
+			</div>
+			</div>
 		</td>
 	</tr>
 	<input type="hidden" name="num_servers" value="<?php echo $i ?>"></input>

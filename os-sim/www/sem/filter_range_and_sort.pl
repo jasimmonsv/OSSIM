@@ -33,6 +33,7 @@ $debug_log = $ARGV[7] if ($ARGV[7] ne "");
 #$redo_filter = ($grep_str =~ /plugin\_sid/) ? 1 : 0;
 
 %filters = ();
+%neg_filters = ();
 set_filters($filter);
 #debug_filters(); exit;
 
@@ -231,6 +232,10 @@ sub pass_filters {
 				$pass_filter = 1 if ($type eq "dst_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($dst_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($dst_ip));
 				$match = $filters{$key1}{$key2}{$type};
 				$pass_filter = 1 if ($type eq "data" && $data =~ /$match/i);
+				
+				if (defined $neg_filters{$key1}{$key2}) {
+					$pass_filter = ($pass_filter) ? 0 : 1;
+				}
 			}
 			return 0 if (!$pass_filter);
 		}
@@ -259,13 +264,12 @@ sub set_filters {
 		
 		my $or_num = 1;
 		foreach $atom (@atoms) { # LOOP by the OR elements (Many times it will be 1 loop)
-			# NET EQUAL
+			# NOT EQUAL
 			if($atom =~ /^\s*(.*)!=(.*)$/){
-				$aux_filter{$1}{'val'} = $2;
-				$aux_filter{$1}{'op'} = "not equal";
-				$filters{$and_num}{$or_num} = %aux_filter; $or_num++;
+				$neg_filters{$and_num}{$or_num} = 1;
 			# EQUAL
-			} elsif ($atom =~ /^\s*(.*)=(.*)$/){
+			}
+			if ($atom =~ /^\s*(.*)!=(.*)$/ || $atom =~ /^\s*(.*)=(.*)$/){
 				# Taxonomy filter
 				if ($atom =~ /taxonomy\=/) {
 					set_taxonomy_filters($atom,$and_num,$or_num);
@@ -274,6 +278,7 @@ sub set_filters {
 				elsif ($1 eq "id" || $1 eq "fdate" || $1 eq "date" || $1 eq "plugin_id" || $1 eq "sensor" || $1 eq "src_ip" || $1 eq "dst_ip" || $1 eq "ip_src" || $1 eq "ip_dst" || $1 eq "src_port" || $1 eq "dst_port" || $1 eq "tzone"|| $1 eq "data"){
 					$aux = $2;
 					$par = $1;
+					
 					$par =~ s/ip\_(...)/$1_ip/;
 					$aux =~ s/'+//g;
 					$aux = quotemeta $aux if ($par eq "data");
