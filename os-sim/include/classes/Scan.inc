@@ -280,7 +280,7 @@ class RemoteScan {
 	    $related_sensors = (preg_match("/\//",$this->network)) 
 	    				? Net::get_related_sensors($conn,Net::get_name_by_ip($conn,$this->network))
 	    				: (($this->network!="") ? Host::get_related_sensors($conn,$this->network) : $sa);
-	    $sensors = array_intersect(array_keys($names),$related_sensors);
+	    $sensors = array_intersect($related_sensors,array_keys($names));
 	    if (count($sensors)<1) {
 	    	$db->close($conn);
 	        $this->errmsg = _("Network sensors are not available for remote scan");
