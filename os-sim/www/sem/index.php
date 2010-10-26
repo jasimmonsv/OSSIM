@@ -623,8 +623,9 @@ function SetSearch(content)
 		atoms[0] = content;
 	}
 
-	for (i = 0; i < atoms.length; i++) {
+	for (i = 0; i < atoms.length; i++) if (atoms[i] != "") {
 		var value = atoms[i];
+		if (!value.match(/\=/) && !is_operator(value)) value = "data="+value;
 		var el = "";
 		el  = "<li class=\"tagit-choice\">\n";
 		el += value + "\n";
