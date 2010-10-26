@@ -136,5 +136,22 @@ class Plugin {
 			return $rs->fields;
 		}
 	}
+	function get_latest_SIM_Event_by_SID ($conn,$id) {
+		// get plugin sids
+		$list = array();
+		$sql = OssimQuery("select max(acid_event.timestamp) as event_date,acid_event.sid,plugin_sid.name as sig_name,sensor.hostname from acid_event left join ossim.plugin_sid on plugin_sid.plugin_id=acid_event.plugin_id and plugin_sid.sid=acid_event.plugin_sid, sensor WHERE sensor.sid=acid_event.sid AND acid_event.plugin_id=$id group by sid");
+		if (!$rs = & $conn->Execute($sql)) {
+			print $conn->ErrorMsg();
+			return array();
+		} else {
+			while (!$rs->EOF) {
+				$rs->fields["ip"] = preg_replace("/[^\d]*(\d+\.\d+\.\d+\.\d+).*/","\\1",$rs->fields["hostname"]);
+				$list[] = $rs->fields;
+				$rs->MoveNext();
+			}
+		}
+		return $list;
+	}
+	
 }
 ?>

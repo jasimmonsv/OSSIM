@@ -45,7 +45,94 @@ require_once 'classes/Incident_event.inc';
 require_once 'classes/Incident_metric.inc';
 require_once 'classes/Incident_anomaly.inc';
 require_once 'classes/Incident_vulnerability.inc';
+require_once 'classes/Form_builder.inc';
 require_once ('ossim_conf.inc');
+
+$conf = $GLOBALS["CONF"];
+$map_key = $conf->get_conf("google_maps_key", FALSE);
+
+
+function get_params_field($field){
+	
+	GLOBAL $map_key;
+	$unique_id = md5( uniqid() );
+	$fld = "custom_".$unique_id;
+	$required = ( $field['required'] == 1 ) ? "req_field " : "";
+	
+	switch ($field['type']){
+		case "Asset":
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required." ct_assets_sel");
+		break;
+		
+		case "Check Yes/No":
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+		break;
+		
+		case "Check True/False":
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+		break;
+		
+		case "Checkbox":
+			$options = explode("\n", $field["options"]);
+			$num_opt = count($options);
+			
+			$num_chk = ($options[$num_opt-1] == '' ) ? $num_opt-1 : $num_opt;
+			
+			for ($i=0; $i<$num_chk; $i++)
+				$ids[] = $fld."_".($i+1);
+											
+			$params = array("name" => $fld, "id"=>$ids, "class"=>$required, "values" => $options);
+			
+		break;
+		
+		case "Date":
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+		break;
+		
+		case "Date Range":
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+		break;
+		
+		case "Map":
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required."field_fix", "style"=> "width:385px;", "values"=>array($map_key));
+		break;
+			
+		case "Radio button":
+			$options = explode("\n", $field["options"]);
+			$num_opt = count($options);
+			
+			$num_radio = ($options[$num_opt-1] == '' ) ? $num_opt-1 : $num_opt;
+			
+			for ($i=0; $i<$num_radio; $i++)
+				$ids[] = $fld."_".$i;
+			
+			$params = array("name" => $fld, "id"=>$ids, "class"=>$required, "values"=> $options);
+			
+		break;
+		
+		case "Select box":
+			$options = explode("\n", $field["options"]);
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required, "values"=> $options);
+		break;
+		
+		case "Slider":
+			$options = explode(",", $options );
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required, "values"=> $options);
+		break;
+					
+		case "Textarea":
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required, "rows"=>"3", "cols"=>"80", "wrap"=>"hard");
+		break;
+		
+		case "Textbox":
+			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+		break;
+			
+	}
+	
+	return $params;
+
+}
 
 $db = new ossim_db();
 $conn = $db->connect();
@@ -209,31 +296,137 @@ if ($edit) {
   <title> <?php
 echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+  <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/jquery-ui-1.7.custom.css"/>
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <link rel="stylesheet" type="text/css" href="../style/tree.css" />
+  <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css" />
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+  <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+  <script type="text/javascript" src="../js/datepicker.js"></script>
+  <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  
+  <script type="text/javascript" src="../js/jquery.autocomplete_geomod.js"></script>
+  <script type="text/javascript" src="../js/geo_autocomplete.js"></script>
+
   <script type="text/javascript">
-      function switch_user(select) {
-        if(select=='entity' && $('#transferred_entity').val()!=''){
-            $('#user').val('');
-        }
-        else if (select=='user' && $('#transferred_user').val()!=''){
-            $('#entity').val('');
-        }
-    }
+	function switch_user(select) {
+		if(select=='entity' && $('#transferred_entity').val()!=''){
+			$('#user').val('');
+		}
+		else if (select=='user' && $('#transferred_user').val()!=''){
+			$('#entity').val('');
+		}
+	}
+	
+	function send_form() {
+		
+		var msg = "";
+		var error = false;
+		var txt;
+		
+		$('.req_field').each(function(index) {
+			
+			var id        = "#"+ $(this).attr("id");
+			var tag_name  = $(this).get(0).tagName.toLowerCase();
+			var type      = $(this).attr("type");
+			var fieldname = $(id).parents("tr:first").children("th").text(); 
+			var name      = $(this).attr("name");
+			
+			if ( tag_name == "input" )
+			{
+					var type = $(this).attr("type");
+					var value = $(this).val();
+					
+										
+					if (type == "text" || type == "hidden")
+					{
+						if (value == '')
+							error = true;
+					}
+					else
+					{ 
+						var checked = $(id+":checked").length;
+											
+						if (checked > 0)
+							error = true;
+							
+						//alert("Name: " + fieldname + "Checked: " + $('input[name='+name+']:checked').length);
+					}
+			}
+			else 
+			{
+				if (value == '')
+					error = true;
+			
+			}
+			
+			
+			if (error == true)
+			{
+				msg += '<?=_("Field "+fieldname+" is empty.")?><br/>';
+				error = false;
+			}
+			
+			
+			
+			
+			/*txt  = "Name: " + fieldname + "\n";
+			txt += "Id: " + id + "\n";
+			txt += "Value: " + $(this).val() + "\n";
+			txt += "Tag Name: " + tag_name + "\n";
+			txt += "Type: " + $(this).attr("type") + "\n";
+			txt += "Checked: " + $(id+":checked").length + "\n";
+			alert( txt );*/
+			
+			/*if (msg == '')
+			{
+				//$("#crt").submit();
+				return false;
+			}
+			else
+			{
+				msg = "<div style='padding-left: 10px'>"+msg+"</div>";
+				$("#info_error").html(msg);
+				$("#info_error").css("display", "block");
+				window.scrollTo(0,0);
+				return false;
+			}*/
+			
+										
+		});
+	
+}	
+	
+	
   </script>
+  <style type='text/css'>
+	textarea, .field_fix { width: 90%;}
+	select { width: 200px;}
+	option {height: 15px;}
+	input[type='text'] { width: 90%; height: 18px;}
+	th {padding: 5px 0px;}
+	
+	.ac_results li img { float: left; 	margin-right: 5px; }
+  
+  </style
 </head>
+
 <body>
 <?php
 include ("../hmenu.php"); ?>
 <h1><?php echo " $ref " . _("Ticket") ?></h1>
 
-<form method="GET" action="manageincident.php">
+<form id='crt' method="GET" action="manageincident.php">
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />
 <input type="hidden" name="ref" value="<?php echo $ref ?>" />
 <input type="hidden" name="incident_id" value="<?php echo $incident_id ?>" />
 <input type="hidden" name="submitter" value="<?php echo $submitter ?>" />
-<table align="center" width="550">
+<div id='info_error' class='error'></div>
+<table align="center" width="600">
   <tr>
     <th><?php echo _("Title") ?></th>
     <td class="left">
@@ -675,33 +868,55 @@ if (($ref == "Alarm") or ($ref == "Event")) {
     </td>
   </tr>
 
+ 
+  
 
 <?php
 } elseif ($ref == "Custom") {
+	
+	?>
+	
+		
+	<?php
 	$fields = Incident_type::get_custom_list($conn,$type);
+	$form_builder = new Form_builder();
+	$params = array();
+	$cont = 1;
 	foreach ($fields as $field) {
-		$fld = "custom_".base64_encode($field);
-		echo "<tr>
-				<th>$field</th>
-    		    <td style='border-width: 0px;text-align:left'>
-        		   <textarea name='$fld' rows='3' cols='80' wrap='hard'></textarea>
-    		    </td>
+						
+		echo "<tr id='item_".$cont."'>
+				<th id='name_".$cont."' class='ct_back'>".$field['name']."</th>
+    		    <td style='border-width: 0px;text-align:left'>";
+		
+		$params = get_params_field($field);
+				
+		$form_builder->set_attributes($params);
+		echo $form_builder->draw_element($field['type']);
+		    	
+		echo "    </td>
     		  </tr>\n";
+		$cont++;
 	}
 }
 ?>
 
 <tr>
-    <td colspan="2" class="noborder">
-      <input type="submit" value="<?=_("OK")?>" class="button" />
-    </td>
-  </tr>
+<td colspan="2" class="noborder" style='height:30px;'><input type="button" class='button' value="<?=_("OK")?>" class="button" onclick="send_form();"/></td>
+</tr>
 </table>
 </form>
-
+<script type='text/javascript'>
+	<?php echo $form_builder->get_def_funcs();?>
+				
+	$(document).ready(function() {
+		<?php echo $form_builder->get_scripts();?>
+	});
+</script>
 </body>
 </html>
 <?php
+
+
 function format_user($user, $html = true, $show_email = false) {
     if (is_a($user, 'Session')) {
         $login = $user->get_login();

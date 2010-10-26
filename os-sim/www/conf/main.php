@@ -1244,7 +1244,13 @@ $CONFIG = array(
                 "help" => gettext("") ,
                 "desc" => gettext("Maximum days for email notification") ,
                 "advanced" => 0
-            )
+            ),
+            "google_maps_key" => array(
+                "type" => "textarea",
+                "help" => gettext("http://code.google.com/apis/maps/signup.html") ,
+                "desc" => gettext("Google Maps API Key") ,
+                "advanced" => 0
+            )            
         )
     ) ,
 
@@ -1677,6 +1683,10 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
                 $input.= "value=\"$option_value\">$option_text</option>";
             }
             $input.= "</select>";
+        }
+        /* textarea */
+        elseif ($type["type"]=="textarea") {
+            $input.= "<textarea rows='2' cols='28' name=\"value_$count\" $disabled>$conf_value</textarea>";
         }
         /* input */
         else {

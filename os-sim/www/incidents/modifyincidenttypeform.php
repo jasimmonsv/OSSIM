@@ -47,6 +47,198 @@ echo gettext("OSSIM Framework"); ?> </title>
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 </head>
+<script type='text/javascript' language='JavaScript'>
+var options = ["Checkbox", "Select box", "Radio button", "Slider"];
+
+Array.prototype.in_array = function(p_val) {
+    for(var i = 0, l = this.length; i < l; i++) {
+        if(this[i] == p_val) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function enable_ta(opt)
+{
+	var select_opt = $('#custom_typef option:selected').attr('value');
+	
+	if (options.in_array(select_opt) == true)
+	{
+		$('#custom_optionsf').attr("disabled", "");
+		$('#custom_optionsf').removeClass();
+		$('#custom_optionsf').addClass("custom_optionsf_en");
+		$('#custom_optionsf').val(opt);
+	}
+	else
+	{
+		$('#custom_optionsf').attr("disabled", "disabled");
+		$('#custom_optionsf').removeClass();
+		$('#custom_optionsf').addClass("custom_optionsf_dis");
+		$('#custom_optionsf').val('');
+	}
+	
+}
+
+function checked_form()
+{
+	var select_opt = $('#custom_typef option:selected').attr('value');
+	var fieldname = $('#custom_namef').val();
+	var old_fieldname = $('#old_name').val();
+	var msg = '';
+		
+	if (fieldname == "")
+		msg = '<?=_("Field name is empty.")?><br/>';
+	else
+	{
+		if (old_fieldname != fieldname)
+		{
+			var fieldnames = $('.ct_name').text();
+					
+			$('.ct_name').each(function(index) {
+				if ( $(this).text() == fieldname )
+					msg = '<?=_("Field name already exists.")?><br/>';
+				
+			});
+		}
+	}
+	
+	if (select_opt == "")
+		msg += '<?=_("Field type not selected.")?><br/>';
+	else
+	{	
+		if (options.in_array(select_opt) == true)
+		{
+			var optfield = $('#custom_optionsf').val();
+			if ( optfield == '')
+			{
+				msg += '<?=_("Field options is empty.")?>';
+			}
+		}
+	}
+	
+	return msg;
+
+}
+
+
+function add_ticket()
+{
+	var msg = checked_form();
+	$('#modify').val('add');
+	
+	if (msg == '')
+		$("#crt").submit();
+	else
+	{
+		msg = "<div style='padding-left: 10px'>"+msg+"</div>";
+		$("#info_error").html(msg);
+		$("#info_error").css("display", "block");
+		window.scrollTo(0,0);
+		return false;
+	}
+}
+
+function delete_ticket(name)
+{
+	$('#modify').val('delete');
+	$('#custom_namef').val(name);
+	$("#crt").submit();
+}
+
+function modify_ct()
+{
+	var msg = checked_form();
+	
+	$('#modify').val('modify_ct');
+		
+	if (msg == '')
+		$("#crt").submit();
+	else
+	{
+		msg = "<div style='padding-left: 10px'>"+msg+"</div>";
+		$("#info_error").html(msg);
+		$("#info_error").css("display", "block");
+		window.scrollTo(0,0);
+		return false;
+	}
+}
+
+function modify_ticket()
+{
+	$('#modify').val('modify');
+	$("#crt").submit();
+}
+
+function edit_ticket(id)
+{
+	var id="#"+id;
+	$('#modify').val('modify_ct');
+	
+	
+	var id_ct     =  $("#id_crt").val();
+		
+	var name      =  $(id+"_name").text();
+	var type      =  $(id+"_type").text();
+	var options   =  $(id+"_options").text();
+	var required  =  $(id+"_required img").length;
+	
+			
+	$("#header_nct").html("<?=_("Modify Custom Type")?>");
+	
+	if ($("#id_crt").length > 1)
+		$("#id_crt").attr("value", name);
+	else
+		$("#id_crt").after("<input type='hidden' name='old_name' id='old_name' value='"+name+"'/>") 
+	
+	$('#custom_namef').val(name);
+	$('#custom_typef').val(type);
+	
+	enable_ta(options);
+	
+	if ( required == 1)
+		$('#custom_requiredf').attr("checked", "true");
+			
+   
+	
+	$('.ct_add').html("<input type='button' id='add_button' value='<?=_("Save")?>' class='button' onclick=\"modify_ct();\"/>");
+	
+	$("#cancel_cont").html("<input type='button' id='cancel' class='button' value='<?=_("Cancel")?>' onclick=\"cancel_ticket();\"/>"); 
+	$("#cancel").css('margin-right', '20px');	
+	$("#cancel").css('width', '50px');
+	window.scrollTo(0, 0);	
+	$("#custom_namef").focus();
+
+	
+}
+
+
+function cancel_ticket()
+{
+	$("#header_nct").html("<?=_("New Custom Type")?>");
+	$("#cancel, #old_name").remove();
+	
+	$('#custom_namef, #custom_typef').attr("value", "");
+	$('#custom_optionsf').attr("disabled", "disabled");
+	$('#custom_optionsf').removeClass();
+	$('#custom_optionsf').addClass("custom_optionsf_dis");
+	$('#custom_optionsf').val('');
+	$('#custom_requiredf').attr("checked", "");
+	
+	$('.ct_add').html("<input type='button' id='add_button' value='<?=_("Add")?>' class='button' onclick=\"add_ticket();\"/>");
+	
+}
+
+
+
+$(document).ready(function() {
+	$('#custom_typef').bind("change", function() { enable_ta('');});
+	$('#ct_table tr:even').css('background', "#F2F2F2");
+});
+
+
+	
+</script>	
 <body>
 
 <?php
@@ -70,58 +262,187 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
     $custom = (preg_match("/custom/",$inctype->get_keywords())) ? 1 : 0;
     $custom_fields = Incident_type::get_custom_list($conn,$inctype_id);
 }
+
 ?>
 
 <form method="post" id="crt" action="modifyincidenttype.php">
-<table align="center">
-  <input type="hidden" id="modify" name="modify" value="modify" />
-  <input type="hidden" name="id" value="<?php echo $inctype->get_id(); ?>" />
+<div id='info_error' class='ct_error'></div>
+<table align="center" width='700px'>
+  <input type="hidden" id="modify" name="modify" value="modify"/>
+  <input type="hidden" name="id" id='id_crt' value="<?php echo $inctype->get_id(); ?>" />
   <tr>
-    <th> <?php
-echo gettext("Ticket type"); ?> </th>
-    <th class="left"><?php
-echo $inctype->get_id(); ?></th>
+    <th> <?php echo gettext("Ticket type"); ?> </th>
+    <th class="left"><?php echo $inctype->get_id(); ?></th>
   </tr>
   <tr>
-    <th> <?php
-echo gettext("Description"); ?> </th>
-    <td class="nobborder">
-      <textarea name="descr"><?php
-echo $inctype->get_descr(); ?></textarea>
-    </td>
+    <th> <?php echo gettext("Description"); ?> </th>
+    <td class="nobborder ct_pad5"><textarea name="descr" id='ct_descr'><?php echo $inctype->get_descr(); ?></textarea></td>
   </tr>
   <tr>
-    <th> <?php
-echo gettext("Custom"); ?> </th>
+    <th> <?php echo gettext("Custom"); ?> </th>
     <td class="left">
       <input type="checkbox" name="custom" onclick="$('#custom_type').toggle()" value="1"<?=($custom) ? " checked" : ""?>>
     </td>
   </tr>   
   <tr id="custom_type" <?=(!$custom) ? "style='display:none'" : ""?>>
-  	<th><?=_("Custom fields")?>:</th>
-  	<td>
-  		<table align="center" class="noborder">
-  		<tr>
-  			<td class="noborder"><input type="text" id="custom_name" name="custom_name"></td>
-  			<td class="noborder"><input type="submit" onclick="$('#modify').val('add')" value="<?=_("Add")?>" class="button"></td>
-  		</tr>
-  		<? foreach ($custom_fields as $cf) { ?>
-  		<tr>
-  			<td class="noborder"><?=$cf?></td>
-  			<td class="noborder"><a href="javascript:;" onclick="$('#custom_name').val('<?=$cf?>');$('#modify').val('delete');$('#crt').submit();"><img src="../vulnmeter/images/delete.gif" border="0"></a></td>
-  		</tr>
-  		<? } ?>
-  		</table>
+  	<th class='ct_back'><?=_("Custom fields")?>:</th>
+  	<td class='ct_pad5'>
+  		<table align="left" class="noborder" width='100%'>
+			<tr>
+				<td class='noborder' colspan='5'>
+					<table width='100%' class='noborder' id='table_form_crt'>
+						<tbody>
+						<tr><td class='headerpr header_ct' colspan='3' id='header_nct'><?=_("New Custom Type")?></td></tr>
+						<tr>
+							<th class='ct'><?=_("Field Name")?></th>
+							<td class="noborder left" colspan='2'><input type="text" id="custom_namef" name="custom_namef"/></td>
+						</tr>
+						<tr>
+							<th><?=_("Required Field")?></th>
+							<td class="noborder left" colspan='2'><input type="checkbox" id="custom_requiredf" name="custom_requiredf" value='1'/></td>
+						</tr>
+						<tr>
+							<th class='ct'><?=_("Field Type")?></th>
+							<td class="noborder left" colspan='2'>
+								<select type="text" id="custom_typef" name="custom_typef">
+								<option  value=''>-- <?=_("Select Types")?> --</option>
+								
+								<?php
+								$types = array("Asset", "Check Yes/No", "Check True/False", "Checkbox", "Date","Date Range", "Map", "Radio button", "Select box", "Slider", "Textarea", "Textbox");
+								sort($types);
+								foreach($types as $k => $v)
+									echo "<option style='text-align: left;' value='"._($v)."'>"._($v)."</option>";
+								?>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th class='ct'><?=_("Field Options")?></th>
+							<td class="noborder left">
+								<textarea type="text" id="custom_optionsf" class='custom_optionsf_dis' name="custom_optionsf" disabled="disabled"></textarea>
+							</td>
+							<td class='noborder ct_mandatory left'>
+								<div class="balloon">  
+								<a style='cursor:pointer'><img src="../pixmaps/help-small.png" alt='Help'/></a> 
+								<span class="tooltip">      
+								<span class="top"></span>      
+								<span class="middle ne11">          
+									<table class='ct_opt_format' border='1'>
+										<tr><td class='ct_bold noborder left'><span class='ct_title'><?=_("Options Format Allowed")?></span></td></tr>
+										<tr>
+											<td class='noborder'>
+												<div class='ct_opt_subcont'>
+													<img src='../pixmaps/bulb.png' align='absmiddle' alt='Bulb'/><span class='ct_bold'><?=_("Type Radio and Check")?>:</span>
+													<div class='ct_padl25'>
+														<span><?=_("Value1:Name1")?></span><br/>
+														<span><?=_("Value2:Name2:Checked")?></span><br/>
+														<span><?=_("...")?></span>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td class='noborder'>
+												<div class='ct_opt_subcont'>
+													<img src='../pixmaps/bulb.png' align='absmiddle' alt='Bulb'/><span class='ct_bold'><?=_("Type Slider")?>:</span> 
+													<div class='ct_padl25'>
+														<span><?=_("Min value, Max value, Step")?></span><br/>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td class='noborder'>							
+												<div class='ct_opt_subcont'>
+													<img src='../pixmaps/bulb.png' align='absmiddle' alt='Bulb'/><span class='ct_bold'><?=_("Type Select Box")?>:</span> 
+													<div class='ct_padl25'>
+														<span><?=_("Value1:Text1")?></span><br/>
+														<span><?=_("Value2:Text2:Selected")?></span><br/>
+														<span><?=_("...")?></span><br/>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td class='noborder'>		
+												<div class='ct_opt_subcont'>
+													<img src='../pixmaps/bulb.png' align='absmiddle' alt='Bulb'/><span class='ct_bold'><?=_("Type Map")?>:</span> 
+													<div class='ct_padl25'>
+														<span><?=_("Latitude, Longitude")?></span><br/>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</table>
+								</span>      
+								<span class="bottom"></span>  
+								</span>
+								</div>
+							</td>
+						</tr>
+						<tr><td class='noborder ct_sep' colspan='3'></td></tr>						
+						<tr>
+							<td id='cancel_cont'></td>
+							<td class="noborder ct_add" colspan='2'>
+								<input type="button" id="add_button" value="<?=_("Add")?>" class="button" onclick="add_ticket();"/>
+							</td>
+							
+						</tr>
+						<tr><td class='noborder ct_sep' colspan='3'></td></tr>		
+						
+						</tbody>
+					</table>
+				</td>
+			</tr>
+				
+			<tr>
+				<td class='noborder' colspan='5'>
+					<table width='100%' class='noborder' id='ct_table'>
+						<tbody>
+						<tr><td class='headerpr header_ct' colspan='5'><?=_("Custom Types Added")?></td></tr>
+						<tr>
+							<th><?=_("Field Name")?></th>
+							<th style='width: 100px;'><?=_("Field Type")?></th>
+							<th><?=_("Options")?></th>
+							<th><?=_("Required")?></th>
+							<th><?=_("Actions")?></th>
+						</tr>
+						<?php 
+						foreach ($custom_fields as $cf) 
+						{
+							$unique_id = md5( uniqid() );
+						?>
+						<tr class="noborder" id='<?=$unique_id?>'>
+							<td id='<?=$unique_id."_name"?>' class="noborder left ct_name"><?=$cf["name"]?></td>
+							<td id='<?=$unique_id."_type"?>' class="noborder left ct_type"><?=$cf["type"]?></td>
+							<td id='<?=$unique_id."_options"?>' class="noborder left"><?=implode("<br/>", explode("\n",$cf["options"]))?></td>
+							<td id='<?=$unique_id."_required"?>' class="noborder ct_required">
+								<? if ( $cf["required"] == 1) echo "<img src='../pixmaps/tick.png' alt='Tick'/>"; ?>
+							</td>
+							<td class="noborder ct_actions">
+								<input type="image" src="../vulnmeter/images/delete.gif" class="ct_icon" onclick="delete_ticket('<?=$cf["name"]?>');"/>
+								<a style='cursor:pointer' class="ct_icon" onclick="edit_ticket('<?=$unique_id?>');"><img src="../vulnmeter/images/pencil.png" alt='Edit' title='Edit'/></a>
+							</td>
+						</tr>
+						<? } ?>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</table>
   	</td>
   </tr>
   <tr>
-    <td colspan="2" style="text-align:center;" class="nobborder">
-      <input type="submit" value="<?=_("Modify")?>" class="button">
-      <input type="reset" value="<?=_("reset")?>" class="button">
+    <td colspan="5" style="text-align:center; height: 30px;" class="nobborder">
+      <input type="button" value="<?=_("Modify")?>" class="button" onclick="modify_ticket();"/>
+      <input type="reset" value="<?=_("Reset")?>" class="button"/>
     </td>
   </tr>
 </table>
+
 </form>
+
+
 
 </body>
 </html>

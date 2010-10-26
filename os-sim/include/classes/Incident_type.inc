@@ -134,14 +134,11 @@ class Incident_type {
     //
     // CUSTOM TYPES
     //
-    function insert_custom($conn, $id, $name) {
-        $sql = "INSERT IGNORE into incident_custom_types ( id, name) VALUES (?, ?)";
-        $params = array(
-            $id,
-            $name
-        );
-        if ($conn->Execute($sql, $params) == false) {
-            print 'Error inserting: ' . $conn->ErrorMsg() . '<BR>';
+    function insert_custom($conn, $params) {
+        $sql = "INSERT IGNORE into incident_custom_types ( id, name, type, options, required) VALUES (?, ?, ?, ?, ?)";
+        
+		if ($conn->Execute($sql, $params) == false) {
+            print '<div id="info_error" class="ct_error" style="display: block">Error inserting: ' . $conn->ErrorMsg() . '<br/></div>';
             exit;
         }
     }
@@ -152,7 +149,11 @@ class Incident_type {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-                $list[] = $rs->fields["name"];
+                $list[] = array("id" => $rs->fields['id'], 
+								"name" => $rs->fields['name'], 
+								"type" => $rs->fields['type'], 
+								"options" => $rs->fields['options'],
+								"required" => $rs->fields['required']);
                 $rs->MoveNext();
             }
         }
@@ -165,9 +166,31 @@ class Incident_type {
             $name
         );
         if ($conn->Execute($sql, $params) == false) {
-            print 'Error inserting: ' . $conn->ErrorMsg() . '<BR>';
+            print '<div id="info_error" class="ct_error" style="display: block">Error inserting: ' . $conn->ErrorMsg() . '<br/></div>';
             exit;
         }
+    }
+	
+	 function update_custom($conn, $custom_name, $custom_type, $custom_options, $custom_required,  $inctype_id, $custom_old_name) {
+    	
+	        $sql = "UPDATE incident_custom_types SET name= ?, type= ?, options= ?, required=? WHERE id = ? and name = ?";
+	        
+			$params = array(
+	           	$custom_name,
+				$custom_type, 
+				$custom_options, 
+				$custom_required,
+				$inctype_id,
+				$custom_old_name
+	        );
+			
+						
+		if ($conn->Execute($sql, $params) == false) {
+            print '<div id="info_error" class="ct_error" style="display: block">Error updating: ' . $conn->ErrorMsg() . '<br/></div>';
+            exit;
+        }
+        $infolog = array($id);
+        Log_action::log(52, $infolog);
     }
 
 }

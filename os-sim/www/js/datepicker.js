@@ -595,7 +595,7 @@
                                                                     break;
                                                             default:
                                                                     options.date = tmp.valueOf();
-                                                                    $(this).parent().DatePickerHide();
+                                                                    //$(this).parent().DatePickerHide();
                                                                     break;
                                                             }
                                                         break;

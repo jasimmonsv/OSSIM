@@ -894,8 +894,155 @@ div.balloon:hover span.bottom {
   border: none;
  }
  
+ /* Custom incident types*/
+ 
+.ct_back { 
+	white-space:nowrap;
+	padding:0px 10px 0px 10px; 
+	border: 1px solid #aaaaaa; 
+	background-color: #CCCCCC;
+	background-image: none;
+	font-size: 11px; 
+	color: #222222; 
+	font-weight: bold; 
+	text-align: center; 
+	padding: 10px 5px;
+}
 
+ 
+.ct { width: 155px; vertical-align: top;}
+ 
+#table_form_crt #custom_namef {  width: 99%; height: 18px;}
+#table_form_crt select { width: 250px;}
+#table_form_crt option { height: 15px;}
+#table_form_crt textarea { width: 100%;}
+ 
+.header_ct {font-size: 11px; line-height: 10px;}
+ 
+#custom_typef { text-align: center;}
 
+#custom_optionsf { height: 45px;}
+ 
+.custom_optionsf_en{ background: #FFFFFF; }
+ 
+.custom_optionsf_dis {
+	filter:alpha(opacity=50);
+	-moz-opacity:0.5;
+	-khtml-opacity: 0.5;
+	opacity: 0.5;
+	background: #EEEEEE;
+}
+ 
+  
+.ct_sep {height: 12px;}
 
+.ct_pad5 { padding: 0px 5px 0px 5px;}
+.ct_padl25 { padding-left: 25px; }
+ 
+.ct_mandatory { vertical-align: top; text-align: left;}
+ 
+.ct_add{ width: 40px; text-align: right;}
 
+.ct_add input{ width: 40px; text-align: right;}
+
+#ct_descr { width: 100%;} 
+
+.ct_opt_format { width: 156px; background: transparent; border: none;}
+
+.ct_opt_format span {font-size: 10px; }
+
+.ct_opt_format td {text-align: left;}
+
+.ct_bold {font-weight: bold;}
+
+.ct_opt_subcont {font-size: 9px; font-weight: normal;}
+
+.ct_opt_subcont span { display: block;}
+
+#info_error {
+	text-align: left;
+	width: 700px;
+	margin: 20px auto;
+	display: none;
+}
+
+.ct_error {
+    font-family:Arial, Helvetica, sans-serif; 
+    font-size:13px;
+    border: 1px solid;
+    margin: 10px auto;
+    padding:15px 10px 15px 50px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+	width: 100%;
+	color: #D8000C;
+    background-color: #FFBABA;
+    background-image: url('../pixmaps/ct_error.png');
+}
+
+.ct_icon {border: none; background: transparent;}
+
+.ct_actions{ width: 50px;}
+.ct_required { width: 40px;}
+.ct_type {font-style: italic;}
+#ct_table th { padding: 1px 2px 1px 2px;}
+
+.ct_mandatory div.balloon:hover span.tooltip { top:15px; left:-30px; }
+
+.ct_mandatory div.balloon:hover span.middle { padding: 0px; }
+
+.ct_mandatory div.balloon:hover span.middle  .ct_opt_subcont{ padding: 0px 5px 0px 5px; }
+
+.ct_mandatory .ct_title { padding-bottom: 3px; font-size: 11px; text-align: left; }
+
+.ct_mandatory div.balloon:hover .ne11 span { display: inline;}
+
+.ct_widgetCalendar {
+	position: absolute;
+	top:-135px;
+	left:30px;
+	z-index:10
+	height: 0px;
+	overflow: hidden;
+	background: #8E8E8E;
+	border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
+}
+
+.ct_widgetCalendar .datepicker {
+	position: absolute;
+	bottom: 0;
+	top: auto;
+}
+.ct_widgetCalendar .datepickerContainer,
+.ct_widgetCalendar .datepickerBorderT,
+.ct_widgetCalendar .datepickerBorderB,
+.ct_widgetCalendar .datepickerBorderL,
+.ct_widgetCalendar .datepickerBorderR,
+.ct_widgetCalendar .datepickerBorderTL,
+.ct_widgetCalendar .datepickerBorderTR,
+.ct_widgetCalendar .datepickerBorderBL,
+.ct_widgetCalendar .datepickerBorderBR {
+	background: transparent !important;
+}
+.ct_widgetCalendar .datepicker a:hover{
+	color: #000;
+}
+.ct_widget {
+	position: relative;
+}
+
+.ct_slider {float:left; width:422px; heigth: 25px; padding:2px 5px 0px 6px; margin-top:6px;}
+
+a.ui-slider-handle { top: -7px !important;}
+
+.ct_assets { padding: 10px 0px;}
+
+.ct_assets_sel {
+background-color:#EFEBDE;
+padding:2px 5px 2px 5px;
+border:1px dotted #cccccc;
+font-size:14px
+}
+
+#cancel_cont { text-align: left; border: none;}
 
