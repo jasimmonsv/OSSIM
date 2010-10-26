@@ -532,7 +532,7 @@ if ($num_lines > 50) { //if($num_lines > $offset + 50){
 <br>
 </div>
 </body>
-<script type="text/javascript">$("#pbar").progressBar(100);parent.SetFromIframe($("#processcontent").html())</script>
+<script type="text/javascript">$("#pbar").progressBar(100);parent.SetFromIframe($("#processcontent").html(),"<?php echo $a ?>","<?php echo $start ?>","<?php echo $end ?>","<?php echo $sort_order ?>")</script>
 <?php 
 ob_end_flush();
 ?>

@@ -351,25 +351,16 @@ function is_operator (value) {
 	return (value == "and" || value == "AND" || value == "or" || value == "OR") ? 1 : 0;
 }
 
-function SetFromIframe(content) {
+function SetFromIframe(content,str,start,end,sort) {
 	HandleResponse(content);
 	$("#processcontent").show();
+
+    if(document.getElementById('txtexport').value!='noExport') {
+        $("#href_download").show();
+        $("#img_download").show();
+        $("#href_download").attr("href", "download.php?query=" + str + "&start=" + start + "&end=" + end + "&sort=" + sort);
+    }
     document.getElementById('txtexport').value = 'noExport';
-    /*
-    $('.HostReportMenu').contextMenu({
-            menu: 'myMenu'
-            },
-            function(action, el, pos) {
-            var aux = $(el).attr('id').split(/;/);
-            var ip = aux[0];
-            var hostname = aux[1];
-            var url = "../report/host_report.php?host="+ip+"&hostname="+hostname+"&greybox=1";
-            if (hostname == ip) var title = "Host Report: "+ip;
-            else var title = "Host Report: "+hostname+"("+ip+")";
-            GB_show(title,url,450,'90%');
-            }
-    );
-    */
     load_contextmenu();
     $(".scriptinfo").simpletip({
             position: 'right',
@@ -440,46 +431,7 @@ function MakeRequest()
     var txtexport = document.getElementById('txtexport').value;
     document.getElementById('ResponseDiv').innerHTML = "";
 	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
-	return false;
-	$.ajax({
-		type: "GET",
-		url: "process.php?query=" + str + "&offset=" + offset + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid
-?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport,
-		data: "",
-		success: function(msg) {
-                    if(document.getElementById('txtexport').value!='noExport') {
-                        $("#href_download").show();
-                        $("#img_download").show();
-                        $("#href_download").attr("href", "download.php?query=" + str + "&start=" + start + "&end=" + end + "&sort=" + sort);
-                    }
-                    $("#loading").hide();
-                    HandleResponse(msg);
-                    document.getElementById('txtexport').value = 'noExport';
-                    /*
-                    $('.HostReportMenu').contextMenu({
-                            menu: 'myMenu'
-                            },
-                            function(action, el, pos) {
-                            var aux = $(el).attr('id').split(/;/);
-                            var ip = aux[0];
-                            var hostname = aux[1];
-                            var url = "../report/host_report.php?host="+ip+"&hostname="+hostname+"&greybox=1";
-                            if (hostname == ip) var title = "Host Report: "+ip;
-                            else var title = "Host Report: "+hostname+"("+ip+")";
-                            GB_show(title,url,450,'90%');
-                            }
-                    );
-                    */
-                    load_contextmenu();
-                    $(".scriptinfo").simpletip({
-                            position: 'right',
-                            onBeforeShow: function() {
-                                    var ip = this.getParent().attr('ip');
-                                    this.load('../control_panel/alarm_netlookup.php?ip=' + ip);
-                            }
-                    });
-		}
-	});
+	
 	return false;
 }
 
@@ -623,19 +575,25 @@ function SetSearch(content)
 		atoms[0] = content;
 	}
 
-	for (i = 0; i < atoms.length; i++) if (atoms[i] != "") {
+	for (i = 0; i < atoms.length; i++) {
 		var value = atoms[i];
-		if (!value.match(/\=/) && !is_operator(value)) value = "data="+value;
-		var el = "";
-		el  = "<li class=\"tagit-choice\">\n";
-		el += value + "\n";
-		el += "<a class=\"close\">x</a>\n";
-		value = value.replace(/\<b\>/g,"");
-		value = value.replace(/\<\/b\>/g,"");
-		el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
-		el += "</li>\n";
-		$(el).insertBefore ($('#mytags').children(".tagit-new"));
+		value = value.replace(/^\s+/g,'').replace(/\s+$/g,'').replace(/\n/g,'');
+		if (value != "" && value != "data=") {
+			if (!value.match(/\=/) && !is_operator(value)) value = "data="+value;
+			var el = "";
+			el  = "<li class=\"tagit-choice\">\n";
+			el += value + "\n";
+			el += "<a class=\"close\">x</a>\n";
+			value = value.replace(/\<b\>/g,"");
+			value = value.replace(/\<\/b\>/g,"");
+			el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
+			el += "</li>\n";
+			$(el).insertBefore ($('#mytags').children(".tagit-new"));
+		}
 	}
+	window.scrollTo(0,0);
+	$('#tip_msg').show();
+	setTimeout("$('#tip_msg').fadeOut('slow');",2000);
 	//MakeRequest();
 }
 
@@ -1184,7 +1142,7 @@ require_once ("manage_querys.php");
 <tr>
 <td nowrap class="nobborder">
 	<table cellspacing="0" width="100%" id="searchtable" style="border: 1px solid rgb(170, 170, 170);border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px;background:url(../pixmaps/fondo_hdr2.png) repeat-x">
-		<tr><td class="nobborder" align="center" style="text-align:center;padding-top:10px;padding-bottom:10px">
+		<tr><td class="nobborder" align="center" style="text-align:center;padding-top:20px">
 			<table class="transparent" align="center">
 				<tr>
 					<td class="nobborder" style="font-size:18px;font-weight:bold;color:#222222"><?=_("Search")?>:</td>
@@ -1258,13 +1216,15 @@ require_once ("manage_querys.php");
                                             </div>
                                         </td>
 				</tr>
+				<tr>
+					<td style="font-size:9x">&nbsp;</td>
+					<td>
+					<div id="tip_msg" style="font-family:arial;font-size:9px;color:gray;display:none">
+					<?php echo _("Add new criteria search or click Submit button to get events.") ?>
+					</div>
+					</td>
+				</tr>
 			</table>
-		</tr>
-		
-		<tr>
-			<td>
-				
-			</td>
 		</tr>
 		
 		<tr><td style="padding-left:10px;padding-right:10px" colspan="5" class="nobborder"><table class="noborder" width="100%" cellpadding=0 cellspacing=0 border=0><tr><td class="nobborder" style="background:url('../pixmaps/points.gif') repeat-x"><img src="../pixmaps/points.gif"></td></tr></table></td></tr>

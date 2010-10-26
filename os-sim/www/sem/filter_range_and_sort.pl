@@ -170,7 +170,7 @@ foreach my $file (@files) {
 						#print "found $complete_lines;$_;$currentdate;$lines_threshold\n" if ($debug);
 						last LINE if ($read_lines>=$lines_threshold); # jump innecesary events
 					} #else {
-						#print "MAL $plugin_id != ".$filters{1}{1}{'plugin_id'}." -> ".$filters{1}{1}{'plugin_id'}{1501}."\n" if ($plugin_id == 1501);
+						#print "MAL $data != ".$filters{4}{1}{'data'}." -> ".$filters{4}{1}{'data'}."\n" if ($plugin_id == 4003);
 					#}
 				}
 			}
@@ -278,7 +278,6 @@ sub set_filters {
 				elsif ($1 eq "id" || $1 eq "fdate" || $1 eq "date" || $1 eq "plugin_id" || $1 eq "sensor" || $1 eq "src_ip" || $1 eq "dst_ip" || $1 eq "ip_src" || $1 eq "ip_dst" || $1 eq "src_port" || $1 eq "dst_port" || $1 eq "tzone"|| $1 eq "data"){
 					$aux = $2;
 					$par = $1;
-					
 					$par =~ s/ip\_(...)/$1_ip/;
 					$aux =~ s/'+//g;
 					$aux = quotemeta $aux if ($par eq "data");
@@ -395,9 +394,11 @@ sub debug_filters {
 			foreach $type (keys %{$filters{$key1}{$key2}}) {
 				if ($type eq "plugin_id_sid" || $type eq "plugin_id") {
 					foreach $pid (keys %{$filters{$key1}{$key2}{$type}}) {
+						print "   $type = $pid";
 						foreach $psid (keys %{$filters{$key1}{$key2}{$type}{$pid}}) {
 							print "   Plugin id-sid = $pid - $psid\n";
 						}
+						print "\n";
 					}
 				} elsif ($type =~ /net/) {
 					print "   $type = range { ".$filters{$key1}{$key2}{$type}{'from'}." - ".$filters{$key1}{$key2}{$type}{'to'}." }\n"
