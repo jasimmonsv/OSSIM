@@ -47,7 +47,6 @@ if (ossim_error()) {
 // Database Object
 $db = new ossim_db();
 $conn = $db->connect();
-$config = new User_config($conn);
 
 $net_search = Net::GetClosestNet($conn,$ip,1);
 
@@ -78,10 +77,6 @@ if (!$rs = & $conn->Execute($query, $params)) {
 		$rs->MoveNext();
 	}
 }
-
-// Get Predefined Searches
-$user = Session::get_session_user();
-$profiles = $config->get_all($user, "inv_search");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -262,20 +257,7 @@ $profiles = $config->get_all($user, "inv_search");
 												</div>
 											</td>
 											<td class="right nobborder">
-												<a href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle"> <b><?=_("Select a Predefined Search")?></b></a>
-												<div style="position:relative">
-													<div id="searches" style="position:absolute;right:0;top:0;display:none">
-													<table>
-														<tr><th><?=_("Select a profile to search")?></th></tr>
-														<? if (count($profiles) < 1) { ?>
-														<tr><td class="center nobborder"><?=_("No searches found")?></td></tr>
-														<? } ?>
-														<? $i = 1; foreach ($profiles as $profile) { $color = ($i%2==0) ? "#FFFFFF" : "#EEEEEE";?>
-														<tr><td class="nobborder" style="background-color:<?=$color?>"><a href="inventory_search.php?profile=<?=$profile?>"><?=$profile?></a></td></tr>
-														<? $i++; } ?>
-													</table>
-													</div>
-												</div>
+												<?php include('predefined_search.php'); ?>
 											</td>
 										</tr>
 									</table>

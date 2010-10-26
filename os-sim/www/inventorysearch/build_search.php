@@ -28,7 +28,7 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
-
+set_time_limit(3600);
 ob_implicit_flush();
 require_once ('classes/Session.inc');
 Session::logcheck("MenuPolicy", "5DSearch");
