@@ -380,19 +380,9 @@ function SetFromIframe(content) {
     });
 }
 
-function MakeRequest()
-{
-    if(document.getElementById('txtexport').value=='noExport') {
-        $("#href_download").hide();
-        $("#img_download").hide();
-    }
-	// Used for main query
-	//document.getElementById('loading').style.display = "block";
-        //
-    //document.getElementById('ResponseDiv').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading events...'); ?>';
-
-    var str = "";
-    var prev_atom = "";
+function GetSearchString() {
+	var str = "";
+	var prev_atom = "";
     $('.search_atom').each(function(){
 		var cur_atom = this.value;
 		cur_atom = cur_atom.replace(" = ","=");
@@ -415,6 +405,22 @@ function MakeRequest()
     	prev_atom = cur_atom;
     });
     str = escape(str);
+    return str;
+}
+
+function MakeRequest()
+{
+    if(document.getElementById('txtexport').value=='noExport') {
+        $("#href_download").hide();
+        $("#img_download").hide();
+    }
+	// Used for main query
+	//document.getElementById('loading').style.display = "block";
+        //
+    //document.getElementById('ResponseDiv').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading events...'); ?>';
+
+    var str = GetSearchString();
+    
 /*
     $('#mytags').tag_input.parents("ul").children(".tagit-choice").each(function(i){
 		n = $(this).children("input").val();
@@ -610,19 +616,26 @@ function closeLayer( whichLayer )
 
 function SetSearch(content)
 {
-  var value = content;
-  
-  var el = "";
-	el  = "<li class=\"tagit-choice\">\n";
-	el += value + "\n";
-	el += "<a class=\"close\">x</a>\n";
-	value = value.replace(/\<b\>/g,"");
-	value = value.replace(/\<\/b\>/g,"");
-	el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
-	el += "</li>\n";
-  $(el).insertBefore ($('#mytags').children(".tagit-new"));
-  //document.getElementById('searchbox').value = final_str;
-  MakeRequest();
+	var atoms = new Array;
+	if (content.match(/ /)) {
+		atoms = content.split(" "); 
+	} else {
+		atoms[0] = content;
+	}
+
+	for (i = 0; i < atoms.length; i++) {
+		var value = atoms[i];
+		var el = "";
+		el  = "<li class=\"tagit-choice\">\n";
+		el += value + "\n";
+		el += "<a class=\"close\">x</a>\n";
+		value = value.replace(/\<b\>/g,"");
+		value = value.replace(/\<\/b\>/g,"");
+		el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
+		el += "</li>\n";
+		$(el).insertBefore ($('#mytags').children(".tagit-new"));
+	}
+	//MakeRequest();
 }
 
 function ReplaceSearch(content)
@@ -1004,7 +1017,7 @@ function save_filter(filter_name) {
 	//var filter_name = document.getElementById('filter').value;
 	var start = document.getElementById('start').value;
 	var end = document.getElementById('end').value;
-	var query = document.getElementById('searchbox').value;
+	var query = GetSearchString();
 	
 	document.getElementById('filter_msg').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif">';
 	$.ajax({
@@ -1020,7 +1033,7 @@ function new_filter() {
 	var filter_name = document.getElementById('filter_name').value;
 	var start = document.getElementById('start').value;
 	var end = document.getElementById('end').value;
-	var query = document.getElementById('searchbox').value;
+	var query = GetSearchString();
 	
 	if (filter_name == "") alert("<?=_("You must type a name for the new filter.")?>");
 	else {
@@ -1048,7 +1061,7 @@ function change_filter(filter_name) {
 				document.getElementById('start_aaa').value = filter_data[1];
 				document.getElementById('end_aaa').value = filter_data[2];
 				$('#mytags').children(".tagit-choice").remove();
-				SetSearch(filter_data[3]);
+				if (filter_data[3] != "") SetSearch(filter_data[3]);
 								
                 document.getElementById('filter_box').innerHTML = msg;
 				setFixed2();
