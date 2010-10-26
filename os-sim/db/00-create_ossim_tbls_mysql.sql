@@ -2148,7 +2148,7 @@ CREATE TABLE IF NOT EXISTS `vuln_nessus_settings_preferences` (
   `sid` int(11) NOT NULL default '0',
   `id` varchar(255) default NULL,
   `nessus_id` varchar(255) NOT NULL default '',
-  `value` varchar(255) default NULL,
+  `value` tinytext default NULL,
   `category` varchar(255) default NULL,
   `type` char(1) NOT NULL default ''
 );

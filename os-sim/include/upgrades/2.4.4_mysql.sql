@@ -11,6 +11,8 @@ INSERT IGNORE INTO log_config (code, log, descr, priority) VALUES (093, 1, 'User
 
 UPDATE host_group_reference, host SET host_group_reference.host_ip=host.ip WHERE host.hostname=host_group_reference.host_ip;
 
+ALTER TABLE  `vuln_nessus_settings_preferences` CHANGE  `value`  `value` TINYTEXT NULL DEFAULT NULL;
+
 ALTER TABLE  `incident` CHANGE  `ref`  `ref` ENUM(  'Alarm',  'Alert',  'Event',  'Metric',  'Anomaly',  'Vulnerability',  'Custom' ) NOT NULL DEFAULT  'Alarm';
 
 DROP TABLE IF EXISTS `incident_custom`;
