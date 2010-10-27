@@ -63,6 +63,8 @@ $_SESSION['graph_type'] = "last_month";
 $_SESSION['cat'] = "Oct%2C+2010";
 
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
+$fcolors = array("dee5f2","ec7000","fff0e1","5a6986");
+$bcolors = array("5a6986","f8f4f0","ec7000","dee5f2");
 $logger_servers = array();
 if (GET('num_servers') != "") {
 	$num_servers = GET('num_servers');
@@ -427,10 +429,11 @@ function MakeRequest()
 	var start = escape(document.getElementById('start').value);
 	var end = escape(document.getElementById('end').value);
 	var sort = escape(document.getElementById('sort').value);
+	var top = escape(document.getElementById('top').value);
 
     var txtexport = document.getElementById('txtexport').value;
     document.getElementById('ResponseDiv').innerHTML = "";
-	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
+	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&top=" + top + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
 	
 	return false;
 }
@@ -1062,6 +1065,7 @@ include ("../hmenu.php"); ?>
 
 <table border=0 cellpadding=0 cellspacing=0 align="right">
 <?
+$from_remote = 0;
 if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers")) { 
 	// session server
 	?>
@@ -1070,12 +1074,12 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 		<td align='left' style="padding-right:10px">
 		<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#rservers').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Remote Servers")?></a>
 			<div style="position:relative; z-index:1">
-			<div id="rservers" style="position:absolute;left:0;top:0;display:none;border:1px solid gray">
-				<table border=0 cellpadding=1 cellspacing=0 width="100%">
+			<div id="rservers" style="position:absolute;left:0;top:0;display:none;border:1px solid gray;background-color:#EEEEEE">
+				<table border=0 cellpadding=1 cellspacing=2 width="100%">
 				<tr bgcolor='#EEEEEE'>
 					<td><input type="checkbox" onclick="document.serverform.submit()" name="local" value="local" <?php if ($logger_servers["local"]) echo "checked" ?>></input></td>
 					<td><img src='../server/getdbsicon.php?name=local' border=0 width='16' height='16'></td>
-					<td style="padding-right:20px"><?php echo _("Local") ?></td>
+					<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[0]?>;color:<?php echo '#'.$fcolors[0]?>"><?php echo _("Local") ?></td></tr></table></td>
 				</tr>			
 				<?php
 				$i = 1;
@@ -1084,9 +1088,9 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 					$name = $db->get_name();
 					?>
 					<tr bgcolor='#EEEEEE'>
-						<td><input type="checkbox" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) echo "checked" ?>></input></td>
+						<td><input type="checkbox" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; $from_remote = 1; } ?>></input></td>
 						<td></td>
-						<td style="padding-right:20px"><?php echo $name ?></td>
+						<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i-1]?>;color:<?php echo '#'.$fcolors[$i-1]?>"><?php echo $name ?></td></tr></table></td>
 					</tr>
 				<?php } ?>
 				</table>
@@ -1170,51 +1174,51 @@ require_once ("manage_querys.php");
                                             <a onclick="doQuery('exportEntireQuery')" href="#" alt="<?php echo _("Export entire query")?>"><img src="../pixmaps/exportQuery.png" border="0" title="<?php echo _("Export entire query")?>" alt="<?php echo _("Export entire query")?>" /></a>
 					</td>
 					<td class="nobborder">
-                                            <a href="#" id="href_download" style="display:none;"><img align="absmiddle" title="<?=_("Download")?>" alt="<?=_("Download")?>" style="display:none;" id="img_download" src="../pixmaps/download.png" border="0" width="15"></a>
-                                        </td>
-                                        <td class="nobborder">
-                                            <a href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Predefined Searches")?></b></a>
-                                            <div style="position:relative">
-                                                    <div id="searches" style="position:absolute;right:0;top:0;display:none">
-                                                        <table cellpadding=0 cellspacing=0 align="center">
-                                                            <tr>
-                                                                <th style="padding-right:3px"><?php echo _("Select a predefined to search") ?> <a style="margin: 0 0 0 5px" href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" /></a></th>
-                                                            </tr>
-                                                            <tr class="noborder">
-                                                                <td id="filter_box">
-                                                                    <input type="hidden" name="filter" id="filter" value="default" />
-                                                                    <ul>
-                                                            <? $i=0;
-                                                                foreach ($_SESSION['logger_filters'] as $name=>$attr) {
-                                                                $i++;    ?>
-                                                                        <li class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>">
-                                                                            <div style="float:left">
-                                                                                <a onclick="change_filter('<?php echo $name ?>')" href="#" id="filter_<?php echo $name ?>">
-                                                                                    <?php echo $name ?>
-                                                                                </a>
-                                                                            </div>
-                                                                            <div style="position: absolute;right:2px;float:left;width: 40px;opacity:0.4;filter:alpha(opacity=40)">
-                                                                                    <img src="../pixmaps/disk-gray.png" alt="<?php echo _("Update"); ?>" title="<?php echo _("Update"); ?>" border="0" />
-                                                                                    <img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete"); ?>" title="<?php echo _("Delete"); ?>" border="0" />
-                                                                            </div>
-                                                                        </li>
-                                                            <? } ?>
-                                                                    </ul>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td id="filter_msg" class="noborder"></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="noborder" style="text-align: left;padding-left: 7px">
-                                                                    <input type="text" name="filter_name" id="filter_name" value="" style="width:140px"  />
-                                                                    <input type="button" value="<?php echo _("add")?>" onclick="new_filter()" class="button" style="height:18px;width:30px" />
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                    </div>
-                                            </div>
-                                        </td>
+                    	<a href="#" id="href_download" style="display:none;"><img align="absmiddle" title="<?=_("Download")?>" alt="<?=_("Download")?>" style="display:none;" id="img_download" src="../pixmaps/download.png" border="0" width="15"></a>
+                    </td>
+                    <td class="nobborder">
+                    	<a href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Predefined Searches")?></b></a>
+                        <div style="position:relative">
+                        <div id="searches" style="position:absolute;right:0;top:0;display:none">
+                        <table cellpadding=0 cellspacing=0 align="center">
+	                        <tr>
+	                        	<th style="padding-right:3px"><?php echo _("Select a predefined to search") ?> <a style="margin: 0 0 0 5px" href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" /></a></th>
+	                        </tr>
+	                        <tr class="noborder">
+		                        <td id="filter_box">
+		                        	<input type="hidden" name="filter" id="filter" value="default" />
+			                        <ul>
+			                        <? $i=0;
+			                        foreach ($_SESSION['logger_filters'] as $name=>$attr) {
+			                        $i++;    ?>
+			                        <li class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>">
+				                        <div style="float:left">
+				                        <a onclick="change_filter('<?php echo $name ?>')" href="#" id="filter_<?php echo $name ?>">
+				                        <?php echo $name ?>
+				                        </a>
+				                        </div>
+				                        <div style="position: absolute;right:2px;float:left;width: 40px;opacity:0.4;filter:alpha(opacity=40)">
+				                        <img src="../pixmaps/disk-gray.png" alt="<?php echo _("Update"); ?>" title="<?php echo _("Update"); ?>" border="0" />
+				                        <img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete"); ?>" title="<?php echo _("Delete"); ?>" border="0" />
+				                        </div>
+			                        </li>
+			                        <? } ?>
+			                        </ul>
+		                        </td>
+	                        </tr>
+	                        <tr>
+	                       		<td id="filter_msg" class="noborder"></td>
+	                        </tr>
+	                        <tr>
+	                        	<td class="noborder" style="text-align: left;padding-left: 7px">
+		                        <input type="text" name="filter_name" id="filter_name" value="" style="width:140px"  />
+		                        <input type="button" value="<?php echo _("add")?>" onclick="new_filter()" class="button" style="height:18px;width:30px" />
+	                       		</td>
+	                        </tr>
+                        </table>
+                        </div>
+                        </div>
+                    </td>
 				</tr>
 				<tr>
 					<td style="font-size:9x">&nbsp;</td>
@@ -1280,14 +1284,21 @@ if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'";
 					<td class="nobborder" id="date5td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_year','<?php echo urlencode(date("Y")) ?>');" onClick="javascript:bold_dates('date5');" id="date5a"><?=_("Last Year")?></a>
 					</td>
+					<td><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> Fetch&nbsp;
+						<select name="top" id="top" onchange="document.getElementById('offset').value='0';doQuery('noExport')">
+							<option value="10">10</option>
+							<option value="50" selected>50</option>
+							<option value="100">100</option>
+						</select>&nbsp;<?php echo ($from_remote) ? _("events <b>per server</b>") : _("events per page"); ?>
+					</td>
 					<td class="nobborder" nowrap align="middle" valign="center" style="padding-left:20px">
 						<div id="numlines" style="vertical-align:middle; padding-right:10px">&nbsp;</div>
 					</td>
 					</tr>
 					</table>
 				</td>
-				<td class="nobborder" nowrap width="150" style="padding-left:15px" valign="top">
-					<div id="loading" style="display:none; vertical-align:middle; padding-right:10px; padding-top:10px;"><img src="<?php echo $config["loading_graph"]; ?>" align="middle" style="vertical-align:middle;"> <?=_("Loading")?>... <a href="javascript:;" onclick="KillProcess()"><?=_("Stop")?></a></div>
+				<td class="nobborder" nowrap width="20" style="padding-left:15px" valign="top">
+					<div id="loading" style="display:none; vertical-align:middle; padding-right:10px; padding-top:10px;"><img src="<?php echo $config["loading_graph"]; ?>" align="middle" style="vertical-align:middle;"></div>
 				</td>
 				</tr>
 			</table>

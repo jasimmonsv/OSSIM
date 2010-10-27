@@ -56,18 +56,21 @@ function dateDiff($startDate, $endDate)
     // Return difference
     return round(($end_date - $start_date), 0);
 }
+
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
+$fcolors = array("dee5f2","ec7000","fff0e1","5a6986");
+$bcolors = array("5a6986","f8f4f0","ec7000","dee5f2");
 
 $config = parse_ini_file("everything.ini");
 $a = GET("query");
 //$export = (GET('txtexport') == "true") ? 1 : 0;
 $export = GET('txtexport');
+$top = GET('top');
 if($export=='exportEntireQuery'){
-    $numResult=999999999;
-}else{
-    $numResult=50;
+    $top=999999999;
 }
+
 $offset = GET("offset");
 if (intval($offset) < 1) {
     $offset = 0;
@@ -82,6 +85,7 @@ ossim_valid($debug_log, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, OSS_PUNC, OSS_SCORE,
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($offset, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("offset"));
+ossim_valid($top, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("top"));
 ossim_valid($a, OSS_TEXT, OSS_NULLABLE, '[', ']', 'illegal:' . _("a"));
 ossim_valid($sort_order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("sort order"));
 ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("uniqueid"));
@@ -92,7 +96,7 @@ if (ossim_error()) {
 $db = new ossim_db();
 $conn = $db->connect();
 
-$sensors = $hosts = $ossim_servers = array(); $hostnames = array(); $sensornames = array();
+$sensors = $hosts = $logger_servers = array(); $hostnames = array(); $sensornames = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
 $networks = "";
 $_nets = Net::get_all($conn);
@@ -199,7 +203,7 @@ a {
 <body>
 <?php
 $time1 = microtime(true);
-$cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $numResult, 1);
+$cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $top, 1);
 $user = $_SESSION["_user"];
 ?>
 <div id="loading" style="position:absolute;top:0;left:30%">
@@ -231,34 +235,68 @@ if($debug_log!=""){
 
 // LOCAL OR REMOTE fetch
 if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers']) > 1 || (count($_SESSION['logger_servers']) == 1 && !$_SESSION['logger_servers']['local']))) {
+	$from_remote = 1;
 	$cmd = str_replace("fetchall.pl","fetchremote.pl",$cmd);
 	$servers_string = "";
+	$num_servers = 0;
 	foreach ($_SESSION['logger_servers'] as $key=>$val) {
 		$servers_string .= ($servers_string != "") ? ",".$val : $val;
+		$logger_servers[$val] = $key;
+		$num_servers++;
 	}
-	echo "$cmd '$user' $servers_string 2>>/dev/null";exit;
+	//echo "$cmd '$user' $servers_string 2>>/dev/null";exit;
 	$fp = popen("$cmd '$user' $servers_string 2>>/dev/null", "r");
 } else {
+	$from_remote = 0;
+	$num_servers = 1;
 	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null", "r");
 }
 
 $perc = 1;
 $ndays = dateDiff($start,$end);
 if ($ndays < 1) $ndays = 1;
-$inc = 100/$ndays;
-$num_lines = 0;
+$inc = 100/($ndays*$num_servers);
+$num_lines = array(); // Number of lines for each logger server
+$current_server = ($from_remote) ? "" : "local";
+$server_bcolor = $server_fcolor = array();
+$cont = 0;
+$has_next_page = 0;
 while (!feof($fp)) {
     $line = trim(fgets($fp));
-    if ($line != "") $result[] = $line;
-	if (preg_match("/Searching in (\d\d\d\d\d\d\d\d)/",$line,$found)) {
+	// Remote connect message
+    if (preg_match("/^Connecting (.+)/",$line,$found)) {
+    	$current_server = ($logger_servers[$found[1]] != "") ? $logger_servers[$found[1]] : $found[1];
+    	$server_bcolor[$current_server] = $bcolors[$cont];
+    	$server_fcolor[$current_server] = $fcolors[$cont];
+    	$cont++;
+    }
+	// Searching message
+    elseif (preg_match("/^Searching in (\d\d\d\d\d\d\d\d)/",$line,$found)) {
     	ob_flush();
 		flush();
 		$sdate = date("d F Y",strtotime($found[1]));
-    	?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?>...');</script><?php
+		$from_str = ($from_remote) ? " from <b>".$current_server."</b>" : ""; 
+    	?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
     	$perc += $inc;
     	if ($perc > 100) $perc = 100;
-    } elseif ($line != "") { $num_lines++; }
+    // Event line
+    } elseif (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'/",$line,$found)) {
+    	$line .= ";".$current_server;
+    	$event_date = preg_replace("/\s|\-/","",$found[2]);
+    	$num_lines[$current_server]++;
+    	if ($num_lines[$current_server] <= $top) {
+    		$result[$line] = $event_date;
+    	} else {
+    		$has_next_page = 1;
+    	}
+    }
 }
+
+// Order only if remote fetch
+if ($from_remote) {
+	arsort($result);
+}
+
 ?><script type="text/javascript">$("#loading").hide();</script><?php
 fclose($fp);
 $time2 = microtime(true);
@@ -267,52 +305,59 @@ $totaltime = round($time2 - $time1, 2);
 //$num_lines = get_lines($a, $start, $end, $offset, $sort_order, "logs", $uniqueid);
 
 // Avoid graphs being drawn with more than 100000 events
-if ($num_lines > 500000) {
+//if ($num_lines > 500000) {
 ?>
+	<!--
 	<script>
 	document.getElementById('too_many_events').style.display = 'block';
 	document.getElementById('test').style.display = 'none';
 	</script>
+	-->
 <?php
-}
+//}
 ?>
 <div id="processcontent" style="display:none">
+
+<table width="100%" class="noborder" style="background-color:transparent;">
+	<tr>
+		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif"><?php print _("Time Range").": <b>$start <-> $end</b>" ?></td>
+		<td align="center">
+			<?php if ($from_remote) { ?>
+			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" <b>first</b> events")._(" for <b>each server</b>")." (<b>".(($offset*$num_servers)+1)."</b> - <b>".(($offset*$num_servers)+count($result))."</b> total)" ?>.&nbsp;
+			<?php } else { ?>
+			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" events") ?>.&nbsp;
+			<?php } ?>
+			<?php if ($offset > 0) { ?>
+			<a href="javascript:DecreaseOffset(<?php echo GET('top')?>);"><?php echo ($from_remote) ? "<< "._("Fetch the previous ") : "<< "._("Previous ")?><?php echo "<b>".GET('top')."</b>" ?></a>
+			<?php } ?>
+			<?php if ($has_next_page) { //if($num_lines > $offset + 50){
+			    echo ($offset != 0) ?  "&nbsp;<b>|</b>&nbsp;" : "";
+			?>
+			<a href="javascript:IncreaseOffset(<?php echo GET('top')?>);"><?php echo ($from_remote) ? _("Fetch the next ") : _("Next ")?><?php echo "<b>".GET('top')."</b> >>" ?></a>
+			<?php } ?>
+		</td>
+		<td width="20%" class="nobborder" style="text-align:right;" nowrap><?php echo _("Parsing time").": <b>$totaltime</b> "._("seconds") ?></td>
+	</tr>
+</table>
+
+<table class='transparent' style='border: 1px solid rgb(170, 170, 170);border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px;' width='100%' cellpadding='2' cellspacing='0'>
+	<tr height="35">
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("ID") ?></td>
+		<?php if ($from_remote) { ?>
+		<td class='plfieldhdr' style='padding-left:3px;padding-right:3px;border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Server") ?></td>
+		<?php } ?>
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>
+			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date") . " " ?>
+			<a href="javascript:DateDesc()"><img src="../forensics/images/order_sign_d.gif" border="0"></a>
+		</td>
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Type") ?></td>
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Sensor") ?></td>
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Source") ?></td>
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Dest") ?></td>
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Data") ?></td>
+		<td class='plfieldhdr' style='border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Signature") ?></td>
+	</tr>
 <?php
-print "<table width=\"100%\" class=\"noborder\" style=\"background-color:transparent;\"><tr><td class=\"nobborder\" nowrap>";
-echo '<img src="../pixmaps/arrow_green.gif">';
-print _("Time Range").": <b>$start <-> $end</b>";
-print "</td><td class=\"nobborder\" width=\"10\">&nbsp;</td><td class=\"nobborder\" style=\"text-align:right;\" nowrap>"._("Parsing time").": <b>$totaltime</b> "._("seconds").".</td></tr></table>";
-$alt = 0;
-print "<center>\n";
-if ($offset != 0 && $num_lines > 0) {
-?>
-<a href="javascript:DecreaseOffset(50);"><?php echo "<< "._("Previous 50") ?></a>
-<?php
-}
-if ($num_lines > 50) { //if($num_lines > $offset + 50){
-    echo ($offset != 0) ?  "&nbsp;|&nbsp;" : "";
-?>
-<a href="javascript:IncreaseOffset(50);"><?php echo _("Next 50")." >>" ?></a>
-<?php
-}
-print "</center>\n";
-print "<table class='transparent' style='border: 1px solid rgb(170, 170, 170);border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px;' width='100%' cellpadding='2' cellspacing='0'>";
-print "<tr height=\"35\"><td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>" . _("ID") . "</td><td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>";
-print "<a href=\"javascript:DateAsc()\"><img src=\"../forensics/images/order_sign_a.gif\" border=\"0\"></a>";
-print " " . _("Date") . " ";
-print "<a href=\"javascript:DateDesc()\"><img src=\"../forensics/images/order_sign_d.gif\" border=\"0\"></a>";
-print "</td><td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>" . _("Type");
-print "</td><td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>" . _("Sensor") . "</td><td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>" . _("Source") . "</td><td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>" . _("Dest") . "</td><td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>" . _("Data") . "</td><td class='plfieldhdr' style='border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>" . _("Signature") . "</td></tr>";
-$color_words = array(
-    'warning',
-    'error',
-    'failure',
-    'break',
-    'critical',
-    'alert'
-);
-$inc_counter = 1 + $offset;
-$cont = 0;
 
 // Output file TXT
 if (isset($export)) {
@@ -333,23 +378,40 @@ if (isset($export)) {
 		$logarr = array();
 	}
 }
-$colort = 0;
 
+// RESULTS Main Loop
+$color_words = array(
+    'warning',
+    'error',
+    'failure',
+    'break',
+    'critical',
+    'alert'
+);
+$inc_counter = 1 + $offset;
+$total_counter = 1 + $offset*$num_servers;
+$cont = array(); // Counter for each logger server
+$colort = 0;
+$alt = 0;
 $htmlResult=true;
-foreach($result as $res) if ($cont++ < $numResult) {
-    if ($cont > 50){
-        $htmlResult=false;
-    }
-    $res = str_replace("<", "", $res);
-    $res = str_replace(">", "", $res);
+
+foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
-    // para coger
-    if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='[^']+'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
-    // fin para coger
-        $lf = explode(";", $res);
-        // para coger
-        $logfile = urlencode(end($lf));
-        // fin paga coger
+	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='[^']+'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
+		$lf = explode(";", $res);
+        $logfile = urlencode($lf[count($lf)-2]);
+        $current_server = urlencode($lf[count($lf)-1]);
+        
+		if ($cont[$current_server] == "") $cont[$current_server] = 1;
+		if ($cont[$current_server] >= $num_lines[$current_server]){
+	        $htmlResult = false;
+	    } else {
+	    	$htmlResult = true;
+	    }
+	    
+	    $res = str_replace("<", "", $res);
+	    $res = str_replace(">", "", $res);
+    
         if($htmlResult){
             $data = $matches[10];
             $signature = $matches[12];
@@ -405,10 +467,13 @@ foreach($result as $res) if ($cont++ < $numResult) {
                     $dst_div = "<div id=\"$dst_ip;$dst_ip_name\" class=\"HostReportMenu\" style=\"display:inline\">";
 
             $line = "<tr".(($colort%2==0) ? " style=\"background-color: #F2F2F2\"" : "").">
-            <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $inc_counter . "</td>
-            <td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($matches[2]) . "</td>";
+            <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
+            if ($from_remote) {
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$server_bcolor[$current_server].";color:#".$server_fcolor[$current_server]."'>$current_server</td></tr></table></td>";
+            }
+            $line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($matches[2]) . "</td>";
             //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin=' + this.innerHTML)\"\">$plugin</span></td>";
-        $line.= "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('<b>plugin</b>=' + this.innerHTML)\"\">$plugin</a></td>";
+       		$line.= "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('<b>plugin</b>=' + this.innerHTML)\"\">$plugin</a></td>";
             $line.="<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'>";
             //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . htmlspecialchars($sensor_name) . "</span></td><td nowrap>$src_div";
             //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . htmlspecialchars($src_ip_name) . "</span></div>:";
@@ -493,10 +558,13 @@ foreach($result as $res) if ($cont++ < $numResult) {
 			fputs($outfile,"$inc_counter,$date,$plugin,".htmlspecialchars($matches[5]).",".htmlspecialchars($matches[6]).":".htmlspecialchars($matches[8]).",".htmlspecialchars($matches[7]).":".htmlspecialchars($matches[9]).",$data_out\n");
 			$logarr[urldecode($logfile)]++;
 		}
-    }
-    if($htmlResult){
-        print $line;
-        $colort++;
+		
+		$cont[$current_server]++;
+	    if($htmlResult){
+	        print $line;
+	        $colort++;
+	        $total_counter++;
+	    }
     }
 }
 print "</table>";
