@@ -340,15 +340,6 @@ echo '
 	}
 	//-->
 	
-	// snort rules
-	if (in_array($plugin_id, $snort_ids)) {
-	?>
-		<TD CLASS="plfield">
-			<a href="javascript:;" title="<?php echo _("Match snort rule");?>" class="greybox" onclick="GB_show('Snort rule','snort_rules.php?sid=<?php echo $plugin_sid; ?>',300,'50%')"><img src="../pixmaps/snort.png" border="0"></a>
-		</TD>
-	<?
-	}
-	
 echo '</TR>
                   </TABLE>
               </TD>
@@ -521,14 +512,14 @@ if ($layer4_proto == "6") {
         echo '            <TR><TD class="header">' . _SHORTSOURCE . ' ' . _PORT . '</TD>
                                 <TD class="header"> ' . _SHORTDEST . ' ' . _PORT . ' &nbsp</TD>';
         if (in_array($plugin_id, $snort_ids)) {
-            echo '                <TD class="header">R<BR>1</TD>
-            	                    <TD class="header">R<BR>0</TD>
-                    	            <TD class="header">U<BR>R<BR>G</TD>
-                            	    <TD class="header">A<BR>C<BR>K</TD>
-                               	    <TD class="header">P<BR>S<BR>H</TD>
-                                	    <TD class="header">R<BR>S<BR>T</TD>
-                            	    <TD class="header">S<BR>Y<BR>N</TD>
-                           	            <TD class="header">F<BR>I<BR>N</TD>
+            echo '                <TD class="header">R 1</TD>
+            	                    <TD class="header">R 0</TD>
+                    	            <TD class="header">U R G</TD>
+                            	    <TD class="header">A C K</TD>
+                               	    <TD class="header">P S H</TD>
+                                	    <TD class="header">R S T</TD>
+                            	    <TD class="header">S Y N</TD>
+                           	            <TD class="header">F I N</TD>
                                         <TD class="header">seq #</TD>
                                         <TD class="header">ack</TD>
                                         <TD class="header">offset</TD>
@@ -781,10 +772,10 @@ if ($payload) {
             echo '<TD class="header">Protocol</TD>';
             echo '<TD class="header">Org.Source IP</TD>';
             echo '<TD class="header">Org.Source Name</TD>';
-            if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="header">Org.Source<BR>Port</TD>';
+            if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="header">Org.Source Port</TD>';
             echo '<TD class="header">Org.Destination IP</TD>';
             echo '<TD class="header">Org.Destination Name</TD>';
-            if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="header">Org.Destination<BR>Port</TD>';
+            if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="header">Org.Destination Port</TD>';
             echo '</TR>';
             echo '<TR>';
             if ($ICMPitype == "5") {
@@ -803,7 +794,7 @@ if ($payload) {
             if ($icmp_proto == "6" || $icmp_proto == "17") echo '<TD class="plfield">' . $icmp_dst_port . '</TD>';
             echo '</TR>';
             echo '</TABLE>';
-        }
+        }  
     }
 } else {
     /* Don't have payload so lets print out why by checking the detail level */
@@ -816,6 +807,30 @@ if ($payload) {
 	<td>
 <?php
 if (in_array($plugin_id, $snort_ids)) {
+	//
+	// snort rule detection
+    //
+    echo '<TABLE BORDER=0><TR><TD class="header"> <img src="../pixmaps/snort.png" border="0" align="absmiddle"> &nbsp; '._("Snort rule Detection").'</TD></TR>';
+	$result = exec("grep -n 'sid:$plugin_sid;' /etc/snort/rules/*.rules");
+	// format: /etc/snort/rules/ddos.rules:53:alert tcp $EXTERNAL_NET any -> $HOME_NET 15104 (msg:"DDOS mstream client to handler"; flow:stateless; flags:S,12; reference:arachnids,111; reference:cve,2000-0138; classtype:attempted-dos; sid:249; rev:8;)
+	preg_match("/(.*?):\d+:(.*?) \((.*?)\)/",$result,$found);
+	if (trim($result)=="" || count($found)<=1) {
+		echo "<tr><td><center>"._("No rules found for sid")." <b>$plugin_sid</b></center></td></tr>\n";
+	} else {
+		$file = basename($found[1]);
+		echo "<TR><TD class='plfield' style='text-align:left'><b>File:</b> $file</TD></TR>\n";
+		$rule = $found[2];
+		echo "<TR><TD class='plfield' style='text-align:left'><b>Rule:</b> $rule</TD></TR>\n";
+		$more = explode(";",$found[3]);
+		foreach ($more as $dat) {
+			$val = explode(":",$dat);
+			if ($val[0]!="") echo "<TR><TD class='plfield' style='text-align:left;padding-left:25px'><b>".trim($val[0]).":</b> ".$val[1]."</TD></TR>\n";
+		}
+	}		
+    echo '</TABLE>';
+	//
+	// pcap
+	//
     include ("base_payload_pcap.php");
 }
 ?>
