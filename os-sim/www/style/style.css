@@ -896,19 +896,17 @@ div.balloon:hover span.bottom {
  
  /* Custom incident types*/
  
-.ct_back { 
+.thr { 
 	white-space:nowrap;
-	padding:0px 10px 0px 10px; 
 	border: 1px solid #aaaaaa; 
-	background-color: #CCCCCC;
-	background-image: none;
+	/*background: #C0CAD0 url(../pixmaps/theme/ui-bg_highlight-soft_75_blue_1x100.png) scroll 50% 50% repeat-x; */
+	background: #D1DADF;
 	font-size: 11px; 
 	color: #222222; 
 	font-weight: bold; 
 	text-align: center; 
 	padding: 10px 5px;
 }
-
  
 .ct { width: 155px; vertical-align: top;}
  
@@ -937,13 +935,16 @@ div.balloon:hover span.bottom {
 .ct_sep {height: 12px;}
 
 .ct_pad5 { padding: 0px 5px 0px 5px;}
+
 .ct_padl25 { padding-left: 25px; }
  
 .ct_mandatory { vertical-align: top; text-align: left;}
  
-.ct_add{ width: 40px; text-align: right;}
+.ct_add{ width: 40px; }
 
-.ct_add input{ width: 40px; text-align: right;}
+.ct_add div {float:right; width: 40px;}
+
+.ct_add input{ width: 40px; }
 
 #ct_descr { width: 100%;} 
 
@@ -1031,7 +1032,7 @@ div.balloon:hover span.bottom {
 	position: relative;
 }
 
-.ct_slider {float:left; width:422px; heigth: 25px; padding:2px 5px 0px 6px; margin-top:6px;}
+.ct_slider {float:left; width:403px; heigth: 25px; padding:2px 0px 0px 6px; margin-top:6px;}
 
 a.ui-slider-handle { top: -7px !important;}
 
@@ -1044,5 +1045,5 @@ border:1px dotted #cccccc;
 font-size:14px
 }
 
-#cancel_cont { text-align: left; border: none;}
+#cancel_cont input { text-align: center;}
 

@@ -75,6 +75,8 @@ echo gettext("OSSIM Framework"); ?> </title>
   
   <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
+  
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 
   <script type="text/javascript">
   // GrayBox
@@ -96,6 +98,41 @@ echo gettext("OSSIM Framework"); ?> </title>
     }
   </script>
   
+ <script type="text/javascript">
+  
+	var map;
+	var geocoder;
+			
+	function codeAddress(address) {
+		geocoder.geocode( { 'address': address}, function(results, status) {
+		  if (status == google.maps.GeocoderStatus.OK) {
+			map.setCenter(results[0].geometry.location);
+			var marker = new google.maps.Marker({
+				map: map,
+				title: address,	
+				position: results[0].geometry.location
+			});
+		  } else {
+			  alert('Geocode was not successful for the following reason: ' + status);
+		  }
+		});
+	}
+	  
+	function initialize(id, address) {
+		geocoder = new google.maps.Geocoder();
+		var myOptions = {
+		  zoom: 8,
+		  mapTypeId: google.maps.MapTypeId.ROADMAP
+		}
+	
+		map = new google.maps.Map(document.getElementById(id), myOptions);
+	
+		codeAddress(address);
+	}
+  
+  
+ </script>
+ 
 <style>
 td {
     border-width: 0px;
@@ -254,9 +291,12 @@ if ($ref == 'Alarm' or $ref == 'Event') {
     }
 } elseif ($ref == 'Custom') {
     $custom_list = $incident->get_custom($conn);
-    foreach($custom_list as $custom_name => $custom_value) {
-        echo "<b>$custom_name:</b> $custom_value<br>\n";
+	echo "<table class='noborder' width='100%'>";
+    foreach($custom_list as $custom) {
+       	echo "<tr><td class='left noborder' style='width:30%;'><b>".$custom[0].":</b></td>"; 
+		echo "<td class='left'>".Incident::format_custom_field($custom[1], $custom[2])."</td></tr>\n";
     }
+	echo "</table>";
 }
 ?>
         </td></tr>
@@ -265,12 +305,12 @@ if ($ref == 'Alarm' or $ref == 'Event') {
     </td>
     <!-- end incident data -->
 
-    <td>
+    <td valign='top'>
     	<table width="100%" class="noborder"><tr>
     		<td><?php Incident::colorize_status($incident->get_status($conn)) ?></td>
     	</tr></table>
 	</td>
-    <td>
+    <td valign='top'>
     	<table width="100%" class="noborder"><tr>
     		<td><?php echo Incident::get_priority_in_html($priority) ?>
     	</td></tr>
@@ -317,7 +357,7 @@ if ($_GET['id_incident'] != "") { ?>
 } ?>
 	</td>
 	
-    <td>
+    <td valign='top'>
         <table width="100%" class="noborder">
         	<tr><td>
             <a href='newincident.php?action=edit&ref=<?php echo $ref ?>&incident_id=<?php echo $id ?>'><img src="../vulnmeter/images/pencil.png" border="0" align="absmiddle" title="<?php echo _("Edit comment") ?>"></a>

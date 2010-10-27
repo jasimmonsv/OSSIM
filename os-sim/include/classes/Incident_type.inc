@@ -39,6 +39,10 @@
 * - insert()
 * - update()
 * - delete()
+* - get_custom_list()
+* - insert_custom()
+* - update_custom()
+* - delete_custom()
 * Classes list:
 * - Incident_type
 */
@@ -192,6 +196,9 @@ class Incident_type {
         $infolog = array($id);
         Log_action::log(52, $infolog);
     }
+	
+	
+	
 
 }
 ?>

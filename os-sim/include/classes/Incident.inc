@@ -899,12 +899,13 @@ class Incident {
     }
     function get_custom($conn) {
 		$list = array();
-        $query = OssimQuery("SELECT * FROM incident_custom WHERE incident_id=".$this->id);
+        $query = OssimQuery("SELECT incident_custom.*,incident_custom_types.type FROM incident_custom LEFT JOIN incident_custom_types 
+			ON incident_custom.name=incident_custom_types.name WHERE incident_custom_types.id='".$this->type."' AND incident_id=".$this->id);
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-                $list[$rs->fields["name"]] = $rs->fields["content"];
+               	$list[] = array($rs->fields["name"],$rs->fields["content"],$rs->fields["type"]);
                 $rs->MoveNext();
             }
         }
@@ -1734,5 +1735,27 @@ class Incident {
             'Closed'
         ));
     }
+	
+	function format_custom_field($value, $type)
+	{
+		switch ($type)
+		{
+			case "Map":
+				$unique_id = md5( uniqid() );
+				$field  = "<span style='font-weight: bold; padding-right: 10px;'>Location:</span><span>".$value."</span>";
+				$field .= "<div id='".$unique_id."' style='margin: 10px auto; height:200px; width:100%;'></div>";
+				$field .= "<script type='text/javascript'>initialize('".$unique_id."','".$value."')</script>";
+			break;
+			
+			default:
+				$field = $value;
+		}
+		
+		
+		return $field;
+	
+	
+	
+	}
 }
 ?>

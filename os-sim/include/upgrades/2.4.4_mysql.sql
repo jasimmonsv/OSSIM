@@ -15,6 +15,37 @@ ALTER TABLE  `vuln_nessus_settings_preferences` CHANGE  `value`  `value` TEXT NU
 
 ALTER TABLE  `incident` CHANGE  `ref`  `ref` ENUM(  'Alarm',  'Alert',  'Event',  'Metric',  'Anomaly',  'Vulnerability',  'Custom' ) NOT NULL DEFAULT  'Alarm';
 
+DROP TABLE IF EXISTS ldap;
+CREATE TABLE IF NOT EXISTS ldap (
+  id INT NOT NULL AUTO_INCREMENT,
+  ip VARCHAR(15),
+  binddn TEXT,
+  password TEXT,
+  scope TEXT,
+  PRIMARY KEY (id)
+); 
+
+DROP TABLE IF EXISTS credentials;
+CREATE TABLE IF NOT EXISTS credentials (
+  id INT NOT NULL AUTO_INCREMENT,
+  ip VARCHAR(15),
+  type INT,
+  username TEXT,
+  password TEXT,
+  extra TEXT,   
+  PRIMARY KEY (id)
+);
+
+DROP TABLE IF EXISTS credential_type;
+CREATE TABLE IF NOT EXISTS credential_type (
+  id INT NOT NULL AUTO_INCREMENT,
+  name TEXT,               
+  PRIMARY KEY (id)
+);
+INSERT INTO credential_type(name) VALUES ("SSH");
+INSERT INTO credential_type(name) VALUES ("Windows");
+INSERT INTO credential_type(name) VALUES ("AD");
+
 DROP TABLE IF EXISTS `incident_custom`;
 CREATE TABLE IF NOT EXISTS `incident_custom` (
   id int(11) NOT NULL auto_increment,

@@ -57,19 +57,20 @@ function get_params_field($field){
 	GLOBAL $map_key;
 	$unique_id = md5( uniqid() );
 	$fld = "custom_".$unique_id;
-	$required = ( $field['required'] == 1 ) ? "req_field " : "";
+	$name = "custom_".base64_encode($field['name']);
+	$required = ( $field['required'] == 1 ) ? "req_field" : "";
 	
 	switch ($field['type']){
 		case "Asset":
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required." ct_assets_sel");
+			$params = array("name" => $name, "id"=>$fld, "class"=>trim($required." ct_assets_sel"));
 		break;
 		
 		case "Check Yes/No":
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required);
 		break;
 		
 		case "Check True/False":
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required);
 		break;
 		
 		case "Checkbox":
@@ -81,20 +82,20 @@ function get_params_field($field){
 			for ($i=0; $i<$num_chk; $i++)
 				$ids[] = $fld."_".($i+1);
 											
-			$params = array("name" => $fld, "id"=>$ids, "class"=>$required, "values" => $options);
+			$params = array("name" => $name, "id"=>$ids, "class"=>$required, "values" => $options);
 			
 		break;
 		
 		case "Date":
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required);
 		break;
 		
 		case "Date Range":
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required);
 		break;
 		
 		case "Map":
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required."field_fix", "style"=> "width:385px;", "values"=>array($map_key));
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required, "style"=> "width:390px;", "values"=>array($map_key));
 		break;
 			
 		case "Radio button":
@@ -106,26 +107,26 @@ function get_params_field($field){
 			for ($i=0; $i<$num_radio; $i++)
 				$ids[] = $fld."_".$i;
 			
-			$params = array("name" => $fld, "id"=>$ids, "class"=>$required, "values"=> $options);
+			$params = array("name" => $name, "id"=>$ids, "class"=>$required, "values"=> $options);
 			
 		break;
 		
 		case "Select box":
 			$options = explode("\n", $field["options"]);
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required, "values"=> $options);
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required, "values"=> $options);
 		break;
 		
 		case "Slider":
 			$options = explode(",", $options );
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required, "values"=> $options);
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required, "values"=> $options);
 		break;
 					
 		case "Textarea":
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required, "rows"=>"3", "cols"=>"80", "wrap"=>"hard");
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required, "rows"=>"3", "cols"=>"80", "wrap"=>"hard");
 		break;
 		
 		case "Textbox":
-			$params = array("name" => $fld, "id"=>$fld, "class"=>$required);
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required);
 		break;
 			
 	}
@@ -293,144 +294,137 @@ if ($edit) {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/jquery-ui-1.7.custom.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/tree.css" />
-  <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css" />
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
-  <script type="text/javascript" src="../js/datepicker.js"></script>
-  <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
-  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-  
-  <script type="text/javascript" src="../js/jquery.autocomplete_geomod.js"></script>
-  <script type="text/javascript" src="../js/geo_autocomplete.js"></script>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 
-  <script type="text/javascript">
-	function switch_user(select) {
-		if(select=='entity' && $('#transferred_entity').val()!=''){
-			$('#user').val('');
+	<link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/jquery-ui-1.7.custom.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/tree.css" />
+	<link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css" />
+
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+	<script type="text/javascript" src="../js/datepicker.js"></script>
+	<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+	<script type="text/javascript" src="../js/jquery.autocomplete_geomod.js"></script>
+	<script type="text/javascript" src="../js/geo_autocomplete.js"></script>
+
+	<script type="text/javascript">
+		function switch_user(select) {
+			if(select=='entity' && $('#transferred_entity').val()!='')
+				$('#user').val('');
+			else if (select=='user' && $('#transferred_user').val()!='')
+				$('#entity').val('');
 		}
-		else if (select=='user' && $('#transferred_user').val()!=''){
-			$('#entity').val('');
-		}
-	}
 	
-	function send_form() {
-		
-		var msg = "";
-		var error = false;
-		var txt;
-		
-		$('.req_field').each(function(index) {
+		function send_form() {
 			
-			var id        = "#"+ $(this).attr("id");
-			var tag_name  = $(this).get(0).tagName.toLowerCase();
-			var type      = $(this).attr("type");
-			var fieldname = $(id).parents("tr:first").children("th").text(); 
-			var name      = $(this).attr("name");
+			var required_fields = new Array();
+			var fields_error = new Array();
+			var msg = '';
+			var msg_error = '';
+			var error = false;
+			var cont = 0;
+			var element;
+
+			$(".req_field").each(function(index) {
+				var tag_name = $(this).get(0).tagName;
+				
+				if (tag_name == 'INPUT')
+				{
+					var type = $(this).attr('type');
+					element = tag_name+"#"+type;
+				}
+				else
+					element = tag_name;
+				
+				required_fields[$(this).attr("name")] = element;
+			});
+		
+		
+		
+			for(var i in required_fields) {
 			
-			if ( tag_name == "input" )
-			{
-					var type = $(this).attr("type");
-					var value = $(this).val();
+				element = required_fields[i].split("#");
+				
+			
+				if (element.length == 2 && (element[1] == "radio" || element[1] == "checkbox"))
+				{
+					var checked = $("input[name="+i+"]:checked").length;
 					
-										
-					if (type == "text" || type == "hidden")
-					{
-						if (value == '')
-							error = true;
-					}
-					else
-					{ 
-						var checked = $(id+":checked").length;
-											
-						if (checked > 0)
-							error = true;
+					if (checked == 0)
+						error = true;
+				}
+				else
+				{
+					var value =  $(element[0]+"[name="+i+"]").val();
+					
+					if (value == '')
+						error = true;
+				}
+			
+				if (error == true)
+				{
+					fields_error[cont] = $(element[0]+"[name="+i+"]").attr("id");
+					cont++;
+					msg += $(element[0]+"[name="+i+"]").parents("tr:first").children("th").text() + "<br/>";
+					error = false;
+				}
 							
-						//alert("Name: " + fieldname + "Checked: " + $('input[name='+name+']:checked').length);
-					}
-			}
-			else 
-			{
-				if (value == '')
-					error = true;
-			
 			}
 			
-			
-			if (error == true)
+				
+			if ( msg != '' )
 			{
-				msg += '<?=_("Field "+fieldname+" is empty.")?><br/>';
-				error = false;
-			}
-			
-			
-			
-			
-			/*txt  = "Name: " + fieldname + "\n";
-			txt += "Id: " + id + "\n";
-			txt += "Value: " + $(this).val() + "\n";
-			txt += "Tag Name: " + tag_name + "\n";
-			txt += "Type: " + $(this).attr("type") + "\n";
-			txt += "Checked: " + $(id+":checked").length + "\n";
-			alert( txt );*/
-			
-			/*if (msg == '')
-			{
-				//$("#crt").submit();
+				msg_error = "<div style='padding: 0px 10px'>The following fields are mandatory:<div><div style='padding: 5px 0px 5px 20px;'>"+msg+"</div>";
+				$("#info_error").html(msg_error);
+				$("#info_error").css('display', 'block');
+				window.scrollTo(0,0);
 				return false;
 			}
 			else
 			{
-				msg = "<div style='padding-left: 10px'>"+msg+"</div>";
-				$("#info_error").html(msg);
-				$("#info_error").css("display", "block");
-				window.scrollTo(0,0);
-				return false;
-			}*/
+				$("#info_error").css('display', 'none');
+				$("#info_error").html("");
+				$("#crt").submit();
+				return true;
+			}
 			
-										
-		});
+		}	
+	</script>
 	
-}	
-	
-	
-  </script>
-  <style type='text/css'>
-	textarea, .field_fix { width: 90%;}
-	select { width: 200px;}
-	option {height: 15px;}
-	input[type='text'] { width: 90%; height: 18px;}
-	th {padding: 5px 0px;}
-	
-	.ac_results li img { float: left; 	margin-right: 5px; }
-  
-  </style
+	<style type='text/css'>
+		textarea, .field_fix { width: 90%;}
+		select { width: 200px;}
+		option {height: 15px;}
+		input[type='text'] { width: 90%; height: 18px;}
+		th {padding: 5px 0px;}
+		.ac_results li img {float: left;margin-right: 5px;}
+	</style
 </head>
 
 <body>
 <?php
 include ("../hmenu.php"); ?>
 <h1><?php echo " $ref " . _("Ticket") ?></h1>
-
 <form id='crt' method="GET" action="manageincident.php">
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />
 <input type="hidden" name="ref" value="<?php echo $ref ?>" />
 <input type="hidden" name="incident_id" value="<?php echo $incident_id ?>" />
 <input type="hidden" name="submitter" value="<?php echo $submitter ?>" />
-<div id='info_error' class='error'></div>
+<div id='info_error' class='ct_error'></div>
+
 <table align="center" width="600">
   <tr>
     <th><?php echo _("Title") ?></th>
     <td class="left">
-      <input type="text" name="title" size="40" value="<?php echo $title ?>" />
+      <input type="text" name="title" size="40" value="<?php echo $title ?>"/>
+	  <span style='width:20px; padding:3px 0px 0px 15px;'>(*)</span>
     </td>
   </tr>
     
@@ -614,67 +608,70 @@ for ($i = 1; $i <= 10; $i++) {
 }
 print $options;
 ?>
-      </select>
+      </select> 
     </td>
   </tr>
   <tr>
     <th><?php echo _("Type") ?></th>
-<?php
-Incident::print_td_incident_type($conn, $type);
-?>
+	<?php 
+	if ( $ref == "Custom" )
+		echo "<td class='left'><span style='font-weight:bold;'>$type</span><input type='hidden' name='type' value='$type'/></td>";
+	else
+		Incident::print_td_incident_type($conn, $type); 
+	?>
   </tr>
 
 <?php
 if (($ref == "Alarm") or ($ref == "Event")) {
 ?>
   <tr>
-    <th><?php echo _("Source Ips") ?></th>
+    <th class='thr'><?php echo _("Source Ips") ?></th>
     <td class="left">
-<input type="hidden" name="backlog_id" value="<?php echo $backlog_id?>" />
-<input type="hidden" name="event_id" value="<?php echo $event_id?>" />
-<input type="hidden" name="alarm_group_id" value="<?php echo $alarm_gid?>" />
-      <input type="text" name="src_ips" value="<?php echo $src_ips ?>" />
+		<input type="hidden" name="backlog_id" value="<?php echo $backlog_id?>" />
+		<input type="hidden" name="event_id" value="<?php echo $event_id?>" />
+		<input type="hidden" name="alarm_group_id" value="<?php echo $alarm_gid?>" />
+		<input type="text" name="src_ips" value="<?php echo $src_ips ?>" />
     </td>
   </tr>
   <tr>
-    <th><?php echo _("Dest Ips") ?></th>
+    <th class='thr'><?php echo _("Dest Ips") ?></th>
     <td class="left">
-      <input type="text" name="dst_ips" value="<?php echo $dst_ips ?>" />
+		<input type="text" name="dst_ips" value="<?php echo $dst_ips ?>" />
     </td>
   </tr>
   <tr>
-    <th><?php echo _("Source Ports") ?></th>
+    <th class='thr'><?php echo _("Source Ports") ?></th>
     <td class="left">
-      <input type="text" name="src_ports" value="<?php echo $src_ports ?>" />
+		<input type="text" name="src_ports" value="<?php echo $src_ports ?>" />
     </td>
   </tr>
   <tr>
-    <th><?php echo _("Dest Ports") ?></th>
+    <th class='thr'><?php echo _("Dest Ports") ?></th>
     <td class="left">
-      <input type="text" name="dst_ports" value="<?php echo $dst_ports ?>" /></td>
+		<input type="text" name="dst_ports" value="<?php echo $dst_ports ?>" /></td>
   </tr>
   <tr>
-    <th><?php echo _("Start of related events") ?></th>
+    <th class='thr'><?php echo _("Start of related events") ?></th>
     <td class="left">
-      <input type="text" name="event_start" value="<?php echo $event_start ?>" /></td>
+		<input type="text" name="event_start" value="<?php echo $event_start ?>" /></td>
   </tr>
   <tr>
-    <th><?php echo _("End of related events") ?></th>
+    <th  class='thr'><?php echo _("End of related events") ?></th>
     <td class="left">
-      <input type="text" name="event_end" value="<?php echo $event_end ?>" /></td>
+		<input type="text" name="event_end" value="<?php echo $event_end ?>" /></td>
   </tr>
 
 <?php
 } elseif ($ref == "Metric") {
 ?>
   <tr>
-    <th><?php echo _("Target (net, ip, etc)") ?></th>
+    <th class='thr'><?php echo _("Target (net, ip, etc)") ?></th>
     <td class="left">
-      <input type="text" name="target" value="<?php echo $target ?>" />
+		<input type="text" name="target" value="<?php echo $target ?>" />
     </td>
   </tr>
   <tr>
-    <th><?php echo _("Metric type") ?></th>
+    <th class='thr'><?php echo _("Metric type") ?></th>
     <td class="left">
       <select name="metric_type">
         <option value="Compromise"
@@ -693,18 +690,18 @@ if (($ref == "Alarm") or ($ref == "Event")) {
     </td>
   </tr>
   <tr>
-    <th><?php echo _("Metric value") ?></th>
+    <th  class='thr'><?php echo _("Metric value") ?></th>
     <td class="left">
       <input type="text" name="metric_value" value="<?php echo $metric_value ?>" />
     </td>
   </tr>
   <tr>
-    <th><?php echo _("Start of related events") ?></th>
+    <th  class='thr'><?php echo _("Start of related events") ?></th>
     <td class="left">
       <input type="text" name="event_start" value="<?php echo $event_start ?>" /></td>
   </tr>
   <tr>
-    <th><?php echo _("End of related events") ?></th>
+    <th  class='thr'><?php echo _("End of related events") ?></th>
     <td class="left">
       <input type="text" name="event_end" value="<?php echo $event_end ?>" /></td>
   </tr>
@@ -712,19 +709,19 @@ if (($ref == "Alarm") or ($ref == "Event")) {
 } elseif ($ref == "Anomaly") {
 ?>
   <tr>
-    <th><?php echo _("Anomaly type") ?></th>
+    <th  class='thr'><?php echo _("Anomaly type") ?></th>
     <td class="left">
       <input type="text" name="anom_type" size="30" value="<?php echo $anom_type ?>" />
     </td>
   </tr>
-    <tr>
-    <th><?php echo _("Host") ?></th>
+  <tr>
+    <th  class='thr'><?php echo _("Host") ?></th>
     <td class="left">
       <input type="text" name="anom_ip" size="30" value="<?php echo $anom_ip ?>" />
     </td>
   </tr>
- <tr>
-    <th><?php echo _("Sensor") ?></th>
+  <tr>
+    <th  class='thr'><?php echo _("Sensor") ?></th>
     <td class="left">
       <input type="text" name="a_sen" size="30" value="<?php echo $a_sen ?>" />
     </td>
@@ -733,19 +730,19 @@ if (($ref == "Alarm") or ($ref == "Event")) {
     if ($anom_type == "os") {
 ?>
    <tr>
-    <th><?php echo _("Old OS") ?></th>
+    <th  class='thr'><?php echo _("Old OS") ?></th>
     <td class="left">
       <input type="text" name="a_os_o" size="30" value="<?php echo $a_os_o ?>" />
     </td>
   </tr>
-    <tr>
-    <th><?php echo _("New OS") ?></th>
+  <tr>
+    <th class='thr'><?php echo _("New OS") ?></th>
     <td class="left">
       <input type="text" name="a_os"  size="30" value="<?php echo $a_os ?>" />
     </td>
   </tr>
-   <tr>
-    <th><?php echo _("When") ?></th>
+  <tr>
+    <th  class='thr'><?php echo _("When") ?></th>
     <td class="left">
       <input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" />
     </td>
@@ -756,31 +753,31 @@ if (($ref == "Alarm") or ($ref == "Event")) {
     } elseif ($anom_type == "mac") {
 ?>
    <tr>
-    <th><?php echo _("Old mac") ?></th>
+    <th class='thr'><?php echo _("Old mac") ?></th>
     <td class="left">
       <input type="text" name="a_mac_o" size="30" value="<?php echo $a_mac_o ?>" />
     </td>
   </tr>
     <tr>
-    <th><?php echo _("New mac") ?></th>
+    <th class='thr'><?php echo _("New mac") ?></th>
     <td class="left">
       <input type="text" name="a_mac" size="30" value="<?php echo $a_mac ?>" />
     </td>
   </tr>
     <tr>
-    <th><?php echo _("Old vendor") ?></th>
+    <th class='thr'><?php echo _("Old vendor") ?></th>
     <td class="left">
       <input type="text" name="a_vend_o" size="30" value="<?php echo $a_vend_o ?>" />
     </td>
   </tr>
     <tr>
-    <th><?php echo _("New vendor") ?></th>
+    <th class='thr'><?php echo _("New vendor") ?></th>
     <td class="left">
       <input type="text" name="a_vend" size="30" value="<?php echo $a_vend ?>" />
     </td>
   </tr>
   <tr>
-    <th><?php echo _("When") ?></th>
+    <th class='thr'><?php echo _("When") ?></th>
     <td class="left">
       <input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" />
     </td>
@@ -792,37 +789,37 @@ if (($ref == "Alarm") or ($ref == "Event")) {
 ?>
 
   <tr>
-    <th><?php echo _("Port") ?></th>
+    <th class='thr'><?php echo _("Port") ?></th>
     <td class="left">
       <input type="text" name="a_port" value="<?php echo $a_port ?>" />
     </td>
   </tr>
     <tr>
-    <th><?php echo _("Old Protocol") ?></th>
+    <th class='thr'><?php echo _("Old Protocol") ?></th>
     <td class="left">
       <input type="text" name="a_prot_o" size="30" value="<?php echo $a_prot_o ?>" />
     </td>
   </tr>
      <tr>
-    <th><?php echo _("Old Version") ?></th>
+    <th class='thr'><?php echo _("Old Version") ?></th>
     <td class="left">
       <input type="text" name="a_ver_o" size="30" value="<?php echo $a_ver_o ?>" />
     </td>
   </tr>
     <tr>
-    <th><?php echo _("New Protocol") ?></th>
+    <th class='thr'><?php echo _("New Protocol") ?></th>
     <td class="left">
       <input type="text" name="a_prot" size="30" value="<?php echo $a_prot ?>" />
     </td>
   </tr>
      <tr>
-    <th><?php echo _("New Version") ?></th>
+    <th class='thr'><?php echo _("New Version") ?></th>
     <td class="left">
       <input type="text" name="a_ver" size="30" value="<?php echo $a_ver ?>" />
     </td>
   </tr>
     <tr>
-    <th><?php echo _("When") ?></th>
+    <th class='thr'><?php echo _("When") ?></th>
     <td class="left">
       <input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" />
     </td>
@@ -838,32 +835,32 @@ if (($ref == "Alarm") or ($ref == "Event")) {
 ?>
 
  <tr>
-    <th><?php echo _("IP") ?></th>
+    <th class='thr'><?php echo _("IP") ?></th>
     <td class="left">
       <input type="text" name="ip" value="<?php echo $ip ?>" />
     </td>
   </tr>
     <tr>
-    <th><?php echo _("Port") ?></th>
+    <th class='thr'><?php echo _("Port") ?></th>
     <td class="left">
       <input type="text" name="port" size="30" value="<?php echo $port ?>" />
     </td>
   </tr>
      <tr>
-    <th><?php echo _("Nessus/OpenVas ID") ?></th>
+    <th class='thr'><?php echo _("Nessus/OpenVas ID") ?></th>
     <td class="left">
       <input type="text" name="nessus_id" size="30" value="<?php echo $nessus_id ?>" />
     </td>
   </tr>
     <tr>
-    <th><?php echo _("Risk") ?></th>
+    <th class='thr'><?php echo _("Risk") ?></th>
     <td class="left">
       <input type="text" name="risk" size="30" value="<?php echo $risk ?>" />
     </td>
   </tr>
      <tr>
-    <th><?php echo _("Description") ?></th>
-    <td style="border-width: 0px;">
+    <th class='thr'><?php echo _("Description") ?></th>
+    <td class='left' style="border-width: 0px;">
         <textarea name="description" rows="10" cols="80" wrap="hard"><?php echo $description ?></textarea>
     </td>
   </tr>
@@ -874,36 +871,38 @@ if (($ref == "Alarm") or ($ref == "Event")) {
 <?php
 } elseif ($ref == "Custom") {
 	
-	?>
-	
-		
-	<?php
 	$fields = Incident_type::get_custom_list($conn,$type);
 	$form_builder = new Form_builder();
 	$params = array();
 	$cont = 1;
 	foreach ($fields as $field) {
-						
-		echo "<tr id='item_".$cont."'>
-				<th id='name_".$cont."' class='ct_back'>".$field['name']."</th>
-    		    <td style='border-width: 0px;text-align:left'>";
 		
+		echo "<tr id='item_".$cont."'><th id='name_".$cont."' class='thr'>".$field['name']."</th>";
+    	echo "<td style='border-width: 0px;text-align:left'>";
 		$params = get_params_field($field);
-				
-		$form_builder->set_attributes($params);
-		echo $form_builder->draw_element($field['type']);
-		    	
-		echo "    </td>
-    		  </tr>\n";
+			$form_builder->set_attributes($params);
+			echo $form_builder->draw_element($field['type']);
+		echo "</td>";
+					
+    	echo"</tr>\n";
 		$cont++;
 	}
 }
 ?>
 
 <tr>
-<td colspan="2" class="noborder" style='height:30px;'><input type="button" class='button' value="<?=_("OK")?>" class="button" onclick="send_form();"/></td>
+	<td colspan="2" class="noborder" style='height:30px;'><input type="button" style='width:40px;' value="<?=_("OK")?>" class="button" onclick="send_form();"/></td>
 </tr>
 </table>
+
+<table align="center" width="600" style='border: none;'>
+	<tr>
+		<td class="noborder center" style='height:50px;' valign='absmiddle'>
+			<span>Fields marked with (*) are mandatory</span>
+		</td>
+	</tr>
+</table>
+
 </form>
 <script type='text/javascript'>
 	<?php echo $form_builder->get_def_funcs();?>

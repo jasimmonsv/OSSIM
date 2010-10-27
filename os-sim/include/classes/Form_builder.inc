@@ -148,7 +148,7 @@ public function draw_asset(){
 	else
 		$txt_asset = "</span>";
 	
-	$element .= "<div class='ct_assets field_fix'><b>"._('Selected:')."</b>&nbsp;<span id='dassets_".$this->params["id"]."'>";
+	$element .= "<div class='ct_assets field_fix'><b>"._('Selected:')."</b>&nbsp;<span id='dassets_".$this->params["id"]."' style='background-color:#EFEBDE;padding:2px 5px 2px 5px;border:1px dotted #cccccc;font-size:12px'>";
 	$element .= "All Assets</span>";
 	$element .= "<div id='tree_".$this->params["id"]."' style='text-align:left;padding:5px 0px 0px 0px;'></div>";
 	$element .= "<input type='hidden' $attributes value='All Assets'/>";
@@ -200,14 +200,18 @@ public function draw_radioexc($subtype){
 			$aux .= "$k=\"$v\" ";
 	}
 	
-	$element  = $aux." id='".$this->params["id"]."_1' value='Yes'/><span>".$values[0]."</span></div>";
-	$element .= $aux." id='".$this->params["id"]."_2' value='No'/><span>".$values[1]."</span></div>";
-	
+	$element  = $aux." id='".$this->params["id"]."_1' value='".$values[0]."'/><span>".$values[0]."</span></div>";
+	$element .= $aux." id='".$this->params["id"]."_2' value='".$values[1]."' checked='checked'/><span>".$values[1]."</span></div>";
+			
 	return $element;
 }
 
 
 public function draw_checkbox(){
+	
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<span style='width:20px; padding:3px 0px 0px 15px;'>(*)</span>";	
+		
 	
 	foreach ( $this->params as $k => $v)
 	{
@@ -230,7 +234,7 @@ public function draw_checkbox(){
 			else 
 			{
 				if ($num_value > 2)
-					$values []= "value='".htmlentities($value[0])."' checked='true'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+					$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
 			}
 			
 			
@@ -238,22 +242,34 @@ public function draw_checkbox(){
 	}	
 	
 	
-		
 	for ($i=0; $i<count($values); $i++)
-		$element .= "<div><input type='checkbox' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i]."</div>\n";
+	{
+		$element .= "<div><input type='checkbox' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i];
+		
+		if ($i == 0)
+			$element .= " ".$required."</div>\n";
+		else
+			$element .= " </div>\n";
+			
+	}
+	
 		
 	return $element;
 }
 
 public function draw_date(){
 
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<span style='width:20px; padding:3px 0px 0px 10px;'>(*)</span>";	
+	
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 
 	$element = "<div id='cont_".$this->params['id']."'>
-			<input type='text' ".$attributes." value='Click to select a range' readonly='readonly' style='width:150px;'/>
+			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>
 			<div class='ct_widget' style='display:inline; padding-left: 3px;'>
 				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>
+				$required
 				<div class='ct_widgetCalendar' style='width:200px;'></div>
 			</div>
 		</div>";
@@ -328,13 +344,17 @@ public function draw_date(){
 
 public function draw_daterange(){
 
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<span style='width:20px; padding:3px 0px 0px 10px;'>(*)</span>";	
+	
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";;
 
 	$element = "<div id='cont_".$this->params['id']."'>
-			<input type='text' ".$attributes." value='Click to select a range' readonly='readonly' style='width:150px;'/>
+			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>
 			<div class='ct_widget' style='display:inline; padding-left: 3px;'>
-				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='top' style='padding-bottom:1px'/></a>
+				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>
+				$required
 				<div class='ct_widgetCalendar' style='width:395px;'></div>
 			</div>
 		</div>";
@@ -429,10 +449,18 @@ public function draw_daterange(){
 
 public function draw_map(){
 	
-	foreach ( $this->params as $k => $v)
-		$attributes .= "$k=\"$v\" ";
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<span style='width:20px; padding:0px 0px 0px 13px;'>(*)</span>";	
 	
-	$element  = "<div style='margin: 10px 0px 10px 0px;'><span style='padding-right: 13px; font-weight: bold;'>Location:</span><input type='text' ".$attributes."/></div>";
+	foreach ( $this->params as $k => $v)
+	{
+		if ($k != 'values')
+			$attributes .= "$k=\"$v\" ";
+	}
+	
+	$element  = "<div style='margin: 10px 0px 13px 0px;'>";
+	$element .= "<span style='padding-right: 13px; font-weight: bold;'>Location:</span>";
+	$element .= "<input type='text' ".$attributes."/>$required</div>";
 	$element .= "<div id='map_".$this->params["id"]."' class='field_fix' style='height:300px; display:none;'></div>";
 	
 	$map_key = ($this->params["values"][0] != '' ) ? $map_key : "ABQIAAAAbnvDoAoYOSW2iqoXiGTpYBTIx7cuHpcaq3fYV4NM0BaZl8OxDxS9pQpgJkMv0RxjVl6cDGhDNERjaQ";
@@ -483,7 +511,9 @@ public function draw_map(){
 
 public function draw_radiob(){
 	
-	
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<span style='width:20px; padding:3px 0px 0px 15px;'>*</span>";	
+		
 	foreach ( $this->params as $k => $v)
 	{
 		if ($k != "id" && $k != "name" && $k != "values")
@@ -507,13 +537,22 @@ public function draw_radiob(){
 				$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
 			else {
 				if ($num_value > 2)
-					$values []= "value='".htmlentities($value[0])."' checked='true'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+					$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
 			}
 		}
 	}	
-		
+	
 	for ($i=0; $i<count($values); $i++)
-		$element .= "<div><input type='radio' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i]."</div>\n";
+	{
+		$element .= "<div><input type='radio' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i];
+		
+		if ($i == 0)
+			$element .= " ".$required."</div>\n";
+		else
+			$element .= " </div>\n";
+			
+	}
+		
 		
 	return $element;
 }	
@@ -521,6 +560,9 @@ public function draw_radiob(){
 public function draw_selectbox(){
 		
 	$attributes = '';
+	
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<span style='width:20px; padding:3px 0px 0px 15px;'>(*)</span>";	
 	
 	foreach ( $this->params['values'] as $k => $v )
 	{
@@ -546,13 +588,16 @@ public function draw_selectbox(){
 	foreach ( $this->params as $k => $v)
 			$attributes .="$k=\"$v\" ";
 	
-	$element = "<select ".$attributes.">".$options."</select>";
+	$element = "<select ".$attributes.">".$options."</select>$required";
 	
 	return $element;
 }
 
 public function draw_slider(){
 
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<span style='width:20px; padding:3px 0px 0px 20px;'>(*)</span>";	
+	
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 		
@@ -564,8 +609,9 @@ public function draw_slider(){
 					<span id='dial_".$this->params['name']."' style='font-weight: bold; padding: 0px 12px'>".$min_value."</span>
 				</div>
 				<div class='ct_slider'>
-				<div id='cont_".$this->params['name']."' style='width:95%; height:3px;'></div>
+					<div id='cont_".$this->params['name']."' style='width:100%; height:3px;'></div>
 				</div>
+				$required
 				<input type='hidden' ".$attributes." value='".$min_value."'/>";
 	
 
@@ -589,26 +635,33 @@ public function draw_slider(){
 }
 
 public function draw_textarea(){
+	
+	$attributes = '';
 
-	$element = "<textarea ";
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<div style='float: right; width:20px; padding: 3px 15px 0px 0px;'>(*)</div>";	
+
 		
 	foreach ( $this->params as $k => $v)
-		$element .= "$k=\"$v\" ";
+		$attributes .= "$k=\"$v\" ";
 	
-	$element .= "></textarea>";
+	$element = "<textarea $attributes></textarea>$required";
 	
 	return $element;
 
 }
 
 public function draw_textbox(){
+	
+	$attributes = '';
 
-	$element = "<input type='text'";
-	
+	if ( preg_match("/req_field/", $this->params["class"] ) != false )
+		$required = "<span style='width:20px; padding:0px 0px 0px 13px;'>(*)</span>";	
+
 	foreach ( $this->params as $k => $v)
-		$element .= "$k=\"$v\" ";
+		$attributes .= "$k=\"$v\" ";
 	
-	$element .= "/>";
+	$element = "<input type='text' $attributes/>$required";
 	
 	return $element;
 

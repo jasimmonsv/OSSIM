@@ -566,9 +566,11 @@ if ($action == 'newincident') {
         foreach($vars as $v) {
             $$v = GET("$v"); 
         }
-        $fields = array();
-        foreach ($_GET as $k => $v) if (preg_match("/^custom/",$k)) {
-        	$k = base64_decode(str_replace("custom_","",$k));
+        
+		$fields = array();
+        foreach ($_GET as $k => $v) 
+			if (preg_match("/^custom/",$k)) {
+				$k = base64_decode(str_replace("custom_","",$k));
         	$fields[$k] = $v;
         }
         
