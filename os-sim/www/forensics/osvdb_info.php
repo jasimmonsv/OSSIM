@@ -38,8 +38,7 @@ Session::logcheck("MenuEvents", "EventsForensics");
 
 <html>
 <head>
-  <title> <?php
-echo gettext("Vulnmeter"); ?> </title>
+  <title> <?php echo gettext("OSVDB"); ?> </title>
 <!--  <meta http-equiv="refresh" content="3"> -->
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">

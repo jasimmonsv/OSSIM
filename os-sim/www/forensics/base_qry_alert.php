@@ -340,6 +340,15 @@ echo '
 	}
 	//-->
 	
+	// snort rules
+	if (in_array($plugin_id, $snort_ids)) {
+	?>
+		<TD CLASS="plfield">
+			<a href="javascript:;" title="<?php echo _("Match snort rule");?>" class="greybox" onclick="GB_show('Snort rule','snort_rules.php?sid=<?php echo $plugin_sid; ?>',300,'50%')"><img src="../pixmaps/snort.png" border="0"></a>
+		</TD>
+	<?
+	}
+	
 echo '</TR>
                   </TABLE>
               </TD>
