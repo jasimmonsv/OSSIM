@@ -113,11 +113,13 @@ if (POST('insert')) {
     */
     $begin_expr = (($begin_day - 1) * 7) + $begin_hour;
     $end_expr = (($end_day - 1) * 7) + $end_hour;
+    /*
     if ($begin_expr >= $end_expr) {
         require_once ("ossim_error.inc");
         $error = new OssimError();
         $error->display("INCORRECT_DATE_RANGE");
     }
+    */
     $minsrc = 0;
     /* SOURCES */
     $source_ips = array();
