@@ -232,7 +232,7 @@ if ($failed) { ?>
 <br/>
 <br/>
 <br/>
-<form name="f" method="POST" action="login.php" onsubmit="$('#pass').val($.base64.encode($('#pass').val()))" style="margin:1px">
+<form name="f" method="POST" action="login.php" onsubmit="$('#pass').val($.base64.encode($('#pass').val()));$('#submit_button').attr('disabled','disabled')" style="margin:1px">
 
 <table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class=nobborder><tr><td class="nobborder">
 <table align="center" class="noborder" style="background-color:white">
@@ -273,7 +273,7 @@ if ($failed) { ?>
   <tr>
     <td class="nobborder" style="text-align:center;padding-top:20px">
 
-    <input type="submit" value="<?php
+    <input type="submit" id="submit_button" value="<?php
     echo gettext("Login"); ?>" class="btn" style="font-size:12px">
 
     </td>
