@@ -222,7 +222,11 @@ if (GET('submit')) {
     require_once 'classes/Sensor.inc';
     require_once 'classes/Sensor_interfaces.inc';
     if ($submit == _("Insert")) {
-    	Sensor_interfaces::insert_interfaces($conn, $sensor, $interface, $int_name, $main);
+    	if ($interface != "") {
+    		Sensor_interfaces::insert_interfaces($conn, $sensor, $interface, $int_name, $main);
+    	} else {
+    		$temp_msg = _("Error: Interface input can not be empty");
+    	}
     } elseif ($submit == _("Update")) {
         $temp_msg = gettext("updated") . " .";
         Sensor_interfaces::update_interfaces($conn, $sensor, $interface, $int_name, $main);
@@ -259,6 +263,9 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor)) {
 ?>
 <table align="center" class="noborder" style="background-color:#ffffff">
 <tr><td class="center nobborder"><iframe src="modifysensorform.php?name=<?=$name?>&withoutmenu=1" width="100%" height="200" frameborder="0"></iframe></td></tr>
+<?php if ($temp_msg != "") { ?>
+<tr><td><?php echo $temp_msg ?></td></tr>
+<?php } ?>
 <tr><td class="noborder" valign="top">
 	<table align="center" width="100%">
 	<tr><th> <?php
