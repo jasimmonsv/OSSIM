@@ -2119,7 +2119,8 @@ function formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn)
     }
     else {
       # Assume it is a text box
-        $retstr="<tr><td style='text-align:left;width:65%'>$field</td><td><INPUT type=\"text\" name=\"$vname\" value=\"$value\"></td></tr>";
+      	$sufix = (preg_match("/\[file\]/",$nessus_id)) ? "&nbsp;["._("full file path")."]" : "";
+        $retstr="<tr><td style='text-align:left;width:65%'>$field $sufix</td><td><INPUT type=\"text\" name=\"$vname\" value=\"$value\"></td></tr>";
     }
     $retstr .= "\n";
     return $retstr;
