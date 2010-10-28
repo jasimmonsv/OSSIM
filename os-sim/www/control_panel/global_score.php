@@ -795,25 +795,32 @@ uasort($ext_hosts, 'order_by_risk');
 <head>
   <title> <?php
 echo gettext("Control Panel"); ?> </title>
-  <meta http-equiv="refresh" content="150">
+  <!-- <meta http-equiv="refresh" content="150"> -->
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" href="../style/style.css"/>
   <? include ("../host_report_menu.php") ?>
   <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
   <script type="text/javascript" src="../js/greybox.js"></script>
   <script language="javascript">
-    function postload() {
+	var reload = true;
+	function refresh() {
+		if (reload == true) document.location.reload();
+	}
+	function postload() {
         GB_TYPE = 'w';
         $("a.greybox").click(function(){
+        	reload = false;
             var t = this.title || $(this).text() || this.href;
             GB_show(t,this.href,'80%','75%');
             return false;
         });
         $("area.greybox").click(function(){
+			reload = false;
             var t = this.title || $(this).text() || this.href;
             GB_show(t,this.href,400,'650');
             return false;
         });
+        setTimeout('refresh()',30000);
     }
     function GB_onclose() {
         document.location.reload();

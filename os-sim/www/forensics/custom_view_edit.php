@@ -188,6 +188,11 @@ if ($save == "insert") {
 	
 }
 $tags = Event_viewer::get_tags();
+if ($opensource) {
+	unset($tags['PLUGIN_SOURCE_TYPE']);
+	unset($tags['PLUGIN_SID_CATEGORY']);
+	unset($tags['PLUGIN_SID_SUBCATEGORY']);
+}
 //print_r($tags);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

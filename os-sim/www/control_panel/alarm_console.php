@@ -296,7 +296,6 @@ if (!empty($delete)) {
 	else die(ossim_error("Can't do this action for security reasons..."));
 }
 if (!empty($close)) {
-	print_r($close);exit;
 	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::close($conn, $close);
 	else die(ossim_error("Can't do this action for security reasons..."));
 }
@@ -427,9 +426,9 @@ if (!isset($_GET["hide_search"])) {
 		<table class="noborder">
 			<tr><td class="nobborder">
 				<a href="<?php
-    echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>" onclick="if(!confirm('<?php echo _("Are you sure?") ?>')) return false;"><?php
+    echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>" onclick="if(!confirm('<?php echo _("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?") ?>')) return false;"><?php
     echo gettext("Delete ALL alarms"); ?></a> <br><br>
-				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Are you sure?")?>')) bg_delete();" class="btn">
+				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="btn">
 				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="btn">
 				<br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
 				<div id="divadvanced" style="display:none"><a href="<?php
@@ -457,7 +456,13 @@ if (!isset($_GET["hide_search"])) {
 								<td class="nobborder">
 									<div style="position:relative">
 									<div id="tags_filter" style="display:none;border:0px;position:absolute">
-									<table>
+									<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+									<tr>
+										<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
+											<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
+											<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags_filter').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
+										</th>
+									</tr>
 									<? foreach ($tags as $tg) { ?>
 									<tr>
 										<td class="nobborder">
@@ -533,6 +538,12 @@ if (!isset($_GET["hide_search"])) {
 				   <div style="position:relative"> 
 						<div id="tags" style="position:absolute;right:0;top:0;display:none">
 						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+							<tr>
+								<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
+									<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
+									<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
+								</th>
+							</tr>
 							<?php if (count($tags) < 1) { ?>
 							<tr><td><?php echo _("No tags found.") ?></td></tr>
 							<?php } else { ?>
@@ -937,7 +948,7 @@ if ($count > 0) {
         <td nowrap class="nobborder" style='text-align:center'>
 <?php
         if (($status = $alarm->get_status()) == "open") {
-            echo "<a title='" . gettext("Click here to close alarm") . " #$event_id' " . "href=\"" . $_SERVER['SCRIPT_NAME'] . "?close=$event_id" . "&sup=" . "$sup" . "&inf=" . ($sup - $ROWS) . "&hide_closed=$hide_closed&query=".urlencode($query)."&unique_id=$unique_id\"" . " style='color:#923E3A'><img src='../pixmaps/cross-circle-frame.png' border='0' alt='"._("Close alarm")."' title='"._("Close alarm")."'></a>";
+            echo "<a title='" . gettext("Click here to close alarm") . " #$event_id' " . "href=\"" . $_SERVER['SCRIPT_NAME'] . "?close=$event_id" . "&sup=" . "$sup" . "&inf=" . ($sup - $ROWS) . "&hide_closed=$hide_closed&query=".urlencode($query)."&unique_id=$unique_id\"" . " onclick=\"if (!confirm('"._("Are you sure to close this alarm")."?')) return false;\" style='color:#923E3A'><img src='../pixmaps/cross-circle-frame.png' border='0' alt='"._("Close alarm")."' title='"._("Close alarm")."'></a>";
         } else {
             //echo gettext($status);
             echo "<img src='../pixmaps/cross-circle-frame-gray.png' border='0' alt='"._("Alarm closed")."' title='"._("Alarm closed")."'>";
