@@ -27,7 +27,8 @@ $path_conf = $GLOBALS["CONF"];
 
 /* database connect */
 $db = new ossim_db();
-$conn = $db->custom_connect('localhost',$path_conf->get_conf("ossim_user"),$path_conf->get_conf("ossim_pass"));
+$conn = $db->connect();
+//$conn = $db->custom_connect('localhost',$path_conf->get_conf("ossim_user"),$path_conf->get_conf("ossim_pass"));
 
 header("Content-Type: application/vnd.ms-excel");
 $output_name = $type[$rtype]."_" . $user . "_" . date("Y-m-d",time()) . ".csv";
