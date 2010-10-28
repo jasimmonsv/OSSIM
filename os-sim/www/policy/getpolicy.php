@@ -112,6 +112,7 @@ foreach($policy_list as $policy) {
     if ($source_net_list = $policy->get_net_groups($conn, 'source')) foreach($source_net_list as $source_net_group) {
         $source.= ($source == "" ? "" : "<br/>" . "<img src='../pixmaps/theme/net_group.png' align=absbottom> ") . $source_net_group->get_net_group_name();
     }
+    $source = preg_replace("/\> any/","> <font color='#AAAAAA'><b>ANY</b></font>",$source);
     $xml.= "<cell><![CDATA[" . $source . "]]></cell>";
     //
     $dest = "";
@@ -127,11 +128,15 @@ foreach($policy_list as $policy) {
     if ($dest_net_list = $policy->get_net_groups($conn, 'dest')) foreach($dest_net_list as $dest_net_group) {
         $dest.= ($dest == "" ? "" : "<br/>") . "<img src='../pixmaps/theme/net_group.png' align=absbottom> " . $dest_net_group->get_net_group_name();
     }
+    $dest = preg_replace("/\> any/","> <font color='#AAAAAA'><b>ANY</b></font>",$dest);
     $xml.= "<cell><![CDATA[" . $dest . "]]></cell>";
     //
     $ports = "";
     if ($port_list = $policy->get_ports($conn)) foreach($port_list as $port_group) {
         $ports.= ($ports == "" ? "" : "<br/>") . $port_group->get_port_group_name();
+    }
+    if ($ports == "ANY") {
+    	$ports = "<font color='#AAAAAA'><b>".$ports."</b></font>";
     }
     $xml.= "<cell><![CDATA[" . $ports . "]]></cell>";
     $plugingroups = "";
@@ -148,6 +153,9 @@ foreach($policy_list as $policy) {
             $sensors='<div title="'._('sensor non-existent').'">'.$sensors;
             $sensors.= '<a href="newpolicyform.php?id='.$id.'&sensorNoExist=true#tabs-5"><img style="vertical-align: middle" src="../pixmaps/tables/cross-small-circle.png" /></a></div>';
         }
+    }
+	if ($sensors == "ANY" || $sensors == "any") {
+    	$sensors = "<font color='#AAAAAA'><b>ANY</b></font>";
     }
     $xml.= "<cell><![CDATA[" . $sensors . "]]></cell>";
     if ($policy_time = $policy->get_time($conn)) {
@@ -174,6 +182,9 @@ foreach($policy_list as $policy) {
     $targets = "";
     if ($target_list = $policy->get_targets($conn)) foreach($target_list as $target) {
         $targets.= ($targets == "" ? "" : "<br/>") . $target->get_target_name();
+    }
+	if ($targets == "ANY" || $targets == "any") {
+    	$targets = "<font color='#AAAAAA'><b>ANY</b></font>";
     }
     $xml.= "<cell><![CDATA[" . $targets . "]]></cell>";
     $desc = html_entity_decode($policy->get_descr());

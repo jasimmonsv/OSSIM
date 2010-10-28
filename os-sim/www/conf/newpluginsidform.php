@@ -66,7 +66,7 @@ $reliability = GET('reliability');
 $priority = GET('priority');
 
 ossim_valid($plugin, OSS_DIGIT, 'illegal:' . _("plugin"));
-ossim_valid($name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("name"));
+ossim_valid($name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, 'illegal:' . _("name"));
 ossim_valid($sid, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("sid"));
 ossim_valid($reliability, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("reliability"));
 ossim_valid($priority, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("priority"));
