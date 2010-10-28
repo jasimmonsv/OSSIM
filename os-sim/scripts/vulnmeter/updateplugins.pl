@@ -115,6 +115,7 @@ $CONFIG{'DATABASENAME'} = "ossim";
 $CONFIG{'DATABASEHOST'} = $dbhost;
 $CONFIG{'UPDATEPLUGINS'} = ($ARGV[0] eq "update") ? 1 : 0;
 $CONFIG{'MIGRATEDB'} = ($ARGV[0] eq "migrate") ? 1 : 0;
+$CONFIG{'SYNCHRONIZATIONMETHOD'} = ($ARGV[1] ne "") ? $ARGV[1]:"";
 $CONFIG{'DATABASEDSN'} = "DBI:mysql";
 $CONFIG{'DATABASEUSER'} = $dbuser;
 $CONFIG{'DATABASEPASSWORD'} = $dbpass;
@@ -150,6 +151,8 @@ if (-e $nessus_vars{'nessus_updater_path'}) {
 else {
     $CONFIG{'NESSUSUPDATEPLUGINSPATH'} = ($nessus_vars{'nessus_path'} =~ /nessus/) ? "/usr/sbin/nessus-update-plugins" : "/usr/sbin/openvas-nvt-sync";
 }
+
+
 $CONFIG{'NESSUSPATH'} = $nessus_vars{'nessus_path'};
 $CONFIG{'NESSUSHOST'} = $nessus_vars{'nessus_host'};
 $CONFIG{'NESSUSUSER'} = $nessus_vars{'nessus_user'};
@@ -209,7 +212,7 @@ sub main {
     #    logwriter( "[$$]\tWARNING: ServerID is Invalid --CAN NOT CONTINUE", 1 );
     #    exit;
     #}
-    logwriter( "host=$nessushost, port=$nessusport, user=$nessususer, pass=$nessuspassword", 5 );
+    logwriter( "host=$nessushost, port=$nessusport, user=$nessususer, pass=$nessuspassword", 5 ); 
 
     #PROCEED WITH FORCE NESSUS TO UPDATE PLUGINS
     if ($updateplugins==1) {
@@ -317,7 +320,12 @@ sub perform_update {
     logwriter( "BEGIN - PERFORM UPDATE", 4 );
     my $time_start = time();
 
-    if ( -e $CONFIG{'NESSUSUPDATEPLUGINSPATH'} ) { 
+    if ( -e $CONFIG{'NESSUSUPDATEPLUGINSPATH'} ) {
+    
+        if ($CONFIG{'SYNCHRONIZATIONMETHOD'} eq "wget" && $nessus_vars{'nessus_path'} !~ /nessus/) { 
+            $CONFIG{'NESSUSUPDATEPLUGINSPATH'} .= " --wget"; 
+        }
+    
        logwriter( "$CONFIG{'NESSUSUPDATEPLUGINSPATH'} >> /tmp/update_scanner_plugins_rsync.log", 4 ); 
        system ("sudo $CONFIG{'NESSUSUPDATEPLUGINSPATH'} >> /tmp/update_scanner_plugins_rsync.log 2>&1") == 0 or logwriter( "updateplugins: No new plugins installed", 3 ); 
 
