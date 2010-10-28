@@ -82,7 +82,10 @@ require_once('functions.inc');
 //require_once('permissions.inc.php');
 //require_once('header2.php');
 
-$getParams = array( "section" );
+$conf = $GLOBALS["CONF"];
+$nessus_path = $conf->get_conf("nessus_path", FALSE);
+
+$getParams = array( "section", "smethod" );
 $postParams = array( "op", "submit" );
 
 switch ($_SERVER['REQUEST_METHOD']) {
@@ -108,6 +111,8 @@ case "POST" :
 }
 
 ossim_valid($action, OSS_NULLABLE, 'migrate', 'update', 'illegal:' . _("action"));
+ossim_valid($smethod, OSS_NULLABLE, 'rsync', 'wget', 'illegal:' . _("synchronization method"));
+
 if (ossim_error()) {
     die(_("Invalid Parameter action"));
 }
@@ -160,7 +165,8 @@ if (!$uroles['admin']) {
             echo "<br><span id=\"text_done\" style=\"display:none;\">"._("Done")."</span>";
             echo "</td></tr></table>";
             echo "<pre>";
-            passthru("export HOME='/tmp';cd $data_dir/scripts/vulnmeter/;perl updateplugins.pl $action");
+            
+            passthru("export HOME='/tmp';cd $data_dir/scripts/vulnmeter/;perl updateplugins.pl $action $smethod"); 
             echo "</pre>";
             ?>
             <script type="text/javascript">
@@ -213,7 +219,7 @@ if (!$uroles['admin']) {
       }
      echo "</form>";
    }
-   echo "<div>";
+   echo "<div>"; 
    echo "<form method='post' action='" . $_SERVER['SCRIPT_NAME'] . "'>";
    echo "<input type='hidden' name='op' value='save'>";
    echo "<p>" . $settingTabs . "</p>\n";
@@ -223,16 +229,28 @@ if (!$uroles['admin']) {
         echo "<center>";
         ?>
         <table width="900" class="transparent">
+            <?php
+            $display = "";
+            if (preg_match("/nessus\s*$/i", $nessus_path)) {
+                $display = "style='display:none;'";
+            }
+            ?>
+            <tr <?php echo $display;?>>
+                <td class="nobborder" style="padding:12px 0px 10px 0px;text-align:center;"><b><?php echo _("Synchronization method") ?>:</b>
+                    <input type="radio" name="smethod" value="rsync" checked="checked"/> <?php echo _("rsync - fastest");?>
+                    <input type="radio" name="smethod" value="wget" /> <?php echo _("wget - if rsync is blocked");?>
+                </td>
+            </tr>
             <tr>
                 <td class="nobborder" style="text-align:center;">
-                <input type="button" class="button" onclick="checking();document.location.href='webconfig.php?action=migrate'" value="<?=_("Recreate Scanner DB (can be used for Nessus < -- > OpenVAS migration)")?>">&nbsp;&nbsp;&nbsp;
+                <input type="button" class="button" onclick="checking();document.location.href='webconfig.php?action=migrate&smethod='+$('input[name=smethod]:checked').val()" value="<?=_("Recreate Scanner DB (can be used for Nessus < -- > OpenVAS migration)")?>">&nbsp;&nbsp;&nbsp;
                 <img style="display:none;" id="loading_image" width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?=_("Loading")?>" title="<?=_("Loading")?>">&nbsp;&nbsp;
                 <span id="loading_message"><span>
                 </td>
             </tr>
             <tr>
                 <td style="padding-top:8px;text-align:center;" class="nobborder">
-                    <input type="button" class="button" onclick="checking();document.location.href='webconfig.php?action=update'" value="<?=_("Update Scanner DB")?>">
+                    <input type="button" class="button" onclick="checking();document.location.href='webconfig.php?action=update&smethod='+$('input[name=smethod]:checked').val()" value="<?=_("Update Scanner DB")?>">
                 </td>
             </tr>
         </table>
