@@ -457,7 +457,13 @@ if (!isset($_GET["hide_search"])) {
 								<td class="nobborder">
 									<div style="position:relative">
 									<div id="tags_filter" style="display:none;border:0px;position:absolute">
-									<table>
+									<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+									<tr>
+										<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
+											<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
+											<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags_filter').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
+										</th>
+									</tr>
 									<? foreach ($tags as $tg) { ?>
 									<tr>
 										<td class="nobborder">
@@ -533,6 +539,12 @@ if (!isset($_GET["hide_search"])) {
 				   <div style="position:relative"> 
 						<div id="tags" style="position:absolute;right:0;top:0;display:none">
 						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+							<tr>
+								<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
+									<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
+									<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
+								</th>
+							</tr>
 							<?php if (count($tags) < 1) { ?>
 							<tr><td><?php echo _("No tags found.") ?></td></tr>
 							<?php } else { ?>
