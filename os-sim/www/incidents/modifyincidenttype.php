@@ -52,7 +52,8 @@ Session::logcheck("MenuIncidents", "IncidentsTypes");
 <?php
 require_once 'classes/Security.inc';
 
-$options = array ("Checkbox", "Select box", "Radio button", "Map", "Slider");
+$options = array ("Checkbox", "Select box", "Radio button", "Slider");
+
 
 $inctype_id = POST('id');
 $inctype_descr = POST('descr');

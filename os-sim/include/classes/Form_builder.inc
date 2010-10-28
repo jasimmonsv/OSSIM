@@ -32,15 +32,26 @@
 /**
 * Class and Function List:
 * Function list:
-* - 
-* - 
-* - 
-* - 
-* - 
-* - 
+* - set_attributes()
+* - get_scripts()
+* - add_script()
+* - get_def_funcs()
+* - add_def_func()
+* - exists_def_func()
+* - draw_element()
+* - draw_asset()
+* - draw_radioexc()
+* - draw_checkbox()
+* - draw_date()
+* - draw_map()
+* - draw_radiob()
+* - draw_selectbox()
+* - draw_slider()
+* - draw_textarea()
+* - draw_textbox()
 * - 
 * Classes list:
-* - 
+* - Form_builder
 */
 require_once ('classes/Incident.inc');
 require_once 'classes/Log_action.inc';
@@ -78,8 +89,7 @@ private static $types = array("Asset", "Check Yes/No", "Check True/False", "Chec
 			return false;
 	
 	}	
-	
-		
+			
 	public function draw_element($type){ 
 		switch ($type){
 			case "Asset":
@@ -209,9 +219,7 @@ public function draw_radioexc($subtype){
 
 public function draw_checkbox(){
 	
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<span style='width:20px; padding:3px 0px 0px 15px;'>(*)</span>";	
-		
+	$element = '';
 	
 	foreach ( $this->params as $k => $v)
 	{
@@ -219,49 +227,43 @@ public function draw_checkbox(){
 			$attributes .= "$k=\"$v\" ";
 	}
 	
-	foreach ( $this->params['values'] as $k => $v )
-	{
-		$v = trim($v);
-		$value = explode(":", $v);
-		$num_value = count($value);
 	
-		if ( !empty ($v) )
+	if ( is_array($this->params['values']) )
+	{
+		foreach ( $this->params['values'] as $k => $v )
 		{
-			if ($num_value == 1)
-				$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[0])."</span> ";
-			else if ($num_value == 2)
-				$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
-			else 
+			$v = trim($v);
+			$value = explode(":", $v);
+			$num_value = count($value);
+		
+			if ( !empty ($v) )
 			{
-				if ($num_value > 2)
-					$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+				if ($num_value == 1)
+					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[0])."</span> ";
+				else if ($num_value == 2)
+					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+				else 
+				{
+					if ($num_value > 2)
+						$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+				}
+				
+				
 			}
-			
-			
-		}
-	}	
-	
-	
-	for ($i=0; $i<count($values); $i++)
-	{
-		$element .= "<div><input type='checkbox' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i];
+		}	
 		
-		if ($i == 0)
-			$element .= " ".$required."</div>\n";
-		else
-			$element .= " </div>\n";
-			
+		
+		for ($i=0; $i<count($values); $i++)
+			$element .= "<div><input type='checkbox' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i]."</div>\n";
 	}
+	else
+		$element .= "<div style='padding: 5px 0px 0px 5px;'><span style='color: #D8000C; font-weight: bold;'>Error: Not option introduced</span></div>\n";
 	
-		
 	return $element;
 }
 
 public function draw_date(){
 
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<span style='width:20px; padding:3px 0px 0px 10px;'>(*)</span>";	
-	
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 
@@ -269,7 +271,6 @@ public function draw_date(){
 			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>
 			<div class='ct_widget' style='display:inline; padding-left: 3px;'>
 				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>
-				$required
 				<div class='ct_widgetCalendar' style='width:200px;'></div>
 			</div>
 		</div>";
@@ -344,17 +345,15 @@ public function draw_date(){
 
 public function draw_daterange(){
 
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<span style='width:20px; padding:3px 0px 0px 10px;'>(*)</span>";	
-	
 	foreach ( $this->params as $k => $v)
-		$attributes .= "$k=\"$v\" ";;
-
+		$attributes .= "$k=\"$v\" ";
+		
+		
+		
 	$element = "<div id='cont_".$this->params['id']."'>
 			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>
 			<div class='ct_widget' style='display:inline; padding-left: 3px;'>
 				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>
-				$required
 				<div class='ct_widgetCalendar' style='width:395px;'></div>
 			</div>
 		</div>";
@@ -449,27 +448,22 @@ public function draw_daterange(){
 
 public function draw_map(){
 	
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<span style='width:20px; padding:0px 0px 0px 13px;'>(*)</span>";	
-	
 	foreach ( $this->params as $k => $v)
 	{
 		if ($k != 'values')
 			$attributes .= "$k=\"$v\" ";
 	}
 	
-	$element  = "<div style='margin: 10px 0px 13px 0px;'>";
-	$element .= "<span style='padding-right: 13px; font-weight: bold;'>Location:</span>";
-	$element .= "<input type='text' ".$attributes."/>$required</div>";
-	$element .= "<div id='map_".$this->params["id"]."' class='field_fix' style='height:300px; display:none;'></div>";
+	$element .= "<div style='float: left; width:15%; font-weight: bold; padding: 15px 0px 10px 6px;'><span>Location:</span></div>";
+	$element .= "<div style='float: right; width:82%; font-weight: bold; padding: 10px 0px 10px 0px;'>";
+	$element .= "<input type='text' ".$attributes."'/></div>";
+	$element .= "<div id='map_".$this->params["id"]."' class='field_fix' style='height:300px; display:none; clear: both;'></div>";
 	
 	$map_key = ($this->params["values"][0] != '' ) ? $map_key : "ABQIAAAAbnvDoAoYOSW2iqoXiGTpYBTIx7cuHpcaq3fYV4NM0BaZl8OxDxS9pQpgJkMv0RxjVl6cDGhDNERjaQ";
 	
-	if ( $this->exists_def_func('') == false)
-	{
-		$def_func = "	
+	$script = "	
 						
-		var map;
+		var gmap_".$this->params["id"].";
 						
 		$('#".$this->params["id"]."').geo_autocomplete(new google.maps.Geocoder, {
 			mapkey: '".$map_key."', 
@@ -489,115 +483,112 @@ public function draw_map(){
 				  mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 		
-				map = new google.maps.Map(document.getElementById('map_".$this->params["id"]."'), myOptions);
+				gmap_".$this->params["id"]." = new google.maps.Map(document.getElementById('map_".$this->params["id"]."'), myOptions);
 				
-				map.fitBounds(_data.geometry.viewport);
-				map.setCenter(_data.geometry.location);
+				gmap_".$this->params["id"].".fitBounds(_data.geometry.viewport);
+				gmap_".$this->params["id"].".setCenter(_data.geometry.location);
 				var marker = new google.maps.Marker({
-					map: map,
+					map: gmap_".$this->params["id"].",
 					position: _data.geometry.location
 				});
 									
 			}
-		});
-					
-		";
+		});";
 		
-		$this->add_def_func("", $def_func);
-	}
+	$this->add_script($script);
+	
 		
 	return $element;
 }	
 
 public function draw_radiob(){
 	
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<span style='width:20px; padding:3px 0px 0px 15px;'>*</span>";	
-		
+	$element    = '';
+	$attributes = '';
+	
 	foreach ( $this->params as $k => $v)
 	{
 		if ($k != "id" && $k != "name" && $k != "values")
 			$attributes .= "$k=\"$v\" ";
-	}
-	
-	
-	$num_radio = count($this->params['values']);
-			
-	foreach ( $this->params['values'] as $k => $v )
-	{
-		$v = trim($v);
-		$value = explode(":", $v);
-		$num_value = count($value);
-		
-		if ( !empty ($v) )
-		{
-			if ($num_value == 1)
-				$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[0])."</span> ";
-			else if ($num_value == 2)
-				$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
-			else {
-				if ($num_value > 2)
-					$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
-			}
-		}
 	}	
 	
-	for ($i=0; $i<count($values); $i++)
-	{
-		$element .= "<div><input type='radio' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i];
-		
-		if ($i == 0)
-			$element .= " ".$required."</div>\n";
-		else
-			$element .= " </div>\n";
+	$num_radio = count($this->params['values']);
+	
+	if ( is_array ($this->params['values']) )
+	{		
+		foreach ( $this->params['values'] as $k => $v )
+		{
+			$v = trim($v);
+			$value = explode(":", $v);
+			$num_value = count($value);
 			
+			if ( !empty ($v) )
+			{
+				if ($num_value == 1)
+					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[0])."</span> ";
+				else if ($num_value == 2)
+					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+				else {
+					if ($num_value > 2)
+						$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+				}
+			}
+		}	
+		
+		for ($i=0; $i<count($values); $i++)
+			$element .= "<div><input type='radio' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i]."</div>\n";
 	}
-		
-		
+	else
+		$element .= "<div style='padding: 5px 0px 0px 5px;'><span style='color: #D8000C; font-weight: bold;'>Error: Not option introduced</span></div>\n";
+	
 	return $element;
 }	
 
 public function draw_selectbox(){
 		
 	$attributes = '';
+	$element = '';
 	
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<span style='width:20px; padding:3px 0px 0px 15px;'>(*)</span>";	
-	
-	foreach ( $this->params['values'] as $k => $v )
-	{
-		$v = trim($v);
-		$value = explode(":", $v);
-		$num_value = count($v);
-					
-		if ( !empty ($v) )
-		{
-			if ($num_value == 1)
-				$options.= "<option value='".htmlentities($value[0])."'>".htmlentities($value[0])."</option>\n";
-			else if ($num_value == 2)
-				$options.= "<option value='".htmlentities($value[0])."'>".htmlentities($value[1])."</option>\n";
-			else 
-			{
-				if ($num_value > 2)
-					$options.= "<option value='".htmlentities($value[0])."' selected='selected'>".htmlentities($value[1])."</option>\n";
-			}
-		}	
-	}
-	
+	$values = $this->params['values'];
 	unset($this->params['values']);
-	foreach ( $this->params as $k => $v)
-			$attributes .="$k=\"$v\" ";
 	
-	$element = "<select ".$attributes.">".$options."</select>$required";
+	foreach ( $this->params as $k => $v)
+		$attributes .="$k=\"$v\" ";
+	
+	if ( is_array($values) )
+	{
+		foreach ( $values as $k => $v )
+		{
+			$v = trim($v);
+			$value = explode(":", $v);
+			$num_value = count($v);
+						
+			if ( !empty ($v) )
+			{
+				if ($num_value == 1)
+					$options.= "<option value='".htmlentities($value[0])."'>".htmlentities($value[0])."</option>\n";
+				else if ($num_value == 2)
+					$options.= "<option value='".htmlentities($value[0])."'>".htmlentities($value[1])."</option>\n";
+				else 
+				{
+					if ($num_value > 2)
+						$options.= "<option value='".htmlentities($value[0])."' selected='selected'>".htmlentities($value[1])."</option>\n";
+				}
+			}	
+		}
+		
+		$element = "<select ".$attributes.">".$options."</select>";
+	}
+	else
+		$element = "<select ".$attributes."><option style='text-align:center;' value=''>"._("Not options introduced")."</option></select>";
+		
+	
 	
 	return $element;
 }
 
 public function draw_slider(){
 
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<span style='width:20px; padding:3px 0px 0px 20px;'>(*)</span>";	
-	
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 		
@@ -605,13 +596,13 @@ public function draw_slider(){
 	$max_value = ( is_numeric($this->params["values"][1]) ) ? $this->params["values"][1] : "10";
 	$step      = ( is_numeric($this->params["values"][2]) ) ? $this->params["values"][2] : "1";
 	
-	$element="  <div style='float:left; padding-top: 3px; width:40px; heigth: 25px;'>
-					<span id='dial_".$this->params['name']."' style='font-weight: bold; padding: 0px 12px'>".$min_value."</span>
+	$element="  <div style='float:left; padding-top: 3px; width:30px; heigth: 25px;'>
+					<span id='dial_".$this->params['name']."' style='font-weight: bold; padding: 0px 6px'>".$min_value."</span>
 				</div>
 				<div class='ct_slider'>
 					<div id='cont_".$this->params['name']."' style='width:100%; height:3px;'></div>
 				</div>
-				$required
+				
 				<input type='hidden' ".$attributes." value='".$min_value."'/>";
 	
 
@@ -638,14 +629,10 @@ public function draw_textarea(){
 	
 	$attributes = '';
 
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<div style='float: right; width:20px; padding: 3px 15px 0px 0px;'>(*)</div>";	
-
-		
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 	
-	$element = "<textarea $attributes></textarea>$required";
+	$element = "<textarea $attributes></textarea>";
 	
 	return $element;
 
@@ -655,13 +642,10 @@ public function draw_textbox(){
 	
 	$attributes = '';
 
-	if ( preg_match("/req_field/", $this->params["class"] ) != false )
-		$required = "<span style='width:20px; padding:0px 0px 0px 13px;'>(*)</span>";	
-
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 	
-	$element = "<input type='text' $attributes/>$required";
+	$element = "<input type='text' $attributes/>";
 	
 	return $element;
 

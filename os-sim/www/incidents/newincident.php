@@ -74,7 +74,12 @@ function get_params_field($field){
 		break;
 		
 		case "Checkbox":
-			$options = explode("\n", $field["options"]);
+		
+			if ($field["options"] != '')
+				$options = explode("\n", $field["options"]);
+			else
+				$options = '';
+				
 			$num_opt = count($options);
 			
 			$num_chk = ($options[$num_opt-1] == '' ) ? $num_opt-1 : $num_opt;
@@ -95,11 +100,16 @@ function get_params_field($field){
 		break;
 		
 		case "Map":
-			$params = array("name" => $name, "id"=>$fld, "class"=>$required, "style"=> "width:390px;", "values"=>array($map_key));
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required, "values"=>array($map_key));
 		break;
 			
 		case "Radio button":
-			$options = explode("\n", $field["options"]);
+			
+			if ($field["options"] != '')
+				$options = explode("\n", $field["options"]);
+			else
+				$options = '';
+				
 			$num_opt = count($options);
 			
 			$num_radio = ($options[$num_opt-1] == '' ) ? $num_opt-1 : $num_opt;
@@ -112,12 +122,22 @@ function get_params_field($field){
 		break;
 		
 		case "Select box":
-			$options = explode("\n", $field["options"]);
+			
+			if ($field["options"] != '')
+				$options = explode("\n", $field["options"]);
+			else
+				$options = '';
+				
 			$params = array("name" => $name, "id"=>$fld, "class"=>$required, "values"=> $options);
 		break;
 		
 		case "Slider":
-			$options = explode(",", $options );
+			
+			if ($field["options"] != '')
+				$options = explode("\n", $field["options"]);
+			else
+				$options = '';
+				
 			$params = array("name" => $name, "id"=>$fld, "class"=>$required, "values"=> $options);
 		break;
 					
@@ -399,12 +419,28 @@ if ($edit) {
 	</script>
 	
 	<style type='text/css'>
-		textarea, .field_fix { width: 90%;}
+		
+		textarea, .field_fix { width: 100%;}
 		select { width: 200px;}
 		option {height: 15px;}
-		input[type='text'] { width: 90%; height: 18px;}
 		th {padding: 5px 0px;}
+		
+		input[type='text'] { width: 100%; height: 18px;}
+				
+		.thw {width: 150px;}
+		.label_name{width: 150px; overflow: hidden;}
+		.ct_slider {float:left; width:430px; heigth: 25px; margin-top:6px;}
+		a.ui-slider-handle { top: -7px !important;}
+		
 		.ac_results li img {float: left;margin-right: 5px;}
+		
+		.wfl1 {float:left; width: auto;} 
+		.wfr1 {float:left; padding: 5px 0px 0px 15px; width: auto;} 
+
+		.wfl2 {float:left; width: 460px; } 
+		.wfr2 {float:left; padding: 5px 0px 0px 10px; width: 30px;} 
+		
+		.wf3 {float:left; width: 480px; }
 	</style
 </head>
 
@@ -419,14 +455,16 @@ include ("../hmenu.php"); ?>
 <input type="hidden" name="submitter" value="<?php echo $submitter ?>" />
 <div id='info_error' class='ct_error'></div>
 
-<table align="center" width="600">
-  <tr>
-    <th><?php echo _("Title") ?></th>
-    <td class="left">
-      <input type="text" name="title" size="40" value="<?php echo $title ?>"/>
-	  <span style='width:20px; padding:3px 0px 0px 15px;'>(*)</span>
-    </td>
-  </tr>
+<table align="center" width="680">
+	<tr>
+		<th class='thw'><?php echo _("Title") ?></th>
+		<td class="left">
+			<div class='wfl2'>
+				<input type="text" name="title" value="<?php echo $title ?>"/>
+			</div>
+			<div class='wfr2'><span>(*)</span></div>
+		</td>
+	</tr>
     
 <?
 $users = Session::get_list($conn);
@@ -454,16 +492,17 @@ if(preg_match("/pro|demo/i",$version)) {
             <td style="text-align: left">
                 <table width="400" cellspacing="0" cellpadding="0" class="transparent">
                     <tr>
-                        <td class="nobborder"><?php echo _("User:");?></td>
+                        <td class="nobborder left"><?php echo _("User:");?></td>
                         <td class="nobborder">
-                          <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
-                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-                            <?php
-                            foreach($users as $u) if(Session::get_session_user()!=$u->get_login()){ ?>
-                                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
-                            <?php
-                            } ?>
-                          </select>
+							<select name="transferred_user" id="user" onchange="switch_user('user');return false;">
+								<option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+								<?php
+								foreach($users as $u) if(Session::get_session_user()!=$u->get_login()){ ?>
+									<option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
+								<?php
+								} ?>
+							</select>
+							</div>
                         </td>
                         <td style="padding:0px 5px 0px 5px;text-align:center;" class="nobborder"><?php echo _("OR");?></td>
                         <td class="nobborder"><?php echo _("Entity:");?></td>
@@ -520,25 +559,21 @@ if(preg_match("/pro|demo/i",$version)) {
             <td style="text-align: left;">
                 <table width="400" cellspacing="0" cellpadding="0" class="transparent">
                     <tr>
-                        <td class="nobborder"><?php echo _("User:");?></td>
+                        <td class="nobborder left"><?php echo _("User:");?></td>
                         <td class="nobborder">
-                          <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
-                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-                            <?php
-                            foreach($users_pro as $loginu => $nameu) { ?>
-                                <option value="<?php echo $loginu; ?>"><?php echo $nameu; ?></option>
-                            <?php
-                            } ?>
-                          </select>
+							<select name="transferred_user" id="user" onchange="switch_user('user');return false;">
+								<option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+								<?php foreach($users_pro as $loginu => $nameu) { ?>
+								<option value="<?php echo $loginu; ?>"><?php echo $nameu; ?></option>
+								<?php } ?>
+							</select>
                         </td>
                         <td style="padding:0px 5px 0px 5px;text-align:center;" class="nobborder"><?php echo _("OR");?></td>
                         <td class="nobborder"><?php echo _("Entity:");?></td>
                         <td class="nobborder">
                             <select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
                             <option value=""><? if (count($entities_pro) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
-                            <?php
-                                foreach ( $entities_pro as $entity_id => $entity_name ) {
-                                ?>
+                            <?php foreach ( $entities_pro as $entity_id => $entity_name ) { ?>
                                 <option value="<?php echo $entity_id; ?>"><?php echo $entity_name;?></option>
                                 <?php } ?>
                             </select>
@@ -564,14 +599,12 @@ if(preg_match("/pro|demo/i",$version)) {
                 <tr>
                     <th><?php echo _("Assign To") ?></th>
                     <td style="text-align: left">
-                      <select name="transferred_user">
-                        <option value=""><? if (count($users_pro) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-                        <?php
-            foreach($users_pro as $loginu => $nameu) { ?>
-                    <option value="<?php echo $loginu ?>"><?php echo $nameu ?></option>
-            <?php
-            } ?>
-                      </select>
+						<select name="transferred_user">
+							<option value=""><? if (count($users_pro) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+							<?php foreach($users_pro as $loginu => $nameu) { ?>
+							<option value="<?php echo $loginu ?>"><?php echo $nameu ?></option>
+							<?php } ?>
+                        </select>
                     </td>
                 </tr>
             <?
@@ -582,248 +615,247 @@ else {
     <tr>
         <th><?php echo _("Assign To") ?></th>
         <td style="text-align: left">
-          <select name="transferred_user">
-            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-            <?php
-            foreach($users as $u) if ($u->get_login()!=Session::get_session_user()) { ?>
+			<select name="transferred_user">
+				<option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
+				<?php foreach($users as $u) if ($u->get_login()!=Session::get_session_user()) { ?>
                 <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
-            <?php
-            } ?>
+				<?php } ?>
           </select>
         </td>
     </tr> 
 <?}?>
-  <tr>
-    <th><?php echo _("Priority") ?></th>
-    <td class="left">
-      <select name="priority">
-<?php
-$options = "";
-for ($i = 1; $i <= 10; $i++) {
-    $options.= "<option value=\"$i\"";
-    if ($priority == $i) {
-        $options.= " selected ";
-    }
-    $options.= ">$i</option>";
-}
-print $options;
-?>
-      </select> 
-    </td>
-  </tr>
-  <tr>
-    <th><?php echo _("Type") ?></th>
-	<?php 
-	if ( $ref == "Custom" )
-		echo "<td class='left'><span style='font-weight:bold;'>$type</span><input type='hidden' name='type' value='$type'/></td>";
-	else
-		Incident::print_td_incident_type($conn, $type); 
-	?>
-  </tr>
+	<tr>
+		<th><?php echo _("Priority") ?></th>
+		<td class="left">
+			<select name="priority">
+			<?php
+			$options = "";
+			for ($i = 1; $i <= 10; $i++) {
+				$options.= "<option value=\"$i\"";
+				if ($priority == $i) {
+					$options.= " selected ";
+				}
+				$options.= ">$i</option>";
+			}
+			print $options;
+			?>
+			</select> 
+		</td>
+	</tr>
+	<tr>
+		<th><?php echo _("Type") ?></th>
+		<?php 
+		if ( $ref == "Custom" )
+			echo "<td class='left'><span style='font-weight:bold;'>$type</span><input type='hidden' name='type' value='$type'/></td>";
+		else
+			Incident::print_td_incident_type($conn, $type); 
+		?>
+	</tr>
 
-<?php
-if (($ref == "Alarm") or ($ref == "Event")) {
-?>
-  <tr>
-    <th class='thr'><?php echo _("Source Ips") ?></th>
-    <td class="left">
-		<input type="hidden" name="backlog_id" value="<?php echo $backlog_id?>" />
-		<input type="hidden" name="event_id" value="<?php echo $event_id?>" />
-		<input type="hidden" name="alarm_group_id" value="<?php echo $alarm_gid?>" />
-		<input type="text" name="src_ips" value="<?php echo $src_ips ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th class='thr'><?php echo _("Dest Ips") ?></th>
-    <td class="left">
-		<input type="text" name="dst_ips" value="<?php echo $dst_ips ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th class='thr'><?php echo _("Source Ports") ?></th>
-    <td class="left">
-		<input type="text" name="src_ports" value="<?php echo $src_ports ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th class='thr'><?php echo _("Dest Ports") ?></th>
-    <td class="left">
-		<input type="text" name="dst_ports" value="<?php echo $dst_ports ?>" /></td>
-  </tr>
-  <tr>
-    <th class='thr'><?php echo _("Start of related events") ?></th>
-    <td class="left">
-		<input type="text" name="event_start" value="<?php echo $event_start ?>" /></td>
-  </tr>
-  <tr>
-    <th  class='thr'><?php echo _("End of related events") ?></th>
-    <td class="left">
-		<input type="text" name="event_end" value="<?php echo $event_end ?>" /></td>
-  </tr>
+<?php if (($ref == "Alarm") or ($ref == "Event")) { ?>
+	<tr>
+		<th class='thr'><?php echo _("Source Ips") ?></th>
+		<td class="left">
+			<div class='wf3'>
+				<input type="hidden" name="backlog_id" value="<?php echo $backlog_id?>" />
+				<input type="hidden" name="event_id" value="<?php echo $event_id?>" />
+				<input type="hidden" name="alarm_group_id" value="<?php echo $alarm_gid?>" />
+				<input type="text" name="src_ips" value="<?php echo $src_ips ?>" />
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("Dest Ips") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="dst_ips" value="<?php echo $dst_ips ?>" /></div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("Source Ports") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="src_ports" value="<?php echo $src_ports ?>" /></div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("Dest Ports") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="dst_ports" value="<?php echo $dst_ports ?>" /></div></td>
+		</tr>
+	<tr>
+		<th class='thr'><?php echo _("Start of related events") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="event_start" value="<?php echo $event_start ?>" /></div></td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("End of related events") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="event_end" value="<?php echo $event_end ?>" /></div></td>
+	</tr>
 
 <?php
 } elseif ($ref == "Metric") {
 ?>
-  <tr>
-    <th class='thr'><?php echo _("Target (net, ip, etc)") ?></th>
-    <td class="left">
-		<input type="text" name="target" value="<?php echo $target ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th class='thr'><?php echo _("Metric type") ?></th>
-    <td class="left">
-      <select name="metric_type">
-        <option value="Compromise"
-        <?php
-    if ($metric_type == "Compromise") echo " selected "; ?>
-            ><?=_("Compromise")?></option>
-        <option value="Attack"
-        <?php
-    if ($metric_type == "Attack") echo " selected "; ?>
-            ><?=_("Attack")?></option>
-        <option value="Level"
-        <?php
-    if ($metric_type == "Level") echo " selected "; ?>
-            ><?=_("Level")?></option>
-      </select>
-    </td>
-  </tr>
-  <tr>
-    <th  class='thr'><?php echo _("Metric value") ?></th>
-    <td class="left">
-      <input type="text" name="metric_value" value="<?php echo $metric_value ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th  class='thr'><?php echo _("Start of related events") ?></th>
-    <td class="left">
-      <input type="text" name="event_start" value="<?php echo $event_start ?>" /></td>
-  </tr>
-  <tr>
-    <th  class='thr'><?php echo _("End of related events") ?></th>
-    <td class="left">
-      <input type="text" name="event_end" value="<?php echo $event_end ?>" /></td>
-  </tr>
+	<tr>
+		<th class='thr'><?php echo _("Target (net, ip, etc)") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="target" value="<?php echo $target ?>" /></div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("Metric type") ?></th>
+		<td class="left">
+			<select name="metric_type">
+				<option value="Compromise"
+				<?php
+			if ($metric_type == "Compromise") echo " selected "; ?>
+					><?=_("Compromise")?></option>
+				<option value="Attack"
+				<?php
+			if ($metric_type == "Attack") echo " selected "; ?>
+					><?=_("Attack")?></option>
+				<option value="Level"
+				<?php
+			if ($metric_type == "Level") echo " selected "; ?>
+					><?=_("Level")?></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("Metric value") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="metric_value" value="<?php echo $metric_value ?>"/></div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("Start of related events") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="event_start" value="<?php echo $event_start ?>"/></div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("End of related events") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="event_end" value="<?php echo $event_end ?>"/></div>
+		</td>
+	</tr>
 <?php
 } elseif ($ref == "Anomaly") {
 ?>
-  <tr>
-    <th  class='thr'><?php echo _("Anomaly type") ?></th>
-    <td class="left">
-      <input type="text" name="anom_type" size="30" value="<?php echo $anom_type ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th  class='thr'><?php echo _("Host") ?></th>
-    <td class="left">
-      <input type="text" name="anom_ip" size="30" value="<?php echo $anom_ip ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th  class='thr'><?php echo _("Sensor") ?></th>
-    <td class="left">
-      <input type="text" name="a_sen" size="30" value="<?php echo $a_sen ?>" />
-    </td>
-  </tr>
+	<tr>
+		<th class='thr'><?php echo _("Anomaly type") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="anom_type" size="30" value="<?php echo $anom_type ?>"/></div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("Host") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="anom_ip" size="30" value="<?php echo $anom_ip ?>"/></div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("Sensor") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_sen" size="30" value="<?php echo $a_sen ?>" /></div>
+		</td>
+	</tr>
 <?php
     if ($anom_type == "os") {
 ?>
-   <tr>
-    <th  class='thr'><?php echo _("Old OS") ?></th>
-    <td class="left">
-      <input type="text" name="a_os_o" size="30" value="<?php echo $a_os_o ?>" />
-    </td>
-  </tr>
-  <tr>
+	<tr>
+		<th class='thr'><?php echo _("Old OS") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_os_o" size="30" value="<?php echo $a_os_o ?>" /></div>
+		</td>
+	</tr>
+	<tr>
     <th class='thr'><?php echo _("New OS") ?></th>
-    <td class="left">
-      <input type="text" name="a_os"  size="30" value="<?php echo $a_os ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th  class='thr'><?php echo _("When") ?></th>
-    <td class="left">
-      <input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" />
-    </td>
-  </tr>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_os"  size="30" value="<?php echo $a_os ?>" /></div>
+		</td>
+	</tr>
+	<tr>
+		<th  class='thr'><?php echo _("When") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" /></div>
+		</td>
+	</tr>
 
      
 <?php
     } elseif ($anom_type == "mac") {
 ?>
-   <tr>
-    <th class='thr'><?php echo _("Old mac") ?></th>
-    <td class="left">
-      <input type="text" name="a_mac_o" size="30" value="<?php echo $a_mac_o ?>" />
-    </td>
-  </tr>
+	<tr>
+		<th class='thr'><?php echo _("Old mac") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_mac_o" size="30" value="<?php echo $a_mac_o ?>" /></div>
+		</td>
+	</tr>
     <tr>
-    <th class='thr'><?php echo _("New mac") ?></th>
-    <td class="left">
-      <input type="text" name="a_mac" size="30" value="<?php echo $a_mac ?>" />
-    </td>
-  </tr>
+		<th class='thr'><?php echo _("New mac") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_mac" size="30" value="<?php echo $a_mac ?>" /></div>
+		</td>
+	</tr>
     <tr>
-    <th class='thr'><?php echo _("Old vendor") ?></th>
-    <td class="left">
-      <input type="text" name="a_vend_o" size="30" value="<?php echo $a_vend_o ?>" />
-    </td>
-  </tr>
+		<th class='thr'><?php echo _("Old vendor") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_vend_o" size="30" value="<?php echo $a_vend_o ?>" /></div>
+		</td>
+	</tr>
     <tr>
-    <th class='thr'><?php echo _("New vendor") ?></th>
-    <td class="left">
-      <input type="text" name="a_vend" size="30" value="<?php echo $a_vend ?>" />
-    </td>
-  </tr>
-  <tr>
-    <th class='thr'><?php echo _("When") ?></th>
-    <td class="left">
-      <input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" />
-    </td>
-  </tr>
-
+		<th class='thr'><?php echo _("New vendor") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_vend" size="30" value="<?php echo $a_vend ?>" /></div>
+		</td>
+	</tr>
+	<tr>
+		<th class='thr'><?php echo _("When") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" /></div>
+		</td>
+	</tr>
 
 <?php
     } elseif ($anom_type == "service") {
 ?>
 
-  <tr>
-    <th class='thr'><?php echo _("Port") ?></th>
-    <td class="left">
-      <input type="text" name="a_port" value="<?php echo $a_port ?>" />
-    </td>
-  </tr>
+	<tr>
+		<th class='thr'><?php echo _("Port") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_port" value="<?php echo $a_port ?>" /></div>
+		</td>
+	</tr>
     <tr>
-    <th class='thr'><?php echo _("Old Protocol") ?></th>
-    <td class="left">
-      <input type="text" name="a_prot_o" size="30" value="<?php echo $a_prot_o ?>" />
+		<th class='thr'><?php echo _("Old Protocol") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_prot_o" size="30" value="<?php echo $a_prot_o ?>" /></div>
     </td>
-  </tr>
+	</tr>
+    <tr>
+		<th class='thr'><?php echo _("Old Version") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_ver_o" size="30" value="<?php echo $a_ver_o ?>" /></div>
+		</td>
+	</tr>
+    <tr>
+		<th class='thr'><?php echo _("New Protocol") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_prot" size="30" value="<?php echo $a_prot ?>" /></div>
+		</td>
+	</tr>
      <tr>
-    <th class='thr'><?php echo _("Old Version") ?></th>
-    <td class="left">
-      <input type="text" name="a_ver_o" size="30" value="<?php echo $a_ver_o ?>" />
-    </td>
-  </tr>
+		<th class='thr'><?php echo _("New Version") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_ver" size="30" value="<?php echo $a_ver ?>" /></div>
+		</td>
+	</tr>
     <tr>
-    <th class='thr'><?php echo _("New Protocol") ?></th>
-    <td class="left">
-      <input type="text" name="a_prot" size="30" value="<?php echo $a_prot ?>" />
-    </td>
-  </tr>
-     <tr>
-    <th class='thr'><?php echo _("New Version") ?></th>
-    <td class="left">
-      <input type="text" name="a_ver" size="30" value="<?php echo $a_ver ?>" />
-    </td>
-  </tr>
-    <tr>
-    <th class='thr'><?php echo _("When") ?></th>
-    <td class="left">
-      <input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" />
-    </td>
-  </tr>
+		<th class='thr'><?php echo _("When") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="a_date" size="30" value="<?php echo $a_date ?>" /></div>
+		</td>
+	</tr>
 
 <?php
     }
@@ -834,36 +866,36 @@ if (($ref == "Alarm") or ($ref == "Event")) {
 } elseif ($ref == "Vulnerability") {
 ?>
 
- <tr>
-    <th class='thr'><?php echo _("IP") ?></th>
-    <td class="left">
-      <input type="text" name="ip" value="<?php echo $ip ?>" />
-    </td>
-  </tr>
+	<tr>
+		<th class='thr'><?php echo _("IP") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="ip" value="<?php echo $ip ?>" /></div>
+		</td>
+		</tr>
+	<tr>
+		<th class='thr'><?php echo _("Port") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="port" size="30" value="<?php echo $port ?>" /></div>
+		</td>
+	</tr>
     <tr>
-    <th class='thr'><?php echo _("Port") ?></th>
-    <td class="left">
-      <input type="text" name="port" size="30" value="<?php echo $port ?>" />
-    </td>
-  </tr>
-     <tr>
-    <th class='thr'><?php echo _("Nessus/OpenVas ID") ?></th>
-    <td class="left">
-      <input type="text" name="nessus_id" size="30" value="<?php echo $nessus_id ?>" />
-    </td>
-  </tr>
+		<th class='thr'><?php echo _("Nessus/OpenVas ID") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="nessus_id" size="30" value="<?php echo $nessus_id ?>" /></div>
+		</td>
+	</tr>
     <tr>
-    <th class='thr'><?php echo _("Risk") ?></th>
-    <td class="left">
-      <input type="text" name="risk" size="30" value="<?php echo $risk ?>" />
-    </td>
-  </tr>
-     <tr>
-    <th class='thr'><?php echo _("Description") ?></th>
-    <td class='left' style="border-width: 0px;">
-        <textarea name="description" rows="10" cols="80" wrap="hard"><?php echo $description ?></textarea>
-    </td>
-  </tr>
+		<th class='thr'><?php echo _("Risk") ?></th>
+		<td class="left">
+			<div class='wf3'><input type="text" name="risk" size="30" value="<?php echo $risk ?>" /></div>
+		</td>
+	</tr>
+    <tr>
+		<th class='thr'><?php echo _("Description") ?></th>
+		<td class='left' style="border-width: 0px;">
+			<div class='wf3'><textarea name="description" rows="10" cols="80" wrap="hard"><?php echo $description ?></textarea></div>
+		</td>
+	</tr>
 
  
   
@@ -877,11 +909,29 @@ if (($ref == "Alarm") or ($ref == "Event")) {
 	$cont = 1;
 	foreach ($fields as $field) {
 		
-		echo "<tr id='item_".$cont."'><th id='name_".$cont."' class='thr'>".$field['name']."</th>";
-    	echo "<td style='border-width: 0px;text-align:left'>";
+
+		echo "<tr id='item_".$cont."'><th id='name_".$cont."' class='thr'><div class='label_name'>".utf8_decode($field['name'])."</div></th>";
+    	
+		echo "<td style='border-width: 0px;text-align:left'>";
 		$params = get_params_field($field);
-			$form_builder->set_attributes($params);
+		$form_builder->set_attributes($params);
+		
+		$wf1_types = array ('Select box', 'Date','Date Range', 'Checkbox', 'Radio button');
+		
+		if ( in_array($field['type'], $wf1_types) )
+			$class_wf = array('wfl1', 'wfr1');
+		else
+			$class_wf =  array('wfl2', 'wfr2');
+		
+		echo "<div class='".$class_wf[0]."'>";
 			echo $form_builder->draw_element($field['type']);
+		echo "</div>";
+		
+		$req_f_inherent = array('Check True/False', 'Check Yes/No', 'Asset', 'Slider');
+		
+		$mandatory = ( $field['required'] == 1 && !in_array($field['type'], $req_f_inherent) ) ? "<span>(*)</span>" : "";
+			
+			echo "<div class='".$class_wf[1]."'>".$mandatory."</div>";
 		echo "</td>";
 					
     	echo"</tr>\n";

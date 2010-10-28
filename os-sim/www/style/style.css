@@ -897,7 +897,6 @@ div.balloon:hover span.bottom {
  /* Custom incident types*/
  
 .thr { 
-	white-space:nowrap;
 	border: 1px solid #aaaaaa; 
 	/*background: #C0CAD0 url(../pixmaps/theme/ui-bg_highlight-soft_75_blue_1x100.png) scroll 50% 50% repeat-x; */
 	background: #D1DADF;
@@ -906,6 +905,7 @@ div.balloon:hover span.bottom {
 	font-weight: bold; 
 	text-align: center; 
 	padding: 10px 5px;
+	overflow:hidden;
 }
  
 .ct { width: 155px; vertical-align: top;}
@@ -965,6 +965,8 @@ div.balloon:hover span.bottom {
 	width: 700px;
 	margin: 20px auto;
 	display: none;
+	padding: 10px 40px;
+	overflow: hidden;
 }
 
 .ct_error {
@@ -1006,7 +1008,9 @@ div.balloon:hover span.bottom {
 	height: 0px;
 	overflow: hidden;
 	background: #8E8E8E;
-	border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
+	border-radius: 5px; 
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px;
 }
 
 .ct_widgetCalendar .datepicker {
@@ -1032,18 +1036,30 @@ div.balloon:hover span.bottom {
 	position: relative;
 }
 
-.ct_slider {float:left; width:403px; heigth: 25px; padding:2px 0px 0px 6px; margin-top:6px;}
-
-a.ui-slider-handle { top: -7px !important;}
-
 .ct_assets { padding: 10px 0px;}
 
 .ct_assets_sel {
-background-color:#EFEBDE;
-padding:2px 5px 2px 5px;
-border:1px dotted #cccccc;
-font-size:14px
+	background-color:#EFEBDE;
+	padding:2px 5px 2px 5px;
+	border:1px dotted #cccccc;
+	font-size:14px
 }
 
 #cancel_cont input { text-align: center;}
+
+
+.ellipsis {
+	overflow:hidden; 
+	text-overflow:ellipsis; 
+	-o-text-overflow:ellipsis;
+	-ms-text-overflow:ellipsis;
+	-moz-binding:url(ellipsis-xbl.xml#ellipsis);
+	display:block;
+	width: 150px;
+}
+
+
+
+
+
 

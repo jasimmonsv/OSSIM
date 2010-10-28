@@ -91,7 +91,8 @@ function checked_form()
 		msg = '<?=_("Field name is empty.")?><br/>';
 	else
 	{
-		if (old_fieldname.toLowerCase() != fieldname.toLowerCase())
+		
+		if (typeof (old_field_name) != 'undefined' && old_fieldname.toLowerCase() != fieldname.toLowerCase())
 		{
 			var fieldnames = $('.ct_name').text();
 					
@@ -205,8 +206,6 @@ function edit_ticket(id)
 	$('.ct_add').html("<input type='button' id='add_button' value='<?=_("Save")?>' class='button' onclick=\"modify_ct();\"/>");
 	
 	$("#cancel_cont").html("<input type='button' id='cancel' class='button' value='<?=_("Cancel")?>' onclick=\"cancel_ticket();\"/>"); 
-	//$("#cancel").css('margin-right', '20px');	
-	//$("#cancel").css('width', '50px');
 	window.scrollTo(0, 0);	
 	$("#custom_namef").focus();
 
@@ -216,6 +215,7 @@ function edit_ticket(id)
 
 function cancel_ticket()
 {
+	$('#modify').val('add');
 	$("#header_nct").html("<?=_("New Custom Type")?>");
 	$("#cancel, #old_name").remove();
 	

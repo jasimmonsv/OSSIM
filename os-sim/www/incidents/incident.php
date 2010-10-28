@@ -87,6 +87,9 @@ echo gettext("OSSIM Framework"); ?> </title>
 			GB_show(t,this.href,400,'60%');
 			return false;
 		});
+		
+		$('#custom_table tr:odd').css('background', "#F2F2F2");
+		
 	});
     function switch_user(select) {
         if(select=='entity' && $('#transferred_entity').val()!=''){
@@ -100,10 +103,10 @@ echo gettext("OSSIM Framework"); ?> </title>
   
  <script type="text/javascript">
   
-	var map;
 	var geocoder;
+	var map;
 			
-	function codeAddress(address) {
+	function codeAddress(map, address) {
 		geocoder.geocode( { 'address': address}, function(results, status) {
 		  if (status == google.maps.GeocoderStatus.OK) {
 			map.setCenter(results[0].geometry.location);
@@ -119,6 +122,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 	}
 	  
 	function initialize(id, address) {
+		
 		geocoder = new google.maps.Geocoder();
 		var myOptions = {
 		  zoom: 8,
@@ -127,7 +131,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 	
 		map = new google.maps.Map(document.getElementById(id), myOptions);
 	
-		codeAddress(address);
+		codeAddress(map, address);
 	}
   
   
@@ -242,62 +246,77 @@ if ($incident->get_status($conn) == "Closed") {
             <?php echo _("Extra") ?>: <?php echo $taghtm ?><br/>
             <!--<hr/>-->
             </td></tr>
-            <tr><td style="text-align:left;padding-left:10px;">
-    <?php
-if ($ref == 'Alarm' or $ref == 'Event') {
-    if ($ref == 'Alarm') {
-        $alarm_list = $incident->get_alarms($conn);
-    } else {
-        $alarm_list = $incident->get_events($conn);
-    }
-    foreach($alarm_list as $alarm_data) {
-        echo "Source Ips: <a href='../report/host_report.php?host=".$alarm_data->get_src_ips()."' class='HostReportMenu' id='".$alarm_data->get_src_ips().";".$alarm_data->get_src_ips()."'><b>" . $alarm_data->get_src_ips() . "</b></a> - " . "Source Ports: <b>" . $alarm_data->get_src_ports() . "</b><br/>" . "Dest Ips: <a href='../report/host_report.php?host=".$alarm_data->get_dst_ips()."' class='HostReportMenu' id='".$alarm_data->get_dst_ips().";".$alarm_data->get_dst_ips()."'><b>" . $alarm_data->get_dst_ips() . "</b></a> - " . "Dest Ports: <b>" . $alarm_data->get_dst_ports() . "</b>";
-    }
-} elseif ($ref == 'Metric') {
-    $metric_list = $incident->get_metrics($conn);
-    foreach($metric_list as $metric_data) {
-        echo "Target: <b>" . $metric_data->get_target() . "</b> - " . "Metric Type: <b>" . $metric_data->get_metric_type() . "</b> - " . "Metric Value: <b>" . $metric_data->get_metric_value() . "</b>";
-    }
-} elseif ($ref == 'Anomaly') {
-    $anom_list = $incident->get_anomalies($conn);
-    foreach($anom_list as $anom_data) {
-        $anom_type = $anom_data->get_anom_type();
-        $anom_ip = $anom_data->get_ip();
-        $anom_info_o = $anom_data->get_data_orig();
-        $anom_info = $anom_data->get_data_new();
-        if ($anom_type == 'mac') {
-            list($a_sen, $a_date_o, $a_mac_o, $a_vend_o) = explode(",", $anom_info_o);
-            list($a_sen, $a_date, $a_mac, $a_vend) = explode(",", $anom_info);
-            echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous Mac: <b>" . $a_mac_o . "(" . $a_vend_o . ")</b><br>" . "New Mac: <b>" . $a_mac . "(" . $a_vend . ")</b><br>";
-        } elseif ($anom_type == 'service') {
-            list($a_sen, $a_date, $a_port, $a_prot_o, $a_ver_o) = explode(",", $anom_info_o);
-            list($a_sen, $a_date, $a_port, $a_prot, $a_ver) = explode(",", $anom_info);
-            echo "Host: <b>" . $anom_ip . "</b><br>" . "Port: <b>" . $a_port . "</b><br>" . "Previous Protocol [Version]: <b>" . $a_prot_o . " [" . $a_ver_o . "]</b><br>" . "New Protocol [Version]: <b>" . $a_prot . " [" . $a_ver . "]</b><br>";
-        } elseif ($anom_type == 'os') {
-            list($a_sen, $a_date, $a_os_o) = explode(",", $anom_info_o);
-            list($a_sen, $a_date, $a_os) = explode(",", $anom_info);
-            echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous OS: <b>" . $a_os_o . "</b><br>" . "New OS: <b>" . $a_os . "</b><br>";
-        }
-    }
-} elseif ($ref == 'Vulnerability') {
-    $vulnerability_list = $incident->get_vulnerabilities($conn);
-    foreach($vulnerability_list as $vulnerability_data) {
-        // Osvdb starting
-        $nessus_id = $vulnerability_data->get_nessus_id();
-        $osvdb_id = Osvdb::get_osvdbid_by_nessusid($conn, $nessus_id);
-        if ($osvdb_id) $nessus_id = "<a href=\"osvdb.php?id=" . $osvdb_id . "\">" . $nessus_id . "</a>";
-        // Osvdb end
-        echo "<b>IP:</b> " . $vulnerability_data->get_ip() . "<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity(nl2br($vulnerability_data->get_description())) . "<br>";
-    }
-} elseif ($ref == 'Custom') {
-    $custom_list = $incident->get_custom($conn);
-	echo "<table class='noborder' width='100%'>";
-    foreach($custom_list as $custom) {
-       	echo "<tr><td class='left noborder' style='width:30%;'><b>".$custom[0].":</b></td>"; 
-		echo "<td class='left'>".Incident::format_custom_field($custom[1], $custom[2])."</td></tr>\n";
-    }
-	echo "</table>";
-}
+ <?php		
+			if ($ref == 'Custom')
+				$td_st = 'text-align:left;';
+			else
+				$td_st = 'padding-left:10px; text-align:left;';
+           
+			echo "<tr><td style='$td_st'";
+ 
+	if ($ref == 'Alarm' or $ref == 'Event')
+	{
+		if ($ref == 'Alarm') {
+			$alarm_list = $incident->get_alarms($conn);
+		} else {
+			$alarm_list = $incident->get_events($conn);
+		}
+		foreach($alarm_list as $alarm_data) {
+			echo "Source Ips: <a href='../report/host_report.php?host=".$alarm_data->get_src_ips()."' class='HostReportMenu' id='".$alarm_data->get_src_ips().";".$alarm_data->get_src_ips()."'><b>" . $alarm_data->get_src_ips() . "</b></a> - " . "Source Ports: <b>" . $alarm_data->get_src_ports() . "</b><br/>" . "Dest Ips: <a href='../report/host_report.php?host=".$alarm_data->get_dst_ips()."' class='HostReportMenu' id='".$alarm_data->get_dst_ips().";".$alarm_data->get_dst_ips()."'><b>" . $alarm_data->get_dst_ips() . "</b></a> - " . "Dest Ports: <b>" . $alarm_data->get_dst_ports() . "</b>";
+		}
+	} 
+	elseif ($ref == 'Metric')
+	{
+		$metric_list = $incident->get_metrics($conn);
+		foreach($metric_list as $metric_data) {
+			echo "Target: <b>" . $metric_data->get_target() . "</b> - " . "Metric Type: <b>" . $metric_data->get_metric_type() . "</b> - " . "Metric Value: <b>" . $metric_data->get_metric_value() . "</b>";
+		}
+	} 
+	elseif ($ref == 'Anomaly')
+	{
+		$anom_list = $incident->get_anomalies($conn);
+		foreach($anom_list as $anom_data) {
+			$anom_type = $anom_data->get_anom_type();
+			$anom_ip = $anom_data->get_ip();
+			$anom_info_o = $anom_data->get_data_orig();
+			$anom_info = $anom_data->get_data_new();
+			if ($anom_type == 'mac') {
+				list($a_sen, $a_date_o, $a_mac_o, $a_vend_o) = explode(",", $anom_info_o);
+				list($a_sen, $a_date, $a_mac, $a_vend) = explode(",", $anom_info);
+				echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous Mac: <b>" . $a_mac_o . "(" . $a_vend_o . ")</b><br>" . "New Mac: <b>" . $a_mac . "(" . $a_vend . ")</b><br>";
+			} elseif ($anom_type == 'service') {
+				list($a_sen, $a_date, $a_port, $a_prot_o, $a_ver_o) = explode(",", $anom_info_o);
+				list($a_sen, $a_date, $a_port, $a_prot, $a_ver) = explode(",", $anom_info);
+				echo "Host: <b>" . $anom_ip . "</b><br>" . "Port: <b>" . $a_port . "</b><br>" . "Previous Protocol [Version]: <b>" . $a_prot_o . " [" . $a_ver_o . "]</b><br>" . "New Protocol [Version]: <b>" . $a_prot . " [" . $a_ver . "]</b><br>";
+			} elseif ($anom_type == 'os') {
+				list($a_sen, $a_date, $a_os_o) = explode(",", $anom_info_o);
+				list($a_sen, $a_date, $a_os) = explode(",", $anom_info);
+				echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous OS: <b>" . $a_os_o . "</b><br>" . "New OS: <b>" . $a_os . "</b><br>";
+			}
+		}
+	} 
+	elseif ($ref == 'Vulnerability')
+	{
+		$vulnerability_list = $incident->get_vulnerabilities($conn);
+		foreach($vulnerability_list as $vulnerability_data) {
+			// Osvdb starting
+			$nessus_id = $vulnerability_data->get_nessus_id();
+			$osvdb_id = Osvdb::get_osvdbid_by_nessusid($conn, $nessus_id);
+			if ($osvdb_id) $nessus_id = "<a href=\"osvdb.php?id=" . $osvdb_id . "\">" . $nessus_id . "</a>";
+			// Osvdb end
+			echo "<b>IP:</b> " . $vulnerability_data->get_ip() . "<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity(nl2br($vulnerability_data->get_description())) . "<br>";
+		}
+	} 
+	elseif ($ref == 'Custom')
+	{
+		$custom_list = $incident->get_custom($conn);
+		echo "<table class='noborder' width='100%' id='custom_table'>";
+		foreach($custom_list as $custom) {
+			echo "<tr><td class='left noborder' align='absmiddle'><b>".$custom[0].":</b></td>"; 
+			echo "<td class='left'>".Incident::format_custom_field($custom[1], $custom[2])."</td></tr>\n";
+		}
+		echo "</table>";
+	}
 ?>
         </td></tr>
         </table>
