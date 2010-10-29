@@ -98,6 +98,7 @@ if (!preg_match("/200 OK/",$testlink[0])) {
 <table class="noborder"><td><td valign="top" class="nobborder">
 <!-- change sensor -->
 <form method="GET" action="menu.php" style="margin:1px">
+<input type="hidden" name="opc" value="<?=$opc?>">
 <?php
 echo gettext("Sensor"); ?>:&nbsp;
 <select name="sensor" onChange="submit()">
