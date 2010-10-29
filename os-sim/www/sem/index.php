@@ -1128,10 +1128,10 @@ document.getElementById('cursor').value = document.body.style.cursor;
 <?php // Possible sort values: none, date, date_desc
  ?>
 <input type="hidden" id="sort" value="none">
-<input type="hidden" id="start" value="<?php echo $_SESSION['logger_filters']['default']['start_aaa'] ?>">
+<input type="hidden" id="start" value="<?php echo ($param_start != "" && date_parse($param_start)) ? $param_start : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>">
 <?php // Temporary fix until the server logs right
  ?>
-<input type="hidden" id="end" value="<?php echo $_SESSION['logger_filters']['default']['end_aaa'] ?>">
+<input type="hidden" id="end" value="<?php echo ($param_end != "" && date_parse($param_end)) ? $param_end : strftime("%Y-%m-%d %H:%M:%S", time()) ?>">
 <!--
 <div id="compress">
 <center><a href="javascript:closeLayer('entiregauge');closeLayer('test');closeLayer('compress');" onMouseOver="showTip('<?php echo $help_entries["close_all"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="black"><?php echo _("Click here in order to compress everything") ?></a></center>
@@ -1163,7 +1163,7 @@ require_once ("manage_querys.php");
 					</div>
 					</td>
 					<!-- <td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td> -->
-					<td class="nobborder"><input type="button" class="button" onclick="doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
+					<td class="nobborder"><input type="button" class="button" onclick="$('#offset').val('0');doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
                                         <?php /*
 					<!--<a href="javascript:ClearSearch()" onMouseOver="showTip('<?php echo $help_entries["clear"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="#999999"><small><?php echo _("Clear Query"); ?></small></font></a>-->
 					<td class="nobborder"><input type="button" onclick="ClearSearch()" value="<?php echo _("Clear Query"); ?>" class="button" style="height:20px"></td>

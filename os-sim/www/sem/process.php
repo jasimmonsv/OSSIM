@@ -582,20 +582,21 @@ if (is_dir("/var/ossim/logs/searches") && isset($export)) {
 if ($num_lines == 0) {
     print "<center><font style='color:red;font-size:14px'><br>"._("No Data Found Matching Your Criteria")."</center>";
 }
-print "<center>\n";
-if ($offset != 0 && $num_lines > 0) {
 ?>
-<a href="javascript:DecreaseOffset(50);"><?php echo "<< "._("Previous 50") ?></a>
-<?php
-}
-if ($num_lines > 50) { //if($num_lines > $offset + 50){
-    echo ($offset != 0) ?  "&nbsp;|&nbsp;" : "";
+<center>
+<?php if ($from_remote) { ?>
+<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" <b>first</b> events")._(" for <b>each server</b>")." (<b>".(($offset*$num_servers)+1)."</b> - <b>".(($offset*$num_servers)+count($result))."</b> total)" ?>.&nbsp;
+<?php } else { ?>
+<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" events") ?>.&nbsp;
+<?php } ?>
+<?php if ($offset > 0) { ?>
+<a href="javascript:DecreaseOffset(<?php echo GET('top')?>);"><?php echo ($from_remote) ? "<< "._("Fetch the previous ") : "<< "._("Previous ")?><?php echo "<b>".GET('top')."</b>" ?></a>
+<?php } ?>
+<?php if ($has_next_page) { //if($num_lines > $offset + 50){
+    echo ($offset != 0) ?  "&nbsp;<b>|</b>&nbsp;" : "";
 ?>
-<a href="javascript:IncreaseOffset(50);"><?php echo _("Next 50")." >>" ?></a>
-<?php
-}
-
-?>
+<a href="javascript:IncreaseOffset(<?php echo GET('top')?>);"><?php echo ($from_remote) ? _("Fetch the next ") : _("Next ")?><?php echo "<b>".GET('top')."</b> >>" ?></a>
+<?php } ?>
 </center>
 <br>
 </div>
