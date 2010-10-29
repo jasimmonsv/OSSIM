@@ -226,7 +226,7 @@ if ($Use_Auth_System == 1) {
 									<td>
 										<table border='0' cellpadding='0' cellspacing='0'>
 										<tr><td align='right'>
-											<img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'>
+											<a href="javascript:history.go(-1)"><img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a>
 											</td>
 										<td align='right'> <?php echo str_replace (">Back","><span style='padding-left: 5px; color: rgb(51, 51, 51); font-weight: bold;font-size:14px;'>Back</span>",str_replace("|","<font style='color:green;font-size:14px;font-weight:bold'></font>",$back_link))
 			?>  <!--<a style="color:black;font-size:12px;font-weight:bold" href="base_qry_main.php?submit=--><?php //echo _QUERYDB
