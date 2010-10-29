@@ -829,10 +829,10 @@ echo "<th>"._("Intelligent")."</th></tr>";
       echo "></td></tr>";
       $result->MoveNext();
    }
-   echo "</table></div></center>";
+  	  
+    echo "</table></div></td></tr></table></center><br/>";
 
-   echo "<input type=\"submit\" name=\"submit\" value=\""._("Update")."\" class=\"button\"/>
-      </form>";
+   echo "<input type=\"submit\" name=\"submit\" value=\""._("Update")."\" class=\"button\"><br/><br/></form>";
 
 }
 
