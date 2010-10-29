@@ -103,16 +103,19 @@ if ($erase_element != "") {
 		}
 	}
 }
-
+//
+$conn->Execute("CREATE TABLE IF NOT EXISTS `risk_maps` ( `map` varchar(64) NOT NULL, `perm` varchar(64) NOT NULL, PRIMARY KEY (`map`,`perm`));");
+//
 $perms = array();
 $query = "SELECT map,perm FROM risk_maps";
 $result = $conn->Execute($query);
 while (!$result->EOF) {
-	$perms[$result->fields['map']][$result->fields['perm']]++;
+    $perms[$result->fields['map']][$result->fields['perm']]++;
     $result->MoveNext();
 }
 ?>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title><?= _("Alarms") ?> - <?= _("View")?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -167,7 +170,7 @@ while (!$result->EOF) {
 							<tr><td class="text-align:right" align="right"><a href='changemap.php?map=<?php echo $map?>&delete=<?php echo urlencode($ico)?>' onclick="if (!confirm('<?php echo _("Are you sure?") ?>')) return false" title='<?php echo _("Delete map") ?>'><img src='../pixmaps/cross-circle-frame.png' border=0></a></td></tr>
 							<tr>
 								<td>
-									<a href='view.php?map=<?php echo $n?>'><img src='maps/<?php echo $ico?>' border='<?php echo (($map==$n) ? "1" : "0")?>' width=150 height=150></a>
+									<a href='view.php?map=<?php echo $n?>'><img src='maps/<?php echo $ico?>' border='<?php echo (($default_map==$n) ? "1" : "0")?>' width=150 height=150></a>
 								</td>
 							</tr>
 							<tr>
