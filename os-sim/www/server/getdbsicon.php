@@ -66,10 +66,8 @@ $server_list = Databases::get_list($conn, "WHERE name = '$name' or ip='$name'");
 $db->close($conn);
 if ($server_list[0]) {
 	header("Content-type: image/png");
-	if ($server_list[0]->get_icon()=="")
-		$image = imagecreatefrompng("../forensics/images/server.png");
-	else
-		$image = imagecreatefromstring($server_list[0]->get_icon());
+	$image = @imagecreatefromstring($server_list[0]->get_icon());
+	if (!$image) $image = @imagecreatefrompng("../forensics/images/server.png");
 	if (imageistruecolor($image)) {
 		imageAlphaBlending($image, false);
 		imageSaveAlpha($image, true);
