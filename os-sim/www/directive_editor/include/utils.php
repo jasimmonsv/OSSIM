@@ -752,6 +752,7 @@ elseif ($query == "add_directive") {
     $onlydir = ($_GET['onlydir'] == "1") ? "1" : "0";
     $category = get_category_by_id($cat_id);
     $XML_FILE = "/etc/ossim/server/" . $category->xml_file;
+    if ($_SESSION['XML_FILE'] == "") $_SESSION['XML_FILE'] = $XML_FILE;
     $dom = open_file($XML_FILE);
     $id = new_directive_id($category->id);
     $null = NULL;
