@@ -409,7 +409,12 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 								<td id='<?=$unique_id."_type"?>' class="noborder left ct_type"><?=$cf["type"]?></td>
 								<td id='<?=$unique_id."_options"?>' class="noborder left"><?=implode("<br/>", explode("\n",$cf["options"]))?></td>
 								<td id='<?=$unique_id."_required"?>' class="noborder ct_required">
-									<? if ( $cf["required"] == 1) echo "<img src='../pixmaps/tick.png' alt='Tick'/>"; ?>
+									<? 
+										$path_image = '../pixmaps/tables/';
+										$image_required = ( $cf["required"] == 1 ) ? 'tick-small-circle.png' : 'cross-small-circle.png';
+										$alt_required   = ( $cf["required"] == 1 ) ? 'Tick Circle' : 'Cross Circle';
+										echo "<img src='".$path_image.$image_required."' alt='".$alt_required."'/>"; 
+									?>
 								</td>
 								<td class="noborder ct_actions">
 									<input type="image" src="../vulnmeter/images/delete.gif" class="ct_icon" onclick="delete_ticket('<?=$cf["name"]?>');"/>

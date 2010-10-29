@@ -899,8 +899,7 @@ class Incident {
     }
     function get_custom($conn) {
 		$list = array();
-        $query = OssimQuery("SELECT incident_custom.*,incident_custom_types.type FROM incident_custom LEFT JOIN incident_custom_types 
-			ON incident_custom.name=incident_custom_types.name WHERE incident_custom_types.id='".$this->type."' AND incident_id=".$this->id);
+        $query = OssimQuery("SELECT * FROM incident_custom WHERE incident_id=".$this->id);
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
@@ -1208,19 +1207,24 @@ class Incident {
         return $last_id;
     }
     function insert_custom($conn, $title, $type, $submitter, $priority, $in_charge="", $fields=array()) {
-        foreach($fields as $value) {
-            if (!ossim_valid($value, OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field"))) return false;
+        foreach($fields as $name => $value) {
+            
+			if (!ossim_valid($name, OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field"))) 
+				return false;
         }
+		
         $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Custom", "", "", $in_charge);
-        if (ossim_error()) return false;
-        foreach ($fields as $name => $value) {
-	        $sql = "INSERT INTO incident_custom 
-	                (incident_id, name, content) 
-	                VALUES (?, ?, ?)";
+        
+		if (ossim_error()) 
+			return false;
+        
+		foreach ($fields as $name => $value) {
+	        $sql = "INSERT INTO incident_custom (incident_id, name, type, content) VALUES (?, ?, ?, ?)";
 	        $params = array(
 	            $last_id,
 	            $name,
-	            $value
+				$value["type"],
+	            $value["content"]
 	        );
 	        if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
 	    }

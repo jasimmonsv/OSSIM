@@ -491,6 +491,8 @@ public function draw_map(){
 					map: gmap_".$this->params["id"].",
 					position: _data.geometry.location
 				});
+				
+				$('#".$this->params["id"]."').val(_data.formatted_address);
 									
 			}
 		});";

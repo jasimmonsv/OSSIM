@@ -54,6 +54,7 @@ function die_error($msg = null, $append = null) {
 $db = new ossim_db();
 $conn = $db->connect();
 $id = GET('incident_id');
+
 $action = (POST('action')=="newincident")? "newincident":GET('action');
 $from_vuln = (POST('from_vuln')!="")? POST('from_vuln'):GET('from_vuln');
 
@@ -570,8 +571,12 @@ if ($action == 'newincident') {
 		$fields = array();
         foreach ($_GET as $k => $v) 
 			if (preg_match("/^custom/",$k)) {
-				$k = base64_decode(str_replace("custom_","",$k));
-        	$fields[$k] = $v;
+			{
+				$k=base64_decode(str_replace("custom_","",$k)); 
+				$item = explode("_####_", $k);
+				$cumtom_type = ( count($item) >= 2 ) ? $item[1] : "Textbox";
+				$fields[$item[0]] =  array ("content" => $v, "type"=> $cumtom_type);
+			}
         }
         
         if($transferred_user!="")   $transferred = $transferred_user;
@@ -579,6 +584,7 @@ if ($action == 'newincident') {
         if($transferred=="") $transferred = Session::get_session_user();
         
         $incident_id = Incident::insert_custom($conn, $title, $type, $submitter, $priority, $transferred, $fields);
+		
     }
     if (ossim_error()) {
         die_error();

@@ -57,7 +57,7 @@ function get_params_field($field){
 	GLOBAL $map_key;
 	$unique_id = md5( uniqid() );
 	$fld = "custom_".$unique_id;
-	$name = "custom_".base64_encode($field['name']);
+	$name = "custom_".base64_encode($field['name']."_####_".$field['type']);
 	$required = ( $field['required'] == 1 ) ? "req_field" : "";
 	
 	switch ($field['type']){

@@ -908,7 +908,7 @@ div.balloon:hover span.bottom {
 	overflow:hidden;
 }
  
-.ct { width: 155px; vertical-align: top;}
+.ct { width: 155px; vertical-align: middle;}
  
 #table_form_crt #custom_namef {  width: 99%; height: 18px;}
 #table_form_crt select { width: 250px;}

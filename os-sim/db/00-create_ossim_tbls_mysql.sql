@@ -1138,7 +1138,7 @@ INSERT INTO incident_type (id, descr, keywords) VALUES ("Security Weakness", "",
 INSERT INTO incident_type (id, descr, keywords) VALUES ("Net Performance", "", "");
 INSERT INTO incident_type (id, descr, keywords) VALUES ("Applications and Systems Failures", "", "");
 INSERT INTO incident_type (id, descr, keywords) VALUES ("Anomalies", "", "");
-INSERT INTO incident_type (id, descr, keywords) VALUES ('Nessus Vulnerability',"", "");
+INSERT INTO incident_type (id, descr, keywords) VALUES ("Nessus Vulnerability","", "");
 
 --
 -- Table: incident ticket
@@ -1163,6 +1163,26 @@ CREATE TABLE incident_ticket_seq (
     id INT NOT NULL
 );
 INSERT INTO incident_ticket_seq VALUES (0);
+
+DROP TABLE IF EXISTS `incident_custom`;
+CREATE TABLE IF NOT EXISTS `incident_custom` (
+  id int(11) NOT NULL auto_increment,
+  incident_id int(11) NOT NULL,
+  name varchar(255) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  content text NOT NULL,
+  PRIMARY KEY (id,incident_id)
+);
+
+DROP TABLE IF EXISTS `incident_custom_types`;
+CREATE TABLE IF NOT EXISTS `incident_custom_types` (
+  id varchar(64) NOT NULL,
+  name varchar(255) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  options text NOT NULL,
+  `required` int(1) NOT NULL,
+  PRIMARY KEY (id,name)
+);
 
 --
 -- Table: incident alarm

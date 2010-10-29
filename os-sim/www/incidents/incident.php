@@ -378,7 +378,7 @@ if ($_GET['id_incident'] != "") { ?>
 	
     <td valign='top'>
         <table width="100%" class="noborder">
-        	<tr><td>
+        	<tr><td style='white-space:nowrap;'>
             <a href='newincident.php?action=edit&ref=<?php echo $ref ?>&incident_id=<?php echo $id ?>'><img src="../vulnmeter/images/pencil.png" border="0" align="absmiddle" title="<?php echo _("Edit comment") ?>"></a>
 
             <a href='javascript:;' onClick="c = confirm('<?php echo _("This action will erase the Ticket as well as all the comments on this ticket. Do you want to continue?") ?>'); if (c) document.location = 'manageincident.php?action=delincident&incident_id=<?php echo $id ?>';"><img src="../pixmaps/delete.gif" border="0" align="absmiddle" title="<?php echo _("Delete comment") ?>"></a>
