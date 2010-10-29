@@ -70,6 +70,12 @@ echo gettext("Vulnmeter"); ?> </title>
                 this.update(txt);
             }
         });
+        GB_TYPE = 'w';
+        $("a.greybox").click(function(){
+            dest = $(this).attr('href');
+            GB_show("<?=_("Make this scan job visible for:")?>",dest,150,400);
+            return false;
+        });        
     }
     // 
     function cancelScan(id) {
@@ -98,12 +104,12 @@ echo gettext("Vulnmeter"); ?> </title>
             type: "GET",
             url: "get_state.php",
             success: function(msg) {
-            var data = msg.split(";");
+                var data = msg.split(";");
                 if(data[0]==1) {
                     $('#nta').html(data[0]);
                     $('#nessus_threads').html('');
-                    $('#td1').attr("width","100%");
-                    $('#td2').attr("width", "0%");
+                    $('#td1').attr("width","99%");
+                    $('#td2').attr("width", "1%");
                     $('#status_server').html('<font color=green>Launching scan</font>');
                     if ($('#nmta').html()=='') {
                     	$('#nmta').html($('#nmta').html()+'<b>Finished</b><br>')
@@ -112,8 +118,8 @@ echo gettext("Vulnmeter"); ?> </title>
                 else if(data[0]==0) {
                     $('#nta').html(data[0]);
                     $('#nessus_threads').html('');
-                    $('#td1').attr("width","100%");
-                    $('#td2').attr("width", "0%");
+                    $('#td1').attr("width","99%");
+                    $('#td2').attr("width", "1%");
                     $('#status_server').html('<font color=blue>Idle</font>');
                     $('#nmta').html('');
                 }
@@ -139,15 +145,6 @@ echo gettext("Vulnmeter"); ?> </title>
             }
         });
     }
-    $(document).ready(function(){
-        GB_TYPE = 'w';
-        $("a.greybox").click(function(){
-            dest = $(this).attr('href');
-            GB_show("<?=_("Make this scan job visible for:")?>",dest,150,400);
-            return false;
-        });
-
-    });
     function GB_onclose() {
         document.location.href='manage_jobs.php';
     }

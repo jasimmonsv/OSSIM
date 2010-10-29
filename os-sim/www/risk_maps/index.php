@@ -449,8 +449,9 @@ function toggleLayer( whichLayer )
         if (dobj != undefined) dobj.style.cursor = 'pointer'
     }
     function pushing(e) {
-		var fobj = moz ? e.target : event.srcElement;
+        var fobj = moz ? e.target : event.srcElement;
         var button = moz ? e.which : event.button;
+        if (typeof fobj.tagName == 'undefined') return false;
         while (fobj.tagName.toLowerCase() != "html" && fobj.className != "itcanbemoved") {
             fobj = moz ? fobj.parentNode : fobj.parentElement;
         }

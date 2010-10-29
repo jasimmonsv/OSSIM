@@ -100,7 +100,7 @@ echo gettext("Vulnmeter"); ?> </title>
 			this.load('lookup.php?id=' + id);
 		}
 	});
-	$('#loading').toggle();
+	$('#loading').hide();
   }
   function showEnableBy(){
     $("#cat1").toggle();
@@ -829,10 +829,10 @@ echo "<th>"._("Intelligent")."</th></tr>";
       echo "></td></tr>";
       $result->MoveNext();
    }
-   echo "</table></div></center><BR>";
+   echo "</table></div></center>";
 
-   echo "<input type=\"submit\" name=\"submit\" value=\""._("Update")."\" class=\"button\">
-      </form><BR><BR>";
+   echo "<input type=\"submit\" name=\"submit\" value=\""._("Update")."\" class=\"button\"/>
+      </form>";
 
 }
 
@@ -2187,7 +2187,7 @@ function createHiddenDiv($name, $num, $data, $fam, $sid) {
       $text .= "<td>" . $element['id'] . "</td>";
       //$text .= "<td><a href='lookup.php?id=" . $element['id'] . "' target='_blank'>" . $element['name'] ."</a></td>";
       $text .= "<td style=\"text-align:left;\"><a href='javascript:;' lid='".$element['id']."' class='scriptinfo'>".$element['name']."</a></td>";
-      $text .= "<td>";
+      $text .= "<td style='width:110px' nowrap>";
       if($element['cve']=="") {
         $text .= "-";
       }

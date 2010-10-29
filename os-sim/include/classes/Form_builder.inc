@@ -158,11 +158,11 @@ public function draw_asset(){
 	else
 		$txt_asset = "</span>";
 	
-	$element .= "<div class='ct_assets field_fix'><b>"._('Selected:')."</b>&nbsp;<span id='dassets_".$this->params["id"]."' style='background-color:#EFEBDE;padding:2px 5px 2px 5px;border:1px dotted #cccccc;font-size:12px'>";
+	$element .= "<div class='ct_assets field_fix'><b>"._('Selected:')."</b>&nbsp;<span id='dassets_".$this->params["id"]."' style='background-color:#EFEBDE;padding:2px 5px 2px 5px;border:1px dotted #cccccc;font-size:12px'>\n";
 	$element .= "All Assets</span>";
-	$element .= "<div id='tree_".$this->params["id"]."' style='text-align:left;padding:5px 0px 0px 0px;'></div>";
-	$element .= "<input type='hidden' $attributes value='All Assets'/>";
-	$element .= "</div>";
+	$element .= "<div id='tree_".$this->params["id"]."' style='text-align:left;padding:5px 0px 0px 0px;'></div>\n";
+	$element .= "<input type='hidden' $attributes value='All Assets'/>\n";
+	$element .= "</div>\n";
 	
 	
 	$script = "
@@ -210,8 +210,8 @@ public function draw_radioexc($subtype){
 			$aux .= "$k=\"$v\" ";
 	}
 	
-	$element  = $aux." id='".$this->params["id"]."_1' value='".$values[0]."'/><span>".$values[0]."</span></div>";
-	$element .= $aux." id='".$this->params["id"]."_2' value='".$values[1]."' checked='checked'/><span>".$values[1]."</span></div>";
+	$element  = $aux." id='".$this->params["id"]."_1' value='".$values[0]."'/><span>".$values[0]."</span></div>\n";
+	$element .= $aux." id='".$this->params["id"]."_2' value='".$values[1]."' checked='checked'/><span>".$values[1]."</span></div>\n";
 			
 	return $element;
 }
@@ -239,13 +239,13 @@ public function draw_checkbox(){
 			if ( !empty ($v) )
 			{
 				if ($num_value == 1)
-					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[0])."</span> ";
+					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[0])."</span>\n ";
 				else if ($num_value == 2)
-					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span>\n ";
 				else 
 				{
 					if ($num_value > 2)
-						$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+						$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span>\n ";
 				}
 				
 				
@@ -267,13 +267,13 @@ public function draw_date(){
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 
-	$element = "<div id='cont_".$this->params['id']."'>
-			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>
-			<div class='ct_widget' style='display:inline; padding-left: 3px;'>
-				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>
-				<div class='ct_widgetCalendar' style='width:200px;'></div>
-			</div>
-		</div>";
+	$element = "<div id='cont_".$this->params['id']."'>\n
+			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>\n
+			<div class='ct_widget' style='display:inline; padding-left: 3px;'>\n
+				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>\n
+				<div class='ct_widgetCalendar' style='width:200px;'></div>\n
+			</div>\n
+		</div>\n";
 	
 	if ( $this->exists_def_func('toogle_calendar') == false)
 	{
@@ -350,13 +350,13 @@ public function draw_daterange(){
 		
 		
 		
-	$element = "<div id='cont_".$this->params['id']."'>
-			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>
-			<div class='ct_widget' style='display:inline; padding-left: 3px;'>
-				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>
-				<div class='ct_widgetCalendar' style='width:395px;'></div>
-			</div>
-		</div>";
+	$element = "<div id='cont_".$this->params['id']."'>\n
+			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>\n
+			<div class='ct_widget' style='display:inline; padding-left: 3px;'>\n
+				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>\n
+				<div class='ct_widgetCalendar' style='width:395px;'></div>\n
+			</div>\n
+		</div>\n";
 	
 	if ( $this->exists_def_func('toogle_calendar') == false)
 	{
@@ -456,8 +456,8 @@ public function draw_map(){
 	
 	$element .= "<div style='float: left; width:15%; font-weight: bold; padding: 15px 0px 10px 6px;'><span>Location:</span></div>";
 	$element .= "<div style='float: right; width:82%; font-weight: bold; padding: 10px 0px 10px 0px;'>";
-	$element .= "<input type='text' ".$attributes."'/></div>";
-	$element .= "<div id='map_".$this->params["id"]."' class='field_fix' style='height:300px; display:none; clear: both;'></div>";
+	$element .= "<input type='text' ".$attributes."/></div>";
+	$element .= "<div id='map_".$this->params["id"]."' class='field_fix' style='height:300px; display: none; clear: both; margin-left: 6px;'></div>";
 	
 	$map_key = ($this->params["values"][0] != '' ) ? $map_key : "ABQIAAAAbnvDoAoYOSW2iqoXiGTpYBTIx7cuHpcaq3fYV4NM0BaZl8OxDxS9pQpgJkMv0RxjVl6cDGhDNERjaQ";
 	
@@ -493,6 +493,7 @@ public function draw_map(){
 				});
 				
 				$('#".$this->params["id"]."').val(_data.formatted_address);
+				
 									
 			}
 		});";

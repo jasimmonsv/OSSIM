@@ -3,7 +3,8 @@
 	<tr>
 		<td style="width:15px;vertical-align:bottom" class="noborder">&nbsp;</td>
 		<td style="padding-top:7px" class="noborder">
-			<table border='0' cellpadding='0' cellspacing='0' style="background:transparent;" class="noborder"><tr>
+			<table border='0' cellpadding='0' cellspacing='0' style="background:transparent;" class="noborder">
+				<tr>
 <?php
 /*****************************************************************************
 *
@@ -43,7 +44,6 @@
 //if ($tabs) {
     $tabsmerge = $tabs;
 		
-	
 	if (is_array($tabsavt)) {
 		foreach ($tabsavt as $tab_id => $tab_values)
 			$tabsmerge[$tab_id] = $tab_values;
@@ -152,9 +152,9 @@
 							<?php } ?>
 								<? }
 								else 
-									{ 
-									   echo "<small class='white'>"; 
-									} 
+								{ 
+								   echo "<small class='white'>"; 
+								} 
 								?>
 								<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&panel_id=<?php echo $panel_id ?>"><?php
 								echo gettext("Edit Tabs"); ?></a>	|
@@ -164,12 +164,12 @@
 						
 						<td style="vertical-align:bottom;padding:0px;padding-left:15px" class="nobborder">
 							<table class="noborder" border='0' cellpadding='0' cellspacing='0' align="right" height="26">
-							<tr>
-								<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl.gif" border='0'></td>
-								<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding-right:4px" nowrap='nowrap'>
-									<a href="javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboard:dashboard','DashboardHelp');" sltyle="color:black;text-decoration:none"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" alt="<?=_("Help")?>"></a>
-								</td>
-							</tr>
+								<tr>
+									<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl.gif" border='0'></td>
+									<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding-right:4px" nowrap='nowrap'>
+										<a href="javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboard:dashboard','DashboardHelp');" sltyle="color:black;text-decoration:none"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" alt="<?=_("Help")?>"></a>
+									</td>
+								</tr>
 							</table>
 						</td>
 						

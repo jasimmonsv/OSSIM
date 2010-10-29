@@ -1524,19 +1524,19 @@ else echo "var valsim = 0;";
 		document.getElementById('cross_correlate_select').disabled = false;
 		document.getElementById('store_select').disabled = false;
 		document.getElementById('qualify_select').disabled = false;
-		document.getElementById('correlate_select').style.setProperty('color','black','');
-		document.getElementById('cross_correlate_select').style.setProperty('color','black','');
-		document.getElementById('store_select').style.setProperty('color','black','');
-		document.getElementById('qualify_select').style.setProperty('color','black','');
+		$('#correlate_select').css('color','black');
+		$('#cross_correlate_select').css('color','black');
+		$('#store_select').css('color','black');
+		$('#qualify_select').css('color','black');
 		if (valsim==0) {
 			document.getElementById('correlate_select').disabled = true;
 			document.getElementById('cross_correlate_select').disabled = true;
 			document.getElementById('store_select').disabled = true;
 			document.getElementById('qualify_select').disabled = true;
-			document.getElementById('correlate_select').style.setProperty('color','gray','');
-			document.getElementById('cross_correlate_select').style.setProperty('color','gray','');
-			document.getElementById('store_select').style.setProperty('color','gray','');
-			document.getElementById('qualify_select').style.setProperty('color','gray','');
+			$('#correlate_select').css('color','gray');
+			$('#cross_correlate_select').css('color','gray');
+			$('#store_select').css('color','gray');
+			$('#qualify_select').css('color','gray');
 			//document.getElementById('correlate_select').selectedIndex = 1;
 			//document.getElementById('cross_correlate_select').selectedIndex = 1;
 			//document.getElementById('store_select').selectedIndex = 1;
@@ -1545,16 +1545,16 @@ else echo "var valsim = 0;";
 		if (valsim==0 && valsem==0) {
 			document.getElementById('forward_alarm_select').disabled = true;
 			document.getElementById('forward_event_select').disabled = true;
-			document.getElementById('forward_alarm_select').style.setProperty('color','gray','');
-			document.getElementById('forward_event_select').style.setProperty('color','gray','');
+			$('#forward_alarm_select').css('color','gray');
+			$('#forward_event_select').css('color','gray');
 			//document.getElementById('forward_alarm_select').selectedIndex = 1;
 			//document.getElementById('forward_event_select').selectedIndex = 1;
 		} else {
 			<? if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) { ?>
 			document.getElementById('forward_alarm_select').disabled = false;
 			document.getElementById('forward_event_select').disabled = false;
-			document.getElementById('forward_alarm_select').style.setProperty('color','black','');
-			document.getElementById('forward_event_select').style.setProperty('color','black','');
+			$('#forward_alarm_select').css('color','black');
+			$('#forward_event_select').css('color','black');
 			<? } ?>
 		}
 	}
@@ -1562,24 +1562,24 @@ else echo "var valsim = 0;";
 		if (val == "yes") valsem = 1;
 		else valsem = 0;
 		document.getElementById('sign_select').disabled = false;
-		document.getElementById('sign_select').style.setProperty('color','black','');
+		$('#sign_select').css('color','black');
 		if (valsem==0) {
 			document.getElementById('sign_select').disabled = true;
-			document.getElementById('sign_select').style.setProperty('color','gray','');
+			$('#sign_select').css('color','gray');
 			//document.getElementById('sign_select').selectedIndex = 1;
 		}
 		if (valsim==0 && valsem==0) {
 			document.getElementById('forward_alarm_select').disabled = true;
 			document.getElementById('forward_event_select').disabled = true;
-			document.getElementById('forward_alarm_select').style.setProperty('color','gray','');
-			document.getElementById('forward_event_select').style.setProperty('color','gray','');
+			$('#forward_alarm_select').css('color','gray');
+			$('#forward_event_select').css('color','gray');
 			//document.getElementById('forward_alarm_select').selectedIndex = 1;
 			//document.getElementById('forward_event_select').selectedIndex = 1;
 		} else {
 			document.getElementById('forward_alarm_select').disabled = false;
 			document.getElementById('forward_event_select').disabled = false;
-			document.getElementById('forward_alarm_select').style.setProperty('color','black','');
-			document.getElementById('forward_event_select').style.setProperty('color','black','');
+			$('#forward_alarm_select').css('color','black');
+			$('#forward_event_select').css('color','black');
 		}
 	}
 </script>
@@ -1730,10 +1730,9 @@ submit();
 	<input type="submit" VALUE="<?=_('search')?>" class="btn" style="font-size:12px">
 	<input type="hidden" name="nconfs" value="<?php
 	echo $count ?>">
-	</form>
-
-</td>
+	</td>
 </tr>
 </table>
+</form>
 </body>
 </html>

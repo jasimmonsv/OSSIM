@@ -206,53 +206,63 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 ?>
 
     <td>
-    	<table width="100%" class="noborder"><tr>
-    	<td><?php echo $name ?></b></td>
-    	</tr></table>
+    	<table width="100%" class="noborder">
+		<tr>
+			<td><?php echo $name ?></b></td>
+    	</tr>
+		</table>
     </td>
     <td class="left">
-        <table width="100%" class="noborder"><tr><td>
-        <tr><td>
-            <table class="noborder" width="100%">
-            <tr><td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
-            <?php echo _("Name") ?>: <b><?php echo $title ?> </b><br/>
-            <?php echo _("Class") ?>: <?php echo $ref ?><br/>
-            <?php echo _("Type") ?>: <?php echo $type ?><br/>
-            <?php echo _("Created") ?>: <?php echo $created ?> (<?php echo $life ?>)<br/>
-            <?php echo _("Last Update") ?>: <?php echo $updated ?><br/>
-            <?php
-if ($incident->get_status($conn) == "Closed") {
-    echo _("Resolution time") . ": " . $incident->get_life_time() . "<br/>";
-}
-?>      </td></tr>
-            <tr><td style="text-align:left;padding-left:10px;">
-            <!--<hr/>-->
-            <?php 
-            if (!preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) {
-                $in_charge_name = $incident->get_in_charge_name($conn);
-            }
-            else {
-                $querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=".$incident->get_in_charge_name($conn);
-                $resulte=$conn->execute($querye);
-                list($entity_name, $entity_type) = $resulte->fields;
-                $in_charge_name = $entity_name." [".$entity_type."]";
-            }
-            ?>
-            <?php echo _("In charge") ?>: <b style="color: darkblue"><?php echo $in_charge_name; ?></b><br/>
-            <?php echo _("Submitter") ?>: <b><?php echo $incident->get_submitter() ?></b>
-            </td></tr>
-            <tr><td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
-            <!--<hr/>-->
-            <?php echo _("Extra") ?>: <?php echo $taghtm ?><br/>
-            <!--<hr/>-->
-            </td></tr>
- <?php		
+        <table width="100%" class="noborder">
+		<tr>
+			<td>
+				<table class="noborder" width="100%">
+				<tr>
+					<td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
+						<?php echo _("Name") ?>: <b><?php echo $title ?> </b><br/>
+						<?php echo _("Class") ?>: <?php echo $ref ?><br/>
+						<?php echo _("Type") ?>: <?php echo $type ?><br/>
+						<?php echo _("Created") ?>: <?php echo $created ?> (<?php echo $life ?>)<br/>
+						<?php echo _("Last Update") ?>: <?php echo $updated ?><br/>
+						<?php
+						if ($incident->get_status($conn) == "Closed") {
+							echo _("Resolution time") . ": " . $incident->get_life_time() . "<br/>";
+						}
+						?>      
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align:left;padding-left:10px;">
+					<!--<hr/>-->
+					<?php 
+					if (!preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) {
+						$in_charge_name = $incident->get_in_charge_name($conn);
+					}
+					else {
+						$querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=".$incident->get_in_charge_name($conn);
+						$resulte=$conn->execute($querye);
+						list($entity_name, $entity_type) = $resulte->fields;
+						$in_charge_name = $entity_name." [".$entity_type."]";
+					}
+					?>
+					<?php echo _("In charge") ?>: <b style="color: darkblue"><?php echo $in_charge_name; ?></b><br/>
+					<?php echo _("Submitter") ?>: <b><?php echo $incident->get_submitter() ?></b>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
+					<!--<hr/>-->
+					<?php echo _("Extra") ?>: <?php echo $taghtm ?><br/>
+					<!--<hr/>-->
+					</td>
+				</tr>
+		<?php		
 			if ($ref == 'Custom')
 				$td_st = 'text-align:left;';
 			else
 				$td_st = 'padding-left:10px; text-align:left;';
            
-			echo "<tr><td style='$td_st'";
+			echo "<tr><td style='$td_st'>";
  
 	if ($ref == 'Alarm' or $ref == 'Event')
 	{
@@ -325,37 +335,40 @@ if ($incident->get_status($conn) == "Closed") {
     <!-- end incident data -->
 
     <td valign='top'>
-    	<table width="100%" class="noborder"><tr>
-    		<td><?php Incident::colorize_status($incident->get_status($conn)) ?></td>
-    	</tr></table>
+    	<table width="100%" class="noborder">
+			<tr>
+				<td><?php Incident::colorize_status($incident->get_status($conn)) ?></td>
+			</tr>
+		</table>
 	</td>
     <td valign='top'>
-    	<table width="100%" class="noborder"><tr>
-    		<td><?php echo Incident::get_priority_in_html($priority) ?>
-    	</td></tr>
+    	<table width="100%" class="noborder">
+		<tr>
+    		<td><?php echo Incident::get_priority_in_html($priority) ?></td>
+		</tr>
     	</table>
     </td>
 
 	<td valign="top">
-	<?php
-if ($_GET['id_incident'] != "") { ?>
-		<IFRAME height="200" id="rep_iframe" src="../repository/addrepository.php?id=<?php echo $id
-?>&id_link=<?php echo $_GET['id_incident'] ?>&name_link=<?php echo $_GET['name_incident'] ?>&type_link=incident" frameborder="0"></IFRAME>
-	<?php
-} else { ?>
-	<?php
-    $has_found_keys = 0;
-    $max_rows = 10; // Must have the same value in ../repository/index.php
-    $keywords = $incident->get_keywords_from_type($conn);
-    if ($keywords != "") {
-        $keywords = preg_replace("/\s*,\s*/", " OR ", $keywords);
-        list($aux_list, $has_found_keys) = Repository::get_list($conn, 0, 5, $keywords);
-    }
-    list($linked_list, $has_linked) = Repository::get_list_bylink($conn, 0, 999, $incident->get_id());
-    $keywords_search = ($keywords != "") ? $keywords : $incident->get_title();
-    if ($has_found_keys > 0) $has_found_keys = "<a href='../repository/?searchstr=" . urlencode($keywords) . "' style='text-decoration:underline'><b>$has_found_keys</b></a>";
-    if ($has_linked) $has_linked = "<a href='../repository/?search_bylink=" . $incident->get_id() . "' style='text-decoration:underline'><b>$has_linked</b></a>";
-?>
+		<?php
+		if ($_GET['id_incident'] != "") { ?>
+				<IFRAME height="200" id="rep_iframe" src="../repository/addrepository.php?id=<?php echo $id
+		?>&id_link=<?php echo $_GET['id_incident'] ?>&name_link=<?php echo $_GET['name_incident'] ?>&type_link=incident" frameborder="0"></IFRAME>
+			<?php
+		} else { ?>
+			<?php
+			$has_found_keys = 0;
+			$max_rows = 10; // Must have the same value in ../repository/index.php
+			$keywords = $incident->get_keywords_from_type($conn);
+			if ($keywords != "") {
+				$keywords = preg_replace("/\s*,\s*/", " OR ", $keywords);
+				list($aux_list, $has_found_keys) = Repository::get_list($conn, 0, 5, $keywords);
+			}
+			list($linked_list, $has_linked) = Repository::get_list_bylink($conn, 0, 999, $incident->get_id());
+			$keywords_search = ($keywords != "") ? $keywords : $incident->get_title();
+			if ($has_found_keys > 0) $has_found_keys = "<a href='../repository/?searchstr=" . urlencode($keywords) . "' style='text-decoration:underline'><b>$has_found_keys</b></a>";
+			if ($has_linked) $has_linked = "<a href='../repository/?search_bylink=" . $incident->get_id() . "' style='text-decoration:underline'><b>$has_linked</b></a>";
+		?>
 		<table width="100%">
 			<tr><th height="18"><?=_("Documents")?></th></tr>
 			<?php
@@ -364,7 +377,7 @@ if ($_GET['id_incident'] != "") { ?>
     foreach($linked_list as $document_object) {
         $repository_pag = floor($i / $max_rows) + 1;
 ?>
-				<tr><td><a href="../repository/repository_document.php?id_document=<?php echo $document_object->id_document ?>" style="hover{border-bottom:0px}" class="greybox"><?php echo $document_object->title ?></a></td></tr>
+			<tr><td><a href="../repository/repository_document.php?id_document=<?php echo $document_object->id_document ?>" style="hover{border-bottom:0px}" class="greybox"><?php echo $document_object->title ?></a></td></tr>
 			<?php
         $i++;
     } ?>
@@ -378,45 +391,47 @@ if ($_GET['id_incident'] != "") { ?>
 	
     <td valign='top'>
         <table width="100%" class="noborder">
-        	<tr><td style='white-space:nowrap;'>
-            <a href='newincident.php?action=edit&ref=<?php echo $ref ?>&incident_id=<?php echo $id ?>'><img src="../vulnmeter/images/pencil.png" border="0" align="absmiddle" title="<?php echo _("Edit comment") ?>"></a>
-
-            <a href='javascript:;' onClick="c = confirm('<?php echo _("This action will erase the Ticket as well as all the comments on this ticket. Do you want to continue?") ?>'); if (c) document.location = 'manageincident.php?action=delincident&incident_id=<?php echo $id ?>';"><img src="../pixmaps/delete.gif" border="0" align="absmiddle" title="<?php echo _("Delete comment") ?>"></a>
-             
-            <a href='#anchor'><img src="../pixmaps/tables/table_row_insert.png" border="0" align="absmiddle" title="<?php echo _("New comment") ?>"></a>  
-            
-            </td></tr>
+        	<tr>
+				<td style='white-space:nowrap;'>
+					<a href='newincident.php?action=edit&ref=<?php echo $ref ?>&incident_id=<?php echo $id ?>'><img src="../vulnmeter/images/pencil.png" border="0" align="absmiddle" title="<?php echo _("Edit comment") ?>"></a>
+					<a href='javascript:;' onClick="c = confirm('<?php echo _("This action will erase the Ticket as well as all the comments on this ticket. Do you want to continue?") ?>'); if (c) document.location = 'manageincident.php?action=delincident&incident_id=<?php echo $id ?>';"><img src="../pixmaps/delete.gif" border="0" align="absmiddle" title="<?php echo _("Delete comment") ?>"></a>
+					<a href='#anchor'><img src="../pixmaps/tables/table_row_insert.png" border="0" align="absmiddle" title="<?php echo _("New comment") ?>"></a>  
+				</td>
+			</tr>
         </table>
     </td>
   </tr>
   <tr>
-    <td width="20" colspan="6" style="text-align: left;" nowrap>
+    <td colspan="6" style="text-align: left;" nowrap='nowrap'>
             <form action="manageincident.php?action=subscrip&incident_id=<?php echo $id ?>" method="POST">
                 <table width="100%" class="noborder">
-                <tr><td><b><?php echo _("Email changes to") ?>:</b></td>
-                <td width="45%" style="text-align: left;">
-                <?php
-foreach($incident->get_subscribed_users($conn, $id) as $u) {
-            echo format_user($u, true, true) . '<br/>';
-}
-?>
-                </td><td style="text-align: right;" NOWRAP>
-                  <select name="login">
-                    <?php if (count($users) < 1) { ?>
-                    <option value="">- <?=_("No users found")?> -</option>
-                    <?php } else { ?> 
-                    <option value=""></option>
-                    <?php } ?>
-                    <?php
-foreach($users as $u) { ?>
-                        <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
-                    <?php
-} ?>
-                  </select>
-                  <input type="submit" class="button" name="subscribe" value="<?=_("Subscribe")?>">&nbsp;
-                  <input type="submit" class="button" name="unsubscribe" value="<?=_("Unsubscribe")?>">
-                </td></tr></table>
-            </form>
+                <tr>
+					<td><b><?php echo _("Email changes to") ?>:</b></td>
+					<td width="45%" style="text-align: left;">
+					<?php
+					foreach($incident->get_subscribed_users($conn, $id) as $u) {
+						echo format_user($u, true, true) . '<br/>';
+					}
+					?>
+					</td>
+					<td style="text-align: right;" nowrap='nowrap'>
+						<select name="login">
+							<?php if (count($users) < 1) { ?>
+							<option value="">- <?=_("No users found")?> -</option>
+							<?php } else { ?> 
+							<option value=""></option>
+							<?php } ?>
+							<?php
+							foreach($users as $u) { ?>
+								<option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
+							<?php } ?>
+						</select>
+						<input type="submit" class="button" name="subscribe" value="<?=_("Subscribe")?>">&nbsp;
+						<input type="submit" class="button" name="unsubscribe" value="<?=_("Unsubscribe")?>">
+					</td>
+				</tr>
+			</table>
+        </form>
     </td>
   </tr>
 </table>

@@ -945,9 +945,9 @@ else {
 </tr>
 </table>
 
-<table align="center" width="600" style='border: none;'>
+<table align="center" class='noborder' width="600" style='border: none; background: #FFFFFF;'>
 	<tr>
-		<td class="noborder center" style='height:50px;' valign='absmiddle'>
+		<td class="noborder center" style='height:50px;' valign='middle'>
 			<span>Fields marked with (*) are mandatory</span>
 		</td>
 	</tr>

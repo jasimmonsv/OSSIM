@@ -77,7 +77,7 @@ $(document).ready(function(){
     });
 });
 function toggle_info(id) {
-    $('#plugins'+id).toggle();
+    $('#plugins'+id).toggle($('#plugins'+id).css('display') == 'none');
     var img = '#img'+id;
     if ($(img).attr('src').match(/minus/)) {
         $(img).attr('src','../pixmaps/plus-small.png');

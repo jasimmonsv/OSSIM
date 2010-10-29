@@ -523,8 +523,8 @@ input.menu:hover
 }
 
 input[type="checkbox"], input[type="radio"]{
-	background: transparent;
-	border: 0 !important;
+        background: transparent;
+        border: none !important;
 }
    
 /* --- border radius --- */

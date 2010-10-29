@@ -1755,7 +1755,6 @@ class Incident {
 				$field = $value;
 		}
 		
-		
 		return $field;
 	
 	
