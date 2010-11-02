@@ -32,37 +32,46 @@
 /**
 * Class and Function List:
 * Function list:
-* - Device()
-* - get_community()
-* - get_ip()
-* - get_descr()
-* - get_foundrows()
+* - ActiveDirectory()
+* - get_server()
+* - get_binddn()
+* - get_password()
+* - get_scope()
 * - get_list()
 * - insert()
 * - delete()
 * - update()
 */
-require_once 'Port_group_reference.inc';
 require_once ('classes/Log_action.inc');
 require_once ("ossim_db.inc");
-class Device {
-    var $ip;
-    var $community;
-    var $descr;
-    function Device($ip, $community, $descr, $foundrows = 0) {
-        $this->ip = $ip;
-        $this->community = $community;
-        $this->descr = $descr;
+class ActiveDirectory {
+    var $id;
+    var $server;
+    var $binddn;
+    var $password;
+    var $scope;
+    function ActiveDirectory($id, $server, $binddn, $password, $scope, $foundrows = 0) {
+        $this->id = $id;
+        $this->server = $server;
+        $this->binddn = $binddn;
+        $this->password = $password;
+        $this->scope = $scope;
         $this->foundrows = $foundrows;
     }
-    function get_community() {
-        return $this->community;
+    function get_id() {
+        return $this->id;
     }
-    function get_ip() {
-        return long2ip($this->ip);
+    function get_server() {
+        return $this->server;
     }
-    function get_descr() {
-        return $this->descr;
+    function get_binddn() {
+        return $this->binddn;
+    }
+    function get_password() {
+        return $this->password;
+    }
+    function get_scope() {
+        return $this->scope;
     }
     function get_foundrows() {
         return $this->foundrows;
@@ -70,8 +79,7 @@ class Device {
     function get_list($conn, $args = "") {
         $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
-        $query = OssimQuery("SELECT $select FROM network_device $args");
-        //error_log("\nSELECT $select FROM network_device $args",3,"/tmp/nedi.log");
+        $query = OssimQuery("SELECT $select FROM ldap $args");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
@@ -82,32 +90,43 @@ class Device {
             }
             $list = array();
             while (!$rs->EOF) {
-                $list[] = new Device($rs->fields["ip"], $rs->fields["community"], $rs->fields["descr"], $foundrows);
+                $list[] = new ActiveDirectory($rs->fields["id"], $rs->fields["ip"], $rs->fields["binddn"], $rs->fields["password"], $rs->fields["scope"], $foundrows);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
-    function insert($conn, $ip, $community, $descr) {
-        $sql = "INSERT INTO network_device VALUES (inet_aton(?), ?, ?)";
+    function insert($conn, $server, $binddn, $password, $scope) {
+        $sql = "INSERT INTO ldap (ip,binddn,password,scope) VALUES (inet_aton(?), ?, ?, ?)";
         $params = array(
-            $ip,
-            $community,
-            $descr
+            $server,
+            $binddn,
+            $password,
+            $scope
         );        
         if ($conn->Execute($sql,$params) === false) {
             print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
             exit;
         }
     }
-    function update($conn, $ip, $community, $descr) {
-        Device::delete($conn, $ip);
-        Device::insert($conn, $ip, $community, $descr);
-    }
-    function delete($conn, $ip) {
-        $sql = "DELETE FROM network_device WHERE ip = inet_aton(?)";
+    function update($conn, $id, $server, $binddn, $password, $scope) {
+        $sql = "UPDATE ldap SET ip=inet_aton(?),binddn=?,password=?,scope=? WHERE id=?";
         $params = array(
-            $ip
+            $server,
+            $binddn,
+            $password,
+            $scope,
+            $id
+        );        
+        if ($conn->Execute($sql,$params) === false) {
+            print 'error updating: ' . $conn->ErrorMsg() . '<BR>';
+            exit;
+        }
+    }
+    function delete($conn, $id) {
+        $sql = "DELETE FROM ldap WHERE id = ?";
+        $params = array(
+            $id
         );
         if ($conn->Execute($sql, $params) === false) {
             print 'error deleting: ' . $conn->ErrorMsg() . '<BR>';

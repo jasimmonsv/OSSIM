@@ -35,8 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-require_once 'classes/Device.inc';
-require_once 'classes/Util.inc';
+require_once 'classes/ActiveDirectory.inc';
 require_once 'ossim_db.inc';
 if (!Session::am_i_admin()) die(_("You don't have permissions for Asset Discovery"));
 
@@ -59,62 +58,77 @@ echo gettext("OSSIM Framework"); ?> </title>
 if (!(GET('withoutmenu')==1 || POST('withoutmenu')==1)) include ("../hmenu.php"); 
 
 $ip = "";
-$community = "";
-$descr = "";
+$binddn = "";
+$password = "";
+$scope = "";
 
-$ip = ((GET('ip')!="")? GET('ip'): POST('ip'));
-ossim_valid($ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("ip"));
+$id = ((GET('id')!="")? GET('id'): POST('id'));
+ossim_valid($id, OSS_DIGIT, 'illegal:' . _("id"));
 if (ossim_error()) {
     die(ossim_error());
 }
-if(GET('ip')!=""){
-    $devices = Device::get_list($conn, "where ip='".Util::ip2ulong(GET('ip'))."'");
-    foreach($devices as $device){
-        $community = $device->get_community();
-        $descr = $device->get_descr();
+if(GET('id')!=""){
+    $ads = ActiveDirectory::get_list($conn, "where id=".GET('id'));
+    foreach($ads as $ad){
+        $ip = long2ip($ad->get_server());
+        $binddn = $ad->get_binddn();
+        $password = $ad->get_password();
+        $scope = $ad->get_scope();
     }
 }
 else {
-    $community = POST('community');
-    ossim_valid($community, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_PUNC,OSS_NULLABLE, 'illegal:' . _("name"));
-    $descr = POST('descr');
-    ossim_valid($descr, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, 'illegal:' . _("Description"));
+    $ip = POST('ip');
+    ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Server IP"));
+    $binddn = POST('binddn');
+    ossim_valid($binddn, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_PUNC, 'illegal:' . _("Bind DN"));
+    $password = POST('password');
+    ossim_valid($password, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC_EXT, 'illegal:' . _("Password"));
+    $scope = POST('scope');
+    ossim_valid($scope, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, 'illegal:' . _("Scope"));
     if (ossim_error()) {
         die(ossim_error());
     }
 }
 
-if ($community!="" && GET('ip')=="") { // only with POST
-    Device::update($conn, $ip, $community, $descr);
-    echo "<p>"._("Device succesfully updated")."</p>";
-    ?><script>document.location.href="nedi.php"</script><?
+if ($ip!="" && $binddn!="" && GET('id')=="") { // only with POST
+    ActiveDirectory::update($conn, $id, $ip, $binddn, $password, $scope);
+    echo "<p>"._("Active directory succesfully updated")."</p>";
+    ?><script>document.location.href="activedirectory.php"</script><?
 }
 ?>
 
-<form method="post" action="modifydevice.php">
-<input type="hidden" name="ip" value="<?=$ip?>"/>
+<form method="post" action="modifyactivedirectory.php">
+<input type="hidden" name="id" value="<?=$id?>"/>
 <table align="center">
   <tr>
     <th> <?php
-    echo gettext("Ip"); ?> </th>
-    <td style="text-align:left;padding-left:3px;" class="nobborder"><?=$ip?></td>
+    echo gettext("Server IP"); ?> </th>
+    <td style="text-align:left;padding-left:3px;" class="nobborder"><input type="text" name="ip" value="<?=$ip?>" size="32"></td>
   </tr>
   <tr>
     <th> <?php
-    echo gettext("Community"); ?> </th>
-    <td style="text-align:left;padding-left:3px;" class="nobborder"><input type="text" name="community" value="<?=$community?>" size="32"/></td>
-  </tr>
-  <tr>
-    <th> <?php
-    echo gettext("Description"); ?> </th>
+    echo gettext("Bind DN"); ?> </th>
     <td style="text-align:left;padding-left:3px;" class="nobborder">
-      <textarea name="descr" rows="2" style="width:212px"><?=$descr?></textarea>
+      <textarea name="binddn" rows="2" style="width:212px"><?=$binddn?></textarea>
     </td>
   </tr>
   <tr>
+    <th> <?php
+    echo gettext("Password"); ?> </th>
+    <td style="text-align:left;padding-left:3px;" class="nobborder"><input type="password" name="password" value="<?=$password?>" size="32"></td>
+  </tr>
+  <tr>
+    <th> <?php
+    echo gettext("Scope"); ?> </th>
+    <td style="text-align:left;padding-left:3px;" class="nobborder">
+      <textarea name="scope" rows="2" style="width:212px"><?=$scope?></textarea>
+    </td>
+  </tr>
+  <tr>
+  <tr>
     <td colspan="2" style="text-align:center;" class="nobborder">
-      <input type="submit" value="<?=_("OK")?>" class="btn" style="font-size:12px">
-      <input type="reset" value="<?=_("reset")?>" class="btn" style="font-size:12px">
+      <input type="submit" value="<?=_("OK")?>" class="button" style="font-size:12px">
+      <input type="reset" value="<?=_("reset")?>" class="button" style="font-size:12px">
     </td>
   </tr>
 </table>

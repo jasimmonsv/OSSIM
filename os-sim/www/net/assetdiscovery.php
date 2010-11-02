@@ -80,7 +80,7 @@ echo "      </td>";
 echo "</tr>";
 echo "<tr>";
 echo "      <td class=\"nobborder\" style=\"text-align:center;padding-top:10px;\">";
-echo "      <input type=\"submit\" value=\""._("Save")."\"/>";
+echo "      <input type=\"submit\" class='button' value=\""._("Save")."\"/>";
 echo "      </td>";
 echo "</tr>";
 echo "</table>";

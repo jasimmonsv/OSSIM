@@ -90,18 +90,18 @@ $result = $dbconn->Execute($query);
 include ("../hmenu.php");
 echo "<form action=\"nedi.php\" method=\"get\">";
 echo "<input type=\"hidden\" name=\"update\" value=\"1\"/>";
-echo "<table width=\"100%\" class=\"transparent\">";
+echo "<center><table class=\"transparent\">";
 echo "<tr>";
-echo "      <td class=\"nobborder\" width=\"50\" style=\"text-align:left;padding-top:5px;\" nowrap>";
+echo "      <td class=\"nobborder\" style=\"text-align:left;\" nowrap>";
 echo "      <input type=\"checkbox\" name=\"nedi_autodiscovery\" value=\"1\" ".(($result->fields['value']=="1")? "checked":"")."/>";
 echo "      &nbsp;"._("Nedi Autodiscovery");
 echo "      </td>";
-echo "      <td class=\"nobborder\" style=\"text-align:left;padding-top:5px;padding-left:10px;\">";
-echo "      <input type=\"submit\" value=\""._("Save")."\"/>";
+echo "      <td class=\"nobborder\" style=\"text-align:left;padding-left:10px;\">";
+echo "      <input type=\"submit\" class='button' value=\""._("Save")."\"/>";
 echo "      </td>";
 echo "</tr>";
-echo "</table>";
-echo "</form>";
+echo "</table></center>";
+echo "</form><br/>";
 ?>
 	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
 	
@@ -128,7 +128,7 @@ echo "</form>";
 			border:none;
 			padding:0px; margin:0px;
 		}
-		input, select {
+		input[type=text], select {
 			border-radius: 0px;
 			-moz-border-radius: 0px;
 			-webkit-border-radius: 0px;
@@ -188,7 +188,7 @@ echo "</form>";
     <?php
 $default = array(
     "ip" => array(
-        _("Device Addres"),
+        _("Device Address"),
         100,
         'true',
         'left',
@@ -203,7 +203,7 @@ $default = array(
     ) ,
     "description" => array(
         _("Description"),
-        100,
+        300,
         'true',
         'center',
         false
@@ -233,7 +233,7 @@ echo "$colModel\n";
 		nomsg: '<?=_("No Devices")?>',
 		useRp: true,
 		rp: 25,
-		contextMenu: 'myMenu',
+		//contextMenu: 'myMenu',
 		showTableToggleBtn: true,
 		singleSelect: true,
 		width: get_width('headerh1'),
