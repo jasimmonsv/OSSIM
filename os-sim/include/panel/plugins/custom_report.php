@@ -42,7 +42,7 @@
 require_once 'ossim_db.inc';
 class Plugin_Custom_Report extends Panel {
     var $defaults = array(
-        'width' => '500',
+        'width' => '600',
 		'height' => '500',
 		'refresh' => false,
 		'secondRefresh' => '300',
@@ -183,7 +183,7 @@ class Plugin_Custom_Report extends Panel {
 		if($this->get('refresh')=='true'){
 			$url .= '&refresh='.$this->get('secondRefresh');
 		}
-		$url .= '&run='.$this->get('run');
+		$url .= '&widthDashboards='.$this->get('width').'&run='.$this->get('run');
 		
 		$html .= '<iframe id="contIframe" frameborder="0" src ="'.$url.'" width="'.$this->get('width').'" height="'.$this->get('height').'"></iframe>';
         
