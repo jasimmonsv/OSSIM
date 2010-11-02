@@ -966,7 +966,24 @@ $(document).ready(function(){
 	$("#mytags").tagit({
 		availableTags: ["data"<?php foreach ($sensors as $ip=>$name) { ?>, "sensor:<?php echo $name?>"<?php } ?><?php $top = 0; foreach ($hosts as $ip=>$name) if ($top < 20) { ?>, "source:<?php echo $name?>", "destination:<?php echo $name ?>"<?php $top++; } ?>]
 	});
-	
+
+	/* Remote servers check */
+	<?php if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers")) { ?>
+	$.ajax({
+		type: "GET",
+		url: "check_remote_servers.php",
+		data: "",
+		success: function(msg) {
+			var arr = msg.split(/\;/);
+			for (i=0; i<arr.length; i++) {
+				var aux = arr[i].split(/\:/);
+				if (aux[1] == "0") {
+					$('#check_'+aux[0]).attr('disabled','disabled');
+				}
+			}
+		}
+	});
+	<?php } ?>
 });
 function change_calendar() {
 	var n = 0;
@@ -1088,7 +1105,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 					$name = $db->get_name();
 					?>
 					<tr bgcolor='#EEEEEE'>
-						<td><input type="checkbox" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; $from_remote = 1; } ?>></input></td>
+						<td><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; $from_remote = 1; } ?>></input></td>
 						<td></td>
 						<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i-1]?>;color:<?php echo '#'.$fcolors[$i-1]?>"><?php echo $name ?></td></tr></table></td>
 					</tr>
