@@ -74,7 +74,8 @@ if ($_GET['directive'] != '' || $_GET['action'] == "add_directive") {
     }
     elseif ($action == 'add_rule') {
         $id = $_GET['id'];
-        $right = "include/utils.php?query=add_rule&id=$id";
+        $xml_file = $_GET['xml_file'];
+        $right = "include/utils.php?query=add_rule&id=$id&xml_file=$xml_file";
         $scroll = "no";
     }
     elseif ($action == 'copy_directive') {

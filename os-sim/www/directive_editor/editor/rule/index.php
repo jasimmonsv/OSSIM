@@ -214,9 +214,11 @@ include ("sensor.inc.php");
 $directive = GET("directive");
 $level = GET("level");
 $id = GET("id");
+$xml_file = GET('xml_file');
 ossim_valid($directive, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
 ossim_valid($level, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("level"));
 ossim_valid($id, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
+ossim_valid($xml_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -261,6 +263,8 @@ echo $directive; ?>" />
 echo $level; ?>" />
 		<input type="hidden" name="id" value="<?php
 echo $id; ?>" />
+		<input type="hidden" name="xml_file" value="<?php
+echo $xml_file; ?>" />
 		<input type="hidden" name="type" id="type"
 			value="<?php
 echo getPluginType($rule->plugin_id); ?>" />

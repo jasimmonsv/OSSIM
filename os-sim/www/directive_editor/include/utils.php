@@ -424,7 +424,8 @@ elseif ($query == "edit_rule") {
 /* Create a new rule object and edit this new rule*/
 elseif ($query == "add_rule") {
     $directive = unserialize($_SESSION['directive']); 
-    $directive_xml = preg_replace("/.*\//","",$_SESSION['XML_FILE']);
+    //$directive_xml = preg_replace("/.*\//","",$_SESSION['XML_FILE']);
+    $directive_xml = $_GET['xml_file'];
     $tab_rules = $directive->rules;
     $id = $_GET['id'];
     unset($_SESSION['rule']);
@@ -449,11 +450,15 @@ elseif ($query == "add_rule") {
         $directive_xml=substr($directive_xml, $posFinal+1);
     }
     //echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=$newlevel&action=add_rule&id=" . $id . "&directive_xml=" . $directive_xml . "','right')\"></body></html>";
-    echo "<script type='text/javascript'>document.location.href='../editor/rule/index.php?directive=$id_dir&level=$level&id=$id&nlevel=$newlevel'</script>";
+    echo "<script type='text/javascript'>document.location.href='../editor/rule/index.php?directive=$id_dir&level=$level&id=$id&nlevel=$newlevel&xml_file=$directive_xml'</script>";
 }
 /* create a new rule object with parameters from the form*/
 elseif ($query == "save_rule") {
-    if ($_POST["plugin_sid"] == "LIST") $_POST["plugin_sid"] = $_POST["plugin_sid_list"];
+	ossim_valid($_POST["xml_file"], OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+	if (ossim_error()) {
+	    die(ossim_error());
+	}
+	if ($_POST["plugin_sid"] == "LIST") $_POST["plugin_sid"] = $_POST["plugin_sid_list"];
     if ($_POST["from"] == "LIST") $_POST["from"] = $_POST["from_list"];
     if ($_POST["port_from"] == "LIST") $_POST["port_from"] = $_POST["port_from_list"];
     if ($_POST["to"] == "LIST") $_POST["to"] = $_POST["to_list"];
@@ -484,6 +489,7 @@ elseif ($query == "save_rule") {
     if ($_POST["time_out"] == "LIST") $_POST["time_out"] = $_POST["time_out_list"];
     if ($_POST["reliability_op"] == "+") $_POST["reliability"] = "+" . $_POST["reliability"];
     $rule = unserialize($_SESSION['rule']);
+    $xml_file = $_POST['xml_file'];
     $rule->id = $_POST["id"];
     $rule->level = $_POST["level"];
     $rule->name = stripslashes($_POST["name"]);
@@ -522,7 +528,7 @@ elseif ($query == "save_rule") {
     $directive = $_POST["directive"];
     $level = $_POST["level"];
     $id = $_POST["id"];
-    insert($id);
+    insert($id,"/etc/ossim/server/".$xml_file);
 }
 /* Delete a rule*/
 elseif ($query == "del_rule") {
@@ -669,7 +675,7 @@ elseif ($query == "save_directive") {
         $dom->dump_file($XML_FILE);
         $new_rule_id = $new_id . "-1-0";
         //insert_dir_in_group($new_id, $new_group);
-        echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_directive->id . "&level=1&action=add_rule&id=" . $new_rule_id . "&nlevel=1'\"></body></html>";
+        echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_directive->id . "&level=1&action=add_rule&xml_file=".preg_replace("/.*\//","",$XML_FILE)."&id=" . $new_rule_id . "&nlevel=1'\"></body></html>";
     }
     /* if it amends an existing directive */
     else {
@@ -752,7 +758,6 @@ elseif ($query == "add_directive") {
     $onlydir = ($_GET['onlydir'] == "1") ? "1" : "0";
     $category = get_category_by_id($cat_id);
     $XML_FILE = "/etc/ossim/server/" . $category->xml_file;
-    if ($_SESSION['XML_FILE'] == "") $_SESSION['XML_FILE'] = $XML_FILE;
     $dom = open_file($XML_FILE);
     $id = new_directive_id($category->id);
     $null = NULL;
@@ -870,7 +875,7 @@ elseif ($query == "delete_category") {
     unlink("/etc/ossim/server/" . $category->xml_file);
     // modify directives.xml now
     delete_category(str_replace(" ", "-", $category->name));
-    echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php'\"></body></html>";
+    echo "<html><body onload=\"top.frames['main'].document.location.href='../numbering.php'\"></body></html>";
 }
 /* Save a group */
 elseif ($query == "save_group") {

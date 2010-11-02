@@ -331,8 +331,8 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
     $i = 0;
     foreach($categories as $category) { $color = ($i%2 == 0) ? "#F2F2F2" : "#FFFFFF"; ?>
 <tr><td style="border:0px;background-color:<?php echo $color?>"><a onclick="javascript:if (confirm('<?php
-        echo gettext("Are you sure you want to delete this category ?"); ?>')) { window.open('../include/utils.php?query=delete_category&id=<?php
-        echo $category->id; ?>','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php
+        echo gettext("Are you sure you want to delete this category ?"); ?>')) { document.location.href='../include/utils.php?query=delete_category&id=<?php
+        echo $category->id; ?>'; }" style="marging-left:20px; cursor:pointer" TITLE="<?php
         echo gettext("Delete this category"); ?>"><img src="../../pixmaps/cross-circle-frame.png" border="0" alt="<?php echo _("Delete")?>" title="<?php echo _("Delete")?>"></img></a>
 <td style="border:0px;background-color:<?php echo $color?>"><a href="../editor/category/index.php?id=<?php
         echo $category->id; ?>" class="greybox_200" TITLE="<?php

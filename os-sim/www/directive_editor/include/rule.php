@@ -649,8 +649,8 @@ function do_rules($id_rule, &$tab_rules, $dom) {
     }
 }
 /* insert a new rule into xml file */
-function insert($id) {
-    $XML_FILE = $_SESSION['XML_FILE'];
+function insert($id,$XML_FILE="") {
+	if ($XML_FILE == "") $XML_FILE = $_SESSION['XML_FILE'];
     $rule = unserialize($_SESSION['rule']);
     $directive = unserialize($_SESSION['directive']);
     $tab_rules = $directive->rules;
