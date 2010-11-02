@@ -133,7 +133,7 @@ class Directive {
                 $urlAddRule='#';
                 $jsAddRule=" onClick=\"alert('return false\" ";
             }else{
-                $urlAddRule='../include/utils.php?query=add_rule&id='.$newid;
+                $urlAddRule='../include/utils.php?query=add_rule&id='.$newid.'&xml_file='.$xml_file;
                 $jsAddRule='';
             }
           ?>
@@ -171,12 +171,12 @@ class Directive {
             list($id_dir, $id_rule, $id_father) = explode("-", $srule->id);
             for ($i = 1; $i <= count($rules); $i++) {
                 if (($i == $id_rule) && ($srule->is_new(&$rules)) && ($id_dir == $this->id)) $srule->print_rule($level, &$rules);
-                $rules[$i]->print_rule($level, &$rules);
+                $rules[$i]->print_rule($level, &$rules, $xml_file);
             }
             if (($id_rule > count($rules)) && ($srule->is_new(&$rules)) && ($id_dir == $this->id)) $srule->print_rule($level, &$rules);
         } else {
             for ($i = 1; $i <= count($rules); $i++) {
-                $rules[$i]->print_rule($level, &$rules);
+                $rules[$i]->print_rule($level, &$rules, $xml_file);
             }
         }
     }

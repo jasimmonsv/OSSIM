@@ -414,10 +414,11 @@ elseif ($query == "edit_rule") {
     $directive = unserialize($_SESSION['directive']);
     $tab_rules = $directive->rules;
     $rule_id = $_GET["id"];
+    $xml_file = $_GET['xml_file'];
     list($id_dir, $id_rule, $id_father) = explode("-", $rule_id);
     $_SESSION['rule'] = serialize($tab_rules[$id_rule]);
 	$level = $tab_rules[$id_rule]->level;
-    echo "<script type='text/javascript'>document.location.href='../editor/rule/index.php?directive=$id_dir&level=".$level."&id=$rule_id'</script>";
+    echo "<script type='text/javascript'>document.location.href='../editor/rule/index.php?directive=$id_dir&level=".$level."&id=$rule_id&xml_file=$xml_file'</script>";
     //echo "<script type='text/javascript'>document.location.href='../right.php?directive=" . $id_dir . "&level=" . $tab_rules[$id_rule]->level . "&action=edit_rule&id=" . $rule_id . "'</script>";
     //echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=" . $tab_rules[$id_rule]->level . "&action=edit_rule&id=" . $rule_id . "','right')\"></body></html>";
 }

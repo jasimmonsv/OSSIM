@@ -341,7 +341,7 @@ class Rule {
      * other markups (eg <table>) must be printed in order to obtain a valid HTML
      * code.
      */
-    function print_rule($level, &$rules) {
+    function print_rule($level, &$rules, $xml_file = "") {
         global $conn;
         list($id_dir, $id_rule, $id_father) = explode("-", $this->id);
         $newid = new_id($this->id, &$rules);
@@ -405,7 +405,7 @@ class Rule {
             //addRule button
             if (!$this->is_new()) {
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=add_rule&id=" . $newid . "\" TITLE=\"" . gettext("Add a rule") . "\"><img src='../../pixmaps/plus-small.png' border='0'></img></a>";
+                print "<a TARGET=\"right\" href=\"../include/utils.php?query=add_rule&xml_file=$xml_file&id=" . $newid . "\" TITLE=\"" . gettext("Add a rule") . "\"><img src='../../pixmaps/plus-small.png' border='0'></img></a>";
                 print '</td>';
                 //removeRule button
                 print '<td>';
@@ -447,7 +447,7 @@ class Rule {
        <?php
             } else { ?>
         <td><a href="../include/utils.php?query=edit_rule&id=<?php
-                echo $this->id ?>" TITLE="<?php
+                echo $this->id ?>&xml_file=<?php echo $xml_file ?>" TITLE="<?php
                 echo gettext("Modify this rule"); ?>"><?php
                 echo $this->name; ?></a></td>
        <?php
