@@ -967,7 +967,9 @@ CREATE TABLE alarm (
         KEY `timestamp` (`timestamp`),
         KEY `src_ip` (`src_ip`),
         KEY `dst_ip` (`dst_ip`),
-        KEY `status` (`status`,`timestamp`)
+        KEY `status` (`status`,`timestamp`),
+        KEY `plugin_id` (`plugin_id`),
+        KEY `plugin_sid` (`plugin_sid`)
 );
 
 --
