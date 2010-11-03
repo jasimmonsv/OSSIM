@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+$|=1;
+$ip = $ARGV[0];
+if ($ip !~ /^\d+\.\d+\.\d+\.\d+$/) {
+	exit;
+}
+$cmd = 'ssh -q -o "BatchMode=yes" root@'.$ip.' "echo 2>&1" && echo "OK" || echo "NOK" |';
+open(S,$cmd);
+while(<S>) {
+	chomp;
+	next if $_ eq "";
+	print "$_\n";
+}
+close(S);
