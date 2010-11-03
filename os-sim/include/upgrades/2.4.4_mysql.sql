@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `incident_custom_types` (
                     
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
-UPDATE config SET value="2010-10-15" WHERE conf="last_update";
+UPDATE config SET value="2010-11-03" WHERE conf="last_update";
 
 -- WARNING! Keep this at the end of this file
 -- WARNING! Keep this at the end of this file
