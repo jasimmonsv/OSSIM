@@ -153,9 +153,25 @@ $chart['draw'] = array(
         'v_align' => "top"
     )
 );*/
+$only_json = 0;
+if ($ARGV[1] != "" && $ARGV[2] != "") {
+	$gt = $ARGV[1];
+	$cat = $ARGV[2];
+	$only_json = 1;
+}
 $gt = $_SESSION["graph_type"];
 $cat = $_SESSION["cat"];
 $range = "";
+
+if ($_GET['ips'] != "") {
+	$ip_list = $_GET['ips'];
+	ossim_valid($ip_list, OSS_DIGIT, OSS_PUNC, 'illegal:' . _("ip_list"));
+	if (ossim_error()) {
+	    die(ossim_error());
+	}
+	$cmd = "perl fetchremote_graph.pl $gt $cat $ip_list";
+	echo $cmd;exit;
+}
 if ($gt == "last_year") {
 	$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365));
 	$date_to = date("Y-m-d");
@@ -299,6 +315,10 @@ elseif ($gt == "day") $a = 4;
 $chart['chart_data'] = $general;
 $chart['chart_value_text'] = $generalV;
 
+if ($only_json) {
+	print_r($chart['chart_data']);
+	exit;
+}
 //print_r($chart['chart_data']);
 //SendChartData($chart);
 ?>

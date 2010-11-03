@@ -66,14 +66,20 @@ $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=s
 $fcolors = array("dee5f2","ec7000","fff0e1","5a6986");
 $bcolors = array("5a6986","f8f4f0","ec7000","dee5f2");
 $logger_servers = array();
+$ip_list = "";
 if (GET('num_servers') != "") {
 	$num_servers = GET('num_servers');
-	if (GET('local')) $logger_servers['local'] = "127.0.0.1";
+	if (GET('local')) {
+		$logger_servers['local'] = "127.0.0.1";
+		$ip_list = "127.0.0.1";
+	}
 	foreach ($database_servers as $db) {
 		$name = $db->get_name();
 		$ip = $db->get_ip();
 		ossim_valid(GET($name), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal: server '.$name);
 		if (GET($name) != "") {
+			if ($ip_list != "") $ip_list .= ",";
+			$ip_list .= $ip;
 			$logger_servers[$name] = $ip;
 		}
 	}
@@ -1100,9 +1106,14 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 				</tr>			
 				<?php
 				$i = 1;
+				$_SESSION['logger_colors']['local']['bcolor'] = $bcolors[0];
+				$_SESSION['logger_colors']['local']['fcolor'] = $fcolors[0];
 				foreach ($database_servers as $db) {
 					$i++;
+					if ($i >= count($bcolors)) $i = 0;
 					$name = $db->get_name();
+					$_SESSION['logger_colors'][$name]['bcolor'] = $bcolors[$i-1];
+					$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i-1];
 					?>
 					<tr bgcolor='#EEEEEE'>
 						<td><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; $from_remote = 1; } ?>></input></td>
@@ -1127,7 +1138,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 <div id="by_date">
     <div id="testLoading2"><img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading Graphs, please a wait a few seconds...') ?></div>
     <a href="javascript:UpdateByDate('forensic.php?graph_type=all&cat=&uniqueID=<?php echo $uniqueid ?>');"><small><font color="black"><?=_("Click to show the main chart")?></font></small></a>
-    <IFRAME src="forensic_source.php" frameborder="0" style="margin-top:0px;width:100%;height:180px;overflow:hidden"></IFRAME>
+    <IFRAME src="forensic_source.php?ips=<?php echo $ip_list ?>" frameborder="0" style="margin-top:0px;width:100%;height:180px;overflow:hidden"></IFRAME>
 </div>
 </center>
 <!--

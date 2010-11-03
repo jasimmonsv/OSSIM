@@ -59,8 +59,6 @@ function dateDiff($startDate, $endDate)
 
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
-$fcolors = array("dee5f2","ec7000","fff0e1","5a6986");
-$bcolors = array("5a6986","f8f4f0","ec7000","dee5f2");
 
 $config = parse_ini_file("everything.ini");
 $a = GET("query");
@@ -266,8 +264,8 @@ while (!feof($fp)) {
 	// Remote connect message
     if (preg_match("/^Connecting (.+)/",$line,$found)) {
     	$current_server = ($logger_servers[$found[1]] != "") ? $logger_servers[$found[1]] : $found[1];
-    	$server_bcolor[$current_server] = $bcolors[$cont];
-    	$server_fcolor[$current_server] = $fcolors[$cont];
+    	$server_bcolor[$current_server] = $_SESSION['logger_colors'][$current_server]['bcolor'];
+    	$server_fcolor[$current_server] = $_SESSION['logger_colors'][$current_server]['fcolor'];
     	$cont++;
     }
 	// Searching message
