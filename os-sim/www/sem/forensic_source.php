@@ -68,9 +68,10 @@ if ($_GET['ips'] != "") {
 	}
 	$cmd = "sudo ./fetchremote_graph.pl $gt $cat $ip_list";
 	$aux = explode("\n",`$cmd`);
-	print_r($aux);
-	$remote_data = json_decode(trim($aux[0]));
-	print_r($remote_data);
+	//print_r($aux);
+	$string = trim($aux[0]);
+	$remote_data = json_decode($string);
+	var_dump($remote_data);
 // LOCAL GRAPH DATA
 } else {
 	if ($gt == "last_year") {
