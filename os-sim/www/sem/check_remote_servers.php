@@ -52,11 +52,11 @@ $ips = array();
 foreach ($database_servers as $db) {
 	$name = $db->get_name();
 	$ip = $db->get_ip();
-	$cmd = 'sudo ssh -q -o "BatchMode=yes" root@'.$ip.' "echo 2>&1" && echo "OK" || echo "NOK"';
+	$cmd = 'sudo ./test_remote_ssh.pl '.$ip;
 	$res = explode("\n",`$cmd`);
-	if ($res[1] == "OK") {
+	if ($res[0] == "OK") {
 		$ips[$name] = "1";
-	} elseif ($res[0] == "NOK") {
+	} else {
 		$ips[$name] = "0";
 	}
 }

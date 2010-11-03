@@ -61,15 +61,24 @@ $range = "";
 
 // REMOTE GRAPH MERGE
 if ($_GET['ips'] != "") {
+	$ip_to_name = array();
+	foreach ($_SESSION['logger_servers'] as $name=>$ip) {
+		$ip_to_name[$ip] = $name;
+	}
 	$ip_list = $_GET['ips'];
 	ossim_valid($ip_list, OSS_DIGIT, OSS_PUNC, 'illegal:' . _("ip_list"));
 	if (ossim_error()) {
 	    die(ossim_error());
 	}
-	$cmd = "perl fetchremote_graph.pl $gt $cat $ip_list";
+	$cmd = "sudo ./fetchremote_graph.pl $gt $cat $ip_list";
 	$aux = explode("\n",`$cmd`);
-	$remote_data = $aux[0];
-	print_r($remote_data);
+	$string = trim($aux[0]);
+	$remote_data_aux = json_decode($string);
+	$remote_data_aux2 = (array) $remote_data_aux;
+	foreach ($remote_data_aux2 as $key=>$val) {
+		$remote_data[$key] = (array) $val;
+	}
+	//print_r($remote_data);
 // LOCAL GRAPH DATA
 } else {
 	if ($gt == "last_year") {
@@ -207,18 +216,19 @@ if ($_GET['ips'] != "") {
 		}
 	}
 	
-	if ($gt == "all" || $gt != "month" && $gt != "year" && $gt != "day" && $gt != "last_year" && $gt != "last_month" && $gt != "last_week") $a = 1;
-	elseif ($gt == "year" || $gt == "last_year") $a = 2;
-	elseif ($gt == "month" || $gt == "last_month" || $gt == "last_week") $a = 3;
-	elseif ($gt == "day") $a = 4;
-	
 	$chart['chart_data'] = $general;
 	$chart['chart_value_text'] = $generalV;
 }
 
+if ($gt == "all" || $gt != "month" && $gt != "year" && $gt != "day" && $gt != "last_year" && $gt != "last_month" && $gt != "last_week") $a = 1;
+elseif ($gt == "year" || $gt == "last_year") $a = 2;
+elseif ($gt == "month" || $gt == "last_month" || $gt == "last_week") $a = 3;
+elseif ($gt == "day") $a = 4;
+
 // IF CALLED BY PROMPT ONLY PRINT DATA (For remote logger graph merge)
 if ($only_json) {
-	echo "{'chart_data':".json_encode($chart['chart_data']).",chart_value_text:".json_encode($chart['chart_value_text'])."}";
+	$json = array('chart_data' => $chart['chart_data'],'chart_value_text' => $chart['chart_value_text']);
+	echo json_encode($json);
 	exit;
 }
 //print_r($chart['chart_data']);
@@ -236,7 +246,7 @@ BODY {
     color: #111111;
     font-family: arial, helvetica, sans-serif;
     font-size: 12px;
-    margin: 5px;
+    margin: 0px;
     padding: 0px;
 }
 a { color: #555555; text-decoration:none; }
@@ -246,19 +256,27 @@ a:hover { text-decoration: underline; }
 </style>
 <script src="../forensics/js/jquery-1.3.2.min.js" type="text/javascript"></script>
 <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
-<script src="../js/jquery.flot.pie.js" type="text/javascript"></script>
+<script src="../js/jquery.flot.pack.js" type="text/javascript"></script>
+<script src="../js/jquery.flot.stack.js" type="text/javascript"></script>
 </HEAD>
 <BODY onLoad="parent.document.getElementById('testLoading2').style.display='none'">
-<div id="plotareaglobal" style="text-align:center;margin:0px;display:none;margin-left:15px"></div>
+<div id="plotareaglobal" style="text-align:center;margin:5px 0px 0px 20px;padding:0px;display:none;"></div>
 <script>
 <?  flush(); sleep(1);
     $row = ($gt=="year" || $gt=="last_year") ? 2 : (($gt=="month" || $gt=="last_month" || $gt=="last_week") ? 3 : ($gt=="day" ? 4 : 1));
     $salto = ($gt=="month" || $gt=="last_month") ? 4 : (($gt=="day") ? 2 : 1);
     $with = ($gt=="month") ? 1 : (($gt=="day") ? 0 : 0);
-    array_shift($chart['chart_data'][0]);
-    array_shift($chart['chart_data'][$a]);
+    if ($_GET['ips'] == "") {
+    	array_shift($chart['chart_data'][0]);
+    	array_shift($chart['chart_data'][$a]);
+    } else {
+    	foreach ($remote_data as $ip=>$arr) {
+    		array_shift($remote_data[$ip]['chart_data'][0]);
+    		array_shift($remote_data[$ip]['chart_data'][$a]);
+    	}
+    }
 ?>
-    var links = []; <? foreach ($chart['chart_data'][0] as $i => $tick) echo "    links[".$i."] = '$tick';\n"; ?>
+    var links = []; <? //foreach ($chart['chart_data'][0] as $i => $tick) echo "    links[".$i."] = '$tick';\n"; ?>
     function showTooltip(x, y, row, col, contents) {
         var year_str = "";
 		if (links[row].match(/..., \d\d\d\d/)) {
@@ -284,6 +302,20 @@ a:hover { text-decoration: underline; }
     }
     
     $(document).ready(function(){
+		<?php if ($_GET['ips'] != "") { ?>
+		var options = {
+	        series: {stack: 0,
+	                 lines: {show: false, steps: false },
+	                 bars: {show: true, barWidth: 0.9, align: 'center'}
+	                 },
+	        xaxis: { tickDecimals:0, ticks: [<? $flag = 0; foreach ($remote_data as $ip=>$arr) { if($flag) continue; $flag = 1; foreach ($arr['chart_data'][0] as $i=>$tick) { if ($i > 0) echo ","; if ($i % $salto == $with) { ?>[<?=$i?>,"<?=$tick?>"]<? } else { ?>[<?=$i?>,""]<? } ?><? } }?>] }
+	    };
+		var data = [
+            <?php foreach ($remote_data as $ip=>$arr) { ?>
+            {color: "#<?php echo $_SESSION['logger_colors'][$ip_to_name[$ip]]['bcolor']; ?>", label: '<?php echo $ip_to_name[$ip] ?>', data: [<? foreach ($arr['chart_data'][$a] as $i=>$tick) { if ($i > 0) echo ","; ?>[<?=$i?>,<?=$tick?>]<? } ?>]},
+            <?php } ?>
+        ];
+		<?php } else { ?>
         var options = {
             bars: {
                 show: true,
@@ -297,7 +329,7 @@ a:hover { text-decoration: underline; }
             legend: { show: false },
             yaxis: { ticks:[] },
             xaxis: { tickDecimals:0, ticks: [<? foreach ($chart['chart_data'][0] as $i=>$tick) { if ($i > 0) echo ","; if ($i % $salto == $with) { ?>[<?=$i?>,"<?=$tick?>"]<? } else { ?>[<?=$i?>,""]<? } ?><? } ?>] },
-                grid: { color: "#8E8E8E", labelMargin:0, backgroundColor: "#EDEDED", tickColor: "#D2D2D2", hoverable:true, clickable:true}, shadowSize:1 
+            grid: { color: "#8E8E8E", labelMargin:3, borderWidth:2, backgroundColor: "#EDEDED", tickColor: "#D2D2D2", hoverable:true, clickable:true}, shadowSize:1 
         };
         var data = [{
             color: "rgb(173,223,83)",
@@ -305,6 +337,7 @@ a:hover { text-decoration: underline; }
             lines: { show: false, fill: true},
             data: [<? foreach ($chart['chart_data'][$a] as $i=>$tick) { if ($i > 0) echo ","; ?>[<?=$i?>,<?=$tick?>]<? } ?>]
         }];
+        <?php } ?>
         var plotarea = $("#plotareaglobal");
         plotarea.css("height", 150);
         plotarea.css("width", (window.innerWidth || document.body.clientWidth)-40);

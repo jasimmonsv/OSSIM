@@ -63,8 +63,9 @@ $_SESSION['graph_type'] = "last_month";
 $_SESSION['cat'] = "Oct%2C+2010";
 
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
-$fcolors = array("dee5f2","ec7000","fff0e1","5a6986");
-$bcolors = array("5a6986","f8f4f0","ec7000","dee5f2");
+
+$fcolors = array("dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
+$bcolors = array("5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
 $logger_servers = array();
 $ip_list = "";
 if (GET('num_servers') != "") {
@@ -1110,7 +1111,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 				$_SESSION['logger_colors']['local']['fcolor'] = $fcolors[0];
 				foreach ($database_servers as $db) {
 					$i++;
-					if ($i >= count($bcolors)) $i = 0;
+					if ($i >= count($bcolors)) $i = 1;
 					$name = $db->get_name();
 					$_SESSION['logger_colors'][$name]['bcolor'] = $bcolors[$i-1];
 					$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i-1];
@@ -1289,7 +1290,7 @@ require_once ("manage_querys.php");
 					<?php
 					}
 					?>
-					<input type="button" value="<?=_("OK")?>" onclick="change_calendar();setFixed2();" class="button" style="font-size:10px;height:18px;width:25px" />
+					<input type="button" value="<?=_("OK")?>" onclick="change_calendar();setFixed2();" class="button" style="font-size:10px;height:22px;width:28px" />
 					</td>
 					</tr>
 					</table>

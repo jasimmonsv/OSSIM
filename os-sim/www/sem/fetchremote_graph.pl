@@ -23,7 +23,7 @@ foreach $ip (@ips_arr) {
 	}
 	#print "ssh $ip \"$cmd\"\n";
 	print "," if ($flag);
-	print "'$ip':";
+	print '"'.$ip.'":';
 	system($cmd);
 	$flag = 1;
 }
