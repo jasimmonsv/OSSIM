@@ -13,7 +13,7 @@ $cat = $ARGV[1];
 $ips = $ARGV[2];
 
 my @ips_arr = split(/\,/,$ips);
-print "{";
+print "[{";
 $flag = 0;
 foreach $ip (@ips_arr) {
 	if ($ip == "127.0.0.1") {
@@ -27,4 +27,4 @@ foreach $ip (@ips_arr) {
 	system($cmd);
 	$flag = 1;
 }
-print "}\n";
+print "}]\n";

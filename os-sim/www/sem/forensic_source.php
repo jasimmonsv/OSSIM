@@ -219,7 +219,8 @@ if ($_GET['ips'] != "") {
 
 // IF CALLED BY PROMPT ONLY PRINT DATA (For remote logger graph merge)
 if ($only_json) {
-	echo "{'chart_data':".json_encode($chart['chart_data']).",'chart_value_text':".json_encode($chart['chart_value_text'])."}";
+	$json = array('chart_data' => $chart['chart_data'],'chart_value_text' => $chart['chart_value_text']);
+	echo json_encode($json);
 	exit;
 }
 //print_r($chart['chart_data']);
