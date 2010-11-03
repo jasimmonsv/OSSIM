@@ -58,9 +58,11 @@ class OssimMainError {
                 "long_descr" => gettext("Error") ,
             )
         );
-        $this->style = "border-style: dotted; " . "border-width: 3px;" . "margin-left: 50px;" . "margin-right: 50px;" . "padding: 5px;" . "text-align: center;" . "border-color: " . $this->_border_color . ";" . "background-color: " . $this->_bg_color . ";";
-        $this->action = "/* no action */";
+        $this->style = "font-family:Arial, Helvetica, sans-serif; font-size:13px; border: 1px solid; margin: 10px auto; padding:15px 10px 15px 50px;  
+		background-repeat: no-repeat; background-position: 10px center; color: #D8000C; background-color: #FFBABA; background-image: url('../pixmaps/ct_error.png');";
+		$this->action = "/* no action */";
     }
+			
     function display($error_code, $extrainfo = NULL, $option = "") {
         print $this->get($error_code, $extrainfo);
         if ($option == "noback") {
@@ -69,11 +71,15 @@ class OssimMainError {
         eval($this->action);
     }
     function get($error_code, $extrainfo = NULL) {
-        if (!array_key_exists($error_code, $this->errors)) $error_code = "DEFAULT";
-        $msg = "<div style=\"" . $this->style . "\">\n";
+        if (!array_key_exists($error_code, $this->errors)) 
+			$error_code = "DEFAULT";
+        
+		$msg = "<div style=\"" . $this->style . "\">\n";
         $msg.= "<b>" . $this->errors["$error_code"]["short_descr"] . "</b><br/>";
         $msg.= $this->errors["$error_code"]["long_descr"];
-        if (count($extrainfo)) {
+        
+		if (count($extrainfo))
+		{
             $n = 1;
             foreach($extrainfo as $info) {
                 $msg = str_replace("%" . $n . "%", $info, $msg);
@@ -301,8 +307,8 @@ class OssimError extends OssimMainError {
 class OssimWarn extends OssimMainError {
     function OssimWarn() {
         /* warn - yellow colors */
-        $this->_border_color = "#dd9e06";
-        $this->_bg_color = "#eceaab";
+        //$this->_border_color = "#dd9e06";
+        //$this->_bg_color = "#eceaab";
         /* call to main error class */
         $this->OssimMainError();
         /* specific errors */
@@ -320,8 +326,8 @@ class OssimWarn extends OssimMainError {
 class OssimNotice extends OssimMainError {
     function OssimNotice() {
         /* Notice - blue colors */
-        $this->_border_color = "#2f4960";
-        $this->_bg_color = "#9bb5cb";
+        //$this->_border_color = "#2f4960";
+        //$this->_bg_color = "#9bb5cb";
         /* call to main error class */
         $this->OssimMainError();
         /* action after display error */
@@ -333,6 +339,7 @@ class OssimNotice extends OssimMainError {
         ); 
     }
 }
+
 /*
 * Function for debuging vars (developers only)
 */

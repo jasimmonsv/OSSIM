@@ -652,13 +652,12 @@ class Util {
 				$form.= "<input type=\"hidden\" name=\"".$key."\" value=\"".$value."\">";
 			}
 		}
-		$form.= "<center><input type=\"submit\" value=\"Back\" class=\"btn\" style=\"font-size:12px\"></center>";
+		$form.= "<center><input type='submit' value='Back' class='button'></center>";
 		$form.= "</form>";
 		echo $form;
     }
 	function print_error($message){
-		echo "<div style='border: 3px dotted rgb(221, 158, 6); padding: 5px; margin-left: 50px; margin-right: 50px; text-align: center; background-color: rgb(236, 234, 171);'>".gettext($message)."</div>";
-		echo "<br>";
+		echo "<div class='ossim_error'>".$message."</div><br/>";
 	}
 	function print_gadget($title,$color,$content) {
 		return "<table height=\"100%\" style=\"background:$color;background:url(../pixmaps/fondo_hdr2.png) repeat-x\"><tr><td height=\"15\" class=\"nobborder\" style=\"text-align:center;font-weight:bold;font-size:12px\">$title</td></tr><tr><td class=\"nobborder\" valign=\"top\">".$content."</td></tr></table>";

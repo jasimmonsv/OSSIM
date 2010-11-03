@@ -396,10 +396,9 @@ function ossim_error($error_msg = null) {
         include_once 'ossim_error.inc';
         $ossim_warn = new OssimWarn;
     }
-    return $ossim_warn->get('ERROR', array(
-        $error
-    ));
+    return $ossim_warn->get('ERROR', array( $error ));
 }
+
 function valid_ip($ip) {
     if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
         return true;
