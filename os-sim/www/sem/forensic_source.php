@@ -59,6 +59,7 @@ if ($argv[1] != "" && $argv[2] != "") {
 }
 $range = "";
 
+// REMOTE GRAPH MERGE
 if ($_GET['ips'] != "") {
 	$ip_list = $_GET['ips'];
 	ossim_valid($ip_list, OSS_DIGIT, OSS_PUNC, 'illegal:' . _("ip_list"));
@@ -66,153 +67,158 @@ if ($_GET['ips'] != "") {
 	    die(ossim_error());
 	}
 	$cmd = "perl fetchremote_graph.pl $gt $cat $ip_list";
-	echo $cmd;exit;
-}
-if ($gt == "last_year") {
-	$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365));
-	$date_to = date("Y-m-d");
-	$range = "month";
-}
-if ($gt == "last_month") {
-	$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31));
-	$date_to = date("Y-m-d");
-	$range = "day";
-}
-if ($gt == "last_week") {
-	$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 7));
-	$date_to = date("Y-m-d");
-	$range = "day";
-}
-//if(!preg_match("/all|month|year|day/",$cat))
-//  $gt="all";
-switch ($gt) {
-    case "year":
-        $t_year = $cat;
-        break;
-
-    case "month":
-        $tmp = explode(",", $cat);
-        $t_year = str_replace(" ", "", $tmp[1]);
-        $t_month = str_replace(" ", "", $tmp[0]);
-        break;
-
-    case "day":
-        $tmp = explode(",", $cat);
-        $t_year = str_replace(" ", "", $tmp[1]);
-        $tmp = explode(" ", $tmp[0]);
-        $t_month = str_replace(" ", "", $tmp[0]);
-        $t_day = str_replace(" ", "", $tmp[1]);
-        break;
-}
-$t_month = date('m', strtotime("01 " . $t_month . " 2000"));
-//echo "year: $t_year, month: $t_month, day: $t_day";
-//Target allYears by default
-if ($gt == "") $gt = "allYears";
-$chart['link_data'] = array(
-    'url' => "javascript:parent.graph_by_date( _col_, _row_, _value_, _category_, _series_, '" . $t_year . "','" . $t_month . "')",
-    'target' => "javascript"
-);
-$allYears = array();
-
-if ($range != "") {
-	if ($gt == "last_year") $years = get_range_csv($date_from,$date_to,$range);
-	if ($gt == "last_month") $years = get_range_csv($date_from,$date_to,$range);
-	if ($gt == "last_week") $years = get_range_csv($date_from,$date_to,$range);
+	$aux = explode("\n",`$cmd`);
+	$remote_data = $aux[0];
+	print_r($remote_data);
+// LOCAL GRAPH DATA
 } else {
-	if ($gt == "all") $allYears = get_all_csv();
-	if ($gt == "year") $years = get_year_csv($t_year);
-	else $years = get_year_csv(date("Y"));
-	if ($gt == "month") $months = get_month_csv($t_year, $t_month);
-	else $months = get_month_csv(date("Y") , date("m"));
-	if ($gt == "day") $days = get_day_csv($t_year, $t_month, $t_day);
-}
-$general = array();
-$generalV = array();
-$i = 0;
-$j = 0;
-
-$general[$j][$i++] = "NULL";
-if ($gt == "all" || $gt != "month" && $gt != "year" && $gt != "day" && $gt != "last_year" && $gt != "last_month" && $gt != "last_week") foreach($allYears as $k => $v) $general[$j][$i++] = $k;
-if ($gt == "year") foreach($years as $k => $v) $general[$j][$i++] = get_date_str($k + 1,"","",$t_year);
-if ($gt == "last_year")
-	foreach($years as $y => $month_arr)
-		foreach($month_arr as $k => $v) $general[$j][$i++] = get_date_str($k+1,"","",$y);
-
-if ($gt == "month") foreach($months as $k => $v) $general[$j][$i++] = get_date_str($t_month + 1, $k+1, "days", $t_year); //$general[$j][$i++] = get_date_str($t_month + 1, $k + 1, "days", $t_year);
-if ($gt == "last_month" || $gt == "last_week")
-	foreach($years as $y => $month_arr)
-	foreach($month_arr as $m => $days_arr)
-		//foreach($days_arr as $k => $v) $general[$j][$i++] = get_date_str($m+1, $k+1, "days", $y);
-        foreach($days_arr as $k => $v) $general[$j][$i++] = get_date_str($m+1, $k, "days", $y);
-
-if ($gt == "day") foreach($days as $k => $v) $general[$j][$i++] = get_date_str("", $k, "hours");
-
-for ($a = 1; $a < 5; $a++) {
-    $i = 0;
-    switch ($a) {
-        case 1:
-            //$general[$a][$i++]="Year stats";
-            $general[$a][$i++] = "";
-            break;
-
-        case 2:
-            //$general[$a][$i++]="Month stats";
-            $general[$a][$i++] = "";
-            break;
-
-        case 3:
-            //$general[$a][$i++]="Day stats";
-            $general[$a][$i++] = "";
-            break;
-
-        case 4:
-            //$general[$a][$i++]="Hour stats";
-            $general[$a][$i++] = "";
-            break;
-    }
-    if ($gt == "all" || $gt != "month" && $gt != "year" && $gt != "day" && $gt != "last_year" && $gt != "last_month" && $gt != "last_week") foreach($allYears as $k => $v)
-		if ($a == 1) $general[$a][$i++] = $v; //number_format($v,0,',','.');
-		else $general[$a][$i++] = "";
-    if ($gt == "year") foreach($years as $k => $v)
-		if ($a == 2) $general[$a][$i++] = $v; //number_format($v,0,',','.');
-		else $general[$a][$i++] = "";
+	if ($gt == "last_year") {
+		$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365));
+		$date_to = date("Y-m-d");
+		$range = "month";
+	}
+	if ($gt == "last_month") {
+		$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31));
+		$date_to = date("Y-m-d");
+		$range = "day";
+	}
+	if ($gt == "last_week") {
+		$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 7));
+		$date_to = date("Y-m-d");
+		$range = "day";
+	}
+	//if(!preg_match("/all|month|year|day/",$cat))
+	//  $gt="all";
+	switch ($gt) {
+	    case "year":
+	        $t_year = $cat;
+	        break;
+	
+	    case "month":
+	        $tmp = explode(",", $cat);
+	        $t_year = str_replace(" ", "", $tmp[1]);
+	        $t_month = str_replace(" ", "", $tmp[0]);
+	        break;
+	
+	    case "day":
+	        $tmp = explode(",", $cat);
+	        $t_year = str_replace(" ", "", $tmp[1]);
+	        $tmp = explode(" ", $tmp[0]);
+	        $t_month = str_replace(" ", "", $tmp[0]);
+	        $t_day = str_replace(" ", "", $tmp[1]);
+	        break;
+	}
+	$t_month = date('m', strtotime("01 " . $t_month . " 2000"));
+	//echo "year: $t_year, month: $t_month, day: $t_day";
+	//Target allYears by default
+	if ($gt == "") $gt = "allYears";
+	$chart['link_data'] = array(
+	    'url' => "javascript:parent.graph_by_date( _col_, _row_, _value_, _category_, _series_, '" . $t_year . "','" . $t_month . "')",
+	    'target' => "javascript"
+	);
+	$allYears = array();
+	
+	if ($range != "") {
+		if ($gt == "last_year") $years = get_range_csv($date_from,$date_to,$range);
+		if ($gt == "last_month") $years = get_range_csv($date_from,$date_to,$range);
+		if ($gt == "last_week") $years = get_range_csv($date_from,$date_to,$range);
+	} else {
+		if ($gt == "all") $allYears = get_all_csv();
+		if ($gt == "year") $years = get_year_csv($t_year);
+		else $years = get_year_csv(date("Y"));
+		if ($gt == "month") $months = get_month_csv($t_year, $t_month);
+		else $months = get_month_csv(date("Y") , date("m"));
+		if ($gt == "day") $days = get_day_csv($t_year, $t_month, $t_day);
+	}
+	$general = array();
+	$generalV = array();
+	$i = 0;
+	$j = 0;
+	
+	$general[$j][$i++] = "NULL";
+	if ($gt == "all" || $gt != "month" && $gt != "year" && $gt != "day" && $gt != "last_year" && $gt != "last_month" && $gt != "last_week") foreach($allYears as $k => $v) $general[$j][$i++] = $k;
+	if ($gt == "year") foreach($years as $k => $v) $general[$j][$i++] = get_date_str($k + 1,"","",$t_year);
 	if ($gt == "last_year")
 		foreach($years as $y => $month_arr)
-			foreach($month_arr as $k => $v)
-				if ($a == 2) $general[$a][$i++] = $v; //number_format($v,0,',','.');
-				else $general[$a][$i++] = "";
-    if ($gt == "month")
-		if ($a == 3) foreach($months as $k => $v) $general[$a][$i++] = $v; //number_format($v,0,',','.');
-		else $general[$a][$i++] = "";
-    if ($gt == "last_month" || $gt == "last_week")
+			foreach($month_arr as $k => $v) $general[$j][$i++] = get_date_str($k+1,"","",$y);
+	
+	if ($gt == "month") foreach($months as $k => $v) $general[$j][$i++] = get_date_str($t_month + 1, $k+1, "days", $t_year); //$general[$j][$i++] = get_date_str($t_month + 1, $k + 1, "days", $t_year);
+	if ($gt == "last_month" || $gt == "last_week")
 		foreach($years as $y => $month_arr)
 		foreach($month_arr as $m => $days_arr)
-			foreach($days_arr as $k => $v)
-				if ($a == 3) $general[$a][$i++] = $v; //number_format($v,0,',','.');
-				else $general[$a][$i++] = "";
+			//foreach($days_arr as $k => $v) $general[$j][$i++] = get_date_str($m+1, $k+1, "days", $y);
+	        foreach($days_arr as $k => $v) $general[$j][$i++] = get_date_str($m+1, $k, "days", $y);
 	
-    if ($gt == "day")
-		if ($a == 4) foreach($days as $k => $v) $general[$a][$i++] = $v; //number_format($v,0,',','.');
-		else $general[$a][$i++] = "";
-}
-//print_r($general);
-$generalV = $general;
-foreach ($generalV as $k=>$v) {
-	foreach ($v as $k1=>$v1) {
-		if ($v1>0) { $generalV[$k][$k1] = Util::number_format_locale($v1,0);}
+	if ($gt == "day") foreach($days as $k => $v) $general[$j][$i++] = get_date_str("", $k, "hours");
+	
+	for ($a = 1; $a < 5; $a++) {
+	    $i = 0;
+	    switch ($a) {
+	        case 1:
+	            //$general[$a][$i++]="Year stats";
+	            $general[$a][$i++] = "";
+	            break;
+	
+	        case 2:
+	            //$general[$a][$i++]="Month stats";
+	            $general[$a][$i++] = "";
+	            break;
+	
+	        case 3:
+	            //$general[$a][$i++]="Day stats";
+	            $general[$a][$i++] = "";
+	            break;
+	
+	        case 4:
+	            //$general[$a][$i++]="Hour stats";
+	            $general[$a][$i++] = "";
+	            break;
+	    }
+	    if ($gt == "all" || $gt != "month" && $gt != "year" && $gt != "day" && $gt != "last_year" && $gt != "last_month" && $gt != "last_week") foreach($allYears as $k => $v)
+			if ($a == 1) $general[$a][$i++] = $v; //number_format($v,0,',','.');
+			else $general[$a][$i++] = "";
+	    if ($gt == "year") foreach($years as $k => $v)
+			if ($a == 2) $general[$a][$i++] = $v; //number_format($v,0,',','.');
+			else $general[$a][$i++] = "";
+		if ($gt == "last_year")
+			foreach($years as $y => $month_arr)
+				foreach($month_arr as $k => $v)
+					if ($a == 2) $general[$a][$i++] = $v; //number_format($v,0,',','.');
+					else $general[$a][$i++] = "";
+	    if ($gt == "month")
+			if ($a == 3) foreach($months as $k => $v) $general[$a][$i++] = $v; //number_format($v,0,',','.');
+			else $general[$a][$i++] = "";
+	    if ($gt == "last_month" || $gt == "last_week")
+			foreach($years as $y => $month_arr)
+			foreach($month_arr as $m => $days_arr)
+				foreach($days_arr as $k => $v)
+					if ($a == 3) $general[$a][$i++] = $v; //number_format($v,0,',','.');
+					else $general[$a][$i++] = "";
+		
+	    if ($gt == "day")
+			if ($a == 4) foreach($days as $k => $v) $general[$a][$i++] = $v; //number_format($v,0,',','.');
+			else $general[$a][$i++] = "";
 	}
+	//print_r($general);
+	$generalV = $general;
+	foreach ($generalV as $k=>$v) {
+		foreach ($v as $k1=>$v1) {
+			if ($v1>0) { $generalV[$k][$k1] = Util::number_format_locale($v1,0);}
+		}
+	}
+	
+	if ($gt == "all" || $gt != "month" && $gt != "year" && $gt != "day" && $gt != "last_year" && $gt != "last_month" && $gt != "last_week") $a = 1;
+	elseif ($gt == "year" || $gt == "last_year") $a = 2;
+	elseif ($gt == "month" || $gt == "last_month" || $gt == "last_week") $a = 3;
+	elseif ($gt == "day") $a = 4;
+	
+	$chart['chart_data'] = $general;
+	$chart['chart_value_text'] = $generalV;
 }
 
-if ($gt == "all" || $gt != "month" && $gt != "year" && $gt != "day" && $gt != "last_year" && $gt != "last_month" && $gt != "last_week") $a = 1;
-elseif ($gt == "year" || $gt == "last_year") $a = 2;
-elseif ($gt == "month" || $gt == "last_month" || $gt == "last_week") $a = 3;
-elseif ($gt == "day") $a = 4;
-
-$chart['chart_data'] = $general;
-$chart['chart_value_text'] = $generalV;
-
+// IF CALLED BY PROMPT ONLY PRINT DATA (For remote logger graph merge)
 if ($only_json) {
-	echo json_encode($chart['chart_data']);
+	echo "{'chart_data':".json_encode($chart['chart_data']).",chart_value_text:".json_encode($chart['chart_value_text'])."}";
 	exit;
 }
 //print_r($chart['chart_data']);
