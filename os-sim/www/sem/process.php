@@ -234,7 +234,7 @@ if($debug_log!=""){
 // LOCAL OR REMOTE fetch
 if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers']) > 1 || (count($_SESSION['logger_servers']) == 1 && !$_SESSION['logger_servers']['local']))) {
 	$from_remote = 1;
-	$cmd = str_replace("fetchall.pl","fetchremote.pl",$cmd);
+	$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote.pl",$cmd);
 	$servers_string = "";
 	$num_servers = 0;
 	foreach ($_SESSION['logger_servers'] as $key=>$val) {

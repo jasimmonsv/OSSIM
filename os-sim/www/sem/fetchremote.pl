@@ -2,13 +2,11 @@
 $|=1;
 use Time::Local;
 
-if(!$ARGV[6]){
-print "Expecting: start_date end_date query start_line num_lines order_by operation cache_file\n";
-print "Don't forget to escape the strings\n";
-exit;
+if(!$ARGV[10]){
+	print "Expecting: start_date end_date query start_line num_lines order_by operation cache_file idsession user IP_list\n";
+	print "Don't forget to escape the strings\n";
+	exit;
 }
-
-$debug="";
 
 $start = $ARGV[0];
 $end = $ARGV[1];
@@ -26,7 +24,10 @@ $ips = $ARGV[10];
 my @ips_arr = split(/\,/,$ips);
 foreach $ip (@ips_arr) {
 	print "Connecting $ip\n";
-	$cmd = "cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $user";
+	if ($ip eq "127.0.0.1") {
+		$cmd = "cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $user";
+	} else {
+		$cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $user\"";
+	}
 	system($cmd);
-	#print "ssh $ip \"$cmd\"\n";
 }

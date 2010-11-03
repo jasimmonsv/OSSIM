@@ -66,9 +66,10 @@ if ($_GET['ips'] != "") {
 	if (ossim_error()) {
 	    die(ossim_error());
 	}
-	$cmd = "perl fetchremote_graph.pl $gt $cat $ip_list";
+	$cmd = "sudo ./fetchremote_graph.pl $gt $cat $ip_list";
 	$aux = explode("\n",`$cmd`);
-	$remote_data = $aux[0];
+	print_r($aux);
+	$remote_data = json_decode(trim($aux[0]));
 	print_r($remote_data);
 // LOCAL GRAPH DATA
 } else {
@@ -218,7 +219,7 @@ if ($_GET['ips'] != "") {
 
 // IF CALLED BY PROMPT ONLY PRINT DATA (For remote logger graph merge)
 if ($only_json) {
-	echo "{'chart_data':".json_encode($chart['chart_data']).",chart_value_text:".json_encode($chart['chart_value_text'])."}";
+	echo "{'chart_data':".json_encode($chart['chart_data']).",'chart_value_text':".json_encode($chart['chart_value_text'])."}";
 	exit;
 }
 //print_r($chart['chart_data']);
@@ -236,7 +237,7 @@ BODY {
     color: #111111;
     font-family: arial, helvetica, sans-serif;
     font-size: 12px;
-    margin: 5px;
+    margin: 0px;
     padding: 0px;
 }
 a { color: #555555; text-decoration:none; }
@@ -246,10 +247,11 @@ a:hover { text-decoration: underline; }
 </style>
 <script src="../forensics/js/jquery-1.3.2.min.js" type="text/javascript"></script>
 <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
-<script src="../js/jquery.flot.pie.js" type="text/javascript"></script>
+<script src="../js/jquery.flot.pack.js" type="text/javascript"></script>
+<script src="../js/jquery.flot.stack.js" type="text/javascript"></script>
 </HEAD>
 <BODY onLoad="parent.document.getElementById('testLoading2').style.display='none'">
-<div id="plotareaglobal" style="text-align:center;margin:0px;display:none;margin-left:15px"></div>
+<div id="plotareaglobal" style="text-align:center;margin:5px 0px 0px 20px;padding:0px;display:none;"></div>
 <script>
 <?  flush(); sleep(1);
     $row = ($gt=="year" || $gt=="last_year") ? 2 : (($gt=="month" || $gt=="last_month" || $gt=="last_week") ? 3 : ($gt=="day" ? 4 : 1));
@@ -297,7 +299,7 @@ a:hover { text-decoration: underline; }
             legend: { show: false },
             yaxis: { ticks:[] },
             xaxis: { tickDecimals:0, ticks: [<? foreach ($chart['chart_data'][0] as $i=>$tick) { if ($i > 0) echo ","; if ($i % $salto == $with) { ?>[<?=$i?>,"<?=$tick?>"]<? } else { ?>[<?=$i?>,""]<? } ?><? } ?>] },
-                grid: { color: "#8E8E8E", labelMargin:0, backgroundColor: "#EDEDED", tickColor: "#D2D2D2", hoverable:true, clickable:true}, shadowSize:1 
+            grid: { color: "#8E8E8E", labelMargin:3, borderWidth:2, backgroundColor: "#EDEDED", tickColor: "#D2D2D2", hoverable:true, clickable:true}, shadowSize:1 
         };
         var data = [{
             color: "rgb(173,223,83)",
