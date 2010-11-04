@@ -1,0 +1,13 @@
+@charset "UTF-8";
+@media all
+{  
+    .table1{
+		width: 100%;
+	}
+	body, td, th{
+		font-size:  10px !important;
+	}
+	th, .th{
+		white-space: normal;
+	}
+}
