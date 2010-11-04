@@ -651,5 +651,95 @@ class Host {
         }
         return $apps;
     }
+	
+	function get_credentials_type($conn) {
+        $list = array();
+        $sql = "SELECT name,id FROM credential_type GROUP BY name";
+		        
+		if (!$rs = & $conn->Execute($sql)){ 
+            print $conn->ErrorMsg();
+			exit();
+		}
+        else
+		{
+            while (!$rs->EOF){
+                $list[] = array("id"   => $rs->fields['id'], 
+								"name" => $rs->fields['name']);
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }   
+	
+	function get_credentials_ip($conn, $ip) {
+        $list = array();
+        $sql = "SELECT type,username,password,extra FROM credentials WHERE ip = ?";
+		$params = array ($ip);
+		        
+		if (!$rs = & $conn->Execute($sql, $params)){ 
+            print $conn->ErrorMsg();
+			exit();
+		}
+        else
+		{
+            if (!$rs->EOF){
+                $list[] = array("type" => $rs->fields['type'],
+								"username" => $rs->fields['username'],
+								"password" => $rs->fields['password'],
+								"extra" => $rs->fields['extra']
+								);
+            }
+        }
+        return $list;
+    } 
+	
+	function modify_credentials($conn, $ip, $type, $username, $password, $extra)
+	{
+		$sql = "SELECT count(ip) FROM credentials WHERE ip = ?";
+        $params = array ($ip);
+		
+		if (!$rs = & $conn->Execute($sql, $params)) {
+            print $conn->ErrorMsg();
+			exit();
+        }
+		else
+		{
+			$exist = $rs->fields[0];
+			if ($exist >= 1)
+			{
+				
+				$params = array ($type, $username, $password, $extra, $ip);
+				$sql = "UPDATE credentials SET type = ?, username = ?, password = ?, extra = ? WHERE ip = ?";
+				if (!$rs = & $conn->Execute($sql, $params)){ 
+					print $conn->ErrorMsg();
+					exit();
+				}
+			}
+			else
+			{
+				$params = array ($ip, $type, $username, $password, $extra );
+				$sql = "INSERT INTO credentials(ip, type, username, password, extra) values (?, ?, ?, ?, ?)";
+				if (!$rs = & $conn->Execute($sql, $params)){ 
+					print $conn->ErrorMsg();
+					exit();
+				}
+			}
+		}
+		
+	}
+	
+	function clean_credentials($conn, $ip)
+	{
+		$params = array($ip);
+		 
+        $sql = "DELETE FROM credentials WHERE ip=?";
+		if (!$rs = & $conn->Execute($sql, $params)){ 
+			print $conn->ErrorMsg();
+			exit();
+		}
+	}
+	
+	
+ 
 }
 ?>

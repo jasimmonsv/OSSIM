@@ -35,26 +35,31 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-require_once 'classes/Util.inc';
+require_once ('classes/Util.inc');
+require_once ('classes/Security.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Host.inc');
+require_once ('classes/Host_group.inc');
+require_once ('classes/Host_group_scan.inc');
 
 Session::logcheck("MenuPolicy", "PolicyHosts");
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
+
 <body>
 
-  <h1> <?php
-echo gettext("New host group"); ?> </h1>
+  <h1> <?php echo gettext("New host group"); ?> </h1>
 
 <?php
-require_once 'classes/Security.inc';
+
 $descr = POST('descr');
 $host_group_name = POST('name');
 $threshold_a = POST('threshold_a');
@@ -73,11 +78,12 @@ if (ossim_error()) {
 	echo ossim_error();
 	Util::make_form($_POST,"newhostgroupform.php");
 	die();
-    //die(ossim_error());
+	//die(ossim_error());
 }
 if (POST('insert')) {
     $num_sens = 0;
-    for ($i = 1; $i <= $nsens; $i++) {
+    for ($i = 1; $i <= $nsens; $i++)
+	{
         $name = "sboxs" . $i;
         if (POST("$name")) {
             $num_sens++;
@@ -91,21 +97,24 @@ if (POST('insert')) {
             $sensors[] = POST("$name");
         }
     }
+	
     if (!isset($sensors)) {
-        Util::print_error("You Need to select at least one sensor");
+        Util::print_error(_("You Need to select at least one sensor"));
         Util::make_form($_POST,"newhostgroupform.php");
         die();
     }
-    $hosts = array();
+    
+	$hosts = array();
     $ips = POST('ips');
 	
 	if (!is_array($ips) || empty($ips)) {
-        Util::print_error("You Need to select at least one Host");
+        Util::print_error(_("You Need to select at least one Host"));
         Util::make_form($_POST,"newhostgroupform.php");
         die();
     }	
 	
-	foreach($ips as $name) {
+	foreach($ips as $name)
+	{
 		ossim_valid($name, OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, OSS_SPACE, 'illegal:' . _("$name"));
 		if (ossim_error()) {
 				echo ossim_error();
@@ -116,32 +125,33 @@ if (POST('insert')) {
 		if (!empty($name) && !in_array($name, $hosts)) 
 		  $hosts[] = $name;
 	}
-	
-	
 	  
-	require_once 'ossim_db.inc';
-    require_once 'classes/Host.inc';
-    require_once 'classes/Host_group.inc';
-    require_once 'classes/Host_group_scan.inc';
+	
     $db = new ossim_db();
     $conn = $db->connect();
     Host_group::insert($conn, $host_group_name, $threshold_c, $threshold_a, $rrd_profile, $sensors, $hosts, $descr);
-    if (POST('nessus')) {
+    
+	if (POST('nessus')) 
         Host_group_scan::insert($conn, $host_group_name, 3001, 0);
-    } else Host_group_scan::delete($conn, $host_group_name, 3001, 0);
-    if (POST('nagios')) {
-        if (!Host_group_scan::in_host_group_scan($conn, $host_group_name, 2007)) Host_group_scan::insert($conn, $host_group_name, 2007, 0, $hosts, $sensors);
-    } else {
+    else 
+		Host_group_scan::delete($conn, $host_group_name, 3001, 0);
+    
+	if ( POST('nagios') )
+	{
+	    if (!Host_group_scan::in_host_group_scan($conn, $host_group_name, 2007)) 
+			Host_group_scan::insert($conn, $host_group_name, 2007, 0, $hosts, $sensors);
+    } 
+	else 
         if (Host_group_scan::in_host_group_scan($conn, $host_group_name, 2007)) Host_group_scan::delete($conn, $host_group_name, 2007);
-    }
+    
     $db->close($conn);
-    Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
+    
+	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
 }
 ?>
-    <p> <?php
-echo gettext("Host group succesfully inserted"); ?> </p>
+    <p> <?php echo gettext("Host group succesfully inserted"); ?> </p>
     <? if ($_SESSION["menu_sopc"]=="Host groups") { ?><script>document.location.href="hostgroup.php"</script><? } ?>
 
-</body>
+	</body>
 </html>
 

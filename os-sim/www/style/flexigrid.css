@@ -960,6 +960,10 @@ div.pGroup {
 	{
 		background: #e4e4e4 url(../pixmaps/tables/document-csv.png) no-repeat center left;
 	}
+.flexigrid div.fbutton .credentials, .flexigrid div.ibutton .credentials, .flexigrid div.rbutton .credentials
+	{
+		background: #e4e4e4 url(../pixmaps/tables/lock.png) no-repeat center left;
+	}
 .flexigrid div.fbutton .yesno, .flexigrid div.ibutton .yesno, .flexigrid div.rbutton .yesno
 	{
 		background: #e4e4e4 url(../pixmaps/theme/yesno.png) no-repeat center left;
@@ -1081,6 +1085,8 @@ div.pGroup {
 .contextMenu LI.duplicate A { background-image: url(../pixmaps/tables/table_duplicate.png); }
 .contextMenu LI.i_csv A:hover { font-weight:bold; background-color: #e4e4e4; }
 .contextMenu LI.i_csv A { background-image: url(../pixmaps/tables/document-csv.png); }
+.contextMenu LI.credentials A:hover { font-weight:bold; background-color: #e4e4e4; }
+.contextMenu LI.credentials A { background-image: url(../pixmaps/tables/lock.png); }
 
 .contextMenu LI.moveup A:hover { font-weight:bold; background-color: #eeeeee; }
 .contextMenu LI.moveup A { background-color: #F8F8F8; background-image: url(../pixmaps/theme/arrow-skip-090.png); }

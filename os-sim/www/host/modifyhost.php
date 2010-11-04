@@ -35,24 +35,29 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Host.inc');
+require_once ('classes/Host_scan.inc');
+
 Session::logcheck("MenuPolicy", "PolicyHosts");
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
+
 <body>
-                                                                                
-  <h1> <?php
-echo gettext("Update host"); ?> </h1>
+	<h1> <?php echo gettext("Update host"); ?> </h1>                                                   
+  
 
 <?php
-require_once ('classes/Security.inc');
+
 $insert = POST('insert');
 $hostname = POST('hostname');
 $hostname_old = POST('hostname_old');
@@ -68,7 +73,8 @@ $asset = POST('asset');
 $alert = POST('alert');
 $persistence = POST('persistence');
 $nat = POST('nat');
-if ($nat == "NULL") $nat = "";
+if ($nat == "NULL") 
+	$nat = "";
 $descr = POST('descr');
 $os = POST('os');
 $mac = POST('mac');
@@ -107,45 +113,53 @@ ossim_valid($nagios, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("nagios"));
 ossim_valid($sensor_name, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("order"));
 ossim_valid($latitude, OSS_NULLABLE, OSS_DIGIT, OSS_PUNC, OSS_SCORE, 'illegal:' . _("latitude"));
 ossim_valid($longitude, OSS_NULLABLE, OSS_DIGIT, OSS_PUNC, OSS_SCORE, 'illegal:' . _("longitude"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
 if (!empty($insert)) {
     $sensors = array();
     $num_sens = 0;
-    for ($i = 1; $i <= $nsens; $i++) {
+    for ($i = 1; $i <= $nsens; $i++)
+	{
         $name = "mboxs" . $i;
         if (POST("$name")) {
             $num_sens++;
             ossim_valid(POST("$name") , OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT);
-            if (ossim_error()) {
-                die(ossim_error());
-            }
+            if (ossim_error()) 
+				die(ossim_error());
+            
             $sensors[] = POST("$name");
         }
     }
-    require_once 'ossim_db.inc';
-    require_once 'classes/Host.inc';
-    require_once 'classes/Host_scan.inc';
+   
     $db = new ossim_db();
     $conn = $db->connect();
-    Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
-    if ($hostname != $hostname_old) {
+    
+	Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
+    
+	if ($hostname != $hostname_old) {
     	$query = "UPDATE risk_indicators SET type_name=? WHERE type='host' AND type_name=?";
 		$params = array($hostname,$hostname_old);
         $conn->Execute($query, $params);
     }
     Host_scan::delete($conn, $ip, 3001);
     Host_scan::delete($conn, $ip, 2007);
-    if (!empty($nessus)) Host_scan::insert($conn, $ip, 3001);
-    else Host_scan::delete($conn, $ip, 3001);
-    if (!empty($nagios)) {
+    
+	if (!empty($nessus)) 
+		Host_scan::insert($conn, $ip, 3001);
+    else 
+		Host_scan::delete($conn, $ip, 3001);
+   
+	if (!empty($nagios))
+	{
         if (!Host_scan::in_host_scan($conn, $ip, 2007)) 
 			Host_scan::insert($conn, $ip, 2007, "", $hostname, $sensors, $sensors);
-	} else {
+	} 
+	else 
+	{
         if (Host_scan::in_host_scan($conn, $ip, 2007)) 
 			Host_scan::delete($conn, $ip, 2007);
-
     }
 		
     $db->close($conn);
@@ -154,11 +168,12 @@ if (!empty($insert)) {
 ?>
     <p><?php echo _("Host succesfully updated") ?></p>
     <script>document.location.href="host.php"</script>
-<?php
-// update indicators on top frame
-$OssimWebIndicator->update_display();
-?>
+	
+	<?php 
+	// update indicators on top frame
+	$OssimWebIndicator->update_display();
+	?>
 
-</body>
+	</body>
 </html>
 

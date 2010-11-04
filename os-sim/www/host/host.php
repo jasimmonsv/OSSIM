@@ -72,6 +72,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 		<li class="hostreport"><a href="#delete" class="greybox" style="padding:3px"><img src="../pixmaps/tables/table_row_delete.png" align="absmiddle"/> <?=_("Delete")?></a></li>
 		<li class="hostreport"><a href="#duplicate" class="greybox" style="padding:3px"><img src="../pixmaps/tables/table_duplicate.png" align="absmiddle"/> <?=_("Duplicate")?></a></li>
 		<li class="hostreport"><a href="#new" class="greybox" style="padding:3px"><img src="../pixmaps/tables/table_row_insert.png" align="absmiddle"/> <?=_("New Host")?></a></li>
+		<li class="hostreport"><a href="#credentials" class="greybox" style="padding:3px"><img src="../pixmaps/tables/lock.png" align="absmiddle"/> <?=_("Credentials")?></a></li>
     </ul>
         	
 	<table id="flextable" style="display:none"></table>
@@ -139,11 +140,11 @@ echo gettext("OSSIM Framework"); ?> </title>
 			else alert('You must select a host');
 		}
 		else if (com=='<?=_("Modify")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyhostform.php?ip='+urlencode(items[0].id.substr(3))
+			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyhostform.php?ip='+urlencode(items[0].id.substr(3));
 			else alert('You must select a host');
 		}
 		else if (com=='<?=_("Duplicate selected")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'duplicatehostform.php?ip='+urlencode(items[0].id.substr(3))
+			if (typeof(items[0]) != 'undefined') document.location.href = 'duplicatehostform.php?ip='+urlencode(items[0].id.substr(3));
 			else alert('You must select a host');
 		}
 		else if (com=='<?=_("New")?>') {
@@ -155,10 +156,14 @@ echo gettext("OSSIM Framework"); ?> </title>
 		else if (com=='<?=_("Import CSV")?>') {
 			document.location.href = 'import_hosts.php';
 		}
-		
-		
-		
+		else if (com == '<?=_("Edit Credentials")?>')
+		{
+			if (typeof(items[0]) != 'undefined')  document.location.href = 'hostcredentialsform.php?ip='+urlencode(items[0].id.substr(3));
+			else  alert('<?=_("Host unselected")?>');
+		} 
 	}
+	
+	
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
 		$.ajax({
@@ -219,8 +224,15 @@ echo gettext("OSSIM Framework"); ?> </title>
 
             if (com == 'new')
               document.location.href = 'newhostform.php';
-			
-			
+			 
+			if (com == 'credentials')
+            {
+				if (typeof(ip) != 'undefined')
+                   document.location.href = 'hostcredentialsform.php?ip='+urlencode(ip);
+                else
+                   alert('<?=_("Host unselected")?>');
+			} 
+									
 	}
 
 	$("#flextable").flexigrid({
@@ -342,6 +354,8 @@ echo "$colModel\n";
 			{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
 			{separator: true},
 			{name: '<?=_("Duplicate selected")?>', bclass: 'duplicate', onpress : action},
+			{separator: true},
+			{name: '<?=_("Edit Credentials")?>', bclass: 'credentials', onpress : action},
 			{separator: true},
 			{name: '<?=_("Import CSV")?>', bclass: 'i_csv', onpress : action},
 			{separator: true},

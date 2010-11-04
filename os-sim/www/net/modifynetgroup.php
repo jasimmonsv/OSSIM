@@ -35,24 +35,30 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Net_group.inc');
+require_once ('classes/Net_group_scan.inc');
+
 Session::logcheck("MenuPolicy", "PolicyNetworks");
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache">
+	<link type="text/css" rel="stylesheet" href="../style/style.css"/>
 </head>
+
 <body>
-                                                                                
-  <h1> <?php
-echo gettext("Update network group"); ?> </h1>
+	<h1> <?php echo gettext("Update network group"); ?> </h1>
+                                                                               
+
 
 <?php
-require_once 'classes/Security.inc';
+
 $net_group_name = POST('name');
 $threshold_a = POST('threshold_a');
 $threshold_c = POST('threshold_c');
@@ -68,8 +74,10 @@ ossim_valid($descr, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, 'illeg
 if (ossim_error()) {
     die(ossim_error());
 }
-if (POST('insert')) {
-    for ($i = 1; $i <= $nnets; $i++) {
+if (POST('insert'))
+{
+    for ($i = 1; $i <= $nnets; $i++)
+	{
         $name = "mboxs" . $i;
         ossim_valid(POST("$name") , OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, OSS_SPACE, 'illegal:' . _("$name"));
         if (ossim_error()) {
@@ -78,9 +86,7 @@ if (POST('insert')) {
         $name_aux = POST("$name");
         if (!empty($name_aux)) $networks[] = POST("$name");
     }
-    require_once 'ossim_db.inc';
-    require_once 'classes/Net_group.inc';
-    require_once 'classes/Net_group_scan.inc';
+    
     $db = new ossim_db();
     $conn = $db->connect();
     Net_group::update($conn, $net_group_name, $threshold_c, $threshold_a, $rrd_profile, $networks, $descr);
@@ -91,11 +97,9 @@ if (POST('insert')) {
     $db->close($conn);
 }
 ?>
-    <p> <?php
-echo gettext("Network group succesfully updated"); ?> </p>
+    <p> <?php echo gettext("Network group succesfully updated"); ?> </p>
     <script>document.location.href="netgroup.php"</script>
 
-
-</body>
+	</body>
 </html>
 

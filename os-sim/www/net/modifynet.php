@@ -35,24 +35,29 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Net.inc');
+require_once ('classes/Net_scan.inc');
+require_once ('classes/Util.inc');
+
 Session::logcheck("MenuPolicy", "PolicyNetworks");
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache">
+	<link type="text/css" rel="stylesheet" href="../style/style.css"/>
 </head>
 <body>
                                                                                 
-  <h1> <?php
-echo gettext("Update net"); ?> </h1>
+<h1> <?php echo gettext("Update net"); ?> </h1>
 
 <?php
-require_once 'classes/Security.inc';
+
 $net_name = POST('name');
 $threshold_a = POST('threshold_a');
 $threshold_c = POST('threshold_c');
@@ -63,7 +68,6 @@ $ips = POST('ips');
 $alert = POST('alert');
 $persistence = POST('persistence');
 $rrd_profile = POST('rrd_profile');
-
 $clone = POST('clone'); // for Duplicate selected
 
 ossim_valid($net_name, OSS_NET_NAME, 'illegal:' . _("Net name"));
@@ -80,9 +84,11 @@ ossim_valid($descr, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, 'illeg
 if (ossim_error()) {
     die(ossim_error());
 }
-if (POST('insert')) {
+if (POST('insert'))
+{
     $sensors = array();
-    for ($i = 1; $i <= $nsens; $i++) {
+    for ($i = 1; $i <= $nsens; $i++)
+	{
         $name = "mboxs" . $i;
         ossim_valid(POST($name) , OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, OSS_SPACE);
         if (ossim_error()) {
@@ -94,36 +100,35 @@ if (POST('insert')) {
     if (!count($sensors)) {
         die(ossim_error(_("At least one sensor is required")));
     }
-    require_once 'ossim_db.inc';
-    require_once 'classes/Net.inc';
-    require_once 'classes/Net_scan.inc';
+    
     $db = new ossim_db();
     $conn = $db->connect();
-    if ($clone) {
+    if ($clone)
 		Net::insert($conn, $net_name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr);
-	} else {
+	else 
 		Net::update($conn, $net_name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr);
-    }
+    
 	Net_scan::delete($conn, $net_name, 3001);
-    Net_scan::delete($conn, $net_name, 2007);
-    if (POST('nessus')) {
+    
+	Net_scan::delete($conn, $net_name, 2007);
+    
+	if (POST('nessus')) 
         Net_scan::insert($conn, $net_name, 3001, 0);
-    }
-    if (POST('nagios')) {
+    
+    if (POST('nagios'))
         Net_scan::insert($conn, $net_name, 2007, 0);
-    }
+    
     $db->close($conn);
 }
 ?>
-    <p> <?php
-echo gettext("Net succesfully updated"); ?> </p>
+    <p> <?php echo gettext("Net succesfully updated"); ?> </p>
     <script>document.location.href="net.php"</script>
 
-<?php
-// update indicators on top frame
-$OssimWebIndicator->update_display();
-?>
+	<?php
+	// update indicators on top frame
+	$OssimWebIndicator->update_display();
+	?>
 
-</body>
+	</body>
 </html>
 
