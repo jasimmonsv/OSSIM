@@ -12,6 +12,19 @@ $gt = $ARGV[0];
 $cat = $ARGV[1];
 $ips = $ARGV[2];
 
+if ($ips !~ /^(\d+\.\d+\.\d+\.\d+\,?)+$/) {
+	print "Parameters error\n";
+	exit;
+}
+if ($gt !~ /^[a-z]+$/ && $gt !~ /^[a-z]+\_[a-z]+$/) {
+	print "Parameters error\n";
+	exit;
+}
+if ($cat !~ /^[a-zA-Z]+\%2C\+\d\d\d\d$/ && $cat !~ /^[a-zA-Z]+\s+\d+\,\s+\d\d\d\d$/ && $cat !~ /^[a-zA-Z]+\,\s\d\d\d\d/ && $cat !~ /^\d\d\d\d$/ && $cat ne "") {
+	print "Parameters error\n";
+	exit;
+}
+
 my @ips_arr = split(/\,/,$ips);
 print "{";
 $flag = 0;
@@ -21,7 +34,6 @@ foreach $ip (@ips_arr) {
 	} else {
 		$cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;php forensic_source.php '$gt' '$cat'\"";
 	}
-	#print "ssh $ip \"$cmd\"\n";
 	print "," if ($flag);
 	print '"'.$ip.'":';
 	system($cmd);
