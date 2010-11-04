@@ -185,7 +185,7 @@ function edit_ticket(id)
 	
 	var type      =  $(id+"_type").text();
 	var options   =  $(id+"_options").text();
-	var required  =  $(id+"_required img").length;
+	var required  =  $(id+"_required").attr('alt').match(/Tick/);
 	
 			
 	$("#header_nct").html("<?=_("Modify Custom Type")?>");
@@ -200,10 +200,7 @@ function edit_ticket(id)
 	
 	enable_ta(options);
 	
-	if ( required == 1)
-		$('#custom_requiredf').attr("checked", "true");
-			
-   
+	if ( required ) $('#custom_requiredf').attr("checked", "true");
 	
 	$('.ct_add').html("<input type='button' id='add_button' value='<?=_("Save")?>' class='button' onclick=\"modify_ct();\"/>");
 	
@@ -440,12 +437,12 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 								<td id='<?=$unique_id."_name"?>' class="noborder left ct_name"><?=$cf["name"]?></td>
 								<td id='<?=$unique_id."_type"?>' class="noborder ct_type"><?=$cf["type"]?></td>
 								<td id='<?=$unique_id."_options"?>' class="noborder left"><?=implode("<br/>", explode("\n",$cf["options"]))?></td>
-								<td id='<?=$unique_id."_required"?>' class="noborder ct_required">
+								<td class="noborder ct_required">
 									<? 
 										$path_image = '../pixmaps/tables/';
 										$image_required = ( $cf["required"] == 1 ) ? 'tick-small-circle.png' : 'cross-small-circle.png';
 										$alt_required   = ( $cf["required"] == 1 ) ? 'Tick Circle' : 'Cross Circle';
-										echo "<img src='".$path_image.$image_required."' alt='".$alt_required."'/>"; 
+										echo "<img id='".$unique_id."_required' src='".$path_image.$image_required."' alt='".$alt_required."'/>"; 
 									?>
 								</td>
 								<td class="noborder ct_actions">
@@ -460,10 +457,18 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 
 									<a style='cursor:pointer' class="ct_icon" onclick="move_field('tr<?=$c?>','<?=$cf["ord"]?>','tr<?=$c+1?>');"><img src="../pixmaps/theme/arrow-skip-270.png" alt='<?=_("Down")?>' title='<?=_("Down")?>'/></a>
 
-									<? }
+									<? } else { ?>
+                                    
+                                    <img src="../pixmaps/theme/arrow-skip-270.png" style="filter: alpha(opacity=30); opacity: .3"/>
+                                    
+                                    <? }
 									   if ($c>1)  { ?>
 
 									<a style='cursor:pointer' class="ct_icon" onclick="move_field('tr<?=$c?>','<?=$cf["ord"]?>','tr<?=$c-1?>');"><img src="../pixmaps/theme/arrow-skip-090.png" alt='<?=_("Up")?>' title='<?=_("Up")?>'/></a>
+
+                                    <? } else { ?>
+                                    
+                                    <img src="../pixmaps/theme/arrow-skip-090.png" style="filter: alpha(opacity=30); opacity: .3"/>
 
 									<? } ?>
 
