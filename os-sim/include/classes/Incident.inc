@@ -321,8 +321,8 @@ class Incident {
                 'illegal:' . _("Title")
             ) ,
             'type' => array(
-                OSS_LETTER,
-                OSS_SPACE,
+                OSS_ALPHA, OSS_PUNC_EXT,
+                OSS_SPACE, OSS_SCORE,
                 'illegal:' . _("Type")
             ) ,
             'priority' => array(
@@ -899,17 +899,26 @@ class Incident {
     }
     function get_custom($conn) {
 		$list = array();
-        $query = OssimQuery("SELECT * FROM incident_custom WHERE incident_id=".$this->id." ORDER BY ord ASC");
-        if (!$rs = & $conn->Execute($query)) {
+        $query = OssimQuery("SELECT * FROM incident_custom WHERE incident_id=? ORDER BY id ASC");
+        if (!$rs = & $conn->Execute($query,array($this->id))) {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-               	$list[] = array($rs->fields["name"],$rs->fields["content"],$rs->fields["type"]);
+               	$list[] = array($rs->fields["name"],$rs->fields["content"],$rs->fields["type"],$rs->fields["id"]);
                 $rs->MoveNext();
             }
         }
         return $list;
     }   
+    function get_custom_content($conn,$id,$incident_id) {
+        $query = OssimQuery("SELECT name,content FROM incident_custom WHERE id=? and incident_id=?");
+        if (!$rs = & $conn->Execute($query,array($id,$incident_id))) {
+            print $conn->ErrorMsg();
+        } else {
+            if (!$rs->EOF) return array($rs->fields["name"],$rs->fields["content"]);
+        }
+        return array();
+    } 
     /* get users that are part of an incident (the main Admin included)
     * (user, in_charge, transferred and subscribed to incidents)
     */
@@ -1207,22 +1216,21 @@ class Incident {
         return $last_id;
     }
     function insert_custom($conn, $title, $type, $submitter, $priority, $in_charge="", $fields=array()) {
-        foreach($fields as $name => $value) {
-            
-			if (!ossim_valid($name, OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field"))) 
-				return false;
+        foreach($fields as $value) {
+			if ($value["validate"])
+				if (!ossim_valid($value["content"], OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field"))) 
+					return false;
         }
 		
         $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Custom", "", "", $in_charge);
         
-		if (ossim_error()) 
-			return false;
+		if (ossim_error()) return false;
         
-		foreach ($fields as $name => $value) {
+		foreach ($fields as $value) {
 	        $sql = "INSERT INTO incident_custom (incident_id, name, type, content) VALUES (?, ?, ?, ?)";
 	        $params = array(
 	            $last_id,
-	            $name,
+	            $value["name"],
 				$value["type"],
 	            $value["content"]
 	        );
@@ -1740,7 +1748,7 @@ class Incident {
         ));
     }
 	
-	function format_custom_field($value, $type)
+	function format_custom_field($id, $incident_id, $value, $type)
 	{
 		switch ($type)
 		{
@@ -1751,14 +1759,15 @@ class Incident {
 				$field .= "<script type='text/javascript'>initialize('".$unique_id."','".$value."')</script>";
 			break;
 			
+			case "File":
+				$field  = "<a href='incident_download_content.php?id=$id&incident_id=$incident_id'>"._("Download content")."</a>";
+			break;
+						
 			default:
 				$field = $value;
 		}
 		
 		return $field;
-	
-	
-	
 	}
 }
 ?>

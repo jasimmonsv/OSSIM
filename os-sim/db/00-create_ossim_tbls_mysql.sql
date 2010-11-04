@@ -238,6 +238,44 @@ CREATE TABLE net_sensor_reference (
     PRIMARY KEY     (net_name, sensor_name)
 );
 
+CREATE TABLE host_property_reference (
+   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   name VARCHAR(100)
+);
+
+CREATE TABLE host_properties (
+   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+   ip VARCHAR(15),
+   date DATETIME,
+   property_ref INT,
+   source_id INT,
+   value TEXT,
+   extra TEXT
+);
+
+CREATE TABLE host_source_reference (
+   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   name VARCHAR(100),
+   priority INT
+);
+
+INSERT INTO host_property_reference(name) VALUES ('software');
+INSERT INTO host_property_reference(name) VALUES ('cpu');
+INSERT INTO host_property_reference(name) VALUES ('operating-system');
+INSERT INTO host_property_reference(name) VALUES ('worgroup');
+INSERT INTO host_property_reference(name) VALUES ('ram');
+INSERT INTO host_property_reference(name) VALUES ('department');
+INSERT INTO host_property_reference(name) VALUES ('macAddress');
+INSERT INTO host_property_reference(name) VALUES ('workgroup');
+
+INSERT INTO host_source_reference(name, priority) VALUES ('MANUAL', 10);
+INSERT INTO host_source_reference(name, priority) VALUES ('OCS', 9);
+INSERT INTO host_source_reference(name, priority) VALUES ('WMI', 8);
+INSERT INTO host_source_reference(name, priority) VALUES ('SSH', 8);
+INSERT INTO host_source_reference(name, priority) VALUES ('PRADS', 6);
+INSERT INTO host_source_reference(name, priority) VALUES ('OPENVAS', 7);
+INSERT INTO host_source_reference(name, priority) VALUES ('NTOP', 7);
+
 /*Used to store how much events arrive to the server in a specific time, from a
  * specific sensor*/
 DROP TABLE IF EXISTS sensor_stats;

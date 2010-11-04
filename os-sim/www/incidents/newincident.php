@@ -148,6 +148,10 @@ function get_params_field($field){
 		case "Textbox":
 			$params = array("name" => $name, "id"=>$fld, "class"=>$required);
 		break;
+		
+		case "File":
+			$params = array("name" => $name, "id"=>$fld, "class"=>$required);
+		break;
 			
 	}
 	
@@ -425,7 +429,7 @@ if ($edit) {
 		option {height: 15px;}
 		th {padding: 5px 0px; max-width: 300px; white-space: normal;}
 		
-		input[type='text'] { width: 100%; height: 18px;}
+		input[type='text'],input[type='file'] { width: 100%; height: 18px;}
 				
 		.ct_slider {float:left; width:430px; heigth: 25px; margin-top:6px;}
 		a.ui-slider-handle { top: -7px !important;}
@@ -446,7 +450,7 @@ if ($edit) {
 <?php
 include ("../hmenu.php"); ?>
 <h1><?php echo " $ref " . _("Ticket") ?></h1>
-<form id='crt' method="GET" action="manageincident.php">
+<form id='crt' method="POST" action="manageincident.php" enctype="multipart/form-data">
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />
 <input type="hidden" name="ref" value="<?php echo $ref ?>" />
 <input type="hidden" name="incident_id" value="<?php echo $incident_id ?>" />

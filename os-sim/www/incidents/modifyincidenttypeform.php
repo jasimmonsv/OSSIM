@@ -336,7 +336,7 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 									<option  value=''>-- <?=_("Select Types")?> --</option>
 									
 									<?php
-									$types = array("Asset", "Check Yes/No", "Check True/False", "Checkbox", "Date","Date Range", "Map", "Radio button", "Select box", "Slider", "Textarea", "Textbox");
+									$types = array("Asset", "Check Yes/No", "Check True/False", "Checkbox", "Date", "Date Range", "Map", "Radio button", "Select box", "Slider", "Textarea", "Textbox", "File");
 									sort($types);
 									foreach($types as $k => $v)
 										echo "<option style='text-align: left;' value='"._($v)."'>"._($v)."</option>";

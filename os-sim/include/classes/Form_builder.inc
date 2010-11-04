@@ -64,7 +64,7 @@ class Form_builder {
 private $params;
 private $scripts;
 private $def_funcs;
-private static $types = array("Asset", "Check Yes/No", "Check True/False", "Checkbox", "Date", "Date Range", "Map", "Radio button", "Select box", "Slider", "Textarea", "Textbox");
+private static $types = array("Asset", "Check Yes/No", "Check True/False", "Checkbox", "Date", "Date Range", "Map", "Radio button", "Select box", "Slider", "Textarea", "Textbox", "File");
 
 /*Methods*/
 	 
@@ -141,6 +141,10 @@ private static $types = array("Asset", "Check Yes/No", "Check True/False", "Chec
 				$element= $this->draw_textbox();
 			break;
 			
+			case "File":
+				$element= $this->draw_file();
+			break;
+						
 		}
 		
 		return $element;
@@ -657,10 +661,20 @@ public function draw_textbox(){
 
 }
 			
+public function draw_file(){
 	
-	
-	
+	$attributes = '';
 
+	foreach ( $this->params as $k => $v)
+		$attributes .= "$k=\"$v\" ";
+	
+	$element = "<input type='file' $attributes/>";
+	
+	return $element;
+
+}
+	
+	
 }
 
 ?>

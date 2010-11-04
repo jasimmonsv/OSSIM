@@ -50,7 +50,8 @@ function die_error($msg = null, $append = null) {
     echo $append;
     exit;
 }
-
+if (!count($_GET) && count($_POST)>0) foreach ($_POST as $k => $v) $_GET[$k]=$v;
+//
 $db = new ossim_db();
 $conn = $db->connect();
 $id = GET('incident_id');
@@ -567,17 +568,34 @@ if ($action == 'newincident') {
         foreach($vars as $v) {
             $$v = GET("$v"); 
         }
-        
+
 		$fields = array();
         foreach ($_GET as $k => $v) 
 			if (preg_match("/^custom/",$k)) {
 			{
 				$k=base64_decode(str_replace("custom_","",$k)); 
 				$item = explode("_####_", $k);
-				$cumtom_type = ( count($item) >= 2 ) ? $item[1] : "Textbox";
-				$fields[$item[0]] =  array ("content" => $v, "type"=> $cumtom_type);
+				$custom_type = ( count($item) >= 2 ) ? $item[1] : "Textbox";
+				//
+				$fields[] =  array ("validate" => 1, "name" => $item[0], "content" => $v, "type"=> $custom_type);
 			}
         }
+        // uploaded "File" type
+        foreach ($_FILES as $k => $v) 
+			if (preg_match("/^custom/",$k)) {
+			{
+				$content = $v['tmp_name'];
+				$k=base64_decode(str_replace("custom_","",$k)); 
+				$item = explode("_####_", $k);
+				if (is_uploaded_file($v['tmp_name']) && !$v['error'])
+					$content = file_get_contents($v['tmp_name']);
+				else
+					$content = _("Failed uploading file. Error: ".$v['error']);
+				//		
+				$fields[] =  array ("validate" => 0, "name" => $item[0], "content" => $content, "type"=> "File");
+			}
+        }
+        //print_r($fields);
         
         if($transferred_user!="")   $transferred = $transferred_user;
         if($transferred_entity!="") $transferred = $transferred_entity;
