@@ -173,6 +173,7 @@ function modify_ticket()
 
 function edit_ticket(id)
 {
+	var oldid = id;
 	var id="#"+id;
 	$('#modify').val('modify_ct');
 	$("#info_error").css("display", "none");
@@ -181,6 +182,7 @@ function edit_ticket(id)
 	var id_ct     =  $("#id_crt").val();
 		
 	var name      =  $(id+"_name").text();
+	
 	var type      =  $(id+"_type").text();
 	var options   =  $(id+"_options").text();
 	var required  =  $(id+"_required img").length;
@@ -189,9 +191,9 @@ function edit_ticket(id)
 	$("#header_nct").html("<?=_("Modify Custom Type")?>");
 	
 	if ($("#id_crt").length > 1)
-		$("#id_crt").attr("value", name);
+		$("#id_crt").attr("value", old_names[oldid]);
 	else
-		$("#id_crt").after("<input type='hidden' name='old_name' id='old_name' value='"+name+"'/>") 
+		$("#id_crt").after("<input type='hidden' name='old_name' id='old_name' value='"+old_names[oldid]+"'/>")
 	
 	$('#custom_namef').val(name);
 	$('#custom_typef').val(type);
@@ -212,6 +214,28 @@ function edit_ticket(id)
 	
 }
 
+function move_field(id,oldpos,newid)
+{
+	var oldid = id;
+	var id="#"+id;
+
+	$("#info_error").css("display", "none");
+	$("#info_error").html('');
+
+	$('#modify').val('modify_pos');
+	$('#custom_namef').val($(id+"_name").text());
+	$('#custom_typef').val($(id+"_type").text());
+	$('#oldpos').val(oldpos);
+	$('#newpos').val(positions[newid]);
+			
+	if ($("#id_crt").length > 1)
+		$("#id_crt").attr("value", old_names[oldid]);
+	else
+		$("#id_crt").after("<input type='hidden' name='old_name' id='old_name' value='"+old_names[oldid]+"'/>")
+		
+	$("#crt").submit();
+	
+}
 
 function cancel_ticket()
 {
@@ -270,6 +294,8 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 <div id='info_error' class='ct_error'></div>
 <input type="hidden" id="modify" name="modify" value="modify"/>
 <input type="hidden" name="id" id='id_crt' value="<?php echo $inctype->get_id(); ?>" />
+<input type="hidden" id="oldpos" name="oldpos" value="0"/>
+<input type="hidden" id="newpos" name="newpos" value="0"/>
 
 <table align="center" width='700px'>
 	<tr>
@@ -399,14 +425,20 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 								<th><?=_("Required")?></th>
 								<th><?=_("Actions")?></th>
 							</tr>
+							<script>
+								var old_names = new Array(<?=count($custom_fields)?>);
+								var positions = new Array(<?=count($custom_fields)?>);
+							</script>
 							<?php 
 							foreach ($custom_fields as $cf) 
 							{
-								$unique_id = md5( uniqid() );
+								$c++;
+								$unique_id = "tr$c";
 							?>
-							<tr class="noborder" id='<?=$unique_id?>'>
+							
+							<tr id='<?=$unique_id?>'>
 								<td id='<?=$unique_id."_name"?>' class="noborder left ct_name"><?=$cf["name"]?></td>
-								<td id='<?=$unique_id."_type"?>' class="noborder left ct_type"><?=$cf["type"]?></td>
+								<td id='<?=$unique_id."_type"?>' class="noborder ct_type"><?=$cf["type"]?></td>
 								<td id='<?=$unique_id."_options"?>' class="noborder left"><?=implode("<br/>", explode("\n",$cf["options"]))?></td>
 								<td id='<?=$unique_id."_required"?>' class="noborder ct_required">
 									<? 
@@ -417,8 +449,24 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 									?>
 								</td>
 								<td class="noborder ct_actions">
+									<script>
+										old_names['<?=$unique_id?>'] = "<?=$cf["name"]?>";
+										positions['<?=$unique_id?>'] = "<?=$cf["ord"]?>";
+									</script>
 									<input type="image" src="../vulnmeter/images/delete.gif" class="ct_icon" onclick="delete_ticket('<?=$cf["name"]?>');"/>
-									<a style='cursor:pointer' class="ct_icon" onclick="edit_ticket('<?=$unique_id?>');"><img src="../vulnmeter/images/pencil.png" alt='Edit' title='Edit'/></a>
+									<a style='cursor:pointer' class="ct_icon" onclick="edit_ticket('tr<?=$c?>');"><img src="../vulnmeter/images/pencil.png" alt='<?=_("Edit")?>' title='<?=_("Edit")?>'/></a>
+
+									<? if ($c<count($custom_fields)) { ?>
+
+									<a style='cursor:pointer' class="ct_icon" onclick="move_field('tr<?=$c?>','<?=$cf["ord"]?>','tr<?=$c+1?>');"><img src="../pixmaps/theme/arrow-skip-270.png" alt='<?=_("Down")?>' title='<?=_("Down")?>'/></a>
+
+									<? }
+									   if ($c>1)  { ?>
+
+									<a style='cursor:pointer' class="ct_icon" onclick="move_field('tr<?=$c?>','<?=$cf["ord"]?>','tr<?=$c-1?>');"><img src="../pixmaps/theme/arrow-skip-090.png" alt='<?=_("Up")?>' title='<?=_("Up")?>'/></a>
+
+									<? } ?>
+
 								</td>
 							</tr>
 							<? } ?>
@@ -431,7 +479,7 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 	</tr>
 	<tr>
 		<td colspan="2" style="text-align:center; height: 30px;" class="nobborder">
-			<input type="button" value="<?=_("Modify")?>" class="button" onclick="modify_ticket();"/>
+			<input type="button" value="<?=_("Save")?>" class="button" onclick="modify_ticket();"/>
 			<input type="reset" value="<?=_("Reset")?>" class="button"/>
 		</td>
 	</tr>

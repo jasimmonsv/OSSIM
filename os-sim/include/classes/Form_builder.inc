@@ -592,25 +592,28 @@ public function draw_selectbox(){
 
 public function draw_slider(){
 
+	$values = $this->params['values'];
+	unset($this->params['values']);
+	
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 		
-	$min_value = ( is_numeric($this->params["values"][0]) ) ? $this->params["values"][0] : "0";
-	$max_value = ( is_numeric($this->params["values"][1]) ) ? $this->params["values"][1] : "10";
-	$step      = ( is_numeric($this->params["values"][2]) ) ? $this->params["values"][2] : "1";
+	$min_value = ( is_numeric($values[0]) ) ? $values[0] : "0";
+	$max_value = ( is_numeric($values[1]) ) ? $values[1] : "10";
+	$step      = ( is_numeric($values[2]) ) ? $values[2] : "1";
 	
 	$element="  <div style='float:left; padding-top: 3px; width:30px; heigth: 25px;'>
-					<span id='dial_".$this->params['name']."' style='font-weight: bold; padding: 0px 6px'>".$min_value."</span>
+					<span id='dial_".$this->params['id']."' style='font-weight: bold; padding: 0px 6px'>".$min_value."</span>
 				</div>
 				<div class='ct_slider'>
-					<div id='cont_".$this->params['name']."' style='width:100%; height:3px;'></div>
+					<div id='cont_".$this->params['id']."' style='width:100%; height:3px;'></div>
 				</div>
 				
 				<input type='hidden' ".$attributes." value='".$min_value."'/>";
 	
 
 	$script = "
-		$('#cont_".$this->params['name']."').slider({
+		$('#cont_".$this->params['id']."').slider({
 			animate: true,
 			range: 'min',
 			value: $min_value,
@@ -618,8 +621,8 @@ public function draw_slider(){
 			max: $max_value,
 			step: $step,
 			slide: function(event, ui) {
-				\$('#dial_".$this->params['name']."').html(ui.value);
-				\$('#".$this->params['name']."').val(ui.value);
+				\$('#dial_".$this->params['id']."').html(ui.value);
+				\$('#".$this->params['id']."').val(ui.value);
 			}
 		});\n\n";
 	

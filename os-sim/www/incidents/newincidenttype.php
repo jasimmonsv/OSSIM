@@ -35,24 +35,27 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once 'classes/Security.inc';
+require_once ('ossim_db.inc');
+require_once ('classes/Incident_type.inc');
+require_once ("classes/Incident_type.inc");
+
 Session::logcheck("MenuIncidents", "IncidentsTypes");
 ?>
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
 
-  <h1> <?php
-echo gettext("New Ticket type"); ?> </h1>
+  <h1> <?php echo gettext("New Ticket type"); ?> </h1>
 
 <?php
-require_once 'classes/Security.inc';
+
 $inctype_id = POST('id');
 $inctype_descr = POST('descr');
 $custom = intval(POST('custom'));
@@ -62,22 +65,19 @@ if (ossim_error()) {
     die(ossim_error());
 }
 if (POST('insert')) {
-    require_once ('ossim_db.inc');
-    require_once ('classes/Incident_type.inc');
+    
     $db = new ossim_db();
     $conn = $db->connect();
-    require_once ("classes/Incident_type.inc");
+    
     Incident_type::insert($conn, $inctype_id, $inctype_descr,(($custom==1) ? "custom" : ""));
     $db->close($conn);
 ?>
-    <br><br><p> <?php
-    echo gettext("New Ticket type  succesfully inserted"); ?> </p>
+    <br><br><p> <?php echo gettext("New Ticket type  succesfully inserted"); ?> </p>
+
 <?php
     $location = ($custom==1) ? "modifyincidenttypeform.php?id=".urlencode($inctype_id) : "incidenttype.php";
     sleep(1);
     echo "<script>window.location='$location';</script>";
-?>
-<?php
 }
 ?>
 

@@ -899,7 +899,7 @@ class Incident {
     }
     function get_custom($conn) {
 		$list = array();
-        $query = OssimQuery("SELECT * FROM incident_custom WHERE incident_id=".$this->id);
+        $query = OssimQuery("SELECT * FROM incident_custom WHERE incident_id=".$this->id." ORDER BY ord ASC");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {

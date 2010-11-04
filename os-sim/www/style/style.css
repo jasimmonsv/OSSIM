@@ -998,7 +998,7 @@ div.balloon:hover span.bottom {
 
 .ct_icon {border: none; background: transparent;}
 
-.ct_actions{ width: 50px;}
+.ct_actions{ width: 90px;}
 .ct_required { width: 40px;}
 .ct_type {font-style: italic;}
 #ct_table th { padding: 1px 2px 1px 2px;}
