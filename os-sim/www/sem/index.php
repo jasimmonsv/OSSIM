@@ -1316,11 +1316,11 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 							<option value="100">100</option>
 						</select>&nbsp;<?php echo ($from_remote) ? _("events <b>per server</b>") : _("events per page"); ?>
 					</td>
-					<td class="nobborder" nowrap align="middle" valign="center" style="padding-left:20px">
-						<div id="numlines" style="vertical-align:middle; padding-right:10px">&nbsp;</div>
-					</td>
 					</tr>
 					</table>
+				</td>
+				<td class="nobborder" nowrap align="middle" valign="center" style="padding-left:20px">
+					<div id="numlines" style="vertical-align:middle; padding-right:10px">&nbsp;</div>
 				</td>
 				<td class="nobborder" nowrap width="20" style="padding-left:15px" valign="top">
 					<div id="loading" style="display:none; vertical-align:middle; padding-right:10px; padding-top:10px;"><img src="<?php echo $config["loading_graph"]; ?>" align="middle" style="vertical-align:middle;"></div>
