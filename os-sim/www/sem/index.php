@@ -63,7 +63,12 @@ $_SESSION['graph_type'] = "last_month";
 $_SESSION['cat'] = "Oct%2C+2010";
 
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
-
+$ip_to_name = array();
+foreach ($database_servers as $db) {
+	$name = $db->get_name();
+	$ip = $db->get_ip();
+	$ip_to_name[$ip] = $name;
+}
 $fcolors = array("dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
 $bcolors = array("5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
 $logger_servers = array();
@@ -81,11 +86,14 @@ if (GET('num_servers') != "") {
 			$logger_servers[$name] = $ip;
 		}
 	}
-} else {
-	$num_servers = 1;
-	//$logger_servers['local'] = "127.0.0.1";
+	if (count($logger_servers) == 1 && reset($logger_servers) == "127.0.0.1") $ip_list = "";
 }
-
+if (count($logger_servers) == 0) {
+	$num_servers = 1;
+	$framework_ip = $conf->get_conf("frameworkd_address", FALSE);
+	$logger_servers[$ip_to_name[$framework_ip]] = "127.0.0.1";
+}
+$from_remote = ($ip_list != "") ? 1 : 0;
 $_SESSION['logger_servers'] = $logger_servers;
 
 ossim_valid($param_query, OSS_TEXT, OSS_NULLABLE, '[', ']', 'illegal:' . _("query"));
@@ -1086,7 +1094,6 @@ include ("../hmenu.php"); ?>
 
 <table border=0 cellpadding=0 cellspacing=0 align="right">
 <?
-$from_remote = 0;
 if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers")) { 
 	// session server
 	?>
@@ -1106,7 +1113,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 					$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i];
 					?>
 					<tr bgcolor='#EEEEEE'>
-						<td><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; $from_remote = 1; } ?>></input></td>
+						<td><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; } ?>></input></td>
 						<td></td>
 						<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i]?>;color:<?php echo '#'.$fcolors[$i]?>"><?php echo $name ?></td></tr></table></td>
 					</tr>

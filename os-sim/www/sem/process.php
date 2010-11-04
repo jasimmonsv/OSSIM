@@ -232,7 +232,7 @@ if($debug_log!=""){
 }
 
 // LOCAL OR REMOTE fetch
-if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers']) > 1 || (count($_SESSION['logger_servers']) == 1 && !$_SESSION['logger_servers']['local']))) {
+if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers']) > 1 || (count($_SESSION['logger_servers']) == 1 && reset($_SESSION['logger_servers']) != "127.0.0.1"))) {
 	$from_remote = 1;
 	$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote.pl",$cmd);
 	$servers_string = "";
