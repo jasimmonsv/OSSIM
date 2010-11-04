@@ -20,7 +20,7 @@ if ($gt !~ /^[a-z]+$/ && $gt !~ /^[a-z]+\_[a-z]+$/) {
 	print "Parameters error\n";
 	exit;
 }
-if ($cat !~ /^[a-zA-Z]+\%2C\+\d\d\d\d$/ && $cat !~ /^[a-zA-Z]+\s+\d+\,\s+\d\d\d\d$/ && $cat ne "") {
+if ($cat !~ /^[a-zA-Z]+\%2C\+\d\d\d\d$/ && $cat !~ /^[a-zA-Z]+\s+\d+\,\s+\d\d\d\d$/ && $cat !~ /^\d\d\d\d$/ && $cat ne "") {
 	print "Parameters error\n";
 	exit;
 }
@@ -34,7 +34,6 @@ foreach $ip (@ips_arr) {
 	} else {
 		$cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;php forensic_source.php '$gt' '$cat'\"";
 	}
-	print "\"$cmd\"\n";
 	print "," if ($flag);
 	print '"'.$ip.'":';
 	system($cmd);
