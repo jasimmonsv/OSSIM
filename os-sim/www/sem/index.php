@@ -70,13 +70,10 @@ $logger_servers = array();
 $ip_list = "";
 if (GET('num_servers') != "") {
 	$num_servers = GET('num_servers');
-	if (GET('local')) {
-		$logger_servers['local'] = "127.0.0.1";
-		$ip_list = "127.0.0.1";
-	}
 	foreach ($database_servers as $db) {
 		$name = $db->get_name();
 		$ip = $db->get_ip();
+		if ($ip == $_SERVER['SERVER_ADDR']) $ip = "127.0.0.1";
 		ossim_valid(GET($name), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal: server '.$name);
 		if (GET($name) != "") {
 			if ($ip_list != "") $ip_list .= ",";
@@ -86,7 +83,7 @@ if (GET('num_servers') != "") {
 	}
 } else {
 	$num_servers = 1;
-	$logger_servers['local'] = "127.0.0.1";
+	//$logger_servers['local'] = "127.0.0.1";
 }
 
 $_SESSION['logger_servers'] = $logger_servers;
@@ -451,7 +448,7 @@ function RequestLines()
 	document.getElementById('loading').style.display = "block";
 	var start = escape(document.getElementById('start').value);
 	var end = escape(document.getElementById('end').value);
-	var url = "wcl.php?start=" + start + "&end=" + end + "&uniqueid=<?php echo $uniqueid?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>";
+	var url = "wcl.php?ips=<?php echo $ip_list ?>&start=" + start + "&end=" + end + "&uniqueid=<?php echo $uniqueid?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>";
 	$.ajax({
 		type: "GET",
 		url: url,
@@ -1100,28 +1097,20 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 			<div style="position:relative; z-index:1">
 			<div id="rservers" style="position:absolute;left:0;top:0;display:none;border:1px solid gray;background-color:#EEEEEE">
 				<table border=0 cellpadding=1 cellspacing=2 width="100%">
-				<tr bgcolor='#EEEEEE'>
-					<td><input type="checkbox" onclick="document.serverform.submit()" name="local" value="local" <?php if ($logger_servers["local"]) echo "checked" ?>></input></td>
-					<td><img src='../server/getdbsicon.php?name=local' border=0 width='16' height='16'></td>
-					<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[0]?>;color:<?php echo '#'.$fcolors[0]?>"><?php echo _("Local") ?></td></tr></table></td>
-				</tr>			
 				<?php
-				$i = 1;
-				$_SESSION['logger_colors']['local']['bcolor'] = $bcolors[0];
-				$_SESSION['logger_colors']['local']['fcolor'] = $fcolors[0];
+				$i = 0;
 				foreach ($database_servers as $db) {
-					$i++;
-					if ($i >= count($bcolors)) $i = 1;
+					if ($i >= count($bcolors)) $i = 0;
 					$name = $db->get_name();
-					$_SESSION['logger_colors'][$name]['bcolor'] = $bcolors[$i-1];
-					$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i-1];
+					$_SESSION['logger_colors'][$name]['bcolor'] = $bcolors[$i];
+					$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i];
 					?>
 					<tr bgcolor='#EEEEEE'>
 						<td><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; $from_remote = 1; } ?>></input></td>
 						<td></td>
-						<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i-1]?>;color:<?php echo '#'.$fcolors[$i-1]?>"><?php echo $name ?></td></tr></table></td>
+						<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i]?>;color:<?php echo '#'.$fcolors[$i]?>"><?php echo $name ?></td></tr></table></td>
 					</tr>
-				<?php } ?>
+				<?php $i++; } ?>
 				</table>
 			</div>
 			</div>
@@ -1263,7 +1252,7 @@ require_once ("manage_querys.php");
 		<tr><td style="padding-left:10px;padding-right:10px" colspan="5" class="nobborder"><table class="noborder" width="100%" cellpadding=0 cellspacing=0 border=0><tr><td class="nobborder" style="background:url('../pixmaps/points.gif') repeat-x"><img src="../pixmaps/points.gif"></td></tr></table></td></tr>
 		
 		<tr>
-			<td class="nobborder" style="padding:10px">
+			<td class="nobborder" style="padding:10px" valign="top">
 			<table class="transparent">
 				<tr>
 				<td class="nobborder">

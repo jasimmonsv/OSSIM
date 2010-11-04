@@ -49,7 +49,7 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 $only_json = 0;
-if ($argv[1] != "" && $argv[2] != "") {
+if ($argv[1] != "") {
 	$gt = $argv[1];
 	$cat = $argv[2];
 	$only_json = 1;
@@ -70,7 +70,8 @@ if ($_GET['ips'] != "") {
 	if (ossim_error()) {
 	    die(ossim_error());
 	}
-	$cmd = "sudo ./fetchremote_graph.pl $gt $cat $ip_list";
+	$cmd = "sudo ./fetchremote_graph.pl '$gt' '$cat' $ip_list";
+	//echo $cmd;exit;
 	$aux = explode("\n",`$cmd`);
 	$string = trim($aux[0]);
 	$remote_data_aux = json_decode($string);
@@ -276,7 +277,11 @@ a:hover { text-decoration: underline; }
     	}
     }
 ?>
-    var links = []; <? //foreach ($chart['chart_data'][0] as $i => $tick) echo "    links[".$i."] = '$tick';\n"; ?>
+	<?php if ($_GET['ips'] != "") { ?>
+	var links = []; <? $flag = 0; foreach ($remote_data as $ip=>$arr) { if($flag) continue; $flag = 1; foreach ($arr['chart_data'][0] as $i => $tick) echo "    links[".$i."] = '$tick';\n"; } ?>
+	<?php } else { ?>
+	var links = []; <? foreach ($chart['chart_data'][0] as $i => $tick) echo "    links[".$i."] = '$tick';\n"; ?>
+	<?php } ?>
     function showTooltip(x, y, row, col, contents) {
         var year_str = "";
 		if (links[row].match(/..., \d\d\d\d/)) {
@@ -308,7 +313,8 @@ a:hover { text-decoration: underline; }
 	                 lines: {show: false, steps: false },
 	                 bars: {show: true, barWidth: 0.9, align: 'center'}
 	                 },
-	        xaxis: { tickDecimals:0, ticks: [<? $flag = 0; foreach ($remote_data as $ip=>$arr) { if($flag) continue; $flag = 1; foreach ($arr['chart_data'][0] as $i=>$tick) { if ($i > 0) echo ","; if ($i % $salto == $with) { ?>[<?=$i?>,"<?=$tick?>"]<? } else { ?>[<?=$i?>,""]<? } ?><? } }?>] }
+	        xaxis: { tickDecimals:0, ticks: [<? $flag = 0; foreach ($remote_data as $ip=>$arr) { if($flag) continue; $flag = 1; foreach ($arr['chart_data'][0] as $i=>$tick) { if ($i > 0) echo ","; if ($i % $salto == $with) { ?>[<?=$i?>,"<?=$tick?>"]<? } else { ?>[<?=$i?>,""]<? } ?><? } }?>] },
+	        grid: { color: "#8E8E8E", labelMargin:3, borderWidth:2, backgroundColor: "#EDEDED", tickColor: "#D2D2D2", hoverable:true, clickable:true}, shadowSize:1
 	    };
 		var data = [
             <?php foreach ($remote_data as $ip=>$arr) { ?>

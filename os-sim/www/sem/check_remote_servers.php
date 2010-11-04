@@ -52,6 +52,10 @@ $ips = array();
 foreach ($database_servers as $db) {
 	$name = $db->get_name();
 	$ip = $db->get_ip();
+	if ($ip == $_SERVER['SERVER_ADDR']) {
+		$ips[$name] = "1";
+		continue;
+	}
 	$cmd = 'sudo ./test_remote_ssh.pl '.$ip;
 	$res = explode("\n",`$cmd`);
 	if ($res[0] == "OK") {
