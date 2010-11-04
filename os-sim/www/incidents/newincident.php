@@ -134,7 +134,7 @@ function get_params_field($field){
 		case "Slider":
 			
 			if ($field["options"] != '')
-				$options = explode("\n", $field["options"]);
+				$options = explode(",", $field["options"]);
 			else
 				$options = '';
 				
@@ -423,12 +423,10 @@ if ($edit) {
 		textarea, .field_fix { width: 100%;}
 		select { width: 200px;}
 		option {height: 15px;}
-		th {padding: 5px 0px;}
+		th {padding: 5px 0px; max-width: 300px; white-space: normal;}
 		
 		input[type='text'] { width: 100%; height: 18px;}
 				
-		.thw {width: 150px;}
-		.label_name{width: 150px; overflow: hidden;}
 		.ct_slider {float:left; width:430px; heigth: 25px; margin-top:6px;}
 		a.ui-slider-handle { top: -7px !important;}
 		
@@ -455,9 +453,9 @@ include ("../hmenu.php"); ?>
 <input type="hidden" name="submitter" value="<?php echo $submitter ?>" />
 <div id='info_error' class='ct_error'></div>
 
-<table align="center" width="680">
+<table align="center">
 	<tr>
-		<th class='thw'><?php echo _("Title") ?></th>
+		<th><?php echo _("Title") ?></th>
 		<td class="left">
 			<div class='wfl2'>
 				<input type="text" name="title" value="<?php echo $title ?>"/>
@@ -910,7 +908,7 @@ else {
 	foreach ($fields as $field) {
 		
 
-		echo "<tr id='item_".$cont."'><th id='name_".$cont."' class='thr'><div class='label_name'>".utf8_decode($field['name'])."</div></th>";
+		echo "<tr id='item_".$cont."'><th id='name_".$cont."' class='thr'><span>".utf8_decode($field['name'])."</span></th>";
     	
 		echo "<td style='border-width: 0px;text-align:left'>";
 		$params = get_params_field($field);
@@ -931,7 +929,7 @@ else {
 		
 		$mandatory = ( $field['required'] == 1 && !in_array($field['type'], $req_f_inherent) ) ? "<span>(*)</span>" : "";
 			
-			echo "<div class='".$class_wf[1]."'>".$mandatory."</div>";
+		echo "<div class='".$class_wf[1]."'>".$mandatory."</div>";
 		echo "</td>";
 					
     	echo"</tr>\n";

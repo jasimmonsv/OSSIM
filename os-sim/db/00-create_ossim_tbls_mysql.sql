@@ -1172,7 +1172,7 @@ CREATE TABLE IF NOT EXISTS `incident_custom` (
   incident_id int(11) NOT NULL,
   name varchar(255) NOT NULL,
   `type` varchar(255) NOT NULL,
-  content text NOT NULL,
+  content BLOB NOT NULL,
   PRIMARY KEY (id,incident_id)
 );
 
@@ -1183,6 +1183,7 @@ CREATE TABLE IF NOT EXISTS `incident_custom_types` (
   `type` varchar(255) NOT NULL,
   options text NOT NULL,
   `required` int(1) NOT NULL,
+  `ord` INT NOT NULL,
   PRIMARY KEY (id,name)
 );
 

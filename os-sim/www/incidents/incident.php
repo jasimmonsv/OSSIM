@@ -322,7 +322,7 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 		$custom_list = $incident->get_custom($conn);
 		echo "<table class='noborder' width='100%' id='custom_table'>";
 		foreach($custom_list as $custom) {
-			echo "<tr><td class='left noborder' align='absmiddle'><b>".$custom[0].":</b></td>"; 
+			echo "<tr><td class='left noborder' align='middle'><b>".$custom[0].":</b></td>"; 
 			echo "<td class='left'>".Incident::format_custom_field($custom[1], $custom[2])."</td></tr>\n";
 		}
 		echo "</table>";

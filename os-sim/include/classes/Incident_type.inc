@@ -43,6 +43,8 @@
 * - insert_custom()
 * - update_custom()
 * - delete_custom()
+* - update_ord()
+* - get_next_ord()
 * Classes list:
 * - Incident_type
 */
@@ -139,7 +141,7 @@ class Incident_type {
     // CUSTOM TYPES
     //
     function insert_custom($conn, $params) {
-        $sql = "INSERT IGNORE into incident_custom_types ( id, name, type, options, required) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT IGNORE into incident_custom_types ( id, name, type, options, required, ord) VALUES (?, ?, ?, ?, ?, ?)";
         
 		if ($conn->Execute($sql, $params) == false) {
             print '<div id="info_error" class="ct_error" style="display: block">Error inserting: ' . $conn->ErrorMsg() . '<br/></div>';
@@ -148,7 +150,7 @@ class Incident_type {
     }
     function get_custom_list($conn, $id) {
         $list = array();
-        $query = OssimQuery("SELECT * FROM incident_custom_types WHERE id=?");
+        $query = OssimQuery("SELECT * FROM incident_custom_types WHERE id=? ORDER BY ord ASC");
         if (!$rs = & $conn->Execute($query,array($id))) {
             print $conn->ErrorMsg();
         } else {
@@ -157,7 +159,8 @@ class Incident_type {
 								"name" => $rs->fields['name'], 
 								"type" => $rs->fields['type'], 
 								"options" => $rs->fields['options'],
-								"required" => $rs->fields['required']);
+								"required" => $rs->fields['required'],
+								"ord" => $rs->fields['ord']);
                 $rs->MoveNext();
             }
         }
@@ -174,31 +177,58 @@ class Incident_type {
             exit;
         }
     }
-	
-	 function update_custom($conn, $custom_name, $custom_type, $custom_options, $custom_required,  $inctype_id, $custom_old_name) {
+	function update_custom($conn, $custom_name, $custom_type, $custom_options, $custom_required,  $inctype_id, $custom_old_name) {
     	
-	        $sql = "UPDATE incident_custom_types SET name= ?, type= ?, options= ?, required=? WHERE id = ? and name = ?";
-	        
-			$params = array(
-	           	$custom_name,
-				$custom_type, 
-				$custom_options, 
-				$custom_required,
-				$inctype_id,
-				$custom_old_name
-	        );
+        $sql = "UPDATE incident_custom_types SET name= ?, type= ?, options= ?, required=? WHERE id = ? and name = ?";
+		
+		$params = array(
+           	$custom_name,
+			$custom_type, 
+			$custom_options, 
+			$custom_required,
+			$inctype_id,
+			$custom_old_name
+        );
 			
 						
 		if ($conn->Execute($sql, $params) == false) {
             print '<div id="info_error" class="ct_error" style="display: block">Error updating: ' . $conn->ErrorMsg() . '<br/></div>';
             exit;
         }
-        $infolog = array($id);
-        Log_action::log(52, $infolog);
     }
-	
-	
-	
-
+	function update_ord($conn, $oldpos, $newpos, $inctype_id) {
+    	
+    	if ($oldpos<0) $oldpos=0; // safe check
+    	if ($newpos<0) $newpos=0;
+        $sql = "UPDATE incident_custom_types SET ord=-1 WHERE id = ? AND ord = ?";
+		if ($conn->Execute($sql, array($inctype_id,$newpos)) == false) {
+            print '<div id="info_error" class="ct_error" style="display: block">Error updating ord: ' . $conn->ErrorMsg() . '<br/></div>';
+            exit;
+        }        
+        $sql = "UPDATE incident_custom_types SET ord=? WHERE id = ? AND ord = ?";
+		if ($conn->Execute($sql, array($newpos,$inctype_id,$oldpos)) == false) {
+            print '<div id="info_error" class="ct_error" style="display: block">Error updating ord: ' . $conn->ErrorMsg() . '<br/></div>';
+            exit;
+        }        
+        $sql = "UPDATE incident_custom_types SET ord=? WHERE id = ? AND ord = -1";
+		if ($conn->Execute($sql, array($oldpos,$inctype_id)) == false) {
+            print '<div id="info_error" class="ct_error" style="display: block">Error updating ord: ' . $conn->ErrorMsg() . '<br/></div>';
+            exit;
+        }        
+    }
+	function get_next_ord($conn, $inctype_id) {
+    	
+		$query = OssimQuery("SELECT max(ord) as max FROM incident_custom_types WHERE id = ?");
+        if (!$rs = & $conn->Execute($query,array($inctype_id))) {
+            print '<div id="info_error" class="ct_error" style="display: block">Error get maximum order: ' . $conn->ErrorMsg() . '<br/></div>';
+            exit;
+        } else {
+            if (!$rs->EOF)
+            	$max = $rs->fields['max'] + 1;
+            else
+            	$max = 1;
+        }
+        return $max;
+    }
 }
 ?>

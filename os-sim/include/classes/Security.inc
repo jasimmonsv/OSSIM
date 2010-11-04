@@ -399,6 +399,35 @@ function ossim_error($error_msg = null) {
     return $ossim_warn->get('ERROR', array( $error ));
 }
 
+function validate_form_fields($type, $validate)
+{
+	$values = array();
+	$validation_errors = array();
+	
+	if ($type == 'POST')
+		$values = $_POST;
+	else if ($type == 'GET')
+		$values = $_GET;
+	else
+		return 1;
+			
+	foreach ($values as $k => $v)
+	{
+		$value =  eval("$type($k);");
+		ossim_valid($value, $validate[$k]['validation'], $validate[$k]['e_message']);
+		if ( ossim_error() )
+		{
+			$validation_errors[] = ossim_get_error_clean();
+			ossim_clean_error();
+		}
+	}
+	
+	return $validation_errors;
+
+}
+
+
+
 function valid_ip($ip) {
     if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
         return true;

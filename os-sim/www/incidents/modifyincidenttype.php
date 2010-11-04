@@ -60,30 +60,34 @@ $inctype_descr = POST('descr');
 $action = POST('modify');
 $custom = intval(POST('custom'));
 
-$custom_name = strtoupper(POST('custom_namef'));
-$custom_old_name = strtoupper(POST('old_name'));
-$custom_type = POST('custom_typef');
-$custom_options = strtoupper(POST('custom_optionsf'));
-$custom_required = strtoupper(POST('custom_requiredf'));
+$custom_name       = POST('custom_namef');
+$custom_old_name   = POST('old_name');
+$custom_type       = POST('custom_typef');
+$custom_options    = POST('custom_optionsf');
+$custom_required   = POST('custom_requiredf');
+$custom_oldpos     = POST('oldpos');
+$custom_newpos     = POST('newpos');
 
 if ( $action=="modify" )
 	;
 else if ( $action=="delete" )
-	ossim_valid($custom_name, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Custom field name"));
-else if ( $action=="add" ||  $action=="modify_ct")
+	ossim_valid($custom_name, OSS_ALPHA, OSS_SPACE, OSS_PUNC_EXT, OSS_SCORE, 'illegal:' . _("Custom field name"));
+else if ( $action=="add" ||  $action=="modify_ct" ||  $action=="modify_pos")
 {
-	ossim_valid($custom_name, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Custom field name"));
+	ossim_valid($custom_name, OSS_ALPHA, OSS_SPACE, OSS_PUNC_EXT, OSS_SCORE, 'illegal:' . _("Custom field name"));
 	ossim_valid($custom_type, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Custom field type"));
-	ossim_valid($custom_options, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SCORE,  OSS_NULLABLE, OSS_NL, ";", 'illegal:' . _("Custom field options"));
+	ossim_valid($custom_options, OSS_ALPHA, OSS_SPACE, OSS_PUNC_EXT, OSS_SCORE,  OSS_NULLABLE, OSS_NL, ";", 'illegal:' . _("Custom field options"));
 	ossim_valid($custom_required, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Required Field"));
+	ossim_valid($custom_oldpos, OSS_DIGIT, 'illegal:' . _("Custom old position"));
+	ossim_valid($custom_newpos, OSS_DIGIT, 'illegal:' . _("Custom new position"));
 	if ( $action=="modify_ct" )
-		ossim_valid($custom_old_name, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Custom field name"));
+		ossim_valid($custom_old_name, OSS_ALPHA, OSS_SPACE, OSS_PUNC_EXT, OSS_SCORE, 'illegal:' . _("Custom field name"));
 }
 else
 	die(ossim_error('illegal:' . _("action")));
 
 
-ossim_valid($inctype_descr, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, 'illegal:' . _("Description"));
+ossim_valid($inctype_descr, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC_EXT, OSS_AT, 'illegal:' . _("Description"));
 ossim_valid($inctype_id, OSS_ALPHA, OSS_SPACE, OSS_PUNC, 'illegal:' . _("id"));
 ossim_valid($action, OSS_ALPHA, OSS_SCORE, 'illegal:' . _("action"));
 
@@ -100,6 +104,9 @@ require_once ('classes/Incident_type.inc');
 $db = new ossim_db();
 $conn = $db->connect();
 
+$custom_name = htmlentities($custom_name, ENT_QUOTES);
+$custom_old_name = htmlentities($custom_old_name, ENT_QUOTES);
+
 if ($action=="modify") 
 {
 	Incident_type::update($conn, $inctype_id, $inctype_descr,(($custom==1) ? "custom" : ""));
@@ -110,11 +117,17 @@ elseif ($action=="modify_ct")
 	Incident_type::update_custom($conn, $custom_name, $custom_type, $custom_options, $custom_required, $inctype_id, $custom_old_name);
 	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
 }
+elseif ($action=="modify_pos") 
+{
+	Incident_type::update_ord($conn, $custom_oldpos, $custom_newpos, $inctype_id, $custom_old_name);
+	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
+}
 elseif ($action=="add" && trim($custom_name)!="" && trim($custom_type)!="") 
 {
 	if ( (in_array($custom_type, $options) && $custom_options !='' ) || !in_array($custom_type, $options) )
 	{
-		$params = array($inctype_id, $custom_name, $custom_type, $custom_options, $custom_required);
+		$next_ord = Incident_type::get_next_ord($conn, $inctype_id);
+		$params = array($inctype_id, $custom_name, $custom_type, $custom_options, $custom_required, $next_ord);
 		Incident_type::insert_custom($conn, $params);
 		$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
 	}
