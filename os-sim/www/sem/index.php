@@ -1102,7 +1102,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 		<td align='left' style="padding-right:10px">
 		<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#rservers').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Remote Servers")?></a>
 			<div style="position:relative; z-index:1">
-			<div id="rservers" style="position:absolute;left:0;top:0;display:none;border:1px solid gray;background-color:#EEEEEE">
+			<div id="rservers" style="position:absolute;right:0;top:0;display:none;border:1px solid gray;background-color:#EEEEEE">
 				<table border=0 cellpadding=1 cellspacing=2 width="100%">
 				<?php
 				$i = 0;
