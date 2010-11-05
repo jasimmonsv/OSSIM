@@ -58,6 +58,7 @@ if ($argv[1] != "") {
 	$cat = $_SESSION["cat"];
 }
 $range = "";
+$remote_data = array();
 
 // REMOTE GRAPH MERGE
 if ($_GET['ips'] != "") {
@@ -282,6 +283,7 @@ a:hover { text-decoration: underline; }
 	<?php } else { ?>
 	var links = []; <? foreach ($chart['chart_data'][0] as $i => $tick) echo "    links[".$i."] = '$tick';\n"; ?>
 	<?php } ?>
+
     function showTooltip(x, y, row, col, contents) {
         var year_str = "";
 		if (links[row].match(/..., \d\d\d\d/)) {
