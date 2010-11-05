@@ -69,7 +69,7 @@ foreach ($database_servers as $db) {
 	$ip = $db->get_ip();
 	$ip_to_name[$ip] = $name;
 }
-$fcolors = array("f7fbef","dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
+$fcolors = array("2c3816","dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
 $bcolors = array("addf53","5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
 $logger_servers = array();
 $ip_list = "";

@@ -95,7 +95,7 @@ if ($user == "") $user = $_SESSION["_user"];
 if ($cmd != "") {
 	if ($ip_list != "") {
 		$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote_pies.pl",$cmd);
-		echo "$cmd $user $ip_list";exit;
+		//echo "$cmd $user $ip_list";exit;
 		$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
 		
 		$string = trim($result[0]);
