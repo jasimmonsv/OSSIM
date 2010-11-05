@@ -47,8 +47,8 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 require_once "ossim_conf.inc";
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
-if (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) {
-	echo "<html><body><a href='http://www.alienvault.com/information.php?interest=ProfessionalSIEM' target='_blank' title='Proffesional SIEM'><img src='../pixmaps/sem_pro.png' border=0></a></body></tml>";
+if (!preg_match("/pro|demo/i",$version)) {
+	echo "<html><body><a href='http://www.alienvault.com/information.php?interest=ProfessionalSIEM' target='_blank' title='Profesional SIEM'><img src='../pixmaps/sem_pro.png' border=0></a></body></tml>";
 	exit;
 }
 $db_aux = new ossim_db();
@@ -69,8 +69,8 @@ foreach ($database_servers as $db) {
 	$ip = $db->get_ip();
 	$ip_to_name[$ip] = $name;
 }
-$fcolors = array("dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
-$bcolors = array("5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
+$fcolors = array("f7fbef","dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
+$bcolors = array("addf53","5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
 $logger_servers = array();
 $ip_list = "";
 if (GET('num_servers') != "") {
@@ -355,10 +355,10 @@ function bold_dates(which_one){
 
 function display_info ( var1, var2, var3, var4, var5, var6 ){
 // Handle clicks on graphs
-	hideGraphs();
+	//hideGraphs();
 	var combined = var6 + "=" + var4;
 	SetSearch(combined);
-	hideLayer("by_date");
+	//hideLayer("by_date");
 }
 
 function is_operator (value) {
@@ -527,7 +527,7 @@ function getGraphs() {
 	});*/
 	document.getElementById('graphs_link').href = "javascript:hideGraphs();";
 	graphs_toggled = true;
-	document.getElementById('test').innerHTML = '<div id="testLoading"><img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading Stats, please a wait a few seconds...') ?></div>'+"<iframe src='pies.php' style='width:100%;height:460px;border: 1px solid rgb(170, 170, 170);overflow:hidden' frameborder='0'></iframe>";
+	document.getElementById('test').innerHTML = '<div id="testLoading"><img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading Stats, please a wait a few seconds...') ?></div>'+"<iframe src='pies.php?ips=<?php echo $ip_list ?>&uniqueid=<?php echo $uniqueid ?>' style='width:100%;height:460px;border: 1px solid rgb(170, 170, 170);overflow:hidden' frameborder='0'></iframe>";
 }
 function hideGraphs() {
 	document.getElementById('graphs_link').href = "javascript:getGraphs();";

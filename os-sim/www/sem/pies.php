@@ -56,10 +56,20 @@ require_once ('process.inc');
 <?
 $db = new ossim_db();
 $conn = $db->connect();
-$a = $_SESSION["forensic_query"];
-$start = $_SESSION["forensic_start"];
-$end = $_SESSION["forensic_end"];
-$uniqueid = $_GET["uniqueid"];
+//$a = $_SESSION["forensic_query"];
+$ip_list = "";
+if ($argv[1] != "") {
+	$start = $argv[1];
+	$end = $argv[2];
+	$uniqueid = $argv[3];
+	$user = $argv[4];
+	$only_json = 1;
+} else {
+	$start = $_SESSION["forensic_start"];
+	$end = $_SESSION["forensic_end"];
+	$uniqueid = $_GET["uniqueid"];
+	$ip_list = $_GET['ips'];
+}
 
 $sensors = array();
 $event_type = array();
@@ -67,73 +77,84 @@ $ips_src = array();
 $ips_dst = array();
 
 ossim_valid($uniqueid, OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, OSS_DOT, 'illegal:' . _("uniqueid"));
+ossim_valid($ip_list, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("ip_list"));
 if (ossim_error()) {
     die(ossim_error());
 }
 
 $cmd = process($a, $start, $end, $offset, $sort_order, "all", $uniqueid);
-$user = $_SESSION["_user"];
+if ($user == "") $user = $_SESSION["_user"];
 
 if ($cmd != "") {
-    $status = exec("$cmd $user 2>/dev/null", $result);
-	foreach($result as $res) {
-        if(preg_match("/^\s+(\S+)\s+(\d+)\s+(\S+)/", $res, $matches)) {
-            //sensors
-            if($matches[1]=="sensor"){
-                $query = "select name from sensor where ip = \"" . $matches[3] . "\"";
-                if (!$rs = & $conn->Execute($query)) {
-                    print $conn->ErrorMsg();
-                    exit();
-                }
-                if ($rs->fields["name"] != "" && $rs->fields["name"] != $matches[3]) {
-                    $sensors[$rs->fields["name"]." (".$matches[3].") [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
-                } else {
-                    $sensors[$matches[3]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
-                }
-            }
-            //Events types
-            if($matches[1]=="plugin_id") {
-                $query = "select name from plugin where id = \"" . $matches[3] . "\"";
-                if (!$rs = & $conn->Execute($query)) {
-                    print $conn->ErrorMsg();
-                    exit();
-                }
-                if ($rs->fields["name"] != "") {
-                    $event_type[$rs->fields["name"]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
-                }
-                else {
-                    $event_type[$matches[3]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
-                }
-            }
-            // sources
-            if($matches[1]=="src_ip") {
-                $query = "select hostname from host where ip = \"" . $matches[3] . "\"";
-                if (!$rs = & $conn->Execute($query)) {
-                    print $conn->ErrorMsg();
-                    exit();
-                }
-                if ($rs->fields["hostname"] != "" && $rs->fields["hostname"] != $matches[3]) {
-                    $ips_src[$rs->fields["hostname"]." (".$matches[3].") [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
-                }
-                else {
-                    $ips_src[$matches[3]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
-                }
-            }
-            // destinations
-            if($matches[1]=="dst_ip") {
-                $query = "select hostname from host where ip = \"" . $matches[3] . "\"";
-                if (!$rs = & $conn->Execute($query)) {
-                    print $conn->ErrorMsg();
-                    exit();
-                }
-                if ($rs->fields["hostname"] != "" && $rs->fields["hostname"] != $matches[3]) {
-                    $ips_dst[$rs->fields["hostname"]." (".$matches[3].") [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
-                }
-                else {
-                    $ips_dst[$matches[3]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
-                }
-            }
-        }
+	if ($ip_list != "") {
+		$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote_pies.pl",$cmd);
+		$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
+	} else {
+	    $status = exec("$cmd $user 2>/dev/null", $result);
+	    foreach($result as $res) {
+	        if(preg_match("/^\s+(\S+)\s+(\d+)\s+(\S+)/", $res, $matches)) {
+	            //sensors
+	            if($matches[1]=="sensor"){
+	                $query = "select name from sensor where ip = \"" . $matches[3] . "\"";
+	                if (!$rs = & $conn->Execute($query)) {
+	                    print $conn->ErrorMsg();
+	                    exit();
+	                }
+	                if ($rs->fields["name"] != "" && $rs->fields["name"] != $matches[3]) {
+	                    $sensors[$rs->fields["name"]." (".$matches[3].") [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
+	                } else {
+	                    $sensors[$matches[3]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
+	                }
+	            }
+	            //Events types
+	            if($matches[1]=="plugin_id") {
+	                $query = "select name from plugin where id = \"" . $matches[3] . "\"";
+	                if (!$rs = & $conn->Execute($query)) {
+	                    print $conn->ErrorMsg();
+	                    exit();
+	                }
+	                if ($rs->fields["name"] != "") {
+	                    $event_type[$rs->fields["name"]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
+	                }
+	                else {
+	                    $event_type[$matches[3]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
+	                }
+	            }
+	            // sources
+	            if($matches[1]=="src_ip") {
+	                $query = "select hostname from host where ip = \"" . $matches[3] . "\"";
+	                if (!$rs = & $conn->Execute($query)) {
+	                    print $conn->ErrorMsg();
+	                    exit();
+	                }
+	                if ($rs->fields["hostname"] != "" && $rs->fields["hostname"] != $matches[3]) {
+	                    $ips_src[$rs->fields["hostname"]." (".$matches[3].") [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
+	                }
+	                else {
+	                    $ips_src[$matches[3]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
+	                }
+	            }
+	            // destinations
+	            if($matches[1]=="dst_ip") {
+	                $query = "select hostname from host where ip = \"" . $matches[3] . "\"";
+	                if (!$rs = & $conn->Execute($query)) {
+	                    print $conn->ErrorMsg();
+	                    exit();
+	                }
+	                if ($rs->fields["hostname"] != "" && $rs->fields["hostname"] != $matches[3]) {
+	                    $ips_dst[$rs->fields["hostname"]." (".$matches[3].") [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
+	                }
+	                else {
+	                    $ips_dst[$matches[3]." [".Util::number_format_locale($matches[2],0)."]"] = $matches[2];
+	                }
+	            }
+	        }
+	    }
+    }
+    if ($only_json) {
+    	$json = array('sensors' => $sensors, 'event_type' => $event_type, 'ips_src' => $ips_src, 'ips_dst' => $ips_dst);
+		echo json_encode($json);
+		exit;
     }
 ?>
 <style>
@@ -227,7 +248,7 @@ div.legend td a { padding:0px; margin:0px; line-height:11px; }
 		<? if (count($event_type) > 0) { ?>
     		$.plot($("#event_type_pie"), [
 		<? $i=0;foreach ($event_type as $key => $value){ ?>
-			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=preg_replace("/\s+\[.*/","",$key)?>','','plugin_id')\"><?=$key?></a>",  data: <?=$value?>}
+			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=preg_replace("/\s+\[.*/","",$key)?>','','plugin')\"><?=$key?></a>",  data: <?=$value?>}
 		<? } ?>
 		], 
 		{
@@ -260,7 +281,7 @@ div.legend td a { padding:0px; margin:0px; line-height:11px; }
 		<? if (count($ips_src) > 0) { ?>
     		$.plot($("#sources_pie"), [
 		<? $i=0;foreach ($ips_src as $key => $value){ preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
-			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','src_ip')\"><?=$key?></a>",  data: <?=$value?>}
+			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','source')\"><?=$key?></a>",  data: <?=$value?>}
 		<? } ?>
 		], 
 		{
@@ -293,7 +314,7 @@ div.legend td a { padding:0px; margin:0px; line-height:11px; }
 		<? if (count($ips_dst) > 0) { ?>
     		$.plot($("#destinations_pie"), [
 		<? $i=0;foreach ($ips_dst as $key => $value){ preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
-			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','dst_ip')\"><?=$key?></a>",  data: <?=$value?>}
+			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','destination')\"><?=$key?></a>",  data: <?=$value?>}
 		<? } ?>
 		], 
 		{
