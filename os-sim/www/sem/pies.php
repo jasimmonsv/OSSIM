@@ -38,6 +38,7 @@ if ($argv[1] != "") {
 	$path_class = '/usr/share/ossim/include/:/usr/share/ossim/www/sem';
 	ini_set('include_path', $path_class);
 	$skip_logcheck = 1;
+	$only_json = 1;
 }
 require_once ('ossim_db.inc');
 require_once ('classes/Alarm.inc');
@@ -47,6 +48,7 @@ require_once ('classes/Session.inc');
 if ($argv[1] == "") Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ('../graphs/charts.php');
 require_once ('process.inc');
+if (!$only_json) {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="">
@@ -59,6 +61,7 @@ require_once ('process.inc');
 </head>
 <body scroll="no" style="background:url(../pixmaps/fondo_hdr2.png) repeat-x" onLoad="parent.document.getElementById('testLoading').style.display='none'">
 <?
+}
 $db = new ossim_db();
 $conn = $db->connect();
 //$a = $_SESSION["forensic_query"];
@@ -68,7 +71,6 @@ if ($argv[1] != "") {
 	$end = $argv[2];
 	$uniqueid = $argv[3];
 	$user = $argv[4];
-	$only_json = 1;
 } else {
 	$start = $_SESSION["forensic_start"];
 	$end = $_SESSION["forensic_end"];
@@ -94,7 +96,7 @@ if ($cmd != "") {
 	if ($ip_list != "") {
 		$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote_pies.pl",$cmd);
 		echo "$cmd $user $ip_list";exit;
-		//$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
+		$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
 	} else {
 	    $status = exec("$cmd $user 2>/dev/null", $result);
 	    foreach($result as $res) {
