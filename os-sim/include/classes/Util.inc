@@ -685,7 +685,8 @@ class Util {
         return (Util::is_utf8($string)) ? $string : utf8_encode($string);
     }
     function is_utf8($str) {
-        $c=0; $b=0;
+        return (mb_detect_encoding($str)=="UTF-8") ? true : false;
+       /* $c=0; $b=0;
         $bits=0;
         $len=strlen($str);
         for($i=0; $i<$len; $i++){
@@ -707,7 +708,7 @@ class Util {
                 }
             }
         }
-        return true;
+        return true;*/
     } 
 }
 ?>
