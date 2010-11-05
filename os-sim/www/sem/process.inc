@@ -37,7 +37,7 @@
 * Classes list:
 */
 require_once 'classes/Session.inc';
-Session::logcheck("MenuEvents", "ControlPanelSEM");
+if (!$skip_logcheck) Session::logcheck("MenuEvents", "ControlPanelSEM");
 function get_lines($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17 00:00:02", $offset = 0, $sort_order = "date", $what = "logs", $uniqueid = "0000000000") {
     $cmd = "";
     $a = escapeshellarg($a);
