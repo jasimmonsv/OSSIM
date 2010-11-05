@@ -337,7 +337,19 @@ ul.tagit input[type="text"] {
 	color:#333333;
 	font-size:13px;
 }
+.ytooltip {
+        text-align:left;
+        position: absolute;
+        padding: 5px;
+        z-index: 10; 
 
+        color: #303030;
+        background-color: #f5f5b5;
+        border: 1px solid #DCEFB3;
+
+        font-family: arial;
+        font-size: 11px;   
+}
 </style>
 
 <script>
@@ -381,6 +393,13 @@ function SetFromIframe(content,str,start,end,sort) {
             onBeforeShow: function() {
                     var ip = this.getParent().attr('ip');
                     this.load('../control_panel/alarm_netlookup.php?ip=' + ip);
+            }
+    });
+    $(".scriptinfotxt").simpletip({
+            position: 'right',
+            baseClass: 'ytooltip',
+            onBeforeShow: function() {
+                    this.update(this.getParent().attr('txt'));
             }
     });
 }

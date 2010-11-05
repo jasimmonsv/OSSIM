@@ -395,7 +395,7 @@ $htmlResult=true;
 
 foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
-	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='[^']+'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
+	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
 		$lf = explode(";", $res);
         $logfile = urlencode($lf[count($lf)-2]);
         $current_server = urlencode($lf[count($lf)-1]);
@@ -411,8 +411,8 @@ foreach($result as $res=>$event_date) {
 	    $res = str_replace(">", "", $res);
     
         if($htmlResult){
-            $data = $matches[10];
-            $signature = $matches[12];
+            $data = $matches[11];
+            $signature = $matches[13];
             $query = "select name from plugin where id = " . intval($matches[4]);
             if (!$rs = & $conn->Execute($query)) {
                 print $conn->ErrorMsg();
@@ -431,6 +431,8 @@ foreach($result as $res=>$event_date) {
         }
         // para coger
         $date = $matches[2];
+        $tzone = $matches[10];
+        if ($tzone!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(-3600*$tzone));        
         // fin para coger
         if($htmlResult){
             $sensor = $matches[5];
@@ -469,7 +471,13 @@ foreach($result as $res=>$event_date) {
             if ($from_remote) {
             	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$server_bcolor[$current_server].";color:#".$server_fcolor[$current_server]."'>$current_server</td></tr></table></td>";
             }
-            $line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($matches[2]) . "</td>";
+            
+            if ($matches[2]==$date)
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($date) . "</td>";
+			else
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Sensor date").": ". htmlspecialchars($matches[2]) . "' class='scriptinfotxt' style='text-decoration:none'>" . htmlspecialchars($date) . "</a></td>";
+			
+
             //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin=' + this.innerHTML)\"\">$plugin</span></td>";
        		$line.= "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('<b>plugin</b>=' + this.innerHTML)\"\">$plugin</a></td>";
             $line.="<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'>";
@@ -492,7 +500,7 @@ foreach($result as $res=>$event_date) {
                 $alt = 1;
             }
             $verified = - 1;
-            $data = $matches[10];
+            $data = $matches[11];
             if ($signature != '') {
                 $sig_dec = base64_decode($signature);
                 $pub_key = openssl_get_publickey($config["pubkey"]); // openssl_pkey_get_public
@@ -507,10 +515,10 @@ foreach($result as $res=>$event_date) {
         // fin para coger
         // change ,\s* or #\s* adding blank space to force html break line
         // para coger
-        $matches[10] = preg_replace("/(\,|\#)\s*/", "\\1 ", $matches[10]);
+        $matches[11] = preg_replace("/(\,|\#)\s*/", "\\1 ", $matches[11]);
         // fin para coger
         if($htmlResult){
-		foreach(split("[\| \t;:]", $matches[10]) as $piece) {
+		foreach(split("[\| \t;:]", $matches[11]) as $piece) {
                     $clean_piece = str_replace("(", " ", $piece);
                     $clean_piece = str_replace(")", " ", $clean_piece);
                     $clean_piece = str_replace("[", " ", $clean_piece);
@@ -541,7 +549,7 @@ foreach($result as $res=>$event_date) {
                 }
         }
         // para coger
-		$data_out = $matches[10];
+		$data_out = $matches[11];
         // fin para coger
         if($htmlResult){
             $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="validate.php?log=' . urlencode($encoded_data) . '&start=' . $start . '&end=' . $end . '&logfile=' . $logfile . '&signature=' . urlencode($signature) . '"  class="thickbox" rel="AjaxGroup" onclick="GB_show(\''._("Validate signature").'\',this.href,300,600);return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';

@@ -106,7 +106,7 @@ foreach my $file (@files) {
 			#if ($grep_str eq "") {
 			if ($filter eq "") {
 				# calc jump row
-				$jumprow = 1;
+				$jumprow = 0; # forced, must be = 1
 				%timeline = ();
 				my $filet = $file; $filet =~ s/log(\.gz)?$/ind/;
 				if (-e $filet) {
@@ -142,7 +142,7 @@ foreach my $file (@files) {
 			LINE: while (<F>) {
 				next LINE if ($total_lines++<$jumprow);
 				#if (/ date='(\d+)' /i) {
-				if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='[^']+'+\s+data='([^']+)'(\s+sig='[^']*')?(\s+plugin_sid='[^']*')?/i) {
+				if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='[^']*')?(\s+plugin_sid='[^']*')?/i) {
 					$id = $1;
 					$currentdate = $3;
 					$plugin_id = $4;
@@ -151,13 +151,16 @@ foreach my $file (@files) {
 					$dst_ip = $7;
 					$src_port = $8;
 					$dst_port = $9;
-					$data = $10;
-					$sig = $11;
-					$plugin_sid = $12;
+					$tzone = $10;
+					$data = $11;
+					$sig = $12;
+					$plugin_sid = $13;
 					if ($sig =~ /plugin\_sid/) {
 						$plugin_sid = $sig; $sig = "";
 					}
 					$plugin_sid =~ s/\s*plugin\_sid\='(.+)'/$1/;
+					# applying tzone hours diff
+					$currentdate += (-3600 * $tzone);
 					
 					last LINE if ($reverse && $complete_lines>=$lines_threshold && $currentdate<$lastdate); # jump innecesary events
 					last LINE if (!$reverse && $complete_lines>=$lines_threshold && $currentdate>$lastdate); # jump innecesary events
