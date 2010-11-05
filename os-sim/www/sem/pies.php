@@ -34,12 +34,17 @@
 * Function list:
 * Classes list:
 */
+if ($argv[1] != "") {
+	$path_class = '/usr/share/ossim/include/:/usr/share/ossim/www/sem';
+	ini_set('include_path', $path_class);
+	$skip_logcheck = 1;
+}
 require_once ('ossim_db.inc');
 require_once ('classes/Alarm.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Session.inc');
-Session::logcheck("MenuEvents", "ControlPanelSEM");
+if ($argv[1] == "") Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ('../graphs/charts.php');
 require_once ('process.inc');
 ?>
@@ -88,7 +93,8 @@ if ($user == "") $user = $_SESSION["_user"];
 if ($cmd != "") {
 	if ($ip_list != "") {
 		$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote_pies.pl",$cmd);
-		$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
+		echo "$cmd $user $ip_list";exit;
+		//$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
 	} else {
 	    $status = exec("$cmd $user 2>/dev/null", $result);
 	    foreach($result as $res) {
