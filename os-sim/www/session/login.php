@@ -141,7 +141,7 @@ if (REQUEST('user')) {
         $bad_pass = true;
         if ($login_exists && !$is_disabled) {
         	$_SESSION['bad_pass'][$user]++;
-	        if ($_SESSION['bad_pass'][$user] > 6) {
+	        if ($_SESSION['bad_pass'][$user] > 6 && $user != ACL_DEFAULT_OSSIM_ADMIN) {
 	        	$disabled = true;
 	        	$session->login_disable();
 	        }
