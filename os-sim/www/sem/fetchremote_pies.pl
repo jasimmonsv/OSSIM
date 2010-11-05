@@ -41,7 +41,6 @@ $flag = 0;
 foreach $ip (@ips_arr) {
 	if ($ip == "127.0.0.1") {
 		$cmd = "php pies.php '$start' '$end' '$uniqueid' '$user'";
-		print $cmd;exit;
 	} else {
 		$cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;php pies.php '$start' '$end' '$uniqueid' '$user'\"";
 	}

@@ -97,6 +97,25 @@ if ($cmd != "") {
 		$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote_pies.pl",$cmd);
 		echo "$cmd $user $ip_list";exit;
 		$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
+		
+		$string = trim($result[0]);
+		$remote_data_aux = json_decode($string);
+		foreach ($remote_data_aux as $ip=>$arr) {
+			foreach ($arr as $type=>$type_data) {
+				foreach ($type_data as $key=>$val) {
+					$val = str_replace(",","",$val);
+					if ($type == "sensors") {
+						$sensors[$key] = ($sensors[$key] != "") ? $val : $val + $sensors[$key];
+					} elseif ($type == "event_type") {
+						$event_type[$key] = ($event_type[$key] != "") ? $val : $val + $event_type[$key];
+					} elseif ($type == "ips_src") {
+						$ips_src[$key] = ($ips_src[$key] != "") ? $val : $val + $ips_src[$key];
+					} elseif ($type == "ips_dst") {
+						$ips_dst[$key] = ($ips_dst[$key] != "") ? $val : $val + $ips_dst[$key];
+					}
+				}
+			}
+		}
 	} else {
 	    $status = exec("$cmd $user 2>/dev/null", $result);
 	    foreach($result as $res) {
