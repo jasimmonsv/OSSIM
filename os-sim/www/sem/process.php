@@ -56,6 +56,12 @@ function dateDiff($startDate, $endDate)
     // Return difference
     return round(($end_date - $start_date), 0);
 }
+function has_results($num_lines) {
+	foreach ($num_lines as $server=>$num) {
+		if ($num > 0) return 1;
+	}
+	return 0;
+}
 
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
@@ -585,9 +591,9 @@ if (is_dir("/var/ossim/logs/searches") && isset($export)) {
 	fclose ($loglist);
 }
 
-if ($num_lines == 0) {
-    print "<center><font style='color:red;font-size:14px'><br>"._("No Data Found Matching Your Criteria")."</center>";
-}
+if (!has_results($num_lines)) {
+    print "<center><font style='color:red;font-size:14px'><br>"._("No Data Found Matching Your Criteria")."</font></center>";
+} else {
 ?>
 <center>
 <?php if ($from_remote) { ?>
@@ -605,6 +611,7 @@ if ($num_lines == 0) {
 <?php } ?>
 </center>
 <br>
+<?php } ?>
 </div>
 </body>
 <script type="text/javascript">$("#pbar").progressBar(100);parent.SetFromIframe($("#processcontent").html(),"<?php echo $a ?>","<?php echo $start ?>","<?php echo $end ?>","<?php echo $sort_order ?>")</script>
