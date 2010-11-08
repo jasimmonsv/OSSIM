@@ -102,11 +102,9 @@ $threshold = $conf->get_conf("threshold");
 	</tr>
 
 	<tr>
-		<th> <?php echo gettext("Sensors"); ?> 
-			<a style="cursor:pointer; text-decoration: none;" class="sensor_info" txt="<div style='width: 150px; white-space: normal; font-weight: normal;'>Define which sensors has visibility of this host</div>">
-			<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/>
-			</a><br/>
-			<span><a href="../sensor/newsensorform.php"><?php echo gettext("Insert new sensor"); ?> ?</a></span>
+		<th> 
+			<?php echo gettext("Networks"); ?> <br/>
+			<span><a href="newnetform.php"> <?php echo gettext("Insert new network"); ?> ?</a></span>
 		</th>
 		<td class="left">
 			<?php
