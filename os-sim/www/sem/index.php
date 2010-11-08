@@ -150,7 +150,7 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
 
-<script type="text/javascript" src="jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 <script type="text/javascript" src="../js/greybox.js"></script>
 <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
@@ -296,8 +296,8 @@ ul.tagit li {
 	margin:2px 5px 2px 5px;
 }
 ul.tagit li.tagit-choice {
-	background-color:#D3E7AF;
-	border:1px solid #ADDF53;
+	background-color:#eeeeee;
+	border:1px solid #dddddd;
 	padding:2px 4px 3px;
 	font-size:13px;
 }
@@ -330,13 +330,17 @@ ul.tagit input[type="text"] {
 	border:none;
 	margin:0;
 	padding:0;
-	width:200px;
+	width:150px;
 	height:24px;
 	border-color:#C6C6C6;
 	background-color:#FFFFFF;
 	color:#333333;
 	font-size:13px;
 }
+ul.tagit input.tagit-hidden {
+	width:5px;
+}
+
 .ytooltip {
         text-align:left;
         position: absolute;
@@ -367,7 +371,7 @@ function bold_dates(which_one){
 
 function display_info ( var1, var2, var3, var4, var5, var6 ){
 // Handle clicks on graphs
-	//hideGraphs();
+	hideGraphs();
 	var combined = var6 + "=" + var4;
 	SetSearch(combined);
 	//hideLayer("by_date");
@@ -546,7 +550,8 @@ function getGraphs() {
 	});*/
 	document.getElementById('graphs_link').href = "javascript:hideGraphs();";
 	graphs_toggled = true;
-	document.getElementById('test').innerHTML = '<div id="testLoading"><img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading Stats, please a wait a few seconds...') ?></div>'+"<iframe src='pies.php?ips=<?php echo $ip_list ?>&uniqueid=<?php echo $uniqueid ?>' style='width:100%;height:460px;border: 1px solid rgb(170, 170, 170);overflow:hidden' frameborder='0'></iframe>";
+	//document.getElementById('test').innerHTML = '<div id="testLoading"><img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading Stats, please a wait a few seconds...') ?></div>'+"<iframe src='pies.php?ips=<?php echo $ip_list ?>&uniqueid=<?php echo $uniqueid ?>' style='width:100%;height:460px;border: 1px solid rgb(170, 170, 170);overflow:hidden' frameborder='0'></iframe>";
+	document.getElementById('test').innerHTML = "<iframe src='pies.php?ips=<?php echo $ip_list ?>&uniqueid=<?php echo $uniqueid ?>' style='width:100%;height:460px;border: 1px solid rgb(170, 170, 170);overflow:hidden' frameborder='0'></iframe>";
 }
 function hideGraphs() {
 	document.getElementById('graphs_link').href = "javascript:getGraphs();";
@@ -626,9 +631,9 @@ function SetSearch(content)
 		}
 	}
 	window.scrollTo(0,0);
-	$('#tip_msg').show();
-	setTimeout("$('#tip_msg').fadeOut('slow');",2000);
-	//MakeRequest();
+	//$('#tip_msg').show();
+	//setTimeout("$('#tip_msg').fadeOut('slow');",2000);
+	MakeRequest();
 }
 
 function ReplaceSearch(content)
@@ -995,6 +1000,7 @@ $(document).ready(function(){
 	list($sensors, $hosts) = Host::get_ips_and_hostname($conn_aux);
 	?>
 	$("#mytags").tagit({
+		changeFunction: function() { MakeRequest(); },
 		availableTags: ["data"<?php foreach ($sensors as $ip=>$name) { ?>, "sensor:<?php echo $name?>"<?php } ?><?php $top = 0; foreach ($hosts as $ip=>$name) if ($top < 20) { ?>, "source:<?php echo $name?>", "destination:<?php echo $name ?>"<?php $top++; } ?>]
 	});
 

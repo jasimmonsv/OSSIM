@@ -12,15 +12,21 @@ $what = $ARGV[0];
 $start = $ARGV[1];
 $end = $ARGV[2];
 $debug = 1 if ($ARGV[3] eq "debug");
-
 %already = ();
 %stats = ();
+$searchingdate1 = "";
+$searchingdate2 = "";
 while ($file=<STDIN>) {
 	chomp($file);
 	my @fields = split(/\//,$file);
 	my $sdirtime = timegm(0, 0, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
 	my $edirtime = timegm(59, 59, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
 	if ($edirtime > $start && $sdirtime < $end) {
+		$searchingdate1 = $fields[4].$fields[5].$fields[6];
+		if ($searchingdate1 ne $searchingdate2) {
+			print "Searching in $searchingdate1\n";
+			$searchingdate2 = $searchingdate1;
+		}
 		$sf = dirname($file);
 		#$sf =~ s/\/((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$//;
 		$sf .= "/data.stats";

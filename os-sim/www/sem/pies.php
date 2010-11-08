@@ -34,11 +34,25 @@
 * Function list:
 * Classes list:
 */
+ob_implicit_flush();
 if ($argv[1] != "") {
 	$path_class = '/usr/share/ossim/include/:/usr/share/ossim/www/sem';
 	ini_set('include_path', $path_class);
 	$skip_logcheck = 1;
 	$only_json = 1;
+}
+function dateDiff($startDate, $endDate)
+{
+    // Parse dates for conversion
+    $startArry = date_parse($startDate);
+    $endArry = date_parse($endDate);
+
+    // Convert dates to Julian Days
+    $start_date = gregoriantojd($startArry["month"], $startArry["day"], $startArry["year"]);
+    $end_date = gregoriantojd($endArry["month"], $endArry["day"], $endArry["year"]);
+
+    // Return difference
+    return round(($end_date - $start_date), 0);
 }
 require_once ('ossim_db.inc');
 require_once ('classes/Alarm.inc');
@@ -48,6 +62,7 @@ require_once ('classes/Session.inc');
 if ($argv[1] == "") Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ('../graphs/charts.php');
 require_once ('process.inc');
+
 if (!$only_json) {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -55,13 +70,57 @@ if (!$only_json) {
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 <link rel="stylesheet" href="../forensics/styles/ossim_style.css">
-<script type="text/javascript" src="jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
 <script type="text/javascript" src="../js/jquery.flot.pie.js"></script>
-</head>
-<body scroll="no" style="background:url(../pixmaps/fondo_hdr2.png) repeat-x" onLoad="parent.document.getElementById('testLoading').style.display='none'">
-<?
+<script type="text/javascript" src="../js/jquery.progressbar.min.js"></script>
+<style type="text/css">
+.pieLabel div{
+	font-size: 10px;
+	border: 1px solid gray;
+	background: #f2f2f2;
+	padding: 1px;
+	text-align: center;
 }
+.legendColorBox { border:0 none; }
+.legendLabel { border:0 none; }
+div.legend { text-align:left; }
+div.legend table { border:0 none; padding-left:5px; }
+div.legend td { text-align:left; font-size:11px; padding:1px; line-height:11px; }
+div.legend td a { padding:0px; margin:0px; line-height:11px; }
+
+.level11  {  background:url(../pixmaps/statusbar/level11.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level10  {  background:url(../pixmaps/statusbar/level10.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level9  {  background:url(../pixmaps/statusbar/level9.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level8  {  background:url(../pixmaps/statusbar/level8.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level7  {  background:url(../pixmaps/statusbar/level7.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level6  {  background:url(../pixmaps/statusbar/level6.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level5  {  background:url(../pixmaps/statusbar/level5.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level4  {  background:url(../pixmaps/statusbar/level4.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level3  {  background:url(../pixmaps/statusbar/level3.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level2  {  background:url(../pixmaps/statusbar/level2.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level1  {  background:url(../pixmaps/statusbar/level1.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+.level0  {  background:url(../pixmaps/statusbar/level0.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
+</style>
+</head>
+<body scroll="no" style="background:url(../pixmaps/fondo_hdr2.png) repeat-x">
+<div id="loading" style="position:absolute;top:50;left:30%">
+	<table class="noborder" style="background-color:white">
+		<tr>
+			<td class="nobborder" style="text-align:center">
+				<span class="progressBar" id="pbar"></span>
+			</td>
+			<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$("#pbar").progressBar();
+	$("#pbar").progressBar(1);
+</script>
+<?php
+}
+
 $db = new ossim_db();
 $conn = $db->connect();
 //$a = $_SESSION["forensic_query"];
@@ -71,11 +130,14 @@ if ($argv[1] != "") {
 	$end = $argv[2];
 	$uniqueid = $argv[3];
 	$user = $argv[4];
+	$num_servers = 1;
 } else {
 	$start = $_SESSION["forensic_start"];
 	$end = $_SESSION["forensic_end"];
 	$uniqueid = $_GET["uniqueid"];
 	$ip_list = $_GET['ips'];
+	$ip_arr = explode(",",$ip_list);
+	$num_servers = count($ip_arr);
 }
 
 $sensors = array();
@@ -91,6 +153,13 @@ if (ossim_error()) {
 
 $cmd = process($a, $start, $end, $offset, $sort_order, "all", $uniqueid);
 if ($user == "") $user = $_SESSION["_user"];
+
+$perc = 1;
+$ndays = dateDiff($start,$end);
+if ($ndays < 1) $ndays = 1;
+if ($num_servers < 1) $num_servers = 1;
+if ($ndays < 1) $ndays = 1;
+$inc = 100/($ndays*$num_servers);
 
 if ($cmd != "") {
 	if ($ip_list != "") {
@@ -117,9 +186,20 @@ if ($cmd != "") {
 			}
 		}
 	} else {
-	    $status = exec("$cmd $user 2>/dev/null", $result);
-	    foreach($result as $res) {
-	        if(preg_match("/^\s+(\S+)\s+(\d+)\s+(\S+)/", $res, $matches)) {
+	    //echo "$cmd $user"; exit;
+		//$status = exec("$cmd $user 2>/dev/null", $result);
+		$fp = popen("$cmd $user 2>/dev/null", "r");
+	    while (!feof($fp)) {
+    		$res = fgets($fp);
+			if (preg_match("/^Searching in (\d\d\d\d\d\d\d\d)/",$res,$found)) {
+		    	ob_flush();
+				flush();
+				$sdate = date("d F Y",strtotime($found[1]));
+		    	?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
+		    	$perc += $inc;
+		    	if ($perc > 100) $perc = 100;
+		    }
+	        elseif(preg_match("/^\s+(\S+)\s+(\d+)\s+(\S+)/", $res, $matches)) {
 	            //sensors
 	            if($matches[1]=="sensor"){
 	                $query = "select name from sensor where ip = \"" . $matches[3] . "\"";
@@ -181,25 +261,12 @@ if ($cmd != "") {
     if ($only_json) {
     	$json = array('sensors' => $sensors, 'event_type' => $event_type, 'ips_src' => $ips_src, 'ips_dst' => $ips_dst);
 		echo json_encode($json);
+		ob_end_flush();
 		exit;
     }
-?>
-<style>
-.pieLabel div{
-	font-size: 10px;
-	border: 1px solid gray;
-	background: #f2f2f2;
-	padding: 1px;
-	text-align: center;
 }
-.legendColorBox { border:0 none; }
-.legendLabel { border:0 none; }
-div.legend { text-align:left; }
-div.legend table { border:0 none; padding-left:5px; }
-div.legend td { text-align:left; font-size:11px; padding:1px; line-height:11px; }
-div.legend td a { padding:0px; margin:0px; line-height:11px; }
-</style>
-
+?>
+<div id="processcontent" style="display:none">
 <table cellpadding=0 cellspacing=0 width="100%" align="center" class="noborder">
 <tr height="36">
     <td style="border-left: 1px solid rgb(170, 170, 170);border-top: 1px solid rgb(170, 170, 170);border-right: 1px solid rgb(170, 170, 170); border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;text-align:center;" width="130"><?= _("Sensors");?></td>
@@ -236,151 +303,148 @@ div.legend td a { padding:0px; margin:0px; line-height:11px; }
 	</td>
 </tr>
 </tr></table>
-<script>
-	
-	$(function () {
-		<? if (count($sensors) > 0) { ?>
-		$.plot($("#sensors_pie"), [
-		<? $i=0;foreach ($sensors as $key => $value){ ?>
-			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=preg_replace("/\s+\(.*|\s+\[.*/","",$key)?>','','sensor')\"><?=$key?></a>",  data: <?=$value?>}
-		<? } ?>
-		], 
-		{
-			pie: { 
-				show: true, 
-				pieStrokeLineWidth: 1, 
-				pieStrokeColor: '#FFF', 
-				//pieChartRadius: 80, 			// by default it calculated by 
-				//centerOffsetTop:15,
-				centerOffsetLeft:0, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
-				showLabel: true,				//use ".pieLabel div" to format looks of labels
-				labelOffsetFactor: 5/6, 		// part of radius (default 5/6)
-				//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
-				labelBackgroundOpacity: 0.55, 	// default is 0.85
-				labelFormatter: function(serie){// default formatter is "serie.label"
-					//return serie.label;
-					//return serie.data;
-					//return serie.label+'<br/>'+Math.round(serie.percent)+'%';
-					return Math.round(serie.percent)+'%';
-				}
-			},
-			colors: ["#E9967A","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222"],
-			legend: {
-				show: true, 
-				position: "b", 
-				backgroundOpacity: 0
-			}
-		});
-		<? } ?>
-		<? if (count($event_type) > 0) { ?>
-    		$.plot($("#event_type_pie"), [
-		<? $i=0;foreach ($event_type as $key => $value){ ?>
-			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=preg_replace("/\s+\[.*/","",$key)?>','','plugin')\"><?=$key?></a>",  data: <?=$value?>}
-		<? } ?>
-		], 
-		{
-			pie: { 
-				show: true, 
-				pieStrokeLineWidth: 1, 
-				pieStrokeColor: '#FFF', 
-				//pieChartRadius: 80, 			// by default it calculated by 
-				//centerOffsetTop:15,
-				centerOffsetLeft:0, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
-				showLabel: true,				//use ".pieLabel div" to format looks of labels
-				labelOffsetFactor: 5/6, 		// part of radius (default 5/6)
-				//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
-				labelBackgroundOpacity: 0.55, 	// default is 0.85
-				labelFormatter: function(serie){// default formatter is "serie.label"
-					//return serie.label;
-					//return serie.data;
-					//return serie.label+'<br/>'+Math.round(serie.percent)+'%';
-					return Math.round(serie.percent)+'%';
-				}
-			},
-			colors: ["#90EE90","#00FF7F","#7CFC00","#32CD32","#3CB371","#228B22","#006400"],
-			legend: {
-				show: true, 
-				position: "b", 
-				backgroundOpacity: 0
-			}
-		});
-		<? } ?>
-		<? if (count($ips_src) > 0) { ?>
-    		$.plot($("#sources_pie"), [
-		<? $i=0;foreach ($ips_src as $key => $value){ preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
-			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','source')\"><?=$key?></a>",  data: <?=$value?>}
-		<? } ?>
-		], 
-		{
-			pie: { 
-				show: true, 
-				pieStrokeLineWidth: 1, 
-				pieStrokeColor: '#FFF', 
-				//pieChartRadius: 80, 			// by default it calculated by 
-				//centerOffsetTop:15,
-				centerOffsetLeft:0, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
-				showLabel: true,				//use ".pieLabel div" to format looks of labels
-				labelOffsetFactor: 5/6, 		// part of radius (default 5/6)
-				//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
-				labelBackgroundOpacity: 0.55, 	// default is 0.85
-				labelFormatter: function(serie){// default formatter is "serie.label"
-					//return serie.label;
-					//return serie.data;
-					//return serie.label+'<br/>'+Math.round(serie.percent)+'%';
-					return Math.round(serie.percent)+'%';
-				}
-			},
-			colors: ["#ADD8E6","#00BFFF","#4169E1","#4682B4","#0000CD","#483D8B","#00008B"],
-			legend: {
-				show: true, 
-				position: "b", 
-				backgroundOpacity: 0
-			}
-		});
-		<? } ?>
-		<? if (count($ips_dst) > 0) { ?>
-    		$.plot($("#destinations_pie"), [
-		<? $i=0;foreach ($ips_dst as $key => $value){ preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
-			<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','destination')\"><?=$key?></a>",  data: <?=$value?>}
-		<? } ?>
-		], 
-		{
-			pie: { 
-				show: true, 
-				pieStrokeLineWidth: 1, 
-				pieStrokeColor: '#FFF', 
-				//pieChartRadius: 80, 			// by default it calculated by 
-				//centerOffsetTop:15,
-				centerOffsetLeft:0, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
-				showLabel: true,				//use ".pieLabel div" to format looks of labels
-				labelOffsetFactor: 5/6, 		// part of radius (default 5/6)
-				//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
-				labelBackgroundOpacity: 0.55, 	// default is 0.85
-				labelFormatter: function(serie){// default formatter is "serie.label"
-					//return serie.label;
-					//return serie.data;
-					//return serie.label+'<br/>'+Math.round(serie.percent)+'%';
-					return Math.round(serie.percent)+'%';
-				}
-			},
-			colors: ["#EEE8AA","#F0E68C","#FFD700","#FF8C00","#DAA520","#D2691E","#B8860B"],
-			legend: {
-				show: true, 
-				position: "b", 
-				backgroundOpacity: 0
-			}
-		});
-		<? } ?>
-	});
-	
-</script>
-<?
-//echo "<br><br>";
-//var_dump($sensors);
-//var_dump($event_type);
-//var_dump($ips_src);
-//var_dump($ips_dst);
-}
-?>
+</div>
 </body>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#loading").hide();
+	$("#processcontent").show();
+	
+	<? if (count($sensors) > 0) { ?>
+	$.plot($("#sensors_pie"), [
+	<? $i=0;foreach ($sensors as $key => $value){ ?>
+		<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=preg_replace("/\s+\(.*|\s+\[.*/","",$key)?>','','sensor')\"><?=$key?></a>",  data: <?=$value?>}
+	<? } ?>
+	], 
+	{
+		pie: { 
+			show: true, 
+			pieStrokeLineWidth: 1, 
+			pieStrokeColor: '#FFF', 
+			//pieChartRadius: 80, 			// by default it calculated by 
+			//centerOffsetTop:15,
+			centerOffsetLeft:0, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
+			showLabel: true,				//use ".pieLabel div" to format looks of labels
+			labelOffsetFactor: 5/6, 		// part of radius (default 5/6)
+			//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
+			labelBackgroundOpacity: 0.55, 	// default is 0.85
+			labelFormatter: function(serie){// default formatter is "serie.label"
+				//return serie.label;
+				//return serie.data;
+				//return serie.label+'<br/>'+Math.round(serie.percent)+'%';
+				return Math.round(serie.percent)+'%';
+			}
+		},
+		colors: ["#E9967A","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222"],
+		legend: {
+			show: true, 
+			position: "b", 
+			backgroundOpacity: 0
+		}
+	});
+	<? } ?>
+	<? if (count($event_type) > 0) { ?>
+		$.plot($("#event_type_pie"), [
+	<? $i=0;foreach ($event_type as $key => $value){ ?>
+		<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=preg_replace("/\s+\[.*/","",$key)?>','','plugin')\"><?=$key?></a>",  data: <?=$value?>}
+	<? } ?>
+	], 
+	{
+		pie: { 
+			show: true, 
+			pieStrokeLineWidth: 1, 
+			pieStrokeColor: '#FFF', 
+			//pieChartRadius: 80, 			// by default it calculated by 
+			//centerOffsetTop:15,
+			centerOffsetLeft:0, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
+			showLabel: true,				//use ".pieLabel div" to format looks of labels
+			labelOffsetFactor: 5/6, 		// part of radius (default 5/6)
+			//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
+			labelBackgroundOpacity: 0.55, 	// default is 0.85
+			labelFormatter: function(serie){// default formatter is "serie.label"
+				//return serie.label;
+				//return serie.data;
+				//return serie.label+'<br/>'+Math.round(serie.percent)+'%';
+				return Math.round(serie.percent)+'%';
+			}
+		},
+		colors: ["#90EE90","#00FF7F","#7CFC00","#32CD32","#3CB371","#228B22","#006400"],
+		legend: {
+			show: true, 
+			position: "b", 
+			backgroundOpacity: 0
+		}
+	});
+	<? } ?>
+	<? if (count($ips_src) > 0) { ?>
+		$.plot($("#sources_pie"), [
+	<? $i=0;foreach ($ips_src as $key => $value){ preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
+		<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','src')\"><?=$key?></a>",  data: <?=$value?>}
+	<? } ?>
+	], 
+	{
+		pie: { 
+			show: true, 
+			pieStrokeLineWidth: 1, 
+			pieStrokeColor: '#FFF', 
+			//pieChartRadius: 80, 			// by default it calculated by 
+			//centerOffsetTop:15,
+			centerOffsetLeft:0, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
+			showLabel: true,				//use ".pieLabel div" to format looks of labels
+			labelOffsetFactor: 5/6, 		// part of radius (default 5/6)
+			//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
+			labelBackgroundOpacity: 0.55, 	// default is 0.85
+			labelFormatter: function(serie){// default formatter is "serie.label"
+				//return serie.label;
+				//return serie.data;
+				//return serie.label+'<br/>'+Math.round(serie.percent)+'%';
+				return Math.round(serie.percent)+'%';
+			}
+		},
+		colors: ["#ADD8E6","#00BFFF","#4169E1","#4682B4","#0000CD","#483D8B","#00008B"],
+		legend: {
+			show: true, 
+			position: "b", 
+			backgroundOpacity: 0
+		}
+	});
+	<? } ?>
+	<? if (count($ips_dst) > 0) { ?>
+		$.plot($("#destinations_pie"), [
+	<? $i=0;foreach ($ips_dst as $key => $value){ preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
+		<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','dst')\"><?=$key?></a>",  data: <?=$value?>}
+	<? } ?>
+	], 
+	{
+		pie: { 
+			show: true, 
+			pieStrokeLineWidth: 1, 
+			pieStrokeColor: '#FFF', 
+			//pieChartRadius: 80, 			// by default it calculated by 
+			//centerOffsetTop:15,
+			centerOffsetLeft:0, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
+			showLabel: true,				//use ".pieLabel div" to format looks of labels
+			labelOffsetFactor: 5/6, 		// part of radius (default 5/6)
+			//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
+			labelBackgroundOpacity: 0.55, 	// default is 0.85
+			labelFormatter: function(serie){// default formatter is "serie.label"
+				//return serie.label;
+				//return serie.data;
+				//return serie.label+'<br/>'+Math.round(serie.percent)+'%';
+				return Math.round(serie.percent)+'%';
+			}
+		},
+		colors: ["#EEE8AA","#F0E68C","#FFD700","#FF8C00","#DAA520","#D2691E","#B8860B"],
+		legend: {
+			show: true, 
+			position: "b", 
+			backgroundOpacity: 0
+		}
+	});
+	<? } ?>
+});
+</script>
 </html>
+<?php 
+//ob_end_flush();
+?>

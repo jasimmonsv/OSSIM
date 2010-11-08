@@ -256,7 +256,7 @@ a:hover { text-decoration: underline; }
 .tickLabel { font-size:11px; font-weight:bold; color:#111111; }
 .tooltipLabel { font-size:11px; color:#111111; }
 </style>
-<script src="../forensics/js/jquery-1.3.2.min.js" type="text/javascript"></script>
+<script src="../js/jquery-1.3.2.min.js" type="text/javascript"></script>
 <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
 <script src="../js/jquery.flot.pack.js" type="text/javascript"></script>
 <script src="../js/jquery.flot.stack.js" type="text/javascript"></script>

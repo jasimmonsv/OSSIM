@@ -117,8 +117,8 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
 foreach ($atoms as $atom) {
-	$atom = str_replace("src_ip=","source=",$atom);
-	$atom = str_replace("dst_ip=","destination=",$atom);
+	$atom = str_replace("src_ip=","src=",$atom);
+	$atom = str_replace("dst_ip=","dst=",$atom);
 	if (preg_match("/source type(\!?\=)(.+)/", $atom, $matches)) {
 	    $source_type = $matches[2];
 	    $a = str_replace("source type".$matches[1].$matches[2],"taxonomy".$matches[1]."'".$source_type."-0-0'",$a);
@@ -152,10 +152,8 @@ foreach ($atoms as $atom) {
 	    }
 	    $a = str_replace("sensor".$matches[1].$matches[2],"sensor".$matches[1].$sensor_ip,$a);
 	}
-	if (preg_match("/(source|destination)(\!?\=)(\S+)/", $atom, $matches)) {
+	if (preg_match("/(src|dst)(\!?\=)(\S+)/", $atom, $matches)) {
 	    $field = $matches[1];
-	    $field = str_replace("source","src",$field);
-	    $field = str_replace("destination","dst",$field);
 		$op = $matches[2];
 	    $name = $matches[3];
 	    if ($netnames[$name] != "") {
@@ -179,7 +177,7 @@ $_SESSION["forensic_end"] = $end;
 <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 <link rel="stylesheet" href="../forensics/styles/ossim_style.css">
 
-<script type="text/javascript" src="jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="../js/jquery.progressbar.min.js"></script>
 <style type="text/css">
 .level11  {  background:url(../pixmaps/statusbar/level11.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
@@ -494,9 +492,9 @@ foreach($result as $res=>$event_date) {
             //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_port=' + this.innerHTML)\"\">" . htmlspecialchars($matches[9]) . "</span>$country_img_dst</td>";
 
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name')\"\">" . htmlspecialchars($sensor_name) . "</a></td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>source</b>=$src_ip_name')\"\">" . htmlspecialchars($src_ip_name) . "</a></div>:";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src</b>=$src_ip_name')\"\">" . htmlspecialchars($src_ip_name) . "</a></div>:";
             $line.= "<a href=\"#\">" . htmlspecialchars($matches[8]) . "</a>$country_img_src $homelan_src</td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>destination</b>=$dst_ip_name')\"\">" . htmlspecialchars($dst_ip_name) . "</a></div>:";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst</b>=$dst_ip_name')\"\">" . htmlspecialchars($dst_ip_name) . "</a></div>:";
             $line.= "<a href=\"#\">" . htmlspecialchars($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
             if ($alt) {
                 $color = "grey";

@@ -66,11 +66,9 @@ $conn = $db->connect();
 
 $str = GET('str');
 
-$str = str_replace("=","",$str);
-
 $qstr = quotemeta($str);
 
-ossim_valid($str, OSS_DIGIT, OSS_SPACE, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("str"));
+ossim_valid($str, OSS_DIGIT, OSS_SPACE, OSS_PUNC, "!", OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("str"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -84,47 +82,89 @@ if (trim($str) != "") {
 	$sourcetypes = GetSourceTypes($conn);
 	$plugingroups = Plugingroup::get_list($conn);
 	
-	foreach ($plugingroups as $group) {
-		$groupname = $group->get_name();
-		if ((preg_match("/^$qstr/i",$groupname)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>plugin group = </b>$groupname");
-			$data[] = array("name"=>"<b>plugin group != </b>$groupname");
+	// Typing a tag
+	if (preg_match("/^(sensor|src|dst|plugin|plugingroup)(\!?\=)(.*)/i",$str,$found)) {
+		$str = $found[3];
+		$op = $found[2];
+		if ($str == "") $str = ".";
+		$qstr = $str;
+		if ($found[1] == "sensor") {
+			foreach ($sensors as $ip=>$name) {
+				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
+					$data[] = array("name"=>"<b>sensor $op </b>$name");
+				}
+			}
+		} elseif ($found[1] == "src" || $found[1] == "dst") {
+			foreach ($hosts as $ip=>$name) {
+				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
+					$data[] = array("name"=>"<b>".$found[1]." $op </b>$name");
+				}
+			}
+			foreach ($nets as $net) {
+				$ip = $net->get_ips();
+				$name = $net->get_name();
+				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
+					$data[] = array("name"=>"<b>".$found[1]." $op </b>$name");
+				}
+			}
+		} elseif ($found[1] == "plugin") {
+			foreach ($plugins as $plugin) {
+				if ((preg_match("/^$qstr/i",$plugin)) && count($data) < $top) {
+					$data[] = array("name"=>"<b>plugin $op </b>$plugin");
+				}
+			}
+		} elseif ($found[1] == "plugingroup") {
+			foreach ($plugingroups as $group) {
+				$groupname = $group->get_name();
+				if ((preg_match("/^$qstr/i",$groupname)) && count($data) < $top) {
+					$data[] = array("name"=>"<b>plugin group $op </b>$groupname");
+				}
+			}
 		}
-	}
-	foreach ($sourcetypes as $sourcetype) {
-		if ((preg_match("/^$qstr/i",$sourcetype)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>source type = </b>$sourcetype");
-			$data[] = array("name"=>"<b>source type != </b>$sourcetype");
+	// Typing anything
+	} else {
+		foreach ($plugingroups as $group) {
+			$groupname = $group->get_name();
+			if ((preg_match("/^$qstr/i",$groupname)) && count($data) < $top) {
+				$data[] = array("name"=>"<b>plugin group = </b>$groupname");
+				$data[] = array("name"=>"<b>plugin group != </b>$groupname");
+			}
 		}
-	}
-	foreach ($plugins as $plugin) {
-		if ((preg_match("/^$qstr/i",$plugin)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>plugin = </b>$plugin");
-			$data[] = array("name"=>"<b>plugin != </b>$plugin");
+		foreach ($sourcetypes as $sourcetype) {
+			if ((preg_match("/^$qstr/i",$sourcetype)) && count($data) < $top) {
+				$data[] = array("name"=>"<b>source type = </b>$sourcetype");
+				$data[] = array("name"=>"<b>source type != </b>$sourcetype");
+			}
 		}
-	}
-	foreach ($sensors as $ip=>$name) {
-		if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>sensor = </b>$name");
-			$data[] = array("name"=>"<b>sensor != </b>$name");
+		foreach ($plugins as $plugin) {
+			if ((preg_match("/^$qstr/i",$plugin)) && count($data) < $top) {
+				$data[] = array("name"=>"<b>plugin = </b>$plugin");
+				$data[] = array("name"=>"<b>plugin != </b>$plugin");
+			}
 		}
-	}
-	foreach ($hosts as $ip=>$name) {
-		if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>source = </b>$name");
-			$data[] = array("name"=>"<b>source != </b>$name");
-			$data[] = array("name"=>"<b>destination = </b>$name");
-			$data[] = array("name"=>"<b>destination != </b>$name");
+		foreach ($sensors as $ip=>$name) {
+			if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
+				$data[] = array("name"=>"<b>sensor = </b>$name");
+				$data[] = array("name"=>"<b>sensor != </b>$name");
+			}
 		}
-	}
-	foreach ($nets as $net) {
-		$ip = $net->get_ips();
-		$name = $net->get_name();
-		if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
-			$data[] = array("name"=>"<b>source = </b>$name");
-			$data[] = array("name"=>"<b>source != </b>$name");
-			$data[] = array("name"=>"<b>destination = </b>$name");
-			$data[] = array("name"=>"<b>destination != </b>$name");
+		foreach ($hosts as $ip=>$name) {
+			if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
+				$data[] = array("name"=>"<b>src = </b>$name");
+				$data[] = array("name"=>"<b>src != </b>$name");
+				$data[] = array("name"=>"<b>dst = </b>$name");
+				$data[] = array("name"=>"<b>dst != </b>$name");
+			}
+		}
+		foreach ($nets as $net) {
+			$ip = $net->get_ips();
+			$name = $net->get_name();
+			if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top) {
+				$data[] = array("name"=>"<b>src = </b>$name");
+				$data[] = array("name"=>"<b>src != </b>$name");
+				$data[] = array("name"=>"<b>dst = </b>$name");
+				$data[] = array("name"=>"<b>dst != </b>$name");
+			}
 		}
 	}
 }
@@ -133,10 +173,10 @@ if (count($data) < 1) {
 	$data[] = array("name"=>"<b>data != </b>$str");
 	$data[] = array("name"=>"<b>sensor = </b>$str");
 	$data[] = array("name"=>"<b>sensor != </b>$str");
-	$data[] = array("name"=>"<b>source = </b>$str");
-	$data[] = array("name"=>"<b>source != </b>$str");
-	$data[] = array("name"=>"<b>destination = </b>$str");
-	$data[] = array("name"=>"<b>destination != </b>$str");
+	$data[] = array("name"=>"<b>src = </b>$str");
+	$data[] = array("name"=>"<b>src != </b>$str");
+	$data[] = array("name"=>"<b>dst = </b>$str");
+	$data[] = array("name"=>"<b>dst != </b>$str");
 }
 //echo JSON to page  
 $response = "(" . json_encode($data) . ")";  

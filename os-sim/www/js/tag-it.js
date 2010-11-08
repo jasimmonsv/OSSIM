@@ -5,6 +5,7 @@
 		var el = this;
 
 		const BACKSPACE		= 8;
+		const TAB			= 9;
 		const ENTER			= 13;
 		const SPACE			= 32;
 		const COMMA			= 44;
@@ -13,16 +14,20 @@
 		el.addClass("tagit");
 
 		// create the input field.
-		var html_input_field = "<li class=\"tagit-new\"><input class=\"tagit-input\" type=\"text\" /></li>\n";
+		var html_input_field = "<li class=\"tagit-new\"><input class=\"tagit-input\" tabindex=\"1\" type=\"text\" /> <input class=\"tagit-hidden\" tabindex=\"2\" type=\"text\" /></li>\n";
 		el.html (html_input_field);
 
 		tag_input		= el.children(".tagit-new").children(".tagit-input");
-
+		$(".tagit-hidden").focus(function(){
+			tag_input.focus();
+		});
+		
 		$(this).click(function(e){
 			if (e.target.tagName == 'A') {
 				// Removes a tag when the little 'x' is clicked.
 				// Event is binded to the UL, otherwise a new tag (LI > A) wouldn't have this event attached to it.
 				$(e.target).parent().remove();
+				if (options.changeFunction) options.changeFunction();
 			}
 			else {
 				// Sets the focus() to the input field, if the user clicks anywhere inside the UL.
@@ -36,14 +41,15 @@
 				if (tag_input.val() == "") {
 					// When backspace is pressed, the last tag is deleted.
 					$(el).children(".tagit-choice:last").remove();
+					if (options.changeFunction) options.changeFunction();
 				}
 			}
 			// Comma/Space/Enter are all valid delimiters for new tags.
-			else if (event.which == COMMA || event.which == SPACE || event.which == ENTER) {
+			else if (event.which == COMMA || event.which == SPACE || event.which == ENTER || event.which == TAB) {
 				event.preventDefault();
 
 				var typed = tag_input.val();
-				typed = typed.replace(/,+$/,"");
+				typed = typed.replace(/(,|\s|\t|\r|\n)+$/g,"");
 				typed = typed.trim();
 
 				if (typed != "") {
@@ -53,13 +59,16 @@
 					// Cleaning the input.
 					tag_input.val("");
 				}
+				if (event.which == TAB) return false;
 			}
 		});
 
 		tag_input.autocomplete({
+			multiple: true,
 			source: function(req, add){
 				//pass request to server
-				$.getJSON("autocomplete.php?str="+tag_input.val(), req, function(data) {  
+				var param = tag_input.val();
+				$.getJSON("autocomplete.php?str="+param, req, function(data) {
 					//create array for response objects  
 					var suggestions = [];  
 					//process response  
@@ -105,6 +114,8 @@
 			var li_search_tags = this.tag_input.parent();
 			$(el).insertBefore (li_search_tags);
 			this.tag_input.val("");
+			if (options.changeFunction) options.changeFunction();
+			this.tag_input.focus();
 		}
 	};
 
