@@ -34,7 +34,6 @@
 * Function list:
 * Classes list:
 */
-ini_set('memory_limit', '128M');
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "CorrelationDirectives");
 require_once ("../include/utils.php");
