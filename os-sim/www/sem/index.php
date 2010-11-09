@@ -72,18 +72,25 @@ foreach ($database_servers as $db) {
 $fcolors = array("2c3816","dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
 $bcolors = array("addf53","5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
 $logger_servers = array();
+$logger_error = array();
 $ip_list = "";
-if (GET('num_servers') != "") {
-	$num_servers = GET('num_servers');
+if (count($database_servers) > 1) {
+	$num_servers = count($database_servers);
 	foreach ($database_servers as $db) {
 		$name = $db->get_name();
 		$ip = $db->get_ip();
 		if ($ip == $_SERVER['SERVER_ADDR']) $ip = "127.0.0.1";
 		ossim_valid(GET($name), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal: server '.$name);
-		if (GET($name) != "") {
-			if ($ip_list != "") $ip_list .= ",";
-			$ip_list .= $ip;
-			$logger_servers[$name] = $ip;
+		if ((GET($name) != "" && GET("num_servers") != "") || GET("num_servers") == "") {
+			$cmd = 'sudo ./test_remote_ssh.pl '.$ip;
+			$res = explode("\n",`$cmd`);
+			if ($res[0] == "OK") {
+				$logger_servers[$name] = $ip;
+				if ($ip_list != "") $ip_list .= ",";
+				$ip_list .= $ip;
+			} else {
+				$logger_error[$name] = $ip;
+			}
 		}
 	}
 	if (count($logger_servers) == 1 && reset($logger_servers) == "127.0.0.1") $ip_list = "";
@@ -1003,24 +1010,6 @@ $(document).ready(function(){
 		changeFunction: function() { MakeRequest(); },
 		availableTags: ["data"<?php foreach ($sensors as $ip=>$name) { ?>, "sensor:<?php echo $name?>"<?php } ?><?php $top = 0; foreach ($hosts as $ip=>$name) if ($top < 20) { ?>, "source:<?php echo $name?>", "destination:<?php echo $name ?>"<?php $top++; } ?>]
 	});
-
-	/* Remote servers check */
-	<?php if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers")) { ?>
-	$.ajax({
-		type: "GET",
-		url: "check_remote_servers.php",
-		data: "",
-		success: function(msg) {
-			var arr = msg.split(/\;/);
-			for (i=0; i<arr.length; i++) {
-				var aux = arr[i].split(/\:/);
-				if (aux[1] == "0") {
-					$('#check_'+aux[0]).attr('disabled','disabled');
-				}
-			}
-		}
-	});
-	<?php } ?>
 });
 function change_calendar() {
 	var n = 0;
@@ -1138,7 +1127,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServe
 					$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i];
 					?>
 					<tr bgcolor='#EEEEEE'>
-						<td><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; } ?>></input></td>
+						<td><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; } if ($logger_error[$name]) { echo " disabled"; } ?>></input></td>
 						<td></td>
 						<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i]?>;color:<?php echo '#'.$fcolors[$i]?>"><?php echo $name ?></td></tr></table></td>
 					</tr>

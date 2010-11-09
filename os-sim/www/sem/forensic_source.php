@@ -74,6 +74,11 @@ if ($_GET['ips'] != "") {
 	$cmd = "sudo ./fetchremote_graph.pl '$gt' '$cat' $ip_list";
 	//echo $cmd;exit;
 	$aux = explode("\n",`$cmd`);
+	if (count($aux) > 2) {
+		echo "<br><br><center><font style='font-family:arial;font-size:12px'>"._("An <b>error</b> has occured fetching remote data. Please <b>check logger configuration</b> in remote machines.")."</font></center>";
+		?><script type="text/javascript">parent.document.getElementById('testLoading2').style.display='none';</script><?php
+		exit;
+	}
 	$string = trim($aux[0]);
 	$remote_data_aux = json_decode($string);
 	$remote_data_aux2 = (array) $remote_data_aux;
