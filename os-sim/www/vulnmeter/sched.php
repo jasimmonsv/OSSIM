@@ -307,7 +307,7 @@ $ip_targets = explode("\\r\\n", $ip_list);
 foreach($ip_targets as $ip_target) {
     $ip_target = trim($ip_target);
     ossim_set_error(false);
-    ossim_valid($ip_target, OSS_NULLABLE, OSS_DIGIT, '\.\,\/', 'illegal:' . _("Target"));
+    ossim_valid($ip_target, OSS_NULLABLE, OSS_DIGIT, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, '\.\,\/', 'illegal:' . _("Target"));
     if (ossim_error()) {
         $error_message .= _("Invalid target").": $ip_target<br>";
     }

@@ -82,6 +82,11 @@ use ossim_conf;
 use DBI;
 use Getopt::Std;
 
+use Data::Dumper;
+
+local $ENV{XML_SIMPLE_PREFERRED_PARSER} = "XML::Parser";
+use XML::Simple;
+
 #use vars qw/%CONFIG/;
 
 #&load_configs("/etc/inprotect.cfg");
@@ -90,11 +95,11 @@ my %CONFIG = ();
 
 my %profiles = ();
 $profiles{'PortScan|PortScan|F|admin|4|4'} = "Port scanners";
-$profiles{'Mac|MACOSX Test|F|admin|4|4'} = "MacOS X Local Security Checks";
+$profiles{'Mac|MACOSX Test|F|admin|4|4'} = "MacOS X Local Security Checks|Mac OS X Local Security Checks";
 $profiles{'Firewalls|Firewalls Tests|F|admin|4|4'} = "Firewalls";
 $profiles{'Linux|Linux Test|F|admin|1|1'} = "Databases|Debian Local Security Checks|Default Unix Accounts|Finger abuses|FTP|Gain a shell remotely|Gain root remotely|General|Gentoo Local Security Checks|Port scanners|Red Hat Local Security Checks|Remote file access|RPC|Service detection|SLAD|SMTP problems|SNMP|Useless services|Web Servers";
 $profiles{'CISCO|Cisco Test|F|admin|4|1'} = "CISCO";
-$profiles{'UNIX|UNIX Test|F|admin|4|4'} = "AIX Local Security Checks|Default Unix Accounts|Finger abuses|FTP|Gain a shell remotely|Gain root remotely|MacOS X Local Security Checks|RPC|Service detection|SMTP problems|Useless services|Web Servers";
+$profiles{'UNIX|UNIX Test|F|admin|4|4'} = "AIX Local Security Checks|Default Unix Accounts|Finger abuses|FTP|Gain a shell remotely|Gain root remotely|MacOS X Local Security Checks|Mac OS X Local Security Checks|RPC|Service detection|SMTP problems|Useless services|Web Servers";
 $profiles{'Perimeter|External Perimeter Scan|F|admin|1|1'} = "Backdoors|CGI abuses|CGI abuses : XSS|CISCO|Databases|Finger abuses|Firewalls|FTP|Gain a shell remotely|Gain root remotely|General|Netware|NIS|Port scanners|Remote file access|RPC|Service detection|SMTP problems|SNMP|Useless services|Web Servers|Windows|Windows : Microsoft Bulletins|Windows : User management";
 $profiles{'Mail||F|admin|1|1'} = "SMTP problems";
 $profiles{'Windows||F|admin|1|1'} = "Windows|Windows : Microsoft Bulletins|Windows : User management";
@@ -151,8 +156,6 @@ if (-e $nessus_vars{'nessus_updater_path'}) {
 else {
     $CONFIG{'NESSUSUPDATEPLUGINSPATH'} = ($nessus_vars{'nessus_path'} =~ /nessus/) ? "/usr/sbin/nessus-update-plugins" : "/usr/sbin/openvas-nvt-sync";
 }
-
-
 $CONFIG{'NESSUSPATH'} = $nessus_vars{'nessus_path'};
 $CONFIG{'NESSUSHOST'} = $nessus_vars{'nessus_host'};
 $CONFIG{'NESSUSUSER'} = $nessus_vars{'nessus_user'};
@@ -162,8 +165,10 @@ $CONFIG{'MYSQLPATH'} = "/usr/bin/mysql";
 
 $CONFIG{'ROOTDIR'} = $nessus_vars{'nessus_rpt_path'};
 
-$mysqlpath = "$CONFIG{'MYSQLPATH'}";                         #PATH TO MYSQL EXECUTABLE
-$tempfile = $CONFIG{'ROOTDIR'}."tmp/plugins.sql";        #Temp Nessus plugins file
+$mysqlpath = "$CONFIG{'MYSQLPATH'}";                                #PATH TO MYSQL EXECUTABLE
+$omp_plugins = $CONFIG{'ROOTDIR'}."tmp/plugins.xml";                #Temp OpenVas Manager plugins file
+$xml_output = $CONFIG{'ROOTDIR'}."tmp/tmp.xml";                     #Temp OpenVas Manager output
+$openvas_nessus_plugins = $CONFIG{'ROOTDIR'}."tmp/plugins.sql";     #Temp OpenVas/Nessus plugins file
 
 my $updateplugins="$CONFIG{'UPDATEPLUGINS'}";
 
@@ -177,11 +182,23 @@ my %loginfo;         # plot information hash
 my $debug            = 0;
 my $log_level        = 4;
 
+#don't delete this configs with migrate option
+
+my @openvas_manager_configs = ( );
+push(@openvas_manager_configs, "Full and fast-All NVT's; optimized by using previously collected information.");
+push(@openvas_manager_configs, "Full and fast ultimate-All NVT's including those that can stop services/hosts; optimized by using previously collected information."); 
+push(@openvas_manager_configs, "Full and very deep-All NVT's; don't trust previously collected information; slow."); 
+push(@openvas_manager_configs, "Full and very deep ultimate-All NVT's including those that can stop services/hosts; don't trust previously collected information; slow.");
+push(@openvas_manager_configs, "empty-Empty and static configuration template.");
+
+my @disabled_plugins = ("10335", "10796", "11219", "11840", "14272", "14274", "14663", "80000", "80001", "80002", "80009", "80112");
+
+
 #my ( $serverid );
 
 my ( $dsn);        #DATABASE HANDLE TO BE USED THROUGHOUT PROGRAM
 
-my ( $nessus, $nessus_user, $nessus_pass, $nessus_host, $nessus_port);
+my ( $nessus, $nessus_user, $nessus_pass, $nessus_host, $nessus_port, $openvas_manager_common);
 
 getopts("dh?",\%options);
 
@@ -205,6 +222,8 @@ sub main {
     $nessus_host = $CONFIG{'NESSUSHOST'};
     $nessus_port = $CONFIG{'NESSUSPORT'};
     
+    $openvas_manager_common = "$CONFIG{'NESSUSPATH'} -h $CONFIG{'NESSUSHOST'} -p $CONFIG{'NESSUSPORT'} -u $CONFIG{'NESSUSUSER'} -w $CONFIG{'NESSUSPASSWORD'} -iX";
+    
     #load_db_configs ( );
 
     #$serverid = get_server_credentialsA( $CONFIG{'SERVERID'} );  #GET THE SERVER ID'S FOR WORK PROCESSING
@@ -212,8 +231,10 @@ sub main {
     #    logwriter( "[$$]\tWARNING: ServerID is Invalid --CAN NOT CONTINUE", 1 );
     #    exit;
     #}
-    logwriter( "host=$nessushost, port=$nessusport, user=$nessususer, pass=$nessuspassword", 5 ); 
+    logwriter( "host=$nessushost, port=$nessusport, user=$nessususer, pass=$nessuspassword", 5 );
 
+    if ($nessus =~ /omp\s*$/) { delete_all_tasks(); }
+    
     #PROCEED WITH FORCE NESSUS TO UPDATE PLUGINS
     if ($updateplugins==1) {
         logwriter( "updateplugins: executing nessus-update-plugins", 4 );
@@ -264,15 +285,20 @@ sub main {
         $sql = qq{TRUNCATE vuln_nessus_settings_preferences};
         $sth_sel = $dbh->prepare( $sql );
         $sth_sel->execute;
+        
+        if ($nessus =~ /omp\s*$/) {
+            delete_configs(\@openvas_manager_configs);
+        }
     }
     else {
         logwriter( "updateplugins: configured to not migrate DB", 4 );
     }
 
+    
     disconn_db($dbh);
     $dbh = conn_db();
     dump_plugins();
-    
+
     disconn_db($dbh);
     $dbh = conn_db();
     import_plugins( );
@@ -320,12 +346,11 @@ sub perform_update {
     logwriter( "BEGIN - PERFORM UPDATE", 4 );
     my $time_start = time();
 
-    if ( -e $CONFIG{'NESSUSUPDATEPLUGINSPATH'} ) {
+    if ( -e $CONFIG{'NESSUSUPDATEPLUGINSPATH'} ) { 
     
-        if ($CONFIG{'SYNCHRONIZATIONMETHOD'} eq "wget" && $nessus_vars{'nessus_path'} !~ /nessus/) { 
+       if ($CONFIG{'SYNCHRONIZATIONMETHOD'} eq "wget" && $nessus_vars{'nessus_path'} !~ /nessus/) { 
             $CONFIG{'NESSUSUPDATEPLUGINSPATH'} .= " --wget"; 
-        }
-    
+       }
        logwriter( "$CONFIG{'NESSUSUPDATEPLUGINSPATH'} >> /tmp/update_scanner_plugins_rsync.log", 4 ); 
        system ("sudo $CONFIG{'NESSUSUPDATEPLUGINSPATH'} >> /tmp/update_scanner_plugins_rsync.log 2>&1") == 0 or logwriter( "updateplugins: No new plugins installed", 3 ); 
 
@@ -349,20 +374,48 @@ sub dump_plugins {
 
     logwriter( "BEGIN - DUMP PLUGINS", 4 );
     my $time_start = time();
+    my $cmd = "";
+    
+    if ($nessus =~ /omp\s*$/) {
+    
+        #Delete existing temporary file
+        unlink $omp_plugins if -e $omp_plugins;
 
-    #Delete existing temporary file
-    unlink $tempfile if -e $tempfile;
+        $cmd = "$openvas_manager_common \"<GET_NVTS details='1'/>\" > $omp_plugins";
 
-    #Dump Nessus plugins info into a file
-    #my $cmd = "$CONFIG{'NESSUSPATH'} -xpS -q $nessus_host $nessus_port $nessus_user $nessus_pass | perl -npe 's/ plugins(;|\\s)/ vuln_plugins\$1/g' | perl -npe 's/DROP TABLE/DROP TABLE IF EXISTS/g'| perl -npe 's/INSERT/INSERT IGNORE/g' | perl -npe 's/\\\\(\\\\+)/\\\\/g' > $tempfile";
-    my $cmd = "$CONFIG{'NESSUSPATH'} -xpS -q $nessus_host $nessus_port $nessus_user $nessus_pass | perl /usr/share/ossim/scripts/vulnmeter/nessus_filter.pl > $tempfile";
-    #my $cmd = "$CONFIG{'NESSUSPATH'} -xpS -q $nessus_host $nessus_port $nessus_user $nessus_pass > $tempfile";
-    #print "$cmd\n";
-    logwriter( "$cmd", 5 );
-    my $imp = system ( $cmd );
+        logwriter( "$cmd", 4 );
+        
+        my $imp = system ( $cmd );
 
-    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Dump Plugins", 2 ); }
+        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Dump Plugins", 2 ); }
+        
+        my $xml = eval {XMLin($omp_plugins, keyattr => [])};
+        
+        #print Dumper($xml);
+        
+        if ($@ ne "") { die "Cant' read XML $omp_plugins"; }
+        if ($xml->{'status'} !~ /20\d/) {
+            my $status = $xml->{'status'};
+            my $status_text = $xml->{'status_text'};
+            die "Error: status = $status, status_text = '$status_text' ($omp_plugins)";
+        }
+    }
+    else {
+    
+        #Delete existing temporary file
+        unlink $openvas_nessus_plugins if -e $openvas_nessus_plugins;
 
+        #Dump Nessus plugins info into a file
+        $cmd = "$CONFIG{'NESSUSPATH'} -xpS -q $nessus_host $nessus_port $nessus_user $nessus_pass | perl /usr/share/ossim/scripts/vulnmeter/nessus_filter.pl > $openvas_nessus_plugins";
+
+        #print "$cmd\n"; 
+        logwriter( "$cmd", 5 );
+        my $imp = system ( $cmd );
+
+        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Dump Plugins", 2 ); }
+        
+    }
+    
     my $time_run = time() - $time_start;
     logwriter( "FINISH - DUMP PLUGINS [ Process took $time_run seconds ]", 4 );
     return 1;
@@ -371,20 +424,90 @@ sub dump_plugins {
 sub import_plugins {
 
     logwriter( "BEGIN - IMPORT PLUGINS", 4 );
+    
+    my $nplugins = 0;
     my $time_start = time();
 
 #    $sql = qq{ TRUNCATE TABLE `vuln_plugins`; };
 #    safe_db_write( $sql, 5 );
 
-
-    #Dump Nessus plugins info into a file
-    my $cmd = "$mysqlpath --force --user=$CONFIG{'DATABASEUSER'} --password=$CONFIG{'DATABASEPASSWORD'} --host=$CONFIG{'DATABASEHOST'} $CONFIG{'DATABASENAME'} < $tempfile";
-
-    logwriter( "$cmd", 5 );
-    my $imp = system ( $cmd );
-
-    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Import Plugins", 2 ); }
     
+    if ($nessus =~ /omp\s*$/) {
+    
+        my @items=();
+        
+        my $xml = eval {XMLin($omp_plugins, keyattr => [])};
+        
+        #print Dumper($xml);
+        
+        if ($@ ne "") { die "Cant' read XML $omp_plugins"; }
+        if ($xml->{'status'} !~ /20\d/) {
+            my $status = $xml->{'status'};
+            my $status_text = $xml->{'status_text'};
+            die "Error: status = $status, status_text = '$status_text' ($omp_plugins)";
+        }
+        
+        
+        my $sql = qq{ DROP TABLE IF EXISTS vuln_plugins };
+        safe_db_write( $sql, 5 );
+        
+        $sql =  qq{CREATE TABLE vuln_plugins (
+                    id int NOT NULL,
+                    oid varchar(50) NOT NULL,
+                    name varchar(255),
+                    family varchar(255),
+                    category varchar(255),
+                    copyright varchar(255),
+                    summary varchar(255),
+                    description blob,
+                    version varchar(255),
+                    cve_id varchar(255),
+                    bugtraq_id varchar(255),
+                    xref blob,
+                    primary key (id))};
+        safe_db_write( $sql, 5 );
+
+        if (ref($xml->{'nvt'}) eq 'ARRAY') {
+            @items = @{$xml->{'nvt'}};
+        } else {
+            push(@items,$xml->{'nvt'});
+        }
+        
+        foreach my $nvt (@items) {
+                my $name = $nvt->{'name'};
+                my $oid = $nvt->{'oid'}; 
+                my $id = $oid; $id =~ s/.*\.//;
+                my $family = $nvt->{'family'};
+                my $category = $nvt->{'category'};
+                my $copyright = $nvt->{'copyright'};
+                my $summary = $nvt->{'summary'};
+                $summary =~ s/\"/\'/g; 
+                my $description = $nvt->{'description'};
+                $description =~ s/\"/\'/g;
+                my $version = $nvt->{'version'};
+                my $cve_id = $nvt->{'cve_id'};
+                my $bugtraq_id = $nvt->{'bugtraq_id'};
+                my $xref = $nvt->{'xrefs'};
+
+                $sql = qq{INSERT IGNORE INTO vuln_plugins VALUES ('$id','$oid',"$name",'$family','$category',"$copyright","$summary","$description",'$version','$cve_id','$bugtraq_id', '$xref')};
+                #print "$sql\n";
+                $sth_sel = $dbh->prepare( $sql );
+                $sth_sel->execute;
+                
+                $nplugins++;
+                print "\r$nplugins";
+        }
+        print "\n";
+    }
+    
+    else {
+        #import Nessus plugins from a file
+        my $cmd = "$mysqlpath --force --user=$CONFIG{'DATABASEUSER'} --password=$CONFIG{'DATABASEPASSWORD'} --host=$CONFIG{'DATABASEHOST'} $CONFIG{'DATABASENAME'} < $openvas_nessus_plugins";
+        logwriter( "$cmd", 5 );
+        my $imp = system ( $cmd );
+        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Import Plugins", 2 ); }
+    
+    }
     $sql = qq{ UPDATE vuln_plugins SET family='Others' WHERE family=''};
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute;
@@ -394,10 +517,11 @@ sub import_plugins {
     $sth_sel->execute;
 
     #Delete existing temporary file
-    unlink $tempfile if -e $tempfile;
+    unlink $omp_plugins if -e $omp_plugins;
+    unlink $openvas_nessus_plugins if -e $openvas_nessus_plugins;
 
     my $time_run = time() - $time_start;
-    logwriter( "FINISH - IMPORT PLUGINS [ Process took $time_run seconds ]", 4 );
+    logwriter( "FINISH - IMPORT PLUGINS [ $nplugins plugins - $Process took $time_run seconds ]", 4 );
     return 1;
 
 }
@@ -519,7 +643,11 @@ sub update_nessus_plugins {
     
     if ($pname ne "" && $pfamily ne "" && $pcategory ne "") {
         
-        #$pcve_id =~ s/(\d+\-\d+)/CVE-$1/g  if ( ($pcve_id !~ /^CVE/) && ($pcve_id !~ /^CAN/) ); 
+        #$pcve_id =~ s/(\d+\-\d+)/CVE-$1/g  if ( ($pcve_id !~ /^CVE/) && ($pcve_id !~ /^CAN/) );
+        
+        $pcve_id =~ s/CAN\-CVE/CVE/g;
+        $pcve_id =~ s/CAN\-(\d+)/CVE-$1/g;
+        
         my @pcve_ids = split(/,/, $pcve_id);
         my @pcve_tmp=();
         foreach (@pcve_ids){
@@ -619,6 +747,7 @@ sub update_settings_plugins {
     my %autofam;
     my %autocat;
     my %settings;
+    my %msids;
     my $profile_count = 0;
 
     #CREATE ARRAY OF AUTOENABLE PER PROFILES
@@ -707,15 +836,23 @@ sub update_settings_plugins {
                 $sql2 = qq{ DELETE FROM vuln_nessus_settings_plugins WHERE id='$pid' AND sid='$sid' };
                 safe_db_write( $sql2, 3 );
             }
-
+            
+            
             if ( $task eq "create" ) {
                 $sql2 = qq{ INSERT INTO vuln_nessus_settings_plugins (id, sid, enabled, category, family ) VALUES 
                     ('$pid', '$sid', '$statusvalue', '$pcategory', '$pfamily' ); };
                 safe_db_write( $sql2, 4 );
-            } elsif ( $task eq "update" ) {
+                 
+                if ($nessus =~ /omp\s*$/) { $msids{$sid}++; }
+                
+            }
+            elsif ( $task eq "update" && !in_array(\@disabled_plugins,$pid)) {
                 $sql2 = qq{ UPDATE vuln_nessus_settings_plugins SET enabled='$statusvalue' 
                         WHERE id='$pid' AND sid='$sid' };
+                
                 safe_db_write( $sql2, 4 );
+                
+                if ($nessus =~ /omp\s*$/) { $msids{$sid}++; }
             #} else {
             #    logwriter( "no update for record pid=$pid\tsid=$sid\n", 2);
             }
@@ -724,6 +861,111 @@ sub update_settings_plugins {
 	}
     }
 
+    if ($nessus =~ /omp\s*$/) {
+        my @sids_to_modify = keys %msids;
+        
+        if($#sids_to_modify!= -1) {
+            
+            # update configs openvas-manager configs
+            
+            my $sids = join("', '",keys %msids);
+            
+            my $sql_sids = qq{ SELECT id, name, owner FROM vuln_nessus_settings WHERE id IN ('$sids') };
+            
+
+            my $sth_sids=$dbh->prepare( $sql_sids );
+            $sth_sids->execute;
+            while (my ($psid, $pname, $powner) =$sth_sids->fetchrow_array ) {
+                # Special case, disable plugins 11219(synscan), 10335(tcp_scanner), 80009(portscan_strobe), 80001(pnscan), 80002(portbunny) for all profiles
+                #$sql = qq{ update vuln_nessus_settings_plugins set enabled='N' where (id=11219 or id=10335 or id=80009 or id=80001 or id=80002) and sid=$psid };
+                #$sth_sel = $dbh->prepare($sql);
+                #$sth_sel->execute;
+                #$sth_sel->finish();
+                # end disabled
+                
+                # Special case, enable plugins 14259(Nmap - NASL wrapper), 100315(Ping Host)
+                #$sql = qq{ update vuln_nessus_settings_plugins set enabled='Y' where (id=14259 or id=100315) and sid=$psid };
+                #$sth_sel = $dbh->prepare($sql);
+                #$sth_sel->execute;
+                #$sth_sel->finish();
+                # end enable
+            
+                my $id_config = get_config_id($pname, $powner);
+                
+                if($id_config ne "") {
+                
+                    # Disable all families
+                    my @openvas_manager_families = get_openvas_manager_families();
+                    
+                    foreach my $om_family(@openvas_manager_families) {
+                        $cmd = "$openvas_manager_common \"<modify_config config_id='$id_config'><nvt_selection><family>$om_family</family></nvt_selection></modify_config>\" > $xml_output";
+                        
+                        $imp = system ( $cmd ); 
+                        
+                        $xml = eval {XMLin($xml_output, keyattr => [])};
+                    
+                        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+                        if ($xml->{'status'} !~ /20\d/) {
+                            my $status = $xml->{'status'};
+                            my $status_text = $xml->{'status_text'};
+                            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+                        }
+                    
+                        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' disable family '$om_family' for config '$name'", 2 ); }
+                    
+                    }
+                
+                    logwriter("Config $pname for $powner will be updated...",4);
+                    my $sql = qq{ SELECT f.name, p.oid
+                                            FROM vuln_nessus_settings_plugins AS sp
+                                            LEFT JOIN vuln_nessus_plugins AS p ON sp.id = p.id
+                                            LEFT JOIN vuln_nessus_family AS f ON sp.family = f.id
+                                            WHERE sp.enabled =  'Y'
+                                            AND sp.sid =  '$psid' };
+                    #logwriter($sql,4);
+
+                    my %familyHash;
+                    my $sth_self=$dbh->prepare( $sql );
+                    $sth_self->execute;
+
+                    while (my ($family, $oid) =$sth_self->fetchrow_array ) {
+                        $familyHash{$family}{$oid}++;
+                    }
+
+                    $sth_self->finish(); 
+                
+                    # update config
+                    foreach my $family ( keys %familyHash ) {
+                        my $cmd = "$openvas_manager_common \"<modify_config config_id='$id_config'><nvt_selection><family>$family</family>";
+                        logwriter("Updating family '$family'...", 4);
+                        $i = 0;
+                        foreach my $oid ( keys %{$familyHash{$family}} ) {
+                            $cmd .= "<nvt oid='$oid'/>";
+                            $i++;
+                        }
+                        logwriter("$i plugins", 4);
+                        $cmd .= "</nvt_selection></modify_config>\" > $xml_output";
+                    
+                        #logwriter( "$cmd", 4 );
+                        $imp = system ( $cmd ); 
+                
+                        $xml = eval {XMLin($xml_output, keyattr => [])};
+                
+                        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+                        if ($xml->{'status'} !~ /20\d/) {
+                            my $status = $xml->{'status'};
+                            my $status_text = $xml->{'status_text'};
+                            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+                        }
+                
+                        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
+                    }
+                }
+            }
+            $sth_sids->finish();
+        
+        }
+    }
     my $time_run = time() - $time_start;
     logwriter( "FINISH - UPDATE SETTINGS_PLUGINS [ Process took $time_run seconds ]", 4 );
 }
@@ -734,6 +976,9 @@ sub update_preferences {
     my $time_start = time();
 
     my ( $sql, $sth_sel, $sth_upd );
+    
+    my @items = ();
+    my @preferences = ();
 
     my $now = genScanTime();
 
@@ -767,58 +1012,143 @@ CREATE TABLE `vuln_nessus_preferences_defaults` (
     my ($cmd);
     my ($f0, $f1, $f2, $f3, $f4, $rhs, $rhs2, $sql);
 
-    logwriter( "updateprefs: Getting plugin preferences from nessusd", 4 );
+    logwriter( "updateprefs: Getting plugin preferences", 4 );
+    
+    if ($nessus =~ /omp\s*$/) {
+    
+        my $cmd = "$openvas_manager_common \"<get_preferences/>\" > $xml_output";
 
-    $cmd = qq{$CONFIG{'NESSUSPATH'} -qxP $CONFIG{'NESSUSHOST'} $CONFIG{'NESSUSPORT'} $CONFIG{'NESSUSUSER'} $CONFIG{'NESSUSPASSWORD'}};
-    logwriter( $cmd, 5 );
-    open(PROC, "$cmd |") or die "failed to fork :$!\n";
-    while (<PROC>){
-        if (/\]:/) {
-            # PLUGINS_PREFS
-            $f5 = "PLUGINS_PREFS";
-            ($f1,$rhs) = split(/\[/);
-            ($f2,$rhs2) = split(/\]:/,$rhs);
-            ($f3,$f4) = split(/=/, $rhs2);
-             $f3 =~ s/\s+$//;    # Remove trailing whitespace 
-            $f4 =~ s/^ //;        # Remove leading whitespace
-            $f4 =~ s/\n$//;        # Remove trailing newline
+        logwriter( "$cmd", 4 );
+        
+        my $imp = system ( $cmd );
 
-            $f0 = $f1."[".$f2."]:".$f3;
-            $f2 =~ s/entry/T/;        # Text box
-            $f2 =~ s/radio/R/;        # Radio button
-            $f2 =~ s/checkbox/C/;        # Checkbox
-            $f2 =~ s/password/P/;        # Password
-            $f2 =~ s/file/T/;        # File
-
-        } else {
-            # SERVER_PREFS
-            $f5 = "SERVER_PREFS";
-
-            $f1 = "ServerPrefs";
-            ($f3,$f4) = split(/=/);
-            $f3 =~ s/\s+$//;    # Remove trailing whitespace
-            $f4 =~ s/\n$//;        # Remove trailing newline
-            $f4 =~ s/^ //;        # Remove leading whitespace
-            $f2 = "T";
-            $f0 = $f3;
+        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Preferences", 2 ); }
+        
+        my $xml = eval {XMLin($xml_output, keyattr => [])};
+        
+        
+        
+        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+        if ($xml->{'status'} !~ /20\d/) {
+            my $status = $xml->{'status'};
+            my $status_text = $xml->{'status_text'};
+            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
         }
+        
+        if (ref($xml->{'preference'}) eq 'ARRAY') {
+            @items = @{$xml->{'preference'}};
+        } else {
+            push(@items,$xml->{'preference'});
+        }
+        
+        foreach my $preference (@items) {
+            #print Dumper($preference);
+            if (ref($preference->{'value'}) eq 'HASH') {
+                $preference->{'value'} = ""; 
+            }
+            push(@preferences, $preference->{'name'}." = ".$preference->{'value'});
+            #print "\n[".$preference->{'name'}." = ".$preference->{'value'}."]";
+        }
+        foreach (@preferences) {
+            if (/\]:/) {
+                # PLUGINS_PREFS
+                $f5 = "PLUGINS_PREFS";
+                ($f1,$rhs) = split(/\[/);
+                ($f2,$rhs2) = split(/\]:/,$rhs);
+                ($f3,$f4) = split(/=/, $rhs2);
+                 $f3 =~ s/\s+$//;    # Remove trailing whitespace 
+                $f4 =~ s/^ //;        # Remove leading whitespace
+                $f4 =~ s/\n$//;        # Remove trailing newline
 
-        # Does the current record exist? If not
-        $sql = qq{ SELECT count(*) from vuln_nessus_preferences_defaults WHERE nessus_id = "$f0" };
+                $f0 = $f1."[".$f2."]:".$f3;
+                $f2 =~ s/entry/T/;        # Text box
+                $f2 =~ s/radio/R/;        # Radio button
+                $f2 =~ s/checkbox/C/;        # Checkbox
+                $f2 =~ s/password/P/;        # Password
+                $f2 =~ s/file/T/;        # File
+
+            } else {
+                # SERVER_PREFS
+                $f5 = "SERVER_PREFS";
+
+                $f1 = "ServerPrefs";
+                ($f3,$f4) = split(/=/);
+                $f3 =~ s/\s+$//;    # Remove trailing whitespace
+                $f4 =~ s/\n$//;        # Remove trailing newline
+                $f4 =~ s/^ //;        # Remove leading whitespace
+                $f2 = "T";
+                $f0 = $f3;
+            }
+
+            # Does the current record exist? If not
+            $sql = qq{ SELECT count(*) from vuln_nessus_preferences_defaults WHERE nessus_id = "$f0" };
+            logwriter( $cmd, 5 );
+            $sth_sel = $dbh->prepare( $sql );
+            $sth_sel->execute;
+
+            $foo=$sth_sel->fetchrow_array;
+            if ($foo == 0) {
+                $sql = qq{insert into vuln_nessus_preferences_defaults (nessus_id, nessusgroup, type, field, 
+                    value, category,flag) values ("$f0", "$f1", "$f2", "$f3", "$f4", "$f5","T" );};
+            } else {
+                $sql = qq{UPDATE vuln_nessus_preferences_defaults SET nessusgroup="$f1", type="$f2", field="$f3",
+                    value="$f4", category="$f5", flag="T" WHERE nessus_id = "$f0" };
+            }
+            safe_db_write( $sql, 5 );
+
+        }
+    }
+    else {
+        $cmd = qq{$CONFIG{'NESSUSPATH'} -qxP $CONFIG{'NESSUSHOST'} $CONFIG{'NESSUSPORT'} $CONFIG{'NESSUSUSER'} $CONFIG{'NESSUSPASSWORD'}};
         logwriter( $cmd, 5 );
-        $sth_sel = $dbh->prepare( $sql );
-        $sth_sel->execute;
+        open(PROC, "$cmd |") or die "failed to fork :$!\n";
+        while (<PROC>){
+            if (/\]:/) {
+                # PLUGINS_PREFS
+                $f5 = "PLUGINS_PREFS";
+                ($f1,$rhs) = split(/\[/);
+                ($f2,$rhs2) = split(/\]:/,$rhs);
+                ($f3,$f4) = split(/=/, $rhs2);
+                 $f3 =~ s/\s+$//;    # Remove trailing whitespace 
+                $f4 =~ s/^ //;        # Remove leading whitespace
+                $f4 =~ s/\n$//;        # Remove trailing newline
 
-        $foo=$sth_sel->fetchrow_array;
-        if ($foo == 0) {
-            $sql = qq{insert into vuln_nessus_preferences_defaults (nessus_id, nessusgroup, type, field, 
-                value, category,flag) values ("$f0", "$f1", "$f2", "$f3", "$f4", "$f5","T" );};
-        } else {
-            $sql = qq{UPDATE vuln_nessus_preferences_defaults SET nessusgroup="$f1", type="$f2", field="$f3",
-                value="$f4", category="$f5", flag="T" WHERE nessus_id = "$f0" };
+                $f0 = $f1."[".$f2."]:".$f3;
+                $f2 =~ s/entry/T/;        # Text box
+                $f2 =~ s/radio/R/;        # Radio button
+                $f2 =~ s/checkbox/C/;        # Checkbox
+                $f2 =~ s/password/P/;        # Password
+                $f2 =~ s/file/T/;        # File
+
+            } else {
+                # SERVER_PREFS
+                $f5 = "SERVER_PREFS";
+
+                $f1 = "ServerPrefs";
+                ($f3,$f4) = split(/=/);
+                $f3 =~ s/\s+$//;    # Remove trailing whitespace
+                $f4 =~ s/\n$//;        # Remove trailing newline
+                $f4 =~ s/^ //;        # Remove leading whitespace
+                $f2 = "T";
+                $f0 = $f3;
+            }
+
+            # Does the current record exist? If not
+            $sql = qq{ SELECT count(*) from vuln_nessus_preferences_defaults WHERE nessus_id = "$f0" };
+            logwriter( $cmd, 5 );
+            $sth_sel = $dbh->prepare( $sql );
+            $sth_sel->execute;
+
+            $foo=$sth_sel->fetchrow_array;
+            if ($foo == 0) {
+                $sql = qq{insert into vuln_nessus_preferences_defaults (nessus_id, nessusgroup, type, field, 
+                    value, category,flag) values ("$f0", "$f1", "$f2", "$f3", "$f4", "$f5","T" );};
+            } else {
+                $sql = qq{UPDATE vuln_nessus_preferences_defaults SET nessusgroup="$f1", type="$f2", field="$f3",
+                    value="$f4", category="$f5", flag="T" WHERE nessus_id = "$f0" };
+            }
+            safe_db_write( $sql, 5 );
         }
-        safe_db_write( $sql, 5 );
-
     }
     $sql = "UPDATE vuln_nessus_preferences_defaults set type = 'C' WHERE nessusgroup = 'ServerPrefs' and value in ('yes', 'no')";
     safe_db_write( $sql, 5 );
@@ -1118,46 +1448,61 @@ sub generate_profiles {
                 $sth_sel->execute;
                 $sth_sel->finish();
             }
-            # Special case, disable plugins 11219(synscan), 10335(tcp_scanner), 80009(portscan_strobe), 80001(pnscan), 80002(portbunny) for all profiles
-            $sql = qq{ update vuln_nessus_settings_plugins set enabled='N' where (id=11219 or id=10335 or id=80009 or id=80001 or id=80002) and sid=$idprofile };
+            
+            my $dplugins = join("', '", @disabled_plugins);
+            # Special case, disable plugins for all profiles
+            $sql = qq{ UPDATE vuln_nessus_settings_plugins SET enabled='N'
+                        WHERE id IN ('$dplugins') AND sid=$idprofile };
             $sth_sel = $dbh->prepare($sql);
             $sth_sel->execute;
             $sth_sel->finish();
             # end disabled
+            
             $sth_self->finish();
             print " Done\n";
             
-            # preferences
-            print "Filling preferences...\n";
-            
-            # special case Ping Host[checkbox]
-            $ping = 0;
-            $sql = qq{ select id, nessus_id, value, category, type from vuln_nessus_preferences };
-            $sth_self=$dbh->prepare( $sql );
-            $sth_self->execute;
-            while (my ($idp, $nessus_idp, $valuep, $categoryp, $typep) =$sth_self->fetchrow_array ) {
-                print ".";
-                if ($nessus_idp =~ /Ping Host.*Mark unrechable Hosts as dead/) {
-                    $valuep = "yes";
-                    $ping = 1;
+            if ($nessus !~ /omp\s*$/) {
+                # preferences
+                print "Filling preferences...\n";
+                
+                # special case Ping Host[checkbox]
+                $ping = 0;
+                $sql = qq{ select id, nessus_id, value, category, type from vuln_nessus_preferences };
+                $sth_self=$dbh->prepare( $sql );
+                $sth_self->execute;
+                while (my ($idp, $nessus_idp, $valuep, $categoryp, $typep) =$sth_self->fetchrow_array ) {
+                    print ".";
+                    if ($nessus_idp =~ /Ping Host.*Mark unrechable Hosts as dead/) {
+                        $valuep = "yes";
+                        $ping = 1;
+                    }
+                    $nessus_idp = quotemeta $nessus_idp;
+                    $sql = qq{ insert into vuln_nessus_settings_preferences (sid, id, nessus_id, value, category, type) 
+                            values ('$idprofile', '$idp', '$nessus_idp', '$valuep', '$categoryp', '$typep') };
+                    $sth_sel = $dbh->prepare($sql);
+                    $sth_sel->execute;
+                    $sth_sel->finish();
                 }
-                $nessus_idp = quotemeta $nessus_idp;
-                $sql = qq{ insert into vuln_nessus_settings_preferences (sid, id, nessus_id, value, category, type) 
-                        values ('$idprofile', '$idp', '$nessus_idp', '$valuep', '$categoryp', '$typep') };
-                $sth_sel = $dbh->prepare($sql);
-                $sth_sel->execute;
-                $sth_sel->finish();
+                $sth_self->finish();
+                if (!$ping) {
+                    $sql = qq{ INSERT INTO vuln_nessus_settings_preferences (sid, id, nessus_id, value, category, type) 
+                        VALUES($idprofile, NULL, 'Ping Host[checkbox]:Mark unrechable Hosts as dead (not scanning)', 'yes', 'PLUGINS_PREFS', 'C') };
+                    $sth_sel = $dbh->prepare($sql);
+                    $sth_sel->execute;
+                    $sth_sel->finish();
+                }
             }
-            $sth_self->finish();
-            if (!$ping) {
-                $sql = qq{ INSERT INTO vuln_nessus_settings_preferences (sid, id, nessus_id, value, category, type) 
-                    VALUES($idprofile, NULL, 'Ping Host[checkbox]:Mark unrechable Hosts as dead (not scanning)', 'yes', 'PLUGINS_PREFS', 'C') };
-                $sth_sel = $dbh->prepare($sql);
-                $sth_sel->execute;
-                $sth_sel->finish();
+            else {
+                # $tmp[0] -> name, $tmp[2] -> C of F, $tmp[3] -> user
+                my $id_ff = create_profile($tmp[0], $tmp[2], $tmp[3], $profiles{$nd});
+                
+                # preferences
+                print "Filling preferences...\n";
+                
+                fill_preferences($idprofile, $id_ff);
             }
-            print "\nProfile $tmp[0] inserted\n";
             
+            print "\nProfile $tmp[0] inserted\n";
         }
         else {
             print "Profile $tmp[0] already exists\n";
@@ -1168,10 +1513,499 @@ sub generate_profiles {
 sub in_array {
     my @arr = @{$_[0]};
     my $search_for = $_[1];
-
+    
     foreach my $value (@arr) {
-        return 1 if ($value eq $search_for);
+        if ($value eq $search_for) {
+            return 1;
+        }
     }
     return 0;
 }
 
+sub create_profile {
+
+    my $name = $_[0];
+    my $type = $_[1];
+    my $user = $_[2];
+    my $value = $_[3];
+    
+    my $cmd;
+    my $i;
+    my @tmp;
+    my $id_ff;
+    
+    
+    $result_search = get_config_id($name, $user);
+    
+    if ($result_search eq "") {
+    
+        $cmd = "$openvas_manager_common \"<get_configs />\" > $xml_output";
+        
+        logwriter( "$cmd", 4 );
+        my $imp = system ( $cmd );
+
+        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Configs", 2 ); }
+
+        my $xml = eval {XMLin($xml_output, keyattr => [])};
+        
+        #print Dumper($xml);
+        
+        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+        if ($xml->{'status'} !~ /20\d/) {
+            my $status = $xml->{'status'};
+            my $status_text = $xml->{'status_text'};
+            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+        }
+        
+        if (ref($xml->{'config'}) eq 'ARRAY') {
+            @items = @{$xml->{'config'}};
+        } else {
+            push(@items,$xml->{'config'});
+        }
+        
+        foreach my $profile (@items) {
+            if ($profile->{'name'} eq "Full and fast") {
+                $id_ff = $profile->{'id'};
+            }
+        }
+        
+        #### copy config ####
+        
+        $cmd = "$openvas_manager_common \"<create_config><copy>$id_ff</copy><name>$name</name><comment>$user</comment></create_config>\" > $xml_output";
+
+        logwriter( "$cmd", 4 );
+        $imp = system ( $cmd );
+
+        $xml = eval {XMLin($xml_output, keyattr => [])};
+        
+        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+        if ($xml->{'status'} !~ /20\d/) {
+            my $status = $xml->{'status'};
+            my $status_text = $xml->{'status_text'};
+            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+        }
+
+        $new_config_id = $xml->{'id'}; # new config id
+
+        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Create Config $name", 2 ); }
+    
+    }
+    
+    else {  $new_config_id = $result_search; }
+    
+    #### modify config ####
+    
+    # Disable all families
+    my @openvas_manager_families = get_openvas_manager_families();
+    
+    foreach my $om_family(@openvas_manager_families) {
+        $cmd = "$openvas_manager_common \"<modify_config config_id='$new_config_id'><nvt_selection><family>$om_family</family></nvt_selection></modify_config>\" > $xml_output";
+        
+        $imp = system ( $cmd ); 
+        
+        $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+        if ($xml->{'status'} !~ /20\d/) {
+            my $status = $xml->{'status'};
+            my $status_text = $xml->{'status_text'};
+            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+        }
+    
+        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' disable family '$om_family' for config '$name'", 2 ); }
+    
+    }
+    
+    if($type eq "F") { # Families
+        @tmp = split(/\|/,$value);
+        
+        $cmd = "$openvas_manager_common \"<modify_config config_id='$new_config_id'><family_selection>";
+        
+        foreach my $family (@tmp) {
+            $cmd .= "<family><name>$family</name><growing>1</growing><all>1</all></family>";
+            logwriter("Updating family '$family', growing=1 and all=1", 4);
+        }
+        
+        $cmd .= "</family_selection></modify_config>\" > $xml_output";
+        
+        #logwriter( "$cmd", 4 );
+        $imp = system ( $cmd );
+        
+        $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+        if ($xml->{'status'} !~ /20\d/) {
+            my $status = $xml->{'status'};
+            my $status_text = $xml->{'status_text'};
+            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+        }
+    
+        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
+    
+        my %familyHash;
+        
+        $value =~ s/\|/\',\'/g;
+        
+        my $dplugins = join("', '", @disabled_plugins);
+        
+        # Special case, disable plugins for all profiles
+        my $sql = qq{ SELECT f.name, p.oid FROM vuln_nessus_plugins AS p, vuln_nessus_family AS f
+                                 WHERE p.family = f.id AND p.id NOT IN ('$dplugins')
+                                                       AND p.family IN (SELECT id FROM vuln_nessus_family WHERE name IN ('$value')) ORDER BY f.name };
+                                                       
+        #logwriter($sql,4);
+
+        my $sth_self=$dbh->prepare( $sql );
+        $sth_self->execute;
+        while (my ($family, $oid) =$sth_self->fetchrow_array ) {
+            $familyHash{$family}{$oid}++;
+        }
+        $sth_self->finish(); 
+    
+        foreach my $family ( keys %familyHash ) {
+            $cmd = "$openvas_manager_common \"<modify_config config_id='$new_config_id'><nvt_selection><family>$family</family>";
+            logwriter("Updating family '$family'...", 4);
+            $i = 0;
+            foreach my $oid ( keys %{$familyHash{$family}} ) {
+                $cmd .= "<nvt oid='$oid'/>";
+                $i++;
+            }
+            logwriter("$i plugins", 4);
+            $cmd .= "</nvt_selection></modify_config>\" > $xml_output";
+        
+            #logwriter( "$cmd", 4 );
+            $imp = system ( $cmd ); 
+    
+            $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+            if ($@ ne "") { die "Cant' read XML $xml_output"; }
+            if ($xml->{'status'} !~ /20\d/) {
+                my $status = $xml->{'status'};
+                my $status_text = $xml->{'status_text'};
+                die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+            }
+    
+            if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
+        }
+    }
+    else { # Categories
+        my %familyHash;
+        
+        my $dplugins = join("', '", @disabled_plugins);
+        
+        $value =~ s/\|/\',\'/g;
+        # Special case, disable plugins for all profiles
+        my $sql = qq{ SELECT f.name, p.oid FROM vuln_nessus_plugins AS p, vuln_nessus_family AS f
+                                 WHERE p.family = f.id AND p.id NOT IN ('$dplugins')
+                                                       AND p.category IN (SELECT id FROM vuln_nessus_category WHERE name IN ('$value')) ORDER BY f.name };
+                                                       
+        #logwriter($sql,4);
+
+        my $sth_self=$dbh->prepare( $sql );
+        $sth_self->execute;
+        while (my ($family, $oid) =$sth_self->fetchrow_array ) {
+            $familyHash{$family}{$oid}++;
+        }
+        $sth_self->finish(); 
+    
+        foreach my $family ( keys %familyHash ) {
+            $cmd = "$openvas_manager_common \"<modify_config config_id='$new_config_id'><nvt_selection><family>$family</family>";
+            logwriter("Updating family '$family'...", 4);
+            $i = 0;
+            foreach my $oid ( keys %{$familyHash{$family}} ) {
+                $cmd .= "<nvt oid='$oid'/>";
+                $i++;
+            }
+            logwriter("$i plugins", 4);
+            $cmd .= "</nvt_selection></modify_config>\" > $xml_output";
+        
+            #logwriter( "$cmd", 4 );
+            $imp = system ( $cmd ); 
+    
+            $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+            if ($@ ne "") { die "Cant' read XML $xml_output"; }
+            if ($xml->{'status'} !~ /20\d/) {
+                my $status = $xml->{'status'};
+                my $status_text = $xml->{'status_text'};
+                die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+            }
+    
+            if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
+        }
+    }
+    
+    return $id_ff;
+    
+}
+
+sub get_config_id {
+    my $name = $_[0];
+    my $user = $_[1];
+    
+    my $result = "";
+    my @items=();
+    
+    my $cmd = "$openvas_manager_common \"<get_configs />\" > $xml_output";
+    
+    #logwriter( "$cmd", 4 );
+    my $imp = system ( $cmd );
+
+    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Configs", 2 ); }
+
+    my $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+    #print Dumper($xml);
+    
+    if ($@ ne "") { die "Cant' read XML $xml_output"; }
+    if ($xml->{'status'} !~ /20\d/) {
+        my $status = $xml->{'status'};
+        my $status_text = $xml->{'status_text'};
+        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+    }
+    
+    if (ref($xml->{'config'}) eq 'ARRAY') {
+        @items = @{$xml->{'config'}};
+    } else {
+        push(@items,$xml->{'config'});
+    }
+    
+    foreach my $profile (@items) {
+        if ($profile->{'name'} eq $name && $profile->{'comment'} eq $user) {
+            $result = $profile->{'id'};
+        }
+    }
+    return $result;
+}
+
+sub fill_preferences {
+    my $idprofile = $_[0];
+    my $id_ff = $_[1];
+    my $sql;
+    
+    my @items=();
+    my @preferences=();
+    
+    my $cmd = "$openvas_manager_common \"<get_preferences config_id='$id_ff'/>\" > $xml_output";
+    
+    logwriter( "$cmd", 4 );
+    
+    my $imp = system ( $cmd );
+
+    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Preferences", 2 ); }
+    
+    my $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+    
+    if ($@ ne "") { die "Cant' read XML $xml_output"; }
+    if ($xml->{'status'} !~ /20\d/) {
+        my $status = $xml->{'status'};
+        my $status_text = $xml->{'status_text'};
+        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+    }
+    
+    if (ref($xml->{'preference'}) eq 'ARRAY') {
+        @items = @{$xml->{'preference'}};
+    } else {
+        push(@items,$xml->{'preference'});
+    }
+    
+    foreach my $preference (@items) {
+        #print Dumper($preference);
+        if (ref($preference->{'value'}) eq 'HASH') {
+            $preference->{'value'} = ""; 
+        }
+        push(@preferences, $preference->{'name'}." = ".$preference->{'value'});
+    }
+    
+    #open(PROC, "$cmd |") or die "failed to fork :$!\n";
+    foreach (@preferences) {
+        if (/\]:/) {
+            # PLUGINS_PREFS
+            $f5 = "PLUGINS_PREFS";
+            ($f1,$rhs) = split(/\[/);
+            ($f2,$rhs2) = split(/\]:/,$rhs);
+            ($f3,$f4) = split(/=/, $rhs2);
+             $f3 =~ s/\s+$//;    # Remove trailing whitespace 
+            $f4 =~ s/^ //;        # Remove leading whitespace
+            $f4 =~ s/\n$//;        # Remove trailing newline
+
+            $f0 = $f1."[".$f2."]:".$f3;
+            $f2 =~ s/entry/T/;        # Text box
+            $f2 =~ s/radio/R/;        # Radio button
+            $f2 =~ s/checkbox/C/;        # Checkbox
+            $f2 =~ s/password/P/;        # Password
+            $f2 =~ s/file/T/;        # File
+
+        } else {
+            # SERVER_PREFS
+            $f5 = "SERVER_PREFS";
+
+            $f1 = "ServerPrefs";
+            ($f3,$f4) = split(/=/);
+            $f3 =~ s/\s+$//;    # Remove trailing whitespace
+            $f4 =~ s/\n$//;        # Remove trailing newline
+            $f4 =~ s/^ //;        # Remove leading whitespace
+            $f2 = "T";
+            $f0 = $f3;
+        }
+
+        $sql = qq{insert into vuln_nessus_settings_preferences (sid, nessus_id, type, 
+                value, category) values ($idprofile,"$f0", "$f2", "$f4", "$f5");};
+                
+        safe_db_write( $sql, 5 );
+    }
+
+}
+
+sub delete_configs {
+    my (@openvas_manager_configs) = @{$_[0]};
+    
+    my $cmd = "$openvas_manager_common \"<get_configs />\" > $xml_output";
+    
+    #logwriter( "$cmd", 4 );
+    my $imp = system ( $cmd );
+
+    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Configs", 2 ); }
+
+    my $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+    #print Dumper($xml);
+    
+    if ($@ ne "") { die "Cant' read XML $xml_output"; }
+    if ($xml->{'status'} !~ /20\d/) {
+        my $status = $xml->{'status'};
+        my $status_text = $xml->{'status_text'};
+        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+    }
+    
+    if (ref($xml->{'config'}) eq 'ARRAY') {
+        @items = @{$xml->{'config'}};
+    } else {
+        push(@items,$xml->{'config'});
+    }
+    
+    foreach my $profile (@items) {                                         
+        if (!in_array(\@openvas_manager_configs,$profile->{'name'}."-".$profile->{'comment'})) {
+            my $id_delete = $profile->{'id'};
+            my $cmd = "$openvas_manager_common \"<delete_config config_id='$id_delete' />\" > $xml_output";
+            #print $profile->{'name'};
+            #print $cmd;
+            
+            #logwriter( "$cmd", 4 );
+            my $imp = system ( $cmd );
+
+            if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Delete Config ".$profile->{'name'}." (".$profile->{'comment'}.")", 2 ); }
+
+            my $xml = eval {XMLin($xml_output, keyattr => [])};
+            
+            if ($@ ne "") { die "Cant' read XML $xml_output"; }
+            if ($xml->{'status'} !~ /20\d/) {
+                my $status = $xml->{'status'};
+                my $status_text = $xml->{'status_text'};
+                die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+            }
+        }
+    }
+}
+
+sub get_openvas_manager_families {
+
+    my @families=();
+    my @items=();
+    
+    my $cmd = "$openvas_manager_common \"<get_nvt_families />\" > $xml_output";
+    
+    #logwriter( "$cmd", 4 );
+    my $imp = system ( $cmd );
+
+    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Families", 2 ); }
+
+    my $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+    #print Dumper($xml);
+    
+    if ($@ ne "") { die "Cant' read XML $xml_output"; }
+    if ($xml->{'status'} !~ /20\d/) {
+        my $status = $xml->{'status'};
+        my $status_text = $xml->{'status_text'};
+        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+    }
+    
+    if (ref($xml->{'families'}->{'family'}) eq 'ARRAY') {
+        @items = @{$xml->{'families'}->{'family'}};
+    } else {
+        push(@items,$xml->{'families'}->{'family'});
+    }
+   
+    #print Dumper(@items);
+   
+    foreach my $family ( @items) {
+        push(@families, $family->{'name'});
+    }
+
+    return(@families);
+}
+
+sub delete_all_tasks {
+    my @items = ();
+    my $task_id = "";
+    
+    my $xml = execute_omp_command("<get_tasks />");
+    
+    if (ref($xml->{'task'}) eq 'ARRAY') {
+        @items = @{$xml->{'task'}};
+    } else {
+        push(@items,$xml->{'task'});
+    }
+    
+    foreach my $task (@items) {
+        $task_id = $task->{'id'};
+        if(defined($task->{'id'})) {
+            execute_omp_command("<stop_task task_id='$task_id' />");
+            execute_omp_command("<delete_task task_id='$task_id' />");
+        }
+    }
+}
+
+sub execute_omp_command {
+    my $cmd = shift;
+
+    my $imp = system ("$openvas_manager_common \"$cmd\" > $xml_output 2>&1");
+    
+    #if ( $imp != 0 ) { die "". logwriter( "nessus_jobs: Failed execute omp command", 2 ); }
+
+    my $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+
+    if ($@ ne "") {
+    
+        open(INFO, $xml_output);         # Open the file
+        my @log_lines = <INFO>;          # Read it into an array
+        close(INFO);                     # Close the file
+    
+        my $error = join(" ", @log_lines);
+        if($job_id_to_log ne "") {
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='$error', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
+            safe_db_write ( $sql, 1 );
+        }
+
+        die "Cant' read XML $xml_output: $error";
+    }
+    
+    if ($xml->{'status'} !~ /20\d/) {
+        my $status = $xml->{'status'};
+        my $status_text = $xml->{'status_text'};
+        
+        if($job_id_to_log ne "") {
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='status_text', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
+            safe_db_write ( $sql, 1 );
+        }
+        
+        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+    }
+    
+    unlink $xml_output if -e $xml_output;
+    
+    return $xml; 
+}

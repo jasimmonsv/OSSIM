@@ -70,9 +70,11 @@
 
 require_once ('classes/Session.inc');
 require_once ('ossim_conf.inc');
+require_once ('classes/OMP.inc');
 
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
+$nessus_path = $conf->get_conf("nessus_path", FALSE);
 
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
@@ -100,7 +102,20 @@ echo gettext("Vulnmeter"); ?> </title>
 			this.load('lookup.php?id=' + id);
 		}
 	});
-	$('#loading').hide();
+	$('#loading').toggle();
+    $('.updateplugins').bind('click', function() {
+        $('#div_updateplugins').show();
+    });
+    $('.updateautoenable').bind('click', function() {
+        $('#div_updateautoenable').show();
+    });
+    $('.createprofile').bind('click', function() {
+        $('#div_createprofile').show();
+    });
+    $('.saveprefs').bind('click', function() {
+        $('#div_saveprefs').show();
+    });
+    
   }
   function showEnableBy(){
     $("#cat1").toggle();
@@ -235,7 +250,13 @@ echo "<input type=button onclick=\"document.location.href='settings.php?disp=edi
 //<input type=button onclick="document.location.href='settings.php?disp=editusers&amp;sid=$sid'" class="button" value="USERS">&nbsp;&nbsp;&nbsp;
 echo "<input type=button onclick=\"document.location.href='settings.php?disp=viewconfig&amp;sid=$sid'\" class=\"".(($_GET['disp']=='viewconfig')? "menuon":"menu")."\" value=\""._("VIEW CONFIG")."\">&nbsp;&nbsp;&nbsp;";
 echo "</form>";
-
+?>
+<div id="div_updateautoenable" style="display:none">
+<br>
+<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
+&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
+</div>
+<?php
    }
    echo "</center><br>";
 
@@ -267,11 +288,15 @@ function new_profile() {
     $result = $dbconn->GetArray($query);
     $allpolicies = "<select name='cloneid'>\n";
     $allpolicies .= "<option value=''>"._("None")."</option>\n";
+
     if($result) {
        foreach($result as $sp) {
-          $allpolicies .= "<option value='" . $sp['id'] . "'>" .
-             $sp['name'] . " - " . $sp['description'] . 
-         "</option>\n";
+          if($sp['description']!="") {
+            $allpolicies .= "<option value='".$sp['id']."'>".$sp['name']." - ".$sp['description']."</option>\n";
+          }
+          else {
+            $allpolicies .= "<option value='".$sp['id']."'>".$sp['name']."</option>\n";
+          }
        }
     }
     $allpolicies .= "</select>";
@@ -282,6 +307,15 @@ function new_profile() {
 <table width="650">
 <tr>
 EOT;
+?>
+<div id="div_createprofile" style="display:none;padding-bottom:8px;">
+<br>
+<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
+&nbsp;<?php echo _("Creating the profile, please wait few seconds...") ?>
+<br>
+</div>
+
+<?php
     echo "<td>"._("Name").":</td>";
     echo <<<EOT
 <td><input type="text" name="sname" value=""></td>
@@ -512,7 +546,7 @@ EOT;
 </table></div>
 <br>
 EOT;
-   echo "<input type=\"submit\" name=\"submit\" class=\"button\" value=\""._("Save")."\"><br><br>";
+   echo "<input type=\"submit\" name=\"submit\" class=\"button createprofile\" value=\""._("Save")."\"><br><br>";
    echo <<<EOT
 </form></CENTER>
 EOT;
@@ -829,11 +863,8 @@ echo "<th>"._("Intelligent")."</th></tr>";
       echo "></td></tr>";
       $result->MoveNext();
    }
-  	  
-    echo "</table></div></td></tr></table></center><br/>";
-
-   echo "<input type=\"submit\" name=\"submit\" value=\""._("Update")."\" class=\"button\"><br/><br/></form>";
-
+    echo "</table></div></td></tr></table></center><br/>"; 
+    echo "<input type=\"submit\" name=\"submit\" value=\""._("Update")."\" class=\"button updateautoenable\"><br/><br/></form>";
 }
 
 function edit_plugins($sid) {
@@ -862,9 +893,16 @@ echo "<b>$pcount</b> "._("Nessus plugins available")." - <b>$penabled</b> - "._(
 <input type="hidden" name="fam" value="$fam" >
 EOT;
 
-echo "<input type=\"submit\" name=\"AllPlugins\" value=\""._("Enable All")."\" class=\"button\">&nbsp;&nbsp;&nbsp;";
-echo "<input type=\"submit\" name=\"NonDOS\" value=\""._("Enable Non DOS")."\" class=\"button\">&nbsp;&nbsp;&nbsp;";
-echo "<input type=\"submit\" name=\"DisableAll\" value=\""._("Disable All")."\" class=\"button\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=\"submit\" name=\"AllPlugins\" value=\""._("Enable All")."\" class=\"button updateplugins\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=\"submit\" name=\"NonDOS\" value=\""._("Enable Non DOS")."\" class=\"button updateplugins\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=\"submit\" name=\"DisableAll\" value=\""._("Disable All")."\" class=\"button updateplugins\">&nbsp;&nbsp;&nbsp;";
+echo "<br><br>";
+?>
+<div id="div_updateplugins" style="display:none">
+<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
+&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
+</div>
+<?php
    echo <<<EOT
 </form>
 </center>
@@ -1038,6 +1076,13 @@ function edit_serverprefs($sid) {
 echo "<center><form method=\"post\" action=\"settings.php\">";
 echo "<input type=\"hidden\" name=\"disp\" value=\"saveprefs\">";
 echo "<input type=\"hidden\" name=\"sid\" value=\"$sid\">";
+
+?>
+<div id="div_saveprefs" style="display:none;padding-bottom:8px;">
+<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
+&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
+</div>
+<?php
 print "<table>";
    while(!$result->EOF) {
       $counter++;
@@ -1051,7 +1096,7 @@ print "<table>";
       $result->MoveNext();
    }
    echo "</table>";
-   echo "<BR><INPUT type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button\">
+   echo "<BR><INPUT type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button saveprefs\">
                     </form></center><BR>";
 
 }
@@ -1170,7 +1215,7 @@ function add_plugins ( $sid, $importplugins, $preenable, $bEnable ) {
 }
 
 function create_new_profile($sname, $sdescription, $sautoenable, $stype, $cloneid, $auto_cat_status, $auto_fam_status, $tracker ){
-   global $dbconn;
+   global $dbconn, $nessus_path;
    $username = $stype; // Owner Profile
       if($cloneid <> '') {
          // get the data from the original profile
@@ -1442,6 +1487,11 @@ function create_new_profile($sname, $sdescription, $sautoenable, $stype, $clonei
          }
       }
       if(!$error) {
+        if (preg_match("/omp\s*$/i", $nessus_path)) {
+            $omp = new OMP();
+            $omp->create_new_config($sid);
+        }
+   
    //logAccess( "Created Profile $sid - $sname" );
 
    //         echo <<<EOT
@@ -1461,7 +1511,7 @@ function create_new_profile($sname, $sdescription, $sautoenable, $stype, $clonei
 }
 
 function saveprefs( $sid ) {
-  global $username, $uroles, $dbconn;
+  global $username, $uroles, $dbconn, $nessus_path;
 
    // get the profile prefs for use later
    $sql = "SELECT t.nessusgroup, t.nessus_id, t.field, 
@@ -1544,13 +1594,18 @@ function saveprefs( $sid ) {
 //EOT;
 //   logAccess( "Edited Prefs for Profile $sid" );
 
-   edit_profile($sid);
+    if (preg_match("/omp\s*$/i", $nessus_path)) {
+        $omp = new OMP();
+        $omp->set_preferences($sid);
+    }
+
+    edit_serverprefs($sid);
+    //edit_profile($sid);
 }
 
 function saveplugins($sid, $fam, $cve, $saveplugins, $AllPlugins, $NonDOS, $DisableAll) {
-   global $username, $dbconn;
+   global $username, $dbconn, $nessus_path;
    //echo "Updating Plugins Status<br>";
-
     if ($saveplugins=="Save") {
       reset ($_POST);   // if form method="post"
       // edited to work on a per family basis so we can break
@@ -1645,12 +1700,24 @@ function saveplugins($sid, $fam, $cve, $saveplugins, $AllPlugins, $NonDOS, $Disa
    
    //echo "<br>";
 
-   logAccess( "Updated Plugins for Profile $sid" );
-   edit_plugins($sid, $fam);
+    if (preg_match("/omp\s*$/i", $nessus_path)) {
+        $omp = new OMP();
+        $omp->set_plugins_by_family($sid);
+    }
+   
+    logAccess( "Updated Plugins for Profile $sid" );
+    edit_plugins($sid, $fam);
 }
 
 function select_profile(){
-   global $sid, $username, $dbconn, $version;
+    global $sid, $username, $dbconn, $version, $nessus_path;
+   
+    $used_sids = array();
+   
+    if (preg_match("/omp\s*$/i", $nessus_path)) {
+        $omp = new OMP();
+        $used_sids = $omp->get_used_sids();
+    }
    
    $entities_nt = array();
    
@@ -1745,20 +1812,33 @@ echo "<td>";
 //var_dump($normal_user_pro);
 //var_dump($sowner);
 //var_dump($username);
+//var_dump($used_sids); 
 
 if($normal_user_pro && $sowner!=$username && $sname!="Default") {  
     echo "&nbsp";
 }
 elseif($username=="admin"){
-    echo "<a href=\"settings.php?disp=edit&amp;&amp;sid=$sid\"><img src=\"images/pencil.png\"></a>";
-    echo "<a href=\"settings.php?disp=edit&amp;op=delete&amp;sid=$sid\" onclick=\"return confirmDelete();\"><img src=\"images/delete.gif\"></a>";
+    if(!in_array($sid, $used_sids)) {
+        echo "<a href=\"settings.php?disp=edit&amp;&amp;sid=$sid\"><img src=\"images/pencil.png\"></a>";
+        echo "<a href=\"settings.php?disp=edit&amp;op=delete&amp;sid=$sid\" onclick=\"return confirmDelete();\"><img src=\"images/delete.gif\"></a>";
+    }
+    else {
+        echo "<img src=\"images/pencil.png\" title=\""._("This profile is being used by a running job now")."\" style=\"filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;\">";
+        echo "<img src=\"images/delete.gif\" title=\""._("This profile is being used by a running job now")."\" style=\"filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;\">";
+    }
 }
 elseif($sname=="Default") {
     echo "["._("edit by admin")."]";
 }
 elseif($sname!="Default"){
-    echo "<a href=\"settings.php?disp=edit&amp;&amp;sid=$sid\"><img src=\"images/pencil.png\"></a>";
-    echo "<a href=\"settings.php?disp=edit&amp;op=delete&amp;sid=$sid\" onclick=\"return confirmDelete();\"><img src=\"images/delete.gif\"></a>";
+    if(!in_array($sid, $used_sids)) { 
+        echo "<a href=\"settings.php?disp=edit&amp;&amp;sid=$sid\"><img src=\"images/pencil.png\"></a>";
+        echo "<a href=\"settings.php?disp=edit&amp;op=delete&amp;sid=$sid\" onclick=\"return confirmDelete();\"><img src=\"images/delete.gif\"></a>";
+    }
+    else {
+        echo "<img title=\""._("This profile is being used by a running job now")."\" style=\"filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;\" src=\"images/pencil.png\">";
+        echo "<img title=\""._("This profile is being used by a running job now")."\" style=\"filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;\" src=\"images/delete.gif\">";
+    }
 }
 echo "</td>";
 echo "</tr>";
@@ -1785,7 +1865,7 @@ echo "</td></tr></table></center>";
 }
 
 function update_profile($sid, $sname, $sdescription, $stype, $sautoenable, $auto_cat_status, $auto_fam_status, $tracker ) { 
-   global $uroles, $dbconn;
+   global $uroles, $dbconn, $conf;
    $username = $stype; // Owner Profile
 
    $host_tracker = 0;
@@ -1875,6 +1955,11 @@ function update_profile($sid, $sname, $sdescription, $stype, $sautoenable, $auto
 
    //logAccess( "Updated Autoenable Settings for Profile $sid" );
 
+    if (preg_match("/omp\s*$/i", $nessus_path)) {
+        $omp = new OMP();
+        $omp->set_plugins_by_family($sid);
+    }
+   
    edit_profile($sid);
 
 }
@@ -2119,7 +2204,7 @@ function formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn)
     }
     else {
       # Assume it is a text box
-      	$sufix = (preg_match("/\[file\]/",$nessus_id)) ? "&nbsp;["._("full file path")."]" : "";
+        $sufix = (preg_match("/\[file\]/",$nessus_id)) ? "&nbsp;["._("full file path")."]" : "";
         $retstr="<tr><td style='text-align:left;width:65%'>$field $sufix</td><td><INPUT type=\"text\" name=\"$vname\" value=\"$value\"></td></tr>";
     }
     $retstr .= "\n";
@@ -2208,7 +2293,7 @@ function createHiddenDiv($name, $num, $data, $fam, $sid) {
    $text .= "&nbsp;&nbsp;";
    $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEm(this, 'family".$num."', false);\" class=\"button\"/>";
    $text .= "&nbsp;&nbsp;";
-   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button\"></form>";
+   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button updateplugins\"></form>";
    $text .= "</div></center>\n";
    return $text;
 }
@@ -2269,7 +2354,7 @@ function createHiddenDivCve($name, $num, $data, $cve, $sid) {
    $text .= "&nbsp;&nbsp;";
    $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEm(this, 'cve".$num."', false);\" class=\"button\"/>";
    $text .= "&nbsp;&nbsp;";
-   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button\"></form>";
+   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button updateplugins\"></form>";
    $text .= "</div></center>\n";
    return $text;
 }
@@ -2277,50 +2362,65 @@ function createHiddenDivCve($name, $num, $data, $cve, $sid) {
 switch($disp) {
 
    case "edit":
-
-        $profiles_allowed = array(); // profiles alloded for pro admin and normal user
-        $query = "";
-        if(preg_match("/pro|demo/i",$version)){
-            if (Acl::am_i_proadmin()) {
-                $pro_users = array();
-                $entities_list = array();
-
-                //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
-                //$entities_list = array_keys($entities_admin);
-                $entities_list = Acl::get_user_entities($current_user);
-            
-                $users = Acl::get_my_users($dbconn, Session::get_session_user());
-                foreach ($users as $us) {
-                    $pro_users[] = $us["login"];
-                }
-                $query = "SELECT distinct(t1.id)FROM vuln_nessus_settings t1
-                          WHERE deleted = '0' and (name='Default' or owner='0' or owner in ('".implode("', '", array_merge($entities_list,$pro_users))."')) ORDER BY t1.name";
-            }
+   
+       $used_sids = array();
+   
+        if (preg_match("/omp\s*$/i", $nessus_path)) {
+            $omp = new OMP();
+            $used_sids = $omp->get_used_sids();
         }
-
-        if($query=="")     $query = "SELECT distinct(t1.id)FROM vuln_nessus_settings t1
-                                     WHERE deleted = '0' and (name='Default' or owner='0' or owner='$username') ORDER BY t1.name";
-                          
-        $result=$dbconn->Execute($query);
         
-        while (!$result->EOF) {
-            $profiles_allowed[] = $result->fields["id"];
-            $result->MoveNext();
-        }
-        if (Session::am_i_admin() || in_array($sid, $profiles_allowed)){
-            if ( $op == "delete") {
-                delete_profile($sid, $confirm);
-            
-            } else {
-                 //edit_profile($sid);
-                 edit_autoenable($sid);
-              }
-        }
-        else {
+        if(in_array($sid, $used_sids)) {
             ?>
-            <p style="text-align:center"><?php  echo _("You don't have permission to edit or delete this profile"); ?></p>
+            <p style="text-align:center"><?php  echo _("This profile is being used by a running job now"); ?></p>
             <?
             select_profile();
+        }
+        else {
+            $profiles_allowed = array(); // profiles alloded for pro admin and normal user
+            $query = "";
+            if(preg_match("/pro|demo/i",$version)){
+                if (Acl::am_i_proadmin()) {
+                    $pro_users = array();
+                    $entities_list = array();
+
+                    //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
+                    //$entities_list = array_keys($entities_admin);
+                    $entities_list = Acl::get_user_entities($current_user);
+                
+                    $users = Acl::get_my_users($dbconn, Session::get_session_user());
+                    foreach ($users as $us) {
+                        $pro_users[] = $us["login"];
+                    }
+                    $query = "SELECT distinct(t1.id)FROM vuln_nessus_settings t1
+                              WHERE deleted = '0' and (name='Default' or owner='0' or owner in ('".implode("', '", array_merge($entities_list,$pro_users))."')) ORDER BY t1.name";
+                }
+            }
+
+            if($query=="")     $query = "SELECT distinct(t1.id)FROM vuln_nessus_settings t1
+                                         WHERE deleted = '0' and (name='Default' or owner='0' or owner='$username') ORDER BY t1.name";
+                              
+            $result=$dbconn->Execute($query);
+            
+            while (!$result->EOF) {
+                $profiles_allowed[] = $result->fields["id"];
+                $result->MoveNext();
+            }
+            if (Session::am_i_admin() || in_array($sid, $profiles_allowed)){
+                if ( $op == "delete") {
+                    delete_profile($sid, $confirm);
+                
+                } else {
+                     //edit_profile($sid);
+                     edit_autoenable($sid);
+                  }
+            }
+            else {
+                ?>
+                <p style="text-align:center"><?php  echo _("You don't have permission to edit or delete this profile"); ?></p>
+                <?
+                select_profile();
+            }
         }
 
       break;

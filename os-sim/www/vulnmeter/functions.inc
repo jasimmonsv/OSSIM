@@ -78,16 +78,31 @@ function host_ip_name(){
 function tooltip_hosts($hosts,$ipsnames){
     $list = array();
     $result = array();
+    $tmp_ipsnames = array();
+    
     $out = "";
+    
+    $tmp_ipsnames = $ipsnames;
 
     $list = explode("\n", trim($hosts));
     foreach ($list as $host){
         $host = trim($host);
+        
+         if(!preg_match("/\d+\.\d+\.\d+\.\d+/",$host)) { 
+            $ipsnames = array_flip($ipsnames);
+        }
         if( ($ipsnames[$host]!="") && ($host!=$ipsnames[$host]) ){
-            $result[] = $ipsnames[$host]." (".$host.")";
+            if(preg_match("/\d+\.\d+\.\d+\.\d+/",$host)) {
+                $result[] = $host." (".$ipsnames[$host].")";
+            }
+            else {
+                $result[] = $ipsnames[$host]." (".$host.")";
+            }
         }
         else
             $result[] = $host;
+        unset ($ipsnames);
+        $ipsnames = $tmp_ipsnames;
     }
     $out = implode("<br>", $result);
 
@@ -167,7 +182,7 @@ function status ($arruser, $user) {
         echo "      <span class=\"middle ne11\">";
         $result = $dbconn->Execute($query);
         while ( !$result->EOF ) {
-            echo "<img src=\"./images/running.gif\" boder=\"0\" title=\""._("Complete")."\" alt=\""._("Complete")."\" align=\"absmiddle\"> ".$result->fields['name']."<br><b>"._("Start at").":</b><br>".$result->fields['scan_START']."<br><b>"._("IP Sever").":</b><br>".$result->fields['hostname']."<br><br>";
+            echo "<img src=\"./images/running.png\" boder=\"0\" title=\""._("Complete")."\" alt=\""._("Complete")."\" align=\"absmiddle\"> ".$result->fields['name']."<br><b>"._("Start at").":</b><br>".$result->fields['scan_START']."<br><b>"._("IP Sever").":</b><br>".$result->fields['hostname']."<br><br>";
             $result->MoveNext();
         }
         echo "      </span>";
@@ -1227,10 +1242,17 @@ div.legend td { text-align:left; font-size:11px }
 
 function all_jobs($offset,$pageSize){
 global $username, $uroles, $dbconn, $hosts;
+
 $out = 0;
 
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
+$nessus_path = $conf->get_conf("nessus_path", FALSE);
+
+if (preg_match("/omp\s*$/i", $nessus_path)) {
+    require_once ('classes/OMP.inc');
+}
+
 
 $arruser = array();
 if(!preg_match("/pro|demo/i",$version)){
@@ -1248,7 +1270,7 @@ else {
 // all jobs
 
 if (in_array("admin", $arruser)){
-     $query = "SELECT t1.failed_attempts, t1.meth_Wcheck, t6.name as profile, t5.report_key, t1.report_id, t1.scan_NEXT, t1.meth_TARGET, t5.scantime, t1.failed_attempts, t1.scan_PRIORITY, t1.scan_PID, t1.id, t1.name, t1.username, t1.scan_START, t1.scan_END, 
+     $query = "SELECT t1.meth_CPLUGINS, t1.failed_attempts, t1.meth_Wcheck, t6.name as profile, t5.report_key, t1.report_id, t1.scan_NEXT, t1.meth_TARGET, t5.scantime, t1.failed_attempts, t1.scan_PRIORITY, t1.scan_PID, t1.id, t1.name, t1.username, t1.scan_START, t1.scan_END, 
                    t1.scan_SUBMIT, t1.status, t1.notify, t3.hostname
                FROM vuln_jobs t1
                LEFT JOIN vuln_nessus_servers t3 on t1.scan_ASSIGNED = t3.id
@@ -1257,7 +1279,7 @@ if (in_array("admin", $arruser)){
                ORDER BY t1.id DESC LIMIT $offset,$pageSize";
 }
 else {
-     $query = "SELECT t1.failed_attempts, t1.meth_Wcheck, t6.name as profile, t5.report_key, t1.report_id, t1.scan_NEXT, t1.meth_TARGET, t5.scantime, t1.failed_attempts, t1.scan_PRIORITY, t1.scan_PID, t1.id, t1.name, t1.username, t1.scan_START, t1.scan_END, 
+     $query = "SELECT t1.meth_CPLUGINS, t1.failed_attempts, t1.meth_Wcheck, t6.name as profile, t5.report_key, t1.report_id, t1.scan_NEXT, t1.meth_TARGET, t5.scantime, t1.failed_attempts, t1.scan_PRIORITY, t1.scan_PID, t1.id, t1.name, t1.username, t1.scan_START, t1.scan_END, 
                    t1.scan_SUBMIT, t1.status, t1.notify, t3.hostname
                FROM vuln_jobs t1
                LEFT JOIN vuln_nessus_servers t3 on t1.scan_ASSIGNED = t3.id
@@ -1287,7 +1309,7 @@ else {
 
 
      while ( !$result->EOF ) {
-        list ($failed_attempts, $meth_Wcheck, $profile, $report_key, $report_id, $scan_next, $meth_TARGET, $id_report, $failed_attempts, $scan_PRIORITY, $scan_PID, $nid, $nname, $nusername, $start_date, $end_date, $submit_date,
+        list ($task_id, $failed_attempts, $meth_Wcheck, $profile, $report_key, $report_id, $scan_next, $meth_TARGET, $id_report, $failed_attempts, $scan_PRIORITY, $scan_PID, $nid, $nname, $nusername, $start_date, $end_date, $submit_date,
                $nstatus, $nnotify, $shostname) = $result->fields;
                
         if($nnotify!="") $shostname = $nnotify;
@@ -1344,14 +1366,26 @@ else {
                $end_date = "<i>"._("Never")."</i>";
           }
 
-          if ($nstatus=="C") { $image = "<img src=\"./images/complete.gif\" boder=\"0\" title=\""._("Completed")."\" alt=\""._("Completed")."\" align=\"absmiddle\">"; }
-          elseif ($nstatus=="R") { $image = "<img src=\"./images/running.gif\" boder=\"0\" title=\""._("Running")."\" alt=\""._("Running")."\" align=\"absmiddle\">"; }
+          $job_status = "";
+          if (preg_match("/omp\s*$/i", $nessus_path) && $task_id!="") {
+            $omp = new OMP();
+            
+            $tstatus = $omp->get_task_status($nid);
+            
+            if($tstatus["status"]!="") {
+                $job_status = "<b>"._("Job Status")."</b>: ".$tstatus["status"].(($tstatus["progress"]!=-1 && $tstatus["status"]!="Requested")? " ".$tstatus["progress"]."%":"")."<br>";
+            }
+          }
+          if (preg_match("/requested$/i", $tstatus["status"])) { $image = "<img src=\"./images/requested.png\" boder=\"0\" title=\""._("Requested")."\" alt=\""._("Requested")."\" align=\"absmiddle\">"; }
+          elseif (preg_match("/^pause/i", $tstatus["status"])) { $image = "<img src=\"./images/paused.png\" boder=\"0\" title=\""._("Paused")."\" alt=\""._("Paused")."\" align=\"absmiddle\">"; }
+          elseif ($nstatus=="C") { $image = "<img src=\"./images/complete.png\" boder=\"0\" title=\""._("Completed")."\" alt=\""._("Completed")."\" align=\"absmiddle\">"; }
+          elseif ($nstatus=="R") { $image = "<img src=\"./images/running.png\" boder=\"0\" title=\""._("Running")."\" alt=\""._("Running")."\" align=\"absmiddle\">"; }
           elseif ($nstatus=="S") { $image = "<img src=\"./images/sched.png\" boder=\"0\" title=\""._("Schedule")."\" alt=\""._("Schedule")."\" align=\"absmiddle\">"; }
           elseif ($nstatus=="F") { 
             if($meth_Wcheck!="")
-                $image = "<img src=\"./images/warning.gif\" boder=\"0\" title=\""._("Failed")."\" alt=\""._("Failed")."\" align=\"absmiddle\">";
+                $image = "<img src=\"./images/warning.png\" boder=\"0\" title=\""._("Failed")."\" alt=\""._("Failed")."\" align=\"absmiddle\">";
             else
-                $image = "<img src=\"./images/complete.gif\" boder=\"0\" title=\""._("No vulnerabilities found for selected profile")."\" alt=\""._("No vulnerabilities found for selected profile")."\" align=\"absmiddle\">";
+                $image = "<img src=\"./images/complete.png\" boder=\"0\" title=\""._("No vulnerabilities found for selected profile")."\" alt=\""._("No vulnerabilities found for selected profile")."\" align=\"absmiddle\">";
           } 
           elseif ($nstatus=="T") { $image = "<img src=\"./images/timeout.png\" boder=\"0\" title=\""._("Timeout expired")."\" alt=\""._("Timeout expired")."\" align=\"absmiddle\">"; }
 
@@ -1410,18 +1444,22 @@ else {
           elseif($nstatus=="S")
             $colorscan = "#DFF7FF";
           elseif($nstatus=="R")
-            $colorscan = "#D1E7EF"; 
+            $colorscan = "#D1E7EF";
+          elseif($nstatus=="F")
+            $colorscan = "#EFE1E0";
             
           $sInfo .= "<tr bgcolor=\"$colorscan\">";
+          
+
           if ($nstatus == "C") {
-          $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href=\"reshtml.php?disp=html&amp;output=full&amp;scantime=$id_report&amp;scantype=M&amp;hmenu=Vulnerabilities&amp;smenu=Vulnerabilities\" txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br><b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."' class='scriptinfo'>$nname</a>";
+          $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href=\"reshtml.php?disp=html&amp;output=full&amp;scantime=$id_report&amp;scantype=M&amp;hmenu=Vulnerabilities&amp;smenu=Vulnerabilities\" txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."' class='scriptinfo'>$nname</a>";
           $sInfo .= "</td>";
           }
           else if ($nstatus=="F" && $meth_Wcheck!="") {
-            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br><b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."<br><b>"._("Message").":</b><br>$meth_Wcheck' class='scriptinfo'>$nname</a></td>";
+            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."<br><b>"._("Message").":</b><br>$meth_Wcheck' class='scriptinfo'>$nname</a></td>";
           }
           else {
-            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br><b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."' class='scriptinfo'>$nname</a></td>";
+            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."' class='scriptinfo'>$nname</a></td>";
           }
           $sInfo .= "<td>$submit_date</td>
                <td>$start_date</td>
@@ -1433,6 +1471,91 @@ else {
            $sInfo .= "<td>$nmins</td>";
          
           $sInfo .= "<td>$scan_next</td>";
+            if ( preg_match("/omp\s*$/i", $nessus_path) ) { // OMP
+                $sInfo .= "<td>";
+                if ($task_id=="") {
+                    $sInfo .= "<a href=\"sched.php?disp=delete_scan&job_id=$nid\" onclick=\"return confirmDelete();\"><img align=\"absmiddle\" src=\"images/delete.gif\" title=\""._("Delete")."\" alt=\""._("Delete")."\" border=0></a>&nbsp;";
+                }
+                else if ($tstatus["status"]!="Done" && $tstatus["status"]!="Stopped" && $tstatus["status"]!=""){
+                    
+                    $task_status = $tstatus["status"];
+                    
+                    if($task_status=="Running" || $task_status=="Requested" && !preg_match("/.*\srequested/i", $task_status)) { // pause button
+                        $sInfo .= "<a href=\"javascript:;\" onclick=\"changeTaskStatus('$nid','pause_task');\"><img align=\"absmiddle\" title=\""._("Pause current scan job")."\" alt=\""._("Pause current scan job")."\" src=\"./images/pause_task.png\"  border=0></a>";
+                    }
+                    else {
+                        $sInfo .= "<img align=\"absmiddle\" style=\"filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;\" src=\"./images/pause_task.png\"  border=0></a>";
+                    }
+                    
+                    
+                    // resume button
+                    if( preg_match("/^pause.*/i", $task_status) && !preg_match("/.*\srequested/i", $task_status)) {
+                        $sInfo .= "<a href=\"javascript:;\" onclick=\"changeTaskStatus('$nid','resume_task');\"><img align=\"absmiddle\" title=\""._("Resume scan job")."\" alt=\""._("Resume scan job")."\" src=\"./images/resume_task.png\"  border=0></a>";
+                    }
+                    else {
+                        $sInfo .= "<img align=\"absmiddle\" style=\"filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;\" src=\"./images/resume_task.png\"  border=0></a>";
+                    }
+                    
+                    // stop button
+                    if($task_status=="Running" || $task_status=="Paused" && !preg_match("/.*\srequested/i", $task_status)) { 
+                        $sInfo .= "<a href=\"javascript:;\" onclick=\"changeTaskStatus('$nid','stop_task');\"><img align=\"absmiddle\" title=\""._("Stop current scan job")."\" alt=\""._("Stop current scan job")."\" src=\"./images/stop_task.png\"  border=0></a>";
+                    }
+                    else {
+                        $sInfo .= "<img align=\"absmiddle\" style=\"filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;\" src=\"./images/stop_task.png\"  border=0></a>";
+                    }
+                }
+                else if (($nstatus=="C" || $tstatus["status"]=="Stopped") && $nstatus!="F") {
+                    if (Session::am_i_admin()) {
+                        $sInfo.="<a class=\"greybox\" href=\"change_user.php?id=$report_id\"><img align=\"absmiddle\" src=\"../pixmaps/group.png\" title=\""._("Change owner")."\" alt=\""._("Change owner")."\" border=\"0\"></a>&nbsp;";
+                   }
+                   else if(preg_match("/pro|demo/i",$version)){
+                        if(Acl::am_i_proadmin()) {
+                            $sInfo.="<a class=\"greybox\" href=\"change_user.php?id=$report_id\"><img align=\"absmiddle\" src=\"../pixmaps/group.png\" title=\""._("Change owner")."\" alt=\""._("Change owner")."\" border=\"0\"></a>&nbsp;";
+                        }
+                   }
+                   $sInfo.="<a href=\"sched.php?disp=rerun&job_id=$nid&hmenu=Vulnerabilities&smenu=Jobs\"><img align=\"absmiddle\" src=\"./images/relaunch.gif\" border=\"0\" title=\""._("Rerun Scan")."\" alt=\""._("Rerun Scan")."\"></a>&nbsp;<a href=\"reshtml.php?disp=html&amp;output=full&amp;scantime=$id_report&amp;scantype=M&amp;hmenu=Vulnerabilities&amp;smenu=Vulnerabilities\"><img align=\"absmiddle\" src=\"./images/html.png\" border=\"0\" title=\""._("View report")."\" alt=\""._("View report")."\"></a>&nbsp;";
+                   $sInfo.="<a href=\"respdf.php?scantime=$id_report&amp;key=$report_key&amp;scantype=M\" target=\"_blank\"><img align=\"absmiddle\" src=\"./images/pdf.png\" border=\"0\" title=\""._("View report")."\" alt=\""._("View report")."\"></a>&nbsp;";
+                   $sInfo.="<a href=\"rescsv.php?scantime=$id_report&amp;key=$report_key&amp;scantype=M\" target=\"_blank\"><img align=\"absmiddle\" src=\"./images/page_white_excel.png\" border=\"0\" title=\""._("View report")."\" alt=\""._("View report")."\"></a>&nbsp;";
+
+                   $user_name_filter = array();
+                    if(preg_match("/pro|demo/i",$version)){
+                        if (Acl::am_i_proadmin()) {
+                            $user_name_filter = Acl::get_user_entities();
+                            $users = Acl::get_my_users($dbconn, Session::get_session_user()); 
+                            foreach ($users as $us) {
+                                $user_name_filter[] = $us["login"];
+                            }
+                        }
+                        else {
+                            $user_name_filter [] = Session::get_session_user();
+                        }
+                    }
+                    else {
+                        $user_name_filter [] = Session::get_session_user(); 
+                    }
+
+                   if(file_exists($GLOBALS["CONF"]->db_conf["nessus_rpt_path"]."/tmp/nessus_s".$scan_PID.".out") && (Session::am_i_admin() || in_array($nusername,$user_name_filter))) {
+                        $sInfo.="<a href=\"download_results.php?job_id=$nid\" style=\"display: inline\"><img title=\""._("Download results in nbe format")."\" alt=\""._("Download results in nbe format")."\" style=\"display: inline;\" src=\"../pixmaps/download.png\" width=\"15\" align=\"absmiddle\" border=\"0\"></a>&nbsp;";
+                   }
+                        $sInfo.="($vulns)";
+                }
+                else if ($nstatus=="F") {
+                    $sInfo.="<a href=\"sched.php?disp=rerun&job_id=$nid&hmenu=Vulnerabilities&smenu=Jobs\"><img align=\"absmiddle\" src=\"./images/relaunch.gif\" border=\"0\" title=\""._("Rerun Scan")."\" alt=\""._("Rerun Scan")."\"></a>";
+                    $sInfo .= "<span style=\"font-size: 7pt;padding:0px 4px 0px 4px;\">["._("No vulns found")."]</span>";
+                }
+                if(preg_match("/omp\s*$/i", $nessus_path) && $task_id!="") {
+                // delete button
+                    if($tstatus["status"]=="Done" || $tstatus["status"]=="" || $tstatus["status"]=="Stopped" ||
+                       $tstatus["status"]=="Paused" && !preg_match("/.*\srequested/i", $tstatus["status"])) {
+                        $sInfo .= "<a href=\"javascript:;\" onclick=\"deleteTask('$nid');\"><img align=\"absmiddle\" title=\""._("Delete scan job")."\" alt=\""._("Delete scan job")."\" src=\"./images/delete.gif\"  border=0></a>";
+                    }
+                    else {
+                        $sInfo .= "<img align=\"absmiddle\" style=\"filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;\" src=\"./images/delete.gif\"  border=0></a>";
+                    }
+                }
+                $sInfo .= "<span style='display:none' id='changing_task_status_$nid'><img align=\"absmiddle\" src=\"../pixmaps/loading.gif\" width=16 border=0></span></td>";
+            }
+        else { // OpenVAS or nessus 
           if ($nstatus=="C" || ($nstatus=="T" && $report_id!="0")) {
            $sInfo.="<td style=\"text-align:left;padding-left:15px;\">";
            if (Session::am_i_admin()) {
@@ -1474,15 +1597,19 @@ else {
            $sInfo.="<a href=\"sched.php?disp=delete_scan&job_id=$nid\" onclick=\"return confirmDelete();\"><img align=\"absmiddle\" src=\"images/delete.gif\" title=\""._("Delete")."\" alt=\""._("Delete")."\" border=0></a>&nbsp;";
            $sInfo.="<span style=\"font-size: 7pt;\">["._("No vulns found")."]</span></td>";
           }
-          else{
-          	$sInfo .="<td align=\"center\">";
-	          if ($nstatus=="R" && $scan_PID>0) {
-	           $sInfo .="<a href=\"javascript:;\" onclick=\"cancelScan('$scan_PID');\"><img align=\"absmiddle\" src=\"../pixmaps/cancel.png\" title=\""._("Cancel current scan job")."\" alt=\""._("Cancel current scan job")."\" border=0></a><span style='display:none' id='working'><img align=\"absmiddle\" src=\"../pixmaps/loading.gif\" width=16 border=0></span>";
-	          }  
+          else {
+            $sInfo .="<td align=\"center\">";
+            if ($nstatus=="R" && $scan_PID>0) {
+            $sInfo .="<a href=\"javascript:;\" onclick=\"cancelScan('$scan_PID');\"><img align=\"absmiddle\" src=\"../pixmaps/cancel.png\" title=\""._("Cancel current scan job")."\" alt=\""._("Cancel current scan job")."\" border=0></a><span style='display:none' id='working'><img align=\"absmiddle\" src=\"../pixmaps/loading.gif\" width=16 border=0></span>";
+            }  
            $sInfo .="<a href=\"sched.php?disp=delete_scan&job_id=$nid\" onclick=\"return confirmDelete();\"><img align=\"absmiddle\" src=\"images/delete.gif\" title=\""._("Delete")."\" alt=\""._("Delete")."\" border=0></a></td>";
           }
-           $sInfo .="</tr>";
-          $result->MoveNext();
+
+      
+        }
+
+        $sInfo .="</tr>";
+        $result->MoveNext();
 
      }
 

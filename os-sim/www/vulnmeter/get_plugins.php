@@ -143,11 +143,11 @@ foreach($data as $element) {
     $text .= "</tr>\n";
    }
     $text .= "</table><br>\n";
-    $text .= "<input type='button' name='cbAll' value='"._("Check All")."' onclick=\"CheckEmp(this.form, true);\" class=\"btn\"/>";
+    $text .= "<input type='button' name='cbAll' value='"._("Check All")."' onclick=\"CheckEmp(this.form, true);\" class=\"button\"/>";
     $text .= "&nbsp;&nbsp;";
-    $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEmp(this.form, false);\" class=\"btn\"/>";
+    $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEmp(this.form, false);\" class=\"button\"/>";
     $text .= "&nbsp;&nbsp;";
-    $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"btn\"></form>";
+    $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button updatepluginsajax\"></form>";
     $text .= "</center>\n";
     
     $dbconn->disconnect();

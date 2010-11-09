@@ -143,6 +143,7 @@ use strict;
 use DBI;
 use Crypt::CBC; # apt-get install libcrypt-blowfish-perl
 use MIME::Base64;
+use Digest::MD5 qw(md5 md5_hex md5_base64);
 use Net::IP;
 #use Net::Nslookup;
 #use Net::Netmask;
@@ -152,6 +153,10 @@ use Date::Calc qw( Delta_DHMS Add_Delta_YMD Days_in_Month );
 use Getopt::Std;
 use Switch;
 use IO::Socket;
+use Data::Dumper;
+
+local $ENV{XML_SIMPLE_PREFERRED_PARSER} = "XML::Parser";
+use XML::Simple;
 
 #Declare constants
 use constant TRUE => 1;
@@ -170,6 +175,8 @@ my %loginfo;                                                             #LOGWRI
 #use vars qw/%CONFIG/;
 #&load_configs("/etc/inprotect.cfg");                                     #Load Inprotect Settings from File
 
+# vuln_jobs table:
+# meth_CPLUGINS -> $task_id in OpenVAS Manager
 
 my %CONFIG = ();
 
@@ -215,7 +222,7 @@ $CONFIG{'ROOTDIR'} = $nessus_vars{'nessus_rpt_path'};
 
 
 #GLOBAL VARIABLES
-my $debug              = 0;
+my $debug              = 1;
 my $log_level          = 4;
 my $track_progress     = 0;
 my $time_to_die        = 0;
@@ -227,6 +234,8 @@ my $isNessusScan       = FALSE;
 my $isTop100Scan       = FALSE;
 my $primaryAuditcheck  = "";
 my $vuln_incident_threshold = $nessus_vars{'vulnerability_incident_threshold'};
+my $job_id_to_log = "";
+
 logwriter("out - threshold = $vuln_incident_threshold",5);
 
 my $dbk = $CONFIG{'DBK'};
@@ -235,10 +244,13 @@ my $nessuslog = "/var/log/ossim/nessus_cron.log";       #Redirect output to the 
 #my $messages_dir = "$CONFIG{'ROOTDIR'}/email";   #FORM LETTER DIRECTORIES
 my $messages_dir = "$CONFIG{'ROOTDIR'}/tmp";   #FORM LETTER DIRECTORIES
 my $outdir = $CONFIG{'ROOTDIR'}."tmp";
+my $xml_output = $CONFIG{'ROOTDIR'}."tmp/tmp_nessus_jobs$$.xml";
 
 my $cred_name = "";
 my $no_results = FALSE;
 my $scan_timeout = FALSE;
+my $delete_task = FALSE; # delete task after scan
+
 my $exclude_hosts = "";
 my @vuln_nessus_plugins;
 my ($nessushost, $nessusport, $nessususer, $nessuspassword);
@@ -246,6 +258,8 @@ my ( $serverid );
 
 my ($outfile, $targetfile, $nessus_cfg, $workfile);
 my $txt_meth_wcheck = "";
+
+my $openvas_manager_common = "$CONFIG{'NESSUSPATH'} -h $CONFIG{'NESSUSHOST'} -p $CONFIG{'NESSUSPORT'} -u $CONFIG{'NESSUSUSER'} -w $CONFIG{'NESSUSPASSWORD'} -iX";
 
 $outfile = "${outdir}/nessus_s$$.out";
 $targetfile = "${outdir}/target_s$$";
@@ -907,8 +921,10 @@ sub run_nessus {
     logwriter("Run Job Id=$job_id",4);
 
     #my ( $outfile, $targetfile, $nessus_cfg, $workfile );
-    my ($cmd, $retval);
+    my ($cmd, $retval, $toc);
     my ($sth_ins);
+    
+    my ($target_id, $config_id, $task_id, $info_status, $status, $progress, @arr_status, @issues, $tsleep);
 
     #print "\nConfirmng Host List Join:\n";
     my $targets = join("\n",@hosts);
@@ -951,103 +967,142 @@ sub run_nessus {
     close TARGET;
 	logwriter("targets: $targets", 4);
 
-    create_profile( \%nes_prefs, \@nes_plugins, $nessus_cfg, $username, $sid ); 
+    
+    if ($CONFIG{'NESSUSPATH'} !~ /omp\s*$/) {
+    
+        create_profile( \%nes_prefs, \@nes_plugins, $nessus_cfg, $username, $sid ); 
 
-    # version test
-    $cmd = `$CONFIG{'NESSUSPATH'} --version|head -1|awk '{print \$3}'`;
-    my $verbose = ($CONFIG{'NESSUSPATH'} =~ /openvas/ && $cmd =~ /^3/) ? "-v" : "-V";
-    $cmd = qq{$CONFIG{'NESSUSPATH'} -qx $nessushostip $nessusport $nessususer $nessuspassword $targetfile $outfile $verbose -T nbe -c $nessus_cfg};
-    logwriter("Run nessus...", 4);
-    logwriter( $cmd, 4 );
+        # version test
+        $cmd = `$CONFIG{'NESSUSPATH'} --version|head -1|awk '{print \$3}'`;
+        my $verbose = ($CONFIG{'NESSUSPATH'} =~ /openvas/ && $cmd =~ /^3/) ? "-v" : "-V";
+        $cmd = qq{$CONFIG{'NESSUSPATH'} -qx $nessushostip $nessusport $nessususer $nessuspassword $targetfile $outfile $verbose -T nbe -c $nessus_cfg};
+        logwriter("Run nessus...", 4);
+        logwriter( $cmd, 4 );
 
-    if ( ! $track_progress ) {
-        #PRESCAN DISCONNECT
-            logwriter( "NO TRACK PROGRESS Disconnect DB until scan completion", 3 );
-        disconn_db($dbh);
-    }
-
-    my $toc=0;
-    eval {
-        local $SIG{ALRM} = sub {
-#            logwriter( "RECONNECT DB", 3 ); 
-#            $dbh = conn_db();
-#            $sql = "UPDATE vuln_jobs SET status='F', meth_Wcheck='Timeout expired', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id';";
-#            safe_db_write ( $sql, 4 );
-#            disconn_db($dbh);
-            $toc=1;
-            die "NessusTimeout\n"; 
-            }; 
-        local $SIG{CHLD} = sub { if ( $? && $? > 0 ) { die "Program Exited Funny: $?\n"; } };
-        logwriter("Timeout: $timeout", 5);
-        alarm $timeout;
-        open(LOGFILE,">>$workfile");
-        open(PROC,"$cmd 2>&1 |") or die "failed to fork :$!\n";
-        my (@arr);
-        while(<PROC>){
-            #@arr = split/\|/;
-            #print LOGFILE "$arr[0]|$arr[1]|$arr[2]|$arr[3]";
-            print LOGFILE $_;
-            chomp; s/^ *| *$//g; s/\r//;
-            if (/.*nessus\s\:.*/ || /.*openvas-client\s\:.*/i){
-                my @tmp = split /:/;
-                $tmp[1] =~ s/^ *//g;
-                $txt_meth_wcheck = $txt_meth_wcheck.$tmp[1]."<br>";
-            }
+        if ( ! $track_progress ) {
+            #PRESCAN DISCONNECT
+                logwriter( "NO TRACK PROGRESS Disconnect DB until scan completion", 3 );
+            disconn_db($dbh);
         }
-        close PROC;
-        close LOGFILE;
-        logwriter( "nessus_run: Scan ended\n", 3 );
-        system("chown www-data '$outfile'");
-        alarm 0;
-    };
+
+        $toc=0;
+        eval {
+            local $SIG{ALRM} = sub {
+                #logwriter( "RECONNECT DB", 3 ); 
+                #$dbh = conn_db();
+                #$sql = "UPDATE vuln_jobs SET status='F', meth_Wcheck='Timeout expired', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id';";
+                #safe_db_write ( $sql, 4 );
+                #disconn_db($dbh);
+                $toc=1;
+                die "NessusTimeout\n"; 
+            }; 
+            local $SIG{CHLD} = sub { if ( $? && $? > 0 ) { die "Program Exited Funny: $?\n"; } };
+            logwriter("Timeout: $timeout", 5);
+            alarm $timeout;
+            open(LOGFILE,">>$workfile");
+            open(PROC,"$cmd 2>&1 |") or die "failed to fork :$!\n";
+            my (@arr);
+            while(<PROC>){
+                #@arr = split/\|/;
+                #print LOGFILE "$arr[0]|$arr[1]|$arr[2]|$arr[3]";
+                print LOGFILE $_;
+                chomp; s/^ *| *$//g; s/\r//;
+                if (/.*nessus\s\:.*/ || /.*openvas-client\s\:.*/i){
+                    my @tmp = split /:/;
+                    $tmp[1] =~ s/^ *//g;
+                    $txt_meth_wcheck = $txt_meth_wcheck.$tmp[1]."<br>";
+                }
+            }
+            close PROC;
+            close LOGFILE;
+            logwriter( "nessus_run: Scan ended\n", 3 );
+            system("chown www-data '$outfile'");
+            alarm 0;
+        };
+    }
+    else {
+        
+        $job_id_to_log = "$job_id";
+        
+        $target_id = get_target_id($targets);
+        $config_id = get_config_id($sid);
+        $task_id = create_task($jobname, $config_id, $target_id);
+        
+        $sql = qq{ UPDATE vuln_jobs SET meth_CPLUGINS='$task_id' WHERE id='$job_id' };
+        safe_db_write ( $sql, 4 );
+
+        play_task($task_id);
+        
+        $tsleep = 2;
+        
+        do {
+            sleep($tsleep);
+            $info_status = get_task_status($task_id); 
+            @arr_status = split /\|/, $info_status;
+            $status = shift(@arr_status);
+            
+            if ($status eq "Pause Requested" || $status eq "Paused") {  $tsleep = 5;  }
+            else {  $tsleep = 2;   }
+            
+            $progress = shift(@arr_status);
+            $progress =~ s/\n|\t|\r|\s+//g;
+            
+            logwriter("task id='$task_id' $status ($progress%)", 4); 
+        } while ($status eq "Running" || $status eq "Requested" || $status eq "Pause Requested" || $status eq "Paused" );
+    }
 
     #POST SCAN RECONNECT
     logwriter( "RECONNECT DB after scan", 3 ); 
     $dbh = conn_db();
     #RELOAD CONFIGS IN CASE OF CHANGE
     load_db_configs ( );
-
-    if($toc) {
-        logwriter( "Timeout: get results from file $outfile", 4 );
-        my @issues = get_results_from_file( $outfile );
-        if ($no_results){
-            set_job_timeout($job_id);
-            logwriter( "Timeout: no results in $outfile", 4 );
-        } else {
-            my %hostHash = pop_hosthash( \@issues );
-            my $scantime = getCurrentDateTime("datetime");
-            timeout(\%hostHash, $job_id, $jobname, $Jtype, $username, $sid, $scantime, $fk_name );
-        }
-        #warn "Nessus Scan timed out\n";
-        $no_results = TRUE; # force no process results
-        $scan_timeout = TRUE;
-        return FALSE;
-    }
     
-    if ($@ ) {
-        if ( $@ eq "NessusTimeout\n" ) { 
-#            my @issues = get_results_from_file( $outfile );
-#            if ($no_results){
-#                set_job_timeout($job_id);
-#            } else {
-#                my %hostHash = pop_hosthash( \@issues );
-#                my $scantime = getCurrentDateTime("datetime");
-#                timeout(\%hostHash, $job_id, $jobname, $Jtype, $username, $sid, $scantime, $fk_name );
-#            }
-            warn "Nessus Scan timed out\n";
-            return FALSE;
-        } elsif ($@ =~ /Program Exited Funny:/ ) {
-            my $err_code = $@;
-            $err_code =~ s/Program Exited Funny://;
-            $err_code =~ s/\n//;
-            warn "Nessus Scan Server Problem [ serverid=$serverid name=$nessushost err_code=$err_code ]\n";
-            move_server_offline ( $serverid );
-
+    if ($CONFIG{'NESSUSPATH'} !~ /omp\s*$/) {
+        if($toc) {
+            logwriter( "Timeout: get results from file $outfile", 4 );
+            my @issues = get_results_from_file( $outfile );
+            if ($no_results){
+                set_job_timeout($job_id);
+                logwriter( "Timeout: no results in $outfile", 4 );
+            } else {
+                my %hostHash = pop_hosthash( \@issues );
+                my $scantime = getCurrentDateTime("datetime");
+                timeout(\%hostHash, $job_id, $jobname, $Jtype, $username, $sid, $scantime, $fk_name );
+            }
+            #warn "Nessus Scan timed out\n";
+            $no_results = TRUE; # force no process results
+            $scan_timeout = TRUE;
             return FALSE;
         }
-    };
-    #logwriter( "\n\nReading the results...\n\n", 4 );
-    my @issues = get_results_from_file( $outfile ); 
+        
+        if ($@ ) {
+            if ( $@ eq "NessusTimeout\n" ) { 
+    #            my @issues = get_results_from_file( $outfile );
+    #            if ($no_results){
+    #                set_job_timeout($job_id);
+    #            } else {
+    #                my %hostHash = pop_hosthash( \@issues );
+    #                my $scantime = getCurrentDateTime("datetime");
+    #                timeout(\%hostHash, $job_id, $jobname, $Jtype, $username, $sid, $scantime, $fk_name );
+    #            }
+                warn "Nessus Scan timed out\n";
+                return FALSE;
+            } elsif ($@ =~ /Program Exited Funny:/ ) {
+                my $err_code = $@;
+                $err_code =~ s/Program Exited Funny://;
+                $err_code =~ s/\n//;
+                warn "Nessus Scan Server Problem [ serverid=$serverid name=$nessushost err_code=$err_code ]\n";
+                move_server_offline ( $serverid );
+
+                return FALSE;
+            }
+        };
+        #logwriter( "\n\nReading the results...\n\n", 4 );
+        @issues = get_results_from_file( $outfile );
+    }
+    else { # get results from OpenVAS Manager
+        @issues = get_results_from_xml( $task_id, $targets); 
+    }
 
     return (@issues);
 }
@@ -2004,7 +2059,7 @@ sub pop_hosthash {
     foreach( @issues ) {
         my $issue = $_;
         my ($scanid, $host, $hostname, $hostip, $service, $app, $port, $proto, $desc,
-            $record_type, $domain, $mac_address, $os, $org, $site, $sRating, $sCheck, $sLogin ) = " ";
+            $record_type, $domain, $mac_address, $os, $org, $site, $sRating, $sCheck, $sLogin, $risk_factor ) = " ";
 
 
         $scanid = $issue->{ScanID};
@@ -2014,6 +2069,8 @@ sub pop_hosthash {
         $service = $issue->{Service};
         $proto = $issue->{Proto};
         $host = $issue->{Host};
+        $risk_factor = $issue->{RiskFactor};
+        
 
         $app = $service;
         if(defined($service) && $service ne "") {
@@ -2119,21 +2176,36 @@ sub pop_hosthash {
 	    $hostHash{$host}{'checks'} = "0";
 	}
 
-        # get the risk value from the text in the description
+
         my $risk='7';
-        $risk='1'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Serious/s);
-        $risk='1'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Critical/s);
-        $risk='2'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*High/s);
-        $risk='3'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium/s);
-        $risk='4'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium\/Low/s);
-        $risk='5'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low\/Medium/s);
-        $risk='6'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low/s);
-        $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Info/s);
-        $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s);
-        #$risk='8' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Exception/s);       #EXCEPTIONS ARE CALCULATED FROM EXCEPTION DATA NOT BY A STORED RISK VALUE
-        $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
-        $risk='3' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Unknown/s);         #PLAN TO RECLASSIFY Compliance Audit Values
-        $risk='2' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Failed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
+        
+        logwriter("Risk factor $host $scanid $desc $risk $risk_factor", 4);
+        
+        if ($risk_factor eq "") {
+            # get the risk value from the text in the description
+            
+            $risk='1'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Serious/s);
+            $risk='1'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Critical/s);
+            $risk='2'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*High/s);
+            $risk='3'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium/s);
+            $risk='4'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium\/Low/s);
+            $risk='5'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low\/Medium/s);
+            $risk='6'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low/s);
+            $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Info/s);
+            $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s);
+            #$risk='8' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Exception/s);       #EXCEPTIONS ARE CALCULATED FROM EXCEPTION DATA NOT BY A STORED RISK VALUE
+            $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
+            $risk='3' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Unknown/s);         #PLAN TO RECLASSIFY Compliance Audit Values
+            $risk='2' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Failed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
+        }
+        else {
+            $risk='2'  if($risk_factor eq "High");
+            $risk='3'  if($risk_factor eq "Medium");
+            $risk='6'  if($risk_factor eq "Low");
+            $risk='7'  if($risk_factor eq "Info");
+        }
+        
+        logwriter("Risk factor $host $scanid $desc $risk", 4);
 
         #remove the Risk Factor from the description
         $desc=~ s/Risk [fF]actor\s*:\s*(\\n)*Serious((\\n)+| \/ |$)//s;
@@ -2844,27 +2916,33 @@ sub resolve_name2ip {
     my ( $hostname ) = @_;
     if ( ! defined ( $hostname ) || $hostname eq "" ) { return ""; }
 
+    my $ip = getassetbyname( $hostname );
+
+    if ($ip ne "") {
+        return $ip;
+    }
+
     # ATTEMPT GET HOST BY ADDRESS WILL CHECK FILES/DNS PRIMARY
     my $packed_ip = gethostbyname( $hostname );
 
     if ( defined( $packed_ip ) ) {
         my $c_ip = inet_ntoa($packed_ip);
         return $c_ip;
-    } else {
-        #TRY OTHER NAMES SERVERS
-        if ( $CONFIG{'nameservers'} ne "" ) {
-            my @nameservers = split /,/, $CONFIG{'nameservers'};
-
-            foreach my $nameserver ( @nameservers ) {
-                $nameserver =~ s/\s+//g;
-                my $namer = nslookup(host => "$hostname", server => "$nameserver" );
-                if ( defined($namer ) && $namer ne "" ) {
-                    my $thost = lc ( $namer );
-                        return $thost;
-                }
-            }
-        } 
     }
+    elsif ( $CONFIG{'nameservers'} ne "" ) { #TRY OTHER NAMES SERVERS
+        my @nameservers = split /,/, $CONFIG{'nameservers'};
+
+        foreach my $nameserver ( @nameservers ) {
+            $nameserver =~ s/\s+//g;
+            my $namer = nslookup(host => "$hostname", server => "$nameserver" );
+            if ( defined($namer ) && $namer ne "" ) {
+                my $thost = lc ( $namer );
+                    return $thost;
+            }
+        }
+    }
+    
+    
     logwriter( "RESOLVE [$hostname] TO IP FAILED\n", 3 );
     return "";
 }
@@ -3661,7 +3739,10 @@ sub get_results_from_file {
             if (defined($compliance_plugins)){
                 logwriter("get_results_from_file:compliance_plugins:$compliance_plugins", 4);
             }
-            if ( defined($scan_id) && $compliance_plugins =~ /$scan_id/ ) {
+            
+            my @cplugins = split /\s/, $compliance_plugins;
+            
+            if ( defined($scan_id) && in_array(\@cplugins,$scan_id) ) {
                 #UPDATE SCANID FOR WIN CHECKS #21156
                 if ( $scan_id =~ /21156/ ) {
                     my ( $test_name, $test_policy ) = "";
@@ -3716,7 +3797,8 @@ sub get_results_from_file {
                     Description     => $description,
                     Service         => $app,
                     Proto           => $proto,
-                    ScanID          => $scan_id
+                    ScanID          => $scan_id,
+                    RiskFactor      => ""
                 };
                 logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id };\n", 5);
                 push ( @issues, $temp );
@@ -4678,4 +4760,377 @@ sub scan_discover {
     close NMAP;
     $result = join("\n",@hosts_alive) if ($hosts_alive[0] ne "");
     return $result;
+}
+
+sub get_target_id {
+    my $input = shift;
+    
+    my $md5_hosts = "";
+    my @hosts = split(/\n/, $input);
+    my @sorted_hosts = ();
+    my @items = ();
+    
+    my ($imp, $xml);
+    
+    @sorted_hosts = sort(@hosts);
+    
+    $md5_hosts = md5_base64(join(",", @sorted_hosts));
+    
+    $xml = execute_omp_command("<get_targets />");
+    
+    if (ref($xml->{'target'}) eq 'ARRAY') {
+        @items = @{$xml->{'target'}};
+    } else {
+        push(@items,$xml->{'target'});
+    }
+    
+    foreach my $target (@items) {
+        if ($target->{'name'} eq $md5_hosts) {
+            return $target->{'id'};
+        }
+    }
+    
+    # create the target if it doesn't exist
+
+    $xml = execute_omp_command("<create_target><name>$md5_hosts</name><hosts>".join(",", @sorted_hosts)."</hosts></create_target>");
+
+    return $xml->{'id'};
+}
+
+sub get_config_id {
+    my $sid = shift;
+    
+    my $sql = qq{ SELECT name, owner FROM vuln_nessus_settings WHERE id=$sid };
+    my $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    my ($name, $user) = $sthse->fetchrow_array;
+    $sthse->finish;
+    
+    my $result = "";
+    my @items=();
+    
+    my $xml = execute_omp_command("<get_configs />");
+    
+    if (ref($xml->{'config'}) eq 'ARRAY') {
+        @items = @{$xml->{'config'}};
+    } else {
+        push(@items,$xml->{'config'});
+    }
+    
+    foreach my $profile (@items) {
+        if ($profile->{'name'} eq $name && $profile->{'comment'} eq $user) {
+            $result = $profile->{'id'};
+        }
+    }
+    
+    return $result;
+}
+
+sub create_task {
+    my $jobname = shift;
+    my $config_id = shift;
+    my $target_id = shift;
+    
+    my $xml = execute_omp_command("<create_task><name>$jobname</name><config id='$config_id'></config><target id='$target_id'></target></create_task>");
+
+    return $xml->{'id'};
+}
+sub play_task {
+    my $task_id = shift;
+
+    my $xml = execute_omp_command("<start_task task_id='$task_id' />");
+}
+sub get_task_status {
+    my $task_id = shift;
+    
+    my($xml, @items, $task, $status);
+    
+    $xml = execute_omp_command("<get_tasks task_id='$task_id'/>");
+    
+    if (ref($xml->{'task'}) eq 'ARRAY') {
+        @items = @{$xml->{'task'}};
+    } else {
+        push(@items,$xml->{'task'});
+    }
+    
+    foreach my $task (@items) {
+        if (ref($task->{"progress"}) eq 'HASH') {
+            return $task->{"status"}."|".$task->{"progress"}->{'content'}; 
+        }
+        else {
+            return $task->{"status"}."|".$task->{"progress"};
+        }
+    }
+}
+
+sub execute_omp_command {
+    my $cmd = shift;
+
+    my $imp = system ("$openvas_manager_common \"$cmd\" > $xml_output 2>&1");
+    
+    #if ( $imp != 0 ) { die "". logwriter( "nessus_jobs: Failed execute omp command", 2 ); }
+
+    my $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+
+    if ($@ ne "") {
+    
+        open(INFO, $xml_output);         # Open the file
+        my @log_lines = <INFO>;          # Read it into an array
+        close(INFO);                     # Close the file
+    
+        my $error = join(" ", @log_lines);
+        if($job_id_to_log ne "") {
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='$error', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
+            safe_db_write ( $sql, 1 );
+        }
+
+        die "Cant' read XML $xml_output: $error";
+    }
+    
+    if ($xml->{'status'} !~ /20\d/) {
+        my $status = $xml->{'status'};
+        my $status_text = $xml->{'status_text'};
+        
+        if($job_id_to_log ne "") {
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='status_text', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
+            safe_db_write ( $sql, 1 );
+        }
+        
+        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+    }
+    
+    unlink $xml_output if -e $xml_output;
+    
+    return $xml; 
+}
+
+sub get_results_from_xml {
+    my $task_id = shift;
+    my $targets = shift;
+    
+    my $total_records = 0;
+    my (@items, @nvt_data, $host, $service, $scan_id, $description, $app, $proto, $port, $risk_factor, @issues, %hostHash, %resultHash);
+    
+    %hostHash = ();
+    %resultHash = ();
+    
+    my @tmp_hosts = split(/\n/, $targets);
+    
+    foreach my $ihost(@tmp_hosts) { 
+        $hostHash{$ihost}++;
+    }
+    
+    my $xml = execute_omp_command("<get_results task_id='$task_id' notes_details='1'/>");
+    
+    if (ref($xml->{'results'}->{'result'}) eq 'ARRAY') {
+        @items = @{$xml->{'results'}->{'result'}}; 
+    } else {
+        push(@items,$xml->{'results'}->{'result'});
+    }
+    
+    foreach my $result (@items) {
+        if( defined($hostHash{$result->{"host"}}) && !defined($resultHash{$result->{"port"}}{$result->{"nvt"}->{"oid"}}{$result->{"host"}}{$result->{"description"}}) ) {
+        #if( defined($hostHash{$result->{"host"}}) ) {
+            $host = $result->{"host"};
+            logwriter("Save results for $host", 4);
+            $service = $result->{"port"};
+            $scan_id = $result->{"nvt"}->{"oid"};
+
+            #print Dumper($result->{"nvt"});
+            
+            if ($result->{"threat"} ne "") { $risk_factor = $result->{"threat"}; }
+            elsif ($result->{"nvt"}->{"risk_factor"} ne "") { $risk_factor = $result->{"nvt"}->{"risk_factor"}; }
+            else { $risk_factor = "Info"; }
+            
+            
+            if($risk_factor eq "Log")       { $risk_factor = "Info"; }
+            if($risk_factor eq "None")      { $risk_factor = "Info"; }
+            if($risk_factor eq "Passed")    { $risk_factor = "Info"; }
+            if($risk_factor eq "Unknown")   { $risk_factor = "Medium"; }
+            if($risk_factor eq "Failed")    { $risk_factor = "High"; }
+            
+            $description = $result->{"description"};
+
+            if ( $service =~ /general/ ) {
+                my @temp = split /\//, $service;
+                $app = "general";
+                $proto = $temp[1];
+                $port = "0";
+            } else {
+                my @temp = split /\s/, $service;
+                $app = $temp[0];
+                $temp[1] =~ s/\(//;
+                $temp[1] =~ s/\)//;
+                my @temp2 = split /\//, $temp[1];
+                $port = $temp2[0];
+                $proto = $temp2[1];
+            }
+            if (defined($scan_id)){
+                logwriter("get_results_from_file:scan_id:$scan_id", 4);
+            }
+            if (defined($compliance_plugins)){
+                logwriter("get_results_from_file:compliance_plugins:$compliance_plugins", 4);
+            }
+            
+            my @cplugins = split /\s/, $compliance_plugins;
+            
+            if ( defined($scan_id) && in_array(\@cplugins,$scan_id) ) {
+                #UPDATE SCANID FOR WIN CHECKS #21156
+                if ( $scan_id =~ /21156/ ) {
+                    my ( $test_name, $test_policy ) = "";
+                    my @temp = split(/\\n/, $description);
+                    foreach my $line (@temp) {
+                        $line =~ s/\#.*$//;
+                        chomp($line);
+                        $line =~ s/\s+$//;
+                        $line =~ s/^\s+//;
+                        if ($line eq "") { next; }
+                        $line =~ s/"//g;
+                        if ( $line =~ /\[[EFP][AR][IRS][OLS][ER]D*\]/ ) {
+                            $test_name = $line;
+                            $test_name =~ s/\[[EFP][AR][IRS][OLS][ER]D*\]//;
+                            $test_name =~ s/\s+$//;
+                            $test_name =~ s/^\s+//;
+                            $test_name =~ s/:$//;
+                        }
+                    }
+                    if ( defined($test_name) && $test_name ne ""  ) {
+                        #my $sql = qq{ SELECT t1.id FROM vuln_nessus_checks t1
+                        #    LEFT JOIN vuln_nessus_checks_audits t2 on t1.id=t2.cid
+                        #    WHERE t2.auditfile ='$primaryAuditcheck' AND
+                        #    t1.name='$test_name' LIMIT 1 };
+                        #logwriter( $sql, 5 );
+                        #my $sth_sel = $dbh->prepare( $sql );
+                        #$sth_sel->execute(  );
+                        #my ( $tmp_scan_id ) = $sth_sel->fetchrow_array(  );
+                        #if ( defined( $tmp_scan_id) && $tmp_scan_id >= 60000 ) { $scan_id = $tmp_scan_id; }
+                    }
+                }
+                
+                my $risk_value = "";
+                if ( $description =~ m/\[PASSED\]/ ) {
+                    $risk_value = "Risk factor : \n\nPassed\n";
+                } elsif ( $description =~ m/\[FAILED\]/ ) {
+                    $risk_value = "Risk factor : \n\nFailed\n";
+                } else {
+                    $risk_value = "Risk factor : \n\nUnknown\n";
+                }
+                $description .= "$risk_value";
+                logwriter("set compliance description: $risk_value",5);
+            }
+
+            logwriter("get_results_from_xml 2 - $host $scan_id $description", 5);
+            
+            if ( $description ) {   #ENSURE WE HAVE SOME DATA
+                $description =~ s/\\/\\\\/g;	#FIX TO BACKSLASHES
+                $description =~ s/\\\\n/\\n/g;	#FIX TO NEWLINE
+
+                my $temp = {
+                    Port            => $port,
+                    Host            => $host,
+                    Description     => $description,
+                    Service         => $app,
+                    Proto           => $proto,
+                    ScanID          => $scan_id,
+                    RiskFactor      => $risk_factor
+                };
+                logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id, RiskFactor=>$risk_factor };\n", 5);
+                $resultHash{$result->{"port"}}{$result->{"nvt"}->{"oid"}}{$result->{"host"}}{$result->{"description"}}++;
+                push ( @issues, $temp );
+                $total_records += 1;
+            }
+        }
+    }
+
+    if ($total_records eq 0 ) { $no_results = TRUE; }
+    
+    if ($delete_task == TRUE) {     execute_omp_command("<delete_task task_id='$task_id' />");    }  
+
+    return @issues;
+
+}
+
+sub in_array {
+    my @arr = @{$_[0]};
+    my $search_for = $_[1];
+    
+    foreach my $value (@arr) {
+        if ($value eq $search_for) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+sub getassetbyname {
+    my $asset_name = $_[0];
+    my @result = ();
+    my ($sql, $sthse, $ip, $net, $sql2, $sthse2);
+    
+    # check host groups
+    $sql = qq{ SELECT host_ip FROM host_group_reference WHERE host_group_name='$asset_name' };
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    while ( $ip = $sthse->fetchrow_array() ) {
+        if(defined($ip)) {
+            push(@result, "$ip");
+        }
+    }
+    $sthse->finish;
+    
+    if ($#result!=-1) { return (join("\r", @result)); }
+    
+    # check nets
+    $sql = qq{ SELECT ips FROM net WHERE name='$asset_name' };
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    $ip = $sthse->fetchrow_array();
+    if(defined($ip)) {
+        push(@result, "$ip");
+    }
+    
+    $sthse->finish;
+    
+    if ($#result!=-1) { return (join("\r", @result)); }
+    
+    
+    # check network groups
+    $sql = qq{ SELECT net_name FROM net_group_reference WHERE net_group_name='$asset_name' };
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    while ( $net = $sthse->fetchrow_array() ) {
+        $sql2 = qq{ SELECT ips FROM net WHERE name='$net' };
+        $sthse2 = $dbh->prepare( $sql2 );
+        $sthse2->execute;
+        $ip = $sthse2->fetchrow_array();
+        if(defined($ip)) {
+            push(@result, "$ip");
+        }
+    }
+    $sthse->finish;
+    
+    if ($#result!=-1) { return (join("\r", @result)); }
+    
+    # check hosts
+    $sql = qq{ SELECT ip FROM host WHERE hostname='$asset_name' };
+
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    $ip = $sthse->fetchrow_array();
+    
+    if(defined($ip)) {
+        print "Push $ip\n";
+        push(@result, "$ip");
+
+    }
+    
+    $sthse->finish;
+    
+    if ($#result!=-1) { 
+        return (join("\r", @result));
+    }
+    
+    return "";
+
 }

@@ -165,8 +165,7 @@ if (!$uroles['admin']) {
             echo "<br><span id=\"text_done\" style=\"display:none;\">"._("Done")."</span>";
             echo "</td></tr></table>";
             echo "<pre>";
-            
-            passthru("export HOME='/tmp';cd $data_dir/scripts/vulnmeter/;perl updateplugins.pl $action $smethod"); 
+            passthru("export HOME='/tmp';cd $data_dir/scripts/vulnmeter/;perl updateplugins.pl $action $smethod");
             echo "</pre>";
             ?>
             <script type="text/javascript">
@@ -219,7 +218,7 @@ if (!$uroles['admin']) {
       }
      echo "</form>";
    }
-   echo "<div>"; 
+   echo "<div>";
    echo "<form method='post' action='" . $_SERVER['SCRIPT_NAME'] . "'>";
    echo "<input type='hidden' name='op' value='save'>";
    echo "<p>" . $settingTabs . "</p>\n";
@@ -229,6 +228,7 @@ if (!$uroles['admin']) {
         echo "<center>";
         ?>
         <table width="900" class="transparent">
+            <tr>
             <?php
             $display = "";
             if (preg_match("/nessus\s*$/i", $nessus_path)) {
@@ -241,9 +241,8 @@ if (!$uroles['admin']) {
                     <input type="radio" name="smethod" value="wget" /> <?php echo _("wget - if rsync is blocked");?>
                 </td>
             </tr>
-            <tr>
                 <td class="nobborder" style="text-align:center;">
-                <input type="button" class="button" onclick="checking();document.location.href='webconfig.php?action=migrate&smethod='+$('input[name=smethod]:checked').val()" value="<?=_("Recreate Scanner DB (can be used for Nessus < -- > OpenVAS migration)")?>">&nbsp;&nbsp;&nbsp;
+                <input type="button" class="button" onclick="checking();document.location.href='webconfig.php?action=migrate&smethod='+$('input[name=smethod]:checked').val()" value="<?=_("Recreate Scanner DB (can be used for Nessus < -- > OpenVAS migration)")?>">&nbsp;&nbsp;&nbsp;                
                 <img style="display:none;" id="loading_image" width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?=_("Loading")?>" title="<?=_("Loading")?>">&nbsp;&nbsp;
                 <span id="loading_message"><span>
                 </td>
@@ -308,17 +307,24 @@ function createHiddenDiv($name, $num, $data) {
 function CheckScanner(){
     $result = "";
     $arr_out = array();
-    $command = "export HOME='/tmp';".$GLOBALS["CONF"]->db_conf["nessus_path"]." -qxP ".$GLOBALS["CONF"]->db_conf["nessus_host"]." ".$GLOBALS["CONF"]->db_conf["nessus_port"]." ".$GLOBALS["CONF"]->db_conf["nessus_user"]." ".$GLOBALS["CONF"]->db_conf["nessus_pass"]." | grep max_hosts 2>&1";
+    
+    if (preg_match("/omp\s*$/i", $GLOBALS["CONF"]->db_conf["nessus_path"])) { // OMP
+        $command = "export HOME='/tmp';".$GLOBALS["CONF"]->db_conf["nessus_path"]." -h ".$GLOBALS["CONF"]->db_conf["nessus_host"]." -p ".$GLOBALS["CONF"]->db_conf["nessus_port"]." -u ".$GLOBALS["CONF"]->db_conf["nessus_user"]." -w ".$GLOBALS["CONF"]->db_conf["nessus_pass"]." -iX \"<help/>\" | grep CREATE_TASK 2>&1";
+    }
+    else { // OpenVAS and nessus
+        $command = "export HOME='/tmp';".$GLOBALS["CONF"]->db_conf["nessus_path"]." -qxP ".$GLOBALS["CONF"]->db_conf["nessus_host"]." ".$GLOBALS["CONF"]->db_conf["nessus_port"]." ".$GLOBALS["CONF"]->db_conf["nessus_user"]." ".$GLOBALS["CONF"]->db_conf["nessus_pass"]." | grep max_hosts 2>&1";
+    }
     //print_r($command);
     exec($command,$arr_out);
     $out = implode(" ",$arr_out);
-
+    //print_r($out); 
     if (preg_match("/host not found|could not open a connection|login failed|could not connect/i",$out)) {
         return _("Scanner check failed").":<br>".implode("<br>",$arr_out);
     }
-    else if (!preg_match("/max_hosts/i",$out)) {
+    else if (!preg_match("/max_hosts/i",$out) && !preg_match("/CREATE_TASK/i",$out)) {
         return _("Scanner check failed");
     }
+    
     return $result;
 }
 ?>

@@ -70,12 +70,6 @@ echo gettext("Vulnmeter"); ?> </title>
                 this.update(txt);
             }
         });
-        GB_TYPE = 'w';
-        $("a.greybox").click(function(){
-            dest = $(this).attr('href');
-            GB_show("<?=_("Make this scan job visible for:")?>",dest,150,400);
-            return false;
-        });        
     }
     // 
     function cancelScan(id) {
@@ -83,13 +77,58 @@ echo gettext("Vulnmeter"); ?> </title>
         $.ajax({
             type: "GET",
             url: "manage_jobs.php",
-            data: { disp: "kill", schedid: id },
+            data: { disp: "kill", sid: id },
             success: function(msg) {
             	alert("<?=_("Cancelling job, please wait a few seconds. Server will stop current scan as soon as possible.")?>");
                 document.location.reload();
             }
         });
     }
+    function changeTaskStatus(id, command) {
+    	$('#changing_task_status_'+id).toggle();
+        $.ajax({
+            type: "GET",
+            url: "manage_jobs.php",
+            data: { disp: command, job_id: id },
+            success: function(msg) {
+                if(command=='pause_task') {
+                    alert("<?=_("Pausing job, please wait a few seconds.")?>");
+                }
+                else if(command=='play_task') {
+                    alert("<?=_("Starting job, please wait a few seconds.")?>");
+                }
+                else if(command=='stop_task') {
+                    alert("<?=_("Stopping job, please wait a few seconds.")?>");
+                }
+                else if(command=='resume_task') {
+                    alert("<?=_("Resuming job, please wait a few seconds.")?>");
+                }
+                document.location.reload();
+            }
+        });
+    }
+    
+    
+    function deleteTask(id) {
+        if (confirmDelete()) {
+            $.ajax({
+                type: "GET",
+                url: "manage_jobs.php",
+                data: { disp: 'delete_task', job_id: id },
+                success: function(msg) {
+                    alert("<?=_("Deleting job, please wait a few seconds.")?>");
+                    document.location.reload();
+                }
+            });
+            $.ajax({
+                type: "GET",
+                url: "sched.php",
+                data: { disp: 'delete_scan', job_id: id }
+            });
+        }
+    }
+    
+    
     var date5m = new Date();
     //date.setTime(date.getTime() + (3 * 24 * 60 * 60 * 1000));
     date5m.setTime(date5m.getTime() + (5 * 60 * 1000));
@@ -104,11 +143,11 @@ echo gettext("Vulnmeter"); ?> </title>
             type: "GET",
             url: "get_state.php",
             success: function(msg) {
-                var data = msg.split(";");
+            var data = msg.split(";");
                 if(data[0]==1) {
                     $('#nta').html(data[0]);
                     $('#nessus_threads').html('');
-                    $('#td1').attr("width","99%");
+                    $('#td1').attr("width","100%");
                     $('#td2').attr("width", "1%");
                     $('#status_server').html('<font color=green>Launching scan</font>');
                     if ($('#nmta').html()=='') {
@@ -118,7 +157,7 @@ echo gettext("Vulnmeter"); ?> </title>
                 else if(data[0]==0) {
                     $('#nta').html(data[0]);
                     $('#nessus_threads').html('');
-                    $('#td1').attr("width","99%");
+                    $('#td1').attr("width","100%");
                     $('#td2').attr("width", "1%");
                     $('#status_server').html('<font color=blue>Idle</font>');
                     $('#nmta').html('');
@@ -145,6 +184,15 @@ echo gettext("Vulnmeter"); ?> </title>
             }
         });
     }
+    $(document).ready(function(){
+        GB_TYPE = 'w';
+        $("a.greybox").click(function(){
+            dest = $(this).attr('href');
+            GB_show("<?=_("Make this scan job visible for:")?>",dest,150,400);
+            return false;
+        });
+
+    });
     function GB_onclose() {
         document.location.href='manage_jobs.php';
     }
@@ -159,14 +207,15 @@ $pageTitle = _("Manage Jobs");
 require_once('config.php');
 require_once('functions.inc');
 require_once ('ossim_conf.inc');
+require_once ('classes/OMP.inc');
+
 //require_once('auth.php');
 //require_once('header2.php');
 //require_once('permissions.inc.php');
 
 $myhostname="";
 
-$getParams = array( 'disp', 'schedid', 'sortby', 'sortdir', 'viewall', 'setstatus', 'enabled'
-         );
+$getParams = array( 'disp', 'schedid', 'sortby', 'sortdir', 'viewall', 'setstatus', 'enabled', 'job_id');
 $hosts = array();
 $hosts = host_ip_name();
 
@@ -498,6 +547,30 @@ switch($disp) {
         if ($schedid>0) {
         	system("sudo /usr/share/ossim/scripts/vulnmeter/cancel_scan.pl $schedid");
         }
+        break;
+    case "play_task":
+        $omp = new OMP();
+        $omp->play_task($job_id);
+        break;
+        
+    case "pause_task":
+        $omp = new OMP();
+        $omp->pause_task($job_id);
+        break;
+        
+    case "stop_task":
+        $omp = new OMP();
+        $omp->stop_task($job_id);
+        break;
+        
+    case "resume_task":
+        $omp = new OMP();
+        $omp->resume_task($job_id);
+        break;
+        
+    case "delete_task":
+        $omp = new OMP();
+        $omp->delete_task($job_id);
         break;
 
     case "delete":

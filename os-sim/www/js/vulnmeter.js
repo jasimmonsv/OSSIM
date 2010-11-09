@@ -24,6 +24,9 @@ function showPluginsByFamily(filter,profile){
                             this.load('lookup.php?id=' + id);
                         }
                     });
+                    $('.updatepluginsajax').bind('click', function() {
+                        $('#div_updateplugins').show(); 
+                    });
                 }
         });
     }
@@ -49,6 +52,9 @@ function showPluginsByCVE(filter,profile){
                             var id = this.getParent().attr('lid');
                             this.load('lookup.php?id=' + id);
                         }
+                    });
+                    $('.updatepluginsajax').bind('click', function() { 
+                        $('#div_updateplugins').show();
                     });
                 }
         });
