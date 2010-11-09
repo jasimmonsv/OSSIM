@@ -232,7 +232,8 @@ $current_cols_titles = array(
     "PLUGIN_NAME" => _("Plugin Name"),
     "PLUGIN_SOURCE_TYPE" => _("Source Type"),
     "PLUGIN_SID_CATEGORY" => _("Category"),
-    "PLUGIN_SID_SUBCATEGORY" => _("SubCategory")
+    "PLUGIN_SID_SUBCATEGORY" => _("SubCategory"),
+    'CONTEXT' => _("Context")
 );
 $current_cols_widths = array(
     "SIGNATURE" => "45mm",

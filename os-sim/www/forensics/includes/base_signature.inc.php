@@ -298,6 +298,7 @@ function GetOssimSignatureName($plugin_id, $plugin_sid, $db) {
     if (isset($_SESSION['acid_sig_names'][$plugin_id." ".$plugin_sid])) {
         return $_SESSION['acid_sig_names'][$plugin_id." ".$plugin_sid];
     }
+    if ($plugin_id=="" || $plugin_sid=="") return "";
     $name = "";
     $temp_sql = "SELECT name FROM ossim.plugin_sid WHERE plugin_id=$plugin_id AND sid=$plugin_sid";
     $tmp_result = $db->baseExecute($temp_sql);

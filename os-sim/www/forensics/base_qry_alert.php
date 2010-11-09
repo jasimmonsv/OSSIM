@@ -273,7 +273,8 @@ if ($myrow5 = $result5->baseFetchRow()) {
 }
 // extra_data
 $filename = $username = $password = $userdata1 = $userdata2 = $userdata3 = $userdata4 = $userdata5 = $userdata6 = $userdata7 = $userdata8 = $userdata9 = "(null)";
-$sql6 = "select filename,username,password,userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9,data_payload from extra_data where sid = '" . intval($sid) . "' and cid = '" . intval($cid) . "';";
+$context = 0;
+$sql6 = "select filename,username,password,userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9,data_payload,context from extra_data where sid = '" . intval($sid) . "' and cid = '" . intval($cid) . "';";
 //echo $sql6;
 $result6 = $db->baseExecute($sql6);
 if ($myrow6 = $result6->baseFetchRow()) {
@@ -290,6 +291,7 @@ if ($myrow6 = $result6->baseFetchRow()) {
     $userdata8 = $myrow6["userdata8"];
     $userdata9 = $myrow6["userdats9"];
     $payload = $myrow6["data_payload"];
+    $context = $myrow6["context"];
     $result6->baseFreeRows();
 }
 // This is one array that contains all the ids that are been used by snort, this way we will show more info for those events.
@@ -347,7 +349,7 @@ echo '</TR>
 echo '  <TR>
              <TD>
                 <TABLE BORDER=0 CELLPADDING=4>
-                  <TR><TD CLASS="header2" ALIGN=CENTER ROWSPAN=2>' . _SENSOR . '</TD>
+                  <TR><TD CLASS="header2" ALIGN=CENTER ROWSPAN=2>' . _SENSOR  . '</TD>
                        <TD class="header">', _SENSOR . ' ' . _ADDRESS, '</TD>
                        <TD class="header">' . _INTERFACE . '</TD>
                   </TR>
@@ -355,7 +357,8 @@ echo '  <TR>
                       <TD class="plfield">' . (($myrow4["interface"] == "") ? "&nbsp;<I>" . _NONE . "</I>&nbsp;" : $myrow4["interface"]) . '</TD>
                   </TR>
                  </TABLE>     
-          </TR>';
+             </TD>
+          </TR>';          
 if ($resolve_IP == 1) {
     echo '  <TR>
               <TD>
@@ -399,7 +402,37 @@ $result4->baseFreeRows();
 
 echo '   </TR>';
 */
-echo '      </TABLE>';
+
+// Context
+switch(intval($context)) {
+	case 3:
+		$context_txt = '<img src="images/marker_red.png" border="0"> '._("Event prioritized, as target is vulnerable to the attack");
+		break;
+	
+	case 2:
+		$context_txt = '<img src="images/marker_green.png" border="0"> '._("Event deprioritized, as target inventory didn't match the list of affected systems");
+		break;
+	
+	case 1:
+		$context_txt .= '<img src="images/marker_yellow.png" border="0"> '._("Event prioritized, as target inventory matched the list of affected systems");
+		break;
+	
+	case 0:
+		$context_txt = '<img src="images/marker_grey.png" border="0"> '._("No action related to the context analysis");
+		break;
+}
+echo '  <TR>
+             <TD>
+                <TABLE BORDER=0 CELLPADDING=4>
+                  <TR>
+                  	<TD CLASS="header2" ALIGN=CENTER>' . _("Context Analysis"). '</TD>
+                  	<TD class="plfield">' . $context_txt . '</TD>
+                  </TR>
+                 </TABLE>    
+             </TD>     
+          </TR>';
+          
+echo '    </TABLE>';
 $result2->baseFreeRows();
 /* IP */
 $sql2 = "SELECT ip_src, ip_dst, " . "ip_ver, ip_hlen, ip_tos, ip_len, ip_id, ip_flags, ip_off, ip_ttl, ip_csum, ip_proto" . " FROM iphdr  WHERE sid='" . $sid . "' AND cid='" . $cid . "'";

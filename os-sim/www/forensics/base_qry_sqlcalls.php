@@ -86,6 +86,7 @@ $qro->AddTitle("PLUGIN_NAME");
 $qro->AddTitle("PLUGIN_SOURCE_TYPE");
 $qro->AddTitle("PLUGIN_SID_CATEGORY");
 $qro->AddTitle("PLUGIN_SID_SUBCATEGORY");
+$qro->AddTitle("CONTEXT");
 /* Apply sort criteria */
 if ($qs->isCannedQuery()) $sort_sql = " ORDER BY timestamp DESC ";
 else {
@@ -265,7 +266,7 @@ $_SESSION['siem_current_query_graph'] = $sqlgraph;
 // do we need load extradata?
 $need_extradata = 0;
 foreach ($_SESSION['views'][$_SESSION['current_cview']]['cols'] as $field) {
-	if (preg_match("/^(USERDATA|USERNAME|FILENAME)/i",$field))
+	if (preg_match("/^(USERDATA|USERNAME|FILENAME|CONTEXT)/i",$field))
 		$need_extradata=1;
 }
 
@@ -283,7 +284,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     unset($cell_align);
     // Load extra data if neccesary
     if ($need_extradata && !array_key_exists("USERNAME",$myrow)) {
-		$rs_ed = $qs->ExecuteOutputQuery("SELECT userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9,username,password,filename FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
+		$rs_ed = $qs->ExecuteOutputQuery("SELECT userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9,username,password,filename,context FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
 	    while ($row_ed = $rs_ed->baseFetchRow()) {
 	    	foreach ($row_ed as $k => $v) $myrow[$k] = $v;
 	    }
@@ -554,6 +555,29 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     } else {
         qroPrintEntry("<img src=\"bar.php?value=" . $current_orisk . "&max=9&range=1\" border='0' align='absmiddle'>&nbsp;");
     }*/
+    
+    // 10 - Context
+    switch(intval($myrow["context"])) {
+    	case 3:
+    		$context = '<a href="javascript:;" title="'._("Event prioritized, as target is vulnerable to the attack").'"><img src="images/marker_red.png" border="0"></a>';
+    		break;
+    	
+    	case 2:
+    		$context = '<a href="javascript:;" title="'._("Event deprioritized, as target inventory didn't match the list of affected systems").'"><img src="images/marker_green.png" border="0"></a>';
+    		break;
+    	
+    	case 1:
+    		$context = '<a href="javascript:;" title="'._("Event prioritized, as target inventory matched the list of affected systems").'"><img src="images/marker_yellow.png" border="0"></a>';
+    		break;
+    	
+    	case 0:
+    		$context = '<a href="javascript:;" title="'._("No action related to the context analysis").'"><img src="images/marker_grey.png" border="0"></a>';
+    		break;
+    }
+	$cell_data['CONTEXT'] = $context;
+	$cell_align['CONTEXT'] = "center";
+    $cell_more['CONTEXT'] = "nowrap";
+    
     // 11- Protocol
     //qroPrintEntry('<FONT>' . IPProto2str($current_proto) . '</FONT>');
 	$cell_data['IP_PROTO'] = '<FONT>' . IPProto2str($current_proto) . '</FONT>';

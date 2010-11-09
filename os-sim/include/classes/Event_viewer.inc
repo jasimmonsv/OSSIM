@@ -182,6 +182,7 @@ class Event_viewer {
             'PRIORITY' => 'Priority',
             'ASSET' => 'Asset Value (Source and Destination)',
             'RISK' => 'Event Risk (Source and Destination)',
+            'CONTEXT' => 'Context Analysis'
         );
     }
     function init_plugins_conf($conf = false) {

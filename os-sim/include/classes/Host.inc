@@ -652,6 +652,9 @@ class Host {
         return $apps;
     }
 	
+	//
+	// Host Credentials
+	//
 	function get_credentials_type($conn) {
         $list = array();
         $sql = "SELECT name,id FROM credential_type GROUP BY name";
@@ -739,7 +742,58 @@ class Host {
 		}
 	}
 	
+	//
+	// Host Properties
+	//
 	
+	function get_properties_types($conn) {
+        $list = array();
+        $sql = "SELECT * FROM host_property_reference ORDER BY ord";
+		        
+		if (!$rs = & $conn->Execute($sql)){ 
+            print $conn->ErrorMsg();
+			exit();
+		} else {
+            while (!$rs->EOF){
+            	$rs->fields["name"] = ucwords($rs->fields["name"]);
+                $list[] = $rs->fields;
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+	}
  
+	function get_host_properties($conn,$ip,$date="") {
+        $list = array();
+        $sql = "SELECT * FROM host_properties WHERE ip=?";
+        if ($date!="") $sql .= " AND date>='$date'";
+		        
+		if (!$rs = & $conn->Execute($sql,array($ip))){ 
+            print $conn->ErrorMsg();
+			exit();
+		} else {
+            while (!$rs->EOF){
+                $list[] = $rs->fields;
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+	}
+	
+	function get_latest_properties($conn,$date) {
+        $list = array();
+        $sql = "SELECT * FROM host_properties WHERE date>='$date'";
+
+		if (!$rs = & $conn->Execute($sql)){ 
+            print $conn->ErrorMsg();
+			exit();
+		} else {
+            while (!$rs->EOF){
+                $list[] = $rs->fields;
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+	}
 }
 ?>

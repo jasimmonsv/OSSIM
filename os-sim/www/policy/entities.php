@@ -54,7 +54,114 @@ if (!$opensource) {
                 });
             }
         });
+        $("#aptree").dynatree({
+            initAjax: { url: "asset_by_property_tree.php" },
+            clickFolderMode: 2,
+            onActivate: function(dtnode) {
+                if(dtnode.data.url!='' && typeof(dtnode.data.url)!='undefined') {
+                    GB_edit(dtnode.data.url+'&withoutmenu=1');
+                }
+            },
+            onDeactivate: function(dtnode) {}
+        });        
+        setTimeout('refresh_tree()',1000);
     });
+    function refresh_tree() {
+    	$('#refreshing').show();
+    	$.getJSON("asset_by_property_tree.php?from=0",
+	        function(data) {
+               $.each(data, function(i,item) {
+               	  // add info to tree
+                  addto_tree(item);
+               });
+               $('#refreshing').hide();
+               setTimeout('refresh_tree()',10000);
+	        }
+		 );    
+	}
+	function addto_tree (item) {
+    	var rn = $("#aptree").dynatree("getRoot").childList[0];
+    	if ( rn.childList ) {
+           for (var i=0; i<rn.childList.length; i++) {
+              var node = rn.childList[i];
+              var rnode = rn.childList[i];           
+              if (node.data.key == item.ref) {
+              	 // add here
+              	 var found = false;
+              	 if (node.childList) {
+              	 	// search if already exists
+              	 	for (var j=0; j<node.childList.length; j++) {
+              	 		if (node.childList[j].data.key == item.key) {
+              	 			rnode = node.childList[j];
+              	 			found = true;
+              	 		}
+              	 	}
+              	 }
+              	 if (found) {
+              	 	// found again?
+              	 	found = false;
+					for (var j=0; j<rnode.childList.length; j++) {
+              	 		if (rnode.childList[j].data.key == item.ip) {
+              	 			found = true;
+              	 		}
+              	 	}
+              	 	if (!found)
+					    rnode.addChild({
+					        title: item.ip,
+					        key: item.ip,
+					        icon: "../../pixmaps/theme/host.png"
+		 			    });
+              	 } else {
+              	 	var childNode = rnode.addChild({
+				        title: item.value,
+				        tooltip: item.extra,
+				        key: item.key,
+				        isFolder: true
+				    });
+				    childNode.addChild({
+				        title: item.ip,
+				        key: item.ip,
+				        icon: "../../pixmaps/theme/host.png"
+	 			    });
+	 			    rnode = childNode;
+              	 }
+              	 var tt = rnode.data.title.replace(/\s\<font.*/,'');
+	             rnode.data.title = tt+' <font style="font-weight:normal">('+rnode.childList.length+')</font>';
+              }
+              // all ips
+              if (node.data.key == "all" && item.ip) {
+              	  var found = false;
+              	  if (node.childList) {
+              	  	// search if already exists
+              	 	for (var j=0; j<node.childList.length; j++) {
+              	 		if (node.childList[j].data.key == item.ip) {
+              	 			found = true;
+              	 		}
+              	 	}
+              	  }
+			      if (!found) {
+			      	 if (item.name) {
+			      	 	hostname = item.name;
+			            url = '../host/modifyhostform.php?ip='+item.ip;
+			         } else {
+			      	 	hostname = item.ip;
+			            url = '../host/newhostform.php?ip='+item.ip;
+			         }
+			         rnode.addChild({
+			            title: hostname,
+			            key: item.ip,
+			            url: url,
+			            icon: "../../pixmaps/theme/host.png"
+   			         });
+   			         var tt = rnode.data.title.replace(/\s\<font.*/,'');
+   			         rnode.data.title = tt+' <font style="font-weight:normal">('+rnode.childList.length+')</font>';
+   			      }
+              }
+           }
+        }
+	}
+    //
+    //
     GB_TYPE = 'w';
     function GB_onclose() {
     }
@@ -66,22 +173,47 @@ if (!$opensource) {
 </head>
 <body>
 <? include("../hmenu.php"); ?>
-<table border="0" width="750" class="noborder" align="center" cellspacing="0" cellpadding="0">
-    <tr>
-        <td class="headerpr"><?=_("Asset Structure")?></td>
-    </tr>
-</table>
-<table border="0" width="750" align="center" cellspacing="0" cellpadding="0">
-    <tr>
-        <td class="nobborder">
-  			<div id="atree" style="text-align:left;width:98%;padding:8px 8px 0px 8px"></div>
-        </td>
-    </tr>
-    <tr>
-        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent">
-  			<a href="?users=<?=($withusers) ? "0" : "1"?>"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"><b><?=($withusers) ? _("Without Users") : _("With Users")?></b></a>
-        </td>
-    </tr>
+
+<table border="0" width="820" class="noborder" align="center" cellspacing="0" cellpadding="0" style="background-color:transparent">
+<tr><td valign="top" class="noborder" width="410">
+
+	<!-- All Assets -->
+	<table border="0" width="400" class="noborder" align="center" cellspacing="0" cellpadding="0">
+	    <tr>
+	        <td class="headerpr"><?=_("Asset Structure")?></td>
+	    </tr>
+	</table>
+	<table border="0" width="400" align="center" cellspacing="0" cellpadding="0">
+	    <tr>
+	        <td class="nobborder">
+	  			<div id="atree" style="text-align:left;width:98%;padding:8px 8px 0px 8px"></div>
+	        </td>
+	    </tr>
+	    <tr>
+	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent">
+	  			<a href="?users=<?=($withusers) ? "0" : "1"?>"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"><b><?=($withusers) ? _("Without Users") : _("With Users")?></b></a>
+	        </td>
+	    </tr>
+	</table>
+
+</td><td width="10" class="noborder"></td><td valign="top" class="noborder" width="410">
+
+	<!-- Asset by Property -->
+	<table border="0" width="400" class="noborder" align="center" cellspacing="0" cellpadding="0">
+	    <tr>
+	        <td class="headerpr"><?=_("Assets")?></td>
+	    </tr>
+	</table>
+	<table border="0" width="400" align="center" cellspacing="0" cellpadding="0">
+	    <tr>
+	        <td class="nobborder">
+	  			<div id="aptree" style="text-align:left;width:98%;padding:8px"></div>
+	        </td>
+	    </tr>
+	</table>
+	<!--<a href="javascript:refresh_tree()">refresh</a>-->
+
+</td></tr>
 </table>
 
 </body>
