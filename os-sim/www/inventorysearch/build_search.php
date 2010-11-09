@@ -185,11 +185,25 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 	$q = (GET('userfriendly')) ? $filter['query'] : $rules[$filter['type']][$filter['subtype']]['query'];
 	$m = (GET('userfriendly')) ? $filter['query_match'] : $rules[$filter['type']][$filter['subtype']]['match'];
 	
-	check_security($filter['value'],$m);
-	if ($rules[$filter['type']][$filter['subtype']]['match'] == "concat")
+	if($m=='fixedText'){
+		// For FixedText
+		if(!empty($filter['value2'])){
+			$value2 = $filter['value2'];
+		}else{
+			$value2=null;
+		}
+		
+		check_security($filter['value'],$m,$value2);
+	}else{
+		check_security($filter['value'],$m);
+	}
+	if ($rules[$filter['type']][$filter['subtype']]['match'] == "concat"){
 		list($query,$params) = build_concat_query ($q,$filter['value'],$filter['match'],"concat");
-	else
+	}elseif($m=='fixedText'){
+		list($query,$params) = build_query_two_values ($q,$filter['value'],$filter['value2'],$filter['match'],$m);
+	}else{
 		list($query,$params) = build_query ($q,$filter['value'],$filter['match'],$m);
+	}
 	//echo "Filter $i: ".$filter['type']." ".$filter['subtype']." ".$filter['value']." ".$filter['match']."<br>";
 	//print_r($params);
 	//echo "SQL: ".$query."<br><br>";

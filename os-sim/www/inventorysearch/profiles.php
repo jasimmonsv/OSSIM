@@ -69,7 +69,7 @@ elseif (GET('inv_do') == "import") {
 	$coma = "";
 	foreach ($data['data'] as $i=>$filter) {
 		echo $coma;
-		echo "{\"type\":\"".$filter['type']."\",\"subtype\":\"".$filter['subtype']."\",\"match\":\"".$filter['match']."\",\"value\":\"".$filter['value']."\"}";
+		echo "{\"type\":\"".$filter['type']."\",\"subtype\":\"".$filter['subtype']."\",\"match\":\"".$filter['match']."\",\"value\":\"".$filter['value']."\",\"value2\":\"".$filter['value2']."\"}";
 		$coma = ",";
 	}
 	echo "],\"op\":\"".$data['op']."\",\"description\":\"".$data['description']."\"}";
@@ -92,7 +92,7 @@ elseif (GET('inv_do') == "last_search") {
 	for ($i=1;$i<=$data['num'];$i++) {
 		$filter = $data[$i];
 		echo $coma;
-		echo "{\"type\":\"".$filter['type']."\",\"subtype\":\"".$filter['subtype']."\",\"match\":\"".$filter['match']."\",\"value\":\"".$filter['value']."\"}";
+		echo "{\"type\":\"".$filter['type']."\",\"subtype\":\"".$filter['subtype']."\",\"match\":\"".$filter['match']."\",\"value\":\"".$filter['value']."\",\"value2\":\"".$filter['value2']."\"}";
 		$coma = ",";
 	}
 	echo "],\"op\":\"".$op."\"}";

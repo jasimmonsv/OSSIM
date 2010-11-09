@@ -124,12 +124,13 @@ if (GET('basic')) {
 			UNION
 			SELECT DISTINCT INET_NTOA(ac.ip_dst) as ip FROM snort.ac_dstaddr_signature ac,ossim.plugin_sid s WHERE s.plugin_id=ac.plugin_id AND s.sid=ac.plugin_sid AND ac.day >= '$date_from' AND ac.day <= '$date_to' AND s.name %op% ?",
 		"query_match"=>"text");
-		
+	
 	// Set Values
 	$_SESSION['inventory_search']['num'] = $n;
 	$k = 0;
 	for ($i = 1; $i <= 5; $i++) {
 		$val = 'value'.$i;
+		
 		if (GET($val) != "") {
 			$k++;
 			$_SESSION['inventory_search'][$k] = $basic_search[$i];
@@ -145,6 +146,7 @@ if (GET('basic')) {
 		$_SESSION['inventory_search']['num'] = 1;
 		$_SESSION['inventory_search'][1] = $basic_search[0];
 		$_SESSION['inventory_search'][1]['value'] = "";
+		$_SESSION['inventory_search'][1]['value2'] = "";
 	}
 	if (GET('date_from')) {
 	
@@ -158,6 +160,11 @@ if (GET('basic')) {
 		for ($i = 1; $i <= $n; $i++) {
 			$val = 'value'.$i;
 			$_SESSION['inventory_search'][$i]['value'] = GET($val);
+			// For FixedText
+			$val2 = 'value_two'.$i;
+			if (GET($val2) != "") {
+				$_SESSION['inventory_search'][$i]['value2'] = GET($val2);
+			}
 		}
 	}
 	// Set filters selections
@@ -165,6 +172,7 @@ if (GET('basic')) {
 		$_SESSION['inventory_search'][$i]['type'] = $type;
 		$_SESSION['inventory_search'][$i]['subtype'] = $subtype;
 		$_SESSION['inventory_search'][$i]['match'] = $match;
+		//$_SESSION['inventory_search'][$i]['value2'] = "";
 	}
 }
 //print_r($_SESSION);

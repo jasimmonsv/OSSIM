@@ -69,7 +69,7 @@ if (!$rs = & $conn->Execute($sql)) {
 			
 			if ($i) echo ",";
 			echo str_replace(",","",$rs->fields[0]);
-			if ($rules[$type][$subtype]['match'] == "fixed" || $rules[$type][$subtype]['match'] == "concat") {
+			if ($rules[$type][$subtype]['match'] == "fixed" || $rules[$type][$subtype]['match'] == "concat" || $rules[$type][$subtype]['match'] == "fixedText") {
 				if ($rs->fields[1] != "") echo ";".str_replace(",","",$rs->fields[1]); //id;name
 				else echo ";".str_replace(",","",$rs->fields[0]); //name;name
 			}

@@ -42,6 +42,18 @@ function build_query ($sql,$value,$match="",$match_type="") {
 	for ($i = 0; $i < $count; $i++) $params[] = $value;
 	return array($sql,$params);
 }
+function build_query_two_values ($sql,$value,$value2,$match="",$match_type="") {
+	if($match == "" && $match_type == "fixedText"){
+		$match = "=";
+	}
+	$sql = str_replace ("%op%",$match,$sql);
+	if ($sql != "") $count = substr_count($sql,"?",0,strlen($sql));
+	$sql = str_replace ('$value2',$value2,$sql);
+	$params = array();
+	for ($i = 0; $i < $count; $i++) $params[] = $value;
+	
+	return array($sql,$params);
+}
 function build_concat_query ($sql,$value) {
 	$values = explode("-",$value);
 	if ($sql != "") $count = substr_count($sql,"?",0,strlen($sql))/2;
@@ -55,11 +67,11 @@ function get_params ($value,$sql) {
 	for ($i = 0; $i < $count; $i++) $ret[] = $value;
 	return $ret;
 }
-function check_security ($value, $match) {
+function check_security ($value, $match, $value2=NULL) {
 	require_once ("classes/Security.inc");
 	switch($match) {
 		case "text":
-			ossim_valid($value, OSS_ALPHA, OSS_SCORE, OSS_SLASH, 'illegal:' . _("$match value"));
+			ossim_valid($value, OSS_SPACE, OSS_ALPHA, OSS_SCORE, OSS_SLASH, 'illegal:' . _("$match value"));
 			break;
 		case "ip":
 			// "LIKE" patch
@@ -79,6 +91,10 @@ function check_security ($value, $match) {
 			break;
 		case "concat":
 			ossim_valid($value, OSS_ALPHA, '-', 'illegal:' . _("$match value"));
+			break;
+		case "fixedText":
+			ossim_valid($value2, OSS_SPACE, OSS_ALPHA, OSS_SCORE, OSS_SLASH, 'illegal:' . _("$match value"));
+			ossim_valid($value, OSS_ALPHA, OSS_SCORE, OSS_SLASH, 'illegal:' . _("$match value"));
 			break;
 	}
 	if (ossim_error()) {

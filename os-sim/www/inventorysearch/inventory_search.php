@@ -83,6 +83,7 @@ var description = "";
 var subcriterias = new Array; // Events -> (HasEvent, HasIP, HasProtocol, etc.)
 // Third level selects
 var values = new Array; // Events -> HasIP -> (192.168)
+var values2 = new Array;
 var matches = new Array; // Events -> HasIP -> (eq,like)
 var sayts = new Array;
 var datepickers = new Array;
@@ -124,6 +125,7 @@ var finish = false;
 		criterias[i+1] = ""; // New criteria empty
 		subcriterias[i+1] = "";
 		values[i+1] = "";
+		values2[i+1] = "";
 		matches[i+1] = "";
 		criteria_count++;
 		syncflag[criteria_count] = false;
@@ -140,11 +142,13 @@ var finish = false;
 			criterias[i] = criterias[i+1];
 			subcriterias[i] = subcriterias[i+1];
 			values[i] = values[i+1];
+			values2[i] = values2[i+1];
 			matches[i] = matches[i+1];
 		}
 		criterias[i] = ""; // Remove criteria data
 		subcriterias[i] = "";
 		values[i] = "";
+		values2[i] = "";
 		matches[i] = "";
 		criteria_count--;
 		setcriteria_type(i,"",0);
@@ -170,7 +174,6 @@ var finish = false;
 	
 	// Get the output in html for 'i' criteria (inputs and values)
 	function criteria_html (i) {
-		
 		// Criteria
 		var has_subtype = false;
 		var has_filter = false;
@@ -262,6 +265,40 @@ var finish = false;
 				if (values[i] != "") val = values[i];
 				criteria_select += "&nbsp;<input type='text' style='width:30px' id='value_"+i+"' name='value_"+i+"' value='"+val+"'>";
 			}
+			// Combo-Type Input and Text
+			else if (rules[criterias[i]][subcriterias[i]]['match'] == "fixedText") {
+				// AJAX! (if rule has 'list' field)
+				if (rules[criterias[i]][subcriterias[i]]['list']) {
+					var val2 = "";
+					if (values2[i] != ""){
+						val2 = values2[i];
+					}
+
+					criteria_select += "&nbsp;<select id='value_"+i+"' name='value_"+i+"' style='width:120px'>";
+					$.ajax({
+						type: "GET",
+						url: "filter_response.php?type="+criterias[i]+"&subtype="+subcriterias[i],
+						data: "",
+						success: function(msg){
+							if (msg != "\n") {
+								var list = msg.split(",");
+								var k = 0;
+								for (elem in list) {
+									var elem_fields = list[elem].split(";");
+									var newOpt = new Option(elem_fields[1], elem_fields[0]);
+									document.getElementById('value_'+i).options[k] = newOpt;
+									if (values[i] == elem_fields[0]) document.getElementById('value_'+i).options[k].selected = true;
+									k++;
+								}
+							} else {
+								var newOpt = new Option("<?=_("Empty list (check rules)")?>", "");
+								document.getElementById('value_'+i).options[0] = newOpt;
+							}
+						}
+					});
+					criteria_select += "</select>&nbsp;<input type='text' id='value2_"+i+"' name='value2_"+i+"' value='"+val2+"'>";
+				}
+			}
 		}
 		
 		//var remove = "<td class='nobborder'></td>";
@@ -279,6 +316,7 @@ var finish = false;
 		criterias[i] = val;
 		subcriterias[i] = "";
 		values[i] = "";
+		values2[i] = "";
 		matches[i] = "";
 		$.ajax({
 			type: "GET",
@@ -288,7 +326,9 @@ var finish = false;
 				
 			}
 		});
-		if (r) reloadcriteria();
+		if (r){
+			reloadcriteria();
+		}
 	}
 	function setcriteria_op (val) {
 		operator = val;
@@ -297,6 +337,7 @@ var finish = false;
 	function setcriteria_subtype (i,val,r) {
 		subcriterias[i] = val;
 		values[i] = "";
+		values2[i] = "";
 		matches[i] = "";
 		$.ajax({
 			type: "GET",
@@ -307,7 +348,9 @@ var finish = false;
 				checksync();
 			}
 		});
-		if (r) reloadcriteria();
+		if (r){
+			reloadcriteria();
+		}
 	}
 	function setcriteria_match (i,val,r) {
 		matches[i] = val;
@@ -319,7 +362,9 @@ var finish = false;
 				
 			}
 		});
-		if (r) reloadcriteria();
+		if (r){
+			reloadcriteria();
+		}
 	}
 	function setcriteria (i,val_type,val_subtype,val_match) {
 		criterias[i] = val_type;
@@ -374,15 +419,26 @@ var finish = false;
 	
 	function save_values () {
 		var params = "?op="+operator+"&n="+criteria_count;
+
 		for (i = 1; i <= criteria_count; i++) {
 			if (criterias[i]) {
 				if (document.getElementById("value_"+i) != null) values[i] = document.getElementById("value_"+i).value;
+				if (document.getElementById("value2_"+i) != null){
+					// For FixedText
+					values2[i] = document.getElementById("value2_"+i).value;
+				}
 			}
 			else {
 				values[i] = "";
+				values2[i] = "";
 			}
 			params += "&value"+i+"="+values[i];
+			if(values2!=null){
+				// For FixedText
+				params += "&value_two"+i+"="+values2[i];
+			}
 		}
+
 		$.ajax({
 			type: "GET",
 			url: "setvars.php"+params,
@@ -412,11 +468,20 @@ var finish = false;
 			for (i = 1; i <= criteria_count; i++) {
 				if (criterias[i]) {
 					if (document.getElementById("value_"+i) != null) values[i] = document.getElementById("value_"+i).value;
+					if (document.getElementById("value2_"+i) != null){
+						// For FixedText
+						values2[i] = document.getElementById("value2_"+i).value;
+					}
 				}
 				else {
 					values[i] = "";
+					values2[i] = "";
 				}
 				params += "&value"+i+"="+values[i];
+				if(values2!=null){
+					// For FixedText
+					params += "&value_two"+i+"="+values2[i];
+				}
 			}
 			$.ajax({
 				type: "GET",
@@ -456,7 +521,11 @@ var finish = false;
 					for (i = 0; i < data.length; i++) {
 						setcriteria(i+1,data[i].type,data[i].subtype,data[i].match);
 						values[i+1] = data[i].value;
+						values2[i+1] = data[i].value2;
 						if (document.getElementById("value_"+(i+1)) != null) document.getElementById("value_"+(i+1)).value = data[i].value;
+						if (document.getElementById("value2_"+(i+1)) != null){
+							document.getElementById("value2_"+(i+1)).value = data[i].value2;
+						}
 					}
 					operator = ret.op;
 					description = ret.description;
@@ -674,8 +743,8 @@ var finish = false;
 					<table class="noborder" width="100%" style="background-color:white">
 						<tr>
 							<td class="nobborder" width="100"><? if (Session::am_i_admin()) { ?><a href="" onclick="open_edit();return false;" target="_blank"><img src="../pixmaps/pencil.png" border="0" alt="<?=_("Edit rules.conf")?>" title="<?=_("Edit rules.conf")?>"><?=_("Rules")?></a><? } ?></td>
-							<td class="nobborder" style="text-align:right"><input type="button" onclick="clean_request()" value="<?=_("Clean")?>" class="btn" style="font-size:12px"></td>
-							<td class="nobborder" style="text-align:left"><input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="btn" style="font-size:12px;font-weight:bold;color:gray" disabled></td>
+							<td class="nobborder" style="text-align:right"><input type="button" onclick="clean_request()" value="<?=_("Clean")?>" class="button" style="font-size:12px"></td>
+							<td class="nobborder" style="text-align:left"><input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:12px;" disabled></td>
 							<td class="nobborder" width="100" style="text-align:right">&nbsp;</td>
 							<!--<td class="nobborder" width="100" style="text-align:right"><input type="button" class="btn" onclick="profiles_show()" id="prof_link" value="<?=_("Profiles")?> >>"></td>-->
 						</tr>
