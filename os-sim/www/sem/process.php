@@ -327,7 +327,7 @@ $totaltime = round($time2 - $time1, 2);
 			<?php if ($from_remote) { ?>
 			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" <b>first</b> events")._(" for <b>each server</b>")." (<b>".(($offset*$num_servers)+1)."</b> - <b>".(($offset*$num_servers)+count($result))."</b> total)" ?>.&nbsp;
 			<?php } else { ?>
-			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" events") ?>.&nbsp;
+			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+count($result))."</b>"._(" events") ?>.&nbsp;
 			<?php } ?>
 			<?php if ($offset > 0) { ?>
 			<a href="javascript:DecreaseOffset(<?php echo GET('top')?>);"><?php echo ($from_remote) ? "<< "._("Fetch the previous ") : "<< "._("Previous ")?><?php echo "<b>".GET('top')."</b>" ?></a>
@@ -396,7 +396,6 @@ $cont = array(); // Counter for each logger server
 $colort = 0;
 $alt = 0;
 $htmlResult=true;
-
 foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
 	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
@@ -405,7 +404,7 @@ foreach($result as $res=>$event_date) {
         $current_server = urlencode($lf[count($lf)-1]);
         
 		if ($cont[$current_server] == "") $cont[$current_server] = 1;
-		if ($cont[$current_server] >= $num_lines[$current_server]){
+		if ($cont[$current_server] > $num_lines[$current_server] || $cont[$current_server] > $top*$num_servers){
 	        $htmlResult = false;
 	    } else {
 	    	$htmlResult = true;
@@ -493,9 +492,9 @@ foreach($result as $res=>$event_date) {
 
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name')\"\">" . htmlspecialchars($sensor_name) . "</a></td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src</b>=$src_ip_name')\"\">" . htmlspecialchars($src_ip_name) . "</a></div>:";
-            $line.= "<a href=\"#\">" . htmlspecialchars($matches[8]) . "</a>$country_img_src $homelan_src</td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src_port</b>=$matches[8]')\">" . htmlspecialchars($matches[8]) . "</a>$country_img_src $homelan_src</td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst</b>=$dst_ip_name')\"\">" . htmlspecialchars($dst_ip_name) . "</a></div>:";
-            $line.= "<a href=\"#\">" . htmlspecialchars($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst_port</b>=$matches[9]')\">" . htmlspecialchars($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
             if ($alt) {
                 $color = "grey";
                 $alt = 0;
@@ -597,7 +596,7 @@ if (!has_results($num_lines)) {
 <?php if ($from_remote) { ?>
 <?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" <b>first</b> events")._(" for <b>each server</b>")." (<b>".(($offset*$num_servers)+1)."</b> - <b>".(($offset*$num_servers)+count($result))."</b> total)" ?>.&nbsp;
 <?php } else { ?>
-<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" events") ?>.&nbsp;
+<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+count($result))."</b>"._(" events") ?>.&nbsp;
 <?php } ?>
 <?php if ($offset > 0) { ?>
 <a href="javascript:DecreaseOffset(<?php echo GET('top')?>);"><?php echo ($from_remote) ? "<< "._("Fetch the previous ") : "<< "._("Previous ")?><?php echo "<b>".GET('top')."</b>" ?></a>

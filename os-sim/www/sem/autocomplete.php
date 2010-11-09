@@ -36,6 +36,7 @@
 require_once ('classes/Security.inc');
 require_once ('classes/Host.inc');
 require_once ('classes/Net.inc');
+require_once ('classes/Port.inc');
 require_once ('classes/Plugingroup.inc');
 require_once ('ossim_db.inc');
 function GetSourceTypes($db) {
@@ -81,9 +82,10 @@ if (trim($str) != "") {
 	$plugins = GetPlugins($conn);
 	$sourcetypes = GetSourceTypes($conn);
 	$plugingroups = Plugingroup::get_list($conn);
+	$ports = Port::get_list($conn);
 	
 	// Typing a tag
-	if (preg_match("/^(sensor|src|dst|plugin|plugingroup)(\!?\=)(.*)/i",$str,$found)) {
+	if (preg_match("/^(sensor|src|dst|plugin|plugingroup|src_port|dst_port)(\!?\=)(.*)/i",$str,$found)) {
 		$str = $found[3];
 		$op = $found[2];
 		if ($str == "") $str = ".";
@@ -118,6 +120,16 @@ if (trim($str) != "") {
 				$groupname = $group->get_name();
 				if ((preg_match("/^$qstr/i",$groupname)) && count($data) < $top) {
 					$data[] = array("name"=>"<b>plugin group $op </b>$groupname");
+				}
+			}
+		} elseif ($found[1] == "src_port" || $found[1] == "dst_port") {
+			$lastnumber = -1;
+			foreach ($ports as $port) {
+				$portnumber = $port->get_port_number();
+				if ($portnumber == $lastnumber) { continue; }
+				if ((preg_match("/^$qstr/i",$portnumber)) && count($data) < $top) {
+					$data[] = array("name"=>"<b>".$found[1]." $op </b>$portnumber");
+					$lastnumber = $portnumber;
 				}
 			}
 		}
@@ -164,6 +176,18 @@ if (trim($str) != "") {
 				$data[] = array("name"=>"<b>src != </b>$name");
 				$data[] = array("name"=>"<b>dst = </b>$name");
 				$data[] = array("name"=>"<b>dst != </b>$name");
+			}
+		}
+		$lastnumber = -1;
+		foreach ($ports as $port) {
+			$portnumber = $port->get_port_number();
+			if ($portnumber == $lastnumber) { continue; }
+			if ((preg_match("/^$qstr/i",$portnumber)) && count($data) < $top) {
+				$data[] = array("name"=>"<b>src_port = </b>$portnumber");
+				$data[] = array("name"=>"<b>src_port != </b>$portnumber");
+				$data[] = array("name"=>"<b>dst_port = </b>$portnumber");
+				$data[] = array("name"=>"<b>dst_port != </b>$portnumber");
+				$lastnumber = $portnumber;
 			}
 		}
 	}

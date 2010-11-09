@@ -140,7 +140,7 @@ foreach my $file (@files) {
 			}
 			open (F,$cmd);
 			LINE: while (<F>) {
-				next LINE if ($total_lines++<$jumprow);
+				#next LINE if ($total_lines++<$jumprow);
 				#if (/ date='(\d+)' /i) {
 				if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='[^']*')?(\s+plugin_sid='[^']*')?/i) {
 					$id = $1;
@@ -168,7 +168,7 @@ foreach my $file (@files) {
 					if ($currentdate > $start && $currentdate < $end && pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port,$data)) {
 						#print "$complete_lines BIEN Plugin $plugin_id - $plugin_sid -> ".pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port)."\n";
 						chomp;
-						$events{$_.";$file"} = $currentdate;
+						$events{$_.";$file;$complete_lines"} = $currentdate;
 						$complete_lines++; $read_lines++;
 						#print "found $complete_lines;$_;$currentdate;$lines_threshold\n" if ($debug);
 						last LINE if ($read_lines>=$lines_threshold); # jump innecesary events
@@ -231,6 +231,8 @@ sub pass_filters {
 				$pass_filter = 1 if ($type eq "sensor" && $filters{$key1}{$key2}{$type} eq $sensor);
 				$pass_filter = 1 if ($type eq "src_ip" && $filters{$key1}{$key2}{$type} eq $src_ip);
 				$pass_filter = 1 if ($type eq "dst_ip" && $filters{$key1}{$key2}{$type} eq $dst_ip);
+				$pass_filter = 1 if ($type eq "src_port" && $filters{$key1}{$key2}{$type} eq $src_port);
+				$pass_filter = 1 if ($type eq "dst_port" && $filters{$key1}{$key2}{$type} eq $dst_port);
 				$pass_filter = 1 if ($type eq "src_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($src_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($src_ip));
 				$pass_filter = 1 if ($type eq "dst_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($dst_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($dst_ip));
 				$match = $filters{$key1}{$key2}{$type};
