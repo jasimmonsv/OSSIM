@@ -23,8 +23,9 @@ $num_lines = $ARGV[3];
 $filter = $ARGV[4];
 $order_by = ($ARGV[5] eq "date") ? "perl -e 'print <>'" : "perl -e 'print reverse <>'";
 $reverse =  ($ARGV[5] eq "date") ? 0 : 1;
-$debug = 1 if ($ARGV[6] eq "debug");
-$debug_log = $ARGV[7] if ($ARGV[7] ne "");
+$server = $ARGV[6];
+$debug = 1 if ($ARGV[7] eq "debug");
+$debug_log = $ARGV[8] if ($ARGV[8] ne "");
 
 #$grep_str = `perl format_params_grep.pl "$filter"`;
 #print "Calling: php grep_filter.php \"$filter\" get_string\n";
@@ -97,7 +98,7 @@ foreach my $file (@files) {
 			$hourday = $fields[4].$fields[5].$fields[6].$fields[7];
 			$searchingdate1 = $fields[4].$fields[5].$fields[6];
 			if ($searchingdate1 ne $searchingdate2) {
-				print "Searching in $searchingdate1\n";
+				print "Searching in $searchingdate1 from $server\n";
 				$searchingdate2 = $searchingdate1;
 			}
 			$lastdate = $currentdate; # last selected event date
