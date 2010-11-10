@@ -207,23 +207,7 @@ a {
 $time1 = microtime(true);
 $cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $top, 1);
 $user = $_SESSION["_user"];
-?>
-<div id="loading" style="position:absolute;top:0;left:30%">
-	<table class="noborder" style="background-color:white">
-		<tr>
-			<td class="nobborder" style="text-align:center">
-				<span class="progressBar" id="pbar"></span>
-			</td>
-			<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
-			<td><input type="button" onclick="parent.KillProcess()" class="button" value="<?php echo _("Stop") ?>"></input></td>
-		</tr>
-	</table>
-</div>
-<script type="text/javascript">
-	$("#pbar").progressBar();
-	$("#pbar").progressBar(1);
-</script>
-<?php
+
 //$status = exec($cmd, $result);
 $result = array();
 //echo "$cmd $user";exit;
@@ -241,14 +225,47 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 	$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote.pl",$cmd);
 	$servers_string = "";
 	$num_servers = 0;
+	?><div id="loading" style="position:absolute;top:0;left:30%"><table class="noborder" style="background-color:white"><tr><?php
 	foreach ($_SESSION['logger_servers'] as $key=>$val) {
 		$servers_string .= ($servers_string != "") ? ",".$val : $val;
 		$logger_servers[$val] = $key;
 		$num_servers++;
+		?>
+			<td class="nobborder" style="text-align:center">
+				<span class="progressBar" id="pbar_<?php echo $key ?>"></span>
+			</td>
+			<script type="text/javascript">
+				$("#pbar_<?php echo $key ?>").progressBar();
+				$("#pbar_<?php echo $key ?>").progressBar(1);
+			</script>
+		<?php
 	}
+	?>
+			<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
+			<td><input type="button" onclick="parent.KillProcess()" class="button" value="<?php echo _("Stop") ?>"></input></td>
+		</tr>
+		</table>
+	</div><?php
 	//echo "$cmd '$user' $servers_string 2>>/dev/null";exit;
 	$fp = popen("$cmd '$user' $servers_string 2>>/dev/null", "r");
 } else {
+	?>
+	<div id="loading" style="position:absolute;top:0;left:30%">
+		<table class="noborder" style="background-color:white">
+			<tr>
+				<td class="nobborder" style="text-align:center">
+					<span class="progressBar" id="pbar"></span>
+				</td>
+				<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
+				<td><input type="button" onclick="parent.KillProcess()" class="button" value="<?php echo _("Stop") ?>"></input></td>
+			</tr>
+		</table>
+	</div>
+	<script type="text/javascript">
+		$("#pbar").progressBar();
+		$("#pbar").progressBar(1);
+	</script>
+	<?php
 	$from_remote = 0;
 	$num_servers = 1;
 	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null", "r");
@@ -266,19 +283,22 @@ $has_next_page = 0;
 while (!feof($fp)) {
     $line = trim(fgets($fp));
 	// Remote connect message
+    /*
     if (preg_match("/^Connecting (.+)/",$line,$found)) {
     	$current_server = ($logger_servers[$found[1]] != "") ? $logger_servers[$found[1]] : $found[1];
     	$server_bcolor[$current_server] = $_SESSION['logger_colors'][$current_server]['bcolor'];
     	$server_fcolor[$current_server] = $_SESSION['logger_colors'][$current_server]['fcolor'];
     	$cont++;
     }
+    */
 	// Searching message
-    elseif (preg_match("/^Searching in (\d\d\d\d\d\d\d\d)/",$line,$found)) {
+    if (preg_match("/^Searching in (\d\d\d\d\d\d\d\d) from (\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
     	ob_flush();
 		flush();
 		$sdate = date("d F Y",strtotime($found[1]));
+		$current_server = ($logger_servers[$found[2]] != "") ? $logger_servers[$found[2]] : $found[2];
 		$from_str = ($from_remote) ? " from <b>".$current_server."</b>" : ""; 
-    	?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
+    	?><script type="text/javascript">$("#pbar_<?php echo $current_server ?>").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
     	$perc += $inc;
     	if ($perc > 100) $perc = 100;
     // Event line
