@@ -370,13 +370,23 @@ class Agent:
                     self.detector_objs.append(parser)
 
                 elif plugin.get("config","source") == "wmi":
-                    if plugin_id in self.conn_plugins:
-                        parser = ParserWMI(self.conf, plugin, self.conn_plugins[plugin_id])
+                    line_cnt=0
+                    try:
+                        credentials = open(plugin.get("config","credentials_file"), "rb")
+                    except:
+                        logger.warning("Unable to load wmi credentials file %s, disabling wmi collection." % (plugin.get("config","credentials_file")))
+                        plugin.set("config","enable","no")
+                        continue
+                    for row in credentials:
+                        creds = row.split(",")
+                        # TODO: Check for shell escape chars in host, user and pass that could break this
+                        if plugin_id in self.conn_plugins:
+                            parser = ParserWMI(self.conf, plugin, self.conn_plugins[plugin_id],creds[0],creds[1],creds[2])
 
-                    else:
-                        parser = ParserWMI(self.conf, plugin, None)
+                        else:
+                            parser = ParserWMI(self.conf, plugin, None,creds[0],creds[1],creds[2])
 
-                    parser.start()
+                        parser.start()
 
                 elif plugin.get("config","source") == "sdee":
                     if plugin_id in self.conn_plugins:

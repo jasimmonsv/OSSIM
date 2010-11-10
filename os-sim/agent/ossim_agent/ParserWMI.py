@@ -18,23 +18,26 @@ from time import sleep
 from Config import Plugin
 
 class ParserWMI(Detector):
-        def __init__(self, conf, plugin, conn):
+        def __init__(self, conf, plugin, conn, hostname, username, password):
                 self._conf = conf
                 self._plugin = plugin
                 self.rules = []          # list of RuleMatch objects
                 self.conn = conn
+                self.hostname = hostname
+                self.username = username
+                self.password = password
                 Detector.__init__(self, conf, plugin, conn)
 
         def process(self):
-                logger.info("Started")
                 rules = self._plugin.rules()
                 #logger.info(rules['start_query']['query'])
                 #logger.info(rules['start_cmd']['cmd'])
                 #if rules['start_query']['query']
                 test = None
-                host = self._plugin.get("config", "source_ip")
-                username = self._plugin.get("config", "user")
-                password = self._plugin.get("config", "password")
+                host = self.hostname
+                username = self.username
+                password = self.password
+                logger.info("WMI Collection started. Trying to connect to %s." % host)
                 data = commands.getstatusoutput('wmic -U %s%%%s //%s "SELECT LogFileName FROM Win32_NTEventLogFile"' % (username, password, host))
                 data = data[1].split("\n")
                 for l in data:
