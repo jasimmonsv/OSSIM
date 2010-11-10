@@ -34,7 +34,7 @@
 * Function list:
 * Classes list:
 */
-ob_start();
+ob_implicit_flush();
 set_time_limit(300);
 require_once ('classes/Security.inc');
 require_once ("classes/Session.inc");
@@ -225,27 +225,27 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 	$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote.pl",$cmd);
 	$servers_string = "";
 	$num_servers = 0;
-	?><div id="loading" style="position:absolute;top:0;left:30%"><table class="noborder" style="background-color:white"><tr><?php
+	?><div id="loading" style="position:absolute;top:0;left:30%"><table class="noborder" style="background-color:white"><?php
 	foreach ($_SESSION['logger_servers'] as $key=>$val) {
 		$servers_string .= ($servers_string != "") ? ",".$val : $val;
 		$logger_servers[$val] = $key;
 		$num_servers++;
 		?>
-			<td class="nobborder" style="text-align:center">
-				<span class="progressBar" id="pbar_<?php echo $key ?>"></span>
-			</td>
+		<tr>
+			<td><span class="progressBar" id="pbar_<?php echo $key ?>"></span></td>
+			<td valign="top" class="nobborder" id="progressText_<?php echo $key ?>" style="text-align:left;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
 			<script type="text/javascript">
 				$("#pbar_<?php echo $key ?>").progressBar();
 				$("#pbar_<?php echo $key ?>").progressBar(1);
 			</script>
+		</tr>
 		<?php
 	}
-	?>
-			<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
-			<td><input type="button" onclick="parent.KillProcess()" class="button" value="<?php echo _("Stop") ?>"></input></td>
+	?>	<tr>
+			<td colspan="2" style="text-align:center;padding-top:5px"><input type="button" onclick="parent.KillProcess()" class="button" value="<?php echo _("Stop") ?>"></input></td>
 		</tr>
 		</table>
-	</div><?php
+	</div><script type="text/javascript">parent.resize_iframe();</script><?php
 	//echo "$cmd '$user' $servers_string 2>>/dev/null";exit;
 	$fp = popen("$cmd '$user' $servers_string 2>>/dev/null", "r");
 } else {
@@ -254,27 +254,26 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 		<table class="noborder" style="background-color:white">
 			<tr>
 				<td class="nobborder" style="text-align:center">
-					<span class="progressBar" id="pbar"></span>
+					<span class="progressBar" id="pbar_local"></span>
 				</td>
-				<td class="nobborder" id="progressText" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
+				<td class="nobborder" id="progressText_local" style="text-align:center;padding-left:5px"><?=gettext("Loading data. Please, wait a few seconds...")?></td>
 				<td><input type="button" onclick="parent.KillProcess()" class="button" value="<?php echo _("Stop") ?>"></input></td>
 			</tr>
 		</table>
 	</div>
 	<script type="text/javascript">
-		$("#pbar").progressBar();
-		$("#pbar").progressBar(1);
+		$("#pbar_local").progressBar();
+		$("#pbar_local").progressBar(1);
 	</script>
 	<?php
 	$from_remote = 0;
 	$num_servers = 1;
 	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null", "r");
 }
-
-$perc = 1;
+$perc = array();
 $ndays = dateDiff($start,$end);
 if ($ndays < 1) $ndays = 1;
-$inc = 100/($ndays*$num_servers);
+$inc = 100/$ndays;
 $num_lines = array(); // Number of lines for each logger server
 $current_server = ($from_remote) ? "" : "local";
 $server_bcolor = $server_fcolor = array();
@@ -297,10 +296,15 @@ while (!feof($fp)) {
 		flush();
 		$sdate = date("d F Y",strtotime($found[1]));
 		$current_server = ($logger_servers[$found[2]] != "") ? $logger_servers[$found[2]] : $found[2];
+		if (!$from_remote) $current_server = "local";
+		if ($perc[$current_server] == "") { $perc[$current_server] = 1; }
 		$from_str = ($from_remote) ? " from <b>".$current_server."</b>" : ""; 
-    	?><script type="text/javascript">$("#pbar_<?php echo $current_server ?>").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
-    	$perc += $inc;
-    	if ($perc > 100) $perc = 100;
+    	?><script type="text/javascript">$("#pbar_<?php echo $current_server ?>").progressBar(<?php echo floor($perc[$current_server]) ?>);$("#progressText_<?php echo $current_server ?>").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
+    	$perc[$current_server] += $inc;
+    	if ($perc[$current_server] >= 100) {
+    		?><script type="text/javascript">$("#pbar_<?php echo $current_server ?>").progressBar(100);$("#progressText_<?php echo $current_server ?>").html('All done <?php echo $from_str ?>...');</script><?php
+    		$perc[$current_server] = 100;
+    	}
     // Event line
     } elseif (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'/",$line,$found)) {
     	$line .= ";".$current_server;
@@ -339,7 +343,7 @@ $totaltime = round($time2 - $time1, 2);
 //}
 ?>
 <div id="processcontent" style="display:none">
-
+<?php if (has_results($num_lines)) { ?>
 <table width="100%" class="noborder" style="background-color:transparent;">
 	<tr>
 		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif"><?php print _("Time Range").": <b>$start <-> $end</b>" ?></td>
@@ -492,7 +496,7 @@ foreach($result as $res=>$event_date) {
             $line = "<tr".(($colort%2==0) ? " style=\"background-color: #F2F2F2\"" : "").">
             <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
             if ($from_remote) {
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$server_bcolor[$current_server].";color:#".$server_fcolor[$current_server]."'>$current_server</td></tr></table></td>";
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
             }
             
             if ($matches[2]==$date)
@@ -609,6 +613,8 @@ if (is_dir("/var/ossim/logs/searches") && isset($export)) {
 	fclose ($loglist);
 }
 
+} // FROM: if (has_results()) {
+
 if (!has_results($num_lines)) {
     print "<center><font style='color:red;font-size:14px'><br>"._("No Data Found Matching Your Criteria")."</font></center>";
 } else {
@@ -633,6 +639,3 @@ if (!has_results($num_lines)) {
 </div>
 </body>
 <script type="text/javascript">$("#pbar").progressBar(100);parent.SetFromIframe($("#processcontent").html(),"<?php echo $a ?>","<?php echo $start ?>","<?php echo $end ?>","<?php echo $sort_order ?>")</script>
-<?php 
-ob_end_flush();
-?>
