@@ -35,8 +35,15 @@ $operation = $ARGV[6];
 $cache_file = $ARGV[7];
 $idsesion = $ARGV[8];
 
-$user = $ARGV[9];
+$user = $ARGV[9]; # Could be user OR server IP if remote call
 $debug = $ARGV[10];
+
+if ($user =~ /\d+\.\d+\.\d+\.\d+/) {
+	$server = $user;
+	$user = "admin";
+} else {
+	$server = "127.0.0.1";
+}
 
 $cache_file = "" if ($cache_file !~ "/var/ossim/cache/.*cache.*");
 
@@ -96,7 +103,7 @@ if($operation eq "logs") {
 	# order them
 
 	# debug, missing swish and part
-	$cmd = "$swish | perl filter_range_and_sort.pl $start_epoch $end_epoch $start_line $num_lines \"$query\" $order_by $idsesion $debug";
+	$cmd = "$swish | perl filter_range_and_sort.pl $start_epoch $end_epoch $start_line $num_lines \"$query\" $order_by $server $idsesion $debug";
 	print "$cmd\n" if ($idsesion eq "debug");
 	system($cmd);
 	 if ($debug ne "") {

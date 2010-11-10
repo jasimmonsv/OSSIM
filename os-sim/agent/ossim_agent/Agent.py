@@ -177,7 +177,7 @@ class Agent:
                 # connect the control agent
                 self.conn_framework = FrameworkConn(self.conf)
 
-                if self.conn_framework.connect(attempts = 0, waittime = 30):
+                if self.conn_framework.connect(attempts = 3, waittime = 30):
                     logger.debug("Control framework connection is now enabled!")
                     self.conn_framework.control_messages()
     
