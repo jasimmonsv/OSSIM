@@ -1316,7 +1316,10 @@ else {
         
         if($shostname=="") $shostname = "-";
 
-        $query = "SELECT count(*) FROM vuln_nessus_results WHERE report_id=$report_id and falsepositive='N'";
+        $query = "SELECT count(risk) as count
+                FROM ( SELECT DISTINCT risk, port, protocol, app, scriptid, msg, hostIP FROM vuln_nessus_results
+                WHERE report_id in ($report_id) AND scriptid <> 10180 AND falsepositive='N') as t";
+        
         $resv = $dbconn->Execute($query);
         if(!$resv->EOF) $vulns = $resv->fields[0];
            else $vulns = 0;
