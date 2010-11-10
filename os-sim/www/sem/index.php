@@ -391,7 +391,7 @@ function is_operator (value) {
 function SetFromIframe(content,str,start,end,sort) {
 	HandleResponse(content);
 	$("#processcontent").show();
-
+	document.getElementById('processframe').style.height = "30px";
     if(document.getElementById('txtexport').value!='noExport') {
         $("#href_download").show();
         $("#img_download").show();
@@ -478,6 +478,10 @@ function MakeRequest()
 	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&top=" + top + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
 	
 	return false;
+}
+
+function resize_iframe() {
+	document.getElementById('processframe').style.height = "400px";
 }
 
 function RequestLines()
@@ -1278,14 +1282,14 @@ require_once ("manage_querys.php");
 				<tr>
 				<td class="nobborder">
 					<table class="transparent"><tr>
-					<td class="nobborder"><?=_("Time frame selection")?>:</td>
+					<td class="nobborder" nowrap><?=_("Time frame selection")?>:</td>
 					<td class="nobborder">
 						<div id="widget">
 							<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
 							<div id="widgetCalendar"></div>
 						</div>
 					</td>
-					<td class="nobborder">
+					<td class="nobborder" nowrap>
 					<?php
 					if ($param_start != "" && $param_end != "" && date_parse($param_start) && date_parse($param_end)) {
 					?>
@@ -1323,7 +1327,7 @@ if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'";
 					<td class="nobborder" id="date5td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_year','<?php echo urlencode(date("Y")) ?>');" onClick="javascript:bold_dates('date5');" id="date5a"><?=_("Last Year")?></a>
 					</td>
-					<td><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> Fetch&nbsp;
+					<td nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> Fetch&nbsp;
 						<select name="top" id="top" onchange="document.getElementById('offset').value='0';doQuery('noExport')">
 							<option value="10">10</option>
 							<option value="50" selected>50</option>
@@ -1350,9 +1354,9 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 </form>
 <table width="100%">
 <tr>
-<td width="50"><a href="javascript:getGraphs();" id="graphs_link"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph")?>"> <small><font color="black"><?php echo _("Stats") ?></font></small></a></td>
+<td width="50" valign="top"><a href="javascript:getGraphs();" id="graphs_link"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph")?>"> <small><font color="black"><?php echo _("Stats") ?></font></small></a></td>
 <td><div id="loadingProcess">
-<iframe id="processframe" src="" width="100%" height="30" frameborder="0" scrolling="no"></iframe>
+<iframe id="processframe" src="" width="100%" style="height:30px" frameborder="0" scrolling="no"></iframe>
 </div></td>
 </tr>
 </table>
