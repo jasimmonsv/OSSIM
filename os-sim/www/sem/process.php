@@ -521,6 +521,7 @@ foreach($result as $res=>$event_date) {
         $matches[11] = preg_replace("/(\,|\#)\s*/", "\\1 ", $matches[11]);
         // fin para coger
         if($htmlResult){
+                $matches[11] = wordwrap($matches[11], 60, " ", true);
 		foreach(split("[\| \t;:]", $matches[11]) as $piece) {
                     $clean_piece = str_replace("(", " ", $piece);
                     $clean_piece = str_replace(")", " ", $clean_piece);
