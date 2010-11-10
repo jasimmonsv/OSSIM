@@ -214,7 +214,7 @@ INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) V
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302013, NULL, NULL, 'CiscoPIX: Built TCP connection for interface', 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302014, NULL, NULL, 'CiscoPIX: Teardown TCP connection for interface', 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302015, NULL, NULL, 'CiscoPIX: Built UDP connection for interface', 1);
-INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302016, NULL, NULL, 'CiscoPIX: Teardown UDp connection for interface', 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302016, NULL, NULL, 'CiscoPIX: Teardown UDP connection for interface', 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 303002, NULL, NULL, 'CiscoPIX: src_addr Stored|Retrieved', 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 304004, NULL, NULL, 'CiscoPIX: URL server request failed', 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 305007, NULL, NULL, 'CiscoPIX: addrpool_fre(): Orphan IP', 1);
@@ -289,5 +289,7 @@ INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) V
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 710005, NULL, NULL, 'CiscoPIX: TCP|UDP request discarded', 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 710006, NULL, NULL, 'CiscoPIX: protocol request discarded', 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302026, NULL, NULL, "CiscoPIX: Built ICMP connection for interface", 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302020, NULL, NULL, "CiscoPIX: Built ICMP connection for faddr", 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302021, NULL, NULL, "CiscoPIX: Teardown ICMP connection for faddr", 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 302027, NULL, NULL, "CiscoPIX: Teardown ICMP connection for interface", 1);
-
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority) VALUES (1514, 110002, NULL, NULL, "CiscoPIX: Failed to locate egress interface for UDP from outside", 1);
