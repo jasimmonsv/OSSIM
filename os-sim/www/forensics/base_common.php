@@ -240,6 +240,19 @@ function GetVendor($mac) {
     } else return "can't open vendor map";
     return $vendor;
 }
+function GetOssimNetworkGroups() {
+	require_once("classes/Net_group.inc");
+	require_once ('ossim_db.inc');
+	$db = new ossim_db();
+	$conn = $db->connect();
+    $pg = array();
+    $groups = Net_group::get_list($conn, " ORDER BY name");
+    foreach ($groups as $ng) {
+        $pg[] = $ng->get_name();
+    }
+    $conn->disconnect();
+    return $pg;
+}
 function GetDatesWithEvents($db) {
     $dates = array();
     $temp_sql = "SELECT distinct(day) FROM ac_alerts_sid";

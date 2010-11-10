@@ -354,9 +354,20 @@ if ($Use_Auth_System == 1) {
 														</th>
 													</tr>
 													<tr class="noborder">
+														<td>
+															<table style="border:0px">
+																<tr>
+																	<td style="font-size:11px"><?php echo _("User Data")?>:</td>
+																	<td style="padding-left:10px"><input type="text" name="userdata" style="width:158px" value="<?php echo $_SESSION["userdata"] ?>"></input></td>
+																	<td><input type="button" class="button" value="<?php echo _("Search")?>" onclick="this.form.bsf.click()" style="height:18px"></input></td>
+																</tr>
+															</table>
+														</td>
+													</tr>													
+													<tr class="noborder">
 														<td style='padding:5px;'>
 															<div style='text-align: left; padding-bottom: 15px; clear: both;'>
-																<div style='float: left; width:90px;'><?=_("Plugin Groups")?>:</div>
+																<div style='float: left; width:90px; font-size:11px'><?=_("Plugin Groups")?>:</div>
 																<div style='float: left;'>
 																	<select name="plugingroup" class="selectp" style="width:185px" onchange="this.form.bsf.click()"><option value=''></option> 
 																	<?
@@ -370,19 +381,24 @@ if ($Use_Auth_System == 1) {
 														</td>
 													</tr>
 													<tr class="noborder">
-														<td>
-															<table style="border:0px">
-																<tr>
-																	<td><?php echo _("User Data")?>:</td>
-																	<td style="padding-left:10px"><input type="text" name="userdata" style="width:158px" value="<?php echo $_SESSION["userdata"] ?>"></input></td>
-																	<td><input type="button" class="button" value="<?php echo _("Search")?>" onclick="this.form.bsf.click()" style="height:18px"></input></td>
-																</tr>
-															</table>
+														<td style='padding:5px;'>
+															<div style='text-align: left; padding-bottom: 15px; clear: both;'>
+																<div style='float: left; width:90px; font-size:11px'><?=_("Network Groups")?>:</div>
+																<div style='float: left;'>
+																	<select name="networkgroup" class="selectp" style="width:185px" onchange="this.form.bsf.click()"><option value=''></option> 
+																	<?
+																	// 
+																	$ng = GetOssimNetworkGroups();
+																	foreach ($ng as $nameng) echo "<option value='$nameng'".(($_SESSION["networkgroup"]==$nameng) ? " selected" : "").">$nameng</option>\n";
+																	?>
+																	</select>
+																</div>
+															</div>
 														</td>
-													</tr>
+													</tr>													
 													<tr class="noborder">
 														<td style='padding:5px;'>
-															<div style="text-align:left;padding-right:10px; float:left;"><?=_("Home networks")?> <img src="images/homelan.png" border=0 align="absmiddle"></div>
+															<div style="text-align:left;padding-right:10px;font-size:11px;float:left;"><?=_("Home networks")?> <img src="images/homelan.png" border=0 align="absmiddle"></div>
 															<?
 																$src_url = $actual_url."addhomeips=src";
 																$dst_url = $actual_url."addhomeips=dst";

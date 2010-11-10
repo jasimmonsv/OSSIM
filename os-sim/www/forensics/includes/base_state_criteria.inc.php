@@ -51,6 +51,7 @@ class CriteriaState {
         $this->criteria['sourcetype'] = new SourceTypeCriteria($tdb, $obj, "sourcetype");
         $this->criteria['category'] = new CategoryCriteria($tdb, $obj, "category");
         $this->criteria['plugingroup'] = new PluginGroupCriteria($tdb, $obj, "plugingroup");
+        $this->criteria['networkgroup'] = new NetworkGroupCriteria($tdb, $obj, "networkgroup");
         $this->criteria['userdata'] = new UserDataCriteria($tdb, $obj, "userdata");
         $this->criteria['time'] = new TimeCriteria($tdb, $obj, "time", TIME_CFCNT);
         $this->criteria['ip_addr'] = new IPAddressCriteria($tdb, $obj, "ip_addr", IPADDR_CFCNT);

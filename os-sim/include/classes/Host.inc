@@ -634,7 +634,10 @@ class Host {
         return $sensors;
     }
     function ip2ulong($strIP) {
-    	return sprintf("%u",ip2long($strIP)); 
+    	//return sprintf("%u",ip2long($strIP));
+	$tmp_long = ip2long($strIP);
+	if ($tmp_long < 0) $tmp_long = 4294967296 - abs($tmp_long);
+	return $tmp_long;
     }
     // 
     function get_apps($conn,$ip) {

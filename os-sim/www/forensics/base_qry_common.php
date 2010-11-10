@@ -330,8 +330,9 @@ function PrintCriteria($caller) {
     }
     $save_criteria.= '&nbsp;&nbsp;</TD>';
     $save_criteria.= '<TD>';
-    if (!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty()) {
-        $criteria_arr['ip'] = $cs->criteria['ip_addr']->Description();
+    if (!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty() || !$cs->criteria['networkgroup']->isEmpty()) {
+        $criteria_arr['ip'] = $cs->criteria['networkgroup']->Description();
+        $criteria_arr['ip'].= $cs->criteria['ip_addr']->Description();
         $criteria_arr['ip'].= $cs->criteria['ip_field']->Description();
         $save_criteria.= $cs->criteria['ip_addr']->Description();
         $save_criteria.= $cs->criteria['ip_field']->Description();
@@ -421,9 +422,9 @@ function PrintCriteria($caller) {
 				<TR><TD height="27" align="center" style="background:url('../pixmaps/fondo_col.gif') repeat-x;border:1px solid #CACACA">
 					<table width="100%">
 						<tr>
-							<td width="120"></td>
+							<td width="60"></td>
 							<td style="text-align:center;color:#333333;font-size:14px;font-weight:bold">&nbsp;<?php echo _("Current Search Criteria")?>&nbsp;&nbsp; [<a href="base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB" style="font-weight:normal;color:black">...Clear All Criteria...</a>]</td>
-							<td width="120"><a href="base_view_criteria.php" onclick="GB_show('<?=_("Current Search Criteria")?>','base_view_criteria.php',420,600);return false"><img src="../pixmaps/arrow_green.gif" alt="" border="0"></img> <?php echo _("Show full criteria")?> <img src="../pixmaps/ui-scroll-pane-detail.png" border="0" alt="<?php echo _("View entire current search criteria") ?>" title="<?php echo _("View entire current search criteria") ?>"></img></a></td>
+							<td width="120" nowrap><a href="base_view_criteria.php" onclick="GB_show('<?=_("Current Search Criteria")?>','base_view_criteria.php',420,600);return false"><img src="../pixmaps/arrow_green.gif" alt="" border="0"></img> <?php echo _("Show full criteria")?> <img src="../pixmaps/ui-scroll-pane-detail.png" border="0" alt="<?php echo _("View entire current search criteria") ?>" title="<?php echo _("View entire current search criteria") ?>"></img></a></td>
 						</tr>
 					</table>
 					</TD>
@@ -434,7 +435,7 @@ function PrintCriteria($caller) {
 							<tr>
 								<th style="border-right:1px solid #CACACA;border-bottom:1px solid #CACACA;background-color:#eeeeee"><?=_("META")?></th>
 								<th style="padding-left:5px;padding-right:5px;border-right:1px solid #CACACA;border-bottom:1px solid #CACACA;background-color:#eeeeee"><?=_("PAYLOAD")?></th>
-								<th style="border-right:1px solid #CACACA;border-bottom:1px solid #CACACA;background-color:#eeeeee" width="60"><?=_("IP")?></th>
+								<th style="border-right:1px solid #CACACA;border-bottom:1px solid #CACACA;background-color:#eeeeee">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?=_("IP")?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 								<th style="padding-left:5px;padding-right:5px;border-bottom:1px solid #CACACA;background-color:#eeeeee" nowrap><?=_("LAYER 4")?></th>
 							</tr>
 							<tr>
@@ -529,6 +530,26 @@ function QueryOssimPluginGroup($pgid) {
     return trim($ids);
 }
 /********************************************************************************************/
+function QueryOssimNetworkGroup($ngname) {
+    GLOBAL $db;
+    require_once("classes/CIDR.inc");
+    $ids = "";
+    $sql = "SELECT n.ips FROM ossim.net as n,ossim.net_group_reference as gr WHERE gr.net_name=n.name AND gr.net_group_name='$ngname'";
+    if ($result = $db->baseExecute($sql)) {
+        while ($row = $result->baseFetchRow()) {
+        	$nets = explode(",",$row["ips"]);
+        	foreach ($nets as $net) {
+        		$exp = CIDR::expand_CIDR($net,"SHORT","IP");
+        		$ids.= "(acid_event.ip_src>=".baseIP2long($exp[0])." AND acid_event.ip_src<=".baseIP2long($exp[1]).")OR";
+        		$ids.= "(acid_event.ip_dst>=".baseIP2long($exp[0])." AND acid_event.ip_dst<=".baseIP2long($exp[1]).")OR";
+			}
+        }
+    }
+    $ids = preg_replace("/(OR|AND)$/", "", $ids);
+    $result->baseFreeRows();
+    return trim($ids);
+}
+/********************************************************************************************/
 function GetPluginListBySourceType($sourcetype) {
     GLOBAL $db;
     $ids = array(0);
@@ -603,6 +624,7 @@ function ProcessCriteria() {
     $sensor = $cs->criteria['sensor']->criteria;
     $plugin = $cs->criteria['plugin']->criteria;
     $plugingroup = $cs->criteria['plugingroup']->criteria;
+    $networkgroup = $cs->criteria['networkgroup']->criteria;
     $userdata = $cs->criteria['userdata']->criteria;
     $sourcetype = $cs->criteria['sourcetype']->criteria;
     $category = $cs->criteria['category']->criteria;
@@ -660,6 +682,11 @@ function ProcessCriteria() {
             $tmp_meta = $tmp_meta . " AND ($pg_ids) ";
         else
             $tmp_meta = $tmp_meta." AND (acid_event.plugin_id=-1 AND acid_event.plugin_sid=-1)";
+    }
+    /* Network Group */
+    if ($networkgroup != "" && $networkgroup != " ") {
+        $ng_ids = QueryOssimNetworkGroup($networkgroup);
+        if ($ng_ids!="") $tmp_meta = $tmp_meta . " AND ($ng_ids) ";
     }
     /* User Data */
     //print_r($_SESSION);

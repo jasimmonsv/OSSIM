@@ -726,6 +726,25 @@ class PluginGroupCriteria extends SingleElementCriteria {
         return $tmp;
     }
 }; /* PluginGroupCriteria */
+class NetworkGroupCriteria extends SingleElementCriteria {
+    function Init() {
+        $this->criteria = "";
+    }
+    function Clear() {
+    }
+    function SanitizeElement() {
+        $this->criteria = CleanVariable($this->criteria, VAR_ALPHA | VAR_SPACE | VAR_PUNC);
+    }
+    function PrintForm() {
+    }
+    function ToSQL() {
+    }
+    function Description() {
+        $tmp = "";
+        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("Network group") . ' = (' . $this->criteria .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        return $tmp;
+    }
+}; /* NetworkGroupCriteria */
 class UserDataCriteria extends SingleElementCriteria {
     function Init() {
         $this->criteria = "";
