@@ -86,24 +86,27 @@ class OMP{
         $password = $this->password;
         $tmpfile = $this->tmpfile;
         
-        $ecommand = "$binary_location -h $ip -p $port -u $user -w $password -iX \"$command\" > $tmpfile";
+        $ecommand = "$binary_location -h $ip -p $port -u $user -w $password -iX \"$command\" > $tmpfile 2>&1";
         
-        //error_log("debug: ".$ecommand."\n", 3, "/tmp/omp.log");
-
         system($ecommand);
 
         $data = file_get_contents($tmpfile);
         $xml = @simplexml_load_string($data);
 
         if (!is_object($xml)) {
-            echo _("Cant' read XML:")." ".$tmpfile."<br>";
-            return "1";
+            if (preg_match("/^Failed/i", $data)) {
+                echo "OMP: ".$data."<br>";
+            }
+            else {
+                echo _("Cant' read XML:")." ".$tmpfile."<br>";
+            }
+            return FALSE;
         }
         if (!preg_match("/^20.*/",$xml->attributes()->status)) {
             if (!preg_match("/^Failed to find task.*/",$xml->attributes()->status_text)) {
                 echo _("Error: status = ".$xml->attributes()->status.", status_text = ".$xml->attributes()->status_text." ($tmpfile)")."<br>";
             }
-            return "1";
+            return FALSE;
         }
         
         return $xml;
@@ -118,6 +121,8 @@ class OMP{
         $cuser = $result->fields["owner"];
         
         $xml = $this->execute_command ("<get_configs />");
+        
+        if ($xml==FALSE) { return $config_id; }
 
         foreach ($xml->config as $config) {
             if( ($cname ==(string)$config->name) && ($cuser==(string)$config->comment) )
@@ -131,6 +136,8 @@ class OMP{
         $config_id = "";
     
         $xml = $this->execute_command ("<get_configs />");
+        
+        if ($xml==FALSE) { return $config_id; }
 
         foreach ($xml->config as $config) {
             if($comment!="") {
@@ -149,11 +156,13 @@ class OMP{
         
         $xml = $this->execute_command("<get_tasks />");
         
-        foreach ($xml->task as $task) { // save tasks with config_id = $config
-            if($config == (string)$task->config->attributes()->id) {    $delete_tasks[]= (string)$task->attributes()->id;    }
-        }
-        foreach ($delete_tasks as $dtask) {
-            $this->execute_command("<delete_task task_id='$dtask' />");
+        if ($xml!=FALSE) {
+            foreach ($xml->task as $task) { // save tasks with config_id = $config
+                if($config == (string)$task->config->attributes()->id) {    $delete_tasks[]= (string)$task->attributes()->id;    }
+            }
+            foreach ($delete_tasks as $dtask) {
+                $this->execute_command("<delete_task task_id='$dtask' />");
+            }
         }
     }
     
@@ -165,6 +174,8 @@ class OMP{
         $command = "";
         
         $id_config = $this->get_config_id_by_sid($sid);
+        
+        if ($id_config =="") { return; }
         
         $this->delete_tasks_by_config_id($id_config);
         
@@ -214,6 +225,8 @@ class OMP{
         
         $id_config = $this->get_config_id_by_sid($sid);
         
+        if ($id_config =="") { return; }
+        
         $this->delete_tasks_by_config_id($id_config);
         
         $command = "";
@@ -251,6 +264,8 @@ class OMP{
         
         $id_config = $this->get_config_id_by_sid($sid);
         
+        if ($id_config =="") { return; }
+        
         $xml = $this->execute_command("<get_tasks />");
         
         foreach ($xml->task as $task) { 
@@ -266,6 +281,8 @@ class OMP{
         $sids = array();
         
         $xml = $this->execute_command("<get_tasks />");
+        
+        if ($xml == FALSE) { return $sids; }
         
         foreach ($xml->task as $task) { 
             if((string)$task->status != "Done") {    $used_configs[]= (string)$task->config->attributes()->id;   }
@@ -318,7 +335,7 @@ class OMP{
                 
         $result = $this->conn->Execute("SELECT meth_CPLUGINS FROM vuln_jobs WHERE id=$job_id");
         $config_id = $result->fields["meth_CPLUGINS"];
-        
+
         $this->execute_command ("<pause_task task_id='$config_id' />");
 
     }
@@ -345,7 +362,6 @@ class OMP{
             }
             $this->execute_command ("<delete_task task_id='$config_id' />");
         }
-    
     }
     
     public function resume_task($job_id) {
@@ -371,7 +387,7 @@ class OMP{
         
         $xml = $this->execute_command("<get_tasks task_id='$config_id'/>");
         
-        if ($xml==1) { return ($status); }
+        if ($xml==FALSE) { return ($status); }
         
         $status["status"] = trim((string) $xml->task[0]->status);
         $status["progress"] = trim((string) $xml->task[0]->progress);
