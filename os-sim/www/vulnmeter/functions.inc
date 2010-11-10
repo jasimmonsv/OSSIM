@@ -1370,6 +1370,9 @@ else {
           }
 
           $job_status = "";
+          
+          $tstatus = array("status"=>"", "progress"=>"");
+          
           if (preg_match("/omp\s*$/i", $nessus_path) && $task_id!="") {
             $omp = new OMP();
             
