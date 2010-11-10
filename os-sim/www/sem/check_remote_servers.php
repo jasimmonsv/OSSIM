@@ -33,41 +33,17 @@
 * Function list:
 * Classes list:
 */
-include("classes/Server.inc");
-require_once ('classes/Session.inc');
-require_once ('classes/Security.inc');
-Session::logcheck("MenuEvents", "ControlPanelSEM");
-require_once "ossim_conf.inc";
-$conf = $GLOBALS["CONF"];
-$version = $conf->get_conf("ossim_server_version", FALSE);
-if (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) {
-	echo "<html><body><a href='http://www.alienvault.com/information.php?interest=ProfessionalSIEM' target='_blank' title='Proffesional SIEM'><img src='../pixmaps/sem_pro.png' border=0></a></body></tml>";
-	exit;
-}
-require_once "ossim_db.inc";
-$db = new ossim_db();
-$conn = $db->connect();
-$database_servers = Server::get_list($conn,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
-$ips = array();
 foreach ($database_servers as $db) {
 	$name = $db->get_name();
 	$ip = $db->get_ip();
 	if ($ip == $_SERVER['SERVER_ADDR']) {
-		$ips[$name] = "1";
+		$logger_servers[$name] = "1";
 		continue;
 	}
 	$cmd = 'sudo ./test_remote_ssh.pl '.$ip;
 	$res = explode("\n",`$cmd`);
 	if ($res[0] == "OK") {
-		$ips[$name] = "1";
-	} else {
-		$ips[$name] = "0";
+		$server_ok[$name] = "1";
 	}
-}
-$flag = 0;
-foreach ($ips as $name=>$status) {
-	if ($flag) echo ";";
-	echo "$name:$status";
-	$flag = 1;
 }
 ?>
