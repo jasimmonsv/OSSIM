@@ -65,7 +65,7 @@ ossim_valid($int_name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' 
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Sensor Name"));
 ossim_valid($submit, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Submit"));
 ossim_valid($vuln_user, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Vuln User"));
-ossim_valid($vuln_pass, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Vuln Password"));
+ossim_valid($vuln_pass, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Vuln Password"));
 ossim_valid($vuln_port, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Vuln port"));
 if (ossim_error()) {
     die(ossim_error());
