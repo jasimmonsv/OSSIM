@@ -246,7 +246,42 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 					</form>
 				  </td>
 				  </tr>
-				
+				<tr>
+				  <td colspan="2" class="nobborder">
+					<table class="noborder" width="100%">
+					  <tr>
+						<th> <?php echo gettext("Property"); ?> </th>
+						<th> <?php echo gettext("Value"); ?> </th>
+					  </tr>
+				<?php
+				if ($property_list = Host::get_host_properties($conn, $host)) {
+					$i = 1;
+					foreach($property_list as $properties) {
+						$bgcolor = ($i%2==0) ? "#E1EFE0" : "#FFFFFF";
+				?>
+				  <tr>
+					<td bgcolor="<?=$bgcolor?>">
+						<?php
+							$propertyName=Host::get_properties_types($conn, $properties['property_ref']);
+							echo $propertyName [0]['name'];
+						?>
+					</td>
+					<td bgcolor="<?=$bgcolor?>">
+						<?php
+						echo $properties['value'];
+						if(!empty($properties['extra'])){
+							echo '<br /><span style="font-size: 10px;color: grey">'.$properties['extra'].'</span>';
+						}
+						?>
+					</td>
+				  </tr>
+				<?php
+					$i++; }
+				}
+				?>
+					  </table>
+				  </td>
+				</tr>
 			</table>
 		</td>
 		<td valign="top">
