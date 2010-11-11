@@ -119,9 +119,9 @@ $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
 foreach ($atoms as $atom) {
 	$atom = str_replace("src_ip=","src=",$atom);
 	$atom = str_replace("dst_ip=","dst=",$atom);
-	if (preg_match("/source type(\!?\=)(.+)/", $atom, $matches)) {
+	if (preg_match("/sourcetype(\!?\=)(.+)/", $atom, $matches)) {
 	    $source_type = $matches[2];
-	    $a = str_replace("source type".$matches[1].$matches[2],"taxonomy".$matches[1]."'".$source_type."-0-0'",$a);
+	    $a = str_replace("sourcetype".$matches[1].$matches[2],"taxonomy".$matches[1]."'".$source_type."-0-0'",$a);
 	}
 	if (preg_match("/plugin(\!?\=)(.+)/", $atom, $matches)) {
 	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
@@ -425,14 +425,13 @@ $cont = array(); // Counter for each logger server
 $colort = 0;
 $alt = 0;
 $htmlResult=true;
-print_r($result);
 foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
 	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
 		$lf = explode(";", $res);
         $logfile = urlencode($lf[count($lf)-2]);
         $current_server = urlencode($lf[count($lf)-1]);
-        
+        $current_server = $logger_servers[$current_server];
 		if ($cont[$current_server] == "") $cont[$current_server] = 1;
 		if ($cont[$current_server] > $num_lines[$current_server] || $cont[$current_server] > $top*$num_servers){
 	        $htmlResult = false;
