@@ -56,10 +56,10 @@ $conn_aux = $db_aux->connect();
 
 //
 $param_query = GET("query") ? GET("query") : "";
-$param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31));
+$param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 7));
 $param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
 
-$_SESSION['graph_type'] = "last_month";
+$_SESSION['graph_type'] = "last_week";
 $_SESSION['cat'] = "Oct%2C+2010";
 
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
@@ -949,7 +949,7 @@ Array.prototype.in_array = function(p_val) {
 $(document).ready(function(){
 	//UpdateByDate('forensic.php?graph_type=all&cat=');
 	$('#date4').addClass('negrita');
-	bold_dates('date4');
+	bold_dates('date3');
 	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
 	RequestLines();
 	MakeRequest();
