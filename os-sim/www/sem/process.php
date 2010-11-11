@@ -440,6 +440,7 @@ foreach($result as $res=>$event_date) {
 		if ($cont[$current_server] == "") $cont[$current_server] = 1;
 		if ($cont[$current_server] > $num_lines[$current_server] || $cont[$current_server] > $top*$num_servers){
 	        $htmlResult = false;
+	        echo "FALSE en $current_server ".$num_lines[$current_server];
 	    } else {
 	    	$htmlResult = true;
 	    }
@@ -609,6 +610,8 @@ foreach($result as $res=>$event_date) {
 	        $colort++;
 	        $total_counter++;
 	    }
+    } else {
+    	echo "<tr><td colspan='9'>WARNING: NOT MATCHING EVENT</td></tr>";
     }
 }
 print "</table>";

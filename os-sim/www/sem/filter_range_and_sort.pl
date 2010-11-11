@@ -363,6 +363,7 @@ sub set_taxonomy_filters {
 	#$filters{$and_num}{$or_num}{'plugin_id_sid'}{'7017'}{'1002'}++; # For Debug
 	my @plugin_ids = ();
 	if ($filter =~ /taxonomy='(.*)-(.*)-(.*)'/) {
+		$has_results = 0;
 		if ($1 ne "") {
 			my $st = $1;
 			$st =~ s/\_/ /g;
@@ -383,6 +384,7 @@ sub set_taxonomy_filters {
 			$sth_sel=$dbh->prepare( $sql );
 			$sth_sel->execute;
 			while ( my ($plugin_id,$sid) = $sth_sel->fetchrow_array ) {
+				$has_results = 1;
 				$filters{$and_num}{$or_num}{'plugin_id_sid'}{$plugin_id}{$sid}++;
 			}
 			$sth_sel->finish;
@@ -390,8 +392,12 @@ sub set_taxonomy_filters {
 		} elsif ($#plugin_ids > 0) {
 			$onlyid = true;
 			foreach $plugin_id (@plugin_ids) {
+				$has_results = 1;
 				$filters{$and_num}{$or_num}{'plugin_id'}{$plugin_id}++;
 			}
+		}
+		if (!$has_results) {
+			$filters{$and_num}{$or_num}{'plugin_id'}{-1}++;
 		}
 	}
 }
@@ -409,12 +415,17 @@ sub set_plugingroup_filters {
 	    $sql = qq{ $temp_sql };
 		$sth_sel=$dbh->prepare( $sql );
 		$sth_sel->execute;
+		$has_results = 0;
 		while ( my ($plugin_id,$sid) = $sth_sel->fetchrow_array ) {
+			$has_results = 1;
 			if ($sid == 0) {
 				$filters{$and_num}{$or_num}{'plugin_id'}{$plugin_id}++;
 			} else {
 				$filters{$and_num}{$or_num}{'plugin_id_sid'}{$plugin_id}{$sid}++;
 			}
+		}
+		if (!$has_results) {
+			$filters{$and_num}{$or_num}{'plugin_id'}{-1}++;
 		}
 		$sth_sel->finish;
 	    disconn_db($dbh);

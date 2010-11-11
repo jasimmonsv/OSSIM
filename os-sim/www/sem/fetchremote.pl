@@ -25,7 +25,7 @@ my @ips_arr = split(/\,/,$ips);
 foreach $ip (@ips_arr) {
 	my $pid=fork();
 	if ($pid == 0) { # child
-		print "Connecting $ip\n";
+		#print "Connecting $ip\n";
 		if ($ip eq "127.0.0.1") {
 			$cmd = "cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $user";
 		} else {
