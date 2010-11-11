@@ -281,6 +281,9 @@ sub set_filters {
 				if ($atom =~ /taxonomy\=/) {
 					set_taxonomy_filters($atom,$and_num,$or_num);
 				}
+				elsif ($atom =~ /plugingroup\!?\=/) {
+					set_plugingroup_filters($atom,$and_num,$or_num);
+				}
 				# Some fields filter
 				elsif ($1 eq "id" || $1 eq "fdate" || $1 eq "date" || $1 eq "plugin_id" || $1 eq "sensor" || $1 eq "src_ip" || $1 eq "dst_ip" || $1 eq "ip_src" || $1 eq "ip_dst" || $1 eq "src_port" || $1 eq "dst_port" || $1 eq "tzone"|| $1 eq "data"){
 					$aux = $2;
@@ -393,6 +396,31 @@ sub set_taxonomy_filters {
 	}
 }
 
+sub set_plugingroup_filters {
+	my $filter = shift;
+	my $and_num = shift;
+	my $or_num = shift;
+	#$filters{$and_num}{$or_num}{'plugin_id_sid'}{'7017'}{'1002'}++; # For Debug
+	my @plugin_ids = ();
+	if ($filter =~ /plugingroup=(.+)/) {
+		$dbh = conn_db();
+		$group_name = $1;
+		$temp_sql = "SELECT plugin_group.plugin_id,plugin_group.plugin_sid as sid FROM plugin_group_descr groups, plugin_group WHERE groups.group_id=plugin_group.group_id AND groups.name='$group_name'";
+	    $sql = qq{ $temp_sql };
+		$sth_sel=$dbh->prepare( $sql );
+		$sth_sel->execute;
+		while ( my ($plugin_id,$sid) = $sth_sel->fetchrow_array ) {
+			if ($sid == 0) {
+				$filters{$and_num}{$or_num}{'plugin_id'}{$plugin_id}++;
+			} else {
+				$filters{$and_num}{$or_num}{'plugin_id_sid'}{$plugin_id}{$sid}++;
+			}
+		}
+		$sth_sel->finish;
+	    disconn_db($dbh);
+	}
+}
+
 sub debug_filters {
 	foreach $key1 (keys %filters) {
 		print "Filter $key1:\n";
@@ -401,7 +429,7 @@ sub debug_filters {
 			foreach $type (keys %{$filters{$key1}{$key2}}) {
 				if ($type eq "plugin_id_sid" || $type eq "plugin_id") {
 					foreach $pid (keys %{$filters{$key1}{$key2}{$type}}) {
-						print "   $type = $pid";
+						print "   $type = $pid" if ($type eq "plugin_id");
 						foreach $psid (keys %{$filters{$key1}{$key2}{$type}{$pid}}) {
 							print "   Plugin id-sid = $pid - $psid\n";
 						}
