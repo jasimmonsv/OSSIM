@@ -749,10 +749,14 @@ class Host {
 	// Host Properties
 	//
 	
-	function get_properties_types($conn) {
+	function get_properties_types($conn,$id='') {
         $list = array();
-        $sql = "SELECT * FROM host_property_reference ORDER BY ord";
-		        
+        $sql = "SELECT * FROM host_property_reference";
+        if($id!=''){
+        	 $sql .= " WHERE id=".$id;
+        }
+        $sql .= " ORDER BY ord";
+
 		if (!$rs = & $conn->Execute($sql)){ 
             print $conn->ErrorMsg();
 			exit();
