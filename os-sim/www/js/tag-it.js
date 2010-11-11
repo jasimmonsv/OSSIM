@@ -4,11 +4,13 @@
 
 		var el = this;
 
-		const BACKSPACE		= 8;
-		const TAB			= 9;
-		const ENTER			= 13;
-		const SPACE			= 32;
-		const COMMA			= 44;
+        var KEY = {
+                SPACE: 32, 
+                TAB: 9,  
+                ENTER: 13,
+                COMMA: 44,
+                BACKSPACE: 8 
+        };
 
 		// add the tagit CSS class.
 		el.addClass("tagit");
@@ -37,7 +39,7 @@
 		});
 
 		tag_input.keypress(function(event){
-			if (event.which == BACKSPACE) {
+			if (event.which == KEY.BACKSPACE) {
 				if (tag_input.val() == "") {
 					// When backspace is pressed, the last tag is deleted.
 					$(el).children(".tagit-choice:last").remove();
@@ -45,7 +47,7 @@
 				}
 			}
 			// Comma/Space/Enter are all valid delimiters for new tags.
-			else if (event.which == COMMA || event.which == SPACE || event.which == ENTER || event.which == TAB) {
+			else if (event.which == KEY.COMMA || event.which == KEY.SPACE || event.which == KEY.ENTER || event.which == KEY.TAB) {
 				event.preventDefault();
 
 				var typed = tag_input.val();
@@ -59,7 +61,7 @@
 					// Cleaning the input.
 					tag_input.val("");
 				}
-				if (event.which == TAB) return false;
+				if (event.which == KEY.TAB) return false;
 			}
 		});
 

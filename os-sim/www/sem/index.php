@@ -160,8 +160,7 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 <script type="text/javascript" src="../js/greybox.js"></script>
-<script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
-<!-- <script src="../js/jquery-ui-1.8.core-and-interactions.min.js" type="text/javascript" charset="utf-8"></script> -->
+<!--[if IE]><script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script><![endif]-->
 <script src="../js/jquery-ui-1.8.core-and-interactions.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="../js/jquery-ui-1.8.autocomplete.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="../js/tag-it.js" type="text/javascript" charset="utf-8"></script>
