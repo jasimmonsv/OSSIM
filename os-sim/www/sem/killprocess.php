@@ -35,35 +35,46 @@
 * Classes list:
 */
 //require_once("classes/Session.inc");
+if ($argv[1] != "") {
+	$path_class = '/usr/share/ossim/include/:/usr/share/ossim/www/sem';
+	ini_set('include_path', $path_class);
+}
 require_once("classes/Security.inc");
 //Session::logcheck("MenuControlPanel", "ControlPanelSEM");
 $uniqueid = ($argv[1] != "") ? $argv[1] : $_GET["uniqueid"];
+$ips = $_GET['ips'];
 ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_DOT, 'illegal:' . _("uniqueid"));
+ossim_valid($ips, OSS_DIGIT, OSS_DOT, ',', OSS_NULLABLE, 'illegal:' . _("ips"));
 if (ossim_error()) {
     die(ossim_error());
 }
-if ($uniqueid != "") {
-    $pids = "";
-    $cmd = "ps ax | grep -v 'grep' | grep '$uniqueid'";
-    $fp = popen("$cmd 2>&1", "r");
-    while (!feof($fp)) {
-        $line = trim(fgets($fp));
-        echo _("Found")." $line\n";
-        $value = explode(" ", $line);
-        if ($value[0] != "") $pids.= " " . $value[0];
-    }
-    fclose($fp);
-    // also cat / tac
-    $cmd = "ps ax | grep -v 'grep' | egrep 'cat \/|tac \/|perl'";
-    $fp = popen("$cmd 2>&1", "r");
-    while (!feof($fp)) {
-        $line = trim(fgets($fp));
-        echo _("Found")." $line\n";
-        $value = explode(" ", $line);
-        if ($value[0] != "") $pids.= " " . $value[0];
-    }
-    fclose($fp);
-    echo _("Killing pids")." $pids\n";
-    system("kill -9 $pids");
+if ($ips != "") {
+	$cmd = "sudo ./fetchremote_kill.pl $ips '$uniqueid'";
+	system($cmd);
+} else {
+	if ($uniqueid != "") {
+	    $pids = "";
+	    $cmd = "ps ax | grep -v 'grep' | grep '$uniqueid'";
+	    $fp = popen("$cmd 2>&1", "r");
+	    while (!feof($fp)) {
+	        $line = trim(fgets($fp));
+	        echo _("Found")." $line\n";
+	        $value = explode(" ", $line);
+	        if ($value[0] != "") $pids.= " " . $value[0];
+	    }
+	    fclose($fp);
+	    // also cat / tac
+	    $cmd = "ps ax | grep -v 'grep' | egrep 'cat \/|tac \/|perl'";
+	    $fp = popen("$cmd 2>&1", "r");
+	    while (!feof($fp)) {
+	        $line = trim(fgets($fp));
+	        echo _("Found")." $line\n";
+	        $value = explode(" ", $line);
+	        if ($value[0] != "") $pids.= " " . $value[0];
+	    }
+	    fclose($fp);
+	    echo _("Killing pids")." $pids\n";
+	    system("kill -9 $pids");
+	}
 }
 ?>

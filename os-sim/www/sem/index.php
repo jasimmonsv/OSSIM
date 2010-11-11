@@ -506,8 +506,7 @@ function KillProcess()
 {
 	$.ajax({
 		type: "GET",
-		url: "killprocess.php?uniqueid=<?php echo $uniqueid
-?>",
+		url: "killprocess.php?uniqueid=<?php echo $uniqueid ?>&ips=<?php echo $ip_list ?>",
 		data: "",
 		success: function(msg) {
 			alert("Processes stoped!");
