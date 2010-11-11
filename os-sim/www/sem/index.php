@@ -62,6 +62,7 @@ $param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
 $_SESSION['graph_type'] = "last_week";
 $_SESSION['cat'] = "Oct%2C+2010";
 
+$framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
 $ip_to_name = array();
 foreach ($database_servers as $db) {
@@ -69,6 +70,7 @@ foreach ($database_servers as $db) {
 	$ip = $db->get_ip();
 	$ip_to_name[$ip] = $name;
 }
+if (count($ip_to_name)==0) $ip_to_name[$framework_ip] = "Local";
 $fcolors = array("2c3816","dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
 $bcolors = array("addf53","5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
 $logger_servers = array();
