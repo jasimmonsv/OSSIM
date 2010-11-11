@@ -301,13 +301,14 @@ while (!feof($fp)) {
 		$from_str = ($from_remote) ? " from <b>".$current_server."</b>" : ""; 
     	?><script type="text/javascript">$("#pbar_<?php echo $current_server ?>").progressBar(<?php echo floor($perc[$current_server]) ?>);$("#progressText_<?php echo $current_server ?>").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
     	$perc[$current_server] += $inc;
-    	if ($perc[$current_server] >= 100) {
+    	if ($perc[$current_server] >= 100 || $num_lines[$current_server] >= $top) {
     		?><script type="text/javascript">$("#pbar_<?php echo $current_server ?>").progressBar(100);$("#progressText_<?php echo $current_server ?>").html('All done <?php echo $from_str ?>...');</script><?php
     		$perc[$current_server] = 100;
     	}
     // Event line
     } elseif (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'/",$line,$found)) {
-    	$line .= ";".$current_server;
+    	$fields = explode(";",$line);
+    	$current_server = ($logger_servers[trim($fields[3])] != "") ? $logger_servers[trim($fields[3])] : trim($fields[3]);
     	$event_date = preg_replace("/\s|\-/","",$found[2]);
     	$num_lines[$current_server]++;
     	if ($num_lines[$current_server] <= $top) {
@@ -315,6 +316,10 @@ while (!feof($fp)) {
     	} else {
     		$has_next_page = 1;
     	}
+    }
+	if ($num_lines[$current_server] >= $top) {
+    	?><script type="text/javascript">$("#pbar_<?php echo $current_server ?>").progressBar(100);$("#progressText_<?php echo $current_server ?>").html('All done <?php echo $from_str ?>...');</script><?php
+    	$perc[$current_server] = 100;
     }
 }
 
@@ -420,6 +425,7 @@ $cont = array(); // Counter for each logger server
 $colort = 0;
 $alt = 0;
 $htmlResult=true;
+print_r($result);
 foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
 	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {

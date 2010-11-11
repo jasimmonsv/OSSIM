@@ -169,7 +169,7 @@ foreach my $file (@files) {
 					if ($currentdate > $start && $currentdate < $end && pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port,$data)) {
 						#print "$complete_lines BIEN Plugin $plugin_id - $plugin_sid -> ".pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port)."\n";
 						chomp;
-						$events{$_.";$file;$complete_lines"} = $currentdate;
+						$events{$_.";$file;$complete_lines;$server"} = $currentdate;
 						$complete_lines++; $read_lines++;
 						#print "found $complete_lines;$_;$currentdate;$lines_threshold\n" if ($debug);
 						last LINE if ($read_lines>=$lines_threshold); # jump innecesary events
