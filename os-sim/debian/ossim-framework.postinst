@@ -43,6 +43,8 @@ then
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_graph.pl" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote.pl" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_wcl.pl" >> /etc/sudoers
+        echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_pies.pl" >> /etc/sudoers
+        echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_kill.pl" >> /etc/sudoers
 fi
 
 webservers="apache apache-ssl apache2"
