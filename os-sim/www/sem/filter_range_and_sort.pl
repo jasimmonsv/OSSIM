@@ -275,6 +275,7 @@ sub set_filters {
 				$neg_filters{$and_num}{$or_num} = 1;
 			# EQUAL
 			}
+			$atom =~ s/SPACESCAPE/ /g;
 			if ($atom =~ /^\s*(.*)!=(.*)$/ || $atom =~ /^\s*(.*)=(.*)$/){
 				# Taxonomy filter
 				if ($atom =~ /taxonomy\=/) {

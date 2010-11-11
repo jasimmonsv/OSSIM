@@ -421,6 +421,7 @@ function GetSearchString() {
 		var cur_atom = this.value;
 		cur_atom = cur_atom.replace(" = ","=");
 		cur_atom = cur_atom.replace(" != ","!=");
+		cur_atom = cur_atom.replace(/ /g,"SPACESCAPE");
 		if (!is_operator(cur_atom) && !cur_atom.match(/\=/)) {
 			cur_atom = "data="+cur_atom;
 		}

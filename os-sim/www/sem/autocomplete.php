@@ -92,7 +92,7 @@ if (trim($str) != "") {
 	$ports = Port::get_list($conn);
 	
 	// Typing a tag
-	if (preg_match("/^(sensor|src|dst|plugin|plugingroup|src_port|dst_port)(\!?\=)(.*)/i",$str,$found)) {
+	if (preg_match("/^(sensor|src|dst|plugin|plugingroup|src_port|dst_port|sourcetype)(\!?\=)(.*)/i",$str,$found)) {
 		$str = $found[3];
 		$op = $found[2];
 		if ($str == "") $str = ".";
@@ -127,6 +127,12 @@ if (trim($str) != "") {
 				$groupname = $group->get_name();
 				if ((preg_match("/^$qstr/i",$groupname)) && count($data) < $top) {
 					$data[] = array("name"=>"<b>plugingroup$op</b>$groupname");
+				}
+			}
+		} elseif ($found[1] == "sourcetype") {
+			foreach ($sourcetypes as $sourcetype) {
+				if ((preg_match("/^$qstr/i",$sourcetype)) && count($data) < $top) {
+					$data[] = array("name"=>"<b>sourcetype$op</b>$sourcetype");
 				}
 			}
 		} elseif ($found[1] == "src_port" || $found[1] == "dst_port") {

@@ -68,6 +68,7 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 
 $config = parse_ini_file("everything.ini");
 $a = GET("query");
+
 //$export = (GET('txtexport') == "true") ? 1 : 0;
 $export = GET('txtexport');
 $top = GET('top');
@@ -116,6 +117,7 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 }
 
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
+
 foreach ($atoms as $atom) {
 	$atom = str_replace("src_ip=","src=",$atom);
 	$atom = str_replace("dst_ip=","dst=",$atom);
@@ -124,7 +126,7 @@ foreach ($atoms as $atom) {
 	    $a = str_replace("sourcetype".$matches[1].$matches[2],"taxonomy".$matches[1]."'".$source_type."-0-0'",$a);
 	}
 	if (preg_match("/plugin(\!?\=)(.+)/", $atom, $matches)) {
-	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
+	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));	    
 	    $query = "select id from plugin where name like '" . $plugin_name . "%' order by id";
 	    if (!$rs = & $conn->Execute($query)) {
 	        print $conn->ErrorMsg();
@@ -138,9 +140,9 @@ foreach ($atoms as $atom) {
 	    $a = str_replace("plugin".$matches[1].$matches[2],"plugin_id".$matches[1]."'".$plugin_id."'",$a);
 	}
 	if (preg_match("/sensor(\!?\=)(\S+)/", $atom, $matches)) {
-	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
-	    $plugin_name = str_replace("'","",$plugin_name);
-	    $query = "select ip from sensor where name like '" . $plugin_name . "%'";
+	    $sensor_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
+	    $sensor_name = str_replace("'","",$sensor_name);
+	    $query = "select ip from sensor where name like '" . $sensor_name . "%'";
 	    if (!$rs = & $conn->Execute($query)) {
 	        print $conn->ErrorMsg();
 	        exit();
@@ -266,6 +268,9 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 		$("#pbar_local").progressBar(1);
 	</script>
 	<?php
+	foreach ($_SESSION['logger_servers'] as $key=>$val) {
+		$logger_servers[$val] = $key;
+	}
 	$from_remote = 0;
 	$num_servers = 1;
 	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null", "r");
