@@ -27,22 +27,22 @@ CREATE TABLE host_source_reference (
    priority INT
 );
 
-INSERT INTO host_property_reference(name) VALUES ('software');
-INSERT INTO host_property_reference(name) VALUES ('cpu');
-INSERT INTO host_property_reference(name) VALUES ('operating-system');
-INSERT INTO host_property_reference(name) VALUES ('worgroup');
-INSERT INTO host_property_reference(name) VALUES ('ram');
-INSERT INTO host_property_reference(name) VALUES ('department');
-INSERT INTO host_property_reference(name) VALUES ('macAddress');
-INSERT INTO host_property_reference(name) VALUES ('workgroup');
+REPLACE INTO host_property_reference(name) VALUES ('software');
+REPLACE INTO host_property_reference(name) VALUES ('cpu');
+REPLACE INTO host_property_reference(name) VALUES ('operating-system');
+REPLACE INTO host_property_reference(name) VALUES ('worgroup');
+REPLACE INTO host_property_reference(name) VALUES ('ram');
+REPLACE INTO host_property_reference(name) VALUES ('department');
+REPLACE INTO host_property_reference(name) VALUES ('macAddress');
+REPLACE INTO host_property_reference(name) VALUES ('workgroup');
 
-INSERT INTO host_source_reference(name, priority) VALUES ('MANUAL', 10);
-INSERT INTO host_source_reference(name, priority) VALUES ('OCS', 9);
-INSERT INTO host_source_reference(name, priority) VALUES ('WMI', 8);
-INSERT INTO host_source_reference(name, priority) VALUES ('SSH', 8);
-INSERT INTO host_source_reference(name, priority) VALUES ('PRADS', 6);
-INSERT INTO host_source_reference(name, priority) VALUES ('OPENVAS', 7);
-INSERT INTO host_source_reference(name, priority) VALUES ('NTOP', 7);
+REPLACE INTO host_source_reference(name, priority) VALUES ('MANUAL', 10);
+REPLACE INTO host_source_reference(name, priority) VALUES ('OCS', 9);
+REPLACE INTO host_source_reference(name, priority) VALUES ('WMI', 8);
+REPLACE INTO host_source_reference(name, priority) VALUES ('SSH', 8);
+REPLACE INTO host_source_reference(name, priority) VALUES ('PRADS', 6);
+REPLACE INTO host_source_reference(name, priority) VALUES ('OPENVAS', 7);
+REPLACE INTO host_source_reference(name, priority) VALUES ('NTOP', 7);
 
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;

@@ -2,12 +2,12 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
-INSERT INTO plugin_sid (plugin_id,sid,category_id,class_id,reliability,priority,name,aro,subcategory_id) VALUES (7006,18149,2,NULL,1,1,'ossec: Windows user logoff.','0.0000',27);
-INSERT INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES (202, 'Threats Database', 'Vulnerabilities', 'Vulnerabilities/TheatsDatabase.php', 'Keywords:keywords:text:OSS_NULLABLE::20;CVE:cve:text:OSS_NULLABLE::20;Risk Factor:riskFactor:select:OSS_ALPHA:ALL,Info,Low,Medium,High,Serious:;Detail:detail:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1);
-INSERT INTO `config` (`conf`, `value`) VALUES ('backup_netflow', '45');
+REPLACE INTO plugin_sid (plugin_id,sid,category_id,class_id,reliability,priority,name,aro,subcategory_id) VALUES (7006,18149,2,NULL,1,1,'ossec: Windows user logoff.','0.0000',27);
+REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES (202, 'Threats Database', 'Vulnerabilities', 'Vulnerabilities/TheatsDatabase.php', 'Keywords:keywords:text:OSS_NULLABLE::20;CVE:cve:text:OSS_NULLABLE::20;Risk Factor:riskFactor:select:OSS_ALPHA:ALL,Info,Low,Medium,High,Serious:;Detail:detail:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1);
+REPLACE INTO `config` (`conf`, `value`) VALUES ('backup_netflow', '45');
 
-INSERT IGNORE INTO log_config (code, log, descr, priority) VALUES (092, 1, '%1%', 1);
-INSERT IGNORE INTO log_config (code, log, descr, priority) VALUES (093, 1, 'User %1% disabled for security reasons', 1);
+REPLACE INTO log_config (code, log, descr, priority) VALUES (092, 1, '%1%', 1);
+REPLACE INTO log_config (code, log, descr, priority) VALUES (093, 1, 'User %1% disabled for security reasons', 1);
 
 UPDATE host_group_reference, host SET host_group_reference.host_ip=host.ip WHERE host.hostname=host_group_reference.host_ip;
 
