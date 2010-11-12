@@ -120,7 +120,10 @@ div.datepicker tbody th {
 div.datepicker tbody a {
 	display: block;
 }
-.datepickerDays a {
+.datepickerHour select { width:50px; font-weight:bold; font-size:10px; color: white; background-color:#8E8E8E; border-color:#aaa; }
+div.datepicker .datepickerHour td { color: white; padding:4px 0px 4px 0px; }
+.datepickerDays a,
+.datepickerHour a {
 	width: 20px;
 	line-height: 16px;
 	height: 16px;
@@ -137,15 +140,19 @@ td.datepickerNotInMonth a {
 	color: #bbb;
 	font-weight:normal;
 }
-tbody.datepickerDays td.datepickerSelected{
+tbody.datepickerDays td.datepickerSelected,
+tbody.datepickerHour td.datepickerSelected{
 	background: #D3EF95;
 }
-tbody.datepickerDays td.datepickerSelected a{
+tbody.datepickerDays td.datepickerSelected a,
+tbody.datepickerHour td.datepickerSelected a{
 	color: #111111;
 }
+tbody.datepickerHour td.datepickerNotInMonth.datepickerSelected,
 tbody.datepickerDays td.datepickerNotInMonth.datepickerSelected {
 	background: #D3EF95;
 }
+tbody.datepickerHour td.datepickerNotInMonth.datepickerSelected  a,
 tbody.datepickerDays td.datepickerNotInMonth.datepickerSelected  a{
 	color: #333333;
 }
@@ -153,7 +160,6 @@ tbody.datepickerYears td.datepickerSelected,
 tbody.datepickerMonths td.datepickerSelected{
 	background: #D3EF95;
 }
-div.datepicker a:hover,
 div.datepicker a:hover {
 	color: #88c5eb;
 }
@@ -181,16 +187,23 @@ div.datepicker tbody th {
 	float: left;
 	width: 20px;
 }
+table.datepickerViewHour tbody.datepickerMonths,
+table.datepickerViewHour tbody.datepickerYears {
+	display: none;
+}
+table.datepickerViewDays tbody.datepickerHour,
 table.datepickerViewDays tbody.datepickerMonths,
 table.datepickerViewDays tbody.datepickerYears {
 	display: none;
 }
 table.datepickerViewMonths tbody.datepickerDays,
+table.datepickerViewMonths tbody.datepickerHour,
 table.datepickerViewMonths tbody.datepickerYears,
 table.datepickerViewMonths tr.datepickerDoW {
 	display: none;
 }
 table.datepickerViewYears tbody.datepickerDays,
+table.datepickerViewYears tbody.datepickerHour,
 table.datepickerViewYears tbody.datepickerMonths,
 table.datepickerViewYears tr.datepickerDoW {
 	display: none;
@@ -240,3 +253,4 @@ td.datepickerSpecial.datepickerSelected a {
 #widget {
 	position: relative;
 }
+

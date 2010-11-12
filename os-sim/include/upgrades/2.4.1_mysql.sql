@@ -35,7 +35,6 @@ REPLACE INTO `custom_report_types` (`id`,`name`,`type`,`file`,`inputs`,`sql`,`dr
 
 UPDATE custom_report_types SET inputs = 'Logo:logo:FILE:OSS_NULLABLE::' WHERE name='Title Page' and type='Title Page';
 
-DROP TABLE IF EXISTS `custom_report_scheduler`;
 CREATE TABLE IF NOT EXISTS `custom_report_scheduler` (
   `id` int(11) NOT NULL auto_increment,
   `schedule_type` varchar(20) NOT NULL,
@@ -51,7 +50,6 @@ CREATE TABLE IF NOT EXISTS `custom_report_scheduler` (
   PRIMARY KEY  (`id`)
 );
 
-DROP TABLE IF EXISTS `risk_maps`;
 CREATE TABLE IF NOT EXISTS `risk_maps` (
   `map` varchar(64) NOT NULL,
   `perm` varchar(64) NOT NULL,

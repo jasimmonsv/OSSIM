@@ -12,7 +12,8 @@
 			views = {
 				years: 'datepickerViewYears',
 				moths: 'datepickerViewMonths',
-				days: 'datepickerViewDays'
+				days: 'datepickerViewDays',
+				hour: 'datepickerViewHour'
 			},
 			tpl = {
 				wrapper: '<div class="datepicker"><div class="datepickerBorderT" /><div class="datepickerBorderB" /><div class="datepickerBorderL" /><div class="datepickerBorderR" /><div class="datepickerBorderTL" /><div class="datepickerBorderTR" /><div class="datepickerBorderBL" /><div class="datepickerBorderBR" /><div class="datepickerContainer"><table cellspacing="0" cellpadding="0"><tbody><tr></tr></tbody></table></div></div>',
@@ -39,6 +40,23 @@
 					'</table></td>'
 				],
 				space : '<td class="datepickerSpace"><div></div></td>',
+				hour: [
+					'<tbody class="datepickerHour">',
+						'<tr>',
+							'<td colspan="8">',
+							'<select name="hour"><option value="00" selected>00<option value="01">01<option value="02">02<option value="03">03<option value="04">04<option value="05">05<option value="06">06<option value="07">07<option value="08">08<option value="09">09<option value="10">10',
+							'<option value="11" value="11">11<option value="12">12<option value="13">13<option value="14">14<option value="15">15<option value="16">16<option value="17">17<option value="18">18<option value="19">19<option value="20">20',
+							'<option value="21">21<option value="22">22<option value="23">23</select> : ',
+							'<select name="minutes"><option value="00" selected>00<option value="01">01<option value="02">02<option value="03">03<option value="04">04<option value="05">05<option value="06">06<option value="07">07<option value="08">08<option value="09">09',
+							'<option value="10">10<option value="11">11<option value="12">12<option value="13">13<option value="14">14<option value="15">15<option value="16">16<option value="17">17<option value="18">18<option value="19">19<option value="20">20',
+							'<option value="21">21<option value="22">22<option value="23">23<option value="24">24<option value="25">25<option value="26">26<option value="27">27<option value="28">28<option value="29">29<option value="30">30',
+							'<option value="31">31<option value="32">32<option value="33">33<option value="34">34<option value="35">35<option value="36">36<option value="37">37<option value="38">38<option value="39">39<option value="40">40',
+							'<option value="41">41<option value="42">42<option value="43">43<option value="44">44<option value="45">45<option value="46">46<option value="47">47<option value="48">48<option value="49">49<option value="50">50',
+							'<option value="51">51<option value="52">52<option value="53">53<option value="54">54<option value="55">55<option value="56">56<option value="57">57<option value="58">58<option value="59">59</select>',
+							'</td>',
+						'</tr>',						
+					'</tbody>'
+				],
 				days: [
 					'<tbody class="datepickerDays">',
 						'<tr>',
@@ -163,6 +181,9 @@
 					date.addMonths(-currentCal + i);
 					tblCal = cal.find('table').eq(i+1);
 					switch (tblCal[0].className) {
+						case 'datepickerViewHour':
+							dow = formatDate(date, 'B, Y');
+							break;
 						case 'datepickerViewDays':
 							dow = formatDate(date, 'B, Y');
 							break;
@@ -229,12 +250,17 @@
 						date.addDays(1);
 					}
 					html = tmpl(tpl.days.join(''), data) + html;
+					html = tmpl(tpl.hour.join(''), data) + html;
 					data = {
 						data: options.locale.monthsShort,
 						className: 'datepickerMonths'
 					};
 					html = tmpl(tpl.months.join(''), data) + html;
 					tblCal.append(html);
+					// hours
+					//alert(tblCal.find("select[name='hour']").val());
+					$("select[name='hour'] option[value='"+options.hours+"']",tblCal).attr('selected', 'selected');
+					$("select[name='minutes'] option[value='"+options.minutes+"']",tblCal).attr('selected', 'selected');
 				}
 			},
 			parseDate = function (date, format) {
@@ -470,7 +496,7 @@
 						return false;
 					}
 					var options = $(this).data('datepicker');
-                                        var parentEl = el.parent();
+					var parentEl = el.parent();
 					var tblEl = parentEl.parent().parent().parent();
 					var tblIndex = $('table', this).index(tblEl.get(0)) - 1;
 					var tmp = new Date(options.current);
@@ -494,6 +520,10 @@
 						} else if (parentEl.hasClass('datepickerMonth')) {
 							tmp.addMonths(tblIndex - Math.floor(options.calendars/2));
 							switch (tblEl.get(0).className) {
+								case 'datepickerViewHour':
+									tblEl.get(0).className = 'datepickerViewMonths';
+									el.find('span').text(tmp.getFullYear());
+									break;
 								case 'datepickerViewDays':
 									tblEl.get(0).className = 'datepickerViewMonths';
 									el.find('span').text(tmp.getFullYear());
@@ -509,6 +539,9 @@
 							}
 						} else if (parentEl.parent().parent().is('thead')) {
 							switch (tblEl.get(0).className) {
+								case 'datepickerViewHour':
+									options.current.addMonths(parentEl.hasClass('datepickerGoPrev') ? -1 : 1);
+									break;
 								case 'datepickerViewDays':
 									options.current.addMonths(parentEl.hasClass('datepickerGoPrev') ? -1 : 1);
 									break;
@@ -594,7 +627,10 @@
                                                                     options.lastSel = !options.lastSel;
                                                                     break;
                                                             default:
-                                                                    options.date = tmp.valueOf();
+                                                            		var hr = $("select[name='hour'] option:selected",tblEl).val();
+                                                            		var min = $("select[name='minutes'] option:selected",tblEl).val();
+                                                            		tmp.setHours(hr,min,0,0);
+                                                            		options.date = tmp.valueOf();
                                                                     //$(this).parent().DatePickerHide();
                                                                     break;
                                                             }

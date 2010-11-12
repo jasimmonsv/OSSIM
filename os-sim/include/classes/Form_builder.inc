@@ -316,13 +316,18 @@ public function draw_date(){
 				var day   = date.getDate();
 				var month = date.getMonth();
 				var year  = date.getFullYear();
+				var hours = date.getHours();
+				var minutes = date.getMinutes();
 						
 				date = new Date(year, month, day);
 				
 				$(id_cont + ' .ct_widgetCalendar').DatePicker({
 					flat: true,
-					format: 'Y-m-d',
+					format: 'Y-m-d H:M',
+					view: 'hour',
 					date: date,
+					hours: hours,
+					minutes: minutes,
 					starts: 1,
 					onChange: function(formated) {
 						var f = formated.split(/-/);

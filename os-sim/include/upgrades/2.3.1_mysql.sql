@@ -3,7 +3,6 @@ SET AUTOCOMMIT=0;
 BEGIN;
 
 use datawarehouse;
-DROP TABLE IF EXISTS `incidents_ssi_user`;
 CREATE TABLE IF NOT EXISTS `incidents_ssi_user` (
   `type` varchar(128) NOT NULL,
   `descr` varchar(128) NOT NULL,
@@ -20,7 +19,6 @@ CREATE TABLE IF NOT EXISTS `incidents_ssi_user` (
   `user` varchar(64) NOT NULL,
   PRIMARY KEY  (`type`,`descr`,`priority`,`source`,`destination`,`details`,`year`,`month`,`day`,`hour`,`minute`,`user`)
 );
-DROP TABLE IF EXISTS `ssi_user`;
 CREATE TABLE IF NOT EXISTS `ssi_user` (
   `sid` int(11) NOT NULL,
   `descr` varchar(128) NOT NULL,

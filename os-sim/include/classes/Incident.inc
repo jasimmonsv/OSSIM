@@ -1758,6 +1758,21 @@ class Incident {
 				$field .= "<div id='".$unique_id."' style='margin: 10px auto; height:200px; width:100%;'></div>";
 				$field .= "<script type='text/javascript'>initialize('".$unique_id."','".$value."')</script>";
 			break;
+
+			case "Asset":
+                $field = $value;
+                $conf = $GLOBALS["CONF"];
+                $version = $conf->get_conf("ossim_server_version", FALSE);
+                if (preg_match("/pro|demo/i",$version) && preg_match("/ENTITY:\s*(\d+)/",$value,$found)) {
+                    require_once("classes/Acl.inc");
+                    require_once ('ossim_conf.inc');
+                    $db = new ossim_db();
+                    $conn = $db->connect();
+                    list($name, $type) = Acl::get_entity_name_type($conn,$found[1]);
+                    if($type!="" && $name!="") $field = "ENTITY: $name [$type]";
+                    $conn->disconnect();
+                }
+			break;
 			
 			case "File":
 				$field  = "<a href='incident_download_content.php?id=$id&incident_id=$incident_id'>"._("Download content")."</a>";

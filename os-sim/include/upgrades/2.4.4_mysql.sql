@@ -18,7 +18,6 @@ ALTER TABLE  `incident` CHANGE  `ref`  `ref` ENUM(  'Alarm',  'Alert',  'Event',
 CREATE INDEX alarm_plugin_id ON alarm(plugin_id);
 CREATE INDEX alarm_plugin_sid ON alarm(plugin_sid);
 
-DROP TABLE IF EXISTS ldap;
 CREATE TABLE IF NOT EXISTS ldap (
   id INT NOT NULL AUTO_INCREMENT,
   ip VARCHAR(15),
@@ -28,7 +27,6 @@ CREATE TABLE IF NOT EXISTS ldap (
   PRIMARY KEY (id)
 ); 
 
-DROP TABLE IF EXISTS credentials;
 CREATE TABLE IF NOT EXISTS credentials (
   id INT NOT NULL AUTO_INCREMENT,
   ip VARCHAR(15),
@@ -39,7 +37,6 @@ CREATE TABLE IF NOT EXISTS credentials (
   PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS credential_type;
 CREATE TABLE IF NOT EXISTS credential_type (
   id INT NOT NULL AUTO_INCREMENT,
   name TEXT,               
@@ -49,7 +46,6 @@ INSERT INTO credential_type(name) VALUES ("SSH");
 INSERT INTO credential_type(name) VALUES ("Windows");
 INSERT INTO credential_type(name) VALUES ("AD");
 
-DROP TABLE IF EXISTS `incident_custom`;
 CREATE TABLE IF NOT EXISTS `incident_custom` (
   id int(11) NOT NULL auto_increment,
   incident_id int(11) NOT NULL,
@@ -59,7 +55,6 @@ CREATE TABLE IF NOT EXISTS `incident_custom` (
   PRIMARY KEY (id,incident_id)
 );
 
-DROP TABLE IF EXISTS `incident_custom_types`;
 CREATE TABLE IF NOT EXISTS `incident_custom_types` (
   id varchar(64) NOT NULL,
   name varchar(255) NOT NULL,

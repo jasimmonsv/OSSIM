@@ -503,7 +503,7 @@ $db->close($conn);
 						 <? if (count($customs)>0) { ?>
 						 <optgroup label="<?=_('Custom')?>">
 						 <? foreach ($customs as $custom) { ?>
-							 <option value="newincident.php?ref=Custom&title=<?=urlencode(_("New Custom incident"))?>&type=<?=urlencode($custom)?>&priority=1"><?=$custom?></option>
+							 <option value="newincident.php?ref=Custom&title=<?=urlencode(_("New ".$custom." ticket"))?>&type=<?=urlencode($custom)?>&priority=1"><?=$custom?></option>
 						 <? } ?>
 						 </optgroup> 
 						 <? } ?>
