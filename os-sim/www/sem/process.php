@@ -313,7 +313,7 @@ while (!feof($fp)) {
     // Event line
     } elseif (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'/",$line,$found)) {
     	$fields = explode(";",$line);
-    	$current_server = ($logger_servers[trim($fields[3])] != "") ? $logger_servers[trim($fields[3])] : trim($fields[3]);
+    	$current_server = ($logger_servers[trim($fields[count($fields)-1])] != "") ? $logger_servers[trim($fields[count($fields)-1])] : trim($fields[count($fields)-1]);
     	$event_date = preg_replace("/\s|\-/","",$found[2]);
     	$num_lines[$current_server]++;
     	if ($num_lines[$current_server] <= $top) {
@@ -440,7 +440,6 @@ foreach($result as $res=>$event_date) {
 		if ($cont[$current_server] == "") $cont[$current_server] = 1;
 		if ($cont[$current_server] > $num_lines[$current_server] || $cont[$current_server] > $top*$num_servers){
 	        $htmlResult = false;
-	        echo "FALSE en $current_server ".$num_lines[$current_server];
 	    } else {
 	    	$htmlResult = true;
 	    }
