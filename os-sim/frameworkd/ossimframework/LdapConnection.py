@@ -25,5 +25,5 @@ class LDAPConnection:
   			sys.stderr.write('Warning: Server-side size limit exceeded.\n')
 		else:
   			if partial:
-    			sys.stderr.write('Warning: Only partial results received.\n')
+    				sys.stderr.write('Warning: Only partial results received.\n')
 		return s.allResults()
