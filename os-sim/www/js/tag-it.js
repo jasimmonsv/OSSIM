@@ -16,13 +16,14 @@
 		el.addClass("tagit");
 
 		// create the input field.
-		var html_input_field = "<li class=\"tagit-new\"><input class=\"tagit-input\" tabindex=\"1\" type=\"text\" /> <input class=\"tagit-hidden\" tabindex=\"2\" type=\"text\" /></li>\n";
+		//var html_input_field = "<li class=\"tagit-new\"><input class=\"tagit-input\" tabindex=\"1\" type=\"text\" /> <input class=\"tagit-hidden\" tabindex=\"2\" type=\"text\" /></li>\n";
+		var html_input_field = "<li class=\"tagit-new\"><input class=\"tagit-input\" tabindex=\"1\" type=\"text\" /> </li>\n";
 		el.html (html_input_field);
 
 		tag_input		= el.children(".tagit-new").children(".tagit-input");
-		$(".tagit-hidden").focus(function(){
-			tag_input.focus();
-		});
+		//$(".tagit-hidden").focus(function(){
+		//	tag_input.focus();
+		//});
 		
 		$(this).click(function(e){
 			if (e.target.tagName == 'A') {
@@ -38,16 +39,8 @@
 			}
 		});
 
-		tag_input.keypress(function(event){
-			if (event.which == KEY.BACKSPACE) {
-				if (tag_input.val() == "") {
-					// When backspace is pressed, the last tag is deleted.
-					$(el).children(".tagit-choice:last").remove();
-					if (options.changeFunction) options.changeFunction();
-				}
-			}
-			// Comma/Space/Enter are all valid delimiters for new tags.
-			else if (event.which == KEY.COMMA || event.which == KEY.SPACE || event.which == KEY.ENTER || event.which == KEY.TAB) {
+		tag_input.keydown(function(event){			
+			if (event.which == KEY.TAB) {
 				event.preventDefault();
 
 				var typed = tag_input.val();
@@ -61,7 +54,34 @@
 					// Cleaning the input.
 					tag_input.val("");
 				}
-				if (event.which == KEY.TAB) return false;
+				return false;
+			}
+
+		});
+
+		tag_input.keypress(function(event){
+			if (event.which == KEY.BACKSPACE) {
+				if (tag_input.val() == "") {
+					// When backspace is pressed, the last tag is deleted.
+					$(el).children(".tagit-choice:last").remove();
+					if (options.changeFunction) options.changeFunction();
+				}
+			}
+			// Comma/Space/Enter are all valid delimiters for new tags.
+			else if (event.which == KEY.COMMA || event.which == KEY.SPACE || event.which == KEY.ENTER) {
+				event.preventDefault();
+
+				var typed = tag_input.val();
+				typed = typed.replace(/(,|\s|\t|\r|\n)+$/g,"");
+				typed = typed.trim();
+
+				if (typed != "") {
+					if (is_new (typed)) {
+						create_choice (typed);
+					}
+					// Cleaning the input.
+					tag_input.val("");
+				}
 			}
 		});
 

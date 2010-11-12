@@ -616,6 +616,18 @@ function closeLayer( whichLayer )
   vis.display = 'none';
 }
 
+function AddAtom(value) {
+	if (!value.match(/\=/) && !is_operator(value)) value = "data="+value;
+	var el = "";
+	el  = "<li class=\"tagit-choice\">\n";
+	el += value + "\n";
+	el += "<a class=\"close\">x</a>\n";
+	value = value.replace(/\<b\>/g,"");
+	value = value.replace(/\<\/b\>/g,"");
+	el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
+	el += "</li>\n";
+	$(el).insertBefore ($('#mytags').children(".tagit-new"));
+}
 
 function SetSearch(content)
 {
@@ -630,16 +642,7 @@ function SetSearch(content)
 		var value = atoms[i];
 		value = value.replace(/^\s+/g,'').replace(/\s+$/g,'').replace(/\n/g,'');
 		if (value != "" && value != "data=") {
-			if (!value.match(/\=/) && !is_operator(value)) value = "data="+value;
-			var el = "";
-			el  = "<li class=\"tagit-choice\">\n";
-			el += value + "\n";
-			el += "<a class=\"close\">x</a>\n";
-			value = value.replace(/\<b\>/g,"");
-			value = value.replace(/\<\/b\>/g,"");
-			el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
-			el += "</li>\n";
-			$(el).insertBefore ($('#mytags').children(".tagit-new"));
+			AddAtom(value);
 		}
 	}
 	window.scrollTo(0,0);
@@ -1207,7 +1210,7 @@ require_once ("manage_querys.php");
 					</div>
 					</td>
 					<!-- <td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td> -->
-					<td class="nobborder"><input type="button" class="button" onclick="$('#offset').val('0');doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
+					<td class="nobborder"><input type="button" class="button" onclick="$('#offset').val('0');if (typeof($('.tagit-input')).val() != 'undefined' && $('.tagit-input').val() != ''){AddAtom($('.tagit-input').val());$('.tagit-input').val('');}doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
                                         <?php /*
 					<!--<a href="javascript:ClearSearch()" onMouseOver="showTip('<?php echo $help_entries["clear"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="#999999"><small><?php echo _("Clear Query"); ?></small></font></a>-->
 					<td class="nobborder"><input type="button" onclick="ClearSearch()" value="<?php echo _("Clear Query"); ?>" class="button" style="height:20px"></td>
