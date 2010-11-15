@@ -28,7 +28,7 @@ if ($end !~ /^\d+\-\d+\-\d+\s+\d+\:\d+\:\d+$/) {
 	print "Parameters error in end date\n";
 	exit;
 }
-if ($query ne "" && $query !~ /^[a-zA-Z0-9\r\n\.,:@_\-\/\?&\=\s\[\]\)\(\'"]+$/) {
+if ($query ne "" && $query !~ /^[a-zA-Z0-9\r\n\.,:@\_\-\/\?&\=\s\[\]\)\(\'"]+$/) {
 	print "Parameters error in query\n";
 	exit;
 }
