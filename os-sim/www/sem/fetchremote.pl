@@ -21,6 +21,8 @@ $idsesion = $ARGV[8];
 $user = $ARGV[9];
 $ips = $ARGV[10];
 
+$query =~ s/\'/'\\''/g;
+
 my @ips_arr = split(/\,/,$ips);
 foreach $ip (@ips_arr) {
 	my $pid=fork();
