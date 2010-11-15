@@ -980,8 +980,8 @@ $(document).ready(function(){
 	$m = strftime("%m", time() - ((24 * 60 * 60) * 30));
 	$d = strftime("%d", time() - ((24 * 60 * 60) * 30));
 	?>
-	var datefrom = new Date(<?php echo $y ?>,<?php echo $m ?>,<?php echo $d ?>);
-	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m") ?>,<?php echo date("d") ?>);
+	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
+	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m")-1 ?>,<?php echo date("d") ?>);
     var dayswithevents = [ ];
 	$('#widgetCalendar').DatePicker({
 		flat: true,
