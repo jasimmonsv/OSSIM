@@ -616,8 +616,16 @@ function closeLayer( whichLayer )
   vis.display = 'none';
 }
 
+function SubmitClick() {
+	$('#offset').val('0');
+	if (typeof($('.tagit-input')).val() != 'undefined' && $('.tagit-input').val() != ''){
+		AddAtom($('.tagit-input').val());$('.tagit-input').val('');
+	}
+	doQuery('noExport');
+}
+
 function AddAtom(value) {
-	if (!value.match(/\=/) && !is_operator(value)) value = "data="+value;
+	if (!value.match(/\=/) && !is_operator(value)) value = "<b>data</b>="+value;
 	var el = "";
 	el  = "<li class=\"tagit-choice\">\n";
 	el += value + "\n";
@@ -637,7 +645,6 @@ function SetSearch(content)
 	} else {
 		atoms[0] = content;
 	}
-
 	for (i = 0; i < atoms.length; i++) {
 		var value = atoms[i];
 		value = value.replace(/^\s+/g,'').replace(/\s+$/g,'').replace(/\n/g,'');
@@ -1015,6 +1022,7 @@ $(document).ready(function(){
 	list($sensors, $hosts) = Host::get_ips_and_hostname($conn_aux);
 	?>
 	$("#mytags").tagit({
+		autoFormat: true,
 		changeFunction: function() { MakeRequest(); },
 		availableTags: ["data"<?php foreach ($sensors as $ip=>$name) { ?>, "sensor:<?php echo $name?>"<?php } ?><?php $top = 0; foreach ($hosts as $ip=>$name) if ($top < 20) { ?>, "source:<?php echo $name?>", "destination:<?php echo $name ?>"<?php $top++; } ?>]
 	});
@@ -1210,7 +1218,7 @@ require_once ("manage_querys.php");
 					</div>
 					</td>
 					<!-- <td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td> -->
-					<td class="nobborder"><input type="button" class="button" onclick="$('#offset').val('0');if (typeof($('.tagit-input')).val() != 'undefined' && $('.tagit-input').val() != ''){AddAtom($('.tagit-input').val());$('.tagit-input').val('');}doQuery('noExport')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
+					<td class="nobborder"><input type="button" class="button" onclick="SubmitClick()" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
                                         <?php /*
 					<!--<a href="javascript:ClearSearch()" onMouseOver="showTip('<?php echo $help_entries["clear"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="#999999"><small><?php echo _("Clear Query"); ?></small></font></a>-->
 					<td class="nobborder"><input type="button" onclick="ClearSearch()" value="<?php echo _("Clear Query"); ?>" class="button" style="height:20px"></td>

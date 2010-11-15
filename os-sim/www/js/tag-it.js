@@ -68,7 +68,8 @@
 				}
 			}
 			// Comma/Space/Enter are all valid delimiters for new tags.
-			else if (event.which == KEY.COMMA || event.which == KEY.SPACE || event.which == KEY.ENTER) {
+			//else if (event.which == KEY.COMMA || event.which == KEY.SPACE || event.which == KEY.ENTER) {
+			else if (event.which == KEY.COMMA || event.which == KEY.ENTER) {
 				event.preventDefault();
 
 				var typed = tag_input.val();
@@ -115,6 +116,11 @@
 		});
 
 		function is_new (value){
+			value = value.replace(/\<b\>/g,"");
+			value = value.replace(/\<\/b\>/g,"");
+			if (options.autoFormat) {
+				if (!value.match(/\=/) && !is_operator(value)) value = "data="+value;
+			}
 			var is_new = true;
 			this.tag_input.parents("ul").children(".tagit-choice").each(function(i){
 				n = $(this).children("input").val();
@@ -125,6 +131,17 @@
 			return is_new;
 		}
 		function create_choice (value){
+			if (options.autoFormat) {
+				if (!value.match(/\=/) && !is_operator(value)) value = "<b>data</b>="+value;
+				if (value.match(/\=/) && !value.match(/\<b\>/)) {
+					value = "<b>"+value;
+					if (value.match("!=")) {
+						value = value.replace("!=","</b>!=");
+					} else {
+						value = value.replace("=","</b>=");
+					}
+				}
+			}
 			var el = "";
 			el  = "<li class=\"tagit-choice\">\n";
 			el += value + "\n";
