@@ -17,9 +17,53 @@ $order_by = $ARGV[5];
 $operation = $ARGV[6];
 $cache_file = $ARGV[7];
 $idsesion = $ARGV[8];
-
 $user = $ARGV[9];
 $ips = $ARGV[10];
+
+if ($start !~ /^\d+\-\d+\-\d+\s+\d+\:\d+\:\d+$/) {
+	print "Parameters error in start date\n";
+	exit;
+}
+if ($end !~ /^\d+\-\d+\-\d+\s+\d+\:\d+\:\d+$/) {
+	print "Parameters error in end date\n";
+	exit;
+}
+if ($query ne "" && $query !~ /^[a-zA-Z0-9\r\n\.,:@_\-\/\?&\=\s\[\]\)\(\'"]+$/) {
+	print "Parameters error in query\n";
+	exit;
+}
+if ($start_line !~ /^[0-9]+$/) {
+	print "Parameters error in start_line\n";
+	exit;
+}
+if ($num_lines !~ /^[0-9]+$/) {
+	print "Parameters error in num_lines\n";
+	exit;
+}
+if ($order_by !~ /^[a-zA-Z0-9\_\-\s]+$/) {
+	print "Parameters error in order_by\n";
+	exit;
+}
+if ($operation !~ /^[a-zA-Z]+$/) {
+	print "Parameters error in operation\n";
+	exit;
+}
+if ($cache_file ne "" && $cache_file ne "none" && $cache_file !~ /^[a-zA-Z0-9\_\-\s\/]+\.cache$/) {
+	print "Parameters error in cache file\n";
+	exit;
+}
+if ($idsesion !~ /^[A-Za-z0-9]+\.\d+$/) {
+	print "Parameters error\n";
+	exit;
+}
+if ($user !~ /^[a-zA-Z]+$/) {
+	print "Parameters error in user\n";
+	exit;
+}
+if ($ips !~ /^(\d+\.\d+\.\d+\.\d+\,?)+$/) {
+	print "Parameters error in IPs\n";
+	exit;
+}
 
 $query =~ s/\'/'\\''/g;
 
