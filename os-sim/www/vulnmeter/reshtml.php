@@ -759,7 +759,11 @@ function vulnbreakdown(){   //GENERATE CHART
          $chartimg.="&amp;risk$risk=$riskcount";
          $result->MoveNext();
    }
-
+   if (intval($prevrisk)!=7) {
+        for($i=$prevrisk+1;$i<=7;$i++) {
+            $chartimg.="&amp;risk$i=0";
+        }
+   }
    // print out the pie chart
    if($prevrisk!=0)
         $htmlchart .= "<font size=\"1\"><br></font>
