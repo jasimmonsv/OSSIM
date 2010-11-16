@@ -15,7 +15,7 @@
 ** Built upon work by Roman Danyliw <rdd@cert.org>, <roman@danyliw.com>
 ** Built upon work by the BASE Project Team <kjohnson@secureideas.net>
 */
-ini_set('memory_limit', '256M');
+//ini_set('memory_limit', '256M');
 set_time_limit(180);
 include ("base_conf.php");
 include ("vars_session.php");
@@ -126,7 +126,7 @@ $et->Mark("Alert Action");
 $qro = new QueryResultsOutput("base_stat_uaddr.php?caller=" . $caller . "&amp;addr_type=" . $addr_type);
 $qro->AddTitle(" ");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
-$sql = "(SELECT DISTINCT ip_src, 'S', COUNT(acid_event.cid) as num_events ". $sort_sql[0] . $from . $where . " GROUP BY ip_src HAVING num_events>0 " . $sort_sql[1]. ") UNION (SELECT DISTINCT ip_dst, 'D', COUNT(acid_event.cid) as num_events ". $sort_sql[0] . $from . $where . " GROUP BY ip_src HAVING num_events>0 " . $sort_sql[1]. ")";
+$sql = "(SELECT DISTINCT ip_src, 'S', COUNT(acid_event.cid) as num_events ". $sort_sql[0] . $from . $where . " GROUP BY ip_src HAVING num_events>0 " . $sort_sql[1]. ") UNION (SELECT DISTINCT ip_dst, 'D', COUNT(acid_event.cid) as num_events ". $sort_sql[0] . $from . $where . " GROUP BY ip_dst HAVING num_events>0 " . $sort_sql[1]. ")";
 // use accumulate tables only with timestamp criteria
 if ($use_ac) {
     $where = $more = $sqla = $sqlb = $sqlc = "";
