@@ -35,137 +35,166 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Sensor.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Security.inc');
+
 Session::logcheck("MenuPolicy", "PolicySensors");
+
+$array_priority   = array ("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5", "6"=>"6", "7"=>"7", "8"=>"8", "9"=>"9", "10"=>"10");
+
+$db = new ossim_db();
+$conn = $db->connect();
+
+$hostname = GET('name');
+
+if ( isset($_SESSION['_sensor']) )
+{
+	$hostname   = $_SESSION['_sensor']['hostname'];
+	$ip         = $_SESSION['_sensor']['ip'];  	
+	$priority   = $_SESSION['_sensor']['priority']; 
+	$descr	    = $_SESSION['_sensor']['descr']; 
+	
+	unset($_SESSION['_sensor']);
+}
+else
+{
+	if ($hostname != '')
+	{
+		ossim_valid($hostname, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Host name"));
+
+		if (ossim_error()) 
+			die(ossim_error());
+	
+		if ($sensor_list = Sensor::get_list($conn, "WHERE name = '$hostname'"))
+		{
+			$sensor   = $sensor_list[0];
+			
+			$hostname = $sensor->get_name();
+			$ip       = $sensor->get_ip();
+			$priority = $sensor->get_priority();
+			$descr    = $sensor->get_descr();
+			
+			unset($_SESSION['_sensor']);
+		
+		}
+	}
+	
+	$db->close($conn);
+}
+
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/ajax_validator.js"></script>
+	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../js/messages.php"></script>
+	<script type="text/javascript" src="../js/utils.js"></script>
+		
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('textarea').elastic();
+			
+			$('.vfield').bind('blur', function() {
+			     validate_field($(this).attr("id"), "modifysensor.php");
+			});			
+		});
+		
+		function ajax_postload() {
+			parent.doIframe();
+		}
+				
+	</script>
+	
+	<style type='text/css'>
+		input[type='text'], select, textarea {width: 90%; height: 18px;}
+		textarea { height: 45px;}
+		#table_form { background-color: transparent; width:450px;} 
+		#table_form th {width: 150px;}
+		label {border: none; cursor: default;}
+		.bold {font-weight: bold;}
+		div.bold {line-height: 18px;}
+		
+	</style>
 </head>
 <body>
                                                                                 
 <?php
-if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
 
-<?php
-require_once 'classes/Sensor.inc';
-require_once 'ossim_db.inc';
-require_once 'classes/Security.inc';
-$name = GET('name');
-ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Sensor name"));
-if (ossim_error()) {
-    die(ossim_error());
-}
-$db = new ossim_db();
-$conn = $db->connect();
-if ($sensor_list = Sensor::get_list($conn, "WHERE name = '$name'")) {
-    $sensor = $sensor_list[0];
-}
-$db->close($conn);
+if (GET('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
 ?>
 
-<form method="post" action="modifysensor.php">
-<table align="center">
-  <input type="hidden" name="insert" value="insert">
-  <tr>
-    <th> <?php
-echo gettext("Hostname"); ?> </th>
-      <input type="hidden" name="name"
-             value="<?php
-echo $sensor->get_name(); ?>">
-    <td class="nobborder left">
-      <b><?php
-echo $sensor->get_name(); ?></b>
-    </td>
-  </tr>
-  <tr>
-    <th> <?php
-echo gettext("IP"); ?> </th>
-    <td class="nobborder left">
-        <input type="text" name="ip" 
-               value="<?php
-echo $sensor->get_ip(); ?>"></td>
-  </tr>
-  <tr>
-    <th> <?php
-echo gettext("Priority"); ?> </th>
-    <td class="nobborder left">
-      <select name="priority">
-        <option
-        <?php
-if ($sensor->get_priority() == 0) echo " SELECTED "; ?>
-          value="0">0</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 1) echo " SELECTED "; ?>
-          value="1">1</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 2) echo " SELECTED "; ?>
-          value="2">2</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 3) echo " SELECTED "; ?>
-          value="3">3</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 4) echo " SELECTED "; ?>
-          value="4">4</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 5) echo " SELECTED "; ?>
-          value="5">5</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 6) echo " SELECTED "; ?>
-          value="6">6</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 7) echo " SELECTED "; ?>
-          value="7">7</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 8) echo " SELECTED "; ?>
-          value="8">8</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 9) echo " SELECTED "; ?>
-          value="9">9</option>
-        <option
-        <?php
-if ($sensor->get_priority() == 10) echo " SELECTED "; ?>
-          value="10">10</option>
-      </select>
-    </td>
-  </tr>
-  <!-- <tr>
-    <th> <?php
-echo gettext("Port"); ?> </th>
-    <td class="nobborder left">
-        <input type="text" name="port" 
-               value="<?php
-echo $sensor->get_port(); ?>"></td>
-  </tr> -->
-  <input type="hidden" name="port" value="<?php echo $sensor->get_port(); ?>">
-  <tr>
-    <th> <?php
-echo gettext("Description"); ?> </th>
-    <td class="nobborder left">
-      <textarea name="descr" 
-        rows="2" cols="20"><?php
-echo $sensor->get_descr(); ?></textarea>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center" class="nobborder center">
-      <input type="submit" value="<?=_("OK")?>" class="btn" style="font-size:12px">
-      <input type="reset" value="<?=_("reset")?>" class="btn" style="font-size:12px">
-    </td>
-  </tr>
+
+<div id='info_error' class='ossim_error' style='display: none;'></div>
+
+<form method="POST" name='formsensor' id='formsensor' action="modifysensor.php">
+<table align="center" id='table_form'>
+	<input type="hidden" name="insert" value="insert"/>
+	<tr>
+		<th><label for='hostname'><?php echo gettext("Hostname");?></label></th>
+		<td class="nobborder left">
+			<input type="hidden" name="hostname" id='hostname' class='req_field vfield' value="<?php echo $hostname; ?>"/>
+			<div class='bold'><?php echo $hostname; ?></div>
+		</td>
+	</tr>
+  
+  
+	<tr>
+		<th><label for='ip'><?php echo gettext("IP"); ?></label></th>
+		<td class="left">
+			<input type="text" class='req_field vfield' name="ip" id="ip" value="<?php echo $ip?>"/>
+			<span style="padding-left: 3px;">*</span>
+		</td>
+	</tr>
+	
+	<tr>
+		<th><label for='priority'><?php echo gettext("Priority"); ?></label></th>
+		<td class="left">
+			<select name="priority" id="priority" class='req_field vfield'>
+			<?php 
+				if ( !in_array($priority, $array_priority) )
+					$priority = "5";
+				
+				foreach ($array_priority as $v)
+				{
+					$selected = ($priority == $v) ? "selected='selected'" : '';
+					echo "<option value='$v' $selected>$v</option>";
+				}
+			?>
+			</select>
+		</td>
+	</tr>
+	
+	<!-- 
+		<tr>
+			<th> <?php echo gettext("Port"); ?> </th>
+			<td class="left"><input type="text" value="40002" name="port"></td>
+		</tr> 
+	-->
+	
+	<input type="hidden" class='vfield' name="port" id="port" value="40002"/>
+    
+	<tr>
+		<th><label for='descr'><?php echo gettext("Description"); ?></label></th>
+		<td class="left noborder">
+			<textarea name="descr" class='vfield' id="descr"><?php echo $descr;?></textarea>
+		</td>
+	</tr>
+	
+	<tr>
+		<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
+			<input type="button"  class="button" id='send' value="<?php echo _("Send")?>" onclick="submit_form();"/>
+			<input type="reset"   class="button" value="<?php echo gettext("Reset"); ?>"/>
+		</td>
+	</tr>
 </table>
 </form>
 

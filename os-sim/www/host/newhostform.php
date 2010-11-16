@@ -40,7 +40,85 @@ require_once ('ossim_db.inc');
 require_once ('ossim_conf.inc');
 require_once ('classes/Sensor.inc');
 require_once ('classes/RRD_config.inc');
+
 Session::logcheck("MenuPolicy", "PolicyHosts");
+
+$db = new ossim_db();
+$conn = $db->connect();
+
+$array_assets = array ("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
+
+$array_os     = array ( "Unknown" => "",
+						"Windows" => "Microsoft Windows",
+						"Linux"   => "Linux",
+						"FreeBSD" => "FreeBSD",
+						"NetBSD"  => "NetBSD",
+						"OpenBSD" => "OpenBSD",
+						"MacOS"   => "Apple MacOS",
+						"Solaris" => "SUN Solaris",
+						"Cisco"   => "Cisco IOS",
+						"AIX"     => "IBM AIX",
+						"HP-UX"   => "HP-UX",
+						"Tru64"   => "Compaq Tru64",
+						"IRIX"    => "SGI IRIX",
+						"BSD/OS"  => "BSD/OS",
+						"SunOS"   => "SunOS",
+						"Plan9"   => "Plan9",
+						"IPhone"  => "IPhone");
+					
+$sensors     = array();
+$conf        = $GLOBALS["CONF"];
+$threshold_a = $threshold_c = $conf->get_conf("threshold");
+$hostname    = $fqdns = $descr = $nat = $nagios = $os = $mac = $mac_vendor = $latitude = $longitude = "";
+$asset       = 2;
+$rrd_profile = "None";
+
+$scan = POST('scan');
+$ips  = POST('ips');	
+$ip   = REQUEST('ip');		
+	
+
+ossim_valid($ip,   OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Ip"));
+ossim_valid($ips,  OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Hosts"));
+ossim_valid($scan, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Scan"));
+
+if (ossim_error()) {
+    die(ossim_error());
+}	
+
+if ( !empty ($scan) )
+{
+	$groupname = REQUEST('groupname');
+	$ip = REQUEST('target');
+    $action = "../netscan/scan_db.php";
+}
+else
+{					
+	$action = $action = "newhost.php";
+	
+	if ( isset($_SESSION['_host']) )
+	{
+		$hostname    = $_SESSION['_host']['hostname'];
+		$ip          = $_SESSION['_host']['ip'];  	
+		$fqdns       = $_SESSION['_host']['fqdns']; 
+		$descr	     = $_SESSION['_host']['descr']; 
+		$asset       = $_SESSION['_host']['asset'];
+		$nat         = $_SESSION['_host']['nat'];  	
+		$sensors     = $_SESSION['_host']['sensors'];  
+		$nagios      = $_SESSION['_host']['nagios'];	
+		$rrd_profile = $_SESSION['_host']['rrd_profile'];  
+		$threshold_a = $_SESSION['_host']['threshold_a']; 
+		$threshold_c = $_SESSION['_host']['threshold_c']; 
+		$os          = $_SESSION['_host']['os']; 
+		$mac         = $_SESSION['_host']['mac']; 
+		$mac_vendor  = $_SESSION['_host']['mac_vendor']; 
+		$latitude    = $_SESSION['_host']['latitude']; 
+		$longitude   = $_SESSION['_host']['longitude']; 
+		
+		unset($_SESSION['_host']);
+	}
+}
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -53,18 +131,28 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 	<link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
 	<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
+	<script type="text/javascript" src="../js/ajax_validator.js"></script>
+	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../js/messages.php"></script>
+	<script type="text/javascript" src="../js/utils.js"></script>
+	
 	<script type="text/javascript">
-		function check_host (ip) {
+		function check_host () {
+			
+			var ip = $("#ip").val();
+			
 			$.ajax({
 				type: "GET",
 				url: "check_host_response.php?ip="+ip,
 				data: "",
 				success: function(msg){
-					if (msg == "1") {
+					if (msg == "1")
+					{
 						if (confirm("Do you want to update host '"+ip+"'?"))
-							document.newform.submit();
+							submit_form();
 					}
-					else document.newform.submit();
+					else 
+						submit_form();
 				}
 			});
 		}
@@ -101,16 +189,30 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 									this.update(txt);
 							}
 			});
+			
+			$('textarea').elastic();
+				
+			$('.vfield').bind('blur', function() {
+				 validate_field($(this).attr("id"), "newhost.php");
+			});
 
 		});
 
 	</script>
 	
 	<style type='text/css'>
+		#table_form { min-width: 500px;}
+		#table_form th {width: 150px;}
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
+		label {border: none; cursor: default;}
+		.bold {font-weight: bold;}
+		div.bold {line-height: 18px;}
+		a {cursor:pointer;}
 	</style>
 	
+	
+  		
 </head>
 
 <body>
@@ -120,122 +222,117 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 if (GET('/withoutmenu') != "1") 
 	include ("../hmenu.php");
 
-if (REQUEST('scan'))
+if ( !empty ($scan) )
 	echo "<p>".gettext("Please, fill these global properties about the hosts you've scaned").":</p>";
- 
-$ip   = REQUEST('ip');
-$ips  = REQUEST('ips');
-$scan = REQUEST('scan');
-ossim_valid($ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("ip"));
-ossim_valid($ips, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("ips"));
-ossim_valid($scan, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("scan"));
-if (ossim_error()) {
-    die(ossim_error());
-}
-$db = new ossim_db();
-$conn = $db->connect();
-$conf = $GLOBALS["CONF"];
 
-$threshold = $conf->get_conf("threshold");
-$action = "newhost.php";
-
-if (REQUEST('scan')) {
-    $ip = REQUEST('target');
-    $action = "../netscan/scan_db.php";
-}
 ?>
-    
-<form method="post" name="newform" action="<?php echo $action ?>">
-<input type="hidden" name="insert" value="insert">
+   
+<div id='info_error' class='ossim_error' style='display: none;'></div>
+   
+<form method="POST" name="form_host" id="form_host" action="<?php echo $action ?>">
 
-<table align="center">
+<input type="hidden" name="insert" value="insert"/>
+
+<table align="center" id='table_form'>
+
 <?php if (empty($scan)) { ?>
-	<tr>
-		<th> <?php echo gettext("Hostname"); ?></th>
-		<td class="left"><input type="text" name="hostname" size="25" value="<?=REQUEST('hostname')?>"/><span style="padding-left: 3px;">*</span></td>
-	</tr>
 	
 	<tr>
-		<th> <?php echo gettext("IP"); ?></th>
+		<th><label for='hostname'><?php echo gettext("Hostname"); ?></label></th>
+		<td class="left"><input type="text" class='req_field vfield' name="hostname" id="hostname" value="<?php echo $hostname;?>"/>
+		<span style="padding-left: 3px;">*</span></td>
+	</tr>	
+	
+	<tr>
+		<th><label for='ip'><?php echo gettext("IP"); ?></label></th>
 		<td class="left">
-			<input type="text" value="<?php echo $ip ?>" size="25" name="ip" id="ip" onchange="check_net(this.value)"><span style="padding-left: 3px;">*</span>
+			<input type="text" class='req_field vfield' name="ip" id="ip" value="<?php echo $ip?>" onchange="check_net(this.value)"/>
+			<span style="padding-left: 3px;">*</span>
 			<div id="loading" style="display:inline"></div>
 		</td>
 	</tr>
   
 	<tr>
-		<th> 
-			<?php echo gettext("FQDN/Aliases"); ?> 
-			<a style="cursor:pointer; text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Comma-separated FQDN or aliases")?></div>">
+		<th>
+			<label for='fqdns'><?php echo gettext("FQDN/Aliases"); ?></label>
+			<a class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Comma-separated FQDN or aliases")?></div>">
 			<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a><br/>
 		</th>
 		<td class="left">
-			<textarea name="fqdns" rows="2" cols="40"><?=REQUEST('fqdns')?></textarea>
+			<textarea name="fqdns" id="fqdns" class='vfield'><?php echo $fqdns;?></textarea>
 		</td>
 	</tr>
   
 <?php } else { ?>
 
-	<input type="hidden" value="<?php echo $ip ?>" name="ip" id="ip">
+	<input type="hidden" value="<?php echo $ip ?>" name="ip" id="ip"/>
 	<tr>
-		<th> <?php echo gettext("Optional group name"); ?></th>
-		<td class="left"><input type="text" name="groupname" value="<?=REQUEST('groupname')?>"><span style="padding-left: 3px;">*</span></td>
+		<th><label for='groupname'><?php echo gettext("Optional group name"); ?></label></th>
+		<td class="left"><input type="text" name="groupname" id="groupname" class='req_field vfield' value="<?php echo $groupname;?>"/>
+		<span style="padding-left: 3px;">*</span></td>
 	</tr>
 
 <?php } ?>
   
 	<tr>
-		<th> <?php echo gettext("Description"); ?> </th>
+		<th><label for='descr'><?php echo gettext("Description"); ?></label></th>
 		<td class="left">
-			<textarea name="descr" rows="3" cols="40"><?=REQUEST('descr')?></textarea>
+			<textarea name="descr" id="descr" class='vfield'><?php echo $descr;?></textarea>
 		</td>
 	</tr>
 
 	<tr>
-		<th> <?php echo gettext("Asset Value"); ?></th>
+		<th><label for='asset'><?php echo gettext("Asset"); ?></label></th>
 		<td class="left">
-			<select name="asset" id="asset">
-				<option value="0" <?=((REQUEST('asset') == '0') ? "selected='selected'" : '')?>><?php echo gettext("0"); ?> </option>
-				<option value="1" <?=((REQUEST('asset') == '1') ? "selected='selected'" : '')?>><?php echo gettext("1"); ?> </option>
-				<option value="2" <?=((REQUEST('asset') == '2'|| REQUEST('asset') == '') ? "selected='selected'" : '')?>><?php echo gettext("2"); ?> </option>
-				<option value="3" <?=((REQUEST('asset') == '3') ? "selected='selected'" : '')?>><?php echo gettext("3"); ?> </option>
-				<option value="4" <?=((REQUEST('asset') == '4') ? "selected='selected'" : '')?>><?php echo gettext("4"); ?> </option>
-				<option value="5" <?=((REQUEST('asset') == '5') ? "selected='selected'" : '')?>><?php echo gettext("5"); ?> </option>
+			<select name="asset" id="asset" class='req_field vfield'>
+			<?php 
+				if ( !in_array($asset, $array_assets) )
+					$asset = "2";
+				
+				foreach ($array_assets as $v)
+				{
+					$selected = ($asset == $v) ? "selected='selected'" : '';
+					echo "<option value='$v' $selected>$v</option>";
+				}
+			?>
 			</select>
 			<span style="padding-left: 3px;">*</span>
 		</td>
 	</tr>
 
 	<tr>
-		<th> <?php echo gettext("NAT"); ?> </th>
+		<th><label for='nat'><?php echo gettext("NAT");?></label></th>
 		<td class="left">
-			<input type="text" name="nat" size="25" value="<?=REQUEST('nat')?>">
+			<input type="text" class='vfield' name="nat" id="nat" value="<?php echo $nat;?>"/>
 		</td>
 	</tr>
 
 	<tr>
-		<th> <?php echo gettext("Sensors"); ?>
-			<a style="cursor:pointer; text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Define which sensors has visibility of this host")?></div>">
+		<th>
+			<label for='sboxs1'><?php echo gettext("Sensors"); ?></label>
+			<a  text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Define which sensors has visibility of this host")?></div>">
 			<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a><br/>
 			<span><a href="../sensor/newsensorform.php"><?=gettext("Insert new sensor");?>?</a></span>
 		</th>
         <td class="left">
 			<?php
-			/* ===== sensors ==== */
+			/* ===== Sensors ==== */
 			$i = 1;
+			
 			if ($sensor_list = Sensor::get_all($conn, "ORDER BY name"))
 			{
 				foreach($sensor_list as $sensor) {
 					$sensor_name = $sensor->get_name();
 					$sensor_ip = $sensor->get_ip();
-					if ($i == 1) 
-						echo "<input type='hidden' name='nsens' value='".count($sensor_list)."'/>";
+													
+					$class = ($i == 1) ? "class='req_field'" : "";
+													
+					$sname = "sboxs".$i;
+					$checked = ( in_array($sensor_name, $sensors) )  ? "checked='checked'"  : '';
 					
-					$name = "mboxs" . $i;
-					$checked = ( REQUEST($name) == $sensor_name ) ? "checked='checked'" : '';
-					echo "<input type='checkbox' name='$name' value='$sensor_name' $checked/>";
-				    echo $sensor_ip . " (" . $sensor_name . ")<br/>";
-			
+					echo "<input type='checkbox' name='sboxs[]' $class id='$sname' value='$sensor_name' $checked/>";
+					echo $sensor_ip . " (" . $sensor_name . ")<br/>"; 
+				  
 					$i++;
 				}
 			}
@@ -246,146 +343,124 @@ if (REQUEST('scan')) {
   
 	<tr>
 		<td style="text-align: left; border:none; padding-top:3px;">
-			<a style="cursor:pointer;" onclick="$('.advanced').toggle()" >
+			<a onclick="$('.advanced').toggle();">
 			<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Advanced")?></a>
 		</td>
 	</tr>
 
 	<tr class="advanced" style="display:none;">
-		<th> <?php echo gettext("Scan options"); ?> </th>
+		<th><label for='nagios'><?php echo gettext("Scan options"); ?></label></th>
 		<td class="left">
-			<!--<input type="checkbox" name="nessus" value="1" <?=((REQUEST('nessus') == '1') ? "checked='checked'" : '')?>/> <?php echo gettext("Enable nessus scan"); ?> </input><br/>-->
-			<input type="checkbox" name="nagios" value="1" <?=((REQUEST('nagios') == '1') ? "checked='checked'" : '')?>/> <?php echo gettext("Enable nagios"); ?>
+            <?php $checked = ($nagios == '1') ? "checked='checked'" : ''; ?>		
+			<input type="checkbox" class='vfield' name="nagios" id="nagios" value="1" <?php echo $checked;?>/> <?php echo gettext("Enable nagios"); ?>
 		</td>
 	</tr>
 
 	<tr class="advanced" style="display:none;">
-		<th> <?php echo gettext("RRD Profile"); ?><br/>
+		<th>
+			<label for='rrd_profile'><?php echo gettext("RRD Profile"); ?></label><br/>
 			<span><a href="../rrd_conf/new_rrd_conf_form.php"><?php echo gettext("Insert new profile"); ?> ?</a></span>
 		</th>
 		<td class="left">
-			<select name="rrd_profile">
+			<select name="rrd_profile" id="rrd_profile" class='vfield'>
+				<option value="" selected='selected'><?php echo gettext("None"); ?></option>
 				<?php
 				foreach(RRD_Config::get_profile_list($conn) as $profile) {
 					if (strcmp($profile, "global"))
-						echo "<option value=\"$profile\" ".((REQUEST('rrd_profile') == $profile) ? "selected='selected'" : '').">$profile</option>\n";
+					{
+						$selected = ( $rrd_profile == $profile  ) ? " selected='selected'" : '';
+						echo "<option value=\"$profile\" $selected>$profile</option>\n";
 					}
+				}
 				?>
-				<option value="" <?=((REQUEST('rrd_profile') == '') ? "selected='selected'" : '')?>><?php echo gettext("None"); ?> </option>
 			</select>
-			<span style="padding-left: 3px;">*</span>
 		</td>
 	</tr>
 
 	<tr class="advanced" style="display:none;">
-		<th> <?php echo gettext("Threshold C"); ?></th>
+		<th><label for='threshold_c'><?php echo gettext("Threshold C"); ?></label></th>
 		<td class="left">
-			<input type="text" size="11" value="<?=((REQUEST('threshold_c') == '') ? $threshold : REQUEST('threshold_c'))?>" name="threshold_c" id="threshold_c" size="4"/>
-			<span style="padding-left: 3px;">*</span>
+			<input type="text" name="threshold_c" id='threshold_c' class='req_field vfield' value="<?php echo $threshold_c?>"/>
+			<span style="padding-left: 3px;">*</span>	
 		</td>
 	</tr>
-	
+
 	<tr class="advanced" style="display:none;">
-		<th> <?php echo gettext("Threshold A"); ?></th>
+		<th><label for='threshold_a'><?php echo gettext("Threshold A"); ?></label></th>
 		<td class="left">
-			<input type="text" size="11" value="<?=((REQUEST('threshold_a') == '') ? $threshold : REQUEST('threshold_a'))?>" name="threshold_a" id="threshold_a" size="4"/>
-			<span style="padding-left: 3px;">*</span>
+			<input type="text" name="threshold_a" id='threshold_a' class='req_field vfield' value="<?php echo $threshold_a?>"/>
+			<span style="padding-left: 3px;">*</span>	
 		</td>
 	</tr>
+ 
   
-	<!--
-	  <tr>
-		<th>Alert</th>
-		<td class="left">
-		  <select name="alert">
-			<option value="1">Yes</option>
-			<option selected value="0">No</option>
-		  </select>
-		</td>
-	  </tr>
-	  <tr>
-		<th>Persistence</th>
-		<td class="left">
-		  <input type="text" name="persistence" value="15" size="3"></input>min.
-		</td>
-	  </tr>
-	-->
-  
-  
-<?php if (empty($scan)) { ?>
+	<?php if (empty($scan)) { ?>
 
 	<tr>
 		<td style="text-align: left; border:none; padding-top:3px;">
-			<a onclick="$('.inventory').toggle()" style="cursor:pointer;">
+			<a onclick="$('.inventory').toggle();">
 			<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Inventory")?></a>
 		</td>
 	</tr>
 
 	<tr class="inventory" style="display:none;">
-		<th> <?php echo gettext("OS"); ?> </th>
+		<th><label for='os'><?php echo gettext("OS"); ?></label></th>
 		<td class="left">
-			<select name="os">
-				<option value="Unknown" <?=((REQUEST('os') == 'Unknown') ? "selected='selected'" : '')?>> </option>
-				<option value="Windows" <?=((REQUEST('os') == 'Windows') ? "selected='selected'" : '')?>><?php echo _("Microsoft Windows"); ?> </option>
-				<option value="Linux"   <?=((REQUEST('os') == 'Linux')   ? "selected='selected'" : '')?>><?php echo _("Linux"); ?> </option>
-				<option value="FreeBSD" <?=((REQUEST('os') == 'FreeBSD') ? "selected='selected'" : '')?>><?php echo _("FreeBSD"); ?> </option>
-				<option value="NetBSD"  <?=((REQUEST('os') == 'NetBSD')  ? "selected='selected'" : '')?>><?php echo _("NetBSD"); ?> </option>
-				<option value="OpenBSD" <?=((REQUEST('os') == 'OpenBSD') ? "selected='selected'" : '')?>><?php echo _("OpenBSD"); ?> </option>
-				<option value="MacOS"   <?=((REQUEST('os') == 'MacOS')   ? "selected='selected'" : '')?>><?php echo _("Apple MacOS"); ?> </option>
-				<option value="Solaris" <?=((REQUEST('os') == 'Solaris') ? "selected='selected'" : '')?>><?php echo _("SUN Solaris"); ?> </option>
-				<option value="Cisco"   <?=((REQUEST('os') == 'Cisco')   ? "selected='selected'" : '')?>><?php echo _("Cisco IOS"); ?> </option>
-				<option value="AIX"     <?=((REQUEST('os') == 'AIX')     ? "selected='selected'" : '')?>><?php echo _("IBM AIX"); ?> </option>
-				<option value="HP-UX"   <?=((REQUEST('os') == 'HP-UX')   ? "selected='selected'" : '')?>><?php echo _("HP-UX"); ?> </option>
-				<option value="Tru64"   <?=((REQUEST('os') == 'Tru64')   ? "selected='selected'" : '')?>><?php echo _("Compaq Tru64"); ?> </option>
-				<option value="IRIX"    <?=((REQUEST('os') == 'IRIX')    ? "selected='selected'" : '')?>><?php echo _("SGI IRIX"); ?> </option>
-				<option value="BSD/OS"  <?=((REQUEST('os') == 'BSD/OS')  ? "selected='selected'" : '')?>><?php echo _("BSD/OS"); ?> </option>
-				<option value="SunOS"   <?=((REQUEST('os') == 'SunOS')   ? "selected='selected'" : '')?>><?php echo _("SunOS"); ?> </option>
-				<option value="Plan9"   <?=((REQUEST('os') == 'Plan9')   ? "selected='selected'" : '')?>><?php echo _("Plan9"); ?> </option> 
-				<option value="IPhone"  <?=((REQUEST('os') == 'IPhone')  ? "selected='selected'" : '')?>><?php echo _("IPhone"); ?> </option> 
+			<select name="os" id="os" class='vfield'>
+				<?php
+				foreach ($array_os as $k => $v)
+				{
+					$selected = ($os == $v) ? "selected='selected'" : '';
+					echo "<option value='$k' $selected>$v</option>";
+				}
+				?>
 			</select>
 		</td>
 	</tr>
 
 	<tr class="inventory" style="display:none;">
-		<th> <?php echo gettext("Mac"); ?> </th>
-		<td class="left"><input type="text" size="25" name="mac" value="<?=REQUEST('mac')?>"/></td>
+		<th><label for='mac'><?php echo gettext("Mac"); ?></label></th>
+		<td class="left"><input type="text" class='vfield' name="mac" id="mac" value="<?php echo $mac;?>"/></td>
 	</tr>
 
 	<tr class="inventory" style="display:none;">
-		<th> <?php echo gettext("Mac Vendor"); ?></th>
-		<td class="left"><input type="text" size="25" name="mac_vendor" value="<?=REQUEST('mac_vendor')?>"/></td>
+		<th><label for='mac_vendor'><?php echo gettext("Mac Vendor"); ?></label></th>
+		<td class="left"><input type="text" class='vfield' name="mac_vendor" id="mac_vendor" value="<?php echo $mac_vendor;?>"/></td>
 	</tr>
 
 	<tr>
 		<td style="text-align: left; border:none; padding-top:3px;">
-			<a onclick="$('.geolocation').toggle()" style="cursor:pointer;">
+			<a onclick="$('.geolocation').toggle();">
 			<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Geolocation Info")?></a>
 		</td>
 	</tr>
-	
-	
+		
 	<tr class="geolocation" style="display:none;">
-	    <th> <?php echo gettext("Latitude");?></th>
-	    <td class="left"><input type="text" size="25" name="latitude" value="<?=REQUEST('latitude')?>"/></td>
+	    <th><label for='latitude'><?php echo gettext("Latitude"); ?></label></th>
+	    <td class="left"><input type="text" class='vfield' id="latitude" name="latitude" value="<?php echo $latitude;?>"/></td>
 	</tr>
 	
 	<tr class="geolocation" style="display:none;">
-	    <th> <?php echo gettext("Longitude");?></th>
-	    <td class="left"><input type="text" size="25" name="longitude"value="<?=REQUEST('longitude')?>"/></td>
+	   <th><label for='longitude'><?php echo gettext("Longitude"); ?></label></th>
+	    <td class="left"><input type="text" id="longitude" name="longitude" value="<?php echo $longitude;?>"/></td>
 	</tr>
 
-<?php } else { ?>
-		<input type="hidden" name="ips" value="<?php echo $ips ?>" />
-<?php
-    for ($i = 0; $i < $ips; $i++) 
-		echo "<input type='hidden' name='ip_$i' value='".POST("ip_$i")."'/>";
-} ?>
+	<?php 
+	} 
+	else 
+	{ 
+		echo "<input type='hidden' name='ips' id='ips' value='<?php echo $ips ?>'/>";
+
+		for ($i = 0; $i < $ips; $i++) 
+			echo "<input type='hidden' name='ip_$i' value='".POST("ip_$i")."'/>";
+	}
+	?>
 
 
 	<tr>
 		<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-			<input type="button" value="<?=_("OK")?>" onclick="check_host(document.getElementById('ip').value)" class="button"/>
-			<input type="reset" value="<?php echo gettext("Reset"); ?>" class="button"/>
+			<input type="button" class="button" id='send' value="<?=_("Send")?>" onclick="check_host();"/>
+			<input type="reset"  class="button" value="<?php echo gettext("Reset"); ?>"/>
 		</td>
 	</tr>
   

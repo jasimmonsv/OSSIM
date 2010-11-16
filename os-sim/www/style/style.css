@@ -159,6 +159,7 @@ input.button:hover
 	padding-bottom:2px !important;
 }
 
+
 .buttonoff,.buttonoff:hover
 {
     border-width: 0px !important;
@@ -478,11 +479,11 @@ input, textarea, select {
     font-size:  8pt;
 }
 
-.btn, input[type="button"], input[type="submit"], button
+.btn, input[type="button"], input[type="submit"], .button
 {
    background: #cccccc url(../pixmaps/theme/bg_button.png) 50% 50% repeat-x; font-size: 11px; color: #222222; text-align: center;
 }
-input.btn:hover, input[type="button"]:hover, input[type="submit"]:hover, button:hover
+input.btn:hover, input[type="button"]:hover, input[type="submit"]:hover, .button:hover
 {
    border:1px solid #02A705;
    background: #4AC600 url(../pixmaps/theme/bg_button_on.png) 50% 50% repeat-x; color: #FFFFFF;
@@ -744,6 +745,38 @@ div.balloon:hover span.bottom {
   background: url(../pixmaps/balloon.png) no-repeat bottom;
 }
 
+/* Big Tooltips */
+
+div.bballoon span { display: none }
+div.bballoon:hover { position:relative; z-index:1000; background:transparent; }
+div.bballoon:hover span.tooltip {
+  color: #111;
+  display:block;
+  position:absolute;
+  top:12px; left:20px;
+  width:360px;
+  text-align: left;
+  text-decoration:none;
+  z-index: 2000;
+}
+div.bballoon:hover span.top {
+  display: block;
+  padding: 28px 8px 0;
+  background: url(../pixmaps/bballoon.png) no-repeat top;
+}
+div.bballoon:hover span.middle {
+  display: block;
+  padding: 0 3px 0 3px;
+  background: url(../pixmaps/bballoonfill.png) repeat bottom;
+}
+div.bballoon:hover span.bottom {
+  display: block;
+  padding:3px 8px 8px;
+  color: #548912;
+  background: url(../pixmaps/bballoon.png) no-repeat bottom;
+}
+
+
 #host_report table {
 	border:0px;
 	width:100%;
@@ -993,8 +1026,60 @@ div.balloon:hover span.bottom {
     background-position: 10px center;
 	color: #D8000C;
     background-color: #FFBABA;
-    background-image: url('../pixmaps/ct_error.png');
+    background-image: url('../pixmaps/ossim_error.png');
+	width: 90%;
 }
+
+.ossim_alert {
+    font-family:Arial, Helvetica, sans-serif; 
+    font-size:13px;
+    border: 1px solid;
+    margin: 10px auto;
+    padding:15px 10px 15px 50px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+	color: #9F6000;
+    background-color: #FEEFB3;
+    background-image: url('../pixmaps/ossim_alert.png');
+	width: 90%;
+}
+
+.cont_val{
+	position: relative;
+	width: 1px;
+	float: right;
+}
+
+.val_error_l {
+	position: absolute; 
+	height: 19px;
+	background: url("../pixmaps/tt_pointer.png");
+	background-repeat: no-repeat;
+	background-position: 2px 3px;
+	top: 0px; 
+	left: 5px; 
+	width: 10px; 
+}
+
+.val_error_r {
+    font-family:Arial, Helvetica, sans-serif; 
+    font-size:10px;
+    border: solid 1px #D8000C;
+	color: #D8000C;
+    background-color: #FFBABA;
+	position: absolute; 
+	width: 250px;
+	top: 0px; 
+	left: 14px; 
+	width: 270px;
+	border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+
 
 .ct_icon {border: none; background: transparent;}
 

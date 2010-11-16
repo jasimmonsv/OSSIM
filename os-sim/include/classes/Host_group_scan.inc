@@ -89,7 +89,7 @@ class Host_group_scan {
         settype($plugin_sid, "int");
         $sql = "INSERT INTO host_group_scan VALUES (?, ?, ?)";
         $params = array(
-            $host_group_name,
+            str_replace(" ", "_", $host_group_name),
             $plugin_id,
             $plugin_sid
         );
@@ -144,6 +144,7 @@ class Host_group_scan {
         if (!$rs = & $conn->Execute($sql, $params)) {
             print $conn->ErrorMsg();
         }
+				
         return $rs->fields[0];
     }
     function can_delete_host_from_nagios($conn, $ip, $hostgroupname) {

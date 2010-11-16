@@ -35,87 +35,133 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once ('classes/Util.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Port.inc');
+
 Session::logcheck("MenuPolicy", "PolicyPorts");
-?>
 
-<html>
-<head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-</head>
-<body>
-<?
-if (!(GET('withoutmenu')==1 || POST('withoutmenu')==1)) include ("../hmenu.php"); 
-?>
-  <h1> <?php
-echo gettext("New port"); ?> </h1>
-
-<?php
-require_once 'classes/Security.inc';
-require_once 'ossim_db.inc';
-require_once 'classes/Port.inc';
 $db = new ossim_db();
 $conn = $db->connect();
-$port = POST('port');
+
+$error = false;
+
+$port     = POST('port');
 $protocol = POST('protocol');
-$service = POST('service');
-$descr = POST('descr');
-$arr_message = array();
-$message = "";
-ossim_valid($port, OSS_DIGIT, 'illegal:' . _("Port"));
-if (ossim_error() || $port<0 || $port>65535) {
-    ossim_set_error(false);
-    $arr_message[] = _("Port number isn't valid");
+$service  = POST('service');
+$descr    = POST('descr');
+
+
+$validate = array (
+	"port"     => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port")),
+	"protocol" => array("validation"=>"OSS_PROTOCOL", "e_message" => 'illegal:' . _("Protocol")),
+	"service"  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Service")),
+	"descr"    => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")));
+	
+if ( GET('ajax_validation') == true )
+{
+	$validation_errors = validate_form_fields('GET', $validate);
+	if ( $validation_errors == 1 )
+		echo 1;
+	else if ( empty($validation_errors) )
+		echo 0;
+	else
+		echo $validation_errors[0];
+		
+	exit();
 }
-ossim_valid($protocol, "tcp", "udp", 'illegal:' . _("Protocol"));
-if (ossim_error()) {
-    ossim_set_error(false);
-    $arr_message[] = _("Protocol isn't valid");
-}
-ossim_valid($service, OSS_ALPHA, OSS_SPACE, OSS_PUNC, 'illegal:' . _("Service"));
-if (ossim_error()) {
-    ossim_set_error(false);
-    $arr_message[] = _("Service isn't valid");
-}
-ossim_valid($descr, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Description"));
-if (ossim_error()) {
-    ossim_set_error(false);
-    $arr_message[] = _("Description isn't valid");
-}
-if (count($list_aux = Port::get_list($conn, $where = "WHERE port_number='$port' AND protocol_name=\"$protocol\"")) > 0) {
-	$arr_message[] = _("This port already exists");
-}
-$message = implode("<br>",$arr_message);
-if ($message!="") {
-    echo "<center>";
-    echo "$message<br><br>";
-    echo "<form method=\"post\" action=\"newsingleportform.php\">";
-    if (POST('withoutmenu')==1) {
-           echo "<input type=\"hidden\" name=\"withoutmenu\" value=\"1\">";
-    }
-    if(!preg_match("/port/i", $message)) echo "<input type=\"hidden\" name=\"port\" value=\"".$port."\">";
-    if(!preg_match("/protocol/i", $message)) echo "<input type=\"hidden\" name=\"protocol\" value=\"".$protocol."\">";
-    if(!preg_match("/service/i", $message)) echo "<input type=\"hidden\" name=\"service\" value=\"".$service."\">";
-    if(!preg_match("/description/i", $message)) echo "<input type=\"hidden\" name=\"descr\" value=\"".$descr."\">";
-    echo "<input type=\"submit\" value=\""._("Back")."\">";
-    echo "<form>";
-    echo "</center>";
-    echo "</body>";
-    echo "</html>";
-	$db->close($conn);
-    exit(0);
-}
-if (POST('insert')) {
-    Port::insert($conn, $port, $protocol, $service, $descr);
-	$db->close($conn);
+else
+{
+	$validation_errors = validate_form_fields('POST', $validate);
+	
+	$ports = Port::get_list($conn, $where = "WHERE port_number LIKE '$port' AND protocol_name=\"$protocol\"");
+	
+	$exists_port = ( count($ports) > 1 ) ? true : false; 
+	
+	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors)) || $exists_port == true )
+	{
+		$error = true;
+		
+		$message_error = array();
+	
+		if ( $exists_port >= 1 )
+			$message_error[] = _("Port $port already exists");
+		
+		if ( is_array($validation_errors) && !empty($validation_errors) )
+			$message_error = array_merge($message_error, $validation_errors);
+		else
+		{
+			if ($validation_errors == 1)
+				$message_error [] = _("Invalid send method");
+		}
+	}	
+		
+	if ( POST('ajax_validation_all') == true )
+	{
+		if ( is_array($message_error) && !empty($message_error) )
+			echo implode( "<br/>", $message_error);
+		else
+			echo 0;
+		
+		exit();
+	}
 }
 
+
+
+if ( $error == true )
+{
+	$_SESSION['_singleport']['port']     = $port;
+	$_SESSION['_singleport']['protocol'] = $protocol;
+	$_SESSION['_singleport']['service']  = $service;
+	$_SESSION['_singleport']['descr']    = $descr;
+}
+
+
 ?>
-    <p> <?php
-echo gettext("Port succesfully inserted"); ?> </p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+<head>
+	  <title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	  <meta http-equiv="Pragma" CONTENT="no-cache"/>
+	  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+</head>
+
+<body>
+
+<?php
+if (GET('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
+?>
+
+<h1> <?php echo gettext("New port"); ?> </h1>
+
+<?php	
+
+if ( $error == true)
+{
+	$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";	
+				
+	Util::print_error($txt_error);	
+	Util::make_form("POST", "newsingleportform.php");
+	die();
+}
+
+if (POST('insert')) {
+	Port::insert($conn, $port, $protocol, $service, $descr);
+	
+	if ( isset($_SESSION['_singleport']) )
+		unset($_SESSION['_singleport']);
+}
+
+$db->close($conn);
+
+?>
+    <p> <?php echo gettext("Port succesfully inserted"); ?> </p>
     <? if ($_SESSION["menu_sopc"]=="Ports") { ?><script>document.location.href="port.php"</script><? } ?>
 
 </body>

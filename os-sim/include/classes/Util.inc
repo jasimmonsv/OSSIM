@@ -640,25 +640,38 @@ class Util {
         }
         return number_format($number,$decimals,$decimal,$thousands);
     }
-    function make_form($post,$action) {
-		$form = "<form method=\"post\" action=\"".$action."\">";
-		foreach($post as $key=>$value) {
-			if (is_array($value)){
-				foreach($value as $v){
-					$form.= "<input type=\"hidden\" name=\"ips[]\" value=\"".$v."\">";
-				}
+	
+    function make_form($method, $action)
+	{
+		echo "<div style='margin:auto; width:90%'>
+				<form method='$method' action='$action'>
+					<div style='margin:auto; text-align: center;'>
+						<input type='submit' name='send' id='send' class='button' value='Back'/>
+					</div>
+				</form>
+			</div>";
+	}
+	
+	function clean_array($array)
+	{
+		$aux = array();
+		if (is_array($array))
+		{
+			foreach ($array as $k => $v)
+			{
+				if ( $v != '' || is_array ($v) || is_object($v) )
+					$aux[$k] = $v;
 			}
-			else {
-				$form.= "<input type=\"hidden\" name=\"".$key."\" value=\"".$value."\">";
-			}
+			return $aux;
 		}
-		$form.= "<center><input type='submit' value='Back' class='button'></center>";
-		$form.= "</form>";
-		echo $form;
-    }
+		return false;
+	}
+	
+	
 	function print_error($message){
 		echo "<div class='ossim_error'>".$message."</div><br/>";
 	}
+	
 	function print_gadget($title,$color,$content) {
 		return "<table height=\"100%\" style=\"background:$color;background:url(../pixmaps/fondo_hdr2.png) repeat-x\"><tr><td height=\"15\" class=\"nobborder\" style=\"text-align:center;font-weight:bold;font-size:12px\">$title</td></tr><tr><td class=\"nobborder\" valign=\"top\">".$content."</td></tr></table>";
 	}
@@ -685,7 +698,11 @@ class Util {
         return (Util::is_utf8($string)) ? $string : utf8_encode($string);
     }
     function is_utf8($str) {
-        return (mb_detect_encoding($str)=="UTF-8") ? true : false;
+        $cur_encoding = mb_detect_encoding($str);
+ 		if ($cur_encoding == "UTF-8" && mb_check_encoding($str,"UTF-8"))
+   			return true;
+		else
+   			return false;
        /* $c=0; $b=0;
         $bits=0;
         $len=strlen($str);

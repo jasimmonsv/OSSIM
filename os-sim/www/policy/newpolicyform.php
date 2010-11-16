@@ -247,7 +247,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 		// graybox
 		$("a.greybox").click(function(){
 		   var t = this.title || $(this).text() || this.href;
-		   GB_show(t,this.href,490,"80%");
+		   GB_show(t,this.href,490,"90%");
 		   return false;
 		});
 		drawpolicy();

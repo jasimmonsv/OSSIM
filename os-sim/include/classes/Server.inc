@@ -62,7 +62,7 @@ class Server {
     var $port;
     var $descr;
     function Server($name, $ip, $port, $descr, $foundrows = 0) {
-        $this->name = $name;
+        $this->name = stripslashes($name);
         $this->ip = $ip;
         $this->port = $port;
         $this->descr = $descr;

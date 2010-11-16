@@ -52,7 +52,7 @@ class Port_group {
     var $name;
     var $descr;
     function Port_group($name, $descr, $foundrows = 0) {
-        $this->name = $name;
+        $this->name = stripslashes($name);
         $this->descr = $descr;
         $this->foundrows = $foundrows;
     }
@@ -93,12 +93,14 @@ class Port_group {
     }
     function insert($conn, $name, $port_list, $descr) {
         $sql = "INSERT INTO port_group VALUES (?, ?)";
-        $params = array(
+        
+		$params = array(
             $name,
             $descr
         );
-        if ($conn->Execute($sql, $params) === false) {
-            print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
+        
+		if ($conn->Execute($sql, $params) === false) {
+            print 'Error inserting: ' . $conn->ErrorMsg() . '<br/>';
             exit;
         }
         Port_group_reference::insert($conn, $name, $port_list);
@@ -108,24 +110,30 @@ class Port_group {
         );
         Log_action::log(39, $infolog);
     }
+	
     function update($conn, $name, $port_list, $descr) {
-        Port_group::delete($conn, $name);
+        
+		Port_group::delete($conn, $name);
         Port_group::insert($conn, $name, $port_list, $descr);
         $infolog = array(
             $name,
             "(" . $descr . ")"
         );
-        Log_action::log(40, $infolog);
+		
+		Log_action::log(40, $infolog);
     }
+	
     function delete($conn, $name) {
         $sql = "DELETE FROM port_group WHERE name = ?";
         $params = array(
             $name
         );
+		
         if ($conn->Execute($sql, $params) === false) {
-            print 'error deleting: ' . $conn->ErrorMsg() . '<BR>';
+            print 'Error deleting: ' . $conn->ErrorMsg() . '<BR>';
             exit;
         }
+		
         Port_group_reference::delete($conn, $name);
         $infolog = array(
             $name

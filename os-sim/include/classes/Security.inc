@@ -55,7 +55,7 @@ function ids(){
 		$request = array(
 			'GET' => $_GET,
 			'POST' => $_POST,
-			'REQUEST' => $_REQUEST,
+			//'REQUEST' => $_REQUEST,
 			'COOKIE' => $_COOKIE,
 			'FILES' => $_FILES
 			//'URI' => rawurlencode($_SERVER["REQUEST_URI"])
@@ -73,7 +73,7 @@ function ids(){
 	//		$compositeLog->addLogger(IDS_Log_Database::getInstance($init));
 			$compositeLog->addLogger(IDS_Log_File::getInstance($init));
 			$compositeLog->execute($result);
-			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br/>".$result));
+			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br/>".$result, "ossim_alert"));
 		}
 	} catch (Exception $e) {
 		printf('An error occured: %s',$e->getMessage());
@@ -96,7 +96,7 @@ function ids_valid($data){
 			$compositeLog = new IDS_Log_Composite();
 			$compositeLog->addLogger(IDS_Log_File::getInstance($init));
 			$compositeLog->execute($result);
-			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br/>".$result));
+			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br/>".$result, "ossim_alert"));
 		}
 	} catch (Exception $e) {
 		printf('An error occured: %s',$e->getMessage());
@@ -115,11 +115,11 @@ function html_vul_scan($string, $is_get) {
                         continue;
                     }
                     if ($string_piece != strip_tags($string_piece)) {
-                        die(ossim_error("HTTP GET " . _("param not allowed for security reasons")));
+                        die(ossim_error("HTTP GET " . _("param not allowed for security reasons"), "ossim_alert"));
                     }
                 }
                 if (preg_match($s, $string_piece)) {
-                    die(ossim_error("HTTP POST " . _("param not allowed for security reasons")));
+                    die(ossim_error("HTTP POST " . _("param not allowed for security reasons"), "ossim_alert"));
                 }
             }
         }
@@ -131,11 +131,11 @@ function html_vul_scan($string, $is_get) {
                     continue;
                 }
                 if ($string !== strip_tags($string)) {
-                    die(ossim_error("HTTP GET " . _("param not allowed for security reasons")));
+                    die(ossim_error("HTTP GET " . _("param not allowed for security reasons"), "ossim_alert"));
                 }
             }
             if (preg_match($s, $string)) {
-                die(ossim_error("HTTP POST " . _("param not allowed for security reasons")));
+                die(ossim_error("HTTP POST " . _("param not allowed for security reasons"), "ossim_alert"));
             }
         }
     }
@@ -147,7 +147,7 @@ if (!isset($_html_vars_checked)) {
     $_is_get = true;
     foreach(array(
         $_GET,
-        $_REQUEST,
+        //$_REQUEST,
         $_POST
     ) as $globalvar) {
         foreach($globalvar as $key => $value) {
@@ -230,9 +230,12 @@ define('OSS_USER', OSS_LETTER . OSS_DIGIT . OSS_SCORE . OSS_DOT); // for validat
 define('OSS_NET_NAME', OSS_LETTER . OSS_DIGIT . OSS_SCORE . OSS_DOT . OSS_COLON); // for network names
 define('OSS_NOTNULL', 'rule:OSS_NOTNULL'); // default for all vars
 define('OSS_NULLABLE', 'rule:OSS_NULLABLE'); // value can be null, false, missing
+define('OSS_PORT', 'func:valid_port');  //	Valid port number or pair port-protocol. Port range: [0 - 65535]; Separators allowed : -, _, #; Protocols allowed : tcp, udp, icmp
+define('OSS_PROTOCOL', 'tcp | udp | icmp');
 define('OSS_IP_ADDR', 'func:valid_ip');
 define('OSS_IP_CIDR', 'func:valid_cidr');
 define('OSS_IP_ADDRCIDR', 'func:valid_ipcidr'); // is ip OR cidr format
+define('OSS_FQDNS', 'func:valid_fqdns');
 define('OSS_QUOTES', 'func:valid_quotes');
 define('OSS_DAY', 'func:valid_day');
 define('OSS_MAIL_ADDR', 'regex:[a-zA-Z0-9_\-\.+]+@[a-zA-Z0-9_\-\.]+\.[a-zA-Z]+');
@@ -262,18 +265,30 @@ $GLOBALS['ossim_last_error'] = false; // track the latest error
 *      4) rule:<rules>    Not suitable for users
 */
 function ossim_valid() {
+	require_once("classes/Util.inc");
     static $cons = false;
     if (func_num_args() < 2) {
         die('Wrong number of params, usage: ' . __FUNCTION__ . '($var, $rules)');
     }
-    if (!$cons) $cons = get_defined_constants();
-    $parms = func_get_args();
-    $subject = $parms[0]; // the var to be validated
-    if (is_object($subject) || is_array($subject)) {
-        printr($subject);
-        return ossim_set_error("Wrong datatype passed, expected string");
+    if (!$cons) 
+		$cons = get_defined_constants();
+    
+	$parms = func_get_args();
+    $v_var = $parms[0]; // the var to be validated
+    
+	if ( is_object($v_var) ) {
+        return ossim_set_error(_("Wrong datatype passed, expected string"));
     }
-    array_shift($parms);
+	else if ( !is_array($v_var) )
+	{
+		$subject[0] = $v_var;
+	}
+	else
+		$subject = $v_var;
+	
+	array_shift($parms);
+	
+	
     // array of params instead of list of params
     // ej: ossim_valid($foo, array(OSS_DIGIT, OSS_FOO))
     if (func_num_args() == 2 && is_array($parms[0])) {
@@ -309,61 +324,80 @@ function ossim_valid() {
             unset($parms[$i]);
         }
     }
-    //
-    // NULL check
-    //
-    if ($subject === null || $subject === '') {
-        if ($val_notnull) {
-            return ossim_set_error("$error_msg (" . _("missing required field") . ")");
-        } else {
-            return true;
-        }
-    }
-    $val_str = '';
-    foreach($parms as $p) {
-        //
-        // func:
-        //
-        if (preg_match('/^func:(.+)$/', $p, $m)) {
-            $func = $m[1];
-            if (strpos($func, '::') !== false) { // static Class::method()
-                $func = explode('::', $func);
-            }
-            if (!is_callable($func)) {
-                die("The validation function '$func' doesn't exist");
-            }
-            if (!call_user_func($func, $subject)) {
-                return false;
-            }
-            continue;
-        }
-        //
-        // regex:
-        //
-        if (preg_match('/^regex:(.+)$/', $p, $m)) {
-            if (!preg_match('/^' . $m[1] . '$/', $subject)) {
-                $subject = htmlentities($subject);
-                return ossim_set_error("$error_msg " . ("(the string '<b>$subject</b>' has not a valid format)"));
-            }
-            continue;
-        }
-        //
-        // OSS_* constants
-        //
-        $val_str.= $p;
-    }
 	
-	if ($val_str && preg_match("/[^$val_str]/", $subject, $m)) {
-		$not = $m[0];
-        if ($not == " ") $not = _("spaces");
-        if ($not == "\r" || $not == "\n") $not = _("breaklines");
-        $subject = htmlentities($subject);
-        if (preg_match("/Password/i",$error_msg)) {
-        	return ossim_set_error("$error_msg " . sprintf(_("(\"%s\" not allowed)") , $not)); 
-        } else {
-        	return ossim_set_error("$error_msg " . sprintf(_("(\"%s\" not allowed)") , $not) . "<br/>Introduced string: '<b>$subject</b>'");
-        }
-    }
+	if ( empty($subject) )
+		$subject[0] = array();
+		
+	
+	foreach ($subject as $k => $v)
+	{
+		if (is_object($v) || is_array($v))
+			return ossim_set_error("Wrong datatype passed, expected string $v");
+					
+		//
+		// NULL check
+		//
+		if ($v === null || $v === '') {
+			if ($val_notnull) {
+				return ossim_set_error("$error_msg (" . _("missing required field") . ")");
+			} else {
+				return true;
+			}
+		}
+		
+		$v = ( Util::is_utf8($v) ) ? utf8_decode($v) : $v;
+		
+		$val_str = '';
+		
+		foreach($parms as $p) {
+			//
+			// func:
+			//
+			if (preg_match('/^func:(.+)$/', $p, $m)) {
+				$func = $m[1];
+				if (strpos($func, '::') !== false) { // static Class::method()
+					$func = explode('::', $func);
+				}
+				if (!is_callable($func)) {
+					die("The validation function '$func' doesn't exist");
+				}
+				if (!call_user_func($func, $v)) {
+					return false;
+				}
+				continue;
+			}
+			//
+			// regex:
+			//
+			if (preg_match('/^regex:(.+)$/', $p, $m)) {
+				if (!preg_match('/^' . $m[1] . '$/', $v)) {
+					$v= htmlentities($v);
+					return ossim_set_error($error_msg . " (the string '<b>$v</b>' has not a valid format)");
+				}
+				continue;
+			}
+			//
+			// OSS_* constants
+			//
+			$val_str.= $p;
+		}
+		
+		
+		
+		if ($val_str && preg_match("/[^$val_str]/", $v, $m)) {
+			$not = $m[0];
+			if ($not == " ") $not = _("spaces");
+			if ($not == "\r" || $not == "\n") $not = _("breaklines");
+			$v   = htmlentities($v);
+			$not = htmlentities($not);
+			if (preg_match("/Password/i",$error_msg)) {
+				return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , $not)); 
+			} else {
+				return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , $not) . "<br/>Introduced string: '<b>$v</b>'");
+			}
+		}
+	}
+	
     return true;
 }
 function ossim_set_error($error) {
@@ -380,53 +414,146 @@ function ossim_get_error_clean() {
     $error=$GLOBALS['ossim_last_error'];
 	$normalize = explode("<br/>", $error);
 	if (count($normalize) == 2 )
-		$error = $normalize[0].".&nbsp;&nbsp;".utf8_encode($normalize[1]);
+		$error = $normalize[0].".&nbsp;&nbsp;".$normalize[1];
 		
 	return $error;
 		
 }
 
-function ossim_error($error_msg = null) {
-    static $ossim_warn = false;
-    $error = $error_msg ? $error_msg : $GLOBALS['ossim_last_error'];
+
+function ossim_error($error_msg = null, $style=null) {
+	include_once 'ossim_error.inc';
+	
+	$ossim_warn = new OssimWarn($style);
+    
+	$error = $error_msg ? $error_msg : $GLOBALS['ossim_last_error'];
     if (!$error) {
         return false;
     }
-    if (!$ossim_warn) {
-        include_once 'ossim_error.inc';
-        $ossim_warn = new OssimWarn;
-    }
+    
     return $ossim_warn->get('ERROR', array( $error ));
 }
 
 function validate_form_fields($type, $validate)
 {
-	$values = array();
+	$values            = array();
 	$validation_errors = array();
+	$validate_rules    = array();
 	
+		
 	if ($type == 'POST')
-		$values = $_POST;
+	{
+		$validate_rules = $validate;
+		foreach ($_POST as $k => $v)
+			$values[$k]= POST($k);
+	}
 	else if ($type == 'GET')
-		$values = $_GET;
+	{
+		$k = $_GET['name'];
+		
+		if ( isset($validate[$k]) )
+		{
+			$validate_rules[$k] = $validate[$k];
+			$values[$k]         = $_GET['value'];
+		}
+		
+	}
 	else
 		return 1;
-			
-	foreach ($values as $k => $v)
+	
+	foreach ($validate_rules as $k => $v)
 	{
-		$value =  eval("$type($k);");
-		ossim_valid($value, $validate[$k]['validation'], $validate[$k]['e_message']);
-		if ( ossim_error() )
+		if ( !isset($values[$k]) )
+			$value = null;
+		else
+			$value = $values[$k];
+			
+		eval("ossim_valid(\$value, ".$validate_rules[$k]['validation'].", '".$validate_rules[$k]['e_message']."');");
+		
+		if ($GLOBALS['ossim_last_error'] !== false )
 		{
-			$validation_errors[] = ossim_get_error_clean();
+			$validation_errors[] = $GLOBALS['ossim_last_error'];
 			ossim_clean_error();
 		}
+		
 	}
 	
 	return $validation_errors;
 
 }
 
-
+function valid_cidr($cidrs)
+{
+	$valid_sep = array (",", "\n", );
+	$current_sep = '';
+	
+	foreach ( $valid_sep as $k => $v )
+	{
+		if ( preg_match("/$v/", $cidrs) )
+		{
+			$current_sep = $v;
+			break;
+		}
+	}
+	
+	$array_cidr = ( $current_sep == '') ? array($cidrs) : explode($current_sep, $cidrs);
+	
+	foreach ($array_cidr as $k => $v)
+	{
+		if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', trim($v), $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) 
+			continue;
+		else
+		{
+			ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<b>$v</b>'");
+			return false;
+		}
+	}
+	return true;
+}
+	
+function valid_port($port)
+{
+	$valid_protocol = array ("tcp", "udp", "icmp");
+	$valid_sep = array ("-", "_", "#");
+	$current_sep = '';
+	
+	foreach ( $valid_sep as $k => $v )
+	{
+		if ( preg_match("/$v/", $port) )
+		{
+			$current_sep = $v;
+			break;
+		}
+	}
+	
+	if ( empty($current_sep) )
+	{
+		$port = trim($port);
+		if ( (preg_match('/^\d+$/', $port) && $port>=0 && $port<=65535) ) 
+			return true;
+		else
+		{
+			ossim_set_error(_("Port number isn't valid") . "<br/>Entered port: '<b>$port</b>'");
+			return false;
+		}
+	
+	}
+	else
+	{
+		$pair_pp = explode($current_sep, $port);
+		
+		$port     = trim($pair_pp[0]);
+		$protocol = trim(strtolower($pair_pp[1]));
+		
+		if ( (preg_match('/^\d+$/', $port) && $port>=0 && $port<=65535) && (in_array($protocol, $valid_protocol)) )
+			return true;
+		else
+		{
+			ossim_set_error(_("Pair port - protocol isn't valid") . "<br/>Entered pair: '<b>$port-$protocol</b>'");
+			return false;
+		}
+	}
+}
 
 function valid_ip($ip) {
     if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
@@ -435,23 +562,46 @@ function valid_ip($ip) {
     ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$ip</b>'");
     return false;
 }
-function valid_cidr($cidr) {
-    if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $cidr, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) {
-        return true;
-    }
-    ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<b>$cidr</b>'");
-    return false;
-}
+
 function valid_ipcidr($ip) {
-    if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
-        return true;
-    }
+   	
 	if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) {
         return true;
     }
     ossim_set_error(_("Invalid IP/CIDR address. Format allowed: nnn.nnn.nnn.nnn/nn?") . "<br/>Entered ip: '<b>$ip</b>'");
     return false;
 }
+
+function valid_fqdns($fqdns)
+{
+	$valid_sep = array (",", "\n", );
+	$current_sep = '';
+	
+	foreach ( $valid_sep as $k => $v )
+	{
+		if ( preg_match("/$v/", $fqdns) )
+		{
+			$current_sep = $v;
+			break;
+		}
+	}
+	
+	$array_fqdns = ( $current_sep == '') ? array($fqdns) : explode($current_sep, $fqdns);
+	
+	foreach ($array_fqdns as $k => $v)
+	{
+		if (ossim_valid(trim($v), OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, OSS_NL, 'illegal:' . _("FQDNS/Aliases")) == true) 
+			continue;
+		else
+		{
+			ossim_set_error(_("Invalid FQDNS/Aliases")."<br/>Entered FQDNS/Aliases: '<b>$v</b>'");
+			return false;
+		}
+	}
+	return true;
+}
+
+
 function valid_quotes($value) {
     if (!preg_match('/\'|\"/', $value)) {
         return true;

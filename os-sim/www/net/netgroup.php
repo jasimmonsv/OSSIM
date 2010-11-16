@@ -128,7 +128,7 @@ include ("../hmenu.php"); ?>
 			else alert('<?=_("You must select a network group")?>');
 		}
 		else if (com=='<?=_("Modify")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'modifynetgroupform.php?name='+urlencode(items[0].id.substr(3))
+			if (typeof(items[0]) != 'undefined') document.location.href = 'newnetgroupform.php?name='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a network group")?>');
 		}
 		else if (com=='<?=_("New")?>') {
@@ -158,7 +158,7 @@ include ("../hmenu.php"); ?>
             if (com=='modify') {
                
                 if (typeof(hostname) != 'undefined')
-                    document.location.href = 'modifynetgroupform.php?name='+urlencode(hostname)
+                    document.location.href = 'newnetgroupform.php?name='+urlencode(hostname)
                 else
                   alert('<?=_("Network group unselected")?>');
             }

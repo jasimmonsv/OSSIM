@@ -35,16 +35,109 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-require_once 'classes/Util.inc';
-require_once 'classes/Security.inc';
-require_once 'ossim_db.inc';
-require_once 'classes/Host_group.inc';
-require_once 'classes/Host_group_reference.inc';
-require_once 'classes/Host_group_scan.inc';
-require_once 'classes/NagiosConfigs.inc';
+require_once ('classes/Util.inc');
+require_once ('classes/Security.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Host_group.inc');
+require_once ('classes/Host_group_reference.inc');
+require_once ('classes/Host_group_scan.inc');
+require_once ('classes/NagiosConfigs.inc');
  
 Session::logcheck("MenuPolicy", "PolicyHosts");
+
+
+$error = false;
+
+$descr        = POST('descr');
+$hgname       = POST('hgname');
+$threshold_a  = POST('threshold_a');
+$threshold_c  = POST('threshold_c');
+$rrd_profile  = POST('rrd_profile');
+$hosts        = ( isset($_POST['ips'] ) && !empty ( $_POST['ips']) ) ? Util::clean_array(POST('ips')) : array();
+$sensors      = ( isset($_POST['sboxs'] ) && !empty ( $_POST['sboxs']) ) ? Util::clean_array(POST('sboxs')) : array();
+$nagios       = POST('nagios');
+
+$num_sensors  = count($sensors);
+$num_hosts    = count($hosts);
+
+$validate = array (
+	"hgname"      => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Host Group Name")),
+	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
+	"ips"         => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Hosts")),
+	"sboxs"       => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Sensors")),
+	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
+	"threshold_a" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold A")),
+	"threshold_c" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),
+	"nagios"      => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" => 'illegal:' . _("Nagios")));
+	
+if ( GET('ajax_validation') == true )
+{
+	$validation_errors = validate_form_fields('GET', $validate);
+	if ( $validation_errors == 1 )
+		echo 1;
+	else if ( empty($validation_errors) )
+		echo 0;
+	else
+		echo $validation_errors[0];
+		
+	exit();
+}
+else
+{
+	$validation_errors = validate_form_fields('POST', $validate);
+	
+	if ( $validation_errors == 1 || (is_array($validation_errors) && !empty($validation_errors)) || $num_sensors == 0 || $num_hosts == 0 )
+	{
+		$error = true;
+		
+		$message_error = array();
+		
+		if( $num_hosts == 0)
+			$message_error [] = _("You Need to select at least one Host");
+		
+		if( $num_sensors == 0)
+			$message_error [] = _("You Need to select at least one Sensor");
+						
+			
+		if ( is_array($validation_errors) && !empty($validation_errors) )
+			$message_error = array_merge($message_error, $validation_errors);
+		else
+		{
+			if ($validation_errors == 1)
+				$message_error [] = _("Invalid send method");
+		}
+	}
+	
+	if ( POST('ajax_validation_all') == true )
+	{
+		if ( is_array($message_error) && !empty($message_error) )
+			echo implode( "<br/>", $message_error);
+		else
+			echo 0;
+		
+		exit();
+	}
+	
+	
+}
+
+if ( $error == true )
+{
+	$_SESSION['_hostgroup']['hgname']      = $hgname;
+	$_SESSION['_hostgroup']['hosts']       = $hosts;
+	$_SESSION['_hostgroup']['descr']       = $descr;
+	$_SESSION['_hostgroup']['sensors']     = $sensors;
+	$_SESSION['_hostgroup']['threshold_a'] = $threshold_a;
+	$_SESSION['_hostgroup']['threshold_c'] = $threshold_c;
+	$_SESSION['_hostgroup']['rrd_profile'] = $rrd_profile;
+	$_SESSION['_hostgroup']['nagios']      = $nagios;
+	
+}
+
+
+
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
@@ -53,99 +146,45 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
+
 <body>
 
-<h1> <?php echo gettext("Update host group"); ?> </h1>
+<?php
+if (GET('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
+?>
+
+<h1> <?php echo gettext("Update Host Group"); ?> </h1>
 
 <?php
 
-$host_group_name = POST('name');
-$threshold_a = POST('threshold_a');
-$threshold_c = POST('threshold_c');
-$hhosts = POST('hhosts');
-$rrd_profile = POST('rrd_profile');
-$descr = POST('descr');
-$nsens = POST('nsens');
-ossim_valid($host_group_name, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Host name"));
-ossim_valid($threshold_a, OSS_DIGIT, 'illegal:' . _("threshold_a"));
-ossim_valid($threshold_c, OSS_DIGIT, 'illegal:' . _("threshold_c"));
-ossim_valid($hhosts, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hhosts"));
-ossim_valid($rrd_profile, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, 'illegal:' . _("Host name"));
-ossim_valid($descr, OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, 'illegal:' . _("Description"));
-ossim_valid($nsens, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("nsens"));
 
-if (ossim_error()) {
-    die(ossim_error());
-}
-if (POST('insert')) {
-    $sensors = array();
-    $num_sens = 0;
-    for ($i = 1; $i <= $nsens; $i++) {
-        $name = "sboxs" . $i;
-        if (POST("$name")) {
-            $num_sens++;
-            ossim_valid(POST("$name") , OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT);
-            if (ossim_error()) {
-                die(ossim_error());
-            }
-            $sensors[] = POST("$name");
-        }
-    }
-    
-	if (count($sensors) == 0) {
-		Util::print_error(_("You Need to select at least one sensor")); 
-		Util::make_form($_POST,"newhostgroupform.php");
-        die();
-    }
-    $allhosts = array();
-    /*$hosts = array();
-    for ($i = 1; $i <= $hhosts; $i++) {
-    $name = "mboxs" . $i;
-    
-    ossim_valid(POST("$name"), OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, OSS_SPACE, 'illegal:'._("$name"));
-    
-    if (ossim_error()) {
-    die(ossim_error());
-    }
-    
-    $name_aux = POST("$name");
-    
-    if (!empty($name_aux))
-    $hosts[] = POST("$name");
-    }*/
-    //    echo implode($allhosts,",");
-	
-    $hosts = array();
-    $ips = POST('ips');
-	
-	if (!is_array($ips) || empty($ips)) {
-        Util::print_error(_("You Need to select at least one Host"));
-        Util::make_form($_POST,"newhostgroupform.php");
-        die();
-    }
-	
-	foreach($ips as $name) {
-		ossim_valid($name, OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, OSS_SPACE, 'illegal:' . _("$name"));
-		if (ossim_error()) {
-			die(ossim_error());
-		}
-		if (!empty($name) && !in_array($name, $hosts)) 
-		  $hosts[] = $name;
+if ( POST('insert') && !empty($hgname) )
+{
+    if ( $error == true)
+	{
+		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";				
+		Util::print_error($txt_error);	
+				
+		Util::make_form("POST", "newhostgroupform.php?name=".$hgname);
+		die();
 	}
 		
-   
     $db = new ossim_db();
     $conn = $db->connect();
-    if (POST('nessus')) {
-        Host_group_scan::delete($conn, $host_group_name, 3001, 0);
-        Host_group_scan::insert($conn, $host_group_name, 3001, 0);
-    } 
-	else 
-		Host_group_scan::delete($conn, $host_group_name, 3001, 0);
+   
+    /*
+	NESSUS - DEPRECATED
+        Host_group_scan::delete($conn, $hgname, 3001, 0);
+        Host_group_scan::insert($conn, $hgname, 3001, 0);
+	*/
+	
+	
+	Host_group_scan::delete($conn, $hgname, 3001, 0);
     
-	if (Host_group_scan::in_host_group_scan($conn, $ip, 2007)) 
+	if (Host_group_scan::in_host_group_scan($conn, $$hgname, 2007)) 
 	{
-        $hosts_list = Host_group_reference::get_list($conn, $host_group_name, "2007");
+        $hosts_list = Host_group_reference::get_list($conn, $hgname, "2007");
         
 		foreach($hosts_list as $host) 
 			$hostip[] = $host->get_host_ip();
@@ -158,8 +197,8 @@ if (POST('insert')) {
                 break;
             }
             if ($flag == false) {
-                if (Host_group_scan::can_delete_host_from_nagios($conn, $host, $host_group_name)) {
-                    require_once 'classes/NagiosConfigs.inc';
+                if (Host_group_scan::can_delete_host_from_nagios($conn, $host, $hgname)) {
+                   
                     $q = new NagiosAdm();
                     $q->delHost(new NagiosHost($host, $host, ""));
                     $q->close();
@@ -167,23 +206,32 @@ if (POST('insert')) {
             }
         }
     }
-    if (POST('nagios'))
+	
+    if ($nagios)
 	{
-        if (Host_group_scan::in_host_group_scan($conn, $host_group_name, 2007)) Host_group_scan::delete($conn, $host_group_name, 2007);
-        Host_group_scan::insert($conn, $host_group_name, 2007);
+        if (Host_group_scan::in_host_group_scan($conn, $hgname, 2007)) 
+			Host_group_scan::delete($conn, $hgname, 2007);
+        
+		Host_group_scan::insert($conn, $hgname, 2007);
        
         $q = new NagiosAdm();
-        $q->addNagiosHostGroup(new NagiosHostGroup($host_group_name, $hosts, $sensors),$conn);
+        $q->addNagiosHostGroup(new NagiosHostGroup($hgname, $hosts, $sensors),$conn);
         $q->close();
     } 
 	else
 	{
-        if (Host_group_scan::in_host_group_scan($conn, $host_group_name, 2007)) Host_group_scan::delete($conn, $host_group_name, 2007);
+        if (Host_group_scan::in_host_group_scan($conn, $hgname, 2007)) 
+			Host_group_scan::delete($conn, $hgname, 2007);
     }
     
-	Host_group::update($conn, $host_group_name, $threshold_c, $threshold_a, $rrd_profile, $sensors, $hosts, $descr);
+	Host_group::update($conn, $hgname, $threshold_c, $threshold_a, $rrd_profile, $sensors, $hosts, $descr);
+	
     $db->close($conn);
 }
+
+if ( isset($_SESSION['_hostgroup']) )
+	unset($_SESSION['_hostgroup']);
+
 ?>
     <p><?php echo gettext("Host group succesfully updated"); ?></p>
     <script>document.location.href="hostgroup.php"</script>

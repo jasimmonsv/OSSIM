@@ -51,8 +51,8 @@ if (ossim_error()) {
 }
 // product version check
 $version = $conf->get_conf("ossim_server_version", FALSE);
-$opensource = (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) ? true : false;
-$demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
+$opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
+$demo = (preg_match("/demo/i",$version)) ? true : false;
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>

@@ -46,24 +46,42 @@
 * - OssimNotice extends OssimMainError
 */
 class OssimMainError {
-    var $errors = array();
-    var $_border_color;
-    var $_bg_color;
-    var $style;
-    var $action;
-    function OssimMainError() {
+    
+	public $errors;
+    
+	public $current_style;
+	
+	public $action;
+	
+	public static $base_style = 'font-family:Arial, Helvetica, sans-serif; 
+								font-size:13px; border: 1px solid; 
+								width: 90%; 
+								margin: 10px auto; 
+								padding:15px 10px 15px 50px;  
+								background-repeat: no-repeat; 
+								background-position: 10px center; ';
+	
+	public static $styles = array ( "ossim_error" => 'color: #D8000C; 
+													background-color: #FFBABA; 
+													background-image: url("../pixmaps/ossim_error.png");',
+									"ossim_alert" => 'color: #9F6000;
+													background-color: #FEEFB3;
+													background-image: url("../pixmaps/ossim_alert.png");'
+								);
+	
+    public function __construct($style=null){
         $this->errors = array(
             "DEFAULT" => array(
                 "short_descr" => gettext("Error") ,
                 "long_descr" => gettext("Error") ,
             )
         );
-        $this->style = "font-family:Arial, Helvetica, sans-serif; font-size:13px; border: 1px solid; margin: 10px auto; padding:15px 10px 15px 50px;  
-		background-repeat: no-repeat; background-position: 10px center; color: #D8000C; background-color: #FFBABA; background-image: url('../pixmaps/ct_error.png');";
-		$this->action = "/* no action */";
+		$this->current_style  = OssimMainError::$base_style;
+		$this->current_style .= ( !empty($style) ) ? OssimMainError::$styles[$style] : OssimMainError::$styles["ossim_error"];
+		$this->action  = "/* no action */";
     }
 			
-    function display($error_code, $extrainfo = NULL, $option = "") {
+    public function display($error_code, $extrainfo = NULL, $option = "") {
         print $this->get($error_code, $extrainfo);
         if ($option == "noback") {
         	$this->action = "die();";
@@ -74,7 +92,7 @@ class OssimMainError {
         if (!array_key_exists($error_code, $this->errors)) 
 			$error_code = "DEFAULT";
         
-		$msg = "<div style=\"" . $this->style . "\">\n";
+		$msg = "<div style='".$this->current_style."'>\n";
         $msg.= "<b>" . $this->errors["$error_code"]["short_descr"] . "</b><br/>";
         $msg.= $this->errors["$error_code"]["long_descr"];
         
@@ -92,11 +110,7 @@ class OssimMainError {
 }
 class OssimError extends OssimMainError {
     function OssimError() {
-        /* error - red colors */
-        $this->_border_color = "#900404";
-        $this->_bg_color = "#df5f4e";
-        /* call to main error class */
-        $this->OssimMainError();
+        
         /* action after display error */
         $this->action = 'echo "<br/><br/><center><a href=\"javascript:history.back();\"><b>' . gettext("Back") . '</b></a></center>"; die();';
         /* specific errors */
@@ -305,18 +319,20 @@ class OssimError extends OssimMainError {
     }
 }
 class OssimWarn extends OssimMainError {
-    function OssimWarn() {
+    public function __construct($style=null) {
         /* warn - yellow colors */
-        //$this->_border_color = "#dd9e06";
-        //$this->_bg_color = "#eceaab";
+       
         /* call to main error class */
-        $this->OssimMainError();
-        /* specific errors */
+        
+		parent::__construct($style);
+		
+		$this->current_style =( !empty($style) ) ? OssimMainError::$base_style.OssimMainError::$styles[$style] : $this->current_style;
+		
         $this->errors["STRING_NOT_VALID"] = array(
             "short_descr" => gettext("String is not valid!") ,
-            "long_descr" => gettext("
-                For security reasons, bad characters have been skipped") ,
-            $this->errors["ERROR"] = array(
+            "long_descr" => gettext("For security reasons, bad characters have been skipped") ,
+        
+		$this->errors["ERROR"] = array(
                 "short_descr" => gettext("Error!") ,
                 "long_descr" => "%1%"
             ) ,
@@ -324,12 +340,12 @@ class OssimWarn extends OssimMainError {
     }
 }
 class OssimNotice extends OssimMainError {
-    function OssimNotice() {
+    public function __construct($style=null) {
         /* Notice - blue colors */
-        //$this->_border_color = "#2f4960";
-        //$this->_bg_color = "#9bb5cb";
-        /* call to main error class */
-        $this->OssimMainError();
+        parent::__construct($style);
+        
+		$this->current_style =( !empty($style) ) ? OssimMainError::$base_style.OssimMainError::$styles[$style] : $this->current_style;
+		
         /* action after display error */
         $this->action = 'echo "<br/><br/><a href=\"javascript:history.back();\">' . gettext("Back") . '</a>";';
         /* empty required field */

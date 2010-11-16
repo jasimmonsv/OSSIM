@@ -53,7 +53,7 @@ $filter = GET('filter');
 $key = GET('key');
 $page = intval(GET('page'));
 ossim_valid($filter, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, 'illegal:' . _("Filter"));
-ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("key"));
+ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC_EXT, 'illegal:' . _("key"));
 ossim_valid($page, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("page"));
 if (ossim_error()) {
     die(ossim_error());

@@ -174,16 +174,16 @@ if (!$opensource) {
 <body>
 <? include("../hmenu.php"); ?>
 
-<table border="0" width="820" class="noborder" align="center" cellspacing="0" cellpadding="0" style="background-color:transparent">
-<tr><td valign="top" class="noborder" width="410">
+<table border="0" width="90%" class="noborder" align="center" cellspacing="0" cellpadding="0" style="background-color:transparent">
+<tr><td valign="top" class="noborder" width="49%">
 
 	<!-- All Assets -->
-	<table border="0" width="400" class="noborder" align="center" cellspacing="0" cellpadding="0">
+	<table border="0" width="100%" class="noborder" align="center" cellspacing="0" cellpadding="0">
 	    <tr>
 	        <td class="headerpr"><?=_("Asset Structure")?></td>
 	    </tr>
 	</table>
-	<table border="0" width="400" align="center" cellspacing="0" cellpadding="0">
+	<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
 	    <tr>
 	        <td class="nobborder">
 	  			<div id="atree" style="text-align:left;width:98%;padding:8px 8px 0px 8px"></div>
@@ -196,15 +196,15 @@ if (!$opensource) {
 	    </tr>
 	</table>
 
-</td><td width="10" class="noborder"></td><td valign="top" class="noborder" width="410">
+</td><td width="2%" class="noborder"></td><td valign="top" class="noborder" width="49%">
 
 	<!-- Asset by Property -->
-	<table border="0" width="400" class="noborder" align="center" cellspacing="0" cellpadding="0">
+	<table border="0" width="100%" class="noborder" align="center" cellspacing="0" cellpadding="0">
 	    <tr>
 	        <td class="headerpr"><?=_("Assets")?></td>
 	    </tr>
 	</table>
-	<table border="0" width="400" align="center" cellspacing="0" cellpadding="0">
+	<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
 	    <tr>
 	        <td class="nobborder">
 	  			<div id="aptree" style="text-align:left;width:98%;padding:8px"></div>

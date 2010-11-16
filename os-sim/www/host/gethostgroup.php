@@ -133,8 +133,8 @@ $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($host_group_list as $host_group) {
     $name = $host_group->get_name();
-    $xml.= "<row id='".htmlentities($name)."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./newhostgroupform.php?name=".urlencode($name)."\">" .htmlentities($name). "</a>";
+    $xml.= "<row id='".$name."'>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newhostgroupform.php?name=".urlencode($name)."\">" .$name. "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $list = "";
     if ($host_list = $host_group->get_hosts($conn)) foreach($host_list as $host) $list.= ($list == "" ? "" : ", ") . $host->get_host_name($conn);

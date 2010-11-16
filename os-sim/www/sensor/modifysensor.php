@@ -35,48 +35,133 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Sensor.inc');
+require_once ('classes/Util.inc');
+
 Session::logcheck("MenuPolicy", "PolicySensors");
+
+$error = false;
+
+$hostname    = POST('hostname');
+$ip          = POST('ip');
+$priority    = POST('priority');
+$descr	     = POST('descr');
+$port	     = POST('port');
+
+
+$validate = array (
+	"hostname"  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Hostname")),
+	"ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip")),
+	"priority"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Priority")),
+	"port"      => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
+	"descr"     => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")));
+	
+if ( GET('ajax_validation') == true )
+{
+	$validation_errors = validate_form_fields('GET', $validate);
+	if ( $validation_errors == 1 )
+		echo 1;
+	else if ( empty($validation_errors) )
+		echo 0;
+	else
+		echo $validation_errors[0];
+		
+	exit();
+}
+else
+{
+	$validation_errors = validate_form_fields('POST', $validate);
+	
+	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors))  )
+	{
+		$error = true;
+				
+		$message_error = array();
+		
+		if ( is_array($validation_errors) && !empty($validation_errors) )
+			$message_error = array_merge($message_error, $validation_errors);
+		else
+		{
+			if ($validation_errors == 1)
+				$message_error [] = _("Invalid send method");
+		}
+						
+	}	
+	
+	if ( POST('ajax_validation_all') == true )
+	{
+		if ( is_array($message_error) && !empty($message_error) )
+			echo implode( "<br/>", $message_error);
+		else
+			echo 0;
+		
+		exit();
+	}
+		
+	
+	
+}
+
+if ( $error == true )
+{
+	$_SESSION['_sensor']['hostname'] = $hostname;
+	$_SESSION['_sensor']['ip']       = $ip;
+	$_SESSION['_sensor']['descr']    = $descr;
+	$_SESSION['_sensor']['priority'] = $priority;
+}
+
 ?>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link type="text/css" rel="stylesheet" href="../style/style.css"/>
 </head>
+
 <body>
-                                                                                
-  <center><font style="color:green;font-family:arial"><b><?php
-echo gettext("Update sensor"); ?></b></center>
 
 <?php
-require_once 'classes/Security.inc';
-$name = POST('name');
-$ip = POST('ip');
-$port = POST('port');
-$descr = POST('descr');
-$priority = POST('priority');
-ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor name"));
-ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip address"));
-ossim_valid($port, OSS_DIGIT, 'illegal:' . _("Port number"));
-ossim_valid($descr, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Description"));
-ossim_valid($priority, OSS_DIGIT, OSS_DOT, 'illegal:' . _("Priority"));
-if (ossim_error()) {
-    die(ossim_error());
-}
-if (POST('insert')) {
-    require_once 'ossim_db.inc';
-    require_once 'classes/Sensor.inc';
+if (GET('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
+?>
+
+<h1><?php echo gettext("New sensor"); ?></h1>
+
+<?php
+
+if ( POST('insert') && !empty($hostname) )
+{
+    if ( $error == true)
+	{
+		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
+		Util::print_error($txt_error);	
+		Util::make_form("POST", "modifysensorform.php?name=$hostname&withoutmenu=1");
+		die();
+	}
+		
     $db = new ossim_db();
     $conn = $db->connect();
-    Sensor::update($conn, $name, $ip, $priority, $port, $descr);
-    $db->close($conn);
+	
+    Sensor::update($conn, $hostname, $ip, $priority, $port, $descr);
+   
+	$db->close($conn);
+    
+	Util::clean_json_cache_files("sensors");
 }
+
+if ( isset($_SESSION['_sensor']) )
+	unset($_SESSION['_sensor']);
+		
 ?>
     <p> <?php echo gettext("Sensor succesfully updated"); ?> </p>
-    <script>document.location.href="modifysensorform.php?name=<?=$name?>&withoutmenu=1"</script>
+    <script>document.location.href="modifysensorform.php?name=<?=$hostname?>&withoutmenu=1"</script>
 
 <?php
 // update indicators on top frame

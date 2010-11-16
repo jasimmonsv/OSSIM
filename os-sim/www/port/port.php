@@ -127,7 +127,7 @@ include ("../hmenu.php"); ?>
 			else alert('<?=_("You must select a port group")?>');
 		}
 		else if (com=='<?=_("Modify")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyportform.php?portname='+urlencode(items[0].id.substr(3))
+			if (typeof(items[0]) != 'undefined') document.location.href = 'newportform.php?portname='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a port group")?>');
 		}
 		else if (com=='<?=_("New port group")?>') {
@@ -154,7 +154,7 @@ include ("../hmenu.php"); ?>
 
             if (com=='modify') {
                 if (typeof(port) != 'undefined')
-                    document.location.href = 'modifyportform.php?portname='+urlencode(port);
+                    document.location.href = 'newportform.php?portname='+urlencode(port);
                 else
                   alert('<?=_("Port unselected")?>');
             }

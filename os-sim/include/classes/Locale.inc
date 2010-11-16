@@ -35,12 +35,14 @@
 * - ossim_set_lang()
 * Classes list:
 */
-require_once 'ossim_conf.inc';
-$conf = new ossim_conf();
 function ossim_set_lang($language = "en_GB") {
     $DEFAULT_LANGUAGE = "en_GB";
     $DEFAULT_LOCALE_DIR = "/usr/share/locale/";
-    $conf = $GLOBALS['CONF'];
+    $conf = $GLOBALS["CONF"];
+    if (!$conf) {
+	require_once 'ossim_conf.inc';
+	$conf = new ossim_conf();
+    }
     if (!$locale_dir = $conf->get_conf("locale_dir", FALSE)) $locale_dir = $DEFAULT_LOCALE_DIR;
     if (preg_match("/\/graphs\//", $_SERVER['REQUEST_URI'])) $language = "en_GB";
     elseif (isset($_SESSION['_user_language'])) $language = $_SESSION['_user_language'];

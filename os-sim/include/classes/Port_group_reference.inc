@@ -49,7 +49,7 @@ class Port_group_reference {
     var $port_number;
     var $protocol_name;
     function Port_group_reference($port_group_name, $port_number, $protocol_name) {
-        $this->port_group_name = $port_group_name;
+        $this->port_group_name = stripslashes($port_group_name);
         $this->port_number = $port_number;
         $this->protocol_name = $protocol_name;
     }
@@ -70,7 +70,7 @@ class Port_group_reference {
         } else {
             $list = array();
             while (!$rs->EOF) {
-                $list[] = new Port_group_reference($rs->fields["port_group_name"], $rs->fields["port_number"], $rs->fields["protocol_name"]);
+                $list[] = new Port_group_reference(stripslashes($rs->fields["port_group_name"]), $rs->fields["port_number"], $rs->fields["protocol_name"]);
                 $rs->MoveNext();
             }
         }
@@ -83,9 +83,10 @@ class Port_group_reference {
             * (80-tcp, 80-udp, 8080-tcp, 8080-udp)
             */
             $port_array = explode('-', $port);
-            $port_number = $port_array[0];
-            $protocol_name = $port_array[1];
-            settype($port_number, "int");
+            $port_number = trim($port_array[0]);
+            $protocol_name = trim($port_array[1]);
+			
+			settype($port_number, "int");
             $sql = "INSERT INTO port_group_reference VALUES (?, ?, ?)";
             $params = array(
                 $port_group_name,

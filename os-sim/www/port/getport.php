@@ -73,12 +73,12 @@ $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($port_list as $port_group) {
-    $name = $port_group->get_name();
-    $xml.= "<row id='$name'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./modifyportform.php?portname=".urlencode($name)."\">" . htmlentities($name) . "</a>";
+    $name = utf8_encode($port_group->get_name());
+    $xml.= "<row id='".$name."'>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newportform.php?portname=".urlencode($port_group->get_name())."\">" .$name . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $ports = "";
-    foreach($port_group->get_reference_ports($conn, $name) as $port) {
+    foreach($port_group->get_reference_ports($conn, $port_group->get_name()) as $port) {
         $ports.= (($ports == "") ? "" : ", ") . $port->get_port_number() . "-" . $port->get_protocol_name();
     }
     $xml.= "<cell><![CDATA[" . $ports . "]]></cell>";

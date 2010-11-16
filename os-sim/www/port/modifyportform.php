@@ -119,8 +119,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
   <tr>
     <th> <?php
 echo gettext("Name"); ?> </th>
-      <input type="hidden" name="name"
-             value="<?php
+      <input type="hidden" name="name" value="<?php
         if($name!="")
             echo $name;
         else

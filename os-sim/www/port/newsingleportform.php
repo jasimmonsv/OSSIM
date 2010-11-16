@@ -38,75 +38,109 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuPolicy", "PolicyPorts");
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+	<script type="text/javascript" src="../js/ajax_validator.js"></script>
+	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../js/messages.php"></script>
+	<script type="text/javascript" src="../js/utils.js"></script>
+		
+	<style type='text/css'>
+		#table_form { width: 400px;}
+		#table_form th {width: 150px;}
+		input[type='text'], select, textarea {width: 90%; height: 18px;}
+		textarea { height: 45px;}
+		label {border: none; cursor: default;}
+		.bold {font-weight: bold;}
+		div.bold {line-height: 18px;}
+	</style>
+	
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('textarea').elastic();
+				
+			$('.vfield').bind('blur', function() {
+				 validate_field($(this).attr("id"), "newsingleport.php");
+			});
+		});
+	</script>
+	
+	
 </head>
 <body>
                                                                                 
 <?php
-if (!(GET('withoutmenu')==1 || POST('withoutmenu')==1)) include ("../hmenu.php"); 
-$port = POST('port');
-$protocol = POST('protocol');
-$service = POST('service');
-$descr = POST('descr');
-ossim_valid($port, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Port"));
-ossim_valid($protocol, "tcp", "udp", OSS_NULLABLE, 'illegal:' . _("Protocol"));
-ossim_valid($service, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Service"));
-ossim_valid($descr, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Description"));
-if (ossim_error()) {
-    die(ossim_error());
-}
-?>
 
-<form method="post" action="newsingleport.php">
-<table align="center">
-  <input type="hidden" name="insert" value="insert">
-  <?if (GET('withoutmenu')==1 || POST('withoutmenu')==1) {?>
-  <input type="hidden" name="withoutmenu" value="1">
-  <?}?>
-  <tr>
-    <th> <?php
-echo gettext("Port number"); ?> </th>
-    <td style="text-align:left;" class="nobborder"><input type="text" name="port" size="6" value="<?=$port?>"></td>
-  </tr>
-  <tr>
-    <th> <?php
-echo gettext("Protocol"); ?> </th>
-    <td style="text-align:left;" class="nobborder">
-      <select name="protocol">
-        <option value="udp"<?=(($protocol=="udp") ? "selected" : "")?>>
-	<?php
-echo gettext("UDP"); ?> </option>
-        <option value="tcp"<?=(($protocol=="tcp") ? "selected" : "")?>>
-	<?php
-echo gettext("TCP"); ?> </option>
-      </select>
-    </td>
-  </tr>
-  <tr>
-    <th> <?php
-echo gettext("Service"); ?> </th>
-    <td style="text-align:left;" class="nobborder"><input type="text" name="service" value="<?=$service?>"></td>
-  </tr>
-  <tr>
-    <th> <?php
-echo gettext("Description"); ?> </th>
-    <td style="text-align:left;" class="nobborder">
-      <textarea name="descr" rows="2" cols="20"><?=$descr?></textarea>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" style="text-align:center;" class="nobborder">
-      <input type="submit" value="<?=_("OK")?>" class="btn" style="font-size:12px">
-      <input type="reset" value="<?=_("reset")?>" class="btn" style="font-size:12px">
-    </td>
-  </tr>
+if (GET('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
+
+
+if ( isset($_SESSION['_singleport']) )
+{
+	$port     = $_SESSION['_singleport']['port'];        
+	$protocol = $_SESSION['_singleport']['protocol']; 
+	$service  = $_SESSION['_singleport']['service']; 
+	$descr    = $_SESSION['_singleport']['descr'];   
+	
+	unset($_SESSION['_singleport']);
+}
+
+?>	
+
+<div id='info_error' class='ossim_error' style='display: none;'></div>
+
+<form method="post" id='form_p' name='form_p' action="newsingleport.php">
+
+<table align="center" id='table_form'>
+	<tr>
+		<th><label for='port'><?php echo gettext("Port number"); ?></label></th>
+		<td class='left' class="nobborder">
+			<input type="text" name="port" class='vfield req_field' id='port' value="<?=$port?>">
+			<span style="padding-left: 3px;">*</span>
+		</td>
+	</tr>
+	
+	<tr>
+		<th><label for='protocol'><?php echo gettext("Protocol"); ?></label></th>
+		<td class="left">
+			<select name="protocol" class='vfield req_field' id='protocol'>
+				<option value="udp"<?=(($protocol=="udp") ? "selected='selected'" : "")?>><?php echo gettext("UDP"); ?> </option>
+				<option value="tcp"<?=(($protocol=="tcp") ? "selected='selected'" : "")?>><?php echo gettext("TCP"); ?> </option>
+			</select>
+			<span style="padding-left: 3px;">*</span>
+		</td>
+	</tr>
+	
+	<tr>
+		<th><label for='service'><?php echo gettext("Service"); ?></label></th>
+		<td class="left">
+			<input type="text" class='vfield req_field' name="service" id='service' value="<?=$service?>">
+			<span style="padding-left: 3px;">*</span>
+		</td>
+	</tr>
+	
+	<tr>
+		<th><label for='description'><?php echo gettext("Description"); ?></label></th>
+		<td class="left noborder">
+			<textarea name="descr" class='vfield' id="descr"><?php echo $descr?></textarea>
+		</td>
+	</tr>
+	
+	<tr>
+		<td colspan="2" class="nobborder" style="text-align:center;padding:10px">
+			<input type="button" class="button" id='send' value="<?=_("Send")?>" onclick="submit_form()"/>
+			<input type="reset" class="button" value="<?=_("Reset")?>"/>
+		</td>
+	</tr>
 </table>
+
 </form>
 
 </body>

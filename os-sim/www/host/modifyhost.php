@@ -34,122 +34,178 @@
 * Function list:
 * Classes list:
 */
+
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('ossim_db.inc');
 require_once ('classes/Host.inc');
 require_once ('classes/Host_scan.inc');
+require_once ('classes/Util.inc');
 
 Session::logcheck("MenuPolicy", "PolicyHosts");
+
+$error = false;
+
+$hostname     = POST('hostname');
+$old_hostname = POST('old_hostname');
+$ip           = POST('ip');
+$fqdns        = POST('fqdns');
+$descr	      = POST('descr');
+$asset        = POST('asset');
+$nat          = POST('nat');
+$sensors      = ( isset($_POST['sboxs'] ) && !empty ( $_POST['sboxs']) ) ? Util::clean_array(POST('sboxs')) : array();
+$nagios       = POST('nagios');	
+$rrd_profile  = POST('rrd_profile'); 
+$threshold_a  = POST('threshold_a');
+$threshold_c  = POST('threshold_c');
+$os           = POST('os');
+$mac          = POST('mac');
+$mac_vendor   = POST('mac_vendor');
+$latitude     = POST('latitude');
+$longitude    = POST('longitude');
+
+
+$num_sensors = count($sensors);
+
+$validate = array (
+	"hostname"     => array("validation"=>"OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Host name")),
+	"old_hostname" => array("validation"=>"OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Old host name")),
+	"ip"           => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
+	"fqdns"        => array("validation"=>"OSS_FQDNS, OSS_NULLABLE", "e_message" => 'illegal:' . _("FQDN/Aliases")),
+	"descr"        => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
+	"asset"        => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Asset")),
+	"nat"          => array("validation"=>"OSS_NULLABLE, OSS_IP_ADDR", "e_message" => 'illegal:' . _("Nat")),
+	"sboxs"        => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Sensors")),
+	"rrd_profile"  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
+	"threshold_a"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold A")),
+	"threshold_c"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),
+	"nagios"       => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" => 'illegal:' . _("Nagios")),
+	"os"           => array("validation"=>"OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Os")),
+	"mac"          => array("validation"=>"OSS_NULLABLE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Mac")),
+	"mac_vendor"   => array("validation"=>"OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, \"(\", \")\"", "e_message" => 'illegal:' . _("Mac Vendor")),
+	"latitude"     => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Latitude")),
+	"longitude"    => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Longitude")),
+);
+
+if ( GET('ajax_validation') == true )
+{
+	$validation_errors = validate_form_fields('GET', $validate);
+	if ( $validation_errors == 1 )
+		echo 1;
+	else if ( empty($validation_errors) )
+		echo 0;
+	else
+		echo $validation_errors[0];
+		
+	exit();
+}
+else
+{
+	$validation_errors = validate_form_fields('POST', $validate);
+	
+	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors)) || $num_sensors == 0)
+	{
+		$error = true;
+		
+		$message_error = array();
+			
+		if( $num_sensors == 0)
+			$message_error[] = _("You Need to select at least one Sensor");
+		
+		if ( is_array($validation_errors) && !empty($validation_errors) )
+			$message_error = array_merge($message_error, $validation_errors);
+		else
+		{
+			if ($validation_errors == 1)
+				$message_error [] = _("Invalid send method");
+		}
+	
+	}
+	
+	if ( POST('ajax_validation_all') == true )
+	{
+		if ( is_array($message_error) && !empty($message_error) )
+			echo implode( "<br/>", $message_error);
+		else
+			echo 0;
+		
+		exit();
+	}
+	
+}
+
+if ( $error == true )
+{
+	$_SESSION['_host']['hostname']     = $hostname;
+	$_SESSION['_host']['old_hostname'] = ( empty( $old_hostname ) ? $hostname : $old_hostname );
+	$_SESSION['_host']['ip']           = $ip;  	
+	$_SESSION['_host']['fqdns']        = $fqdns; 
+	$_SESSION['_host']['descr']        = $descr; 
+	$_SESSION['_host']['asset']        = $asset;
+	$_SESSION['_host']['nat']          = $nat;  	
+	$_SESSION['_host']['sensors']      = $sensors;  
+	$_SESSION['_host']['nagios']       = $nagios;	
+	$_SESSION['_host']['rrd_profile']  = $rrd_profile;  
+	$_SESSION['_host']['threshold_a']  = $threshold_a; 
+	$_SESSION['_host']['threshold_c']  = $threshold_c; 
+	$_SESSION['_host']['os']           = $os; 
+	$_SESSION['_host']['mac']          = $mac; 
+	$_SESSION['_host']['mac_vendor']   = $mac_vendor; 
+	$_SESSION['_host']['latitude']     = $latitude; 
+	$_SESSION['_host']['longitude']    = $longitude; 
+}
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html>
 <head>
 	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-	<meta http-equiv="Pragma" content="no-cache"/>
-	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<meta http-equiv="Pragma" content="no-cache">
+	<link type="text/css" rel="stylesheet" href="../style/style.css"/>
 </head>
 
 <body>
-	<h1> <?php echo gettext("Update host"); ?> </h1>                                                   
-  
 
 <?php
+if (GET('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
+?>
 
-$insert = POST('insert');
-$hostname = POST('hostname');
-$hostname_old = POST('hostname_old');
-$fqdns = POST('fqdns');
-$latitude = POST('latitude');
-$longitude = POST('longitude');
-$ip = POST('ip');
-$id = POST('id');
-$threshold_c = POST('threshold_c');
-$threshold_a = POST('threshold_a');
-$nsens = POST('nsens');
-$asset = POST('asset');
-$alert = POST('alert');
-$persistence = POST('persistence');
-$nat = POST('nat');
-if ($nat == "NULL") 
-	$nat = "";
-$descr = POST('descr');
-$os = POST('os');
-$mac = POST('mac');
-$mac_vendor = POST('mac_vendor');
-$nessus = POST('nessus');
-$nagios = POST('nagios');
-$sensor_name = POST('name');
-$rrd_profile = POST('rrd_profile');
-ossim_valid($insert, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("insert"));
-ossim_valid($hostname, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("hostname"));
-ossim_valid($hostname_old, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("hostname_old"));
+<h1> <?php echo gettext("Modify Host"); ?> </h1>  
 
-$fqdns_list = explode (",", $fqdns);
-
-if ( !empty ($fqdns_list) && is_array ($fqdns_list))
-foreach ($fqdns_list as $k => $fqdn)
-	ossim_valid($fqdn, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("FQDN/Aliases"));
-
-
-ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("ip"));
-ossim_valid($id, OSS_NULLABLE, OSS_ALPHA, OSS_SCORE, 'illegal:' . _("id"));
-ossim_valid($threshold_a, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("threshold_a"));
-ossim_valid($threshold_c, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("threshold_c"));
-ossim_valid($nsens, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("nsens"));
-ossim_valid($asset, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("asset"));
-ossim_valid($alert, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("alert"));
-ossim_valid($persistence, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("persistence"));
-ossim_valid($nat, OSS_NULLABLE, OSS_IP_ADDR, 'illegal:' . _("nat"));
-ossim_valid($descr, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, 'illegal:' . _("descr"));
-ossim_valid($rrd_profile, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, 'illegal:' . _("rrd_profile"));
-ossim_valid($os, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, 'illegal:' . _("os"));
-ossim_valid($mac_vendor, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, "(", ")", 'illegal:' . _("mac_vendor"));
-ossim_valid($mac, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("mac"));
-ossim_valid($nessus, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("nesus"));
-ossim_valid($nagios, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("nagios"));
-ossim_valid($sensor_name, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("order"));
-ossim_valid($latitude, OSS_NULLABLE, OSS_DIGIT, OSS_PUNC, OSS_SCORE, 'illegal:' . _("latitude"));
-ossim_valid($longitude, OSS_NULLABLE, OSS_DIGIT, OSS_PUNC, OSS_SCORE, 'illegal:' . _("longitude"));
-
-if (ossim_error()) {
-    die(ossim_error());
-}
-if (!empty($insert)) {
-    $sensors = array();
-    $num_sens = 0;
-    for ($i = 1; $i <= $nsens; $i++)
+<?php
+	
+if ( POST('insert') && !empty($ip) )
+{
+    if ( $error == true)
 	{
-        $name = "mboxs" . $i;
-        if (POST("$name")) {
-            $num_sens++;
-            ossim_valid(POST("$name") , OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT);
-            if (ossim_error()) 
-				die(ossim_error());
-            
-            $sensors[] = POST("$name");
-        }
-    }
-   
-    $db = new ossim_db();
+		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";				
+		Util::print_error($txt_error);	
+		Util::make_form("POST", "modifyhostform.php?ip=".$ip);
+		die();
+	}
+		
+	$db = new ossim_db();
     $conn = $db->connect();
     
 	Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
     
-	if ($hostname != $hostname_old) {
+	if ( $hostname != $old_hostname ) {
     	$query = "UPDATE risk_indicators SET type_name=? WHERE type='host' AND type_name=?";
-		$params = array($hostname,$hostname_old);
+		$params = array($hostname, $hostname_old);
         $conn->Execute($query, $params);
     }
-    Host_scan::delete($conn, $ip, 3001);
-    Host_scan::delete($conn, $ip, 2007);
     
-	if (!empty($nessus)) 
-		Host_scan::insert($conn, $ip, 3001);
-    else 
-		Host_scan::delete($conn, $ip, 3001);
+	Host_scan::delete($conn, $ip, 3001);
+    
+	Host_scan::delete($conn, $ip, 2007);
+    
+	//if (!empty($nessus)) Host_scan::insert($conn, $ip, 3001);
+   
+    Host_scan::delete($conn, $ip, 3001);
    
 	if (!empty($nagios))
 	{
@@ -165,6 +221,10 @@ if (!empty($insert)) {
     $db->close($conn);
 	
 }
+
+if ( isset($_SESSION['_host']) )
+	unset($_SESSION['_host']);
+
 ?>
     <p><?php echo _("Host succesfully updated") ?></p>
     <script>document.location.href="host.php"</script>

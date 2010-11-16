@@ -132,11 +132,11 @@ echo gettext("OSSIM Framework"); ?> </title>
 			else alert('<?=_("You must select a network")?>');
 		}
 		else if (com=='<?=_("Modify")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'modifynetform.php?name='+urlencode(items[0].id.substr(3))
+			if (typeof(items[0]) != 'undefined') document.location.href = 'newnetform.php?name='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a network")?>');
 		}
 		else if (com=='<?=_("Duplicate selected")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'modifynetform.php?name='+urlencode(items[0].id.substr(3))+"&clone=1"
+			if (typeof(items[0]) != 'undefined') document.location.href = 'newnetform.php?name='+urlencode(items[0].id.substr(3))+"&clone=1"
 			else alert('<?=_("You must select a network")?>');
 		}
 		else if (com=='<?=_("New")?>') {
@@ -192,7 +192,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 
             if (com=='modify') {
                if (typeof(hostname) != 'undefined')
-                    document.location.href = 'modifynetform.php?name='+urlencode(hostname)
+                    document.location.href = 'newnetform.php?name='+urlencode(hostname)
                else
                   alert('<?=_("Network unselected")?>');
             }
@@ -216,7 +216,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 
             if (com=='duplicate') {
                 if (typeof(hostname) != 'undefined')
-                  document.location.href = 'modifynetform.php?name='+urlencode(hostname)+"&clone=1";
+                  document.location.href = 'newnetform.php?name='+urlencode(hostname)+"&clone=1";
                 else
                    alert('<?=_("Network unselected")?>');
             }

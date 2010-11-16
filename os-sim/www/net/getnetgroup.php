@@ -96,7 +96,7 @@ $xml.= "<total>$total</total>\n";
 foreach($net_group_list as $net_group) {
     $name = $net_group->get_name();
     $xml.= "<row id='".htmlentities($name)."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./modifynetgroupform.php?name=".urlencode($name)."\">" . htmlentities($name) . "</a>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newnetgroupform.php?name=".urlencode($name)."\">" . htmlentities($name) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $nets = "";
     if ($network_list = $net_group->get_networks($conn)) foreach($network_list as $network) {
