@@ -228,7 +228,7 @@ else print "onclick=\"onClickCancel2()\"";
 		<input type="button" style="width: 100px"
 			id="save"
 			value="<?php
-echo gettext('Save'); ?>"
+echo gettext('Next'); ?>"
 			onclick="submit()"
 		/>
 	</td></tr>

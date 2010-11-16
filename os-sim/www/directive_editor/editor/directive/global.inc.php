@@ -63,7 +63,7 @@ if ($directive_xml == "") {
 		<tr>
 			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px;border:0px">
 				<?php
-echo gettext("Id"); ?>
+echo gettext("Category"); ?>
 			</td>
 			<td style="width: <?php
 echo $select_width; ?>;
@@ -137,6 +137,7 @@ for ($i = 0; $i <= 5; $i++) {
 			</td>
 		</tr>
 		<!-- ##### list of groups ##### -->
+		<!-- 
 		<tr><td colspan="5" style="border:0px">&nbsp;</td></tr>
 		<tr><th colspan="5"><?php echo _("Groups")?></th></tr>
 		<tr>
@@ -188,6 +189,6 @@ for ($i = 0; $i <= 5; $i++) {
 					</table>
 				</div>
 			</td>
-		</tr>
+		</tr> -->
 	</table>
 	<!-- #################### END: global properties ##################### -->
