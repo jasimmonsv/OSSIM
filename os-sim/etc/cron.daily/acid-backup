@@ -25,7 +25,6 @@ my %sidcid_table_names = ();
 my %ac_table_names = ();
 
 $timestamp_table_names{"acid_event"} = 1;
-$timestamp_table_names{"acid_event_input"} = 1;
 
 $sidcid_table_names{"icmphdr"} = 1;
 $sidcid_table_names{"iphdr"} = 1;
@@ -87,6 +86,21 @@ my $sec_curr = (int (time () / $sec_1day)+ 1 ) * $sec_1day;
 my $sec_yesterday = $sec_curr - $sec_1day;
 #$backup_day = 40;
 my $sec_backup = $sec_curr - ($sec_1day * $backup_day);
+
+# exists acid_event_input?
+my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
+my $sth = $snort_conn->prepare("SELECT table_name FROM INFORMATION_SCHEMA.tables WHERE table_name='acid_event_input'");
+my $table_name = "";
+$sth->execute();
+$sth->bind_columns(\$table_name);
+if ($sth->fetch()) { print ""; }
+$sth->finish;
+#
+if ($table_name ne "") {
+	$timestamp_table_names{"acid_event_input"} = 1;
+}
+$snort_conn->disconnect;
+
 
 # MAIN
 backup_to_file ($cmdlinedump);
@@ -187,17 +201,33 @@ sub backup_to_file {
 		# Create timestamp tables dump
 		# INSERT
 		my $table_name = join (" ",keys %timestamp_table_names);
-		my $where = "timestamp between '$date 00:00:00' AND '$date 23:59:59'";
+		my $where = "timestamp BETWEEN '$date 00:00:00' AND '$date 23:59:59'";
 		#my $where = "timestamp like '$date%'";
 		my $eventdump = $mysqldump.' '.$table_name.' -n -t -f --no-autocommit --insert-ignore -w "'.$where.'" >> "'.$file_insert.'"';
 		print "->";
 		system ($eventdump);
+		# HOW MANY EVENTS?
+		my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
 		# DELETE
 		foreach $t (keys %timestamp_table_names) {
-			$delstr = "DELETE FROM $t WHERE ".$where.";\n";
-			print D $delstr;
+			my $sth = $snort_conn->prepare("SELECT COUNT(*) as totalevents FROM $t WHERE $where");
+	        my $totalevents = 0;
+			$sth->execute();
+			$sth->bind_columns(\$totalevents);
+			if ($sth->fetch()) { print "."; }
+			$sth->finish;
+			#
+			if ($totalevents > 0) {
+				for(my $i=0; $i<$totalevents; $i+=100000) {
+					$delstr = "DELETE FROM $t WHERE $where LIMIT 100000 ORDER BY timestamp;\n";
+					print D $delstr;
+				}
+			} else {
+				$delstr = "DELETE FROM $t WHERE $where;\n";
+				print D $delstr;
+			}
 		}
-		
+		$snort_conn->disconnect;
 		
 		#backup_event ($snort_conn, $where, $fd_insert, $fd_delete);
 		#backup_icmphdr ($snort_conn, $where, $fd_insert, $fd_delete);
@@ -292,8 +322,29 @@ sub delete_outframe {
 	# DELETE
 	my $table_name = join (" ",keys %timestamp_table_names);
 	my $where = "timestamp < '$date_frame 00:00:00'";
+	my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
 	foreach $t (keys %timestamp_table_names) {
-		$delstr = "DELETE FROM $t WHERE ".$where.";\n";
+		my $sth = $snort_conn->prepare("SELECT COUNT(*) as totalevents FROM $t WHERE $where");
+        my $totalevents = 0;
+		$sth->execute();
+		$sth->bind_columns(\$totalevents);
+		if ($sth->fetch()) { print "."; }
+		$sth->finish;
+		#
+		if ($totalevents > 0) {
+			for(my $i=0; $i<$totalevents; $i+=100000) {
+				$delstr = "DELETE FROM $t WHERE $where LIMIT 100000 ORDER BY timestamp;\n";
+				print DF $delstr;
+			}
+		} else {
+			$delstr = "DELETE FROM $t WHERE $where;\n";
+			print DF $delstr;
+		}
+	}
+	$snort_conn->disconnect;
+	# OPTIMIZE TABLE
+	foreach $t (keys %timestamp_table_names) {
+		$delstr = "OPTIMIZE TABLE $t;\n";
 		print DF $delstr;
 	}
 	
@@ -301,9 +352,14 @@ sub delete_outframe {
 	my $where = "day < '".$date_frame."'";
 	# DELETE
 	foreach my $t (keys %ac_table_names) {
-		$delstr = "DELETE FROM $t WHERE ".$where.";\n";
+		$delstr = "DELETE FROM $t WHERE $where;\n";
 		print DF $delstr;
 	}
+	# OPTIMIZE TABLE
+	foreach $t (keys %ac_table_names) {
+		$delstr = "OPTIMIZE TABLE $t;\n";
+		print DF $delstr;
+	}	
 	#print DF "commit;\n";
 	close DF;
 	print "DELETING < $date_frame\n";
