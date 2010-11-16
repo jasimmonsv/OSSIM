@@ -624,8 +624,31 @@ function SubmitClick() {
 	doQuery('noExport');
 }
 
+function IsNew (value){
+	value = value.replace(/\<b\>/g,"");
+	value = value.replace(/\<\/b\>/g,"");
+	if (!value.match(/\=/) && !is_operator(value)) value = "data="+value;
+	var is_new = true;
+	$('#mytags').children(".tagit-choice").each(function(i){
+		n = $(this).children("input").val();
+		if (value == n) {
+			is_new = false;
+		}
+	})
+	return is_new;
+}
+
 function AddAtom(value) {
+	if (IsNew(value)) {
 	if (!value.match(/\=/) && !is_operator(value)) value = "<b>data</b>="+value;
+	if (value.match(/\=/) && !value.match(/\<b\>/)) {
+		value = "<b>"+value;
+		if (value.match("!=")) {
+			value = value.replace("!=","</b>!=");
+		} else {
+			value = value.replace("=","</b>=");
+		}
+	}
 	var el = "";
 	el  = "<li class=\"tagit-choice\">\n";
 	el += value + "\n";
@@ -635,6 +658,7 @@ function AddAtom(value) {
 	el += "<input type=\"hidden\" style=\"display:none;\" class=\"search_atom\" value=\""+value+"\" name=\"item[tags][]\">\n";
 	el += "</li>\n";
 	$(el).insertBefore ($('#mytags').children(".tagit-new"));
+	}
 }
 
 function SetSearch(content)

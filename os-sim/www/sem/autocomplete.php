@@ -83,6 +83,7 @@ if (ossim_error()) {
 
 $data = array();
 $top = 10;
+$tag_typing = 0;
 if (trim($str) != "") {
 	list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
 	$nets = Net::get_list($conn);
@@ -93,6 +94,7 @@ if (trim($str) != "") {
 	
 	// Typing a tag
 	if (preg_match("/^(sensor|src|dst|plugin|plugingroup|src_port|dst_port|sourcetype|data)(\!?\=)(.*)/i",$str,$found)) {
+		$tag_typing = 1;
 		$str = $found[3];
 		$op = $found[2];
 		if ($str == "") $str = ".";
@@ -209,7 +211,7 @@ if (trim($str) != "") {
 		}
 	}
 }
-if (count($data) < 1) {
+if (count($data) < 1 && !$tag_typing) {
 	$data[] = array("name"=>"<b>data</b>=$str");
 	$data[] = array("name"=>"<b>data</b>!=$str");
 	$data[] = array("name"=>"<b>sensor</b>=$str");
