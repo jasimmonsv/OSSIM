@@ -45,8 +45,8 @@ if (preg_match("/(.*sensor!=)(\S+)(.*)/", $a, $matches) || preg_match("/(.*senso
     $a = $matches[1] . $plugin_id . $matches[3];
 }
 
-$org = "/var/ossim/logs/searches/$user"."_"."$start"."_"."$end"."_"."$sort_order"."_"."$a/";
-$dest = $user."_".$start."_".$end."_".$sort_order."_".$a.".zip";
+$org = "/var/ossim/logs/searches/$user"."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a)."/";
+$dest = $user."_".$start."_".$end."_".$sort_order."_".str_replace("/","_slash_",$a).".zip";
 
 $org = str_replace("'", "\'", $org);
 $dest = str_replace("'", "\'", $dest);
