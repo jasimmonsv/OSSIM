@@ -31,7 +31,6 @@
 include ("classes/AlarmGroups.inc");
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
-ini_set('memory_limit', '64M');
 
 function build_url($action, $extra) {
 	global $date_from, $date_to, $show_options, $src_ip, $dst_ip, $num_alarms_page, $hide_closed, $autorefresh, $refresh_time, $inf, $sup;
@@ -54,7 +53,7 @@ function build_url($action, $extra) {
 		if (!empty($inf)) $options = $options . "&inf=" . $inf;
 		if (!empty($sup)) $options = $options . "&sup=" . $sup;
 	}
-	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options;
+	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options . "&bypassexpirationupdate=1";
 	return $url;
 }
 

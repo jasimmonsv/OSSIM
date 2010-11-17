@@ -6,6 +6,10 @@ use snort;
 ALTER TABLE `extra_data` ADD `context` INT(11) NOT NULL DEFAULT '0';
 
 use ossim;
+REPLACE INTO `config` (`conf`, `value`) VALUES ('session_timeout', '15');
+DELETE FROM `user_config` WHERE category='conf' AND name='plugin_layout';
+ALTER TABLE `ossim`.`plugin_sid` ADD INDEX ( `category_id` , `subcategory_id` );
+
 ALTER TABLE `host_property_reference` ADD `ord` INT NOT NULL DEFAULT '0';
 REPLACE INTO `host_property_reference` (`id`, `name`, `ord`) VALUES(1, 'software', 3);
 REPLACE INTO `host_property_reference` (`id`, `name`, `ord`) VALUES(2, 'cpu', 8);

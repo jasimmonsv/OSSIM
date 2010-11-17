@@ -101,7 +101,7 @@ while (!$rs->EOF) {
 <head>
   <title> <?php
 echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="refresh" content="180">
+  <meta http-equiv="refresh" content="180;url=draw_openlayers.php?bypassexpirationupdate=1">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>

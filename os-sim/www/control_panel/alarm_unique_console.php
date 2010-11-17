@@ -53,7 +53,7 @@ function build_url($action, $extra) {
 		if (!empty($inf)) $options = $options . "&inf=" . $inf;
 		if (!empty($sup)) $options = $options . "&sup=" . $sup;
 	}
-	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options;
+	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options . "&bypassexpirationupdate=1";
 	return $url;
 }
 

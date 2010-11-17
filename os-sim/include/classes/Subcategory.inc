@@ -70,7 +70,7 @@ class Subcategory {
         } else {
             $list = array();
             while (!$rs->EOF) {
-            	$inUse=Subcategory::inUse($conn,$rs->fields["id"]);
+            	$inUse=Subcategory::inUse($conn,$rs->fields["cat_id"],$rs->fields["id"]);
                 $list[] = new Subcategory($rs->fields["id"], $rs->fields["name"],$inUse);
                 $rs->MoveNext();
             }
@@ -105,20 +105,20 @@ class Subcategory {
         	}            
         }
     }
-	function inUse($conn, $id){
-    	$query = OssimQuery('SELECT * FROM plugin_sid WHERE subcategory_id='.$id);
+	function inUse($conn, $cat_id, $id){
+    	$query = OssimQuery('SELECT COUNT(*) AS total FROM plugin_sid WHERE category_id='.$cat_id.' AND subcategory_id='.$id);
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
         	if($rs->EOF) {
         		return false;
         	}else{
-        		return true;
+        		return ($rs->fields["total"]>0) ? true : false;
         	}
         }
     }
-    function delete($conn, $id){
-    	if(!Subcategory::inUse($conn,$id)){
+    function delete($conn, $cat_id, $id){
+    	if(!Subcategory::inUse($conn, $cat_id, $id)){
     		$query=OssimQuery('DELETE FROM subcategory WHERE id = '.$id);
     		if (!$rs = & $conn->Execute($query)) {
             	print $conn->ErrorMsg();

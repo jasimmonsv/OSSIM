@@ -93,7 +93,7 @@ if($action=='addSubCategory'){
 	$idCategory=GET('idCategory');
 	ossim_valid($idCategory, OSS_ALPHA, 'illegal:' . _("Category"));
 
-	if(Subcategory::delete($conn, $idSubcategory)){
+	if(Subcategory::delete($conn, $idCategory, $idSubcategory)){
 		// insert ok
 		$msg='Ok! Delete Subcategory';
 	}else{

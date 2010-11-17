@@ -1077,6 +1077,12 @@ $CONFIG = array(
         "desc" => gettext("User action logging") ,
         "advanced" => 0,
         "conf" => array(
+            "session_timeout" => array(
+                "type" => "text",
+                "help" => gettext("Expired timeout for current session in minutes. (0=unlimited)") ,
+                "desc" => gettext("Session Timeout") ,
+                "advanced" => 1
+            ),
             "user_action_log" => array(
                 "type" => array(
                     "0" => gettext("No") ,

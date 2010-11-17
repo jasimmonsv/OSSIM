@@ -11,7 +11,7 @@ function toggle_statusbar() {
 function refresh_statusbar() {
 	// ajax responder
 	var ajaxObject = document.createElement('script');
-	ajaxObject.src = 'statusbar/status_bar_responder.php';
+	ajaxObject.src = 'statusbar/status_bar_responder.php?bypassexpirationupdate=1';
 	ajaxObject.type = "text/javascript";
 	ajaxObject.charset = "utf-8";
 	document.getElementsByTagName('head').item(0).appendChild(ajaxObject);
@@ -39,8 +39,8 @@ function init() {
 <div id="headertoggle" style="visibility:hidden;position:absolute;top:0px;left:0px;width:100%;height:22px;z-index:999;cursor:pointer" onclick="toggle_statusbar();return false;">
 <?
 $version = $conf->get_conf("ossim_server_version", FALSE);
-$opensource = (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) ? true : false;
-$demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
+$opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
+$demo = (preg_match("/demo/i",$version)) ? true : false;
 ?>
 <table cellpadding='0' cellspacing='0' border='0' height="22" width="100%" style="background:url('pixmaps/top/bg_header.gif') repeat-x bottom left;">
 	<tr>

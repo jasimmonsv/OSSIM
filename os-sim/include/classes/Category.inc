@@ -121,14 +121,14 @@ class Category {
         }
     }
     function inUse($conn, $id){
-    	$query = OssimQuery('SELECT * FROM plugin_sid WHERE category_id='.$id);
+    	$query = OssimQuery('SELECT COUNT(*) AS total FROM plugin_sid WHERE category_id='.$id);
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
         	if($rs->EOF) {
         		return false;
         	}else{
-        		return true;
+        		return ($rs->fields["total"]>0) ? true : false;
         	}
         }
     }

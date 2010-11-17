@@ -92,11 +92,11 @@ default:
     //echo "    <link type=\"text/css\" rel=\"stylesheet\" href=\"./templates/two.css\" />\n";
     echo "    <title>Redirection</title>\n";
     echo "    <noscript>\n";
-    echo "      <meta http-equiv=\"refresh\" content=\"2; URL=sysinfo.php?disp=static\" />\n";
+    echo "      <meta http-equiv=\"refresh\" content=\"2; URL=sysinfo.php?disp=static&bypassexpirationupdate=1\" />\n";
     echo "    </noscript>\n";
     echo "    <script type=\"text/JavaScript\" language=\"JavaScript\">\n";
     echo "      <!--\n";
-    echo "      var sTargetURL = \"sysinfo.php?disp=dynamic\";\n";
+    echo "      var sTargetURL = \"sysinfo.php?disp=dynamic&bypassexpirationupdate=1\";\n";
     echo "      function doRedirect() {\n";
     echo "        setTimeout( \"window.location.href = sTargetURL\", 2*1000 );\n";
     echo "      }\n";
