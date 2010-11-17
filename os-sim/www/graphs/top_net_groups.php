@@ -197,7 +197,7 @@ foreach ($netgroups as $ng_name => $netsgr) {
     if ($j>$numnets) break;
 }
 $chart['live_update'] = array(
-    'url' => "top_net_groups.php?time=" . time() . "&" . $_SERVER['QUERY_STRING'],
+    'url' => "top_net_groups.php?bypassexpirationupdate=1&time=" . time() . "&" . $_SERVER['QUERY_STRING'],
     'delay' => $refresh
 );
 //        $chart [ 'link_data' ] = array (   'url'     =>  "handle.php?target_url=top_nets&target_var=category", 'target'  =>  "_blank");

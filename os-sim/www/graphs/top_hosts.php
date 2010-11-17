@@ -167,7 +167,7 @@ while (!$rs->EOF) {
     $rs->MoveNext();
 }
 $chart['live_update'] = array(
-    'url' => "top_hosts.php?time=" . time() . "&" . preg_replace("/time\=\d+(\&|$)/","",$_SERVER['QUERY_STRING']),
+    'url' => "top_hosts.php?bypassexpirationupdate=1&time=" . time() . "&" . preg_replace("/time\=\d+(\&|$)/","",$_SERVER['QUERY_STRING']),
     'delay' => $refresh
 );
 $chart['link_data'] = array(

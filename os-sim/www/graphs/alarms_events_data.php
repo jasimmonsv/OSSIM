@@ -112,7 +112,7 @@ $chart['chart_value'] = array(
 $chart['draw'] = array(
     array(
         'type' => "image",
-        'url' => "/ossim/graphs/charts.swf??timeout=120&library_path=" . urlencode("/ossim/graphs/charts_library") . "&php_source=" . urlencode("/ossim/graphs/alarms_events_data2.php")
+        'url' => "/ossim/graphs/charts.swf??timeout=120&library_path=" . urlencode("/ossim/graphs/charts_library") . "&php_source=" . urlencode("/ossim/graphs/alarms_events_data2.php?bypassexpirationupdate=1")
     )
 );
 $chart['legend_label'] = array(
@@ -343,7 +343,7 @@ $chart['chart_data'] = array(
     $values2
 );
 $chart['live_update'] = array(
-    'url' => "/ossim/graphs/alarms_events_data.php?time=" . time() ,
+    'url' => "/ossim/graphs/alarms_events_data.php?bypassexpirationupdate=1&time=" . time() ,
     'delay' => 30
 );
 SendChartData($chart);
