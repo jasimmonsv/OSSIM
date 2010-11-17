@@ -86,6 +86,9 @@ include ("../hmenu.php"); ?>
 		else
 			return 700;
 	}
+	function get_height() {
+	   return parseInt($(document).height()) - 200;
+	}
     
 	function action(com,grid) {
         var items = $('.trSelected', grid);
@@ -138,6 +141,13 @@ $default = array(
         'center',
         false
     ) ,
+    "source_type" => array(
+        _('Source Type'),
+        200,
+        'true',
+        'left',
+        false
+    ) ,
     "description" => array(
         _('Description'),
         560,
@@ -171,7 +181,7 @@ echo "$colModel\n";
 			showTableToggleBtn: true,
 			singleSelect: true,
 			width: get_width('headerh1'),
-			height: 330,
+			height: get_height(),
 			onColumnChange: save_layout,
 			onEndResize: save_layout,
 			onDblClick: linked_to,

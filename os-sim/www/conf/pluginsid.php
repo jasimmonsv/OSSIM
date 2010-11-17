@@ -74,6 +74,11 @@ echo gettext("Plugin Sid"); ?> </title>
 	<?php include ("../hmenu.php"); ?>
 	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
 
+	<!-- Right Click Menu -->
+	<ul id="myMenu" class="contextMenu" style="width:110px">
+		<li class="hostreport"><a href="#modify" class="greybox" style="padding:3px"><img src="../pixmaps/tables/table_edit.png" align="absmiddle"/> <?php echo _("Edit")?></a></li>
+    </ul>
+	
 	<style>
 		table, th, tr, td {
 			background:transparent;
@@ -123,6 +128,9 @@ echo gettext("Plugin Sid"); ?> </title>
 		else
 			return 700;
 	}
+	function get_height() {
+	   return parseInt($(document).height()) - 200;
+	}
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
 		if (com=='<?=("Edit")?>') {
@@ -147,6 +155,14 @@ echo gettext("Plugin Sid"); ?> </title>
 				}
 		});
 	}
+	function menu_action(com,plugin_id) {
+            if (com=='modify') {
+                if (typeof(plugin_id) != 'undefined')
+                    document.location.href = 'modifypluginsid.php?id=<?php echo $id; ?>&sid='+plugin_id;
+                else
+                  alert('<?php echo _('You must select a plugin sid')?>');
+            }		
+	}
 	$(document).ready(function() {
 		$("#flextable").flexigrid({
 			url: 'getpluginsid.php?id=<?php echo $id ?>',
@@ -170,6 +186,13 @@ $default = array(
     ) ,
     "category" => array(
         'Category',
+        120,
+        'false',
+        'center',
+        false
+    ) ,
+	"subcategory" => array(
+        'Subcategory',
         120,
         'false',
         'center',
@@ -225,9 +248,11 @@ echo "$colModel\n";
 			nomsg: '<?=_('No plugin sids')?>',
 			useRp: true,
 			rp: 25,
+			contextMenu: 'myMenu',
+			onContextMenuClick: menu_action,
 			showTableToggleBtn: true,
 			width: get_width('headerh1'),
-			height: 330,
+			height: get_height(),
 			onColumnChange: save_layout,
 			onEndResize: save_layout
 		});   

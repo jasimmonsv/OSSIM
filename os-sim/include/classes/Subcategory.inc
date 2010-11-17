@@ -32,25 +32,24 @@
 /**
 * Class and Function List:
 * Function list:
-* - Category()
+* - Subcategory()
 * - get_id()
 * - get_name()
 * - get_list()
 * - insert()
 * - exist()
-* - newId()
 * - inUse()
 * - delete()
 * - edit()
 * Classes list:
-* - Category
+* - Subcategory
 */
 require_once ("ossim_db.inc");
-class Category {
+class Subcategory {
     var $id;
     var $name;
     var $inUse;
-    function Category($id, $name, $inUse) {
+    function Subcategory($id, $name,$inUse) {
         $this->id = $id;
         $this->name = $name;
         $this->inUse = $inUse;
@@ -64,40 +63,38 @@ class Category {
 	function get_inUse() {
         return $this->inUse;
     }
-    function get_list($conn, $args = "ORDER BY name") {
-        $query = OssimQuery("SELECT * FROM category $args");
+    function get_list($conn, $args = "") {
+        $query = OssimQuery("SELECT * FROM subcategory $args");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
             $list = array();
             while (!$rs->EOF) {
-            	$inUse=Category::inUse($conn,$rs->fields["id"]);
-                $list[] = new Category($rs->fields["id"], $rs->fields["name"], $inUse);
+            	$inUse=Subcategory::inUse($conn,$rs->fields["id"]);
+                $list[] = new Subcategory($rs->fields["id"], $rs->fields["name"],$inUse);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
-	function insert($conn, $name){
-    	if(Category::exist($conn, $name)){
-    		echo _('Error: This category already exists');
+    function insert($conn, $cat_id, $name){
+    	if(Subcategory::exist($conn, $cat_id, $name)){
+    		echo _('Error: This subcategory already exists');
     		
     		return false;
-    	}else{
-    		$newId=Category::newID($conn);
-    		
-    		$sql = 'INSERT INTO category (id,name) VALUES ('.$newId.',"'.$name.'")';
-
+    	}else{    
+    		$sql = 'INSERT INTO subcategory (cat_id, name) VALUES ('.$cat_id.', "'.$name.'")';
+    	
     		if ($conn->Execute($sql) === false) {
-            	print 'Error inserting category: ' . $conn->ErrorMsg() . '<br/>';
+            	print 'Error inserting subcategory: ' . $conn->ErrorMsg() . '<br/>';
             	exit;
         	}
         
     		return true;
     	}
     }
-    function exist($conn, $name){
-    	$query = OssimQuery('SELECT * FROM category WHERE name="'.$name.'"');
+    function exist($conn, $cat_id, $name){
+    	$query = OssimQuery('SELECT * FROM subcategory WHERE cat_id='.$cat_id.' AND name="'.$name.'"');
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
@@ -108,20 +105,8 @@ class Category {
         	}            
         }
     }
-    function newID($conn){
-    	$query = OssimQuery('SELECT MAX(id) FROM category');
-        if (!$rs = & $conn->Execute($query)) {
-            print $conn->ErrorMsg();
-        } else {
-        	if($rs->EOF) {
-        		return false;
-        	}else{
-        		return (int)$rs->fields[0]+1;
-        	}            
-        }
-    }
-    function inUse($conn, $id){
-    	$query = OssimQuery('SELECT * FROM plugin_sid WHERE category_id='.$id);
+	function inUse($conn, $id){
+    	$query = OssimQuery('SELECT * FROM plugin_sid WHERE subcategory_id='.$id);
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
@@ -132,32 +117,25 @@ class Category {
         	}
         }
     }
-	function delete($conn, $id){
-    	if(!Category::inUse($conn,$id)){
-    	
-    		$query=OssimQuery('DELETE FROM category WHERE id = '.$id);
+    function delete($conn, $id){
+    	if(!Subcategory::inUse($conn,$id)){
+    		$query=OssimQuery('DELETE FROM subcategory WHERE id = '.$id);
     		if (!$rs = & $conn->Execute($query)) {
             	print $conn->ErrorMsg();
             	return false;
         	} else {
-        		// clean subcategory
-        		require_once 'classes/Subcategory.inc';
-        		$list_subcategories=Subcategory::get_list($conn,'WHERE cat_id='.$id.' ORDER BY name');
-				foreach ($list_subcategories as $subcategory) {
-					Subcategory::delete($conn, $subcategory->get_id());
-				}
         		return true;
         	}
     	}else{
-    		echo _('Error, this Category are in use.');
+    		echo _('Error, this Subcategory are in use.');
     		return false;
     	}
     }
 	function edit($conn, $id, $name){    		
-    	$sql = 'UPDATE category SET name="'.$name.'" WHERE id='.$id;
+    	$sql = 'UPDATE subcategory SET name="'.$name.'" WHERE id='.$id;
 
     	if ($conn->Execute($sql) === false) {
-           	print 'Error rename Category: ' . $conn->ErrorMsg() . '<br/>';
+           	print 'Error rename Subcategory: ' . $conn->ErrorMsg() . '<br/>';
            	exit;
         }
         

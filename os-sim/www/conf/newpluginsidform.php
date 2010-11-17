@@ -45,6 +45,20 @@ echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+  <script type="text/javascript">
+  function load_subcategory (category_id) {
+		$("#ajaxSubCategory").html("<img src='../pixmaps/loading.gif' width='20' alt='Loading'>Loading");
+		$.ajax({
+			type: "GET",
+			url: "modifypluginsid_ajax.php",
+			data: { category_id:category_id },
+			success: function(msg) {
+				$("#ajaxSubCategory").html(msg);
+			}
+		});
+	}
+  </script>
 </head>
 <body>
 
@@ -64,12 +78,17 @@ $name = GET('name');
 $sid = GET('sid');
 $reliability = GET('reliability');
 $priority = GET('priority');
+$category = GET('category');
+$subCategory = GET('subCategory');
+		
 
 ossim_valid($plugin, OSS_DIGIT, 'illegal:' . _("plugin"));
 ossim_valid($name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, 'illegal:' . _("name"));
 ossim_valid($sid, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("sid"));
 ossim_valid($reliability, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("reliability"));
 ossim_valid($priority, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("priority"));
+ossim_valid($category, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("category"));
+ossim_valid($subCategory, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("subCategory"));
 
 if (ossim_error()) {
    die(ossim_error());
@@ -77,13 +96,25 @@ if (ossim_error()) {
 
 $db = new ossim_db();
 $conn = $db->connect();
-
+// Category
+require_once 'classes/Category.inc';
+$list_categories=Category::get_list($conn);
 if($name!="" && $sid!=""){
     if (in_array($sid, Plugin_sid::get_sids_by_id($conn, $plugin))){
         pluginsid_inputs_error("Sid $sid already exists");
     }
     else {
-        Plugin_sid::insert($conn, $plugin, $name, $sid, $reliability, $priority);?>
+		//
+		if($category=='NULL'){
+			$category=NULL;
+			$subCategory=NULL;
+		}else{
+			if($subCategory=='NULL'){
+				$subCategory=NULL;
+			}
+		}
+        Plugin_sid::insert($conn, $plugin, $name, $sid, $reliability, $priority, $category, $subCategory);
+		?>
         <p><?php echo _("Plugin succesfully updated") ?></p>
         <script type="text/javascript">
         //<![CDATA[
@@ -108,6 +139,27 @@ if($name!="" && $sid!=""){
   <tr>
     <th> <?php echo gettext("sid"); ?> (*)</th>
     <td class="left"><input type="text" name="sid" value="<?php echo GET('sid')?>"/></td>
+  </tr>
+  <tr>
+    <th> <?php echo gettext("Category"); ?> </th>
+    <td class="left">
+        <select name="category" onchange="load_subcategory(this.value);">
+			<option value='NULL'>&nbsp;</option>
+		<?php foreach ($list_categories as $category) { ?>
+			<option value='<?php echo $category->get_id(); ?>'><?php echo  str_replace('_', ' ', $category->get_name()); ?></option>
+		<?php } ?>
+        </select>
+    </td>
+  </tr>
+  <tr>
+    <th> <?php echo gettext("Subcategory"); ?> </th>
+    <td class="left">
+	<div id="ajaxSubCategory">
+		<select name="subCategory">
+			<option value='NULL' SELECTED>&nbsp;</option>
+		</select>
+	</div>
+    </td>
   </tr>
   <tr>
     <th> <?php echo gettext("Reliability"); ?></th>
@@ -136,7 +188,7 @@ if($name!="" && $sid!=""){
             <option value="2" <?=((intval($priority)==2)? " selected":"")?>>2</option>
             <option value="3" <?=((intval($priority)==3)? " selected":"")?>>3</option>
             <option value="4" <?=((intval($priority)==4)? " selected":"")?>>4</option>
-            <option value="5 <?=((intval($priority)==5)? " selected":"")?>">5</option>
+            <option value="5" <?=((intval($priority)==5)? " selected":"")?>>5</option>
         </select>
     </td>
   </tr>

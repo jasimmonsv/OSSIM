@@ -53,11 +53,25 @@ $sid = REQUEST('sid');
 $priority = REQUEST('priority');
 $reliability = REQUEST('reliability');
 $name = REQUEST('name');
+$category = REQUEST('category');
+$subCategory = REQUEST('subCategory');
 ossim_valid($id, OSS_ALPHA, 'illegal:' . _("id"));
 ossim_valid($sid, OSS_ALPHA, 'illegal:' . _("sid"));
 ossim_valid($priority, OSS_ALPHA, 'illegal:' . _("priority"));
 ossim_valid($reliability, OSS_ALPHA, 'illegal:' . _("reliability"));
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("name"));
+ossim_valid($category, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("category"));
+ossim_valid($subCategory, OSS_NULLABLE, OSS_ALPHA, 'illegal:' . _("subCategory"));
+//
+if($category=='NULL'){
+	$category=NULL;
+	$subCategory=NULL;
+}else{
+	if($subCategory=='NULL'){
+		$subCategory=NULL;
+	}
+}
+//
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -74,7 +88,7 @@ if (($reliability < 0) or ($reliability > 10)) {
 require_once ('classes/Plugin_sid.inc');
 $db = new ossim_db();
 $conn = $db->connect();
-Plugin_sid::update($conn, $id, $sid, $priority, $reliability, $name);
+Plugin_sid::update($conn, $id, $sid, $priority, $reliability, $category, $subCategory, $name);
 $db->close($conn);
 ?>
 

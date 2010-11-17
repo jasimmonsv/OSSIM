@@ -92,6 +92,9 @@ if ($plugin_list = Plugin::get_list($conn, "$where ORDER BY $order $limit")) {
             $tipo = "Other ($type)";
         }
         $xml.= "<cell><![CDATA[" . $tipo . "]]></cell>";
+		// Source Type
+		$sourceType=$plugin->get_sourceType();
+		$xml.= "<cell><![CDATA[" . $sourceType . "]]></cell>";
         $desc = $plugin->get_description();
         if ($desc == "") $desc = "&nbsp;";
         $xml.= "<cell><![CDATA[" . $desc . "]]></cell>";
