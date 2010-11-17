@@ -59,17 +59,11 @@ else $cols = "280,100%";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-<head>
-  <title> 
-  <?php
-	echo gettext("OSSIM Framework"); ?> </title>
-		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-		<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
-	</head>
-<body>
-<?php include ("../hmenu.php"); ?>
-<?php
+  </head>
+	<frameset rows="35,*" frameborder=0 framespacing=0>
+	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>" scrolling='no'>
+		<frameset id="frames" cols="<?php echo $cols ?>" frameborder="no" border='0' framespacing='0'>
+			<?php
 if ($_GET['directive'] != '' || $_GET['action'] == "add_directive") {
     $action = $_GET['action'];
     if ($action == 'add_directive') {
@@ -101,9 +95,8 @@ if ($_GET['directive'] != '' || $_GET['action'] == "add_directive") {
     $scroll = "auto";
 }
 ?>
-<frameset id="frames" cols="<?php echo $cols ?>" frameborder="no" border='0' framespacing='0'>
-	<frame src="left.php?right=<?php echo urlencode($right) ?>" name="left" id="leftframe">
-	<frame src="" name="right" scrolling="<?php echo $scroll ?>" id="rightframe">
-</frameset>
-</body>
+			<frame src="left.php?right=<?php echo urlencode($right) ?>" name="left" id="leftframe">
+			<frame src="" name="right" scrolling="<?php echo $scroll ?>" id="rightframe">
+		</frameset>
+	</frameset>
 </html>

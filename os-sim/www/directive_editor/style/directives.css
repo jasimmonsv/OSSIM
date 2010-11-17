@@ -60,6 +60,10 @@ table {
 .noborder {
     border-width: 0px;
 }
+.transparent {
+	border-width: 0px;
+	background-color:transparent;
+}
 
 th { word-wrap:nowrap; padding:2px 10px 2px 10px; border: 1px solid #aaaaaa; background: #cccccc url(../../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png) 50% 50% repeat-x; font-size: 11px; color: #222222; font-weight: bold; text-align: center; }
 
@@ -88,6 +92,15 @@ td {
 	border-color: #cbcbcb;
 	border-width: 1px;
 	font-size: 8pt;
+	text-align: center;
+}
+.nobborder {
+	border-width: 0px;
+	text-align: left;
+	background: transparent;
+}
+.center {
+	border-width: 0px;
 	text-align: center;
 }
 

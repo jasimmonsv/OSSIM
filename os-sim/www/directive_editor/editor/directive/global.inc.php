@@ -44,100 +44,71 @@ if ($directive_xml == "") {
 }
 ?>	
 	<!-- #################### global properties ##################### -->
-	<table width="<?php echo $left_table_width; ?>" style="background-color:#F2F2F2">
+	<table width="<?php echo $left_table_width; ?>" class="transparent">
 		<tr>
-			<th colspan="5">
-				<?php echo gettext("Global Properties"); ?>
+		<td class="nobborder">
+		
+		<!-- ##### name ##### -->
+		<div id="wizard_1">
+		<table class="transparent" width="400">
+		<tr>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px" colspan="2">
+				<?php echo gettext("Name for the directive"); ?>
 			</th>
 		</tr>
-		<!-- ##### name ##### -->
 		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px;border:0px">
-				<?php echo gettext("Name"); ?>
+			<td style="width: 100%; text-align: left; padding-left: 5px; padding-right: 8px;border:0px">
+				<input type="text" style="width: 100%;height:20px;font-size:13px" name="name" id="name" value="<?php echo str_replace("'", "", str_replace("\"", "", $directive->name)); ?>" title="<?php echo str_replace("'", "", str_replace("\"", "", $directive->name)); ?>" onkeypress="onKeyPressElt(this,event)" onchange="onChangeName()" onblur="onChangeName()" onfocus="onFocusName()">
 			</td>
-			<td style="width: 100%; text-align: left; padding-left: 5px; padding-right: 8px;border:0px" colspan="4">
-				<input type="text" style="width: 100%" name="name" id="name" value="<?php echo str_replace("'", "", str_replace("\"", "", $directive->name)); ?>" title="<?php echo str_replace("'", "", str_replace("\"", "", $directive->name)); ?>" onkeypress="onKeyPressElt(this,event)" onchange="onChangeName()" onblur="onChangeName()" onfocus="onFocusName()">
+			<td class="nobborder">
+				<input type="button" value="<?php echo _("Next") ?>" onclick="wizard_next()"></input>
 			</td>
 		</tr>
+		</table>
+		</div>
+		
 		<!-- ##### id ##### -->
+		<div id="wizard_2" style="display:none">
+		<? $categories = unserialize($_SESSION['categories']);
+		// min IDs in range
+		foreach($categories as $category) {
+		?><input type="hidden" name="<?=$category->xml_file."_mini"?>" id="<?=$category->xml_file."_mini"?>" value="<?=$category->mini?>"><?
+		}
+		?>
+		<input type="hidden" name="category_old" id="category_old" value="<?=$directive_xml?>">
+		<input type="hidden" name="category" id="category" value="">
+		<input type="hidden" name="iddir_old" id="iddir_old" value="<?=$directive->id?>">
+		<input type="hidden" style="width: <?php echo $id_width; ?>" name="iddir" id="iddir" value="<?php echo $directive->id; ?>" title="<?php echo $directive->id; ?>" onkeypress="onKeyPressElt(this,event)" onchange="onChangeId(<?php echo $directive->id; ?>)" onblur="onChangeId(<?php echo $directive->id; ?>)"/>
+		<table class="transparent" width="200">
 		<tr>
-			<td style="white-space: nowrap;padding-left: 5px; padding-right: 5px;border:0px">
-				<?php
-echo gettext("Category"); ?>
-			</td>
-			<td style="width: <?php
-echo $select_width; ?>;
-				text-align: left; padding-left: 5px;border:0px"
-			>
-				<?
-$categories = unserialize($_SESSION['categories']);
-				// min IDs in range
-				foreach($categories as $category) {
-				?><input type="hidden" name="<?=$category->xml_file."_mini"?>" id="<?=$category->xml_file."_mini"?>" value="<?=$category->mini?>"><?
-				}
-				?>
-				<input type="hidden" name="category_old" id="category_old" value="<?=$directive_xml?>">
-				<input type="hidden" name="iddir_old" id="iddir_old" value="<?=$directive->id?>">
-				<select style="width: <?php
-echo $select_width; ?>"
-					name="category"
-					id="category"
-					onchange="onChangeCategory(<?php
-echo $directive->id; ?>)"
-				>
-					<?php
-foreach($categories as $category) {
-    //$selected = selectIf($category->mini <= $directive->id && $directive->id <= $category->maxi);
-	$selected = ($category->xml_file == $directive_xml) ? " selected" : "";
-    //echo '<option value="' . $category->id . '"' . $selected . '>' . $category->name . '</option>';
-	// Now pass category filename, category id is not a good idea
-	echo '<option value="' . $category->xml_file . '"' . $selected . '>' . $category->name . '</option>';
-}
-?>
-				</select>
-			</td>
-			<td style="width: <?php
-echo $id_width; ?>; text-align: left;border:0px"
-			>
-				<input type="text" style="width: <?php
-echo $id_width; ?>"
-					name="iddir"
-					id="iddir"
-					value="<?php
-echo $directive->id; ?>"
-					title="<?php
-echo $directive->id; ?>"
-					onkeypress="onKeyPressElt(this,event)"
-					onchange="onChangeId(<?php
-echo $directive->id; ?>)"
-					onblur="onChangeId(<?php
-echo $directive->id; ?>)"
-				/>
-			</td>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px;border:0px">
-				<?php
-echo gettext("Priority"); ?>
-			</td>
-			<td style="width: <?php
-echo $priority_width; ?>;
-				text-align: left; padding-left: 5px;border:0px"
-			>
-				<select style="width: <?php
-echo $priority_width; ?>"
-					name="priority"
-					id="priority"
-				>
-					<?php
-for ($i = 0; $i <= 5; $i++) {
-    $selected = selectIf($directive->priority == $i);
-    echo "<option value=\"$i\"$selected>$i</option>";
-}
-?>
-				</select>
-			</td>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Category"); ?>
+			</th>
 		</tr>
+		<?php foreach ($categories as $category) { ?>
+		<tr><td class="center nobborder"><input type="button" style="width:100%<?php echo ($category->xml_file == $directive_xml) ? ";background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" : "";?>" value="<?php echo $category->name ?>" onclick="document.getElementById('category').value='<?php echo $category->xml_file ?>';onChangeCategory(<?php echo $directive->id; ?>);wizard_next();"></input></td></tr>
+		<?php } ?>
+		</table>
+		</div>
+		
+		<div id="wizard_3" style="display:none">
+		<input type="hidden" name="priority" id="priority" value="<?php echo $directive->priority ?>"></input>
+		<table class="transparent" width="100">
+			<tr>
+				<th style="white-space: nowrap; padding: 5px;font-size:12px">
+					<?php echo gettext("Priority"); ?>
+				</th>
+			</tr>
+			<?php for ($i = 0; $i <= 5; $i++) { ?>
+			<tr><td class="center nobborder"><input type="button" style="width:100%<?php if ($i == 3) echo ";background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" ?>" value="<?php echo $i ?>" onclick="document.getElementById('priority').value='<?php echo $i ?>';wizard_next();"></input></td></tr>
+			<?php } ?>
+		</table>
+		</div>
+		</td>
+		</tr>
+		
 		<!-- ##### list of groups ##### -->
-		<!-- 
+		<!--
 		<tr><td colspan="5" style="border:0px">&nbsp;</td></tr>
 		<tr><th colspan="5"><?php echo _("Groups")?></th></tr>
 		<tr>
@@ -189,6 +160,7 @@ for ($i = 0; $i <= 5; $i++) {
 					</table>
 				</div>
 			</td>
-		</tr> -->
+		</tr>
+		-->
 	</table>
 	<!-- #################### END: global properties ##################### -->
