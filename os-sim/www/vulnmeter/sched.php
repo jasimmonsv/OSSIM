@@ -1081,7 +1081,7 @@ EOT;
         }
     } else {
         $query = "SELECT distinct(t1.id), t1.name, t1.description FROM vuln_nessus_settings t1
-                     WHERE deleted = '0' and (name='Default' or owner in ('0','$username') ORDER BY t1.name";
+                     WHERE deleted = '0' and (name='Default' or owner in ('0','$username')) ORDER BY t1.name";
     }                          
     //var_dump($query); 
     
