@@ -38,43 +38,55 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 //
 
-// LOCAL SERVER 
-$scanner = ($_SESSION["scanner"]=="openvas") ? "openvas-client" : "nessus";
-$running = shell_exec('ps -ef | grep "'.$scanner.'" | grep -v "/bin/sh" | egrep -v "serving|grep|nessus-service|nessusd" | wc -l'); 
-$run = (intval($running) == 0) ? "0" : "1";
-
-/*
-#  nessusd: testing 192.168.1.5 (/var/lib/nessus/plugins/DDI_Directory_Scanner.nasl)
-$lineas = explode("\n",`ps -ef | grep "$scanner" | grep -v "/bin/sh" | grep -v grep`); 
-$i=0; foreach ($lineas as $linea) if (trim($linea)!="") {
-	if (preg_match("/testing (.*?) \((.*)\/(.*?)\.(.*?)\)/",$linea,$found)) {
-		if ($i++<25) print ";".$found[1]." ".$found[3];
-        if ($i==26) print ";[...] ";
-	}
+// LOCAL SERVER
+if ($_SESSION["scanner"]=="omp") {
+    require_once ('classes/OMP.inc');
+    $omp = new OMP();
+    
+    $tresults = $omp->get_number_of_results("Running|Paused|Pause Requested|Requested");
+    $details = $omp->get_tasks_details("Running|Paused|Pause Requested|Requested");
+    
+    echo "$tresults|$details";
+    
 }
-*/
+else {
+    $scanner = ($_SESSION["scanner"]=="openvas") ? "openvas-client" : "nessus";
+    $running = shell_exec('ps -ef | grep "'.$scanner.'" | grep -v "/bin/sh" | egrep -v "serving|grep|nessus-service|nessusd" | wc -l'); 
+    $run = (intval($running) == 0) ? "0" : "1";
 
-// Get .work running scans
-$ips = array();
-$details = array();
+    /*
+    #  nessusd: testing 192.168.1.5 (/var/lib/nessus/plugins/DDI_Directory_Scanner.nasl)
+    $lineas = explode("\n",`ps -ef | grep "$scanner" | grep -v "/bin/sh" | grep -v grep`); 
+    $i=0; foreach ($lineas as $linea) if (trim($linea)!="") {
+        if (preg_match("/testing (.*?) \((.*)\/(.*?)\.(.*?)\)/",$linea,$found)) {
+            if ($i++<25) print ";".$found[1]." ".$found[3];
+            if ($i==26) print ";[...] ";
+        }
+    }
+    */
 
-$lineas = explode("\n",`ps -ef | grep ".\out" | grep -v grep`); 
-foreach ($lineas as $linea) if (preg_match("/ (.+\.out)/",$linea,$found)) {
-	$file = preg_replace("/.*(\/usr)/","\\1",str_replace(".out",".work",trim($found[1])));
-	$tail = file($file);
-	foreach ($tail as $linea) {
-		$linea = trim($linea);
-		if (preg_match("/(.*?)\|(.*?)\|(.*?)\|(.*)/",$linea,$found))
-			$ips[$found[1]][$found[2]]++;
-	}
+    // Get .work running scans
+    $ips = array();
+    $details = array();
+
+    $lineas = explode("\n",`ps -ef | grep ".\out" | grep -v grep`); 
+    foreach ($lineas as $linea) if (preg_match("/ (.+\.out)/",$linea,$found)) {
+        $file = preg_replace("/.*(\/usr)/","\\1",str_replace(".out",".work",trim($found[1])));
+        $tail = file($file);
+        foreach ($tail as $linea) {
+            $linea = trim($linea);
+            if (preg_match("/(.*?)\|(.*?)\|(.*?)\|(.*)/",$linea,$found))
+                $ips[$found[1]][$found[2]]++;
+        }
+    }
+    foreach ($ips as $type => $ip) {
+        foreach ($ip as $host => $count) {
+            $details[] = "$type: <b>$host</b> [$count]";
+            $run++;
+        }
+    }
+    // limit last
+    $detail = implode("|",array_slice(array_reverse($details),0,30));
+    echo $run."|".$detail;
 }
-foreach ($ips as $type => $ip) {
-	foreach ($ip as $host => $count) {
-		$details[] = "$type: <b>$host</b> [$count]";
-		$run++;
-	}
-}
-// limit last
-$detail = implode(";",array_slice(array_reverse($details),0,30));
-echo $run.";".$detail;
 ?>

@@ -43,7 +43,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 echo gettext("Vulnmeter"); ?> </title>
 <!--  <meta http-equiv="refresh" content="3"> -->
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <meta http-equiv="refresh" content="60">
+  <meta http-equiv="refresh" content="120;url=manage_jobs.php?bypassexpirationupdate=1">
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
@@ -93,17 +93,20 @@ echo gettext("Vulnmeter"); ?> </title>
             success: function(msg) {
                 if(command=='pause_task') {
                     alert("<?=_("Pausing job, please wait a few seconds.")?>");
+                    document.location.reload();
                 }
                 else if(command=='play_task') {
                     alert("<?=_("Starting job, please wait a few seconds.")?>");
+                    document.location.reload();
                 }
                 else if(command=='stop_task') {
                     alert("<?=_("Stopping job, please wait a few seconds.")?>");
+                    setTimeout('document.location.href=manage_jobs.php?hmenu=Vulnerabilities&smenu=Jobs',8000);
                 }
                 else if(command=='resume_task') {
                     alert("<?=_("Resuming job, please wait a few seconds.")?>");
+                    document.location.reload();
                 }
-                document.location.reload();
             }
         });
     }
@@ -116,7 +119,6 @@ echo gettext("Vulnmeter"); ?> </title>
                 url: "manage_jobs.php",
                 data: { disp: 'delete_task', job_id: id },
                 success: function(msg) {
-                    alert("<?=_("Deleting job, please wait a few seconds.")?>");
                     document.location.reload();
                 }
             });
@@ -138,14 +140,22 @@ echo gettext("Vulnmeter"); ?> </title>
     if ($.cookie('nmappoints')) nmappoints = $.evalJSON($.cookie('nmappoints'));
     var max_points = 30;
     var loading = '<img width="16" align="absmiddle" src="images/loading.gif">&nbsp;&nbsp;<?=_("Loading")?>...';
+    var last_state = 0;
     function refresh_state() {
+        var state = (last_state == 0) ? "?bypassexpirationupdate=1" : "";
         $.ajax({
             type: "GET",
-            url: "get_state.php",
+            url: "get_state.php"+state,
             success: function(msg) {
-            var data = msg.split(";");
+                var data = msg.split("|");
+                last_state = data[0];
                 if(data[0]==1) {
-                    $('#nta').html(data[0]);
+                    <?php
+                    if ($_SESSION["scanner"]!="omp") {?>
+                        $('#nta').html(data[0]);
+                    <?php
+                    }
+                    ?>
                     $('#nessus_threads').html('');
                     $('#td1').attr("width","100%");
                     $('#td2').attr("width", "1%");
@@ -155,18 +165,52 @@ echo gettext("Vulnmeter"); ?> </title>
                     }
                 }
                 else if(data[0]==0) {
-                    $('#nta').html(data[0]);
+                    <?php
+                    if ($_SESSION["scanner"]!="omp") {?>
+                        $('#nta').html(data[0]);
+                    <?php
+                    }
+                    ?>
                     $('#nessus_threads').html('');
                     $('#td1').attr("width","100%");
                     $('#td2').attr("width", "1%");
                     $('#status_server').html('<font color=blue>Idle</font>');
-                    $('#nmta').html('');
+                    <?php
+                    if ($_SESSION["scanner"]!="omp") {?>
+                        $('#nmta').html('');
+                    <?php
+                    }
+                    else
+                    {
+                    ?>
+                        $('#nmta').css("text-align","center");
+                        $('#nmta').html('No Running Scans');
+                    <?php
+                    }
+                    ?>
                 }
                 else{
-                	data[0] = data[0] -1;
+                    <?php
+                    if ($_SESSION["scanner"]!="omp") {?>
+                        data[0] = data[0] -1;
+                    <?php
+                    }
+                    else {
+                    ?>
+                        if(data[0]==-1) {
+                            data[0] = 0;
+                        }
+                    <?php
+                    }
+                    ?>
                     $('#status_server').html('<font color=green>Scan in progress</font>');
                     nessuspoints.push(data[0]);
-                    $('#nta').html(data[0]);
+                    <?php
+                    if ($_SESSION["scanner"]!="omp") {?>
+                        $('#nta').html(data[0]);
+                    <?php
+                    }
+                    ?>
                     if (nessuspoints.length > max_points)
                         nessuspoints.splice(0,1);
                     $('#nessus_threads').sparkline(nessuspoints, { width:nessuspoints.length*4 });
@@ -176,10 +220,22 @@ echo gettext("Vulnmeter"); ?> </title>
                     $.sparkline_display_visible();
                     // 
                     $('#nmta').html('');
-                    for (var i=1;i<data.length;i++) {
-                        $('#nmta').html($('#nmta').html()+data[i]+'<br>')
+                    
+                    <?php
+                    if ($_SESSION["scanner"]=="omp") {
+                    ?>
+                    $('#nmta').html($('#nmta').html()+data[1]);
+                    <?php
                     }
-                    setTimeout (refresh_state,2000);
+                    else {
+                    ?>
+                        for (var i=1;i<data.length;i++) {
+                            $('#nmta').html($('#nmta').html()+data[i]+'<br>')
+                        }
+                    <?php
+                    }
+                    ?>
+                    setTimeout (refresh_state,4000);
                 }
             }
         });
@@ -497,7 +553,7 @@ $out = all_jobs(($page-1)*$pagesize,$pagesize);
         <td class="nobborder" valign="top" style="padding-top:5px;">
         <?
         
-        if ($out!=0 && $page!=$num_pages){
+        if ($out!=0 && $num_pages!=1){
             if ($page==1 && $page==$num_pages){ echo '<center><< '._("First").' <'._(" Previous").'&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;'._("Next").' >&nbsp;'._("Last").' >></center>'; } 
             elseif ($page==1){ echo '<center><< '._("First").' < '._("Previous").'&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;<a href="manage_jobs.php?page='.($page+1).'">'._("Next").' ></a>&nbsp;<a href="manage_jobs.php?page='.$num_pages.'">'._("Last").' >></a></center>';}
             elseif($page == $num_pages) {echo '<center><a href="manage_jobs.php?page=1"><< '._("First").'</a>&nbsp;<a href="manage_jobs.php?page='.($page-1).'">< '._("Previous").'</a>&nbsp;&nbsp;&nbsp;['.$page.' '._("of").' '.$num_pages.']&nbsp;&nbsp;&nbsp;'._("Next").'>&nbsp;'._("Last").' >></center>';}

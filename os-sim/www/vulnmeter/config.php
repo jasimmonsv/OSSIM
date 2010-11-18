@@ -100,7 +100,9 @@ $dbconn = $db->connect();
 $scanner = $GLOBALS["CONF"]->db_conf["scanner_type"];
 //$vuln_scan_only_users_hosts = $GLOBALS["CONF"]->db_conf["vuln_scan_only_users_hosts"];
 
-if (preg_match("/openvas/i", $scanner))
+if(preg_match("/omp/i", $scanner))
+    $_SESSION["scanner"]="omp";
+else if (preg_match("/openvas/i", $scanner))
     $_SESSION["scanner"]="openvas";
 else
     $_SESSION["scanner"]="nessus";
