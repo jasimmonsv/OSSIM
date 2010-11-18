@@ -61,7 +61,7 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
-if ($logfile != "") {
+if ($logfile != "" && preg_match("/\//",$logfile)) {
     $found_str = _("Found in log file")." '$logfile'";
     $validate_file = $logfile;
 } else {
