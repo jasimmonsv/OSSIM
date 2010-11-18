@@ -35,69 +35,170 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Server.inc');
+require_once ('classes/Util.inc');
+
 Session::logcheck("MenuPolicy", "PolicyServers");
+
+$error = false;
+
+$hostname        =  POST('hostname');
+$ip              =  POST('ip');
+$port            =  POST('port');
+$descr           =  POST('descr');
+$correlate       = (POST('correlate')) ? 1 : 0;
+$cross_correlate = (POST('cross_correlate')) ? 1 : 0;
+$store           = (POST('store')) ? 1 : 0;
+$qualify         = (POST('qualify')) ? 1 : 0;
+$resend_events   = (POST('resend_events')) ? 1 : 0;
+$resend_alarms   = (POST('resend_alarms')) ? 1 : 0;
+$sign            = (POST('sign')) ? 1 : 0;
+$multi           = (POST('multi')) ? 1 : 0;
+$sem             = (POST('sem')) ? 1 : 0;
+$sim             = (POST('sim')) ? 1 : 0;
+
+
+$validate = array (
+	"hostname"  	  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Hostname")),
+	"ip"        	  => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip")),
+	"port"      	  => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
+	"descr"     	  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
+	"correlate"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Correlation")),
+	"cross_correlate" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Cross Correlation")),
+	"store" 		  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Store")),
+	"qualify" 		  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Qualify")),
+	"resend_alarms"   => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Resend Alarms")),
+	"resend_events"   => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Resend Events")),
+	"sign" 			  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Sign")),
+	"multi"			  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Multilevel")),
+	"sem" 			  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Logger")),
+	"sim"			  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("SIEM")));
+	
+	
+if ( GET('ajax_validation') == true )
+{
+	$validation_errors = validate_form_fields('GET', $validate);
+	if ( $validation_errors == 1 )
+		echo 1;
+	else if ( empty($validation_errors) )
+		echo 0;
+	else
+		echo $validation_errors[0];
+		
+	exit();
+}
+else
+{
+	$validation_errors = validate_form_fields('POST', $validate);
+	
+	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors))  )
+	{
+		$error = true;
+				
+		$message_error = array();
+		
+		if ( is_array($validation_errors) && !empty($validation_errors) )
+			$message_error = array_merge($message_error, $validation_errors);
+		else
+		{
+			if ($validation_errors == 1)
+				$message_error [] = _("Invalid send method");
+		}
+						
+	}	
+	
+	if ( POST('ajax_validation_all') == true )
+	{
+		if ( is_array($message_error) && !empty($message_error) )
+			echo implode( "<br/>", $message_error);
+		else
+			echo 0;
+		
+		exit();
+	}
+		
+}
+
+if ( $error == true )
+{
+	$_SESSION['_server']['hostname']        = $hostname;
+	$_SESSION['_server']['ip']              = $ip;
+	$_SESSION['_server']['port']            = $port;
+	$_SESSION['_server']['descr']           = $descr;
+	$_SESSION['_server']['correlate']       = $correlate;
+	$_SESSION['_server']['cross_correlate'] = $cross_correlate;
+	$_SESSION['_server']['qualify']    		= $qualify;
+	$_SESSION['_server']['store']    		= $store ;
+	$_SESSION['_server']['resend_events']   = $resend_events;
+	$_SESSION['_server']['resend_alarms']   = $resend_alarms;
+	$_SESSION['_server']['sign']   			= $sign;
+	$_SESSION['_server']['multi']  			= $multi;
+	$_SESSION['_server']['sem']   		    = $sem;
+	$_SESSION['_server']['sim']   		    = $sim ;
+}
+
 ?>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link type="text/css" rel="stylesheet" href="../style/style.css"/>
 </head>
+
 <body>
-                                                                                
-  <h1> <?php
-echo gettext("Update server"); ?> </h1>
 
 <?php
-require_once 'classes/Security.inc';
-$name = POST('name');
-$ip = POST('ip');
-$port = POST('port');
-$descr = POST('descr');
-$correlate = POST('correlate');
-$cross_correlate = POST('cross_correlate');
-$store = POST('store');
-$qualify = POST('qualify');
-$resend_alarms = POST('resend_alarms');
-$resend_events = POST('resend_events');
-$sign = POST('sign');
-$sem = POST('sem');
-$sim = POST('sim');
-ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Server name"));
-ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip address"));
-ossim_valid($port, OSS_DIGIT, 'illegal:' . _("Port number"));
-ossim_valid($descr, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Description"));
-ossim_valid($correlate, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Correlation"));
-ossim_valid($cross_correlate, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Cross Correlation"));
-ossim_valid($store, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Store"));
-ossim_valid($qualify, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Qualify"));
-ossim_valid($resend_alarms, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Resend Alarms"));
-ossim_valid($resend_events, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Resend Events"));
-ossim_valid($sign, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Sign"));
-ossim_valid($sim, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Siem"));
-ossim_valid($sem, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Logger"));
-if (ossim_error()) {
-    die(ossim_error());
+if (POST('withoutmenu') != "1") 
+{
+	include ("../hmenu.php"); 
+	$get_param = "name=$hostname";	
 }
-if (POST('insert')) {
-    require_once 'ossim_db.inc';
-    require_once 'classes/Server.inc';
+else
+	$get_param = "name=$hostname&withoutmenu=1";	
+?>
+
+<h1><?php echo gettext("Update Server"); ?></h1>
+
+
+<?php
+
+
+if ( POST('insert') && !empty($hostname) )
+{
+	if ( $error == true)
+	{
+		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
+		Util::print_error($txt_error);	
+		Util::make_form("POST", "newserverform.php?".$get_param);
+		die();
+	}
+		
     $db = new ossim_db();
     $conn = $db->connect();
-    Server::update($conn, $name, $ip, $port, $descr, $correlate, $cross_correlate, $store, $qualify, $resend_alarms, $resend_events, $sign, $sem, $sim);
-    $db->close($conn);
+	
+    if(!isset( $resend_alarms) ) $resend_alarms = 0;
+    if(!isset( $resend_events) ) $resend_events = 0;
+    
+    Server::update($conn, $hostname, $ip, $port, $descr, $correlate, $cross_correlate, $store, $qualify, $resend_alarms, $resend_events, $sign, $sem, $sim);
+    
+	$db->close($conn);
+	
 }
-?>
-    <p> <?php
-echo gettext("Server succesfully updated"); ?> </p>
-    <script>document.location.href="server.php"</script>
 
-<?php
-// update indicators on top frame
-$OssimWebIndicator->update_display();
+if ( isset($_SESSION['_server']) )
+	unset($_SESSION['_server']);
+
 ?>
+    <p> <?php echo gettext("Server succesfully updated"); ?> </p>
+    <? if ($_SESSION["menu_sopc"]=="Servers" && POST('withoutmenu') != "1") { ?><script>document.location.href="server.php"</script><? } ?>
+	
 </body>
 </html>
+

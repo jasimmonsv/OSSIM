@@ -53,8 +53,19 @@ Session::logcheck("MenuPolicy", "PolicyPorts");
 	<script type="text/javascript" src="../js/utils.js"></script>
 		
 	<style type='text/css'>
-		#table_form { width: 400px;}
-		#table_form th {width: 150px;}
+		<?php
+		if ( GET('withoutmenu') == "1" )
+		{
+			echo "#table_form {background: transparent; width: 400px;}";
+		    echo "#table_form th {width: 130px;}";
+		}
+		else
+		{
+			echo "#table_form {background: transparent; width: 450px;}";
+		    echo "#table_form th {width: 150px;}";
+		}
+		?>
+				
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
 		label {border: none; cursor: default;}
@@ -78,10 +89,6 @@ Session::logcheck("MenuPolicy", "PolicyPorts");
                                                                                 
 <?php
 
-if (GET('withoutmenu') != "1") 
-	include ("../hmenu.php"); 
-
-
 if ( isset($_SESSION['_singleport']) )
 {
 	$port     = $_SESSION['_singleport']['port'];        
@@ -92,11 +99,17 @@ if ( isset($_SESSION['_singleport']) )
 	unset($_SESSION['_singleport']);
 }
 
+if (GET('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
+
 ?>	
 
 <div id='info_error' class='ossim_error' style='display: none;'></div>
 
 <form method="post" id='form_p' name='form_p' action="newsingleport.php">
+
+<input type="hidden" name="insert" value="insert"/>
+<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 
 <table align="center" id='table_form'>
 	<tr>

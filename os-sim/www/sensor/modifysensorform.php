@@ -114,10 +114,20 @@ else
 	</script>
 	
 	<style type='text/css'>
+		<?php
+		if ( GET('withoutmenu') == "1" )
+		{
+			echo "#table_form {background: transparent; width: 400px;}";
+		    echo "#table_form th {width: 130px;}";
+		}
+		else
+		{
+			echo "#table_form {background: transparent; width: 500px;}";
+		    echo "#table_form th {width: 150px;}";
+		}
+		?>
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
-		#table_form { background-color: transparent; width:450px;} 
-		#table_form th {width: 150px;}
 		label {border: none; cursor: default;}
 		.bold {font-weight: bold;}
 		div.bold {line-height: 18px;}
@@ -137,7 +147,10 @@ if (GET('withoutmenu') != "1")
 
 <form method="POST" name='formsensor' id='formsensor' action="modifysensor.php">
 <table align="center" id='table_form'>
+	
 	<input type="hidden" name="insert" value="insert"/>
+	<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
+	
 	<tr>
 		<th><label for='hostname'><?php echo gettext("Hostname");?></label></th>
 		<td class="nobborder left">

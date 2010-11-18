@@ -142,9 +142,15 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
+{
 	include ("../hmenu.php"); 
+	$get_param = "name=$net_name";	
+}
+else
+	$get_param = "name=$net_name&withoutmenu=1";	
 ?>
+
 
 <h1> <?php echo gettext("Update Network"); ?> </h1>   
 
@@ -158,7 +164,7 @@ if ( POST('insert') && !empty($net_name) )
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";				
 		Util::print_error($txt_error);	
-		Util::make_form("POST", "newnetform.php?name=".$net_name);
+		Util::make_form("POST", "newnetform.php?".$get_param);
 		die();
 	}
 		
@@ -186,12 +192,12 @@ if ( isset($_SESSION['_net']) )
 	unset($_SESSION['_net']);
 	
 ?>
-    <p> <?php echo gettext("Net succesfully updated"); ?> </p>
-    <script>document.location.href="net.php"</script>
+    <p> <?php echo gettext("Network succesfully updated"); ?> </p>
+    <? if ( $_SESSION["menu_sopc"]=="Networks" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="net.php"</script><? } ?>
 
 	<?php
 	// update indicators on top frame
-	$OssimWebIndicator->update_display();
+	//$OssimWebIndicator->update_display();
 	?>
 
 	</body>

@@ -123,7 +123,7 @@ fi
 
 #This is to fix people with an old version, where /var/ossim/sessions was a file
 if [ -f /var/ossim/sessions ]; then
-	rm /var/ossim/sessions
+	rm -f /var/ossim/sessions
 fi
 
 # asset trees json cache
@@ -131,6 +131,8 @@ if [ ! -d /var/ossim/sessions ]; then
 	rm -f /var/ossim/sessions
 	mkdir -p /var/ossim/sessions
 	chown www-data:www-data /var/ossim/sessions
+else
+	rm -f /var/ossim/sessions/*
 fi
 
 

@@ -34,6 +34,7 @@
 * Function list:
 * Classes list:
 */
+set_time_limit(300);
 require_once 'classes/Security.inc';
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
@@ -93,8 +94,9 @@ if ($key == "hostgroup") {
         $j = 0;
         foreach($hg_list as $hg) {
             if($j>=$from && $j<$to) {
-                $hg_name = $hg->get_name();
-                $li = "key:'hostgroup_$hg_name', isLazy:true , url:'NODES:$hg_name', icon:'../../pixmaps/theme/host_group.png', title:'$hg_name'\n";
+                $hg_key   = base64_encode($hg->get_name());
+				$hg_title = utf8_encode($hg->get_name());
+                $li = "key:'hostgroup_$hg_key', isLazy:true , url:'NODES:$hg_title', icon:'../../pixmaps/theme/host_group.png', title:'$hg_title'\n";
                 $buffer .= (($j>$from) ? "," : "") . "{ $li }\n";
             }
             $j++;
@@ -107,7 +109,7 @@ if ($key == "hostgroup") {
     }
 }
 else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
-    if ($hg_hosts = $hg->get_hosts($conn, $found[1])) {
+    if ($hg_hosts = $hg->get_hosts($conn, base64_decode($found[1]))) {
         $k = 1;
         $j = 0;
         $html = "";
@@ -116,7 +118,7 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
             if($j>=$from && $j<$to) {
                 $host_ip = $hosts->get_host_ip();
                 if (isset($ossim_hosts[$host_ip])) { // test filter
-                    $html.= "{ key:'$key.$k', url:'$host_ip', icon:'../../pixmaps/theme/host.png', title:'$host_ip <font style=\"font-size:80%\">(" . $ossim_hosts[$host_ip] . ")</font>' },\n";
+                    $html.= "{ key:'$key.$k', url:'$host_ip', icon:'../../pixmaps/theme/host.png', title:'$host_ip <font style=\"font-size:80%\">(" . utf8_encode($ossim_hosts[$host_ip]) . ")</font>' },\n";
                     $k++;
                 }
             }
@@ -135,9 +137,10 @@ else if ($key == "net") {
         $j = 0;
         foreach($net_list as $net) {
             if($j>=$from && $j<$to) {
-                $net_name = $net->get_name();
                 $ips = $net->get_ips();
-                $li = "key:'net_$net_name', isLazy:true, url:'".$net->get_ips()."', icon:'../../pixmaps/theme/net.png', title:'$net_name <font style=\"font-size:80%\">(".$ips.")</font>'\n";
+              	$net_key = base64_encode($net->get_name());
+				$net_title = utf8_encode($net->get_name());                
+                $li = "key:'net_$net_key', isLazy:true, url:'".$net->get_ips()."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$ips.")</font>'\n";
                 $buffer .= (($j>$from) ? "," : "") . "{ $li }\n";
             }
             $j++;
@@ -151,7 +154,7 @@ else if ($key == "net") {
 }
 else if (preg_match("/net_(.*)/",$key,$found)){
 	$hostin = array();
-	if ($net_list1 = Net::get_list($conn, "WHERE name='".$found[1]."'")) {
+	if ($net_list1 = Net::get_list($conn, "WHERE name='".base64_decode($found[1])."'")) {
 		require_once("classes/CIDR.inc");
 		foreach($net_list1 as $net) {
 		    $net_name = $net->get_name();
@@ -174,6 +177,7 @@ else if (preg_match("/net_(.*)/",$key,$found)){
     $buffer .= "[";
     $html = "";
     foreach($hostin as $ip => $host_name) {
+    	$host_name = utf8_encode($host_name);
         if($k>=$from && $k<$to) {
             $html.= "{ key:'$key.$k', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$ip <font style=\"font-size:80%\">($host_name)</font>' },\n";
         }
@@ -191,9 +195,10 @@ else if ($key=="netgroup") {
         $j = 0;
         foreach($net_group_list as $net_group) {
             if($j>=$from && $j<$to) {
-                $net_group_name = $net_group->get_name();
+               	$ng_key = base64_encode($net_group->get_name());
+				$ng_title = utf8_encode($net_group->get_name());
                 $nets = $net_group->get_networks($conn, $net_group_name);
-                $li = "key:'netgroup_$net_group_name', isLazy:true , url:'NODES:$net_group_name', icon:'../../pixmaps/theme/net_group.png', title:'$net_group_name'\n";
+                $li = "key:'netgroup_$ng_key', isLazy:true , url:'NODES:$ng_title', icon:'../../pixmaps/theme/net_group.png', title:'$ng_title'\n";
                 $buffer .= (($j>$from) ? "," : "") . "{ $li }\n";
             }
             $j++;
@@ -208,7 +213,7 @@ else if ($key=="netgroup") {
 else if (preg_match("/netgroup_(.*)/",$key,$found)){
     $buffer .= "[";
     $html = "";
-    $nets = Net_group::get_networks($conn, $found[1]);
+    $nets = Net_group::get_networks($conn, base64_decode($found[1]));
     $k = 0;
     foreach($nets as $net) {
         if($k>=$from && $k<$to) {
@@ -250,6 +255,7 @@ else if (preg_match("/all_(.*)/",$key,$found)){
         foreach($hg as $ip) {
             if($i>=$from && $i<$to) {
             $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
+            $hnane = utf8_encode($hname);
             $html.= "{ key:'$key.$j', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
             }
             $i++;

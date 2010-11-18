@@ -201,8 +201,18 @@ else
 	</script>
 	
 	<style type='text/css'>
-		#table_form { min-width: 500px;}
-		#table_form th {width: 150px;}
+		<?php
+		if ( GET('withoutmenu') == "1" )
+		{
+			echo "#table_form {background: transparent; width: 400px;}";
+		    echo "#table_form th {width: 120px;}";
+		}
+		else
+		{
+			echo "#table_form {background: transparent; width: 500px;}";
+		    echo "#table_form th {width: 150px;}";
+		}
+		?>
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
 		label {border: none; cursor: default;}
@@ -232,6 +242,7 @@ if ( !empty ($scan) )
 <form method="POST" name="form_host" id="form_host" action="<?php echo $action ?>">
 
 <input type="hidden" name="insert" value="insert"/>
+<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 
 <table align="center" id='table_form'>
 

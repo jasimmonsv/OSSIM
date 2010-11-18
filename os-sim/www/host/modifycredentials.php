@@ -46,6 +46,7 @@ $error = false;
 
 $action    = POST('action');
 $ip        = POST('ip');
+$hostname  = POST('hostname');
 $type      = POST('type');
 $user_ct   = POST('user_ct');
 $pass_ct   = POST('pass_ct');
@@ -60,7 +61,7 @@ $validate = array (
 	"pass_ct"   => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Password")),
 	"pass_ct2"  => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Repeat Password")),
 	"extra"     => array("validation"=>"OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Extra")));
-	
+
 
 if ($action ==  "edit")
 {
@@ -143,9 +144,9 @@ if ( $error == true )
 	$_SESSION['_credentials']['extra']    = $extra;
 }
 
-?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html>
 <head>
 	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
@@ -162,19 +163,17 @@ if (GET('withoutmenu') != "1")
 
 echo "<h1>".gettext($txt_start)."</h1>";
 
+if ( $error == true)
+{
+	$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
+	Util::print_error($txt_error);	
+	
+	Util::make_form("POST", "hostcredentialsform.php?ip=".$ip);
+	die();
+}
+
 if ( ($action == 'edit' || $action == 'clean') && !empty($ip) ) 
 {
-    
-	if ( $error == true)
-	{
-		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
-		Util::print_error($txt_error);	
-		
-		Util::make_form("POST", "hostcredentialsform.php?ip=".$ip);
-		die();
-	}
-		
-   
     $db = new ossim_db();
     $conn = $db->connect();
 
@@ -186,8 +185,7 @@ if ( ($action == 'edit' || $action == 'clean') && !empty($ip) )
 			Host::clean_credentials($conn, $ip);
 		}	
 	}
-	
-		
+			
 	$db->close($conn);
 	
 	if ( isset($_SESSION['_credentials']) )

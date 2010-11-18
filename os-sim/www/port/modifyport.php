@@ -121,8 +121,13 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
+{
 	include ("../hmenu.php"); 
+	$get_param = "portname=$pgname";	
+}
+else
+	$get_param = "portname=$pgname&withoutmenu=1";	
 ?>
 
 
@@ -136,7 +141,7 @@ if ( POST('insert') && !empty($pgname) )
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
 		Util::print_error($txt_error);	
-		Util::make_form("POST", "newportform.php?portname=".$pgname);
+		Util::make_form("POST", "newportform.php?".$get_param);
 		die();
 	}
 	
@@ -154,7 +159,7 @@ if ( isset($_SESSION['_portgroup']) )
 
 ?>
     <p> <?php echo gettext("Port group succesfully updated"); ?> </p>
-    <? if ($_SESSION["menu_sopc"]=="Ports") { ?><script>document.location.href="port.php"</script><? } ?>
+    <? if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="port.php"</script><? } ?>
 
 </body>
 </html>

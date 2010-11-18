@@ -118,7 +118,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 			else alert('<?=_("You must select a database server")?>');
 		}
 		else if (com=='<?php echo _('Modify')?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'modifydbsform.php?name='+urlencode(items[0].id.substr(3))
+			if (typeof(items[0]) != 'undefined') document.location.href = 'newdbsform.php?name='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a database server")?>');
 		}
 		else if (com=='<?php echo _('New')?>') {
@@ -150,7 +150,7 @@ echo gettext("OSSIM Framework"); ?> </title>
             }
 
             if (com=='modify') {
-                if (typeof(hostname) != 'undefined') document.location.href = 'modifydbsform.php?name='+urlencode(hostname);
+                if (typeof(hostname) != 'undefined') document.location.href = 'newdbsform.php?name='+urlencode(hostname);
                 else alert('<?=_("Database server unselected")?>');
             }
             if (com=='new') {

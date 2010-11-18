@@ -116,7 +116,7 @@ $xml.= "<total>$total</total>\n";
 foreach($sensor_list as $sensor) {
     if (!in_array($sensor->get_ip() , $sensor_stack) && $onlyactive>0) continue;
     if (in_array($sensor->get_ip() , $sensor_stack) && $onlyactive<0) continue;
-    $name = $sensor->get_name();
+    $name = htmlspecialchars(utf8_encode($sensor->get_name()));
     $ip = $sensor->get_ip();
     $xml.= "<row id='".$name."#".$ip."'>";
     //$ip = "<a href=\"sensor_plugins.php?sensor=$ip\">$ip</a>";

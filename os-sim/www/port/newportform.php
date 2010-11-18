@@ -156,8 +156,18 @@ $db->close($conn);
 	</script>
   
 	<style type='text/css'>
-		#table_form { width: 500px;}
-		#table_form th {width: 150px;}
+		<?php
+		if ( GET('withoutmenu') == "1" )
+		{
+			echo "#table_form {background: transparent; width: 400px;}";
+		    echo "#table_form th {width: 130px;}";
+		}
+		else
+		{
+			echo "#table_form {background: transparent; width: 500px;}";
+		    echo "#table_form th {width: 150px;}";
+		}
+		?>
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
 		label {border: none; cursor: default;}
@@ -174,7 +184,6 @@ $db->close($conn);
 <?php
 if (GET('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
-
 ?>
 
 <div id='info_error' class='ossim_error' style='display: none;'></div>
@@ -182,6 +191,7 @@ if (GET('withoutmenu') != "1")
 <form method="post" name='formpg' id='formpg' action="<?php echo ( GET('portname') != "") ? "modifyport.php" : "newport.php" ?>">
 
 <input type="hidden" name="insert" value="insert"/>
+<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 
 <table align="center" id='table_form'>
 	<tr>

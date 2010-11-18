@@ -164,6 +164,7 @@ if (!$opensource) {
     //
     GB_TYPE = 'w';
     function GB_onclose() {
+    	document.location.reload();
     }
     function GB_edit(url) {
         GB_show("Edit Asset",url,"80%","80%");

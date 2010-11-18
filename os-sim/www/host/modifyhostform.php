@@ -371,6 +371,7 @@ if (count($error_nagios) > 0)
 			<td class="nobborder" valign="top">
 				<table>
 					<form method="post" id='formhost' name='formhost' action="modifyhost.php">
+					<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 					<input type="hidden" name="insert" value="insert"/>
 					<input type="hidden" name="old_hostname" id="old_hostname" value="<?php echo $old_hostname; ?>"/>
 					

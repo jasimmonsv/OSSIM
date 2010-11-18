@@ -73,7 +73,7 @@ $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($port_list as $port_group) {
-    $name = utf8_encode($port_group->get_name());
+    $name = htmlspecialchars(utf8_encode($port_group->get_name()));
     $xml.= "<row id='".$name."'>";
     $link_modify = "<a style='font-weight:bold;' href=\"./newportform.php?portname=".urlencode($port_group->get_name())."\">" .$name . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";

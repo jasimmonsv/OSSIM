@@ -124,8 +124,10 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
+else
+	$get_param = "withoutmenu=1";	
 ?>
 
 <h1> <?php echo gettext("New port"); ?> </h1>
@@ -136,7 +138,7 @@ if ( $error == true)
 {
 	$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
 	Util::print_error($txt_error);	
-	Util::make_form("POST", "newportform.php");
+	Util::make_form("POST", "newportform.php?".$get_param);
 	die();
 }
 
@@ -154,7 +156,7 @@ $db->close($conn);
 
 ?>
     <p> <?php echo gettext("Port Group succesfully inserted"); ?> </p>
-    <? if ($_SESSION["menu_sopc"]=="Ports") { ?><script>document.location.href="port.php"</script><? } ?>
+    <? if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="port.php"</script><? } ?>
 
 </body>
 </html>

@@ -134,8 +134,13 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
+{
 	include ("../hmenu.php"); 
+	$get_param = "name=$ngname";	
+}
+else
+	$get_param = "name=$ngname&withoutmenu=1";	
 ?>
 
 <h1> <?php echo gettext("Update Network Group"); ?> </h1>
@@ -149,7 +154,7 @@ if ( POST('insert') && !empty($ngname) )
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";				
 		Util::print_error($txt_error);	
-		Util::make_form("POST", "newnetgroupform.php?name=".$ngname);
+		Util::make_form("POST", "newnetgroupform.php?".$get_param);
 		die();
 	}
 	
@@ -170,7 +175,7 @@ if ( isset($_SESSION['_netgroup']) )
 
 ?>
     <p> <?php echo gettext("Network Group succesfully updated"); ?> </p>
-    <script>document.location.href="netgroup.php"</script>
+    <? if ( $_SESSION["menu_sopc"]=="Network groups" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="netgroup.php"</script><? } ?>
 
 	</body>
 </html>

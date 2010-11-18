@@ -170,8 +170,13 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
+{
 	include ("../hmenu.php"); 
+	$get_param = "ip=$ip";	
+}
+else
+	$get_param = "ip=$ip&withoutmenu=1";	
 ?>
 
 <h1> <?php echo gettext("Modify Host"); ?> </h1>  
@@ -184,7 +189,7 @@ if ( POST('insert') && !empty($ip) )
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";				
 		Util::print_error($txt_error);	
-		Util::make_form("POST", "modifyhostform.php?ip=".$ip);
+		Util::make_form("POST", "modifyhostform.php?".$get_param);
 		die();
 	}
 		
@@ -227,11 +232,11 @@ if ( isset($_SESSION['_host']) )
 
 ?>
     <p><?php echo _("Host succesfully updated") ?></p>
-    <script>document.location.href="host.php"</script>
+    <?if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1") { ?><script>document.location.href="host.php"</script><? } ?>
 	
 	<?php 
 	// update indicators on top frame
-	$OssimWebIndicator->update_display();
+	//$OssimWebIndicator->update_display();
 	?>
 
 	</body>

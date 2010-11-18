@@ -164,8 +164,19 @@ else
 	</script>
 	
 	<style type='text/css'>
-		#table_form {min-width: 500px;}
-		#table_form th {width: 150px;}
+		<?php
+		if ( GET('withoutmenu') == "1" )
+		{
+			echo "#table_form {background: transparent; width: 400px;}";
+		    echo "#table_form th {width: 130px;}";
+		}
+		else
+		{
+			echo "#table_form {background: transparent; width: 500px;}";
+		    echo "#table_form th {width: 150px;}";
+		}
+		?>
+		
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
 		label {border: none; cursor: default;}
@@ -177,17 +188,24 @@ else
 <body>
                                                                                 
 <?php
+
+if (GET('name') != "" || GET('clone') == 1)
+	$action = "modifynet.php";
+else
+	$action = "newnet.php";
+	
 if (GET('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
-?>
-																				
+	
+?>																				
 																				
 <div id='info_error' class='ossim_error' style='display: none;'></div>
 
-<form method="post" name='formnet' id='formnet'  action="<?php echo ( GET('name') != "" || GET('clone') == 1) ? "modifynet.php" : "newnet.php" ?>">
+<form method="post" name='formnet' id='formnet' action="<?php echo $action?>">
 	<table align="center" id='table_form'>
 	<input type="hidden" name="insert" value="insert"/>
-	<input type="hidden" name="clone"  value="<?php echo $clone?>"/>
+	<input type="hidden" name="clone" value="<?php echo $clone?>"/>
+	<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 	<tr>
 		<th><label for='netname'><?php echo gettext("Name"); ?></label></th>
 		<td class="left">

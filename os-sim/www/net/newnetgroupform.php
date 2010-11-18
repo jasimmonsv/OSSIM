@@ -74,8 +74,19 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 	</script>
 	
 	<style type='text/css'>
-		#table_form {min-width: 500px;}
-		#table_form th {width: 150px;}
+		<?php
+		if ( GET('withoutmenu') == "1" )
+		{
+			echo "#table_form {background: transparent; width: 400px;}";
+		    echo "#table_form th {width: 120px;}";
+		}
+		else
+		{
+			echo "#table_form {background: transparent; width: 500px;}";
+		    echo "#table_form th {width: 150px;}";
+		}
+		?>
+		
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
 		label {border: none; cursor: default;}
@@ -87,9 +98,6 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 <body>
                                                                                 
 <?php
-if (GET('withoutmenu') != "1") 
-	include ("../hmenu.php"); 
-
 
 $db = new ossim_db();
 $conn = $db->connect();
@@ -142,14 +150,23 @@ else
 	
 }
 
+if (GET('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
+
+if (GET('name') != "" || GET('clone') == 1)
+	$action = "modifynetgroup.php";
+else
+	$action = "newnetgroup.php";
+
 ?>
 
 
 <div id='info_error' class='ossim_error' style='display: none;'></div>
 
-<form name='form_ng' id='form_ng' method="POST" action="<?php echo ( GET('name') != "") ? "modifynetgroup.php" : "newnetgroup.php" ?>">
+<form name='form_ng' id='form_ng' method="POST" action="<?php echo $action;?>">
 
 <input type="hidden" name="insert" value="insert"/>
+<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 
 <table align="center" id='table_form'>
 	
@@ -160,9 +177,7 @@ else
 			<?php if (GET('name') == "" ) {?>
 				<input type='text' name='ngname' id='ngname' class='vfield req_field' value="<?php echo $ngname?>"/>
 				<span style="padding-left: 3px;">*</span>
-			<?php } 
-				  else {
-			?>	
+			<?php } else { ?>	
 				<input type='hidden' name='ngname' id='ngname' class='vfield req_field' value="<?php echo $ngname?>"/>
 				<div class='bold'><?php echo $ngname?></div>
 			<?php }  ?>
