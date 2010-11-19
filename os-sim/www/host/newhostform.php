@@ -48,23 +48,23 @@ $conn = $db->connect();
 
 $array_assets = array ("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
-$array_os     = array ( "Unknown" => "",
-						"Windows" => "Microsoft Windows",
-						"Linux"   => "Linux",
-						"FreeBSD" => "FreeBSD",
-						"NetBSD"  => "NetBSD",
-						"OpenBSD" => "OpenBSD",
-						"MacOS"   => "Apple MacOS",
-						"Solaris" => "SUN Solaris",
-						"Cisco"   => "Cisco IOS",
-						"AIX"     => "IBM AIX",
-						"HP-UX"   => "HP-UX",
-						"Tru64"   => "Compaq Tru64",
-						"IRIX"    => "SGI IRIX",
-						"BSD/OS"  => "BSD/OS",
-						"SunOS"   => "SunOS",
-						"Plan9"   => "Plan9",
-						"IPhone"  => "IPhone");
+$array_os = array ( "Unknown" => "",
+					"Win"     => "Microsoft Windows",
+					"Linux"   => "Linux",
+					"FreeBSD" => "FreeBSD",
+					"NetBSD"  => "NetBSD",
+					"OpenBSD" => "OpenBSD",
+					"MacOS"   => "Apple MacOS",
+					"Solaris" => "SUN Solaris",
+					"Cisco"   => "Cisco IOS",
+					"AIX"     => "IBM AIX",
+					"HP-UX"   => "HP-UX",
+					"Tru64"   => "Compaq Tru64",
+					"IRIX"    => "SGI IRIX",
+					"BSD\/OS"  => "BSD/OS",
+					"SunOS"   => "SunOS",
+					"Plan9"   => "Plan9",
+					"IPhone"  => "IPhone");
 					
 $sensors     = array();
 $conf        = $GLOBALS["CONF"];
@@ -73,11 +73,10 @@ $hostname    = $fqdns = $descr = $nat = $nagios = $os = $mac = $mac_vendor = $la
 $asset       = 2;
 $rrd_profile = "None";
 
-$scan = POST('scan');
-$ips  = POST('ips');	
-$ip   = REQUEST('ip');		
+$scan = REQUEST('scan');
+$ip   = REQUEST('ip');
+$num_ips   = REQUEST('ips');		
 	
-
 ossim_valid($ip,   OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Ip"));
 ossim_valid($ips,  OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Hosts"));
 ossim_valid($scan, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Scan"));
@@ -88,35 +87,45 @@ if (ossim_error()) {
 
 if ( !empty ($scan) )
 {
-	$groupname = REQUEST('groupname');
-	$ip = REQUEST('target');
-    $action = "../netscan/scan_db.php";
+	$groupname = ( isset($_REQUEST['groupname']) ) ? REQUEST('groupname') : $_SESSION['_host']['groupname'];
+	$ip        = REQUEST('target');
+    	
+	$action    = "../netscan/scan_db.php";
+	$submit_function = "submit_form()";
+	
+	for ($i=0; $i<$num_ips; $i++) 
+	{
+		$item_ip = "ip_$i";
+		$ips_address[] = ( isset($_SESSION['_host'][$item_ip]) ) ? $_SESSION['_host'][$item_ip] : POST($item_ip);
+	}
 }
 else
-{					
+{
 	$action = $action = "newhost.php";
+	$submit_function = "check_host()";
+}
+
 	
-	if ( isset($_SESSION['_host']) )
-	{
-		$hostname    = $_SESSION['_host']['hostname'];
-		$ip          = $_SESSION['_host']['ip'];  	
-		$fqdns       = $_SESSION['_host']['fqdns']; 
-		$descr	     = $_SESSION['_host']['descr']; 
-		$asset       = $_SESSION['_host']['asset'];
-		$nat         = $_SESSION['_host']['nat'];  	
-		$sensors     = $_SESSION['_host']['sensors'];  
-		$nagios      = $_SESSION['_host']['nagios'];	
-		$rrd_profile = $_SESSION['_host']['rrd_profile'];  
-		$threshold_a = $_SESSION['_host']['threshold_a']; 
-		$threshold_c = $_SESSION['_host']['threshold_c']; 
-		$os          = $_SESSION['_host']['os']; 
-		$mac         = $_SESSION['_host']['mac']; 
-		$mac_vendor  = $_SESSION['_host']['mac_vendor']; 
-		$latitude    = $_SESSION['_host']['latitude']; 
-		$longitude   = $_SESSION['_host']['longitude']; 
-		
-		unset($_SESSION['_host']);
-	}
+if ( isset($_SESSION['_host']) )
+{
+	$hostname    = $_SESSION['_host']['hostname'];
+	$ip          = $_SESSION['_host']['ip'];  	
+	$fqdns       = $_SESSION['_host']['fqdns']; 
+	$descr	     = $_SESSION['_host']['descr']; 
+	$asset       = $_SESSION['_host']['asset'];
+	$nat         = $_SESSION['_host']['nat'];  	
+	$sensors     = $_SESSION['_host']['sensors'];  
+	$nagios      = $_SESSION['_host']['nagios'];	
+	$rrd_profile = $_SESSION['_host']['rrd_profile'];  
+	$threshold_a = $_SESSION['_host']['threshold_a']; 
+	$threshold_c = $_SESSION['_host']['threshold_c']; 
+	$os          = $_SESSION['_host']['os']; 
+	$mac         = $_SESSION['_host']['mac']; 
+	$mac_vendor  = $_SESSION['_host']['mac_vendor']; 
+	$latitude    = $_SESSION['_host']['latitude']; 
+	$longitude   = $_SESSION['_host']['longitude']; 
+	
+	unset($_SESSION['_host']);
 }
 
 ?>
@@ -193,7 +202,7 @@ else
 			$('textarea').elastic();
 				
 			$('.vfield').bind('blur', function() {
-				 validate_field($(this).attr("id"), "newhost.php");
+				 validate_field($(this).attr("id"), "<?php echo $action ?>");
 			});
 
 		});
@@ -279,8 +288,7 @@ if ( !empty ($scan) )
 	<input type="hidden" value="<?php echo $ip ?>" name="ip" id="ip"/>
 	<tr>
 		<th><label for='groupname'><?php echo gettext("Optional group name"); ?></label></th>
-		<td class="left"><input type="text" name="groupname" id="groupname" class='req_field vfield' value="<?php echo $groupname;?>"/>
-		<span style="padding-left: 3px;">*</span></td>
+		<td class="left"><input type="text" name="groupname" id="groupname" class='vfield' value="<?php echo $groupname;?>"/>
 	</tr>
 
 <?php } ?>
@@ -321,7 +329,7 @@ if ( !empty ($scan) )
 	<tr>
 		<th>
 			<label for='sboxs1'><?php echo gettext("Sensors"); ?></label>
-			<a  text-decoration: none;" class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Define which sensors has visibility of this host")?></div>">
+			<a class="sensor_info"  txt="<div style='width: 150px; white-space: normal; font-weight: normal;'><?=gettext("Define which sensors has visibility of this host")?></div>">
 			<img src="../pixmaps/help.png" width="16" border="0" align="absmiddle"/></a><br/>
 			<span><a href="../sensor/newsensorform.php"><?=gettext("Insert new sensor");?>?</a></span>
 		</th>
@@ -421,7 +429,8 @@ if ( !empty ($scan) )
 				<?php
 				foreach ($array_os as $k => $v)
 				{
-					$selected = ($os == $v) ? "selected='selected'" : '';
+					$pattern = "/$k/i";
+					$selected = ( preg_match($pattern, $os) ) ? "selected='selected'" : '';
 					echo "<option value='$k' $selected>$v</option>";
 				}
 				?>
@@ -460,18 +469,24 @@ if ( !empty ($scan) )
 	} 
 	else 
 	{ 
-		echo "<input type='hidden' name='ips' id='ips' value='<?php echo $ips ?>'/>";
+		echo "<input type='hidden' class='vfield' name='ips' id='ips' value='$num_ips'/>";
 
-		for ($i = 0; $i < $ips; $i++) 
-			echo "<input type='hidden' name='ip_$i' value='".POST("ip_$i")."'/>";
+		for ($i = 0; $i < $num_ips; $i++) 
+			echo "<input type='hidden' class='vfield' name='ip_$i' id='ip_$i' value='".$ips_address[$i]."'/>";
 	}
 	?>
 
 
 	<tr>
 		<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-			<input type="button" class="button" id='send' value="<?=_("Send")?>" onclick="check_host();"/>
-			<input type="reset"  class="button" value="<?php echo gettext("Reset"); ?>"/>
+			<input type="button" class="button" id='send' value="<?=_("Send")?>" onclick="<?php echo $submit_function;?>"/>
+			<?php 
+				if ( !empty($scan) )
+					echo "<input type='button' class='button' value='".gettext("<< Back ")."' onclick=\"javascript:history.go(-1);\"/>";
+				else
+					echo "<input type='reset' class='button' value='".gettext("Reset")."'/>";
+			?>
+			
 		</td>
 	</tr>
   

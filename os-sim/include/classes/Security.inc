@@ -409,6 +409,10 @@ function ossim_clean_error() {
     return true;
 }
 
+function ossim_get_error() {
+    return $GLOBALS['ossim_last_error'];
+}
+
 function ossim_get_error_clean() {
     $error=$GLOBALS['ossim_last_error'];
 	$normalize = explode("<br/>", $error);

@@ -334,6 +334,7 @@ class OMP{
                 $command .= "<value>".base64_encode($result->fields['value'])."</value>";
                 $command .= "</preference>";
                 $command .= "</modify_config>\n";
+                
             }
             $result->MoveNext();
         }
@@ -368,7 +369,9 @@ class OMP{
         if ($xml == FALSE) { return $sids; }
         
         foreach ($xml->task as $task) { 
-            if((string)$task->status != "Done") {    $used_configs[]= (string)$task->config->attributes()->id;   }
+            if((string)$task->status != "Done" && (string)$task->status != "Stopped" && !in_array((string)$task->config->attributes()->id, $used_configs)) {
+                $used_configs[]= (string)$task->config->attributes()->id;
+            }
         }
         
         // get profile sid
