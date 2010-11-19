@@ -1,5 +1,4 @@
-	<!-- #################### sensor ##################### -->
-	<table width="<?php
+<?php
 /*****************************************************************************
 *
 *    License:
@@ -35,57 +34,24 @@
 * Function list:
 * Classes list:
 */
-echo $left_table_width; ?>">
-		<tr>
-			<th colspan="3">
-				<?php
-echo gettext("Sensor"); ?>
-			</th>
-		</tr>
-		<!-- ##### first line (the only one) ##### -->
-		<tr>
-			<td style="width: <?php
-echo $left_select_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $left_select_width; ?>"
-					name="sensor"
-					id="sensor"
-					onchange="onChangeIPSelectBox('sensor')"
-				>
-					<?php
-$selected = selectIf(isAny($rule->sensor));
-echo "<option value=\"ANY\"$selected>ANY</option>";
-$selected = selectIf(isList($rule->sensor));
-echo "<option value=\"LIST\"$selected>LIST</option>";
 ?>
-				</select>
-			</td>
-			<td style="width: 100%; padding-right: 8px">
-				<input type="text" style="width: 100%"
-					name="sensor_list"
-					id="sensor_list"
-					value=""
-					title=""
-					onkeypress="onKeyPressElt(this,event)"
-					onchange="onChangeIPList('sensor_list')"
-					onblur="onChangeIPList('sensor_list')"
-					<?php
-echo disableIf(!isList($rule->sensor)); ?>
-				/>
-			</td>
-			<td style="vertical-align: top">
-				<input type="button" style="width: 25px; cursor:pointer;"
-					value="..."
-					onclick="open_frame(
-            'editor/rule/popup/index.php' +
-						'?top=sensor' +
-						'&sensor=' + getElt('sensor').value +
-						'&sensor_list=' + getElt('sensor_list').value
-					)"
-				/>
-			</td>
-		</tr>
-	</table>
-	<!-- #################### END: sensor ##################### -->
+<input type="hidden" name="sensor" id="sensor" value=""></input>
+<input type="hidden" name="sensor_list" id="sensor_list" value=""></input>
+<table class="transparent">
+	<tr>
+		<th style="white-space: nowrap; padding: 5px;font-size:12px">
+			<?php echo gettext("Sensor"); ?>
+		</th>
+	</tr>
+	<tr>
+		<td class="nobborder">
+		<select id="sensorselect" class="multiselect_sensor" multiple="multiple" name="sensorselect[]" style="display:none;width:600px">
+		<?php if (isList($rule->sensor) && $rule->sensor != "") { ?>
+		
+		<?php } ?>
+		</select>
+		</td>
+	</tr>
+	<tr><td class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next()"></td></tr>
+</table>
+<!-- #################### END: sensor ##################### -->

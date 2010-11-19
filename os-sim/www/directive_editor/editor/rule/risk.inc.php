@@ -82,108 +82,72 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 }
 ?>
 
-	<!-- #################### risk ##################### -->
-	<table width="<?php
-echo $right_table_width; ?>">
+<!-- #################### risk ##################### -->
+<!-- ##### occurrence ##### -->
+<div id="wizard_7" style="display:none">	
+<input type="hidden" name="occurrence" id="occurrence" value=""></input>
+	<table class="transparent">
 		<tr>
-			<th colspan="3">
-				<?php
-echo gettext("Risk"); ?>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Risk occurrence"); ?>
 			</th>
 		</tr>
-		<!-- ##### occurrence ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Occurrence"); ?>
-			</td>
-			<td style="width: <?php
-echo $right_select_width; ?>;
-				text-align: left; padding-left: 5px"
-				colspan="2"
-			>
-				<select class="editable" name="occurrence" id="occurrence">
-					<?php
-$selected = selectIf(isAny($rule->occurrence));
-echo "<option value=\"ANY\"$selected>ANY</option>";
-foreach($occurrence_list as $value) {
-    $selected = selectIf($rule->occurrence != "ANY" && $value == $rule->occurrence);
-    echo "<option value=\"$value\"$selected>$value</option>";
-}
-?>
-				</select>
-			</td>
-		</tr>
-		<!-- ##### timeout ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Timeout"); ?>
-			</td>
-			<td style="width: <?php
-echo $right_select_width; ?>;
-				text-align: left; padding-left: 5px"
-				colspan="2"
-			>
-				<select style="width: <?php
-echo $right_select_width; ?>"
-					class="editable"
-					name="time_out"
-					id="time_out"
-				>
-					<?php
-$selected = selectIf(isAny($rule->time_out));
-echo "<option value=\"None\"$selected>None</option>";
-foreach($timeout_list as $value) {
-    $selected = selectIf($rule->time_out != "None" && $value == $rule->time_out);
-    echo "<option value=\"$value\"$selected>$value</option>";
-}
-?>
-				</select>
-			</td>
-		</tr>
-		<!-- ##### reliability ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Reliability"); ?>
-			</td>
-			<td style="width: <?php
-echo $reliability1_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $reliability1_width; ?>"
-					name="reliability_op"
-					id="reliability_op"
-				>
-					<?php
-$first = $rule->reliability{0};
-$selected = selectIf($first != "+");
-echo "<option value=\"=\"$selected>=</option>";
-if ($rule->level > 1) {
-    $selected = selectIf($first == "+");
-    echo "<option value=\"+\"$selected>+</option>";
-}
-?>
-				</select>
-			</td>
-			<td style="width: <?php
-echo $reliability2_width; ?>">
-				<select style="width: <?php
-echo $reliability2_width; ?>"
-					name="reliability"
-					id="reliability"
-				>
-					<?php
-$value = intval(strtr($rule->reliability, '+', ''));
-for ($i = 0; $i <= 10; $i++) {
-    $selected = selectIf($value == $i);
-    echo "<option value=\"$i\"$selected>$i</option>";
-}
-?>
-				</select>
-			</td>
-		</tr>
+		<tr><td class="center nobborder"><input type="button" value="ANY" onclick="document.getElementById('occurrence').value = 'ANY';wizard_next();" style="width:80px<?php if ($rule->occurrence == "ANY") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<?php
+		foreach($occurrence_list as $value) {
+		    $selected = selectIf($rule->occurrence != "ANY" && $value == $rule->occurrence);
+			?><tr><td class="center nobborder"><input type="button" value="<?php echo $value ?>" onclick="document.getElementById('occurrence').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($selected) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr><?php
+		}
+		?>
+		<tr><td class="center nobborder"><input type="text" name="aux_occurrence" id="aux_occurrence" value="<?php echo _("Other...") ?>" onfocus="this.value=''"></input></td></tr>
 	</table>
+</div>
+
+<!-- ##### timeout ##### -->
+<div id="wizard_8" style="display:none">
+<input type="hidden" name="time_out" id="time_out" value=""></input>
+	<table class="transparent">
+		<tr>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Risk timeout"); ?>
+			</th>
+		</tr>
+		<tr><td class="center nobborder"><input type="button" value="None" onclick="document.getElementById('time_out').value = 'ANY';wizard_next();" style="width:80px<?php if (isAny($rule->time_out)) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></input></td></tr>
+		<?php
+		foreach($timeout_list as $value) {
+		    $selected = selectIf($rule->time_out != "None" && $value == $rule->time_out);
+			?><tr><td class="center nobborder"><input type="button" value="<?php echo $value ?>" onclick="document.getElementById('time_out').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($selected) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr><?php
+		}
+		?>
+		<tr><td class="center nobborder"><input type="text" name="aux_time_out" id="aux_time_out" value="<?php echo _("Other...") ?>" onfocus="this.value=''"></input></td></tr>
+	</table>
+</div>
+
+<!-- ##### reliability ##### -->
+<div id="wizard_9" style="display:none">
+<input type="hidden" name="reliability" id="reliability" value="<?php echo $rule->reliability ?>"></input>
+<input type="hidden" name="reliability_op" id="reliability_op" value=""></input>
+	<table class="transparent">
+		<tr>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Risk reliability"); ?>
+			</th>
+		</tr>
+		<?php
+		$value = intval(strtr($rule->reliability, '+', ''));
+		$first = $rule->reliability{0};
+		$selected_plus = selectIf($first != "+");
+		for ($i = 0; $i <= 10; $i++) {
+		    $selected = selectIf($value == $i && !$selected_plus);
+		    $selected2 = selectIf($value == $i && $selected_plus);
+		    ?>
+		    <tr>
+		    	<td class="center nobborder"><input type="button" value="= <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '=';wizard_next();" style="width:50px<?php if ($selected) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
+		    	<?php if ($rule->level > 1) { ?><td class="center nobborder"><input type="button" value="+ <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '+';wizard_next();" style="50px<?php if ($selected2) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td><?php } ?>
+		    </tr>
+		    <?php
+		}
+		?>
+	</table>
+</div>
 	<!-- #################### END: risk ##################### -->
