@@ -115,7 +115,6 @@ $hosts_ips = array_keys($hosts);
 if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 	$a = "data='".$a."'";
 }
-
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
 
 foreach ($atoms as $atom) {
@@ -570,7 +569,7 @@ foreach($result as $res=>$event_date) {
                         }
                     }
                     if ($red) {
-                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('<b>data</b>=" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
+                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('<b>data</b>=" . $clean_piece . "')\">" . $clean_piece . " </span>";
                     } else {
                         $data.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('<b>data</b>=" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
                     }
@@ -590,7 +589,7 @@ foreach($result as $res=>$event_date) {
 		$data_out = $matches[11];
         // fin para coger
         if($htmlResult){
-            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="validate.php?log=' . urlencode($encoded_data) . '&start=' . $start . '&end=' . $end . '&logfile=' . $logfile . '&signature=' . urlencode($signature) . '"  class="thickbox" rel="AjaxGroup" onclick="GB_show(\''._("Validate signature").'\',this.href,300,600);return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
+            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="javascript:;" class="thickbox" rel="AjaxGroup" onclick="validate_signature(\''.$encoded_data.'\',\''.$start.'\',\''.$end.'\',\''.$logfile.'\',\''.$signature.'\');return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
             $data.= "</td>";
             $line.= $data;
         }

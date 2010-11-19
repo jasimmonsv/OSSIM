@@ -161,7 +161,7 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
 
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
-<script type="text/javascript" src="../js/greybox.js"></script>
+<script type="text/javascript" src="../js/greybox_post.js"></script>
 <!--[if IE]><script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script><![endif]-->
 <script src="../js/jquery-ui-1.8.core-and-interactions.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="../js/jquery-ui-1.8.autocomplete.min.js" type="text/javascript" charset="utf-8"></script>
@@ -1314,38 +1314,48 @@ require_once ("manage_querys.php");
 		
 		<tr>
 			<td class="nobborder" style="padding:10px" valign="top">
-			<table class="transparent">
+			<table class="transparent" width="100%">
 				<tr>
 				<td class="nobborder">
-					<table class="transparent"><tr>
-					<td class="nobborder" nowrap><?=_("Time frame selection")?>:</td>
-					<td class="nobborder">
-						<div id="widget">
-							<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
-							<div id="widgetCalendar"></div>
-						</div>
-					</td>
-					<td class="nobborder" nowrap>
-					<?php
-					if ($param_start != "" && $param_end != "" && date_parse($param_start) && date_parse($param_end)) {
-					?>
-						<input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo $param_start; ?>">
-						<input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo $param_end; ?>" >
+					<table class="transparent">
+                    <tr>
+                        <td class="nobborder" nowrap><?=_("Time frame selection")?>:</td>
+                        <td class="nobborder">
+                            <div id="widget">
+                                <a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
+                                <div id="widgetCalendar"></div>
+                            </div>
+                        </td>
+                        <td class="nobborder" nowrap>
+                        <?php
+                        if ($param_start != "" && $param_end != "" && date_parse($param_start) && date_parse($param_end)) {
+                        ?>
+                            <input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo $param_start; ?>">
+                            <input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo $param_end; ?>" >
 
-					<?php
-					} else {
-					?>
-						<input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>">
-						<input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>">
-					<?php
-					}
-					?>
-					<input type="button" value="<?=_("OK")?>" onclick="change_calendar();setFixed2();" class="button" style="font-size:10px;height:22px;width:28px" />
-					</td>
+                        <?php
+                        } else {
+                        ?>
+                            <input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>">
+                            <input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>">
+                        <?php
+                        }
+                        ?>
+                        <input type="button" value="<?=_("OK")?>" onclick="change_calendar();setFixed2();" class="button" style="font-size:10px;height:22px;width:28px" />
+                        </td>
 					</tr>
+                    <tr>
+                        <td colspan="3" nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> Fetch&nbsp;
+                            <select name="top" id="top" onchange="document.getElementById('offset').value='0';doQuery('noExport')">
+                                <option value="10">10</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                            </select>&nbsp;<?php echo ($from_remote) ? _("events <b>per server</b>") : _("events per page"); ?>
+                        </td>
+                    </tr>
 					</table>
 				</td>
-				<td nowrap class="nobborder">
+				<td nowrap class="nobborder" valign="top">
 					<table class="transparent">
 					<tr>
 					<td class="nobborder" nowrap id="date2td" style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "day") echo "bgcolor='#28BC04'" ?>><a <?php
@@ -1362,13 +1372,6 @@ if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'";
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
 					<td class="nobborder" id="date5td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_year','<?php echo urlencode(date("Y")) ?>');" onClick="javascript:bold_dates('date5');" id="date5a"><?=_("Last Year")?></a>
-					</td>
-					<td nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> Fetch&nbsp;
-						<select name="top" id="top" onchange="document.getElementById('offset').value='0';doQuery('noExport')">
-							<option value="10">10</option>
-							<option value="50" selected>50</option>
-							<option value="100">100</option>
-						</select>&nbsp;<?php echo ($from_remote) ? _("events <b>per server</b>") : _("events per page"); ?>
 					</td>
 					</tr>
 					</table>
@@ -1485,7 +1488,23 @@ if (ie||ns6)
 	}
 
 	document.onmousemove=positiontip
-
-	</script>
+</script>
+<form action="validate.php" method="post" id="validate_form">
+<input type="hidden" name="log">
+<input type="hidden" name="start">
+<input type="hidden" name="end">
+<input type="hidden" name="logfile">
+<input type="hidden" name="signature">
+</form>
+<script>
+    function validate_signature(log,start,end,logfile,signature) {
+        $('#validate_form input[name=log]').val(log);
+        $('#validate_form input[name=start]').val(start);
+        $('#validate_form input[name=end]').val(end);
+        $('#validate_form input[name=logfile]').val(logfile);
+        $('#validate_form input[name=signature]').val(signature);
+        GB_show('<?=_("Validate signature")?>','#validate_form',300,600);
+    }
+</script>
 </body>
 </html>

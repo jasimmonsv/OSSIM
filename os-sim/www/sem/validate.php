@@ -48,11 +48,11 @@ Session::logcheck("MenuEvents", "ControlPanelSEM");
 $config = parse_ini_file("everything.ini");
 $cache_dir = $config["cache_dir"];
 $locate_db = $config["locate_db"];
-$signature = GET("signature");
-$log_line = base64_decode(GET("log"));
-$start = GET("start");
-$end = GET("end");
-$logfile = GET("logfile");
+$signature = POST("signature");
+$log_line = base64_decode(POST("log"));
+$start = POST("start");
+$end = POST("end");
+$logfile = POST("logfile");
 
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
