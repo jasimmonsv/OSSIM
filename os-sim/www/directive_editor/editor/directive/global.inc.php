@@ -61,7 +61,7 @@ if ($directive_xml == "") {
 				<input type="text" style="width: 100%;height:20px;font-size:13px" name="name" id="name" value="<?php echo str_replace("'", "", str_replace("\"", "", $directive->name)); ?>" title="<?php echo str_replace("'", "", str_replace("\"", "", $directive->name)); ?>" onkeypress="onKeyPressElt(this,event)" onchange="onChangeName()" onblur="onChangeName()" onfocus="onFocusName()">
 			</td>
 			<td class="nobborder">
-				<input type="button" value="<?php echo _("Next") ?>" onclick="wizard_next()"></input>
+				<input type="button" style=";background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next()"></input>
 			</td>
 		</tr>
 		</table>
