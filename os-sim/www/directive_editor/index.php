@@ -45,6 +45,7 @@ ossim_valid($_GET["disable"], OSS_LETTER, OSS_DIGIT, OSS_SCORE, OSS_SPACE, OSS_N
 ossim_valid($_GET["id"], OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
 ossim_valid($_GET["directive"], OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
 ossim_valid($_GET["xml_file"], OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+ossim_valid($_GET["add"], OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("add"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -74,8 +75,9 @@ if ($_GET['directive'] != '' || $_GET['action'] == "add_directive") {
     }
     elseif ($action == 'add_rule') {
         $id = $_GET['id'];
+        $add = $_GET['add'];
         $xml_file = $_GET['xml_file'];
-        $right = "include/utils.php?query=add_rule&id=$id&xml_file=$xml_file";
+        $right = "include/utils.php?query=add_rule&id=$id&xml_file=$xml_file&add=$add";
         $scroll = "no";
     }
     elseif ($action == 'copy_directive') {

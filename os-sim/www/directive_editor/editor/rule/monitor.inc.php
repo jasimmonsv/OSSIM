@@ -1,4 +1,4 @@
-	<?php
+<?php
 /*****************************************************************************
 *
 *    License:
@@ -70,136 +70,66 @@ if ($rule->value != 'Default' && !in_array(intval($rule->interval) , $interval_l
     sort($interval_list);
 }
 ?>
-	
-	<!-- #################### monitor ##################### -->
-	<table width="<?php
-echo $right_table_width; ?>">
+<!-- #################### monitor ##################### -->
+<div id="wizard_10" style="display:none">
+<input type="hidden" name="condition" id="condition" value="<?php echo $rule->condition ?>"></input>
+<input type="hidden" name="value" id="value" value="<?php echo $rule->value ?>"></input>
+	<table class="transparent">
+		<!-- ##### condition AND value ##### -->
 		<tr>
-			<th colspan="2">
-				<?php
-echo gettext("Monitor"); ?>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Monitor value"); ?>
 			</th>
 		</tr>
-		<!-- ##### condition ##### -->
 		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Condition"); ?>
-			</td>
-			<td style="width: <?php
-echo $right_select_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $right_select_width; ?>"
-					name="condition"
-					id="condition"
-					onchange="onChangeCondition()"
-					<?php
-echo $disabled; ?>
-				>
-					<?php
-$selected = selectIf($rule->condition == "Default");
-echo "<option value=\"Default\"$selected>Default</option>";
-$selected = selectIf($rule->condition == "ne");
-echo "<option value=\"ne\"$selected>&#8800</option>";
-$selected = selectIf($rule->condition == "lt");
-echo "<option value=\"lt\"$selected>&#60</option>";
-$selected = selectIf($rule->condition == "gt");
-echo "<option value=\"gt\"$selected>&#62</option>";
-$selected = selectIf($rule->condition == "le");
-echo "<option value=\"le\"$selected>&#8804</option>";
-$selected = selectIf($rule->condition == "ge");
-echo "<option value=\"ge\"$selected>&#8805</option>";
-?>
-				</select>
-			</td>
-		</tr>
-		<!-- ##### value ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Value"); ?>
-			</td>
-			<td style="width: <?php
-echo $right_select_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $right_select_width; ?>"
-					class="editable"
-					name="value"
-					id="value"
-					<?php
-echo $disabled; ?>
-				>
-					<?php
-$select = selectIf($rule->value == "Default");
-echo "<option value=\"Default\"$selected>Default</option>";
-foreach($value_list as $value) {
-    $selected = selectIf($rule->value != "Default" && $value == $rule->value);
-    echo "<option value=\"$value\"$selected>$value</option>";
-}
-?>
-				</select>
-			</td>
-		</tr>
-		<!-- ##### interval ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Interval"); ?>
-			</td>
-			<td style="width: <?php
-echo $right_text_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $right_select_width; ?>"
-					class="editable"
-					name="interval"
-					id="interval"
-					<?php
-echo $disabled; ?>
-				>
-					<?php
-$select = selectIf($rule->interval == "Default");
-echo "<option value=\"Default\"$selected>Default</option>";
-foreach($interval_list as $value) {
-    $selected = selectIf($rule->interval != "Default" && $value == $rule->interval);
-    echo "<option value=\"$value\"$selected>$value</option>";
-}
-?>
-				</select>
-			</td>
-		</tr>
-		<!-- ##### absolute ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Absolute"); ?>
-			</td>
-			<td style="width: <?php
-echo $right_select_width; ?>;
-				text-align: left; padding-left: 5px">
-				<select style="width: <?php
-echo $right_select_width; ?>"
-					name="absolute"
-					id="absolute"
-					onchange="onChangeAbsolute()"
-					<?php
-echo $disabled; ?>
-				>
-					<?php
-$selected = selectIf($rule->absolute == "Default");
-echo "<option value=\"Default\"$selected>Default</option>";
-$selected = selectIf($rule->absolute == "true");
-echo "<option value=\"true\"$selected>true</option>";
-$selected = selectIf($rule->absolute == "false");
-echo "<option value=\"false\"$selected>false</option>";
-?>
-				</select>
+			<td class="center nobborder">
+				<table class="transparent">
+					<tr>
+						<td colspan="5" class="center nobborder"><input type="button" value="Default" onclick="document.getElementById('condition').value = 'Default';document.getElementById('value').value = 'Default';wizard_next();" style="width:80px<?php if ($rule->value == "Default") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></input></td>
+					</tr>
+					<?php foreach ($value_list as $value) { ?>
+					<tr>
+						<td class="center nobborder"><input type="button" value="&#8800 <?php echo $value ?>" onclick="document.getElementById('condition').value = 'ne';document.getElementById('value').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($rule->value != "Default" && $value == $rule->value && $rule->condition == "ne") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
+						<td class="center nobborder"><input type="button" value="&#60 <?php echo $value ?>" onclick="document.getElementById('condition').value = 'lt';document.getElementById('value').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($rule->value != "Default" && $value == $rule->value && $rule->condition == "lt") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
+						<td class="center nobborder"><input type="button" value="&#62 <?php echo $value ?>" onclick="document.getElementById('condition').value = 'gt';document.getElementById('value').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($rule->value != "Default" && $value == $rule->value && $rule->condition == "gt") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
+						<td class="center nobborder"><input type="button" value="&#8804 <?php echo $value ?>" onclick="document.getElementById('condition').value = 'le';document.getElementById('value').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($rule->value != "Default" && $value == $rule->value && $rule->condition == "le") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
+						<td class="center nobborder"><input type="button" value="&#8805 <?php echo $value ?>" onclick="document.getElementById('condition').value = 'ge';document.getElementById('value').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($rule->value != "Default" && $value == $rule->value && $rule->condition == "ge") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
+					</tr>
+					<?php } ?>
+				</table>
 			</td>
 		</tr>
 	</table>
-	<!-- #################### END: monitor ##################### -->
+</div>
+
+<div id="wizard_11" style="display:none">
+<input type="hidden" name="interval" id="interval" value="<?php echo $rule->interval ?>"></input>
+	<table class="transparent">
+		<!-- ##### interval ##### -->
+		<tr>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Monitor interval"); ?>
+			</th>
+		</tr>
+		<tr><td class="center nobborder"><input type="button" value="Default" onclick="document.getElementById('interval').value = 'Default';wizard_next();" style="width:80px<?php if ($rule->interval == "Default") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></input></td></tr>
+		<?php foreach ($interval_list as $value) { ?>
+		<tr><td class="center nobborder"><input type="button" value="<?php echo $value ?>" onclick="document.getElementById('interval').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($rule->interval != "Default" && $value == $rule->interval) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></input></td></tr>
+		<?php } ?>
+	</table>
+</div>
+
+<div id="wizard_12" style="display:none">
+<input type="hidden" name="absolute" id="absolute" value="<?php echo $rule->absolute ?>"></input>
+	<table class="transparent">
+		<!-- ##### absolute ##### -->
+		<tr>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Monitor absolute"); ?>
+			</th>
+		</tr>
+		<tr><td class="center nobborder"><input type="button" value="Default" onclick="document.getElementById('absolute').value = 'Default';wizard_next();" style="width:50px<?php if ($rule->absolute == "Default") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="true" onclick="document.getElementById('absolute').value = 'true';wizard_next();" style="width:50px<?php if ($rule->absolute == "true") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="false" onclick="document.getElementById('absolute').value = 'false';wizard_next();" style="width:50px<?php if ($rule->absolute == "false") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+	</table>
+</div>
+<!-- #################### END: monitor ##################### -->

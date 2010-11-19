@@ -37,21 +37,7 @@
 require_once ('classes/Security.inc');
 require_once ("../../../../include/utils.php");
 dbConnect();
-?>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="../../../../style/directives.css">
-
-		<script type="text/javascript" language="javascript" src="javascript/top.js"></script>
-	</head>
-
-	<body>
-
-<?php
+/*
 $sensor = GET('sensor');
 $sensor_list = GET('sensor_list');
 ossim_valid($sensor, "ANY", "LIST", OSS_NULLABLE, 'illegal:' . _("sensor"));
@@ -59,29 +45,13 @@ ossim_valid($sensor_list, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, '!', 'il
 if (ossim_error()) {
     die(ossim_error());
 }
-?>
-
-		<h1><?php
-echo gettext("Sensor"); ?></h1>
-
-		<center>
-			<table>
-				<tr>
-					<th width="70px">
-						<button class="th" id="all" onclick="onClickAll()">+</button>/
-						<button class="th" id="inv" onclick="onClickInv()">-</button>
-					</th>
-					<th><?php
-echo gettext('Sensor name'); ?></th>
-					<th><?php
-echo gettext('IP'); ?></th>
-				</tr>
-
-<?php
+*/
+/*
 if (substr($sensor_list, 0, 1) == '!') {
     $default_checked = ' checked="checked"';
     $sensor_list = substr($sensor_list, 1);
 } else $default_checked = '';
+*/
 if ($host_list = getSensorList()) {
     foreach($host_list as $host) {
         $hostname = $host->get_name();
@@ -93,37 +63,8 @@ if ($host_list = getSensorList()) {
         } else {
             $checked = $default_checked;
         }
-?>
-
-				<tr>
-					<td>
-						<input type="checkbox" name="chk"
-							value="<?php
-        echo $ip; ?>"
-							<?php
-        echo $checked; ?>
-							onClick="onClickChk()"
-						>
-					</td>
-					<td><?php
-        echo $hostname; ?></td>
-					<td><?php
-        echo $ip; ?></td>
-				</tr>
-
-<?php
+		echo "$ip=$hostname\n";
     }
-} ?>
-
-			</table>
-		</center>
-
-		<script type="text/javascript" language="JavaScript">
-			window.open("../bottom.php?param=sensor", "bottom");
-		</script>
-	</body>
-</html>
-
-<?php
+}
 dbClose();
 ?>

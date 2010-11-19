@@ -60,24 +60,54 @@ $right_text_width = "102px";
 $plugin_id_width = "112px";
 $reliability1_width = "38px";
 $reliability2_width = "68px";
+
+$add = GET('add');
+ossim_valid($add, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("add"));
+if (ossim_error()) {
+    die(ossim_error());
+}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<link type="text/css" rel="stylesheet"
-			href="<?php
-echo $css_dir . '/directives.css'; ?>" />
-		<link rel="stylesheet" type="text/css" href="../../../style/greybox.css"/>
-
-		<style>
-			input.editable {width: <?php
-echo $right_text_width; ?>}
-			select.editable {width: <?php
-echo $right_select_width; ?>}
-		</style>
+		<link type="text/css" rel="stylesheet" href="<?php echo $css_dir . '/directives.css'; ?>" />
+		<link type="text/css" rel="stylesheet" href="../../../style/greybox.css" />
+		<link type="text/css" rel="stylesheet" href="../../../style/jquery-ui-1.7.custom.css" />
+    	<link type="text/css" rel="stylesheet" href="../../../style/ui.multiselect.css" rel="stylesheet" />
+    	<style>
+    	.multiselect_sids {
+		    width: 97%;
+		    height: 300px;
+		}
+		.multiselect_from {
+		    width: 97%;
+		    height: 150px;
+		}
+		.multiselect_from_port {
+		    width: 97%;
+		    height: 150px;
+		}
+		.multiselect_to {
+		    width: 97%;
+		    height: 150px;
+		}
+		.multiselect_to_port {
+		    width: 97%;
+		    height: 150px;
+		}
+		.multiselect_sensor {
+		    width: 97%;
+		    height: 300px;
+		}
+    	</style>
 		<script type="text/javascript" src="../../../js/jquery-1.3.2.min.js"></script>
 		<script type="text/javascript" src="../../../js/greybox.js"></script>
+		<script type="text/javascript" src="../../../js/jquery-ui-1.7.custom.min.js"></script>
+		<script type="text/javascript" src="../../../js/jquery.tmpl.1.1.1.js"></script>
+    	<script type="text/javascript" src="../../../js/ui.multiselect.js"></script>
+    	<script type="text/javascript" src="../../../js/combos.js"></script>    
+    	<script type="text/javascript" src="../../../js/split.js"></script>
 		<script type="text/javascript" language="javascript"
 			src="<?php
 echo $js_dir . '/editor.js'; ?>"></script>
@@ -91,6 +121,132 @@ echo $js_dir . '/editableSelectBox.js'; ?>"></script>
 echo $js_dir_rule . '/rule.js'; ?>"></script>
 			
     <script type="text/javascript" language="javascript">
+    var wizard_current = <?php echo ($add) ? "0" : "1" ?>;
+    var is_monitor = false;
+	function wizard_goto(num) {
+		document.getElementById('wizard_'+wizard_current).style.display = "none";
+		document.getElementById('link_'+wizard_current).className = "normal";
+		wizard_current = num;
+		wizard_refresh();
+	}
+	function wizard_refresh() {
+		document.getElementById('wizard_'+(wizard_current)).style.display = "block";
+		document.getElementById('link_'+wizard_current).className = "bold";
+	}
+    function wizard_next() {
+    	document.getElementById('wizard_'+wizard_current).style.display = "none";
+		if (wizard_current == 0)  document.getElementById('steps').style.display = "";
+		else document.getElementById('link_'+wizard_current).className = "normal";
+    	wizard_current++;
+    	if (wizard_current >= 17) {
+    		document.getElementById('frule').submit();
+    	} else {
+			if (wizard_current == 10 && !is_monitor) { // Skip monitor options (detector selected)
+				wizard_current = 13;
+    		}
+    		document.getElementById('wizard_'+(wizard_current)).style.display = "block";
+    		if (wizard_current == 4) {
+        		init_network();
+    		}
+    		if (wizard_current == 6) {
+        		init_sensor();
+    		}
+    	}
+		// Update steps
+		document.getElementById('step_'+wizard_current).style.display = "";
+		document.getElementById('link_'+wizard_current).className = "bold";
+    }
+    var customDataParser = function(data) {
+        if ( typeof data == 'string' ) {
+            var pattern = /^(\s\n\r\t)*\+?$/;
+            var selected, line, lines = data.split(/\n/);
+            data = {};
+            $('#msg').html('');
+            for (var i in lines) {
+                line = lines[i].split("=");
+                if (!pattern.test(line[0])) {
+                    if (i==0 && line[0]=='Total') {
+                        $('#msg').html("<?=_("Total plugin sids found:")?> <b>"+line[1]+"</b>");
+                    } else {
+                        // make sure the key is not empty
+                        selected = (line[0].lastIndexOf('+') == line.length - 1);
+                        if (selected) line[0] = line.substr(0,line.length-1);
+                        // if no value is specified, default to the key value
+                        data[line[0]] = {
+                            selected: false,
+                            value: line[1] || line[0]
+                        };
+                    }
+                }
+            }
+        } else {
+            this._messages($.ui.multiselect.constante.MESSAGE_ERROR, $.ui.multiselect.locale.errorDataFormat);
+            data = false;
+        }
+        return data;
+    };
+    function init_sids(id,m) {
+		is_monitor = m;
+    	$(".multiselect_sids").multiselect({
+            searchDelay: 700,
+            dividerLocation: 0.5,
+            remoteUrl: 'popup/top/plugin_sid.php',
+            remoteParams: { plugin_id: id },
+            nodeComparator: function (node1,node2){ return 1 },
+            dataParser: customDataParser,
+        });
+    }
+	function save_sids() {
+		var plugin_sid_list = getselectedcombovalue('pluginsids');
+		if (plugin_sid_list != "") {
+			document.getElementById('plugin_sid').value = "LIST";
+			document.getElementById('plugin_sid_list').value = plugin_sid_list;
+		} else {
+			document.getElementById('plugin_sid').value = "ANY";
+			document.getElementById('plugin_sid_list').value = "";
+		}
+	}
+	function init_network() {
+		$(".multiselect_from").multiselect({
+            searchDelay: 700,
+            dividerLocation: 0.5,
+            remoteUrl: 'popup/top/from.php',
+            nodeComparator: function (node1,node2){ return 1 },
+            dataParser: customDataParser,
+        });
+		$(".multiselect_from_port").multiselect({
+            searchDelay: 700,
+            dividerLocation: 0.5,
+            remoteUrl: 'popup/top/from.php',
+            remoteParams: { port: '1' },
+            nodeComparator: function (node1,node2){ return 1 },
+            dataParser: customDataParser,
+        });
+		$(".multiselect_to").multiselect({
+            searchDelay: 700,
+            dividerLocation: 0.5,
+            remoteUrl: 'popup/top/from.php',
+            nodeComparator: function (node1,node2){ return 1 },
+            dataParser: customDataParser,
+        });
+		$(".multiselect_to_port").multiselect({
+            searchDelay: 700,
+            dividerLocation: 0.5,
+            remoteUrl: 'popup/top/from.php',
+            remoteParams: { port: '1' },
+            nodeComparator: function (node1,node2){ return 1 },
+            dataParser: customDataParser,
+        });
+	}
+	function init_sensor() {
+		$(".multiselect_sensor").multiselect({
+            searchDelay: 700,
+            dividerLocation: 0.5,
+            remoteUrl: 'popup/top/sensor.php',
+            nodeComparator: function (node1,node2){ return 1 },
+            dataParser: customDataParser,
+        });
+	}
     function taille()
     {
         if (document.body)
@@ -183,173 +339,136 @@ echo isList($rule->port_to) ? $rule->port_to : ''; ?>',
 echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 	)">
 	<!-- #################### main container #################### -->
-  <form method="POST" action="../../include/utils.php?query=save_rule">
-
-	<!-- #################### page 1 #################### -->
-	<div id="page1" style="display:block;">
-	<table class="container" style="border-width: 0px" align="center">
-	<tr>
-
-	<!-- #################### left container #################### -->
-	<td class="container" style="vertical-align: top">
-	<table class="container">
-	<tr><td class="container">
-	<?php
-include ("global.inc.php"); ?>
-	</td></tr>
-
-	<tr><td class="container">
-	<?php
-include ("network.inc.php"); ?>
-	</td></tr>
-
-	<tr><td class="container">
-	<?php
-include ("protocol.inc.php"); ?>
-	</td></tr>
-
-	<tr><td class="container">
-	<?php
-include ("sensor.inc.php");
-$directive = GET("directive");
-$level = GET("level");
-$id = GET("id");
-$xml_file = GET('xml_file');
-ossim_valid($directive, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
-ossim_valid($level, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("level"));
-ossim_valid($id, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
-ossim_valid($xml_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
-if (ossim_error()) {
-    die(ossim_error());
-}
-if ($rule->is_new() && $level > 1) $new_level = $level - 1;
-else $new_level = $level;
-?>
-	</td></tr>
-
-	</table>
-	</td>
-	<!-- #################### END: up container #################### -->
-</tr>
-<tr>
-	<!-- #################### down container #################### -->
-	<td style="vertical-align: top; border-width: 0px">
-	<table class="container" style="border-width: 0px">
-
-	<tr><td class="container" valign="top">
-	<?php
-include ("risk.inc.php"); ?>
-	</td>
-
-	<td class="container" valign="top">
-	<?php
-include ("monitor.inc.php"); ?>
-	</td>
-
-	<td class="container" valign="top">
-	<?php
-include ("sticky.inc.php"); ?>
-	</td></tr>
-
-	</table>
-	</td>
-	<!-- #################### END: down container #################### -->
-	
-	</tr>
-<tr><td class="container" colspan="2">
-		<input type="hidden" name="directive" value="<?php
-echo $directive; ?>" />
-		<input type="hidden" name="level" value="<?php
-echo $level; ?>" />
-		<input type="hidden" name="id" value="<?php
-echo $id; ?>" />
-		<input type="hidden" name="xml_file" value="<?php
-echo $xml_file; ?>" />
-		<input type="hidden" name="type" id="type"
-			value="<?php
-echo getPluginType($rule->plugin_id); ?>" />
-		<input type="button" style="width: 100px; cursor:pointer;"
-			value="<?php
-echo gettext('Back'); ?>"
-			onclick="onClickCancel(<?php
-echo $directive . ',' . $new_level; ?>)"
-		/>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<input type="button" style="width: 100px; cursor:pointer;"
-			id="save"
-			value="<?php
-echo gettext('Save'); ?>"
-			onclick="submit()"
-			<?php
-echo ($rule->plugin_id == '') ? ' disabled="disabled"' : ''; ?>
-		/>
-		<span style="position:absolute; right:2%;">
-		<input type="button" style="width: 120px; cursor:pointer;"
-			id="change"
-			value="<?php
-echo gettext('Other options'); ?> -->"
-			onclick="change_page();"
-		/>
-		</span>
-	</td></tr>
-
-	</table>
-		</div>
-	<!-- #################### end page 1 ######################### -->
-	<!-- #################### PAGE 2 ############################# -->
-	<div id="page2" style="display:none;">
-	<table class="container" style="border-width: 0px" align="center">
+  <form method="POST" id="frule" name="frule" action="../../include/utils.php?query=save_rule">
+	<table class="transparent" width="100%">
 		<tr>
-			<td class="container" style="vertical-align: top">
-				<table class="container">
+			<td class="nobborder" id="steps" style="border-bottom:1px solid #EEEEEE<?php if ($add) echo ";display:none" ?>">
+				<table class="transparent">
 					<tr>
-						<td class="container">
-							<?php
-include ("$base_dir/directive_editor/editor/rule/other.inc.php"); ?>
-						</td>
+						<td class="nobborder"><img src="../../../pixmaps/wand.png" alt="wizard"></img></td>
+						<td class="nobborder" style="font-size:14px">Directive rule <b>wizard</b>: </td>
+						<td class="nobborder" style="font-size:14px" id="step_1"><a href='' onclick='wizard_goto(1);return false;' class="bold" id="link_1"><?php echo _("Rule name") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_2"> > <a href='' onclick='wizard_goto(2);return false;' class="normal" id="link_2"><?php echo _("Plugin") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_3"> > <a href='' onclick='wizard_goto(3);return false;' class="normal" id="link_3"><?php echo _("Plugin Sid") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_4"> > <a href='' onclick='wizard_goto(4);return false;' class="normal" id="link_4"><?php echo _("Network") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_5"> > <a href='' onclick='wizard_goto(5);return false;' class="normal" id="link_5"><?php echo _("Protocol") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_6"> > <a href='' onclick='wizard_goto(6);return false;' class="normal" id="link_6"><?php echo _("Sensor") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_7"> > <a href='' onclick='wizard_goto(7);return false;' class="normal" id="link_7"><?php echo _("Risk oc") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_8"> > <a href='' onclick='wizard_goto(8);return false;' class="normal" id="link_8"><?php echo _("Risk time") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_9"> > <a href='' onclick='wizard_goto(9);return false;' class="normal" id="link_9"><?php echo _("Risk rel") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_10"> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_11"> > <a href='' onclick='wizard_goto(11);return false;' class="normal" id="link_11"><?php echo _("Monitor intv") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_12"> > <a href='' onclick='wizard_goto(12);return false;' class="normal" id="link_12"><?php echo _("Monitor abs") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_13"> > <a href='' onclick='wizard_goto(13);return false;' class="normal" id="link_13"><?php echo _("Sticky") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_14"> > <a href='' onclick='wizard_goto(14);return false;' class="normal" id="link_14"><?php echo _("Sticky diff") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_15"> > <a href='' onclick='wizard_goto(15);return false;' class="normal" id="link_15"><?php echo _("Other") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_16"> > <a href='' onclick='wizard_goto(16);return false;' class="normal" id="link_16"><?php echo _("User data") ?></a></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td class="center nobborder" style="padding-top:20px">
+				<table class="transparent" style="border-width: 0px" align="center">
+				<tr>
+			
+				<!-- #################### left container #################### -->
+				<td class="container" style="vertical-align: top">
+				<table class="transparent">
+				<tr><td class="nobborder">
+				<div id="wizard_0"<?php if (!$add) echo " style='display:none'"?>>
+				<table class="transparent">
+					<tr>
+						<th style="white-space: nowrap; padding: 5px;font-size:12px"><?php echo _("Do you want to define a new rule now") ?>?</th>
 					</tr>
 					<tr>
-						<td class="container">
-							<?php
-include ("$base_dir/directive_editor/editor/rule/userdata.inc.php"); ?>
+						<td class="center nobborder" style="padding-top:10px">
+							<input type="button" value="Yes" onclick="wizard_next()" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"></input>
+							<input type="button" value="Later"></input>
 						</td>
 					</tr>
-					<tr>
-						<td class="container" colspan="2">
-							
-						</td>
-					</tr>
-					<tr><td colspan="2">
-						<span style="position:absolute; left:3%;">
-						<input type="button" style="width: 100px; cursor:pointer;"
-							id="change"
-							value="<-- <?php
-echo gettext('Previous'); ?>"
-							onclick="change_page();"
-							/>
-						</span>
-						<input type="button" style="width: 100px; cursor:pointer;"
-							value="<?php
-echo gettext('Back'); ?>"
-							onclick="onClickCancel(<?php
-echo $directive . ',' . $new_level; ?>)"
-						/>
-					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type="button" style="width: 100px; cursor:pointer;"
-							id="save"
-							value="<?php
-echo gettext('Save'); ?>"
-							onclick="submit()"
-							<?php
-echo ($rule->plugin_id == '') ? ' disabled="disabled"' : ''; ?>
-						/>
-					</td></tr>
+				</table>
+				</div>
+				
+				<?php
+			include ("global.inc.php"); ?>
+				
+				<div id="wizard_4" style="display:none">
+				<table class="transparent">
+				<tr><td class="container">
+				<?php
+			include ("network.inc.php"); ?>
+				</td></tr>
+				</table>
+				</div>
+			
+				<div id="wizard_5" style="display:none">
+				<table class="transparent">
+				<tr><td class="container">
+				<?php
+			include ("protocol.inc.php"); ?>
+				</td></tr>
+				</table>
+				</div>
+			
+				<div id="wizard_6" style="display:none">
+				<table class="transparent">
+				<tr><td class="container">
+				<?php
+			include ("sensor.inc.php");
+			$directive = GET("directive");
+			$level = GET("level");
+			$id = GET("id");
+			$xml_file = GET('xml_file');
+			ossim_valid($directive, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
+			ossim_valid($level, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("level"));
+			ossim_valid($id, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
+			ossim_valid($xml_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+			if (ossim_error()) {
+			    die(ossim_error());
+			}
+			if ($rule->is_new() && $level > 1) $new_level = $level - 1;
+			else $new_level = $level;
+			?>
+				</td></tr>
+				</table>
+				</div>
+			
+				<?php include ("risk.inc.php"); ?>
+			
+				<?php include ("monitor.inc.php"); ?>
+			
+				<?php include ("sticky.inc.php"); ?>
+			
+				<div id="wizard_15" style="display:none">
+				<?php include ("$base_dir/directive_editor/editor/rule/other.inc.php"); ?>
+				</div>
+				
+				<div id="wizard_16" style="display:none">
+				<?php include ("$base_dir/directive_editor/editor/rule/userdata.inc.php"); ?>
+				</div>
+				
+				</td>
+				</tr>
+				</table>
+				</td>
+				<!-- #################### END: down container #################### -->
+				
+				</tr>
+				<tr><td class="container" colspan="2" style="padding-top:20px">
+					<input type="hidden" name="directive" value="<?php echo $directive; ?>" />
+					<input type="hidden" name="level" value="<?php echo $level; ?>" />
+					<input type="hidden" name="id" value="<?php echo $id; ?>" />
+					<input type="hidden" name="xml_file" value="<?php echo $xml_file; ?>" />
+					<input type="hidden" name="type" id="type" value="<?php echo getPluginType($rule->plugin_id); ?>" />
+					<input type="button" style="width: 130px; cursor:pointer;" value="<?php echo gettext('Back to directives'); ?>" onclick="onClickCancel(<?php echo $directive . ',' . $new_level; ?>)"/>
+				</td></tr>
+			
 				</table>
 			</td>
 		</tr>
 	</table>
-	</div>
-	<!-- #################### END OF PAGE 2 ############################# -->
+	
 	</form>
 	
 	<!-- #################### END: main container #################### -->

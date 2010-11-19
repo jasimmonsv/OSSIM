@@ -8,7 +8,7 @@ function onLoadRuleEditor(plugin_sid,from,to,port_from,port_to,sensor) {
 	if (neg != -1) {
 		plugin_sid_value = "!" + plugin_sid.substr(neg+1).replace(/!/gi,"");
 	}
-
+	/*
 	getElt("plugin_sid_list").value = plugin_sid_value;
 	getElt("plugin_sid_list").title = plugin_sid_value;
 	onChangePluginSidList(true);
@@ -22,6 +22,7 @@ function onLoadRuleEditor(plugin_sid,from,to,port_from,port_to,sensor) {
 	getElt("port_to_list").title = port_to;
 	getElt("sensor_list").value = sensor;
 	getElt("sensor_list").title = sensor;
+	*/
 }
 
 /* must erase the name if "New rule" ? */
