@@ -461,8 +461,8 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
         if ($color == "#28BC04") { $unique_src_port_cnt_info[1] = str_replace(":black",":white",$unique_src_port_cnt_info[1]);
 									$unique_tcp_src_port_cnt_info[1] = str_replace(":black",":white",$unique_tcp_src_port_cnt_info[1]);
 									$unique_udp_src_port_cnt_info[1] = str_replace(":black",":white",$unique_udp_src_port_cnt_info[1]);
-                                    $pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report_Type$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
-                                    $csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report_Type$report_type','$src_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
+                                    $pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
+                                    $csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report$report_type','$src_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
                                     } else { $pdf = "<br>"; $csv="";}
 		//echo "<li$li_style>".$unique_src_port_cnt_info[1]._SCSOURCE." ".$unique_src_port_cnt_info[2]._SCPORT.": ".
         //       $unique_tcp_src_port_cnt_info[1]." TCP</a> | ".
@@ -485,8 +485,8 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 		if ($color == "#28BC04") { $unique_dst_port_cnt_info[1] = str_replace(":black",":white",$unique_dst_port_cnt_info[1]);
 									$unique_tcp_dst_port_cnt_info[1] = str_replace(":black",":white",$unique_tcp_dst_port_cnt_info[1]);
 									$unique_udp_dst_port_cnt_info[1] = str_replace(":black",":white",$unique_udp_dst_port_cnt_info[1]);
-                                    $pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('DestinationPort_Report_Type$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
-                                    $csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('DestinationPort_Report_Type$report_type','$dst_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
+                                    $pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('DestinationPort_Report$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
+                                    $csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('DestinationPort_Report$report_type','$dst_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
         } else { $pdf = "<br>"; $csv = "";}
 ?>
 			<td align="center" style='border-right:1px solid #CACACA;border-top:1px solid #CACACA;<? if ($color == "#28BC04") echo "color:white" ?>' bgcolor="<?php echo $color

@@ -129,6 +129,13 @@ if (ossim_error()) {
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
+<form style="margin:0px;display:inline" id="SourcePort_Report0" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Source_Port">
+<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
+<input type="hidden" name="reportUnit" value="Security_DB_Source_Port">
+<input type="hidden" name="Type" id="SourcePort_Report_Type" value="0">
+<input type="hidden" name="date_from" value="<?=$date_from?>">
+<input type="hidden" name="date_to" value="<?=$date_to?>">
+</form>
 <form style="margin:0px;display:inline" id="SourcePort_Report1" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Source_Port">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Source_Port">
@@ -140,6 +147,13 @@ if (ossim_error()) {
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Source_Port">
 <input type="hidden" name="Type" id="SourcePort_Report_Type" value="2">
+<input type="hidden" name="date_from" value="<?=$date_from?>">
+<input type="hidden" name="date_to" value="<?=$date_to?>">
+</form>
+<form style="margin:0px;display:inline" id="DestinationPort_Report0" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Destination_Port">
+<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
+<input type="hidden" name="reportUnit" value="Security_DB_Destination_Port">
+<input type="hidden" name="Type" id="DestinationPort_Report_Type" value="0">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
