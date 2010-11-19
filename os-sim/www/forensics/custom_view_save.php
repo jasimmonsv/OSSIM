@@ -30,6 +30,7 @@
 ****************************************************************************/
 require_once('classes/Session.inc');
 require_once('classes/User_config.inc');
+Session::logcheck("MenuEvents", "EventsForensics");
 $login = Session::get_session_user();
 $db = new ossim_db();
 $conn = $db->connect();

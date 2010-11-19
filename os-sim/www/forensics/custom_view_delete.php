@@ -30,6 +30,7 @@
 ****************************************************************************/
 require_once('classes/Session.inc');
 require_once('classes/User_config.inc');
+Session::logcheck("MenuEvents", "EventsForensics");
 $name = GET('name');
 ossim_valid($name, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: name");
 if (ossim_error()) {

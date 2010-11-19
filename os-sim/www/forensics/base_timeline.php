@@ -22,6 +22,7 @@ include ("$BASE_path/includes/base_include.inc.php");
 include_once ("$BASE_path/base_db_common.php");
 include_once ("$BASE_path/base_qry_common.php");
 include_once ("$BASE_path/base_stat_common.php");
+Session::logcheck("MenuEvents", "EventsForensics");
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $hosts_ips = array_keys($hosts);

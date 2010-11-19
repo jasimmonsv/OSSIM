@@ -29,6 +29,7 @@ function GB_show(caption, url, height, width) {
       .append("<div id='GB_overlay" + GB_TYPE + "'></div><div id='GB_window'><div id='GB_head'><div id='GB_caption'></div>"
         + "<div id='GB_table'><table><tr><td><img src='../pixmaps/theme/maximize.gif' id='GB_maximg' alt='Maximize' title='Maximize'></td><td><img src='../pixmaps/theme/close.png' id='GB_closeimg' alt='Close' title='Close'></td></tr></table></div></div></div>");
 	*/
+	$('meta[http-equiv=refresh').remove(); // bypass meta content auto-refresh
 	$(document.body)
       .append("<div id='GB_overlay" + GB_TYPE + "'></div><div id='GB_window'><div id='GB_head'><div id='GB_caption'></div>"
         + "<div id='GB_table'><table><tr><td><img src='/ossim/pixmaps/theme/close.png' id='GB_closeimg' alt='Close' title='Close'></td></tr></table></div></div></div>");

@@ -137,6 +137,12 @@ if ($_GET['time_range'] != "") {
     $_SESSION['time_cnt'] = $_GET['time_cnt'];
     $_SESSION['time_range'] = $_GET['time_range'];
 }
+// NUMEVENTS
+$numevents = intval($_GET["numevents"]);
+if ($numevents>0) {
+	GLOBAL $show_rows;
+	$show_rows = $numevents;
+}
 // PAYLOAD
 // IP
 // LAYER 4 PROTO

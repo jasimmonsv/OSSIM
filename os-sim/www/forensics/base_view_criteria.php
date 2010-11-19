@@ -35,6 +35,7 @@ include ("$BASE_path/includes/base_include.inc.php");
 include_once ("$BASE_path/base_db_common.php");
 include_once ("$BASE_path/base_qry_common.php");
 include_once ("$BASE_path/base_stat_common.php");
+Session::logcheck("MenuEvents", "EventsForensics");
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
 $db->baseDBConnect($db_connect_method, $alert_dbname, $alert_host, $alert_port, $alert_user, $alert_password);
 $cs = new CriteriaState("base_qry_main.php", "&amp;new=1&amp;submit=" . _QUERYDBP);
@@ -86,8 +87,10 @@ if (!$cs->criteria['ossim_type']->isEmpty()) $criteria_arr['meta']['Type'] = $cs
 
 // IP
 //$criteria_arr['ip']['IP Addr'] = '<I> ' . _ANY . ' </I>';
-if ((!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty()) && $cs->criteria['ip_addr']->Description() != "") {
-	$criteria_arr['ip']['IP Address'] = preg_replace("/Destination\=(\d+\.\d+\.\d+\.\d+)/","Event destination address is <b>\\1</b>",preg_replace("/Source\=(\d+\.\d+\.\d+\.\d+)/","Event source address is <b>\\1</b>",$cs->criteria['ip_addr']->Description_full()));
+if (!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty() || !$cs->criteria['networkgroup']->isEmpty()) {
+	$criteria_arr['ip']['Network Group'] = $cs->criteria['networkgroup']->Description();
+	if ($cs->criteria['ip_addr']->Description() != "")
+		$criteria_arr['ip']['IP Address'] = preg_replace("/Destination\=(\d+\.\d+\.\d+\.\d+)/","Event destination address is <b>\\1</b>",preg_replace("/Source\=(\d+\.\d+\.\d+\.\d+)/","Event source address is <b>\\1</b>",$cs->criteria['ip_addr']->Description_full()));
 	//$criteria_arr['ip']['IP Field'] = $cs->criteria['ip_field']->Description();
 }
 
@@ -141,7 +144,12 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 
 ?>
 <html>
-<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><META HTTP-EQUIV="pragma" CONTENT="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" /><META HTTP-EQUIV="REFRESH" CONTENT="180"><TITLE>Forensics Console : Query Results</TITLE><LINK rel="stylesheet" type="text/css" HREF="/ossim/forensics/styles/ossim_style.css"> 
+<HEAD>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<META HTTP-EQUIV="pragma" CONTENT="no-cache">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<TITLE>Forensics Console : Query Filters</TITLE>
+	<LINK rel="stylesheet" type="text/css" HREF="styles/ossim_style.css"> 
 </HEAD>
 <body>
 <table width="100%">
