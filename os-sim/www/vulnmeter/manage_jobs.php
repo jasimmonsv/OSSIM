@@ -101,7 +101,7 @@ echo gettext("Vulnmeter"); ?> </title>
                 }
                 else if(command=='stop_task') {
                     alert("<?=_("Stopping job, please wait a few seconds.")?>");
-                    setTimeout('document.location.href=manage_jobs.php?hmenu=Vulnerabilities&smenu=Jobs',8000);
+                    setTimeout('document.location.href="manage_jobs.php?hmenu=Vulnerabilities&smenu=Jobs"',8000);
                 }
                 else if(command=='resume_task') {
                     alert("<?=_("Resuming job, please wait a few seconds.")?>");
