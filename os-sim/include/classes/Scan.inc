@@ -64,7 +64,7 @@ class Scan {
 
     function Scan($network, $scan = NULL) {
         /* network to scan */
-        $this->network = $network;
+        $this->network = preg_replace("/\,\s*/",", ",$network);
         /* store scan result */
         if (is_array($scan)) $this->scan = $scan;
         else $this->scan = array();
@@ -220,7 +220,7 @@ class RemoteScan {
     
     function __construct($network, $type, $id="") {
         /* network to scan */
-        $this->network = $network;
+        $this->network = preg_replace("/\,\s*/",", ",$network);
         $this->type = $type;
         if ($id!="") $this->id=$id;
         $this->errmsg = "";
