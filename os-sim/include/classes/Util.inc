@@ -72,6 +72,8 @@ class Util {
             "/PROTOCOL/" => "get_protocol()",
             "/PLUGIN_ID/" => "get_plugin_id()",
             "/PLUGIN_SID/" => "get_plugin_sid()",
+            "/FILENAME/" => 'get_event_data($conn,"filename")',
+            "/USERNAME/" => 'get_event_data($conn,"username")',
             "/USERDATA1/" => 'get_event_data($conn,"userdata1")',
             "/USERDATA2/" => 'get_event_data($conn,"userdata2")',
             "/USERDATA3/" => 'get_event_data($conn,"userdata3")',

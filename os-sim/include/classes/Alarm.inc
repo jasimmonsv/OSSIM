@@ -939,9 +939,9 @@ class Alarm {
         }
     }
     // extra userdata fields from event table
-    function get_event_data($conn,$key="id") {
+    function get_event_data($conn,$key="username") {
     	if (empty($this->event_data)) {
-	        $sql = "SELECT * FROM event WHERE id=".$this->event_id;
+	        $sql = "SELECT filename,username,userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9 FROM snort.extra_data WHERE sid=".$this->snort_sid." and cid=".$this->snort_cid;
 	        if (!$rs = & $conn->Execute($sql)) {
 	            print $conn->ErrorMsg();
 	            exit;
