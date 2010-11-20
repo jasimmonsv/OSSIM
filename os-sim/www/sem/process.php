@@ -433,7 +433,7 @@ foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
 	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
 		$lf = explode(";", $res);
-        $logfile = urlencode($lf[count($lf)-2]);
+        $logfile = $lf[count($lf)-2];
         $current_server = urlencode($lf[count($lf)-1]);
         $current_server = $logger_servers[$current_server];
 		if ($cont[$current_server] == "") $cont[$current_server] = 1;
