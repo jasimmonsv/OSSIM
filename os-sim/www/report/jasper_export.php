@@ -4,6 +4,7 @@
     Session::useractive();
     $POSTReportUnit=POST('reportUnit');
     $GETFormat=GET('format');
+    $attach_mode=(GET('attachment')=="true") ? true : false;
     $port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
     $_SERVER["APACHE_PORT"]= (is_array($port) && intval($port[0])>0) ? intval($port[0]) : 80;
     $_POST['reportWWW']='http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"].'/';
@@ -136,7 +137,7 @@
       <?php
         }else{
             $result = $client->requestReport($report_unit, $report_format,$report_params,'runReport');
-            $client->getHeaderExportHtml($report_unit,$report_format,$params);
+            $client->getHeaderExportHtml($report_unit,$report_format,$params,$attach_mode);
             echo $result;
         }
     }else{

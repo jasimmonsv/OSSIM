@@ -54,6 +54,10 @@ if (ossim_error()) {
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/> 
 </HEAD>
 <script>
+	function close_wnd() { 
+		if (typeof parent.GB_hide == 'function') parent.GB_hide();
+		
+	}
 	function launch_form() { 
 		<? if ($type!="pdf") { ?>
 		$('#<?=$data?>').attr('action','csv.php?rtype=<?=$type?>');
@@ -62,14 +66,20 @@ if (ossim_error()) {
 		$('#<?=$data?>').submit();
 
 		
-		$('#msg').html('<img src="../pixmaps/loading.gif" width="16" border="0" align="absmiddle"> <?=_("Launching report and refreshing...")?><br>');
-		if (typeof parent.GB_hide == 'function') parent.GB_hide();
+		$('#msg').html('<?=_("Report launched successfully, please wait for the download report!")?><br>');
+		$('input[name=closebtn]').show();
 		
 	}
 	function generate() {
-		url = '<?=$url?>&numevents='+$('#numevents option:selected').val();
-		$('#forensics').attr('src',url);
-		$('#msg').html('<img src="../pixmaps/loading.gif" border="0" width="16" align="absmiddle"> <?=_("Loading event list, please wait a few seconds.")?><br>');
+		var num = $('#numevents option:selected').val();
+		if (num>50) {
+			var url = '<?=$url?>&numevents='+num;
+			$('#forensics').attr('src',url);
+			$('#msg').html('<img src="../pixmaps/loading.gif" border="0" width="16" align="absmiddle"> <?=_("Loading event list, please wait a few seconds.")?><br>');
+		} else {
+			// direct launch report
+			launch_form();
+		}
 	}
 </script>
 <body>
@@ -91,99 +101,100 @@ if (ossim_error()) {
 		</td>
 		<td class="nobborder">	
 			&nbsp;<input type="button" class="lbutton" onclick="generate()" value="<?=_(($type=="pdf" ? "PDF" : "CSV"))?>">
+			<input type="button" class="lbutton" onclick="close_wnd()" name="closebtn" value="<?=_("Close")?>" style="display:none">
 		</td>
 	</tr>
 </table>
 </form>
 <center><span align="center" id="msg"></span></center>
 <iframe id="forensics" style="display:none"></iframe>
-<form style="margin:0px;display:inline" id="Events_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Events">
+<form style="margin:0px;display:inline" id="Events_Report" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Events">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="UniqueEvents_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Events">
+<form style="margin:0px;display:inline" id="UniqueEvents_Report" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Unique_Events">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="Sensors_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Sensors">
+<form style="margin:0px;display:inline" id="Sensors_Report" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Sensors">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="UniqueAddress_Report1" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Address">
+<form style="margin:0px;display:inline" id="UniqueAddress_Report1" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Unique_Address">
 <input type="hidden" name="Type" id="UniqueAddress_Report_Type" value="1">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="UniqueAddress_Report2" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Address">
+<form style="margin:0px;display:inline" id="UniqueAddress_Report2" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Unique_Address">
 <input type="hidden" name="Type" id="UniqueAddress_Report_Type" value="2">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="SourcePort_Report0" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Source_Port">
+<form style="margin:0px;display:inline" id="SourcePort_Report0" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Source_Port">
 <input type="hidden" name="Type" id="SourcePort_Report_Type" value="0">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="SourcePort_Report1" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Source_Port">
+<form style="margin:0px;display:inline" id="SourcePort_Report1" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Source_Port">
 <input type="hidden" name="Type" id="SourcePort_Report_Type" value="1">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="SourcePort_Report2" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Source_Port">
+<form style="margin:0px;display:inline" id="SourcePort_Report2" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Source_Port">
 <input type="hidden" name="Type" id="SourcePort_Report_Type" value="2">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="DestinationPort_Report0" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Destination_Port">
+<form style="margin:0px;display:inline" id="DestinationPort_Report0" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Destination_Port">
 <input type="hidden" name="Type" id="DestinationPort_Report_Type" value="0">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="DestinationPort_Report1" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Destination_Port">
+<form style="margin:0px;display:inline" id="DestinationPort_Report1" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Destination_Port">
 <input type="hidden" name="Type" id="DestinationPort_Report_Type" value="1">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="DestinationPort_Report2" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Destination_Port">
+<form style="margin:0px;display:inline" id="DestinationPort_Report2" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Destination_Port">
 <input type="hidden" name="Type" id="DestinationPort_Report_Type" value="2">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="UniquePlugin_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Plugin">
+<form style="margin:0px;display:inline" id="UniquePlugin_Report" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Unique_Plugin">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="UniqueCountryEvents_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Country_Events">
+<form style="margin:0px;display:inline" id="UniqueCountryEvents_Report" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="Security_DB_Unique_Country_Events">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
 <input type="hidden" name="date_to" value="<?=$date_to?>">
 </form>
-<form style="margin:0px;display:inline" id="UniqueIPLinks_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="SIEM_Events_Unique_IP_Links">
+<form style="margin:0px;display:inline" id="UniqueIPLinks_Report" method="POST" action="../report/jasper_export.php?format=pdf&attachment=true">
 <input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
 <input type="hidden" name="reportUnit" value="SIEM_Events_Unique_IP_Links">
 <input type="hidden" name="date_from" value="<?=$date_from?>">
