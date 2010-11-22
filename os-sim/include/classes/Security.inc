@@ -736,14 +736,13 @@ function expire_session_check() {
 	}
 	$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
 	if ($expired_timeout==0) return;
-	if (intval($_SESSION["_expiration_time"])+$expired_timeout < time()) {
-		require_once("classes/Session.inc");
-		Session::logout();
+	if (isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < time()) {
+		header("Location /ossim/session/login.php?action=logout");
 	}
 	// only update if not exists bypass => header ajax responses
 	$_SESSION["_expiration_time"] = time();
 }
-if ((session_id() != '') && intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1) {
+if ((session_id() != '') && intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1) {
 	expire_session_check();
 }
 // IDS Security

@@ -793,6 +793,8 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 		$('#widgetCalendar div.datepicker').css('position', 'absolute');
 		$('.ndc').disableTextSelect();
 		// timeline
+		if (typeof load_tree == 'function') load_tree();
+		// timeline
 		if (typeof gen_timeline == 'function') gen_timeline();
 		// report
 		if (typeof parent.launch_form == 'function') parent.launch_form();
