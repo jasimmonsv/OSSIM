@@ -937,6 +937,9 @@ class Alarm {
             // delete from backlog_event
             $conn->Execute("DELETE FROM backlog_event WHERE backlog_id IS NULL");
         }
+        // purge orphaned events
+        $conn->Execute("DELETE FROM backlog_event WHERE backlog_id NOT IN (SELECT backlog_id FROM alarm)");
+        $conn->Execute("DELETE FROM backlog WHERE id NOT IN (SELECT backlog_id FROM alarm)");
     }
     // extra userdata fields from event table
     function get_event_data($conn,$key="username") {
