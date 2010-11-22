@@ -42,8 +42,8 @@
 require_once ('ossim_conf.inc');
 class About {
     function About() {
-        $this->version = "2.4.5";
-        $this->date = "2010/11/04";
+        $this->version = "2.4.6";
+        $this->date = "2010/11/22";
         $this->conf = $GLOBALS["CONF"];
         $this->logo = $this->conf->get_conf("ossim_link") . "/pixmaps/logo3.jpg";
     }
