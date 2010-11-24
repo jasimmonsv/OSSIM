@@ -89,7 +89,7 @@ class TCPPacket:
         self.res = (self.b1&0xf)|(self.b2&0xc0)<<4
 
         self.__flags = {1:"C", 2:"E", 4:"U", 8:"A", 16:"P", 32:"R", 64:"S", 128:"F"}
-        self.__flags_keys = self__flags.keys().sort()
+        self.__flags_keys = self.__flags.keys().sort()
         self.flags = (self.b2 & 0x3f)
 
         self.opt =[]
