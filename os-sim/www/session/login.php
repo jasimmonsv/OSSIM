@@ -113,7 +113,6 @@ if ($action == "logout") {
     );
     if (trim($infolog[0]) != "") Log_action::log(2, $infolog);
     Session::logout();
-    header("Location: ../index.php");
 }
 $user = REQUEST('user');
 $pass = base64_decode(REQUEST('pass'));
@@ -192,7 +191,7 @@ $conn = $db->connect();
 Session::check_enabled_field($conn);
 $db->close($conn);
 $version = $conf->get_conf("ossim_server_version", FALSE);
-$opensource = (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) ? true : false;
+$opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">

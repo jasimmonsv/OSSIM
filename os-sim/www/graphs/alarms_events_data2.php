@@ -185,7 +185,7 @@ while (!$rs->EOF) {
     $rs->MoveNext();
 }
 $chart['live_update'] = array(
-    'url' => "/ossim/graphs/alarms_events_data2.php?counter=" . $counter . "&time=" . time() ,
+    'url' => "/ossim/graphs/alarms_events_data2.php?bypassexpirationupdate=1&counter=" . $counter . "&time=" . time() ,
     'delay' => 8
 );
 $chart['chart_data'] = array(

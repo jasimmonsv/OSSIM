@@ -792,7 +792,12 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 		});
 		$('#widgetCalendar div.datepicker').css('position', 'absolute');
 		$('.ndc').disableTextSelect();
+		// timeline
+		if (typeof load_tree == 'function') load_tree();
+		// timeline
 		if (typeof gen_timeline == 'function') gen_timeline();
+		// report
+		if (typeof parent.launch_form == 'function') parent.launch_form();
 	}
 	function bgtask() {
 		$.ajax({
@@ -890,6 +895,13 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 			}
 		});
 	}
+
+	function report_launcher(data,type) {
+		var url = '<?=urlencode($_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"])?>';
+		var dates = '<?=($y1!="") ? "&date_from=$y1-$m11-$d1" : "&date_from="?><?=($y2!="") ? "&date_to=$y2-$m21-$d2" : "&date_to="?>';
+		GB_show("<?=_("Report options")?>",'report_launcher.php?url='+url+'&data='+data+'&type='+type+dates,200,'40%');
+		return false;
+	}
 	
     function GB_hide() { document.location.reload() }
     function fill_subcategories() {
@@ -907,63 +919,3 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 if ($_SESSION["deletetask"] != "") echo "bgtask();\n"; ?>
 </script>
 <div>
-
-<!-- Report forms -->
-<form style="margin:0px;display:inline" id="Events_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Events">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Events">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniqueEvents_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Events">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Unique_Events">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="Sensors_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Sensors">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Sensors">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniqueAddress_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Address">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Unique_Address">
-<input type="hidden" name="Type" id="UniqueAddress_Report_Type" value="">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="SourcePort_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Source_Port">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Source_Port">
-<input type="hidden" name="Type" id="SourcePort_Report_Type" value="">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="DestinationPort_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Destination_Port">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Destination_Port">
-<input type="hidden" name="Type" id="DestinationPort_Report_Type" value="">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniquePlugin_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Plugin">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Unique_Plugin">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniqueCountryEvents_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Country_Events">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Unique_Country_Events">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniqueIPLinks_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="SIEM_Events_Unique_IP_Links">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="SIEM_Events_Unique_IP_Links">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-

@@ -79,7 +79,7 @@ $ports_input = implode(",", $arr_ports_input);
 $array_assets = array ( "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
 $array_os = array ( "Unknown" => "",
-					"Windows" => "Microsoft Windows",
+					"Win"     => "Microsoft Windows",
 					"Linux"   => "Linux",
 					"FreeBSD" => "FreeBSD",
 					"NetBSD"  => "NetBSD",
@@ -91,7 +91,7 @@ $array_os = array ( "Unknown" => "",
 					"HP-UX"   => "HP-UX",
 					"Tru64"   => "Compaq Tru64",
 					"IRIX"    => "SGI IRIX",
-					"BSD/OS"  => "BSD/OS",
+					"BSD\/OS"  => "BSD/OS",
 					"SunOS"   => "SunOS",
 					"Plan9"   => "Plan9",
 					"IPhone"  => "IPhone");
@@ -165,6 +165,7 @@ else
 		$num_sensors     = count($sensors);
 	}
 }
+
 
 $style = "style='display: none;'";
 
@@ -371,6 +372,7 @@ if (count($error_nagios) > 0)
 			<td class="nobborder" valign="top">
 				<table>
 					<form method="post" id='formhost' name='formhost' action="modifyhost.php">
+					<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 					<input type="hidden" name="insert" value="insert"/>
 					<input type="hidden" name="old_hostname" id="old_hostname" value="<?php echo $old_hostname; ?>"/>
 					
@@ -535,7 +537,8 @@ if (count($error_nagios) > 0)
 								<?php
 								foreach ($array_os as $k => $v)
 								{
-									$selected = ($os == $v) ? "selected='selected'" : '';
+									$pattern = "/$k/i";
+									$selected = ( preg_match($pattern, $os) ) ? "selected='selected'" : '';
 									echo "<option value='$k' $selected>$v</option>";
 								}
 								?>

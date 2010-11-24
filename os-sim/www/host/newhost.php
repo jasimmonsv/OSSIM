@@ -65,7 +65,7 @@ $longitude   = POST('longitude');
 $num_sensors = count($sensors);
 
 $validate = array (
-	"hostname"    => array("validation"=>"OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Host name")),
+	"hostname"    => array("validation"=>"OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Host name")),
 	"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
 	"fqdns"       => array("validation"=>"OSS_FQDNS, OSS_NULLABLE", "e_message" => 'illegal:' . _("FQDN/Aliases")),
 	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
@@ -165,8 +165,10 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
+else
+	$get_param = "withoutmenu=1";	
 ?>
 
 <h1> <?php echo gettext("New Host"); ?> </h1>                                  
@@ -180,7 +182,7 @@ if (POST('insert'))
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";				
 		Util::print_error($txt_error);	
-		Util::make_form("POST", "newhostform.php");
+		Util::make_form("POST", "newhostform.php?".$get_param);
 		die();
 	}
 		
@@ -210,10 +212,8 @@ if (POST('insert'))
 }
 ?>
     <p> <?php echo gettext("Host succesfully inserted"); ?> </p>
-    <?if ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") { ?><script>document.location.href="host.php"</script><? } ?>
+    <?if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1" ) { ?><script>document.location.href="host.php"</script><? } ?>
 	
-	<?php $OssimWebIndicator->update_display(); ?>
-
 </body>
 </html>
 

@@ -328,7 +328,7 @@ th,.th { white-space:nowrap;word-wrap:nowrap; padding:0px 10px 0px 10px; border:
     -webkit-border-radius: 5px;
 }
 
-.thgray { word-wrap:nowrap; padding:0px 10px 0px 10px; border: 1px solid #aaaaaa; background: #cccccc url(../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png) 50% 50% repeat-x; font-size: 11px; color: #666666; font-weight: bold; text-align: center; }
+.thgray { word-wrap:nowrap; padding:0px 10px 0px 10px; border: 1px solid #aaaaaa; background: #cccccc url(../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png) 50% 50% repeat-x; font-size: 11px; color: #888888; font-weight: bold; text-align: center; }
 
 .thlightgray {
     word-wrap:nowrap;
@@ -753,7 +753,7 @@ div.bballoon:hover span.tooltip {
   color: #111;
   display:block;
   position:absolute;
-  top:12px; left:20px;
+  top:12px; left:130px;
   width:360px;
   text-align: left;
   text-decoration:none;

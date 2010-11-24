@@ -59,9 +59,10 @@ $page = POST('page');
 if (empty($page)) $page = 1;
 $rp = POST('rp');
 if (empty($rp)) $rp = 25;
-$nagios_action = GET('nagios_action');
-$nessus_action = GET('nessus_action');
+$nagios_action   = GET('nagios_action');
+$nessus_action   = GET('nessus_action');
 $host_group_name = GET('host_group_name');
+
 ossim_valid($nessus_action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Nessus action"));
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
@@ -70,9 +71,11 @@ ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _
 ossim_valid($nagios_action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Nagios action"));
 ossim_valid($host_group_name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Host group name"));
 ossim_valid($order, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Order"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
+
 $db = new ossim_db();
 $conn = $db->connect();
 $hosts_list = Host_group_reference::get_list($conn, $host_group_name);
@@ -111,8 +114,8 @@ if ((!empty($nagios_action)) AND (!empty($host_group_name))) {
         if (Host_group_scan::in_host_group_scan($conn, $host_group_name, 2007)) Host_group_scan::delete($conn, $host_group_name, 2007);
         Host_group_scan::insert($conn, $host_group_name, 2007);
         require_once 'classes/NagiosConfigs.inc';
-        $q = new NagiosAdm();
         $q->addNagiosHostGroup(new NagiosHostGroup($host_group_name, $hosts, $sensors),$conn);
+        $q = new NagiosAdm();
         $q->close();
     }
 }
@@ -133,7 +136,7 @@ $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($host_group_list as $host_group) {
     $name = $host_group->get_name();
-    $xml.= "<row id='".$name."'>";
+	$xml.= "<row id='".htmlspecialchars($name)."'>";
     $link_modify = "<a style='font-weight:bold;' href=\"./newhostgroupform.php?name=".urlencode($name)."\">" .$name. "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $list = "";

@@ -190,14 +190,13 @@ fclose($f);
 ?>
 <h1>pcap File:</h1>
 <link rel="stylesheet" type="text/css" href="styles/tree.css" />
-<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.7.custom.min.js"></script>
-<script type="text/javascript" src="js/jquery.dynatree.js"></script>
+<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+<script type="text/javascript" src="../js/jquery.tmpl.1.1.1.js"></script>
+<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
 <script type="text/javascript">
 var loading = '<br><img src="images/ltWait.gif" border="0" align="absmiddle"> Loading tree...';
 var layer = '#container';
 var nodetree = null;
-var i=1;
 function load_tree(filter) {
 	$('#loading').html(loading);
 	$.ajax({
@@ -209,6 +208,7 @@ function load_tree(filter) {
 			$(layer).html(msg);
 			$(layer).dynatree({
 				clickFolderMode: 2,
+				imagePath: "../forensics/styles",
 				onActivate: function(dtnode) {
 					//alert(dtnode.data.url);
 				},
@@ -219,9 +219,6 @@ function load_tree(filter) {
 		}
 	});
 }
-$(function(){
-	load_tree("");
-});
 </script>
 <div id="loading"></div>
 <div id="container" style="width:350px;line-height:16px"></div>

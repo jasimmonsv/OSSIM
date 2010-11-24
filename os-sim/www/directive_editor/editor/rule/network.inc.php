@@ -1,5 +1,5 @@
 	<!-- #################### network ##################### -->
-	<table width="<?php
+<?php
 /*****************************************************************************
 *
 *    License:
@@ -35,240 +35,149 @@
 * Function list:
 * Classes list:
 */
-echo $left_table_width; ?>">
-		<tr>
-			<th colspan="8">
-				<?php
-echo gettext("Network"); ?>
-			</th>
-		</tr>
+?>
+<input type="hidden" name="from" id="from" value=""></input>
+<input type="hidden" name="from_list" id="from_list" value=""></input>
+<input type="hidden" name="port_from" id="port_from" value=""></input>
+<input type="hidden" name="port_from_list" id="port_from_list" value=""></input>
+<table class="transparent">
+	<tr>
+		<th style="white-space: nowrap; padding: 5px;font-size:12px">
+			<?php echo gettext("Network"); ?>
+		</th>
+	</tr>
 		<!-- ##### from ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("From"); ?>
-			</td>
-			<td style="width: <?php
-echo $left_select_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $left_select_width; ?>"
-					name="from"
-					id="from"
-					onchange="onChangeIPSelectBox('from')"
-				>
-					<?php
-$selected = selectIf(isAny($rule->from));
-echo "<option value=\"ANY\"$selected>ANY</option>";
-for ($i = 1; $i <= $rule->level - 1; $i++) {
-    $sublevel = $i . ":SRC_IP";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = "!" . $i . ":SRC_IP";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = $i . ":DST_IP";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = "!" . $i . ":DST_IP";;
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-}
-$selected = selectIf(isList($rule->from));
-echo "<option value=\"LIST\"$selected>LIST</option>";
-?>
-				</select>
-			</td>
-			<td style="width: <?php
-echo $left_text_width; ?>;
-				text-align: left; padding-right: 8px"
-			>
-				<input type="text" style="width: 100%"
-					name="from_list"
-					id="from_list"
-					value=""
-					title=""
-					onkeypress="onKeyPressElt(this,event)"
-					onchange="onChangeIPList('from_list')"
-					onblur="onChangeIPList('from_list')"
-					<?php
-echo disableIf(!isList($rule->from)); ?>
-				/>
-			</td>
-			<td style="vertical-align: top">
-				<input type="button" style="width: 25px; cursor:pointer;"
-					value="..."
-					onclick="open_frame(
-            'editor/rule/popup/index.php' +
-						'?top=from' +
-						'&from=' + getElt('from').value +
-						'&from_list=' + getElt('from_list').value
-					)"
-				/>
-			</td>
-			<!-- ##### port from ##### -->
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				,&nbsp;<?php
-echo gettext("Port"); ?>
-			</td>
-			<td style="width: <?php
-echo $left_select_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $left_select_width; ?>"
-					name="port_from"
-					id="port_from"
-					onchange="onChangePortSelectBox('port_from')"
-				>
-					<?php
-$selected = selectIf(isAny($rule->port_from));
-echo "<option value=\"ANY\"$selected>ANY</option>";
-for ($i = 1; $i <= $rule->level - 1; $i++) {
-    $sublevel = $i . ":SRC_PORT";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = "!" . $i . ":SRC_PORT";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = $i . ":DST_PORT";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = "!" . $i . ":DST_PORT";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-}
-$selected = selectIf(isList($rule->port_from));
-echo "<option value=\"LIST\"$selected>LIST</option>";
-?>
-				</select>
-			</td>
-			<td style="width: <?php
-echo $left_text_width; ?>;
-				text-align: left; padding-right: 8px"
-			>
-				<input type="text" style="width: 100%"
-					name="port_from_list"
-					id="port_from_list"
-					value=""
-					title=""
-					onkeypress="onKeyPressElt(this,event)"
-					onchange="onChangePortList('port_from_list')"
-					onblur="onChangePortList('port_from_list')"
-					<?php
-echo disableIf(!isList($rule->port_from)); ?>
-				/>
-			</td>
-		</tr>
-		<!-- ##### to ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("To"); ?>
-			</td>
-			<td style="width: <?php
-echo $left_select_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $left_select_width; ?>"
-					name="to"
-					id="to"
-					onchange="onChangeIPSelectBox('to')"
-				>
-					<?php
-$selected = selectIf(isAny($rule->to));
-echo "<option value=\"ANY\"$selected>ANY</option>";
-for ($i = 1; $i <= $rule->level - 1; $i++) {
-    $sublevel = $i . ":SRC_IP";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = "!" . $i . ":SRC_IP";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = $i . ":DST_IP";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = "!" . $i . ":DST_IP";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-}
-$selected = selectIf(isList($rule->to));
-echo "<option value=\"LIST\"$selected>LIST</option>";
-?>
-				</select>
-			</td>
-			<td style="width: <?php
-echo $left_text_width; ?>;
-				text-align: left; padding-right: 8px"
-			>
-				<input type="text" style="width: 100%"
-					name="to_list"
-					id="to_list"
-					value=""
-					title=""
-					onkeypress="onKeyPressElt(this,event)"
-					onchange="onChangeIPList('to_list')"
-					onblur="onChangeIPList('to_list')"
-					<?php
-echo disableIf(!isList($rule->to)); ?>
-				/>
-			</td>
-			<td style="vertical-align: top">
-				<input type="button" style="width: 25px; cursor:pointer;"
-					value="..."
-					onclick="open_frame(
-            'editor/rule/popup/index.php' +
-						'?top=to' +
-						'&to=' + getElt('to').value +
-						'&to_list=' + getElt('to_list').value
-					)"
-				/>
-			</td>
-			<!-- ##### port to ##### -->
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				,&nbsp;<?php
-echo gettext("Port"); ?>
-			</td>
-			<td style="width: <?php
-echo $left_select_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $left_select_width; ?>"
-					name="port_to"
-					id="port_to"
-					onchange="onChangePortSelectBox('port_to')"
-				>
-					<?php
-$selected = selectIf(isAny($rule->port_to));
-echo "<option value=\"ANY\"$selected>ANY</option>";
-for ($i = 1; $i <= $rule->level - 1; $i++) {
-    $sublevel = $i . ":SRC_PORT";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = "!" . $i . ":SRC_PORT";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = $i . ":DST_PORT";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-    $sublevel = "!" . $i . ":DST_PORT";
-    echo "<option value=\"$sublevel\">$sublevel</option>";
-}
-$selected = selectIf(isList($rule->port_to));
-echo "<option value=\"LIST\"$selected>LIST</option>";
-?>
-				</select>
-			</td>
-			<td style="width: <?php
-echo $left_text_width; ?>;
-				text-align: left; padding-right: 8px"
-			>
-				<?php
-$value = isList($rule->port_to) ? $rule->port_to : "";
-$disabled = disableIf(!isList($rule->port_to));
-?>
-				<input type="text" style="width: 100%"
-					name="port_to_list"
-					id="port_to_list"
-					value="<?php
-echo $value; ?>"
-					title="<?php
-echo $value; ?>"
-					onkeypress="onKeyPressElt(this,event)"
-					onchange="onChangePortList('port_to_list')"
-					onblur="onChangePortList('port_to_list')"
-					<?php
-echo $disabled; ?>
-				/>
-			</td>
-		</tr>
-	</table>
-	<!-- #################### END: network ##################### -->
+	<tr>
+		<th style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php echo gettext("From"); ?>
+		</th>
+	</tr>
+	<tr>
+		<td class="nobborder">
+			<table class="transparent">
+				<tr>
+					<td class="nobborder" valign="top">
+						<table class="transparent">
+							<tr><th><?php echo _("Host/Network") ?></th></tr>
+							<tr>
+								<td class="nobborder">
+								<select id="fromselect" class="multiselect_from" multiple="multiple" name="fromselect[]" style="display:none;width:450px">
+								<?php if (isList($rule->from) && $rule->from != "") { ?>
+								
+								<?php } ?>
+								</select>
+								</td>
+							</tr>
+							<?php
+							for ($i = 1; $i <= $rule->level - 1; $i++) {
+							    $sublevel = $i . ":SRC_IP";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = "!" . $i . ":SRC_IP";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = $i . ":DST_IP";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = "!" . $i . ":DST_IP";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							}
+							?>
+						</table>
+					</td>
+					<td class="nobborder" valign="top">
+						<table class="transparent">
+							<tr><th><?php echo _("Port") ?></th></tr>
+							<tr>
+								<td class="nobborder">
+								<select id="fromselect_port" class="multiselect_from_port" multiple="multiple" name="fromselect_port[]" style="display:none;width:450px">
+								<?php if (isList($rule->port_from) && $rule->port_from != "") { ?>
+								
+								<?php } ?>
+								</select>
+								</td>
+							</tr>
+							<?php
+							for ($i = 1; $i <= $rule->level - 1; $i++) {
+							    $sublevel = $i . ":SRC_PORT";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = "!" . $i . ":SRC_PORT";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = $i . ":DST_PORT";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = "!" . $i . ":DST_PORT";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							}
+							?>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<!-- ##### to ##### -->
+	<tr>
+		<th style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php echo gettext("To"); ?>
+		</th>
+	</tr>
+	<tr>
+		<td class="nobborder">
+			<table class="transparent">
+				<tr>
+					<td class="nobborder" valign="top">
+						<table class="transparent">
+							<tr><th><?php echo _("Host/Network") ?></th></tr>
+							<tr>
+								<td class="nobborder">
+								<select id="toselect" class="multiselect_to" multiple="multiple" name="toselect[]" style="display:none;width:450px">
+								<?php if (isList($rule->to) && $rule->to != "") { ?>
+								
+								<?php } ?>
+								</select>
+								</td>
+							</tr>
+							<?php
+							for ($i = 1; $i <= $rule->level - 1; $i++) {
+							    $sublevel = $i . ":SRC_IP";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = "!" . $i . ":SRC_IP";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = $i . ":DST_IP";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = "!" . $i . ":DST_IP";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							}
+							?>
+						</table>
+					</td>
+					<td class="nobborder" valign="top">
+						<table class="transparent">
+							<tr><th><?php echo _("Port") ?></th></tr>
+							<tr>
+								<td class="nobborder">
+								<select id="fromselect_to_port" class="multiselect_to_port" multiple="multiple" name="fromselect_to_port[]" style="display:none;width:450px">
+								<?php if (isList($rule->port_to) && $rule->port_to != "") { ?>
+								
+								<?php } ?>
+								</select>
+								</td>
+							</tr>
+							<?php
+							for ($i = 1; $i <= $rule->level - 1; $i++) {
+							    $sublevel = $i . ":SRC_PORT";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = "!" . $i . ":SRC_PORT";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = $i . ":DST_PORT";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							    $sublevel = "!" . $i . ":DST_PORT";
+							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
+							}
+							?>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr><td class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next()"></td></tr>
+</table>
+<!-- #################### END: network ##################### -->

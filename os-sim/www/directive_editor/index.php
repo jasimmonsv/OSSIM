@@ -45,6 +45,7 @@ ossim_valid($_GET["disable"], OSS_LETTER, OSS_DIGIT, OSS_SCORE, OSS_SPACE, OSS_N
 ossim_valid($_GET["id"], OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
 ossim_valid($_GET["directive"], OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
 ossim_valid($_GET["xml_file"], OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+ossim_valid($_GET["add"], OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("add"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -59,8 +60,7 @@ else $cols = "280,100%";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-<head>
-</head>
+  </head>
 	<frameset rows="35,*" frameborder=0 framespacing=0>
 	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>" scrolling='no'>
 		<frameset id="frames" cols="<?php echo $cols ?>" frameborder="no" border='0' framespacing='0'>
@@ -75,8 +75,9 @@ if ($_GET['directive'] != '' || $_GET['action'] == "add_directive") {
     }
     elseif ($action == 'add_rule') {
         $id = $_GET['id'];
+        $add = $_GET['add'];
         $xml_file = $_GET['xml_file'];
-        $right = "include/utils.php?query=add_rule&id=$id&xml_file=$xml_file";
+        $right = "include/utils.php?query=add_rule&id=$id&xml_file=$xml_file&add=$add";
         $scroll = "no";
     }
     elseif ($action == 'copy_directive') {

@@ -107,7 +107,7 @@ $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($net_list as $net) {
     $name = $net->get_name();
-    $xml.= "<row id='".htmlentities($name)."'>";
+    $xml.= "<row id='".htmlspecialchars($name)."'>";
     $link_modify = "<a style='font-weight:bold;' href=\"./newnetform.php?name=".urlencode($name)."\">" . htmlentities($name) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net->get_ips() . "]]></cell>";

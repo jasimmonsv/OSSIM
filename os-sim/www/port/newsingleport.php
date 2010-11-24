@@ -134,7 +134,7 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
 ?>
 
@@ -162,7 +162,7 @@ $db->close($conn);
 
 ?>
     <p> <?php echo gettext("Port succesfully inserted"); ?> </p>
-    <? if ($_SESSION["menu_sopc"]=="Ports") { ?><script>document.location.href="port.php"</script><? } ?>
+    <? if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="port.php"</script><? } ?>
 
 </body>
 </html>

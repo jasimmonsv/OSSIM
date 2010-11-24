@@ -37,21 +37,8 @@
 require_once ('classes/Security.inc');
 require_once ("../../../../include/utils.php");
 dbConnect();
-?>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html>
-	<head>
-		<link rel="stylesheet" type="text/css" href="../../../../style/directives.css">
-
-		<script type="text/javascript" language="javascript" src="javascript/top.js"></script>
-	</head>
-
-	<body>
-
-<?php
+$getports = (GET('port') == "1") ? 1 : 0;
+/*
 $from = GET('from');
 $from_list = GET('from_list');
 ossim_valid($from, OSS_ALPHA, OSS_PUNC_EXT, 'illegal:' . _("from"));
@@ -59,116 +46,60 @@ ossim_valid($from_list, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("f
 if (ossim_error()) {
     die(ossim_error());
 }
-?>
-		<center>
-			<table>
-				<tr>
-					<th width="70px">
-						<button class="th" id="all" onclick="onClickAllIp()">+</button>/
-						<button class="th" id="inv" onclick="onClickInvIp()">-</button>
-					</th>
-					<th><?php
-echo gettext('Hostname'); ?></th>
-					<th><?php
-echo gettext('IP'); ?></th>
-				</tr>
 
-<?php
 if (substr($from_list, 0, 1) == '!') {
     $default_checked = ' checked="checked"';
     $from_list = substr($from_list, 1);
 } else $default_checked = '';
-if ($host_list = getHostList()) {
-    foreach($host_list as $host) {
-        $hostname = $host->get_hostname();
-        $ip = $host->get_ip();
-        if ($from == 'ANY') {
-            $checked = ' checked="checked"';
-        } elseif (in_array($ip, split(',', $from_list))) {
-            $checked = ($default_checked == '') ? ' checked="checked"' : '';
-        } else {
-            $checked = $default_checked;
-        }
-?>
-
-				<tr>
-					<td>
-						<input type="checkbox" id="hosttab" name="chk"
-							value="<?php
-        echo $ip; ?>"
-							<?php
-        echo $checked; ?>
-							onClick="onClickChk()"
-						>
-					</td>
-					<td><?php
-        echo $hostname; ?></td>
-					<td><?php
-        echo $ip; ?></td>
-				</tr>
-
-<?php
-    }
+*/
+if ($getports) {
+	$port_list = getPortList();
+	$already = array();
+	$i = 0;
+	foreach ($port_list as $port) {
+		if ($i > 100) continue;
+		$port_number = $port->get_port_number();
+		if (!$already[$port_number]) {
+			echo "$port_number=$port_number\n";
+			$i++;
+		}
+		$already[$port_number]++;
+	}
+} else {
+	$host_list = getHostList();
+	$net_list = getNetList();
+	if (count($host_list) + count($net_list) > 100) echo "Total=".(count($host_list) + count($net_list))."\n";
+	
+	$i = 0;
+	foreach ($host_list as $host) {
+		if ($i > 100) continue;
+	    $hostname = $host->get_hostname();
+	    $ip = $host->get_ip();
+	    if ($from == 'ANY') {
+	        $checked = ' checked="checked"';
+	    } elseif (in_array($ip, split(',', $from_list))) {
+	        $checked = ($default_checked == '') ? ' checked="checked"' : '';
+	    } else {
+	        $checked = $default_checked;
+	    }
+	    echo "$ip=$hostname\n";
+	    $i++;
+	}
+	
+	foreach ($net_list as $net) {
+	    if ($i > 100) continue;
+		$netname = $net->get_name();
+	    $ips = $net->get_ips();
+	    if ($from == 'ANY') {
+	        $checked = ' checked="checked"';
+	    } elseif (in_array($netname, split(',', $from_list))) {
+	        $checked = ($default_checked == '') ? ' checked="checked"' : '';
+	    } else {
+	        $checked = $default_checked;
+	    }
+	    echo "$ips=$netname\n";
+	    $i++;
+	}
 }
-if ($net_list = getNetList()) {
-?>
-  <tr>
-					<th width="70px">
-					  <button class="th" id="all" onclick="onClickAllNet()">+</button>/
-						<button class="th" id="inv" onclick="onClickInvNet()">-</button>
-					</th>
-					<th><?php
-    echo gettext('Netname'); ?></th>
-					<th><?php
-    echo gettext('IPs'); ?></th>
-				</tr>
-  
-  
-  <?php
-    foreach($net_list as $net) {
-        $netname = $net->get_name();
-        $ips = $net->get_ips();
-        if ($from == 'ANY') {
-            $checked = ' checked="checked"';
-        } elseif (in_array($netname, split(',', $from_list))) {
-            $checked = ($default_checked == '') ? ' checked="checked"' : '';
-        } else {
-            $checked = $default_checked;
-        }
-?>
-
-				<tr>
-					<td>
-						<input type="checkbox" id="nettab" name="chk"
-							value="<?php
-        echo $netname; ?>"
-							<?php
-        echo $checked; ?>
-							onClick="onClickChk()"
-						>
-					</td>
-					<td><?php
-        echo $netname; ?></td>
-					<td><?php
-        echo $ips; ?></td>
-				</tr>
-
-<?php
-    }
-} ?>
-
-			</table>
-			
-
-			
-		</center>
-
-		<script type="text/javascript" language="JavaScript">
-			window.open("../bottom.php?param=from", "bottom");
-		</script>
-	</body>
-</html>
-
-<?php
 dbClose();
 ?>

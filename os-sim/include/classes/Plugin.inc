@@ -48,11 +48,13 @@ class Plugin {
     var $type;
     var $name;
     var $description;
-    function Plugin($id, $type, $name, $description, $foundrows = 0) {
+    var $sourceType;
+    function Plugin($id, $type, $name, $description, $sourceType, $foundrows = 0) {
         $this->id = $id;
         $this->type = $type;
         $this->name = $name;
         $this->description = $description;
+        $this->sourceType = $sourceType;
         $this->foundrows = $foundrows;
     }
     function get_id() {
@@ -66,6 +68,9 @@ class Plugin {
     }
     function get_description() {
         return $this->description;
+    }
+	function get_sourceType() {
+        return $this->sourceType;
     }
     function get_foundrows() {
         return $this->foundrows;
@@ -84,7 +89,7 @@ class Plugin {
             }
             $list = array();
             while (!$rs->EOF) {
-                $list[] = new Plugin($rs->fields["id"], $rs->fields["type"], $rs->fields["name"], $rs->fields["description"], $foundrows);
+                $list[] = new Plugin($rs->fields["id"], $rs->fields["type"], $rs->fields["name"], $rs->fields["description"],$rs->fields["source_type"], $foundrows);
                 $rs->MoveNext();
             }
         }

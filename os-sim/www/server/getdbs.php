@@ -75,11 +75,11 @@ $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($server_list as $server) {
-    $name = $server->get_name();
-    $xml.= "<row id='$name'>";
+    $name = utf8_encode($server->get_name());
+    $xml.= "<row id='".htmlspecialchars($name)."'>";
     $ip = $server->get_ip();
 
-    $link_modify = "<a style='font-weight:bold;' href=\"./modifydbsform.php?name=".urlencode($name)."\">".htmlentities($name)."</a>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newdbsform.php?name=".urlencode($server->get_name())."\">".$name."</a>";
 
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $ip . "]]></cell>";

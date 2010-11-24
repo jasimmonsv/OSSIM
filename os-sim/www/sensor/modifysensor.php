@@ -128,7 +128,7 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
 ?>
 
@@ -162,10 +162,10 @@ if ( isset($_SESSION['_sensor']) )
 ?>
     <p> <?php echo gettext("Sensor succesfully updated"); ?> </p>
     <script>document.location.href="modifysensorform.php?name=<?=$hostname?>&withoutmenu=1"</script>
-
+	
 <?php
 // update indicators on top frame
-$OssimWebIndicator->update_display();
+//$OssimWebIndicator->update_display();
 ?>
 
 </body>

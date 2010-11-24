@@ -36,96 +36,52 @@
 * Classes list:
 */
 ?>
-<table width="100%">
-		<tr>
-			<th colspan="4">
-				<?php
-echo gettext("Other"); ?>
-			</th>
-		</tr>
-		<!-- ##### interface ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("interface"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
-			>
-				<input type="text" style="width: 100%"
-					name="iface"
-					id="iface"
-					value="<?php
-echo $rule->iface; ?>"
-					title="<?php
-echo $rule->iface; ?>"
-				/>
-			</td>
-		</tr>
+<table class="transparent">
+	<tr>
+		<th style="white-space: nowrap; padding: 5px;font-size:12px" colspan="2">
+			<?php echo gettext("Other"); ?>
+		</th>
+	</tr>
+	<!-- ##### interface ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php echo gettext("interface"); ?>
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;padding-left: 5px; padding-right: 8px">
+			<input type="text" style="width: 200px" name="iface" id="iface" value="<?php echo $rule->iface; ?>" title="<?php echo $rule->iface; ?>"/>
+		</td>
+	</tr>
 
-		<!-- ##### filename ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("filename"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
-			>
-				<input type="text" style="width: 200px"
-					name="filename"
-					id="filename"
-					value="<?php
-echo $rule->filename; ?>"
-					title="<?php
-echo $rule->filename; ?>"
-				/>
-			</td>
-		</tr>
+	<!-- ##### filename ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php echo gettext("filename"); ?>
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;padding-left: 5px; padding-right: 8px">
+			<input type="text" style="width: 200px" name="filename" id="filename" value="<?php echo $rule->filename; ?>" title="<?php echo $rule->filename; ?>"/>
+		</td>
+	</tr>
 
-		<!-- ##### username ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("username"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
-			>
-				<input type="text" style="width: 120px"
-					name="username"
-					id="username"
-					value="<?php
-echo $rule->username; ?>"
-					title="<?php
-echo $rule->username; ?>"
-				/>
-			</td>
-		</tr>
-		
-		<!-- ##### password ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("password"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
-			>
-				<input type="password" style="width: 120px"
-					name="password"
-					id="password"
-					value="<?php
-echo $rule->password; ?>"
-					title="<?php
-echo $rule->password; ?>"
-				/>
-			</td>
-		</tr>
-		
-	</table>
-	<!-- #################### END: other ##################### -->
+	<!-- ##### username ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php echo gettext("username"); ?>
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;padding-left: 5px; padding-right: 8px">
+			<input type="text" style="width: 120px" name="username" id="username" value="<?php echo $rule->username; ?>" title="<?php echo $rule->username; ?>"/>
+		</td>
+	</tr>
+	
+	<!-- ##### password ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php echo gettext("password"); ?>
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;padding-left: 5px; padding-right: 8px">
+			<input type="password" style="width: 120px" name="password" id="password" value="<?php echo $rule->password; ?>" title="<?php echo $rule->password; ?>"/>
+		</td>
+	</tr>
+	
+	<tr><td class="center nobborder" colspan="2" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next();"></td></tr>
+</table>
+<!-- #################### END: other ##################### -->

@@ -43,7 +43,7 @@ Session::logcheck("MenuReports", "ReportsHostReport");
 <title> <?php
 echo gettext("OSSIM Framework"); ?> </title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<meta http-equiv=REFRESH content=300>
+<meta http-equiv=REFRESH content="300;url=anomalies.php?bypassexpirationupdate=1">
 <meta http-equiv=Pragma content=no-cache>
 <meta http-equiv=Cache-Control content=no-cache>
 <link rel="stylesheet" type="text/css" href="../style/style.css"/>

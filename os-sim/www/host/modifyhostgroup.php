@@ -150,8 +150,13 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
+{
 	include ("../hmenu.php"); 
+	$get_param = "name=$hgname";	
+}
+else
+	$get_param = "name=$hgname&withoutmenu=1";	
 ?>
 
 <h1> <?php echo gettext("Update Host Group"); ?> </h1>
@@ -166,7 +171,7 @@ if ( POST('insert') && !empty($hgname) )
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";				
 		Util::print_error($txt_error);	
 				
-		Util::make_form("POST", "newhostgroupform.php?name=".$hgname);
+		Util::make_form("POST", "newhostgroupform.php?".$get_param);
 		die();
 	}
 		
@@ -234,7 +239,7 @@ if ( isset($_SESSION['_hostgroup']) )
 
 ?>
     <p><?php echo gettext("Host group succesfully updated"); ?></p>
-    <script>document.location.href="hostgroup.php"</script>
+    <? if ( $_SESSION["menu_sopc"]=="Host groups" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="hostgroup.php"</script><? } ?>
 
 	</body>
 </html>

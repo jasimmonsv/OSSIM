@@ -171,7 +171,7 @@ $db->close($conn);
 			else alert('<?=_("You must select a server")?>');
 		}
 		else if (com=='<?php echo _('Modify')?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyserverform.php?name='+urlencode(items[0].id.substr(3))
+			if (typeof(items[0]) != 'undefined') document.location.href = 'newserverform.php?name='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a server")?>');
 		}
 		else if (com=='<?php echo _('New')?>') {
@@ -214,7 +214,7 @@ $db->close($conn);
             }
 
             if (com=='<?php echo _('modify')?>') {
-                if (typeof(hostname) != 'undefined') document.location.href = 'modifyserverform.php?name='+urlencode(hostname)
+                if (typeof(hostname) != 'undefined') document.location.href = 'newserverform.php?name='+urlencode(hostname)
                 else alert('<?=_("Server unselected")?>');
             }
 

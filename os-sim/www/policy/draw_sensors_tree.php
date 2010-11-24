@@ -62,7 +62,8 @@ if (count($sensors) > 0) {
     $j = 1;
     $buffer .= "{  key:'key1.1.$j', url:'ANY', icon:'../../pixmaps/theme/server.png', title:'ANY' },\n";
     foreach($sensors as $ip => $sname) {
-        $buffer .= (($j > 1) ? "," : "") . "{ key:'key1.1.$j', url:'$sname', icon:'../../pixmaps/theme/server.png', title:'$sname ($ip)' }\n";
+        $sname = utf8_encode($sname);
+		$buffer .= (($j > 1) ? "," : "") . "{ key:'key1.1.$j', url:'$sname', icon:'../../pixmaps/theme/server.png', title:'$sname ($ip)' }\n";
         $j++;
     }
     $buffer .= "]";

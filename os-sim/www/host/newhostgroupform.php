@@ -157,11 +157,11 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 		
 	
 	<style type='text/css'>
+		#table_form { background-color: transparent; width: 820px;} 
+		#table_form th {width: 150px;}
 		.std_inp, .std_select, .std_txtarea {width: 90%; height: 18px;}
 		.std_inp2 {width: 85%; height: 18px;}
 		.std_txtarea { height: 45px;}
-		#table_form { background-color: transparent; width: 820px;} 
-		#table_form th {width: 150px;}
 		label {border: none; cursor: default;}
 		.bold {font-weight: bold;}
 		div.bold {line-height: 18px;}
@@ -240,7 +240,7 @@ if (GET('withoutmenu') != "1")
 <div id='info_error' class='ossim_error' style='display: none;'></div>
 
 <form name='form_hg' id='form_hg' method="POST" action="<?php echo ( GET('name') != "") ? "modifyhostgroup.php" : "newhostgroup.php" ?>">
-
+<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 <input type="hidden" name="insert" value="insert"/>
 <table align="center" class='noborder' id='table_form'>
 	<tr>

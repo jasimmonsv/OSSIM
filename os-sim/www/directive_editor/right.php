@@ -42,11 +42,13 @@ $action = GET('action');
 $id = GET('id');
 $xml_file = GET('xml_file');
 $onlydir = (GET('onlydir') == "1") ? true : false;
+$add = GET('add');
 ossim_valid($directive, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
 ossim_valid($level, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("level"));
 ossim_valid($action, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("action"));
 ossim_valid($id, OSS_DIGIT, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
 ossim_valid($xml_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+ossim_valid($add, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("add"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -70,9 +72,9 @@ if ($directive == '' && $id == '') {
     if (!$onlydir) {
         //$frames = '<iframe id="top" height="200px" width="100%" frameborder=0 marginwidth=0 marginheight=0 STYLE="z-index:1;" src="viewer/index.php?directive=' . $directive . '&amp;level=' . $level . '" name="top" ></iframe>';
         //$frames = '<iframe id="top" height="200px" width="100%" frameborder=0 marginwidth=0 marginheight=0 STYLE="z-index:1;" src="#" name="top" ></iframe>';
-        $frames.= '<iframe id="bottom" width="100%" height="100%" frameborder=0 marginwidth=0 marginheight=0 height="195px" STYLE="z-index:1;" src="editor/directive/index.php?directive=' . $directive . '&amp;level=' . $level . '&amp;id=' . $id . '&amp;xml_file=' . $xml_file . '" name="bottom" ></iframe>';
+        $frames.= '<iframe id="bottom" width="100%" height="100%" frameborder=0 marginwidth=0 marginheight=0 height="195px" STYLE="z-index:1;" src="editor/directive/index.php?add='.$add.'&directive=' . $directive . '&amp;level=' . $level . '&amp;id=' . $id . '&amp;xml_file=' . $xml_file . '" name="bottom" ></iframe>';
     } else {
-        $frames.= '<iframe id="bottom" width="100%" height="100%" frameborder=0 marginwidth=0 marginheight=0 STYLE="z-index:1;" src="editor/directive/index.php?directive=' . $directive . '&amp;level=' . $level . '&amp;id=' . $id . '&amp;xml_file=' . $xml_file . '" name="bottom" ></iframe>';
+        $frames.= '<iframe id="bottom" width="100%" height="100%" frameborder=0 marginwidth=0 marginheight=0 STYLE="z-index:1;" src="editor/directive/index.php?add='.$add.'&directive=' . $directive . '&amp;level=' . $level . '&amp;id=' . $id . '&amp;xml_file=' . $xml_file . '" name="bottom" ></iframe>';
     }
 } elseif ($action == 'edit_file' || $action == 'add_file') {
     $frames = '<iframe id="top" width="100%" frameborder=0 marginwidth=0 marginheight=0 STYLE="z-index:1;" src="viewer/index.php" name="top" ></iframe>';

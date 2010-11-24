@@ -94,14 +94,16 @@ $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($net_group_list as $net_group) {
-    $name = $net_group->get_name();
-    $xml.= "<row id='".htmlentities($name)."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./newnetgroupform.php?name=".urlencode($name)."\">" . htmlentities($name) . "</a>";
+    $name = htmlspecialchars($net_group->get_name());
+	$xml.= "<row id='".$name."'>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newnetgroupform.php?name=".urlencode($name)."\">" . $name . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $nets = "";
-    if ($network_list = $net_group->get_networks($conn)) foreach($network_list as $network) {
-        $nets.= (($nets == "") ? "" : ", ") . htmlentities($network->get_net_name());
-    }
+    if ($network_list = $net_group->get_networks($conn)) 
+		foreach($network_list as $network)
+		{
+			$nets.= (($nets == "") ? "" : ", ") . htmlentities($network->get_net_name());
+		}
     $xml.= "<cell><![CDATA[" . $nets . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net_group->get_threshold_c() . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net_group->get_threshold_a() . "]]></cell>";

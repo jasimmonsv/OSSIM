@@ -532,6 +532,11 @@ if ($opensource) {
            "target" => "main",
            "url" => "../report/jasper.php?mode=advanced"
         );
+		$rmenu["Plugins"][] = array(
+           "name" => gettext("Manage Taxonomy"),
+           "target" => "main",
+           "url" => "../conf/category.php"
+        );
 	}
 }
 /*

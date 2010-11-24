@@ -41,7 +41,7 @@ $start = GET('start');
 $end = GET('end');
 $query = GET('query');
 ossim_valid($mode, OSS_ALPHA, 'illegal:' . _("mode"));
-ossim_valid($filter_name, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, 'illegal:' . _("filter_name"));
+ossim_valid($filter_name, OSS_ALPHA, OSS_SCORE, "=", OSS_SPACE, 'illegal:' . _("filter_name"));
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("end date"));
 ossim_valid($query, OSS_TEXT, OSS_NULLABLE, '[', ']', 'illegal:' . _("query"));

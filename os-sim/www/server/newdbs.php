@@ -35,54 +35,132 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Databases.inc');
+
 Session::logcheck("MenuPolicy", "PolicyServers");
+
+$error = false;
+
+$name  =  POST('name');
+$ip    =  POST('ip');
+$port  =  POST('port');
+$user  =  POST('user');
+$pass  =  POST('pass');
+
+$validate = array (
+	"name"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Server Name")),
+	"ip"     => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip address")),
+	"port"   => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
+	"user"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("User")),
+	"pass"	 => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Password")));
+
+if ( GET('ajax_validation') == true )
+{
+	$validation_errors = validate_form_fields('GET', $validate);
+	if ( $validation_errors == 1 )
+		echo 1;
+	else if ( empty($validation_errors) )
+		echo 0;
+	else
+		echo $validation_errors[0];
+		
+	exit();
+}
+else
+{
+	$validation_errors = validate_form_fields('POST', $validate);
+	
+	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors))  )
+	{
+		$error = true;
+				
+		$message_error = array();
+		
+		if ( is_array($validation_errors) && !empty($validation_errors) )
+			$message_error = array_merge($message_error, $validation_errors);
+		else
+		{
+			if ($validation_errors == 1)
+				$message_error [] = _("Invalid send method");
+		}
+						
+	}	
+	
+	if ( POST('ajax_validation_all') == true )
+	{
+		if ( is_array($message_error) && !empty($message_error) )
+			echo implode( "<br/>", $message_error);
+		else
+			echo 0;
+		
+		exit();
+	}
+}
+
+
+if ( $error == true )
+{
+	$_SESSION['_dbs']['name']   = $name;
+	$_SESSION['_dbs']['ip']     = $ip;
+	$_SESSION['_dbs']['port']   = $port;
+	$_SESSION['_dbs']['user']   = $user;
+	$_SESSION['_dbs']['pass']   = $pass;
+}
+
+
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
-                                                                                
-  <h1> <?php
-echo gettext("New database server"); ?> </h1>
 
 <?php
-require_once 'classes/Security.inc';
-$name = POST('name');
-$ip = POST('ip');
-$port = POST('port');
-$user = POST('user');
-$pass = POST('pass');
-ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Database server name"));
-ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip address"));
-ossim_valid($port, OSS_DIGIT, 'illegal:' . _("Port number"));
-ossim_valid($user, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("User"));
-ossim_valid($pass, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Password"));
+if (POST('withoutmenu') != "1") 
+	include ("../hmenu.php"); 
+else
+	$get_param = "withoutmenu=1";	
+?>
+                                                                                
+<h1> <?php echo gettext("New Database Server"); ?> </h1>
 
-if (ossim_error()) {
-    die(ossim_error());
-}
-if (POST('insert')) {
-    require_once 'ossim_db.inc';
-    require_once 'classes/Databases.inc';
+<?php
+
+if (POST('insert'))
+{
+   	if ( $error == true)
+	{
+		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
+		Util::print_error($txt_error);	
+		Util::make_form("POST", "newdbsform.php?".$get_param);
+		die();
+	}
+		
     $db = new ossim_db();
     $conn = $db->connect();
-    $icon = "";
-    if (is_uploaded_file($HTTP_POST_FILES['icon']['tmp_name'])) {
+	
+	$icon = "";
+    
+	if (is_uploaded_file($HTTP_POST_FILES['icon']['tmp_name']))
        $icon = file_get_contents($HTTP_POST_FILES['icon']['tmp_name']);
-    }
+   
     Databases::insert($conn, $name, $ip, $port, $user, $pass, $icon);
-    $db->close($conn);
+    
+	$db->close($conn);
+	
+	if ( isset($_SESSION['_dbs']) )
+		unset($_SESSION['_dbs']);
 }
 ?>
-    <p> <?php
-echo gettext("Database server succesfully inserted"); ?> </p>
-    <? if ($_SESSION["menu_sopc"]=="DBs") { ?><script>document.location.href="dbs.php"</script><? } ?>
+    <p> <?php echo gettext("Database server succesfully inserted"); ?> </p>
+    <? if ( $_SESSION["menu_sopc"]=="DBs" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="dbs.php"</script><? } ?>
 
 </body>
 </html>

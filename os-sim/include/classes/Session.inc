@@ -635,11 +635,13 @@ class Session {
                 die($conn->ErrorMsg());
             }
             if (!$rs->EOF) {
-                $ips = $rs->fields["ips"];
+                $cidr = explode(",",$rs->fields["ips"]);
                 $allowed_nets_array = split(',', $allowed_nets);
-				if (!in_array($ips, $allowed_nets_array)) {
-					$netAllowedCache["$user"]["$net"] = false;
-                    return false;
+		foreach ($cidr as $ips) {
+			if (!in_array(trim($ips), $allowed_nets_array)) {
+				$netAllowedCache["$user"]["$net"] = false;
+                    		return false;
+			}
                 }
             }
         }

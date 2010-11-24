@@ -15,6 +15,7 @@
 ** Built upon work by Roman Danyliw <rdd@cert.org>, <roman@danyliw.com>
 ** Built upon work by the BASE Project Team <kjohnson@secureideas.net>
 **/
+ini_set('max_execution_time', 1200);
 defined('_BASE_INC') or die('Accessing this file directly is not allowed.');
 include_once ("$BASE_path/includes/base_db.inc.php");
 //

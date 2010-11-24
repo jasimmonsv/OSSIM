@@ -125,8 +125,10 @@ if ( $error == true )
 <body>
 
 <?php
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
+else
+	$get_param = "withoutmenu=1";	
 ?>
 
 <h1><?php echo gettext("New sensor"); ?></h1>
@@ -139,7 +141,7 @@ if (POST('insert'))
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
 		Util::print_error($txt_error);	
-		Util::make_form("POST", "newsensorform.php");
+		Util::make_form("POST", "newsensorform.php?".$get_param);
 		die();
 	}
 		
@@ -156,11 +158,11 @@ if (POST('insert'))
 }
 ?>
     <p><?php echo gettext("Sensor succesfully inserted"); ?></p>
-    <? if ($_SESSION["menu_sopc"]=="SIEM Components") { ?><script>setTimeout("document.location.href='sensor.php'",1000)</script><? } ?>
+    <? if ( $_SESSION["menu_sopc"]=="SIEM Components" && POST('withoutmenu') != "1" ) { ?><script>setTimeout("document.location.href='sensor.php'",1000)</script><? } ?>
 
 	<?php
 	// update indicators on top frame
-	$OssimWebIndicator->update_display();
+	//$OssimWebIndicator->update_display();
 	?>
 	</body>
 </html>

@@ -163,13 +163,13 @@ function status ($arruser, $user) {
     
     echo "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"90%\"><tr><td class=\"headerpr\" style=\"border:0;\">"._("Status")."</td></tr></table></center>";
     echo "<center><table cellspacing=\"2\" cellpadding=\"0\" border=\"0\" width=\"90%\">";
-    echo "<tr><th>"._("Running")."</th><th>"._("Scheduled")."</th><th>"._("Completed")."</th><th>"._("Failed")."</th><th>"._("Timeout")."</th><th>"._("Scan Server Status")."</th></tr>";
+    echo "<tr><th>"._("Running")."</th><th>"._("Scheduled")."</th><th>"._("Completed")."</th><th>"._("Failed")."</th><th>"._("Timeout")."</th><th width='452'>"._("Scan Server Status")."</th></tr>";
     echo "<tr>";
     if ($running==0){
         echo "<td class=\"nobborder\" style=\"text-align:center;\">$running</td>";
     }
     else {
-        $query = "SELECT t1.name,t1.scan_START, t2.hostname
+        $query = "SELECT t1.id, t1.name,t1.scan_START, t2.hostname
                FROM vuln_jobs t1
                LEFT JOIN vuln_nessus_servers t2 ON t1.scan_SERVER = t2.id
                WHERE t1.status='R'".((in_array("admin", $arruser))? "":" AND t1.username in ('".$user."')")."
@@ -182,7 +182,24 @@ function status ($arruser, $user) {
         echo "      <span class=\"middle ne11\">";
         $result = $dbconn->Execute($query);
         while ( !$result->EOF ) {
-            echo "<img src=\"./images/running.png\" boder=\"0\" title=\""._("Complete")."\" alt=\""._("Complete")."\" align=\"absmiddle\"> ".$result->fields['name']."<br><b>"._("Start at").":</b><br>".$result->fields['scan_START']."<br><b>"._("IP Sever").":</b><br>".$result->fields['hostname']."<br><br>";
+        
+            $tstatus = array("status"=>"", "progress"=>"");
+            
+            if($_SESSION["scanner"]=="omp") {
+                require_once ('classes/OMP.inc');
+                $omp = new OMP();
+                $tstatus = $omp->get_task_status($result->fields['id']);
+            }
+            
+            if( preg_match("/requested$/i", $tstatus["status"]) ) {
+                echo "<img src=\"./images/requested.png\" boder=\"0\" title=\""._("Requested")."\" alt=\""._("Requested")."\" align=\"absmiddle\"/> ".$result->fields['name']."<br><b>"._("Start at").":</b><br>".$result->fields['scan_START']."<br><b>"._("IP Sever").":</b><br>".$result->fields['hostname']."<br><br>";
+            }
+            else if($tstatus["status"]=="Paused") {
+                echo "<img src=\"./images/paused.png\" boder=\"0\" title=\""._("Paused")."\" alt=\""._("Paused")."\" align=\"absmiddle\"/> ".$result->fields['name']."<br><b>"._("Start at").":</b><br>".$result->fields['scan_START']."<br><b>"._("IP Sever").":</b><br>".$result->fields['hostname']."<br><br>";
+            }
+            else {
+                echo "<img src=\"./images/running.png\" boder=\"0\" title=\""._("Running")."\" alt=\""._("Running")."\" align=\"absmiddle\"/> ".$result->fields['name']."<br><b>"._("Start at").":</b><br>".$result->fields['scan_START']."<br><b>"._("IP Sever").":</b><br>".$result->fields['hostname']."<br><br>";
+            }
             $result->MoveNext();
         }
         echo "      </span>";
@@ -219,16 +236,18 @@ function status ($arruser, $user) {
     //        break;
     //}
     echo "<td class=\"nobborder\" style=\"text-align:center;\">";
-    echo "<table width=\"100%\" class=\"noborder\"><tr><td id=\"td1\" width=\"40%\" class=\"nobborder\" style=\"text-align:center;\">";
-    echo "<div class=\"balloon\">";
+    echo "<table width=\"100%\" class=\"noborder\"><tr><td id=\"td1\" width=\"40%\" class=\"nobborder\" style=\"text-align:center\">";
+    echo "<div class=\"bballoon\">";
     echo "  <a id=\"status_server\" href=\"#\"></a>";
     echo "  <span class=\"tooltip\">";
     echo "      <span class=\"top\"></span>";
-    echo "      <span class=\"middle ne11\">";
-    echo "          <table class=\"noborder\" width=\"100%\" style=\"background-color:transparent\">";
+    echo "      <span class=\"middle ne11\" style=\"text-align:left;\">";
+    echo "          <table class=\"noborder\" width=\"100%\" style=\"background-color:transparent;\">";
     echo "              <tr><td class=\"noborder\">";
     echo "                  <table class=\"noborder\" style=\"background-color:transparent\">";
-    echo "                       <tr><td class=\"nobborder\"><b>"._("Current Threads").":</b></td><td class='nobborder' style='font-size:11px;padding-left:5px' id='nta'></td></tr>";
+    if ($_SESSION["scanner"]!="omp") {
+        echo "                  <tr><td class=\"nobborder\"><b>"._("Current Threads").":</b></td><td class='nobborder' style='font-size:11px;padding-left:5px' id='nta'></td></tr>";
+    }
     echo "                   </table>";
     echo "              </td></tr>";
 #    echo "              <tr height='8'><td class=\"noborder\" style='text-align:left;padding-left:5px'></td></tr>";
@@ -1384,7 +1403,7 @@ else {
           }
           if (preg_match("/requested$/i", $tstatus["status"])) { $image = "<img src=\"./images/requested.png\" boder=\"0\" title=\""._("Requested")."\" alt=\""._("Requested")."\" align=\"absmiddle\">"; }
           elseif (preg_match("/^pause/i", $tstatus["status"])) { $image = "<img src=\"./images/paused.png\" boder=\"0\" title=\""._("Paused")."\" alt=\""._("Paused")."\" align=\"absmiddle\">"; }
-          elseif ($nstatus=="C") { $image = "<img src=\"./images/complete.png\" boder=\"0\" title=\""._("Completed")."\" alt=\""._("Completed")."\" align=\"absmiddle\">"; }
+          elseif ($nstatus=="C" || $nstatus=="G") { $image = "<img src=\"./images/complete.png\" boder=\"0\" title=\""._("Completed")."\" alt=\""._("Completed")."\" align=\"absmiddle\">"; }
           elseif ($nstatus=="R") { $image = "<img src=\"./images/running.png\" boder=\"0\" title=\""._("Running")."\" alt=\""._("Running")."\" align=\"absmiddle\">"; }
           elseif ($nstatus=="S") { $image = "<img src=\"./images/sched.png\" boder=\"0\" title=\""._("Schedule")."\" alt=\""._("Schedule")."\" align=\"absmiddle\">"; }
           elseif ($nstatus=="F") { 
@@ -1441,7 +1460,7 @@ else {
             list($entities_all, $num_entities) = Acl::get_entities($dbconn, $nusername);
             $nusername = $entities_all[$nusername]['name'];
           }
-          if($nstatus=="C")
+          if($nstatus=="C" || $nstatus=="G")
             $colorscan = "#EFFFF7";
           elseif ($failed_attempts>0)
             $colorscan = "#EFE1E0";
@@ -1458,14 +1477,14 @@ else {
           
 
           if ($nstatus == "C") {
-          $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href=\"reshtml.php?disp=html&amp;output=full&amp;scantime=$id_report&amp;scantype=M&amp;hmenu=Vulnerabilities&amp;smenu=Vulnerabilities\" txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."' class='scriptinfo'>$nname</a>";
+          $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href=\"reshtml.php?disp=html&amp;output=full&amp;scantime=$id_report&amp;scantype=M&amp;hmenu=Vulnerabilities&amp;smenu=Vulnerabilities\" txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts).(($meth_Wcheck!="")? "</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>" : "")."' class='scriptinfo'>$nname</a>";
           $sInfo .= "</td>";
           }
-          else if ($nstatus=="F" && $meth_Wcheck!="") {
-            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."<br><b>"._("Message").":</b><br>$meth_Wcheck' class='scriptinfo'>$nname</a></td>";
+          else if ($nstatus=="F") {
+            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts)."</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>' class='scriptinfo'>$nname</a></td>";
           }
           else {
-            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br>".tooltip_hosts($meth_TARGETorig,$hosts)."' class='scriptinfo'>$nname</a></td>";
+            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts).(($meth_Wcheck!="")? "</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>" : "")."' class='scriptinfo'>$nname</a></td>";
           }
           $sInfo .= "<td>$submit_date</td>
                <td>$start_date</td>
@@ -1549,7 +1568,7 @@ else {
                     $sInfo.="<a href=\"sched.php?disp=rerun&job_id=$nid&hmenu=Vulnerabilities&smenu=Jobs\"><img align=\"absmiddle\" src=\"./images/relaunch.gif\" border=\"0\" title=\""._("Rerun Scan")."\" alt=\""._("Rerun Scan")."\"></a>";
                     $sInfo .= "<span style=\"font-size: 7pt;padding:0px 4px 0px 4px;\">["._("No vulns found")."]</span>";
                 }
-                if(preg_match("/omp\s*$/i", $nessus_path) && $task_id!="") {
+                if(preg_match("/omp\s*$/i", $nessus_path) && $task_id!="" && $nstatus!="G") {
                 // delete button
                     if($tstatus["status"]=="Done" || $tstatus["status"]=="" || $tstatus["status"]=="Stopped" ||
                        $tstatus["status"]=="Paused" && !preg_match("/.*\srequested/i", $tstatus["status"])) {

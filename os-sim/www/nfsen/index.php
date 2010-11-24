@@ -104,7 +104,7 @@ function SendHeader ($established) {
 
 	$refresh = $_SESSION['refresh'];
 	if ( $TabList[$_tab] != 'Details' && $refresh > 0 ) {
-		print "<meta HTTP-EQUIV='Refresh' CONTENT='$refresh; URL=$self?bookmark=" . $_SESSION['bookmark'] . "'>\n";
+		print "<meta HTTP-EQUIV='Refresh' CONTENT='$refresh; URL=$self?bookmark=" . $_SESSION['bookmark'] . "&bypassexpirationupdate=1'>\n";
 	}
 
 	if ( $TabList[$_tab] == 'Details' ) { ?>

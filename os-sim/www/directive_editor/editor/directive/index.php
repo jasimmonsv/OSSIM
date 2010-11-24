@@ -38,6 +38,11 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "CorrelationDirectives");
 require_once ('ossim_conf.inc');
 require_once ('classes/Security.inc');
+$add = GET('add');
+ossim_valid($add, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("add"));
+if (ossim_error()) {
+    die(ossim_error());
+}
 /* directories */
 $conf = $GLOBALS["CONF"];
 $base_dir = $conf->get_conf("base_dir");
@@ -108,6 +113,17 @@ echo $js_dir . '/editableSelectBox.js'; ?>"></script>
 echo $js_dir_directive . '/directive.js'; ?>"></script>
 		
 		<script type="text/javascript" language="javascript">
+var wizard_current = 0;
+function wizard_next() {
+	wizard_current++;
+	if (wizard_current >= 3) {
+		document.getElementById('fdirective').submit();
+	} else {
+		document.getElementById('wizard_'+wizard_current).style.display = "none";
+		document.getElementById('wizard_'+(wizard_current+1)).style.display = "block";
+	}
+}
+
 		function taille()
     {
         if (document.body)
@@ -189,7 +205,8 @@ echo $js_dir_directive . '/directive.js'; ?>"></script>
 	
 	<body>
   <!-- #################### main container #################### -->
-	<form method="POST" action="../../include/utils.php?query=save_directive">
+	<form id="fdirective" method="POST" action="../../include/utils.php?query=save_directive">
+	<input type="hidden" name="add" value="<?php echo $add ?>"></input>
 	<input type="hidden" style="width: 100%"
 		name="list"
 		id="list"
@@ -208,7 +225,7 @@ echo $js_dir_directive . '/directive.js'; ?>"></script>
 include ("global.inc.php"); ?>
 	</td></tr>
 
-	<tr><td class="container" style="border:0px">
+	<tr><td class="container" style="border:0px;padding-top:20px">
 		<input type="hidden" name="directive" value="<?php
 echo $_GET["directive"]; ?>" />
 		<input type="hidden" name="level" value="<?php
@@ -217,20 +234,21 @@ echo $_GET["level"]; ?>" />
 echo $_GET["id"]; ?>" />
 		<input type="button" style="width: 100px"
 			value="<?php
-echo gettext('Back'); ?>"
+echo ($add) ? gettext('Back to main') : gettext('Back'); ?>"
 			<?php
 if (is_free($_GET["directive"],'/etc/ossim/server/'.$directive_xml) == "false") print "onclick=\"onClickCancel(" . $_GET["directive"] . "," . $_GET["level"] . ")\"";
 else print "onclick=\"onClickCancel2()\"";
 ?>
 			
 		/>
+		<!-- 
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		<input type="button" style="width: 100px"
 			id="save"
 			value="<?php
-echo gettext('Next'); ?>"
-			onclick="submit()"
-		/>
+echo ($add) ? gettext('Next') : gettext('Save'); ?>"
+			onclick="wizard_next()"
+		/> -->
 	</td></tr>
 
 	</table>

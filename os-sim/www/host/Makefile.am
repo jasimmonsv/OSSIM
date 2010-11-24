@@ -7,7 +7,6 @@ host_DATA = host.php \
 	newhost.php \
 	deletehostgroup.php \
 	newhostgroupform.php \
-	modifyhostgroupform.php \
 	modifyhostgroup.php \
 	hostgroup.php \
 	newhostgroup.php

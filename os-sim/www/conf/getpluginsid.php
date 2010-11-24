@@ -46,6 +46,7 @@ require_once 'ossim_db.inc';
 require_once 'classes/Plugin_sid.inc';
 require_once 'classes/Classification.inc';
 require_once 'classes/Category.inc';
+require_once 'classes/Subcategory.inc';
 $page = POST('page');
 if (empty($page)) $page = 1;
 $rp = POST('rp');
@@ -93,9 +94,21 @@ if ($plugin_list = Plugin_sid::get_list($conn, "$where ORDER BY $order $limit"))
             if ($category_list = Category::get_list($conn, "WHERE id = '$category_id'")) {
                 $category_name = $category_list[0]->get_name();
             }
-        }
+        }else{
+			$category_name='';
+		}
         $category = (!empty($category_name)) ? $category_name . " (" . $category_id . ")" : "-";
         $xml.= "<cell><![CDATA[" . $category . "]]></cell>";
+		// subcategory
+		if($subcategory_id = $plugin->get_subcategory_id()){
+			if ($subcategory_list = Subcategory::get_list($conn, "WHERE id = '$subcategory_id'")) {
+                $subcategory_name = $subcategory_list[0]->get_name();
+            }
+		}else{
+			$subcategory_name='';
+		}
+		$subcategory = (!empty($subcategory_name)) ? $subcategory_name . " (" . $subcategory_id . ")" : "-";
+		$xml.= "<cell><![CDATA[" . $subcategory . "]]></cell>";
         // translate class id
         if ($class_id = $plugin->get_class_id()) {
             if ($class_list = Classification::get_list($conn, "WHERE id = '$class_id'")) {

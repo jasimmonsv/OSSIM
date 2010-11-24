@@ -75,13 +75,14 @@ if($key=="") {
         $buffer .= ", children:[";
         $j = 1;
         foreach($port_groups as $pg) {
-            $pg_name = $pg[0];
+            $pg_name = utf8_encode($pg[0]);
+			$pg_key = "pg_".base64_encode($pg[0]);
             $pg_ports = $pg[1];
             $html = "";
             if ($pg_name =="ANY")
-                $li = "key:'pg_$pg_name', url:'$pg_name', icon:'../../pixmaps/theme/ports.png', title:'$pg_name'\n";
+                $li = "key:'$pg_key', url:'$pg_name', icon:'../../pixmaps/theme/ports.png', title:'$pg_name'\n";
             else
-                $li = "key:'pg_$pg_name', isLazy:true, url:'$pg_name', icon:'../../pixmaps/theme/ports.png', title:'$pg_name'\n";
+                $li = "key:'$pg_key', isLazy:true, url:'$pg_name', icon:'../../pixmaps/theme/ports.png', title:'$pg_name'\n";
 
                 if ($html != "") $buffer .= (($j > 1) ? "," : "") . "{ $li, children:[ " . preg_replace("/,$/", "", $html) . " ] }\n";
             else $buffer .= (($j > 1) ? "," : "") . "{ $li }\n";
@@ -96,11 +97,11 @@ else if(preg_match("/pg_(.*)/",$key,$found)) {
     $html = "";
     $buffer .= "[";
     $k=1;
-    $port_list = Port_group_reference::get_list($conn, " where port_group_name = '".$found[1]."'");
+    $port_list = Port_group_reference::get_list($conn, " where port_group_name = '".base64_decode($found[1])."'");
     foreach ($port_list as $port) {
         $protocol_name = $port->get_protocol_name();
         $protocol_number = $port->get_port_number();
-        $html.= "{ key:'$key.$k', url:'noport', icon:'../../pixmaps/theme/ports.png', title:'$protocol_number $protocol_name</font>'},";
+        $html.= "{ key:'$key.$k', url:'noport', icon:'../../pixmaps/theme/ports.png', title:'</font>$protocol_number $protocol_name</font>'},";
         //if ($k++>$limit) break;
     }
     

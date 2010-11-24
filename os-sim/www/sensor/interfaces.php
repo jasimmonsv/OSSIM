@@ -314,7 +314,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 <table align="center" width='100%' class="noborder" style="background-color:#ffffff">
 	<tr>
 		<td class="center nobborder">
-			<iframe src="modifysensorform.php?name=<?=$name?>&withoutmenu=1" scrolling="auto" class='autoHeight' width="100%" frameborder="0"></iframe>
+			<iframe src="modifysensorform.php?name=<?=urlencode($name)?>&withoutmenu=1" scrolling="auto" class='autoHeight' width="100%" frameborder="0"></iframe>
 		</td>
 	</tr>
 </table>

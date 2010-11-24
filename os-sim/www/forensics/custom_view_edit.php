@@ -31,6 +31,7 @@
 require_once('classes/Session.inc');
 require_once('classes/Security.inc');
 require_once('classes/Event_viewer.inc');
+Session::logcheck("MenuEvents", "EventsForensics");
 require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);

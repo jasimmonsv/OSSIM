@@ -712,7 +712,7 @@ function toggleLayer( whichLayer )
     }
 
     function refresh_indicators() {
-        responderAjax("refresh.php?map=<? echo $map ?>")
+        responderAjax("refresh.php?map=<? echo $map ?>&bypassexpirationupdate=1")
     }
     refresh_indicators();
     setInterval(refresh_indicators,5000);

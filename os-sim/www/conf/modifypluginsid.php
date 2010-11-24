@@ -49,15 +49,30 @@ require_once 'ossim_db.inc';
 $db = new ossim_db();
 $conn = $db->connect();
 $plugin_sid = Plugin_sid::get_list($conn, "WHERE plugin_id = $plugin_id AND sid = $sid");
-$db->close($conn);
+// Category
+require_once 'classes/Category.inc';
+$list_categories=Category::get_list($conn);
 ?>
-
 <html>
 <head>
   <title> <?php echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+  <script type="text/javascript">
+  function load_subcategory (category_id) {
+		$("#ajaxSubCategory").html("<img src='../pixmaps/loading.gif' width='20' alt='Loading'>Loading");
+		$.ajax({
+			type: "GET",
+			url: "modifypluginsid_ajax.php",
+			data: { category_id:category_id },
+			success: function(msg) {
+				$("#ajaxSubCategory").html(msg);
+			}
+		});
+	}
+  </script>
 </head>
 <body>
                                                                                 
@@ -71,6 +86,41 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
   <tr>
     <th> <?php echo gettext("Name"); ?> </th>
     <td class="left"><input type="text" name="name" size="70" value="<?php echo $plugin_sid[0]->get_name() ?>"></td>
+  </tr>
+  <tr>
+    <th> <?php echo gettext("Category"); ?> </th>
+    <td class="left">
+        <select name="category" onchange="load_subcategory(this.value);">
+			<option value='NULL'<?php if($plugin_sid[0]->get_category_id()==''){ echo ' SELECTED'; } ?>>&nbsp;</option>
+		<?php foreach ($list_categories as $category) { ?>
+			<option value='<?php echo $category->get_id(); ?>'<?php if($plugin_sid[0]->get_category_id()==$category->get_id()){ echo ' SELECTED'; } ?>><?php echo  str_replace('_', ' ', $category->get_name()); ?></option>
+		<?php } ?>
+        </select>
+    </td>
+  </tr>
+  <tr>
+    <th> <?php echo gettext("Subcategory"); ?> </th>
+    <td class="left">
+	<div id="ajaxSubCategory">
+		<select name="subCategory">
+		<?php if($plugin_sid[0]->get_subcategory_id()==''){ ?>
+			<option value='NULL' SELECTED>&nbsp;</option>
+		<?php
+		}else{
+		// Subcategory
+		require_once 'classes/Subcategory.inc';
+
+		$list_subcategories=Subcategory::get_list($conn,'WHERE cat_id='.$plugin_sid[0]->get_category_id().' ORDER BY name');
+		foreach ($list_subcategories as $subcategory) {
+		?>
+			<option value='<?php echo $subcategory->get_id(); ?>'<?php if($plugin_sid[0]->get_subcategory_id()==$subcategory->get_id()){ echo ' SELECTED'; } ?>><?php echo  str_replace('_', ' ', $subcategory->get_name()); ?></option>
+		<?php
+			}
+		}
+		?>
+		</select>
+	</div>
+    </td>
   </tr>
   <tr>
     <th> <?php echo gettext("Priority"); ?> </th>
@@ -105,8 +155,8 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
   </tr>
   <tr>
     <td colspan="2" align="center">
-      <input type="submit" value="<?=_('OK')?>" class="btn" style="font-size:12px">
-      <input type="reset" value="<?=_('reset')?>" class="btn" style="font-size:12px">
+      <input type="submit" value="<?php echo _('OK')?>" class="button">
+      <input type="reset" value="<?php echo _('reset')?>" class="button">
     </td>
   </tr>
 </table>
@@ -114,4 +164,4 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
 
 </body>
 </html>
-
+<?php $db->close($conn); ?>

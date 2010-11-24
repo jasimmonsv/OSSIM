@@ -55,7 +55,8 @@ class Plugin_sid {
     var $name;
     var $reliability;
     var $priority;
-    function Plugin_sid($plugin_id, $sid, $category_id, $class_id, $name, $reliability, $priority, $foundrows = 0) {
+    var $subcategory_id;
+    function Plugin_sid($plugin_id, $sid, $category_id, $class_id, $name, $reliability, $priority, $subcategory_id, $foundrows = 0) {
         $this->plugin_id = $plugin_id;
         $this->sid = $sid;
         $this->category_id = $category_id;
@@ -63,6 +64,7 @@ class Plugin_sid {
         $this->name = $name;
         $this->reliability = $reliability;
         $this->priority = $priority;
+        $this->subcategory_id = $subcategory_id;
         $this->foundrows = $foundrows;
     }
     function get_plugin_id() {
@@ -86,6 +88,9 @@ class Plugin_sid {
     function get_priority() {
         return $this->priority;
     }
+	function get_subcategory_id() {
+        return $this->subcategory_id;
+    }
     function get_foundrows() {
         return $this->foundrows;
     }
@@ -104,21 +109,21 @@ class Plugin_sid {
             }
             $list = array();
             while (!$rs->EOF) {
-                $list[] = new Plugin_sid($rs->fields["plugin_id"], $rs->fields["sid"], $rs->fields["category_id"], $rs->fields["class_id"], $rs->fields["name"], $rs->fields["reliability"], $rs->fields["priority"], $foundrows);
+                $list[] = new Plugin_sid($rs->fields["plugin_id"], $rs->fields["sid"], $rs->fields["category_id"], $rs->fields["class_id"], $rs->fields["name"], $rs->fields["reliability"], $rs->fields["priority"], $rs->fields["subcategory_id"], $foundrows);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
-    function update($conn, $id, $sid, $priority, $reliability, $name='') {
+    function update($conn, $id, $sid, $priority, $reliability, $category_id=NULL, $subcategory_id=NULL, $name='') {
         settype($priority, "int");
         settype($reliability, "int");
         if ($name!='') {
-           $sql = "UPDATE plugin_sid SET priority = ?, reliability = ?, name = ? WHERE plugin_id = ? AND sid = ?";
-           $params = array( $priority, $reliability, $name, $id, $sid );
+           $sql = "UPDATE plugin_sid SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ?, name = ? WHERE plugin_id = ? AND sid = ?";
+           $params = array( $category_id, $subcategory_id, $priority, $reliability, $name, $id, $sid );
         } else {
-           $sql = "UPDATE plugin_sid SET priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
-           $params = array( $priority, $reliability, $id, $sid );
+           $sql = "UPDATE plugin_sid SET category_id = ?, subcategory_id = ?, priority = ?, reliability = ? WHERE plugin_id = ? AND sid = ?";
+           $params = array( $category_id, $subcategory_id, $priority, $reliability, $id, $sid );
         }
         if (!$rs = & $conn->Execute($sql, $params)) {
             print $conn->ErrorMsg();
@@ -159,20 +164,24 @@ class Plugin_sid {
         }
         return $list;
     }
-    function insert($conn, $plugin, $name, $sid, $reliability, $priority) {
+    function insert($conn, $plugin, $name, $sid, $reliability, $priority, $category_id=NULL, $subcategory_id=NULL) {
         settype($plugin, "int");
         settype($sid, "int");
         settype($reliability, "int");
         settype($priority, "int");
 
-        $sql = "INSERT INTO plugin_sid (plugin_id, name, sid, reliability, priority) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO plugin_sid (plugin_id, name, sid, reliability, priority, category_id, subcategory_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
         $params = array(
             $plugin,
             $name,
             $sid,
             $reliability,
-            $priority
+            $priority,
+            $category_id,
+            $subcategory_id
         );
+
         if ($conn->Execute($sql, $params) === false) {
             print 'error inserting sid: ' . $conn->ErrorMsg() . '<BR>';
             exit;

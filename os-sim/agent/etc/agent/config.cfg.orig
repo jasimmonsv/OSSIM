@@ -177,3 +177,4 @@ session-monitor=/etc/ossim/agent/plugins/session-monitor.cfg
 tcptrack-monitor=/etc/ossim/agent/plugins/tcptrack-monitor.cfg
 whois-monitor=/etc/ossim/agent/plugins/whois-monitor.cfg
 wmi-monitor=/etc/ossim/agent/plugins/wmi-monitor.cfg
+ocs-monitor=/etc/ossim/agent/plugins/ocs-monitor.cfg

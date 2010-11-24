@@ -68,12 +68,13 @@ class OMP{
         if($pass=="") { $this->password = $conf->get_conf("nessus_pass", FALSE); }
         else { $this->password = $pass; }
 
-        if($tmpfile=="") { $this->tmpfile = "/usr/share/ossim/www/tmp/omp.xml"; }
-        else { $this->tmpfile = $tmpfile; }
+        $this->tmpfile = "/usr/share/ossim/www/tmp/omp".substr(preg_replace("/\D/", "", uniqid(md5(rand()), true)),0,15).".xml"; 
+    
     }
     
     function __destruct(){
         $this->db->close($this->conn);
+        unlink($this->tmpfile);
     }
     
     // ------  private functions ------
@@ -89,7 +90,7 @@ class OMP{
         $ecommand = "$binary_location -h $ip -p $port -u $user -w $password -iX \"$command\" > $tmpfile 2>&1";
         
         system($ecommand);
-
+        
         $data = file_get_contents($tmpfile);
         $xml = @simplexml_load_string($data);
 
@@ -131,6 +132,105 @@ class OMP{
         return $config_id;
     }
     
+    private function delete_tasks_by_config_id($config) {
+        
+        $delete_tasks = array();
+        
+        $xml = $this->execute_command("<get_tasks />");
+        
+        if ($xml!=FALSE) {
+            foreach ($xml->task as $task) { // save tasks with config_id = $config
+                if($config == (string)$task->config->attributes()->id) {    $delete_tasks[]= (string)$task->attributes()->id;    }
+            }
+            foreach ($delete_tasks as $dtask) {
+                $this->execute_command("<delete_task task_id='$dtask' />");
+            }
+        }
+    }
+    
+    private function get_allowed_users() {
+        require_once ('classes/Session.inc');
+    
+        $session_user = Session::get_session_user();
+        
+        $allowed_users = array();
+        
+        $conf = $GLOBALS["CONF"];
+        $version = $conf->get_conf("ossim_server_version", FALSE);
+        
+        if(preg_match("/pro|demo/i",$version)){
+            if (Acl::am_i_proadmin()) {
+                $pro_users = array();
+                $entities_list = array();
+
+                $entities_list = Acl::get_user_entities($session_user);
+            
+                $users = Acl::get_my_users($dbconn, $session_user);
+                foreach ($users as $us) {
+                    $pro_users[] = $us["login"];
+                }
+                $allowed_users = array_merge($entities_list,$pro_users);
+            }
+            else {
+                $tmp = array();
+                $entities = Acl::get_user_entities($session_user);
+                foreach ($entities as $entity) {
+                    $tmp[] = $entity;
+                }
+                if (count($tmp) > 0) $allowed_users = array_merge($session_user, $tmp);
+                else $allowed_users[] = $session_user;
+            }
+        }
+        else {
+            $allowed_users[] = $session_user;
+        }
+        
+        return $allowed_users;
+    }
+    
+    
+    public function get_results_by_ips($task_id) {
+        
+        $results_by_ips = array();
+        
+        $xml = $this->execute_command("<get_tasks task_id='$task_id' details='1'/>");
+        
+        if ($xml==FALSE) return 0;
+        
+        foreach ($xml->task->reports->report as $report) {
+            $last_report_id = (string)$report->attributes()->id;
+        }
+        
+        $xml = $this->execute_command("<get_reports report_id='$last_report_id' />");
+        
+        if ($xml==FALSE) return 0;
+        
+        foreach ($xml->report->results->result as $result) {
+        
+            if ((string)$result->threat != "") { $risk_factor = (string)$result->threat; }
+            else if ((string)$result->nvt->risk_factor != "") { $risk_factor = (string)$result->nvt->risk_factor; }
+            else { $risk_factor = "Info"; }
+            
+            
+            if($risk_factor == "Log")       { $risk_factor = "Info"; }
+            if($risk_factor == "None")      { $risk_factor = "Info"; }
+            if($risk_factor == "Passed")    { $risk_factor = "Info"; }
+            if($risk_factor == "Unknown")   { $risk_factor = "Medium"; }
+            if($risk_factor == "Failed")    { $risk_factor = "High"; }
+        
+            if (!isset($results_by_ips[(string)$result->host][$risk_factor])) {
+                $results_by_ips[(string)$result->host][$risk_factor] = 1;
+            }
+            else {
+                $results_by_ips[(string)$result->host][$risk_factor]+=1;
+            }
+        }
+        
+        return $results_by_ips;
+    }
+    
+    // ------  public functions ------
+    
     public function get_config_id_by_name_comment($name, $comment="") {
 
         $config_id = "";
@@ -150,23 +250,6 @@ class OMP{
         return $config_id;
     }
     
-    private function delete_tasks_by_config_id($config) {
-        
-        $delete_tasks = array();
-        
-        $xml = $this->execute_command("<get_tasks />");
-        
-        if ($xml!=FALSE) {
-            foreach ($xml->task as $task) { // save tasks with config_id = $config
-                if($config == (string)$task->config->attributes()->id) {    $delete_tasks[]= (string)$task->attributes()->id;    }
-            }
-            foreach ($delete_tasks as $dtask) {
-                $this->execute_command("<delete_task task_id='$dtask' />");
-            }
-        }
-    }
-    
-    // ------  public functions ------
     
     public function set_plugins_by_family ($sid) {
     
@@ -251,6 +334,7 @@ class OMP{
                 $command .= "<value>".base64_encode($result->fields['value'])."</value>";
                 $command .= "</preference>";
                 $command .= "</modify_config>\n";
+                
             }
             $result->MoveNext();
         }
@@ -285,7 +369,9 @@ class OMP{
         if ($xml == FALSE) { return $sids; }
         
         foreach ($xml->task as $task) { 
-            if((string)$task->status != "Done") {    $used_configs[]= (string)$task->config->attributes()->id;   }
+            if((string)$task->status != "Done" && (string)$task->status != "Stopped" && !in_array((string)$task->config->attributes()->id, $used_configs)) {
+                $used_configs[]= (string)$task->config->attributes()->id;
+            }
         }
         
         // get profile sid
@@ -395,4 +481,192 @@ class OMP{
         return ($status);
 
     }
+    public function get_number_of_results($states){
+        
+        $arr_states = explode("|", $states);
+        
+        $xml = $this->execute_command("<get_tasks />");
+        
+        if ($xml==FALSE) return 0;
+        
+        $allowed_users = $this->get_allowed_users();
+
+        $total = 0;
+        $running_requested_tasks = 0;
+
+        foreach ($xml->task as $task) {
+            $task_id = $task->attributes()->id;
+            $result = $this->conn->Execute("SELECT id, username FROM vuln_jobs WHERE meth_CPLUGINS='$task_id'");
+            $username = $result->fields["username"];
+            
+            if( (in_array($username, $allowed_users) || Session::am_i_admin()) && in_array((string)$task->status, $arr_states) ) {
+                    $task_status = $this->get_task_status($result->fields["id"]);
+                    
+                    if ($task_status["status"] == "Requested" || $task_status["status"] == "Running")  $running_requested_tasks++;
+            
+                    $total += (int)$task->result_count->hole;
+                    $total += (int)$task->result_count->info;
+                    $total += (int)$task->result_count->log;
+                    $total += (int)$task->result_count->warning;
+            }
+        }
+
+        if($total==0 && $running_requested_tasks>0) { return -1; }
+
+        return $total;
+    }
+    
+    public function get_tasks_details($states){
+        
+        $arr_states = explode("|", $states);
+        
+        $xml = $this->execute_command("<get_tasks />");
+        
+        if ($xml==FALSE) return 0;
+        
+        $allowed_users = $this->get_allowed_users();
+
+        $tasks_info .= "<table width='100%' class='transparent' cellspacing='0' cellpadding='0'>";
+        $tasks_info .= "<tr><th>"._("Job Name")."</th><td class='noborder'><img src='./images/high.png'/></td><td class='noborder'><img src='./images/medium.png'/></td><td class='noborder'><img src='./images/low.png'/></td><td class='noborder'><img src='./images/inf.png'/></td><th>"._("State")."</th></tr>";
+        
+        foreach ($xml->task as $task) {
+            $task_id = $task->attributes()->id;
+            $result = $this->conn->Execute("SELECT id, username FROM vuln_jobs WHERE meth_CPLUGINS='$task_id'");
+            $username = $result->fields["username"];
+            
+            if( (in_array($username, $allowed_users) || Session::am_i_admin()) && in_array((string)$task->status, $arr_states) ) {
+                if ((int)$task->progress <=25) {
+                    $task_progress = "<img src='./images/light_yellow_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_gray_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_gray_lit.png' border='0'/>";
+                    $task_progress .= "<img style='padding-right:7px;' src='./images/light_gray_lit.png' border='0'/>";
+                
+                }
+                else if ((int)$task->progress <=50) {
+                    $task_progress = "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_yellow_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_gray_lit.png' border='0'/>";
+                    $task_progress .= "<img style='padding-right:7px;' src='./images/light_gray_lit.png' border='0'/>";
+                }
+                else if ((int)$task->progress <=75) {
+                    $task_progress = "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_yellow_lit.png' border='0'/>";
+                    $task_progress .= "<img style='padding-right:7px;' src='./images/light_gray_lit.png' border='0'/>";
+                    }
+                else if ((int)$task->progress <=99) {
+                    $task_progress = "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img style='padding-right:7px;' src='./images/light_yellow_lit.png' border='0'/>";}
+                else {
+                    $task_progress = "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                    $task_progress .= "<img style='padding-right:7px;' src='./images/light_green_lit.png' border='0'/>";
+                }
+                $tstatus = $this->get_task_status($result->fields["id"]);
+                
+                $simage = "";
+                if ($tstatus["status"]=="Paused") { $simage = "<img align='absmiddle' style='padding:2px 4px 2px 0px' src='./images/paused.png' border='0'/>"; }
+                else if ($tstatus["status"]=="Running") { $simage = "<img align='absmiddle' style='padding:2px 4px 2px 0px' src='./images/running.png' border='0'/>"; }
+                else if ($tstatus["status"]=="Requested" || $tstatus["status"]=="Pause Requested") { $simage = "<img align='absmiddle' style='padding:2px 4px 2px 0px' src='./images/requested.png' border='0'/>"; }
+                
+                $tasks_info .= "<tr>";
+                $tasks_info .= "<td width='36%' style='font-size:10px;padding-left:5px;' class='nobborder'>".(($simage!="") ? $simage : "").(string)$task->name."</td>";
+                $tasks_info .= "<td width='10%' style='font-size:10px;' class='noborder'>";
+                $tasks_info .= (string)$task->result_count->hole;
+                $tasks_info .= "</td>";
+                $tasks_info .= "<td width='10%' style='font-size:10px;' class='noborder'>";
+                $tasks_info .= (string)$task->result_count->warning;
+                $tasks_info .= "</td>";
+                $tasks_info .= "<td width='10%' style='font-size:10px;' class='noborder'>";
+                $tasks_info .= (string)$task->result_count->info;
+                $tasks_info .= "</td>";
+                $tasks_info .= "<td width='10%' style='font-size:10px;' class='noborder'>";
+                $tasks_info .= (string)$task->result_count->log;
+                $tasks_info .= "</td>";
+                if ($tstatus["status"]=="Requested" || $tstatus["status"]=="Pause Requested") {
+                    $tasks_info .= "<td width='24%' style='font-size:10px;' class='noborder'>"._("Requested")."</td>";
+                }
+                else {
+                    $tasks_info .= "<td width='24%' style='font-size:10px;' class='noborder'><div style='float:left;padding:3px 0px 0px 8px;'>$task_progress</div><div style='float:right;padding-right:8px;'>".trim((string)$task->progress)."%</div></td>";
+                }
+                $tasks_info .= "</tr>";
+            
+                $results_by_ips = array();
+                $results_by_ips = $this->get_results_by_ips((string)$task->attributes()->id);
+            
+                $i = 1;
+                $num = count($task->progress->host_progress);
+                foreach($task->progress->host_progress as $hprogress) {
+
+                    if ((int)$hprogress <=25) {
+                        $host_progress = "<img src='./images/light_yellow_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_gray_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_gray_lit.png' border='0'/>";
+                        $host_progress .= "<img style='padding-right:7px;' src='./images/light_gray_lit.png' border='0'/>";
+                    }
+                    else if ((int)$hprogress <=50) {
+                        $host_progress = "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_yellow_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_gray_lit.png' border='0'/>";
+                        $host_progress .= "<img style='padding-right:7px;' src='./images/light_gray_lit.png' border='0'/>";
+                    }
+                    else if ((int)$hprogress <=75) {
+                        $host_progress = "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_yellow_lit.png' border='0'/>";
+                        $host_progress .= "<img style='padding-right:7px;' src='./images/light_gray_lit.png' border='0'/>";
+                    }
+                    else if ((int)$hprogress <=99) {
+                        $host_progress = "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img style='padding-right:7px;' src='./images/light_yellow_lit.png' border='0'/>";}
+                    else {
+                        $host_progress = "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img src='./images/light_green_lit.png' border='0'/>";
+                        $host_progress .= "<img style='padding-right:7px;' src='./images/light_green_lit.png' border='0'/>";
+                    }
+                
+                    if( $i==$num || count($task->progress->host_progress)==1 ) {
+                        $tree_image = "<img align='absmiddle' border='0' src='../pixmaps/theme/ltL_ne.gif'>";
+                    }
+                    else {
+                        $tree_image = "<img align='absmiddle' border='0' src='../pixmaps/theme/ltL_nes.gif'>";
+                    }
+                    if($i%2==1) {
+                        $tasks_info .= "<tr bgcolor='#cecece'>";
+                    }
+                    else {
+                        $tasks_info .= "<tr>";
+                    }
+                    $tasks_info .= "<td class='noborder' style='font-size:10px;padding-left:8px;text-align:left;'>$tree_image<b>".(string)$hprogress->host."</b></td>";
+                    $tasks_info .= "<td class='noborder' style='font-size:10px;'>";
+                    $tasks_info .= (isset($results_by_ips[(string)$hprogress->host]["High"])) ? $results_by_ips[(string)$hprogress->host]["High"] : "0";
+                    $tasks_info .= "</td>";
+                    $tasks_info .= "<td class='noborder' style='font-size:10px;'>";
+                    $tasks_info .= (isset($results_by_ips[(string)$hprogress->host]["Medium"])) ? $results_by_ips[(string)$hprogress->host]["Medium"] : "0";
+                    $tasks_info .= "</td>";
+                    $tasks_info .= "<td class='noborder' style='font-size:10px;'>";
+                    $tasks_info .= (isset($results_by_ips[(string)$hprogress->host]["Low"])) ? $results_by_ips[(string)$hprogress->host]["Low"] : "0";
+                    $tasks_info .= "</td>";
+                    $tasks_info .= "<td class='noborder' style='font-size:10px;'>";
+                    $tasks_info .= (isset($results_by_ips[(string)$hprogress->host]["Info"])) ? $results_by_ips[(string)$hprogress->host]["Info"] : "0";
+                    $tasks_info .= "</td>";
+                    $tasks_info .= "<td class='noborder' style='font-size:10px;'><div style='float:left;padding:3px 0px 0px 8px;'>$host_progress</div><div style='float:right;padding-right:8px;'>".trim((string)$hprogress)."%</div></td>";
+                    $tasks_info .= "</tr>";
+                    
+                    $i++;
+                }
+                $tasks_info .= "<tr><td class='nobborder' coslpan='6'>&nbsp;</td></tr>";
+            }
+            
+        }
+        $tasks_info .= "</table>";
+        return $tasks_info;
+    }
+    
 }
