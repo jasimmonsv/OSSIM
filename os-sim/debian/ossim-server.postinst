@@ -95,6 +95,6 @@ echo "#######################################"
 echo "Please run ossim-reconfig after install"
 echo "#######################################"
 echo "#######################################"
-#/usr/bin/ossim-reconfig
+#/usr/bin/ossim-reconfig -c -v --dpkg
 fi
 #/etc/init.d/ossim-server restart
