@@ -129,8 +129,8 @@ if (REQUEST('user')) {
     $session = new Session($user, $pass, "");
     $conf = new Config();
     if ($accepted == "yes") $conf->update("first_login", "no");
-	$login_return = $session->login();
 	$is_disabled = $session->is_disabled();
+	$login_return = $session->login();
 	$first_userlogin = $session->first_login();
 	$last_pass_change = $session->last_pass_change();
 	$login_exists = $session->login_exists();
@@ -138,9 +138,11 @@ if (REQUEST('user')) {
 	if ($login_return != true) {
 		$failed = true;
         $bad_pass = true;
+        $failed_retries = $conf->get_conf("failed_retries", FALSE);
         if ($login_exists && !$is_disabled) {
         	$_SESSION['bad_pass'][$user]++;
-	        if ($_SESSION['bad_pass'][$user] > 6 && $user != ACL_DEFAULT_OSSIM_ADMIN) {
+	        if ($_SESSION['bad_pass'][$user] >= $failed_retries && $user != ACL_DEFAULT_OSSIM_ADMIN) {
+	        	// auto-disable user
 	        	$disabled = true;
 	        	$session->login_disable();
 	        }

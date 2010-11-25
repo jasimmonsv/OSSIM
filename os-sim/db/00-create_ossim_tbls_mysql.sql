@@ -1121,8 +1121,10 @@ CREATE TABLE users (
     department varchar(128),
     language varchar(12) DEFAULT 'en_GB' NOT NULL,
     enabled TINYINT(1) NOT NULL DEFAULT '1',
-	first_login TINYINT(1) NOT NULL DEFAULT '1',
-	is_admin TINYINT(1) NOT NULL DEFAULT '0',
+    first_login TINYINT(1) NOT NULL DEFAULT '1',
+    last_pass_change timestamp NOT NULL default CURRENT_TIMESTAMP,
+    last_logon_try datetime NOT NULL default,
+    is_admin TINYINT(1) NOT NULL DEFAULT '0',
     entities varchar(64) DEFAULT '' NOT NULL,
     template_sensors int(11) DEFAULT 0 NOT NULL,
     template_assets int(11) DEFAULT 0 NOT NULL,
@@ -1132,7 +1134,7 @@ CREATE TABLE users (
     inherit_assets int(11) DEFAULT 0 NOT NULL,
     inherit_menus int(11) DEFAULT 0 NOT NULL,
     inherit_policies int(11) DEFAULT 0 NOT NULL,
-	last_pass_change timestamp NOT NULL default CURRENT_TIMESTAMP,
+
     PRIMARY KEY (login)
 );
 

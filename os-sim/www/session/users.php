@@ -160,7 +160,7 @@ if ($session_list = Session::get_list($conn, "ORDER BY $order")) {
 <?php
         if (Session::am_i_admin()) { ?>
 <?            if ($login != ACL_DEFAULT_OSSIM_ADMIN) {
-?><a href="users.php?change_enabled=<?=$login?>"><img src="../pixmaps/<?=($enabled) ? "tick.png" : "cross.png"?>" border="0" alt="<?=($enabled) ? _("Click to disable") : _("Click to enable")?>" title="<?=($enabled) ? _("Click to disable") : _("Click to enable")?>"></a>&nbsp;
+?><a href="users.php?change_enabled=<?=$login?>"><img src="../pixmaps/<?=($enabled>0) ? "tick.png" : "cross.png"?>" border="0" alt="<?=($enabled>0) ? _("Click to disable") : _("Click to enable")?>" title="<?=($enabled>0) ? _("Click to disable") : _("Click to enable")?>"></a>&nbsp;
       <a href="duplicateuserform.php?user=<?php
                 echo $login ?>"> 
       <img src="../pixmaps/tables/table_duplicate.png" alt="<?=_("Duplicate")?>" title="<?=_("Duplicate")?>" border="0"></a>

@@ -1179,8 +1179,20 @@ $CONFIG = array(
                     "no" => _("No")
                 ),
                 "help" => _("Password expires in 90 days") ,
-                "desc" => gettext("Password Expire") ,
-                "advanced" => 0
+                "desc" => gettext("Password expire") ,
+                "advanced" => 1
+            ),
+			"failed_retries" => array(
+                "type" => "text",
+                "help" => _("Failed logpn attempts to disable a user") ,
+                "desc" => gettext("Failed logon attempts") ,
+                "advanced" => 1
+            ),
+			"unlock_user_interval" => array(
+                "type" => "text",
+                "help" => _("Account lockout duration in minutes (0 = never auto-unlock)") ,
+                "desc" => gettext("Account lockout duration") ,
+                "advanced" => 1
             )
         )
     ) ,
