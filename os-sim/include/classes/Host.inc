@@ -608,11 +608,14 @@ class Host {
         );
         if (!$rs = & $conn->Execute($sql, $params)) {
             print $conn->ErrorMsg();
-        } elseif (!$rs->EOF) {
-            $sensors[] = $rs->fields["sensor"];
+        } else {
+            while (!$rs->EOF) {
+                $sensors[] = $rs->fields["sensor"];
+                $rs->MoveNext();
+            }
         }
-        /* read from NET table */
-        if ($net_list = Net::get_list($conn)) {
+        /* read from NET table only it host isn't in inventory */
+        if (count($sensor)==0 && $net_list = Net::get_list($conn)) {
             foreach($net_list as $net) {
                 $net_name = $net->get_name();
                 $ips = $net->get_ips();
