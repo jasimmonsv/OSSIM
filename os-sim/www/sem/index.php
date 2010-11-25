@@ -1106,8 +1106,7 @@ function change_filter(filter_name) {
 				document.getElementById('start_aaa').value = filter_data[1];
 				document.getElementById('end_aaa').value = filter_data[2];
 				$('#mytags').children(".tagit-choice").remove();
-				if (filter_data[3] != "") SetSearch(filter_data[3]);
-								
+				if (filter_data[3] != "") SetSearch(filter_data[3].replace(/and/i, ""));
                 document.getElementById('filter_box').innerHTML = msg;
 				setFixed2();
 			}

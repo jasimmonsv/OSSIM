@@ -115,9 +115,14 @@ $hosts_ips = array_keys($hosts);
 if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 	$a = "data='".$a."'";
 }
+
+if (preg_match("/(.*?)=(.*)/",$a,$fnd)) {
+    $a = preg_replace("/(\|)/","\\1".$fnd[1]."=",$a);
+}
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
 
 foreach ($atoms as $atom) {
+    $atom = trim($atom);
 	$atom = str_replace("src_ip=","src=",$atom);
 	$atom = str_replace("dst_ip=","dst=",$atom);
 	if (preg_match("/sourcetype(\!?\=)(.+)/", $atom, $matches)) {

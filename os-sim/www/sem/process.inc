@@ -126,7 +126,7 @@ function get_lines($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-
                 $cmd = "perl fetchall.pl $start $end $a 0 10 none $what $usable_cache_file $uniqueid";
             }
             $cache_file_name = $usable_cache_file;
-            //error_log("$cmd\n", 3, "/tmp/fetch");
+            //error_log("1. $cmd\n", 3, "/tmp/fetch");
             if (!$perfect_match) {
                 // Create another cache file
                 $file_hash = md5($a);
@@ -182,7 +182,7 @@ function get_lines($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-
     }
     //print "Perfect: $perfect_match<br/>";
     //print $cmd;
-    //error_log("$cmd\n", 3, "/tmp/fetch");
+    //error_log("2. $cmd\n", 3, "/tmp/fetch");
     /* Part of visualization */
     $status = exec("wc -l $cache_file_name | cut -f 1 -d \" \"", $result);
     return $result[0];
@@ -273,13 +273,13 @@ function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17
         if ($usable_cache_file != "") {
             // Issue query on cache file
             if ($what == "logs") {
-                $cmd = "perl fetchall.pl $start $end $a $offset $tope $sort_order logs $usable_cache_file $uniqueid";
+                $cmd = "perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." $offset $tope $sort_order logs $usable_cache_file $uniqueid";
             } else {
-                $cmd = "perl fetchall.pl $start $end $a 0 10 none $what $usable_cache_file $uniqueid";
+                $cmd = "perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." 0 10 none $what $usable_cache_file $uniqueid";
             }
             $cache_file_name = $usable_cache_file;
             //print $cmd;
-            //error_log("$cmd\n", 3, "/tmp/fetch");
+            //error_log("3. $cmd\n", 3, "/tmp/fetch");
             if (!$perfect_match) {
                 // Create another cache file
                 $file_hash = md5($a);
@@ -297,8 +297,8 @@ function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17
                 file_put_contents($cache_file_name . ".start", $start);
                 file_put_contents($cache_file_name, $start);
                 file_put_contents($cache_file_name . ".end", $end);
-                //error_log("perl fetchall.pl $start $end $a 0 5000000000 $sort_order logs $usable_cache_file $uniqueid > $cache_file_name\n", 3, "/tmp/fetch");
-                system("perl fetchall.pl $start $end $a 0 5000000000 $sort_order logs $usable_cache_file $uniqueid > $cache_file_name 2>/dev/null");
+                //error_log("4. perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." 0 5000000000 $sort_order logs $usable_cache_file $uniqueid > $cache_file_name\n", 3, "/tmp/fetch");
+                system("perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." 0 5000000000 $sort_order logs $usable_cache_file $uniqueid > $cache_file_name 2>/dev/null");
                 $cache_file_name;
             }
         } else {
@@ -318,25 +318,25 @@ function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17
             file_put_contents($cache_file_name . ".start", $start);
             file_put_contents($cache_file_name, $start);
             file_put_contents($cache_file_name . ".end", $end);
-            //error_log("perl fetchall.pl $start $end $a 0 5000000000 $sort_order logs none $uniqueid > $cache_file_name\n", 3, "/tmp/fetch");
-            system("perl fetchall.pl $start $end $a 0 5000000000 $sort_order logs none $uniqueid > $cache_file_name 2>/dev/null");
+            //error_log("5. perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." 0 5000000000 $sort_order logs none $uniqueid > $cache_file_name\n", 3, "/tmp/fetch");
+            system("perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." 0 5000000000 $sort_order logs none $uniqueid > $cache_file_name 2>/dev/null");
             //print $cmd;
             //print "<br/>";
             if ($what == "logs") {
-                $cmd = "perl fetchall.pl $start $end $a $offset $tope $sort_order logs $cache_file_name $uniqueid";
+                $cmd = "perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." $offset $tope $sort_order logs $cache_file_name $uniqueid";
             } else {
-                $cmd = "perl fetchall.pl $start $end $a 0 10 none $what $cache_file_name $uniqueid";
+                $cmd = "perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." 0 10 none $what $cache_file_name $uniqueid";
             }
         }
     } else {
         if ($what == "logs") {
-            $cmd = "perl fetchall.pl $start $end $a $offset $tope $sort_order logs none $uniqueid";
+            $cmd = "perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." $offset $tope $sort_order logs none $uniqueid";
         } else {
-            $cmd = "perl fetchall.pl $start $end $a 0 10 none $what none $uniqueid";
+            $cmd = "perl fetchall.pl $start $end ".str_replace ("|", "#", $a)." 0 10 none $what none $uniqueid";
         }
     }
     //print "Perfect: $perfect_match<br/>";
-    //error_log("$cmd\n", 3, "/tmp/fetch");
+    //error_log("6. $cmd\n", 3, "/tmp/fetch");
     //print $cmd;
     /* Part of visualization */
     /*
@@ -349,6 +349,7 @@ function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17
     $total_lines = 0;
     }
     */
+    
     if ($what == "logs" && $tope != 50000 && !$mute) {
         //	print "$cmd";
         //print "<center><b>$total_lines total lines</b> - Time Range: <b>$start <-> $end</b></center>";

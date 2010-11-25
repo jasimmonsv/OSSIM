@@ -28,7 +28,7 @@ if ($end !~ /^\d+\-\d+\-\d+\s+\d+\:\d+\:\d+$/) {
 	print "Parameters error in end date\n";
 	exit;
 }
-if ($query ne "" && $query !~ /^[a-zA-Z0-9\r\n\.,:@\_\-\/\?&\=\s\[\]\)\(\'"]+$/) {
+if ($query ne "" && $query !~ /^[a-zA-Z0-9#\r\n\.,:@\_\-\/\?&\=\s\[\]\)\(\'"]+$/) {
 	print "Parameters error in query\n";
 	exit;
 }
@@ -69,15 +69,16 @@ $query =~ s/\'/'\\''/g;
 
 my @ips_arr = split(/\,/,$ips);
 foreach $ip (@ips_arr) {
-	my $pid=fork();
-	if ($pid == 0) { # child
-		#print "Connecting $ip\n";
-		if ($ip eq "127.0.0.1") {
-			$cmd = "cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $user";
-		} else {
-			$cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $ip\"";
-		}
-		system($cmd);
-		exit(0);
-	}
+    my $pid=fork();
+    if ($pid == 0) { # child
+        #print "Connecting $ip\n";
+        if ($ip eq "127.0.0.1") {
+            $cmd = "cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $user";
+        } else {
+            $cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;perl fetchall.pl '$start' '$end' '$query' $start_line $num_lines $order_by $operation $cache_file $idsesion $ip\"";
+        }
+         
+        system($cmd);
+        exit(0);
+    }
 }

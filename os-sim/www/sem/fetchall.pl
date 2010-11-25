@@ -28,6 +28,7 @@ $debug="";
 $start = $ARGV[0];
 $end = $ARGV[1];
 $query = $ARGV[2];
+#$query =~ s/\|/#/g; FIXED in process.inc
 $start_line = $ARGV[3];
 $num_lines = $ARGV[4];
 $order_by = $ARGV[5];
@@ -55,7 +56,6 @@ $cache_file = "" if ($cache_file !~ "/var/ossim/cache/.*cache.*");
 ###### Convert stuff
 ############
 
-
 $index_file = "/var/ossim/logs/forensic_storage.index";
 
 if ($start =~ /(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/) {
@@ -81,7 +81,6 @@ $common_date = `perl return_sub_dates_locate.pl \"$start\" \"$end\"`;
 #print "perl return_sub_dates.pl $start $end`;
 chop($common_date);
 
-
 if (!$cache_file) {
 	#$swish = "for i in `locate.findutils -d $loc_db $common_date | grep \".log\$\"`; do cat \$i; done";
 	$sort = ($order_by eq "date") ? "sort" : "sort -r";
@@ -103,7 +102,8 @@ if($operation eq "logs") {
 	# order them
 
 	# debug, missing swish and part
-	$cmd = "$swish | perl filter_range_and_sort.pl $start_epoch $end_epoch $start_line $num_lines \"$query\" $order_by $server $idsesion $debug";
+	$cmd = "$swish | perl filter_range_and_sort.pl $start_epoch $end_epoch $start_line $num_lines '$query' $order_by $server $idsesion $debug";
+
 	print "$cmd\n" if ($idsesion eq "debug");
 	system($cmd);
 	 if ($debug ne "") {

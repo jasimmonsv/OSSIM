@@ -76,10 +76,19 @@ foreach ($aux_arr as $atom) {
 	}
 }
 
-ossim_valid($str, OSS_DIGIT, OSS_SPACE, OSS_PUNC, "!", OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("str"));
+ossim_valid($str, OSS_DIGIT, OSS_SPACE, OSS_PUNC, "!", "|", OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("str"));
 if (ossim_error()) {
     die(ossim_error());
 }
+
+$prev = "";
+
+$fnd = array();
+
+if(preg_match("/(.*=)(.*\|)(.*)/", $str, $fnd)) {
+    $prev = $fnd[2];
+    $str = $fnd[1].$fnd[3];
+} 
 
 $data = array();
 $top = 10;
@@ -101,40 +110,40 @@ if (trim($str) != "") {
 		$qstr = $str;
 		if ($found[1] == "sensor") {
 			foreach ($sensors as $ip=>$name) {
-				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top && $current_query["sensor$op$ip"] == "") {
-					$data[] = array("name"=>"<b>sensor</b>$op$name");
+				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top && $current_query["sensor$op$ip"] == "") {
+					$data[] = array("name"=>"<b>sensor</b>$op$prev$name");
 				}
 			}
 		} elseif ($found[1] == "src" || $found[1] == "dst") {
 			foreach ($hosts as $ip=>$name) {
-				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top && $current_query[$found[1].$op.$ip] == "") {
-					$data[] = array("name"=>"<b>".$found[1]."</b>$op$name");
+				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top && $current_query[$found[1].$op.$ip] == "") {
+					$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$name");
 				}
 			}
 			foreach ($nets as $net) {
 				$ip = $net->get_ips();
 				$name = $net->get_name();
-				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && count($data) < $top && $current_query[$found[1].$op.$ip] == "") {
-					$data[] = array("name"=>"<b>".$found[1]."</b>$op$name");
+				if ((preg_match("/^$qstr/i",$name) || preg_match("/^$qstr/i",$ip)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top && $current_query[$found[1].$op.$ip] == "") {
+					$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$name");
 				}
 			}
 		} elseif ($found[1] == "plugin") {
 			foreach ($plugins as $plugin_id=>$plugin) {
-				if ((preg_match("/^$qstr/i",$plugin)) && count($data) < $top && $current_query["plugin_id".$op.$plugin_id] == "") {
-					$data[] = array("name"=>"<b>plugin</b>$op$plugin");
+				if ((preg_match("/^$qstr/i",$plugin)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top && $current_query["plugin_id".$op.$plugin_id] == "") {
+					$data[] = array("name"=>"<b>plugin</b>$op$prev$plugin");
 				}
 			}
 		} elseif ($found[1] == "plugingroup") {
 			foreach ($plugingroups as $group) {
 				$groupname = $group->get_name();
-				if ((preg_match("/^$qstr/i",$groupname)) && count($data) < $top) {
-					$data[] = array("name"=>"<b>plugingroup</b>$op$groupname");
+				if ((preg_match("/^$qstr/i",$groupname)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top) {
+					$data[] = array("name"=>"<b>plugingroup</b>$op$prev$groupname");
 				}
 			}
 		} elseif ($found[1] == "sourcetype") {
 			foreach ($sourcetypes as $sourcetype) {
-				if ((preg_match("/^$qstr/i",$sourcetype)) && count($data) < $top) {
-					$data[] = array("name"=>"<b>sourcetype</b>$op$sourcetype");
+				if ((preg_match("/^$qstr/i",$sourcetype)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top) {
+					$data[] = array("name"=>"<b>sourcetype</b>$op$prev$sourcetype");
 				}
 			}
 		} elseif ($found[1] == "src_port" || $found[1] == "dst_port") {
@@ -142,14 +151,14 @@ if (trim($str) != "") {
 			foreach ($ports as $port) {
 				$portnumber = $port->get_port_number();
 				if ($portnumber == $lastnumber) { continue; }
-				if ((preg_match("/^$qstr/i",$portnumber)) && count($data) < $top && $current_query[$found[1].$op.$portnumber] == "") {
-					$data[] = array("name"=>"<b>".$found[1]."</b>$op$portnumber");
+				if ((preg_match("/^$qstr/i",$portnumber)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top && $current_query[$found[1].$op.$portnumber] == "") {
+					$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$portnumber");
 					$lastnumber = $portnumber;
 				}
 			}
 		} elseif ($found[1] == "data") {
-			if (count($data) < $top) {
-				$data[] = array("name"=>"<b>data</b>$op$found[3]");
+			if (count($data) < $top && !preg_match("/$name/i",$fnd[2])) {
+				$data[] = array("name"=>"<b>data</b>$op$prev$found[3]");
 			}
 		}
 	// Typing anything
