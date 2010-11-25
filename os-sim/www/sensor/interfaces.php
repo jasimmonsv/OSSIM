@@ -100,7 +100,7 @@ $local_ip = `grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`;
 	<script type="text/javascript" src="../js/jquery.colorpicker.js"></script>
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>
 	<script type="text/javascript" src="../js/jquery.elastic.source.js"charset="utf-8"></script>
-	<script type="text/javascript" src="../forensics/js/autoHeight.js"></script>
+	<script type="text/javascript" src="../js/autoHeight.js"></script>
   
 	<script type="text/javascript">
 		$(document).ready(function(){
