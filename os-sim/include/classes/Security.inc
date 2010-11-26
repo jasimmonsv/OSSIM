@@ -110,7 +110,7 @@ function html_vul_scan($string, $is_get) {
         foreach($string as $string_piece) {
             foreach($scan_for as $s) {
                 if ($is_get) {
-                    if (preg_match("/^(\<=|\>=|\>|\<)$/",$string_piece)) {
+                    if (preg_match("/^(\<=|\>=|\>|\<|\<\>)$/",$string_piece)) {
                         continue;
                     }
                     if ($string_piece != strip_tags($string_piece)) {
@@ -126,7 +126,7 @@ function html_vul_scan($string, $is_get) {
         $string = html_entity_decode($string);
         foreach($scan_for as $s) {
             if ($is_get) {
-                if (preg_match('/^<<./', $string, $m)) {
+                if (preg_match('/^<<./', $string) || preg_match("/^(\<=|\>=|\>|\<|\<\>)$/", $string)) {
                     continue;
                 }
                 if ($string !== strip_tags($string)) {
