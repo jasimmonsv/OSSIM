@@ -584,11 +584,11 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$cell_align['IP_PROTO'] = "center";
 	
 	// X- ExtraData
-	$cell_data['USERNAME'] = $myrow['username'];
-	$cell_data['PASSWORD'] = $myrow['password'];
-	$cell_data['FILENAME'] = $myrow['filename'];
+	$cell_data['USERNAME'] = wordwrap($myrow['username'],25," ",true);
+	$cell_data['PASSWORD'] = wordwrap($myrow['password'],25," ",true);
+	$cell_data['FILENAME'] = wordwrap($myrow['filename'],25," ",true);
 	for ($u = 1; $u < 10; $u++)
-		$cell_data['USERDATA'.$u] = $myrow['userdata'.$u];
+		$cell_data['USERDATA'.$u] = wordwrap($myrow['userdata'.$u],25," ",true);
 
     $cc = ($i % 2 == 0) ? "class='par'" : "";
     //$htmlPdfReport->set("<tr $cc>\n");
