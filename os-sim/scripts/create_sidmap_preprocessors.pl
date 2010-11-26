@@ -2,9 +2,9 @@
 
 if(!$ARGV[0])
 {
-	print "\nUsage: $0 gen-msg.map\n\n";
-	print "This file is used to extract all the plugin sids from snort preprocessors. Insert the results into the OSSIM DB. You may do something like:\n";
-	print "# ./create_sidmap_preprocessors.pl /tmp/snort/snort-2.6.1.5/etc/gen-msg.map | mysql ossim -p\n\n";
+	print STDERR "-- \nUsage: $0 gen-msg.map\n\n";
+	print STDERR "-- This file is used to extract all the plugin sids from snort preprocessors. Insert the results into the OSSIM DB. You may do something like:\n";
+	print STDERR "-- # ./create_sidmap_preprocessors.pl /tmp/snort/snort-2.6.1.5/etc/gen-msg.map | ossim-db\n\n";
 	exit();
 }
 
