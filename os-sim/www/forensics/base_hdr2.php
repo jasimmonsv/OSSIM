@@ -357,9 +357,37 @@ if ($Use_Auth_System == 1) {
 														<td>
 															<table style="border:0px">
 																<tr>
-																	<td style="font-size:11px"><?php echo _("User Data")?>:</td>
-																	<td style="padding-left:10px"><input type="text" name="userdata" style="width:158px" value="<?php echo $_SESSION["userdata"] ?>"></input></td>
-																	<td><input type="button" class="button" value="<?php echo _("Search")?>" onclick="this.form.bsf.click()" style="height:18px"></input></td>
+																	<td style="font-size:11px"><?php echo _("Extra Data")?>:</td>
+																	<td style="padding-left:10px;text-align:left;">
+																	<select name="userdata[0]">
+																		<option value="userdata1"<?= ($_SESSION["userdata"][0]=="userdata1") ? " selected" : ""; ?>>userdata1</option>
+																		<option value="userdata2"<?= ($_SESSION["userdata"][0]=="userdata2") ? " selected" : ""; ?>>userdata2</option>
+																		<option value="userdata3"<?= ($_SESSION["userdata"][0]=="userdata3") ? " selected" : ""; ?>>userdata3</option>
+																		<option value="userdata4"<?= ($_SESSION["userdata"][0]=="userdata4") ? " selected" : ""; ?>>userdata4</option>
+																		<option value="userdata5"<?= ($_SESSION["userdata"][0]=="userdata5") ? " selected" : ""; ?>>userdata5</option>
+																		<option value="userdata6"<?= ($_SESSION["userdata"][0]=="userdata6") ? " selected" : ""; ?>>userdata6</option>
+																		<option value="userdata7"<?= ($_SESSION["userdata"][0]=="userdata7") ? " selected" : ""; ?>>userdata7</option>
+																		<option value="userdata8"<?= ($_SESSION["userdata"][0]=="userdata8") ? " selected" : ""; ?>>userdata8</option>
+																		<option value="userdata9"<?= ($_SESSION["userdata"][0]=="userdata9") ? " selected" : ""; ?>>userdata9</option>
+																		<option value="filename"<?= ($_SESSION["userdata"][0]=="filename") ? " selected" : ""; ?>>filename</option>
+																		<option value="username"<?= ($_SESSION["userdata"][0]=="username") ? " selected" : ""; ?>>username</option>
+																		<option value="password"<?= ($_SESSION["userdata"][0]=="password") ? " selected" : ""; ?>>password</option>
+																	</select>
+																	<select name="userdata[1]">
+																		<option value="="<?= ($_SESSION["userdata"][1]=="=") ? " selected" : ""; ?>>=</option>
+																		<option value="<>"<?= ($_SESSION["userdata"][1]=="<>") ? " selected" : ""; ?>><></option>
+																		<option value="<"<?= ($_SESSION["userdata"][1]=="<") ? " selected" : ""; ?>><</option>
+																		<option value="<="<?= ($_SESSION["userdata"][1]=="<=") ? " selected" : ""; ?>><=</option>
+																		<option value=">"<?= ($_SESSION["userdata"][1]==">") ? " selected" : ""; ?>>></option>
+																		<option value=">="<?= ($_SESSION["userdata"][1]==">=") ? " selected" : ""; ?>>>=</option>
+																		<option value="like"<?= ($_SESSION["userdata"][1]=="like") ? " selected" : ""; ?>>like</option>
+																	</select>
+																</tr>
+																<tr>
+																	<td></td>
+																	<td style="padding-left:10px;text-align:left">
+																	<input type="text" name="userdata[2]" style="width:158px" value="<?php echo $_SESSION["userdata"][2] ?>"></input>
+																	<input type="button" class="button" value="<?php echo _("Apply")?>" onclick="this.form.bsf.click()" style="height:18px"></input></td>
 																</tr>
 															</table>
 														</td>
