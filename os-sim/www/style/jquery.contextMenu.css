@@ -28,9 +28,9 @@
 	padding-left: 28px;
 }
 
-.contextMenu A:hover {
-    background-position: 6px center;
-    background-repeat: no-repeat;
+.contextMenu A:hover, .contextMenu LI.A:hover {
+    background-position: 6px center !important;
+    background-repeat: no-repeat !important;
 }
 
 .contextMenu LI.hover A {
@@ -70,3 +70,6 @@
 .contextMenu LI.ntop A { background-image: url(../pixmaps/ntop.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.flows A { background-image: url(../pixmaps/menu/monitors.gif); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.nagios A { background-image: url(../pixmaps/nagios.png); background-repeat:no-repeat; font-weight:bold; }
+
+.contextMenu LI.addAll A { background-image: url(../pixmaps/panel/tab_all.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.addUser A { background-image: url(../pixmaps/panel/tab_user.png); background-repeat:no-repeat; font-weight:bold; }
