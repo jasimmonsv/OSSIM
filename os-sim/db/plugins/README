@@ -2,7 +2,7 @@
  +-----------+--------------------+----------+
  | plugin_id | plugin_name        | type     |
  +-----------+--------------------+-----------
- | 1001-1131 | snort              | detector |
+ | 1001-1135 | snort              | detector |
  |      1501 | apache             | detector |
  |      1502 | iis                | detector |
  |      1503 | iptables           | detector |
