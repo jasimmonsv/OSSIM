@@ -116,6 +116,21 @@ if (Session::menu_perms("MenuControlPanel", "ControlPanelExecutiveEdit")) {
 
 if (GET('edit_tabs') == 1) {
     $tabs = Window_Panel_Ajax::getPanelTabs();
+	
+	// add tabs urls
+	//$tabs_urls = Window_Panel_Ajax::getPanelUrls();
+	/*
+	print_r($tabs_urls);
+	if (is_array($tabs_urls)) {
+		// no repeat key
+		$last_key = array_pop(array_keys($tabs));
+		// end no repeat key
+		foreach ($tabs_urls as $tab_values){
+			$tabs[++$last_key] = $tab_values;
+		}
+	}*/
+	// end add tabs urls
+	
     //echo "<br><br><br>getPanelTabs<br>";
     //var_dump($tabs);
     if (GET('mode')) {
@@ -129,11 +144,15 @@ if (GET('edit_tabs') == 1) {
         $tab_icon_url = str_replace("slash_special_char","/",GET('tab_icon_url'));
 		$tab_disable = ($tabs[$tab_id]['disable']) ? $tabs[$tab_id]['disable'] : 0;
 		$avt = GET('clonefrom');
+		/**/
+		$tab_url = GET('tab_url');
+		/**/
         ossim_valid($tab_id, OSS_DIGIT, 'error: tab_id.');
         ossim_valid($tab_name, OSS_ALPHA, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'error: Invalid name, alphanumeric, score, underscore and spaces allowed.');
 		ossim_valid($avt, OSS_DIGIT, OSS_NULLABLE, 'error: Invalid .avt file ID.');
         if (ossim_error()) {
             echo ossim_error();
+			die();
         }
         if (is_array($tabs) && array_key_exists($tab_id, $tabs)) {
             unset($tabs[$tab_id]);
@@ -144,11 +163,19 @@ if (GET('edit_tabs') == 1) {
 				ossim_valid($tab_name, OSS_ALPHA, OSS_SCORE, OSS_SPACE, 'error: Invalid name, non empty, alphanumeric, score, underscore and spaces allowed.');
 				if (ossim_error()) {
 					echo ossim_error();
+					die();
 				}
 				// Copy data from avt file to new file
 				$data = $tabsavt[$avt]["tab_data"];
 				$filename = Window_Panel_Ajax::getConfigFile($tab_id);
 				copyavt($filename,$data);
+			}
+			if (GET('mode') == "new"||GET('mode') == "update") {
+				ossim_valid($tab_name, OSS_ALPHA, OSS_SCORE, OSS_SPACE, 'error: Invalid name, non empty, alphanumeric, score, underscore and spaces allowed.');
+				if (ossim_error()) {
+					echo ossim_error();
+					die();
+				}
 			}
 			// Insert new empty (or cloned)
 			if (!is_array($tabs)) {
@@ -159,6 +186,11 @@ if (GET('edit_tabs') == 1) {
 				'tab_icon_url' => htmlentities($tab_icon_url, ENT_COMPAT, "UTF-8"),
 				'disable' => $tab_disable
 			);
+			/**/
+			if(!empty($tab_url)){
+				$tabs[$tab_id]['tab_url']=$tab_url;
+			}
+			/**/
         }
 		if (GET('mode') == "change") {
 			if ($tabs[$tab_id]['disable'] == 1) $tabs[$tab_id]['disable'] = 0;
@@ -330,6 +362,9 @@ if (GET('edit_tabs') == 1) {
 			&nbsp;<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='delete';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../pixmaps/cross-circle-frame.png" alt="<?=_("Delete")?>" title="<?=_("Delete")?>" border="0"></a>
 			&nbsp;<input type="button" onclick="document.ftabs<?=$tab_id?>.mode.value='change';document.getElementById('ftabs<?=$tab_id?>').submit();return false;" value="<?=($tabs[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="btn<?=($tabs[$tab_id]['disable']) ? "" : "r"?>" style="width:80px">
 		</td>
+		<?php if($tabs[$tab_id]["tab_url"]){ ?>
+			<input type="hidden" name="tab_url" value="<?php echo $tabs[$tab_id]["tab_url"]; ?>">
+		<?php } ?>
 		<input type="hidden" name="edit_tabs" value="1">
 		<input type="hidden" name="panel_id" value="<?php echo $panel_id ?>">
 		<input type="hidden" name="tab_id" value="<?php echo $tab_id ?>">
@@ -524,6 +559,44 @@ if (GET('interface') == 'ajax') {
 <script src="./panel.js" type="text/javascript"></script>
 <script>
 <!--
+function doIframe2(){
+	o = document.getElementById('dashboardsIframe');
+
+	setHeight2(o);
+	addEvent2(o,'load', doIframe2);	
+}
+
+function setHeight2(e){
+	if(e.contentDocument){
+		e.height = e.contentDocument.body.offsetHeight + 35;
+	} else {
+		e.height = e.contentWindow.document.body.scrollHeight + 35;
+	}
+	
+}
+
+function addEvent2(obj, evType, fn){
+
+	if(obj.addEventListener)
+	{
+	obj.addEventListener(evType, fn, false);
+	return true;
+	
+	} 
+	else if (obj.attachEvent){
+		var r = obj.attachEvent("on"+evType, fn);
+		return r;
+	} 
+	else {
+		return false;
+	}
+}
+
+
+if (document.getElementById && document.createTextNode){
+	addEvent2(window,'load', doIframe2);	
+}
+
 function wopen(url, name, w, h)
 {
  // DK: Found this googling, thx :p
@@ -647,15 +720,20 @@ input.btn:hover { border:1px solid #02A705; background: #4AC600 url(../pixmaps/t
 
 div.hd:hover { cursor:-moz-grab; cursor:url(../pixmaps/theme/grab.cur),auto); }
 
-
+#dashboardsIframe{
+	border:0;
+	width:100%;
+	margin:0;
+	padding:0;
+}
 </style>
-  
 </head>
 <body>
 <!-- Tabs if present -->
 <?php
 if (GET('fullscreen') != 1) {
     $tabs = Window_Panel_Ajax::getPanelTabs();
+	//$tabs_urls = Window_Panel_Ajax::getPanelUrls();
     $first = 1;
     include ("tabs.php");
 ?>
@@ -676,8 +754,18 @@ if (GET('fullscreen') != 1) {
 
 }
 if ($tabs[$panel_id]['disable'] == 1) die(_("The panel you want to show is disabled.")." <a href='panel.php?edit_tabs=1&panel_id=".$panel_id."'>"._("Click here to Edit Tabs")."</a>");
-?>
 
+// tab url
+$menu_opc=GET('hmenu');
+$menu_sopc=GET('smenu');
+
+if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
+?>
+<iframe id="dashboardsIframe" src="<?php echo $tabs[$panel_id]['tab_url']; ?>" scrolling="auto" frameborder="0"></iframe>
+<?php
+}else{
+// tab normal
+?>
 <!-- displays saveConfig errors -->
 <div id="container" style="margin: 0px; padding: 0px"></div>
 <div id="loading" class="loading"></div>
@@ -797,5 +885,5 @@ function panel_load(rows, cols)
 panel_load(<?php echo $rows?>, <?php echo $cols ?>);
 Control.Tip.use = 'help';
 </script>
-
+<?php } ?>
 </body></html>
