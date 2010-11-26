@@ -153,8 +153,9 @@ function sendEmail ($conf, $email_data, $email) {
           $mailUsername=$conf->get_conf("smtp_user");
           $mailPassword=$conf->get_conf("smtp_pass");
       }else{
-          echo '<div style="text-align:center;margin-top:10px">'._('Please, configure mail server. Configuration->Main->Advanced->Mail Server Configuration"').'</div>';
-          return false;
+          $mailSMTPAuth=false;
+          $mailUsername='';
+          $mailPassword='';
       }
       $mail->SMTPAuth   = $mailSMTPAuth;                  // enable SMTP authentication
       $mail->Port       = $conf->get_conf("smtp_port");                    // set the SMTP port for the GMAIL server (26)
