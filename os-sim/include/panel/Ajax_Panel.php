@@ -146,12 +146,16 @@ class Window_Panel_Ajax {
         }
         return $plugins;
     }
-    function getPanelTabs() {
+    function getPanelTabs($user=null) {
         $db = new ossim_db();
         $conn = $db->connect();
         $config = new User_config($conn);
-        $login = Session::get_session_user();
-        $tabs = $config->get($login, 'panel_tabs', 'php');
+		if($user==null){
+			$login = Session::get_session_user();
+        }else{
+			$login = $user;
+		}
+		$tabs = $config->get($login, 'panel_tabs', 'php');
         if ($tabs == null) {
             return false;
         } else {
@@ -160,13 +164,42 @@ class Window_Panel_Ajax {
         // Save a var into the database as a serialized PHP var
         
     }
-    function setPanelTabs($tabs) {
+    function setPanelTabs($tabs,$user=null) {
+        $db = new ossim_db();
+        $conn = $db->connect();
+        $config = new User_config($conn);
+		if($user==null){
+			$login = Session::get_session_user();
+        }else{
+			$login = $user;
+		}
+        $config->set($login, 'panel_tabs', $tabs, 'php');
+    }
+	/*
+	function getPanelUrls() {
         $db = new ossim_db();
         $conn = $db->connect();
         $config = new User_config($conn);
         $login = Session::get_session_user();
-        $config->set($login, 'panel_tabs', $tabs, 'php');
+        $tabs = $config->get($login, 'panel_urls', 'php');
+        if ($tabs == null) {
+            return false;
+        } else {
+            return $tabs;
+        }
+        // Save a var into the database as a serialized PHP var
+        
     }
+	function setPanelUrls($tabs) {
+        $db = new ossim_db();
+        $conn = $db->connect();
+        $config = new User_config($conn);
+        $login = Session::get_session_user();
+        $config->set($login, 'panel_urls', $tabs, 'php');
+    }
+	*/
+	
+	
     function getConfigFile($panel_id="") {
         if ($panel_id == "") $panel_id = GET('panel_id');
 		$conf = & $GLOBALS['conf'];
