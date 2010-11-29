@@ -40,6 +40,15 @@ test -x $DAEMON || exit 0
 #	Function that starts the daemon/service.
 #
 d_start() {
+
+   # check if an instance is running       
+  
+   if ps ax | grep -v grep | grep $DAEMON > /dev/null
+        then
+        log_daemon_msg "WARNING:Not starting $DESC, it has already been started."
+        exit 0
+   fi     
+   
     start-stop-daemon --quiet --start --pidfile $PIDFILE \
         --exec $DAEMON -- -d > /dev/null
 }
@@ -48,53 +57,67 @@ d_start() {
 #	Function that stops the daemon/service.
 #
 d_stop() {
-	start-stop-daemon --quiet --stop \
-        --pidfile $PIDFILE > /dev/null
-}
+     
+   # use of --retry option:
+   # signal/timeout/KILL/timeout
+   # default signal: SIGTERM (15)
+
+   start-stop-daemon --stop \
+      --retry TERM/5/KILL/5  \
+      --pidfile $PIDFILE > /dev/null    
+
+   returnValue=$?
+   # check return value
+   # If --oknodo was not specified  and  nothing  was done,  1 is returned
+   # If return value is 2, the process still running!!!
+   if [ $returnValue -gt 0 ]
+      then
+          #there's some error here. 
+         log_daemon_msg " start-stop-daemon -> ReturnValue: $returnValue - We can't kill ossim-agent, please try to kill it running kill -9 ossim-agent"
+   else
+         #It's all ok, we can remove the pid file.
+      if [ -f $PIDFILE ]
+         then
+            rm -rf $PIDFILE
+         else
+            log_daemon_msg "WARNING: $PIDFILE doesn't exits!"
+         fi
+   fi 
+}  
 
 d_restart() {
     d_stop
-    rm -rf /var/run/ossim-agent.pid
+    #rm -rf $PIDFILE
     sleep 1
     d_start
 }
 
 case "$1" in
   start)
-    log_daemon_msg "Starting $DESC" "$NAME"
-    if d_start ; then
-        log_end_msg $?
-    else
-        log_end_msg $?
-    fi
+    log_daemon_msg "[Start] Starting $DESC" "$NAME"
+    d_start
+    log_end_msg $?     
 	;;
 
 #starting is only used by monit 
   starting)
-    rm -rf /var/run/ossim-agent.pid
-    log_daemon_msg "Starting $DESC" "$NAME"
-    if d_start ; then
-        log_end_msg $?
-    else
-        log_end_msg $?
-    fi
+   # rm -rf $PIDFILE
+    log_daemon_msg "[Starting] Starting $DESC" "$NAME"
+    d_start
+    log_end_msg $?  
         ;;
 
   stop)
-    log_daemon_msg "Stopping $DESC" "$NAME"
-    if d_stop ; then
-        log_end_msg $?
-    else
-        log_end_msg $?
-    fi
+    log_daemon_msg "[Stop] Stopping $DESC" "$NAME"
+    d_stop        
+    log_end_msg $?
+    
 	;;
   restart|force-reload)
     log_daemon_msg "Restarting $DESC" "$NAME"
-    if d_restart ; then
-        log_end_msg $?
-    else
-        log_end_msg $?
-    fi
+    d_restart 
+    log_end_msg $?
+
 	;;
   *)
 	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
