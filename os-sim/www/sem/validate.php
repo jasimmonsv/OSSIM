@@ -34,7 +34,7 @@
 * Function list:
 * Classes list:
 */
-if ($argv[1] != "") {
+if ($argv[2] != "") {
 	$path_class = '/usr/share/ossim/include/:/usr/share/ossim/www/sem';
 	ini_set('include_path', $path_class);
 }
