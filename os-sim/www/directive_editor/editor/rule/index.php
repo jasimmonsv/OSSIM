@@ -66,6 +66,9 @@ ossim_valid($add, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("add"));
 if (ossim_error()) {
     die(ossim_error());
 }
+
+$host_list = getHostList();
+$net_list = getNetList();
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -185,6 +188,13 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
         }
         return data;
     };
+    function rm_sids() {
+		var selectbox = document.getElementById('pluginsids');
+    	var i;
+    	for(i=selectbox.options.length-1;i>=0;i--) {
+    		if(selectbox.options[i].selected) selectbox.remove(i);
+    	}
+    }
     function init_sids(id,m) {
 		is_monitor = m;
     	$(".multiselect_sids").multiselect({
@@ -214,14 +224,6 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
             nodeComparator: function (node1,node2){ return 1 },
             dataParser: customDataParser,
         });
-		$(".multiselect_from_port").multiselect({
-            searchDelay: 700,
-            dividerLocation: 0.5,
-            remoteUrl: 'popup/top/from.php',
-            remoteParams: { port: '1' },
-            nodeComparator: function (node1,node2){ return 1 },
-            dataParser: customDataParser,
-        });
 		$(".multiselect_to").multiselect({
             searchDelay: 700,
             dividerLocation: 0.5,
@@ -229,14 +231,28 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
             nodeComparator: function (node1,node2){ return 1 },
             dataParser: customDataParser,
         });
-		$(".multiselect_to_port").multiselect({
-            searchDelay: 700,
-            dividerLocation: 0.5,
-            remoteUrl: 'popup/top/from.php',
-            remoteParams: { port: '1' },
-            nodeComparator: function (node1,node2){ return 1 },
-            dataParser: customDataParser,
-        });
+	}
+	function save_network() {
+		var from_list = getselectedcombovalue('fromselect');
+		var to_list = getselectedcombovalue('toselect');
+		var port_from_list = document.getElementById('port_from_list').value;
+		var port_to_list = document.getElementById('port_to_list').value;
+		if (from_list != "") {
+			document.getElementById('from').value = "LIST";
+			document.getElementById('from_list').value = from_list;
+		} else {
+			document.getElementById('from').value = "ANY";
+			document.getElementById('from_list').value = "";
+		}
+		if (to_list != "") {
+			document.getElementById('to').value = "LIST";
+			document.getElementById('to_list').value = to_list;
+		} else {
+			document.getElementById('to').value = "ANY";
+			document.getElementById('to_list').value = "";
+		}
+		if (port_from_list != "" && port_from_list != "ANY") document.getElementById('port_from').value = "LIST";
+		if (port_to_list != "" && port_to_list != "ANY") document.getElementById('port_to').value = "LIST"; 
 	}
 	function init_sensor() {
 		$(".multiselect_sensor").multiselect({
@@ -246,6 +262,16 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
             nodeComparator: function (node1,node2){ return 1 },
             dataParser: customDataParser,
         });
+	}
+	function save_sensor() {
+		var sensor_list = getselectedcombovalue('sensorselect');
+		if (sensor_list != "") {
+			document.getElementById('sensor').value = "LIST";
+			document.getElementById('sensor_list').value = sensor_list;
+		} else {
+			document.getElementById('sensor').value = "ANY";
+			document.getElementById('sensor_list').value = "";
+		}
 	}
     function taille()
     {
@@ -348,21 +374,21 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 						<td class="nobborder"><img src="../../../pixmaps/wand.png" alt="wizard"></img></td>
 						<td class="nobborder" style="font-size:14px">Directive rule <b>wizard</b>: </td>
 						<td class="nobborder" style="font-size:14px" id="step_1"><a href='' onclick='wizard_goto(1);return false;' class="bold" id="link_1"><?php echo _("Rule name") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_2"> > <a href='' onclick='wizard_goto(2);return false;' class="normal" id="link_2"><?php echo _("Plugin") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_3"> > <a href='' onclick='wizard_goto(3);return false;' class="normal" id="link_3"><?php echo _("Plugin Sid") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_4"> > <a href='' onclick='wizard_goto(4);return false;' class="normal" id="link_4"><?php echo _("Network") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_5"> > <a href='' onclick='wizard_goto(5);return false;' class="normal" id="link_5"><?php echo _("Protocol") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_6"> > <a href='' onclick='wizard_goto(6);return false;' class="normal" id="link_6"><?php echo _("Sensor") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_7"> > <a href='' onclick='wizard_goto(7);return false;' class="normal" id="link_7"><?php echo _("Risk oc") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_8"> > <a href='' onclick='wizard_goto(8);return false;' class="normal" id="link_8"><?php echo _("Risk time") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_9"> > <a href='' onclick='wizard_goto(9);return false;' class="normal" id="link_9"><?php echo _("Risk rel") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_10"> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_11"> > <a href='' onclick='wizard_goto(11);return false;' class="normal" id="link_11"><?php echo _("Monitor intv") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_12"> > <a href='' onclick='wizard_goto(12);return false;' class="normal" id="link_12"><?php echo _("Monitor abs") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_13"> > <a href='' onclick='wizard_goto(13);return false;' class="normal" id="link_13"><?php echo _("Sticky") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_14"> > <a href='' onclick='wizard_goto(14);return false;' class="normal" id="link_14"><?php echo _("Sticky diff") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_15"> > <a href='' onclick='wizard_goto(15);return false;' class="normal" id="link_15"><?php echo _("Other") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_16"> > <a href='' onclick='wizard_goto(16);return false;' class="normal" id="link_16"><?php echo _("User data") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_2" nowrap> > <a href='' onclick='wizard_goto(2);return false;' class="normal" id="link_2"><?php echo _("Plugin") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_3" nowrap> > <a href='' onclick='wizard_goto(3);return false;' class="normal" id="link_3"><?php echo _("Plugin Sid") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_4" nowrap> > <a href='' onclick='wizard_goto(4);return false;' class="normal" id="link_4"><?php echo _("Network") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_5" nowrap> > <a href='' onclick='wizard_goto(5);return false;' class="normal" id="link_5"><?php echo _("Protocol") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_6" nowrap> > <a href='' onclick='wizard_goto(6);return false;' class="normal" id="link_6"><?php echo _("Sensor") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_7" nowrap> > <a href='' onclick='wizard_goto(7);return false;' class="normal" id="link_7"><?php echo _("Risk oc") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_8" nowrap> > <a href='' onclick='wizard_goto(8);return false;' class="normal" id="link_8"><?php echo _("Risk time") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_9" nowrap> > <a href='' onclick='wizard_goto(9);return false;' class="normal" id="link_9"><?php echo _("Risk rel") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_10" nowrap> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_11" nowrap> > <a href='' onclick='wizard_goto(11);return false;' class="normal" id="link_11"><?php echo _("Monitor intv") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_12" nowrap> > <a href='' onclick='wizard_goto(12);return false;' class="normal" id="link_12"><?php echo _("Monitor abs") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_13" nowrap> > <a href='' onclick='wizard_goto(13);return false;' class="normal" id="link_13"><?php echo _("Sticky") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_14" nowrap> > <a href='' onclick='wizard_goto(14);return false;' class="normal" id="link_14"><?php echo _("Sticky diff") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_15" nowrap> > <a href='' onclick='wizard_goto(15);return false;' class="normal" id="link_15"><?php echo _("Other") ?></a></td>
+						<td class="nobborder" style="font-size:14px;display:none" id="step_16" nowrap> > <a href='' onclick='wizard_goto(16);return false;' class="normal" id="link_16"><?php echo _("User data") ?></a></td>
 					</tr>
 				</table>
 			</td>

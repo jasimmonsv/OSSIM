@@ -72,6 +72,7 @@ $none_checked = 'true';
 if (empty($order)) $order = 'id';
 $plugin_list = getPluginList('ORDER BY ' . $order);
 $plugin_names = array();
+
 foreach($plugin_list as $plugin) {
 	$plugin_names[$plugin->get_id()] = $plugin->get_name();
 }
@@ -115,7 +116,7 @@ foreach($plugin_list as $plugin) {
 						    if ($checked != '') $none_checked = 'false';
 						    ?>
 						<tr>
-						    <td width="110" class="nobborder" bgcolor="<?php echo $color ?>"><a href="" onclick="document.getElementById('plugin_id').value='<?php echo $plugin->get_id() ?>';wizard_next();init_sids(<?php echo $plugin->get_id() ?>,<?php echo ($plugin_type == '2') ? "true" : "false" ?>);return false;"><b><?php echo $plugin->get_name() ?></b></a></td>
+						    <td width="110" class="nobborder" bgcolor="<?php echo $color ?>"><a href="" onclick="document.getElementById('plugin_id').value='<?php echo $plugin->get_id() ?>';rm_sids();wizard_next();init_sids(<?php echo $plugin->get_id() ?>,<?php echo ($plugin_type == '2') ? "true" : "false" ?>);return false;"><b><?php echo $plugin->get_name() ?></b></a></td>
 						    <td width="70" class="nobborder" bgcolor="<?php echo $color ?>" nowrap><?php echo $type_name ?></td>
 						    <td class="nobborder" bgcolor="<?php echo $color ?>"><?php echo $plugin->get_description() ?></td>
 						</tr>
@@ -147,7 +148,7 @@ foreach($plugin_list as $plugin) {
 					<td class="nobborder">
 					<select id="pluginsids" class="multiselect_sids" multiple="multiple" name="sids[]" style="display:none;width:1000px">
 				    <?
-				    if (isList($rule->plugin_sid) && $rule->plugin_sid != "") {
+				    if (isList($rule->plugin_sid) && $rule->plugin_sid != "" && $rule->plugin_id != "") {
 				    	$sids = explode(",",$rule->plugin_sid);
 				    	$range = "";
 				    	$sin = array();
@@ -160,7 +161,8 @@ foreach($plugin_list as $plugin) {
 				    	}
 				    	if (count($sin)>0) $where = "sid in (".implode(",",$sin).") $range";
 				    	else $where = preg_replace("/^ OR /","",$range);
-				        $plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id AND ($where)");
+				        
+				    	$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=".$rule->plugin_id." AND ($where)");
 				        foreach($plugin_list as $plugin) {
 				            $id = $plugin->get_sid();
 				            $name = "$id - ".trim($plugin->get_name());

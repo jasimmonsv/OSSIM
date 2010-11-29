@@ -47,11 +47,22 @@
 		<td class="nobborder">
 		<select id="sensorselect" class="multiselect_sensor" multiple="multiple" name="sensorselect[]" style="display:none;width:600px">
 		<?php if (isList($rule->sensor) && $rule->sensor != "") { ?>
-		
+		<?php 
+		$sensor_list = $rule->sensor;
+		if ($host_list = getSensorList()) {
+		    foreach($host_list as $host) {
+		        $hostname = $host->get_name();
+		        $ip = $host->get_ip();
+		        if (in_array($ip, split(',', $sensor_list))) {
+		            echo "<option value='$ip' selected>$hostname</option>\n";
+		        }
+		    }
+		}
+		?>
 		<?php } ?>
 		</select>
 		</td>
 	</tr>
-	<tr><td class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next()"></td></tr>
+	<tr><td class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="save_sensor();wizard_next()"></td></tr>
 </table>
 <!-- #################### END: sensor ##################### -->

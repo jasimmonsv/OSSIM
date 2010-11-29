@@ -126,7 +126,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 <!-- ##### reliability ##### -->
 <div id="wizard_9" style="display:none">
 <input type="hidden" name="reliability" id="reliability" value="<?php echo $rule->reliability ?>"></input>
-<input type="hidden" name="reliability_op" id="reliability_op" value=""></input>
+<input type="hidden" name="reliability_op" id="reliability_op" value="<?php echo $rule->reliability_op ?>"></input>
 	<table class="transparent">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
@@ -138,8 +138,8 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 		$first = $rule->reliability{0};
 		$selected_plus = selectIf($first != "+");
 		for ($i = 0; $i <= 10; $i++) {
-		    $selected = selectIf($value == $i && !$selected_plus);
-		    $selected2 = selectIf($value == $i && $selected_plus);
+		    $selected2 = selectIf($value == $i && !$selected_plus);
+		    $selected = selectIf($value == $i && $selected_plus);
 		    ?>
 		    <tr>
 		    	<td class="center nobborder"><input type="button" value="= <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '=';wizard_next();" style="width:50px<?php if ($selected) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
