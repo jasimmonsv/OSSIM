@@ -142,6 +142,7 @@ function html_vul_scan($string, $is_get) {
 /*
 * Scan all HTTP vars disallowing common exploits like XSS
 */
+$_html_vars_checked = true;
 if (!isset($_html_vars_checked)) {
     $_is_get = true;
     foreach(array(
@@ -160,7 +161,7 @@ if (!isset($_html_vars_checked)) {
         }
         $_is_get = false;
     }
-    $_html_vars_checked = true;
+    
 }
 /*
 

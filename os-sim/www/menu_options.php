@@ -1188,6 +1188,13 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) { $configu
 			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugin_groups','Help');"
 		);
 	}
+        $hmenu["Plugins"][] = array(
+		"name" => gettext("Custom Collectors") ,
+		"id" => "Custom Collectors",
+		"url" => "policy/collectors.php",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:custom_collectors','Help');"
+        );
+
 }
 /*
 if (Session::menu_perms("MenuConfiguration", "ConfigurationRRDConfig")) {
