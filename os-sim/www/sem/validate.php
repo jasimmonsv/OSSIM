@@ -40,7 +40,7 @@ if ($argv[2] != "") {
 }
 require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
-Session::logcheck("MenuEvents", "ControlPanelSEM");
+if ($argv[2] == "") Session::logcheck("MenuEvents", "ControlPanelSEM");
 ?>
 
 <html>
