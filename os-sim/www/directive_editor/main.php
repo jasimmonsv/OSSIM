@@ -42,9 +42,6 @@ require_once ("include/utils.php");
 require_once ('include/category.php');
 require_once ('include/directive.php');
 
-init_groups();
-init_categories();
-
 function xml_backdata($file) {
 	$ret = array();
 	$lines = file('/etc/ossim/server/'.$file);
@@ -55,6 +52,24 @@ function xml_backdata($file) {
 	}
 	return $ret;
 }
+
+$action = GET('action');
+$category_file = GET('xml_file');
+$category_name = GET('name');
+ossim_valid($action, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("action"));
+ossim_valid($category_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+ossim_valid($category_name, OSS_LETTER, OSS_DIGIT, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("name"));
+if (ossim_error()) {
+    die(ossim_error());
+}
+if ($action == "enable_category") {
+	enable_category($category_name,$category_file);
+} elseif ($action == "disable_category") {
+	disable_category($category_name,$category_file);
+}
+
+init_groups();
+init_categories();
 
 $conf = $GLOBALS["CONF"];
 $XML_FILE = '/etc/ossim/server/directives.xml';
@@ -198,6 +213,13 @@ foreach($categories as $category) {
 		                 style="cursor:pointer"/>
         			</td>
         			<td style="text-align:left;border:0px;font-size:12px"><?php echo gettext(ucwords($name_div)); ?><?php if (count($tab_this_category) > 0) { ?> <font style="color:#666666;font-size:10px">[<?php echo count($tab_this_category) ?> <?php echo _("directive"); if (count($tab_this_category) > 1) echo "s"; ?>]</font><?php } ?></td>
+        			<td width="20" align="right" style="border:0px">
+            		  <?php if ($category->active) { ?>
+            		  <a href="main.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="marging-left:20px;" TITLE="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
+            		  <?php } else { ?>
+            		  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="marging-left:20px;" TITLE="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
+            		  <?php } ?>
+        			</td>
         			<td width="20" align="right" style="border:0px">
             		<span id="add_dir" name="add_dir"><a href="index.php?action=add_directive&xml_file=<?php echo $category->xml_file?>&id=<?php
       				  echo $category->id . $onlydir; ?>" style="marging-left:20px;" TITLE="<?php
