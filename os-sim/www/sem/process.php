@@ -440,6 +440,7 @@ foreach($result as $res=>$event_date) {
 		$lf = explode(";", $res);
         $logfile = $lf[count($lf)-2];
         $current_server = urlencode($lf[count($lf)-1]);
+        $current_server_ip = $current_server;
         $current_server = $logger_servers[$current_server];
 		if ($cont[$current_server] == "") $cont[$current_server] = 1;
 		if ($cont[$current_server] > $num_lines[$current_server] || $cont[$current_server] > $top*$num_servers){
@@ -594,7 +595,7 @@ foreach($result as $res=>$event_date) {
 		$data_out = $matches[11];
         // fin para coger
         if($htmlResult){
-            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="javascript:;" class="thickbox" rel="AjaxGroup" onclick="validate_signature(\''.$encoded_data.'\',\''.$start.'\',\''.$end.'\',\''.$logfile.'\',\''.$signature.'\');return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
+            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="javascript:;" class="thickbox" rel="AjaxGroup" onclick="validate_signature(\''.$encoded_data.'\',\''.$start.'\',\''.$end.'\',\''.$logfile.'\',\''.$signature.'\',\''.$current_server_ip.'\');return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
             $data.= "</td>";
             $line.= $data;
         }
