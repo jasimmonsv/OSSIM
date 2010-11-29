@@ -363,9 +363,10 @@ echo "$colModel\n";
 			{separator: true}
 			],
 		searchitems : [
-			{display: "<?=_("Hostname")?>", name : 'hostname'},
-			{display: "<?=_("IP")?>", name : 'ip', isdefault: true}
-			],
+            {display: "<?=_("Hostname")?>", name : 'hostname'},
+            {display: "<?=_("FQDN/Aliases")?>", name : 'fqdns'},
+            {display: "<?=_("IP")?>", name : 'ip', isdefault: true}
+            ],
 		sortname: "<?php echo $sortname ?>",
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
