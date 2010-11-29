@@ -36,7 +36,7 @@ class ParserWMI(Detector):
                 test = None
                 host = self.hostname
                 username = self.username
-                password = self.password
+                password = self.password.strip()
                 logger.info("WMI Collection started. Trying to connect to %s." % host)
                 data = commands.getstatusoutput('wmic -U %s%%%s //%s "SELECT LogFileName FROM Win32_NTEventLogFile"' % (username, password, host))
                 data = data[1].split("\n")
