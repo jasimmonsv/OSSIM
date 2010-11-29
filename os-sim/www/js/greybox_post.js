@@ -18,10 +18,9 @@ var GB_HDIFF = 20;
 var GB_SLEEP = (navigator.appVersion.match(/MSIE/)) ? 1000 : 0;
 var GB_URL_AUX = "";
 
-function GB_show(caption, form, height, width) {
+function GB_show_post(caption, form, height, width) {
   GB_HEIGHT = height || 400;
   GB_WIDTH = width || 400;
-  
   if(!GB_DONE) {
 	$('meta[http-equiv=refresh').remove(); // bypass meta content auto-refresh
 	$(document.body)

@@ -78,7 +78,10 @@ if (ossim_error()) {
 
 if ($server != "127.0.0.1") {
 	$cmd = "sudo ./fetchremote_validate.pl \"$signature\" \"$log_line\" \"$start\" \"$end\" \"$logfile\" $server";
-	echo $cmd;
+	$salida = explode("\n",`$cmd`);
+	foreach ($salida as $linea) {
+		echo $linea;
+	}
 	exit;
 }
 

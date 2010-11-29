@@ -45,7 +45,15 @@ then
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_wcl.pl" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_pies.pl" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_kill.pl" >> /etc/sudoers
+        echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_validate.pl" >> /etc/sudoers
 fi
+
+if ! [ `grep -c "agent_control" /etc/sudoers` -ne 0 ]
+then
+        echo "www-data ALL=NOPASSWD: /var/ossec/bin/agent_control" >> /etc/sudoers
+        echo "www-data ALL=NOPASSWD: /var/ossec/bin/manage_agents" >> /etc/sudoers
+fi
+
 
 webservers="apache apache-ssl apache2"
 for apache in $webservers; do

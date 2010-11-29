@@ -1488,7 +1488,7 @@ if (ie||ns6)
 
 	document.onmousemove=positiontip
 </script>
-<form action="validate.php" method="post" id="validate_form" target="_blank">
+<form action="validate.php" method="post" id="validate_form">
 <input type="hidden" name="log">
 <input type="hidden" name="start">
 <input type="hidden" name="end">
@@ -1504,8 +1504,7 @@ if (ie||ns6)
         $('#validate_form input[name=logfile]').val(logfile);
         $('#validate_form input[name=signature]').val(signature);
         $('#validate_form input[name=server]').val(server);
-        $('#validate_form').submit();
-        //GB_show('<?=_("Validate signature")?>','#validate_form',300,600);
+        GB_show_post('<?=_("Validate signature")?>','#validate_form',300,600);
     }
 </script>
 </body>
