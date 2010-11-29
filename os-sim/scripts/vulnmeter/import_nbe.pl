@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w 
+#!/usr/bin/perl -w
 #
 ###############################################################################
 #
@@ -30,6 +30,7 @@
 #
 # Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 
+use Data::Dumper;
 use DBI;
 use Date::Manip;
 use MIME::Base64;
@@ -122,10 +123,11 @@ sub get_results_from_file {
     my ($year, $month, $mday, $hour, $min, $sec ) = (localtime(time()))[5,4,3,2,1,0];
 
     $scantime = $year.$month.$mday.$hour.$min.$sec;
-    
+
     my @issues;
-    my ($rec_type, $domain, $host, $port, $description, $service, $proto, $scan_id, $risk_type );
+    #my ($rec_type, $domain, $host, $port, $description, $service, $proto, $scan_id, $risk_type, $app );
     my $total_records = 0;
+
     logwriter("get_results_from_file:Outfile: $outfile", 4);
     # loop through input file and insert into table
     open(INPUT,"<$outfile")|| die("Can't open report file");
@@ -135,6 +137,8 @@ sub get_results_from_file {
         #
         my ($host, $domain, $scan_id, $description, $service, $app, $port, $proto, $rec_type, $risk_type ) = "";
         ( $rec_type, $domain, $host, $service, $scan_id, $risk_type, $description )=split(/\|/,$_);
+        
+        if(!defined($service)) { $service = ""; }
         
         if ($service =~ /scan_end|host_end/) {
            my $date = ParseDate($scan_id);
@@ -212,8 +216,22 @@ sub get_results_from_file {
             }
 
             if ( $description ) {   #ENSURE WE HAVE SOME DATA
+
+                my @aliases = ();
+                #if(($domain !~ /\d+\.\d+\.\d+/ ) && ($host ne $domain)){
+                #    push(@aliases, $domain); 
+                #}
+                
+                if($description =~/resolves as (.*)\.\\/) {
+                    if($1 ne $host) {
+                        push(@aliases, $1);
+                    }
+                }
+
+            
                 $description =~ s/\\/\\\\/g;	#FIX TO BACKSLASHES
                 $description =~ s/\\\\n/\\n/g;	#FIX TO NEWLINE
+                
 
                 my $temp = {
                     Port            => $port,
@@ -221,9 +239,10 @@ sub get_results_from_file {
                     Description     => $description,
                     Service         => $app,
                     Proto           => $proto,
-                    ScanID          => $scan_id
+                    ScanID          => $scan_id,
+                    Aliases         => join(',', @aliases)
                 };
-                logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id };\n", 4);
+                logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id, Aliases=>".join(',', @aliases)." };\n", 4);
                 push ( @issues, $temp );
                 $total_records += 1;
             }
@@ -292,8 +311,10 @@ sub process_results {
     my $i = 0;
     my %TOTALRISKS = ( 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0);   #TRACK COUNT ALL SCANNED RISKS
 
+    
+    
     foreach my $host ( sort keys %hostHash ) {
-        my ( $hostip, $hostname, $mac_address, $os, $workgroup, $ip_org, $ip_site, $open_issues ) = " ";
+        my ( $hostip, $hostname, $mac_address, $os, $workgroup, $ip_org, $ip_site, $open_issues, $aliases ) = " ";
 
         my $host_id = "0";
         my $localchecks = "-1";
@@ -301,29 +322,56 @@ sub process_results {
         my $rating_text = " ";
         my %HOSTRISKS = ( 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0); #RESET FOR EACH HOST PROCESSED
 
-        if ( $hostHash{$host}{'ip'}     ) {      $hostip  = $hostHash{$host}{'ip'};      }
-        if ( $hostHash{$host}{'fqdn'}   ) {    $hostname  = $hostHash{$host}{'fqdn'};    }
-        if ( $hostHash{$host}{'mac'}    ) { $mac_address  = $hostHash{$host}{'mac'};     }
-        if ( $hostHash{$host}{'os'}     ) {           $os = $hostHash{$host}{'os'};      }
-        if ( $hostHash{$host}{'wgroup'} ) {    $workgroup = $hostHash{$host}{'wgroup'};  }
-        if ( $hostHash{$host}{'org'}    ) {       $ip_org = $hostHash{$host}{'org'};     }
-        if ( $hostHash{$host}{'site'}   ) {      $ip_site = $hostHash{$host}{'site'};    }
-        if ( $hostHash{$host}{'checks'} ) {  $localchecks = $hostHash{$host}{'checks'};  }
-        if ( $hostHash{$host}{'rating'} ) {  $rating_text = $hostHash{$host}{'rating'};  }
-    
+        if ( $hostHash{$host}{'ip'}      ) {      $hostip  = $hostHash{$host}{'ip'};      }
+        if ( $hostHash{$host}{'fqdn'}    ) {    $hostname  = $hostHash{$host}{'fqdn'};    }
+        if ( $hostHash{$host}{'mac'}     ) { $mac_address  = $hostHash{$host}{'mac'};     }
+        if ( $hostHash{$host}{'os'}      ) {           $os = $hostHash{$host}{'os'};      }
+        if ( $hostHash{$host}{'wgroup'}  ) {    $workgroup = $hostHash{$host}{'wgroup'};  }
+        if ( $hostHash{$host}{'org'}     ) {       $ip_org = $hostHash{$host}{'org'};     }
+        if ( $hostHash{$host}{'site'}    ) {      $ip_site = $hostHash{$host}{'site'};    }
+        if ( $hostHash{$host}{'checks'}  ) {  $localchecks = $hostHash{$host}{'checks'};  }
+        if ( $hostHash{$host}{'rating'}  ) {  $rating_text = $hostHash{$host}{'rating'};  }
+        if ( $hostHash{$host}{'aliases'} ) {      $aliases = $hostHash{$host}{'aliases'}; }
+        
+        #print "process_results\n";
+        #print Dumper($hostHash{$host}{'aliases'});
+        
     $hostname = "";
-    if ($host =~ /(\d+)\.(\d+)\.(\d+)\.(\d+)/ && $hostname eq "") {
+    if ($host =~ /(\d+)\.(\d+)\.(\d+)\.(\d+)/) {
         $hostname = ip2hostname($host, FALSE, FALSE);
     }
     elsif ($host !~ /(\d+)\.(\d+)\.(\d+)\.(\d+)/) {
         $hostname = $host;
         $hostip = hostname2ip($hostname, TRUE);
+
         if($hostip !~ /(\d+)\.(\d+)\.(\d+)\.(\d+)/) { next; }
     }
-    my $hostname_in_host = in_host($hostip);
-
-    if ($asset_insertion == TRUE && $hostname_in_host eq "") {
-        insert_host($hostip, $hostname, 2, 60, 60, "", 0, 0, "", \@sensors);
+    my @hostname_and_aliases = name_and_aliases_in_host($hostip);
+    
+    
+    if ($asset_insertion == TRUE) {
+        if (!defined($aliases)) { $aliases = ""; }
+        
+        if($hostname_and_aliases[0] ne "") {
+            if($aliases eq "") { $aliases = $hostname; }
+            else { $aliases .= ",$hostname"; }
+        }
+        
+        if ($hostname_and_aliases[0] eq "") {
+            insert_host($hostip, $hostname, $aliases, 2, 60, 60, "", 0, 0, "", \@sensors);
+        }
+        elsif ($aliases ne "") {
+            my @ialiases = split(/,/, $hostname_and_aliases[1]); # aliases to insert
+            my @taliases = split(/,/, $aliases);
+            foreach (@taliases) {
+                if(in_array(\@ialiases, $_)==0 && $_ ne $hostname_and_aliases[0]) {
+                    push(@ialiases, $_);
+                }
+             }
+            my $aliases_to_db = join(",",@ialiases);
+            my $aliases_sql = qq{ UPDATE host SET fqdns='$aliases_to_db' WHERE ip='$hostip'; };
+            safe_db_write($aliases_sql, 4);
+        }
     }
     
     #logwriter ("HOSTNAME: $hostname",4);
@@ -376,37 +424,8 @@ sub process_results {
             $host_id = get_host_record( $mac_address, $hostname, $hostip );
         }
 
-	#ESTABLISH A RATING ( BASED ON TEXT MAPPING TO PER CHECK_ACCESS PROCESSING OF PLUGIN 10394 )
-  	#0  	No Access		    /no access/
-	#1 	No Administrator Password   /administrator no password/
-	#2 	Blank User Passwords	    /user no password/
-	#3 	NULL Access		    /null session/
-	#4 	User Access		    /authenticated user/ && localcheck=="0"
-	#5 	Admin Access		    /authenticated user/ && localcheck=="1"
 
-	#I ORDERED THEM IN ORDER OF IMPORTANCE
-
-	if ( $rating_text =~ /administrator no password/ ) {
-	    $host_rating = 1;
-	} elsif ( $rating_text =~ /user no password/  ) {
-	    $host_rating = 2;
-	} elsif ( $localchecks == "1" && ( $rating_text =~ /authenticated user/ || $rating_text =~ /run linux checks/ )) {
-	    $host_rating = 5;
-	} elsif ( $localchecks == "0" && ( $rating_text =~ /authenticated user/ || $rating_text =~ /run linux checks/ )) {
-	    $host_rating = 4;
-	} elsif ( $rating_text =~ /null session/ || $rating_text =~ /authenticated user/ || $rating_text =~ /run linux checks/ ) {
-	    $host_rating = 3;
-	} elsif ( $rating_text =~ /no access/ ) {
-	    $host_rating = 0;
-	    if ( $localchecks == "1" ) { $localchecks = "0"; }
-	} else {
-	    #THROW IN INVALID TO START TRACKING ON SENERIOS THAT MAY NOT MATCH UP
-	    $host_rating = -1;
-	    if ( $localchecks == "1" ) { $localchecks = "0"; }
-            logwriter( "CRITICAL SCRIPT ERROR NO MATCH FOR HOST RATING: [$host_rating]", 2);
-	}
-
-	#logwriter( "hostid=[$host_id]\tmac=[$mac_address]\tname=[$hostname]\tip=[$hostip]\tos=[$os]\torg=[$ip_org]", 5 );
+    #logwriter( "hostid=[$host_id]\tmac=[$mac_address]\tname=[$hostname]\tip=[$hostip]\tos=[$os]\torg=[$ip_org]", 5 );
     
         # load fps
         my %host_fp = ();
@@ -421,7 +440,7 @@ sub process_results {
         my %vuln_resume = ();
 
         foreach my $record ( sort keys %recordshash ) {
-            my ( $scanid, $service, $app, $port, $proto, $risk, $domain, $record_type, $desc ) = " ";
+            my ( $scanid, $service, $app, $port, $proto, $risk, $domain, $record_type, $desc, $aliases ) = " ";
             my $isCheck = "0"; #IS A COMPLIANCE CHECK SCRIPTID ( NOT A TENABLE PLUGIN ID )
 
             $scanid = $hostHash{$host}{'results'}{$record}{'scanid'};
@@ -431,6 +450,8 @@ sub process_results {
             $proto = $hostHash{$host}{'results'}{$record}{'proto'};
             $port = $hostHash{$host}{'results'}{$record}{'port'};
             $desc = $hostHash{$host}{'results'}{$record}{'desc'};
+
+            
             $desc =~ s/^ *| *$//g;
             $desc =~ s/^(\\n|\n)+//g;
             $desc =~ s/(\\n|\n)+$//g;
@@ -445,7 +466,7 @@ sub process_results {
             #    set_serverinfo( $report_id, $desc );  #bSInfo should enable it to be only run once per scan
             #}
 
-	    #$desc=~ s/\\/\\\\/g;        #FIX TO ENSURE "\" BACKSLASHES ARE INSERTED.
+        #$desc=~ s/\\/\\\\/g;        #FIX TO ENSURE "\" BACKSLASHES ARE INSERTED.
 
             logwriter( "record=$record\t 'scanid' => [$scanid], 'port' => [$port], 'record' => [$record_type], 'service' => [$service],"
                 ." 'proto' => [$proto], 'risk' => [$risk], 'desc' => [$desc]\n", 4); 
@@ -470,30 +491,30 @@ sub process_results {
                     #}
                     #safe_db_write ( $sql, 4 );
 
-		    #UPDATE vuln_host_software
-		    #if ( $scanid eq "20811" ) {
-		        #update_vuln_host_software ( $host_id, $scantime, $desc );
-		    #}
+            #UPDATE vuln_host_software
+            #if ( $scanid eq "20811" ) {
+                #update_vuln_host_software ( $host_id, $scantime, $desc );
+            #}
 
-		    #UPDATE vuln_host_services
-		    #if ( $scanid eq "10456" ) {
-				#update_host_service ( $host_id, $scantime, $desc );
-		    #}
+            #UPDATE vuln_host_services
+            #if ( $scanid eq "10456" ) {
+                #update_host_service ( $host_id, $scantime, $desc );
+            #}
 
-		    #UPDATE HOST_ADMINSGROUP
-		    #if ( $scanid eq "10902" ) {
-				#update_host_admins ( $host_id, $scantime, $desc );
-		    #}
+            #UPDATE HOST_ADMINSGROUP
+            #if ( $scanid eq "10902" ) {
+                #update_host_admins ( $host_id, $scantime, $desc );
+            #}
 
-		    #UPDATE vuln_host_users
-		    #if ( $scanid eq "10860" ) {
-				#update_vuln_host_users ( $host_id, $scantime, $desc );
-		    #}
+            #UPDATE vuln_host_users
+            #if ( $scanid eq "10860" ) {
+                #update_vuln_host_users ( $host_id, $scantime, $desc );
+            #}
 
-		    #UPDATE HOST_DISABLEDUSERS
-		    #if ( $scanid eq "10913" ) {	#WILL NOT IMPORT IF USER PLUGIN WAS NOT IMPORTED FIRST
-				#update_host_disabled_users ( $host_id, $scantime, $desc );
-		    #}
+            #UPDATE HOST_DISABLEDUSERS
+            #if ( $scanid eq "10913" ) {	#WILL NOT IMPORT IF USER PLUGIN WAS NOT IMPORTED FIRST
+                #update_host_disabled_users ( $host_id, $scantime, $desc );
+            #}
 
                 #}
             #} #FINISH CREATE/UPDATE INCIDENTS
@@ -616,9 +637,9 @@ sub process_results {
         }
 
         #PER EACH HOST UPDATE HOST RECORD/STATS
-	if ( defined ( $hostname ) && $hostname ne "" ) {
+    if ( defined ( $hostname ) && $hostname ne "" ) {
             #update_host_record ( \%HOSTRISKS, $mac_address, $hostname, $hostip, $os, $workgroup, $ip_org, $ip_site, $report_id, $scantime, $localchecks, $host_rating, $update_stats );
-	}
+    }
         undef ( %HOSTRISKS );
 
     } #END FOREACH HOST LOOP
@@ -673,8 +694,7 @@ sub pop_hosthash {
     my $ctable = {};        #STORE NETBLOCKS FOR ORG LOOKUP
 
     if ( $no_results ) {
-        logwriter( "NO Results to Import or Host offline", 2 );
-        return FALSE;
+        die("NO Results to Import or Host offline");
     }
 
     #$sql = qq{ SELECT id, CIDR FROM vuln_subnets WHERE 1 };
@@ -693,7 +713,7 @@ sub pop_hosthash {
     foreach( @issues ) {
         my $issue = $_;
         my ($scanid, $host, $hostname, $hostip, $service, $app, $port, $proto, $desc,
-            $record_type, $domain, $mac_address, $os, $org, $site, $sRating, $sCheck, $sLogin ) = " ";
+            $record_type, $domain, $mac_address, $os, $org, $site, $sRating, $sCheck, $sLogin, $aliases ) = " ";
 
 
         $scanid = $issue->{ScanID};
@@ -703,6 +723,7 @@ sub pop_hosthash {
         $service = $issue->{Service};
         $proto = $issue->{Proto};
         $host = $issue->{Host};
+        $aliases = $issue->{Aliases};
 
         $app = $service;
         if(defined($service) && $service ne "") {
@@ -719,19 +740,19 @@ sub pop_hosthash {
         if( $host eq "" ) { next; }
         if ( ! $hostHash{$host}{'mac'} ) { $hostHash{$host}{'mac'} = "unknown"; }
 
-	#SET Default for local checks based on if a credential was supplied
-	# -1 ( No Credential Used ), 1 ( Credential Used )
-	# Then if hits against 21745 ( there was issue with credential such as invalid / etc )
-	if ( ! $hostHash{$host}{'checks'} ) {
-	    $hostHash{$host}{'rating'} = " ";
-	    if ( !defined ( $cred_name ) || $cred_name eq "" ) {
-		$hostHash{$host}{'checks'} = "-1";
-		logwriter( "nessus_scan: [$host] localchecks = -1 cred_name=[$cred_name]", 4 );
-	    } else {
-		$hostHash{$host}{'checks'} = "1";
-		logwriter( "nessus_scan: [$host] localchecks = 1 cred_name=[$cred_name]", 4 );
-	    }
-	}
+    #SET Default for local checks based on if a credential was supplied
+    # -1 ( No Credential Used ), 1 ( Credential Used )
+    # Then if hits against 21745 ( there was issue with credential such as invalid / etc )
+    if ( ! $hostHash{$host}{'checks'} ) {
+        $hostHash{$host}{'rating'} = " ";
+        if ( !defined ( $cred_name ) || $cred_name eq "" ) {
+        $hostHash{$host}{'checks'} = "-1";
+        logwriter( "nessus_scan: [$host] localchecks = -1 cred_name=[$cred_name]", 4 );
+        } else {
+        $hostHash{$host}{'checks'} = "1";
+        logwriter( "nessus_scan: [$host] localchecks = 1 cred_name=[$cred_name]", 4 );
+        }
+    }
 
         if ( !exists( $hostHash{$host}{'dns'}) ) {
 
@@ -767,6 +788,7 @@ sub pop_hosthash {
                 
                 if ( defined( $tmp_hostname ) && $tmp_hostname ne "" ) { $hostname = $tmp_hostname; }
             }
+            
 
             $hostHash{$host}{'ip'} = $hostip; 
             if( defined( $hostname ) && $hostname ne "" ) {
@@ -776,6 +798,7 @@ sub pop_hosthash {
             } else {
                 $hostHash{$host}{'dns'} = "-1";                                 #INDICATE RESOLVED BY NAME FAILED
             }
+
         } 
 
         if ( $scanid eq "11936" ) {                                             #OS FINGERPRINT PLUGIN
@@ -798,16 +821,30 @@ sub pop_hosthash {
 
         #IDENTIFY SCAN ACCESS LEVEL
         if ( $scanid eq "10394" || $scanid eq "12634" ) {
-	    #need to check message against known rating texts
-	    #10394 WINDOWS 12634 LINUX
-	    #STORE TO $Rating UNTIL POST PROCESS ROUTINE TO SEE IF WE HIT ON 21745
-	    $hostHash{$host}{'rating'} = check_access( $desc );
-	}
+        #need to check message against known rating texts
+        #10394 WINDOWS 12634 LINUX
+        #STORE TO $Rating UNTIL POST PROCESS ROUTINE TO SEE IF WE HIT ON 21745
+        $hostHash{$host}{'rating'} = check_access( $desc );
+        }
 
-	#IDENTIFY IF LOCAL CHECKS FAILED
+        #IDENTIFY IF LOCAL CHECKS FAILED
         if ( $scanid eq "21745" ) {
-	    $hostHash{$host}{'checks'} = "0";
-	}
+            $hostHash{$host}{'checks'} = "0";
+        }
+
+
+        if($aliases ne "") {
+            if (!defined($hostHash{$host}{'aliases'})) {
+                $hostHash{$host}{'aliases'} = $aliases;
+            }
+            else {
+                $hostHash{$host}{'aliases'} .= ",$aliases";
+            }
+        }
+
+        
+        #print "pop_host_hash\n";
+        #print Dumper($hostHash{$host}{'aliases'});
 
         # get the risk value from the text in the description
         my $risk='7';
@@ -862,6 +899,7 @@ sub pop_hosthash {
         my $key = $ih; 
         $hostHash{$host}{'results'}{$key} = { 'scanid' => $scanid, 'port' => $port, 'app' => $app, 'service' => $service,
             'proto' => $proto, 'risk' => $risk, 'record' => $record_type, 'desc' => $desc };
+            
         #logwriter("Ip: $host", 4);
         $ih++;
     }
@@ -993,6 +1031,9 @@ sub update_ossim_incidents {
             $sth_inc->execute();
             #logwriter("SELECT priority FROM incident WHERE status='Closed' and id = '$id_inc'",4);
             my $priority = $sth_inc->fetchrow_array;
+            
+            if(!defined($priority)) { $priority = ""; }
+            
             $sth_inc->finish;
             if ($priority ne "") {
                 $sql_inc = qq{SELECT incident_id FROM incident_tag WHERE incident_tag.incident_id = '$id_inc' AND incident_tag.tag_id = '$id_false_positive' };
@@ -1324,12 +1365,18 @@ sub hostname2ip {
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute;
     $ip = $sth_sel->fetchrow_array;
+    
+    if(!defined($ip)) { $ip = ""; }
+    
     if ($ip ne "") { return $ip; }
     else {
         $sql = qq{ SELECT ip FROM server WHERE name = '$hostname' };
         $sth_sel = $dbh->prepare( $sql );
         $sth_sel->execute;
         $ip = $sth_sel->fetchrow_array;
+        
+        if(!defined($ip)) { $ip = ""; }
+        
         if ($ip ne "") { return $ip; }
         elsif ($resolv == TRUE) {
             $cmd = qq{/usr/bin/dig '$hostname' A +short | /usr/bin/tail -1};
@@ -1345,32 +1392,41 @@ sub hostname2ip {
     }
 }
 
-sub in_host {
+sub name_and_aliases_in_host {
     my ($ip) = @_;
-    my ($sql_in_host, $sth_sel_in_host, $hostname);
-    $sql_in_host = qq{ SELECT hostname FROM host WHERE ip = '$ip' };
+    my ($sql_in_host, $sth_sel_in_host, $hostname, $fqdns);
+    my @result = ();
+    
+    $sql_in_host = qq{ SELECT hostname, fqdns FROM host WHERE ip = '$ip' };
     $sth_sel_in_host = $dbh->prepare( $sql_in_host );
     $sth_sel_in_host->execute;
-    $hostname = $sth_sel_in_host->fetchrow_array;
+    ($hostname, $fqdns) = $sth_sel_in_host->fetchrow_array;
     
-    return $hostname;
+    if (!defined($hostname)) { $hostname = ""; }
+    if (!defined($fqdns)) { $fqdns = ""; }
+    
+    push(@result, $hostname);
+    push(@result, $fqdns);
+
+    return @result;
 }
 
 sub insert_host {
     my ($ip) = $_[0];
     my ($hostname) = $_[1];
-    my ($asset) = $_[2];
-    my ($threshold_c) = $_[3];
-    my ($threshold_a) = $_[4];
-    my ($rrd_profile) = $_[5];
-    my ($alert) = $_[6];
-    my ($persistence) = $_[7];
-    my ($nat) = $_[8];
-    my (@sensors) = @{$_[9]};
+    my ($aliases) = $_[2];
+    my ($asset) = $_[3];
+    my ($threshold_c) = $_[4];
+    my ($threshold_a) = $_[5];
+    my ($rrd_profile) = $_[6];
+    my ($alert) = $_[7];
+    my ($persistence) = $_[8];
+    my ($nat) = $_[9];
+    my (@sensors) = @{$_[10]};
 
     my $sql = "INSERT INTO host (ip, hostname, asset, threshold_c, threshold_a, rrd_profile, 
-                alert, persistence, nat) VALUES ('$ip', '$hostname', '$asset', '$threshold_c', '$threshold_a', '$rrd_profile',
-                '$alert', '$persistence', '$nat')";
+                alert, persistence, nat, fqdns) VALUES ('$ip', '$hostname', '$asset', '$threshold_c', '$threshold_a', '$rrd_profile',
+                '$alert', '$persistence', '$nat', '$aliases')";
     safe_db_write ( $sql, 4 );
 
     foreach (@sensors) {
@@ -1513,4 +1569,16 @@ sub check_access {
     }
     logwriter( "access_text=[$txt_output]", 3 );
     return $txt_output;
+}
+
+sub in_array {
+    my @arr = @{$_[0]};
+    my $search_for = $_[1];
+    
+    foreach my $value (@arr) {
+        if ($value eq $search_for) {
+            return 1;
+        }
+    }
+    return 0;
 }
