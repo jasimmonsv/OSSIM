@@ -53,7 +53,7 @@ $config = parse_ini_file("everything.ini");
 $cache_dir = $config["cache_dir"];
 $locate_db = $config["locate_db"];
 
-if ($argv[1] != "") {
+if ($argv[2] != "") {
 	$signature = $argv[1];
 	$log_line = $argv[2];
 	$start = $argv[3];
