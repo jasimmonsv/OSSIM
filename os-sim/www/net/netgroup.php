@@ -177,7 +177,8 @@ include ("../hmenu.php"); ?>
                                             }
                             });
                 }
-                alert('<?=_("Network group unselected")?>');
+                else
+                    alert('<?=_("Network group unselected")?>');
             }
 
             if (com == 'new')

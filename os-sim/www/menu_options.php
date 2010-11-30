@@ -103,7 +103,7 @@ if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::men
             "name" => gettext("Risk Metrics") ,
             "id" => "Metrics",
             "target" => "main",
-            "url" => "control_panel/global_score.php?range=month",
+            "url" => "control_panel/global_score.php?range=day",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboards:risk:risk_metrics','DashboardHelp');"
         );
     }

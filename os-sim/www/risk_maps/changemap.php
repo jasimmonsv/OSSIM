@@ -145,7 +145,13 @@ while (!$result->EOF) {
 		<td class="ne1" align="center" colspan="5">
 			<form action="changemap.php" method=post name=f1 enctype="multipart/form-data">
 			<?= _("Upload map file") ?>: <input type=hidden value="<? echo $map ?>" name=map>
-			<input type=hidden name=name value="map<? echo ($mn+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
+            <?php
+            $limage_id = 0;
+            $limage = `ls -1t 'maps' | head -1`;
+            preg_match("/map(.*)\.jpg/",$limage, $found);
+            $limage_id = $found[1];
+            ?>
+			<input type=hidden name=name value="map<? echo ($limage_id+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
 			<input type=submit value="<?= _("Upload") ?>" class="btn" style="font-size:12px">
 			</form>
 		</td>
