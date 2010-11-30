@@ -45,6 +45,7 @@ Session::logcheck("MenuConfiguration", "ConfigurationUserActionLog");
 echo gettext("User logging Configuration"); ?> </title>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 </head>
 
 <body>

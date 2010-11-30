@@ -140,6 +140,7 @@ if (GET('modo') == "responder") {
 <head>
 <title>Event Tail Viewer</title>
 <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <style type="text/css">
 .opaque { opacity:1; MozOpacity:1; KhtmlOpacity:1; filter:alpha(opacity=100); width:900; background-color:#72879A }
 .semiopaque { opacity:0.9; MozOpacity:0.9; KhtmlOpacity:0.9; filter:alpha(opacity=90); background-color:#B5C3CF }

@@ -41,6 +41,7 @@ function PrintBASESubHeader($page_title, $page_name, $back_link, $refresh = 0, $
     if (@$_COOKIE['archive'] == 0) echo '<TITLE>' . _TITLE . ': ' . $page_title . '</TITLE>';
     else echo '<TITLE>' . _TITLE . ': ' . $page_title . ' -- ARCHIVE</TITLE>';
     echo '<LINK rel="stylesheet" type="text/css" HREF="' . $BASE_urlpath . '/styles/' . $base_style . '">
+		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
         </HEAD>
         <BODY>';
     if (!array_key_exists("minimal_view", $_GET)) {

@@ -104,6 +104,7 @@ $db->close($conn);
         <meta http-equiv="refresh" content="60;url=index.php?bypassexpirationupdate=1">
   		<meta http-equiv="Pragma" content="no-cache">
   		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   		<script language="javascript">
   			function boton (form, act) {
   				form.perform.value = act;

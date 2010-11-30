@@ -45,6 +45,7 @@ echo gettext("Control Panel"); ?> </title>
   <meta http-equiv="refresh" content="150">
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" href="../style/style.css"/>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 </head>
 
 <body>

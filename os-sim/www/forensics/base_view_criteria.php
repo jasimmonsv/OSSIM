@@ -149,7 +149,7 @@ $report_data[] = array (_("LAYER 4"),strip_tags($r_l4),"","","","","","","","","
 	<META HTTP-EQUIV="pragma" CONTENT="no-cache">
 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 	<TITLE>Forensics Console : Query Filters</TITLE>
-	<LINK rel="stylesheet" type="text/css" HREF="styles/ossim_style.css"> 
+	<LINK rel="stylesheet" type="text/css" HREF="styles/ossim_style.css">
 </HEAD>
 <body>
 <table width="100%">
