@@ -63,6 +63,6 @@
 		</select>
 		</td>
 	</tr>
-	<tr><td class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="save_sensor();wizard_next()"></td></tr>
+	<tr><td class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next()"></td></tr>
 </table>
 <!-- #################### END: sensor ##################### -->

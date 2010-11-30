@@ -74,7 +74,7 @@ if ($rule->value != 'Default' && !in_array(intval($rule->interval) , $interval_l
 <div id="wizard_10" style="display:none">
 <input type="hidden" name="condition" id="condition" value="<?php echo $rule->condition ?>"></input>
 <input type="hidden" name="value" id="value" value="<?php echo $rule->value ?>"></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<!-- ##### condition AND value ##### -->
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
@@ -104,7 +104,7 @@ if ($rule->value != 'Default' && !in_array(intval($rule->interval) , $interval_l
 
 <div id="wizard_11" style="display:none">
 <input type="hidden" name="interval" id="interval" value="<?php echo $rule->interval ?>"></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<!-- ##### interval ##### -->
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
@@ -120,7 +120,7 @@ if ($rule->value != 'Default' && !in_array(intval($rule->interval) , $interval_l
 
 <div id="wizard_12" style="display:none">
 <input type="hidden" name="absolute" id="absolute" value="<?php echo $rule->absolute ?>"></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<!-- ##### absolute ##### -->
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">

@@ -184,6 +184,6 @@
 			</table>
 		</td>
 	</tr>
-	<tr><td colspan="2" class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="save_network();wizard_next()"></td></tr>
+	<tr><td colspan="2" class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next()"></td></tr>
 </table>
 <!-- #################### END: network ##################### -->

@@ -69,13 +69,6 @@ echo str_replace("'", "", str_replace("\"", "", $rule->name)); ?>"
 <div id="wizard_2" style="display:none">
 <?php
 $none_checked = 'true';
-if (empty($order)) $order = 'id';
-$plugin_list = getPluginList('ORDER BY ' . $order);
-$plugin_names = array();
-
-foreach($plugin_list as $plugin) {
-	$plugin_names[$plugin->get_id()] = $plugin->get_name();
-}
 ?>
 <input type="hidden" name="plugin_id" id="plugin_id" value="<?php echo $rule->plugin_id; ?>" onchange="onChangePluginId()"/>
 <table width="500" class="transparent">
@@ -87,7 +80,7 @@ foreach($plugin_list as $plugin) {
 	</tr>
 	<?php if ($rule->plugin_id != "") { ?>
 	<tr>
-		<td><?php echo _("Already selected")?>: <input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="Continue with <?php echo ($plugin_names[$rule->plugin_id] != "") ? $plugin_names[$rule->plugin_id] : $rule->plugin_id ?>" onclick="wizard_next();init_sids(<?php echo $rule->plugin_id ?>)"></input>&nbsp;<?php echo _("or select another one.") ?></td>
+		<td><?php echo _("Already selected")?>: <input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="Continue with <?php echo ($plugin_names[$rule->plugin_id] != "") ? $plugin_names[$rule->plugin_id] : $rule->plugin_id ?>" onclick="wizard_next();init_sids(<?php echo $rule->plugin_id ?>,<?php echo ($plugin_type == '2') ? "true" : "false" ?>)"></input>&nbsp;<?php echo _("or select another one.") ?></td>
 	</tr>
 	<?php } ?>
 	<tr>
@@ -132,8 +125,8 @@ foreach($plugin_list as $plugin) {
 </div>
 
 <div id="wizard_3" style="display:none">
-<input type="hidden" name="plugin_sid" id="plugin_sid" onchange="onChangePluginSid()" value="">
-<input type="hidden" name="plugin_sid_list" id="plugin_sid_list" value="" onchange="onChangePluginSidList()" <?php echo disableIf(!isList($rule->plugin_sid)); ?>/>
+<input type="hidden" name="plugin_sid" id="plugin_sid" onchange="onChangePluginSid()" value="<?php echo ($rule->plugin_sid != "" && $rule->plugin_sid != "ANY") ? "LIST" : "ANY" ?>">
+<input type="hidden" name="plugin_sid_list" id="plugin_sid_list" value="<?php echo ($rule->plugin_sid != "") ? $rule->plugin_sid : "ANY" ?>" onchange="onChangePluginSidList()" <?php echo disableIf(!isList($rule->plugin_sid)); ?>/>
 <table class="transparent" width="500">
 		<!-- ##### plugin sid ##### -->
 	<tr>
@@ -164,10 +157,10 @@ foreach($plugin_list as $plugin) {
 				        
 				    	$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=".$rule->plugin_id." AND ($where)");
 				        foreach($plugin_list as $plugin) {
-				            $id = $plugin->get_sid();
-				            $name = "$id - ".trim($plugin->get_name());
+				            $id_plugin = $plugin->get_sid();
+				            $name = "$id_plugin - ".trim($plugin->get_name());
 				            if (strlen($name)>73) $name=substr($name,0,70)."...";
-				            echo "<option value='$id' selected>$name</option>\n";
+				            echo "<option value='$id_plugin' selected>$name</option>\n";
 				        }
 				    }
 				    ?>
@@ -180,7 +173,7 @@ foreach($plugin_list as $plugin) {
 	<tr><td class="nobborder">&middot; <i><?php echo _("Empty selection means ANY signature") ?></i></td></tr>
 	<tr>
 		<td class="center nobborder" style="padding-top:10px">
-			<input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="save_sids();wizard_next();">
+			<input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next();">
 		</td>
 	</tr>
 	<?php for ($i = 1; $i <= $rule->level - 1; $i++) {
