@@ -145,7 +145,7 @@ $(document).ready(function(){
     if (count($collectors)==0) {
     ?>
     <tr>
-        <td height="30" colspan="7" class="pleft ptop pbottom pright"><?php echo _("No custom collectors defined") ?></td>
+        <td height="30" colspan="8" class="pleft ptop pbottom pright"><?php echo _("No custom collectors defined") ?></td>
     </tr>    
     <?	
     }
