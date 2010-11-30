@@ -193,7 +193,7 @@ $pci_groups = PCI::get_groups($conn,"WHERE SIDSS_ref LIKE '$directive_id' OR SID
 list($alarms,$num_alarms) = Alarm::get_list3($conn,"","",0,"",null,null,null,null,"",$directive_id);
 $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
 ?>
-<table class="noborder" height="100%" width="100%">
+<table class="transparent" height="100%" width="100%">
 	<tr>
 		<td class="nobborder" valign="top">
 			<table height="100%" width="100%">
@@ -299,7 +299,7 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
 	</tr>
 	<tr>
 		<td class="nobborder center" colspan="5" style="padding-top:20px">
-			<input type="button" style="width: 100px" value="<?php echo _("Back")?>" onclick="window.open('../main.php','main')"></input>
+			<input type="button" style="width: 100px" value="<?php echo _("Back to main")?>" onclick="window.open('../main.php','main')"></input>
 		</td>
 	</tr>
 </table>
