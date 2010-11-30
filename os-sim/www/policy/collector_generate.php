@@ -123,11 +123,13 @@ if ($section=="sql") {
 	$out[] = "DELETE FROM plugin WHERE id = '".$coll->get_plugin_id()."';\n";
 	$out[] = "DELETE FROM plugin_sid where plugin_id = '".$coll->get_plugin_id()."';\n";
 	$out[] = "\n";
-	$out[] = "INSERT INTO plugin (id, type, name, description) VALUES (".$coll->get_plugin_id().",".$coll->get_type().",'".strtolower($coll->get_name())."','".str_replace("'","\'",str_replace("\n"," ",$coll->get_description()))."');\n";
+	$out[] = "INSERT INTO plugin (id, type, name, description, source_type) VALUES (".$coll->get_plugin_id().",".$coll->get_type().",'".strtolower($coll->get_name())."','".str_replace("'","\'",str_replace("\n"," ",$coll->get_description()))."','".str_replace("'","\'",$coll->get_source_type())."');\n";
 	$out[] = "\n";
 	// PLUGIN_SID => RULES
 	foreach ($rules as $rule) {
-		$out[] = "INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability) VALUES (".$coll->get_plugin_id().", ".$rule->get_plugin_sid().", NULL, NULL, '".$coll->get_name().": ".$rule->get_name()."' ,".$rule->get_prio().", ".$rule->get_rel().");\n";
+		$cat_id = ($rule->get_category_id()!="" && $rule->get_category_id()!=0) ? $rule->get_category_id() : "NULL";
+		$subcat_id = ($rule->get_subcategory_id()!="" && $rule->get_subcategory_id()!=0) ? $rule->get_subcategory_id() : "NULL";
+		$out[] = "INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority, reliability, subcategory_id) VALUES (".$coll->get_plugin_id().", ".$rule->get_plugin_sid().", $cat_id, NULL, '".$coll->get_name().": ".$rule->get_name()."' ,".$rule->get_prio().", ".$rule->get_rel().", $subcat_id);\n";
 	}
 	$out[] = "\n";
 }

@@ -87,6 +87,7 @@ if ($action=="modify") {
 	$name = $coll[0]->get_name();
 	$description = $coll[0]->get_description();
 	$plugin_id = $coll[0]->get_plugin_id();
+	$source_type = $coll[0]->get_source_type();
 	$type = $coll[0]->get_type();
 	$enable = $coll[0]->get_enable();
 	$process = $coll[0]->get_process();
@@ -108,6 +109,7 @@ if ($action=="new") {
 	$stop = 0;
 	$plugin_id = Collectors::get_max_id($conn,$type);
 }
+$source_types = Collectors::get_source_types($conn);
 ?>
     
 <form method="post" action="collectors.php" enctype="multipart/form-data">
@@ -136,6 +138,19 @@ if ($action=="new") {
   <tr>
     <th> <?php echo gettext("Plugin ID"); ?> (*)</th>
     <td class="left"><input type="text" name="plugin_id" size="42" value="<?php echo $plugin_id?>"/></td>
+  </tr>  
+  <tr>
+    <th> <?php echo gettext("Source Type"); ?> </th>
+    <td class="left">
+        <select name="source_type">
+		<?
+		foreach ($source_types as $stype) {
+			$sel = ($stype==$source_type) ? " selected" : "";
+			echo "<option value='$stype'$sel>$stype</option>\n";
+		}
+		?>
+        </select>
+    </td>
   </tr>  
   <tr>
     <th> <?php echo gettext("Enable"); ?> </th>

@@ -72,6 +72,8 @@ $expression = utf8_decode(base64_decode(GET("expression")));
 $prio = GET("prio");
 $rel = GET("rel");
 $plugin_sid = GET("plugin_sid");
+$category_id = GET("category_id");
+$subcategory_id = GET("subcategory_id");
 $date = GET("date");
 $sensor = GET("sensor");
 $interface = GET("interface");
@@ -102,7 +104,9 @@ ossim_valid($type, OSS_NULLABLE, OSS_LETTER, "illegal:" . _("type"));
 ossim_valid($expression, OSS_NULLABLE, OSS_PUNC_EXT, OSS_TEXT, OSS_SPACE, OSS_SCORE, "\>\<\}\{\$", "illegal:" . _("expression"));
 ossim_valid($prio, OSS_NULLABLE, OSS_DIGIT, "illegal:" . _("prio"));
 ossim_valid($rel, OSS_NULLABLE, OSS_DIGIT, "illegal:" . _("rel"));
-ossim_valid($plugin_sid, OSS_NULLABLE, OSS_DIGIT, "illegal:" . _("plugin_sid"));
+ossim_valid($plugin_sid, OSS_NULLABLE, OSS_DIGIT, "illegal:" . _("category_id"));
+ossim_valid($category_id, OSS_NULLABLE, OSS_DIGIT, "illegal:" . _("subcategory_id"));
+ossim_valid($subcategory_id, OSS_NULLABLE, OSS_DIGIT, "illegal:" . _("plugin_sid"));
 ossim_valid($date, OSS_NULLABLE, OSS_PUNC_EXT, OSS_TEXT, OSS_SPACE, OSS_SCORE, "\>\<\}\{\$", "illegal:" . _("date"));
 ossim_valid($sensor, OSS_NULLABLE, OSS_PUNC_EXT, OSS_TEXT, OSS_SPACE, OSS_SCORE, "\>\<\}\{\$", "illegal:" . _("sensor"));
 ossim_valid($interface, OSS_NULLABLE, OSS_PUNC_EXT, OSS_TEXT, OSS_SPACE, OSS_SCORE, "\>\<\}\{\$", "illegal:" . _("interface"));
@@ -129,10 +133,10 @@ if (ossim_error()) {
 }
 
 if ($action == "new" && $idc!="" && $name!="") {
-	CollectorRule::insert($conn, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9);
+	CollectorRule::insert($conn, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $category_id, $subcategory_id, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9);
 }
 if ($action == "modify" && $id!="" && $idc!="" && $name!="") {
-	CollectorRule::update($conn, $id, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9);
+	CollectorRule::update($conn, $id, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $category_id, $subcategory_id, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9);
 	$action = "edit";
 }
 if ($action == "delete" && $id!="") {
@@ -187,6 +191,19 @@ function validate(section,idc) {
 function insert(idc) {
 	GB_show("<?=_("Insert")?> .sql","collector_generate.php?download=3&section=sql&idc="+idc,"75%","80%");
 }
+function fill_subcategories(catfield,scatfield,sel) {			
+	var idcat = $(catfield).val();
+	if (idcat!="") {
+		$(scatfield).empty().append('<option value="0">&nbsp;</option>');
+		$('#cat'+idcat).find('option').each(function(){
+			$(this).appendTo(scatfield);
+		});
+		if (sel!='')
+			$(scatfield).find("option[value='"+sel+"']").attr("selected","selected");
+		else
+			$(scatfield).find("option:first").attr("selected","selected");
+	}
+}
 $(document).ready(function(){
     $('.blank,.lightgray').disableTextSelect();
     $('.clickable').click(function(event) {
@@ -212,6 +229,8 @@ foreach($collectors as $coll) {
     $type = ($type==1) ? "Detector" : ($type==2 ? "Monitor" : ($type==3 ? "Scanner" : "Data"));
     $plugin_id = $coll->get_plugin_id();
     $rules = CollectorRule::get_list($conn,"WHERE idc=$idc ORDER BY name");
+    $categories = CollectorRule::get_categories($conn);
+    $subcategories = CollectorRule::get_subcategories($conn,$categories);
 ?>
         <tr class="<?=$color?>" height="22">
             <td class="pleft"><?=$coll->get_name();?></td>
@@ -230,6 +249,7 @@ foreach($collectors as $coll) {
         <td height="30" width="50" class="plfieldhdr pbottom pright"><?php echo _("Prio") ?></td>
         <td height="30" width="50" class="plfieldhdr pbottom pright"><?php echo _("Rel") ?></td>
         <td height="30" width="80" class="plfieldhdr pbottom pright"><?php echo _("Plugin Sub-ID") ?></td>
+        <td height="30" width="110" class="plfieldhdr pbottom pright"><?php echo _("Plugin Category") ?></td>
         <td height="30" class="plfieldhdr pbottom pright"><?php echo _("Actions") ?></td>
     </tr>
 <? if (count($rules)>0) {
@@ -244,6 +264,8 @@ foreach($collectors as $coll) {
 			$prio = $rule->get_prio();
 			$rel = $rule->get_rel();
 			$plugin_sid = $rule->get_plugin_sid();
+			$category_id = $rule->get_category_id();
+			$subcategory_id = $rule->get_subcategory_id();
 			$date = $rule->get_date();
 			$sensor = $rule->get_sensor();
 			$interface = $rule->get_interface();
@@ -265,6 +287,8 @@ foreach($collectors as $coll) {
 			$userdata8 = $rule->get_userdata8();
 			$userdata9 = $rule->get_userdata9();
         }
+        $cat_id = $rule->get_category_id();
+        $subcat_id = $rule->get_subcategory_id();
     ?>
         <tr class="<?=$color?>" height="22">
             <td class="pleft left" style="padding-left:10px">
@@ -275,13 +299,14 @@ foreach($collectors as $coll) {
             <td><?=$rule->get_prio()?></td>
             <td><?=$rule->get_rel()?></td>
             <td><?=$rule->get_plugin_sid()?></td>
+            <td><?=$categories[$cat_id].(($subcategories[$cat_id][$subcat_id]) ? " / ".$subcategories[$cat_id][$subcat_id] : "") ?></td>
             <td class="pright" style="padding:3px 0px 3px 0px">
             <a href="?action=edit&idc=<?=$idc?>&id=<?=$rule->get_id()?>"><img src="../vulnmeter/images/pencil.png" border="0"></a>
             <a href="?action=delete&idc=<?=$idc?>&id=<?=$rule->get_id()?>"><img src="../vulnmeter/images/delete.gif" border="0"></a>            
             </td>
         </tr>
         <tr class="<?=$color?>" id="tr<?=$i?>" style="display:none;background:#FFFFFF;padding-left:4px">
-            <td class="pleft left pright" colspan="6" style="padding-left:30px">
+            <td class="pleft left pright" colspan="7" style="padding-left:30px">
             	<table width="100%" class="noborder">
             	<tr>
 					<td class="nobborder"><b><?=_("date")?></b>: <?=$rule->get_date(true)?></td>
@@ -320,7 +345,7 @@ foreach($collectors as $coll) {
      }
   } else { ?>
     <tr>
-        <td height="30" colspan="6" class="pleft ptop pbottom pright"><?php echo _("No rules defined") ?></td>
+        <td height="30" colspan="7" class="pleft ptop pbottom pright"><?php echo _("No rules defined") ?></td>
     </tr>
 <? } ?>
 </table>
@@ -354,7 +379,7 @@ if ($action=="new" || $action=="") {
 	  </tr>
 	  <tr>
 	    <th> <?php echo gettext("Rule Label/Description"); ?> </th>
-	    <td class="left"><textarea name="description" rows="5" cols="39"><?php echo $description?></textarea><br>
+	    <td class="left"><textarea name="description" rows="3" cols="39"><?php echo $description?></textarea><br>
 	    <small>this is the name that will be displayed in reports</small></td>
 	  </tr>
 	  <tr>
@@ -367,7 +392,7 @@ if ($action=="new" || $action=="") {
 	  </tr>
 	  <tr>
 	    <th> <?php echo gettext("Regular Expression"); ?> (*)</th>
-	    <td class="left"><textarea name="expression" rows="12" cols="39"><?php echo $expression?></textarea><br>
+	    <td class="left"><textarea name="expression" rows="10" cols="39"><?php echo $expression?></textarea><br>
 	    <small>this is the name that will be displayed in reports</small></td>
 	  </tr>  
 	  <tr>
@@ -405,8 +430,46 @@ if ($action=="new" || $action=="") {
 	    <th> <?php echo gettext("Plugin Sub-ID"); ?> (*)</th>
 	    <td class="left"><input type="text" name="plugin_sid" size="42" value="<?php echo $plugin_sid?>"/></td>
 	  </tr> 
+	  <tr>
+	    <th> <?php echo gettext("Plugin Category"); ?> </th>
+	    <td class="left">
+	        <select id="category_id" name="category_id" onchange="fill_subcategories('#category_id','#subcategory_id','')"><option value='0'>&nbsp;</option>
+	        <?
+	        foreach ($categories as $key => $val){
+        		$sel = ($key == $category_id) ? " selected" : "";
+        		echo "<option value='$key'$sel>$val</option>\n";
+        	}
+	        ?>
+	        </select>
+	    </td>
+	  </tr> 	  
+	  <tr>
+	    <th> <?php echo gettext("Plugin SubCategory"); ?> </th>
+	    <td class="left">
+	    <?
+	    	foreach ($subcategories as $idcat => $scats) {
+	    		echo "<select id='cat$idcat' style='display:none'>";
+	    		foreach ($scats as $idscat => $subcateg)
+	    			echo '<option value="'.$idscat.'"'.($subcategory_id==$subcateg ? " selected" : "").'">'.$subcateg.'</option>';
+				echo "</select>\n";
+				}
+        ?>
+	        <select id="subcategory_id" name="subcategory_id"><option value='0'>&nbsp;</option>
+	        <?
+	        if (is_array($subcategories[$category_id])) {
+	        	foreach ($subcategories[$category_id] as $key => $val){
+	        		$sel = ($key == $subcategory_id) ? " selected" : "";
+	        		echo "<option value='$key'$sel>$val</option>\n";
+	        	}
+	        }
+	        ?>
+	        </select>
+	    </td>
+	  </tr> 	  
 	  </table>
+	  
   </td><td class="noborder" valign="top">
+  
   	  <table class="noborder">
 	  <tr>
 	    <th> <?php echo gettext("date"); ?></th>
@@ -492,7 +555,7 @@ if ($action=="new" || $action=="") {
   </td>
   <tr>
     <td colspan="2" align="center" class="noborder">
-      <input type="submit" value="<?=_("Add/Update rule")?>" class="button" style="font-size:12px">
+      <input type="submit" value="<?=_("Add / Update rule")?>" class="button" style="font-size:12px">
     </td>
   </tr>
 </table>
@@ -501,6 +564,14 @@ if ($action=="new" || $action=="") {
 <td align="left" class="noborder" style="background:white" valign="top">
 
 	<table width="100%" class="noborder" style="background:transparent">
+	<tr>
+		<td class="nobborder">
+			<input type="button" class="button" value="<?=_("Add new rule")?>" style="width:120px" onclick="document.location.href='collector_rules.php?idc=<?=$idc?>'">
+		</td>
+	</tr>	
+	<tr>
+		<td class="nobborder" height="20"></td>
+	</tr>
 	<tr>
 		<td class="nobborder">
 			<input type="button" class="button" value="<?=_("View .cfg")?>" style="width:120px" onclick="view('cfg','<?=$idc?>')">
@@ -542,5 +613,8 @@ if ($action=="new" || $action=="") {
 </form>
 
 <?php
+if ($category_id!="") {
+	echo "<script>fill_subcategories('#category_id','#subcategory_id','".$subcategory_id."')</script>\n";
+}
 $db->close($conn);
 ?>

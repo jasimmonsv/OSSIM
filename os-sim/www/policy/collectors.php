@@ -65,6 +65,7 @@ $enable = POST('enable');
 $create = POST('create');
 $process = POST('process');
 $plugin_id = POST('plugin_id');
+$source_type = POST('source_type');
 $source = POST('source');
 $location = POST('location');
 $start = POST('start');
@@ -80,7 +81,8 @@ ossim_valid($action, OSS_LETTER, OSS_NULLABLE, 'illegal:' . _("action"));
 ossim_valid($name, OSS_SCORE, OSS_NULLABLE, OSS_LETTER, OSS_DIGIT, 'illegal:' . _("name"));
 ossim_valid($description, OSS_NULLABLE, OSS_TEXT, 'illegal:' . _("description"));
 ossim_valid($type, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("type"));
-ossim_valid($plugin_id, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("plugin_id"));
+ossim_valid($plugin_id, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("plugin id"));
+ossim_valid($source_type, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_SCORE, 'illegal:' . _("source type"));
 ossim_valid($enable, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("enable"));
 ossim_valid($create, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("create"));
 ossim_valid($process, OSS_NULLABLE, OSS_TEXT, 'illegal:' . _("process"));
@@ -103,10 +105,10 @@ if (is_uploaded_file($_FILES['sample_log']['tmp_name'])) {
     move_uploaded_file($_FILES['sample_log']['tmp_name'], $sample_log);
 }
 if ($action=="new" && $id=="") {
-	Collectors::insert($conn, $name, $description, $type, $plugin_id, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log);
+	Collectors::insert($conn, $name, $description, $type, $plugin_id, $source_type, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log);
 }
 if ($action=="modify" && $id!="") {
-	Collectors::update($conn, $id, $name, $description, $type, $plugin_id, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log);
+	Collectors::update($conn, $id, $name, $description, $type, $plugin_id, $source_type, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log);
 }
 if ($action=="delete" && $id!="") {
 	Collectors::delete($conn, $id);
@@ -135,23 +137,33 @@ $(document).ready(function(){
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Description") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Type") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Plugin ID") ?></td>
+        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Plugin Source Type") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Source") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Actions") ?></td>
     </tr>
     <?php
-$i = 0;
-foreach($collectors as $coll) {
-    $id = $coll->get_id();
-    $color = ($i%2==0) ? "lightgray" : "blank";
-    $type = $coll->get_type();
-    $type = ($type==1) ? "Detector" : ($type==2 ? "Monitor" : ($type==3 ? "Scanner" : "Data"));
-?>
+    if (count($collectors)==0) {
+    ?>
+    <tr>
+        <td height="30" colspan="7" class="pleft ptop pbottom pright"><?php echo _("No custom collectors defined") ?></td>
+    </tr>    
+    <?	
+    }
+	// SHOW COLLETORS  
+	$i = 0;
+	foreach($collectors as $coll) {
+	    $id = $coll->get_id();
+	    $color = ($i%2==0) ? "lightgray" : "blank";
+	    $type = $coll->get_type();
+	    $type = ($type==1) ? "Detector" : ($type==2 ? "Monitor" : ($type==3 ? "Scanner" : "Data"));
+	?>
         <tr class="<?=$color?>" txt="<?=$id?>">
             <td class="pleft"><b><?=$coll->get_id()?></b></td>
             <td><?=$coll->get_name();?></td>
-            <td><?=$coll->get_description();?></td>
+            <td style="text-align:left;padding-left:10px"><?=$coll->get_description();?></td>
             <td><?=$type?></td>
             <td><?=$coll->get_plugin_id();?></td>
+            <td><?=$coll->get_source_type();?></td>
             <td><?=$coll->get_source();?></td>
             <td class="pright" style="padding:3px 0px 3px 0px" nowrap>
             <a href="modifycollectors.php?action=modify&id=<?=$coll->get_id()?>"><img src="../vulnmeter/images/pencil.png" border="0"></a>
@@ -159,7 +171,7 @@ foreach($collectors as $coll) {
 			&nbsp;&nbsp;&nbsp;<a href="collector_rules.php?idc=<?=$coll->get_id()?>&action=new"><img src="../pixmaps/rules_edit.png" border="0"></a>                      
             </td>
         </tr>
-<?php $i++;
+	<?php $i++;
 } ?>
 </table>
 <?php

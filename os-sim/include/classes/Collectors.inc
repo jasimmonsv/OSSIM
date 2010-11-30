@@ -46,6 +46,7 @@ class Collectors {
     var $description; // collector description
 	var $type; // 1=>Detector, 2=>Monitor, 3=>Scanner, 4=>Data
 	var $plugin_id;
+	var $source_type; // taxonomy
 	var $enable; // yes/no
 	var $source; // command,database,http,log,remote_command,sdee,session,snortlog,unix_socket,wmi
 	var $location; // /var/log/syslog
@@ -58,12 +59,13 @@ class Collectors {
 	var $sample_log; // to upload file
     var $foundrows;    
     
-    function Collectors($id, $name, $description, $type, $plugin_id, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log, $foundrows) {
+    function Collectors($id, $name, $description, $type, $plugin_id, $source_type, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log, $foundrows) {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
         $this->type = $type;
         $this->plugin_id = $plugin_id;
+        $this->source_type = $source_type;
         $this->enable = $enable;
         $this->source = $source;
         $this->location = $location;
@@ -90,6 +92,9 @@ class Collectors {
     }
     function get_plugin_id() {
         return $this->plugin_id;
+    }
+    function get_source_type() {
+        return $this->source_type;
     }
     function get_enable() {
         return $this->enable;
@@ -144,7 +149,7 @@ class Collectors {
             }
             while (!$rs->EOF) {
                 $list[] = new Collectors($rs->fields["id"], $rs->fields["name"], $rs->fields["description"],
-                    $rs->fields["type"], $rs->fields["plugin_id"], $rs->fields["enable"], $rs->fields["source"],
+                    $rs->fields["type"], $rs->fields["plugin_id"], $rs->fields["source_type"], $rs->fields["enable"], $rs->fields["source"],
                     $rs->fields["location"], $rs->fields["create"], $rs->fields["process"], $rs->fields["start"], $rs->fields["stop"],
                     $rs->fields["startup_command"], $rs->fields["stop_command"], $rs->fields["sample_log"], $foundrows);
                     $rs->MoveNext();
@@ -153,21 +158,21 @@ class Collectors {
         return $list;
     }
     
-    function insert($conn, $name, $description, $type, $plugin_id, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log) {
-        $sql = "INSERT INTO custom_collectors (name, description, type, plugin_id, enable, source, location, `create`, process, start, stop, startup_command, stop_command, sample_log) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        $params = array($name, $description, $type, $plugin_id, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log);
+    function insert($conn, $name, $description, $type, $plugin_id, $source_type, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log) {
+        $sql = "INSERT INTO custom_collectors (name, description, type, plugin_id, source_type, enable, source, location, `create`, process, start, stop, startup_command, stop_command, sample_log) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        $params = array($name, $description, $type, $plugin_id, $source_type, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log);
         if (!$rs = & $conn->Execute($sql, $params)) {
             print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
         }
     }
     
-    function update($conn, $id, $name, $description, $type, $plugin_id, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log) {
+    function update($conn, $id, $name, $description, $type, $plugin_id, $source_type, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log) {
     	if ($sample_log=="") {
-	        $sql = "UPDATE custom_collectors SET name=?, description=?, type=?, plugin_id=?, enable=?, source=?, location=?, `create`=?, process=?, start=?, stop=?, startup_command=?, stop_command=? WHERE id=?";
-	        $params = array($name, $description, $type, $plugin_id, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $id);
+	        $sql = "UPDATE custom_collectors SET name=?, description=?, type=?, plugin_id=?, source_type=?, enable=?, source=?, location=?, `create`=?, process=?, start=?, stop=?, startup_command=?, stop_command=? WHERE id=?";
+	        $params = array($name, $description, $type, $plugin_id, $source_type, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $id);
 	    } else {
-	        $sql = "UPDATE custom_collectors SET name=?, description=?, type=?, plugin_id=?, enable=?, source=?, location=?, `create`=?, process=?, start=?, stop=?, startup_command=?, stop_command=?, sample_log=?  WHERE id=?";
-	        $params = array($name, $description, $type, $plugin_id, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log, $id);
+	        $sql = "UPDATE custom_collectors SET name=?, description=?, type=?, plugin_id=?, source_type=?, enable=?, source=?, location=?, `create`=?, process=?, start=?, stop=?, startup_command=?, stop_command=?, sample_log=?  WHERE id=?";
+	        $params = array($name, $description, $type, $plugin_id, $source_type, $enable, $source, $location, $create, $process, $start, $stop, $startup_command, $stop_command, $sample_log, $id);
 	    }
         if (!$rs = & $conn->Execute($sql, $params)) {
             print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
@@ -199,6 +204,21 @@ class Collectors {
         }
         return $max;
     }
+    
+    function get_source_types($conn) {
+        $list = array();
+        $query = OssimQuery("select distinct source_type from plugin order by source_type");
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+            exit;
+        } else {
+            while (!$rs->EOF) {
+            	$list[] = $rs->fields[0];
+            	$rs->MoveNext();
+            }
+        }
+        return $list;
+    }
         
     function delete($conn, $id) {
         $sql = "DELETE FROM custom_collector_rules WHERE idc = ?";
@@ -226,7 +246,9 @@ class CollectorRule {
 	var $expression;
 	var $prio; // 0-5
 	var $rel; // 0-10
-	var $plugin_sid;	
+	var $plugin_sid;
+	var $category_id; // taxonomy
+	var $subcategory_id; // taxonomy
 	var $date;
 	var $sensor;
 	var $interface;
@@ -248,7 +270,7 @@ class CollectorRule {
 	var $userdata8;
 	var $userdata9;
     
-    function CollectorRule($id, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9, $foundrows) {
+    function CollectorRule($id, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $category_id, $subcategory_id, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9, $foundrows) {
 		$this->id = $id;
 		$this->idc = $idc;
 		$this->name = $name;
@@ -258,6 +280,8 @@ class CollectorRule {
 		$this->prio = $prio;
 		$this->rel = $rel;
 		$this->plugin_sid = $plugin_sid;
+		$this->category_id = $category_id;
+		$this->subcategory_id = $subcategory_id;
 		$this->date = $date;
 		$this->sensor = $sensor;
 		$this->interface = $interface;
@@ -307,6 +331,12 @@ class CollectorRule {
 	function get_plugin_sid() {
 		return $this->plugin_sid;
 	}
+	function get_category_id() {
+		return $this->category_id;
+	}
+	function get_subcategory_id() {
+		return $this->subcategory_id;
+	}	
 	function get_date($empty=false) {
 		return ($this->date!="" || !$empty) ? $this->date : "<small>EMPTY</small>";
 	}
@@ -389,25 +419,29 @@ class CollectorRule {
                 else $foundrows = $rf->fields["total"];
             }
             while (!$rs->EOF) {
-                $list[] = new CollectorRule($rs->fields["id"], $rs->fields["idc"], $rs->fields["name"], $rs->fields["description"], $rs->fields["type"], $rs->fields["expression"], $rs->fields["prio"], $rs->fields["rel"], $rs->fields["plugin_sid"], $rs->fields["date"], 
-$rs->fields["sensor"], $rs->fields["interface"], $rs->fields["protocol"], $rs->fields["src_ip"], $rs->fields["src_port"], $rs->fields["dst_ip"], $rs->fields["dst_port"], $rs->fields["username"], $rs->fields["password"], $rs->fields["filename"], $rs->fields["userdata1"], $rs->fields["userdata2"], $rs->fields["userdata3"], $rs->fields["userdata4"], $rs->fields["userdata5"], $rs->fields["userdata6"], $rs->fields["userdata7"], $rs->fields["userdata8"], $rs->fields["userdata9"], $foundrows);
+                $list[] = new CollectorRule($rs->fields["id"], $rs->fields["idc"], $rs->fields["name"], $rs->fields["description"], $rs->fields["type"], $rs->fields["expression"], $rs->fields["prio"], $rs->fields["rel"], $rs->fields["plugin_sid"], $rs->fields["category_id"],
+                $rs->fields["subcategory_id"], $rs->fields["date"], $rs->fields["sensor"], $rs->fields["interface"],
+                $rs->fields["protocol"], $rs->fields["src_ip"], $rs->fields["src_port"], $rs->fields["dst_ip"], $rs->fields["dst_port"],
+                $rs->fields["username"], $rs->fields["password"], $rs->fields["filename"], $rs->fields["userdata1"],
+                $rs->fields["userdata2"], $rs->fields["userdata3"], $rs->fields["userdata4"], $rs->fields["userdata5"],
+                $rs->fields["userdata6"], $rs->fields["userdata7"], $rs->fields["userdata8"], $rs->fields["userdata9"], $foundrows);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
     
-    function insert($conn, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9) {
-        $sql = "INSERT INTO custom_collector_rules (idc, name, description, type, expression, prio, rel, plugin_sid, date, sensor, interface, protocol, src_ip, src_port, dst_ip,  dst_port, username, password, filename, userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        $params = array($idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9);
+    function insert($conn, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $category_id, $subcategory_id, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9) {
+        $sql = "INSERT INTO custom_collector_rules (idc, name, description, type, expression, prio, rel, plugin_sid, category_id, subcategory_id, date, sensor, interface, protocol, src_ip, src_port, dst_ip,  dst_port, username, password, filename, userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        $params = array($idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $category_id, $subcategory_id, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9);
         if (!$rs = & $conn->Execute($sql, $params)) {
             print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
         }
     }
     
-    function update($conn, $id, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9) {
-        $sql = "UPDATE custom_collector_rules SET idc=?, name=?, description=?, type=?, expression=?, prio=?, rel=?, plugin_sid=?, date=?, sensor=?, interface=?, protocol=?, src_ip=?, src_port=?, dst_ip=?, dst_port=?, username=?, password=?, filename=?, userdata1=?, userdata2=?, userdata3=?, userdata4=?, userdata5=?, userdata6=?, userdata7=?, userdata8=?, userdata9=? WHERE id=?";
-        $params = array($idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip, $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9, $id);
+    function update($conn, $id, $idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $category_id, $subcategory_id, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip,  $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9) {
+        $sql = "UPDATE custom_collector_rules SET idc=?, name=?, description=?, type=?, expression=?, prio=?, rel=?, plugin_sid=?, category_id=?, subcategory_id=?, date=?, sensor=?, interface=?, protocol=?, src_ip=?, src_port=?, dst_ip=?, dst_port=?, username=?, password=?, filename=?, userdata1=?, userdata2=?, userdata3=?, userdata4=?, userdata5=?, userdata6=?, userdata7=?, userdata8=?, userdata9=? WHERE id=?";
+        $params = array($idc, $name, $description, $type, $expression, $prio, $rel, $plugin_sid, $category_id, $subcategory_id, $date, $sensor, $interface, $protocol, $src_ip, $src_port, $dst_ip, $dst_port, $username, $password, $filename, $userdata1, $userdata2, $userdata3, $userdata4, $userdata5, $userdata6, $userdata7, $userdata8, $userdata9, $id);
         if (!$rs = & $conn->Execute($sql, $params)) {
             print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
         }
@@ -421,6 +455,34 @@ $rs->fields["sensor"], $rs->fields["interface"], $rs->fields["protocol"], $rs->f
         }
     }
 
+	function get_categories($conn) {
+	    $categories = array();
+        if (!$rs = & $conn->Execute("select * from ossim.category order by name")) {
+            print $conn->ErrorMsg();
+        } else {
+            while (!$rs->EOF) {
+                $categories[$rs->fields["id"]] = str_replace("_"," ",$rs->fields["name"]);
+                $rs->MoveNext();
+            }
+        }
+	    return $categories;
+	}
+
+	function get_subcategories($conn,$categories) {
+	    $scategories = array();
+	    foreach ($categories as $idcat => $namecat) {
+	        if (!$rs = & $conn->Execute("select * from ossim.subcategory where cat_id=$idcat order by name")) {
+	            print $conn->ErrorMsg();
+	        } else {
+	            while (!$rs->EOF) {
+	                $scategories[$idcat][$rs->fields["id"]] = str_replace("_"," ",$rs->fields["name"]);
+	                $rs->MoveNext();
+	            }
+	        }
+	    }
+	    return $scategories;
+	}
+	
 }
 
 ?>
