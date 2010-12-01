@@ -37,7 +37,6 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
-ini_set('memory_limit', '512M');
 ini_set("max_execution_time","300");
 $unique_id = uniqid("alrm_");
 $prev_unique_id = $_SESSION['alarms_unique_id'];
@@ -292,36 +291,54 @@ if (ossim_error()) {
     die(ossim_error());
 }
 if (!empty($delete)) {
-	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete($conn, $delete);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+		die(ossim_error("You don't have required permissions to delete Alarms"));
+	else {
+		if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete($conn, $delete);
+		else die(ossim_error("Can't do this action for security reasons."));
+	}
 }
 if (!empty($close)) {
 	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::close($conn, $close);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	else die(ossim_error("Can't do this action for security reasons."));
 }
 if (!empty($open)) {
     if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::open($conn, $open);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	else die(ossim_error("Can't do this action for security reasons."));
 }
 if ($list = GET('delete_backlog')) {
-    if (check_uniqueid($prev_unique_id,$param_unique_id)) {
-		if (!strcmp($list, "all")) {
-			$backlog_id = $list;
-			$id = null;
-		} else {
-			list($backlog_id, $id) = split("-", $list);
+	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+		die(ossim_error("You don't have required permissions to delete Alarms"));
+	else {
+	    if (check_uniqueid($prev_unique_id,$param_unique_id)) {
+			if (!strcmp($list, "all")) {
+				$backlog_id = $list;
+				$id = null;
+			} else {
+				list($backlog_id, $id) = split("-", $list);
+			}
+			Alarm::delete_from_backlog($conn, $backlog_id, $id);
 		}
-		Alarm::delete_from_backlog($conn, $backlog_id, $id);
+		else die(ossim_error("Can't do this action for security reasons."));
 	}
-	else die(ossim_error("Can't do this action for security reasons..."));
 }
 if (!empty($delete_day)) {
-	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete_day($conn, $delete_day);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+		die(ossim_error("You don't have required permissions to delete Alarms"));
+	else {
+		if (check_uniqueid($prev_unique_id,$param_unique_id))
+			Alarm::delete_day($conn, $delete_day);
+		else
+			die(ossim_error("Can't do this action for security reasons."));
+	}
 }
 if (GET('purge')) {
-    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::purge($conn);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+		die(ossim_error("You don't have required permissions to delete Alarms"));
+	else {
+	    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::purge($conn);
+		else die(ossim_error("Can't do this action for security reasons."));
+	}
 }
 if (empty($order)) $order = " a.timestamp DESC";
 if ((!empty($src_ip)) && (!empty($dst_ip))) {
