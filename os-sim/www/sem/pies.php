@@ -166,7 +166,6 @@ if ($cmd != "") {
 		$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote_pies.pl",$cmd);
 		//echo "$cmd $user $ip_list";exit;
 		$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
-		
 		$string = trim($result[0]);
 		$remote_data_aux = json_decode($string);
 		if (!is_array($remote_data_aux)) $remote_data_aux = array();
@@ -196,7 +195,7 @@ if ($cmd != "") {
 		    	ob_flush();
 				flush();
 				$sdate = date("d F Y",strtotime($found[1]));
-		    	?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
+				if (!$only_json) { ?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php }
 		    	$perc += $inc;
 		    	if ($perc > 100) $perc = 100;
 		    }
