@@ -561,18 +561,27 @@ if (GET('interface') == 'ajax') {
 <!--
 function doIframe2(){
 	o = document.getElementById('dashboardsIframe');
-
-	setHeight2(o);
-	addEvent2(o,'load', doIframe2);	
+	if (o != null) {
+   	  setHeight2(o);
+	  addEvent2(o,'load', doIframe2);	
+        }
 }
 
 function setHeight2(e){
+/*if (e.Document && e.Document.body.scrollHeight) //ie5+ syntax
+e.height = e.contentWindow.document.body.scrollHeight;
+
+else if (e.contentDocument && e.contentDocument.body.scrollHeight) //ns6+ & opera syntax
+e.height = e.contentDocument.body.scrollHeight + 35;
+
+else (e.contentDocument && e.contentDocument.body.offsetHeight) //standards compliant syntax – ie8
+e.height = e.contentDocument.body.offsetHeight + 35;
+*/
 	if(e.contentDocument){
 		e.height = e.contentDocument.body.offsetHeight + 35;
 	} else {
 		e.height = e.contentWindow.document.body.scrollHeight + 35;
 	}
-	
 }
 
 function addEvent2(obj, evType, fn){
@@ -734,13 +743,46 @@ div.hd:hover { cursor:-moz-grab; cursor:url(../pixmaps/theme/grab.cur),auto); }
 	padding:0;
 }
 
-#dashboardsIframeLoading{
-	border:0;
-	width:100%;
-	margin:0;
-	padding:0;
+#dashboardsIframeLoading{	
 	text-align: center;
+	background-image: url(../pixmaps/theme/overlay.png); 
+	position: absolute;
+	margin: auto;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	width:  100%;
+	height: 100%;
+	overflow-x:hidden;
 }
+
+* html #dashboardsIframeLoading {
+  background-color: #000;
+  background-color: transparent;
+  background-image: url(../pixmaps/theme/blank.gif);
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../pixmaps/theme/overlay.png", sizingMethod="scale");
+}
+
+#dashboardsIframeLoading_window {
+  top: 20px;
+  left: 33%;
+  position: absolute;
+  background: #fff;
+  border: 2px solid #787878;
+  width: 300px;
+  height: 80px;
+  z-index: 150;
+  overflow:hidden;
+  text-align: center;
+  padding-top: 50px;
+	opacity: .75;
+	-moz-opacity: .75;
+	filter:alpha(opacity=75);
+	border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+}
+
 </style>
 </head>
 <body>
@@ -777,7 +819,9 @@ $menu_sopc=GET('smenu');
 if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 ?>
 <div id="dashboardsIframeLoading">
-	<img src="../pixmaps/statusbar/loading2.gif" /> <?php echo _('Loading...'); ?>
+	<div id="dashboardsIframeLoading_window">
+		<img src="../pixmaps/loading3.gif" /> <?php echo _('Loading content'); ?>
+	</div>
 </div>
 <iframe id="dashboardsIframe" src="<?php echo $tabs[$panel_id]['tab_url']; ?>" scrolling="auto" frameborder="0" onload="loadingIframe()"></iframe>
 <?php
