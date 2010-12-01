@@ -169,6 +169,7 @@ if ($cmd != "") {
 		
 		$string = trim($result[0]);
 		$remote_data_aux = json_decode($string);
+		if (!is_array($remote_data_aux)) $remote_data_aux = array();
 		foreach ($remote_data_aux as $ip=>$arr) {
 			foreach ($arr as $type=>$type_data) {
 				foreach ($type_data as $key=>$val) {
