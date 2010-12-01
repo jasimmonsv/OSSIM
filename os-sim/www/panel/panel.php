@@ -613,6 +613,13 @@ h = (screen.availHeight) ? screen.availHeight : h + 96;
  win.resizeTo(w, h);
  win.focus();
 }
+
+function loadingIframe(){
+	o = document.getElementById('dashboardsIframeLoading');
+
+	o.style.visibility='hidden';
+}
+
 // -->
 </script>
 <style type="text/css">
@@ -726,6 +733,14 @@ div.hd:hover { cursor:-moz-grab; cursor:url(../pixmaps/theme/grab.cur),auto); }
 	margin:0;
 	padding:0;
 }
+
+#dashboardsIframeLoading{
+	border:0;
+	width:100%;
+	margin:0;
+	padding:0;
+	text-align: center;
+}
 </style>
 </head>
 <body>
@@ -761,7 +776,10 @@ $menu_sopc=GET('smenu');
 
 if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 ?>
-<iframe id="dashboardsIframe" src="<?php echo $tabs[$panel_id]['tab_url']; ?>" scrolling="auto" frameborder="0"></iframe>
+<div id="dashboardsIframeLoading">
+	<img src="../pixmaps/statusbar/loading2.gif" /> <?php echo _('Loading...'); ?>
+</div>
+<iframe id="dashboardsIframe" src="<?php echo $tabs[$panel_id]['tab_url']; ?>" scrolling="auto" frameborder="0" onload="loadingIframe()"></iframe>
 <?php
 }else{
 // tab normal
