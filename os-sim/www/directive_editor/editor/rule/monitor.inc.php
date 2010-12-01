@@ -127,9 +127,9 @@ if ($rule->value != 'Default' && !in_array(intval($rule->interval) , $interval_l
 				<?php echo gettext("Monitor absolute"); ?>
 			</th>
 		</tr>
-		<tr><td class="center nobborder"><input type="button" value="Default" onclick="document.getElementById('absolute').value = 'Default';wizard_next();" style="width:50px<?php if ($rule->absolute == "Default") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
-		<tr><td class="center nobborder"><input type="button" value="true" onclick="document.getElementById('absolute').value = 'true';wizard_next();" style="width:50px<?php if ($rule->absolute == "true") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
-		<tr><td class="center nobborder"><input type="button" value="false" onclick="document.getElementById('absolute').value = 'false';wizard_next();" style="width:50px<?php if ($rule->absolute == "false") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="Default" onclick="document.getElementById('absolute').value = 'Default';wizard_next();" style="width:80px<?php if ($rule->absolute == "Default") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="true" onclick="document.getElementById('absolute').value = 'true';wizard_next();" style="width:80px<?php if ($rule->absolute == "true") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="false" onclick="document.getElementById('absolute').value = 'false';wizard_next();" style="width:80px<?php if ($rule->absolute == "false") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
 	</table>
 </div>
 <!-- #################### END: monitor ##################### -->
