@@ -48,6 +48,7 @@
 			<?php echo gettext("Network"); ?>
 		</th>
 	</tr>
+	<tr><td class="nobborder">&middot; <i><?php echo _("Empty selection means ANY asset") ?></i></td></tr>
 	<tr>
 		<td class="nobborder" valign="top">
 			<table class="transparent">

@@ -420,7 +420,7 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 					?>
 					<tr>
 						<td class="nobborder"><img src="../../../pixmaps/wand.png" alt="wizard"></img></td>
-						<td class="nobborder" style="font-size:11px" nowrap>Directive rule <b>wizard</b>: </td>
+						<td class="nobborder" style="font-size:11px" nowrap><?php echo _("Rule")?> <b>configuration</b>: </td>
 						<td class="nobborder" style="font-size:11px" id="step_1" nowrap><a href='' onclick='wizard_goto(1);return false;' class="bold" id="link_1"><?php echo _("Rule name") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_2" nowrap> > <a href='' onclick='wizard_goto(2);return false;' class="normal" id="link_2"><?php echo _("Plugin") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_3" nowrap> > <a href='' onclick='wizard_goto(3);return false;' class="normal" id="link_3"><?php echo _("Plugin Sid") ?></a></td>
