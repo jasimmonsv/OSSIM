@@ -290,6 +290,9 @@ def upper(string):
     return string.upper()
 
 
+def sanitize(data):
+	return data.replace("\n", "\r")
+
 def hextoint(string):
     try:
         return int(string, 16)

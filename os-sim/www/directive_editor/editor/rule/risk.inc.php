@@ -131,7 +131,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 <input type="hidden" name="reliability_op" id="reliability_op" value="<?php echo $rule->reliability_op ?>"></input>
 	<table class="transparent" width="100%">
 		<tr>
-			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+			<th style="white-space: nowrap; padding: 5px;font-size:12px" colspan="2">
 				<?php echo gettext("Risk reliability"); ?>
 			</th>
 		</tr>
@@ -145,7 +145,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 		    ?>
 		    <tr>
 		    	<td class="center nobborder"><input type="button" value="= <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '=';wizard_next();" style="width:50px<?php if ($selected) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
-		    	<?php if ($rule->level > 1) { ?><td class="center nobborder"><input type="button" value="+ <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '+';wizard_next();" style="50px<?php if ($selected2) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td><?php } ?>
+		    	<?php if ($rule->level > 1) { ?><td class="center nobborder"><input type="button" value="+ <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '+';wizard_next();" style="width:50px<?php if ($selected2) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td><?php } ?>
 		    </tr>
 		    <?php
 		}

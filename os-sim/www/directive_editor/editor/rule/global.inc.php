@@ -141,7 +141,7 @@ $none_checked = 'true';
 					<td class="nobborder">
 					<select id="pluginsids" class="multiselect_sids" multiple="multiple" name="sids[]" style="display:none;width:1000px">
 				    <?
-				    if (isList($rule->plugin_sid) && $rule->plugin_sid != "" && $rule->plugin_id != "") {
+				    if (isList($rule->plugin_sid) && $rule->plugin_sid != "" && $rule->plugin_id != "" && !preg_match("/\:PLUGIN\_SID/",$rule->plugin_sid)) {
 				    	$sids = explode(",",$rule->plugin_sid);
 				    	$range = "";
 				    	$sin = array();
@@ -173,15 +173,15 @@ $none_checked = 'true';
 	<tr><td class="nobborder">&middot; <i><?php echo _("Empty selection means ANY signature") ?></i></td></tr>
 	<tr>
 		<td class="center nobborder" style="padding-top:10px">
-			<input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next();">
+			<input type="button"<?php if (!preg_match("/\:PLUGIN\_SID/",$rule->plugin_sid)) { ?> style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"<?php } ?> value="<?php echo ($rule->level > 1) ? _("Selected from List") : _("Next") ?>" onclick="wizard_next();">
 		</td>
 	</tr>
 	<?php for ($i = 1; $i <= $rule->level - 1; $i++) {
 			$sublevel = $i . ":PLUGIN_SID";
 			//echo "<option value=\"$sublevel\">$sublevel</option>";
-			?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick=""></td></tr><?php
+			?><tr><td class="center nobborder"><input type="button" value="<?php echo _("Plugin Sid from rule of level")." $i" ?>"<?php if ($rule->plugin_sid == $sublevel) { ?> style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"<?php } ?> onclick="document.getElementById('plugin_sid').value='<?php echo $sublevel ?>';wizard_next()"></td></tr><?php
 			$sublevel = "!" . $i . ":PLUGIN_SID";
-			?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick=""></td></tr><?php
+			?><tr><td class="center nobborder"><input type="button" value="<?php echo "!"._("Plugin Sid from rule of level")." $i" ?>"<?php if ($rule->plugin_sid == $sublevel) { ?> style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"<?php } ?> onclick="document.getElementById('plugin_sid').value='<?php echo $sublevel ?>';wizard_next()"></td></tr><?php
 			//echo "<option value=\"$sublevel\">$sublevel</option>";?>
 	<?php } ?>
 	<!--

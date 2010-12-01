@@ -48,18 +48,22 @@
 			<?php echo gettext("Network"); ?>
 		</th>
 	</tr>
+	<tr><td class="nobborder">&middot; <i><?php echo _("Empty selection means ANY asset") ?></i></td></tr>
 	<tr>
-		<td class="nobborder">
+		<td class="nobborder" valign="top">
 			<table class="transparent">
 				<!-- ##### from ##### -->
 				<tr>
 					<td class="nobborder" valign="top">
 						<table class="transparent">
-							<tr><th><?php echo _("From Host/Network") ?></th></tr>
+							<tr>
+								<th><?php echo _("From Host/Network") ?></th>
+							</tr>
 							<tr>
 								<td class="nobborder">
+								<div id="from_input" style="visibility:<?php echo (preg_match("/\:...\_IP/",$rule->from)) ? "hidden" : "visible" ?>">
 								<select id="fromselect" class="multiselect_from" multiple="multiple" name="fromselect[]" style="display:none;width:450px">
-								<?php if (isList($rule->from) && $rule->from != "") { ?>
+								<?php if (isList($rule->from) && $rule->from != "" && !preg_match("/\:...\_IP/",$rule->from)) { ?>
 								<?php
 								$from_list = $rule->from;
 								foreach ($host_list as $host) {
@@ -79,55 +83,85 @@
 								}
 								?>
 								</select>
+								</div>
 								</td>
 							</tr>
-							<?php
-							for ($i = 1; $i <= $rule->level - 1; $i++) {
-							    $sublevel = $i . ":SRC_IP";
-							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-							    $sublevel = "!" . $i . ":SRC_IP";
-							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-							    $sublevel = $i . ":DST_IP";
-							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-							    $sublevel = "!" . $i . ":DST_IP";
-							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-							}
-							?>
+							<?php if ($rule->level > 1) { ?>
+							<tr>
+								<td class="center nobborder">
+								From a parent rule: <select name="from" id="from" style="width:180px" onchange="onChangePortSelectBox('from',this.value)">
+								<?php
+								echo "<option value=\"LIST\"></option>";
+								for ($i = 1; $i <= $rule->level - 1; $i++) {
+								    $sublevel = $i . ":SRC_IP";
+								    $selected = ($rule->from == $sublevel) ? " selected" : "";
+								    echo "<option value=\"$sublevel\"$selected>Source IP from level $i</option>";
+								    $sublevel = "!" . $i . ":SRC_IP";
+								    $selected = ($rule->from == $sublevel) ? " selected" : "";
+								    echo "<option value=\"$sublevel\"$selected>!Source IP from level $i</option>";
+								    $sublevel = $i . ":DST_IP";
+								    $selected = ($rule->from == $sublevel) ? " selected" : "";
+								    echo "<option value=\"$sublevel\"$selected>Destination IP from level $i</option>";
+								    $sublevel = "!" . $i . ":DST_IP";
+								    $selected = ($rule->from == $sublevel) ? " selected" : "";
+								    echo "<option value=\"$sublevel\"$selected>!Destination IP from level $i</option>";
+								}
+								?>
+								</select>
+								</td>
+							</tr>
+							<?php } else { ?>
+							<input type="hidden" name="from" id="from" value="LIST"></input>
+							<?php } ?>
 						</table>
 					</td>
 				</tr>
 				<tr><th><?php echo _("Port") ?></th></tr>
 				<tr>
 					<td class="center nobborder">
-						<input type="text" name="port_from_list" id="port_from_list" value="<?php echo $rule->port_from ?>"></input>
+						<?php if ($rule->level > 1) { ?>
+						From a parent rule: <select style="width:180px" name="port_from" id="port_from" onchange="onChangePortSelectBox('port_from',this.value)">
+						<?php
+						echo "<option value=\"LIST\"></option>";
+						for ($i = 1; $i <= $rule->level - 1; $i++) {
+						    $sublevel = $i . ":SRC_PORT";
+						    $selected = ($rule->port_from == $sublevel) ? " selected" : "";
+						    echo "<option value=\"$sublevel\"$selected>Source Port from level $i</option>";
+						    $sublevel = "!" . $i . ":SRC_PORT";
+						    $selected = ($rule->port_from == $sublevel) ? " selected" : "";
+						    echo "<option value=\"$sublevel\"$selected>!Source Port from level $i</option>";
+						    $sublevel = $i . ":DST_PORT";
+						    $selected = ($rule->port_from == $sublevel) ? " selected" : "";
+						    echo "<option value=\"$sublevel\"$selected>Destination Port from level $i</option>";
+						    $sublevel = "!" . $i . ":DST_PORT";
+						    $selected = ($rule->port_from == $sublevel) ? " selected" : "";
+						    echo "<option value=\"$sublevel\"$selected>!Destination Port from level $i</option>";
+						}
+						?>
+						</select>&nbsp;
+						<?php } else { ?>
+						<input type="hidden" name="port_from" id="port_from" value="LIST"></input>
+						<?php } ?>
+						<div id="port_from_input" style="display:<?php echo (preg_match("/\_PORT/",$rule->port_from)) ? "none" : "inline" ?>"><input type="text" name="port_from_list" id="port_from_list" value="<?php echo $rule->port_from ?>"></input></div>
 					</td>
 				</tr>
-				<?php
-				for ($i = 1; $i <= $rule->level - 1; $i++) {
-				    $sublevel = $i . ":SRC_PORT";
-				    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-				    $sublevel = "!" . $i . ":SRC_PORT";
-				    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-				    $sublevel = $i . ":DST_PORT";
-				    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-				    $sublevel = "!" . $i . ":DST_PORT";
-				    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-				}
-				?>
 			</table>
 		</td>
 	
-		<td class="nobborder">
+		<td class="nobborder" valign="top">
 			<table class="transparent">
 				<!-- ##### to ##### -->
 				<tr>
 					<td class="nobborder" valign="top">
 						<table class="transparent">
-							<tr><th><?php echo _("To Host/Network") ?></th></tr>
+							<tr>
+								<th><?php echo _("To Host/Network") ?></th>
+							</tr>
 							<tr>
 								<td class="nobborder">
+								<div id="to_input" style="visibility:<?php echo (preg_match("/\:...\_IP/",$rule->to)) ? "hidden" : "visible" ?>">
 								<select id="toselect" class="multiselect_to" multiple="multiple" name="toselect[]" style="display:none;width:450px">
-								<?php if (isList($rule->to) && $rule->to != "") { ?>
+								<?php if (isList($rule->to) && $rule->to != "" && !preg_match("/\:...\_IP/",$rule->to)) { ?>
 								<?php
 								$to_list = $rule->to;
 								foreach ($host_list as $host) {
@@ -146,41 +180,68 @@
 								}
 								} ?>
 								</select>
+								</div>
 								</td>
 							</tr>
-							<?php
-							for ($i = 1; $i <= $rule->level - 1; $i++) {
-							    $sublevel = $i . ":SRC_IP";
-							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-							    $sublevel = "!" . $i . ":SRC_IP";
-							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-							    $sublevel = $i . ":DST_IP";
-							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-							    $sublevel = "!" . $i . ":DST_IP";
-							    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-							}
-							?>
+							<?php if ($rule->level > 1) { ?>
+							<tr>
+								<td class="center nobborder">
+								From a parent rule: <select name="to" id="to" style="width:180px" onchange="onChangePortSelectBox('to',this.value)">
+								<?php
+								echo "<option value=\"LIST\"></option>";
+								for ($i = 1; $i <= $rule->level - 1; $i++) {
+								    $sublevel = $i . ":SRC_IP";
+								    $selected = ($rule->to == $sublevel) ? " selected" : "";
+								    echo "<option value=\"$sublevel\"$selected>Source IP from level $i</option>";
+								    $sublevel = "!" . $i . ":SRC_IP";
+								    $selected = ($rule->to == $sublevel) ? " selected" : "";
+								    echo "<option value=\"$sublevel\"$selected>!Source IP from level $i</option>";
+								    $sublevel = $i . ":DST_IP";
+								    $selected = ($rule->to == $sublevel) ? " selected" : "";
+								    echo "<option value=\"$sublevel\"$selected>Destination IP from level $i</option>";
+								    $sublevel = "!" . $i . ":DST_IP";
+								    $selected = ($rule->to == $sublevel) ? " selected" : "";
+								    echo "<option value=\"$sublevel\"$selected>!Destination IP from level $i</option>";
+								}
+								?>
+								</select>
+								</td>
+							</tr>
+							<?php } else { ?>
+							<input type="hidden" name="to" id="to" value="LIST"></input>
+							<?php } ?>
 						</table>
 					</td>
 				</tr>
 				<tr><th><?php echo _("Port") ?></th></tr>
 				<tr>
 					<td class="center nobborder">
-						<input type="text" name="port_to_list" id="port_to_list" value="<?php echo $rule->port_to ?>"></input>
+						<?php if ($rule->level > 1) { ?>
+						From a parent rule: <select style="width:180px" name="port_to" id="port_to" onchange="onChangePortSelectBox('port_to',this.value)">
+						<?php
+						echo "<option value=\"LIST\"></option>";
+						for ($i = 1; $i <= $rule->level - 1; $i++) {
+						    $sublevel = $i . ":SRC_PORT";
+						    $selected = ($rule->port_to == $sublevel) ? " selected" : "";
+						    echo "<option value=\"$sublevel\"$selected>Source Port from level $i</option>";
+						    $sublevel = "!" . $i . ":SRC_PORT";
+						    $selected = ($rule->port_to == $sublevel) ? " selected" : "";
+						    echo "<option value=\"$sublevel\"$selected>!Source Port from level $i</option>";
+						    $sublevel = $i . ":DST_PORT";
+						    $selected = ($rule->port_to == $sublevel) ? " selected" : "";
+						    echo "<option value=\"$sublevel\"$selected>Destination Port from level $i</option>";
+						    $sublevel = "!" . $i . ":DST_PORT";
+						    $selected = ($rule->port_to == $sublevel) ? " selected" : "";
+						    echo "<option value=\"$sublevel\"$selected>!Destination Port from level $i</option>";
+						}
+						?>
+						</select>&nbsp;
+						<?php } else { ?>
+						<input type="hidden" name="port_to" id="port_to" value="LIST"></input>
+						<?php } ?>
+						<div id="port_to_input" style="display:<?php echo (preg_match("/\_PORT/",$rule->port_to)) ? "none" : "inline" ?>"><input type="text" name="port_to_list" id="port_to_list" value="<?php echo $rule->port_to ?>"></input></div>
 					</td>
 				</tr>
-				<?php
-				for ($i = 1; $i <= $rule->level - 1; $i++) {
-				    $sublevel = $i . ":SRC_PORT";
-				    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-				    $sublevel = "!" . $i . ":SRC_PORT";
-				    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-				    $sublevel = $i . ":DST_PORT";
-				    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-				    $sublevel = "!" . $i . ":DST_PORT";
-				    ?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick="document.getElementById('from').value='<?php echo $sublevel ?>'"></td></tr><?php
-				}
-				?>
 			</table>
 		</td>
 	</tr>

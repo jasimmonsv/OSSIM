@@ -45,7 +45,7 @@ Session::logcheck("MenuIntelligence", "CorrelationDirectives");
 <script type="text/javascript">
 function resizeIfr(name){
     var miIframe=document.getElementById(name);
-    var alturaPagina=miIframe.contentWindow.document.body.scrollHeight + 20;
+    var alturaPagina=miIframe.contentWindow.document.body.scrollHeight + 40;
 
     miIframe.style.height=alturaPagina+'px';
 }
