@@ -88,7 +88,7 @@ default:
     echo "  <head>\n";
     echo "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n";
     echo "    <meta http-equiv=\"Content-Script-Type\" content=\"text/javascript\" />\n";
-    echo "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />\n";z
+    echo "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />\n";
     //echo "    <link type=\"text/css\" rel=\"stylesheet\" href=\"./templates/two.css\" />\n";
     echo "    <title>Redirection</title>\n";
     echo "    <noscript>\n";

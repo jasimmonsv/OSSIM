@@ -85,7 +85,7 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 					<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>				
 					<script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 					<script src="../js/greybox.js" type="text/javascript"></script>
-					
+					<script type="text/javascript" src="../js/jquery.base64.js"></script>
 						<script type="text/javascript">
 						function load_contextmenu_hmenu() {
 							$('.tab2menu').contextMenu({
@@ -124,8 +124,16 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 										}
 									}
 									
-									if($addAll){
+									if($addAll&&$typeMenu=='horizontal'){
 										?>
+										else if(action=='addAll'){
+											window.parent.document.getElementsByTagName("FRAMESET").item(0).rows='*,0';
+											GB_TYPE = 'w';
+											GB_show('<?php echo _('Add to all dashboards');?>','../panel/add_to_all_dashboards.php?url='+$.base64.encode(window.parent.document.getElementsByTagName("FRAME").item(1).src)+'&name='+title ,380,"30%");
+										}
+									<?php
+									}else if($addAll){
+									?>
 										else if(action=='addAll'){
 											GB_TYPE = 'w';
 											GB_show('<?php echo _('Add to all dashboards');?>','../panel/add_to_all_dashboards.php?url=<?php echo base64_encode($_SERVER['REQUEST_URI']);?>&name='+title ,380,"30%");
@@ -136,7 +144,13 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 									}
 								);
 						}
-
+						
+						 function GB_onclose() {
+							<?php if($addAll&&$typeMenu=='horizontal'){ ?>
+							window.parent.document.getElementsByTagName("FRAMESET").item(0).rows='35,*';
+							<?php } ?>
+						}
+	
 						$(document).ready(function(){
 							load_contextmenu_hmenu();
 						});
