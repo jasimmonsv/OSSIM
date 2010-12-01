@@ -244,13 +244,16 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
         });
     }
 	function save_sids() {
-		var plugin_sid_list = getselectedcombovalue('pluginsids');
-		if (plugin_sid_list != "") {
-			document.getElementById('plugin_sid').value = plugin_sid_list;
-			document.getElementById('plugin_sid_list').value = plugin_sid_list;
-		} else {
-			document.getElementById('plugin_sid').value = "ANY";
-			document.getElementById('plugin_sid_list').value = "";
+		var current_sid = document.getElementById('plugin_sid').value;
+		if (!current_sid.match(/\d\:PLUGIN\_SID/)) {
+			var plugin_sid_list = getselectedcombovalue('pluginsids');
+			if (plugin_sid_list != "") {
+				document.getElementById('plugin_sid').value = plugin_sid_list;
+				document.getElementById('plugin_sid_list').value = plugin_sid_list;
+			} else {
+				document.getElementById('plugin_sid').value = "ANY";
+				document.getElementById('plugin_sid_list').value = "";
+			}
 		}
 	}
 	function init_network() {
@@ -427,9 +430,9 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_7" nowrap> > <a href='' onclick='wizard_goto(7);return false;' class="normal" id="link_7"><?php echo _("Risk oc") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_8" nowrap> > <a href='' onclick='wizard_goto(8);return false;' class="normal" id="link_8"><?php echo _("Risk time") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_9" nowrap> > <a href='' onclick='wizard_goto(9);return false;' class="normal" id="link_9"><?php echo _("Risk rel") ?></a></td>
-						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_10" nowrap> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>
-						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_11" nowrap> > <a href='' onclick='wizard_goto(11);return false;' class="normal" id="link_11"><?php echo _("Monitor intv") ?></a></td>
-						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_12" nowrap> > <a href='' onclick='wizard_goto(12);return false;' class="normal" id="link_12"><?php echo _("Monitor abs") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_10" nowrap> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_11" nowrap> > <a href='' onclick='wizard_goto(11);return false;' class="normal" id="link_11"><?php echo _("Monitor intv") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_12" nowrap> > <a href='' onclick='wizard_goto(12);return false;' class="normal" id="link_12"><?php echo _("Monitor abs") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_13" nowrap> > <a href='' onclick='wizard_goto(13);return false;' class="normal" id="link_13"><?php echo _("Sticky") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_14" nowrap> > <a href='' onclick='wizard_goto(14);return false;' class="normal" id="link_14"><?php echo _("Sticky diff") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_15" nowrap> > <a href='' onclick='wizard_goto(15);return false;' class="normal" id="link_15"><?php echo _("Other") ?></a></td>
