@@ -161,7 +161,7 @@ while (!$result->EOF) {
 			<table style="border:0px">
 				<tr>
 				<?
-				$maps = explode("\n",`ls -1 'maps' | grep -v CVS`);
+				$maps = explode("\n",`ls -tr 'maps' | grep -v CVS`);
 				$i=0; $n=0; $txtmaps = ""; $mn=-1;
 				foreach ($maps as $ico) if (trim($ico)!="") {
 					if(!getimagesize("maps/" . $ico)) { continue;}
