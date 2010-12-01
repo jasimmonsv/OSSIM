@@ -113,6 +113,10 @@ require_once ('classes/Compliance.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Alarm.inc');
 require_once ('classes/Repository.inc');
+
+init_groups();
+init_categories();
+
 $directive_id = GET('directive');
 $directive_xml = $_GET['directive_xml'];
 if ($directive_xml == "" && $directive_id != "") $directive_xml = get_directive_real_file($directive_id);
@@ -361,8 +365,8 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
     $groups = unserialize($_SESSION['groups']);
     foreach($groups as $group) { ?>
 <tr><td><a onclick="javascript:if (confirm('<?php
-        echo gettext("Are you sure you want to delete this group ?"); ?>')) { window.open('../include/utils.php?query=delete_group&name=<?php
-        echo $group->name; ?>','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php
+        echo gettext("Are you sure you want to delete this group ?"); ?>')) { document.location.href='../include/utils.php?query=delete_group&name=<?php
+        echo $group->name; ?>'; }" style="marging-left:20px; cursor:pointer" TITLE="<?php
         echo gettext("Delete this group"); ?>"><img src="../../pixmaps/cross-circle-frame.png" border="0" alt="<?php echo _("Delete")?>" title="<?php echo _("Delete")?>"></img></a>
 <td><a href="../editor/group/index.php?name=<?php
         echo $group->name; ?>&framed=1" class="greybox" TITLE="<?php
@@ -378,7 +382,7 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
         foreach($group->list as $dir) {
             if ($value != "") $value.= "<br>";
             $xml_file = get_directive_real_file($dir);
-            $value.= $dir . " : <a href=\"index.php?level=1&amp;directive=" . $dir . "&amp;directive_xml=" . $xml_file . "\" target=\"right\" TITLE=\"" . gettext("Edit this directive") . "\">" . $table[$dir] . "</a>";
+            $value.= $dir . " : <a href=\"../index.php?level=1&amp;directive=" . $dir . "&amp;directive_xml=" . $xml_file . "\" target=\"_parent\" TITLE=\"" . gettext("Edit this directive") . "\">" . $table[$dir] . "</a>";
         }
         print $value;
     } ?>
