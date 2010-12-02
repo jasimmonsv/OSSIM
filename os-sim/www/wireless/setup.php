@@ -122,7 +122,7 @@ if ($action=="del_sensor" && $location!=""  && $sensor!="") {
 	<tr>
 		<td class="noborder"><input type="text" size="30" id="location" name="location"></td>
 		<td class="noborder"><input type="text" size="60" id="desc" name="desc"></td>
-		<td class="noborder"><input type="submit" value="Add New Location" class="btn"></td>
+		<td class="noborder"><input type="submit" value="Add New Location" class="lbutton"></td>
 	</tr>
 	</table>
 	</form>
@@ -166,7 +166,7 @@ foreach ($locations as $data) {
 				<td class='noborder'><input type='text' size='15' name='model' id='model$c'></td>
 				<td class='noborder'><input type='text' size='15' name='serial' id='serial$c'></td>
 				<td class='noborder'><input type='text' size='25' name='mounting' id='mounting$c'></td>
-				<td class='noborder'><input type='submit' value='Add Sensor' class='btn'></td>
+				<td class='noborder'><input type='submit' value='Add Sensor' class='lbutton'></td>
 			</tr>
 			</table>
 			</form>

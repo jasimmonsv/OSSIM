@@ -36,7 +36,7 @@
 */
 require_once ('classes/Session.inc');
 require_once 'classes/Device.inc';
-require_once 'classes/Util.inc';
+require_once 'classes/Host.inc';
 require_once 'ossim_db.inc';
 if (!Session::am_i_admin()) die(_("You don't have permissions for Asset Discovery"));
 
@@ -68,7 +68,7 @@ if (ossim_error()) {
     die(ossim_error());
 }
 if(GET('ip')!=""){
-    $devices = Device::get_list($conn, "where ip='".Util::ip2ulong(GET('ip'))."'");
+    $devices = Device::get_list($conn, "where ip='".Host::ip2ulong(GET('ip'))."'");
     foreach($devices as $device){
         $community = $device->get_community();
         $descr = $device->get_descr();
@@ -113,8 +113,8 @@ if ($community!="" && GET('ip')=="") { // only with POST
   </tr>
   <tr>
     <td colspan="2" style="text-align:center;" class="nobborder">
-      <input type="submit" value="<?=_("OK")?>" class="btn" style="font-size:12px">
-      <input type="reset" value="<?=_("reset")?>" class="btn" style="font-size:12px">
+      <input type="submit" value="<?=_("OK")?>" class="button" style="font-size:12px">
+      <input type="reset" value="<?=_("reset")?>" class="button" style="font-size:12px">
     </td>
   </tr>
 </table>

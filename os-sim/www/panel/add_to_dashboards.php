@@ -102,5 +102,5 @@ unset($flag);
 unset($key_ini);
 ?>
 <script type="text/javascript">
-	location.href='../panel/panel.php';
+	window.top.frames["main"].document.location.href='../panel/panel.php';
 </script>

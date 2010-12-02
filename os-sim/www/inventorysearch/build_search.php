@@ -231,6 +231,7 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 		}
 	// QUERY MODE (directly from DB)
 	} else {
+		//print_r($query); print_r($params);
 		if (!$rs = & $conn->Execute($query, $params)) {
 			$errors = 1;
 			$errorlog[$i] = "CRITERIA $i: <font color='red'><b>ERROR</b></font>. Check query <i>'".$rules[$filter['type']][$filter['subtype']]['query']."'</i> in <b>rules</b>. Error msg:<i>".$conn->ErrorMsg()."</i>";

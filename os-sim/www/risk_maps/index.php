@@ -779,7 +779,7 @@ function toggleLayer( whichLayer )
 <input type=text class=ne1 size=20 name=name><br/>
 <?= _("Upload icon file") ?>: <input type=file class=ne1 size=10 name=fichero>
 <input type=hidden value="<? echo $map ?>" name=map>
-<input type=submit value="<?= _("Upload") ?>" class="btn" style="font-size:12px">
+<input type=submit value="<?= _("Upload") ?>" class="button" style="font-size:12px">
  </form>
  </td></tr></table>
 <div style="display:none">
@@ -897,7 +897,7 @@ if(0){
 	</tr>
 	
 	<tr>
-		<td colspan="2" nowrap><input type=button value="<?= _("New Indicator") ?>" onclick="addnew('<? echo $map ?>','alarm')" class="btn" style="font-size:12px"> <input type=button value="<?= _("New Rect") ?>" onclick="addnew('<? echo $map ?>','rect')" class="btn" style="font-size:12px"> <input type=button value="<?= _("Save Changes") ?>" onclick="save('<? echo $map ?>')" class="btn" style="font-size:12px"></td>
+		<td colspan="2" nowrap><input type=button value="<?= _("New Indicator") ?>" onclick="addnew('<? echo $map ?>','alarm')" class="button" style="font-size:12px"> <input type=button value="<?= _("New Rect") ?>" onclick="addnew('<? echo $map ?>','rect')" class="button" style="font-size:12px"> <input type=button value="<?= _("Save Changes") ?>" onclick="save('<? echo $map ?>')" class="button" style="font-size:12px"></td>
 	</tr>	
 	</table>
  </td>

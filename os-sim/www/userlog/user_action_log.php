@@ -176,8 +176,8 @@ if ($code_list = Log_config::get_list($conn, "ORDER BY descr")) {
         <center>
             <input type="hidden" name="user" value="<?=$user?>">
             <input type="hidden" name="code" value="<?=$code?>">
-            <input name="action" type="submit" value="<?php echo _("Delete All");?>">&nbsp;&nbsp;&nbsp;
-            <input name="action" type="submit" value="<?php echo _("Delete Selected");?>">
+            <input class="button" name="action" type="submit" value="<?php echo _("Delete All");?>">&nbsp;&nbsp;&nbsp;
+            <input class="button" name="action" type="submit" value="<?php echo _("Delete Selected");?>">
         </center><br>
     <?}?>
         <table width="100%">

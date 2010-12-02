@@ -185,7 +185,7 @@ function exec_form() {
 function submit() {
 ?>
     <tr><td colspan="2">
-      <input type="submit" name="insert_action" value="<?=_("OK")?>" class="btn" style="font-size:12px"></td>
+      <input type="submit" name="insert_action" value="<?=_("OK")?>" class="button" style="font-size:12px"></td>
     </tr>
 <?php
 }

@@ -336,7 +336,7 @@ $result = $conn->Execute("SELECT description FROM vuln_nessus_plugins WHERE id=$
   </tr>
 <tr>
     <td colspan="2" class="nobborder" style="text-align:center;">
-      <input type="submit" value="<?=_("OK")?>" class="btn" />
+      <input type="submit" value="<?=_("OK")?>" class="button" />
     </td>
   </tr>
 </table>

@@ -165,9 +165,9 @@ function EditChannel ($is_live_profile, $new_channel, $channelinfo, $liveprofile
 						</select>
 					</td>
 					<td align="center" valign="middle">
-						<input type="button" onClick="move('channel_sources','available_sources')" 
+						<input class="lbutton" type="button" onClick="move('channel_sources','available_sources')" 
 							value="<<" <?php if ( $is_live_profile ) print 'disabled' ?>>
-						<input type="button" onClick="move('available_sources','channel_sources')" 
+						<input class="lbutton" type="button" onClick="move('available_sources','channel_sources')" 
 							value=">>" <?php if ( $is_live_profile ) print 'disabled' ?>>	
 					</td>
 					<td>
@@ -186,11 +186,11 @@ function EditChannel ($is_live_profile, $new_channel, $channelinfo, $liveprofile
 		<tr>
 			<td colspan="4">
 <?php	if ( $new_channel ) { ?>
-			<input name="add_channel_cancel" value="Cancel" type="submit" onClick="abort_dialog=1;" align='right'>
-			<input name="add_channel_commit" value="Add Channel" type="submit" onClick="abort_dialog=0;" align='right'>
+			<input class="button" name="add_channel_cancel" value="Cancel" type="submit" onClick="abort_dialog=1;" align='right'>
+			<input class="button" name="add_channel_commit" value="Add Channel" type="submit" onClick="abort_dialog=0;" align='right'>
 <?php	} else {	?>
-			<input name="edit_channel_cancel" value="Cancel" type="submit" onClick="abort_dialog=1;" align='right'>
-			<input name="edit_channel_commit" value="Commit Changes" type="submit" onClick="abort_dialog=0;" align='right'>
+			<input class="button" name="edit_channel_cancel" value="Cancel" type="submit" onClick="abort_dialog=1;" align='right'>
+			<input class="button" name="edit_channel_commit" value="Commit Changes" type="submit" onClick="abort_dialog=0;" align='right'>
 <?php	}	?>
 			</td>
 		</tr>
@@ -400,7 +400,7 @@ function ProfileDialog ( ) {
 		<input type="text" name="profilegroup" id="profilegroup" value=""
 			SIZE="32" MAXLENGTH="32" style="width:100%;display:none"><br>
 		<hr class="hrule">
-		<span style="color:red"><input name="regroup" value="Enter new group" type="submit" onclick=""></span>
+		<span style="color:red"><input class="lbutton" name="regroup" value="Enter new group" type="submit" onclick=""></span>
 		<a href="#null" onMouseover="showhint('Select an existing or create a new group', 
 this, event, '200px')"><IMG SRC="icons/help.png" border="0" alt="help icon"></a>
 	</form>
@@ -426,7 +426,7 @@ this, event, '200px')"><IMG SRC="icons/help.png" border="0" alt="help icon"></a>
     <td class="MYVALUE">
 	<form style="display: inline;" name="profileform" id="profileform" action="<?php  echo $self;?>" method="POST" >
 		<textarea name="description" cols="25" rows="3" style="width:100%"><?php  echo stripslashes($description); ?></textarea>
-		<span style="color:red"><input name="edit" value="Enter new description" type="submit" onclick=""></span>
+		<span style="color:red"><input class="lbutton" name="edit" value="Enter new description" type="submit" onclick=""></span>
 	</form>
     </td>
 </tr>
@@ -521,7 +521,7 @@ again.', this, event, '200px')"><IMG SRC="icons/help.png" border="0" alt="help i
 	<form style="display: inline;" name="profileform" id="profileform" action="<?php  echo $self;?>" method="POST" >
 		<input type='text' name='profile_maxsize' value='<?php echo $maxsize; ?>'  SIZE="16" MAXLENGTH="16" style="font-size:12px;">
 		<hr class="hrule">
-		<span style="color:red"><input name="edit" value="Enter new value" type="submit" onclick=""></span>
+		<span style="color:red"><input class="lbutton" name="edit" value="Enter new value" type="submit" onclick=""></span>
 		<a href="#null" onMouseover="showhint('Maximum size, this profile may grow.\
 Any number is taken as <b>MB</b>, unless another scale is specified such as <b>K, M, G, T</b>\
  or <b>KB, MB, GB, TB</b>. If set to <b>0</b>, no size limit applies.<br>\
@@ -547,7 +547,7 @@ Ex. 300, 300M, 2G etc.', this, event, '200px')"><IMG SRC="icons/help.png" border
 	<form style="display: inline;" name="profileform" id="profileform" action="<?php  echo $self;?>" method="POST" >
 		<input type='text' name='profile_expire' value='<?php  echo $expire; ?>' SIZE='16' MAXLENGTH='16' style="font-size:12px;" >
 		<hr class="hrule">
-		<span style="color:red"><input name="edit" value="Enter new value" type="submit"></span>
+		<span style="color:red"><input class="lbutton" name="edit" value="Enter new value" type="submit"></span>
 		<a href="#null" onMouseover="showhint('Expire time. This specifies the maximum lifetime for this profile. \
 Data files older than this, will be deleted. Any number is taken as <b>hours</b> unless another scale is specified \
 such as <b>d, day, days</b> and/or <b>h, hour, hours</b>. If set to <b>0</b> or <b>never</b>, no time limit applies.<br>\
@@ -825,8 +825,8 @@ Enter common filter for each channel in 1:1 profile.', this, event, '150px')"><I
 
 <tr class="STATTABLE">
     <td class="STATTABLE" colspan="2">
-		<input name='new_profile_cancel' value='Cancel' type='submit'>
-		<input name='new_profile_commit' value='Create Profile' type='submit'>
+		<input class="button" name='new_profile_cancel' value='Cancel' type='submit'>
+		<input class="button" name='new_profile_commit' value='Create Profile' type='submit'>
 	</td>
 </tr>
 </table>

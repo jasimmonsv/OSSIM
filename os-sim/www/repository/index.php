@@ -150,12 +150,12 @@ include ("../hmenu.php"); ?>
 						<tr>
 					      <td class="center nobborder" style="padding:10px">
 					        <?php
-echo gettext("Please, type a search term (you can use AND, OR clauses):") ?><input type="text" value="<?php echo $search_str ?>" size="35" name="searchstr" enabled /> <input type="submit" class="btn" value="<?php
+echo gettext("Please, type a search term (you can use AND, OR clauses):") ?><input type="text" value="<?php echo $search_str ?>" size="35" name="searchstr" enabled /> <input type="submit" class="lbutton" value="<?php
 echo gettext("Search") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
 					      </td>
 					    </tr>
 					    <tr>
-					      <td class="center nobborder"><input type="button" class="btn" value="<?=_("New Document")?>" onclick="newdoc()" style="font-weight:bold;font-size:12px"></td>
+					      <td class="center nobborder"><input type="button" class="button" value="<?=_("New Document")?>" onclick="newdoc()" style="font-weight:bold;font-size:12px"></td>
 					    </tr>
 						</form>
 						<!-- end of repository search form -->

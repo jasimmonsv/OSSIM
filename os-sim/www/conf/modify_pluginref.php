@@ -200,7 +200,7 @@ if ($message==""){ ?>
 	</tr>
 	
 	<tr>
-		<td colspan="2" class="nobborder" style="text-align:center"><input type="button" class="btn" value="<?=_('Change rule')?>" onclick="formsubmit()">&nbsp;<input type="button" class="btn" value="<?=_('BACK')?>" onclick="document.location='pluginref2.php'"></td>
+		<td colspan="2" class="nobborder" style="text-align:center"><input type="button" class="button" value="<?=_('Change rule')?>" onclick="formsubmit()">&nbsp;<input type="button" class="button" value="<?=_('BACK')?>" onclick="document.location='pluginref2.php'"></td>
 	</tr>
 	<? } ?>
 </form>	

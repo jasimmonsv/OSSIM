@@ -260,8 +260,8 @@ echo gettext("Description"); ?></th>
   </tr>
   <tr>
     <td colspan="2" align="center">
-      <input type="submit" value="<?=_('OK')?>" class="btn" style="font-size:12px">
-      <input type="reset" value="<?=_('reset')?>" class="btn" style="font-size:12px">
+      <input type="submit" value="<?=_('OK')?>" class="button" style="font-size:12px">
+      <input type="reset" value="<?=_('reset')?>" class="button" style="font-size:12px">
     </td>
   </tr>    
 </table>

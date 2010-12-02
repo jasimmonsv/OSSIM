@@ -174,10 +174,10 @@ if (is_array($net_list) && !empty($net_list)) {
     <!-- do scan -->
     <tr>
       <td colspan="2" class="nobborder center">
-        <input type="submit" class="btn" style="font-size:12px" value="<?=_("Discover") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
+        <input type="submit" class="button" style="font-size:12px" value="<?=_("Discover") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
         
         <? if (Session::am_i_admin()) { ?>&nbsp;&nbsp;
-        <input type="button" class="btn" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="document.location.href='remote_scans.php'"/>
+        <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="document.location.href='remote_scans.php'"/>
 		<? } ?>
 		
 		</td>

@@ -275,7 +275,7 @@ if ($failed) { ?>
     <td class="nobborder" style="text-align:center;padding-top:20px">
 
     <input type="submit" id="submit_button" value="<?php
-    echo gettext("Login"); ?>" class="btn" style="font-size:12px">
+    echo gettext("Login"); ?>" class="button" style="font-size:12px">
 
     </td>
   </tr>
@@ -342,9 +342,9 @@ if ($first_login=="yes") { // first login
     <td class="nobborder" style="text-align:center;padding-top:20px">
 	
 	<input type="submit" value="<?php
-    echo gettext("Accept"); ?>" class="btn" style="font-size:12px"> &nbsp;&nbsp;&nbsp;
+    echo gettext("Accept"); ?>" class="button" style="font-size:12px"> &nbsp;&nbsp;&nbsp;
 	<input type="button" onclick="document.location.href='login.php'" value="<?php
-    echo gettext("Logout"); ?>" class="btn" style="font-size:12px">
+    echo gettext("Logout"); ?>" class="button" style="font-size:12px">
 	
     </td>
   </tr>

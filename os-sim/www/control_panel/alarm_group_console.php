@@ -474,7 +474,7 @@ $tree_count = 0;
     </td>
 </tr>
 ';
-    print '<tr ><th colspan="4" style="padding:5px"><input type="submit" class="btn" value="' . _("Go") . '"></th></tr></table>';
+    print '<tr ><th colspan="4" style="padding:5px"><input type="submit" class="button" value="' . _("Go") . '"></th></tr></table>';
     print '</form><br>';
 ?>
 <table cellpadding=0 cellspacing=1 width='100%'>

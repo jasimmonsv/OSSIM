@@ -70,7 +70,7 @@ function submit($conn) {
 ?>
     <tr>
       <td colspan="3">
-        <input type="submit" name="update" class="btn" style="font-size:12px"
+        <input type="submit" name="update" class="button" style="font-size:12px"
             value=" <?php
     echo gettext("Update configuration"); ?> " />
       </td>

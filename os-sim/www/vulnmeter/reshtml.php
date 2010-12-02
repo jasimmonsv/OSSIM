@@ -490,7 +490,7 @@ EOT;
       }
 
 
-   echo "</SELECT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"submit\" value=\""._("Reload Report")."\" class=\"btn\">";
+   echo "</SELECT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"submit\" value=\""._("Reload Report")."\" class=\"button\">";
       echo <<<EOT
    </td></tr>
 </table>\n</form>

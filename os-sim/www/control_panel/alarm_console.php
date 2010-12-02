@@ -445,8 +445,8 @@ if (!isset($_GET["hide_search"])) {
 				<a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>" onclick="if(!confirm('<?php echo _("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?") ?>')) return false;"><?php
     echo gettext("Delete ALL alarms"); ?></a> <br><br>
-				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="btn">
-				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="btn">
+				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
+				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="lbutton">
 				<br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
 				<div id="divadvanced" style="display:none"><a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?purge=1&unique_id=<?=$unique_id?>"><?php
@@ -538,7 +538,7 @@ if (!isset($_GET["hide_search"])) {
 		</table>
 	</td>
 </tr>
-<tr><th colspan="3" style="padding:5px"><input type="submit" class="btn" value="<?php echo _("Go") ?>"></th></td>
+<tr><th colspan="3" style="padding:5px"><input type="submit" class="button" value="<?php echo _("Go") ?>"></th></td>
 </table>
 </form>
 <?php
