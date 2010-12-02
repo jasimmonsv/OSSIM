@@ -8,6 +8,10 @@ print "Don't forget to escape the strings\n";
 exit;
 }
 
+%ini = read_ini();
+$loc_db = $ini{'main'}{'locate_db'};
+$loc_db = "/var/ossim/logs/locate.index" if ($loc_db eq "");
+
 $debug="";
 $user = $ARGV[0];
 $start = $ARGV[1];
@@ -17,8 +21,6 @@ $debug = $ARGV[4];
 ############
 ###### Convert stuff
 ############
-
-$index_file = "/var/ossim/logs/forensic_storage.index";
 
 if ($start =~ /(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/) {
 	$start_epoch = timegm($6, $5, $4, $3, $2-1, $1);
@@ -30,8 +32,6 @@ if ($end =~ /(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/) {
 # Temporary fix until server fix
 #$end_epoch += 25200;
 }
-
-$loc_db = "/var/ossim/logs/locate.index";
 
 $common_date = `perl return_sub_dates_locate.pl \"$start\" \"$end\"`;
 if ($debug ne "") { open (L,">>$debug"); }
@@ -75,3 +75,22 @@ while ($file=<G>) {
 close G;
 if ($debug ne "") {close L;}
 print "$lines\n";
+
+sub read_ini {
+	my ($hash,$section,$keyword,$value);
+    open (INI, "everything.ini") || die "Can't open everything.ini: $!\n";
+    while (<INI>) {
+        chomp;
+        if (/^\s*\[(\w+)\].*/) {
+            $section = $1;
+        }
+        if (/^\W*(.+?)=(.+?)\W*(#.*)?$/) {
+            $keyword = $1;
+            $value = $2 ;
+            # put them into hash
+            $hash{$section}{$keyword} = $value;
+        }
+    }
+    close INI;
+    return %hash;
+}

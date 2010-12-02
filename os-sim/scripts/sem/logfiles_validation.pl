@@ -17,6 +17,11 @@ if (!-d $outdir) {
 	exit;
 }
 
+%ini = read_ini();
+$pubkey = $ini{'main'}{'pubkey'};
+$pubkey = "/var/ossim/keys/rsapub.pem" if ($pubkey eq "");
+$pubkey =~ s/file\:\/\///;
+
 open(F,$logsfile);
 my @logs = <F>;
 print "\nProcessing ".($#logs)." files:\n\n";
@@ -35,7 +40,7 @@ foreach $logfile (@logs) {
 	}
 	$cmd = "base64 -d '$logfile.sig' > '$outdir/$logfilename.signa'";
 	system($cmd);
-	$verify = "openssl dgst -sha1 -verify /var/ossim/keys/rsapub.pem -signature '$outdir/$logfilename.signa' '$logfile' |";
+	$verify = "openssl dgst -sha1 -verify $pubkey -signature '$outdir/$logfilename.signa' '$logfile' |";
 	open(V,$verify);
 	my @aux = <V>;
 	if ($aux[0] =~ /Verified OK/) {
@@ -44,4 +49,23 @@ foreach $logfile (@logs) {
 	else {
 		print "Copied Successfully. Verified Failed\n";
 	}
+}
+
+sub read_ini {
+	my ($hash,$section,$keyword,$value);
+    open (INI, "/usr/share/ossim/www/sem/everything.ini") || die "Can't open everything.ini: $!\n";
+    while (<INI>) {
+        chomp;
+        if (/^\s*\[(\w+)\].*/) {
+            $section = $1;
+        }
+        if (/^\W*(.+?)=(.+?)\W*(#.*)?$/) {
+            $keyword = $1;
+            $value = $2 ;
+            # put them into hash
+            $hash{$section}{$keyword} = $value;
+        }
+    }
+    close INI;
+    return %hash;
 }

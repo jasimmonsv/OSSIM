@@ -138,7 +138,7 @@ class QueryState {
         	ActOnSelectedAlerts($this->action, $this->valid_action_list, $submit, $this->valid_action_op_list, $this->action_arg, $which_page, $this->action_chk_lst, $this->action_lst, $show_rows, $this->num_result_rows, $this->action_sql, $this->current_canned_query,$db);
         } else {
         	 if (!Session::menu_perms("MenuEvents","EventsForensicsDelete"))
-        	 	echo "<span style='color:red'>You don't have required permissions to delete events.</span>";
+        	 	echo "<span style='color:red'>"._("You don't have required permissions to delete events.")."</span>";
         	 else
         	 	ActOnSelectedAlerts($this->action, $this->valid_action_list, $submit, $this->valid_action_op_list, $this->action_arg, $which_page, $this->action_chk_lst, $this->action_lst, $show_rows, $this->num_result_rows, $this->action_sql, $this->current_canned_query,$db);
         }

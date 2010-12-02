@@ -1,27 +1,17 @@
 #!/usr/bin/perl
 $|=1;
 use Time::Local;
-
-#use DBI;
-#$db="ossim";
-#$host="localhost";
-#$userid="root";
-#$passwd="ossim";
-#$connectionInfo="dbi:mysql:$db;$host";
-#$dbh = DBI->connect($connectionInfo,$userid,$passwd);
-#$sth = $dbh->prepare("SELECT login FROM users");
-#$sth->execute();
-#$sth->bind_columns(\$login);
-#while ($sth->fetch()) {
-#}
-#$sth->finish() if ($sth);
-#$dbh->disconnect;
+#use Data::Dumper;
 
 if(!$ARGV[6]){
 print "Expecting: start_date end_date query start_line num_lines order_by operation cache_file\n";
 print "Don't forget to escape the strings\n";
 exit;
 }
+
+%ini = read_ini();
+$loc_db = $ini{'main'}{'locate_db'};
+$loc_db = "/var/ossim/logs/locate.index" if ($loc_db eq "");
 
 $debug="";
 
@@ -56,8 +46,6 @@ $cache_file = "" if ($cache_file !~ "/var/ossim/cache/.*cache.*");
 ###### Convert stuff
 ############
 
-$index_file = "/var/ossim/logs/forensic_storage.index";
-
 if ($start =~ /(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/) {
 	$start_epoch = timegm($6, $5, $4, $3, $2-1, $1);
 # Temporary fix until server fix
@@ -75,10 +63,7 @@ if ($end =~ /(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/) {
 #$grep_str =~ s/^ *| *$//g;
 
 
-$loc_db = "/var/ossim/logs/locate.index";
-
 $common_date = `perl return_sub_dates_locate.pl \"$start\" \"$end\"`;
-#print "perl return_sub_dates.pl $start $end`;
 chop($common_date);
 
 if (!$cache_file) {
@@ -120,4 +105,23 @@ if($operation eq "logs") {
 		print L "FETCHALL.pl: $cmd\n";
 		close L;
  }
+}
+
+sub read_ini {
+	my ($hash,$section,$keyword,$value);
+    open (INI, "everything.ini") || die "Can't open everything.ini: $!\n";
+    while (<INI>) {
+        chomp;
+        if (/^\s*\[(\w+)\].*/) {
+            $section = $1;
+        }
+        if (/^\W*(.+?)=(.+?)\W*(#.*)?$/) {
+            $keyword = $1;
+            $value = $2 ;
+            # put them into hash
+            $hash{$section}{$keyword} = $value;
+        }
+    }
+    close INI;
+    return %hash;
 }
