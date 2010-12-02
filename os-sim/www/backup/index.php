@@ -104,6 +104,7 @@ $db->close($conn);
         <meta http-equiv="refresh" content="60;url=index.php?bypassexpirationupdate=1">
   		<meta http-equiv="Pragma" content="no-cache">
   		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   		<script language="javascript">
   			function boton (form, act) {
   				form.perform.value = act;
@@ -171,13 +172,11 @@ if (count($delete) > 0) {
   			</tr>
   			<tr>
   				<td class="nobborder" style="text-align:center">
-  					<button name="insertB" value="insertDo" type="submit" onclick="boton(this.form, 'insert')" <?php echo ($isDisabled) ? "disabled" : "" ?> ><?php
-echo gettext("Restore"); ?></button>
+  					<input type="button" class="button" name="insertB" value="<?php echo gettext("Restore"); ?>" type="submit" onclick="boton(this.form, 'insert')" <?php echo ($isDisabled) ? "disabled" : "" ?> />
   				</td>
   				<td class="nobborder" style="text-align:center">&nbsp;</td>
   				<td class="nobborder" style="text-align:center">
-  					<button name="deleteB" value="deleteDo" type="submit" onclick="boton(this.form, 'delete')"  <?php echo ($isDisabled) ? "disabled" : "" ?> ><?php
-echo gettext("Purge"); ?></button>
+  					<input type="button" class="button" name="deleteB" value="<?php echo gettext("Purge"); ?>" type="submit" onclick="boton(this.form, 'delete')"  <?php echo ($isDisabled) ? "disabled" : "" ?> />
   				</td>
   			</tr>
   		</table>

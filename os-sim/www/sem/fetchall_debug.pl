@@ -8,6 +8,9 @@ print "Don't forget to escape the strings\n";
 exit;
 }
 
+%ini = read_ini();
+$loc_db = $ini{'main'}{'locate_db'};
+$loc_db = "/var/ossim/logs/locate.index" if ($loc_db eq "");
 
 $start = $ARGV[0];
 $end = $ARGV[1];
@@ -52,7 +55,6 @@ $sort = "";
 $a = $start_line + $num_lines;
 
 $heads_tails = "head -n $a | tail -n $num_lines";
-$loc_db= "/var/ossim/logs/locate.index";
 
 $use_swish = "0";
 $swish_bin="/usr/local/bin/swish-e";
@@ -98,4 +100,23 @@ system("$swish | perl filter_range.pl $start_epoch $end_epoch | $sort $heads_tai
 } else {
 print "$swish | perl filter_range.pl $start_epoch $end_epoch | perl extract.pl $operation | sort | uniq -c | sort -r\n";
 system("$swish | perl filter_range.pl $start_epoch $end_epoch | perl extract.pl $operation | sort | uniq -c | sort -r");
+}
+
+sub read_ini {
+	my ($hash,$section,$keyword,$value);
+    open (INI, "everything.ini") || die "Can't open everything.ini: $!\n";
+    while (<INI>) {
+        chomp;
+        if (/^\s*\[(\w+)\].*/) {
+            $section = $1;
+        }
+        if (/^\W*(.+?)=(.+?)\W*(#.*)?$/) {
+            $keyword = $1;
+            $value = $2 ;
+            # put them into hash
+            $hash{$section}{$keyword} = $value;
+        }
+    }
+    close INI;
+    return %hash;
 }

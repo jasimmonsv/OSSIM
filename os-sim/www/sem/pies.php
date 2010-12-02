@@ -166,9 +166,13 @@ if ($cmd != "") {
 		$cmd = str_replace("perl fetchall.pl","sudo ./fetchremote_pies.pl",$cmd);
 		//echo "$cmd $user $ip_list";exit;
 		$status = exec("$cmd $user $ip_list 2>/dev/null", $result);
-		
 		$string = trim($result[0]);
+		//$string = '{"127.0.0.1":{"sensors":{"pablo (192.168.10.2) [626,895]":"626895","192.168.9.2 [148,361]":"148361"},"event_type":{"apache [295,226]":"295226","ossec-errors [157,981]":"157981","snort [149,195]":"149195","ossec-accesslog [94,292]":"94292","ossec-syslog [19,337]":"19337","ossec-attack [17,915]":"17915","ossec-recon [6,984]":"6984","sshd [6,542]":"6542","sudo [6,022]":"6022","ossec-sudo [5,942]":"5942"},"ips_src":{"192.168.10.3 [257,371]":"257371","pablo2 (192.168.10.2) [231,384]":"231384","192.168.9.2 [148,303]":"148303","192.168.9.1 [61,353]":"61353","192.168.12.104 [30,297]":"30297","192.168.12.103 [21,519]":"21519","192.168.12.100 [12,463]":"12463","192.168.8.1 [4,354]":"4354","192.168.12.101 [2,126]":"2126","Juanma (192.168.10.1) [1,811]":"1811"},"ips_dst":{"pablo2 (192.168.10.2) [437,827]":"437827","0.0.0.0 [234,150]":"234150","192.168.10.3 [95,154]":"95154","192.168.10.4 [3,015]":"3015","192.168.9.2 [2,430]":"2430","Juanma (192.168.10.1) [764]":"764","192.168.12.103 [451]":"451","192.168.9.1 [381]":"381","192.168.12.102 [284]":"284","192.168.12.101 [232]":"232"}},"192.168.10.4":{"sensors":{"fran (192.168.10.4) [10,564,868]":"10564868","192.168.9.2 [674,707]":"674707"},"event_type":{"snort [5,267,771]":"5267771","ossec-accesslog [3,002,864]":"3002864","ossec-attack [627,368]":"627368","ossec-authentication_success [526,903]":"526903","pam_unix [435,648]":"435648","ossec-syslog [428,663]":"428663","ossec-invalid_login [345,025]":"345025","ossec-recon [227,070]":"227070","sshd [117,277]":"117277","ossec-sql_injection [101,024]":"101024"},"ips_src":{"opensourcesim (192.168.10.4) [7,118,227]":"7118227","jose (192.168.10.3) [2,739,864]":"2739864","192.168.9.2 [667,713]":"667713","192.168.10.1 [396,652]":"396652","192.168.12.100 [189,388]":"189388","pablo (192.168.10.2) [99,317]":"99317","192.168.12.103 [17,984]":"17984","192.168.12.102 [5,746]":"5746","192.168.9.1 [3,815]":"3815","192.168.12.105 [782]":"782"},"ips_dst":{"opensourcesim (192.168.10.4) [4,272,207]":"4272207","0.0.0.0 [2,612,396]":"2612396","192.168.9.2 [174,312]":"174312","jose (192.168.10.3) [13,650]":"13650","192.168.10.1 [5,071]":"5071","pablo (192.168.10.2) [1,955]":"1955","174.129.242.120 [633]":"633","192.168.36.243 [156]":"156","192.168.144.189 [156]":"156","192.168.60.83 [156]":"156"}}}';
 		$remote_data_aux = json_decode($string);
+		if ($remote_data_aux == NULL){
+			echo _("Warning: There was an error parsing remote data.");
+			$remote_data_aux = array();
+		}
 		foreach ($remote_data_aux as $ip=>$arr) {
 			foreach ($arr as $type=>$type_data) {
 				foreach ($type_data as $key=>$val) {
@@ -195,7 +199,7 @@ if ($cmd != "") {
 		    	ob_flush();
 				flush();
 				$sdate = date("d F Y",strtotime($found[1]));
-		    	?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php
+				if (!$only_json) { ?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('Searching <b>events</b> in <?php echo $sdate?><?php echo $from_str ?>...');</script><?php }
 		    	$perc += $inc;
 		    	if ($perc > 100) $perc = 100;
 		    }

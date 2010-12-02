@@ -119,10 +119,10 @@ function submit() {
 ?>
     <!-- submit -->
     
-    <input type="submit" class="btn" style="font-size:12px" value=" <?php
+    <input type="submit" class="button" style="font-size:12px" value=" <?php
     echo gettext("Save Configuration"); ?> " />
 	<br><br>
-    <input type="button" onclick="lastupdate(this.form)" class="btn" style="font-size:120%;font-weight:bold" value=" <?php
+    <input type="button" onclick="lastupdate(this.form)" class="button" style="font-size:120%;font-weight:bold" value=" <?php
     echo gettext("Acknowledge Updates"); ?> " />
 	<br>
     <!-- end sumbit -->
@@ -371,7 +371,7 @@ if (file_exists($updates_file)) {
 <?php
     }
 	if (!$allupdates) {
-		echo "<tr><td style='text-align:right' class='nobborder' colspan=2><input type=button value='"._("Show all")."' class='btn' style='font-size:12px' onclick=\"document.location.href='index.php?showall=1'\"></td></tr>\n";
+		echo "<tr><td style='text-align:right' class='nobborder' colspan=2><input type=button value='"._("Show all")."' class='button' style='font-size:12px' onclick=\"document.location.href='index.php?showall=1'\"></td></tr>\n";
 	}
 }
 ?>

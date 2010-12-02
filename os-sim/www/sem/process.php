@@ -401,9 +401,9 @@ $totaltime = round($time2 - $time1, 2);
 
 // Output file TXT
 if (isset($export)) {
-	if (is_dir("/var/ossim/logs/searches")) {
+	if (is_dir($config["searches_dir"])) {
 		// dir
-		$outdir = "/var/ossim/logs/searches/$user"."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a);
+		$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a);
 		if (!is_dir($outdir)) mkdir($outdir);
 		$outfilename = $outdir."/results.txt";
 		// file
@@ -603,7 +603,7 @@ foreach($result as $res=>$event_date) {
         $inc_counter++;
         // fin para coger
 
-		if (is_dir("/var/ossim/logs/searches") && isset($export)) {
+		if (is_dir($config["searches_dir"]) && isset($export)) {
 			fputs($outfile,"$inc_counter,$date,$plugin,".htmlspecialchars($matches[5]).",".htmlspecialchars($matches[6]).":".htmlspecialchars($matches[8]).",".htmlspecialchars($matches[7]).":".htmlspecialchars($matches[9]).",$data_out\n");
 			$logarr[urldecode($logfile)]++;
 		}
@@ -620,7 +620,7 @@ foreach($result as $res=>$event_date) {
 }
 print "</table>";
 
-if (is_dir("/var/ossim/logs/searches") && isset($export)) {
+if (is_dir($config["searches_dir"]) && isset($export)) {
 	fclose ($outfile);
 	$logs = "";
 	foreach ($logarr as $key=>$val) {

@@ -271,7 +271,7 @@ if (GET('edit_tabs') == 1) {
 	function choose_icon(frm,icon_url,icon_url_coded,tab_id) {
 		frm.tab_icon_url.value = icon_url_coded;
 		if (icon_url != "") document.getElementById('tab_icon_img_'+tab_id).innerHTML = "<a href='' onclick=\"show_icons("+tab_id+");return false\"><img src='"+icon_url+"'></a>";
-		else document.getElementById('tab_icon_img_'+tab_id).innerHTML = '<input type="button" class="btn" onclick="show_icons('+tab_id+')" value="<?php echo _("Choose")?>">';
+		else document.getElementById('tab_icon_img_'+tab_id).innerHTML = '<input type="button" class="lbutton" onclick="show_icons('+tab_id+')" value="<?php echo _("Choose")?>">';
 		document.getElementById('icons_'+tab_id).style.display = "none";
 	}
 	function show_icons(tab_id) {
@@ -298,11 +298,11 @@ if (GET('edit_tabs') == 1) {
 					<td class="noborder" style="text-align: left" nowrap='nowrap'>
 						<input type="hidden" name="tab_icon_url" value="">
 						<input type="hidden" name="tab_id" value="">
-						<input type="button" value="<?php echo _("Insert new") ?>" onclick="document.fnew.mode.value='new';document.fnew.submit()" class="btn" style="font-size:12px">
+						<input type="button" value="<?php echo _("Insert new") ?>" onclick="document.fnew.mode.value='new';document.fnew.submit()" class="lbutton" style="font-size:12px">
 						<input type="hidden" name="edit_tabs" value="1">
 						<input type="hidden" name="panel_id" value="<?php echo $panel_id ?>">
 						<? if (count($tabsavt) > 0) { ?>
-						or <input type="button" value="<?=_("Clone from")?>" onclick="document.fnew.mode.value='clone';document.fnew.submit()" class="btn">
+						or <input type="button" value="<?=_("Clone from")?>" onclick="document.fnew.mode.value='clone';document.fnew.submit()" class="lbutton">
 							<select name="clonefrom">
 							<? foreach ($tabsavt as $tab_id=>$tab_values) { ?>
 								<option value="<?=$tab_id?>"><?=$tab_values['tab_name']?>
@@ -349,7 +349,7 @@ if (GET('edit_tabs') == 1) {
 		<?php 	
 		} 
 		else { ?>
-			<input type="button" class="btn" onclick="show_icons(<?php echo $tab_id?>)" value="<?php echo _("Choose")?>">
+			<input type="button" class="lbutton" onclick="show_icons(<?php echo $tab_id?>)" value="<?php echo _("Choose")?>">
 		<?php  } ?>
 		</td>
 		
@@ -359,8 +359,8 @@ if (GET('edit_tabs') == 1) {
 		<td style="text-align:center; background-color: <?=$back_color?>"><input type="radio" style="border:0px;background:transparent" name="tabdefault" value="" onclick="setdefault(<?=$tab_id?>)" <? if ($tabdefault == $tab_id) echo "checked" ?>></td>
 		<td nowrap='nowrap' style='background-color: <?=$back_color?>'>
 			<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='update';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../pixmaps/disk-black.png" alt="<?=_("Update")?>" title="<?=_("Update")?>" border="0"></a>
-			&nbsp;<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='delete';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../pixmaps/cross-circle-frame.png" alt="<?=_("Delete")?>" title="<?=_("Delete")?>" border="0"></a>
-			&nbsp;<input type="button" onclick="document.ftabs<?=$tab_id?>.mode.value='change';document.getElementById('ftabs<?=$tab_id?>').submit();return false;" value="<?=($tabs[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="btn<?=($tabs[$tab_id]['disable']) ? "" : "r"?>" style="width:80px">
+			&nbsp;<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='delete';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" title="<?=_("Delete")?>" border="0"></a>
+			&nbsp;<input type="button" onclick="document.ftabs<?=$tab_id?>.mode.value='change';document.getElementById('ftabs<?=$tab_id?>').submit();return false;" value="<?=($tabs[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="<?=($tabs[$tab_id]['disable']) ? "lbutton" : "lbuttond" ?>" style="width:80px">
 		</td>
 		<?php if($tabs[$tab_id]["tab_url"]){ ?>
 			<input type="hidden" name="tab_url" value="<?php echo $tabs[$tab_id]["tab_url"]; ?>">
@@ -419,8 +419,8 @@ document.fnew.tab_id.value = '<?=$last_tab_id + 1?>';
 <td style="text-align:center"><input type="radio" style="border:0px;background:transparent" name="tabdefault" value="" onclick="setdefault(<?=$tab_id?>)" <? if ($tabdefault == $tab_id) echo "checked" ?>></td>
 <td nowrap='nowrap'>
 <a href="" onclick="document.location.href='<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&avtchangename=<?=$tab_values['tab_file']?>&newname='+document.getElementById('newname<?=$tab_id?>').value;return false;"><img src="../pixmaps/disk-black.png" alt="<?=_("Update")?>" title="<?=_("Update")?>" border="0"></a>
-&nbsp;<img src="../pixmaps/cross-circle-frame-gray.png" alt="<?=_("Delete")?>" title="<?=_("Delete")?>">
-&nbsp;<input type="button" onclick="document.location.href='<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&avtchange=<?=$tab_values['tab_file']?>'" value="<?=($tabsavt[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="btn<?=($tabsavt[$tab_id]['disable']) ? "" : "r"?>" style="width:80px">
+&nbsp;<img style="filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;" src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" title="<?=_("Delete")?>">
+&nbsp;<input type="button" onclick="document.location.href='<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&avtchange=<?=$tab_values['tab_file']?>'" value="<?=($tabsavt[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="<?=($tabs[$tab_id]['disable']) ? "lbutton" : "lbuttond" ?>" style="width:80px">
 </td>
 <input type="hidden" name="edit_tabs" value="1">
 <input type="hidden" name="panel_id" value="<?php echo $panel_id ?>">
@@ -561,18 +561,27 @@ if (GET('interface') == 'ajax') {
 <!--
 function doIframe2(){
 	o = document.getElementById('dashboardsIframe');
-
-	setHeight2(o);
-	addEvent2(o,'load', doIframe2);	
+	if (o != null) {
+   	  setHeight2(o);
+	  addEvent2(o,'load', doIframe2);	
+        }
 }
 
 function setHeight2(e){
+/*if (e.Document && e.Document.body.scrollHeight) //ie5+ syntax
+e.height = e.contentWindow.document.body.scrollHeight;
+
+else if (e.contentDocument && e.contentDocument.body.scrollHeight) //ns6+ & opera syntax
+e.height = e.contentDocument.body.scrollHeight + 35;
+
+else (e.contentDocument && e.contentDocument.body.offsetHeight) //standards compliant syntax – ie8
+e.height = e.contentDocument.body.offsetHeight + 35;
+*/
 	if(e.contentDocument){
 		e.height = e.contentDocument.body.offsetHeight + 35;
 	} else {
 		e.height = e.contentWindow.document.body.scrollHeight + 35;
 	}
-	
 }
 
 function addEvent2(obj, evType, fn){
@@ -613,6 +622,13 @@ h = (screen.availHeight) ? screen.availHeight : h + 96;
  win.resizeTo(w, h);
  win.focus();
 }
+
+function loadingIframe(){
+	o = document.getElementById('dashboardsIframeLoading');
+
+	o.style.visibility='hidden';
+}
+
 // -->
 </script>
 <style type="text/css">
@@ -726,6 +742,47 @@ div.hd:hover { cursor:-moz-grab; cursor:url(../pixmaps/theme/grab.cur),auto); }
 	margin:0;
 	padding:0;
 }
+
+#dashboardsIframeLoading{	
+	text-align: center;
+	background-image: url(../pixmaps/theme/overlay.png); 
+	position: absolute;
+	margin: auto;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	width:  100%;
+	height: 100%;
+	overflow-x:hidden;
+}
+
+* html #dashboardsIframeLoading {
+  background-color: #000;
+  background-color: transparent;
+  background-image: url(../pixmaps/theme/blank.gif);
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../pixmaps/theme/overlay.png", sizingMethod="scale");
+}
+
+#dashboardsIframeLoading_window {
+  top: 20px;
+  left: 33%;
+  position: absolute;
+  background: #fff;
+  border: 2px solid #787878;
+  width: 300px;
+  height: 80px;
+  z-index: 150;
+  overflow:hidden;
+  text-align: center;
+  padding-top: 50px;
+	opacity: .75;
+	-moz-opacity: .75;
+	filter:alpha(opacity=75);
+	border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+}
+
 </style>
 </head>
 <body>
@@ -761,7 +818,12 @@ $menu_sopc=GET('smenu');
 
 if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 ?>
-<iframe id="dashboardsIframe" src="<?php echo $tabs[$panel_id]['tab_url']; ?>" scrolling="auto" frameborder="0"></iframe>
+<div id="dashboardsIframeLoading">
+	<div id="dashboardsIframeLoading_window">
+		<img src="../pixmaps/loading3.gif" /> <?php echo _('Loading content'); ?>
+	</div>
+</div>
+<iframe id="dashboardsIframe" src="<?php echo $tabs[$panel_id]['tab_url']; ?>" scrolling="auto" frameborder="0" height="530" onload="loadingIframe()"></iframe>
 <?php
 }else{
 // tab normal

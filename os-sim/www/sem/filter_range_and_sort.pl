@@ -3,7 +3,7 @@ use Time::Local;
 use DBI;
 use Net::CIDR;
 
-use Data::Dumper;
+#use Data::Dumper;
 
 my $dbhost = `grep db_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbhost);
 $dbhost = "localhost" if ($dbhost eq "");
@@ -15,6 +15,10 @@ if(!$ARGV[5]){
 print "Accepts two epoch_timestamps as commands, loglines as stdin. Only prints out those within the two timestamps\n";
 exit;
 }
+%ini = read_ini();
+$log_dir = $ini{'main'}{'log_dir'};
+$log_dir = "/var/ossim/logs/" if ($log_dir eq "");
+
 $debug = 0; # 1 for debuging info
 $debug_log = "";
 
@@ -63,7 +67,7 @@ if ($ARGV[5] ne "date") {
 	my @tm = localtime($end); $tm[5]+=1900; $tm[4]++;
 	$tm[3] = "0".$tm[3] if (length($tm[3])<2);
 	$tm[4] = "0".$tm[4] if (length($tm[4])<2);
-	open (L,"find /var/ossim/logs/".$tm[5]."/".$tm[4]."/".$tm[3]."/ -name *log 2>/dev/null | sort -r |");
+	open (L,"find ".$log_dir.$tm[5]."/".$tm[4]."/".$tm[3]."/ -name *log 2>/dev/null | sort -r |");
 	while($file=<L>) {
 		chomp($file);  
 		print "Adding log: $file\n" if ($debug);
@@ -501,4 +505,23 @@ sub conn_db {
 sub disconn_db {
     my ( $dbh ) = @_;
     $dbh->disconnect or die("Failed to disconnect : $DBI::errstr\n");
+}
+
+sub read_ini {
+	my ($hash,$section,$keyword,$value);
+    open (INI, "everything.ini") || die "Can't open everything.ini: $!\n";
+    while (<INI>) {
+        chomp;
+        if (/^\s*\[(\w+)\].*/) {
+            $section = $1;
+        }
+        if (/^\W*(.+?)=(.+?)\W*(#.*)?$/) {
+            $keyword = $1;
+            $value = $2 ;
+            # put them into hash
+            $hash{$section}{$keyword} = $value;
+        }
+    }
+    close INI;
+    return %hash;
 }

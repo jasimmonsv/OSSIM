@@ -7,7 +7,7 @@
 *
 * RETURNS: 0 or 1 depending on whether the alert was deleted
 */
-function PurgeAlert($sid, $cid, $db, $deltmp, $j, $interval, $f) {
+function PurgeAlert($sid, $cid, $db, $deltmp, $j, $interval, $f, $acid_event_input) {
     $del_table_list = array(
         "iphdr",
         "tcphdr",
@@ -16,9 +16,9 @@ function PurgeAlert($sid, $cid, $db, $deltmp, $j, $interval, $f) {
         "opt",
         "extra_data",
         "acid_ag_alert",
-        "acid_event",
-        "acid_event_input"
+        "acid_event"
     );
+    if ($acid_event_input!="") $del_table_list[]=$acid_event_input;
     $del_cnt = 0;
     $del_str = "";
     if (($GLOBALS['use_referential_integrity'] == 1) && ($GLOBALS['DBtype'] != "mysql")) $del_table_list = array(
@@ -115,6 +115,13 @@ include ("includes/base_db.inc.php");
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
 $db->baseDBConnect($db_connect_method, $alert_dbname, $alert_host, $alert_port, $alert_user, $alert_password);
 
+$acid_event_input = "";
+$res1 = $db->baseExecute("SELECT table_name FROM INFORMATION_SCHEMA.tables WHERE table_name='acid_event_input'");
+if ($myrow = $res1->baseFetchRow()) {
+	$acid_event_input = $myrow["table_name"];
+}
+$res1->baseFreeRows();
+
 $deltmp = $argv[1];
 $listtmp = $argv[2];
 $interval = $argv[3];
@@ -145,7 +152,7 @@ while(!feof($fsidcids)){
 	$aux = explode("-",trim($sidcid));
 	$sid = $aux[0]; $cid = $aux[1];
 	if ($sid != "" && $cid != "") {
-		$tmp = PurgeAlert($sid, $cid, $db, $deltmp, $j, $interval, $f);
+		$tmp = PurgeAlert($sid, $cid, $db, $deltmp, $j, $interval, $f, $acid_event_input);
 		if ($tmp == 0) {
 			++$dup_cnt;
 		} else if ($tmp == 1) {

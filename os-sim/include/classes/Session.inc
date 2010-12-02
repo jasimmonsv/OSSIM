@@ -406,6 +406,10 @@ class Session {
         session_destroy();
     }
     function menu_perms($menu, $submenu) {
+    	// perms only for pro version => allways return true
+    	if ($menu=='MenuEvents' && $submenu=='EventsForensicsDelete') return true;
+    	if ($menu=='MenuIncidents' && $submenu=='ControlPanelAlarmsDelete') return true;
+    	//
         $gacl = $GLOBALS['ACL'];
         if (!isset($_SESSION["_user"])) return true;
         if (Session::am_i_admin()) return true;

@@ -162,7 +162,7 @@ $directives = Plugin_sid::get_list($conn,"WHERE plugin_id=1505");
 					</select>
 					</td>
 				</tr>
-				<tr><td class="nobborder" style="text-align:center;padding:10px"><input type="submit" value="<?=_("ADD")?>" class="btn"> <input type="button" onclick="window.parent.GB_onclose()" value="<?=_("Close")?>" class="btn"></td></tr>
+				<tr><td class="nobborder" style="text-align:center;padding:10px"><input type="submit" value="<?=_("ADD")?>" class="button"> <input type="button" onclick="window.parent.GB_onclose()" value="<?=_("Close")?>" class="button"></td></tr>
 			</table>
 		</td>
 	</tr>

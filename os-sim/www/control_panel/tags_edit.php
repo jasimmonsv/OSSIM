@@ -226,7 +226,7 @@ if (count($tags) < 1) {
 			</table>
 		</td>
 	</tr>
-	<tr><td class="center nobborder"><input type="submit" value="<?php echo ($id != "") ? _("Modify") : _("Create")?>"></input></td></tr>
+	<tr><td class="center nobborder"><input class="button" type="submit" value="<?php echo ($id != "") ? _("Modify") : _("Create")?>"></input></td></tr>
 	</form>
 </table>
 </body>

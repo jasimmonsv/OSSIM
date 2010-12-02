@@ -86,7 +86,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 <!-- ##### occurrence ##### -->
 <div id="wizard_7" style="display:none">	
 <input type="hidden" name="occurrence" id="occurrence" value=""></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
 				<?php echo gettext("Risk occurrence"); ?>
@@ -99,14 +99,15 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 			?><tr><td class="center nobborder"><input type="button" value="<?php echo $value ?>" onclick="document.getElementById('occurrence').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($selected) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr><?php
 		}
 		?>
-		<tr><td class="center nobborder"><input type="text" name="aux_occurrence" id="aux_occurrence" value="<?php echo _("Other...") ?>" onfocus="this.value=''"></input></td></tr>
+		<tr><td class="center nobborder"><input type="text" style="width:80px" name="aux_occurrence" id="aux_occurrence" value="<?php echo _("Other...") ?>" onfocus="this.value='';document.getElementById('risk_oc_next').style.display=''"></input></td></tr>
+		<tr><td class="center nobborder" id="risk_oc_next" style="display:none"><input type="button" value="OK" onclick="document.getElementById('occurrence').value = document.getElementById('aux_occurrence').value;wizard_next();" style="width:60px;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"></input></td></tr>
 	</table>
 </div>
 
 <!-- ##### timeout ##### -->
 <div id="wizard_8" style="display:none">
 <input type="hidden" name="time_out" id="time_out" value=""></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
 				<?php echo gettext("Risk timeout"); ?>
@@ -119,17 +120,18 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 			?><tr><td class="center nobborder"><input type="button" value="<?php echo $value ?>" onclick="document.getElementById('time_out').value = '<?php echo $value ?>';wizard_next();" style="width:80px<?php if ($selected) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr><?php
 		}
 		?>
-		<tr><td class="center nobborder"><input type="text" name="aux_time_out" id="aux_time_out" value="<?php echo _("Other...") ?>" onfocus="this.value=''"></input></td></tr>
+		<tr><td class="center nobborder"><input type="text" style="width:80px" name="aux_time_out" id="aux_time_out" value="<?php echo _("Other...") ?>" onfocus="this.value='';document.getElementById('risk_timeout_next').style.display=''"></input></td></tr>
+		<tr><td class="center nobborder" id="risk_timeout_next" style="display:none"><input type="button" value="OK" onclick="document.getElementById('time_out').value = document.getElementById('aux_time_out').value;wizard_next();" style="width:60px;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"></input></td></tr>
 	</table>
 </div>
 
 <!-- ##### reliability ##### -->
 <div id="wizard_9" style="display:none">
 <input type="hidden" name="reliability" id="reliability" value="<?php echo $rule->reliability ?>"></input>
-<input type="hidden" name="reliability_op" id="reliability_op" value=""></input>
-	<table class="transparent">
+<input type="hidden" name="reliability_op" id="reliability_op" value="<?php echo $rule->reliability_op ?>"></input>
+	<table class="transparent" width="100%">
 		<tr>
-			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+			<th style="white-space: nowrap; padding: 5px;font-size:12px" colspan="2">
 				<?php echo gettext("Risk reliability"); ?>
 			</th>
 		</tr>
@@ -138,12 +140,12 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 		$first = $rule->reliability{0};
 		$selected_plus = selectIf($first != "+");
 		for ($i = 0; $i <= 10; $i++) {
-		    $selected = selectIf($value == $i && !$selected_plus);
-		    $selected2 = selectIf($value == $i && $selected_plus);
+		    $selected2 = selectIf($value == $i && !$selected_plus);
+		    $selected = selectIf($value == $i && $selected_plus);
 		    ?>
 		    <tr>
 		    	<td class="center nobborder"><input type="button" value="= <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '=';wizard_next();" style="width:50px<?php if ($selected) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td>
-		    	<?php if ($rule->level > 1) { ?><td class="center nobborder"><input type="button" value="+ <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '+';wizard_next();" style="50px<?php if ($selected2) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td><?php } ?>
+		    	<?php if ($rule->level > 1) { ?><td class="center nobborder"><input type="button" value="+ <?php echo $i ?>" onclick="document.getElementById('reliability').value = '<?php echo $i ?>';document.getElementById('reliability_op').value = '+';wizard_next();" style="width:50px<?php if ($selected2) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td><?php } ?>
 		    </tr>
 		    <?php
 		}

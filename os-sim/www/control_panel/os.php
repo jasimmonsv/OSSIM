@@ -196,9 +196,9 @@ if ($num != "all") { ?>
 <td align="center" colspan="12">
 <input type="hidden" name="back" value="<?php
 echo urlencode($_SERVER["REQUEST_URI"]); ?>">
-<input type="submit" value=" <?php
+<input class="button" type="submit" value=" <?php
 echo gettext("OK"); ?> ">
-<input type="reset" value=" <?php
+<input class="button" type="reset" value=" <?php
 echo gettext("reset"); ?> "> </td>
 </tr>
 <tr>
@@ -337,9 +337,9 @@ $db->close($conn);
 ?>
 <tr>
 <td align="center" colspan="12">
-<input type="submit" value=" <?php
+<input class="button" type="submit" value=" <?php
 echo gettext("OK"); ?> ">
-<input type="reset" value=" <?php
+<input class="button" type="reset" value=" <?php
 echo gettext("reset"); ?> "></td>
 </tr>
 

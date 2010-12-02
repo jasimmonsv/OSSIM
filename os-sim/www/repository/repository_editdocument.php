@@ -62,7 +62,7 @@ if (POST('title') != "" && POST('doctext') != "") {
 	<tr>
 		<td class="center"><?=_("Document successfully updated with id")?>: <?php echo $id_document ?></td>
 	</tr>
-	<tr><td class="center"><input class="btn" type="button" onclick="parent.document.location.href='index.php'" value="Finish"></td></tr>
+	<tr><td class="center"><input class="button" type="button" onclick="parent.document.location.href='index.php'" value="Finish"></td></tr>
 </table>
 <?php
 } else {
@@ -119,7 +119,7 @@ if (POST('title') != "" && POST('doctext') != "") {
 					</td>
 				</tr>
 				
-				<tr><td class="nobborder" style="padding-left:5px;text-align:center"><input class="btn" type="submit" value="<?php echo _("Save") ?>"></td></tr>
+				<tr><td class="nobborder" style="padding-left:5px;text-align:center"><input class="button" type="submit" value="<?php echo _("Save") ?>"></td></tr>
 			</table>
 			</form>
 			<!-- end of repository insert form -->

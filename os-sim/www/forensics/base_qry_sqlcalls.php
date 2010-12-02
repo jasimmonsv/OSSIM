@@ -282,6 +282,9 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     unset($cell_more);
     unset($cell_pdfdata);
     unset($cell_align);
+    $current_sig = BuildSigByPlugin($myrow["plugin_id"], $myrow["plugin_sid"], $db);
+    if (preg_match("/FILENAME|USERNAME|USERDATA\d+/",$current_sig)) $need_extradata = 1;
+    //
     // Load extra data if neccesary
     if ($need_extradata && !array_key_exists("USERNAME",$myrow)) {
 		$rs_ed = $qs->ExecuteOutputQuery("SELECT userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9,username,password,filename,context FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
@@ -325,7 +328,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         SQLTraceLog("\n\n");
         SQLTraceLog(__FILE__ . ":" . __LINE__ . ":\n############## <calls to BuildSigByID> ##################");
     }
-    $current_sig = BuildSigByPlugin($myrow["plugin_id"], $myrow["plugin_sid"], $db);
+    // SIGNATURE
+    $current_sig = TranslateSignature($current_sig,$myrow);
     $current_sig_txt = trim(html_entity_decode(strip_tags($current_sig)));
     //$current_sig_txt = BuildSigByID($myrow[2], $myrow["sid"], $myrow["cid"], $db, 2);
     if ($debug_mode > 1) {

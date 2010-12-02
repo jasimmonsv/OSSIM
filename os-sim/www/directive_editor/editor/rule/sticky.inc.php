@@ -37,7 +37,7 @@
 ?>
 <div id="wizard_13" style="display:none">
 <input type="hidden" name="sticky" id="sticky" value="<?php echo $rule->sticky ?>"></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
 				<?php echo gettext("Sticky"); ?>
@@ -51,7 +51,7 @@
 
 <div id="wizard_14" style="display:none">
 <input type="hidden" name="sticky_different" id="sticky_different" value="<?php echo $rule->sticky_different ?>"></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<!-- sticky different -->
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">

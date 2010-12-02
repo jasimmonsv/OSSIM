@@ -12,6 +12,7 @@ $start = "$y-$m-$d";
 $end = date("Y-m-d");
 $from_date = "$y$m$d";
 $to_date = date("Ymd");
+$config = parse_ini_file("/usr/share/ossim/www/sem/everything.ini");
 
 $a = $start;
 $b = $end;
@@ -40,7 +41,7 @@ $return = explode("\n",`$cmd`);
 $date = $return[0];
 */
 
-$cmd = "locate.findutils -d /var/ossim/logs/locate.index $date | grep \".log\$\"";
+$cmd = "locate.findutils -d ".$config["locate_db"]." $date | grep \".log\$\"";
 $return = explode("\n",`$cmd`);
 $files = array();
 foreach ($return as $line) if (trim($line) != "") {

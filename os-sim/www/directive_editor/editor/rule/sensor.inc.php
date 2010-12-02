@@ -47,7 +47,18 @@
 		<td class="nobborder">
 		<select id="sensorselect" class="multiselect_sensor" multiple="multiple" name="sensorselect[]" style="display:none;width:600px">
 		<?php if (isList($rule->sensor) && $rule->sensor != "") { ?>
-		
+		<?php 
+		$sensor_list = $rule->sensor;
+		if ($host_list = getSensorList()) {
+		    foreach($host_list as $host) {
+		        $hostname = $host->get_name();
+		        $ip = $host->get_ip();
+		        if (in_array($ip, split(',', $sensor_list))) {
+		            echo "<option value='$ip' selected>$hostname</option>\n";
+		        }
+		    }
+		}
+		?>
 		<?php } ?>
 		</select>
 		</td>

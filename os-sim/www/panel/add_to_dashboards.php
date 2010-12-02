@@ -59,16 +59,23 @@ $config = new User_config($conn);
 $panel_urls = Window_Panel_Ajax::getPanelTabs();
 if(empty($panel_urls)){
 	$panel_urls = array();
+	$key_ini=1;
 }
 // check exist
 $flag=true;
 // clean smenu && hmenu
 $url=base64_decode($url);
+// check exist ?
+if(strpos($url,'?')===false){
+	$url.='?';
+}
+//
 $url=str_replace('hmenu', 'older-hmenu', $url);
 $url=str_replace('smenu', 'older-smenu', $url);
 $url.='&hmenu=dashboards&smenu=dashboards';
 //
-foreach($panel_urls as $value){
+foreach($panel_urls as $key => $value){
+	$key_ini=$key;
 	if(!empty($value['tab_url'])){
 		if($value['tab_url']==$url){
 			$flag=false;
@@ -78,7 +85,7 @@ foreach($panel_urls as $value){
 }
 //
 if($flag){
-	$panel_urls[]=array(
+	$panel_urls[++$key_ini]=array(
 			'tab_name'=>$name,
 			'tab_icon_url'=>'',
 			'disable'=>0,
@@ -89,7 +96,11 @@ if($flag){
 
 //Window_Panel_Ajax::setPanelUrls($panel_urls);
 Window_Panel_Ajax::setPanelTabs($panel_urls);
+// clean var
+unset($panel_urls);
+unset($flag);
+unset($key_ini);
 ?>
 <script type="text/javascript">
-	location.href='../panel/panel.php';
+	window.top.frames["main"].document.location.href='../panel/panel.php';
 </script>

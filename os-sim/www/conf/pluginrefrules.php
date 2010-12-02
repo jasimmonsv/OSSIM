@@ -157,8 +157,8 @@ $plugin_list = Plugin::get_list($conn, "ORDER BY id", 0);
 	
 	<tr>
 		<td colspan="2" class="nobborder" style="text-align:center">
-			<input type="button" class="btn" value="<?php echo _("BACK") ?>" onclick="document.location.href='pluginref2.php'">
-			&nbsp;<input type="button" class="btn" value="<?=_("Create rule")?>" onclick="formsubmit()">
+			<input type="button" class="button" value="<?php echo _("BACK") ?>" onclick="document.location.href='pluginref2.php'">
+			&nbsp;<input type="button" class="button" value="<?=_("Create rule")?>" onclick="formsubmit()">
 		</td>
 	</tr>
 </form>	

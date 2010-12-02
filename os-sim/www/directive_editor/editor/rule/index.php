@@ -66,6 +66,32 @@ ossim_valid($add, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("add"));
 if (ossim_error()) {
     die(ossim_error());
 }
+
+$host_list = getHostList();
+$net_list = getNetList();
+
+$directive = GET("directive");
+$level = GET("level");
+$id = GET("id");
+$xml_file = GET('xml_file');
+ossim_valid($directive, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
+ossim_valid($level, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("level"));
+ossim_valid($id, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
+ossim_valid($xml_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
+if (ossim_error()) {
+    die(ossim_error());
+}
+if ($rule->is_new() && $level > 1) $new_level = $level - 1;
+else $new_level = $level;
+
+if (empty($order)) $order = 'id';
+$plugin_list = getPluginList('ORDER BY ' . $order);
+$plugin_names = array();
+
+foreach($plugin_list as $plugin) {
+	$plugin_names[$plugin->get_id()] = $plugin->get_name();
+	if ($rule->plugin_id == $plugin->get_id()) $plugin_type = $plugin->get_type();
+}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -122,12 +148,23 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
 			
     <script type="text/javascript" language="javascript">
     var wizard_current = <?php echo ($add) ? "0" : "1" ?>;
-    var is_monitor = false;
+
+    var is_monitor = <?php echo ($plugin_type == "2") ? "true" : "false" ?>;
+    var current_plugin_id = <?php echo ($rule->plugin_id != "") ? $rule->plugin_id : '""' ?>;
 	function wizard_goto(num) {
 		document.getElementById('wizard_'+wizard_current).style.display = "none";
 		document.getElementById('link_'+wizard_current).className = "normal";
 		wizard_current = num;
 		wizard_refresh();
+		if (num == 3) {
+			init_sids(current_plugin_id,is_monitor);
+		}
+		if (num == 4) {
+			init_network();
+		}
+		if (num == 6) {
+			init_sensor();
+		}
 	}
 	function wizard_refresh() {
 		document.getElementById('wizard_'+(wizard_current)).style.display = "block";
@@ -139,6 +176,7 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
 		else document.getElementById('link_'+wizard_current).className = "normal";
     	wizard_current++;
     	if (wizard_current >= 17) {
+        	save_all();
     		document.getElementById('frule').submit();
     	} else {
 			if (wizard_current == 10 && !is_monitor) { // Skip monitor options (detector selected)
@@ -153,8 +191,10 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
     		}
     	}
 		// Update steps
-		document.getElementById('step_'+wizard_current).style.display = "";
-		document.getElementById('link_'+wizard_current).className = "bold";
+		if (wizard_current < 17) {
+			document.getElementById('step_'+wizard_current).style.display = "";
+			document.getElementById('link_'+wizard_current).className = "bold";
+		}
     }
     var customDataParser = function(data) {
         if ( typeof data == 'string' ) {
@@ -185,6 +225,13 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
         }
         return data;
     };
+    function rm_sids() {
+		var selectbox = document.getElementById('pluginsids');
+    	var i;
+    	for(i=selectbox.options.length-1;i>=0;i--) {
+    		if(selectbox.options[i].selected) selectbox.remove(i);
+    	}
+    }
     function init_sids(id,m) {
 		is_monitor = m;
     	$(".multiselect_sids").multiselect({
@@ -197,13 +244,16 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
         });
     }
 	function save_sids() {
-		var plugin_sid_list = getselectedcombovalue('pluginsids');
-		if (plugin_sid_list != "") {
-			document.getElementById('plugin_sid').value = "LIST";
-			document.getElementById('plugin_sid_list').value = plugin_sid_list;
-		} else {
-			document.getElementById('plugin_sid').value = "ANY";
-			document.getElementById('plugin_sid_list').value = "";
+		var current_sid = document.getElementById('plugin_sid').value;
+		if (!current_sid.match(/\d\:PLUGIN\_SID/)) {
+			var plugin_sid_list = getselectedcombovalue('pluginsids');
+			if (plugin_sid_list != "") {
+				document.getElementById('plugin_sid').value = plugin_sid_list;
+				document.getElementById('plugin_sid_list').value = plugin_sid_list;
+			} else {
+				document.getElementById('plugin_sid').value = "ANY";
+				document.getElementById('plugin_sid_list').value = "";
+			}
 		}
 	}
 	function init_network() {
@@ -214,14 +264,6 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
             nodeComparator: function (node1,node2){ return 1 },
             dataParser: customDataParser,
         });
-		$(".multiselect_from_port").multiselect({
-            searchDelay: 700,
-            dividerLocation: 0.5,
-            remoteUrl: 'popup/top/from.php',
-            remoteParams: { port: '1' },
-            nodeComparator: function (node1,node2){ return 1 },
-            dataParser: customDataParser,
-        });
 		$(".multiselect_to").multiselect({
             searchDelay: 700,
             dividerLocation: 0.5,
@@ -229,14 +271,28 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
             nodeComparator: function (node1,node2){ return 1 },
             dataParser: customDataParser,
         });
-		$(".multiselect_to_port").multiselect({
-            searchDelay: 700,
-            dividerLocation: 0.5,
-            remoteUrl: 'popup/top/from.php',
-            remoteParams: { port: '1' },
-            nodeComparator: function (node1,node2){ return 1 },
-            dataParser: customDataParser,
-        });
+	}
+	function save_network() {
+		var from_list = getselectedcombovalue('fromselect');
+		var to_list = getselectedcombovalue('toselect');
+		var port_from_list = document.getElementById('port_from_list').value;
+		var port_to_list = document.getElementById('port_to_list').value;
+		if (from_list != "") {
+			document.getElementById('from').value = "LIST";
+			document.getElementById('from_list').value = from_list;
+		} else {
+			document.getElementById('from').value = "ANY";
+			document.getElementById('from_list').value = "";
+		}
+		if (to_list != "") {
+			document.getElementById('to').value = "LIST";
+			document.getElementById('to_list').value = to_list;
+		} else {
+			document.getElementById('to').value = "ANY";
+			document.getElementById('to_list').value = "";
+		}
+		if (port_from_list != "" && port_from_list != "ANY") document.getElementById('port_from').value = "LIST";
+		if (port_to_list != "" && port_to_list != "ANY") document.getElementById('port_to').value = "LIST"; 
 	}
 	function init_sensor() {
 		$(".multiselect_sensor").multiselect({
@@ -246,6 +302,21 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
             nodeComparator: function (node1,node2){ return 1 },
             dataParser: customDataParser,
         });
+	}
+	function save_sensor() {
+		var sensor_list = getselectedcombovalue('sensorselect');
+		if (sensor_list != "") {
+			document.getElementById('sensor').value = "LIST";
+			document.getElementById('sensor_list').value = sensor_list;
+		} else {
+			document.getElementById('sensor').value = "ANY";
+			document.getElementById('sensor_list').value = "";
+		}
+	}
+	function save_all() {
+		save_sids();
+		save_network();
+		save_sensor();
 	}
     function taille()
     {
@@ -344,25 +415,28 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 		<tr>
 			<td class="nobborder" id="steps" style="border-bottom:1px solid #EEEEEE<?php if ($add) echo ";display:none" ?>">
 				<table class="transparent">
+					<?php
+					$display = ($rule->plugin_id > 0) ? "" : ";display:none";
+					?>
 					<tr>
 						<td class="nobborder"><img src="../../../pixmaps/wand.png" alt="wizard"></img></td>
-						<td class="nobborder" style="font-size:14px">Directive rule <b>wizard</b>: </td>
-						<td class="nobborder" style="font-size:14px" id="step_1"><a href='' onclick='wizard_goto(1);return false;' class="bold" id="link_1"><?php echo _("Rule name") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_2"> > <a href='' onclick='wizard_goto(2);return false;' class="normal" id="link_2"><?php echo _("Plugin") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_3"> > <a href='' onclick='wizard_goto(3);return false;' class="normal" id="link_3"><?php echo _("Plugin Sid") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_4"> > <a href='' onclick='wizard_goto(4);return false;' class="normal" id="link_4"><?php echo _("Network") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_5"> > <a href='' onclick='wizard_goto(5);return false;' class="normal" id="link_5"><?php echo _("Protocol") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_6"> > <a href='' onclick='wizard_goto(6);return false;' class="normal" id="link_6"><?php echo _("Sensor") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_7"> > <a href='' onclick='wizard_goto(7);return false;' class="normal" id="link_7"><?php echo _("Risk oc") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_8"> > <a href='' onclick='wizard_goto(8);return false;' class="normal" id="link_8"><?php echo _("Risk time") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_9"> > <a href='' onclick='wizard_goto(9);return false;' class="normal" id="link_9"><?php echo _("Risk rel") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_10"> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_11"> > <a href='' onclick='wizard_goto(11);return false;' class="normal" id="link_11"><?php echo _("Monitor intv") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_12"> > <a href='' onclick='wizard_goto(12);return false;' class="normal" id="link_12"><?php echo _("Monitor abs") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_13"> > <a href='' onclick='wizard_goto(13);return false;' class="normal" id="link_13"><?php echo _("Sticky") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_14"> > <a href='' onclick='wizard_goto(14);return false;' class="normal" id="link_14"><?php echo _("Sticky diff") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_15"> > <a href='' onclick='wizard_goto(15);return false;' class="normal" id="link_15"><?php echo _("Other") ?></a></td>
-						<td class="nobborder" style="font-size:14px;display:none" id="step_16"> > <a href='' onclick='wizard_goto(16);return false;' class="normal" id="link_16"><?php echo _("User data") ?></a></td>
+						<td class="nobborder" style="font-size:11px" nowrap><?php echo _("Rule")?> <b>configuration</b>: </td>
+						<td class="nobborder" style="font-size:11px" id="step_1" nowrap><a href='' onclick='wizard_goto(1);return false;' class="bold" id="link_1"><?php echo _("Rule name") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_2" nowrap> > <a href='' onclick='wizard_goto(2);return false;' class="normal" id="link_2"><?php echo _("Plugin") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_3" nowrap> > <a href='' onclick='wizard_goto(3);return false;' class="normal" id="link_3"><?php echo _("Plugin Sid") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_4" nowrap> > <a href='' onclick='wizard_goto(4);return false;' class="normal" id="link_4"><?php echo _("Network") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_5" nowrap> > <a href='' onclick='wizard_goto(5);return false;' class="normal" id="link_5"><?php echo _("Protocol") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_6" nowrap> > <a href='' onclick='wizard_goto(6);return false;' class="normal" id="link_6"><?php echo _("Sensor") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_7" nowrap> > <a href='' onclick='wizard_goto(7);return false;' class="normal" id="link_7"><?php echo _("Risk oc") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_8" nowrap> > <a href='' onclick='wizard_goto(8);return false;' class="normal" id="link_8"><?php echo _("Risk time") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_9" nowrap> > <a href='' onclick='wizard_goto(9);return false;' class="normal" id="link_9"><?php echo _("Risk rel") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_10" nowrap> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_11" nowrap> > <a href='' onclick='wizard_goto(11);return false;' class="normal" id="link_11"><?php echo _("Monitor intv") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_12" nowrap> > <a href='' onclick='wizard_goto(12);return false;' class="normal" id="link_12"><?php echo _("Monitor abs") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_13" nowrap> > <a href='' onclick='wizard_goto(13);return false;' class="normal" id="link_13"><?php echo _("Sticky") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_14" nowrap> > <a href='' onclick='wizard_goto(14);return false;' class="normal" id="link_14"><?php echo _("Sticky diff") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_15" nowrap> > <a href='' onclick='wizard_goto(15);return false;' class="normal" id="link_15"><?php echo _("Other") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_16" nowrap> > <a href='' onclick='wizard_goto(16);return false;' class="normal" id="link_16"><?php echo _("User data") ?></a></td>
 					</tr>
 				</table>
 			</td>
@@ -374,7 +448,7 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 			
 				<!-- #################### left container #################### -->
 				<td class="container" style="vertical-align: top">
-				<table class="transparent">
+				<table class="transparent" width="100%">
 				<tr><td class="nobborder">
 				<div id="wizard_0"<?php if (!$add) echo " style='display:none'"?>>
 				<table class="transparent">
@@ -384,7 +458,7 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 					<tr>
 						<td class="center nobborder" style="padding-top:10px">
 							<input type="button" value="Yes" onclick="wizard_next()" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"></input>
-							<input type="button" value="Later"></input>
+							<input type="button" value="Later" onclick="onClickCancel(<?php echo $directive . ',' . $new_level; ?>)"></input>
 						</td>
 					</tr>
 				</table>
@@ -414,22 +488,7 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 				<div id="wizard_6" style="display:none">
 				<table class="transparent">
 				<tr><td class="container">
-				<?php
-			include ("sensor.inc.php");
-			$directive = GET("directive");
-			$level = GET("level");
-			$id = GET("id");
-			$xml_file = GET('xml_file');
-			ossim_valid($directive, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive"));
-			ossim_valid($level, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("level"));
-			ossim_valid($id, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("id"));
-			ossim_valid($xml_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
-			if (ossim_error()) {
-			    die(ossim_error());
-			}
-			if ($rule->is_new() && $level > 1) $new_level = $level - 1;
-			else $new_level = $level;
-			?>
+				<?php include ("sensor.inc.php"); ?>
 				</td></tr>
 				</table>
 				</div>
@@ -461,7 +520,10 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 					<input type="hidden" name="id" value="<?php echo $id; ?>" />
 					<input type="hidden" name="xml_file" value="<?php echo $xml_file; ?>" />
 					<input type="hidden" name="type" id="type" value="<?php echo getPluginType($rule->plugin_id); ?>" />
-					<input type="button" style="width: 130px; cursor:pointer;" value="<?php echo gettext('Back to directives'); ?>" onclick="onClickCancel(<?php echo $directive . ',' . $new_level; ?>)"/>
+					<input type="button" style="width: <?php echo ($rule->plugin_id) ? "80" : "130" ?>px; cursor:pointer;" value="<?php echo ($rule->plugin_id) ? _("Cancel") : gettext('Back to directives'); ?>" onclick="onClickCancel(<?php echo $directive . ',' . $new_level; ?>)"/>
+					<?php if ($rule->plugin_id) { ?>
+					&nbsp;<input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Save and finish") ?>" onclick="save_all();document.getElementById('frule').submit()">
+					<?php } ?>
 				</td></tr>
 			
 				</table>

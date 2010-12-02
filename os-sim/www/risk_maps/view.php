@@ -120,6 +120,7 @@ check_writable_relative("./pixmaps/uploaded");
 <title><?= _("Alarms") ?> - <?= _("View")?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="./custom_style.css">
+
 <style type="text/css">
 	.itcanbemoved { position:absolute; }
 </style>
@@ -415,7 +416,7 @@ if(!$hide_others){
 <input type="hidden" name="map" value="<?=$_GET['map']?>">
 <input type="hidden" name="default" value="1">
 <tr>
-	<td><input type="submit" value="<?=_("Set as Default")?>" class="btn"></td>
+	<td><input type="submit" value="<?=_("Set as Default")?>" class="button"></td>
 </tr>
 </form>
 </table>

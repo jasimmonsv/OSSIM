@@ -54,7 +54,7 @@ function build_url($action, $extra) {
 	return $url;
 }
 
-ini_set('memory_limit', '128M');
+//ini_set('memory_limit', '128M');
 
 require_once ('classes/Util.inc');
 require_once ("classes/Alarm.inc");
@@ -83,7 +83,7 @@ ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
 ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
 ossim_valid($from_date, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from_date"));
 ossim_valid($to_date, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to_date"));
-ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, OSS_PUNC_EXT, 'illegal:' . _("name"));
+ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, OSS_PUNC_EXT, '\<\>', 'illegal:' . _("name"));
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
 if (ossim_error()) {
     die(ossim_error());

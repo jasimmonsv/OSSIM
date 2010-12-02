@@ -1382,7 +1382,7 @@ function submit() {
 ?>
     <!-- submit -->
     
-    <input type="submit" name="update" class="btn" style="font-size:12px" value=" <?php
+    <input type="submit" name="update" class="button" style="font-size:12px" value=" <?php
     echo gettext("Update configuration"); ?> " />
     
 	<br><br>
@@ -1659,14 +1659,14 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
     if ($advanced && $val["title"]=="RRD") {
 ?>
 		<tr><td colspan="3" align="center">
-		<input type="button" onclick="document.location.href='../rrd_conf/rrd_conf.php'" VALUE="<?php echo _("RRD Profiles definition") ?>" class="btn"> 
+		<input type="button" onclick="document.location.href='../rrd_conf/rrd_conf.php'" VALUE="<?php echo _("RRD Profiles definition") ?>" class="button"> 
 		</td></tr>
 		<?php
     }
     if ($advanced && $val["title"]=="Policy") {
 ?>
 		<tr><td colspan="3" align="center">
-		<input type="button" onclick="document.location.href='../policy/reorderpolicies.php'" VALUE="<?php echo _("Re-order Policies") ?>" class="btn"> 
+		<input type="button" onclick="document.location.href='../policy/reorderpolicies.php'" VALUE="<?php echo _("Re-order Policies") ?>" class="button"> 
 		</td></tr>
 		<?php
     }
@@ -1747,7 +1747,7 @@ submit();
 	<br><br>
 	<input type='hidden' name="adv" value="<?php
 	echo ($advanced) ? "1" : "" ?>">
-	<input type="submit" VALUE="<?=_('search')?>" class="btn" style="font-size:12px">
+	<input type="submit" VALUE="<?=_('search')?>" class="button" style="font-size:12px">
 	<input type="hidden" name="nconfs" value="<?php
 	echo $count ?>">
 	</td>

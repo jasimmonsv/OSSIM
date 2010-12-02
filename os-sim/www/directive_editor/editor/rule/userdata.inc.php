@@ -220,6 +220,6 @@ echo str_replace("'", "", str_replace("\"", "", $rule->userdata9)); ?>"
 			/>
 		</td>
 	</tr>
-	<tr><td class="center nobborder" colspan="2" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Finish") ?>" onclick="wizard_next();"></td></tr>
+	<?php if (!$rule->plugin_id) { ?><tr><td class="center nobborder" colspan="2" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Finish") ?>" onclick="wizard_next();"></td></tr><?php } ?>
 </table>
 <!-- #################### END: userdata ##################### -->

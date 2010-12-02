@@ -100,6 +100,7 @@ if (count($database_servers) > 1) {
 if (count($logger_servers) == 0) {
 	$num_servers = 1;
 	$framework_ip = $conf->get_conf("frameworkd_address", FALSE);
+	if (!$ip_to_name[$framework_ip]) $ip_to_name[$framework_ip] = $framework_ip;
 	$logger_servers[$ip_to_name[$framework_ip]] = "127.0.0.1";
 }
 $from_remote = ($ip_list != "") ? 1 : 0;

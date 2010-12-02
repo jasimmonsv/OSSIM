@@ -103,7 +103,7 @@ if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::men
             "name" => gettext("Risk Metrics") ,
             "id" => "Metrics",
             "target" => "main",
-            "url" => "control_panel/global_score.php?range=month",
+            "url" => "control_panel/global_score.php?range=day",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboards:risk:risk_metrics','DashboardHelp');"
         );
     }
@@ -1188,6 +1188,13 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) { $configu
 			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugin_groups','Help');"
 		);
 	}
+        $hmenu["Plugins"][] = array(
+		"name" => gettext("Custom Collectors") ,
+		"id" => "Custom Collectors",
+		"url" => "policy/collectors.php",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:custom_collectors','Help');"
+        );
+
 }
 /*
 if (Session::menu_perms("MenuConfiguration", "ConfigurationRRDConfig")) {

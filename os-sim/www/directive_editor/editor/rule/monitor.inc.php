@@ -74,7 +74,7 @@ if ($rule->value != 'Default' && !in_array(intval($rule->interval) , $interval_l
 <div id="wizard_10" style="display:none">
 <input type="hidden" name="condition" id="condition" value="<?php echo $rule->condition ?>"></input>
 <input type="hidden" name="value" id="value" value="<?php echo $rule->value ?>"></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<!-- ##### condition AND value ##### -->
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
@@ -104,7 +104,7 @@ if ($rule->value != 'Default' && !in_array(intval($rule->interval) , $interval_l
 
 <div id="wizard_11" style="display:none">
 <input type="hidden" name="interval" id="interval" value="<?php echo $rule->interval ?>"></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<!-- ##### interval ##### -->
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
@@ -120,16 +120,16 @@ if ($rule->value != 'Default' && !in_array(intval($rule->interval) , $interval_l
 
 <div id="wizard_12" style="display:none">
 <input type="hidden" name="absolute" id="absolute" value="<?php echo $rule->absolute ?>"></input>
-	<table class="transparent">
+	<table class="transparent" width="100%">
 		<!-- ##### absolute ##### -->
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
 				<?php echo gettext("Monitor absolute"); ?>
 			</th>
 		</tr>
-		<tr><td class="center nobborder"><input type="button" value="Default" onclick="document.getElementById('absolute').value = 'Default';wizard_next();" style="width:50px<?php if ($rule->absolute == "Default") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
-		<tr><td class="center nobborder"><input type="button" value="true" onclick="document.getElementById('absolute').value = 'true';wizard_next();" style="width:50px<?php if ($rule->absolute == "true") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
-		<tr><td class="center nobborder"><input type="button" value="false" onclick="document.getElementById('absolute').value = 'false';wizard_next();" style="width:50px<?php if ($rule->absolute == "false") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="Default" onclick="document.getElementById('absolute').value = 'Default';wizard_next();" style="width:80px<?php if ($rule->absolute == "Default") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="true" onclick="document.getElementById('absolute').value = 'true';wizard_next();" style="width:80px<?php if ($rule->absolute == "true") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="false" onclick="document.getElementById('absolute').value = 'false';wizard_next();" style="width:80px<?php if ($rule->absolute == "false") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
 	</table>
 </div>
 <!-- #################### END: monitor ##################### -->

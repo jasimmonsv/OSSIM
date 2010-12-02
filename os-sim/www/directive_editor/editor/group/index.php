@@ -215,13 +215,13 @@ include ("$base_dir/directive_editor/editor/group/global.inc.php"); ?>
 	</td></tr>
 
 	<tr><td class="container" style="border:0px">
-		<input type="button" class="btn" style="width: 100px"
+		<input type="button" class="button" style="width: 100px"
 			value="<?php
 echo gettext('Cancel'); ?>"
 			onclick="onClickCancel()"
 		/>
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<input type="button" class="btn" style="width: 100px"
+		<input type="button" class="button" style="width: 100px"
 			id="save"
 			value="<?php
 echo gettext('Save'); ?>"

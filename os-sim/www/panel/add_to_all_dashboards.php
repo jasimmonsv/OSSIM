@@ -79,10 +79,14 @@ if(POST('action')=='save'){
 	$config = new User_config($conn);
 	// clean smenu && hmenu
 	$url=base64_decode($url);
+	// check exist ?
+	if(strpos($url,'?')===false){
+		$url.='?';
+	}
+	//
 	$url=str_replace('hmenu', 'older-hmenu', $url);
 	$url=str_replace('smenu', 'older-smenu', $url);
 	$url.='&hmenu=dashboards&smenu=dashboards';
-		
 	foreach($users as $user){
 		//
 		//$panel_urls = Window_Panel_Ajax::getPanelUrls();
@@ -228,9 +232,9 @@ if(preg_match("/pro|demo/i",$version)) {
 		//users
 		$users_admin = Acl::get_my_users($dbconn,Session::get_session_user()); 
 		foreach ($users_admin as $u){
-			if($u["login"]!=Session::get_session_user()){
+		//	if($u["login"]!=Session::get_session_user()){
 				$users_pro_login[] = $u["login"];
-			}
+		//	}
 		}
 		//if(!in_array(Session::get_session_user(), $users_pro_login) && $incident_in_charge!=Session::get_session_user())   $users_pro_login[] = Session::get_session_user();
 		
@@ -252,31 +256,35 @@ if(preg_match("/pro|demo/i",$version)) {
 		}
 		
 		// filter users
+		$users_pro=array();
 		foreach($users as $u) {
-			if (!in_array($u->get_login(),$users_pro_login)) continue;
-			$users_pro[$u->get_login()] = format_user($u, false);
+			if (!in_array($u->get_login(),$users_pro_login)){
+				continue;
+			}
+			$users_pro[]=array(
+				'login'=>$u->get_login(),
+				'name'=>$u->get_name()
+			);
 		}
 		?>
-		<tr>
-			<th><?php echo _("Assign To") ?></th>
-			<td style="text-align:left;padding-left:5px;" class="nobborder">
-				<table width="400" cellspacing="0" cellpadding="0" class="transparent">
-					<tr>
-						<td class="nobborder"><?php echo _("User:");?></td>
-						<td class="nobborder">
-						  <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
-							<option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-							<?php
-							foreach($users_pro as $loginu => $nameu) { ?>
-								<option value="<?php echo $loginu; ?>"><?php echo $nameu; ?></option>
-							<?php
-							} ?>
-						  </select>
-						</td>
-					</tr>
-				</table>
-			</td>
-		</tr> 
+		<table cellspacing="0" cellpadding="0" align="center">
+				<tr>
+					<th class="nobborder"><strong><?php echo _("Select Users:");?></strong></th>
+				</tr>
+				<tr>
+					<td class="nobborder">
+					<?php
+					foreach($users_pro as $u){ ?>
+						<input type="checkbox" name="users[]" value="<?php echo $u['login']; ?>" checked /> <?php echo format_user($u,false) ?><br />
+					<?php
+					}
+					?>
+					</td>
+				</tr>
+			</table>
+			<input type="hidden" name="action" value="save" />
+			<input type="hidden" name="name" value="<?php echo $name; ?>" />
+			<input type="hidden" name="url" value="<?php echo $url; ?>" />
 	<?php
 	}else { // normal user
 		// no add to all ...
@@ -331,14 +339,9 @@ if(preg_match("/pro|demo/i",$version)) {
         return '';
     }
     $ret = $name;
-    if ($depto && $company) $ret.= " / $depto / $company";
-    if ($mail && $show_email) $ret = "$ret &lt;$mail&gt;";
-    if ($login) $ret = "<label title=\"Login: $login\">$ret</label>";
-    if ($mail) {
-        $ret = '<a href="mailto:' . $mail . '">' . $ret . '</a>';
-    } else {
-        $ret = "$ret <font size=small color=red><i>(No email)</i></font>";
-    }
+	if ($login) $ret = "<label title=\"Login: $login\">$ret</label>";
+    //if ($depto && $company) $ret.= " / $depto / $company";   
+
     return $html ? $ret : strip_tags($ret);
 }
 ?>

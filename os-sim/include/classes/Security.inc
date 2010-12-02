@@ -142,6 +142,7 @@ function html_vul_scan($string, $is_get) {
 /*
 * Scan all HTTP vars disallowing common exploits like XSS
 */
+$_html_vars_checked = true;
 if (!isset($_html_vars_checked)) {
     $_is_get = true;
     foreach(array(
@@ -160,7 +161,7 @@ if (!isset($_html_vars_checked)) {
         }
         $_is_get = false;
     }
-    $_html_vars_checked = true;
+    
 }
 /*
 
@@ -571,6 +572,10 @@ function valid_ipcidr($ip) {
 	if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) {
         return true;
     }
+    else if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
+        return true;
+    }
+    
     ossim_set_error(_("Invalid IP/CIDR address. Format allowed: nnn.nnn.nnn.nnn/nn?") . "<br/>Entered ip: '<b>$ip</b>'");
     return false;
 }

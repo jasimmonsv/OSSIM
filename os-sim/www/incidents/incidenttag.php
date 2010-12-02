@@ -146,8 +146,8 @@ if ($action == 'new1step' || $action == 'mod1step') {
         <td class="left"><textarea name="descr" cols="35" rows="15"><?php echo $descr ?></textarea></td>
     </tr>
     <tr><th colspan="2" align="center">
-        <input type="submit" value="<?=_("OK")?>" class="btn">&nbsp;
-        <input type="button" class="btn" onClick="document.location = '<?php echo $_SERVER['SCRIPT_NAME'] ?>'" value="<?php echo _("Cancel") ?>">
+        <input type="submit" value="<?=_("OK")?>" class="button">&nbsp;
+        <input type="button" class="button" onClick="document.location = '<?php echo $_SERVER['SCRIPT_NAME'] ?>'" value="<?php echo _("Cancel") ?>">
     </th></tr>
 </table>    
 </form>

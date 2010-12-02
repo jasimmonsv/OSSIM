@@ -50,6 +50,8 @@ $menu_opc = GET('hmenu');
 $menu_sopc = GET('smenu');
 ossim_valid($menu_opc, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Option"));
 ossim_valid($menu_sopc, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("SubOption"));
+//
+ossim_valid($typeMenu, OSS_NULLABLE, 'horizontal', 'illegal:' . _("typeMenu"));
 if (ossim_error()) die(ossim_error());
 if ($menu_opc != "") $_SESSION["menu_opc"] = $menu_opc;
 if ($menu_sopc != "") $_SESSION["menu_sopc"] = $menu_sopc;
@@ -78,13 +80,15 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 		<tr>
 			<td style="width:15px;border-bottom:1px solid #8E8E8E;vertical-align:bottom">&nbsp;</td>
 			<td class="nobborder" style="padding-top:7px;">
+			
 					<link href="../style/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
-					<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+					<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>				
+					<script type="text/javascript"> if (typeof($) != 'function') document.write('<script type="text/javascript" src="../js/jquery-1.3.2.min.js">'); </script>
 					<script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 					<script src="../js/greybox.js" type="text/javascript"></script>
-
+					<script type="text/javascript" src="../js/jquery.base64.js"></script>
 						<script type="text/javascript">
-						function load_contextmenu() {
+						function load_contextmenu_hmenu() {
 							$('.tab2menu').contextMenu({
 									menu: 'tab2menu'
 								},
@@ -121,9 +125,18 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 										}
 									}
 									
-									if($addAll){
+									if($addAll&&$typeMenu=='horizontal'){
 										?>
 										else if(action=='addAll'){
+											window.parent.document.getElementsByTagName("FRAMESET").item(0).rows='*,0';
+											GB_TYPE = 'w';
+											GB_show('<?php echo _('Add to all dashboards');?>','../panel/add_to_all_dashboards.php?url='+$.base64.encode(window.parent.document.getElementsByTagName("FRAME").item(1).src)+'&name='+title ,380,"30%");
+										}
+									<?php
+									}else if($addAll){
+									?>
+										else if(action=='addAll'){
+											GB_TYPE = 'w';
 											GB_show('<?php echo _('Add to all dashboards');?>','../panel/add_to_all_dashboards.php?url=<?php echo base64_encode($_SERVER['REQUEST_URI']);?>&name='+title ,380,"30%");
 										}
 										<?php
@@ -132,18 +145,36 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 									}
 								);
 						}
-
+						<?php if($addAll&&$typeMenu=='horizontal'){ ?>
+						 function GB_onclose() {
+							window.parent.document.getElementsByTagName("FRAMESET").item(0).rows='35,*';
+						}
+						<?php } ?>
 						$(document).ready(function(){
-							load_contextmenu();
+							load_contextmenu_hmenu();
 						});
 						</script>
 						<div id="ajaxTab2menu"></div>
-						<ul class="contextMenu" id="tab2menu">
+						<?php if($typeMenu=='horizontal'){ ?>
+						<style type="text/css">
+							.contextMenu2{
+								top: 8px !important;
+							}
+							.contextMenu2 li {
+								float: left;
+							}
+							.addUser {
+								border-left: 1px solid #CCCCCC;
+							}
+						</style>
+						<?php } ?>
+						<ul class="contextMenu contextMenu2" id="tab2menu">
 						<?php if($addAll){ ?>
 							<li class="addAll"><a href="#addAll"><?php echo _('Add to all dashboards');?></a></li>
 						<?php } ?>
 							<li class="addUser"><a href="#addUser"><?php echo _('Add to user dashboard');?></a></li>
 						</ul>
+						
 				<table class="noborder" width="100%" border='0' cellpadding='0' cellspacing='0' style="background:transparent;">
 					<tr>
 	<?php

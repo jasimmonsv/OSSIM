@@ -215,9 +215,9 @@ foreach($categories as $category) {
         			<td style="text-align:left;border:0px;font-size:12px"><?php echo gettext(ucwords($name_div)); ?><?php if (count($tab_this_category) > 0) { ?> <font style="color:#666666;font-size:10px">[<?php echo count($tab_this_category) ?> <?php echo _("directive"); if (count($tab_this_category) > 1) echo "s"; ?>]</font><?php } ?></td>
         			<td width="20" align="right" style="border:0px">
             		  <?php if ($category->active) { ?>
-            		  <a href="main.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="marging-left:20px;" TITLE="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
+            		  <a href="main.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="marging-left:20px;" TITLE="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Disable this category"); ?>" title="<?php echo gettext("Disable this category"); ?>"></img></a>
             		  <?php } else { ?>
-            		  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="marging-left:20px;" TITLE="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
+            		  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="marging-left:20px;" TITLE="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Enable this category"); ?>" title="<?php echo gettext("Enable this category"); ?>"></img></a>
             		  <?php } ?>
         			</td>
         			<td width="20" align="right" style="border:0px">

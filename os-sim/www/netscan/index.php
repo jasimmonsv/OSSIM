@@ -62,7 +62,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script>
     // enable text input when manual option is selected
     function check_change() {
@@ -174,10 +174,10 @@ if (is_array($net_list) && !empty($net_list)) {
     <!-- do scan -->
     <tr>
       <td colspan="2" class="nobborder center">
-        <input type="submit" class="btn" style="font-size:12px" value="<?=_("Discover") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
+        <input type="submit" class="button" style="font-size:12px" value="<?=_("Discover") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
         
         <? if (Session::am_i_admin()) { ?>&nbsp;&nbsp;
-        <input type="button" class="btn" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="document.location.href='remote_scans.php'"/>
+        <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="document.location.href='remote_scans.php'"/>
 		<? } ?>
 		
 		</td>

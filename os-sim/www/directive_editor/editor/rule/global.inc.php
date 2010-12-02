@@ -69,12 +69,6 @@ echo str_replace("'", "", str_replace("\"", "", $rule->name)); ?>"
 <div id="wizard_2" style="display:none">
 <?php
 $none_checked = 'true';
-if (empty($order)) $order = 'id';
-$plugin_list = getPluginList('ORDER BY ' . $order);
-$plugin_names = array();
-foreach($plugin_list as $plugin) {
-	$plugin_names[$plugin->get_id()] = $plugin->get_name();
-}
 ?>
 <input type="hidden" name="plugin_id" id="plugin_id" value="<?php echo $rule->plugin_id; ?>" onchange="onChangePluginId()"/>
 <table width="500" class="transparent">
@@ -86,7 +80,7 @@ foreach($plugin_list as $plugin) {
 	</tr>
 	<?php if ($rule->plugin_id != "") { ?>
 	<tr>
-		<td><?php echo _("Already selected")?>: <input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="Continue with <?php echo ($plugin_names[$rule->plugin_id] != "") ? $plugin_names[$rule->plugin_id] : $rule->plugin_id ?>" onclick="wizard_next();init_sids(<?php echo $rule->plugin_id ?>)"></input>&nbsp;<?php echo _("or select another one.") ?></td>
+		<td><?php echo _("Already selected")?>: <input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="Continue with <?php echo ($plugin_names[$rule->plugin_id] != "") ? $plugin_names[$rule->plugin_id] : $rule->plugin_id ?>" onclick="wizard_next();init_sids(<?php echo $rule->plugin_id ?>,<?php echo ($plugin_type == '2') ? "true" : "false" ?>)"></input>&nbsp;<?php echo _("or select another one.") ?></td>
 	</tr>
 	<?php } ?>
 	<tr>
@@ -115,7 +109,7 @@ foreach($plugin_list as $plugin) {
 						    if ($checked != '') $none_checked = 'false';
 						    ?>
 						<tr>
-						    <td width="110" class="nobborder" bgcolor="<?php echo $color ?>"><a href="" onclick="document.getElementById('plugin_id').value='<?php echo $plugin->get_id() ?>';wizard_next();init_sids(<?php echo $plugin->get_id() ?>,<?php echo ($plugin_type == '2') ? "true" : "false" ?>);return false;"><b><?php echo $plugin->get_name() ?></b></a></td>
+						    <td width="110" class="nobborder" bgcolor="<?php echo $color ?>"><a href="" onclick="document.getElementById('plugin_id').value='<?php echo $plugin->get_id() ?>';rm_sids();wizard_next();init_sids(<?php echo $plugin->get_id() ?>,<?php echo ($plugin_type == '2') ? "true" : "false" ?>);return false;"><b><?php echo $plugin->get_name() ?></b></a></td>
 						    <td width="70" class="nobborder" bgcolor="<?php echo $color ?>" nowrap><?php echo $type_name ?></td>
 						    <td class="nobborder" bgcolor="<?php echo $color ?>"><?php echo $plugin->get_description() ?></td>
 						</tr>
@@ -131,8 +125,8 @@ foreach($plugin_list as $plugin) {
 </div>
 
 <div id="wizard_3" style="display:none">
-<input type="hidden" name="plugin_sid" id="plugin_sid" onchange="onChangePluginSid()" value="">
-<input type="hidden" name="plugin_sid_list" id="plugin_sid_list" value="" onchange="onChangePluginSidList()" <?php echo disableIf(!isList($rule->plugin_sid)); ?>/>
+<input type="hidden" name="plugin_sid" id="plugin_sid" onchange="onChangePluginSid()" value="<?php echo ($rule->plugin_sid != "" && $rule->plugin_sid != "ANY") ? "LIST" : "ANY" ?>">
+<input type="hidden" name="plugin_sid_list" id="plugin_sid_list" value="<?php echo ($rule->plugin_sid != "") ? $rule->plugin_sid : "ANY" ?>" onchange="onChangePluginSidList()" <?php echo disableIf(!isList($rule->plugin_sid)); ?>/>
 <table class="transparent" width="500">
 		<!-- ##### plugin sid ##### -->
 	<tr>
@@ -147,7 +141,7 @@ foreach($plugin_list as $plugin) {
 					<td class="nobborder">
 					<select id="pluginsids" class="multiselect_sids" multiple="multiple" name="sids[]" style="display:none;width:1000px">
 				    <?
-				    if (isList($rule->plugin_sid) && $rule->plugin_sid != "") {
+				    if (isList($rule->plugin_sid) && $rule->plugin_sid != "" && $rule->plugin_id != "" && !preg_match("/\:PLUGIN\_SID/",$rule->plugin_sid)) {
 				    	$sids = explode(",",$rule->plugin_sid);
 				    	$range = "";
 				    	$sin = array();
@@ -160,12 +154,13 @@ foreach($plugin_list as $plugin) {
 				    	}
 				    	if (count($sin)>0) $where = "sid in (".implode(",",$sin).") $range";
 				    	else $where = preg_replace("/^ OR /","",$range);
-				        $plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id AND ($where)");
+				        
+				    	$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=".$rule->plugin_id." AND ($where)");
 				        foreach($plugin_list as $plugin) {
-				            $id = $plugin->get_sid();
-				            $name = "$id - ".trim($plugin->get_name());
+				            $id_plugin = $plugin->get_sid();
+				            $name = "$id_plugin - ".trim($plugin->get_name());
 				            if (strlen($name)>73) $name=substr($name,0,70)."...";
-				            echo "<option value='$id' selected>$name</option>\n";
+				            echo "<option value='$id_plugin' selected>$name</option>\n";
 				        }
 				    }
 				    ?>
@@ -178,15 +173,15 @@ foreach($plugin_list as $plugin) {
 	<tr><td class="nobborder">&middot; <i><?php echo _("Empty selection means ANY signature") ?></i></td></tr>
 	<tr>
 		<td class="center nobborder" style="padding-top:10px">
-			<input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="save_sids();wizard_next();">
+			<input type="button"<?php if (!preg_match("/\:PLUGIN\_SID/",$rule->plugin_sid)) { ?> style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"<?php } ?> value="<?php echo ($rule->level > 1) ? _("Selected from List") : _("Next") ?>" onclick="wizard_next();">
 		</td>
 	</tr>
 	<?php for ($i = 1; $i <= $rule->level - 1; $i++) {
 			$sublevel = $i . ":PLUGIN_SID";
 			//echo "<option value=\"$sublevel\">$sublevel</option>";
-			?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick=""></td></tr><?php
+			?><tr><td class="center nobborder"><input type="button" value="<?php echo _("Plugin Sid from rule of level")." $i" ?>"<?php if ($rule->plugin_sid == $sublevel) { ?> style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"<?php } ?> onclick="document.getElementById('plugin_sid').value='<?php echo $sublevel ?>';wizard_next()"></td></tr><?php
 			$sublevel = "!" . $i . ":PLUGIN_SID";
-			?><tr><td class="center nobborder"><input type="button" value="<?php echo $sublevel ?>" onclick=""></td></tr><?php
+			?><tr><td class="center nobborder"><input type="button" value="<?php echo "!"._("Plugin Sid from rule of level")." $i" ?>"<?php if ($rule->plugin_sid == $sublevel) { ?> style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"<?php } ?> onclick="document.getElementById('plugin_sid').value='<?php echo $sublevel ?>';wizard_next()"></td></tr><?php
 			//echo "<option value=\"$sublevel\">$sublevel</option>";?>
 	<?php } ?>
 	<!--
