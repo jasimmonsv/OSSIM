@@ -35,7 +35,7 @@
 * Classes list:
 */
 set_time_limit(900);
-ini_set('memory_limit', '128M');
+//ini_set('memory_limit', '128M');
 require_once ('classes/Session.inc');
 require_once ('classes/Net.inc');
 Session::logcheck("MenuEvents", "EventsForensics");

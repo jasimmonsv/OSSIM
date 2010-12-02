@@ -33,7 +33,7 @@
 //
 // $Id: webconfig.php,v 1.9 2010/04/16 17:34:54 jmalbarracin Exp $
 //
-ini_set('memory_limit', '128M');
+//ini_set('memory_limit', '128M');
 ob_implicit_flush(true);
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");

@@ -486,7 +486,7 @@ function GetTimeDataSet(&$xdata, $chart_type, $data_source, $min_threshold, $cri
         if (empty($Geo_IPfree_file_ascii) || !is_file($Geo_IPfree_file_ascii) || !is_readable($Geo_IPfree_file_ascii)) {
             return 0;
         }
-        ini_set("memory_limit", "50M");
+        //ini_set("memory_limit", "50M");
         $lines = file($Geo_IPfree_file_ascii);
         if ($lines == FALSE) {
             print "WARNING: " . $Geo_IPfree_file_ascii . " could not be opened.<BR>\n";

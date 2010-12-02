@@ -54,7 +54,7 @@ function build_url($action, $extra) {
 	return $url;
 }
 
-ini_set('memory_limit', '128M');
+//ini_set('memory_limit', '128M');
 
 require_once ('classes/Util.inc');
 require_once ("classes/Alarm.inc");

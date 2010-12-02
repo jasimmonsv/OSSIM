@@ -949,7 +949,7 @@ EOT;
     //$stmt = $dbconn->Prepare($famQuery);
     $famTabs = "<option id=\"select_family\" selected>"._("Select Family")."</option>";
     $famContent = "";
-    ini_set('memory_limit', '256M');
+    //ini_set('memory_limit', '256M');
     foreach ($result as $family) {
         //$chk = ($i==0) ? "selected" : "";
         $famTabs .= "<option value=\"".$family['id']."\">" . $family['name'] . "</option>\n";

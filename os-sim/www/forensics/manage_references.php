@@ -29,7 +29,7 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
-ini_set('memory_limit', '128M');
+//ini_set('memory_limit', '128M');
 require_once 'classes/Security.inc';
 require_once 'classes/Plugin_reference.inc';
 require_once 'classes/Plugin.inc';

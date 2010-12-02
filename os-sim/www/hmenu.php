@@ -144,13 +144,11 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 									}
 								);
 						}
-						
+						<?php if($addAll&&$typeMenu=='horizontal'){ ?>
 						 function GB_onclose() {
-							<?php if($addAll&&$typeMenu=='horizontal'){ ?>
 							window.parent.document.getElementsByTagName("FRAMESET").item(0).rows='35,*';
-							<?php } ?>
 						}
-	
+						<?php } ?>
 						$(document).ready(function(){
 							load_contextmenu_hmenu();
 						});
