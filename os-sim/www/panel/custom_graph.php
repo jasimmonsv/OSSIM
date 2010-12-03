@@ -124,8 +124,10 @@ if (Session::allowedSensors() != "") {
 	$user_sensors = explode(",",Session::allowedSensors());
 	$snortsensors = Event_viewer::GetSensorSids($conn_snort);
 	$sensor_str = "";
-	foreach ($user_sensors as $user_sensor) if ($user_sensor != "")
-		if (count($snortsensors[$user_sensor]) > 0) $sensor_str .= ($sensor_str != "") ? ",".implode(",",$snortsensors[$user_sensor]) : implode(",",$snortsensors[$user_sensor]);
+	foreach ($user_sensors as $user_sensor) if ($user_sensor != "" && array_key_exists($user_sensor, $snortsensors)) {
+		if (count($snortsensors[$user_sensor]) > 0)
+			$sensor_str .= ($sensor_str != "") ? ",".implode(",",$snortsensors[$user_sensor]) : implode(",",$snortsensors[$user_sensor]);
+		}	
 	if ($sensor_str == "") $sensor_str = "0";
 	$sensor_where = " alarm.snort_sid in (" . $sensor_str . ")";
 	$sensor_where_sid = "sid in (" . $sensor_str . ")";
