@@ -152,7 +152,7 @@ while (!$result->EOF) {
             $limage_id = $found[1];
             ?>
 			<input type=hidden name=name value="map<? echo ($limage_id+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
-			<input type=submit value="<?= _("Upload") ?>" class="btn" style="font-size:12px">
+			<input type=submit value="<?= _("Upload") ?>" class="button" style="font-size:12px">
 			</form>
 		</td>
 	</tr>
@@ -187,7 +187,7 @@ while (!$result->EOF) {
 									<?php if ($n == $default_map) { ?>
 									<font style=""><?php echo _("DEFAULT MAP") ?></font>
 									<?php } else {?>
-									<input type="button" onclick="document.location.href='changemap.php?map=<?php echo $map?>&default=<?php echo $n?>'" value="<?php echo $deftxt?>" class="btn"></input>
+									<input type="button" onclick="document.location.href='changemap.php?map=<?php echo $map?>&default=<?php echo $n?>'" value="<?php echo $deftxt?>" class="button"></input>
 									<?php }?>
 								</td>
 							</tr>

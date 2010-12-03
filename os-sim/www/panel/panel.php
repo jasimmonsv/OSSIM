@@ -560,27 +560,19 @@ if (GET('interface') == 'ajax') {
 <script>
 <!--
 function doIframe2(){
+        loadingIframe()
 	o = document.getElementById('dashboardsIframe');
 	if (o != null) {
    	  setHeight2(o);
-	  addEvent2(o,'load', doIframe2);	
+	  addEvent2(o,'load',doIframe2);
         }
 }
 
 function setHeight2(e){
-/*if (e.Document && e.Document.body.scrollHeight) //ie5+ syntax
-e.height = e.contentWindow.document.body.scrollHeight;
-
-else if (e.contentDocument && e.contentDocument.body.scrollHeight) //ns6+ & opera syntax
-e.height = e.contentDocument.body.scrollHeight + 35;
-
-else (e.contentDocument && e.contentDocument.body.offsetHeight) //standards compliant syntax – ie8
-e.height = e.contentDocument.body.offsetHeight + 35;
-*/
 	if(e.contentDocument){
-		e.height = e.contentDocument.body.offsetHeight + 35;
+		if (e.contentDocument.body.offsetHeight>500) e.height = e.contentDocument.body.offsetHeight + 35;
 	} else {
-		e.height = e.contentWindow.document.body.scrollHeight + 35;
+	        if (e.contentWindow.document.body.scrollHeight>500) e.height = e.contentWindow.document.body.scrollHeight + 35;
 	}
 }
 
@@ -603,7 +595,7 @@ function addEvent2(obj, evType, fn){
 
 
 if (document.getElementById && document.createTextNode){
-	addEvent2(window,'load', doIframe2);	
+	addEvent2(window,'load', doIframe2);
 }
 
 function wopen(url, name, w, h)
@@ -823,7 +815,7 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 		<img src="../pixmaps/loading3.gif" /> <?php echo _('Loading content'); ?>
 	</div>
 </div>
-<iframe id="dashboardsIframe" src="<?php echo $tabs[$panel_id]['tab_url']; ?>" scrolling="auto" frameborder="0" height="530" onload="loadingIframe()"></iframe>
+<iframe id="dashboardsIframe" src="<?php echo $tabs[$panel_id]['tab_url']; ?>" scrolling="auto" frameborder="0" height="535"></iframe>
 <?php
 }else{
 // tab normal

@@ -979,7 +979,8 @@ if (Session::menu_perms("MenuMonitors", "MonitorsNetflows")) { $monitors = 1;
         "id" => "Profiles",
         "target" => "main",
         "url" => "ntop/index.php?opc=services&sensor=" . $sensor_ntop["host"],
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:network:profiles','Help');"
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:network:profiles','Help');",
+		"nFrame" => ""
     );
 	$rmenu["Profiles"][] = array(
        "name" => gettext("Services"),

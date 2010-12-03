@@ -298,7 +298,7 @@ if (count($host_list) < 1 && !$errors) {
 ?>
 <table class="noborder" align="center" width="100%">
 	<tr><td class="nobborder" style="text-align:center">All host filtered. No results found.</td></tr>
-	<tr><td class="nobborder" style="padding-top:10px;text-align:center"><input type="button" value="Back" onclick="document.location.href='<?=(GET('userfriendly')) ? "userfriendly.php" : "inventory_search.php"?>'" class="btn"></td></tr>
+	<tr><td class="nobborder" style="padding-top:10px;text-align:center"><input type="button" value="Back" onclick="document.location.href='<?=(GET('userfriendly')) ? "userfriendly.php" : "inventory_search.php"?>'" class="button"></td></tr>
 </table>
 <? } elseif(!$errors) {
 	$hosts = Host::get_list($conn);
@@ -342,14 +342,14 @@ if (count($host_list) < 1 && !$errors) {
 				<tr>
 					<td class="left nobborder" style="text-align:left;padding:5px" width="33%" nowrap>
 						<? if (GET('userfriendly')) { ?>
-						<input type="button" value="<?=_("New Search")?>" onclick="document.location.href = 'userfriendly.php?hmenu=Asset+Search&smenu=Asset+Search'" class="btn" style="font-size:12px">&nbsp;
+						<input type="button" value="<?=_("New Search")?>" onclick="document.location.href = 'userfriendly.php?hmenu=Asset+Search&smenu=Asset+Search'" class="button" style="font-size:12px">&nbsp;
 						<? } else { ?>
-						<input type="button" value="<?=_("Edit Search")?>" onclick="document.location.href = 'inventory_search.php?hmenu=Asset+Search&smenu=Advanced'" class="btn" style="font-size:12px">&nbsp;
-						<input type="button" value="<?=_("New Search")?>" onclick="document.location.href = 'inventory_search.php?new=1&hmenu=Asset+Search&smenu=Advanced'" class="btn" style="font-size:12px">&nbsp;&nbsp;
+						<input type="button" value="<?=_("Edit Search")?>" onclick="document.location.href = 'inventory_search.php?hmenu=Asset+Search&smenu=Advanced'" class="button" style="font-size:12px">&nbsp;
+						<input type="button" value="<?=_("New Search")?>" onclick="document.location.href = 'inventory_search.php?new=1&hmenu=Asset+Search&smenu=Advanced'" class="button" style="font-size:12px">&nbsp;&nbsp;
 						<input type="text" value="" name="last_profile" id="last_profile" style="width:60px;font-size:10px">
-						<input type="button" value="<?=_("Save Search")?>" id="save_button" onclick="profile_save(document.getElementById('last_profile').value)" class="btn" style="font-size:10px">&nbsp;
+						<input type="button" value="<?=_("Save Search")?>" id="save_button" onclick="profile_save(document.getElementById('last_profile').value)" class="button" style="font-size:10px">&nbsp;
 						<? } ?>
-						<!--<input type="button" value="<?=_("Reload")?>" onclick="document.location.reload()" class="btn" style="font-size:12px">-->
+						<!--<input type="button" value="<?=_("Reload")?>" onclick="document.location.reload()" class="button" style="font-size:12px">-->
 					</td>
 					<? if ($last_page > 1) { ?>
 					<td class="center nobborder" width="34%">
