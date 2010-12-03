@@ -4704,7 +4704,7 @@ sub update_ossim_incidents {
                 my ($hash_false_incident) = $sth_inc->fetchrow_array;
                 $sth_inc->finish;
                 if ($hash_false_incident eq "") {
-                    $sql_inc = qq{ UPDATE incident SET status = 'Open' WHERE id = '$id_inc', in_charge = '$username' };
+                    $sql_inc = qq{ UPDATE incident SET status = 'Open' WHERE id = '$id_inc' AND in_charge = '$username' };
                     safe_db_write( $sql_inc, 4 );
                     my $ticket_id = genID("incident_ticket_seq");
                     my $sql_ticket = qq { INSERT INTO incident_ticket (id, incident_id, date, status, priority, users, description) values ('$ticket_id', '$id_inc', now(), 'Open', '$priority', 'admin','Automatic open of the incident') };
