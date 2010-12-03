@@ -75,6 +75,7 @@ if (!$opensource) {
                   addto_tree(item);
                });
                $('#refreshing').hide();
+               if (typeof(parent.doIframe2)=="function") parent.doIframe2();
                setTimeout('refresh_tree()',10000);
 	        }
 		 );    

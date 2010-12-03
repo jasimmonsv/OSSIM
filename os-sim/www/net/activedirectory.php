@@ -108,6 +108,9 @@ include ("../hmenu.php");
 		else
 			return 700;
 	}
+	function get_height() {
+	   return parseInt($(document).height()) - 200;
+	}	
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
 		if (com=='Delete selected') {
@@ -210,7 +213,7 @@ echo "$colModel\n";
 		showTableToggleBtn: true,
 		singleSelect: true,
 		width: get_width('headerh1'),
-		height: <?php echo $height ?>,
+		height: get_height(),
 		onColumnChange: save_layout,
 		onEndResize: save_layout
 	});   

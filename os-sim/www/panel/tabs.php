@@ -1,5 +1,5 @@
-<div style="position:absolute;left:0px;top:0px;width:100%;background:#8E8E8E;" class="noborder">
-	<table width="100%" border='0' cellpadding='0' cellspacing='0' style="background:transparent" class="noborder">
+<div style="position:absolute;left:0px;top:0px;width:100%;background:#8E8E8E" class="noborder">
+	<table width="100%" border='0' cellpadding='0' cellspacing='0' style="background:#8E8E8E" class="noborder">
 	<tr>
 		<td style="width:15px;vertical-align:bottom" class="noborder">&nbsp;</td>
 		<td style="padding-top:7px" class="noborder">

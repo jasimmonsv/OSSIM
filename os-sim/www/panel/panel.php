@@ -560,20 +560,23 @@ if (GET('interface') == 'ajax') {
 <script>
 <!--
 function doIframe2(){
-        loadingIframe()
+	loadingIframe()
 	o = document.getElementById('dashboardsIframe');
 	if (o != null) {
-   	  setHeight2(o);
-	  addEvent2(o,'load',doIframe2);
-        }
+		setHeight2(o);
+		addEvent2(o,'load',doIframe2);
+	}
 }
 
 function setHeight2(e){
 	if(e.contentDocument){
-		if (e.contentDocument.body.offsetHeight>500) e.height = e.contentDocument.body.offsetHeight + 35;
+		if (e.contentDocument.body.offsetHeight>500)
+			e.height = e.contentDocument.body.offsetHeight + 85;
 	} else {
-	        if (e.contentWindow.document.body.scrollHeight>500) e.height = e.contentWindow.document.body.scrollHeight + 35;
+	    if (e.contentWindow.document.body.scrollHeight>500)
+	    	e.height = e.contentWindow.document.body.scrollHeight + 85;
 	}
+	//alert(e.height);
 }
 
 function addEvent2(obj, evType, fn){
@@ -617,8 +620,7 @@ h = (screen.availHeight) ? screen.availHeight : h + 96;
 
 function loadingIframe(){
 	o = document.getElementById('dashboardsIframeLoading');
-
-	o.style.visibility='hidden';
+	if (o != null) o.style.visibility='hidden';
 }
 
 // -->

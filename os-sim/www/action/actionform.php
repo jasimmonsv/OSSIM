@@ -108,10 +108,6 @@ else {
 
   <script>
     $(document).ready(function() {
-        $('#send').bind('click', function() {
-            submit_form();
-        });
-        
         $('textarea').elastic();
         $('.vfield').bind('blur', function() {
             validate_field($(this).attr("id"), "modifyactions.php?action_type="+$('#action_type').val());
