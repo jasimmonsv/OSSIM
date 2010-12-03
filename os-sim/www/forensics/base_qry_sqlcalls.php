@@ -77,6 +77,7 @@ $qro->AddTitle("USERDATA9");
 $qro->AddTitle("USERNAME");
 $qro->AddTitle("FILENAME");
 $qro->AddTitle("PASSWORD");
+$qro->AddTitle("PAYLOAD");
 $qro->AddTitle("SID");
 $qro->AddTitle("CID");
 $qro->AddTitle("PLUGIN_ID");
@@ -266,7 +267,7 @@ $_SESSION['siem_current_query_graph'] = $sqlgraph;
 // do we need load extradata?
 $need_extradata = 0;
 foreach ($_SESSION['views'][$_SESSION['current_cview']]['cols'] as $field) {
-	if (preg_match("/^(USERDATA|USERNAME|FILENAME|CONTEXT)/i",$field))
+	if (preg_match("/^(USERDATA|USERNAME|FILENAME|PASSWORD|PAYLOAD|CONTEXT)/i",$field))
 		$need_extradata=1;
 }
 
@@ -283,11 +284,11 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     unset($cell_pdfdata);
     unset($cell_align);
     $current_sig = BuildSigByPlugin($myrow["plugin_id"], $myrow["plugin_sid"], $db);
-    if (preg_match("/FILENAME|USERNAME|USERDATA\d+/",$current_sig)) $need_extradata = 1;
+    if (preg_match("/FILENAME|USERNAME|PASSWORD|PAYLOAD|USERDATA\d+/",$current_sig)) $need_extradata = 1;
     //
     // Load extra data if neccesary
     if ($need_extradata && !array_key_exists("USERNAME",$myrow)) {
-		$rs_ed = $qs->ExecuteOutputQuery("SELECT userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9,username,password,filename,context FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
+		$rs_ed = $qs->ExecuteOutputQuery("SELECT * FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
 	    while ($row_ed = $rs_ed->baseFetchRow()) {
 	    	foreach ($row_ed as $k => $v) $myrow[$k] = $v;
 	    }
@@ -398,7 +399,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $cell_data['SIGNATURE'] = $temp;
     $cell_pdfdata['SIGNATURE'] = html_entity_decode($despues);
 	$cell_align['SIGNATURE'] = "left";
-    $cell_more['SIGNATURE'] = "width='35%'";
+    if ($_SESSION['current_cview']=="default") $cell_more['SIGNATURE'] = "width='35%'"; // only in default view
     $temp = "";
     // 4- Timestamp
     //qroPrintEntry($myrow["timestamp"], "center");
@@ -591,6 +592,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$cell_data['USERNAME'] = wordwrap($myrow['username'],25," ",true);
 	$cell_data['PASSWORD'] = wordwrap($myrow['password'],25," ",true);
 	$cell_data['FILENAME'] = wordwrap($myrow['filename'],25," ",true);
+	$cell_data['PAYLOAD'] = wordwrap($myrow['payload'],25," ",true);
 	for ($u = 1; $u < 10; $u++)
 		$cell_data['USERDATA'.$u] = wordwrap($myrow['userdata'.$u],25," ",true);
 
