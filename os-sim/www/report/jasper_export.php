@@ -38,7 +38,7 @@
                 <head>
                     <title>&nbsp;</title>
                     <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-                    <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+                    <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
                 </head>
                 <body>
                     <p id="load" style="visibility:visible;"><img src="../pixmaps/loading.gif" width="16" height="16" /> <?php echo _("Loading..."); flush(); ?></p>

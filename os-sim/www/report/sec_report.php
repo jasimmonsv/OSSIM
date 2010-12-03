@@ -54,7 +54,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
   
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script src="../js/datepicker.js" type="text/javascript"></script>
   
   <? include ("../host_report_menu.php") ?>

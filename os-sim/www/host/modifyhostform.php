@@ -283,7 +283,7 @@ if ( GET('newport') != "" || GET('port')!="" )
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
 	<link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css"/>
-	<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
 	<script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>

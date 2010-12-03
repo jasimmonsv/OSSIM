@@ -1,8 +1,4 @@
-<script type="text/javascript">
-if (typeof($) != 'function')
-document.write('<script type="text/javascript" src="../js/jquery-1.3.2.min.js"><\/script>');
-</script>
-
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <link href="../style/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 

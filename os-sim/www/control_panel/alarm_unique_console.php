@@ -204,7 +204,7 @@ list($alarm_group, $count) = AlarmGroups::get_unique_alarms($conn, $show_options
   <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
   <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
 
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
   <script src="../js/datepicker.js" type="text/javascript"></script>

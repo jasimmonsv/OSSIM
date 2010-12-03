@@ -53,7 +53,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
   
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery-ui-1.8.custom.min.js"></script>
 </head>
 <body>

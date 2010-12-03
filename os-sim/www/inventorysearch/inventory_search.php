@@ -57,7 +57,7 @@ $rules = get_rulesconfig ();
 <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
 <link rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
 
-<script src="../js/jquery-1.3.1.js" language="javascript" type="text/javascript"></script>
+<script src="../js/jquery-1.3.2.min.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
 

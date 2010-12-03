@@ -145,7 +145,7 @@ a {
 	font-size:10px;
 }
 </style>
-<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script src="../forensics/js/jquery.flot.pack.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.progressbar.min.js"></script>
 <script type="text/javascript" src="../js/greybox.js"></script>

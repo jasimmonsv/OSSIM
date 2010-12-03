@@ -95,7 +95,7 @@ echo _CHARSET; ?>">
   <link rel="stylesheet" href="../style/style.css"/>
 
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="../js/greybox.js"></script>
 <script type="text/javascript">
 function GB_onclose() {

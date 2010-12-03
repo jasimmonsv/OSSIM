@@ -67,7 +67,7 @@ $groups = ISO27001::get_groups($conn);
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
 <script type="text/javascript">
 	var toggled = "<?=$toggle?>"; // Subgroup toggled variable

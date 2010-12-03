@@ -57,10 +57,42 @@ echo gettext("OSSIM Framework"); ?> </title>
   <script type="text/javascript" src="../js/urlencode.js"></script>
 </head>
 <body>
-                                                                                
+<script>
+function menu_action(com,id,fg,fp) {
+        if (com=='modify') {
+            if (typeof(id) != 'undefined')
+                document.location.href = 'actionform.php?id='+id;
+            else
+              alert('<?=_("Action unselected")?>');
+        }
+        else if (com=='delete') {
+            if (typeof(id) != 'undefined') {
+                    $("#flextable").changeStatus('<?=_("Deleting action")?>...',false);
+                    $.ajax({
+                        type: "GET",
+                        url: "deleteaction.php?id="+urlencode(id),
+                        data: "",
+                        success: function(msg) {
+                            $("#flextable").flexReload();
+                        }
+                    });
+            }
+            else alert('<?=_("Action unselected")?>');
+        }
+        else if (com == 'new')
+            document.location.href = 'actionform.php';
+}
+</script>
 	<?php
 include ("../hmenu.php"); ?>
 	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
+    
+    <!-- Right Click Menu -->
+    <ul id="myMenu" class="contextMenu" style="width:110px">
+        <li class="hostreport"><a href="#new" class="greybox" style="padding:3px"><img src="../pixmaps/tables/table_row_insert.png" align="absmiddle"/> <?=_("New Action")?></a></li>
+        <li class="hostreport"><a href="#modify" class="greybox" style="padding:3px"><img src="../pixmaps/tables/table_edit.png" align="absmiddle"/> <?=_("Modify")?></a></li>
+        <li class="hostreport"><a href="#delete" class="greybox" style="padding:3px"><img src="../pixmaps/tables/table_row_delete.png" align="absmiddle"/> <?=_("Delete")?></a></li>
+    </ul>
 
 	<table class="noborder">
 	<tr><td valign="top">
@@ -104,7 +136,7 @@ include ("../hmenu.php"); ?>
 				$("#flextable").changeStatus('<?=_("Deleting action")?>...',false);
 				$.ajax({
 						type: "GET",
-						url: "deleteaction.php?confirm=yes&id="+urlencode(items[0].id.substr(3)),
+						url: "deleteaction.php?id="+urlencode(items[0].id.substr(3)),
 						data: "",
 						success: function(msg) {
 							$("#flextable").flexReload();
@@ -114,11 +146,11 @@ include ("../hmenu.php"); ?>
 			else alert('<?=_("You must select a action")?>');
 		}
 		else if (com=='<?php echo _("Modify");?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyactionform.php?id='+urlencode(items[0].id.substr(3))
+			if (typeof(items[0]) != 'undefined') document.location.href = 'actionform.php?id='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a action")?>');
 		}
 		else if (com=='<?php echo _("New");?>') {
-			document.location.href = 'newactionform.php'
+			document.location.href = 'actionform.php'
 		}
 	}
 	function save_layout(clayout) {
@@ -173,10 +205,12 @@ echo "$colModel\n";
 ?>",
 		usepager: true,
 		title: '<?=_("Actions")?>',
-		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("Actions")?>',
+		pagestat: '<?=_("Displaying {from} to {to} of {total} Actions")?>',
 		nomsg: '<?=_("No Actions")?>',
 		useRp: true,
 		rp: 20,
+		contextMenu: 'myMenu',
+		onContextMenuClick: menu_action,
 		showTableToggleBtn: true,
 		singleSelect: true,
 		width: get_width('headerh1'),

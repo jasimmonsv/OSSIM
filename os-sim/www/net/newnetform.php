@@ -123,7 +123,7 @@ else
 	<meta http-equiv="Pragma" content="no-cache">
 	<link type="text/css" rel="stylesheet" href="../style/style.css"/>
 	<link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
-	<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
