@@ -89,7 +89,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
-				<?php echo gettext("Risk occurrence"); ?>
+				<?php echo gettext("Ocurrence"); ?>
 			</th>
 		</tr>
 		<tr><td class="center nobborder"><input type="button" value="ANY" onclick="document.getElementById('occurrence').value = 'ANY';wizard_next();" style="width:80px<?php if ($rule->occurrence == "ANY") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
@@ -110,10 +110,10 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
-				<?php echo gettext("Risk timeout"); ?>
+				<?php echo gettext("Timeout"); ?>
 			</th>
 		</tr>
-		<tr><td class="center nobborder"><input type="button" value="None" onclick="document.getElementById('time_out').value = 'ANY';wizard_next();" style="width:80px<?php if (isAny($rule->time_out)) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></input></td></tr>
+		<!-- <tr><td class="center nobborder"><input type="button" value="None" onclick="document.getElementById('time_out').value = 'ANY';wizard_next();" style="width:80px<?php if (isAny($rule->time_out)) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr> -->
 		<?php
 		foreach($timeout_list as $value) {
 		    $selected = selectIf($rule->time_out != "None" && $value == $rule->time_out);
@@ -132,9 +132,10 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px" colspan="2">
-				<?php echo gettext("Risk reliability"); ?>
+				<?php echo gettext("Reliability"); ?>
 			</th>
 		</tr>
+		<tr><td class="nobborder">&middot; <i>Risk = (priority * reliability * asset_value) / 25.</i></td></tr>
 		<?php
 		$value = intval(strtr($rule->reliability, '+', ''));
 		$first = $rule->reliability{0};
