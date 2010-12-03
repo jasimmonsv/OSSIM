@@ -345,7 +345,7 @@ function ossim_valid() {
 			}
 		}
 		
-		$v = ( Util::is_utf8($v) ) ? utf8_decode($v) : $v;
+		//$v = ( Util::is_utf8($v) ) ? utf8_decode($v) : $v;
 		
 		$val_str = '';
 		

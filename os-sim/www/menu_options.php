@@ -920,6 +920,35 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $c
     );*/
 }
 
+if (Session::am_i_admin()) { $correlation = 1;
+    $menu["Intelligence"][] = array(
+        "name" => gettext("HIDS") ,
+        "id" => "HIDS",
+        "url" => "ossec/index.php"
+    );
+    $hmenu["HIDS"][] = array(
+        "name" => gettext("Ossec") ,
+        "id" => "HIDS",
+        "url" => "ossec/index.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
+    );	
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Edit") ,
+           "url" => "index.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Config") ,
+           "url" => "config.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Agent Control") ,
+           "url" => "agent.php"
+    );
+}	
+
 /* if (Session::menu_perms("MenuReports", "Help")) *//* if ($correlation) $menu["Intelligence"][] = array(
     "name" => gettext("Help") ,
     "id" => "Help",
