@@ -146,6 +146,17 @@ function background_delete(id,xml_file) {
 		}
 	});
 }
+function background_clone(id,xml_file,mini) {
+	var url = './include/utils.php?query=copy_directive&id='+id+'&directive_xml='+xml_file+'&mini='+mini;
+	$.ajax({
+		type: "GET",
+		url: url,
+		data: "",
+		success: function(msg){
+			document.location.reload();
+		}
+	});
+}
 			</script>
 		</head>
 
@@ -234,7 +245,7 @@ foreach($categories as $category) {
         echo $id_div; ?>" style="display:none">
 		    <table width="100%">
 			    <tr>
-			      <th><?=_("Del")?></th>
+			      <td class="nobborder"></td>
                   <th><?=_("Id")?></th>
                   <th><?=_("Name")?></th>
           </tr>
@@ -245,10 +256,9 @@ foreach($categories as $category) {
             $dir_id = $directive->get_attribute('id');
 ?>				
 					<tr>
-					  <td style="text-align: center;background-color:<?php echo $color?>;border:0px" width="20px">
-					    <a onclick="javascript:if (confirm('<?php
-            echo gettext("Are you sure you want to delete this directive ?"); ?>')) { background_delete(<?php echo $directive->get_attribute('id'); ?>,'<?=$category->xml_file?>'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php
-            echo gettext("Delete this directive"); ?>"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Delete")?>" title="<?php echo _("Delete")?>" border="0"></img></a>
+					  <td style="text-align: center;background-color:<?php echo $color?>;border:0px" width="40px" nowrap>
+					    <a onclick="javascript:if (confirm('<?php echo gettext("Are you sure you want to delete this directive ?"); ?>')) { background_delete(<?php echo $directive->get_attribute('id'); ?>,'<?=$category->xml_file?>'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php echo gettext("Delete this directive"); ?>"><img src="../pixmaps/delete.gif" alt="<?php echo _("Delete")?>" title="<?php echo _("Delete")?>" border="0"></img></a>
+					    <a onclick="javascript:if (confirm('<?php echo gettext("Are you sure you want to clone this directive ?"); ?>')) { background_clone(<?php echo $directive->get_attribute('id'); ?>,'<?=$category->xml_file?>','<?=$category->mini?>'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php echo gettext("Clone this directive"); ?>"><img src="../pixmaps/copy.png" alt="<?php echo _("Clone")?>" title="<?php echo _("Clone")?>" border="0"></img></a>
             </td>
 						<td style="text-align: left;background-color:<?php echo $color?>;border:0px">
               <?php

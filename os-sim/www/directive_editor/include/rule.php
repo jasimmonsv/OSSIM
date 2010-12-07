@@ -409,7 +409,7 @@ class Rule {
                 print '</td>';
                 //removeRule button
                 print '<td>';
-                print "<a onclick=\"javascript:if (confirm('" . gettext("Are you sure you want to delete this rule ?") . "')) { window.open('../include/utils.php?query=del_rule&id=" . $this->id . "','right'); }\" style=\"marging-left:20px; cursor:pointer\" TITLE=\"" . gettext("Delete this rule") . "\"><img src='../../pixmaps/cross-small.png' border='0'></img></a>";
+                print "<a onclick=\"javascript:if (confirm('" . gettext("Are you sure you want to delete this rule ?") . "')) { window.open('../include/utils.php?query=del_rule&id=" . $this->id . "','right'); }\" style=\"marging-left:20px; cursor:pointer\" TITLE=\"" . gettext("Delete this rule") . "\"><img src='../../pixmaps/delete-small.gif' border='0'></img></a>";
                 print '</td>';
                 //copy button
                 print '<td>';

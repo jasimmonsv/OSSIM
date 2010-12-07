@@ -193,8 +193,8 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
 				wizard_current = 13;
     		}
     		<?php if (!$rule->level || $rule->level <= 1) { ?>
-			if (wizard_current == 8) {
-				wizard_current++;
+			if (wizard_current == 8 || wizard_current == 7) {
+				wizard_current = 9;
 			}
     		<?php } ?>
     		document.getElementById('wizard_'+(wizard_current)).style.display = "block";
@@ -519,7 +519,7 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_4" nowrap> > <a href='' onclick='wizard_goto(4);return false;' class="normal" id="link_4"><?php echo _("Network") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_5" nowrap> > <a href='' onclick='wizard_goto(5);return false;' class="normal" id="link_5"><?php echo _("Protocol") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_6" nowrap> > <a href='' onclick='wizard_goto(6);return false;' class="normal" id="link_6"><?php echo _("Sensor") ?></a></td>
-						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_7" nowrap> > <a href='' onclick='wizard_goto(7);return false;' class="normal" id="link_7"><?php echo _("Ocurrence") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($rule->level > 1) ? $display : ";display:none" ?>" id="step_7" nowrap> > <a href='' onclick='wizard_goto(7);return false;' class="normal" id="link_7"><?php echo _("Ocurrence") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo ($rule->level > 1) ? $display : ";display:none" ?>" id="step_8" nowrap> > <a href='' onclick='wizard_goto(8);return false;' class="normal" id="link_8"><?php echo _("Timeout") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_9" nowrap> > <a href='' onclick='wizard_goto(9);return false;' class="normal" id="link_9"><?php echo _("Reliability") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_10" nowrap> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>

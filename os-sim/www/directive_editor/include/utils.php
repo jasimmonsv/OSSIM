@@ -785,7 +785,8 @@ elseif ($query == "add_directive") {
 elseif ($query == "copy_directive") {
     $dir_id = $_GET['id'];   
 
-    if ($_SESSION['XML_FILE'] != "") $file = $_SESSION['XML_FILE'];
+    if ($_GET['directive_xml'] != "") $file = "/etc/ossim/server/".$_GET['directive_xml'];
+    elseif ($_SESSION['XML_FILE'] != "") $file = $_SESSION['XML_FILE'];
     else $file = get_directive_file($dir_id);
     $id_category = get_category_id_by_directive_id($dir_id);
     $dom = open_file($file);
@@ -795,7 +796,7 @@ elseif ($query == "copy_directive") {
         header("Location: ../viewer/index.php?directive=$dir_id");
     }  
 
-    $mini = $_SESSION['mini'];
+    $mini = $_GET['mini'];
     $new_id = new_directive_id_by_directive_file($file,$mini);
 	//$new_id = new_directive_id($id_category);
     $new_directive = $dom->create_element('directive');

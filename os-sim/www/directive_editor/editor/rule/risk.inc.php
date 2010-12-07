@@ -85,7 +85,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 <!-- #################### risk ##################### -->
 <!-- ##### occurrence ##### -->
 <div id="wizard_7" style="display:none">	
-<input type="hidden" name="occurrence" id="occurrence" value=""></input>
+<input type="hidden" name="occurrence" id="occurrence" value="1"></input>
 	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
@@ -110,7 +110,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">
-				<?php echo gettext("Timeout"); ?>
+				<?php echo gettext("Timeout")." ("._("seconds").")"; ?>
 			</th>
 		</tr>
 		<!-- <tr><td class="center nobborder"><input type="button" value="None" onclick="document.getElementById('time_out').value = 'ANY';wizard_next();" style="width:80px<?php if (isAny($rule->time_out)) { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr> -->
@@ -135,7 +135,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 				<?php echo gettext("Reliability"); ?>
 			</th>
 		</tr>
-		<tr><td class="nobborder">&middot; <i>Risk = (priority * reliability * asset_value) / 25.</i></td></tr>
+		<tr><td colspan="2" class="nobborder">&middot; <i>Risk = (priority * reliability * asset_value) / 25.</i></td></tr>
 		<?php
 		$value = intval(strtr($rule->reliability, '+', ''));
 		$first = $rule->reliability{0};
