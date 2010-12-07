@@ -80,6 +80,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 <body>
 
 <?php
+$typeMenu='horizontal';
 include ("../hmenu.php");
 if (!$nmap_exists) {
     require_once ("ossim_error.inc");

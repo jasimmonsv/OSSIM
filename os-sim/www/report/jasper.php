@@ -36,14 +36,6 @@
 */
 require_once ('classes/Session.inc');
 Session::useractive();
-?>
-
-<html>
-<head>
-<title> <?php echo gettext("OSSIM Framework"); ?> </title>
-</head>
-
-<?php
 require_once 'classes/Security.inc';
 require_once ('ossim_conf.inc');
 
@@ -57,10 +49,30 @@ if (ossim_error()) {
     die(ossim_error());
 }
 //$report = ($mode=="config") ? "Parameters" : 
-$report = ($opensource) ? "Reporting+Server" : "OSReports";
+if($opensource){
+	if(GET('smenu')==""){
+		$report = "Reporting+Server";
+	}else{
+		$report = GET('smenu');
+	}
+}else{
+	$report = "OSReports";
+}
+
+//$report = ($opensource) ? "Reporting+Server" : "OSReports";
 if ($mode=="advanced") $mode="manager";
 $link = "jasper_$mode.php";
+
+// Dashboard exception
+if (GET('hmenu')=="dashboards" && GET('smenu')=="dashboards") {
+	header("Location: $link");
+	exit;
+}
 ?>
+<html>
+<head>
+<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+</head>
 
 <frameset rows="35,*" border="0" frameborder="0">
 <frame src="jasper_top.php?hmenu=Reporting+Server&smenu=<?=$report?>">

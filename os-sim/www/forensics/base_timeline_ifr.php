@@ -154,7 +154,7 @@ a:hover {text-decoration: underline;}
  Timeline_parameters='bundle=true';
 </script>
 <script type='text/javascript' src="/ossim/forensics/js/timeline_js/timeline-api.js" type="text/javascript"></script>
-<script type='text/javascript' src="/ossim/forensics/js/jquery-1.3.2.min.js" type="text/javascript"></script>
+<script type='text/javascript' src="/ossim/js/jquery-1.3.2.min.js" type="text/javascript"></script>
  
 <script type='text/javascript'>
 	var tl = null;

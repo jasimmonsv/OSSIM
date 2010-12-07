@@ -644,17 +644,14 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 
 </td><td valign="top" style="border-top:1px solid #CCCCCC;border-right:1px solid #CCCCCC;border-bottom:1px solid #CCCCCC;background:url('../pixmaps/fondo_hdr2.png') repeat-x">
 
-<link href="../style/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 <link href="../style/jquery.autocomplete.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
 
-<script src="js/jquery-1.3.2.min.js" type="text/javascript"></script>
 <script src="../js/greybox.js" type="text/javascript"></script>
 <script src="../js/jquery.flot.pie.js" language="javascript" type="text/javascript"></script>
 <script language="javascript" src="../js/jquery.bgiframe.min.js"></script>
 <script language="javascript" src="../js/jquery.autocomplete.pack.js"></script>
-<script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
 <script src="../js/datepicker.js" type="text/javascript"></script>
 <? $ipsearch=1; include ("../host_report_menu.php") ?>
