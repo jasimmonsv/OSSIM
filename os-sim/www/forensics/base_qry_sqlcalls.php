@@ -287,7 +287,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     if (preg_match("/FILENAME|USERNAME|PASSWORD|PAYLOAD|USERDATA\d+/",$current_sig)) $need_extradata = 1;
     //
     // Load extra data if neccesary
-    if ($need_extradata && !array_key_exists("USERNAME",$myrow)) {
+    if ($need_extradata && !array_key_exists("username",$myrow)) {
 		$rs_ed = $qs->ExecuteOutputQuery("SELECT * FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
 	    while ($row_ed = $rs_ed->baseFetchRow()) {
 	    	foreach ($row_ed as $k => $v) $myrow[$k] = $v;
@@ -592,7 +592,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$cell_data['USERNAME'] = wordwrap($myrow['username'],25," ",true);
 	$cell_data['PASSWORD'] = wordwrap($myrow['password'],25," ",true);
 	$cell_data['FILENAME'] = wordwrap($myrow['filename'],25," ",true);
-	$cell_data['PAYLOAD'] = wordwrap($myrow['payload'],25," ",true);
+	$cell_data['PAYLOAD'] = wordwrap($myrow['data_payload'],25," ",true);
 	for ($u = 1; $u < 10; $u++)
 		$cell_data['USERDATA'.$u] = wordwrap($myrow['userdata'.$u],25," ",true);
 
