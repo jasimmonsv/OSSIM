@@ -82,7 +82,7 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 			<td class="nobborder" style="padding-top:7px;">
 			
 					<link href="../style/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
-					<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+					<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>				
 					<script src="../js/jquery-1.3.2.min.js" type="text/javascript"></script>
 					<script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 					<script src="../js/greybox.js" type="text/javascript"></script>
@@ -94,13 +94,16 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 								},
 									function(action, el, pos) {
 										var title = $(el).attr('title');
-
+										var url = $(el).attr('href');
+										
+										var url64 = $.base64.encode(url);
+										
 										if(action=='addUser'){
 											// Add to user dashboard
 											$.ajax({
 												type: "POST",
 												url: "../panel/add_to_dashboards.php",
-												data: { url: '<?php echo base64_encode($_SERVER['REQUEST_URI']);?>', name: title },
+												data: { url: url64, name: title },
 												success: function(msg) {
 													$("#ajaxTab2menu").html(msg);
 												}
@@ -130,14 +133,14 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 										else if(action=='addAll'){
 											window.parent.document.getElementsByTagName("FRAMESET").item(0).rows='*,0';
 											GB_TYPE = 'w';
-											GB_show('<?php echo _('Add to all dashboards');?>','../panel/add_to_all_dashboards.php?url='+$.base64.encode(window.parent.document.getElementsByTagName("FRAME").item(1).src)+'&name='+title ,380,"30%");
+											GB_show('<?php echo _('Add to all dashboards');?>','../panel/add_to_all_dashboards.php?url='+url64+'&name='+title ,380,"30%");
 										}
 									<?php
 									}else if($addAll){
 									?>
 										else if(action=='addAll'){
 											GB_TYPE = 'w';
-											GB_show('<?php echo _('Add to all dashboards');?>','../panel/add_to_all_dashboards.php?url=<?php echo base64_encode($_SERVER['REQUEST_URI']);?>&name='+title ,380,"30%");
+											GB_show('<?php echo _('Add to all dashboards');?>','../panel/add_to_all_dashboards.php?url='+url64+'&name='+title ,380,"30%");
 										}
 										<?php
 									}
@@ -199,7 +202,7 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 								<tr>
 									<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl<?php echo ($j > 0) ? "2" : "" ?>.gif" border='0'></td>
 									<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding:0px 15px 0px 15px" nowrap='nowrap'>
-										<a href="<?php echo $url ?>" <?php echo ($op["target"] != "") ? "target='" . $op["target"] . "'" : "" ?> class="tab2menu gristabon" title="<?php echo $txtsopc ?>"><?php echo $txtsopc ?></a>
+										<a href="<?php echo $url ?>" <?php echo ($op["target"] != "") ? "target='" . $op["target"] . "'" : "" ?> class="tab2menu gristabon" title="<?php echo $txtsopc ?>" rel="<?php ?>"><?php echo $txtsopc ?></a>
 									</td>
 									<td width="16" class="nobborder"><img src="../pixmaps/menu/tsr<?php echo ($j == $tabs) ? "2" : "" ?>.gif" border='0'></td>
 								</tr>
