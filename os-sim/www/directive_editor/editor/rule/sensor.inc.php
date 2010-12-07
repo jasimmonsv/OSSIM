@@ -43,6 +43,7 @@
 			<?php echo gettext("Sensor"); ?>
 		</th>
 	</tr>
+	<tr><td class="nobborder">&middot; <i><?php echo _("Empty selection means ANY sensor") ?></i></td></tr>
 	<tr>
 		<td class="nobborder">
 		<select id="sensorselect" class="multiselect_sensor" multiple="multiple" name="sensorselect[]" style="display:none;width:600px">

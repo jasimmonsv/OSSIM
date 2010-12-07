@@ -57,32 +57,58 @@
 					<td class="nobborder" valign="top">
 						<table class="transparent">
 							<tr>
-								<th><?php echo _("From Host/Network") ?></th>
+								<th><?php echo _("Source Host/Network") ?></th>
 							</tr>
 							<tr>
 								<td class="nobborder">
 								<div id="from_input" style="visibility:<?php echo (preg_match("/\:...\_IP/",$rule->from)) ? "hidden" : "visible" ?>">
-								<select id="fromselect" class="multiselect_from" multiple="multiple" name="fromselect[]" style="display:none;width:450px">
-								<?php if (isList($rule->from) && $rule->from != "" && !preg_match("/\:...\_IP/",$rule->from)) { ?>
-								<?php
-								$from_list = $rule->from;
-								foreach ($host_list as $host) {
-								    $hostname = $host->get_hostname();
-								    $ip = $host->get_ip();
-								    if (in_array($ip, split(',', $from_list))) {
-								        echo "<option value='$ip' selected>$hostname</option>\n";
-								    }
-								}
-								foreach ($net_list as $net) {
-								    $netname = $net->get_name();
-	   								$ips = $net->get_ips();
-								    if (in_array($ips, split(',', $from_list))) {
-								        echo "<option value='$ips' selected>$netname</option>\n";
-								    }
-								}
-								}
-								?>
-								</select>
+									<table>
+										<tr>
+											<td class="nobborder" valign="top">
+												<table align="center" class="noborder">
+												<tr>
+													<th style="background-position:top center"><?php echo _("Source") ?>
+													</th>
+													<td class="left nobborder">
+														<select id="fromselect" name="fromselect[]" size="12" multiple="multiple" style="width:150px">
+														<?php if (isList($rule->from) && $rule->from != "" && !preg_match("/\:...\_IP/",$rule->from)) { ?>
+														<?php
+														$from_list = $rule->from;
+														foreach ($host_list as $host) {
+														    $hostname = $host->get_hostname();
+														    $ip = $host->get_ip();
+														    if (in_array($ip, split(',', $from_list))) {
+														        echo "<option value='$ip'>$ip</option>\n";
+														    }
+														}
+														foreach ($net_list as $net) {
+														    $netname = $net->get_name();
+							   								$ips = $net->get_ips();
+														    if (in_array($ips, split(',', $from_list))) {
+														        echo "<option value='$ips'>$ips</option>\n";
+														    }
+														}
+														} ?>
+														</select>
+														<input type="button" class="lbutton" value=" [X] " onclick="deletefrom('fromselect');"/>
+													</td>
+												</tr>
+												</table>
+											</td>
+											<td valign="top" class="nobborder">
+												<table class="noborder" align='center'>
+												<tr><td class="left nobborder" id="inventory_loading_sources"></td></tr>
+												<tr>
+													<td class="left nobborder">
+														<?=_("Asset")?>: <input type="text" id="filterfrom" name="filterfrom" size='25'/>
+														&nbsp;<input type="button" class="lbutton" value="<?=_("Filter")?>" onclick="load_tree(this.form.filterfrom.value)" /> 
+														<div id="containerfrom" class='container_ptree'></div>
+													</td>
+												</tr>
+												</table>
+											</td>
+										</tr>
+									</table>
 								</div>
 								</td>
 							</tr>
@@ -116,7 +142,8 @@
 						</table>
 					</td>
 				</tr>
-				<tr><th><?php echo _("Port") ?></th></tr>
+				<tr><th><?php echo _("Source Port(s)") ?></th></tr>
+				<tr><td class="nobborder">&middot; <i><?php echo _("Can be negated using '!'") ?></i></td></tr>
 				<tr>
 					<td class="center nobborder">
 						<?php if ($rule->level > 1) { ?>
@@ -155,31 +182,58 @@
 					<td class="nobborder" valign="top">
 						<table class="transparent">
 							<tr>
-								<th><?php echo _("To Host/Network") ?></th>
+								<th><?php echo _("Destination Host/Network") ?></th>
 							</tr>
 							<tr>
 								<td class="nobborder">
 								<div id="to_input" style="visibility:<?php echo (preg_match("/\:...\_IP/",$rule->to)) ? "hidden" : "visible" ?>">
-								<select id="toselect" class="multiselect_to" multiple="multiple" name="toselect[]" style="display:none;width:450px">
-								<?php if (isList($rule->to) && $rule->to != "" && !preg_match("/\:...\_IP/",$rule->to)) { ?>
-								<?php
-								$to_list = $rule->to;
-								foreach ($host_list as $host) {
-								    $hostname = $host->get_hostname();
-								    $ip = $host->get_ip();
-								    if (in_array($ip, split(',', $to_list))) {
-								        echo "<option value='$ip' selected>$hostname</option>\n";
-								    }
-								}
-								foreach ($net_list as $host) {
-								    $netname = $net->get_name();
-	   								$ips = $net->get_ips();
-								    if (in_array($ips, split(',', $to_list))) {
-								        echo "<option value='$ips' selected>$netname</option>\n";
-								    }
-								}
-								} ?>
-								</select>
+									<table>
+										<tr>
+											<td class="nobborder" valign="top">
+												<table align="center" class="noborder">
+												<tr>
+													<th style="background-position:top center"><?php echo _("Destination") ?>
+													</th>
+													<td class="left nobborder">
+														<select id="toselect" name="toselect[]" size="12" multiple="multiple" style="width:150px">
+														<?php if (isList($rule->to) && $rule->to != "" && !preg_match("/\:...\_IP/",$rule->to)) { ?>
+														<?php
+														$to_list = $rule->to;
+														foreach ($host_list as $host) {
+														    $hostname = $host->get_hostname();
+														    $ip = $host->get_ip();
+														    if (in_array($ip, split(',', $to_list))) {
+														        echo "<option value='$ip'>$ip</option>\n";
+														    }
+														}
+														foreach ($net_list as $net) {
+														    $netname = $net->get_name();
+							   								$ips = $net->get_ips();
+														    if (in_array($ips, split(',', $to_list))) {
+														        echo "<option value='$ips'>$ips</option>\n";
+														    }
+														}
+														} ?>
+														</select>
+														<input type="button" class="lbutton" value=" [X] " onclick="deletefrom('toselect');"/>
+													</td>
+												</tr>
+												</table>
+											</td>
+											<td valign="top" class="nobborder">
+												<table class="noborder" align='center'>
+												<tr><td class="left nobborder" id="inventory_loading_sources"></td></tr>
+												<tr>
+													<td class="left nobborder">
+														<?=_("Asset")?>: <input type="text" id="filterto" name="filterto" size='25'/>
+														&nbsp;<input type="button" class="lbutton" value="<?=_("Filter")?>" onclick="load_tree(this.form.filterto.value)" /> 
+														<div id="containerto" class='container_ptree'></div>
+													</td>
+												</tr>
+												</table>
+											</td>
+										</tr>
+									</table>
 								</div>
 								</td>
 							</tr>
@@ -213,7 +267,8 @@
 						</table>
 					</td>
 				</tr>
-				<tr><th><?php echo _("Port") ?></th></tr>
+				<tr><th><?php echo _("Destination Port(s)") ?></th></tr>
+				<tr><td class="nobborder">&middot; <i><?php echo _("Can be negated using '!'") ?></i></td></tr>
 				<tr>
 					<td class="center nobborder">
 						<?php if ($rule->level > 1) { ?>

@@ -88,10 +88,18 @@ if (empty($order)) $order = 'id';
 $plugin_list = getPluginList('ORDER BY ' . $order);
 $plugin_names = array();
 
+$plugin_list_order = array();
 foreach($plugin_list as $plugin) {
 	$plugin_names[$plugin->get_id()] = $plugin->get_name();
+	$plugin_list_order[strtolower($plugin->get_name())] = $plugin;
 	if ($rule->plugin_id == $plugin->get_id()) $plugin_type = $plugin->get_type();
 }
+ksort($plugin_list_order);
+$plugin_list = array(); // redefine to order
+foreach ($plugin_list_order as $name => $plugin) {
+	$plugin_list[] = $plugin;
+}
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -99,6 +107,7 @@ foreach($plugin_list as $plugin) {
 	<head>
 		<link type="text/css" rel="stylesheet" href="<?php echo $css_dir . '/directives.css'; ?>" />
 		<link type="text/css" rel="stylesheet" href="../../../style/greybox.css" />
+		<link rel="stylesheet" type="text/css" href="../../../style/tree.css" />
 		<link type="text/css" rel="stylesheet" href="../../../style/jquery-ui-1.7.custom.css" />
     	<link type="text/css" rel="stylesheet" href="../../../style/ui.multiselect.css" rel="stylesheet" />
     	<style>
@@ -130,6 +139,7 @@ foreach($plugin_list as $plugin) {
 		<script type="text/javascript" src="../../../js/jquery-1.3.2.min.js"></script>
 		<script type="text/javascript" src="../../../js/greybox.js"></script>
 		<script type="text/javascript" src="../../../js/jquery-ui-1.7.custom.min.js"></script>
+		<script type="text/javascript" src="../../../js/jquery.dynatree.js"></script>
 		<script type="text/javascript" src="../../../js/jquery.tmpl.1.1.1.js"></script>
     	<script type="text/javascript" src="../../../js/ui.multiselect.js"></script>
     	<script type="text/javascript" src="../../../js/combos.js"></script>    
@@ -257,22 +267,85 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
 		}
 	}
 	function init_network() {
-		$(".multiselect_from").multiselect({
-            searchDelay: 700,
-            dividerLocation: 0.5,
-            remoteUrl: 'popup/top/from.php',
-            nodeComparator: function (node1,node2){ return 1 },
-            dataParser: customDataParser,
-        });
-		$(".multiselect_to").multiselect({
-            searchDelay: 700,
-            dividerLocation: 0.5,
-            remoteUrl: 'popup/top/from.php',
-            nodeComparator: function (node1,node2){ return 1 },
-            dataParser: customDataParser,
-        });
+		load_tree();
+	}
+	var layer_i = null;
+	var nodetree_i = null;
+	var i=1;
+	var layer_j = null;
+	var nodetree_j = null;
+	var j=1;
+	function load_tree(filter)
+	{
+		var combo2 = "toselect";
+		var suf2 = "to";
+		if (nodetree_j!=null) {
+			nodetree_j.removeChildren();
+			$(layer_j).remove();
+		}
+		layer_j = '#srctree'+j;
+		$('#container'+suf2).append('<div id="srctree'+j+'" style="width:100%"></div>');
+		$(layer_j).dynatree({
+			initAjax: { url: "draw_tree.php", data: {filter: filter} },
+			clickFolderMode: 2,
+			onActivate: function(dtnode) {
+				if (dtnode.data.url.match(/CCLASS/)) {
+					// add childrens if is a C class
+					var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
+					for (c=0;c<children.length; c++)
+						addto(combo2,children[c].data.url,children[c].data.url)
+				} else {
+					addto(combo2,dtnode.data.url,dtnode.data.url);
+				}
+			},
+			onDeactivate: function(dtnode) {},
+			onLazyRead: function(dtnode){
+				dtnode.appendAjax({
+					url: "draw_tree.php",
+					data: {key: dtnode.data.key, filter: filter, page: dtnode.data.page}
+				});
+			}
+		});
+		nodetree_j = $(layer_j).dynatree("getRoot");
+		j=j+1;
+		
+		var combo1 = "fromselect";
+		var suf1 = "from";
+		if (nodetree_i!=null) {
+			nodetree_i.removeChildren();
+			$(layer_i).remove();
+		}
+		layer_i = '#srctree'+i;
+		$('#container'+suf1).append('<div id="srctree'+i+'" style="width:100%"></div>');
+		$(layer_i).dynatree({
+			initAjax: { url: "draw_tree.php", data: {filter: filter} },
+			clickFolderMode: 2,
+			onActivate: function(dtnode) {
+				if (dtnode.data.url.match(/CCLASS/)) {
+					// add childrens if is a C class
+					var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
+					for (c=0;c<children.length; c++)
+						addto(combo1,children[c].data.url,children[c].data.url)
+				} else {
+					addto(combo1,dtnode.data.url,dtnode.data.url);
+				}
+			},
+			onDeactivate: function(dtnode) {},
+			onLazyRead: function(dtnode){
+				dtnode.appendAjax({
+					url: "draw_tree.php",
+					data: {key: dtnode.data.key, filter: filter, page: dtnode.data.page}
+				});
+			}
+		});
+		nodetree_i = $(layer_i).dynatree("getRoot");
+		i=i+1;
+
+		
 	}
 	function save_network() {
+		selectall('fromselect');
+		selectall('toselect');
 		var from_list = getselectedcombovalue('fromselect');
 		var to_list = getselectedcombovalue('toselect');
 		var port_from_list = document.getElementById('port_from_list').value;
@@ -317,6 +390,20 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
 		save_sids();
 		save_network();
 		save_sensor();
+	}
+	function search_plugin(q) {
+		var str = "";
+		var _regex = new RegExp( "^" + q, "i");
+		$('.plugin_line').each(function() {
+			val = $(this).attr("id");
+			if (!val.match(_regex)) {
+				str += val;
+				document.getElementById(val).style.display='none';
+			} else {
+				document.getElementById(val).style.display='block';
+			}
+		});
+		//alert(str);
 	}
     function taille()
     {

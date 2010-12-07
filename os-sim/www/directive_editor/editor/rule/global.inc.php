@@ -108,16 +108,19 @@ $none_checked = 'true';
 						    else $checked = '';
 						    if ($checked != '') $none_checked = 'false';
 						    ?>
-						<tr>
+						
+						<tr id="<?php echo strtolower($plugin->get_name()) ?>" class="plugin_line" style="display:block">
 						    <td width="110" class="nobborder" bgcolor="<?php echo $color ?>"><a href="" onclick="document.getElementById('plugin_id').value='<?php echo $plugin->get_id() ?>';rm_sids();wizard_next();init_sids(<?php echo $plugin->get_id() ?>,<?php echo ($plugin_type == '2') ? "true" : "false" ?>);return false;"><b><?php echo $plugin->get_name() ?></b></a></td>
 						    <td width="70" class="nobborder" bgcolor="<?php echo $color ?>" nowrap><?php echo $type_name ?></td>
 						    <td class="nobborder" bgcolor="<?php echo $color ?>"><?php echo $plugin->get_description() ?></td>
 						</tr>
+						
 						<?php } ?>
 						</table>
 					</div>
 					</td>
 				</tr>
+				<tr><td class="nobborder" colspan="3">&middot; <?php echo "<b>"._("Search")."</b> "._("a plugin name") ?>: <input type="text" name="search_string" id="search_string" value="" onkeyup="search_plugin(this.value)"></input></td></tr>
 			</table>
 		</td>
 	</tr>
