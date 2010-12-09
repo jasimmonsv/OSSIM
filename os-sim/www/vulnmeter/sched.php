@@ -197,7 +197,7 @@ $postParams = array( 'disp','op', 'rid', 'sname', 'notify_email', 'schedule_type
                      'ip_list', 'ip_start', 'ip_end', 'named_list', 'subnet', 'system', 'cred_type', 'credid', 'acc',
                      'domain', 'accpass', 'acctype', 'passtype', 'passstore', 'job_id','wpolicies', 'wfpolicies', 
                      'upolicies', 'cidr', 'custadd_type', 'cust_plugins', 'sched_id', 'is_enabled', 'submit', 'process',
-                     'isvm', 'sen', 'hostlist', 'pluginlist','user','entity','hosts_alive','scan_locally','nthweekday');
+                     'isvm', 'sen', 'hostlist', 'pluginlist','user','entity','hosts_alive','scan_locally','nthweekday', 'nthdayofweek');
 
  $daysMap = array ( 
      "0" => "NONE", 
@@ -267,6 +267,10 @@ case "POST" :
    }
 //   echo "<pre>"; print_r($process); echo "</pre>";
    break;
+}
+
+if ($schedule_type=="NW") {
+    $dayofweek = $nthdayofweek;
 }
 
 $error_message="";
@@ -1225,7 +1229,7 @@ EOT;
         <table width="100%">
           <tr>
             <th align="right">Day of week</th><td colspan="2" class="noborder">
-              <select name="dayofweek">
+              <select name="nthdayofweek">
                 <option value="0" SELECTED >Select week day to run</option>
                 <option value="Su" $day[Su] >Sunday</option>
                 <option value="Mo" $day[Mo] >Monday</option>
