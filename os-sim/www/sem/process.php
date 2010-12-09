@@ -119,6 +119,8 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 if (preg_match("/(.*?)=(.*)/",$a,$fnd)) {
     $a = preg_replace("/(\|)/","\\1".$fnd[1]."=",$a);
 }
+// Patch "sensor=A OR sensor=B"
+$a = preg_replace("/(\S+)\=(\S+)SPACESCAPEORSPACESCAPE(\S+)\=(\S+)/","\\1=\\2 or \\3=\\4",$a);
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
 
 foreach ($atoms as $atom) {
@@ -146,7 +148,7 @@ foreach ($atoms as $atom) {
 	if (preg_match("/sensor(\!?\=)(\S+)/", $atom, $matches)) {
 	    $sensor_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
 	    $sensor_name = str_replace("'","",$sensor_name);
-	    $query = "select ip from sensor where name like '" . $sensor_name . "%'";
+	    $query = "select ip from sensor where name like '" . $sensor_name . "'";
 	    if (!$rs = & $conn->Execute($query)) {
 	        print $conn->ErrorMsg();
 	        exit();

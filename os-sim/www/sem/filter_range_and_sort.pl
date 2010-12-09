@@ -43,7 +43,7 @@ $debug_log = $ARGV[8] if ($ARGV[8] ne "");
 %neg_filters = ();
 set_filters($filter);
 
-# debug_filters(); exit;
+#debug_filters(); exit;
 
 #chop($grep_str);
 if ($debug_log ne "") {
@@ -263,6 +263,7 @@ sub set_filters {
 	my $filter = shift;
 	$filter =~ s/#/|/ig;
 	$filter =~ s/\s+or\s+/|/ig;
+	#$filter =~ s/(.*)\=(.*)SPACESCAPEORSPACESCAPE(.*)\=(.*)/$1=$2|$3=$4/ig;
 	@args = split(/\s+/, $filter);
 	my $and_num = 1;
 	foreach $arg (@args){ # LOOP by the AND elements
