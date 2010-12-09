@@ -51,7 +51,7 @@ if ( file_exists( $filename) )
 	if ($file_xml == false)
 	{
 		$error = true;
-		$txt = _("Failure to read XML file");
+		$txt = _("Directory <b>$rules_file</b> doesn't exist or you don't have permission to access");
 	}
 	else
 	{
@@ -78,7 +78,7 @@ if ( file_exists( $filename) )
 else
 {
 	$error = true;
-	$txt = _($editable_files[0]." not found");
+	$txt = _("<b>".$editable_files[0]."</b> not found or you don't have have permission to access");
 }
 
 
@@ -172,50 +172,54 @@ if ($error == true)
 		var i              = 1;
 		var editable_files = ['<?php echo implode("','", $editable_files)?>'];	
 		var rules_files    = '<?php echo $rules_file;?>';
-	
+	    var editor         = null;
 	
 		
+	
 	
 	$(document).ready(function() {
-
-		/*Code Mirror*/
-		
-		if (document.getElementById("code") != null )
-			var content = document.getElementById("code").value;
-		else
-			content='';
-		
-		editor = new CodeMirror(CodeMirror.replace("code"), {
-			parserfile: "parsexml.js",
-			stylesheet: "xmlcolors.css",
-			parserfile: "parsexml.js",
-			stylesheet: "css/xmlcolors.css",
-			path: "codemirror/",
-			continuousScanning: 500,
-			content: content,
-			lineNumbers: true
-		});
-	
 		
 		/* Tabs */
-		
 		$("ul.oss_tabs li:first").addClass("active");
-							
-		//On Click Event
-		$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this); });
+		<?php if ($error !== true) { ?>	
 		
-		$("#link_tab1").bind('click', function()  { load_tab1(); });
-		$("#link_tab2").bind('click', function()  { load_tab2(editor); });
+			/*Code Mirror*/
+			
+			if (document.getElementById("code") != null )
+				var content = document.getElementById("code").value;
+			else
+				content='';
+			
+			editor = new CodeMirror(CodeMirror.replace("code"), {
+				parserfile: "parsexml.js",
+				stylesheet: "css/xmlcolors.css",
+				path: "codemirror/",
+				continuousScanning: 500,
+				content: content,
+				lineNumbers: true
+			});
+	
 		
-		load_tree("<?=base64_encode($_SESSION['_tree_json'])?>", 1, 'normal');
-		
-		fill_rules('rules', "<?=$filename?>");
-				
-		$('#clone_tree').bind('click', function() { draw_clone(); });
-		$('#rules').bind('change', function()     { show_actions(editor); });
-		$('#send').bind('click', function()       { save(editor); });
+			/* Tabs */
+										
+			//On Click Event
+			$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this); });
+			
+			$("#link_tab1").bind('click', function()  { load_tab1(); });
+			$("#link_tab2").bind('click', function()  { load_tab2(editor); });
+			
+			load_tree("<?=base64_encode($_SESSION['_tree_json'])?>", 1, 'normal');
+			
+			fill_rules('rules', "<?=$filename?>");
+			$('#clone_tree').bind('click', function() { draw_clone(); });
+			$('#rules').bind('change', function()     { show_actions(editor); });
+			$('#send').bind('click', function()       { save(editor); });
+			
+		<?php } ?>	
 				
 	});
+	
+	
 	
 	</script>
 	
@@ -234,8 +238,8 @@ if ($error == true)
 			<tr>
 				<td id='oss_mcontainer'>
 					<ul class='oss_tabs'>
-						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Edit")?></a></li>
-						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?=_("Source")?></a></li>
+						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Edit Rules")?></a></li>
+						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?=_("XML Source")?></a></li>
 					</ul>
 				</td>
 			</tr>
@@ -260,7 +264,7 @@ if ($error == true)
 						<div id="tab1" class="tab_content">
 						<?php 
 						if ( $error == true )
-							echo "<div id='info_file'><div id='msg' class='oss_error'>$txt</div></div>";
+							echo "<div id='info_file'><div id='msg_init' class='oss_error'>$txt</div></div>";
 						else  
 							echo "<div id='msg_init'><div class='oss_info'><span>"._("Click on a brach to edit a node")."</span></div></div>";
 						?>

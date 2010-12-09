@@ -934,7 +934,7 @@ if (Session::am_i_admin()) { $correlation = 1;
     );	
 	
 	$rmenu["HIDS"][] = array(
-           "name" => gettext("Edit") ,
+           "name" => gettext("Edit Rules") ,
            "url" => "index.php"
     );
 	

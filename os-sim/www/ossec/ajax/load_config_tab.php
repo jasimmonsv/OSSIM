@@ -131,7 +131,13 @@ if($tab == "tab1")
 		echo "1###<table class='cnf_rules_table'>";
 		
 			$all_rules       = get_files ($rules_file);
+						
 			$no_added_rules  = array_diff($all_rules, $rules_enabled);	
+			
+			sort($rules_enabled);
+			sort($no_added_rules);
+			
+						
 			echo "<tr><td style='padding: 10px 0px;'>"._('* Drag & Drop the file you want to add/remove or use [+] and [-] links')."</td></tr>";
 			echo "<tr><td class='cnf_rule_title'>";
 			echo "<div style='float: left; width: 48%'>"._("Enabled Rules")."</div><div style='float: right; width: 48%'>"._("Disabled Rules")."</div></td></tr>";
@@ -145,7 +151,7 @@ if($tab == "tab1")
 				echo "</select></form></td>";
 			echo "</tr>";
 			
-			echo "<tr><td><input type='button' class='button' id='send' value='"._('Send')."'/></td></tr>";
+			echo "<tr><td><input type='button' class='button' id='send' value='"._('Send')."' onclick=\"save_config_tab();\"/></td></tr>";
 		
 		echo "</table>";
 		
@@ -153,6 +159,21 @@ if($tab == "tab1")
 	else
 		echo "error###"._("Error to read configuration file (1)");
 		
+}
+else if ($tab == 'tab2')
+{
+	if ( file_exists( $ossec_conf) )
+	{
+		$file_xml = file_get_contents ($ossec_conf, false);
+	  
+		if ($file_xml == false)
+			$txt = "error###"._("<b>$ossec_conf</b> not found or you don't have have permission to access (1)");
+		else
+			echo $file_xml;
+	}
+	else
+		$txt = "error###"._("<b>$ossec_conf</b> not found or you don't have have permission to access (2)");
+
 }
 else
 	echo "error###"._("Error: Illegal actions");

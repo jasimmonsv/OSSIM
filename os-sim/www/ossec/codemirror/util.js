@@ -60,6 +60,7 @@ function clearElement(node) {
 
 // Check whether a node is contained in another one.
 function isAncestor(node, child) {
+  
   while (child = child.parentNode) {
     if (node == child)
       return true;

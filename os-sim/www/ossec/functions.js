@@ -220,7 +220,7 @@ function save(editor){
 		 
 			if ( $('#results').length >= 1 )
 			{
-				$('#results').html();
+				$('#results').html('');
 				$('#results').append("<div id='msg_edit'></div>");
 			 	
 				if (code != 5)

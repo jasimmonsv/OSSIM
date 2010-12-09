@@ -14,6 +14,7 @@ table {
 	-moz-border-radius:0px;
 	-webkit-border-radius: 0px;
 	-khtml-border-radius: 0px;
+	background: #FFFFFF;
 }
 
 td {border: none; font-size:10px;}
@@ -22,7 +23,7 @@ td {border: none; font-size:10px;}
 #tab_container {
 	width:100%; 
 	margin:auto;
-	border: solid 1px #999;
+	border: solid 1px #D2D2D2;
 	border-radius-bottomright: 5px;
 	border-radius-bottomleft: 5px;
 	-moz-border-radius-bottomright: 5px;
@@ -39,7 +40,7 @@ td {border: none; font-size:10px;}
 	width:100%; 
 	margin:auto;
 	border: none;
-	border-left: solid 1px #999;
+	/*border-left: solid 1px #D2D2D2;*/
 	margin-top: 10px;
 	border-collapse: collapse;
 }
@@ -47,7 +48,7 @@ td {border: none; font-size:10px;}
 #oss_mcontainer { width: 100% }
 
 #oss_clcontainer { width: 300px; vertical-align: top; }
-#oss_crcontainer { border-left: solid 1px #999; vertical-align: top;}
+#oss_crcontainer { border-left: solid 1px #D2D2D2; vertical-align: top;}
 
 #tree_container_top {float: left; width:90%; margin: 10px; text-align: left; vertical-align:middle;}
 #tree_container_bt  {float: left; margin: 5px 10px 10px 10px; text-align: left;}
@@ -63,41 +64,77 @@ ul.oss_tabs {
 	float: left;
 	list-style: none;
 	height: 32px;
-	border-bottom: 1px solid #999;
+	border-bottom: 1px solid #D2D2D2;
 	border-left: none;
 	width: 100%;
+	font-size: 12px;
+    font-weight: bold;
 }
 
 ul.oss_tabs li {
 	float: left;
 	height: 31px;
 	line-height: 31px;
-	border: 1px solid #999;
-	border-left: none;
-	border-left: none;
-	margin-bottom: -1px;
-	background: #e0e0e0;
-	overflow: hidden;
+	margin: 0 0.2em -1px 0;
+	background: url("../../pixmaps/theme/ui-bg_glass_75_e6e6e6_1x400.png") repeat-x scroll 50% 50% #E6E6E6;
+    border: 1px solid #D3D3D3;
+    color: #555555;
+    overflow: hidden;
 	position: relative;
+	border-radius: 4px;
+	-khtml-b_order-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px; 
+	
+	border-radius-bottomright: 0px;
+	border-radius-bottomleft: 0px;
+	-moz-border-radius-bottomright: 0px;
+	-moz-border-radius-bottomleft: 0px;
+	-khtml-border-radius-bottomright: 0px;
+	-khtml-border-radius-bottomleft: 0px;
+	-webkit-border-bottom-right-radius: 0px;
+	-webkit-border-bottom-left-radius: 0px;
 }
 ul.oss_tabs li a {
 	text-decoration: none;
-	color: #000;
+	color: #555555;
 	display: block;
-	font-size: 14px;
 	padding: 0 20px;
-	border: 1px solid #fff;
 	outline: none;
 }
 
 ul.oss_tabs li a:hover {
-	background: #ccc;
+	border-color: #999999; 
+	background: #dadada url(../../pixmaps/theme/ui-bg_glass_75_dadada_1x400.png) 50% 50% repeat-x; 
+	color: #212121; 
+	outline: none; 
 }
 	
-html ul.oss_tabs li.active, html ul.oss_tabs li.active a:hover  {
-	background: #fff;
-	border-bottom: 1px solid #fff;
+html ul.oss_tabs li.active{
+	border-color: #D2D2D2; 
+	background: #ffffff url(../../pixmaps/theme/ui-bg_glass_65_ffffff_1x400.png) 50% 50% repeat-x;
+	color: #212121; 
+	outline: none;
+	border-bottom-color: #fff;
 }
+
+html ul.oss_tabs li.active a:hover  {
+	border-radius: 4px;
+	-khtml-b_order-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px; 
+	border-color: #AAAAAA; 
+	background: #ffffff url(../../pixmaps/theme/ui-bg_glass_65_ffffff_1x400.png) 50% 50% repeat-x;
+	color: #212121; 
+	border-bottom-color: #fff;
+	cursor:text;
+}
+
+
 
 /* Code Mirror */
 
@@ -112,13 +149,13 @@ html ul.oss_tabs li.active, html ul.oss_tabs li.active a:hover  {
 	padding-top: .4em;
 }
 
-.CodeMirror-wrapping {border: solid 1px #999;} 
+.CodeMirror-wrapping {border: solid 1px #D2D2D2;} 
 
 #container_code { width: 93%; margin:10px auto;}
 
 .code {width: 100%; height: 300px;}
 
-.button { float: right; margin-top: 20px;}
+div .button { float: right; margin-top: 20px;}
 
 .save { 
 	width:90px;
@@ -236,6 +273,7 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 	margin: auto;
 	position: absolute;
 	top: -58px;
+	left: 0px;
 	width: 100%;
 	z-index: 100;
 }
@@ -263,8 +301,6 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 
 
 /* Messages*/
-
-#msg {width: 90%; margin: 80px auto; text-align:left; padding: 10px;}
 
 #msg_edit { text-align:center;}
 
@@ -537,8 +573,8 @@ div.ui-dynatree-container div span {float:none;}
 #agent_actions {width: 80%; margin: 10px auto; background: transparent; border: none;}
 #agent_table th {text-align: center; height: 20px; font-size: 12px;}
 #agent_table td {text-align: left; height: 20px; border-bottom: solid 1px #CCCCCC; font-size: 12px; padding: 3px;}
-.actions { width: 80px; margin: auto;}
-.actions img{padding-left: 3px; }
+.agent_actions { width: 80px; margin: auto;}
+.agent_actions  img{padding-left: 3px; }
 .info_agent { margin: 30px auto; text-align: center;}
 .info_content {text-align: center; padding: 5px; background: #FFFFFF !important;}
 .info div {text-align: center;}
@@ -552,17 +588,12 @@ th { height: 15px;}
 #cont_add_agent table 
 {
 	width: 450px; 
-	margin: auto; 
-	border: solid 1px #CCCCCC;
-	border-radius: 4px;
-	-khtml-border-radius: 4px;
-	-webkit-border-radius: 4px; 
-	-moz-border-radius: 4px;
-	-khtml-border-radius: 4px;
-	-webkit-border-radius: 4px;
+	text-align: left;
+	border: none;
 	padding: 5px 0px;
+	background: #FFFFFF;
 }
-#cont_add_agent table th {width: 150px; height: 25px; padding:10px 0px 10px 0px;}
+#cont_add_agent table th {width: 150px; padding:5px 0px;}
 
 .cont_send { text-align:center; padding:5px 0px 10px 0px;}
 
@@ -572,7 +603,14 @@ th { height: 15px;}
 
 .commom_ac { text-align:left !important; padding: 0px !important;}
 
-.oss_load {height: 50px; text-align: left; width: 80%; margin: auto;}
+.oss_load {
+	position:absolute;
+	top: -25px;
+	left: 140px;
+	text-align: left; 
+	width: 85%; 
+}
+.cont_oss_load {position:relative;}
 
 
 
@@ -590,7 +628,7 @@ th { height: 15px;}
 
 #cnf_load span {padding-left: 5px; font-size: 12px;}
 
-#cnf_message {width: 90%; position: relative;}
+#cnf_message {width: 90%; position: relative; margin:3px auto 0px auto; padding: 10px 0px;}
 
 .cnf_rules_table { width: 60%; margin:auto;}
 
@@ -611,9 +649,7 @@ th { height: 15px;}
 #cnf_wait_save{
 	position: absolute;
 	top: 10px;
-	left: 20px;
+	left: 0px;
 }
-
-
 
 

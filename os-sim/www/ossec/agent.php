@@ -42,6 +42,8 @@ require_once ('utils.php');
 $agents = array();
 exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 
+
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -109,7 +111,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 						else
 							$('#agent_table tr:last').after(status[3]);					
 												
-						$('#cont_agent_'+status[2]+' .actions a').bind('click', function() {
+						$('#cont_agent_'+status[2]+' .agent_actions a').bind('click', function() {
 							var id = $(this).attr("id");
 							get_action(id);
 						});
@@ -207,6 +209,10 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 		}
 		
 		$(document).ready(function() {
+			
+			//Tabs
+			$("ul.oss_tabs li:first").addClass("active");
+			
 			$('#show_agent').bind('click', function() { show_agent("cont_add_agent") });
 			$('#send').bind('click', function() { add_agent() });
 			
@@ -226,7 +232,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 				 validate_field($(this).attr("id"), "ajax/agent_actions.php");
 			});
 			
-			$('#agent_table .actions a').bind('click', function() {
+			$('#agent_table .agent_actions a').bind('click', function() {
 				var id = $(this).attr("id");
 				get_action(id);
 			});
@@ -270,7 +276,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 		div.bold {line-height: 18px;}
 		.lbutton, .lbutton:hover, input.lbutton:hover  {margin-right: 0px;}
 		.right {text-align: right; padding: 3px 0px;}
-		.button {float: none; margin-top: 0px;}
+		 div .button {float: none !important; margin-top: 0px;}
 		.load { height: 25px; margin: auto;}
 		td.center {text-align: center !important;}
 	</style>
@@ -290,143 +296,165 @@ if (GET('withoutmenu') != "1")
 
 <div id='container_center'>
 
-	<h1><?php echo _("Agent Control")?></h1>
-	
-	<div class='oss_load'></div>
-	
-	<table id='agent_table'>
-		
-		<?php
-			
-			if ( !empty ($agents) )
-			{
-				?>
-				<tr>
-					<th style='width: 100px;'><?php echo _("ID")?></th>
-					<th><?php echo _("Name")?></th>
-					<th><?php echo _("IP")?></th>
-					<th><?php echo _("Status")?></th>
-					<th class='actions'><?php echo _("Actions")?></th>
-				</tr>
-				
-				<?php
-								
-				foreach ($agents as $k => $agent)
-				{
-					if ( empty($agent) )
-						continue;
-						
-					$more_info = array();
-					$ret = null;
-					
-					$agent = explode(",", $agent);
-					exec ( "sudo /var/ossec/bin/agent_control -i ".$agent[0]." -s", $more_info, $ret);
-					
-					$more_info = ( $ret !== 0 ) ? _("Information from agent not available") : explode(",",$more_info[0]);
-					
-					echo "<tr id='cont_agent_".$agent[0]."'>
-							<td id='agent_".$agent[0]."'><a class='agent_id'><img src='../pixmaps/plus-small.png' alt='More info' align='absmiddle'/>".$agent[0]."</a></td>
-							<td>".$agent[1]."</td>
-							<td>".$agent[2]."</td>
-							<td>".$agent[3]."</td>
-							<td class='actions center'>".get_actions($agent)."</td>
-						</tr>
-						<tr id='minfo_".$agent[0]."' style='display:none;'>
-							<td colspan='5'>";
-								if ( !is_array($more_info) )
-								{
-									echo "<div style='padding:5px; color: #D8000C; text-align:center;'>$more_info</div>";
-								}
-								else
-								{
-									echo "<div style='padding: 3px 3px 5px 5px; font-weight: bold;'>Agent information:</div>";
-									
-									echo "<div style='float:left; width: 170px; font-weight: bold; padding:0px 3px 5px 15px;'>
-											<span>Agent ID:</span><br/> 
-											<span>Agent Name:</span><br/>
-											<span>IP address:</span><br/>
-											<span>Status:</span><br/><br/>
-											<span>Operating system:</span><br/>
-											<span>Client version:</span><br/>
-											<span>Last keep alive:</span><br/><br/>
-											<span>Syscheck last started at:</span><br/>
-											<span>Rootcheck last started at:</span><br/>
-									</div>";
-									
-									echo "<div style='float:left; width: auto; padding:0px 3px 5px 15px;'>
-											<span>".$more_info[0]."</span><br/>  
-											<span>".$more_info[1]."</span><br/>
-											<span>".$more_info[2]."</span><br/>
-											<span>".$more_info[3]."</span><br/><br/>
-											<span>".$more_info[4]."</span><br/>
-											<span>".$more_info[5]."</span><br/>
-											<span>".$more_info[6]."</span><br/><br/>
-											<span>".$more_info[7]."</span><br/>
-											<span>".$more_info[8]."</span><br/>
-										 </div>
-									</div>";
-									
-								}
-					echo "</td>
-						</tr>";
-				}
-			}
-			else
-			{
-				if ($ret === 0)
-				{
-					$txt   = _("No agents available");
-					$class = "oss_info";
-				}
-				else
-				{
-					$txt   = _("Errot to list agents");
-					$class = "oss_error";
-				}
-				echo "<tr><td colspan='5' class='no_agent bborder_none'><div class='$class info_agent'>$txt</div></td></tr>";
-			}
-		?>
-	</table>
-	
-	<table id='agent_actions'>
+	<table id='tab_menu'>
 		<tr>
-			<td id='cont_commom_ac'>
-				<div class='commom_ac'>
-					<a id='show_agent'><img src='../pixmaps/user--plus.png' alt='Arrow' align='absmiddle'/><span><?php echo _("Add agent")?></span></a>
-				</div>
+			<td id='oss_mcontainer'>
+				<ul class='oss_tabs'>
+					<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Agent Control")?></a></li>
+				</ul>
 			</td>
-			<td class='info'></td>
 		</tr>
-				
 	</table>
 	
-	
-	<div id='cont_add_agent' class='visible'>
-	
-		<form method='POST' name='form_agent' id='form_agent'>
-			<table>
-				<tr>
-					<th><label for='agent_name'><?php echo gettext("Agent Name"); ?></label></th>
-					<td class="left">
-						<input type='text' name='agent_name' id='agent_name' class='vfield req_field' value="<?php echo $agent_name?>"/>
-						<span style="padding-left: 3px;">*</span>
-					</td>
-				</tr>
+	<table id='tab_container'>
+		<tr class='nobborder'><td><div class='cont_oss_load'><div class='oss_load'></div></div></td></tr>
+		<tr>
+			<td>
+				<table id='agent_table'>
+										
+					<?php
+						
+						if ( !empty ($agents) )
+						{
+							?>
+							<tr>
+								<th style='width: 100px;'><?php echo _("ID")?></th>
+								<th><?php echo _("Name")?></th>
+								<th><?php echo _("IP")?></th>
+								<th><?php echo _("Status")?></th>
+								<th class='agent_actions'><?php echo _("Actions")?></th>
+							</tr>
+							
+							<?php
+											
+							foreach ($agents as $k => $agent)
+							{
+								if ( empty($agent) )
+									continue;
+									
+								$more_info = array();
+								$ret = null;
+								
+								$agent = explode(",", $agent);
+								exec ( "sudo /var/ossec/bin/agent_control -i ".$agent[0]." -s", $more_info, $ret);
+								
+								$more_info = ( $ret !== 0 ) ? _("Information from agent not available") : explode(",",$more_info[0]);
+								
+								echo "<tr id='cont_agent_".$agent[0]."'>
+										<td id='agent_".$agent[0]."'><a class='agent_id'><img src='../pixmaps/plus-small.png' alt='More info' align='absmiddle'/>".$agent[0]."</a></td>
+										<td>".$agent[1]."</td>
+										<td>".$agent[2]."</td>
+										<td>".$agent[3]."</td>
+										<td class='agent_actions center'>".get_actions($agent)."</td>
+									</tr>
+									<tr id='minfo_".$agent[0]."' style='display:none;'>
+										<td colspan='5'>";
+											if ( !is_array($more_info) )
+											{
+												echo "<div style='padding:5px; color: #D8000C; text-align:center;'>$more_info</div>";
+											}
+											else
+											{
+												echo "<div style='padding: 3px 3px 5px 5px; font-weight: bold;'>Agent information:</div>";
+												
+												echo "<div style='float:left; width: 170px; font-weight: bold; padding:0px 3px 5px 15px;'>
+														<span>Agent ID:</span><br/> 
+														<span>Agent Name:</span><br/>
+														<span>IP address:</span><br/>
+														<span>Status:</span><br/><br/>
+														<span>Operating system:</span><br/>
+														<span>Client version:</span><br/>
+														<span>Last keep alive:</span><br/><br/>
+														<span>Syscheck last started at:</span><br/>
+														<span>Rootcheck last started at:</span><br/>
+												</div>";
+												
+												echo "<div style='float:left; width: auto; padding:0px 3px 5px 15px;'>
+														<span>".$more_info[0]."</span><br/>  
+														<span>".$more_info[1]."</span><br/>
+														<span>".$more_info[2]."</span><br/>
+														<span>".$more_info[3]."</span><br/><br/>
+														<span>".$more_info[4]."</span><br/>
+														<span>".$more_info[5]."</span><br/>
+														<span>".$more_info[6]."</span><br/><br/>
+														<span>".$more_info[7]."</span><br/>
+														<span>".$more_info[8]."</span><br/>
+													 </div>
+												</div>";
+												
+											}
+								echo "</td>
+									</tr>";
+							}
+						}
+						else
+						{
+							if ($ret === 0)
+							{
+								$txt   = _("No agents available");
+								$class = "oss_info";
+							}
+							else
+							{
+								$txt   = _("You don't have execute permissions");
+								$class = "oss_error";
+								$error = true;
+							}
+							echo "<tr><td colspan='5' class='no_agent bborder_none'><div class='$class info_agent'>$txt</div></td></tr>";
+						}
+					?>
+				</table>
 				
-				<tr>
-					<th><label for='ip'><?php echo gettext("IP Address"); ?></label></th>
-					<td class="left">
-						<input type='text' name='ip' id='ip' class='vfield req_field' value="<?php echo $ip?>"/>
-						<span style="padding-left: 3px;">*</span>
-					</td>
-				</tr>
-				<tr>
-					<td class="cont_send" colspan='2'><input type="button" id='send' class="button" value="<?=_("Send")?>"/></td>
-				</tr>
-			</table>
-		</form>
-	</div>
-</div>
+				<?php if ($error !== true) { ?> 
+				<table id='agent_actions'>
+					<tr>
+						<td id='cont_commom_ac'>
+							<div class='commom_ac'>
+								<a id='show_agent'><img src='../pixmaps/user--plus.png' alt='Arrow' align='absmiddle'/><span><?php echo _("Add agent")?></span></a>
+							</div>
+						</td>
+						<td class='info'></td>
+					</tr>
+					
+					<tr>
+						<td colspan='2'>
+							<div id='cont_add_agent' class='visible'>
+								<form method='POST' name='form_agent' id='form_agent'>
+									<table>
+										<tr>
+											<th><label for='agent_name'><?php echo gettext("Agent Name"); ?></label></th>
+											<td class="left">
+												<input type='text' name='agent_name' id='agent_name' class='vfield req_field' value="<?php echo $agent_name?>"/>
+												<span style="padding-left: 3px;">*</span>
+											</td>
+										</tr>
+										
+										<tr>
+											<th><label for='ip'><?php echo gettext("IP Address"); ?></label></th>
+											<td class="left">
+												<input type='text' name='ip' id='ip' class='vfield req_field' value="<?php echo $ip?>"/>
+												<span style="padding-left: 3px;">*</span>
+											</td>
+										</tr>
+										<tr>
+											<td class="cont_send" colspan='2'><input type="button" id='send' class="button" value="<?=_("Send")?>"/></td>
+										</tr>
+									</table>
+								</form>
+							</div>
+						</td>
+					</tr>
+							
+				</table>
+				
+				<?php } ?>
+				
+				
+				
+			</div>
+		<td>
+	</tr>	
+</table>
 
 </body>
 </html>
