@@ -345,7 +345,7 @@ function ossim_valid() {
 			}
 		}
 		
-		//$v = ( Util::is_utf8($v) ) ? utf8_decode($v) : $v;
+		$v = ( Util::is_utf8($v) ) ? utf8_decode($v) : $v;
 		
 		$val_str = '';
 		
@@ -440,6 +440,7 @@ function ossim_error($error_msg = null, $style=null) {
 
 function validate_form_fields($type, $validate)
 {
+	require_once('classes/Util.inc');
 	$values            = array();
 	$validation_errors = array();
 	$validate_rules    = array();
@@ -449,7 +450,7 @@ function validate_form_fields($type, $validate)
 	{
 		$validate_rules = $validate;
 		foreach ($_POST as $k => $v)
-			$values[$k]= POST($k);
+			$values[$k]= Util::utf8_encode2(POST($k));
 	}
 	else if ($type == 'GET')
 	{
@@ -508,7 +509,7 @@ function valid_cidr($cidrs)
 			continue;
 		else
 		{
-			ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<b>$v</b>'");
+			ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<b>".$v."</b>'");
 			return false;
 		}
 	}
