@@ -143,6 +143,12 @@ else
 	rm -f /var/ossim/sessions/*
 fi
 
+# ossec perms
+chmod o+rx /var/ossec
+chmod o+rx /var/ossec/etc
+chmod o+rx /var/ossec/rules
+chmod u+w /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
+chown www-data /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 
 # Sem log file
 if [ ! -d /var/log/ossim/ ]; then
