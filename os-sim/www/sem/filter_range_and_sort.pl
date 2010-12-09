@@ -374,7 +374,7 @@ sub set_taxonomy_filters {
 	my $or_num = shift;
 	#$filters{$and_num}{$or_num}{'plugin_id_sid'}{'7017'}{'1002'}++; # For Debug
 	my @plugin_ids = ();
-	if ($filter =~ /taxonomy='(.*)-(.*)-(.*)'/) {
+	if ($filter =~ /taxonomy='?(.*)-(.*)-(.*)'?/) {
 		$has_results = 0;
 		if ($1 ne "") {
 			my $st = $1;
