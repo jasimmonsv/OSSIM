@@ -129,20 +129,20 @@ if (trim($str) != "") {
 			}
 		} elseif ($found[1] == "plugin") {
 			foreach ($plugins as $plugin_id=>$plugin) {
-				if ((preg_match("/^$qstr/i",$plugin)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top && $current_query["plugin_id".$op.$plugin_id] == "") {
+				if ((preg_match("/^$qstr/i",$plugin)) && !preg_match("/$plugin/i",$fnd[2]) && count($data) < $top && $current_query["plugin_id".$op.$plugin_id] == "") {
 					$data[] = array("name"=>"<b>plugin</b>$op$prev$plugin");
 				}
 			}
 		} elseif ($found[1] == "plugingroup") {
 			foreach ($plugingroups as $group) {
 				$groupname = $group->get_name();
-				if ((preg_match("/^$qstr/i",$groupname)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top) {
+				if ((preg_match("/^$qstr/i",$groupname)) && !preg_match("/$groupname/i",$fnd[2]) && count($data) < $top) {
 					$data[] = array("name"=>"<b>plugingroup</b>$op$prev$groupname");
 				}
 			}
 		} elseif ($found[1] == "sourcetype") {
 			foreach ($sourcetypes as $sourcetype) {
-				if ((preg_match("/^$qstr/i",$sourcetype)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top) {
+				if ((preg_match("/^$qstr/i",$sourcetype)) && !preg_match("/$sourcetype/i",$fnd[2]) && count($data) < $top) {
 					$data[] = array("name"=>"<b>sourcetype</b>$op$prev$sourcetype");
 				}
 			}
@@ -151,13 +151,13 @@ if (trim($str) != "") {
 			foreach ($ports as $port) {
 				$portnumber = $port->get_port_number();
 				if ($portnumber == $lastnumber) { continue; }
-				if ((preg_match("/^$qstr/i",$portnumber)) && !preg_match("/$name/i",$fnd[2]) && count($data) < $top && $current_query[$found[1].$op.$portnumber] == "") {
+				if ((preg_match("/^$qstr/i",$portnumber)) && !preg_match("/$portnumber/i",$fnd[2]) && count($data) < $top && $current_query[$found[1].$op.$portnumber] == "") {
 					$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$portnumber");
 					$lastnumber = $portnumber;
 				}
 			}
 		} elseif ($found[1] == "data") {
-			if (count($data) < $top && !preg_match("/$name/i",$fnd[2])) {
+			if (count($data) < $top/* && !preg_match("/$qstr/i",$fnd[2])*/) {
 				$data[] = array("name"=>"<b>data</b>$op$prev$found[3]");
 			}
 		}
