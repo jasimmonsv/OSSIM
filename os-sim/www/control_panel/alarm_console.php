@@ -109,6 +109,11 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 		}
 	});
   }
+  function checkall_date (d) {
+	$("input[datecheck='"+d+"']").each(function() {
+		this.checked = (this.checked) ? false : true;
+	});
+  }
   function tooglebtn() {
 	$('#searchtable').toggle();
 	if ($("#timg").attr('src').match(/toggle_up/)) 
@@ -762,6 +767,7 @@ if ($count > 0) {
         /* show alarms by days */
         $date_slices = split(" ", $date);
         list($year, $month, $day) = split("-", $date_slices[0]);
+        $date_unformated = $year.$month.$day;
         $date_formatted = htmlentities(strftime("%A %d-%b-%Y", mktime(0, 0, 0, $month, $day, $year)));
         if ($datemark != $date_slices[0]) {
             $link_delete = "
@@ -770,7 +776,8 @@ if ($count > 0) {
             echo "
                 <tr>
                   
-                  <td colspan=\"11\" style='padding:5px;border-bottom:0px solid white;background-color:#B5C7DF'>
+                  <td style='border:0px;background-color:#d6dfeb'><input type=\"checkbox\" onclick=\"checkall_date('".$date_unformated."')\"></td>
+                  <td colspan=\"10\" style='padding:5px;border-bottom:0px solid white;background-color:#B5C7DF'>
                     <!--<hr border=\"0\"/>-->
                     <b>$date_formatted</b> [$link_delete]<br/>
                     <!--<hr border=\"0\"/>-->
@@ -782,7 +789,7 @@ if ($count > 0) {
         $datemark = $date_slices[0];
 ?>
       <tr>
-        <td class="nobborder"><input style="border:none" type="checkbox" name="check_<?php echo $backlog_id ?>_<?php echo $alarm->get_event_id() ?>" id="check_<?php echo $backlog_id ?>" class="alarm_check" value="1"></td>
+        <td class="nobborder"><input style="border:none" type="checkbox" name="check_<?php echo $backlog_id ?>_<?php echo $alarm->get_event_id() ?>" id="check_<?php echo $backlog_id ?>" class="alarm_check" datecheck="<?php echo $date_unformated ?>" value="1"></td>
         <td class="nobborder" nowrap id="plus<?php echo $inf + 1 ?>">
            <? if ($backlog_id && $id==1505) { ?>
            <a href="" onclick="show_alarm('<?php echo $backlog_id ?>','<?php echo $inf + 1 ?>');return false;"><img align='absmiddle' src='../pixmaps/plus-small.png' border='0'></a><?php echo ++$inf ?>
