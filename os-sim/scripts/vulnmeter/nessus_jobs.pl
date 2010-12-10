@@ -2654,7 +2654,7 @@ sub process_results {
             }
             $vuln_resume{$hostip}++;
             # incidents
-            update_ossim_incidents($hostip, $port, $risk, $desc, $scanid, $username);
+            update_ossim_incidents($hostip, $port, $risk, $desc, $scanid, $username, $sid);
         } #END FOR EACH RECORD
         
         #CHECK FOR RECORDS WHICH REMAIN NOT INSERTED FOR HOST  
@@ -2728,21 +2728,23 @@ sub process_results {
 
 
         #UPDATE CLOSED INCIDENTS AS RESOLVED ( per previously update_incidents )
-        if ( defined( $host_id ) && $host_id > 0 ) {
+        if ( defined( $hostip ) ) {
             print "openissues=[$open_issues]\n";
-            $sql = qq{ SELECT id, scriptid, service FROM vuln_Incidents WHERE host_id='$host_id' };
+            $sql = qq{ SELECT distinct i.id,iv.nessus_id from
+                            incident_vulns iv join incident i on i.id=iv.incident_id
+                            where iv.ip='$hostip' and i.status='Open' and iv.description like '%SID:$sid'};
             logwriter( $sql, 5 );
             $sth_sel = $dbh->prepare( $sql );
             $sth_sel->execute;
-            while(my ( $incident_id, $scriptid, $service )=$sth_sel->fetchrow_array) {
+            while(my ( $incident_id, $scriptid )=$sth_sel->fetchrow_array) {
                 #FAIL SAFE DO MARK ANY PLUGINS NOT TESTED AS RESOLVED
-                if ( grep { $_ eq $scriptid } @vuln_nessus_plugins ) {
+                if ( grep { $_ eq $scriptid } @vuln_nessus_plugins ) { 
                     logwriter( "checking incident [$incident_id] against scriptid [$scriptid]", 4 );
 	            if ( $open_issues =~ /$scriptid/ ) {
                         #CURRENTLY NOT RESOLVED
                     } else {
                         #CURRENTLY CREDENTIALS VS NO /CREDENTIALS WILL CAUSE AN INVALID CLEANUP STATE TO BE SET
-                        $sql2 = qq{ UPDATE vuln_Incidents SET status='resolved', date_resolved='$scantime' WHERE id='$incident_id' };
+                        $sql2 = qq{ UPDATE incident SET status='Closed', last_update='$scantime' WHERE id='$incident_id' };
                         safe_db_write ( $sql2, 4 );
                     }
                 } else {
@@ -3190,8 +3192,8 @@ sub get_host_record {
                 $sql = qq{ DELETE FROM vuln_host_stats WHERE host_id='$existing_host_id'};
                 safe_db_write ( $sql, 4 );
 
-                $sql = qq{ DELETE FROM vuln_Incidents WHERE host_id='$existing_host_id'};
-                safe_db_write ( $sql, 4 );
+                #$sql = qq{ DELETE FROM vuln_Incidents WHERE host_id='$existing_host_id'};
+                #safe_db_write ( $sql, 4 );
             }
             $sql = "UPDATE vuln_host_macs SET host_id='$host_id', hostip='$hostip', LastSeen='$now'
                 WHERE id='$mac_id'";
@@ -4431,7 +4433,7 @@ sub maintenance {
        }
        update_scan_status ( );
        remove_dup_hosts ( );
-       remove_dup_incidents ( );
+       #remove_dup_incidents ( );
     }
 }
 
@@ -4513,8 +4515,8 @@ sub remove_dup_hosts {
     	  	#    $sql = qq{ UPDATE vuln_host_stats SET host_id='$replace_id' WHERE host_id='$host_id'};
 		    #safe_db_write ( $sql, 4 );
 			
-      		    $sql = qq{ UPDATE vuln_Incidents SET host_id='$replace_id' WHERE host_id='$host_id'};
-		    safe_db_write ( $sql, 4 );
+      		#    $sql = qq{ UPDATE vuln_Incidents SET host_id='$replace_id' WHERE host_id='$host_id'};
+		    #safe_db_write ( $sql, 4 );
        		}	
 	    }
             $sth_sel2->finish;
@@ -4670,6 +4672,7 @@ sub update_ossim_incidents {
         my $desc = shift;
         my $scanid = shift;
         my $username = shift;
+        my $sid = shift;
         
         my ($sql_inc, $sth_inc);
         
@@ -4740,6 +4743,7 @@ sub update_ossim_incidents {
             $desc =~ s/\"/\'/g;
             $desc =~ s/^ *| *$//g;
             $desc =~ s/^[\n\r\t]*//g;
+            $desc .= "\nSID:$sid";
             my $incident_vulns_id = genID("incident_vulns_seq");
             $sql_inc = qq{ INSERT INTO incident_vulns(id, incident_id, ip, port, nessus_id, risk, description) VALUES('$incident_vulns_id', '$incident_id', '$hostip', '$port', '$scanid', '$risk', \"$desc\") };
             safe_db_write ($sql_inc, 4);
