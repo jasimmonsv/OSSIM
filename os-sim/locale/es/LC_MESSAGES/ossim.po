@@ -3150,11 +3150,11 @@ msgstr "&iquest;Insertar nuevo grupo de equipos?"
 #: www/policy/modifypolicyform.php:622 www/server/server.php:249
 #: www/server/newserverform.php:15
 msgid "Insert new server"
-msgstr "Insertar nuevo usuario"
+msgstr "Insertar nuevo servidor"
 
 #: www/policy/newpolicyform.php:373
 msgid "Insert new server?"
-msgstr "Insertar nuevo usuario"
+msgstr "Insertar nuevo servidor?"
 
 #: www/signature/newsignatureform.php:15
 msgid "Insert new signature group"
