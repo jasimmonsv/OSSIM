@@ -44,7 +44,7 @@ $path_tmp   = "/tmp/".uniqid()."_tmp.conf";
 
 $tab     = POST('tab');
 
-if($tab == "tab1")
+if($tab == "#tab1")
 {
 	$rules_enabled  = $disabled_rules = $xml_rules = array();
 	
@@ -129,7 +129,7 @@ if($tab == "tab1")
 	
 	}
 }
-else if($tab == "tab2")
+else if($tab == "#tab2")
 {
 
 $aux_path  = explode("/", $ossec_conf);

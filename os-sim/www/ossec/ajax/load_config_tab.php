@@ -40,7 +40,7 @@ $error   = false;
 
 $tab     = POST('tab');
 
-if($tab == "tab1")
+if($tab == "#tab1")
 {
 	$rules = array();
 	$conf_file = file_get_contents($ossec_conf);
@@ -128,7 +128,7 @@ if($tab == "tab1")
 		$_SESSION['_cnf_rules'] = $rules;
 		
 		
-		echo "1###<table class='cnf_rules_table'>";
+		echo "1###<div id='cnf_rules_cont'><table class='cnf_rules_table'>";
 		
 			$all_rules       = get_files ($rules_file);
 						
@@ -153,14 +153,14 @@ if($tab == "tab1")
 			
 			echo "<tr><td><input type='button' class='button' id='send' value='"._('Send')."' onclick=\"save_config_tab();\"/></td></tr>";
 		
-		echo "</table>";
+		echo "</table></div>";
 		
 	}
 	else
 		echo "error###"._("Error to read configuration file (1)");
 		
 }
-else if ($tab == 'tab2')
+else if ($tab == '#tab2')
 {
 	if ( file_exists( $ossec_conf) )
 	{

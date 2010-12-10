@@ -81,7 +81,8 @@ else
 			messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Loading data ... ")?></span>';
 			messages[1]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Saving data ... ")?></span>';
 			messages[2]  = '<span style="padding-left: 5px;"><?php echo _("Illegal action")?></span>';
-			
+		
+		var editor       = null;	
 	</script>
 	
 	<!-- Multiselect: -->
@@ -100,10 +101,11 @@ else
 			//Add Load img
 			if ($('#cnf_load').length < 1)
 			{
+				$(tab+" div").css('display', 'none');
 				var load ="<div id='cnf_load'>"+messages[0]+"</div>";
-				$("#"+tab).append(load);
+				$(tab).append(load);
 			}
-									
+															
 			//Remove error message
 			
 						
@@ -133,9 +135,9 @@ else
 					}
 					else
 					{
-						$("#"+tab).html(status[1]);	
+						$(tab).html(status[1]);	
 													
-						if (tab == "tab1")
+						if (tab == "#tab1")
 						{
 							$(".multiselect").multiselect({
 								searchDelay: 500,
@@ -144,12 +146,26 @@ else
 						}
 						else
 						{
-							if (tab == "tab2")
-								editor.setCode(msg);
+							if (tab == "#tab2")
+							{
+								if (editor == null)
+								{
+									editor = new CodeMirror(CodeMirror.replace("code"), {
+										parserfile: "parsexml.js",
+										stylesheet: "css/xmlcolors.css",
+										path: "codemirror/",
+										continuousScanning: 500,
+										content: msg,
+										lineNumbers: true
+									});
+								}
+								else
+									editor.setCode(msg);
+							}	
 						}
 					}
-
 					
+					$(tab+" div").css('display', 'block');
 						
 				}
 			});
@@ -159,8 +175,7 @@ else
 		{
 			
 			var tab = $(".active a").attr("href");
-			tab = $(tab).attr("id");
-			
+						
 			if ($('#cnf_message').length >= 1)
 			{
 				$('#cnf_message').html('');
@@ -182,11 +197,11 @@ else
 			
 			var data= "tab="+tab;
 			
-			if (tab == "tab1")	
+			if (tab == "#tab1")	
 				data += "&"+ $('form').serialize();
 			else
 			{
-				if (tab == "tab2")	
+				if (tab == "#tab2")	
 					data += "&"+"data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES'));
 			}
 				
@@ -230,31 +245,9 @@ else
 			<?php if ($error !== true) {?>			
 			
 				//On Click Event
-				$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this);});
+				$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this); load_config_tab($(this).find("a").attr("href"))});
 				
-				$("#link_tab1").bind('click', function()  { load_config_tab("tab1"); });
-				$("#link_tab2").bind('click', function()  { load_config_tab("tab2"); });
-														
-								
-				/*Code Mirror*/
-												
-				if (document.getElementById("code") != null )
-					var content = document.getElementById("code").value;
-				else
-					content='';
-				
-				editor = new CodeMirror(CodeMirror.replace("code"), {
-					parserfile: "parsexml.js",
-					stylesheet: "xmlcolors.css",
-					parserfile: "parsexml.js",
-					stylesheet: "css/xmlcolors.css",
-					path: "codemirror/",
-					continuousScanning: 500,
-					content: content,
-					lineNumbers: true
-				});
-				
-				load_config_tab("tab1");
+				load_config_tab("#tab1");
 				
 				<?php } ?>
 						
@@ -276,7 +269,7 @@ else
 	.buttons_box {	
 		float: right; 
 		width: 20%;
-		padding-right: 30px;
+		padding-right: 40px;
 		padding-bottom: 10px;
 	}
 			
@@ -319,7 +312,7 @@ else
 					</div>
 					
 					<div id="tab2" class="tab_content" style='display:none;'>
-						<div id='container_code'><textarea id="code"><?=$file_xml?></textarea></div>
+						<div id='container_code'><textarea id="code"></textarea></div>
 						<div class='buttons_box'>
 							<?php if ( $error == false ) { ?>
 								<div class='button'><input type='button' class='save' id='send' value='<?=_("save")?>' onclick="save_config_tab();"/></div>

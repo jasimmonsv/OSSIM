@@ -71,7 +71,7 @@ function load_tab1()
 	$("#tab1").css('display', 'block');
 }
 
-function load_tab2(editor)
+function load_tab2()
 {				
 	var file = $('#rules option:selected').attr('value');
 	
@@ -90,12 +90,30 @@ function load_tab2(editor)
 		success: function(msg){
 
 			var msg_int = parseInt(msg);
-			var txt = "";
+			var txt   = "";
 			var style = "";
 																	
 			if ( isNaN(msg_int) )
 			{	
-				editor.setCode(msg);
+				/*Code Mirror*/
+			
+				
+				if (editor == null)
+				{
+					editor = new CodeMirror(CodeMirror.replace("code"), {
+						parserfile: "parsexml.js",
+						stylesheet: "css/xmlcolors.css",
+						path: "codemirror/",
+						continuousScanning: 500,
+						content: msg,
+						lineNumbers: true
+					});
+				}
+				else
+					editor.setCode(msg);
+				
+				
+												
 								
 				if (file != editable_files[0])
 					$(".button").remove();
@@ -160,7 +178,7 @@ function load_tab2(editor)
 }
 
 function save(editor){
-	
+			
 	$.ajax({
 		type: "POST",
 		url: "ajax/save.php",

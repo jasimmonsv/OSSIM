@@ -182,31 +182,15 @@ if ($error == true)
 		/* Tabs */
 		$("ul.oss_tabs li:first").addClass("active");
 		<?php if ($error !== true) { ?>	
-		
-			/*Code Mirror*/
 			
-			if (document.getElementById("code") != null )
-				var content = document.getElementById("code").value;
-			else
-				content='';
-			
-			editor = new CodeMirror(CodeMirror.replace("code"), {
-				parserfile: "parsexml.js",
-				stylesheet: "css/xmlcolors.css",
-				path: "codemirror/",
-				continuousScanning: 500,
-				content: content,
-				lineNumbers: true
-			});
-	
-		
+					
 			/* Tabs */
 										
 			//On Click Event
 			$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this); });
 			
 			$("#link_tab1").bind('click', function()  { load_tab1(); });
-			$("#link_tab2").bind('click', function()  { load_tab2(editor); });
+			$("#link_tab2").bind('click', function()  { load_tab2(); });
 			
 			load_tree("<?=base64_encode($_SESSION['_tree_json'])?>", 1, 'normal');
 			
@@ -271,7 +255,7 @@ if ($error == true)
 						</div>
 						
 						<div id="tab2" class="tab_content" style='display:none;'>
-							<div id='container_code'><textarea id="code"><?=$file_xml?></textarea></div>
+							<div id='container_code'><textarea id="code"></textarea></div>
 							<div class='buttons_box'>
 								<?php if ( $error == false ) { ?>
 									<div class='button'><input type='button' class='save' id='send' value='<?=_("save")?>'/></div>

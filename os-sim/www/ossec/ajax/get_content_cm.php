@@ -14,9 +14,6 @@ else
 	$filename = $rules_file.$file;
 	$_SESSION["_current_file"]  = $file;
 	
-	@chmod($filename, 0550);
-	@chown($filename, "www-data");
-
 	if ( file_exists( $filename) )
 	{
 		$file_xml = file_get_contents ($filename, false);

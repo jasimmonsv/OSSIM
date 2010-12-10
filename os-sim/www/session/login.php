@@ -117,7 +117,9 @@ if ($action == "logout") {
 $user = REQUEST('user');
 $pass = base64_decode(REQUEST('pass'));
 $accepted = REQUEST('first_login');
+$mobile = REQUEST("mobile");
 ossim_valid($user, OSS_USER, OSS_NULLABLE, 'illegal:' . _("User name"));
+ossim_valid($mobile, OSS_LETTER, OSS_NULLABLE, 'illegal:' . _("Mobile"));
 ossim_valid($accepted, OSS_NULLABLE, 'yes', 'no', 'illegal:' . _("First login"));
 if (ossim_error()) {
     die(ossim_error());
@@ -179,7 +181,10 @@ if (REQUEST('user')) {
 			} elseif ($user == ACL_DEFAULT_OSSIM_ADMIN && $pass == "admin") {
 				header("Location: first_login.php?changeadmin=1");
 			} else {
-				header("Location: ../index.php");
+				if ($mobile!="")
+					header("Location: ../statusbar/mobile.php?screen=$mobile");
+				else
+					header("Location: ../index.php");
 			}
             exit;
         }

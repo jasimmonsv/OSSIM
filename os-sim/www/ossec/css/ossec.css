@@ -281,8 +281,8 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 .buttons_box {	
 	float: right; 
 	width: 20%;
-	padding-right: 15px;
-	padding-bottom: 10px;
+	padding-right: 30px;
+	padding-bottom: 20px;
 }
 
 #results_center {
