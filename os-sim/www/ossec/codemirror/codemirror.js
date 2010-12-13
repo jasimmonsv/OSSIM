@@ -44,7 +44,7 @@ var CodeMirror = (function(){
     textWrapping: true,
     readOnly: false,
     width: "",
-    height: "300px",
+    height: "400px",
     minHeight: 100,
     autoMatchParens: false,
     parserConfig: null,

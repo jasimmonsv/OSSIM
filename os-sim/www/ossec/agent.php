@@ -259,7 +259,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 		
 	</script>
 	
-	<script>
+	<script type="text/javascript">
 	var messages = new Array();
 		messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Adding agent... ")?></span>';
 		messages[1]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Processing action... ")?></span>';
@@ -313,7 +313,7 @@ if (GET('withoutmenu') != "1")
 				<table id='agent_table'>
 										
 					<?php
-						
+											
 						if ( !empty ($agents) )
 						{
 							?>
@@ -333,7 +333,7 @@ if (GET('withoutmenu') != "1")
 									continue;
 									
 								$more_info = array();
-								$ret = null;
+								$ret       = null;
 								
 								$agent = explode(",", $agent);
 								exec ( "sudo /var/ossec/bin/agent_control -i ".$agent[0]." -s", $more_info, $ret);
@@ -349,24 +349,25 @@ if (GET('withoutmenu') != "1")
 									</tr>
 									<tr id='minfo_".$agent[0]."' style='display:none;'>
 										<td colspan='5'>";
+											
 											if ( !is_array($more_info) )
 											{
 												echo "<div style='padding:5px; color: #D8000C; text-align:center;'>$more_info</div>";
 											}
 											else
 											{
-												echo "<div style='padding: 3px 3px 5px 5px; font-weight: bold;'>Agent information:</div>";
+												echo "<div style='padding: 3px 3px 5px 5px; font-weight: bold;'>"._("Agent information").":</div>";
 												
 												echo "<div style='float:left; width: 170px; font-weight: bold; padding:0px 3px 5px 15px;'>
-														<span>Agent ID:</span><br/> 
-														<span>Agent Name:</span><br/>
-														<span>IP address:</span><br/>
-														<span>Status:</span><br/><br/>
-														<span>Operating system:</span><br/>
-														<span>Client version:</span><br/>
-														<span>Last keep alive:</span><br/><br/>
-														<span>Syscheck last started at:</span><br/>
-														<span>Rootcheck last started at:</span><br/>
+														<span>"._("Agent ID").":</span><br/> 
+														<span>"._("Agent Name").":</span><br/>
+														<span>"._("IP address").":</span><br/>
+														<span>"._("Status").":</span><br/><br/>
+														<span>"._("Operating system").":</span><br/>
+														<span>"._("Client version").":</span><br/>
+														<span>"._("Last keep alive").":</span><br/><br/>
+														<span>"._("Syscheck last started at").":</span><br/>
+														<span>"._("Rootcheck last started at").":</span><br/>
 												</div>";
 												
 												echo "<div style='float:left; width: auto; padding:0px 3px 5px 15px;'>
@@ -402,6 +403,7 @@ if (GET('withoutmenu') != "1")
 							}
 							echo "<tr><td colspan='5' class='no_agent bborder_none'><div class='$class info_agent'>$txt</div></td></tr>";
 						}
+						
 					?>
 				</table>
 				
@@ -448,9 +450,7 @@ if (GET('withoutmenu') != "1")
 				</table>
 				
 				<?php } ?>
-				
-				
-				
+						
 			</div>
 		<td>
 	</tr>	

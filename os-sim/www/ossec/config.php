@@ -130,8 +130,9 @@ else
 															
 					if (status[0] == "error")
 					{
-						$('#cnf_message').addClass("oss_error");
-						$('#cnf_message').html(status[1]);
+						var error_message = "<div id='msg_init'><div class='oss_error'>"+status[1]+"</div></div>";
+						$(tab).html(error_message);
+						
 					}
 					else
 					{
@@ -222,8 +223,7 @@ else
 						$('#cnf_message').addClass("oss_error");
 					else
 						$('#cnf_message').addClass("oss_success");	
-					
-					
+										
 					$('#cnf_message').html(status[1]);
 					
 				}
@@ -249,8 +249,9 @@ else
 				
 				load_config_tab("#tab1");
 				
+				<?php } else { ?>
+					$("ul.oss_tabs li a").css("cursor", "text");	
 				<?php } ?>
-						
 		});
 	
 	</script>
@@ -266,12 +267,16 @@ else
 	
 	input.button {float: none; margin:0px auto 10px auto; padding: 0px 2px;}
 	
+	.button {background: none !important;}	
+	
 	.buttons_box {	
 		float: right; 
 		width: 20%;
 		padding-right: 40px;
 		padding-bottom: 10px;
 	}
+	
+	#msg_init{ margin: 150px auto 270px auto; }
 			
 	</style>
 	
@@ -305,7 +310,7 @@ else
 					
 					<div id="tab1" class="tab_content">
 						<?php if ( $error == true ) 
-							echo "<div id='info_file'><div id='msg_init' class='oss_error'>$txt</div></div>";
+							echo "<div id='msg_init'><div class='oss_error'>$txt</div></div>";
 						else
 							echo "<div id='cnf_load'><img src='images/loading.gif' border='0' align='absmiddle' alt='Loading'/><span>".('Loading data ...')."</span></div>";
 						?>

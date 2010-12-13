@@ -52,6 +52,7 @@ if ! [ `grep -c "agent_control" /etc/sudoers` -ne 0 ]
 then
         echo "www-data ALL=NOPASSWD: /var/ossec/bin/agent_control" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /var/ossec/bin/manage_agents" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control" >> /etc/sudoers
 fi
 
 
@@ -146,7 +147,9 @@ fi
 # ossec perms
 chmod o+rx /var/ossec
 chmod o+rx /var/ossec/etc
+chmod -R o+r /var/ossec/rules
 chmod o+rx /var/ossec/rules
+
 chmod u+w /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 chown www-data /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 

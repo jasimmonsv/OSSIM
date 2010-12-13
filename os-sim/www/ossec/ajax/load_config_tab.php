@@ -40,15 +40,24 @@ $error   = false;
 
 $tab     = POST('tab');
 
+$conf_file = @file_get_contents($ossec_conf);
+	
+if ($conf_file == false)
+{
+	echo "error###"._("<b>$ossec_conf</b> not found or you don't have have permission to access");
+	exit();
+}
+
+
+
 if($tab == "#tab1")
 {
 	$rules = array();
-	$conf_file = file_get_contents($ossec_conf);
-	
+			
 	$pattern   = '/[\r?\n]+\s*/';
 	$conf_file = preg_replace($pattern, "\n", $conf_file);
 	$conf_file = explode("\n", trim($conf_file));
-	
+		
 		
 	if ( is_array($conf_file) )
 	{
@@ -162,18 +171,7 @@ if($tab == "#tab1")
 }
 else if ($tab == '#tab2')
 {
-	if ( file_exists( $ossec_conf) )
-	{
-		$file_xml = file_get_contents ($ossec_conf, false);
-	  
-		if ($file_xml == false)
-			$txt = "error###"._("<b>$ossec_conf</b> not found or you don't have have permission to access (1)");
-		else
-			echo $file_xml;
-	}
-	else
-		$txt = "error###"._("<b>$ossec_conf</b> not found or you don't have have permission to access (2)");
-
+	echo $conf_file;
 }
 else
 	echo "error###"._("Error: Illegal actions");

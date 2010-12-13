@@ -76,7 +76,7 @@ function load_tab2()
 	var file = $('#rules option:selected').attr('value');
 	
 	//Loading div
-	$("#tab2 div").css('display', 'none');
+	$("#tab2 div").hide();
 	
 	if ( $("#msg_load").length >= 1 )
 		$("#msg_load").remove();
@@ -90,16 +90,19 @@ function load_tab2()
 		success: function(msg){
 
 			var msg_int = parseInt(msg);
-			var txt   = "";
-			var style = "";
+			var txt     = "";
+			var style   = "";
+			var content_editor = '';
 																	
 			if ( isNaN(msg_int) )
 			{	
 				/*Code Mirror*/
-			
-				
+								
 				if (editor == null)
 				{
+					if( $("#code").length < 1 )
+						$("#container_code").html('<textarea id="code"></textarea>');
+										
 					editor = new CodeMirror(CodeMirror.replace("code"), {
 						parserfile: "parsexml.js",
 						stylesheet: "css/xmlcolors.css",
@@ -110,10 +113,9 @@ function load_tab2()
 					});
 				}
 				else
-					editor.setCode(msg);
-				
-				
-												
+				{
+					editor.setCode(msg);	
+				}
 								
 				if (file != editable_files[0])
 					$(".button").remove();
@@ -127,11 +129,11 @@ function load_tab2()
 					}
 				}
 				
+				$("#msg_load").remove();
+				
 			}
 			else
 			{
-				style = 'oss_error';
-				editor.setCode('');
 				switch (msg_int){
 					case 1:
 					txt = messages[12];
@@ -146,31 +148,15 @@ function load_tab2()
 					break;
 				}
 				
-				if ( file != editable_files[0] )
-					$(".button").remove();
-				else
-				{
-					if ( $('.button').length<1 )
-					{
-						var button_save = "<div class='button'><input type='button' class='save' id='dis_send' disabled='disabled' value='"+label[12]+"'/></div>";
-						$(".buttons_box").html(button_save);
-					}
-					
-				}
-												
-				if ( $("#results").length >= 1 )
-				{
-					$('#results').html('');
-					$('#results').append("<div id='msg_edit'></div>");
-					$('#msg_edit').addClass(style);
-					$('#msg_edit').html(txt);
-					$('#msg_edit').fadeIn(2000);
-					setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
-				}
+				$(".button").remove();
+				$("#container_code").html('');
+				editor = null;
+				
+				$('#msg_load').html("<div class='oss_error'>"+txt+"</div>");		
+										
 			}
 			
-			$("#msg_load").remove();
-			$("#tab2 div").css('display', '');
+			$("#tab2 div").show();
 			
 		}
 	});
@@ -917,7 +903,7 @@ function show_tree(draw_edit, lk, mode)
 				if ( parseInt(status[0]) != 1) {
 					
 					var level_key = "load_error";
-					tree = "{title:'<span>"+rules_files+editable_files[0]+"</span>', icon:'../../../pixmaps/theme/any.png', addClass:'size12', isFolder:'true', key:'1', children:[{title: '<span>"+messages[7]+"</span>', icon:'../../../pixmaps/theme/ltError.gif', addClass:'bold_red', key:'"+level_key+"'}]}";
+					tree = "{title:'<span>"+rules_files+rule_file+"</span>', icon:'../../../pixmaps/theme/any.png', addClass:'size12', isFolder:'true', key:'1', children:[{title: '<span>"+messages[7]+"</span>', icon:'../../../pixmaps/theme/ltError.gif', addClass:'bold_red', key:'"+level_key+"'}]}";
 				    tree  = Base64.encode(tree);		 
 				}
 				else
@@ -994,15 +980,18 @@ function set_autocomplete(id)
 	}
 }
 
-function show_actions (editor)
+function show_actions ()
 {
     show_tree(true, '', 'silently');
 	
-	var active = $("ul.oss_tabs li:first").attr("class");
+	var active = $(".active a").attr("href");
 	
-	if ( active.match("/active/gi") == null )
-		load_tab2(editor);
-			   
+	if ( active == "#tab2")
+		load_tab2();
+	
+		
+	
+				   
     var file = $('#rules option:selected').attr('value');
        
     if ( file == editable_files[0] )

@@ -128,7 +128,7 @@ if ($error == true)
 			messages[4]  = '<?php echo _("Failure to create temporary copy from XML file")?>';
 			messages[5]  = '<?php echo _("Failure to update XML file")?>';
 			messages[6]  = '<?php echo _("XML file update successfully")?>';
-			messages[7]  = '<?php echo _("Error to reload tree")?>';
+			messages[7]  = '<?php echo _("Error to load tree")?>';
 			messages[8]  = '<?php echo _("Unauthorized action. There must be one child at least")?>';
 			messages[9]  = '<?php echo _("Rules File is empty")?>';
 			messages[10] = '<?php echo _("Click on a brach to edit a node")?>';
@@ -138,8 +138,7 @@ if ($error == true)
 			messages[14] = '<?php echo _("View errors")?>';
 			messages[15] = '<?php echo _("File not editable")?>';
 			messages[16]  = '<?php echo _("First save the changes then you can edit")?>';
-			
-				
+							
 		var label = new Array();
 			label[0]  = '<?php echo _("Attribute")?>';
 			label[1]  = '<?php echo _("Text Node")?>';
@@ -196,11 +195,12 @@ if ($error == true)
 			
 			fill_rules('rules', "<?=$filename?>");
 			$('#clone_tree').bind('click', function() { draw_clone(); });
-			$('#rules').bind('change', function()     { show_actions(editor); });
+			$('#rules').bind('change', function()     { show_actions(); });
 			$('#send').bind('click', function()       { save(editor); });
 			
-		<?php } ?>	
-				
+		<?php } else { ?>
+			$("ul.oss_tabs li a").css("cursor", "text");	
+		<?php } ?>		
 	});
 	
 	
@@ -209,6 +209,9 @@ if ($error == true)
 	
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/ossec.css" />
+	<style type='text/css'>
+		.button {background: none !important;}
+	</style>
 
 </head>
 

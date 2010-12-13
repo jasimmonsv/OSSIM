@@ -947,6 +947,11 @@ if (Session::am_i_admin()) { $correlation = 1;
            "name" => gettext("Agent Control") ,
            "url" => "agent.php"
     );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Ossec Control") ,
+           "url" => "ossec_control.php"
+    );
 }	
 
 /* if (Session::menu_perms("MenuReports", "Help")) *//* if ($correlation) $menu["Intelligence"][] = array(
