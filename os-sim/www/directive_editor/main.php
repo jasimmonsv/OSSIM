@@ -174,7 +174,7 @@ function background_clone(id,xml_file,mini) {
 $categories = unserialize($_SESSION['categories']);
 ?>
 				<tr>
-					<th style="font-size:14px">Current Categories</th>
+					<th style="font-size:14px"><?php echo _("Current Categories");?></th>
 				</tr>
 				<tr><td style="border:0px">
       <?php

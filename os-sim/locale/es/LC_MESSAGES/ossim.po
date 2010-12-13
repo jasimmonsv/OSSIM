@@ -368,7 +368,7 @@ msgstr "Agregar"
 
 #: www/directive_editor/left.php:106
 msgid "Add a directive in this category"
-msgstr ""
+msgstr "A&ntilde;adir una directiva en esta categor&iacute;a"
 
 #: www/directive_editor/viewer/index.php:125
 msgid "Add a new category"
@@ -1600,7 +1600,7 @@ msgstr ""
 
 #: www/directive_editor/viewer/index.php:114
 msgid "Del"
-msgstr ""
+msgstr "Eliminar"
 
 #: www/port/port.php:73 www/sensor/sensor.php:141 www/rrd_conf/rrd_conf.php:64
 #: www/response/response.php:184 www/backup/index.php:130
@@ -1862,6 +1862,9 @@ msgstr ""
 msgid "Directive"
 msgstr "Directiva"
 
+msgid "directive"
+msgstr "directiva"
+
 #: www/directive_editor/viewer/index.php:9
 #: www/directive_editor/viewer/index.php:60 www/directives/directive.php:12
 #: www/directives/directive.php:35
@@ -1994,7 +1997,7 @@ msgstr "Editar sensor"
 
 #: www/directive_editor/left.php:130
 msgid "Edit this directive"
-msgstr ""
+msgstr "Editar esta directiva"
 
 #: www/directive_editor/viewer/index.php:129 www/directives/directive.php:291
 msgid "Element of a directive"
@@ -7558,7 +7561,7 @@ msgid "What sensor do you want to edit"
 msgstr "Qu&eacute; sensor desea editar"
 
 #: www/directive_editor/viewer/index.php:132 www/directives/directive.php:294
-msgid "What type of rule is this. There are two possible types as of today"
+msgid "What type of rule is this. There are two possible types as of today :"
 msgstr ""
 "Qu&eacute; tipo de regla es esta. Aqu&iacute; hay dos posibles tipos "
 "posibles actualmente"
@@ -9185,6 +9188,12 @@ msgstr "Grupo Predeterminado de Pol&iacute;tica de Objetos"
 msgid "Edit Policy groups"
 msgstr "Editar Grupos de Pol&iacute;ticas"
 
+msgid "POLICY GROUPS"
+msgstr "GRUPOS DE POL&Iacute;TICAS"
+
+msgid "Displaying {from} to {to} of {total} policy groups"
+msgstr "Mostrando del {from} al {to} de {total} grupos de pol&iacute;ticas"
+
 msgid "Enable/Disable"
 msgstr "Activar/Desactivar"
 
@@ -9419,6 +9428,9 @@ msgstr "Enviar por e-mail"
 
 msgid "Send"
 msgstr "Enviar"
+
+msgid "Sending..."
+msgstr "Enviando..."
 
 msgid "(Click To Zoom)"
 msgstr "(Click para ampliar)"
@@ -9926,6 +9938,60 @@ msgstr "S&oacute;lo si se trata de una alarma"
 
 msgid "Only on risk increase"
 msgstr "Cuando se incrementa el riesgo"
+
+msgid "send an email message"
+msgstr "enviar un correo"
+
+msgid "execute an external program"
+msgstr "ejecutar un programa externo"
+
+msgid "generate ticket"
+msgstr "generar ticket"
+
+msgid "Saving column layout"
+msgstr "Guardando el dise&ntilde;o de columnas"
+
+msgid "Layout saved!"
+msgstr "Dise&ntilde;o guardado!"
+
+msgid "If you delete this policy group all associated policies will be deleted too"
+msgstr "Si borra este grupo de pol&iacute;ticas todas las pol&iacute;ticas asociadas se borrar&aacute;n tambi&eacute;n"
+
+msgid "Policy succesfully created"
+msgstr "Pol&iacute;tica creada correctamente"
+
+msgid "Policy group succesfully updated"
+msgstr "Grupo de pol&iacute;ticas actualizado correctamente"
+
+msgid "Policy group succesfully inserted"
+msgstr "Grupo de pol&iacute;ticas insertado correctamente"
+
+msgid "Current Categories"
+msgstr "Categor&iacute;as actuales"
+
+msgid "Disable this category"
+msgstr "Deshabilitar esta categor&iacute;a"
+
+msgid "Enable this category"
+msgstr "Habilitar esta categor&iacute;a"
+
+msgid "Numbering and Groups"
+msgstr "Numeraci&oacute;n y Grupos"
+
+msgid "Directive Rules"
+msgstr "Reglas de directiva"
+
+msgid "Detector Rule elements"
+msgstr "Elementos de la regla de detector"
+
+msgid "As we are talking about detector rule elements. Type will take detector as value. Eg: type=\"detector\""
+msgstr "Como estamos hablando sobre los elementos de la regla de detector. Type tomar&aacute; detector como valor. Ej: type=\"detector\""
+
+msgid "The name of the rule describes what the system expects to collect in order to satisfy the condition of the rule for the correlation. This name Eg: name=\"100 <acronym title=\"Secure Shell\">SSH</acronym> Auth Failed events\""
+msgstr "El nombre de la regla describe lo que el sistema espera recoger con el fin de satisfacer la condici&oacute;n de la regla de la correlaci&oacute;n. Este name Ej: name=\"100 <acronym title=\"Secure Shell\">SSH</acronym> Auth Failed events\""
+
+msgid "Reliability value of every event generated within the directive. It can be an absolute value 0-10 or incremental +2, +6. When using an incremental value, this will be added to the value that has taken the reliability field in the last event generated within this directive."
+msgstr "Valor de la fiabilidad de todos los eventos generados con la directiva. Puede ser un valor absoluto de 0 a 10 o incremental +2, +6. Usando un valor incremental, &eacute;ste se a&ntilde;adir&aacute; al valor ha tomado el campo fiabilidad en el &uacute;ltimo evento con esta directiva"
 
 #~ msgid ""
 #~ "\n"

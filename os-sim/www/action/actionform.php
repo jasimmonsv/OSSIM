@@ -347,7 +347,7 @@ echo gettext("You can use the following keywords within any field which will be 
                 if ($action_type == $action_type_aux->get_type()) echo " SELECTED ";
         ?>>
                     <?php
-                echo $action_type_aux->get_descr(); ?>
+                echo _($action_type_aux->get_descr()); ?>
                 </option>
         <?php
             }
