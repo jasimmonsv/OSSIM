@@ -185,6 +185,13 @@ if (GET('open_group') != "") {
 	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::change_status ($conn, GET('open_group'), "open");
 	else die(ossim_error("Can't do this action for security reasons."));
 }
+if (GET('delete_group') != "") {
+	if (!ossim_valid(GET('delete_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("delete_group"))) exit;
+	$group_ids = split(',', GET('delete_group'));
+    if (check_uniqueid($prev_unique_id,$param_unique_id)) {
+	foreach($group_ids as $group_id) AlarmGroups::delete_group ($conn, $group_id, $_SESSION["_user"]);
+    } else die(ossim_error("Can't do this action for security reasons."));
+}
 if (GET('action') == "open_alarm") {
 	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::open($conn, GET('alarm'));
 	else die(ossim_error("Can't do this action for security reasons."));
@@ -227,7 +234,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 	document.getElementById(group_id).innerHTML = "<img src='../pixmaps/loading.gif'>";
 	$.ajax({
 		type: "GET",
-		url: "alarm_group_response.php?name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>",
+		url: "alarm_group_response.php?unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>",
 		data: "",
 		success: function(msg){
 			//alert (msg);
@@ -317,8 +324,16 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 		}
 	}
 	
-	function close_groups()
-	{
+	function close_groups() {
+		// ALARMS
+		var params = "";
+		$(".alarm_check").each(function()
+		{
+			if ($(this).attr('checked') == true) {
+		    	params += "&"+$(this).attr('name')+"=1";
+			}
+		});
+		// GROUPS
 		var selected_group = new Array();
 		var group = document.getElementsByName("group");	
 		var index = 0;
@@ -327,18 +342,31 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 		{
 			if( group[i].checked )
 			{
-				selected_group[index] = group[i].value;
+				var val = group[i].value.split(/_/);
+				selected_group[index] = val[0];
 				index++;
 			}
 		}
 
-		if (selected_group.length == 0)
+		if (selected_group.length == 0 && params == "")
 		{
-			alert("Please, select the groups to close");
+			alert("Please, select the groups to close or any alarm");
 			return;
 		}
-
-		location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>";
+		//$('#loading_div').html("<img src='../pixmaps/loading.gif'>");
+		if (params != "") {
+			$.ajax({
+				type: "POST",
+				url: "alarms_check_delete.php",
+				data: "background=1&only_close=1&unique_id=<?php echo $unique_id ?>"+params,
+				success: function(msg){
+					//$('#loading_div').html("");
+					location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>";
+				}
+			});
+		} else {
+			location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>";
+		}
 	}
 	
 	function checkall () {
@@ -407,6 +435,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
   }
 
   function bg_delete() {
+		// ALARMS
 		var params = "";
 		$(".alarm_check").each(function()
 		{
@@ -414,16 +443,57 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 		    	params += "&"+$(this).attr('name')+"=1";
 			}
 		});
-		//$('#loading_div').html("<img src='../pixmaps/loading.gif'>");
-		$.ajax({
-			type: "POST",
-			url: "alarms_check_delete.php",
-			data: "background=1&unique_id=<?php echo $unique_id ?>"+params,
-			success: function(msg){
-				//$('#loading_div').html("");
-				document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+		// GROUPS
+		var selected_group = "";
+		var group = document.getElementsByName("group");	
+		var index = 0;
+
+		for(var i = 0; i < group.length; i++)
+		{
+			if( group[i].checked )
+			{
+				selected_group += "&group"+(index+1)+"="+group[i].value;
+				index++;
 			}
-		});
+		}
+		
+		if (selected_group == "" && params == "")
+		{
+			alert("Please, select the groups to delete or any alarm");
+			return;
+		}
+		if (params != "") {
+			$.ajax({
+				type: "POST",
+				url: "alarms_check_delete.php",
+				data: "background=1&unique_id=<?php echo $unique_id ?>"+params,
+				success: function(msg){
+					//$('#loading_div').html("");
+					if (selected_group != "") {
+						$.ajax({
+							type: "GET",
+							url: "alarm_group_response.php?only_delete="+index+selected_group,
+							data: "",
+							success: function(msg){
+								//alert (msg);
+								document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+							}
+						});
+					}
+					document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+				}
+			});
+		} else {
+			$.ajax({
+				type: "GET",
+				url: "alarm_group_response.php?only_delete="+index+selected_group,
+				data: "",
+				success: function(msg){
+					//alert (msg);
+					document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+				}
+			});
+		}
 	}
   </script>
 </head>
@@ -461,9 +531,8 @@ $tree_count = 0;
     //Actions
     ?>
     <td rowspan="3" style="text-align: left;border-bottom:0px solid white" nowrap>
-		<input type="button" onclick="close_groups()" value="<?php echo _("Close Groups") ?>" class="lbutton">
+		<input type="button" onclick="close_groups()" value="<?php echo _("Close Selected") ?>" class="lbutton">
 		<br><br><input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
-		<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="lbutton">
 	</td>
 <?php
     //Options
@@ -635,7 +704,7 @@ $tree_count = 0;
 	</tr>
 		<? } ?>
 	<tr>
-		<td class="nobborder"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>' <?if (!$owner_take) echo "disabled"?>></td>
+		<td class="nobborder"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
 		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
 		<th style='text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
 		<th width='10%' style='text-align: center; border-width: 0px; background: <?=$background?>'><?=$owner?></th>

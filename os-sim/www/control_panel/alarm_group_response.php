@@ -72,14 +72,36 @@ $dst_ip = GET('ip_dst');
 $timestamp = GET('timestamp');
 $name = $_SESSION[GET('name')];
 $hide_closed = GET('hide_closed');
+$only_delete = GET('only_delete'); // Number of groups to delete
+$unique_id = GET('unique_id');
 
 ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
 ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
 ossim_valid($timestamp, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("timestamp"));
 ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'illegal:' . _("name"));
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
+ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
+ossim_valid($unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 if (ossim_error()) {
     die(ossim_error());
+}
+
+if ($only_delete) {
+	$group_ids = explode(",",$name);
+	for ($i = 1; $i <= $only_delete; $i++) {
+		$data = explode("_",GET('group'.$i));
+		$name = $_SESSION[$data[0]];
+		$src_ip = $data[1];
+		$dst_ip = $data[2];
+		$timestamp = $data[3];
+		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$timestamp." 00:00:00",$timestamp,$name);
+		foreach ($list as $s_alarm) {
+			$s_backlog_id = $s_alarm->get_backlog_id();
+			$s_event_id = $s_alarm->get_event_id();
+			Alarm::delete_from_backlog($conn, $s_backlog_id, $s_event_id);
+		}
+	}
+	exit;
 }
 
 $host_list = Host::get_list($conn);
@@ -211,11 +233,11 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	if ($s_status == 'open') {
-		$status_link = "<a href='alarm_group_console.php?action=close_alarm&alarm=" . $s_event_id . "' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Open") . "</a>";
+		$status_link = "<a href='alarm_group_console.php?action=close_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Open") . "</a>";
 		//$status_link = "<a href='" . build_url("close_alarm", "&alarm=" . $s_backlog_id . "-" . $s_event_id) . "' title='" . gettext("Click here to close alarm") ."'>" . gettext("Open") . "</a>";
 		
 	} else {
-		$status_link = "<a href='alarm_group_console.php?action=open_alarm&alarm=" . $s_event_id . "' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
+		$status_link = "<a href='alarm_group_console.php?action=open_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	/* Expand button */
