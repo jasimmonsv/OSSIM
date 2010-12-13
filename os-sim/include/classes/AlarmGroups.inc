@@ -318,7 +318,7 @@ class AlarmGroups {
 		
 		// QUERY
 		$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
-			CONCAT(sha1( alarm_event.name ), sha1( alarm_event.src_ip + alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) ) AS group_id,
+			CONCAT(sha1( alarm_event.name ), sha1( CONCAT(alarm_event.src_ip , alarm_event.dst_ip) + DATE( alarm_event.timestamp ) ) ) AS group_id,
 			alarm_event.name AS name,
 			INET_NTOA( alarm_event.src_ip ) AS src_ip,
 			INET_NTOA( alarm_event.dst_ip ) AS dst_ip,
@@ -602,6 +602,12 @@ class AlarmGroups {
 	}
 	function release_group ($conn, $group_id) {
 		$sql = "UPDATE alarm_groups SET owner='' WHERE group_id='$group_id'";
+		if (!$rs = & $conn->Execute($sql)) {
+            print $conn->ErrorMsg();
+        }
+	}
+	function delete_group ($conn, $group_id, $user) {
+		$sql = "DELETE FROM alarm_groups WHERE group_id='$group_id' AND owner='$user'";
 		if (!$rs = & $conn->Execute($sql)) {
             print $conn->ErrorMsg();
         }
