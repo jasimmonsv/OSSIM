@@ -318,7 +318,7 @@ class AlarmGroups {
 		
 		// QUERY
 		$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
-			CONCAT(sha1( alarm_event.name ), sha1( CONCAT(alarm_event.src_ip , alarm_event.dst_ip) + DATE( alarm_event.timestamp ) ) ) AS group_id,
+			CONCAT( sha1( alarm_event.name ) , CONCAT( 'S', alarm_event.src_ip, 'D', alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) ) AS group_id,
 			alarm_event.name AS name,
 			INET_NTOA( alarm_event.src_ip ) AS src_ip,
 			INET_NTOA( alarm_event.dst_ip ) AS dst_ip,
