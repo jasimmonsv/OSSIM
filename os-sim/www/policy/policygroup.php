@@ -94,10 +94,10 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
 	}
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='Delete selected') {
+		if (com=='<?php echo _("Delete selected")?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
-				if (confirm("<?=_("If you delete this policy group all associated policies will be deleted too")?>\n<?=_("Are you sure?")?>")) {
+				if (confirm("<?=html_entity_decode(_("If you delete this policy group all associated policies will be deleted too"))?>\n<?=html_entity_decode(_("Are you sure?"))?>")) {
 					$("#flextable").changeStatus('<?=_("Deleting policy group")?>...',false);
 					$.ajax({
 							type: "GET",
@@ -111,11 +111,11 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
 			}
 			else alert('<?=_("You must select a policy group")?>');
 		}
-		else if (com=='Modify') {
+		else if (com=='<?php echo _("Modify")?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifypolicygroupform.php?id='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a policy group")?>');
 		}
-		else if (com=='New') {
+		else if (com=='<?php echo _("New")?>') {
 			document.location.href = 'newpolicygroupform.php'
 		}
 	}
@@ -179,7 +179,7 @@ echo "$colModel\n";
 ?>",
 			usepager: true,
 			title: '<?=_("POLICY GROUPS")?>',
-			pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("policy groups")?>',
+			pagestat: '<?=_("Displaying {from} to {to} of {total} policy groups")?>',
 			nomsg: '<?=_("No policy groups")?>',
 			useRp: true,
 			rp: 100,
