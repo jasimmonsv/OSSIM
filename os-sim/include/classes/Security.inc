@@ -450,7 +450,19 @@ function validate_form_fields($type, $validate)
 	{
 		$validate_rules = $validate;
 		foreach ($_POST as $k => $v)
-			$values[$k]= Util::utf8_encode2(POST($k));
+		{
+			if ( !is_array($v) )
+				$values[$k]= Util::utf8_encode2(POST($k));
+			else
+			{
+				$post_array = POST($k);
+				
+				foreach ($post_array as $i => $j)
+					$aux[$i] = Util::utf8_encode2($j);
+				
+				$values[$k] = $aux;
+			}
+		}
 	}
 	else if ($type == 'GET')
 	{
@@ -465,7 +477,7 @@ function validate_form_fields($type, $validate)
 	}
 	else
 		return 1;
-	
+		
 	foreach ($validate_rules as $k => $v)
 	{
 		if ( !isset($values[$k]) )
@@ -561,11 +573,29 @@ function valid_port($port)
 }
 
 function valid_ip($ip) {
-    if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
-        return true;
-    }
-    ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$ip</b>'");
-    return false;
+    
+	if ( !is_array($ip) )
+	{
+		if ( preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )
+			return true;
+		
+		ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$ip</b>'");
+		return false;
+	}
+	else
+	{
+		foreach ($ip as $k => $v)
+		{
+			if ( preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $v, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )
+				continue;
+			else
+			{
+				ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$v</b>'");
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
 function valid_ipcidr($ip) {
