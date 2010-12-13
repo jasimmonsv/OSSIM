@@ -727,7 +727,7 @@ function check_uniqueid($unique_id1,$unique_id2) {
 	if ($unique_id1 != "" && $unique_id2 != "" && $unique_id1 == $unique_id2) {
 		return 1;
 	} else {
-		echo _("Can't do this action for security reasons...");
+		//echo _("Can't do this action for security reasons...");
 		return 0;
 	}
 }
