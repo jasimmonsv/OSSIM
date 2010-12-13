@@ -175,7 +175,6 @@ if (GET('open_group') != "") {
 	AlarmGroups::change_status ($conn, GET('open_group'), "open");
 }
 if (GET('action') == "open_alarm") {
-    echo "<br><br><br>OPEN<br>";
 	Alarm::open($conn, GET('alarm'));
 }
 if (GET('action') == "close_alarm") {
