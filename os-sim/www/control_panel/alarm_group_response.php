@@ -206,7 +206,7 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	$s_delete_link = ($s_status == 'open') ? "<a href='" . build_url("close_alarm", "&alarm=" . $s_event_id) . "' title='" . gettext("Click here to close alarm") . "'><img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;'></a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'>";
 	/* Checkbox */
 	if ($owner == $_SESSION["_user"] || $owner == "") {
-		$checkbox = "<input type='checkbox' name='alarm_checkbox' value='" . $s_event_id . "'>";
+		$checkbox = "<input type='checkbox' name='check_".$s_backlog_id."_".$s_event_id."' class='alarm_check' value='1'>";
 	} else {
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}

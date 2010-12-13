@@ -30,7 +30,11 @@
 ****************************************************************************/
 include ("classes/AlarmGroups.inc");
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
+$unique_id = uniqid("alrm_");
+$prev_unique_id = $_SESSION['alarms_unique_id'];
+$_SESSION['alarms_unique_id'] = $unique_id;
 
 function build_url($action, $extra) {
 	global $date_from, $date_to, $show_options, $src_ip, $dst_ip, $num_alarms_page, $hide_closed, $autorefresh, $refresh_time, $inf, $sup;
@@ -92,6 +96,8 @@ $show_options = GET('show_options');
 $refresh_time = GET('refresh_time');
 $autorefresh = GET('autorefresh');
 $alarm = GET('alarm');
+$param_unique_id = GET('unique_id');
+ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($disp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("disp"));
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("delete"));
@@ -154,11 +160,13 @@ if (empty($refresh_time) || ($refresh_time != 30 && $refresh_time != 60 && $refr
 
 if (GET('take') != "") {
 	if (!ossim_valid(GET('take'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("take"))) exit;
-	AlarmGroups::take_group ($conn, GET('take'), $_SESSION["_user"]);
+	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::take_group ($conn, GET('take'), $_SESSION["_user"]);
+	else die(ossim_error("Can't do this action for security reasons."));
 }
 if (GET('release') != "") {
 	if (!ossim_valid(GET('release'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("release"))) exit;
-	AlarmGroups::release_group ($conn, GET('release'));
+	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::release_group ($conn, GET('release'));
+	else die(ossim_error("Can't do this action for security reasons."));
 }
 if ($new_descr != "" && $group != "") {
 	if (!ossim_valid($new_descr, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("descr"))) exit;
@@ -168,20 +176,26 @@ if ($new_descr != "" && $group != "") {
 if (GET('close_group') != "") {
 	if (!ossim_valid(GET('close_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("close_group"))) exit;
 	$group_ids = split(',', GET('close_group'));
-    foreach($group_ids as $group_id) AlarmGroups::change_status ($conn, $group_id, "closed");
+    if (check_uniqueid($prev_unique_id,$param_unique_id)) {
+	foreach($group_ids as $group_id) AlarmGroups::change_status ($conn, $group_id, "closed");
+    } else die(ossim_error("Can't do this action for security reasons."));
 }
 if (GET('open_group') != "") {
 	if (!ossim_valid(GET('open_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("open_group"))) exit;
-	AlarmGroups::change_status ($conn, GET('open_group'), "open");
+	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::change_status ($conn, GET('open_group'), "open");
+	else die(ossim_error("Can't do this action for security reasons."));
 }
 if (GET('action') == "open_alarm") {
-	Alarm::open($conn, GET('alarm'));
+	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::open($conn, GET('alarm'));
+	else die(ossim_error("Can't do this action for security reasons."));
 }
 if (GET('action') == "close_alarm") {
-    Alarm::close($conn, GET('alarm'));
+    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::close($conn, GET('alarm'));
+    else die(ossim_error("Can't do this action for security reasons."));
 }
 if (GET('action') == "delete_alarm") {
-    Alarm::delete($conn, GET('alarm'));
+    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete($conn, GET('alarm'));
+    else die(ossim_error("Can't do this action for security reasons."));
 }
 $db_groups = AlarmGroups::get_dbgroups($conn);
 list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, "LIMIT $inf,$sup");
@@ -324,7 +338,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 			return;
 		}
 
-		location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group;
+		location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>";
 	}
 	
 	function checkall () {
@@ -391,6 +405,26 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 	});
 	$('#widgetCalendar div.datepicker').css('position', 'absolute');
   }
+
+  function bg_delete() {
+		var params = "";
+		$(".alarm_check").each(function()
+		{
+			if ($(this).attr('checked') == true) {
+		    	params += "&"+$(this).attr('name')+"=1";
+			}
+		});
+		//$('#loading_div').html("<img src='../pixmaps/loading.gif'>");
+		$.ajax({
+			type: "POST",
+			url: "alarms_check_delete.php",
+			data: "background=1&unique_id=<?php echo $unique_id ?>"+params,
+			success: function(msg){
+				//$('#loading_div').html("");
+				document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+			}
+		});
+	}
   </script>
 </head>
 <body>
@@ -425,9 +459,13 @@ $tree_count = 0;
 		</div>
 	</td>';
     //Actions
-    print '<td rowspan="3" style="text-align: left;border-bottom:0px solid white" nowrap>
-<a href=javascript:close_groups() >'._("Close Groups").'</a>
-</td>';
+    ?>
+    <td rowspan="3" style="text-align: left;border-bottom:0px solid white" nowrap>
+		<input type="button" onclick="close_groups()" value="<?php echo _("Close Groups") ?>" class="lbutton">
+		<br><br><input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
+		<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="lbutton">
+	</td>
+<?php
     //Options
     $selected1 = $selected2 = $selected3 = $selected4 = "";
     if ($show_options == 1) $selected1 = 'selected="true"';
@@ -562,14 +600,14 @@ $tree_count = 0;
         } else {
             $ocurrence_text = strtolower(gettext("Alarm"));
         }
-		$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='alarm_group_console.php?release=$group_id&inf=$inf&sup=$sup'>"._("Release")."</a>" : "<a href='alarm_group_console.php?take=$group_id&inf=$inf&sup=$sup'>"._("Take")."</a>";
+		$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='alarm_group_console.php?release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>" : "<a href='alarm_group_console.php?take=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Take")."</a>";
 		
 		if ($db_groups[$group_id]['owner'] != "")
 			if ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) {
 				$owner_take = 1;
 				$background = '#B5C7DF;';
 				if ($status == 'open') {
-					$owner = "<a href='alarm_group_console.php?release=$group_id&inf=$inf&sup=$sup'>"._("Release")."</a>";
+					$owner = "<a href='alarm_group_console.php?release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>";
 				}
 				$group_box = "<input type='checkbox' id='check_" . $group_id . "' name='group' value='" . $group_id . "' >";
 				$incident_link = '<a class=greybox2 title=\''._("New ticket for Group ID") . $group_id . '\' href=\'../incidents/newincident.php?' . "ref=Alarm&" . "title=" . urlencode($alarm_name) . "&" . "priority=$s_risk&" . "src_ips=$src_ip&" . "event_start=$since&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . '\'>' . '<img border=0 src=\'../pixmaps/script--pencil.png\' alt=\''._("ticket").'\' border=\'0\'/>' . '</a>';
@@ -581,12 +619,12 @@ $tree_count = 0;
 				$group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
 			}
 		
-		$delete_link = ($status == "open" && $owner_take) ? "<a title='" . gettext("Close") . "' href='alarm_group_console.php?close_group=$group_id'><img border=0 src='../pixmaps/cross-circle-frame.png'/>" . "</a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'/>";
+		$delete_link = ($status == "open" && $owner_take) ? "<a title='" . gettext("Close") . "' href='alarm_group_console.php?close_group=$group_id&unique_id=$unique_id'><img border=0 src='../pixmaps/cross-circle-frame.png'/>" . "</a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'/>";
         if ($status == 'open') {
-            if ($owner_take) $close_link = "<a href='alarm_group_console.php?close_group=$group_id&inf=$inf&sup=$sup'><img src='../pixmaps/lock-unlock.png' alt='"._("Open, click to close group")."' title='"._("Open, click to close group")."' border=0></a>";
+            if ($owner_take) $close_link = "<a href='alarm_group_console.php?close_group=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'><img src='../pixmaps/lock-unlock.png' alt='"._("Open, click to close group")."' title='"._("Open, click to close group")."' border=0></a>";
             else $close_link = "<img src='../pixmaps/lock-unlock.png' alt='"._("Open, take this group then click to close")."' title='"._("Open, take this group then click to close")."' border=0>";
         } else {
-            if ($owner_take) $close_link = "<a href='alarm_group_console.php?open_group=$group_id&inf=$inf&sup=$sup'><img src='../pixmaps/lock.png' alt='"._("Closed, click to open group")."' title='"._("Closed, click to open group")."' border=0></a>";
+            if ($owner_take) $close_link = "<a href='alarm_group_console.php?open_group=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'><img src='../pixmaps/lock.png' alt='"._("Closed, click to open group")."' title='"._("Closed, click to open group")."' border=0></a>";
             else $close_link = "<img src='../pixmaps/lock.png' alt='"._("Closed, take this group then click to open")."' title='"._("Closed, take this group then click to open")."' border=0>";
             $group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
         }
