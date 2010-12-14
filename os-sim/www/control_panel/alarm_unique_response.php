@@ -72,19 +72,22 @@ $db = new ossim_db();
 $conn = $db->connect();
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 
-$src_ip = GET('ip_src');
-$dst_ip = GET('ip_dst');
 $name = GET('name');
 $hide_closed = GET('hide_closed');
 $from_date = (GET('from_date') != "") ? GET('from_date') : "1970-01-01";
 $to_date = (GET('to_date') != "") ? GET('to_date') : "3000-01-01";
+$top = (GET('top') != "") ? GET('top') : 100;
+$from = (GET('from') != "") ? GET('from') : 0;
+$top += $from;
+$group_id = GET('group_id');
 
-ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
-ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
 ossim_valid($from_date, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from_date"));
 ossim_valid($to_date, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to_date"));
 ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, OSS_PUNC_EXT, '\<\>', 'illegal:' . _("name"));
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
+ossim_valid($top, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("top"));
+ossim_valid($from, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("from"));
+ossim_valid($group_id, OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("group_id"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -95,11 +98,12 @@ foreach($host_list as $host) {
 	$assets[$host->get_ip() ] = $host->get_asset();
 }
 
-list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"ORDER BY a.timestamp DESC",null,null,$from_date,$to_date,$name);
+list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,"","",$hide_closed,"ORDER BY a.timestamp DESC",$from,$top,$from_date,$to_date,$name);
 $ports = Protocol::get_list($conn);
 
 ?>
-<table width="100%">
+<table width="100%" <?php if ($from > 0) echo "class='transparent'" ?>>
+    <?php if ($from < 1) { ?>
     <tr>
         <th>&nbsp;</th>
         <!--<th>&nbsp;</th>-->
@@ -111,6 +115,19 @@ $ports = Protocol::get_list($conn);
         <th><?=_("Destination")?></th>
         <th><?=_("Protocol")?></th>
     </tr>
+    <?php } else { // hidden header ?>
+    <tr>
+        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent">&nbsp;</th>
+        <!--<th>&nbsp;</th>-->
+        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Alarm")?></th>
+        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Risk")?></th>
+        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Since")?></th>
+        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Last")?></th>
+        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Source")?></th>
+        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Destination")?></th>
+        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Protocol")?></th>
+    </tr>
+    <?php } ?>
 <? foreach ($list as $s_alarm) {
 	$s_id = $s_alarm->get_plugin_id();
 	$s_sid = $s_alarm->get_plugin_sid();
@@ -253,4 +270,14 @@ $ports = Protocol::get_list($conn);
 		<td class="nobborder"></td>
 		<td class="nobborder" colspan='6' name='eventbox<?=$s_backlog_id . "-" . $s_event_id?>"' id='eventbox<?=$s_backlog_id . "-" . $s_event_id?>'></td></tr>
  <? } ?>
+ <?php if ($num_rows > count($list)) { ?>
+	<div id="link_row" style="display:inline">
+	<tr>
+		<td class="center nobborder" colspan="8"><a href="" onclick="toggle_group('<?=$group_id ?>','<?=$name ?>',<?php echo $from + $top ?>);this.style.color='transparent';return false">> <?php echo _("Show the next 100 alarms") ?></a></td>
+	</tr>
+	</div>
+	<tr>
+		<td class="center nobborder" colspan="8" id="<?php echo $group_id.($from + $top)?>"></td>
+	</tr>
+ <?php } ?>
 </table>

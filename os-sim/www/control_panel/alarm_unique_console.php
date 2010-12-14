@@ -176,7 +176,6 @@ if (GET('open_group') != "") {
 	AlarmGroups::change_status ($conn, GET('open_group'), "open");
 }
 if (GET('action') == "open_alarm") {
-    echo "<br><br><br>OPEN<br>";
 	Alarm::open($conn, GET('alarm'));
 }
 if (GET('action') == "close_alarm") {
@@ -211,24 +210,24 @@ list($alarm_group, $count) = AlarmGroups::get_unique_alarms($conn, $show_options
   <script type="text/javascript">
   var open = false;
   
-  function toggle_group (group_id,name,ip_src,ip_dst) {
-	document.getElementById(group_id).innerHTML = "<img src='../pixmaps/loading.gif'>";
+  function toggle_group (group_id,name,from) {
+	document.getElementById(group_id+from).innerHTML = "<img src='../pixmaps/loading.gif'>";
 	//alert("alarm_unique_response.php?name="+name+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&hide_closed=<?=$hide_closed?>&from_date=<?=$date_from?>&to_date=<?=$date_to?>");
 	$.ajax({
 		type: "GET",
-		url: "alarm_unique_response.php?name="+name+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&hide_closed=<?=$hide_closed?>&from_date=<?=$date_from?>&to_date=<?=$date_to?>",
+		url: "alarm_unique_response.php?from="+from+"&group_id="+group_id+"&name="+name+"&hide_closed=<?=$hide_closed?>&from_date=<?=$date_from?>&to_date=<?=$date_to?>",
 		data: "",
 		success: function(msg){
 			//alert (msg);
-			document.getElementById(group_id).innerHTML = msg;
+			document.getElementById(group_id+from).innerHTML = msg;
 			plus = "plus"+group_id;
-			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>";
+			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_group('"+group_id+"','"+name+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>";
 		}
 	});
   }
-  function untoggle_group (group_id,name,ip_src,ip_dst) {
+  function untoggle_group (group_id,name) {
 	plus = "plus"+group_id;
-	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
 	document.getElementById(group_id).innerHTML = "";
   }
   
@@ -520,7 +519,7 @@ $tree_count = 0;
 	</tr>
 		<? }*/ ?>
 	<tr>
-		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?=$group['name']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
+		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="" onclick="toggle_group('<?=$group['group_id']?>','<?=$group['name']?>','');return false"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
 		<th style='padding:5px;text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
 	</tr>
 	<tr>
