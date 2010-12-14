@@ -126,7 +126,7 @@ if (ossim_error()) {
 }
 $failed = true;
 $first_login = "no";
-if (REQUEST('user')) {
+if (REQUEST('user') && trim($pass)!="") {
     require_once ("classes/Config.inc");
     $session = new Session($user, $pass, "");
     $conf = new Config();
