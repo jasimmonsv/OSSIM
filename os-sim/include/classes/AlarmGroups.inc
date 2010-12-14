@@ -469,7 +469,7 @@ class AlarmGroups {
 		return array($ret,$num_rows);
 	}
 	
-	function get_alarms ($conn, $src_ip, $dst_ip, $hide_closed = 1, $order, $inf = null, $sup = null, $from_date = null, $to_date = null, $query = "") {
+	function get_alarms ($conn, $src_ip="", $dst_ip="", $hide_closed = 1, $order, $inf = null, $sup = null, $from_date = null, $to_date = null, $query = "") {
         $list = array();
         $where = array();
         // Pre-Selected Ports (Granada 27 de mayo 2009)
