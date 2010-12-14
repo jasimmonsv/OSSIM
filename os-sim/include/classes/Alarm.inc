@@ -460,7 +460,7 @@ class Alarm {
 		if (Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
 			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
-				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
+				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."'" : " OR e.sensor LIKE '".$user_sensor."'";
 			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
 			$sensor_str = " AND ($sensor_str) AND e.id=a.event_id";
 		}

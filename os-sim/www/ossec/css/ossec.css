@@ -151,7 +151,7 @@ html ul.oss_tabs li.active a:hover  {
 
 .CodeMirror-wrapping {border: solid 1px #D2D2D2;} 
 
-#container_code { width: 93%; margin:10px auto;}
+#container_code { width: 93%; margin:10px auto; position:relative;}
 
 .code {width: 100%; height: 300px;}
 
@@ -280,10 +280,28 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 
 .buttons_box {	
 	float: right; 
-	width: 20%;
+	width: 95%;
 	padding-right: 30px;
 	padding-bottom: 20px;
+	height: 38px;
 }
+
+.notice {
+	text-align:center; 
+	margin: auto; 
+	width:98%; 
+	position:relative;
+	clear:both;
+}
+
+.notice div { 
+	width: 100%; 
+	position: absolute; 
+	bottom: 32px; 
+	right: 0px; 
+	font-size: 10px; 
+}
+.notice span {font-style: italic;}
 
 #results_center {
 	margin-top: 10px;
@@ -317,12 +335,15 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 
 #msg_load {
 	text-align: center;
-	margin: 150px auto;
+	padding: 150px 0px;
+	margin: auto;
 	font-size: 12px;
 	font-weight: bold;
 	width: 98%;
 	height: 179px;
+	clear:both;
 }
+
 
 #msg_load span {
 	padding-left: 10px;

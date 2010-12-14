@@ -149,7 +149,9 @@ class xml {
 			   	
 				foreach ($array['@attributes'] as $attribute=>$value)
 				{
-			   		$doc->addAttribute($attribute, utf8_encode(htmlspecialchars($value)));
+			   		$v_at = rtrim(ltrim($value));
+					$v_at = ( $v_at == '' ) ? "_#_void_value_#_" : $v_at;
+					$doc->addAttribute($attribute, utf8_encode($v_at));
 				}	
 			   	unset($array['@attributes']);
 			}
@@ -163,7 +165,10 @@ class xml {
 					}
 					else 
 					{
-						$newchild=$doc->addChild($child,utf8_encode(htmlspecialchars($value[$child][0])));
+						$v_child = rtrim(ltrim($value[$child][0]));
+						$v_child = ( $v_child == '' ) ? "_#_void_value_#_" : $v_child;
+												
+						$newchild=$doc->addChild($child,utf8_encode($v_child));
 					}
 					$this->{__FUNCTION__}($value[$child],$newchild);
 				}
@@ -189,7 +194,6 @@ class xml {
 		$this->load_string($xml_string);			
 		$this->convert_array2simplexml_object($array);
 		$result=$this->doc->asXML();
-		
 		if ($save_result) $this->result=$result;
 		return $result;					
 	}

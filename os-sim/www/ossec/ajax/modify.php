@@ -37,29 +37,33 @@ $char_list  = "\t\n\r\0\x0B";
 $clean_post = array();
 
 foreach ($_POST as $k => $v)
+{
 	$clean_post[$k]  = trim($v, $char_list);
-
+	$clean_post[$k]  = ltrim(rtrim($v, $char_list));
+}
+	
+	
 switch ($node_type){
 
+	//One attribute
 	case 1:
 	
 		$ac = $branch."['@attributes']['$node_name']";
-		if ( $clean_post["n_label-".$__level_key."_at1"] == '' )
-			$ok = @eval ("unset(\$tree$ac);"); 
-		else
+		
+		$ok = @eval ("unset(\$tree$ac);");
+		
+		if ( $clean_post["n_label-".$__level_key."_at1"] != '' && $clean_post["n_txt-".$__level_key."_at1"] != '' && $ok !== false)
 		{
-			$ok = @eval ("unset(\$tree$ac);");
-			if ($ok == false)
-			{	
-				$key = $clean_post["n_label-".$__level_key."_at1"];
-				$value = $clean_post["n_txt-".$__level_key."_at1"];
-				$ac = $branch."['@attributes']['$key'] = $value";
-				$ok = @eval ("\$tree$ac;");
-			}
+			$key   = $clean_post["n_label-".$__level_key."_at1"];
+			$value = $clean_post["n_txt-".$__level_key."_at1"];
+			$ac = $branch."['@attributes']['$key'] = $value";
+			$ok = @eval ("\$tree$ac;");
 		}
+				
 		
 	break;
 	
+	//Several Attributes
 	case 2:
 	
 		$ac = $branch."['@attributes']";
@@ -76,17 +80,16 @@ switch ($node_type){
 				
 		for ($i=0; $i<$num; $i=$i+2)
 		{	
-			if ($clean_post[$keys[$i]] != '')
-			{
-				$j=$i+1;
+			$j=$i+1;
+			if ( $clean_post[$keys[$i]] != '' && $clean_post[$keys[$j]] != '')
 				$attributes[$clean_post[$keys[$i]]] = $clean_post[$keys[$j]];
-			}
 		}
 		
 		$ok = @eval ("\$tree$ac= \$attributes;");
 									
 	break;	
-		
+	
+	//Text Nodes
 	case 3:
 	
 		$txt_nodes  = array();
@@ -98,15 +101,13 @@ switch ($node_type){
 		$keys = array_keys($clean_post);
 		$num  = count($keys);
 						
-		if ($clean_post[$keys[$num-2]] != '' )
+		if ( $clean_post[$keys[$num-2]] != '' )
 		{
 			for ($i=0; $i<$num-3; $i=$i+2)
 			{	
-				if ($clean_post[$keys[$i]] != '' )
-				{
-					$j=$i+1;
+				$j=$i+1;
+				if ($clean_post[$keys[$i]] != '' && $clean_post[$keys[$j]] != '' )
 					$attributes[$clean_post[$keys[$i]]] = $clean_post[$keys[$j]];
-				}
 			}
 		    
 			$txt_nodes['@attributes'] = $attributes;
@@ -124,6 +125,7 @@ switch ($node_type){
 						
 	break;
 	
+	//Rules
 	case 4:
 	
 		$txt_nodes  = array();
@@ -277,7 +279,7 @@ else
 {
 	$xml    = new xml($_level_key_name);
 	$output = $xml->array2xml($tree);
-	
+					
 	if (!file_exists($path))
 		echo "3###"._("XML file not found");
 	else
@@ -286,9 +288,11 @@ else
 			echo "2###"._("Failure to update XML File (2)");
 		else
 		{   
-		    $output = formatOutput($output, $_level_key_name);
-			$output = utf8_decode($output);			
-			
+		   	
+			$output = formatOutput($output, $_level_key_name);
+			$output = utf8_decode($output);		
+						
+									
 			if (@file_put_contents($path, $output, LOCK_EX) == false)
 			{
 				@unlink ($path);

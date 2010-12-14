@@ -642,33 +642,35 @@ function set_key_name($_level_key_name, $file_xml)
 
 function formatOutput($input, $_level_key_name)
 {
-	$input = formatXmlString($input);
-			
 	$pattern = array ( 
 		'/\<\?xml.*\?\>/',
 		'/\<__rootnode .*\">|\<\/__rootnode\>/',
 		"/ $_level_key_name=\".*?\"/"
 	);
 	
-				
-	$input = preg_replace($pattern, '', $input);
+	$output = preg_replace($pattern, '', $input);
 	
 	$pattern = array ( 
-		'/ \>/',
-		'/^[\r?\n]+/',
+		'/\s*>/',
 		'/^    /',	
-		'/\n    /'		
+		'/\n    /'
 	);
 	
 	$replacement = array ( 
 		'>',
 		'',
-		'',
-		"\n"		
+		"\n",
 	);		
 	
-	$output = preg_replace($pattern, $replacement, $input);
+	$char_list = "\t\n\r\0\x0B";
+	$output    = trim($output, $char_list);
 	
+	$output = preg_replace($pattern, $replacement, $output);
+	
+	$output = formatXmlString($output);
+	
+	$output = preg_replace('/_#_void_value_#_/', '', $output);
+		
 	return $output;
 }
 

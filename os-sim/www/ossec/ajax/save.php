@@ -48,7 +48,7 @@ else
 							
 		if ($xml_obj->errors['status'] == false)
 		{
-			echo "5###"._("Format not allowed:")."<br/><div class='errors_xml'>".implode("\n", $xml_obj->errors['msg'])."</div>";
+			echo "5###<span style='padding-left:45px;'>"._("Format not allowed:")."</span><br/><div class='errors_xml'>".implode("\n", $xml_obj->errors['msg'])."</div>";
 			@copy ($path_tmp, $path);
 		}
 		else

@@ -63,7 +63,7 @@ function load_tab1()
 		$("#msg_load").remove();
 	
 	$(".tab_container").before("<div id='msg_load'>"+messages[1]+"</div>");		
-	
+		
 	if (node != null)
 		draw(node);
 	
@@ -76,7 +76,7 @@ function load_tab2()
 	var file = $('#rules option:selected').attr('value');
 	
 	//Loading div
-	$("#tab2 div").hide();
+	$("#tab2 div").css('display','none');
 	
 	if ( $("#msg_load").length >= 1 )
 		$("#msg_load").remove();
@@ -118,7 +118,9 @@ function load_tab2()
 				}
 								
 				if (file != editable_files[0])
+				{
 					$(".button").remove();
+				}
 				else
 				{
 					if ( $('.button').length < 1 )
@@ -130,6 +132,7 @@ function load_tab2()
 				}
 				
 				$("#msg_load").remove();
+				$("#tab2 div").css('display','');
 				
 			}
 			else
@@ -153,11 +156,7 @@ function load_tab2()
 				editor = null;
 				
 				$('#msg_load').html("<div class='oss_error'>"+txt+"</div>");		
-										
 			}
-			
-			$("#tab2 div").show();
-			
 		}
 	});
 		
@@ -241,7 +240,7 @@ function save(editor){
 					$('#parse_errors').html(txt);
 					$('#parse_errors').fadeIn(2000);
 					window.scroll(0,0);
-					setTimeout('$("#msg_edit").fadeOut(4000);', 20000);
+					setTimeout('$("#msg_edit").fadeOut(4000);', 25000);
 				}
 			}
 									
@@ -297,7 +296,7 @@ function add_at(id, type, path)
 	}
 	
 	var element = "<tr id='"+ new_id +"'>"
-		+ "<td class='n_name'  id='cont_n_label-"+new_id+"'><input type='text' class='n_input auto_c' name='n_label-"+new_id+"' id='n_label-"+new_id+"' value=''/></td>"
+		+ "<td class='n_name'  id='cont_n_label-"+new_id+"'><input type='text' class='n_input auto_c' name='n_label-"+new_id+"' id='n_label-"+new_id+"'/></td>"
 		+ "<td class='n_value' id='cont_n_txt-"+new_id+"'><textarea name='n_txt-"+new_id+"' id='n_txt-"+new_id+"'></textarea></td>"
 		+  actions
 	+ "</tr>";
@@ -340,26 +339,24 @@ function delete_at(id, type, path)
 
 function clone_at(id)
 {
-	
-	
 	var new_id   = get_new_id(id);
-	var aux_id   = uniqid();
 	var reg      = new RegExp(id, "g");
 	
 	var name     = $("#n_label-"+id).val();
 	var value    = $("#n_txt-"+id).val();
 	
 	
-	var element  = "<tr id='"+ aux_id +"' style='display:none;'>"+$("#"+id).clone(true).html()+"</tr>";
-	element      = element.replace(reg, aux_id);
+	var element  = $("#"+id).clone(true).html();
+	element      = element.replace(reg, new_id);
 	
-	var reg2     = new RegExp(aux_id, "g");
-	element      = element.replace(reg2, new_id);
+	element  = "<tr id='"+ new_id +"' style='display:none;'>"+element+"</tr>";	
 	
 	$("#"+id).after(element);
+	
 	$("#n_label-"+new_id).val(name);
 	$("#n_txt-"+new_id).val(value);
 	$("#"+new_id).css('display', '');
+	
 	
 	$('textarea').bind('focus', function() { $(this).css('color', '#2F85CA');});
 	$('textarea').bind('blur',  function() { $(this).css('color', '#000000');});	 
@@ -375,13 +372,13 @@ function show_at(id) {
 var display = $("#"+id).css('display');
 
 if (display == 'none')
-	$("#"+id).fadeIn(1000);
+	$("#"+id).fadeIn(2000);
 else
 	hide_at(id)
 
 }
 
-function hide_at(id) { $("#"+id).fadeOut(1000);}
+function hide_at(id) { $("#"+id).fadeOut(2000);}
 
 
 function add_node(id, type, path)
@@ -458,12 +455,14 @@ function clone_node(id)
 	var element = 
 		"<tr id='"+ new_id +"' style='display:none;'>"+$("#"+id).clone(true).html()+"</tr>" + 
 		"<tr id='ats_"+ new_id +"' style='display:none;'>"+$("#ats_"+id).clone(true).html()+"</tr>";
-	element = element.replace(reg, new_id);
+	
+    element = element.replace(reg, new_id);
 				
 	$("#ats_"+id).after(element);
 	
 	var name  = $("#n_label-"+id).val();
 	var value = $("#n_txt-"+id).val();
+	
 	$("#n_label-"+new_id).val(name);
 	$("#n_txt-"+new_id).val(value);
 	
@@ -528,20 +527,25 @@ function clone_child(id)
 	var key_parent = '';
 	
 	var kp = $("#"+id).attr("class").split("-###");
+	
 	if (kp[1] == '')	
 		key_parent = id;
 	else
 		key_parent = kp[1];
 	
-	var new_id = uniqid()+"_clone-"+id;
-	var reg = new RegExp(id, "g");
+	var aux_id = id.replace("_clone", "");
+	var new_id = get_new_id(aux_id)+"_clone";
+	var reg    = new RegExp(id, "g");
+	
 	var element = $("#"+id).clone(true).html();
-	element = element.replace(reg, new_id);
-	element = "<tr id='"+ new_id +"' style='display:none;' class='__lk-###"+key_parent+"'>"+element+"</tr>";
+	    element = element.replace(reg, new_id);
+	    element = "<tr id='"+ new_id +"' style='display:none;' class='__lk-###"+key_parent+"'>"+element+"</tr>";
+	
 	$("#"+id).after(element);
 	
 	var id = "#"+id;
 	var parent = $(id).parent();
+	
 	var children = parent.children().length;
 	if (children > 3)
 		$('.delete_c').removeClass("unbind");
@@ -549,7 +553,6 @@ function clone_child(id)
 	set_autocomplete('.auto_c');
 	
 	$("#"+new_id+" .edit_c").addClass("unbind");
-	
 	$("#"+new_id).css('display', '');
 }
 
@@ -608,7 +611,7 @@ function modify(__level_key)
 			else
 			{
 				style = 'oss_success';
-				load_tree(tree, __level_key, 'silently');	
+				load_tree(tree, __level_key, 'normal');	
 			}
 			
 			if ( $("#results").length >= 1 )
@@ -641,7 +644,7 @@ function modify_node(__level_key)
 	$(".save_edit").css("width", "105px");
 	$("#send").val(label[13]);
 	
-	
+		
 	for (var i=0; i<nodes.length; i++)
 	{
 		data += "&key"+i+"=";
@@ -699,8 +702,8 @@ function modify_node(__level_key)
 			//Reload right tab if changes have been saved
 			
 			if ( parseInt(status[0]) == 1 && $(".edit_c").hasClass('unbind') )
-				$(layer).dynatree("getTree").getNodeByKey(__level_key).activate();
-				
+				load_tab1();
+							
 		}
 	});
 			
@@ -715,7 +718,7 @@ function draw(dtnode)
 {
    var key = dtnode.data.key;
    
-   if (key != 1)
+   if (key != 1 && key !='load_error')
    {
 	   	var data = "node="+ dtnode.data.title +"&__level_key="+ key;
 		

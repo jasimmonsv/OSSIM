@@ -13,11 +13,11 @@ if ( preg_match($pattern, $new_file) == false )
 else
 {
 	 
-	if ( file_exists($path_file) == true )
+	if ( @file_exists($path_file) == true )
 	{
-		if ( file_exists($path_new_file) == false )
+		if ( @file_exists($path_new_file) == false )
 		{
-			if (copy ($path_file , $path_new_file ) == false )
+			if (@copy ($path_file , $path_new_file ) == false )
 				echo "2###"._("Failure to clone file $file");
 			else
 				echo "3###"._("Cloned Sucessfully");

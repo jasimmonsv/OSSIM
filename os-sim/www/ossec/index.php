@@ -264,14 +264,18 @@ if ($error == true)
 									<div class='button'><input type='button' class='save' id='send' value='<?=_("save")?>'/></div>
 								<?php } else{ ?>
 									<div class='button'><input type='button' class='save' id='dis_send' disabled='disabled' value='<?=_("save")?>'/></div>
-								<?php } ?>						
+								<?php } ?>
 							</div>
 						</div>
 					</div>
+					
+					<div class='notice'><div><span>(*)<?php echo _("You must restart Ossec for the changes to take effect")?></span></div></div>
 				</td>
-			</tr>	
+			</tr>
 		</table>
+		
 	</div>
+
 
 </body>
 

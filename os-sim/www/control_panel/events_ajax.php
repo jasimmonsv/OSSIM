@@ -35,7 +35,8 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuEvents", "EventsViewer");
+//Session::logcheck("MenuEvents", "EventsViewer");
+Session::logcheck("MenuIncidents", "ControlPanelAlarms");
 ?>
 
 <?php
