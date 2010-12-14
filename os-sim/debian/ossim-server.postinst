@@ -88,13 +88,18 @@ fi
 
 update-rc.d ossim-server defaults 40 2&> /dev/null
 
-
 if [ -x /usr/bin/ossim-reconfig ]; then
-echo "#######################################"
-echo "#######################################"
-echo "Please run ossim-reconfig after install"
-echo "#######################################"
-echo "#######################################"
-#/usr/bin/ossim-reconfig -c -v --dpkg
+  if [ -x /usr/bin/postpone ]; then
+    /usr/bin/postpone --verbose --lock /var/run/ossim-reconfig.lock --output /tmp/ossim-reconfig.XXXXXX --debian /usr/bin/ossim-reconfig -v -c --dpkg
+  else
+    /usr/bin/ossim-reconfig -v -c --dpkg
+  fi
+else
+  echo "#######################################"
+  echo "#######################################"
+  echo "Please run ossim-reconfig after install"
+  echo "#######################################"
+  echo "#######################################"
 fi
+
 #/etc/init.d/ossim-server restart
