@@ -374,7 +374,7 @@ sub set_taxonomy_filters {
 	my $or_num = shift;
 	#$filters{$and_num}{$or_num}{'plugin_id_sid'}{'7017'}{'1002'}++; # For Debug
 	my @plugin_ids = ();
-	if ($filter =~ /taxonomy='?(.*)-(.*)-(.*)'?/) {
+	if ($filter =~ /taxonomy\!?='?(.*)-(.*)-(.*)'?/) {
 		$has_results = 0;
 		if ($1 ne "") {
 			my $st = $1;
@@ -420,7 +420,7 @@ sub set_plugingroup_filters {
 	my $or_num = shift;
 	#$filters{$and_num}{$or_num}{'plugin_id_sid'}{'7017'}{'1002'}++; # For Debug
 	my @plugin_ids = ();
-	if ($filter =~ /plugingroup=(.+)/) {
+	if ($filter =~ /plugingroup\!?=(.+)/) {
 		$dbh = conn_db();
 		$group_name = $1;
 		$temp_sql = "SELECT plugin_group.plugin_id,plugin_group.plugin_sid as sid FROM plugin_group_descr groups, plugin_group WHERE groups.group_id=plugin_group.group_id AND groups.name='$group_name'";

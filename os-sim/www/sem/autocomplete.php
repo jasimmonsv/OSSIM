@@ -142,7 +142,8 @@ if (trim($str) != "") {
 			}
 		} elseif ($found[1] == "sourcetype") {
 			foreach ($sourcetypes as $sourcetype) {
-				if ((preg_match("/^$qstr/i",$sourcetype)) && !preg_match("/$sourcetype/i",$fnd[2]) && count($data) < $top) {
+				$qsourcetype = str_replace("/","\\/",$sourcetype);
+				if ((preg_match("/^$qstr/i",$sourcetype)) && !preg_match("/$qsourcetype/i",$fnd[2]) && count($data) < $top) {
 					$data[] = array("name"=>"<b>sourcetype</b>$op$prev$sourcetype");
 				}
 			}
