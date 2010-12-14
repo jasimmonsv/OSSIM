@@ -406,7 +406,7 @@ echo "<input type=\"button\" onclick=\"document.location.href='sched.php?smethod
 echo "</form>";
 echo "</center>";
 echo "<br>";
-$schedulejobs = _("Schedule Jobs");
+$schedulejobs = _("Scheduled Jobs");
    echo <<<EOT
    <center>
    <table cellspacing="0" cellpadding="0" border="0" width="90%"><tr><td class="headerpr" style="border:0;">$schedulejobs</td></tr></table>
@@ -436,7 +436,7 @@ else {
     $result=$dbconn->execute($query);
 
     if ($result->EOF){
-        echo "<tr><td height='20' class='nobborder' style='text-align:center;'>"._("No Schedule Jobs")."</td></tr>";
+        echo "<tr><td height='20' class='nobborder' style='text-align:center;'>"._("No Scheduled Jobs")."</td></tr>";
     }
     if (!$result->EOF) {
         echo "<tr>";
@@ -506,7 +506,7 @@ else {
        echo <<<EOT
 <tr>
 EOT;
-    echo "<td><a style=\"text-decoration:none;\" href=\"javascript:;\" txt=\"<b>"._("Owner").":</b> $user<br><b>"._("Schedule Job ID").":</b> $schedid<br><b>"._("Profile").":</b> $profile<br><b>"._("Targets").":</b><br>".tooltip_hosts($targets,$hosts)."\" class=\"scriptinfo\">$schedname</a></td>";
+    echo "<td><a style=\"text-decoration:none;\" href=\"javascript:;\" txt=\"<b>"._("Owner").":</b> $user<br><b>"._("Scheduled Job ID").":</b> $schedid<br><b>"._("Profile").":</b> $profile<br><b>"._("Targets").":</b><br>".tooltip_hosts($targets,$hosts)."\" class=\"scriptinfo\">$schedname</a></td>";
        echo <<<EOT
     <td>$stt</td>
     <td>$time</td>
