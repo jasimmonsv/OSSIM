@@ -227,7 +227,7 @@ list($alarm_group, $count) = AlarmGroups::get_unique_alarms($conn, $show_options
   }
   function untoggle_group (group_id,name) {
 	plus = "plus"+group_id;
-	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"','');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
 	document.getElementById(group_id).innerHTML = "";
   }
   
@@ -512,15 +512,11 @@ $tree_count = 0;
             else $close_link = "<img src='../pixmaps/lock.png' alt='"._("Closed, take this group then click to open")."' title='"._("Closed, take this group then click to open")."' border=0>";
             $group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
         }
-		
-		/*if ($show_day) { ?>
+		?>
 	<tr>
-		<td colspan=7 class="nobborder" style="text-align:center;padding:5px"><b><?=$date?></b></td>
-	</tr>
-		<? }*/ ?>
-	<tr>
+		<td class="nobborder"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
 		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="" onclick="toggle_group('<?=$group['group_id']?>','<?=$group['name']?>','');return false"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
-		<th style='padding:5px;text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
+		<th style='padding:8px;text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
 	</tr>
 	<tr>
 		<td colspan="7" id="<?=$group['group_id']?>" class="nobborder" style="text-align:center;padding-left:55px;"></td>

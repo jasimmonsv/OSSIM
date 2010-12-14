@@ -129,6 +129,7 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	</tr>
 	<? } ?>
 <? foreach ($list as $s_alarm) {
+	$bgcolor = (++$i%2 == 0) ? "#FAFAFA" : "#F2F2F2";
 	$s_id = $s_alarm->get_plugin_id();
 	$s_sid = $s_alarm->get_plugin_sid();
 	$s_backlog_id = $s_alarm->get_backlog_id();
@@ -242,19 +243,19 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	}
 	/* Expand button */
 	if ($event_ocurrences > 0) $expand_button = "<a href='" . $s_alarm_link . "' ><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
-	else $expand_button = "<strong>[-]</strong>";
+	else $expand_button = "<img src='../pixmaps/minus-small.png' border='0' alt='plus'>";
 ?>
 	<tr>
-		<td class="nobborder" style='text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><a href="" onclick="toggle_alarm('<?=$s_backlog_id?>','<?=$s_event_id?>');return false;">[+]</a></td>
-		<td class="nobborder" style='text-align: center'><?=$checkbox?></td>
-		<td class="nobborder" style='text-align: left; padding-left:10px' width='30%'><strong><?=$balloon_name?></strong></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><a href="" onclick="toggle_alarm('<?=$s_backlog_id?>','<?=$s_event_id?>');return false;"><img src="../pixmaps/plus-small.png" border="0" alt="plus"></img></a></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$checkbox?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: left; padding-left:10px' width='30%'><strong><?=$balloon_name?></strong></td>
 		<?=$risk_field?>
-		<td class="nobborder" style='text-align: center' width='12%'><?=$s_since?></td>
-		<td class="nobborder" style='text-align: center' width='12%'><?=$s_date?></td>
-		<td class="nobborder" nowrap style='text-align: center;'><?=$source_balloon?></td>
-		<td class="nobborder" nowrap style='text-align: center;'><?=$dest_balloon?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center' width='12%'><?=$s_since?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center' width='12%'><?=$s_date?></td>
+		<td class="nobborder" nowrap style='background-color:<?php echo $bgcolor ?>;text-align: center;'><?=$source_balloon?></td>
+		<td class="nobborder" nowrap style='background-color:<?php echo $bgcolor ?>;text-align: center;'><?=$dest_balloon?></td>
 		<td class="nobborder" bgcolor='<?=(($s_status == "open") ? "#ECE1DC" : "#DEEBDB")?>' style='text-align: center; border-width: 0px;'><b><?=$status_link?></b></td>
-		<td class="nobborder" style='text-align: center'><?=$s_delete_link?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$s_delete_link?></td>
 	</tr>
 	<tr>
 		<td class="nobborder"></td>
