@@ -102,33 +102,36 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,"","",$hide_closed,"ORDE
 $ports = Protocol::get_list($conn);
 
 ?>
-<table width="100%" <?php if ($from > 0) echo "class='transparent'" ?>>
+<table width="100%" class="transparent">
     <?php if ($from < 1) { ?>
     <tr>
-        <th>&nbsp;</th>
-        <!--<th>&nbsp;</th>-->
-        <th><?=_("Alarm")?></th>
-        <th><?=_("Risk")?></th>
-        <th><?=_("Since")?></th>
-        <th><?=_("Last")?></th>
-        <th><?=_("Source")?></th>
-        <th><?=_("Destination")?></th>
-        <th><?=_("Protocol")?></th>
-    </tr>
+		<td class="nobborder"></td>
+		<td class="nobborder"></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Alarm Name")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Risk")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Since Date")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Date")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Source")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Destination")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Status")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Action")?></td>
+	</tr>
     <?php } else { // hidden header ?>
     <tr>
-        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent">&nbsp;</th>
-        <!--<th>&nbsp;</th>-->
-        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Alarm")?></th>
-        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Risk")?></th>
-        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Since")?></th>
-        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Last")?></th>
-        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Source")?></th>
-        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Destination")?></th>
-        <th style="border:1px solid transparent;background-image:none;background-color:transparent;color:transparent"><?=_("Protocol")?></th>
-    </tr>
+		<td class="nobborder"></td>
+		<td class="nobborder"></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Alarm Name")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Risk")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Since Date")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Date")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Source")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Destination")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Status")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Action")?></td>
+	</tr>
     <?php } ?>
 <? foreach ($list as $s_alarm) {
+	$bgcolor = (++$i%2 == 0) ? "#FAFAFA" : "#F2F2F2";
 	$s_id = $s_alarm->get_plugin_id();
 	$s_sid = $s_alarm->get_plugin_sid();
 	$s_backlog_id = $s_alarm->get_backlog_id();
@@ -159,9 +162,9 @@ $ports = Protocol::get_list($conn);
 	$src_country_img = ($src_country) ? "<img src='/ossim/pixmaps/flags/" . $src_country . ".png'>" : "";
 	$dst_country = strtolower(geoip_country_code_by_addr($gi, $s_dst_ip));
 	$dst_country_img = ($dst_country) ? "<img src='/ossim/pixmaps/flags/" . $dst_country . ".png'>" : "";
-	$source_link = "<a href='" . $s_src_link . "' title='" . $s_src_ip . "' >" . $s_src_name . "</a>:" . Port::port2service($conn, $s_src_port) . " $s_src_img $src_country_img";
+	$source_link = "<a href='" . $s_src_link . "' title='" . $s_src_ip . "' >" . $s_src_name . "</a>:" . $s_src_port . " $s_src_img $src_country_img";
 	$source_balloon = "<div class='balloon'>" . $source_link . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>$src_title</span><span class='bottom'></span></span></div>";
-	$dest_link = "<a href='" . $s_dst_link . "' title='" . $s_dst_ip . "' >" . $s_dst_name . "</a>:" . Port::port2service($conn, $s_dst_port) . " $s_dst_img $dst_country_img";
+	$dest_link = "<a href='" . $s_dst_link . "' title='" . $s_dst_ip . "' >" . $s_dst_name . "</a>:" . $s_dst_port . " $s_dst_img $dst_country_img";
 	$dest_balloon = "<div class='balloon'>" . $dest_link . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>$dst_title</span><span class='bottom'></span></span></div>";
 	//		    $selection_array[$group_id][$child_number] = $s_backlog_id . "-" . $s_event_id;
 	$s_sid_name = "";
@@ -186,6 +189,14 @@ $ports = Protocol::get_list($conn);
 	/* Alarm name */
 	$s_alarm_name = ereg_replace("directive_event: ", "", $s_sid_name);
 	$s_alarm_name = Util::translate_alarm($conn, $s_alarm_name, $s_alarm);
+	$summary = Alarm::get_alarm_stats($conn, $s_backlog_id, $s_event_id);
+	$event_ocurrences = $summary["total_count"];
+	if ($event_ocurrences != 1) {
+		$ocurrences_text = strtolower(gettext("Events"));
+	} else {
+		$ocurrences_text = strtolower(gettext("Event"));
+	}
+	$balloon_name = "<div class='balloon'>" . $s_alarm_name . " <font style='font-size: 9px; color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font>" . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>Src Asset: <b>" . $s_asset_src . "</b><br>Dst Asset: <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
 	/* Risk field */
 	if ($s_risk > 7) {
 		$color = "red; color:white";
@@ -195,9 +206,9 @@ $ports = Protocol::get_list($conn);
 		$color = "green; color:white";
 	}
 	if ($color) {
-		$risk_field = "<td class='nobborder' style='text-align: center; border-width: 1px; background-color: " . $color . ";'>" . $s_risk . "</td>";
+		$risk_field = "<td class='nobborder' style='text-align: center; background-color: " . $color . ";'>" . $s_risk . "</td>";
 	} else {
-		$risk_field = "<td class='nobborder' style='text-align: center; border-width: 1px;' >" . $s_risk . "</td>";
+		$risk_field = "<td class='nobborder' style='text-align: center' >" . $s_risk . "</td>";
 	}
 	/* Delete link */
 	/*
@@ -217,59 +228,41 @@ $ports = Protocol::get_list($conn);
 	"<img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;' />" . "</a>";
 	}
 	}*/
-	$s_delete_link = ($s_status == 'open') ? "<a href='" . build_url("close_alarm", "&alarm=" . $s_backlog_id . "-" . $s_event_id) . "' title='" . gettext("Click here to close alarm") . "'><img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;'></a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'>";
+	$s_delete_link = ($s_status == 'open') ? "<a href='" . build_url("close_alarm", "&alarm=" . $s_event_id) . "' title='" . gettext("Click here to close alarm") . "'><img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;'></a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'>";
 	/* Checkbox */
 	if ($owner == $_SESSION["_user"] || $owner == "") {
-		$checkbox = "<input type='checkbox' name='alarm_checkbox' value='" . $s_event_id . "' disabled>";
+		$checkbox = "<input type='checkbox' name='check_".$s_backlog_id."_".$s_event_id."' class='alarm_check' value='1'>";
 	} else {
-		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "' disabled>";
+		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	if ($s_status == 'open') {
-		$status_link = "<a href='alarm_group_console.php?action=close_alarm&alarm=" . $s_event_id . "' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Open") . "</a>";
+		$status_link = "<a href='alarm_group_console.php?action=close_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Open") . "</a>";
 		//$status_link = "<a href='" . build_url("close_alarm", "&alarm=" . $s_backlog_id . "-" . $s_event_id) . "' title='" . gettext("Click here to close alarm") ."'>" . gettext("Open") . "</a>";
 		
 	} else {
-		$status_link = "<a href='alarm_group_console.php?action=open_alarm&alarm=" . $s_event_id . "' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
+		$status_link = "<a href='alarm_group_console.php?action=open_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
-	$summary = Alarm::get_alarm_stats($conn, $s_backlog_id, $s_event_id);
-	$event_ocurrences = $summary["total_count"];
-	if ($event_ocurrences != 1) {
-		$ocurrences_text = strtolower(gettext("Events"));
-	} else {
-		$ocurrences_text = strtolower(gettext("Event"));
-	}
-	$balloon_name = "<div class='balloon'>" . $s_alarm_name . " <font style='font-size: x-small; font-weight:normal; text-color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font><span class='tooltip'><span class='top'></span><span class='middle ne11'>Src Asset: <b>" . $s_asset_src . "</b><br>Dst Asset: <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
 	/* Expand button */
 	if ($event_ocurrences > 0) $expand_button = "<a href='" . $s_alarm_link . "' ><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
-	else $expand_button = "<strong>[-]</strong>";
+	else $expand_button = "<img src='../pixmaps/minus-small.png' border='0' alt='plus'>";
 ?>
 	<tr>
-		<td style='text-align: center' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><a href="" onclick="toggle_alarm('<?=$s_backlog_id?>','<?=$s_event_id?>');return false;"><img src='../pixmaps/plus-small.png' border=0></a></td>
-		<!--<td style='text-align: center'><?//=$checkbox?></td>-->
-		<td style='text-align: left; padding-left:10px' nowrap>
-            <strong><?=$balloon_name?></strong>
-        </td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><a href="" onclick="toggle_alarm('<?=$s_backlog_id?>','<?=$s_event_id?>');return false;"><img src="../pixmaps/plus-small.png" border="0" alt="plus"></img></a></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$checkbox?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: left; padding-left:10px' width='30%'><strong><?=$balloon_name?></strong></td>
 		<?=$risk_field?>
-		<td style='text-align: center' nowrap><?=$s_since?></td>
-		<td style='text-align: center' nowrap><?=$s_date?></td>
-		<td nowrap style='text-align: center; background-color: #eeeeee;'><?=$source_balloon?></td>
-		<td nowrap style='text-align: center; background-color: #eeeeee;'><?=$dest_balloon?></td>
-<?      if($ports[$s_alarm->get_protocol()]!=""){
-            $cport = $ports[$s_alarm->get_protocol()]->get_alias();
-        }
-        else {
-            $cport = $s_alarm->get_protocol();
-        }
-        ?>
-        <td nowrap style='text-align: center; background-color: #eeeeee;'><?=$cport?></td>
-		<!--<td bgcolor='<?//=(($s_status == "open") ? "#ECE1DC" : "#DEEBDB")?>' style='text-align: center; border-width: 1px;border:1px solid <?//=(($s_status == "open") ? "#E6D8D2" : "#D6E6D2")?>'><b><?//=$status_link?></b></td>
-		<td style='text-align: center'><?//=$s_delete_link?></td>-->
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center' width='12%'><?=$s_since?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center' width='12%'><?=$s_date?></td>
+		<td class="nobborder" nowrap style='background-color:<?php echo $bgcolor ?>;text-align: center;'><?=$source_balloon?></td>
+		<td class="nobborder" nowrap style='background-color:<?php echo $bgcolor ?>;text-align: center;'><?=$dest_balloon?></td>
+		<td class="nobborder" bgcolor='<?=(($s_status == "open") ? "#ECE1DC" : "#DEEBDB")?>' style='text-align: center; border-width: 0px;'><b><?=$status_link?></b></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$s_delete_link?></td>
 	</tr>
 	<tr>
 		<td class="nobborder"></td>
-		<td class="nobborder" colspan='6' name='eventbox<?=$s_backlog_id . "-" . $s_event_id?>"' id='eventbox<?=$s_backlog_id . "-" . $s_event_id?>'></td></tr>
- <? } ?>
+		<td class="nobborder" colspan='9' name='eventbox<?=$s_backlog_id . "-" . $s_event_id?>"' id='eventbox<?=$s_backlog_id . "-" . $s_event_id?>'></td></tr>
+<? } ?>
  <?php if ($num_rows > count($list)) { ?>
 	<div id="link_row" style="display:inline">
 	<tr>

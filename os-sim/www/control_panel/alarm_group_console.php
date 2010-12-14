@@ -276,7 +276,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 		success: function(msg){
 			//alert (msg);
 			document.getElementById(td_id).innerHTML = msg;
-			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_alarm('"+backlog_id+"','"+event_id+"');return false\">[-]</a>";
+			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_alarm('"+backlog_id+"','"+event_id+"');return false\"><img src='../pixmaps/minus-small.png' border='0' alt='plus'></img></a>";
 			GB_TYPE = 'w';
 			$("a.greybox").click(function(){
 				var t = this.title || $(this).text() || this.href;
@@ -290,7 +290,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 	var td_id = "eventbox"+backlog_id+"-"+event_id;
 	var plus = "eventplus"+backlog_id+"-"+event_id;
 	document.getElementById(td_id).innerHTML = "";
-	document.getElementById(plus).innerHTML = "<a href='' onclick=\"toggle_alarm('"+backlog_id+"','"+event_id+"');return false\">[+]</a>";
+	document.getElementById(plus).innerHTML = "<a href='' onclick=\"toggle_alarm('"+backlog_id+"','"+event_id+"');return false\"><img src='../pixmaps/plus-small.png' border='0' alt='plus'></img></a>";
   }
   
   function change_descr(objname)
@@ -704,7 +704,7 @@ $tree_count = 0;
 	</tr>
 		<? } ?>
 	<tr>
-		<td class="nobborder"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
+		<td class="nobborder" width="50"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
 		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
 		<th style='text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
 		<th width='10%' style='text-align: center; border-width: 0px; background: <?=$background?>'><?=$owner?></th>
