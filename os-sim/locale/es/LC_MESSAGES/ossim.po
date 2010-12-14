@@ -422,8 +422,8 @@ msgid "Add ticket"
 msgstr "Agregar ticket"
 
 #: www/directive_editor/viewer/index.php:251 www/directives/directive.php:420
-msgid "Additionally, you can put just a number with the protocol"
-msgstr ""
+msgid "Additionally, you can put just a number with the protocol."
+msgstr "Además, puede poner s&oacute;lo un n&uacute;mero con el protocolo."
 
 #: www/incidents/index.php:97 www/incidents/index.php:104
 msgid "Advanced"
@@ -536,8 +536,8 @@ msgstr "Alpha: Par&aacute;metro de adaptaci&oacute;n de interceptaci&oacute;n"
 
 #: www/directive_editor/viewer/index.php:235 www/directives/directive.php:401
 msgid ""
-"Also you can negate ports. This will negate ports 22 and 21 in the directive"
-msgstr ""
+"Also you can negate ports. This will negate ports 22 and 21 in the directive: "
+msgstr "Adem&aacute;s puede negar puertos. Esto negar&aacute; los puertos 22 y 21 en la directiva: "
 
 #: www/directive_editor/viewer/index.php:253 www/directives/directive.php:422
 msgid ""
@@ -2631,8 +2631,11 @@ msgstr ""
 #: www/directive_editor/viewer/index.php:233 www/directives/directive.php:399
 msgid ""
 "Hint: 1:DST_PORT or 1:SRC_PORT would mean level 1 src and dest port "
-"respectively. They can be used too. (level 2 would be 2:DST_PORT for example)"
+"respectively. They can be used level 2 too. (would be 2:DST_PORT for example)."
+
 msgstr ""
+"Sugerencia: 1:DST_PORT o 1:SRC_PORT significar&iacute;a nivel 1 y el puerto src dest respectivamente."
+"Se pueden utilizar el nivel 2 tambi&eacute;n. (ser&iacute;a 2:DST_PORT por ejemplo)."
 
 #: www/rrd_conf/modify_rrd_conf_form.php:17
 #: www/rrd_conf/new_rrd_conf_form.php:17
@@ -6799,8 +6802,8 @@ msgid ""
 msgstr ""
 
 #: www/directive_editor/viewer/index.php:241 www/directives/directive.php:410
-msgid "This can be one of the following strings"
-msgstr "puede ser uno de los siguientes textos"
+msgid "This can be one of the following strings:"
+msgstr "Puede ser uno de los siguientes textos:"
 
 #: www/sem/index.php:23
 msgid ""
@@ -9991,7 +9994,74 @@ msgid "The name of the rule describes what the system expects to collect in orde
 msgstr "El nombre de la regla describe lo que el sistema espera recoger con el fin de satisfacer la condici&oacute;n de la regla de la correlaci&oacute;n. Este name Ej: name=\"100 <acronym title=\"Secure Shell\">SSH</acronym> Auth Failed events\""
 
 msgid "Reliability value of every event generated within the directive. It can be an absolute value 0-10 or incremental +2, +6. When using an incremental value, this will be added to the value that has taken the reliability field in the last event generated within this directive."
-msgstr "Valor de la fiabilidad de todos los eventos generados con la directiva. Puede ser un valor absoluto de 0 a 10 o incremental +2, +6. Usando un valor incremental, &eacute;ste se a&ntilde;adir&aacute; al valor ha tomado el campo fiabilidad en el &uacute;ltimo evento con esta directiva"
+msgstr "Valor de la fiabilidad de todos los eventos generados con la directiva. Puede ser un valor absoluto de 0 a 10 o incremental +2, +6. Usando un valor incremental, &eacute;ste se a&ntilde;adir&aacute; al valor que ha tomado el campo fiabilidad en el &uacute;ltimo evento con esta directiva"
+
+msgid "By assigning the value of reliability for each of the rules is important to remember the formula for calculating the risk in OSSIM. Using high-reliability values at the lowest levels of correlation will get a large number of alarms even when low-valued assets is involved."
+msgstr "Al asignar el valor de la fiabilidad para cada una de las reglas es importante recordar la f&oacute;rmula para calcular el riesgo en OSSIM. Usando valores altos de fiabilidad con los valores más bajos de correlaci&oacute;n se obtendr&acute;n un gran n&uacute;mero de alarmas incluso para valores bajos de assets"
+
+msgid "Eg:"
+msgstr "Ej:"
+
+msgid "Number of events matching the conditions given in the rule that have to be collected before the directive generates an event. The first level doesn&#39;t have an occurrences value as it will always be one."
+msgstr "N&uacute;mero de eventos que cumplen con las condiciones dadas en la regla que han sido recolectados antes de que la directiva genere un evento. Este primer nivel no tiene un valor de ocurrencia tal que siempre ser&aacute; uno."
+
+msgid "Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn&#39;t have a time_out value."
+msgstr "Tiempo de espera antes de que la regla expire y el proceso de la directiva definido se descarta. La primera regla no tiene valor para time_out."
+
+msgid "Source IP. There are various possible values for this field :"
+msgstr "IP origen. Hay varios valores posibles para este campo :"
+
+msgid "Dotted numerical Ipv4 (x.x.x.x)"
+msgstr "IPv4 num&eacute;rica con puntos (x.x.x.x)"
+
+msgid "Self explaining."
+msgstr "Auto explicativo."
+
+msgid "Network Name"
+msgstr "Nombre de la red"
+
+msgid "You can use any network name defined via web (<em>Assets -> Networks</em>)."
+msgstr "Puede utilizar cualquier nombre de red definido v&iacute;a web (<em>Activos -> Redes</em>)."
+
+msgid "1:SRC_IP means use the source ip that matched the condition defined by the previous rule as source ip address."
+msgstr "1:SRC_IP significa usar la ip origen que coincide en la condici&oacute;n definida como direcci&oacute;n ip origen en la regla anterior."
+
+msgid "2:DST_IP means use the destination ip that matched the condition defined two rules below as destination ip address."
+msgstr "2:DST_IP significa usar la ip destino que coincide en la condici&oacute;n definida como direcci&oacute;n ip destino dos reglas debajo."
+
+msgid "Negated elements"
+msgstr "Elementos negados"
+
+msgid "You can also use negated elements. I.e. : \"!192.168.2.203,INTERNAL_NETWORK\"."
+msgstr "Puede utilizar elementos negados. P.ej. \"!192.168.2.203,INTERNAL_NETWORK\"."
+
+msgid "If INTERNAL_NETWORK == 192.168.2.0/24 this would match the whole class C except 192.168.2.203."
+msgstr "Si INTERNAL_NETWORK == 192.168.2.0/24 esto coincide con toda la clase C excepto 192.168.2.203."
+
+msgid ""
+"This will match only when the Source IP belongs to your Assets, this means that is has been included"
+" in the OSSIM inventory as a host or that it belongs to a network or network group that is within your inventory."
+msgstr ""
+"Esto coincidirá sólo cuando la IP de origen pertenece a sus activos, esto significa que se ha incluido"
+" en el inventario de OSSIM como equipo o que pertenece a un grupo de red o la red que está dentro de su inventario."
+
+msgid "Destination IP. There are various possible values for this field :"
+msgstr "IP de destino. Hay varios valores posibles para este campo :"
+
+msgid "Just that, any OSSIM Sensor would match."
+msgstr "Justo eso, cualquier Sensor de OSSIM coincidir&aacute;"
+
+msgid "You can use any Sensor name defined via web (<em>Assets -> SIEM Components -> Sensors</em>)."
+msgstr "Puede utilizar cualquier nombre de sensor definido v&iacute;a web (<em>Activos -> Componentes SIEM -> Sensores</em>)."
+
+msgid "1:SENSOR means use the Sensor that matched the condition defined by the previous rule"
+msgstr "1:SENSOR significa usar el sensor que coincide en la condici&oacute;n definida en la regla anterior"
+
+msgid "You can also use negated elements, separated by comma. I.e. : \"!192.168.2.203,ANY\"."
+msgstr "Puede utilizar elementos negados separados por coma. P.ej. \"!192.168.2.203,ANY\"."
+
+msgid "This can be a port number or a sequence of comma separated port numbers. ANY port can also be used."
+msgstr "Puede ser un n&uacute;mero de puerto o una secuencia de puertos separados por comas. Se puede usar el puerto ANY."
 
 #~ msgid ""
 #~ "\n"

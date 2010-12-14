@@ -443,7 +443,7 @@ $kdocs = Repository::get_linked_by_directive($conn,$directive_id);
 </p> 
  
 <p> 
-Eg: reliability="3" reliability="+3"
+<?php echo _("Eg:");?> reliability="3" reliability="+3"
  
 </p> 
  
@@ -453,7 +453,7 @@ Eg: reliability="3" reliability="+3"
 <div class="level5"> 
  
 <p> 
-<?php echo _("Number of events matching the conditions given in the rule that have to be collected before the directive generates an event. The first level doesn’t have an occurrences value as it will always be one. ") ?>
+<?php echo _("Number of events matching the conditions given in the rule that have to be collected before the directive generates an event. The first level doesn&#39;t have an occurrences value as it will always be one.") ?>
  
 </p> 
  
@@ -463,7 +463,7 @@ Eg: reliability="3" reliability="+3"
 <div class="level5"> 
  
 <p> 
-<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn’t have a time_out value.") ?>
+<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn&#39;t have a time_out value.") ?>
  
 </p> 
  
@@ -476,23 +476,23 @@ Eg: reliability="3" reliability="+3"
 <?php echo _("Source IP. There are various possible values for this field :") ?>
 </p> 
 <ul> 
-<li class="level1"><div class="li"> <strong>ANY</strong>: <?php echo _("Just that, any ip address would match .") ?></div> 
+<li class="level1"><div class="li"> <strong>ANY</strong>: <?php echo _("Just that, any ip address would match") ?></div> 
 </li> 
-<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining .") ?></div> 
+<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining.") ?></div> 
 </li> 
 <li class="level1"><div class="li"> <strong><?php echo _("Comma separated Ipv4 addresses without netmask") ?></strong></div> 
 </li> 
-<li class="level1"><div class="li"> <?php echo _("Network Name: You can use any network name defined via web (<em>Assets -> Networks</em>) .") ?></div> 
+<li class="level1"><div class="li"> <strong><?php echo _("Network Name") ?></strong>: <?php echo _("You can use any network name defined via web (<em>Assets -> Networks</em>).") ?></div> 
 </li> 
-<li class="level1"><div class="li"> <strong>Relative value</strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples ") ?></div> 
+<li class="level1"><div class="li"> <strong><?php echo _("Relative value") ?></strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples") ?></div> 
 <ul> 
 <li class="level2"><div class="li"> <?php echo _("1:SRC_IP means use the source ip that matched the condition defined by the previous rule as source ip address.") ?></div> 
 </li> 
-<li class="level2"><div class="li"> <?php echo _("2:DST_IP means use the destination ip that matched the condition defined two rules below as destination ip address .") ?></div> 
+<li class="level2"><div class="li"> <?php echo _("2:DST_IP means use the destination ip that matched the condition defined two rules below as destination ip address.") ?></div> 
 </li> 
 </ul> 
 </li> 
-<li class="level1"><div class="li"> <strong>Negated elements</strong>: <?php echo _("You can also use negated elements. I.e. : \"!192.168.2.203,INTERNAL_NETWORK\".") ?> </div> 
+<li class="level1"><div class="li"> <strong> <?php echo _("Negated elements") ?></strong>: <?php echo _("You can also use negated elements. I.e. : \"!192.168.2.203,INTERNAL_NETWORK\".") ?> </div> 
 <ul> 
 <li class="level2"><div class="li"> <?php echo _("If INTERNAL_NETWORK == 192.168.2.0/24 this would match the whole class C except 192.168.2.203.") ?></div> 
 </li> 
@@ -508,22 +508,22 @@ Eg: reliability="3" reliability="+3"
 <div class="level5"> 
  
 <p> 
-Destination IP. <?php echo _("There are various possible values for this field:") ?>
+<?php echo _("Destination IP. There are various possible values for this field :") ?>
 </p> 
 <ul> 
-<li class="level1"><div class="li"> <strong>ANY</strong>: <?php echo _("Just that, any ip address would match.") ?></div> 
+<li class="level1"><div class="li"> <strong>ANY</strong>: <?php echo _("Just that, any ip address would match") ?></div> 
 </li> 
-<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining .") ?></div> 
+<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining.") ?></div> 
 </li> 
 <li class="level1"><div class="li"> <strong><?php echo _("Comma separated Ipv4 addresses without netmask") ?></strong></div> 
 </li> 
-<li class="level1"><div class="li"> Network Name: <?php echo _("You can use any network name defined via web (<em>Assets -> Networks</em>) .") ?></div> 
+<li class="level1"><div class="li"> <strong><?php echo _("Network Name") ?></strong>: <?php echo _("You can use any network name defined via web (<em>Assets -> Networks</em>).") ?></div> 
 </li> 
-<li class="level1"><div class="li"> <strong>Relative value</strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples") ?> </div> 
+<li class="level1"><div class="li"> <strong><?php echo _("Relative value") ?></strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples") ?> </div> 
 <ul> 
 <li class="level2"><div class="li"> <?php echo _("1:SRC_IP means use the source ip that matched the condition defined by the previous rule as source ip address.") ?></div> 
 </li> 
-<li class="level2"><div class="li"> <?php echo _("2:DST_IP means use the destination ip that matched the condition defined two rules below as destination ip address .") ?></div> 
+<li class="level2"><div class="li"> <?php echo _("2:DST_IP means use the destination ip that matched the condition defined two rules below as destination ip address.") ?></div> 
 </li> 
 </ul> 
 </li> 
@@ -542,18 +542,16 @@ Destination IP. <?php echo _("There are various possible values for this field:"
 <h5>sensor</h5> 
 <div class="level5"> 
  
-<p> 
- 
-* <strong>ANY</strong>: <?php echo _("Just that, any OSSIM Sensor would match .") ?>
-</p> 
 <ul> 
-<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining .") ?></div> 
+<li class="level1"><div class="li"><strong>ANY</strong>: <?php echo _("Just that, any OSSIM Sensor would match.") ?></div>
+</li>
+<li class="level1"><div class="li"> <strong><?php echo _("Dotted numerical Ipv4 (x.x.x.x)") ?></strong>: <?php echo _("Self explaining.") ?></div> 
 </li> 
 <li class="level1"><div class="li"> <strong><?php echo _("Comma separated Ipv4 addresses without netmask") ?></strong></div> 
 </li> 
-<li class="level1"><div class="li"> Sensor Name: <?php echo _("You can use any Sensor name defined via web (<em>Assets -> SIEM Components -> Sensors</em>) .") ?></div> 
+<li class="level1"><div class="li"> <strong><?php echo _("Sensor Name") ?></strong>: <?php echo _("You can use any Sensor name defined via web (<em>Assets -> SIEM Components -> Sensors</em>).") ?></div> 
 </li> 
-<li class="level1"><div class="li"> <strong>Relative value</strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples") ?> </div> 
+<li class="level1"><div class="li"> <strong><?php echo _("Relative value") ?></strong>: <?php echo _("This is used to reference ip addresses from previous levels. This should be easier to understand using examples") ?> </div> 
 <ul> 
 <li class="level2"><div class="li"> <?php echo _("1:SENSOR means use the Sensor that matched the condition defined by the previous rule") ?></div> 
 </li> 
@@ -570,7 +568,7 @@ Destination IP. <?php echo _("There are various possible values for this field:"
  
 <p> 
 <?php echo _("This can be a port number or a sequence of comma separated port numbers. ANY port can also be used.") ?>
-<?php echo _("Hint: 1:DST_PORT or 1:SRC_PORT would mean level 1 src and dest port respectively. They can be used too. (level 2 would be 2:DST_PORT for example). ") ?>
+<?php echo _("Hint: 1:DST_PORT or 1:SRC_PORT would mean level 1 src and dest port respectively. They can be used level 2 too. (would be 2:DST_PORT for example).") ?>
 </p> 
  
 <p> 
@@ -589,7 +587,7 @@ port="!22,25,110,!21"
  
 <p> 
 <?php echo _("This can be a port number or a sequence of comma separated port numbers. ANY port can also be used.") ?>
-<?php echo _("Hint: 1:DST_PORT or 1:SRC_PORT would mean level 1 src and dest port respectively. They can be used too. (level 2 would be 2:DST_PORT for example). ") ?>
+<?php echo _("Hint: 1:DST_PORT or 1:SRC_PORT would mean level 1 src and dest port respectively. They can be used level 2 too. (would be 2:DST_PORT for example).") ?>
 </p> 
  
 <p> 
@@ -631,7 +629,7 @@ port="!22,25,110,!21"
  
 <p> 
  
-<?php echo _("Additionally, you can put just a number with the protocol. ") ?>
+<?php echo _("Additionally, you can put just a number with the protocol.") ?>
 </p> 
  
 <p> 
