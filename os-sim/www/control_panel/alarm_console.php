@@ -643,14 +643,12 @@ if ($sup < $count) {
 }
 ?>
 					</td>
-					<td width="200" class="nobborder right">
+					<td width="150" class="nobborder right">
 						<table class="transparent">
 							<tr>
 								<td class="nobborder" nowrap><?=_("Ungrouped")?></td>
 								<td class="nobborder"> | </td>
 								<td class="nobborder"><a href="alarm_group_console.php"><b><?=_("Grouped")?></b></a></td>
-								<td class="nobborder"> | </td>
-								<td class="nobborder"><a href="alarm_unique_console.php?hide_closed=on"><b><?=_("Unique")?></b></a></td>
 							</tr>
 						</table>
 					</td>
