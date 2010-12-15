@@ -415,7 +415,7 @@ $schedulejobs = _("Scheduled Jobs");
 EOT;
 
    if($sortdir == "ASC") { $sortdir = "DESC"; } else { $sortdir = "ASC"; }
-   $arr = array( _("Name"), _("Schedule Type"), _("Time") , _("Next Check"), _("Enabled") );
+   $arr = array( _("Name"), _("Schedule Type"), _("Time") , _("Next Scan"), _("Status") );
 
 
 // modified by hsh to return all scan schedules
@@ -480,21 +480,21 @@ else {
 
        switch ($schedstatus) {
        case "1":
-          $itext=_("Disabled");
+          $itext=_("Disable Scheduled Job");
           $isrc="images/stop2.png";
           $ilink = "manage_jobs.php?disp=setstatus&schedid=$schedid&enabled=0";
           break;
        default:
-          $itext=_("Enabled");
+          $itext=_("Enable Scheduled Job");
           $isrc="images/play.png";
           $ilink = "manage_jobs.php?disp=setstatus&schedid=$schedid&enabled=1";          
           break;
        }
 
        if ( $schedstatus ) { 
-          $txt_enabled = "<td><font color=\"green\">"._("ENABLED")."</font></td>"; 
+          $txt_enabled = "<td><a href=\"$ilink\"><font color=\"green\">"._("Enabled")."</font></a></td>"; 
        } else { 
-          $txt_enabled = "<td><font color=\"red\">"._("DISABLED")."</font></td>"; 
+          $txt_enabled = "<td><a href=\"$ilink\"><font color=\"red\">"._("Disabled")."</font></a></td>"; 
        }
        //$nextscan = $user_time = switchTime_TimeZone( $nextscan, "user", "TZdate" );
        $nextscan = date("Y-m-d H:i:s",strtotime($nextscan));
@@ -512,7 +512,7 @@ EOT;
     <td>$time</td>
     <td>$nextscan</td>
     $txt_enabled
-    <td style="padding-top:2px;"><a href="$ilink"><img alt=$itext src=$isrc border=0 title=$itext></a>&nbsp;
+    <td style="padding-top:2px;"><a href="$ilink"><img alt="$itext" src="$isrc" border=0 title="$itext"></a>&nbsp;
     <a href="sched.php?disp=edit_sched&sched_id=$schedid&amp;hmenu=Vulnerabilities&amp;smenu=Jobs"><img src="images/pencil.png"></a>&nbsp;
     <a href="manage_jobs.php?disp=delete&amp;schedid=$schedid" onclick="return confirmDelete();"><img src="images/delete.gif"></a></td>
 </tr>
