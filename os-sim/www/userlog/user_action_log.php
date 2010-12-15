@@ -95,7 +95,7 @@ else if($action==_("Delete Selected") && $_SESSION['_user']=="admin"){
 if (empty($order)) $order = "date DESC";
 if (empty($inf)) $inf = 0;
 if (empty($sup)) $sup = $ROWS;
-if (Session::am_i_admin()) {
+if ($_SESSION['_user']=="admin") {
 ?>
 
     <!-- filter -->
@@ -171,17 +171,15 @@ if ($code_list = Log_config::get_list($conn, "ORDER BY descr")) {
     </table><br></form>
 	
 	<? } else $user = $_SESSION['_user']; ?>
-    <?if ($_SESSION['_user']=="admin") {?>
+    <? if ($_SESSION['_user']=="admin") { ?>
     <form  method="get" action="user_action_log.php">
         <center>
             <input type="hidden" name="user" value="<?=$user?>">
             <input type="hidden" name="code" value="<?=$code?>">
-            <? if ($_SESSION['_user']=="admin") { ?>
             <input class="button" name="action" type="submit" value="<?php echo _("Delete All");?>">&nbsp;&nbsp;&nbsp;
             <input class="button" name="action" type="submit" value="<?php echo _("Delete Selected");?>">
-            <? } ?>
         </center><br>
-    <?}?>
+    <? } ?>
         <table width="100%">
       <tr>
         <td colspan="6">
