@@ -233,9 +233,9 @@ if ($sup < $count) {
       </tr>
     
       <tr>
-      <?if ($_SESSION['_user']=="admin") {?>
+      <? if ($_SESSION['_user']=="admin") { ?>
         <th>&nbsp;</th>
-      <?}?>
+      <? } ?>
         <th><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
 echo ossim_db::get_order("date", $order); ?><?=(($user!="")?"&user=$user":"")?><?=(($code!="")?"&code=$code":"")?>">
@@ -326,9 +326,9 @@ if ($log_list = Log_action::get_list($conn, $filter, "ORDER by $order", $inf, $s
 } /* if alarm_list */
 ?>
         </table>
-<?if ($_SESSION['_user']=="admin") {?>
+<? if ($_SESSION['_user']=="admin") { ?>
     </form>
-<?}?>
+<? } ?>
     
 
 <?php
