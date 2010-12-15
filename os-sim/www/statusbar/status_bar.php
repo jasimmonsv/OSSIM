@@ -1,3 +1,7 @@
+<?
+require_once("classes/Session.inc");
+Session::logcheck("MainMenu", "Index");
+?>
 <script>
 function changedisplay(id) { document.getElementById(id).style.display = (document.getElementById(id).style.display=='none') ? '' : 'none'; }
 function changevis(id)  { document.getElementById(id).style.visibility = (document.getElementById(id).style.visibility=='hidden') ? 'visible' : 'hidden'; }

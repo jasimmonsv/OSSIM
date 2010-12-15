@@ -1063,6 +1063,20 @@ div.bballoon:hover span.bottom {
 	width: 90%;
 }
 
+.ossim_info {
+    font-family:Arial, Helvetica, sans-serif; 
+    font-size:13px;
+    border: 1px solid;
+    margin: 10px auto;
+    padding:15px 10px 15px 50px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+	color: #00529B;
+    background-color: #BDE5F8;
+    background-image: url('../pixmaps/ossim_info.png');
+	width: 90%;
+}
+
 .cont_val{
 	position: relative;
 	width: 1px;
