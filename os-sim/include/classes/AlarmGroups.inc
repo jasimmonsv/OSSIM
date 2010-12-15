@@ -273,7 +273,7 @@ class AlarmGroups {
     function get_alarm()            { return $this->alarm;          }
     */
     /* deprecated */
-	function get_grouped_alarms($conn, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $limit="LIMIT 0,10") {
+	function get_grouped_alarms($conn, $group_type, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $limit="LIMIT 0,10") {
 		// CRITERIAS
 		// Hide Closed
 		$closed_where = ($hide_closed) ? " AND status='open'" : "";
@@ -317,6 +317,41 @@ class AlarmGroups {
 		} else $sensor_join = "";
 		
 		// QUERY
+		// Group by name (unique)
+		if ($group_type == "name") {
+			$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
+			sha1( alarm_event.name ) AS group_id,
+			alarm_event.name AS name
+			FROM (
+			(SELECT p.name FROM alarm a, plugin_sid p$sensor_join
+			WHERE a.plugin_id = p.plugin_id
+			AND a.plugin_sid = p.sid
+			$closed_where
+			$date_where
+			$ip_where
+			$sensor_where)
+			) as alarm_event $groups_where
+			GROUP BY name
+			ORDER BY howmany DESC $limit";
+		// Group by name, date
+		} elseif ($group_type == "namedate") {
+		$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
+			CONCAT( sha1( alarm_event.name ) , DATE( alarm_event.timestamp ) ) AS group_id,
+			alarm_event.name AS name,
+			DATE( alarm_event.timestamp ) AS day
+			FROM (
+			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join
+			WHERE a.plugin_id = p.plugin_id
+			AND a.plugin_sid = p.sid
+			$closed_where
+			$date_where
+			$ip_where
+			$sensor_where)
+			) as alarm_event $groups_join$groups_where
+			GROUP BY name, day
+			ORDER BY alarm_event.timestamp DESC $limit";
+		// Group by name, ips, date (all)
+		} else {
 		$query = "SELECT SQL_CALC_FOUND_ROWS count( * ) AS howmany,
 			CONCAT( sha1( alarm_event.name ) , CONCAT( 'S', alarm_event.src_ip, 'D', alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) ) AS group_id,
 			alarm_event.name AS name,
@@ -334,7 +369,7 @@ class AlarmGroups {
 			) as alarm_event $groups_join$groups_where
 			GROUP BY name, src_ip, dst_ip, day
 			ORDER BY alarm_event.timestamp DESC $limit";
-		
+		}
 		//echo "<br><br><br><br>$query<br>";
 		
 		$ret = array();

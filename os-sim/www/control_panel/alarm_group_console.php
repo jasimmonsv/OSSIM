@@ -97,6 +97,7 @@ $refresh_time = GET('refresh_time');
 $autorefresh = GET('autorefresh');
 $alarm = GET('alarm');
 $param_unique_id = GET('unique_id');
+$group_type = GET('group_type') ? GET('group_type') : "all";
 ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($disp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("disp"));
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
@@ -205,7 +206,7 @@ if (GET('action') == "delete_alarm") {
     else die(ossim_error("Can't do this action for security reasons."));
 }
 $db_groups = AlarmGroups::get_dbgroups($conn);
-list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, "LIMIT $inf,$sup");
+list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, "LIMIT $inf,$sup");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -298,7 +299,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $show_option
 		var descr;
 		descr = document.getElementsByName(objname); 
 		descr = descr[0];	
-		location.href= "alarm_group_console.php?group=" + objname.replace("input","") + "&descr=" + descr.value;
+		location.href= "alarm_group_console.php?group_type=<?php echo $group_type ?>&group=" + objname.replace("input","") + "&descr=" + descr.value;
 	}
 
 	function send_descr(obj ,e) 
@@ -581,7 +582,7 @@ $tree_count = 0;
 </tr>
 ';
     print '<tr ><th colspan="4" style="padding:5px"><input type="submit" class="button" value="' . _("Go") . '"></th></tr></table>';
-    print '</form><br>';
+    print '<br>';
 ?>
 <table cellpadding=0 cellspacing=1 width='100%'>
 	<tr>
@@ -628,8 +629,13 @@ $tree_count = 0;
 								<td class="nobborder" nowrap><a href="alarm_console.php?hide_closed=1"><b><?=_("Ungrouped")?></b></a></td>
 								<td class="nobborder"> | </td>
 								<td class="nobborder"><?=_("Grouped")?></td>
-								<td class="nobborder"> | </td>
-								<td class="nobborder"><a href="alarm_unique_console.php?hide_closed=on"><b><?=_("Unique")?></b></a></td>
+								<td class="nobborder">
+									<select name="group_type" onchange="document.filters.submit()">
+										<option value="all" <?php if ($group_type == "all") echo "selected" ?>>Name, IPs and day</option>
+										<option value="namedate" <?php if ($group_type == "namedate") echo "selected" ?>>Name and day</option>
+										<option value="name" <?php if ($group_type == "name") echo "selected" ?>>Only alarm name</option>
+									</select>
+								</td>
 							</tr>
 						</table>
 					</td>
@@ -637,6 +643,7 @@ $tree_count = 0;
 			</table>
 		</td>
 	</tr>
+	</form>
 	<tr>
 		<td width='3%' class='nobborder' style='text-align:center'><input type='checkbox' name='allcheck' onclick='checkall()'></td>
 		<td class='nobborder' style='text-align: center; padding:0px' width='3%'><a href='javascript: opencloseAll();'><img src='../pixmaps/plus.png' id='expandcollapse' border=0 alt='<?=_("Expand/Collapse ALL")?>' title='<?=_("Expand/Collapse ALL")?>'></a></td>
@@ -669,14 +676,14 @@ $tree_count = 0;
         } else {
             $ocurrence_text = strtolower(gettext("Alarm"));
         }
-		$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='alarm_group_console.php?release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>" : "<a href='alarm_group_console.php?take=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Take")."</a>";
+		$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>" : "<a href='alarm_group_console.php?group_type=$group_type&take=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Take")."</a>";
 		
 		if ($db_groups[$group_id]['owner'] != "")
 			if ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) {
 				$owner_take = 1;
 				$background = '#B5C7DF;';
 				if ($status == 'open') {
-					$owner = "<a href='alarm_group_console.php?release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>";
+					$owner = "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>";
 				}
 				$group_box = "<input type='checkbox' id='check_" . $group_id . "' name='group' value='" . $group_id . "' >";
 				$incident_link = '<a class=greybox2 title=\''._("New ticket for Group ID") . $group_id . '\' href=\'../incidents/newincident.php?' . "ref=Alarm&" . "title=" . urlencode($alarm_name) . "&" . "priority=$s_risk&" . "src_ips=$src_ip&" . "event_start=$since&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . '\'>' . '<img border=0 src=\'../pixmaps/script--pencil.png\' alt=\''._("ticket").'\' border=\'0\'/>' . '</a>';
@@ -688,12 +695,12 @@ $tree_count = 0;
 				$group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
 			}
 		
-		$delete_link = ($status == "open" && $owner_take) ? "<a title='" . gettext("Close") . "' href='alarm_group_console.php?close_group=$group_id&unique_id=$unique_id'><img border=0 src='../pixmaps/cross-circle-frame.png'/>" . "</a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'/>";
+		$delete_link = ($status == "open" && $owner_take) ? "<a title='" . gettext("Close") . "' href='alarm_group_console.php?group_type=$group_type&close_group=$group_id&unique_id=$unique_id'><img border=0 src='../pixmaps/cross-circle-frame.png'/>" . "</a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'/>";
         if ($status == 'open') {
-            if ($owner_take) $close_link = "<a href='alarm_group_console.php?close_group=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'><img src='../pixmaps/lock-unlock.png' alt='"._("Open, click to close group")."' title='"._("Open, click to close group")."' border=0></a>";
+            if ($owner_take) $close_link = "<a href='alarm_group_console.php?group_type=$group_type&close_group=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'><img src='../pixmaps/lock-unlock.png' alt='"._("Open, click to close group")."' title='"._("Open, click to close group")."' border=0></a>";
             else $close_link = "<img src='../pixmaps/lock-unlock.png' alt='"._("Open, take this group then click to close")."' title='"._("Open, take this group then click to close")."' border=0>";
         } else {
-            if ($owner_take) $close_link = "<a href='alarm_group_console.php?open_group=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'><img src='../pixmaps/lock.png' alt='"._("Closed, click to open group")."' title='"._("Closed, click to open group")."' border=0></a>";
+            if ($owner_take) $close_link = "<a href='alarm_group_console.php?group_type=$group_type&open_group=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'><img src='../pixmaps/lock.png' alt='"._("Closed, click to open group")."' title='"._("Closed, click to open group")."' border=0></a>";
             else $close_link = "<img src='../pixmaps/lock.png' alt='"._("Closed, take this group then click to open")."' title='"._("Closed, take this group then click to open")."' border=0>";
             $group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
         }
