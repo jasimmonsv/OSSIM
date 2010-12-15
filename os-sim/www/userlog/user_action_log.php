@@ -176,8 +176,10 @@ if ($code_list = Log_config::get_list($conn, "ORDER BY descr")) {
         <center>
             <input type="hidden" name="user" value="<?=$user?>">
             <input type="hidden" name="code" value="<?=$code?>">
+            <? if ($_SESSION['_user']=="admin") { ?>
             <input class="button" name="action" type="submit" value="<?php echo _("Delete All");?>">&nbsp;&nbsp;&nbsp;
             <input class="button" name="action" type="submit" value="<?php echo _("Delete Selected");?>">
+            <? } ?>
         </center><br>
     <?}?>
         <table width="100%">
@@ -250,7 +252,7 @@ echo gettext("User"); ?></a></th>
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
 echo ossim_db::get_order("ipfrom", $order); ?><?=(($user!="")?"&user=$user":"")?><?=(($code!="")?"&code=$code":"")?>">
         <?php
-echo gettext("ip"); ?></a></th>
+echo gettext("Source IP"); ?></a></th>
         <th><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
 echo ossim_db::get_order("code", $order); ?><?=(($user!="")?"&user=$user":"")?><?=(($code!="")?"&code=$code":"")?>">
@@ -269,10 +271,10 @@ if ($log_list = Log_action::get_list($conn, $filter, "ORDER by $order", $inf, $s
     foreach($log_list as $log) {
 ?>
         <tr>
-        <?if ($_SESSION['_user']=="admin") {
+        <? if ($_SESSION['_user']=="admin") {
             $tmp=str_replace(" ","#",$log->get_date());?>
             <td><input type="checkbox" name="<?=$tmp."|".$log->get_info()?>" value="yes"></td>
-        <?}?>
+        <? } ?>
         <td><?php
         echo $log->get_date(); ?>         
         </td>
@@ -290,7 +292,7 @@ if ($log_list = Log_action::get_list($conn, $filter, "ORDER by $order", $inf, $s
         </td>
         
         <td><?php
-        echo $log->get_info(); ?>         
+        echo (preg_match('/^[A-Fa-f0-9]{32}$/',$log->get_info())) ? preg_replace('/./','*',$log->get_info()) : $log->get_info(); ?>         
         </td>
         
       </td>
@@ -299,7 +301,7 @@ if ($log_list = Log_action::get_list($conn, $filter, "ORDER by $order", $inf, $s
     } /* foreach alarm_list */
 ?>
       <tr>
-        <td colspan="<?=_(($_SESSION['_user']=="admin")? "6" : "5")?>">
+        <td colspan="<?=_(($_SESSION['_user']=="admin") ? "6" : "5")?>">
 <?php
     if ($inf >= $ROWS) {
         echo "<a href=\"$inf_link\">&lt;-";
