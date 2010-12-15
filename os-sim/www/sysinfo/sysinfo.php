@@ -49,6 +49,7 @@
  * @var string
  */
 require_once 'classes/Session.inc';
+if (!Session::am_i_admin()) exit;
 
 define('APP_ROOT', dirname(__FILE__));
 
