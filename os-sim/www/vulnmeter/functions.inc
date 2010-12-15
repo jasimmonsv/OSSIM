@@ -717,8 +717,11 @@ function stats_severity_services($type, $filter="") {
             $q = implode("','",explode(",",$filter));
             $filter = " AND hostIP in ('$q')";
         }
+        else if($filter!="") {
+            $filter = " and hostIP like '$filter'";
+        }
         else {
-            $filter = " and hostIP like '%$filter%'";
+            $filter = "";
         }
     }
     
@@ -844,6 +847,9 @@ div.legend td { text-align:left; font-size:11px }
 </tr></table>
 <script>
 	$(function () {
+    <?php
+    if(count($severity)>0) {
+    ?>
 		$.plot($("#severity_pie"), [
 		<? $i=0;foreach ($severity as $sev => $val) { ?>
 			<?=($i++==0) ? "" : ","?>{ label: "<?=$sev.' ['.$val.']'?>",  data: <?=$val?>}
@@ -875,14 +881,22 @@ div.legend td { text-align:left; font-size:11px }
 				backgroundOpacity: 0
 			}
 		});
+        <?php
+        }
+        ?>
 		//$("#nets_pie").bind("plothover", function (event, pos, item) {
 		//	alert(item);
 		//});
+    <?php
+    if(count($services)>0) {
+    ?>
 		$.plot($("#services_pie"), [
 		<? 
 		$i=0;foreach ($services as $service => $val) {
+            $ssearch = array();
+            $ssearch = explode(" ", $service);
 		?>
-			<?=($i++==0) ? "" : ","?>{ label: "<?=$service." [".$val."]"?>",  data: <?=$val?>}
+			<?=($i++==0) ? "" : ","?>{ label: "<a target='main' href='?value=<?=$ssearch[0]?>&type=service&hmenu=Vulnerabilities&smenu=Vulnerabilities'><?=$service." [".$val."]"?>",  data: <?=$val?>}
 		<? } ?>
 		], 
 		{
@@ -913,6 +927,8 @@ div.legend td { text-align:left; font-size:11px }
 				backgroundOpacity: 0
 			}
 		});
+    <?php
+    }?>
 	});
 </script>
 
@@ -931,8 +947,11 @@ function stats_networks_hosts($type, $filter="") {
           $q = implode("','",explode(",",$filter));
           $filter = " AND hostIP in ('$q')";
         }
+        else if($filter!=""){
+            $filter = " and hostIP like '$filter'";
+        }
         else {
-            $filter = " and hostIP like '%$filter%'";
+            $filter = "";
         }
     }
     

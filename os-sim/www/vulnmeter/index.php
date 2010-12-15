@@ -32,14 +32,26 @@
 
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
-require_once 'classes/Security.inc';
 
+require_once ('classes/Security.inc');
+require_once ('config.php');
+require_once ('functions.inc');
+require_once ('ossim_db.inc');
+require_once ('ossim_conf.inc');
+require_once ('classes/Host_vulnerability.inc');
+require_once ('classes/Net_vulnerability.inc');
+require_once ('classes/Net.inc');
+require_once ('classes/Host.inc');
+require_once ('classes/Util.inc');
+require_once ('classes/Sensor.inc');
+require_once ('classes/CIDR.inc');
 
 $value = GET('value');
 $type = GET('type');
 $delete = GET('delete');
 $scantime = GET('scantime');
-$delete_selected = (GET('seldelete')==_("Delete selected")) ? true : false;
+
+$delete_selected = (intval(GET('deletesel'))=="1") ? true : false;
 
 ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("delete"));
 ossim_valid($scantime, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("scantime"));
@@ -53,6 +65,24 @@ $net = "";
 $hosts = array();
 
 if ($type=="net" && preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$value)) $net = $value;
+
+//for autocomplete input
+
+$autocnetworks = $autochosts = $autocsensors = "";
+list($_sensors, $_hosts) = Host::get_ips_and_hostname($dbconn,true);
+$_nets = Net::get_all($dbconn,true);
+$sensor_list = Sensor::get_list($dbconn);
+$allowedSensors = Session::allowedSensors();
+
+foreach ($_hosts as $_ip => $_hostname) {
+    if ($_hostname!=$_ip) $autochosts .= '{ txt:"'.$_hostname.' [Host:'.$_ip.']", id: "'.$_ip.'" },';
+        else $autochosts .= '{ txt:"'.$_ip.'", id: "'.$_ip.'" },';
+}
+foreach ($_nets as $_net) $autocnetworks .= '{ txt:"'.$_net->get_name().' [Net:'.$_net->get_ips().']", id: "'.$_net->get_ips().'" },';
+foreach($sensor_list as $sensor) if (in_array($sensor->get_ip(), explode(",",$allowedSensors)) || $allowedSensors=="") {
+    $autocsensors .= '{ txt:"'.$sensor->get_name().' [Sensor:'.$sensor->get_ip().']", id: "'.$sensor->get_ip().'" },';
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -63,8 +93,10 @@ if ($type=="net" && preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$value)) $net = $valu
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
+  <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
   <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
   <script language="JavaScript" src="../js/jquery.flot.pie.js"></script>
   <script type="text/javascript" src="../js/vulnmeter.js"></script>
@@ -73,6 +105,22 @@ if ($type=="net" && preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$value)) $net = $valu
   </style>
   <script>
     $(document).ready(function() {
+        // Autocomplete assets
+        var assets = [
+            <?php echo preg_replace("/,$/","",$autochosts . $autocnetworks . $autocsensors); ?>
+        ];
+        $(".assets").autocomplete(assets, {
+            minChars: 0,
+            width: 300,
+            max: 100,
+            matchContains: true,
+            autoFill: true,
+            formatItem: function(row, i, max) {
+                return row.txt;
+            }
+        }).result(function(event, item) {
+            $('#assets').val(item.id);
+        });
         
         $('.downclick').bind("click",function(){
             var cls = $(this).attr('value');
@@ -96,33 +144,25 @@ if ($type=="net" && preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$value)) $net = $valu
         //  }
         //});
     });
-    function deleteSelected() {
-    	if ($('#confirm_delete').val()=='1') {
-	    	if (confirm("<?=_("Do you want to delete current vulnerabilities for filtered hosts?")?>"))
-	    		return true;
-	    	else
-	    		return false;
-	    }
-	    return true;
+    function deleteSelected(f) {
+        if (confirm("<?=_("Do you want to delete current vulnerabilities for filtered hosts?")?>")) {
+            location.href="index.php?deletesel=1";
+        }
+        else {
+            return false;
+        }
     }
   </script>
 <head>
 <body>
 <?php
+$conf = $GLOBALS["CONF"];
 if (GET('withoutmenu')!=1) include ("../hmenu.php");
-require_once ('classes/Security.inc');
-require_once ('config.php');
-require_once ('ossim_conf.inc');
-require_once ('functions.inc');
-require_once ('ossim_db.inc');
-require_once ('classes/Host_vulnerability.inc');
-require_once ('classes/Net_vulnerability.inc');
-require_once ('classes/Net.inc');
-require_once ('classes/Host.inc');
-require_once ('classes/Util.inc');
+
 $db = new ossim_db();
 $conn = $db->connect();
-$config = $GLOBALS["CONF"];
+
+
 //require_once('auth.php');
 //require_once('header2.php');
 //require_once('permissions.inc.php');
@@ -173,6 +213,16 @@ if(isset($offset)) {
    $offset=0;
 }
 
+if ($delete_selected) {
+    $query = "DELETE FROM vuln_nessus_latest_reports WHERE report_id in (".$_SESSION["_dreport_ids"].")";
+    $result=$dbconn->execute($query);
+    
+    $query = "DELETE FROM vuln_nessus_latest_results WHERE report_id in (".$_SESSION["_dreport_ids"].")";
+    $result=$dbconn->execute($query);
+
+    unset($_SESSION["_dreport_ids"]);
+}
+
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
@@ -204,7 +254,6 @@ if($delete!=""){
     $query = "DELETE FROM vuln_nessus_latest_results WHERE report_id=$dreport_id and username='$dusername' and sid='$dsid'";
     $result=$dbconn->execute($query);
 }
-
 
 function delete_results( $scantime, $scantype, $reporttype, $key, $sortby, $allres, $fp, $nfp, $op, $output, $wh, $bg ){
    global $enableDelProtect, $uroles, $username, $dbconn;
@@ -370,7 +419,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
     else if($type=="hn" && $value!="") {
       $selRadio[4] = "CHECKED";
       if (preg_match("/\//",$value)) {
-          $tokens = explode("/", $value);
+          /*$tokens = explode("/", $value);
           $bytes = explode(".",$tokens[0]);
 
           if($tokens[1]=="24")
@@ -382,16 +431,19 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
           else if ((int)$tokens[1]>24)
                 $q = $bytes[0].".".$bytes[1].".".$bytes[2].".".$bytes[3];
           //
-          $queryw = " AND t1.name LIKE '$q%' $query_onlyuser order by $sortby $sortdir";
+          */
+          $ip_range = array();
+          $ip_range = CIDR::expand_CIDR($value, "SHORT");
+          $queryw = " AND (inet_aton(t1.name) >= '".$ip_range[0]."' AND inet_aton(t1.name) <='".$ip_range[1]."') $query_onlyuser order by $sortby $sortdir";
       }
       elseif (preg_match("/\,/",$value)) {
           $q = implode("','",explode(",",$value));
           $queryw = " AND t1.name in ('$q') $query_onlyuser order by $sortby $sortdir";
-          $q = "Othets";
+          $q = "Others";
       }
       else {
           $q = $value;
-          $queryw = " AND t1.name LIKE '$q%' $query_onlyuser order by $sortby $sortdir";
+          $queryw = " AND t1.name LIKE '$q' $query_onlyuser order by $sortby $sortdir";
       }
 
       $queryl = " limit $offset,$pageSize";
@@ -399,7 +451,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
         $stext =  "<b>"._("Search for Host")."</b> = '$q'";
       }
       else {
-        $stext =  "<b>"._("Search for Subnet/CIDR")."</b> = '$q*'";
+        $stext =  "<b>"._("Search for Subnet/CIDR")."</b> = '$value'";
       }
       $url_filter="&type=$type&value=$value";
     }
@@ -462,10 +514,9 @@ echo "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"90
 echo "<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"900\">";
 echo "<tr><td style=\"padding-top:5px;\" class=\"nobborder\">";
       echo <<<EOT
-<!--<form name="hostSearch" onSubmit="return OnSubmitForm();">-->
 <center>
-<form name="hostSearch" id="hostSearch" action="index.php" method="GET" onsubmit="return deleteSelected()">
-<input type="text" length="25" name="value" value="$value">
+<form name="hostSearch" id="hostSearch" action="index.php" method="GET">
+<input type="text" length="25" name="value" class="assets" id="assets" value="$value">
 EOT;
 echo "
 <!--<input type=\"radio\" name=\"type\" value=\"scantime\" $selRadio[0]>"._("Date")."/"._("Time")."-->
@@ -482,8 +533,8 @@ echo "
 <input type="hidden" name="op" value="search">&nbsp;&nbsp;&nbsp;
 EOT;*/
 echo '<input type="hidden" name="withoutmenu" value="'.GET('withoutmenu').'">';
-echo "<input type=\"submit\" name=\"submit\" value=\""._("Find")."\" class=\"button\">";
-if(Session::am_i_admin()) echo "&nbsp;<input type='hidden' name='confirm_delete' id='confirm_delete' value='0'><input type=\"submit\" name=\"seldelete\" value=\""._("Delete selected")."\" onclick=\"$('#confirm_delete').val('1')\" class=\"button\">";
+echo "<input type=\"submit\" name=\"submit\" value=\""._("Find")."\" class=\"button\" style=\"margin-left:15px;\">";
+if(Session::am_i_admin() && (GET("submit")!="" || GET("type")!="") && GET("value")!="") echo "<input style=\"margin-left:5px;\" type=\"button\" value=\""._("Delete selection")."\" onclick=\"deleteSelected(this.form)\" class=\"button\">";
      echo <<<EOT
 </form>
 </center>
@@ -520,17 +571,31 @@ EOT;
    // get the hosts to display
    $result=$dbconn->GetArray($querys.$queryw.$queryl);
 
-   if ($delete_selected) { // delete selected current vulns from latest tables defore display
-   exit();
-   		foreach ($result as $rpt) {
-   			$dreport_id = $rpt["report_id"];
-			$query = "DELETE FROM vuln_nessus_latest_reports WHERE report_id=$dreport_id";
-			$result=$dbconn->execute($query);
-			
-			$query = "DELETE FROM vuln_nessus_latest_results WHERE report_id=$dreport_id";
-			$result=$dbconn->execute($query);
-   		}
+   $delete_ids = array();
+   
+    foreach ($result as $rpt) {
+        $delete_ids[] = $dreport_id = $rpt["report_id"];
+    }
+    
+    $_SESSION["_dreport_ids"]=implode(",", $delete_ids);
+   
+/*   if ($delete_selected!="") { // delete selected current vulns from latest tables defore display
+        foreach ($result as $rpt) {
+            $dreport_id = $rpt["report_id"];
+
+            $query = "DELETE FROM vuln_nessus_latest_reports WHERE report_id=$dreport_id";
+            $result=$dbconn->execute($query);
+            
+            $query = "DELETE FROM vuln_nessus_latest_results WHERE report_id=$dreport_id";
+            $result=$dbconn->execute($query);
+        }
+    ?>
+    <script type="text/javascript">
+    //    document.location.href='index.php';
+    </script>
+    <?php
    }
+*/
 
    //echo "[$querys$queryw$queryl]"; 
    if($result === false) {
