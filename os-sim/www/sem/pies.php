@@ -71,7 +71,7 @@ if (!$only_json) {
 <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 <link rel="stylesheet" href="../forensics/styles/ossim_style.css">
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-<script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
+<!--[if IE]><script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script><![endif]-->
 <script type="text/javascript" src="../js/jquery.flot.pie.js"></script>
 <script type="text/javascript" src="../js/jquery.progressbar.min.js"></script>
 <style type="text/css">

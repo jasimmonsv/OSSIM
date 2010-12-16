@@ -788,7 +788,8 @@ if ($payload) {
             */
             else if (($ICMPitype == "3") && ($ICMPicode == "4")) $offset+= 8;
             if ($ICMPitype == "5") {
-                $gateway = hexdec($work[16 + $offset] . $work[17 + $offset]) . "." . hexdec($work[18 + $offset] . $work[19 + $offset]) . "." . hexdec($work[20 + $offset] . $work[20 + $offset]) . "." . hexdec($work[22 + $offset] . $work[23 + $offset]);
+                $gateway = hexdec($work[0 + $offset] . $work[1 + $offset]) . "." . hexdec($work[2 + $offset] . $work[3 + $offset]) . "." . hexdec($work[4 + $offset] . $work[5 + $offset]) . "." . hexdec($work[6 + $offset] . $work[7 + $offset]);
+                $offset+=8;
             }
             $icmp_src = hexdec($work[24 + $offset] . $work[25 + $offset]) . "." . hexdec($work[26 + $offset] . $work[27 + $offset]) . "." . hexdec($work[28 + $offset] . $work[29 + $offset]) . "." . hexdec($work[30 + $offset] . $work[31 + $offset]);
             $icmp_dst = hexdec($work[32 + $offset] . $work[33 + $offset]) . "." . hexdec($work[34 + $offset] . $work[35 + $offset]) . "." . hexdec($work[36 + $offset] . $work[37 + $offset]) . "." . hexdec($work[38 + $offset] . $work[39 + $offset]);

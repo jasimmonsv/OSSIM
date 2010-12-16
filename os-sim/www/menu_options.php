@@ -285,6 +285,15 @@ if (Session::menu_perms("MenuEvents", "EventsForensics")) { $events = 1; $hmenu[
 	  "target" => "main",
 	  "url" => "../forensics/manage_references.php"
 	);
+	
+
+if (Session::am_i_admin() ) { 
+	$hmenu["Forensics"][] = array(
+		"name" => gettext("Signed files") ,
+		"id" => "Signed Files",
+		"url" => "signed_files/index.php"
+	);
+}
 
 if (is_dir("/var/ossim/")) {
     // Only show SEM menu if SEM is available
