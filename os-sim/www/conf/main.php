@@ -1196,6 +1196,65 @@ $CONFIG = array(
             )
         )
     ) ,
+    "Passpolicy" => array(
+        "title" => gettext("Password policy") ,
+        "desc" => gettext("Setup login password policy options") ,
+        "advanced" => 1,
+        "conf" => array(
+			"pass_length_min" => array(
+                "type" => "text",
+                "help" => _("Number (default = 7)") ,
+                "desc" => gettext("Minimum password lenght") ,
+                "advanced" => 1
+            ),
+            "pass_length_max" => array(
+                "type" => "text",
+                "help" => _("Number (default = 32)") ,
+                "desc" => gettext("Maximum password lenght") ,
+                "advanced" => 1
+            ),
+            "pass_history" => array(
+                "type" => "text",
+                "help" => _("Number (default = 0) -> 0 disable") ,
+                "desc" => gettext("Password history") ,
+                "advanced" => 1
+            ),
+            "pass_complex" => array(
+                "type" => array(
+            		"l"=>"Lowercase", "u"=>"Uppercase", "n"=>"Numbers", "s"=>"Special characters"
+            		),
+            	"checkboxlist" => 1,
+            	"id" => "complexity",
+                "help" => _("3 of these group of characters -> lowercase, uppercase, numbers, special characters") ,
+                "desc" => gettext("Complexity") ,
+                "advanced" => 1
+            ),
+        	"pass_expire_min" => array(
+                "type" => "text",
+                "help" => _("The minimum password lifetime prevents users from circumventing the requirement to change passwords by doing five password changes in a minute to return to the currently expiring password. (0 to disable) (default 0)") ,
+                "desc" => gettext("Minimum password lifetime") ,
+                "advanced" => 1
+            ),
+        	"pass_expire" => array(
+                "type" => "text",
+                "help" => _("After these days the login ask for new password. (0 to disable) (default 0)") ,
+                "desc" => gettext("Maximum password lifetime") ,
+                "advanced" => 1
+            ),
+			"failed_retries" => array(
+                "type" => "text",
+                "help" => _("Number of failed attempts prior to lockout") ,
+                "desc" => gettext("Failed logon attempts") ,
+                "advanced" => 1
+            ),
+			"unlock_user_interval" => array(
+                "type" => "text",
+                "help" => _("Account lockout duration in minutes (0 = never auto-unlock)") ,
+                "desc" => gettext("Account lockout duration") ,
+                "advanced" => 1
+            )
+        )
+    ) ,
     "Updates" => array(
         "title" => gettext("Updates") ,
         "desc" => gettext("Configure updates") ,
@@ -1510,16 +1569,23 @@ if (REQUEST("reset")) {
 	
 	// show/hide some options
 <?
-if ($ossim_conf->get_conf("server_sem") == "yes") echo "var valsem = 1;";
+if ($ossim_conf->get_conf("server_sem", FALSE) == "yes") echo "var valsem = 1;";
 else echo "var valsem = 0;";
 ?>
 <?
-if ($ossim_conf->get_conf("server_sim") == "yes") echo "var valsim = 1;";
+if ($ossim_conf->get_conf("server_sim", FALSE) == "yes") echo "var valsim = 1;";
 else echo "var valsim = 0;";
 ?>
 	function enableall() {
 		tsim("yes")
 		tsem("yes")
+		// pass complexity check
+		<?php if (POST('adv') == "1" || GET('adv') == "1") { ?>
+		if (document.getElementById('complexity').value.length < 3) {
+			alert("<?php echo _("Warning: password complexity is not correctly configured, please check at least 3 character types") ?>");
+			return false;
+		}
+		<?php } ?>
 	}
 	
 	$(document).ready(function(){	
@@ -1601,6 +1667,13 @@ else echo "var valsim = 0;";
 			$('#forward_alarm_select').css('color','black');
 			$('#forward_event_select').css('color','black');
 		}
+	}
+
+	function setvalue(id,val,checked) {
+		var current = document.getElementById(id).value;
+		current = current.replace(val,"");
+		if (checked) current += val;
+		document.getElementById(id).value = current;
 	}
 </script>
 
@@ -1693,16 +1766,27 @@ foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"
         $disabled = ($type["disabled"] == 1 || $ossim_conf->is_in_file($conf)) ? "class=\"disabled\" style=\"color:gray\" disabled" : "";
         /* select */
         if (is_array($type["type"])) {
-            $select_change = ($type['onchange'] != "") ? " onchange=\"".$type['onchange']."\"" : "";
-			$select_id = ($type['id'] != "") ? " id=\"".$type['id']."\"" : "";
-			$input.= "<select name=\"value_$count\"$select_change$select_id $disabled>";
-            if ($conf_value == "") $input.= "<option value=''>";
-            foreach($type["type"] as $option_value => $option_text) {
-                $input.= "<option ";
-                if ($conf_value == $option_value) $input.= " selected='selected' ";
-                $input.= "value=\"$option_value\">$option_text</option>";
+            // Multiple checkbox
+        	if ($type['checkboxlist']) {
+            	$input .= "<input type='hidden' name=\"value_$count\" id=\"".$type['id']."\" value=\"$conf_value\">";
+        		foreach($type["type"] as $option_value => $option_text) {
+	                $input.= "<input type='checkbox' onclick=\"setvalue('".$type['id']."',this.value,this.checked)\"";
+	                if (preg_match("/$option_value/",$conf_value)) $input.= " checked ";
+	                $input.= "value=\"$option_value\">$option_text<br>";
+	            }
+            // Select combo
+        	} else {
+	        	$select_change = ($type['onchange'] != "") ? " onchange=\"".$type['onchange']."\"" : "";
+				$select_id = ($type['id'] != "") ? " id=\"".$type['id']."\"" : "";
+				$input.= "<select name=\"value_$count\"$select_change$select_id $disabled>";
+	            if ($conf_value == "") $input.= "<option value=''>";
+	            foreach($type["type"] as $option_value => $option_text) {
+	                $input.= "<option ";
+	                if ($conf_value == $option_value) $input.= " selected='selected' ";
+	                $input.= "value=\"$option_value\">$option_text</option>";
+	            }
+	            $input.= "</select>";
             }
-            $input.= "</select>";
         }
         /* textarea */
         elseif ($type["type"]=="textarea") {

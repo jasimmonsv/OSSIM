@@ -69,15 +69,22 @@ ossim_valid($expired, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("expired"));
 if (ossim_error()) {
     die(ossim_error());
 }
+
 if ($flag != "") {
 	/* check passwords */
+	$pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
+	$pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
+	if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_max = 255; }
+	
 	if (0 != strcmp($pass1, $pass2)) {
 		$msg = _("Passwords mismatches");
-	} elseif (strlen($pass1) < 7) {
-		$msg = _("Password is long enought. The minimum is 7 characters.");
-	} elseif (!preg_match("/\d/",$pass1) || !preg_match("/[a-zA-Z]/",$pass1)) {
-		$msg = _("Password must have numeric and alphanumeric characters.");
-	} elseif (in_array(md5($pass1),$recent_pass)) {
+	} elseif (strlen($pass1) < $pass_length_min) {
+		$msg = _("Password is long enought. The minimum is ").$pass_length_min._(" characters.");
+	} elseif (strlen($pass1) > $pass_length_max) {
+		$msg = _("Password is too long. The maximum is ").$pass_length_max._(" characters.");
+	} elseif (!Session::pass_check_complexity($pass1)) {
+		$msg = _("Password is not complex enought.");
+	} elseif (count($recent_pass) > 0 && in_array(md5($pass1),$recent_pass)) {
 		$msg = _("This password is recently used. Try another.");
 	} elseif (count($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($pass1) . "'")) > 0) {
 		$msg = _("You must change your old password.");

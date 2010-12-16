@@ -160,7 +160,10 @@ OFFSET $inf");
         return $list;
     }
     function get_last_pass($conn) {
-    	$query = "SELECT DISTINCT info FROM log_action WHERE code=92 ORDER BY date DESC LIMIT 4";
+    	require_once "ossim_conf.inc";
+    	$conf = $GLOBALS["CONF"];
+    	$pass_history = ($conf->get_conf("pass_history", FALSE)) ? $conf->get_conf("pass_history", FALSE) : 0;
+    	$query = "SELECT DISTINCT info FROM log_action WHERE code=92 ORDER BY date DESC LIMIT $pass_history";
     	if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
             return array();

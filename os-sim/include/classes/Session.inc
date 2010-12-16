@@ -100,7 +100,8 @@ class Session {
 	var $enabled;
 	var $allowed_sensors;
 	var $is_admin;
-    function Session($login, $pass, $allowed_nets, $name = "", $email = "", $company = "", $department = "", $language = "", $enabled = 1, $is_admin = 0) {
+	var $last_pass_change;
+    function Session($login, $pass, $allowed_nets, $name = "", $email = "", $company = "", $department = "", $language = "", $enabled = 1, $is_admin = 0, $last_pass_change = "") {
         $this->login = strtolower($login);
         $this->name = $name;
         $this->email = $email;
@@ -112,6 +113,7 @@ class Session {
 		$this->enabled = $enabled;
 		$this->allowed_sensors = explode(",",$this->allowedSensors($this->login));
 		$this->is_admin = $is_admin;
+		$this->last_pass_change = $last_pass_change;
     }
     function get_login() {
         global $login;
@@ -144,6 +146,9 @@ class Session {
     function get_is_admin() {
     	return $this->is_admin;
     }
+	function get_last_pass_change() {
+    	return $this->last_pass_change;
+    }
     function get_list($conn, $args = "") {
         $list = array();
         $query = OssimQuery("SELECT * FROM users $args");
@@ -152,7 +157,7 @@ class Session {
         } else {
             $list = array();
             while (!$rs->EOF) {
-                $list[] = new Session($rs->fields["login"], $rs->fields["pass"], $rs->fields["allowed_nets"], $rs->fields["name"], $rs->fields["email"], $rs->fields["company"], $rs->fields["department"], $rs->fields["language"], $rs->fields["enabled"], $rs->fields["is_admin"]);
+                $list[] = new Session($rs->fields["login"], $rs->fields["pass"], $rs->fields["allowed_nets"], $rs->fields["name"], $rs->fields["email"], $rs->fields["company"], $rs->fields["department"], $rs->fields["language"], $rs->fields["enabled"], $rs->fields["is_admin"], $rs->fields["last_pass_change"]);
                 $rs->MoveNext();
             }
         }
@@ -952,6 +957,19 @@ class Session {
         }
         $db->close($conn);
         return sha1(md5($user));
+	}
+	function pass_check_complexity($pass) {
+		require_once "ossim_conf.inc";
+		$conf = $GLOBALS["CONF"];
+		$complex = ($conf->get_conf("pass_complex", FALSE)) ? $conf->get_conf("pass_complex", FALSE) : "lun";
+		$counter = 0;
+		for ($i = 0; $i < strlen($complex); $i++) {
+			if ($complex[$i] == "l" && preg_match("/[a-z]/",$pass)) { $counter++; }
+			if ($complex[$i] == "u" && preg_match("/[A-Z]/",$pass)) { $counter++; }
+			if ($complex[$i] == "n" && preg_match("/[0-9]/",$pass)) { $counter++; }
+			if ($complex[$i] == "s" && preg_match("/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬]/",$pass)) { $counter++; }
+		}
+		return ($counter < 3) ? 0 : 1;
 	}
 }
 } // else include Acl

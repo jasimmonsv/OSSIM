@@ -85,6 +85,10 @@ require_once ('ossim_db.inc');
 $db = new ossim_db();
 $conn = $db->connect();
 $recent_pass = Log_action::get_last_pass($conn);
+$pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
+$pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
+if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_max = 255; }
+
 if (!Session::am_i_admin()) {
     require_once ("ossim_error.inc");
     $error = new OssimError();
@@ -95,15 +99,19 @@ elseif (0 != strcmp($pass1, $pass2)) {
     require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORDS_MISMATCH");
-} elseif (strlen($pass1) < 7) {
+} elseif (strlen($pass1) < $pass_length_min) {
 	require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORD_SIZE");
-} elseif (!preg_match("/\d/",$pass1) || !preg_match("/[a-zA-Z]/",$pass1)) {
+} elseif (strlen($pass1) > $pass_length_max) {
+	require_once ("ossim_error.inc");
+    $error = new OssimError();
+    $error->display("PASSWORD_SIZE_MAX");
+} elseif (!Session::pass_check_complexity($pass1)) {
 	require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORD_ALPHANUM");
-} elseif (in_array(md5($pass1),$recent_pass)) {
+} elseif (count($recent_pass) > 0 && in_array(md5($pass1),$recent_pass)) {
 	require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORD_RECENT");

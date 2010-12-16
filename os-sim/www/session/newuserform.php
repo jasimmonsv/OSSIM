@@ -48,6 +48,9 @@ $db = new ossim_db();
 $conn = $db->connect();
 $net_list = Net::get_all($conn);
 $sensor_list = Sensor::get_all($conn, "ORDER BY name ASC");
+$pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
+$pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
+if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_max = 255; }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -74,15 +77,30 @@ echo gettext("OSSIM Framework"); ?> </title>
 			checks[col] = 1;
 		}
 	}
+function checkpasscomplex(pass) {
+	<?php $complex = ($conf->get_conf("pass_complex", FALSE)) ? $conf->get_conf("pass_complex", FALSE) : "lun"; ?>
+	var complex = "<?php echo $complex ?>";
+	var counter = 0;
+	for (var i = 0; i < complex.length; i++) {
+		if (complex[i] == "l" && pass.match(/[a-z]/)) { counter++; }
+		if (complex[i] == "u" && pass.match(/[A-Z]/)) { counter++; }
+		if (complex[i] == "n" && pass.match(/[0-9]/)) { counter++; }
+		if (complex[i] == "s" && pass.match(/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬]/)) { counter++; }
+	}
+	return (counter < 3) ? 0 : 1;
+}
 function checkpasslength() {
-	if ($('#pass1').val().length < 7) {
-		alert("<?=_("Minimum password size is 7 characters")?>");
+	if ($('#pass1').val().length < <?php echo $pass_length_min ?>) {
+		alert("<?=_("Minimum password size is ").$pass_length_min._(" characters")?>");
+		return 0;
+	} else if ($('#pass1').val().length > <?php echo $pass_length_max ?>) {
+		alert("<?=_("Maximum password size is ").$pass_length_max._(" characters")?>");
 		return 0;
 	} else return 1;
 }
 function checkpass() {
-	if (document.fnewuser.pass1.value != "" && (document.fnewuser.pass1.value.match(/[0-9]/) == null || document.fnewuser.pass1.value.match(/[a-zA-Z]/) == null)) {
-		alert("<?=_("Password must have numeric and alphanumeric characters")?>");
+	if (document.fnewuser.pass1.value != "" && !checkpasscomplex(document.fnewuser.pass1.value)) {
+		alert("<?=_("Password is not strong enough. Check the password policy configuration for more details")?>");
 		return 0;
 	}
 	else if (document.fnewuser.pass1.value != document.fnewuser.pass2.value) {

@@ -59,6 +59,10 @@ require_once ('classes/Security.inc');
 $db = new ossim_db();
 $conn = $db->connect();
 
+require_once "ossim_conf.inc";
+$conf = $GLOBALS["CONF"];
+$complex = ($conf->get_conf("pass_complex", FALSE)) ? $conf->get_conf("pass_complex", FALSE) : "lun";
+
 $order = GET('order');
 $change_enabled = GET('change_enabled');
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
@@ -74,6 +78,9 @@ if ($change_enabled != "") {
 ?>
 
   <table align="center">
+    <?php if (strlen($complex) < 3) { ?>
+    <tr><td colspan="7" style="color:red"><b><?php echo _("Warning: Password complexity is not well configured and new users can not be created. Please check configuration in Configuration -> Main (advanced) section") ?></b></td></tr>
+    <?php } ?>
     <tr>
       <th><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php

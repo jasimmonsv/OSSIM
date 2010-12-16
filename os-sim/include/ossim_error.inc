@@ -228,12 +228,20 @@ class OssimError extends OssimMainError {
         /* Password lenght */
         $this->errors["PASSWORD_SIZE"] = array(
             "short_descr" => gettext("Authentication failure") ,
-            "long_descr" => gettext("Minimum password size is 7 characters") ,
+            "long_descr" => gettext("Password is long enough. Check the password policy configuration for more details") ,
+        );
+        $this->errors["PASSWORD_SIZE_MAX"] = array(
+            "short_descr" => gettext("Authentication failure") ,
+            "long_descr" => gettext("Password is too long. Check the password policy configuration for more details") ,
         );
         /* Password lenght */
         $this->errors["PASSWORD_ALPHANUM"] = array(
             "short_descr" => gettext("Authentication failure") ,
-            "long_descr" => gettext("Password must have numeric and alphanumeric characters") ,
+            "long_descr" => gettext("Password is not strong enough. Check the password policy configuration for more details") ,
+        );
+        $this->errors["PASSWORD_EXPIRE_MIN"] = array(
+            "short_descr" => gettext("Authentication failure") ,
+            "long_descr" => gettext("Password lifetime is too short to allow change. Wait a few minutes...") ,
         );
         /* Password recent */
         $this->errors["PASSWORD_RECENT"] = array(

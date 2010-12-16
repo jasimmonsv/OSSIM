@@ -152,6 +152,7 @@ if (REQUEST('user') && trim($pass)!="") {
 	} elseif (!$is_disabled) {
         $_SESSION['bad_pass'] = "";
 		$first_login = $conf->get_conf("first_login", FALSE);
+		$pass_expire_max = ($conf->get_conf("first_login", FALSE) > 0 && $conf->get_conf("first_login", FALSE) != "yes" && $conf->get_conf("first_login", FALSE) != "no") ? $conf->get_conf("first_login", FALSE) : 0;
         if ($first_login == "" || $first_login == 0 || $first_login == "no") {
             $accepted = "yes";
         }
@@ -176,7 +177,7 @@ if (REQUEST('user') && trim($pass)!="") {
 				<?php
             } elseif ($first_userlogin) {
 				header("Location: first_login.php");
-			} elseif ($conf->get_conf("pass_expire", FALSE) == 'yes' && dateDiff($last_pass_change,date("Y-m-d H:i:s")) >= 90) {
+			} elseif ($pass_expire_max > 0 && dateDiff($last_pass_change,date("Y-m-d H:i:s")) >= $pass_expire_max) {
 				header("Location: first_login.php?expired=1");
 			} elseif ($user == ACL_DEFAULT_OSSIM_ADMIN && $pass == "admin") {
 				header("Location: first_login.php?changeadmin=1");
