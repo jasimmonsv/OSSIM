@@ -270,7 +270,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 		input[type='text'] {width: 90%; height: 20px;}
 		textarea { height: 45px;}
 		label {border: none; cursor: default;}
-		.bborder_none { border-bottom: none !important; background-color: #FFFFFF !important}
+		.bborder_none { border-bottom: none !important; background-color: #FFFFFF !important;}
 		
 		.bold {font-weight: bold;}
 		div.bold {line-height: 18px;}
@@ -285,14 +285,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 
 
 
-<?php
-
-if (GET('withoutmenu') != "1") 
-	include ("../hmenu.php"); 
-	
-?>
-
-
+<?php include ("../hmenu.php"); ?>
 
 <div id='container_center'>
 
