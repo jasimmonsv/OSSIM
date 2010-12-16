@@ -103,6 +103,7 @@
  |	1624 | Enterasys-NAC	  | detector |
  |      1625 | SCOM               | detector |
  |	1626 | Juniper-SRX	  | detector |
+ |	1627 | Solaris Syslog	  | detector |
  +-----------+--------------------+----------+
  |      1801 | forensics-db-1     | detector |
  +-----------+--------------------+----------+

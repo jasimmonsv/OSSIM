@@ -1,7 +1,6 @@
 netdir = $(datadir)/ossim/www/net
 net_DATA = deletenet.php \
 	deletenetgroup.php \
-	modifynetgroupform.php \
 	modifynetgroup.php \
 	netgroup.php\
 	newnetgroup.php \
