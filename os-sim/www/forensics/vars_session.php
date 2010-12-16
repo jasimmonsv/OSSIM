@@ -57,8 +57,8 @@ if ($_SESSION['views']['default'] == "") {
 	$_SESSION['views']['default']['cols'] = array('SIGNATURE','DATE','IP_PORTSRC','IP_PORTDST','ASSET','PRIORITY','RELIABILITY','RISK','IP_PROTO');
 	$session_data = $_SESSION;
 	foreach ($_SESSION as $k => $v) {
-	if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event).*/",$k))
-		unset($session_data[$k]);
+	if (preg_match("/^(_|alarms_|back_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|deletetask).*/",$k))
+		unset($session_data[$k]);		
 	}
 	$_SESSION['views']['default']['data'] = $session_data;
 	$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
@@ -70,7 +70,10 @@ if ($custom_view != "") {
 	$_SESSION['current_cview'] = $custom_view;
 	if (is_array($_SESSION['views'][$custom_view]['data']))
 		foreach ($_SESSION['views'][$custom_view]['data'] as $skey=>$sval) {
-			$_SESSION[$skey] = $sval;
+			if (!preg_match("/^(_|deletetask)/",$skey))
+			    $_SESSION[$skey] = $sval;
+                        else
+                           unset($_SESSION[$skey]);
 		}
 }
 if ($_SESSION['current_cview'] == "") $_SESSION['current_cview'] = 'default';
@@ -136,6 +139,12 @@ if ($_GET['time_range'] != "") {
     $_SESSION['time'] = $_GET['time'];
     $_SESSION['time_cnt'] = $_GET['time_cnt'];
     $_SESSION['time_range'] = $_GET['time_range'];
+}
+// NUMEVENTS
+$numevents = intval($_GET["numevents"]);
+if ($numevents>0) {
+	GLOBAL $show_rows;
+	$show_rows = $numevents;
 }
 // PAYLOAD
 // IP
@@ -224,6 +233,7 @@ $current_cols_titles = array(
     "USERNAME" => _("Username"),
     "FILENAME" => _("Filename"),
     "PASSWORD" => _("Password"),
+	"PAYLOAD" => _("Payload"),
     "SID" => _("SID"),
     "CID" => _("CID"),
     "PLUGIN_ID" => _("Plugin ID"),

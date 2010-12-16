@@ -133,13 +133,13 @@ foreach($document_list as $document) { ?>
 } ?>
 						</select>
 					</td>
-					<td><input type="button" class="btn" value="<?=_("Link")?>" onclick="document.flinks.insert.value='1';document.flinks.submit();"></td>
+					<td class="noborder"><input type="button" class="lbutton" value="<?=_("Link")?>" onclick="document.flinks.insert.value='1';document.flinks.submit();"></td>
 				</tr>
 			</table>
 		</td>
 	</tr>
 </form>
-	<tr><td align="center" class="noborder"><input type="button" class="btn" onclick="parent.document.location.href='host.php'" value="<?=_("Finish")?>"></td></tr>
+	<tr><td align="center" class="noborder"><input type="button" class="button" onclick="parent.document.location.href='host.php'" value="<?=_("Finish")?>"></td></tr>
 </table>
 </body>
 </html>

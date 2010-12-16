@@ -267,7 +267,7 @@ foreach($labels as $label => $data) {
         <table width="100%">
             <tr>
                 <td>
-                    <input type="button" value="->" onClick="javascript: insertAtCursor(document.myform.subject_tpl);" class="btn" style="font-size:12px">
+                    <input type="button" value="->" onClick="javascript: insertAtCursor(document.myform.subject_tpl);" class="lbutton" style="font-size:12px">
                 </td>
                 <th width="10%"><?php echo _("Subject") ?></th>
                 <td style="text-align: left;">
@@ -276,7 +276,7 @@ foreach($labels as $label => $data) {
             </tr>
             <tr>
                 <td>
-                    <input type="button" value="->" onClick="javascript: insertAtCursor(document.myform.body_tpl);" class="btn" style="font-size:12px">
+                    <input type="button" value="->" onClick="javascript: insertAtCursor(document.myform.body_tpl);" class="lbutton" style="font-size:12px">
                 </td>
                 <th valign="top" width="10%"><?php
 echo gettext("Body"); ?></th>
@@ -305,10 +305,10 @@ foreach($help_msgs as $key => $text) { ?>
 
 </script>
 <p align="center">
-    <input type="submit" name="preview" value="<?php echo _('Preview') ?>" class="btn" style="font-size:12px">&nbsp;
-    <input type="button" name="reset" value="<?php echo _('Reset to Defaults') ?>" class="btn" style="font-size:12px"
+    <input type="submit" name="preview" value="<?php echo _('Preview') ?>" class="button" style="font-size:12px">&nbsp;
+    <input type="button" name="reset" value="<?php echo _('Reset to Defaults') ?>" class="button" style="font-size:12px"
            onClick="javscript: return confirm_reset('<?php echo addslashes(_("All changes will be lost. Continue anyway?")) ?>')" >
-    &nbsp;<input type="submit" name="save" value="<?php echo _('Save Template') ?>"  class="btn" style="font-size:12px">
+    &nbsp;<input type="submit" name="save" value="<?php echo _('Save Template') ?>"  class="button" style="font-size:12px">
 </p>
 </form>
 <?php

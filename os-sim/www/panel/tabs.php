@@ -1,5 +1,5 @@
-<div style="position:absolute;left:0px;top:0px;width:100%;background:#8E8E8E;" class="noborder">
-	<table width="100%" border='0' cellpadding='0' cellspacing='0' style="background:transparent" class="noborder">
+<div style="position:absolute;left:0px;top:0px;width:100%;background:#8E8E8E" class="noborder">
+	<table width="100%" border='0' cellpadding='0' cellspacing='0' style="background:#8E8E8E" class="noborder">
 	<tr>
 		<td style="width:15px;vertical-align:bottom" class="noborder">&nbsp;</td>
 		<td style="padding-top:7px" class="noborder">
@@ -43,13 +43,23 @@
 */
 //if ($tabs) {
     $tabsmerge = $tabs;
-		
+	// add tabs urls
+	/*
+	if (is_array($tabs_urls)) {
+		// no repeat key
+		$last_key = array_pop(array_keys($tabsmerge));
+		// end no repeat key
+		foreach ($tabs_urls as $tab_values){
+			$tabsmerge[++$last_key] = $tab_values;
+		}
+	}*/
+	// end add tabs urls
+	
 	if (is_array($tabsavt)) {
 		foreach ($tabsavt as $tab_id => $tab_values)
 			$tabsmerge[$tab_id] = $tab_values;
 	}
-	
-		
+
 	if (!empty($tabsmerge) && is_array($tabsmerge))
 	{
 		$tabshow = array();
@@ -67,6 +77,10 @@
 		
 		$ctabs = count($tabshow) - 1;
 		$j = 0;
+
+		//echo '------';
+		//print_r($tabshow);
+		//echo '-----';
 		foreach($tabshow as $tab_id => $tab_name) {
 			if (strlen($tabsmerge[$tab_id]["tab_icon_url"]) > 0) {
 				$image_string = '<img align="absmiddle" border="0" src="' . $tabsmerge[$tab_id]["tab_icon_url"] . '" height="20">&nbsp;';
@@ -75,6 +89,14 @@
 			}
 			$on = ($panel_id == $tab_id) ? "on" : "";
 			$url = "?panel_id=$tab_id";
+			if(empty($tabsmerge[$tab_id]["tab_url"])){
+				// normal tabs
+				$url = "?panel_id=$tab_id";
+			}else{
+				// tabs urls
+				$url = '?panel_id='.$tab_id.'&hmenu=dashboards&smenu=dashboards';
+				//$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='".$tabsmerge[$tab_id]["tab_url"]."' class='gristab$on' target='main'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
+			}
 			$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='$url' class='gristab$on'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
 			if ($panel_id == $tab_id) { ?>
 					<td style="vertical-align:bottom" class="noborder">

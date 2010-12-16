@@ -1,6 +1,5 @@
 serverdir = $(datadir)/ossim/www/server
-server_DATA = modifyserverform.php \
-	newserverform.php \
+server_DATA = newserverform.php \
 	server.php \
 	deleteserver.php \
 	modifyserver.php \

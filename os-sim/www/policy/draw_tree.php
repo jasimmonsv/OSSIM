@@ -144,7 +144,7 @@ else if ($key == "net") {
               	$net_key = base64_encode($net->get_name());
 				$net_title = utf8_encode($net->get_name());
                 $ips = $net->get_ips();
-                $li = "key:'net_$net_key', isLazy:true, url:'NETWORK:$net_name', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$ips.")</font>'\n";
+                $li = "key:'net_$net_key', isLazy:true, url:'NETWORK:$net_title', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$ips.")</font>'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }
             $j++;

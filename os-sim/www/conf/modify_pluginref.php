@@ -36,7 +36,7 @@
 */
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "CorrelationCrossCorrelation");
-ini_set('memory_limit', '256M');
+//ini_set('memory_limit', '256M');
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -200,7 +200,7 @@ if ($message==""){ ?>
 	</tr>
 	
 	<tr>
-		<td colspan="2" class="nobborder" style="text-align:center"><input type="button" class="btn" value="<?=_('Change rule')?>" onclick="formsubmit()">&nbsp;<input type="button" class="btn" value="<?=_('BACK')?>" onclick="document.location='pluginref2.php'"></td>
+		<td colspan="2" class="nobborder" style="text-align:center"><input type="button" class="button" value="<?=_('Change rule')?>" onclick="formsubmit()">&nbsp;<input type="button" class="button" value="<?=_('BACK')?>" onclick="document.location='pluginref2.php'"></td>
 	</tr>
 	<? } ?>
 </form>	

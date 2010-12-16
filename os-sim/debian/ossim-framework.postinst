@@ -45,7 +45,16 @@ then
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_wcl.pl" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_pies.pl" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_kill.pl" >> /etc/sudoers
+        echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_validate.pl" >> /etc/sudoers
 fi
+
+if ! [ `grep -c "agent_control" /etc/sudoers` -ne 0 ]
+then
+        echo "www-data ALL=NOPASSWD: /var/ossec/bin/agent_control" >> /etc/sudoers
+        echo "www-data ALL=NOPASSWD: /var/ossec/bin/manage_agents" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control" >> /etc/sudoers
+fi
+
 
 webservers="apache apache-ssl apache2"
 for apache in $webservers; do
@@ -135,6 +144,14 @@ else
 	rm -f /var/ossim/sessions/*
 fi
 
+# ossec perms
+chmod o+rx /var/ossec
+chmod o+rx /var/ossec/etc
+chmod -R o+r /var/ossec/rules
+chmod o+rwx /var/ossec/rules
+
+chmod u+w /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
+chown www-data /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 
 # Sem log file
 if [ ! -d /var/log/ossim/ ]; then

@@ -95,12 +95,12 @@ $local_ip = `grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`;
 	<link rel="stylesheet" type="text/css" href="../style/jasper.css">
 	<link rel="stylesheet" type="text/css" href="../style/colorpicker.css"/>
 	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-	<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/greybox.js"></script>
 	<script type="text/javascript" src="../js/jquery.colorpicker.js"></script>
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>
 	<script type="text/javascript" src="../js/jquery.elastic.source.js"charset="utf-8"></script>
-	<script type="text/javascript" src="../forensics/js/autoHeight.js"></script>
+	<script type="text/javascript" src="../js/autoHeight.js"></script>
   
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -314,7 +314,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 <table align="center" width='100%' class="noborder" style="background-color:#ffffff">
 	<tr>
 		<td class="center nobborder">
-			<iframe src="modifysensorform.php?name=<?=$name?>&withoutmenu=1" scrolling="auto" class='autoHeight' width="100%" frameborder="0"></iframe>
+			<iframe src="modifysensorform.php?name=<?=urlencode($name)?>&withoutmenu=1" scrolling="auto" class='autoHeight' width="100%" frameborder="0"></iframe>
 		</td>
 	</tr>
 </table>

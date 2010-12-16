@@ -46,6 +46,9 @@ Session::useractive();
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body scroll=no style="overflow:hidden">
-<?php include ("../hmenu.php");  ?>
+<?php
+	$typeMenu='horizontal';
+	include ("../hmenu.php");
+?>
 </body>
 </html>

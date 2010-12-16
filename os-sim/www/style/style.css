@@ -72,6 +72,25 @@ input.lbutton:hover
     margin-right:5px;
 }
 
+.lbuttond
+{
+    border-width: 0px !important;
+    color: #FFFFFF !important;
+	height:20px !important;
+	background-color: transparent !important;
+	background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+    padding-bottom:2px !important;
+    font-family: arial,verdana,helvetica,sans-serif !important;
+    font-size: 11px !important;
+	font-weight:bold !important;
+    margin-right:5px;
+}
+input.lbuttond:hover
+{
+    background: url(../pixmaps/theme/bg_buttonr_on.png) 50% 50% repeat-x !important;
+}
+
+
 .vsbutton
 {
     border-width: 0px !important;
@@ -131,7 +150,7 @@ input.vsbutton:hover
 	background-color: transparent !important;
     #background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
 	background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
-    padding-bottom:2px !important;
+    padding:2px !important;
     font-family: arial,verdana,helvetica,sans-serif !important;
     font-size: 12px !important;
 	font-weight:bold !important;
@@ -328,7 +347,7 @@ th,.th { white-space:nowrap;word-wrap:nowrap; padding:0px 10px 0px 10px; border:
     -webkit-border-radius: 5px;
 }
 
-.thgray { word-wrap:nowrap; padding:0px 10px 0px 10px; border: 1px solid #aaaaaa; background: #cccccc url(../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png) 50% 50% repeat-x; font-size: 11px; color: #666666; font-weight: bold; text-align: center; }
+.thgray { word-wrap:nowrap; padding:0px 10px 0px 10px; border: 1px solid #aaaaaa; background: #cccccc url(../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png) 50% 50% repeat-x; font-size: 11px; color: #888888; font-weight: bold; text-align: center; }
 
 .thlightgray {
     word-wrap:nowrap;
@@ -753,7 +772,7 @@ div.bballoon:hover span.tooltip {
   color: #111;
   display:block;
   position:absolute;
-  top:12px; left:20px;
+  top:12px; left:130px;
   width:360px;
   text-align: left;
   text-decoration:none;
@@ -1041,6 +1060,20 @@ div.bballoon:hover span.bottom {
 	color: #9F6000;
     background-color: #FEEFB3;
     background-image: url('../pixmaps/ossim_alert.png');
+	width: 90%;
+}
+
+.ossim_info {
+    font-family:Arial, Helvetica, sans-serif; 
+    font-size:13px;
+    border: 1px solid;
+    margin: 10px auto;
+    padding:15px 10px 15px 50px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+	color: #00529B;
+    background-color: #BDE5F8;
+    background-image: url('../pixmaps/ossim_info.png');
 	width: 90%;
 }
 

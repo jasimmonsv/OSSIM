@@ -145,8 +145,14 @@ while (!$result->EOF) {
 		<td class="ne1" align="center" colspan="5">
 			<form action="changemap.php" method=post name=f1 enctype="multipart/form-data">
 			<?= _("Upload map file") ?>: <input type=hidden value="<? echo $map ?>" name=map>
-			<input type=hidden name=name value="map<? echo ($mn+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
-			<input type=submit value="<?= _("Upload") ?>" class="btn" style="font-size:12px">
+            <?php
+            $limage_id = 0;
+            $limage = `ls -1t 'maps' | head -1`;
+            preg_match("/map(.*)\.jpg/",$limage, $found);
+            $limage_id = $found[1];
+            ?>
+			<input type=hidden name=name value="map<? echo ($limage_id+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
+			<input type=submit value="<?= _("Upload") ?>" class="button" style="font-size:12px">
 			</form>
 		</td>
 	</tr>
@@ -155,7 +161,7 @@ while (!$result->EOF) {
 			<table style="border:0px">
 				<tr>
 				<?
-				$maps = explode("\n",`ls -1 'maps' | grep -v CVS`);
+				$maps = explode("\n",`ls -tr 'maps' | grep -v CVS`);
 				$i=0; $n=0; $txtmaps = ""; $mn=-1;
 				foreach ($maps as $ico) if (trim($ico)!="") {
 					if(!getimagesize("maps/" . $ico)) { continue;}
@@ -181,7 +187,7 @@ while (!$result->EOF) {
 									<?php if ($n == $default_map) { ?>
 									<font style=""><?php echo _("DEFAULT MAP") ?></font>
 									<?php } else {?>
-									<input type="button" onclick="document.location.href='changemap.php?map=<?php echo $map?>&default=<?php echo $n?>'" value="<?php echo $deftxt?>" class="btn"></input>
+									<input type="button" onclick="document.location.href='changemap.php?map=<?php echo $map?>&default=<?php echo $n?>'" value="<?php echo $deftxt?>" class="button"></input>
 									<?php }?>
 								</td>
 							</tr>

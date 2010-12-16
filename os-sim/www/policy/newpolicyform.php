@@ -305,12 +305,12 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 			disen($('input[name=cross_correlate]'),$('#cross_correlate_text'));
 			disen($('input[name=store]'),$('#store_text'));
 			disen($('input[name=qualify]'),$('#qualify_text'));
-			if (valsim==0) {
+			/*if (valsim==0) {
 				$('input[name=correlate]')[1].checked = true;
 				$('input[name=cross_correlate]')[1].checked = true;
 				$('input[name=store]')[1].checked = true;
 				$('input[name=qualify]')[1].checked = true;
-			}
+			}*/
 			if (valsim==0 && valsem==0) {
 				dis($('input[name=resend_alarms]'),$('#ralarms_text'));
 				dis($('input[name=resend_events]'),$('#revents_text'));
@@ -337,9 +337,9 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 			valsem = val
 			//$('#sign').toggle();
 			disen($('input[name=sign]'),$('#sign_text'));
-			if (valsem==0) {
+			/*if (valsem==0) {
 				$('input[name=sign]')[1].checked = true;
-			}
+			}*/
 			if (valsim==0 && valsem==0) {
 				dis($('input[name=resend_alarms]'),$('#ralarms_text'));
 				dis($('input[name=resend_events]'),$('#revents_text'));
@@ -1110,10 +1110,10 @@ if ($insert != "") {
 				</table>
 			</td>
 			
-			<td valign="top" class="nobborder" style="padding-left:15px;width:350px">
+			<td valign="top" class="nobborder" style="padding-left:15px;width:360px;">
 				<table align="center" style="width:100%" id='p_conseq'>
 					<tr>
-						<th><?php echo _("Priority") . required() ?></th>
+						<th style="text-align:left; padding: 0px 10px"><?php echo _("Priority")?></th>
 						<td class="left">
 							<div class='cont_elem'>
 								<select name="priority">
@@ -1130,7 +1130,7 @@ if ($insert != "") {
 						</td>
 					</tr>
 					<tr>
-						<th style="text-decoration:underline"> <?php echo _("SIEM") . required() ?> </th>
+						<th style="text-decoration:underline;text-align:left; padding: 0px 10px"> <?php echo _("SIEM")?> </th>
 						<td class="left">
 							<div class='cont_elem'>
 								<input type="radio" name="sim" onchange="tsim(1)" value="1" <?php echo ($sim == 1) ? "checked='checked'" : "" ?>/> <?php echo _("Yes"); ?>
@@ -1141,7 +1141,7 @@ if ($insert != "") {
 					</tr>
 					
 					<tr id="qualify">
-						<th id="qualify_text"<?php echo ($sim == 0) ? " class='thgray'" : "" ?>> <?php echo _("Qualify events") . required() ?> </th>
+						<th style="text-align:left; padding-left:25px" id="qualify_text"<?php echo ($sim == 0) ? " class='thgray'" : "" ?>> <?php echo _("Qualify events")?> </th>
 						<td class="left">
 							<div class='cont_elem'>
 								<input type="radio" name="qualify" value="1" <?php echo ($qualify == 1) ? "checked='checked'" : "" ?><?php if ($sim == 0) echo " disabled='disabled'" ?>/> <?php echo _("Yes"); ?>
@@ -1152,7 +1152,7 @@ if ($insert != "") {
 					</tr>
 					
 					<tr id="correlate">
-						<th id="correlate_text"<?php echo ($sim == 0) ? " class='thgray'" : "" ?>> <?php echo _("Correlate events") . required() ?> </th>
+						<th style="text-align:left; padding-left:25px" id="correlate_text"<?php echo ($sim == 0) ? " class='thgray'" : "" ?>> <?php echo _("Correlate events")?> </th>
 						<td class="left">
 							<div class='cont_elem'>
 								<input type="radio" name="correlate" value="1" <?php echo ($correlate == 1) ? "checked='checked'" : "" ?><?php if ($sim == 0) echo " disabled='disabled'" ?>/> <?php echo _("Yes"); ?>
@@ -1163,7 +1163,7 @@ if ($insert != "") {
 					</tr>
 					
 					<tr id="cross_correlate">
-						<th id="cross_correlate_text"<?php echo ($sim == 0) ? " class='thgray'" : "" ?>> <?php echo _("Cross Correlate events") . required() ?> </th>
+						<th style="text-align:left; padding-left:25px" id="cross_correlate_text"<?php echo ($sim == 0) ? " class='thgray'" : "" ?>> <?php echo _("Cross Correlate events")?> </th>
 						<td class="left">
 							<div class='cont_elem'>
 								<input type="radio" name="cross_correlate" value="1" <?php echo ($cross_correlate == 1) ? "checked='checked'" : "" ?><?php if ($sim == 0) echo " disabled='disabled'" ?>/> <?php echo _("Yes"); ?>
@@ -1174,7 +1174,7 @@ if ($insert != "") {
 					</tr>
 				 
 					<tr id="store">
-						<th id="store_text"<?php echo ($sim == 0) ? " class='thgray'" : "" ?>> <?php echo _("Store events") . required() ?> </th>
+						<th style="text-align:left; padding-left:25px" id="store_text"<?php echo ($sim == 0) ? " class='thgray'" : "" ?>> <?php echo _("Store events")?> </th>
 						<td class="left">
 							<div class='cont_elem'>
 								<input type="radio" name="store" value="1" <?php echo ($store == 1) ? "checked='checked'" : "" ?><?php if ($sim == 0) echo " disabled='disabled'" ?>/> <?php echo _("Yes"); ?>
@@ -1185,7 +1185,7 @@ if ($insert != "") {
 					</tr>
 				  
 					<tr>
-						<th style="text-decoration:underline"> <?php echo _("Logger") . required() ?> </th>
+						<th style="text-decoration:underline;text-align:left; padding: 0px 10px"> <?php echo _("Logger")?> </th>
 						<td class="left" <?= ($opensource) ? "style='color:gray'" : "" ?>>
 							<div class='cont_elem'>
 								<input type="radio" name="sem" onchange="tsem(1)" value="1" <?php echo ($sem == 1) ? "checked='checked'" : "" ?> <?= ($opensource) ? "disabled='disabled'" : "" ?>/> <?php echo _("Yes"); ?>
@@ -1197,7 +1197,7 @@ if ($insert != "") {
 					</tr>
 
 					<tr id="sign">
-						<th id="sign_text"<?php echo ($sem == 0) ? " class='thgray'" : "" ?>> <?php echo _("Sign") . required() ?> </th>
+						<th style="text-align:left; padding-left:25px" id="sign_text"<?php echo ($sem == 0) ? " class='thgray'" : "" ?>> <?php echo _("Sign")?> </th>
 						<td class="left">
 							<div class='cont_elem'>
 								<input type="radio" name="sign" value="1" <?php echo ($sign == 1) ? "checked='checked'" : "" ?><?php if ($sem == 0) echo " disabled" ?>/> <?php echo _("Line"); ?>
@@ -1208,7 +1208,7 @@ if ($insert != "") {
 					</tr>
 				  
 					<tr id="rtitle">
-					<th style="text-decoration:underline"> <?=_("Multilevel")?></th>
+					<th style="text-decoration:underline;text-align:left; padding: 0px 10px"> <?=_("Multilevel")?></th>
 						<td class="left">
 							<input type="radio" name="multi" onchange="tmulti(1)" value="1" <?php echo ($sem == 1 || $sim == 1) ? "checked='checked'" : "" ?> <?= ($opensource) ? "disabled='disabled'" : "" ?>/> <?php echo _("Yes"); ?>
 							<input type="radio" name="multi" onchange="tmulti(0)" value="0" <?php echo ($sem == 0 && $sim == 0) ? "checked='checked'" : "" ?> <?= ($opensource) ? "disabled='disabled'" : "" ?>/> <?php echo _("No"); ?>
@@ -1216,7 +1216,7 @@ if ($insert != "") {
 					</tr>
 					
 					<tr id="ralarms" <?php echo ($sim == 0 && $sem == 0) ? "class='thgray'" : "" ?>>
-						<th id="ralarms_text"<?= ($opensource || ($sim == 0 && $sem == 0)) ? " class='thgray'" : "" ?>> <?php echo _("Forward alarms") . required() ?> </th>
+						<th style="text-align:left; padding-left:25px" id="ralarms_text"<?= ($opensource || ($sim == 0 && $sem == 0)) ? " class='thgray'" : "" ?>> <?php echo _("Forward alarms")?> </th>
 						<td class="left" <?= ($opensource) ? "style='color:gray'" : "" ?>>
 							<div class='cont_elem'>	
 								<input type="radio" name="resend_alarms" value="1" <?php echo ($resend_alarm == 1) ? "checked='checked'" : "" ?> <?= ($opensource || ($sim == 0 && $sem == 0)) ? "disabled='disabled'" : "" ?>/> <?php echo _("Yes"); ?>
@@ -1228,7 +1228,7 @@ if ($insert != "") {
 					</tr>
 					
 					<tr id="revents" <?php echo ($sim == 0 && $sem == 0) ? "class='thgray'" : "" ?>>
-						<th id="revents_text"<?= ($opensource || ($sim == 0 && $sem == 0)) ? " class='thgray'" : "" ?>> <?php echo _("Forward events") . required() ?> </th>
+						<th style="text-align:left; padding-left:25px" id="revents_text"<?= ($opensource || ($sim == 0 && $sem == 0)) ? " class='thgray'" : "" ?>> <?php echo _("Forward events")?> </th>
 						<td class="left" <?= ($opensource) ? "style='color:gray'" : "" ?>>
 							<div class='cont_elem'>	
 								<input type="radio" name="resend_events" value="1" <?php echo ($resend_event == 1) ? "checked='checked'" : "" ?> <?= ($opensource || ($sim == 0 && $sem == 0)) ? "disabled='disabled'" : "" ?>/> <?php echo _("Yes"); ?>

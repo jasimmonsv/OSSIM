@@ -490,7 +490,7 @@ EOT;
       }
 
 
-   echo "</SELECT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"submit\" value=\""._("Reload Report")."\" class=\"btn\">";
+   echo "</SELECT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"submit\" name=\"submit\" value=\""._("Reload Report")."\" class=\"button\">";
       echo <<<EOT
    </td></tr>
 </table>\n</form>
@@ -737,10 +737,15 @@ function vulnbreakdown(){   //GENERATE CHART
             AND falsepositive<>'Y'
             AND scriptid <> 10180".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")."
             GROUP BY risk";*/
-        $query = "SELECT count(risk) as count, risk
+        /*$query = "SELECT count(risk) as count, risk
                 FROM ( SELECT DISTINCT risk, port, protocol, app, scriptid, msg, hostIP FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
                 WHERE report_id in ($report_id) $query_host".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "")."
                 AND scriptid <> 10180".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")." AND falsepositive='N'".
+                (($scantime!="")? " AND scantime=$scantime":"").") AS t GROUP BY risk";*/
+        $query = "SELECT count(risk) as count, risk
+                FROM ( SELECT DISTINCT risk, port, protocol, app, scriptid, msg, hostIP FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
+                WHERE report_id in ($report_id) $query_host".((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "")."
+                ".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")." AND falsepositive='N'".
                 (($scantime!="")? " AND scantime=$scantime":"").") AS t GROUP BY risk";
     }
     
@@ -908,10 +913,17 @@ function hostsummary( ){
                         WHERE report_id  in ($report_id) AND hostip='$hostip' 
                         AND falsepositive<>'Y' AND scriptid <>10180".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")."
                         GROUP BY risk";*/
-            $query2 = "SELECT count(risk) as count, risk
+            /*$query2 = "SELECT count(risk) as count, risk
                         FROM (SELECT DISTINCT risk, port, protocol, app, scriptid, msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
                         WHERE report_id  in ($report_id) AND hostip='$hostip' 
                         AND scriptid <>10180".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")." and falsepositive='N'".
+                        (($scantime!="")? "and scantime = $scantime":"").
+                        ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "").")as t GROUP BY risk";*/
+                        
+            $query2 = "SELECT count(risk) as count, risk
+                        FROM (SELECT DISTINCT risk, port, protocol, app, scriptid, msg FROM ".(($treport=="latest" || $ipl!="")? "vuln_nessus_latest_results" : "vuln_nessus_results")."
+                        WHERE report_id  in ($report_id) AND hostip='$hostip' 
+                        ".(($treport=="latest" || $ipl!="")? " and sid in ($sid)" : " ")." and falsepositive='N'".
                         (($scantime!="")? "and scantime = $scantime":"").
                         ((!in_array("admin", $arruser) && ($treport=="latest" || $ipl!=""))? " AND username in ('$user') " : "").")as t GROUP BY risk";
       }

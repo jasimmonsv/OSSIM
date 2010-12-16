@@ -65,7 +65,7 @@ $longitude   = POST('longitude');
 $num_sensors = count($sensors);
 
 $validate = array (
-	"hostname"    => array("validation"=>"OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Host name")),
+	"hostname"    => array("validation"=>"OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Host name")),
 	"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
 	"fqdns"       => array("validation"=>"OSS_FQDNS, OSS_NULLABLE", "e_message" => 'illegal:' . _("FQDN/Aliases")),
 	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),

@@ -49,7 +49,7 @@ function build_url($action, $extra) {
 		if (!empty($inf)) $options = $options . "&inf=" . $inf;
 		if (!empty($sup)) $options = $options . "&sup=" . $sup;
 	}
-	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options;
+	$url = "alarm_group_console.php?action=" . $action . $extra . $options;
 	return $url;
 }
 
@@ -72,14 +72,36 @@ $dst_ip = GET('ip_dst');
 $timestamp = GET('timestamp');
 $name = $_SESSION[GET('name')];
 $hide_closed = GET('hide_closed');
+$only_delete = GET('only_delete'); // Number of groups to delete
+$unique_id = GET('unique_id');
 
 ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
 ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
 ossim_valid($timestamp, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("timestamp"));
-ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("name"));
+ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'illegal:' . _("name"));
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
+ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
+ossim_valid($unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 if (ossim_error()) {
     die(ossim_error());
+}
+
+if ($only_delete) {
+	$group_ids = explode(",",$name);
+	for ($i = 1; $i <= $only_delete; $i++) {
+		$data = explode("_",GET('group'.$i));
+		$name = $_SESSION[$data[0]];
+		$src_ip = $data[1];
+		$dst_ip = $data[2];
+		$timestamp = $data[3];
+		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$timestamp." 00:00:00",$timestamp,$name);
+		foreach ($list as $s_alarm) {
+			$s_backlog_id = $s_alarm->get_backlog_id();
+			$s_event_id = $s_alarm->get_event_id();
+			Alarm::delete_from_backlog($conn, $s_backlog_id, $s_event_id);
+		}
+	}
+	exit;
 }
 
 $host_list = Host::get_list($conn);
@@ -107,6 +129,7 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	</tr>
 	<? } ?>
 <? foreach ($list as $s_alarm) {
+	$bgcolor = (++$i%2 == 0) ? "#FAFAFA" : "#F2F2F2";
 	$s_id = $s_alarm->get_plugin_id();
 	$s_sid = $s_alarm->get_plugin_sid();
 	$s_backlog_id = $s_alarm->get_backlog_id();
@@ -203,36 +226,36 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	"<img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;' />" . "</a>";
 	}
 	}*/
-	$s_delete_link = ($s_status == 'open') ? "<a href='" . build_url("close_alarm", "&alarm=" . $s_backlog_id . "-" . $s_event_id) . "' title='" . gettext("Click here to close alarm") . "'><img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;'></a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'>";
+	$s_delete_link = ($s_status == 'open') ? "<a href='" . build_url("close_alarm", "&alarm=" . $s_event_id) . "' title='" . gettext("Click here to close alarm") . "'><img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;'></a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'>";
 	/* Checkbox */
 	if ($owner == $_SESSION["_user"] || $owner == "") {
-		$checkbox = "<input type='checkbox' name='alarm_checkbox' value='" . $s_event_id . "'>";
+		$checkbox = "<input type='checkbox' name='check_".$s_backlog_id."_".$s_event_id."' class='alarm_check' value='1'>";
 	} else {
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	if ($s_status == 'open') {
-		$status_link = "<a href='alarm_group_console.php?action=close_alarm&alarm=" . $s_event_id . "' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Open") . "</a>";
+		$status_link = "<a href='alarm_group_console.php?action=close_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Open") . "</a>";
 		//$status_link = "<a href='" . build_url("close_alarm", "&alarm=" . $s_backlog_id . "-" . $s_event_id) . "' title='" . gettext("Click here to close alarm") ."'>" . gettext("Open") . "</a>";
 		
 	} else {
-		$status_link = "<a href='alarm_group_console.php?action=open_alarm&alarm=" . $s_event_id . "' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
+		$status_link = "<a href='alarm_group_console.php?action=open_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	/* Expand button */
 	if ($event_ocurrences > 0) $expand_button = "<a href='" . $s_alarm_link . "' ><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
-	else $expand_button = "<strong>[-]</strong>";
+	else $expand_button = "<img src='../pixmaps/minus-small.png' border='0' alt='plus'>";
 ?>
 	<tr>
-		<td class="nobborder" style='text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><a href="" onclick="toggle_alarm('<?=$s_backlog_id?>','<?=$s_event_id?>');return false;">[+]</a></td>
-		<td class="nobborder" style='text-align: center'><?=$checkbox?></td>
-		<td class="nobborder" style='text-align: left; padding-left:10px' width='30%'><strong><?=$balloon_name?></strong></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><a href="" onclick="toggle_alarm('<?=$s_backlog_id?>','<?=$s_event_id?>');return false;"><img src="../pixmaps/plus-small.png" border="0" alt="plus"></img></a></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$checkbox?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: left; padding-left:10px' width='30%'><strong><?=$balloon_name?></strong></td>
 		<?=$risk_field?>
-		<td class="nobborder" style='text-align: center' width='12%'><?=$s_since?></td>
-		<td class="nobborder" style='text-align: center' width='12%'><?=$s_date?></td>
-		<td class="nobborder" nowrap style='text-align: center;'><?=$source_balloon?></td>
-		<td class="nobborder" nowrap style='text-align: center;'><?=$dest_balloon?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center' width='12%'><?=$s_since?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center' width='12%'><?=$s_date?></td>
+		<td class="nobborder" nowrap style='background-color:<?php echo $bgcolor ?>;text-align: center;'><?=$source_balloon?></td>
+		<td class="nobborder" nowrap style='background-color:<?php echo $bgcolor ?>;text-align: center;'><?=$dest_balloon?></td>
 		<td class="nobborder" bgcolor='<?=(($s_status == "open") ? "#ECE1DC" : "#DEEBDB")?>' style='text-align: center; border-width: 0px;'><b><?=$status_link?></b></td>
-		<td class="nobborder" style='text-align: center'><?=$s_delete_link?></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$s_delete_link?></td>
 	</tr>
 	<tr>
 		<td class="nobborder"></td>

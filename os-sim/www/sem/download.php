@@ -16,6 +16,9 @@ ossim_valid($a, OSS_SCORE, OSS_NULLABLE, OSS_SPACE, OSS_TEXT, ':', 'illegal:' . 
 if (ossim_error()) {
     die(ossim_error());
 }
+$config = parse_ini_file("everything.ini");
+
+/*
 if (preg_match("/(.*plugin_id!=)(\S+)(.*)/", $a, $matches) || preg_match("/(.*plugin_id=)(\S+)(.*)/", $a, $matches)) {
     $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
     $query = "select id from plugin where name like '" . $plugin_name . "%' order by id";
@@ -44,8 +47,9 @@ if (preg_match("/(.*sensor!=)(\S+)(.*)/", $a, $matches) || preg_match("/(.*senso
     }
     $a = $matches[1] . $plugin_id . $matches[3];
 }
-
-$org = "/var/ossim/logs/searches/$user"."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a)."/";
+*/
+if ($_SESSION["forensic_query"] != "") $a = $_SESSION["forensic_query"];
+$org = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a)."/";
 $dest = $user."_".$start."_".$end."_".$sort_order."_".str_replace("/","_slash_",$a).".zip";
 
 $org = str_replace("'", "\'", $org);

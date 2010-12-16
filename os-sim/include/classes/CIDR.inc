@@ -105,6 +105,8 @@ class CIDR {
             case "SHORT":
                 switch ($return_format) {
                     case 'LONG':
+                        if ($ip_start < 0) $ip_start = 4294967296 - abs($ip_start);
+                        if ($ip_end < 0) $ip_end = 4294967296 - abs($ip_end);
                         $ip_range[] = $ip_start;
                         $ip_range[] = $ip_end;
                         break;

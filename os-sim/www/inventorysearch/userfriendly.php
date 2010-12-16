@@ -89,7 +89,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 <link rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
 <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
 
-<script src="../js/jquery-1.3.1.js" language="javascript" type="text/javascript"></script>
+<script src="../js/jquery-1.3.2.min.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
@@ -150,7 +150,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 			$y = $aux[0]; $m = $aux[1]; $d = $aux[2];
 		} else {
 			$y = strftime("%Y", time() - (24 * 60 * 60));
-			$m = strftime("%m", time() - (24 * 60 * 60));
+			$m = strftime("%m", time() - (24 * 60 * 60 * 31));
 			$d = strftime("%d", time() - (24 * 60 * 60));
 		}
 		if ($date_to != "") {
@@ -160,8 +160,8 @@ if (!$rs = & $conn->Execute($query, $params)) {
 			$y2 = date("Y"); $m2 = date("m"); $d2 = date("d");
 		}
 		?>
-		var datefrom = new Date(<?php echo $y ?>,<?php echo $m ?>,<?php echo $d ?>);
-		var dateto = new Date(<?php echo $y2 ?>,<?php echo $m2 ?>,<?php echo $d2 ?>);
+		var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
+		var dateto = new Date(<?php echo $y2 ?>,<?php echo $m2-1 ?>,<?php echo $d2 ?>);
 		$('#widgetCalendar').DatePicker({
 			flat: true,
 			format: 'Y-m-d',
@@ -322,7 +322,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 					</td>
 				</tr>
 				<tr>
-					<td class="nobborder" style="text-align:center"><input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="btn" style="font-size:15px;font-weight:bold"></td>
+					<td class="nobborder" style="text-align:center"><input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:15px;font-weight:bold"></td>
 				</tr>
 			</form>
 			</table>

@@ -1135,8 +1135,7 @@ function PurgeAlert($sid, $cid, $db, $deltmp, $j, $interval, $f) {
         "opt",
         "extra_data",
         "acid_ag_alert",
-        "acid_event",
-        "acid_event_input"
+        "acid_event"
     );
     $del_cnt = 0;
     $del_str = "";

@@ -110,7 +110,7 @@ function html_vul_scan($string, $is_get) {
         foreach($string as $string_piece) {
             foreach($scan_for as $s) {
                 if ($is_get) {
-                    if (preg_match("/^(\<=|\>=|\>|\<)$/",$string_piece)) {
+                    if (preg_match("/^(\<=|\>=|\>|\<|\<\>)$/",$string_piece)) {
                         continue;
                     }
                     if ($string_piece != strip_tags($string_piece)) {
@@ -126,7 +126,7 @@ function html_vul_scan($string, $is_get) {
         $string = html_entity_decode($string);
         foreach($scan_for as $s) {
             if ($is_get) {
-                if (preg_match('/^<<./', $string, $m)) {
+                if (preg_match('/^<<./', $string) || preg_match("/^(\<=|\>=|\>|\<|\<\>)$/", $string)) {
                     continue;
                 }
                 if ($string !== strip_tags($string)) {
@@ -142,6 +142,7 @@ function html_vul_scan($string, $is_get) {
 /*
 * Scan all HTTP vars disallowing common exploits like XSS
 */
+$_html_vars_checked = true;
 if (!isset($_html_vars_checked)) {
     $_is_get = true;
     foreach(array(
@@ -160,7 +161,7 @@ if (!isset($_html_vars_checked)) {
         }
         $_is_get = false;
     }
-    $_html_vars_checked = true;
+    
 }
 /*
 
@@ -409,6 +410,10 @@ function ossim_clean_error() {
     return true;
 }
 
+function ossim_get_error() {
+    return $GLOBALS['ossim_last_error'];
+}
+
 function ossim_get_error_clean() {
     $error=$GLOBALS['ossim_last_error'];
 	$normalize = explode("<br/>", $error);
@@ -435,6 +440,7 @@ function ossim_error($error_msg = null, $style=null) {
 
 function validate_form_fields($type, $validate)
 {
+	require_once('classes/Util.inc');
 	$values            = array();
 	$validation_errors = array();
 	$validate_rules    = array();
@@ -444,7 +450,19 @@ function validate_form_fields($type, $validate)
 	{
 		$validate_rules = $validate;
 		foreach ($_POST as $k => $v)
-			$values[$k]= POST($k);
+		{
+			if ( !is_array($v) )
+				$values[$k]= Util::utf8_encode2(POST($k));
+			else
+			{
+				$post_array = POST($k);
+				
+				foreach ($post_array as $i => $j)
+					$aux[$i] = Util::utf8_encode2($j);
+				
+				$values[$k] = $aux;
+			}
+		}
 	}
 	else if ($type == 'GET')
 	{
@@ -459,7 +477,7 @@ function validate_form_fields($type, $validate)
 	}
 	else
 		return 1;
-	
+		
 	foreach ($validate_rules as $k => $v)
 	{
 		if ( !isset($values[$k]) )
@@ -503,7 +521,7 @@ function valid_cidr($cidrs)
 			continue;
 		else
 		{
-			ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<b>$v</b>'");
+			ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<b>".$v."</b>'");
 			return false;
 		}
 	}
@@ -555,11 +573,29 @@ function valid_port($port)
 }
 
 function valid_ip($ip) {
-    if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
-        return true;
-    }
-    ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$ip</b>'");
-    return false;
+    
+	if ( !is_array($ip) )
+	{
+		if ( preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )
+			return true;
+		
+		ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$ip</b>'");
+		return false;
+	}
+	else
+	{
+		foreach ($ip as $k => $v)
+		{
+			if ( preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $v, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )
+				continue;
+			else
+			{
+				ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$v</b>'");
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
 function valid_ipcidr($ip) {
@@ -567,6 +603,10 @@ function valid_ipcidr($ip) {
 	if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) {
         return true;
     }
+    else if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
+        return true;
+    }
+    
     ossim_set_error(_("Invalid IP/CIDR address. Format allowed: nnn.nnn.nnn.nnn/nn?") . "<br/>Entered ip: '<b>$ip</b>'");
     return false;
 }
@@ -717,32 +757,30 @@ function check_uniqueid($unique_id1,$unique_id2) {
 	if ($unique_id1 != "" && $unique_id2 != "" && $unique_id1 == $unique_id2) {
 		return 1;
 	} else {
-		echo _("Can't do this action for security reasons...");
+		//echo _("Can't do this action for security reasons...");
 		return 0;
 	}
 }
 
 // Expire Session check. (15 minutes) PCI Compliance 
 function expire_session_check() {
-	if (session_id() == '') session_start();
-    $conf = $GLOBALS["CONF"];
-    if (!$conf) {
-    	require_once 'ossim_db.inc';
+	$conf = $GLOBALS["CONF"];
+	if (!$conf) {
+		require_once 'ossim_db.inc';
 		require_once 'ossim_conf.inc';
 		$conf = new ossim_conf();
-    }	
-    $expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
-    if ($expired_timeout==0) return;
-	if (intval($_SESSION["_expiration_time"])+$expired_timeout < time()) {
-		header ("Location: /ossim/session/login.php?action=logout");
 	}
-	if (intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1) {
-		// only update if not exists bypass => header ajax responses
-		$_SESSION["_expiration_time"] = time();
+	$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
+	if ($expired_timeout==0) return;
+	if (isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < time()) {
+		header("Location /ossim/session/login.php?action=logout");
 	}
+	// only update if not exists bypass => header ajax responses
+	$_SESSION["_expiration_time"] = time();
 }
-expire_session_check();
-
+if ((session_id() != '') && intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1) {
+	expire_session_check();
+}
 // IDS Security
 ids();
 ?>

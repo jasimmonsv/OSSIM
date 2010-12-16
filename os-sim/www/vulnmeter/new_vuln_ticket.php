@@ -77,7 +77,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript">
     function switch_user(select) {
         if(select=='entity' && $('#transferred_entity').val()!=''){
@@ -336,7 +336,7 @@ $result = $conn->Execute("SELECT description FROM vuln_nessus_plugins WHERE id=$
   </tr>
 <tr>
     <td colspan="2" class="nobborder" style="text-align:center;">
-      <input type="submit" value="<?=_("OK")?>" class="btn" />
+      <input type="submit" value="<?=_("OK")?>" class="button" />
     </td>
   </tr>
 </table>

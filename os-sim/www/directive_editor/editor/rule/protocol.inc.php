@@ -37,98 +37,97 @@
 $protocols = split(',', $rule->protocol)
 ?>
 
-	<!-- #################### protocol ##################### -->
-	<table width="<?php
-echo $left_table_width; ?>">
-		<tr>
-			<th>
-				<?php
-echo gettext("Protocol"); ?>
-			</th>
-		</tr>
-		<!-- ##### first line ##### -->
-		<tr>
-			<td>
-				<!-- ##### any ##### -->
-				<?php
+<!-- #################### protocol ##################### -->
+<table class="transparent">
+	<tr>
+		<th style="white-space: nowrap; padding: 5px;font-size:12px">
+			<?php echo gettext("Protocol"); ?>
+		</th>
+	</tr>
+	<!-- ##### first line ##### -->
+	<tr>
+		<td class="center nobborder">
+			<!-- ##### any ##### -->
+			<?php
 $checked = checkIf(in_array("ANY", $protocols) || (in_array("TCP", $protocols) && in_array("UDP", $protocols) && in_array("ICMP", $protocols)));
 ?>
-				<input type="checkbox"
-					name="protocol_any"
-					id="protocol_any"
-					onclick="onClickProtocolAny(<?php
+			<input type="checkbox"
+				name="protocol_any"
+				id="protocol_any"
+				onclick="onClickProtocolAny(<?php
 echo $rule->level; ?>)"
-					<?php
-echo $checked; ?>
-				/>&nbsp;ANY&nbsp;&nbsp;&nbsp;
-				<!-- ##### tcp ##### -->
 				<?php
+echo $checked; ?>
+			/>&nbsp;ANY&nbsp;&nbsp;&nbsp;
+			<!-- ##### tcp ##### -->
+			<?php
 $checked = checkIf(in_array("ANY", $protocols) || in_array("TCP", $protocols));
 ?>
-				<input type="checkbox"
-					name="protocol_tcp"
-					id="protocol_tcp"
-					onclick="onClickProtocol('protocol_tcp',<?php
+			<input type="checkbox"
+				name="protocol_tcp"
+				id="protocol_tcp"
+				onclick="onClickProtocol('protocol_tcp',<?php
 echo $rule->level; ?>)"
-					<?php
-echo $checked; ?>
-				/>&nbsp;TCP&nbsp;&nbsp;&nbsp;
-				<!-- ##### udp ##### -->
 				<?php
+echo $checked; ?>
+			/>&nbsp;TCP&nbsp;&nbsp;&nbsp;
+			<!-- ##### udp ##### -->
+			<?php
 $checked = checkIf(in_array("ANY", $protocols) || in_array("UDP", $protocols));
 ?>
-				<input type="checkbox"
-					name="protocol_udp"
-					id="protocol_udp"
-					onclick="onClickProtocol('protocol_udp',<?php
+			<input type="checkbox"
+				name="protocol_udp"
+				id="protocol_udp"
+				onclick="onClickProtocol('protocol_udp',<?php
 echo $rule->level; ?>)"
-					<?php
-echo $checked; ?>
-				/>&nbsp;UDP&nbsp;&nbsp;&nbsp;
-				<!-- ##### icmp ##### -->
 				<?php
+echo $checked; ?>
+			/>&nbsp;UDP&nbsp;&nbsp;&nbsp;
+			<!-- ##### icmp ##### -->
+			<?php
 $checked = checkIf(in_array("ANY", $protocols) || in_array("ICMP", $protocols));
 ?>
-				<input type="checkbox"
-					name="protocol_icmp"
-					id="protocol_icmp"
-					onclick="onClickProtocol('protocol_icmp',<?php
+			<input type="checkbox"
+				name="protocol_icmp"
+				id="protocol_icmp"
+				onclick="onClickProtocol('protocol_icmp',<?php
 echo $rule->level; ?>)"
-					<?php
+				<?php
 echo $checked; ?>
-				/>&nbsp;ICMP&nbsp;&nbsp;&nbsp;
-			</td>
-		</tr>
-		<!-- ##### second line ##### -->
-		<?php
+			/>&nbsp;ICMP&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<!-- ##### second line ##### -->
+	<?php
 if ($rule->level > 1) {
 ?>
-		<tr>
-			<td>
-				<!-- ##### :protocol ##### -->
-				<?php
+	<tr>
+		<td class="center nobborder">
+			<!-- ##### :protocol ##### -->
+			<?php
     for ($i = 1; $i <= $rule->level - 1; $i++) {
         $checked = checkIf($rule->protocol == 'ANY' || in_array($i . ':PROTOCOL', $protocols));
 ?>
-					<input type="checkbox"
-						name="protocol_<?php
+				<input type="checkbox"
+					name="protocol_<?php
         echo $i; ?>"
-						id="protocol_<?php
+					id="protocol_<?php
         echo $i; ?>"
-						onclick="onClickProtocol(
-							'protocol_<?php
+					onclick="onClickProtocol(
+						'protocol_<?php
         echo $i; ?>',<?php
         echo $rule->level; ?>)"
-						<?php
+					<?php
         echo $checked; ?>
-					/>&nbsp;<?php
+				/>&nbsp;<?php
         echo $i . ":PROTOCOL"; ?>&nbsp;&nbsp;&nbsp;
-				<?php
+			<?php
     } ?>
-			</td>
-		</tr>
-		<?php
+		</td>
+	</tr>
+	<?php
 }
 ?>
-	</table>
-	<!-- #################### END: protocol ##################### -->
+	<tr><td class="center nobborder" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Next") ?>" onclick="wizard_next()"></td></tr>
+</table>
+<!-- #################### END: protocol ##################### -->

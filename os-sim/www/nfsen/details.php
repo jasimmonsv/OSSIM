@@ -950,13 +950,13 @@ function DisplayDetails () {
 			
 ?>
 			</select>
-			<input name="adjust" value=" << " type="submit" title="<?=_("Back")?> <?php echo $size_label;?>">&nbsp;
-			<input name="adjust" value=" < " type="submit" title="<?=_("Previous time slot")?>">&nbsp;
-			<input name="adjust" value=" | " type="submit" title="<?=_("Center cursor")?>">&nbsp;
-			<input name="adjust" value=" ^ " type="submit" <?php echo $status; ?> title="<?php echo $peak_search_label?>">&nbsp;
-			<input name="adjust" value=" > " type="submit" title="<?=_("Next time slot")?>">&nbsp;
-			<input name="adjust" value=" >> " type="submit" title="<?=_("Forward")?> <?php echo $size_label;?>">&nbsp;
-			<input name="adjust" value=" >| " type="submit" title="<?=_("Goto last slot")?>">
+			<input class="lbutton" name="adjust" value=" << " type="submit" title="<?=_("Back")?> <?php echo $size_label;?>">&nbsp;
+			<input class="lbutton" name="adjust" value=" < " type="submit" title="<?=_("Previous time slot")?>">&nbsp;
+			<input class="lbutton" name="adjust" value=" | " type="submit" title="<?=_("Center cursor")?>">&nbsp;
+			<input class="lbutton" name="adjust" value=" ^ " type="submit" <?php echo $status; ?> title="<?php echo $peak_search_label?>">&nbsp;
+			<input class="lbutton" name="adjust" value=" > " type="submit" title="<?=_("Next time slot")?>">&nbsp;
+			<input class="lbutton" name="adjust" value=" >> " type="submit" title="<?=_("Forward")?> <?php echo $size_label;?>">&nbsp;
+			<input class="lbutton" name="adjust" value=" >| " type="submit" title="<?=_("Goto last slot")?>">
 			</form>
 		</td>
 		</tr>
@@ -1200,8 +1200,8 @@ function DisplayDetails () {
 
 ?>		
 		<tr><td colspan="2">
-		<INPUT TYPE="submit" NAME="MultipleSources" Value="<?=_("All")?>">
-		<INPUT TYPE="submit" NAME="MultipleSources" Value="<?=_("None")?>">
+		<INPUT class="lbutton" TYPE="submit" NAME="MultipleSources" Value="<?=_("All")?>">
+		<INPUT class="lbutton" TYPE="submit" NAME="MultipleSources" Value="<?=_("None")?>">
 		</td>
 		<td colspan='15' style='text-align: left;'>
 		<?=_("Display")?>:
@@ -1301,7 +1301,7 @@ function DisplayProcessing() {
 		}
 ?>
 		</SELECT><br>
-		<INPUT TYPE="button" NAME="JSbutton2" Value="<?=_("All Sources")?>" onClick="SelectAllSources()">
+		<INPUT class="lbutton" TYPE="button" NAME="JSbutton2" Value="<?=_("All Sources")?>" onClick="SelectAllSources()">
 	</TD>
 	<td style="vertical-align:top;border:none">
 		<textarea name="filter" id="filter" multiline="true" wrap="phisical" rows="6" cols="50" maxlength="50"><?php
@@ -1372,8 +1372,8 @@ function DisplayProcessing() {
 ?>
 			</td>
 			<td align="right" style="border:none">
-				<input type="button" name="JSbutton1" value="<?=_("Clear Form")?>" onClick="ResetProcessingForm()">
-				<input type="submit" name="process" value="<?=_("Process")?>" style="font-weight:bold" id="process_button" onClick="form_ok=true;" size="1">
+				<input class="button" type="button" name="JSbutton1" value="<?=_("Clear Form")?>" onClick="ResetProcessingForm()">
+				<input class="button" type="submit" name="process" value="<?=_("Process")?>" style="font-weight:bold" id="process_button" onClick="form_ok=true;" size="1">
 			</td>
 			</tr>
 			<tr id="listNRow" <?php echo $list_display_style;?>>

@@ -1353,7 +1353,7 @@ sub generate_profiles {
         my @tmp = split(/\|/,$nd);
         my @values = split(/\|/,$profiles{$nd});
 
-        $sql = qq{SELECT id from vuln_nessus_settings where name like '$tmp[0]' and owner='$tmp[3]' and deleted='0'};
+        $sql = qq{SELECT id from vuln_nessus_settings where name like '$tmp[0]'};
         $sth_sel = $dbh->prepare($sql);
         $sth_sel->execute();
         my ($id) = $sth_sel->fetchrow_array;

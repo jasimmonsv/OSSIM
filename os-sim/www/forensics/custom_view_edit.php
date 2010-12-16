@@ -31,6 +31,7 @@
 require_once('classes/Session.inc');
 require_once('classes/Security.inc');
 require_once('classes/Event_viewer.inc');
+Session::logcheck("MenuEvents", "EventsForensics");
 require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
@@ -77,8 +78,8 @@ if ($save == "insert") {
 		if ($save_criteria) {
 			$session_data = $_SESSION;
 			foreach ($_SESSION as $k => $v) {
-			if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|siem_current_query|siem_current_query_graph).*/",$k))
-				unset($session_data[$k]);
+			if (preg_match("/^(_|alarms_|back_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|siem_current_query|siem_current_query_graph|deletetask).*/",$k))
+				unset($session_data[$k]);				
 			}
 			$_SESSION['views'][$name]['data'] = $session_data;
 		} else {
@@ -260,13 +261,13 @@ if ($opensource) {
 		<?php if ($_SESSION['current_cview'] == "default" && $edit) {?>
 		<?=_("View Name")?>: <input type="text" value="default" style="color:gray;width:100px" disabled><input type="hidden" name="name" value="default">
 		<?php } else {?>
-		<?=_("View Name")?>: <input type="text" name="name" style="width:100px" value="<? if ($edit) echo $_SESSION['current_cview'] ?>" <? if ($edit) { ?>onkeyup="document.getElementById('saveasbutton').disabled='';document.getElementById('saveasbutton').style.color='black'"<?php }?>>
+		<?=_("View Name")?>: <input type="text" name="name" style="width:100px" value="<? if ($edit) echo $_SESSION['current_cview'] ?>" <? if ($edit) { ?>onkeyup="$('#saveasbutton').attr('disabled','');$('#saveasbutton').removeClass('lbuttonoff').addClass('lbutton')"<?php }?>>
 		<?php }?>
-		<input type="button" onclick="document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=($edit) ? _("Save") : _("Create")?>">
-        <? if ($_SESSION['current_cview'] == "default") {?> &nbsp;<input type="button" onclick="$('#action').val('<?=_("Default view")?>');document.fcols.submit()" value="<?=_("Restore Default")?>"> <? } ?>  
-		<? if ($edit && $_SESSION['current_cview'] != "default") { ?>&nbsp;<input type="button" onclick="document.fcols.save.value='insert';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?php echo _("Save As")?>" id="saveasbutton" style="color:gray" disabled>&nbsp;<input type="button" onclick="if(confirm('<?=_("Are you sure?")?>')) { document.fcols.save.value='delete';document.fcols.submit() }" value="<?=_("Delete")?>"><? } ?>
-		<?php if (Session::am_i_admin() && $edit) { ?>&nbsp;<input type="button" onclick="document.fcols.save.value='report';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=_("Save as Report")?>"><?php } ?>
-		&nbsp;<input type="button" onclick="parent.GB_hide()" value="<?=_("Close window")?>">
+		<input type="button" class="lbutton" onclick="document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=($edit) ? _("Save") : _("Create")?>">
+        <? if ($_SESSION['current_cview'] == "default") {?> <input type="button" class="lbutton" onclick="$('#action').val('<?=_("Default view")?>');document.fcols.submit()" value="<?=_("Restore Default")?>"> <? } ?>  
+		<? if ($edit && $_SESSION['current_cview'] != "default") { ?> <input type="button" class="lbuttonoff" onclick="document.fcols.save.value='insert';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?php echo _("Save As")?>" id="saveasbutton" style="color:gray" disabled> <input type="button" class="lbutton" onclick="if(confirm('<?=_("Are you sure?")?>')) { document.fcols.save.value='delete';document.fcols.submit() }" value="<?=_("Delete")?>"><? } ?>
+		<?php if (Session::am_i_admin() && $edit) { ?> <input type="button"  class="lbutton" onclick="document.fcols.save.value='report';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=_("Save as Report")?>"><?php } ?>
+		<input type="button" class="lbutton" onclick="parent.GB_hide()" value="<?=_("Close window")?>">
 		
 	</td></tr>
 </form>

@@ -34,9 +34,13 @@
 * Function list:
 * Classes list:
 */
+if ($argv[2] != "") {
+	$path_class = '/usr/share/ossim/include/:/usr/share/ossim/www/sem';
+	ini_set('include_path', $path_class);
+}
 require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
-Session::logcheck("MenuEvents", "ControlPanelSEM");
+if ($argv[2] == "") Session::logcheck("MenuEvents", "ControlPanelSEM");
 ?>
 
 <html>
@@ -48,17 +52,37 @@ Session::logcheck("MenuEvents", "ControlPanelSEM");
 $config = parse_ini_file("everything.ini");
 $cache_dir = $config["cache_dir"];
 $locate_db = $config["locate_db"];
-$signature = GET("signature");
-$log_line = base64_decode(GET("log"));
-$start = GET("start");
-$end = GET("end");
-$logfile = GET("logfile");
 
+if ($argv[2] != "") {
+	$signature = $argv[1];
+	$log_line = $argv[2];
+	$start = $argv[3];
+	$end = $argv[4];
+	$logfile = $argv[5];
+	$server = "127.0.0.1";
+} else {
+	$signature = POST("signature");
+	$log_line = base64_decode(POST("log"));
+	$start = POST("start");
+	$end = POST("end");
+	$logfile = POST("logfile");
+	$server = POST("server");
+}
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($logfile, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SLASH, '[^\.]\.[^\.]', 'illegal:' . _("logfile"));
+ossim_valid($server, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("server"));
 if (ossim_error()) {
     die(ossim_error());
+}
+
+if ($server != "127.0.0.1") {
+	$cmd = "sudo ./fetchremote_validate.pl \"$signature\" \"$log_line\" \"$start\" \"$end\" \"$logfile\" $server";
+	$salida = explode("\n",`$cmd`);
+	foreach ($salida as $linea) {
+		echo $linea;
+	}
+	exit;
 }
 
 if ($logfile != "" && preg_match("/\//",$logfile)) {

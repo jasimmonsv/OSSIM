@@ -8,7 +8,7 @@ function onLoadRuleEditor(plugin_sid,from,to,port_from,port_to,sensor) {
 	if (neg != -1) {
 		plugin_sid_value = "!" + plugin_sid.substr(neg+1).replace(/!/gi,"");
 	}
-
+	/*
 	getElt("plugin_sid_list").value = plugin_sid_value;
 	getElt("plugin_sid_list").title = plugin_sid_value;
 	onChangePluginSidList(true);
@@ -22,6 +22,7 @@ function onLoadRuleEditor(plugin_sid,from,to,port_from,port_to,sensor) {
 	getElt("port_to_list").title = port_to;
 	getElt("sensor_list").value = sensor;
 	getElt("sensor_list").title = sensor;
+	*/
 }
 
 /* must erase the name if "New rule" ? */
@@ -332,34 +333,40 @@ function onChangeIPList(ip_list) {
 }
 
 /* Event. */
-function onChangePortSelectBox(id) {
+function onChangePortSelectBox(id,val) {
 
-	var id_list = getElt(id + "_list");
+	//var id_list = getElt(id + "_list");
 
-	if (getElt(id).value == "LIST") {
-
+	if (val == "LIST") {
+		if (id.match(/port/)) document.getElementById(id+'_input').style.display = 'inline';
+		else document.getElementById(id+'_input').style.visibility = 'visible';
+		document.getElementById(id+'_list').value = "";
 		/* enable the list */
-		id_list.disabled = "";
+		//id_list.disabled = "";
 
 		/* force the focus to the text box if the list is empty */
-		if (id_list.value == "") giveFocus(id + "_list");
+		//if (id_list.value == "") giveFocus(id + "_list");
 	}
-	else  if (getElt(id).value == "ANY"){
+	//else  if (getElt(id).value == "ANY"){
 
 		/* disable the list */
-		id_list.disabled = "disabled";
-	}
+		//id_list.disabled = "disabled";
+	//}
 	else {
-	
+		if (id.match(/port/)) document.getElementById(id+'_input').style.display = 'none';
+		else document.getElementById(id+'_input').style.visibility = 'hidden';
+		document.getElementById(id+'_list').value = val;
 	/* enable the list */
-		id_list.disabled = "";
+		//id_list.disabled = "";
 
 	/* add new port */
-	var port_list = id_list.value;
+	/*
+		var port_list = id_list.value;
 	if (port_list != "")
 		getElt(id + "_list").value += ",";
 	getElt(id + "_list").value += getElt(id).value;
 	getElt(id).value = "LIST";
+	*/
 	}
 }
 

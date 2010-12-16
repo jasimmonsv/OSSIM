@@ -1,3 +1,7 @@
+-- Aruba
+-- plugin_id: 1623
+
+
 DELETE FROM plugin WHERE id = "1623";
 DELETE FROM plugin_sid where plugin_id = "1623";
 

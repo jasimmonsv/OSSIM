@@ -62,12 +62,15 @@ $db = new ossim_db();
 $conn = $db->connect();
 $conn_snort = $db->snort_connect();
 
+if( $host==$hostname && preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $host) ) {
+    $hostname = Host::ip2hostname($conn,$host);
+}
 
-if ($host == "" && GET('hostname') != "") $host = Host::hostname2ip($conn,GET('hostname'));
+if ($host == "" && $hostname != "") $host = Host::hostname2ip($conn,$hostname); 
 
 if ($host == "" && GET('netname') != "") {
-	$aux_list = Net::get_list($conn,"WHERE name='".GET('netname')."'");
-	$host = preg_replace("/,.*/","",$aux_list[0]->get_ips());
+    $aux_list = Net::get_list($conn,"WHERE name='".GET('netname')."'");
+    $host = preg_replace("/,.*/","",$aux_list[0]->get_ips());
 }
 
 $hostname = "Host";
@@ -142,7 +145,7 @@ a {
 	font-size:10px;
 }
 </style>
-<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script src="../forensics/js/jquery.flot.pack.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.progressbar.min.js"></script>
 <script type="text/javascript" src="../js/greybox.js"></script>

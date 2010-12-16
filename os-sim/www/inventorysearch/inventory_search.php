@@ -57,7 +57,7 @@ $rules = get_rulesconfig ();
 <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
 <link rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
 
-<script src="../js/jquery-1.3.1.js" language="javascript" type="text/javascript"></script>
+<script src="../js/jquery-1.3.2.min.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
 
@@ -168,7 +168,7 @@ var finish = false;
 			document.getElementById('criteria_form').innerHTML += criteria_html(i);
 		}
 		//document.getElementById('criteria_form').innerHTML += "<tr><td class='nobborder' style='text-align:right'><a href='' onclick='addcriteria("+criteria_count+");return false;'><img src='../pixmaps/plus-small.png' alt='Add Criteria' title='Add Criteria'></a></td><td class='nobborder'><i><?=_("Add another Criteria")?></i></td></tr>";
-		//document.getElementById('criteria_form').innerHTML += "<tr><td class='nobborder'></td><td class='nobborder' style='text-align:right'><input type='button' value='+' class='btn' style='font-size:11px;font-weight:bold;width:20px' onclick='addcriteria("+criteria_count+")'></td></tr>";
+		//document.getElementById('criteria_form').innerHTML += "<tr><td class='nobborder'></td><td class='nobborder' style='text-align:right'><input type='button' value='+' class='lbutton' style='font-size:11px;font-weight:bold;width:20px' onclick='addcriteria("+criteria_count+")'></td></tr>";
 		load_dates();
 	}
 	
@@ -303,9 +303,9 @@ var finish = false;
 		
 		//var remove = "<td class='nobborder'></td>";
 		//if (criteria_count > 1) var remove = "<td class='nobborder'><a href='' onclick='removecriteria("+i+");return false;'><img src='../pixmaps/minus-small.png' alt='Remove Criteria' title='Remove Criteria'></a></td>";
-		if (criteria_count > 1) var remove = "<td class='nobborder' width='15'><input type='button' value='-' class='btn' style='font-size:12px;font-weight:bold;width:20px' onclick='removecriteria("+i+")'></td>";
-		else var remove = "<td class='nobborder' width='15'><input type='button' value='-' class='btn' style='font-size:12px;font-weight:bold;width:20px' onclick='removecriteria("+i+")' disabled></td>";
-		var add = "<td class='nobborder' width='15' style='padding-right:6px'><input type='button' value='+' class='btn' style='font-size:12px;font-weight:bold;width:20px' onclick='addcriteria("+criteria_count+")'></td>";
+		if (criteria_count > 1) var remove = "<td class='nobborder' width='15'><input type='button' value='-' class='lbutton' style='font-size:12px;font-weight:bold;width:20px' onclick='removecriteria("+i+")'></td>";
+		else var remove = "<td class='nobborder' width='15'><input type='button' value='-' class='lbutton' style='font-size:12px;font-weight:bold;width:20px' onclick='removecriteria("+i+")' disabled></td>";
+		var add = "<td class='nobborder' width='15' style='padding-right:6px'><input type='button' value='+' class='lbutton' style='font-size:12px;font-weight:bold;width:20px' onclick='addcriteria("+criteria_count+")'></td>";
 		
 		var debug = "<td class='nobborder'></td>";
 		//debug = "<td>DEBUG: #"+i+" type: "+criterias[i]+", subtype: "+subcriterias[i]+", value: "+values[i]+"</td>";
@@ -746,7 +746,7 @@ var finish = false;
 							<td class="nobborder" style="text-align:right"><input type="button" onclick="clean_request()" value="<?=_("Clean")?>" class="button" style="font-size:12px"></td>
 							<td class="nobborder" style="text-align:left"><input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:12px;" disabled></td>
 							<td class="nobborder" width="100" style="text-align:right">&nbsp;</td>
-							<!--<td class="nobborder" width="100" style="text-align:right"><input type="button" class="btn" onclick="profiles_show()" id="prof_link" value="<?=_("Profiles")?> >>"></td>-->
+							<!--<td class="nobborder" width="100" style="text-align:right"><input type="button" class="lbutton" onclick="profiles_show()" id="prof_link" value="<?=_("Profiles")?> >>"></td>-->
 						</tr>
 					</table>
 					</td>
@@ -766,9 +766,9 @@ var finish = false;
 							<tr>
 								<td class="nobborder" id="profiles"></td>
 							</tr>
-							<tr><td class="nobborder"><!--<input type="button" value="Load" onclick="profile_load(document.getElementById('profile').value)" class="btn">--><input type="button" value="<?=_("Delete")?>" onclick="profile_delete(document.getElementById('profile').value)" class="btn"></td></tr>
-							<tr><td class="nobborder" style="padding-top:10px"><input type="text" id="cur_name" value="- <?=_("New Profile")?> -" onfocus="this.value=''"> <input type="button" value="<?=_("Save Current")?>" onclick="profile_save(document.getElementById('cur_name').value)" class="btn"></td></tr>
-							<tr><td class="nobborder"><input type="text" id="cur_rename" value="" disabled> <input type="button" value="<?=_("Rename")?>" id="rename_button" onclick="profile_rename(document.getElementById('profile').value,document.getElementById('cur_rename').value)" class="btn" disabled></td></tr>
+							<tr><td class="nobborder"><!--<input type="button" value="Load" onclick="profile_load(document.getElementById('profile').value)" class="lbutton">--><input type="button" value="<?=_("Delete")?>" onclick="profile_delete(document.getElementById('profile').value)" class="lbutton"></td></tr>
+							<tr><td class="nobborder" style="padding-top:10px"><input type="text" id="cur_name" value="- <?=_("New Profile")?> -" onfocus="this.value=''"> <input type="button" value="<?=_("Save Current")?>" onclick="profile_save(document.getElementById('cur_name').value)" class="lbutton"></td></tr>
+							<tr><td class="nobborder"><input type="text" id="cur_rename" value="" disabled> <input type="button" value="<?=_("Rename")?>" id="rename_button" onclick="profile_rename(document.getElementById('profile').value,document.getElementById('cur_rename').value)" class="lbutton" disabled></td></tr>
 						</table>
 						</div>
 					</td>

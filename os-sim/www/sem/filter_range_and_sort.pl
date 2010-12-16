@@ -3,6 +3,8 @@ use Time::Local;
 use DBI;
 use Net::CIDR;
 
+#use Data::Dumper;
+
 my $dbhost = `grep db_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbhost);
 $dbhost = "localhost" if ($dbhost eq "");
 my $dbuser = `grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbuser);
@@ -13,6 +15,10 @@ if(!$ARGV[5]){
 print "Accepts two epoch_timestamps as commands, loglines as stdin. Only prints out those within the two timestamps\n";
 exit;
 }
+%ini = read_ini();
+$log_dir = $ini{'main'}{'log_dir'};
+$log_dir = "/var/ossim/logs/" if ($log_dir eq "");
+
 $debug = 0; # 1 for debuging info
 $debug_log = "";
 
@@ -36,6 +42,7 @@ $debug_log = $ARGV[8] if ($ARGV[8] ne "");
 %filters = ();
 %neg_filters = ();
 set_filters($filter);
+
 #debug_filters(); exit;
 
 #chop($grep_str);
@@ -60,7 +67,7 @@ if ($ARGV[5] ne "date") {
 	my @tm = localtime($end); $tm[5]+=1900; $tm[4]++;
 	$tm[3] = "0".$tm[3] if (length($tm[3])<2);
 	$tm[4] = "0".$tm[4] if (length($tm[4])<2);
-	open (L,"find /var/ossim/logs/".$tm[5]."/".$tm[4]."/".$tm[3]."/ -name *log 2>/dev/null | sort -r |");
+	open (L,"find ".$log_dir.$tm[5]."/".$tm[4]."/".$tm[3]."/ -name *log 2>/dev/null | sort -r |");
 	while($file=<L>) {
 		chomp($file);  
 		print "Adding log: $file\n" if ($debug);
@@ -92,7 +99,7 @@ foreach my $file (@files) {
 	my @fields = split(/\//,$file);
 	my $sdirtime = timegm(0, 0, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
 	my $edirtime = timegm(59, 59, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
-	if ($start<=$sdirtime && $edirtime<=$end) { #if ($edirtime > $start && $sdirtime < $end) {
+    if ($start<=$sdirtime && $edirtime<=$end) { #if ($edirtime > $start && $sdirtime < $end) {
 		#print "$file: $start - $dirtime - $end\n" if ($debug);
 		if ($fields[4].$fields[5].$fields[6].$fields[7]==$hourday || $complete_lines<$lines_threshold) { # read files while same hourday or need more events
 			$hourday = $fields[4].$fields[5].$fields[6].$fields[7];
@@ -165,9 +172,9 @@ foreach my $file (@files) {
 					
 					last LINE if ($reverse && $complete_lines>=$lines_threshold && $currentdate<$lastdate); # jump innecesary events
 					last LINE if (!$reverse && $complete_lines>=$lines_threshold && $currentdate>$lastdate); # jump innecesary events
-					#print "Evento: $currentdate > $start && $currentdate < $end\n";
+					#print "Evento: $currentdate > $start && $currentdate < $end\n" if ($debug);
 					if ($currentdate > $start && $currentdate < $end && pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port,$data)) {
-						#print "$complete_lines BIEN Plugin $plugin_id - $plugin_sid -> ".pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port)."\n";
+						#print "$complete_lines BIEN Plugin $plugin_id - $plugin_sid -> ".pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port)."\n" if ($debug);
 						chomp;
 						$events{$_.";$file;$complete_lines;$server"} = $currentdate;
 						$complete_lines++; $read_lines++;
@@ -223,44 +230,49 @@ sub pass_filters {
 	my $data = shift;
 	
 	foreach $key1 (keys %filters) {
-		foreach $key2 (keys %{$filters{$key1}}) {
-			my $pass_filter = 0;
+		my $pass_filter = 0;
+        foreach $key2 (keys %{$filters{$key1}}) {
 			foreach $type (keys %{$filters{$key1}{$key2}}) {
 				# LOOP BY THE OR SENTENCES
-				$pass_filter = 1 if ($type eq "plugin_id_sid" && defined $filters{$key1}{$key2}{$type}{$plugin_id}{$plugin_sid});
-				$pass_filter = 1 if ($type eq "plugin_id" && defined $filters{$key1}{$key2}{$type}{$plugin_id});
-				$pass_filter = 1 if ($type eq "sensor" && $filters{$key1}{$key2}{$type} eq $sensor);
-				$pass_filter = 1 if ($type eq "src_ip" && $filters{$key1}{$key2}{$type} eq $src_ip);
-				$pass_filter = 1 if ($type eq "dst_ip" && $filters{$key1}{$key2}{$type} eq $dst_ip);
-				$pass_filter = 1 if ($type eq "src_port" && $filters{$key1}{$key2}{$type} eq $src_port);
-				$pass_filter = 1 if ($type eq "dst_port" && $filters{$key1}{$key2}{$type} eq $dst_port);
-				$pass_filter = 1 if ($type eq "src_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($src_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($src_ip));
-				$pass_filter = 1 if ($type eq "dst_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($dst_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($dst_ip));
-				$match = $filters{$key1}{$key2}{$type};
-				$pass_filter = 1 if ($type eq "data" && $data =~ /$match/i);
-				
-				if (defined $neg_filters{$key1}{$key2}) {
-					$pass_filter = ($pass_filter) ? 0 : 1;
-				}
-			}
-			return 0 if (!$pass_filter);
-		}
-	}
-	
-	return 1;
+                
+                #print $filters{$key1}{$key2}{$type}." == ($key1,$key2,$type) $sensor => ".($type eq "sensor" && $filters{$key1}{$key2}{$type} eq $sensor)."\n" if ($debug);
+                $pass_filter = 1 if ($type eq "plugin_id_sid" && defined $filters{$key1}{$key2}{$type}{$plugin_id}{$plugin_sid});
+                $pass_filter = 1 if ($type eq "plugin_id" && defined $filters{$key1}{$key2}{$type}{$plugin_id});
+                $pass_filter = 1 if ($type eq "sensor" && $filters{$key1}{$key2}{$type} eq $sensor);
+                $pass_filter = 1 if ($type eq "src_ip" && $filters{$key1}{$key2}{$type} eq $src_ip);
+                $pass_filter = 1 if ($type eq "dst_ip" && $filters{$key1}{$key2}{$type} eq $dst_ip);
+                $pass_filter = 1 if ($type eq "src_port" && $filters{$key1}{$key2}{$type} eq $src_port);
+                $pass_filter = 1 if ($type eq "dst_port" && $filters{$key1}{$key2}{$type} eq $dst_port);
+                $pass_filter = 1 if ($type eq "src_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($src_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($src_ip));
+                $pass_filter = 1 if ($type eq "dst_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($dst_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($dst_ip));
+                $match = $filters{$key1}{$key2}{$type};
+                $pass_filter = 1 if ($type eq "data" && $data =~ /$match/i);
+                
+                if (defined $neg_filters{$key1}{$key2}) {
+                    $pass_filter = ($pass_filter) ? 0 : 1;
+                }
+            }
+        }
+        return 0 if (!$pass_filter);
+    }
+
+    return 1;
 }
 
 sub set_filters {
 	my $filter = shift;
-	
-	$filter =~ s/ or /|/ig;
+	$filter =~ s/#/|/ig;
+	$filter =~ s/\s+or\s+/|/ig;
+	#$filter =~ s/(.*)\=(.*)SPACESCAPEORSPACESCAPE(.*)\=(.*)/$1=$2|$3=$4/ig;
 	@args = split(/\s+/, $filter);
 	my $and_num = 1;
 	foreach $arg (@args){ # LOOP by the AND elements
-		if($arg eq "and" || $arg eq "AND") {next;}
-		if($arg eq " ") {next;}
-		if($arg eq "") {next;}
+		next if($arg eq "and" || $arg eq "AND" || $arg eq " " || $arg eq "");
 		
+        # if ($arg =~ /(.*?)=(.*)/) {
+            # $filter = $1;
+            # $arg =~ s/(\|)/$1$filter=/g;
+        # }
 		my @atoms = ();
 		if ($arg =~ /\|/) {
 			@atoms = split(/\|/,$arg);
@@ -362,7 +374,7 @@ sub set_taxonomy_filters {
 	my $or_num = shift;
 	#$filters{$and_num}{$or_num}{'plugin_id_sid'}{'7017'}{'1002'}++; # For Debug
 	my @plugin_ids = ();
-	if ($filter =~ /taxonomy='(.*)-(.*)-(.*)'/) {
+	if ($filter =~ /taxonomy\!?='?(.*)-(.*)-(.*)'?/) {
 		$has_results = 0;
 		if ($1 ne "") {
 			my $st = $1;
@@ -408,7 +420,7 @@ sub set_plugingroup_filters {
 	my $or_num = shift;
 	#$filters{$and_num}{$or_num}{'plugin_id_sid'}{'7017'}{'1002'}++; # For Debug
 	my @plugin_ids = ();
-	if ($filter =~ /plugingroup=(.+)/) {
+	if ($filter =~ /plugingroup\!?=(.+)/) {
 		$dbh = conn_db();
 		$group_name = $1;
 		$temp_sql = "SELECT plugin_group.plugin_id,plugin_group.plugin_sid as sid FROM plugin_group_descr groups, plugin_group WHERE groups.group_id=plugin_group.group_id AND groups.name='$group_name'";
@@ -456,6 +468,17 @@ sub debug_filters {
 	}
 }
 
+sub in_array {
+    my $filter = $_[0];
+    my $search_for = $_[1];
+
+    my @arr = split("|",$filter);
+    foreach my $value (@arr) {
+        return 1 if ($value eq $search_for);
+    }
+    return 0;
+}
+
 sub ip2long {
 	#converts an IP address x.x.x.x into a long IP number as used by ulog
 	my $ip_address = shift;
@@ -483,4 +506,23 @@ sub conn_db {
 sub disconn_db {
     my ( $dbh ) = @_;
     $dbh->disconnect or die("Failed to disconnect : $DBI::errstr\n");
+}
+
+sub read_ini {
+	my ($hash,$section,$keyword,$value);
+    open (INI, "everything.ini") || die "Can't open everything.ini: $!\n";
+    while (<INI>) {
+        chomp;
+        if (/^\s*\[(\w+)\].*/) {
+            $section = $1;
+        }
+        if (/^\W*(.+?)=(.+?)\W*(#.*)?$/) {
+            $keyword = $1;
+            $value = $2 ;
+            # put them into hash
+            $hash{$section}{$keyword} = $value;
+        }
+    }
+    close INI;
+    return %hash;
 }

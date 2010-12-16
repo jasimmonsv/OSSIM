@@ -78,18 +78,23 @@ if (ossim_error()) {
 }
 $prev_unique_id = $_SESSION['alarms_unique_id'];
 
+// check required permissions
+if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+	die(ossim_error("You don't have required permissions to delete Alarms"));
+
+// check unique_id for alarms
 if (check_uniqueid($prev_unique_id,$param_unique_id)) {
-foreach($_POST as $key => $value) {
-    if (preg_match("/check_(\d+)_(\d+)/", $key, $found)) {
-        if ($only_close) Alarm::close($conn, $found[2]);
-		elseif ($move_tag != "") {
-			if ($move_tag > 0) { Tags::set_alarm_tag($conn,$found[1],$move_tag); }
-			else { Tags::del_alarm_tag($conn,$found[1]); }
-		}
-        else Alarm::delete_from_backlog($conn, $found[1], $found[2]);
-        //echo "<tr><td class='nobborder'>Alarm deleted: <font color='red'><b>" . $found[1] . "-" . $found[2] . "</b></font></td></tr>";
-    }
-}
+	foreach($_POST as $key => $value) {
+	    if (preg_match("/check_(\d+)_(\d+)/", $key, $found)) {
+	        if ($only_close) Alarm::close($conn, $found[2]);
+			elseif ($move_tag != "") {
+				if ($move_tag > 0) { Tags::set_alarm_tag($conn,$found[1],$move_tag); }
+				else { Tags::del_alarm_tag($conn,$found[1]); }
+			}
+	        else Alarm::delete_from_backlog($conn, $found[1], $found[2]);
+	        //echo "<tr><td class='nobborder'>Alarm deleted: <font color='red'><b>" . $found[1] . "-" . $found[2] . "</b></font></td></tr>";
+	    }
+	}
 //header ("Location: alarm_console.php");
 ?>
 <html>

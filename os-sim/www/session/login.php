@@ -113,25 +113,26 @@ if ($action == "logout") {
     );
     if (trim($infolog[0]) != "") Log_action::log(2, $infolog);
     Session::logout();
-    header("Location: ../index.php");
 }
 $user = REQUEST('user');
 $pass = base64_decode(REQUEST('pass'));
 $accepted = REQUEST('first_login');
+$mobile = REQUEST("mobile");
 ossim_valid($user, OSS_USER, OSS_NULLABLE, 'illegal:' . _("User name"));
+ossim_valid($mobile, OSS_LETTER, OSS_NULLABLE, 'illegal:' . _("Mobile"));
 ossim_valid($accepted, OSS_NULLABLE, 'yes', 'no', 'illegal:' . _("First login"));
 if (ossim_error()) {
     die(ossim_error());
 }
 $failed = true;
 $first_login = "no";
-if (REQUEST('user')) {
+if (REQUEST('user') && trim($pass)!="") {
     require_once ("classes/Config.inc");
     $session = new Session($user, $pass, "");
     $conf = new Config();
     if ($accepted == "yes") $conf->update("first_login", "no");
-	$login_return = $session->login();
 	$is_disabled = $session->is_disabled();
+	$login_return = $session->login();
 	$first_userlogin = $session->first_login();
 	$last_pass_change = $session->last_pass_change();
 	$login_exists = $session->login_exists();
@@ -139,9 +140,11 @@ if (REQUEST('user')) {
 	if ($login_return != true) {
 		$failed = true;
         $bad_pass = true;
+        $failed_retries = $conf->get_conf("failed_retries", FALSE);
         if ($login_exists && !$is_disabled) {
         	$_SESSION['bad_pass'][$user]++;
-	        if ($_SESSION['bad_pass'][$user] > 6 && $user != ACL_DEFAULT_OSSIM_ADMIN) {
+	        if ($_SESSION['bad_pass'][$user] >= $failed_retries && $user != ACL_DEFAULT_OSSIM_ADMIN) {
+	        	// auto-disable user
 	        	$disabled = true;
 	        	$session->login_disable();
 	        }
@@ -178,7 +181,10 @@ if (REQUEST('user')) {
 			} elseif ($user == ACL_DEFAULT_OSSIM_ADMIN && $pass == "admin") {
 				header("Location: first_login.php?changeadmin=1");
 			} else {
-				header("Location: ../index.php");
+				if ($mobile!="")
+					header("Location: ../statusbar/mobile.php?screen=$mobile");
+				else
+					header("Location: ../index.php");
 			}
             exit;
         }
@@ -192,7 +198,7 @@ $conn = $db->connect();
 Session::check_enabled_field($conn);
 $db->close($conn);
 $version = $conf->get_conf("ossim_server_version", FALSE);
-$opensource = (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) ? true : false;
+$opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -274,7 +280,7 @@ if ($failed) { ?>
     <td class="nobborder" style="text-align:center;padding-top:20px">
 
     <input type="submit" id="submit_button" value="<?php
-    echo gettext("Login"); ?>" class="btn" style="font-size:12px">
+    echo gettext("Login"); ?>" class="button" style="font-size:12px">
 
     </td>
   </tr>
@@ -341,9 +347,9 @@ if ($first_login=="yes") { // first login
     <td class="nobborder" style="text-align:center;padding-top:20px">
 	
 	<input type="submit" value="<?php
-    echo gettext("Accept"); ?>" class="btn" style="font-size:12px"> &nbsp;&nbsp;&nbsp;
+    echo gettext("Accept"); ?>" class="button" style="font-size:12px"> &nbsp;&nbsp;&nbsp;
 	<input type="button" onclick="document.location.href='login.php'" value="<?php
-    echo gettext("Logout"); ?>" class="btn" style="font-size:12px">
+    echo gettext("Logout"); ?>" class="button" style="font-size:12px">
 	
     </td>
   </tr>

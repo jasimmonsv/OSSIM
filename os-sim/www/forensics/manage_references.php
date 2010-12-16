@@ -29,7 +29,7 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
-ini_set('memory_limit', '128M');
+//ini_set('memory_limit', '128M');
 require_once 'classes/Security.inc';
 require_once 'classes/Plugin_reference.inc';
 require_once 'classes/Plugin.inc';
@@ -95,7 +95,7 @@ echo _CHARSET; ?>">
   <link rel="stylesheet" href="../style/style.css"/>
 
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="../js/greybox.js"></script>
 <script type="text/javascript">
 function GB_onclose() {
@@ -213,7 +213,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 				</tr>
 				<form method="get" name="fadd">
 				<tr>
-					<td height="70" class="center nobborder" valign="top"><b><?=_("New reference type")?></b>: <input type="text" value="" name="newref"><br><br><input type="button" class="btn" onclick="document.fadd.submit();return false;" alt="<?=_("Add new")?>" title="<?=_("Add new")?>" value="<?=_("Insert")?>"></a></td>
+					<td height="70" class="center nobborder" valign="top"><b><?=_("New reference type")?></b>: <input type="text" value="" name="newref"><br><br><input type="button" class="button" onclick="document.fadd.submit();return false;" alt="<?=_("Add new")?>" title="<?=_("Add new")?>" value="<?=_("Insert")?>"></a></td>
 				</tr>
 				</form>
 			</table>
@@ -266,7 +266,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 						</table>
 					</td>
 				</tr>
-				<tr><td height="70" class="center nobborder" valign="top"><b><?=_("Ref Value")?></b>: <input type="text" name="newref_value" value=""><br><br><input type="button" class="btn" value="<?=_("Create Reference")?>" id="create_button" onclick="formsubmit()"></td></tr>
+				<tr><td height="70" class="center nobborder" valign="top"><b><?=_("Ref Value")?></b>: <input type="text" name="newref_value" value=""><br><br><input type="button" class="button" value="<?=_("Create Reference")?>" id="create_button" onclick="formsubmit()"></td></tr>
 				</form>	
 			</table>
 		</td>

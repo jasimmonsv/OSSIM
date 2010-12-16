@@ -34,7 +34,7 @@
 * Function list:
 * Classes list:
 */
-ini_set('memory_limit', '256M');
+//ini_set('memory_limit', '256M');
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "ReportsWireless");
 require_once 'classes/Security.inc';

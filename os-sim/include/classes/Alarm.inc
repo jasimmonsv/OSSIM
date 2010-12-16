@@ -460,7 +460,7 @@ class Alarm {
 		if (Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
 			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
-				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
+				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."'" : " OR e.sensor LIKE '".$user_sensor."'";
 			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
 			$sensor_str = " AND ($sensor_str) AND e.id=a.event_id";
 		}
@@ -513,16 +513,18 @@ class Alarm {
         if (!$total->EOF) $num_rows = $total->fields['contador'];
         while (!$rs->EOF) {
             $sensors = Alarm::__get_sensors($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]);
+            /*
             $sensor_allowed = 0;
             foreach($sensors as $sensor) {
                 if (Session::hostAllowed($conn, $sensor)) $sensor_allowed = 1;
             }
 			$sensor_allowed = 1; // Already filtered in query
-            if ((Session::hostAllowed($conn, $rs->fields["inet_ntoa(src_ip)"])) or (Session::hostAllowed($conn, $rs->fields["inet_ntoa(dst_ip)"])) or ($sensor_allowed)) {
+            if ((Session::hostAllowed($conn, $rs->fields["inet_ntoa(src_ip)"])) || (Session::hostAllowed($conn, $rs->fields["inet_ntoa(dst_ip)"])) || ($sensor_allowed)) {
+            */
                 $rs->fields["src_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["src_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["src_port"]] : $rs->fields["src_port"];
                 $rs->fields["dst_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] : $rs->fields["dst_port"];
 				$list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(a.src_ip)"], $rs->fields["inet_ntoa(a.dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], "", 1, $rs->fields["id_tag"]);
-            }
+            //}
             $rs->MoveNext();
         }
         return array(
@@ -937,11 +939,14 @@ class Alarm {
             // delete from backlog_event
             $conn->Execute("DELETE FROM backlog_event WHERE backlog_id IS NULL");
         }
+        // purge orphaned events
+        $conn->Execute("DELETE FROM backlog_event WHERE backlog_id NOT IN (SELECT backlog_id FROM alarm)");
+        $conn->Execute("DELETE FROM backlog WHERE id NOT IN (SELECT backlog_id FROM alarm)");
     }
     // extra userdata fields from event table
-    function get_event_data($conn,$key="id") {
+    function get_event_data($conn,$key="username") {
     	if (empty($this->event_data)) {
-	        $sql = "SELECT * FROM event WHERE id=".$this->event_id;
+	        $sql = "SELECT filename,username,userdata1,userdata2,userdata3,userdata4,userdata5,userdata6,userdata7,userdata8,userdata9 FROM snort.extra_data WHERE sid=".$this->snort_sid." and cid=".$this->snort_cid;
 	        if (!$rs = & $conn->Execute($sql)) {
 	            print $conn->ErrorMsg();
 	            exit;

@@ -45,6 +45,7 @@ Session::logcheck("MenuConfiguration", "ConfigurationUserActionLog");
 echo gettext("User logging Configuration"); ?> </title>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 </head>
 
 <body>
@@ -69,7 +70,7 @@ function submit($conn) {
 ?>
     <tr>
       <td colspan="3">
-        <input type="submit" name="update" class="btn" style="font-size:12px"
+        <input type="submit" name="update" class="button" style="font-size:12px"
             value=" <?php
     echo gettext("Update configuration"); ?> " />
       </td>

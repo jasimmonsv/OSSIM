@@ -116,9 +116,16 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 	$a = "data='".$a."'";
 }
 
+if (preg_match("/(.*?)=(.*)/",$a,$fnd)) {
+    $a = preg_replace("/(\|)/","\\1".$fnd[1]."=",$a);
+}
+// Patch "sensor=A OR sensor=B"
+$a = preg_replace("/SPACESCAPEORSPACESCAPE([a-zA-Z\_]+)\=/"," or \\1=",$a);
+
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
 
 foreach ($atoms as $atom) {
+    $atom = trim($atom);
 	$atom = str_replace("src_ip=","src=",$atom);
 	$atom = str_replace("dst_ip=","dst=",$atom);
 	if (preg_match("/sourcetype(\!?\=)(.+)/", $atom, $matches)) {
@@ -142,7 +149,7 @@ foreach ($atoms as $atom) {
 	if (preg_match("/sensor(\!?\=)(\S+)/", $atom, $matches)) {
 	    $sensor_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
 	    $sensor_name = str_replace("'","",$sensor_name);
-	    $query = "select ip from sensor where name like '" . $sensor_name . "%'";
+	    $query = "select ip from sensor where name like '" . $sensor_name . "'";
 	    if (!$rs = & $conn->Execute($query)) {
 	        print $conn->ErrorMsg();
 	        exit();
@@ -397,9 +404,9 @@ $totaltime = round($time2 - $time1, 2);
 
 // Output file TXT
 if (isset($export)) {
-	if (is_dir("/var/ossim/logs/searches")) {
+	if (is_dir($config["searches_dir"])) {
 		// dir
-		$outdir = "/var/ossim/logs/searches/$user"."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a);
+		$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a);
 		if (!is_dir($outdir)) mkdir($outdir);
 		$outfilename = $outdir."/results.txt";
 		// file
@@ -434,8 +441,9 @@ foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
 	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
 		$lf = explode(";", $res);
-        $logfile = urlencode($lf[count($lf)-2]);
+        $logfile = $lf[count($lf)-3];
         $current_server = urlencode($lf[count($lf)-1]);
+        $current_server_ip = $current_server;
         $current_server = $logger_servers[$current_server];
 		if ($cont[$current_server] == "") $cont[$current_server] = 1;
 		if ($cont[$current_server] > $num_lines[$current_server] || $cont[$current_server] > $top*$num_servers){
@@ -570,7 +578,7 @@ foreach($result as $res=>$event_date) {
                         }
                     }
                     if ($red) {
-                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('<b>data</b>=" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
+                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('<b>data</b>=" . $clean_piece . "')\">" . $clean_piece . " </span>";
                     } else {
                         $data.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('<b>data</b>=" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
                     }
@@ -590,7 +598,7 @@ foreach($result as $res=>$event_date) {
 		$data_out = $matches[11];
         // fin para coger
         if($htmlResult){
-            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="validate.php?log=' . urlencode($encoded_data) . '&start=' . $start . '&end=' . $end . '&logfile=' . $logfile . '&signature=' . urlencode($signature) . '"  class="thickbox" rel="AjaxGroup" onclick="GB_show(\''._("Validate signature").'\',this.href,300,600);return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
+            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="javascript:;" class="thickbox" rel="AjaxGroup" onclick="validate_signature(\''.$encoded_data.'\',\''.$start.'\',\''.$end.'\',\''.$logfile.'\',\''.$signature.'\',\''.$current_server_ip.'\');return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
             $data.= "</td>";
             $line.= $data;
         }
@@ -598,7 +606,7 @@ foreach($result as $res=>$event_date) {
         $inc_counter++;
         // fin para coger
 
-		if (is_dir("/var/ossim/logs/searches") && isset($export)) {
+		if (is_dir($config["searches_dir"]) && isset($export)) {
 			fputs($outfile,"$inc_counter,$date,$plugin,".htmlspecialchars($matches[5]).",".htmlspecialchars($matches[6]).":".htmlspecialchars($matches[8]).",".htmlspecialchars($matches[7]).":".htmlspecialchars($matches[9]).",$data_out\n");
 			$logarr[urldecode($logfile)]++;
 		}
@@ -615,7 +623,7 @@ foreach($result as $res=>$event_date) {
 }
 print "</table>";
 
-if (is_dir("/var/ossim/logs/searches") && isset($export)) {
+if (is_dir($config["searches_dir"]) && isset($export)) {
 	fclose ($outfile);
 	$logs = "";
 	foreach ($logarr as $key=>$val) {

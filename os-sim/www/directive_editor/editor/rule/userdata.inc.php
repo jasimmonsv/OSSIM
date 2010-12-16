@@ -1,5 +1,4 @@
-	<!-- #################### userdata ##################### -->
-	<table width="<?php
+<?php
 /*****************************************************************************
 *
 *    License:
@@ -35,201 +34,192 @@
 * Function list:
 * Classes list:
 */
-echo $left_table_width; ?>">
-		<tr>
-			<th colspan="4">
-				<?php
-echo gettext("User Data"); ?>
-			</th>
-		</tr>
-		<!-- ##### userdata 1 ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
+?>
+<table class="transparent">
+	<tr>
+		<th style="white-space: nowrap; padding: 5px;font-size:12px" colspan="2">
+			<?php echo gettext("User data"); ?>
+		</th>
+	</tr>
+	<!-- ##### userdata 1 ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
 echo gettext("userdata1"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
 			>
-				<input type="text" style="width: 100%"
-					name="userdata1"
-					id="userdata1"
-					value="<?php
+			<input type="text" style="width: 100%"
+				name="userdata1"
+				id="userdata1"
+				value="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata1)); ?>"
-					title="<?php
+				title="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata1)); ?>"
-				/>
-			</td>
-		</tr>
+			/>
+		</td>
+	</tr>
 
-		<!-- ##### userdata 2 ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
+	<!-- ##### userdata 2 ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
 echo gettext("userdata2"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
 			>
-				<input type="text" style="width: 100%"
-					name="userdata2"
-					id="userdata2"
-					value="<?php
+			<input type="text" style="width: 100%"
+				name="userdata2"
+				id="userdata2"
+				value="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata2)); ?>"
-					title="<?php
+				title="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata2)); ?>"
-				/>
-			</td>
-		</tr>
-		
-		<!-- ##### userdata 3 ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
+			/>
+		</td>
+	</tr>
+	
+	<!-- ##### userdata 3 ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
 echo gettext("userdata3"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
 			>
-				<input type="text" style="width: 100%"
-					name="userdata3"
-					id="userdata3"
-					value="<?php
+			<input type="text" style="width: 100%"
+				name="userdata3"
+				id="userdata3"
+				value="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata3)); ?>"
-					title="<?php
+				title="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata3)); ?>"
-				/>
-			</td>
-		</tr>
+			/>
+		</td>
+	</tr>
 
-		<!-- ##### userdata 4 ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
+	<!-- ##### userdata 4 ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
 echo gettext("userdata4"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
 			>
-				<input type="text" style="width: 100%"
-					name="userdata4"
-					id="userdata4"
-					value="<?php
+			<input type="text" style="width: 100%"
+				name="userdata4"
+				id="userdata4"
+				value="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata4)); ?>"
-					title="<?php
+				title="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata4)); ?>"
-				/>
-			</td>
-		</tr>
-		
-		<!-- ##### userdata 5 ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
+			/>
+		</td>
+	</tr>
+	
+	<!-- ##### userdata 5 ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
 echo gettext("userdata5"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
 			>
-				<input type="text" style="width: 100%"
-					name="userdata5"
-					id="userdata5"
-					value="<?php
+			<input type="text" style="width: 100%"
+				name="userdata5"
+				id="userdata5"
+				value="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata5)); ?>"
-					title="<?php
+				title="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata5)); ?>"
-				/>
-			</td>
-		</tr>
+			/>
+		</td>
+	</tr>
 
-		<!-- ##### userdata 6 ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
+	<!-- ##### userdata 6 ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
 echo gettext("userdata6"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
 			>
-				<input type="text" style="width: 100%"
-					name="userdata6"
-					id="userdata6"
-					value="<?php
+			<input type="text" style="width: 100%"
+				name="userdata6"
+				id="userdata6"
+				value="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata6)); ?>"
-					title="<?php
+				title="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata6)); ?>"
-				/>
-			</td>
-		</tr>
-		
-		<!-- ##### userdata 7 ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
+			/>
+		</td>
+	</tr>
+	
+	<!-- ##### userdata 7 ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
 echo gettext("userdata7"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
 			>
-				<input type="text" style="width: 100%"
-					name="userdata7"
-					id="userdata7"
-					value="<?php
+			<input type="text" style="width: 100%"
+				name="userdata7"
+				id="userdata7"
+				value="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata7)); ?>"
-					title="<?php
+				title="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata7)); ?>"
-				/>
-			</td>
-		</tr>
-		
-		<!-- ##### userdata 8 ##### -->	
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
+			/>
+		</td>
+	</tr>
+	
+	<!-- ##### userdata 8 ##### -->	
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
 echo gettext("userdata8"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
 			>
-				<input type="text" style="width: 100%"
-					name="userdata8"
-					id="userdata8"
-					value="<?php
+			<input type="text" style="width: 100%"
+				name="userdata8"
+				id="userdata8"
+				value="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata8)); ?>"
-					title="<?php
+				title="<?php
 echo str_replace("'", "", str_replace("\"", "", $rule->userdata8)); ?>"
-				/>
-			</td>
-		</tr>
-			
-		<!-- ##### userdata 9 ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("userdata9"); ?>
-			</td>
-			<td style="width: 100%; text-align: left;
-				padding-left: 5px; padding-right: 8px"
-				colspan="3"
-			>
-				<input type="text" style="width: 100%"
-					name="userdata9"
-					id="userdata9"
-					value="<?php
-echo str_replace("'", "", str_replace("\"", "", $rule->userdata9)); ?>"
-					title="<?php
-echo str_replace("'", "", str_replace("\"", "", $rule->userdata9)); ?>"
-				/>
-			</td>
-		</tr>
+			/>
+		</td>
+	</tr>
 		
-	</table>
-	<!-- #################### END: userdata ##################### -->
+	<!-- ##### userdata 9 ##### -->
+	<tr>
+		<td class="nobborder" style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
+			<?php
+echo gettext("userdata9"); ?>
+		</td>
+		<td class="nobborder" style="width: 100%; text-align: left;
+			padding-left: 5px; padding-right: 8px"
+			>
+			<input type="text" style="width: 100%"
+				name="userdata9"
+				id="userdata9"
+				value="<?php
+echo str_replace("'", "", str_replace("\"", "", $rule->userdata9)); ?>"
+				title="<?php
+echo str_replace("'", "", str_replace("\"", "", $rule->userdata9)); ?>"
+			/>
+		</td>
+	</tr>
+	<?php if (!$rule->plugin_id) { ?><tr><td class="center nobborder" colspan="2" style="padding-top:10px"><input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Finish") ?>" onclick="wizard_next();"></td></tr><?php } ?>
+</table>
+<!-- #################### END: userdata ##################### -->

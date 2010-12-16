@@ -46,7 +46,7 @@ require_once 'classes/Incident_tag.inc';
 function die_error($msg = null, $append = null) {
     if ($msg) ossim_set_error($msg);
     echo ossim_error();
-    echo '<table class="noborder" align="center"><tr><td class="nobborder"><input type="button" value="' . _("Back") . '" class="btn" onclick="history.go(-1)"></td></tr></table>';
+    echo '<table class="noborder" align="center"><tr><td class="nobborder"><input type="button" value="' . _("Back") . '" class="button" onclick="history.go(-1)"></td></tr></table>';
     echo $append;
     exit;
 }
@@ -156,7 +156,7 @@ if ($action == 'newticket') {
     Incident_ticket::insert($conn, $id, $status, $priority, $login, $description, $action, $transferred, $tags, $attachment);
     // Error should be only at the mail() function in Incident_ticket::mail_susbcription()
     if (ossim_error()) {
-        die_error(null, "<table class='noborder' align='center'><tr><td class='nobborder'><input type='button' onclick=\"document.location.href='incident.php?id=$id'\" value=" . _("Continue") . ' class="btn"></td></tr></table>');
+        die_error(null, "<table class='noborder' align='center'><tr><td class='nobborder'><input type='button' onclick=\"document.location.href='incident.php?id=$id'\" value=" . _("Continue") . ' class="button"></td></tr></table>');
     }
     header("Location: incident.php?id=$id");
     exit;

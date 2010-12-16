@@ -103,7 +103,7 @@ if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::men
             "name" => gettext("Risk Metrics") ,
             "id" => "Metrics",
             "target" => "main",
-            "url" => "control_panel/global_score.php?range=month",
+            "url" => "control_panel/global_score.php?range=day",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboards:risk:risk_metrics','DashboardHelp');"
         );
     }
@@ -285,6 +285,15 @@ if (Session::menu_perms("MenuEvents", "EventsForensics")) { $events = 1; $hmenu[
 	  "target" => "main",
 	  "url" => "../forensics/manage_references.php"
 	);
+	
+
+if (Session::am_i_admin() ) { 
+	$hmenu["Forensics"][] = array(
+		"name" => gettext("Signed files") ,
+		"id" => "Signed Files",
+		"url" => "signed_files/index.php"
+	);
+}
 
 if (is_dir("/var/ossim/")) {
     // Only show SEM menu if SEM is available
@@ -920,6 +929,40 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $c
     );*/
 }
 
+if (Session::am_i_admin()) { $correlation = 1;
+    $menu["Intelligence"][] = array(
+        "name" => gettext("HIDS") ,
+        "id" => "HIDS",
+        "url" => "ossec/index.php"
+    );
+    $hmenu["HIDS"][] = array(
+        "name" => gettext("Ossec") ,
+        "id" => "HIDS",
+        "url" => "ossec/index.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
+    );	
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Edit Rules") ,
+           "url" => "index.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Config") ,
+           "url" => "config.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Agent Control") ,
+           "url" => "agent.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Ossec Control") ,
+           "url" => "ossec_control.php"
+    );
+}	
+
 /* if (Session::menu_perms("MenuReports", "Help")) *//* if ($correlation) $menu["Intelligence"][] = array(
     "name" => gettext("Help") ,
     "id" => "Help",
@@ -979,7 +1022,8 @@ if (Session::menu_perms("MenuMonitors", "MonitorsNetflows")) { $monitors = 1;
         "id" => "Profiles",
         "target" => "main",
         "url" => "ntop/index.php?opc=services&sensor=" . $sensor_ntop["host"],
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:network:profiles','Help');"
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:network:profiles','Help');",
+		"nFrame" => ""
     );
 	$rmenu["Profiles"][] = array(
        "name" => gettext("Services"),
@@ -1188,6 +1232,13 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) { $configu
 			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugin_groups','Help');"
 		);
 	}
+        $hmenu["Plugins"][] = array(
+		"name" => gettext("Custom Collectors") ,
+		"id" => "Custom Collectors",
+		"url" => "policy/collectors.php",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:custom_collectors','Help');"
+        );
+
 }
 /*
 if (Session::menu_perms("MenuConfiguration", "ConfigurationRRDConfig")) {

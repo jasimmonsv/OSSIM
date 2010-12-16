@@ -42,6 +42,7 @@ require_once ('ossim_db.inc');
 /* connect to db */
 $db = new ossim_db();
 $conn = $db->connect();
+$recent_pass = Log_action::get_last_pass($conn);
 $user = Session::get_session_user();
 
 $conf = $GLOBALS["CONF"];
@@ -72,8 +73,12 @@ if ($flag != "") {
 	/* check passwords */
 	if (0 != strcmp($pass1, $pass2)) {
 		$msg = _("Passwords mismatches");
-	} elseif (strlen($pass1) < 5) {
-		$msg = _("Password is long enought. The minimum is 5 characters.");
+	} elseif (strlen($pass1) < 7) {
+		$msg = _("Password is long enought. The minimum is 7 characters.");
+	} elseif (!preg_match("/\d/",$pass1) || !preg_match("/[a-zA-Z]/",$pass1)) {
+		$msg = _("Password must have numeric and alphanumeric characters.");
+	} elseif (in_array(md5($pass1),$recent_pass)) {
+		$msg = _("This password is recently used. Try another.");
 	} elseif (count($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($pass1) . "'")) > 0) {
 		$msg = _("You must change your old password.");
 	} else {

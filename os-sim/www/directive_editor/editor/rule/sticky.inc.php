@@ -1,5 +1,4 @@
-	<!-- #################### other ##################### -->
-	<table width="<?php
+<?php
 /*****************************************************************************
 *
 *    License:
@@ -35,71 +34,38 @@
 * Function list:
 * Classes list:
 */
-echo $right_table_width; ?>">
+?>
+<div id="wizard_13" style="display:none">
+<input type="hidden" name="sticky" id="sticky" value="<?php echo $rule->sticky ?>"></input>
+	<table class="transparent" width="100%">
 		<tr>
-			<th colspan="2">
-				<?php
-echo gettext("Sticky"); ?>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Sticky"); ?>
 			</th>
 		</tr>
-		<!-- ##### sticky ##### -->
-		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Sticky"); ?>
-			</td>
-			<td style="width: <?php
-echo $right_select_width; ?>;
-				text-align: left; padding-left: 5px"
-			>
-				<select style="width: <?php
-echo $right_select_width; ?>"
-					name="sticky"
-					id="sticky"
-				>
-					<?php
-$selected = selectIf($rule->sticky == "None");
-echo "<option value=\"None\"$selected>None</option>";
-$selected = selectIf($rule->sticky == "true" || $rule->sticky == "" || $rule->sticky == "Default");
-echo "<option value=\"true\"$selected>true</option>";
-$selected = selectIf($rule->sticky == "false");
-echo "<option value=\"false\"$selected>false</option>";
-?>
-				</select>
-			</td>
-		</tr>
+		<tr><td class="center nobborder"><input type="button" value="None" onclick="document.getElementById('sticky').value = 'None';wizard_next();" style="width:80px<?php if ($rule->sticky == "None") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="true" onclick="document.getElementById('sticky').value = 'true';wizard_next();" style="width:80px<?php if ($rule->sticky == "true" || $rule->sticky == "" || $rule->sticky == "Default") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="false" onclick="document.getElementById('sticky').value = 'false';wizard_next();" style="width:80px<?php if ($rule->sticky == "false") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+	</table>
+</div>
+
+<div id="wizard_14" style="display:none">
+<input type="hidden" name="sticky_different" id="sticky_different" value="<?php echo $rule->sticky_different ?>"></input>
+	<table class="transparent" width="100%">
 		<!-- sticky different -->
 		<tr>
-			<td style="white-space: nowrap; padding-left: 5px; padding-right: 5px">
-				<?php
-echo gettext("Sticky Different"); ?>
-			</td>
-			<td style="width: <?php
-echo $right_select_width; ?>; text-align: left; padding-left: 5px">
-				<select style="width: <?php
-echo $right_select_width; ?>"
-					name="sticky_different"
-					id="sticky_different">
-					<?php
-$selected = selectIf($rule->sticky_different == "");
-echo "<option value=\"None\"$selected>None</option>";
-$selected = selectIf($rule->sticky_different == "PLUGIN_SID");
-echo "<option value=\"PLUGIN_SID\"$selected>PLUGIN_SID</option>";
-$selected = selectIf($rule->sticky_different == "SRC_IP");
-echo "<option value=\"SRC_IP\"$selected>SRC_IP</option>";
-$selected = selectIf($rule->sticky_different == "DST_IP");
-echo "<option value=\"DST_IP\"$selected>DST_IP</option>";
-$selected = selectIf($rule->sticky_different == "SRC_PORT");
-echo "<option value=\"SRC_PORT\"$selected>SRC_PORT</option>";
-$selected = selectIf($rule->sticky_different == "DST_PORT");
-echo "<option value=\"DST_PORT\"$selected>DST_PORT</option>";
-$selected = selectIf($rule->sticky_different == "PROTOCOL");
-echo "<option value=\"PROTOCOL\"$selected>PROTOCOL</option>";
-$selected = selectIf($rule->sticky_different == "SENSOR");
-echo "<option value=\"SENSOR\"$selected>SENSOR</option>";
-?>
-				</select>
-			</td>
+			<th style="white-space: nowrap; padding: 5px;font-size:12px">
+				<?php echo gettext("Sticky different"); ?>
+			</th>
 		</tr>
+		<tr><td class="center nobborder"><input type="button" value="None" onclick="document.getElementById('sticky_different').value = 'None';wizard_next();" style="width:80px<?php if ($rule->sticky_different == "None") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="PLUGIN_SID" onclick="document.getElementById('sticky_different').value = 'PLUGIN_SID';wizard_next();" style="width:80px<?php if ($rule->sticky_different == "PLUGIN_SID") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="SRC_IP" onclick="document.getElementById('sticky_different').value = 'SRC_IP';wizard_next();" style="width:80px<?php if ($rule->sticky_different == "SRC_IP") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="DST_IP" onclick="document.getElementById('sticky_different').value = 'DST_IP';wizard_next();" style="width:80px<?php if ($rule->sticky_different == "DST_IP") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="SRC_PORT" onclick="document.getElementById('sticky_different').value = 'SRC_PORT';wizard_next();" style="width:80px<?php if ($rule->sticky_different == "SRC_PORT") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="DST_PORT" onclick="document.getElementById('sticky_different').value = 'DST_PORT';wizard_next();" style="width:80px<?php if ($rule->sticky_different == "DST_PORT") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="PROTOCOL" onclick="document.getElementById('sticky_different').value = 'PROTOCOL';wizard_next();" style="width:80px<?php if ($rule->sticky_different == "PROTOCOL") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
+		<tr><td class="center nobborder"><input type="button" value="SENSOR" onclick="document.getElementById('sticky_different').value = 'SENSOR';wizard_next();" style="width:80px<?php if ($rule->sticky_different == "SENSOR") { ?>;background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important<?php } ?>"></input></td></tr>
 	</table>
-	<!-- #################### END: other ##################### -->
+</div>
+<!-- #################### END: other ##################### -->

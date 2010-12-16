@@ -357,9 +357,37 @@ if ($Use_Auth_System == 1) {
 														<td>
 															<table style="border:0px">
 																<tr>
-																	<td style="font-size:11px"><?php echo _("User Data")?>:</td>
-																	<td style="padding-left:10px"><input type="text" name="userdata" style="width:158px" value="<?php echo $_SESSION["userdata"] ?>"></input></td>
-																	<td><input type="button" class="button" value="<?php echo _("Search")?>" onclick="this.form.bsf.click()" style="height:18px"></input></td>
+																	<td style="font-size:11px"><?php echo _("Extra Data")?>:</td>
+																	<td style="padding-left:10px;text-align:left;">
+																	<select name="userdata[0]">
+																		<option value="userdata1"<?= ($_SESSION["userdata"][0]=="userdata1") ? " selected" : ""; ?>>userdata1</option>
+																		<option value="userdata2"<?= ($_SESSION["userdata"][0]=="userdata2") ? " selected" : ""; ?>>userdata2</option>
+																		<option value="userdata3"<?= ($_SESSION["userdata"][0]=="userdata3") ? " selected" : ""; ?>>userdata3</option>
+																		<option value="userdata4"<?= ($_SESSION["userdata"][0]=="userdata4") ? " selected" : ""; ?>>userdata4</option>
+																		<option value="userdata5"<?= ($_SESSION["userdata"][0]=="userdata5") ? " selected" : ""; ?>>userdata5</option>
+																		<option value="userdata6"<?= ($_SESSION["userdata"][0]=="userdata6") ? " selected" : ""; ?>>userdata6</option>
+																		<option value="userdata7"<?= ($_SESSION["userdata"][0]=="userdata7") ? " selected" : ""; ?>>userdata7</option>
+																		<option value="userdata8"<?= ($_SESSION["userdata"][0]=="userdata8") ? " selected" : ""; ?>>userdata8</option>
+																		<option value="userdata9"<?= ($_SESSION["userdata"][0]=="userdata9") ? " selected" : ""; ?>>userdata9</option>
+																		<option value="filename"<?= ($_SESSION["userdata"][0]=="filename") ? " selected" : ""; ?>>filename</option>
+																		<option value="username"<?= ($_SESSION["userdata"][0]=="username") ? " selected" : ""; ?>>username</option>
+																		<option value="password"<?= ($_SESSION["userdata"][0]=="password") ? " selected" : ""; ?>>password</option>
+																	</select>
+																	<select name="userdata[1]">
+																		<option value="="<?= ($_SESSION["userdata"][1]=="=") ? " selected" : ""; ?>>=</option>
+																		<option value="<>"<?= ($_SESSION["userdata"][1]=="<>") ? " selected" : ""; ?>><></option>
+																		<option value="<"<?= ($_SESSION["userdata"][1]=="<") ? " selected" : ""; ?>><</option>
+																		<option value="<="<?= ($_SESSION["userdata"][1]=="<=") ? " selected" : ""; ?>><=</option>
+																		<option value=">"<?= ($_SESSION["userdata"][1]==">") ? " selected" : ""; ?>>></option>
+																		<option value=">="<?= ($_SESSION["userdata"][1]==">=") ? " selected" : ""; ?>>>=</option>
+																		<option value="like"<?= ($_SESSION["userdata"][1]=="like") ? " selected" : ""; ?>>like</option>
+																	</select>
+																</tr>
+																<tr>
+																	<td></td>
+																	<td style="padding-left:10px;text-align:left">
+																	<input type="text" name="userdata[2]" style="width:158px" value="<?php echo $_SESSION["userdata"][2] ?>"></input>
+																	<input type="button" class="button" value="<?php echo _("Apply")?>" onclick="this.form.bsf.click()" style="height:18px"></input></td>
 																</tr>
 															</table>
 														</td>
@@ -616,22 +644,19 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 
 </td><td valign="top" style="border-top:1px solid #CCCCCC;border-right:1px solid #CCCCCC;border-bottom:1px solid #CCCCCC;background:url('../pixmaps/fondo_hdr2.png') repeat-x">
 
-<link href="../style/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 <link href="../style/jquery.autocomplete.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
 
-<script src="js/jquery-1.3.2.min.js" type="text/javascript"></script>
 <script src="../js/greybox.js" type="text/javascript"></script>
 <script src="../js/jquery.flot.pie.js" language="javascript" type="text/javascript"></script>
 <script language="javascript" src="../js/jquery.bgiframe.min.js"></script>
 <script language="javascript" src="../js/jquery.autocomplete.pack.js"></script>
-<script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
 <script src="../js/datepicker.js" type="text/javascript"></script>
 <? $ipsearch=1; include ("../host_report_menu.php") ?>
 <?php
-if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) echo '<script src="js/excanvas.pack.js" language="javascript" type="text/javascript" ></script>';
+if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) echo '<script src="../js/excanvas.pack.js" language="javascript" type="text/javascript" ></script>';
 ?>
 <script>
 	var url = new Array(50)
@@ -792,7 +817,12 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 		});
 		$('#widgetCalendar div.datepicker').css('position', 'absolute');
 		$('.ndc').disableTextSelect();
+		// timeline
+		if (typeof load_tree == 'function') load_tree();
+		// timeline
 		if (typeof gen_timeline == 'function') gen_timeline();
+		// report
+		if (typeof parent.launch_form == 'function') parent.launch_form();
 	}
 	function bgtask() {
 		$.ajax({
@@ -890,6 +920,13 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 			}
 		});
 	}
+
+	function report_launcher(data,type) {
+		var url = '<?=urlencode($_SERVER["REQUEST_URI"]."?".$_SERVER["QUERY_STRING"])?>';
+		var dates = '<?=($y1!="") ? "&date_from=$y1-$m11-$d1" : "&date_from="?><?=($y2!="") ? "&date_to=$y2-$m21-$d2" : "&date_to="?>';
+		GB_show("<?=_("Report options")?>",'report_launcher.php?url='+url+'&data='+data+'&type='+type+dates,200,'40%');
+		return false;
+	}
 	
     function GB_hide() { document.location.reload() }
     function fill_subcategories() {
@@ -907,63 +944,3 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 if ($_SESSION["deletetask"] != "") echo "bgtask();\n"; ?>
 </script>
 <div>
-
-<!-- Report forms -->
-<form style="margin:0px;display:inline" id="Events_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Events">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Events">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniqueEvents_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Events">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Unique_Events">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="Sensors_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Sensors">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Sensors">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniqueAddress_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Address">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Unique_Address">
-<input type="hidden" name="Type" id="UniqueAddress_Report_Type" value="">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="SourcePort_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Source_Port">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Source_Port">
-<input type="hidden" name="Type" id="SourcePort_Report_Type" value="">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="DestinationPort_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Destination_Port">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Destination_Port">
-<input type="hidden" name="Type" id="DestinationPort_Report_Type" value="">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniquePlugin_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Plugin">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Unique_Plugin">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniqueCountryEvents_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="Security_DB_Unique_Country_Events">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="Security_DB_Unique_Country_Events">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-<form style="margin:0px;display:inline" id="UniqueIPLinks_Report" method="POST" action="../report/jasper_export.php?format=pdf" target="SIEM_Events_Unique_IP_Links">
-<input type="hidden" name="reportUser" value="<?=$_SESSION["_user"]?>">
-<input type="hidden" name="reportUnit" value="SIEM_Events_Unique_IP_Links">
-<input type="hidden" name="date_from" value="<?=($y1!="") ? "$y1-$m11-$d1" : ""?>">
-<input type="hidden" name="date_to" value="<?=($y2!="") ? "$y2-$m21-$d2" : ""?>">
-</form>
-

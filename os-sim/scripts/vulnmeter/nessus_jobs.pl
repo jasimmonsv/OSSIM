@@ -249,6 +249,8 @@ my $xml_output = $CONFIG{'ROOTDIR'}."tmp/tmp_nessus_jobs$$.xml";
 my $cred_name = "";
 my $no_results = FALSE;
 my $scan_timeout = FALSE;
+my $omp_scan_timeout = FALSE;
+
 my $delete_task = FALSE; # delete task after scan
 
 my $exclude_hosts = "";
@@ -258,6 +260,7 @@ my ( $serverid );
 
 my ($outfile, $targetfile, $nessus_cfg, $workfile);
 my $txt_meth_wcheck = "";
+my $txt_unresolved_names = "";
 
 my $openvas_manager_common = "$CONFIG{'NESSUSPATH'} -h $CONFIG{'NESSUSHOST'} -p $CONFIG{'NESSUSPORT'} -u $CONFIG{'NESSUSUSER'} -w $CONFIG{'NESSUSPASSWORD'} -iX";
 
@@ -688,6 +691,19 @@ sub setup_scan {
             }
             $targetinfo .= "$hostip\r";
         }
+        
+        # check unresolved targets names
+        
+        if($txt_unresolved_names ne "") {
+            $txt_unresolved_names = "Unresolved names:\n".$txt_unresolved_names;
+            $sql = qq{ UPDATE vuln_jobs SET meth_Wcheck='$txt_unresolved_names' WHERE id='$job_id' };
+            safe_db_write ( $sql, 4 );  #use insert/update routine
+        }
+        else {
+            $sql = qq{ UPDATE vuln_jobs SET meth_Wcheck='' WHERE id='$job_id' };
+            safe_db_write ( $sql, 4 );  #use insert/update routine 
+        }
+        
         #INCASE LOOKUP FAILS MISERABLY
         if ( $targetinfo eq "" ) { $targetinfo = "$target"; }
 
@@ -721,9 +737,11 @@ sub setup_scan {
        
         if ( process_results( \%hostHash, $job_id, $job_title, $Jtype, $juser, $Jvset, $scantime, $fk_name ) ){
             logwriter( "[$job_title] [ $job_id ] Completed SQL Import, scan_PID=$$", 5 );
-
-            $sql = qq{ UPDATE vuln_jobs SET status='C', scan_PID=$$ WHERE id='$job_id' };
-            safe_db_write ( $sql, 4 );  #use insert/update routine
+            
+            if ($omp_scan_timeout == FALSE) {
+                $sql = qq{ UPDATE vuln_jobs SET status='C', scan_PID=$$ WHERE id='$job_id' };
+                safe_db_write ( $sql, 4 );  #use insert/update routine
+            }
             $nessusok = TRUE;
         } else {
             logwriter( "[$job_title] Failed SQL Import", 5 );
@@ -772,7 +790,7 @@ sub setup_scan {
             if ( $tmpStatus eq "F" ) {
                 $txt_meth_wcheck =~ s/\'/\\'/g;
 
-                $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='$txt_meth_wcheck', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' }; #MARK FAILED
+                $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck=CONCAT(meth_Wcheck, '$txt_meth_wcheck'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' }; #MARK FAILED
                 safe_db_write ( $sql, 1 );
 
                 #my $rid = create_report ( $job_id, $Jname, $Jtype, $juser, $Jvset, $scantime, $fk_name, "1", 
@@ -924,7 +942,7 @@ sub run_nessus {
     my ($cmd, $retval, $toc);
     my ($sth_ins);
     
-    my ($target_id, $config_id, $task_id, $info_status, $status, $progress, @arr_status, @issues, $tsleep);
+    my ($target_id, $config_id, $task_id, $info_status, $status, $progress, @arr_status, @issues, $tsleep, $start_time, $current_time, $endScan);
 
     #print "\nConfirmng Host List Join:\n";
     my $targets = join("\n",@hosts);
@@ -1024,17 +1042,27 @@ sub run_nessus {
         
         $job_id_to_log = "$job_id";
         
+        logwriter("get_target_id for targets:$targets", 4);
         $target_id = get_target_id($targets);
+        
+        logwriter("get_config_id for sid:$sid", 4);
         $config_id = get_config_id($sid);
+        
+        logwriter("create_task for jobname, config_id, target_id: $jobname, $config_id, $target_id", 4);
         $task_id = create_task($jobname, $config_id, $target_id);
         
         $sql = qq{ UPDATE vuln_jobs SET meth_CPLUGINS='$task_id' WHERE id='$job_id' };
         safe_db_write ( $sql, 4 );
 
+        logwriter("play_task $task_id", 4);
         play_task($task_id);
         
         $tsleep = 2;
         
+        $start_time = time;
+        
+        $endScan = 0;
+
         do {
             sleep($tsleep);
             $info_status = get_task_status($task_id); 
@@ -1048,7 +1076,19 @@ sub run_nessus {
             $progress =~ s/\n|\t|\r|\s+//g;
             
             logwriter("task id='$task_id' $status ($progress%)", 4); 
-        } while ($status eq "Running" || $status eq "Requested" || $status eq "Pause Requested" || $status eq "Paused" );
+        
+            $current_time = time;
+            if( $current_time-$start_time>=$timeout ) {
+                $endScan = 1;
+            }
+            
+        } while (($status eq "Running" || $status eq "Requested" || $status eq "Pause Requested" || $status eq "Paused") && $endScan == 0);
+        
+        if($endScan==1) {
+            $omp_scan_timeout = TRUE;
+            stop_task($task_id);
+            set_job_timeout($job_id);
+        }
     }
 
     #POST SCAN RECONNECT
@@ -1101,7 +1141,7 @@ sub run_nessus {
         @issues = get_results_from_file( $outfile );
     }
     else { # get results from OpenVAS Manager
-        @issues = get_results_from_xml( $task_id, $targets); 
+        @issues = get_results_from_xml( $task_id, $targets);
     }
 
     return (@issues);
@@ -2614,7 +2654,7 @@ sub process_results {
             }
             $vuln_resume{$hostip}++;
             # incidents
-            update_ossim_incidents($hostip, $port, $risk, $desc, $scanid, $username);
+            update_ossim_incidents($hostip, $port, $risk, $desc, $scanid, $username, $sid);
         } #END FOR EACH RECORD
         
         #CHECK FOR RECORDS WHICH REMAIN NOT INSERTED FOR HOST  
@@ -2688,21 +2728,23 @@ sub process_results {
 
 
         #UPDATE CLOSED INCIDENTS AS RESOLVED ( per previously update_incidents )
-        if ( defined( $host_id ) && $host_id > 0 ) {
+        if ( defined( $hostip ) ) {
             print "openissues=[$open_issues]\n";
-            $sql = qq{ SELECT id, scriptid, service FROM vuln_Incidents WHERE host_id='$host_id' };
+            $sql = qq{ SELECT distinct i.id,iv.nessus_id from
+                            incident_vulns iv join incident i on i.id=iv.incident_id
+                            where iv.ip='$hostip' and i.status='Open' and iv.description like '%SID:$sid'};
             logwriter( $sql, 5 );
             $sth_sel = $dbh->prepare( $sql );
             $sth_sel->execute;
-            while(my ( $incident_id, $scriptid, $service )=$sth_sel->fetchrow_array) {
+            while(my ( $incident_id, $scriptid )=$sth_sel->fetchrow_array) {
                 #FAIL SAFE DO MARK ANY PLUGINS NOT TESTED AS RESOLVED
-                if ( grep { $_ eq $scriptid } @vuln_nessus_plugins ) {
+                if ( grep { $_ eq $scriptid } @vuln_nessus_plugins ) { 
                     logwriter( "checking incident [$incident_id] against scriptid [$scriptid]", 4 );
 	            if ( $open_issues =~ /$scriptid/ ) {
                         #CURRENTLY NOT RESOLVED
                     } else {
                         #CURRENTLY CREDENTIALS VS NO /CREDENTIALS WILL CAUSE AN INVALID CLEANUP STATE TO BE SET
-                        $sql2 = qq{ UPDATE vuln_Incidents SET status='resolved', date_resolved='$scantime' WHERE id='$incident_id' };
+                        $sql2 = qq{ UPDATE incident SET status='Closed', last_update='$scantime' WHERE id='$incident_id' };
                         safe_db_write ( $sql2, 4 );
                     }
                 } else {
@@ -3150,8 +3192,8 @@ sub get_host_record {
                 $sql = qq{ DELETE FROM vuln_host_stats WHERE host_id='$existing_host_id'};
                 safe_db_write ( $sql, 4 );
 
-                $sql = qq{ DELETE FROM vuln_Incidents WHERE host_id='$existing_host_id'};
-                safe_db_write ( $sql, 4 );
+                #$sql = qq{ DELETE FROM vuln_Incidents WHERE host_id='$existing_host_id'};
+                #safe_db_write ( $sql, 4 );
             }
             $sql = "UPDATE vuln_host_macs SET host_id='$host_id', hostip='$hostip', LastSeen='$now'
                 WHERE id='$mac_id'";
@@ -4335,7 +4377,7 @@ sub timeout {
     my ($sql, $serverid, $sth_sel);
     logwriter("Function timeout - Job Id=$job_id", 4);
 
-    $sql = qq{ UPDATE vuln_jobs SET status='T', meth_Wcheck='Timeout expired', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
+    $sql = qq{ UPDATE vuln_jobs SET status='T', meth_Wcheck=CONCAT(meth_Wcheck, 'Timeout expired'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
     logwriter( $sql, 5 );
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute(  );
@@ -4363,7 +4405,7 @@ sub set_job_timeout {
 	my ($sth_sel, $sql);
     logwriter("Function set_job_timeout - Job Id=$job_id", 4);
 
-    $sql = qq{ UPDATE vuln_jobs SET status='T', meth_Wcheck='Timeout expired', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
+    $sql = qq{ UPDATE vuln_jobs SET status='T', meth_Wcheck=CONCAT(meth_Wcheck, 'Timeout expired'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
     logwriter( $sql, 5 );
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute(  );
@@ -4391,7 +4433,7 @@ sub maintenance {
        }
        update_scan_status ( );
        remove_dup_hosts ( );
-       remove_dup_incidents ( );
+       #remove_dup_incidents ( );
     }
 }
 
@@ -4473,8 +4515,8 @@ sub remove_dup_hosts {
     	  	#    $sql = qq{ UPDATE vuln_host_stats SET host_id='$replace_id' WHERE host_id='$host_id'};
 		    #safe_db_write ( $sql, 4 );
 			
-      		    $sql = qq{ UPDATE vuln_Incidents SET host_id='$replace_id' WHERE host_id='$host_id'};
-		    safe_db_write ( $sql, 4 );
+      		#    $sql = qq{ UPDATE vuln_Incidents SET host_id='$replace_id' WHERE host_id='$host_id'};
+		    #safe_db_write ( $sql, 4 );
        		}	
 	    }
             $sth_sel2->finish;
@@ -4630,6 +4672,7 @@ sub update_ossim_incidents {
         my $desc = shift;
         my $scanid = shift;
         my $username = shift;
+        my $sid = shift;
         
         my ($sql_inc, $sth_inc);
         
@@ -4664,7 +4707,7 @@ sub update_ossim_incidents {
                 my ($hash_false_incident) = $sth_inc->fetchrow_array;
                 $sth_inc->finish;
                 if ($hash_false_incident eq "") {
-                    $sql_inc = qq{ UPDATE incident SET status = 'Open' WHERE id = '$id_inc', in_charge = '$username' };
+                    $sql_inc = qq{ UPDATE incident SET status = 'Open' WHERE id = '$id_inc' AND in_charge = '$username' };
                     safe_db_write( $sql_inc, 4 );
                     my $ticket_id = genID("incident_ticket_seq");
                     my $sql_ticket = qq { INSERT INTO incident_ticket (id, incident_id, date, status, priority, users, description) values ('$ticket_id', '$id_inc', now(), 'Open', '$priority', 'admin','Automatic open of the incident') };
@@ -4700,6 +4743,7 @@ sub update_ossim_incidents {
             $desc =~ s/\"/\'/g;
             $desc =~ s/^ *| *$//g;
             $desc =~ s/^[\n\r\t]*//g;
+            $desc .= "\nSID:$sid";
             my $incident_vulns_id = genID("incident_vulns_seq");
             $sql_inc = qq{ INSERT INTO incident_vulns(id, incident_id, ip, port, nessus_id, risk, description) VALUES('$incident_vulns_id', '$incident_id', '$hostip', '$port', '$scanid', '$risk', \"$desc\") };
             safe_db_write ($sql_inc, 4);
@@ -4775,9 +4819,9 @@ sub get_target_id {
     @sorted_hosts = sort(@hosts);
     
     $md5_hosts = md5_base64(join(",", @sorted_hosts));
-    
+
     $xml = execute_omp_command("<get_targets />");
-    
+
     if (ref($xml->{'target'}) eq 'ARRAY') {
         @items = @{$xml->{'target'}};
     } else {
@@ -4840,6 +4884,12 @@ sub play_task {
 
     my $xml = execute_omp_command("<start_task task_id='$task_id' />");
 }
+
+sub stop_task {
+    my $task_id = shift;
+
+    my $xml = execute_omp_command("<stop_task task_id='$task_id' />");
+}
 sub get_task_status {
     my $task_id = shift;
     
@@ -4866,13 +4916,18 @@ sub get_task_status {
 sub execute_omp_command {
     my $cmd = shift;
 
+    my $xml;
+    
     my $imp = system ("$openvas_manager_common \"$cmd\" > $xml_output 2>&1");
     
     #if ( $imp != 0 ) { die "". logwriter( "nessus_jobs: Failed execute omp command", 2 ); }
 
-    my $xml = eval {XMLin($xml_output, keyattr => [])};
-    
-
+    # if ($cmd =~ /.*get_reports.*/ ) {
+        # $xml = eval {XMLin("/tmp/get_reports.xml", keyattr => [])};
+    # }
+    # else {
+    $xml = eval {XMLin($xml_output, keyattr => [])};
+    # }
     if ($@ ne "") {
     
         open(INFO, $xml_output);         # Open the file
@@ -4881,7 +4936,7 @@ sub execute_omp_command {
     
         my $error = join(" ", @log_lines);
         if($job_id_to_log ne "") {
-            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='$error', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck=CONCAT(meth_Wcheck, '$error') , scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
             safe_db_write ( $sql, 1 );
         }
 
@@ -4893,7 +4948,7 @@ sub execute_omp_command {
         my $status_text = $xml->{'status_text'};
         
         if($job_id_to_log ne "") {
-            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='status_text', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck=CONCAT(meth_Wcheck, '$status_text'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
             safe_db_write ( $sql, 1 );
         }
         
@@ -4910,7 +4965,7 @@ sub get_results_from_xml {
     my $targets = shift;
     
     my $total_records = 0;
-    my (@items, @nvt_data, $host, $service, $scan_id, $description, $app, $proto, $port, $risk_factor, @issues, %hostHash, %resultHash);
+    my (@items, @nvt_data, $host, $service, $scan_id, $description, $app, $proto, $port, $risk_factor, @issues, %hostHash, %resultHash, $report_id, $xml);
     
     %hostHash = ();
     %resultHash = ();
@@ -4921,16 +4976,30 @@ sub get_results_from_xml {
         $hostHash{$ihost}++;
     }
     
-    my $xml = execute_omp_command("<get_results task_id='$task_id' notes_details='1'/>");
+    $xml = execute_omp_command("<get_tasks task_id='$task_id' details='1'/>");
     
-    if (ref($xml->{'results'}->{'result'}) eq 'ARRAY') {
-        @items = @{$xml->{'results'}->{'result'}}; 
+    if (ref($xml->{'task'}{'reports'}{'report'}) eq 'ARRAY') {
+        @items = @{$xml->{'task'}{'reports'}{'report'}}; 
     } else {
-        push(@items,$xml->{'results'}->{'result'});
+        push(@items,$xml->{'task'}{'reports'}{'report'});
+    }
+    
+    # get latest report id
+    foreach my $report (@items) {
+        $report_id = $report->{'id'};
+    }
+    
+    logwriter("Get reports for report_id: $report_id",4);
+    $xml = execute_omp_command("<get_reports report_id='$report_id'/>");
+    
+    if (ref($xml->{'report'}{'results'}->{'result'}) eq 'ARRAY') {
+        @items = @{$xml->{'report'}{'results'}->{'result'}}; 
+    } else {
+        push(@items,$xml->{'report'}{'results'}->{'result'});
     }
     
     foreach my $result (@items) {
-        if( defined($hostHash{$result->{"host"}}) && !defined($resultHash{$result->{"port"}}{$result->{"nvt"}->{"oid"}}{$result->{"host"}}{$result->{"description"}}) ) {
+        if( defined($hostHash{$result->{"host"}}) ) {
         #if( defined($hostHash{$result->{"host"}}) ) {
             $host = $result->{"host"};
             logwriter("Save results for $host", 4);
@@ -5036,7 +5105,6 @@ sub get_results_from_xml {
                     RiskFactor      => $risk_factor
                 };
                 logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id, RiskFactor=>$risk_factor };\n", 5);
-                $resultHash{$result->{"port"}}{$result->{"nvt"}->{"oid"}}{$result->{"host"}}{$result->{"description"}}++;
                 push ( @issues, $temp );
                 $total_records += 1;
             }
@@ -5129,6 +5197,10 @@ sub getassetbyname {
     
     if ($#result!=-1) { 
         return (join("\r", @result));
+    }
+    else {
+        logwriter("Unresolved name: ".$asset_name,4);
+        $txt_unresolved_names .= "$asset_name\n"; 
     }
     
     return "";

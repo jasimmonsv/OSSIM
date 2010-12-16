@@ -30,13 +30,14 @@
 ****************************************************************************/
 require_once('classes/Session.inc');
 require_once('classes/User_config.inc');
+Session::logcheck("MenuEvents", "EventsForensics");
 $login = Session::get_session_user();
 $db = new ossim_db();
 $conn = $db->connect();
 $config = new User_config($conn);
 $session_data = $_SESSION;
 foreach ($_SESSION as $k => $v) {
-	if (preg_match("/^(_|black_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|siem_current_query|siem_current_query_graph).*/",$k))
+	if (preg_match("/^(_|alarms_|back_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|siem_current_query|siem_current_query_graph|deletetask).*/",$k))
 		unset($session_data[$k]);
 } 
 $_SESSION['views'][$_SESSION['current_cview']]['data'] = $session_data;

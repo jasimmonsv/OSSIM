@@ -276,6 +276,35 @@ function BuildSigByPlugin($plugin_id, $plugin_sid, $db) {
     }
 }
 
+function TranslateSignature($name, $arr) {
+    $translations = array(
+        '/SRC_IP/' => 'baseLong2IP($arr["ip_src"])',
+        "/DST_IP/" => 'baseLong2IP($arr["ip_dst"])',
+        "/SRC_PORT/" => '$arr["layer4_sport"]',
+        "/DST_PORT/" => '$arr["layer4_dport"]',
+        "/PROTOCOL/" => 'IPProto2str($arr["ip_proto"])',
+        "/PLUGIN_ID/" => '$arr["plugin_id"]',
+        "/PLUGIN_SID/" => '$arr["plugin_sid"]',
+        "/FILENAME/" => 'htmlspecialchars($arr["filename"],ENT_QUOTES)',
+        "/USERNAME/" => 'htmlspecialchars($arr["username"],ENT_QUOTES)',
+        "/USERDATA1/" => 'htmlspecialchars($arr["userdata1"],ENT_QUOTES)',
+        "/USERDATA2/" => 'htmlspecialchars($arr["userdata2"],ENT_QUOTES)',
+        "/USERDATA3/" => 'htmlspecialchars($arr["userdata3"],ENT_QUOTES)',
+        "/USERDATA4/" => 'htmlspecialchars($arr["userdata4"],ENT_QUOTES)',
+        "/USERDATA5/" => 'htmlspecialchars($arr["userdata5"],ENT_QUOTES)',
+        "/USERDATA6/" => 'htmlspecialchars($arr["userdata6"],ENT_QUOTES)',
+        "/USERDATA7/" => 'htmlspecialchars($arr["userdata7"],ENT_QUOTES)',
+        "/USERDATA8/" => 'htmlspecialchars($arr["userdata8"],ENT_QUOTES)',
+        "/USERDATA9/" => 'htmlspecialchars($arr["userdata9"],ENT_QUOTES)'
+    );
+    foreach($translations as $k => $replacement) {
+        $pattern = '$name = preg_replace("' . $k . '", %s, $name);';
+        $str = sprintf($pattern, $replacement);
+        eval($str);
+    }
+    return $name;
+}
+
 function GetPluginNameDesc($plugin_id, $db) {
     if (!isset($_SESSION['acid_plugin_namedesc'])) $_SESSION['acid_plugin_namedesc'] = array();
     if (!isset($_SESSION['acid_plugin_namedesc'][$plugin_id])) {       

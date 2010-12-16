@@ -925,7 +925,7 @@ public function getResource($uriString,$wsType) {
 
   }
 
-  public function getHeaderExportHtml($report_unit,$format,$params = null){
+  public function getHeaderExportHtml($report_unit,$format,$params = null,$attachment = false){
       switch($format){
             case 'PDF':
                 $contentType = 'application/pdf';
@@ -946,10 +946,12 @@ public function getResource($uriString,$wsType) {
       header('Content-type: '.$contentType);
       header("Cache-Control: public, must-revalidate");
       header("Pragma: hack");
-      //header('Content-Disposition: attachment; filename="'.$report_unit.$params.$extension.'"');
-      header('Content-Disposition: inline; filename="'.$report_unit.$params.$extension.'"');
-      //header("Content-Transfer-Encoding: binary ");
-
+      if ($attachment) {
+      	 header('Content-Disposition: attachment; filename="'.$report_unit.$params.$extension.'"');
+      	 header("Content-Transfer-Encoding: binary ");
+      } else {
+      	header('Content-Disposition: inline; filename="'.$report_unit.$params.$extension.'"');
+      }
       return;
   }
 

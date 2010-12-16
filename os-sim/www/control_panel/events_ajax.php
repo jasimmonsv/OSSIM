@@ -35,7 +35,8 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuEvents", "EventsViewer");
+//Session::logcheck("MenuEvents", "EventsViewer");
+Session::logcheck("MenuIncidents", "ControlPanelAlarms");
 ?>
 
 <?php
@@ -158,7 +159,8 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         <?php
         if (!$master_alarm_sid) $master_alarm_sid = $sid;
         $name = ereg_replace("directive_event: ", "", $sid_name);
-        if ($alarm->get_alarm()) $name = Util::translate_alarm($conn, $name, $alarm);
+        //if ($alarm->get_alarm()) $name = Util::translate_alarm($conn, $name, $alarm);
+        $name = Util::translate_alarm($conn, $name, $alarm);
         $name = "<b>$name</b>";
 ?>
 

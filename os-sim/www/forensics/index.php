@@ -61,7 +61,7 @@ echo (_CHARSET); ?>" />
 echo (_TITLE . $BASE_VERSION); ?></title>
   <link rel="stylesheet" type="text/css" href="styles/<?php
 echo ($base_style); ?>" />
-
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 </head>
 <body onload="javascript:document.loginform.login.focus();">
   <div class="mainheadertitle">&nbsp;

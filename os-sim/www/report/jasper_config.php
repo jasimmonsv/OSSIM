@@ -46,7 +46,7 @@ Session::logcheck("MenuReports", "ReportsReportServer");
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/jasper.css">
   <link rel="stylesheet" href="../style/colorpicker.css" type="text/css" />
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.colorpicker.js"></script>
   <script language="javascript">
         function restoreOriginalStyle(id){

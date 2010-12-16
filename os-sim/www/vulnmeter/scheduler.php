@@ -414,7 +414,7 @@ if ($action == "insert") {
 </ul>
         <form action="<?php echo $_SERVER["SCRIPT_NAME"] ?>" method="POST">
 <center>
-<input type="Submit" value="<?php echo _("Submit"); ?>" class="btn">
+<input type="Submit" value="<?php echo _("Submit"); ?>" class="button">
 </center>
         <h4><center> (<?php echo _("Empty means all"); ?>) </center></h4>
         <center><a href="#" onClick="return selectAll();"><?php echo _("Select / Unselect all"); ?></a></center>
@@ -591,7 +591,7 @@ if ($action == "insert") {
 <?php echo _('Day of Week') ?> <br/><li><input type="text" size=10 name="day_week" value="*"><br/>
 </ul>
 <br>
-<input type="submit" value="<?php echo _("Submit"); ?>" class="btn">
+<input type="submit" value="<?php echo _("Submit"); ?>" class="button">
 </p>
 </form>
 </td>

@@ -79,7 +79,7 @@ $ports_input = implode(",", $arr_ports_input);
 $array_assets = array ( "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
 $array_os = array ( "Unknown" => "",
-					"Windows" => "Microsoft Windows",
+					"Win"     => "Microsoft Windows",
 					"Linux"   => "Linux",
 					"FreeBSD" => "FreeBSD",
 					"NetBSD"  => "NetBSD",
@@ -91,7 +91,7 @@ $array_os = array ( "Unknown" => "",
 					"HP-UX"   => "HP-UX",
 					"Tru64"   => "Compaq Tru64",
 					"IRIX"    => "SGI IRIX",
-					"BSD/OS"  => "BSD/OS",
+					"BSD\/OS"  => "BSD/OS",
 					"SunOS"   => "SunOS",
 					"Plan9"   => "Plan9",
 					"IPhone"  => "IPhone");
@@ -165,6 +165,7 @@ else
 		$num_sensors     = count($sensors);
 	}
 }
+
 
 $style = "style='display: none;'";
 
@@ -282,7 +283,7 @@ if ( GET('newport') != "" || GET('port')!="" )
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
 	<link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css"/>
-	<script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
 	<script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>
@@ -536,7 +537,8 @@ if (count($error_nagios) > 0)
 								<?php
 								foreach ($array_os as $k => $v)
 								{
-									$selected = ($os == $v) ? "selected='selected'" : '';
+									$pattern = "/$k/i";
+									$selected = ( preg_match($pattern, $os) ) ? "selected='selected'" : '';
 									echo "<option value='$k' $selected>$v</option>";
 								}
 								?>

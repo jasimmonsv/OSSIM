@@ -691,10 +691,11 @@ function ProcessCriteria() {
     /* User Data */
     //print_r($_SESSION);
     //echo "User Data:$userdata";
-    if ($userdata != "") {
-		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.userdata1,extra_data.userdata2,extra_data.userdata3,extra_data.userdata4,extra_data.userdata5,extra_data.userdata6,extra_data.userdata7,extra_data.userdata8,extra_data.userdata9,extra_data.username,extra_data.password,extra_data.filename,extra_data.context FROM acid_event";
+    if (trim($userdata[2]) != "") {
+		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.* FROM acid_event";
     	$data_join_sql = ",extra_data ";
-    	$tmp_meta .= " AND acid_event.sid=extra_data.sid AND acid_event.cid=extra_data.cid AND (extra_data.userdata1 LIKE \"%$userdata%\" OR extra_data.userdata2 LIKE \"%$userdata%\" OR extra_data.userdata3 LIKE \"%$userdata%\" OR extra_data.userdata4 LIKE \"%$userdata%\" OR extra_data.userdata5 LIKE \"%$userdata%\" OR extra_data.userdata6 LIKE \"%$userdata%\" OR extra_data.userdata7 LIKE \"%$userdata%\" OR extra_data.userdata8 LIKE \"%$userdata%\" OR extra_data.userdata9 LIKE \"%$userdata%\")";
+    	$flt = "extra_data.".$userdata[0]." ".$userdata[1]." ".(($userdata[1]=="like") ? "'%".str_replace("'","\'",$userdata[2])."%'" : $userdata[2]);
+    	$tmp_meta .= " AND acid_event.sid=extra_data.sid AND acid_event.cid=extra_data.cid AND ($flt)";
     }
     /* Source Type */
     if (trim($sourcetype) != "") $tmp_meta = $tmp_meta . " AND acid_event.plugin_id in (" . GetPluginListBySourceType($sourcetype) . ")";
@@ -909,7 +910,7 @@ function ProcessCriteria() {
 	//print_r("criteria_ sql: [".$criteria_sql."]");
 	//print_r("tmp_payload: [".$tmp_payload."]");
     if (!$cs->criteria['data']->isEmpty()) {
-    	$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.userdata1,extra_data.userdata2,extra_data.userdata3,extra_data.userdata4,extra_data.userdata5,extra_data.userdata6,extra_data.userdata7,extra_data.userdata8,extra_data.userdata9,extra_data.username,extra_data.password,extra_data.filename,extra_data.context FROM acid_event";
+    	$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.* FROM acid_event";
     	$data_join_sql = ",extra_data ";
         $criteria_sql = $criteria_sql . $tmp_payload;
     }

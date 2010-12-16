@@ -163,6 +163,7 @@ class Session {
         $exists = false;
 		$exists_flogin = false;
 		$exists_last = false;
+		$exists_last_logon = false;
         $query = OssimQuery("show columns from users");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
@@ -171,6 +172,7 @@ class Session {
                 if ($rs->fields["Field"]=="enabled") $exists = true;
 				if ($rs->fields["Field"]=="first_login") $exists_flogin = true;
 				if ($rs->fields["Field"]=="last_pass_change") $exists_last = true;
+				if ($rs->fields["Field"]=="last_logon_try") $exists_last_logon = true;
                 $rs->MoveNext();
             }
             if (!$exists) $conn->Execute("ALTER TABLE `users` ADD `enabled` BOOL NOT NULL DEFAULT '1'");
@@ -179,9 +181,13 @@ class Session {
 				$conn->Execute("UPDATE users SET first_login=0");
 			}
 			if (!$exists_last) {
-				$conn->Execute("ALTER TABLE `users` ADD `last_pass_change` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+				$conn->Execute("ALTER TABLE `users` ADD `last_pass_change` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `first_login`");
 				$conn->Execute("UPDATE users SET last_pass_change=CURRENT_TIMESTAMP()");
 			}
+			if (!$exists_last_logon) {
+				$conn->Execute("ALTER TABLE `users` ADD `last_logon_try` DATETIME NOT NULL AFTER `last_pass_change`");
+				$conn->Execute("UPDATE users SET last_logon_try = NOW()");
+			}	
         }
         return $exists;
     }
@@ -201,6 +207,7 @@ class Session {
         $authenticated = false;
         $password = $this->pass;
         $login = $this->login;
+		Session::update_logon_try($conn,$login);
         /*
         // 2007/04/05 DK: Currently it doesn't make sense not to use local users.
         // If a user doesn't exist locally he won't have access to anything.
@@ -232,6 +239,9 @@ class Session {
         }
         return false;
     }
+    function update_logon_try($conn,$login) {
+    	$conn->Execute("UPDATE users SET last_logon_try=NOW() WHERE login=?",array($login));
+    }    
     /*
     Add additional login methods below these lines.
     Functions should be called "login_XXX" and there should be at least one configuration
@@ -272,28 +282,21 @@ class Session {
 		global $_SESSION;
 		$db = new ossim_db();
         $conn = $db->connect();
-		$pass = md5($this->pass);
         $login = $this->login;
-		$sql = "SELECT * FROM users WHERE login = ? AND enabled=0";
+        $conf = $GLOBALS['CONF'];
+        $lockout_duration = intval($conf->get_conf("unlock_user_interval", FALSE)) * 60;        
+		$sql = "SELECT * FROM users WHERE login = ? AND enabled <= 0";
 		$params = array(
             $login
         );
 		if ($rs = & $conn->Execute($sql, $params) && (!$rs->EOF)) {
-			$sql2 = "SELECT date as lastdate FROM log_action WHERE code=93 AND info = 'User $login disabled for security reasons' ORDER BY date DESC";
-			if ($rs2 = & $conn->Execute($sql2) && (!$rs2->EOF)) {
-				$lastdate = $rs2->fields['lastdate'];
-				if (time() - strtotime($lastdate) >= 60*30) { // 30 minutes and enable
-					$sql3 = "DELETE FROM log_action WHERE code=93 AND info = 'User $login disabled for security reasons'";
-					$conn->Execute($sql3);
-					$sql3 = "UPDATE users SET enabled=1 WHERE login=?";
-					$conn->Execute($sql3,$params);
-					$db->close($conn);
-					return false;
-				} else {
-					$db->close($conn);
-					return true;
-				}
-			}
+        	if ($lockout_duration==0 || $rs->fields['enabled']==0) return true; // user must be unlocked by admin
+        	// auto-enable if account lockout duration expires
+        	if (time() - strtotime($rs->fields['last_logon_try']) >= $lockout_duration) {
+        		$conn->Execute("UPDATE users SET enabled=1 WHERE login=?",$params);
+        		$db->close($conn);
+        		return false;
+        	}		
 			$db->close($conn);
 			return true;
         }
@@ -321,7 +324,7 @@ class Session {
 		$db = new ossim_db();
         $conn = $db->connect();
         $login = $this->login;
-		$sql = "UPDATE users SET enabled=0 WHERE login = ?";
+		$sql = "UPDATE users SET enabled=-1 WHERE login = ?";
 		$params = array(
             $login
         );
@@ -352,7 +355,7 @@ class Session {
         $conn = $db->connect();
 		$pass = md5($this->pass);
         $login = $this->login;
-		$sql = "SELECT * FROM users WHERE login = ? AND pass = ?";
+		$sql = "SELECT * FROM users WHERE login = ? AND pass = ? and enabled = 1";
 		$params = array(
             $login,
             $pass
@@ -403,6 +406,10 @@ class Session {
         session_destroy();
     }
     function menu_perms($menu, $submenu) {
+    	// perms only for pro version => allways return true
+    	if ($menu=='MenuEvents' && $submenu=='EventsForensicsDelete') return true;
+    	if ($menu=='MenuIncidents' && $submenu=='ControlPanelAlarmsDelete') return true;
+    	//
         $gacl = $GLOBALS['ACL'];
         if (!isset($_SESSION["_user"])) return true;
         if (Session::am_i_admin()) return true;
@@ -635,11 +642,13 @@ class Session {
                 die($conn->ErrorMsg());
             }
             if (!$rs->EOF) {
-                $ips = $rs->fields["ips"];
+                $cidr = explode(",",$rs->fields["ips"]);
                 $allowed_nets_array = split(',', $allowed_nets);
-				if (!in_array($ips, $allowed_nets_array)) {
-					$netAllowedCache["$user"]["$net"] = false;
-                    return false;
+		foreach ($cidr as $ips) {
+			if (!in_array(trim($ips), $allowed_nets_array)) {
+				$netAllowedCache["$user"]["$net"] = false;
+                    		return false;
+			}
                 }
             }
         }

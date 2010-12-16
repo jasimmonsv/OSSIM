@@ -5,7 +5,6 @@ net_DATA = deletenet.php \
 	netgroup.php\
 	newnetgroup.php \
 	newnetgroupform.php \
-	modifynetform.php \
 	modifynet.php \
 	net.php \
 	newnetform.php \

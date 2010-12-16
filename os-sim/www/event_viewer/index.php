@@ -57,7 +57,7 @@ $date_from = GET('date_from') ? GET('date_from') : date('Y-m-d');
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
   
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script src="../js/datepicker.js" type="text/javascript"></script>
   <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
 <script type="text/javascript">

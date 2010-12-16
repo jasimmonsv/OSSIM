@@ -8,6 +8,10 @@ if(!$ARGV[0]){
 print "Accepts folder with *log files\n";
 exit;
 }
+%ini = read_ini();
+$loc_db = $ini{'main'}{'locate_db'};
+$loc_db = "/var/ossim/logs/locate.index" if ($loc_db eq "");
+
 $debug = 1; # 1 for debuging info
 $folder = $ARGV[0];
 $folder =~ s/\/$//;
@@ -22,7 +26,7 @@ $wehavedata = 0;
 %sensor_folders = ();
 #open (F,"find $folder | grep \".log\$\" |");
 $head = (!$force) ? "| grep -E \"count.total\$\" | sort -ur | head -64" : "| sort -ur";
-$find = "locate.findutils -d /var/ossim/logs/locate.index $folder $head";
+$find = "locate.findutils -d $loc_db $folder $head";
 #print "$find\n" if ($debug);
 open (F,"$find |");
 LOG: while ($file=<F>) {
@@ -161,3 +165,23 @@ if ($wehavedata>0) {
 	}
 }
 print "Done.\n" if ($debug);
+
+
+sub read_ini {
+	my ($hash,$section,$keyword,$value);
+    open (INI, "/usr/share/ossim/www/sem/everything.ini") || die "Can't open everything.ini: $!\n";
+    while (<INI>) {
+        chomp;
+        if (/^\s*\[(\w+)\].*/) {
+            $section = $1;
+        }
+        if (/^\W*(.+?)=(.+?)\W*(#.*)?$/) {
+            $keyword = $1;
+            $value = $2 ;
+            # put them into hash
+            $hash{$section}{$keyword} = $value;
+        }
+    }
+    close INI;
+    return %hash;
+}

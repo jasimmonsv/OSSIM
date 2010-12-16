@@ -37,7 +37,6 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
-ini_set('memory_limit', '512M');
 ini_set("max_execution_time","300");
 $unique_id = uniqid("alrm_");
 $prev_unique_id = $_SESSION['alarms_unique_id'];
@@ -54,10 +53,10 @@ $_SESSION['alarms_unique_id'] = $unique_id;
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
   <?php if (GET('norefresh') == "") { ?>
   <script type="text/javascript">
-	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>'&bypassexpirationupdate=1",60000);
+	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>&bypassexpirationupdate=1'",60000);
   </script>
   <?php } ?>
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
   <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
   <script src="../js/datepicker.js" type="text/javascript"></script>
@@ -108,6 +107,11 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 		if (this.id.match(/^check_\d+/)) {
 			this.checked = (this.checked) ? false : true;
 		}
+	});
+  }
+  function checkall_date (d) {
+	$("input[datecheck='"+d+"']").each(function() {
+		this.checked = (this.checked) ? false : true;
 	});
   }
   function tooglebtn() {
@@ -292,36 +296,54 @@ if (ossim_error()) {
     die(ossim_error());
 }
 if (!empty($delete)) {
-	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete($conn, $delete);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+		die(ossim_error("You don't have required permissions to delete Alarms"));
+	else {
+		if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete($conn, $delete);
+		else die(ossim_error("Can't do this action for security reasons."));
+	}
 }
 if (!empty($close)) {
 	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::close($conn, $close);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	else die(ossim_error("Can't do this action for security reasons."));
 }
 if (!empty($open)) {
     if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::open($conn, $open);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	else die(ossim_error("Can't do this action for security reasons."));
 }
 if ($list = GET('delete_backlog')) {
-    if (check_uniqueid($prev_unique_id,$param_unique_id)) {
-		if (!strcmp($list, "all")) {
-			$backlog_id = $list;
-			$id = null;
-		} else {
-			list($backlog_id, $id) = split("-", $list);
+	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+		die(ossim_error("You don't have required permissions to delete Alarms"));
+	else {
+	    if (check_uniqueid($prev_unique_id,$param_unique_id)) {
+			if (!strcmp($list, "all")) {
+				$backlog_id = $list;
+				$id = null;
+			} else {
+				list($backlog_id, $id) = split("-", $list);
+			}
+			Alarm::delete_from_backlog($conn, $backlog_id, $id);
 		}
-		Alarm::delete_from_backlog($conn, $backlog_id, $id);
+		else die(ossim_error("Can't do this action for security reasons."));
 	}
-	else die(ossim_error("Can't do this action for security reasons..."));
 }
 if (!empty($delete_day)) {
-	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete_day($conn, $delete_day);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+		die(ossim_error("You don't have required permissions to delete Alarms"));
+	else {
+		if (check_uniqueid($prev_unique_id,$param_unique_id))
+			Alarm::delete_day($conn, $delete_day);
+		else
+			die(ossim_error("Can't do this action for security reasons."));
+	}
 }
 if (GET('purge')) {
-    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::purge($conn);
-	else die(ossim_error("Can't do this action for security reasons..."));
+	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
+		die(ossim_error("You don't have required permissions to delete Alarms"));
+	else {
+	    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::purge($conn);
+		else die(ossim_error("Can't do this action for security reasons."));
+	}
 }
 if (empty($order)) $order = " a.timestamp DESC";
 if ((!empty($src_ip)) && (!empty($dst_ip))) {
@@ -428,8 +450,8 @@ if (!isset($_GET["hide_search"])) {
 				<a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>" onclick="if(!confirm('<?php echo _("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?") ?>')) return false;"><?php
     echo gettext("Delete ALL alarms"); ?></a> <br><br>
-				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="btn">
-				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="btn">
+				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
+				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="lbutton">
 				<br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
 				<div id="divadvanced" style="display:none"><a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?purge=1&unique_id=<?=$unique_id?>"><?php
@@ -521,7 +543,7 @@ if (!isset($_GET["hide_search"])) {
 		</table>
 	</td>
 </tr>
-<tr><th colspan="3" style="padding:5px"><input type="submit" class="btn" value="<?php echo _("Go") ?>"></th></td>
+<tr><th colspan="3" style="padding:5px"><input type="submit" class="button" value="<?php echo _("Go") ?>"></th></td>
 </table>
 </form>
 <?php
@@ -621,14 +643,12 @@ if ($sup < $count) {
 }
 ?>
 					</td>
-					<td width="200" class="nobborder right">
+					<td width="150" class="nobborder right">
 						<table class="transparent">
 							<tr>
 								<td class="nobborder" nowrap><?=_("Ungrouped")?></td>
 								<td class="nobborder"> | </td>
 								<td class="nobborder"><a href="alarm_group_console.php"><b><?=_("Grouped")?></b></a></td>
-								<td class="nobborder"> | </td>
-								<td class="nobborder"><a href="alarm_unique_console.php?hide_closed=on"><b><?=_("Unique")?></b></a></td>
 							</tr>
 						</table>
 					</td>
@@ -745,6 +765,7 @@ if ($count > 0) {
         /* show alarms by days */
         $date_slices = split(" ", $date);
         list($year, $month, $day) = split("-", $date_slices[0]);
+        $date_unformated = $year.$month.$day;
         $date_formatted = htmlentities(strftime("%A %d-%b-%Y", mktime(0, 0, 0, $month, $day, $year)));
         if ($datemark != $date_slices[0]) {
             $link_delete = "
@@ -753,7 +774,8 @@ if ($count > 0) {
             echo "
                 <tr>
                   
-                  <td colspan=\"11\" style='padding:5px;border-bottom:0px solid white;background-color:#B5C7DF'>
+                  <td style='border:0px;background-color:#d6dfeb'><input type=\"checkbox\" onclick=\"checkall_date('".$date_unformated."')\"></td>
+                  <td colspan=\"10\" style='padding:5px;border-bottom:0px solid white;background-color:#B5C7DF'>
                     <!--<hr border=\"0\"/>-->
                     <b>$date_formatted</b> [$link_delete]<br/>
                     <!--<hr border=\"0\"/>-->
@@ -765,7 +787,7 @@ if ($count > 0) {
         $datemark = $date_slices[0];
 ?>
       <tr>
-        <td class="nobborder"><input style="border:none" type="checkbox" name="check_<?php echo $backlog_id ?>_<?php echo $alarm->get_event_id() ?>" id="check_<?php echo $backlog_id ?>" class="alarm_check" value="1"></td>
+        <td class="nobborder"><input style="border:none" type="checkbox" name="check_<?php echo $backlog_id ?>_<?php echo $alarm->get_event_id() ?>" id="check_<?php echo $backlog_id ?>" class="alarm_check" datecheck="<?php echo $date_unformated ?>" value="1"></td>
         <td class="nobborder" nowrap id="plus<?php echo $inf + 1 ?>">
            <? if ($backlog_id && $id==1505) { ?>
            <a href="" onclick="show_alarm('<?php echo $backlog_id ?>','<?php echo $inf + 1 ?>');return false;"><img align='absmiddle' src='../pixmaps/plus-small.png' border='0'></a><?php echo ++$inf ?>

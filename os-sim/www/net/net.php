@@ -211,7 +211,8 @@ echo gettext("OSSIM Framework"); ?> </title>
                                             }
                             });
                 }
-                alert('<?=_("Network unselected")?>');
+               else
+                   alert('<?=_("Network unselected")?>');
             }
 
             if (com=='duplicate') {

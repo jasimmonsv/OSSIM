@@ -52,6 +52,7 @@ if (!$opensource) {
                     url: "entities_tree.php",
                     data: {key: dtnode.data.key}
                 });
+                if (typeof(parent.doIframe2)=="function") parent.doIframe2();
             }
         });
         $("#aptree").dynatree({
@@ -75,6 +76,7 @@ if (!$opensource) {
                   addto_tree(item);
                });
                $('#refreshing').hide();
+               if (typeof(parent.doIframe2)=="function") parent.doIframe2();
                setTimeout('refresh_tree()',10000);
 	        }
 		 );    

@@ -1,6 +1,12 @@
 #!/bin/bash
 
-cd /var/ossim/logs/
+LOGS='/var/ossim/logs/'
+eval `egrep "^log_dir" /usr/share/ossim/www/sem/everything.ini `
+if [ -d $log_dir ];then
+	LOGS=$log_dir
+fi
+
+cd $LOGS
 
 if pidof -x $(basename $0) > /dev/null; then
  for p in $(pidof -x $(basename $0)); do

@@ -115,7 +115,13 @@ class Agent:
 
         self.detector_objs = []
         self.watchdog = None
+        self.shutdown_running = False;
 
+    def setShutDownRunning(self, value):
+        self.shutdown_running = value
+
+    def getShutDownRunning(self):
+        return self.shutdown_running
 
     def init_logger(self):
         """Initiate the logger. """
@@ -408,12 +414,18 @@ class Agent:
 
 
     def terminate(self, sig, params):
-        self.shutdown()
+        if self.getShutDownRunning() == False:
+           logger.info("WARNING: Shutdown received! - Processing it ...!")
+           self.shutdown()
+        else:
+           logger.info("WARNING: Shutdown received! - We can't process it because another shutdonw process is running!")
 
 
     def shutdown(self):
-
+        #Disable Ctrl+C signal.
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
         logger.warning("Kill signal received, exiting...")
+        self.setShutDownRunning(True)
 
         # Remove the pid file
         pidfile = self.conf.get("daemon", "pid")
@@ -455,6 +467,7 @@ class Agent:
         # This can be avoided by implementing safe shutdown notification
         # for all threads. The reason for needing this is the abuse of the
         # "while 1" loops scattered througout
+        self.setShutDownRunning(False)
         os.kill(pid, signal.SIGKILL)
 
 
@@ -490,11 +503,19 @@ class Agent:
             self.waitforever()
 
         except KeyboardInterrupt:
-            self.shutdown()
+            if self.getShutDownRunning() == False:
+               logger.info("WARNING! Ctrl+C received! shutdowning")
+               self.shutdown()
+            else:
+               logger.info("WARNING! Ctrl+C received! Shutdown signal ignored -- Another shutdown process running.")
 
         except AgentCritical, e:
             logger.critical(e)
-            self.shutdown()
+            if self.getShutDownRunning() == False:
+               self.shutdown()
+               logger.info("WARNING! Exception captured, shutdowning!")
+            else:
+               logger.info("WARNING! Exception captured! Shutdown signal ignored -- Another shutdown process running")
 
         except Exception, e:
             logger.error("Unexpected exception: " + str(e))

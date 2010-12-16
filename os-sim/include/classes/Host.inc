@@ -608,11 +608,14 @@ class Host {
         );
         if (!$rs = & $conn->Execute($sql, $params)) {
             print $conn->ErrorMsg();
-        } elseif (!$rs->EOF) {
-            $sensors[] = $rs->fields["sensor"];
+        } else {
+            while (!$rs->EOF) {
+                $sensors[] = $rs->fields["sensor"];
+                $rs->MoveNext();
+            }
         }
-        /* read from NET table */
-        if ($net_list = Net::get_list($conn)) {
+        /* read from NET table only it host isn't in inventory */
+        if (count($sensor)==0 && $net_list = Net::get_list($conn)) {
             foreach($net_list as $net) {
                 $net_name = $net->get_name();
                 $ips = $net->get_ips();
@@ -679,30 +682,54 @@ class Host {
 	
 	function get_credentials_ip($conn, $ip) {
         $list = array();
-        $sql = "SELECT type,username,password,extra FROM credentials WHERE ip = ?";
-		$params = array ($ip);
-		        
-		if (!$rs = & $conn->Execute($sql, $params)){ 
+        $sql = "SELECT id,type,username,password,extra FROM credentials WHERE ip = ?";
+        $params = array ($ip);
+                
+        if (!$rs = & $conn->Execute($sql, $params)){ 
             print $conn->ErrorMsg();
-			exit();
-		}
+            exit();
+        }
         else
-		{
-            if (!$rs->EOF){
-                $list[] = array("type" => $rs->fields['type'],
-								"username" => $rs->fields['username'],
-								"password" => $rs->fields['password'],
-								"extra" => $rs->fields['extra']
-								);
+        {
+            while (!$rs->EOF){
+                $list[] = array("id" => $rs->fields['id'],
+                                "type" => $rs->fields['type'],
+                                "username" => $rs->fields['username'],
+                                "password" => $rs->fields['password'],
+                                "extra" => $rs->fields['extra']
+                                );
+                $rs->MoveNext();
             }
         }
         return $list;
+    }
+	function get_credentials_id($conn, $id) {
+        $result = array();
+        $sql = "SELECT id,type,username,password,extra FROM credentials WHERE id = ?";
+        $params = array ($id);
+                
+        if (!$rs = & $conn->Execute($sql, $params)){ 
+            print $conn->ErrorMsg();
+            exit();
+        }
+        else
+        {
+            if (!$rs->EOF){
+                $result = array("id" => $rs->fields['id'],
+                                "type" => $rs->fields['type'],
+                                "username" => $rs->fields['username'],
+                                "password" => $rs->fields['password'],
+                                "extra" => $rs->fields['extra']
+                                );
+            }
+        }
+        return $result;
     } 
 	
 	function modify_credentials($conn, $ip, $type, $username, $password, $extra)
 	{
-		$sql = "SELECT count(ip) FROM credentials WHERE ip = ?";
-        $params = array ($ip);
+		$sql = "SELECT id FROM credentials WHERE ip = ? AND type = ?";
+        $params = array ($ip, $type);
 		
 		if (!$rs = & $conn->Execute($sql, $params)) {
             print $conn->ErrorMsg();
@@ -710,12 +737,13 @@ class Host {
         }
 		else
 		{
-			$exist = $rs->fields[0];
-			if ($exist >= 1)
+			$id = $rs->fields["id"];
+
+			if ($id!="")
 			{
 				
-				$params = array ($type, $username, $password, $extra, $ip);
-				$sql = "UPDATE credentials SET type = ?, username = ?, password = ?, extra = ? WHERE ip = ?";
+				$params = array ($type, $username, $password, $extra, $id);
+				$sql = "UPDATE credentials SET type = ?, username = ?, password = ?, extra = ? WHERE id = ?";
 				if (!$rs = & $conn->Execute($sql, $params)){ 
 					print $conn->ErrorMsg();
 					exit();
@@ -734,17 +762,26 @@ class Host {
 		
 	}
 	
-	function clean_credentials($conn, $ip)
-	{
-		$params = array($ip);
-		 
+    function clean_credentials($conn, $ip)
+    {
+        $params = array($ip);
+         
         $sql = "DELETE FROM credentials WHERE ip=?";
-		if (!$rs = & $conn->Execute($sql, $params)){ 
-			print $conn->ErrorMsg();
-			exit();
-		}
-	}
-	
+        if (!$rs = & $conn->Execute($sql, $params)){ 
+            print $conn->ErrorMsg();
+            exit();
+        }
+    }
+    function delete_credential($conn, $id) {
+        $params = array($id);
+         
+        $sql = "DELETE FROM credentials WHERE id=?";
+
+        if (!$rs = & $conn->Execute($sql, $params)){ 
+            print $conn->ErrorMsg();
+            exit();
+        }
+    }
 	//
 	// Host Properties
 	//

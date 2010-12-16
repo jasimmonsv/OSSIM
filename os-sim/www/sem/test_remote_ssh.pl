@@ -8,7 +8,7 @@ if ($ip eq "127.0.0.1") {
 	print "OK\n";
 	exit;
 }
-$cmd = 'ssh -q -o "BatchMode=yes" root@'.$ip.' "echo 2>&1" && echo "OK" || echo "NOK" |';
+$cmd = 'ssh -q -o "BatchMode=yes" -o "ConnectTimeout=5" root@'.$ip.' "echo 2>&1" && echo "OK" || echo "NOK" |';
 open(S,$cmd);
 while(<S>) {
 	chomp;

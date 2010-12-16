@@ -87,9 +87,7 @@ function get_value(id)
 				{
 					msg += msg_split[i].stripTags() +"<br/>";
 				}
-				
-				
-				
+								
 				val_error = true;
 			}
 		}		
@@ -127,7 +125,7 @@ function get_value(id)
 		}
 		else
 		{
-			$("#info_error").html("");
+            $("#info_error").html("");
 			$("#info_error").css('display', 'none');
 			return true;
 		}

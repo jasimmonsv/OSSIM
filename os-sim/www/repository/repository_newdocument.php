@@ -74,7 +74,7 @@ if (POST('title') != "" && POST('doctext') != "") {
 	<tr>
 		<td class="center"><?=_("Document inserted with id")?>: <?php echo $id_inserted ?></td>
 	</tr>
-	<tr><td class="center"><?=_("Do you want to attach a document file?")?> <input type="button" class="btn" onclick="document.location.href='repository_attachment.php?id_document=<?php echo $id_inserted ?>'" value="<?=_("YES")?>">&nbsp;<input class="btn" type="button" onclick="parent.document.location.href='index.php'" value="<?=_("NO")?>"></td></tr>
+	<tr><td class="center"><?=_("Do you want to attach a document file?")?> <input type="button" class="button" onclick="document.location.href='repository_attachment.php?id_document=<?php echo $id_inserted ?>'" value="<?=_("YES")?>">&nbsp;<input class="button" type="button" onclick="parent.document.location.href='index.php'" value="<?=_("NO")?>"></td></tr>
 </table>
 <?php
 } else { ?>
@@ -247,7 +247,7 @@ if (POST('title') != "" && POST('doctext') != "") {
                     }
                 }
                 ?> 
-				<tr><td class="nobborder" style="padding-left:5px;text-align:center"><input class="btn" type="submit" value="<?php echo _("Save") ?>"></td></tr>
+				<tr><td class="nobborder" style="padding-left:5px;text-align:center"><input class="button" type="submit" value="<?php echo _("Save") ?>"></td></tr>
 			</table>
 			</form>
 			<!-- end of repository insert form -->

@@ -58,19 +58,19 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
   <tr>
     <th> <?php
 echo gettext("Name"); ?> </th>
-    <td class="left"><input type="text" name="name"></td>
+    <td class="left nobborder"><input type="text" name="name"></td>
   </tr>
   <tr>
     <th> <?php
 echo gettext("Description"); ?> </th>
-    <td class="left">
+    <td class="left nobborder">
       <textarea name="descr" rows="2" cols="20"></textarea>
     </td>
   </tr>
-  <tr>
-    <td colspan="2" align="center">
-      <input type="submit" value="<?=_("OK")?>" class="btn">
-      <input type="reset" value="<?=_("reset")?>" class="btn">
+  <tr style="height:35px;">
+    <td colspan="2" class="nobborder" style="text-align:center">
+      <input type="submit" value="<?=_("OK")?>" class="button">
+      <input type="reset" value="<?=_("reset")?>" class="button">
     </td>
   </tr>
 </table>

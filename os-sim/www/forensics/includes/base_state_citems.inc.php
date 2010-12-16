@@ -747,12 +747,26 @@ class NetworkGroupCriteria extends SingleElementCriteria {
 }; /* NetworkGroupCriteria */
 class UserDataCriteria extends SingleElementCriteria {
     function Init() {
-        $this->criteria = "";
+        $this->criteria = array("","","");
     }
     function Clear() {
     }
     function SanitizeElement() {
-        //$this->criteria = CleanVariable($this->criteria, VAR_DIGIT);
+	    $this->criteria[0] = CleanVariable($this->criteria[0], "", array(
+	            "userdata1","userdata2","userdata3","userdata4",
+	            "userdata5","userdata6","userdata7","userdata8",
+	            "userdata9","filename","username","password",
+	        ));
+	    $this->criteria[1] = CleanVariable($this->criteria[1], "", array(
+	            "=",
+	            "<>",
+	            "<",
+	            "<=",
+	            ">",
+	            ">=",
+	            "like"
+	        ));
+        $this->criteria[2] = CleanVariable($this->criteria[2], VAR_ALPHA | VAR_SPACE | VAR_PUNC);
     }
     function PrintForm() {
     }
@@ -760,7 +774,7 @@ class UserDataCriteria extends SingleElementCriteria {
     }
     function Description() {
         $tmp = "";
-        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("User data") . ' = (' . $this->criteria .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        if ($this->criteria[2] != " " && $this->criteria[2] != "") $tmp = $tmp . _("Extra data") . ' = (' . $this->criteria[0] .' '. $this->criteria[1] . ' ' . $this->criteria[2] . ')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
         return $tmp;
     }
 }; /* UserDataCriteria */

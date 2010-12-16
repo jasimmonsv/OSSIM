@@ -115,7 +115,7 @@ $directives = Plugin_sid::get_list($conn,"WHERE plugin_id=1505");
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script src="../js/jquery-1.3.1.js" language="javascript" type="text/javascript"></script>
+  <script src="../js/jquery-1.3.2.min.js" language="javascript" type="text/javascript"></script>
 </head>
 <body>
 <table class="noborder" align="center" style="background-color:white">
@@ -162,7 +162,7 @@ $directives = Plugin_sid::get_list($conn,"WHERE plugin_id=1505");
 					</select>
 					</td>
 				</tr>
-				<tr><td class="nobborder" style="text-align:center;padding:10px"><input type="submit" value="<?=_("ADD")?>" class="btn"> <input type="button" onclick="window.parent.GB_onclose()" value="<?=_("Close")?>" class="btn"></td></tr>
+				<tr><td class="nobborder" style="text-align:center;padding:10px"><input type="submit" value="<?=_("ADD")?>" class="button"> <input type="button" onclick="window.parent.GB_onclose()" value="<?=_("Close")?>" class="button"></td></tr>
 			</table>
 		</td>
 	</tr>

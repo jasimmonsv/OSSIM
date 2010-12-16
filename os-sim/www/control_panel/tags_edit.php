@@ -84,7 +84,7 @@ if (GET('delete') != "") {
   <title> <?=_("Control Panel")?> </title>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" href="../style/style.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript">
   function set_hand_cursor() {
 	document.body.style.cursor = 'pointer';
@@ -226,7 +226,7 @@ if (count($tags) < 1) {
 			</table>
 		</td>
 	</tr>
-	<tr><td class="center nobborder"><input type="submit" value="<?php echo ($id != "") ? _("Modify") : _("Create")?>"></input></td></tr>
+	<tr><td class="center nobborder"><input class="button" type="submit" value="<?php echo ($id != "") ? _("Modify") : _("Create")?>"></input></td></tr>
 	</form>
 </table>
 </body>

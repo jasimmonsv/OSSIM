@@ -409,7 +409,7 @@ class Rule {
                 print '</td>';
                 //removeRule button
                 print '<td>';
-                print "<a onclick=\"javascript:if (confirm('" . gettext("Are you sure you want to delete this rule ?") . "')) { window.open('../include/utils.php?query=del_rule&id=" . $this->id . "','right'); }\" style=\"marging-left:20px; cursor:pointer\" TITLE=\"" . gettext("Delete this rule") . "\"><img src='../../pixmaps/cross-small.png' border='0'></img></a>";
+                print "<a onclick=\"javascript:if (confirm('" . gettext("Are you sure you want to delete this rule ?") . "')) { window.open('../include/utils.php?query=del_rule&id=" . $this->id . "','right'); }\" style=\"marging-left:20px; cursor:pointer\" TITLE=\"" . gettext("Delete this rule") . "\"><img src='../../pixmaps/delete-small.gif' border='0'></img></a>";
                 print '</td>';
                 //copy button
                 print '<td>';
@@ -460,9 +460,9 @@ class Rule {
         <td><?php
             echo $this->occurrence; ?>&nbsp;</td>
         <td><?php
-            echo $this->from; ?>&nbsp;</td>
+            echo str_replace(",",",<br>",$this->from); ?>&nbsp;</td>
         <td><?php
-            echo $this->to; ?>&nbsp;</td>
+            echo str_replace(",",",<br>",$this->to); ?>&nbsp;</td>
         <td><?php
             echo $this->port_from; ?>&nbsp;</td>
         <td><?php
@@ -482,7 +482,7 @@ class Rule {
         </td>
         <td> 
 <?php
-            if ($this->plugin_id != "") {
+            if ($this->plugin_id != "" && $this->plugin_sid != "") {
                 $plugin_sid = $this->plugin_sid;
                 $plugin_sid_list = split(',', $plugin_sid);
                 if (count($plugin_sid_list) > 30) {

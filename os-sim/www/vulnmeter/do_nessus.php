@@ -396,7 +396,7 @@ function show_form() {
 <center>
 <input type="hidden" name="nsensors" value="<?php
     echo $global_i ?>" />
-<input type="Submit" class="btn" value="<?php echo _("Submit"); ?>">
+<input type="Submit" class="button" value="<?php echo _("Submit"); ?>">
 </center>
 </form>
 <center><a href="index.php"> <?php

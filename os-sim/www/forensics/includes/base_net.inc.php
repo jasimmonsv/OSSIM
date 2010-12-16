@@ -118,15 +118,15 @@ function baseGetHostByAddr($ipaddr, $db, $cache_lifetime) {
     $ip32 = baseIP2long($ipaddr);
     $current_unixtime = time();
     $current_time = date("Y-m-d H:i:s", $current_unixtime);
-    $sql = "SELECT ipc_ip,ipc_fqdn,ipc_dns_timestamp" . " FROM acid_ip_cache " . " WHERE ipc_ip = '$ip32' ";
+    $sql = "SELECT ipc_ip,ipc_fqdn,ipc_dns_timestamp FROM acid_ip_cache WHERE ipc_ip = '$ip32' ";
     $result = $db->baseExecute($sql);
     $ip_cache = $result->baseFetchRow();
     /* cache miss */
     if ($ip_cache == "") {
         $tmp = gethostbyaddr($ipaddr);
         /* add to cache regardless of whether can resolve */
-        if ($db->DB_type == "oci8") $sql = "INSERT INTO acid_ip_cache (ipc_ip, ipc_fqdn, ipc_dns_timestamp) " . "VALUES ($ip32, '$tmp', to_date( '$current_time', 'YYYY-MM-DD HH24:MI:SS' ) )";
-        else $sql = "INSERT INTO acid_ip_cache (ipc_ip, ipc_fqdn, ipc_dns_timestamp) " . "VALUES ('$ip32', '$tmp', '$current_time')";
+        if ($db->DB_type == "oci8") $sql = "INSERT INTO acid_ip_cache (ipc_ip, ipc_fqdn, ipc_dns_timestamp) VALUES ($ip32, '$tmp', to_date( '$current_time', 'YYYY-MM-DD HH24:MI:SS' ) )";
+        else $sql = "INSERT INTO acid_ip_cache (ipc_ip, ipc_fqdn, ipc_dns_timestamp) VALUES ('$ip32', '$tmp', '$current_time')";
         $db->baseExecute($sql);
     } else
     /* cache hit */ {
@@ -139,7 +139,20 @@ function baseGetHostByAddr($ipaddr, $db, $cache_lifetime) {
             $tmp = $ipaddr;
         } else
         /* cache expired */ {
-            $tmp = gethostbyaddr($ipaddr);
+    		$result = $db->baseExecute("SELECT hostname FROM ossim.host WHERE ip='$ipaddr'");
+    		$rs = $result->baseFetchRow();
+    		if ($rs[0]==$ipaddr) {
+	    		$result = $db->baseExecute("SELECT name FROM ossim.sensor WHERE ip='$ipaddr'");
+	    		$rs = $result->baseFetchRow();
+	    		if ($rs[0]==$ipaddr) {
+	    			$tmp = gethostbyaddr($ipaddr);
+	    		} else {
+	    			$tmp = $rs[0];
+	    		}
+    		} else {
+    			$tmp = $rs[0];
+    		}
+            //$tmp = gethostbyaddr($ipaddr);
             /* Update entry in cache regardless of whether can resolve */
             $sql = "UPDATE acid_ip_cache SET ipc_fqdn='$tmp', " . " ipc_dns_timestamp='$current_time' WHERE ipc_ip='$ip32'";
             $db->baseExecute($sql);

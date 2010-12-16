@@ -169,6 +169,7 @@ class Event_viewer {
             'USERDATA7' => 'UserData 7',
             'USERDATA8' => 'UserData 8',
             'USERDATA9' => 'UserData 9',
+            'PAYLOAD' => 'Payload',
             'IP_SRC' => 'Source IP',
             'IP_SRC_FQDN' => 'Resolved source IP FQDN',
             'IP_DST' => 'Destination IP',

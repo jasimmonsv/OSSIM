@@ -1121,8 +1121,10 @@ CREATE TABLE users (
     department varchar(128),
     language varchar(12) DEFAULT 'en_GB' NOT NULL,
     enabled TINYINT(1) NOT NULL DEFAULT '1',
-	first_login TINYINT(1) NOT NULL DEFAULT '1',
-	is_admin TINYINT(1) NOT NULL DEFAULT '0',
+    first_login TINYINT(1) NOT NULL DEFAULT '1',
+    last_pass_change timestamp NOT NULL default CURRENT_TIMESTAMP,
+    last_logon_try datetime NOT NULL default,
+    is_admin TINYINT(1) NOT NULL DEFAULT '0',
     entities varchar(64) DEFAULT '' NOT NULL,
     template_sensors int(11) DEFAULT 0 NOT NULL,
     template_assets int(11) DEFAULT 0 NOT NULL,
@@ -1132,7 +1134,7 @@ CREATE TABLE users (
     inherit_assets int(11) DEFAULT 0 NOT NULL,
     inherit_menus int(11) DEFAULT 0 NOT NULL,
     inherit_policies int(11) DEFAULT 0 NOT NULL,
-	last_pass_change timestamp NOT NULL default CURRENT_TIMESTAMP,
+
     PRIMARY KEY (login)
 );
 
@@ -2508,6 +2510,66 @@ CREATE TABLE IF NOT EXISTS credential_type (
 INSERT INTO credential_type(name) VALUES ("SSH");
 INSERT INTO credential_type(name) VALUES ("Windows");
 INSERT INTO credential_type(name) VALUES ("AD");
+
+
+DROP TABLE IF EXISTS custom_collectors;
+CREATE TABLE IF NOT EXISTS `custom_collectors` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(64) NOT NULL,
+  `description` text NOT NULL,
+  `type` tinyint(4) NOT NULL,
+  `plugin_id` int(11) NOT NULL,
+  `source_type` varchar(255) NOT NULL,  
+  `enable` tinyint(1) NOT NULL,
+  `source` varchar(64) NOT NULL,
+  `location` tinytext NOT NULL,
+  `create` tinyint(1) NOT NULL,
+  `process` varchar(255) NOT NULL,
+  `start` tinyint(1) NOT NULL,
+  `stop` tinyint(1) NOT NULL,
+  `startup_command` varchar(255) NOT NULL,
+  `stop_command` varchar(255) NOT NULL,
+  `sample_log` varchar(255) NOT NULL,
+  PRIMARY KEY  (`id`)
+);
+
+DROP TABLE IF EXISTS custom_collector_rules;
+CREATE TABLE IF NOT EXISTS `custom_collector_rules` (
+  `id` int(11) NOT NULL auto_increment,
+  `idc` int(11) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `description` tinytext NOT NULL,
+  `type` varchar(64) NOT NULL,
+  `expression` tinytext NOT NULL,
+  `prio` int(11) NOT NULL,
+  `rel` int(11) NOT NULL,
+  `plugin_sid` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `subcategory_id` int(11) NOT NULL,  
+  `date` varchar(255) default NULL,
+  `sensor` varchar(255) default NULL,
+  `interface` varchar(255) default NULL,
+  `protocol` varchar(255) default NULL,
+  `src_ip` varchar(255) default NULL,
+  `src_port` varchar(255) default NULL,
+  `dst_ip` varchar(255) default NULL,
+  `dst_port` varchar(255) default NULL,
+  `username` varchar(255) default NULL,
+  `password` varchar(255) default NULL,
+  `filename` varchar(255) default NULL,
+  `userdata1` varchar(255) default NULL,
+  `userdata2` varchar(255) default NULL,
+  `userdata3` varchar(255) default NULL,
+  `userdata4` varchar(255) default NULL,
+  `userdata5` varchar(255) default NULL,
+  `userdata6` varchar(255) default NULL,
+  `userdata7` varchar(255) default NULL,
+  `userdata8` varchar(255) default NULL,
+  `userdata9` varchar(255) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `name` (`name`)
+);
+
 
 --
 -- PROCEDURES & TRIGGERS

@@ -176,7 +176,6 @@ if (GET('open_group') != "") {
 	AlarmGroups::change_status ($conn, GET('open_group'), "open");
 }
 if (GET('action') == "open_alarm") {
-    echo "<br><br><br>OPEN<br>";
 	Alarm::open($conn, GET('alarm'));
 }
 if (GET('action') == "close_alarm") {
@@ -204,31 +203,31 @@ list($alarm_group, $count) = AlarmGroups::get_unique_alarms($conn, $show_options
   <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
   <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
 
-  <script type="text/javascript" src="../js/jquery-1.3.1.js"></script>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
   <script src="../js/datepicker.js" type="text/javascript"></script>
   <script type="text/javascript">
   var open = false;
   
-  function toggle_group (group_id,name,ip_src,ip_dst) {
-	document.getElementById(group_id).innerHTML = "<img src='../pixmaps/loading.gif'>";
+  function toggle_group (group_id,name,from) {
+	document.getElementById(group_id+from).innerHTML = "<img src='../pixmaps/loading.gif'>";
 	//alert("alarm_unique_response.php?name="+name+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&hide_closed=<?=$hide_closed?>&from_date=<?=$date_from?>&to_date=<?=$date_to?>");
 	$.ajax({
 		type: "GET",
-		url: "alarm_unique_response.php?name="+name+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&hide_closed=<?=$hide_closed?>&from_date=<?=$date_from?>&to_date=<?=$date_to?>",
+		url: "alarm_unique_response.php?from="+from+"&group_id="+group_id+"&name="+name+"&hide_closed=<?=$hide_closed?>&from_date=<?=$date_from?>&to_date=<?=$date_to?>",
 		data: "",
 		success: function(msg){
 			//alert (msg);
-			document.getElementById(group_id).innerHTML = msg;
+			document.getElementById(group_id+from).innerHTML = msg;
 			plus = "plus"+group_id;
-			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>";
+			document.getElementById(plus).innerHTML = "<a href='' onclick=\"untoggle_group('"+group_id+"','"+name+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>";
 		}
 	});
   }
-  function untoggle_group (group_id,name,ip_src,ip_dst) {
+  function untoggle_group (group_id,name) {
 	plus = "plus"+group_id;
-	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+	document.getElementById(plus).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"','');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
 	document.getElementById(group_id).innerHTML = "";
   }
   
@@ -403,7 +402,7 @@ $tree_count = 0;
     </td>
 </tr>
 ';
-    print '<tr ><th colspan="4" style="padding:5px"><input type="submit" class="btn" value="' . _("Go") . '"></th></tr></table>';
+    print '<tr ><th colspan="4" style="padding:5px"><input type="submit" class="button" value="' . _("Go") . '"></th></tr></table>';
     print '</form><br>';
 ?>
 <table cellpadding=0 cellspacing=1 width='100%'>
@@ -513,15 +512,11 @@ $tree_count = 0;
             else $close_link = "<img src='../pixmaps/lock.png' alt='"._("Closed, take this group then click to open")."' title='"._("Closed, take this group then click to open")."' border=0>";
             $group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
         }
-		
-		/*if ($show_day) { ?>
+		?>
 	<tr>
-		<td colspan=7 class="nobborder" style="text-align:center;padding:5px"><b><?=$date?></b></td>
-	</tr>
-		<? }*/ ?>
-	<tr>
-		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?=$group['name']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
-		<th style='padding:5px;text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
+		<td class="nobborder"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
+		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="" onclick="toggle_group('<?=$group['group_id']?>','<?=$group['name']?>','');return false"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
+		<th style='padding:8px;text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
 	</tr>
 	<tr>
 		<td colspan="7" id="<?=$group['group_id']?>" class="nobborder" style="text-align:center;padding-left:55px;"></td>

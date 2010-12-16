@@ -68,6 +68,7 @@ require_once 'classes/Host_group.inc';
 require_once 'classes/Log_action.inc';
 require_once 'classes/Sensor.inc';
 require_once 'classes/Net.inc';
+require_once 'classes/Port.inc';
 $db = null;
 $conn = null;
 function dbConnect() {
@@ -118,6 +119,11 @@ function getHostGroupList() {
 function getNetList() {
     global $conn;
     if ($net_list = Net::get_list($conn, '', '')) return $net_list;
+    return "";
+}
+function getPortList() {
+    global $conn;
+    if ($port_list = Port::get_list($conn, '', '')) return $port_list;
     return "";
 }
 function getSensorList() {
@@ -429,6 +435,7 @@ elseif ($query == "add_rule") {
     $directive_xml = $_GET['xml_file'];
     $tab_rules = $directive->rules;
     $id = $_GET['id'];
+    $add = $_GET['add'];
     unset($_SESSION['rule']);
     list($id_dir, $id_rule, $id_father) = explode("-", $id);
     $level = 1;
@@ -451,7 +458,7 @@ elseif ($query == "add_rule") {
         $directive_xml=substr($directive_xml, $posFinal+1);
     }
     //echo "<html><body onload=\"window.open('../right.php?directive=" . $id_dir . "&level=$newlevel&action=add_rule&id=" . $id . "&directive_xml=" . $directive_xml . "','right')\"></body></html>";
-    echo "<script type='text/javascript'>document.location.href='../editor/rule/index.php?directive=$id_dir&level=$level&id=$id&nlevel=$newlevel&xml_file=$directive_xml'</script>";
+    echo "<script type='text/javascript'>document.location.href='../editor/rule/index.php?directive=$id_dir&level=$level&id=$id&nlevel=$newlevel&xml_file=$directive_xml&add=$add'</script>";
 }
 /* create a new rule object with parameters from the form*/
 elseif ($query == "save_rule") {
@@ -648,9 +655,11 @@ elseif ($query == "save_directive") {
     $new_priority = $_POST["priority"];
     $new_group = $_POST["list"];
     $new_name = stripslashes($_POST["name"]);
+    $add = $_POST['add'];
     //$XML_FILE = get_directive_file($new_id);
 	ossim_valid($_POST['category'], OSS_ALPHA, OSS_DOT, OSS_SCORE, 'illegal:' . _("directive_xml"));
 	ossim_valid($_POST['category_old'], OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("directive_xml"));
+	ossim_valid($add, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("add"));
 	if (ossim_error()) {
 		die(ossim_error());
 	}
@@ -676,7 +685,7 @@ elseif ($query == "save_directive") {
         $dom->dump_file($XML_FILE);
         $new_rule_id = $new_id . "-1-0";
         //insert_dir_in_group($new_id, $new_group);
-        echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_directive->id . "&level=1&action=add_rule&xml_file=".preg_replace("/.*\//","",$XML_FILE)."&id=" . $new_rule_id . "&nlevel=1'\"></body></html>";
+        echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_directive->id . "&level=1&action=add_rule&add=$add&xml_file=".preg_replace("/.*\//","",$XML_FILE)."&id=" . $new_rule_id . "&nlevel=1'\"></body></html>";
     }
     /* if it amends an existing directive */
     else {
@@ -776,7 +785,8 @@ elseif ($query == "add_directive") {
 elseif ($query == "copy_directive") {
     $dir_id = $_GET['id'];   
 
-    if ($_SESSION['XML_FILE'] != "") $file = $_SESSION['XML_FILE'];
+    if ($_GET['directive_xml'] != "") $file = "/etc/ossim/server/".$_GET['directive_xml'];
+    elseif ($_SESSION['XML_FILE'] != "") $file = $_SESSION['XML_FILE'];
     else $file = get_directive_file($dir_id);
     $id_category = get_category_id_by_directive_id($dir_id);
     $dom = open_file($file);
@@ -786,7 +796,7 @@ elseif ($query == "copy_directive") {
         header("Location: ../viewer/index.php?directive=$dir_id");
     }  
 
-    $mini = $_SESSION['mini'];
+    $mini = $_GET['mini'];
     $new_id = new_directive_id_by_directive_file($file,$mini);
 	//$new_id = new_directive_id($id_category);
     $new_directive = $dom->create_element('directive');

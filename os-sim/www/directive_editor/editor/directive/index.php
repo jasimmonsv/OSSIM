@@ -206,6 +206,7 @@ function wizard_next() {
 	<body>
   <!-- #################### main container #################### -->
 	<form id="fdirective" method="POST" action="../../include/utils.php?query=save_directive">
+	<input type="hidden" name="add" value="<?php echo $add ?>"></input>
 	<input type="hidden" style="width: 100%"
 		name="list"
 		id="list"

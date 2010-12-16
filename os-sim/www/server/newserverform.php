@@ -211,6 +211,7 @@ else
 		.bold {font-weight: bold;}
 		div.bold {line-height: 18px;}
 		.val_error { width: 270px;}
+		th,.thgray { text-align: left; padding: 0px 10px; }
 	</style>
 	
 	
@@ -255,13 +256,13 @@ else
 			disen($('input[name=store]'),$('#store_text'));
 			disen($('input[name=qualify]'),$('#qualify_text'));
 			
-			if (valsim==0)
+			/*if (valsim==0)
 			{
 				$('input[name=correlate]')[1].checked = true;
 				$('input[name=cross_correlate]')[1].checked = true;
 				$('input[name=store]')[1].checked = true;
 				$('input[name=qualify]')[1].checked = true;
-			}
+			}*/
 			
 			if (valsim==0 && valsem==0)
 			{
@@ -292,8 +293,8 @@ else
 			
 			disen($('input[name=sign]'),$('#sign_text'));
 			
-			if (valsem==0)
-				$('input[name=sign]')[1].checked = true;
+			/*if (valsem==0)
+				$('input[name=sign]')[1].checked = true;*/
 			
 			if (valsim==0 && valsem==0)
 			{
@@ -396,7 +397,7 @@ if (GET('withoutmenu') != "1")
 	</tr>
 	
 	<tr>
-		<th id="qualify_text" <?php echo $class_sim?>><label for='qualify1'><?php echo _("Qualify events")?></label></th>
+		<th id="qualify_text" style="padding-left:25px" <?php echo $class_sim?>><label for='qualify1'><?php echo _("Qualify events")?></label></th>
 		<td class="left">
 			<div class='cont_radio'>
 				<input type="radio" name="qualify" class='req_field vfield' id="qualify1" value="1" <?php echo $chk_qualify[1];?>/><?php echo _("Yes");?>
@@ -407,7 +408,7 @@ if (GET('withoutmenu') != "1")
 	</tr>
   
 	<tr>
-		<th id="correlate_text" <?php echo $class_sim?>><label for='correlate1'><?php echo _("Correlate events")?></label></th>
+		<th id="correlate_text" style="padding-left:25px" <?php echo $class_sim?>><label for='correlate1'><?php echo _("Correlate events")?></label></th>
 		<td class="left">
 			<div class='cont_radio'>
 				<input type="radio" name="correlate" class='req_field vfield' id="correlate1" value="1" <?php echo $chk_correlate[1];?>/><?php echo _("Yes");?>
@@ -418,7 +419,7 @@ if (GET('withoutmenu') != "1")
 	</tr>
   
 	<tr>
-		<th id="cross_correlate_text" <?php echo $class_sim?>><label for='cross_correlate1'><?php echo _("Cross Correlate events")?></label></th>
+		<th id="cross_correlate_text" style="padding-left:25px" <?php echo $class_sim?>><label for='cross_correlate1'><?php echo _("Cross Correlate events")?></label></th>
 		<td class="left">
 			<div class='cont_radio'>
 				<input type="radio" name="cross_correlate" class='req_field vfield' id="cross_correlate1" value="1" <?php echo $chk_cross_correlate[1];?>/><?php echo _("Yes");?>
@@ -429,7 +430,7 @@ if (GET('withoutmenu') != "1")
 	</tr>
   
 	<tr>
-		<th id="store_text" <?php echo $class_sim?>><label for='store1'><?php echo _("Store events")?></label></th>
+		<th id="store_text" style="padding-left:25px" <?php echo $class_sim?>><label for='store1'><?php echo _("Store events")?></label></th>
 		<td class="left">
 			<div class='cont_radio'>
 				<input type="radio" name="store" class='req_field vfield' id="store1" value="1" <?php echo $chk_store[1];?>/><?php echo _("Yes");?>
@@ -451,7 +452,7 @@ if (GET('withoutmenu') != "1")
 	</tr>
 	
 	<tr>
-		<th id="sign_text" <?php echo $class_sign?>><label for='sign1'> <?php echo _("Sign")?></label></th>
+		<th id="sign_text" style="padding-left:25px" <?php echo $class_sign?>><label for='sign1'> <?php echo _("Sign")?></label></th>
 		<td class="left">
 			<div class='cont_radio'>
 				<input type="radio" name="sign" class='req_field vfield' id="sign1" value="1" <?php echo $chk_sign[1];?>/><?php echo _("Line");?>
@@ -470,7 +471,7 @@ if (GET('withoutmenu') != "1")
 	</tr>
   
 	<tr>
-		<th id="ralarms_text" <?php echo $class_resend?>><label for='resend_alarms1'> <?php echo _("Forward alarms")?></label></th>
+		<th id="ralarms_text" style="padding-left:25px" <?php echo $class_resend?>><label for='resend_alarms1'> <?php echo _("Forward alarms")?></label></th>
 		<td class="left">
 			<div class='cont_radio'>
 				<input type="radio" name="resend_alarms" class='req_field vfield' id="resend_alarms1" value="1" <?php echo $chk_resend_alarms[1];?>/><?php echo _("Yes");?>
@@ -481,7 +482,7 @@ if (GET('withoutmenu') != "1")
 	</tr>
 	
 	<tr>
-		<th id="revents_text" <?php echo $class_resend?>><label for='resend_events1'><?php echo _("Forward events")?></label></th>
+		<th id="revents_text" style="padding-left:25px" <?php echo $class_resend?>><label for='resend_events1'><?php echo _("Forward events")?></label></th>
 		<td class="left">
 			<div class='cont_radio'>
 				<input type="radio" name="resend_events" class='req_field vfield' id="resend_events1" value="1" <?php echo $chk_resend_events[1];?>/><?php echo _("Yes");?>
@@ -500,7 +501,6 @@ if (GET('withoutmenu') != "1")
 		<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
 			<input type="button" class="button" id='send' onclick="submit_form();" value="<?php echo _("Send")?>"/>
 			<input type="reset"  class="button" value="<?php echo gettext("Reset");?>"/>
-			<input type="submit" class="button" value="<?php echo gettext("Send (Without Check)");?>"/>
 		</td>
 	</tr>
  
