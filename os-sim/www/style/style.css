@@ -903,8 +903,12 @@ div.bballoon:hover span.bottom {
 	padding: 0px 4px; 
 }
 
-#tablePagination_rowsPerPage, #tablePagination_currPage {
+#tablePagination_rowsPerPage {font-size:10px; margin-right: 5px;}
+
+#tablePagination_currPage {
 	font-size:10px;
+	margin: 0px 3px 0px 3px;
+	text-align: center;
 }
 
 #tablePagination_perPage { 
@@ -918,6 +922,8 @@ div.bballoon:hover span.bottom {
 	margin-left: auto; 
 	margin-right: auto;
 }
+
+#tablePagination_paginater img {vertical-align: middle;}
 
 .loading {
    background: url(../pixmaps/spinner.gif) no-repeat top;

@@ -17,7 +17,7 @@ function get_extension($file)
 {
 	$allowed_ext = array("pdf" => array("document-pdf.png", "PDF File"), "xml" => array("document-table.png", "XML File"));
 	$ext = explode(".", $file);
-	$ext = array_pop($ext);
+	$ext = strtolower(array_pop($ext));
 	
 	if ( array_key_exists( $ext, $allowed_ext) )
 		return $allowed_ext[$ext];
@@ -26,8 +26,11 @@ function get_extension($file)
 	
 }
 
-function is_signed($file, $path)
+function is_signed($file)
 {
+	$config = parse_ini_file("everything.ini");
+    $path   = $config['sf_dir'];
+	
 	$file_aux      = explode(".", $file);
 	$ext           = array_pop($file_aux);
 	$signed_file   = implode("", $file_aux).".sig";
@@ -37,58 +40,129 @@ function is_signed($file, $path)
 }
 
 
-function get_signed_files()
+function get_signed_files($date_filter='all')
 {
-	$signed_files = array();
-	$config = parse_ini_file("everything.ini");
-    $path   = $config['sf_dir'];
-	
-	exec ("ls $path*", $sf, $ret1);
-	exec ("ls $path*.sig", $sigf, $ret2);
-		
-	
-	if ($ret1 === 0 && $ret2 === 0)
+	$files = get_files();
+						
+	if ($files != -1 )
 	{
-		if ( is_array($sf) && !empty ($sf) )
+		if ( is_array($files) && !empty ($files) )
 		{
-			$sf = array_diff($sf, $sigf);
-									
-			foreach ($sf as $k => $v)
+			foreach ($files as $k => $v)
 			{
-				$name                  = basename($v);
-				$size                  = get_sizef($v);
-				$ext                   = get_extension($v);
-				$signed_files[$name]   = array(date("d-m-Y H:i:s", filemtime($v)), $size, $ext, is_signed($name, $path)); 
+				$date = get_date($v, "d-m-Y");
+				
+				if ($date_filter == "all" || ( $date_filter != "all" && $date_filter == $date) )
+				{
+					$name                  = basename($v);
+					$size                  = get_sizef($v);
+					$ext                   = get_extension($v);
+					$info_files[$name]     = array($date, $size, $ext, is_signed($name)); 
+				}
 			}
-			return $signed_files;
+			return $info_files;
 		}
 		else
-			return $signed_files;
+			return array();
 	}
 	else
-	{
 		return -1;
-	}	
-	
+		
+}
+
+function available_dates()
+{
+	$dates = array();
+	$files = get_files();
+			
+	if ( is_array($files) )
+	{	
+		foreach ($files as $k => $v)
+		{
+			$pattern = "/[[:alpha:]]+[[:digit:]]{4}([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})/";
+			if (preg_match($pattern, basename($v), $match) != false )
+				$date = $match[1].$match[2].$match[3];
+			else
+			{
+				$match = array ("",date("Y"),date("m"),date("d"));
+				$date  = date("Ymd");
+			}
+					
+			$dates[$match[3]."-".$match[2]."-".$match[1]] = $date;
+		}
+		
+		arsort($dates);
+		
+		return $dates;
+	}
+	else
+		return -1;
 }
 
 
-function generate_sequence($max_seq)
+function get_date($filename, $format)
 {
-	$sequence = $inc =  0;
-
-	while ( $inc <= $max_seq )
+	$date_ok = false;
+	$pattern = "/[[:alpha:]]+[[:digit:]]{4}([[:digit:]]{4})([[:digit:]]{2})([[:digit:]]{2})/";
+	
+	if (preg_match($pattern, $filename, $match) != false )
 	{
-		$inc       = $inc + 5; 
-		$sequence .= ", $inc";
+		if ( @checkdate($match[2], $match[3], $match[1]) )
+			$date_ok = true;
 	}
 	
-	return $sequence;
+	if ($date_ok == false)
+		$match = array ("",date("Y"),date("m"),date("d"));
+			
+	switch ($format)
+	{
+		case "d-m-Y":
+			return $match[3]."-".$match[2]."-".$match[1];
+		break;
+		
+		case "m-d-Y":
+			return $match[2]."-".$match[3]."-".$match[1];
+		break;
+			
+		default:
+			return $match[1].$match[2].$match[3];
+	}
+}	
+	
+
+function get_signatures()
+{
+	$sigf   = array();
+	$config = parse_ini_file("everything.ini");
+    $path   = $config['sf_dir'];
+	exec ("ls $path*.sig", $sigf, $ret);
+			
+	if ($ret != 0)
+		return -1;
+	else
+		return $sigf;
 
 }
 
-
-
+function get_files()
+{
+	$files  = array();
+	$config = parse_ini_file("everything.ini");
+    $path   = $config['sf_dir'];
+	$ret1   =  $ret2  =  0;
+	
+	$ret1   = get_signatures();
+			
+	exec ("ls $path*", $all_files, $ret2);
+	
+	if ( is_array($ret1) && (is_array($all_files) && $ret2 === 0) )
+	{
+		$files = array_diff($all_files, $ret1);
+		return $files;
+	}
+	else
+		return -1;
+}
 
 
 ?>

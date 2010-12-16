@@ -36,12 +36,13 @@ require_once ('classes/Security.inc');
 require_once ('utils.php');
 
 
-$config    = parse_ini_file("everything.ini");
-$path      = $config['sf_dir'];
+$config       = parse_ini_file("everything.ini");
+$path         = $config['sf_dir'];
 
 $file         = base64_decode(GET('f'));
 $signature    = base64_decode(GET('s'));
-$signed_files = get_signed_files();
+$date         = base64_decode(GET('d'));
+$signed_files = get_signed_files($date);
 
 
 ?>
@@ -69,7 +70,6 @@ $signed_files = get_signed_files();
 
 $error = false;
 
-
 if ( array_key_exists($file, $signed_files) && $signed_files[$file][3][0] == true )
 {
 	if ( file_exists($path.$signature) )
@@ -83,7 +83,7 @@ if ( array_key_exists($file, $signed_files) && $signed_files[$file][3][0] == tru
 		if ($res === false)
 		{
 			$error = true;
-			$error_messages = _("Fail to check signature file <i>$signature</i>");
+			$error_messages = _("Fail to check signature file for <i>$file</i>");
 		}
 		else
 		{
@@ -98,29 +98,27 @@ if ( array_key_exists($file, $signed_files) && $signed_files[$file][3][0] == tru
 	else
 	{
 		$error = true;
-		$error_messages = _("Signature file <i>$signature</i> not found.<br/>If the event is less than one hour old it will not be generated yet. (2)");
+		$error_messages = _("Signature file not found (2)");
 	}
 }
 else
 {
 	$error = true;
-	$error_messages = _("Signature file <i>$signature</i> not found.<br/>If the event is less than one hour old it will not be generated yet. (1)");
+	$error_messages = _("Signature file not found (1)");
 }
 
 
 if ($error == true)
-{
 	$message = "<div class='ossim_error error_message'>".$error_messages."</div>";
-}
 else
 {
 	if ($verified == 1)
-		$message  = "<span>"._("Verification")." <span class='v_ok'>"._("OK")."</span></span><br/>";
+		$message  = "<span>"._("Signature verification")." <span class='v_ok'>"._("OK")."</span> for <i>$file</i></span><br/>";
 	else if ($verified == 0)
-		$message  = "<span>"._("Verification")." <span class='v_ko'>"._("Failed")."</span></span>";
+		$message  = "<span>"._("Signature Verification")." <span class='v_ko'>"._("Failed")."</span> for <i>$file</i></span>";
 	else
 	{
-		$message  = "<span>"._("Verification")." <span class='v_ko'>"._("Failed")."</span></span>"." ";
+		$message  = "<span>"._("Signature Verification")." <span class='v_ko'>"._("Failed")."</span> for <i>$file</i></span>"." ";
 		$message .= openssl_error_string();
     }
 }

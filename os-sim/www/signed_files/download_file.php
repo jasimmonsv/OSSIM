@@ -35,10 +35,12 @@ require_once ("classes/Security.inc");
 require_once ("utils.php");
 
 $file         = urldecode(GET('file'));
+$date         = urldecode(GET('date'));
 
 $config       = parse_ini_file("everything.ini");
 $path         = $config['sf_dir'];
-$signed_files = get_signed_files();
+
+$signed_files = get_signed_files($date);
 
 if ( array_key_exists($file, $signed_files) )
 {

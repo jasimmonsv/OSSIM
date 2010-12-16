@@ -4,7 +4,7 @@
  * http://neoalchemy.org/tablePagination.html
  *
  * Copyright (c) 2009 Ryan Zielke (neoalchemy.com)
- * Dual licensed under the MIT and GPL licenses:
+ * licensed under the MIT licenses:
  * http://www.opensource.org/licenses/mit-license.php
  *
  * @name tablePagination
@@ -21,7 +21,7 @@
  *
  *
  * @author Ryan Zielke (neoalchemy.org)
- * @version 0.1.0
+ * @version 0.2
  * @requires jQuery v1.2.3 or above
  */
 
@@ -42,13 +42,25 @@
 		
 		return this.each(function() {
       var table = $(this)[0];
-      var totalPagesId = '#'+table.id+'+#tablePagination #tablePagination_totalPages';
-      var currPageId = '#'+table.id+'+#tablePagination #tablePagination_currPage';
-      var rowsPerPageId = '#'+table.id+'+#tablePagination #tablePagination_rowsPerPage';
-      var firstPageId = '#'+table.id+'+#tablePagination #tablePagination_firstPage';
-      var prevPageId = '#'+table.id+'+#tablePagination #tablePagination_prevPage';
-      var nextPageId = '#'+table.id+'+#tablePagination #tablePagination_nextPage';
-      var lastPageId = '#'+table.id+'+#tablePagination #tablePagination_lastPage';
+      var totalPagesId, currPageId, rowsPerPageId, firstPageId, prevPageId, nextPageId, lastPageId
+      if (table.id) {
+        totalPagesId = '#'+table.id+'+#tablePagination #tablePagination_totalPages';
+        currPageId = '#'+table.id+'+#tablePagination #tablePagination_currPage';
+        rowsPerPageId = '#'+table.id+'+#tablePagination #tablePagination_rowsPerPage';
+        firstPageId = '#'+table.id+'+#tablePagination #tablePagination_firstPage';
+        prevPageId = '#'+table.id+'+#tablePagination #tablePagination_prevPage';
+        nextPageId = '#'+table.id+'+#tablePagination #tablePagination_nextPage';
+        lastPageId = '#'+table.id+'+#tablePagination #tablePagination_lastPage';
+      }
+      else {
+        totalPagesId = '#tablePagination #tablePagination_totalPages';
+        currPageId = '#tablePagination #tablePagination_currPage';
+        rowsPerPageId = '#tablePagination #tablePagination_rowsPerPage';
+        firstPageId = '#tablePagination #tablePagination_firstPage';
+        prevPageId = '#tablePagination #tablePagination_prevPage';
+        nextPageId = '#tablePagination #tablePagination_nextPage';
+        lastPageId = '#tablePagination #tablePagination_lastPage';
+      }
       
       var possibleTableRows = $.makeArray($('tbody tr', table));
       var tableRows = $.grep(possibleTableRows, function(value, index) {
@@ -57,8 +69,6 @@
       
       var numRows = tableRows.length
       var totalPages = resetTotalPages();
-      if ($.cookie('wireless_page')!='' && $.cookie('wireless_page')!=null)
-        defaults.rowsPerPage = parseInt($.cookie('wireless_page'),10);
       var currPageNumber = (defaults.currPage > totalPages) ? 1 : defaults.currPage;
       if ($.inArray(defaults.rowsPerPage, defaults.optionsForRows) == -1)
         defaults.optionsForRows.push(defaults.rowsPerPage);
@@ -96,7 +106,7 @@
       function resetPerPageValues() {
         var isRowsPerPageMatched = false;
         var optsPerPage = defaults.optionsForRows;
-        //optsPerPage.sort();
+        optsPerPage.sort(function (a,b){return a - b;});
         var perPageDropdown = $(rowsPerPageId)[0];
         perPageDropdown.length = 0;
         for (var i=0;i<optsPerPage.length;i++) {
@@ -118,16 +128,16 @@
         htmlBuffer.push("<div id='tablePagination'>");
         htmlBuffer.push("<span id='tablePagination_perPage'>");
         htmlBuffer.push("<select id='tablePagination_rowsPerPage'><option value='5'>5</option></select>");
-        htmlBuffer.push(" per page");
+        htmlBuffer.push("per page");
         htmlBuffer.push("</span>");
         htmlBuffer.push("<span id='tablePagination_paginater'>");
-        htmlBuffer.push("<img id='tablePagination_firstPage' src='"+defaults.firstArrow+"' align=absmiddle>");
-        htmlBuffer.push("<img id='tablePagination_prevPage' src='"+defaults.prevArrow+"' align=absmiddle>");
-        htmlBuffer.push("Page ");
+        htmlBuffer.push("<img id='tablePagination_firstPage' src='"+defaults.firstArrow+"'>");
+        htmlBuffer.push("<img id='tablePagination_prevPage' src='"+defaults.prevArrow+"'>");
+        htmlBuffer.push("Page");
         htmlBuffer.push("<input id='tablePagination_currPage' type='input' value='"+currPageNumber+"' size='1'>");
-        htmlBuffer.push(" of <span id='tablePagination_totalPages'>"+totalPages+"</span>");
-        htmlBuffer.push("<img id='tablePagination_nextPage' src='"+defaults.nextArrow+"' align=absmiddle>");
-        htmlBuffer.push("<img id='tablePagination_lastPage' src='"+defaults.lastArrow+"' align=absmiddle>");
+        htmlBuffer.push("of <span id='tablePagination_totalPages'>"+totalPages+"</span>");
+        htmlBuffer.push("<img id='tablePagination_nextPage' src='"+defaults.nextArrow+"'>");
+        htmlBuffer.push("<img id='tablePagination_lastPage' src='"+defaults.lastArrow+"'>");
         htmlBuffer.push("</span>");
         htmlBuffer.push("</div>");
         return htmlBuffer.join("").toString();
@@ -163,11 +173,7 @@
       });
       
       $(rowsPerPageId).bind('change', function (e) {
-        var selPage = parseInt(this.value, 10);
-        var date1h = new Date();
-        date1h.setTime(date1h.getTime() + (60 * 60 * 1000));
-        $.cookie('wireless_page', selPage, { expires: date1h });
-        defaults.rowsPerPage = selPage;
+        defaults.rowsPerPage = parseInt(this.value, 10);
         totalPages = resetTotalPages();
         resetCurrentPage(1)
       });
