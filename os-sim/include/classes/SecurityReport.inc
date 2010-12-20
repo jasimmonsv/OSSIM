@@ -51,11 +51,12 @@ class SecurityReport {
         $this->ossim_conn = $db->connect();
         $this->snort_conn = $db->snort_connect();
     }
-    function AttackHost($conn, $ip_target, $limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0) {
+    function AttackHost($conn, $ip_target, $limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null) {
         require_once ('classes/Host.inc');
         require_once ('classes/Net.inc');
         require_once ('classes/Session.inc');
 		require_once ('classes/Event_viewer.inc');
+		require_once ('classes/Plugingroup.inc');
         $list = array();
         $temp_conn = $this->snort_conn;
         
@@ -79,6 +80,40 @@ class SecurityReport {
 			if ($sensor_str == "") $sensor_str = "0";
 			$sensor_str_event = " AND acid_event.sid in (" . $sensor_str . ")";
 		}
+		
+		// plugin groups filter
+		$sql_plugin_groups='';
+					
+		if($plugin_groups!=null){
+			$groups = Plugingroup::get_list($conn,'plugin_group.group_id='.$plugin_groups);
+			
+			switch ($type) {
+				case "alarm":
+					$nameTable='a';
+					break;
+				case "event":
+				default:
+					$nameTable='acid_event';
+			}
+			
+			foreach($groups as $group) {
+				$sql_plugin_groups.='AND (';
+				$i=1;
+				foreach($group->get_plugins() as $p) {	
+					if($i!==1){
+						$sql_plugin_groups.=' OR ';
+					}
+					if($p['sids']=='0'||$p['sids']=='ANY'){
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].')';
+					}else{
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].' AND '.$nameTable.'.plugin_sid in ('.$p['sids'].'))';
+					}
+					$i++;
+				}
+				$sql_plugin_groups.=')';
+			}
+		}
+		//
 		
 		if ($sensor_str != "") {
 			$sensor_join = " ,event e";
@@ -105,7 +140,7 @@ class SecurityReport {
                 //
                 $query = OssimQuery("SELECT count(a.$ip_target) AS occurrences,
                   a.$ip_target as ip FROM alarm a $join2 $sensor_join where a.$ip_target != 0 AND a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59'$sensor_str_alarm $where2
-                  GROUP BY a.$ip_target ORDER BY occurrences DESC LIMIT $limit");
+                  $sql_plugin_groups GROUP BY a.$ip_target ORDER BY occurrences DESC LIMIT $limit");
                 $temp_conn = $this->ossim_conn;
                 break;
 
@@ -116,11 +151,12 @@ class SecurityReport {
                 //            
                 $query = OssimQuery("SELECT count($ip_target) AS occurrences,
                   $ip_target as ip FROM acid_event $join2 where ossim_risk_c >= 0 AND timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND ossim_risk_a >= 0$sensor_str_event $where2
-                  GROUP BY ip ORDER BY occurrences DESC LIMIT $limit");
+                  $sql_plugin_groups GROUP BY ip ORDER BY occurrences DESC LIMIT $limit");
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
 				//$temp_conn = $this->snort_conn;
         }
+		
 		//echo "SQL:$query";
 		//exit;
 		if (!$rs = & $temp_conn->Execute($query)) {
@@ -149,7 +185,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function Events($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0) {
+    function Events($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null) {
         require_once ('classes/Event_viewer.inc');
 		
 		$list = array();
@@ -176,6 +212,39 @@ class SecurityReport {
 			$sensor_str_event = " AND acid_event.sid in (" . $sensor_str . ")";
 		}
 		
+		// plugin groups filter
+		$sql_plugin_groups='';
+
+		if($plugin_groups!=null){
+			switch ($type) {
+				case "alarm":
+					$nameTable='a';
+					break;
+				case "event":
+				default:
+					$nameTable='acid_event';
+			}
+			
+			$groups = Plugingroup::get_list($this->ossim_conn,'plugin_group.group_id='.$plugin_groups);
+			foreach($groups as $group) {
+				$sql_plugin_groups.='AND (';
+				$i=1;
+				foreach($group->get_plugins() as $p) {	
+					if($i!==1){
+						$sql_plugin_groups.=' OR ';
+					}
+					if($p['sids']=='0'||$p['sids']=='ANY'){
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].')';
+					}else{
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].' AND '.$nameTable.'.plugin_sid in ('.$p['sids'].'))';
+					}
+					$i++;
+				}
+				$sql_plugin_groups.=')';
+			}
+		}
+		//
+		
 		if ($sensor_str != "") {
 			$sensor_join = " ,event e";
 			$sql_where .= $sensor_str;
@@ -190,7 +259,7 @@ class SecurityReport {
                             FROM alarm a $join2, plugin_sid$sensor_join
                             WHERE plugin_sid.plugin_id = a.plugin_id AND a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59'
                                   AND plugin_sid.sid = a.plugin_sid$sensor_str_alarm $where2
-                            GROUP BY name
+                            $sql_plugin_groups GROUP BY name
                             ORDER BY occurrences 
                             DESC LIMIT $limit";
                 $temp_conn = $this->ossim_conn;
@@ -205,7 +274,7 @@ class SecurityReport {
                             FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid $join2
                             WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59'$sensor_str_event
                             $where2
-                            GROUP BY sig_name
+                            $sql_plugin_groups GROUP BY sig_name
                             ORDER BY occurrences
                             DESC LIMIT $limit";
                 $db = new ossim_db();
@@ -229,7 +298,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function Ports($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0) {
+    function Ports($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null) {
         require_once ('classes/Port.inc');
         require_once ('classes/Event_viewer.inc');
 		$list = array();
@@ -256,6 +325,39 @@ class SecurityReport {
 			$sensor_str_event = " AND acid_event.sid in (" . $sensor_str . ")";
 		}
 		
+		// plugin groups filter
+		$sql_plugin_groups='';
+
+		if($plugin_groups!=null){
+			switch ($type) {
+				case "alarm":
+					$nameTable='a';
+					break;
+				case "event":
+				default:
+					$nameTable='acid_event';
+			}
+			
+			$groups = Plugingroup::get_list($this->ossim_conn,'plugin_group.group_id='.$plugin_groups);
+			foreach($groups as $group) {
+				$sql_plugin_groups.='AND (';
+				$i=1;
+				foreach($group->get_plugins() as $p) {	
+					if($i!==1){
+						$sql_plugin_groups.=' OR ';
+					}
+					if($p['sids']=='0'||$p['sids']=='ANY'){
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].')';
+					}else{
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].' AND '.$nameTable.'.plugin_sid in ('.$p['sids'].'))';
+					}
+					$i++;
+				}
+				$sql_plugin_groups.=')';
+			}
+		}
+		//
+		
 		if ($sensor_str != "") {
 			$sensor_join = " ,event e";
 			$sql_where .= $sensor_str;
@@ -267,7 +369,7 @@ class SecurityReport {
                 list($join2,$where2) = SecurityReport::make_join_where("a.","dst_ip",$assets,$sourcetype,$category,$subcategory);
                 //
                 $query = OssimQuery("SELECT count(a.dst_port) AS occurrences, a.dst_port as layer4_dport
-                  FROM alarm a $join2 $sensor_join WHERE a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59' AND a.dst_port<>0$sensor_str_alarm $where2 GROUP BY a.dst_port ORDER BY occurrences DESC LIMIT $limit");
+                  FROM alarm a $join2 $sensor_join WHERE a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59' AND a.dst_port<>0$sensor_str_alarm $where2 $sql_plugin_groups GROUP BY a.dst_port ORDER BY occurrences DESC LIMIT $limit");
                 $temp_conn = $this->ossim_conn;
                 break;
 
@@ -278,7 +380,7 @@ class SecurityReport {
                 // 
                 $query = OssimQuery("SELECT count(layer4_dport) AS occurrences, layer4_dport
                   FROM acid_event $join2 WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND layer4_dport<>0$sensor_str_event $where2
-                  GROUP BY layer4_dport
+                  $sql_plugin_groups GROUP BY layer4_dport
                   ORDER BY occurrences DESC LIMIT $limit");
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
@@ -310,7 +412,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function EventsByRisk($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0) {
+    function EventsByRisk($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null) {
         require_once ('classes/Event_viewer.inc');
 		
 		$list = array();
@@ -337,6 +439,38 @@ class SecurityReport {
 			$sensor_str_event = " AND acid_event.sid in (" . $sensor_str . ")";
 		}
 		
+		// plugin groups filter
+		$sql_plugin_groups='';
+
+		if($plugin_groups!=null){
+			switch ($type) {
+				case "alarm":
+					$nameTable='a';
+					break;
+				case "event":
+				default:
+					$nameTable='acid_event';
+			}
+			$groups = Plugingroup::get_list($this->ossim_conn,'plugin_group.group_id='.$plugin_groups);
+			foreach($groups as $group) {
+				$sql_plugin_groups.='AND (';
+				$i=1;
+				foreach($group->get_plugins() as $p) {	
+					if($i!==1){
+						$sql_plugin_groups.=' OR ';
+					}
+					if($p['sids']=='0'||$p['sids']=='ANY'){
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].')';
+					}else{
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].' AND '.$nameTable.'.plugin_sid in ('.$p['sids'].'))';
+					}
+					$i++;
+				}
+				$sql_plugin_groups.=')';
+			}
+		}
+		//
+		
 		if ($sensor_str != "") {
 			$sensor_join = " ,event e";
 			$sql_where .= $sensor_str;
@@ -349,7 +483,7 @@ class SecurityReport {
                 //
                 $query = OssimQuery("SELECT name as sig_name, a.risk as ossim_risk_a FROM alarm a $join2, plugin_sid$sensor_join
                   WHERE  a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59' AND plugin_sid.plugin_id = a.plugin_id AND plugin_sid.sid = a.plugin_sid$sensor_str_alarm $where2
-                  GROUP BY name ORDER BY risk DESC LIMIT $limit");
+                  $sql_plugin_groups GROUP BY name ORDER BY risk DESC LIMIT $limit");
                 $temp_conn = $this->ossim_conn;
                 break;
 
@@ -360,7 +494,7 @@ class SecurityReport {
                 // 
                 $query = OssimQuery("SELECT plugin_sid.name as sig_name, ossim_risk_a
                   FROM acid_event $join2 LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' $sensor_str_event
-                  $where2 GROUP BY sig_name
+                  $where2 $sql_plugin_groups GROUP BY sig_name
                   ORDER BY ossim_risk_a DESC LIMIT $limit");
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
