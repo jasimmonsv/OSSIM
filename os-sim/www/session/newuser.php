@@ -111,10 +111,6 @@ elseif (0 != strcmp($pass1, $pass2)) {
 	require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORD_ALPHANUM");
-} elseif (count($recent_pass) > 0 && in_array(md5($pass1),$recent_pass)) {
-	require_once ("ossim_error.inc");
-    $error = new OssimError();
-    $error->display("PASSWORD_RECENT");
 }
 /* check OK, insert into DB */
 elseif (POST("insert")) {
@@ -157,6 +153,7 @@ elseif (POST("insert")) {
         else $sensors.= "," . POST("sensor$i");
     }
     Session::insert($conn, $user, $pass1, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $first_login);
+    Session::log_pass_history($user,md5($pass1));
     $db->close($conn);
 ?>
     <p> <?php

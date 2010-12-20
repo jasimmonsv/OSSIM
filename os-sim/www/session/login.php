@@ -155,7 +155,7 @@ if (REQUEST('user') && trim($pass)!="") {
 	} elseif (!$is_disabled) {
         $_SESSION['bad_pass'] = "";
 		$first_login = $conf->get_conf("first_login", FALSE);
-		$pass_expire_max = ($conf->get_conf("first_login", FALSE) > 0 && $conf->get_conf("first_login", FALSE) != "yes" && $conf->get_conf("first_login", FALSE) != "no") ? $conf->get_conf("first_login", FALSE) : 0;
+		$pass_expire_max = ($conf->get_conf("pass_expire", FALSE) > 0 && $conf->get_conf("pass_expire", FALSE) != "yes" && $conf->get_conf("pass_expire", FALSE) != "no") ? $conf->get_conf("pass_expire", FALSE) : 0;
         if ($first_login == "" || $first_login == 0 || $first_login == "no") {
             $accepted = "yes";
         }
@@ -170,7 +170,6 @@ if (REQUEST('user') && trim($pass)!="") {
                 REQUEST('user')
             );
             Log_action::log(1, $infolog);
-            Session::log_pass_history($user,md5($pass));
             if (POST('maximized') == "1") {
 ?>
 				<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">

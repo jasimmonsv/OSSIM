@@ -42,8 +42,8 @@ require_once ('ossim_db.inc');
 /* connect to db */
 $db = new ossim_db();
 $conn = $db->connect();
-$recent_pass = Log_action::get_last_pass($conn);
 $user = Session::get_session_user();
+$recent_pass = Log_action::get_last_pass($conn, $user);
 
 $conf = $GLOBALS["CONF"];
 if (!isset($_SESSION["_user"])) {
@@ -95,6 +95,9 @@ if ($flag != "") {
 			Session::changepass($conn, $user, $pass1);
 		if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) Acl::changefirst($conn, $user);
 		else Session::changefirst($conn, $user);
+		
+		Session::log_pass_history($user,md5($pass1));
+		
 		header("location:../index.php");
 	}
 }

@@ -184,7 +184,7 @@ elseif (POST("insert")) {
 			$error->display("FORM_MISSING_FIELDS");
 		}
 		*/
-		$recent_pass = Log_action::get_last_pass($conn);
+		$recent_pass = Log_action::get_last_pass($conn, $user);
 		$pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
 		$pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
 		if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_max = 255; }
@@ -194,7 +194,7 @@ elseif (POST("insert")) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
 			$error->display("PASSWORDS_MISMATCH");
-		} elseif ($user != ACL_DEFAULT_OSSIM_ADMIN && count($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($oldpass) . "'")) < 1) {
+		} elseif ($_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN && count($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($oldpass) . "'")) < 1) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
 			$error->display("BAD_OLD_PASSWORD");
@@ -231,6 +231,7 @@ elseif (POST("insert")) {
 			die(ossim_error(_("To change the password for other user is not allowed")));
 		}
 		Session::changepass($conn, $user, $pass1);
+		Session::log_pass_history($user,md5($pass1));
 	}
 	
 	$db->close($conn);
