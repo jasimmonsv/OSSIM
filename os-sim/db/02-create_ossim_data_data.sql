@@ -2786,6 +2786,8 @@ INSERT INTO log_config (code, log, descr, priority) VALUES
 (90, 1, 'Cross Correlation - Rules: new rule added plugin id: %1%, plugin sid: %2%, reference id: %3%, reference sid: %4%', 1),
 (91, 1, 'Cross Correlation - Rules: rule plugin id: %1%, plugin sid: %2%, reference id: %3%, reference sid: %4% deleted', 2);
 INSERT INTO log_config (code, log, descr, priority) VALUES (092, 1, '%1%', 1);
+INSERT INTO log_config (code, log, descr, priority) VALUES (093, 1, 'User %1% disabled for security reasons', 1);
+INSERT INTO log_config (code, log, descr, priority) VALUES (094, 1, 'User %1% failed logon', 1);
 
 --
 -- Mac Vendors
