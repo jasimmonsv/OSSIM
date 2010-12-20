@@ -30,7 +30,6 @@ SUBDIRS= action \
 	server \
 	session \
 	setup \
-	signature \
 	style \
 	upgrade \
 	userlog \
