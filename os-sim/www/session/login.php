@@ -170,7 +170,7 @@ if (REQUEST('user') && trim($pass)!="") {
                 REQUEST('user')
             );
             Log_action::log(1, $infolog);
-            Log_action::log(92, array(md5($pass)));
+            Session::log_pass_history($user,md5($pass));
             if (POST('maximized') == "1") {
 ?>
 				<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
