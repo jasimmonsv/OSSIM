@@ -163,13 +163,13 @@ OFFSET $inf");
     	require_once "ossim_conf.inc";
     	$conf = $GLOBALS["CONF"];
     	$pass_history = ($conf->get_conf("pass_history", FALSE)) ? $conf->get_conf("pass_history", FALSE) : 0;
-    	$query = "SELECT DISTINCT info FROM log_action WHERE code=92 ORDER BY date DESC LIMIT $pass_history";
+    	$query = "SELECT DISTINCT pass FROM pass_history LIMIT $pass_history";
     	if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
             return array();
         }
         while (!$rs->EOF) {
-            $list[] = $rs->fields["info"];
+            $list[] = $rs->fields["pass"];
             $rs->MoveNext();
         }
         return $list;
