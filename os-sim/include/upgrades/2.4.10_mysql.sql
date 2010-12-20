@@ -7,6 +7,8 @@ REPLACE INTO `inventory_search` (`type`, `subtype`, `match`, `list`, `query`, `r
 
 UPDATE custom_report_types SET inputs=REPLACE(inputs,";Source:source:select:OSS_ALPHA:EVENTSOURCE:",";Plugin Groups:plugin_groups:select:OSS_DIGIT.OSS_NULLABLE:PLUGINGROUPS:;Source:source:select:OSS_ALPHA:EVENTSOURCE:") WHERE file='SIEM/List.php' AND name!="List" AND inputs not like '%PLUGINGROUPS%';
 
+REPLACE INTO log_config (code, log, descr, priority) VALUES (094, 1, 'User %1% failed logon', 1);
+
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
 UPDATE config SET value="2010-11-30" WHERE conf="last_update";
