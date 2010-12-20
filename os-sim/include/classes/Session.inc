@@ -961,15 +961,16 @@ class Session {
 	function pass_check_complexity($pass) {
 		require_once "ossim_conf.inc";
 		$conf = $GLOBALS["CONF"];
-		$complex = ($conf->get_conf("pass_complex", FALSE)) ? $conf->get_conf("pass_complex", FALSE) : "lun";
-		$counter = 0;
-		for ($i = 0; $i < strlen($complex); $i++) {
-			if ($complex[$i] == "l" && preg_match("/[a-z]/",$pass)) { $counter++; }
-			if ($complex[$i] == "u" && preg_match("/[A-Z]/",$pass)) { $counter++; }
-			if ($complex[$i] == "n" && preg_match("/[0-9]/",$pass)) { $counter++; }
-			if ($complex[$i] == "s" && preg_match("/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬]/",$pass)) { $counter++; }
+		if ($conf->get_conf("pass_complex", FALSE) == "yes") {
+			$counter = 0;
+			if (preg_match("/[a-z]/",$pass)) { $counter++; }
+			if (preg_match("/[A-Z]/",$pass)) { $counter++; }
+			if (preg_match("/[0-9]/",$pass)) { $counter++; }
+			if (preg_match("/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬]/",$pass)) { $counter++; }
+			return ($counter < 3) ? 0 : 1;
+		} else {
+			return 1;
 		}
-		return ($counter < 3) ? 0 : 1;
 	}
 }
 } // else include Acl
