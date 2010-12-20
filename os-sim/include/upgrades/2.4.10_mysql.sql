@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS pass_history (
 use ossim;
 UPDATE config SET value="2010-11-30" WHERE conf="last_update";
 
+
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file
 REPLACE INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.10');
