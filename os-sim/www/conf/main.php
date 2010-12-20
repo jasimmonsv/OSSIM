@@ -1172,27 +1172,6 @@ $CONFIG = array(
                 "help" => _(""),
                 "desc" => gettext("LDAP OU") ,
                 "advanced" => 0
-            ) ,
-			"pass_expire" => array(
-                "type" => array(
-                    "yes" => _("Yes") ,
-                    "no" => _("No")
-                ),
-                "help" => _("Password expires in 90 days") ,
-                "desc" => gettext("Password expire") ,
-                "advanced" => 1
-            ),
-			"failed_retries" => array(
-                "type" => "text",
-                "help" => _("Failed logpn attempts to disable a user") ,
-                "desc" => gettext("Failed logon attempts") ,
-                "advanced" => 1
-            ),
-			"unlock_user_interval" => array(
-                "type" => "text",
-                "help" => _("Account lockout duration in minutes (0 = never auto-unlock)") ,
-                "desc" => gettext("Account lockout duration") ,
-                "advanced" => 1
             )
         )
     ) ,
@@ -1221,10 +1200,9 @@ $CONFIG = array(
             ),
             "pass_complex" => array(
                 "type" => array(
-            		"l"=>"Lowercase", "u"=>"Uppercase", "n"=>"Numbers", "s"=>"Special characters"
-            		),
-            	"checkboxlist" => 1,
-            	"id" => "complexity",
+                    "yes" => _("Yes") ,
+                    "no" => _("No")
+                ) ,
                 "help" => _("3 of these group of characters -> lowercase, uppercase, numbers, special characters") ,
                 "desc" => gettext("Complexity") ,
                 "advanced" => 1
@@ -1579,13 +1557,6 @@ else echo "var valsim = 0;";
 	function enableall() {
 		tsim("yes")
 		tsem("yes")
-		// pass complexity check
-		<?php if (POST('adv') == "1" || GET('adv') == "1") { ?>
-		if (document.getElementById('complexity').value.length < 3) {
-			alert("<?php echo _("Warning: password complexity is not correctly configured, please check at least 3 character types") ?>");
-			return false;
-		}
-		<?php } ?>
 	}
 	
 	$(document).ready(function(){	
