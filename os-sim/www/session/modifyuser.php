@@ -73,7 +73,7 @@ $department = POST('department');
 $language = POST('language');
 $frommenu = POST('frommenu');
 $first_login = POST('first_login');
-$is_admin = POST('is_admin');
+$is_admin = POST('is_admin') ? POST('is_admin') : 0;
 $last_pass_change = POST('last_pass_change');
 //$copy_panels = POST('copy_panels');
 //ossim_valid($copy_panels, OSS_DIGIT, 'illegal:' . _("Copy Panels"));
