@@ -132,16 +132,22 @@ function get_date($filename, $format)
 
 function get_signatures()
 {
-	$sigf   = array();
 	$config = parse_ini_file("everything.ini");
     $path   = $config['sf_dir'];
-	exec ("ls $path*.sig", $sigf, $ret);
-			
+	$res = exec ("ls $path*.sig 2> /dev/null | wc -l", $num_files, $ret);
+	
 	if ($ret != 0)
 		return -1;
 	else
-		return $sigf;
-
+	{
+		if ($num_files[0] == 0)
+			return array();
+		else
+		{
+			exec ("ls $path*.sig", $sigf, $ret);
+			return $sigf;
+		}
+	}
 }
 
 function get_files()
@@ -149,11 +155,11 @@ function get_files()
 	$files  = array();
 	$config = parse_ini_file("everything.ini");
     $path   = $config['sf_dir'];
-	$ret1   =  $ret2  =  0;
+	$ret1   = $ret2  =  0;
 	
 	$ret1   = get_signatures();
 			
-	exec ("ls $path*", $all_files, $ret2);
+	exec ("ls $path* 2>/dev/null", $all_files, $ret2);
 	
 	if ( is_array($ret1) && (is_array($all_files) && $ret2 === 0) )
 	{

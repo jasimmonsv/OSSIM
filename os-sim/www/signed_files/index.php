@@ -167,7 +167,7 @@ require_once ('utils.php');
 											
 		<?php
 			$dates        = available_dates();
-			$dates        = array_keys($dates);
+			$dates        = ( is_array($dates) ) ? array_keys($dates) : array();
 											
 			$signed_files = get_signed_files($dates[0]);
 																		
