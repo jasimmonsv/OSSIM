@@ -155,7 +155,6 @@ www/sensor/Makefile
 www/server/Makefile
 www/session/Makefile
 www/setup/Makefile
-www/signature/Makefile
 www/style/Makefile
 www/vulnmeter/Makefile
 www/backup/Makefile
