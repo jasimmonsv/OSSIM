@@ -78,9 +78,6 @@ if ($change_enabled != "") {
 ?>
 
   <table align="center">
-    <?php if (strlen($complex) < 3) { ?>
-    <tr><td colspan="7" style="color:red"><b><?php echo _("Warning: Password complexity is not well configured and new users can not be created. Please check configuration in Configuration -> Main (advanced) section") ?></b></td></tr>
-    <?php } ?>
     <tr>
       <th><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php

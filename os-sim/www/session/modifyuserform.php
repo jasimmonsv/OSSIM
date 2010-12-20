@@ -268,16 +268,15 @@ if ($user->get_login() != 'admin') { ?>
 <?php
 } ?>
 <?php
-//if (Session::get_session_user() != $user && (!Session::am_i_admin())) {
+if ($_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN) {
 ?>
-  <!--
   <tr>
     <td> <?php
-    //echo gettext("Current password"); ?> </td>
+    echo gettext("Current password"); ?> </td>
     <td class="left"><input type="password" name="oldpass" /></td>
-  </tr>-->
+  </tr>
 <?php
-//}
+}
 ?>
 <tr>
     <td> <?php

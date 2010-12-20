@@ -81,6 +81,7 @@ ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_SPACE, 'illegal:' . _("Name"));
 ossim_valid($pass1, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass1"));
 ossim_valid($pass2, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass2"));
+ossim_valid($oldpass, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("oldpass"));
 ossim_valid($email, OSS_NULLABLE, OSS_MAIL_ADDR, 'illegal:' . _("e-mail"));
 ossim_valid($nnets, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nnets"));
 ossim_valid($nsensors, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nsensors"));
@@ -188,10 +189,15 @@ elseif (POST("insert")) {
 		$pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
 		if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_max = 255; }
 		$pass_expire_min = ($conf->get_conf("pass_expire_min", FALSE)) ? $conf->get_conf("pass_expire_min", FALSE) : 0;
+		$user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($oldpass) . "'");
 		if (0 != strcmp($pass1, $pass2)) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
 			$error->display("PASSWORDS_MISMATCH");
+		} elseif ($user != ACL_DEFAULT_OSSIM_ADMIN && count($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($oldpass) . "'")) < 1) {
+			require_once ("ossim_error.inc");
+			$error = new OssimError();
+			$error->display("BAD_OLD_PASSWORD");
 		} elseif (strlen($pass1) < $pass_length_min) {
 			require_once ("ossim_error.inc");
 		    $error = new OssimError();
