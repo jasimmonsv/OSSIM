@@ -1051,7 +1051,7 @@ EOT;
    
    $query = "";
 
-   if ($username == "admin") {
+   if ($username == "admin" || Session::am_i_admin()) {
         $query = "SELECT distinct(t1.id), t1.name, t1.description 
                  FROM vuln_nessus_settings t1 WHERE deleted='0'
                  ORDER BY t1.name";

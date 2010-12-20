@@ -153,11 +153,13 @@ $arruser = array();
 if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
+    if (Session::get_session_user() != ACL_DEFAULT_OSSIM_ADMIN && Session::am_i_admin())  $arruser[] = ACL_DEFAULT_OSSIM_ADMIN;
 }
 else {
     $entities = array();
     $entities = Acl::get_user_entities();
     $entities[] = Session::get_session_user(); // add current user
+    if (Session::get_session_user() != ACL_DEFAULT_OSSIM_ADMIN && Session::am_i_admin())  $entities[] = ACL_DEFAULT_OSSIM_ADMIN;
     $arruser = $entities;
     $user = implode("', '",$entities);
 }

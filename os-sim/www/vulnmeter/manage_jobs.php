@@ -513,8 +513,8 @@ EOT;
     <td>$nextscan</td>
     $txt_enabled
     <td style="padding-top:2px;"><a href="$ilink"><img alt="$itext" src="$isrc" border=0 title="$itext"></a>&nbsp;
-    <a href="sched.php?disp=edit_sched&sched_id=$schedid&amp;hmenu=Vulnerabilities&amp;smenu=Jobs"><img src="images/pencil.png"></a>&nbsp;
-    <a href="manage_jobs.php?disp=delete&amp;schedid=$schedid" onclick="return confirmDelete();"><img src="images/delete.gif"></a></td>
+    <a href="sched.php?disp=edit_sched&sched_id=$schedid&amp;hmenu=Vulnerabilities&amp;smenu=Jobs"><img src="images/pencil.png" title="Edit Sheduled"></a>&nbsp;
+    <a href="manage_jobs.php?disp=delete&amp;schedid=$schedid" onclick="return confirmDelete();"><img src="images/delete.gif" title="Delete Sheduled"></a></td>
 </tr>
 EOT;
 

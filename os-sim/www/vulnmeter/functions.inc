@@ -1296,11 +1296,13 @@ $arruser = array();
 if(!preg_match("/pro|demo/i",$version)){
     $user = Session::get_session_user();
     $arruser[] = $user;
+    if (Session::get_session_user() != ACL_DEFAULT_OSSIM_ADMIN && Session::am_i_admin())  $arruser[] = ACL_DEFAULT_OSSIM_ADMIN;
 }
 else {
     $entities = array();
     $entities = Acl::get_user_entities();
     $entities[] = Session::get_session_user(); // add current user
+    if (Session::get_session_user() != ACL_DEFAULT_OSSIM_ADMIN && Session::am_i_admin())  $entities[] = ACL_DEFAULT_OSSIM_ADMIN;
     $arruser = $entities;
     $user = implode("', '",$entities);
 }
@@ -1571,12 +1573,13 @@ else {
                             }
                         }
                         else {
-                            $user_name_filter [] = Session::get_session_user();
+                            $user_name_filter[] = Session::get_session_user();
                         }
                     }
                     else {
-                        $user_name_filter [] = Session::get_session_user(); 
+                        $user_name_filter[] = Session::get_session_user(); 
                     }
+                    if (Session::get_session_user() != ACL_DEFAULT_OSSIM_ADMIN && Session::am_i_admin())  $user_name_filter[] = ACL_DEFAULT_OSSIM_ADMIN;
 
                    if(file_exists($GLOBALS["CONF"]->db_conf["nessus_rpt_path"]."/tmp/nessus_s".$scan_PID.".out") && (Session::am_i_admin() || in_array($nusername,$user_name_filter))) {
                         $sInfo.="<a href=\"download_results.php?job_id=$nid\" style=\"display: inline\"><img title=\""._("Download results in nbe format")."\" alt=\""._("Download results in nbe format")."\" style=\"display: inline;\" src=\"../pixmaps/download.png\" width=\"15\" align=\"absmiddle\" border=\"0\"></a>&nbsp;";

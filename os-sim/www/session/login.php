@@ -239,7 +239,7 @@ if ($failed) { ?>
 <br/>
 <br/>
 <br/>
-<form name="f" method="POST" action="login.php" onsubmit="$('#pass').val($.base64.encode($('#pass').val()));$('#submit_button').attr('disabled','disabled')" style="margin:1px">
+<form name="f" method="POST" action="login.php" onsubmit="$('#pass').val($.base64.encode($('#passu').val()));$('#submit_button').attr('disabled','disabled')" style="margin:1px">
 
 <table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class=nobborder><tr><td class="nobborder">
 <table align="center" class="noborder" style="background-color:white">
@@ -265,7 +265,8 @@ if ($failed) { ?>
 	  <tr>
 	    <td style="text-align:right" class="nobborder"> <?php
     echo gettext("Password"); ?> </td>
-	    <td style="text-align:left" class="nobborder"><input type="password" id="pass" name="pass" /></td>
+	    <td style="text-align:left" class="nobborder"><input type="password" id="passu" name="passu"/>
+	    <input type="hidden" id="pass" name="pass"/></td>
 	  </tr>
 	  </table>
     </td>

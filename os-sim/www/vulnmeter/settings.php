@@ -1783,7 +1783,7 @@ echo _("Please select a profile to edit").":";
 echo "</p>";
 echo "<table align='center'>";
 echo "<tr>";
-if($username=="admin"){
+if($username=="admin" || Session::am_i_admin()){
     echo "<th>"._("Available for")."</th>";
 }
 echo "   <th>"._("Profile")."</th>";
@@ -1796,7 +1796,7 @@ echo "</tr>";
    //<td>$stype</td>
       list($sid, $sname, $sdescription, $sowner, $stype)=$result->fields;
 echo "<tr>";
-if($username=="admin"){
+if($username=="admin" || Session::am_i_admin()){
     if($sowner=="0"){
         echo "<td>"._("All")."</td>";
     }
@@ -1817,7 +1817,7 @@ echo "<td>";
 if($normal_user_pro && $sowner!=$username && $sname!="Default") {  
     echo "&nbsp";
 }
-elseif($username=="admin"){
+elseif($username=="admin" || Session::am_i_admin()){
     if(!in_array($sid, $used_sids)) {
         echo "<a href=\"settings.php?disp=edit&amp;&amp;sid=$sid\"><img src=\"images/pencil.png\"></a>";
         echo "<a href=\"settings.php?disp=edit&amp;op=delete&amp;sid=$sid\" onclick=\"return confirmDelete();\"><img src=\"images/delete.gif\"></a>";
@@ -1851,7 +1851,7 @@ echo "<center>";
 echo "<p>";
 echo "<form>";
 echo "<input type=button onclick=\"document.location.href='settings.php?disp=new'\" value=\""._("Create New Profile")."\" class=\"button\">&nbsp;&nbsp;&nbsp;&nbsp;";
-if($username=="admin"){
+if($username=="admin" || Session::am_i_admin()){
     echo "<input type=button onclick=\"document.location.href='defaults.php'\" value=\""._("Edit default profile")."\" class=\"button\">";
 }
 echo "</form>";

@@ -321,14 +321,14 @@ foreach($policy_groups as $group) {
 		<?php
     $default = array(
         "active" => array(
-            _('Active'),
+            _('Status'),
             30,
             'true',
             'center',
             false
         ) ,
         "order" => array(
-            _('Ord'),
+            _('Order'),
             30,
             'true',
             'center',
