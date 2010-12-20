@@ -297,7 +297,7 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 .notice div { 
 	width: 100%; 
 	position: absolute; 
-	bottom: 32px; 
+	bottom: 25px; 
 	right: 0px; 
 	font-size: 10px; 
 }
@@ -618,7 +618,7 @@ th { height: 15px;}
 
 .cont_send { text-align:center; padding:5px 0px 10px 0px;}
 
-.error_left {width: 100%; text-align:left !important; margin-left: 60px;}
+.error_left, .agent_key {width: 100%; text-align:left !important; margin-left: 60px;}
 
 #cont_commom_ac {width: 120px; text-align:left; }
 

@@ -52,7 +52,7 @@ require_once ('classes/Session.inc');
 		
 	<script type="text/javascript">
 	var messages = new Array();
-		messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Processing action... ")?></span>';
+		messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Processing action...")?> </span>';
 	</script>
 	
 	<script type="text/javascript">

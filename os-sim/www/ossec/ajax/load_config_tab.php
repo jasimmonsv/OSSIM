@@ -44,11 +44,9 @@ $conf_file = @file_get_contents($ossec_conf);
 	
 if ($conf_file == false)
 {
-	echo "error###"._("<b>$ossec_conf</b> not found or you don't have have permission to access");
+	echo "error###<b>$ossec_conf</b> "._("not found or you don't have have permission to access");
 	exit();
 }
-
-
 
 if($tab == "#tab1")
 {
@@ -129,7 +127,7 @@ if($tab == "#tab1")
 			
 			if ($error == true)
 			{
-				echo "error###"._("Error to read configuration file (2)");
+				echo "error###"._("Error to read configuration file")." (2)";
 				exit;
 			}
 		}
@@ -147,7 +145,10 @@ if($tab == "#tab1")
 			sort($no_added_rules);
 			
 						
-			echo "<tr><td style='padding: 10px 0px;'>"._('* Drag & Drop the file you want to add/remove or use [+] and [-] links')."</td></tr>";
+			echo "<tr><td style='padding: 0px 0px 10px 0px;'>";
+			echo "<span>(*) "._("You must restart Ossec for the changes to take effect")."</span><br/>";
+			echo "<span>(*) "._('Drag & Drop the file you want to add/remove or use [+] and [-] links')."</span>";
+			echo  "</td></tr>";
 			echo "<tr><td class='cnf_rule_title'>";
 			echo "<div style='float: left; width: 48%'>"._("Enabled Rules")."</div><div style='float: right; width: 48%'>"._("Disabled Rules")."</div></td></tr>";
 			echo "<tr>";
@@ -166,7 +167,7 @@ if($tab == "#tab1")
 		
 	}
 	else
-		echo "error###"._("Error to read configuration file (1)");
+		echo "error###"._("Error to read configuration file")." (1)";
 		
 }
 else if ($tab == '#tab2')

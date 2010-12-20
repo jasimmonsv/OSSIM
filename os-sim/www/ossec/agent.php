@@ -279,6 +279,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 		 div .button {float: none !important; margin-top: 0px;}
 		.load { height: 25px; margin: auto;}
 		td.center {text-align: center !important;}
+		.notice { position:relative !important; margin: auto; padding-top: 3px;}
 	</style>
 </head>
 <body>
@@ -448,6 +449,8 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 		<td>
 	</tr>	
 </table>
+
+<div class='notice'><span>(*)<?php echo _("You must restart Ossec for the changes to take effect")?></span></div>
 
 </body>
 </html>

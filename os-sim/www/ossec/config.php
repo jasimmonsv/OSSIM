@@ -44,14 +44,14 @@ if ( file_exists( $ossec_conf) )
 	{
 		$error    = true;
 		$file_xml = '';
-		$txt      = _("Directory <b>$ossec_conf</b> doesn't exist or you don't have permission to access");
+		$txt      = _("Directory")." <b>$ossec_conf</b> "._("doesn't exist or you don't have permission to access");
 	}
 }
 else
 {
 	$error    = true;
 	$file_xml = '';
-	$txt      = _("<b>".$ossec_conf."</b> not found or you don't have have permission to access");
+	$txt      = "<b>$ossec_conf</b> "._("not found or you don't have have permission to access");
 }
 
 ?>
@@ -265,10 +265,8 @@ else
 	
 	.agent_actions { width: auto;}
 	
-	input.button {float: none; margin:0px auto 10px auto; padding: 0px 2px;}
-	
-	.button {background: none !important;}	
-	
+	input.button {float: none; margin:auto; padding: 0px 2px;}
+			
 	.buttons_box {	
 		float: right; 
 		width: 20%;
@@ -276,7 +274,10 @@ else
 		padding-bottom: 10px;
 	}
 	
+	
 	#msg_init{ margin: 150px auto 270px auto; }
+			
+	#tab2 .button {background:none !important;}
 			
 	</style>
 	
@@ -325,14 +326,14 @@ else
 								<div class='button'><input type='button' class='save' id='dis_send' disabled='disabled' value='<?=_("save")?>'/></div>
 							<?php } ?>						
 						</div>
+						<div class='notice'><div><span>(*)<?php echo _("You must restart Ossec for the changes to take effect")?></span></div></div>
 					</div>
-					
-					
 				</td>
-			</tr>	
+			</tr>
 		</table>
 		
 	</div>
+	
 
 </body>
 

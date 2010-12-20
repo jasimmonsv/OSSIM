@@ -85,7 +85,7 @@ else
 			exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 									
 			if ($ret !== 0)
-				$message_error[] = _("Errot to Add Agent (1)");
+				$message_error[] = _("Errot to Add Agent")." (1)";
 			else
 			{
 				if ( is_array($agents) )
@@ -95,7 +95,7 @@ else
 						$agent = explode(",", $agent);
 						if ( !empty($agent_name) && $agent[1] == $agent_name )
 						{
-							$message_error[] =_("Name '$agent_name' already present. Please enter a new name.");
+							$message_error[] =_("Name")." '$agent_name' "._("already present. Please enter a new name.");
 							break;
 						}
 					}
@@ -103,7 +103,7 @@ else
 					if ( empty($message_error) )
 					{
 						if (strlen($agent_name) < 2 || strlen($agent_name) > 32 )
-							$message_error[] =_("Invalid name '$agent_name' given.<br/> Name must contain only alphanumeric characters (min=2, max=32).");
+							$message_error[] = _("Invalid name")." '$agent_name' "._("given.<br/> Name must contain only alphanumeric characters (min=2, max=32).");
 					}
 				}
 			}
@@ -141,7 +141,7 @@ else
 			exec("echo 'A'$'\n''$agent_name'$'\n''$ip'$'\n'$'\n''y'$'\n''Q'$'\n' | sudo /var/ossec/bin/manage_agents", $agents, $ret);
 			
 			if ($ret !== 0)
-				echo "error###"._("Errot to Add Agent (2)");
+				echo "error###"._("Errot to Add Agent")." (2)";
 			else
 			{
 				exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
@@ -224,7 +224,7 @@ else
 					}	
 				}
 				else
-					echo "error###"._("Errot to Add Agent (3)");
+					echo "error###"._("Errot to Add Agent")." (3)";
 					
 			}
 		break;
@@ -246,10 +246,10 @@ else
 				$msg = explode("OSSEC HIDS agent_control:", implode("\n",$results));
 				$char_list = "\t\n\r\0\x0B";
 				$msg = trim(str_replace("**", "", $msg[0]), $char_list);
-				echo "error###"._($msg);
+				echo "error###$msg";
 			}	
 			else
-				echo "1###"._("OSSEC HIDS agent_control.  Agent $id restarted");
+				echo "1###"._("OSSEC HIDS agent_control.  Agent")." $id "._("restarted");
 		break;
 		
 		case "check_agent":
@@ -260,11 +260,11 @@ else
 				$msg = explode("OSSEC HIDS agent_control:", implode("\n",$results));
 				$char_list = "\t\n\r\0\x0B";
 				$msg = trim(str_replace("**", "", $msg[0]), $char_list);
-				echo "error###"._($msg);
+				echo "error###$msg";
 			}
 			else
 			{
-				echo "1###"._("OSSEC HIDS agent_control: Restarted Syscheck/Rootcheck on agent: $id");
+				echo "1###"._("OSSEC HIDS agent_control: Restarted Syscheck/Rootcheck on agent:")." $id";
 			}
 		break;
 		
@@ -274,7 +274,7 @@ else
 						
 			
 			if ($ret !== 0)
-				echo "error###"._("Error to extract key for an agent (1)");
+				echo "error###"._("Error to extract key for an agent")." (1)";
 			else
 			{
 				$results = implode("", $result);
@@ -285,10 +285,10 @@ else
 					$txt = explode(":", $match[0], 2);
 					$key = str_replace('**', '', $txt[1]);
 					$key = ( strlen($key) ) > 90 ? substr($key, 0, 90)."<br/>".substr($key, 90) : $key;
-					echo "1###"._("<div class='error_left'>".$txt[0].":<br/><br/><span>$key</span></div>");
+					echo "1###<div class='agent_key'>".$txt[0].":<br/><br/><span>$key</span></div>";
 				}
 				else
-					echo "error###"._("Error to extract key for an agent (2)");
+					echo "error###"._("Error to extract key for an agent")." (2)";
 					
 			}
 		break;

@@ -12,7 +12,7 @@ ossim_valid($file, $editable_files[0], 'illegal:' . _("XML file"));
 		
 if ( ossim_error() )
 {
-	echo "1###"._("XML file can not be edited ");
+	echo "1###"._("XML file can not be edited");
 	exit();
 }
 else

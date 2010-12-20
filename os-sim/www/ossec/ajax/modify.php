@@ -12,7 +12,7 @@ ossim_valid($file, $editable_files[0], 'illegal:' . _("XML file"));
 
 if ( ossim_error() )
 {
-	echo "4###"._("XML file can not be edited ");
+	echo "4###"._("XML file can not be edited");
 	exit();
 }
 
@@ -274,7 +274,7 @@ switch ($node_type){
 
 
 if ($ok === false)
-	echo "2###"._("Failure to update XML File (1)");
+	echo "2###"._("Failure to update XML File")." (1)";
 else
 {
 	$xml    = new xml($_level_key_name);
@@ -285,7 +285,7 @@ else
 	else
 	{
 		if (@copy ($path , $path_tmp) == false )
-			echo "2###"._("Failure to update XML File (2)");
+			echo "2###"._("Failure to update XML File"). " (2)";
 		else
 		{   
 		   	
@@ -297,7 +297,7 @@ else
 			{
 				@unlink ($path);
 				@rename ($path_tmp, $path);
-				echo "2###"._("Failure to update XML File (3)");
+				echo "2###"._("Failure to update XML File"). " (3)";
 			}
 			else
 			{

@@ -51,7 +51,7 @@ if ( file_exists( $filename) )
 	if ($file_xml == false)
 	{
 		$error = true;
-		$txt = _("Directory <b>$rules_file</b> doesn't exist or you don't have permission to access");
+		$txt = _("Directory")." <b>$rules_file</b> "._("doesn't exist or you don't have permission to access");
 	}
 	else
 	{
@@ -78,7 +78,7 @@ if ( file_exists( $filename) )
 else
 {
 	$error = true;
-	$txt = _("<b>".$editable_files[0]."</b> not found or you don't have have permission to access");
+	$txt = "<b>".$editable_files[0]."</b> "._("not found or you don't have have permission to access");
 }
 
 

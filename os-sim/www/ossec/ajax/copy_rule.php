@@ -37,13 +37,13 @@ if ( file_exists($path) )
 	}
 	else
 	{
-		echo "3###"._("Failure: Format not allowed in file ".$editable_files[0]." (1)"); 
+		echo "3###"._("Failure: Format not allowed in file")." ".$editable_files[0]." (1)"; 
 		exit();
 	}
 }
 else
 {
-	echo "2###"._("Failure: File ".$editable_files[0]."does not exist"); 
+	echo "2###"._("Failure: File")." ".$editable_files[0]." does not exist"; 
 	exit();
 }
 
@@ -61,7 +61,7 @@ $new_rule['rule'] = array_merge ($child['tree'], $if_sid);
 	
 	if ($xml_obj->errors['status'] == false)
 	{
-		echo "4###". _("Error to parse XML file ".$editable_files[0]);
+		echo "4###"._("Error to parse XML file")." ".$editable_files[0];
 		exit();
 	}
 	else
@@ -89,7 +89,7 @@ foreach ($tree_lr as $k => $v)
 
 if ( empty($new_key) )
 {
-	echo "3###"._("Failure: Format not allowed in file ".$editable_files[0]." (2)"); 
+	echo "3###"._("Failure: Format not allowed in file")." ".$editable_files[0]." (2)"; 
 	exit();
 }
 
@@ -99,13 +99,13 @@ $branch = '['.implode("][", $child['parents']).'][\''.$new_key.'\']';
 $ok = eval ("\$tree_lr$branch= \$new_rule;");
 
 if ($ok === false)
-    echo "5###"._("Failure to update XML File (1)");
+    echo "5###"._("Failure to update XML File")." (1)";
 else
 {
     $output = $xml_obj->array2xml($tree_lr);
 	       
 	if ( @copy ($path , $path_tmp) == false )
-		echo "5###"._("Failure to update XML File (2)");
+		echo "5###"._("Failure to update XML File")." (2)";
 	else
 	{  
 		$output = formatOutput($output, $_level_key_name);
@@ -116,7 +116,7 @@ else
 		{
 			@unlink ($path);
 			@rename ($path_tmp, $path);
-			echo "5###"._("Failure to update XML File (3)");
+			echo "5###"._("Failure to update XML File")." (3)";
 		}
 		else
 		{

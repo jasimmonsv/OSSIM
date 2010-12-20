@@ -108,7 +108,7 @@ if($tab == "#tab1")
 	}
 	
 	if ( @copy ($path , $path_tmp) == false )
-		echo "error###"._("Failure to update $ossec_conf (1)");
+		echo "error###"._("Failure to update")." <b>$ossec_conf</b> (1)";
 	else
 	{  
 		$conf_file_str = implode("\n", $conf_file);
@@ -118,13 +118,11 @@ if($tab == "#tab1")
 		{
 			@unlink ($path);
 			@rename ($path_tmp, $path);
-			echo "error###"._("Failure to update $ossec_conf (2)");
+			echo "error###"._("Failure to update")." <b>$ossec_conf</b> (2)";
 		}
 		else
-		{
-			echo "1###"._("$ossec_conf updated successfully");
-		}
-			
+			echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
+					
 		@unlink ($path_tmp);
 	
 	}
@@ -140,18 +138,18 @@ $path_tmp  = "/tmp/".$file_tmp;
 $data      = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
 
 if (copy ($path , $path_tmp) == false )
-	echo "error###"._("Error to update <b>$ossec_conf</b> (1)");
+	echo "error###"._("Error to update")." <b>$ossec_conf</b> (1)";
 else
 {
 	if ( @file_put_contents($path, $data, LOCK_EX) == false )
 	{
 		@unlink ($path);
 		@rename ($path_tmp, $path);
-		echo "error###"._("Error to update <b>$ossec_conf</b> (2)");
+		echo "error###"._("Error to update")." <b>$ossec_conf</b> (2)";
 	}
 	else
 	{
-		echo "1###"._("<b>$ossec_conf updated sucessfully</b>");
+		echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
 		@unlink($path_tmp);	
 	}
 }

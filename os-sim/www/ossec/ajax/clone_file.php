@@ -18,7 +18,7 @@ else
 		if ( @file_exists($path_new_file) == false )
 		{
 			if (@copy ($path_file , $path_new_file ) == false )
-				echo "2###"._("Failure to clone file $file");
+				echo "2###"._("Failure to clone file")." $file";
 			else
 				echo "3###"._("Cloned Sucessfully");
 		}
