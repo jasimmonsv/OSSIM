@@ -159,11 +159,12 @@ OFFSET $inf");
         }
         return $list;
     }
-    function get_last_pass($conn) {
+    function get_last_pass($conn, $user="") {
     	require_once "ossim_conf.inc";
     	$conf = $GLOBALS["CONF"];
+    	$list = array();
     	$pass_history = ($conf->get_conf("pass_history", FALSE)) ? $conf->get_conf("pass_history", FALSE) : 0;
-    	$query = "SELECT DISTINCT pass FROM pass_history LIMIT $pass_history";
+    	$query = "SELECT DISTINCT pass FROM pass_history WHERE user='$user' LIMIT $pass_history";
     	if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
             return array();

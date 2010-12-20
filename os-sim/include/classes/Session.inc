@@ -972,6 +972,31 @@ class Session {
 			return 1;
 		}
 	}
+	function log_pass_history ($user,$pass) {
+		$db = new ossim_db();
+        $conn = $db->connect();
+		
+        $hist_number = 1;
+		$query = "SELECT max(hist_number) as num FROM pass_history WHERE user=?";
+		$params = array($user);
+		if (!$rs = & $conn->Execute($query,$params)) {
+			print $conn->ErrorMsg();
+			return "";
+		} else {
+			if (!$rs->EOF) {
+				$hist_number = $rs->fields['num'] + 1;
+			}
+		}
+        
+		$sql = "INSERT INTO pass_history (user,pass,hist_number) VALUES (?,?,?)";
+		$params = array($user, $pass, $hist_number);
+        if ($rs = & $conn->Execute($sql, $params) && (!$rs->EOF)) {
+			print $conn->ErrorMsg();
+        	$db->close($conn);
+			exit;
+        }
+        $db->close($conn);
+	}
 }
 } // else include Acl
 ?>
