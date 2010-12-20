@@ -76,16 +76,16 @@ echo gettext("OSSIM Framework"); ?> </title>
 		}
 	}
 function checkpasscomplex(pass) {
-	<?php $complex = ($conf->get_conf("pass_complex", FALSE)) ? $conf->get_conf("pass_complex", FALSE) : "lun"; ?>
-	var complex = "<?php echo $complex ?>";
+	<?php if ($conf->get_conf("pass_complex", FALSE) == "yes") { ?>
 	var counter = 0;
-	for (var i = 0; i < complex.length; i++) {
-		if (complex[i] == "l" && pass.match(/[a-z]/)) { counter++; }
-		if (complex[i] == "u" && pass.match(/[A-Z]/)) { counter++; }
-		if (complex[i] == "n" && pass.match(/[0-9]/)) { counter++; }
-		if (complex[i] == "s" && pass.match(/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬]/)) { counter++; }
-	}
+	if (pass.match(/[a-z]/)) { counter++; }
+	if (pass.match(/[A-Z]/)) { counter++; }
+	if (pass.match(/[0-9]/)) { counter++; }
+	if (pass.match(/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬]/)) { counter++; }
 	return (counter < 3) ? 0 : 1;
+	<?php } else { ?>
+	return 1;
+	<?php } ?>
 }
 function checkpasslength() {
 	if ($('#pass1').val() != "") {
@@ -242,7 +242,7 @@ echo $user->get_department(); ?>" /></td>
    <input type="radio" name="first_login" value="0" checked> <?php echo _("No"); ?> 
     </td>
 </tr>
-<?php if ($user->get_login() != ACL_DEFAULT_OSSIM_ADMIN) { ?>
+<?php if ($user->get_login() != ACL_DEFAULT_OSSIM_ADMIN && $_SESSION['_user'] == ACL_DEFAULT_OSSIM_ADMIN) { ?>
 <tr>
   <th><?php echo _("Global Admin") ?></th>
     <td align="center">
