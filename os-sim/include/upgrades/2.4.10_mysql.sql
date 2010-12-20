@@ -10,6 +10,14 @@ UPDATE custom_report_types SET inputs=CONCAT(inputs,";Plugin Groups:plugin_group
 
 REPLACE INTO log_config (code, log, descr, priority) VALUES (094, 1, 'User %1% failed logon', 1);
 
+CREATE TABLE IF NOT EXISTS pass_history (
+    id		INTEGER NOT NULL AUTO_INCREMENT,
+    user    varchar(64) NOT NULL,
+    hist_number int(11),
+    pass    varchar(41)  NOT NULL,
+    PRIMARY KEY (id)
+);
+
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
 UPDATE config SET value="2010-11-30" WHERE conf="last_update";
