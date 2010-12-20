@@ -137,7 +137,10 @@ if (REQUEST('user') && trim($pass)!="") {
 	$last_pass_change = $session->last_pass_change();
 	$login_exists = $session->login_exists();
 	
-	if ($login_return != true) {
+	if ($login_return != true) {$infolog = array(
+            REQUEST('user')
+        );
+        Log_action::log(94, $infolog);
 		$failed = true;
         $bad_pass = true;
         $failed_retries = $conf->get_conf("failed_retries", FALSE);
