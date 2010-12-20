@@ -1143,6 +1143,14 @@ CREATE TABLE users (
 --
 INSERT INTO users (login, name, pass) VALUES ('admin', 'OSSIM admin', '21232f297a57a5a743894a0e4a801fc3');
 
+DROP TABLE IF EXISTS pass_history;
+CREATE TABLE pass_history (
+    id		INTEGER NOT NULL AUTO_INCREMENT,
+    user    varchar(64) NOT NULL,
+    hist_number int(11),
+    pass    varchar(41)  NOT NULL,
+    PRIMARY KEY (id)
+);
 
 --
 -- Table: incident
