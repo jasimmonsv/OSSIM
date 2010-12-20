@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS pass_history (
     pass    varchar(41)  NOT NULL,
     PRIMARY KEY (id)
 );
+DELETE FROM log_config WHERE code=92;
 
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
