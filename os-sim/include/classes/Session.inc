@@ -335,6 +335,10 @@ class Session {
         );
         $conn->Execute($sql, $params);
 		$db->close($conn);
+		$infolog = array(
+            $login
+        );
+        Log_action::log(93, $infolog);
 	}
 	function first_login() {
 		global $_SESSION;
