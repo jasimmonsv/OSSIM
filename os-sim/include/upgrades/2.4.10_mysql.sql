@@ -10,6 +10,15 @@ UPDATE custom_report_types SET inputs=CONCAT(inputs,";Plugin Groups:plugin_group
 
 REPLACE INTO log_config (code, log, descr, priority) VALUES (094, 1, 'User %1% failed logon', 1);
 
+
+REPLACE INTO config (conf , value) VALUES ('unlock_user_interval', '5');
+REPLACE INTO config (conf , value) VALUES ('pass_complex', 'no');
+REPLACE INTO config (conf , value) VALUES ('pass_length_min', '7');
+REPLACE INTO config (conf , value) VALUES ('pass_length_max', '32');
+REPLACE INTO config (conf , value) VALUES ('pass_expire', '0');
+REPLACE INTO config (conf , value) VALUES ('pass_expire_min', '0');
+REPLACE INTO config (conf , value) VALUES ('pass_history', '0');
+
 CREATE TABLE IF NOT EXISTS pass_history (
     id		INTEGER NOT NULL AUTO_INCREMENT,
     user    varchar(64) NOT NULL,
