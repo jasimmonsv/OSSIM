@@ -71,9 +71,13 @@ $src_ip = GET('ip_src');
 $dst_ip = GET('ip_dst');
 $timestamp = GET('timestamp');
 $name = $_SESSION[GET('name')];
+$group_id = GET('group_id');
 $hide_closed = GET('hide_closed');
 $only_delete = GET('only_delete'); // Number of groups to delete
 $unique_id = GET('unique_id');
+$top = (GET('top') != "") ? GET('top') : 100;
+$from = (GET('from') != "") ? GET('from') : 0;
+$top += $from;
 
 ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
 ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
@@ -82,6 +86,7 @@ ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'il
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
 ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
 ossim_valid($unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
+ossim_valid($group_id, OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("group_id"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -110,15 +115,15 @@ foreach($host_list as $host) {
 	$assets[$host->get_ip() ] = $host->get_asset();
 }
 
-$from = ($timestamp!="") ? $timestamp." 00:00:00" : null;
-$to = ($timestamp!="") ? $timestamp : null;
+$from_date = ($timestamp!="") ? $timestamp." 00:00:00" : null;
+$to_date = ($timestamp!="") ? $timestamp : null;
 
-list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",null,null,$from,$to,$name);
+list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",$from,$top,$from_date,$to_date,$name);
 
 ?>
 <table class="transparent" width="100%">
-	<? if ($num_rows > 0) { ?>
-	<tr>
+	<?php if ($from < 1) { ?>
+    <tr>
 		<td class="nobborder"></td>
 		<td class="nobborder"></td>
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Alarm Name")?></td>
@@ -130,7 +135,20 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Status")?></td>
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Action")?></td>
 	</tr>
-	<? } ?>
+    <?php } else { // hidden header ?>
+    <tr>
+		<td class="nobborder"></td>
+		<td class="nobborder"></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Alarm Name")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Risk")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Since Date")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Date")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Source")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Destination")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Status")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Action")?></td>
+	</tr>
+    <?php } ?>
 <? foreach ($list as $s_alarm) {
 	$bgcolor = (++$i%2 == 0) ? "#FAFAFA" : "#F2F2F2";
 	$s_id = $s_alarm->get_plugin_id();
@@ -264,4 +282,14 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		<td class="nobborder"></td>
 		<td class="nobborder" colspan='9' name='eventbox<?=$s_backlog_id . "-" . $s_event_id?>"' id='eventbox<?=$s_backlog_id . "-" . $s_event_id?>'></td></tr>
 <? } ?>
+	<?php if ($num_rows > count($list)) { ?>
+	<div id="link_row" style="display:inline">
+	<tr>
+		<td class="center nobborder" colspan="10"><a href="" onclick="toggle_group('<?=$group_id ?>','<?=$name ?>','<?php echo $src_ip ?>','<?php echo $dst_ip ?>','',<?php echo $from + $top ?>);this.style.color='transparent';return false">> <?php echo _("Show the next 100 alarms") ?></a></td>
+	</tr>
+	</div>
+	<tr>
+		<td class="center nobborder" colspan="10" id="<?php echo $group_id.($from + $top)?>"></td>
+	</tr>
+ <?php } ?>
 </table>
