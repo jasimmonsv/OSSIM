@@ -95,14 +95,14 @@
  |      1616 | Pure-FTPd          | detector |
  |      1617 | Courier            | detector |
  |      1618 | Mcafee-Antispam	  | detector |
- |      1619 | SymantecEPM	  | detector |
+ |      1619 | SymantecEPM        | detector |
  |      1620 | FortiAnalyzer	  | detector |
- |      1621 | Fortiguard	  | detector |
+ |      1621 | Fortiguard         | detector |
  |      1622 | Enterasys-RMatrix  | detector | 
- |      1623 | Aruba		  | detector |
+ |      1623 | Aruba              | detector |
  |      1624 | Enterasys-NAC	  | detector |
  |      1625 | SCOM               | detector |
- |      1626 | Juniper-SRX	  | detector |
+ |      1626 | Juniper-SRX        | detector |
  |      1627 | Solaris Syslog	  | detector |
  |      1630 | Bit9               | detector |
  +-----------+--------------------+----------+
@@ -114,6 +114,7 @@
  |      4005 | sudo               | detector |
  |      4006 | iphone             | detector |
  |      4007 | syslog             | detector |
+ |      4008 | mcafee-epo         | detector |
  +-----------+--------------------+----------+
  |      3001 | nessus             |          |
  +-----------+--------------------+----------+
