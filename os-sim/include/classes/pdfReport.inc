@@ -485,9 +485,10 @@ class Html{
 
     public function getImages(){
         session_write_close();
-        $file_1x1=file_get_contents($this->getMainUrl()."pixmaps/1x1.png");
+        //$file_1x1=@file_get_contents($this->getMainUrl()."pixmaps/1x1.png");
+        $file_1x1=file_get_contents("/usr/share/ossim/www/pixmaps/1x1.png");
         foreach ($this->imagesArr as $ruta => $url) {
-        	$file_temp=file_get_contents($url);
+        	$file_temp=@file_get_contents($url);
         	if ($file_temp!="" && @imagecreatefromstring($file_temp)!==false)
         		file_put_contents($ruta,$file_temp);
         	else

@@ -623,17 +623,17 @@ $tree_count = 0;
 				}
 				?>
 					</td>
-					<td width="200" class="nobborder right">
+					<td width="250" class="nobborder right">
 						<table class="transparent">
 							<tr>
 								<td class="nobborder" nowrap><a href="alarm_console.php?hide_closed=1"><b><?=_("Ungrouped")?></b></a></td>
 								<td class="nobborder"> | </td>
-								<td class="nobborder"><?=_("Grouped")?></td>
+								<td class="nobborder" nowrap><?=_("Grouped by")?>: </td>
 								<td class="nobborder">
 									<select name="group_type" onchange="document.filters.submit()">
-										<option value="all" <?php if ($group_type == "all") echo "selected" ?>>Name, IPs and day</option>
-										<option value="namedate" <?php if ($group_type == "namedate") echo "selected" ?>>Name and day</option>
-										<option value="name" <?php if ($group_type == "name") echo "selected" ?>>Only alarm name</option>
+										<option value="all" <?php if ($group_type == "all") echo "selected" ?>>Alarm name, Src/Dst, Date</option>
+										<option value="namedate" <?php if ($group_type == "namedate") echo "selected" ?>>Alarm name, Date</option>
+										<option value="name" <?php if ($group_type == "name") echo "selected" ?>>Alarm name</option>
 									</select>
 								</td>
 							</tr>
@@ -681,7 +681,7 @@ $tree_count = 0;
 		if ($db_groups[$group_id]['owner'] != "")
 			if ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) {
 				$owner_take = 1;
-				$background = '#B5C7DF;';
+				$background = '#A7D7DF;';
 				if ($status == 'open') {
 					$owner = "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>";
 				}

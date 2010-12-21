@@ -389,7 +389,7 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 <td colspan="6" bgcolor="#eeeeee" style="text-align:left;padding-left:5px">
 <a href='events_ajax.php?backlog_id=<?=$backlog_id?>&show_all=2&box=1&hide=directive' class="greybox" title="<?=_("Events detail")?>"><img src="../pixmaps/plus-small.png" align="absmiddle"><?php echo $summary["total_count"] - $summ_event_count; ?></a> <?php echo _("Total events matched after highest rule level, before timeout."); ?>
 </td><td colspan="3" bgcolor="#eeeeee">
-<a href="../directive_editor/index.php?level=1&directive=<?php echo $master_alarm_sid ?>" class=""><b><?=_("View")?></b>/<b><?=_("Edit")?></b> <?=_("current directive definition")?></a>
+<a href="../directive_editor/index.php?level=1&directive=<?php echo $master_alarm_sid ?>&hmenu=Directives&smenu=Directives" class=""><b><?=_("View")?></b>/<b><?=_("Edit")?></b> <?=_("current directive definition")?></a>
 </td>
 </tr>
 <?php }

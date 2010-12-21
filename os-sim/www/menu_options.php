@@ -138,6 +138,7 @@ if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { $incidents = 1
     $hmenu["Alarms"][] = array(
         "name" => gettext("Alarms") ,
         "id" => "Alarms",
+        "target" => "main",
         "url" => "control_panel/alarm_console.php?hide_closed=1",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:alarms:alarms','Help');"
     );

@@ -110,7 +110,10 @@ foreach($host_list as $host) {
 	$assets[$host->get_ip() ] = $host->get_asset();
 }
 
-list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",null,null,$timestamp." 00:00:00",$timestamp,$name);
+$from = ($timestamp!="") ? $timestamp." 00:00:00" : null;
+$to = ($timestamp!="") ? $timestamp : null;
+
+list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",null,null,$from,$to,$name);
 
 ?>
 <table class="transparent" width="100%">
@@ -194,7 +197,7 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	} else {
 		$ocurrences_text = strtolower(gettext("Event"));
 	}
-	$balloon_name = "<div class='balloon'>" . $s_alarm_name . " <font style='font-size: 9px; color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font>" . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>Src Asset: <b>" . $s_asset_src . "</b><br>Dst Asset: <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
+	$balloon_name = "<div class='balloon'>" . $s_alarm_name . "<br><font style='font-size: 9px; color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font>" . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>Src Asset: <b>" . $s_asset_src . "</b><br>Dst Asset: <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
 	/* Risk field */
 	if ($s_risk > 7) {
 		$color = "red; color:white";
