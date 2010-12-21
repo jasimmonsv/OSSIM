@@ -127,7 +127,7 @@ INSERT INTO config (conf, value) VALUES ('login_ldap_server', "127.0.0.1");
 INSERT INTO config (conf, value) VALUES ('login_ldap_o', "o=company");
 INSERT INTO config (conf, value) VALUES ('login_ldap_cn', "cn");
 INSERT INTO config (conf, value) VALUES ('login_ldap_ou', "ou=people");
-INSERT INTO config (conf, value) VALUES ('pass_expire', "no");
+INSERT INTO config (conf, value) VALUES ('pass_expire', '0');
 INSERT INTO config (conf, value) VALUES ('ocs_link','/ossim/ocsreports/index.php?lang=english');
 INSERT INTO config (conf, value) VALUES ('ovcp_link','');
 INSERT INTO config (conf, value) VALUES ('glpi_link','');
@@ -176,7 +176,12 @@ INSERT INTO config (conf , value) VALUES ('nedi_autodiscovery', '0');
 INSERT INTO config (conf , value) VALUES ('tickets_max_days', '15');
 
 INSERT INTO config (conf , value) VALUES ('session_timeout', '15');
-INSERT INTO config (conf , value) VALUES ('unlock_user_interval', '30');
+INSERT INTO config (conf , value) VALUES ('unlock_user_interval', '5');
 INSERT INTO config (conf , value) VALUES ('failed_retries', '5');
+INSERT INTO config (conf , value) VALUES ('pass_complex', 'no');
+INSERT INTO config (conf , value) VALUES ('pass_length_min', '7');
+INSERT INTO config (conf , value) VALUES ('pass_length_max', '32');
+INSERT INTO config (conf , value) VALUES ('pass_expire_min', '0');
+INSERT INTO config (conf , value) VALUES ('pass_history', '0');
 
 INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.2');
