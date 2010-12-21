@@ -187,7 +187,7 @@ if ($session_list = Session::get_list($conn, "ORDER BY $order")) {
 		<a href="modifyuserform.php?user=<?php echo $login ?>"><img src="../pixmaps/tables/table_edit.png" alt="<?=_("Update")?>" title="<?=_("Update")?>" border="0"></a>
 		<?
 		}
-        if ($login == $_SESSION['_user'] || $_SESSION['_user'] == "admin") {
+        if ($login == $_SESSION['_user'] || Session::am_i_admin()) {
             echo "
      <form name=\"langform_" . $login . "\" action=\"users.php\" method=\"post\">
 	<td>";
