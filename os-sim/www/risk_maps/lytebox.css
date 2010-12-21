@@ -1,4 +1,4 @@
-#lbOverlay { position: fixed; top: 0; left: 0; z-index: 99998; width: 100%; height: 500px; }
+﻿#lbOverlay { position: fixed; top: 0; left: 0; z-index: 99998; width: 100%; height: 500px; }
 	#lbOverlay.grey { background-color: #000000; }
 	#lbOverlay.red { background-color: #330000; }
 	#lbOverlay.green { background-color: #003300; }

@@ -150,7 +150,7 @@ else if ($key=="sensor") {
         $j = 0;
         foreach($sensor_list as $sensor) {
             if ($j>=$from && $j<$to) {
-                $sensor_name = $sensor->get_name();
+                $sensor_name = utf8_encode($sensor->get_name());
                 $li = "key:'sensor;$sensor_name', url:'', icon:'../../pixmaps/theme/net_group.png', title:'$sensor_name'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }

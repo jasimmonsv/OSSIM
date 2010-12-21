@@ -2,6 +2,7 @@ a {
   background: transparent;
   color: #17457c;
   text-decoration: none;
+  cursor: pointer;
 }
 
 a:hover {
@@ -53,6 +54,11 @@ input, textarea, select {
     background: #fdfdfd;
     font-family: verdana,arial,helvetica,sans-serif;
     font-size:  8pt;
+}
+
+input[type="checkbox"], input[type="radio"]{
+	background: transparent;
+	border: none !important;
 }
 
 table {
@@ -284,3 +290,58 @@ input.button:hover
 	padding-bottom:2px !important;
 }
 
+.lbutton
+{
+    border-width: 0px !important;
+    color: #FFFFFF !important;
+	height:20px !important;
+	background-color: transparent !important;
+    #background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+	background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+    padding-bottom:2px !important;
+    font-family: arial,verdana,helvetica,sans-serif !important;
+    font-size: 11px !important;
+	font-weight:bold !important;
+    margin-right:5px;
+}
+input.lbutton:hover
+{
+	color:white !important;
+	background: url(../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important;
+	padding-bottom:2px !important;
+    margin-right:5px;
+}
+
+
+.rm_tit_section {
+	padding:3px; 
+	border: 1px solid #aaaaaa; 
+	background: #cccccc url(../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png) 50% 50% repeat-x; 
+	font-size: 11px; 
+	color: #222222; 
+	font-weight: bold; 
+	text-align: center; }
+
+.cont_icons { margin-top: 10px;}
+
+#rm_up_icon {
+	font-size: 11px;
+	border: none !important;
+}
+
+#rm_up_icon th {text-align: left;}
+
+#rm_up_icon td input[type='text'] { width: 100%;}
+#rm_up_icon .cont_submit { margin-top:5px; text-align:center !important;}
+
+.bold {font-size: 12px; font-weight: bold;}
+
+#selected_msg { font-size:12px;text-align:left;padding:5px 0px;}
+
+
+
+
+
+
+
+	

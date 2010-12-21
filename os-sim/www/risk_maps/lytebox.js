@@ -31,10 +31,10 @@ function LyteBox() {
 		this.hideFlash			= true;		// controls whether or not Flash objects should be hidden
 		this.outerBorder		= true;		// controls whether to show the outer grey (or theme) border
 		this.resizeSpeed		= 8;		// controls the speed of the image resizing (1=slowest and 10=fastest)
-		this.maxOpacity			= 50;		// higher opacity = darker overlay, lower opacity = lighter overlay
-		this.navType			= 2;		// 1 = "Prev/Next" buttons on top left and left (default), 2 = "<< prev | next >>" links next to image number
+		this.maxOpacity			= 80;		// higher opacity = darker overlay, lower opacity = lighter overlay
+		this.navType			= 1;		// 1 = "Prev/Next" buttons on top left and left (default), 2 = "<< prev | next >>" links next to image number
 		this.autoResize			= true;		// controls whether or not images should be resized if larger than the browser window dimensions
-		this.doAnimations		= false;		// controls whether or not "animate" Lytebox, i.e. resize transition between images, fade in/out effects, etc.
+		this.doAnimations		= true;		// controls whether or not "animate" Lytebox, i.e. resize transition between images, fade in/out effects, etc.
 		
 		this.borderSize			= 12;		// if you adjust the padding in the CSS, you will need to update this variable -- otherwise, leave this alone...
 	/*** End Global Configuration ***/
@@ -78,7 +78,7 @@ function LyteBox() {
 	this.isLyteframe = false;
 	/*@cc_on
 		/*@if (@_jscript)
-			this.ie = (document.all && !window.opera) ? true : false;
+	this.ie = (document.all && !window.opera) ? checkVersion() : false;
 		/*@else @*/
 			this.ie = false;
 		/*@end
@@ -86,101 +86,113 @@ function LyteBox() {
 	this.ie7 = (this.ie && window.XMLHttpRequest);	
 	this.initialize();
 }
+
+function checkVersion() {
+    if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)) { 
+        var ieversion = new Number(RegExp.$1) 
+        if (ieversion >= 8)
+            return false;
+        else if (ieversion < 8)
+            return true;
+    }
+    return false;
+}
+
 LyteBox.prototype.initialize = function() {
-	this.updateLyteboxItems();
-	var objBody = this.doc.getElementsByTagName("body").item(0);	
-	if (this.doc.getElementById('lbOverlay')) {
-		objBody.removeChild(this.doc.getElementById("lbOverlay"));
-		objBody.removeChild(this.doc.getElementById("lbMain"));
-	}
-	var objOverlay = this.doc.createElement("div");
-		objOverlay.setAttribute('id','lbOverlay');
-		objOverlay.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		if ((this.ie && !this.ie7) || (this.ie7 && this.doc.compatMode == 'BackCompat')) {
-			objOverlay.style.position = 'absolute';
-		}
-		objOverlay.style.display = 'none';
-		objBody.appendChild(objOverlay);
-	var objLytebox = this.doc.createElement("div");
-		objLytebox.setAttribute('id','lbMain');
-		objLytebox.style.display = 'none';
-		objBody.appendChild(objLytebox);
-	var objOuterContainer = this.doc.createElement("div");
-		objOuterContainer.setAttribute('id','lbOuterContainer');
-		objOuterContainer.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		objLytebox.appendChild(objOuterContainer);
-	var objIframeContainer = this.doc.createElement("div");
-		objIframeContainer.setAttribute('id','lbIframeContainer');
-		objIframeContainer.style.display = 'none';
-		objOuterContainer.appendChild(objIframeContainer);
-	var objIframe = this.doc.createElement("iframe");
-		objIframe.setAttribute('id','lbIframe');
-		objIframe.setAttribute('name','lbIframe');
-		objIframe.style.display = 'none';
-		objIframeContainer.appendChild(objIframe);
-	var objImageContainer = this.doc.createElement("div");
-		objImageContainer.setAttribute('id','lbImageContainer');
-		objOuterContainer.appendChild(objImageContainer);
-	var objLyteboxImage = this.doc.createElement("img");
-		objLyteboxImage.setAttribute('id','lbImage');
-		objImageContainer.appendChild(objLyteboxImage);
-	var objLoading = this.doc.createElement("div");
-		objLoading.setAttribute('id','lbLoading');
-		objOuterContainer.appendChild(objLoading);
-	var objDetailsContainer = this.doc.createElement("div");
-		objDetailsContainer.setAttribute('id','lbDetailsContainer');
-		objDetailsContainer.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		objLytebox.appendChild(objDetailsContainer);
-	var objDetailsData =this.doc.createElement("div");
-		objDetailsData.setAttribute('id','lbDetailsData');
-		objDetailsData.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		objDetailsContainer.appendChild(objDetailsData);
-	var objDetails = this.doc.createElement("div");
-		objDetails.setAttribute('id','lbDetails');
-		objDetailsData.appendChild(objDetails);
-	var objCaption = this.doc.createElement("span");
-		objCaption.setAttribute('id','lbCaption');
-		objDetails.appendChild(objCaption);
-	var objHoverNav = this.doc.createElement("div");
-		objHoverNav.setAttribute('id','lbHoverNav');
-		objImageContainer.appendChild(objHoverNav);
-	var objBottomNav = this.doc.createElement("div");
-		objBottomNav.setAttribute('id','lbBottomNav');
-		objDetailsData.appendChild(objBottomNav);
-	var objPrev = this.doc.createElement("a");
-		objPrev.setAttribute('id','lbPrev');
-		objPrev.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		objPrev.setAttribute('href','#');
-		objHoverNav.appendChild(objPrev);
-	var objNext = this.doc.createElement("a");
-		objNext.setAttribute('id','lbNext');
-		objNext.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		objNext.setAttribute('href','#');
-		objHoverNav.appendChild(objNext);
-	var objNumberDisplay = this.doc.createElement("span");
-		objNumberDisplay.setAttribute('id','lbNumberDisplay');
-		objDetails.appendChild(objNumberDisplay);
-	var objNavDisplay = this.doc.createElement("span");
-		objNavDisplay.setAttribute('id','lbNavDisplay');
-		objNavDisplay.style.display = 'none';
-		objDetails.appendChild(objNavDisplay);
-	var objClose = this.doc.createElement("a");
-		objClose.setAttribute('id','lbClose');
-		objClose.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		objClose.setAttribute('href','#');
-		objBottomNav.appendChild(objClose);
-	var objPause = this.doc.createElement("a");
-		objPause.setAttribute('id','lbPause');
-		objPause.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		objPause.setAttribute('href','#');
-		objPause.style.display = 'none';
-		objBottomNav.appendChild(objPause);
-	var objPlay = this.doc.createElement("a");
-		objPlay.setAttribute('id','lbPlay');
-		objPlay.setAttribute((this.ie ? 'className' : 'class'), this.theme);
-		objPlay.setAttribute('href','#');
-		objPlay.style.display = 'none';
-		objBottomNav.appendChild(objPlay);
+    this.updateLyteboxItems();
+    var objBody = this.doc.getElementsByTagName("body").item(0);
+    if (this.doc.getElementById('lbOverlay')) {
+        objBody.removeChild(this.doc.getElementById("lbOverlay"));
+        objBody.removeChild(this.doc.getElementById("lbMain"));
+    }
+    var objOverlay = this.doc.createElement("div");
+    objOverlay.setAttribute('id', 'lbOverlay');
+    objOverlay.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    if ((this.ie && !this.ie7) || (this.ie7 && this.doc.compatMode == 'BackCompat')) {
+        objOverlay.style.position = 'absolute';
+    }
+    objOverlay.style.display = 'none';
+    objBody.appendChild(objOverlay);
+    var objLytebox = this.doc.createElement("div");
+    objLytebox.setAttribute('id', 'lbMain');
+    objLytebox.style.display = 'none';
+    objBody.appendChild(objLytebox);
+    var objOuterContainer = this.doc.createElement("div");
+    objOuterContainer.setAttribute('id', 'lbOuterContainer');
+    objOuterContainer.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    objLytebox.appendChild(objOuterContainer);
+    var objIframeContainer = this.doc.createElement("div");
+    objIframeContainer.setAttribute('id', 'lbIframeContainer');
+    objIframeContainer.style.display = 'none';
+    objOuterContainer.appendChild(objIframeContainer);
+    var objIframe = this.doc.createElement("iframe");
+    objIframe.setAttribute('id', 'lbIframe');
+    objIframe.setAttribute('name', 'lbIframe');
+    objIframe.style.display = 'none';
+    objIframeContainer.appendChild(objIframe);
+    var objImageContainer = this.doc.createElement("div");
+    objImageContainer.setAttribute('id', 'lbImageContainer');
+    objOuterContainer.appendChild(objImageContainer);
+    var objLyteboxImage = this.doc.createElement("img");
+    objLyteboxImage.setAttribute('id', 'lbImage');
+    objImageContainer.appendChild(objLyteboxImage);
+    var objLoading = this.doc.createElement("div");
+    objLoading.setAttribute('id', 'lbLoading');
+    objOuterContainer.appendChild(objLoading);
+    var objDetailsContainer = this.doc.createElement("div");
+    objDetailsContainer.setAttribute('id', 'lbDetailsContainer');
+    objDetailsContainer.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    objLytebox.appendChild(objDetailsContainer);
+    var objDetailsData = this.doc.createElement("div");
+    objDetailsData.setAttribute('id', 'lbDetailsData');
+    objDetailsData.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    objDetailsContainer.appendChild(objDetailsData);
+    var objDetails = this.doc.createElement("div");
+    objDetails.setAttribute('id', 'lbDetails');
+    objDetailsData.appendChild(objDetails);
+    var objCaption = this.doc.createElement("span");
+    objCaption.setAttribute('id', 'lbCaption');
+    objDetails.appendChild(objCaption);
+    var objHoverNav = this.doc.createElement("div");
+    objHoverNav.setAttribute('id', 'lbHoverNav');
+    objImageContainer.appendChild(objHoverNav);
+    var objBottomNav = this.doc.createElement("div");
+    objBottomNav.setAttribute('id', 'lbBottomNav');
+    objDetailsData.appendChild(objBottomNav);
+    var objPrev = this.doc.createElement("a");
+    objPrev.setAttribute('id', 'lbPrev');
+    objPrev.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    objPrev.setAttribute('href', '#');
+    objHoverNav.appendChild(objPrev);
+    var objNext = this.doc.createElement("a");
+    objNext.setAttribute('id', 'lbNext');
+    objNext.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    objNext.setAttribute('href', '#');
+    objHoverNav.appendChild(objNext);
+    var objNumberDisplay = this.doc.createElement("span");
+    objNumberDisplay.setAttribute('id', 'lbNumberDisplay');
+    objDetails.appendChild(objNumberDisplay);
+    var objNavDisplay = this.doc.createElement("span");
+    objNavDisplay.setAttribute('id', 'lbNavDisplay');
+    objNavDisplay.style.display = 'none';
+    objDetails.appendChild(objNavDisplay);
+    var objClose = this.doc.createElement("a");
+    objClose.setAttribute('id', 'lbClose');
+    objClose.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    objClose.setAttribute('href', '#');
+    objBottomNav.appendChild(objClose);
+    var objPause = this.doc.createElement("a");
+    objPause.setAttribute('id', 'lbPause');
+    objPause.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    objPause.setAttribute('href', '#');
+    objPause.style.display = 'none';
+    objBottomNav.appendChild(objPause);
+    var objPlay = this.doc.createElement("a");
+    objPlay.setAttribute('id', 'lbPlay');
+    objPlay.setAttribute((this.ie ? 'className' : 'class'), this.theme);
+    objPlay.setAttribute('href', '#');
+    objPlay.style.display = 'none';
+    objBottomNav.appendChild(objPlay);
 };
 LyteBox.prototype.updateLyteboxItems = function() {	
 	var anchors = (this.isFrame) ? window.parent.frames[window.name].document.getElementsByTagName('a') : document.getElementsByTagName('a');
@@ -405,7 +417,7 @@ LyteBox.prototype.resizeContainer = function(imgWidth, imgHeight) {
 	}
 	this.doc.getElementById('lbPrev').style.height = imgHeight + "px";
 	this.doc.getElementById('lbNext').style.height = imgHeight + "px";
-	this.doc.getElementById('lbDetailsContainer').style.width = (imgWidth +  (this.borderSize * 2) + (this.ie && this.doc.compatMode == "BackCompat" && this.outerBorder ? 2 : 0)) + "px";
+	this.doc.getElementById('lbDetailsContainer').style.width = (imgWidth + (this.borderSize * 2) + (this.ie && this.doc.compatMode == "BackCompat" && this.outerBorder ? 2 : 0)) + "px";
 	this.showContent();
 };
 LyteBox.prototype.showContent = function() {
