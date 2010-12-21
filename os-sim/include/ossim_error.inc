@@ -217,7 +217,7 @@ class OssimError extends OssimMainError {
         );
         /* Old password not correct */
         $this->errors["BAD_OLD_PASSWORD"] = array(
-            "short_descr" => gettext("Authentication failure") ,
+            "short_descr" => gettext("Password saving failure") ,
             "long_descr" => gettext("Old password is not correct") ,
         );
         /* Password mismatch */
@@ -227,20 +227,20 @@ class OssimError extends OssimMainError {
         );
         /* Password lenght */
         $this->errors["PASSWORD_SIZE"] = array(
-            "short_descr" => gettext("Authentication failure") ,
+            "short_descr" => gettext("Password saving failure") ,
             "long_descr" => gettext("Password is long enough. Check the password policy configuration for more details") ,
         );
         $this->errors["PASSWORD_SIZE_MAX"] = array(
-            "short_descr" => gettext("Authentication failure") ,
+            "short_descr" => gettext("Password saving failure") ,
             "long_descr" => gettext("Password is too long. Check the password policy configuration for more details") ,
         );
         /* Password lenght */
         $this->errors["PASSWORD_ALPHANUM"] = array(
-            "short_descr" => gettext("Authentication failure") ,
+            "short_descr" => gettext("Password saving failure") ,
             "long_descr" => gettext("Password is not strong enough. Check the password policy configuration for more details") ,
         );
         $this->errors["PASSWORD_EXPIRE_MIN"] = array(
-            "short_descr" => gettext("Authentication failure") ,
+            "short_descr" => gettext("Password saving failure") ,
             "long_descr" => gettext("Password lifetime is too short to allow change. Wait a few minutes...") ,
         );
         /* Password recent */
