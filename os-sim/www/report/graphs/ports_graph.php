@@ -40,12 +40,19 @@ require_once 'classes/Security.inc';
 Session::logcheck("MenuIncidents", "ReportsAlarmReport");
 $limit = GET('ports');
 $type = GET('type');
+$height = GET('height');
+$width = GET('width');
 $date_from = (GET('date_from') != "") ? GET('date_from') : strftime("%d/%m/%Y %H:%M:%S", time() - (24 * 60 * 60));
 $date_to = (GET('date_to') != "") ? GET('date_to') : strftime("%d/%m/%Y %H:%M:%S", time());
+$gorientation = GET('gorientation');
+
 ossim_valid($limit, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Limit"));
+ossim_valid($height, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("height"));
+ossim_valid($width, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("width"));
 ossim_valid($type, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Report type"));
 ossim_valid($date_from, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from date"));
 ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to date"));
+ossim_valid($gorientation, OSS_NULLABLE, 'v', 'h', 'illegal:' . _("graph orientation"));
 $runorder = intval(GET('runorder')); if ($runorder==0) $runorder="";
 if (ossim_error()) {
     die(ossim_error());
@@ -66,7 +73,7 @@ else
 	$list = $security_report->Ports($limit, $type, $date_from, $date_to);
 $datax = $datay = array();
 foreach($list as $key => $l) {
-    if($key>=10){
+    if($key>=10 && $gorientation!="v"){
         // ponemos un límite de resultados para la gráfica
         break;
     }
@@ -82,13 +89,18 @@ $titlecolor = "darkorange";
 $color = "#FFD700";
 $color2 = "#FFD700";
 
+
 //$color = "darkorange";
 //$color2 = "lightyellow";
 
 $background = "#f1f1f1";
 $title = _("DESTINATION PORTS");
 // Setup the graph.
-$graph = new Graph(400, 250, "auto");
+
+if ($width=="") $width = 400;
+if ($height=="") $height = 250;
+ 
+$graph = new Graph($width, $height, "auto");
 $graph->img->SetMargin(60, 20, 30, 70);
 $graph->SetScale("textlin");
 //$graph->SetMarginColor("$background");
@@ -107,7 +119,15 @@ $graph->yaxis->SetFont(FF_FONT1, FS_NORMAL, 11);
 $graph->yscale->ticks->SupressZeroLabel(false);
 // Setup X-axis labels
 $graph->xaxis->SetTickLabels($datax);
-$graph->xaxis->SetLabelAngle(90);
+
+if($gorientation=="v") {
+    $graph->img->SetAngle(90);
+    $graph->Set90AndMargin(50,40,40,40);
+}
+else {
+    $graph->xaxis->SetLabelAngle(90);
+}
+
 //Setup Frame
 $graph->SetFrame(true, "#fafafa");
 //$graph->SetFrame(false);

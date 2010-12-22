@@ -185,7 +185,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function Events($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null) {
+    function Events($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false) {
         require_once ('classes/Event_viewer.inc');
 		
 		$list = array();
@@ -269,14 +269,25 @@ class SecurityReport {
             default:
                 //
                 list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_dst;ip_src",$assets,$sourcetype,$category,$subcategory,1);
-                // 
-                $query = "SELECT count(plugin_sid) AS occurrences, plugin_sid.name as sig_name
-                            FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid $join2
-                            WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59'$sensor_str_event
-                            $where2
-                            $sql_plugin_groups GROUP BY sig_name
-                            ORDER BY occurrences
-                            DESC LIMIT $limit";
+                //
+                if($ips) {
+                    $query = "SELECT count(plugin_sid) AS occurrences, plugin_sid.name as sig_name, INET_NTOA(ip_src) as nip_src, INET_NTOA(ip_dst) as nip_dst
+                                FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid $join2
+                                WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59'$sensor_str_event
+                                $where2
+                                $sql_plugin_groups GROUP BY sig_name, nip_src, nip_dst
+                                ORDER BY occurrences
+                                DESC LIMIT $limit";
+                }
+                else {
+                    $query = "SELECT count(plugin_sid) AS occurrences, plugin_sid.name as sig_name
+                                FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid $join2
+                                WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59'$sensor_str_event
+                                $where2
+                                $sql_plugin_groups GROUP BY sig_name
+                                ORDER BY occurrences
+                                DESC LIMIT $limit";
+                }
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
 				//$temp_conn = $this->snort_conn;
@@ -287,10 +298,20 @@ class SecurityReport {
             print $temp_conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-                $tmp_array = array(
-                    $rs->fields["sig_name"],
-                    $rs->fields["occurrences"]
-                );
+                if($ips) {
+                    $tmp_array = array(
+                        $rs->fields["sig_name"],
+                        $rs->fields["occurrences"],
+                        $rs->fields["nip_src"],
+                        $rs->fields["nip_dst"]
+                    );
+                }
+                else {
+                    $tmp_array = array(
+                        $rs->fields["sig_name"],
+                        $rs->fields["occurrences"]
+                    );
+                }
                 array_push($list, $tmp_array);
                 $rs->MoveNext();
             }
@@ -298,7 +319,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function Ports($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null) {
+    function Ports($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false) {
         require_once ('classes/Port.inc');
         require_once ('classes/Event_viewer.inc');
 		$list = array();
@@ -378,10 +399,19 @@ class SecurityReport {
                 //
                 list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_dst",$assets,$sourcetype,$category,$subcategory);
                 // 
-                $query = OssimQuery("SELECT count(layer4_dport) AS occurrences, layer4_dport
-                  FROM acid_event $join2 WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND layer4_dport<>0$sensor_str_event $where2
-                  $sql_plugin_groups GROUP BY layer4_dport
-                  ORDER BY occurrences DESC LIMIT $limit");
+                
+                if ($ips) {
+                    $query = OssimQuery("SELECT count(layer4_dport) AS occurrences, layer4_dport, INET_NTOA(ip_src) as nip_src, INET_NTOA(ip_dst) as nip_dst
+                      FROM acid_event $join2 WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND layer4_dport<>0$sensor_str_event $where2
+                      $sql_plugin_groups GROUP BY layer4_dport,nip_src,nip_dst
+                      ORDER BY occurrences DESC LIMIT $limit");
+                }
+                else {
+                    $query = OssimQuery("SELECT count(layer4_dport) AS occurrences, layer4_dport
+                      FROM acid_event $join2 WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND layer4_dport<>0$sensor_str_event $where2
+                      $sql_plugin_groups GROUP BY layer4_dport
+                      ORDER BY occurrences DESC LIMIT $limit");
+                }
                 $db = new ossim_db();
 				$temp_conn = $db->snort_connect();
 				//$temp_conn = $this->snort_conn;
@@ -399,11 +429,23 @@ class SecurityReport {
                     if ($port_list = Port::get_list($this->ossim_conn, "WHERE port_number = $port")) {
                         $service = $port_list[0]->get_service();
                     }
-                    $tmp_array = array(
-                        $port,
-                        $service,
-                        $occurrences
-                    );
+                    
+                    if ($ips) { 
+                        $tmp_array = array(
+                            $port,
+                            $service,
+                            $occurrences,
+                            $rs->fields["nip_src"],
+                            $rs->fields["nip_dst"]
+                        );
+                    }
+                    else {
+                        $tmp_array = array(
+                            $port,
+                            $service,
+                            $occurrences
+                        );
+                    }
                     array_push($list, $tmp_array);
                 }
                 $rs->MoveNext();
