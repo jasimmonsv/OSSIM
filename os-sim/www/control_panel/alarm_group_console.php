@@ -351,7 +351,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 
 		if (selected_group.length == 0 && params == "")
 		{
-			alert("Please, select the groups to close or any alarm");
+			alert("Please, select the groups or any alarm to close");
 			return;
 		}
 		//$('#loading_div').html("<img src='../pixmaps/loading.gif'>");
@@ -460,7 +460,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 		
 		if (selected_group == "" && params == "")
 		{
-			alert("Please, select the groups to delete or any alarm");
+			alert("Please, select the groups or any alarm to delete");
 			return;
 		}
 		if (params != "") {
