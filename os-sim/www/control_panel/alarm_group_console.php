@@ -57,7 +57,7 @@ function build_url($action, $extra) {
 		if (!empty($inf)) $options = $options . "&inf=" . $inf;
 		if (!empty($sup)) $options = $options . "&sup=" . $sup;
 	}
-	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options . "&bypassexpirationupdate=1";
+	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options . "&bypassexpirationupdate=1&group_type=".GET('group_type');
 	return $url;
 }
 
@@ -362,11 +362,11 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 				data: "background=1&only_close=1&unique_id=<?php echo $unique_id ?>"+params,
 				success: function(msg){
 					//$('#loading_div').html("");
-					location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>";
+					location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
 				}
 			});
 		} else {
-			location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>";
+			location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
 		}
 	}
 	
@@ -477,11 +477,11 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 							data: "",
 							success: function(msg){
 								//alert (msg);
-								document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+								document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&group_type=<?php echo $group_type ?>';
 							}
 						});
 					}
-					document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+					document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&group_type=<?php echo $group_type ?>';
 				}
 			});
 		} else {
