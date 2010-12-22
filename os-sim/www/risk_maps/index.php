@@ -532,7 +532,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		function urlencode(str) { return escape(str).replace('+','%2B').replace('%20','+').replace('*','%2A').replace('/','%2F').replace('@','%40'); }
 
 		function drawDiv (id, name, valor, icon, url, x, y, w, h, type, type_name, size) {
-		alert("x: " + x + "y: " +y);
 			if (size == 0) size = '100%';
 			if (icon.match(/\#/)) {
 				var aux = icon.split(/\#/);
@@ -1025,9 +1024,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
 				echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
 				echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
-				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
 				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><img src=\"".preg_replace("/\#.+/","",str_replace("//","/",$rs->fields["icon"]))."\" width=\"".$size."\" height=\"".$size."\" border=0></td><td>";
-				echo "<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+				echo "<table border=0 cellspacing=0 cellpadding=1style=\"background:url(../pixmaps/1x1.png);\"><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
 				echo "</td></tr></table></div>\n";
 			}
 			if (!$has_perm) { $rs->MoveNext(); continue; }
@@ -1038,9 +1037,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
 			echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
 			echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
-			echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+			echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
 			echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><img src=\"".preg_replace("/\#.+/","",str_replace("//","/",$rs->fields["icon"]))."\" width=\"".$size."\" height=\"".$size."\" border=0></td><td>";
-			echo "<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+			echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background:url(../pixmaps/1x1.png);\"><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
 			echo "</td></tr></table></div>\n";
 			$rs->MoveNext();
 		}
@@ -1067,7 +1066,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			if (!$in_assets) {
 				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
 				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
                 echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
 				echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
 				echo "</div>\n";
@@ -1076,7 +1075,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			if (!$has_perm) { $rs->MoveNext(); continue; }
 			echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
 			echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-			echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+			echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
             echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
 			echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
 			echo "</div>\n";

@@ -76,7 +76,7 @@ class Plugingroup {
     /*
     * @static
     */
-    function get_list($conn, $where = '') {
+    function get_list($conn, $where = '', $order = 'ID') {
         if ($where) {
             $where = "AND $where";
         }
@@ -94,8 +94,7 @@ class Plugingroup {
                     plugin_group.plugin_id = plugin.id AND
                     plugin_group_descr.group_id = plugin_group.group_id
                     $where
-                ORDER BY
-                    plugin_group_descr.group_id, plugin.name";
+                ORDER BY " . (($order=="ID") ? "plugin_group_descr.group_id, plugin.name" : "plugin_group_descr.name");
         $list = array();
         if (!$rs = $conn->Execute($sql)) {
             die($conn->ErrorMsg());

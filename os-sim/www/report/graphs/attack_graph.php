@@ -90,10 +90,12 @@ elseif ($type == "alarm" && is_array($_SESSION["SA_Attack".$sufix."Host$runorder
 else
 	$list = $security_report->AttackHost($security_report->ossim_conn, $target, $limit, $type, $date_from, $date_to);
 $datax = $datay = array();
+$gorientation="h";
 foreach($list as $key => $l) {
     if($key>=10){
         // ponemos un límite de resultados para la gráfica
-        break;
+        //break;
+        $gorientation="v";
     }
     $datax[] = Host::ip2hostname($security_report->ossim_conn, $l[0]);
     $datay[] = $l[1];
@@ -104,7 +106,12 @@ $jpgraph = $conf->get_conf("jpgraph_path");
 require_once "$jpgraph/jpgraph.php";
 require_once "$jpgraph/jpgraph_bar.php";
 // Setup the graph.
-$graph = new Graph(400, 250, "auto");
+if($gorientation=="v")
+	$y = 30 + count($list)*20; 
+else
+	$y = 250;
+	
+$graph = new Graph(400, $y, "auto");
 $graph->img->SetMargin(60, 20, 30, 100);
 $graph->SetMarginColor("#fafafa");
 $graph->SetScale("textlin");
@@ -123,7 +130,13 @@ $graph->yaxis->SetFont(FF_FONT1, FS_NORMAL, 11);
 $graph->yscale->ticks->SupressZeroLabel(false);
 // Setup X-axis labels
 $graph->xaxis->SetTickLabels($datax);
-$graph->xaxis->SetLabelAngle(90);
+if($gorientation=="v") {
+    $graph->img->SetAngle(90);
+    $graph->Set90AndMargin(120,40,40,40);
+}
+else {
+    $graph->xaxis->SetLabelAngle(90);
+}
 //Setup Frame
 $graph->SetFrame(true, "#fafafa");
 //$graph->SetFrame(false);
