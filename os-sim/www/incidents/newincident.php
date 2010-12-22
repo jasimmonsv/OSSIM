@@ -448,7 +448,7 @@ if ($edit) {
 
 <body>
 <?php
-include ("../hmenu.php"); ?>
+if (GET('nohmenu') == "") include ("../hmenu.php"); ?>
 <h1><?php echo " $ref " . _("Ticket") ?></h1>
 <form id='crt' method="POST" action="manageincident.php" enctype="multipart/form-data">
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />
