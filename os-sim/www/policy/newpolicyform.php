@@ -1081,7 +1081,7 @@ if ($insert != "") {
 				<table align="center">
 					<tr>
 						<th style="background-position:top center"><?php echo _("Actions") ?> &nbsp;
-							<span class="size"><a href="../action/newactionform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new action?") ?></a></span><br/>
+							<span class="size"><a href="../action/actionform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new action?") ?></a></span><br/>
 						</th>
 					</tr>
 					

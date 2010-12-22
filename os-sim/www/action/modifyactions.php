@@ -163,7 +163,7 @@ if ( $error == true )
 
 <?php
 
-if (GET('withoutmenu') != "1") 
+if (POST('withoutmenu') != "1") 
     include ("../hmenu.php"); 
 
 echo "<h1>".gettext($txt_start)."</h1>";
@@ -209,7 +209,7 @@ if ( $action == 'new' || $action == 'edit' )
 
 }
     echo "<p>"._($txt_end)."</p>";
-    echo "<script type='text/javascript'>document.location.href=\"action.php\"</script>";
+    if (POST('withoutmenu')!=1) echo "<script type='text/javascript'>document.location.href=\"action.php\"</script>";
 
 ?>
 </body>
