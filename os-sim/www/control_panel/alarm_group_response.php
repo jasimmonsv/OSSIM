@@ -139,14 +139,14 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
     <tr>
 		<td class="nobborder"></td>
 		<td class="nobborder"></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Alarm Name")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Risk")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Since Date")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Date")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Source")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Destination")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Status")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Action")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Alarm Name")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Risk")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Since Date")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Date")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Source")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Destination")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Status")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Action")?></td>
 	</tr>
     <?php } ?>
 <? foreach ($list as $s_alarm) {
@@ -282,14 +282,14 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		<td class="nobborder"></td>
 		<td class="nobborder" colspan='9' name='eventbox<?=$s_backlog_id . "-" . $s_event_id?>"' id='eventbox<?=$s_backlog_id . "-" . $s_event_id?>'></td></tr>
 <? } ?>
-	<?php if ($num_rows > count($list)) { ?>
+	<?php if ($top < $num_rows) { ?>
 	<div id="link_row" style="display:inline">
 	<tr>
-		<td class="center nobborder" colspan="10"><a href="" onclick="toggle_group('<?=$group_id ?>','<?=$name ?>','<?php echo $src_ip ?>','<?php echo $dst_ip ?>','',<?php echo $from + $top ?>);this.style.color='transparent';return false">> <?php echo _("Show the next 100 alarms") ?></a></td>
+		<td class="center nobborder" colspan="10"><a href="" onclick="toggle_group('<?=$group_id ?>','<?=$name ?>','<?php echo $src_ip ?>','<?php echo $dst_ip ?>','',<?php echo $from + 100 ?>);this.style.color='transparent';return false">> <?php echo _("Show the next 100 alarms") ?></a></td>
 	</tr>
 	</div>
 	<tr>
-		<td class="center nobborder" colspan="10" id="<?php echo $group_id.($from + $top)?>"></td>
+		<td class="center nobborder" colspan="10" id="<?php echo $group_id.($from + 100)?>"></td>
 	</tr>
  <?php } ?>
 </table>
