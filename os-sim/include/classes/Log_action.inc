@@ -164,7 +164,7 @@ OFFSET $inf");
     	$conf = $GLOBALS["CONF"];
     	$list = array();
     	$pass_history = ($conf->get_conf("pass_history", FALSE)) ? $conf->get_conf("pass_history", FALSE) : 0;
-    	$query = "SELECT DISTINCT pass FROM pass_history WHERE user='$user' LIMIT $pass_history";
+    	$query = "SELECT DISTINCT pass FROM pass_history WHERE user='$user' ORDER BY hist_number DESC LIMIT $pass_history";
     	if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
             return array();
