@@ -8,8 +8,8 @@ REPLACE INTO `inventory_search` (`type`, `subtype`, `match`, `list`, `query`, `r
 UPDATE custom_report_types SET inputs=REPLACE(inputs,";Source:source:select:OSS_ALPHA:EVENTSOURCE:",";Plugin Groups:plugin_groups:select:OSS_DIGIT.OSS_NULLABLE:PLUGINGROUPS:;Source:source:select:OSS_ALPHA:EVENTSOURCE:") WHERE file='SIEM/List.php' AND name!="List" AND inputs not like '%PLUGINGROUPS%';
 UPDATE custom_report_types SET inputs=CONCAT(inputs,";Plugin Groups:plugin_groups:select:OSS_DIGIT.OSS_NULLABLE:PLUGINGROUPS:") WHERE (id="160" OR id="161" OR id="162" OR id="163" OR id="164" OR id="120" OR id="121" OR id="122" OR id="123" OR id="124") AND inputs not like '%PLUGINGROUPS%';
 
+REPLACE INTO log_config (code, log, descr, priority) VALUES (093, 1, 'Account %1% locked: Too many failed login attempts', 1);
 REPLACE INTO log_config (code, log, descr, priority) VALUES (094, 1, 'User %1% failed logon', 1);
-
 
 REPLACE INTO config (conf , value) VALUES ('unlock_user_interval', '5');
 REPLACE INTO config (conf , value) VALUES ('pass_complex', 'no');
