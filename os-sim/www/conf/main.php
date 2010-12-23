@@ -1439,6 +1439,10 @@ if (POST('update')) {
             }
         }
     }
+    $infolog = array(
+        $_SESSION['_user']
+    );
+    Log_action::log(7, $infolog);
     header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word'));
     exit;
 }
