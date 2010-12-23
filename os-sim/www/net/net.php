@@ -287,7 +287,7 @@ $default = array(
     ) ,
 
     "asset" => array(
-        _("Asset"),
+        _("Asset value"),
         40,
         'true',
         'center',

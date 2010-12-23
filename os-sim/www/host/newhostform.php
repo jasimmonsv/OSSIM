@@ -40,6 +40,7 @@ require_once ('ossim_db.inc');
 require_once ('ossim_conf.inc');
 require_once ('classes/Sensor.inc');
 require_once ('classes/RRD_config.inc');
+require_once ('classes/Host_scan.inc');
 
 Session::logcheck("MenuPolicy", "PolicyHosts");
 
@@ -73,17 +74,19 @@ $hostname    = $fqdns = $descr = $nat = $nagios = $os = $mac = $mac_vendor = $la
 $asset       = 2;
 $rrd_profile = "None";
 
-$scan = REQUEST('scan');
-$ip   = REQUEST('ip');
-$num_ips   = REQUEST('ips');		
-	
+$scan         = REQUEST('scan');
+$ip           = REQUEST('ip');
+$num_ips      = REQUEST('ips');
+$type_action  = REQUEST('action');
+
 ossim_valid($ip,   OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Ip"));
 ossim_valid($ips,  OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Hosts"));
 ossim_valid($scan, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Scan"));
+ossim_valid($type_action, "duplicate", OSS_NULLABLE, 'illegal:' . _("Action"));
 
 if (ossim_error()) {
     die(ossim_error());
-}	
+}
 
 if ( !empty ($scan) )
 {
@@ -127,7 +130,46 @@ if ( isset($_SESSION['_host']) )
 	
 	unset($_SESSION['_host']);
 }
+else
+{
+	if ($host_list = Host::get_list($conn, "WHERE ip = '$ip'")) 
+		$host = $host_list[0];
+		
+	
+	if ( !empty($host) )
+	{
+    	$hostname        = $old_hostname = $host->get_hostname();
+		$fqdns           = $host->get_fqdns();
+		$descr	         = $host->get_descr();
+		$asset           = $host->get_asset();
+		$nat             = $host->get_nat();
+		
+		$tmp_sensors     = $host->get_sensors($conn);
+				
+		foreach($tmp_sensors as $sensor) 
+			$sensors[]   = $sensor->get_sensor_name();
+		
+		$nagios          =  ( Host_scan::in_host_scan($conn, $ip, 2007)) ? "1" : ''; 
+		
+		$rrd_profile     = $host->get_rrd_profile();
+		
+		if (!$rrd_profile) 
+			$rrd_profile = "None";
+		
+		$threshold_a     = $host->get_threshold_a();
+		$threshold_c     = $host->get_threshold_c();
+		$os              = $host->get_os($conn);
+		$mac             = $host->get_mac_address($conn);
+		$mac_vendor      = $host->get_mac_vendor($conn);
+		
+		$coordinates     = $host->get_coordinates();
 
+		$latitude        = $coordinates['lat'];
+		$longitude       = $coordinates['lon'];
+		
+		$num_sensors     = count($sensors);
+	}
+}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -266,7 +308,7 @@ if ( !empty ($scan) )
 	<tr>
 		<th><label for='ip'><?php echo gettext("IP"); ?></label></th>
 		<td class="left">
-			<input type="text" class='req_field vfield' name="ip" id="ip" value="<?php echo $ip?>" onchange="check_net(this.value)"/>
+			<input type="text" class='req_field vfield' name="ip" id="ip" value="<?php if($type_action!="duplicate") echo $ip?>" onchange="check_net(this.value)"/>
 			<span style="padding-left: 3px;">*</span>
 			<div id="loading" style="display:inline"></div>
 		</td>
@@ -301,7 +343,7 @@ if ( !empty ($scan) )
 	</tr>
 
 	<tr>
-		<th><label for='asset'><?php echo gettext("Asset"); ?></label></th>
+		<th><label for='asset'><?php echo gettext("Asset value"); ?></label></th>
 		<td class="left">
 			<select name="asset" id="asset" class='req_field vfield'>
 			<?php 
@@ -439,7 +481,7 @@ if ( !empty ($scan) )
 	</tr>
 
 	<tr class="inventory" style="display:none;">
-		<th><label for='mac'><?php echo gettext("Mac"); ?></label></th>
+		<th><label for='mac'><?php echo gettext("Mac Address"); ?></label></th>
 		<td class="left"><input type="text" class='vfield' name="mac" id="mac" value="<?php echo $mac;?>"/></td>
 	</tr>
 

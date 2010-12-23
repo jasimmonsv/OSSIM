@@ -144,7 +144,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 			else alert('You must select a host');
 		}
 		else if (com=='<?=_("Duplicate selected")?>') {
-			if (typeof(items[0]) != 'undefined') document.location.href = 'duplicatehostform.php?ip='+urlencode(items[0].id.substr(3));
+			if (typeof(items[0]) != 'undefined') document.location.href = 'newhostform.php?ip='+urlencode(items[0].id.substr(3))+'&action=duplicate';
 			else alert('You must select a host');
 		}
 		else if (com=='<?=_("New")?>') {
@@ -198,9 +198,8 @@ echo gettext("OSSIM Framework"); ?> </title>
                 
 
             if (com=='duplicate') {
-
                 if (typeof(ip) != 'undefined')
-                   document.location.href = 'duplicatehostform.php?ip='+urlencode(ip);
+                   document.location.href = 'newhostform.php?ip='+urlencode(ip)+'&action=duplicate';
                  else
                    alert('<?=_("Host unselected")?>');
             }
@@ -271,7 +270,7 @@ $default = array(
         false
     ) ,
     "asset" => array(
-        _("Asset"),
+        _("Asset value"),
         30,
         'true',
         'center',

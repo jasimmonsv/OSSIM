@@ -242,7 +242,7 @@ if (GET('withoutmenu') != "1")
 	</tr>
 
 	<tr>
-		<th><label for='asset'><?php echo gettext("Asset"); ?></label></th>
+		<th><label for='asset'><?php echo gettext("Asset value"); ?></label></th>
 		<td class="left">
 			<select name="asset" id="asset" class='vfield req_field'>
 			<?php 

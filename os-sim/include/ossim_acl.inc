@@ -44,6 +44,11 @@ define("ACL_DEFAULT_DOMAIN_SENSORS", "Sensors");
 /* get phpgacl config */
 require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
+if (!$conf) {
+	require_once 'ossim_db.inc';
+	require_once 'ossim_conf.inc';
+	$conf = new ossim_conf();
+}
 /* include default $gacl_options */
 //require_once ("$phpgacl_path/admin/gacl_admin.inc.php");
 $ACL_OPTIONS = array(

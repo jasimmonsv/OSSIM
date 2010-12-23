@@ -35,6 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
 require_once ('ossim_db.inc');
 require_once ('ossim_conf.inc');
 require_once ('classes/DateDiff.inc');
@@ -94,7 +95,6 @@ function get_country($ccode, $cname)
 	}
 	
 	return $flag;
-
 }
 
 
@@ -158,7 +158,6 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 <html>
 	<head>
 		<title> <?=_("Opened Sessions")?> </title>
-		<meta http-equiv="refresh" content="150"/>
 		<META HTTP-EQUIV="Pragma" content="no-cache"/>
 		<link rel="stylesheet" href="../style/style.css"/>
 		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
@@ -285,7 +284,7 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 		<div class='ops_refresh'>
 			<a href='opened_sessions.php'><img src='../pixmaps/refresh.png' alt='<?php echo _("Refresh"); ?>' title='<?php echo _("Refresh"); ?>'/></a>
 		</div>
-					
+									
 		<table id='ops_table'>
 			<?php  if ( !empty($allowed_users) ) { ?>
 			<thead>
@@ -315,8 +314,10 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 							$action = "<img class='dis_logout' src='../pixmaps/menu/logout.gif' alt='".$user->get_login()."' title='".$user->get_login()."'/>";
 						}
 						else
+						{
 							$action = "<a onclick=\"logout('".$user->get_id()."');\"><img src='../pixmaps/menu/logout.gif' alt='"._("Logout")." ".$user->get_login()."' title='"._("Logout")." ".$user->get_login()."'/></a>";	
-												
+							$me = null;
+						}						
 						$gi             = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 						$s_country      = strtolower(geoip_country_code_by_addr($gi, $user->get_ip()));
 						$s_country_name = geoip_country_name_by_addr($gi, $user->get_ip());
@@ -346,7 +347,7 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 		</table>
 				
 	</div>
-				
+
 	</body>
 </html>
 

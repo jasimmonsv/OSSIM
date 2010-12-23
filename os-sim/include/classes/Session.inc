@@ -80,15 +80,17 @@ require_once 'ossim_db.inc';
 require_once 'ossim_acl.inc';
 /* global configuration */
 require_once 'ossim_conf.inc';
+session_start();
 
-if ((preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) || preg_match("/demo/",$conf->get_conf("ossim_server_version", FALSE))) && !$force_gacl)
+if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) && !$force_gacl)
 	include "Acl.inc";
 else {
 
-session_start();
+//session_start();
 // Locale needs $_SESSION
 require_once 'classes/Locale.inc';
 $version_file = "/etc/ossim/.ossim_installer_version";
+
 class Session {
     var $login;
     var $name;
@@ -228,20 +230,24 @@ class Session {
         }
         }
         */
-        $db->close($conn);
         // Always enabled
         $mysql_login = Session::login_mysql($login, $password);
 		if ($mysql_login == false) return false;
 		elseif ($mysql_login == true) {
 			session_regenerate_id(); // generate a new session identifier
 			$_SESSION["_user"] = $login;
+			Session_activity::insert($conn);
+			$db->close($conn);
             return true;
         }
         if ($conf->get_conf("login_enable_ldap", FALSE) == "yes" && Session::login_ldap($login, $password)) {
 			session_regenerate_id(); // generate a new session identifier
 			$_SESSION["_user"] = $login;
+			Session_activity::insert($conn);
+			$db->close($conn);
             return true;
         }
+        $db->close($conn);
         return false;
     }
     function update_logon_try($conn,$login) {
@@ -412,7 +418,8 @@ class Session {
         return $ret;
     }
     function logout() {
-        session_destroy();
+        Session_activity::delete();
+		Session_activity::delete_session();
     }
     function menu_perms($menu, $submenu) {
     	// perms only for pro version => allways return true
@@ -1139,7 +1146,6 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 			
 	public function insert($dbconn)
 	{
-		
 		$id          = session_id();
 		$login       = Session::get_session_user();
 		$ip          = self::getRealIpAddr();
@@ -1193,14 +1199,15 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 		return true;
 			
     }
-	
-	
+		
 	public function update($time='')
 	{
 		require_once 'ossim_db.inc';
-		$db     = new ossim_db();
-		$dbconn = $db->connect();
 		
+		$db       = new ossim_db();
+		$dbconn   = $db->connect();
+		
+				
 		$id       = session_id();
 		$login    = Session::get_session_user();
 		$activity = ( empty($time) ) ? date("Y-m-d H:i:s") : date("Y-m-d H:i:s", $time);
@@ -1218,7 +1225,7 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
             exit;
         }
 		
-		$db->close($conn);
+		$db->close($dbconn);
 		
 		return true;
 	}
@@ -1253,8 +1260,10 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 		$id         = ( empty($id) ) ? session_id() : $id;
 		$my_session = session_id();
 		
-		if ($id == $my_session)
+		if ($id == $my_session) {
+			session_destroy();
 			return true;
+		}
 		else
 		{
 			session_commit();
@@ -1265,7 +1274,7 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 			session_destroy();
 			session_commit();
 		
-			$new_id = session_id($my_session);
+			session_id($my_session);
 			session_start();
 			
 			return true;
@@ -1275,5 +1284,26 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 
 }
 
+// Expire Session check. (15 minutes) PCI Compliance 
+function expire_session_check() {
+	$conf = $GLOBALS["CONF"];
+	if (!$conf) {
+		require_once 'ossim_db.inc';
+		require_once 'ossim_conf.inc';
+		$conf = new ossim_conf();
+	}
+	$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
+	if ($expired_timeout==0) return;
+	if (isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < time()) {
+		header("Location /ossim/session/login.php?action=logout");
+	}
+	// only update if not exists bypass => header ajax responses
+	$_SESSION["_expiration_time"] = time();
+	Session_activity::update($_SESSION["_expiration_time"]);
+}
+
+if ( session_id() != '' && intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1 ) {
+	expire_session_check();
+}
 
 ?>

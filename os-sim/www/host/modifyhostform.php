@@ -412,7 +412,7 @@ if (count($error_nagios) > 0)
 					</tr>
 
 					<tr>
-						<th><label for='asset'><?php echo gettext("Asset"); ?></label></th>
+						<th><label for='asset'><?php echo gettext("Asset value"); ?></label></th>
 						<td class="left">
 							<select name="asset" id="asset" class='req_field vfield'>
 							<?php 
@@ -547,7 +547,7 @@ if (count($error_nagios) > 0)
 					</tr>
 					
 					<tr class="inventory" style="display:none;">
-						<th><label for='mac'><?php echo gettext("Mac"); ?></label></th>
+						<th><label for='mac'><?php echo gettext("Mac Address"); ?></label></th>
 						<td class="left"><input type="text" class='vfield' name="mac" id="mac" value="<?php echo $mac;?>"/></td>
 					</tr>
 

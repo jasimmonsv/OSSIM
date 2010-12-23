@@ -762,26 +762,6 @@ function check_uniqueid($unique_id1,$unique_id2) {
 	}
 }
 
-// Expire Session check. (15 minutes) PCI Compliance 
-function expire_session_check() {
-	$conf = $GLOBALS["CONF"];
-	if (!$conf) {
-		require_once 'ossim_db.inc';
-		require_once 'ossim_conf.inc';
-		$conf = new ossim_conf();
-	}
-	$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
-	if ($expired_timeout==0) return;
-	if (isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < time()) {
-		header("Location /ossim/session/login.php?action=logout");
-	}
-	// only update if not exists bypass => header ajax responses
-	$_SESSION["_expiration_time"] = time();
-}
-if ((session_id() != '') && intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1) {
-	Session_activity::update();
-	expire_session_check();
-}
 // IDS Security
 ids();
 ?>

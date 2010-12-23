@@ -73,7 +73,7 @@ $validate = array (
 	"ip"           => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
 	"fqdns"        => array("validation"=>"OSS_FQDNS, OSS_NULLABLE", "e_message" => 'illegal:' . _("FQDN/Aliases")),
 	"descr"        => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
-	"asset"        => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Asset")),
+	"asset"        => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Asset value")),
 	"nat"          => array("validation"=>"OSS_NULLABLE, OSS_IP_ADDR", "e_message" => 'illegal:' . _("Nat")),
 	"sboxs"        => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Sensors")),
 	"rrd_profile"  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),

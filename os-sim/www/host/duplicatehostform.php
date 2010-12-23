@@ -115,7 +115,7 @@ echo $host->get_ip(); ?>">
   </tr>
   <tr>
     <th> <?php
-echo gettext("Asset"); ?> (*)</th>
+echo gettext("Asset value"); ?> (*)</th>
     <td class="left">
       <select name="asset">
         <option
@@ -227,7 +227,7 @@ foreach(RRD_Config::get_profile_list($conn) as $profile) {
     </td>
   </tr>
 -->
-  <tr>
+  <tr style="display:none;">
     <th> <?php
 echo gettext("NAT"); ?> </th>
     <td class="left">
@@ -261,7 +261,7 @@ if ($sensor_list = Sensor::get_list($conn, "ORDER BY name")) {
             echo count($sensor_list); ?>">
 <?php
         }
-        $name = "mboxs" . $i;
+        $name = "sboxs" . $i;
 ?>
         <input type="checkbox"
 <?php
@@ -376,7 +376,7 @@ echo gettext("Description"); ?> </th>
 echo $host->get_descr(); ?></textarea>
     </td>
   </tr>
-    <tr>
+  <tr style="display:none">
     <th> <?php
       echo gettext("Latitude"); ?></th>
     <td class="left">
@@ -384,7 +384,7 @@ echo $host->get_descr(); ?></textarea>
              value="<?php $coordinates = $host->get_coordinates();
         echo $coordinates['lat']; ?>"></td>
   </tr>
-  <tr>
+  <tr style="display:none">
     <th> <?php
       echo gettext("Longitude"); ?></th>
     <td class="left">
@@ -393,9 +393,9 @@ echo $host->get_descr(); ?></textarea>
        echo $coordinates['lon']; ?>"></td>
   </tr>
   <tr>
-    <td colspan="2" align="center">
-      <input type="button" value="<?=_("OK")?>" onclick="check_host(document.getElementById('ip').value)" class="btn" style="font-size:12px">
-      <input type="reset" value="<?=_("reset")?>" class="btn" style="font-size:12px">
+    <td colspan="2" style="padding: 10px;text-align:center;" class="nobborder">
+      <input type="button" value="<?=_("Update")?>" onclick="check_host(document.getElementById('ip').value)" class="button" style="font-size:12px">
+      <input type="reset" value="<?=_("Clear form")?>" class="button" style="font-size:12px">
     </td>
   </tr>
 </table>
