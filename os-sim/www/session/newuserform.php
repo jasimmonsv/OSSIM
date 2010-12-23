@@ -108,8 +108,28 @@ function checkpass() {
 		return 0;
 	} else return 1;
 }
+function checklogin() {
+	var str = document.getElementById('1').value;
+	if (str.match(/ /)) {
+		document.getElementById('msg_login').style.display = "inline";
+		return 0;
+	} else {
+		document.getElementById('msg_login').style.display = "none";
+		return 1;
+	}
+}
+function checkemail() {
+	var str = document.getElementById('3').value;
+	if (str == "" || str.match(/.+\@.+\..+/)) {
+		document.getElementById('msg_email').style.display = "none";
+		return 1;
+	} else {
+		document.getElementById('msg_email').style.display = "inline";
+		return 0;
+	}
+}
 function formsubmit() {
-	if (checkpasslength() && checkpass()) document.fnewuser.submit();
+	if (checkpasslength() && checkpass() && checklogin() && checkemail()) document.fnewuser.submit();
 }
 </script>
 </head>
@@ -152,7 +172,8 @@ $all = $defaults = array();
   <tr>
     <th> <?php echo _("User login") . required() ?></th>
     <td class="left">
-        <input type="text" id="1" name="user" value="<?php echo $user ?>" size="30" />
+        <input type="text" id="1" name="user" onkeyup="checklogin()" value="<?php echo $user ?>" size="30" />
+        <div id="msg_login" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("No spaces") ?></div>
     </td>
   </tr>
   <tr>
@@ -164,7 +185,8 @@ $all = $defaults = array();
   <tr>
     <th> <?php echo _("User Email") . required() ?> <img src="../pixmaps/email_icon.gif"></th>
     <td class="left">
-        <input type="text" id="3" name="email" value="<?php echo $email ?>" size="30" />
+        <input type="text" id="3" name="email" onblur="checkemail()" value="<?php echo $email ?>" size="30" />
+        <div id="msg_email" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("Incorrect email") ?></div>
     </td>
   </tr>
   <tr>

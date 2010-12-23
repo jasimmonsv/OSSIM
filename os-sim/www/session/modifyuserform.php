@@ -109,15 +109,24 @@ function checkpass() {
 		return 0;
 	} else return 1;
 }
+function checkemail() {
+	var str = document.getElementById('email').value;
+	if (str == "" || str.match(/.+\@.+\..+/)) {
+		document.getElementById('msg_email').style.display = "none";
+		return 1;
+	} else {
+		document.getElementById('msg_email').style.display = "inline";
+		return 0;
+	}
+}
 function formsubmit() {
-	if (checkpasslength() && checkpass()) document.fmodify.submit();
+	if (checkpasslength() && checkpass() && checkemail()) document.fmodify.submit();
 }
 	</script>
 </head>
 <body onload="$('#pass1').pstrength()">
-<?php
 
-<?php include ("../hmenu.php"); ?>
+<?php include ("../hmenu.php");
 
 require_once ("classes/Security.inc");
 $user = GET('user');
@@ -190,9 +199,11 @@ echo $user->get_name(); ?>" /></td>
   <tr>
     <th> <?php
 echo gettext("User email"); ?> <img src="../pixmaps/email_icon.gif"></th>
-    <td class="left"><input type="text" name="email"
+    <td class="left"><input type="text" name="email" id="email" onblur="checkemail()"
         value="<?php
-echo $user->get_email(); ?>" /></td>
+echo $user->get_email(); ?>" />
+<div id="msg_email" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("Incorrect email") ?></div>
+</td>
   </tr>
   <tr>
     <th> <?php
