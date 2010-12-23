@@ -83,7 +83,7 @@ function checkpasscomplex(pass) {
 	if (pass.match(/[a-z]/)) { counter++; }
 	if (pass.match(/[A-Z]/)) { counter++; }
 	if (pass.match(/[0-9]/)) { counter++; }
-	if (pass.match(/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬]/)) { counter++; }
+	if (pass.match(/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬\.\,\?\=\-\_\<\>]/)) { counter++; }
 	return (counter < 3) ? 0 : 1;
 	<?php } else { ?>
 	return 1;

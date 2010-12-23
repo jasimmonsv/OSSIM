@@ -970,7 +970,7 @@ class Session {
 			if (preg_match("/[a-z]/",$pass)) { $counter++; }
 			if (preg_match("/[A-Z]/",$pass)) { $counter++; }
 			if (preg_match("/[0-9]/",$pass)) { $counter++; }
-			if (preg_match("/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬]/",$pass)) { $counter++; }
+			if (preg_match("/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬\.\,\?\=\-\_\<\>]/",$pass)) { $counter++; }
 			return ($counter < 3) ? 0 : 1;
 		} else {
 			return 1;

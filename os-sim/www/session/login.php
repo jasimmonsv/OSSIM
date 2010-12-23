@@ -136,6 +136,7 @@ if (REQUEST('user') && trim($pass)!="") {
 	$first_userlogin = $session->first_login();
 	$last_pass_change = $session->last_pass_change();
 	$login_exists = $session->login_exists();
+	$lockout_duration = intval($conf->get_conf("unlock_user_interval", FALSE)) * 60;
 	
 	if ($login_return != true) {$infolog = array(
             REQUEST('user')
@@ -144,7 +145,7 @@ if (REQUEST('user') && trim($pass)!="") {
 		$failed = true;
         $bad_pass = true;
         $failed_retries = $conf->get_conf("failed_retries", FALSE);
-        if ($login_exists && !$is_disabled) {
+        if ($login_exists && !$is_disabled && $lockout_duration > 0) {
         	$_SESSION['bad_pass'][$user]++;
 	        if ($_SESSION['bad_pass'][$user] >= $failed_retries && $user != ACL_DEFAULT_OSSIM_ADMIN) {
 	        	// auto-disable user

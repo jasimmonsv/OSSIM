@@ -1209,14 +1209,14 @@ $CONFIG = array(
             ),
         	"pass_expire_min" => array(
                 "type" => "text",
-                "help" => _("The minimum password lifetime prevents users from circumventing the requirement to change passwords by doing five password changes in a minute to return to the currently expiring password. (0 to disable) (default 0)") ,
-                "desc" => gettext("Minimum password lifetime") ,
+                "help" => _("The minimum password lifetime prevents users from circumventing<br> the requirement to change passwords by doing five password changes<br> in a minute to return to the currently expiring password. (0 to disable) (default 0)") ,
+                "desc" => gettext("Minimum password lifetime in minutes") ,
                 "advanced" => 1
             ),
         	"pass_expire" => array(
                 "type" => "text",
                 "help" => _("After these days the login ask for new password. (0 to disable) (default 0)") ,
-                "desc" => gettext("Maximum password lifetime") ,
+                "desc" => gettext("Maximum password lifetime in days") ,
                 "advanced" => 1
             ),
 			"failed_retries" => array(
