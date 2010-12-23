@@ -43,11 +43,13 @@ $target = GET('target');
 $type = GET('type');
 $date_from = (GET('date_from') != "") ? GET('date_from') : strftime("%d/%m/%Y %H:%M:%S", time() - (24 * 60 * 60));
 $date_to = (GET('date_to') != "") ? GET('date_to') : strftime("%d/%m/%Y %H:%M:%S", time());
+
 ossim_valid($limit, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Limit"));
 ossim_valid($type, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Report type"));
 ossim_valid($target, OSS_ALPHA, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Target"));
 ossim_valid($date_from, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from date"));
 ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to date"));
+
 $runorder = intval(GET('runorder')); if ($runorder==0) $runorder="";
 if (ossim_error()) {
     die(ossim_error());
@@ -90,7 +92,10 @@ elseif ($type == "alarm" && is_array($_SESSION["SA_Attack".$sufix."Host$runorder
 else
 	$list = $security_report->AttackHost($security_report->ossim_conn, $target, $limit, $type, $date_from, $date_to);
 $datax = $datay = array();
+
+
 $gorientation="h";
+
 foreach($list as $key => $l) {
     if($key>=10){
         // ponemos un límite de resultados para la gráfica
@@ -107,7 +112,7 @@ require_once "$jpgraph/jpgraph.php";
 require_once "$jpgraph/jpgraph_bar.php";
 // Setup the graph.
 if($gorientation=="v")
-	$y = 30 + count($list)*20; 
+	$y = 30 + count($list)*21; 
 else
 	$y = 250;
 	

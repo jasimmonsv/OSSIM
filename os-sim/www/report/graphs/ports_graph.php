@@ -44,7 +44,7 @@ $height = GET('height');
 $width = GET('width');
 $date_from = (GET('date_from') != "") ? GET('date_from') : strftime("%d/%m/%Y %H:%M:%S", time() - (24 * 60 * 60));
 $date_to = (GET('date_to') != "") ? GET('date_to') : strftime("%d/%m/%Y %H:%M:%S", time());
-$gorientation = GET('gorientation');
+
 
 ossim_valid($limit, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Limit"));
 ossim_valid($height, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("height"));
@@ -52,7 +52,7 @@ ossim_valid($width, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("width"));
 ossim_valid($type, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Report type"));
 ossim_valid($date_from, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from date"));
 ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to date"));
-ossim_valid($gorientation, OSS_NULLABLE, 'v', 'h', 'illegal:' . _("graph orientation"));
+
 $runorder = intval(GET('runorder')); if ($runorder==0) $runorder="";
 if (ossim_error()) {
     die(ossim_error());
@@ -72,10 +72,15 @@ elseif ($type == "alarm" && is_array($_SESSION["SA_UsedPorts$runorder"]) && coun
 else
 	$list = $security_report->Ports($limit, $type, $date_from, $date_to);
 $datax = $datay = array();
+
+
+$gorientation="h";
+    
 foreach($list as $key => $l) {
-    if($key>=10 && $gorientation!="v"){
+    if($key>=10){
         // ponemos un límite de resultados para la gráfica
-        break;
+        //break;
+        $gorientation="v";
     }
     $datax[] = $l[0];
     $datay[] = $l[2];
@@ -84,6 +89,8 @@ $conf = $GLOBALS["CONF"];
 $jpgraph = $conf->get_conf("jpgraph_path");
 require_once "$jpgraph/jpgraph.php";
 require_once "$jpgraph/jpgraph_bar.php";
+
+
 $titlecolor = "darkorange";
 
 $color = "#FFD700";
@@ -99,7 +106,12 @@ $title = _("DESTINATION PORTS");
 
 if ($width=="") $width = 400;
 if ($height=="") $height = 250;
- 
+
+if($gorientation=="v")
+	$height = 30 + count($list)*21; 
+else
+	$height = 250;
+    
 $graph = new Graph($width, $height, "auto");
 $graph->img->SetMargin(60, 20, 30, 70);
 $graph->SetScale("textlin");
@@ -122,7 +134,7 @@ $graph->xaxis->SetTickLabels($datax);
 
 if($gorientation=="v") {
     $graph->img->SetAngle(90);
-    $graph->Set90AndMargin(50,40,40,40);
+    $graph->Set90AndMargin(120,40,40,40);
 }
 else {
     $graph->xaxis->SetLabelAngle(90);
