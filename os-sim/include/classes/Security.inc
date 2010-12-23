@@ -779,6 +779,7 @@ function expire_session_check() {
 	$_SESSION["_expiration_time"] = time();
 }
 if ((session_id() != '') && intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1) {
+	Session_activity::update();
 	expire_session_check();
 }
 // IDS Security

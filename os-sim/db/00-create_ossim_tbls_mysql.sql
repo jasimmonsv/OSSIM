@@ -1152,6 +1152,16 @@ CREATE TABLE pass_history (
     PRIMARY KEY (id)
 );
 
+DROP TABLE IF EXISTS sessions;
+CREATE TABLE sessions (
+  `id` varchar(64) collate latin1_general_ci NOT NULL,
+  `login` varchar(64) collate latin1_general_ci NOT NULL, 
+  `ip` varchar(15) collate latin1_general_ci NOT NULL,  
+  `agent` varchar(255) collate latin1_general_ci NOT NULL,   
+  `logon_date` timestamp NOT NULL default '0000-00-00 00:00:00',    
+  `activity` timestamp NOT NULL default '0000-00-00 00:00:00',     
+  PRIMARY KEY  (`id`,`login`)      
+);
 --
 -- Table: incident
 --
@@ -1169,7 +1179,8 @@ CREATE TABLE incident (
     submitter   VARCHAR(64) NOT NULL,
     event_start DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
     event_end   DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    KEY in_charge (in_charge)
 );
 
 DROP TABLE IF EXISTS incident_type;
@@ -1205,7 +1216,8 @@ CREATE TABLE incident_ticket (
     action          TEXT,
     in_charge       VARCHAR(64),
     transferred     VARCHAR(64),
-    PRIMARY KEY (id, incident_id)
+    PRIMARY KEY (id, incident_id),
+    KEY users (incident_id,users,in_charge, transferred)
 );
 
 DROP TABLE IF EXISTS incident_ticket_seq;
