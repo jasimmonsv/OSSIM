@@ -97,7 +97,7 @@ echo "      <input type=\"checkbox\" name=\"nedi_autodiscovery\" value=\"1\" ".(
 echo "      &nbsp;"._("Nedi Autodiscovery");
 echo "      </td>";
 echo "      <td class=\"nobborder\" style=\"text-align:left;padding-left:10px;\">";
-echo "      <input type=\"submit\" class='button' value=\""._("Save")."\"/>";
+echo "      <input type=\"submit\" class='button' value=\""._("Update")."\"/>";
 echo "      </td>";
 echo "</tr>";
 echo "</table></center>";

@@ -94,7 +94,7 @@ echo ('<title>' . _TITLE . $BASE_VERSION . $archiveDisplay . '</title>
 		<td class="nobborder"><textarea name="url" rows="2" cols="40"><?=$myrow[3]?></textarea></td>
 	</tr>
 	<tr>
-		<td colspan="2" class="center nobborder"><input type="submit" value="<?=_("Save")?>" class="btn"></td>
+		<td colspan="2" class="center nobborder"><input type="submit" value="<?=_("Update")?>" class="btn"></td>
 	</tr>
 <? } ?>
 </form>

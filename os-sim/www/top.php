@@ -232,7 +232,7 @@ foreach($menu as $name => $opc) if ($name != "Logout") {
 
 </td></tr>
 <tr><td height="26" class="outmenu">
-		<img src="pixmaps/user-green.png" width="12" border=0 align="absmiddle"> &nbsp; <a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1";?>" target="main"><font color="black"><?php echo _("My Profile")?></font></a>
+		<img src="pixmaps/user-green.png" width="12" border=0 align="absmiddle"> &nbsp; <a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile";?>" target="main"><font color="black"><?php echo _("My Profile")?></font></a>
 </td></tr>
 
 <tr><td height="26" class="outmenu">

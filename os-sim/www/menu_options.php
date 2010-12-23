@@ -1379,8 +1379,14 @@ $hmenu["Sessions"][] = array(
     "name" => gettext("Opened Sessions") ,
     "id" => "Sessions",
     "url" => "userlog/opened_sessions.php",
-    "target" => "info", 
     "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:opened_sessions','Help');"
+);
+
+$hmenu["Userprofile"][] = array(
+    "name" => gettext("My Profile") ,
+    "id" => "Userprofile",
+    "url" => ( $opensource ) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1",
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:my_profile','Help');"
 );
 
 ?>

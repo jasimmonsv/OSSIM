@@ -499,8 +499,8 @@ if (GET('withoutmenu') != "1")
 	    
 	<tr>
 		<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-			<input type="button" class="button" id='send' onclick="submit_form();" value="<?php echo _("Send")?>"/>
-			<input type="reset"  class="button" value="<?php echo gettext("Reset");?>"/>
+			<input type="button" class="button" id='send' onclick="submit_form();" value="<?php echo _("Update")?>"/>
+			<input type="reset"  class="button" value="<?php echo gettext("Clear form");?>"/> 
 		</td>
 	</tr>
  

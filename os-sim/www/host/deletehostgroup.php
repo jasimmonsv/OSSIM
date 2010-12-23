@@ -55,6 +55,8 @@ echo gettext("Delete host group"); ?> </h1>
 require_once 'classes/Security.inc';
 $name = GET('name');
 ossim_valid($name, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("name"));
+$type = GET('type');
+ossim_valid($type, OSS_NULLABLE, 'groupAndHosts', 'illegal:' . _("type"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -84,7 +86,11 @@ $conn = $db->connect();
 $hosts_list = Host_group_reference::get_list($conn, $name, "2007");
 $i = 0;
 if (Host_group::can_delete($conn,$name)) {
-	foreach($hosts_list as $host) $hostip[$i++] = $host->get_host_ip();
+	$hostip=array();
+	foreach($hosts_list as $host){
+		$hostip[$i++] = $host->get_host_ip();
+	}
+	
 	foreach($hostip as $host) {
 		if (Host_group_scan::can_delete_host_from_nagios($conn, $host, $name)) {
 			require_once 'classes/NagiosConfigs.inc';
@@ -93,7 +99,27 @@ if (Host_group::can_delete($conn,$name)) {
 			$q->close();
 		}
 	}
-	if (Host_group_scan::in_host_group_scan($conn, $name, 2007)) Host_group_scan::delete($conn, $name, 2007);
+	
+	if (Host_group_scan::in_host_group_scan($conn, $name, 2007)){
+		Host_group_scan::delete($conn, $name, 2007);
+	}
+	
+	// get list host and Delete
+	if($type=='groupAndHosts'){
+		require_once 'classes/Host_scan.inc';
+		$host_list=Host_group::get_hosts($conn, $name);
+		foreach($host_list as $host){
+			$ip=$host->get_host_ip();
+			if (Host::can_delete($conn,$ip)) {
+				if (Host_scan::in_host_scan($conn, $ip, 2007)){
+					Host_scan::delete($conn, $ip, 2007);
+				}
+				Host_scan::delete($conn, $ip, 3001);
+				Host::delete($conn, $ip);
+			}
+		}
+	}
+	//
 	Host_group_scan::delete($conn, $name, 3001);
 	Host_group::delete($conn, $name);
 } else {

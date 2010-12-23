@@ -202,7 +202,7 @@ function edit_ticket(id)
 	
 	if ( required ) $('#custom_requiredf').attr("checked", "true");
 	
-	$('.ct_add').html("<input type='button' id='add_button' value='<?=_("Save")?>' class='button' onclick=\"modify_ct();\"/>");
+	$('.ct_add').html("<input type='button' id='add_button' value='<?=_("Update")?>' class='button' onclick=\"modify_ct();\"/>");
 	
 	$("#cancel_cont").html("<input type='button' id='cancel' class='button' value='<?=_("Cancel")?>' onclick=\"cancel_ticket();\"/>"); 
 	window.scrollTo(0, 0);	
@@ -484,8 +484,8 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 	</tr>
 	<tr>
 		<td colspan="2" style="text-align:center; height: 30px;" class="nobborder">
-			<input type="button" value="<?=_("Save")?>" class="button" onclick="modify_ticket();"/>
-			<input type="reset" value="<?=_("Reset")?>" class="button"/>
+			<input type="button" value="<?=_("Update")?>" class="button" onclick="modify_ticket();"/>
+			<input type="reset" value="<?=_("Clear form")?>" class="button"/>
 		</td>
 	</tr>
 </table>

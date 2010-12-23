@@ -319,7 +319,7 @@ if ( !empty ($scan) )
 		</td>
 	</tr>
 
-	<tr>
+	<tr style="display:none">
 		<th><label for='nat'><?php echo gettext("NAT");?></label></th>
 		<td class="left">
 			<input type="text" class='vfield' name="nat" id="nat" value="<?php echo $nat;?>"/>
@@ -448,7 +448,7 @@ if ( !empty ($scan) )
 		<td class="left"><input type="text" class='vfield' name="mac_vendor" id="mac_vendor" value="<?php echo $mac_vendor;?>"/></td>
 	</tr>
 
-	<tr>
+	<tr style="display:none">
 		<td style="text-align: left; border:none; padding-top:3px;">
 			<a onclick="$('.geolocation').toggle();">
 			<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Geolocation Info")?></a>
@@ -479,12 +479,12 @@ if ( !empty ($scan) )
 
 	<tr>
 		<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-			<input type="button" class="button" id='send' value="<?=_("Send")?>" onclick="<?php echo $submit_function;?>"/>
+			<input type="button" class="button" id='send' value="<?=_("Update")?>" onclick="<?php echo $submit_function;?>"/>
 			<?php 
 				if ( !empty($scan) )
 					echo "<input type='button' class='button' value='".gettext("<< Back ")."' onclick=\"javascript:history.go(-1);\"/>";
 				else
-					echo "<input type='reset' class='button' value='".gettext("Reset")."'/>";
+					echo "<input type='reset' class='button' value='".gettext("Clear form")."'/>";
 			?>
 			
 		</td>

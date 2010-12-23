@@ -166,7 +166,7 @@ else {
 
 echo "<table class=\"transparent\" width=\"100%\" align=\"center\">";
 echo "<tr><td class=\"nobborder\" style=\"text-align:center;padding-top:5px;\">";
-echo "<input type=\"submit\" class=\"button\" value=\""._("Save")."\">";
+echo "<input type=\"submit\" class=\"button\" value=\""._("Update")."\">"; 
 echo "</td></tr>";
 echo "</table>";
 echo "</form>";

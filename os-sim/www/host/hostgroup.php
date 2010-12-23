@@ -129,6 +129,22 @@ echo gettext("OSSIM Framework"); ?> </title>
 			}
 			else alert('<?=_("You must select a host group")?>');
 		}
+		else if (com=='<?php echo _("Delete Group & Hosts selected")?>') {
+			//Delete host by ajax
+			if (typeof(items[0]) != 'undefined') {
+				$("#flextable").changeStatus('<?php echo _("Deleting host group")?>...',false);
+				$.ajax({
+						type: "GET",
+						url: "deletehostgroup.php?confirm=yes&name="+urlencode(items[0].id.substr(3))+"&type=groupAndHosts",
+						data: "",
+						success: function(msg) {
+							if(msg.match("ERROR_CANNOT")) alert("<?=_("Sorry, cannot delete this host group because it belongs to a policy")?>");
+							else $("#flextable").flexReload();
+						}
+				});
+			}
+			else alert('<?=_("You must select a host group")?>');
+		}		
 		else if (com=='<?=_("Modify")?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'newhostgroupform.php?name='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a host group")?>');
@@ -315,6 +331,8 @@ echo "$colModel\n";
 			{name: '<?=_("Modify")?>', bclass: 'modify', onpress : action},
 			{separator: true},
 			{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
+			{separator: true},
+			{name: '<?php echo _("Delete Group & Hosts selected")?>', bclass: 'delete', onpress : action},
 			{separator: true},
 			//{name: '<?=_("Enable/Disable")?> <b><?=_("Nessus")?></b>', bclass: 'various', onpress : action},
 			//{separator: true},

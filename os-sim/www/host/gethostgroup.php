@@ -140,7 +140,21 @@ foreach($host_group_list as $host_group) {
     $link_modify = "<a style='font-weight:bold;' href=\"./newhostgroupform.php?name=".urlencode($name)."\">" .$name. "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $list = "";
-    if ($host_list = $host_group->get_hosts($conn)) foreach($host_list as $host) $list.= ($list == "" ? "" : ", ") . $host->get_host_name($conn);
+    if ($host_list = $host_group->get_hosts($conn)){
+		foreach($host_list as $host){
+			//$list.= ($list == "" ? "" : ", ") . $host->get_host_ip().' ('.$host->get_host_name($conn).')';
+			
+			if($list == ""){
+				$list.='';
+			}else{
+				$list.=', ';
+			}
+			$list.=$host->get_host_ip();
+			if($host->get_host_ip()!=$host->get_host_name($conn)){
+				$list.=' ('.$host->get_host_name($conn).')';
+			}
+		}
+	}
     $xml.= "<cell><![CDATA[" . $list . "]]></cell>";
     $desc = $host_group->get_descr();
     if ($desc == "") $desc = "&nbsp;";

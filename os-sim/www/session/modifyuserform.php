@@ -116,6 +116,9 @@ function formsubmit() {
 </head>
 <body onload="$('#pass1').pstrength()">
 <?php
+
+<?php include ("../hmenu.php"); ?>
+
 require_once ("classes/Security.inc");
 $user = GET('user');
 $networks = GET('networks');

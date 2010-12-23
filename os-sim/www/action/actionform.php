@@ -259,7 +259,7 @@ function submit() {
     <tr>
         <td align="center" style="border-bottom: medium none; padding: 10px;" colspan="2">
             <input type="hidden" name="withoutmenu" value="<?php echo GET('withoutmenu')?>">
-            <input type="button" class="button" id='send' value="<?php echo _("Send");?>" onclick="submit_form();" />
+            <input type="button" class="button" id='send' value="<?php echo _("Update");?>" onclick="submit_form();" /> 
         </td>
     </tr>
 <?php

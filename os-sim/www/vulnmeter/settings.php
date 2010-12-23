@@ -546,7 +546,7 @@ EOT;
 </table></div>
 <br>
 EOT;
-   echo "<input type=\"submit\" name=\"submit\" class=\"button createprofile\" value=\""._("Save")."\"><br><br>";
+   echo "<input type=\"submit\" name=\"submit\" class=\"button createprofile\" value=\""._("Update")."\"><br><br>";
    echo <<<EOT
 </form></CENTER>
 EOT;
@@ -1526,7 +1526,7 @@ function saveprefs( $sid ) {
       echo "Error: There was an error with the DB lookup: ".
       $dbconn->ErrorMsg() . "<br>";
    }
-   $counter = 0;
+   $counter = 0; 
 
    // user requested Save, update the DB with the values
    // Check to see if this is the owner doing the change
@@ -1606,7 +1606,7 @@ function saveprefs( $sid ) {
 function saveplugins($sid, $fam, $cve, $saveplugins, $AllPlugins, $NonDOS, $DisableAll) {
    global $username, $dbconn, $nessus_path;
    //echo "Updating Plugins Status<br>";
-    if ($saveplugins=="Save") {
+    if ($saveplugins=="Update") {
       reset ($_POST);   // if form method="post"
       // edited to work on a per family basis so we can break
       // down the page to lighten up the HTML
@@ -2293,7 +2293,7 @@ function createHiddenDiv($name, $num, $data, $fam, $sid) {
    $text .= "&nbsp;&nbsp;";
    $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEm(this, 'family".$num."', false);\" class=\"button\"/>";
    $text .= "&nbsp;&nbsp;";
-   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button updateplugins\"></form>";
+   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Update")."\" class=\"button updateplugins\"></form>";
    $text .= "</div></center>\n";
    return $text;
 }
@@ -2354,7 +2354,7 @@ function createHiddenDivCve($name, $num, $data, $cve, $sid) {
    $text .= "&nbsp;&nbsp;";
    $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEm(this, 'cve".$num."', false);\" class=\"button\"/>";
    $text .= "&nbsp;&nbsp;";
-   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button updateplugins\"></form>";
+   $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Update")."\" class=\"button updateplugins\"></form>";
    $text .= "</div></center>\n";
    return $text;
 }

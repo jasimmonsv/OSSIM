@@ -373,8 +373,8 @@ if (GET('withoutmenu') != "1")
 		  
 				<tr>
 					<td colspan="2" class="nobborder" style="text-align:center;padding:10px">
-						<input type="button" class="button" id='send' value="<?php echo _("Send") ?>" onclick="selectall('hosts'); submit_form()">
-						<input type="reset"  class="button" value="<?=_("Reset")?>"/>
+						<input type="button" class="button" id='send' value="<?php echo _("Update") ?>" onclick="selectall('hosts'); submit_form()">
+						<input type="reset"  class="button" value="<?=_("Clear form")?>"/>
 					</td>
 				</tr>
 			</table>

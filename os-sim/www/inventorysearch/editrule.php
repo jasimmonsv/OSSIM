@@ -101,7 +101,7 @@ if ($type != "" && $subtype != "") {
 	<tr>
 		<td class="nobborder" style="text-align:center"><?=_("Predefined list (optional)")?><br><textarea rows="5" cols="80" name="prelist"><? if (!$new) echo $rule->get_prelist()?></textarea></td>
 	</tr>
-	<tr><td class="nobborder" style="text-align:center"><input type="submit" class="lbutton" value="<?=_("Save")?>">&nbsp;<input type="button" class="lbutton" onclick="document.location.href='editrules.php'" value="<?=_("Back")?>"></td></tr>
+	<tr><td class="nobborder" style="text-align:center"><input type="submit" class="lbutton" value="<?=_("Update")?>">&nbsp;<input type="button" class="lbutton" onclick="document.location.href='editrules.php'" value="<?=_("Back")?>"></td></tr>
 	</form>
 </table>
 <? if (POST('save')) { ?>

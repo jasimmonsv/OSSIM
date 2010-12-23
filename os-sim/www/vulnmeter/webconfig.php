@@ -223,7 +223,7 @@ if (!$uroles['admin']) {
    echo "<input type='hidden' name='op' value='save'>";
    echo "<p>" . $settingTabs . "</p>\n";
    echo $settingContent;
-   echo "<p><input type='submit' name='submit' value='"._("Save")."' class='button'></p>";
+   echo "<p><input type='submit' name='submit' value='"._("Update")."' class='button'></p>";
    if(Session::get_session_user()=="admin"){
         echo "<center>";
         ?>

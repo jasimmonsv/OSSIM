@@ -147,7 +147,7 @@ foreach($data as $element) {
     $text .= "&nbsp;&nbsp;";
     $text .= "<input type='button' name='cbAll' value='"._("UnCheck All")."' onclick=\"CheckEmp(this.form, false);\" class=\"button\"/>";
     $text .= "&nbsp;&nbsp;";
-    $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Save")."\" class=\"button updatepluginsajax\"></form>";
+    $text .= "<input type=\"submit\" name=\"saveplugins\" value=\""._("Update")."\" class=\"button updatepluginsajax\"></form>";
     $text .= "</center>\n";
     
     $dbconn->disconnect();

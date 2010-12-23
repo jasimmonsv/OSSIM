@@ -272,8 +272,8 @@ else
 
     <tr>
 		<td colspan="2" align="center" style="padding: 10px;" class='noborder'>
-			<input type="button" class="button" id='send' value="<?php echo _("Send")?>" onclick="submit_form()">
-			<input type="reset" class="button" value="<?=_("Reset")?>"/>
+			<input type="button" class="button" id='send' value="<?php echo _("Update")?>" onclick="submit_form()">
+			<input type="reset" class="button" value="<?=_("Clear form")?>"/>
 		</td>
 	</tr>
 		

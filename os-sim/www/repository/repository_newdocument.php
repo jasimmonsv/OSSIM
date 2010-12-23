@@ -247,7 +247,7 @@ if (POST('title') != "" && POST('doctext') != "") {
                     }
                 }
                 ?> 
-				<tr><td class="nobborder" style="padding-left:5px;text-align:center"><input class="button" type="submit" value="<?php echo _("Save") ?>"></td></tr>
+				<tr><td class="nobborder" style="padding-left:5px;text-align:center"><input class="button" type="submit" value="<?php echo _("Update") ?>"></td></tr>
 			</table>
 			</form>
 			<!-- end of repository insert form -->

@@ -120,7 +120,7 @@ $ips = hosts_to_insert($dbconn, $report_id);
         } ?>
         <tr>
             <td colspan="2" class="nobborder" style="text-align:center;padding-top:10px;">
-                <input type="submit" class="button" value="<?php echo _("Save")?>">
+                <input type="submit" class="button" value="<?php echo _("Update")?>">
             </td>
         </tr>
     </table>

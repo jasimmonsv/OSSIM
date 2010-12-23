@@ -433,7 +433,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 											</td>
 										</tr>
 										<tr>
-											<td class="cont_send" colspan='2'><input type="button" id='send' class="button" value="<?=_("Send")?>"/></td>
+											<td class="cont_send" colspan='2'><input type="button" id='send' class="button" value="<?=_("Update")?>"/></td>
 										</tr>
 									</table>
 								</form>

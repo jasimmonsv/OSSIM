@@ -86,7 +86,7 @@ else $text = ISO27001::get_text($conn,$table,$ref);
 			<textarea name="text" cols="40" rows="6"><?=$text?></textarea>
 		</td>
 	</tr>
-	<tr><td class="nobborder" style="text-align:center"><input type="submit" value="<?=_("Save")?>" class="button"></td></tr>
+	<tr><td class="nobborder" style="text-align:center"><input type="submit" value="<?=_("Update")?>" class="button"></td></tr>
 	</form>
 </table>
 </body>

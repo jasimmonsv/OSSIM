@@ -186,7 +186,7 @@ else {
 	<tr>
 		<td class="nobborder"></td>
 		<td class="nobborder" style="text-align:left;padding-top:5px;">
-			<input type="submit" class="button" value="<?php echo _("Save")?>">
+			<input type="submit" class="button" value="<?php echo _("Update")?>">
 		</td>
 	</tr>
 </table>

@@ -169,7 +169,7 @@ else
 
 $style = "style='display: none;'";
 
-if ( GET('edit') == _("Modify") ) 
+if ( GET('edit') == _("Update Services") ) 
 {
 	for ($i = 0;; $i++)
 	{
@@ -430,7 +430,7 @@ if (count($error_nagios) > 0)
 						</td>
 					</tr>
   
-					<tr>
+					<tr style="display:none">
 						<th><label for='nat'><?php echo gettext("NAT");?></label></th>
 						<td class="left">
 							<input type="text" class='vfield' name="nat" id="nat" value="<?php echo $nat;?>"/>
@@ -556,7 +556,7 @@ if (count($error_nagios) > 0)
 						<td class="left"><input type="text" class='vfield' name="mac_vendor" id="mac_vendor" value="<?php echo $mac_vendor;?>"/></td>
 					</tr>
 
-					<tr>
+					<tr style="display:none">
 						<td style="text-align: left; border:none; padding-top:3px;">
 							<a onclick="$('.geolocation').toggle();">
 							<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Geolocation Info")?></a>
@@ -575,8 +575,8 @@ if (count($error_nagios) > 0)
 					
 					<tr>
 						<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-							<input type="button" class="button" id='send' value="<?=_("Send")?>" onclick="submit_form();"/>
-							<input type="reset"  class="button" value="<?php echo gettext("Reset"); ?>"/>
+							<input type="button" class="button" id='send' value="<?=_("Update")?>" onclick="submit_form();"/>
+							<input type="reset"  class="button" value="<?php echo gettext("Clear form"); ?>"/>
 						</td>
 					</tr>
 				</table>
@@ -628,9 +628,8 @@ if (count($error_nagios) > 0)
 								<?php }
 								if ($servs > 0) { ?>
 								<tr>
-									<td class="nobborder" colspan="4"></td>
-									<td class="nobborder right" style='padding: 5px 0px;'>
-										<input type="submit" class="lbutton" name="edit" value="<?=_("Modify")?>"/>
+									<td class="nobborder center" colspan="5" style='padding: 5px 0px;'>
+										<input type="submit" class="lbutton" name="edit" value="<?=_("Update Services")?>"/>
 										<input type="hidden" name="host" value="<?php echo $ip ?>"/>
 										<input type="hidden" name="origin" value="<?php echo GET('origin')?>"/>
 									</td>
