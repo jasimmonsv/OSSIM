@@ -102,6 +102,9 @@ Class log_action {
         if (!Log_action::log_action_to_db($conn, $log_code)) return;
         $user_ip = Log_action::get_userip();
         $user = Session::get_session_user();
+        if ($user == "" && $extrainfo[0] != "") {
+        	$user = $extrainfo[0];
+        }
         $info = Log_action::get_loginfo($conn, $log_code);
         $info = Log_action::log_action_replace($info, $extrainfo);
         $log_syslog = $conf->get_conf("log_syslog", FALSE);

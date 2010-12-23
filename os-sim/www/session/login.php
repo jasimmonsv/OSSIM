@@ -104,6 +104,7 @@ if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DE
 }
 require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
+
 $action = REQUEST('action');
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("action"));
 if ($action == "logout") {
@@ -141,6 +142,7 @@ if (REQUEST('user') && trim($pass)!="") {
 	if ($login_return != true) {$infolog = array(
             REQUEST('user')
         );
+        $_SESSION['_user'] = "";
         Log_action::log(94, $infolog);
 		$failed = true;
         $bad_pass = true;
