@@ -43,7 +43,7 @@ require_once 'classes/Alarm.inc';
 require_once 'classes/Log_action.inc';
 require_once 'classes/Log_config.inc';
 require_once 'classes/Security.inc';
-require_once ('classes/Session.inc'); 
+ 
 
 /* number of logs per page */
 $ROWS      = 50;

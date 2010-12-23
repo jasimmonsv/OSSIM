@@ -46,7 +46,7 @@ if (!isset($uc_languages)) {
         "pt_BR"
     );
 }
-$menu_opc = GET('hmenu');
+$menu_opc  = GET('hmenu');
 $menu_sopc = GET('smenu');
 ossim_valid($menu_opc, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Option"));
 ossim_valid($menu_sopc, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("SubOption"));

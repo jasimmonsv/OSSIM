@@ -234,6 +234,11 @@ foreach($menu as $name => $opc) if ($name != "Logout") {
 <tr><td height="26" class="outmenu">
 		<img src="pixmaps/user-green.png" width="12" border=0 align="absmiddle"> &nbsp; <a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1";?>" target="main"><font color="black"><?php echo _("My Profile")?></font></a>
 </td></tr>
+
+<tr><td height="26" class="outmenu">
+		<img src="pixmaps/users.png" width="12" border='0' align="absmiddle"> &nbsp; <a href="userlog/opened_sessions.php?hmenu=Sessions&smenu=Sessions" target="main"><span style='color:black'><?php echo _("Opened Sessions")?></span></a>
+</td></tr>
+
 <tr><td height="26" class="outmenu">
 		<img src="pixmaps/menu/logout.png" border=0 align="absmiddle"> &nbsp; <a href="session/login.php?action=logout"><font color="black"><?php echo _("Logout")?></font></a> [<font color="gray"><?php
 echo $_SESSION["_user"] ?></font>]

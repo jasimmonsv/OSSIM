@@ -1003,4 +1003,277 @@ class Session {
 	}
 }
 } // else include Acl
+
+
+
+
+/**
+* Class and Function List:
+* Function list:
+* - get_id()
+* - get_login()
+* - get_ip()
+* - get_hostname()
+* - get_agent()
+* - get_login_date()
+* - get_activity()
+* - set_id()
+* - set_login()
+* - set_ip()
+* - set_hostname()
+* - set_agent()
+* - set_login_date()
+* - set_activity()
+* - get_list()
+* Classes list:
+* - Session_activity
+*/
+
+class Session_activity {
+
+/*Attributes*/
+
+private $id;
+private $login;
+private $ip;
+private $agent;
+private $logon_date;
+private $activity;
+private static $style = 'font-family:Arial, Helvetica, sans-serif; 
+								font-size:13px; border: 1px solid; 
+								width: 90%; 
+								margin: 10px auto; 
+								padding:15px 10px 15px 50px;  
+								background-repeat: no-repeat; 
+								background-position: 10px center;
+								color: #D8000C; 
+								background-color: #FFBABA; 
+								background-image: url("../pixmaps/ossim_error.png");';
+
+/*Methods*/
+	 
+	public function __construct($id, $login, $ip, $agent, $logon_date, $activity){
+		$this->id            = $id;
+		$this->login         = $login;
+		$this->ip            = $ip;
+		$this->agent         = $agent;
+		$this->logon_date    = $logon_date;
+		$this->activity      = $activity;
+	;}
+	
+	
+	public function get_id()    { return $this->id;}
+	public function set_id($id) { $this->id = $id;}
+	
+	public function get_login()       { return $this->login;}
+	public function set_login($login) { $this->login = $login;}
+	
+	public function get_ip()    { return $this->ip;}
+	public function set_ip($ip) { $this->ip = $ip;}
+	
+	public function get_agent()       { return $this->agent;}
+	public function set_agent($agent) { $this->agent = $agent;}
+	
+	
+	
+	public function get_logon_date()            { return $this->logon_date;}
+	public function set_logon_date($logon_date) { $this->logon_date = $logon_date;}
+	
+	public function get_activity()          { return $this->activity;}
+	public function set_activity($activity) { $this->activity= $activity;}	
+	
+	
+	private function getRealIpAddr()
+	{
+		if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
+			$ip=$_SERVER['HTTP_CLIENT_IP'];
+		elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))   //to check ip is pass from proxy
+			$ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+		else
+		  $ip=$_SERVER['REMOTE_ADDR'];
+		
+		return $ip;
+	}
+	
+	private function get_ua()
+	{
+		require_once('classes/Browser.inc');
+		
+		$ua     = new Ua();
+		$agent = null;
+		
+		$agent .= ( !empty($ua->name) )   ? ucfirst($ua->name) : "";
+		$agent .= ( !empty($ua->ver) ) ? " ".ucfirst($ua->ver) : "";
+		
+		if (!empty ($ua->platform) || !empty ($ua->platform))
+		{
+			$agent .=  " / ";
+			
+			$agent .= ( !empty ($ua->platform) ) ? ucfirst($ua->platform)." " : "";
+			$agent .= ( !empty ($ua->os) )       ? ucfirst($ua->os)       : "";
+		}
+		
+		$agent  = ( empty($agent) ) ? _("Unknown") : $agent;
+		$agent .= "###".$ua->str;
+		return $agent;
+		
+	}
+
+	public function get_list($conn, $args = "")
+	{
+        $list  = array();
+		$query = OssimQuery("SELECT * FROM sessions $args");
+        if (!$rs = & $conn->Execute($query))
+            print $conn->ErrorMsg();
+        else 
+		{
+            $list = array();
+            while (!$rs->EOF) 
+			{
+                $list[] = new Session_activity($rs->fields["id"], $rs->fields["login"], $rs->fields["ip"], $rs->fields["agent"], $rs->fields["logon_date"], $rs->fields["activity"]);
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }
+			
+	public function insert($dbconn)
+	{
+		
+		$id          = session_id();
+		$login       = Session::get_session_user();
+		$ip          = self::getRealIpAddr();
+		$agent       = self::get_ua();
+		
+		$logon_date  = $activity = date("Y-m-d H:i:s");
+				
+		$conf = $GLOBALS["CONF"];
+		
+		if (!$conf) {
+			require_once 'ossim_db.inc';
+			require_once 'ossim_conf.inc';
+			$conf = new ossim_conf();
+		}
+		
+		$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
+		
+		if ( $expired_timeout != 0 )
+		{
+			$time = strtotime(date("Y-m-d H:i:s")) - $expired_timeout;
+			$date = date("Y-m-d H:i:s", $time);
+			$sql = "DELETE FROM sessions WHERE activity < '$date'";
+        
+			$params = array(
+				$activity
+			);
+			
+			if ($dbconn->Execute($sql, $params) === false) {
+				echo "<div style='".Session_activity::$style."'>"._('Error deleting:').' '.$dbconn->ErrorMsg().'</div>';
+				exit;
+			}
+		};
+								
+			
+		$sql = "INSERT INTO sessions (id, login, ip, agent, logon_date, activity) VALUES (?, ?, ?, ?, ?, ?)";
+        
+		$params = array(
+            $id,
+			$login,
+			$ip,
+            $agent,
+			$logon_date,
+			$activity,
+        );
+        
+		if ($dbconn->Execute($sql, $params) === false) {
+            echo "<div style='".Session_activity::$style."'>"._('Error inserting:').' '.$dbconn->ErrorMsg().'</div>';
+            exit;
+        }
+		
+		return true;
+			
+    }
+	
+	
+	public function update($time='')
+	{
+		require_once 'ossim_db.inc';
+		$db     = new ossim_db();
+		$dbconn = $db->connect();
+		
+		$id       = session_id();
+		$login    = Session::get_session_user();
+		$activity = ( empty($time) ) ? date("Y-m-d H:i:s") : date("Y-m-d H:i:s", $time);
+		
+		$sql = "UPDATE sessions SET activity=? WHERE id=? AND login=?";
+        
+		$params = array(
+            $activity,
+			$id,
+			$login
+        );
+        
+		if ($dbconn->Execute($sql, $params) === false) {
+            echo "<div style='".Session_activity::$style."'>"._('Error updating:').' '.$dbconn->ErrorMsg().'</div>';
+            exit;
+        }
+		
+		$db->close($conn);
+		
+		return true;
+	}
+	
+	public function delete($id='')
+	{
+		require_once 'ossim_db.inc';
+		$db     = new ossim_db();
+		$dbconn = $db->connect();
+		
+		$id     = ( empty($id) ) ? session_id() : $id;
+									
+		$sql = "DELETE FROM sessions WHERE id=?";
+		
+		$params = array(
+           	$id
+		);
+		
+		if ($dbconn->Execute($sql, $params) === false) {
+            echo "<div style='".Session_activity::$style."'>"._('Error deleting:').' '.$dbconn->ErrorMsg().'</div>';
+            exit;
+        }
+		
+		$db->close($dbconn);
+		
+		return true;
+		
+	}
+	
+	public function delete_session($id='')
+	{
+		$id         = ( empty($id) ) ? session_id() : $id;
+		$my_session = session_id();
+		
+		if ($id == $my_session)
+			return true;
+		else
+		{
+			session_commit();
+			session_id($id);
+			session_start();
+		
+			$_SESSION = array();
+			session_destroy();
+			session_commit();
+		
+			$new_id = session_id($my_session);
+			session_start();
+			
+			return true;
+		}
+	}
+	
+
+}
+
+
 ?>

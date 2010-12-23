@@ -1125,6 +1125,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsSensors")) { $monitors = 1;
 			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
 		);
 	}
+	
 }
 /*
 if (Session::menu_perms("MenuMonitors", "MonitorsRiskmeter")) $menu["Usage & Profiles"][] = array(
@@ -1373,5 +1374,13 @@ if (Session::menu_perms("MenuTools", "Updates")) $menu["Tools"][] = array(
 );*/
 /* Logout */
 $menu["Logout"] = "session/login.php?action=logout"; // Plain url if no array entry
+
+$hmenu["Sessions"][] = array(
+    "name" => gettext("Opened Sessions") ,
+    "id" => "Sessions",
+    "url" => "userlog/opened_sessions.php",
+    "target" => "info", 
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:opened_sessions','Help');"
+);
 
 ?>
