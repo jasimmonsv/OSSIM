@@ -46,11 +46,11 @@ $array_priority   = array ("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5", "6"
 $db = new ossim_db();
 $conn = $db->connect();
 
-$hostname = GET('name');
+$name = GET('name');
 
 if ( isset($_SESSION['_sensor']) )
 {
-	$hostname   = $_SESSION['_sensor']['hostname'];
+	$name       = $_SESSION['_sensor']['name'];
 	$ip         = $_SESSION['_sensor']['ip'];  	
 	$priority   = $_SESSION['_sensor']['priority']; 
 	$descr	    = $_SESSION['_sensor']['descr']; 
@@ -59,18 +59,18 @@ if ( isset($_SESSION['_sensor']) )
 }
 else
 {
-	if ($hostname != '')
+	if ($name != '')
 	{
-		ossim_valid($hostname, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Host name"));
+		ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Sensor name"));
 
 		if (ossim_error()) 
 			die(ossim_error());
 	
-		if ($sensor_list = Sensor::get_list($conn, "WHERE name = '$hostname'"))
+		if ($sensor_list = Sensor::get_list($conn, "WHERE name = '$name'"))
 		{
 			$sensor   = $sensor_list[0];
 			
-			$hostname = $sensor->get_name();
+			$name     = $sensor->get_name();
 			$ip       = $sensor->get_ip();
 			$priority = $sensor->get_priority();
 			$descr    = $sensor->get_descr();
@@ -152,10 +152,10 @@ if (GET('withoutmenu') != "1")
 	<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 	
 	<tr>
-		<th><label for='hostname'><?php echo gettext("Hostname");?></label></th>
+		<th><label for='name'><?php echo gettext("Name");?></label></th>
 		<td class="nobborder left">
-			<input type="hidden" name="hostname" id='hostname' class='req_field vfield' value="<?php echo $hostname; ?>"/>
-			<div class='bold'><?php echo $hostname; ?></div>
+			<input type="hidden" name="name" id='name' class='req_field vfield' value="<?php echo $name; ?>"/>
+			<div class='bold'><?php echo $name; ?></div>
 		</td>
 	</tr>
   

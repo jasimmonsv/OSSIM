@@ -174,7 +174,7 @@ foreach ($locations as $data) {
 		</td></tr>
 		<th nowrap>"._("Sensor")."</th>
 		<th nowrap>"._("IP Addr")."</th>
-		<th nowrap>"._("Mac")."</th>
+		<th nowrap>"._("Mac Address")."</th>
 		<th nowrap>"._("Model #")."</th>
 		<th nowrap>"._("Serial #")."</th>
 		<th nowrap>"._("Mounting Location")."</th>

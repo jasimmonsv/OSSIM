@@ -365,7 +365,7 @@ echo "$colModel\n";
 		sortname: "<?php echo $sortname ?>",
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
-		title: '<?=_("NETWORKS")?>',
+		title: '<?=_("Networks")?>',
 		pagestat: '<?=_("Displaying {from} to {to} of {total} networks")?>',
 		nomsg: '<?=_("No networks")?>',
 		useRp: true,

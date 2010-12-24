@@ -51,7 +51,7 @@ if (ossim_error()) {
 
 if ( isset($_SESSION['_sensor']) )
 {
-	$hostname    = $_SESSION['_sensor']['hostname'];
+	$name        = $_SESSION['_sensor']['name'];
 	$ip          = $_SESSION['_sensor']['ip'];  	
 	$priority    = $_SESSION['_sensor']['priority']; 
 	$descr	     = $_SESSION['_sensor']['descr']; 
@@ -125,9 +125,9 @@ if (GET('withoutmenu') != "1")
 	<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 	
 	<tr>
-		<th><label for='hostname'><?php echo gettext("Hostname"); ?></label></th>
+		<th><label for='name'><?php echo gettext("Name"); ?></label></th>
 		<td class="left">
-			<input type="text" class='req_field vfield' name="hostname" id="hostname" value="<?php echo $hostname;?>"/>
+			<input type="text" class='req_field vfield' name="name" id="name" value="<?php echo $name;?>"/>
 			<span style="padding-left: 3px;">*</span>
 		</td>
 	</tr>	

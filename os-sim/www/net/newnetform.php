@@ -210,7 +210,7 @@ if (GET('withoutmenu') != "1")
 		<th><label for='netname'><?php echo gettext("Name"); ?></label></th>
 		<td class="left">
 			<?php if (GET('name') == "" || GET('clone') == 1) {?>
-				<input type='text' name='netname' id='netname' class='vfield req_field' value="<?php echo $net_name?>"/>
+				<input type='text' name='netname' id='netname' class='vfield req_field' value="<?php if($clone!=1) echo $net_name?>"/> 
 				<span style="padding-left: 3px;">*</span>
 			<?php } 
 				  else {

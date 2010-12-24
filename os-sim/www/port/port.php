@@ -237,7 +237,7 @@ echo "$colModel\n";
 		sortorder: "<?php echo $sortorder
 ?>",
 		usepager: true,
-		title: '<?=_("PORTS & PORT GROUPS")?>',
+		title: '<?=_("Ports & Port groups")?>',
 		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("port groups")?>',
 		nomsg: '<?=_("No port groups")?>',
 		useRp: true,

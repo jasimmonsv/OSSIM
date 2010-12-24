@@ -50,7 +50,9 @@ $pro        = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
 $my_session = session_id();
 
-if ( empty($_SESSION) )
+$current_user = Session::get_session_user();
+
+if ( empty($current_user) )
 	Session::logout();
 
 function is_expired($time)
@@ -130,6 +132,7 @@ $where         = "";
 $users         = array();
 $allowed_users = array();
 
+
 if  ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin()) )
 {
 	if ( Session::am_i_admin() )
@@ -137,12 +140,13 @@ if  ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin()) )
 	else
 		$users_list = Acl::get_my_users($dbconn,Session::get_session_user());
 	
+	
 	if ( is_array($users_list) && !empty($users_list) )
 	{
-		$users[] = Session::get_session_user();
+		foreach($users_list as $k => $v)
+			$users[] = ( is_object($v) )? $v->get_login() : $v["login"];
 		
-		foreach($users_list as $user)
-			$users[] = $user->get_login();
+		$users[] = Session::get_session_user();
 			
 		$where = "WHERE login in ('".implode("','",$users)."')";
 	}

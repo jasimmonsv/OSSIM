@@ -48,7 +48,7 @@ $layout = load_layout($name_layout, $category);
   <title> <?php
 echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+  <META HTTP-EQUIV="Pragma" content="no-cache"/>
   <meta http-equiv="X-UA-Compatible" content="IE=7" />
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
@@ -236,7 +236,7 @@ $default = array(
         false
     ) ,
     "name" => array(
-        _('Hostname'),
+        _('Name'),
         165,
         'true',
         'center',
@@ -249,8 +249,8 @@ $default = array(
         'center',
         false
     ) ,
-    "active" => array(
-        _('Active'),
+    "status" => array(
+        _('Status'),
         50,
         'false',
         'center',
@@ -344,7 +344,7 @@ echo "$colModel\n";
 		sortname: "<?php echo $sortname ?>",
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
-		title: '<?=_("SERVERS")?>',
+		title: '<?=_("Servers")?>',
 		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("servers")?>',
 		nomsg: '<?=_("No servers")?>',
 		useRp: true,

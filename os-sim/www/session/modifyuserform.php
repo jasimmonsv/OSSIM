@@ -159,8 +159,6 @@ if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_
 
 <?php
 
-include ("../hmenu.php");
-
 $user        = GET('user');
 $networks    = GET('networks');
 $sensors     = GET('sensors');
@@ -200,155 +198,167 @@ if ($user_list = Session::get_list($conn, "WHERE login = '$user'")) {
 
 $net_list = Net::get_all($conn);
 $sensor_list = Sensor::get_all($conn, "ORDER BY name ASC");
+
+include ("../hmenu.php");
+
 ?>
+
+
 
 <div id='container_center'>
 
 	<table align="center" class='transparent'>
-		
-	<? if ($success) { ?>
-		<tr><td class="center nobborder" style="color:green"><div class='ossim_sucess'><?=_("Successfully Saved")?></div></td></tr>
-	<? } ?>
+			
+			<? if ($success) { ?>
+			<tr><td class="center nobborder" style="color:green; padding-bottom:5px;"><div class='ossim_sucess'><?=_("Successfully Saved")?></div></td></tr>
+			<? } ?>
+			
+			<tr><td class="center nobborder"><table class='noborder' width='100%'><tr><th style='padding:5px;'><?php echo _("User Profile")?></th></tr></table></td></tr>
+					
+			<tr><td class="center nobborder">
+	
 
 	<tr>
 		<td class="center nobborder">
 
 		<form name="fmodify" id="fmodify" method="post" action="modifyuser.php">
-		<table align="center" class='transparent' id='fprofile'>
+		<table align="center" id='fprofile'>
 		
-		<input type="hidden" name="frommenu" value="<?=$frommenu?>"/>
-		<input type="hidden" name="last_pass_change" value="<?=$user->get_last_pass_change()?>"/>
-		<input type="hidden" name="insert" value="insert" />
-		<input type="hidden" name="user" value="<?php echo $user->get_login() ?>" />
-		<tr>
-			<th> <?php echo gettext("User login"); ?> </th>
-			<td class="left"><b><?php echo $user->get_login(); ?></b></td>
-		</tr>
-		
-		<tr>
-			<th> <?php echo gettext("User name"); ?> </th>
-			<td class="left"><input type="text" name="name" value="<?php echo $user->get_name(); ?>" /></td>
-		</tr>
-		
-		<tr>
-			<th> <?php echo gettext("User email"); ?> <img src="../pixmaps/email_icon.gif"></th>
-			<td class="left"><input type="text" name="email" id="email" onblur="checkemail()" value="<?php echo $user->get_email(); ?>" />
-			<div id="msg_email" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("Incorrect email") ?></div>
-			</td>
-		</tr>
-	  
-		<tr>
-			<th> <?php echo gettext("User language"); ?></th>
-			<td class="left">
-				<?php
-				$language = array(
-					"type" => array(
-						"pt_BR" => gettext("Brazilian Portuguese") ,
-						"en_GB" => gettext("English") ,
-						"fr_FR" => gettext("French") ,
-						"de_DE" => gettext("German") ,
-						"ja_JP" => gettext("Japanese") ,
-						"ru_RU.UTF-8" => gettext("Russian"),
-						"zh_CN" => gettext("Simplified Chinese") ,
-						"es_ES" => gettext("Spanish") ,
-						"zh_TW" => gettext("Traditional Chinese")
-					) ,
-					"help" => gettext("")
-				);
-				$lform = "<select name=\"language\">";
-				foreach($language['type'] as $option_value => $option_text)
-				{
-					$lform.= "<option ";
-					if ($user->get_language() == $option_value) $lform.= " selected='selected' ";
-						$lform.= "value=\"$option_value\">$option_text</option>";
-				}
-				$lform.= "</select>";
-				echo $lform;
-				?>
-			</td>
-		</tr>
-		
-		<tr>
-			<th> <?php echo gettext("Company"); ?> </th>
-			<td class="left"><input type="text" name="company" value="<?php echo $user->get_company(); ?>" /></td>
-		</tr>
-		
-		<tr>
-			<th> <?php echo gettext("Department"); ?> </th>
-			<td class="left"><input type="text" name="department" value="<?php echo $user->get_department(); ?>" /></td>
-		</tr>
-		
-		<tr>
-			<th><?php echo _("Ask to change password at next login") ?></th>
-			<td align="center">
-				<input type="radio" name="first_login" value="1"/><span><?php echo _("Yes");?></span>
-				<input type="radio" name="first_login" value="0" checked='checked'/><span><?php echo _("No"); ?></span> 
-			</td>
-		</tr>
-
-		<?php if ($user->get_login() != ACL_DEFAULT_OSSIM_ADMIN && $_SESSION['_user'] == ACL_DEFAULT_OSSIM_ADMIN) { ?>
-		<tr>
-			<th><?php echo _("Global Admin") ?></th>
-			<td align="center">
-				<input type="radio" name="is_admin" value="1" <?php if ($user->get_is_admin()) echo "checked='checked'"?>/><span><?php echo _("Yes");?></span>
-				<input type="radio" name="is_admin" value="0" <?php if (!$user->get_is_admin()) echo "checked='checked'"?>/><span><?php echo _("No");?></span> 
-			</td>
-		</tr>
-		<?php
-		}
-		
-		if ($user->get_login() != 'admin') { ?>
-			<!--
+			<input type="hidden" name="frommenu" value="<?=$frommenu?>"/>
+			<input type="hidden" name="last_pass_change" value="<?=$user->get_last_pass_change()?>"/>
+			<input type="hidden" name="insert" value="insert" />
+			<input type="hidden" name="user" value="<?php echo $user->get_login() ?>" />
 			<tr>
-			<th><?php echo _("Pre-set executive panels to admin panels") ?></th>
-				<td align="center">
-			   <input type="radio" name="copy_panels" value="1" <? if ($copy_panels) echo "checked='checked'" ?>/><?php echo _("Yes");?>
-			   <input type="radio" name="copy_panels" value="0" <? if (!$copy_panels) echo "checked='checked'" ?>/><?php echo _("No");?>
+				<th> <?php echo gettext("User login"); ?> </th>
+				<td class="left"><b><?php echo $user->get_login(); ?></b></td>
+			</tr>
+			
+			<tr>
+				<th> <?php echo gettext("User name"); ?> </th>
+				<td class="left"><input type="text" name="name" value="<?php echo $user->get_name(); ?>" /></td>
+			</tr>
+			
+			<tr>
+				<th> <?php echo gettext("User email"); ?> <img src="../pixmaps/email_icon.gif"></th>
+				<td class="left"><input type="text" name="email" id="email" onblur="checkemail()" value="<?php echo $user->get_email(); ?>" />
+				<div id="msg_email" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("Incorrect email") ?></div>
 				</td>
 			</tr>
-			-->
-		<?php
-		} 
-		else
-		{ ?>
-			<!--<input type="hidden"  name="copy_panels" value="1" checked='checked'>-->
-		<?php
-		} ?>
+	  
+			<tr>
+				<th> <?php echo gettext("User language"); ?></th>
+				<td class="left">
+					<?php
+					$language = array(
+						"type" => array(
+							"pt_BR" => gettext("Brazilian Portuguese") ,
+							"en_GB" => gettext("English") ,
+							"fr_FR" => gettext("French") ,
+							"de_DE" => gettext("German") ,
+							"ja_JP" => gettext("Japanese") ,
+							"ru_RU.UTF-8" => gettext("Russian"),
+							"zh_CN" => gettext("Simplified Chinese") ,
+							"es_ES" => gettext("Spanish") ,
+							"zh_TW" => gettext("Traditional Chinese")
+						) ,
+						"help" => gettext("")
+					);
+					$lform = "<select name=\"language\">";
+					foreach($language['type'] as $option_value => $option_text)
+					{
+						$lform.= "<option ";
+						if ($user->get_language() == $option_value) $lform.= " selected='selected' ";
+							$lform.= "value=\"$option_value\">$option_text</option>";
+					}
+					$lform.= "</select>";
+					echo $lform;
+					?>
+				</td>
+			</tr>
 		
-		<?php
-		if ($_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN) {
-		?>
-		<tr>
-			<td> <?php echo gettext("Current password"); ?> </td>
-			<td class="left"><input type="password" name="oldpass"/></td>
-		</tr>
-		<?php
-		}
-		?>
-		
-		<tr>
-			<td> <?php echo gettext("Enter new password"); ?> </td>
-			<td class="left"><input type="password" name="pass1" id="pass1"/></td>
-		</tr>
-		
-		<tr>
-			<td class="nobborder" style="padding:0px"></td>
-			<td class="nobborder" style="padding:0px"><div id="pass1_text"></div><div id="pass1_bar"></div></td>
-		</tr>
-		
-		<tr>
-			<td> <?php echo gettext("Retype new password"); ?> </td>
-			<td class="left"><input type="password" name="pass2" id="pass2" /></td>
-		</tr>
-		
-		<tr>
-			<td colspan='2' class="center nobborder" style="padding-top:10px;">
-				<input type="button" onclick="formsubmit()" class="button" value="<?php echo _("Ok"); ?>"/>
-				<input type="reset" class="button" value="<?php echo _("Reset"); ?>"/>
-			</td>
-		</tr>
-	</table>
+			<tr>
+				<th> <?php echo gettext("Company"); ?> </th>
+				<td class="left"><input type="text" name="company" value="<?php echo $user->get_company(); ?>" /></td>
+			</tr>
+			
+			<tr>
+				<th> <?php echo gettext("Department"); ?> </th>
+				<td class="left"><input type="text" name="department" value="<?php echo $user->get_department(); ?>" /></td>
+			</tr>
+			
+			<tr>
+				<th><?php echo _("Ask to change password at next login") ?></th>
+				<td align="center">
+					<input type="radio" name="first_login" value="1"/><span><?php echo _("Yes");?></span>
+					<input type="radio" name="first_login" value="0" checked='checked'/><span><?php echo _("No"); ?></span> 
+				</td>
+			</tr>
 
+			<?php if ($user->get_login() != ACL_DEFAULT_OSSIM_ADMIN && $_SESSION['_user'] == ACL_DEFAULT_OSSIM_ADMIN) { ?>
+			<tr>
+				<th><?php echo _("Global Admin") ?></th>
+				<td align="center">
+					<input type="radio" name="is_admin" value="1" <?php if ($user->get_is_admin()) echo "checked='checked'"?>/><span><?php echo _("Yes");?></span>
+					<input type="radio" name="is_admin" value="0" <?php if (!$user->get_is_admin()) echo "checked='checked'"?>/><span><?php echo _("No");?></span> 
+				</td>
+			</tr>
+			<?php
+			}
+			
+			if ($user->get_login() != 'admin') { ?>
+				<!--
+				<tr>
+				<th><?php echo _("Pre-set executive panels to admin panels") ?></th>
+					<td align="center">
+				   <input type="radio" name="copy_panels" value="1" <? if ($copy_panels) echo "checked='checked'" ?>/><?php echo _("Yes");?>
+				   <input type="radio" name="copy_panels" value="0" <? if (!$copy_panels) echo "checked='checked'" ?>/><?php echo _("No");?>
+					</td>
+				</tr>
+				-->
+			<?php
+			} 
+			else
+			{ ?>
+				<!--<input type="hidden"  name="copy_panels" value="1" checked='checked'>-->
+			<?php
+			} ?>
+			
+			<?php
+			if ($_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN) {
+			?>
+			<tr>
+				<td> <?php echo gettext("Current password"); ?> </td>
+				<td class="left"><input type="password" name="oldpass"/></td>
+			</tr>
+			<?php
+			}
+			?>
+			
+			<tr>
+				<td> <?php echo gettext("Enter new password"); ?> </td>
+				<td class="left"><input type="password" name="pass1" id="pass1"/></td>
+			</tr>
+			
+			<tr>
+				<td class="nobborder" style="padding:0px"></td>
+				<td class="nobborder" style="padding:0px"><div id="pass1_text"></div><div id="pass1_bar"></div></td>
+			</tr>
+			
+			<tr>
+				<td> <?php echo gettext("Retype new password"); ?> </td>
+				<td class="left"><input type="password" name="pass2" id="pass2" /></td>
+			</tr>
+			
+			<tr>
+				<td colspan='2' class="center nobborder" style="padding-top:10px;">
+					<input type="button" onclick="formsubmit()" class="button" value="<?php echo _("Ok"); ?>"/>
+					<input type="reset" class="button" value="<?php echo _("Reset"); ?>"/>
+				</td>
+			</tr>
+		</table>
+	
+	</table>
+	
 	<? if (Session::am_i_admin() && $user->get_login() != Session::get_session_user()) { ?>
 
 	<br/>
@@ -489,7 +499,7 @@ $sensor_list = Sensor::get_all($conn, "ORDER BY name ASC");
 	
 	</form>
 	<? } ?>
-	</table>
+	
 </div>
 
 </body>

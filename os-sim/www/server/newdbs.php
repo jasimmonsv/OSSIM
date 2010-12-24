@@ -48,13 +48,16 @@ $ip    =  POST('ip');
 $port  =  POST('port');
 $user  =  POST('user');
 $pass  =  POST('pass');
+$pass2 =  POST('pass2');
 
 $validate = array (
 	"name"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Server Name")),
 	"ip"     => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip address")),
 	"port"   => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
 	"user"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("User")),
-	"pass"	 => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Password")));
+	"pass"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Password")),
+    "pass2"  => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Password"))
+    );
 
 if ( GET('ajax_validation') == true )
 {
@@ -72,12 +75,15 @@ else
 {
 	$validation_errors = validate_form_fields('POST', $validate);
 	
-	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors))  )
+	if ( ( $validation_errors == 1 ) || (is_array($validation_errors) && !empty($validation_errors)) || $pass != $pass2 )
 	{
 		$error = true;
 				
 		$message_error = array();
-		
+
+        if( $pass != $pass2 )
+            $message_error [] = _("Password fields are different");
+        
 		if ( is_array($validation_errors) && !empty($validation_errors) )
 			$message_error = array_merge($message_error, $validation_errors);
 		else
@@ -107,6 +113,7 @@ if ( $error == true )
 	$_SESSION['_dbs']['port']   = $port;
 	$_SESSION['_dbs']['user']   = $user;
 	$_SESSION['_dbs']['pass']   = $pass;
+    $_SESSION['_dbs']['pass2']  = $pass2;
 }
 
 

@@ -263,7 +263,7 @@ $default = array(
         false
     ) ,
     "name" => array(
-        _('Hostname'),
+        _('Name'),
         180,
         'true',
         'center',
@@ -290,8 +290,8 @@ $default = array(
         'center',
         false
     ) ,
-    "active" => array(
-        _('Active'),
+    "status" => array(
+        _('Status'),
         50,
         'true',
         'center',
@@ -325,7 +325,7 @@ echo "$colModel\n";
 		sortname: "<?php echo $sortname ?>",
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
-		title: '<?=_("SENSORS")?>',
+		title: '<?=_("Sensors")?>',
 		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("sensors")?>',
 		nomsg: '<?=_("No sensors")?>',
 		useRp: true,

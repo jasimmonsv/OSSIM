@@ -226,7 +226,7 @@ echo "$colModel\n";
 		sortname: "<?php echo $sortname ?>",
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
-		title: '<?=_("DATABASE SERVERS")?>',
+		title: '<?=_("Database Servers")?>',
 		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("database servers")?>',
 		nomsg: '<?=_("No database servers")?>',
 		useRp: true,

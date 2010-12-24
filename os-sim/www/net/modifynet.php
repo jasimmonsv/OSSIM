@@ -170,17 +170,14 @@ if ( POST('insert') && !empty($net_name) )
 		
     $db = new ossim_db();
     $conn = $db->connect();
-		
-    if ($clone)
-		Net::insert($conn, $net_name, $cidr, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr);
-	else 
-		Net::update($conn, $net_name, $cidr, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr);
+
+    Net::update($conn, $net_name, $cidr, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr);
     
 	Net_scan::delete($conn, $net_name, 3001);
     
 	Net_scan::delete($conn, $net_name, 2007);
     
-	//if (POST('nessus')) Net_scan::insert($conn, $net_name, 3001, 0);
+	//if (POST('nessus')) Net_scan::insert($conn, $net_name, 3001, 0); 
     
     if ( $nagios )
         Net_scan::insert($conn, $net_name, 2007, 0);

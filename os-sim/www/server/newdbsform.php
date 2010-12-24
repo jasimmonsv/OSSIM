@@ -61,7 +61,7 @@ Session::logcheck("MenuPolicy", "PolicyServers");
 			$('textarea').elastic();
 			
 			$('.vfield').bind('blur', function() {
-			     validate_field($(this).attr("id"), "newdbs.php");
+			     validate_field($(this).attr("id"), "<?php echo ( GET('name') != "") ? "modifydbs.php" : "newdbs.php" ?>");
 			});
 
 		});
@@ -106,6 +106,7 @@ if ( isset($_SESSION['_dbs']) )
 	$port      = $_SESSION['_dbs']['port'];
 	$user      = $_SESSION['_dbs']['user'];
 	$pass      = $_SESSION['_dbs']['pass'];
+    $pass2     = $_SESSION['_dbs']['pass2'];
 	$icon      = "";
 	
 	unset($_SESSION['_dbs']);
@@ -131,7 +132,8 @@ else
 			$user      = $server->get_user();
 			$pass      = $server->get_pass();
 			$icon      = $server->get_name();
-		}
+            $pass2 = $pass;
+        }
 	}
 	
 }
@@ -197,11 +199,19 @@ if (GET('withoutmenu') != "1")
 	<tr>
 		<th><label for='pass'><?php echo gettext("Password"); ?></label></th>
 		<td class="left">
-			<input type="text" class='req_field vfield' name="pass" id="pass" value="<?php echo $pass;?>"/>
+			<input type="password" class='req_field vfield' name="pass" id="pass" value="<?php echo $pass;?>"/>
 			<span style="padding-left: 3px;">*</span>
 		</td>
 	</tr>
 	
+	<tr>
+		<th><label for='pass2'><?php echo gettext("Repeat Password"); ?></label></th>
+		<td class="left">
+			<input type="password" class='req_field vfield' name="pass2" id="pass2" value="<?php echo $pass2;?>"/>
+			<span style="padding-left: 3px;">*</span>
+		</td>
+	</tr>
+    
     <tr>
 		<th><label for='icon'><?php echo gettext("Icon"); ?></label></th>
 		<td class="left">

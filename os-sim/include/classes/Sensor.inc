@@ -151,6 +151,7 @@ class Sensor {
                 $result = $rs->fields;
             }
         }
+			
         return $result;
     }
     
@@ -171,11 +172,13 @@ class Sensor {
         } 
         else {
             if ($rs->fields["id"]=="") {
-                $query = OssimQuery("INSERT INTO vuln_nessus_servers (name , description, hostname ,
+                $conf  = $GLOBALS["CONF"];
+				$port  = intval($conf->get_conf("nessus_port", FALSE));
+				$query = OssimQuery("INSERT INTO vuln_nessus_servers (name , description, hostname ,
                                         port, user, PASSWORD, server_nversion, server_feedtype, server_feedversion,
                                         max_scans, current_scans, TYPE, site_code, owner, checkin_time, status , enabled)
                                         VALUES (
-                                        '$name', 'RemoteHost', '$sensor', '', '', '', '2.2.10', 'GPL only', '200704181215', '100', '0', 'R', '', 'admin', NULL , 'A', '$enabled')");
+                                        '$name', 'RemoteHost', '$sensor', '$port', '', '', '2.2.10', 'GPL only', '200704181215', '100', '0', 'R', '', 'admin', NULL , 'A', '$enabled')");
             }
             if (!$rs = & $conn->Execute($query)) {
                 print $conn->ErrorMsg();

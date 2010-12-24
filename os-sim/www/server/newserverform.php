@@ -43,12 +43,10 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 $ip       = GET('ip');
-$hostname = GET('hostname');
-$name 	  = GET('name');
+$name     = GET('name');
 
 
 ossim_valid($ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Server IP"));
-ossim_valid($hostname, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Server Name"));
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Server Name"));
 
 if (ossim_error())
@@ -58,7 +56,7 @@ $action = 'newserver.php';
 
 if ( isset($_SESSION['_server']) )
 {
-	$hostname        =  $_SESSION['_server']['hostname'];
+	$name            =  $_SESSION['_server']['name'];
 	$ip              =  $_SESSION['_server']['ip'];
 	$descr           =  $_SESSION['_server']['descr'];
 	$port            =  $_SESSION['_server']['port'];
@@ -87,7 +85,7 @@ else
 		{
 			$server = $server_list[0];
 			$role = $role_list[0];
-			$hostname        =  $server->get_name();
+			$name            =  $server->get_name();
 			$ip              =  $server->get_ip();
 			$port            =  $server->get_port();
 			$descr           =  $server->get_descr();
@@ -100,7 +98,7 @@ else
 			$sign            =  $role->get_sign();
 			$sem             =  $role->get_sem();
 			$sim             =  $role->get_sim();
-			
+						
 			$action = 'modifyserver.php';
 			
 		}
@@ -351,18 +349,18 @@ if (GET('withoutmenu') != "1")
 	<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 	 
 	<tr>
-		<th><label for='hostname'><?php echo gettext("Hostname"); ?></label></th>
+		<th><label for='name'><?php echo gettext("Name"); ?></label></th>
 		<td class="left">
 			<?php 
 			if ( empty($name) ) 
 			{
-				echo "<input type='text' class='req_field vfield' name='hostname' id='hostname' value='$hostname'/>";
+				echo "<input type='text' class='req_field vfield' name='name' id='name' value='$name'/>";
 				echo "<span style='padding-left: 3px;'>*</span>";
 			}
 			else
 			{
-				echo "<input type='hidden' class='req_field vfield' name='hostname' id='hostname' value='$hostname'/>";
-				echo "<div class='bold'>$hostname</div>";
+				echo "<input type='hidden' class='req_field vfield' name='name' id='name' value='$name'/>";
+				echo "<div class='bold'>$name</div>";
 			}
 			?>
 			

@@ -44,7 +44,7 @@ Session::logcheck("MenuPolicy", "PolicyServers");
 
 $error = false;
 
-$hostname        =  POST('hostname');
+$name            =  POST('name');
 $ip              =  POST('ip');
 $port            =  POST('port');
 $descr           =  POST('descr');
@@ -61,7 +61,7 @@ $sim             = (POST('sim')) ? 1 : 0;
 
 
 $validate = array (
-	"hostname"  	  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Hostname")),
+	"name"  	      => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Server name")),
 	"ip"        	  => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip")),
 	"port"      	  => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
 	"descr"     	  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
@@ -123,7 +123,7 @@ else
 
 if ( $error == true )
 {
-	$_SESSION['_server']['hostname']        = $hostname;
+	$_SESSION['_server']['name']            = $name;
 	$_SESSION['_server']['ip']              = $ip;
 	$_SESSION['_server']['port']            = $port;
 	$_SESSION['_server']['descr']           = $descr;
@@ -158,10 +158,10 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
 {
 	include ("../hmenu.php"); 
-	$get_param = "name=$hostname";	
+	$get_param = "name=$name";	
 }
 else
-	$get_param = "name=$hostname&withoutmenu=1";	
+	$get_param = "name=$name&withoutmenu=1";	
 ?>
 
 <h1><?php echo gettext("Update Server"); ?></h1>
@@ -170,7 +170,7 @@ else
 <?php
 
 
-if ( POST('insert') && !empty($hostname) )
+if ( POST('insert') && !empty($name) )
 {
 	if ( $error == true)
 	{
@@ -186,7 +186,7 @@ if ( POST('insert') && !empty($hostname) )
     if(!isset( $resend_alarms) ) $resend_alarms = 0;
     if(!isset( $resend_events) ) $resend_events = 0;
     
-    Server::update($conn, $hostname, $ip, $port, $descr, $correlate, $cross_correlate, $store, $qualify, $resend_alarms, $resend_events, $sign, $sem, $sim);
+    Server::update($conn, $name, $ip, $port, $descr, $correlate, $cross_correlate, $store, $qualify, $resend_alarms, $resend_events, $sign, $sem, $sim);
     
 	$db->close($conn);
 	

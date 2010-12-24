@@ -694,7 +694,7 @@ function ProcessCriteria() {
     if (trim($userdata[2]) != "") {
 		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.*,extra_data.* FROM acid_event";
     	$data_join_sql = ",extra_data ";
-    	$flt = "extra_data.".$userdata[0]." ".$userdata[1]." ".(($userdata[1]=="like") ? "'%".str_replace("'","\'",$userdata[2])."%'" : $userdata[2]);
+    	$flt = "extra_data.".$userdata[0]." ".$userdata[1]." ".(($userdata[1]=="like") ? "'%".str_replace("'","\'",$userdata[2])."%'" : "'".$userdata[2]."'");
     	$tmp_meta .= " AND acid_event.sid=extra_data.sid AND acid_event.cid=extra_data.cid AND ($flt)";
     }
     /* Source Type */

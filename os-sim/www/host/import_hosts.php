@@ -21,7 +21,7 @@ function print_form($msg_errors=''){
 					<tr>
 						<td class='nobborder'>
 							<span style='font-weight: bold;'>"._("Format allowed").":</span><br/>
-							<div id='format'>"._("IP;hostname;FQDNs(FQDN1,FQDN2,... );Description;Asset;NAT;Sensors(Sensor1,Sensor2,...);Operating System")."</div>
+							<div id='format'>"._("IP;hostname;FQDNs(FQDN1,FQDN2,... );Description;Asset value;NAT;Sensors(Sensor1,Sensor2,...);Operating System")."</div>
 						</td>
 					</tr>
 					<tr>
@@ -216,7 +216,7 @@ function import_assets_csv($filename){
 			$param[4] = 2;
 		else
 		{
-			if ( !ossim_valid($param[4], OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("Asset")) )
+			if ( !ossim_valid($param[4], OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("Asset value")) )
 			{
 				$response ['line_errors'][$cont][] = array("Asset", ossim_get_error_clean());
 				$response ['status'] = false;

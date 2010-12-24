@@ -348,7 +348,7 @@ echo "$colModel\n";
 		sortorder: "<?php echo $sortorder
 ?>",
 		usepager: true,
-		title: '<?=_("HOST GROUPS")?>',
+		title: '<?=_("Host groups")?>',
 		pagestat: '<?=_("Displaying {from} to {to} of {total} host groups")?>',
 		nomsg: '<?=_("No host groups")?>',
 		useRp: true,

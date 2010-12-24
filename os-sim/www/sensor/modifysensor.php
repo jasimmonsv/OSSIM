@@ -44,7 +44,7 @@ Session::logcheck("MenuPolicy", "PolicySensors");
 
 $error = false;
 
-$hostname    = POST('hostname');
+$name        = POST('name');
 $ip          = POST('ip');
 $priority    = POST('priority');
 $descr	     = POST('descr');
@@ -52,7 +52,7 @@ $port	     = POST('port');
 
 
 $validate = array (
-	"hostname"  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Hostname")),
+	"name"      => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Sensor Name")),
 	"ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip")),
 	"priority"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Priority")),
 	"port"      => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
@@ -106,7 +106,7 @@ else
 
 if ( $error == true )
 {
-	$_SESSION['_sensor']['hostname'] = $hostname;
+	$_SESSION['_sensor']['name']     = $name;
 	$_SESSION['_sensor']['ip']       = $ip;
 	$_SESSION['_sensor']['descr']    = $descr;
 	$_SESSION['_sensor']['priority'] = $priority;
@@ -136,20 +136,20 @@ if (POST('withoutmenu') != "1")
 
 <?php
 
-if ( POST('insert') && !empty($hostname) )
+if ( POST('insert') && !empty($name) )
 {
     if ( $error == true)
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
 		Util::print_error($txt_error);	
-		Util::make_form("POST", "modifysensorform.php?name=$hostname&withoutmenu=1");
+		Util::make_form("POST", "modifysensorform.php?name=$name&withoutmenu=1");
 		die();
 	}
 		
     $db = new ossim_db();
     $conn = $db->connect();
 	
-    Sensor::update($conn, $hostname, $ip, $priority, $port, $descr);
+    Sensor::update($conn, $name, $ip, $priority, $port, $descr);
    
 	$db->close($conn);
     
@@ -161,12 +161,9 @@ if ( isset($_SESSION['_sensor']) )
 		
 ?>
     <p> <?php echo gettext("Sensor succesfully updated"); ?> </p>
-    <script>document.location.href="modifysensorform.php?name=<?=$hostname?>&withoutmenu=1"</script>
+    <script>document.location.href="modifysensorform.php?name=<?=$name?>&withoutmenu=1"</script>
 	
-<?php
-// update indicators on top frame
-//$OssimWebIndicator->update_display();
-?>
+
 
 </body>
 </html>

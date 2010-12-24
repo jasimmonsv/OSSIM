@@ -44,7 +44,7 @@ Session::logcheck("MenuPolicy", "PolicySensors");
 
 $error = false;
 
-$hostname    = POST('hostname');
+$name        = POST('name');
 $ip          = POST('ip');
 $priority    = POST('priority');
 $descr	     = POST('descr');
@@ -52,7 +52,7 @@ $port	     = POST('port');
 
 
 $validate = array (
-	"hostname"  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Hostname")),
+	"name"  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Sensor name")),
 	"ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip")),
 	"priority"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Priority")),
 	"port"      => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
@@ -103,7 +103,7 @@ else
 
 if ( $error == true )
 {
-	$_SESSION['_sensor']['hostname'] = $hostname;
+	$_SESSION['_sensor']['name']     = $name;
 	$_SESSION['_sensor']['ip']       = $ip;
 	$_SESSION['_sensor']['descr']    = $descr;
 	$_SESSION['_sensor']['priority'] = $priority;
@@ -148,7 +148,7 @@ if (POST('insert'))
     $db = new ossim_db();
     $conn = $db->connect();
 		
-   	Sensor::insert($conn, $hostname, $ip, $priority, $port, $descr);
+   	Sensor::insert($conn, $name, $ip, $priority, $port, $descr);
 		
 	$db->close($conn);
     Util::clean_json_cache_files("sensors");
@@ -159,10 +159,6 @@ if (POST('insert'))
 ?>
     <p><?php echo gettext("Sensor succesfully inserted"); ?></p>
     <? if ( $_SESSION["menu_sopc"]=="SIEM Components" && POST('withoutmenu') != "1" ) { ?><script>setTimeout("document.location.href='sensor.php'",1000)</script><? } ?>
-
-	<?php
-	// update indicators on top frame
-	//$OssimWebIndicator->update_display();
-	?>
+	
 	</body>
 </html>

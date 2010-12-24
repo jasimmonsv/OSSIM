@@ -81,7 +81,7 @@ $validate = array (
 	"threshold_c"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),
 	"nagios"       => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" => 'illegal:' . _("Nagios")),
 	"os"           => array("validation"=>"OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Os")),
-	"mac"          => array("validation"=>"OSS_NULLABLE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Mac")),
+	"mac"          => array("validation"=>"OSS_NULLABLE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Mac Address")),
 	"mac_vendor"   => array("validation"=>"OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, \"(\", \")\"", "e_message" => 'illegal:' . _("Mac Vendor")),
 	"latitude"     => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Latitude")),
 	"longitude"    => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Longitude")),
