@@ -150,7 +150,7 @@ if ($download == 1) {
     $result3 = $db->baseExecute($sql3);
     $myrow3 = $result3->baseFetchRow();
     $result3->baseFreeRows();
-    if ($download == 3) {
+    if ($download == 2 || $download == 3) {
         $ip_sql = "SELECT ip_ver, ip_hlen, ip_tos, ip_len, ip_id, ip_off, ip_flags,";
         $ip_sql.= "ip_ttl, ip_proto, ip_csum, ip_src, ip_dst FROM iphdr ";
         $ip_sql.= "WHERE sid='" . $sid . "' AND cid='" . $cid . "'";
@@ -183,7 +183,7 @@ if ($download == 1) {
             $data_header = $myrow2[1];
             $data_payload = $myrow2[2];
         } else {
-            $data_payload = $myrow2[0];
+            $data_payload = $myrow2[2];
         }
     } elseif ($myrow3[0] == 1) {
         if ($download == 2) {
@@ -191,7 +191,7 @@ if ($download == 1) {
             $data_header = bin2hex(base64_decode($myrow2[1]));
             $data_payload = bin2hex(base64_decode($myrow2[2]));
         } else {
-            $data_payload = bin2hex(base64_decode($myrow2[0]));
+            $data_payload = bin2hex(base64_decode($myrow2[2]));
         }
     } else {
         /* database contains neither hex nor base64 encoding. */
@@ -232,7 +232,7 @@ if ($download == 1) {
     * for HEX we have to divide by two -> two HEX characters
     * represent one binary byte.
     */
-    if ($download == 3) {
+    if ($download == 2 || $download == 3) {
         // tack an ethernet header on there
         $data_header = "DEADCAFEBABE1122334455660800";
         // later on, all of this gets interpreted as hex, so simply
@@ -327,6 +327,15 @@ if ($download == 1) {
     for ($i = 0; $i < strlen($data_header); $i = $i + 2) $packet.= chr(hexdec(substr($data_header, $i, 2)));
     /* Copy payload to packet, convert hex to dec and from dec to char. */
     for ($i = 0; $i < strlen($data_payload); $i = $i + 2) $packet.= chr(hexdec(substr($data_payload, $i, 2)));
+
+$f = fopen("/var/tmp/base_packet_" . $sid . "-" . $cid . ".pcap", "w");
+/* Writing pcap file header */
+foreach($hdr as $value) fputs($f, $value);
+foreach($phdr as $value) fputs($f, pack('L', $value));
+/* Writing packet */
+fputs($f, $packet);
+fclose($f);
+
     ob_start();
     /* Writing pcap file header */
     foreach($hdr as $value) echo $value;
