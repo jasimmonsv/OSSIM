@@ -42,11 +42,18 @@ require_once ('ossim_db.inc');
 /* connect to db */
 $db = new ossim_db();
 $conn = $db->connect();
-$user = Session::get_session_user();
+
+if ($_SESSION['_user']) {
+	$user = $_SESSION['_user'];
+	$_SESSION['_backup_user'] = $_SESSION['_user'];
+	unset($_SESSION['_user']); // destroy session to force password change
+} else {
+	$user = $_SESSION['_backup_user'];
+}
 $recent_pass = Log_action::get_last_pass($conn, $user);
 
 $conf = $GLOBALS["CONF"];
-if (!isset($_SESSION["_user"])) {
+if (!isset($_SESSION["_user"]) && !isset($_SESSION["_backup_user"])) {
     $ossim_link = $conf->get_conf("ossim_link", FALSE);
     $login_location = $ossim_link . '/session/login.php';
 	header("Location: $login_location");
@@ -89,6 +96,8 @@ if ($flag != "") {
 	} elseif (count($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($pass1) . "'")) > 0) {
 		$msg = _("You must change your old password.");
 	} else {
+		$_SESSION['_user'] = $_SESSION['_backup_user'];
+		unset($_SESSION['_backup_user']);
 		if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)))
 			Acl::changepass($conn, $user, $pass1);
 		else
