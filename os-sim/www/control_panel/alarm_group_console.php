@@ -335,7 +335,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 			}
 		});
 		// GROUPS
-		var selected_group = new Array();
+		var selected_group = "";
 		var group = document.getElementsByName("group");	
 		var index = 0;
 
@@ -343,8 +343,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 		{
 			if( group[i].checked )
 			{
-				var val = group[i].value.split(/_/);
-				selected_group[index] = val[0];
+				selected_group += "&group"+(index+1)+"="+group[i].value;
 				index++;
 			}
 		}
@@ -362,11 +361,31 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 				data: "background=1&only_close=1&unique_id=<?php echo $unique_id ?>"+params,
 				success: function(msg){
 					//$('#loading_div').html("");
+					//$('#loading_div').html("");
+					if (selected_group != "") {
+						$.ajax({
+							type: "GET",
+							url: "alarm_group_response.php?only_close="+index+selected_group,
+							data: "",
+							success: function(msg){
+								//alert (msg);
+								location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
+							}
+						});
+					}
 					location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
 				}
 			});
 		} else {
-			location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
+			$.ajax({
+				type: "GET",
+				url: "alarm_group_response.php?only_close="+index+selected_group,
+				data: "",
+				success: function(msg){
+					//alert (msg);
+					location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
+				}
+			});
 		}
 	}
 	

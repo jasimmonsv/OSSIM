@@ -74,6 +74,7 @@ $name = $_SESSION[GET('name')];
 $group_id = GET('group_id');
 $hide_closed = GET('hide_closed');
 $only_delete = GET('only_delete'); // Number of groups to delete
+$only_close = GET('only_close'); // Number of groups to close
 $unique_id = GET('unique_id');
 $top = (GET('top') != "") ? GET('top') : 100;
 $from = (GET('from') != "") ? GET('from') : 0;
@@ -85,11 +86,15 @@ ossim_valid($timestamp, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("time
 ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'illegal:' . _("name"));
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
 ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
+ossim_valid($only_close, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_close"));
 ossim_valid($unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($group_id, OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, OSS_SCORE, 'illegal:' . _("group_id"));
 if (ossim_error()) {
     die(ossim_error());
 }
+
+$from_date = ($timestamp!="") ? $timestamp." 00:00:00" : null;
+$to_date = ($timestamp!="") ? $timestamp : null;
 
 if ($only_delete) {
 	$group_ids = explode(",",$name);
@@ -108,15 +113,29 @@ if ($only_delete) {
 	}
 	exit;
 }
+if ($only_close) {
+	$group_ids = explode(",",$name);
+	for ($i = 1; $i <= $only_close; $i++) {
+		$data = explode("_",GET('group'.$i));
+		$name = $_SESSION[$data[0]];
+		$src_ip = $data[1];
+		$dst_ip = $data[2];
+		$timestamp = $data[3];
+		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$from_date,$to_date,$name);
+		foreach ($list as $s_alarm) {
+			$s_backlog_id = $s_alarm->get_backlog_id();
+			$s_event_id = $s_alarm->get_event_id();
+			Alarm::close($conn, $s_event_id);
+		}
+	}
+	exit;
+}
 
 $host_list = Host::get_list($conn);
 $assets = array();
 foreach($host_list as $host) {
 	$assets[$host->get_ip() ] = $host->get_asset();
 }
-
-$from_date = ($timestamp!="") ? $timestamp." 00:00:00" : null;
-$to_date = ($timestamp!="") ? $timestamp : null;
 
 list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",$from,$top,$from_date,$to_date,$name);
 
