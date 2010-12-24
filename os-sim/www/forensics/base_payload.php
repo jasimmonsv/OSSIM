@@ -328,14 +328,6 @@ if ($download == 1) {
     /* Copy payload to packet, convert hex to dec and from dec to char. */
     for ($i = 0; $i < strlen($data_payload); $i = $i + 2) $packet.= chr(hexdec(substr($data_payload, $i, 2)));
 
-$f = fopen("/var/tmp/base_packet_" . $sid . "-" . $cid . ".pcap", "w");
-/* Writing pcap file header */
-foreach($hdr as $value) fputs($f, $value);
-foreach($phdr as $value) fputs($f, pack('L', $value));
-/* Writing packet */
-fputs($f, $packet);
-fclose($f);
-
     ob_start();
     /* Writing pcap file header */
     foreach($hdr as $value) echo $value;
