@@ -86,7 +86,7 @@ ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'il
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
 ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
 ossim_valid($unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
-ossim_valid($group_id, OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("group_id"));
+ossim_valid($group_id, OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, OSS_SCORE, 'illegal:' . _("group_id"));
 if (ossim_error()) {
     die(ossim_error());
 }
