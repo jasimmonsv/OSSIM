@@ -47,6 +47,7 @@ $ip_sql.= "WHERE sid='" . $sid . "' AND cid='" . $cid . "'";
 $ip_res = $db->baseExecute($ip_sql);
 $ip = $ip_res->baseFetchRow();
 $ip_res->baseFreeRows();
+$l4_sql = "";
 if ($ip[8] == 1) {
     $l4_sql = "SELECT icmp_type, icmp_code, icmp_csum, icmp_id, icmp_seq ";
     $l4_sql.= "FROM icmphdr WHERE sid='" . $sid . "' AND cid='" . $cid . "'";
@@ -59,28 +60,20 @@ if ($ip[8] == 1) {
     $l4_sql.= "WHERE sid='" . $sid . "' AND cid='" . $cid . "'";
 }
 // Error when l4_res = ""
-if ($l4_res != "") {
+if ($l4_sql != "") {
     $l4_res = $db->baseExecute($l4_sql);
     $l4 = $l4_res->baseFetchRow();
     $l4_res->baseFreeRows();
 }
 /* 0 == hex, 1 == base64, 2 == ascii; cf. snort-2.4.4/src/plugbase.h */
 if ($myrow3[0] == 0) {
-    if ($download == 2) {
         $pcap_header = $myrow2[0];
         $data_header = $myrow2[1];
         $data_payload = $myrow2[2];
-    } else {
-        $data_payload = $myrow2[2];
-    }
 } elseif ($myrow3[0] == 1) {
-    if ($download == 2) {
         $pcap_header = bin2hex(base64_decode($myrow2[0]));
         $data_header = bin2hex(base64_decode($myrow2[1]));
         $data_payload = bin2hex(base64_decode($myrow2[2]));
-    } else {
-        $data_payload = bin2hex(base64_decode($myrow2[2]));
-    }
 } else {
     /* database contains neither hex nor base64 encoding. */
     //header ('HTTP/1.0 200');
