@@ -103,10 +103,16 @@ $data_header.= sprintf("%02s", dechex($ip[7])); // ttl
 $data_header.= sprintf("%02s", dechex($ip[8])); // proto
 $data_header.= sprintf("%04s", dechex($ip[9])); // csum.
 // http://us2.php.net/manual/en/function.dechex.php#71795
-// source IP
-for ($i = 0; $i < 4; $i++) $data_header.= sprintf("%02s", substr(dechex((float)$ip[10]) , $i * 2, 2));
-// dest IP
-for ($i = 0; $i < 4; $i++) $data_header.= sprintf("%02s", substr(dechex((float)$ip[11]) , $i * 2, 2));
+# source IP
+$chars = ($ip[10] <= 0x0fffffff) ? 1 : 0;
+$data_header.= sprintf("%02s", substr(dechex((float) $ip[10]),0,2-$chars));
+for ($i = 1; $i < 4; $i++) $data_header.= sprintf("%02s", substr(dechex((float) $ip[10]), $i*2-$chars, 2));
+
+# dest IP
+$chars = ($ip[11] <= 0x0fffffff) ? 1 : 0;
+$data_header.= sprintf("%02s", substr(dechex((float) $ip[11]),0,2-$chars));
+for ($i = 1; $i < 4; $i++) $data_header.= sprintf("%02s", substr(dechex((float) $ip[11]), $i*2-$chars, 2));
+			
 if ($ip[8] == 1) {
     $data_header.= sprintf("%02s", dechex((float)$l4[0])); // type
     $data_header.= sprintf("%02s", dechex((float)$l4[1])); // code
