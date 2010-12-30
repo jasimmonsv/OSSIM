@@ -521,7 +521,7 @@ foreach($result as $res=>$event_date) {
             }
         }
         // para coger
-        $plugin = htmlspecialchars($rs->fields["name"]);
+        $plugin = Util::htmlentities($rs->fields["name"]);
         if ($plugin == "") {
             $plugin = intval($matches[4]);
         }
@@ -590,25 +590,25 @@ foreach($result as $res=>$event_date) {
             }
             
             if ($event_date==$matches[2] || $event_date==$date) // compare real date with timezone corrected date
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($date) . "</td>";
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . Util::htmlentities($date) . "</td>";
 			else
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Event date").": ". htmlspecialchars("<b>".$event_date."</b><br>"._("Timezone").": <b>$txtzone</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . htmlspecialchars($date) . "</a></td>";
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Event date").": ". Util::htmlentities("<b>".$event_date."</b><br>"._("Timezone").": <b>$txtzone</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . Util::htmlentities($date) . "</a></td>";
 			
 
             //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin=' + this.innerHTML)\"\">$plugin</span></td>";
        		$line.= "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('<b>plugin</b>=' + this.innerHTML)\"\">$plugin</a></td>";
             $line.="<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'>";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . htmlspecialchars($sensor_name) . "</span></td><td nowrap>$src_div";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . htmlspecialchars($src_ip_name) . "</span></div>:";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_port=' + this.innerHTML)\"\">" . htmlspecialchars($matches[8]) . "</span>$country_img_src</td><td nowrap>$dst_div";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_ip=' + this.innerHTML)\"\">" . htmlspecialchars($dst_ip_name) . "</span></div>:";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_port=' + this.innerHTML)\"\">" . htmlspecialchars($matches[9]) . "</span>$country_img_dst</td>";
+            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . Util::htmlentities($sensor_name) . "</span></td><td nowrap>$src_div";
+            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . Util::htmlentities($src_ip_name) . "</span></div>:";
+            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_port=' + this.innerHTML)\"\">" . Util::htmlentities($matches[8]) . "</span>$country_img_src</td><td nowrap>$dst_div";
+            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_ip=' + this.innerHTML)\"\">" . Util::htmlentities($dst_ip_name) . "</span></div>:";
+            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_port=' + this.innerHTML)\"\">" . Util::htmlentities($matches[9]) . "</span>$country_img_dst</td>";
 
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name');return false\"\">" . htmlspecialchars($sensor_name) . "</a></td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src</b>=$src_ip_name');return false\"\">" . htmlspecialchars($src_ip_name) . "</a></div>:";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src_port</b>=$matches[8]');return false\">" . htmlspecialchars($matches[8]) . "</a>$country_img_src $homelan_src</td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst</b>=$dst_ip_name');return false\"\">" . htmlspecialchars($dst_ip_name) . "</a></div>:";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst_port</b>=$matches[9]');return false\">" . htmlspecialchars($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name');return false\"\">" . Util::htmlentities($sensor_name) . "</a></td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src</b>=$src_ip_name');return false\"\">" . Util::htmlentities($src_ip_name) . "</a></div>:";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src_port</b>=$matches[8]');return false\">" . Util::htmlentities($matches[8]) . "</a>$country_img_src $homelan_src</td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst</b>=$dst_ip_name');return false\"\">" . Util::htmlentities($dst_ip_name) . "</a></div>:";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst_port</b>=$matches[9]');return false\">" . Util::htmlentities($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
             if ($alt) {
                 $color = "grey";
                 $alt = 0;
@@ -641,7 +641,7 @@ foreach($result as $res=>$event_date) {
                     $clean_piece = str_replace(")", " ", $clean_piece);
                     $clean_piece = str_replace("[", " ", $clean_piece);
                     $clean_piece = str_replace("]", " ", $clean_piece);
-                                $clean_piece = htmlspecialchars($clean_piece);
+                                $clean_piece = Util::htmlentities($clean_piece);
                     $red = 0;
                     foreach($color_words as $word) {
                         if (stripos($clean_piece, $word)) {
@@ -679,7 +679,7 @@ foreach($result as $res=>$event_date) {
         // fin para coger
 
 		if (is_dir($config["searches_dir"]) && isset($export) && $export != "noExport") {
-			fputs($outfile,"$inc_counter,$date,$plugin,".htmlspecialchars($matches[5]).",".htmlspecialchars($matches[6]).":".htmlspecialchars($matches[8]).",".htmlspecialchars($matches[7]).":".htmlspecialchars($matches[9]).",$data_out\n");
+			fputs($outfile,"$inc_counter,$date,$plugin,".Util::htmlentities($matches[5]).",".Util::htmlentities($matches[6]).":".Util::htmlentities($matches[8]).",".Util::htmlentities($matches[7]).":".Util::htmlentities($matches[9]).",$data_out\n");
 			$logarr[urldecode($logfile)]++;
 		}
 		
