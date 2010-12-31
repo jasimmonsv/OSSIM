@@ -91,57 +91,57 @@ $qro->AddTitle("CONTEXT");
 /* Apply sort criteria */
 if ($qs->isCannedQuery()) $sort_sql = " ORDER BY timestamp DESC ";
 else {
-	$sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
+	//$sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
     //  3/23/05 BDB   mods to make sort by work for Searches
     $sort_sql = "";
     if (!isset($sort_order)) {
         $sort_order = NULL;
     }
     if ($sort_order == "sip_a") {
-        $sort_sql = " ORDER BY ip_src ASC";
+        $sort_sql = " ORDER BY ip_src ASC,timestamp DESC";
         $criteria_sql = str_replace("1  AND ( timestamp", "ip_src >= 0 AND ( timestamp", $criteria_sql);
     } elseif ($sort_order == "sip_d") {
-        $sort_sql = " ORDER BY ip_src DESC";
+        $sort_sql = " ORDER BY ip_src DESC,timestamp DESC";
         $criteria_sql = preg_replace("/1  AND \( timestamp/", "ip_src >= 0 AND ( timestamp", $criteria_sql);
     } elseif ($sort_order == "dip_a") {
-        $sort_sql = " ORDER BY ip_dst ASC";
+        $sort_sql = " ORDER BY ip_dst ASC,timestamp DESC";
         $criteria_sql = preg_replace("/1  AND \( timestamp/", "ip_dst >= 0 AND ( timestamp", $criteria_sql);
     } elseif ($sort_order == "dip_d") {
-        $sort_sql = " ORDER BY ip_dst DESC";
+        $sort_sql = " ORDER BY ip_dst DESC,timestamp DESC";
         $criteria_sql = preg_replace("/1  AND \( timestamp/", "ip_dst >= 0 AND ( timestamp", $criteria_sql);
     } elseif ($sort_order == "sig_a") {
-        $sort_sql = " ORDER BY plugin_id ASC,plugin_sid";
+        $sort_sql = " ORDER BY plugin_id ASC,plugin_sid,timestamp DESC";
     } elseif ($sort_order == "sig_d") {
-        $sort_sql = " ORDER BY plugin_id DESC,plugin_sid";
+        $sort_sql = " ORDER BY plugin_id DESC,plugin_sid,timestamp DESC";
     } elseif ($sort_order == "time_a") {
         $sort_sql = " ORDER BY timestamp ASC";
     } elseif ($sort_order == "time_d") {
         $sort_sql = " ORDER BY timestamp DESC";
     } elseif ($sort_order == "oasset_d_a") {
-        $sort_sql = " ORDER BY ossim_asset_dst ASC";
+        $sort_sql = " ORDER BY ossim_asset_dst ASC,timestamp DESC";
     } elseif ($sort_order == "oasset_d_d") {
-        $sort_sql = " ORDER BY ossim_asset_dst DESC";
+        $sort_sql = " ORDER BY ossim_asset_dst DESC,timestamp DESC";
     } elseif ($sort_order == "oprio_a") {
-        $sort_sql = " ORDER BY ossim_priority ASC";
+        $sort_sql = " ORDER BY ossim_priority ASC,timestamp DESC";
     } elseif ($sort_order == "oprio_d") {
-        $sort_sql = " ORDER BY ossim_priority DESC";
+        $sort_sql = " ORDER BY ossim_priority DESC,timestamp DESC";
     } elseif ($sort_order == "oriska_a") {
-        $sort_sql = " ORDER BY ossim_risk_c ASC";
+        $sort_sql = " ORDER BY ossim_risk_c ASC,timestamp DESC";
     } elseif ($sort_order == "oriska_d") {
-        $sort_sql = " ORDER BY ossim_risk_c DESC";
+        $sort_sql = " ORDER BY ossim_risk_c DESC,timestamp DESC";
     } elseif ($sort_order == "oriskd_a") {
-        $sort_sql = " ORDER BY ossim_risk_a ASC";
+        $sort_sql = " ORDER BY ossim_risk_a ASC,timestamp DESC";
     } elseif ($sort_order == "oriskd_d") {
-        $sort_sql = " ORDER BY ossim_risk_a DESC";
+        $sort_sql = " ORDER BY ossim_risk_a DESC,timestamp DESC";
     } elseif ($sort_order == "oreli_a") {
-        $sort_sql = " ORDER BY ossim_reliability ASC";
+        $sort_sql = " ORDER BY ossim_reliability ASC,timestamp DESC";
     } elseif ($sort_order == "oreli_d") {
-        $sort_sql = " ORDER BY ossim_reliability DESC";
+        $sort_sql = " ORDER BY ossim_reliability DESC,timestamp DESC";
     } elseif ($sort_order == "proto_a") {
-        $sort_sql = " ORDER BY ip_proto ASC";
+        $sort_sql = " ORDER BY ip_proto ASC,timestamp DESC";
         $criteria_sql = preg_replace("/1  AND \( timestamp/", "ip_proto > 0 AND ( timestamp", $criteria_sql);
     } elseif ($sort_order == "proto_d") {
-        $sort_sql = " ORDER BY ip_proto DESC";
+        $sort_sql = " ORDER BY ip_proto DESC,timestamp DESC";
         $criteria_sql = preg_replace("/1  AND \( timestamp/", "ip_proto > 0 AND ( timestamp", $criteria_sql);
     }
     ExportHTTPVar("prev_sort_order", $sort_order);

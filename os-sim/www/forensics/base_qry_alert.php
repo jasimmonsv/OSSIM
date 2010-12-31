@@ -158,8 +158,9 @@ $submit = ImportHTTPVar("submit", VAR_DIGIT | VAR_PUNC | VAR_LETTER, array(
 //if(preg_match("/^#0(-\(\d+-\d+\))$/", $submit, $matches)){
 //$submit = "#1" . $matches[1];
 //}
+$sort_order = ImportHTTPVar("sort_order", VAR_LETTER | VAR_USCORE);
 $_SERVER["QUERY_STRING"] = "submit=" . rawurlencode($submit);
-unset($_GET["sort_order"]);
+//unset($_GET["sort_order"]);
 $et = new EventTiming($debug_time_mode);
 $cs = new CriteriaState("base_qry_main.php", "&amp;new=1&amp;submit=" . _QUERYDBP);
 $cs->ReadState();
@@ -206,8 +207,59 @@ $qro->AddTitle("Timestamp", "time_a", " ", " ORDER BY timestamp ASC ", "time_d",
 $qro->AddTitle("Source<BR>Address", "sip_a", " ", " ORDER BY ip_src ASC", "sip_d", " ", " ORDER BY ip_src DESC");
 $qro->AddTitle("Dest.<BR>Address", "dip_a", " ", " ORDER BY ip_dst ASC", "dip_d", " ", " ORDER BY ip_dst DESC");
 $qro->AddTitle("Layer 4<BR>Proto", "proto_a", " ", " ORDER BY layer4_proto ASC", "proto_d", " ", " ORDER BY layer4_proto DESC");
-$sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , "");
+$sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
+/* Apply sort criteria */
+if ($sort_sql[1]=="" && !isset($sort_order)) $sort_order = "time_d";
+if ($sort_order == "sip_a") {
+    $sort_sql[1] = " ORDER BY ip_src ASC,timestamp DESC";
+    $where = str_replace("1  AND ( timestamp", "ip_src >= 0 AND ( timestamp", $where);
+} elseif ($sort_order == "sip_d") {
+    $sort_sql[1] = " ORDER BY ip_src DESC,timestamp DESC";
+    $where = preg_replace("/1  AND \( timestamp/", "ip_src >= 0 AND ( timestamp", $where);
+} elseif ($sort_order == "dip_a") {
+    $sort_sql[1] = " ORDER BY ip_dst ASC,timestamp DESC";
+    $where = preg_replace("/1  AND \( timestamp/", "ip_dst >= 0 AND ( timestamp", $where);
+} elseif ($sort_order == "dip_d") {
+    $sort_sql[1] = " ORDER BY ip_dst DESC,timestamp DESC";
+    $where = preg_replace("/1  AND \( timestamp/", "ip_dst >= 0 AND ( timestamp", $where);
+} elseif ($sort_order == "sig_a") {
+    $sort_sql[1] = " ORDER BY plugin_id ASC,plugin_sid,timestamp DESC";
+} elseif ($sort_order == "sig_d") {
+    $sort_sql[1] = " ORDER BY plugin_id DESC,plugin_sid,timestamp DESC";
+} elseif ($sort_order == "time_a") {
+    $sort_sql[1] = " ORDER BY timestamp ASC";
+} elseif ($sort_order == "time_d") {
+    $sort_sql[1] = " ORDER BY timestamp DESC";
+} elseif ($sort_order == "oasset_d_a") {
+    $sort_sql[1] = " ORDER BY ossim_asset_dst ASC,timestamp DESC";
+} elseif ($sort_order == "oasset_d_d") {
+    $sort_sql[1] = " ORDER BY ossim_asset_dst DESC,timestamp DESC";
+} elseif ($sort_order == "oprio_a") {
+    $sort_sql[1] = " ORDER BY ossim_priority ASC,timestamp DESC";
+} elseif ($sort_order == "oprio_d") {
+    $sort_sql[1] = " ORDER BY ossim_priority DESC,timestamp DESC";
+} elseif ($sort_order == "oriska_a") {
+    $sort_sql[1] = " ORDER BY ossim_risk_c ASC,timestamp DESC";
+} elseif ($sort_order == "oriska_d") {
+    $sort_sql[1] = " ORDER BY ossim_risk_c DESC,timestamp DESC";
+} elseif ($sort_order == "oriskd_a") {
+    $sort_sql[1] = " ORDER BY ossim_risk_a ASC,timestamp DESC";
+} elseif ($sort_order == "oriskd_d") {
+    $sort_sql[1] = " ORDER BY ossim_risk_a DESC,timestamp DESC";
+} elseif ($sort_order == "oreli_a") {
+    $sort_sql[1] = " ORDER BY ossim_reliability ASC,timestamp DESC";
+} elseif ($sort_order == "oreli_d") {
+    $sort_sql[1] = " ORDER BY ossim_reliability DESC,timestamp DESC";
+} elseif ($sort_order == "proto_a") {
+    $sort_sql[1] = " ORDER BY ip_proto ASC,timestamp DESC";
+    $where = preg_replace("/1  AND \( timestamp/", "ip_proto > 0 AND ( timestamp", $where);
+} elseif ($sort_order == "proto_d") {
+    $sort_sql[1] = " ORDER BY ip_proto DESC,timestamp DESC";
+    $where = preg_replace("/1  AND \( timestamp/", "ip_proto > 0 AND ( timestamp", $where);
+}
+
 $save_sql = "SELECT acid_event.sid, acid_event.cid" . $sort_sql[0] . $from . $where . $sort_sql[1];
+//print_r($save_sql);
 if ($event_cache_auto_update == 1) UpdateAlertCache($db);
 GetQueryResultID($submit, $seq, $sid, $cid);
 if ($debug_mode > 0) echo "\n====== Alert Lookup =======<BR>
