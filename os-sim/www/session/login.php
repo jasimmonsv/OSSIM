@@ -40,6 +40,7 @@ require_once "ossim_conf.inc";
 require_once "ossim_db.inc";
 $conf = $GLOBALS["CONF"];
 $gacl = $GLOBALS['ACL'];
+
 function bad_browser()
 {
     $u_agent = $_SERVER['HTTP_USER_AGENT'];
@@ -53,6 +54,7 @@ function bad_browser()
     }
 	return "";
 }
+
 function dateDiff($startDate, $endDate)
 {
     // Parse dates for conversion
@@ -66,6 +68,7 @@ function dateDiff($startDate, $endDate)
     // Return difference
     return round(($end_date - $start_date), 0);
 }
+
 function check_phpgacl_install() {
     global $gacl;
     $db_table_prefix = $gacl->_db_table_prefix;
@@ -93,6 +96,7 @@ function check_phpgacl_install() {
     $db->close($conn);
 }
 check_phpgacl_install();
+
 if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, ACL_DEFAULT_OSSIM_ADMIN)) {
     echo "
             <p align=\"center\"><b>You need to setup default acls</b>
@@ -107,7 +111,8 @@ require_once 'classes/Security.inc';
 
 $action = REQUEST('action');
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("action"));
-if ($action == "logout") {
+if ($action == "logout")
+{
     require_once 'classes/Log_action.inc';
     $infolog = array(
         Session::get_session_user()
@@ -115,19 +120,25 @@ if ($action == "logout") {
     if (trim($infolog[0]) != "") Log_action::log(2, $infolog);
     Session::logout();
 }
-$user = REQUEST('user');
-$pass = base64_decode(REQUEST('pass'));
+
+$user     = REQUEST('user');
+$pass 	  = base64_decode(REQUEST('pass'));
 $accepted = REQUEST('first_login');
-$mobile = REQUEST("mobile");
+$mobile   = REQUEST("mobile");
+
 ossim_valid($user, OSS_USER, OSS_NULLABLE, 'illegal:' . _("User name"));
 ossim_valid($mobile, OSS_LETTER, OSS_NULLABLE, 'illegal:' . _("Mobile"));
 ossim_valid($accepted, OSS_NULLABLE, 'yes', 'no', 'illegal:' . _("First login"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
+
 $failed = true;
 $first_login = "no";
-if (REQUEST('user') && trim($pass)!="") {
+
+if (REQUEST('user') && trim($pass)!="")
+{
     require_once ("classes/Config.inc");
     $session = new Session($user, $pass, "");
     $conf = new Config();
@@ -139,7 +150,9 @@ if (REQUEST('user') && trim($pass)!="") {
 	$login_exists = $session->login_exists();
 	$lockout_duration = intval($conf->get_conf("unlock_user_interval", FALSE)) * 60;
 	
-	if ($login_return != true) {$infolog = array(
+	if ($login_return != true)
+	{
+		$infolog = array(
             REQUEST('user')
         );
         $_SESSION['_user'] = "";
@@ -155,7 +168,9 @@ if (REQUEST('user') && trim($pass)!="") {
 	        	$session->login_disable();
 	        }
         }
-	} elseif (!$is_disabled) {
+	} 
+	elseif (!$is_disabled)
+	{
         $_SESSION['bad_pass'] = "";
 		$first_login = $conf->get_conf("first_login", FALSE);
 		$pass_expire_max = ($conf->get_conf("pass_expire", FALSE) > 0 && $conf->get_conf("pass_expire", FALSE) != "yes" && $conf->get_conf("pass_expire", FALSE) != "no") ? $conf->get_conf("pass_expire", FALSE) : 0;
@@ -174,12 +189,12 @@ if (REQUEST('user') && trim($pass)!="") {
             );
             Log_action::log(1, $infolog);
             if (POST('maximized') == "1") {
-?>
+	?>
 				<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 				<html xmlns="http://www.w3.org/1999/xhtml">
 				<body><script>window.open("../index.php","full_main_window","fullscreen,scrollbars")</script></body>
 				</html>
-				<?php
+	<?php
             } elseif ($first_userlogin) {
 				header("Location: first_login.php");
 			} elseif ($pass_expire_max > 0 && dateDiff($last_pass_change,date("Y-m-d H:i:s")) >= $pass_expire_max) {
@@ -199,7 +214,8 @@ if (REQUEST('user') && trim($pass)!="") {
 //
 // check if exists "enabled" field or create
 //
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
 Session::check_enabled_field($conn);
 $db->close($conn);
@@ -207,174 +223,199 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php echo gettext("AlienVault - ".($opensource ? "Open Source SIEM" : ($demo ? "Professional SIEM Demo" : "Professional SIEM"))); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.base64.js"></script>
-  <link rel="Shortcut Icon" type="image/x-icon" href="../favicon.ico">
-<script>
-if (location.href != top.location.href) top.location.href = location.href;
-var newwindow;
-function new_wind(url,name)
-{ 
-        newwindow=window.open(url,name,'height=768,width=1024,scrollbars=yes');
-        if (window.focus) {newwindow.focus()}
-}
-</script>
+	<title> <?php echo gettext("AlienVault - ".($opensource ? "Open Source SIEM" : ($demo ? "Professional SIEM Demo" : "Professional SIEM"))); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<META http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.base64.js"></script>
+	<link rel="Shortcut Icon" type="image/x-icon" href="../favicon.ico">
+	
+	<script type='text/javascript'>
+		
+		$(document).ready(function() {
+			if (typeof(document.f) != 'undefined') document.f.user.focus();
+		});
+		
+		var newwindow;
+		function new_wind(url,name)
+		{ 
+				newwindow=window.open(url,name,'height=768,width=1024,scrollbars=yes');
+				if (window.focus) {newwindow.focus()}
+		}
+	</script>
 </head>
-<?php
-if ($failed) { ?>
-<body onLoad="javascript:document.f.user.focus();" bgcolor=#aaaaaa>
 
-<?php
-    require_once 'classes/About.inc';
-    $about = new About();
-?>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<form name="f" method="POST" action="login.php" onsubmit="$('#pass').val($.base64.encode($('#passu').val()));$('#submit_button').attr('disabled','disabled')" style="margin:1px">
+<body bgcolor='#AAAAAA'>
 
-<table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class=nobborder><tr><td class="nobborder">
-<table align="center" class="noborder" style="background-color:white">
+	<?php
+	if ($failed)
+	{ 
+		require_once 'classes/About.inc';
+		$about = new About();
+	?>
 
-  <tr><td class="noborder" style="text-align:right"><a href="javascript:new_wind('http://www.ossim.net/dokuwiki/doku.php?id=user_manual:introduction','Help')"><img src="../pixmaps/help_icon_gray.png" border="0"></a></td></tr>
-  <tr> <td class="nobborder" style="text-align:center;padding:20px 20px 0px 20px">
-       <img src="../pixmaps/ossim<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" />
-  </td> </tr>
+	<script>
+	if (location.href != top.location.href) top.location.href = location.href;
+	</script>	
+	
+	<br/><br/><br/><br/><br/><br/><br/><br/><br/>
+	
+	<form name="f" method="POST" action="login.php" onsubmit="$('#pass').val($.base64.encode($('#passu').val()));$('#submit_button').attr('disabled','disabled')" style="margin:1px">
+
+	<table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class='nobborder'>
+		<tr>
+			<td class="nobborder">
+				<table align="center" class="noborder" style="background-color:white">
+
+					<tr>
+						<td class="noborder" style="text-align:right">
+							<a href="javascript:new_wind('http://www.ossim.net/dokuwiki/doku.php?id=user_manual:introduction','Help')">
+							<img src="../pixmaps/help_icon_gray.png" border="0"></a>
+						</td>
+					</tr>
+				  
+					<tr>
+						<td class="nobborder" style="text-align:center;padding:20px 20px 0px 20px">
+							<img src="../pixmaps/ossim<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" />
+						</td> 
+					</tr>
  
-  <tr>
-    <td align="center" class="nobborder" style="text-align:center">
-      <br/><br/><br/>
-    </td>
-  </tr>
-   <tr>
-    <td class="nobborder center">
-	  <table align="center" cellspacing=4 cellpadding=2 style="background-color:#eeeeee;border-color:#dedede">
-	  <tr>
-	    <td style="text-align:right" class="nobborder"> <?php
-    echo gettext("User"); ?> </td>
-	    <td style="text-align:left" class="nobborder"><input type="text" name="user" /></td>
-	  </tr>
-	  <tr>
-	    <td style="text-align:right" class="nobborder"> <?php
-    echo gettext("Password"); ?> </td>
-	    <td style="text-align:left" class="nobborder"><input type="password" id="passu" name="passu"/>
-	    <input type="hidden" id="pass" name="pass"/></td>
-	  </tr>
-	  </table>
-    </td>
-  </tr>
-  <tr>
-    <td class="nobborder" style="text-align:center;height:30px;font-size:12px">
+				    <tr>
+						<td align="center" class="nobborder" style="text-align:center">
+						  <br/><br/><br/>
+						</td>
+				    </tr>
+					
+					<tr>
+						<td class="nobborder center">
+							<table align="center" cellspacing='4' cellpadding='2' style="background-color:#eeeeee;border-color:#dedede">
+								<tr>
+									<td style="text-align:right" class="nobborder"> <?php echo gettext("User"); ?> </td>
+									<td style="text-align:left" class="nobborder"><input type="text" name="user" /></td>
+								</tr>
+								<tr>
+									<td style="text-align:right" class="nobborder"> <?php echo gettext("Password"); ?> </td>
+									<td style="text-align:left" class="nobborder">
+										<input type="password" id="passu" name="passu"/>
+										<input type="hidden" id="pass" name="pass"/>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+  
+					<tr>
+						<td class="nobborder" style="text-align:center;height:30px;font-size:12px">
+							<input type="checkbox" value="1" name="maximized" style="font-size:7px"/> Maximized
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="nobborder" style="text-align:center;padding-top:20px;">
+							<input type="submit" id="submit_button" value="<?php echo gettext("Login"); ?>" class="button" style="font-size:12px"/>
+						</td>
+					</tr>
+					
+					<tr><td class="nobborder" style="text-align:center"><br/></td></tr>
+				
+				</table>
 
-    <input type="checkbox" value="1" name="maximized" style="font-size:7px"> Maximized
-
-    </td>
-  </tr>
-  <tr>
-    <td class="nobborder" style="text-align:center;padding-top:20px">
-
-    <input type="submit" id="submit_button" value="<?php
-    echo gettext("Login"); ?>" class="button" style="font-size:12px">
-
-    </td>
-  </tr>
-  <tr>
-    <td class="nobborder" style="text-align:center">
-    <br/>
-    </td>
-  </tr>
-</table>
-
-    </td>
-  </tr>
+			</td>
+		</tr>
+		
 	<? if (($br = bad_browser()) != "") {?>
-	<tr>
-		<td class="blue" width="200" bgcolor="#FBEDEC" style="border:1px solid #FDA8A8" align="center"><i><?=_("<b>Warning</b>: $br is <b>not compatible</b> with OSSIM.<br> Please use Internet Explorer 7 (or newer), Firefox or Chrome")?></i></td>
-	</tr>
+		<tr>
+			<td class="blue" width="200" bgcolor="#FBEDEC" style="border:1px solid #FDA8A8" align="center"><i><?=_("<b>Warning</b>: $br is <b>not compatible</b> with OSSIM.<br> Please use Internet Explorer 7 (or newer), Firefox or Chrome")?></i></td>
+		</tr>
 	<? } ?>
-</table>
-</form>
+	
+	</table>
+	
+	</form>
 
-  <?php
-	if ($is_disabled) echo "<p><font color=\"red\">" . gettext("The User")." <b>$user</b> "._("is ")."<b>"._("disabled")."</b>."._(" Please contact the administrator.") . "</font></p>";
-	elseif (isset($bad_pass)) echo "<p><font color=\"red\">" . gettext("Wrong User & Password") . "</font></p>";
-	if ($disabled) echo "<p><font color=\"red\">" . _("This user has been disabled for security reasons. Please contact with the administrator.") . "</font></p>";
-?>
+	<?php
+	if ($is_disabled) 
+		echo "<p><font color=\"red\">" . gettext("The User")." <b>$user</b> "._("is ")."<b>"._("disabled")."</b>."._(" Please contact the administrator.") . "</font></p>";
+	elseif (isset($bad_pass)) 
+		echo "<p><font color=\"red\">" . gettext("Wrong User & Password") . "</font></p>";
+	
+	if ($disabled) 
+		echo "<p><font color=\"red\">" . _("This user has been disabled for security reasons. Please contact with the administrator.") . "</font></p>";
+
+	}
+	
+	// first login
+	if ($first_login=="yes")
+	{ 
+    ?>
+
+		<form name="f" method="POST" onsubmit="$('#pass').val($.base64.encode($('#pass').val()))" action="login.php" style="margin:1px">
+			
+			<input type="hidden" name="user" value="<?php echo $user ?>"/>
+			<input type="hidden" name="pass" id="pass" value="<?php echo $pass ?>"/>
+			<input type="hidden" name="first_login" value="yes"/>
+
+			<table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa;" class='nobborder'>
+				<tr>
+					<td class="nobborder">
+						<table align="center" class="noborder" style="background-color:white">
+
+							<tr>
+								<td class="noborder" style="text-align:right">
+									<a href="javascript:new_wind('http://www.ossim.net/dokuwiki/doku.php?id=user_manual:introduction','Help')">
+									<img src="../pixmaps/help_icon_gray.png" border="0"></a>
+								</td>
+							</tr>
+							
+							<tr>
+								<td class="nobborder" style="text-align:center;padding:10px 20px 0px 20px;">
+								<img src="../pixmaps/ossim<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" />
+								</td>
+							</tr>
+						 
+							<tr>
+							<td align="center" class="nobborder" style="padding-top:10px">
+									<table height="400" width="740">
+										<tr>
+											<td class="nobborder">
+												<div style="text-align:left;padding:5px;height:400px;overflow-y:scroll">
+												<?php
+													if (file_exists("../../include/First_login.txt")) {
+														require_once ("../../include/First_login.txt");
+													}
+												?>
+												</div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+  
+							<tr>
+								<td class="nobborder" style="text-align:center;padding-top:20px">
+									<input type="submit" value="<?php echo gettext("Accept"); ?>" class="button" style="font-size:12px"/> &nbsp;&nbsp;&nbsp;
+									<input type="button" onclick="document.location.href='login.php'" value="<?php echo gettext("Logout"); ?>" class="button" style="font-size:12px"/>
+								</td>
+							</tr>
+  
+  							<tr><td class="nobborder" style="text-align:center"><br/></td></tr>
+
+						</table>
+
+					</td>
+				</tr>
+			</table>
+
+		</form>
+
+<?php } ?>
 
 </body>
 
-<?php
-}
-if ($first_login=="yes") { // first login
-     ?>
-
-<body bgcolor=#aaaaaa>
-
-<form name="f" method="POST" onsubmit="$('#pass').val($.base64.encode($('#pass').val()))" action="login.php" style="margin:1px">
-<input type="hidden" name="user" value="<?php echo $user ?>"/>
-<input type="hidden" name="pass" id="pass" value="<?php echo $pass ?>"/>
-<input type="hidden" name="first_login" value="yes"/>
-
-<table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class=nobborder><tr><td class="nobborder">
-<table align="center" class="noborder" style="background-color:white">
-
-  <tr><td class="noborder" style="text-align:right"><a href="javascript:new_wind('http://www.ossim.net/dokuwiki/doku.php?id=user_manual:introduction','Help')"><img src="../pixmaps/help_icon_gray.png" border="0"></a></td></tr>
-  <tr> <td class="nobborder" style="text-align:center;padding:10px 20px 0px 20px">
-       <img src="../pixmaps/ossim<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" />
-  </td> </tr>
- 
-  <tr>
-    <td align="center" class="nobborder" style="padding-top:10px">
-		<table height="400" width="740"><tr><td class="nobborder">
-			<div style="text-align:left;padding:5px;height:400px;overflow-y:scroll">
-			<?php
-    if (file_exists("../../include/First_login.txt")) {
-        require_once ("../../include/First_login.txt");
-    }
-?>
-			</div>
-		</td></tr>
-		</table>
-    </td>
-  </tr>
-  <tr>
-    <td class="nobborder" style="text-align:center;padding-top:20px">
-	
-	<input type="submit" value="<?php
-    echo gettext("Accept"); ?>" class="button" style="font-size:12px"> &nbsp;&nbsp;&nbsp;
-	<input type="button" onclick="document.location.href='login.php'" value="<?php
-    echo gettext("Logout"); ?>" class="button" style="font-size:12px">
-	
-    </td>
-  </tr>
-  <tr>
-    <td class="nobborder" style="text-align:center">
-    <br/>
-    </td>
-  </tr>
-</table>
-
-    </td>
-  </tr>
-</table>
-
-</form>
-</body>
-
-<?php
-} ?>
 </html>
 

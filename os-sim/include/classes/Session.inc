@@ -419,7 +419,15 @@ class Session {
     }
     function logout() {
         Session_activity::delete();
-		Session_activity::delete_session();
+	Session_activity::delete_session();
+
+        if (!$login_location) {
+            $conf = $GLOBALS['CONF'];
+            $ossim_link = $conf->get_conf("ossim_link", FALSE);
+            $login_location = preg_replace("/(\/)+/","/",$ossim_link . '/session/login.php');
+        }
+        header("Location: $login_location");
+        exit;
     }
     function menu_perms($menu, $submenu) {
     	// perms only for pro version => allways return true
