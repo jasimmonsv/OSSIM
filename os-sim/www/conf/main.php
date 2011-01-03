@@ -1396,14 +1396,7 @@ $CONFIG = array(
     )
 );
 
-function valid_value($key, $value) {
-    $numeric_values = array(
-        "recovery",
-        "threshold",
-        "use_resolv",
-        "have_scanmap3d",
-        "max_event_tmp"
-    );
+function valid_value($key, $value, $numeric_values) {
     if (in_array($key, $numeric_values)) {
         if (!is_numeric($value)) {
             require_once ("ossim_error.inc");
@@ -1427,22 +1420,69 @@ function submit() {
 <?php
 }
 if (POST('update')) {
-	require_once 'classes/Config.inc';
+    $numeric_values = array(
+        "server_port",
+        "use_resolv",
+        "use_ntop_rewrite",
+        "use_munin",
+        "frameworkd_port",
+        "frameworkd_controlpanelrrd",
+        "frameworkd_donagios",
+        "frameworkd_alarmincidentgeneration",
+        "frameworkd_optimizedb",
+        "frameworkd_listener",
+        "frameworkd_scheduler",
+        "frameworkd_businessprocesses",
+        "frameworkd_eventstats",
+        "frameworkd_backup",
+        "frameworkd_alarmgroup",
+        "snort_port",
+        "recovery",
+        "threshold",
+        "backup_port",
+        "backup_day",
+        "nessus_port",
+        "nessus_distributed",
+        "vulnerability_incident_threshold",
+        "have_scanmap3d",
+        "user_action_log",
+        "log_syslog",
+        "pass_length_min",
+        "pass_length_max",
+        "pass_history",
+        "pass_expire_min",
+        "pass_expire",
+        "failed_retries",
+        "unlock_user_interval",
+        "tickets_max_days",
+        "smtp_port"
+    );
+        
+    require_once 'classes/Config.inc';
     $config = new Config();
     for ($i = 0; $i < POST('nconfs'); $i++) {
-        if (valid_value(POST("conf_$i") , POST("value_$i"))) {
+        if(in_array(POST("conf_$i"), $numeric_values) && POST("value_$i")=="") {
+            $_POST["value_$i"] = 0;
+        }
+        ossim_valid(POST("value_$i"), OSS_ALPHA, OSS_NULLABLE, OSS_SCORE, OSS_DOT, OSS_PUNC, "\{\}\|;", 'illegal:' . POST("conf_$i")); 
+        if (ossim_error()) {
+           die(ossim_error()); 
+        }
+        if (valid_value(POST("conf_$i") , POST("value_$i"), $numeric_values)) {
             if (!$ossim_conf->is_in_file(POST("conf_$i"))) {
+                $before_value = $ossim_conf->get_conf(POST("conf_$i"),false); 
                 $config->update(POST("conf_$i") , POST("value_$i"));
+                if (POST("value_$i") != $before_value) Log_action::log(7, array("variable: ".POST("conf_$i")));
                 //echo POST("conf_$i")."---->";
                 //echo POST("value_$i")."<br><br>";
                 
             }
         }
     }
-    $infolog = array(
+  /*  $infolog = array(
         $_SESSION['_user']
     );
-    Log_action::log(7, $infolog);
+    Log_action::log(7, $infolog);*/
     header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word'));
     exit;
 }
@@ -1660,11 +1700,14 @@ $advanced = (POST('adv') == "1") ? true : ((GET('adv') == "1") ? true : false);
 //$links = ($advanced) ? "<a href='main.php' style='color:#cccccc'>simple</a> | <b>advanced</b>" : "<b>simple</b> | <a href='main.php?adv=1' style='color:#cccccc'>advanced</a>";
 //$title = ($advanced) ? "Advanced" : "Main";
 include ("../hmenu.php");
+
+	$onsubmit = ( GET('adv') == '1' ) ? "onsubmit='enableall();'" : "";
+
 ?>
   
-  <form method="POST" style="margin:0 auto" onsubmit="enableall()" action="<?php echo $_SERVER["SCRIPT_NAME"] ?>" />
+  <form method="POST" style="margin:0 auto" <?php echo $onsubmit;?> action="<?php echo $_SERVER["SCRIPT_NAME"] ?>" />
   
-  <table align=center>
+  <table align='center'>
   <tr>
   <td class="noborder">
   
