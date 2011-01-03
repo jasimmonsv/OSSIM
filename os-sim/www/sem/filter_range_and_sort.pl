@@ -95,7 +95,7 @@ foreach my $file (@files) {
 		#print "$file\n";
 		#next;
 	#}
-	next if ($file =~ /Warning/ || $file eq "");
+	next if ($file =~ /Warning|\/searches\// || $file eq "");
 	my @fields = split(/\//,$file);
 	my $sdirtime = timegm(0, 0, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
 	my $edirtime = timegm(59, 59, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
