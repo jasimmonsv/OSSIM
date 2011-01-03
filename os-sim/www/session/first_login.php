@@ -172,7 +172,7 @@ if ($flag != "") {
     <td class="nobborder" style="text-align:center;padding-top:20px">
 
     <input type="submit" value="<?php
-    echo gettext("Change"); ?>" class="btn" style="font-size:12px">
+    echo gettext("Change"); ?>" class="button" style="font-size:12px">
 	
     </td>
    </tr>
