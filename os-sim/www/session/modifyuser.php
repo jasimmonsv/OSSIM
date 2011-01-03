@@ -35,46 +35,32 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ("classes/Security.inc");
+require_once ('classes/User_config.inc');
 //Session::logcheck("MenuConfiguration", "ConfigurationUsers");
+
 function dateDiff_min($startDate, $endDate)
 {
     $to_time=strtotime($startDate);
 	$from_time=strtotime($endDate);
 	return floor(abs($to_time - $from_time) / 60);
 }
-?>
 
-<html>
-<head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-</head>
-<body>
-
-  <h1> <?php
-echo gettext("Modify User"); ?> </h1>
-
-<?php
-require_once ("classes/Security.inc");
-require_once ('classes/User_config.inc');
-$user = POST('user');
-$pass1 = POST('pass1');
-$pass2 = POST('pass2');
-$oldpass = POST('oldpass');
-$name = POST('name');
-$email = POST('email');
-$nnets = POST('nnets');
-$nsensors = POST('nsensors');
-$company = POST('company');
-$department = POST('department');
-$language = POST('language');
-$frommenu = POST('frommenu');
-$first_login = POST('first_login');
-$is_admin = POST('is_admin') ? POST('is_admin') : 0;
-$last_pass_change = POST('last_pass_change');
+$user        		= POST('user');
+$pass1       		= POST('pass1');
+$pass2       		= POST('pass2');
+$oldpass     		= POST('oldpass');
+$name        		= POST('name');
+$email       		= POST('email');
+$nnets       		= POST('nnets');
+$nsensors    		= POST('nsensors');
+$company     		= POST('company');
+$department  		= POST('department');
+$language   		= POST('language');
+$frommenu    		= POST('frommenu');
+$first_login 		= POST('first_login');
+$is_admin           = POST('is_admin') ? POST('is_admin') : 0;
+$last_pass_change   = POST('last_pass_change');
 //$copy_panels = POST('copy_panels');
 //ossim_valid($copy_panels, OSS_DIGIT, 'illegal:' . _("Copy Panels"));
 ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
@@ -95,6 +81,7 @@ ossim_valid($last_pass_change, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:'
 
 $kdbperms = "";
 $langchanged = 0;
+
 if (POST('knowledgedb_perms') != "") {
 	$arr = split (",",POST('knowledgedb_perms'));
 	foreach ($arr as $u) {
@@ -102,9 +89,8 @@ if (POST('knowledgedb_perms') != "") {
 	}
 }
 
-if (ossim_error()) {
+if (ossim_error()) 
     die(ossim_error());
-}
 
 if (!Session::am_i_admin() && Session::get_session_user() != $user)
 	die(_("You don't have permission to see this page"));
@@ -117,14 +103,16 @@ if (!Session::am_i_admin()) {
 }
 */
 /* check OK, insert into DB */
-elseif (POST("insert")) {
+elseif (POST("insert")) 
+{
     require_once ('ossim_db.inc');
     require_once ('ossim_acl.inc');
     require_once ('classes/Session.inc');
     require_once ('classes/Net.inc');
     require_once ('classes/Sensor.inc');
     $perms = array();
-    foreach($ACL_MAIN_MENU as $menus) {
+    
+	foreach($ACL_MAIN_MENU as $menus) {
         foreach($menus as $key => $menu) {
             if (POST($key) == "on") $perms[$key] = true;
             else $perms[$key] = false;
@@ -132,13 +120,15 @@ elseif (POST("insert")) {
     }
     $db = new ossim_db();
     $conn = $db->connect();
-    /*
+    
+	/*
 	if ($copy_panels == 1) {
         User_config::copy_panel($conn, "admin", $user);
     }
 	*/
     $nets = "";
-    for ($i = 0; $i < $nnets; $i++) {
+    for ($i = 0; $i < $nnets; $i++)
+	{
         $net_name = POST("net$i");
         ossim_valid($net_name, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("net$i"));
         if (ossim_error()) {
@@ -151,8 +141,10 @@ elseif (POST("insert")) {
             }
         }
     }
+	
     $sensors = "";
-    for ($i = 0; $i < $nsensors; $i++) {
+    
+	for ($i = 0; $i < $nsensors; $i++) {
         ossim_valid(POST("sensor$i") , OSS_LETTER, OSS_DIGIT, OSS_DOT, OSS_NULLABLE, 'illegal:' . _("sensor$i"));
         if (ossim_error()) {
             die(ossim_error());
@@ -160,7 +152,8 @@ elseif (POST("insert")) {
         if ($sensors == "") $sensors = POST("sensor$i");
         else $sensors.= "," . POST("sensor$i");
     }
-    if (Session::am_i_admin()) {
+    
+	if (Session::am_i_admin()) {
 		require_once("classes/Util.inc");
 		Session::update($conn, $user, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdbperms, $first_login, $is_admin);
 		Util::clean_json_cache_files("",$user);
@@ -176,7 +169,8 @@ elseif (POST("insert")) {
 	}
     
 	// PASSWORD
-	if (POST("pass1") && POST("pass2")) {
+	if (POST("pass1") && POST("pass2"))
+	{
 		/*
 		if (!Session::am_i_admin() && (($_SESSION["_user"] != $user) && !POST("oldpass"))) {
 			require_once ("ossim_error.inc");
@@ -232,28 +226,42 @@ elseif (POST("insert")) {
 		}
 		Session::changepass($conn, $user, $pass1);
 		Session::log_pass_history($user,md5($pass1));
+		
+		if ( method_exists('Session_activity', 'expire_my_others_sessions') )
+			Session_activity::expire_my_others_sessions($conn, $user);
+						
 	}
 	
 	$db->close($conn);
+
+?>	
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	<html>
+	<head>
+		<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+		<META http-equiv="Pragma" content="no-cache"/>
+		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	</head>
+	<body>
+		<h1> <?php echo gettext("Modify User"); ?> </h1>
 	
-	if ($langchanged) {
-		?><script type="text/javascript">top.topmenu.location = '../top.php?option=7&soption=1';</script><?php
+		<?php
+		if ($langchanged) {
+			?><script type="text/javascript">top.topmenu.location = '../top.php?option=7&soption=1';</script><?php
+		}
+		?>
+    
+		<p> <?php echo gettext("User succesfully updated"); ?> </p>
+		<?php
+			if ($frommenu) 
+				$location = "modifyuserform.php?user=".$user."&frommenu=1&success=1";
+			else 
+				$location = "users.php";
+			sleep(2);
+			echo "<script>window.location='$location';</script>";
+		
 	}
-?>
-    <p> <?php
-    echo gettext("User succesfully updated"); ?> </p>
-<?php
-    if ($frommenu) $location = "modifyuserform.php?user=".$user."&frommenu=1&success=1";
-	else $location = "users.php";
-    sleep(2);
-	echo "<script>
-///history.go(-1);
-window.location='$location';
-</script>
-";
-?>
-<?php
-}
 ?>
 
 

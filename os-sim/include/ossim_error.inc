@@ -109,10 +109,12 @@ class OssimMainError {
     }
 }
 class OssimError extends OssimMainError {
-    function OssimError() {
+    function OssimError($style=null) {
         
-        /* action after display error */
-        $this->action = 'echo "<br/><br/><center><a href=\"javascript:history.back();\"><b>' . gettext("Back") . '</b></a></center>"; die();';
+        parent::__construct($style);
+		
+		/* action after display error */
+        $this->action = 'echo "<br/><center><a style=\"color: #000000;\" href=\"javascript:history.back();\"><b>' . gettext("Back") . '</b></a></center>"; die();';
         /* specific errors */
         /* PHP-adodb */
         $this->errors["ADODB_PATH"] = array(
@@ -355,7 +357,7 @@ class OssimNotice extends OssimMainError {
 		$this->current_style =( !empty($style) ) ? OssimMainError::$base_style.OssimMainError::$styles[$style] : $this->current_style;
 		
         /* action after display error */
-        $this->action = 'echo "<br/><br/><a href=\"javascript:history.back();\">' . gettext("Back") . '</a>";';
+        $this->action = 'echo "<br/><br/><a style=\"color: #000000;\" href=\"javascript:history.back();\">' . gettext("Back") . '</a>";';
         /* empty required field */
         $this->errors["FORM_NOFILL"] = array(
             "short_descr" => gettext("Empty a required field") ,

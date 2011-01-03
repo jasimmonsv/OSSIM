@@ -1126,12 +1126,12 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 		
 	}
 
-	public function get_list($conn, $args = "")
+	public function get_list($dbconn, $args = "")
 	{
         $list  = array();
 		$query = OssimQuery("SELECT * FROM sessions $args");
-        if (!$rs = & $conn->Execute($query))
-            print $conn->ErrorMsg();
+        if (!$rs = & $dbconn->Execute($query))
+            print $dbconn->ErrorMsg();
         else 
 		{
             $list = array();
@@ -1143,6 +1143,36 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
         }
         return $list;
     }
+	
+	public function expire_my_others_sessions($dbconn, $login)
+	{
+		$other_sessions = self::get_list($dbconn, "WHERE login='$login'");
+		
+		$my_session = session_id();
+		session_commit();
+		
+		foreach ($other_sessions as $k => $v)
+		{
+			$id = $v->get_id();
+			if ($my_session != $id)
+			{
+				self::delete($id);
+				
+				session_id($id);
+				session_start();
+			
+				$_SESSION = array();
+				session_destroy();
+				session_commit();
+			}
+		}
+		
+		session_id($my_session);
+		session_start();
+		
+		return true;
+		
+	}
 			
 	public function insert($dbconn)
 	{
