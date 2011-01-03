@@ -1333,7 +1333,7 @@ function expire_session_check() {
 	$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
 	if ($expired_timeout==0) return;
 	if (isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < time()) {
-		header("Location /ossim/session/login.php?action=logout");
+		header("Location: /ossim/session/login.php?action=logout");
 	}
 	// only update if not exists bypass => header ajax responses
 	$_SESSION["_expiration_time"] = time();

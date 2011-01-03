@@ -40,6 +40,7 @@
 * - insert()
 * - delete()
 * - in_port_group_reference()
+* - in_port_group_reference_for_name()
 * Classes list:
 * - Port_group_reference
 */
@@ -121,6 +122,21 @@ class Port_group_reference {
             print $conn->ErrorMsg();
         }
         return $rs->fields[0];
+    }
+	
+	function in_port_group_reference_for_name($conn, $port_group_name) {
+        $sql = "SELECT * FROM port_group_reference WHERE port_group_name = '".$port_group_name."'";
+		
+        if (!$rs = & $conn->Execute($sql)) {
+            print $conn->ErrorMsg();
+        }
+		$list = array();
+		while (!$rs->EOF) {
+			$list[] = $rs->fields['port_number'].' - '.$rs->fields['protocol_name'];
+			$rs->MoveNext();
+		}
+		
+        return $list;
     }
 }
 ?>
