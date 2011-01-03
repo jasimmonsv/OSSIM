@@ -58,6 +58,7 @@ if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_
 	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/greybox.js"></script>
+	<!--<script type="text/javascript" src="../js/jquery.checkboxes.js"></script>-->
 	<script type="text/javascript" src="../js/jquery.pstrength.js"></script>
 	<script type="text/javascript">
 		function kdbperms (users) {
@@ -65,7 +66,7 @@ if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_
 		}
 	</script>
 	
-	<script type="text/javascript" src="../js/jquery.checkboxes.js"></script>
+	
 	
 	<script type="text/javascript">
 		var checks = new Array;
@@ -74,10 +75,12 @@ if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_
 		checks['perms'] = 0;
 		function checkall(col) {
 			if (checks[col]) {
-				$("#fmodify").unCheckCheckboxes("."+col, true)
+				//$("#fmodify").unCheckCheckboxes("."+col, true)
+				$('input:checkbox[class="'+col+'"]').attr("checked", ""); 
 				checks[col] = 0;
 			} else {
-				$("#fmodify").checkCheckboxes("."+col, true)
+				//$("#fmodify").checkCheckboxes("."+col, true)
+				$('input:checkbox[class="'+col+'"]').attr("checked", "checked"); 
 				checks[col] = 1;
 			}
 		}
@@ -414,7 +417,7 @@ include ("../hmenu.php");
 					if (false !== strpos(Session::allowedSensors($user->get_login()) , $sensor_ip)) {
 						$input.= " checked='checked' ";
 					}
-					if ($sensors || ($user->get_login() == 'admin')) {
+					if ($sensors || ($user->get_login() == ACL_DEFAULT_OSSIM_ADMIN)) {
 						$input.= " checked='checked' ";
 					}
 					if ($user->get_login() == 'admin') {
