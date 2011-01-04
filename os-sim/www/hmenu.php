@@ -189,7 +189,7 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
     	//
         $tabs = count($hmenu[$menu_opc]) - 1;
         foreach($hmenu[$menu_opc] as $j => $op) if ($op["name"] != "") {
-            $txtsopc = (in_array($language, $uc_languages)) ? htmlentities(strtoupper(html_entity_decode($op["name"]))) : $op["name"];
+            $txtsopc = (in_array($language, $uc_languages)) ? htmlentities(html_entity_decode($op["name"])) : $op["name"];
             if (preg_match("/^http/",$op['url']))
 				$url = $op["url"] . (preg_match("/\?/", $op["url"]) ? "&" : "?") . "hmenu=" . urlencode($menu_opc) . "&smenu=" . urlencode($op["id"]);
 			else

@@ -126,6 +126,7 @@ $pass 	  = base64_decode(REQUEST('pass'));
 $accepted = REQUEST('first_login');
 $mobile   = REQUEST("mobile");
 
+
 ossim_valid($user, OSS_USER, OSS_NULLABLE, 'illegal:' . _("User name"));
 ossim_valid($mobile, OSS_LETTER, OSS_NULLABLE, 'illegal:' . _("Mobile"));
 ossim_valid($accepted, OSS_NULLABLE, 'yes', 'no', 'illegal:' . _("First login"));

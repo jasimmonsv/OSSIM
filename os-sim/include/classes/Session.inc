@@ -882,22 +882,32 @@ class Session {
             exit;
         }
     }
-    function changepass($conn, $login, $pass) {
+   
+	
+	function changepass($conn, $login, $pass, $current_pass=null) {
         $pass = md5($pass);
-        $sql = "UPDATE users SET pass = ?, last_pass_change=CURRENT_TIMESTAMP() WHERE login = ?";
-        $params = array(
+		
+        $sql  = "UPDATE users SET pass = ?, last_pass_change=CURRENT_TIMESTAMP() WHERE login = ?";
+		$sql .= ( !empty($current_pass) ) ? " AND pass='".md5($current_pass)."'" : "";
+        
+		$params = array(
             $pass,
             $login
         );
+		
         if ($conn->Execute($sql, $params) === false) {
-            print 'error updating: ' . $conn->ErrorMsg() . '<BR>';
+            print 'Error updating: ' . $conn->ErrorMsg() . '<br/>';
             exit;
         }
         $infolog = array(
             $login
         );
         Log_action::log(5, $infolog);
+		
+		return $conn->Affected_Rows();
     }
+	
+	
 	function changefirst($conn, $login) {
         $pass = md5($pass);
         $sql = "UPDATE users SET first_login = 0 WHERE login = ?";
