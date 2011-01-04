@@ -47,7 +47,15 @@ echo gettext("Control Panel"); ?> </title>
   <link rel="stylesheet" href="../style/style.css"/>
   
   <? include ("../host_report_menu.php") ?>
-  
+  <script>
+  	$(document).ready(function(){
+  		$('.greybox').click(function(){
+            var t = this.title || $(this).text() || this.href;
+            GB_show(t,this.href,'70%','90%');
+            return false; 		
+  		});
+  	});
+  </script>
 </head>
 
 <body>
@@ -116,7 +124,7 @@ echo gettext("RRD global anomalies"); ?>
      <a name="Anomalies" href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?#Anomalies" title=" <?php
 echo gettext("Fix"); ?> "><img src="../pixmaps/Hammer2.png" width="24" border="0"></a>
-     <a href="rrd_global.php" target="_blank">[<?php
+     <a href="rrd_global.php" class="greybox" title="<?php echo _("RRD global anomalies full list")?>">[<?php
 echo gettext("Get full list"); ?>]</a>
     </th>
     </tr>
@@ -200,7 +208,7 @@ echo gettext("RRD anomalies"); ?>
 <a name="Anomalies" href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?#Anomalies" title=" <?php
 echo gettext("Fix"); ?> "><img src="../pixmaps/Hammer2.png" width="24" border="0"></a>
-<a href="rrd_anomaly.php" target="_blank">[<?php
+<a href="rrd_anomaly.php" class="greybox" title="<?php echo _("RRD anomalies full list")?>">[<?php
 echo gettext("Get full list"); ?>]</a>
 </th>
 </tr>
@@ -290,8 +298,8 @@ echo gettext("OS Changes"); ?> </u> <a name="OS"
 echo $_SERVER["SCRIPT_NAME"] ?>?#OS" title=" <?php
 echo gettext("Fix"); ?> "><img
         src="../pixmaps/Hammer2.png" width="24" border="0"></a>  
-        &nbsp;&nbsp;[ <a href="os.php?show_anom=1" target="_blank"> <?php
-echo gettext("Get anom list"); ?> </a> ] [<a href="os.php" target="_blank"> <?php
+        &nbsp;&nbsp;[ <a href="os.php?show_anom=1" class="greybox" title="<?php echo _("OS anom list")?>"> <?php
+echo gettext("Get anom list"); ?> </a> ] [<a href="os.php" class="greybox" title="<?php echo _("OS full list")?>"> <?php
 echo gettext("Get full list"); ?> </a> ]
     	</th>
     </tr>
@@ -436,8 +444,8 @@ echo gettext("Mac Changes"); ?> </u> <a name="Mac"
 echo $_SERVER["SCRIPT_NAME"] ?>?#Mac" title=" <?php
 echo gettext("Fix"); ?> "><img
         src="../pixmaps/Hammer2.png" width="24" border="0"></a>  
-        &nbsp;&nbsp;[ <a href="mac.php?show_anom=1" target="_blank"> <?php
-echo gettext("Get anom list"); ?> </a> ] [<a href="mac.php" target="_blank"> <?php
+        &nbsp;&nbsp;[ <a href="mac.php?show_anom=1" class="greybox" title="<?php echo _("Mac Address anom list")?>"> <?php
+echo gettext("Get anom list"); ?> </a> ] [<a href="mac.php" class="greybox" title="<?php echo _("Mac Address full list")?>"> <?php
 echo gettext("Get full list"); ?> </a> ]
     	</th>
     </tr>
@@ -584,8 +592,8 @@ echo gettext("Service Changes"); ?> </u> <a
 echo $_SERVER["SCRIPT_NAME"] ?>?#Service" title=" <?php
 echo gettext("Fix"); ?> "><img
         src="../pixmaps/Hammer2.png" width="24" border="0"></a>  
-        &nbsp;&nbsp;[ <a href="services.php?show_anom=1" target="_blank"> <?php
-echo gettext("Get anom list"); ?> </a> ] [<a href="services.php" target="_blank"> <?php
+        &nbsp;&nbsp;[ <a href="services.php?show_anom=1" class="greybox" title="<?php echo _("Services anom list")?>"> <?php
+echo gettext("Get anom list"); ?> </a> ] [<a href="services.php" class="greybox" title="<?php echo _("Services full list")?>"> <?php
 echo gettext("Get full list"); ?> </a> ]
     	</th>
     </tr>

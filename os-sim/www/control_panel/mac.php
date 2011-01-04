@@ -48,8 +48,6 @@ echo gettext("OSSIM Framework"); ?> </title>
 </head>
 <body>
                                                                                 
-  <h1> <?php
-echo gettext("OSSIM Framework - Mac list"); ?> </h1>
 
 <?php
 require_once 'ossim_db.inc';
@@ -95,7 +93,7 @@ if ($show_anom != "1") {
     }
     $host_mac_list = Host_mac::get_list($conn, $inf, $sup);
 } else {
-    $host_mac_list = Host_mac::get_anom_list($conn, "all");
+    $host_mac_list = Host_mac::get_anom_list($conn, "", "all");
     $count = count($host_mac_list);
     $sup = $count;
     $inf = 0;
@@ -142,10 +140,10 @@ if ($num != "all") { ?>
     $first_link = $_SERVER["SCRIPT_NAME"] . "?sup=" . $num . "&inf=" . "0" . "&num=" . $num;
     $last_link = $_SERVER["SCRIPT_NAME"] . "?sup=" . $count . "&inf=" . ($count - $num) . "&num=" . $num;
 ?>
-    <table width="100%" bgcolor="#EFEFEF">   
+    <table width="100%" bgcolor="#EFEFEF" class="noborder">   
     <colgroup span=3 width="33%"></colgroup>       
     <tr>    
-    <td align=left>
+    <td align=left class="noborder">
     <?php
     if ($inf != "0") {
         echo "<a href=\"$first_link\">";
@@ -154,7 +152,7 @@ if ($num != "all") { ?>
     }
 ?>
     </td>
-    <td align="center">
+    <td align="center" class="noborder">
     <?php
     if ($inf >= $num) {
         echo "<a href=\"$inf_link\">&lt;-";
@@ -177,7 +175,7 @@ if ($num != "all") { ?>
     }
 ?>
     </td>
-    <td align="right">
+    <td align="right" class="noborder">
     <?php
     if ($sup < $count) {
         echo "<a href=\"$last_link\">";
@@ -350,7 +348,7 @@ echo gettext("reset"); ?> "></td>
 <?php
 if ($num != "all") { ?>
      <tr>
-        <td colspan="12">
+        <td colspan="12" class="noborder">
 <?php
     $inf_link = $_SERVER["SCRIPT_NAME"] . "?sup=" . ($sup - $num) . "&inf=" . ($inf - $num) . "&num=" . $num;
     $sup_link = $_SERVER["SCRIPT_NAME"] . "?sup=" . ($sup + $num) . "&inf=" . ($inf + $num) . "&num=" . $num;
@@ -358,10 +356,10 @@ if ($num != "all") { ?>
     $last_link = $_SERVER["SCRIPT_NAME"] . "?sup=" . $count . "&inf=" . ($count - $num) . "&num=" . $num;
 ?>
 
-    <table width="100%" bgcolor="#EFEFEF">
+    <table width="100%" bgcolor="#EFEFEF" class="noborder">
     <colgroup span=3 width="33%"></colgroup>       
     <tr>
-    <td align=left>
+    <td align=left class="noborder">
     <?php
     if ($inf != "0") {
         echo "<a href=\"$first_link\">";
@@ -370,7 +368,7 @@ if ($num != "all") { ?>
     }
 ?>
     </td>
-    <td align="center">
+    <td align="center" class="noborder">
     <?php
     if ($inf >= $num) {
         echo "<a href=\"$inf_link\">&lt;-";
@@ -393,7 +391,7 @@ if ($num != "all") { ?>
     }
 ?>
     </td>
-    <td align="right">
+    <td align="right" class="noborder">
     <?php
     if ($sup < $count) {
         echo "<a href=\"$last_link\">";

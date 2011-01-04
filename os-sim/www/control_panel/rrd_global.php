@@ -38,8 +38,6 @@
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsAnomalies");
 ?>
-<?php
-include ("../hmenu.php"); ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
@@ -82,12 +80,7 @@ $conn = $db->connect();
 ?>
 
 <body>
-<?php
-include ("../hmenu.php"); ?>
-  <table align="center" width="100%">
-    <table width="100%">
-    <tr>
-    <td colspan = 8>
+
     <table align="center" width="100%">
     <tr>
     <th colspan=8><?php
@@ -175,7 +168,7 @@ if ($event_list_global = RRD_anomaly_global::get_list($conn, $where_clause, "ord
 }
 ?>
 <tr>
-<td align="center" colspan="7">
+<td align="center" colspan="7" class="noborder">
 <input type="submit" class="button" value=" <?php
 echo gettext("OK"); ?> ">
 <input type="reset" class="button" value=" <?php

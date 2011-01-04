@@ -80,12 +80,8 @@ $conn = $db->connect();
 ?>
 
 <body>
-<?php
-include ("../hmenu.php"); ?>
-  <table align="center" width="100%">
-    <table width="100%">
-    <tr>
-    <td colspan = 8>
+
+<table width="100%">
 
 <form action="handle_anomaly.php" method="GET">
 <?php
@@ -105,7 +101,6 @@ switch (GET('acked')) {
 }
 ?>
 
-<tr></tr>
 <tr><th colspan="8"><?php
 echo gettext("RRD anomalies"); ?>
 <a name="Anomalies" href="<?php
@@ -174,7 +169,7 @@ anomaly_time desc", "0", $count)) {
     }
 } ?>
 <tr>
-<td align="center" colspan="7">
+<td align="center" colspan="7" class="noborder">
 <input class="button" type="submit" value=" <?php
 echo gettext("OK"); ?> ">
 <input class="button" type="reset" value=" <?php

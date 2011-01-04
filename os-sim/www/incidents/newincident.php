@@ -287,12 +287,12 @@ if ($edit) {
     ossim_valid($metric_value, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("metric_value"));
     ossim_valid($anom_type, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("anom_type"));
     ossim_valid($anom_ip, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("anom_ip"));
-    ossim_valid($a_sen, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("anomaly sensor"));
+    ossim_valid($a_sen, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, "\[\]\(\)", 'illegal:' . _("anomaly sensor"));
     ossim_valid($a_date, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("anomaly date"));
     ossim_valid($a_mac_o, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("original mac"));
     ossim_valid($a_vend_o, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("original vendor"));
-    ossim_valid($a_ver_o, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("original version"));
-    ossim_valid($a_ver, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("anomaly version"));
+    ossim_valid($a_ver_o, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, "\[\]\(\)", 'illegal:' . _("original version"));
+    ossim_valid($a_ver, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, "\[\]\(\)", 'illegal:' . _("anomaly version"));
     ossim_valid($a_port, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("anomaly port"));
     ossim_valid($a_prot_o, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("original proto"));
     ossim_valid($a_prot, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("anomaly proto"));
