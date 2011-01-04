@@ -76,7 +76,7 @@ foreach($ports as $k => $v)
 
 $ports_input = implode(",", $arr_ports_input);
 
-$array_assets = array ( "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
+$array_assets = array ( '0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
 $array_os = array ( "Unknown" => "",
 					"Win"     => "Microsoft Windows",

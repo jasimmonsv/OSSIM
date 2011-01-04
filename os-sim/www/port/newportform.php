@@ -91,17 +91,20 @@ else
 			$port_group = $port_group_list[0];
 
 				
-		if ($port_list = Port::get_list($conn))
+		//if ($port_list = Port::get_list($conn))
+		if ($port_list)
 		{
+			$actives_ports = Port_group_reference::in_port_group_reference_for_name($conn, $port_group->get_name());
+			/*
 			foreach($port_list as $port)
 			{
-				$is_active = Port_group_reference::in_port_group_reference($conn, $port_group->get_name() , $port->get_port_number() , $port->get_protocol_name());
+				//$is_active = Port_group_reference::in_port_group_reference($conn, $port_group->get_name() , $port->get_port_number() , $port->get_protocol_name());
 				 
 				if ( $is_active ) 
 					$actives_ports[] = $port->get_port_number()." - ". $port->get_protocol_name();
 			}
+			*/
 		}
-		
 		$descr = $port_group->get_descr();
 		
 	}
@@ -151,7 +154,28 @@ $db->close($conn);
 				$('.vfield').bind('blur', function() {
 					 validate_field($(this).attr("id"), "newport.php");
 				});
-						
+				
+			$('#ports').keypress(function(e){
+				if(e.keyCode == 13) {
+					var port_value=$("#ports").val();
+					if(!port_value.match(/^\d+\s\-\s(tcp|udp|icmp)$/)){
+						alert('<?php echo _('Error: The format is "port - protocol" example "0 - udp"'); ?>');
+					}else{
+						var port_value_explode=port_value.split('-');
+
+						if(port_value_explode[0]>=0 && port_value_explode[0]<=65535){
+							addto('selected_ports',port_value,port_value);
+						}else{
+							alert('<?php echo _('Error: The format is "port - protocol" example "0 - udp"'); ?>');
+						}
+					}
+				}
+			});
+			$("*").keypress(function(e){
+				if(e.keyCode == 13) {
+					return e.keyCode != 13;
+				}
+			});
 		})
 	</script>
   
@@ -213,7 +237,7 @@ if (GET('withoutmenu') != "1")
     <th><label for='selected_ports'><?php echo gettext("Ports");?></label></th>
 		<td class='left'>
 			<table class="transparent" width='100%'>
-				<tr><td class="nobborder"><?=_("<span class='bold'>Type</span> here the pair 'port-protocol'")?>:</td></tr>
+				<tr><td class="nobborder"><?=_("<span class='bold'>Type</span> here the pair 'port - protocol'")?>:</td></tr>
 				<tr><td class="nobborder"><input type="text" id="ports" name="ports" value="" size="32"/></td></tr>
 				<tr><td class="nobborder" style="padding-top:10px"><?=_("Selected ports for the group")?>:</td></tr>
 				<tr>
@@ -222,6 +246,10 @@ if (GET('withoutmenu') != "1")
 						<?php
 							if ( isset($ports) )
 							{
+								foreach($actives_ports as $v){
+									echo "<option value='$v' selected='selected'>$v</option>";
+								}
+								/*
 								foreach($ports as $k => $v)
 								{ 
 									$selected = ( in_array($v, $actives_ports) ) ? true : false;
@@ -230,6 +258,7 @@ if (GET('withoutmenu') != "1")
 										echo "<option value='$v' selected='selected'>$v</option>";
 									
 								}
+								*/
 							}
 						?>
 						</select>
@@ -238,7 +267,7 @@ if (GET('withoutmenu') != "1")
 				</tr>
 				<tr>
 					<td class="right nobborder">
-						<div style='width:90%;'><input type="button" value=" [X] " onclick="deletefrom('selected_ports');" class="lbutton"/></div>
+						<div style='width:90%;'><input type="button" value=" [X] " onclick="deletefrom('selected_ports');" class="lbutton"/> <input type="button" value="<?php echo _('Delete all');?>" onclick="selectall('selected_ports');deletefrom('selected_ports');" class="lbutton"/></div>
 					</td>
 				</tr>
 			</table>

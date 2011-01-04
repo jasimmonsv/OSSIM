@@ -47,7 +47,7 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 $db = new ossim_db();
 $conn = $db->connect();
 
-$array_assets = array ("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
+$array_assets = array ('0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
 $array_os = array ( "Unknown" => "",
 					"Win"     => "Microsoft Windows",

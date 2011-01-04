@@ -67,11 +67,11 @@ function get_params ($value,$sql) {
 	for ($i = 0; $i < $count; $i++) $ret[] = $value;
 	return $ret;
 }
-function check_security ($value, $match, $value2=NULL) {
+function check_security ($value, $match, $value2=NULL, $userfriendly=false) {
 	require_once ("classes/Security.inc");
 	switch($match) {
 		case "text":
-			ossim_valid($value, OSS_SPACE, OSS_ALPHA, OSS_SCORE, OSS_SLASH, 'illegal:' . _("$match value"));
+			ossim_valid($value, OSS_SPACE, OSS_ALPHA, OSS_SCORE, OSS_SLASH, OSS_DOT, 'illegal:' . _("$match value"));
 			break;
 		case "ip":
 			// "LIKE" patch
@@ -87,7 +87,8 @@ function check_security ($value, $match, $value2=NULL) {
 			ossim_valid($value, OSS_DIGIT, 'illegal:' . _("$match value"));
 			break;
 		case "fixed":
-			ossim_valid($value, OSS_ALPHA, OSS_SCORE, OSS_SLASH, 'illegal:' . _("$match value"));
+			ossim_valid($value, OSS_SPACE, OSS_ALPHA, OSS_SCORE, OSS_SLASH, OSS_DOT, 'illegal:' . _("$match value"));
+			//ossim_valid($value, OSS_ALPHA, OSS_SCORE, OSS_SLASH, 'illegal:' . _("$match value"));
 			break;
 		case "concat":
 			ossim_valid($value, OSS_ALPHA, '-', 'illegal:' . _("$match value"));
@@ -98,6 +99,11 @@ function check_security ($value, $match, $value2=NULL) {
 			break;
 	}
 	if (ossim_error()) {
+	?>
+		<table class="noborder" align="center" width="94%">
+			<tr><td class="nobborder" style="padding:10px 0;text-align:center"><input type="button" value="Back" onclick="document.location.href='<?php if($userfriendly){ echo "userfriendly.php"; }else{ echo "inventory_search.php"; } ?>'" class="button" /></td></tr>
+		</table>
+	<?php		
 		die(ossim_error());
 	}
 }

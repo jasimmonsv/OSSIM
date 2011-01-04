@@ -169,7 +169,7 @@ var pag = 1;
 //usleep(500000);
 ?>
 <div id="search_result" style="display:none;width:100%">
-<?
+<?php
 $results = array();
 $errors = 0;
 $errorlog = array();
@@ -193,9 +193,9 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 			$value2=null;
 		}
 		
-		check_security($filter['value'],$m,$value2);
+		check_security($filter['value'],$m,$value2,GET('userfriendly'));
 	}else{
-		check_security($filter['value'],$m);
+		check_security($filter['value'],$m,NULL,GET('userfriendly'));
 	}
 	if ($rules[$filter['type']][$filter['subtype']]['match'] == "concat"){
 		list($query,$params) = build_concat_query ($q,$filter['value'],$filter['match'],"concat");
@@ -284,7 +284,7 @@ if ($operator == "or") {
 
 ?><script type="text/javascript">$("#pbar").progressBar(100);$("#progressText").html('<b><?=gettext("Loading results, please wait")?></b>...');</script><?
 	//usleep(500000);
-if (!GET('userfriendly')) {
+//if (!GET('userfriendly')) {
 ?>
 <table class="noborder" align="center" width="100%" style="background-color:white">
 	<tr><th style="text-align:center">Criterias</th></tr>
@@ -293,7 +293,7 @@ if (!GET('userfriendly')) {
 	<? } ?>
 </table>
 <?
-}
+//}
 if (count($host_list) < 1 && !$errors) {
 ?>
 <table class="noborder" align="center" width="100%">

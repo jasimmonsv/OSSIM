@@ -53,7 +53,7 @@ $conn = $db->connect();
 $net_name  =  GET('name');
 $clone     =  ( GET('clone') == 1 ) ? 1 : 0;
 
-$array_assets  = array ("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
+$array_assets  = array ('0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
 $info_CIDR = "<div style='font-weight:normal; width: 170px;'>
 				<div><span class='bold'>Format:</span> CIDR [,CIDR,...]</div>

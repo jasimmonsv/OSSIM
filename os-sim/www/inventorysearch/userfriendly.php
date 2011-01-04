@@ -311,7 +311,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 								<td class="nobborder">
 									<table style="background:url(../pixmaps/background_gray5.gif) repeat-x;border:1px solid #666666" cellpadding="4" width="100%">
 										<tr>
-											<td width="50" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?=_("Security Events")?>:</td>
+											<td width="50" nowrap class="noborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?php echo _("Events")?>:</td>
 											<td class="noborder" style="padding-top:15px;padding-bottom:15px"><input type="text" name="value_5" id="value_5" onkeypress="handleEnter(this, event)" value="Any" onfocus="init_field(5)" style="width:100%;color:#BBBBBB;font-size:14px"></td>
 											<td class="nobborder" style="padding-right:40px" width="30"><div class="scriptinfo" data="<?=base64_encode("<i>"._("Type here the")." <b>"._("SIM event")."</b></i>")?>"><font style="font-weight:bold;font-size:15px;color:#666666">?</font></div></td>
 										</tr>

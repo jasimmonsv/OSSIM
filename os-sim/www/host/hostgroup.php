@@ -129,7 +129,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 			}
 			else alert('<?=_("You must select a host group")?>');
 		}
-		else if (com=='<?php echo _("Delete Group & Hosts selected")?>') {
+		else if (com=='<?php echo _("Delete Group & Hosts")?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
 				$("#flextable").changeStatus('<?php echo _("Deleting host group")?>...',false);
@@ -332,7 +332,7 @@ echo "$colModel\n";
 			{separator: true},
 			{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
 			{separator: true},
-			{name: '<?php echo _("Delete Group & Hosts selected")?>', bclass: 'delete', onpress : action},
+			{name: '<?php echo _("Delete Group & Hosts")?>', bclass: 'delete', onpress : action},
 			{separator: true},
 			//{name: '<?=_("Enable/Disable")?> <b><?=_("Nessus")?></b>', bclass: 'various', onpress : action},
 			//{separator: true},
