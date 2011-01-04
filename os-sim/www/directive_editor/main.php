@@ -89,17 +89,24 @@ if ($_GET["right"] != "") { ?>
 				<?php
 } ?>
 
-				function restart() {
-					$.ajax({
-							type: "GET",
-							url: "include/utils.php?query=restart",
-							data: "",
-							success: function(msg) {
-								return msg;
-							}
-					});
+				function restart()
+				{
+				
+					if (confirm('<?php echo gettext('Are you sure you want to restart the OSSIM server ?'); ?>'))
+					{
+					
+						$.ajax({
+									type: "GET",
+									url: "include/utils.php?query=restart",
+									data: "",
+									success: function(msg) {
+										return msg;
+									}
+						});
+					}
+					
 				}
-
+				
 				function Menus(Objet,Image) {
 					VarDIV = document.getElementById(Objet);
 					
@@ -159,6 +166,12 @@ function background_clone(id,xml_file,mini) {
 	});
 }
 			</script>
+			
+			<style type='text/css'>
+				.restart {font-size: 10px; margin-left: 20px;}
+				.restart a {cursor: pointer;}
+			</style>
+			
 		</head>
 
 		<body id="leftmenu" style="overflow-x:hidden">
@@ -173,7 +186,10 @@ function background_clone(id,xml_file,mini) {
 				
 					<?php $categories = unserialize($_SESSION['categories']); ?>
 						<tr>
-							<th style="font-size:14px"><?php echo _("Current Categories");?></th>
+							<th style="font-size:14px">
+								<?php echo _("Current Categories");?>
+								<span class='restart'>[<a onclick='restart()'><?php echo _("Restart Server") ?></a>]</span>
+							</th>
 						</tr>
 						
 						<tr><td style="border:0px">
@@ -223,11 +239,11 @@ function background_clone(id,xml_file,mini) {
 												 style="cursor:pointer"/>
 											</td>
 											<td style="text-align:left;border:0px;font-size:12px"><?php echo gettext(ucwords($name_div)); ?><?php if (count($tab_this_category) > 0) { ?> <font style="color:#666666;font-size:10px">[<?php echo count($tab_this_category) ?> <?php echo _("directive"); if (count($tab_this_category) > 1) echo "s"; ?>]</font><?php } ?></td>
-											<td width="20" align="right" style="border:0px;">
+											<td width='40' align="right" style="border:0px;">
 											  <?php if ($category->active) { ?>
-											  <a href="main.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px;" title="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Disable this category"); ?>" title="<?php echo gettext("Disable this category"); ?>"></img></a>
+											  <a href="main.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px;" title="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Disable this category"); ?>" title="<?php echo gettext("Disable this category"); ?>"/></a>
 											  <?php } else { ?>
-											  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px; " title="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Enable this category"); ?>" title="<?php echo gettext("Enable this category"); ?>"></img></a>
+											  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px; " title="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Enable this category"); ?>" title="<?php echo gettext("Enable this category"); ?>"/></a>
 											  <?php } ?>
 											</td>
 											<td width="20" align="right" style="border:0px">

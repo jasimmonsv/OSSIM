@@ -137,7 +137,7 @@ echo gettext('Are you sure you want to restart the OSSIM server ?'); ?>')) {rest
 echo gettext('Click to restart the OSSIM server'); ?>"
 				title="<?php
 echo gettext('Click to restart the OSSIM server'); ?>"
-				value="<?php echo gettext('Restart server'); ?>"></input>
+				value="<?php echo gettext('Restart server'); ?>"/>
 				</td></tr>
 				<tr><td style="border:0px;padding:10px">
 			<a href="include/utils.php?xml_file=<?php echo $categories[0]->xml_file?>&query=add_directive&id=<?php echo $categories[0]->id?>&onlydir=1" target="right" style="marging-left:20px;font-size:12px;color:black" TITLE="<?php
