@@ -454,6 +454,7 @@ function ClearDataTables($db) {
     $db->baseExecute("TRUNCATE tcphdr");
     $db->baseExecute("TRUNCATE udphdr");
     $db->baseExecute("TRUNCATE extra_data");
+    $db->baseExecute("TRUNCATE opt");
     // extra ac_* tables
     $db->baseExecute("TRUNCATE ac_sensor_sid");
     $db->baseExecute("TRUNCATE ac_sensor_signature");
