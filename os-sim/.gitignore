@@ -3,3 +3,4 @@ depcomp
 # python objects
 *.pyo
 *.pyc
+# Ignore Makefiles and Makefiles.in :)
