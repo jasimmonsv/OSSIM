@@ -191,7 +191,7 @@ push(@openvas_manager_configs, "Full and very deep-All NVT's; don't trust previo
 push(@openvas_manager_configs, "Full and very deep ultimate-All NVT's including those that can stop services/hosts; don't trust previously collected information; slow.");
 push(@openvas_manager_configs, "empty-Empty and static configuration template.");
 
-my @disabled_plugins = ("10335", "10796", "11219", "11840", "14272", "14274", "14663", "80000", "80001", "80002", "80009", "80112");
+my @disabled_plugins = ("11219", "10335", "14663", "11840", "14272", "14274", "10796", "80000", "80009", "80001", "80002", "80112");
 
 
 #my ( $serverid );
