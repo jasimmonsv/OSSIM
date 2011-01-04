@@ -224,7 +224,7 @@ elseif (POST("insert"))
 		if ((POST('user') != $_SESSION["_user"]) && !Session::am_i_admin()) {
 			die(ossim_error(_("To change the password for other user is not allowed")));
 		}
-		Session::changepass($conn, $user, $pass1);
+		Session::changepass($conn, $user, $pass1, $oldpass);
 		Session::log_pass_history($user,md5($pass1));
 		
 		if ( method_exists('Session_activity', 'expire_my_others_sessions') )
