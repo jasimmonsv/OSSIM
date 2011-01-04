@@ -66,6 +66,8 @@ require_once ('classes/Host_group.inc');
 require_once ('classes/Net.inc');
 require_once ('classes/Net_group.inc');
 require_once ('ossim_db.inc');
+$filter = str_replace ( "/" , "\/" , $filter);
+
 $db = new ossim_db();
 $conn = $db->connect();
 
@@ -81,7 +83,17 @@ if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_l
     $all_cclass_hosts[$cclass][] = $host->get_ip();
     $total_hosts++;
 }
-if ($hg_list = Host_group::get_list($conn, "ORDER BY name")) {
+if ($filter=="") {
+    $wherehg = "ORDER BY name";
+}
+else if(preg_match("/\d+.\d+/", $filter)) {
+    $wherehg = ",host_group_reference WHERE host_group_reference.host_group_name=host_group.name and host_group_reference.host_ip like '%$filter%' ORDER BY host_group.name";
+}
+else {
+    $wherehg = "WHERE name like '%$filter%' ORDER BY name";
+}
+
+if ($hg_list = Host_group::get_list($conn, $wherehg)) {
     foreach($hg_list as $hg) {
         $hg_hosts = $hg->get_hosts($conn, $hg->get_name());
         foreach($hg_hosts as $hosts) {
@@ -90,7 +102,8 @@ if ($hg_list = Host_group::get_list($conn, "ORDER BY name")) {
         }
     }
 }
-$wherenet = ($filter!="") ? "WHERE ips like '%$filter%' ORDER BY name" : "ORDER BY name";
+$wherenet = ($filter!="") ? "WHERE ips like '%$filter%' OR name like '%$filter%' ORDER BY name" : "ORDER BY name";
+
 $net_list = Net::get_list($conn, $wherenet);
 	
 if ($key == "hostgroup") {
@@ -121,8 +134,15 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
         foreach($hg_hosts as $hosts) {
             $host_ip = $hosts->get_host_ip();
             if ($k>=$from && $k<$to) { // test filter
-                $hname = ($ossim_hosts[$host_ip]!="") ? "$host_ip <font style=\"font-size:80%\">(" . $ossim_hosts[$host_ip] . ")</font>" : $host_ip;
+                if( preg_match("/$filter/",$host_ip) ) {
+                    $hname = ($ossim_hosts[$host_ip]!="") ? "$host_ip <font style=\"font-size:80%\">(" . $ossim_hosts[$host_ip] . ")</font>" : $host_ip;
+                    $hname = "<span style=\"font-weight:bold\">".$hname."</span>";
+                }
+                else {
+                    $hname = ($ossim_hosts[$host_ip]!="") ? "$host_ip <font style=\"font-size:80%\">(" . $ossim_hosts[$host_ip] . ")</font>" : $host_ip;
+                }
                 $hnane = utf8_encode($hname);
+
                 $html.= "{ key:'$key.$k', url:'HOST:$host_ip', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
             }
             $k++;
@@ -195,7 +215,14 @@ else if (preg_match("/net_(.*)/",$key,$found)){
     $buffer .= "]";
 }
 else if ($key=="netgroup") {
-    if ($net_group_list = Net_group::get_list($conn, "ORDER BY name")) {
+    if ($filter=="") {
+        $whereng = "ORDER BY name";
+    }
+    else {
+        $whereng = "WHERE name like '%$filter%' ORDER BY name";
+    }
+
+    if ($net_group_list = Net_group::get_list($conn, $whereng)) {
         $buffer .= "[";
         $j = 0;
         foreach($net_group_list as $net_group) {
