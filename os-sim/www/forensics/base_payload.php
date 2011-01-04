@@ -151,7 +151,7 @@ if ($download == 1) {
     $myrow3 = $result3->baseFetchRow();
     $result3->baseFreeRows();
     if ($download == 2 || $download == 3) {
-        $ip_sql = "SELECT ip_ver, ip_hlen, ip_tos, ip_len, ip_id, ip_off, ip_flags,";
+        $ip_sql = "SELECT ip_ver, ip_hlen, ip_tos, ip_len, ip_id, ip_flags, ip_off,";
         $ip_sql.= "ip_ttl, ip_proto, ip_csum, ip_src, ip_dst FROM iphdr ";
         $ip_sql.= "WHERE sid='" . $sid . "' AND cid='" . $cid . "'";
         //echo $ip_sql;
@@ -243,8 +243,7 @@ if ($download == 1) {
         $data_header.= sprintf("%02s", dechex($ip[2])); // tos
         $data_header.= sprintf("%04s", dechex($ip[3])); // len
         $data_header.= sprintf("%04s", dechex($ip[4])); // id
-        $data_header.= sprintf("%02s", dechex($ip[5])); // flags
-        $data_header.= sprintf("%02s", dechex($ip[6])); // offset
+	$data_header.= sprintf("%04s", dechex(($ip[5]<<13)|$ip[6])); // flags & offset
         $data_header.= sprintf("%02s", dechex($ip[7])); // ttl
         $data_header.= sprintf("%02s", dechex($ip[8])); // proto
         $data_header.= sprintf("%04s", dechex($ip[9])); // csum.
