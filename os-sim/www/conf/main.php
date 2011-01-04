@@ -1461,8 +1461,19 @@ if (POST('update')) {
     require_once 'classes/Config.inc';
     $config = new Config();
     for ($i = 0; $i < POST('nconfs'); $i++) {
-        if(in_array(POST("conf_$i"), $numeric_values) && POST("value_$i")=="") {
+        if(POST("conf_$i") == "pass_length_max") {
+            $pass_length_max = POST("value_$i");
+            continue;
+        }
+        if(in_array(POST("conf_$i"), $numeric_values) && (POST("value_$i")=="" || intval(POST("value_$i"))<0 )) {
             $_POST["value_$i"] = 0;
+         }
+        
+        if(POST("conf_$i") == "pass_length_min") {
+            if (POST("value_$i")<1) {
+                $_POST["value_$i"] = 7;
+            }
+            $pass_length_min = POST("value_$i");
         }
         ossim_valid(POST("value_$i"), OSS_ALPHA, OSS_NULLABLE, OSS_SCORE, OSS_DOT, OSS_PUNC, "\{\}\|;", 'illegal:' . POST("conf_$i")); 
         if (ossim_error()) {
@@ -1479,7 +1490,16 @@ if (POST('update')) {
             }
         }
     }
-  /*  $infolog = array(
+    
+    // check valid pass lenght max
+    if(intval($pass_length_max) < intval($pass_length_min) || intval($pass_length_max) < 1 || intval($pass_length_max) > 255 ) {
+        $config->update("pass_length_max" , 255);
+    }
+    else {
+        $config->update("pass_length_max" , intval($pass_length_max));
+    }
+
+    /*  $infolog = array(
         $_SESSION['_user']
     );
     Log_action::log(7, $infolog);*/
