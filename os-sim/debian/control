@@ -54,7 +54,7 @@ Description: Open Source Security Information Management (Framework)
 
 Package: ossim-framework-daemon
 Architecture: all
-Depends: ${python:Depends}, python-adodb, python-mysqldb | python-pgsql, python-rrd, python-pycurl, ossim-framework (= ${binary:Version})
+Depends: ${python:Depends}, python-adodb, python-mysqldb | python-pgsql, python-rrd, python-pycurl, python-subnettree, ossim-framework (= ${binary:Version})
 Conflicts: ossim-framework (<< 0.9.8-14)
 Description: Open Source Security Information Management (Framework Daemon)
  Ossim Framework Daemon
