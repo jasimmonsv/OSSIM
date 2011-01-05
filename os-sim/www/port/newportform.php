@@ -134,6 +134,7 @@ $db->close($conn);
 	
 	<script language="javascript">
 		$(document).ready(function() {
+		<?php /*
 			var ports = [ <?= $ports_input ?> ];
 				$("#ports").autocomplete(ports, {
 					minChars: 0,
@@ -147,14 +148,14 @@ $db->close($conn);
 					$("#ports").val(item.id);
 					addto('selected_ports',item.id,item.id);
 				});
-				
+				*/?>
 				
 				$('textarea').elastic();
 				
 				$('.vfield').bind('blur', function() {
 					 validate_field($(this).attr("id"), "newport.php");
 				});
-				
+				<?php /*
 			$('#ports').keypress(function(e){
 				if(e.keyCode == 13) {
 					var port_value=$("#ports").val();
@@ -171,25 +172,52 @@ $db->close($conn);
 					}
 				}
 			});
+			*/?>
 			$("*").keypress(function(e){
 				if(e.keyCode == 13) {
 					return e.keyCode != 13;
 				}
 			});
+			
 		})
+		function portAndProtocol(){
+			var ports_name=$("#ports_name").val();
+			var ports_protocol=$("#ports_protocol").val();
+			
+			if(ports_name==''){
+				alert('<?php echo _('Please: Type here the port');?>');
+				return;
+			}else{
+				if(ports_name>=0 && ports_name<=65535){
+					var port=ports_name+' - '+ports_protocol;
+					addto('selected_ports',port,port);
+				}else{
+					alert('<?php echo _('Error: Malformed port is between 0 and 65535'); ?>');
+				}
+			}
+			
+			return;
+		}
 	</script>
   
 	<style type='text/css'>
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-			echo "#table_form {background: transparent; width: 400px;}";
-		    echo "#table_form th {width: 130px;}";
+		?>
+			 #table_form {background: transparent; width: 400px;}
+		     #table_form th {width: 130px;}
+			 #ports_name{
+				width: 90px !important;
+			 }
+		<?php
 		}
 		else
 		{
-			echo "#table_form {background: transparent; width: 500px;}";
-		    echo "#table_form th {width: 150px;}";
+		?>
+			#table_form {background: transparent; width: 500px;}
+		    #table_form th {width: 150px;}
+	<?php
 		}
 		?>
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
@@ -237,8 +265,16 @@ if (GET('withoutmenu') != "1")
     <th><label for='selected_ports'><?php echo gettext("Ports");?></label></th>
 		<td class='left'>
 			<table class="transparent" width='100%'>
-				<tr><td class="nobborder"><?=_("<span class='bold'>Type</span> here the pair 'port - protocol'")?>:</td></tr>
-				<tr><td class="nobborder"><input type="text" id="ports" name="ports" value="" size="32"/></td></tr>
+				<tr><td class="nobborder"><?php /*echo _("<span class='bold'>Type</span> here the pair 'port - protocol'")*/echo _("<span class='bold'>Type</span> here the port")?>:</td></tr>
+				<tr><td class="nobborder">
+					<?php /*<input type="text" id="ports" name="ports" value="" size="32"/>*/?>
+					<input type="text" id="ports_name" name="ports_name" value="" size="5" style="width: 160px" />
+					<select id="ports_protocol" name="ports_protocol" style="width: 70px">
+					  <option value="udp">UDP</option>
+					  <option value="tcp">TCP</option>
+					</select>
+					<input type="button" id='insert' class="lbutton" value="<?php echo _("add")?>" onclick="portAndProtocol();"/>
+				</td></tr>
 				<tr><td class="nobborder" style="padding-top:10px"><?=_("Selected ports for the group")?>:</td></tr>
 				<tr>
 					<td class="nobborder">
