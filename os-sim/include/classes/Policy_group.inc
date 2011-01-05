@@ -143,6 +143,7 @@ class Policy_group {
     function delete($conn, $id) {
         $id = intval($id);
         $policygrp = Policy_group::get_list($conn, "where group_id=$id");
+
         if (count($policygrp) != 1) return;
         $params = array(
             $id
@@ -151,6 +152,17 @@ class Policy_group {
         $conn->Execute($sql, $params);
         $policy_list = Policy::get_list($conn, "where policy.group=$id");
         foreach($policy_list as $policy) Policy::delete($conn, $policy->get_id());
+        
+        $reorderpolicygrps = Policy::get_policy_groups($conn, "ORDER BY order");
+        $neworder = 1000;
+        
+        foreach($reorderpolicygrps as $policy) {
+            if(intval($policy->get_group_id())!=0) {
+                $conn->Execute("UPDATE policy_group SET policy_group.order=$neworder WHERE group_id=".$policy->get_group_id());
+                $neworder++;
+            }
+        }
+        
         $infolog = array(
             $id,
             "(" . $policygrp[0]->get_name() . ")"

@@ -63,6 +63,17 @@ foreach($policy_groups as $group) {
 		$neworder++;
 	}
 }
+
+$reorderpolicygrps = Policy::get_policy_groups($conn, "ORDER BY order");
+$neworder = 1000;
+
+foreach($reorderpolicygrps as $policy) {
+    if(intval($policy->get_group_id())!=0) {
+        $conn->Execute("UPDATE policy_group SET policy_group.order=$neworder WHERE group_id=".$policy->get_group_id()); 
+        $neworder++;
+    }
+}
+
 $db->close($conn);
 header("Location: /ossim/policy/policy.php?hmenu=Policy&smenu=Policy");
 ?>
