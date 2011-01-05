@@ -80,6 +80,10 @@ echo gettext("OSSIM Framework"); ?> </title>
 
   <script type="text/javascript">
   // GrayBox
+  function GB_edit(url) {
+			GB_show("Knowledge DB",url,"60%","80%");
+			return false;
+		}
 	$(document).ready(function(){
 		GB_TYPE = 'w';
 		$("a.greybox").click(function(){
@@ -314,7 +318,22 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 			$osvdb_id = Osvdb::get_osvdbid_by_nessusid($conn, $nessus_id);
 			if ($osvdb_id) $nessus_id = "<a href=\"osvdb.php?id=" . $osvdb_id . "\">" . $nessus_id . "</a>";
 			// Osvdb end
-			echo "<b>IP:</b> " . $vulnerability_data->get_ip() . "<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity(nl2br($vulnerability_data->get_description())) . "<br>";
+			// add name and kdb link
+			require_once ("classes/Host.inc");
+			require_once ("classes/Repository.inc");
+			$txt_temp='';
+			$hostname_temp=Host::ip2hostname($conn,$vulnerability_data->get_ip());
+			if($hostname_temp!=$vulnerability_data->get_ip()){
+				$txt_temp.=$hostname_temp.' - ';
+			}
+			if ($linkedocs = Repository::have_linked_documents($conn, $vulnerability_data->get_ip(), 'host')){
+				$txt_temp.="<a href=\"javascript:;\" onclick=\"GB_edit('../repository/repository_list.php?keyname=" . urlencode($vulnerability_data->get_ip()) . "&type=host')\" class=\"blue\" target=\"main\">[" . $linkedocs . "] "._('Knowledge DB')."</a>";
+			}
+			if($txt_temp!=''){
+				$txt_temp=' ('.$txt_temp.')';
+			}
+			//
+			echo "<b>IP:</b> " . $vulnerability_data->get_ip() .$txt_temp."<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity(nl2br($vulnerability_data->get_description())) . "<br>";
 		}
 	} 
 	elseif ($ref == 'Custom')

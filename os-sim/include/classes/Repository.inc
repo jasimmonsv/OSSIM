@@ -635,7 +635,15 @@ class Repository {
     // Get host or host_group or net or net_group List
     function get_hostnet($conn, $table) {
         $ret = array();
+
         $sql = "SELECT SQL_CALC_FOUND_ROWS * FROM $table";
+		
+		if($table=='host'){
+			$sql .= " ORDER BY hostname";
+		}elseif($table=='host_group'||$table=='net'||$table=='net_group'){
+			$sql .= " ORDER BY name";
+		}		
+		
 		if (!$rs = & $conn->Execute($sql)) {
             print $conn->ErrorMsg();
             return array();
@@ -689,9 +697,16 @@ class Repository {
 				$user = Session::get_session_user();
 				$allowed = Incident::get_users_list($conn, $rs->fields["id"]);
 				if (in_array($user, $allowed)) {
+					$name_temp=strtoupper(substr($rs->fields["ref"], 0, 3));
+					if($rs->fields["id"]>=10){
+						$name_temp.=$rs->fields["id"];
+					}else{
+						$name_temp.='0'.$rs->fields["id"];
+					}
+					
 					$ret[] = array(
 						"key" => $rs->fields["id"],
-						"name" => $rs->fields["title"]
+						"name" => $name_temp.' - '.$rs->fields["title"]
 					);
 				}
             // Others
@@ -701,6 +716,15 @@ class Repository {
             );
             $rs->MoveNext();
         }
+		
+		if ($table == "incident") {
+			$tmp = Array();
+			foreach($ret as &$ma){
+				$tmp[] = &$ma["name"];
+			}
+			array_multisort($tmp, $ret);
+		}
+		
         return array(
             $ret,
             $num_rows

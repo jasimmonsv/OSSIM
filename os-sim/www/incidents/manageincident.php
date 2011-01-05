@@ -56,6 +56,9 @@ $db = new ossim_db();
 $conn = $db->connect();
 $id = GET('incident_id');
 
+
+
+
 $action = (POST('action')=="newincident")? "newincident":GET('action');
 $from_vuln = (POST('from_vuln')!="")? POST('from_vuln'):GET('from_vuln');
 

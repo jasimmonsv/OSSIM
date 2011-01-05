@@ -130,26 +130,26 @@ if (count($rel_list) > 0) { ?>
 				<tr>
 					<td valign="top" class="nobborder">
 						<select name="linktype" onchange="document.flinks.submit();">
+						<option value="directive"<?php
+if ($link_type == "directive") echo " selected" ?>><?=_("Directive")?>
 						<option value="host"<?php
 if ($link_type == "host") echo " selected" ?>><?=_("Host")?>
 						<option value="host_group"<?php
 if ($link_type == "host_group") echo " selected" ?>><?=_("Host Group")?>
+						<option value="incident"<?php
+if ($link_type == "incident") echo " selected" ?>><?=_("Ticket")?>
 						<option value="net"<?php
 if ($link_type == "net") echo " selected" ?>><?=_("Net")?>
 						<option value="net_group"<?php
 if ($link_type == "net_group") echo " selected" ?>><?=_("Net Group")?>
-						<option value="incident"<?php
-if ($link_type == "incident") echo " selected" ?>><?=_("Ticket")?>
-						<option value="directive"<?php
-if ($link_type == "directive") echo " selected" ?>><?=_("Directive")?>
 						<option value="plugin_sid"<?php
 if ($link_type == "plugin_sid") echo " selected" ?>><?=_("Plugin sid")?>
 						</select>
 					</td>
 					<td valign="top" class="nobborder">
-					<? if ($link_type == "directive") { ?>
+					<?php if ($link_type == "directive") { ?>
 						<input type="text" name="newlinkname">
-					<? } elseif ($link_type == "plugin_sid") { 
+					<?php } elseif ($link_type == "plugin_sid") { 
                             $plugins = Plugin::get_list($conn,"order by name");
                             echo "<select name='pid' onchange='document.flinks.submit()'><option value='0'> "._("Select a plugin");
                             foreach ($plugins as $plugin) {
@@ -166,7 +166,7 @@ if ($link_type == "plugin_sid") echo " selected" ?>><?=_("Plugin sid")?>
                                 echo "</select>";
                             }
 					   } else { ?>
-						<select name="newlinkname">
+						<select name="newlinkname" style="width:300px">
 						<?php foreach($hostnet_list as $hostnet) { ?>
 						<option value="<?php echo $hostnet['name'] ?>####<?php echo $hostnet['key'] ?>"><?php echo $hostnet['name'] ?>
 						<?php } ?>
