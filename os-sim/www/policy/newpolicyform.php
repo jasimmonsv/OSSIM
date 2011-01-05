@@ -166,6 +166,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 			if (!actions_loaded) {
 				$("#loading_actions").hide();
 				$("#actions").multiselect({
+                    itemsCount:'#{count} actions enabled',
 					dividerLocation: 0.5,
 					searchable: false,
 					nodeComparator: function (node1,node2){ return 1 }
@@ -453,20 +454,23 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 			putit("#tdtime",txt);
 			//
 			txt = "<?=_('Policy Group')?>: <b> " + document.fop.group.options[document.fop.group.selectedIndex].text + "</b><br>";
-			txt = txt + "<?=_('Description')?>: <i> " + document.fop.descr.value + "</i><br>";
-			txt = txt + "<?=_('Active')?>: <b> " + ($("input[name='active']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
-			txt = txt + "<?=_('Sign')?>: <b> " + ($("input[name='sign']:checked").val()==1 ? "<?=_('Line')?>" : "<?=_('Block')?>") + "</b><br>";
-			txt = txt + "<?=_('Logger')?>: <b> " + ($("input[name='sem']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
-			txt = txt + "<?=_('SIEM')?>: <b> " + ($("input[name='sim']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+
 			putit("#tdmore",txt);
 			//
 			txt = "<?=_('Priority')?>: <b>" + document.fop.priority.options[document.fop.priority.selectedIndex].text + "</b><br>";
-			txt = txt + "<?=_('Correlate')?>: <b> " + ($("input[name='correlate']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
-			txt = txt + "<?=_('Cross Correlate')?>: <b> " + ($("input[name='cross_correlate']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
-			txt = txt + "<?=_('Store')?>: <b> " + ($("input[name='store']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
-			txt = txt + "<?=_('Qualify')?>: <b> " + ($("input[name='qualify']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
-			txt = txt + "<?=_('Resend Alarms')?>: <b> " + ($("input[name='resend_alarms']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
-			txt = txt + "<?=_('Resend Events')?>: <b> " + ($("input[name='resend_events']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+            txt = txt + "<?=_('SIEM')?>: <b> " + ($("input[name='sim']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			txt = txt + "<?=_('Qualify events')?>: <b> " + ($("input[name='qualify']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			txt = txt + "<?=_('Correlate events')?>: <b> " + ($("input[name='correlate']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			txt = txt + "<?=_('Cross Correlate events')?>: <b> " + ($("input[name='cross_correlate']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			txt = txt + "<?=_('Store events')?>: <b> " + ($("input[name='store']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			txt = txt + "<?=_('Logger')?>: <b> " + ($("input[name='sem']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			txt = txt + "<?=_('Sign')?>: <b> " + ($("input[name='sign']:checked").val()==1 ? "<?=_('Line')?>" : "<?=_('Block')?>") + "</b><br>";
+            txt = txt + "<?=_('Multilevel')?>: <b> " + ($("input[name='multi']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			txt = txt + "<?=_('Forward alarms')?>: <b> " + ($("input[name='resend_alarms']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			txt = txt + "<?=_('Forward events')?>: <b> " + ($("input[name='resend_events']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+            txt = txt + "<?=_('Description')?>: <i> " + document.fop.descr.value + "</i><br>";
+			txt = txt + "<?=_('Active')?>: <b> " + ($("input[name='active']:checked").val()==1 ? "<?=_('Yes')?>" : "<?=_('No')?>") + "</b><br>";
+			
 			putit("#tdother",txt);
 			//
 			if (iscomplete()) {
@@ -514,18 +518,23 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 
 				var parts = ipaddr.split(".");
 				//if the first unit/quadrant of the IP is zero
-				if (parseInt(parseFloat(parts[0])) == 0) {
-					return false;
-				}
+				//if (parseInt(parseFloat(parts[0])) == 0) {
+				//	return false;
+				//}
 				//if the fourth unit/quadrant of the IP is zero
 
-				if (parseInt(parseFloat(parts[3])) == 0) {
-					return false;
-				}
-				//if any part is greater than 255
+				//if (parseInt(parseFloat(parts[3])) == 0) {
+				//	return false; 
+				//}
+				
+                //if any part is less than 0
+                if (parseInt(parseFloat(parts[0])) < 0 || parseInt(parseFloat(parts[1])) < 0 ||
+                    parseInt(parseFloat(parts[2])) < 0 || parseInt(parseFloat(parts[3])) < 0) {
+                    return false;
+                }
+                //if any part is greater than 255
 				for (var i=0; i<parts.length; i++) {
 					if (parseInt(parseFloat(parts[i])) > 255){
-
 						return false;
 					}
 				}
@@ -722,7 +731,7 @@ if ($insert != "") {
 	<ul>
 		<li><a href="#tabs-1" class="ptab"><?php echo _("Source") . required() ?></a></li>
 		<li><a href="#tabs-2" class="ptab"><?php echo _("Dest") . required() ?></a></li>
-		<li><a href="#tabs-3" class="ptab"><?php echo _("Ports") . required() ?></a></li>
+		<li><a href="#tabs-3" class="ptab"><?php echo _("Destination Ports") . required() ?></a></li>
 		<li><a href="#tabs-4" class="ptab"><?php echo _("Plugin Groups") . required() ?></a></li>
 		<li><a href="#tabs-5" class="ptab"><?php echo _("Sensors") . required() ?></a></li>
 		<li <?= ($opensource) ? "style='display:none'" : "" ?>><a href="#tabs-6" class="ptab"><?php echo _("Install in") . required() ?></a></li>
@@ -822,7 +831,7 @@ if ($insert != "") {
 	<div id="tabs-3">
 		<table class='tab_table'>
 		<tr>
-			<th style="background-position:top center"><?php echo _("Ports") . required() ?><br/>
+			<th style="background-position:top center"><?php echo _("Destination Ports") . required() ?><br/>
 				<span class='size10'><a href="../port/newportform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new port group?") ?></a></span><br/>
 				<span class='size10'><a href="../port/newsingleportform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new port?") ?></a></span><br/>
 			</th>
@@ -856,20 +865,25 @@ if ($insert != "") {
 			<td class="left nobborder" valign="top">
 				<table class="left noborder" cellpadding="0" cellspacing="0">
 					<tr>
-						<td class="nobborder">
+						<td class="nobborder" style="border-bottom: 1px dotted;padding-bottom:5px;">
 							<input type="checkbox" id="plugin_ANY" onclick="drawpolicy()" name="plugins[0]" <?php echo (in_array(0 , $plugingroups)) ? "checked='checked'" : "" ?>/> <?=_("ANY")?>
 						</td>
 					</tr>
-					
 					<tr>
-						<td class="nobborder" id="plugins">
-						<?php
-						/* ===== plugin groups ==== */
-						foreach(Plugingroup::get_list($conn) as $g) {
-						?>
-							<input type="checkbox" id="plugin_<?php echo $g->get_name() ?>" onclick="drawpolicy()" name="plugins[<?php echo $g->get_id() ?>]" <?php echo (in_array($g->get_id() , $plugingroups)) ? "checked='checked'" : "" ?>> <a href="../policy/modifyplugingroupsform.php?action=edit&id=<?php echo $g->get_id() ?>&withoutmenu=1" class="greybox" title="<?=_('View plugin group')?>"><?php echo $g->get_name() ?></a><br/>
-						<?php
-						} ?>
+						<td class="nobborder" id="plugins" style="text-align:left;padding-top:5px;">
+                            <table width="100%" class="transparent" cellspacing="0" cellpadding="0"><tr>
+                            <?php
+                            $iplugin = 0;
+                            /* ===== plugin groups ==== */
+                            foreach(Plugingroup::get_list($conn, "", "name") as $g) {
+                                echo "<td class='nobborder' style='text-align:left;padding-right:10px'>";
+                                ?>
+                                    <input type="checkbox" id="plugin_<?php echo $g->get_name() ?>" onclick="drawpolicy()" name="plugins[<?php echo $g->get_id() ?>]" <?php echo (in_array($g->get_id() , $plugingroups)) ? "checked='checked'" : "" ?>> <a href="../policy/modifyplugingroupsform.php?action=edit&id=<?php echo $g->get_id() ?>&withoutmenu=1" class="greybox" title="<?=_('View plugin group')?>"><?php echo $g->get_name() ?></a><br/>
+                                <?php
+                                echo "</td>";
+                                if($iplugin++ % 3==2) { echo "<tr></tr>"; }
+                            } ?>
+                            </tr></table>
 						</td>
 					</tr>
 				</table>
@@ -1289,7 +1303,7 @@ if ($insert != "") {
 			<?php echo _("Dest")?> <img src="../pixmaps/tables/cross-small.png" id="imgdest" align="absmiddle"/>
 		</th>
 		<th nowrap='nowrap'>
-			<?php echo _("Ports") ?> <img src="../pixmaps/tables/cross-small.png" id="imgports" align="absmiddle"/>
+			<?php echo _("Destination Ports") ?> <img src="../pixmaps/tables/cross-small.png" id="imgports" align="absmiddle"/>
 		</th>
 		<th nowrap='nowrap'>
 			<?php echo _("Plugin Groups")?> <img src="../pixmaps/tables/cross-small.png" id="imgplugins" align="absmiddle"/>
@@ -1304,8 +1318,11 @@ if ($insert != "") {
 			<?php echo _("Time Range")?> <img src="../pixmaps/tables/cross-small.png" id="imgtime" align="absmiddle"/>
 		</th>
 		<th nowrap='nowrap'>
-			<?php echo _("Description")?> <img src="../pixmaps/tables/cross-small.png" id="imgmore" align="absmiddle"/>
+			<?php echo _("Policy group")?> <img src="../pixmaps/tables/cross-small.png" id="imgmore" align="absmiddle"/>
 		</th>
+        <th>
+            <img src="../pixmaps/arrow-join.png" border="0">
+        </th>
 		<th nowrap='nowrap'>
 			<?php echo _("Policy Consequences") ?> <img src="../pixmaps/tables/cross-small.png" id="imgother" align="absmiddle"/>
 		</th>
@@ -1319,6 +1336,7 @@ if ($insert != "") {
 		<td id="tdtargets" class="small"<?=($opensource) ? " style='display:none'" : ""?>></td>
 		<td id="tdtime"    class="small"></td>
 		<td id="tdmore"    class="small"></td>
+        <td bgcolor="#DFDFDF">&nbsp;</td>
 		<td id="tdother"   class="small" nowrap='nowrap'></td>
 	</tr>
 </table>
