@@ -1341,17 +1341,25 @@ function expire_session_check() {
 		$conf = new ossim_conf();
 	}
 	$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
-	if ($expired_timeout==0) return;
-	if (isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < time()) {
+								
+	if ($expired_timeout==0) 
+		return;
+			
+	if ( isset($_SESSION["_expiration_time"]) && intval($_SESSION["_expiration_time"])+$expired_timeout < time())  {
 		header("Location: /ossim/session/login.php?action=logout");
 	}
+		
 	// only update if not exists bypass => header ajax responses
 	$_SESSION["_expiration_time"] = time();
 	Session_activity::update($_SESSION["_expiration_time"]);
 }
 
-if ( session_id() != '' && intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1 ) {
+
+
+
+if ( intval(GET('bypassexpirationupdate'))!=1 && intval(POST('bypassexpirationupdate'))!=1 ) {
 	expire_session_check();
+	
 }
 
 ?>

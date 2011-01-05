@@ -35,6 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+Session::useractive("../session/login.php");
 require_once ('classes/Security.inc');
 require_once ('ossim_db.inc');
 require_once ('ossim_conf.inc');
@@ -49,11 +50,6 @@ $version    = $conf->get_conf("ossim_server_version", FALSE);
 $pro        = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
 $my_session = session_id();
-
-$current_user = Session::get_session_user();
-
-if ( empty($current_user) )
-	Session::logout();
 
 function is_expired($time)
 {

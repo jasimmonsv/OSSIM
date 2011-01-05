@@ -36,6 +36,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+Session::useractive("login.php");
 //Session::logcheck("MenuConfiguration", "ConfigurationUsers");
 require_once ('ossim_acl.inc');
 require_once ("classes/Security.inc");
