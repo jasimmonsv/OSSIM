@@ -44,6 +44,7 @@ $.widget("ui.multiselect", {
 	_init: function() {
 		this.element.hide();
 		this.busy = false;  // busy state
+        $.ui.multiselect.locale.itemsCount=this.options.itemsCount;
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.selectedContainer = $('<div class="ui-widget-content list-container selected"></div>').appendTo(this.container);
 		this.availableContainer = $('<div class="ui-widget-content list-container available"></div>').appendTo(this.container);
@@ -881,6 +882,8 @@ $.extend($.ui.multiselect, {
 		animated: 'fast',
 		show: 'slideDown',
 		hide: 'slideUp',
+        itemsCount:'#{count} items selected',
+		itemsTotal:'#{count} items total',
 		// ui
 		dividerLocation: 0.6,
 		// callbacks

@@ -328,7 +328,7 @@ foreach($policy_groups as $group) {
             false
         ) ,
         "order" => array(
-            _('Order'),
+            _('Ord'),
             30,
             'true',
             'center',
