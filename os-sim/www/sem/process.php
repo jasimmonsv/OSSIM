@@ -73,7 +73,8 @@ $a = GET("query");
 $export = GET('txtexport');
 $top = GET('top');
 if($export=='exportEntireQuery'){
-    $top=999999999;
+    $top = (intval($config["max_export_events"])>0) ? $config["max_export_events"] : 250000;
+    //999999999;
 }
 
 $offset = GET("offset");
