@@ -202,7 +202,7 @@ if ( GET('edit') == _("Update Services") )
 
 if( GET('deleteService')!=null )
 {
-    $explode=explode('-',GET('deleteService'));
+    $explode=explode('-',GET('deleteService'),3);
 
     Host_services::deleteUnit($conn, $ip, $explode[0], $explode[1], $explode[2]);
 }
