@@ -115,6 +115,8 @@ $verified = 0;
 //print_r($found_str.$validate_file);
 if ($validate_file != "" && file_exists($validate_file)) {
 
+	$validate_sig_file = str_replace(".gz","",$validate_file . ".sig");
+	
     // signature in string
     if ($signature!="") {
     	$sig_dec = base64_decode($signature);
@@ -123,8 +125,8 @@ if ($validate_file != "" && file_exists($validate_file)) {
         //error_log("$log_line\n$signature\n", 3, "/tmp/validate");
 
 	// signature en filename.sig
-    } elseif (file_exists($validate_file . ".sig")) {
-        $signature = file_get_contents($validate_file . ".sig");
+    } elseif (file_exists($validate_sig_file)) {
+        $signature = file_get_contents($validate_sig_file);
         $sig_dec = base64_decode($signature);
         $f = fopen("/tmp/sig_decoded", "wb");
         fwrite($f, $sig_dec);
