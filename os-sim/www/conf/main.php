@@ -34,12 +34,12 @@
 * Function list:
 * - valid_value()
 * - submit()
-* Classes list:
 */
 require_once 'classes/Session.inc';
 Session::logcheck("MenuConfiguration", "ConfigurationMain");
 require_once 'ossim_conf.inc';
 require_once 'classes/Security.inc';
+
 $ossim_conf = $GLOBALS["CONF"];
 $system_lang = trim(`/usr/bin/locale|grep LANG|cut -f 2 -d "="|head -1`);
 $CONFIG = array(
@@ -1396,7 +1396,8 @@ $CONFIG = array(
     )
 );
 
-function valid_value($key, $value, $numeric_values) {
+function valid_value($key, $value, $numeric_values)
+{
     if (in_array($key, $numeric_values)) {
         if (!is_numeric($value)) {
             require_once ("ossim_error.inc");
@@ -1408,18 +1409,19 @@ function valid_value($key, $value, $numeric_values) {
     }
     return true;
 }
-function submit() {
-?>
-    <!-- submit -->
-    
-    <input type="submit" name="update" class="button" style="font-size:12px" value=" <?php
-    echo gettext("Update configuration"); ?> " />
-    
-	<br><br>
-    <!-- end sumbit -->
-<?php
+
+function submit()
+{
+	?>
+		<!-- submit -->
+		
+		<input type="submit" name="update" class="button" value=" <?php echo gettext("Update configuration"); ?> "/>
+		<br/><br/>
+		<!-- end sumbit -->
+	<?php
 }
-if (POST('update')) {
+if (POST('update'))
+{
     $numeric_values = array(
         "server_port",
         "use_resolv",
@@ -1459,27 +1461,38 @@ if (POST('update')) {
     );
         
     require_once 'classes/Config.inc';
-    $config = new Config();
-    for ($i = 0; $i < POST('nconfs'); $i++) {
-        if(POST("conf_$i") == "pass_length_max") {
+    
+	$config = new Config();
+    
+	for ($i = 0; $i < POST('nconfs'); $i++)
+	{
+        if(POST("conf_$i") == "pass_length_max")
+		{
             $pass_length_max = POST("value_$i");
             continue;
         }
-        if(in_array(POST("conf_$i"), $numeric_values) && (POST("value_$i")=="" || intval(POST("value_$i"))<0 )) {
-            $_POST["value_$i"] = 0;
-         }
         
-        if(POST("conf_$i") == "pass_length_min") {
+		if(in_array(POST("conf_$i"), $numeric_values) && (POST("value_$i")=="" || intval(POST("value_$i"))<0 ))
+		{
+            $_POST["value_$i"] = 0;
+        }
+        
+        if(POST("conf_$i") == "pass_length_min")
+		{
             if (POST("value_$i")<1) {
                 $_POST["value_$i"] = 7;
             }
             $pass_length_min = POST("value_$i");
         }
+		
         ossim_valid(POST("value_$i"), OSS_ALPHA, OSS_NULLABLE, OSS_SCORE, OSS_DOT, OSS_PUNC, "\{\}\|;", 'illegal:' . POST("conf_$i")); 
-        if (ossim_error()) {
+        
+		if (ossim_error()) {
            die(ossim_error()); 
         }
-        if (valid_value(POST("conf_$i") , POST("value_$i"), $numeric_values)) {
+        
+		if (valid_value(POST("conf_$i") , POST("value_$i"), $numeric_values))
+		{
             if (!$ossim_conf->is_in_file(POST("conf_$i"))) {
                 $before_value = $ossim_conf->get_conf(POST("conf_$i"),false); 
                 $config->update(POST("conf_$i") , POST("value_$i"));
@@ -1492,10 +1505,12 @@ if (POST('update')) {
     }
     
     // check valid pass lenght max
-    if(intval($pass_length_max) < intval($pass_length_min) || intval($pass_length_max) < 1 || intval($pass_length_max) > 255 ) {
+    if(intval($pass_length_max) < intval($pass_length_min) || intval($pass_length_max) < 1 || intval($pass_length_max) > 255 )
+	{
         $config->update("pass_length_max" , 255);
     }
-    else {
+    else
+	{
         $config->update("pass_length_max" , intval($pass_length_max));
     }
 
@@ -1506,21 +1521,20 @@ if (POST('update')) {
     header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word'));
     exit;
 }
-if (REQUEST("reset")) {
+
+if (REQUEST("reset"))
+{
     if (!(GET('confirm'))) {
-?>
+	?>
         <p align="center">
-          <b><?php
-        echo gettext("Are you sure ?") ?></b>
-          <br/>
-          <a href="?reset=1&confirm=1"><?php
-        echo gettext("Yes") ?></a>&nbsp;|&nbsp;
-          <a href="main.php"><?php
-        echo gettext("No") ?></a>
+			<b><?php echo gettext("Are you sure ?") ?></b><br/>
+			<a href="?reset=1&confirm=1"><?php echo gettext("Yes") ?></a>&nbsp;|&nbsp;
+			<a href="main.php"><?php echo gettext("No") ?></a>
         </p>
 <?php
         exit;
     }
+	
     require_once 'classes/Config.inc';
     $config = new Config();
     $config->reset();
@@ -1528,353 +1542,435 @@ if (REQUEST("reset")) {
     exit;
 }
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php echo gettext("Advanced Configuration"); ?> </title>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script src="../js/jquery-1.3.2.min.js" type="text/javascript" ></script>
-  <script src="../js/accordian.js" type="text/javascript" ></script>
-  <style type="text/css">
-	#basic-accordian{
-		padding:0px;
-		align:center;
-		width:450px;
-	}
-
-	.accordion_headings {
-		height:24px; line-height:22px;
-		cursor:pointer;
-		padding-left:5px; padding-right:5px; margin-bottom:2px;
-		font-family:arial; font-size:12px; color:#0E3C70; font-weight:bold; text-decoration:none
-	}
-
-	.accordion_headings:hover {
-	}
-
-	.accordion_child {
-		padding-left:5px;
-		padding-right:5px;
-		padding-bottom:5px
-	}
-	.header_highlight {
-	}
-	.semiopaque { opacity:0.9; MozOpacity:0.9; KhtmlOpacity:0.9; filter:alpha(opacity=90); background-color:#B5C3CF }
-  </style>
-  <script>
-	var IE = document.all ? true : false
-	if (!IE) document.captureEvents(Event.MOUSEMOVE)
-	document.onmousemove = getMouseXY;
-	var tempX = 0
-	var tempY = 0
-
-	var difX = 15
-	var difY = 0 
-
-	function getMouseXY(e) {
-		if (IE) { // grab the x-y pos.s if browser is IE
-				tempX = event.clientX + document.body.scrollLeft + difX
-				tempY = event.clientY + document.body.scrollTop + difY 
-		} else {  // grab the x-y pos.s if browser is MOZ
-				tempX = e.pageX + difX
-				tempY = e.pageY + difY
-		}  
-		if (tempX < 0){tempX = 0}
-		if (tempY < 0){tempY = 0}
-		
-		var dh = document.body.clientHeight+ window.scrollY;
-		if (document.getElementById("numeroDiv").offsetHeight+tempY > dh)
-			tempY = tempY - (document.getElementById("numeroDiv").offsetHeight + tempY - dh)
-		document.getElementById("numeroDiv").style.left = tempX+"px";
-		document.getElementById("numeroDiv").style.top = tempY+"px"; 
-		return true
-	}
-	
-	function ticketon(name,desc) { 
-		
-		if (document.getElementById) {
-			var txt1 = '<table border=0 cellpadding=8 cellspacing=0 class="semiopaque"><tr><td class=nobborder style="line-height:18px;width:300px" nowrap><b>'+ name +'</b><br>'+ desc +'</td></tr></table>'
-			document.getElementById("numeroDiv").innerHTML = txt1
-			document.getElementById("numeroDiv").style.display = ''
-			document.getElementById("numeroDiv").style.visibility = 'visible'
+	<title> <?php echo gettext("Advanced Configuration"); ?> </title>
+	<META http-equiv="Pragma" CONTENT="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script src="../js/jquery-1.3.2.min.js" type="text/javascript" ></script>
+	<script src="../js/accordian.js" type="text/javascript" ></script>
+	<style type="text/css">
+		#basic-accordian{
+			padding:0px;
+			align:center;
+			width:450px;
 		}
-	}
 
-	function ticketoff() {
-		if (document.getElementById) {
-			document.getElementById("numeroDiv").style.visibility = 'hidden'
-			document.getElementById("numeroDiv").style.display = 'none'
-			document.getElementById("numeroDiv").innerHTML = ''
+		.accordion_headings {
+			height:24px; line-height:22px;
+			cursor:pointer;
+			padding-left:5px; padding-right:5px; margin-bottom:2px;
+			font-family:arial; font-size:12px; color:#0E3C70; font-weight:bold; text-decoration:none
 		}
-	}
+
+		.accordion_headings:hover {
+		}
+
+		.accordion_child {
+			padding-left:5px;
+			padding-right:5px;
+			padding-bottom:5px
+		}
+		.header_highlight {
+		}
+		.semiopaque { opacity:0.9; MozOpacity:0.9; KhtmlOpacity:0.9; filter:alpha(opacity=90); background-color:#B5C3CF }
+		
+		.m_nobborder { border: none; background: none; }
+	</style>
 	
-	// show/hide some options
-<?
-if ($ossim_conf->get_conf("server_sem", FALSE) == "yes") echo "var valsem = 1;";
-else echo "var valsem = 0;";
-?>
-<?
-if ($ossim_conf->get_conf("server_sim", FALSE) == "yes") echo "var valsim = 1;";
-else echo "var valsim = 0;";
-?>
-	function enableall() {
-		tsim("yes")
-		tsem("yes")
-	}
+	<script type='text/javascript'>
+		var IE = document.all ? true : false
+		if (!IE) document.captureEvents(Event.MOUSEMOVE)
+		document.onmousemove = getMouseXY;
+		var tempX = 0;
+		var tempY = 0;
+
+		var difX = 15;
+		var difY = 0; 
+
+		function getMouseXY(e)
+		{
+			if (IE) { // grab the x-y pos.s if browser is IE
+					tempX = event.clientX + document.body.scrollLeft + difX
+					tempY = event.clientY + document.body.scrollTop + difY 
+			} else {  // grab the x-y pos.s if browser is MOZ
+					tempX = e.pageX + difX
+					tempY = e.pageY + difY
+			}  
+			if (tempX < 0){tempX = 0}
+			if (tempY < 0){tempY = 0}
+			
+			var dh = document.body.clientHeight+ window.scrollY;
+			if (document.getElementById("numeroDiv").offsetHeight+tempY > dh)
+				tempY = tempY - (document.getElementById("numeroDiv").offsetHeight + tempY - dh)
+			document.getElementById("numeroDiv").style.left = tempX+"px";
+			document.getElementById("numeroDiv").style.top = tempY+"px"; 
+			return true
+		}
 	
-	$(document).ready(function(){	
-		new Accordian('basic-accordian',5,'header_highlight');
-		// enable/disable by default
-		$('input:hidden').each(function(){
-			if ($(this).val()=='server_sim') {
-				var idi = $(this).attr('name').substr(5);
-				tsim($("select[name='value_"+idi+"']").val());
+		function ticketon(name,desc)
+		{ 
+			
+			if (document.getElementById) {
+				var txt1 = '<table border=0 cellpadding=8 cellspacing=0 class="semiopaque"><tr><td class=nobborder style="line-height:18px;width:300px" nowrap><b>'+ name +'</b><br>'+ desc +'</td></tr></table>'
+				document.getElementById("numeroDiv").innerHTML = txt1
+				document.getElementById("numeroDiv").style.display = ''
+				document.getElementById("numeroDiv").style.visibility = 'visible'
 			}
-			if ($(this).val()=='server_sem') {
-				var idi = $(this).attr('name').substr(5);
-				tsem($("select[name='value_"+idi+"']").val());
+		}
+
+		function ticketoff()
+		{
+			if (document.getElementById) {
+				document.getElementById("numeroDiv").style.visibility = 'hidden'
+				document.getElementById("numeroDiv").style.display = 'none'
+				document.getElementById("numeroDiv").innerHTML = ''
 			}
+		}
+	
+		// show/hide some options
+		<?php
+		if ($ossim_conf->get_conf("server_sem", FALSE) == "yes")
+			echo "var valsem = 1;";
+		else 
+			echo "var valsem = 0;";
+
+		if ($ossim_conf->get_conf("server_sim", FALSE) == "yes") 
+			echo "var valsim = 1;";
+		else 
+			echo "var valsim = 0;";
+		?>
+
+		function enableall()
+		{
+			tsim("yes")
+			tsem("yes")
+		}
+	
+		$(document).ready(function(){	
+			new Accordian('basic-accordian',5,'header_highlight');
+			// enable/disable by default
+			$('input:hidden').each(function(){
+				if ($(this).val()=='server_sim') {
+					var idi = $(this).attr('name').substr(5);
+					tsim($("select[name='value_"+idi+"']").val());
+				}
+				if ($(this).val()=='server_sem') {
+					var idi = $(this).attr('name').substr(5);
+					tsem($("select[name='value_"+idi+"']").val());
+				}
+			});
+			
+			$('.conf_items').each(function(index) {
+				$(this).find("tr:last td").css('border', 'none');
+			 });
+
+			
 		});
-	});
+		
+		function tsim(val)
+		{
+			if (val == "yes") valsim = 1;
+			else valsim = 0;
+			document.getElementById('correlate_select').disabled = false;
+			document.getElementById('cross_correlate_select').disabled = false;
+			document.getElementById('store_select').disabled = false;
+			document.getElementById('qualify_select').disabled = false;
+			$('#correlate_select').css('color','black');
+			$('#cross_correlate_select').css('color','black');
+			$('#store_select').css('color','black');
+			$('#qualify_select').css('color','black');
+			
+			if (valsim==0)
+			{
+				document.getElementById('correlate_select').disabled = true;
+				document.getElementById('cross_correlate_select').disabled = true;
+				document.getElementById('store_select').disabled = true;
+				document.getElementById('qualify_select').disabled = true;
+				$('#correlate_select').css('color','gray');
+				$('#cross_correlate_select').css('color','gray');
+				$('#store_select').css('color','gray');
+				$('#qualify_select').css('color','gray');
+				//document.getElementById('correlate_select').selectedIndex = 1;
+				//document.getElementById('cross_correlate_select').selectedIndex = 1;
+				//document.getElementById('store_select').selectedIndex = 1;
+				//document.getElementById('qualify_select').selectedIndex = 1;
+			}
+			
+			if (valsim==0 && valsem==0)
+			{
+				document.getElementById('forward_alarm_select').disabled = true;
+				document.getElementById('forward_event_select').disabled = true;
+				$('#forward_alarm_select').css('color','gray');
+				$('#forward_event_select').css('color','gray');
+				//document.getElementById('forward_alarm_select').selectedIndex = 1;
+				//document.getElementById('forward_event_select').selectedIndex = 1;
+			} 
+			else
+			{
+				<? if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) { ?>
+				document.getElementById('forward_alarm_select').disabled = false;
+				document.getElementById('forward_event_select').disabled = false;
+				$('#forward_alarm_select').css('color','black');
+				$('#forward_event_select').css('color','black');
+				<? } ?>
+			}
+		}
 	
-	function tsim(val) {
-		if (val == "yes") valsim = 1;
-		else valsim = 0;
-		document.getElementById('correlate_select').disabled = false;
-		document.getElementById('cross_correlate_select').disabled = false;
-		document.getElementById('store_select').disabled = false;
-		document.getElementById('qualify_select').disabled = false;
-		$('#correlate_select').css('color','black');
-		$('#cross_correlate_select').css('color','black');
-		$('#store_select').css('color','black');
-		$('#qualify_select').css('color','black');
-		if (valsim==0) {
-			document.getElementById('correlate_select').disabled = true;
-			document.getElementById('cross_correlate_select').disabled = true;
-			document.getElementById('store_select').disabled = true;
-			document.getElementById('qualify_select').disabled = true;
-			$('#correlate_select').css('color','gray');
-			$('#cross_correlate_select').css('color','gray');
-			$('#store_select').css('color','gray');
-			$('#qualify_select').css('color','gray');
-			//document.getElementById('correlate_select').selectedIndex = 1;
-			//document.getElementById('cross_correlate_select').selectedIndex = 1;
-			//document.getElementById('store_select').selectedIndex = 1;
-			//document.getElementById('qualify_select').selectedIndex = 1;
+	function tsem(val)
+		{
+			if (val == "yes") 
+				valsem = 1;
+			else 
+				valsem = 0;
+			
+			document.getElementById('sign_select').disabled = false;
+			$('#sign_select').css('color','black');
+			
+			if (valsem==0)
+			{
+				document.getElementById('sign_select').disabled = true;
+				$('#sign_select').css('color','gray');
+				//document.getElementById('sign_select').selectedIndex = 1;
+			}
+			if (valsim==0 && valsem==0)
+			{
+				document.getElementById('forward_alarm_select').disabled = true;
+				document.getElementById('forward_event_select').disabled = true;
+				$('#forward_alarm_select').css('color','gray');
+				$('#forward_event_select').css('color','gray');
+				//document.getElementById('forward_alarm_select').selectedIndex = 1;
+				//document.getElementById('forward_event_select').selectedIndex = 1;
+			} 
+			else
+			{
+				document.getElementById('forward_alarm_select').disabled = false;
+				document.getElementById('forward_event_select').disabled = false;
+				$('#forward_alarm_select').css('color','black');
+				$('#forward_event_select').css('color','black');
+			}
 		}
-		if (valsim==0 && valsem==0) {
-			document.getElementById('forward_alarm_select').disabled = true;
-			document.getElementById('forward_event_select').disabled = true;
-			$('#forward_alarm_select').css('color','gray');
-			$('#forward_event_select').css('color','gray');
-			//document.getElementById('forward_alarm_select').selectedIndex = 1;
-			//document.getElementById('forward_event_select').selectedIndex = 1;
-		} else {
-			<? if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) { ?>
-			document.getElementById('forward_alarm_select').disabled = false;
-			document.getElementById('forward_event_select').disabled = false;
-			$('#forward_alarm_select').css('color','black');
-			$('#forward_event_select').css('color','black');
-			<? } ?>
-		}
-	}
-	function tsem(val) {
-		if (val == "yes") valsem = 1;
-		else valsem = 0;
-		document.getElementById('sign_select').disabled = false;
-		$('#sign_select').css('color','black');
-		if (valsem==0) {
-			document.getElementById('sign_select').disabled = true;
-			$('#sign_select').css('color','gray');
-			//document.getElementById('sign_select').selectedIndex = 1;
-		}
-		if (valsim==0 && valsem==0) {
-			document.getElementById('forward_alarm_select').disabled = true;
-			document.getElementById('forward_event_select').disabled = true;
-			$('#forward_alarm_select').css('color','gray');
-			$('#forward_event_select').css('color','gray');
-			//document.getElementById('forward_alarm_select').selectedIndex = 1;
-			//document.getElementById('forward_event_select').selectedIndex = 1;
-		} else {
-			document.getElementById('forward_alarm_select').disabled = false;
-			document.getElementById('forward_event_select').disabled = false;
-			$('#forward_alarm_select').css('color','black');
-			$('#forward_event_select').css('color','black');
-		}
-	}
 
-	function setvalue(id,val,checked) {
-		var current = document.getElementById(id).value;
-		current = current.replace(val,"");
-		if (checked) current += val;
-		document.getElementById(id).value = current;
-	}
-</script>
+		function setvalue(id,val,checked)
+		{
+			var current = document.getElementById(id).value;
+			current = current.replace(val,"");
+			if (checked) current += val;
+			document.getElementById(id).value = current;
+		}
+	</script>
 
 </head>
+
 <body>
-  <div id="numeroDiv" style="position:absolute; z-index:999; left:0px; top:0px; height:80px; visibility:hidden; display:none"></div>
-  <?php
-$advanced = (POST('adv') == "1") ? true : ((GET('adv') == "1") ? true : false);
-//$links = ($advanced) ? "<a href='main.php' style='color:#cccccc'>simple</a> | <b>advanced</b>" : "<b>simple</b> | <a href='main.php?adv=1' style='color:#cccccc'>advanced</a>";
-//$title = ($advanced) ? "Advanced" : "Main";
-include ("../hmenu.php");
+	<div id="numeroDiv" style="position:absolute; z-index:999; left:0px; top:0px; height:80px; visibility:hidden; display:none"></div>
+	<?php
+	$advanced = (POST('adv') == "1") ? true : ((GET('adv') == "1") ? true : false);
+	//$links = ($advanced) ? "<a href='main.php' style='color:#cccccc'>simple</a> | <b>advanced</b>" : "<b>simple</b> | <a href='main.php?adv=1' style='color:#cccccc'>advanced</a>";
+	//$title = ($advanced) ? "Advanced" : "Main";
+	include ("../hmenu.php");
 
 	$onsubmit = ( GET('adv') == '1' ) ? "onsubmit='enableall();'" : "";
-
-?>
-  
-  <form method="POST" style="margin:0 auto" <?php echo $onsubmit;?> action="<?php echo $_SERVER["SCRIPT_NAME"] ?>" />
-  
-  <table align='center'>
-  <tr>
-  <td class="noborder">
-  
-  <div id="basic-accordian" align="center">
-<?php
-$count = 0;
-$div = 0;
-$found = 0;
-$arr = array();
-foreach($CONFIG as $key => $val) if ($advanced || (!$advanced && $val["advanced"] == 0)) {
-    $s = (POST('word') != "") ? POST('word') : ((GET('word') != "") ? GET('word') : "");
-    if ($s != "") {
-        foreach($val["conf"] as $conf => $type) if ($advanced || (!$advanced && $type["advanced"] == 0)) {
-            if (preg_match("/$s/i", $conf)) {
-                $found = 1;
-                array_push($arr, $conf);
-            }
-        }
-    }
-?>
-  <div id="test<?php
-    if ($div > 0) echo $div ?>-header" class="accordion_headings <?php
-    if ($found == 1) echo "header_highlight" ?>">
-
-	<table width="100%" cellspacing="0" class=noborder>
-		<th  <?php
-    if ($found == 1) echo "style='background-color: #F28020; color: #FFFFFF'" ?>>
-			<?php echo $val["title"] ?>
-		</th>
-	</table>
-  </div>
-  
-  <div id="test<?php
-    if ($div > 0) echo $div ?>-content">
-	<div class="accordion_child">
-		<table cellpadding=3 align="center">
-<?php
-    //print "<tr><th colspan=\"2\">" . $val["title"] . "</th></tr>";
-    print "<tr><td colspan=\"3\">" . $val["desc"] . "</td></tr>";
-    if ($advanced && $val["title"]=="RRD") {
-?>
-		<tr><td colspan="3" align="center">
-		<input type="button" onclick="document.location.href='../rrd_conf/rrd_conf.php'" VALUE="<?php echo _("RRD Profiles definition") ?>" class="button"> 
-		</td></tr>
-		<?php
-    }
-    if ($advanced && $val["title"]=="Policy") {
-?>
-		<tr><td colspan="3" align="center">
-		<input type="button" onclick="document.location.href='../policy/reorderpolicies.php'" VALUE="<?php echo _("Re-order Policies") ?>" class="button"> 
-		</td></tr>
-		<?php
-    }
-	
-		
-    foreach($val["conf"] as $conf => $type) if ($advanced || (!$advanced && $type["advanced"] == 0)) {
-        //var_dump($type["type"]);
-        $conf_value = $ossim_conf->get_conf($conf,false);
-        $var = ($type["desc"] != "") ? $type["desc"] : $conf;
-			
-?>
-    <tr <?php
-        if (in_array($conf, $arr)) echo "bgcolor=#FE9B52" ?>>
-
-      <input type="hidden" name="conf_<?php
-        echo $count ?>"
-             value="<?php
-        echo $conf ?>" />
-
-      <td><b><?php echo $var ?></b></td>
-      <td class="left">
-<?php
-        $input = "";
-        $disabled = ($type["disabled"] == 1 || $ossim_conf->is_in_file($conf)) ? "class=\"disabled\" style=\"color:gray\" disabled" : "";
-        /* select */
-        if (is_array($type["type"])) {
-            // Multiple checkbox
-        	if ($type['checkboxlist']) {
-            	$input .= "<input type='hidden' name=\"value_$count\" id=\"".$type['id']."\" value=\"$conf_value\">";
-        		foreach($type["type"] as $option_value => $option_text) {
-	                $input.= "<input type='checkbox' onclick=\"setvalue('".$type['id']."',this.value,this.checked)\"";
-	                if (preg_match("/$option_value/",$conf_value)) $input.= " checked ";
-	                $input.= "value=\"$option_value\">$option_text<br>";
-	            }
-            // Select combo
-        	} else {
-	        	$select_change = ($type['onchange'] != "") ? " onchange=\"".$type['onchange']."\"" : "";
-				$select_id = ($type['id'] != "") ? " id=\"".$type['id']."\"" : "";
-				$input.= "<select name=\"value_$count\"$select_change$select_id $disabled>";
-	            if ($conf_value == "") $input.= "<option value=''>";
-	            foreach($type["type"] as $option_value => $option_text) {
-	                $input.= "<option ";
-	                if ($conf_value == $option_value) $input.= " selected='selected' ";
-	                $input.= "value=\"$option_value\">$option_text</option>";
-	            }
-	            $input.= "</select>";
-            }
-        }
-        /* textarea */
-        elseif ($type["type"]=="textarea") {
-            $input.= "<textarea rows='2' cols='28' name=\"value_$count\" $disabled>$conf_value</textarea>";
-        }
-        /* input */
-        else {
-            $input.= "<input ";
-            //if ($ossim_conf->is_in_file($conf)) {
-            //   $input .= " class=\"disabled\" ";
-            //    $input .= " DISABLED ";
-            //}
-            $input.= "type=\"" . $type["type"] . "\" size=\"30\" 
-                    name=\"value_$count\" value=\"$conf_value\" $disabled/>";
-        }
-        echo $input;
-?>
-      </td><td align="left"><a href="javascript:;" onmouseover="ticketon('<?php echo str_replace("'", "\'", $var) ?>','<?php echo str_replace("'", "\'", $type["help"]) ?>')"  onmouseout="ticketoff()"><img src="../pixmaps/help.png" width="16" border=0></a></td>
-
-    </tr>
-<?php
-        $count+= 1;
-    }
 	?>
-	</table>
-	
-	</div>
-  </div>
-<?php
-    $div++;
-    $found = 0;
-}
-?>
-  </div>
   
-  </td>
-  <td valign='top' class="noborder">
-<?php
-submit();
-?> 
-	<?php echo _("Find word:");?><input type="text" name="word" value="<?php echo $s ?>">
-	<br><br>
-	<input type='hidden' name="adv" value="<?php
-	echo ($advanced) ? "1" : "" ?>">
-	<input type="submit" VALUE="<?=_('search')?>" class="button" style="font-size:12px">
-	<input type="hidden" name="nconfs" value="<?php
-	echo $count ?>">
-	</td>
-</tr>
-</table>
+	<form method="POST" style="margin:0 auto" <?php echo $onsubmit;?> action="<?php echo $_SERVER["SCRIPT_NAME"] ?>" />
+  
+	<table align='center'>
+	
+	<tr>
+		<td class="noborder">
+			<div id="basic-accordian" align="center">
+				<?php
+				$count  = 0;
+				$div    = 0;
+				$found  = 0;
+				$arr    = array();
+												
+				foreach($CONFIG as $key => $val) 
+					if ($advanced || (!$advanced && $val["advanced"] == 0))
+					{
+						$s = (POST('word') != "") ? POST('word') : ((GET('word') != "") ? GET('word') : "");
+						
+						if ($s != "")
+						{
+							foreach($val["conf"] as $conf => $type) 
+								if ($advanced || (!$advanced && $type["advanced"] == 0))
+								{
+									if (preg_match("/$s/i", $conf))
+									{
+										$found = 1;
+										array_push($arr, $conf);
+									}
+								}
+						}
+					?>
+			
+					<div id="test<?php
+						if ($div > 0) echo $div ?>-header" class="accordion_headings <?php
+						if ($found == 1) echo "header_highlight" ?>">
+
+						<table width="100%" cellspacing="0" class='m_nobborder'>
+							<tr>
+								<th  <?php
+										if ($found == 1) echo "style='background-color: #F28020; color: #FFFFFF'" ?>>
+										<?php echo $val["title"] ?>
+								</th>
+							</tr>
+						</table>
+					</div>
+  
+					<div id="test<?php
+						if ($div > 0) echo $div ?>-content">
+						<div class="accordion_child">
+							<table class='conf_items' cellpadding='3' align="center">
+							<?php
+								//print "<tr><th colspan=\"2\">" . $val["title"] . "</th></tr>";
+								print "<tr><td colspan='3'>" . $val["desc"] . "</td></tr>";
+								if ($advanced && $val["title"]=="RRD") {
+							?>
+							
+								<tr>
+									<td colspan="3" align="center">
+										<input type="button" onclick="document.location.href='../rrd_conf/rrd_conf.php'" value="<?php echo _("RRD Profiles definition") ?>" class="button"/> 
+									</td>
+								</tr>
+							
+							<?php
+								}
+							
+							if ($advanced && $val["title"]=="Policy")
+							{
+							?>
+								<tr>
+									<td colspan="3" align="center" class='nobborder'>
+										<input type="button" onclick="document.location.href='../policy/reorderpolicies.php'" value="<?php echo _("Re-order Policies") ?>" class="button"/> 
+									</td>
+								</tr>
+								<?php
+							}
+																					
+							foreach($val["conf"] as $conf => $type) 
+							{
+								if ($advanced || (!$advanced && $type["advanced"] == 0))
+								{
+									//var_dump($type["type"]);
+									$conf_value = $ossim_conf->get_conf($conf,false);
+									$var = ($type["desc"] != "") ? $type["desc"] : $conf;
+									
+																										
+									
+							?>
+								<tr <?php
+									if (in_array($conf, $arr)) echo "bgcolor=#FE9B52" ?>>
+
+									<input type="hidden" name="conf_<?php echo $count ?>" value="<?php echo $conf ?>" />
+									
+									<td><b><?php echo $var ?></b></td>
+									
+									<td class="left">
+										<?php
+											$input = "";
+											
+											$disabled = ($type["disabled"] == 1 || $ossim_conf->is_in_file($conf)) ? "class='disabled' style='color:gray' disabled='disabled'" : "";
+											
+											/* select */
+											if (is_array($type["type"]))
+											{
+												// Multiple checkbox
+												if ($type['checkboxlist'])
+												{
+													$input .= "<input type='hidden' name='value_$count' id='".$type['id']."' value='$conf_value'/>";
+													foreach($type["type"] as $option_value => $option_text)
+													{
+														$input.= "<input type='checkbox' onclick=\"setvalue('".$type['id']."',this.value,this.checked);\"";
+														if (preg_match("/$option_value/",$conf_value)) 
+															$input.= " checked='checked' ";
+														
+														$input.= "value='$option_value'/>$option_text<br/>";
+													}
+												// Select combo
+												} 
+												else
+												{
+													$select_change = ($type['onchange'] != "") ? "onchange=\"".$type['onchange']."\"" : "";
+													$select_id = ($type['id'] != "") ? "id=\"".$type['id']."\"" : "";
+													$input.= "<select name='value_$count' $select_change $select_id $disabled>";
+													
+													if ($conf_value == "") 
+														$input.= "<option value=''></option>";
+													
+													foreach($type["type"] as $option_value => $option_text)
+													{
+														$input.= "<option ";
+														if ($conf_value == $option_value) 
+															$input.= " selected='selected' ";
+														
+														$input.= "value='$option_value'>$option_text</option>";
+													}
+													
+													$input.= "</select>";
+												}
+											}
+											/* textarea */
+											elseif ($type["type"]=="textarea")
+											{
+												$input.= "<textarea rows='2' cols='28' name=\"value_$count\" $disabled>$conf_value</textarea>";
+											}
+											/* input */
+											else
+											{
+												$input.= "<input ";
+												//if ($ossim_conf->is_in_file($conf)) {
+												//   $input .= " class=\"disabled\" ";
+												//    $input .= " DISABLED ";
+												//}
+												$input.= "type='" . $type["type"] . "' size='30' name='value_$count' value='$conf_value' $disabled/>";
+											}
+										
+												echo $input;
+											
+										?>
+										</td>
+					
+										<td align="left">
+											<a href="javascript:;" onmouseover="ticketon('<?php echo str_replace("'", "\'", $var) ?>','<?php echo str_replace("'", "\'", $type["help"]) ?>')"  onmouseout="ticketoff();">
+												<img src="../pixmaps/help.png" width="16" border='0'/>
+											</a>
+										</td>
+
+									</tr>
+									
+									<?php
+									$count+= 1;
+								}
+							}
+							?>
+							</table>
+				
+							</div>
+						</div>
+						<?php
+						$div++;
+						$found = 0;
+					}
+					?>
+				</div>
+		  
+			</td>
+			
+			<td valign='top' class="noborder">
+				<?php submit(); ?> 
+				
+				<?php echo _("Find word:");?><input type="text" name="word" value="<?php echo $s ?>"/>
+				<br/><br/>
+				<input type='hidden' name="adv" value="<?php echo ($advanced) ? "1" : "" ?>"/>
+				<input type="submit" value="<?=_('search')?>" class="button"/>
+				<input type="hidden" name="nconfs" value="<?php echo $count ?>"/>
+			</td>
+		</tr>
+	</table>
 </form>
 </body>
 </html>
