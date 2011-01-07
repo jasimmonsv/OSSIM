@@ -19,5 +19,6 @@ INSERT INTO plugin_sid (plugin_id, sid, reliability, priority, name) VALUES (160
 INSERT INTO plugin_sid (plugin_id, sid, reliability, priority, name) VALUES (1607, 10, 1, 1, 'DHCP NAK');
 INSERT INTO plugin_sid (plugin_id, sid, reliability, priority, name) VALUES (1607, 11, 1, 1, 'DHCP Decline');
 INSERT INTO plugin_sid (plugin_id, sid, reliability, priority, name) VALUES (1607, 12, 1, 1, 'DHCP Boot request');
+INSERT INTO plugin_sid (plugin_id, sid, reliability, priority, name) VALUES (1607, 13, 1, 1, 'DHCP Added reverse map');
 
 
