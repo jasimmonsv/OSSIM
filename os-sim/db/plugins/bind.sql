@@ -46,6 +46,15 @@ INSERT INTO `plugin_sid` (`plugin_id`, `sid`, `category_id`, `class_id`, `reliab
 INSERT INTO `plugin_sid` (`plugin_id`, `sid`, `category_id`, `class_id`, `reliability`, `priority`, `name`) VALUES (1577, 39, NULL, NULL, 1, 3, 'DNS (Bind) - Zone Transfer Timeout');
 INSERT INTO `plugin_sid` (`plugin_id`, `sid`, `category_id`, `class_id`, `reliability`, `priority`, `name`) VALUES (1577, 40, NULL, NULL, 1, 3, 'DNS (Bind) - Zone Transfer - Master server unreachable');
 INSERT INTO `plugin_sid` (`plugin_id`, `sid`, `category_id`, `class_id`, `reliability`, `priority`, `name`) VALUES (1577, 41, NULL, NULL, 1, 3, 'DNS (Bind) - Secondary zone expired - unable to refresh zone data');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 42, 13, NULL, 'DNS(Bind) - Zone transfer Started');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 43, 13, NULL, 'DNS(Bind) - Zone transfer Ended');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 44, 13, NULL, 'DNS(Bind) - Zone transfer REFUSED');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 45, 13, NULL, 'DNS(Bind) - Sending notifies');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 46, 13, NULL, 'DNS(Bind) - Updating Zone - Adding an RR');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 47, 13, NULL, 'DNS(Bind) - Updating Zone - Deleting an RR');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 48, 13, NULL, 'DNS(Bind) - Updating Zone - Deleting rrset');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 49, 13, NULL, 'DNS(Bind) - Error Updating Zone - name not in use');
+INSERT INTO plugin_sid(plugin_id, sid, category_id, class_id, name) VALUES (1577, 50, 13, NULL, 'DNS(Bind) - Error Updating Zone - RRset exists');
 INSERT INTO `plugin_sid` (`plugin_id`, `sid`, `category_id`, `class_id`, `reliability`, `priority`, `name`) VALUES (1577, 1000, NULL, NULL, 1, 3, 'DNS (Bind) - Too many timeouts');
 INSERT INTO `plugin_sid` (`plugin_id`, `sid`, `category_id`, `class_id`, `reliability`, `priority`, `name`) VALUES (1577, 1001, NULL, NULL, 1, 3, 'DNS (Bind) - Query cache denied');
 INSERT INTO `plugin_sid` (`plugin_id`, `sid`, `category_id`, `class_id`, `reliability`, `priority`, `name`) VALUES (1577, 1002, NULL, NULL, 1, 3, 'DNS (Bind) - FORMERR resolving');
