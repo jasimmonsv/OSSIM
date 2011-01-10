@@ -4,15 +4,5 @@
     compress
     missingok
     notifempty
-    size=1G
-    prerotate
-    	/etc/init.d/monit stop > /dev/null 2>&1
-    	/etc/init.d/ossim-server stop > /dev/null 2>&1
-    endscript
-    postrotate
-        /etc/init.d/ossim-server start > /dev/null 2>&1
-	sleep 2
-    	/etc/init.d/monit start > /dev/null 2>&1
-    endscript
 }
 
