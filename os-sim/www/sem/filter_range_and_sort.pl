@@ -32,7 +32,11 @@ $reverse =  ($ARGV[5] eq "date") ? 0 : 1;
 $server = $ARGV[6];
 $debug = 1 if ($ARGV[7] eq "debug");
 $debug_log = $ARGV[8] if ($ARGV[8] ne "");
-
+if ($debug_log ne "") {
+	open (L,">>$debug_log");
+	print L "FILTER_RANGE_AND_SORT.pl: Start";
+	close L;
+}
 #$grep_str = `perl format_params_grep.pl "$filter"`;
 #print "Calling: php grep_filter.php \"$filter\" get_string\n";
 #$grep_str = `php grep_filter.php "$filter" get_string`;
@@ -141,51 +145,73 @@ foreach my $file (@files) {
 			#$cmd .= " php grep_filter.php \"$filter\" |" if ($filter ne "" && $redo_filter);
 			
 			print "Reading $file $jumprow $complete_lines $lines_threshold $start $end $lastdate '$filter' '$cmd'\n" if ($debug);
-			if ($debug_log ne "") {
-				open (L,">>$debug_log");
-				print L "FILTER_RANGE_AND_SORT.pl: Reading $file $jumprow $complete_lines $lines_threshold $start $end $lastdate '$filter' '$cmd'\n";
-				close L;
-			}
-			open (F,$cmd);
-			LINE: while (<F>) {
-				#next LINE if ($total_lines++<$jumprow);
-				#if (/ date='(\d+)' /i) {
-				if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='[^']*')?(\s+plugin_sid='[^']*')?/i) {
-					$id = $1;
-					$currentdate = $3;
-					$plugin_id = $4;
-					$sensor = $5;
-					$src_ip = $6;
-					$dst_ip = $7;
-					$src_port = $8;
-					$dst_port = $9;
-					$tzone = $10;
-					$data = $11;
-					$sig = $12;
-					$plugin_sid = $13;
-					if ($sig =~ /plugin\_sid/) {
-						$plugin_sid = $sig; $sig = "";
-					}
-					$plugin_sid =~ s/\s*plugin\_sid\='(.+)'/$1/;
-					# applying tzone hours diff
-					$currentdate += (-3600 * $tzone);
-					
-					last LINE if ($reverse && $complete_lines>=$lines_threshold && $currentdate<$lastdate); # jump innecesary events
-					last LINE if (!$reverse && $complete_lines>=$lines_threshold && $currentdate>$lastdate); # jump innecesary events
-					#print "Evento: $currentdate > $start && $currentdate < $end\n" if ($debug);
-					if ($currentdate > $start && $currentdate < $end && pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port,$data)) {
-						#print "$complete_lines BIEN Plugin $plugin_id - $plugin_sid -> ".pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port)."\n" if ($debug);
-						chomp;
-						$events{$_.";$file;$complete_lines;$server"} = $currentdate;
-						$complete_lines++; $read_lines++;
-						#print "found $complete_lines;$_;$currentdate;$lines_threshold\n" if ($debug);
-						last LINE if ($read_lines>=$lines_threshold); # jump innecesary events
-					} #else {
-						#print "MAL $data != ".$filters{4}{1}{'data'}." -> ".$filters{4}{1}{'data'}."\n" if ($plugin_id == 4003);
-					#}
-				}
-			}
+			#
+			# msandulescu filter improvement
+			#
+			my $pre_filter = $filter;
+			$pre_filter =~ s/^[^ ]*= AND //;    # remove broken entries like: data= AND data="string"; This should actually be fixed where $filer is set first, to apply both here and in the set_filter function.
+			$pre_filter =~ s/ .*//;		    # keep just the first filter expression
+			$pre_filter =~ s/=/\[^=]*=\[^=]*/;  # create the grep filter
+			$pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\" |grep -l \"$pre_filter\"|" : "$order_by \"$file\" |grep -l \"$pre_filter\"|"; # -l stops on the first match
+			open(F,$pre_cmd );
+			my $first_line = <F>;
 			close F;
+			if ( $first_line ne "" ) {
+				#
+				# only parse file if matches filter
+				#
+				if ($debug_log ne "") {
+					open (L,">>$debug_log");
+					print L "FILTER_RANGE_AND_SORT.pl: Reading $file $jumprow $complete_lines $lines_threshold $start $end $lastdate '$filter' '$cmd'\n";
+					close L;
+				}
+				open (F,$cmd);
+				LINE: while (<F>) {
+					#next LINE if ($total_lines++<$jumprow);
+					#if (/ date='(\d+)' /i) {
+					if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='[^']*')?(\s+plugin_sid='[^']*')?/i) {
+						$id = $1;
+						$currentdate = $3;
+						$plugin_id = $4;
+						$sensor = $5;
+						$src_ip = $6;
+						$dst_ip = $7;
+						$src_port = $8;
+						$dst_port = $9;
+						$tzone = $10;
+						$data = $11;
+						$sig = $12;
+						$plugin_sid = $13;
+						if ($sig =~ /plugin\_sid/) {
+							$plugin_sid = $sig; $sig = "";
+						}
+						$plugin_sid =~ s/\s*plugin\_sid\='(.+)'/$1/;
+						# applying tzone hours diff
+						$currentdate += (-3600 * $tzone);
+						
+						last LINE if ($reverse && $complete_lines>=$lines_threshold && $currentdate<$lastdate); # jump innecesary events
+						last LINE if (!$reverse && $complete_lines>=$lines_threshold && $currentdate>$lastdate); # jump innecesary events
+						#print "Evento: $currentdate > $start && $currentdate < $end\n" if ($debug);
+						if ($currentdate > $start && $currentdate < $end && pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port,$data)) {
+							#print "$complete_lines BIEN Plugin $plugin_id - $plugin_sid -> ".pass_filters($_,$plugin_id,$plugin_sid,$sensor,$src_ip,$dst_ip,$src_port,$dst_port)."\n" if ($debug);
+							chomp;
+							$events{$_.";$file;$complete_lines;$server"} = $currentdate;
+							$complete_lines++; $read_lines++;
+							#print "found $complete_lines;$_;$currentdate;$lines_threshold\n" if ($debug);
+							last LINE if ($read_lines>=$lines_threshold); # jump innecesary events
+						} #else {
+							#print "MAL $data != ".$filters{4}{1}{'data'}." -> ".$filters{4}{1}{'data'}."\n" if ($plugin_id == 4003);
+						#}
+					}
+				}
+				close F;
+			} else {
+				if ($debug_log ne "") {
+					open (L,">>$debug_log");
+					print L "FILTER_RANGE_AND_SORT.pl: Skipped - no match: $file\n";
+					close L;
+				}
+			}			
 		}
 	}
 }
