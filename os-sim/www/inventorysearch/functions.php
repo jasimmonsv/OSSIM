@@ -148,7 +148,7 @@ function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips) {
 }
 
 function basic_header () {
-	?><tr><th><?=_("HOST / NETWORK")?></th><th><?=_("INVENTORY")?></th><th><?=_("VULN")?></th><th><?=_("INCIDENTS")?></th><th><?=_("EVENTS")?></th><th><?=_("Anom")?></th><th><?=_("Traffic Profile")?></th></tr><?
+	?><tr><th><?=_("Host / Network")?></th><th><?=_("Inventory")?></th><th><?=_("Vulnerabilities")?></th><th><?=_("Incidents")?></th><th><?=_("Events")?></th><th><?=_("Anomalies")?></th><th><?=_("Traffic Profile")?></th></tr><?
 }
 
 function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips,$i) {
@@ -222,8 +222,9 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	
 	if ($sim_foundrows > 0) $sim_link = '<a href="../forensics/base_qry_main.php?&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip='.$ip.'&date_range=week&hmenu=Forensics&smenu=Forensics" target="main"><b>'.$sim_foundrows.'</b></a>';
 	else $sim_link = '<b>'.$sim_foundrows.'</b>';
-	$start_week = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 7));
-	$end = strftime("%Y-%m-%d %H:%M:%S", time());
+	echo $start_week = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 7));
+	echo '--pp--';
+	echo $end = strftime("%Y-%m-%d %H:%M:%S", time());
 	list($sem_events_week,$sem_foundrows_week,$sem_date,$sem_wplot_y,$sem_wplot_x) = Status::get_SEM("",$start_week,$end,"none",1234,$ip);
 	if ($sem_foundrows_week > 0) $sem_link = '<a href="../sem/index.php?hmenu=SEM&smenu=SEM&query=src_ip='.$ip.' OR dst_ip='.$ip.'" target="main"><b>'.$sem_foundrows_week.'</b></a>';
 	else $sem_link = '<b>'.$sem_foundrows_week.'</b>';

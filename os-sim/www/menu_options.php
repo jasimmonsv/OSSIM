@@ -723,7 +723,7 @@ if (Session::menu_perms("MenuPolicy", "5DSearch")) { $assets = 1;
     );
     $hmenu["Asset Search"][] = array(
         "id" => "Asset Search",
-        "name" => gettext("Asset Search") ,
+        "name" => gettext("Simple") ,
         "url" => "inventorysearch/userfriendly.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_search','Help');"
     );
@@ -954,7 +954,7 @@ if (Session::am_i_admin()) { $correlation = 1;
     );
 	
 	$rmenu["HIDS"][] = array(
-           "name" => gettext("Agent Control") ,
+           "name" => gettext("Agentless") ,
            "url" => "agent.php"
     );
 	

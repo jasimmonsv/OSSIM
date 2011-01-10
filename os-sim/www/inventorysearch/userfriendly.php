@@ -224,7 +224,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 </script>
 </head>
 <body style="margin:0px">
-<? include ("../hmenu.php") ?>
+<?php include ("../hmenu.php") ?>
 <table class="noborder" align="center" style="background-color:white">
 	<tr>
 		<td class="nobborder" valign="top">
