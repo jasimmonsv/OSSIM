@@ -68,7 +68,7 @@ chop($common_date);
 
 if (!$cache_file) {
 	#$swish = "for i in `locate.findutils -d $loc_db $common_date | grep \".log\$\"`; do cat \$i; done";
-	$sort = ($order_by eq "date") ? "sort" : "sort -r";
+	$sort = ($order_by eq "date") ? "sort -u" : "sort -r -u";
 	$swish = "locate.findutils -d $loc_db $common_date | grep -E \".(log|log.gz)\$\" | php check_perms.php $user | $sort";
 } else {
 	$swish = "echo $cache_file";

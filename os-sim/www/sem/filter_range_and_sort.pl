@@ -67,7 +67,7 @@ if ($ARGV[5] ne "date") {
 	my @tm = localtime($end); $tm[5]+=1900; $tm[4]++;
 	$tm[3] = "0".$tm[3] if (length($tm[3])<2);
 	$tm[4] = "0".$tm[4] if (length($tm[4])<2);
-	open (L,"find ".$log_dir.$tm[5]."/".$tm[4]."/".$tm[3]."/ -name *log 2>/dev/null | sort -r |");
+	open (L,"find ".$log_dir.$tm[5]."/".$tm[4]."/".$tm[3]."/ -name *log 2>/dev/null | sort -r -u |");
 	while($file=<L>) {
 		chomp($file);  
 		print "Adding log: $file\n" if ($debug);
