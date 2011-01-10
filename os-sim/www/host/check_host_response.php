@@ -36,13 +36,18 @@ require_once 'classes/Host.inc';
 
 $ip = GET('ip');
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("ip"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
+
 $db = new ossim_db();
 $conn = $db->connect();
 
-if (Host::in_host($conn, $ip)) echo "1";
-else echo "0";
-$db->disconnect();
+if (Host::in_host($conn, $ip)) 
+	echo "1";
+else 
+	echo "0";
+
+	$db->close($conn);
 ?>

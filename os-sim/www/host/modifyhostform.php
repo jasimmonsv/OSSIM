@@ -45,6 +45,7 @@ require_once ('classes/RRD_config.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Frameworkd_socket.inc');
 require_once ('classes/Port.inc');
+require_once ('classes/Protocol.inc');
 require_once ('classes/Util.inc');
 
 
@@ -68,13 +69,22 @@ $ports_input     = "";
 if ($port_list = Port::get_list($conn))
 {
     foreach($port_list as $port) 
-		$ports[ ] = $port->get_port_number()." - ".$port->get_protocol_name();
+        $ports[$port->get_port_number()." - ".$port->get_protocol_name()] = $port->get_service();
 }
 
-foreach($ports as $k => $v) 
-   	$arr_ports_input[] = '{ txt:"'.$v.'", id: "'.$v.'" }';
+// check service file
 
-$ports_input = implode(",", $arr_ports_input);
+$services = shell_exec("egrep 'tcp|udp' /etc/services | awk '{print $1 $2 }'");
+$lines    = split("[\n\r]", $services);
+
+foreach($lines as $line)
+{
+    preg_match('/(\D+)(\d+)\/(.+)/', $line, $regs);
+    if($ports[$regs[2]." - ".$regs[3]] == "") {
+        $ports[$regs[2]." - ".$regs[3]] = $regs[1];
+    }
+}
+
 
 $array_assets = array ( '0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
@@ -102,6 +112,14 @@ $sensors  = array();
 $threshold_a = $threshold_c = $conf->get_conf("threshold");
 $hostname = $fqdns = $descr = $nat = $nagios = $os = $mac = $mac_vendor = $latitude = $longitude = "";
 $rrd_profile = "None";
+
+// load protocol ids
+$protocol_ids = array();
+if($protocol_list = Protocol::get_list($conn)) {
+    foreach($protocol_list as $protocol_data) {
+        $protocol_ids[$protocol_data->get_name()] = $protocol_data->get_id(); 
+    }
+}
 
 if ( isset($_SESSION['_host']) )
 {
@@ -242,13 +260,15 @@ if ( GET('newport') != "" || GET('port')!="" )
 	else
 		$newPort=GET('newport');
 	
-	$aux            = explode("-",$newPort);
-	$port_number    = trim($aux[0]);
-	$protocol_name  = trim($aux[1]);
-	$newport_nagios = (GET('newportnagios') != "") ? 1 : 0;
+	$aux            =  explode("-",$newPort);
+	$port_number    =  trim($aux[0]);
+	$protocol_name  =  trim($aux[1]);
+	$nservice       =  GET('service');
+    $newport_nagios =  (GET('newportnagios') != "") ? 1 : 0;
 	
 	ossim_valid($port_number, OSS_PORT, 'illegal:' . _("Port number"));
 	ossim_valid($protocol_name, OSS_PROTOCOL, 'illegal:' . _("Protocol name"));
+    ossim_valid($nservice, OSS_NULLABLE,OSS_ALPHA, OSS_SPACE, OSS_PUNC, 'illegal:' . _("Service"));
 	
 		
 	if ( ossim_error() ) 
@@ -261,12 +281,24 @@ if ( GET('newport') != "" || GET('port')!="" )
 	{
 		$date = strftime("%Y-%m-%d %H:%M:%S");
 		
-		$serviceName=getservbyport($port_number,$protocol_name);
-		
-		if( $serviceName =='' )
-			$serviceName='unknown';
-			
-		Host_services::insert($conn, $ip, $port_number, $date, $_SERVER["SERVER_ADDR"], $protocol_name, $serviceName, "unknown", "unknown", 1, $newport_nagios); // origin = 0 (pads), origin = 1 (nmap)
+        
+        if( $nservice !='') {
+            $serviceName = $nservice;
+        }
+        else if ($ports[$port_number." - ".$protocol_name]!="") {
+            $serviceName = $ports[$port_number." - ".$protocol_name];
+        }
+        else{
+            $serviceName = 'unknown';
+        }
+
+        // insert new port?
+        $chport = array();
+        $chport = Port::get_list($conn, "where port_number = $port_number and protocol_name = '$protocol_name'");
+        if(count($chport)==0) {
+            Port::insert($conn, $port_number, $protocol_name, $serviceName, "");
+        }
+		Host_services::insert($conn, $ip, $port_number, $date, $_SERVER["SERVER_ADDR"], $protocol_ids[$protocol_name], $serviceName, "unknown", "unknown", 1, $newport_nagios); // origin = 0 (pads), origin = 1 (nmap)
 		
 	}	
 }
@@ -292,6 +324,27 @@ if ( GET('newport') != "" || GET('port')!="" )
 	<script type="text/javascript" src="../js/utils.js"></script>
 
 	<script type="text/javascript">
+		
+		function check_host () {
+			
+			var ip = $("#ip").val();
+			
+			$.ajax({
+				type: "GET",
+				url: "check_host_response.php?ip="+ip,
+				data: "",
+				success: function(msg){
+					if (msg == "1")
+					{
+						if (confirm("Do you want to update host '"+ip+"'?"))
+							submit_form();
+					}
+					else 
+						submit_form();
+				}
+			});
+		}
+		
 		$(document).ready(function(){
 
 			$(".sensor_info").simpletip({
@@ -306,7 +359,7 @@ if ( GET('newport') != "" || GET('port')!="" )
 			});
 
 			// Autocomplete ports
-			var ports = [ <?= $ports_input ?> ];
+			/*var ports = [ <?= $ports_input ?> ];
 		
 			$("#port").autocomplete(ports, {
 				minChars: 0,
@@ -320,7 +373,7 @@ if ( GET('newport') != "" || GET('port')!="" )
 			}).result(function(event, item) {
 				//$(".hosts").val('');
 				$('#newport').val(item.id);
-			});
+			});*/
 			
 			$('textarea').elastic();
 			
@@ -329,6 +382,36 @@ if ( GET('newport') != "" || GET('port')!="" )
 			});
 			
 		});
+    function saveService() {
+        if($('#port').val()<0 || $('#port').val()>65535){
+            alert('Error: Malformed port is between 0 and 65535');
+            return false;
+        }
+        if($('#service').val()=="") {
+            $('#service').val("Unknown");
+        }
+        var newService = $('#port').val()+' - '+$('#protocol').val();
+        $('#newport').val(newService);
+
+        $('#serviceform').submit();
+    }
+    function fillService() {
+        $("#service").attr('disabled','');
+        var ports = new Array(); 
+        <?php
+        foreach($ports as $k => $v) {
+            echo "ports['$k'] = '$v';\n";
+        }
+        
+        ?>
+        if(typeof ports[$('#port').val()+' - '+$('#protocol').val()] !== 'undefined') {
+            $('#service').val(ports[$('#port').val()+' - '+$('#protocol').val()]);
+            $("#service").attr('disabled','disabled');
+        }
+        else {
+            $('#service').val("");
+        }
+    }
 	</script>
 	
 	<style type='text/css'>
@@ -575,7 +658,7 @@ if (count($error_nagios) > 0)
 					
 					<tr>
 						<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-							<input type="button" class="button" id='send' value="<?=_("Update")?>" onclick="submit_form();"/>
+							<input type="button" class="button" id='send' value="<?=_("Update")?>" onclick="check_host();"/>
 							<input type="reset"  class="button" value="<?php echo gettext("Clear form"); ?>"/>
 						</td>
 					</tr>
@@ -584,18 +667,29 @@ if (count($error_nagios) > 0)
 		</td>
 		
 		<td valign="top" class="nobborder" style="min-width: 400px;">
-			<table class="noborder" width="100%">
-				<tr>
-					<th colspan="2" style="padding:5px">
-					<?php echo gettext("Port / Service information"); ?>
-					[ <a href="<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services">
-						<?php echo gettext("Scan"); ?> </a> ]
-					</th>
-				</tr>
-				
-				<?php
+			<table class="noborder" width="100%" cellspacing="0" cellpadding="0">
+                <?php
+                $services_list = Host_services::get_ip_data($conn, $ip, '1');
+                ?>
+                <tr>
+                    <th colspan="2" style="padding:5px">
+                    <?php echo gettext("Port / Service information"); ?>
+                    [ <a href="<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services">
+                        <?php echo gettext("Scan"); ?> </a> ]
+                    </th>
+                </tr>
+                <?php
+                if(count($services_list)==0) {
+                ?>
+                    <tr>
+                        <td colspan="2" class="nobborder" style="padding:5px 0px 5px 0px;text-align:center">
+                            <?php echo _("No Services Found");?>
+                        </td>
+                    </tr>
+                <?php
+                }
 				$servs = 0; 
-				if ($services_list = Host_services::get_ip_data($conn, $ip, '1'))
+				if ($services_list)
 				{ 
 				?>
 				<tr>
@@ -639,18 +733,21 @@ if (count($error_nagios) > 0)
 						</form>
 					</td>
 				</tr>
+                <tr>
+                    <td colspan="2" class="nobborder">&nbsp;</td>
+                </tr>
 			<? } ?>
 				<tr>
-					<td class="nobborder">
-						<table width="100%">
+					<td class="nobborder" width="100%">
+						<table width="100%" cellspacing="0" cellpadding="0" class="transparent">
                             <tr>
-								<td class="nobborder">
-									<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>">
+								<td class="nobborder" width="100%">
+									<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" id="serviceform">
 										<input type="hidden" name="ip" value="<?=GET('ip')?>"/>
-										<table class="transparent" width="100%">
-											<tr><th colspan="3"><?=_("Add new service")?></th></tr>
+										<table class="transparent" width="100%" cellspacing="0" cellpadding="0">
+											<tr><th colspan="3" style="padding:5px;"><?=_("Add new service")?></th></tr>
 											<tr>
-												<td class="nobborder left" width="48%">
+												<td class="nobborder" width="100%">
 													<? /*$ports2 = Port::get_list($conn); ?>
 													<select name="newport">
 													<? foreach ($ports2 as $port3)?>
@@ -658,14 +755,36 @@ if (count($error_nagios) > 0)
 													</select>
 													 *
 													 */?>
-													<input type="hidden" id="newport" name="newport" value="<?php //echo $assetst?>"/>
-													<input type="text" name="port" style="width: 180px; height:20px; color: black;" id="port" />
-												</td>
-												<td class="nobborder left" align='middle' width="30%">
-													<input type="checkbox" name="newportnagios" value="1"/><span style="padding-left: 5px;">Nagios</span>
-												</td>
-												<td class="nobborder" style="text-align: right;">
-													<input type="submit" value="<?=_("OK")?>" class="lbutton"/>
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <th><?php echo _("Port number");?></th>
+                                                            <th><?php echo _("Protocol");?></th>
+                                                            <th><?php echo _("Service");?></th>
+                                                            <th><?php echo _("Nagios");?></th>
+                                                            <td class="nobborder">&nbsp;</td>
+                                                        </tr>
+                                                        <tr>
+                                                        <td class="nobborder" style="text-align:center;">
+                                                            <input type="hidden" id="newport" name="newport" value="<?php //echo $assetst?>"/>
+                                                            <input type="text" name="port" style="width: 80px; height:20px; color: black;" id="port" onKeyUp="fillService();"/>
+                                                        </td>
+                                                        <td class="nobborder" style="text-align:center;">
+                                                            <select id="protocol" style="width: 80px;" onchange="fillService();">
+                                                                <option value="tcp">TCP</option>
+                                                                <option value="udp">UDP</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="nobborder" style="text-align:center;">
+                                                            <input type="text" name="service" style="width: 80px; height:20px; color: black;" id="service" />
+                                                        </td>
+                                                        <td class="nobborder left"  style="text-align:center;">
+                                                            <input type="checkbox" name="newportnagios" value="1"/>
+                                                        </td>
+                                                        <td class="nobborder" style="text-align: right;">
+                                                            <input type="button" value="<?=_("OK")?>" onclick="saveService();" class="lbutton"/>
+                                                        </td>
+                                                        </tr>
+                                                    </table>
 												</td>
 											</tr>
 										</table>
