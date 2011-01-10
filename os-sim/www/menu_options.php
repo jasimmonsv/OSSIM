@@ -953,6 +953,11 @@ if (Session::am_i_admin()) { $correlation = 1;
            "url" => "config.php"
     );
 	
+	/*$rmenu["HIDS"][] = array(
+           "name" => gettext("Agentless") ,
+           "url" => "agentless/index.php"
+    );*/
+	
 	$rmenu["HIDS"][] = array(
            "name" => gettext("Agentless") ,
            "url" => "agent.php"
@@ -962,6 +967,8 @@ if (Session::am_i_admin()) { $correlation = 1;
            "name" => gettext("Ossec Control") ,
            "url" => "ossec_control.php"
     );
+	
+	
 }	
 
 /* if (Session::menu_perms("MenuReports", "Help")) *//* if ($correlation) $menu["Intelligence"][] = array(

@@ -182,6 +182,8 @@ if ( $error == true)
 
 if ( $action == 'new' || $action == 'edit' )
 {
+    $cond = html_entity_decode($cond);
+
     $db = new ossim_db();
     $conn = $db->connect();
 

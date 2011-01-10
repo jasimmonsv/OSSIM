@@ -105,7 +105,7 @@ if ( !empty ($scan) )
 else
 {
 	$action = $action = "newhost.php";
-	$submit_function = "check_host()";
+	$submit_function  = "check_host()";
 }
 
 	
@@ -188,6 +188,7 @@ else
 	<script type="text/javascript" src="../js/utils.js"></script>
 	
 	<script type="text/javascript">
+		
 		function check_host () {
 			
 			var ip = $("#ip").val();
