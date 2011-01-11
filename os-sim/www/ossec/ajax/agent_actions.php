@@ -283,9 +283,10 @@ else
 				if ( preg_match($pattern, $results, $match) !== false )
 				{	
 					$txt = explode(":", $match[0], 2);
-					$key = str_replace('**', '', $txt[1]);
-					$key = ( strlen($key) ) > 90 ? substr($key, 0, 90)."<br/>".substr($key, 90) : $key;
-					echo "1###<div class='agent_key'>".$txt[0].":<br/><br/><span>$key</span></div>";
+					$key = trim(str_replace('**', '', $txt[1]));
+					//$ckey = $key;
+					//$key = ( strlen($key) ) > 90 ? substr($key, 0, 90)."<br/>".substr($key, 90) : $key;
+					echo "1###<div class='agent_key'>".$txt[0].":<br/><br/><span class='akey'>$key</span><!--<a href=\"javascript:;\" onclick=\"copyToClipboard('$key')\"><img src='images/clipboard-paste.png' border='0' title='"._("Copy to clipboard")."'></a>--></div>";
 				}
 				else
 					echo "error###"._("Error to extract key for an agent")." (2)";
