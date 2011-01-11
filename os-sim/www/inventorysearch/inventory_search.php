@@ -158,6 +158,9 @@ var finish = false;
 	}
 	
 	function reloadcriteria () {
+		// loading
+		document.getElementById('msg').innerHTML = "<?php echo _("Loading data..."); ?>";
+		//
 		var or_selected = ""; var and_selected = "";
 		if (operator == "or") { or_selected = "selected"; and_selected = ""; }
 		else { or_selected = ""; and_selected = "selected"; }
@@ -303,8 +306,12 @@ var finish = false;
 		
 		//var remove = "<td class='nobborder'></td>";
 		//if (criteria_count > 1) var remove = "<td class='nobborder'><a href='' onclick='removecriteria("+i+");return false;'><img src='../pixmaps/minus-small.png' alt='Remove Criteria' title='Remove Criteria'></a></td>";
-		if (criteria_count > 1) var remove = "<td class='nobborder' width='15'><input type='button' value='-' class='lbutton' style='font-size:12px;font-weight:bold;width:20px' onclick='removecriteria("+i+")'></td>";
-		else var remove = "<td class='nobborder' width='15'><input type='button' value='-' class='lbutton' style='font-size:12px;font-weight:bold;width:20px' onclick='removecriteria("+i+")' disabled></td>";
+		if (criteria_count > 1){
+			var remove = "<td class='nobborder' width='15'><input type='button' value='-' class='lbutton' style='font-size:12px;font-weight:bold;width:20px' onclick='removecriteria("+i+")'></td>";
+		}else{
+			//var remove = "<td class='nobborder' width='15'><input type='button' value='-' class='lbutton' style='font-size:12px;font-weight:bold;width:20px' onclick='removecriteria("+i+")' disabled></td>";
+			var remove = "<td class='nobborder' width='15'></td>";
+		}
 		var add = "<td class='nobborder' width='15' style='padding-right:6px'><input type='button' value='+' class='lbutton' style='font-size:12px;font-weight:bold;width:20px' onclick='addcriteria("+criteria_count+")'></td>";
 		
 		var debug = "<td class='nobborder'></td>";
@@ -415,6 +422,9 @@ var finish = false;
 		for (i = 1; i <= criteria_count; i++) {
 			if (datepickers[i]) $('#value_'+i).datepicker();
 		}
+		// loading ok
+		document.getElementById('msg').innerHTML = "";
+		//
 	}
 	
 	function save_values () {
@@ -728,7 +738,7 @@ var finish = false;
 				<tr>
 					<td class="nobborder" style="padding-bottom:10px">
 						<table style="background:url(../pixmaps/fondo_hdr2.png) repeat-x" width="100%">
-							<tr><td class="nobborder" style="font-weight:bold;text-align:center;font-size:13px"><?=_("Asset Advanced Search")?></td></tr>
+							<tr><td class="nobborder" style="font-weight:bold;text-align:center;font-size:13px"><?=_("Advanced Asset Search")?></td></tr>
 						</table>
 					</td>
 				</tr>
@@ -743,8 +753,12 @@ var finish = false;
 					<table class="noborder" width="100%" style="background-color:white">
 						<tr>
 							<td class="nobborder" width="100"><? if (Session::am_i_admin()) { ?><a href="" onclick="open_edit();return false;" target="_blank"><img src="../pixmaps/pencil.png" border="0" alt="<?=_("Edit rules.conf")?>" title="<?=_("Edit rules.conf")?>"><?=_("Rules")?></a><? } ?></td>
-							<td class="nobborder" style="text-align:right"><input type="button" onclick="clean_request()" value="<?=_("Clean")?>" class="button" style="font-size:12px"></td>
-							<td class="nobborder" style="text-align:left"><input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:12px;" disabled></td>
+							<td class="nobborder" style="text-align:right">
+								<input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:12px;" disabled>
+							</td>
+							<td class="nobborder" style="text-align:left">
+								<input type="button" onclick="clean_request()" value="<?=_("Clean")?>" class="button" style="font-size:12px">
+							</td>
 							<td class="nobborder" width="100" style="text-align:right">&nbsp;</td>
 							<!--<td class="nobborder" width="100" style="text-align:right"><input type="button" class="lbutton" onclick="profiles_show()" id="prof_link" value="<?=_("Profiles")?> >>"></td>-->
 						</tr>

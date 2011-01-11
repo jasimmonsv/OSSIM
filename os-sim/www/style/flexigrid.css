@@ -1005,6 +1005,15 @@ div.pGroup {
 		background: #e4e4e4 url(../pixmaps/tables/cross.png) no-repeat center left;
 	}
 
+.flexigrid div.fbutton .monitor, .flexigrid div.ibutton .monitor, .flexigrid div.rbutton .monitor
+	{
+		background: #e4e4e4 url(../pixmaps/tables/monitor.png) no-repeat center left;
+	}
+.flexigrid div.fbutton .enable, .flexigrid div.ibutton .enable, .flexigrid div.rbutton .enable
+	{
+		background: #e4e4e4 url(../pixmaps/tables/enable.png) no-repeat center left;
+	}
+
 /* Generic context menu styles */
 .contextMenu {
 	position: absolute;
@@ -1081,6 +1090,10 @@ div.pGroup {
 .contextMenu LI.modify A { background-image: url(../pixmaps/tables/table_edit.png); }
 .contextMenu LI.delete A:hover { font-weight:bold; background-color: #e4e4e4; }
 .contextMenu LI.delete A { background-image: url(../pixmaps/tables/table_row_delete.png); }
+.contextMenu LI.monitor A:hover { font-weight:bold; background-color: #e4e4e4; }
+.contextMenu LI.monitor A { background-image: url(../pixmaps/tables/monitor.png); }
+.contextMenu LI.enable A:hover { font-weight:bold; background-color: #e4e4e4; }
+.contextMenu LI.enable A { background-image: url(../pixmaps/tables/enable.png); }
 .contextMenu LI.duplicate A:hover { font-weight:bold; background-color: #e4e4e4; }
 .contextMenu LI.duplicate A { background-image: url(../pixmaps/tables/table_duplicate.png); }
 .contextMenu LI.i_csv A:hover { font-weight:bold; background-color: #e4e4e4; }

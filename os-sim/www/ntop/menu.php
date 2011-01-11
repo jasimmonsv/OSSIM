@@ -76,14 +76,16 @@ if (!$conf->get_conf("use_ntop_rewrite")) {
     if ($opc == "throughput") $ntop = "$scheme://$sensor:$port";
     if ($opc == "matrix") $ntop = "$scheme://$sensor:$port";
     if ($opc == "services") $ntop = "$scheme://$sensor:$port";
+    $testntop = $ntop;
 } else { //if use_ntop_rewrite is enabled
     $protocol = "http";
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-    $ntop = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop".(($_SERVER['SERVER_NAME']!=$sensor) ? "-$sensor/" : "/");
+    $ntop = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop".(($_SERVER['SERVER_NAME']!=$sensor) ? "_$sensor/" : "/");
+    $testntop = "http://" . $sensor . ":3000/";
 }
 // check $ntop valid
 error_reporting(0);
-$testlink = get_headers($ntop);
+$testlink = get_headers($testntop);
 error_reporting(E_ALL ^ E_NOTICE);
 
 if (!preg_match("/200 OK/",$testlink[0])) {

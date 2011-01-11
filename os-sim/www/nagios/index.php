@@ -61,12 +61,12 @@ ossim_valid($opc, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Default option"));
 if (ossim_error()) {
     die(ossim_error());
 }
-require_once ('classes/Sensor.inc');
+/*require_once ('classes/Sensor.inc');
 $sensor = gethostbyname($sensor);
 if (!Sensor::sensor_exists($conn,$sensor)) {
 	echo _("Error: The sensor $sensor does not exists.");
 	exit;
-}
+}*/
 
 require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
