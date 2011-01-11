@@ -90,6 +90,18 @@ function tooltip_hosts($hosts,$ipsnames){
         
          if(!preg_match("/\d+\.\d+\.\d+\.\d+/",$host)) { 
             $ipsnames = array_flip($ipsnames);
+            if($ipsnames[$host]=="") {
+                require_once "ossim_db.inc";
+                $db = new ossim_db();
+                $conn = $db->connect();
+                
+                $query = "SELECT ip FROM host WHERE fqdns like '%$host%'";
+                $res = $conn->Execute($query);
+                if ($res->fields['ip']!="") {
+                    $ipsnames[$host] = $res->fields['ip'];
+                }
+                $db->close($conn);
+            }
         }
         if( ($ipsnames[$host]!="") && ($host!=$ipsnames[$host]) ){
             if(preg_match("/\d+\.\d+\.\d+\.\d+/",$host)) {

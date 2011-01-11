@@ -243,6 +243,34 @@ else if ($key=="all"){
     if ($j>$to) {
         $buffer.= ", { key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("c-class")."' }";
     }
+    
+    // Add FQDNs
+    $all_fqdns = array();
+    $fqdns_to_tree = array();
+    $query = "SELECT fqdns FROM host";
+
+    $res = $conn->Execute($query);
+    while (!$res->EOF) {
+        if ($res->fields['fqdns']!="") {
+            $all_fqdns = explode(",", $res->fields['fqdns']);
+            foreach($all_fqdns as $fqdn) {
+                $fqdn = trim($fqdn);
+                $auxf = explode(".",$fqdn);
+                if($fqdns_to_tree[$auxf[0]]=="") {
+                    $fqdns_to_tree[$auxf[0]] = 1;
+                }
+                else {
+                    $fqdns_to_tree[$auxf[0]]++;
+                }
+            }
+        }
+        $res->MoveNext();
+    }
+    foreach ($fqdns_to_tree as $fqdn => $count) {
+        $buffer .= ",{key:'fqdn_".$fqdn."', isLazy:true, url:'NODES:".$fqdn."', icon:'../../pixmaps/theme/host_add.png', title:'$fqdn <font style=\"font-weight:normal;font-size:80%\">(" . $count . " "._("FQDNs").")</font>'\n}";
+    }
+    
+    
     $buffer .= "]";
 }
 
@@ -269,6 +297,35 @@ else if (preg_match("/all_(.*)/",$key,$found)){
     
     if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
     $buffer .= "]";
+}
+else if (preg_match("/fqdn_(.*)/",$key,$found)){
+    
+    $buffer = "[";
+    $all_fqdns = array();
+    $fqdns_to_tree = array();
+    $query = "SELECT ip, fqdns FROM host WHERE fqdns LIKE '%".$found[1].".%'";
+
+    $res = $conn->Execute($query);
+    while (!$res->EOF) {
+        if ($res->fields['fqdns']!="") {
+            $all_fqdns = explode(",", $res->fields['fqdns']);
+            foreach($all_fqdns as $fqdn) {
+                $fqdn = trim($fqdn);
+                if (preg_match("/".$found[1]."\./",$fqdn)){
+                    $fqdns_to_tree[$fqdn] = $res->fields['ip'];
+                }
+            }
+        }
+        $res->MoveNext();
+    }
+    $j = 1;
+    foreach ($fqdns_to_tree as $fqdn=>$ip) {
+        $buffer .= "{key:'$key$j', url:'$fqdn', icon:'../../pixmaps/theme/host.png', title:'$fqdn <font style=\"font-weight:normal;font-size:80%\">(" . $ip .")</font>'\n},";
+        $j++;
+    }
+    $buffer = preg_replace("/,$/", "", $buffer);
+    $buffer .= "]";
+
 }
 else if ($key!="all") {
     $buffer .= "[ {title: '"._("ANY")."', key:'key1', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";

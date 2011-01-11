@@ -5181,18 +5181,16 @@ sub getassetbyname {
     if ($#result!=-1) { return (join("\r", @result)); }
     
     # check hosts
-    $sql = qq{ SELECT ip FROM host WHERE hostname='$asset_name' };
+    $sql = qq{ SELECT ip FROM host WHERE hostname='$asset_name' OR fqdns LIKE '%$asset_name%'};
 
     $sthse=$dbh->prepare( $sql );
     $sthse->execute;
-    $ip = $sthse->fetchrow_array();
-    
-    if(defined($ip)) {
-        print "Push $ip\n";
-        push(@result, "$ip");
-
+    while( $ip = $sthse->fetchrow_array() ) {
+        if(defined($ip)) {
+            print "Push $ip\n";
+            push(@result, "$ip");
+        }
     }
-    
     $sthse->finish;
     
     if ($#result!=-1) { 
