@@ -110,6 +110,7 @@ ossim_valid($param_query, OSS_TEXT, OSS_NULLABLE, '[', ']', 'illegal:' . _("quer
 ossim_valid($param_start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("start date"));
 ossim_valid($param_end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("end date"));
 ossim_valid($num_servers, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_servers"));
+ossim_valid(GET('del_export'), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, '=', 'illegal:' . _("del_export"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -135,6 +136,23 @@ if ($_SESSION['logger_filters']['default'] == "") {
 	$_SESSION['logger_filters']['default']['end_aaa'] = $param_end;
 	$_SESSION['logger_filters']['default']['query'] = "";
 	$uconfig->set(Session::get_session_user(), 'logger_filters', $_SESSION['logger_filters'], 'php', 'logger');
+}
+
+// Exports
+$exports = array();
+if (is_dir($config["searches_dir"])) {
+	$find_str = $config["searches_dir"].Session::get_session_user();
+	$cmd = "ls -t '$find_str'*/results.txt";
+	$res = explode("\n",`$cmd`);
+	foreach ($res as $line) if (preg_match("/$user\_(\d\d\d\d\-\d\d\-\d\d \d\d\:\d\d\:\d\d)\_(\d\d\d\d\-\d\d\-\d\d \d\d\:\d\d\:\d\d)\_(none|date|date\_desc)\_(.*)\/results\.txt/",$line,$found)) {
+		$name = $found[1].$found[2].$found[3].$found[4];
+		$filename = trim($line);
+		if (GET('del_export') != "" && $name == base64_decode(GET('del_export')) && file_exists($filename)) {
+			unlink($filename);
+		} else {
+			$exports[$filename] = array($found[1],$found[2],$found[3],$found[4]);
+		}
+	}
 }
 ?>
 <?php
@@ -214,6 +232,53 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
     background: #fff;
 }
 #searches table tr th{
+    background:url("../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png") repeat-x scroll 50% 50% #CCCCCC;
+    border:1px solid #AAAAAA;
+    color:#222222;
+    font-size:11px;
+    font-weight:bold;
+    padding:0 10px;
+    text-align:center;
+    white-space:nowrap;
+    -moz-border-radius:5px 5px 5px 5px;
+}
+
+#exports table {
+    background:none repeat scroll 0 0 #FAFAFA;
+    border:1px solid #BBBBBB;
+    color:black;
+    text-align:center;
+   -moz-border-radius:8px 8px 8px 8px;
+   padding: 2px;
+}
+
+#exports table tr td{
+    padding: 0;
+}
+#exports table tr td input, #searches table{
+    font-size: 0.9em;
+    line-height: 0.5em;
+}
+#exports table tr td ul{
+    padding: 0px;
+}
+#exports table tr td ul li{
+    padding: 0px 0px 0px 0px;
+    list-style-type: none;
+    text-align: left;
+    margin: 0px;
+    clear:left;
+    position: relative;
+    height: 23px;
+    line-height: 1em;
+}
+#exports table tr td ul li.par{
+    background: #f2f2f2;
+}
+#exports table tr td ul li.impar{
+    background: #fff;
+}
+#exports table tr th{
     background:url("../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png") repeat-x scroll 50% 50% #CCCCCC;
     border:1px solid #AAAAAA;
     color:#222222;
@@ -370,6 +435,7 @@ ul.tagit input.tagit-hidden {
 var first_load = 1;
 var byDateStart="";
 var byDateEnd="";
+var load_stop=false;
 
 function bold_dates(which_one){
 	$('#date1td,#date2td,#date3td,#date4td,#date5td').css('background-color','white');
@@ -395,9 +461,9 @@ function SetFromIframe(content,str,start,end,sort) {
 	$("#processcontent").show();
 	document.getElementById('processframe').style.height = "30px";
     if(document.getElementById('txtexport').value!='noExport') {
-        $("#href_download").show();
-        $("#img_download").show();
-        $("#href_download").attr("href", "download.php?query=" + str + "&start=" + start + "&end=" + end + "&sort=" + sort);
+        //$("#href_download").show();
+        //$("#img_download").show();
+        //$("#href_download").attr("href", "download.php?query=" + str + "&start=" + start + "&end=" + end + "&sort=" + sort);
     }
     document.getElementById('txtexport').value = 'noExport';
     load_contextmenu();
@@ -448,9 +514,13 @@ function GetSearchString() {
 
 function MakeRequest()
 {
+    if (load_stop) {
+    	if ($.browser.msie) document.execCommand('Stop'); 
+    	else window.stop();
+	}
     if(document.getElementById('txtexport').value=='noExport') {
-        $("#href_download").hide();
-        $("#img_download").hide();
+        //$("#href_download").hide();
+        //$("#img_download").hide();
     }
 	// Used for main query
 	//document.getElementById('loading').style.display = "block";
@@ -458,15 +528,8 @@ function MakeRequest()
     //document.getElementById('ResponseDiv').innerHTML = '<img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading events...'); ?>';
 
     var str = GetSearchString();
-    
-/*
-    $('#mytags').tag_input.parents("ul").children(".tagit-choice").each(function(i){
-		n = $(this).children("input").val();
-		alert(n);
-	})*/
-    //var str = escape(document.getElementById('searchbox').value);
-
     //alert(str);
+
 	<? if (GET('query') != "")  { ?>
 	var str = "<?php echo GET('query')?>";
 	<? } ?>
@@ -494,6 +557,7 @@ function RequestLines()
 	var start = escape(document.getElementById('start').value);
 	var end = escape(document.getElementById('end').value);
 	var url = "wcl.php?ips=<?php echo $ip_list ?>&start=" + start + "&end=" + end + "&uniqueid=<?php echo $uniqueid?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>";
+	load_stop = false;
 	$.ajax({
 		type: "GET",
 		url: url,
@@ -501,18 +565,22 @@ function RequestLines()
 		success: function(msg) {
 			document.getElementById('loading').style.display = "none";
 			document.getElementById('numlines').innerHTML = msg;
+			load_stop = true;
 		}
 	});
 }
 
 function KillProcess()
 {
+	load_stop = false;
 	$.ajax({
 		type: "GET",
 		url: "killprocess.php?uniqueid=<?php echo $uniqueid ?>&ips=<?php echo $ip_list ?>",
 		data: "",
 		success: function(msg) {
-			alert("Processes stoped!");
+			//alert("Processes stoped!");
+            document.getElementById('processframe').src = "process.php?txtexport=stop";
+            load_stop = true;
 		}
 	});
 }
@@ -525,12 +593,14 @@ function HandleQuery(response){
 function MakeRequest2(query, action)
 {
 // Used for query saving
+	load_stop = false;
 	$.ajax({
 		type: "GET",
 		url: "manage_querys.php?query=" + urlencode(query) + "&action=" + action,
 		data: "",
 		success: function(msg) {
 			HandleQuery(msg);
+			load_stop = true;
 		}
 	});
 }
@@ -823,6 +893,7 @@ function HandleStatsByDate(response)
 
 function UpdateByDate(urlres)
 {
+	load_stop = false;
 	$.ajax({
 		type: "GET",
 		url: urlres,
@@ -830,6 +901,7 @@ function UpdateByDate(urlres)
 		async: false,
 		success: function(msg) {
 			HandleStatsByDate(msg);
+			load_stop = true;
 		}
 	});
 }
@@ -964,7 +1036,37 @@ function EnterSubmitForm(evt) {
   if (evt.keyCode == 13) SubmitForm();
 } 
 
+var taskID = "";
+var intv = 1;
+function bg_task() {
+	intv = intv * (-1);
+	load_stop = false;
+	$.ajax({
+        type: "GET",
+        url: "ajax_exports.php?action=ps",
+        data: "",
+        success: function(msg) {
+        	load_stop = true;
+        	if (msg == "") {
+        		document.getElementById('exports_bg').innerHTML = "";
+        		clearInterval(taskID);
+        		reload_export();
+        	} else {
+        		document.getElementById('exports_bg').innerHTML = "<img src='../forensics/images/alarm-clock-blue.png'> <?php echo _("Saving events in background") ?> "+msg;
+        	}
+        }
+	});
+}
+
 function doQuery(tipoExport) {
+	if (tipoExport == 'exportScreen') {
+		load_stop = false;
+		document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif'>";
+	} else if (tipoExport == 'exportEntireQuery') {
+		document.getElementById('exports_bg').innerHTML = "<img src='../forensics/images/alarm-clock-blue.png'> <?php echo _("Saving events in background") ?>";
+		if (taskID != "") clearInterval(taskID);
+		taskID = setInterval("bg_task()",5000);
+	}
   //hideLayer("by_date");
   document.getElementById('txtexport').value=tipoExport;
   SubmitForm();
@@ -1137,6 +1239,27 @@ function delete_filter(filter_name) {
                 }
 	}
 }
+function delete_export(code) {
+	document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif'>";
+	$.ajax({
+        type: "GET",
+        url: "ajax_exports.php?del_export="+code,
+        data: "",
+        success: function(msg) {
+        	document.getElementById('exports_box').innerHTML = msg;
+        }
+	});
+}
+function reload_export() {
+	$.ajax({
+        type: "GET",
+        url: "ajax_exports.php",
+        data: "",
+        success: function(msg) {
+        	document.getElementById('exports_box').innerHTML = msg;
+        }
+	});
+}
 </script>
 </head>
 <body>
@@ -1248,13 +1371,67 @@ require_once ("manage_querys.php");
 					<td class="nobborder"><input type="button" onclick="ClearSearch()" value="<?php echo _("Clear Query"); ?>" class="button" style="height:20px"></td>
                                          */?>
 					<td class="nobborder" style="padding:10px">
-                                            <input type="hidden" name="txtexport" id="txtexport" value="noExport" />
-                                            <a onclick="doQuery('exportScreen')" href="#" alt="<?php echo _("Export screen")?>"><img src="../pixmaps/exportScreen.png" border="0" title="<?php echo _("Export screen")?>" alt="<?php echo _("Export screen")?>" /></a>
-                                            <a onclick="doQuery('exportEntireQuery')" href="#" alt="<?php echo _("Export entire query")?>"><img src="../pixmaps/exportQuery.png" border="0" title="<?php echo _("Export entire query")?>" alt="<?php echo _("Export entire query")?>" /></a>
+                        <input type="hidden" name="txtexport" id="txtexport" value="noExport" />
+                        <a href="javascript:;" onclick="$('#exports').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Exports")?></b></a>
+                        <div style="position:relative">
+                        <div id="exports" style="position:absolute;left:0;top:0;display:none;z-index:1000">
+                        <table cellpadding=0 cellspacing=0 align="center">
+	                        <tr>
+	                        	<th>
+	                        		<table style="background-color:transparent;border:0px" width="100%">
+	                        			<tr>
+	                        				<td width="30"></td>
+	                        				<td align="center"><?php echo _("Saved exports") ?></th>
+	                        				<td align="right" width="30"><a style="margin: 0 0 0 5px" href="javascript:;" onclick="$('#exports').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" /></a></td>
+	                        			</tr>
+	                        		</table>
+	                        	</th>
+	                        </tr>
+	                        <tr>
+	                        	<td style="padding:10px" align="center">
+	                        	<a onclick="doQuery('exportScreen')" href="#" alt="<?php echo _("Export screen")?>"><img src="../pixmaps/exportScreen.png" border="0" title="<?php echo _("Export screen")?>" alt="<?php echo _("Export screen")?>" /> <?php echo _("Screen export") ?></a>
+	                        	&nbsp;<a onclick="doQuery('exportEntireQuery')" href="#" alt="<?php echo _("Export entire query")?>"><img src="../pixmaps/exportQuery.png" border="0" title="<?php echo _("Export entire query")?>" alt="<?php echo _("Export entire query")?>" /> <?php echo _("Entire export") ?></a>
+	                        	</td>
+	                        </tr>
+	                        <tr class="noborder">
+		                        <td id="exports_box">
+			                        <?php if (count($exports) < 1) { ?>
+			                        <i><?php echo _("No export files found") ?>.</i>
+			                        <?php } else { ?>
+			                        <table style="border:0px">
+										<tr>
+											<th><?php echo _("From") ?></th>
+											<th><?php echo _("To") ?></th>
+											<th><?php echo _("Query") ?></th>
+											<td></td>
+										</tr>
+									<? $i=0;
+									foreach ($exports as $filename=>$name) {
+				                        $i++;    ?>
+				                        <tr class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>" style="padding-top:4px">
+				                        <td><b><?php echo $name[0] ?></b></td>
+				                        <td><b><?php echo $name[1] ?></b></td>
+				                        <td><b><?php echo ($name[3] != "") ? "yes" : "no" ?></b></td>
+				                        <td>
+				                        <a href="download.php?query=<?php echo $name[3] ?>&start=<?php echo $name[0] ?>&end=<?php echo $name[1] ?>&sort=<?php echo $name[2] ?>"><img src="../pixmaps/download.png" alt="<?php echo _("Download"); ?>" title="<?php echo _("Download"); ?>" border="0" /></a>
+				                        <a href="" onclick="if(confirm('<?php echo _("Are you sure?") ?>')) delete_export('<?php echo base64_encode($name[0].$name[1].$name[2].$name[3]) ?>');return false;"><img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete"); ?>" title="<?php echo _("Delete"); ?>" border="0" /></a>
+				                        </td>
+				                        </tr>
+				                        <? } ?>
+			                        </table>
+			                        <?php } ?>
+		                        </td>
+	                        </tr>
+	                        <tr><td id="exports_bg"></td></tr>
+                        </table>
+                        </div>
+                        </div>
 					</td>
+					<!-- 
 					<td class="nobborder">
                     	<a href="#" id="href_download" style="display:none;"><img align="absmiddle" title="<?=_("Download")?>" alt="<?=_("Download")?>" style="display:none;" id="img_download" src="../pixmaps/download.png" border="0" width="15"></a>
                     </td>
+                     -->
                     <td class="nobborder">
                     	<a href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Predefined Searches")?></b></a>
                         <div style="position:relative">

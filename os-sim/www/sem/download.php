@@ -11,7 +11,7 @@ $a = $_GET["query"];
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($sort_order, OSS_LETTER, 'illegal:' . _("sort order"));
-ossim_valid($a, OSS_SCORE, OSS_NULLABLE, OSS_SPACE, OSS_TEXT, ':', 'illegal:' . _("query"));
+ossim_valid($a, OSS_SCORE, OSS_NULLABLE, OSS_SPACE, OSS_TEXT, '|', ':', 'illegal:' . _("query"));
 
 if (ossim_error()) {
     die(ossim_error());

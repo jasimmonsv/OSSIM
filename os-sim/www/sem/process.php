@@ -62,6 +62,20 @@ function has_results($num_lines) {
 	}
 	return 0;
 }
+function background_task() {
+	// Prepare background task
+	$server_ip=trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+	$https=trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+	$server='http'.(($https=="yes") ? "s" : "").'://'.$server_ip.'/ossim';
+	$rnd = date('YmdHis').rand();
+	$cookieFile= "/var/tmp/$rnd.cookie";
+	$tmpFile= "/var/tmp/$rnd.bgt";
+	file_put_contents($cookieFile,"#\n$server_ip\tFALSE\t/\tFALSE\t0\tPHPSESSID\t".session_id()."\n");
+	$url = $server.'/sem/process.php?'.str_replace("exportEntireQuery","exportEntireQueryNow",$_SERVER["QUERY_STRING"]);
+	$wget = "wget -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='$cookieFile' '$url' -O -";
+	exec("$wget > $tmpFile 2>&1 & echo $!",$output);
+	$_SESSION["_bgtentirequery"] = array($rnd,$output[0]);
+}
 
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
@@ -72,9 +86,24 @@ $a = GET("query");
 //$export = (GET('txtexport') == "true") ? 1 : 0;
 $export = GET('txtexport');
 $top = GET('top');
-if($export=='exportEntireQuery'){
-    $top = (intval($config["max_export_events"])>0) ? $config["max_export_events"] : 250000;
-    //999999999;
+if($export=='exportEntireQuery') {
+	background_task();
+	unset($export); // continues normal execution
+}
+if ($export=='stop') {
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+<link rel="stylesheet" href="../forensics/styles/ossim_style.css">
+</head>
+<body topmargin="0">
+<p style="text-align:center;margin:0px;font-weight:bold"><?php echo _("Process Stopped!") ?></p>
+</body>
+</html>
+<?
+exit;
 }
 
 $offset = GET("offset");
@@ -180,6 +209,15 @@ foreach ($atoms as $atom) {
 $_SESSION["forensic_query"] = $a;
 $_SESSION["forensic_start"] = $start;
 $_SESSION["forensic_end"] = $end;
+
+if($export=='exportEntireQueryNow') {
+    set_time_limit(3600);
+    $save = $_SESSION;
+    session_write_close();
+    $_SESSION = $save;
+    $top = (intval($config["max_export_events"])>0) ? $config["max_export_events"] : 250000;
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="">
@@ -404,10 +442,10 @@ $totaltime = round($time2 - $time1, 2);
 <?php
 
 // Output file TXT
-if (isset($export)) {
+if (isset($export) && $export != "noExport") {
 	if (is_dir($config["searches_dir"])) {
 		// dir
-		$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a);
+		$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".base64_encode($a);
 		if (!is_dir($outdir)) mkdir($outdir);
 		$outfilename = $outdir."/results.txt";
 		// file
@@ -420,6 +458,12 @@ if (isset($export)) {
 			$loglist = fopen($outdir."/loglist.txt","w");
 		}
 		$logarr = array();
+		// Aux file for background export current size check
+		if ($export == "exportEntireQueryNow") {
+			$l = fopen("/tmp/logger_bg_export.log","w");
+			fputs($l,$outfilename);
+			fclose($l);
+		}
 	}
 }
 
@@ -450,7 +494,7 @@ foreach($result as $res=>$event_date) {
 		if ($cont[$current_server] > $num_lines[$current_server] || $cont[$current_server] > $top*$num_servers){
 	        $htmlResult = false;
 	    } else {
-	    	$htmlResult = true;
+	    	$htmlResult = ($export=='exportEntireQueryNow') ? false : true;
 	    }
 	    
 	    $res = str_replace("<", "", $res);
@@ -607,7 +651,7 @@ foreach($result as $res=>$event_date) {
         $inc_counter++;
         // fin para coger
 
-		if (is_dir($config["searches_dir"]) && isset($export)) {
+		if (is_dir($config["searches_dir"]) && isset($export) && $export != "noExport") {
 			fputs($outfile,"$inc_counter,$date,$plugin,".htmlspecialchars($matches[5]).",".htmlspecialchars($matches[6]).":".htmlspecialchars($matches[8]).",".htmlspecialchars($matches[7]).":".htmlspecialchars($matches[9]).",$data_out\n");
 			$logarr[urldecode($logfile)]++;
 		}
@@ -624,7 +668,7 @@ foreach($result as $res=>$event_date) {
 }
 print "</table>";
 
-if (is_dir($config["searches_dir"]) && isset($export)) {
+if (is_dir($config["searches_dir"]) && isset($export) && $export != "noExport") {
 	fclose ($outfile);
 	$logs = "";
 	foreach ($logarr as $key=>$val) {
@@ -632,6 +676,11 @@ if (is_dir($config["searches_dir"]) && isset($export)) {
 	}
 	fputs($loglist,$logs);
 	fclose ($loglist);
+	if ($export == "exportEntireQueryNow") {
+		if (file_exists("/tmp/logger_bg_export.log")) {
+			unlink("/tmp/logger_bg_export.log");
+		}
+	}
 }
 
 } // FROM: if (has_results()) {

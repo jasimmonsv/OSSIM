@@ -73,6 +73,7 @@ if ($ips != "") {
 	        if ($value[0] != "") $pids.= " " . $value[0];
 	    }
 	    fclose($fp);
+        //error_log("$pids\n",3,"/tmp/kills");
 	    echo _("Killing pids")." $pids\n";
 	    system("kill -9 $pids");
 	}
