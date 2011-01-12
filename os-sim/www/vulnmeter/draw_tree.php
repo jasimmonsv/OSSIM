@@ -245,6 +245,7 @@ else if ($key=="all"){
     }
     
     // Add FQDNs
+    /*
     $all_fqdns = array();
     $fqdns_to_tree = array();
     $query = "SELECT fqdns FROM host";
@@ -268,7 +269,7 @@ else if ($key=="all"){
     }
     foreach ($fqdns_to_tree as $fqdn => $count) {
         $buffer .= ",{key:'fqdn_".$fqdn."', isLazy:true, url:'NODES:".$fqdn."', icon:'../../pixmaps/theme/host_add.png', title:'$fqdn <font style=\"font-weight:normal;font-size:80%\">(" . $count . " "._("FQDNs").")</font>'\n}";
-    }
+    }*/
     
     
     $buffer .= "]";
@@ -279,12 +280,35 @@ else if (preg_match("/all_(.*)/",$key,$found)){
     $buffer .= "[";
     $j = 1;
     $i = 0;
+    
     foreach($all_cclass_hosts as $cclass => $hg) if ($found[1]==$cclass) {
         foreach($hg as $ip) {
+            $fqdns = array();
+            
             if($i>=$from && $i<$to) {
-            $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
-            $hnane = utf8_encode($hname);
-            $html.= "{ key:'$key.$j', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
+                $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
+                $hname = utf8_encode($hname);
+                
+                if($hname!=$ip) {
+                    $fqdns[] = $hname;
+                }
+
+                $host_data = Host::get_list($conn, "where ip='$ip'");
+                
+                $all_fqdn = explode(",", $host_data[0]->get_fqdns());
+                
+                foreach ($all_fqdn as $fqdn) {
+                    $fqdn = trim($fqdn);
+                    if ($fqdn!="") {
+                        $fqdns[] = $fqdn;
+                    }
+                }
+                if (count($fqdns)>0) {
+                    $html.= "{ key:'host_$ip', url:'$ip', isLazy:true, icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
+                }
+                else {
+                    $html.= "{ key:'$key.$j', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
+                }
             }
             $i++;
         }
@@ -298,7 +322,7 @@ else if (preg_match("/all_(.*)/",$key,$found)){
     if ($html != "") $buffer .= preg_replace("/,$/", "", $html);
     $buffer .= "]";
 }
-else if (preg_match("/fqdn_(.*)/",$key,$found)){
+/*else if (preg_match("/fqdn_(.*)/",$key,$found)){
     
     $buffer = "[";
     $all_fqdns = array();
@@ -321,6 +345,36 @@ else if (preg_match("/fqdn_(.*)/",$key,$found)){
     $j = 1;
     foreach ($fqdns_to_tree as $fqdn=>$ip) {
         $buffer .= "{key:'$key$j', url:'$fqdn', icon:'../../pixmaps/theme/host.png', title:'$fqdn <font style=\"font-weight:normal;font-size:80%\">(" . $ip .")</font>'\n},";
+        $j++;
+    }
+    $buffer = preg_replace("/,$/", "", $buffer);
+    $buffer .= "]";
+
+}*/
+else if (preg_match("/host_(.*)/",$key,$found)){
+    
+    $host_data = Host::get_list($conn, "where ip='".$found[1]."'");
+    
+    $hname = $host_data[0]->get_hostname();
+    
+    if($hname!=$found[1]) {
+        $fqdns[] = $hname;
+    }
+
+    $all_fqdn = explode(",", $host_data[0]->get_fqdns());
+    
+    foreach ($all_fqdn as $fqdn) {
+        $fqdn = trim($fqdn);
+        if ($fqdn!="") {
+            $fqdns[] = $fqdn;
+        }
+    }
+    
+    $buffer = "[";
+
+    $j = 1; 
+    foreach ($fqdns as $fqdn) {
+        $buffer .= "{key:'$key$j', url:'$fqdn', icon:'../../pixmaps/theme/host.png', title:'$fqdn <font style=\"font-weight:normal;font-size:80%\">(" . $found[1] .")</font>'\n},";
         $j++;
     }
     $buffer = preg_replace("/,$/", "", $buffer);

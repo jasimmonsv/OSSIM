@@ -88,6 +88,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
   <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
   <script type="text/javascript" src="../js/jquery.cookie.js"></script>
   <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+  <script type="text/javascript" src="../js/utils.js"></script>
   <script type="text/javascript" src="../js/vulnmeter.js"></script>
   <? include ("../host_report_menu.php") ?>
   <script>
@@ -97,6 +98,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 			initAjax: { url: "draw_tree.php", data: {filter: filter} },
 			clickFolderMode: 2,
 			onActivate: function(dtnode) {
+                dtnode.data.url = html_entity_decode(dtnode.data.url);
 				var ln = ($('#ip_list').val()!='') ? '\n' : '';
 				var inside = 0;
 				if (dtnode.data.url.match(/NODES/)) {
