@@ -465,6 +465,7 @@ function SetFromIframe(content,str,start,end,sort) {
         //$("#img_download").show();
         //$("#href_download").attr("href", "download.php?query=" + str + "&start=" + start + "&end=" + end + "&sort=" + sort);
     }
+    if (document.getElementById('txtexport').value == "exportScreen") reload_export();
     document.getElementById('txtexport').value = 'noExport';
     load_contextmenu();
     $(".scriptinfo").simpletip({
@@ -1061,7 +1062,7 @@ function bg_task() {
 function doQuery(tipoExport) {
 	if (tipoExport == 'exportScreen') {
 		load_stop = false;
-		document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif'>";
+		document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	} else if (tipoExport == 'exportEntireQuery') {
 		document.getElementById('exports_bg').innerHTML = "<img src='../forensics/images/alarm-clock-blue.png'> <?php echo _("Saving events in background") ?>";
 		if (taskID != "") clearInterval(taskID);
@@ -1240,7 +1241,7 @@ function delete_filter(filter_name) {
 	}
 }
 function delete_export(code) {
-	document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif'>";
+	document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	$.ajax({
         type: "GET",
         url: "ajax_exports.php?del_export="+code,
@@ -1377,7 +1378,7 @@ require_once ("manage_querys.php");
                         <div id="exports" style="position:absolute;left:0;top:0;display:none;z-index:1000">
                         <table cellpadding=0 cellspacing=0 align="center">
 	                        <tr>
-	                        	<th>
+	                        	<th style="padding:0px">
 	                        		<table style="background-color:transparent;border:0px" width="100%">
 	                        			<tr>
 	                        				<td width="30"></td>
@@ -1403,7 +1404,7 @@ require_once ("manage_querys.php");
 											<th><?php echo _("From") ?></th>
 											<th><?php echo _("To") ?></th>
 											<th><?php echo _("Query") ?></th>
-											<td></td>
+											<td align="right"><a href="" onclick="if(confirm('<?php echo _("Are you sure?") ?>')) delete_export('all');return false;"><img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete all"); ?>" title="<?php echo _("Delete all"); ?>" border="0"></img></a></td>
 										</tr>
 									<? $i=0;
 									foreach ($exports as $filename=>$name) {
