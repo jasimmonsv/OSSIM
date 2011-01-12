@@ -741,10 +741,22 @@ if(Session::am_i_admin()) {
     $menu["Assets"][] = array(
         "name" => gettext("Asset Discovery") ,
         "id" => "Asset Discovery",
-        "url" => "net/assetdiscovery.php"
+        "url" => "netscan/index.php"
     );
+	/* if (Session::menu_perms("MenuTools", "ToolsScan")) {
+    $menu["Tools"][] = array(
+        "name" => gettext("Net Discovery") ,
+        "id" => "Net Scan",
+        "url" => "netscan/index.php"
+    ); */
     $hmenu["Asset Discovery"][] = array(
+        "name" => gettext("Active Net Discovery") ,
         "id" => "Asset Discovery",
+        "url" => "netscan/index.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
+    );    
+    $hmenu["Asset Discovery"][] = array(
+        "id" => "Passive Network Discovery",
         "name" => gettext("Passive Network Discovery") ,
         "url" => "net/assetdiscovery.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
@@ -1337,19 +1349,6 @@ if (Session::menu_perms("MenuTools", "ToolsDownloads")) { $tools = 1; //if (file
         "id" => "Downloads",
         "url" => "downloads/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:downloads','Help');"
-    );
-}
-if (Session::menu_perms("MenuTools", "ToolsScan")) { $tools = 1;
-    $menu["Tools"][] = array(
-        "name" => gettext("Net Discovery") ,
-        "id" => "Net Scan",
-        "url" => "netscan/index.php"
-    );
-    $hmenu["Net Scan"][] = array(
-        "name" => gettext("Net Discovery") ,
-        "id" => "Net Scan",
-        "url" => "netscan/index.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
     );
 }
 
