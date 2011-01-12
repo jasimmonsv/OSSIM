@@ -128,7 +128,7 @@ switch ($_SERVER['REQUEST_METHOD'])
 case "GET" :
    foreach($getParams as $gp) {
 	   if (isset($_GET[$gp])) { 
-         $$gp=htmlspecialchars(mysql_real_escape_string(trim($_GET[$gp])), ENT_QUOTES); 
+         $$gp=htmlspecialchars(trim($_GET[$gp]), ENT_QUOTES); 
       } else {
          $$gp = "";
       }
@@ -728,13 +728,17 @@ if ($report_id) {
 
       	 $risk = getrisk($risk_value);
 
-         $info = "$exception 
-                    $vuln[pname]
-                    Risk: $actual_risk
-                    Application: $vuln[application]
-                    Port: $vuln[port]
-                    Protocol: $vuln[protocol]
-                    ScriptID: $vuln[scriptid]\n";
+         $info = "";
+         
+         if ($exception!="") {
+            $info  .= "\n$exception"; 
+         }
+         $info .= "\n".$vuln["pname"];
+         $info .= "\nRisk:". $actual_risk;
+         $info .= "\nApplication:".$vuln["application"];
+         $info .= "\nPort:".$vuln["port"];
+         $info .= "\nProtocol:".$vuln["protocol"];
+         $info .= "\nScriptID:".$vuln["scriptid"]."\n\n";
 
          #$info=htmlspecialchars_decode($info);
          $msg=trim($vuln['msg']);
@@ -743,9 +747,24 @@ if ($report_id) {
          $msg= str_replace("&#039;","'", $msg);
          $msg = str_replace("\\r", "", $msg);
          $info .= $msg;
+         
+         $plugin_info = $dbconn->execute("SELECT t2.name, t3.name, t1.copyright, t1.summary, t1.version 
+                FROM vuln_nessus_plugins t1
+                LEFT JOIN vuln_nessus_family t2 on t1.family=t2.id
+                LEFT JOIN vuln_nessus_category t3 on t1.category=t3.id
+                WHERE t1.id='".$vuln["scriptid"]."'");
+
+         list($pfamily, $pcategory, $pcopyright, $psummary, $pversion) = $plugin_info->fields;
+         $info .= "\n";
+         if ($pfamily!="")    { $info .= "\nFamily name: ".$pfamily;} 
+         if ($pcategory!="")  { $info .= "\nCategory: ".$pcategory; }
+         if ($pcopyright!="") { $info .= "\nCopyright: ".$pcopyright; }
+         if ($psummary!="")   { $info .= "\nSummary: ".$psummary; }
+         if ($pversion!="")   { $info .= "\nVersion: ".$pversion; }
+
          // append it to the results array
          if ( ! $critical || $risk_value <= $critical ) {
-           $all_results[] = array( $risk, $info );
+           $all_results[] = array( $risk, $info);
          }
       }
       // increment host counter

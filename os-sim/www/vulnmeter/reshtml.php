@@ -1210,10 +1210,10 @@ EOT;
 <tr>
 EOT;
 
+echo "<th>"._("Plugin Name")."</th>";
+echo "<th>"._("PluginID")."</th>";
 echo "<th>"._("Service")."</th>";
 echo "<th>"._("Severity")."</th>";
-echo "<th>"._("PluginID")."</th>";
-echo "<th>"._("Description")."</th>";
 echo "</tr>";
 
     if($ipl=="all"){
@@ -1295,7 +1295,7 @@ echo "</tr>";
       if(!empty($arrResults)) {
          //uasort ($arrResults, 'arrScanResultsCompare');
       } else { // empty, print out message
-         echo "<td colspan=3>"._("No vulnerability results matching this reports 
+         echo "<td colspan='4'>"._("No vulnerability results matching this reports 
                filtering criteria were found").".</td></tr>";
       }
     
@@ -1367,18 +1367,25 @@ echo "</tr>";
 echo "<tr ".(($falsepositive=='Y')? "class=\"trsk risk$risk fp\"" : "class=\"trsk risk$risk\"")."style=\"background-color:".$colors[$tmprisk].(($falsepositive=='Y')? ";display:none;" : "")."\">";
 //echo "<tr>";
 
-echo "<td>$service</td>";
+echo "<td width=\"50%\" style=\"padding:3px 0px 3px 0px;\"><b>".(($pname!="") ? $pname : _("No name"))."</b></td>";
 
-echo "<td>$tmprisk&nbsp;&nbsp;<img align=\"absmiddle\" src=\"".$images[$tmprisk]."\" style=\"border: 1px solid ; width: 25px; height: 10px;\"></td>";
-         echo <<<EOT
-<td>$scriptid</td>
-<td width="70%" style="text-align:left;">
-<A class="msg" NAME="$resid"></a><a name="$ancla"></a>
-<p align="center" style="font-weight:bold">$pname</p>$msg
+echo "<td style=\"padding:3px 0px 3px 0px;\">$scriptid</td>";
+?>
+<td style="padding:3px;" width="180"><?php echo $service; ?></td>
+<td style="text-align:center;">
+    <?php echo $tmprisk; ?>&nbsp;&nbsp;<img align="absmiddle" src="<?php echo $images[$tmprisk] ?>" style="border: 1px solid ; width: 25px; height: 10px;">
+</td>
+</tr>
+<?php
+echo "<tr ".(($falsepositive=='Y')? "class=\"trsk risk$risk fp\"" : "class=\"trsk risk$risk\"")."style=\"background-color:".$colors[$tmprisk].(($falsepositive=='Y')? ";display:none;" : "")."\">";
+?>
+<td style="padding:3px 0px 3px 6px;text-align:left;">
+<A class="msg" NAME="<?php echo $resid ?> "></a><a name="<?php echo $ancla ?>"></a>
+    <?php echo $msg; ?>
 <font size="1">
 <br><br>
 </font>
-EOT;
+<?php
          // Add info from osvdb
          echo "&nbsp;&nbsp;<a title=\""._("Info from OSVDB for plugin id ")."$scriptid\" class=\"greybox\" href=\"osvdb_info.php?scriptid=$scriptid\"><img src=\"images/osvdb.png\" border=\"0\"></a>&nbsp;&nbsp;";
          // Add link to popup with Script Info
@@ -1466,7 +1473,31 @@ echo "<img alt=\""._("Mark as false positive")."\" src=\"images/true.gif\" title
          }
 $pticket = "ref=Vulnerability&ip=$hostip&port=$service_num&nessus_id=$scriptid&risk=$tmprisk&type=Nessus Vulnerability"; 
 echo "&nbsp;&nbsp;&nbsp;<a title=\""._("New ticket")."\" class=\"greybox\" href=\"new_vuln_ticket.php?$pticket\"><img style=\"padding-bottom:2px;\" src=\"../pixmaps/incident.png\" border=\"0\" alt=\"i\" width=\"12\"></a>&nbsp;&nbsp;";
-         echo "</td></tr>";
+         ?>
+         </td>
+<?php
+$plugin_info = $dbconn->execute("SELECT t2.name, t3.name, t1.copyright, t1.summary, t1.version 
+        FROM vuln_nessus_plugins t1
+        LEFT JOIN vuln_nessus_family t2 on t1.family=t2.id
+        LEFT JOIN vuln_nessus_category t3 on t1.category=t3.id
+        WHERE t1.id='$scriptid'");
+
+list($pfamily, $pcategory, $pcopyright, $psummary, $pversion) = $plugin_info->fields;
+?>
+         <td colspan="3" valign="top" style="text-align:left;padding:3px;">
+         <?php
+        $plugindetails = "";
+        if ($pfamily!="")    { $plugindetails .= '<b>Family name:</b> '.$pfamily.'<br><br>';} 
+        if ($pcategory!="")  { $plugindetails .= '<b>Category:</b> '.$pcategory.'<br><br>'; }
+        if ($pcopyright!="") { $plugindetails .= '<b>Copyright:</b> '.$pcopyright.'<br><br>'; }
+        if ($psummary!="")   { $plugindetails .= '<b>Summary:</b> '.$psummary.'<br><br>'; }
+        if ($pversion!="")   { $plugindetails .= '<b>Version:</b> '.$pversion.'<br><br>'; }
+        
+        echo $plugindetails;
+         ?>
+         </td>
+         </tr>
+         <?php
          $result1->MoveNext();
       }
       echo "</table>";
