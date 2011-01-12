@@ -1497,7 +1497,7 @@ require_once ("manage_querys.php");
 				<td class="nobborder">
 					<table class="transparent">
                     <tr>
-                        <td class="nobborder" nowrap><?=_("Time frame selection")?>:</td>
+                        <td class="nobborder" nowrap><?=_("Time frame selection UTC")?>:</td>
                         <td class="nobborder">
                             <div id="widget">
                                 <a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
