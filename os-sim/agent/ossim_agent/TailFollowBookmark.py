@@ -73,9 +73,10 @@ class TailFollowBookmark(object):
         if self.bookmark:
             self.bookmark_path = "%s/%s.bmk" % (os.path.dirname(bookmark_dir + "/"), os.path.basename(filename))
             logger.info('Bookmarking "%s" at: %s' % (self.filename, self.bookmark_path))
+        self.nlines = 0
 
-        self._stat_file()
-        self._open_file()
+        self._stat_file()        
+        self._open_file(False)
 
 
     def __iter__(self):
@@ -101,7 +102,10 @@ class TailFollowBookmark(object):
             if self.track:
                 self._check_for_file_modification()
             raise StopIteration
-
+        if line:
+            self.nlines+=1
+            if self.nlines % 500:
+                logger.info("Numero de lineas: %d",self.nlines)
         # check if we should be bookmarking
         elif self.bookmark and line != "":
             try:
@@ -136,15 +140,19 @@ class TailFollowBookmark(object):
         if not stat.S_ISREG(self._current_stat.st_mode):
             raise IOError, self.filename + " is not a regular file"
 
-    def _open_file(self):
+    def _open_file(self, fromrotate = False):
         """
         Opens the file and seeks to the specified position based on
         the keyword arguments: offset and whence.  Furthermore, the
         _current_file attribute is set as a side-effect.
+        
+        fromrotate: Indicates if the file is opened when a 
+                    log rotation is detected
         """
 
         self._current_file = open(self.filename, 'r')
-        self._current_file.seek(0, os.SEEK_END)
+        if not fromrotate:
+            self._current_file.seek(0, os.SEEK_END)        
 
         # check if we are using bookmarks and seek accordingly
         if self.bookmark:
@@ -194,9 +202,13 @@ class TailFollowBookmark(object):
             self._stat_file()
             
             if self._current_stat.st_ino != old_stat.st_ino or \
-               self._current_stat.st_dev != old_stat.st_dev or \
-               self._current_stat.st_size < old_stat.st_size:
-                self._open_file()
+               self._current_stat.st_dev != old_stat.st_dev: 
+                
+               #self._current_stat.st_size < old_stat.st_size:
+               
+                # Open the new log file after the rotation 
+                # and indicate that this action is after a log rotation
+                self._open_file(True)
                 old_file.close()
 
                 if self.bookmark:
