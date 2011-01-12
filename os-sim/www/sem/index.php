@@ -60,6 +60,7 @@ $param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time(
 $param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
 
 $_SESSION['graph_type'] = "last_month";
+//$_SESSION['graph_type'] = "day";
 $_SESSION['cat'] = "Oct%2C+2010";
 
 $framework_ip = $conf->get_conf("frameworkd_address", FALSE);
@@ -1088,8 +1089,8 @@ Array.prototype.in_array = function(p_val) {
 
 $(document).ready(function(){
 	//UpdateByDate('forensic.php?graph_type=all&cat=');
-	$('#date4').addClass('negrita');
-	bold_dates('date4');
+	$('#date2').addClass('negrita');
+	bold_dates('date2');
 	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
 	RequestLines();
 	MakeRequest();
@@ -1106,7 +1107,8 @@ $(document).ready(function(){
 	<?
 	$y = strftime("%Y", time() - ((24 * 60 * 60) * 30));
 	$m = strftime("%m", time() - ((24 * 60 * 60) * 30));
-	$d = strftime("%d", time() - ((24 * 60 * 60) * 30));
+	//$d = strftime("%d", time() - ((24 * 60 * 60) * 30));
+	$d = strftime("%d", time() - ((24 * 60 * 60)));
 	?>
 	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
 	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m")-1 ?>,<?php echo date("d") ?>);
