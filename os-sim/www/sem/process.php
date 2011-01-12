@@ -68,8 +68,8 @@ function background_task($path_dir) {
 	$https=trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
 	$server='http'.(($https=="yes") ? "s" : "").'://'.$server_ip.'/ossim';
 	$rnd = date('YmdHis').rand();
-	$cookieFile= "$path_dir/cookie.txt";
-	$tmpFile= "$path_dir/bgt.txt";
+	$cookieFile= "$path_dir/cookie";
+	$tmpFile= "$path_dir/bgt";
 	file_put_contents($cookieFile,"#\n$server_ip\tFALSE\t/\tFALSE\t0\tPHPSESSID\t".session_id()."\n");
 	$url = $server.'/sem/process.php?'.str_replace("exportEntireQuery","exportEntireQueryNow",$_SERVER["QUERY_STRING"]);
 	$wget = "wget -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='$cookieFile' '$url' -O -";
@@ -258,26 +258,6 @@ a {
 <body>
 <?php
 
-// Output file TXT
-if (isset($export) && $export != "noExport") {
-	if (is_dir($config["searches_dir"])) {
-		// dir
-		$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".base64_encode($a);
-		if (!is_dir($outdir)) mkdir($outdir);
-		$outfilename = $outdir."/results.txt";
-		// file
-		if ($offset > 0 && file_exists($outfilename)) {
-			$outfile = fopen($outfilename,"a");
-			$loglist = fopen($outdir."/loglist.txt","a");
-		}
-		else {
-			$outfile = fopen($outfilename,"w"); fclose($outfile); $outfile = fopen($outfilename,"w");
-			$loglist = fopen($outdir."/loglist.txt","w");
-		}
-		$logarr = array();
-	}
-}
-
 $time1 = microtime(true);
 $cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $top, 1);
 
@@ -465,6 +445,26 @@ $totaltime = round($time2 - $time1, 2);
 		<td class='plfieldhdr' style='border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Signature") ?></td>
 	</tr>
 <?php
+
+// Output file TXT
+if (isset($export) && $export != "noExport") {
+	if (is_dir($config["searches_dir"])) {
+		// dir
+		$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".base64_encode($a);
+		if (!is_dir($outdir)) mkdir($outdir);
+		$outfilename = $outdir."/results.txt";
+		// file
+		if ($offset > 0 && file_exists($outfilename)) {
+			$outfile = fopen($outfilename,"a");
+			$loglist = fopen($outdir."/loglist.txt","a");
+		}
+		else {
+			$outfile = fopen($outfilename,"w"); fclose($outfile); $outfile = fopen($outfilename,"w");
+			$loglist = fopen($outdir."/loglist.txt","w");
+		}
+		$logarr = array();
+	}
+}
 
 // RESULTS Main Loop
 $color_words = array(

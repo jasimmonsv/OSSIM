@@ -52,15 +52,17 @@ if (GET('action') == "ps") {
 	$cmd = "ps ax | grep wget | grep -v grep";
 	$output = explode("\n",`$cmd`);
 	if (count($output) > 1) {
-		foreach ($output as $line) if (trim($line) != "" && preg_match("/\-\-load\-cookies\=(.+)\/cookie\.txt/",$line,$found)) {
+		$i = 1;
+		foreach ($output as $line) if (trim($line) != "" && preg_match("/\-\-load\-cookies\=(.+)\/cookie/",$line,$found)) {
 			if (is_dir($found[1])) {
 				$cmd = "du -ch '".$found[1]."' | tail -1 | awk '{print $1}'";
 				$size = explode("\n",`$cmd`);
-				echo "(".$size[0]." written)";
+				echo (count($output) > 2) ? "<br>task #$i(".$size[0]." written)" : "(".$size[0]." written)";
 			} else {
-				echo "(unknown)";
+				echo (count($output) > 2) ? "<br>task #$i(unknown)" : "(unknown)";
 			}
 			echo "\n";
+			$i++;
 		}
 	}
 	exit;
@@ -81,11 +83,11 @@ if (is_dir($config["searches_dir"])) {
 			if (file_exists($dirname."/loglist.txt")) {
 				unlink($dirname."/loglist.txt");
 			}
-			if (file_exists($dirname."/cookie.txt")) {
-				unlink($dirname."/cookie.txt");
+			if (file_exists($dirname."/cookie")) {
+				unlink($dirname."/cookie");
 			}
-			if (file_exists($dirname."/bgt.txt")) {
-				unlink($dirname."/bgt.txt");
+			if (file_exists($dirname."/bgt")) {
+				unlink($dirname."/bgt");
 			}
 			if (is_dir($dirname)) {
 				rmdir($dirname);
