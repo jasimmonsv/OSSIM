@@ -191,6 +191,8 @@ DATE_REGEXPS = [
     re.compile(r'(?P<month>\d{1,2}) (?P<day>\d{1,2}) (?P<year>\d{4}) (?P<hour>\d{1,2}) (?P<minute>\d{1,2}) (?P<second>\d{1,2})'),
     # Websense -- Wed 14 Apr 2010 12:35:10
     re.compile(r'\S+\s+(?P<day>\d+)\s+(?P<month>\S+)\s+(?P<year>\d+)\s+(?P<hour>\d\d):(?P<minute>\d\d):(?P<second>\d\d)'),
+    # Websense2 -- 11 Jan 2011 09:44:18 AM
+    re.compile(r'(?P<day>\d+)\s+(?P<month>\S+)\s+(?P<year>\d+)\s+(?P<hour>\d\d):(?P<minute>\d\d):(?P<second>\d\d).+'),
 
 ]
 
