@@ -104,7 +104,7 @@ if (is_dir($config["searches_dir"])) {
 		<th><?php echo _("From") ?></th>
 		<th><?php echo _("To") ?></th>
 		<th><?php echo _("Query") ?></th>
-		<td></td>
+		<td align="right"><a href="" onclick="if(confirm('<?php echo _("Are you sure?") ?>')) delete_export('all');return false;"><img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete all"); ?>" title="<?php echo _("Delete all"); ?>" border="0"></img></a></td>
 	</tr>
 <? $i=0;
 foreach ($exports as $filename=>$name) {
