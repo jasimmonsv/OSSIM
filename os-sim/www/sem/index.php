@@ -56,12 +56,12 @@ $conn_aux = $db_aux->connect();
 
 //
 $param_query = GET("query") ? GET("query") : "";
-$param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 30));
+$param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60));
 $param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
 
-$_SESSION['graph_type'] = "last_month";
-//$_SESSION['graph_type'] = "day";
-$_SESSION['cat'] = "Oct%2C+2010";
+//$_SESSION['graph_type'] = "last_month";
+$_SESSION['graph_type'] = "day";
+$_SESSION['cat'] = date("M j, Y");
 
 $framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
@@ -967,7 +967,7 @@ function graph_by_date( col ,row ,value, category, series, t_year, t_month)
       document.getElementById('end_aaa').value = byDateEnd+" 23:59:59";
       RequestLines(); MakeRequest();
       bold_dates();
-      //alert("day: "+ day +" month: "+month+ " year: "+year);
+      //alert("day: "+ day +" month: "+month+ " year: "+year+" cat: "+category);
     break;
     default:
       //Dont create another graph... refresh the search and stop here
@@ -1094,7 +1094,6 @@ $(document).ready(function(){
 	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
 	RequestLines();
 	MakeRequest();
-	//setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_month','<?php echo urlencode(date("Y")) ?>');
 	$("#start_aaa,#end_aaa").change(function(objEvent){
 		CalendarOnChange();
 	});
@@ -1105,10 +1104,10 @@ $(document).ready(function(){
 	
 	// CALENDAR
 	<?
-	$y = strftime("%Y", time() - ((24 * 60 * 60) * 30));
-	$m = strftime("%m", time() - ((24 * 60 * 60) * 30));
-	//$d = strftime("%d", time() - ((24 * 60 * 60) * 30));
-	$d = strftime("%d", time() - ((24 * 60 * 60)));
+	$y = strftime("%Y", time() - (24 * 60 * 60));
+	$m = strftime("%m", time() - (24 * 60 * 60));
+	//$d = strftime("%d", time() - ((24 * 60 * 60) * 1));
+	$d = strftime("%d", time() - (24 * 60 * 60));
 	?>
 	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
 	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m")-1 ?>,<?php echo date("d") ?>);
@@ -1333,7 +1332,7 @@ document.getElementById('cursor').value = document.body.style.cursor;
 <?php // Possible sort values: none, date, date_desc
  ?>
 <input type="hidden" id="sort" value="none">
-<input type="hidden" id="start" value="<?php echo ($param_start != "" && date_parse($param_start)) ? $param_start : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>">
+<input type="hidden" id="start" value="<?php echo ($param_start != "" && date_parse($param_start)) ? $param_start : strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60)) ?>">
 <?php // Temporary fix until the server logs right
  ?>
 <input type="hidden" id="end" value="<?php echo ($param_end != "" && date_parse($param_end)) ? $param_end : strftime("%Y-%m-%d %H:%M:%S", time()) ?>">
@@ -1519,7 +1518,7 @@ require_once ("manage_querys.php");
                         <?php
                         } else {
                         ?>
-                            <input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>">
+                            <input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60)) ?>">
                             <input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>">
                         <?php
                         }
