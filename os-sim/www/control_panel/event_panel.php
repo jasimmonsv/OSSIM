@@ -382,15 +382,6 @@ var comborisk = 'rsk';
 function changecontent(id,content) { document.getElementById(id).innerHTML = content }
 function getcontent(id) { return document.getElementById(id).innerHTML }
 function create_script(url) {
-	// load extra parameters from select filter
-	var idf = getdatafromcheckbox();
-	if (idf!='') url = url + '&plugins=' + idf
-	<?php
-    if ($from_snort == false) { ?>
-	var rsk = getdatafromcombo(comborisk);
-	if (rsk!='' && rsk!='0') url = url + '&risk=' + rsk
-	<?php
-    } ?>
 	// make script element
 	//changecontent('footer','<?php echo _("Refreshing") ?> '+url+'...')
 	var ajaxObject = document.createElement('script');
@@ -407,13 +398,23 @@ function refresh() {
 	// ajax responder
 	if (pause==false) {
 		changecontent('footer','<?php echo _("Refreshing") ?>...')
+        // load extra parameters from select filter
+        var urlr = url;
+        var idf = getdatafromcheckbox();
+        if (idf!='') urlr = urlr + '&plugins=' + idf
+        <?php
+        if ($from_snort == false) { ?>
+        var rsk = getdatafromcombo(comborisk);
+        if (rsk!='' && rsk!='0') urlr = urlr + '&risk=' + rsk
+        <?php
+        } ?>
 		//var h = document.getElementsByTagName('head')
 		//if (ajaxObj) ajaxObj.parentNode.removeChild(ajaxObj)
 		//ajaxObj = create_script(url)
 		//h.item(0).appendChild(ajaxObj);
         $.ajax({
            type: "GET",
-           url: url,
+           url: urlr,
            success: function(msg){
              eval(msg);
            }
