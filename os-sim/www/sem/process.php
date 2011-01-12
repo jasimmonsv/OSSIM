@@ -62,19 +62,18 @@ function has_results($num_lines) {
 	}
 	return 0;
 }
-function background_task() {
+function background_task($path_dir) {
 	// Prepare background task
 	$server_ip=trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
 	$https=trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
 	$server='http'.(($https=="yes") ? "s" : "").'://'.$server_ip.'/ossim';
 	$rnd = date('YmdHis').rand();
-	$cookieFile= "/var/tmp/$rnd.cookie";
-	$tmpFile= "/var/tmp/$rnd.bgt";
+	$cookieFile= "$path_dir/cookie.txt";
+	$tmpFile= "$path_dir/bgt.txt";
 	file_put_contents($cookieFile,"#\n$server_ip\tFALSE\t/\tFALSE\t0\tPHPSESSID\t".session_id()."\n");
 	$url = $server.'/sem/process.php?'.str_replace("exportEntireQuery","exportEntireQueryNow",$_SERVER["QUERY_STRING"]);
 	$wget = "wget -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='$cookieFile' '$url' -O -";
-	exec("$wget > $tmpFile 2>&1 & echo $!",$output);
-	$_SESSION["_bgtentirequery"] = array($rnd,$output[0]);
+	exec("$wget > '$tmpFile' 2>&1 & echo $!");
 }
 
 include ("geoip.inc");
@@ -86,10 +85,7 @@ $a = GET("query");
 //$export = (GET('txtexport') == "true") ? 1 : 0;
 $export = GET('txtexport');
 $top = GET('top');
-if($export=='exportEntireQuery') {
-	background_task();
-	unset($export); // continues normal execution
-}
+
 if ($export=='stop') {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -210,6 +206,15 @@ $_SESSION["forensic_query"] = $a;
 $_SESSION["forensic_start"] = $start;
 $_SESSION["forensic_end"] = $end;
 
+$user = $_SESSION["_user"];
+
+if($export=='exportEntireQuery') {
+	$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".base64_encode($a);
+	if (!is_dir($outdir)) mkdir($outdir);
+	background_task($outdir);
+	unset($export); // continues normal execution
+}
+
 if($export=='exportEntireQueryNow') {
     set_time_limit(3600);
     $save = $_SESSION;
@@ -252,9 +257,29 @@ a {
 </head>
 <body>
 <?php
+
+// Output file TXT
+if (isset($export) && $export != "noExport") {
+	if (is_dir($config["searches_dir"])) {
+		// dir
+		$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".base64_encode($a);
+		if (!is_dir($outdir)) mkdir($outdir);
+		$outfilename = $outdir."/results.txt";
+		// file
+		if ($offset > 0 && file_exists($outfilename)) {
+			$outfile = fopen($outfilename,"a");
+			$loglist = fopen($outdir."/loglist.txt","a");
+		}
+		else {
+			$outfile = fopen($outfilename,"w"); fclose($outfile); $outfile = fopen($outfilename,"w");
+			$loglist = fopen($outdir."/loglist.txt","w");
+		}
+		$logarr = array();
+	}
+}
+
 $time1 = microtime(true);
 $cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $top, 1);
-$user = $_SESSION["_user"];
 
 //$status = exec($cmd, $result);
 $result = array();
@@ -429,7 +454,7 @@ $totaltime = round($time2 - $time1, 2);
 		<td class='plfieldhdr' style='padding-left:3px;padding-right:3px;border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Server") ?></td>
 		<?php } ?>
 		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>
-			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date") . " " ?>
+			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("UTC Date") . " " ?>
 			<a href="javascript:DateDesc()"><img src="../forensics/images/order_sign_d.gif" border="0"></a>
 		</td>
 		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Type") ?></td>
@@ -440,32 +465,6 @@ $totaltime = round($time2 - $time1, 2);
 		<td class='plfieldhdr' style='border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Signature") ?></td>
 	</tr>
 <?php
-
-// Output file TXT
-if (isset($export) && $export != "noExport") {
-	if (is_dir($config["searches_dir"])) {
-		// dir
-		$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".base64_encode($a);
-		if (!is_dir($outdir)) mkdir($outdir);
-		$outfilename = $outdir."/results.txt";
-		// file
-		if ($offset > 0 && file_exists($outfilename)) {
-			$outfile = fopen($outfilename,"a");
-			$loglist = fopen($outdir."/loglist.txt","a");
-		}
-		else {
-			$outfile = fopen($outfilename,"w");
-			$loglist = fopen($outdir."/loglist.txt","w");
-		}
-		$logarr = array();
-		// Aux file for background export current size check
-		if ($export == "exportEntireQueryNow") {
-			$l = fopen("/tmp/logger_bg_export.log","w");
-			fputs($l,$outfilename);
-			fclose($l);
-		}
-	}
-}
 
 // RESULTS Main Loop
 $color_words = array(
@@ -522,7 +521,11 @@ foreach($result as $res=>$event_date) {
         // para coger
         $date = $matches[2];
         $tzone = $matches[10];
-        if ($tzone!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(-3600*$tzone));        
+        //if ($tzone!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(-3600*$tzone));
+        $eventhour = date("H",strtotime($date));
+        $ctime = explode("/",$logfile); $storehour = $ctime[count($ctime)-3]; // hours
+        $date = date("Y-m-d H:i:s",strtotime($date)+(3600*($storehour-$eventhour)));
+
         // fin para coger
         if($htmlResult){
             $sensor = $matches[5];
@@ -676,11 +679,6 @@ if (is_dir($config["searches_dir"]) && isset($export) && $export != "noExport") 
 	}
 	fputs($loglist,$logs);
 	fclose ($loglist);
-	if ($export == "exportEntireQueryNow") {
-		if (file_exists("/tmp/logger_bg_export.log")) {
-			unlink("/tmp/logger_bg_export.log");
-		}
-	}
 }
 
 } // FROM: if (has_results()) {

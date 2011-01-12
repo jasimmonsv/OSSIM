@@ -193,8 +193,11 @@ foreach my $file (@files) {
 						}
 						$plugin_sid =~ s/\s*plugin\_sid\='(.+)'/$1/;
 						# applying tzone hours diff
-						$currentdate += (-3600 * $tzone);
-						
+						my @ctime = gmtime $currentdate;
+						#print "$currentdate - $fields[7] - $ctime[2] = ".($currentdate - $sdirtime)."\n" if ($debug);
+						#$currentdate += (-3600 * $tzone);
+						$currentdate += (3600 * int($fields[7] - $ctime[2])) if ($fields[7] != $ctime[2]);
+                                    						
 						last LINE if ($reverse && $complete_lines>=$lines_threshold && $currentdate<$lastdate); # jump innecesary events
 						last LINE if (!$reverse && $complete_lines>=$lines_threshold && $currentdate>$lastdate); # jump innecesary events
 						#print "Evento: $currentdate > $start && $currentdate < $end\n" if ($debug);
