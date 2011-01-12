@@ -1404,15 +1404,18 @@ require_once ("manage_querys.php");
 											<th><?php echo _("From") ?></th>
 											<th><?php echo _("To") ?></th>
 											<th><?php echo _("Query") ?></th>
+											<th><?php echo _("Size") ?></th>
 											<td align="right"><a href="" onclick="if(confirm('<?php echo _("Are you sure?") ?>')) delete_export('all');return false;"><img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete all"); ?>" title="<?php echo _("Delete all"); ?>" border="0"></img></a></td>
 										</tr>
 									<? $i=0;
 									foreach ($exports as $filename=>$name) {
-				                        $i++;    ?>
+				                        $size = (filesize($filename)/1024 > 2000) ? floor(filesize($filename)/1024/1024)."MB" : floor(filesize($filename)/1024)."KB";
+										$i++;    ?>
 				                        <tr class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>" style="padding-top:4px">
 				                        <td><b><?php echo $name[0] ?></b></td>
 				                        <td><b><?php echo $name[1] ?></b></td>
 				                        <td><b><?php echo ($name[3] != "") ? "yes" : "no" ?></b></td>
+				                        <td><?php echo $size ?></td>
 				                        <td>
 				                        <a href="download.php?query=<?php echo $name[3] ?>&start=<?php echo $name[0] ?>&end=<?php echo $name[1] ?>&sort=<?php echo $name[2] ?>"><img src="../pixmaps/download.png" alt="<?php echo _("Download"); ?>" title="<?php echo _("Download"); ?>" border="0" /></a>
 				                        <a href="" onclick="if(confirm('<?php echo _("Are you sure?") ?>')) delete_export('<?php echo base64_encode($name[0].$name[1].$name[2].$name[3]) ?>');return false;"><img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete"); ?>" title="<?php echo _("Delete"); ?>" border="0" /></a>
