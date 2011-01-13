@@ -324,6 +324,36 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 			change_descr(obj.name);
 		}
 	}
+
+	function open_group(group_id,name,ip_src,ip_dst,time) {
+		// GROUPS
+		$('#lock_'+group_id).html("<img src='../pixmaps/loading.gif' width='16'>");
+		document.getElementById("plus"+group_id).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"','"+time+"','');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+		document.getElementById(group_id).innerHTML = "";
+		$.ajax({
+			type: "GET",
+			url: "alarm_group_response.php?only_open=1&group1="+group_id,
+			data: "",
+			success: function(msg){
+				document.getElementById('lock_'+group_id).innerHTML = "<a href='' onclick=\"close_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"','"+time+"');return false\"><img src='../pixmaps/lock-unlock.png' alt='<?php echo _("Open, click to close group") ?>' title='<?php echo _("Open, click to close group") ?>' border=0></a>";
+			}
+		});
+	}
+	
+	function close_group(group_id,name,ip_src,ip_dst,time) {
+		// GROUPS
+		$('#lock_'+group_id).html("<img src='../pixmaps/loading.gif' width='16'>");
+		document.getElementById("plus"+group_id).innerHTML = "<a href=\"javascript:toggle_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"','"+time+"','');\"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
+		document.getElementById(group_id).innerHTML = "";
+		$.ajax({
+			type: "GET",
+			url: "alarm_group_response.php?only_close=1&group1="+group_id,
+			data: "",
+			success: function(msg){
+				document.getElementById('lock_'+group_id).innerHTML = "<a href='' onclick=\"open_group('"+group_id+"','"+name+"','"+ip_src+"','"+ip_dst+"','"+time+"');return false\"><img src='../pixmaps/lock.png' alt='<?php echo _("Closed, click to open group") ?>' title='<?php echo _("Closed, click to open group") ?>' border=0></a>";
+			}
+		});
+	}
 	
 	function close_groups() {
 		// ALARMS
@@ -353,7 +383,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 			alert("Please, select the groups or any alarm to close");
 			return;
 		}
-		//$('#loading_div').html("<img src='../pixmaps/loading.gif'>");
+		$('#loading_div').html("<img src='../pixmaps/loading.gif' width='16'>");
 		if (params != "") {
 			$.ajax({
 				type: "POST",
@@ -369,11 +399,11 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 							data: "",
 							success: function(msg){
 								//alert (msg);
-								location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
+								location.href="<?php print build_url("", "") ?>";
 							}
 						});
 					}
-					location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
+					location.href="<?php print build_url("", "") ?>";
 				}
 			});
 		} else {
@@ -382,8 +412,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 				url: "alarm_group_response.php?only_close="+index+selected_group,
 				data: "",
 				success: function(msg){
-					//alert (msg);
-					location.href="<?php print build_url("close_group", "") ?>" +  "&close_group=" + selected_group + "&unique_id=<?=$unique_id?>&group_type=<?php echo $group_type ?>";
+					location.href="<?php print build_url("", "") ?>";
 				}
 			});
 		}
@@ -600,7 +629,7 @@ $tree_count = 0;
     </td>
 </tr>
 ';
-    print '<tr ><th colspan="4" style="padding:5px"><input type="submit" class="button" value="' . _("Go") . '"></th></tr></table>';
+    print '<tr ><th colspan="4" style="padding:5px"><input type="submit" class="button" value="' . _("Go") . '"> <div id="loading_div" style="display:inline"></div></th></tr></table>';
     print '<br>';
 ?>
 <table cellpadding=0 cellspacing=1 width='100%'>
@@ -714,12 +743,12 @@ $tree_count = 0;
 				$group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
 			}
 		
-		$delete_link = ($status == "open" && $owner_take) ? "<a title='" . gettext("Close") . "' href='alarm_group_console.php?group_type=$group_type&close_group=$group_id&unique_id=$unique_id'><img border=0 src='../pixmaps/cross-circle-frame.png'/>" . "</a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'/>";
+		$delete_link = ($status == "open" && $owner_take) ? "<a title='" . gettext("Close") . "' href=''><img border=0 src='../pixmaps/cross-circle-frame.png'/>" . "</a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'/>";
         if ($status == 'open') {
-            if ($owner_take) $close_link = "<a href='alarm_group_console.php?group_type=$group_type&close_group=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'><img src='../pixmaps/lock-unlock.png' alt='"._("Open, click to close group")."' title='"._("Open, click to close group")."' border=0></a>";
+            if ($owner_take) $close_link = "<a href='' onclick=\"close_group('".$group_id."','".$group['name']."','".$group['ip_src']."','".$group['ip_dst']."','".$group['date']."');return false\"><img src='../pixmaps/lock-unlock.png' alt='"._("Open, click to close group")."' title='"._("Open, click to close group")."' border=0></a>";
             else $close_link = "<img src='../pixmaps/lock-unlock.png' alt='"._("Open, take this group then click to close")."' title='"._("Open, take this group then click to close")."' border=0>";
         } else {
-            if ($owner_take) $close_link = "<a href='alarm_group_console.php?group_type=$group_type&open_group=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'><img src='../pixmaps/lock.png' alt='"._("Closed, click to open group")."' title='"._("Closed, click to open group")."' border=0></a>";
+            if ($owner_take) $close_link = "<a href='' onclick=\"open_group('".$group_id."','".$group['name']."','".$group['ip_src']."','".$group['ip_dst']."','".$group['date']."');return false\"><img src='../pixmaps/lock.png' alt='"._("Closed, click to open group")."' title='"._("Closed, click to open group")."' border=0></a>";
             else $close_link = "<img src='../pixmaps/lock.png' alt='"._("Closed, take this group then click to open")."' title='"._("Closed, take this group then click to open")."' border=0>";
             $group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
         }
@@ -742,7 +771,7 @@ $tree_count = 0;
 				</tr>
 			</table>
 		</th>
-		<th style='text-align: center; border-width: 0px; background: <?=$background?>' width='7%'><?=$close_link?></th>
+		<th style='text-align: center; border-width: 0px; background: <?=$background?>' id='lock_<?php echo $group_id ?>' width='7%'><?=$close_link?></th>
 		<td width='7%' style='text-decoration: none;'><?=$delete_link?> <?=$incident_link?></td>
 	</tr>
 	<tr>
