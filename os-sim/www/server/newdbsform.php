@@ -71,8 +71,8 @@ Session::logcheck("MenuPolicy", "PolicyServers");
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-			echo "#table_form {background: transparent; width: 400px;}";
-		    echo "#table_form th {width: 130px;}";
+			echo "#table_form {background: transparent; width: 500px;}";
+		    echo "#table_form th {width: 150px;}";
 		}
 		else
 		{

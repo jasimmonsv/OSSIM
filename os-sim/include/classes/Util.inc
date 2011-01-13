@@ -698,7 +698,12 @@ class Util {
     
     function utf8_encode2($string) {
         return (Util::is_utf8($string)) ? $string : utf8_encode($string);
-    }
+	}
+	
+	function htmlentities($string) {
+        return preg_replace('/&amp;#(\d{4,5});/', '&#$1;', htmlentities($string));
+	}
+	
     function is_utf8($str) {
         $cur_encoding = mb_detect_encoding($str);
  		if ($cur_encoding == "UTF-8" && mb_check_encoding($str,"UTF-8"))

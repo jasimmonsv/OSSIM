@@ -77,6 +77,31 @@ CREATE TABLE IF NOT EXISTS host_apps (
   KEY `ip` (`ip`)
 );
 
+DROP TABLE IF EXISTS `host_agentless`;
+CREATE TABLE IF NOT EXISTS `host_agentless` (
+  `ip` varchar(15) NOT NULL,
+  `hostname` varchar(128) NOT NULL,
+  `user` varchar(128) NOT NULL,
+  `pass` varchar(128) NOT NULL,
+  `ppass` varchar(128) default NULL,
+  `descr` varchar(255) default NULL,
+  `status` int(15) NOT NULL default '0',
+  PRIMARY KEY  (`ip`),
+  KEY `search` (`hostname`,`user`)
+);
+
+DROP TABLE IF EXISTS `host_agentless_entries`;
+CREATE TABLE IF NOT EXISTS `host_agentless_entries` (
+  `id` int(11) NOT NULL auto_increment,
+  `ip` varchar(15) collate latin1_general_ci NOT NULL,
+  `type` varchar(64) collate latin1_general_ci NOT NULL,
+  `frecuency` int(10) NOT NULL,
+  `state` varchar(20) collate latin1_general_ci NOT NULL,
+  `arguments` varchar(255) collate latin1_general_ci default NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `ip` (`ip`,`type`)
+);
+
 DROP TABLE IF EXISTS net;
 CREATE TABLE net (
   name              varchar(128) UNIQUE NOT NULL,

@@ -642,7 +642,38 @@ class Status {
 		return array($max_date,$foundrows,$max_prio,$prionum);
 	}
 	
-	function range_graphic($timerange) {
+	function range_graphic($timerange,$date_range=null) {
+		// for custom
+		if($date_range!=null){
+			if($timerange=='custom'){
+				$date_from_div=explode('-',$date_range['date_from']);
+				$date_to_div=explode('-',$date_range['date_to']);
+				// calculate number of days
+				$date_from_op=gregoriantojd ($date_from_div[1],$date_from_div[2],$date_from_div[0]);
+				$date_to_op=gregoriantojd ($date_to_div[1],$date_to_div[2],$date_to_div[0]);
+				$n_days=$date_to_op-$date_from_op+1;
+				//
+				$date_range['date_from'].=' 00:00:00';
+				$date_range['date_to'].=' 23:59:59';
+				if($n_days==1){
+					$timerange='day';
+				}elseif($n_days>1&&$n_days<=7){
+					$timerange='week';
+				}elseif($n_days>7&&$n_days<=31){
+					$timerange='weeks';
+				}elseif($n_days>31&&$n_days<=155){
+					$timerange='custom1';
+					echo 'que pasa neng! :)';
+				}elseif($n_days>155&&$n_days<=365){
+					$timerange='custom2';
+					echo 'que pasa neng 2! :)';
+				}elseif($n_days>365){
+					$timerange='custom3';
+					echo 'que pasa neng 3! :)';
+				}
+			}
+		}
+		//	
 		switch ($timerange) {
 			case "today":
 				$desde = strtotime(date("Y-m-d 00:00:00"));
@@ -655,45 +686,102 @@ class Status {
 				break;
 
 			case "day":
-				$desde = strtotime("-23 hour");
+				if($date_range!=null){
+					$desde = strtotime($date_range['date_from']);
+					$hasta = strtotime($date_range['date_to']);
+				}else{
+					$desde = strtotime("-23 hour");
+					$hasta = time() + $jump;
+				}
 				$suf = "";
 				$jump = 3600;
 				$noprint = 3;
 				$interval = "G\h jM";
 				$key = "G j";
-				$hasta = time() + $jump;
 				break;
 
 			case "week":
-				$desde = strtotime("-1 week");
+				if($date_range!=null){
+					$desde = strtotime($date_range['date_from']);
+					$hasta = strtotime($date_range['date_to']);
+				}else{
+					$desde = strtotime("-1 week");
+					$hasta = time();
+				}
 				$suf = "";
 				$jump = 86400;
 				$noprint = 1;
 				$interval = "j M";
 				$key = "j F";
-				$hasta = time();
 				break;
 
 			case "weeks":
-				$desde = strtotime("-2 week");
+				if($date_range!=null){
+					$desde = strtotime($date_range['date_from']);
+					$hasta = strtotime($date_range['date_to']);
+				}else{
+					$desde = strtotime("-2 week");
+					$hasta = time();
+				}
 				$suf = "";
 				$jump = 86400;
 				$noprint = 3;
 				$interval = "j M";
 				$key = "j F";
-				$hasta = time();
 				break;
 
 			case "month":
-				$desde = strtotime("-1 month");
+				if($date_range!=null){
+					$desde = strtotime($date_range['date_from']);
+					$hasta = strtotime($date_range['date_to']);
+				}else{
+					$desde = strtotime("-1 month");
+					$hasta = time();
+				}
 				$suf = "";
-				$jump = 86400;
+				$jump = 86400; // se muestra por dia
 				$noprint = 3;
 				$interval = "j M";
 				$key = "j F";
-				$hasta = time();
 				break;
-
+				
+			case "custom1":
+				$desde = strtotime($date_range['date_from']);
+				$hasta = strtotime($date_range['date_to']);
+				$suf = "";
+				$jump = 1296000; //se muestra por mes  2592000 1296000
+				$noprint = 2;  // se imprime cada x valores, por ejemplo si es 2 se imprime 1 3 5 de 1 2 3 4 5 6
+				$interval = "d M y";
+				$key = "d M y";
+				break;
+				
+			case "custom2":
+				$desde = strtotime($date_range['date_from']);
+				$hasta = strtotime($date_range['date_to']);
+				$suf = "";
+				$jump = 2592000; //se muestra por mes  2592000 1296000
+				$noprint = 1;  // se imprime cada x valores, por ejemplo si es 2 se imprime 1 3 5 de 1 2 3 4 5 6
+				$interval = "d M y";
+				$key = "d M y";				
+				break;
+				
+			case "custom3":
+				$desde = strtotime($date_range['date_from']);
+				$hasta = strtotime($date_range['date_to']);
+				$suf = "";
+				$jump = 31104000; //se muestra por mes  2592000 1296000
+				$noprint = 1;  // se imprime cada x valores, por ejemplo si es 2 se imprime 1 3 5 de 1 2 3 4 5 6
+				$interval = "d M y";
+				$key = "d M y";
+				
+				//$jump = 24;
+				
+				//$interval = "G\h j M";
+				//$key = "G j";
+				
+				
+				break;
+				
 			default:
 				$desde = strtotime("-11 month");
 				$suf = "";

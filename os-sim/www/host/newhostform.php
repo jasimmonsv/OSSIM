@@ -104,7 +104,7 @@ if ( !empty ($scan) )
 }
 else
 {
-	$action = $action = "newhost.php";
+	$action = "newhost.php";
 	$submit_function  = "check_host()";
 }
 
