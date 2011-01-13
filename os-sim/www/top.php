@@ -82,7 +82,7 @@ switch ($conf->get_conf("bi_type", FALSE)) {
     case "jasperserver":
     default:
         if ($conf->get_conf("bi_host", FALSE) == "localhost") {
-            $bi_host = $_SERVER["SERVER_ADDR"];
+            $bi_host = $_SERVER["SERVER_NAME"];
         } else {
             $bi_host = $conf->get_conf("bi_host", FALSE);
         }
