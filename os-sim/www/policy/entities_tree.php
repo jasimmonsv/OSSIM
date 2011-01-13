@@ -67,7 +67,7 @@ $ossim_nets = array();
 $all_cclass_hosts = array();
 $buffer = "";
 
-if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) 
+if ($host_list = Host::get_list_pag($conn, "", "ORDER BY hostname")) {
 	foreach($host_list as $host) 
 		if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) 
 		{
@@ -88,7 +88,7 @@ if ($host_list = Host::get_list($conn, "", "ORDER BY hostname"))
 			}
 		}
 	}
-	
+}
 $wherenet = ($filter!="") ? "WHERE ips like '%$filter%' ORDER BY name" : "ORDER BY name";
 $net_list = Net::get_list($conn, $wherenet);
 
