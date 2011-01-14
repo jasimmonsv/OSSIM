@@ -123,6 +123,9 @@ $keys = array_keys($menu);
 <style>
 html, body {height:100%;overflow-y:auto;overflow-x:hidden}
 </style>
+<link type="text/css" href="style/default/jx.stylesheet.css" rel="stylesheet" />
+<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.jixedbar.js"></script>
 <script src="js/accordian.js" type="text/javascript" ></script>
 <script>
 var newwindow;
@@ -134,12 +137,13 @@ function new_wind(url,name)
 function fullwin(){
 	window.open("index.php","main_window","fullscreen,scrollbars")
 }
-function init() {
-		new Accordian('basic-accordian',5,'header_highlight');
-}
+$(document).ready(function() {
+	new Accordian('basic-accordian',5,'header_highlight');
+	$("#side-bar").jixedbar();
+}); 
 </script>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' onload="init()" bgcolor="#D2D2D2">
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' bgcolor="#D2D2D2">
 
 <table width="100%" height="100%" border='0' cellpadding='0' cellspacing='0' style="border:1px solid #AAAAAA">
 <tr><td valign="top">
@@ -231,6 +235,7 @@ foreach($menu as $name => $opc) if ($name != "Logout") {
 	</div>
 
 </td></tr>
+<!--
 <tr><td height="26" class="outmenu">
 		<img src="pixmaps/user-green.png" width="12" border=0 align="absmiddle"> &nbsp; <a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile";?>" target="main"><font color="black"><?php echo _("My Profile")?></font></a>
 </td></tr>
@@ -256,7 +261,36 @@ if(Session::am_i_admin()){
 <?php 
 }
 ?>
+-->
+<tr><td height="26" class="outmenu" style="color:gray">
+	&copy; AlienVault SIEM <?php echo $conf->get_conf("ossim_schema_version", FALSE) ?>
+</td></tr>
 </table>
+
+<div id="side-bar">
+
+        <span class="jx-separator-left"></span>
+		<ul>        
+            <li title="<?php echo _("User options")?>"><a href="#"><img src="pixmaps/myprofile.png" alt="<?php echo Session::get_session_user()?>" /></a>
+                <ul>
+		            <li title="<?php echo _("Logout")?>"><a href="session/login.php?action=logout"><img src="pixmaps/logout.png">&nbsp;&nbsp;&nbsp;<?php echo _("Logout")?></a></li>
+		            <li title="<?php echo _("My Profile")?>"><a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile";?>" target="main"><img src="pixmaps/myprofile.png" alt="" />&nbsp;&nbsp;&nbsp;<?php echo _("My Profile")?></a></li>
+					<li title="<?php echo _("Opened Sessions")?>"><a href="userlog/opened_sessions.php?hmenu=Sessions&smenu=Sessions" target="main"><img src="pixmaps/sessions.png">&nbsp;&nbsp;&nbsp;<?php echo _("Opened Sessions")?></a></li>
+                </ul>
+            </li>
+        </ul>
+        <span class="jx-separator-left"></span>        
+        <ul>
+        	<li title="<?php echo _("Maximize")?>"><a href="#" onClick="fullwin()"><img src="pixmaps/maximize.png"></a></li>
+        </ul>
+		<?php if(Session::am_i_admin()) { ?>
+        <span class="jx-separator-left"></span> 
+        <ul>
+        	<li title="<?php echo _("Status")?>"><a href="sysinfo/index.php" target="main"><img src="pixmaps/status.png"></a></li>
+        </ul>
+        <?php } ?>
+        <span class="jx-separator-right"></span>
+</div>
 
 </td><!-- <td style="background:url('pixmaps/menu/dg_gray.gif') repeat-y top left;width:6"><img src="pixmaps/menu/dg_gray.gif"></td> -->
 </tr>
@@ -270,7 +304,7 @@ if ($url != "") {
 <script> window.open('<?php echo $url . (preg_match("/\?/", $url) ? "&" : "?") . "hmenu=" . urlencode(($hoption=="Policy" && $moption!="Actions") ? $hoption : $moption) . "&smenu=" . urlencode($moption) ?>', 'main') </script>
 <? }
 }
-$OssimWebIndicator->update_display();
+//$OssimWebIndicator->update_display();
 ?>
 </body>
 </html>
