@@ -151,10 +151,7 @@ else
 				{
 					$agent       = $agents[count($agents)-2];
 					$agent_field = explode(",", $agent);
-					
-					var_dump(is_array($agent_field));
-					
-					
+										
 					if (count($agents) == 1 )
 					{
 						$header = "<tr>
