@@ -81,11 +81,11 @@ DROP TABLE IF EXISTS `host_agentless`;
 CREATE TABLE IF NOT EXISTS `host_agentless` (
   `ip` varchar(15) NOT NULL,
   `hostname` varchar(128) NOT NULL,
-  `user` varchar(128) NOT NULL,
-  `pass` varchar(128) NOT NULL,
+  `user` varchar(128) default NULL,
+  `pass` varchar(128) default NULL,
   `ppass` varchar(128) default NULL,
   `descr` varchar(255) default NULL,
-  `status` int(15) NOT NULL default '0',
+  `status` int(2) NOT NULL default '1',
   PRIMARY KEY  (`ip`),
   KEY `search` (`hostname`,`user`)
 );
