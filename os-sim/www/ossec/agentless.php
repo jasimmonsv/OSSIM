@@ -34,6 +34,7 @@ require_once ('classes/Session.inc');
 
 $info_error = null;
 $retval     = null;
+$error      = false;
 
 exec ("sudo /var/ossec/bin/ossec-control enable agentless", $output, $retval);
 if ($retval !== 0)
@@ -45,7 +46,7 @@ if ($retval !== 0)
 if ($error != true)
 {
 	exec('expect -version', $output, $retval);	
-	
+		
 	if ($retval !== 0)
 	{
 		$info_error = "You don't have the <span class='ibold'>expect library</span> installed on the server. <br/>You can do the following to install: <b># apt-get install expect</b>";
@@ -53,9 +54,10 @@ if ($error != true)
 	}
 	else
 	{	
-		exec('ls /var/ossec/agentless/.passlist', $output, $retval);	
-
-		if ($retval === 0)
+		$output = null;
+		exec('ls -la /var/ossec/agentless/.passlist', $output, $retval);	
+			
+		if ($retval !== 0)
 			exec('touch /var/ossec/agentless/.passlist', $output);	
 	}
 }
@@ -69,16 +71,34 @@ if ($error != true)
 	$category    = "ossec";
 	$name_layout = "agentless_layout";
 	$layout      = load_layout($name_layout, $category);
+	
+	$output = null;
+	exec(' sudo /var/ossec/agentless/register_host.sh list', $output, $retval);	
 
-	$db   = new ossim_db();
-	$conn = $db->connect();
+	$status 	  = null;
+	$apply_status = ( file_exists ("/var/ossec/agentless/.reload") ) ? "reload_red" : "reload";
+	
+	if ( count($output) == 1 ) 
+		$status = array ("not_configured", _("Not configured"));
+	else
+	{
+		$output = null;
+		exec ("sudo /var/ossec/bin/ossec-control status",  $output);
 		
-	$status = ""; 
+		$output = implode("\n", $output);
+		$pattern = '/ossec-agentlessd not running/';
+		
+		if ( preg_match($pattern, $output) )
+			$status = array ("not_running", _("Not running"));
+		else
+			$status = array ("running", _("Running"));
 
-	$db->close($conn);
-
+	}
+	
+	
+	
+	
 }
-
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -131,8 +151,8 @@ if ($error != true)
 				if (typeof(items[0]) != 'undefined') {
 					if( confirm('<?php echo _("Are you sure?") ?>') )
 					{
-						var sdata = items[0].id.substr(3).split('#');
-						document.location.href = 'al_delete.php?ip='+urlencode(sdata[0]);
+						var sdata = items[0].id.substr(3);
+						document.location.href = 'al_delete.php?ip='+urlencode(sdata);
 					}
 				}
 				else 
@@ -142,8 +162,8 @@ if ($error != true)
 			{
 				if (typeof(items[0]) != 'undefined')
 				{
-					var sdata = items[0].id.substr(3).split('#');
-					document.location.href = 'al_modifyform.php?ip='+urlencode(sdata[0]);
+					var sdata = items[0].id.substr(3);
+					document.location.href = 'al_modifyform.php?ip='+urlencode(sdata);
 				}
 				else
 					alert('<?=_("You must select a host")?>');
@@ -154,12 +174,12 @@ if ($error != true)
 			}
 			else if (com=='<?php echo _("Enable/Disabled")?>')
 			{
-					var sdata = items[0].id.substr(3).split('#');
-					document.location.href = 'al_enable.php?ip='+urlencode(sdata[0]);
+				var sdata = items[0].id.substr(3);
+				document.location.href = 'al_enable.php?ip='+urlencode(sdata);
 			}
 			else if (com=='<?php echo _("Apply Configuration")?>')
 			{
-				document.location.href = '../conf/reload.php?what=agentless&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>'
+				document.location.href = 'al_apply_conf.php';
 			}
 		}
 		
@@ -234,9 +254,9 @@ if ($error != true)
 					{separator: true},
 					{name: '<?php echo _("Enable/Disabled")?>',     bclass: 'enable', onpress : action},
 					{separator: true},
-					{name: '<?php echo _("Apply Configuration")?>', bclass: '<?php echo (WebIndicator::is_on("Reload_sensors")) ? "reload_red" : "reload" ?>', onpress : action},
+					{name: '<?php echo _("Apply Configuration")?>', bclass: '<?php echo $apply_status?>', onpress : action},
 					{separator: true},
-					{name: '<a href="agentless.php"><?=_("Agentless Status")?></a>: <?php echo $status ?>', bclass: 'info', iclass: 'ibutton'}
+					{name: '<a href="ossec_control.php"><?php echo _("Agentless Status")?></a>: <?php echo $status[1] ?>', bclass: '<?php echo $status[0] ?>', iclass: 'ibutton'}
 				],
 				sortname: "<?php echo $sortname ?>",
 				sortorder: "<?php echo $sortorder ?>",
@@ -283,6 +303,10 @@ if ($error != true)
 		}
 		.contextMenu a {padding-left: 10px !important;}
 		.ibold {font-weight: bold; font-style:italic;}
+		
+		.not_configured {color:#504D4D;}
+		.not_running {color:#E54D4D;}
+		.running {color:#15B103';}
 		
 	</style>
 </head>

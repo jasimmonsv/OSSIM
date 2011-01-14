@@ -53,6 +53,7 @@ then
         echo "www-data ALL=NOPASSWD: /var/ossec/bin/agent_control" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /var/ossec/bin/manage_agents" >> /etc/sudoers
 		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/agentless/register_host.sh" >> /etc/sudoers
 fi
 
 
@@ -148,10 +149,14 @@ fi
 chmod o+rx /var/ossec
 chmod o+rx /var/ossec/etc
 chmod -R o+r /var/ossec/rules
-chmod o+rwx /var/ossec/rules
+chmod u+rwx /var/ossec/rules
+chmod u+rwx /var/ossec/agentless
 
 chmod u+w /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 chown www-data /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
+chown www-data:ossec /var/ossec/agentless
+
+
 
 # Sem log file
 if [ ! -d /var/log/ossim/ ]; then

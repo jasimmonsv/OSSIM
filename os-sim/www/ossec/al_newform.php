@@ -52,6 +52,10 @@ if ( empty ($step) )
 {
 	unset($_SESSION['_al_new']);
 	
+	/*
+	
+	Test values
+	
 	$hostname    = "Host";
 	$ip          = "192.168.10.15";  	
 	$user        = "admin"; 
@@ -60,6 +64,8 @@ if ( empty ($step) )
 	$ppass       = "pass";
 	$ppassc      = "pass";
 	$descr	     = "pass";
+	
+	*/
 	
 	$action_form = "al_newform.php";
 }
