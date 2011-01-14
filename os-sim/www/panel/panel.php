@@ -101,10 +101,10 @@ $_GET['panel_id'] = $panel_id;
 if (Session::menu_perms("MenuControlPanel", "ControlPanelExecutiveEdit")) {
     if (isset($_GET['edit'])) {
         $show_edit = true;
-        $_SESSION['ex_panel_can_edit'] = $can_edit = GET('edit') ? true : false;
+        $_SESSION['ex_panel_can_edit'] = $can_edit = (GET('edit') && $tabsavt[$panel_id] == "") ? true : false;
         $_SESSION['ex_panel_show_edit'] = true;
     } else if (isset($_SESSION['ex_panel_can_edit']) && isset($_SESSION['ex_panel_show_edit'])) {
-        $can_edit = $_SESSION['ex_panel_can_edit'];
+        $can_edit = ($tabsavt[$panel_id] != "") ? false : $_SESSION['ex_panel_can_edit'];
         $show_edit = $_SESSION['ex_panel_show_edit'];
     } else {
         $can_edit = false;
@@ -142,6 +142,7 @@ if (GET('edit_tabs') == 1) {
 			$truncmsg = _("Warning: Tab name too long, truncated to 15 characters.");
 		}
         $tab_icon_url = str_replace("slash_special_char","/",GET('tab_icon_url'));
+        if ($tab_icon_url == "") { $tab_icon_url = "../risk_maps/pixmaps/standard/Hacker.png"; }
 		$tab_disable = ($tabs[$tab_id]['disable']) ? $tabs[$tab_id]['disable'] : 0;
 		$avt = GET('clonefrom');
 		/**/
@@ -257,6 +258,7 @@ if (GET('edit_tabs') == 1) {
 	if ($dir=="custom") $standard_dir = "pixmaps/uploaded/";
 	if ($dir=="flags") $standard_dir = "pixmaps/flags/";
 	$icons = explode("\n",`ls -1 '$standard_dir'`);
+	$icons2 = explode("\n",`ls -1 '../risk_maps/pixmaps/uploaded/'`);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -270,9 +272,11 @@ if (GET('edit_tabs') == 1) {
 	}
 	function choose_icon(frm,icon_url,icon_url_coded,tab_id) {
 		frm.tab_icon_url.value = icon_url_coded;
-		if (icon_url != "") document.getElementById('tab_icon_img_'+tab_id).innerHTML = "<a href='' onclick=\"show_icons("+tab_id+");return false\"><img src='"+icon_url+"'></a>";
+		if (icon_url != "") document.getElementById('tab_icon_img_'+tab_id).innerHTML = "<a href='' onclick=\"show_icons("+tab_id+");return false\"><img src='"+icon_url+"' width='20' height='20'></a>";
 		else document.getElementById('tab_icon_img_'+tab_id).innerHTML = '<input type="button" class="lbutton" onclick="show_icons('+tab_id+')" value="<?php echo _("Choose")?>">';
 		document.getElementById('icons_'+tab_id).style.display = "none";
+		document.getElementById('ftabs'+tab_id).mode.value='update';document.getElementById('ftabs'+tab_id).submit();
+		
 	}
 	function show_icons(tab_id) {
 		document.getElementById('icons_'+tab_id).style.display = "block";
@@ -345,7 +349,7 @@ if (GET('edit_tabs') == 1) {
 			
 		<?php 
 		if ($tabs[$tab_id]["tab_icon_url"]) { ?>
-			<a href="" onclick="show_icons('<?php echo $tab_id ?>');return false"><img src="<?php echo $tabs[$tab_id]["tab_icon_url"] ?>"></a>
+			<a href="" onclick="show_icons('<?php echo $tab_id ?>');return false"><img src="<?php echo $tabs[$tab_id]["tab_icon_url"] ?>" height="20"></a>
 		<?php 	
 		} 
 		else { ?>
@@ -380,7 +384,14 @@ if (GET('edit_tabs') == 1) {
 			  if(!$ico)continue;
 			  if(is_dir($standard_dir . "/" . $ico) || !getimagesize($standard_dir . "/" . $ico)){ continue;}
 			  $ico2 = preg_replace("/\..*/","",$ico);
-			  print "<a href=\"javascript:choose_icon(document.ftabs$tab_id,'$standard_dir/$ico','".str_replace("/","slash_special_char",$standard_dir."/".$ico)."',$tab_id)\" title=\"Click to choose $ico2\"><img src=\"$standard_dir/$ico\" style='margin:10px' border=0></a>&nbsp;";
+			  print "<a href=\"javascript:choose_icon(document.ftabs$tab_id,'$standard_dir/$ico','".str_replace("/","slash_special_char",$standard_dir."/".$ico)."',$tab_id)\" title=\"Click to choose $ico2\"><img src=\"$standard_dir/$ico\" style='margin:10px' border=0 width='20' height='20'></a>&nbsp;";
+			}
+			$custom_dir = "../risk_maps/pixmaps/uploaded/";
+			foreach($icons2 as $ico){
+			  if(!$ico)continue;
+			  if(is_dir($custom_dir . "/" . $ico) || !getimagesize($custom_dir . "/" . $ico)){ continue;}
+			  $ico2 = preg_replace("/\..*/","",$ico);
+			  print "<a href=\"javascript:choose_icon(document.ftabs$tab_id,'$custom_dir/$ico','".str_replace("/","slash_special_char",$custom_dir."/".$ico)."',$tab_id)\" title=\"Click to choose $ico2\"><img src=\"$custom_dir/$ico\" style='margin:10px' border=0 width='20' height='20'></a>&nbsp;";
 			}
 			?>
 			<br/>
@@ -809,6 +820,16 @@ if ($tabs[$panel_id]['disable'] == 1) die(_("The panel you want to show is disab
 // tab url
 $menu_opc=GET('hmenu');
 $menu_sopc=GET('smenu');
+
+if (GET('edit') && $tabsavt[$panel_id] != "") {
+	$last_tab_id = - 1;
+	foreach($tabs as $tab_id => $tab_values) {
+		if ($last_tab_id < $tab_id) $last_tab_id = $tab_id;
+	}
+	if ($last_tab_id < 1) $last_tab_id = 1;
+	?>
+<span align="center"><?php echo _("This tab can not be edited, ") ?><a href="panel.php?edit_tabs=1&panel_id=<?php echo $panel_id ?>&mode=clone&clonefrom=<?php echo $panel_id ?>&tab_name=<?php echo $tabsavt[$panel_id]['tab_name'] ?>Clone&tab_id=<?php echo $last_tab_id + 1 ?>">click here</a><?php echo _(" to clone and edit a copy of this tab") ?>. <i>[You will create a new tab called '<b><?php echo $tabsavt[$panel_id]['tab_name'] ?>Clone</b>']</i></span>
+<?php exit; }
 
 if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 ?>
