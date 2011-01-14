@@ -2,6 +2,20 @@
 
 case "$1" in
     upgrade|configure)
+        # Execute ossim-reconfig
+        #if [ -x /usr/bin/ossim-reconfig ]; then
+        #    if [ -x /usr/bin/postpone ]; then
+        #        /usr/bin/postpone --verbose --lock /var/run/ossim-reconfig.lock --output /tmp/ossim-reconfig.XXXXXX --debian /usr/bin/ossim-reconfig -v -c --dpkg
+        #    else
+        #        /usr/bin/ossim-reconfig -v -c --dpkg
+        #    fi
+        #else
+        #    echo "#######################################"
+        #    echo "#######################################"
+        #    echo "Please run ossim-reconfig after install"
+        #    echo "#######################################"
+        #    echo "#######################################"
+        #fi
 
     ;;
     abort-upgrade|abort-remove|abort-deconfigure)
