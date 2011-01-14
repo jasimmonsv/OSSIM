@@ -55,33 +55,32 @@ $ip = GET('ip');
 	<h1> <?php echo gettext("Delete Agentless Host"); ?> </h1>
 
 <?php
-
+$txt_error = null;
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
 
 if ( ossim_error() ) 
-	echo "<div class='ossim_error'><div class='center'>".ossim_get_error()."</div></div>";
+	$txt_error = ossim_get_error();
 else
 {
-	$db = new ossim_db();
-	$conn = $db->connect();
+	$db        = new ossim_db();
+	$conn      = $db->connect();
 		
-	//$res = Agentless::delete_host_data($conn, $ip);
-	$db->close($conn);
+	$res       = Agentless::delete_host_data($conn, $ip);
+	$txt_error = ( $res == false ) ? _("Error to delete host") : null;
 	
-	$res = false;
-			
-	if ( $res == false)
-	{
-		$txt_error = _("Error to delete host");				
-		Util::print_error($txt_error);	
-		Util::make_form("POST", "agentless.php");
-		die();
-	}
-	else
-	{
-		echo "<p>"._("Host group succesfully updated")."</p>";
-		echo "<script>document.location.href='agentless.php'</script>";
-	}
+	$db->close($conn);
+}
+
+
+if ( !empty($txt_error) )
+{
+	Util::print_error($txt_error);	
+	Util::make_form("POST", "agentless.php");
+}
+else
+{
+	echo "<p>"._("Host succesfully deleted")."</p>";
+	echo "<script>document.location.href='agentless.php'</script>";
 }
 
 ?>

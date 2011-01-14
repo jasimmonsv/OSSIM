@@ -39,19 +39,27 @@
 * - get_password()
 * - get_password_type()
 * - get_descr()
+* - get_list()
+* - get_list_pag()
+* - get_list_m_entries()
 * - add_monitoring_entry()
 * - delete_monitoring_entry()
 * - modify_monitoring_entry()
 * - add_host_data()
 * - modify_host_data()
 * - delete_host_data()
-* - get_list_m_entries()
+* - change_status()
+* - enable_host()
+* - disable_host()
+* - get_list_ossec()
 * Classes list:
 * - Agentless
 */
 
-require_once 'classes/Host_os.inc';
 require_once 'classes/Session.inc';
+require_once 'classes/Security.inc';
+require_once 'classes/Host.inc';
+require_once 'classes/Host_os.inc';
 require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 
@@ -85,6 +93,37 @@ class Agentless {
     public function get_descr()     { return $this->descr;}
 	public function get_foundrows() { return $this->foundrows;}
 	
+	
+	function get_list($conn, $extra = "") {
+        mysql_escape_string($extra);
+        
+        $iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
+        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
+        $query = OssimQuery("SELECT $select FROM host_agentless $extra");
+		
+		$list = array();
+        
+		if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } 
+		else
+		{
+            $foundrows = 0;
+            if ($iffoundrows) {
+                if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) 
+					print $conn->ErrorMsg();
+                else 
+					$foundrows = $rf->fields["total"];
+            }
+            while (!$rs->EOF)
+			{
+                $list[$rs->fields["ip"]] = new Agentless( $rs->fields["ip"],     $rs->fields["hostname"],  $rs->fields["user"], 
+								    $rs->fields["pass"],  $rs->fields["descr"],  $foundrows, $rs->fields["status"],  $rs->fields["ppass"]);
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }
 
 	public function get_list_pag ($conn, $extra = "")
 	{
@@ -109,123 +148,13 @@ class Agentless {
             }
             while (!$rs->EOF)
 			{
-                $list[] = new Agentless( $rs->fields["ip"],     $rs->fields["hostname"],  $rs->fields["user"], 
-								    $rs->fields["pass"],  $rs->fields["descr"],  $foundrows, _("enabled"),  $rs->fields["ppass"]);
+                $list[$rs->fields["ip"]] = new Agentless( $rs->fields["ip"],     $rs->fields["hostname"],  $rs->fields["user"], 
+								    $rs->fields["pass"],  $rs->fields["descr"],  $foundrows, $rs->fields["status"],  $rs->fields["ppass"]);
                 $rs->MoveNext();
             }
         }
 		
         return $list;
-	}
-	
-	public function add_monitoring_entry($conn, $ip, $type, $frecuency, $state, $arguments)
-	{
-		$sql = "INSERT INTO host_agentless_entries (id, ip, type, frecuency, state, arguments) VALUES (?, ?, ?, ?, ?, ?)";
-        $params = array(
-            null,
-			$ip,
-            $type,
-			$frecuency,
-            $state,
-            $arguments
-        );
-		
-		if ($conn->Execute($sql, $params) === false)
-		{
-            //print 'Error Inserting Monitorig Host Entry: ' . $conn->ErrorMsg() . '<br/>';
-            return false;
-        } 
-		else
-		{
-            $sql = "SELECT last_insert_id( ) AS id FROM host_agentless_entries";
-			$params = array();
-			if (!$rs = & $conn->Execute($sql, $params)) 
-				return false;
-			else
-				return $rs->fields['id'];	
-        }
-	}
-	
-	public function delete_monitoring_entry($conn, $ip, $type, $id)
-	{
-		$sql = "DELETE FROM host_agentless_entries WHERE id=? AND ip=? AND type=?;";
-        $params = array(
-            $id,
-			$ip,
-			$type
-        );
-		
-		if ($conn->Execute($sql, $params) === false)
-		{
-            //print 'Error Deleting Monitorig Host Entry: ' . $conn->ErrorMsg() . '<br/>';
-            return false;
-        } 
-		else
-			return true;
-	}
-	
-	public function modify_monitoring_entry($conn, $type, $frecuency, $state, $arguments, $id)
-	{
-		$sql = "UPDATE FROM host_agentless_entries SET type=?, frecuency=?, state=?, arguments=? WHERE id=?;";
-        $params = array(
-            $type,
-			$frecuency,
-            $type,
-			$state,
-            $arguments,
-            $id
-        );
-		
-		if ($conn->Execute($sql, $params) === false)
-		{
-            //print 'Error Updating Monitorig Host Entry: ' . $conn->ErrorMsg() . '<br/>';
-            return false;
-        } 
-		else
-			return true;
-		
-	}
-	
-	public function add_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr)
-	{
-		$sql = "INSERT INTO host_agentless (ip, hostname, user, pass, ppass, descr) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $params = array(
-            $ip,
-            $hostname,
-			$user,
-			$pass,
-            $ppass,
-            $descr
-        );
-		
-		if ($conn->Execute($sql, $params) === false)
-		{
-            //print 'Error Inserting Monitorig Host Data: ' . $conn->ErrorMsg() . '<br/>';
-            return false;
-        } 
-		else
-		    return $rs->fields['id'];	
-    }
-	
-	public function modify_host_data ($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status=0)
-	{
-		$sql = "UPDATE FROM host_agentless SET hostname=?, user=?, pass=?, ppass=?, descr=? WHERE ip=?;";
-        $params = array(
-            $hostname,
-			$user,
-			$pass,
-            $ppass,
-            $descr,
-			$ip
-        );
-		
-		if ($conn->Execute($sql, $params) === false)
-		{
-            //print 'Error Updating Monitorig Host Data: ' . $conn->ErrorMsg() . '<br/>';
-            return false;
-        } 
-		else
-			return true;
 	}
 	
 	public function get_list_m_entries ($conn, $extra = "")
@@ -257,6 +186,134 @@ class Agentless {
         return $list;
 	}
 	
+	public function add_monitoring_entry($conn, $ip, $type, $frecuency, $state, $arguments)
+	{
+		$sql = "INSERT INTO host_agentless_entries (id, ip, type, frecuency, state, arguments) VALUES (?, ?, ?, ?, ?, ?)";
+        $params = array(
+            null,
+			$ip,
+            $type,
+			$frecuency,
+            $state,
+            $arguments
+        );
+		
+		if ($conn->Execute($sql, $params) === false)
+		{
+            //print 'Error Inserting Monitorig Host Entry: ' . $conn->ErrorMsg() . '<br/>';
+            return false;
+        } 
+		else
+		{
+            $sql = "SELECT last_insert_id( ) AS id FROM host_agentless_entries";
+			$params = array();
+			if (!$rs = & $conn->Execute($sql, $params)) 
+				return false;
+			else
+			{
+				exec('touch /var/ossec/agentless/.reload');	
+				return $rs->fields['id'];
+			}
+			
+        }
+	}
+	
+	public function delete_monitoring_entry($conn, $ip, $type, $id)
+	{
+		$sql = "DELETE FROM host_agentless_entries WHERE id=? AND ip=? AND type=?;";
+        $params = array(
+            $id,
+			$ip,
+			$type
+        );
+		
+		if ($conn->Execute($sql, $params) === false)
+		{
+            //print 'Error Deleting Monitorig Host Entry: ' . $conn->ErrorMsg() . '<br/>';
+            return false;
+        } 
+		else
+		{
+			exec('touch /var/ossec/agentless/.reload');	
+			return true;
+		}
+	}
+	
+	public function modify_monitoring_entry($conn, $type, $frecuency, $state, $arguments, $id)
+	{
+		$sql = "UPDATE host_agentless_entries SET type=?, frecuency=?, state=?, arguments=? WHERE id=?;";
+        $params = array(
+            $type,
+			$frecuency,
+            $type,
+			$state,
+            $arguments,
+            $id
+        );
+		
+		if ($conn->Execute($sql, $params) === false)
+		{
+            //print 'Error Updating Monitorig Host Entry: ' . $conn->ErrorMsg() . '<br/>';
+            return false;
+        } 
+		else
+		{
+			exec('touch /var/ossec/agentless/.reload');	
+			return true;
+		}
+		
+	}
+	
+	public function add_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr)
+	{
+		$sql = "INSERT INTO host_agentless (ip, hostname, user, pass, ppass, descr) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $params = array(
+            $ip,
+            $hostname,
+			$user,
+			$pass,
+            $ppass,
+            $descr
+        );
+		
+		if ($conn->Execute($sql, $params) === false)
+		{
+            //print 'Error Inserting Monitorig Host Data: ' . $conn->ErrorMsg() . '<br/>';
+            return false;
+        } 
+		else
+		{
+		    exec('touch /var/ossec/agentless/.reload');	
+			return $rs->fields['id'];	
+		}
+    }
+	
+	public function modify_host_data ($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status)
+	{
+		$sql = "UPDATE host_agentless SET hostname=?, user=?, pass=?, ppass=?, descr=?, status=? WHERE ip=?;";
+        $params = array(
+            $hostname,
+			$user,
+			$pass,
+            $ppass,
+            $descr,
+			$status,
+			$ip
+        );
+		
+				
+		if ($conn->Execute($sql, $params) === false)
+		{
+            print 'Error Updating Monitorig Host Data: ' . $conn->ErrorMsg() . '<br/>';
+            return false;
+        } 
+		else
+		{
+			exec('touch /var/ossec/agentless/.reload');	
+			return true;
+		}
+	}	
+	
 	public function delete_host_data($conn, $ip)
 	{
 		$sql = "DELETE FROM host_agentless_entries WHERE ip=?;";
@@ -279,10 +336,109 @@ class Agentless {
 			if ($conn->Execute($sql, $params) === false)
 				return false;
 			else
+			{
+				exec('touch /var/ossec/agentless/.reload');	
 				return true;
+			}
 		}
 			
 	}
+	
+	public function change_status($conn, $status)
+	{
+		$ip   	   = $this->get_ip();
+		$hostname  = $this->get_hostname();
+		$user      = $this->get_user();
+		$pass      = $this->get_pass();
+		$ppass     = $this->get_ppass();
+		$descr     = $this->get_descr();
+		
+		$res = $this->modify_host_data ($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status);
+		exec('touch /var/ossec/agentless/.reload');	
+						
+		return $res;
+	}
+	
+	public function enable_host($ip, $user, $pass, $ppass)
+	{
+		
+		$command = ( !empty($ppass) ) ? "sudo /var/ossec/agentless/register_host.sh add $user@$ip $pass $ppass" : "sudo /var/ossec/agentless/register_host.sh add $user@$ip $pass";
+		
+		exec ($command, $output, $retval);
+		
+		if ( $retval !== 0 )
+			return false;
+		else
+			return true;
+		
+	
+	}
+	
+	public function disable_host($ip, $user, $pass, $ppass)
+	{
+		$host = $user."@".$ip."|".$pass."|".$ppass;
+		
+		$available_hosts = file('/var/ossec/agentless/.passlist');
+		
+		if ( !is_array($available_hosts) )
+			return false;
+		
+		foreach ($available_hosts as $k => $v)
+		{
+			if ( preg_match("/$host/", $v) )
+			{
+				unset($available_hosts[$k]);
+				$res = file_put_contents('/var/ossec/agentless/.passlist', implode("", $available_hosts));
+				return ( $res == false ) ? false : true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public function get_list_ossec($conn)
+	{
+		$list = array();
+		
+		$available_hosts = file('/var/ossec/agentless/.passlist', FILE_IGNORE_NEW_LINES);
+		
+		if ( !is_array($available_hosts) )
+			return false;
+		else
+			$num_host = count($available_hosts);
+		
+		foreach ($available_hosts as $k => $v)
+		{
+			$add  = true;
+			
+			$data = explode("|", $v);
+			$user_host = explode("@", $data[0]);
+			$user      = $user_host[0];
+			$pass      = $data[2];
+			$ppass     = ( empty($data[2]) ) ? null : $data[2];
+			$descr     = null;
+			
+			if ( valid_ip($user_host[1]) )
+			{
+				$ip   	   = $user_host[1];
+				$hostname  = Host::ip2hostname($conn, $ip, true, false);
+				$hostname  = ( empty($hostname) ) ? $ip : $hostname;
+			}
+			else
+			{
+				$hostname = $user_host[1];
+				$ip       = Host::hostname2ip($conn, $hostname, true);   
+				$add      = ( empty($ip) ) ? false : true;
+			}
+			
+			if ($add == true)
+				$list[$ip] = new Agentless( $ip, $hostname, $user, $pass, $descr, $num_host, 2, $ppass);
+		}
+		
+		return $list;
+	
+	}
+	
 
 		
 	
