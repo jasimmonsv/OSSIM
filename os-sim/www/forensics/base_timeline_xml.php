@@ -24,7 +24,10 @@ if (!$rs = $conn->Execute($sql, $params)) {
 	exit;
 }
 
+$format_date = date("M d Y G:i:s")." GMT";
 $xml .= "<data>";
+
+if ($rs->EOF) $xml .= "<event start='$format_date' title='"._("No events matching your search criteria have been found")."' link='' icon=''>".htmlentities(_("No events matching your search criteria have been found"))."</event>";
 
 while( !$rs->EOF ) {
 	

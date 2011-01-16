@@ -93,7 +93,10 @@ else
 	$d = explode("-", $date[0]);
 	$t = explode(":", $date[1]);
 
-	$timestamp = mktime($t[0], $t[1], $t[2], $d[1], $d[2], $d[0]);
+	if ($t[0]!="")
+		$timestamp = mktime($t[0], $t[1], $t[2], $d[1], $d[2], $d[0]);
+	else
+		$timestamp = time();
 	$init_date = date("M d Y G:i:s", $timestamp)." GMT";
 	
 }
@@ -115,7 +118,10 @@ else
 	$d = explode("-", $date[0]);
 	$t = explode(":", $date[1]);
 
-	$timestamp = mktime($t[0], $t[1], $t[2], $d[1], $d[2], $d[0]);
+	if ($t[0]!="")
+		$timestamp = mktime($t[0], $t[1], $t[2], $d[1], $d[2], $d[0]);
+	else
+		$timestamp = time();
 	$end_date = date("M d Y G:i:s", $timestamp)." GMT";
 	
 }
