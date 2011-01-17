@@ -1471,6 +1471,14 @@ if (POST('update'))
             $pass_length_max = POST("value_$i");
             continue;
         }
+		if(POST("conf_$i") == "pass_expire")
+		{
+            $pass_expire_max = POST("value_$i");
+        }
+		if(POST("conf_$i") == "pass_expire_min")
+		{
+            $pass_expire_min = POST("value_$i");
+        }
         
 		if(in_array(POST("conf_$i"), $numeric_values) && (POST("value_$i")=="" || intval(POST("value_$i"))<0 ))
 		{
@@ -1512,6 +1520,10 @@ if (POST('update'))
     else
 	{
         $config->update("pass_length_max" , intval($pass_length_max));
+    }
+    // check valid expire min - max
+    if ($pass_expire_max * 60 * 24 < $pass_expire_min) {
+    	$config->update("pass_expire_min" , 0);
     }
 
     /*  $infolog = array(
