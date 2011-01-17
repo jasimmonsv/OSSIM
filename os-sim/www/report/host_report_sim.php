@@ -239,14 +239,18 @@ function plot_graphic($id, $height, $width, $xaxis, $yaxis, $xticks, $xlabel, $d
     $plot.= $urls.'</script>';
     return $plot;
 }
-list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
+
+
+
+list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
+//list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
 ?>
 
 <table align="center" width="100%" class="bordered">
 	<tr>
 		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu">SIEM Events</a></td>
 	</tr>
-	<?
+	<?php
 	// GRAPH
 	$graph = '<div id="plotareag" class="plot"></div>';
 	$yy = $sim_gplot;
@@ -496,5 +500,5 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
 			</table>
 		</td>
 	</tr>
-	<tr><td><table><tr><td style="text-align:left;font-size:10px"><?=gettext("Time range")?>: <b><?=gettext("Last Week")?></b></td><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target='topmenu'><b><?=gettext("More")?> >></b></a></td></tr></table></td></tr>
+	<tr><td><table><tr><?php /*<td style="text-align:left;font-size:10px"><?=gettext("Time range")?>: <b><?=gettext("Last Week")?></b></td>*/ ?><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target='topmenu'><b><?=gettext("More")?> >></b></a></td></tr></table></td></tr>
 </table>

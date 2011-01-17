@@ -214,17 +214,23 @@ class Status {
         }
 		return array($foundrows,$highrisk,$risknum,$date);
 	}
-	function get_SIM_Clouds ($ip_src="",$ip_dst="") {
+	function get_SIM_Clouds ($ip_src="",$ip_dst="",$date_range=null) {
 		require_once ('ossim_db.inc');
 		$dbsock = new ossim_db();
 		$db = $dbsock->snort_connect();
 		
-		if ($from_date == "") {
-			$from_date = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
-			$today = date("Y-m-d");
-		} else $today = $from_date;
-		if ($to_date == "") $to_date = strftime("%Y-%m-%d", time());
-		
+		// for custom
+		if($date_range!=null){
+			$from_date = $date_range['date_from'];
+			$to_date = $date_range['date_to'];
+		}else{
+			if ($from_date == "") {
+				$from_date = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
+				$today = date("Y-m-d");
+			} else $today = $from_date;
+			if ($to_date == "") $to_date = strftime("%Y-%m-%d", time());
+		}
+		//
 		// User sensor filtering
 		//$sensor_where = Status::get_sim_sensor_filter($db);
 		
@@ -663,13 +669,10 @@ class Status {
 					$timerange='weeks';
 				}elseif($n_days>31&&$n_days<=155){
 					$timerange='custom1';
-					echo 'que pasa neng! :)';
 				}elseif($n_days>155&&$n_days<=365){
 					$timerange='custom2';
-					echo 'que pasa neng 2! :)';
 				}elseif($n_days>365){
 					$timerange='custom3';
-					echo 'que pasa neng 3! :)';
 				}
 			}
 		}
@@ -773,13 +776,6 @@ class Status {
 				$noprint = 1;  // se imprime cada x valores, por ejemplo si es 2 se imprime 1 3 5 de 1 2 3 4 5 6
 				$interval = "d M y";
 				$key = "d M y";
-				
-				//$jump = 24;
-				
-				//$interval = "G\h j M";
-				//$key = "G j";
-				
-				
 				break;
 				
 			default:

@@ -1074,28 +1074,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsVServers") && $conf->get_conf("
 "id" => "Virtual Servers",
 "url" => "$ovcp_link"
 );*/
-if (Session::menu_perms("MenuMonitors", "MonitorsSensors")) { $monitors = 1;
-    $menu["Monitors"][] = array(
-        "name" => gettext("System") ,
-        "id" => "Sensors",
-        "url" => "sensor/sensor_plugins.php"
-    );
-    $hmenu["Sensors"][] = array(
-        "name" => gettext("Sensors") ,
-        "id" => "Sensors",
-        "url" => "sensor/sensor_plugins.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
-    );
-	if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) {
-		$hmenu["Sensors"][] = array(
-			"name" => gettext("User Activity") ,
-			"id" => "User Log",
-			"url" => "userlog/user_action_log.php",
-			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
-		);
-	}
-	
-}
+
 /*
 if (Session::menu_perms("MenuMonitors", "MonitorsRiskmeter")) $menu["Usage & Profiles"][] = array(
 "name" => gettext("Riskmeter") ,
@@ -1374,13 +1353,46 @@ if (Session::menu_perms("MenuTools", "ToolsDownloads")) { $tools = 1; //if (file
 }*/
 
 $hmenu["Sysinfo"][] = array(
-    "name" => gettext("System Status") ,
+    "name" => gettext("System Info") ,
     "id" => "Sysinfo",
-    "url" => "sysinfo/sysinfo.php",
-    "target" => "info", 
+    "url" => "sysinfo/index.php",
+    "target" => "main", 
     "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:sysinfo','Help');"
 );
-    
+
+if (Session::menu_perms("MenuMonitors", "MonitorsSensors")) { $monitors = 1;
+    /*$menu["Monitors"][] = array(
+        "name" => gettext("System") ,
+        "id" => "Sensors",
+        "url" => "sensor/sensor_plugins.php"
+    );*/
+    $hmenu["Sysinfo"][] = array(
+        "name" => gettext("Collection Status") ,
+        "id" => "Sensors",
+        "target" => "main",
+        "url" => "sensor/sensor_plugins.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
+    );
+	if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) {
+		$hmenu["Sysinfo"][] = array(
+			"name" => gettext("User Activity") ,
+			"id" => "User Log",
+			"url" => "userlog/user_action_log.php",
+			"target" => "main",
+			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
+		);
+	}
+	
+}
+
+$hmenu["Sysinfo"][] = array(
+    "name" => gettext("Opened Sessions") ,
+    "id" => "Sessions",
+    "url" => "userlog/opened_sessions.php",
+    "target" => "main",
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:opened_sessions','Help');"
+);
+
 /*
 if (Session::menu_perms("MenuTools", "ToolsRuleViewer")) $menu["Tools"][] = array(
 "name" => gettext("Rule Viewer") ,
@@ -1401,13 +1413,6 @@ if (Session::menu_perms("MenuTools", "Updates")) $menu["Tools"][] = array(
 );*/
 /* Logout */
 $menu["Logout"] = "session/login.php?action=logout"; // Plain url if no array entry
-
-$hmenu["Sessions"][] = array(
-    "name" => gettext("Opened Sessions") ,
-    "id" => "Sessions",
-    "url" => "userlog/opened_sessions.php",
-    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:opened_sessions','Help');"
-);
 
 $hmenu["Userprofile"][] = array(
     "name" => gettext("My Profile") ,

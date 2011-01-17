@@ -511,8 +511,14 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 	</td>
 </tr>
 </table>
+<?php
+if (GET('withoutmenu') != "1")
+{
+?>
     <p><input type="button" onclick="document.location.href='sensor.php'" class="button" value="<?=_("Back")?>"/></p>
-
+<?php
+}
+?>
 </body>
 </html>
 <? $db->close($conn); ?>

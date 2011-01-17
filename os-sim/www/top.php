@@ -275,7 +275,7 @@ if(Session::am_i_admin()){
                 <ul>
 		            <li title="<?php echo _("Logout")?>"><a href="session/login.php?action=logout"><img src="pixmaps/logout.png">&nbsp;&nbsp;&nbsp;<?php echo _("Logout")?></a></li>
 		            <li title="<?php echo _("My Profile")?>"><a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile";?>" target="main"><img src="pixmaps/myprofile.png" alt="" />&nbsp;&nbsp;&nbsp;<?php echo _("My Profile")?></a></li>
-					<li title="<?php echo _("Opened Sessions")?>"><a href="userlog/opened_sessions.php?hmenu=Sessions&smenu=Sessions" target="main"><img src="pixmaps/sessions.png">&nbsp;&nbsp;&nbsp;<?php echo _("Opened Sessions")?></a></li>
+					<li title="<?php echo _("Opened Sessions")?>"><a href="userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions" target="main"><img src="pixmaps/sessions.png">&nbsp;&nbsp;&nbsp;<?php echo _("Opened Sessions")?></a></li>
                 </ul>
             </li>
         </ul>
