@@ -81,16 +81,18 @@ if (file_exists($pdmlfile) && filesize($pdmlfile) > 0) {
 	            foreach($xml_entry as $key2 => $xml_entry2) {
 	                $k = 1;
 	                $atr = $xml_entry2->attributes();
-	                $showname = ($atr_tit['name'] == "geninfo") ? $atr['showname'] . ": <b>" . $atr['show'] . "</b>" : preg_replace("/(.*?):(.*)/", "\\1: <b>\\2</b>", $atr['showname']);
-	                echo "<li id=\"key1.$i.$j\" data=\"isFolder:true, icon:'../../images/host.png'\">" . $showname . "\n";
-	                echo "<ul>";
-	                foreach($atr as $key3 => $value) {
-	                    if ($key3 == "showname") continue;
-	                    echo "<li id=\"key1.$i.$j.$k\" data=\"isFolder:false, icon:'../../images/host.png'\">" . $key3 . ": <b>" . $value . "</b>\n";
-	                    $k++;
-	                }
-	                echo "</ul>\n";
-	                $j++;
+	                if (!preg_match("/Checksum/i",$atr['showname'])) {
+		                $showname = ($atr_tit['name'] == "geninfo") ? $atr['showname'] . ": <b>" . $atr['show'] . "</b>" : preg_replace("/(.*?):(.*)/", "\\1: <b>\\2</b>", $atr['showname']);
+		                echo "<li id=\"key1.$i.$j\" data=\"isFolder:true, icon:'../../images/host.png'\">" . $showname . "\n";
+		                echo "<ul>";
+		                foreach($atr as $key3 => $value) {
+		                    if ($key3 == "showname") continue;
+		                    echo "<li id=\"key1.$i.$j.$k\" data=\"isFolder:false, icon:'../../images/host.png'\">" . $key3 . ": <b>" . $value . "</b>\n";
+		                    $k++;
+		                }
+		                echo "</ul>\n";
+	                	$j++;
+		            }
 	            }
 	            echo "</ul>\n";
 	            $i++;
