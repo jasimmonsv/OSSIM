@@ -175,6 +175,7 @@ if (REQUEST('user') && trim($pass)!="")
         $_SESSION['bad_pass'] = "";
 		$first_login = $conf->get_conf("first_login", FALSE);
 		$pass_expire_max = ($conf->get_conf("pass_expire", FALSE) > 0 && $conf->get_conf("pass_expire", FALSE) != "yes" && $conf->get_conf("pass_expire", FALSE) != "no") ? $conf->get_conf("pass_expire", FALSE) : 0;
+		$pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
         if ($first_login == "" || $first_login == 0 || $first_login == "no") {
             $accepted = "yes";
         }
@@ -282,7 +283,11 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 				  
 					<tr>
 						<td class="nobborder" style="text-align:center;padding:20px 20px 0px 20px">
+							<?php if (file_exists("../tmp/headers/_login_logo.png")) { ?>
+							<img src="../tmp/headers/_login_logo.png" border='0' width="300" height="60"></img>
+							<?php } else { ?>
 							<img src="../pixmaps/ossim<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" />
+							<?php } ?>
 						</td> 
 					</tr>
  
