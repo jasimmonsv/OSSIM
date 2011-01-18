@@ -22,8 +22,16 @@ if (GET('modify') != "") {
 }
 $plugins = Plugin_sid::get_list($conn,"WHERE plugin_id=$plugin_id AND sid=$plugin_sid");
 $plugin = $plugins[0];
-$rel = $plugin->get_reliability();
-$prio = $plugin->get_priority();
+
+$error_message = "";
+
+if(!isset($plugins[0])){
+    $error_message = _("Plugin id or plugin sid doesn't exist");
+}
+else {
+    $rel = $plugin->get_reliability();
+    $prio = $plugin->get_priority();
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -31,34 +39,65 @@ $prio = $plugin->get_priority();
   <link rel="stylesheet" href="../style/style.css"/>
 </head>
 <body>
-<table class="transparent" align="center">
-<form method="get">
-<input type="hidden" name="modify" value="1">
-<input type="hidden" name="id" value="<?=$plugin_id?>">
-<input type="hidden" name="sid" value="<?=$plugin_sid?>">
-	<tr>
-		<td colspan="2" class="center nobborder" style="padding:10px"><b><?=$plugin->get_name()?></b></td>
-	</tr>
-	<tr>
-		<td class="nobborder"><?=_("Priority")?>:
-			<select name="prio">
-			<? for ($i = 0; $i <= 8; $i++) { ?>
-			<option value="<?=$i?>" <? if ($prio == $i) echo "selected"?>><?=$i?>
-			<? } ?>
-			</select>
-		</td>
-		<td class="nobborder" style="padding-left:10px"><?=_("Reliability")?>:
-			<select name="rel">
-			<? for ($i = 0; $i <= 10; $i++) { ?>
-			<option value="<?=$i?>" <? if ($rel == $i) echo "selected"?>><?=$i?>
-			<? } ?>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<td colspan="2" class="center nobborder" style="padding:10px"><input type="submit" value="<?=_("OK")?>" class="btn"></td>
-	</tr>
-</form>
-</table>
+<?php
+if ($error_message!=""){
+    ?>
+    <table class="transparent" align="center">
+        <tr height="10">
+            <td class="nobborder">&nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td class="nobborder"><?php echo $error_message ?>
+            </td>
+        </tr>
+        <tr height="10">
+            <td class="nobborder">&nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td class="nobborder" style="text-align:center">
+                <form>
+                    <input class="button" type="button" value="<?php echo _("Back")?>" onclick="parent.GB_hide();" />
+                </form>
+            </td>
+        </tr>
+    </table>
+<?php
+}
+else {
+?>
+    <table class="transparent" align="center">
+    <form method="get">
+    <input type="hidden" name="modify" value="1">
+    <input type="hidden" name="id" value="<?=$plugin_id?>">
+    <input type="hidden" name="sid" value="<?=$plugin_sid?>">
+        <tr>
+            <td colspan="2" class="center nobborder" style="padding:10px"><b><?=$plugin->get_name()?></b></td>
+        </tr>
+        <tr>
+            <td class="nobborder"><?=_("Priority")?>:
+                <select name="prio">
+                <? for ($i = 0; $i <= 8; $i++) { ?>
+                <option value="<?=$i?>" <? if ($prio == $i) echo "selected"?>><?=$i?>
+                <? } ?>
+                </select>
+            </td>
+            <td class="nobborder" style="padding-left:10px"><?=_("Reliability")?>:
+                <select name="rel">
+                <? for ($i = 0; $i <= 10; $i++) { ?>
+                <option value="<?=$i?>" <? if ($rel == $i) echo "selected"?>><?=$i?>
+                <? } ?>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="center nobborder" style="padding:10px"><input type="submit" value="<?=_("OK")?>" class="button"></td>
+        </tr>
+    </form>
+    </table>
+<?php
+}
+?>
 </body>
 </html>
