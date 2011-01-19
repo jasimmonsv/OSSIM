@@ -2,6 +2,22 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+DROP PROCEDURE IF EXISTS addsindex;
+DELIMITER '//'
+CREATE PROCEDURE addsindex() BEGIN
+   IF EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'net' AND INDEX_NAME='name')
+   THEN
+        ALTER TABLE `net` DROP INDEX `name`;
+   END IF;
+END;
+//
+DELIMITER ';'
+CALL addsindex();
+DROP PROCEDURE addsindex;
+
+ALTER TABLE `net` ADD INDEX ( `ips` ( 512 ) , `name` );
+
 ALTER TABLE `sensor` ADD `tzone` INT NOT NULL DEFAULT '0';
 ALTER TABLE `host_properties` ADD `sensor` VARCHAR( 64 ) DEFAULT NULL AFTER `ip`;
 
