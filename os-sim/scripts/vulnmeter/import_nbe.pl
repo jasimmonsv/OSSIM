@@ -215,6 +215,22 @@ sub get_results_from_file {
                 logwriter("set compliance description: $risk_value",5);
             }
 
+            my $risk_factor = "Info";
+            if(defined $risk_type) {
+                if ($risk_type =~ /^LOW/i) {
+                    $risk_factor = "Low";
+                }
+                elsif ($risk_type =~ /^(MEDIUM|Security.Warning)/i) {
+                    $risk_factor = "Medium";
+                }
+                elsif ($risk_type =~ /^(HIGH|Security.Hole)/i) {
+                    $risk_factor = "High";
+                }
+                elsif ($risk_type =~ /^REPORT/i) {
+                    $risk_factor = "High";
+                }
+            }
+            
             if ( $description ) {   #ENSURE WE HAVE SOME DATA
 
                 my @aliases = ();
@@ -230,7 +246,7 @@ sub get_results_from_file {
 
             
                 $description =~ s/\\/\\\\/g;	#FIX TO BACKSLASHES
-                $description =~ s/\\\\n/\\n/g;	#FIX TO NEWLINE
+                $description =~ s/\\\\n/\\n/g;	#FIX TO NEWLINE 
                 
 
                 my $temp = {
@@ -240,9 +256,10 @@ sub get_results_from_file {
                     Service         => $app,
                     Proto           => $proto,
                     ScanID          => $scan_id,
-                    Aliases         => join(',', @aliases)
+                    Aliases         => join(',', @aliases),
+                    RiskFactor      => $risk_factor
                 };
-                logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id, Aliases=>".join(',', @aliases)." };\n", 4);
+                logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id, RiskFactor=>$risk_factor, Aliases=>".join(',', @aliases)." };\n", 4);
                 push ( @issues, $temp );
                 $total_records += 1;
             }
@@ -713,7 +730,7 @@ sub pop_hosthash {
     foreach( @issues ) {
         my $issue = $_;
         my ($scanid, $host, $hostname, $hostip, $service, $app, $port, $proto, $desc,
-            $record_type, $domain, $mac_address, $os, $org, $site, $sRating, $sCheck, $sLogin, $aliases ) = " ";
+            $record_type, $domain, $mac_address, $os, $org, $site, $sRating, $sCheck, $sLogin, $aliases, $risk_factor ) = " ";
 
 
         $scanid = $issue->{ScanID};
@@ -724,6 +741,7 @@ sub pop_hosthash {
         $proto = $issue->{Proto};
         $host = $issue->{Host};
         $aliases = $issue->{Aliases};
+        $risk_factor = $issue->{RiskFactor};
 
         $app = $service;
         if(defined($service) && $service ne "") {
@@ -846,21 +864,31 @@ sub pop_hosthash {
         #print "pop_host_hash\n";
         #print Dumper($hostHash{$host}{'aliases'});
 
-        # get the risk value from the text in the description
-        my $risk='7';
-        $risk='1'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Serious/s);
-        $risk='1'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Critical/s);
-        $risk='2'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*High/s);
-        $risk='3'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium/s);
-        $risk='4'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium\/Low/s);
-        $risk='5'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low\/Medium/s);
-        $risk='6'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low/s);
-        $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Info/s);
-        $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s);
-        #$risk='8' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Exception/s);       #EXCEPTIONS ARE CALCULATED FROM EXCEPTION DATA NOT BY A STORED RISK VALUE
-        $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
-        $risk='3' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Unknown/s);         #PLAN TO RECLASSIFY Compliance Audit Values
-        $risk='2' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Failed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
+        my $risk=7;
+        my $prisk=0;
+        
+        $risk=1  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Serious/s);
+        $risk=1  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Critical/s);
+        $risk=2  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*High/s);
+        $risk=3  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium/s);
+        $risk=4  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium\/Low/s);
+        $risk=5  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low\/Medium/s);
+        $risk=6  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low/s);
+        $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Info/s);
+        $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s); 
+        #$risk=8 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Exception/s);       #EXCEPTIONS ARE CALCULATED FROM EXCEPTION DATA NOT BY A STORED RISK VALUE
+        $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
+        $risk=3 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Unknown/s);         #PLAN TO RECLASSIFY Compliance Audit Values
+        $risk=2 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Failed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
+        
+        if ($risk_factor ne "") {
+            $prisk=2  if($risk_factor eq "High");
+            $prisk=3  if($risk_factor eq "Medium");
+            $prisk=6  if($risk_factor eq "Low");
+            $prisk=7  if($risk_factor eq "Info");
+            
+            $risk = $prisk if ($prisk < $risk); # final risk lowest
+        }
 
         #remove the Risk Factor from the description
         $desc=~ s/Risk [fF]actor\s*:\s*(\\n)*Serious((\\n)+| \/ |$)//s;

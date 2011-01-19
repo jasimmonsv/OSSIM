@@ -810,6 +810,7 @@ class Host {
         $list = array();
         $sql = "SELECT * FROM host_properties WHERE ip=?";
         if ($date!="") $sql .= " AND date>='$date'";
+
 		        
 		if (!$rs = & $conn->Execute($sql,array($ip))){ 
             print $conn->ErrorMsg();
@@ -823,9 +824,9 @@ class Host {
         return $list;
 	}
 	
-	function get_latest_properties($conn,$date) {
+	function get_latest_properties($conn,$date,$limit=50) {
         $list = array();
-        $sql = "SELECT * FROM host_properties WHERE date>='$date'";
+        $sql = "SELECT * FROM host_properties WHERE date>='$date' LIMIT $limit";
 
 		if (!$rs = & $conn->Execute($sql)){ 
             print $conn->ErrorMsg();

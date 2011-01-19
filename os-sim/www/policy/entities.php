@@ -16,8 +16,12 @@ require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
-$withusers = intval(GET('users'));
-$_SESSION["_with_users"] = $withusers;
+
+$withusers          = intval(GET('users'));
+$withsiemcomponents = intval(GET('siem'));
+
+$_SESSION["_with_users"]           = $withusers;
+$_SESSION["_with_siem_components"] = $withsiemcomponents;
 
 if (!$opensource) {
 ?>
@@ -65,7 +69,7 @@ if (!$opensource) {
             },
             onDeactivate: function(dtnode) {}
         });        
-        setTimeout('refresh_tree()',1000);
+        setTimeout('refresh_tree()',1000); 
     });
     function refresh_tree() {
     	$('#refreshing').show();
@@ -194,8 +198,25 @@ if (!$opensource) {
 	    </tr>
 	    <tr>
 	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent">
-	  			<a href="?users=<?=($withusers) ? "0" : "1"?>"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"><b><?=($withusers) ? _("Without Users") : _("With Users")?></b></a>
-	        </td>
+                <table class="transparent">
+                    <tr>
+                        <td valign="top" class="nobborder">
+                            <input type="checkbox" onclick="location.href='entities.php?users=<?=($withusers==1) ? "0" : "1" ?>&siem=<?=$withsiemcomponents?>'" <?=($withusers==1) ? "checked='checked'" : "" ?>/>
+                        </td>
+                        <td valign="top" class="nobborder" style="padding:4px 0px 0px 0px;">
+                            <b><?=_("With Users")?></b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top" class="nobborder">
+                            <input type="checkbox" onclick="location.href='entities.php?users=<?=$withusers?>&siem=<?=($withsiemcomponents==1) ? "0" : "1" ?>'" <?=($withsiemcomponents==1) ? "checked='checked'" : "" ?>/>
+                        </td>
+                        <td valign="top" class="nobborder" style="padding:4px 0px 0px 0px;">
+                            <b><?=_("SIEM Components")?></b>
+                        </td>
+                    </tr>
+                </table>
+            </td>
 	    </tr>
 	</table>
 

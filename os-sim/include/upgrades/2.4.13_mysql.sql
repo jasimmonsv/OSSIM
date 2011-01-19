@@ -3,6 +3,7 @@ SET AUTOCOMMIT=0;
 BEGIN;
 
 ALTER TABLE `sensor` ADD `tzone` INT NOT NULL DEFAULT '0';
+ALTER TABLE `host_properties` ADD `sensor` VARCHAR( 64 ) DEFAULT NULL AFTER `ip`;
 
 UPDATE `inventory_search` SET  `query` = '(select distinct inet_ntoa(h.ip) from host_os h where h.os=? and h.anom=0 and h.ip not in (select h1.ip from host_os h1 where h1.os<>? and h1.anom=0 and h1.date>h.date)) UNION (select distinct inet_ntoa(ip) from host_os where os=? and anom=1 and ip not in (select distinct ip from host_os where anom=0))' WHERE  `inventory_search`.`type` =  'OS' AND  `inventory_search`.`subtype` =  'OS is';
 UPDATE `inventory_search` SET  `query` = 'select distinct inet_ntoa(ip) from host_os where ip not in (select h.ip from host_os h where h.os=? and h.anom=0 and h.ip not in (select h1.ip from host_os h1 where h1.os<>? and h1.anom=0 and h1.date>h.date)) UNION (select ip from host_os where os=? and anom=1 and ip not in (select distinct ip from host_os where anom=0))' WHERE  `inventory_search`.`type` =  'OS' AND  `inventory_search`.`subtype` =  'OS is Not';
