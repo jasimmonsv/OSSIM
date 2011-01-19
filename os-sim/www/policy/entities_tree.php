@@ -704,7 +704,7 @@ else {
         }
         echo "}";
     }
-    if ($withusers) echo "]},{title:'<font style=\"font-weight:normal\">"._("Assets by user")."</font>', isFolder:true, icon:'../../pixmaps/menu/assets.gif', isLazy:true, key:'ou'}";
+    if ($withusers && Session::am_i_admin()) echo "]},{title:'<font style=\"font-weight:normal\">"._("Others users")."</font>', isFolder:true, icon:'../../pixmaps/menu/assets.gif', isLazy:true, key:'ou'}";
     else echo "]}";
     echo "]";
 }
