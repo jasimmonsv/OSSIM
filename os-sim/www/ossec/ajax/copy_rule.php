@@ -115,7 +115,7 @@ else
 		if (@file_put_contents($path, $output, LOCK_EX) == false)
 		{
 			@unlink ($path);
-			@rename ($path_tmp, $path);
+			@copy ($path_tmp, $path);
 			echo "5###"._("Failure to update XML File")." (3)";
 		}
 		else

@@ -18,7 +18,7 @@
 	$.fn.jixedbar = function(options) {
 		var constants = { // constant variables, magic variables that'll make the bar stick on the bottom or the top portion of any browser
 				constOverflow: "hidden",
-				constBottom: "0px"
+				constBottom: "40px"
 			};
 		var defaults = { // default options
 				showOnTop: false, // show bar on top, instead of default bottom
@@ -30,7 +30,8 @@
 				roundedButtons: true, // only works on FF, Chrome, Latest Opera and Safari
 				menuFadeSpeed: 250, // menu fade effect
 				tooltipFadeSpeed: "slow", // tooltip fade effect
-				tooltipFadeOpacity: 0.8 // tooltip fade opacity effect
+				tooltipFadeOpacity: 0.8, // tooltip fade opacity effect
+				diffY: 0 // diff y in pixels for tooltip (alienvault)
 			};
 		var options = $.extend(defaults, options); // extend options
 		/* IE6 detection method */
@@ -71,6 +72,7 @@
 			} else { // else for other browsers
 				pos = "fixed";
 			}
+			pos = "absolute"; // alienvault fixed
 			
 			// create hide container and button
 			if ($(".jx-bar-button-right", this).exists()) { // check if there are currently an item on the right side portion of the bar
@@ -269,16 +271,19 @@
 				"overflow": constants["constOverflow"],
 				"position": pos
 			});
-			
+
+			var diffY = 6;
+			if (defaults.diffY) diffY = diffY + defaults.diffY; // calculate bottom margin
+									
 			// set tooltip container: top or bottom
 			if (defaults.showOnTop) { // show on top?
 				$("#jx-ttip-con-id").css({
-					"margin-top": $(this).height() + 6, // put spacing between tooltip container and fixed bar
+					"margin-top": $(this).height() + diffY, // put spacing between tooltip container and fixed bar
 					"top": constants["constBottom"]
 				});
 			} else { // else bottom
 				$("#jx-ttip-con-id").css({
-					"margin-bottom": $(this).height() + 6, // put spacing between tooltip container and fixed bar
+					"margin-bottom": $(this).height() + diffY, // put spacing between tooltip container and fixed bar
 					"bottom": constants["constBottom"]
 				});
 			}
@@ -313,8 +318,8 @@
 						// tooltip default style
 						$("#" + barTooltipID).css({
 							"float": "left"
-						});
-						
+						});					
+
 						// theme for tooltip (theme)
 						if ((defaults.showOnTop) && !($.browser.msie && ie6)) { // IE6 workaround; Don't add tooltip pointer if IE6
 							$("<div />").addClass("jx-tool-point-dir-up").appendTo("#" + barTooltipID);
@@ -518,16 +523,19 @@
 												"margin-left": $(this).parent().offset().left // calculate menu container position by setting its left margin
 											});
 
+						var diffY = 6;
+						if (defaults.diffY) diffY = diffY + defaults.diffY; // calculate bottom margin
+
 						// set menu container location: top or bottom
 						if (defaults.showOnTop) { // top
 							$("#jx-menu-con-id").css({
 								"top": constants["constBottom"],
-								"margin-top": $(obj).height() + 6
+								"margin-top": $(obj).height() + diffY
 							});
 						} else { // bottom
 							$("#jx-menu-con-id").css({
 								"bottom": constants["constBottom"],
-								"margin-bottom": $(obj).height() + 6
+								"margin-bottom": $(obj).height() + diffY
 							});
 						}
 						

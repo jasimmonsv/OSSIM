@@ -117,7 +117,7 @@ if($tab == "#tab1")
 		if (@file_put_contents($path, $output, LOCK_EX) == false)
 		{
 			@unlink ($path);
-			@rename ($path_tmp, $path);
+			@copy ($path_tmp, $path);
 			echo "error###"._("Failure to update")." <b>$ossec_conf</b> (2)";
 		}
 		else
@@ -144,7 +144,7 @@ else
 	if ( @file_put_contents($path, $data, LOCK_EX) == false )
 	{
 		@unlink ($path);
-		@rename ($path_tmp, $path);
+		@copy ($path_tmp, $path);
 		echo "error###"._("Error to update")." <b>$ossec_conf</b> (2)";
 	}
 	else

@@ -351,7 +351,9 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 	</body>
 </html>
 
-
+<?
+$db->close($dbconn);
+?>
 
 
 

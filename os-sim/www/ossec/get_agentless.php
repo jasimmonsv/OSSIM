@@ -71,14 +71,14 @@ $page  		= ( empty($page) )  ? 1  : $page;
 $rp    		= ( empty($rp) )    ? 25 : $rp;
 
 
-$sortname	= ( !empty($sortname)  ) ? $sortname  : "hostname";
+$sortname	= ( !empty($sortname)  ) ? $sortname  : "hostname status";
 $sortorder	= ( !empty($sortorder) && strtolower($sortorder) == "desc" ) ? "DESC" : "ASC";
 
 $order= $sortname." ".$sortorder;
 
 
-ossim_valid($sortname,  "()", OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("Order Name"));
-ossim_valid($sortorder, "()", OSS_LETTER, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("Sort Order"));
+ossim_valid($sortname,  "(,)", OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("Order Name"));
+ossim_valid($sortorder, "(,)", OSS_LETTER, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("Sort Order"));
 ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Field"));
 ossim_valid($page, OSS_DIGIT, 'illegal:' . _("Page"));
 ossim_valid($rp, OSS_DIGIT, 'illegal:' . _("Rp"));
@@ -94,13 +94,28 @@ $limit  = "LIMIT $start, $rp";
 $db 	= new ossim_db();
 $conn   = $db->connect();
 
+$ossec_list     = Agentless::get_list_ossec($conn);
+
+$agentless_list = Agentless::get_list($conn, "");
+
+foreach ($ossec_list as $k => $v)
+{
+	if ( !is_object($agentless_list[$k]) )
+		Agentless::add_host_data($conn, $v->get_ip(), $v->get_hostname(), $v->get_user(), $v->get_pass(), $v->get_ppass(), null, $v->get_status());
+	else
+		$key = $k;
+}
+
+$agentless_list = null;
+
 $extra = ( !empty($search) ) ? $search." ORDER BY $order $limit" : "ORDER BY $order $limit";
 
 $agentless_list = Agentless::get_list_pag($conn, $extra);
 
-if ($agentless_list[0])
+
+if ($agentless_list[$key])
 {
-    $total = $agentless_list[0]->get_foundrows();
+    $total = $agentless_list[$key]->get_foundrows();
     if ($total == 0) 
 		$total = count($agentless_list);
 } 
@@ -111,6 +126,7 @@ else
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
+
 
 foreach($agentless_list as $host)
 {

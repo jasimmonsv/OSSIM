@@ -36,27 +36,17 @@ require_once ('classes/Util.inc');
 require_once ('classes/Ossec.inc');
 require_once ('../utils.php');
 
-
-function get_type($id)
-{
-	$array_types = array (  "ssh_integrity_check_bsd" => "Integrity Check BSD",
-						"ssh_integrity_check_linux"   => "Integrity Check Linux",
-						"ssh_generic_diff" 			  => "Generic Command Diff",
-						"ssh_pixconfig_diff"  		  => "Cisco Config Check",
-						"ssh_foundry_diff" 			  => "Foundry Config Check ",
-						"ssh_asa-fwsmconfig_diff "    => "ASA FWSMconfig Check");
-						
-	return $array_types[$id];
-
-}
-
 $db   = new ossim_db();
 $conn = $db->connect();
 
 
 $permitted_actions = array("add_monitoring_entry"     => "1",
 						   "delete_monitoring_entry"  => "1",
-						   "modify_monitoring_entry"  => "1");
+						   "modify_monitoring_entry"  => "1",
+						   "add_host_data"  		  => "1",
+						   "modify_host_data"         => "1");
+						   
+						   
 
 
 $ip          	   = POST('ip');
@@ -67,11 +57,92 @@ $frecuency 	       = POST('frecuency');
 $state    	       = POST('state');
 $arguments 	       = POST('arguments');
 
+	if ( !array_key_exists($action, $permitted_actions) )
+	{
+		echo "error###"._("Action not allowed");
+		exit();
+	}
 	
 	switch ($action)
 	{
 		case "add_monitoring_entry":
+		
+			$validate = array (
+			"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
+			"type"        => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
+			"frecuency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Frecuency")),
+			"state"       => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
+			"arguments"   => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
+		
+		break;
+		
+		case "delete_monitoring_entry":
+			$validate = array (
+				"id"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Id")));
+		break;
+		
+		case "modify_monitoring_entry":
+			$validate = array (
+			"id"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Id")),
+			"type"        => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
+			"frecuency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Frecuency")),
+			"state"       => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
+			"arguments"   => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
+		break;
+		
+		case "modify_host_data":
+			$validate = array (
+				"hostname"    => array("validation"=>"OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Hostname")),
+				"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
+				"user"        => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("User")),
+				"descr"       => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Description")),
+				"pass"        => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
+				"passc"       => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Pass confirm")),
+				"ppass"       => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Password")),
+				"ppassc"      => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Pass confirm")));
+		break;
+		
+		case "add_host_data":
+			$validate = array (
+				"hostname"    => array("validation"=>"OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Hostname")),
+				"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
+				"user"        => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("User")),
+				"descr"       => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Description")),
+				"pass"        => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
+				"passc"       => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Pass confirm")),
+				"ppass"       => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Password")),
+				"ppassc"      => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Pass confirm")));
+		break;
+	
+	}
+		
+	$validation_errors = validate_form_fields('POST', $validate);
+	
+	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors)) )
+	{
+		$message_error = array();
 			
+		if ( is_array($validation_errors) && !empty($validation_errors) )
+			$message_error = array_merge($message_error, $validation_errors);
+		else
+		{
+			if ($validation_errors == 1)
+				$message_error [] = _("Invalid send method");
+		}
+				
+	}
+
+	if ( is_array($message_error) && !empty($message_error) )
+	{
+		echo "general_error###<div>"._("We found the following errors").":</div><div style='padding:5px;'>".implode( "<br/>", $message_error)."</div>";
+		exit();
+	}
+
+	
+	switch ($action)
+	{
+		case "add_monitoring_entry":
+				
 			$id = Agentless::add_monitoring_entry($conn, $ip, $type, $frecuency, $state, $arguments);
 								
 			if ($id !== false)
@@ -80,7 +151,7 @@ $arguments 	       = POST('arguments');
 							
 				echo "1###".
 					"<tr id='m_entry_$id'>
-						<td class='nobborder center' id='al_type_$id'>". get_type($type)."</td>
+						<td class='nobborder center' id='al_type_$id'>$type</td>
 						<td class='nobborder center' id='al_frecuency_$id'>$frecuency</td>
 						<td class='nobborder center' id='al_state_$id'>$state</td>
 						<td class='nobborder left' id='al_arguments_$id'>$arguments</td>
@@ -125,6 +196,31 @@ $arguments 	       = POST('arguments');
 			}	
 			else
 				echo "error###"._("Error to Modify Monitoring Entry");
+		break;
+		
+		case "add_host_data":
+			
+			$res = Agentless::add_host_data ($conn, POST('ip'), POST('hostname'), POST('user'), POST('pass'), POST('ppass'), POST('descr'), 1);
+											
+			if ( $res == true )
+				echo _("1###Host Sucessfully added");
+			else
+				echo _("error###Error Adding Monitorig Host Data");
+		break;
+		
+		case "modify_host_data":
+			
+			$extra     = "WHERE ip = '".POST('ip')."'";
+			$agentless = array_shift(Agentless::get_list($conn, $extra));
+			
+			$status    = ( $agentless->get_status() != 2 ) ? $agentless->get_status() : 1;
+	
+			$res = Agentless::modify_host_data ($conn, POST('ip'), POST('hostname'), POST('user'), POST('pass'), POST('ppass'), POST('descr'), $status);
+											
+			if ( $res == true )
+				echo _("1###Host Sucessfully updated");
+			else
+				echo _("error###Error Updating Monitorig Host Data");
 		break;
 	
 	}

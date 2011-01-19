@@ -262,9 +262,6 @@ if(Session::am_i_admin()){
 }
 ?>
 -->
-<tr><td height="26" class="outmenu" style="color:gray">
-	&copy; AlienVault SIEM <?php echo $conf->get_conf("ossim_schema_version", FALSE) ?>
-</td></tr>
 </table>
 
 <div id="side-bar">
@@ -275,21 +272,73 @@ if(Session::am_i_admin()){
                 <ul>
 		            <li title="<?php echo _("Logout")?>"><a href="session/login.php?action=logout"><img src="pixmaps/logout.png">&nbsp;&nbsp;&nbsp;<?php echo _("Logout")?></a></li>
 		            <li title="<?php echo _("My Profile")?>"><a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile";?>" target="main"><img src="pixmaps/myprofile.png" alt="" />&nbsp;&nbsp;&nbsp;<?php echo _("My Profile")?></a></li>
-					<li title="<?php echo _("Opened Sessions")?>"><a href="userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions" target="main"><img src="pixmaps/sessions.png">&nbsp;&nbsp;&nbsp;<?php echo _("Opened Sessions")?></a></li>
                 </ul>
             </li>
         </ul>
+        <span class="jx-separator-left"></span> 
+		<?php if(Session::am_i_admin()) { ?>
+        <ul>
+        	<li title="<?php echo _("Status")?>"><a href="sysinfo/index.php" target="main"><img src="pixmaps/status.png"></a></li>
+        </ul>
+        <?php } else { ?>
+        <ul>
+        	<li title="<?php echo _("Status")?>"><img src="pixmaps/status_gray.png"></li>
+        </ul>
+        <?php } ?>
         <span class="jx-separator-left"></span>        
         <ul>
         	<li title="<?php echo _("Maximize")?>"><a href="#" onClick="fullwin()"><img src="pixmaps/maximize.png"></a></li>
         </ul>
-		<?php if(Session::am_i_admin()) { ?>
-        <span class="jx-separator-left"></span> 
-        <ul>
-        	<li title="<?php echo _("Status")?>"><a href="sysinfo/index.php" target="main"><img src="pixmaps/status.png"></a></li>
-        </ul>
-        <?php } ?>
         <span class="jx-separator-right"></span>
+</div>
+
+<?
+require_once ('classes/DateDiff.inc');
+require_once ('ossim_db.inc');
+require_once ('ossim_conf.inc');
+
+function is_expired($time)
+{
+	$conf     = $GLOBALS["CONF"];
+	$activity = strtotime($time);
+	
+	if (!$conf) {
+		require_once 'ossim_db.inc';
+		require_once 'ossim_conf.inc';
+		$conf = new ossim_conf();
+	}
+		
+	$expired_timeout = intval($conf->get_conf("session_timeout", FALSE)) * 60;
+	
+	if ($expired_timeout == 0)
+		return false;
+	
+	$expired_date = $activity + $expired_timeout;
+    $current_date = strtotime(date("Y-m-d H:i:s"));
+	
+	if ( $expired_date < $current_date )
+		return true;
+	else
+		return false;
+}
+$db   = new ossim_db();
+$conn = $db->connect();
+$all_sessions = Session_activity::get_list($conn," ORDER BY activity desc");
+$users = 0;
+foreach ($all_sessions as $sess) {
+	if ($sess->get_id() == session_id()) {
+		$ago = str_replace(" ago","",TimeAgo(strtotime($sess->get_logon_date())));
+	}
+	if (!is_expired($sess->get_activity())) $users++;
+}
+$db->close($conn);
+?>
+<div style="position:absolute; width:100%; bottom:5px; padding-left:5px;">
+<table><tr><td class="jx-gray">
+<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a> "._("logon") ?>
+<br>
+<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("users log into the system") ?>
+</td></tr></table>
 </div>
 
 </td><!-- <td style="background:url('pixmaps/menu/dg_gray.gif') repeat-y top left;width:6"><img src="pixmaps/menu/dg_gray.gif"></td> -->

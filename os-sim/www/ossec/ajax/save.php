@@ -38,7 +38,7 @@ else
 	if ( @file_put_contents($path, $data, LOCK_EX) == false )
 	{
 		@unlink ($path);
-		@rename ($path_tmp, $path);
+		@copy ($path_tmp, $path);
 		echo "4###";
 	}
 	else

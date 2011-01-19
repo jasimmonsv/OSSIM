@@ -34,25 +34,56 @@ require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 
 $action     	   = strtolower(POST('action'));
-$allowed_act       = array("start", "stop", "restart", "status");
+$allowed_act       = array("start", "stop", "restart", "status", "ossec_log", "alerts_log");
 
 
 if ( in_array($action, $allowed_act) )
 {
-	exec ("sudo /var/ossec/bin/ossec-control $action", $result);
-	$result = implode("<br/>", $result);
 	
-	$pattern     = array('/is running/', '/already running/', '/Completed/', '/Started/', '/not running/', '/Killing/', '/Stopped/');
+	switch ($action){
 	
-	$replacement = array('<span style="font-weight: bold; color:#15B103;">is running</span>', 
-						 '<span style="font-weight: bold; color:#15B103;">already running</span>', 
-						 '<span style="font-weight: bold; color:#15B103;">Completed</span>',
-						 '<span style="font-weight: bold; color:#000000;">Started</span>',
-						 '<span style="font-weight: bold; color:#E54D4D;">not running</span>',
-						 '<span style="font-weight: bold; color:#000000;">Killing</span>'.
-						 '<span style="font-weight: bold; color:#E54D4D;">Stopped</span>');
-	echo preg_replace($pattern, $replacement, $result);
+		case "ossec_log":
+			$extra = POST('extra');
+			
+			exec ("tail -n$extra /var/ossec/logs/ossec.log", $result, $ret);
+			$result = implode("<br/>", $result);
+			$result = str_replace("INFO", "<span style='font-weight: bold; color:#15B103;'>INFO</span>", $result);
+			echo str_replace("ERROR", "<span style='font-weight: bold; color:#E54D4d;'>ERROR</span>", $result);
+		break;
+		
+		case "alerts_log":
+			$extra = POST('extra');
+			
+			exec ("tail -n$extra /var/ossec/logs/alerts/alerts.log", $result, $ret);
+			$result = implode("<br/>", $result);
+			echo preg_replace("/\*\* Alert ([0-9]+\.[0-9]+)/", "<span style='font-weight: bold; color:#E54D4d;'>$0</span>", $result);
+		break;
+		
+		default:
+			
+			$extra = POST('extra');
+			if ( empty($extra) )
+				exec ("sudo /var/ossec/bin/ossec-control $action", $result, $ret);
+			else
+				exec ("sudo /var/ossec/bin/ossec-control $extra", $result, $ret);
+			
+			
+			
+			$result = implode("<br/>", $result);
+			
+			$pattern     = array('/is running/', '/already running/', '/Completed/', '/Started/', '/not running/', '/Killing/', '/Stopped/');
+			
+			$replacement = array('<span style="font-weight: bold; color:#15B103;">is running</span>', 
+								 '<span style="font-weight: bold; color:#15B103;">already running</span>', 
+								 '<span style="font-weight: bold; color:#15B103;">Completed</span>',
+								 '<span style="font-weight: bold; color:#000000;">Started</span>',
+								 '<span style="font-weight: bold; color:#E54D4D;">not running</span>',
+								 '<span style="font-weight: bold; color:#000000;">Killing</span>'.
+								 '<span style="font-weight: bold; color:#E54D4D;">Stopped</span>');
+			
+			echo $ret."###".preg_replace($pattern, $replacement, $result);
 	
+	}
 }
 else
 	echo _("Illegal action");

@@ -155,6 +155,10 @@ chmod u+rwx /var/ossec/agentless
 chmod u+w /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 chown www-data /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 chown www-data:ossec /var/ossec/agentless
+chown www-data:ossec /var/ossec/logs
+chown www-data:ossec /var/ossec/logs/alerts
+chown www-data:ossec /var/ossec/logs/alerts/alerts.log
+
 
 
 

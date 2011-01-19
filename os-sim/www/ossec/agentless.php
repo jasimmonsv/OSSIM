@@ -94,11 +94,8 @@ if ($error != true)
 			$status = array ("running", _("Running"));
 
 	}
-	
-	
-	
-	
 }
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -179,7 +176,7 @@ if ($error != true)
 			}
 			else if (com=='<?php echo _("Apply Configuration")?>')
 			{
-				document.location.href = 'al_apply_conf.php';
+				document.location.href = 'al_applyconf.php';
 			}
 		}
 		
@@ -222,7 +219,7 @@ if ($error != true)
 		$(document).ready(function() {
 			
 			$("#flextable").flexigrid({
-				url: 'get_agentless.php?sortname=hostname&sortorder=desc',
+				url: 'get_agentless.php?sortname=status,hostname&sortorder=asc',
 				dataType: 'xml',
 				colModel : [
 				<?php
@@ -233,7 +230,7 @@ if ($error != true)
 						"status" 	=> array(_('Status'),     	 50,  'true', 'center', false),
 						"desc"  	=> array(_('Description'),   300, 'true', 'left',   false)
 					);
-					list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "", "asc", 300);
+					list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "status,hostname", "asc", 300);
 					echo "$colModel\n";
 				?>
 					],

@@ -242,27 +242,7 @@ if (Session::menu_perms("MenuEvents", "EventsViewer")) { $events = 1; $hmenu["Fo
     "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:event_viewer','EventHelp')"
 );
 }*/
-if (Session::menu_perms("MenuEvents", "ReportsWireless")) { $events = 1;
-    $hmenu["Forensics"][] = array(
-       "name" => gettext("Wireless") ,
-       "id" => "Wireless",
-       "url" => "wireless/",
-       "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:wireless','EventHelp')"
-    );
-    $rmenu["Wireless"][] = array(
-       "name" => gettext("Setup"),
-       "url" => "../wireless/setup.php"
-    );
-};
 
-if (Session::menu_perms("MenuEvents", "EventsAnomalies")) { $events = 1;
-    $hmenu["Forensics"][] = array(
-        "name" => gettext("Anomalies") ,
-        "id" => "Anomalies",
-        "url" => "control_panel/anomalies.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:anomalies','EventHelp')"
-    );
-}
 /*
 if (Session::menu_perms("MenuEvents", "EventsRT")) { $events = 1;
     $hmenu["Forensics"][] = array(
@@ -385,6 +365,80 @@ if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { $events = 1;
         );
     }
 }
+
+if (Session::am_i_admin()) { $correlation = 1;
+    $menu["Analysis"][] = array(
+        "name" => gettext("HIDS") ,
+        "id" => "HIDS",
+        "url" => "ossec/index.php"
+    );
+    $hmenu["HIDS"][] = array(
+        "name" => gettext("Ossec") ,
+        "id" => "HIDS",
+        "url" => "ossec/index.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
+    );	
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Edit Rules") ,
+           "url" => "index.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Config") ,
+           "url" => "config.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Agents") ,
+           "url" => "agent.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Agentless") ,
+           "url" => "agentless.php"
+    );
+	
+	$rmenu["HIDS"][] = array(
+           "name" => gettext("Ossec Control") ,
+           "url" => "ossec_control.php"
+    );
+	
+	
+}	
+
+if (Session::menu_perms("MenuEvents", "ReportsWireless")) { $events = 1;
+    $menu["Analysis"][] = array(
+        "name" => gettext("Wireless IDS") ,
+        "id" => "Wireless",
+        "url" => "wireless/"
+    );
+    $hmenu["Wireless"][] = array(
+       "name" => gettext("Wireless IDS") ,
+       "id" => "Wireless",
+       "url" => "wireless/",
+       "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:wireless','EventHelp')"
+    );
+    $rmenu["Wireless"][] = array(
+       "name" => gettext("Setup"),
+       "url" => "../wireless/setup.php"
+    );
+};
+
+if (Session::menu_perms("MenuEvents", "EventsAnomalies")) { $events = 1;
+    $menu["Analysis"][] = array(
+        "name" => gettext("Anomalies") ,
+        "id" => "Anomalies",
+        "url" => "control_panel/anomalies.php"
+    );
+    $hmenu["Anomalies"][] = array(
+        "name" => gettext("Anomalies") ,
+        "id" => "Anomalies",
+        "url" => "control_panel/anomalies.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:anomalies','EventHelp')"
+    );
+}
+
 /* Reports */
 $reports = 0;
 /*
@@ -745,7 +799,7 @@ if(Session::am_i_admin()) {
         "url" => "netscan/index.php"
     ); */
     $hmenu["Asset Discovery"][] = array(
-        "name" => gettext("Active Net Discovery") ,
+        "name" => gettext("Active Network Discovery") ,
         "id" => "Asset Discovery",
         "url" => "netscan/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
@@ -891,47 +945,6 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $c
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:cross_correlation','Help');"
     );*/
 }
-
-if (Session::am_i_admin()) { $correlation = 1;
-    $menu["Intelligence"][] = array(
-        "name" => gettext("HIDS") ,
-        "id" => "HIDS",
-        "url" => "ossec/index.php"
-    );
-    $hmenu["HIDS"][] = array(
-        "name" => gettext("Ossec") ,
-        "id" => "HIDS",
-        "url" => "ossec/index.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
-    );	
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Edit Rules") ,
-           "url" => "index.php"
-    );
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Config") ,
-           "url" => "config.php"
-    );
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Agents") ,
-           "url" => "agent.php"
-    );
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Agentless") ,
-           "url" => "agentless.php"
-    );
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Ossec Control") ,
-           "url" => "ossec_control.php"
-    );
-	
-	
-}	
 
 /* if (Session::menu_perms("MenuReports", "Help")) *//* if ($correlation) $menu["Intelligence"][] = array(
     "name" => gettext("Help") ,
@@ -1352,6 +1365,7 @@ if (Session::menu_perms("MenuTools", "ToolsDownloads")) { $tools = 1; //if (file
     );
 }*/
 
+
 $hmenu["Sysinfo"][] = array(
     "name" => gettext("System Info") ,
     "id" => "Sysinfo",
@@ -1367,24 +1381,25 @@ if (Session::menu_perms("MenuMonitors", "MonitorsSensors")) { $monitors = 1;
         "url" => "sensor/sensor_plugins.php"
     );*/
     $hmenu["Sysinfo"][] = array(
-        "name" => gettext("Collection Status") ,
+        "name" => gettext("Sensors") ,
         "id" => "Sensors",
         "target" => "main",
         "url" => "sensor/sensor_plugins.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
     );
-	if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) {
-		$hmenu["Sysinfo"][] = array(
-			"name" => gettext("User Activity") ,
-			"id" => "User Log",
-			"url" => "userlog/user_action_log.php",
-			"target" => "main",
-			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
-		);
-	}
 	
 }
 
+if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) {
+	$hmenu["Sysinfo"][] = array(
+		"name" => gettext("User Activity") ,
+		"id" => "User Log",
+		"url" => "userlog/user_action_log.php",
+		"target" => "main",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
+	);
+}
+	
 $hmenu["Sysinfo"][] = array(
     "name" => gettext("Opened Sessions") ,
     "id" => "Sessions",

@@ -189,23 +189,24 @@ if ( $step == 1 || ($step == 2 && !empty($back)) )
 		}
 		else
 		{
+			$db    = new ossim_db();
+			$conn  = $db->connect();
+				
 			if ( $back == 1 )
 			{
 				$res 		= Agentless::modify_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr);
-				$info_error = ( $res !== true ) ? $res : null;
+				$info_error = ( $res !== true ) ? _("Error Updating Monitorig Host Data") : null;
 			}
 			else
 			{
 				$res  = Agentless::add_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr);
-				$info_error = ( $res !== true ) ? $res : null;
+				$info_error = ( $res !== true ) ? _("Error Adding Monitorig Host Data") : null;
 			}
-			
-			
+						
 						
 			if ( !empty($ip) )
 			{
-				$db    = new ossim_db();
-				$conn  = $db->connect();
+				
 				$extra = "WHERE ip = '$ip'";
 				$error_m_entries    = null;
 				$monitoring_entries = Agentless::get_list_m_entries($conn, $extra);
@@ -215,9 +216,9 @@ if ( $step == 1 || ($step == 2 && !empty($back)) )
 					$error_m_entries    = $monitoring_entries;
 					$monitoring_entries = array();
 				}
-				
-				$db->close($conn);
 			}
+			
+			$db->close($conn);
 		}
 	}
 }
@@ -271,20 +272,17 @@ else if ($step == 2)
 				data: $('#'+form_id).serialize() + "&action=add_monitoring_entry",
 				success: function(html){
 					var status = html.split("###");
+					$("#al_load").html('');
+					var style = "class='error_left'";
+					
 					if ( status[0] == "error")
 					{
-						$("#al_load").html('');
-						
-						var style = "class='error_left'";
-						
 						$("#al_load").html("<div class='cont_al_message'><div class='al_message'><div class='ossim_error'><div "+style+">"+status[1]+"</div></div></div></div>");
 						$("#al_load").fadeIn(2000);
 						$("#al_load").fadeOut(4000);
 					}
 					else
 					{
-						$("#al_load").html('');
-						
 						if ( $('#monitoring_table .al_no_added').length == 1 )
 							$('.al_no_added').parent().remove();	
 						
@@ -308,22 +306,19 @@ else if ($step == 2)
 				url: "ajax/agentless_actions.php",
 				data: $('#'+form_id).serialize() + "&action=delete_monitoring_entry&id="+id,
 				success: function(html){
+					
 					var status = html.split("###");
+					$("#al_load").html('');
+					var style = "class='error_left'";
+					
 					if ( status[0] == "error")
 					{
-						$("#al_load").html('');
-						
-						var style = "class='error_left'";
-						
 						$("#al_load").html("<div class='cont_al_message'><div class='al_message'><div class='ossim_error'><div "+style+">"+status[1]+"</div></div></div></div>");
 						$("#al_load").fadeIn(2000);
 						$("#al_load").fadeOut(4000);
 					}
 					else
 					{
-						
-						$("#al_load").html('');
-						
 						if ( $('#monitoring_table .al_no_added').length == 1 )
 							$('.al_no_added').parent().remove();	
 						
@@ -387,12 +382,11 @@ else if ($step == 2)
 				data: $('#'+form_id).serialize() + "&action=modify_monitoring_entry&id="+id,
 				success: function(html){
 					var status = html.split("###");
+					$("#al_load").html('');
+					var style = "class='error_left'";
+					
 					if ( status[0] == "error")
 					{
-						$("#al_load").html('');
-						
-						var style = "class='error_left'";
-						
 						$("#al_load").html("<div class='cont_al_message'><div class='al_message'><div class='ossim_error'><div "+style+">"+status[1]+"</div></div></div></div>");
 						$("#al_load").fadeIn(2000);
 						$("#al_load").fadeOut(4000);
@@ -400,8 +394,6 @@ else if ($step == 2)
 					else
 					{
 						
-						$("#al_load").html('');
-																		
 						$('#m_entry_'+id).html();
 						
 						$('#m_entry_'+id).html(status[1]);
@@ -409,8 +401,7 @@ else if ($step == 2)
 						$('#monitoring_table tr:even').css('background-color', "#EEEEEE");	
 						
 						$('.add').unbind('click');
-						$('.add').val("<?php echo _("Add");?>")
-			
+									
 						$('.add').bind('click', function() {
 							add_monitoring(id);
 						});
@@ -449,12 +440,12 @@ else if ($step == 2)
 			var type = $('#type').val();
 			
 			if (type.match("_diff") != null)
-				$('#state_txt').text("");
+				$('#arguments').text("");
 			
 			else
 			{
 				if (type.match("_integrity") != null)
-					$('#state_txt').text("/bin /etc /sbin");
+					$('#arguments').text("/bin /etc /sbin");
 			}
 			
 		}	
@@ -492,6 +483,8 @@ else if ($step == 2)
 				change_type('');
 				change_arguments();
 			});
+			
+			$('#monitoring_table tr:even').css('background-color', "#EEEEEE");
 				
 
 		});
@@ -781,7 +774,7 @@ else if ($step == 2)
 											foreach ($monitoring_entries as $k => $v)
 											{
 												echo "<tr id='m_entry_".$v['id']."'>
-														<td class='nobborder center' id='al_type_$id'>". get_type($v['type'])."</td>
+														<td class='nobborder center' id='al_type_$id'>". $v['type']."</td>
 														<td class='nobborder center' id='al_frecuency_".$v['id']."'>".$v['frecuency']."</td>
 														<td class='nobborder center' id='al_state_".$v['id']."'>".$v['state']."</td>
 														<td class='nobborder left' id='al_arguments_".$v['id']."'>".$v['arguments']."</td>

@@ -36,8 +36,46 @@ require_once ('classes/Ossec.inc');
 
 $ip = GET('ip');
 
-?>
+$txt_error = null;
+ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
 
+if ( ossim_error() ) 
+	$txt_error = ossim_get_error();
+else
+{
+	$db    	   = new ossim_db();
+	$conn  	   = $db->connect();
+	$extra     = "WHERE ip = '$ip'";
+	$agentless = array_shift(Agentless::get_list($conn, $extra));
+						
+	if (!empty($agentless))
+	{
+		if ($agentless->get_status() == 0 )
+		{
+			$res = $agentless->change_status($conn, 1);
+			$txt_error = ($res == true) ? null : _("Error to enable Agentless Host");
+			$db->close($conn);
+		}
+		elseif ($agentless->get_status() == 1 )
+		{
+			$res = $agentless->change_status($conn, 0);
+			$txt_error = ($res == true) ? null : _("Error to disabled Agentless Host");
+			$db->close($conn);
+		}
+		else
+		{
+			if ($agentless->get_status() == 2 )
+			{
+				header("Location: al_modifyform.php?ip=$ip");
+				exit();
+			}
+		}
+	}
+	else
+		$txt_error = _("Ip Address not found");
+}
+	
+?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -53,46 +91,7 @@ $ip = GET('ip');
 	<?php include("../hmenu.php"); ?>
 	<h1> <?php echo gettext("Enable/Disable Agentless Host"); ?> </h1>
 
-
 <?php
-
-	$txt_error = null;
-	ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
-
-	if ( ossim_error() ) 
-		$txt_error = ossim_get_error();
-	else
-	{
-		$db    = new ossim_db();
-		$conn  = $db->connect();
-		$agentless_list = Agentless::get_list($conn, "WHERE ip='$ip'");
-				
-		if ($agentless_list[0])
-		{
-			if ($agentless_list[0]->get_status() == 0 )
-			{
-				$res = $agentless_list[0]->change_status($conn, 1);
-				$txt_error = ($res == true) ? null : _("Error to enable Agentless Host");
-				$db->close($conn);
-			}
-			elseif ($agentless_list[0]->get_status() == 1 )
-			{
-				$res = $agentless_list[0]->change_status($conn, 0);
-				$txt_error = ($res == true) ? null : _("Error to disabled Agentless Host");
-				$db->close($conn);
-			}
-			else
-			{
-				if ($agentless_list[0]->get_status() == 2 )
-				{
-					header("Location: al_modifyform.php");
-					exit();
-				}
-			}
-		}
-		else
-			$txt_error = _("Ip Address not found");
-	}
 			
 	
 	if ( !empty($txt_error) )
@@ -102,14 +101,13 @@ $ip = GET('ip');
 	}
 	else
 	{
-		$state = ( $agentless_list[0]->get_status() == 0 ) ? "enabled" : "disabled";
+		$state = ( $agentless->get_status() == 0 ) ? "enabled" : "disabled";
 		echo "<p>"._("Host succesfully $state")."</p>";
 		echo "<script>document.location.href='agentless.php'</script>";
 	}
 
 ?>
 
-	
 	
 </body>
 </html>
