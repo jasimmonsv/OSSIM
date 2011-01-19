@@ -299,7 +299,7 @@ a:hover { text-decoration: underline; }
             position: 'absolute',
             display: 'none',
             top: y - 10,
-            left: x - 10,
+            left: x + 5,
             border: '1px solid #ADDF53',
             padding: '5px 7px 5px 7px',
             'background-color': '#CFEF95',

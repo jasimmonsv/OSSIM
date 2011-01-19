@@ -58,15 +58,15 @@ if (!$isDisabled) {
         $insert = POST("insert");
         $message = Backup::Insert($insert);
         if($message=="")
-            $message = _("Insert action is running, please wait a few of seconds...");
+            $message = _("Insert action is running, please wait a few seconds...");
     } elseif ($perform == "delete") {
         $delete = POST("delete");
         Backup::Delete($delete);
-        $message = _("Remove action is running, please wait a few of seconds...");
+        $message = _("Remove action is running, please wait a few seconds...");
     }
 }
 else {
-    $message = _("Remove or insert action is running, please wait a few of seconds...");
+    $message = _("Remove or insert action is running, please wait a few seconds...");
 }
 $db = new ossim_db();
 $conn = $db->snort_connect();

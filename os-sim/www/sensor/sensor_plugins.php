@@ -234,8 +234,15 @@ foreach($sensor_list as $sensor) {
     echo "</td><td class=\"noborder\" style=\"padding-right:4px;\">";
     if ($use_munin == 1) {
         $munin_link = $ossim_conf->get_conf("munin_link");
+        if ($munin_link=="") $munin_link = "/munin/";
+        $server_ip=trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+        $https=trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
+        if ($ip == $server_ip)
+        	$munin_url='http'.(($https=="yes") ? "s" : "").'://'.$_SERVER["SERVER_NAME"].$munin_link;
+        else
+        	$munin_url='http://'.$ip.$munin_link;
 ?><a href="<?php
-        echo "http://" . $ip . "/munin/"; ?>"><img align="bottom" src="../pixmaps/chart_bar.png" border="0"></a>
+        echo $munin_url; ?>"><img align="bottom" src="../pixmaps/chart_bar.png" border="0"></a>
 				<?php
     }
     echo "</td><td class=\"noborder\" style=\"text-align: left;\">";

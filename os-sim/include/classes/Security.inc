@@ -49,16 +49,65 @@
 require_once 'ossim_error.inc';
 require_once 'IDS/Init.php';
 
+define("MIN_ECHAR_VALUE", 1000);
+
+function clean_echars($data)
+{
+	if ( is_array($data) )
+	{
+		foreach ($data as $i => $d)
+		{
+			$data[$i] = clean_echars($d);
+		}
+	}
+	else
+	{
+		if ( preg_match_all('/&#(\d{4,5});/', $data, $match) )
+		{
+			foreach ($match[1] as $k => $v)
+				$data = str_replace("&#".$v.";", "", $data);
+		}
+	}
+	
+	return $data;
+}
+
+function get_echars($data)
+{
+	$echars = ( preg_match_all('/&#(\d{4,5});/', $data, $match) != false ) ? $match[1] : array();
+	return $echars;
+}
+
 function ids(){
 	try {
+		
+		$general_data = array($_GET, $_POST, $_COOKIE, $_FILES);
+				
+		foreach ($general_data as $i => $type)
+		{
+			foreach ($type as $k => $v)
+			{
+				$general_data[$i][$k] = clean_echars($v);
+			}
+		}
+		
 		$request = array(
+			'GET'    => $general_data[0],
+			'POST'   => $general_data[1],
+			'COOKIE' => $general_data[2],
+			'FILES'  => $general_data[3]
+		);
+				
+		
+		/*$request = array(
 			'GET' => $_GET,
 			'POST' => $_POST,
 			//'REQUEST' => $_REQUEST,
 			'COOKIE' => $_COOKIE,
 			'FILES' => $_FILES
 			//'URI' => rawurlencode($_SERVER["REQUEST_URI"])
-		);
+		);*/
+		
 		$init = IDS_Init::init('/usr/share/ossim/include/php-ids.ini');
 		$init->config['General']['scan_keys'] = true;
 		$ids = new IDS_Monitor($request, $init);
@@ -294,9 +343,11 @@ function ossim_valid() {
     if (func_num_args() == 2 && is_array($parms[0])) {
         $parms = $parms[0];
     }
-    $error_msg = OSS_ERROR;
+    $error_msg   = OSS_ERROR;
     $val_notnull = true; // by default do not allow empty vars
-    $count = count($parms);
+    $count       = count($parms);
+	
+	
     for ($i = 0; $i < $count; $i++) {
         //
         // error:
@@ -347,8 +398,11 @@ function ossim_valid() {
 		
 		$v = ( Util::is_utf8($v) ) ? utf8_decode($v) : $v;
 		
-		$val_str = '';
-		
+		$val_str         = '';
+		$oss_echars      = false;
+		$echars          = get_echars($v);
+		$exists_echars   = ( is_array($echars) && !empty($echars) ) ? true : false;
+
 		foreach($parms as $p) {
 			//
 			// func:
@@ -379,22 +433,48 @@ function ossim_valid() {
 			//
 			// OSS_* constants
 			//
+						
 			$val_str.= $p;
 		}
+				
 		
+		if ( stripos($val_str, OSS_LETTER) !== false )
+				$oss_echars = true;
 		
+		$clean_v = $v;		
+
+		if ( $exists_echars == true && $val_str )
+		{
+			if ( $oss_echars == false  )
+				return ossim_set_error($error_msg. "<br/>String: <b>" . sprintf(_("\"%s\"")."</b> "._("not allowed."), $v));
+			else
+			{
+				foreach ($echars as $k => $char)
+				{
+					if ($char < MIN_ECHAR_VALUE)
+						return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , "&#".$char.";") . "<br/>Introduced string: '<b>$v</b>'");
+				}
+				
+				$clean_v = clean_echars($v);
+			}
+		}
 		
-		if ($val_str && preg_match("/[^$val_str]/", $v, $m)) {
+				 
+		if ($val_str && preg_match("/[^$val_str]/", $clean_v, $m))
+		{
 			$not = $m[0];
 			if ($not == " ") $not = _("spaces");
 			if ($not == "\r" || $not == "\n") $not = _("breaklines");
-			$v   = htmlentities($v);
-			$not = htmlentities($not);
-			if (preg_match("/Password/i",$error_msg)) {
+			
+			$v   = Util::htmlentities($v);
+			$not = Util::htmlentities($not);
+			
+									
+			if (preg_match("/Password/i",$error_msg))
 				return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , $not)); 
-			} else {
+			else 
 				return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , $not) . "<br/>Introduced string: '<b>$v</b>'");
-			}
+			
 		}
 	}
 	
@@ -664,12 +744,56 @@ function validate_sensor_perms($conn,$sensor_ip,$sql="") {
     return in_array($sensor_ip,$sensors_list);
 }
 
+function valid_echars($value)
+{
+		
+	if ( preg_match_all('/&#(\d{4,5});/', $value, $match) )
+	{
+		
+		
+		foreach ($match[1] as $k => $v)
+		{
+			if ($v < 10000)
+			{
+				ossim_set_error(_("Invalid characters")."<br/>Entered characters: '<b>".htmlentities($text)."</b>'");
+			}
+				
+			$text = str_replace("&#".$v.";", "", $value);
+		}
+	}
+	else
+		$text = $value;
+		
+	
+		
+	if ( $text != '' )
+	{
+		$latin_text[0] = "A-Za-z";
+		$latin_text[1] = "áéíóúıàèìòùäëïöüÿâêîôûãñõ¨åæç½ğøşß";
+		$latin_text[2] = "ÁÉÍÓÚİÀÈÌÒÙÄËÏÖÜ¾ÂÊÎÔÛÃÑÕ¦ÅÆÇ¼ĞØŞ";
+		$latin_text[3] = "0-9";
+		
+		$pattern = "/[^".implode("", $latin_text)."]/";
+		
+		if ( preg_match_all($pattern, $text, $match) )
+		{
+			ossim_set_error(_("Invalid characters")."<br/>Entered characters: '<b>".htmlentities($text)."</b>'");
+		}
+	}
+	
+	
+	return true;
+	
+}
+
+
 /*
 * Safe html escape. Always use that for printing vars comming
 * from outside ($_GET, $_POST, databases, etc)
 */
 function htm($var) {
-    return nl2br(htmlentities($var));
+    require_once ('classes/Util.inc');
+	return nl2br(Util::htmlentities($var));
 }
 function strip($var) {
     return get_magic_quotes_gpc() ? stripslashes($var) : $var;

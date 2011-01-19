@@ -51,8 +51,27 @@ $greybox = 0;
 ossim_valid($host, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("Host"));
 ossim_valid($hostname, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Hostname"));
 ossim_valid($greybox, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("greybox"));
+$date_from=GET('star_date');
+ossim_valid($date_from, OSS_DIGIT, OSS_NULLABLE, '-', 'illegal:' . _("Date from"));
+$date_to=GET('end_date');
+ossim_valid($date_to, OSS_DIGIT, OSS_NULLABLE, '-', 'illegal:' . _("Date to"));
+if($date_from==''||$date_to==''){
+	// For default week
+	$date_from=date('Y-m-d', strtotime("-1 week")); 
+	$date_to=date('Y-m-d', time()); 
+}
 if (ossim_error()) {
     die(ossim_error());
+}
+$date_range=array('date_from'=>$date_from,'date_to'=>$date_to);
+if($date_from==date('Y-m-d', strtotime("-1 week"))&&$date_to==date('Y-m-d', time())){
+	$type_active='lastWeek';
+}elseif($date_from==date('Y-m-d', strtotime("-1 month"))&&$date_to==date('Y-m-d', time())){
+	$type_active='lastMonth';
+}elseif($date_from==date('Y-m-d', strtotime("-1 year"))&&$date_to==date('Y-m-d', time())){
+	$type_active='lastYear';
+}else{
+	$type_active='null';
 }
 //
 require_once 'ossim_db.inc';
@@ -122,8 +141,10 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/top.css">
   <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
   
 <style type="text/css">
+<!--
 .level11  {  background:url(../pixmaps/statusbar/level11.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
 .level10  {  background:url(../pixmaps/statusbar/level10.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
 .level9  {  background:url(../pixmaps/statusbar/level9.gif) top left;background-repeat:no-repeat;width:86;height:29;padding-left:5px  }
@@ -144,12 +165,36 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 a {
 	font-size:10px;
 }
+#cont_date {
+	background: none;
+}
+#cont_date a{
+	font-size: 8pt;
+	color: #fff;
+}
+#cont_date a:link,#cont_date a:visited{
+	color: #fff;
+	text-decoration: none;
+}
+#cont_date a:hover{
+	color: #fff !important;
+	text-decoration: underline;
+}
+#cont_date a:active{
+	color: #fff;
+	text-decoration: none;
+}
+#cont_date #date_from, #cont_date #date_to{
+	color: #C0C0C0;
+}
+-->
 </style>
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script src="../forensics/js/jquery.flot.pack.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.progressbar.min.js"></script>
 <script type="text/javascript" src="../js/greybox.js"></script>
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
+<script src="../js/datepicker.js" type="text/javascript"></script>
 <script type="text/javascript">
 	var url = new Array(50)
 	function showTooltip(x, y, contents, link) {
@@ -206,6 +251,59 @@ a {
 				graphs++;
 			}
 		});
+		// CALENDAR
+		<?php
+		if ($date_from != "") {
+			$aux = split("-",$date_from);
+			$y = $aux[0]; $m = $aux[1]; $d = $aux[2];
+		} else {
+			$y = strftime("%Y", time() - (24 * 60 * 60));
+			$m = strftime("%m", time() - (24 * 60 * 60 * 31));
+			$d = strftime("%d", time() - (24 * 60 * 60));
+		}
+		if ($date_to != "") {
+			$aux = split("-",$date_to);
+			$y2 = $aux[0]; $m2 = $aux[1]; $d2 = $aux[2];
+		} else {
+			$y2 = date("Y"); $m2 = date("m"); $d2 = date("d");
+		}
+		?>
+		var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
+		var dateto = new Date(<?php echo $y2 ?>,<?php echo $m2-1 ?>,<?php echo $d2 ?>);
+		$('#widgetCalendar').DatePicker({
+			flat: true,
+			format: 'Y-m-d',
+			date: [new Date(datefrom), new Date(dateto)],
+			calendars: 3,
+			mode: 'range',
+			showCurrentAtPos: 0,
+			starts: 1,
+			onChange: function(formated) {
+				if (formated[0]!=formated[1]) {
+					var f1 = formated[0].split(/-/);
+					var f2 = formated[1].split(/-/);
+					document.getElementById('date_from').value = f1[0]+'-'+f1[1]+'-'+f1[2];
+					document.getElementById('date_to').value = f2[0]+'-'+f2[1]+'-'+f2[2];
+				}
+			}
+		});
+		var state = false;
+		$('#widget>a').bind('click', function(){
+			$('#widgetCalendar').stop().animate({height: state ? 0 : $('#widgetCalendar div.datepicker').get(0).offsetHeight}, 500);
+			$('#imgcalendar').attr('src',state ? '../pixmaps/calendar.png' : '../pixmaps/tables/cross.png');
+			state = !state;
+			if(!state){
+				var o_date_from='<?php echo $date_range['date_from']; ?>';
+				var o_date_to='<?php echo $date_range['date_to']; ?>';
+				
+				if(o_date_from!=document.getElementById('date_from').value||o_date_to!=document.getElementById('date_to').value){
+					document.location.href='host_report.php?host=<?php echo $host; ?>&star_date='+document.getElementById('date_from').value+'&end_date='+document.getElementById('date_to').value;
+				}
+			}
+			return false;
+		});
+		$('#widgetCalendar div.datepicker').css('position', 'absolute');
+		//
 		<? if (!$network) { ?>
 		$.ajax({
 			type: "GET",
@@ -269,6 +367,33 @@ a {
 			}
 		});
 	});
+	function executeRange(type){
+		var o_date_from='<?php echo $date_range['date_from']; ?>';
+		var o_date_to='<?php echo $date_range['date_to']; ?>';
+		var g_date_from='null';
+		var g_date_to='null';
+		
+		switch(type){
+			case 'lastWeek':
+				g_date_from='<?php echo date('Y-m-d', strtotime("-1 week")); ?>';
+				g_date_to='<?php echo date('Y-m-d', time()); ?>';
+				break;
+			case 'lastMonth':
+				g_date_from='<?php echo date('Y-m-d', strtotime("-1 month")); ?>';
+				g_date_to='<?php echo date('Y-m-d', time()); ?>';
+				break;
+			case 'lastYear':
+				g_date_from='<?php echo date('Y-m-d', strtotime("-1 year")); ?>';
+				g_date_to='<?php echo date('Y-m-d', time()); ?>';
+				break;
+			default:
+				break;
+		}
+		
+		if(g_date_from!='null'&&g_date_to!='null'){
+			document.location.href='host_report.php?host=<?php echo $host; ?>&star_date='+g_date_from+'&end_date='+g_date_to;
+		}
+	}
 </script>
 
 </head>
@@ -313,7 +438,26 @@ usleep(500000);
 	<tr>
 		<td>
 			<table style="background-color:#617F57" height="100%" cellpadding="5">
-				<tr><td colspan="3" style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?=gettext("General Data")?>: <?=preg_replace("/\(/","<font style='font-size:14px'><i> - (",preg_replace("/\)/",")</i></font>",$title_graph))?></td></tr>
+				<tr>
+					<td <?php if ($network) { ?>colspan="2"<?php } ?> style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?=gettext("General Data")?>: <?=preg_replace("/\(/","<font style='font-size:14px'><i> - (",preg_replace("/\)/",")</i></font>",$title_graph))?></td>
+					<td id="cont_date">
+						<table class="noborder" cellpadding="0" cellspacing="0" width="100%" style="background:none !important">
+							<tr>
+								<td style="color:#fff;text-align:left">
+									<div id="widget" style="display: inline;margin-right: 7px;">
+										<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0" /></a>
+										<div id="widgetCalendar"></div>
+									</div>
+									From: <input readonly="readonly" type="text" name="date_from" id="date_from"  value="<?php echo $date_from; ?>" style="width:80px;"/>
+									to: <input readonly="readonly" type="text" name="date_to" id="date_to" value="<?php echo $date_to; ?>" style="width:80px;"/>
+								</td>
+								<td style="color:#fff;text-align:right">
+									<?php if($type_active=='lastWeek'){?><strong><?php } ?><a href="javascript:executeRange('lastWeek');">Last week</a><?php if($type_active=='lastWeek'){?></strong><?php } ?> | <?php if($type_active=='lastMonth'){?><strong><?php } ?><a href="javascript:executeRange('lastMonth');">Last month</a><?php if($type_active=='lastMonth'){?></strong><?php } ?> | <?php if($type_active=='lastYear'){?><strong><?php } ?><a href="javascript:executeRange('lastYear');">Last year</a><?php if($type_active=='lastYear'){?></strong><?php } ?>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
 				<tr>
 					<td class="nobborder" valign="top" width="50%"><? include ("host_report_status.php") ?></td>
 					<td valign="top" class="nobborder" width="<?=($network) ? "20%" : "50%"?>"><? if ($network) include ("net_report_inventory.php"); else include ("host_report_inventory.php") ?></td>
@@ -331,11 +475,11 @@ usleep(500000);
 					<td class="nobborder" valign="top" width="45%"><? include ("host_report_alarms.php") ?></td>
 					<td class="nobborder" valign="top" width="25%"><? include ("host_report_vul.php") ?></td>
 				</tr>
-				<tr><td colspan="3" class="nobborder"><? include ("host_report_sim.php") ?></td></tr>
+				<tr><td colspan="3" class="nobborder"><?php include ("host_report_sim.php") ?></td></tr>
 			</table>
 		</td>
 	</tr>
-	<script type="text/javascript">$("#pbar").progressBar(90);$("#progressText").html('<b><?=gettext("Generating Report")?></b>...');</script><?
+	<script type="text/javascript">$("#pbar").progressBar(90);$("#progressText").html('<b><?=gettext("Generating Report")?></b>...');</script><?php
 	ob_flush();
 	flush();
 	usleep(500000);

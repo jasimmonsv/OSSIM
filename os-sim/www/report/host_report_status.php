@@ -41,9 +41,30 @@ require_once 'classes/Alarm.inc';
 require_once 'classes/Status.inc';
 require_once 'classes/Util.inc';
 
-function html_service_level($conn,$host="") {
+function html_service_level($conn,$host="",$date_range=null) {
     global $user;
-    $range = "day";
+	// for custom
+	if($date_range!=null){
+		$date_from_div=explode('-',$date_range['date_from']);
+		$date_to_div=explode('-',$date_range['date_to']);
+		// calculate number of days
+		$date_from_op=gregoriantojd ($date_from_div[1],$date_from_div[2],$date_from_div[0]);
+		$date_to_op=gregoriantojd ($date_to_div[1],$date_to_div[2],$date_to_div[0]);
+		$n_days=$date_to_op-$date_from_op+1;
+		//
+		if($n_days==1){
+			$range = "day";
+		}elseif($n_days>1&&$n_days<=7){
+			$range = "week";
+		}elseif($n_days>7&&$n_days<=31){
+			$range = "month";
+		}elseif($n_days>31){
+			$range = "year";
+		}
+	}else{
+		$range = "day";
+	}
+	//
     $level = 100;
     $class = "level4";
     //
@@ -106,7 +127,7 @@ $conf_threshold = $conf->get_conf('threshold');
 
 // Get service LEVEL
 //global $conn, $conf, $user, $range, $rrd_start;
-list($level, $levelgr) = html_service_level($conn,$host);
+list($level, $levelgr) = html_service_level($conn,$host,$date_range);
 list($score, $alt) = global_score($conn,$host);
 
 ?><script type="text/javascript">$("#pbar").progressBar(30);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("SIEM Events")?></b>...');</script><?
@@ -114,14 +135,28 @@ ob_flush();
 flush();
 usleep(500000);
 // Get SIM Events
-$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60));
+
+// for custom
+if($date_range!=null){
+	$date_from = $date_range['date_from'];
+	$date_to = $date_range['date_to'];
+}else{
+	$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60));
+	$date_to = strftime("%Y-%m-%d %H:%M:%S", time());
+}
+//
+
 $date_from_week = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 7));
-$date_to = strftime("%Y-%m-%d %H:%M:%S", time());
 $limit = 5;
-list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resume($host,$host,$date_from,$date_to);
+list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resume($host,$host,$date_from,$date_to); ?><?php
 //list($sim_events,$sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date,$unique_events,$event_cnt,$plots,$sim_ports,$sim_ipsrc,$sim_ipdst,$sim_gplot,$sim_numevents) = Status::get_SIM($host,$host);
-list($sim_ports,$sim_ipsrc,$sim_ipdst) = Status::get_SIM_Clouds($host,$host);
+list($sim_ports,$sim_ipsrc,$sim_ipdst) = Status::get_SIM_Clouds($host,$host,$date_range);
+//echo '-------------';
+//echo $date_from_week;
+//echo $date_to;
+//echo '-------------';
 $sim_gplot = Status::get_SIM_Plot($host,$host,$date_from_week,$date_to);
+//print_r($sim_gplot);
 list($unique_events,$plots,$sim_numevents) = Status::get_SIM_Unique($host,$host,$date_from_week,$date_to,$limit);
 if ($event_cnt < 1) $event_cnt = 1;
 

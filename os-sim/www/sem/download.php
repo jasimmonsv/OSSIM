@@ -11,7 +11,7 @@ $a = $_GET["query"];
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($sort_order, OSS_LETTER, 'illegal:' . _("sort order"));
-ossim_valid($a, OSS_SCORE, OSS_NULLABLE, OSS_SPACE, OSS_TEXT, '|', ':', 'illegal:' . _("query"));
+ossim_valid($a, OSS_ALPHA, OSS_NULLABLE, '=', 'illegal:' . _("query"));
 
 if (ossim_error()) {
     die(ossim_error());
@@ -48,15 +48,15 @@ if (preg_match("/(.*sensor!=)(\S+)(.*)/", $a, $matches) || preg_match("/(.*senso
     $a = $matches[1] . $plugin_id . $matches[3];
 }
 */
-if ($_SESSION["forensic_query"] != "") $a = $_SESSION["forensic_query"];
-$org = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".str_replace("/","_slash_",$a)."/";
-$dest = $user."_".$start."_".$end."_".$sort_order."_".str_replace("/","_slash_",$a).".zip";
+//if ($_SESSION["forensic_query"] != "") $a = $_SESSION["forensic_query"];
+$org = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".$a."/";
+$dest = $user."_".$start."_".$end."_".$sort_order."_".$a.".zip";
 
 $org = str_replace("'", "\'", $org);
 $dest = str_replace("'", "\'", $dest);
 $file = "/tmp/".$dest;
 
-$cmd = "cd '$org';zip -r '$file' . > /dev/null";
+$cmd = "cd '$org';zip -r '$file' *.txt > /dev/null";
 //print_r($cmd);
 system($cmd);
 

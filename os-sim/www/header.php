@@ -59,7 +59,13 @@ $version = $config->get_conf("ossim_server_version", FALSE);
 	<td id="ossimlogo" style="background:url('pixmaps/top/bg_header.gif') repeat-x bottom left;height:65">
 		<table border=0 cellpadding=0 cellspacing=0 height="65">
 		<tr>
-			<td style="padding-left:10px"><img src="pixmaps/top/logo<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" border='0'></td>
+			<td style="padding-left:10px">
+				<?php if (file_exists("tmp/headers/_header_logo.png")) { ?>
+				<img src="tmp/headers/_header_logo.png" border='0' width="210" height="42"></img>
+				<?php } else { ?>
+				<img src="pixmaps/top/logo<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" border='0'>
+				<?php } ?>
+			</td>
 		</tr>
 	  </table>
 	</td>

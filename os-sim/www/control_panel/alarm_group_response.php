@@ -75,6 +75,7 @@ $group_id = GET('group_id');
 $hide_closed = GET('hide_closed');
 $only_delete = GET('only_delete'); // Number of groups to delete
 $only_close = GET('only_close'); // Number of groups to close
+$only_open = GET('only_open'); // Number of groups to open
 $unique_id = GET('unique_id');
 $top = (GET('top') != "") ? GET('top') : 100;
 $from = (GET('from') != "") ? GET('from') : 0;
@@ -87,6 +88,7 @@ ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'il
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
 ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
 ossim_valid($only_close, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_close"));
+ossim_valid($only_open, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_open"));
 ossim_valid($unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($group_id, OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, OSS_SCORE, 'illegal:' . _("group_id"));
 if (ossim_error()) {
@@ -104,6 +106,7 @@ if ($only_delete) {
 		$src_ip = $data[1];
 		$dst_ip = $data[2];
 		$timestamp = $data[3];
+		AlarmGroups::delete_group ($conn, $data[0], $_SESSION["_user"]);
 		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$timestamp." 00:00:00",$timestamp,$name);
 		foreach ($list as $s_alarm) {
 			$s_backlog_id = $s_alarm->get_backlog_id();
@@ -121,11 +124,32 @@ if ($only_close) {
 		$src_ip = $data[1];
 		$dst_ip = $data[2];
 		$timestamp = $data[3];
+		echo "cerrando id $name OR $data[0]";
+		AlarmGroups::change_status ($conn, $data[0], "closed");
 		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$from_date,$to_date,$name);
 		foreach ($list as $s_alarm) {
 			$s_backlog_id = $s_alarm->get_backlog_id();
 			$s_event_id = $s_alarm->get_event_id();
 			Alarm::close($conn, $s_event_id);
+		}
+	}
+	exit;
+}
+if ($only_open) {
+	$group_ids = explode(",",$name);
+	for ($i = 1; $i <= $only_open; $i++) {
+		$data = explode("_",GET('group'.$i));
+		$name = $_SESSION[$data[0]];
+		$src_ip = $data[1];
+		$dst_ip = $data[2];
+		$timestamp = $data[3];
+		echo "cerrando id $name OR $data[0]";
+		AlarmGroups::change_status ($conn, $data[0], "open");
+		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$from_date,$to_date,$name);
+		foreach ($list as $s_alarm) {
+			$s_backlog_id = $s_alarm->get_backlog_id();
+			$s_event_id = $s_alarm->get_event_id();
+			Alarm::open($conn, $s_event_id);
 		}
 	}
 	exit;

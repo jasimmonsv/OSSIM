@@ -56,11 +56,12 @@ $conn_aux = $db_aux->connect();
 
 //
 $param_query = GET("query") ? GET("query") : "";
-$param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 30));
+$param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60));
 $param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
 
-$_SESSION['graph_type'] = "last_month";
-$_SESSION['cat'] = "Oct%2C+2010";
+//$_SESSION['graph_type'] = "last_month";
+$_SESSION['graph_type'] = "day";
+$_SESSION['cat'] = date("M j, Y");
 
 $framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
@@ -465,6 +466,7 @@ function SetFromIframe(content,str,start,end,sort) {
         //$("#img_download").show();
         //$("#href_download").attr("href", "download.php?query=" + str + "&start=" + start + "&end=" + end + "&sort=" + sort);
     }
+    if (document.getElementById('txtexport').value == "exportScreen") reload_export();
     document.getElementById('txtexport').value = 'noExport';
     load_contextmenu();
     $(".scriptinfo").simpletip({
@@ -965,7 +967,7 @@ function graph_by_date( col ,row ,value, category, series, t_year, t_month)
       document.getElementById('end_aaa').value = byDateEnd+" 23:59:59";
       RequestLines(); MakeRequest();
       bold_dates();
-      //alert("day: "+ day +" month: "+month+ " year: "+year);
+      //alert("day: "+ day +" month: "+month+ " year: "+year+" cat: "+category);
     break;
     default:
       //Dont create another graph... refresh the search and stop here
@@ -1061,7 +1063,7 @@ function bg_task() {
 function doQuery(tipoExport) {
 	if (tipoExport == 'exportScreen') {
 		load_stop = false;
-		document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif'>";
+		document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	} else if (tipoExport == 'exportEntireQuery') {
 		document.getElementById('exports_bg').innerHTML = "<img src='../forensics/images/alarm-clock-blue.png'> <?php echo _("Saving events in background") ?>";
 		if (taskID != "") clearInterval(taskID);
@@ -1087,12 +1089,11 @@ Array.prototype.in_array = function(p_val) {
 
 $(document).ready(function(){
 	//UpdateByDate('forensic.php?graph_type=all&cat=');
-	$('#date4').addClass('negrita');
-	bold_dates('date4');
+	$('#date2').addClass('negrita');
+	bold_dates('date2');
 	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
 	RequestLines();
 	MakeRequest();
-	//setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_month','<?php echo urlencode(date("Y")) ?>');
 	$("#start_aaa,#end_aaa").change(function(objEvent){
 		CalendarOnChange();
 	});
@@ -1103,9 +1104,10 @@ $(document).ready(function(){
 	
 	// CALENDAR
 	<?
-	$y = strftime("%Y", time() - ((24 * 60 * 60) * 30));
-	$m = strftime("%m", time() - ((24 * 60 * 60) * 30));
-	$d = strftime("%d", time() - ((24 * 60 * 60) * 30));
+	$y = strftime("%Y", time() - (24 * 60 * 60));
+	$m = strftime("%m", time() - (24 * 60 * 60));
+	//$d = strftime("%d", time() - ((24 * 60 * 60) * 1));
+	$d = strftime("%d", time() - (24 * 60 * 60));
 	?>
 	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
 	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m")-1 ?>,<?php echo date("d") ?>);
@@ -1240,7 +1242,7 @@ function delete_filter(filter_name) {
 	}
 }
 function delete_export(code) {
-	document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif'>";
+	document.getElementById('exports_box').innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	$.ajax({
         type: "GET",
         url: "ajax_exports.php?del_export="+code,
@@ -1330,7 +1332,7 @@ document.getElementById('cursor').value = document.body.style.cursor;
 <?php // Possible sort values: none, date, date_desc
  ?>
 <input type="hidden" id="sort" value="none">
-<input type="hidden" id="start" value="<?php echo ($param_start != "" && date_parse($param_start)) ? $param_start : strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>">
+<input type="hidden" id="start" value="<?php echo ($param_start != "" && date_parse($param_start)) ? $param_start : strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60)) ?>">
 <?php // Temporary fix until the server logs right
  ?>
 <input type="hidden" id="end" value="<?php echo ($param_end != "" && date_parse($param_end)) ? $param_end : strftime("%Y-%m-%d %H:%M:%S", time()) ?>">
@@ -1377,7 +1379,7 @@ require_once ("manage_querys.php");
                         <div id="exports" style="position:absolute;left:0;top:0;display:none;z-index:1000">
                         <table cellpadding=0 cellspacing=0 align="center">
 	                        <tr>
-	                        	<th>
+	                        	<th style="padding:0px">
 	                        		<table style="background-color:transparent;border:0px" width="100%">
 	                        			<tr>
 	                        				<td width="30"></td>
@@ -1403,15 +1405,18 @@ require_once ("manage_querys.php");
 											<th><?php echo _("From") ?></th>
 											<th><?php echo _("To") ?></th>
 											<th><?php echo _("Query") ?></th>
-											<td></td>
+											<th><?php echo _("Size") ?></th>
+											<td align="right"><a href="" onclick="if(confirm('<?php echo _("Are you sure?") ?>')) delete_export('all');return false;"><img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete all"); ?>" title="<?php echo _("Delete all"); ?>" border="0"></img></a></td>
 										</tr>
 									<? $i=0;
 									foreach ($exports as $filename=>$name) {
-				                        $i++;    ?>
+				                        $size = (filesize($filename)/1024 > 2000) ? floor(filesize($filename)/1024/1024)."MB" : floor(filesize($filename)/1024)."KB";
+										$i++;    ?>
 				                        <tr class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>" style="padding-top:4px">
 				                        <td><b><?php echo $name[0] ?></b></td>
 				                        <td><b><?php echo $name[1] ?></b></td>
 				                        <td><b><?php echo ($name[3] != "") ? "yes" : "no" ?></b></td>
+				                        <td><?php echo $size ?></td>
 				                        <td>
 				                        <a href="download.php?query=<?php echo $name[3] ?>&start=<?php echo $name[0] ?>&end=<?php echo $name[1] ?>&sort=<?php echo $name[2] ?>"><img src="../pixmaps/download.png" alt="<?php echo _("Download"); ?>" title="<?php echo _("Download"); ?>" border="0" /></a>
 				                        <a href="" onclick="if(confirm('<?php echo _("Are you sure?") ?>')) delete_export('<?php echo base64_encode($name[0].$name[1].$name[2].$name[3]) ?>');return false;"><img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete"); ?>" title="<?php echo _("Delete"); ?>" border="0" /></a>
@@ -1496,7 +1501,7 @@ require_once ("manage_querys.php");
 				<td class="nobborder">
 					<table class="transparent">
                     <tr>
-                        <td class="nobborder" nowrap><?=_("Time frame selection")?>:</td>
+                        <td class="nobborder" nowrap><?=_("Time frame selection UTC")?>:</td>
                         <td class="nobborder">
                             <div id="widget">
                                 <a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
@@ -1513,7 +1518,7 @@ require_once ("manage_querys.php");
                         <?php
                         } else {
                         ?>
-                            <input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>">
+                            <input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60)) ?>">
                             <input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>">
                         <?php
                         }

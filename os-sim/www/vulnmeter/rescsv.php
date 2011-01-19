@@ -460,10 +460,26 @@ echo "<th ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."widt
               $msg = str_replace("\\r", "", $msg);
              echo "<tr valign=top>";
              if (($treport=="" && $ipl=="") || $ipl=="all") echo "<td style='text-align:center'>"._("IP")."=$hostip-"._("NAME")."=$hostname</td><br>";
+             $msg = preg_replace("/(Solution|Overview|Synopsis|Description|See also|Plugin output|References|Vulnerability Insight|Impact|Impact Level|Affected Software\/OS|Fix|Information about this scan)\s*:/","<br><b>\\1:</b><br>",$msg);
              echo "    <td style='text-align:center'>$service</td>
                        <td style='text-align:center'>$risk_txt</td>
                        <td style='text-align:center'>$scriptid</td>
-                       <td ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"").">$pname<br>$msg</td>"; 
+                       <td ".((($treport!="" || $ipl!="") && $ipl!="all")? "colspan=2 ":"")."><b>$pname</b><br>$msg";
+             $plugin_info = $dbconn->execute("SELECT t2.name, t3.name, t1.copyright, t1.summary, t1.version 
+                                                FROM vuln_nessus_plugins t1
+                                                LEFT JOIN vuln_nessus_family t2 on t1.family=t2.id
+                                                LEFT JOIN vuln_nessus_category t3 on t1.category=t3.id
+                                                WHERE t1.id='$scriptid'");
+
+             list($pfamily, $pcategory, $pcopyright, $psummary, $pversion) = $plugin_info->fields;
+             echo "<br>";
+             if ($pfamily!="")    { echo '<br><b>Family name:</b> '.$pfamily;} 
+             if ($pcategory!="")  { echo '<br><b>Category:</b> '.$pcategory; }
+             if ($pcopyright!="") { echo '<br><b>Copyright:</b> '.$pcopyright; }
+             if ($psummary!="")   { echo '<br><b>Summary:</b> '.$psummary; }
+             if ($pversion!="")   { echo '<br><b>Version:</b> '.$pversion; }
+             
+             echo "    </td>";
              echo "</tr>";
                $result1->MoveNext();
           }

@@ -377,21 +377,11 @@ var hosts = new Array(<?php echo count($hosts) ?>)
 // content functions
 var ajaxObj = null;
 var pause = false;
-var url = '<?php echo $SCRIPT_NAME
-?>?modo=responder';
+var url = '<?php echo $SCRIPT_NAME ?>?modo=responder';
 var comborisk = 'rsk';
 function changecontent(id,content) { document.getElementById(id).innerHTML = content }
 function getcontent(id) { return document.getElementById(id).innerHTML }
 function create_script(url) {
-	// load extra parameters from select filter
-	var idf = getdatafromcheckbox();
-	if (idf!='') url = url + '&plugins=' + idf
-	<?php
-    if ($from_snort == false) { ?>
-	var rsk = getdatafromcombo(comborisk);
-	if (rsk!='' && rsk!='0') url = url + '&risk=' + rsk
-	<?php
-    } ?>
 	// make script element
 	//changecontent('footer','<?php echo _("Refreshing") ?> '+url+'...')
 	var ajaxObject = document.createElement('script');
@@ -408,10 +398,27 @@ function refresh() {
 	// ajax responder
 	if (pause==false) {
 		changecontent('footer','<?php echo _("Refreshing") ?>...')
-		var h = document.getElementsByTagName('head')
-		if (ajaxObj) ajaxObj.parentNode.removeChild(ajaxObj)
-		ajaxObj = create_script(url)
-		h.item(0).appendChild(ajaxObj);
+        // load extra parameters from select filter
+        var urlr = url;
+        var idf = getdatafromcheckbox();
+        if (idf!='') urlr = urlr + '&plugins=' + idf
+        <?php
+        if ($from_snort == false) { ?>
+        var rsk = getdatafromcombo(comborisk);
+        if (rsk!='' && rsk!='0') urlr = urlr + '&risk=' + rsk
+        <?php
+        } ?>
+		//var h = document.getElementsByTagName('head')
+		//if (ajaxObj) ajaxObj.parentNode.removeChild(ajaxObj)
+		//ajaxObj = create_script(url)
+		//h.item(0).appendChild(ajaxObj);
+        $.ajax({
+           type: "GET",
+           url: urlr,
+           success: function(msg){
+             eval(msg);
+           }
+        });
 	}
 }
 var edata = new Array(<?php echo $max_rows ?>)
@@ -485,7 +492,7 @@ function go() {
 
 <table border=0 cellpadding=0 cellspacing=0 class="nobborder"><tr><td class="nobborder">
 	<form name="controls" onsubmit="return false" style="margin:0 auto">
-	<input type=button onclick="pausecontinue()" value="<?php echo _("pause"); ?>" class="btn" style="font-size:12px">
+	<input type=button onclick="pausecontinue()" value="<?php echo _("pause"); ?>" class="button" style="font-size:12px">
 	<!--
 	<input type=button  Onclick="play()" value="<?php echo _("start"); ?>">
 	<input type=button  Onclick="stop()" value="<?php echo _("stop"); ?>">
@@ -573,7 +580,7 @@ function go() {
 <table border=0 cellpadding=0 cellspacing=0 width="120" class="nobborder">
 <tr><td class="nobborder" nowrap>
 <form id="filter" name="filter" style="margin:0 auto">
-	<input type="button" value="reset" onclick="rst()" class="btn" style="font-size:12px"><br><br>
+	<input type="button" value="reset" onclick="rst()" class="button" style="font-size:12px"><br><br>
 	<?php
     if ($from_snort == false) { ?>
 	<b>Risk filter:</b><br>

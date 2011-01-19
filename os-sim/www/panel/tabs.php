@@ -142,8 +142,8 @@
 					<tr>
 						<td align="<?($tabsavt[$_GET['panel_id']] == "") ? "left" : "right"?>" class="noborder" nowrap='nowrap' style="color:white;padding-right:5px;padding-bottom:2px">
 							<?php
-							if ($tabsavt[$panel_id] == "") 
-							{
+							//if ($tabsavt[$panel_id] == "" || 1==1)
+							//{
 								if ($can_edit) 
 								{ ?>
 									<small>
@@ -172,11 +172,11 @@
 									echo gettext("No Edit"); ?></a>
 									|
 							<?php } ?>
-								<? }
-								else 
-								{ 
-								   echo "<small class='white'>"; 
-								} 
+								<? //}
+								//else 
+								//{ 
+								//   echo "<small class='white'>"; 
+								//} 
 								?>
 								<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&panel_id=<?php echo $panel_id ?>"><?php
 								echo gettext("Edit Tabs"); ?></a>	|

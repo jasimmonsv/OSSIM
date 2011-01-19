@@ -570,5 +570,65 @@ class Sensor {
         }
         return $ip;
     }
+    function get_assets($conn, $name) {
+        $list = array();
+        $list["host"]= array();
+        $list["net"]= array();
+        $list["hgroup"]= array();
+        $list["ngroup"]= array();
+        
+        // add hosts
+        $sql = "SELECT hsr.host_ip, h.hostname FROM host h, host_sensor_reference hsr WHERE h.ip=hsr.host_ip AND hsr.sensor_name='$name'";
+        if (!$rs = $conn->Execute($sql)) {
+            die($conn->ErrorMsg());
+        }
+        while (!$rs->EOF) {
+            $list["host"][$rs->fields["hostname"]] = $rs->fields["host_ip"];
+            $rs->MoveNext();
+        }
+        
+        // add nets
+        $sql = "SELECT n.ips, n.name FROM net n, net_sensor_reference nsr WHERE n.name=nsr.net_name AND nsr.sensor_name='$name'";
+        if (!$rs = $conn->Execute($sql)) {
+            die($conn->ErrorMsg());
+        }
+        while (!$rs->EOF) {
+            $list["net"][$rs->fields["name"]] = $rs->fields["ips"];
+            $rs->MoveNext();
+        }
+        
+        // add host groups
+        $sql = "SELECT DISTINCT hgr.host_group_name FROM host_group_reference hgr, host_group_sensor_reference hgsr WHERE hgr.host_group_name=hgsr.group_name AND hgsr.sensor_name='$name'";
+
+        if (!$rs = $conn->Execute($sql)) {
+            die($conn->ErrorMsg());
+        }
+        while (!$rs->EOF) {
+            $list["hgroup"][$rs->fields["host_group_name"]] = 1;
+            $rs->MoveNext();
+        }
+        
+        // add net groups
+        $net_groups = array();
+        $sql = "SELECT net_group_name, net_name FROM net_group_reference ORDER BY net_group_name";
+        if (!$rs = $conn->Execute($sql)) {
+            die($conn->ErrorMsg());
+        }
+        while (!$rs->EOF) {
+            $net_groups[$rs->fields["net_group_name"]][]= $rs->fields["net_name"];
+            $rs->MoveNext();
+        }
+        
+        foreach($net_groups as $ng_name => $net_group) {
+            $allowed = 1;
+            foreach ($net_group as $n => $net_name){
+                if (!array_key_exists($net_name,$list["net"])) {
+                    $allowed = 0; break;
+                }
+            }
+            if ($allowed) $list["ngroup"][$ng_name] = 1;
+        }
+        return $list;
+    }
 }
 ?>

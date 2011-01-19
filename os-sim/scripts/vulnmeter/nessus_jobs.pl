@@ -2217,35 +2217,33 @@ sub pop_hosthash {
 	}
 
 
-        my $risk='7';
+        my $risk=7;
+        my $prisk=0;
         
-        logwriter("Risk factor $host $scanid $desc $risk $risk_factor", 4);
+        $risk=1  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Serious/s);
+        $risk=1  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Critical/s);
+        $risk=2  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*High/s);
+        $risk=3  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium/s);
+        $risk=4  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium\/Low/s);
+        $risk=5  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low\/Medium/s);
+        $risk=6  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low/s);
+        $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Info/s);
+        $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s);
+        #$risk=8 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Exception/s);       #EXCEPTIONS ARE CALCULATED FROM EXCEPTION DATA NOT BY A STORED RISK VALUE
+        $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
+        $risk=3 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Unknown/s);         #PLAN TO RECLASSIFY Compliance Audit Values
+        $risk=2 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Failed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
         
-        if ($risk_factor eq "") {
-            # get the risk value from the text in the description
+        if ($risk_factor ne "") {
+            $prisk=2  if($risk_factor eq "High");
+            $prisk=3  if($risk_factor eq "Medium");
+            $prisk=6  if($risk_factor eq "Low");
+            $prisk=7  if($risk_factor eq "Info");
             
-            $risk='1'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Serious/s);
-            $risk='1'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Critical/s);
-            $risk='2'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*High/s);
-            $risk='3'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium/s);
-            $risk='4'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Medium\/Low/s);
-            $risk='5'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low\/Medium/s);
-            $risk='6'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low/s);
-            $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Info/s);
-            $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s);
-            #$risk='8' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Exception/s);       #EXCEPTIONS ARE CALCULATED FROM EXCEPTION DATA NOT BY A STORED RISK VALUE
-            $risk='7'  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
-            $risk='3' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Unknown/s);         #PLAN TO RECLASSIFY Compliance Audit Values
-            $risk='2' if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Failed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
-        }
-        else {
-            $risk='2'  if($risk_factor eq "High");
-            $risk='3'  if($risk_factor eq "Medium");
-            $risk='6'  if($risk_factor eq "Low");
-            $risk='7'  if($risk_factor eq "Info");
+            $risk = $prisk if ($prisk < $risk); # final risk lowest
         }
         
-        logwriter("Risk factor $host $scanid $desc $risk", 4);
+        logwriter("Risk factor $host $scanid $desc $risk", 4); 
 
         #remove the Risk Factor from the description
         $desc=~ s/Risk [fF]actor\s*:\s*(\\n)*Serious((\\n)+| \/ |$)//s;
@@ -3776,7 +3774,7 @@ sub get_results_from_file {
                 $proto = $temp2[1];
             }
             if (defined($scan_id)){
-                logwriter("get_results_from_file:scan_id:$scan_id", 4);
+                logwriter("get_results_from_file:scan_id:$scan_id", 4); 
             }
             if (defined($compliance_plugins)){
                 logwriter("get_results_from_file:compliance_plugins:$compliance_plugins", 4);
@@ -3829,6 +3827,22 @@ sub get_results_from_file {
                 logwriter("set compliance description: $risk_value",5);
             }
 
+            my $risk_factor = "Info";
+            if(defined $risk_type) {
+                if ($risk_type =~ /^LOW/i) {
+                    $risk_factor = "Low";
+                }
+                elsif ($risk_type =~ /^(MEDIUM|Security.Warning)/i) {
+                    $risk_factor = "Medium";
+                }
+                elsif ($risk_type =~ /^(HIGH|Security.Hole)/i) {
+                    $risk_factor = "High";
+                }
+                elsif ($risk_type =~ /^REPORT/i) {
+                    $risk_factor = "High";
+                }
+            }
+            
             if ( $description ) {   #ENSURE WE HAVE SOME DATA
                 $description =~ s/\\/\\\\/g;	#FIX TO BACKSLASHES
                 $description =~ s/\\\\n/\\n/g;	#FIX TO NEWLINE
@@ -3840,9 +3854,9 @@ sub get_results_from_file {
                     Service         => $app,
                     Proto           => $proto,
                     ScanID          => $scan_id,
-                    RiskFactor      => ""
+                    RiskFactor      => $risk_factor
                 };
-                logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id };\n", 5);
+                logwriter ( "my temp = { Port=>$port, Host=>$host, Description=>$description, Service=>$app, Proto=>$proto, ScanID=>$scan_id, RiskFactor=>$risk_factor  };\n", 5);
                 push ( @issues, $temp );
                 $total_records += 1;
             }

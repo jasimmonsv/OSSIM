@@ -87,8 +87,15 @@ $default_map = $config->get($login, "riskmap", 'simple', 'main');
 //
 if (is_uploaded_file($HTTP_POST_FILES['ficheromap']['tmp_name'])) {
 	$filename = "maps/" . $name . ".jpg";
+	$newid = 0;
+	if (preg_match("/map(\d+)/",$name,$found)) {
+		$newid = $found[1];
+	}
 	if(getimagesize($HTTP_POST_FILES['ficheromap']['tmp_name'])){
 		move_uploaded_file($HTTP_POST_FILES['ficheromap']['tmp_name'], $filename);
+		if (!Session::am_i_admin()) {
+			$conn->Execute("INSERT IGNORE INTO risk_maps (map,perm) VALUES ('$newid','".$_SESSION['_user']."')");
+		}
 	}
 }
 if ($erase_element != "") {
@@ -99,6 +106,8 @@ if ($erase_element != "") {
 		$map_id = $found[1];
 		if ($map_id > 0) {
 			$query = "DELETE FROM risk_indicators WHERE map=$map_id";
+			$result = $conn->Execute($query);
+			$query = "DELETE FROM risk_maps WHERE map=$map_id";
 			$result = $conn->Execute($query);
 		}
 	}
@@ -146,12 +155,15 @@ while (!$result->EOF) {
 			<form action="changemap.php" method=post name=f1 enctype="multipart/form-data">
 			<?= _("Upload map file") ?>: <input type=hidden value="<? echo $map ?>" name=map>
             <?php
-            $limage_id = 0;
-            $limage = `ls -1t 'maps' | head -1`;
-            preg_match("/map(.*)\.jpg/",$limage, $found);
-            $limage_id = $found[1];
+            $max_id = 0;
+            $limage = explode("\n",`ls -1t 'maps'`);
+            foreach ($limage as $line) if (preg_match("/map(\d+)\.jpg/",$line,$found)) {
+            	if ($found[1] > $max_id) {
+            		$max_id = $found[1];
+            	}
+            }
             ?>
-			<input type=hidden name=name value="map<? echo ($limage_id+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
+			<input type=hidden name=name value="map<? echo ($max_id+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
 			<input type=submit value="<?= _("Upload") ?>" class="button" style="font-size:12px">
 			</form>
 		</td>

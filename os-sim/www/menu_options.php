@@ -542,11 +542,6 @@ if ($opensource) {
            "target" => "main",
            "url" => "../report/jasper.php?mode=advanced"
         );
-		$rmenu["Plugins"][] = array(
-           "name" => gettext("Manage Taxonomy"),
-           "target" => "main",
-           "url" => "../conf/category.php"
-        );
 	}
 }
 /*
@@ -741,10 +736,22 @@ if(Session::am_i_admin()) {
     $menu["Assets"][] = array(
         "name" => gettext("Asset Discovery") ,
         "id" => "Asset Discovery",
-        "url" => "net/assetdiscovery.php"
+        "url" => "netscan/index.php"
     );
+	/* if (Session::menu_perms("MenuTools", "ToolsScan")) {
+    $menu["Tools"][] = array(
+        "name" => gettext("Net Discovery") ,
+        "id" => "Net Scan",
+        "url" => "netscan/index.php"
+    ); */
     $hmenu["Asset Discovery"][] = array(
+        "name" => gettext("Active Net Discovery") ,
         "id" => "Asset Discovery",
+        "url" => "netscan/index.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
+    );    
+    $hmenu["Asset Discovery"][] = array(
+        "id" => "Passive Network Discovery",
         "name" => gettext("Passive Network Discovery") ,
         "url" => "net/assetdiscovery.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
@@ -763,51 +770,6 @@ if(Session::am_i_admin()) {
     );
 }
 
-
-if (Session::menu_perms("MenuPolicy", "PolicyServers") || Session::menu_perms("MenuPolicy", "PolicySensors")) { $assets = 1;
-    if (Session::menu_perms("MenuPolicy", "PolicySensors")) {
-        $menu["Assets"][] = array(
-          "name" => gettext("SIEM Components") ,
-          "id" => "SIEM Components",
-          "url" => "sensor/sensor.php"
-        );
-    } elseif (Session::menu_perms("MenuPolicy", "PolicyServers")) {
-        $menu["Assets"][] = array(
-          "name" => gettext("SIEM Components") ,
-          "id" => "SIEM Components",
-          "url" => "server/server.php"
-        );
-    }
-    if (Session::menu_perms("MenuPolicy", "PolicySensors")) {
-        $hmenu["SIEM Components"][] = array(
-          "name" => gettext("Sensors") ,
-          "id" => (preg_match("/sensor/",$menu["Assets"][0]["url"]) || preg_match("/sensor/",$menu["Assets"][1]["url"]) || preg_match("/sensor/",$menu["Assets"][2]["url"]) || preg_match("/sensor/",$menu["Assets"][3]["url"])) ? "SIEM Components" : "Sensors",
-          "url" => "sensor/sensor.php",
-          "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:sensors','Help');"
-        );
-    }
-    if (Session::menu_perms("MenuPolicy", "PolicyServers") && !$opensource) {
-        $hmenu["SIEM Components"][] = array(
-            "name" => gettext("Servers") ,
-            "id" => (preg_match("/server/",$menu["Assets"][0]["url"]) || preg_match("/server/",$menu["Assets"][1]["url"]) || preg_match("/server/",$menu["Assets"][2]["url"]) || preg_match("/server/",$menu["Assets"][3]["url"])) ? "SIEM Components" : "Servers",
-            "url" => "server/server.php",
-            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:servers','Help');"
-        );
-        $hmenu["SIEM Components"][] = array(
-           "name" => gettext("Databases"),
-           "id" => "DBs",
-           "url" => "server/dbs.php",
-           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:databases','Help');"
-        );
-    }
-    /*if (Session::menu_perms("MenuPolicy", "PolicyPluginGroups")) {
-        $hmenu["SIEM Components"][] = array(
-            "name" => gettext("Plugin Groups") ,
-            "id" => (preg_match("/plugingroups/",$menu["Assets"][1]["url"])) ? "SIEM Components" : "Plugin Groups",
-            "url" => "policy/plugingroups.php"
-        );
-    }*/
-}
 
 /*if ($assets) $menu["Assets"][] = array(
     "name" => gettext("Help") ,
@@ -1112,28 +1074,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsVServers") && $conf->get_conf("
 "id" => "Virtual Servers",
 "url" => "$ovcp_link"
 );*/
-if (Session::menu_perms("MenuMonitors", "MonitorsSensors")) { $monitors = 1;
-    $menu["Monitors"][] = array(
-        "name" => gettext("System") ,
-        "id" => "Sensors",
-        "url" => "sensor/sensor_plugins.php"
-    );
-    $hmenu["Sensors"][] = array(
-        "name" => gettext("System") ,
-        "id" => "Sensors",
-        "url" => "sensor/sensor_plugins.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
-    );
-	if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) {
-		$hmenu["Sensors"][] = array(
-			"name" => gettext("User Activity") ,
-			"id" => "User Log",
-			"url" => "userlog/user_action_log.php",
-			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
-		);
-	}
-	
-}
+
 /*
 if (Session::menu_perms("MenuMonitors", "MonitorsRiskmeter")) $menu["Usage & Profiles"][] = array(
 "name" => gettext("Riskmeter") ,
@@ -1221,6 +1162,50 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUserActionLog")) { $c
     "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:user_activity','Help');"
 );
 }
+if (Session::menu_perms("MenuPolicy", "PolicyServers") || Session::menu_perms("MenuPolicy", "PolicySensors")) { $assets = 1;
+    if (Session::menu_perms("MenuPolicy", "PolicySensors")) {
+        $menu["Configuration"][] = array(
+          "name" => gettext("SIEM Components") ,
+          "id" => "SIEM Components",
+          "url" => "sensor/sensor.php"
+        );
+    } elseif (Session::menu_perms("MenuPolicy", "PolicyServers")) {
+        $menu["Configuration"][] = array(
+          "name" => gettext("SIEM Components") ,
+          "id" => "SIEM Components",
+          "url" => "server/server.php"
+        );
+    }
+    if (Session::menu_perms("MenuPolicy", "PolicySensors")) {
+        $hmenu["SIEM Components"][] = array(
+          "name" => gettext("Sensors") ,
+          "id" => (preg_match("/sensor/",$menu["Configuration"][0]["url"]) || preg_match("/sensor/",$menu["Configuration"][1]["url"]) || preg_match("/sensor/",$menu["Configuration"][2]["url"]) || preg_match("/sensor/",$menu["Configuration"][3]["url"])) ? "SIEM Components" : "Sensors",
+          "url" => "sensor/sensor.php",
+          "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:sensors','Help');"
+        );
+    }
+    if (Session::menu_perms("MenuPolicy", "PolicyServers") && !$opensource) {
+        $hmenu["SIEM Components"][] = array(
+            "name" => gettext("Servers") ,
+            "id" => (preg_match("/server/",$menu["Configuration"][0]["url"]) || preg_match("/server/",$menu["Configuration"][1]["url"]) || preg_match("/server/",$menu["Configuration"][2]["url"]) || preg_match("/server/",$menu["Configuration"][3]["url"])) ? "SIEM Components" : "Servers",
+            "url" => "server/server.php",
+            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:servers','Help');"
+        );
+        $hmenu["SIEM Components"][] = array(
+           "name" => gettext("Databases"),
+           "id" => "DBs",
+           "url" => "server/dbs.php",
+           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:databases','Help');"
+        );
+    }
+    /*if (Session::menu_perms("MenuPolicy", "PolicyPluginGroups")) {
+        $hmenu["SIEM Components"][] = array(
+            "name" => gettext("Plugin Groups") ,
+            "id" => (preg_match("/plugingroups/",$menu["Assets"][1]["url"])) ? "SIEM Components" : "Plugin Groups",
+            "url" => "policy/plugingroups.php"
+        );
+    }*/
+}
 if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) { $configuration = 1;
     $menu["Configuration"][] = array(
         "name" => gettext("Collection") ,
@@ -1247,7 +1232,18 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) { $configu
 		"url" => "policy/collectors.php",
 		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:custom_collectors','Help');"
         );
-
+		$hmenu["Plugins"][] = array(
+           "name" => gettext("Taxonomy"),
+           "id" => "Taxonomy",
+           "url" => "conf/category.php",
+           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:manage_taxonomy','Help');"
+        );
+        $hmenu["Plugins"][] = array(
+            "name" => gettext("Downloads") ,
+            "id" => "Downloads",
+            "url" => "downloads/index.php",
+            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:downloads','Help');"
+        );
 }
 /*
 if (Session::menu_perms("MenuConfiguration", "ConfigurationRRDConfig")) {
@@ -1279,6 +1275,7 @@ $hmenu["Incidents Email Template"][] = array(
 "url" => "conf/emailtemplate.php"
 );
 }*/
+
 if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session::am_i_admin()) { $configuration = 1;
     $menu["Configuration"][] = array(
         "name" => gettext("Software Upgrade") ,
@@ -1298,6 +1295,20 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session:
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:update_notification','Help');"
     );
 }
+if (Session::menu_perms("MenuTools", "ToolsBackup")) {
+    $menu["Configuration"][] = array(
+        "name" => gettext("Backup") ,
+        "id" => "Backup",
+        "url" => "backup/index.php"
+    );
+    $hmenu["Backup"][] = array(
+        "name" => gettext("SIEM Backup") ,
+        "id" => "Backup",
+        "url" => "backup/index.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:backup','Help');"
+    );
+}
+
 /*
 if (Session::menu_perms("MenuConfiguration", "ConfigurationMaps")) $menu["Configuration"][] = array(
 "name" => gettext("Maps") ,
@@ -1312,7 +1323,7 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationMaps")) $menu["Config
     "url" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration','Help');"
 );*/
 /* Tools */
-$tools = 0;
+/*$tools = 0;
 if (Session::menu_perms("MenuTools", "ToolsBackup")) { $tools = 1;
     $menu["Tools"][] = array(
         "name" => gettext("Backup") ,
@@ -1325,7 +1336,8 @@ if (Session::menu_perms("MenuTools", "ToolsBackup")) { $tools = 1;
         "url" => "backup/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:backup','Help');"
     );
-}
+}*/
+/*
 if (Session::menu_perms("MenuTools", "ToolsDownloads")) { $tools = 1; //if (file_exists($version_file)) { $tools = 1;
     $menu["Tools"][] = array(
         "name" => gettext("Downloads") ,
@@ -1338,29 +1350,49 @@ if (Session::menu_perms("MenuTools", "ToolsDownloads")) { $tools = 1; //if (file
         "url" => "downloads/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:downloads','Help');"
     );
-}
-if (Session::menu_perms("MenuTools", "ToolsScan")) { $tools = 1;
-    $menu["Tools"][] = array(
-        "name" => gettext("Net Discovery") ,
-        "id" => "Net Scan",
-        "url" => "netscan/index.php"
+}*/
+
+$hmenu["Sysinfo"][] = array(
+    "name" => gettext("System Info") ,
+    "id" => "Sysinfo",
+    "url" => "sysinfo/index.php",
+    "target" => "main", 
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:sysinfo','Help');"
+);
+
+if (Session::menu_perms("MenuMonitors", "MonitorsSensors")) { $monitors = 1;
+    /*$menu["Monitors"][] = array(
+        "name" => gettext("System") ,
+        "id" => "Sensors",
+        "url" => "sensor/sensor_plugins.php"
+    );*/
+    $hmenu["Sysinfo"][] = array(
+        "name" => gettext("Collection Status") ,
+        "id" => "Sensors",
+        "target" => "main",
+        "url" => "sensor/sensor_plugins.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
     );
-    $hmenu["Net Scan"][] = array(
-        "name" => gettext("Net Discovery") ,
-        "id" => "Net Scan",
-        "url" => "netscan/index.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
-    );
+	if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) {
+		$hmenu["Sysinfo"][] = array(
+			"name" => gettext("User Activity") ,
+			"id" => "User Log",
+			"url" => "userlog/user_action_log.php",
+			"target" => "main",
+			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
+		);
+	}
+	
 }
 
 $hmenu["Sysinfo"][] = array(
-    "name" => gettext("System Status") ,
-    "id" => "Sysinfo",
-    "url" => "sysinfo/sysinfo.php",
-    "target" => "info", 
-    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:sysinfo','Help');"
+    "name" => gettext("Opened Sessions") ,
+    "id" => "Sessions",
+    "url" => "userlog/opened_sessions.php",
+    "target" => "main",
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:opened_sessions','Help');"
 );
-    
+
 /*
 if (Session::menu_perms("MenuTools", "ToolsRuleViewer")) $menu["Tools"][] = array(
 "name" => gettext("Rule Viewer") ,
@@ -1381,13 +1413,6 @@ if (Session::menu_perms("MenuTools", "Updates")) $menu["Tools"][] = array(
 );*/
 /* Logout */
 $menu["Logout"] = "session/login.php?action=logout"; // Plain url if no array entry
-
-$hmenu["Sessions"][] = array(
-    "name" => gettext("Opened Sessions") ,
-    "id" => "Sessions",
-    "url" => "userlog/opened_sessions.php",
-    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:opened_sessions','Help');"
-);
 
 $hmenu["Userprofile"][] = array(
     "name" => gettext("My Profile") ,
