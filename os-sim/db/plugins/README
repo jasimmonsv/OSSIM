@@ -105,6 +105,7 @@
  |      1626 | Juniper-SRX        | detector |
  |      1627 | Solaris Syslog	  | detector |
  |      1630 | Bit9               | detector |
+ |      1631 | NFS                | detector |
  +-----------+--------------------+----------+
  |      1801 | forensics-db-1     | detector |
  +-----------+--------------------+----------+
