@@ -199,6 +199,42 @@ class Net {
         return array($list,$i);
     }
 
+    function get_list2($conn, $filter = "", $limit = "ORDER BY name") {
+    	$allowed_nets = Session::allowedNets();
+    	$nets_where = "";
+    	if ($allowed_nets != "") {
+    		$aux = explode(",",$allowed_nets);
+    		$networks = "";
+    		foreach ($aux as $net) {
+    			$networks .= ($networks != "") ? " OR ips LIKE '".$net."%' OR ips LIKE '%,$net'" : "ips LIKE '".$net."%' OR ips LIKE '%,$net'";
+    		}
+    		$nets_where = " AND (".$networks.")";
+    	}
+    	$allowed_sensors = Session::allowedSensors();
+    	$sensor_where = "";
+    	if ($allowed_sensors != "") {
+    		$aux = explode(",",$allowed_sensors);
+    		$sensors = "";
+    		foreach ($aux as $sensor) {
+    			$sensors .= ($sensors != "") ? ",'".$sensor."'" : "'".$sensor."'";
+    		}
+    		$sensor_where = " AND name in (SELECT net_name FROM net_sensor_reference WHERE sensor_name in (SELECT name FROM sensor WHERE ip in ($sensors)))";
+    	}
+    	$main_where = ($filter != "") ? "WHERE $filter" : "WHERE 1";
+    	
+        $query = OssimQuery("SELECT * FROM net $main_where$nets_where$sensor_where $limit");
+        //echo $query."<br>";
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } else {
+            $foundrows = $rs->RecordCount();
+            while (!$rs->EOF) {
+                $list[] = new Net($rs->fields["name"], $rs->fields["ips"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["descr"], $foundrows);
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+	}
 
     function get_all($conn,$checkperm=false) {
         $list = array();

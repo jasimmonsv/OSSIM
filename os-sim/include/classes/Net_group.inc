@@ -124,6 +124,32 @@ class Net_group {
         }
         return $list;
     }
+	function get_list2($conn, $args = "") {
+        $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
+        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
+        $networks = "";
+        $all_nets = Net::get_list2($conn);
+        foreach ($all_nets as $net) {
+        	$networks .= ($networks != "") ? ",'".$net->get_name()."'" : "'".$net->get_name()."'";
+        }
+        $query = OssimQuery("SELECT $select FROM net_group g,net_group_reference r WHERE g.name=r.net_group_name AND r.net_name in ($networks) $args");
+        echo $query;
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } else {
+            $foundrows = 0;
+            if ($iffoundrows) {
+                if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
+                else $foundrows = $rf->fields["total"];
+            }
+            $list = array();
+            while (!$rs->EOF) {
+                $list[] = new Net_group(stripslashes($rs->fields["name"]) , $rs->fields["threshold_c"], $rs->fields["threshold_a"], stripslashes($rs->fields["rrd_profile"]) , stripslashes($rs->fields["descr"]) , $foundrows);
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }
     function get_list_pag($conn, $args = "") {
         $list = array(); $i=0;
         $from = 0; $max = 999999999;

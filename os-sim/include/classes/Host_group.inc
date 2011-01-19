@@ -128,30 +128,64 @@ class Host_group {
         }
         return $list;
     }
-    function get_list_pag($conn, $args = "") {
-        $list = array(); $i=0;
-        $from = 0; $max = 999999999;
-        if (preg_match("/LIMIT (\d+),\s*(\d+)/", $args, $found)) {
-            $args = preg_replace("/LIMIT \d+,\s*\d+/","",$args);
-            $from = $found[1]; $max = $found[2];
-        }
-        $query = OssimQuery("SELECT DISTINCT * FROM host_group $args");
-        
+	function get_list2($conn, $args = "") {
+		include_once("classes/Host.inc");
+		
+		$host_where = " AND r.host_ip in (";
+		$all_host = Host::get_list_pag($conn);
+		foreach ($all_host as $host) $host_where .= "'".$host->get_ip()."',";
+		$host_where = preg_replace("/,$/",")",$host_where);
+		
+		$select = "SELECT SQL_CALC_FOUND_ROWS g.* FROM host_group g,host_group_reference r WHERE g.name=r.host_group_name $host_where";
+        $query = OssimQuery($select);
+
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
-            $foundrows = $rs->RecordCount();
+            $list = array();
+            $foundrows = 0;
+            if ($iffoundrows) {
+                if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
+                else $foundrows = $rf->fields["total"];
+            }
             while (!$rs->EOF) {
-                if (Session::groupHostAllowed($conn, stripslashes($rs->fields["name"]))) {
-                    if ($i>=$from && $i<$max+$from) {
-                        $list[] = new Host_group(stripslashes($rs->fields["name"]) , $rs->fields["threshold_c"], $rs->fields["threshold_a"], stripslashes($rs->fields["rrd_profile"]) , stripslashes($rs->fields["descr"]) , $foundrows);
-                    }
-                    $i++;
-                }
+                $list[] = new Host_group(stripslashes($rs->fields["name"]) , $rs->fields["threshold_c"], $rs->fields["threshold_a"], stripslashes($rs->fields["rrd_profile"]) , stripslashes($rs->fields["descr"]) , $foundrows);
                 $rs->MoveNext();
             }
         }
-        return array($list,$i);
+        return $list;
+    }
+    function get_list_pag($conn, $where = "", $order = "") {
+        // Only filter by perms if needed
+        $host_where = "";
+        if (Session::allowedSensors() != "" || Session::allowedNets() != "") {
+	    	include_once("classes/Host.inc");
+			$host_where = " AND r.host_ip in (";
+			$all_host = Host::get_list_pag($conn);
+			foreach ($all_host as $host) {
+				$host_where .= "'".$host->get_ip()."',";
+			}
+			$host_where = preg_replace("/,$/",")",$host_where);
+        }
+		
+		$select = "SELECT DISTINCT SQL_CALC_FOUND_ROWS g.* FROM host_group g,host_group_reference r WHERE g.name=r.host_group_name $host_where$where $order";
+        //echo $select;
+		$query = OssimQuery($select);
+
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } else {
+            $list = array();
+            $foundrows = 0;
+            if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
+            else $foundrows = $rf->fields["total"];
+            
+            while (!$rs->EOF) {
+                $list[] = new Host_group(stripslashes($rs->fields["name"]) , $rs->fields["threshold_c"], $rs->fields["threshold_a"], stripslashes($rs->fields["rrd_profile"]) , stripslashes($rs->fields["descr"]) , $foundrows);
+                $rs->MoveNext();
+            }
+        }
+        return array($list,$foundrows);
     }
     function get_compromise($conn, $name) {
         $compromise = 0;

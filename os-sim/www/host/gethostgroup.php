@@ -125,11 +125,11 @@ $limit = "LIMIT $start, $rp";
 $xml = "";
 $where = "";
 if($field=="name")
-    $where = "WHERE name like '%$search%'";
+    $where = " AND g.name like '%$search%'";
 else if ($field=="ip")
-    $where = ", host_group_reference WHERE host_group.name=host_group_reference.host_group_name AND host_group_reference.host_ip like '%$search%'";
+    $where = " AND host_group_reference.host_ip like '%$search%'";
 
-list($host_group_list,$total) = Host_group::get_list_pag($conn, "$where ORDER BY $order $limit");
+list($host_group_list,$total) = Host_group::get_list_pag($conn, $where, "ORDER BY $order $limit");
 
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";

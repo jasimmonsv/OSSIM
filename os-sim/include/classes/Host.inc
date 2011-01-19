@@ -194,16 +194,34 @@ class Host {
         return $list;
     }
 	function get_list_pag ($conn, $where = "", $order = "") {
-		// User sensor filtering
+		// User SENSOR filtering
 		$sensor_where = "";
-		$sensor_join = "";
 		if (Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
 			$sensor_str = "";
 			foreach ($user_sensors as $user_sensor) if ($user_sensor != "")
 				$sensor_str .= (($sensor_str != "") ? "," : "")."'".$user_sensor."'";
 			if ($sensor_str == "") $sensor_str = "AND 0";
-			$sensor_where = "ip in (select hs.host_ip FROM host_sensor_reference hs,sensor s WHERE hs.sensor_name=s.name AND s.ip in(" . $sensor_str . "))";
+			$sensor_where = "h.ip in (select hs.host_ip FROM host_sensor_reference hs,sensor s WHERE hs.sensor_name=s.name AND s.ip in(" . $sensor_str . "))";
+		}
+		// User NETWORK filtering
+		if (($allowedNets = Session::allowedNets()) != "") {
+			$query = OssimQuery("SELECT ip FROM host");
+			$hosts = "";
+	        if (!$rs = & $conn->Execute($query)) {
+	            print $conn->ErrorMsg();
+	        } else {
+	            while (!$rs->EOF) {
+	                if (Net::isIpInNet($rs->fields["ip"],$allowedNets)) {
+	                	$hosts .= ",'".$rs->fields["ip"]."'";
+	                }
+	                $rs->MoveNext();
+	            }
+	            $hosts = preg_replace("/^\,/","",$hosts);
+	            if ($hosts != "") {
+	            	$sensor_where .= ($sensor_where != "") ? " AND h.ip in ($hosts)" : "h.ip in ($hosts)";
+	            }
+	        }
 		}
 		if ($sensor_where != "") {
 			if (preg_match ("/where/i",$where)) {
@@ -217,12 +235,10 @@ class Host {
 		mysql_escape_string($where);
         mysql_escape_string($order);
         $iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
-        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
+        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS h.*" : "h.*";
         
-		$query = OssimQuery("SELECT $select FROM host $where $order");
-		
-				
-	    //echo "SELECT $select FROM host h $where $order<br>";
+		$query = OssimQuery("SELECT $select FROM host h $where $order");
+		//echo $query;
 		$list = array();
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
@@ -239,6 +255,23 @@ class Host {
         }
         return $list;
 	}
+    function get_all($conn) {
+        $query = OssimQuery("SELECT ip FROM host");
+		//echo $query;
+		$list = array();
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } else {
+        	/*$datas = adodb_getall($rs);
+        	foreach ($datas as $data) if (Session::hostAllowed($conn, $data["ip"])) $list[] = $data["ip"];*/
+            while (!$rs->EOF) {
+                if (Session::hostAllowed($conn, $rs->fields["ip"]))
+                    $list[] = $rs->fields["ip"];
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+    }	
 	
     function insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="", $fqdns="") {
 
@@ -810,7 +843,6 @@ class Host {
         $list = array();
         $sql = "SELECT * FROM host_properties WHERE ip=?";
         if ($date!="") $sql .= " AND date>='$date'";
-
 		        
 		if (!$rs = & $conn->Execute($sql,array($ip))){ 
             print $conn->ErrorMsg();
@@ -824,9 +856,9 @@ class Host {
         return $list;
 	}
 	
-	function get_latest_properties($conn,$date,$limit=50) {
+	function get_latest_properties($conn,$date) {
         $list = array();
-        $sql = "SELECT * FROM host_properties WHERE date>='$date' LIMIT $limit";
+        $sql = "SELECT * FROM host_properties WHERE date>='$date'";
 
 		if (!$rs = & $conn->Execute($sql)){ 
             print $conn->ErrorMsg();
