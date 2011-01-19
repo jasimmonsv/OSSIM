@@ -210,6 +210,7 @@ CREATE TABLE sensor (
     connect         smallint NOT NULL,
 /*    sig_group_id    int  NOT NULL, */
     descr           varchar(255) NOT NULL,
+    tzone           int NOT NULL DEFAULT 0,
     PRIMARY KEY     (name)
 );
 
