@@ -192,8 +192,11 @@ chmod u+rw           /var/ossec/etc/ossec.conf
 chmod u+w            /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 chown www-data       /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 chown www-data:ossec /var/ossec/agentless
-chown www-data:ossec /var/ossec/agentless/.passlist
-chmod u+rwx          /var/ossec/agentless/.passlist
+
+if [ -f "/var/ossec/agentless/.passlist" ];then
+	chown www-data:ossec /var/ossec/agentless/.passlist
+	chmod u+rwx          /var/ossec/agentless/.passlist
+fi
 
 chown www-data:ossec /var/ossec/logs
 chown www-data:ossec /var/ossec/logs/alerts
