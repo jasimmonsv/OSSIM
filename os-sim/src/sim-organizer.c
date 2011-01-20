@@ -1287,7 +1287,8 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 		  new_event->type = SIM_EVENT_TYPE_DETECTOR;
 		  new_event->time = time (NULL);
 			uuid_generate(new_event->uuid);
-			sim_directive_backlog_get_uuid(backlog,new_event->uuid_backlog);
+			sim_directive_backlog_get_uuid(backlog, new_event->uuid_backlog);
+			sim_event_add_backlog_ref_ul (new_event, (GObject*)backlog);
 
     	new_event->sensor = g_strdup (event->sensor);
 			if (event->interface)
@@ -1637,13 +1638,15 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 	      new_event->time = time (NULL);
 	      new_event->backlog_id = sim_directive_get_backlog_id (backlog);
 	 			uuid_generate(new_event->uuid);
-				sim_directive_backlog_get_uuid(backlog,new_event->uuid_backlog); 
+				sim_directive_backlog_get_uuid(backlog,new_event->uuid_backlog);
+				sim_event_add_backlog_ref_ul (new_event, (GObject*)backlog); 
 				new_event->sensor = gnet_inetaddr_get_canonical_name (sim_rule_get_sensor (rule_root));
 	      if (event->interface)											
 					new_event->interface = g_strdup (event->interface);
 
 	      new_event->plugin_id = SIM_PLUGIN_ID_DIRECTIVE;
 		     new_event->plugin_sid = sim_directive_get_id (backlog);
+				
 
 	      if ((ia = sim_rule_get_src_ia (rule_root))) new_event->src_ia = gnet_inetaddr_clone (ia);
 	      if ((ia = sim_rule_get_dst_ia (rule_root))) new_event->dst_ia = gnet_inetaddr_clone (ia);
@@ -2721,6 +2724,7 @@ void sim_organizer_create_event_directive(SimDirective *backlog,SimEvent *event)
 	    new_event->interface = g_strdup (event->interface);
 		new_event->plugin_id = SIM_PLUGIN_ID_DIRECTIVE;
 		new_event->plugin_sid = sim_directive_get_id (backlog);
+		sim_event_add_backlog_ref_ul (new_event, (GObject*)backlog);
 		if ((ia = sim_rule_get_src_ia (rule_root))) 
 			new_event->src_ia = gnet_inetaddr_clone (ia);
 		if ((ia = sim_rule_get_dst_ia (rule_root))) 

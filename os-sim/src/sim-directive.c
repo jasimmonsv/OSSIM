@@ -30,6 +30,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 
 #include <gnet.h>
 #include <uuid/uuid.h>
+#include "os-sim.h"
 #include "sim-directive.h"
 #include "sim-rule.h"
 #include "sim-action.h"
@@ -67,6 +68,10 @@ struct _SimDirectivePrivate {
 static gpointer parent_class = NULL;
 static gint sim_server_signals[LAST_SIGNAL] = { 0 };
 
+extern SimMain ossim;
+static void sim_directive_db_delete_backlog_by_id_ul (guint32      backlog_id);
+static void sim_directive_delete_database_backlog(SimDirective *backlog);
+
 /* GType Functions */
 
 static void 
@@ -79,6 +84,7 @@ static void
 sim_directive_impl_finalize (GObject  *gobject)
 {
   SimDirective *directive = SIM_DIRECTIVE (gobject);
+	sim_directive_delete_database_backlog (directive);
 
   g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_directive_impl_finalize: Id %u, Name %s, BacklogId %u, Match %d", 
 	 directive->_priv->id, directive->_priv->name, directive->_priv->backlog_id, directive->_priv->matched);
@@ -1453,6 +1459,87 @@ gboolean sim_directive_backlog_set_uuid(SimDirective *directive){
 void sim_directive_backlog_get_uuid(SimDirective *directive,uuid_t out){
 	uuid_copy(out,directive->_priv->uuid);
 }
+
+void static sim_directive_delete_database_backlog(SimDirective *backlog){
+	g_return_if_fail (backlog);
+	g_return_if_fail (SIM_IS_DIRECTIVE (backlog));
+	guint   backlog_id = backlog->_priv->backlog_id;
+	gchar *query;
+	GdaDataModel *dm;
+	g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s:Deleting backlog: %u",__FUNCTION__,backlog_id);
+	query = g_strdup_printf ("SELECT backlog_id FROM alarm WHERE backlog_id = %u", backlog_id);
+	dm = sim_database_execute_single_command (ossim.dbossim, query);
+	if (dm)
+	{
+	if (!gda_data_model_get_n_rows (dm))
+		sim_directive_db_delete_backlog_by_id_ul (backlog_id);
+	g_object_unref(dm);
+	}
+	else
+	g_message ("BACKLOG DELETE DATA MODEL ERROR");
+	g_free (query);
+}
+
+static void
+sim_directive_db_delete_backlog_by_id_ul (guint32	backlog_id)
+{
+  GdaDataModel	*dm;
+	GdaDataModel	*dm1=NULL;
+  GdaValue	*value;
+	gchar		*query0;
+	gchar		*query1;
+	gchar		*query2;
+	guint32	event_id;
+	gint		row, count;
+	query0 =  g_strdup_printf ("SELECT event_id FROM backlog_event WHERE backlog_id = %u",
+						backlog_id);
+	dm = sim_database_execute_single_command (ossim.dbossim, query0);
+	if (dm)
+	{
+		for (row = 0; row < gda_data_model_get_n_rows (dm); row++)
+		{
+			value = (GdaValue *) gda_data_model_get_value_at (dm, 0, row);
+			event_id = gda_value_get_bigint (value);
+
+			query1 = g_strdup_printf ("SELECT COUNT(event_id) FROM backlog_event WHERE event_id = %u", event_id);
+			//g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_container_db_delete_backlog_by_id_ul: event_id= %lu",event_id);
+			dm1 = sim_database_execute_single_command (ossim.dbossim, query1);
+			if (dm1)
+			{
+				//g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "query1: %s",query1);
+
+				value = (GdaValue *) gda_data_model_get_value_at (dm1, 0, 0);						
+				count = gda_value_get_bigint (value);
+
+				//g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "count: %d",count);
+	  
+				if (count == 1)
+				{
+					query2 = g_strdup_printf ("DELETE FROM event WHERE id = %u", event_id);
+					sim_database_execute_no_query (ossim.dbossim, query2);
+					g_free (query2);
+				}
+
+				g_object_unref(dm1);
+			}
+			else
+				g_message("Error: problem executing the following command in the DB: %s",query1);
+			g_free (query1);
+		}
+		g_object_unref(dm);
+	}
+	g_free (query0);
+
+	query0 = g_strdup_printf ("DELETE FROM backlog_event WHERE backlog_id = %u", backlog_id);
+	sim_database_execute_no_query (ossim.dbossim, query0);
+	g_free (query0);
+  
+	query0 = g_strdup_printf ("DELETE FROM backlog WHERE id = %u", backlog_id);
+	sim_database_execute_no_query (ossim.dbossim, query0);
+	g_free (query0);
+}
+
+
 
 
 // vim: set tabstop=2:

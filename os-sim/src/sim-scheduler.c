@@ -542,6 +542,7 @@ sim_scheduler_backlogs_time_out (SimScheduler  *scheduler)
 
 	      new_event->plugin_id = SIM_PLUGIN_ID_DIRECTIVE;
 	      new_event->plugin_sid = sim_directive_get_id (backlog);
+				sim_event_add_backlog_ref_ul (new_event, (GObject*)backlog);
 
 	      if (sim_rule_get_src_ia (rule_root))
 					new_event->src_ia = gnet_inetaddr_clone (sim_rule_get_src_ia (rule_root));
@@ -614,7 +615,7 @@ sim_scheduler_backlogs_time_out (SimScheduler  *scheduler)
     SimDirective *backlog = (SimDirective *) list->data;
     sim_container_remove_backlog_ul (ossim.container, backlog);
 		//FIXME: Why does this need to be commented? AR.
-    sim_container_db_delete_backlog_ul (ossim.container, ossim.dbossim, backlog);
+    //sim_container_db_delete_backlog_ul (ossim.container, ossim.dbossim, backlog);
     g_object_unref (backlog);
     list = list->next;
   }
