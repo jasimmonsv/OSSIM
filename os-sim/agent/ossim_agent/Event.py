@@ -87,26 +87,38 @@ class Event:
         self.event = {}
         self.event["event_type"] = self.EVENT_TYPE
 
-
     def __setitem__(self, key, value):
 
         if key in self.EVENT_ATTRS:
             self.event[key] = self.sanitize_value(value)
-
             if key == "date":
-                # The date in seconds anf fdate as string
-                self.event["fdate"]=self.event[key]
+                # Fill with a default date.
+                date = int(time())
 
+                # Try first for string dates.
                 try:
-                    self.event["date"]=int(mktime(strptime(self.event[key],"%Y-%m-%d %H:%M:%S")))
-
+                    date = int(mktime(strptime(self.event[key],"%Y-%m-%d %H:%M:%S")))
+                except (ValueError):
+                    # May it be epoch?
+                    try:
+                        date = int(self.event[key])
+                    except:
+                        logger.warning("There was an error parsing an epoch date (%s)" %\
+                                           (self.event[key]))
                 except:
-                    logger.warning("There was an error parsing date (%s)" %\
-                        (self.event[key]))
+                    logger.warning("There was an error parsing a string date (%s)" %\
+                                       (self.event[key]))
+
+                # Do not allow dates in the future.
+                if date > int(time()):
+                    logger.warning("Detected date in the future (%s), please check your device date" % (self.event[key]))
+
+                # fdate as date is coming.
+                self.event["fdate"] = self.event[key]
+                self.event["date"] = date
 
         elif key != 'event_type':
             logger.warning("Bad event attribute: %s" % (key))
-
 
     def __getitem__(self, key):
         return self.event.get(key, None)
