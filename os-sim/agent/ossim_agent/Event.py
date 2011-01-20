@@ -1,3 +1,4 @@
+<<<<<<< HEAD:os-sim/agent/ossim_agent/Event.py
 #
 # License:
 #
@@ -32,6 +33,10 @@
 # GLOBAL IMPORTS
 #
 from time import mktime, strptime
+=======
+from Logger import Logger
+from time import time, mktime, strptime
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/Event.py
 
 #
 # LOCAL IMPORTS
@@ -88,7 +93,6 @@ class Event:
         self.event["event_type"] = self.EVENT_TYPE
 
     def __setitem__(self, key, value):
-
         if key in self.EVENT_ATTRS:
             self.event[key] = self.sanitize_value(value)
             if key == "date":
@@ -241,13 +245,13 @@ class WatchRule(Event):
     EVENT_TYPE = 'event'
     EVENT_ATTRS = [
         "type",
-	"date",
-	"fdate",
-	"sensor",
-	"interface",
-	"src_ip",
-	"dst_ip",
-	"protocol",
+        "date",
+        "fdate",
+        "sensor",
+        "interface",
+        "src_ip",
+        "dst_ip",
+        "protocol",
         "plugin_id",
         "plugin_sid",
         "condition",

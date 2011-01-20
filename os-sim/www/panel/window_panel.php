@@ -212,7 +212,8 @@ if (GET('interface') == 'ajax') {
     exit;
 }
 ?>
-<html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <script src="../js/prototype.js" type="text/javascript"></script>
     <script src="./panel.js" type="text/javascript"></script>

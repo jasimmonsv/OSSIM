@@ -61,9 +61,18 @@ class Detector(threading.Thread):
         self.os_hash = {}
         self.conn = conn
         self.consolidation = EventConsolidation(self._conf)
+        if "tzone" in self._plugin.hitems("DEFAULT"):
+            self._timezone = self._plugin.get("DEFAULT", "tzone")
+            logger.debug("Plugin %s (%s) with specific tzone = %s" % \
+                         (self._plugin.get("config", "name"),
+                          self._plugin.get("DEFAULT", "plugin_id"),
+                          self._timezone))
+        else:
+            self._timezone = self._conf.get("plugin-defaults", "tzone")
+            
         logger.info("Starting detector %s (%s).." % \
                     (self._plugin.get("config", "name"),
-                     self._plugin.get("config", "plugin_id")))
+                     self._plugin.get("DEFAULT", "plugin_id")))
         threading.Thread.__init__(self)
 
 
@@ -90,8 +99,8 @@ class Detector(threading.Thread):
         if self._plugin.has_option("config", "exclude_sids"):
             exclude_sids = self._plugin.get("config", "exclude_sids")
             if event["plugin_sid"] in Config.split_sids(exclude_sids):
-                logger.debug("Excluding event with " +\
-                    "plugin_id=%s and plugin_sid=%s" %\
+                logger.debug("Excluding event with " + \
+                    "plugin_id=%s and plugin_sid=%s" % \
                     (event["plugin_id"], event["plugin_sid"]))
                 return True
 
@@ -119,7 +128,7 @@ class Detector(threading.Thread):
                                                  "date_format")
             if event["date"] is None and default_date_format and \
                'date' in event.EVENT_ATTRS:
-                event["date"] = time.strftime(default_date_format, 
+                event["date"] = time.strftime(default_date_format,
                                               time.localtime(time.time()))
 
         # 2) sensor
@@ -139,9 +148,9 @@ class Detector(threading.Thread):
                 event["src_ip"] = event["sensor"]
 
         # 5) Time zone 
-            default_tzone = self._conf.get("plugin-defaults", "tzone")
+            #default_tzone = self._conf.get("plugin-defaults", "tzone")
             if event["tzone"] is None and 'tzone' in event.EVENT_ATTRS:
-                event["tzone"] = default_tzone
+                event["tzone"] = self._timezone
 
         # 6) sensor,source ip and dest != localhost
             if event["sensor"] in ('127.0.0.1', '127.0.1.1'):
