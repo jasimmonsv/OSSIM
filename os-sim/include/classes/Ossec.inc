@@ -196,6 +196,8 @@ class Agentless {
 	
 	public function add_monitoring_entry($conn, $ip, $type, $frecuency, $state, $arguments)
 	{
+		$arguments = preg_replace("/[\r?\n]+/", " ", $arguments);
+		
 		$sql = "INSERT INTO host_agentless_entries (id, ip, type, frecuency, state, arguments) VALUES (?, ?, ?, ?, ?, ?)";
         $params = array(
             null,
@@ -247,6 +249,9 @@ class Agentless {
 	
 	public function modify_monitoring_entry($conn, $type, $frecuency, $state, $arguments, $id)
 	{
+		
+		$arguments = preg_replace("/[\r?\n]+/", " ", $arguments);
+		
 		$sql = "UPDATE host_agentless_entries SET type=?, frecuency=?, state=?, arguments=? WHERE id=?;";
         $params = array(
             $type,
