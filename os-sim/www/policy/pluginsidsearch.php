@@ -49,10 +49,10 @@ $conn = $db->connect();
 ?>
 <table class="noborder">
 <tr>
-    <th><?=_("PLugin ID")?><input type="checkbox" id="selunsel" onclick="chkall()"></th>
-    <th><?=_("Plugin Name")?></th>
-    <th><?=_("Plugin SID")?></th>
-    <th><?=_("Plugin SID Name")?></th>
+    <th><?=_("Data Source")?><input type="checkbox" id="selunsel" onclick="chkall()"></th>
+    <th><?=_("Data Source Name")?></th>
+    <th><?=_("Event Type")?></th>
+    <th><?=_("Event Type Name")?></th>
 </tr>
 <?
 $plugin_list = Plugin_sid::search_sids($conn, $q);

@@ -101,7 +101,7 @@ require_once 'classes/Category.inc';
 $list_categories=Category::get_list($conn);
 if($name!="" && $sid!=""){
     if (in_array($sid, Plugin_sid::get_sids_by_id($conn, $plugin))){
-        pluginsid_inputs_error("Sid $sid already exists");
+        pluginsid_inputs_error("Event type $sid already exists");
     }
     else {
 		//
@@ -115,7 +115,7 @@ if($name!="" && $sid!=""){
 		}
         Plugin_sid::insert($conn, $plugin, $name, $sid, $reliability, $priority, $category, $subCategory);
 		?>
-        <p><?php echo _("Plugin succesfully updated") ?></p>
+        <p><?php echo _("Event type succesfully updated") ?></p>
         <script type="text/javascript">
         //<![CDATA[
             document.location.href='plugin.php';
@@ -193,7 +193,7 @@ if($name!="" && $sid!=""){
     </td>
   </tr>
   <tr>
-    <td colspan="2" align="center">
+    <td colspan="2" align="center" class="noborder">
       <input type="submit" value="<?=_("OK")?>" class="button" style="font-size:12px">
       <input type="reset" value="<?=_("reset")?>" class="button" style="font-size:12px">
     </td>

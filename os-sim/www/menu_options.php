@@ -799,29 +799,11 @@ if(Session::am_i_admin()) {
         "url" => "netscan/index.php"
     ); */
     $hmenu["Asset Discovery"][] = array(
-        "name" => gettext("Active Network Discovery") ,
+        "name" => gettext("Spot Scan") ,
         "id" => "Asset Discovery",
         "url" => "netscan/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
     );    
-    $hmenu["Asset Discovery"][] = array(
-        "id" => "Passive Network Discovery",
-        "name" => gettext("Passive Network Discovery") ,
-        "url" => "net/assetdiscovery.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
-    );
-    $hmenu["Asset Discovery"][] = array(
-        "id" => "Nedi",
-        "name" => gettext("Nedi") ,
-        "url" => "net/nedi.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
-    );
-    $hmenu["Asset Discovery"][] = array(
-        "id" => "Active Directory",
-        "name" => gettext("Active Directory") ,
-        "url" => "net/activedirectory.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
-    );
 }
 
 
@@ -1226,14 +1208,14 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) { $configu
         "url" => "conf/plugin.php"
     );
     $hmenu["Plugins"][] = array(
-        "name" => gettext("Plugins") ,
+        "name" => gettext("Data Sources") ,
         "id" => "Plugins",
         "url" => "conf/plugin.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugins','Help');"
     );
     if (Session::menu_perms("MenuConfiguration", "PluginGroups")) {
 		$hmenu["Plugins"][] = array(
-			"name" => gettext("Plugin Groups") ,
+			"name" => gettext("DS Groups") ,
 			"id" => "Plugin Groups",
 			"url" => "policy/plugingroups.php",
 			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugin_groups','Help');"
@@ -1288,6 +1270,32 @@ $hmenu["Incidents Email Template"][] = array(
 "url" => "conf/emailtemplate.php"
 );
 }*/
+
+if(Session::am_i_admin()) {
+    $menu["Configuration"][] = array(
+        "name" => gettext("Network Discovery") ,
+        "id" => "Network Discovery",
+        "url" => "net/assetdiscovery.php"
+    );    
+    $hmenu["Network Discovery"][] = array(
+        "id" => "Network Discovery",
+        "name" => gettext("Passive Network Discovery") ,
+        "url" => "net/assetdiscovery.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
+    );
+    $hmenu["Network Discovery"][] = array(
+        "id" => "Nedi",
+        "name" => gettext("Nedi") ,
+        "url" => "net/nedi.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
+    );
+    $hmenu["Network Discovery"][] = array(
+        "id" => "Active Directory",
+        "name" => gettext("Active Directory") ,
+        "url" => "net/activedirectory.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
+    );
+}
 
 if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session::am_i_admin()) { $configuration = 1;
     $menu["Configuration"][] = array(

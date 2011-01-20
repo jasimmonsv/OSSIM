@@ -67,13 +67,15 @@ class Sensor {
     var $ip;
     var $priority;
     var $port;
+    var $tzone;
     var $connect;
     var $descr;
-    function Sensor($name, $ip, $priority, $port, $version, $connect, $descr, $foundrows = 0) {
+    function Sensor($name, $ip, $priority, $port, $tzone, $version, $connect, $descr, $foundrows = 0) {
         $this->name = $name;
         $this->ip = $ip;
         $this->priority = $priority;
         $this->port = $port;
+        $this->tzone = $tzone;
         $this->version = $version;
         $this->connect = $connect;
         $this->descr = $descr;
@@ -90,6 +92,9 @@ class Sensor {
     }
     function get_port() {
         return $this->port;
+    }
+    function get_tzone() {
+        return $this->tzone;
     }
     function get_version() {
         return $this->version;
@@ -120,7 +125,7 @@ class Sensor {
 				if (Session::sensorAllowed($conn, $rs->fields["ip"])) {
 					$vrsnqry = OssimQuery("SELECT version FROM sensor_properties WHERE ip='" . $rs->fields["ip"] . "'");
                     $version = ($rv = & $conn->Execute($vrsnqry)) ? $version = $rv->fields["version"] : "unknown";
-                    $list[] = new Sensor($rs->fields["name"], $rs->fields["ip"], $rs->fields["priority"], $rs->fields["port"], $version, $rs->fields["connect"], $rs->fields["descr"], $foundrows);
+                    $list[] = new Sensor($rs->fields["name"], $rs->fields["ip"], $rs->fields["priority"], $rs->fields["port"], $rs->fields["tzone"], $version, $rs->fields["connect"], $rs->fields["descr"], $foundrows);
                 }
                 $rs->MoveNext();
             }
@@ -249,7 +254,7 @@ class Sensor {
         while (!$rs->EOF) {
             $vrsnqry = OssimQuery("SELECT version FROM sensor_properties WHERE ip='" . $rs->fields["ip"] . "'");
             $version = ($rv = & $conn->Execute($vrsnqry)) ? $version = $rv->fields["version"] : "unknown";
-            $list[] = new Sensor($rs->fields["name"], $rs->fields["ip"], $rs->fields["priority"], $rs->fields["port"], $version, $rs->fields["connect"], $rs->fields["descr"]);
+            $list[] = new Sensor($rs->fields["name"], $rs->fields["ip"], $rs->fields["priority"], $rs->fields["port"], $rs->fields["tzone"], $version, $rs->fields["connect"], $rs->fields["descr"]);
             $rs->MoveNext();
         }
         return $list;
@@ -324,14 +329,15 @@ class Sensor {
         }
         return $has_plugin;
     }
-    function insert($conn, $name, $ip, $priority, $port, $descr) {
-        $sql = "INSERT INTO sensor (name, ip, priority, port, connect, descr)
-                VALUES (?, ?, ?, ?, 0, ?)";
+    function insert($conn, $name, $ip, $priority, $port, $tzone, $descr) {
+        $sql = "INSERT INTO sensor (name, ip, priority, port, tzone, connect, descr)
+                VALUES (?, ?, ?, ?, ?, 0, ?)";
         $params = array(
             $name,
             $ip,
             $priority,
             $port,
+            $tzone,
             $descr
         );
         if (!$conn->Execute($sql, $params)) {
@@ -351,15 +357,16 @@ class Sensor {
         WebIndicator::set_on("Reload_sensors");
         WebIndicator::set_on("ReloadPolicy");
     }
-    function update($conn, $name, $ip, $priority, $port, $descr) {
+    function update($conn, $name, $ip, $priority, $port, $tzone, $descr) {
         $sql = "UPDATE sensor SET name = ?, ip = ?, 
-                priority = ?, port = ?, descr = ? 
+                priority = ?, port = ?, tzone = ?, descr = ? 
                 WHERE name = ?";
         $params = array(
             $name,
             $ip,
             $priority,
             $port,
+            $tzone,
             $descr,
             $name
         );

@@ -66,10 +66,10 @@ $conn = $db->connect();
     <input type="hidden" name="id" value="<?=$id?>">
     <table align="center" width="90%" cellspacing="0" class="noborder" id="content">
     <tr>
-        <td width="10%" height="34" class="plfieldhdr pall" nowrap><?= _("SID") ?></td>
-        <td height="34" class="plfieldhdr ptop pbottom pright"><?= _("Signature Name") ?>
+        <td width="10%" height="34" class="plfieldhdr pall" nowrap><?= _("Event Type") ?></td>
+        <td height="34" class="plfieldhdr ptop pbottom pright"><?= _("Event Type Name") ?>
         
-        	<span style="float:right"></p><input type="text" name="stxt" size="20" id="stxt">&nbsp;<input type="button" class="lbutton" value="<?=_("Highlight")?>" onclick="if ($('#stxt').val()!='') $('#content').removeHighlight().highlight($('#stxt').val());"></span>
+        	<span style="float:right"><input type="text" name="stxt" size="20" id="stxt">&nbsp;<input type="button" class="lbutton" value="<?=_("Highlight")?>" onclick="if ($('#stxt').val()!='') $('#content').removeHighlight().highlight($('#stxt').val());"></span>
         </td>
     </tr>
     <?

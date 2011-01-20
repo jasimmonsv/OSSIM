@@ -55,7 +55,8 @@ if ( isset($_SESSION['_sensor']) )
 	$ip          = $_SESSION['_sensor']['ip'];  	
 	$priority    = $_SESSION['_sensor']['priority']; 
 	$descr	     = $_SESSION['_sensor']['descr']; 
-	
+	$tzone	     = $_SESSION['_sensor']['tzone'];
+		
 	unset($_SESSION['_sensor']);
 }
 
@@ -159,12 +160,39 @@ if (GET('withoutmenu') != "1")
 		</td>
 	</tr>
 		
-	<!-- 
+	<?php $tz=(isset($tzone)) ? $tzone : intval(date("O"))/100; ?> 
 	<tr>
-		<th> <?php echo gettext("Port"); ?> </th>
-		<td class="left"><input type="text" value="40002" name="port"></td>
+		<th> <?php echo gettext("Timezone"); ?> </th>
+		<td class="left">
+			<select name="tzone" id="tzone" class='req_field vfield'>
+			<option value="-12"<?= ($tz==-12) ? " selected='selected'" : "" ?>>GMT-12</option>
+			<option value="-11"<?= ($tz==-11) ? " selected='selected'" : "" ?>>GMT-11</option>
+			<option value="-10"<?= ($tz==-10) ? " selected='selected'" : "" ?>>GMT-10</option>
+			<option value="-9"<?= ($tz==-9) ? " selected='selected'" : "" ?>>GMT-9</option>
+			<option value="-8"<?= ($tz==-8) ? " selected='selected'" : "" ?>>GMT-8</option>
+			<option value="-7"<?= ($tz==-7) ? " selected='selected'" : "" ?>>GMT-7</option>
+			<option value="-6"<?= ($tz==-6) ? " selected='selected'" : "" ?>>GMT-6</option>
+			<option value="-5"<?= ($tz==-5) ? " selected='selected'" : "" ?>>GMT-5</option>
+			<option value="-4"<?= ($tz==-4) ? " selected='selected'" : "" ?>>GMT-4</option>
+			<option value="-3"<?= ($tz==-3) ? " selected='selected'" : "" ?>>GMT-3</option>
+			<option value="-2"<?= ($tz==-2) ? " selected='selected'" : "" ?>>GMT-2</option>
+			<option value="-1"<?= ($tz==-1) ? " selected='selected'" : "" ?>>GMT-1</option>
+			<option value="0"<?= ($tz==0) ? " selected='selected'" : "" ?>>UTC</option>
+			<option value="1"<?= ($tz==1) ? " selected='selected'" : "" ?>>GMT+1</option>
+			<option value="2"<?= ($tz==2) ? " selected='selected'" : "" ?>>GMT+2</option>
+			<option value="3"<?= ($tz==3) ? " selected='selected'" : "" ?>>GMT+3</option>			
+			<option value="4"<?= ($tz==4) ? " selected='selected'" : "" ?>>GMT+4</option>			
+			<option value="5"<?= ($tz==5) ? " selected='selected'" : "" ?>>GMT+5</option>			
+			<option value="6"<?= ($tz==6) ? " selected='selected'" : "" ?>>GMT+6</option>			
+			<option value="7"<?= ($tz==7) ? " selected='selected'" : "" ?>>GMT+7</option>			
+			<option value="8"<?= ($tz==8) ? " selected='selected'" : "" ?>>GMT+8</option>			
+			<option value="9"<?= ($tz==9) ? " selected='selected'" : "" ?>>GMT+9</option>			
+			<option value="10"<?= ($tz==10) ? " selected='selected'" : "" ?>>GMT+10</option>
+			<option value="11"<?= ($tz==11) ? " selected='selected'" : "" ?>>GMT+11</option>			
+			<option value="12"<?= ($tz==12) ? " selected='selected'" : "" ?>>GMT+12</option
+	        </select>
+		</td>
 	</tr> 
-	-->
 	
 	<input type="hidden" class='vfield' name="port" id="port" value="40002"/>
 	

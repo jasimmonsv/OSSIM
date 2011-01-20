@@ -61,7 +61,7 @@ $conn = $db->connect();
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <title> <?php
-echo gettext("Plugin Sid"); ?> </title>
+echo gettext("Event types"); ?> </title>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
@@ -138,9 +138,9 @@ echo gettext("Plugin Sid"); ?> </title>
 				url = "modifypluginsid.php?id=<?php echo $id ?>&sid="+urlencode(items[0].id.substr(3));
 				document.location.href = url;
 			}
-			else alert('<?=_('You must select a plugin sid')?>');
+			else alert('<?=_('You must select a event type')?>');
 		}
-        else if (com=='<?=("Insert new plugin sid")?>') {
+        else if (com=='<?=("Insert new event type")?>') {
 			document.location.href = 'newpluginsidform.php?plugin=<?php echo $id ?>';
 		}
 	}
@@ -163,7 +163,7 @@ echo gettext("Plugin Sid"); ?> </title>
                 if (typeof(plugin_id) != 'undefined')
                     document.location.href = 'modifypluginsid.php?id=<?php echo $id; ?>&sid='+plugin_id;
                 else
-                  alert('<?php echo _('You must select a plugin sid')?>');
+                  alert('<?php echo _('You must select a event type')?>');
             }		
 	}
 	$(document).ready(function() {
@@ -235,7 +235,7 @@ echo "$colModel\n";
 ?>
 				],
 			buttons : [
-                {name: '<?=_("Insert new plugin sid")?>', bclass: 'add', onpress : action},
+                {name: '<?=_("Insert new event type")?>', bclass: 'add', onpress : action},
                 {separator: true},
 				{name: '<?=_("Edit")?>', bclass: 'modify', onpress : action},
 				{separator: true}
@@ -246,9 +246,9 @@ echo "$colModel\n";
 			sortname: "<?php echo $sortname ?>",
 			sortorder: "<?php echo $sortorder ?>",
 			usepager: true,
-			title: 'PLUGIN SIDS (<?php echo $id ?>, <?php echo Plugin::get_name_by_id($conn, $id)?>) &nbsp;&nbsp; <a href="javascript:history.go(-1)" style="text-decoration:underline;color:black"><< <?=_('back to plugin')?></a>',
-			pagestat: '<?=_('Displaying {from} to {to} of {total} plugin sids')?>',
-			nomsg: '<?=_('No plugin sids')?>',
+			title: 'EVENT TYPES (<?php echo $id ?>, <?php echo Plugin::get_name_by_id($conn, $id)?>) &nbsp;&nbsp; <a href="javascript:history.go(-1)" style="text-decoration:underline;color:black"><< <?=_('back to Data Source')?></a>',
+			pagestat: '<?=_('Displaying {from} to {to} of {total} event types')?>',
+			nomsg: '<?=_('No event types')?>',
 			useRp: true,
 			rp: 25,
 			contextMenu: 'myMenu',

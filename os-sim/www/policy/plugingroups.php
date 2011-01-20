@@ -98,8 +98,8 @@ function toggle_info(id) {
 <br>
 <table width="90%" align="center" class="noborder" cellspacing="0" cellpadding="0">
     <tr>
-        <td height="34" class="plfieldhdr pall"><?php echo _("ID") ?></td>
-        <td height="34" class="plfieldhdr ptop pbottom pright"><?php echo _("Name") ?></td>
+        <td height="34" class="plfieldhdr pall"><?php echo _("Group ID") ?></td>
+        <td height="34" class="plfieldhdr ptop pbottom pright"><?php echo _("DS Group Name") ?></td>
         <td height="34" class="plfieldhdr ptop pbottom pright"><?php echo _("Description") ?></td>
         <td height="34" class="plfieldhdr ptop pbottom pright"><?php echo _("Actions") ?></td>
     </tr>
@@ -134,15 +134,15 @@ foreach($groups as $group) {
             <td class="nobborder pbottom" colspan="3" style="text-align: left;padding-bottom:3px" NOWRAP valign="top">
                 <table width="100%" height="100%" align="left" style="border-width:0px;background:#FFFFFF" cellspacing="0" cellpadding="0">
                 <tr>
-                <td height="17" class="plfieldhdr pleft pbottom pright" style="padding:0px 5px 0px 5px"><?=_("ID")?></td>
-                <td height="17" class="plfieldhdr pright pbottom" style="padding:0px 5px 0px 5px"><?=_("Name")?></td>
-                <td height="17" class="plfieldhdr pright pbottom" style="padding:0px 5px 0px 5px"><?=_("Description")?></td>
-                <td height="17" class="plfieldhdr pright pbottom" style="padding:0px 5px 0px 5px"><?=_("SIDs:")?></td>
+                <td height="17" class="plfieldhdr pleft pbottom pright" style="padding:2px 5px"><?=_("Data Source")?></td>
+                <td height="17" class="plfieldhdr pright pbottom" style="padding:2px 5px"><?=_("Data Source Name")?></td>
+                <td height="17" class="plfieldhdr pright pbottom" style="padding:2px 5px"><?=_("Description")?></td>
+                <td height="17" class="plfieldhdr pright pbottom" style="padding:2px 5px"><?=_("Event types")?></td>
                 </tr>
                 <?php
     foreach($group->get_plugins() as $p) { ?>
                     <tr>
-                        <td class="pleft pbottom pright"><?php echo $p['id'] ?></td>
+                        <td class="pleft pbottom pright" style="padding:2px"><?php echo $p['id'] ?></td>
                         <td class="pbottom pright"><?php echo $p['name'] ?></td>
                         <td class="pbottom pright" nowrap><?php echo $p['descr'] ?></td>
                         <td class="pbottom pright" style="text-align:left;white-space:normal;padding:0px 0px 0px 5px;"><?php echo ($p['sids'] == "0") ? "ANY" : str_replace(",",", ",$p['sids']) ?></td>

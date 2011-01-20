@@ -154,7 +154,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php"); ?>
     </td>
   </tr>
   <tr>
-    <td colspan="2" align="center">
+    <td colspan="2" align="center" class="noborder">
       <input type="submit" value="<?php echo _('OK')?>" class="button">
       <input type="reset" value="<?php echo _('reset')?>" class="button">
     </td>

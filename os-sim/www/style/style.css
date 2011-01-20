@@ -9,7 +9,7 @@
     border-width: 0px !important;
     color: #545454 !important;
 	background-color: transparent !important;
-    padding:2px 5px 2px 5px !important;
+    padding:2px 5px !important;
     font-family: arial,verdana,helvetica,sans-serif !important;
     font-size:11px;
     margin-right:2px; margin-top:0px;
@@ -38,7 +38,7 @@ a.sbutton:hover
 	background-color: transparent !important;
     #background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
 	background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
-    padding-bottom:2px !important;
+    padding:2px 3px !important;
     font-family: arial,verdana,helvetica,sans-serif !important;
     font-size: 11px !important;
 	font-weight:bold !important;
@@ -65,7 +65,7 @@ input.lbutton:hover
 	background-color: transparent !important;
     #background: url(../pixmaps/theme/bg_button.png) 50% 50% repeat-x !important;
 	background: url(../pixmaps/theme/bg_button.png) 50% 50% repeat-x !important;
-    padding-bottom:2px !important;
+    padding:2px 3px !important;
     font-family: arial,verdana,helvetica,sans-serif !important;
     font-size: 11px !important;
 	font-weight:bold !important;
@@ -79,7 +79,7 @@ input.lbutton:hover
 	height:20px !important;
 	background-color: transparent !important;
 	background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
-    padding-bottom:2px !important;
+    padding:2px 3px !important;
     font-family: arial,verdana,helvetica,sans-serif !important;
     font-size: 11px !important;
 	font-weight:bold !important;
@@ -104,7 +104,7 @@ input.lbuttond:hover
 	background-color: transparent !important;
     #background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
 	background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
-    padding-bottom:2px !important;
+    padding:2px 5px !important;
     font-family: arial,verdana,helvetica,sans-serif !important;
     font-size: 9px !important;
 	font-weight:bold !important;
@@ -150,7 +150,7 @@ input.vsbutton:hover
 	background-color: transparent !important;
     #background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
 	background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
-    padding:2px !important;
+    padding:2px 5px !important;
     font-family: arial,verdana,helvetica,sans-serif !important;
     font-size: 12px !important;
 	font-weight:bold !important;
@@ -858,6 +858,7 @@ div.bballoon:hover span.bottom {
 
 	font-family: arial;
 	font-size: 12px;
+	text-decoration: none;
 }
 
 .gtooltip {
@@ -872,6 +873,7 @@ div.bballoon:hover span.bottom {
 
 	font-family: arial;
 	font-size: 12px;
+	text-decoration: none;	
 }
 
 .ytooltip {
@@ -886,6 +888,7 @@ div.bballoon:hover span.bottom {
 
 	font-family: arial;
 	font-size: 12px;
+	text-decoration: none;	
 }
 
 /** table pagination **/

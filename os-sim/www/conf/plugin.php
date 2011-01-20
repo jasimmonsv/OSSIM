@@ -92,9 +92,9 @@ include ("../hmenu.php"); ?>
     
 	function action(com,grid) {
         var items = $('.trSelected', grid);
-        if (com=='<?=_("Insert new plugin sid")?>') {
+        if (com=='<?=_("Insert new event type")?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'newpluginsidform.php?plugin='+urlencode(items[0].id.substr(3));
-			else alert('<?php echo _("You must select a plugin")?>');
+			else alert('<?php echo _("You must select a data source")?>');
 		}
 	}
     function linked_to(rowid) {
@@ -161,7 +161,7 @@ echo "$colModel\n";
 ?>
 				],
             buttons : [
-                {name: '<?=_("Insert new plugin sid")?>', bclass: 'add', onpress : action},
+                {name: '<?=_("Insert new event type")?>', bclass: 'add', onpress : action},
                 {separator: true}
             ],
 			searchitems : [
@@ -173,9 +173,9 @@ echo "$colModel\n";
 			sortorder: "<?php echo $sortorder
 ?>",
 			usepager: true,
-			title: '<?=_('PLUGINS')?>',
-			pagestat: '<?=_('Displaying {from} to {to} of {total} plugins')?>',
-			nomsg: '<?=_('No plugins')?>',
+			title: '<?=_('DATA SOURCES')?>',
+			pagestat: '<?=_('Displaying {from} to {to} of {total} data sources')?>',
+			nomsg: '<?=_('No data sources')?>',
 			useRp: true,
 			rp: 50,
 			showTableToggleBtn: true,

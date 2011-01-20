@@ -73,7 +73,7 @@ if (GET('action') == 'edit') {
     $where = "plugin_group_descr.group_id=$group_id";
     $list = Plugingroup::get_list($conn, $where);
     if (count($list) != 1) {
-        die(_("Empty PLuginGroup ID"));
+        die(_("Empty DS Group ID"));
     }
     $plug_ed = $list[0];
     $name = $plug_ed->get_name();
@@ -147,12 +147,12 @@ function validate_sids_str(id)
 
 function chk() {
 	while (jQuery.trim($('#pname').val()) == "") {
-		$('#pname').val(prompt("<?=_("Please enter a Plugin group name:")?>"," "));
+		$('#pname').val(prompt("<?=_("Please enter a DS Group name:")?>"," "));
 	}
 	if ($('#pluginid').val()=="0") {
 		var autofillp = plist[$('#filter').val()];
 		if (typeof autofillp == 'undefined') {
-			alert("<?=_("You must select a plugin")?>");
+			alert("<?=_("You must select a DS Group")?>");
 			$('#filter').focus();
 			return false;
 		} else {
@@ -171,7 +171,7 @@ function GB_onclose() {
 <table align="center" width="90%" cellspacing="0" class="noborder">
     <tr>
         <td width="10%" height="34" class="plfieldhdr pall" nowrap><?= _("Group ID") ?></td>
-        <td width="22%" height="34" class="plfieldhdr ptop pbottom pright"><?= _("Name") . required() ?></td>
+        <td width="22%" height="34" class="plfieldhdr ptop pbottom pright"><?= _("Group Name") . required() ?></td>
         <td width="63%" height="34" class="plfieldhdr ptop pbottom pright"><?= _("Description") . required() ?></td>
     </tr>
     <tr>
@@ -185,15 +185,15 @@ function GB_onclose() {
         </td>
     </tr>
     <tr>
-        <td width="10%" height="34" class="plfieldhdr pall" nowrap><?= _("ID") ?></td>
-        <td width="22%" height="34" class="plfieldhdr ptop pbottom pright"><?= _("Plugin Name") ?></td>
-        <td width="63%" height="34" class="plfieldhdr ptop pbottom pright"><?= _("Plugin Description / SIDs") ?></td>
+        <td width="10%" height="34" class="plfieldhdr pall" nowrap><?= _("Data Source") ?></td>
+        <td width="22%" height="34" class="plfieldhdr ptop pbottom pright"><?= _("Data Source Name") ?></td>
+        <td width="63%" height="34" class="plfieldhdr ptop pbottom pright"><?= _("Data Source Description / Event types") ?></td>
     </tr>
     <tr>
         <td class="pleft"></td>
         <td nowrap>
             <input type="hidden" id="pluginid" name="pluginid" value="0">
-            <input type="text" id="filter" name="filter" size="18" value="">&nbsp;<a href="allplugins.php" class="greyboxp" title="<?=_("Explore all plugins")?>"><img src="../pixmaps/plus.png" align="absmiddle" border="0"></a>&nbsp;<input type="submit" value="<?=_("Add Plugin")?>" class="lbutton"><a href="javascript:;" class="scriptinfo" txt="<?=_("Type the name of the plugin or double-click to show the plugin list")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>
+            <input type="text" id="filter" name="filter" size="18" value="">&nbsp;<a href="allplugins.php" class="greyboxp" title="<?=_("Explore all data sources")?>"><img src="../pixmaps/plus.png" align="absmiddle" border="0"></a>&nbsp;<input type="submit" value="<?=_("Add Data Source")?>" class="lbutton"><a href="javascript:;" class="scriptinfo" txt="<?=_("Type the name of the data source or double-click to show the data source list")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>
         </td>
         <td class="pright"></td>
     </tr>
@@ -208,9 +208,9 @@ function GB_onclose() {
     <tr class="<?=$bgclass?>" txt="sid<?=$id?>">    
         <td class="noborder pleft <?=$bbottom?>" nowrap>
         	<table class="noborder" style="background:transparent"><tr><td class="nobborder">
-        	<? if (count($plugs)>1) { ?><a href="modifyplugingroupsform.php?action=<?= GET('action') ?>&id=<?= $group_id ?>&withoutmenu=<?= GET('withoutmenu') ?>&delete=<?= $id ?>" title="<?=_("Delete Data Source from group")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" border="0"></a>
+        	<? if (count($plugs)>1) { ?><a href="modifyplugingroupsform.php?action=<?= GET('action') ?>&id=<?= $group_id ?>&withoutmenu=<?= GET('withoutmenu') ?>&delete=<?= $id ?>" title="<?=_("Delete sata source from group")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" border="0"></a>
         	<? } else { ?>
-        	<a href="javascript:;" title="<?=_("Add another Data Source defore delete this")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" class="disabled" border="0"></a>
+        	<a href="javascript:;" title="<?=_("Add another sata source defore delete this")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" class="disabled" border="0"></a>
         	<? } ?>
         	</td>
         	<td class="nobborder"><?= $id ?></td></tr></table>
@@ -222,7 +222,7 @@ function GB_onclose() {
             <td class="nobborder right" style="padding-right:10px" NOWRAP>
                 <span id="errorsid<?= $id ?>" style="background: red; display: none"></span>
                 <span id="editsid<?= $id ?>" NOWRAP>
-                    <b><?=_("Signature IDs")?></b>:<a href="javascript:;" class="scriptinfo" txt="<?=_("All SIDs: ANY or 0<br>SIDs separated by coma: 3,4,5<br>SID range: 30-40<br>Individual selection clicking on magnifying glass icon")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>&nbsp;
+                    <b><?=_("Event types")?></b>:<a href="javascript:;" class="scriptinfo" txt="<?=_("All Event Types: ANY or 0<br>Event types separated by coma: 3,4,5<br>Event types range: 30-40<br>Individual selection clicking on magnifying glass icon")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>&nbsp;
                     <input id="sid<?=$id?>" onBlur="javascript:return validate_sids_str('<?= $id ?>')"
                     type="text" name="sids[<?=$id?>]" value="<?=$sids?>" size="45" style="height:18px"> 
                     <a href="pluginsids.php?id=<?= $id ?>" name="sid<?= $id ?>" class="greybox" title="<?=_("Add/Edit event types selection")?>"><img src="../pixmaps/magadd.png" border=0 align="absmiddle"></a>&nbsp;<a href="allpluginsids.php?id=<?=$id?>" txt="sid<?= $id ?>" class="greyboxe" title="<?=_("Explore selected event types")?>"><img src="../pixmaps/magfit.png" align="absmiddle" border="0"></a>
@@ -235,7 +235,7 @@ function GB_onclose() {
     <tr>
         <td class="pleft"></td>
         <td nowrap>
-            <input type="text" id="sidsearch" name="sidsearch" size="19" value="">&nbsp;&nbsp;<input type="button" value="<?=_("SIDs Search")?>" class="lbutton" onclick="pluginsid_search()"><a href="javascript:;" class="scriptinfo" txt="<?=_("Search all event types matching this pattern")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>
+            <input type="text" id="sidsearch" name="sidsearch" size="19" value="">&nbsp;&nbsp;<input type="button" value="<?=_("Event Types Search")?>" class="lbutton" onclick="pluginsid_search()"><a href="javascript:;" class="scriptinfo" txt="<?=_("Search all event types matching this pattern")?>"><img src="../pixmaps/help_icon_gray.png" align="absmiddle" border="0"></a>
         </td>
         <td class="pright" style="text-align:left">
             <span id="loading" style="display:none"><img src="../pixmaps/theme/loading.gif" border="0"></span>
@@ -298,7 +298,7 @@ $(document).ready(function(){
         return false;
     });
     $("a.greyboxp").click(function(){
-        GB_show("<?=_("Explore all plugins")?>",this.href,410,"90%");
+        GB_show("<?=_("Explore all data sources")?>",this.href,410,"90%");
         return false;
     });
     $(".scriptinfo").simpletip({
