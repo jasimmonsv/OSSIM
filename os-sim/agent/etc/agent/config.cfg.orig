@@ -167,6 +167,7 @@ vsftpd=/etc/ossim/agent/plugins/vsftpd.cfg
 fidelis=/etc/ossim/agent/plugins/fidelis.cfg
 openldap=/etc/ossim/agent/plugins/openldap.cfg
 courier=/etc/ossim/agent/plugins/courier.cfg
+nfs=/etc/ossim/agent/plugins/nfs.cfg
 
 #monitors
 nessus-monitor=/etc/ossim/agent/plugins/nessus-monitor.cfg
