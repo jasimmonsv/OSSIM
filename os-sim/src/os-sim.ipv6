@@ -1,0 +1,18 @@
+- Agente:
+	- Que todos los plugins son capaces de interpretar direcciones IPv6 correctamente. 
+	- Modificar el agente para que pueda procesar los campos IPv6 que se nos presenten de manera adecuada. 
+	- Unified2 de Snort soporta correctamente IPv6. Modificar el parser para que lea estos registros de manera correcta.
+- Framework
+	- Toda la infraestructura para el uso de las nuevas IPv6
+	- Modificación completa de la base de datos para los nuevos datos.
+- Server
+	- Modificar todas las inserciones de datos que utilizan ip para que puedan utilizar ipv6. (sim-container.c)
+	- Modificar la correlación:
+			- Match / no match de redes
+			- Match / no match de hosts.
+	- Modificar todas las tablas de inventariado que utilizan IP.
+	- He estado mirando la documentación de la librería GNET (http://library.gnome.org/devel/gnet/stable/), tenemos soporte de IPv6 en los objetos que usamos, con lo cual nos puede facilitar bastante el trabajo. Decir sin embargo, que parece ser que esta librería la quieren marca deprecated en un futuro próximo.
+	- Puesto que estamos usando las funciones anteriores, casi todo el trabajo se debe de centrar en la parte de insercción en base de datos. En principio habría que extenderlos para que almacenen los 128 bits que puede tener una dirección IPv6.
+	- Necesitamos alguna manera de conectarnos a una red IPv6 "real", a través de túneles (por ejemplo http://www.sixxs.net/main/ ),y una vez en la misma, engancharnos con un ossim para ir viendo su comportamiento.
+
+Es bastante trabajo el que hay que hacer, teniendo en cuenta que esta estimación te la hago desde 10000 pies de altura. Si casi toda la funcionalidad de la gnet está correcta, nos va a facilitar mucho las cosas, pero calculo que al menos vamos a necesitar medio año para tenerlo todo funcionando y probarlo: Para empezar necesitamos tener una red que funcione correctamente en IPv6 aquí para que nos haga de laboratorio,así como sitios reales donde podamos probarlo. Calculo como mínimo un mes para tener un laboratorio en conduciones funcionando, algún tipo de tunel que nos permita crear una isla IPv6 sobre IPv4 y otros cinco meses para poder implementarlo.

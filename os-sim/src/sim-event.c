@@ -33,7 +33,9 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include "sim-event.h"
 #include "sim-util.h"
 #include "os-sim.h"
+#include "sim-text-fields.h"
 #include <config.h>
+
 
 #include <time.h>
 #include <math.h>
@@ -105,7 +107,13 @@ sim_event_impl_finalize (GObject  *gobject)
 	}
 	if (event->rulename)
 		g_free(event->rulename);
-
+	if (event->backlog_list){
+		GList *node;
+		for (node = g_list_first (event->backlog_list); node != NULL; node = g_list_next (node)){
+			g_object_unref (G_OBJECT(node->data));
+		}
+		g_list_free (event->backlog_list);
+	} 
   G_OBJECT_CLASS (parent_class)->finalize (gobject);
 }
 
@@ -203,6 +211,8 @@ sim_event_instance_init (SimEvent *event)
 	uuid_clear(event->uuid);	
 	event->buffer = NULL;	
 	event->packet = NULL;
+
+	event->backlog_list = NULL;
 	
 }
 
@@ -785,10 +795,45 @@ sim_event_get_replace_clause (SimEvent   *event)
   gchar   *query;
   gint     c;
   gint     a;
+	int i;
+	gchar 	*e_fields[N_TEXT_FIELDS];
+	/* Temporal HACK */
+	gchar *fields[N_TEXT_FIELDS];
+	
 	gchar 	uuidtext[37];
+	GdaConnection *conn;
+	GString *st;
+	GString *stvalues;
+	conn = sim_database_get_conn (ossim.dbossim);
+
 
   g_return_val_if_fail (event, NULL);
   g_return_val_if_fail (SIM_IS_EVENT (event), NULL);
+	/* Temporal HACK ....XXX*/
+	fields[0] = event->username;
+	fields[1] = event->password;
+	fields[2] = event->filename;
+	fields[3] = event->userdata1;
+	fields[4] = event->userdata2;
+	fields[5] = event->userdata3;
+	fields[6] = event->userdata4;
+	fields[7] = event->userdata5;
+	fields[8] = event->userdata6;
+	fields[9] = event->userdata7;
+	fields[10] = event->userdata8;
+	fields[11] = event->userdata9;
+	st = g_string_new ("");	 
+	stvalues = g_string_new ("");
+	for ( i = 0; i< N_TEXT_FIELDS; i++){
+		if (fields[i] != NULL){
+			e_fields[i] = g_new0 (gchar, strlen (fields[i])*2+1);
+			gda_connection_escape_string (conn, fields[i], e_fields[i]);
+		}else{
+			e_fields[i] = NULL;
+		}
+		g_string_append_printf (st," ,%s",sim_text_field_get_name (i)); /* Must be done only one time */
+		g_string_append_printf (stvalues," ,'%s'",e_fields[i]!= NULL ? e_fields[i] : "");
+	}
 
   c = rint (event->risk_c);
   a = rint (event->risk_a);
@@ -809,9 +854,10 @@ sim_event_get_replace_clause (SimEvent   *event)
 			   "protocol, src_ip, dst_ip, src_port, dst_port, "
 			   "event_condition, value, time_interval, "
 			   "priority, reliability, asset_src, asset_dst, risk_c, risk_a, alarm, "
-			   "snort_sid, snort_cid,uuid) "
+			   "snort_sid, snort_cid,uuid %s) "
 			   " VALUES  (%d, '%s', '%s', '%s', %d, %d, %d,"
-			   " %d, %u, %u, %d, %d, %d, '%s', %d, %d, %d, %d, %d, %d, %d, %d, %u, %u,'%s')",
+			   " %d, %u, %u, %d, %d, %d, '%s', %d, %d, %d, %d, %d, %d, %d, %d, %u, %u,'%s' %s)",
+					st->str,
          event->id,
 			   timestamp,
 			   (event->sensor) ? event->sensor : "",
@@ -835,7 +881,14 @@ sim_event_get_replace_clause (SimEvent   *event)
 			   event->alarm,
 			   event->snort_sid,
 			   event->snort_cid,
-				 (!uuid_is_null(event->uuid) ? uuidtext : "" ));
+				 (!uuid_is_null(event->uuid) ? uuidtext : "" ),
+					stvalues->str);
+		for ( i = 0; i < N_TEXT_FIELDS; i++){
+			if (e_fields[i] != NULL)
+				g_free (e_fields[i]);
+		}
+		g_string_free (st, TRUE);
+		g_string_free (stvalues, TRUE);
 
   return query;
 }
@@ -1289,6 +1342,15 @@ sim_event_get_insert_into_event_tmp_clause (SimEvent   *event)
 
   return query;
 }
+
+void sim_event_add_backlog_ref_ul(SimEvent *event,GObject *directive){
+	g_return_if_fail (event !=NULL );
+	g_return_if_fail (directive != NULL);
+	g_return_if_fail (SIM_IS_EVENT (event));
+	g_return_if_fail (SIM_IS_DIRECTIVE (directive));
+	event->backlog_list = g_list_prepend (event->backlog_list,g_object_ref( G_OBJECT (directive)));
+}
+
 
 
 // vim: set tabstop=2:

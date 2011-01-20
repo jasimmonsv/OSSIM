@@ -203,6 +203,8 @@ struct _SimEvent {
 	/* uuid */
 	uuid_t uuid;
 	uuid_t uuid_backlog;
+
+	GList *backlog_list;
 	
 };
 
@@ -230,6 +232,7 @@ void			sim_event_print										(SimEvent	*event);
 gchar*		sim_event_get_msg									(SimEvent	*event);
 gboolean	sim_event_is_special							(SimEvent *event);
 gchar*    sim_event_get_str_from_type       (SimEventType type);
+void			sim_event_add_backlog_ref_ul			(SimEvent *event,GObject *directive);
 
 G_END_DECLS
 
