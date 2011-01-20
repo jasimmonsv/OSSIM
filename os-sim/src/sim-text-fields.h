@@ -19,4 +19,6 @@ enum SimTextIndexFields{
 
 int sim_text_field_get_index (const char *);	
 const gchar * sim_text_field_get_name (guint inx);
+const gchar *sim_text_field_get_var_name (guint inx);
+int sim_text_field_get_var_index (const char *name);
 #endif

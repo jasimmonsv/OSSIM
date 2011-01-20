@@ -202,6 +202,7 @@ typedef enum {
   SIM_RULE_VAR_USERDATA7,
   SIM_RULE_VAR_USERDATA8,
   SIM_RULE_VAR_USERDATA9,
+	SIM_RULE_VAR_GENERIC_TEXT
 } SimRuleVarType;
 
 typedef enum {

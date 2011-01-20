@@ -2221,8 +2221,9 @@ sim_session_cmd_host_os_event (SimSession  *session,
 		event->buffer = g_strdup (command->buffer); //we need this to resend data to other servers, or to send
                                                 //events that matched with policy to frameworkd (future implementation)
 																								//
-		event->userdata1 = g_strdup (command->data.host_os_event.os); //needed for correlation
-																										
+		//event->userdata1 = g_strdup (command->data.host_os_event.os); //needed for correlation
+		event->textfields[SimTextFieldUserdata1] = g_strdup (command->data.host_os_event.os); //needed for correlation
+																							
 		sim_container_push_event (ossim.container, event);
 		sim_container_set_sensor_event_number (ossim.container, SIM_EVENT_HOST_OS_EVENT, sensor);
 	
@@ -2357,9 +2358,12 @@ sim_session_cmd_host_mac_event (SimSession  *session,
 	  event->buffer = g_strdup (command->buffer); //we need this to resend data to other servers, or to send
 		                                            //events that matched with policy to frameworkd (future implementation)
 		
-		event->userdata1 = g_strdup (command->data.host_mac_event.mac);	//needed for correlation
+		//event->userdata1 = g_strdup (command->data.host_mac_event.mac);	//needed for correlation
+		event->textfields[SimTextFieldUserdata1] = g_strdup (command->data.host_mac_event.mac);	//needed for correlation
 		if (command->data.host_mac_event.vendor)
-			event->userdata2 = g_strdup (command->data.host_mac_event.vendor);
+			//event->userdata2 = g_strdup (command->data.host_mac_event.vendor);
+			event->textfields[SimTextFieldUserdata2] = g_strdup (command->data.host_mac_event.vendor);
+
 
     sim_container_push_event (ossim.container, event);
 		sim_container_set_sensor_event_number (ossim.container, SIM_EVENT_HOST_MAC_EVENT, sensor);
@@ -2530,8 +2534,12 @@ sim_session_cmd_host_service_event (SimSession  *session,
 			event->buffer = g_strdup (command->buffer); //we need this to resend data to other servers, or to send
 	                                                //events that matched with policy to frameworkd (future implementation)
 			
-			event->userdata1 = g_strdup (command->data.host_service_event.application);	//may be needed in correlation
-			event->userdata2 = g_strdup (command->data.host_service_event.service);
+			//event->userdata1 = g_strdup (command->data.host_service_event.application);	//may be needed in correlation
+			event->textfields[SimTextFieldUserdata1] = g_strdup (command->data.host_service_event.application);	//may be needed in correlation
+
+			//event->userdata2 = g_strdup (command->data.host_service_event.service);
+			event->textfields[SimTextFieldUserdata2] =  g_strdup (command->data.host_service_event.service);
+
 			
      	sim_container_push_event (ossim.container, event);
 			sim_container_set_sensor_event_number (ossim.container, SIM_EVENT_HOST_SERVICE_EVENT, sensor);
@@ -2640,29 +2648,41 @@ sim_session_cmd_host_ids_event (SimSession  *session,
 //		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_session_cmd_host_ids_event filename: %s", command->data.host_ids_event.filename);
 							
 		if (command->data.host_ids_event.filename)
-			event->filename = g_strdup (command->data.host_ids_event.filename);
+			//event->filename = g_strdup (command->data.host_ids_event.filename);
+			event->textfields[SimTextFieldFilename] = g_strdup (command->data.host_ids_event.filename);
 		if (command->data.host_ids_event.username)
-			event->username = g_strdup (command->data.host_ids_event.username);
+			//event->username = g_strdup (command->data.host_ids_event.username);
+			event->textfields[SimTextFieldUsername] = g_strdup (command->data.host_ids_event.filename);
 		if (command->data.host_ids_event.password)
-			event->password = g_strdup (command->data.host_ids_event.password);
+			//event->password = g_strdup (command->data.host_ids_event.password);
+			event->textfields[SimTextFieldPassword] = g_strdup (command->data.host_ids_event.password);
 		if (command->data.host_ids_event.userdata1)
-			event->userdata1 = g_strdup (command->data.host_ids_event.userdata1);
+		 //event->userdata1 = g_strdup (command->data.host_ids_event.userdata1);
+			event->textfields[SimTextFieldUserdata1] = g_strdup (command->data.host_ids_event.userdata1);
 		if (command->data.host_ids_event.userdata2)
-			event->userdata2 = g_strdup (command->data.host_ids_event.userdata2);
+			//event->userdata2 = g_strdup (command->data.host_ids_event.userdata2);
+				event->textfields[SimTextFieldUserdata2] = g_strdup (command->data.host_ids_event.userdata2);
 		if (command->data.host_ids_event.userdata3)
-			event->userdata3 = g_strdup (command->data.host_ids_event.userdata3);
+			//event->userdata3 = g_strdup (command->data.host_ids_event.userdata3);
+				event->textfields[SimTextFieldUserdata3] = g_strdup (command->data.host_ids_event.userdata3);
 		if (command->data.host_ids_event.userdata4)
-			event->userdata4 = g_strdup (command->data.host_ids_event.userdata4);
+			//event->userdata4 = g_strdup (command->data.host_ids_event.userdata4);
+				event->textfields[SimTextFieldUserdata4] = g_strdup (command->data.host_ids_event.userdata4);
 		if (command->data.host_ids_event.userdata5)
-			event->userdata5 = g_strdup (command->data.host_ids_event.userdata5);
+			//event->userdata5 = g_strdup (command->data.host_ids_event.userdata5);
+			  event->textfields[SimTextFieldUserdata5] = g_strdup (command->data.host_ids_event.userdata5);
 		if (command->data.host_ids_event.userdata6)
-			event->userdata6 = g_strdup (command->data.host_ids_event.userdata6);
+			//event->userdata6 = g_strdup (command->data.host_ids_event.userdata6);
+				event->textfields[SimTextFieldUserdata6] = g_strdup (command->data.host_ids_event.userdata6);
 		if (command->data.host_ids_event.userdata7)
-			event->userdata7 = g_strdup (command->data.host_ids_event.userdata7);
+			//event->userdata7 = g_strdup (command->data.host_ids_event.userdata7);
+				event->textfields[SimTextFieldUserdata7] = g_strdup (command->data.host_ids_event.userdata7);
 		if (command->data.host_ids_event.userdata8)
-			event->userdata8 = g_strdup (command->data.host_ids_event.userdata8);
+			//event->userdata8 = g_strdup (command->data.host_ids_event.userdata8);
+				event->textfields[SimTextFieldUserdata8] = g_strdup (command->data.host_ids_event.userdata8);
 		if (command->data.host_ids_event.userdata9)
-			event->userdata9 = g_strdup (command->data.host_ids_event.userdata9);
+			//event->userdata9 = g_strdup (command->data.host_ids_event.userdata9);
+			event->textfields[SimTextFieldUserdata9] = g_strdup (command->data.host_ids_event.userdata9);
 
 		event->buffer = g_strdup (command->buffer);	//we need this to resend data to other servers, or to send
 																								//events that matched with policy to frameworkd (future implementation)

@@ -35,6 +35,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include "sim-inet.h"
 #include <config.h>
 #include <string.h>
+#include <errno.h>
 
 struct _SimXmlDirectivePrivate {
   SimContainer  *container;
@@ -95,6 +96,21 @@ struct _SimXmlDirectivePrivate {
 static void sim_xml_directive_class_init (SimXmlDirectiveClass *klass);
 static void sim_xml_directive_init       (SimXmlDirective *xmldirect, SimXmlDirectiveClass *klass);
 static void sim_xml_directive_finalize   (GObject *object);
+static gchar *sim_xml_directive_get_search_type (SimRule *rule, int inx,gchar *value);
+/*
+ *  For the search type
+ */
+static struct{
+	gchar *token;
+	guint type;
+}text_field_search_type[]={
+	{"EXACT:",SimMatchTextEqual},
+	{"FIND:",SimMatchTextSubstr},
+	{"REGEX:",SimMatchTextRegex},
+	{"PREV:",SimMatchPrevious},
+	{"ANY",SimMatchTextAny},
+	{NULL,0}
+};
 
 /*
  * SimXmlDirective object signals
@@ -144,6 +160,7 @@ sim_xml_directive_init (SimXmlDirective *xmldirect, SimXmlDirectiveClass *klass)
   xmldirect->_priv = g_new0 (SimXmlDirectivePrivate, 1);
   xmldirect->_priv->directives = NULL;
   xmldirect->_priv->groups = NULL;
+
 }
 
 static void
@@ -589,15 +606,172 @@ sim_xml_directive_new_action_from_node (SimXmlDirective *xmldirect,
 
   return action;
 }
+static gboolean sim_xml_directive_set_rule_exact (SimRule *rule,
+																									gchar *text,
+																									gchar *field_type){
+	int inx;
+	gchar *p;
+	int res = FALSE;
+	g_return_val_if_fail (rule != NULL, FALSE);
+  g_return_val_if_fail (SIM_IS_RULE (rule), FALSE);
+  g_return_val_if_fail (text != NULL, FALSE);
+	g_return_val_if_fail (field_type != NULL, FALSE);
+	g_return_val_if_fail ((inx = sim_text_field_get_index (field_type)) != -1, FALSE);
+	p = text;
+	if (text[0] == '!' && text[1]!='\0'){
+		res = sim_rule_set_match_text (rule, inx, &text[1], TRUE);
+		
+	}else{
+		res = sim_rule_set_match_text (rule,  inx, text, FALSE);
+	}
+	return res;
+}
+static gboolean sim_xml_directive_set_rule_substr (SimRule *rule,
+																									gchar *text,
+																									gchar *field_type){
+	int inx;
+	gchar *p;
+	int res = FALSE;
+	g_return_val_if_fail (rule != NULL, FALSE);
+  g_return_val_if_fail (SIM_IS_RULE (rule), FALSE);
+  g_return_val_if_fail (text != NULL, FALSE);
+	g_return_val_if_fail (field_type != NULL, FALSE);
+	g_return_val_if_fail ((inx = sim_text_field_get_index (field_type)) != -1, FALSE);
+	p = text;
+	if (text[0] == '!' && text[1]!='\0'){
+		res = sim_rule_set_match_substr (rule, inx, &text[1], TRUE);
+		
+	}else{
+		res = sim_rule_set_match_substr (rule,  inx, text, FALSE);
+	}
+	return res;
+}
+
+static gboolean sim_xml_directive_set_rule_regex (SimRule *rule,
+																									gchar *text,
+																									gchar *field_type){
+	int inx;
+	gchar *p;
+	int res = FALSE;
+	g_return_val_if_fail (rule != NULL, FALSE);
+  g_return_val_if_fail (SIM_IS_RULE (rule), FALSE);
+  g_return_val_if_fail (text != NULL, FALSE);
+	g_return_val_if_fail (field_type != NULL, FALSE);
+	g_return_val_if_fail ((inx = sim_text_field_get_index (field_type)) != -1, FALSE);
+	return sim_rule_set_match_regex (rule, inx, text);
+}
+static gboolean sim_xml_directive_set_rule_var_match (SimRule *rule,
+																									gchar *text,
+																									gchar *field_type, int level){
+
+	int inx;
+	int var_inx;
+	gchar *p;
+	int res = FALSE;;
+	gchar **tokens;
+	gchar **tokens_var;
+	int i;
+	gboolean neg = FALSE;
+	SimRuleVar *var;
+	int varlevel;
+	g_return_val_if_fail (rule != NULL, FALSE);
+  g_return_val_if_fail (SIM_IS_RULE (rule), FALSE);
+  g_return_val_if_fail (text != NULL, FALSE);
+	g_return_val_if_fail (field_type != NULL, FALSE);
+	g_return_val_if_fail ((inx = sim_text_field_get_index (field_type)) != -1, FALSE);
+	/* First , check level. Variable must not be in level 1*/
+	if (level == 1) return FALSE;
+	/* Check SYNTAX */
+	if (text[0] == '!'){
+		if (text[1] != '\0')
+			p = &text[1];
+		else
+			return FALSE;
+		// Negate
+		neg = TRUE;
+	}else{
+		p = text;
+	}
+	/* Now check for variable*/
+	tokens_var = g_strsplit (p, SIM_DELIMITER_LEVEL, 2);
+	varlevel = strtol (tokens_var[0], NULL, 10);
+	if (varlevel == 0 && errno == EINVAL){
+		g_message ("Bad level in VARIABLE:'%s",text);
+		return FALSE;
+	}
+	var = g_new0 (SimRuleVar, 1);
+	if (var){
+		var->type = sim_get_rule_var_from_char (tokens_var[1]);
+		if (var->type == SIM_RULE_VAR_GENERIC_TEXT)
+			var->varIndex = sim_text_field_get_var_index (tokens_var[1]);
+		var->attr = inx; // Attribute that this variables refers to
+		var->level = varlevel;
+		var->negated = neg;
+		g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: Variable created var->type = %u var->attr = %u var->varIndex = %u",
+	
+			__FUNCTION__,var->type,var->attr, var->varIndex); 
+		sim_rule_append_var (rule, var);
+		res = TRUE;
+		
+	}
+	return res;
+}
+
+
+static gboolean 
+sim_xml_directive_set_rule_generic (SimRule *rule,
+																				gchar 	*value,
+																				gchar 	*field_type,
+																				int level){
+	gchar *next_token = NULL;
+	enum SimTextMatchType matchtype;
+	int i;
+	g_return_val_if_fail (rule != NULL, FALSE);
+  g_return_val_if_fail (SIM_IS_RULE (rule), FALSE);
+  g_return_val_if_fail (value != NULL, FALSE);
+	g_return_val_if_fail (field_type != NULL, FALSE);
+	if (strcmp (value,"ANY") != 0){
+	for (i=0; text_field_search_type[i].token != NULL && next_token == NULL; i++){
+		int inx;
+		inx = strlen (text_field_search_type[i].token);
+		if (strncmp (text_field_search_type[i].token, value, inx) == 0){
+			next_token = &value[inx];
+			matchtype = text_field_search_type[i].type;
+		}
+	}
+	}else{
+		matchtype = SimMatchTextAny;
+		return sim_rule_set_match_any (rule, sim_text_field_get_index (field_type));
+	}
+	if (next_token){
+		switch (matchtype){
+			case SimMatchTextEqual:
+					return sim_xml_directive_set_rule_exact (rule, next_token, field_type);
+				break;
+			case SimMatchTextSubstr:
+					return sim_xml_directive_set_rule_substr (rule, next_token, field_type);
+				break;
+			case SimMatchTextRegex:
+					return sim_xml_directive_set_rule_regex (rule, next_token, field_type);
+				break;
+			case SimMatchPrevious:
+					return sim_xml_directive_set_rule_var_match (rule, next_token, field_type, level);
+				break;
+		}
+		
+	}
+	return FALSE;
+}
 
 /*
  *	We will group the following keywords in this function:
  *  filename, username, password, userdata1, userdata2.....userdata9
  */
+#if 0
 static gboolean
 sim_xml_directive_set_rule_generic (SimRule          *rule,
 																		gchar            *value,
-																		gchar						*field_type) // field_type =PROPERTY_FILENAME, PROPERTY_SRC_IP.... 
+																		gchar						*field_type,int depth) // field_type =PROPERTY_FILENAME, PROPERTY_SRC_IP.... 
 {
   gchar     **values;
   gchar     **level;
@@ -608,7 +782,7 @@ sim_xml_directive_set_rule_generic (SimRule          *rule,
   g_return_val_if_fail (rule != NULL, FALSE);
   g_return_val_if_fail (SIM_IS_RULE (rule), FALSE);
   g_return_val_if_fail (value != NULL, FALSE);
-
+	return sim_xml_directive_set_rule_generic_new (rule, value, field_type, depth);
   values = g_strsplit (value, SIM_DELIMITER_LIST, 0);		
   for (i = 0; values[i] != NULL; i++)
   {
@@ -673,7 +847,7 @@ sim_xml_directive_set_rule_generic (SimRule          *rule,
 
 	return TRUE;
 }
-
+#endif
 
 /*
  * Checks all the plugin_sids from a "rule" statment in a directive, and store it in a list in rule->_priv->plugin_sids
@@ -1865,19 +2039,19 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 	
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_FILENAME)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_FILENAME)) 
-      xmlFree(value);
-    else
-    {
-      xmlFree(value);
-      g_message("Error: there is a problem at the Filename field");
-      return NULL;
-    }
+	    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_FILENAME,level)) 
+      	xmlFree(value);
+   	  else
+      {
+      	xmlFree(value);
+      	g_message("Error: there is a problem at the Filename field");
+     	  return NULL;
+      }
   }
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERNAME)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERNAME)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERNAME, level)) 
       xmlFree(value);
     else
     {
@@ -1889,7 +2063,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_PASSWORD)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_PASSWORD)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_PASSWORD, level)) 
       xmlFree(value);
     else
     {
@@ -1900,7 +2074,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
   }
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA1)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA1)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA1, level)) 
       xmlFree(value);
     else
     {
@@ -1911,7 +2085,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
   }
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA2)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA2)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA2, level)) 
       xmlFree(value);
     else
     {
@@ -1923,7 +2097,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA3)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA3)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA3, level)) 
       xmlFree(value);
     else
     {
@@ -1935,7 +2109,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA4)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA4)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA4,level)) 
       xmlFree(value);
     else
     {
@@ -1947,7 +2121,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA5)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA5)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA5,level)) 
       xmlFree(value);
     else
     {
@@ -1959,7 +2133,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA6)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA6)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA6, level)) 
       xmlFree(value);
     else
     {
@@ -1971,7 +2145,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA7)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA7)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA7, level)) 
       xmlFree(value);
     else
     {
@@ -1983,7 +2157,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA8)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA8)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA8, level)) 
       xmlFree(value);
     else
     {
@@ -1995,7 +2169,7 @@ sim_xml_directive_new_rule_from_node (SimXmlDirective  *xmldirect,
 
 	if ((value = (gchar *) xmlGetProp (node, (xmlChar *) PROPERTY_USERDATA9)))
   {
-    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA9)) 
+    if (sim_xml_directive_set_rule_generic (rule, value, PROPERTY_USERDATA9, level)) 
       xmlFree(value);
     else
     {
@@ -2135,6 +2309,7 @@ sim_xml_directive_new_group_from_node (SimXmlDirective	*xmldirect,
 }
 
 
+
 /*
  *
  *
@@ -2167,5 +2342,15 @@ sim_xml_directive_new_groups_from_node (SimXmlDirective	*xmldirect,
 }
 
 
-
+static gchar *sim_xml_directive_get_search_type (SimRule *rule, int inx,gchar *value){
+	int i;
+	gchar *res = NULL;
+	for (i=0; text_field_search_type[i].token != NULL && res == NULL;i++){
+		if (strncmp (text_field_search_type[i].token,value,strlen(text_field_search_type[i].token)) == 0){
+			sim_rule_set_text_search (rule , inx, text_field_search_type[i].type);
+			res = &value[i];
+		}
+	}	
+	return res;
+}
 // vim: set tabstop=2:

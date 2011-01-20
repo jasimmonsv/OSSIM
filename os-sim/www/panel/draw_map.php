@@ -137,7 +137,8 @@ while (!$rs->EOF) {
     $rs->MoveNext();
 }
 ?>
-<html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <body>
     <style type="text/css">  
     #map {

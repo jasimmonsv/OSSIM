@@ -32,7 +32,8 @@
 #
 # GLOBAL IMPORTS
 #
-import threading, re, socket
+import threading, re, socket,base64
+
 
 #
 # LOCAL IMPORTS
@@ -52,7 +53,12 @@ import Util
 logger = Logger.logger
 
 class Action(threading.Thread):
-
+    base64field=["username", \
+			"password","filename", \
+			"userdata1","userdata2","userdata3", \
+			"userdata4","userdata5","userdata6", \
+			"userdata7","userdata8","userdata9"] 
+		
     def __init__(self, request):
 
         self.__request = self.parseRequest(request)
@@ -89,7 +95,11 @@ class Action(threading.Thread):
 
         result = re.findall('(\w+)="([^"]+)"', request)
         for i in result:
-            request_hash[i[0]] = i[1]
+            if i[0] in Action.base64field:
+                request_hash[i[0]] = base64.b64decode(i[1])
+            else:
+                request_hash[i[0]] = i[1]
+
 
         return request_hash
 
