@@ -295,6 +295,7 @@ function draw_members_select($form_data) {
         case 'host':
             include_once 'classes/Host.inc';
             $list = Host::get_list($conn, null, 'ORDER BY hostname');
+            print_r($list);
             foreach($list as $obj) {
                 $descr = $obj->get_descr();
                 if (strlen($descr) > 50) {

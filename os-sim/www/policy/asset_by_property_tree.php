@@ -63,7 +63,7 @@ $conn = $db->connect();
 
 if ($from!="") {
 
-	if ($host_list = Host::get_list_pag($conn, "", "ORDER BY hostname")) foreach($host_list as $host) {
+	if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_list as $host) {
 	    $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
 	}
 

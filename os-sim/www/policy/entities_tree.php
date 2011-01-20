@@ -81,7 +81,7 @@ else if(preg_match("/all_(.*)/",$key,$found)) {
     }
 }
 
-if ($host_list = Host::get_list_pag($conn, $where_host, "ORDER BY h.hostname")) {
+if ($host_list = Host::get_list($conn, $where_host, "ORDER BY h.hostname")) {
 	foreach($host_list as $host){
         //echo "Fuera ".$host->get_ip()."<br>";
 		if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) 
@@ -254,7 +254,7 @@ else if (preg_match("/net_(.*)/",$key,$found)){
             $nets_ips = explode(",",$net->get_ips());
             foreach ($nets_ips as $net_ips) {
                 $net_range = CIDR::expand_CIDR($net_ips,"SHORT","IP");
-                $host_list_aux = Host::get_list_pag($conn,"WHERE inet_aton(ip)>=inet_aton('".$net_range[0]."') && inet_aton(ip)<=inet_aton('".$net_range[1]."')");
+                $host_list_aux = Host::get_list($conn,"WHERE inet_aton(ip)>=inet_aton('".$net_range[0]."') && inet_aton(ip)<=inet_aton('".$net_range[1]."')");
                 foreach ($host_list_aux as $h) {
                     $hostin[$h->get_ip()] = $h->get_hostname();
                 }

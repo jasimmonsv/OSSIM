@@ -169,13 +169,33 @@ class Host {
         return Host_sensor_reference::get_list($conn, $this->ip);
     }
     function get_list($conn, $where = "", $order = "") {
-        mysql_escape_string($where);
+        // User SENSOR filtering
+		$sensor_where = Host::get_sensor_where($conn);
+		// User NETWORK filtering
+		$network_where = Host::get_network_where($conn);
+		
+		$perms_where = $sensor_where;
+		if ($network_where != "") {
+			$perms_where .= ($sensor_where != "") ? " AND ".$network_where : $network_where;
+		}
+		
+		if ($perms_where != "") {
+			if (preg_match ("/where/i",$where)) {
+				$where = preg_replace("/where/i","where ".$perms_where." AND ",$where);
+			}
+			else {
+				$where = "where ".$perms_where;
+			}
+		}
+		
+		mysql_escape_string($where);
         mysql_escape_string($order);
         $iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
-        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
-        $query = OssimQuery("SELECT $select FROM host $where $order");
+        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS h.*" : "h.*";
+        
+		$query = OssimQuery("SELECT $select FROM host h $where $order");
 		//echo $query;
-	   $list = array();
+		$list = array();
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
@@ -185,17 +205,14 @@ class Host {
                 else $foundrows = $rf->fields["total"];
             }
             while (!$rs->EOF) {
-                if (Session::hostAllowed($conn, $rs->fields["ip"])) {
-                    $list[] = new Host($rs->fields["ip"], $rs->fields["hostname"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["nat"], $rs->fields["descr"], $foundrows, $rs->fields["lat"], $rs->fields["lon"], $rs->fields["fqdns"]);
-                }
+                $list[] = new Host($rs->fields["ip"], $rs->fields["hostname"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["nat"], $rs->fields["descr"], $foundrows, $rs->fields["lat"], $rs->fields["lon"], $rs->fields["fqdns"]);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
-	function get_list_pag ($conn, $where = "", $order = "") {
-		// User SENSOR filtering
-		$sensor_where = "";
+    function get_sensor_where($conn) {
+    	$sensor_where = "";
 		if (Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
 			$sensor_str = "";
@@ -204,8 +221,11 @@ class Host {
 			if ($sensor_str == "") $sensor_str = "AND 0";
 			$sensor_where = "h.ip in (select hs.host_ip FROM host_sensor_reference hs,sensor s WHERE hs.sensor_name=s.name AND s.ip in(" . $sensor_str . "))";
 		}
-		// User NETWORK filtering
-		if (($allowedNets = Session::allowedNets()) != "") {
+		return $sensor_where;
+    }
+    function get_network_where($conn) {
+   		$network_where = "";
+    	if (($allowedNets = Session::allowedNets()) != "") {
 			$query = OssimQuery("SELECT ip FROM host");
 			$hosts = "";
 	        if (!$rs = & $conn->Execute($query)) {
@@ -219,16 +239,30 @@ class Host {
 	            }
 	            $hosts = preg_replace("/^\,/","",$hosts);
 	            if ($hosts != "") {
-	            	$sensor_where .= ($sensor_where != "") ? " AND h.ip in ($hosts)" : "h.ip in ($hosts)";
+	            	$network_where = "h.ip in ($hosts)";
 	            }
 	        }
 		}
-		if ($sensor_where != "") {
+		return $network_where;
+    }
+    /*
+	function get_list_pag ($conn, $where = "", $order = "") {
+		// User SENSOR filtering
+		$sensor_where = Host::get_sensor_where();
+		// User NETWORK filtering
+		$network_where = Host::get_network_where();
+		
+		$perms_where = $sensor_where;
+		if ($network_where != "") {
+			$perms_where .= ($sensor_where != "") ? " AND ".$network_where : $network_where;
+		}
+		
+		if ($perms_where != "") {
 			if (preg_match ("/where/i",$where)) {
-				$where = preg_replace("/where/i","where ".$sensor_where." AND ",$where);
+				$where = preg_replace("/where/i","where ".$perms_where." AND ",$where);
 			}
 			else {
-				$where = "where ".$sensor_where;
+				$where = "where ".$perms_where;
 			}
 		}
 		
@@ -255,6 +289,7 @@ class Host {
         }
         return $list;
 	}
+	*/
     function get_all($conn) {
         $query = OssimQuery("SELECT ip FROM host");
 		//echo $query;

@@ -76,7 +76,7 @@ $total_hosts = 0;
 $ossim_nets = array();
 $all_cclass_hosts = array();
 $buffer = "";
-if ($host_list = Host::get_list_pag($conn, "", "ORDER BY hostname")) foreach($host_list as $host) if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) {
+if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_list as $host) if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) {
     $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
     $all_hosts[$host->get_ip() ] = 1;
     $cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());

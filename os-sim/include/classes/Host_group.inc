@@ -105,6 +105,7 @@ class Host_group {
             return Host_group_reference::get_list($conn, $this->name, $plugin);
         }
     }
+    /*
     function get_list($conn, $args = "") {
         $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS host_group.*" : "host_group.*";
@@ -128,11 +129,12 @@ class Host_group {
         }
         return $list;
     }
-	function get_list2($conn, $args = "") {
+    */
+	function get_list($conn, $args = "") {
 		include_once("classes/Host.inc");
 		
 		$host_where = " AND r.host_ip in (";
-		$all_host = Host::get_list_pag($conn);
+		$all_host = Host::get_list($conn);
 		foreach ($all_host as $host) $host_where .= "'".$host->get_ip()."',";
 		$host_where = preg_replace("/,$/",")",$host_where);
 		
@@ -161,7 +163,7 @@ class Host_group {
         if (Session::allowedSensors() != "" || Session::allowedNets() != "") {
 	    	include_once("classes/Host.inc");
 			$host_where = " AND r.host_ip in (";
-			$all_host = Host::get_list_pag($conn);
+			$all_host = Host::get_list($conn);
 			foreach ($all_host as $host) {
 				$host_where .= "'".$host->get_ip()."',";
 			}
