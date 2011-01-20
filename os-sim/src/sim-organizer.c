@@ -1240,6 +1240,7 @@ sim_organizer_correlation (SimOrganizer  *organizer,
   gboolean       inserted;
 	gboolean			generate_root_rule_event = FALSE;
   GInetAddr     *ia = NULL;
+	int i;
 
   g_return_if_fail (organizer);
   g_return_if_fail (SIM_IS_ORGANIZER (organizer));
@@ -1281,6 +1282,7 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 	  	rule_curr = sim_directive_get_curr_rule (backlog);
 
 		  event->matched = TRUE;
+			/* Clear the match text*/
 			sim_directive_backlog_get_uuid(backlog,event->uuid);
 		  /* Create New Event (directive_event) */
 	  	new_event = sim_event_new ();
@@ -1336,7 +1338,8 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 
       new_event->id = sim_database_get_id (ossim.dbossim, EVENT_SEQ_TABLE);
 			/* Copy the event data to the "directive" event*/ 
-			new_event->filename = g_strdup(event->filename);
+			/* XXX quiero un objeto para evitar estas copias y usar cuenta de referencias*/
+			/*new_event->filename = g_strdup(event->filename);
 			new_event->username = g_strdup(event->username);
 			new_event->password = g_strdup(event->password);
 			new_event->userdata1 = g_strdup(event->userdata1);
@@ -1347,8 +1350,13 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 			new_event->userdata6 = g_strdup(event->userdata6);
 			new_event->userdata7 = g_strdup(event->userdata7);
 			new_event->userdata8 = g_strdup(event->userdata8);
-			new_event->userdata9 = g_strdup(event->userdata9);
+			new_event->userdata9 = g_strdup(event->userdata9);*/
+			for (i = 0; i < N_TEXT_FIELDS; i++){
+				new_event->textfields[i] = g_strdup (event->textfields[i]);
+			}
+
 			new_event->rulename = g_strdup(event->rulename);
+			g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,"%s: Nombre de regla:%s",__FUNCTION__, new_event->rulename);
 	
 			sim_container_push_event (ossim.container, new_event);
 
@@ -1481,7 +1489,7 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 		//The directive hasn't match yet, so we try to test if it match with the event itself. (for example, the 1st time)
     if (sim_directive_match_by_event (directive, event)) 
 		{
-		  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_directive_match_by_event TRUE. event->id: %d, id: %d, directive_id: %d",event->id, sim_directive_get_id(directive), sim_directive_get_backlog_id(directive));
+		  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_directive_match_by_event TRUE. event->id: %d, id: %d ",event->id, sim_directive_get_id(directive));
 	
 	  	SimDirective *backlog;
 			SimRule      *rule_root;
@@ -1533,6 +1541,8 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 			    {
 						sim_container_push_monitor_rule (ossim.container, rule);
 			    }
+					g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,"%s:There are children in directive id:%u",__FUNCTION__,
+					sim_directive_get_id (backlog));
 
 			  	children = children->next;
 				}
@@ -1669,7 +1679,7 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 				new_event->id = sim_database_get_id (ossim.dbossim, EVENT_SEQ_TABLE);
 //	      sim_container_db_insert_event_ul (ossim.container, ossim.dbossim, new_event);
 			/* Copy the event data to the "directive" event*/ 
-				new_event->filename = g_strdup(event->filename);
+				/*new_event->filename = g_strdup(event->filename);
 				new_event->username = g_strdup(event->username);
 				new_event->password = g_strdup(event->password);
 				new_event->userdata1 = g_strdup(event->userdata1);
@@ -1680,7 +1690,10 @@ sim_organizer_correlation (SimOrganizer  *organizer,
 				new_event->userdata6 = g_strdup(event->userdata6);
 				new_event->userdata7 = g_strdup(event->userdata7);
 				new_event->userdata8 = g_strdup(event->userdata8);
-				new_event->userdata9 = g_strdup(event->userdata9);	
+				new_event->userdata9 = g_strdup(event->userdata9);*/
+				for (i = 0; i < N_TEXT_FIELDS; i++){
+					new_event->textfields[i] = g_strdup (event->textfields[i]);
+				}	
 	     	new_event->rulename = g_strdup(event->rulename);
 				sim_container_push_event (ossim.container, new_event);
 
@@ -2083,7 +2096,9 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
 {
 	
   gchar         *aux1=NULL, *aux2=NULL, *aux3=NULL;
-
+	gchar * e_fields[N_TEXT_FIELDS];
+	int i;
+	GString *st;
   g_return_if_fail (db_snort);
   g_return_if_fail (SIM_IS_DATABASE (db_snort));
   g_return_if_fail (event);
@@ -2121,6 +2136,14 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
 	}
 #endif 
 		/* Escape the characte*/
+	for  (i = 0;i < N_TEXT_FIELDS; i++){
+		if (event->textfields[i]){
+			e_fields[i] = g_new0(gchar,strlen(event->textfields[i])*2+1);
+			gda_connection_escape_string (conn,event->textfields[i],e_fields[i]);
+		}else
+			e_fields[i] = NULL;
+	}
+/*
 		if (event->filename){
 			e_filename = g_new0(gchar,strlen(event->filename)*2+1);
 			gda_connection_escape_string (conn,event->filename,e_filename);
@@ -2170,7 +2193,7 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
 		if (event->userdata9){
 			e_userdata9 = g_new0(gchar,strlen(event->userdata9)*2+1);
 			gda_connection_escape_string (conn,event->userdata9,e_userdata9);
-		}
+		}*/
 		if (event->data){
 			e_data = g_new0(gchar,strlen(event->data)*2+1);
 			gda_connection_escape_string (conn,event->data,e_data);
@@ -2180,31 +2203,59 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
   //  aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename, event->username, event->password ,event->userdata1 ,event->userdata2 ,event->userdata3 ,event->userdata4 ,event->userdata5 ,event->userdata6 ,event->userdata7 ,event->userdata8 ,event->userdata9, payload);
 	if (event->packet){
 	  gchar *payload;
+		st = g_string_new ("");
     payload = sim_bin2hex(event->packet->payload, event->packet->payloadlen);
 		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,"update_snort_database: snort payload %s",payload);
+		for (i = 0;i< N_TEXT_FIELDS;i++){
+			g_string_append_printf (st," ,'%s'",e_fields[i]);
+		}
+		aux2 = g_strdup_printf ("(%u,%u %s, '%s')",
+			sid,cid,
+			st->str,
+			payload);
+/*
     aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename ? e_filename : "", event->username ? e_username : "", event->password ? e_password : "" ,event->userdata1 ? e_userdata1: "", event->userdata2 ? e_userdata2 : "" , event->userdata3 ? e_userdata3 : "",
 	 event->userdata4 ? e_userdata4 : "", event->userdata5 ? e_userdata5 : "" ,
 	 event->userdata6 ? e_userdata6 : "", event->userdata7 ? e_userdata7 : "",
-	 event->userdata8 ? e_userdata8 : "", event->userdata9 ? e_userdata9 : "", payload ? payload : "");
+	 event->userdata8 ? e_userdata8 : "", event->userdata9 ? e_userdata9 : "", payload ? payload : "");*/
+		g_string_free (st, TRUE);
     g_free (payload);
   }
   else
   {
+		st = g_string_new ("");
+		for (i = 0;i< N_TEXT_FIELDS;i++){
+			g_string_append_printf (st,",'%s'",event->textfields[i] ? e_fields[i] : "");
+		}
+		aux2 = g_strdup_printf ("(%u,%u %s, '%s')",
+			sid,cid,
+			st->str,
+			e_data);
+
     g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,"update_snort_database: no snort payload %s", event->data);
 //    aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename, event->username, event->password ,event->userdata1 ,event->userdata2 ,event->userdata3 ,event->userdata4 ,event->userdata5 ,event->userdata6 ,event->userdata7 ,event->userdata8 ,event->userdata9, event->data);
-		aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename ? e_filename : "", event->username ? e_username : "", event->password ? e_password : "" ,event->userdata1 ? e_userdata1: "", event->userdata2 ? e_userdata2 : "" , event->userdata3 ? e_userdata3 : "",
+		/*aux2 = g_strdup_printf ("(%u, %u,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')", sid, cid, event->filename ? e_filename : "", event->username ? e_username : "", event->password ? e_password : "" ,event->userdata1 ? e_userdata1: "", event->userdata2 ? e_userdata2 : "" , event->userdata3 ? e_userdata3 : "",
 	 event->userdata4 ? e_userdata4 : "", event->userdata5 ? e_userdata5 : "" ,
 	 event->userdata6 ? e_userdata6 : "", event->userdata7 ? e_userdata7 : "",
-	 event->userdata8 ? e_userdata8 : "", event->userdata9 ? e_userdata9 : "", event->data ? e_data: "");
-
+	 event->userdata8 ? e_userdata8 : "", event->userdata9 ? e_userdata9 : "", event->data ? e_data: "");*/	
+		g_string_free (st, TRUE);
   }
-  aux1 = g_strdup_printf ("INSERT IGNORE INTO extra_data (sid, cid, filename, username, password, userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9, data_payload) VALUES ");
+	st = g_string_new ("");
+	for (i = 0;i< N_TEXT_FIELDS;i++){
+			g_string_append_printf (st,",%s",sim_text_field_get_name(i));
+		}
+  aux1 = g_strdup_printf ("INSERT IGNORE INTO extra_data (sid, cid %s,  data_payload) VALUES ",st->str);
+	g_string_free (st, TRUE);
   aux3 = g_strconcat (aux1, aux2, NULL);
   sim_database_execute_no_query (db_snort, aux3);
   g_free (aux1);
   g_free (aux2);
   g_free (aux3);
-	/* Free the escape strings*/
+	/* Free the escape strings*/	
+	for (i = 0; i < N_TEXT_FIELDS; i++){
+		g_free (e_fields[i]);
+	}
+/*
 	if (e_filename)
 		g_free (e_filename);
 	if (e_username)
@@ -2229,6 +2280,7 @@ sim_organizer_snort_extra_data_insert (SimDatabase  *db_snort,
 		g_free (e_userdata8);
 	if (e_userdata9)
 		g_free (e_userdata9);
+*/
 	if (e_data){
 		g_free (e_data);
 	}
@@ -2404,7 +2456,8 @@ sim_organizer_snort (SimOrganizer	*organizer,
   GList		*list = NULL;
 	gint		sig_id;
 	gboolean r=FALSE;
-
+	GString *st;
+	int i;
   gchar time[TIMEBUF_SIZE];
   gchar *timestamp;
 
@@ -2433,6 +2486,13 @@ sim_organizer_snort (SimOrganizer	*organizer,
 	//FIXME: This should be viewed each field in a separate place in ACID. We should replace ACID or something like that..
 	//May be that we have to copy some fields to data. this is a bad way to do things..
 	gchar *new_data_aux;
+	st = g_string_new ("");
+	for ( i = 0; i < N_TEXT_FIELDS; i++){
+		g_string_append_printf (st," %s",event->textfields[i] ? event->textfields[i] : " ");
+	}
+	new_data_aux = g_strdup_printf ("%s %s", (event->data ? event->data : " "),st->str);
+	g_string_free (st, TRUE);
+	/*
 	new_data_aux = g_strdup_printf ("%s %s %s %s %s %s %s %s %s %s %s %s %s",  
 																	(event->data)? event->data: " ",
 																	(event->filename)? event->filename: " ",
@@ -2447,6 +2507,7 @@ sim_organizer_snort (SimOrganizer	*organizer,
 																	(event->userdata7)? event->userdata7: " ",
 																	(event->userdata8)? event->userdata8: " ",
 																	(event->userdata9)? event->userdata9: " ");
+	*/
 	g_free(event->data);
 	event->data = new_data_aux;
 
@@ -2712,6 +2773,7 @@ void sim_organizer_create_event_directive(SimDirective *backlog,SimEvent *event)
 	  SimRule       *rule_root;
   	SimRule       *rule_curr;
 		GInetAddr     *ia = NULL;
+		int i;
 	  rule_node = sim_directive_get_curr_node (backlog);
 	  rule_root = sim_directive_get_root_rule (backlog);
   	rule_curr = sim_directive_get_curr_rule (backlog);
@@ -2769,6 +2831,7 @@ void sim_organizer_create_event_directive(SimDirective *backlog,SimEvent *event)
 
 		new_event->id = sim_database_get_id (ossim.dbossim, EVENT_SEQ_TABLE);
 		/* Copy the event data to the "directive" event*/
+		/*
 		new_event->filename = g_strdup(event->filename);
 		new_event->username = g_strdup(event->username);
 		new_event->password = g_strdup(event->password);
@@ -2780,7 +2843,10 @@ void sim_organizer_create_event_directive(SimDirective *backlog,SimEvent *event)
 		new_event->userdata6 = g_strdup(event->userdata6);
 		new_event->userdata7 = g_strdup(event->userdata7);
 		new_event->userdata8 = g_strdup(event->userdata8);
-		new_event->userdata9 = g_strdup(event->userdata9);
+		new_event->userdata9 = g_strdup(event->userdata9);*/
+		for (i = 0; i < N_TEXT_FIELDS; i++){
+			new_event->textfields[i] = g_strdup (event->textfields[i]);
+		}
 		//direct insertion in queue if the organizer is the thread owner (so it doesn't block).
 		//			if (sim_container_get_organizer_queue_owner (ossim.container) == 1)
 		sim_container_push_event (ossim.container, new_event);

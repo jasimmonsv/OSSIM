@@ -138,7 +138,7 @@ function update_db($global_info, $scan)
     
 	if ( !empty($groupname) && !empty($hosts) )
 	{
-        $exists_hosts = count(Host_group::get_list($conn, "WHERE name='$groupname'"))>0;
+        $exists_hosts = count(Host_group::get_list($conn, " AND g.name='$groupname'"))>0;
 		
 		if( $exists_hosts ) 
             echo "<br/>"._("The group name already exists")."<br/>";

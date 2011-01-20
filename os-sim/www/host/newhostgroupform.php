@@ -206,7 +206,7 @@ else
 		if (ossim_error()) 
 			die(ossim_error());
 			
-		if ($host_group_list = Host_group::get_list($conn, "WHERE name = '$hgname'"))
+		if ($host_group_list = Host_group::get_list($conn, " AND g.name = '$hgname'"))
 		{
 			$host_group  = $host_group_list[0];
 			$descr       = $host_group->get_descr();

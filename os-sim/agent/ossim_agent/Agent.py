@@ -54,6 +54,7 @@ from ParserUnifiedSnort import ParserUnifiedSnort
 from ParserDatabase import ParserDatabase
 from ParserWMI import ParserWMI
 from ParserSDEE import ParserSDEE
+from ParserRemote import ParserRemote
 
 #
 # GLOBAL VARIABLES
@@ -135,7 +136,7 @@ class Agent:
 
         if self.conf.has_option("log", "syslog"):
             if (self.conf.get("log", "syslog")):
-                Logger.add_syslog_handler((self.conf.get("log","syslog"),514))
+                Logger.add_syslog_handler((self.conf.get("log", "syslog"), 514))
 
         # adjust verbose level
         verbose = self.conf.get("log", "verbose")
@@ -183,7 +184,11 @@ class Agent:
                 # connect the control agent
                 self.conn_framework = FrameworkConn(self.conf)
 
+<<<<<<< HEAD:os-sim/agent/ossim_agent/Agent.py
                 if self.conn_framework.connect(attempts = 3, waittime = 30):
+=======
+                if self.conn_framework.connect(attempts=3, waittime=30):
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/Agent.py
                     logger.debug("Control framework connection is now enabled!")
                     self.conn_framework.control_messages()
     
@@ -343,7 +348,11 @@ class Agent:
 
         for plugin in self.plugins:
             if plugin.get("config", "type") == "detector":
+<<<<<<< HEAD:os-sim/agent/ossim_agent/Agent.py
                 plugin_id = plugin.get("DEFAULT","plugin_id")
+=======
+                plugin_id = plugin.get("DEFAULT", "plugin_id")
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/Agent.py
 
                 if plugin.get("config", "source") == "log":
                     if plugin_id in self.conn_plugins:
@@ -355,17 +364,30 @@ class Agent:
                     parser.start()
                     self.detector_objs.append(parser)
 
+<<<<<<< HEAD:os-sim/agent/ossim_agent/Agent.py
                 elif plugin.get("config","source") == "snortlog":
                     if plugin_id in self.conn_plugins:
                         parser = ParserUnifiedSnort(self.conf,plugin, self.conn_plugins[plugin_id])
 
                     else:
                         parser = ParserUnifiedSnort(self.conf,plugin, None)
+=======
+                elif plugin.get("config", "source") == "snortlog":
+                    if plugin_id in self.conn_plugins:
+                        parser = ParserUnifiedSnort(self.conf, plugin, self.conn_plugins[plugin_id])
+
+                    else:
+                        parser = ParserUnifiedSnort(self.conf, plugin, None)
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/Agent.py
 
                     parser.start()
                     self.detector_objs.append(parser)
 
+<<<<<<< HEAD:os-sim/agent/ossim_agent/Agent.py
                 elif plugin.get("config","source") == "database":
+=======
+                elif plugin.get("config", "source") == "database":
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/Agent.py
                     if plugin_id in self.conn_plugins:
                         parser = ParserDatabase(self.conf, plugin, self.conn_plugins[plugin_id])
 
@@ -375,6 +397,7 @@ class Agent:
                     parser.start()
                     self.detector_objs.append(parser)
 
+<<<<<<< HEAD:os-sim/agent/ossim_agent/Agent.py
                 elif plugin.get("config","source") == "wmi":
                     line_cnt=0
                     try:
@@ -382,11 +405,21 @@ class Agent:
                     except:
                         logger.warning("Unable to load wmi credentials file %s, disabling wmi collection." % (plugin.get("config","credentials_file")))
                         plugin.set("config","enable","no")
+=======
+                elif plugin.get("config", "source") == "wmi":
+                    line_cnt = 0
+                    try:
+                        credentials = open(plugin.get("config", "credentials_file"), "rb")
+                    except:
+                        logger.warning("Unable to load wmi credentials file %s, disabling wmi collection." % (plugin.get("config", "credentials_file")))
+                        plugin.set("config", "enable", "no")
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/Agent.py
                         continue
                     for row in credentials:
                         creds = row.split(",")
                         # TODO: Check for shell escape chars in host, user and pass that could break this
                         if plugin_id in self.conn_plugins:
+<<<<<<< HEAD:os-sim/agent/ossim_agent/Agent.py
                             parser = ParserWMI(self.conf, plugin, self.conn_plugins[plugin_id],creds[0],creds[1],creds[2])
 
                         else:
@@ -404,6 +437,31 @@ class Agent:
                     parser.start()                    
                     self.detector_objs.append(parser)
 
+=======
+                            parser = ParserWMI(self.conf, plugin, self.conn_plugins[plugin_id], creds[0], creds[1], creds[2])
+
+                        else:
+                            parser = ParserWMI(self.conf, plugin, None, creds[0], creds[1], creds[2])
+
+                        parser.start()
+
+                elif plugin.get("config", "source") == "sdee":
+                    if plugin_id in self.conn_plugins:
+                        parser = ParserSDEE(self.conf, plugin, self.conn_plugins[plugin_id])
+
+                    else:
+                        parser = ParserSDEE(self.conf, plugin, None)
+                elif plugin.get("config", "source") == "remote-log":
+                   if plugin_id in self.conn_plugins:
+                        parser = ParserRemote(self.conf, plugin, self.conn_plugins[plugin_id])
+                   else:
+                        parser = ParserRemote(self.conf, plugin, None)
+                        logger.info("Remote Log parser.........................................")
+
+                   parser.start()                    
+                   self.detector_objs.append(parser)
+
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/Agent.py
         logger.info("%d detector rules loaded" % (self.nrules))
 
 
@@ -527,7 +585,7 @@ class Agent:
             # print to error.log too
             if self.conf.has_option("log", "error"):
                 fd = open(self.conf.get("log", "error"), 'a+')
-                traceback.print_exc(file = fd)
+                traceback.print_exc(file=fd)
                 fd.close()
 
 

@@ -40,6 +40,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include "sim-plugin.h"
 #include "sim-plugin-sid.h"
 #include "sim-packet.h"
+#include "sim-text-fields.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -103,7 +104,8 @@ typedef struct _SimEventClass   SimEventClass;
 
 struct _SimEvent {
   GObject parent;
-
+	guint							 signature;
+	gchar							 *sql_text_fields;
   guint              id;
   guint              id_tmp;	//this applies only to table event_tmp, the column "id". It has nothing to do with the above id.
 															//This id is needed to keep control about what events from that table.
@@ -185,6 +187,7 @@ struct _SimEvent {
 	SimPolicy					*policy;
 
 	/* additional data (not necessary used) */
+/*
 	gchar							*filename;
 	gchar							*username;
 	gchar							*password;
@@ -197,7 +200,11 @@ struct _SimEvent {
 	gchar							*userdata7;
 	gchar							*userdata8;
 	gchar							*userdata9;
+*/
 	gchar							*rulename;
+	gchar 						*textfields[N_TEXT_FIELDS];
+	gchar							*ev_textfields[N_TEXT_FIELDS];
+	gboolean					isTextMatched[N_TEXT_FIELDS];
 	/* packet data */
 	SimPacket *packet;
 	/* uuid */
@@ -210,6 +217,7 @@ struct _SimEvent {
 
 struct _SimEventClass {
   GObjectClass parent_class;
+	gchar *sql_text_fields;
 };
 
 GType			sim_event_get_type								(void);
@@ -233,7 +241,7 @@ gchar*		sim_event_get_msg									(SimEvent	*event);
 gboolean	sim_event_is_special							(SimEvent *event);
 gchar*    sim_event_get_str_from_type       (SimEventType type);
 void			sim_event_add_backlog_ref_ul			(SimEvent *event,GObject *directive);
-
+const gchar *sim_event_get_sql_fields (void);
 G_END_DECLS
 
 #ifdef __cplusplus

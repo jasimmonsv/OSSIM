@@ -319,7 +319,7 @@ function draw_members_select($form_data) {
 
         case 'host_group':
             include_once 'classes/Host_group.inc';
-            $list = Host_group::get_list($conn, 'ORDER BY name');
+            $list = Host_group::get_list($conn, "", 'ORDER BY name');
             foreach($list as $obj) {
                 $descr = $obj->get_descr();
                 if (strlen($descr) > 50) {

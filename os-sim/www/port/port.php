@@ -107,7 +107,9 @@ include ("../hmenu.php"); ?>
            return parseInt($(document).height()) - 200;
         }
 
-
+    function linked_to(rowid) {
+        document.location.href = 'newportform.php?portname='+urlencode(rowid);
+    }
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
 		if (com=='<?=_("Delete selected")?>') {
@@ -249,6 +251,7 @@ echo "$colModel\n";
 		width: get_width('headerh1'),
 		height: get_height(),
 		onColumnChange: save_layout,
+		onDblClick: linked_to,
 		onEndResize: save_layout
 	});   
 	

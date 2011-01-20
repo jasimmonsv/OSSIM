@@ -41,6 +41,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include "sim-sensor.h"
 #include <assert.h>
 #include <sim-session.h>
+#include "sim-text-fields.h"
 /*
  * Remember that when the server sends something, the keywords are written in
  * sim_command_get_string(), not here. This command_symbols are just the
@@ -3860,7 +3861,7 @@ sim_command_event_scan_base64 (SimCommand    *command,
               command->type = SIM_COMMAND_TYPE_NONE;
               break;
             }
-            command->data.event.filename = g_strdup (scanner->value.v_string);
+            command->data.event.filename = g_base64_decode (scanner->value.v_string,&base64len);
             break;
 
       case SIM_COMMAND_SYMBOL_USERNAME:
@@ -7139,29 +7140,29 @@ sim_command_get_event (SimCommand     *command)
 	}
 
 	if (command->data.event.filename)
-		event->filename = g_strdup (command->data.event.filename);
+		event->textfields[SimTextFieldFilename] = g_strdup (command->data.event.filename);
 	if (command->data.event.username)
-		event->username = g_strdup (command->data.event.username);
+		event->textfields[SimTextFieldUsername] = g_strdup (command->data.event.username);
 	if (command->data.event.password)
-		event->password = g_strdup (command->data.event.password);
+		event->textfields[SimTextFieldPassword] = g_strdup (command->data.event.password);
 	if (command->data.event.userdata1)
-		event->userdata1 = g_strdup (command->data.event.userdata1);
+		event->textfields[SimTextFieldUserdata1] = g_strdup (command->data.event.userdata1);
 	if (command->data.event.userdata2)
-		event->userdata2 = g_strdup (command->data.event.userdata2);
+		event->textfields[SimTextFieldUserdata2] = g_strdup (command->data.event.userdata2);
 	if (command->data.event.userdata3)
-		event->userdata3 = g_strdup (command->data.event.userdata3);
+		event->textfields[SimTextFieldUserdata3]  = g_strdup (command->data.event.userdata3);
 	if (command->data.event.userdata4)
-		event->userdata4 = g_strdup (command->data.event.userdata4);
+		event->textfields[SimTextFieldUserdata4] = g_strdup (command->data.event.userdata4);
 	if (command->data.event.userdata5)
-		event->userdata5 = g_strdup (command->data.event.userdata5);
+		event->textfields[SimTextFieldUserdata5] = g_strdup (command->data.event.userdata5);
 	if (command->data.event.userdata6)
-		event->userdata6 = g_strdup (command->data.event.userdata6);
+		event->textfields[SimTextFieldUserdata6]  = g_strdup (command->data.event.userdata6);
 	if (command->data.event.userdata7)
-		event->userdata7 = g_strdup (command->data.event.userdata7);
+		event->textfields[SimTextFieldUserdata7] = g_strdup (command->data.event.userdata7);
 	if (command->data.event.userdata8)
-		event->userdata8 = g_strdup (command->data.event.userdata8);
+		event->textfields[SimTextFieldUserdata8] = g_strdup (command->data.event.userdata8);
 	if (command->data.event.userdata9)
-		event->userdata9 = g_strdup (command->data.event.userdata9);
+		event->textfields[SimTextFieldUserdata9] = g_strdup (command->data.event.userdata9);
 
 	event->buffer = g_strdup (command->buffer);	//we need this to resend data to other servers, or to send
 																							//events that matched with policy to frameworkd (future implementation)

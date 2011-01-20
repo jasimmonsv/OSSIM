@@ -155,6 +155,9 @@ echo gettext("Plugin Sid"); ?> </title>
 				}
 		});
 	}
+    function linked_to(rowid) {
+        document.location.href = 'modifypluginsid.php?id=<?php echo $id; ?>&sid='+urlencode(rowid);
+    }	
 	function menu_action(com,plugin_id) {
             if (com=='modify') {
                 if (typeof(plugin_id) != 'undefined')
@@ -254,6 +257,7 @@ echo "$colModel\n";
 			width: get_width('headerh1'),
 			height: get_height(),
 			onColumnChange: save_layout,
+			onDblClick: linked_to,
 			onEndResize: save_layout
 		});   
 	});

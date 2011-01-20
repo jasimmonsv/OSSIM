@@ -110,6 +110,7 @@ $start = GET("start");
 $end = GET("end");
 $sort_order = GET("sort");
 $uniqueid = GET("uniqueid");
+$tzone = intval(GET("tzone"));
 
 $debug_log = GET("debug_log");
 ossim_valid($debug_log, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, OSS_PUNC, OSS_SCORE, OSS_SLASH, 'illegal:' . _("debug_log"));
@@ -123,6 +124,11 @@ ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, OSS_PUNC, 'illegal:' 
 if (ossim_error()) {
     die(ossim_error());
 }
+
+if ($tzone!=0) {
+	$start = date("Y-m-d H:i:s",strtotime($start)+(-3600*$tzone));
+	$end = date("Y-m-d H:i:s",strtotime($end)+(-3600*$tzone));
+}	
 
 $db = new ossim_db();
 $conn = $db->connect();
@@ -521,11 +527,13 @@ foreach($result as $res=>$event_date) {
         // para coger
         $date = $matches[2];
         $tzone = $matches[10];
-        //if ($tzone!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(-3600*$tzone));
+        /*
         $eventhour = date("H",strtotime($date));
         $ctime = explode("/",$logfile); $storehour = $ctime[count($ctime)-3]; // hours
         $date = date("Y-m-d H:i:s",strtotime($date)+(3600*($storehour-$eventhour)));
-
+        */
+		if ($tzone!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tzone));
+		
         // fin para coger
         if($htmlResult){
             $sensor = $matches[5];

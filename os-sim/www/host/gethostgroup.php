@@ -127,9 +127,13 @@ $where = "";
 if($field=="name")
     $where = " AND g.name like '%$search%'";
 else if ($field=="ip")
-    $where = " AND host_group_reference.host_ip like '%$search%'";
+    $where = " AND r.host_ip like '%$search%'";
 
-list($host_group_list,$total) = Host_group::get_list_pag($conn, $where, "ORDER BY $order $limit");
+$host_group_list = Host_group::get_list($conn, $where, "ORDER BY $order $limit");
+if ($host_group_list[0]) {
+    $total = $host_group_list[0]->get_foundrows();
+    if ($total == 0) $total = count($host_group_list);
+} else $total = 0;
 
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";

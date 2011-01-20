@@ -703,6 +703,7 @@ sim_directive_backlog_match_by_event (SimDirective  *directive,
 			directive->_priv->rule_curr = node;		//each time that the event matches, the directive goes down one level to 
 																						//the node that matched. next time, the event will be checked against this level
 																						//FIXME: may be that there are a memory leak in the parent node? 
+			event->rulename = g_strdup  (sim_rule_get_name(rule));
 		  directive->_priv->time_last = time_last;
 		  directive->_priv->time_out = sim_directive_get_rule_curr_time_out_max (directive);
 
@@ -846,10 +847,11 @@ sim_directive_set_rule_vars (SimDirective     *directive,
 		}
 
 		rule_up = (SimRule *) node_up->data;
-
+		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,"%s: Directive id:%u",__FUNCTION__,sim_directive_get_id (directive));
     g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_directive_set_rule_vars: rule name: %s",sim_rule_get_name(rule));					
 		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_directive_set_rule_vars: type: %d",var->type);
 		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_directive_set_rule_vars: attr: %d",var->attr);
+		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: Variable index:%u",__FUNCTION__,var->varIndex);
 		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_directive_set_rule_vars: negated: %d",var->negated);
 		
 		
@@ -981,7 +983,16 @@ sim_rule_print(rule);
 						else
 							sim_rule_append_sensor (rule, sim_sensor_new_from_hostname(aux));
             break;
-
+			case SIM_RULE_VAR_GENERIC_TEXT:
+						aux = g_strdup (sim_rule_get_text_matched (rule_up,var->varIndex));
+						sim_rule_set_match_text (rule, var->attr, aux,var->negated);
+						g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: Setting var->type = %u Target:%u Source:%u",
+							__FUNCTION__, var->type,var->attr,var->varIndex);
+						g_free (aux);
+			
+						break;
+			
+#if 0
 			case SIM_RULE_VAR_FILENAME:
             aux = g_strdup (sim_rule_get_filename (rule_up));												
             if (var->negated)
@@ -1077,7 +1088,7 @@ sim_rule_print(rule);
 						else	
 							sim_rule_append_generic (rule, aux, SIM_RULE_VAR_USERDATA9);
             break;
-
+#endif
 
 			default:
 						break;

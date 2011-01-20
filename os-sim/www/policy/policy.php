@@ -232,6 +232,9 @@ foreach($policy_groups as $group) {
 				}
 		});
 	}
+    function linked_to(rowid) {
+        document.location.href = 'newpolicyform.php?id='+urlencode(rowid);
+    }	
 	function menu_action(com,id,fg,fp) {
 		if (com=='enabledisable') {
 			//Activate/Deactivate by ajax
@@ -510,6 +513,7 @@ foreach($policy_groups as $group) {
 		<?php
     } ?>
 		onColumnChange: save_layout_<?=$group->get_group_id()?>,
+		onDblClick: linked_to,
 		onEndResize: save_layout_<?=$group->get_group_id()?>
 	});   
 	

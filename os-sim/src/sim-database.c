@@ -33,6 +33,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include "sim-database.h"
 #include "os-sim.h"
 #include <config.h>
+#include <assert.h>
 
 #define PROVIDER_MYSQL   "MySQL"
 #define PROVIDER_PGSQL   "PostgreSQL"
@@ -295,6 +296,8 @@ sim_database_execute_no_query  (SimDatabase  *database,
 		  g_message ("ERROR %s %u: %s", buffer, gda_error_get_number (error), gda_error_get_description (error));
 			if (gda_error_get_number (error) == 2006) //if "MySQL server has gone away"...
 				mysql_down = TRUE;
+			else 
+				assert (0);
 		}
     gda_error_list_free (errors);
   }

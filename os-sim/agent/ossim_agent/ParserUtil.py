@@ -102,8 +102,15 @@ def resolv_iface(iface):
     if re.match("(ext|wan1).*", iface):
         iface = "ext"
 
+<<<<<<< HEAD:os-sim/agent/ossim_agent/ParserUtil.py
     elif re.match("(int|port|dmz|wan).*",iface):
         iface = "int"
+=======
+   if re.match("(ext|wan1).*", iface):
+       iface = "ext"
+   elif re.match("(int|port|dmz|wan).*", iface):
+       iface = "int"
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/ParserUtil.py
 
     return iface
 
@@ -272,6 +279,7 @@ def normalize_date(string):
 
         # now, let's go to translate string
         try:
+<<<<<<< HEAD:os-sim/agent/ossim_agent/ParserUtil.py
             date = datetime.datetime(year   = int(dict['year']),
                                      month  = int(dict['month']),
                                      day    = int(dict['day']),
@@ -279,6 +287,14 @@ def normalize_date(string):
                                      minute = int(dict['minute']),
                                      second = int(dict['second'])).isoformat(' ')
 
+=======
+            date = datetime.datetime(year=int(dict['year']),
+                                     month=int(dict['month']),
+                                     day=int(dict['day']),
+                                     hour=int(dict['hour']),
+                                     minute=int(dict['minute']),
+                                     second=int(dict['second'])).isoformat(' ')
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/ParserUtil.py
         except:
             print "There was an error in normalize_date() function"
 
@@ -291,6 +307,8 @@ def normalize_date(string):
 def upper(string):
     return string.upper()
 
+def sanitize(data):
+	return data.replace("\n", "\r")
 
 def sanitize(data):
 	return data.replace("\n", "\r")
@@ -301,23 +319,33 @@ def hextoint(string):
 
     except ValueError:
         pass
+<<<<<<< HEAD:os-sim/agent/ossim_agent/ParserUtil.py
 
 
 def intrushield_sid(mcafee_sid,mcafee_name):
+=======
+        
+def intrushield_sid(mcafee_sid, mcafee_name):
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/ParserUtil.py
     # All McAfee Intrushield id are divisible by 256, and this length doesn't fit in OSSIM's table
-    mcafee_sid = hextoint(mcafee_sid)/256
-    mcafee_name = mcafee_name.replace('-',':')
+    mcafee_sid = hextoint(mcafee_sid) / 256
+    mcafee_name = mcafee_name.replace('-', ':')
 
     # Calculate hash based in event name
-    mcafee_subsid=abs(mcafee_name.__hash__())
+    mcafee_subsid = abs(mcafee_name.__hash__())
 
     # Ugly method to avoid duplicated sids
     mcafee_hash2 = 0
+<<<<<<< HEAD:os-sim/agent/ossim_agent/ParserUtil.py
 
     for i in range(0,len(mcafee_name)):
         mcafee_hash2 = mcafee_hash2 + ord( mcafee_name[i] )
+=======
+    for i in range(0, len(mcafee_name)):
+        mcafee_hash2 = mcafee_hash2 + ord(mcafee_name[i])
+>>>>>>> origin/testing:os-sim/agent/ossim_agent/ParserUtil.py
 
-    ossim_sid = int(str(mcafee_hash2)[-1:]+str(int(str(mcafee_subsid)[-7:])+mcafee_sid))
+    ossim_sid = int(str(mcafee_hash2)[-1:] + str(int(str(mcafee_subsid)[-7:]) + mcafee_sid))
 
     return ossim_sid
 

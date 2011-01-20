@@ -353,7 +353,7 @@ function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17
     if ($what == "logs" && $tope != 50000 && !$mute) {
         //	print "$cmd";
         //print "<center><b>$total_lines total lines</b> - Time Range: <b>$start <-> $end</b></center>";
-        print _("Time Range").": <b>$start <-> $end</b>";
+        print _("UTC Query Time Range").": <b>$start <-> $end</b>";
     }
     system("echo $status >> /tmp/a");
     if ($what != "logs" && ($status > 500000)) {

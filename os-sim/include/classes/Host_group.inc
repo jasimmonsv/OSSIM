@@ -130,15 +130,21 @@ class Host_group {
         return $list;
     }
     */
-	function get_list($conn, $args = "") {
-		include_once("classes/Host.inc");
+	function get_list($conn, $where = "", $order = "ORDER BY name") {
+		// Only filter by perms if needed
+        $host_where = "";
+        if (Session::allowedSensors() != "" || Session::allowedNets() != "") {
+	    	include_once("classes/Host.inc");
+			$host_where = " AND r.host_ip in (";
+			$all_host = Host::get_list($conn);
+			foreach ($all_host as $host) {
+				$host_where .= "'".$host->get_ip()."',";
+			}
+			$host_where = preg_replace("/,$/",")",$host_where);
+        }
 		
-		$host_where = " AND r.host_ip in (";
-		$all_host = Host::get_list($conn);
-		foreach ($all_host as $host) $host_where .= "'".$host->get_ip()."',";
-		$host_where = preg_replace("/,$/",")",$host_where);
+		$select = "SELECT DISTINCT SQL_CALC_FOUND_ROWS g.* FROM host_group g,host_group_reference r WHERE g.name=r.host_group_name $host_where$where $order";
 		
-		$select = "SELECT SQL_CALC_FOUND_ROWS g.* FROM host_group g,host_group_reference r WHERE g.name=r.host_group_name $host_where";
         $query = OssimQuery($select);
 
         if (!$rs = & $conn->Execute($query)) {
@@ -146,10 +152,9 @@ class Host_group {
         } else {
             $list = array();
             $foundrows = 0;
-            if ($iffoundrows) {
-                if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
-                else $foundrows = $rf->fields["total"];
-            }
+            if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
+            else $foundrows = $rf->fields["total"];
+            
             while (!$rs->EOF) {
                 $list[] = new Host_group(stripslashes($rs->fields["name"]) , $rs->fields["threshold_c"], $rs->fields["threshold_a"], stripslashes($rs->fields["rrd_profile"]) , stripslashes($rs->fields["descr"]) , $foundrows);
                 $rs->MoveNext();
@@ -157,6 +162,7 @@ class Host_group {
         }
         return $list;
     }
+    /*
     function get_list_pag($conn, $where = "", $order = "") {
         // Only filter by perms if needed
         $host_where = "";
@@ -189,6 +195,7 @@ class Host_group {
         }
         return array($list,$foundrows);
     }
+    */
     function get_compromise($conn, $name) {
         $compromise = 0;
         $hosts = Host_group::get_hosts($conn, $name);

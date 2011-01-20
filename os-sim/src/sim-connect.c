@@ -57,6 +57,7 @@ pipe_handler(int signum)
 gpointer
 sim_connect_send_alarm(gpointer data)
 {
+	int i;
   if(!config)
     if(data)
       config=(SimConfig*)data;
@@ -102,7 +103,7 @@ sim_connect_send_alarm(gpointer data)
 	if (!event){
 		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: No event",__FUNCTION__);
 		continue;
-	}
+	}/*
 	struct {
 		gchar *key;
 		gchar *base64data;
@@ -119,7 +120,7 @@ sim_connect_send_alarm(gpointer data)
 		{"userdata7",event->userdata7 ? g_base64_encode (event->userdata7,strlen (event->userdata7)): NULL},
 		{"userdata8",event->userdata8 ? g_base64_encode (event->userdata8,strlen (event->userdata8)): NULL},
 		{"userdata9",event->userdata9 ? g_base64_encode (event->userdata9,strlen (event->userdata9)): NULL}
-	};
+	};*/
 
   // Send max risk
   // i.e., to avoid risk=0 when destination is 0.0.0.0
@@ -154,12 +155,23 @@ sim_connect_send_alarm(gpointer data)
 
 
 	st = g_string_new (aux);	
-	for (inx = 0;inx<G_N_ELEMENTS(base64_params);inx++){
-		g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: %u:%s %p",__FUNCTION__,inx,base64_params[inx].base64data,base64_params[inx].base64data);
-		if (base64_params[inx].base64data != NULL){
-			g_string_append_printf(st," %s=\"%s\"",base64_params[inx].key,base64_params[inx].base64data!=NULL ? base64_params[inx].base64data :  "");
-			g_free (base64_params[inx].base64data); /* we dont't need the data, anymore, so free it*/
+	for (inx = 0;inx<N_TEXT_FIELDS;inx++){
+		gchar *b64 = NULL;
+		if (event->textfields[inx] != NULL){
+			b64 = g_base64_encode (event->textfields[inx],strlen (event->textfields[inx]));
+			if (b64){
+				g_string_append_printf (st," %s=\"%s\"",sim_text_field_get_name (inx), b64);
+				g_free (b64);
+			}
+			else{
+				g_warning ("Error in %s: Can't convert to base64 event param %s",__FUNCTION__,event->textfields[inx]);
+			}
 		}
+		//g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: %u:%s %p",__FUNCTION__,inx,base64_params[inx].base64data,base64_params[inx].base64data);
+		//if (base64_params[inx].base64data != NULL){
+		//	g_string_append_printf(st," %s=\"%s\"",base64_params[inx].key,base64_params[inx].base64data!=NULL ? base64_params[inx].base64data :  "");
+		//	g_free (base64_params[inx].base64data); /* we dont't need the data, anymore, so free it*/
+		//}	
 	}
 	g_string_append(st,"\n");
 	buffer = g_string_free (st,FALSE);

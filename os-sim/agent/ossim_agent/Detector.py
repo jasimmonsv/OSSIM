@@ -148,7 +148,7 @@ class Detector(threading.Thread):
                 event["src_ip"] = event["sensor"]
 
         # 5) Time zone 
-            default_tzone = self._conf.get("plugin-defaults", "tzone")
+            #default_tzone = self._conf.get("plugin-defaults", "tzone")
             if event["tzone"] is None and 'tzone' in event.EVENT_ATTRS:
                 event["tzone"] = self._timezone
 
