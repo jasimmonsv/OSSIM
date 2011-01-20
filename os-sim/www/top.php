@@ -266,7 +266,6 @@ if(Session::am_i_admin()){
 
 <div id="side-bar">
 
-        <span class="jx-separator-left"></span>
 		<ul>        
             <li title="<?php echo _("User options")?>"><a href="#"><img src="pixmaps/myprofile.png" alt="<?php echo Session::get_session_user()?>" /></a>
                 <ul>
@@ -289,7 +288,7 @@ if(Session::am_i_admin()){
         <ul>
         	<li title="<?php echo _("Maximize")?>"><a href="#" onClick="fullwin()"><img src="pixmaps/maximize.png"></a></li>
         </ul>
-        <span class="jx-separator-right"></span>
+        <!-- <span class="jx-separator-right"></span> -->
 </div>
 
 <?
@@ -333,7 +332,7 @@ foreach ($all_sessions as $sess) {
 }
 $db->close($conn);
 ?>
-<div style="position:absolute; width:100%; bottom:5px; padding-left:5px;">
+<div class="jx-bottom-bar jx-bar-rounded-bl jx-bar-rounded-br">
 <table><tr><td class="jx-gray">
 <?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a> "._("logon") ?>
 <br>
