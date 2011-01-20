@@ -150,7 +150,9 @@ include ("../hmenu.php"); ?>
 			else alert('<?=_("You must select a network group")?>');
 		}
 	}
-
+    function linked_to(rowid) {
+        document.location.href = 'newnetgroupform.php?name='+urlencode(rowid);
+    }
         function menu_action(com,id,fg,fp) {
 
             var hostname = id;
@@ -289,6 +291,7 @@ echo "$colModel\n";
 		width: get_width('headerh1'),
 		height: get_height(),
 		onColumnChange: save_layout,
+		onDblClick: linked_to,
 		onEndResize: save_layout
 	});   
 	

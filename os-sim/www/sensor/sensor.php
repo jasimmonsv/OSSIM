@@ -196,7 +196,12 @@ if ($diff_arr) {
 			document.location.href = '../conf/reload.php?what=sensors&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>'
 		}
 	}
-
+    function linked_to(rowid) {
+		var aux = rowid.split(/#/);
+		var ip = aux[1];
+		var hostname = aux[0];    
+        document.location.href = 'interfaces.php?sensor='+urlencode(ip)+'&name='+urlencode(hostname);
+    }
 	function menu_action(com,id,fg,fp) {
 		var aux = id.split(/#/);
 		var ip = aux[1];
@@ -337,6 +342,7 @@ echo "$colModel\n";
 		width: get_width('headerh1'),
 		height: get_height(),
 		onColumnChange: save_layout,
+		onDblClick: linked_to,
 		onEndResize: save_layout
 	});   
 	

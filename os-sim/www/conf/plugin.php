@@ -98,7 +98,7 @@ include ("../hmenu.php"); ?>
 		}
 	}
     function linked_to(rowid) {
-        document.location.href = 'pluginsid.php?id='+rowid;
+        document.location.href = 'pluginsid.php?id='+urlencode(rowid);
     }
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_('Saving column layout')?>...',false);
@@ -184,7 +184,7 @@ echo "$colModel\n";
 			height: get_height(),
 			onColumnChange: save_layout,
 			onEndResize: save_layout,
-			onDblClick: linked_to,
+			onDblClick: linked_to
 		});   
 	});
 	</script>
