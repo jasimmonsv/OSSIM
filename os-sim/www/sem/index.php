@@ -542,8 +542,10 @@ function MakeRequest()
 	var top = escape(document.getElementById('top').value);
 
     var txtexport = document.getElementById('txtexport').value;
+    var tzone =  document.getElementById('tzone').options[document.getElementById('tzone').selectedIndex].value;
+    
     document.getElementById('ResponseDiv').innerHTML = "";
-	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&top=" + top + "&start=" + start + "&end=" + end + "&sort=" + sort + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
+	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&top=" + top + "&start=" + start + "&end=" + end + "&sort=" + sort + "&tzone=" + tzone + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
 	
 	return false;
 }
@@ -1522,7 +1524,35 @@ require_once ("manage_querys.php");
                             <input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>">
                         <?php
                         }
+                        $tz=intval(date("O"))/100;
                         ?>
+                        <select name="tzone" id="tzone">
+						<option value="-12"<?= ($tz==-12) ? " selected='selected'" : "" ?>>GMT-12</option>
+						<option value="-11"<?= ($tz==-11) ? " selected='selected'" : "" ?>>GMT-11</option>
+						<option value="-10"<?= ($tz==-10) ? " selected='selected'" : "" ?>>GMT-10</option>
+						<option value="-9"<?= ($tz==-9) ? " selected='selected'" : "" ?>>GMT-9</option>
+						<option value="-8"<?= ($tz==-8) ? " selected='selected'" : "" ?>>GMT-8</option>
+						<option value="-7"<?= ($tz==-7) ? " selected='selected'" : "" ?>>GMT-7</option>
+						<option value="-6"<?= ($tz==-6) ? " selected='selected'" : "" ?>>GMT-6</option>
+						<option value="-5"<?= ($tz==-5) ? " selected='selected'" : "" ?>>GMT-5</option>
+						<option value="-4"<?= ($tz==-4) ? " selected='selected'" : "" ?>>GMT-4</option>
+						<option value="-3"<?= ($tz==-3) ? " selected='selected'" : "" ?>>GMT-3</option>
+						<option value="-2"<?= ($tz==-2) ? " selected='selected'" : "" ?>>GMT-2</option>
+						<option value="-1"<?= ($tz==-1) ? " selected='selected'" : "" ?>>GMT-1</option>
+						<option value="0"<?= ($tz==0) ? " selected='selected'" : "" ?>>UTC</option>
+						<option value="1"<?= ($tz==1) ? " selected='selected'" : "" ?>>GMT+1</option>
+						<option value="2"<?= ($tz==2) ? " selected='selected'" : "" ?>>GMT+2</option>
+						<option value="3"<?= ($tz==3) ? " selected='selected'" : "" ?>>GMT+3</option>			
+						<option value="4"<?= ($tz==4) ? " selected='selected'" : "" ?>>GMT+4</option>			
+						<option value="5"<?= ($tz==5) ? " selected='selected'" : "" ?>>GMT+5</option>			
+						<option value="6"<?= ($tz==6) ? " selected='selected'" : "" ?>>GMT+6</option>			
+						<option value="7"<?= ($tz==7) ? " selected='selected'" : "" ?>>GMT+7</option>			
+						<option value="8"<?= ($tz==8) ? " selected='selected'" : "" ?>>GMT+8</option>			
+						<option value="9"<?= ($tz==9) ? " selected='selected'" : "" ?>>GMT+9</option>			
+						<option value="10"<?= ($tz==10) ? " selected='selected'" : "" ?>>GMT+10</option>
+						<option value="11"<?= ($tz==11) ? " selected='selected'" : "" ?>>GMT+11</option>			
+						<option value="12"<?= ($tz==12) ? " selected='selected'" : "" ?>>GMT+12</option
+                        </select>
                         <input type="button" value="<?=_("OK")?>" onclick="change_calendar();setFixed2();" class="button" style="font-size:10px;height:22px;width:28px" />
                         </td>
 					</tr>
