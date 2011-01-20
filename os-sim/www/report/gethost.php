@@ -93,7 +93,7 @@ $db = new ossim_db();
 $conn = $db->connect();
 $xml = "";
 
-$host_list = Host::get_list_pag($conn, "$search", "ORDER BY $order $limit");
+$host_list = Host::get_list($conn, "$search", "ORDER BY $order $limit");
 
 if ($host_list[0]) {
     $total = $host_list[0]->get_foundrows();

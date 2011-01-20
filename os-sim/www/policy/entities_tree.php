@@ -112,7 +112,7 @@ if ($host_list = Host::get_list($conn, $where_host, "ORDER BY h.hostname")) {
 	}
 }
 $wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
-$net_list = Net::get_list2($conn, $wherenet);
+$net_list = Net::get_list($conn, $wherenet);
 
 /* All assets*/
 
@@ -250,7 +250,7 @@ else if ($key == "net") {
 else if (preg_match("/net_(.*)/",$key,$found)){
     $hostin = array();
    
-	if ($net_list1 = Net::get_list2($conn, "name='".base64_decode($found[1])."'")) {
+	if ($net_list1 = Net::get_list($conn, "name='".base64_decode($found[1])."'")) {
         require_once("classes/CIDR.inc");
         
 		

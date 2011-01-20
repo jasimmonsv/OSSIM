@@ -590,7 +590,7 @@ if (ossim_error()) {
 $ossim_hosts = array();
 $ossim_nets = array();
 if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_list as $host) $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
-if ($net_list = Net::get_list($conn, "ORDER BY name")) {
+if ($net_list = Net::get_list($conn, "", "ORDER BY name")) {
     foreach($net_list as $net) {
         $net_name = $net->get_name();
         $net_ips = $net->get_ips();

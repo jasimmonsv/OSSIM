@@ -117,7 +117,7 @@ elseif (POST("insert")) {
         if (ossim_error()) {
             die(ossim_error());
         }
-        if ($net_list = Net::get_list($conn, "WHERE name = '$net_name'")) {
+        if ($net_list = Net::get_list($conn, "name = '$net_name'")) {
             foreach($net_list as $net) {
                 if ($nets == "") $nets = $net->get_ips();
                 else $nets.= "," . $net->get_ips();
