@@ -2216,10 +2216,8 @@ sub pop_hosthash {
 	    $hostHash{$host}{'checks'} = "0";
 	}
 
-
-        my $risk=7;
-        my $prisk=0;
-        
+        my $risk=-1;
+                
         $risk=1  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Serious/s);
         $risk=1  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Critical/s);
         $risk=2  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*High/s);
@@ -2228,19 +2226,17 @@ sub pop_hosthash {
         $risk=5  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low\/Medium/s);
         $risk=6  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Low/s);
         $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Info/s);
-        $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s);
+        $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*[nN]one/s); 
         #$risk=8 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Exception/s);       #EXCEPTIONS ARE CALCULATED FROM EXCEPTION DATA NOT BY A STORED RISK VALUE
         $risk=7  if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Passed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
         $risk=3 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Unknown/s);         #PLAN TO RECLASSIFY Compliance Audit Values
         $risk=2 if ($desc =~ m/Risk [fF]actor\s*:\s*(\\n)*Failed/s);          #PLAN TO RECLASSIFY Compliance Audit Values
         
-        if ($risk_factor ne "") {
-            $prisk=2  if($risk_factor eq "High");
-            $prisk=3  if($risk_factor eq "Medium");
-            $prisk=6  if($risk_factor eq "Low");
-            $prisk=7  if($risk_factor eq "Info");
-            
-            $risk = $prisk if ($prisk < $risk); # final risk lowest
+        if ($risk < 0) {
+            $risk=2  if($risk_factor eq "High");
+            $risk=3  if($risk_factor eq "Medium");
+            $risk=6  if($risk_factor eq "Low");
+            $risk=7  if($risk_factor eq "Info");
         }
         
         logwriter("Risk factor $host $scanid $desc $risk", 4); 
@@ -3829,7 +3825,7 @@ sub get_results_from_file {
 
             my $risk_factor = "Info";
             if(defined $risk_type) {
-                if ($risk_type =~ /^LOW/i) {
+                if ($risk_type =~ /^(LOW|Security.Note)/i) {
                     $risk_factor = "Low";
                 }
                 elsif ($risk_type =~ /^(MEDIUM|Security.Warning)/i) {

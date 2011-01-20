@@ -157,10 +157,14 @@ class Incident_ticket {
                 'error:' . _("Invalid user login format")
             ) ,
             'description' => array(
+				OSS_TEXT, 
+				OSS_PUNC_EXT,
                 'error:' . _("Description required")
             ) ,
             'action' => array(
-                OSS_NULLABLE
+                OSS_NULLABLE, 
+				OSS_TEXT, 
+				OSS_PUNC_EXT
             ) ,
             'transferred' => array(
                 OSS_ALPHA,

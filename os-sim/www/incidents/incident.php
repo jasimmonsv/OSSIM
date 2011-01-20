@@ -66,86 +66,83 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-  
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/greybox.js"></script>
-  
-  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-
-  <script type="text/javascript">
-  // GrayBox
-  function GB_edit(url) {
-			GB_show("Knowledge DB",url,"60%","80%");
-			return false;
-		}
-	$(document).ready(function(){
-		GB_TYPE = 'w';
-		$("a.greybox").click(function(){
-			var t = this.title || $(this).text() || this.href;
-			GB_show(t,this.href,400,'60%');
-			return false;
-		});
-		
-		$('#custom_table tr:odd').css('background', "#F2F2F2");
-		
-	});
-    function switch_user(select) {
-        if(select=='entity' && $('#transferred_entity').val()!=''){
-            $('#user').val('');
-        }
-        else if (select=='user' && $('#transferred_user').val()!=''){
-            $('#entity').val('');
-        }
-    }
-  </script>
-  
- <script type="text/javascript">
-  
-	var geocoder;
-	var map;
-			
-	function codeAddress(map, address) {
-		geocoder.geocode( { 'address': address}, function(results, status) {
-		  if (status == google.maps.GeocoderStatus.OK) {
-			map.setCenter(results[0].geometry.location);
-			var marker = new google.maps.Marker({
-				map: map,
-				title: address,	
-				position: results[0].geometry.location
-			});
-		  } else {
-			  alert('Geocode was not successful for the following reason: ' + status);
-		  }
-		});
-	}
+  <title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	  <META http-equiv="Pragma" content="no-cache"/>
+	  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	  <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 	  
-	function initialize(id, address) {
-		
-		geocoder = new google.maps.Geocoder();
-		var myOptions = {
-		  zoom: 8,
-		  mapTypeId: google.maps.MapTypeId.ROADMAP
+	  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	  <script type="text/javascript" src="../js/greybox.js"></script>
+	  
+	  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+	<script type="text/javascript">
+	  // GrayBox
+	  function GB_edit(url) {
+				GB_show("Knowledge DB",url,"60%","80%");
+				return false;
+			}
+		$(document).ready(function(){
+			GB_TYPE = 'w';
+			$("a.greybox").click(function(){
+				var t = this.title || $(this).text() || this.href;
+				GB_show(t,this.href,400,'60%');
+				return false;
+			});
+			
+			$('#custom_table tr:odd').css('background', "#F2F2F2");
+			
+		});
+		function switch_user(select) {
+			if(select=='entity' && $('#transferred_entity').val()!=''){
+				$('#user').val('');
+			}
+			else if (select=='user' && $('#transferred_user').val()!=''){
+				$('#entity').val('');
+			}
 		}
-	
-		map = new google.maps.Map(document.getElementById(id), myOptions);
-	
-		codeAddress(map, address);
-	}
+	</script>
+  
+	<script type="text/javascript">
+  
+		var geocoder;
+		var map;
+				
+		function codeAddress(map, address) {
+			geocoder.geocode( { 'address': address}, function(results, status) {
+			  if (status == google.maps.GeocoderStatus.OK) {
+				map.setCenter(results[0].geometry.location);
+				var marker = new google.maps.Marker({
+					map: map,
+					title: address,	
+					position: results[0].geometry.location
+				});
+			  } else {
+				  alert('Geocode was not successful for the following reason: ' + status);
+			  }
+			});
+		}
+	  
+		function initialize(id, address) {
+			
+			geocoder = new google.maps.Geocoder();
+			var myOptions = {
+			  zoom: 8,
+			  mapTypeId: google.maps.MapTypeId.ROADMAP
+			}
+		
+			map = new google.maps.Map(document.getElementById(id), myOptions);
+		
+			codeAddress(map, address);
+		}
   
   
- </script>
+	</script>
  
-<style>
-td {
-    border-width: 0px;
-}
-</style>
+	<style type='text/css'>
+		td { border-width: 0px;}
+	</style>
 <? include ("../host_report_menu.php") ?>
 </head>
 <body>
@@ -189,19 +186,19 @@ function format_user($user, $html = true, $show_email = false) {
     }
     return $html ? $ret : strip_tags($ret);
 }
-$name = $incident->get_ticket();
-$title = $incident->get_title();
-$ref = $incident->get_ref();
-$type = $incident->get_type();
-$created = $incident->get_date();
-$life = $incident->get_life_time();
-$updated = $incident->get_last_modification();
-$priority = $incident->get_priority();
-$incident_status = $incident->get_status();
+$name 				= $incident->get_ticket();
+$title 				= $incident->get_title();
+$ref 				= $incident->get_ref();
+$type 				= $incident->get_type();
+$created 			= $incident->get_date();
+$life 				= $incident->get_life_time();
+$updated 			= $incident->get_last_modification();
+$priority 			= $incident->get_priority();
+$incident_status    = $incident->get_status();
 $incident_in_charge = $incident->get_in_charge();
-$users = Session::get_list($conn);
-$incident_tags = $incident->get_tags();
-$incident_tag = new Incident_tag($conn);
+$users              = Session::get_list($conn);
+$incident_tags      = $incident->get_tags();
+$incident_tag       = new Incident_tag($conn);
 $taga = array();
 foreach($incident_tags as $tag_id) {
     $taga[] = $incident_tag->get_html_tag($tag_id);
@@ -275,137 +272,37 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 		} else {
 			$alarm_list = $incident->get_events($conn);
 		}
-		// add name and kdb link
-		require_once ("classes/Net.inc");
-		require_once ("classes/Repository.inc");
-		require_once ("classes/Host.inc");
-		//
 		foreach($alarm_list as $alarm_data) {
-			// add name and kdb link
-			$txt_temp='';
-			if(strpos($alarm_data->get_src_ips(),'/')!==false){
-				$hostname_temp=Net::get_name_by_ip($conn,$alarm_data->get_src_ips());
-				$hostname_temp2=$hostname_temp;
-				$type_temp='net';
-			}else{
-				$hostname_temp=Host::ip2hostname($conn,$alarm_data->get_src_ips());
-				$hostname_temp2=$alarm_data->get_src_ips();
-				$type_temp='host';
-			}
-			if($hostname_temp!=$alarm_data->get_src_ips()&&$hostname_temp!=''){
-				$txt_temp.=$hostname_temp;
-			}
-			if ($linkedocs = Repository::have_linked_documents($conn, $hostname_temp2, $type_temp)){
-				if($hostname_temp!=$alarm_data->get_src_ips()&&$hostname_temp!=''){
-					$txt_temp.=' - ';
-				}
-				$txt_temp.= "<a href=\"javascript:;\" onclick=\"GB_edit('../repository/repository_list.php?keyname=" . urlencode($hostname_temp2) . "&type=".$type_temp."')\" class=\"blue\">[" . $linkedocs . "] "._('Knowledge DB')."</a>";
-			}
-			if($txt_temp!=''){
-				$txt_temp=' ('.$txt_temp.')';
-			}
-			//
-			echo "<strong>Source Ips:</strong> <a href='../report/host_report.php?host=".$alarm_data->get_src_ips()."' class='HostReportMenu' id='".$alarm_data->get_src_ips().";".$alarm_data->get_src_ips()."'>" . $alarm_data->get_src_ips() . "</a> ".$txt_temp."<br /> " . "<strong>Source Ports:</strong> " . $alarm_data->get_src_ports() . "<br/>";
-			// add name and kdb link
-			$txt_temp='';
-			if(strpos($alarm_data->get_dst_ips(),'/')!==false){
-				$hostname_temp=Net::get_name_by_ip($conn,$alarm_data->get_dst_ips());
-				$hostname_temp2=$hostname_temp;
-				$type_temp='net';
-			}else{
-				$hostname_temp=Host::ip2hostname($conn,$alarm_data->get_dst_ips());
-				$hostname_temp2=$alarm_data->get_dst_ips();
-				$type_temp='host';
-			}
-			if($hostname_temp!=$alarm_data->get_dst_ips()&&$hostname_temp!=''){
-				$txt_temp.=$hostname_temp;
-			}
-			if ($linkedocs = Repository::have_linked_documents($conn, $hostname_temp2, $type_temp)){
-				if($hostname_temp!=$alarm_data->get_dst_ips()&&$hostname_temp!=''){
-					$txt_temp.=' - ';
-				}
-				$txt_temp.= "<a href=\"javascript:;\" onclick=\"GB_edit('../repository/repository_list.php?keyname=" . urlencode($hostname_temp2) . "&type=".$type_temp."')\" class=\"blue\">[" . $linkedocs . "] "._('Knowledge DB')."</a>";
-			}
-			if($txt_temp!=''){
-				$txt_temp=' ('.$txt_temp.')';
-			}
-			//
-			echo "<strong>Dest Ips:</strong> <a href='../report/host_report.php?host=".$alarm_data->get_dst_ips()."' class='HostReportMenu' id='".$alarm_data->get_dst_ips().";".$alarm_data->get_dst_ips()."'>" . $alarm_data->get_dst_ips() . "</a> ".$txt_temp."<br /> " . "<strong>Dest Ports:</strong> " . $alarm_data->get_dst_ports();
+			echo "Source Ips: <a href='../report/host_report.php?host=".$alarm_data->get_src_ips()."' class='HostReportMenu' id='".$alarm_data->get_src_ips().";".$alarm_data->get_src_ips()."'><b>" . $alarm_data->get_src_ips() . "</b></a> - " . "Source Ports: <b>" . $alarm_data->get_src_ports() . "</b><br/>" . "Dest Ips: <a href='../report/host_report.php?host=".$alarm_data->get_dst_ips()."' class='HostReportMenu' id='".$alarm_data->get_dst_ips().";".$alarm_data->get_dst_ips()."'><b>" . $alarm_data->get_dst_ips() . "</b></a> - " . "Dest Ports: <b>" . $alarm_data->get_dst_ports() . "</b>";
 		}
 	} 
 	elseif ($ref == 'Metric')
 	{
-		// add name and kdb link
-		require_once ("classes/Repository.inc");
-		require_once ("classes/Host.inc");
-		//
 		$metric_list = $incident->get_metrics($conn);
 		foreach($metric_list as $metric_data) {
-			// add name and kdb link
-			$txt_temp='';
-			$hostname_temp=Host::ip2hostname($conn,$metric_data->get_target());
-			$hostname_temp2=$metric_data->get_target();
-			$type_temp='host';
-			
-			if($hostname_temp!=$metric_data->get_target()&&$hostname_temp!=''){
-				$txt_temp.=$hostname_temp;
-			}
-			if ($linkedocs = Repository::have_linked_documents($conn, $hostname_temp2, $type_temp)){
-				if($hostname_temp!=$metric_data->get_target()&&$hostname_temp!=''){
-					$txt_temp.=' - ';
-				}
-				$txt_temp.= "<a href=\"javascript:;\" onclick=\"GB_edit('../repository/repository_list.php?keyname=" . urlencode($hostname_temp2) . "&type=".$type_temp."')\" class=\"blue\">[" . $linkedocs . "] "._('Knowledge DB')."</a>";
-			}
-			if($txt_temp!=''){
-				$txt_temp=' ('.$txt_temp.')';
-			}
-			//
-			echo "<strong>Target:</strong> " . $metric_data->get_target() . " ".$txt_temp."<br /> " . "<strong>Metric Type:</strong> " . $metric_data->get_metric_type() . "<br /> " . "<strong>Metric Value:</strong> " . $metric_data->get_metric_value() . "</b>";
+			echo "Target: <b>" . $metric_data->get_target() . "</b> - " . "Metric Type: <b>" . $metric_data->get_metric_type() . "</b> - " . "Metric Value: <b>" . $metric_data->get_metric_value() . "</b>";
 		}
 	} 
 	elseif ($ref == 'Anomaly')
 	{
-		// add name and kdb link
-		require_once ("classes/Repository.inc");
-		require_once ("classes/Host.inc");
-		//
 		$anom_list = $incident->get_anomalies($conn);
 		foreach($anom_list as $anom_data) {
 			$anom_type = $anom_data->get_anom_type();
 			$anom_ip = $anom_data->get_ip();
-			// add name and kdb link
-			$txt_temp='';
-			$hostname_temp=Host::ip2hostname($conn,$anom_ip);
-			$hostname_temp2=$anom_ip;
-			$type_temp='host';
-			
-			if($hostname_temp!=$anom_ip&&$hostname_temp!=''){
-				$txt_temp.=$hostname_temp;
-			}
-			if ($linkedocs = Repository::have_linked_documents($conn, $hostname_temp2, $type_temp)){
-				if($hostname_temp!=$anom_ip&&$hostname_temp!=''){
-					$txt_temp.=' - ';
-				}
-				$txt_temp.= "<a href=\"javascript:;\" onclick=\"GB_edit('../repository/repository_list.php?keyname=" . urlencode($hostname_temp2) . "&type=".$type_temp."')\" class=\"blue\">[" . $linkedocs . "] "._('Knowledge DB')."</a>";
-			}
-			if($txt_temp!=''){
-				$txt_temp=' ('.$txt_temp.')';
-			}
-			//
 			$anom_info_o = $anom_data->get_data_orig();
 			$anom_info = $anom_data->get_data_new();
 			if ($anom_type == 'mac') {
 				list($a_sen, $a_date_o, $a_mac_o, $a_vend_o) = explode(",", $anom_info_o);
 				list($a_sen, $a_date, $a_mac, $a_vend) = explode(",", $anom_info);
-				echo "<strong>Host:</strong> " . $anom_ip . " ".$txt_temp."<br>" . "<strong>Previous Mac:</strong> " . $a_mac_o . "(" . $a_vend_o . ")<br>" . "<strong>New Mac:</strong> " . $a_mac . "(" . $a_vend . ")<br>";
+				echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous Mac: <b>" . $a_mac_o . "(" . $a_vend_o . ")</b><br>" . "New Mac: <b>" . $a_mac . "(" . $a_vend . ")</b><br>";
 			} elseif ($anom_type == 'service') {
 				list($a_sen, $a_date, $a_port, $a_prot_o, $a_ver_o) = explode(",", $anom_info_o);
 				list($a_sen, $a_date, $a_port, $a_prot, $a_ver) = explode(",", $anom_info);
-				echo "<strong>Host:</strong> " . $anom_ip . " ".$txt_temp."<br>" . "<strong>Port:</strong> " . $a_port . "<br>" . "<strong>Previous Protocol [Version]:</strong> " . $a_prot_o . " [" . $a_ver_o . "]<br>" . "<strong>New Protocol [Version]:</strong> " . $a_prot . " [" . $a_ver . "]<br>";
+				echo "Host: <b>" . $anom_ip . "</b><br>" . "Port: <b>" . $a_port . "</b><br>" . "Previous Protocol [Version]: <b>" . $a_prot_o . " [" . $a_ver_o . "]</b><br>" . "New Protocol [Version]: <b>" . $a_prot . " [" . $a_ver . "]</b><br>";
 			} elseif ($anom_type == 'os') {
 				list($a_sen, $a_date, $a_os_o) = explode(",", $anom_info_o);
 				list($a_sen, $a_date, $a_os) = explode(",", $anom_info);
-				echo "<strong>Host:</strong> " . $anom_ip . " ".$txt_temp."<br>" . "<strong>Previous OS:</strong> " . $a_os_o . "<br>" . "<strong>New OS:</strong> " . $a_os . "<br>";
+				echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous OS: <b>" . $a_os_o . "</b><br>" . "New OS: <b>" . $a_os . "</b><br>";
 			}
 		}
 	} 
@@ -424,19 +321,16 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 			$txt_temp='';
 			$hostname_temp=Host::ip2hostname($conn,$vulnerability_data->get_ip());
 			if($hostname_temp!=$vulnerability_data->get_ip()){
-				$txt_temp.=$hostname_temp;
+				$txt_temp.=$hostname_temp.' - ';
 			}
 			if ($linkedocs = Repository::have_linked_documents($conn, $vulnerability_data->get_ip(), 'host')){
-				if($hostname_temp!=$vulnerability_data->get_ip()&&$hostname_temp!=''){
-					$txt_temp.=' - ';
-				}
 				$txt_temp.="<a href=\"javascript:;\" onclick=\"GB_edit('../repository/repository_list.php?keyname=" . urlencode($vulnerability_data->get_ip()) . "&type=host')\" class=\"blue\" target=\"main\">[" . $linkedocs . "] "._('Knowledge DB')."</a>";
 			}
 			if($txt_temp!=''){
 				$txt_temp=' ('.$txt_temp.')';
 			}
 			//
-			echo "<b>IP:</b> " . $vulnerability_data->get_ip() .$txt_temp."<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity(nl2br($vulnerability_data->get_description())) . "<br>";
+			echo "<b>IP:</b> " . $vulnerability_data->get_ip() .$txt_temp."<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity($vulnerability_data->get_description()) . "<br>";
 		}
 	} 
 	elseif ($ref == 'Custom')
@@ -503,9 +397,9 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 			<?php
         $i++;
     } ?>
-			<tr><th nowrap height="18"><?=_("Related documents")?> [ <?php echo $has_found_keys ?> ]</th></tr>
-			<tr><th nowrap style="padding:0px 3px 0px 3px" height="18"><img align='absmiddle' src="../repository/images/linked2.gif" border=0><a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?id=<?php echo $id ?>&id_incident=<?php echo $incident->get_id() ?>&name_incident=<?php echo $incident->get_title() ?>"><?=_("Link existing document")?></a></th></tr>
-			<tr><th nowrap style="padding:0px 3px 0px 3px" height="18"><img align='absmiddle' src="../repository/images/editdocu.gif" border=0><a href="../repository/index.php"><?=_("New document")?></a></th></tr>
+			<tr><th nowrap='nowrap' height="18"><?=_("Related documents")?> [ <?php echo $has_found_keys ?> ]</th></tr>
+			<tr><th nowrap='nowrap' style="padding:0px 3px 0px 3px" height="18"><img align='absmiddle' src="../repository/images/linked2.gif" border='0'/><a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?id=<?php echo $id ?>&id_incident=<?php echo $incident->get_id() ?>&name_incident=<?php echo $incident->get_title() ?>"><?=_("Link existing document")?></a></th></tr>
+			<tr><th nowrap='nowrap' style="padding:0px 3px 0px 3px" height="18"><img align='absmiddle' src="../repository/images/editdocu.gif" border='0'/><a href="../repository/index.php"><?=_("New document")?></a></th></tr>
 		</table>
 	<?php
 } ?>
@@ -604,7 +498,7 @@ for ($i = 0; $i < count($tickets_list); $i++) {
 ?>
     <table width="100%" cellspacing="2" align="center">
     <!-- ticket head -->
-    <tr><th width="78%" nowrap>
+    <tr><th width="78%" nowrap='nowrap'>
         <b><?php echo format_user($creator) ?></b> - <?php echo $date ?>
         </th>
         <!--<td style="background: #ABB7C7;">-->
@@ -650,12 +544,12 @@ for ($i = 0; $i < count($tickets_list); $i++) {
 <!--            <table width="100%" height="100%" cellspacing="0" style="background-color:#ffffff"><tr height="100%"><td height="100%" style="text-align:left;padding-left:5px;">-->
                 <table class="noborder">
                 <tr><th>            
-                    <b><?php echo _("Status") ?>: </b></th><td nowrap style="text-align:left;padding-left:5px;"><?php
+                    <b><?php echo _("Status") ?>: </b></th><td nowrap='nowrap' style="text-align:left;padding-left:5px;"><?php
                     Incident::colorize_status($status); ?>
                 </td></tr>
                 <tr valign="middle">
                     <th><b><?php echo _("Priority"); ?>: </b></th>
-                    <td nowrap style="text-align:left;">
+                    <td nowrap='nowrap' style="text-align:left;">
                         <table class="noborder"><tr><td><?php echo $prio_box ?></td><td> - <?php echo $prio_str ?></td></table>
                     </td>
                 </tr>
@@ -663,17 +557,17 @@ for ($i = 0; $i < count($tickets_list); $i++) {
         if (!$transferred) { 
             ?>
                 <tr><th>
-                    <b><?php echo _("In charge") ?>: </b></th><td nowrap style="text-align:left;padding-left:5px;"><?php echo $in_charge_name ?>
+                    <b><?php echo _("In charge") ?>: </b></th><td nowrap='nowrap' style="text-align:left;padding-left:5px;"><?php echo $in_charge_name ?>
                 </td></tr>
                 <?php
         } else { ?>
                 <tr><th>
-                    <b><?php echo _("Transferred To") ?>: </b></th><td nowrap style="text-align:left;padding-left:5px;"><?php echo format_user($transferred) ?>
+                    <b><?php echo _("Transferred To") ?>: </b></th><td nowrap='nowrap' style="text-align:left;padding-left:5px;"><?php echo format_user($transferred) ?>
                 </td></tr>
                 <?php
         } ?>
-                <tr><th NOWRAP>
-                    <b><?php echo _("Since Creation") ?>: </b></th><td nowrap style="text-align:left;padding-left:5px;"><?php echo $life_time ?>
+                <tr><th nowrap='nowrap'>
+                    <b><?php echo _("Since Creation") ?>: </b></th><td nowrap='nowrap' style="text-align:left;padding-left:5px;"><?php echo $life_time ?>
                 </td></tr>
                 </table>
 <!--            </td></tr></table>-->
@@ -936,12 +830,12 @@ for ($i = 1; $i <= 10; $i++) { ?>
     <tr>
         <th ><?php echo _("Description") ?></th>
         <td style="border-width: 0px;">
-        <textarea name="description" rows="10" cols="80" WRAP=HARD></textarea>
+        <textarea name="description" rows="10" cols="80" wrap='HARD'></textarea>
     </td></tr>
     <tr>
         <th><?php echo _("Action") ?></th>
         <td style="border-width: 0px;">
-        <textarea name="action" rows="10" cols="80" WRAP=HARD></textarea>
+        <textarea name="action" rows="10" cols="80" wrap='HARD'></textarea>
     </td></tr>
     <tr>
         <td>&nbsp;</td>

@@ -12,8 +12,35 @@ CREATE TABLE IF NOT EXISTS `sessions` (
  PRIMARY KEY  (`id`,`login`)
 );      
 REPLACE INTO log_config (code, log, descr, priority) VALUES (093, 1, 'Account %1% locked: Too many failed login attempts', 1);
-ALTER TABLE `incident_ticket` ADD INDEX `users` ( `incident_id` , `users` , `in_charge` , `transferred` ) ;
-ALTER TABLE `incident` ADD INDEX ( `in_charge` );
+
+DROP PROCEDURE IF EXISTS addsindex;
+DELIMITER '//'
+CREATE PROCEDURE addsindex() BEGIN
+   IF NOT EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'incident_ticket' AND INDEX_NAME='users')
+   THEN
+        ALTER TABLE `incident_ticket` ADD INDEX `users` ( `incident_id` , `users` , `in_charge` , `transferred` ) ;
+   END IF;
+END;
+//
+DELIMITER ';'
+CALL addsindex();
+DROP PROCEDURE addsindex;
+
+
+DROP PROCEDURE IF EXISTS addsindex;
+DELIMITER '//'
+CREATE PROCEDURE addsindex() BEGIN
+   IF NOT EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'incident' AND INDEX_NAME='in_charge')
+   THEN
+        ALTER TABLE `incident` ADD INDEX ( `in_charge` );
+   END IF;
+END;
+//
+DELIMITER ';'
+CALL addsindex();
+DROP PROCEDURE addsindex;
 
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;

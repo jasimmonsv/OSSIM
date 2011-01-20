@@ -1,2 +1,3 @@
+#
 .deps/
-ossim-server
+*.o

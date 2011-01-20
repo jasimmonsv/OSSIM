@@ -2,7 +2,20 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
-ALTER TABLE custom_report_scheduler ADD save_in_repository tinyint(1) NOT NULL DEFAULT '1';
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'custom_report_scheduler' AND COLUMN_NAME = 'save_in_repository')
+  THEN
+      ALTER TABLE custom_report_scheduler ADD save_in_repository tinyint(1) NOT NULL DEFAULT '1';
+  END IF;
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 ALTER TABLE `host` ADD `fqdns` VARCHAR( 255 ) NOT NULL AFTER `hostname` ;
 ALTER TABLE `host` ADD INDEX `search` ( `hostname` ,`fqdns` );
 DELETE FROM user_config WHERE category = 'policy' AND name = 'host_layout';
@@ -22,8 +35,20 @@ CREATE TABLE IF NOT EXISTS `tags_alarm` (
   bold tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (id)
 );
-       
-ALTER TABLE  `users` ADD  `is_admin` BOOL NOT NULL DEFAULT  '0';
+
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'is_admin')
+  THEN
+      ALTER TABLE  `users` ADD  `is_admin` BOOL NOT NULL DEFAULT 0;
+  END IF;
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
 
 DROP TRIGGER IF EXISTS auto_incidents;
 

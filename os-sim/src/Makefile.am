@@ -46,6 +46,7 @@ ossim_server_SOURCES = \
 		sim-server.c \
 		sim-snort.c \
 		sim-packet.c \
+	  sim-text-fields.c \
 		main.c
 
 ossim_server_LDADD = $(LIBGDA_LIBS) $(GNET_LIBS) $(GLIB_LIBS) $(OPENSSL_LIBS) $(LIBUUID_LIBS)

@@ -96,7 +96,31 @@ sim_connect_send_alarm(gpointer data)
 
   for(;;) //Pop events for ever
   {
+	GString *st;
+	int inx = 0;
   event=(SimEvent*)sim_container_pop_ar_event(ossim.container);
+	if (!event){
+		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: No event",__FUNCTION__);
+		continue;
+	}
+	struct {
+		gchar *key;
+		gchar *base64data;
+	} base64_params[] = {
+		{"filename",event->filename ? g_base64_encode (event->filename,strlen (event->filename)): NULL},
+		{"username",event->username ? g_base64_encode (event->username,strlen (event->username)): NULL},
+		{"filename",event->filename ? g_base64_encode (event->filename,strlen (event->filename)): NULL},
+		{"userdata1",event->userdata1 ? g_base64_encode (event->userdata1,strlen (event->userdata1)): NULL},
+		{"userdata2",event->userdata2 ? g_base64_encode (event->userdata2,strlen (event->userdata2)): NULL},
+		{"userdata3",event->userdata3 ? g_base64_encode (event->userdata3,strlen (event->userdata3)): NULL},
+		{"userdata4",event->userdata4 ? g_base64_encode (event->userdata4,strlen (event->userdata4)): NULL},
+		{"userdata5",event->userdata5 ? g_base64_encode (event->userdata5,strlen (event->userdata5)): NULL},
+		{"userdata6",event->userdata6 ? g_base64_encode (event->userdata6,strlen (event->userdata6)): NULL},
+		{"userdata7",event->userdata7 ? g_base64_encode (event->userdata7,strlen (event->userdata7)): NULL},
+		{"userdata8",event->userdata8 ? g_base64_encode (event->userdata8,strlen (event->userdata8)): NULL},
+		{"userdata9",event->userdata9 ? g_base64_encode (event->userdata9,strlen (event->userdata9)): NULL}
+	};
+
   // Send max risk
   // i.e., to avoid risk=0 when destination is 0.0.0.0
   if (event->risk_a > event->risk_c)
@@ -128,20 +152,17 @@ sim_connect_send_alarm(gpointer data)
   g_free (ip_src);
   g_free (ip_dst);
 
-  buffer = g_strconcat (aux,
-    event->filename  ? " filename=\"" : "", event->filename  ? event->filename  : "", event->filename ? "\"" : "",
-    event->username  ? " username=\"" : "", event->username  ? event->username  : "", event->username ? "\"" : "",
-    event->password  ? " password=\"" : "", event->password  ? event->password  : "", event->password ? "\"" : "",
-    event->userdata1 ? " userdata1=\"" : "",event->userdata1 ? event->userdata1 : "",event->userdata1 ? "\"" : "",
-    event->userdata2 ? " userdata2=\"" : "",event->userdata2 ? event->userdata2 : "",event->userdata2 ? "\"" : "",
-    event->userdata3 ? " userdata3=\"" : "",event->userdata3 ? event->userdata3 : "",event->userdata3 ? "\"" : "",
-    event->userdata4 ? " userdata4=\"" : "",event->userdata4 ? event->userdata4 : "",event->userdata4 ? "\"" : "",
-    event->userdata5 ? " userdata5=\"" : "",event->userdata5 ? event->userdata5 : "",event->userdata5 ? "\"" : "",
-    event->userdata6 ? " userdata6=\"" : "",event->userdata6 ? event->userdata6 : "",event->userdata6 ? "\"" : "",
-    event->userdata7 ? " userdata7=\"" : "",event->userdata7 ? event->userdata7 : "",event->userdata7 ? "\"" : "",
-    event->userdata8 ? " userdata8=\"" : "",event->userdata8 ? event->userdata8 : "",event->userdata8 ? "\"" : "",
-    event->userdata9 ? " userdata9=\"" : "",event->userdata9 ? event->userdata9 : "",event->userdata9 ? "\"" : "",
-    "\n", NULL);
+
+	st = g_string_new (aux);	
+	for (inx = 0;inx<G_N_ELEMENTS(base64_params);inx++){
+		g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: %u:%s %p",__FUNCTION__,inx,base64_params[inx].base64data,base64_params[inx].base64data);
+		if (base64_params[inx].base64data != NULL){
+			g_string_append_printf(st," %s=\"%s\"",base64_params[inx].key,base64_params[inx].base64data!=NULL ? base64_params[inx].base64data :  "");
+			g_free (base64_params[inx].base64data); /* we dont't need the data, anymore, so free it*/
+		}
+	}
+	g_string_append(st,"\n");
+	buffer = g_string_free (st,FALSE);
 
   if (!buffer)
   {

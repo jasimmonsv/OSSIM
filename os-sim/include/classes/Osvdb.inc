@@ -119,10 +119,9 @@ class Osvdb {
         return $this->status;
     }
     function sanity($text) {
-        $tmp = str_replace(";", "<br>", $text);
-        $tmp = str_replace("\\n", "<br>;", $tmp);
-        $tmp = str_replace("<SCRIPT>", "&lt;SCRIPT&gt;", $tmp);
-        $tmp = str_replace("</SCRIPT>", "&lt;/SCRIPT&gt;", $tmp);
+		require_once("classes/Util.inc");
+        $tmp = preg_replace("/[^\d{5}];/", "<br>", nl2br($text));
+        $tmp = Util::htmlentities($tmp);
         return $tmp;
     }
     function get_osvdbid_by_nessusid($conn_ossim, $nessus_id) {

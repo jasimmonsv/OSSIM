@@ -33,9 +33,9 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Ossec.inc');
 require_once ('classes/Security.inc');
-require_once ('ossim_db.inc');
 require_once ('classes/Util.inc');
 require_once ('conf/_conf.php');
+require_once ('utils.php');
 
 
 $info_error  = null;
@@ -46,7 +46,7 @@ $path_reload   =  "/var/ossec/agentless/.reload";
 $path_passlist =  "/var/ossec/agentless/.passlist";	
 $path_tmp2     =  "/tmp/".uniqid()."_tmp.passlist";
 
-//exec("cat /dev/null > $path_passlist", $output, $retval);	
+exec("cat /dev/null > $path_passlist", $output, $retval);	
 $retval = 0;
 $output = null;
 
@@ -86,6 +86,7 @@ if ( !empty($agentless_list) && empty($info_error) )
 				$host  .= $user."@".$ip;
 				$pass   = $v->get_pass();
 				$ppass  = $v->get_ppass();
+				$status = $v->get_status();
 				
 				$arguments       = ( !empty($entry['arguments']) ) ? "<arguments>".$entry['arguments']."</arguments>" : "";
 								
@@ -98,7 +99,7 @@ if ( !empty($agentless_list) && empty($info_error) )
 				$agentless_xml[] = "</agentless>";
 				
 				
-				/*if ( $v->get_status() == "1" || $v->get_status() == "2")
+				if ( $status == "1" || $status == "2" )
 				{
 				    $res = Agentless::enable_host($ip, $user, $pass, $ppass);
 					
@@ -108,7 +109,7 @@ if ( !empty($agentless_list) && empty($info_error) )
 						@copy ($path_tmp2, $path_passlist);
 						break 2;
 					}
-				}*/
+				}
 				
 			}
 		}
@@ -184,10 +185,7 @@ if ( !empty($agentless_list) && empty($info_error) )
 					unset($conf_file[$i]);
 			}
 		}
-			
-		
-		exit;
-				
+						
 		
 		$conf_file_str = implode("\n", $conf_file);
 		$output 	   = formatXmlString($conf_file_str);
@@ -202,16 +200,11 @@ if ( !empty($agentless_list) && empty($info_error) )
 		{
 			@unlink ($path_tmp);
 			@unlink ($path_reload);
+			exec ("sudo /var/ossec/bin/ossec-control restart", $result, $ret);
+			$info_error = ( $ret != 0 ) ? _("Error to restart Ossec.  Try manually") : null;
 		}	
-		
 	}
-
-
 }
-
-
-if ($info_error != null)
-{
 
 ?>
 
@@ -230,13 +223,18 @@ if ($info_error != null)
 		<h1> <?php echo gettext("Apply configuration"); ?> </h1>
 
 	<?php
-
-		Util::print_error($info_error);	
-		Util::make_form("POST", "agentless.php");
-
+		if ($info_error != null)
+		{
+			Util::print_error($info_error);	
+			Util::make_form("POST", "agentless.php");
+		}
+		else
+		{
+			echo "<p>"._("Configuration applied")."</p>";
+			echo "<script>document.location.href='agentless.php'</script>";
+		}
 	?>
 	  
 	</body>
 	</html>
 
-<?php } ?>
