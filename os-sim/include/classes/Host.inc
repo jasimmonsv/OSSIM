@@ -194,7 +194,7 @@ class Host {
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS h.*" : "h.*";
         
 		$query = OssimQuery("SELECT $select FROM host h $where $order");
-		//echo $query;
+		//echo $query."<br>";
 		$list = array();
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
@@ -218,7 +218,7 @@ class Host {
 			$sensor_str = "";
 			foreach ($user_sensors as $user_sensor) if ($user_sensor != "")
 				$sensor_str .= (($sensor_str != "") ? "," : "")."'".$user_sensor."'";
-			if ($sensor_str == "") $sensor_str = "AND 0";
+			//if ($sensor_str == "") $sensor_str = "AND 0";
 			$sensor_where = "h.ip in (select hs.host_ip FROM host_sensor_reference hs,sensor s WHERE hs.sensor_name=s.name AND s.ip in(" . $sensor_str . "))";
 		}
 		return $sensor_where;
@@ -514,7 +514,7 @@ class Host {
 	}
     // get lists of sensors/hosts 
     function get_ips_and_hostname($conn,$checkperm=false) {
-        if (Session::am_i_admin()) { $checkperm = false; }
+    	if (Session::am_i_admin()) { $checkperm = false; }
     	$allowed_sensors = array();
         $asensors_str = Session::allowedSensors();
 		if ($checkperm && $asensors_str != "") $allowed_sensors = explode(",",$asensors_str);
@@ -531,14 +531,19 @@ class Host {
             $rs->MoveNext();
         }
         $hosts = array();
-        $sql = "SELECT ip,hostname FROM host";
+        $checkperm = true;
+        if ($checkperm) {
+        	$host_where = Host::get_sensor_where($conn);
+        }
+        $where = ($host_where != "") ? " WHERE $host_where" : "";
+        $sql = "SELECT ip,hostname FROM host h$where";
         if (!$rs = $conn->Execute($sql)) {
             print 'error: ' . $conn->ErrorMsg() . '<BR>';
             exit;
         }
         // get hash with ip-name
         while (!$rs->EOF) {
-            if (!$checkperm || ($checkperm && Session::hostAllowed($conn, $rs->fields["ip"])))
+            //if (!$checkperm || ($checkperm && Session::hostAllowed($conn, $rs->fields["ip"])))
                 $hosts[$rs->fields["ip"]] = $rs->fields["hostname"];
             $rs->MoveNext();
         }

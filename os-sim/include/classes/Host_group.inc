@@ -144,7 +144,7 @@ class Host_group {
         }
 		
 		$select = "SELECT DISTINCT SQL_CALC_FOUND_ROWS g.* FROM host_group g,host_group_reference r WHERE g.name=r.host_group_name $host_where$where $order";
-		
+		//echo $select."<br>";
         $query = OssimQuery($select);
 		$list = array();
         if (!$rs = & $conn->Execute($query)) {
