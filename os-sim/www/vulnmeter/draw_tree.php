@@ -77,7 +77,7 @@ if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_l
     $all_cclass_hosts[$cclass][] = $host->get_ip();
     $total_hosts++;
 }
-if ($hg_list = Host_group::get_list($conn, "ORDER BY name")) {
+if ($hg_list = Host_group::get_list($conn, "", "ORDER BY name")) {
     foreach($hg_list as $hg) {
         $hg_hosts = $hg->get_hosts($conn, $hg->get_name());
         foreach($hg_hosts as $hosts) {
@@ -86,6 +86,7 @@ if ($hg_list = Host_group::get_list($conn, "ORDER BY name")) {
         }
     }
 }
+
 $net_list = Net::get_list($conn, "ORDER BY name");
 
 if ($key == "hostgroup") {

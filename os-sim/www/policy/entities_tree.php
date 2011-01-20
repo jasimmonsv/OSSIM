@@ -94,7 +94,12 @@ if ($host_list = Host::get_list($conn, $where_host, "ORDER BY h.hostname")) {
 			$total_hosts++;
 		}
     }
-	list($hg_list,$found_hostgroup) = Host_group::get_list_pag($conn, "", "ORDER BY name");
+	$hg_list = Host_group::get_list($conn, "", "ORDER BY name");
+	if ($hg_list[0]) {
+    	$found_hostgroup = $hg_list[0]->get_foundrows();
+    	if ($found_hostgroup == 0) $found_hostgroup = count($hg_list);
+	} else $found_hostgroup = 0;
+	
 	if ($found_hostgroup)
 	{
 		foreach($hg_list as $hg) {
