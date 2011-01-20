@@ -31,8 +31,7 @@
 #
 # GLOBAL IMPORTS
 #
-from time import mktime, strptime
-
+from time import mktime, strptime, time
 #
 # LOCAL IMPORTS
 #
@@ -76,8 +75,8 @@ class Event:
         "occurrences",
         "log",
         "data",
-        "snort_sid",    # snort specific
-        "snort_cid",    # snort specific
+        "snort_sid", # snort specific
+        "snort_cid", # snort specific
         "fdate",
         "tzone"
     ]
@@ -97,16 +96,16 @@ class Event:
 
                 # Try first for string dates.
                 try:
-                    date = int(mktime(strptime(self.event[key],"%Y-%m-%d %H:%M:%S")))
+                    date = int(mktime(strptime(self.event[key], "%Y-%m-%d %H:%M:%S")))
                 except (ValueError):
                     # May it be epoch?
                     try:
                         date = int(self.event[key])
                     except:
-                        logger.warning("There was an error parsing an epoch date (%s)" %\
+                        logger.warning("There was an error parsing an epoch date (%s)" % \
                                            (self.event[key]))
                 except:
-                    logger.warning("There was an error parsing a string date (%s)" %\
+                    logger.warning("There was an error parsing a string date (%s)" % \
                                        (self.event[key]))
 
                 # Do not allow dates in the future.
