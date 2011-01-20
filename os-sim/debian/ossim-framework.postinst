@@ -147,7 +147,6 @@ fi
 
 # ossec perms
 chmod o+rx /var/ossec
-chmod o+rx /var/ossec/etc
 chmod -R o+r /var/ossec/rules
 chmod u+rwx /var/ossec/rules
 chmod u+rwx /var/ossec/agentless
@@ -158,6 +157,7 @@ chown www-data:ossec /var/ossec/agentless
 chown www-data:ossec /var/ossec/logs
 chown www-data:ossec /var/ossec/logs/alerts
 chown www-data:ossec /var/ossec/logs/alerts/alerts.log
+chown www-data:ossec /var/ossec/etc
 
 
 
