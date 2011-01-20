@@ -1,4 +1,3 @@
-<<<<<<< HEAD:os-sim/agent/ossim_agent/Event.py
 #
 # License:
 #
@@ -32,12 +31,7 @@
 #
 # GLOBAL IMPORTS
 #
-from time import mktime, strptime
-=======
-from Logger import Logger
-from time import time, mktime, strptime
->>>>>>> origin/testing:os-sim/agent/ossim_agent/Event.py
-
+from time import mktime, strptime, time
 #
 # LOCAL IMPORTS
 #
@@ -81,8 +75,8 @@ class Event:
         "occurrences",
         "log",
         "data",
-        "snort_sid",    # snort specific
-        "snort_cid",    # snort specific
+        "snort_sid", # snort specific
+        "snort_cid", # snort specific
         "fdate",
         "tzone"
     ]
@@ -93,6 +87,7 @@ class Event:
         self.event["event_type"] = self.EVENT_TYPE
 
     def __setitem__(self, key, value):
+
         if key in self.EVENT_ATTRS:
             self.event[key] = self.sanitize_value(value)
             if key == "date":
@@ -101,16 +96,16 @@ class Event:
 
                 # Try first for string dates.
                 try:
-                    date = int(mktime(strptime(self.event[key],"%Y-%m-%d %H:%M:%S")))
+                    date = int(mktime(strptime(self.event[key], "%Y-%m-%d %H:%M:%S")))
                 except (ValueError):
                     # May it be epoch?
                     try:
                         date = int(self.event[key])
                     except:
-                        logger.warning("There was an error parsing an epoch date (%s)" %\
+                        logger.warning("There was an error parsing an epoch date (%s)" % \
                                            (self.event[key]))
                 except:
-                    logger.warning("There was an error parsing a string date (%s)" %\
+                    logger.warning("There was an error parsing a string date (%s)" % \
                                        (self.event[key]))
 
                 # Do not allow dates in the future.
@@ -245,13 +240,13 @@ class WatchRule(Event):
     EVENT_TYPE = 'event'
     EVENT_ATTRS = [
         "type",
-        "date",
-        "fdate",
-        "sensor",
-        "interface",
-        "src_ip",
-        "dst_ip",
-        "protocol",
+	"date",
+	"fdate",
+	"sensor",
+	"interface",
+	"src_ip",
+	"dst_ip",
+	"protocol",
         "plugin_id",
         "plugin_sid",
         "condition",

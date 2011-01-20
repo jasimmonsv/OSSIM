@@ -102,10 +102,6 @@ class TailFollowBookmark(object):
             if self.track:
                 self._check_for_file_modification()
             raise StopIteration
-        if line:
-            self.nlines+=1
-            if self.nlines % 500:
-                logger.info("Numero de lineas: %d",self.nlines)
         # check if we should be bookmarking
         elif self.bookmark and line != "":
             try:
@@ -140,7 +136,7 @@ class TailFollowBookmark(object):
         if not stat.S_ISREG(self._current_stat.st_mode):
             raise IOError, self.filename + " is not a regular file"
 
-    def _open_file(self, fromrotate = False):
+    def _open_file(self, fromrotate=False):
         """
         Opens the file and seeks to the specified position based on
         the keyword arguments: offset and whence.  Furthermore, the
