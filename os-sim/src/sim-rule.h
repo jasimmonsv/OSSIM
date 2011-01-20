@@ -40,6 +40,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include "sim-action.h"
 #include "sim-inet.h"
 #include "sim-sensor.h"
+#include "sim-text-fields.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,6 +52,10 @@ extern "C" {
 #define SIM_IS_RULE(obj)               (G_TYPE_CHECK_INSTANCE_TYPE (obj, SIM_TYPE_RULE))
 #define SIM_IS_RULE_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), SIM_TYPE_RULE))
 #define SIM_RULE_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), SIM_TYPE_RULE, SimRuleClass))
+enum SimTextMatchType{SimMatchTextTypeNone=0,
+				SimMatchTextEqual,SimMatchTextSubstr,SimMatchTextRegex,SimMatchPrevious,SimMatchTextNonEqual,SimMatchTextNonSubstr,
+			SimMatchTextAny};
+
 
 G_BEGIN_DECLS
 
@@ -73,6 +78,7 @@ struct _SimRuleClass {
 
 struct _SimRuleVar {
   SimRuleVarType   type;	//ie.: in the "from" in directives, you can put n:SRC_IP or n:DST_IP. This variable stores wich one is the right
+	guint						 varIndex; // Used if type == SIM_RULE_VAR_GENERIC_TEXT, index into array
   SimRuleVarType   attr;	//this is used to know wich field is referenced in directives ("from", "to", "src_ip"...)
   gint             level;
   gboolean					negated;	//if this is YES, then the field referenced will be stored in the negated fields (ie. src_ports_not, plugin_sids_not...) 
@@ -263,7 +269,13 @@ void              sim_rule_print                           (SimRule     *rule);
 gchar*            sim_rule_to_string                       (SimRule     *rule);
 
 gboolean					sim_rule_is_not_invalid										(SimRule      *rule);
-	
+void							sim_rule_set_text_search	(SimRule *rule,int inx, int type);
+int sim_rule_get_field_index (const gchar *name);
+gboolean sim_rule_set_match_text (SimRule *rule, guint, const gchar *, gboolean match_not);
+gboolean sim_rule_set_match_substr (SimRule *rule, guint, const gchar *, gboolean match_not);
+gboolean sim_rule_set_match_regex (SimRule *rule, guint, const gchar *);
+gboolean sim_rule_set_match_var_text (SimRule *rule, guint inx, const gchar *text,gboolean match_not);
+const gchar *sim_rule_get_text_matched (SimRule *rule,guint inx);
 G_END_DECLS
 
 #ifdef __cplusplus

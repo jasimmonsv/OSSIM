@@ -40,6 +40,7 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 #include <time.h>
 #include <math.h>
 #include <string.h> //strlen()
+#include <assert.h>
 
 enum 
 {
@@ -61,6 +62,7 @@ sim_event_impl_dispose (GObject  *gobject)
 static void 
 sim_event_impl_finalize (GObject  *gobject)
 {
+	int i;
   SimEvent *event = (SimEvent *) gobject;
   
   g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_event_impl_finalize: Id %u, Sid %u, Cid %u", 
@@ -85,7 +87,7 @@ sim_event_impl_finalize (GObject  *gobject)
 	if (event->role)
 		g_free (event->role);
   g_free (event->log);
-
+/*
 	g_free (event->filename);//no needed to check, g_free will just return if "filename" is NULL
 	g_free (event->username);
 	g_free (event->password);
@@ -96,9 +98,12 @@ sim_event_impl_finalize (GObject  *gobject)
 	g_free (event->userdata5);
 	g_free (event->userdata6);
 	g_free (event->userdata7);
-	g_free (event->userdata8);
+	g_free (event->use10000jrdata8);
 	g_free (event->userdata9);
-  
+  */
+	for (i = 0;i < N_TEXT_FIELDS;i ++){
+		g_free (event->textfields[i]);
+	}
   g_free (event->buffer);
 
 	g_free (event->plugin_sid_name);
@@ -118,25 +123,39 @@ sim_event_impl_finalize (GObject  *gobject)
 }
 
 static void
-sim_event_class_init (SimEventClass * class)
+sim_event_class_init (SimEventClass * klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (class);
+	GString *st;
+	int i;
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+	st = g_string_new ("");
+	assert (st != NULL);
 
   parent_class = g_type_class_ref (G_TYPE_OBJECT);
 
   object_class->dispose = sim_event_impl_dispose;
   object_class->finalize = sim_event_impl_finalize;
+	/* Create a string with the sql text fields, for insert sentences. Becasuse the fields are
+	defined at compile time, we create this string only one time, when the class is initialize */
+	for ( i = 0; i < N_TEXT_FIELDS; i++){
+		g_string_append_printf (st,"%s%s",sim_text_field_get_name (i),(i != (N_TEXT_FIELDS - 1)) ? "," : "");
+	}
+	klass->sql_text_fields = g_string_free (st, FALSE); /* This string is never deleted, but is OK*/
+
+
 }
 
 static void
 sim_event_instance_init (SimEvent *event)
 {
   g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_event_instance_init");
+	int i;
 
   event->id = 0;
   event->id_tmp = 0;
   event->snort_sid = 0;
   event->snort_cid = 0;
+	event->signature = 0xdeadbeef;
 
   event->type = SIM_EVENT_TYPE_NONE;
 
@@ -195,7 +214,7 @@ sim_event_instance_init (SimEvent *event)
 	
 	event->role = NULL;
 	event->policy= NULL;
-
+/*
 	event->filename = NULL;
 	event->username = NULL;
 	event->password = NULL;
@@ -208,6 +227,11 @@ sim_event_instance_init (SimEvent *event)
 	event->userdata7 = NULL;
 	event->userdata8 = NULL;
 	event->userdata9 = NULL;	
+*/
+	for (i = 0;i < N_TEXT_FIELDS;i ++){
+		event->textfields[i] = NULL;
+		event->isTextMatched[i] = FALSE;
+	}
 	uuid_clear(event->uuid);	
 	event->buffer = NULL;	
 	event->packet = NULL;
@@ -320,6 +344,7 @@ SimEvent*
 sim_event_clone (SimEvent       *event)
 {
   SimEvent *new_event;
+	int i;
 
   new_event = SIM_EVENT (g_object_new (SIM_TYPE_EVENT, NULL));
   new_event->id = event->id;
@@ -370,7 +395,14 @@ sim_event_clone (SimEvent       *event)
 		new_event->role->resend_alarm = event->role->resend_alarm;
 	}
   new_event->log = event->log;
-
+	
+	for (i = 0;i< N_TEXT_FIELDS; i++){	
+		if (event->textfields[i]!=NULL)
+			new_event->textfields[i] = g_strdup (event->textfields[i]);
+		else
+			new_event->textfields[i] = NULL;
+	}
+	/*
 	(event->filename) ? new_event->filename = g_strdup (event->filename) : NULL;
 	(event->username) ? new_event->username = g_strdup (event->username) : NULL;
 	(event->password) ? new_event->password = g_strdup (event->password) : NULL;
@@ -383,6 +415,7 @@ sim_event_clone (SimEvent       *event)
 	(event->userdata7) ? new_event->userdata7 = g_strdup (event->userdata7) : NULL;
 	(event->userdata8) ? new_event->userdata8 = g_strdup (event->userdata8) : NULL;
 	(event->userdata9) ? new_event->userdata9 = g_strdup (event->userdata9) : NULL;
+  */
 
 	(event->buffer) ? new_event->buffer = g_strdup (event->buffer) : NULL;
 	(event->rulename) ? new_event->buffer = g_strdup (event->rulename) : NULL;
@@ -404,6 +437,7 @@ sim_event_print (SimEvent   *event)
   gchar    time[TIMEBUF_SIZE];
   gchar    *timestamp=time;
   gchar    *ip;
+	int i;
 
   g_return_if_fail (event);
   g_return_if_fail (SIM_IS_EVENT (event));
@@ -494,7 +528,13 @@ sim_event_print (SimEvent   *event)
 
   if (event->data)
       g_print (" data=\"%s\"", event->data);
-
+	for (i = 0;i < N_TEXT_FIELDS; i++){
+		if (event->textfields[i] != NULL ){
+			g_printf (" %s=\"%s\"",sim_text_field_get_name (i), event->textfields[i]);
+		}
+	
+	}
+/*
 	if (event->filename)
       g_print (" filename=\"%s\"", event->filename);
 		
@@ -532,6 +572,7 @@ sim_event_print (SimEvent   *event)
 
 	if (event->userdata9)
       g_print (" userdata9=\"%s\"", event->userdata9);
+*/
 	if (!uuid_is_null(event->uuid)){
 		gchar uuidtext[37];
 		uuid_unparse_upper(event->uuid,uuidtext);
@@ -554,10 +595,15 @@ sim_event_get_insert_clause (SimEvent   *event)
   gint     c;
   gint     a;
 	gchar		 uuidtext[37];
+	GString  *st;
+	int i;
+	/*
 	gchar *e_filename = NULL,*e_username = NULL,*e_password = NULL;
 	gchar *e_userdata1 = NULL,*e_userdata2 = NULL, *e_userdata3 = NULL;
 	gchar *e_userdata4 = NULL,*e_userdata5 = NULL, *e_userdata6 = NULL;
-	gchar *e_userdata7 = NULL,*e_userdata8 = NULL, *e_userdata9 = NULL;
+	gchar *e_userdata7 = NULL,*e_userdata8 = NULL, *e_userdata9 = NULL;	
+	*/
+	gchar *e_fields[N_TEXT_FIELDS];
 	
   g_return_val_if_fail (event, NULL);
   g_return_val_if_fail (SIM_IS_EVENT (event), NULL);
@@ -582,6 +628,15 @@ sim_event_get_insert_clause (SimEvent   *event)
 	}	
 	/* Escape de character data*/
 	/* ossimdb */
+	for (i = 0; i < N_TEXT_FIELDS; i++){
+		if (event->textfields[i] != NULL){	
+			e_fields[i] = g_new0 (gchar, strlen(event->textfields[i])*2+1);
+			gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->textfields[i],e_fields[i]);
+		}else{
+			e_fields[i] = NULL;
+		}
+	}
+/*
 	if (event->filename){
 		e_filename = g_new0 (gchar,strlen(event->filename)*2+1);
 		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->filename,e_filename);
@@ -629,7 +684,48 @@ sim_event_get_insert_clause (SimEvent   *event)
 	if (event->userdata9){
 		e_userdata9 = g_new0 (gchar,strlen(event->userdata9)*2+1);
 		gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->userdata9,e_userdata9);	
+	}*/
+	st = g_string_new ("INSERT INTO event "
+			   "(id, timestamp, sensor, interface, type, plugin_id, plugin_sid, " 
+			   "protocol, src_ip, dst_ip, src_port, dst_port, "
+			   "event_condition, value, time_interval, "
+			   "priority, reliability, asset_src, asset_dst, risk_c, risk_a, alarm, "
+			   "snort_sid, snort_cid, rulename, uuid ");
+	for (i = 0; i < N_TEXT_FIELDS; i++){
+		g_string_append_printf (st,",%s",sim_text_field_get_name (i));
 	}
+	g_string_append_printf (st,") VALUES  (%d, '%s', '%s', '%s', %d, %d, %d,"
+			   " %d, %u, %u, %d, %d, %d, '%s', %d, %d, %d, %d, %d, %d, %d, %d, %u, %u, "
+				 " '%s','%s'", event->id,
+			   timestamp,
+			   (event->sensor) ? event->sensor : "",
+			   (event->interface) ? event->interface : "",
+			   event->type,
+			   event->plugin_id,
+			   event->plugin_sid,
+			   event->protocol,
+			   (event->src_ia) ? sim_inetaddr_ntohl (event->src_ia) : -1,
+			   (event->dst_ia) ? sim_inetaddr_ntohl (event->dst_ia) : -1,
+			   event->src_port,
+			   event->dst_port,
+			   event->condition,
+			   (event->value) ? event->value : "",
+			   event->interval,
+			   event->priority,
+			   event->reliability,
+			   event->asset_src,
+			   event->asset_dst,
+			   c, a,
+			   event->alarm,
+			   event->snort_sid,
+			   event->snort_cid,
+				 (event->rulename)  ? event->rulename : "" ,
+				 (uuid_is_null(event->uuid)!=1) ? uuidtext : "");
+		for (i = 0; i < N_TEXT_FIELDS; i++){
+			g_string_append_printf (st,",'%s'", event->textfields[i] != NULL ? e_fields[i] : "");
+		}
+		g_string_append (st,");\n");
+/*
   query = g_strdup_printf ("INSERT INTO event "
 			   "(id, timestamp, sensor, interface, type, plugin_id, plugin_sid, " 
 			   "protocol, src_ip, dst_ip, src_port, dst_port, "
@@ -678,8 +774,12 @@ sim_event_get_insert_clause (SimEvent   *event)
 				 (event->userdata8) ? e_userdata8 : "",
 				 (event->userdata9) ? e_userdata9 : "",
 				 (event->rulename)  ? event->rulename : "" ,
-				 (uuid_is_null(event->uuid)!=1) ? uuidtext : "");
+				 (uuid_is_null(event->uuid)!=1) ? uuidtext : "");*/
 	/* Free memory*/
+	for (i = 0; i < N_TEXT_FIELDS; i++){
+		g_free (e_fields[i]);
+	}
+/*
 	if (e_filename)
 		g_free (e_filename);
 	if (e_username)
@@ -704,6 +804,7 @@ sim_event_get_insert_clause (SimEvent   *event)
 		g_free (e_userdata8);
 	if (e_userdata9)
 		g_free (e_userdata9);
+*/
 
 
 
@@ -712,8 +813,7 @@ sim_event_get_insert_clause (SimEvent   *event)
 
 
 
-
-  return query;
+  return g_string_free (st,FALSE);
 }
 
 /*
@@ -782,6 +882,29 @@ sim_event_get_update_clause (SimEvent   *event)
   return query;
 }
 
+static 
+gchar *sim_event_get_text_escape_fields_values (SimEvent *event){
+	int i;
+	gchar *e_fields[N_TEXT_FIELDS];
+	GString * st;
+	GdaConnection *conn;
+	conn = sim_database_get_conn (ossim.dbossim);
+	st = g_string_new ("");
+	if (st == NULL) return NULL; // I prefer an assert here. If no memory, we must explicit print the warning and die!
+	for ( i = 0; i< N_TEXT_FIELDS; i++){
+		if (event->textfields[i] != NULL){
+			e_fields[i] = g_new0(gchar,strlen(event->textfields[i])*2+1);
+			gda_connection_escape_string (conn,event->textfields[i], e_fields[i]);
+			g_string_append_printf (st,"'%s'%s",e_fields[i], i != (N_TEXT_FIELDS-1) ? "," : "");
+			g_free (e_fields[i]);
+		}else
+			g_string_append_printf (st,"'%s'%s","", i != (N_TEXT_FIELDS-1) ? "," : "");
+
+	}
+	return  g_string_free (st,FALSE);
+}
+	
+
 /*
  *
  *
@@ -796,45 +919,14 @@ sim_event_get_replace_clause (SimEvent   *event)
   gint     c;
   gint     a;
 	int i;
-	gchar 	*e_fields[N_TEXT_FIELDS];
 	/* Temporal HACK */
-	gchar *fields[N_TEXT_FIELDS];
 	
 	gchar 	uuidtext[37];
-	GdaConnection *conn;
-	GString *st;
-	GString *stvalues;
-	conn = sim_database_get_conn (ossim.dbossim);
-
+	gchar 	*values;
 
   g_return_val_if_fail (event, NULL);
   g_return_val_if_fail (SIM_IS_EVENT (event), NULL);
-	/* Temporal HACK ....XXX*/
-	fields[0] = event->username;
-	fields[1] = event->password;
-	fields[2] = event->filename;
-	fields[3] = event->userdata1;
-	fields[4] = event->userdata2;
-	fields[5] = event->userdata3;
-	fields[6] = event->userdata4;
-	fields[7] = event->userdata5;
-	fields[8] = event->userdata6;
-	fields[9] = event->userdata7;
-	fields[10] = event->userdata8;
-	fields[11] = event->userdata9;
-	st = g_string_new ("");	 
-	stvalues = g_string_new ("");
-	for ( i = 0; i< N_TEXT_FIELDS; i++){
-		if (fields[i] != NULL){
-			e_fields[i] = g_new0 (gchar, strlen (fields[i])*2+1);
-			gda_connection_escape_string (conn, fields[i], e_fields[i]);
-		}else{
-			e_fields[i] = NULL;
-		}
-		g_string_append_printf (st," ,%s",sim_text_field_get_name (i)); /* Must be done only one time */
-		g_string_append_printf (stvalues," ,'%s'",e_fields[i]!= NULL ? e_fields[i] : "");
-	}
-
+	
   c = rint (event->risk_c);
   a = rint (event->risk_a);
 
@@ -849,15 +941,16 @@ sim_event_get_replace_clause (SimEvent   *event)
 
   strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime ((time_t *) &event->time));
 	uuid_unparse_upper(event->uuid,uuidtext);
+	values = sim_event_get_text_escape_fields_values (event);
   query = g_strdup_printf ("REPLACE INTO event "
 			   "(id, timestamp, sensor, interface, type, plugin_id, plugin_sid, " 
 			   "protocol, src_ip, dst_ip, src_port, dst_port, "
 			   "event_condition, value, time_interval, "
 			   "priority, reliability, asset_src, asset_dst, risk_c, risk_a, alarm, "
-			   "snort_sid, snort_cid,uuid %s) "
+			   "snort_sid, snort_cid,uuid,%s) "
 			   " VALUES  (%d, '%s', '%s', '%s', %d, %d, %d,"
-			   " %d, %u, %u, %d, %d, %d, '%s', %d, %d, %d, %d, %d, %d, %d, %d, %u, %u,'%s' %s)",
-					st->str,
+			   " %d, %u, %u, %d, %d, %d, '%s', %d, %d, %d, %d, %d, %d, %d, %d, %u, %u,'%s',%s)",
+				 sim_event_get_sql_fields(), 
          event->id,
 			   timestamp,
 			   (event->sensor) ? event->sensor : "",
@@ -881,14 +974,8 @@ sim_event_get_replace_clause (SimEvent   *event)
 			   event->alarm,
 			   event->snort_sid,
 			   event->snort_cid,
-				 (!uuid_is_null(event->uuid) ? uuidtext : "" ),
-					stvalues->str);
-		for ( i = 0; i < N_TEXT_FIELDS; i++){
-			if (e_fields[i] != NULL)
-				g_free (e_fields[i]);
-		}
-		g_string_free (st, TRUE);
-		g_string_free (stvalues, TRUE);
+				 (!uuid_is_null(event->uuid) ? uuidtext : "" ),values);
+		g_free (values);
 
   return query;
 }
@@ -1067,6 +1154,7 @@ sim_event_to_string (SimEvent	*event)
   gchar    time[TIMEBUF_SIZE];
   gchar   *timestamp=time;
 	gchar		uuidtext[37];
+	int i;
   g_return_if_fail (event);
   g_return_if_fail (SIM_IS_EVENT (event));
 
@@ -1168,7 +1256,11 @@ sim_event_to_string (SimEvent	*event)
     g_string_append_printf (str, "data=\"%s\" ", event->data);
   if (event->log)
     g_string_append_printf (str, "log=\"%s\" ", event->log);
-	
+	for (i = 0 ; i < N_TEXT_FIELDS; i++){
+		if (event->textfields[i]!=NULL)
+			g_string_append_printf (str,"%s=\"%s\" ",sim_text_field_get_name (i), event->textfields[i]);
+	}
+/*	
 	if (event->filename)
 		g_string_append_printf (str, "filename=\"%s\" ", event->filename);
 	if (event->username)
@@ -1193,6 +1285,7 @@ sim_event_to_string (SimEvent	*event)
 		g_string_append_printf (str, "userdata8=\"%s\" ", event->userdata8);
 	if (event->userdata9)
 		g_string_append_printf (str, "userdata9=\"%s\" ", event->userdata9);
+*/
 	if (!uuid_is_null(event->uuid)){
 		uuid_unparse_upper(event->uuid,uuidtext);
 		g_string_append_printf (str,"uuid=\"%s\" ",uuidtext);
@@ -1247,6 +1340,7 @@ sim_event_sanitize (SimEvent *event)
 	//sim_string_remove_char (event->data, ';'); 
 	//sim_string_remove_char (event->log, ';'); 
 	return;	
+/*
 	sim_string_substitute_char (event->data, ';', ','); 
 	sim_string_substitute_char (event->log, ';', ','); 
 	sim_string_substitute_char (event->userdata1, ';', ','); 
@@ -1262,6 +1356,7 @@ sim_event_sanitize (SimEvent *event)
 	sim_string_substitute_char (event->userdata7, '\'', ',');
 	sim_string_substitute_char (event->userdata8, '\'', ',');
 	sim_string_substitute_char (event->userdata9, '\'', ',');
+*/
 }
 
 /*
@@ -1277,6 +1372,9 @@ sim_event_get_insert_into_event_tmp_clause (SimEvent   *event)
   gint     c;
   gint     a;
 	gchar		 uuidtext[37];
+	GString *st;
+	int i;
+	gchar *e_fields[N_TEXT_FIELDS];
   g_return_val_if_fail (event, NULL);
   g_return_val_if_fail (SIM_IS_EVENT (event), NULL);
 
@@ -1298,6 +1396,56 @@ sim_event_get_insert_into_event_tmp_clause (SimEvent   *event)
 	}else{
 		uuidtext[0]='\0';
 	}
+	for (i = 0; i < N_TEXT_FIELDS; i++){
+		if (event->textfields[i] != NULL){	
+			e_fields[i] = g_new0 (gchar, strlen(event->textfields[i])*2+1);
+			gda_connection_escape_string (sim_database_get_conn (ossim.dbossim),event->textfields[i],e_fields[i]);
+		}else{
+			e_fields[i] = NULL;
+		}
+	}
+
+	st = g_string_new ("INSERT INTO event_tmp "
+			   "(id, timestamp, sensor, interface, type, plugin_id, plugin_sid, " 
+			   "protocol, src_ip, dst_ip, src_port, dst_port, "
+			   "event_condition, value, time_interval, "
+			   "priority, reliability, asset_src, asset_dst, risk_c, risk_a, alarm, "
+			   "snort_sid, snort_cid, rulename, uuid ");
+	for (i = 0; i < N_TEXT_FIELDS; i++){
+		g_string_append_printf (st,",%s",sim_text_field_get_name (i));
+	}
+	g_string_append_printf (st," VALUES  (%d, '%s', '%s', '%s', %d, %d, %d,"
+			   " %d, %u, %u, %d, %d, %d, '%s', %d, %d, %d, %d, %d, %d, %d, %d, %u, %u, "
+				 " '%s','%s'", event->id,
+			   timestamp,
+			   (event->sensor) ? event->sensor : "",
+			   (event->interface) ? event->interface : "",
+			   event->type,
+			   event->plugin_id,
+			   event->plugin_sid,
+			   event->protocol,
+			   (event->src_ia) ? sim_inetaddr_ntohl (event->src_ia) : -1,
+			   (event->dst_ia) ? sim_inetaddr_ntohl (event->dst_ia) : -1,
+			   event->src_port,
+			   event->dst_port,
+			   event->condition,
+			   (event->value) ? event->value : "",
+			   event->interval,
+			   event->priority,
+			   event->reliability,
+			   event->asset_src,
+			   event->asset_dst,
+			   c, a,
+			   event->alarm,
+			   event->snort_sid,
+			   event->snort_cid,
+				 (event->rulename)  ? event->rulename : "" ,
+				 (uuid_is_null(event->uuid)!=1) ? uuidtext : "");
+		for (i = 0; i < N_TEXT_FIELDS; i++){
+			g_string_append_printf (st,",%s", event->textfields[i] != NULL ? e_fields[i] : "");
+		}
+		g_string_append (st,")\n");
+/*
   query = g_strdup_printf ("INSERT INTO event_tmp "
 			   "(id, timestamp, sensor, interface, type, plugin_id, plugin_sid, plugin_sid_name, " 
 			   "protocol, src_ip, dst_ip, src_port, dst_port, "
@@ -1338,9 +1486,12 @@ sim_event_get_insert_into_event_tmp_clause (SimEvent   *event)
 				 event->userdata7,
 				 event->userdata8,
 				 event->userdata9,
-				 (!uuid_is_null(event->uuid))? uuidtext:"");
+				 (!uuid_is_null(event->uuid))? uuidtext:"");*/
+	for (i = 0; i < N_TEXT_FIELDS; i++){
+		g_free (e_fields[i]);
+	}
 
-  return query;
+  return g_string_free (st,FALSE);
 }
 
 void sim_event_add_backlog_ref_ul(SimEvent *event,GObject *directive){
@@ -1351,6 +1502,17 @@ void sim_event_add_backlog_ref_ul(SimEvent *event,GObject *directive){
 	event->backlog_list = g_list_prepend (event->backlog_list,g_object_ref( G_OBJECT (directive)));
 }
 
+const gchar *sim_event_get_sql_fields (void){
+	gchar *temp = NULL;
+	GType type =  sim_event_get_type();
+	SimEventClass *klass = (SimEventClass*)g_type_class_ref (type);
+	temp = klass->sql_text_fields;
+	g_type_class_unref (klass);
+	return temp;
+	
+}
+
+			
 
 
 // vim: set tabstop=2:

@@ -48,6 +48,15 @@ G_BEGIN_DECLS
 #define SIM_IS_XML_DIRECTIVE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE (obj, SIM_TYPE_XML_DIRECTIVE))
 #define SIM_IS_XML_DIRECTIVE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), SIM_TYPE_XML_DIRECTIVE))
 
+
+
+
+
+
+
+
+
+
 typedef struct _SimXmlDirective        SimXmlDirective;
 typedef struct _SimXmlDirectiveClass   SimXmlDirectiveClass;
 typedef struct _SimXmlDirectivePrivate SimXmlDirectivePrivate;

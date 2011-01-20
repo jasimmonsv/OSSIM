@@ -81,7 +81,7 @@ typedef struct
 } SimCmdArgs;
 
 SimCmdArgs simCmdArgs;
-
+#define N_TEXT_FIELDS 12
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

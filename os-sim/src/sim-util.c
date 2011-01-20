@@ -276,6 +276,7 @@ SimRuleVarType
 sim_get_rule_var_from_char (const gchar *var)
 {
   g_return_val_if_fail (var != NULL, SIM_RULE_VAR_NONE);
+	int i;
 
   if (!strcasecmp (var, SIM_SRC_IP_CONST))
     return SIM_RULE_VAR_SRC_IA;
@@ -291,6 +292,13 @@ sim_get_rule_var_from_char (const gchar *var)
     return SIM_RULE_VAR_PLUGIN_SID;
   else if (!strcasecmp (var, SIM_SENSOR_CONST))
     return SIM_RULE_VAR_SENSOR;
+	else{
+		for (i = 0;i <N_TEXT_FIELDS; i++){
+			if (strcmp (var, sim_text_field_get_var_name (i)) == 0)
+			return SIM_RULE_VAR_GENERIC_TEXT;
+		}
+	}
+#if 0
   else if (!strcasecmp (var, SIM_FILENAME_CONST))
     return SIM_RULE_VAR_FILENAME;
   else if (!strcasecmp (var, SIM_USERNAME_CONST))
@@ -315,6 +323,7 @@ sim_get_rule_var_from_char (const gchar *var)
     return SIM_RULE_VAR_USERDATA8;
   else if (!strcasecmp (var, SIM_USERDATA9_CONST))
     return SIM_RULE_VAR_USERDATA9;
+#endif
 	
   return SIM_RULE_VAR_NONE;
 }
