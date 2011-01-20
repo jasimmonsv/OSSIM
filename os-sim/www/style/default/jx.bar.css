@@ -81,7 +81,7 @@
 	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:10px;
 	cursor:pointer;
-	padding:3px 6px 3px 6px;
+	padding:3px 5px 3px 5px;
 	border:#e5e5e5 solid 1px;	
 	margin:2px;
 }
@@ -90,7 +90,7 @@
 	.jx-bar-button li:hover {
 		background-color:#eee;
 		border:#ccc solid 1px;
-		padding:3px 6px 3px 6px;
+		padding:3px 5px 3px 5px;
 		margin:2px;
 	}
 
@@ -127,7 +127,7 @@
 	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:11px;
 	color:#666;
-	padding:3px 6px 3px 6px;
+	padding:3px 5px 3px 5px;
 	margin:4px 0px 4px 0px;
 }
 
@@ -207,7 +207,7 @@
 	font-size:11px;
 	cursor:pointer;
 	background-color:#ccc;
-	padding:3px 6px 3px 6px;
+	padding:3px 5px 3px 5px;
 	margin:2px;
 }
 
