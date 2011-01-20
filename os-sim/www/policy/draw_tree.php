@@ -84,13 +84,13 @@ if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_l
     $total_hosts++;
 }
 if ($filter=="") {
-    $wherehg = "ORDER BY name";
+    $wherehg = "";
 }
 else if(preg_match("/\d+.\d+/", $filter)) {
-    $wherehg = ",host_group_reference WHERE host_group_reference.host_group_name=host_group.name and host_group_reference.host_ip like '%$filter%' ORDER BY host_group.name";
+    $wherehg = " AND r.host_ip like '%$filter%'";
 }
 else {
-    $wherehg = "WHERE name like '%$filter%' ORDER BY name";
+    $wherehg = " AND g.name like '%$filter%'";
 }
 
 if ($hg_list = Host_group::get_list($conn, $wherehg)) {
