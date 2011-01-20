@@ -28,4 +28,6 @@ INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority,re
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority,reliability) VALUES (4003, 19, NULL, NULL, 'SSHd: Refused connect', 1, 2);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority,reliability) VALUES (4003, 20, NULL, NULL, 'SSHd: Denied connection', 1, 2);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority,reliability) VALUES (4003, 21, NULL, NULL, 'SSHd: Could not get shadow information', 1, 2);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority,reliability) VALUES (4003, 22, NULL, NULL, 'SSHd: HPUX Recieved connection - Version', 1, 1);
+INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority,reliability) VALUES (4003, 23, NULL, NULL, 'SSHd: HPUX Recieved connection - Throughput', 1, 1);
 INSERT INTO plugin_sid (plugin_id, sid, category_id, class_id, name, priority,reliability) VALUES (4003, 99, NULL, NULL, 'SSHd: Generic SSH Event', 1, 1);
