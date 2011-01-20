@@ -143,7 +143,7 @@ if (preg_match('/\d+\.\d+\.\d+\.\d+/', $sensor)) {
     echo gettext("Reload"); ?> </a>
 <?php
 } else {
-    if ($net_list = Net::get_list($conn, "WHERE name = '$sensor'")) {
+    if ($net_list = Net::get_list($conn, "name = '$sensor'")) {
         $net_ips = $net_list[0]->get_ips();
     }
 ?>

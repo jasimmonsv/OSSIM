@@ -294,7 +294,7 @@ function draw_members_select($form_data) {
     switch ($type) {
         case 'host':
             include_once 'classes/Host.inc';
-            $list = Host::get_list($conn, null, 'ORDER BY hostname');
+            $list = Host::get_list($conn, "", 'ORDER BY hostname');
             print_r($list);
             foreach($list as $obj) {
                 $descr = $obj->get_descr();
@@ -307,7 +307,7 @@ function draw_members_select($form_data) {
 
         case 'net':
             include_once 'classes/Net.inc';
-            $list = Net::get_list($conn, 'ORDER BY name');
+            $list = Net::get_list($conn, "", 'ORDER BY name');
             foreach($list as $obj) {
                 $descr = $obj->get_descr();
                 if (strlen($descr) > 50) {

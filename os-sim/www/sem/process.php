@@ -440,7 +440,7 @@ $totaltime = round($time2 - $time1, 2);
 		<td class='plfieldhdr' style='padding-left:3px;padding-right:3px;border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Server") ?></td>
 		<?php } ?>
 		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>
-			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date UTC") . " " ?>
+			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date") . " " ?>
 			<a href="javascript:DateDesc()"><img src="../forensics/images/order_sign_d.gif" border="0"></a>
 		</td>
 		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Type") ?></td>
@@ -576,7 +576,7 @@ foreach($result as $res=>$event_date) {
             if ($matches[2]==$date)
             	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($date) . "</td>";
 			else
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Sensor date").": ". htmlspecialchars($matches[2]) . "' class='scriptinfotxt' style='text-decoration:none'>" . htmlspecialchars($date) . "</a></td>";
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Sensor date").": ". htmlspecialchars("<b>".$matches[2]."</b><br>"._("Timezone").": <b>".(($tzone!=0) ? "GMT$tzone" : "UTC")."</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . htmlspecialchars($date) . "</a></td>";
 			
 
             //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin=' + this.innerHTML)\"\">$plugin</span></td>";

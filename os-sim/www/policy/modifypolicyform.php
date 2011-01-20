@@ -96,7 +96,7 @@ echo gettext("Insert new host"); ?> ?</a>
 <?php
 /* ===== source nets =====*/
 $j = 1;
-if ($net_list = Net::get_list($conn, "ORDER BY name")) {
+if ($net_list = Net::get_list($conn, "", "ORDER BY name")) {
     foreach($net_list as $net) {
         $net_name = $net->get_name();
         if ($j == 1) {
@@ -194,7 +194,7 @@ echo gettext("Insert new host"); ?> ?</a>
 <?php
 /* ===== dest nets =====*/
 $j = 1;
-if ($net_list = Net::get_list($conn, "ORDER BY name")) {
+if ($net_list = Net::get_list($conn, "", "ORDER BY name")) {
     foreach($net_list as $net) {
         $net_name = $net->get_name();
         if ($j == 1) {
