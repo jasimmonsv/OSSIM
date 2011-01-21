@@ -4,6 +4,9 @@ BEGIN;
 
 ALTER TABLE `sensor` ADD `tzone` INT NOT NULL DEFAULT 0;
 ALTER TABLE `host_properties` ADD `sensor` VARCHAR( 64 ) DEFAULT NULL AFTER `ip`;
+ALTER TABLE `host_properties` ADD INDEX (  `date` );
+ALTER TABLE `host_properties` ADD INDEX (  `ip` ,  `sensor` );
+ALTER TABLE `host_properties` ADD INDEX (  `property_ref` ,  `value` ( 255 ) );
 
 UPDATE `inventory_search` SET  `query` = '(select distinct inet_ntoa(h.ip) from host_os h where h.os=? and h.anom=0 and h.ip not in (select h1.ip from host_os h1 where h1.os<>? and h1.anom=0 and h1.date>h.date)) UNION (select distinct inet_ntoa(ip) from host_os where os=? and anom=1 and ip not in (select distinct ip from host_os where anom=0))' WHERE  `inventory_search`.`type` =  'OS' AND  `inventory_search`.`subtype` =  'OS is';
 UPDATE `inventory_search` SET  `query` = 'select distinct inet_ntoa(ip) from host_os where ip not in (select h.ip from host_os h where h.os=? and h.anom=0 and h.ip not in (select h1.ip from host_os h1 where h1.os<>? and h1.anom=0 and h1.date>h.date)) UNION (select ip from host_os where os=? and anom=1 and ip not in (select distinct ip from host_os where anom=0))' WHERE  `inventory_search`.`type` =  'OS' AND  `inventory_search`.`subtype` =  'OS is Not';
@@ -50,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `net_cidrs` (
 PRIMARY KEY ( `cidr` , `begin` , `end` )
 );
 
+TRUNCATE net_cidrs;
 DROP PROCEDURE IF EXISTS net_convert;
 DELIMITER ;;
 CREATE PROCEDURE net_convert()
@@ -57,7 +61,7 @@ BEGIN
 DECLARE done BOOLEAN DEFAULT 0;
 DECLARE cidr VARCHAR(15);
 DECLARE mask VARCHAR(3);
-DECLARE net_list CURSOR FOR SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(ips, ',', 1), '/', 1),SUBSTRING_INDEX(SUBSTRING_INDEX(ips, ',', 1), '/', -1) FROM net;
+DECLARE net_list CURSOR FOR SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(ips, ',', 1), '/', 1),SUBSTRING_INDEX(SUBSTRING_INDEX(ips, ',', 1), '/', -1) FROM net UNION SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(ips, ',', -1), '/', 1),SUBSTRING_INDEX(SUBSTRING_INDEX(ips, ',', -1), '/', -1) FROM net;
 DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done=1;
 OPEN net_list;
 REPEAT
@@ -71,6 +75,7 @@ CLOSE net_list;
 END ;;
 DELIMITER ;
 CALL net_convert;
+DROP PROCEDURE IF EXISTS net_convert;
 
 use snort;
 ALTER TABLE `sensor` CHANGE `sensor` `sensor` TEXT NULL DEFAULT '';

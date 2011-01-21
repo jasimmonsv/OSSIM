@@ -884,8 +884,8 @@ class Host {
  
 	function get_host_properties($conn,$ip,$date="") {
         $list = array();
-        $sql = "SELECT * FROM host_properties WHERE ip=?";
-        if ($date!="") $sql .= " AND date>='$date'";
+        $sql = "SELECT h.*,r.name as property,s.name as source FROM host_properties h LEFT JOIN host_property_reference r ON h.property_ref=r.id LEFT JOIN host_source_reference s ON h.source_id=s.id WHERE h.ip=?";
+        if ($date!="") $sql .= " AND h.date>='$date'";
 		        
 		if (!$rs = & $conn->Execute($sql,array($ip))){ 
             print $conn->ErrorMsg();
