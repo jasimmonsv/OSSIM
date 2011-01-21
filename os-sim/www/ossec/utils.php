@@ -1,5 +1,6 @@
 <?php
-require_once ('classes/Session.inc');
+require_once 'classes/Session.inc';
+require_once 'classes/Util.inc';
 
 // Edit Section Functions
 
@@ -720,7 +721,7 @@ function clean_string($string)
 {
 	$char_list = "\t\n\r\0\x0B";
 	$string  = trim($string, $char_list);
-	$string  = htmlentities($string, ENT_QUOTES, "UTF-8");
+	$string  = Util::htmlentities($string, ENT_QUOTES, "UTF-8");
 	
 	return $string;
 }

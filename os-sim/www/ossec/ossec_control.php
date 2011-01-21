@@ -37,6 +37,7 @@
 */
 
 require_once ('classes/Session.inc');
+require_once ('classes/Plugin.inc');
 
 ?>
 
@@ -73,7 +74,6 @@ require_once ('classes/Session.inc');
 		function load_tab3()
 		{
 			var extra = $('#alert_num_line').val();
-			extra = 5000;
 			execute_action("alerts_log", "#alerts_result", extra);
 		}
 		
@@ -97,7 +97,7 @@ require_once ('classes/Session.inc');
 
 			$("#oss_load").css('padding-top', middle_pos+"px");
 			
-			
+			var cont_width = parseInt($(div_load).css('width').replace("px",""))-50;		
 			
 			var data = "action="+action;
 			
@@ -123,12 +123,10 @@ require_once ('classes/Session.inc');
 													
 							msg = status[1];
 						}
-						
-						var width = parseInt($(div_load).css('width').replace("px",""))-50;
-											
+																	
 						$(div_load).html('');
 						
-						$(div_load).html("<div style='padding: 5px 10px 10px 10px; width:"+ width+"px;'>"+msg+"</div>");
+						$(div_load).html("<div style='padding: 5px 10px 10px 10px; width:"+ cont_width+"px;'>"+msg+"</div>");
 					}
 				}
 			});
@@ -261,9 +259,6 @@ require_once ('classes/Session.inc');
 		
 		
 		
-		
-		
-		
 		$(document).ready(function() {
 			
 			//Tabs
@@ -329,7 +324,7 @@ require_once ('classes/Session.inc');
 	
 	<style type='text/css'>
 		.generic_tab {width: 80%; margin: 20px auto;}
-		.generic_tab table{ width: 100%;}
+		.generic_tab table{ width: 100%; background: transparent;}
 				
 		.generic_tab th { height: 20px;}
 				
@@ -382,18 +377,28 @@ require_once ('classes/Session.inc');
 		.headerpr {margin-bottom: 5px;}
 		
 		#refresh img {float: right; margin-right: 3px;}
+		
+		.bottom_link {padding: 0px 0px 20px 0px; font-size: 11px; font-style: italic; font-weight: bold;}
 						
 	</style>
-
-		
 </head>
+
 <body>
-
-
 
 <?php
 
 include ("../hmenu.php"); 
+
+//Link to SIEM
+$db 	       = new ossim_db();
+$conn      	   = $db->connect();
+$oss_p_id_name = Plugin::get_id_and_name($conn, "WHERE name LIKE 'ossec%'");
+$db->close($conn);
+
+$oss_plugin_id = implode(",",array_flip ($oss_p_id_name));
+
+$link_siem     = "../forensics/base_qry_main.php?&plugin=".$oss_plugin_id."&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+
 
 //Ossec Status
 exec ("sudo /var/ossec/bin/ossec-control status", $result_1);
@@ -516,6 +521,14 @@ $agentless_action = ( count($output_al) < 1 ) ? "<span class='not_running'>Agent
 						<div id='alerts_result' class='log div_pre'></div>
 						
 					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class='bottom_link'>
+					<a href='<?php echo $link_siem?>' target='main'>
+					<span><?php echo _("If you're looking for the HIDS events please go to Analysis -> SIEM")?>
+					</a>
 				</td>
 			</tr>
 		</table>	

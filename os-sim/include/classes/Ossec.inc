@@ -132,7 +132,7 @@ class Agentless {
         
 		$select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $query = OssimQuery("SELECT $select FROM host_agentless $extra");
-		
+						
 		$list = array();
         
 		if (!$rs = & $conn->Execute($query))
@@ -205,7 +205,7 @@ class Agentless {
             $type,
 			$frecuency,
             $state,
-            $arguments
+            Util::utf8_decode2($arguments)
         );
 		
 		if ($conn->Execute($sql, $params) === false)
@@ -258,7 +258,7 @@ class Agentless {
 			$frecuency,
             $type,
 			$state,
-            $arguments,
+            Util::utf8_decode2($arguments),
             $id
         );
 		
@@ -284,7 +284,7 @@ class Agentless {
 			$user,
 			$pass,
             $ppass,
-            $descr,
+            Util::utf8_decode2($descr),
 			$status
         );
 		 
@@ -309,7 +309,7 @@ class Agentless {
 			$user,
 			$pass,
             $ppass,
-            $descr,
+            Util::utf8_decode2($descr),
 			$status,
 			$ip
         );

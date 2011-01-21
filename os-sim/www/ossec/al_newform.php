@@ -52,8 +52,7 @@ if ( empty ($step) )
 {
 	unset($_SESSION['_al_new']);
 	
-	/*
-	
+	/*	
 	Test values
 	
 	$hostname    = "Host";
@@ -63,7 +62,7 @@ if ( empty ($step) )
 	$passc       = "pass";
 	$ppass       = "pass";
 	$ppassc      = "pass";
-	$descr	     = "pass";
+	$descr	     = "Á hola";
 	
 	*/
 	

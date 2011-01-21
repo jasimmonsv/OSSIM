@@ -161,7 +161,7 @@ else
 		$passc    = $pass;
 		$ppass    = $agentless->get_ppass();
 		$ppassc   = $ppass;
-		$desc 	  = $agentless->get_descr();
+		$descr 	  = $agentless->get_descr();
 		
 		
 		$error_m_entries    = null;
