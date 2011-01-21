@@ -293,7 +293,7 @@ else if (preg_match("/net_(.*)/",$key,$found)){
     echo $buffer;
 }
 else if ($key=="netgroup") {
-    if ($net_group_list = Net_group::get_list($conn, "ORDER BY name")) {
+    if ($net_group_list = Net_group::get_list($conn)) {
         $buffer .= "[";
         $j = 0;
         foreach($net_group_list as $net_group) {

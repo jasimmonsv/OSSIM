@@ -130,7 +130,7 @@ else
 		if (ossim_error()) 
 			die(ossim_error());			
 			
-		if ($net_group_list = Net_group::get_list($conn, "WHERE name = '$ngname'")) {
+		if ($net_group_list = Net_group::get_list($conn, "name = '$ngname'")) {
 			$net_group = $net_group_list[0];
 
 			$descr        = $net_group->get_descr();

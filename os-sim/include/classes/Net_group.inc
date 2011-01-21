@@ -102,6 +102,7 @@ class Net_group {
             return Net_group_reference::get_list($conn, $this->name, $plugin);
         }
     }
+    /*
     function get_list($conn, $args = "") {
         $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
@@ -124,16 +125,18 @@ class Net_group {
         }
         return $list;
     }
-	function get_list2($conn, $args = "") {
-        $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
+    */
+	function get_list($conn, $args = "", $order = "ORDER BY name") {
+        $args = preg_replace("/^\s*where /i","",$args);
+		$iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $networks = "";
-        $all_nets = Net::get_list2($conn);
+        $all_nets = Net::get_list($conn);
         foreach ($all_nets as $net) {
         	$networks .= ($networks != "") ? ",'".$net->get_name()."'" : "'".$net->get_name()."'";
         }
-        $query = OssimQuery("SELECT $select FROM net_group g,net_group_reference r WHERE g.name=r.net_group_name AND r.net_name in ($networks) $args");
-        echo $query;
+        $query = OssimQuery("SELECT $select FROM net_group g,net_group_reference r WHERE $args".(($args != "") ? " AND" : "")." g.name=r.net_group_name AND r.net_name in ($networks) $order");
+        //echo $query."<br>";
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
@@ -150,6 +153,7 @@ class Net_group {
         }
         return $list;
     }
+    /*
     function get_list_pag($conn, $args = "") {
         $list = array(); $i=0;
         $from = 0; $max = 999999999;
@@ -175,6 +179,7 @@ class Net_group {
         }
         return array($list,$i);
     }
+    */
     function get_compromise($conn, $name) {
         $compromise = 0;
         $networks = Net_group::get_networks($conn, $name);
