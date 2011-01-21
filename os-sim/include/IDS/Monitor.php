@@ -45,7 +45,7 @@
  * @author    Lars Strojny <lars@strojny.net>
  * @copyright 2007-2009 The PHPIDS Group
  * @license   http://www.gnu.org/licenses/lgpl.html LGPL
- * @version   Release: $Id: Monitor.php,v 1.1 2010/04/27 16:26:22 jmalbarracin Exp $
+ * @version   Release: $Id:Monitor.php 949 2008-06-28 01:26:03Z christ1an $
  * @link      http://php-ids.org/
  */
 class IDS_Monitor
@@ -304,11 +304,16 @@ class IDS_Monitor
 
         // check if this field is part of the exceptions
         if (is_array($this->exceptions)) {
-            foreach ($this->exceptions as $anException){
-                if (preg_match("/^\/.*\//",$anException)) {
-                    if (preg_match($anException, $key)) return false;
+            foreach($this->exceptions as $exception) {
+                $matches = array();
+                if(preg_match('/(\/.*\/[^eE]*)$/', $exception, $matches)) {
+                    if(isset($matches[1]) && preg_match($matches[1], $key)) {
+                        return false;
+                    } 
                 } else {
-                    if ($key == $anException) return false;
+                    if($exception === $key) {
+                        return false;
+                    }
                 }
             }
         }
@@ -376,6 +381,7 @@ class IDS_Monitor
      * @param  mixed $key
      * @param  mixed $value
      * @since  0.5
+     * @throws Exception
      *
      * @return array
      */
@@ -408,6 +414,9 @@ class IDS_Monitor
                 ' the path is correct'
             );
         }
+
+        $value = preg_replace('/[\x0b-\x0c]/', ' ', $value);
+        $key = preg_replace('/[\x0b-\x0c]/', ' ', $key);   
 
         $purified_value = $this->htmlpurifier->purify($value);
         $purified_key   = $this->htmlpurifier->purify($key);
@@ -479,34 +488,48 @@ class IDS_Monitor
          */
         $purified = preg_replace('/\s+alt="[^"]*"/m', null, $purified);
         $purified = preg_replace('/=?\s*"\s*"/m', null, $purified);
-
+        
+        $original = preg_replace('/\s+alt="[^"]*"/m', null, $original);
         $original = preg_replace('/=?\s*"\s*"/m', null, $original);
-        $original = preg_replace('/\s+alt=?/m', null, $original);
+        $original = preg_replace('/style\s*=\s*([^"])/m', 'style = "$1', $original);
+        
+        # strip whitespace between tags
+        $original = trim(preg_replace('/>\s*</m', '><', $original));
+        $purified = trim(preg_replace('/>\s*</m', '><', $purified));
+        
+        $original = preg_replace(
+            '/(=\s*(["\'`])[^>"\'`]*>[^>"\'`]*["\'`])/m', 'alt$1', $original
+        );
 
-        // check which string is longer
-        $length = (strlen($original) - strlen($purified));
+        // no purified html is left
+        if (!$purified) {
+            return $original;
+        }
+        
+        // calculate the diff length
+        $length = mb_strlen($original) - mb_strlen($purified);
+
         /*
          * Calculate the difference between the original html input
          * and the purified string.
          */
-        if ($length > 0) {
-            $array_2 = str_split($original);
-            $array_1 = str_split($purified);
-        } else {
-            $array_1 = str_split($original);
-            $array_2 = str_split($purified);
-        }
-        foreach ($array_2 as $key => $value) {
-            if ($value !== $array_1[$key]) {
-                $array_1   = array_reverse($array_1);
-                $array_1[] = $value;
-                $array_1   = array_reverse($array_1);
+        $array_1 = str_split(html_entity_decode(urldecode($original)));
+        $array_2 = str_split($purified);
+
+        // create an array containing the single character differences
+        $differences = array();
+        foreach ($array_1 as $key => $value) {
+            if (!isset($array_2[$key]) || $value !== $array_2[$key]) {
+                $differences[] = $value;
             }
         }
 
         // return the diff - ready to hit the converter and the rules
-        $diff = trim(join('', array_reverse(
-            (array_slice($array_1, 0, $length)))));
+        if(intval($length) <= 10) {
+            $diff = trim(join('', $differences));
+        } else {
+            $diff = substr(trim(join('', $differences)), 0, strlen($original));
+        }
 
         // clean up spaces between tag delimiters
         $diff = preg_replace('/>\s*</m', '><', $diff);
@@ -515,7 +538,7 @@ class IDS_Monitor
         $diff = preg_replace('/[^<](iframe|script|embed|object' .
             '|applet|base|img|style)/m', '<$1', $diff);
 
-        if ($original == $purified && !$redux) {
+        if (strlen($diff) < 4) {
             return null;
         }
 
@@ -542,14 +565,14 @@ class IDS_Monitor
             array_walk_recursive($tmp_value, array($this, '_jsonConcatContents'));
             $value = $this->tmpJsonString;
         } else {
-        	$this->tmpJsonString .=  " " . $tmp_value . "\n";
+            $this->tmpJsonString .=  " " . $tmp_value . "\n";
         }
 
         if($tmp_key && is_array($tmp_key) || is_object($tmp_key)) {
             array_walk_recursive($tmp_key, array($this, '_jsonConcatContents'));
             $key = $this->tmpJsonString;
         } else {
-        	$this->tmpJsonString .=  " " . $tmp_key . "\n";
+            $this->tmpJsonString .=  " " . $tmp_key . "\n";
         }
 
         return array($key, $value);
@@ -570,9 +593,9 @@ class IDS_Monitor
         if(is_string($key) && is_string($value)) {
             $this->tmpJsonString .=  $key . " " . $value . "\n";
         } else {
-        	$this->_jsonDecodeValues(
-        		json_encode($key), json_encode($value)
-        	);
+            $this->_jsonDecodeValues(
+                json_encode($key), json_encode($value)
+            );
         }
     }
 
@@ -687,7 +710,8 @@ class IDS_Monitor
     /**
      * Adds a value to the json array
      *
-     * @since 0.5.3
+     * @param  string the value containing JSON data
+     * @since  0.5.3
      *
      * @return void
      */

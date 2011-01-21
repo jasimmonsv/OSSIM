@@ -40,10 +40,10 @@
  * @author    Lars Strojny <lars@strojny.net>
  * @copyright 2007-2009 The PHPIDS Group
  * @license   http://www.gnu.org/licenses/lgpl.html LGPL
- * @version   Release: $Id: Version.php,v 1.1 2010/04/27 16:26:22 jmalbarracin Exp $
+ * @version   Release: $Id:Converter.php 517 2007-09-15 15:04:13Z mario $
  * @link      http://php-ids.org/
  */
 abstract class IDS_Version
 {
-    const VERSION = '0.6.3.1';
+    const VERSION = '0.5.6';
 }
