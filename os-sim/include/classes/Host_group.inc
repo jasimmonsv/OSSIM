@@ -143,7 +143,7 @@ class Host_group {
 			$host_where = preg_replace("/,$/",")",$host_where);
         }
 		
-		$select = "SELECT DISTINCT SQL_CALC_FOUND_ROWS g.* FROM host_group g,host_group_reference r WHERE g.name=r.host_group_name $host_where$where $order";
+		$select = "SELECT SQL_CALC_FOUND_ROWS g.* FROM host_group g,host_group_reference r WHERE g.name=r.host_group_name $host_where$where $order";
 		//echo $select."<br>";
         $query = OssimQuery($select);
 		$list = array();
