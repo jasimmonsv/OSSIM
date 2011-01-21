@@ -216,10 +216,10 @@ else if (preg_match("/net_(.*)/",$key,$found)){
 }
 else if ($key=="netgroup") {
     if ($filter=="") {
-        $whereng = "ORDER BY name";
+        $whereng = "";
     }
     else {
-        $whereng = "WHERE name like '%$filter%' ORDER BY name";
+        $whereng = "name like '%$filter%'";
     }
 
     if ($net_group_list = Net_group::get_list($conn, $whereng)) {
