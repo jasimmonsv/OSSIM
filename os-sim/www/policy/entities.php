@@ -19,9 +19,12 @@ $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 
 $withusers          = intval(GET('users'));
 $withsiemcomponents = intval(GET('siem'));
+$realtime           = intval(GET('realtime'));
+
 
 $_SESSION["_with_users"]           = $withusers;
 $_SESSION["_with_siem_components"] = $withsiemcomponents;
+$_SESSION["_real_time"] = $realtime;
 
 if (!$opensource) {
 ?>
@@ -59,6 +62,28 @@ if (!$opensource) {
                 if (typeof(parent.doIframe2)=="function") parent.doIframe2();
             }
         });
+        <?php 
+        if($realtime==0) {
+        ?>
+        $("#aptree").dynatree({
+            initAjax: { url: "asset_by_property_tree_wl.php" },
+            onActivate: function(dtnode) {
+                if(dtnode.data.url!='' && typeof(dtnode.data.url)!='undefined') {
+                    GB_edit(dtnode.data.url+'&withoutmenu=1');
+                }
+            },
+            onLazyRead: function(dtnode){
+                dtnode.appendAjax({
+                    url: "asset_by_property_tree_wl.php",
+                    data: {key: dtnode.data.key}
+                });
+                if (typeof(parent.doIframe2)=="function") parent.doIframe2();
+            }
+            });
+        <?php
+        }
+        else {
+        ?>
         $("#aptree").dynatree({
             initAjax: { url: "asset_by_property_tree.php" },
             clickFolderMode: 2,
@@ -68,8 +93,12 @@ if (!$opensource) {
                 }
             },
             onDeactivate: function(dtnode) {}
-        });        
-        setTimeout('refresh_tree()',1000); 
+            });
+            setTimeout('refresh_tree()',1000);
+        <?php
+        }
+        ?>
+
     });
     function refresh_tree() {
     	$('#refreshing').show();
@@ -197,22 +226,24 @@ if (!$opensource) {
 	        </td>
 	    </tr>
 	    <tr>
-	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent">
-                <table class="transparent">
+	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent;text-align:right">
+                <table width="100%" class="transparent">
                     <tr>
-                        <td valign="top" class="nobborder">
-                            <input type="checkbox" onclick="location.href='entities.php?users=<?=($withusers==1) ? "0" : "1" ?>&siem=<?=$withsiemcomponents?>'" <?=($withusers==1) ? "checked='checked'" : "" ?>/>
+                        <td width="60%" class="nobborder">&nbsp;</td>
+                        <td valign="top" class="nobborder" style="text-align:right;padding:4px 0px 0px 0px;">
+                            <?=_("Show Users")?>
                         </td>
-                        <td valign="top" class="nobborder" style="padding:4px 0px 0px 0px;">
-                            <b><?=_("With Users")?></b>
+                        <td valign="top" class="nobborder" width="3%">
+                            <input type="checkbox" onclick="location.href='entities.php?users=<?=($withusers==1) ? "0" : "1" ?>&siem=<?=$withsiemcomponents?>&realtime=<?=$realtime?>'" <?=($withusers==1) ? "checked='checked'" : "" ?>/>
                         </td>
                     </tr>
                     <tr>
-                        <td valign="top" class="nobborder">
-                            <input type="checkbox" onclick="location.href='entities.php?users=<?=$withusers?>&siem=<?=($withsiemcomponents==1) ? "0" : "1" ?>'" <?=($withsiemcomponents==1) ? "checked='checked'" : "" ?>/>
+                        <td width="60%" class="nobborder">&nbsp;</td>
+                        <td valign="top" class="nobborder" style="text-align:right;padding:4px 0px 0px 0px;">
+                            <?=_("Show SIEM Components")?>
                         </td>
-                        <td valign="top" class="nobborder" style="padding:4px 0px 0px 0px;">
-                            <b><?=_("SIEM Components")?></b>
+                        <td valign="top" class="nobborder" width="3%">
+                            <input type="checkbox" onclick="location.href='entities.php?users=<?=$withusers?>&siem=<?=($withsiemcomponents==1) ? "0" : "1" ?>&realtime=<?=$realtime?>'" <?=($withsiemcomponents==1) ? "checked='checked'" : "" ?>/>
                         </td>
                     </tr>
                 </table>
@@ -225,7 +256,7 @@ if (!$opensource) {
 	<!-- Asset by Property -->
 	<table border="0" width="100%" class="noborder" align="center" cellspacing="0" cellpadding="0">
 	    <tr>
-	        <td class="headerpr"><?=_("Assets")?></td>
+	        <td class="headerpr"><?=_("Inventory")?></td>
 	    </tr>
 	</table>
 	<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
@@ -233,6 +264,21 @@ if (!$opensource) {
 	        <td class="nobborder">
 	  			<div id="aptree" style="text-align:left;width:98%;padding:8px"></div>
 	        </td>
+	    </tr>
+	    <tr>
+	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent;text-align:right">
+                <table width="100%" class="transparent">
+                    <tr>
+                        <td width="60%" class="nobborder">&nbsp;</td>
+                        <td valign="top" class="nobborder" style="text-align:right;padding:4px 0px 0px 0px;">
+                            <?=_("Real time")?>
+                        </td>
+                        <td valign="top" class="nobborder" width="3%">
+                            <input type="checkbox" onclick="location.href='entities.php?users=<?=$withusers?>&siem=<?=$withsiemcomponents?>&realtime=<?=($realtime==1) ? "0" : "1" ?>'" <?=($realtime==1) ? "checked='checked'" : "" ?>/>
+                        </td>
+                    </tr>
+                </table>
+            </td>
 	    </tr>
 	</table>
 	<!--<a href="javascript:refresh_tree()">refresh</a>-->

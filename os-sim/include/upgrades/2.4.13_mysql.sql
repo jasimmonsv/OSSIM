@@ -17,6 +17,9 @@ UPDATE `inventory_search` SET `subtype` = 'Date Before' WHERE `subtype` = 'Date 
 UPDATE `inventory_search` SET `subtype` = 'Date After' WHERE `subtype` = 'Date Is GreaterThan' AND `type`= 'META';
 UPDATE `inventory_search` SET `subtype` = 'Has Src or Dst IP' WHERE `subtype` = 'Has IP' AND `type`= 'META';
 
+UPDATE `custom_report_types` SET `inputs` = 'Status:status:select:OSS_LETTER:Open,Close,All' WHERE `type` = 'Tickets';
+UPDATE host_mac_vendors set vendor='Dell Inc.' where vendor like 'Dell Inc%';
+
 CREATE TABLE IF NOT EXISTS `host_agentless` (
   `ip` varchar(15) NOT NULL,
   `hostname` varchar(128) NOT NULL,
@@ -39,6 +42,35 @@ CREATE TABLE IF NOT EXISTS `host_agentless_entries` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `ip` (`ip`,`type`)
 );
+
+CREATE TABLE IF NOT EXISTS `net_cidrs` (
+`cidr` VARCHAR( 20 ) NOT NULL ,
+`begin` INT(11) UNSIGNED NOT NULL ,
+`end` INT(11) UNSIGNED NOT NULL ,
+PRIMARY KEY ( `cidr` , `begin` , `end` )
+);
+
+DROP PROCEDURE IF EXISTS net_convert;
+DELIMITER ;;
+CREATE PROCEDURE net_convert()
+BEGIN
+DECLARE done BOOLEAN DEFAULT 0;
+DECLARE cidr VARCHAR(15);
+DECLARE mask VARCHAR(3);
+DECLARE net_list CURSOR FOR SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(ips, ',', 1), '/', 1),SUBSTRING_INDEX(SUBSTRING_INDEX(ips, ',', 1), '/', -1) FROM net;
+DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET done=1;
+OPEN net_list;
+REPEAT
+FETCH net_list INTO cidr, mask;
+set @ips = CONCAT(cidr,"/",mask);
+SELECT inet_aton(cidr) INTO @begin;
+SELECT inet_aton(cidr) + (pow(2, (32-mask))-1) INTO @end;
+REPLACE INTO net_cidrs(cidr,begin,end) VALUES (@ips,@begin,@end);
+UNTIL done END REPEAT;
+CLOSE net_list;
+END ;;
+DELIMITER ;
+CALL net_convert;
 
 use snort;
 ALTER TABLE `sensor` CHANGE `sensor` `sensor` TEXT NULL DEFAULT '';
