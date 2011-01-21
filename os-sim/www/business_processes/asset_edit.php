@@ -331,7 +331,7 @@ function draw_members_select($form_data) {
 
         case 'net_group':
             include_once 'classes/Net_group.inc';
-            $list = Net_group::get_list($conn, 'ORDER BY name');
+            $list = Net_group::get_list($conn, '', 'ORDER BY name');
             foreach($list as $obj) {
                 $descr = $obj->get_descr();
                 if (strlen($descr) > 50) {

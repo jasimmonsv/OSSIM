@@ -208,7 +208,7 @@ class Net {
     		$aux = explode(",",$allowed_nets);
     		$networks = "";
     		foreach ($aux as $net) {
-    			$networks .= ($networks != "") ? " OR ips LIKE '".$net."%' OR ips LIKE '%,$net'" : "ips LIKE '".$net."%' OR ips LIKE '%,$net'";
+    			$networks .= ($networks != "") ? " OR ips LIKE '%".$net."%'" : "ips LIKE '%".$net."%'";
     		}
     		$nets_where = " AND (".$networks.")";
     	}
@@ -226,7 +226,7 @@ class Net {
     	
     	$iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
     	
-        $query = OssimQuery("SELECT SQL_CALC_FOUND_ROWS DISTINCT * FROM net $main_where$sensor_where$nets_where $limit");
+        $query = OssimQuery("SELECT SQL_CALC_FOUND_ROWS * FROM net $main_where$sensor_where$nets_where $limit");
         //echo $query."<br>";exit;
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
