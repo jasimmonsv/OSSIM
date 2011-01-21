@@ -56,8 +56,9 @@
 	// end add tabs urls
 	
 	if (is_array($tabsavt)) {
-		foreach ($tabsavt as $tab_id => $tab_values)
+		foreach ($tabsavt as $tab_id => $tab_values) {
 			$tabsmerge[$tab_id] = $tab_values;
+		}
 	}
 
 	if (!empty($tabsmerge) && is_array($tabsmerge))
@@ -97,7 +98,7 @@
 				$url = '?panel_id='.$tab_id.'&hmenu=dashboards&smenu=dashboards';
 				//$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='".$tabsmerge[$tab_id]["tab_url"]."' class='gristab$on' target='main'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
 			}
-			$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='$url' class='gristab$on'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
+			$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'><a href='$url' style='text-decoration:none'>".$image_string ."</a></td><td class='nobborder'><a href='$url' class='gristab$on'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
 			if ($panel_id == $tab_id) { ?>
 					<td style="vertical-align:bottom" class="noborder">
 						<table border='0' cellpadding='0' cellspacing='0' height="26" class="noborder">

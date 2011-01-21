@@ -558,6 +558,7 @@ while (!$rs->EOF) {
     // current metrics
     $net_current_a = get_current_metric($net, 'net', 'attack');
     $net_current_c = get_current_metric($net, 'net', 'compromise');
+    
     @$groups[$group]['current_a']+= $net_current_a;
     @$groups[$group]['current_c']+= $net_current_c;
     // scores
@@ -600,7 +601,6 @@ while (!$rs->EOF) {
     );
     $rs->MoveNext();
 }
-
 ////////////////////////////////////////////////////////////////
 // Networks outside groups
 ////////////////////////////////////////////////////////////////
@@ -616,7 +616,6 @@ $sql = "SELECT
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
-
 $networks = array();
 while (!$rs->EOF) {
     // check perms over the network
@@ -627,7 +626,7 @@ while (!$rs->EOF) {
     // if no perms over the network, try perms over the related sensor
     //$has_perms = $has_net_perms ? true : check_sensor_perms($rs->fields['net_address'], 'net');
 	$net = $rs->fields['net_name'];
-    $score = get_score($net, 'net');
+	$score = get_score($net, 'net');
     // If there is no threshold specified for the network, pick the global configured threshold
     $net_threshold_a = $rs->fields['net_threshold_a'] ? $rs->fields['net_threshold_a'] : $conf_threshold;
     $net_threshold_c = $rs->fields['net_threshold_c'] ? $rs->fields['net_threshold_c'] : $conf_threshold;
