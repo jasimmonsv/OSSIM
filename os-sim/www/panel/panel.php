@@ -84,6 +84,13 @@ function copyavt($filename,$data) {
 	}
 	fclose($fd);
 }
+function swapavt($file1,$file2) {
+	if (file_exists($file1) && file_exists($file2)) {
+		rename($file1,$file1.".backup");
+		rename($file2,$file1);
+		rename($file1.".backup",$file2);
+	}
+}
 
 $configs_dir = $conf->get_conf('panel_configs_dir');
 $tabsavt = gettabsavt($configs_dir);
@@ -148,14 +155,16 @@ if (GET('edit_tabs') == 1) {
 		/**/
 		$tab_url = GET('tab_url');
 		/**/
+		$tab_order = GET('tab_order');
         ossim_valid($tab_id, OSS_DIGIT, 'error: tab_id.');
         ossim_valid($tab_name, OSS_ALPHA, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'error: Invalid name, alphanumeric, score, underscore and spaces allowed.');
 		ossim_valid($avt, OSS_DIGIT, OSS_NULLABLE, 'error: Invalid .avt file ID.');
+		ossim_valid($tab_order, OSS_DIGIT, OSS_NULLABLE, 'error: Invalid tab order.');
         if (ossim_error()) {
             echo ossim_error();
 			die();
         }
-        if (is_array($tabs) && array_key_exists($tab_id, $tabs)) {
+        if (is_array($tabs) && array_key_exists($tab_id, $tabs) && !preg_match("/move../",GET('mode'))) {
             unset($tabs[$tab_id]);
         }
         if (GET('mode') != "delete") {
@@ -178,20 +187,56 @@ if (GET('edit_tabs') == 1) {
 					die();
 				}
 			}
+			// Swap order
+			$move = "";
+			if (preg_match("/move(..)/",GET('mode'),$found)) {
+				$move = $found[1];
+				$prev = "";
+				$prev_aux = "";
+				$next = "";
+				$flag_next = 0;
+				foreach ($tabs as $t_id=>$t_data) {
+					if ($flag_next) {
+						$flag_next = 0;
+						$next = $t_id;
+					}
+					if ($t_id == $tab_id) {
+						$prev = $prev_aux;
+						$flag_next = 1;
+					}
+					$prev_aux = $t_id;
+				}
+				// Cross IDs
+				if ($move == "up" && $prev != "") {
+					$tab_data_prev = array('tab_name' => $tabs[$prev]['tab_name'], 'tab_icon_url' => $tabs[$prev]['tab_icon_url'], 'disable' => $tabs[$prev]['disable']);
+					$tab_data_curr = array('tab_name' => $tabs[$tab_id]['tab_name'], 'tab_icon_url' => $tabs[$tab_id]['tab_icon_url'], 'disable' => $tabs[$tab_id]['disable']);
+					$tabs[$prev] = $tab_data_curr;
+					$tabs[$tab_id] = $tab_data_prev;
+					swapavt(Window_Panel_Ajax::getConfigFile($prev),Window_Panel_Ajax::getConfigFile($tab_id));
+				} elseif ($move == "do" && $next != "") {
+					$tab_data_next = array('tab_name' => $tabs[$next]['tab_name'], 'tab_icon_url' => $tabs[$next]['tab_icon_url'], 'disable' => $tabs[$next]['disable']);
+					$tab_data_curr = array('tab_name' => $tabs[$tab_id]['tab_name'], 'tab_icon_url' => $tabs[$tab_id]['tab_icon_url'], 'disable' => $tabs[$tab_id]['disable']);
+					$tabs[$next] = $tab_data_curr;
+					$tabs[$tab_id] = $tab_data_next;
+					swapavt(Window_Panel_Ajax::getConfigFile($next),Window_Panel_Ajax::getConfigFile($tab_id));
+				}
+			}
 			// Insert new empty (or cloned)
 			if (!is_array($tabs)) {
 				$tabs = array();
 			}
-			$tabs[$tab_id] = array(
-				'tab_name' => $tab_name,
-				'tab_icon_url' => htmlentities($tab_icon_url, ENT_COMPAT, "UTF-8"),
-				'disable' => $tab_disable
-			);
-			/**/
-			if(!empty($tab_url)){
-				$tabs[$tab_id]['tab_url']=$tab_url;
+			if ($move == "") {
+				$tabs[$tab_id] = array(
+					'tab_name' => $tab_name,
+					'tab_icon_url' => htmlentities($tab_icon_url, ENT_COMPAT, "UTF-8"),
+					'disable' => $tab_disable
+				);
+				/**/
+				if(!empty($tab_url)){
+					$tabs[$tab_id]['tab_url']=$tab_url;
+				}
+				/**/
 			}
-			/**/
         }
 		if (GET('mode') == "change") {
 			if ($tabs[$tab_id]['disable'] == 1) $tabs[$tab_id]['disable'] = 0;
@@ -321,10 +366,11 @@ if (GET('edit_tabs') == 1) {
 	</tr>
 	<?php if ($truncmsg != "") { ?>
 	<tr>
-		<td colspan="4" style="color:red"><?php echo $truncmsg ?></td>
+		<td colspan="5" style="color:red"><?php echo $truncmsg ?></td>
 	</tr>
 	<?php } ?>
 	<tr>
+		<td class="nobborder" width="50"></td>
 		<th nowrap='nowrap' width="40"><?php echo _("Icon") ?></th>
 		<th width="130" nowrap='nowrap'><?php echo _("Tab Name") ?></th>
 		<th width="40" nowrap='nowrap'><?php echo _("Default") ?></th>
@@ -344,6 +390,10 @@ if (GET('edit_tabs') == 1) {
 		<form action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" name="ftabs<?=$tab_id?>" id="ftabs<?=$tab_id?>" method="GET">
 		<input type="hidden" name="mode" value="">
 		<input type="hidden" name="tab_icon_url" value="<?php echo str_replace("/","slash_special_char",$tabs[$tab_id]["tab_icon_url"]) ?>">
+		
+		<td>
+			<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='moveup';document.getElementById('ftabs<?=$tab_id?>').submit();return false;">up</a>&nbsp;
+			<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='movedo';document.getElementById('ftabs<?=$tab_id?>').submit();return false;">down</a></td>
 		
 		<td id="tab_icon_img_<?=$tab_id?>" style='background-color: <?=$back_color?>'>
 			
@@ -421,6 +471,7 @@ document.fnew.tab_id.value = '<?=$last_tab_id + 1?>';
 ?>
 <form action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" method="GET">
 <tr <? if ($tab_values['disable']) echo "bgcolor='#EEEEEE'";?>>
+	<td></td>
 	<td>
 		<img src="../pixmaps/alienvault_icon.gif">
 	</td>

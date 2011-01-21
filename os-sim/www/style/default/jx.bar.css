@@ -8,9 +8,10 @@
 .jx-bar {
 	height:30px;
 	padding:0px;
-	width:97%;
+	width:174px;
 	background-color:#e5e5e5;
 	border:#b5b5b5 solid 1px;
+	float:left;
 }
 
 	/* rounded top-left corner */
@@ -80,7 +81,7 @@
 	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:10px;
 	cursor:pointer;
-	padding:3px 7px 3px 7px;
+	padding:3px 5px 3px 5px;
 	border:#e5e5e5 solid 1px;	
 	margin:2px;
 }
@@ -89,7 +90,7 @@
 	.jx-bar-button li:hover {
 		background-color:#eee;
 		border:#ccc solid 1px;
-		padding:3px 7px 3px 7px;
+		padding:3px 5px 3px 5px;
 		margin:2px;
 	}
 
@@ -126,7 +127,7 @@
 	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:11px;
 	color:#666;
-	padding:3px 7px 3px 7px;
+	padding:3px 5px 3px 5px;
 	margin:4px 0px 4px 0px;
 }
 
@@ -206,7 +207,7 @@
 	font-size:11px;
 	cursor:pointer;
 	background-color:#ccc;
-	padding:3px 7px 3px 7px;
+	padding:3px 5px 3px 5px;
 	margin:2px;
 }
 
@@ -308,4 +309,12 @@
 	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:12px; font-weight: bold;
 	color:gray;
+}
+.jx-bottom-bar {
+	position:absolute; float:left;
+	height:34px; padding:0px; margin-left:2px;
+	width:169px; bottom:5px; padding-left:5px;
+	background-color:#e5e5e5;
+	border:#b5b5b5 solid 1px;
+	border-top:none;
 }

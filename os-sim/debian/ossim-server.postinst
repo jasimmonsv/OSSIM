@@ -89,11 +89,11 @@ fi
 update-rc.d ossim-server defaults 40 2&> /dev/null
 
 if [ -x /usr/bin/ossim-reconfig ]; then
-  if [ -x /usr/bin/postpone ]; then
-    /usr/bin/postpone --verbose --lock /var/run/ossim-reconfig.lock --output /tmp/ossim-reconfig.XXXXXX --debian /usr/bin/ossim-reconfig -v -c --dpkg
-  else
+  #if [ -x /usr/bin/postpone ]; then
+  #  /usr/bin/postpone --verbose --lock /var/run/ossim-reconfig.lock --output /tmp/ossim-reconfig.XXXXXX --debian /usr/bin/ossim-reconfig -v -c --dpkg
+  #else
     /usr/bin/ossim-reconfig -v -c --dpkg
-  fi
+  #fi
 else
   echo "#######################################"
   echo "#######################################"

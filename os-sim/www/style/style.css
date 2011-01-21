@@ -891,6 +891,21 @@ div.bballoon:hover span.bottom {
 	text-decoration: none;	
 }
 
+.yltooltip {
+	text-align:left;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+
+	color: #303030;
+	background-color: #f5f5b5;
+	border: 1px solid #DCEFB3;
+
+	font-family: arial;
+	font-size: 10px;
+	text-decoration: none;	
+}
+
 /** table pagination **/
 #tablePagination { 
 	background-color: #f2f2f2;

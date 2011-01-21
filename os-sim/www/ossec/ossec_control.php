@@ -37,6 +37,7 @@
 */
 
 require_once ('classes/Session.inc');
+require_once ('classes/Plugin.inc');
 
 ?>
 
@@ -53,18 +54,53 @@ require_once ('classes/Session.inc');
 			
 	<script type="text/javascript">
 	var messages = new Array();
-		messages[0]  = '<div style="padding: 20px 0px"><img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Processing action...")?> </span></div>';
+		messages[0]  = '<div id="oss_load" style="height:20px; width: 100%; font-size:12px; text-align:center;"><img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Processing action...")?> </span></div>';
 	</script>
 	
 	<script type="text/javascript">
+				
+		function load_tab1()
+		{
+			var extra = '';
+			execute_action("status", "#ossc_result", extra);
+		}
+		
+		function load_tab2()
+		{
+			var extra = $('#oss_num_line').val();
+			execute_action("ossec_log", "#logs_result", extra);
+		}
+		
+		function load_tab3()
+		{
+			var extra = $('#alert_num_line').val();
+			execute_action("alerts_log", "#alerts_result", extra);
+		}
+		
 		
 		function execute_action(action, div_load, extra)
 		{
 			//Load img
-			$(div_load).parent().css('vertical-align', 'middle');
+			
+			var cont_height = $(div_load).css('height').replace("px","")
+			var cont_height = ( isNaN(cont_height) ) ? parseInt($(div_load).height()) :  parseInt(cont_height);
+			
+			
+			$(div_load).css('height', cont_height);
+			
 			$(div_load).html(messages[0]);
+		
+			var load_height = $("#oss_load").css('height').replace("px","");
+			var load_height = ( isNaN(load_height) ) ? parseInt($("#oss_load").height()) :  parseInt(load_height);
+						
+			var middle_pos  =  Math.ceil((cont_height - load_height)/2);
+
+			$("#oss_load").css('padding-top', middle_pos+"px");
+			
+			var cont_width = parseInt($(div_load).css('width').replace("px",""))-50;		
 			
 			var data = "action="+action;
+			
 			if (extra !='')
 				data += "&extra="+extra;
 									
@@ -75,7 +111,7 @@ require_once ('classes/Session.inc');
 				success: function(msg){
 					
 					if ( msg.match("Illegal action") != null )	
-						$(div_load).html("<div class='oss_error'>"+msg+"</div>");
+						$(div_load).html("<div class='oss_error' style='width:90%'>"+msg+"</div>");
 					else
 					{
 						if (div_load == "#ossc_result")
@@ -87,9 +123,10 @@ require_once ('classes/Session.inc');
 													
 							msg = status[1];
 						}
-						
+																	
 						$(div_load).html('');
-						$(div_load).html("<div class='div_pre'>"+msg+"</div>");
+						
+						$(div_load).html("<div style='padding: 5px 10px 10px 10px; width:"+ cont_width+"px;'>"+msg+"</div>");
 					}
 				}
 			});
@@ -100,80 +137,126 @@ require_once ('classes/Session.inc');
 			switch (action){
 			
 				case "enable_db":
-					var input      = "<span class='running'>Database <?php echo _("is running")?></span><br/><br/>";
-						input     += "<input type='button' id='db_disable' class='lbutton' value='<?php echo _("Disable") ?>'/>";
+					var id     = 'cont_db_action';
+					var input  = "<span class='running'>Database <?php echo _("is running")?></span><br/><br/>";
+						input += "<input type='button' id='db_disable' class='lbutton' value='<?php echo _("Disable") ?>'/>";
 				break;
 				
 				case "disable_db":
-					var input      = "<span class='not_running'>Database <?php echo _("not running")?></span><br/><br/>";
-						input     += "<input type='button' id='db_enable' class='lbuttond' value='<?php echo _("Enable") ?>'/>";
+					var id     = 'cont_db_action';
+					var input  = "<span class='not_running'>Database <?php echo _("not running")?></span><br/><br/>";
+						input += "<input type='button' id='db_enable' class='lbuttond' value='<?php echo _("Enable") ?>'/>";
 				break;
 				
 				case "enable_cs":
-					var input      = "<span class='running'>Client-syslog <?php echo _("is running")?></span><br/><br/>";
-						input     += "<input type='button' id='cs_disable' class='lbuttond' value='<?php echo _("Disable") ?>'/>";
+					var id     = 'cont_cs_action';
+					var input  = "<span class='running'>Client-syslog <?php echo _("is running")?></span><br/><br/>";
+						input += "<input type='button' id='cs_disable' class='lbuttond' value='<?php echo _("Disable") ?>'/>";
 				break;
 				
 				case "disable_cs":
-					var input  	   = "<span class='not_running'>Client-syslog <?php echo _("not running")?></span><br/><br/>";
-						input 	  += "<input type='button' id='cs_enable' class='lbutton' value='<?php echo _("Enable") ?>'/>";
+					var id     = 'cont_cs_action';
+					var input  = "<span class='not_running'>Client-syslog <?php echo _("not running")?></span><br/><br/>";
+						input += "<input type='button' id='cs_enable' class='lbutton' value='<?php echo _("Enable") ?>'/>";
 				break;
 				
 				case "enable_al":
-					var input      = "<span class='running'>Agentless <?php echo _("is running")?></span><br/><br/>";
-						input     += "<input type='button' id='al_disable' class='lbuttond' value='<?php echo _("Disable") ?>'/>";
+					var id     = 'cont_al_action';
+					var input  = "<span class='running'>Agentless <?php echo _("is running")?></span><br/><br/>";
+						input += "<input type='button' id='al_disable' class='lbuttond' value='<?php echo _("Disable") ?>'/>";
+				break;
+				
+				case "disable_al":
+					var id     = 'cont_al_action';
+					var input  = "<span class='not_running'>Agentless <?php echo _("not running")?></span><br/><br/>";
+						input += "<input type='button' id='al_enable' class='lbutton' value='<?php echo _("Enable") ?>'/>";
 				break;
 				
 				case "Stop":
+					var id     = 'cont_system_action';
 					var input  = "<span class='not_running'> <?php echo _("Ossec service is down")?></span><br/><br/>";
-						input += "<input type='button' id='system_start' class='lbutton' value='Start'/>";
-						input += "<input type='button' id='system_restart' class='lbutton' value='Restart'/>";
+						input += "<input type='button' id='system_start' class='lbutton' value='<?php  echo _("Start")?>'/>";
+						input += "<input type='button' id='system_restart' class='lbutton' value='<?php echo _("Restart")?>'/>";
 				break;
 				
 				case "Restart":
+					var id     = 'cont_system_action';
 					var input  = "<span class='running'> <?php echo _("Ossec service is up")?></span><br/><br/>";
-						input += "<input type='button' id='system_stop' class='lbuttond' value='Stop'/>";
-						input += "<input type='button' id='system_restart' class='lbutton' value='Restart'/>";
+						input += "<input type='button' id='system_stop' class='lbuttond' value='<?php echo _("Stop")?>'/>";
+						input += "<input type='button' id='system_restart' class='lbutton' value='<?php echo _("Restart")?>'/>";
 				break;
 				
 				case "Start":
+					var id     = 'cont_system_action';
 					var input  = "<span class='running'> <?php echo _("Ossec service is up")?></span><br/><br/>";
-						input += "<input type='button' id='system_stop' class='lbuttond' value='Stop'/>";
-						input += "<input type='button' id='system_restart' class='lbutton' value='Restart'/>";
+						input += "<input type='button' id='system_stop' class='lbuttond' value='<?php echo _("Stop")?>'/>";
+						input += "<input type='button' id='system_restart' class='lbutton' value='<?php echo _("Restart")?>'/>";
 				break;
 			}
 			
 			
 			$('#'+ id).html(input);		
 			
-			if (action == "Start" || action == "Stop" || action == "Restart")
-			{
-				$('#cont_system_action input').bind('click', function() {
-					var action = $(this).val();
-					execute_action(action, "#ossc_result", "");
-				});
-			}
+			if (action == "<?php echo _("Start")?>" || action == "<?php echo _("Stop")?>" || action == "<?php echo _("Restart")?>")
+				bind_action ('#cont_system_action');
 			else
 			{
-				$('#cont_db_action input').bind('click', function() {
-					var action = ( $(this).val() == "Enable" ) ? "enable_db" : "disable_db";
-					var extra  = ( $(this).val() == "Enable" ) ? "enable database" : "disable database";
-					execute_action(action, "#ossc_result", extra);
-				});
-			
-				$('#cont_cs_action input').bind('click', function() {
-					var action = ( $(this).val() == "Enable" ) ? "enable_cs" : "disable_cs";
-					var extra  = ( $(this).val() == "Enable" ) ? "enable client-syslog" : "disable client-syslog";
-					execute_action(action, "#ossc_result", extra);
-				});
-				
-				$('#cont_al_action input').bind('click', function() {
-					var action = ( $(this).val() == "Enable" ) ? "enable_al" : "disable_al";
-					var extra  = ( $(this).val() == "Enable" ) ? "enable agentless" : "disable agentless";
-					execute_action(action, "#ossc_result", extra);
-				});
+				bind_action ('#cont_db_action');
+				bind_action ('#cont_cs_action');
+				bind_action ('#cont_al_action');
 			}
 		}
+		
+		function bind_action (id)
+		{
+			switch (id){
+				
+				case "#cont_db_action":
+					
+					$(id+ ' input').bind('click', function() {
+						var action = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable_db" : "disable_db";
+						var extra  = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable database" : "disable database";
+						execute_action(action, "#ossc_result", extra);
+					});
+				break;
+				
+				case "#cont_cs_action":
+					$(id+ ' input').bind('click', function() {
+						var action = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable_cs" : "disable_cs";
+						var extra  = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable client-syslog" : "disable client-syslog";
+						execute_action(action, "#ossc_result", extra);
+					});
+				break;
+				
+				case "#cont_al_action":
+					$(id+ ' input').bind('click', function() {
+						var action = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable_al" : "disable_al";
+						var extra  = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable agentless" : "disable agentless";
+						execute_action(action, "#ossc_result", extra);
+					});
+				break;
+				
+				case "#cont_system_action":
+					$(id+ ' input').bind('click', function() {
+					
+						var action = $(this).val();
+						
+						if ( action == "<?php echo _("Start")?>" )
+							var action = "Start";
+						else if ( action == "<?php echo _("Restart")?>" )
+							var action = "Restart";
+						else
+						{
+							if ( action == "<?php echo _("Restart")?>" )
+								var action = "Stop";
+						}
+										
+						load_tab1();
+					});
+				break;
+			}
+		}
+		
 		
 		
 		$(document).ready(function() {
@@ -182,13 +265,11 @@ require_once ('classes/Session.inc');
 			$("ul.oss_tabs li:first").addClass("active");
 			
 			$('#oss_num_line').bind('change', function() {
-				var extra = $(this).val();
-				execute_action("ossec_log", "#logs_result", extra);
+				load_tab2();
 			});
 			
 			$('#alert_num_line').bind('change', function() {
-				var extra = $(this).val();
-				execute_action("alerts_log", "#alerts_result", extra);
+				load_tab3();
 			});
 			
 			$("ul.oss_tabs li").click(function(event) { 
@@ -196,14 +277,16 @@ require_once ('classes/Session.inc');
 				show_tab_content(this); 
 			});
 			
+			$("#link_tab1, #refresh").click(function(event) { 
+				load_tab1();
+			});
+			
 			$("#link_tab2").click(function(event) { 
-				var extra = $('#oss_num_line').val();
-				execute_action("ossec_log", "#logs_result", extra);
+				load_tab2();
 			});
 			
 			$("#link_tab3").click(function(event) { 
-				var extra = $('#alert_num_line').val();
-				execute_action("alerts_log", "#alerts_result", extra);
+				load_tab3();
 			});
 			
 			$("#show_actions").click(function(event) { 
@@ -222,7 +305,7 @@ require_once ('classes/Session.inc');
 				{
 					$("#show_actions").removeClass();
 					$("#show_actions").addClass('hide');
-					$("#show_actions").text('<?php echo _("Show Actions")?>');
+					$("#show_actions span").html('<?php echo _("Show Actions")?>');
 					
 					$('#ossc_actions').css('display', 'none');
 					$('#ossc_actions').css('height', '1px');
@@ -230,43 +313,19 @@ require_once ('classes/Session.inc');
 				}
 			});
 			
-			
-			$('#cont_db_action input').bind('click', function() {
-				var action = ( $(this).val() == "Enable" ) ? "enable_db" : "disable_db";
-				var extra  = ( $(this).val() == "Enable" ) ? "enable database" : "disable database";
-				execute_action(action, "#ossc_result", extra);
-			});
-			
-			$('#cont_cs_action input').bind('click', function() {
-				var action = ( $(this).val() == "Enable" ) ? "enable_cs" : "disable_cs";
-				var extra  = ( $(this).val() == "Enable" ) ? "enable client-syslog" : "disable client-syslog";
-				execute_action(action, "#ossc_result", extra);
-			});
-			
-			$('#cont_al_action input').bind('click', function() {
-				var action = ( $(this).val() == "Enable" ) ? "enable_al" : "disable_al";
-				var extra  = ( $(this).val() == "Enable" ) ? "enable agentless" : "disable agentless";
-				execute_action(action, "#ossc_result", extra);
-			});
-			
-			$('#cont_system_action input').bind('click', function() {
-				var action = $(this).val();
-				execute_action(action, "#ossc_result", "");
-			});
+			bind_action ('#cont_db_action');
+			bind_action ('#cont_cs_action');
+			bind_action ('#cont_al_action');
+			bind_action ('#cont_system_action');
+					
 		});
 	
 	</script>
 	
 	<style type='text/css'>
 		.generic_tab {width: 80%; margin: 20px auto;}
-		.generic_tab table{ width: 100%;}
-		.generic_tab td{ 
-			-moz-border-radius:4px;
-			-webkit-border-radius: 4px;
-			-khtml-border-radius: 4px;
-			border: solid 1px #D2D2D2;
-		}
-		
+		.generic_tab table{ width: 100%; background: transparent;}
+				
 		.generic_tab th { height: 20px;}
 				
 		#ossc_options { width: 60px;}
@@ -277,23 +336,28 @@ require_once ('classes/Session.inc');
 			border: none;
 			font-family: Courier New,Courier, monospace;
 			font-size: 12px;
-			padding: 10px;
 			text-align: left;
-			white-space: pre-wrap;
-			word-wrap: break-word;
+			overflow:auto;
 		}
 		
-		#ossc_result {margin: auto; width: 100%; border: 1px solid #D3D3D3;}
+		#ossc_result,#alerts_result,#logs_result {
+			margin: auto; 
+			width: 100%; 
+			border: 1px solid #D3D3D3;
+			-moz-border-radius:4px;
+			-webkit-border-radius: 4px;
+			-khtml-border-radius: 4px;
+			border: solid 1px #D2D2D2;
+		}
+		
 		
 		.cont_num_line {border: none !important; padding: 0px 0px 10px 0px; text-align:left; font-size:11px;}
 		.cont_num_line select {width: 100px; margin-left: 5px;}
 		
-		.log { height: 380px; overflow: auto;}
+		.log { height: 380px;}
 		
 		.bold {font-weight: bold;}
 					
-		.cont_menu {border: none !important;}
-		
 		html ul.oss_tabs li.active a:hover  {cursor:pointer !important;}
 		
 		#ossc_actions {display: none; padding-bottom: 20px;}
@@ -309,73 +373,69 @@ require_once ('classes/Session.inc');
 		
 		.running {margin: 0px 5px 0px 5px; color:#15B103; font-weight: bold; font-size: 11px;}
 		.not_running {margin: 0px 5px 0px 5px; color:#E54D4D; font-weight: bold; font-size: 11px;}
-
+		
+		.headerpr {margin-bottom: 5px;}
+		
+		#refresh img {float: right; margin-right: 3px;}
+		
+		.bottom_link {padding: 0px 0px 20px 0px; font-size: 11px; font-style: italic; font-weight: bold;}
 						
 	</style>
-
-		
 </head>
+
 <body>
-
-
 
 <?php
 
 include ("../hmenu.php"); 
 
-//Ossec control
+//Link to SIEM
+$db 	       = new ossim_db();
+$conn      	   = $db->connect();
+$oss_p_id_name = Plugin::get_id_and_name($conn, "WHERE name LIKE 'ossec%'");
+$db->close($conn);
+
+$oss_plugin_id = implode(",",array_flip ($oss_p_id_name));
+
+$link_siem     = "../forensics/base_qry_main.php?&plugin=".$oss_plugin_id."&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+
+
+//Ossec Status
 exec ("sudo /var/ossec/bin/ossec-control status", $result_1);
 $result_1 = implode("<br/>", $result_1);
 $result_1 = str_replace("is running", "<span style='font-weight: bold; color:#15B103;'>is running</span>", $result_1);
 $result_1 = str_replace("not running", "<span style='font-weight: bold; color:#E54D4D;'>not running</span>", $result_1);
 
-//Ossec log
 
-exec ("tail -n50 /var/ossec/logs/ossec.log", $result_2);
-$result_2 = implode("<br/>", $result_2);
-$result_2 = str_replace("INFO", "<span style='font-weight: bold; color:#15B103;'>INFO</span>", $result_2);
-$result_2 = str_replace("ERROR", "<span style='font-weight: bold; color:#E54D4D;'>ERROR</span>", $result_2);
+//Ossec Control
 
-//Alert log
+exec ("ps ax | grep ossec | grep -v grep", $output_sys, $result_sys);
 
-exec ("tail -n50 /var/ossec/logs/alerts/alerts.log", $result_3);
-$result_3 = implode("<br/>", $result_3);
-$result_3 = preg_replace("/\*\* Alert ([0-9]+\.[0-9]+)/", "<span style='font-weight: bold; color:#E54D4d;'>$0</span>", $result_3);
-
-
-//Services status
-
-//Ossec start
-
-exec ("ps -ef | grep ossec*", $result_sys, $output_sys);
-
-if ( count($output_sys) <= 1)
+if ( count($output_sys) < 1)
 {
 	$system_action    = "<span class='not_running'>"._("Ossec service is down")."</span><br/><br/>
-						<input type='button' id='system_start' class='lbutton' value='Start'/>"; 
+						<input type='button' id='system_start' class='lbutton' value='"._("Start")."'/>"; 
 						
 
 }
 else
 	$system_action   = "<span class='running'>"._("Ossec service is up")."</span><br/><br/>
-						<input type='button' id='system_stop' class='lbutton' value='Stop'/>"; 
+						<input type='button' id='system_stop' class='lbuttond' value='"._("Stop")."'/>"; 
 					
 
-$system_action .= "<input type='button' id='system_restart' class='lbutton' value='Restart'/>";
+$system_action .= "<input type='button' id='system_restart' class='lbutton' value='"._("Restart")."'/>";
 	
-exec ("ps -ef | grep ossec-syscheckd", $result_cs, $output_cs);
-$syslog_action    = ( count($output_cs) <= 1 ) ? "<span class='not_running'>Client-syslog "._("not running")."</span><br/><br/><input type='button' id='cs_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Client-syslog "._("is running")."</span><br/><br/><input type='button' id='cs_disable' class='lbuttond' value='"._("Disable")."'/>";
+exec ("ps -ef | grep ossec-csyslogd | grep -v grep", $output_cs, $result_cs);
 
-exec ("ps -ef | grep ossec-dbd", $result_db, $output_db);
-$database_action  = ( count($output_db) <= 1 ) ? "<span class='not_running'>Database "._("not running")."</span><br/><br/><input type='button' id='db_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Database "._("is running")."</span><br/><br/><input type='button' id='db_disable' class='lbuttond' value='"._("Disable")."'/>";
+$syslog_action    = ( count($output_cs) < 1 ) ? "<span class='not_running'>Client-syslog "._("not running")."</span><br/><br/><input type='button' id='cs_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Client-syslog "._("is running")."</span><br/><br/><input type='button' id='cs_disable' class='lbuttond' value='"._("Disable")."'/>";
 
-
-exec ("ps -ef | grep ossec-agentlessd", $result_al, $output_al);
-$agentless_action = ( count($output_al) <= 1 ) ? "<span class='not_running'>Agentless "._("not running")."</span><br/><br/><input type='button' id='al_enable' class='lbutton' value='"._("Enable")."''/>" : "<span class='running'>Agentless "._("is running")."</span><br/><br/><input type='button' id='al_disable' class='lbuttond' value='"._("Disable")."'/>";
+exec ("ps -ef | grep ossec-dbd | grep -v grep", $output_db, $result_db);
+$database_action  = ( count($output_db) < 1 ) ? "<span class='not_running'>Database "._("not running")."</span><br/><br/><input type='button' id='db_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Database "._("is running")."</span><br/><br/><input type='button' id='db_disable' class='lbuttond' value='"._("Disable")."'/>";
 
 
-										
-	
+exec ("ps -ef | grep ossec-agentlessd | grep -v grep", $output_al, $result_aj);
+$agentless_action = ( count($output_al) < 1 ) ? "<span class='not_running'>Agentless "._("not running")."</span><br/><br/><input type='button' id='al_enable' class='lbutton' value='"._("Enable")."''/>" : "<span class='running'>Agentless "._("is running")."</span><br/><br/><input type='button' id='al_disable' class='lbuttond' value='"._("Disable")."'/>";
+
 ?>
 
 	<div id='container_center'>
@@ -398,8 +458,8 @@ $agentless_action = ( count($output_al) <= 1 ) ? "<span class='not_running'>Agen
 					<div id='tab1' class='generic_tab tab_content'>
 						
 						<div class='text_ossc_actions'>
-									<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">
-									<a id='show_actions' class='hide'><span class='bold'><?php echo _("Show actions")?></span></a>
+							<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">
+							<a id='show_actions' class='hide'><span class='bold'><?php echo _("Show actions")?></span></a>
 						</div>
 						
 						<div id='ossc_actions'>
@@ -408,12 +468,6 @@ $agentless_action = ( count($output_al) <= 1 ) ? "<span class='not_running'>Agen
 								<tr>
 									<th class='headerpr' colspan='4'><?php echo _("Actions")?></th>
 								</tr>
-								<!--<tr>
-									<th><span class='bold'><?php echo _("Database")?></span></th>
-									<th><span class='bold'><?php echo _("Client-syslog")?></span></th>
-									<th><span class='bold'><?php echo _("Agentless")?></span></th>
-									<th><span class='bold'><?php echo _("System")?></span></th>
-								</tr>-->
 								<tr>
 									<td class='noborder center pad10' id='cont_db_action'><?php echo $database_action ?></td>
 									<td class='noborder center pad10' id='cont_cs_action'><?php echo $syslog_action ?></td>
@@ -424,71 +478,57 @@ $agentless_action = ( count($output_al) <= 1 ) ? "<span class='not_running'>Agen
 							</table>
 						</div>
 						
-						<table>
-							<tr>
-								<th class='headerpr' colspan='2'><?php echo _("Ossec Output");?></th>
-							</tr>
-							<tr>
-								<td class='cont_menu'>
-									<div id='ossc_result'><div class='div_pre'><?php echo $result_1;?></div></div>
-								</td>
-							</tr>
-						</table>
+						<div class='headerpr'>
+							<?php echo _("Ossec Output");?>
+							<a id='refresh'><img border="0" src="../pixmaps/refresh.png"></a>
+						</div>
+						<div id='ossc_result' class='div_pre'>
+							<div style='padding: 5px 10px 10px 10px;'><?php echo $result_1;?></div>
+						</div>
+					
 					</div>
 					
 					<div id='tab2' class='generic_tab tab_content' style='display:none;'>
-						<table>
-							<tr>
-								<td class='cont_num_line'>
-									<span class='bold'><?php echo _("View")?>:</span>
-									<select name='oss_num_line' id='oss_num_line'>
-										<option value='50'>50</option>
-										<option value='100'>100</option>
-										<option value='250'>250</option>
-										<option value='500'>500</option>
-										<option value='5000'>5000</option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<th class='headerpr'><?php echo _("Ossec Log");?></th>
-							</tr>
-							<tr>
-								<td valign='top'>
-									<div id='logs_result' class='div_pre log'>
-										<?php echo $result_2;?>
-									</div>
-								</td>
-							</tr>
-						</table>
+						
+						<div class='cont_num_line'>
+							<span class='bold'><?php echo _("View")?>:</span>
+							<select name='oss_num_line' id='oss_num_line'>
+								<option value='50'>50</option>
+								<option value='100'>100</option>
+								<option value='250'>250</option>
+								<option value='500'>500</option>
+								<option value='5000'>5000</option>
+							</select>
+						</div>
+						<div class='headerpr'><?php echo _("Ossec Log");?></div>
+						<div id='logs_result' class='log div_pre'></div>
+					
 					</div>
 					
 					<div id='tab3' class='generic_tab tab_content' style='display:none;'>
-						<table>
-							<tr>
-								<td class='cont_num_line'>
-									<span class='bold'><?php echo _("View")?>:</span>
-									<select name='alert_num_line' id='alert_num_line'>
-										<option value='50'>50</option>
-										<option value='100'>100</option>
-										<option value='250'>250</option>
-										<option value='500'>500</option>
-										<option value='5000'>5000</option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<th class='headerpr'><?php echo _("Alerts log");?></th>
-							</tr>
-							<tr>
-								<td valign='top'>
-									<div id='alerts_result' class='div_pre log'>
-										<?php echo $result_3;?>
-									</div>
-								</td>
-							</tr>
-						</table>
+						
+						<div class='cont_num_line'>
+							<span class='bold'><?php echo _("View")?>:</span>
+							<select name='alert_num_line' id='alert_num_line'>
+								<option value='50'>50</option>
+								<option value='100'>100</option>
+								<option value='250'>250</option>
+								<option value='500'>500</option>
+								<option value='5000'>5000</option>
+							</select>
+						</div>
+						<div class='headerpr'><?php echo _("Alerts log");?></div>
+						<div id='alerts_result' class='log div_pre'></div>
+						
 					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class='bottom_link'>
+					<a href='<?php echo $link_siem?>' target='main'>
+					<span><?php echo _("If you're looking for the HIDS events please go to Analysis -> SIEM")?>
+					</a>
 				</td>
 			</tr>
 		</table>	

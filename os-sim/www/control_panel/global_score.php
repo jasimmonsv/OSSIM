@@ -499,6 +499,17 @@ $allowed_sensors = Session::allowedSensors($user);
 if ($allowed_sensors) {
     $allowed_sensors = explode(',', $allowed_sensors);
 }
+$net_where = "";
+if ($allowed_sensors != "" || $allowed_nets != "") {
+	$nets_aux = Net::get_list($conn);
+	$networks = "";
+	foreach ($nets_aux as $net) {
+		$networks .= ($networks != "") ? ",'".$net->get_name()."'" : "'".$net->get_name()."'"; 
+	}
+	if ($networks != "") {
+		$net_where = " AND net.name in ($networks)";
+	}
+}
 // We can't join the control_panel table, because new ossim installations
 // holds no data there
 $sql = "SELECT
@@ -515,7 +526,7 @@ $sql = "SELECT
             net_group_reference
         WHERE
             net_group_reference.net_name = net.name AND
-            net_group_reference.net_group_name = net_group.name";
+            net_group_reference.net_group_name = net_group.name$net_where";
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
@@ -526,17 +537,18 @@ while (!$rs->EOF) {
     $groups[$group]['name'] = $group;
     // check perms over the network
 	// Fixed: netAllowed check net/sensor granularity perms
-    $has_perms = Session::netAllowed($conn, $rs->fields['net_address']);
+    //$has_perms = Session::netAllowed($conn, $rs->fields['net_address']);
 	//$has_net_perms = check_net_perms($rs->fields['net_address']);
     // if no perms over the network, try perms over the related sensor
     //$has_perms = $has_net_perms ? true : check_sensor_perms($rs->fields['net_address'], 'net');
     // the user only have perms over this group if he has perms over
     // all the networks of this group
-    if (!isset($groups[$group]['has_perms'])) {
-        $groups[$group]['has_perms'] = $has_perms;
-    } elseif (!$has_perms) {
-        $groups[$group]['has_perms'] = false;
-    }
+    //if (!isset($groups[$group]['has_perms'])) {
+      //  $groups[$group]['has_perms'] = $has_perms;
+    //} elseif (!$has_perms) {
+      //  $groups[$group]['has_perms'] = false;
+    //}
+    $groups[$group]['has_perms'] = true;
     // If there is no threshold specified for a group, pick the configured default threshold
     $group_threshold_a = $rs->fields['group_threshold_a'] ? $rs->fields['group_threshold_a'] : $conf_threshold;
     $group_threshold_c = $rs->fields['group_threshold_c'] ? $rs->fields['group_threshold_c'] : $conf_threshold;
@@ -546,6 +558,7 @@ while (!$rs->EOF) {
     // current metrics
     $net_current_a = get_current_metric($net, 'net', 'attack');
     $net_current_c = get_current_metric($net, 'net', 'compromise');
+    
     @$groups[$group]['current_a']+= $net_current_a;
     @$groups[$group]['current_c']+= $net_current_c;
     // scores
@@ -599,7 +612,7 @@ $sql = "SELECT
         FROM
             net
         WHERE
-            net.name NOT IN (SELECT net_name FROM net_group_reference)";
+            net.name NOT IN (SELECT net_name FROM net_group_reference)$net_where";
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
@@ -608,11 +621,12 @@ while (!$rs->EOF) {
     // check perms over the network
     //$has_net_perms = check_net_perms($rs->fields['net_address']);
 	// Fixed: netAllowed check net/sensor granularity perms
-	$has_perms = Session::netAllowed($conn, $rs->fields['net_address']);
+	//$has_perms = Session::netAllowed($conn, $rs->fields['net_address']);
+	$has_perms = true;
     // if no perms over the network, try perms over the related sensor
     //$has_perms = $has_net_perms ? true : check_sensor_perms($rs->fields['net_address'], 'net');
 	$net = $rs->fields['net_name'];
-    $score = get_score($net, 'net');
+	$score = get_score($net, 'net');
     // If there is no threshold specified for the network, pick the global configured threshold
     $net_threshold_a = $rs->fields['net_threshold_a'] ? $rs->fields['net_threshold_a'] : $conf_threshold;
     $net_threshold_c = $rs->fields['net_threshold_c'] ? $rs->fields['net_threshold_c'] : $conf_threshold;
@@ -634,6 +648,17 @@ while (!$rs->EOF) {
 ////////////////////////////////////////////////////////////////
 // Hosts
 ////////////////////////////////////////////////////////////////
+$host_where = "";
+if ($allowed_sensors != "" || $allowed_nets != "") {
+	$hosts_aux = Host::get_list($conn);
+	$hosts = "";
+	foreach ($hosts_aux as $host) {
+		$hosts .= ($hosts != "") ? ",'".$host->get_ip()."'" : "'".$host->get_ip()."'";
+	}
+	if ($hosts != "") {
+		$host_where = " AND control_panel.id in ($hosts)";
+	}
+}
 $sql = "SELECT
             control_panel.id,
             control_panel.max_c,
@@ -648,7 +673,7 @@ $sql = "SELECT
         LEFT JOIN host ON control_panel.id = host.ip
         WHERE
             control_panel.time_range = ? AND
-            control_panel.rrd_type = 'host'";
+            control_panel.rrd_type = 'host'$host_where";
 $params = array(
     $range
 );
@@ -678,10 +703,12 @@ while (!$rs->EOF) {
     }
 	
 	// No perms over the host (by sensor filter)
-	if (!Session::hostAllowed($conn,$ip)) {
+	/* Patch: already filtered
+    if (!Session::hostAllowed($conn,$ip)) {
 		$rs->MoveNext();
 		continue;
 	}
+	*/
 	
     // get host & global metrics
     $current_a = get_current_metric($ip, 'host', 'attack');

@@ -208,7 +208,7 @@ class Net {
     		$aux = explode(",",$allowed_nets);
     		$networks = "";
     		foreach ($aux as $net) {
-    			$networks .= ($networks != "") ? " OR ips LIKE '".$net."%' OR ips LIKE '%,$net'" : "ips LIKE '".$net."%' OR ips LIKE '%,$net'";
+    			$networks .= ($networks != "") ? " OR ips LIKE '%".$net."%'" : "ips LIKE '%".$net."%'";
     		}
     		$nets_where = " AND (".$networks.")";
     	}
@@ -226,8 +226,8 @@ class Net {
     	
     	$iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
     	
-        $query = OssimQuery("SELECT SQL_CALC_FOUND_ROWS DISTINCT * FROM net $main_where$nets_where$sensor_where $limit");
-        //echo $query."<br>";
+        $query = OssimQuery("SELECT SQL_CALC_FOUND_ROWS * FROM net $main_where$sensor_where$nets_where $limit");
+        //echo $query."<br>";exit;
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
@@ -414,10 +414,17 @@ class Net {
     function isIpInNet($ip, $nets) {
         $net_list = explode(",", $nets);
         foreach($net_list as $n) {
+        	$cached = $_SESSION["_ipinnet"][$n][$ip];
+        	if ($cached>0) return true;
+        	elseif ($cached<0) continue;
 			list($net, $mask) = split("/", $n);
             $val1 = ip2long($ip);
             $val2 = ip2long($net);
-            if (($val1 >> (32 - $mask)) == ($val2 >> (32 - $mask))) return true;
+            if (($val1 >> (32 - $mask)) == ($val2 >> (32 - $mask))) {
+            	$_SESSION["_ipinnet"][$n][$ip] = 1;
+            	return true;
+            } else 
+            	$_SESSION["_ipinnet"][$n][$ip] = -1;
         }
         return false;
     }

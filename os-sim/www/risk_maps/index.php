@@ -229,28 +229,43 @@ else $types = array("host","host_group","net","sensor");
 
 $data_types = array();
 foreach ($types as $htype) {
+	$data_arr = array();
 	if($htype == "host"){
-		$query = "select hostname as name,ip from $htype order by hostname";
+		require_once 'classes/Host.inc';
+		//$query = "select hostname as name,ip from $htype h order by hostname";
+		$data_arr = Host::get_list($conn);
 	}
 	elseif ($htype == "sensor") {
-		$query = "select name from sensor$sensor_where";
+		require_once 'classes/Sensor.inc';
+		//$query = "select name from sensor$sensor_where";
+		$data_arr = Sensor::get_list($conn);
 	}
 	elseif ($htype == "net") {
-		$query = "select name,ips from net$nets_where";
+		require_once 'classes/Net.inc';
+		//$query = "select name,ips from net$nets_where";
+		$nets_arr = Net::get_list($conn);
 	}
 	elseif ($htype == "host_group") {
-		$query = "select distinct t.name from $htype t,host_group_sensor_reference r,sensor s where t.name=r.group_name and r.sensor_name=s.name $sensor_hg order by t.name";
+		require_once 'classes/Host_group.inc';
+		//$query = "select distinct t.name from $htype t,host_group_sensor_reference r,sensor s where t.name=r.group_name and r.sensor_name=s.name $sensor_hg order by t.name";
+		$data_arr = Host_group::get_list($conn);
 	}
+	foreach ($data_arr as $element) {
+		$data_types[$htype][] = ($htype == "host") ? $element->get_hostname() : $element->get_name();
+	}
+	/*
 	if (!$rs = &$conn->Execute($query)) {
 		print $conn->ErrorMsg();
 	} else {
 		while (!$rs->EOF){
-			if ($htype == "host" && !Session::hostAllowed($conn,$rs->fields["ip"])) { $rs->MoveNext(); continue; }
-			if ($htype == "net" && !Session::netAllowed($conn,$rs->fields["ips"])) { $rs->MoveNext(); continue; }
+	
+			//if ($htype == "host" && !Session::hostAllowed($conn,$rs->fields["ip"])) { $rs->MoveNext(); continue; }
+			//if ($htype == "net" && !Session::netAllowed($conn,$rs->fields["ips"])) { $rs->MoveNext(); continue; }
 			$data_types[$htype][] = $rs->fields["name"];
 			$rs->MoveNext();
 		}
 	}
+	*/
 }
 
 
