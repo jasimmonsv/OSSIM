@@ -90,7 +90,7 @@ else
 		if (ossim_error()) 
 			die(ossim_error());			
 			
-		if ($net_list = Net::get_list($conn, "WHERE name = '$net_name'")) {
+		if ($net_list = Net::get_list($conn, "name = '$net_name'")) {
 			$net   		 = $net_list[0];
 			$descr 		 = $net->get_descr();
 			$cidr 		 = $net->get_ips();

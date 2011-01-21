@@ -151,10 +151,12 @@ $limit = 5;
 list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resume($host,$host,$date_from,$date_to); ?><?php
 //list($sim_events,$sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date,$unique_events,$event_cnt,$plots,$sim_ports,$sim_ipsrc,$sim_ipdst,$sim_gplot,$sim_numevents) = Status::get_SIM($host,$host);
 list($sim_ports,$sim_ipsrc,$sim_ipdst) = Status::get_SIM_Clouds($host,$host,$date_range);
-//echo '-------------';
-//echo $date_from_week;
-//echo $date_to;
-//echo '-------------';
+/*
+echo '-------------';
+echo $date_from_week;
+echo $date_to;
+echo '-------------';
+*/
 $sim_gplot = Status::get_SIM_Plot($host,$host,$date_from_week,$date_to);
 //print_r($sim_gplot);
 list($unique_events,$plots,$sim_numevents) = Status::get_SIM_Unique($host,$host,$date_from_week,$date_to,$limit);

@@ -102,9 +102,9 @@ if ($hg_list = Host_group::get_list($conn, $wherehg)) {
         }
     }
 }
-$wherenet = ($filter!="") ? "WHERE ips like '%$filter%' OR name like '%$filter%' ORDER BY name" : "ORDER BY name";
+$wherenet = ($filter!="") ? "(ips like '%$filter%' OR name like '%$filter%')" : "";
 
-$net_list = Net::get_list($conn, $wherenet);
+$net_list = Net::get_list($conn, $wherenet, "ORDER BY name");
 	
 if ($key == "hostgroup") {
     if (count($hg_list)>0) {
@@ -178,7 +178,7 @@ else if ($key == "net") {
 }
 else if (preg_match("/net_(.*)/",$key,$found)){
 	$hostin = array();
-	if ($net_list1 = Net::get_list($conn, "WHERE name='".base64_decode($found[1])."'")) {
+	if ($net_list1 = Net::get_list($conn, "name='".base64_decode($found[1])."'")) {
 		require_once("classes/CIDR.inc");
 		foreach($net_list1 as $net) {
 		    $net_name = $net->get_name();
@@ -216,10 +216,10 @@ else if (preg_match("/net_(.*)/",$key,$found)){
 }
 else if ($key=="netgroup") {
     if ($filter=="") {
-        $whereng = "ORDER BY name";
+        $whereng = "";
     }
     else {
-        $whereng = "WHERE name like '%$filter%' ORDER BY name";
+        $whereng = "name like '%$filter%'";
     }
 
     if ($net_group_list = Net_group::get_list($conn, $whereng)) {

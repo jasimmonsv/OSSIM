@@ -56,7 +56,11 @@ $rules = get_rulesconfig ();
 <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
 <link rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
-
+<style type="text/css">
+	.active_filter{
+		font-weight: bold;
+	}
+</style>
 <script src="../js/jquery-1.3.2.min.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
@@ -182,7 +186,7 @@ var finish = false;
 		var has_filter = false;
 		var criteria_select = "";
 		datepickers[i] = false;
-		criteria_select = "<select id='type_"+i+"' name='type_"+i+"' onchange='setcriteria_type("+i+",this.value,1)'><option value=''>- <?=_("Select Filter Type")?> -";
+		criteria_select = "<select id='type_"+i+"' name='type_"+i+"' onchange='setcriteria_type("+i+",this.value,1)'><option value=''>- <?=_("Select Condition")?> -";
 		
 		
 		// FIRST LEVEL (type, and/or)
@@ -196,7 +200,7 @@ var finish = false;
 		
 		// SECOND LEVEL (subtype)
 		if (has_subtype) {
-			criteria_select += "&nbsp;<select id='subtype_"+i+"' name='subtype_"+i+"' onchange='setcriteria_subtype("+i+",this.value,1)'><option value=''>- <?=_("Select Filter")?> -";
+			criteria_select += "&nbsp;<select id='subtype_"+i+"' name='subtype_"+i+"' onchange='setcriteria_subtype("+i+",this.value,1)'><option value=''>- <?php echo _("Select Condition")?> -";
 			for (cst in rules[criterias[i]]) {
 				if (subcriterias[i] == cst) { var selected = "selected"; has_filter = true; }
 				else var selected = "";
@@ -513,9 +517,21 @@ var finish = false;
 			});
 		}
 	}
-	function profile_load (filter_name) {
-		if (filter_name == "") alert("<?=_("Select a profile to import")?>");
-		else {
+	
+	function reset_active_filter(){
+		$('.active_filter').removeClass('active_filter');
+	}
+	
+	function profile_load (filter_name,id) {
+		reset_profile_rename();
+		
+		if (filter_name == ""){
+			alert("<?=_("Select a profile to import")?>");
+		} else {
+			if(id!=false){
+				reset_active_filter();
+				$('#'+id).addClass('active_filter');
+			}
 			document.getElementById('msg').innerHTML = "<?=_("Loading profile...")?>";
 			$('#search_btn').attr('disabled','');
 			$('#search_btn').css('color','grey');
@@ -612,6 +628,7 @@ var finish = false;
 			});
 		}
 	}
+	<?php /*
 	function activate_rename () {
 		if (document.getElementById('rename_button').disabled == true) document.getElementById('rename_button').disabled = false;
 		if (document.getElementById('cur_rename').disabled == true) {
@@ -632,6 +649,43 @@ var finish = false;
 				}
 			});
 		}
+	}*/?>
+	function profile_rename (cur_name,n) {
+		if(reset_profile_rename()){
+			$('#profile_'+n).html('<input id="profile_rename_block" title="'+cur_name+'" name="profile_'+n+'" type="text" value="'+cur_name+'" style="background:#fff;border:0" />');
+			
+			$('#profile_'+n).keypress(function(event) {
+				if (event.which == '13') {
+					var new_name_tmp=$('#profile_'+n+' input').val();
+
+					$.ajax({
+						type: "GET",
+						url: "profiles.php",
+						data: { name: cur_name, inv_do: 'rename', new_name: new_name_tmp },
+						success: function(msg) {
+							$('#profile_'+n).html('<a href="#" onclick="profile_load(\''+new_name_tmp+'\',\'profile_'+n+'\')">'+new_name_tmp+'</a>');
+							get_conf();
+						}
+					});
+				}else if (event.which == '0'){
+					reset_profile_rename();
+				}
+			});
+		}else{
+			profile_rename(cur_name,n);
+		}
+	}
+	
+	function reset_profile_rename(){
+		if($('#profile_rename_block').html()==null){
+			return true;
+		}else{
+			var profile_id_tmp=$('#profile_rename_block').attr('name');
+			var profile_name_tmp=$('#profile_rename_block').attr('title');
+
+			$('#'+profile_id_tmp).html('<a href="#" onclick="profile_load(\''+profile_name_tmp+'\',\''+profile_id_tmp+'\')">'+profile_name_tmp+'</a>');
+			return false;
+		}
 	}
 	
 	function inic () {
@@ -648,7 +702,7 @@ var finish = false;
 		}
 		?>
 		<? if ($_GET['profile'] != "") { ?>
-		profile_load("<?=$_GET['profile']?>");
+		profile_load("<?=$_GET['profile']?>",false);
 		<? } ?>
 	}
 	function reload_profiles() {
@@ -657,12 +711,21 @@ var finish = false;
 			url: "profiles.php",
 			data: { inv_do: 'getall' },
 			success: function(msg) {
+			<?php /*
 				var names = msg.split(",");
 				var profiles = "<select id='profile' name='profile' multiple='true' size='6' style='width:250px' onclick='activate_rename(); profile_load(this.value)'>";
 				for (n in names) {
 					profiles += "<option value='"+names[n]+"'>"+names[n];
 				}
 				profiles += "</select>";
+				document.getElementById('profiles').innerHTML = profiles;
+				*/?>
+				var names = msg.split(",");
+				var profiles = "<table width='100%' class='noborder' border='0' cellpadding='0' cellspacing='0'>";
+				for (n in names) {
+					profiles += '<tr><td><span id="profile_'+n+'" style="width:170px;display:block;float:left;"><a href="#" onclick="profile_load(\''+names[n]+'\',\'profile_'+n+'\')">'+names[n]+'</a></span> <a href="#" onclick="profile_rename(\''+names[n]+'\','+n+')"><img border="0" align="absmiddle" src="../vulnmeter/images/pencil.png" style="vertical-align: middle" /></a> <a href="#" onclick="profile_delete(\''+names[n]+'\')"><img alt="Delete" src="../pixmaps/delete.gif" style="vertical-align: middle" /></a></td></tr>';
+				}
+				profiles += "</table>";
 				document.getElementById('profiles').innerHTML = profiles;
 			}
 		});
@@ -752,7 +815,7 @@ var finish = false;
 				<tr><td class="nobborder">
 					<table class="noborder" width="100%" style="background-color:white">
 						<tr>
-							<td class="nobborder" width="100"><? if (Session::am_i_admin()) { ?><a href="" onclick="open_edit();return false;" target="_blank"><img src="../pixmaps/pencil.png" border="0" alt="<?=_("Edit rules.conf")?>" title="<?=_("Edit rules.conf")?>"><?=_("Rules")?></a><? } ?></td>
+							<td class="nobborder" width="100"><? if (Session::am_i_admin()) { ?><a href="" onclick="open_edit();return false;" target="_blank"><img src="../pixmaps/pencil.png" border="0" alt="<?=_("Edit rules.conf")?>" title="<?=_("Edit rules.conf")?>"><?php echo _("Select Condition")?></a><? } ?></td>
 							<td class="nobborder" style="text-align:right">
 								<input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:12px;" disabled>
 							</td>
@@ -780,9 +843,9 @@ var finish = false;
 							<tr>
 								<td class="nobborder" id="profiles"></td>
 							</tr>
-							<tr><td class="nobborder"><!--<input type="button" value="Load" onclick="profile_load(document.getElementById('profile').value)" class="lbutton">--><input type="button" value="<?=_("Delete")?>" onclick="profile_delete(document.getElementById('profile').value)" class="lbutton"></td></tr>
+						<?php /*	<tr><td class="nobborder"><!--<input type="button" value="Load" onclick="profile_load(document.getElementById('profile').value)" class="lbutton">--><input type="button" value="<?=_("Delete")?>" onclick="profile_delete(document.getElementById('profile').value)" class="lbutton"></td></tr> */ ?>
 							<tr><td class="nobborder" style="padding-top:10px"><input type="text" id="cur_name" value="- <?=_("New Profile")?> -" onfocus="this.value=''"> <input type="button" value="<?=_("Save Current")?>" onclick="profile_save(document.getElementById('cur_name').value)" class="lbutton"></td></tr>
-							<tr><td class="nobborder"><input type="text" id="cur_rename" value="" disabled> <input type="button" value="<?=_("Rename")?>" id="rename_button" onclick="profile_rename(document.getElementById('profile').value,document.getElementById('cur_rename').value)" class="lbutton" disabled></td></tr>
+						<?php /*	<tr><td class="nobborder"><input type="text" id="cur_rename" value="" disabled> <input type="button" value="<?=_("Rename")?>" id="rename_button" onclick="profile_rename(document.getElementById('profile').value,document.getElementById('cur_rename').value)" class="lbutton" disabled></td></tr> */ ?>
 						</table>
 						</div>
 					</td>

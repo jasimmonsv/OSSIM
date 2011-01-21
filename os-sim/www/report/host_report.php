@@ -88,7 +88,7 @@ if( $host==$hostname && preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $host) ) {
 if ($host == "" && $hostname != "") $host = Host::hostname2ip($conn,$hostname); 
 
 if ($host == "" && GET('netname') != "") {
-    $aux_list = Net::get_list($conn,"WHERE name='".GET('netname')."'");
+    $aux_list = Net::get_list($conn,"name='".GET('netname')."'");
     $host = preg_replace("/,.*/","",$aux_list[0]->get_ips());
 }
 
@@ -103,7 +103,7 @@ if (preg_match("/\/\d+/",$host)) {
 if ($network) {
 	require_once 'classes/Net.inc';
 	require_once 'classes/Net_scan.inc';
-	$netaux = Net::get_list($conn,"WHERE name='".(Net::get_name_by_ip($conn, $host))."'");
+	$netaux = Net::get_list($conn,"name='".(Net::get_name_by_ip($conn, $host))."'");
 	$net = $netaux[0];
 	$notfound = 0;
 	if (count($netaux) < 1) {

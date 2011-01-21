@@ -86,9 +86,13 @@ if (empty($order)) $order = "name";
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
 $where = "";
-if (!empty($search) && !empty($field)) $where = "WHERE name LIKE '%$search%'";
+if (!empty($search) && !empty($field)) $where = "name LIKE '%$search%'";
 $xml = "";
-list($net_group_list,$total) = Net_group::get_list_pag($conn, "$where ORDER BY $order $limit");
+$net_group_list = Net_group::get_list($conn, $where, "ORDER BY $order $limit");
+if ($net_group_list[0]) {
+    $total = $net_group_list[0]->get_foundrows();
+    if ($total == 0) $total = count($net_group_list);
+} else $total = 0;
 
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";

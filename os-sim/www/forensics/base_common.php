@@ -246,7 +246,7 @@ function GetOssimNetworkGroups() {
 	$db = new ossim_db();
 	$conn = $db->connect();
     $pg = array();
-    $groups = Net_group::get_list($conn, " ORDER BY name");
+    $groups = Net_group::get_list($conn, "", " ORDER BY name");
     foreach ($groups as $ng) {
         $pg[] = $ng->get_name();
     }

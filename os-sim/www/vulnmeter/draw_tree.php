@@ -87,7 +87,7 @@ if ($hg_list = Host_group::get_list($conn, "", "ORDER BY name")) {
     }
 }
 
-$net_list = Net::get_list($conn, "ORDER BY name");
+$net_list = Net::get_list($conn, "", "ORDER BY name");
 
 if ($key == "hostgroup") {
     if (count($hg_list)>0) {
@@ -155,7 +155,7 @@ else if ($key == "net") {
 }
 else if (preg_match("/net_(.*)/",$key,$found)){
 	$hostin = array();
-	if ($net_list1 = Net::get_list($conn, "WHERE name='".base64_decode($found[1])."'")) {
+	if ($net_list1 = Net::get_list($conn, "name='".base64_decode($found[1])."'")) {
 		require_once("classes/CIDR.inc");
 		foreach($net_list1 as $net) {
 		    $net_name = $net->get_name();
@@ -191,7 +191,7 @@ else if (preg_match("/net_(.*)/",$key,$found)){
     $buffer .= "]";
 }
 else if ($key=="netgroup") {
-    if ($net_group_list = Net_group::get_list($conn, "ORDER BY name")) {
+    if ($net_group_list = Net_group::get_list($conn)) {
         $buffer .= "[";
         $j = 0;
         foreach($net_group_list as $net_group) {

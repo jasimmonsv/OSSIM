@@ -34,7 +34,20 @@ require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 
 $action     	   = strtolower(POST('action'));
-$allowed_act       = array("start", "stop", "restart", "status", "ossec_log", "alerts_log");
+
+$allowed_act       = array("start", "stop", "restart", "status", 
+						   "status", "ossec_log", "alerts_log", 
+						   "enable_db", "disable_db", "enable_cs", 
+						   "disable_cs", "enable_al", "disable_al");
+						   
+						   
+$allowed_proccess = array ( "enable_db"  => "ossec-dbd", 
+							"disable_db" => "ossec-dbd", 
+							"enable_cs"  => "ossec-csyslogd", 
+						    "disable_cs" => "ossec-csyslogd", 
+						    "enable_al"  => "ossec-agentlessd", 
+							"disable_al" => "ossec-agentlessd"
+						);
 
 
 if ( in_array($action, $allowed_act) )
@@ -44,6 +57,7 @@ if ( in_array($action, $allowed_act) )
 	
 		case "ossec_log":
 			$extra = POST('extra');
+			$extra = ( empty($extra) ) ? 50 : $extra;
 			
 			exec ("tail -n$extra /var/ossec/logs/ossec.log", $result, $ret);
 			$result = implode("<br/>", $result);
@@ -53,6 +67,7 @@ if ( in_array($action, $allowed_act) )
 		
 		case "alerts_log":
 			$extra = POST('extra');
+			$extra = ( empty($extra) ) ? 50 : $extra;
 			
 			exec ("tail -n$extra /var/ossec/logs/alerts/alerts.log", $result, $ret);
 			$result = implode("<br/>", $result);
@@ -62,15 +77,32 @@ if ( in_array($action, $allowed_act) )
 		default:
 			
 			$extra = POST('extra');
+					
 			if ( empty($extra) )
-				exec ("sudo /var/ossec/bin/ossec-control $action", $result, $ret);
+			{
+				if ( $action != _("status") )
+				{
+					exec ("sudo /var/ossec/bin/ossec-control $action", $result, $ret);
+					$result = null;
+				}
+				exec ("sudo /var/ossec/bin/ossec-control status",  $result, $ret);
+			}
 			else
-				exec ("sudo /var/ossec/bin/ossec-control $extra", $result, $ret);
-			
-			
-			
+			{
+				exec ("sudo /var/ossec/bin/ossec-control ".$extra);
+				exec ("sudo /var/ossec/bin/ossec-control status", $result);
+				
+				exec ("ps -ef | grep ".$allowed_proccess[$action]."| grep -v grep", $output, $ret);
+				
+				if ( preg_match("/enable/", $action) )
+					$ret = ( $output >= 1 ) ? 1 : "error";
+				else
+					$ret = ( $output >= 1 ) ? "error" : 1;
+			}
+						
+						
 			$result = implode("<br/>", $result);
-			
+						
 			$pattern     = array('/is running/', '/already running/', '/Completed/', '/Started/', '/not running/', '/Killing/', '/Stopped/');
 			
 			$replacement = array('<span style="font-weight: bold; color:#15B103;">is running</span>', 

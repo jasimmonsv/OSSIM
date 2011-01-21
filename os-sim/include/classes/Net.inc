@@ -149,7 +149,7 @@ class Net {
 		}
 		return $ips;
 	}
-    
+    /*
     function get_list($conn, $args = "") {
         $list = array();
         $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
@@ -198,15 +198,17 @@ class Net {
         }
         return array($list,$i);
     }
-
-    function get_list2($conn, $filter = "", $limit = "ORDER BY name") {
+	*/
+    function get_list($conn, $filter = "", $limit = "ORDER BY name") {
+    	$filter = preg_replace("/^\s*where /i","",$filter); // Clean filter
+    	$list = array();
     	$allowed_nets = Session::allowedNets();
     	$nets_where = "";
     	if ($allowed_nets != "") {
     		$aux = explode(",",$allowed_nets);
     		$networks = "";
     		foreach ($aux as $net) {
-    			$networks .= ($networks != "") ? " OR ips LIKE '".$net."%' OR ips LIKE '%,$net'" : "ips LIKE '".$net."%' OR ips LIKE '%,$net'";
+    			$networks .= ($networks != "") ? " OR ips LIKE '%".$net."%'" : "ips LIKE '%".$net."%'";
     		}
     		$nets_where = " AND (".$networks.")";
     	}
@@ -222,12 +224,18 @@ class Net {
     	}
     	$main_where = ($filter != "") ? "WHERE $filter" : "WHERE 1";
     	
-        $query = OssimQuery("SELECT * FROM net $main_where$nets_where$sensor_where $limit");
-        //echo $query."<br>";
+    	$iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
+    	
+        $query = OssimQuery("SELECT SQL_CALC_FOUND_ROWS * FROM net $main_where$sensor_where$nets_where $limit");
+        //echo $query."<br>";exit;
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
-            $foundrows = $rs->RecordCount();
+        	$foundrows = 0;
+            if ($iffoundrows) {
+                if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) print $conn->ErrorMsg();
+                else $foundrows = $rf->fields["total"];
+            }
             while (!$rs->EOF) {
                 $list[] = new Net($rs->fields["name"], $rs->fields["ips"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["descr"], $foundrows);
                 $rs->MoveNext();
@@ -406,10 +414,17 @@ class Net {
     function isIpInNet($ip, $nets) {
         $net_list = explode(",", $nets);
         foreach($net_list as $n) {
+        	$cached = $_SESSION["_ipinnet"][$n][$ip];
+        	if ($cached>0) return true;
+        	elseif ($cached<0) continue;
 			list($net, $mask) = split("/", $n);
             $val1 = ip2long($ip);
             $val2 = ip2long($net);
-            if (($val1 >> (32 - $mask)) == ($val2 >> (32 - $mask))) return true;
+            if (($val1 >> (32 - $mask)) == ($val2 >> (32 - $mask))) {
+            	$_SESSION["_ipinnet"][$n][$ip] = 1;
+            	return true;
+            } else 
+            	$_SESSION["_ipinnet"][$n][$ip] = -1;
         }
         return false;
     }

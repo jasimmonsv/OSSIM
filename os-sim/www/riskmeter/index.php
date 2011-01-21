@@ -433,7 +433,7 @@ if ($net_stats) foreach($net_stats as $stat) {
         continue;
     }
     /* get net threshold */
-    if ($net_list = Net::get_list($conn, "WHERE name = '$net'")) {
+    if ($net_list = Net::get_list($conn, "name = '$net'")) {
         $threshold_c = $net_list[0]->get_threshold_c();
         $threshold_a = $net_list[0]->get_threshold_a();
     } else {
@@ -571,7 +571,7 @@ echo $BAR_LENGTH_RIGHT; ?>">
 * If click on a net, only show hosts of this net
 */
 if (GET('net')) {
-    if ($net_list = Net::get_list($conn, "WHERE name = '$net_name'")) {
+    if ($net_list = Net::get_list($conn, "name = '$net_name'")) {
         $ips = $net_list[0]->get_ips();
         print "<h1>$ips</h1>";
         if ($ip_list = Host_qualification::get_list($conn)) {

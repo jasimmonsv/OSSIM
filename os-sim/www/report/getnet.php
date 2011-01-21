@@ -88,12 +88,12 @@ if (empty($order)) $order = "name";
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
 $where = "";
-if (!empty($search) && !empty($field)) $where = "WHERE name LIKE '%$search%'";
+if (!empty($search) && !empty($field)) $where = "name LIKE '%$search%'";
 $db = new ossim_db();
 $conn = $db->connect();
 
 $xml = "";
-$net_list = Net::get_list($conn, "$where ORDER BY $order");
+$net_list = Net::get_list($conn, "$where", "ORDER BY $order");
 if ($net_list[0]) {
     $total = $net_list[0]->get_foundrows();
     if ($total == 0) $total = count($net_list);
