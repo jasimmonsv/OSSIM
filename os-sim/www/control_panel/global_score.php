@@ -148,33 +148,52 @@ function get_score($name, $type) {
         'max_a_date' => 0
     );
 }
-function get_current_metric($name, $type = 'host', $ac = 'attack') {
+
+function get_host_qualification($conn) {
+	$arr = array();
+	$sql = "SELECT host_ip, compromise, attack FROM host_qualification";
+	if (!$rs = & $conn->Execute($sql)) {
+		die($conn->ErrorMsg());
+	}
+	while (!$rs->EOF) {
+		$arr[$rs->fields['host_ip']]['attack'] = $rs->fields['attack'];
+		$arr[$rs->fields['host_ip']]['compromise'] = $rs->fields['compromise'];
+		$rs->MoveNext();
+	}
+	return $arr;
+}
+function get_net_qualification($conn) {
+	$arr = array();
+	$sql = "SELECT net_name, compromise, attack FROM net_qualification";
+	if (!$rs = & $conn->Execute($sql)) {
+		die($conn->ErrorMsg());
+	}
+	while (!$rs->EOF) {
+		$arr[$rs->fields['net_name']]['attack'] = $rs->fields['attack'];
+		$arr[$rs->fields['net_name']]['compromise'] = $rs->fields['compromise'];
+		$rs->MoveNext();
+	}
+	return $arr;
+}
+
+function get_current_metric($host_qualification_cache, $net_qualification_cache, $name, $type = 'host', $ac = 'attack') {
     static $qualification;
     global $conn;
     if (!$qualification) {
-        $sql = "SELECT host_ip, compromise, attack FROM host_qualification";
-        if (!$rs = & $conn->Execute($sql)) {
-            die($conn->ErrorMsg());
-        }
         $qualification['global']['global']['attack'] = 0;
         $qualification['global']['global']['compromise'] = 0;
-        while (!$rs->EOF) {
-            $host = $rs->fields['host_ip'];
-            $qualification['host'][$host]['attack'] = $rs->fields['attack'];
-            $qualification['global']['global']['attack']+= $rs->fields['attack'];
-            $qualification['host'][$host]['compromise'] = $rs->fields['compromise'];
-            $qualification['global']['global']['compromise']+= $rs->fields['compromise'];
-            $rs->MoveNext();
+        foreach ($host_qualification_cache as $host=>$fields) {
+            $host = $fields['host_ip'];
+            $qualification['host'][$host]['attack'] = $fields['attack'];
+            $qualification['global']['global']['attack']+= $fields['attack'];
+            $qualification['host'][$host]['compromise'] = $fields['compromise'];
+            $qualification['global']['global']['compromise']+= $fields['compromise'];
         }
-        $sql = "SELECT net_name, compromise, attack FROM net_qualification";
-        if (!$rs = & $conn->Execute($sql)) {
-            die($conn->ErrorMsg());
-        }
-        while (!$rs->EOF) {
-            $host = $rs->fields['net_name'];
-            $qualification['net'][$host]['attack'] = $rs->fields['attack'];
-            $qualification['net'][$host]['compromise'] = $rs->fields['compromise'];
-            $rs->MoveNext();
+        
+        foreach ($net_qualification_cache as $net=>$fields) {
+            $host = $net;
+            $qualification['net'][$host]['attack'] = $fields['attack'];
+            $qualification['net'][$host]['compromise'] = $fields['compromise'];
         }
     }
     if (isset($qualification[$type][$name][$ac])) {
@@ -487,6 +506,10 @@ function html_date() {
     }
     return $GLOBALS['_max_date'];
 }
+
+// Cache some queries
+$host_qualification_cache = get_host_qualification($conn);
+$net_qualification_cache = get_net_qualification($conn);
 ////////////////////////////////////////////////////////////////
 // Network Groups
 ////////////////////////////////////////////////////////////////
@@ -556,8 +579,8 @@ while (!$rs->EOF) {
     $groups[$group]['threshold_c'] = $group_threshold_c;
     $net = $rs->fields['net_name'];
     // current metrics
-    $net_current_a = get_current_metric($net, 'net', 'attack');
-    $net_current_c = get_current_metric($net, 'net', 'compromise');
+    $net_current_a = get_current_metric($host_qualification_cache,$net_qualification_cache,$net, 'net', 'attack');
+    $net_current_c = get_current_metric($host_qualification_cache,$net_qualification_cache,$net, 'net', 'compromise');
     
     @$groups[$group]['current_a']+= $net_current_a;
     @$groups[$group]['current_c']+= $net_current_c;
@@ -639,8 +662,8 @@ while (!$rs->EOF) {
         'max_a_date' => $score['max_a_date'],
         'max_c_date' => $score['max_c_date'],
         'address' => $rs->fields['net_address'],
-        'current_a' => get_current_metric($net, 'net', 'attack') ,
-        'current_c' => get_current_metric($net, 'net', 'compromise') ,
+        'current_a' => get_current_metric($host_qualification_cache,$net_qualification_cache,$net, 'net', 'attack') ,
+        'current_c' => get_current_metric($host_qualification_cache,$net_qualification_cache,$net, 'net', 'compromise') ,
         'has_perms' => $has_perms
     );
     $rs->MoveNext();
@@ -711,8 +734,8 @@ while (!$rs->EOF) {
 	*/
 	
     // get host & global metrics
-    $current_a = get_current_metric($ip, 'host', 'attack');
-    $current_c = get_current_metric($ip, 'host', 'compromise');
+    $current_a = get_current_metric($host_qualification_cache,$net_qualification_cache,$ip, 'host', 'attack');
+    $current_c = get_current_metric($host_qualification_cache,$net_qualification_cache,$ip, 'host', 'compromise');
     $global_a+= $current_a;
     $global_c+= $current_c;
     // only show hosts over their threshold
@@ -771,8 +794,8 @@ while (!$rs->EOF) {
 // Global score
 ////////////////////////////////////////////////////////////////
 $global = get_score("global_$user", 'global');
-$global['current_a'] = get_current_metric('global', 'global', 'attack');
-$global['current_c'] = get_current_metric('global', 'global', 'compromise');
+$global['current_a'] = get_current_metric($host_qualification_cache,$net_qualification_cache,'global', 'global', 'attack');
+$global['current_c'] = get_current_metric($host_qualification_cache,$net_qualification_cache,'global', 'global', 'compromise');
 $global['threshold_a'] = $conf_threshold;
 $global['threshold_c'] = $conf_threshold;
 ////////////////////////////////////////////////////////////////
