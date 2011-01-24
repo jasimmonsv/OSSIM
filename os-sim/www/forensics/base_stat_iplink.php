@@ -129,6 +129,12 @@ echo '<FORM METHOD="post" name="PacketForm" id="PacketForm" ACTION="base_stat_ip
 $qro->PrintHeader();
 $i = 0;
 $report_data = array(); // data to fill report_data 
+
+if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
+	$_conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
+else
+	$_conn = $dbo->connect();
+	
 while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $sip = $myrow[0]; $ip_sip = baseLong2IP($sip);
     $dip = $myrow[1]; $ip_dip = baseLong2IP($dip);
@@ -158,7 +164,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         echo "<td></td>";
         $s_country = strtolower(geoip_country_code_by_addr($gi, $ip_sip));
         $s_country_name = geoip_country_name_by_addr($gi, $ip_sip);
-        $homelan_sip = (Net::isIpInNet($ip_sip, $networks) || in_array($ip_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
+        $homelan_sip = (Net::is_ip_in_cache_cidr($_conn, $ip_sip) || in_array($ip_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
         if ($s_country) {
             $s_country_img = " <img src=\"/ossim/pixmaps/flags/" . $s_country . ".png\" title=\"" . $s_country_name . "\">";
             $slnk = $current_url."/pixmaps/flags/".$s_country.".png";
@@ -168,7 +174,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         }
         $d_country = strtolower(geoip_country_code_by_addr($gi, $ip_dip));
         $d_country_name = geoip_country_name_by_addr($gi, $ip_dip);
-        $homelan_dip = (Net::isIpInNet($ip_dip, $networks) || in_array($ip_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
+        $homelan_dip = (Net::is_ip_in_cache_cidr($conn, $ip_dip) || in_array($ip_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
         if ($d_country) {
             $d_country_img = " <img src=\"/ossim/pixmaps/flags/" . $d_country . ".png\" title=\"" . $d_country_name . "\">";
             $dlnk = $current_url."/pixmaps/flags/".$d_country.".png";
@@ -200,6 +206,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     );
 }
 $result->baseFreeRows();
+$dbo->close($_conn);
 $qro->PrintFooter();
 $qs->PrintBrowseButtons();
 $qs->PrintAlertActionButtons();

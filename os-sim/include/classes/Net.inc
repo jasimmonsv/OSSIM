@@ -75,7 +75,7 @@ require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/WebIndicator.inc';
 require_once 'classes/Util.inc';
-
+require_once 'classes/CIDR.inc';
 
 class Net {
     var $name;
@@ -290,6 +290,7 @@ class Net {
         Net_qualification::insert($conn, $name, 1, 1);
         Net_vulnerability::insert($conn, $name, 0);
         Net_sensor_reference::insert($conn, $name, $sensors);
+        $this->cache_insert_cidr($conn, $ips);
         $infolog = array(
             $name
         );
@@ -309,6 +310,7 @@ class Net {
         WebIndicator::set_on("ReloadPolicy");
     }
     function delete($conn, $name, $skip_group_update = 0) {
+    	$ips = $this->get_ips_by_name($conn, $name);
         $sql = "DELETE FROM net WHERE name = ?";
         $params = array(
             $name
@@ -324,6 +326,7 @@ class Net {
             Net_group_reference::check_orphan($conn, $name);
         }
         Net_sensor_reference::delete($conn, $name);
+        $this->cache_delete_cidr($conn, $ips);
         $infolog = array(
             $name
         );
@@ -430,7 +433,7 @@ class Net {
             	$_SESSION["_ipinnet"][$n][$ip] = -1;
         }
         return false;
-    }
+    }   
     function expand_CIDR($nets,$return_type="FULL",$return_format="IP") {
         require_once ('classes/CIDR.inc');
         $ip_range = array();
@@ -470,7 +473,7 @@ class Net {
             exit;
         }
     }
-    function isIpInAnyNet($conn, $ip) {
+    /*function isIpInAnyNet($conn, $ip) {
         $net_list = Net::get_list($conn);
         if (!is_array($net_list)) return false;
         foreach($net_list as $n) {
@@ -480,8 +483,11 @@ class Net {
             if (($val1 >> (32 - $mask)) == ($val2 >> (32 - $mask))) return true;
         }
         return false;
+    }*/
+	function isIpInAnyNet($conn, $ip) {
+        return Net::is_ip_in_cache_cidr($conn, $ip);
     }
-    function GetClosestNet($conn, $ip, $return_type=0) {
+    /*function GetClosestNet($conn, $ip, $return_type=0) {
         $net_list = Net::get_list($conn);
         $narrowest_mask = 0;
         $narrowest_net = "";
@@ -501,7 +507,24 @@ class Net {
             return $narrowest_net;
         }
         return false;
-    }
+    }*/
+    function GetClosestNet($conn, $ip, $return_type=0) {
+        $net_list = Net::get_cache_cidr($conn, $ip);
+        $narrowest_mask = 0;
+        $narrowest_net = "";
+        if (!is_array($net_list)) return false;
+        foreach($net_list as $n) {
+            list($net, $mask) = split("/", $n);
+            if ($mask > $narrowest_mask) {
+                $narrowest_mask = $mask;
+                $narrowest_net = ($return_type) ? $n : Net::get_name_by_ip($conn,$n);
+            }
+        }
+        if ($narrowest_mask) {
+            return $narrowest_net;
+        }
+        return false;
+    }    
     function check_orphan($conn) {
         $sql = "SELECT * FROM net_group_reference LEFT JOIN net
                 ON net.name = net_group_reference.net_name WHERE descr IS NULL";
@@ -532,6 +555,69 @@ class Net {
              }
         }
         return $sensors;
+    }
+    #
+    # net cidrÁs table cache
+    #
+    function cache_insert_cidr($conn, $nets) {
+    	$cidrs = explode(",",$nets);
+    	foreach ($cidrs as $cidr) {
+			$exp = CIDR::expand_CIDR($cidr,"SHORT");
+		    $sql = "INSERT IGNORE INTO net_cidrs (`cidr`,`begin`,`end`) VALUES (?, ?, ?)";
+		    $params = array(
+		        $cidr,
+		        $exp[0],
+		        $exp[1]
+		    );
+		    if ($conn->Execute($sql, $params) === false) {
+		        print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
+		        exit;
+		    }
+		}
+    }
+    function cache_delete_cidr($conn, $nets) {
+    	$cidrs = explode(",",$nets);
+    	foreach ($cidrs as $cidr) {
+		    $sql = "DELETE FROM net_cidrs WHERE cidr=?";
+		    $params = array(
+		        $cidr
+		    );
+		    if ($conn->Execute($sql, $params) === false) {
+		        print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
+		        exit;
+		    }
+		}
+    }   
+    function get_cache_cidr($conn, $ip) {
+    	$local_nets = array();
+        $sql = "SELECT cidr FROM net_cidrs WHERE inet_aton(?)>=begin AND inet_aton(?)<=end";        
+        $params = array(
+            $ip, $ip
+        );
+        if (!$rs = & $conn->Execute($sql, $params)) {
+            print $conn->ErrorMsg();
+        } else {
+             while (!$rs->EOF) {
+             	$local_nets[] = $rs->fields["cidr"];
+             	$rs->MoveNext();
+             }
+        }
+        return $local_nets;
+    }
+    function is_ip_in_cache_cidr($conn, $ip, $nets="") {
+        if ($nets!="") 
+        	$sql = "SELECT cidr FROM net_cidrs WHERE cidr in ('".str_replace(",","','",$nets)."') AND inet_aton(?)>=begin AND inet_aton(?)<=end";
+        else
+        	$sql = "SELECT cidr FROM net_cidrs WHERE inet_aton(?)>=begin AND inet_aton(?)<=end";        
+        $params = array(
+            $ip, $ip
+        );
+        if (!$rs = & $conn->Execute($sql, $params)) {
+            print $conn->ErrorMsg();
+        } else {
+             if (!$rs->EOF) return true;
+        }
+        return false;
     }
 }
 ?>

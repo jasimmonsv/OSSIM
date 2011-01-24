@@ -567,7 +567,7 @@ class Session {
         $allowed_nets = Session::allowedNets($user);
         $allowed_sensors = Session::allowedSensors($user);
 		if ($allowed_nets) {
-			if (!(Net::isIpInNet($host, $allowed_nets))) {
+			if (!(Net::is_ip_in_cache_cidr($conn, $host, $allowed_nets))) {
                 $hostAllowedCache["$user"]["$host"] = false;
 				return false;
             }

@@ -148,6 +148,12 @@ $qs->current_view = 0;
 $result = $qs->ExecuteOutputQueryNoCanned($sql, $db);
 $hosts_ips = array_keys($hosts);
 $report_data = array(); // data to fill report_data 
+
+if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
+	$_conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
+else
+	$_conn = $dbo->connect();
+	
 while ($myrow = $result->baseFetchRow()) {
     //
     $current_sip32 = $myrow["ip_src"];
@@ -212,7 +218,7 @@ while ($myrow = $result->baseFetchRow()) {
         $sip_aux = ($sensors[$current_sip] != "") ? $sensors[$current_sip] : (($hosts[$current_sip] != "") ? $hosts[$current_sip] : $current_sip);
         $div = '<div id="'.$current_sip.';'.$ip_aux.'" class="HostReportMenu">';
 		$bdiv = '</div>';
-		$homelan = (Net::isIpInNet($current_sip, $networks) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
+		$homelan = (Net::is_ip_in_cache_cidr($_conn, $current_sip) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
         if ($homelan!="") {
         	$slnk = "<img src='images/homelan.png' align='absmiddle' border=0 style='width:3mm'>"; 
         	$slnkrd = $current_url."/forensics/images/homelan.png";
@@ -233,7 +239,7 @@ while ($myrow = $result->baseFetchRow()) {
         $dip_aux = ($sensors[$current_dip] != "") ? $sensors[$current_dip] : (($hosts[$current_dip] != "") ? $hosts[$current_dip] : $current_dip);
         $div = '<div id="'.$current_dip.';'.$ip_aux.'" class="HostReportMenu">';
 		$bdiv = '</div>';
-		$homelan = (Net::isIpInNet($current_dip, $networks) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
+		$homelan = (Net::is_ip_in_cache_cidr($_conn, $current_dip) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
         if ($homelan!="") {
         	$dlnk = "<img src='images/homelan.png' align='absmiddle' border=0 style='width:3mm'>"; 
         	$dlnkrd = $current_url."/forensics/images/homelan.png";
@@ -254,6 +260,7 @@ while ($myrow = $result->baseFetchRow()) {
     );
 }
 $result->baseFreeRows();
+$dbo->close($_conn);
 $qs->PrintAlertActionButtons();
 $qs->SaveReportData($report_data,$events_report_type);
 $qs->SaveState();

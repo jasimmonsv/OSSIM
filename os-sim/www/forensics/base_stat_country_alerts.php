@@ -54,12 +54,17 @@ $result = $qs->ExecuteOutputQueryNoCanned($sql, $db);
 $country_src = array();
 $country_dst = array();
 
+if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
+	$_conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
+else
+	$_conn = $dbo->connect();
+	
 while ($myrow = $result->baseFetchRow()) {
     $currentIP = long2ip($myrow[0]);
     $ip_type = $myrow[1];
     $country_name = "";
     if ($cc == "local") { // local ip
-        if (Net::isIpInNet($currentIP, $networks) || in_array($currentIP, $hosts_ips)) {
+        if (Net::is_ip_in_cache_cidr($_conn, $currentIP) || in_array($currentIP, $hosts_ips)) {
             if ($ip_type=='S') $country_src[] = $currentIP;
         	else $country_dst[] = $currentIP;
         }
@@ -68,7 +73,7 @@ while ($myrow = $result->baseFetchRow()) {
             $country = strtolower(geoip_country_code_by_addr($gi, $currentIP));
             $country_name = geoip_country_name_by_addr($gi, $currentIP);
         }
-        if ($country == "" && !(Net::isIpInNet($currentIP, $networks) || in_array($currentIP, $hosts_ips))) $country = 'unknown';
+        if ($country == "" && !(Net::is_ip_in_cache_cidr($_conn, $currentIP) || in_array($currentIP, $hosts_ips))) $country = 'unknown';
         if ($country == $cc) {
         	if ($ip_type=='S') $country_src[] = $currentIP;
         	else $country_dst[] = $currentIP;
@@ -76,6 +81,7 @@ while ($myrow = $result->baseFetchRow()) {
     }
 }
 $result->baseFreeRows();
+$dbo->close($_conn);
 geoip_close($gi);
 //
 $ips = array();

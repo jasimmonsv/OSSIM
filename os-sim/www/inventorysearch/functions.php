@@ -122,7 +122,7 @@ function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips) {
 	} else {
 		$country_img = "";
 	}
-	$homelan = (Net::isIpInNet($ip, $networks) || in_array($ip, $hosts_ips)) ? " <a href=\"javascript:;\" class=\"scriptinfo\" style=\"text-decoration:none\" ip=\"".$ip."\"><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+	$homelan = (Net::is_ip_in_cache_cidr($conn, $ip, $networks) || in_array($ip, $hosts_ips)) ? " <a href=\"javascript:;\" class=\"scriptinfo\" style=\"text-decoration:none\" ip=\"".$ip."\"><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
 	$os = Host_os::get_os_pixmap($conn, $ip);
 	$row = '
 	<tr>

@@ -248,11 +248,11 @@ $params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&h
 
 $sensors = $hosts = $ossim_servers = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
-$networks = "";
+/*$networks = "";
 $_nets = Net::get_all($conn);
 $_nets_ips = $_host_ips = $_host = array();
 foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
-$networks = implode(",",$_nets_ips);
+$networks = implode(",",$_nets_ips);*/
 $hosts_ips = array_keys($hosts);
 
 $tags = Tags::get_list($conn);
@@ -938,7 +938,7 @@ if ($count > 0) {
 		<td nowrap style="text-align:center;padding-left:3px;padding-right:3px" class="nobborder">
         <div id="<?php echo $src_ip; ?>;<?php echo $src_name; ?>" class="HostReportMenu">
 		<?php
-        $homelan = (Net::isIpInNet($src_ip, $networks) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+        $homelan = (Net::is_ip_in_cache_cidr($conn, $src_ip) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
 		if ($src_country) {
             echo "<a href=\"$src_link\">$src_name</a>:$src_port $src_img $src_country_img $homelan";
         } else {
@@ -948,7 +948,7 @@ if ($count > 0) {
 		<td nowrap style="text-align:center;padding-left:3px;padding-right:3px" class="nobborder">
 		<div id="<?php echo $dst_ip; ?>;<?php echo $dst_name; ?>" class="HostReportMenu">
 		<?php
-        $homelan = (Net::isIpInNet($dst_ip, $networks) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+        $homelan = (Net::is_ip_in_cache_cidr($conn, $dst_ip) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
 		if ($dst_country) {
             echo "<a href=\"$dst_link\">$dst_name</a>:$dst_port $dst_img $dst_country_img $homelan";
         } else {

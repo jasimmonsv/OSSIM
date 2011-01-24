@@ -49,7 +49,7 @@ if ($ip != "") {
 	$nets = Net::get_all($conn);
 		
 	foreach ($nets as $net) {
-		if (Net::isIpInNet($ip,$net->get_ips())) {
+		if (Net::is_ip_in_cache_cidr($conn, $ip, $net->get_ips())) {
 			echo $net->get_asset().";".$net->get_threshold_c().";".$net->get_threshold_a();
 			exit;
 		}
