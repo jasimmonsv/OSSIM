@@ -82,8 +82,20 @@
 		//echo '------';
 		//print_r($tabshow);
 		//echo '-----';
+		$avt_icons = array(
+			"1001" => "../pixmaps/panel/executive.png",
+			"1002" => "../pixmaps/panel/network.png",
+			"1003" => "../pixmaps/panel/tickets.png",
+			"1004" => "../pixmaps/panel/compliance.gif",
+			"1005" => "../pixmaps/panel/security.png",
+			"1006" => "../pixmaps/panel/inventory.png",
+			"1007" => "../pixmaps/panel/vulnerabilities.png",
+		);
 		foreach($tabshow as $tab_id => $tab_name) {
-			if (strlen($tabsmerge[$tab_id]["tab_icon_url"]) > 0) {
+			if ($avt_icons[$tab_id] != "" && file_exists($avt_icons[$tab_id])) {
+				$image_string = '<img align="absmiddle" border="0" src="' . $avt_icons[$tab_id] . '" height="20">&nbsp;';
+			}
+			elseif (strlen($tabsmerge[$tab_id]["tab_icon_url"]) > 0) {
 				$image_string = '<img align="absmiddle" border="0" src="' . $tabsmerge[$tab_id]["tab_icon_url"] . '" height="20">&nbsp;';
 			} else {
 				$image_string = "";

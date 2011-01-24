@@ -95,6 +95,16 @@ function swapavt($file1,$file2) {
 $configs_dir = $conf->get_conf('panel_configs_dir');
 $tabsavt = gettabsavt($configs_dir);
 
+$avt_icons = array(
+	"1001" => "../pixmaps/panel/executive.png",
+	"1002" => "../pixmaps/panel/network.png",
+	"1003" => "../pixmaps/panel/tickets.png",
+	"1004" => "../pixmaps/panel/compliance.gif",
+	"1005" => "../pixmaps/panel/security.png",
+	"1006" => "../pixmaps/panel/inventory.png",
+	"1007" => "../pixmaps/panel/vulnerabilities.png",
+);
+
 require_once('classes/User_config.inc');
 $login = Session::get_session_user();
 $db = new ossim_db();
@@ -149,7 +159,7 @@ if (GET('edit_tabs') == 1) {
 			$truncmsg = _("Warning: Tab name too long, truncated to 15 characters.");
 		}
         $tab_icon_url = str_replace("slash_special_char","/",GET('tab_icon_url'));
-        if ($tab_icon_url == "") { $tab_icon_url = "../risk_maps/pixmaps/standard/Hacker.png"; }
+        if ($tab_icon_url == "") { $tab_icon_url = (GET('mode') == "clone" && $avt_icons[GET('clonefrom')] != "" && file_exists($avt_icons[GET('clonefrom')])) ? $avt_icons[GET('clonefrom')] : "../risk_maps/pixmaps/standard/Hacker.png"; }
 		$tab_disable = ($tabs[$tab_id]['disable']) ? $tabs[$tab_id]['disable'] : 0;
 		$avt = GET('clonefrom');
 		/**/
@@ -370,7 +380,7 @@ if (GET('edit_tabs') == 1) {
 	</tr>
 	<?php } ?>
 	<tr>
-		<td class="nobborder" width="50"></td>
+		<td class="nobborder" width="30"></td>
 		<th nowrap='nowrap' width="40"><?php echo _("Icon") ?></th>
 		<th width="130" nowrap='nowrap'><?php echo _("Tab Name") ?></th>
 		<th width="40" nowrap='nowrap'><?php echo _("Default") ?></th>
@@ -382,6 +392,7 @@ if (GET('edit_tabs') == 1) {
 		// FROM DATABASE
 		if ($tabs != false) {
 			ksort($tabs);
+			$index = 1;
 			foreach($tabs as $tab_id => $tab_values) {
 	?>
 	
@@ -392,8 +403,16 @@ if (GET('edit_tabs') == 1) {
 		<input type="hidden" name="tab_icon_url" value="<?php echo str_replace("/","slash_special_char",$tabs[$tab_id]["tab_icon_url"]) ?>">
 		
 		<td>
-			<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='moveup';document.getElementById('ftabs<?=$tab_id?>').submit();return false;">up</a>&nbsp;
-			<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='movedo';document.getElementById('ftabs<?=$tab_id?>').submit();return false;">down</a></td>
+			<?php if ($index > 1) { ?>
+			<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='moveup';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../pixmaps/theme/arrow-skip-090.png" border="0" alt="<?php echo _("Move Up") ?>" title="<?php echo _("Move Up") ?>"></img></a>&nbsp;
+			<?php } else { ?>
+			<img src="../pixmaps/theme/arrow-skip-090.png" style="filter:alpha(opacity:50);opacity:0.5"></img>
+			<?php } ?>
+			<?php if ($index < count($tabs)) { ?>
+			<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='movedo';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../pixmaps/theme/arrow-skip-270.png" border="0" alt="<?php echo _("Move Down") ?>" title="<?php echo _("Move Down") ?>"></img></a></td>
+			<?php } else { ?>
+			<img src="../pixmaps/theme/arrow-skip-270.png" style="filter:alpha(opacity:50);opacity:0.5"></img>
+			<?php } ?>
 		
 		<td id="tab_icon_img_<?=$tab_id?>" style='background-color: <?=$back_color?>'>
 			
@@ -455,6 +474,7 @@ if (GET('edit_tabs') == 1) {
 </tr>
 <?php
             if ($last_tab_id < $tab_id) $last_tab_id = $tab_id;
+            $index++;
         }
     }
 ?>
@@ -473,7 +493,7 @@ document.fnew.tab_id.value = '<?=$last_tab_id + 1?>';
 <tr <? if ($tab_values['disable']) echo "bgcolor='#EEEEEE'";?>>
 	<td></td>
 	<td>
-		<img src="../pixmaps/alienvault_icon.gif">
+		<img src="<?php echo ($avt_icons[$tab_id] != "" && file_exists($avt_icons[$tab_id])) ? $avt_icons[$tab_id] : "../pixmaps/alienvault_icon.gif" ?>" height="20">
 	</td>
 <td>
 <input type="text" size="30" name="tab_name" id="newname<?=$tab_id?>" style="color:<?=($tabsavt[$tab_id]['disable']) ? "gray" : "black"?>" value="<?php echo $tabsavt[$tab_id]["tab_name"]; ?>">
