@@ -56,8 +56,11 @@
 	// end add tabs urls
 	
 	if (is_array($tabsavt)) {
-		foreach ($tabsavt as $tab_id => $tab_values) {
-			$tabsmerge[$tab_id] = $tab_values;
+		$orders = array("1001","1005","1003","1007","1004","1002","1006");
+		foreach ($orders as $cur_id) {
+			foreach ($tabsavt as $tab_id => $tab_values) {
+				if ($cur_id == $tab_id) { $tabsmerge[$tab_id] = $tab_values; }
+			}
 		}
 	}
 
@@ -74,7 +77,7 @@
 			
 			$tabshow[$tab_id] = $tabsmerge[$tab_id];
 		}
-		ksort($tabshow);
+		//ksort($tabshow);
 		
 		$ctabs = count($tabshow) - 1;
 		$j = 0;
