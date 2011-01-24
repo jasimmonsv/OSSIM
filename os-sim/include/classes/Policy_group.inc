@@ -46,9 +46,12 @@
 * Classes list:
 * - Policy_group
 */
-require_once ('classes/Policy.inc');
-require_once ('classes/Log_action.inc');
+require_once 'classes/Policy.inc';
+require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
+
 class Policy_group {
     var $group_id;
     var $name;

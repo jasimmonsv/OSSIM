@@ -29,8 +29,10 @@
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
 include ("classes/AlarmGroups.inc");
-require_once ('classes/Session.inc');
-require_once ('classes/Security.inc');
+require_once 'classes/Session.inc';
+require_once 'classes/Security.inc';
+require_once 'classes/Util.inc';
+
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
 $unique_id = uniqid("alrm_");
 $prev_unique_id = $_SESSION['alarms_unique_id'];
@@ -708,7 +710,7 @@ $tree_count = 0;
 		if ($group['date'] != $lastday) {
 			$lastday = $group['date'];
 			list($year, $month, $day) = split("-", $group['date']);
-			$date = htmlentities(strftime("%A %d-%b-%Y", mktime(0, 0, 0, $month, $day, $year)));
+			$date = Util::htmlentities(strftime("%A %d-%b-%Y", mktime(0, 0, 0, $month, $day, $year)));
 			$show_day = 1;
 		} else $show_day = 0;
 		$descr = $db_groups[$group_id]['descr'];

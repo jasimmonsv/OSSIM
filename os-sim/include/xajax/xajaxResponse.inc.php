@@ -154,6 +154,9 @@
  *
  * @package xajax
  */
+ 
+require_once 'classes/Util.inc'; 
+ 
 class xajaxResponse {
     /**#@+
     * @access protected
@@ -801,9 +804,9 @@ class xajaxResponse {
             if (is_array($aKeyValues)) {
                 $xml.= '<e>';
                 foreach($aKeyValues as $sKey => $sValue) {
-                    $xml.= '<' . htmlentities($sKey, ENT_COMPAT, "UTF-8") . '>';
+                    $xml.= '<' . Util::htmlentities($sKey, ENT_COMPAT, "UTF-8") . '>';
                     $xml.= $this->_arrayToXML($sValue);
-                    $xml.= '</' . htmlentities($sKey, ENT_COMPAT, "UTF-8") . '>';
+                    $xml.= '</' . Util::htmlentities($sKey, ENT_COMPAT, "UTF-8") . '>';
                 }
                 $xml.= '</e>';
             } else {
@@ -845,7 +848,7 @@ class xajaxResponse {
                 $this->sEncoding
             ));
         } else {
-            if ((strpos($sData, '<![CDATA[') !== false) || (strpos($sData, ']]>') !== false) || (htmlentities($sData, ENT_COMPAT, "UTF-8") != $sData)) $needCDATA = true;
+            if ((strpos($sData, '<![CDATA[') !== false) || (strpos($sData, ']]>') !== false) || (Util::htmlentities($sData, ENT_COMPAT, "UTF-8") != $sData)) $needCDATA = true;
             $segments = explode('<![CDATA[', $sData);
             $sData = '';
             foreach($segments as $key => $segment) {

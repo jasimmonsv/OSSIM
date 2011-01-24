@@ -53,9 +53,10 @@
 * Classes list:
 * - Form_builder
 */
-require_once ('classes/Incident.inc');
+require_once 'classes/Incident.inc';
 require_once 'classes/Log_action.inc';
-require_once ("ossim_db.inc");
+require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
 
 class Form_builder {
 
@@ -243,13 +244,13 @@ public function draw_checkbox(){
 			if ( !empty ($v) )
 			{
 				if ($num_value == 1)
-					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[0])."</span>\n ";
+					$values []= "value='".Util::htmlentities($value[0])."'/><span style='padding-left: 5px;'>".Util::htmlentities($value[0])."</span>\n ";
 				else if ($num_value == 2)
-					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span>\n ";
+					$values []= "value='".Util::htmlentities($value[0])."'/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span>\n ";
 				else 
 				{
 					if ($num_value > 2)
-						$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span>\n ";
+						$values []= "value='".Util::htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span>\n ";
 				}
 				
 				
@@ -537,12 +538,12 @@ public function draw_radiob(){
 			if ( !empty ($v) )
 			{
 				if ($num_value == 1)
-					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[0])."</span> ";
+					$values []= "value='".Util::htmlentities($value[0])."'/><span style='padding-left: 5px;'>".Util::htmlentities($value[0])."</span> ";
 				else if ($num_value == 2)
-					$values []= "value='".htmlentities($value[0])."'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+					$values []= "value='".Util::htmlentities($value[0])."'/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span> ";
 				else {
 					if ($num_value > 2)
-						$values []= "value='".htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".htmlentities($value[1])."</span> ";
+						$values []= "value='".Util::htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span> ";
 				}
 			}
 		}	
@@ -578,13 +579,13 @@ public function draw_selectbox(){
 			if ( !empty ($v) )
 			{
 				if ($num_value == 1)
-					$options.= "<option value='".htmlentities($value[0])."'>".htmlentities($value[0])."</option>\n";
+					$options.= "<option value='".Util::htmlentities($value[0])."'>".Util::htmlentities($value[0])."</option>\n";
 				else if ($num_value == 2)
-					$options.= "<option value='".htmlentities($value[0])."'>".htmlentities($value[1])."</option>\n";
+					$options.= "<option value='".Util::htmlentities($value[0])."'>".Util::htmlentities($value[1])."</option>\n";
 				else 
 				{
 					if ($num_value > 2)
-						$options.= "<option value='".htmlentities($value[0])."' selected='selected'>".htmlentities($value[1])."</option>\n";
+						$options.= "<option value='".Util::htmlentities($value[0])."' selected='selected'>".Util::htmlentities($value[1])."</option>\n";
 				}
 			}	
 		}

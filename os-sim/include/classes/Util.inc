@@ -55,7 +55,6 @@
 * Classes list:
 * - Util
 */
-require_once ('classes/Host.inc');
 class Util {
     /* Expects a string with underscore in it and substitutes with spaces.
     Used for DB Integrity */
@@ -64,7 +63,8 @@ class Util {
     }
     // Translates the string into human readable form
     function translate_alarm($conn, $name, $alarm) {
-        $translations = array(
+        require_once ('classes/Host.inc');
+		$translations = array(
             "/SRC_IP/" => "get_src_ip()",
             "/DST_IP/" => "get_dst_ip()",
             "/SRC_PORT/" => "get_src_port()",
@@ -700,8 +700,15 @@ class Util {
         return (Util::is_utf8($string)) ? $string : utf8_encode($string);
 	}
 	
-	function htmlentities($string) {
-        return preg_replace('/&amp;#(\d{4,5});/', '&#$1;', htmlentities($string));
+	 function utf8_decode2($string) {
+        return (Util::is_utf8($string)) ? utf8_decode($string) : $string;
+	}
+	
+	function htmlentities($string, $flag=ENT_COMPAT, $charset='') {
+        
+		$string = ( empty($charset) ) ? @htmlentities($string, $flag) : htmlentities($string, $flag, $charset);
+		
+		return preg_replace('/&amp;#(\d{4,5});/', '&#$1;', $string);
 	}
 	
     function is_utf8($str) {

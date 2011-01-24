@@ -39,7 +39,8 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . "GMT");
 header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
 header("Content-type: text/xml");
-require_once ('classes/Session.inc');
+require_once 'classes/Session.inc';
+require_once 'classes/Util.inc';
 echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>";
 Session::logcheck("MenuPolicy", "PolicyNetworks");
 require_once 'ossim_db.inc';
@@ -106,7 +107,7 @@ foreach($net_group_list as $net_group) {
     if ($network_list = $net_group->get_networks($conn)) 
 		foreach($network_list as $network)
 		{
-			$nets.= (($nets == "") ? "" : ", ") . htmlentities($network->get_net_name());
+			$nets.= (($nets == "") ? "" : ", ") . Util::htmlentities($network->get_net_name());
 		}
     $xml.= "<cell><![CDATA[" . $nets . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net_group->get_threshold_c() . "]]></cell>";

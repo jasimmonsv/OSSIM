@@ -39,7 +39,8 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . "GMT");
 header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
 header("Content-type: text/xml");
-require_once ('classes/Session.inc');
+require_once 'classes/Session.inc';
+require_once 'classes/Util.inc';
 echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>";
 Session::logcheck("MenuPolicy", "PolicyNetworks");
 require_once 'ossim_db.inc';
@@ -113,7 +114,7 @@ $xml.= "<total>$total</total>\n";
 foreach($net_list as $net) {
     $name = $net->get_name();
     $xml.= "<row id='".htmlspecialchars($name)."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./newnetform.php?name=".urlencode($name)."\">" . htmlentities($name) . "</a>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newnetform.php?name=".urlencode($name)."\">" . Util::htmlentities($name) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net->get_ips() . "]]></cell>";
 

@@ -50,18 +50,20 @@
 * Classes list:
 * - Response
 */
-require_once ('classes/Response_host.inc');
-require_once ('classes/Response_net.inc');
-require_once ('classes/Response_port.inc');
-require_once ('classes/Response_plugin.inc');
-require_once ('classes/Response_action.inc');
-require_once ("ossim_db.inc");
+require_once 'classes/Response_host.inc';
+require_once 'classes/Response_net.inc';
+require_once 'classes/Response_port.inc';
+require_once 'classes/Response_plugin.inc';
+require_once 'classes/Response_action.inc';
+require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
 class Response {
     var $id;
     var $descr;
     function Response($id, $descr) {
         $this->id = $id;
-        $this->descr = htmlentities($descr, ENT_COMPAT, "UTF-8");
+        $this->descr = Util::htmlentities($descr, ENT_COMPAT, "UTF-8");
     }
     function get_id() {
         return $this->id;

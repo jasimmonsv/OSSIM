@@ -50,8 +50,10 @@
 * Classes list:
 * - RRD_config
 */
-require_once ('classes/Log_action.inc');
-require_once ("ossim_db.inc");
+require_once 'classes/Log_action.inc';
+require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
 class RRD_config {
     var $profile;
     var $rrd_attrib;
@@ -127,10 +129,10 @@ class RRD_config {
         return $list;
     }
     function insert($conn, $profile, $rrd_attrib, $threshold, $priority, $alpha, $beta, $persistence, $enable, $description = "") {
-        $profile = htmlentities($profile, ENT_COMPAT, "UTF-8");
-        $rrd_attrib = htmlentities($rrd_attrib, ENT_COMPAT, "UTF-8");
-        $description = htmlentities($description, ENT_COMPAT, "UTF-8");
-        $enable = htmlentities($enable, ENT_COMPAT, "UTF-8");
+        $profile = Util::htmlentities($profile, ENT_COMPAT, "UTF-8");
+        $rrd_attrib = Util::htmlentities($rrd_attrib, ENT_COMPAT, "UTF-8");
+        $description = Util::htmlentities($description, ENT_COMPAT, "UTF-8");
+        $enable = Util::htmlentities($enable, ENT_COMPAT, "UTF-8");
         $threshold = intval($threshold);
         $priority = intval($priority);
         $alpha = intval($alpha);

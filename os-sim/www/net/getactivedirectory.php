@@ -39,7 +39,8 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . "GMT");
 header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
 header("Content-type: text/xml");
-require_once ('classes/Session.inc');
+require_once 'classes/Session.inc';
+require_once 'classes/Util.inc';
 if (!Session::am_i_admin()) die(_("You don't have permissions for Asset Discovery"));
 echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 require_once 'ossim_db.inc';
@@ -86,13 +87,13 @@ $xml.= "<total>$total</total>\n";
 foreach($ad_list as $ad) {
     $xml.= "<row id='".$ad->get_id()."'>";
     $xml.= "<cell><![CDATA[" . long2ip($ad->get_server()) . "]]></cell>";
-    $xml.= "<cell><![CDATA[" . htmlentities($ad->get_binddn()) . "]]></cell>";
+    $xml.= "<cell><![CDATA[" . Util::htmlentities($ad->get_binddn()) . "]]></cell>";
 	$pass = "";
 	for ($p = 0; $p < strlen($ad->get_password()); $p++) {
         $pass .= "*";
     }
     $xml.= "<cell><![CDATA[" . $pass . "]]></cell>";
-    $xml.= "<cell><![CDATA[" . htmlentities($ad->get_scope()) . "]]></cell>";  
+    $xml.= "<cell><![CDATA[" . Util::htmlentities($ad->get_scope()) . "]]></cell>";  
     $xml.= "</row>\n";
 }
 $xml.= "</rows>\n";

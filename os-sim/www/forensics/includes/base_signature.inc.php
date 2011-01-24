@@ -27,6 +27,7 @@
 ** Built upon work by Roman Danyliw <rdd@cert.org>, <roman@danyliw.com>
 ** Built upon work by the BASE Project Team <kjohnson@secureideas.net>
 **/
+require_once 'classes/Util.inc';
 defined('_BASE_INC') or die('Accessing this file directly is not allowed.');
 /*
 function GetSignatureName($sig_id, $db) {
@@ -42,7 +43,7 @@ function GetSignatureName($sig_id, $db) {
         $name = $myrow[0];
         $tmp_result->baseFreeRows();
     } else $name = "[" . _ERRSIGNAMEUNK . "]";
-    $_SESSION['acid_sig_names'][$sig_id] = htmlentities($name, ENT_COMPAT, "UTF-8");
+    $_SESSION['acid_sig_names'][$sig_id] = Util::htmlentities($name, ENT_COMPAT, "UTF-8");
     return $name;
 }
 function GetSignaturePriority($sig_id, $db) {
@@ -317,7 +318,7 @@ function GetPluginNameDesc($plugin_id, $db) {
             $desc = $myrow[1];
             $tmp_result->baseFreeRows();
         }
-        $_SESSION['acid_plugin_namedesc'][$plugin_id] = htmlentities($name.";".$desc, ENT_COMPAT, "UTF-8");
+        $_SESSION['acid_plugin_namedesc'][$plugin_id] = Util::htmlentities($name.";".$desc, ENT_COMPAT, "UTF-8");
     }
     return explode(";",$_SESSION['acid_plugin_namedesc'][$plugin_id]);
 }
@@ -336,7 +337,7 @@ function GetOssimSignatureName($plugin_id, $plugin_sid, $db) {
         $name = $myrow[0];
         $tmp_result->baseFreeRows();
     }
-    $_SESSION['acid_sig_names'][$plugin_id." ".$plugin_sid] = htmlentities($name, ENT_COMPAT, "UTF-8");
+    $_SESSION['acid_sig_names'][$plugin_id." ".$plugin_sid] = Util::htmlentities($name, ENT_COMPAT, "UTF-8");
     return $name;
 }
 
@@ -388,7 +389,7 @@ function GetSigClassName($class_id, $db) {
         $_SESSION['acid_sig_class_name'][$sig_id] = "<I>" . _UNCLASS . "</I>";
         return "<I>" . _UNCLASS . "</I>";
     } else {
-        $_SESSION['acid_sig_class_name'][$sig_id] = htmlentities($row[0], ENT_COMPAT, "UTF-8");
+        $_SESSION['acid_sig_class_name'][$sig_id] = Util::htmlentities($row[0], ENT_COMPAT, "UTF-8");
         return $row[0];
     }
 }

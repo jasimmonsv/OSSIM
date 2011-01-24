@@ -34,8 +34,10 @@
 * Function list:
 * Classes list:
 */
-require_once ('classes/Session.inc');
-require_once ('classes/Security.inc');
+require_once 'classes/Session.inc';
+require_once 'classes/Security.inc';
+require_once 'classes/Util.inc';
+
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
 ini_set("max_execution_time","300");
 $unique_id = uniqid("alrm_");
@@ -766,7 +768,7 @@ if ($count > 0) {
         $date_slices = split(" ", $date);
         list($year, $month, $day) = split("-", $date_slices[0]);
         $date_unformated = $year.$month.$day;
-        $date_formatted = htmlentities(strftime("%A %d-%b-%Y", mktime(0, 0, 0, $month, $day, $year)));
+        $date_formatted = Util::htmlentities(strftime("%A %d-%b-%Y", mktime(0, 0, 0, $month, $day, $year)));
         if ($datemark != $date_slices[0]) {
             $link_delete = "
                     <a href=\"" . $_SERVER["SCRIPT_NAME"] . "?delete_day=" . $alarm->get_timestamp() . "&inf=" . ($sup - $ROWS) . "&sup=$sup&hide_closed=$hide_closed&unique_id=$unique_id\" style='font-weight:bold'> " . gettext("Delete") . " </a>

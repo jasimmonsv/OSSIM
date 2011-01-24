@@ -50,8 +50,10 @@
 * Classes list:
 * - log_action
 */
-require_once ('classes/Session.inc');
-require_once ('ossim_db.inc');
+require_once 'classes/Session.inc';
+require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
 Class log_action {
     var $login;
     var $from;
@@ -62,7 +64,7 @@ Class log_action {
     var $priority;
     function log_action($login, $from, $date, $code, $info, $descr, $priority) {
         $this->login = $login;
-        $this->from = htmlentities($from, ENT_COMPAT, "UTF-8");
+        $this->from = Util::htmlentities($from, ENT_COMPAT, "UTF-8");
         $this->date = $date;
         $this->code = $code;
         $this->info = $info;

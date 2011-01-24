@@ -82,10 +82,11 @@ require_once 'ossim_acl.inc';
 require_once 'ossim_conf.inc';
 session_start();
 
-if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) && !$force_gacl)
+if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) && !$force_gacl) {
 	include "Acl.inc";
+}
 else {
-
+echo "OPENSOURCE????";
 //session_start();
 // Locale needs $_SESSION
 require_once 'classes/Locale.inc';

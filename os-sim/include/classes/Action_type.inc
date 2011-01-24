@@ -39,13 +39,15 @@
 * Classes list:
 * - Action_type
 */
-require_once ("ossim_db.inc");
+require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
 class Action_type {
     var $type;
     var $descr;
     function Action_type($type, $descr) {
         $this->type = $type;
-        $this->descr = htmlentities($descr, ENT_COMPAT, "UTF-8");
+        $this->descr = Util::htmlentities($descr, ENT_COMPAT, "UTF-8");
     }
     function get_type() {
         return $this->type;

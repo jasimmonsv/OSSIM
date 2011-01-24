@@ -45,6 +45,9 @@
 * - OssimWarn extends OssimMainError
 * - OssimNotice extends OssimMainError
 */
+
+require_once 'classes/Util.inc';
+
 class OssimMainError {
     
 	public $errors;
@@ -375,7 +378,7 @@ function printr($var, $die = false, $return = false) {
     elseif ($var === true) $str = 'true';
     elseif ($var === '') $str = "''";
     else $str = print_r($var, true);
-    $str = "<pre>" . htmlentities($str, ENT_COMPAT, "UTF-8") . "</pre>";
+    $str = "<pre>" . Util::htmlentities($str, ENT_COMPAT, "UTF-8") . "</pre>";
     if ($return) {
         return $str;
     }

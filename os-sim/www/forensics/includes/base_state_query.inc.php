@@ -51,6 +51,9 @@ require_once ('classes/Util.inc');
 include_once ("$BASE_path/includes/base_constants.inc.php");
 include_once ("$BASE_path/includes/base_action.inc.php");
 // include_once("$BASE_path/includes/base_capabilities.php"); //Commented out by Kevin for testing
+
+require_once 'classes/Util.inc';
+
 class QueryState {
     var $canned_query_list = NULL;
     var $num_result_rows = - 1;
@@ -234,7 +237,7 @@ class QueryState {
                     //print_r ($x);
                     //print_r ($y);
                     $plot = plot_graphic("plotareaglobal", 50, 400, $x, $y, $xticks, $xlabels, true);
-                    //echo "PLOT:".htmlentities($plot).".";
+                    //echo "PLOT:".Util::htmlentities($plot).".";
                     echo "<td class=axis>$plot</td>";
                 }
                 echo "</tr></table></div>\n";

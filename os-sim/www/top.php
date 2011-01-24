@@ -37,6 +37,7 @@
 require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
 Session::useractive("session/login.php");
 require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
@@ -160,7 +161,7 @@ $moption = $hoption = "";
 foreach($menu as $name => $opc) if ($name != "Logout") {
     if (!isset($language)) $language = "";
     $open = ($option == $i) ? "header_highlight" : "";
-    $txtopc = (in_array($language, $uc_languages)) ? htmlentities(strtoupper(html_entity_decode(gettext($name)))) : gettext($name);
+    $txtopc = (in_array($language, $uc_languages)) ? Util::htmlentities(strtoupper(html_entity_decode(gettext($name)))) : gettext($name);
 ?>
 	
 	<!--Start of each accordion item-->
@@ -187,7 +188,7 @@ foreach($menu as $name => $opc) if ($name != "Logout") {
                 $hoption = $keys[$i];
                 $moption = $op["id"];
             }
-            $txtsopc = (in_array($language, $uc_languages)) ? htmlentities(strtoupper(html_entity_decode($op["name"]))) : $op["name"];
+            $txtsopc = (in_array($language, $uc_languages)) ? Util::htmlentities(strtoupper(html_entity_decode($op["name"]))) : $op["name"];
             $lnk = (count($menu[$keys[$i]])==1 || ($option == $i && $soption == $j)) ? "on" : "";
             if ($op["id"] != "Help") {
 ?>
@@ -356,6 +357,3 @@ if ($url != "") {
 ?>
 </body>
 </html>
-
-
-

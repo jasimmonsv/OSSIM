@@ -209,6 +209,9 @@
 ** Built upon work by Roman Danyliw <rdd@cert.org>, <roman@danyliw.com>
 ** Built upon work by the BASE Project Team <kjohnson@secureideas.net>
 **/
+
+require_once 'classes/Util.inc';
+
 defined('_BASE_INC') or die('Accessing this file directly is not allowed.');
 class BaseCriteria {
     var $criteria;
@@ -500,7 +503,7 @@ class SignatureCriteria extends SingleElementCriteria {
             $tmp = $tmp . _SIGNATURE . ' ' . $tmp_human . ' "';
             $pidsid = explode(";",$this->criteria[1]); 
             if (($this->db->baseGetDBversion() >= 100) && $this->sig_type == 1) $tmp = $tmp . html_entity_decode(preg_replace("/.*##/","",BuildSigByPlugin(intval($pidsid[0]),intval($pidsid[1]), $this->db))) . '" ' . $this->cs->GetClearCriteriaString($this->export_name);
-            else $tmp = $tmp . htmlentities($this->criteria[1], ENT_COMPAT, "UTF-8") . '"' . $this->cs->GetClearCriteriaString($this->export_name);
+            else $tmp = $tmp . Util::htmlentities($this->criteria[1], ENT_COMPAT, "UTF-8") . '"' . $this->cs->GetClearCriteriaString($this->export_name);
             $tmp = $tmp . '<BR>';
         }
         return $tmp;
@@ -538,7 +541,7 @@ class SignatureClassificationCriteria extends SingleElementCriteria {
         if ($this->db->baseGetDBversion() >= 103) {
             if ($this->criteria != " " && $this->criteria != "") {
                 if ($this->criteria == "null") $tmp = $tmp . _SIGCLASS . ' = ' . '<I>' . _UNCLASS . '</I><BR>';
-                else $tmp = $tmp . _SIGCLASS . ' = ' . htmlentities(GetSigClassName($this->criteria, $this->db, ENT_COMPAT, "UTF-8")) . $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+                else $tmp = $tmp . _SIGCLASS . ' = ' . Util::htmlentities(GetSigClassName($this->criteria, $this->db, ENT_COMPAT, "UTF-8")) . $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
             }
         }
         return $tmp;
@@ -606,7 +609,7 @@ class SignaturePriorityCriteria extends SingleElementCriteria {
         if ($this->db->baseGetDBversion() >= 103) {
             if ($this->criteria[1] != " " && $this->criteria[1] != "") {
                 if ($this->criteria[1] == null) $tmp = $tmp . _SIGPRIO . ' = ' . '<I>' . _NONE . '</I><BR>';
-                else $tmp = $tmp . _SIGPRIO . ' ' . htmlentities($this->criteria[0], ENT_COMPAT, "UTF-8") . " " . htmlentities($this->criteria[1], ENT_COMPAT, "UTF-8") . $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+                else $tmp = $tmp . _SIGPRIO . ' ' . Util::htmlentities($this->criteria[0], ENT_COMPAT, "UTF-8") . " " . Util::htmlentities($this->criteria[1], ENT_COMPAT, "UTF-8") . $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
             }
         }
         return $tmp;
@@ -638,7 +641,7 @@ class AlertGroupCriteria extends SingleElementCriteria {
     }
     function Description() {
         $tmp = "";
-        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _ALERTGROUP . ' = [' . htmlentities($this->criteria, ENT_COMPAT, "UTF-8") . '] ' . GetAGNameByID($this->criteria, $this->db) . $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _ALERTGROUP . ' = [' . Util::htmlentities($this->criteria, ENT_COMPAT, "UTF-8") . '] ' . GetAGNameByID($this->criteria, $this->db) . $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
         return $tmp;
     }
 }; /* AlertGroupCriteria */
@@ -832,7 +835,7 @@ class SensorCriteria extends SingleElementCriteria {
     }
     function Description() {
         $tmp = "";
-        //if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _SENSOR . ' = [' . htmlentities($this->criteria, ENT_COMPAT, "UTF-8") . '] (' . GetSensorName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        //if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _SENSOR . ' = [' . Util::htmlentities($this->criteria, ENT_COMPAT, "UTF-8") . '] (' . GetSensorName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
 		if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _SENSOR . ' = (' . GetSensorName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
         return $tmp;
     }

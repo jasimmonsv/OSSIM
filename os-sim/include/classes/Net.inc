@@ -72,8 +72,11 @@ require_once 'classes/Control_panel_net.inc';
 require_once 'classes/Session.inc';
 require_once 'ossim_conf.inc';
 require_once 'classes/Log_action.inc';
-require_once ("ossim_db.inc");
+require_once 'ossim_db.inc';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
+
+
 class Net {
     var $name;
     var $ips;
@@ -263,8 +266,8 @@ class Net {
         settype($threshold_a, "int");
         settype($alert, "int");
         settype($persistence, "int");
-        $rrd_profile = htmlentities($rrd_profile);
-        $persistence = htmlentities($persistence);
+        $rrd_profile = Util::htmlentities($rrd_profile);
+        $persistence = Util::htmlentities($persistence);
         $name = str_replace(" ", "_", $name);
         $ips = str_replace(" ", "", $ips);
         $sql = "INSERT INTO net (name, ips, asset, threshold_c, threshold_a, rrd_profile, alert, persistence, descr) VALUES
