@@ -554,7 +554,7 @@ $sql = "SELECT
             net_group_reference
         WHERE
             net_group_reference.net_name = net.name AND
-            net_group_reference.net_group_name = net_group.name$net_where";
+            net_group_reference.net_group_name = net_group.name$net_where$net_limit";
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
@@ -654,7 +654,7 @@ $sql = "SELECT
         FROM
             net
         WHERE
-            net.name AND net.name NOT IN ($nets_grouped)$net_where";
+            net.name AND net.name NOT IN ($nets_grouped)$net_where$net_limit";
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
