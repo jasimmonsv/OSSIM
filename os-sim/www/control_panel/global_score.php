@@ -83,7 +83,11 @@ $valid_range = array(
     'year'
 );
 $range = GET('range');
+$from = (GET('from') != "") ? GET('from') : 0;
+$max = 10;
+
 ossim_valid($range, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("range"));
+ossim_valid($from, OSS_DIGIT, 'illegal:' . _("from"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -533,6 +537,7 @@ if ($allowed_sensors != "" || $allowed_nets != "") {
 		$net_where = " AND net.name in ($networks)";
 	}
 }
+$net_limit = " LIMIT $from,$max";
 // We can't join the control_panel table, because new ossim installations
 // holds no data there
 $sql = "SELECT
@@ -553,6 +558,7 @@ $sql = "SELECT
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
+
 $groups = array();
 $group_max_c = $group_max_a = 0;
 while (!$rs->EOF) {
@@ -627,6 +633,19 @@ while (!$rs->EOF) {
 ////////////////////////////////////////////////////////////////
 // Networks outside groups
 ////////////////////////////////////////////////////////////////
+$sql = "SELECT net_name FROM net_group_reference";
+if (!$rs = & $conn->Execute($sql)) {
+    die($conn->ErrorMsg());
+}
+$nets_grouped = "";
+while (!$rs->EOF) {
+	$nets_grouped .= ($nets_grouped != "") ? ",\"".$rs->fields['net_name']."\"" : "\"".$rs->fields['net_name']."\"";
+	$rs->MoveNext();
+}
+if ($nets_grouped == "") {
+	$nets_grouped = "''";
+}
+
 $sql = "SELECT
             net.name as net_name,
             net.threshold_c as net_threshold_c,
@@ -635,10 +654,11 @@ $sql = "SELECT
         FROM
             net
         WHERE
-            net.name NOT IN (SELECT net_name FROM net_group_reference)$net_where";
+            net.name AND net.name NOT IN ($nets_grouped)$net_where";
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
+
 $networks = array();
 while (!$rs->EOF) {
     // check perms over the network
@@ -877,15 +897,15 @@ echo gettext("Control Panel"); ?> </title>
     }
     function toggle(type, start_id, end_id, link_id)
     {
-        if ($("#"+link_id+'_c').html() == '+') {
+        if ($("#"+link_id+'_c').html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
 			for (i=0; i < end_id; i++) {
 				id = start_id + i;
                 tr_id = type + '_' + id;
                 $("#"+tr_id+'_c').show();
                 $("#"+tr_id+'_a').show();
             }
-            $("#"+link_id+'_c').html('-');
-            $("#"+link_id+'_a').html('-');
+            $("#"+link_id+'_c').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
+            $("#"+link_id+'_a').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
         } else {
             for (i=0; i < end_id; i++) {
                 id = start_id + i;
@@ -893,8 +913,8 @@ echo gettext("Control Panel"); ?> </title>
                 $("#"+tr_id+'_c').hide();
                 $("#"+tr_id+'_a').hide();
             }
-            $("#"+link_id+'_c').html('+');
-            $("#"+link_id+'_a').html('+');
+            $("#"+link_id+'_c').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
+            $("#"+link_id+'_a').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
         }
     }
   </script>
@@ -1112,13 +1132,13 @@ Network Groups
             <td class="noborder">
                 <a id="a_<?php echo ++$a
 ?>_<?php echo $ac
-?>" href="javascript: toggle('net', <?php echo $net + 1 ?>, <?php echo $num_nets ?>, 'a_<?php echo $a ?>');">+</a>
+?>" href="javascript: toggle('net', <?php echo $net + 1 ?>, <?php echo $num_nets ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
             </td>
             <td style="text-align: left"><b><?php echo $group_name ?></b></td>
             <?php
             html_set_values('group_' . $group_name, 'net', $group_data["max_$ac"], $group_data["max_{$ac}_date"], $group_data["current_$ac"], $group_data["threshold_$ac"], $ac);
 ?>
-            <td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+            <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
             <td nowrap><?php echo html_date() ?></td>
             <?php echo html_max() ?>
             <?php echo html_current() ?>
@@ -1138,7 +1158,7 @@ Network Groups
                 if ($num_hosts) { ?>
                         <a id="a_<?php echo ++$a
 ?>_<?php echo $ac
-?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');">+</a>&nbsp;
+?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
                         <?php
                 } ?>
                         <?php echo $net_name ?>
@@ -1146,7 +1166,7 @@ Network Groups
                     <?php
                 html_set_values($net_name, 'net', $net_data["max_$ac"], $net_data["max_{$ac}_date"], $net_data["current_$ac"], $net_data["threshold_$ac"], $ac);
 ?>
-                    <td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+                    <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
                     <td nowrap><?php echo html_date() ?></td>
                     <?php echo html_max() ?>
                     <?php echo html_current() ?>
@@ -1166,7 +1186,7 @@ Network Groups
                             <?php
                         html_set_values($host_ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac);
 ?>
-                            <td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+                            <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
                             <td nowrap><?php echo html_date() ?></td>
                             <?php echo html_max() ?>
                             <?php echo html_current() ?>
@@ -1208,7 +1228,7 @@ Network outside groups
             if ($num_hosts) { ?>
             <a id="a_<?php echo ++$a
 ?>_<?php echo $ac
-?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');">+</a>&nbsp;
+?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
             <?php
             } ?>
             <a href="../report/host_report.php?host=<?=$net_data['address']?>" id="<?=$net_data['address']?>;<?=$net_name?>" class="NetReportMenu"><b><?php echo $net_name
@@ -1238,8 +1258,8 @@ Network outside groups
                         <?php
                     html_set_values($host_ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac);
 ?>
-                        <td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-                        <td nowrap><?php echo html_date() ?></td>
+                        <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+                        <td><?php echo html_date() ?></td>
                         <?php echo html_max() ?>
                         <?php echo html_current() ?>
                     </tr>   
