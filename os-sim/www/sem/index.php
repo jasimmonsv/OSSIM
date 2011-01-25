@@ -1125,8 +1125,8 @@ $(document).ready(function(){
 			if (formated[0]!=formated[1]) {
 				var f1 = formated[0].split(/-/);
 				var f2 = formated[1].split(/-/);
-				document.getElementById('start_aaa').value = f1[0]+'-'+f1[1]+'-'+f1[2];
-				document.getElementById('end_aaa').value = f2[0]+'-'+f2[1]+'-'+f2[2];
+				document.getElementById('start_aaa').value = f1[0]+'-'+f1[1]+'-'+f1[2]+' 00:00:00';
+				document.getElementById('end_aaa').value = f2[0]+'-'+f2[1]+'-'+f2[2]+' 23:59:59';
                 $("#widget>a").trigger('click');
 				setFixed2();
 			}
