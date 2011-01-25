@@ -202,7 +202,7 @@ class Net {
         return array($list,$i);
     }
 	*/
-    function get_list($conn, $filter = "", $limit = "ORDER BY name") {
+    function get_list($conn, $filter = "", $limit = "ORDER BY name ASC") {
     	$filter = preg_replace("/^\s*where /i","",$filter); // Clean filter
     	$list = array();
     	$allowed_nets = Session::allowedNets();
@@ -229,7 +229,7 @@ class Net {
     	
     	$iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
     	
-        $query = OssimQuery("SELECT SQL_CALC_FOUND_ROWS * FROM net $main_where$sensor_where$nets_where $limit");
+        $query = OssimQuery("SELECT DISTINCT SQL_CALC_FOUND_ROWS net.* FROM net $main_where$sensor_where$nets_where $limit");
         //echo $query."<br>";exit;
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
@@ -249,13 +249,14 @@ class Net {
 
     function get_all($conn,$checkperm=false) {
         $list = array();
+        if ($checkperm) return Net::get_list($conn);
+        // without perms list all networks
         $sql = "SELECT * FROM net ORDER BY name ASC";
         if (!$rs = $conn->Execute($sql)) {
             die($conn->ErrorMsg());
         }
         while (!$rs->EOF) {
-            if (!$checkperm || ($checkperm && Session::netAllowed($conn, $rs->fields["name"])))
-                $list[] = new Net($rs->fields["name"], $rs->fields["ips"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["descr"]);
+            $list[] = new Net($rs->fields["name"], $rs->fields["ips"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["descr"]);
             $rs->MoveNext();
         }
         return $list;
@@ -290,7 +291,7 @@ class Net {
         Net_qualification::insert($conn, $name, 1, 1);
         Net_vulnerability::insert($conn, $name, 0);
         Net_sensor_reference::insert($conn, $name, $sensors);
-        $this->cache_insert_cidr($conn, $ips);
+        Net::cache_insert_cidr($conn, $ips);
         $infolog = array(
             $name
         );
@@ -310,7 +311,7 @@ class Net {
         WebIndicator::set_on("ReloadPolicy");
     }
     function delete($conn, $name, $skip_group_update = 0) {
-    	$ips = $this->get_ips_by_name($conn, $name);
+    	$ips = Net::get_ips_by_name($conn, $name);
         $sql = "DELETE FROM net WHERE name = ?";
         $params = array(
             $name
@@ -326,7 +327,7 @@ class Net {
             Net_group_reference::check_orphan($conn, $name);
         }
         Net_sensor_reference::delete($conn, $name);
-        $this->cache_delete_cidr($conn, $ips);
+        Net::cache_delete_cidr($conn, $ips);
         $infolog = array(
             $name
         );

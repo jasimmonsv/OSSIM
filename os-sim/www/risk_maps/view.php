@@ -236,11 +236,19 @@ if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
 	txtvvv = '<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
 
 	function responderAjax(url) {
-		var ajaxObject = document.createElement('script');
+		/*var ajaxObject = document.createElement('script');
 		ajaxObject.src = url;
 		ajaxObject.type = "text/javascript";
 		ajaxObject.charset = "utf-8";
-		document.getElementsByTagName('head').item(0).appendChild(ajaxObject);
+		document.getElementsByTagName('head').item(0).appendChild(ajaxObject);*/
+	
+		$.ajax({
+		   type: "GET",
+		   url: url,
+		   success: function(msg){
+			 eval(msg);
+		   }
+		});		
 		
 	}
 	function urlencode(str) { return escape(str).replace('+','%2B').replace('%20','+').replace('*','%2A').replace('/','%2F').replace('@','%40'); }
@@ -295,7 +303,7 @@ if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
 <body leftmargin=5 topmargin=5 class=ne1 onload="initDiv()">
 <table border=0 cellpadding=0 cellspacing=0><tr>
 <td valign=top id="map">
-	<img id="map_img" src="maps/map<? echo $map ?>.jpg" border=0>
+	<img id="map_img" src="maps/map<? echo $map ?>.jpg" border="0">
 </td>
 <td valign=top class=ne1 style="padding-left:5px">
 <?php

@@ -69,43 +69,24 @@ require_once ('ossim_db.inc');
 $db = new ossim_db();
 $conn = $db->connect();
 
-$ossim_hosts = $all_hosts = array();
+$ossim_hosts = array();
 $total_hosts = 0;
 $ossim_nets = array();
 $all_cclass_hosts = array();
 $buffer = "";
-if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_list as $host) if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) {
-    $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
-    $all_hosts[$host->get_ip() ] = 1;
-    //$cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());
-	$cclass = $host->get_hostname();
-    $all_cclass_hosts[$cclass][] = $host->get_ip();
-    $total_hosts++;
-}
-if ($hg_list = Host_group::get_list($conn, "", "ORDER BY name")) {
-    foreach($hg_list as $hg) {
-        $hg_hosts = $hg->get_hosts($conn, $hg->get_name());
-        foreach($hg_hosts as $hosts) {
-            $ip = $hosts->get_host_ip();
-            unset($all_hosts[$ip]);
-        }
-    }
-}
-$wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
-if ($net_list = Net::get_list($conn, $wherenet)) {
-    foreach($net_list as $net) {
-        $net_name = $net->get_name();
-        $net_ips = $net->get_ips();
-        $hostin = array();
-        foreach($ossim_hosts as $ip => $hname) if ($net->is_ip_in_cache_cidr($conn, $ip, $net_ips)) {
-            $hostin[$ip] = $hname;
-            unset($all_hosts[$ip]);
-        }
-        $ossim_nets[$net_name] = $hostin;
-    }
+
+if ($key=="" || preg_match("/^(all|host_group)/",$key)) {
+	if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_list as $host) if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) {
+	    $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
+	    //$cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());
+		$cclass = $host->get_hostname();
+	    $all_cclass_hosts[$cclass][] = $host->get_ip();
+	    $total_hosts++;
+	}
 }
 
 if ($key == "host_group") {
+	$hg_list = Host_group::get_list($conn, "", "ORDER BY name");
     if (count($hg_list)>0) {
         $buffer .= "[";
         $j = 0;
@@ -125,7 +106,9 @@ if ($key == "host_group") {
     }
 }
 else if ($key == "net") {
-    if (count($net_list)>0) {
+
+	$wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
+    if ($net_list = Net::get_list($conn, $wherenet)) {
         $buffer .= "[";
         $j = 0;
         foreach($net_list as $net) {

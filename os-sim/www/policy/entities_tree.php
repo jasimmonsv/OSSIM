@@ -63,7 +63,7 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 /* load hosts and nets */
-$ossim_hosts = $all_hosts = array();
+$ossim_hosts = array();
 $total_hosts = 0;
 $ossim_nets = array();
 $all_cclass_hosts = array();
@@ -81,42 +81,23 @@ else if(preg_match("/all_(.*)/",$key,$found)) {
     }
 }
 
-if ($host_list = Host::get_list($conn, $where_host, "ORDER BY h.hostname")) {
-	foreach($host_list as $host){
-        //echo "Fuera ".$host->get_ip()."<br>";
-		if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) 
-		{
-        //echo "Dentro ".$host->get_ip()."<br>";
-			$ossim_hosts[$host->get_ip() ] = $host->get_hostname();
-			$all_hosts[$host->get_ip() ] = 1;
-			$cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());
-			$all_cclass_hosts[$cclass][] = $host->get_ip();
-			$total_hosts++;
-		}
-    }
-	$hg_list = Host_group::get_list($conn, "", "ORDER BY name");
-	if ($hg_list[0]) {
-    	$found_hostgroup = $hg_list[0]->get_foundrows();
-    	if ($found_hostgroup == 0) $found_hostgroup = count($hg_list);
-	} else $found_hostgroup = 0;
-	
-	if ($found_hostgroup)
-	{
-		foreach($hg_list as $hg) {
-			$hg_hosts = $hg->get_hosts($conn, $hg->get_name());
-			foreach($hg_hosts as $hosts) {
-				$ip = $hosts->get_host_ip();
-				unset($all_hosts[$ip]);
+if ($key=="" || preg_match("/^(all|host|hostgroup)/",$key)) {
+	if ($host_list = Host::get_list($conn, $where_host, "ORDER BY h.hostname"))
+		foreach($host_list as $host){
+			if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) 
+			{
+				$ossim_hosts[$host->get_ip() ] = $host->get_hostname();
+				$cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());
+				$all_cclass_hosts[$cclass][] = $host->get_ip();
+				$total_hosts++;
 			}
-		}
-	}
+	    }
 }
-$wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
-$net_list = Net::get_list($conn, $wherenet);
 
 /* All assets*/
 
 if ($key == "hostgroup") {
+	$hg_list = Host_group::get_list($conn, "", "ORDER BY name");
     if (count($hg_list)>0) {
         $buffer .= "[";
         $j = 0;
@@ -198,7 +179,7 @@ else if (preg_match("/snetgroup_(.*)/",$key,$found)) {
     echo $buffer;
 }
 else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
-    if ($hg_hosts = $hg->get_hosts($conn, base64_decode($found[1]))) {
+    if ($hg_hosts = Host_group::get_hosts($conn, base64_decode($found[1]))) {
         $k = 0;
         $html = "";
         $buffer .= "[";
@@ -223,6 +204,10 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
     echo $buffer;
 }
 else if ($key == "net") {
+	
+	$wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
+	$net_list = Net::get_list($conn, $wherenet);
+    
     if (count($net_list)>0) {
         $buffer .= "[";
         $j = 0;
@@ -301,7 +286,7 @@ else if ($key=="netgroup") {
                 $net_group_name = $net_group->get_name();
 				$ng_key         = base64_encode($net_group_name);
 				$ng_title       = utf8_encode($net_group_name);
-                $nets           = $net_group->get_networks($conn, $net_group_name);
+                //$nets           = $net_group->get_networks($conn, $net_group_name);
                 $li = "key:'netgroup_$ng_key', isLazy:true , url:'../net/newnetgroupform.php?name=".urlencode($net_group_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$ng_title'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }
@@ -412,16 +397,20 @@ else if(preg_match("/u_(.*)_netgroup/",$key,$found)){
 }
 else if(preg_match("/u_(.*)_net/",$key,$found)){
     $net_list = Net::get_list($conn);
-    $allowedNets = Session::allowedNets($found[1]);
+    $allowedNets = explode(",",Session::allowedNets($found[1]));
+    $nets_allowed = explode(",",$allowedNets);
     $buffer .= "[";
     $j = 0;
-    foreach($net_list as $net) if (in_array($net->get_ips(), explode(",",$allowedNets)) || $allowedNets=="") { 
-        $net_name = $net->get_name();
-        $ips = $net->get_ips();
-        $li = "url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$net_name <font style=\"font-size:80%\">(".$ips.")</font>'\n";
-        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
-        $j++;
-    }
+    foreach($net_list as $net) {
+    	$cidrs = explode(",",$net->get_ips());
+    	if (array_intersect($cidrs,$nets_allowed)===$cidrs || $allowedNets=="") {
+	        $net_name = $net->get_name();
+	        $ips = $net->get_ips();
+	        $li = "url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$net_name <font style=\"font-size:80%\">(".$ips.")</font>'\n";
+	        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
+	        $j++;
+	    }
+	}
     $buffer .= "]";
     if ($buffer=="[]")  $buffer = "[{title:'"._("No Nets Found")."'}]";
     echo $buffer;
@@ -429,9 +418,10 @@ else if(preg_match("/u_(.*)_net/",$key,$found)){
 else if(preg_match("/u_(.*)_sensor/",$key,$found)){
     $sensor_list = Sensor::get_list($conn);
     $allowedSensors = Session::allowedSensors($found[1]);
+    $sensors_allowed = explode(",",$allowedSensors);
     $buffer .= "[";
     $j = 0;
-    foreach($sensor_list as $sensor) if (in_array($sensor->get_ip(), explode(",",$allowedSensors)) || $allowedSensors=="") {
+    foreach($sensor_list as $sensor) if (in_array($sensor->get_ip(), $sensors_allowed) || $allowedSensors=="") {
         $sensor_name = $sensor->get_name();
         $sensor_title = utf8_encode($sensor_name);
         $li = "url:'../sensor/interfaces.php?sensor=".$sensor->get_ip()."&name=".urlencode($sensor_name)."', icon:'../../pixmaps/theme/server.png', title:'$sensor_title'\n";
@@ -482,11 +472,14 @@ else if(preg_match("/e_(.*)_net/",$key,$found)){
     $allowed_nets = array_keys($entityPerms["assets"]);
     $buffer .= "[";
     $j = 0;
-    foreach($nets as $net) if (in_array($net->get_name(),$allowed_nets) || !count($allowed_nets)) {
-        $net_title  = utf8_encode($net->get_name());
-		$li = "url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'".$net_title." <font style=\"font-size:80%\">(".$net->get_ips().")</font>'\n";
-        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
-        $j++;
+    foreach($nets as $net) {
+    	$cidrs = explode(",",$net->get_ips());
+    	if (array_intersect($cidrs,$allowed_nets)===$cidrs || !count($allowed_nets)) {
+	        $net_title  = utf8_encode($net->get_name());
+			$li = "url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'".$net_title." <font style=\"font-size:80%\">(".$net->get_ips().")</font>'\n";
+	        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
+	        $j++;
+	    }
     }
     $buffer .= "]";
     if ($buffer=="[]")  $buffer = "[{title:'"._("No Nets Found")."'}]";

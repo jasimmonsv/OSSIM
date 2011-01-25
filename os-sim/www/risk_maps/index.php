@@ -1170,10 +1170,9 @@ print "</div>\n";
 	<td width="48" valign='top'>
 		<img src='images/wastebin.gif' id="wastebin" border='0'/>
 	</td>
-	<td valign='top 'id="map">
-		<img src="maps/map<? echo $map ?>.jpg" id="map_img" border='0'/>
+	<td valign='top' id="map">
+		<img src="maps/map<?php echo $map ?>.jpg" id="map_img" border='0'/>
 	</td>
-	<td valign='top' id="map"></td>
 </tr>
 </table>
 

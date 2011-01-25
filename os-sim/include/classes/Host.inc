@@ -235,7 +235,7 @@ class Host {
 	            print $conn->ErrorMsg();
 	        } else {
 	            while (!$rs->EOF) {
-	                if (Net::isIpInNet($rs->fields["ip"],$allowedNets)) {
+	                if (Net::is_ip_in_cache_cidr($conn, $rs->fields["ip"], $allowedNets)) {
 	                	$hosts .= ",'".$rs->fields["ip"]."'";
 	                }
 	                $rs->MoveNext();
@@ -864,7 +864,7 @@ class Host {
 	function get_properties_types($conn,$id='') {
         $list = array();
         $sql = "SELECT * FROM host_property_reference";
-        if($id!=''){
+        if( $id!='' ){
         	 $sql .= " WHERE id=".$id;
         }
         $sql .= " ORDER BY ord";
@@ -882,10 +882,12 @@ class Host {
         return $list;
 	}
  
-	function get_host_properties($conn,$ip,$date="") {
+	function get_host_properties($conn,$ip,$date="", $order="") {
         $list = array();
         $sql = "SELECT h.*,r.name as property,s.name as source FROM host_properties h LEFT JOIN host_property_reference r ON h.property_ref=r.id LEFT JOIN host_source_reference s ON h.source_id=s.id WHERE h.ip=?";
-        if ($date!="") $sql .= " AND h.date>='$date'";
+        
+		if ($date!="")  $sql .= " AND h.date>='$date'";
+		if ($order!="") $sql .= " ORDER BY $order";
 		        
 		if (!$rs = & $conn->Execute($sql,array($ip))){ 
             print $conn->ErrorMsg();
@@ -941,5 +943,80 @@ class Host {
         }
         return $list;
     }
+	
+	function get_sources_references($conn, $id='') {
+        $list = array();
+        
+		$sql = "SELECT * FROM host_source_reference";
+        
+		if( $id!='' )
+        	$sql .= " WHERE id=".$id;
+        
+       
+		if (!$rs = & $conn->Execute($sql)){ 
+            return $conn->ErrorMsg();
+		} 
+		else 
+		{
+            while (!$rs->EOF){
+            	$list[$rs->fields["name"]] = array ($rs->fields["id"], $rs->fields["priority"]);
+                $rs->MoveNext();
+            }
+        }
+        return $list;
+	}
+	
+	
+	function delete_property($conn, $ip, $id)
+	{
+		if ( Session::hostAllowed($conn, $ip) )
+		{
+			$sql = "DELETE FROM host_properties WHERE id=?";
+			
+			if (!$rs = & $conn->Execute($sql,array($id)))
+				return $conn->ErrorMsg();
+            else 
+				return true;
+			
+		}
+		else
+			return _("You don't have permissions to delete this property");
+	}
+
+	function insert_property($conn, $ip, $sensor, $property_ref, $value, $extra, $source_id)
+	{
+		if ( Session::hostAllowed($conn, $ip) )
+		{
+			$sql = "INSERT INTO host_properties (id, ip, sensor, date, property_ref, source_id, value, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			
+			$id   = null;
+			$date = date("Y-m-d H:i:s");
+			$source_ref = Host::get_sources_references($conn);
+			
+			if ( !is_array($source_ref) || empty($source_ref["MANUAL"][0]) )
+				return _("Source Id not found");
+			
+			$source_id = $source_ref["MANUAL"][0];
+									
+			$params = array(
+				$id,
+				$ip,
+				$sensor,
+				$date,
+				$property_ref,
+				$source_id,
+				$value,
+				$extra
+			);
+									
+			if (!$rs = & $conn->Execute($sql,$params))
+				return $conn->ErrorMsg();
+            else 
+				return true;
+		}
+		else
+			return _("You don't have permissions to insert this property");
+	}
+		
 }
 ?>

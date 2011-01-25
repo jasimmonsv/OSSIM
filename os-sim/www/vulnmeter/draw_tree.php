@@ -65,31 +65,24 @@ require_once ('ossim_db.inc');
 $db = new ossim_db();
 $conn = $db->connect();
 
-$ossim_hosts = $all_hosts = array();
+$ossim_hosts = array();
 $total_hosts = 0;
 $ossim_nets = array();
 $all_cclass_hosts = array();
 $buffer = "";
-if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) foreach($host_list as $host) if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) {
-    $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
-    $all_hosts[$host->get_ip() ] = 1;
-    $cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());
-    $all_cclass_hosts[$cclass][] = $host->get_ip();
-    $total_hosts++;
-}
-if ($hg_list = Host_group::get_list($conn, "", "ORDER BY name")) {
-    foreach($hg_list as $hg) {
-        $hg_hosts = $hg->get_hosts($conn, $hg->get_name());
-        foreach($hg_hosts as $hosts) {
-            $ip = $hosts->get_host_ip();
-            unset($all_hosts[$ip]);
-        }
-    }
-}
 
-$net_list = Net::get_list($conn, "", "ORDER BY name");
+if ($key=="" || preg_match("/^(all|hostgroup)/",$key)) {
+	if ($host_list = Host::get_list($conn, "", "ORDER BY hostname"))
+		foreach($host_list as $host) if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) {
+		    $ossim_hosts[$host->get_ip() ] = $host->get_hostname();
+		    $cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $host->get_ip());
+		    $all_cclass_hosts[$cclass][] = $host->get_ip();
+		    $total_hosts++;
+		}
+}
 
 if ($key == "hostgroup") {
+	$hg_list = Host_group::get_list($conn, "", "ORDER BY name");
     if (count($hg_list)>0) {
         $buffer .= "[";
         $j = 0;
@@ -110,7 +103,7 @@ if ($key == "hostgroup") {
     }
 }
 else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
-    if ($hg_hosts = $hg->get_hosts($conn, base64_decode($found[1]))) {
+    if ($hg_hosts = Host_group::get_hosts($conn, base64_decode($found[1]))) {
         $k = 1;
         $j = 0;
         $html = "";
@@ -133,6 +126,7 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
     }
 }
 else if ($key == "net") {
+	$net_list = Net::get_list($conn, "", "ORDER BY name");
     if (count($net_list)>0) {
         $buffer .= "[";
         $j = 0;
@@ -198,7 +192,7 @@ else if ($key=="netgroup") {
             if($j>=$from && $j<$to) {
                	$ng_key = base64_encode($net_group->get_name());
 				$ng_title = utf8_encode($net_group->get_name());
-                $nets = $net_group->get_networks($conn, $net_group_name);
+                //$nets = $net_group->get_networks($conn, $net_group_name);
                 $li = "key:'netgroup_$ng_key', isLazy:true , url:'NODES:$ng_title', icon:'../../pixmaps/theme/net_group.png', title:'$ng_title'\n";
                 $buffer .= (($j>$from) ? "," : "") . "{ $li }\n";
             }
