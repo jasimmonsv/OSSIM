@@ -225,6 +225,11 @@ class OssimError extends OssimMainError {
             "short_descr" => gettext("Password saving failure") ,
             "long_descr" => gettext("Old password is not correct") ,
         );
+        /* Admin password not correct */
+        $this->errors["BAD_ADMIN_PASSWORD"] = array(
+            "short_descr" => gettext("Password saving failure") ,
+            "long_descr" => gettext("Admin password is not correct") ,
+        );
         /* Password mismatch */
         $this->errors["PASSWORDS_MISMATCH"] = array(
             "short_descr" => gettext("Authentication failure") ,

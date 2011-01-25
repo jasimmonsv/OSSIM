@@ -86,7 +86,6 @@ if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) && !
 	include "Acl.inc";
 }
 else {
-echo "OPENSOURCE????";
 //session_start();
 // Locale needs $_SESSION
 require_once 'classes/Locale.inc';

@@ -323,18 +323,11 @@ include ("../hmenu.php");
 						<!--<input type="hidden"  name="copy_panels" value="1" checked='checked'>-->
 					<?php
 					} ?>
-			
-					<?php
-					if ($_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN) {
-					?>
+					
 					<tr>
-						<td> <?php echo gettext("Current password"); ?> </td>
+						<td> <?php echo ($_SESSION['_user'] != $user->get_login()) ? gettext("Admin password") : gettext("Current password"); ?> </td>
 						<td class="left"><input type="password" name="oldpass"/></td>
 					</tr>
-					<?php
-					}
-					?>
-			
 					<tr>
 						<td> <?php echo gettext("Enter new password"); ?> </td>
 						<td class="left"><input type="password" name="pass1" id="pass1"/></td>
