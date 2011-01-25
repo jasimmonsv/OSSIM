@@ -2,6 +2,8 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+ALTER TABLE `acl_entities` ADD  `timezone` TINYINT NOT NULL DEFAULT '0' AFTER `address`;
+ALTER TABLE `users` ADD  `timezone` TINYINT NOT NULL DEFAULT '0' AFTER `first_login`;
 ALTER TABLE `sensor` ADD `tzone` INT NOT NULL DEFAULT 0;
 ALTER TABLE `host_properties` ADD `sensor` VARCHAR( 64 ) DEFAULT NULL AFTER `ip`;
 ALTER TABLE `host_properties` ADD INDEX (  `date` );
@@ -79,6 +81,7 @@ DROP PROCEDURE IF EXISTS net_convert;
 
 use snort;
 ALTER TABLE `sensor` CHANGE `sensor` `sensor` TEXT NULL DEFAULT '';
+ALTER TABLE `acid_event` ADD `timezone` TINYINT NOT NULL DEFAULT '0' AFTER `timestamp`;
 
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
