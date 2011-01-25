@@ -138,7 +138,12 @@ class Net_group {
         foreach ($all_nets as $net) {
         	$networks .= ($networks != "") ? ",'".$net->get_name()."'" : "'".$net->get_name()."'";
         }
-        $query = OssimQuery("SELECT DISTINCT $select FROM net_group g,net_group_reference r WHERE $args".(($args != "") ? " AND" : "")." g.name=r.net_group_name AND r.net_name in ($networks) $order");
+        if ($networks != "" && (Session::allowedNets() != "" || Session::allowedSensors() != "")) {
+        	$net_where = " AND r.net_name in ($networks)";
+        } else {
+        	$net_where = "";
+		}
+        $query = OssimQuery("SELECT DISTINCT $select FROM net_group g,net_group_reference r WHERE $args".(($args != "") ? " AND" : "")." g.name=r.net_group_name$net_where $order");
         error_log ($query."<br>",3,"/tmp/log");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
