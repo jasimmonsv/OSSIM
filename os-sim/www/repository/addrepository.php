@@ -52,6 +52,7 @@ $linkdoc = GET('linkdoc');
 ossim_valid($link_type, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("link type"));
 ossim_valid($id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("id"));
 ossim_valid($id_link, OSS_DIGIT, 'illegal:' . _("id_link"));
+print_r($name_link);
 ossim_valid($name_link, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("name_link"));
 ossim_valid($type_link, OSS_ALPHA, 'illegal:' . _("type_link"));
 //ossim_valid($id_document, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("id_document"));

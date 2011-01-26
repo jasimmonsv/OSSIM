@@ -4,7 +4,6 @@ BEGIN;
 
 ALTER TABLE `custom_collectors` ADD `source_type` VARCHAR(255) NOT NULL AFTER `plugin_id`;
 ALTER TABLE `custom_collector_rules` ADD `category_id` INT(11) NOT NULL AFTER `plugin_sid` , ADD `subcategory_id` INT(11) NOT NULL AFTER `category_id`;
-ALTER TABLE `acid_event` ADD `tzone` INT(11) DEFAULT 0;
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
 UPDATE config SET value="2010-11-30" WHERE conf="last_update";

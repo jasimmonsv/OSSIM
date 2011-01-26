@@ -235,7 +235,7 @@ echo "    <table width=\"100%\" class=\"noborder\" style=\"background-color:tran
 echo "        <tr class=\"noborder\" style=\"background-color:transparent\"><td width=\"20\" class=\"noborder\">";
 echo "        <a href=\"settings.php\"><img src=\"./images/back.png\" border=\"0\" alt=\"Back\" title=\"Back\"></a>";
 echo "        </td><td width=\"780\">";
-echo "        <span style=\"font-weight:normal;\">"._("EDIT PROFILE").":</span> <font color=black><b>$profilename<b></font>";
+echo "        <span style=\"font-weight:normal;\">"._("EDIT PROFILE").":</span> <font color=black><b>".html_entity_decode($profilename)."<b></font>";
 echo "        </td></tr>";
 echo "    </table>";
 echo "</td></tr>";
@@ -614,16 +614,16 @@ EOT;
 <tr>
 EOT;
    echo "<th>"._("Name").":</th>";
-   echo <<<EOT
-   <td><input type="text" name="sname" value="$sname" size=50>
+   echo '
+   <td><input type="text" name="sname" value="'.html_entity_decode($sname).'" size=50>
 </tr>
 <tr>
-EOT;
+';
    echo "<th>"._("Description").":</th>";
-   echo <<<EOT
-   <td><input type="text" name="sdescription" value="$sdescription" size=50></td>
+   echo '
+   <td><input type="text" name="sdescription" value="'.html_entity_decode($sdescription).'" size=50></td>
 </tr>
-EOT;
+';
 if(Session::am_i_admin()) {?>
     <tr>
         <th><?php echo _("Make this profile available for");?></th>
@@ -1804,10 +1804,10 @@ if($username=="admin" || Session::am_i_admin()){
         echo "<td style='padding:0px 2px 0px 2px;'>".$entities_nt[$sowner]."</td>";
     }
     else
-        echo "<td>$sowner</td>";
+        echo "<td>".html_entity_decode($sowner)."</td>";
 }
-echo "<td>$sname</td>";
-echo "<td>$sdescription</td>";
+echo "<td>".html_entity_decode($sname)."</td>";
+echo "<td>".html_entity_decode($sdescription)."</td>";
 echo "<td>";
 //var_dump($normal_user_pro);
 //var_dump($sowner);

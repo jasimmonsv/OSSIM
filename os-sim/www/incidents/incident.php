@@ -398,7 +398,7 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
         $i++;
     } ?>
 			<tr><th nowrap='nowrap' height="18"><?=_("Related documents")?> [ <?php echo $has_found_keys ?> ]</th></tr>
-			<tr><th nowrap='nowrap' style="padding:0px 3px 0px 3px" height="18"><img align='absmiddle' src="../repository/images/linked2.gif" border='0'/><a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?id=<?php echo $id ?>&id_incident=<?php echo $incident->get_id() ?>&name_incident=<?php echo $incident->get_title() ?>"><?=_("Link existing document")?></a></th></tr>
+			<tr><th nowrap='nowrap' style="padding:0px 3px 0px 3px" height="18"><img align='absmiddle' src="../repository/images/linked2.gif" border='0'/><a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?id=<?php echo $id ?>&id_incident=<?php echo $incident->get_id() ?>&name_incident=<?php echo urlencode($incident->get_title()) ?>"><?=_("Link existing document")?></a></th></tr>
 			<tr><th nowrap='nowrap' style="padding:0px 3px 0px 3px" height="18"><img align='absmiddle' src="../repository/images/editdocu.gif" border='0'/><a href="../repository/index.php"><?=_("New document")?></a></th></tr>
 		</table>
 	<?php

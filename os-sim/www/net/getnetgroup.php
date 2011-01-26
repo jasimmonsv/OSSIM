@@ -101,7 +101,7 @@ $xml.= "<total>$total</total>\n";
 foreach($net_group_list as $net_group) {
     $name = htmlspecialchars($net_group->get_name());
 	$xml.= "<row id='".$name."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./newnetgroupform.php?name=".urlencode($name)."\">" . $name . "</a>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newnetgroupform.php?name=".urlencode(html_entity_decode($name))."\">" . html_entity_decode($name) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $nets = "";
     if ($network_list = $net_group->get_networks($conn)) 
@@ -109,7 +109,7 @@ foreach($net_group_list as $net_group) {
 		{
 			$nets.= (($nets == "") ? "" : ", ") . Util::htmlentities($network->get_net_name());
 		}
-    $xml.= "<cell><![CDATA[" . $nets . "]]></cell>";
+    $xml.= "<cell><![CDATA[" . html_entity_decode($nets) . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net_group->get_threshold_c() . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net_group->get_threshold_a() . "]]></cell>";
     /* Nessus
