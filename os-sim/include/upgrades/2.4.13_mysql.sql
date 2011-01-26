@@ -81,7 +81,7 @@ DROP PROCEDURE IF EXISTS net_convert;
 
 use snort;
 ALTER TABLE `sensor` CHANGE `sensor` `sensor` TEXT NULL DEFAULT '';
-ALTER TABLE `acid_event` ADD `timezone` TINYINT(1) NOT NULL DEFAULT '0' AFTER `timestamp`;
+ALTER TABLE `acid_event` ADD `tzone` TINYINT(1) NOT NULL DEFAULT '0' AFTER `timestamp`;
 
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;
