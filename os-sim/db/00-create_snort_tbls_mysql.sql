@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS `acid_event` (
   `ossim_risk_a` int(11) default '1',
   `plugin_id` int(11) default NULL,
   `plugin_sid` int(11) default NULL,
+  `tzone` int(11) default 0,
   PRIMARY KEY  (`sid`,`cid`,`timestamp`),
   KEY `timestamp` (`timestamp`),
   KEY `layer4_sport` (`layer4_sport`),
