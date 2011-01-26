@@ -486,6 +486,7 @@ $total_counter = 1 + $offset*$num_servers;
 $cont = array(); // Counter for each logger server
 $colort = 0;
 $alt = 0;
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $htmlResult=true;
 foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
@@ -526,15 +527,22 @@ foreach($result as $res=>$event_date) {
         }
         // para coger
         $date = $matches[2];
-        $tzone = $matches[10];
+        $event_date = $matches[2];
+        $tzone = intval($matches[10]);
+        $txtzone = ($tzone==0) ? "UTC" : (($tzone>0) ? "GMT+".$tz : "GMT-".$tz);
 
+        // Special case: old events
         $eventhour = date("H",strtotime($date));
         $ctime = explode("/",$logfile); $storehour = $ctime[count($ctime)-3]; // hours
         $warning = ($storehour-$eventhour != 0) ? "<a href='javascript:;' txt='"._("Date may not be normalized")."' class='scriptinfotxt'><img src='../pixmaps/warning.png' border=0 style='margin-left:3px;margin-right:3px'></a>" : "";
         //$date = date("Y-m-d H:i:s",strtotime($date)+(3600*($storehour-$eventhour)));
         
-		if ($tzone!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tzone));
-		
+        // Event date timezone
+		if ($tzone!=0) $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));
+        
+        // Apply user timezone
+		if ($tz!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
+	
         // fin para coger
         if($htmlResult){
             $sensor = $matches[5];
@@ -574,10 +582,10 @@ foreach($result as $res=>$event_date) {
             	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
             }
             
-            if ($matches[2]==$date)
+            if ($event_date==$matches[2] || $event_date==$date) // compare real date with timezone corrected date
             	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($date) . "</td>";
 			else
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Sensor date").": ". htmlspecialchars("<b>".$matches[2]."</b><br>"._("Timezone").": <b>".(($tzone!=0) ? "GMT$tzone" : "UTC")."</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . htmlspecialchars($date) . "</a></td>";
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Event date").": ". htmlspecialchars("<b>".$event_date."</b><br>"._("Timezone").": <b>$txtzone</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . htmlspecialchars($date) . "</a></td>";
 			
 
             //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin=' + this.innerHTML)\"\">$plugin</span></td>";
