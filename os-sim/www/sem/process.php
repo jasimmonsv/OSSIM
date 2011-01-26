@@ -408,6 +408,8 @@ $totaltime = round($time2 - $time1, 2);
 	-->
 <?php
 //}
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$txtzone = ($tz==0) ? "UTC" : (($tz>0) ? "GMT+".$tz : "GMT-".$tz);
 ?>
 <div id="processcontent" style="display:none">
 <?php if (has_results($num_lines)) { ?>
@@ -440,7 +442,7 @@ $totaltime = round($time2 - $time1, 2);
 		<td class='plfieldhdr' style='padding-left:3px;padding-right:3px;border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Server") ?></td>
 		<?php } ?>
 		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>
-			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date") . " " ?>
+			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date") . " $txtzone " ?>
 			<a href="javascript:DateDesc()"><img src="../forensics/images/order_sign_d.gif" border="0"></a>
 		</td>
 		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Type") ?></td>
@@ -486,7 +488,6 @@ $total_counter = 1 + $offset*$num_servers;
 $cont = array(); // Counter for each logger server
 $colort = 0;
 $alt = 0;
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $htmlResult=true;
 foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
