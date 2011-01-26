@@ -811,6 +811,7 @@ function setFixed(start, end, gtype, datef)
 	document.getElementById('start_aaa').value = start;
 	document.getElementById('end').value = end;
 	document.getElementById('end_aaa').value = end;
+      
 	if (gtype != '' && datef != '') {
 		UpdateByDate("forensic.php?graph_type="+gtype+"&cat="+datef);
 	}
@@ -832,7 +833,7 @@ function setFixed2()
 		var start_pad = " 00:00:00";
 	}
 	if(document.getElementById('end_aaa').value.length == 10){
-		var end_pad = " 00:00:00";
+		var end_pad = " 23:59:59";
 	}
 
 	document.getElementById('start').value = document.getElementById('start_aaa').value + start_pad;
@@ -1111,6 +1112,8 @@ $(document).ready(function(){
 	//$d = strftime("%d", time() - ((24 * 60 * 60) * 1));
 	$d = strftime("%d", time() - (24 * 60 * 60));
 	?>
+	byDateStart='<?php echo date("Y-m-d", time() - (24 * 60 * 60)) ?>';
+	byDateEnd='<?php echo date("Y-m-d") ?>';
 	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
 	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m")-1 ?>,<?php echo date("d") ?>);
     var dayswithevents = [ ];
