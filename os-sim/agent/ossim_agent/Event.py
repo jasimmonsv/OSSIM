@@ -113,7 +113,9 @@ class Event:
                     logger.warning("Detected date in the future (%s), please check your device date" % (self.event[key]))
 
                 # fdate as date is coming.
-                self.event["fdate"] = self.event[key]
+                # fdate as date is coming.
+                fdate_utc = datetime.utcfromtimestamp(date).isoformat(" ")
+                self.event["fdate"] = fdate_utc#self.event[key]
                 self.event["date"] = date
 
         elif key != 'event_type':
