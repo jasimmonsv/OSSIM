@@ -102,8 +102,9 @@ class Session {
 	var $enabled;
 	var $allowed_sensors;
 	var $is_admin;
+	var $timezone;
 	var $last_pass_change;
-    function Session($login, $pass, $allowed_nets, $name = "", $email = "", $company = "", $department = "", $language = "", $enabled = 1, $is_admin = 0, $last_pass_change = "") {
+    function Session($login, $pass, $allowed_nets, $name = "", $email = "", $company = "", $department = "", $language = "", $enabled = 1, $is_admin = 0, $last_pass_change = "",$timezone = "") {
         $this->login = strtolower($login);
         $this->name = $name;
         $this->email = $email;
@@ -116,6 +117,7 @@ class Session {
 		$this->allowed_sensors = explode(",",$this->allowedSensors($this->login));
 		$this->is_admin = $is_admin;
 		$this->last_pass_change = $last_pass_change;
+		$this->timezone = $timezone;
     }
     function get_login() {
         global $login;
@@ -148,6 +150,9 @@ class Session {
     function get_is_admin() {
     	return $this->is_admin;
     }
+	function get_timezone() {
+    	return $this->timezone;
+    }
 	function get_last_pass_change() {
     	return $this->last_pass_change;
     }
@@ -159,7 +164,7 @@ class Session {
         } else {
             $list = array();
             while (!$rs->EOF) {
-                $list[] = new Session($rs->fields["login"], $rs->fields["pass"], $rs->fields["allowed_nets"], $rs->fields["name"], $rs->fields["email"], $rs->fields["company"], $rs->fields["department"], $rs->fields["language"], $rs->fields["enabled"], $rs->fields["is_admin"], $rs->fields["last_pass_change"]);
+                $list[] = new Session($rs->fields["login"], $rs->fields["pass"], $rs->fields["allowed_nets"], $rs->fields["name"], $rs->fields["email"], $rs->fields["company"], $rs->fields["department"], $rs->fields["language"], $rs->fields["enabled"], $rs->fields["is_admin"], $rs->fields["last_pass_change"], $rs->fields["timezone"]);
                 $rs->MoveNext();
             }
         }
@@ -283,6 +288,7 @@ class Session {
 			$db->close($conn);
 			$_SESSION['_user_language'] = $rs->fields['language'];
 			$_SESSION['_is_admin'] = $rs->fields['is_admin'];
+			$_SESSION['_timezone'] = $rs->fields['timezone'];
 			ossim_set_lang($rs->fields['language']);
 			return true;
         }
@@ -717,14 +723,14 @@ class Session {
         }
         return NULL;
     }
-    function insert($conn, $login, $pass, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $first_login) {
+    function insert($conn, $login, $pass, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $first_login, $timezone) {
         global $ACL_MAIN_MENU;
         global $ACL_OPTIONS;
         $pass = md5($pass);
         /* bug with mrtg graphing? */
         $login = strtolower($login);
         /* insert into OSSIM database */
-        $sql = "INSERT INTO users (login, name, pass, email, allowed_nets, company, department, language, first_login) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO users (login, name, pass, email, allowed_nets, company, department, language, first_login, timezone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $params = array(
             $login,
             $name,
@@ -735,7 +741,8 @@ class Session {
             $company,
             $department,
             $language,
-			$first_login
+			$first_login,
+			$timezone
         );
         if ($conn->Execute($sql, $params) === false) {
             print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
@@ -780,11 +787,11 @@ class Session {
         );
         Log_action::log(4, $infolog);
     }
-    function update($conn, $login, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdb_users, $first_login, $is_admin = 0) {
+    function update($conn, $login, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdb_users, $first_login, $is_admin = 0, $timezone) {
         global $ACL_MAIN_MENU;
         global $ACL_OPTIONS;
         /* modify OSSIM database */
-        $sql = "UPDATE users SET name = ?, allowed_nets = ?, email = ?, company = ?, department = ?, language = ?, first_login = ?, is_admin = ? WHERE login = ?";
+        $sql = "UPDATE users SET name = ?, allowed_nets = ?, email = ?, company = ?, department = ?, language = ?, first_login = ?, is_admin = ?, timezone = ? WHERE login = ?";
         $params = array(
             $name,
             $nets,
@@ -794,6 +801,7 @@ class Session {
             $language,
             $first_login,
             $is_admin,
+            $timezone,
 			$login
         );
         ossim_set_lang($language);
@@ -863,9 +871,9 @@ class Session {
         );
         Log_action::log(6, $infolog);
     }
-	function update_noperms($conn, $login, $name, $email, $company, $department, $language, $first_login, $is_admin = 0) {
+	function update_noperms($conn, $login, $name, $email, $company, $department, $language, $first_login, $is_admin = 0, $timezone) {
         /* modify OSSIM database */
-        $sql = "UPDATE users SET name = ?, email = ?, company = ?, department = ?, language = ?, first_login = ?, is_admin = ? WHERE login = ?";
+        $sql = "UPDATE users SET name = ?, email = ?, company = ?, department = ?, language = ?, first_login = ?, is_admin = ?, timezone = ? WHERE login = ?";
         $params = array(
             $name,
             $email,
@@ -874,6 +882,7 @@ class Session {
             $language,
 			$first_login,
 			$is_admin,
+			$timezone,
             $login
         );
         ossim_set_lang($language);

@@ -277,6 +277,39 @@ include ("../hmenu.php");
 					</tr>
 		
 					<tr>
+						<th><?=_("Timezone:")?></th>
+						<td class="left">
+						<select name="tzone" id="tzone">
+						<option value="-12" <?php if ($user->get_timezone() == "-12" || (intval(date("O"))/100 == "-12" && $user->get_timezone() == "")) echo "selected" ?>>GMT-12</option>
+						<option value="-11" <?php if ($user->get_timezone() == "-11" || (intval(date("O"))/100 == "-11" && $user->get_timezone() == "")) echo "selected" ?>>GMT-11</option>
+						<option value="-10" <?php if ($user->get_timezone() == "-10" || (intval(date("O"))/100 == "-10" && $user->get_timezone() == "")) echo "selected" ?>>GMT-10</option>
+						<option value="-9" <?php if ($user->get_timezone() == "-9" || (intval(date("O"))/100 == "-9" && $user->get_timezone() == "")) echo "selected" ?>>GMT-9</option>
+						<option value="-8" <?php if ($user->get_timezone() == "-8" || (intval(date("O"))/100 == "-8" && $user->get_timezone() == "")) echo "selected" ?>>GMT-8</option>
+						<option value="-7" <?php if ($user->get_timezone() == "-7" || (intval(date("O"))/100 == "-7" && $user->get_timezone() == "")) echo "selected" ?>>GMT-7</option>
+						<option value="-6" <?php if ($user->get_timezone() == "-6" || (intval(date("O"))/100 == "-6" && $user->get_timezone() == "")) echo "selected" ?>>GMT-6</option>
+						<option value="-5" <?php if ($user->get_timezone() == "-5" || (intval(date("O"))/100 == "-5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-5</option>
+						<option value="-4" <?php if ($user->get_timezone() == "-4" || (intval(date("O"))/100 == "-4" && $user->get_timezone() == "")) echo "selected" ?>>GMT-4</option>
+						<option value="-3" <?php if ($user->get_timezone() == "-3" || (intval(date("O"))/100 == "-3" && $user->get_timezone() == "")) echo "selected" ?>>GMT-3</option>
+						<option value="-2" <?php if ($user->get_timezone() == "-2" || (intval(date("O"))/100 == "-2" && $user->get_timezone() == "")) echo "selected" ?>>GMT-2</option>
+						<option value="-1" <?php if ($user->get_timezone() == "-1" || (intval(date("O"))/100 == "-1" && $user->get_timezone() == "")) echo "selected" ?>>GMT-1</option>
+						<option value="0" <?php if ($user->get_timezone() == "0" || (intval(date("O"))/100 == "0" && $user->get_timezone() == "")) echo "selected" ?>>UTC</option>
+						<option value="1" <?php if ($user->get_timezone() == "1" || (intval(date("O"))/100 == "1" && $user->get_timezone() == "")) echo "selected" ?>>GMT+1</option>
+						<option value="2" <?php if ($user->get_timezone() == "2" || (intval(date("O"))/100 == "2" && $user->get_timezone() == "")) echo "selected" ?>>GMT+2</option>
+						<option value="3" <?php if ($user->get_timezone() == "3" || (intval(date("O"))/100 == "3" && $user->get_timezone() == "")) echo "selected" ?>>GMT+3</option>
+						<option value="4" <?php if ($user->get_timezone() == "4" || (intval(date("O"))/100 == "4" && $user->get_timezone() == "")) echo "selected" ?>>GMT+4</option>
+						<option value="5" <?php if ($user->get_timezone() == "5" || (intval(date("O"))/100 == "5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+5</option>
+						<option value="6" <?php if ($user->get_timezone() == "6" || (intval(date("O"))/100 == "6" && $user->get_timezone() == "")) echo "selected" ?>>GMT+6</option>
+						<option value="7" <?php if ($user->get_timezone() == "7" || (intval(date("O"))/100 == "7" && $user->get_timezone() == "")) echo "selected" ?>>GMT+7</option>
+						<option value="8" <?php if ($user->get_timezone() == "8" || (intval(date("O"))/100 == "8" && $user->get_timezone() == "")) echo "selected" ?>>GMT+8</option>
+						<option value="9" <?php if ($user->get_timezone() == "9" || (intval(date("O"))/100 == "9" && $user->get_timezone() == "")) echo "selected" ?>>GMT+9</option>
+						<option value="10" <?php if ($user->get_timezone() == "10" || (intval(date("O"))/100 == "10" && $user->get_timezone() == "")) echo "selected" ?>>GMT+10</option>
+						<option value="11" <?php if ($user->get_timezone() == "11" || (intval(date("O"))/100 == "11" && $user->get_timezone() == "")) echo "selected" ?>>GMT+11</option>
+						<option value="12" <?php if ($user->get_timezone() == "12" || (intval(date("O"))/100 == "12" && $user->get_timezone() == "")) echo "selected" ?>>GMT+12</option>
+						</select>
+						</td>
+					</tr>
+		
+					<tr>
 						<th> <?php echo gettext("Company"); ?> </th>
 						<td class="left"><input type="text" name="company" value="<?php echo $user->get_company(); ?>" /></td>
 					</tr>

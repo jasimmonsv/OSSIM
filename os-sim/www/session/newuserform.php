@@ -234,6 +234,40 @@ echo $lform;
 ?>
 </td>
   </tr>
+  
+  <tr>
+	<th><?=_("Timezone:")?></th>
+	<td class="left">
+	<select name="tzone" id="tzone">
+	<option value="-12" <?php if (intval(date("O"))/100 == "-12") echo "selected" ?>>GMT-12</option>
+	<option value="-11" <?php if (intval(date("O"))/100 == "-11") echo "selected" ?>>GMT-11</option>
+	<option value="-10" <?php if (intval(date("O"))/100 == "-10") echo "selected" ?>>GMT-10</option>
+	<option value="-9" <?php if (intval(date("O"))/100 == "-9") echo "selected" ?>>GMT-9</option>
+	<option value="-8" <?php if (intval(date("O"))/100 == "-8") echo "selected" ?>>GMT-8</option>
+	<option value="-7" <?php if (intval(date("O"))/100 == "-7") echo "selected" ?>>GMT-7</option>
+	<option value="-6" <?php if (intval(date("O"))/100 == "-6") echo "selected" ?>>GMT-6</option>
+	<option value="-5" <?php if (intval(date("O"))/100 == "-5") echo "selected" ?>>GMT-5</option>
+	<option value="-4" <?php if (intval(date("O"))/100 == "-4") echo "selected" ?>>GMT-4</option>
+	<option value="-3" <?php if (intval(date("O"))/100 == "-3") echo "selected" ?>>GMT-3</option>
+	<option value="-2" <?php if (intval(date("O"))/100 == "-2") echo "selected" ?>>GMT-2</option>
+	<option value="-1" <?php if (intval(date("O"))/100 == "-1") echo "selected" ?>>GMT-1</option>
+	<option value="0" <?php if (intval(date("O"))/100 == "0") echo "selected" ?>>UTC</option>
+	<option value="1" <?php if (intval(date("O"))/100 == "1") echo "selected" ?>>GMT+1</option>
+	<option value="2" <?php if (intval(date("O"))/100 == "2") echo "selected" ?>>GMT+2</option>
+	<option value="3" <?php if (intval(date("O"))/100 == "3") echo "selected" ?>>GMT+3</option>
+	<option value="4" <?php if (intval(date("O"))/100 == "4") echo "selected" ?>>GMT+4</option>
+	<option value="5" <?php if (intval(date("O"))/100 == "5") echo "selected" ?>>GMT+5</option>
+	<option value="6" <?php if (intval(date("O"))/100 == "6") echo "selected" ?>>GMT+6</option>
+	<option value="7" <?php if (intval(date("O"))/100 == "7") echo "selected" ?>>GMT+7</option>
+	<option value="8" <?php if (intval(date("O"))/100 == "8") echo "selected" ?>>GMT+8</option>
+	<option value="9" <?php if (intval(date("O"))/100 == "9") echo "selected" ?>>GMT+9</option>
+	<option value="10" <?php if (intval(date("O"))/100 == "10") echo "selected" ?>>GMT+10</option>
+	<option value="11" <?php if (intval(date("O"))/100 == "11") echo "selected" ?>>GMT+11</option>
+	<option value="12" <?php if (intval(date("O"))/100 == "12") echo "selected" ?>>GMT+12</option>
+	</select>
+	</td>
+</tr>
+  
   <tr>
     <th> <?php echo _("Company") ?> </th>
     <td class="left">
