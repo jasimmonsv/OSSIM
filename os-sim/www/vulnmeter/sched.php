@@ -286,7 +286,7 @@ if ($timeout=="") {
     $error_message .= _("Invalid Timeout")."<br>";
 }
 
-ossim_valid($sname, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("Job name"));
+ossim_valid(html_entity_decode($sname), OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("Job name"));
 if (ossim_error()) {
     $error_message .= _("Invalid Job name")."<br>";
 }

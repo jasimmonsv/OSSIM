@@ -154,8 +154,17 @@ if (GET('edit_tabs') == 1) {
         $tab_id = intval(GET('tab_id'));
         if (!$tab_id) $tab_id=1;
         $tab_name = GET('tab_name');
-    	if (strlen($tab_name) > 25) {
-			$tab_name = substr($tab_name,0,25);
+		//
+		$echars          = get_echars($tab_name);
+		$exists_echars   = ( is_array($echars) && !empty($echars) ) ? true : false;
+		if($exists_echars){
+			$len_max=125;
+		}else{
+			$len_max=25;
+		}
+		//
+    	if (strlen($tab_name) > $len_max) {
+			$tab_name = substr($tab_name,0,$len_max);
 			$truncmsg = _("Warning: Tab name too long, truncated to 15 characters.");
 		}
         $tab_icon_url = str_replace("slash_special_char","/",GET('tab_icon_url'));
@@ -167,6 +176,7 @@ if (GET('edit_tabs') == 1) {
 		/**/
 		$tab_order = GET('tab_order');
         ossim_valid($tab_id, OSS_DIGIT, 'error: tab_id.');
+		echo $tab_name;
         ossim_valid($tab_name, OSS_ALPHA, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'error: Invalid name, alphanumeric, score, underscore and spaces allowed.');
 		ossim_valid($avt, OSS_DIGIT, OSS_NULLABLE, 'error: Invalid .avt file ID.');
 		ossim_valid($tab_order, OSS_DIGIT, OSS_NULLABLE, 'error: Invalid tab order.');

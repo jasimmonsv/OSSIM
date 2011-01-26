@@ -141,7 +141,7 @@ $xml.= "<total>$total</total>\n";
 foreach($host_group_list as $host_group) {
     $name = $host_group->get_name();
 	$xml.= "<row id='".htmlspecialchars($name)."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./newhostgroupform.php?name=".urlencode($name)."\">" .$name. "</a>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newhostgroupform.php?name=".urlencode($name)."\">" .html_entity_decode($name). "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $list = "";
     if ($host_list = $host_group->get_hosts($conn)){

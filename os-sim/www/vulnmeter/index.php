@@ -389,7 +389,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
         $q = $value;
         $queryw = " AND t5.service LIKE '%$q%' $query_onlyuser order by $sortby $sortdir";
         $queryl = " limit $offset,$pageSize"; 
-        $stext =  "<b>"._("Search for Service")."</b> = '*$q*'";
+        $stext =  "<b>"._("Search for Service")."</b> = '*".html_entity_decode($q)."*'";
         $url_filter="&type=$type&value=$value";
     }
     else if($type=="freetext" && $value!="") {
@@ -397,7 +397,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
         $q = $value;
         $queryw = " AND t5.msg LIKE '%$q%' $query_onlyuser order by $sortby $sortdir";
         $queryl = " limit $offset,$pageSize"; 
-        $stext =  "<b>"._("Search for Free Text")."</b> = '*$q*'";
+        $stext =  "<b>"._("Search for Free Text")."</b> = '*".html_entity_decode($q)."*'";
         $url_filter="&type=$type&value=$value";
     }
    else if($type=="hostip" && $value!="") {
@@ -456,7 +456,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
 
       $queryl = " limit $offset,$pageSize";
       if (!preg_match("/\//",$value)) {
-        $stext =  "<b>"._("Search for Host")."</b> = '$q'";
+        $stext =  "<b>"._("Search for Host")."</b> = '".html_entity_decode($q)."'";
       }
       else {
         $stext =  "<b>"._("Search for Subnet/CIDR")."</b> = '$value'";
@@ -515,7 +515,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
         $last = $next;
       }*/
       $pageEnd = $offset + $pageSize;
-
+	$value=html_entity_decode($value);
 echo "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"900\"><tr><td class=\"headerpr\" style=\"border:0;\">"._("Current Vulnerablities")."</td></tr></table>";
       //echo "<p>There are $reportCount scans defined in the system.";
       // output the search form

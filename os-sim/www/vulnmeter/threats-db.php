@@ -344,23 +344,23 @@ function search($page, $kw, $cve,$family, $risk, $start_date, $end_date) {
     echo "</td></tr>";
     echo "</table>";
 
-     echo <<<EOT
+     echo '
 <table cellpadding="0" cellspacing="0" align="center" width="800">
      <tr><td height="50" class="nobborder">
      <table cellpadding="0" cellspacing="2" align="center" width="95%">
           <tr><th>Keywords</th><th>CVE Id</th><th>Family</th><th>Risk Factor</th><th>Start Date</th><th>End Date</th></tr>
-          <tr><td class="nobborder" style="text-align:center;">$txt_kw</td>
-          <td class="nobborder" style="text-align:center;">$txt_cve</td>
-          <td class="nobborder" style="text-align:center;">$txt_family</td>
-          <td class="nobborder" style="text-align:center;">$txt_risk</td>
-          <td class="nobborder" style="text-align:center;">$txt_start_date</td>
-          <td class="nobborder" style="text-align:center;">$txt_end_date</td>
+          <tr><td class="nobborder" style="text-align:center;">'.html_entity_decode($txt_kw).'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_cve.'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_family.'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_risk.'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_start_date.'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_end_date.'</td>
           </tr>
      </table>
      </td></tr>
      <tr><td class="nobborder" style="text-align:center;padding-bottom:10px;">
 
-EOT;
+';
 
      $query_filter = "";
 
