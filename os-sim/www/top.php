@@ -242,7 +242,7 @@ foreach($menu as $name => $opc) if ($name != "Logout") {
 </td></tr>
 
 <tr><td height="26" class="outmenu">
-		<img src="pixmaps/users.png" width="12" border='0' align="absmiddle"> &nbsp; <a href="userlog/opened_sessions.php?hmenu=Sessions&smenu=Sessions" target="main"><span style='color:black'><?php echo _("Opened Sessions")?></span></a>
+		<img src="pixmaps/users.png" width="12" border='0' align="absmiddle"> &nbsp; <a href="userlog/opened_sessions.php?hmenu=Sessions&smenu=Sessions" target="main"><span style='color:black'><?php echo _("Current Sessions")?></span></a>
 </td></tr>
 
 <tr><td height="26" class="outmenu">
@@ -335,9 +335,9 @@ $db->close($conn);
 ?>
 <div class="jx-bottom-bar jx-bar-rounded-bl jx-bar-rounded-br">
 <table><tr><td class="jx-gray">
-<?= _("User logged for")." <a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a>" ?>
+<?= _("User session").": <a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a>" ?>
 <br>
-<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("current sessions") ?>
+<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("active users") ?>
 </td></tr></table>
 </div>
 

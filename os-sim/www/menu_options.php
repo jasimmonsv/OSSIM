@@ -1410,7 +1410,7 @@ if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) {
 }
 	
 $hmenu["Sysinfo"][] = array(
-    "name" => gettext("Opened Sessions") ,
+    "name" => gettext("Current Sessions") ,
     "id" => "Sessions",
     "url" => "userlog/opened_sessions.php",
     "target" => "main",
