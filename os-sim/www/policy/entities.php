@@ -226,24 +226,22 @@ if (!$opensource) {
 	        </td>
 	    </tr>
 	    <tr>
-	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent;text-align:right">
-                <table width="100%" class="transparent">
+	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent">
+                <table class="transparent">
                     <tr>
-                        <td width="60%" class="nobborder">&nbsp;</td>
+                        <td class="nobborder">&nbsp;</td>
+                        <td valign="top" class="nobborder">
+                            <input type="checkbox" onclick="location.href='entities.php?users=<?=($withusers==1) ? "0" : "1" ?>&siem=<?=$withsiemcomponents?>&realtime=<?=$realtime?>'" <?=($withusers==1) ? "checked='checked'" : "" ?>/>
+                        </td>
                         <td valign="top" class="nobborder" style="text-align:right;padding:4px 0px 0px 0px;">
                             <?=_("Show Users")?>
                         </td>
-                        <td valign="top" class="nobborder" width="3%">
-                            <input type="checkbox" onclick="location.href='entities.php?users=<?=($withusers==1) ? "0" : "1" ?>&siem=<?=$withsiemcomponents?>&realtime=<?=$realtime?>'" <?=($withusers==1) ? "checked='checked'" : "" ?>/>
+                        <td class="nobborder">&nbsp;</td>
+                        <td valign="top" class="nobborder">
+                            <input type="checkbox" onclick="location.href='entities.php?users=<?=$withusers?>&siem=<?=($withsiemcomponents==1) ? "0" : "1" ?>&realtime=<?=$realtime?>'" <?=($withsiemcomponents==1) ? "checked='checked'" : "" ?>/>
                         </td>
-                    </tr>
-                    <tr>
-                        <td width="60%" class="nobborder">&nbsp;</td>
                         <td valign="top" class="nobborder" style="text-align:right;padding:4px 0px 0px 0px;">
                             <?=_("Show SIEM Components")?>
-                        </td>
-                        <td valign="top" class="nobborder" width="3%">
-                            <input type="checkbox" onclick="location.href='entities.php?users=<?=$withusers?>&siem=<?=($withsiemcomponents==1) ? "0" : "1" ?>&realtime=<?=$realtime?>'" <?=($withsiemcomponents==1) ? "checked='checked'" : "" ?>/>
                         </td>
                     </tr>
                 </table>
@@ -262,19 +260,19 @@ if (!$opensource) {
 	<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
 	    <tr>
 	        <td class="nobborder">
-	  			<div id="aptree" style="text-align:left;width:98%;padding:8px"></div>
+	  			<div id="aptree" style="text-align:left;width:98%;padding:8px 8px 0px 8px"></div>
 	        </td>
 	    </tr>
 	    <tr>
-	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent;text-align:right">
-                <table width="100%" class="transparent">
+	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent">
+                <table class="transparent">
                     <tr>
-                        <td width="60%" class="nobborder">&nbsp;</td>
+                        <td class="nobborder">&nbsp;</td>
+                        <td valign="top" class="nobborder">
+                            <input type="checkbox" onclick="location.href='entities.php?users=<?=$withusers?>&siem=<?=$withsiemcomponents?>&realtime=<?=($realtime==1) ? "0" : "1" ?>'" <?=($realtime==1) ? "checked='checked'" : "" ?>/>
+                        </td>
                         <td valign="top" class="nobborder" style="text-align:right;padding:4px 0px 0px 0px;">
                             <?=_("Real time")?>
-                        </td>
-                        <td valign="top" class="nobborder" width="3%">
-                            <input type="checkbox" onclick="location.href='entities.php?users=<?=$withusers?>&siem=<?=$withsiemcomponents?>&realtime=<?=($realtime==1) ? "0" : "1" ?>'" <?=($realtime==1) ? "checked='checked'" : "" ?>/>
                         </td>
                     </tr>
                 </table>

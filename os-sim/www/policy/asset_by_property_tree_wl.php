@@ -109,7 +109,7 @@ if($key=="") {
         switch (strtolower($prop["name"])) {
             case "software": $png = "software";
             break;
-            case "operating-system": $png = "host_os";
+            case "operating system": $png = "host_os";
             break;
             case "cpu": $png = "cpu";
             break;
@@ -119,7 +119,7 @@ if($key=="") {
             break;
             case "department": $png = "host_group";
             break;
-            case "macaddress": $png = "mac";
+            case "mac address": $png = "mac";
             break;
             case "workgroup": $png = "net_group";
             break;

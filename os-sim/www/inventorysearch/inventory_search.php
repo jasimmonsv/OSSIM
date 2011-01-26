@@ -801,7 +801,7 @@ var finish = false;
 				<tr>
 					<td class="nobborder" style="padding-bottom:10px">
 						<table style="background:url(../pixmaps/fondo_hdr2.png) repeat-x" width="100%">
-							<tr><td class="nobborder" style="font-weight:bold;text-align:center;font-size:13px"><?=_("Advanced Asset Search")?></td></tr>
+							<tr><td class="nobborder" style="font-weight:bold;text-align:center;font-size:13px;height:30px"><?=_("Asset Categories")?></td></tr>
 						</table>
 					</td>
 				</tr>

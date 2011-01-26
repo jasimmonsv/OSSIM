@@ -226,7 +226,7 @@ if ($Use_Auth_System == 1) {
 									<td>
 										<table border='0' cellpadding='0' cellspacing='0'>
 										<tr><td align='right'>
-											<a href="javascript:history.go(-1)"><img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a>
+											<a href="javascript:history.go(-1)" style="color:black;font-size:12px;font-weight:bold"><?php echo _("Back")?> <img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a> &nbsp;<font style="color:green;font-weight:bold;font-size:14px">|</font>&nbsp; <a href="javascript:document.location.reload()" style="color:black;font-size:12px;font-weight:bold"><?php echo _("Refresh")?> <img src='../pixmaps/refresh.png' alt='Back' title='Back' border='0' align='absmiddle'></a><!--<a href="javascript:history.go(-1)"><img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a>-->
 											</td>
 										<td align='right'> <?php echo str_replace (">Back","><span style='padding-left: 5px; color: rgb(51, 51, 51); font-weight: bold;font-size:14px;'>Back</span>",str_replace("|","<font style='color:green;font-size:14px;font-weight:bold'></font>",$back_link))
 			?>  <!--<a style="color:black;font-size:12px;font-weight:bold" href="base_qry_main.php?submit=--><?php //echo _QUERYDB
@@ -395,7 +395,7 @@ if ($Use_Auth_System == 1) {
 													<tr class="noborder">
 														<td style='padding:5px;'>
 															<div style='text-align: left; padding-bottom: 15px; clear: both;'>
-																<div style='float: left; width:90px; font-size:11px'><?=_("Plugin Groups")?>:</div>
+																<div style='float: left; width:90px; font-size:11px'><?=_("DS Groups")?>:</div>
 																<div style='float: left;'>
 																	<select name="plugingroup" class="selectp" style="width:185px" onchange="this.form.bsf.click()"><option value=''></option> 
 																	<?

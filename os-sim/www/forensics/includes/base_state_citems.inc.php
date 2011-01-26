@@ -660,7 +660,7 @@ class PluginCriteria extends SingleElementCriteria {
     }
     function Description() {
         $tmp = "";
-        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("Plugin") . ' = (' . GetPluginName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("Data Source") . ' = (' . GetPluginName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
         return $tmp;
     }
 }; /* PluginCriteria */
@@ -725,7 +725,7 @@ class PluginGroupCriteria extends SingleElementCriteria {
     }
     function Description() {
         $tmp = "";
-        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("Plugin group") . ' = (' . GetPluginGroupName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("DS Group") . ' = (' . GetPluginGroupName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
         return $tmp;
     }
 }; /* PluginGroupCriteria */

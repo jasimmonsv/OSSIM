@@ -335,9 +335,9 @@ $db->close($conn);
 ?>
 <div class="jx-bottom-bar jx-bar-rounded-bl jx-bar-rounded-br">
 <table><tr><td class="jx-gray">
-<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a> "._("logon") ?>
+<?= _("User logged for")." <a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a>" ?>
 <br>
-<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("users log into the system") ?>
+<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("current sessions") ?>
 </td></tr></table>
 </div>
 

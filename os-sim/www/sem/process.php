@@ -527,11 +527,12 @@ foreach($result as $res=>$event_date) {
         // para coger
         $date = $matches[2];
         $tzone = $matches[10];
-        /*
+
         $eventhour = date("H",strtotime($date));
         $ctime = explode("/",$logfile); $storehour = $ctime[count($ctime)-3]; // hours
-        $date = date("Y-m-d H:i:s",strtotime($date)+(3600*($storehour-$eventhour)));
-        */
+        $warning = ($storehour-$eventhour != 0) ? "<a href='javascript:;' txt='"._("Date may not be normalized")."' class='scriptinfotxt'><img src='../pixmaps/warning.png' border=0 style='margin-left:3px;margin-right:3px'></a>" : "";
+        //$date = date("Y-m-d H:i:s",strtotime($date)+(3600*($storehour-$eventhour)));
+        
 		if ($tzone!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tzone));
 		
         // fin para coger
@@ -568,7 +569,7 @@ foreach($result as $res=>$event_date) {
                     $dst_div = "<div id=\"$dst_ip;$dst_ip_name\" class=\"HostReportMenu\" style=\"display:inline\">";
 
             $line = "<tr".(($colort%2==0) ? " style=\"background-color: #F2F2F2\"" : "").">
-            <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
+            <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . $warning . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
             if ($from_remote) {
             	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
             }

@@ -267,7 +267,7 @@ if (Session::menu_perms("MenuEvents", "EventsForensics")) { $events = 1; $hmenu[
 	  "url" => "../forensics/manage_references.php"
 	);
 	
-
+/*
 if (Session::am_i_admin() ) { 
 	$hmenu["Forensics"][] = array(
 		"name" => gettext("Signed files") ,
@@ -275,6 +275,7 @@ if (Session::am_i_admin() ) {
 		"url" => "signed_files/index.php"
 	);
 }
+*/
 
 if (is_dir("/var/ossim/")) {
     // Only show SEM menu if SEM is available
@@ -772,12 +773,12 @@ if (Session::menu_perms("MenuPolicy", "5DSearch")) { $assets = 1;
     );
     $hmenu["Asset Search"][] = array(
         "id" => "Asset Search",
-        "name" => gettext("Simple") ,
+        "name" => gettext("Asset Search") ,
         "url" => "inventorysearch/userfriendly.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_search','Help');"
     );
 	$hmenu["Asset Search"][] = array(
-        "name" => gettext("Advanced") ,
+        "name" => gettext("Asset Categories") ,
         "id" => "Advanced",
         "url" => "inventorysearch/inventory_search.php?new=1",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_search','Help');"

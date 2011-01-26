@@ -528,9 +528,10 @@ if ($report_id) {
        //} else {
        //   $check_text = "omitted";
        //}
-
-       $pdf->Cell(28, 6, $hostIP,1,0,'C');
-       $pdf->Cell(52, 6, $hostname,1,0,'C');
+       
+       ${"IP_".$hostIP}=$pdf->AddLink();
+       $pdf->Cell(28, 6, $hostIP, 1, 0, 'C', 0, ${"IP_".$hostIP});
+       $pdf->Cell(52, 6, $hostname, 1, 0, 'C', 0, ${"IP_".$hostIP});
        //$pdf->Cell(20, 6, $check_text,1,0,'C');
        $host_risk = array ( 0,0,0,0,0,0,0,0);
 
@@ -691,6 +692,7 @@ if ($report_id) {
    $oldip="";
    // iterate through the IP is the results
    foreach ($arrResults as $hostIP=>$scanData) {
+   
       $hostIP=htmlspecialchars_decode($hostIP);
       $hostname=htmlspecialchars_decode($hosts[$hostIP]);
       // new host record?
@@ -699,11 +701,13 @@ if ($report_id) {
 
          // don't print the table on the first host
          if($count==1) { 
-            $pdf->PrintTable($vcols, $all_results, $vwidth_array, $head_fill_color, $head_text_color, $fill_color,
-                 $text_color, $line_color, $boarder_type, $row_height);
+             $pdf->PrintTable($vcols, $all_results, $vwidth_array, $head_fill_color, $head_text_color, $fill_color,
+                $text_color, $line_color, $boarder_type, $row_height, ${"IP_".$hostIP});
             $pdf->Ln();
          }
 
+         $pdf->SetLink(${"IP_".$hostIP},$pdf->GetY());
+               
          //print out the host cell
          $pdf->SetFont('','B',10);
          $pdf->Cell(95, 6, $hostIP,1,0,'C',1);
@@ -773,8 +777,8 @@ if ($report_id) {
    }
    // print out the final table
    if($count!=0) {
-      $pdf->PrintTable($vcols, $all_results, $vwidth_array, $head_fill_color, $head_text_color, $fill_color, $text_color,
-          $line_color, $boarder_type, $row_height);
+        $pdf->PrintTable($vcols, $all_results, $vwidth_array, $head_fill_color, $head_text_color, $fill_color, $text_color,
+        $line_color, $boarder_type, $row_height, ${"IP_".$hostIP});
    }
 
     $pdf->Ln();
