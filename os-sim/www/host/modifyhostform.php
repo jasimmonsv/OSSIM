@@ -51,12 +51,13 @@ require_once ('classes/Util.inc');
 
 Session::logcheck("MenuPolicy", "PolicyHosts");
 
-$db   = new ossim_db();
-$conn = $db->connect();
+$db    = new ossim_db();
+$conn  = $db->connect();
 
-$ip = GET('ip');
+$ip    = GET('ip');
+$style = "style='display: none;'";
 
-ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip"));
+ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
 
 if (ossim_error()) 
     die(ossim_error());
@@ -121,6 +122,7 @@ if($protocol_list = Protocol::get_list($conn)) {
     }
 }
 
+
 if ( isset($_SESSION['_host']) )
 {
 	$hostname      = $_SESSION['_host']['hostname'];
@@ -184,40 +186,6 @@ else
 	}
 }
 
-
-$style = "style='display: none;'";
-
-if ( GET('edit') == _("Update Services") ) 
-{
-	for ($i = 0;; $i++)
-	{
-        $nagi   = "nagios" . $i;
-        $nagp   = "port" . $i;
-        $serv   = GET($nagi);
-        $nport  = GET($nagp);
-		
-        if (!isset($_GET[$nagi])) 
-			break;
-        
-		if ( isset($_GET[$nagp]) && is_numeric($nport) ) 
-            Host_services::set_nagios($conn, $ip, $nport, 1);
-        else
-            Host_services::set_nagios($conn, $ip, $serv, 0);
-        
-    }
-    
-	$s = new Frameworkd_socket();
-    if ($s->status) {
-        if ( !$s->write('nagios action="reload" "') ) 
-			$error_nagios[] = _("Frameworkd couldn't recieve a nagios command");
-			
-        $s->close();
-    } 
-	else 
-		$error_nagios[] = _("Couldn't connect to frameworkd");
-		
-}
-
 /* services update */
 if ( GET('update') == 'services' )
 {
@@ -250,7 +218,7 @@ if ( GET('newport') != "" || GET('port')!="" )
 		$newPort=GET('port');
 	else
 		$newPort=GET('newport');
-	
+		
 	$aux            =  explode("-",$newPort);
 	$port_number    =  trim($aux[0]);
 	$protocol_name  =  trim($aux[1]);
@@ -263,35 +231,31 @@ if ( GET('newport') != "" || GET('port')!="" )
 	
 		
 	if ( ossim_error() ) 
-	{
-		$service_error = "<div style='padding-left: 10px'>".ossim_get_error_clean()."</div>";
-		ossim_clean_error();
-		$style = "style='display: block;'";
-	}
+		$error_message = "<div style='padding-left: 10px'>".ossim_get_error_clean()."</div>";
 	else
 	{
 		$date = strftime("%Y-%m-%d %H:%M:%S");
 		
         
-        if( $nservice !='') {
+        if( $nservice !='')
             $serviceName = $nservice;
-        }
-        else if ($ports[$port_number." - ".$protocol_name]!="") {
+        else if ($ports[$port_number." - ".$protocol_name]!="") 
             $serviceName = $ports[$port_number." - ".$protocol_name];
-        }
-        else{
+        else
             $serviceName = 'unknown';
-        }
-
+        
         // Insert new port
         $chport = array();
         $chport = Port::get_list($conn, "where port_number = $port_number and protocol_name = '$protocol_name'");
         if(count($chport)==0) {
             Port::insert($conn, $port_number, $protocol_name, $serviceName, "");
         }
-		Host_services::insert($conn, $ip, $port_number, $date, $_SERVER["SERVER_ADDR"], f, $serviceName, "unknown", "unknown", 1, $newport_nagios); // origin = 0 (pads), origin = 1 (nmap)
+		
+		$protocol = $protocol_ids[$protocol_name];
+		Host_services::insert($conn, $ip, $port_number, $date, $_SERVER["SERVER_ADDR"], $protocol, $serviceName, "unknown", "unknown", 1, $newport_nagios); // origin = 0 (pads), origin = 1 (nmap)
 		
 	}	
+
 }
 
 if ( GET('inv_action') == "add_prop"  )
@@ -300,23 +264,30 @@ if ( GET('inv_action') == "add_prop"  )
 	$sensor       = null;
 	$property_ref = GET('inv_prop_ref');
 	$value        = GET('inv_prop_value'); 
-	$extra        = null;
+	$extra        = GET('inv_prop_version'); 
+	$extra        = ( empty($extra) ) ? "None" : $extra;
 	$source_id    = null;
+	
 	
 	ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
 	ossim_valid($property_ref, OSS_DIGIT, 'illegal:' . _("Property reference"));
 	ossim_valid($value, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, 'illegal:' . _("Value"));
 			
 	if ( ossim_error() ) 
-	{
-		$inv_error = ossim_get_error();
-		ossim_clean_error();
-	}
+		$error_message = ossim_get_error();
 	else
 	{
 		$ret = Host::insert_property($conn, $ip, $sensor, $property_ref, $value, $extra, $source_id);
-		$inv_error = ( $ret !== true ) ? $ret : null;
+		$error_message = ( $ret !== true ) ? $ret : null;
 	}
+	
+}
+
+if ( $error_message != null )
+{	
+	$style 		   = "style='display: block;'";
+	$error_message = "<div style='padding-left: 15px;'>$error_message</div>";
+	ossim_clean_error();
 }
 
 ?>
@@ -367,36 +338,39 @@ if ( GET('inv_action') == "add_prop"  )
 		}
 		
     
-		function saveService() {
-			if($('#port').val()<0 || $('#port').val()>65535){
-				alert('Error: Malformed port is between 0 and 65535');
+		function saveService(){
+			if($('#port').val()<0 || $('#port').val()>65535)
+			{
+				alert('<?php echo _("Error: Invalid port.  Insert a value between 0 and 65535")?>');
 				return false;
 			}
-			if($('#service').val()=="") {
+			if($('#service').val()=="") 
 				$('#service').val("Unknown");
-			}
+			
 			var newService = $('#port').val()+' - '+$('#protocol').val();
+			
 			$('#newport').val(newService);
-
 			$('#serviceform').submit();
 		}
     
-		function fillService() {
+		function fillService(){
 			$("#service").attr('disabled','');
 			var ports = new Array(); 
+			
 			<?php
 			foreach($ports as $k => $v) {
 				echo "ports['$k'] = '$v';\n";
 			}
-			
 			?>
-			if(typeof ports[$('#port').val()+' - '+$('#protocol').val()] !== 'undefined') {
+			
+			if(typeof ports[$('#port').val()+' - '+$('#protocol').val()] !== 'undefined')
+			{
 				$('#service').val(ports[$('#port').val()+' - '+$('#protocol').val()]);
 				$("#service").attr('disabled','disabled');
 			}
-			else {
+			else
 				$('#service').val("");
-			}
+			
 		}
 			
 		function addProperty()
@@ -408,7 +382,7 @@ if ( GET('inv_action') == "add_prop"  )
 		var layer_1     = null;
 		var layer_2     = null;
 		var nodetree_1  = null;
-		var nodetree_2 = null;
+		var nodetree_2  = null;
 		var i           =  1;
 		var j           =  1;
 	
@@ -421,21 +395,23 @@ if ( GET('inv_action') == "add_prop"  )
 			
 			layer_1 = '#srctree1_'+i;
 			$('#'+container).append('<div id="srctree1_'+i+'" style="width:100%"></div>');
+			
 			$(layer_1).html(messages[0]);
 						
 			$(layer_1).dynatree({
 				initAjax: {url: "draw_properties_tree.php", data: {ip: ip, tree: container} },
-				minExpandLevel: 3,
+				minExpandLevel: 2,
 				checkbox: true,
 				cookieId: "dynatree_1",
 				
-				onClick: function(node, event) {
-					
+				onActivate: function(node, event) 
+				{
 					if( node.data.key.match("property_") != null )
 					{
 						var key = node.data.key.split("_");
 						var prop_ref = $('#inv_prop_ref').val(key[1]);
 						active_form_properties(key[1]);
+						node.expand(true);
 					}	
 				},
 				
@@ -469,11 +445,19 @@ if ( GET('inv_action') == "add_prop"  )
 			layer_2 = '#srctree2_'+i;
 			$('#'+container).append('<div id="srctree2_'+i+'" style="width:100%"></div>');
 			$(layer_2).html(messages[0]);
-						
+									
 			$(layer_2).dynatree({
 				initAjax: {url: "draw_properties_tree.php", data: {ip: ip, tree: container} },
 				minExpandLevel: 2,
 				checkbox: true,
+				onSelect: function(select, node) {
+					
+					var key = node.data.key.split("###");					
+					if ( key[2] == "nagios_ok" )
+						node.data.key = key[0]+"###"+key[1]+"###nagios_ko";
+					else
+						node.data.key = key[0]+"###"+key[1]+"###nagios_ok";
+				},	
 				cookieId: "dynatree_2"
 			});
 						
@@ -486,6 +470,8 @@ if ( GET('inv_action') == "add_prop"  )
 		{
 			if (confirm("<?php echo _("Are you sure to delete this properties")?>?"))
 			{
+				
+				$('#info_error').html('');
 				var ip = $('#ip').val();
 				
 				$.ajax({
@@ -495,6 +481,9 @@ if ( GET('inv_action') == "add_prop"  )
 					success: function(msg){
 						
 						load_tree_1('tree_container_1', ip);
+						if ( items.match("prop4_") != null )
+							load_tree_2('tree_container_2', ip);
+						
 						$("#cont_delete_selected").hide();	
 					}
 				});
@@ -504,6 +493,7 @@ if ( GET('inv_action') == "add_prop"  )
 		function update_services(items)
 		{
 			var ip = $('#ip').val();
+			$('#info_error').html('');
 			
 			$.ajax({
 				type: "POST",
@@ -511,6 +501,14 @@ if ( GET('inv_action') == "add_prop"  )
 				data: "action=nagios&ip="+ip+"&data="+items,
 				success: function(msg){
 					load_tree_2('tree_container_2', ip);
+					load_tree_1('tree_container_1', ip);
+					$("#cont_delete_selected").hide();	
+					
+					if ( msg != '' )
+					{
+						$('#info_error').html(msg);
+						$('#info_error').fadeIn(2000);
+					}
 				}
 			});
 			
@@ -639,7 +637,7 @@ if ( GET('inv_action') == "add_prop"  )
 
 													
 				nagios_keys = nagios_keys.join(",");
-												
+																				
 				update_services(nagios_keys);
 			});
 
@@ -657,29 +655,44 @@ if ( GET('inv_action') == "add_prop"  )
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
 		label {border: none; cursor: default;}
-		.bold {font-weight: bold;}
-		div.bold {line-height: 18px;}
 		a {cursor:pointer;}
+		.bold {font-weight: bold;}
+		table { background: transparent;}
+		
+		#form_right { min-width: 400px;}
+		div.bold {line-height: 18px;}
 		.red {color: #E54D4D; font-weight: bold; text-align: center;}
 		#properties_form_1, #properties_form_2 {display:none;}
-		#properties_form_1 td, #properties_form_2 td {padding-bottom: 10px;}
-		#cont_new_property {padding-bottom: 15px; padding-top:10px;}
+		#cont_new_property {padding: 10px 0px;}
 		.mr5 {margin-right: 5px;}
-		.inv_error {clear: both; padding: 10px;}
-		#table_properties {background: transparent; width: 100%;}
+		.error_message {clear: both; padding: 10px;}
+		#table_properties {width: 100%;}
+		#table_properties th {width: 80px;}
 		#inv_prop_value {width: 98%;}
 		#cont_prop_version {display: none;}
 		#inv_prop_version{width: 98%; height: 30px;}
 		#inv_prop_ref { width: 200px;}
-		.link_blue{color: #17457C;}
 		.cont_inv_action {padding: 3px 0px;}
 		#delete_properties, #delete_services { display : none;}
 		#cont_delete_selected {padding: 8px 0px 5px 0px; text-align:center; display: none;}
 		#cont_update_selected {padding: 8px 0px 5px 0px; text-align:center;}
 		.sep15 {height: 15px;}
 		.sep10 {padding-bottom: 10px;}
+		
+		#cont_services th {padding: 2px 0px;}
+		.legend { font-style: italic; border-bottom: none; padding: 5px 0px;}
+		
+		#table_inventory, #table_services { border: 1px dotted gray; 
+						   border-radius: 0px;
+						   -moz-border-radius: 0px;
+						   -webkit-border-radius: 0px;
+						   padding: 0px 10px;
+		}
+		
 		#cont_sam {display: none;}
-		#table_services { background: transparent;}
+		
+		div.ui-dynatree-container { border: none !important;}
+					
 	</style>
 	
 </head>
@@ -699,23 +712,15 @@ if ( empty( $ip ) ) {
     exit;
 }
 
-
-if (count($error_nagios) > 0)
-{
-	$message_error = implode("<br/>", $error_nagios);
-	Util::print_error($message_error);
-}
-
-
 ?>
-	<div id='info_error' class='ossim_error' <?php echo $style ?>><?php echo $service_error;?></div>
+	<div id='info_error' class='ossim_error' <?php echo $style ?>><?php echo $error_message;?></div>
 	
 	<div id='host_container'>
 	
-	<table align="center" class="noborder" style='background-color: transparent;'>
+	<table align="center" class='noborder'>
 		<tr>
 			<td class="nobborder" valign="top">
-				<table>
+				<table id='table_container'>
 					<form method="post" id='formhost' name='formhost' action="modifyhost.php">
 					<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 					<input type="hidden" name="insert" value="insert"/>
@@ -733,7 +738,7 @@ if (count($error_nagios) > 0)
 						<th><label for='ip'><?php echo gettext("IP"); ?></label></th>
 						<td class="left">
 							<input type="hidden" class='req_field vfield' name="ip" id="ip" value="<?php echo $ip?>"/>
-							<div class='bold'><?php echo $ip; ?></div></td>
+							<div class='bold'><?php echo $ip; ?></div>
 						</td>
 					</tr>
 	  	  
@@ -818,7 +823,7 @@ if (count($error_nagios) > 0)
 					<tr>
 						<td style="text-align: left; border:none; padding-top:3px;">
 							<a onclick="$('.advanced').toggle()" style="cursor:pointer;">
-							<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Advanced")?></a>
+							<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?php echo gettext("Advanced")?></a>
 						</td>
 					</tr>
           
@@ -924,162 +929,172 @@ if (count($error_nagios) > 0)
 							<input type="reset"  class="button" value="<?php echo gettext("Clear form"); ?>"/>
 						</td>
 					</tr>
+					
+					<tr>
+						<td colspan="2" align="center" class='legend'>
+							<p align="center"><?php echo gettext("Values marked with (*) are mandatory"); ?></p>
+						</td>
+					</tr>
+					
 				</table>
 				
-				<table class="noborder" width="100%" cellspacing="0" cellpadding="0" align="center" style='background-color: transparent;'>
-				<tr><td class="noborder"><p align="center" style="font-style: italic;"><?php echo gettext("Values marked with (*) are mandatory"); ?></p></td>
-				</tr></table>
+				
 				
 			</form>
 		</td>
 		
-		<td valign="top" class="nobborder" style="min-width: 400px;">
+		<td valign="top" class="nobborder" id='form_right'>
 						
 			<!-- INVENTORY -->
-			<table class="noborder" width="100%" cellspacing="0" cellpadding="0">
+			<table class='noborder' width="100%" cellspacing="0" cellpadding="0">
 			
                 <tr><th style="padding:5px"><?php echo _("Inventory")." [ <a href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?></th></tr>
-                
-				
-				<tr><td class="nobborder"><div id='tree_container_1'></div></td></tr>
-				
-				<tr><td class="nobborder sep15">&nbsp;</td></tr>
-											
-				<tr>
-					<td class="nobborder" id='cont_delete_selected'>
-						<input type='button' class='lbutton' id='delete_selected' value='<?php echo _("Delete Selected")?>'/>
-					</td>
-				</tr>
 				
 				<tr>
-					<td id='cont_new_property' class='nobborder left'>
-						<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/>
-						<span class='mr5 link_blue'><?php echo _("Add new property")?>:</span>
-						<select name="inv_prop_ref " id="inv_prop_ref">
-							<option value='0'>-- <?php echo _("Select a property type")?> --</option>
-							<?php
-								$properties_types = Host::get_properties_types($conn);
-								
-								foreach ($properties_types as $k => $v)
-									echo "<option value='".$v["id"]."'>".$v["name"]."</option>";
-							?>
-						</select>
-					</td>
-				</tr>
-								
-				<tr id='properties_form_1'>
-					<td class='nobborder sep10'>
-						<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" id="inventoryform">
+					<td class='noborder'>
+						<table id='table_inventory' class='noborder' width='100%'>
+				
+							<tr><td class="nobborder"><div id='tree_container_1'></div></td></tr>
+							
+							<tr><td class="nobborder sep15">&nbsp;</td></tr>
+												
+							<tr>
+								<td class="nobborder" id='cont_delete_selected'>
+									<input type='button' class='lbutton' id='delete_selected' value='<?php echo _("Delete Selected")?>'/>
+								</td>
+							</tr>
+							
+							<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" id="inventoryform">
 							<input type="hidden" name="ip" value="<?php echo $ip;?>"/>
-							<table id='table_properties' class='transparent'>
-								<tr>
-									<th><span><?php echo _("Value");?></span></th>
-									<td class='noborder left'><input type='text' id='inv_prop_value' name='inv_prop_value'/></td>
-								</tr>
-								<tr id='cont_prop_version'>
-									<th><span><?php echo _("Version");?></span></th>
-									<td class='noborder left'><textarea id='inv_prop_version' name='inv_prop_version'></textarea></td>
-								</tr>
-								<tr>
-									<td class='noborder right cont_inv_action' colspan='2'>
-										<input type="button" value="<?php echo _("Add")?>" onclick="addProperty();" class="lbutton"/>
-									    <input type="hidden" id='inv_action' name='inv_action'/>
-									</td>
-								</tr>
-							</table>
-						</form>
-					</td>
-				</tr>
-				
-				<!-- AVALILABILITY -->
-				<tr id='properties_form_2'>
-					<td class='noborder sep10'>
-						<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" id="serviceform">
-							<input type="hidden" name="ip" value="<?=GET('ip')?>"/>
-							<table class="transparent" width="100%" cellspacing="0" cellpadding="0">
-								<tr>
-									<td class="nobborder" width="100%">
-										<? /*$ports2 = Port::get_list($conn); ?>
-										<select name="newport">
-										<? foreach ($ports2 as $port3)?>
-											<option value="<?=$port3->get_port_number()."-".$port3->get_protocol_name()?>"><?=$port3->get_port_number()."-".$port3->get_protocol_name()?></option>
-										</select>
-										 *
-										 */?>
-										<table width="100%" id='table_services'>
+							
+							<tr>
+								<td id='cont_new_property' class='nobborder left'>
+									<span class='mr5'><?php echo _("Add new property")?>:</span>
+									<select name="inv_prop_ref" id="inv_prop_ref">
+										<option value='0'>-- <?php echo _("Select a property type")?> --</option>
+										<?php
+											$properties_types = Host::get_properties_types($conn);
+											
+											foreach ($properties_types as $k => $v)
+												echo "<option value='".$v["id"]."'>".$v["name"]."</option>";
+										?>
+									</select>
+								</td>
+							</tr>
+								
+							<tr id='properties_form_1'>
+								<td class='nobborder sep10'>
+									<table id='table_properties' class='transparent'>
+										<tr>
+											<th><span><?php echo _("Value");?></span></th>
+											<td class='noborder left'><input type='text' id='inv_prop_value' name='inv_prop_value'/></td>
+										</tr>
+										<tr id='cont_prop_version'>
+											<th><span><?php echo _("Version");?></span></th>
+											<td class='noborder left'><textarea id='inv_prop_version' name='inv_prop_version'></textarea></td>
+										</tr>
+										<tr>
+											<td class='noborder right cont_inv_action' colspan='2'>
+												<input type="button" value="<?php echo _("Add")?>" onclick="addProperty();" class="lbutton"/>
+												<input type="hidden" id='inv_action' name='inv_action'/>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							
+							</form>
+							
+							<tr id='properties_form_2'>
+								<td class='noborder sep10'>
+									<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" id="serviceform">
+										<input type="hidden" name="ip" value="<?=GET('ip')?>"/>
+										<table class="transparent" width="100%" cellspacing="0" cellpadding="0">
 											<tr>
-												<th><?php echo _("Port number");?></th>
-												<th><?php echo _("Protocol");?></th>
-												<th><?php echo _("Service");?></th>
-												<th><?php echo _("Nagios");?></th>
-												<td class="nobborder">&nbsp;</td>
-											</tr>
-											<tr>
-												<td class="nobborder" style="text-align:center;">
-													<input type="hidden" id="newport" name="newport" value="<?php //echo $assetst?>"/>
-													<input type="text" name="port" style="width: 80px; height:20px; color: black;" id="port" onKeyUp="fillService();"/>
-												</td>
-												
-												<td class="nobborder" style="text-align:center;">
-													<select id="protocol" style="width: 80px;" onchange="fillService();">
-														<option value="tcp">TCP</option>
-														<option value="udp">UDP</option>
+												<td class="nobborder" width="100%">
+													<? /*$ports2 = Port::get_list($conn); ?>
+													<select name="newport">
+													<? foreach ($ports2 as $port3)?>
+														<option value="<?=$port3->get_port_number()."-".$port3->get_protocol_name()?>"><?=$port3->get_port_number()."-".$port3->get_protocol_name()?></option>
 													</select>
-												</td>
-												
-												<td class="nobborder" style="text-align:center;">
-													<input type="text" name="service" style="width: 80px; height:20px; color: black;" id="service" />
-												</td>
-											
-												<td class="nobborder left"  style="text-align:center;">
-													<input type="checkbox" name="newportnagios" value="1"/>
-												</td>
-											
-												<td class="nobborder" style="text-align: right;">
-													<input type="button" value="<?=_("Add")?>" onclick="saveService();" class="lbutton"/>
+													 *
+													 */?>
+													<table width="100%" class='noborder' id='cont_services'>
+														<tr>
+															<th><?php echo _("Port number");?></th>
+															<th><?php echo _("Protocol");?></th>
+															<th><?php echo _("Service");?></th>
+															<th><?php echo _("Nagios");?></th>
+															<td class="nobborder">&nbsp;</td>
+														</tr>
+														<tr>
+															<td class="nobborder" style="text-align:center;">
+																<input type="hidden" id="newport" name="newport" value="<?php //echo $assetst?>"/>
+																<input type="text" name="port" style="width: 80px; height:20px; color: black;" id="port" onKeyUp="fillService();"/>
+															</td>
+															
+															<td class="nobborder" style="text-align:center;">
+																<select id="protocol" style="width: 80px;" onchange="fillService();">
+																	<option value="tcp">TCP</option>
+																	<option value="udp">UDP</option>
+																</select>
+															</td>
+														
+															<td class="nobborder" style="text-align:center;">
+																<input type="text" name="service" style="width: 80px; height:20px; color: black;" id="service" />
+															</td>
+														
+															<td class="nobborder left"  style="text-align:center;">
+																<input type="checkbox" name="newportnagios" value="1"/>
+															</td>
+														
+															<td class="nobborder" style="text-align: right;">
+																<input type="button" value="<?=_("Add")?>" onclick="saveService();" class="lbutton"/>
+															</td>
+														</tr>
+													</table>
 												</td>
 											</tr>
 										</table>
-									</td>
-								</tr>
-							</table>
-						</form>
-					</td>
-				</tr>
-							
-				<tr>
-					<td class="nobborder left">
-						<a id='availability' class='hide'><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?php echo _("Availability")?></a>
-					</td>
-				</tr>
-				<tr>
-					<td class='noborder' id='cont_sam'>
-						<table class='transparent' width='100%'>
-							<th style="padding:5px">
-								<?php echo _("Services Availability Monitoring")." [ <a href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?>
-							</th>
-							
-							<tr><td class="nobborder"><div id='tree_container_2'></div></td></tr>
-				
-							<tr>
-								<td class="nobborder" id='cont_update_selected'>
-									<input type='button' class='lbutton' id='update_selected' value='<?php echo _("Update Services")?>'/>
+									</form>
 								</td>
 							</tr>
-					
 						</table>
 					</td>
 				</tr>
-                
-				               			
-                <tr>
-					<td class="nobborder">
-					<?php if ( $inv_error != null ) {?>
-						<div class='inv_error'><span class='red'><?php echo $inv_error ?></span></div>
-					<?php } ?>
+				
+				<tr>
+					<td class="nobborder left" style='height: 40px;'>
+						<a id='availability' class='hide'><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?php echo _("Availability")?></a>
 					</td>
 				</tr>
-																
+				
+				<tr>
+					<td class='noborder'>
+						<table width='100%' class='noborder' id='cont_sam'>
+						
+							<tr>
+								<th style="padding:5px">
+									<?php echo _("Services Availability Monitoring")." [ <a href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?>
+								</th>
+							</tr>
+						
+							<tr>
+								<td class='noborder'>
+									<table id='table_services' class='noborder' width='100%'>
+										<tr><td class="nobborder"><div id='tree_container_2'></div></td></tr>
+							
+										<tr>
+											<td class="nobborder" id='cont_update_selected'>
+												<input type='button' class='lbutton' id='update_selected' value='<?php echo _("Update Services")?>'/>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>		
+						</table>
+					</td>
+				</tr>
 			</table>
 		</td>
 	</tr>
