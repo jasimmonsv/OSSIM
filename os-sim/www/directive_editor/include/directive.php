@@ -137,9 +137,9 @@ class Directive {
                 $jsAddRule='';
             }
           ?>
-		<td nowrap>&nbsp&nbsp<a <?php echo $jsAddRule; ?> href="<?php echo $urlAddRule; ?>" TITLE="<?php echo gettext("Add a rule at this directive"); ?>"><img src="../../pixmaps/plus.png" border="0"></img></a></td>
-		<td nowrap>&nbsp&nbsp<a onclick="javascript:if (confirm('<?php echo gettext("Are you sure you want to delete all rules ?"); ?>')) { window.open('../include/utils.php?query=del_all_rule','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php echo gettext("Delete all rules of this directive"); ?>"><img src="../../pixmaps/delete.gif" border="0"></img></a></td>
-    	<td nowrap>&nbsp&nbsp<a TARGET="right" href="../include/utils.php?query=copy_directive&id=<?php echo $id ?>" TITLE="<?php echo gettext("Copy this directive to a new"); ?>"><img src="../../pixmaps/copy.png" border="0"></img></a></td>
+		<td nowrap>&nbsp;&nbsp;<?php if (count($rules) < 1) { ?><a <?php echo $jsAddRule; ?> href="<?php echo $urlAddRule; ?>" TITLE="<?php echo gettext("Add a rule at this directive"); ?>"><img src="../../pixmaps/plus.png" border="0"></img></a><?php } ?></td>
+		<td nowrap>&nbsp;&nbsp;<a onclick="javascript:if (confirm('<?php echo gettext("Are you sure you want to delete all rules ?"); ?>')) { window.open('../include/utils.php?query=del_all_rule','right'); }" style="marging-left:20px; cursor:pointer" TITLE="<?php echo gettext("Delete all rules of this directive"); ?>"><img src="../../pixmaps/delete.gif" border="0"></img></a></td>
+    	<td nowrap>&nbsp;&nbsp;<a TARGET="right" href="../include/utils.php?query=copy_directive&id=<?php echo $id ?>" TITLE="<?php echo gettext("Copy this directive to a new"); ?>"><img src="../../pixmaps/copy.png" border="0"></img></a></td>
 		<td colspan="4" nowrap></td>
         <th> <?php
         echo gettext("Name"); ?> </th>
