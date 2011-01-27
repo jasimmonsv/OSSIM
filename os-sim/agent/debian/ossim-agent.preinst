@@ -5,6 +5,9 @@
 
 set -e
 
+# configuration variables
+OSSIM_AGENT_TMP_DIR="/tmp/ossim-agent"
+
 # summary of how this script can be called:
 #        * <new-preinst> `install'
 #        * <new-preinst> `install' <old-version>
@@ -13,14 +16,18 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+# environment configuration
+if [ ! -d ${OSSIM_AGENT_TMP_DIR} ]; then
+  mkdir -p ${OSSIM_AGENT_TMP_DIR}
+fi
 
 case "$1" in
     install|upgrade)
-        # Install diversions for ossim-agent's config file
-        #dpkg-divert --add --rename --divert /tmp/ossim-agent.config.cfg /etc/ossim/agent/config.cfg
-        # Copy the new configuration file to its final destination
-        #cp /tmp/ossim-agent.config.cfg /etc/ossim/agent/config.cfg
-        #dpkg-divert --divert /etc/ossim/agent/config.cfg.old --rename /etc/ossim/agent/config.cfg
+        # Moving agent's config file to another location to avoid dpkg
+        # asking what to do with the config file.
+        if [ -f /etc/ossim/agent/config.cfg ]; then
+            mv /etc/ossim/agent/config.cfg ${OSSIM_AGENT_TMP_DIR}/config.cfg
+        fi
     ;;
 
     abort-upgrade)

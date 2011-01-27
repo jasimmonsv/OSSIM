@@ -410,7 +410,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 			<td class="center nobborder"><input type="checkbox" name="has_ntop" value="1"  <?=(($properties["has_ntop"]=="1") ? "checked='checked'" : "")?>></td>
 			<td class="center nobborder"><input type="checkbox" name="has_vuln_scanner" onclick="toggle_vuln_scanner_options()"  value="1"  <?=(($properties["has_vuln_scanner"]=="1") ? "checked" : "")?>></td>
 			<td class="center nobborder"><input type="checkbox" name="has_kismet" value="1"  <?=(($properties["has_kismet"]=="1") ? "checked='checked'" : "")?>></td>
-			<td class="center nobborder"><input type="submit" name="update" class="lbutton" value="Update"/></td>
+			<td class="center nobborder"><input type="submit" name="update" class="lbutton" value="<?php echo _("Update")?>"/></td>
 		</tr>
 		
         <tr id="vuln_scanner_option" style="display:<?=(($properties["has_vuln_scanner"]=="1") ? "visible":"none"); //  && trim($local_ip)!=$sensor?>">
