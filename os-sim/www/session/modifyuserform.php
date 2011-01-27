@@ -358,7 +358,7 @@ include ("../hmenu.php");
 					} ?>
 					
 					<tr>
-						<td> <?php echo ($_SESSION['_user'] != $user->get_login()) ? gettext("Admin password") : gettext("Current password"); ?> </td>
+						<td> <?php echo ($_SESSION['_user'] != $user->get_login()) ? $_SESSION['_user']." ".gettext("password") : gettext("Current password"); ?> </td>
 						<td class="left"><input type="password" name="oldpass"/></td>
 					</tr>
 					<tr>
