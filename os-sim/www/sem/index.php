@@ -431,6 +431,14 @@ ul.tagit input.tagit-hidden {
 
         font-family: arial;
         font-size: 11px;   
+        text-decoration: none;
+}
+.imgtip {
+	text-align:left;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+	background-color: transparent;
 }
 </style>
 
@@ -479,13 +487,21 @@ function SetFromIframe(content,str,start,end,sort) {
                     this.load('../control_panel/alarm_netlookup.php?ip=' + ip);
             }
     });
+    $(".scriptinfoimg").simpletip({
+            offset: [0, -104],
+            position: 'right',
+            baseClass: 'imgtip',
+            onBeforeShow: function() {
+                    this.update(this.getParent().attr('txt'));
+            }
+    });
     $(".scriptinfotxt").simpletip({
             position: 'right',
             baseClass: 'ytooltip',
             onBeforeShow: function() {
                     this.update(this.getParent().attr('txt'));
             }
-    });
+    });    
 }
 
 function GetSearchString() {
@@ -1510,7 +1526,7 @@ require_once ("manage_querys.php");
 					<table class="transparent">
                     <tr>
                          <?php
-                            $txtzone = ($tz==0) ? "UTC" : (($tz>0) ? "GMT+".$tz : "GMT-".$tz);
+                            $txtzone = "<a href=\"javascript:;\" class=\"scriptinfoimg\" txt=\"<img src='../pixmaps/timezones/".rawurlencode(Util::timezone($tz)).".png' border=0>\">".Util::timezone($tz)."</a>";
                          ?>
                         <td class="nobborder" nowrap><?=_("Time frame selection")." $txtzone"?>:</td>
                         <td class="nobborder">

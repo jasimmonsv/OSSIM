@@ -266,13 +266,14 @@
 			$("<div />").attr("id", "jx-ttip-con-id").appendTo("body"); // create div element and append in html body
 			$("#jx-ttip-con-id").css({ // CSS for tooltip container (invisible to viewer(s))
 				"height": "auto",
+                "text-align": "center",
 				"margin-left": "0px",
 				"width": "100%", // use entire width
 				"overflow": constants["constOverflow"],
 				"position": pos
 			});
 
-			var diffY = 6;
+			var diffY = 5;
 			if (defaults.diffY) diffY = diffY + defaults.diffY; // calculate bottom margin
 									
 			// set tooltip container: top or bottom

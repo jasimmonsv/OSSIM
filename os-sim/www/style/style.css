@@ -906,6 +906,14 @@ div.bballoon:hover span.bottom {
 	text-decoration: none;	
 }
 
+.imgtip {
+	text-align:left;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+	background-color: transparent;
+}
+
 /** table pagination **/
 #tablePagination { 
 	background-color: #f2f2f2;

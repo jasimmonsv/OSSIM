@@ -78,7 +78,7 @@ ossim_valid($language, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _
 ossim_valid($frommenu, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("frommenu"));
 ossim_valid($first_login, OSS_DIGIT, 'illegal:' . _("First Login"));
 ossim_valid($is_admin, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("is admin"));
-ossim_valid($tzone, OSS_DIGIT, '-', '+', 'illegal:' . _("tzone"));
+ossim_valid($tzone, OSS_DIGIT, '-', '+', '.', 'illegal:' . _("tzone"));
 ossim_valid($last_pass_change, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("last pass change"));
 
 $kdbperms = "";

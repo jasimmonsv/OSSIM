@@ -148,11 +148,12 @@
 /*----- button tooltip -----*/
 .jx-bar-button-tooltip {
 	height:auto;
-	padding:5px 20px 5px 10px;
+	padding:5px 10px 5px 10px;
 	color:#fff;
 	background-color:#36393D;
 	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:11px;
+    text-align:center;
 }
 
 	/* rounded tooltip */
