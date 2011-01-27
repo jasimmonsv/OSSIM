@@ -79,6 +79,8 @@ DELIMITER ;
 CALL net_convert;
 DROP PROCEDURE IF EXISTS net_convert;
 
+REPLACE INTO config (conf, value) VALUES ('logger_if_priority', '0');
+
 use snort;
 ALTER TABLE `sensor` CHANGE `sensor` `sensor` TEXT NULL DEFAULT '';
 ALTER TABLE `acid_event` ADD `tzone` TINYINT(1) NOT NULL DEFAULT '0' AFTER `timestamp`;

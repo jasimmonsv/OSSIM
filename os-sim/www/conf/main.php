@@ -225,6 +225,20 @@ $CONFIG = array(
                 "desc" => gettext("Remote Logger OSSIM Url") ,
                 "advanced" => 1,
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
+            ) ,
+            "logger_if_priority" => array(
+                "type" => array(
+                    "0" => 0,
+                    "1" => 1,
+            		"2" => 2,
+            		"3" => 3,
+            		"4" => 4,
+            		"5" => 5
+                ) ,
+                "help" => gettext("Store in Logger if priority <= this value") ,
+                "desc" => gettext("Store in Logger if priority") ,
+                "advanced" => 1,
+				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             )
         )
     ) ,

@@ -169,6 +169,7 @@ INSERT INTO config (conf , value) VALUES ('server_remote_logger', 'no');
 INSERT INTO config (conf , value) VALUES ('server_remote_logger_user', '');
 INSERT INTO config (conf , value) VALUES ('server_remote_logger_pass', '');
 INSERT INTO config (conf , value) VALUES ('server_remote_logger_ossim_url', '');
+INSERT INTO config (conf , value) VALUES ('logger_if_priority', '0');
 
 INSERT INTO config (conf,  value) VALUES ('network_auto_discovery', '0');
 INSERT INTO config (conf , value) VALUES ('nedi_autodiscovery', '0');
