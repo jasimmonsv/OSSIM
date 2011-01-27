@@ -293,7 +293,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
     $unique_alert_cnt_info[0] = "<strong>" . _UNIALERTS . ":</strong>\n";
     $unique_alert_cnt_info[1] = "<a style='color:black;font-weight:bold' href=\"base_stat_alerts.php?sort_order=occur_d\">";
     $unique_alert_cnt_info[2] = "</a>";
-	$unique_plugin_cnt_info[0] = "<strong>Unique Plugins</strong>\n";
+	$unique_plugin_cnt_info[0] = "<strong>"._("Unique Data Sources")."</strong>\n";
     $unique_plugin_cnt_info[1] = "<a style='color:black;font-weight:bold' href=\"base_stat_plugins.php?sort_order=occur_d\">";
     $unique_plugin_cnt_info[2] = "</a>";
     $event_cnt_info[0] = "<strong>" . _SCTOTALNUMALERTS . "</strong>\n";
@@ -330,8 +330,8 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
     $unique_udp_dst_port_cnt_info[1] = " <a style='color:black;font-weight:bold' href=\"base_stat_ports.php?sort_order=occur_d&port_type=2&amp;proto=" . UDP . "\">";
     $unique_udp_dst_port_cnt_info[2] = "</a>)";
     if ($show_stats == 1) {
+        echo $unique_alert_cnt_info[0] . $unique_alert_cnt_info[1] . $unique_alert_cnt . $unique_alert_cnt_info[2]."\n<br />";
         echo $sensor_cnt_info[0] . $sensor_cnt_info[1] . $sensor_cnt . $sensor_cnt_info[2] . $sensor_total . "\n<br />";
-        echo $unique_alert_cnt_info[0] . $unique_alert_cnt_info[1] . $unique_alert_cnt . $unique_alert_cnt_info[2];
         if ($db->baseGetDBversion() >= 103) echo "<br />" . $class_cnt_info[0] . $class_cnt_info[1] . $class_cnt . $class_cnt_info[2];
         echo "<br />";
         echo $event_cnt_info[0] . $event_cnt_info[1] . $event_cnt . $event_cnt_info[2];
@@ -378,20 +378,6 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
                 <? } ?>
 		</td>
 	  <?php
-        //$li_style = (preg_match("/base_stat_sensor\.php/",$_SERVER['SCRIPT_NAME'])) ? " style='color:#F37914'" : "";
-        $color = (preg_match("/base_stat_sensor\.php/", $_SERVER['SCRIPT_NAME'])) ? "#28BC04" : "#FFFFFF";
-        if ($color == "#28BC04") $sensor_cnt_info[1] = str_replace(":black",":white",$sensor_cnt_info[1]);
-		//echo "  <li$li_style>".$sensor_cnt_info[1]._SCSENSORS. "</a></li>";
-        
-?>
-			<td nowrap align="center" style="border-right:1px solid #CACACA" bgcolor="<?php echo $color
-?>"><?php echo $sensor_cnt_info[1] . _SCSENSORS . $sensor_cnt_info[2] ?>
-            <? if ($color=="#28BC04") { ?>
-            <a href="javascript:;" onclick="javascript:report_launcher('Sensors_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
-            <a  href="javascript:;" onclick="javascript:report_launcher('Sensors_Report','<?=$sensors_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
-            <? } ?>
-        </td>
-	  <?php
         //$li_style = (preg_match("/base_stat_alerts\.php/",$_SERVER['SCRIPT_NAME'])) ? " style='color:#F37914'" : "";
         $color = (preg_match("/base_stat_alerts\.php|base_stat_alerts_graph\.php/", $_SERVER['SCRIPT_NAME']) || preg_match("/base_stat_class\.php|base_stat_class_graph\.php/", $_SERVER['SCRIPT_NAME'])) ? "#28BC04" : "#FFFFFF";
         if ($color == "#28BC04") { 
@@ -410,6 +396,23 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 				<!--<br>
 				(<?php echo $class_cnt_info[1] . _SCCLASS . $class_cnt_info[2] ?>)-->
 			</td>
+
+	  <?php
+        //$li_style = (preg_match("/base_stat_sensor\.php/",$_SERVER['SCRIPT_NAME'])) ? " style='color:#F37914'" : "";
+        $color = (preg_match("/base_stat_sensor\.php/", $_SERVER['SCRIPT_NAME'])) ? "#28BC04" : "#FFFFFF";
+        if ($color == "#28BC04") $sensor_cnt_info[1] = str_replace(":black",":white",$sensor_cnt_info[1]);
+		//echo "  <li$li_style>".$sensor_cnt_info[1]._SCSENSORS. "</a></li>";
+        
+?>
+			<td nowrap align="center" style="border-right:1px solid #CACACA" bgcolor="<?php echo $color
+?>"><?php echo $sensor_cnt_info[1] . _SCSENSORS . $sensor_cnt_info[2] ?>
+            <? if ($color=="#28BC04") { ?>
+            <a href="javascript:;" onclick="javascript:report_launcher('Sensors_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
+            <a  href="javascript:;" onclick="javascript:report_launcher('Sensors_Report','<?=$sensors_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
+            <? } ?>
+        </td>
+
+
 	  <?php
         if ($db->baseGetDBversion() >= 103) {
             //$li_style = (preg_match("/base_stat_class\.php/",$_SERVER['SCRIPT_NAME'])) ? " style='color:#F37914'" : "";
@@ -419,7 +422,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
             
 ?>
 			<td nowrap align="center" bgcolor="<?php echo $color
-?>"><?php echo $unique_plugin_cnt_info[1] . gettext("Unique Plugins") . $unique_plugin_cnt_info[2] ?>
+?>"><?php echo $unique_plugin_cnt_info[1] . gettext("Unique Data Sources") . $unique_plugin_cnt_info[2] ?>
                 <? if ($color=="#28BC04") { ?>
                 <a href="javascript:;" onclick="javascript:report_launcher('UniquePlugin_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
                 <a href="javascript:;" onclick="javascript:report_launcher('UniquePlugin_Report','<?=$unique_plugins_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>

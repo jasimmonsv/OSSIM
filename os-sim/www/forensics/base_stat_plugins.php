@@ -117,7 +117,7 @@ $qs->GetNumResultRows($cnt_sql, $db);
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_plugins.php?caller=" . $caller);
 //$qro->AddTitle(" ");
-$qro->AddTitle(_("Plugin"));
+$qro->AddTitle(_("Data Source"));
 $qro->AddTitle(_("Events") , "occur_a", " ", " ORDER BY events ASC, sensors DESC", "occur_d", ", ", " ORDER BY events DESC, sensors DESC");
 $qro->AddTitle(_SENSOR . "&nbsp;#", "sid_a", " ", " ORDER BY sensors ASC, events DESC", "sid_d", " ", " ORDER BY sensors DESC, events DESC");
 $qro->AddTitle(gettext("Last Event"));

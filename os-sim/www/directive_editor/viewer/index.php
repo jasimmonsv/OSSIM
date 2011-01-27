@@ -633,7 +633,7 @@ port="!22,25,110,!21"
 </p> 
  
 <p> 
-<?php echo _("Although Host_ARP_Event, Host_<acronym title=\"Operating System\">OS</acronym>_Event, etc, are not really a protocol, you can use them if you want to do directives with ARP, <acronym title=\"Operating System\">OS</acronym>, IDS or Service events. You can also use relative referencing like in 1:TCP, 2:Host_ARP_Event, etc…") ?>
+<?php echo _("Although Host_ARP_Event, Host_OS_Event, etc, are not really a protocol, you can use them if you want to do directives with ARP, <acronym title=\"Operating System\">OS</acronym>, IDS or Service events. You can also use relative referencing like in 1:TCP, 2:Host_ARP_Event, etc") ?>
 </p> 
  
 <p> 
@@ -815,7 +815,7 @@ Eg: reliability="3" reliability="+3"
 <div class="level5"> 
  
 <p> 
-<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn’t have a time_out value.") ?>
+<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn't have a time_out value.") ?>
  
 </p> 
  

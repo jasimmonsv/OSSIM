@@ -359,9 +359,9 @@ echo '
                     <TR><TD CLASS="header" >' . _ID . ' #</TD>
                         <TD CLASS="header" nowrap>' . _CHRTTIME . '</TD>
                         <TD CLASS="header">' . _QATRIGGERSIG . '</TD>
-                        <TD CLASS="header" nowrap>' . _("Plugin Name") . '</TD>
-                        <TD CLASS="header" nowrap>' . _("Plugin ID") . '</TD>
-                        <TD CLASS="header" nowrap>' . _("Plugin SID") . '</TD>
+                        <TD CLASS="header" nowrap>' . _("Data Source Name") . '</TD>
+                        <TD CLASS="header" nowrap>' . _("Data Source") . '</TD>
+                        <TD CLASS="header" nowrap>' . _("Event Type") . '</TD>
 						<TD></td></TR>
                     <TR><TD CLASS="plfield" nowrap>' . ($sid . " - " . $cid) . '</TD>
                         <TD CLASS="plfield" nowrap>' . htmlspecialchars($timestamp) . '</TD>

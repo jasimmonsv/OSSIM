@@ -179,7 +179,7 @@ function formsubmit () {
 			}
 		});
 	}
-	else alert ("<?=_("Must select Plugin ID/Plugin SID pair and type a value")?>");
+	else alert ("<?=_("Must select Data Source/Event Type pair and type a value")?>");
 }
 </script>
 </head>
@@ -241,7 +241,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 								</td>
 							</tr>
 							<tr>
-								<td class="left nobborder"><?=_("Plugin ID")?>: 
+								<td class="left nobborder"><?=_("Data Source")?>: 
 								<select name="plugin_id1" id="plugin_id1" onchange="load_sid(document.frules.plugin_id1.value);" style="width:202px">
 								<option value=""><?=_("Select Plugin ID")?>
 							<?
@@ -256,7 +256,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 							  </tr>
 							  
 							<tr>
-								<td id="sid1" class="left nobborder"><?=_("Plugin SID")?>:
+								<td id="sid1" class="left nobborder"><?=_("Event Type")?>:
 									<select name="" disabled style="width:200px">
 										<option value=""><?=_("Select Plugin SID")?>
 									</select>
