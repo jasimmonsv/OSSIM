@@ -135,9 +135,9 @@ if (is_array($net_list) && !empty($net_list)) {
     <!-- full scan -->
     <tr>
     <td colspan="2">
-    <p align="center"><?php echo _("Enable full scan")?>:&nbsp;
+    <p align="center"><?php echo _("Scan type")?>:&nbsp;
     <select name="full_scan">
-      <option value=""><?=_("Disabled")?></option>
+      <option value=""><?=_("Normal")?></option>
       <option value="fast"><?=_("Fast Scan")?></option>
       <option value="full"><?=_("Full Scan")?></option>
     </select>
@@ -175,7 +175,7 @@ if (is_array($net_list) && !empty($net_list)) {
     <!-- do scan -->
     <tr>
       <td colspan="2" class="nobborder center">
-        <input type="submit" class="button" style="font-size:12px" value="<?=_("Discover") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
+        <input type="submit" class="button" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
         
         <? if (Session::am_i_admin()) { ?>&nbsp;&nbsp;
         <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="document.location.href='remote_scans.php'"/>
@@ -200,11 +200,11 @@ if (is_array($lastscan) && count($lastscan)>0) {
     require_once ('scan_util.php');
     scan2html($lastscan);
 } else {
-    echo "<p align=\"center\">";
+    echo "<!-- <p align=\"center\">";
     echo gettext("NOTE: This tool is a nmap frontend. In order to use all nmap functionality, you need root privileges.");
     echo "<br/>";
     echo gettext("For this purpose you can use suphp, or change group to the web-user and set suid to nmap binary (<b>chgrp www-data /usr/bin/nmap ; chmod 4750 /usr/bin/nmap</b>).");
-    echo "</p>";
+    echo "</p> -->";
 }
 ?>
 

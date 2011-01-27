@@ -56,6 +56,12 @@ then
 		echo "www-data ALL=NOPASSWD: /var/ossec/agentless/register_host.sh" >> /etc/sudoers
 fi
 
+# nmap perms
+if [ -e /usr/bin/nmap ]
+then
+	chgrp www-data /usr/bin/nmap
+	chmod 4750 /usr/bin/nmap
+fi
 
 webservers="apache apache-ssl apache2"
 for apache in $webservers; do

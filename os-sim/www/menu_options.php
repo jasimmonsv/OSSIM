@@ -805,6 +805,13 @@ if(Session::am_i_admin()) {
         "url" => "netscan/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
     );    
+    if (Session::am_i_admin()) {
+	    $rmenu["Asset Discovery"][] = array(
+	        "name" => gettext("Configuration") ,
+	        "target" => "main",
+	        "url" => "../net/assetdiscovery.php?hmenu=Network+Discovery&smenu=Network+Discovery"
+	    );    
+	}
 }
 
 
@@ -1376,7 +1383,7 @@ if (Session::menu_perms("MenuTools", "ToolsDownloads")) { $tools = 1; //if (file
 
 
 $hmenu["Sysinfo"][] = array(
-    "name" => gettext("System Info") ,
+    "name" => gettext("Hardware Info") ,
     "id" => "Sysinfo",
     "url" => "sysinfo/index.php",
     "target" => "main", 

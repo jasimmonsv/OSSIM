@@ -137,6 +137,9 @@ include ("../hmenu.php");
 			document.location.href = 'newactivedirectory.php'
 		}
 	}
+    function linked_to(rowid) {
+        document.location.href = 'modifyactivedirectory.php?id='+urlencode(rowid);
+    }	
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
 		$.ajax({
@@ -215,6 +218,7 @@ echo "$colModel\n";
 		width: get_width('headerh1'),
 		height: get_height(),
 		onColumnChange: save_layout,
+		onDblClick: linked_to,
 		onEndResize: save_layout
 	});   
 	

@@ -237,13 +237,25 @@ foreach($sensor_list as $sensor) {
         if ($munin_link=="") $munin_link = "/munin/";
         $server_ip=trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
         $https=trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
-        if ($ip == $server_ip)
+        if ($ip == $server_ip) {
         	$munin_url='http'.(($https=="yes") ? "s" : "").'://'.$_SERVER["SERVER_NAME"].$munin_link;
-        else
+        	$testmunin = "http://" . $ip . "/munin/";
+        } else {
         	$munin_url='http://'.$ip.$munin_link;
-?><a href="<?php
-        echo $munin_url; ?>"><img align="bottom" src="../pixmaps/chart_bar.png" border="0"></a>
-				<?php
+        	$testmunin = $munin_url;
+		}	
+		// check $ntop valid
+		error_reporting(0);
+		$testlink = get_headers($testmunin);
+		error_reporting(E_ALL ^ E_NOTICE);
+		
+		if (preg_match("/200 OK/",$testlink[0])) {
+    ?>
+    	    <a href="<?php echo $munin_url; ?>"><img align="bottom" src="../pixmaps/chart_bar.png" border="0"></a>
+	<?php
+	    } else {
+	    	echo "<img align=\"bottom\" src=\"../pixmaps/chart_bar_off.png\" border=\"0\">";
+	    }
     }
     echo "</td><td class=\"noborder\" style=\"text-align: left;\">";
     echo "<span style=\"font-family:tahoma; font-size:11px;font-weight:normal;\">[ "._("UP or ENABLED").": </span>";

@@ -76,8 +76,8 @@ function new_wind(url,name)
 				<font style='font-size:120%'><b><?=_("The page you are trying to view does not exists")?>.</b></font><br>
 				<hr style="height:1px;border:none;background-color:#D5D5D5;color:#D5D5D5"><br>
 				<p align="justify" style="font-color:darkgray">
-				<?=_("You may try to open <b>OSSIM</b> home page, our categories index or our search engine to find the page you are looking for.")?><br><br>
-				<?=_("If you have any doubts about how to navigate through <b>OSSIM</b> visit our")?> <a href="javascript:new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:control_panel','Dashboard Help');" class=na11>Help</a>
+				<?=_("You may try to open <b>AlienVault</b> home page, our categories index or our search engine to find the page you are looking for.")?><br><br>
+				<?=_("If you have any doubts about how to navigate through <b>AlienVault</b> visit our")?> <a href="javascript:new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:control_panel','Dashboard Help');" class=na11>Help</a>
 				</p>
 			</td>		
 		</tr>
