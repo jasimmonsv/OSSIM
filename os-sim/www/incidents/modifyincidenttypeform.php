@@ -410,6 +410,9 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 						</table>
 					</td>
 				</tr>
+				
+				<?php if (count($custom_fields) > 0) { ?>
+				
 				<tr>
 					<td class='noborder'>
 						<table width='100%' class='noborder' id='ct_table'>
@@ -479,6 +482,9 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 						</table>
 					</td>
 				</tr>
+				
+				<?php } ?>
+				
 			</table>
 		</td>
 	</tr>

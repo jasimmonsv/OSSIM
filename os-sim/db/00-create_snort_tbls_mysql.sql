@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `acid_event` (
   `sid` int(10) unsigned NOT NULL,
   `cid` int(10) unsigned NOT NULL,
   `timestamp` datetime NOT NULL,
-  `tzone` TINYINT(1) NOT NULL DEFAULT '0',
+  `tzone` FLOAT NOT NULL DEFAULT '0',
   `ip_src` int(10) unsigned default NULL,
   `ip_dst` int(10) unsigned default NULL,
   `ip_proto` int(11) default NULL,

@@ -36,20 +36,29 @@
 */
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIncidents", "IncidentsTypes");
-?>
-
-<?php
 require_once ("ossim_db.inc");
 require_once ('classes/Incident_type.inc');
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<META http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('textarea').elastic();
+		});
+	</script>
+	
+	<style type='text/css'>
+		input[type='text'], textarea { width: 98%;}
+		textarea {height: 40px;}
+	</style>
 </head>
 <body>
 
@@ -57,34 +66,37 @@ echo gettext("OSSIM Framework"); ?> </title>
 include ("../hmenu.php"); ?>
 
 <form method="post" action="newincidenttype.php">
-<table align="center">
-  <input type="hidden" name="insert" value="insert" />
-  <tr>
-    <th> <?php
-echo gettext("Type id"); ?> </th>
-    <td class="left"><input type="text" id="type_id" name="id"  size="30" /></td>
-  </tr>
-  <tr>
-    <th> <?php
-echo gettext("Description"); ?> </th>
-    <td class="left">
-      <textarea id="type_descr" name="descr"></textarea>
-    </td>
-  </tr>
-  <tr>
-    <th> <?php
-echo gettext("Custom"); ?> </th>
-    <td class="left">
-      <input type="checkbox" name="custom" value="1">
-    </td>
-  </tr>  
-  <tr>
-    <td colspan="2" align="center" valign="top">
-      <input type="submit" value="<?=_("OK")?>" class="button">
-      <input type="reset" value="<?=_("reset")?>" class="button">
-    </td>
-  </tr>
-</table>
+	
+	<input type="hidden" name="insert" value="insert"/>
+
+	<table align="center">
+		<tr>
+			<th><?php echo gettext("Type id"); ?></th>
+			<td class="left"><input type="text" id="type_id" name="id"  size="30"/></td>
+		</tr>
+		
+		<tr>
+			<th> <?php echo gettext("Description"); ?> </th>
+			<td class="left">
+				<textarea id="type_descr" name="descr"></textarea>
+			</td>
+		</tr>
+		
+		<tr>
+			<th> <?php echo gettext("Custom"); ?> </th>
+			<td class="left">
+				<input type="checkbox" name="custom" value="1"/>
+			</td>
+		</tr>  
+		
+		<tr>
+			<td colspan="2" align="center" valign="top" class='noborder'>
+				<input type="submit" value="<?php echo _("OK")?>" class="button"/>
+				<input type="reset" value="<?php echo _("Reset")?>" class="button"/>
+			</td>
+		</tr>
+	</table>
+	
 </form>
 
 </body>

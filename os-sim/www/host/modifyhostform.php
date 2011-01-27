@@ -634,16 +634,22 @@ if ( $error_message != null )
 						i++;
 					}
 				});
-
-													
+																	
 				nagios_keys = nagios_keys.join(",");
-																				
-				update_services(nagios_keys);
+				update_services(nagios_keys);		
+				
 			});
 
 			$('#inv_prop_ref').bind('change', function() {
 				var prop_ref = $('#inv_prop_ref').val();
 				active_form_properties(prop_ref);
+			});
+			
+			$('.scan').bind('click', function(event) {
+				event.preventDefault();
+				var img = "<img style='padding-left: 3px' align='absmiddle' src='../pixmaps/loading3.gif'/>";
+				$(".scan").parent().append(img);
+				document.location.href = $(".scan").attr("href");
 			});
 		});
 	
@@ -948,7 +954,7 @@ if ( empty( $ip ) ) {
 			<!-- INVENTORY -->
 			<table class='noborder' width="100%" cellspacing="0" cellpadding="0">
 			
-                <tr><th style="padding:5px"><?php echo _("Inventory")." [ <a href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?></th></tr>
+                <tr><th style="padding:5px"><?php echo _("Inventory")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?></th></tr>
 				
 				<tr>
 					<td class='noborder'>
@@ -1075,7 +1081,7 @@ if ( empty( $ip ) ) {
 						
 							<tr>
 								<th style="padding:5px">
-									<?php echo _("Services Availability Monitoring")." [ <a href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?>
+									<?php echo _("Services Availability Monitoring")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?>
 								</th>
 							</tr>
 						

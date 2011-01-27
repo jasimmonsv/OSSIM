@@ -34,93 +34,88 @@
 * Function list:
 * Classes list:
 */
-require_once ('classes/Session.inc');
+require_once 'classes/Session.inc';
+require_once 'ossim_db.inc';
+require_once 'classes/Incident_type.inc';
 Session::logcheck("MenuIncidents", "IncidentsTypes");
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<META http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<style type='text/css'>
+		.pad3 {padding: 3px;}
+	</style>
 </head>
 <body>
 
-<?php
-include ("../hmenu.php"); ?>
+<?php include ("../hmenu.php");
 
-<?php
-require_once 'ossim_db.inc';
-require_once 'classes/Incident_type.inc';
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
 ?>
     <!-- main table -->
     <table align="center">
-<?php
-if ($inctype_list = Incident_type::get_list($conn, "")) {
-?>
-    <tr>
-        <th><?php
-    echo gettext("Ticket type"); ?></th>
-        <th><?php
-    echo gettext("Description"); ?></th>
-        <th><?php
-    echo gettext("Custom"); ?></th>
-        <th><?php
-    echo gettext("Actions"); ?></th>
-    </tr>    
+<?php 
+	if ($inctype_list = Incident_type::get_list($conn, "")) { ?>
+		<tr>
+			<th class='pad3'><?php echo gettext("Ticket type");?></th>
+			<th class='pad3'><?php echo gettext("Description");?></th>
+			<th class='pad3'><?php echo gettext("Custom");?></th>
+			<th class='pad3'><?php echo gettext("Actions");?></th>
+		</tr>    
     
-<?php
-    foreach($inctype_list as $inctype) {
-		$custom = (preg_match("/custom/",$inctype->get_keywords())) ? "tick.png" : "cross.png";
-		$custom_fields = Incident_type::get_custom_list($conn,$inctype->get_id());
-		$alt = (preg_match("/custom/",$inctype->get_keywords())) ? implode(",",$custom_fields) : "";
-?>
-        <tr>
-            <td><?php
-        echo $inctype->get_id(); ?></td>
-            <td>
-            <?php
-        if ("" == $inctype->get_descr()) {
-            echo " -- ";
-        } else {
-            echo $inctype->get_descr();
-        }
-?>
-            </td>
-            <?php
-        if (!("Generic" == $inctype->get_id()) && !("Nessus Vulnerability" == $inctype->get_id())) {
-            echo "<td align='center'><img src='../pixmaps/$custom' title='$alt' border='0'></td>";
-            echo "<td><a
-            href=\"modifyincidenttypeform.php?id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/pencil.png' border='0' title='"._("Modify type")."'> </a>
-            <a href=\"deleteincidenttype.php?confirm=1&inctype_id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/delete.gif' border='0' title='"._("Delete type")."'> </a></td>";
-        } else {
-            echo "<td> -- </td><td> -- </td>";
-        }
-?>
-        </tr>
-<?php
-    }
-?>
+		<?php
+			foreach($inctype_list as $inctype)
+			{
+				$custom = (preg_match("/custom/",$inctype->get_keywords())) ? "tick.png" : "cross.png";
+				$custom_fields = Incident_type::get_custom_list($conn,$inctype->get_id());
+				$alt = (preg_match("/custom/",$inctype->get_keywords())) ? implode(",",$custom_fields) : "";
+		?>
+				<tr>
+					<td><?php echo $inctype->get_id(); ?></td>
+					<td>
+					<?php
+						if ( "" == $inctype->get_descr() )
+							echo " -- ";
+						else 
+							echo $inctype->get_descr();
+						
+					?>
+					</td>
+					<?php
+					if (!("Generic" == $inctype->get_id()) && !("Nessus Vulnerability" == $inctype->get_id()))
+					{
+						echo "<td align='center'><img src='../pixmaps/$custom' title='$alt' border='0'></td>";
+						echo "<td><a href=\"modifyincidenttypeform.php?id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/pencil.png' border='0' title='"._("Modify type")."'/> </a>
+								  <a href=\"deleteincidenttype.php?confirm=1&inctype_id=" . urlencode($inctype->get_id()) . "\"> <img src='../vulnmeter/images/delete.gif' border='0' title='"._("Delete type")."'/> </a></td>";
+					} 
+					else
+						echo "<td> -- </td><td> -- </td>";
+					
+		?>
+				</tr>
+		<?php
+			}
 
-
-
-<?php
-} else {
-    echo "error";
-}
+	} 
+	else 
+		echo "error";
+	
 ?>
-    <tr>
-    <td colspan="4" align="center" style="height:30px"><a href="newincidenttypeform.php" class="buttonlink"><?php
-echo gettext("Add new type"); ?></a><td>
-    </tr>
-    </table>
+		<tr>
+			<td colspan="4" align="center" style="height:30px" class='noborder'>
+				<a href="newincidenttypeform.php" class="buttonlink"><?php echo gettext("Add new type"); ?></a>
+			</td>
+		</tr>
+    
+	</table>
 
 </body>
 </html>
-<?php
-$db->close($conn);
-?> 
+<?php $db->close($conn); ?> 

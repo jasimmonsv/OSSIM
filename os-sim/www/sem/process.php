@@ -125,6 +125,9 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
+$start_query = $start;
+$end_query = $end;
+
 if ($tzone!=0) {
 	$start = date("Y-m-d H:i:s",strtotime($start)+(-3600*$tzone));
 	$end = date("Y-m-d H:i:s",strtotime($end)+(-3600*$tzone));
@@ -415,7 +418,7 @@ $txtzone = ($tz==0) ? "UTC" : (($tz>0) ? "GMT+".$tz : "GMT-".$tz);
 <?php if (has_results($num_lines)) { ?>
 <table width="100%" class="noborder" style="background-color:transparent;">
 	<tr>
-		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif"><?php print _("Time Range").": <b>$start <-> $end</b>" ?></td>
+		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif"><?php print _("Time Range").": <b>$start_query <-> $end_query</b>" ?></td>
 		<td align="center">
 			<?php if ($from_remote) { ?>
 			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" <b>first</b> events")._(" for <b>each server</b>")." (<b>".(($offset*$num_servers)+1)."</b> - <b>".(($offset*$num_servers)+count($result))."</b> total)" ?>.&nbsp;
@@ -441,7 +444,7 @@ $txtzone = ($tz==0) ? "UTC" : (($tz>0) ? "GMT+".$tz : "GMT-".$tz);
 		<?php if ($from_remote) { ?>
 		<td class='plfieldhdr' style='padding-left:3px;padding-right:3px;border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Server") ?></td>
 		<?php } ?>
-		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;' nowrap>
 			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date") . " $txtzone " ?>
 			<a href="javascript:DateDesc()"><img src="../forensics/images/order_sign_d.gif" border="0"></a>
 		</td>
@@ -530,7 +533,7 @@ foreach($result as $res=>$event_date) {
         $date = $matches[2];
         $event_date = $matches[2];
         $tzone = intval($matches[10]);
-        $txtzone = ($tzone==0) ? "UTC" : (($tzone>0) ? "GMT+".$tz : "GMT-".$tz);
+        $txtzone = ($tzone==0) ? "UTC" : (($tzone>0) ? "GMT+".$tzone : "GMT-".$tzone);
 
         // Special case: old events
         $eventhour = date("H",strtotime($date));
@@ -544,6 +547,8 @@ foreach($result as $res=>$event_date) {
         // Apply user timezone
 		if ($tz!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
 	
+		//echo "$date - $event_date - $tzone - $tz<br>";
+		
         // fin para coger
         if($htmlResult){
             $sensor = $matches[5];

@@ -243,7 +243,7 @@ CREATE TABLE sensor (
     connect         smallint NOT NULL,
 /*    sig_group_id    int  NOT NULL, */
     descr           varchar(255) NOT NULL,
-    tzone           int NOT NULL DEFAULT 0,
+    tzone           float NOT NULL DEFAULT 0,
     PRIMARY KEY     (name)
 );
 
@@ -1156,7 +1156,7 @@ CREATE TABLE users (
     language varchar(12) DEFAULT 'en_GB' NOT NULL,
     enabled TINYINT(1) NOT NULL DEFAULT '1',
     first_login TINYINT(1) NOT NULL DEFAULT '1',
-    timezone TINYINT(1) NOT NULL DEFAULT '0',
+    timezone FLOAT NOT NULL DEFAULT '0',
     last_pass_change timestamp NOT NULL default CURRENT_TIMESTAMP,
     last_logon_try datetime NOT NULL,
     is_admin TINYINT(1) NOT NULL DEFAULT 0,
@@ -2344,7 +2344,7 @@ CREATE TABLE IF NOT EXISTS `acl_entities` (
   `admin_user` varchar(60) NOT NULL,
   `name` varchar(128) default NULL,
   `address` tinytext,
-  `timezone` TINYINT(1) NOT NULL DEFAULT '0',
+  `timezone` FLOAT NOT NULL DEFAULT '0',
   `parent_id` int(11) default NULL,
   `inherit_sensors_from_parent` tinyint(4) default NULL,
   `inherit_assets_from_parent` tinyint(4) default NULL,
