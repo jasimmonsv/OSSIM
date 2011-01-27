@@ -239,12 +239,13 @@ foreach($sensor_list as $sensor) {
         $https=trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
         if ($ip == $server_ip) {
         	$munin_url='http'.(($https=="yes") ? "s" : "").'://'.$_SERVER["SERVER_NAME"].$munin_link;
+        	$munin_url=str_replace("localhost",$ip,$munin_url);
         	$testmunin = "http://" . $ip . "/munin/";
         } else {
         	$munin_url='http://'.$ip.$munin_link;
         	$testmunin = $munin_url;
 		}	
-		// check $ntop valid
+		// check valid munin url
 		error_reporting(0);
 		$testlink = get_headers($testmunin);
 		error_reporting(E_ALL ^ E_NOTICE);
