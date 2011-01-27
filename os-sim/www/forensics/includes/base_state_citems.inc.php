@@ -951,11 +951,11 @@ class TimeCriteria extends MultipleElementCriteria {
             if (isset($this->criteria[$i][1]) && $this->criteria[$i][1] != " ") {
                 $tmp = $tmp . '' . htmlspecialchars($this->criteria[$i][0]) . ' time ' . htmlspecialchars($this->criteria[$i][1]) . ' [ ';
                 /* date */
-                if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
+                if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>".gettext("any date")."</I>";
                 else $tmp = $tmp . (($this->criteria[$i][2] == " ") ? "* / " : $this->criteria[$i][2] . " / ") . (($this->criteria[$i][3] == "") ? "* / " : $this->criteria[$i][3] . " / ") . (($this->criteria[$i][4] == " ") ? "*  " : $this->criteria[$i][4] . " ");
                 $tmp = $tmp . '] [ ';
                 /* time */
-                if ($this->criteria[$i][5] == "" && $this->criteria[$i][6] == "" && $this->criteria[$i][7] == "") $tmp = $tmp . "<I>any time</I>";
+                if ($this->criteria[$i][5] == "" && $this->criteria[$i][6] == "" && $this->criteria[$i][7] == "") $tmp = $tmp . " <I>".gettext("any time")."</I>";
                 else $tmp = $tmp . (($this->criteria[$i][5] == "") ? "* : " : $this->criteria[$i][5] . " : ") . (($this->criteria[$i][6] == "") ? "* : " : $this->criteria[$i][6] . " : ") . (($this->criteria[$i][7] == "") ? "*  " : $this->criteria[$i][7] . " ");
                 $tmp = $tmp . $this->criteria[$i][8] . '] ' . $this->criteria[$i][9];
                 $tmp = $tmp;
@@ -970,7 +970,7 @@ class TimeCriteria extends MultipleElementCriteria {
         	$tmp = $tmp . '' . htmlspecialchars($this->criteria[0][0]) . ' Date of events between <b>';
             /* date */
         	$i = 0;
-            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
+            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>".gettext("any date")."</I>";
             else $tmp = $tmp . (($this->criteria[$i][2] == " ") ? "* / " : $this->criteria[$i][2] . " / ") . (($this->criteria[$i][3] == "") ? "* / " : $this->criteria[$i][3] . " / ") . (($this->criteria[$i][4] == " ") ? "*  " : $this->criteria[$i][4] . " ");
             $tmp = $tmp . ' ';
             /* time */
@@ -980,7 +980,7 @@ class TimeCriteria extends MultipleElementCriteria {
             $tmp = $tmp." ";
             /* date */
             $i = 1;
-            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
+            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>".gettext("any date")."</I>";
             else $tmp = $tmp . (($this->criteria[$i][2] == " ") ? "* / " : $this->criteria[$i][2] . " / ") . (($this->criteria[$i][3] == "") ? "* / " : $this->criteria[$i][3] . " / ") . (($this->criteria[$i][4] == " ") ? "*  " : $this->criteria[$i][4] . " ");
             $tmp = $tmp . ' ';
             /* time */
@@ -994,7 +994,7 @@ class TimeCriteria extends MultipleElementCriteria {
             $op = str_replace("<=","before",$op);
             $tmp = $tmp . '' . htmlspecialchars($this->criteria[$i][0]) . ' Date of events ' . $op . ' <b>';
             /* date */
-            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>any date</I>";
+            if ($this->criteria[$i][2] == " " && $this->criteria[$i][3] == "" && $this->criteria[$i][4] == " ") $tmp = $tmp . " <I>".gettext("any date")."</I>";
             else $tmp = $tmp . (($this->criteria[$i][2] == " ") ? "* / " : $this->criteria[$i][2] . " / ") . (($this->criteria[$i][3] == "") ? "* / " : $this->criteria[$i][3] . " / ") . (($this->criteria[$i][4] == " ") ? "*  " : $this->criteria[$i][4] . " ");
             $tmp = $tmp . ' ';
             /* time */
