@@ -272,35 +272,47 @@ CREATE TABLE net_sensor_reference (
     PRIMARY KEY     (net_name, sensor_name)
 );
 
-CREATE TABLE host_property_reference (
-   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   name VARCHAR(100)
+DROP TABLE IF EXISTS host_property_reference;
+CREATE TABLE IF NOT EXISTS `host_property_reference` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(100) default NULL,
+  `ord` int(11) NOT NULL default '0',
+  `description` varchar(128) NOT NULL,
+  PRIMARY KEY  (`id`)
 );
 
-CREATE TABLE host_properties (
-   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+DROP TABLE IF EXISTS host_properties;
+CREATE TABLE IF NOT EXISTS host_properties (
+   id INT NOT NULL AUTO_INCREMENT, 
    ip VARCHAR(15),
    date DATETIME,
    property_ref INT,
    source_id INT,
    value TEXT,
-   extra TEXT
+   extra TEXT,
+   PRIMARY KEY  (`id`),
+   KEY `date` (`date`),
+   KEY `ip` (`ip`,`sensor`),
+   KEY `property_ref` (`property_ref`,`value`(255))   
 );
 
-CREATE TABLE host_source_reference (
+DROP TABLE IF EXISTS host_source_reference;
+CREATE TABLE IF NOT EXISTS host_source_reference (
    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
    name VARCHAR(100),
    priority INT
 );
 
-INSERT INTO host_property_reference(name) VALUES ('software');
-INSERT INTO host_property_reference(name) VALUES ('cpu');
-INSERT INTO host_property_reference(name) VALUES ('operating-system');
-INSERT INTO host_property_reference(name) VALUES ('worgroup');
-INSERT INTO host_property_reference(name) VALUES ('ram');
-INSERT INTO host_property_reference(name) VALUES ('department');
-INSERT INTO host_property_reference(name) VALUES ('macAddress');
-INSERT INTO host_property_reference(name) VALUES ('workgroup');
+INSERT INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
+(1, 'software', 3, 'Software'),
+(2, 'cpu', 8, 'CPU'),
+(3, 'operating-system', 1, 'Operating System'),
+(4, 'services', 2, 'Services'),
+(5, 'ram', 9, 'RAM'),
+(6, 'department', 5, 'Department'),
+(7, 'macAddress', 7, 'MAC Address'),
+(8, 'workgroup', 6, 'Workgroup'),
+(9, 'role', 4, 'Role');
 
 INSERT INTO host_source_reference(name, priority) VALUES ('MANUAL', 10);
 INSERT INTO host_source_reference(name, priority) VALUES ('OCS', 9);
