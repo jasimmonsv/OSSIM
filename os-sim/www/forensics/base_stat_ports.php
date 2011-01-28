@@ -90,7 +90,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();
@@ -164,7 +164,7 @@ $qro->AddTitle(" ");
 $qro->AddTitle(_PORT, "port_a", " ", " ORDER BY $port_type_sql ASC", "port_d", " ", " ORDER BY $port_type_sql DESC");
 $qro->AddTitle(_SENSOR, "sensor_a", " ", " ORDER BY num_sensors ASC", "sensor_d", " ", " ORDER BY num_sensors DESC");
 $qro->AddTitle(_OCCURRENCES, "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
-$qro->AddTitle(_UNIALERTS, "alerts_a", " ", " ORDER BY num_sig ASC", "alerts_d", " ", " ORDER BY num_sig DESC");
+$qro->AddTitle(gettext("Unique Events"), "alerts_a", " ", " ORDER BY num_sig ASC", "alerts_d", " ", " ORDER BY num_sig DESC");
 $qro->AddTitle(_SUASRCADD, "sip_a", " ", " ORDER BY num_sip ASC", "sip_d", " ", " ORDER BY num_sip DESC");
 $qro->AddTitle(_SUADSTADD, "dip_a", " ", " ORDER BY num_dip ASC", "dip_d", " ", " ORDER BY num_dip DESC");
 $qro->AddTitle(_FIRST, "first_a", " ", " ORDER BY first_timestamp ASC", "first_d", " ", " ORDER BY first_timestamp DESC");

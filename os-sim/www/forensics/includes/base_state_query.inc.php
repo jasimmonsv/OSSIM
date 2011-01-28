@@ -199,8 +199,11 @@ class QueryState {
         return $db->baseExecute($sql);
 		//print_r($sql);
     }
-    function PrintResultCnt($sqlgraph = "", $tr = array(), $displaying = _DISPLAYINGTOTAL) {
+    function PrintResultCnt($sqlgraph = "", $tr = array(), $displaying="") {
         GLOBAL $show_rows, $db;
+        if($displaying=="") {
+            $displaying = gettext("Displaying events %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
+        }
         if ($this->num_result_rows != 0) {
             if ($this->isCannedQuery()) {
                 echo "<div style='text-align:left;margin:auto'>" . _DISPLAYING . " " . $this->GetCurrentCannedQueryDesc() . "</div>";

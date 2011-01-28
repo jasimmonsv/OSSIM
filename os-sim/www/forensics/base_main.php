@@ -235,11 +235,11 @@ echo '
 	          </tr>
 
               <tr class="main_quick_surf">
-	            <td colspan=2 style="text-align:left;">- <a href="base_stat_alerts.php?caller=last_alerts&amp;sort_order=last_d">' . _MOSTRECENT . $last_num_ualerts . _UNIALERTS . '</a></td>
+	            <td colspan=2 style="text-align:left;">- <a href="base_stat_alerts.php?caller=last_alerts&amp;sort_order=last_d">' . _MOSTRECENT . $last_num_ualerts . gettext("Unique Events") . '</a></td>
 	          </tr>
 
 	          <tr class="main_quick_surf">
-	            <td colspan=2 style="text-align:left;">- <a href="base_stat_alerts.php?caller=most_frequent&amp;sort_order=occur_d">' . _MOSTFREQUENT . $freq_num_alerts . " " . _UNIALERTS . '</a></td>
+	            <td colspan=2 style="text-align:left;">- <a href="base_stat_alerts.php?caller=most_frequent&amp;sort_order=occur_d">' . _MOSTFREQUENT . $freq_num_alerts . " " . gettext("Unique Events") . '</a></td>
 	          </tr>
 	        </table>
           </div>

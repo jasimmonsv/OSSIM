@@ -202,8 +202,8 @@ line-height:28px; height: 28px; background: transparent url(../pixmaps/fondo_col
 		<table width='100%'>
 			<tr>
 				<td class='menuitem' nowrap>
-				<a class='menuitem' href='<?php echo $BASE_urlpath ?>/base_qry_main.php?new=1'><font style="font-size:18px;color:#333333"><?php echo _SEARCH ?></font></a>&nbsp;&nbsp;<font style="color:green;font-weight:bold;font-size:16px">|</font>&nbsp;&nbsp;
-				<a class='menuitem' href='<?php echo $BASE_urlpath ?>/base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB'><font style="font-size:18px;color:#333333"><?php echo _HOME ?></font></a>&nbsp;&nbsp;
+				<a class='menuitem' href='<?php echo $BASE_urlpath ?>/base_qry_main.php?new=1'><font style="font-size:18px;color:#333333"><?php echo gettext("Search") ?></font></a>&nbsp;&nbsp;<font style="color:green;font-weight:bold;font-size:16px">|</font>&nbsp;&nbsp;
+				<a class='menuitem' href='<?php echo $BASE_urlpath ?>/base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB'><font style="font-size:18px;color:#333333"><?php echo gettext("Clear") ?></font></a>&nbsp;&nbsp;
 				<?php
 if ($Use_Auth_System == 1) {
 ?>
@@ -266,7 +266,7 @@ if ($Use_Auth_System == 1) {
 							<td align="right">
 								<table>
 									<tr>
-										<td><input type="submit" class="button" value="IP" name="submit" style='width:30px'>&nbsp;<input type="submit" class="button" value="Signature" id="signature" name="submit">&nbsp;<input type="submit" class="button" value="Payload" name="submit"></td>
+										<td><input type="submit" class="button" value="IP" name="submit" style='width:30px'>&nbsp;<input type="submit" class="button" value="<?php echo gettext("Signature")?>" id="signature" name="submit">&nbsp;<input type="submit" class="button" value="Payload" name="submit"></td>
 									</tr>
 								</table>
 							</td>

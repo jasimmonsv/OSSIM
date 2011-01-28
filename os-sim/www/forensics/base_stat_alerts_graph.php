@@ -57,7 +57,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();
@@ -113,7 +113,7 @@ if (!$use_ac) $qs->GetNumResultRows($cnt_sql, $db);
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_alerts_graph.php?caller=" . $caller);
 $qro->AddTitle(" ");
-$qro->AddTitle(_SIGNATURE, "sig_a", " ", " ORDER BY plugin_id ASC,plugin_sid", "sig_d", " ", " ORDER BY plugin_id DESC,plugin_sid");
+$qro->AddTitle(gettext("Signature"), "sig_a", " ", " ORDER BY plugin_id ASC,plugin_sid", "sig_d", " ", " ORDER BY plugin_id DESC,plugin_sid");
 $qro->AddTitle(_TOTAL . "&nbsp;#", "occur_a", " ", " ORDER BY sig_cnt ASC", "occur_d", " ", " ORDER BY sig_cnt DESC");
 $qro->AddTitle(_SENSOR . "&nbsp;#");
 $qro->AddTitle(_("Src. Addr.") , "saddr_a", ", count(DISTINCT ip_src) AS saddr_cnt ", " ORDER BY saddr_cnt ASC", "saddr_d", ", count(DISTINCT ip_src) AS saddr_cnt ", " ORDER BY saddr_cnt DESC");

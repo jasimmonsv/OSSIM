@@ -108,7 +108,7 @@ $submit = ImportHTTPVar("submit", VAR_DIGIT | VAR_PUNC | VAR_LETTER, array(
 /* For your own mental health, skip over until 20 or 30 lines below :P */
 //require_once("/usr/share/ossim/include/ossim_error.inc");
 
-if ($submit == "Signature") {
+if ($submit == gettext("Signature")) {
 
     $search_str = ImportHTTPVar("search_str", VAR_DIGIT | VAR_PUNC | VAR_LETTER);
     //print_r ($_GET);

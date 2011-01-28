@@ -63,7 +63,7 @@
       
 	if(!array_key_exists("minimal_view",$_GET))
 	{
-		PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+		PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
 		PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
 	}
 
