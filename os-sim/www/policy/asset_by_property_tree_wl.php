@@ -109,7 +109,7 @@ if($key=="") {
         switch (strtolower($prop["name"])) {
             case "software": $png = "software";
             break;
-            case "operating system": $png = "host_os";
+            case "operating-system": $png = "host_os";
             break;
             case "cpu": $png = "cpu";
             break;
@@ -119,7 +119,7 @@ if($key=="") {
             break;
             case "department": $png = "host_group";
             break;
-            case "mac address": $png = "mac";
+            case "macaddress": $png = "mac";
             break;
             case "workgroup": $png = "net_group";
             break;
@@ -127,7 +127,7 @@ if($key=="") {
             break;
         }
         if(count(Host::get_property_values($conn, $prop["id"]))>0) {
-            $buffer .= "{ key:'p".$prop["id"]."', isFolder:true, isLazy:true, expand:false, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["name"])."' },\n";
+            $buffer .= "{ key:'p".$prop["id"]."', isFolder:true, isLazy:true, expand:false, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["description"])."' },\n";
         }
         else {
             $buffer .= "{ icon:'../../pixmaps/theme/$png.png', title:'"._($prop["name"])."' },\n";

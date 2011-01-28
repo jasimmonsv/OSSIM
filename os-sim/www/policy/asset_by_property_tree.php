@@ -90,7 +90,7 @@ if ($from!="") {
     	switch (strtolower($prop["name"])) {
     		case "software": $png = "software";
     		break;
-    		case "operating system": $png = "host_os";
+    		case "operating-system": $png = "host_os";
     		break;
     		case "cpu": $png = "cpu";
     		break;
@@ -100,14 +100,14 @@ if ($from!="") {
     		break;
     		case "department": $png = "host_group";
     		break;
-    		case "mac address": $png = "mac";
+    		case "macaddress": $png = "mac";
     		break;
     		case "workgroup": $png = "net_group";
     		break;
     		case "role": $png = "server_role";
     		break;
     	}
-    	$buffer .= "{ key:'p".$prop["id"]."', isFolder:true, expand:true, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["name"])."' },\n";
+    	$buffer .= "{ key:'p".$prop["id"]."', isFolder:true, expand:true, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["description"])."' },\n";
     }
     $buffer .= "{ key:'all', expand:false, icon:'../../pixmaps/theme/host_add.png', title:'"._("All Hosts")."' }\n";
     $buffer .= "] } ]";

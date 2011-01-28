@@ -296,6 +296,19 @@ CREATE TABLE IF NOT EXISTS host_properties (
    KEY `property_ref` (`property_ref`,`value`(255))   
 );
 
+DROP TABLE IF EXISTS host_properties_changes;
+CREATE TABLE IF NOT EXISTS host_properties_changes (
+	   id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+	   type        INT, 
+	   ip           VARCHAR(15), 
+	   sensor       VARCHAR(64), 
+	   date         DATETIME, 
+	   property_ref INT, 
+	   source_id    INT, 
+	   value        TEXT, 
+	   extra        TEXT
+);
+
 DROP TABLE IF EXISTS host_source_reference;
 CREATE TABLE IF NOT EXISTS host_source_reference (
    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

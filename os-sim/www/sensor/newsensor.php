@@ -56,7 +56,7 @@ $validate = array (
 	"ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip")),
 	"priority"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Priority")),
 	"port"      => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
-	"tzone"     => array("validation"=>"OSS_DIGIT, OSS_SCORE", "e_message" => 'illegal:' . _("Timezone")),
+	"tzone"     => array("validation"=>"OSS_DIGIT, OSS_SCORE, OSS_DOT", "e_message" => 'illegal:' . _("Timezone")),
 	"descr"     => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")));
 	
 if ( GET('ajax_validation') == true )

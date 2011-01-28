@@ -14,6 +14,18 @@ REPLACE INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
 (8, 'workgroup', 6, 'Workgroup'),
 (9, 'role', 4, 'Role');
 
+CREATE TABLE host_properties_changes (
+	   id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+	   type        INT, 
+	   ip           VARCHAR(15), 
+	   sensor       VARCHAR(64), 
+	   date         DATETIME, 
+	   property_ref INT, 
+	   source_id    INT, 
+	   value        TEXT, 
+	   extra        TEXT
+);
+       
 use ossim;
 UPDATE config SET value="2011-01-28" WHERE conf="last_update";
 
