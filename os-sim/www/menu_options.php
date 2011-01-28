@@ -1201,13 +1201,6 @@ if (Session::menu_perms("MenuPolicy", "PolicyServers") || Session::menu_perms("M
            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:databases','Help');"
         );
     }
-    /*if (Session::menu_perms("MenuPolicy", "PolicyPluginGroups")) {
-        $hmenu["SIEM Components"][] = array(
-            "name" => gettext("Plugin Groups") ,
-            "id" => (preg_match("/plugingroups/",$menu["Assets"][1]["url"])) ? "SIEM Components" : "Plugin Groups",
-            "url" => "policy/plugingroups.php"
-        );
-    }*/
 }
 if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) { $configuration = 1;
     $menu["Configuration"][] = array(

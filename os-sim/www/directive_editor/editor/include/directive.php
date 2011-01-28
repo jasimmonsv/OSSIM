@@ -159,9 +159,9 @@ class Directive {
         <th> <?php
         echo gettext("Sensor"); ?> </th>
         <th> <?php
-        echo gettext("Plugin ID"); ?> </th>
+        echo gettext("Data Source"); ?> </th>
         <th> <?php
-        echo gettext("Plugin SID"); ?> </th>
+        echo gettext("Event Type"); ?> </th>
       </tr>
 	<?php
         /* check if the current rule is a new rule and print rules*/

@@ -69,9 +69,6 @@ else
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type='text/javascript' src='codemirror/codemirror.js' ></script>
 		
-	<!-- Elastic textarea: -->
-	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
-	
 	<!-- Own libraries: -->
 	<script type='text/javascript' src='utils.js'></script>
 	<script type='text/javascript' src='functions.js'></script>

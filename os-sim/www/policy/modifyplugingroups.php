@@ -141,7 +141,7 @@ function validate_post_params($name, $descr, $sids, $imported_sids) {
         if ($sids_str !== '') {
             list($valid, $data) = validate_sids_str($sids_str);
             if (!$valid) {
-                ossim_set_error(_("Error for plugin ") . $plugin . ': ' . $data);
+                ossim_set_error(_("Error for data source ") . $plugin . ': ' . $data);
                 break;
             }
             if ($sids_str == "ANY") $sids_str = "0";
@@ -165,7 +165,7 @@ function validate_post_params($name, $descr, $sids, $imported_sids) {
     foreach($delvar as $k) unset($_SESSION[$k]); */
     //
     if (!count($plugins) && !count($imported_sids)) {
-        ossim_set_error(_("No plugins or Signature IDs selected"));
+        ossim_set_error(_("No Data Sources or Event Types selected"));
     }
     if (ossim_error()) {
         die(ossim_error());
