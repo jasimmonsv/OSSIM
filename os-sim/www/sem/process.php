@@ -41,6 +41,7 @@ require_once ("classes/Session.inc");
 Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ("classes/Host.inc");
 require_once ("classes/Net.inc");
+require_once ("classes/Util.inc");
 require_once ("process.inc");
 require_once ('ossim_db.inc');
 function dateDiff($startDate, $endDate)
@@ -412,7 +413,7 @@ $totaltime = round($time2 - $time1, 2);
 <?php
 //}
 $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
-$txtzone = ($tz==0) ? "UTC" : (($tz>0) ? "GMT+".$tz : "GMT-".$tz);
+$txtzone = Util::timezone($tz);
 ?>
 <div id="processcontent" style="display:none">
 <?php if (has_results($num_lines)) { ?>
@@ -533,7 +534,7 @@ foreach($result as $res=>$event_date) {
         $date = $matches[2];
         $event_date = $matches[2];
         $tzone = intval($matches[10]);
-        $txtzone = ($tzone==0) ? "UTC" : (($tzone>0) ? "GMT+".$tzone : "GMT-".$tzone);
+        $txtzone = Util::timezone($tzone);
 
         // Special case: old events
         $eventhour = date("H",strtotime($date));
