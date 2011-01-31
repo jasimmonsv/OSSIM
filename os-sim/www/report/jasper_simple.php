@@ -831,7 +831,7 @@ $db->close($conn);
 
                             <?php //var_dump($reportOrd); ?>
 							<!-- User Log REPORT -->
-							<? if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) { ?>
+							<? if (Session::menu_perms("MenuStatus", "ToolsUserLog")) { ?>
 							<form name="logfilter" method="GET" action="<?php echo $_SERVER["SCRIPT_NAME"]?>">
 							<tr class="<?=($key++%2==0) ? "par" : "impar"?>">
                                 <td class="reportName" style="text-align: left; padding-left: 30px">
