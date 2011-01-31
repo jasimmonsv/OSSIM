@@ -35,7 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuPolicy", "PolicySensors");
+Session::logcheck("MenuConfiguration", "PolicySensors");
 // load column layout
 require_once ('../conf/layout.php');
 $category = "policy";

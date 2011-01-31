@@ -36,7 +36,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuPolicy", "PolicySensors");
+Session::logcheck("MenuConfiguration", "PolicySensors");
 ?>
 
 <?php

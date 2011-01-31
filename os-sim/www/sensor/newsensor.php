@@ -40,7 +40,7 @@ require_once ('ossim_db.inc');
 require_once ('classes/Sensor.inc');
 require_once ('classes/Util.inc');
 
-Session::logcheck("MenuPolicy", "PolicySensors");
+Session::logcheck("MenuConfiguration", "PolicySensors");
 
 $error = false;
 

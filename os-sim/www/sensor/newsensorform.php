@@ -37,7 +37,7 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 
-Session::logcheck("MenuPolicy", "PolicySensors");
+Session::logcheck("MenuConfiguration", "PolicySensors");
 
 $array_priority   = array ("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5", "6"=>"6", "7"=>"7", "8"=>"8", "9"=>"9", "10"=>"10");
 

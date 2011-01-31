@@ -1165,21 +1165,21 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUserActionLog")) { $c
     "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:user_activity','Help');"
 );
 }
-if (Session::menu_perms("MenuPolicy", "PolicyServers") || Session::menu_perms("MenuPolicy", "PolicySensors")) { $assets = 1;
-    if (Session::menu_perms("MenuPolicy", "PolicySensors")) {
+if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_perms("MenuConfiguration", "PolicySensors")) { $assets = 1;
+    if (Session::menu_perms("MenuConfiguration", "PolicySensors")) {
         $menu["Configuration"][] = array(
           "name" => gettext("SIEM Components") ,
           "id" => "SIEM Components",
           "url" => "sensor/sensor.php"
         );
-    } elseif (Session::menu_perms("MenuPolicy", "PolicyServers")) {
+    } elseif (Session::menu_perms("MenuConfiguration", "PolicyServers")) {
         $menu["Configuration"][] = array(
           "name" => gettext("SIEM Components") ,
           "id" => "SIEM Components",
           "url" => "server/server.php"
         );
     }
-    if (Session::menu_perms("MenuPolicy", "PolicySensors")) {
+    if (Session::menu_perms("MenuConfiguration", "PolicySensors")) {
         $hmenu["SIEM Components"][] = array(
           "name" => gettext("Sensors") ,
           "id" => (preg_match("/sensor/",$menu["Configuration"][0]["url"]) || preg_match("/sensor/",$menu["Configuration"][1]["url"]) || preg_match("/sensor/",$menu["Configuration"][2]["url"]) || preg_match("/sensor/",$menu["Configuration"][3]["url"])) ? "SIEM Components" : "Sensors",
@@ -1187,7 +1187,7 @@ if (Session::menu_perms("MenuPolicy", "PolicyServers") || Session::menu_perms("M
           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:sensors','Help');"
         );
     }
-    if (Session::menu_perms("MenuPolicy", "PolicyServers") && !$opensource) {
+    if (Session::menu_perms("MenuConfiguration", "PolicyServers") && !$opensource) {
         $hmenu["SIEM Components"][] = array(
             "name" => gettext("Servers") ,
             "id" => (preg_match("/server/",$menu["Configuration"][0]["url"]) || preg_match("/server/",$menu["Configuration"][1]["url"]) || preg_match("/server/",$menu["Configuration"][2]["url"]) || preg_match("/server/",$menu["Configuration"][3]["url"])) ? "SIEM Components" : "Servers",

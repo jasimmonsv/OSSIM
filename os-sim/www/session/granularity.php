@@ -50,11 +50,11 @@ $granularity['MenuPolicy']['PolicyHosts']['net'] = 0;
 $granularity['MenuPolicy']['PolicyNetworks']['sensor'] = 0;
 $granularity['MenuPolicy']['PolicyNetworks']['net'] = 1;
 
-$granularity['MenuPolicy']['PolicySensors']['sensor'] = 1;
-$granularity['MenuPolicy']['PolicySensors']['net'] = 0;
+$granularity['MenuConfiguration']['PolicySensors']['sensor'] = 1;
+$granularity['MenuConfiguration']['PolicySensors']['net'] = 0;
 
-$granularity['MenuPolicy']['PolicyServers']['sensor'] = 0;
-$granularity['MenuPolicy']['PolicyServers']['net'] = 0;
+$granularity['MenuConfiguration']['PolicyServers']['sensor'] = 0;
+$granularity['MenuConfiguration']['PolicyServers']['net'] = 0;
 
 $granularity['MenuPolicy']['PolicyPorts']['sensor'] = 0;
 $granularity['MenuPolicy']['PolicyPorts']['net'] = 0;

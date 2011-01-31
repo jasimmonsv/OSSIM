@@ -46,7 +46,7 @@ require_once ('classes/SecurityReport.inc');
 
 include_once ('nfsen_functions.php');
 
-Session::logcheck("MenuPolicy", "PolicySensors");
+Session::logcheck("MenuConfiguration", "PolicySensors");
 
 $sensor           = GET('sensor');
 $name             = GET('name');
