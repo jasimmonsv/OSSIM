@@ -36,7 +36,7 @@
 */
 // menu authentication
 require_once ('classes/Session.inc');
-Session::logcheck("MenuTools", "ToolsScan");
+Session::logcheck("MenuPolicy", "ToolsScan");
 ini_set("max_execution_time","1200");
 ob_implicit_flush();
 ?>

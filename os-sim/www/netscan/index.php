@@ -36,7 +36,7 @@
 */
 // menu authentication
 require_once ('classes/Session.inc');
-Session::logcheck("MenuTools", "ToolsScan");
+Session::logcheck("MenuPolicy", "ToolsScan");
 // Get a list of nets from db
 require_once ("ossim_db.inc");
 $db = new ossim_db();

@@ -146,12 +146,12 @@ $granularity['MenuConfiguration']['ConfigurationRRDConfig']['net'] = 0;
 $granularity['MenuConfiguration']['ConfigurationUserActionLog']['sensor'] = 0;
 $granularity['MenuConfiguration']['ConfigurationUserActionLog']['net'] = 0;
 
-$granularity['MenuTools']['ToolsScan']['sensor'] = 0;
-$granularity['MenuTools']['ToolsScan']['net'] = 1;
+$granularity['MenuPolicy']['ToolsScan']['sensor'] = 0;
+$granularity['MenuPolicy']['ToolsScan']['net'] = 1;
 
-$granularity['MenuTools']['ToolsBackup']['sensor'] = 0;
-$granularity['MenuTools']['ToolsBackup']['net'] = 0;
+$granularity['MenuConfiguration']['ToolsBackup']['sensor'] = 0;
+$granularity['MenuConfiguration']['ToolsBackup']['net'] = 0;
 
-$granularity['MenuTools']['ToolsDownloads']['sensor'] = 0;
-$granularity['MenuTools']['ToolsDownloads']['net'] = 0;
+$granularity['MenuConfiguration']['ToolsDownloads']['sensor'] = 0;
+$granularity['MenuConfiguration']['ToolsDownloads']['net'] = 0;
 ?>
