@@ -1383,7 +1383,7 @@ $hmenu["Sysinfo"][] = array(
     "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:sysinfo','Help');"
 );
 
-if (Session::menu_perms("MenuMonitors", "MonitorsSensors")) { $monitors = 1;
+if (Session::menu_perms("MenuStatus", "MonitorsSensors")) { $monitors = 1;
     /*$menu["Monitors"][] = array(
         "name" => gettext("System") ,
         "id" => "Sensors",
@@ -1399,7 +1399,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsSensors")) { $monitors = 1;
 	
 }
 
-if (Session::menu_perms("MenuMonitors", "ToolsUserLog")) {
+if (Session::menu_perms("MenuStatus", "ToolsUserLog")) {
 	$hmenu["Sysinfo"][] = array(
 		"name" => gettext("User Activity") ,
 		"id" => "User Log",
