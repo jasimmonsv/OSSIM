@@ -39,9 +39,11 @@ require_once 'classes/Session.inc';
 Session::logcheck("MenuConfiguration", "ConfigurationMain");
 require_once 'ossim_conf.inc';
 require_once 'classes/Security.inc';
+require_once 'languages.inc';
 
 $ossim_conf = $GLOBALS["CONF"];
-$system_lang = trim(`/usr/bin/locale|grep LANG|cut -f 2 -d "="|head -1`);
+$config_languages = $GLOBALS["config_languages"];
+
 $CONFIG = array(
     "Language" => array(
         "title" => gettext("Language") ,
@@ -49,18 +51,7 @@ $CONFIG = array(
         "advanced" => 0,
         "conf" => array(
             "language" => array(
-                "type" => array(
-                    "en_GB" => gettext("English") ,
-                    "de_DE" => gettext("German") ,
-                    "es_ES" => gettext("Spanish") ,
-                    "fr_FR" => gettext("French") ,
-                    "ja_JP" => gettext("Japanese") ,
-                    "pt_BR" => gettext("Brazilian Portuguese") ,
-                    "zh_CN" => gettext("Simplified Chinese") ,
-                    "zh_TW" => gettext("Traditional Chinese") ,
-                    "ru_RU.UTF-8" => gettext("Russian"),
-					$system_lang => gettext("Default Language")        
-                ) ,
+                "type" => $config_languages,
                 "help" => gettext("Obsolete, configure at Configuration -> Users") ,
                 "desc" => gettext("Language") ,
                 "advanced" => 0

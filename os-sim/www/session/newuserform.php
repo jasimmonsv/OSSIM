@@ -36,6 +36,8 @@
 */
 require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
+require_once 'languages.inc';
+
 Session::logcheck("MenuConfiguration", "ConfigurationUsers");
 ?>
 
@@ -210,22 +212,8 @@ $all = $defaults = array();
 echo gettext("User language"); ?></th>
     <td class="left">
 <?php
-$language = array(
-    "type" => array(
-        "en_GB" => gettext("English") ,
-        "pt_BR" => gettext("Brazilian Portuguese") ,
-        "fr_FR" => gettext("French") ,
-        "de_DE" => gettext("German") ,
-        "ja_JP" => gettext("Japanese") ,
-        "ru_RU.UTF-8" => gettext("Russian"),
-        "zh_CN" => gettext("Simplified Chinese") ,
-        "es_ES" => gettext("Spanish") ,
-        "zh_TW" => gettext("Traditional Chinese")
-    ) ,
-    "help" => gettext("")
-);
 $lform = "<select name=\"language\">";
-foreach($language['type'] as $option_value => $option_text) {
+foreach($languages['type'] as $option_value => $option_text) {
     $lform.= "<option ";
     $lform.= "value=\"$option_value\">$option_text</option>";
 }

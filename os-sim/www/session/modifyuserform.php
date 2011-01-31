@@ -40,6 +40,7 @@ Session::useractive("login.php");
 //Session::logcheck("MenuConfiguration", "ConfigurationUsers");
 require_once ('ossim_acl.inc');
 require_once ("classes/Security.inc");
+require_once ("languages.inc");
 require_once ('classes/Net.inc');
 require_once ('classes/Sensor.inc');
 require_once ('ossim_db.inc');
@@ -249,22 +250,8 @@ include ("../hmenu.php");
 						<th> <?php echo gettext("User language"); ?></th>
 						<td class="left">
 							<?php
-							$language = array(
-								"type" => array(
-									"pt_BR" => gettext("Brazilian Portuguese") ,
-									"en_GB" => gettext("English") ,
-									"fr_FR" => gettext("French") ,
-									"de_DE" => gettext("German") ,
-									"ja_JP" => gettext("Japanese") ,
-									"ru_RU.UTF-8" => gettext("Russian"),
-									"zh_CN" => gettext("Simplified Chinese") ,
-									"es_ES" => gettext("Spanish") ,
-									"zh_TW" => gettext("Traditional Chinese")
-								) ,
-								"help" => gettext("")
-							);
 							$lform = "<select name=\"language\">";
-							foreach($language['type'] as $option_value => $option_text)
+							foreach($languages['type'] as $option_value => $option_text)
 							{
 								$lform.= "<option ";
 								if ($user->get_language() == $option_value) $lform.= " selected='selected' ";
