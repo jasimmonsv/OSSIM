@@ -46,7 +46,7 @@ $actual_url = str_replace("?clear_allcriteria=1&","?",str_replace("&clear_allcri
 	<td valign="top">
 		<table border=0 cellpadding=0 cellspacing=0>
 		<?
-		if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers") && preg_match("/pro|demo/i",$version)) { 
+		if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "PolicyServers") && preg_match("/pro|demo/i",$version)) { 
 			// session server
 			$ss = (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="") ? $_SESSION["server"][0] : "local";
 			echo "<tr><td align='left'><img src='../server/getdbsicon.php?name=".urlencode($ss)."' border=0 width='32' height='32'><a href='javascript:;' onclick='$(\"#dbs\").toggle();$(\"#imgplus\").attr(\"src\",(($(\"#imgplus\").attr(\"src\").match(/plus/)) ? \"images/minus-small.png\" : \"images/plus-small.png\"))'><img src='images/plus-small.png' border=0 id='imgplus'></a></td></tr>";

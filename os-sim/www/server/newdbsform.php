@@ -38,7 +38,7 @@ require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('ossim_db.inc');
 require_once ('classes/Databases.inc');
-Session::logcheck("MenuPolicy", "PolicyServers");
+Session::logcheck("MenuConfiguration", "PolicyServers");
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

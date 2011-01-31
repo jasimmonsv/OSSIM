@@ -40,7 +40,7 @@ require_once ('ossim_db.inc');
 require_once ('classes/Server.inc');
 require_once ('classes/Util.inc');
 
-Session::logcheck("MenuPolicy", "PolicyServers");
+Session::logcheck("MenuConfiguration", "PolicyServers");
 
 $error = false;
 

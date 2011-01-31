@@ -37,7 +37,7 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Server.inc');
-Session::logcheck("MenuPolicy", "PolicyServers");
+Session::logcheck("MenuConfiguration", "PolicyServers");
 
 $db = new ossim_db();
 $conn = $db->connect();

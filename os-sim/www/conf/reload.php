@@ -35,7 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuPolicy", "PolicyServers"); // Who manage server can reload server conf
+Session::logcheck("MenuConfiguration", "PolicyServers"); // Who manage server can reload server conf
 require_once ("classes/Session.inc");
 require_once ("classes/Security.inc");
 require_once ("classes/Util.inc");

@@ -1297,7 +1297,7 @@ include ("../hmenu.php"); ?>
 
 <table border=0 cellpadding=0 cellspacing=0 align="right">
 <?
-if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers")) { 
+if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "PolicyServers")) { 
 	// session server
 	?>
 	<form name="serverform">
