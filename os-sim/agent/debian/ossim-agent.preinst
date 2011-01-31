@@ -23,11 +23,7 @@ fi
 
 case "$1" in
     install|upgrade)
-        # Moving agent's config file to another location to avoid dpkg
-        # asking what to do with the config file.
-        if [ -f /etc/ossim/agent/config.cfg ]; then
-            mv /etc/ossim/agent/config.cfg ${OSSIM_AGENT_TMP_DIR}/config.cfg
-        fi
+        dpkg-divert --add /etc/ossim/agent/config.cfg
     ;;
 
     abort-upgrade)

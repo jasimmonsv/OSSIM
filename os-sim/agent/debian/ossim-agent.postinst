@@ -5,17 +5,6 @@ OSSIM_AGENT_TMP_DIR="/tmp/ossim-agent"
 
 case "$1" in
     upgrade|configure)
-        # Hey! ossim-agent's config file must be in its location. If
-        # not we shall try to get one to prevent ossim-reconfig to
-        # fail.
-        if [ ! -f /etc/ossim/agent/config.cfg ]; then
-            if [ -f ${OSSIM_AGENT_TMP_DIR}/config.cfg ]; then
-                cp ${OSSIM_AGENT_TMP_DIR}/config.cfg /etc/ossim/agent/config.cfg
-            else
-                touch /etc/ossim/agent/config.cfg
-            fi
-        fi
-
         # Execute ossim-reconfig
         if [ -x /usr/bin/ossim-reconfig ]; then
             #if [ -x /usr/bin/postpone ]; then
