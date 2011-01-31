@@ -29,7 +29,7 @@ Description: Open Source Security Information Management (MySQL)
 
 Package: ossim-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, gda2-mysql | gda2-postgres, sudo, lsb-base (>= 3.0-6), ossim-database-migration, alienvault-directives-free
+Depends: ${shlibs:Depends}, ${misc:Depends}, gda2-mysql | gda2-postgres, sudo, lsb-base (>= 3.0-6), ossim-database-migration, alienvault-directives-free, libpcre3-dev
 Pre-Depends: postpone
 Suggests: ossim-contrib
 Description: Open Source Security Information Management (Server)
