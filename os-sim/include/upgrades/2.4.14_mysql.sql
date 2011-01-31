@@ -31,17 +31,17 @@ UPDATE `ossim`.`acl_perm` SET `description` = 'Configuration -> Collection -> DS
 UPDATE `ossim`.`acl_perm` SET `description` = 'Configuration -> Collection -> Downloads',`ord` = '08.08',name='MenuConfiguration' WHERE `acl_perm`.`id` =57;
 UPDATE `ossim`.`acl_perm` SET `description` = 'Configuration -> Backup',`ord` = '08.10',name='MenuConfiguration' WHERE `acl_perm`.`id` =44;
 
-INSERT IGNORE INTO `ossim`.`acl_perm` (`id` ,`type` ,`name` ,`value` ,`description` ,`granularity_sensor` ,`granularity_net` ,`enabled` ,`ord`) VALUES (72 , 'MENU', 'MenuEvents', 'EventsVulnerabilitiesScan', 'Analysis -> Vulnerabilities -> Scan/Import', '1', '1', '1', '03.08');
-INSERT IGNORE INTO `ossim`.`acl_perm` (`id` ,`type` ,`name` ,`value` ,`description` ,`granularity_sensor` ,`granularity_net` ,`enabled` ,`ord`) VALUES (73 , 'MENU', 'MenuEvents', 'EventsVulnerabilitiesDeleteScan', 'Analysis -> Vulnerabilities -> Delete Scan Report', '1', '1', '1', '03.09');
-INSERT IGNORE INTO `ossim`.`acl_perm` (`id` , `type` , `name` , `value` , `description` , `granularity_sensor` , `granularity_net` , `enabled` , `ord`) VALUES (74 , 'MENU', 'MenuReports', 'ReportsCreateCustom', 'Reports -> Custom Reports -> Create Custom Report', '0', '0', '1', '04.06');
-INSERT IGNORE INTO `ossim`.`acl_perm` (`id` , `type` , `name` , `value` , `description` , `granularity_sensor` , `granularity_net` , `enabled` , `ord`) VALUES (75 , 'MENU', 'MenuReports', 'ReportsScheduler', 'Reports -> Custom Reports -> Scheduler', '0', '0', '1', '04.07');
+REPLACE INTO `ossim`.`acl_perm` (`id` ,`type` ,`name` ,`value` ,`description` ,`granularity_sensor` ,`granularity_net` ,`enabled` ,`ord`) VALUES (72 , 'MENU', 'MenuEvents', 'EventsVulnerabilitiesScan', 'Analysis -> Vulnerabilities -> Scan/Import', '1', '1', '1', '03.08');
+REPLACE INTO `ossim`.`acl_perm` (`id` ,`type` ,`name` ,`value` ,`description` ,`granularity_sensor` ,`granularity_net` ,`enabled` ,`ord`) VALUES (73 , 'MENU', 'MenuEvents', 'EventsVulnerabilitiesDeleteScan', 'Analysis -> Vulnerabilities -> Delete Scan Report', '1', '1', '1', '03.09');
+REPLACE INTO `ossim`.`acl_perm` (`id` , `type` , `name` , `value` , `description` , `granularity_sensor` , `granularity_net` , `enabled` , `ord`) VALUES (74 , 'MENU', 'MenuReports', 'ReportsCreateCustom', 'Reports -> Custom Reports -> Create Custom Report', '0', '0', '1', '04.06');
+REPLACE INTO `ossim`.`acl_perm` (`id` , `type` , `name` , `value` , `description` , `granularity_sensor` , `granularity_net` , `enabled` , `ord`) VALUES (75 , 'MENU', 'MenuReports', 'ReportsScheduler', 'Reports -> Custom Reports -> Scheduler', '0', '0', '1', '04.07');
 UPDATE `ossim`.`acl_perm` SET `ord` = '02.06' WHERE `acl_perm`.`id` =24;
 UPDATE `ossim`.`acl_perm` SET `ord` = '02.07' WHERE `acl_perm`.`id` =23;
 UPDATE `ossim`.`acl_perm` SET `ord` = '02.08' WHERE `acl_perm`.`id` =25;
 UPDATE `ossim`.`acl_perm` SET `ord` = '02.09' WHERE `acl_perm`.`id` =40;
 UPDATE `ossim`.`acl_perm` SET `ord` = '02.10' WHERE `acl_perm`.`id` =55;
-INSERT IGNORE INTO `ossim`.`acl_perm` (`id`, `type`, `name`, `value`, `description`, `granularity_sensor`, `granularity_net`, `enabled`, `ord`) VALUES (76, 'MENU', 'MenuIncidents', 'IncidentsOpen', 'Incidents -> Tickets -> Open Tickets', '0', '0', '1', '02.04');
-INSERT IGNORE INTO `ossim`.`acl_perm` (`id`, `type`, `name`, `value`, `description`, `granularity_sensor`, `granularity_net`, `enabled`, `ord`) VALUES (77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', '0', '0', '1', '02.05');
+REPLACE INTO `ossim`.`acl_perm` (`id`, `type`, `name`, `value`, `description`, `granularity_sensor`, `granularity_net`, `enabled`, `ord`) VALUES (76, 'MENU', 'MenuIncidents', 'IncidentsOpen', 'Incidents -> Tickets -> Open Tickets', '0', '0', '1', '02.04');
+REPLACE INTO `ossim`.`acl_perm` (`id`, `type`, `name`, `value`, `description`, `granularity_sensor`, `granularity_net`, `enabled`, `ord`) VALUES (77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', '0', '0', '1', '02.05');
 
 
 ALTER TABLE host_property_reference ADD  `description` VARCHAR( 128 ) NOT NULL;
