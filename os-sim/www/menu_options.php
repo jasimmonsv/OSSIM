@@ -1317,7 +1317,7 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session:
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:update_notification','Help');"
     );
 }
-if (Session::menu_perms("MenuTools", "ToolsBackup")) {
+if (Session::menu_perms("MenuConfiguration", "ToolsBackup")) {
     $menu["Configuration"][] = array(
         "name" => gettext("Backup") ,
         "id" => "Backup",

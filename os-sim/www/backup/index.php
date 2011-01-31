@@ -37,7 +37,7 @@
 */
 require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
-Session::logcheck("MenuTools", "ToolsBackup");
+Session::logcheck("MenuConfiguration", "ToolsBackup");
 require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 require_once ('classes/Backup.inc');
