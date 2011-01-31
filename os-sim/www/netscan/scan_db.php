@@ -47,7 +47,7 @@ require_once ('classes/Host_group_scan.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
 	
-Session::logcheck("MenuTools", "ToolsScan");
+Session::logcheck("MenuPolicy", "ToolsScan");
 
 function update_db($global_info, $scan)
 {
