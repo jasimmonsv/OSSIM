@@ -176,7 +176,6 @@ if (GET('edit_tabs') == 1) {
 		/**/
 		$tab_order = GET('tab_order');
         ossim_valid($tab_id, OSS_DIGIT, 'error: tab_id.');
-		echo $tab_name;
         ossim_valid($tab_name, OSS_ALPHA, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'error: Invalid name, alphanumeric, score, underscore and spaces allowed.');
 		ossim_valid($avt, OSS_DIGIT, OSS_NULLABLE, 'error: Invalid .avt file ID.');
 		ossim_valid($tab_order, OSS_DIGIT, OSS_NULLABLE, 'error: Invalid tab order.');
