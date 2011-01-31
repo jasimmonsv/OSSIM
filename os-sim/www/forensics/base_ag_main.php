@@ -66,7 +66,7 @@ echo _EDIT; ?></a> |
  <a href="base_ag_main.php?ag_action=delete"><?php
 echo _DELETE; ?></a> |
  <a href="base_ag_main.php?ag_action=clear"><?php
-echo _CLEAR; ?></a>
+echo gettext("Clear"); ?></a>
 </div>
 <hr />
 
@@ -217,7 +217,7 @@ if ($ag_action == "list") {
                       <td class="plfield"> 
                         <a href="base_ag_main.php?ag_action=edit&amp;ag_id=' . urlencode($myrow[0]) . '&amp;submit=x">' . _EDIT . '</a> |
                         <a href="base_ag_main.php?ag_action=delete&amp;ag_id=' . urlencode($myrow[0]) . '&amp;submit=x">' . _DELETE . '</a> |
-                        <a href="base_ag_main.php?ag_action=clear&amp;ag_id=' . urlencode($myrow[0]) . '&amp;submit=x">' . _CLEAR . '</a>
+                        <a href="base_ag_main.php?ag_action=clear&amp;ag_id=' . urlencode($myrow[0]) . '&amp;submit=x">' . gettext("Clear") . '</a>
                       </td>
                   </tr>';
         }

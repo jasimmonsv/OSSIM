@@ -93,7 +93,7 @@ foreach($policy_groups as $group) {
 	    <li class="insertbefore"><a href="#insertbefore"><?=_("Add Policy Before")?></a></li>
 	    <li class="insertafter"><a href="#insertafter"><?=_("Add Policy After")?></a></li>
 		<li class="enabledisable"><a href="#enabledisable"><?=_("Enable/Disable")?></a></li>
-		<li class="viewgroup"><a href="#viewgroup"><?=_("View Plugin Groups")?></a></li>
+		<li class="viewgroup"><a href="#viewgroup"><?=_("View DS Groups")?></a></li>
 		<li class="modify"><a href="#modify"><?=_("Modify")?></a></li>
 		<li class="delete"><a href="#delete"><?=_("Delete")?></a></li>
 		<li class="duplicate"><a href="#duplicate"><?=_("Duplicate")?></a></li>
@@ -272,7 +272,7 @@ foreach($policy_groups as $group) {
 		} else if (com=='viewgroup') {
 			// view groups
 			var href = 'plugingroups.php?id='+urlencode(id)+'&hmenu=Policy&smenu=Policy&collection=1#'+urlencode(id);
-			GB_show('<?=_("Plugin groups")?>',href,450,'90%');
+			GB_show('<?=_("DS Groups")?>',href,450,'90%');
 			//document.location.href = 'plugingroups.php?id='+urlencode(id)+'&hmenu=Policy&smenu=Policy&collection=1';
 		} else if (com.match(/^change\_/)) {
 			// Conmute correlate value
@@ -366,7 +366,7 @@ foreach($policy_groups as $group) {
             false
         ) ,
         "plugin_group" => array(
-            _('Plugin Group'),
+            _('DS Group'),
             90,
             'false',
             'center',

@@ -81,23 +81,10 @@ require_once ('classes/Plugin.inc');
 		function execute_action(action, div_load, extra)
 		{
 			//Load img
-			
-			var cont_height = $(div_load).css('height').replace("px","")
-			var cont_height = ( isNaN(cont_height) ) ? parseInt($(div_load).height()) :  parseInt(cont_height);
-			
-			
-			$(div_load).css('height', cont_height);
-			
-			$(div_load).html(messages[0]);
-		
-			var load_height = $("#oss_load").css('height').replace("px","");
-			var load_height = ( isNaN(load_height) ) ? parseInt($("#oss_load").height()) :  parseInt(load_height);
 						
-			var middle_pos  =  Math.ceil((cont_height - load_height)/2);
-
-			$("#oss_load").css('padding-top', middle_pos+"px");
+			$(div_load).html(messages[0]);
 			
-			var cont_width = parseInt($(div_load).css('width').replace("px",""))-50;		
+			$("#oss_load").css('padding', "40px 0px");
 			
 			var data = "action="+action;
 			
@@ -126,7 +113,7 @@ require_once ('classes/Plugin.inc');
 																	
 						$(div_load).html('');
 						
-						$(div_load).html("<div style='padding: 5px 10px 10px 10px; width:"+ cont_width+"px;'>"+msg+"</div>");
+						$(div_load).html("<div style='padding: 5px 10px 10px 10px; width:900px;'>"+msg+"</div>");
 					}
 				}
 			});
@@ -349,8 +336,7 @@ require_once ('classes/Plugin.inc');
 			-khtml-border-radius: 4px;
 			border: solid 1px #D2D2D2;
 		}
-		
-		
+						
 		.cont_num_line {border: none !important; padding: 0px 0px 10px 0px; text-align:left; font-size:11px;}
 		.cont_num_line select {width: 100px; margin-left: 5px;}
 		
@@ -376,9 +362,11 @@ require_once ('classes/Plugin.inc');
 		
 		.headerpr {margin-bottom: 5px;}
 		
-		#refresh img {float: right; margin-right: 3px;}
+		#refresh img { margin-left: 5px;}
 		
 		.bottom_link {padding: 0px 0px 20px 0px; font-size: 11px; font-style: italic; font-weight: bold;}
+		
+		#cont_ref {clear: both; height: 22px;}
 						
 	</style>
 </head>
@@ -477,10 +465,9 @@ $agentless_action = ( count($output_al) < 1 ) ? "<span class='not_running'>Agent
 															
 							</table>
 						</div>
-						
-						<div class='headerpr'>
-							<?php echo _("Ossec Output");?>
-							<a id='refresh'><img border="0" src="../pixmaps/refresh.png"></a>
+												
+						<div class='headerpr' id='ossec_header'>
+							<a id='refresh'><span><?php echo _("Ossec Output");?></span><img align='absmiddle' border="0" src="../pixmaps/refresh.png" title='<?php echo _("Refresh Output")?>'></a>
 						</div>
 						<div id='ossc_result' class='div_pre'>
 							<div style='padding: 5px 10px 10px 10px;'><?php echo $result_1;?></div>
@@ -493,14 +480,14 @@ $agentless_action = ( count($output_al) < 1 ) ? "<span class='not_running'>Agent
 						<div class='cont_num_line'>
 							<span class='bold'><?php echo _("View")?>:</span>
 							<select name='oss_num_line' id='oss_num_line'>
-								<option value='50'>50</option>
+								<option value='50' selected='selected'>50</option>
 								<option value='100'>100</option>
 								<option value='250'>250</option>
 								<option value='500'>500</option>
 								<option value='5000'>5000</option>
 							</select>
 						</div>
-						<div class='headerpr'><?php echo _("Ossec Log");?></div>
+						<div class='headerpr' id='logs_header'><?php echo _("Ossec Log");?></div>
 						<div id='logs_result' class='log div_pre'></div>
 					
 					</div>
@@ -510,14 +497,14 @@ $agentless_action = ( count($output_al) < 1 ) ? "<span class='not_running'>Agent
 						<div class='cont_num_line'>
 							<span class='bold'><?php echo _("View")?>:</span>
 							<select name='alert_num_line' id='alert_num_line'>
-								<option value='50'>50</option>
+								<option value='50' selected='selected'>50</option>
 								<option value='100'>100</option>
 								<option value='250'>250</option>
 								<option value='500'>500</option>
 								<option value='5000'>5000</option>
 							</select>
 						</div>
-						<div class='headerpr'><?php echo _("Alerts log");?></div>
+						<div class='headerpr' id='alerts_header'><?php echo _("Alerts log");?></div>
 						<div id='alerts_result' class='log div_pre'></div>
 						
 					</div>

@@ -336,11 +336,11 @@ $(document).ready(function(){
 </head>
 <body>
 <? include ("../hmenu.php") ?>
-<div style="text-align: right"><a href="../policy/plugingroups.php" class="greybox"><?php echo _("Go to Plugin Groups configuration page") ?></a></div>
+<div style="text-align: right"><a href="../policy/plugingroups.php" class="greybox"><?php echo _("Go to DS Groups configuration page") ?></a></div>
 <br>
 <?php
 if (!count($groups)) { ?>
-    <center><?php echo _("No plugin groups found") ?></center>
+    <center><?php echo _("No DS Groups found") ?></center>
 <?php
     exit;
 } ?>

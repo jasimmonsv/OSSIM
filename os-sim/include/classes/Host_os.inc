@@ -334,37 +334,57 @@ class Host_os {
     * (used in inventory...)
     */
     function get_ip_data($conn, $host) {
-        $sql = "SELECT * FROM host_os WHERE ip = inet_aton(?) " . "ORDER BY date DESC";
-        $params = array(
-            $host
-        );
-        //echo "SQL: $sql ($host)<br>";
-        $first_os = "";
-        if (!$aux = & $conn->Execute($sql, $params)) {
+    
+    	$sql = "SELECT h.value FROM host_properties h, host_property_reference r WHERE h.property_ref=r.id AND h.ip=? AND r.name='operating-system'";
+    	
+    	if (!$rs = & $conn->Execute( $sql, array($host) )){ 
             print $conn->ErrorMsg();
-        } else {
-            // Search the latest record with a anom == 0
-            while (!$aux->EOF) {
-                if ($aux->fields["anom"] == "0") {
-                    return array(
-                        "host" => $host,
-                        "os" => $aux->fields["os"]
-                    );
-                }
-                if ($first_os == "") {
-                    $first_os = $aux->fields["os"];
-                }
-                $aux->MoveNext();
+			exit();
+		} else {
+			if ($rs->EOF) {
+				// from host_os
+				$sql = "SELECT * FROM host_os WHERE ip = inet_aton(?) ORDER BY date DESC";
+		        $params = array(
+		            $host
+		        );
+		        //echo "SQL: $sql ($host)<br>";
+		        $first_os = "";
+		        if (!$aux = & $conn->Execute($sql, $params)) {
+		            print $conn->ErrorMsg();
+		        } else {
+		            // Search the latest record with a anom == 0
+		            while (!$aux->EOF) {
+		                if ($aux->fields["anom"] == "0") {
+		                    return array(
+		                        "host" => $host,
+		                        "os" => $aux->fields["os"]
+		                    );
+		                }
+		                if ($first_os == "") {
+		                    $first_os = $aux->fields["os"];
+		                }
+		                $aux->MoveNext();
+		            }
+		            // If no "0 anom" record found, use the last record introduced
+		            // in the DB
+		            return array(
+		                "host" => $host,
+		                "os" => $first_os
+		            );
+		        }
+		        return null;
+			}
+            else {
+            	// from host_properties
+            	return array(
+	                "host" => $host,
+	                "os" => $rs->fields["value"]
+	            );
             }
-            // If no "0 anom" record found, use the last record introduced
-            // in the DB
-            return array(
-                "host" => $host,
-                "os" => $first_os
-            );
         }
-        return null;
+        return $list;	
     }
+     
     function get_list_count($conn) {
         $sql = "SELECT count(distinct(ip)) AS num FROM host_os";
         if (!$rs = & $conn->Execute($sql)) {

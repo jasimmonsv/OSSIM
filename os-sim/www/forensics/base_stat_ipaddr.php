@@ -156,9 +156,9 @@ echo '<tr style="background-color:#F2F2F2;"><td align=\'right\'>';
 printf("<FONT>" . _PSALLALERTSAS . ":</FONT>", $ip, $netmask);
 echo '</td>';
 echo '<td align=\'left\' style=\'padding-left:15px;\'>
- <A HREF="' . $tmp_src_iplookup . '">' . _SCSOURCE . '</A> | 
+ <A HREF="' . $tmp_src_iplookup . '">' . gettext("Source") . '</A> | 
  <A HREF="' . $tmp_dst_iplookup . '">' . _SCDEST . '</A> | 
- <A HREF="' . $tmp_srcdst_iplookup . '">' . _SCSOURCE . '/' . _SCDEST . '</A><BR></td></tr>';
+ <A HREF="' . $tmp_srcdst_iplookup . '">' . gettext("Source") . '/' . _SCDEST . '</A><BR></td></tr>';
  
 echo '<tr><td align=\'right\'>';
 echo _PSSHOW . ':</td><td align=\'left\' style=\'padding-left:15px;\'>

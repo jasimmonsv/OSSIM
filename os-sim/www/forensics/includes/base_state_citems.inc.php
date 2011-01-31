@@ -500,7 +500,7 @@ class SignatureCriteria extends SingleElementCriteria {
             else if ($this->criteria[0] == '=' && $this->criteria[2] == '=') $tmp_human = '=';
             else if ($this->criteria[0] == 'LIKE' && $this->criteria[2] == '!=') $tmp_human = ' ' . _DOESNTCONTAIN . ' ';
             else if ($this->criteria[0] == 'LIKE' && $this->criteria[2] == '=') $tmp_human = ' ' . _CONTAINS . ' ';
-            $tmp = $tmp . _SIGNATURE . ' ' . $tmp_human . ' "';
+            $tmp = $tmp . gettext("Signature") . ' ' . $tmp_human . ' "';
             $pidsid = explode(";",$this->criteria[1]); 
             if (($this->db->baseGetDBversion() >= 100) && $this->sig_type == 1) $tmp = $tmp . html_entity_decode(preg_replace("/.*##/","",BuildSigByPlugin(intval($pidsid[0]),intval($pidsid[1]), $this->db))) . '" ' . $this->cs->GetClearCriteriaString($this->export_name);
             else $tmp = $tmp . Util::htmlentities($this->criteria[1], ENT_COMPAT, "UTF-8") . '"' . $this->cs->GetClearCriteriaString($this->export_name);

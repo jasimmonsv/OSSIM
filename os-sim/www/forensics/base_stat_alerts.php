@@ -57,7 +57,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();
@@ -113,7 +113,7 @@ if (!$use_ac) $qs->GetNumResultRows($cnt_sql, $db);
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_alerts.php?caller=" . $caller);
 $qro->AddTitle(" ");
-$qro->AddTitle(_SIGNATURE, "sig_a", " ", " ORDER BY plugin_id ASC,plugin_sid", "sig_d", " ", " ORDER BY plugin_id DESC,plugin_sid");
+$qro->AddTitle(gettext("Signature"), "sig_a", " ", " ORDER BY plugin_id ASC,plugin_sid", "sig_d", " ", " ORDER BY plugin_id DESC,plugin_sid");
 //if ($db->baseGetDBversion() >= 103) $qro->AddTitle(_CHRTCLASS, "class_a", ", MIN(sig_class_id) ", " ORDER BY sig_class_id ASC ", "class_d", ", MIN(sig_class_id) ", " ORDER BY sig_class_id DESC ");
 $qro->AddTitle(_TOTAL . "&nbsp;#", "occur_a", " ", " ORDER BY sig_cnt ASC", "occur_d", " ", " ORDER BY sig_cnt DESC");
 $qro->AddTitle(_SENSOR . "&nbsp;#");
@@ -174,7 +174,7 @@ if ($debug_mode == 1) {
     echo "$sql<BR>";
 }
 /* Print the current view number and # of rows */
-$qs->PrintResultCnt("",array(),_DISPLAYINGTOTALUEVENTS);
+$qs->PrintResultCnt("",array(),gettext("Displaying unique events %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."));
 echo '<FORM METHOD="post" name="PacketForm" id="PacketForm" ACTION="base_stat_alerts.php">';
 $qro->PrintHeader();
 $i = 0;

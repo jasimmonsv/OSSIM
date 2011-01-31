@@ -117,7 +117,7 @@ class CriteriaState {
         return PrintBackButton();
     }
     function GetClearCriteriaString($name, $element = "") {
-        return '&nbsp;&nbsp;<A HREF="' . $this->clear_url . '?clear_criteria=' . $name . '&amp;clear_criteria_element=' . str_replace('&amp;new=1','',$element.$this->clear_url_params) . '">...' . _CLEAR . '...</A>';
+        return '&nbsp;&nbsp;<A HREF="' . $this->clear_url . '?clear_criteria=' . $name . '&amp;clear_criteria_element=' . str_replace('&amp;new=1','',$element.$this->clear_url_params) . '">...' . gettext("Clear") . '...</A>';
     }
     function ClearCriteriaStateElement($name, $element) {
         $valid_criteria_list = array_keys($this->criteria);

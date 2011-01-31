@@ -344,7 +344,7 @@ include ("../hmenu.php");
 					</tr>
 
 					<?php 
-					if ($user->get_login() != ACL_DEFAULT_OSSIM_ADMIN && $_SESSION['_user'] == ACL_DEFAULT_OSSIM_ADMIN) { ?>
+					if ($user->get_login() != ACL_DEFAULT_OSSIM_ADMIN && ($_SESSION['_user'] == ACL_DEFAULT_OSSIM_ADMIN || $_SESSION['_is_admin'])) { ?>
 					<tr>
 						<th><?php echo _("Global Admin") ?></th>
 						<td align="center">

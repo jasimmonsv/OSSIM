@@ -71,7 +71,7 @@ $actual_url = str_replace("?clear_allcriteria=1&","?",str_replace("&clear_allcri
 		</td>
 		<td style="padding:0px 0px 10px 20px">
 			<form style="margin:0px" action="../control_panel/event_panel.php" method="get">
-			<input type="submit" class="button" value="Real Time" name="submit" style="font-weight:bold">
+			<input type="submit" class="button" value="<?php echo gettext("Real Time")?>" name="submit" style="font-weight:bold">
 			</form>
 		</td>
 		</tr>

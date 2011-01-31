@@ -41,9 +41,6 @@ require_once ('utils.php');
 
 $agents = array();
 exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
-
-
-
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
