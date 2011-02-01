@@ -2,6 +2,15 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+DROP TABLE IF EXISTS `perms1`;    
+CREATE TABLE IF NOT EXISTS `perms1` (
+  `ac_templates_id` int(11) NOT NULL,
+  `ac_perm_id` int(11) NOT NULL,
+  PRIMARY KEY  (`ac_templates_id`,`ac_perm_id`)
+);
+INSERT INTO perms1 SELECT * FROM acl_templates_perms;
+DROP TABLE acl_templates_perms;
+RENAME TABLE perms1 TO acl_templates_perms;
 DELETE FROM `acl_templates_perms` WHERE `ac_perm_id` =6;
 DELETE FROM `acl_perm` WHERE `id` =6;
 DELETE FROM `acl_templates_perms` WHERE `ac_perm_id` =52;
