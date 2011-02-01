@@ -44,6 +44,13 @@ Description: Open Source Security Information Management (Server)
  This package contains the correlation engine server of OSSIM.
  .
  Homepage: http://www.ossim.net 
+
+Package: ossim-server-dbg
+Architecture: any
+Section: devel
+Priority: extra
+Depends: ossim-server (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for ossim-server
  
 Package: ossim-framework
 Architecture: all

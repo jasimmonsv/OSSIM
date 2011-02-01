@@ -180,7 +180,7 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman debian/ossim-server.8 debian/ossim-framework.8
 	dh_link
-	dh_strip
+	dh_strip --dbg-package=ossim-server-dbg
 	dh_compress
 	dh_fixperms
 #	dh_perl
