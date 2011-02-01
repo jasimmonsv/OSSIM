@@ -71,6 +71,7 @@
 require_once ('classes/Session.inc');
 require_once ('ossim_conf.inc');
 require_once ('classes/OMP.inc');
+require_once ('classes/Util.inc');
 
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
@@ -168,7 +169,7 @@ switch ($_SERVER['REQUEST_METHOD'])
 case "GET" :
    foreach ($getParams as $gp) {
       if (isset($_GET[$gp])) {
-         $$gp=htmlspecialchars(mysql_real_escape_string(trim($_GET[$gp])), ENT_QUOTES);
+         $$gp=Util::htmlentities(mysql_real_escape_string(trim($_GET[$gp])), ENT_QUOTES);
       } else {
          $$gp="";
       }
@@ -182,7 +183,7 @@ case "GET" :
 case "POST" :
    foreach ($postParams as $pp) {
       if (isset($_POST[$pp])) {
-         $$pp=htmlspecialchars(mysql_real_escape_string(trim($_POST[$pp])), ENT_QUOTES);
+         $$pp=Util::htmlentities(mysql_real_escape_string(trim($_POST[$pp])), ENT_QUOTES);
       } else {
          $$pp="";
       }
@@ -197,7 +198,7 @@ if (ossim_error()) {
 
 if(isset($_POST['authorized_users'])) {
    foreach($_POST['authorized_users'] as $user) {
-      $users[] = htmlspecialchars(mysql_real_escape_string(trim($user)), ENT_QUOTES); 
+      $users[] = Util::htmlentities(mysql_real_escape_string(trim($user)), ENT_QUOTES); 
    }
 }
 
@@ -242,13 +243,13 @@ echo "</td></tr>";
 echo "<tr><td class=\"nobborder\">";
 echo "       <table width=\"100%\"><tr><td class=\"nobborder\" style=\"text-align:center;padding-top:5px;padding-bottom:5px;\">";
 echo "<form>";
-echo "<input type=button onclick=\"document.location.href='settings.php?disp=editauto&amp;sid=$sid'\" class=\"".(($_GET['disp']=="editauto"||$_GET['disp']=='edit')? "menuon":"menu")."\" value=\""._("AUTOENABLE")."\">&nbsp;&nbsp;&nbsp;";
-echo "<input type=button onclick=\"document.location.href='settings.php?disp=editplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editplugins')? "menuon":"menu")."\" value=\""._("PLUGINS")."\">&nbsp;&nbsp;&nbsp;";
-echo "<input type=button onclick=\"document.location.href='settings.php?disp=linkplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='linkplugins')? "menuon":"menu")."\" style=\"display:none;\" value=\""._("ImPLUGINS")."\">";
-echo "<input type=button onclick=\"document.location.href='settings.php?disp=editprefs&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editprefs')? "menuon":"menu")."\" value=\""._("PREFS")."\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=editauto&amp;sid=$sid'\" class=\"".(($_GET['disp']=="editauto"||$_GET['disp']=='edit')? "buttonon":"button")."\" value=\""._("AUTOENABLE")."\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=editplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editplugins')? "buttonon":"button")."\" value=\""._("PLUGINS")."\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=linkplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='linkplugins')? "buttonon":"button")."\" style=\"display:none;\" value=\""._("ImPLUGINS")."\">";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=editprefs&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editprefs')? "buttonon":"button")."\" value=\""._("PREFS")."\">&nbsp;&nbsp;&nbsp;";
 
 //<input type=button onclick="document.location.href='settings.php?disp=editusers&amp;sid=$sid'" class="button" value="USERS">&nbsp;&nbsp;&nbsp;
-echo "<input type=button onclick=\"document.location.href='settings.php?disp=viewconfig&amp;sid=$sid'\" class=\"".(($_GET['disp']=='viewconfig')? "menuon":"menu")."\" value=\""._("VIEW CONFIG")."\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=viewconfig&amp;sid=$sid'\" class=\"".(($_GET['disp']=='viewconfig')? "buttonon":"button")."\" value=\""._("VIEW CONFIG")."\">&nbsp;&nbsp;&nbsp;";
 echo "</form>";
 ?>
 <div id="div_updateautoenable" style="display:none">
@@ -1348,7 +1349,7 @@ function create_new_profile($sname, $sdescription, $sautoenable, $stype, $clonei
                // improve logic here, only add these if this profile
                // is set to autoenable anything, otherwise skip this
                while (list($key, $value) = each ($_POST)) {
-                  $value=htmlspecialchars(mysql_real_escape_string(trim($value)), ENT_QUOTES);
+                  $value=Util::htmlentities(mysql_real_escape_string(trim($value)), ENT_QUOTES);
                   if (substr($key,0,2)=="f_") {
                      $type=substr($key,0,1);
                      $key=substr($key, 2);
@@ -1543,7 +1544,7 @@ function saveprefs( $sid ) {
       $counter++;
       $vname="form".$counter;
       if (isset($_POST[$vname])) {
-         $$vname=htmlspecialchars(mysql_real_escape_string(
+         $$vname=Util::htmlentities(mysql_real_escape_string(
          trim($_POST[$vname])), ENT_QUOTES);
       } elseif (isset($_GET[$vname])) {
          $logh->log("$username : " . $_SERVER['SCRIPT_NAME'] .
@@ -1615,7 +1616,7 @@ function saveplugins($sid, $fam, $cve, $saveplugins, $AllPlugins, $NonDOS, $Disa
                    set enabled='N' 
                    where sid=$sid and family=$fam");
             while (list($key, $value) = each ($_POST)) {
-                $key=htmlspecialchars(mysql_real_escape_string(trim($key)), ENT_QUOTES);
+                $key=Util::htmlentities(mysql_real_escape_string(trim($key)), ENT_QUOTES);
                 if (substr($key,0,3)=="PID") {
                     $key=substr($key, 3);
                     if(is_numeric($key)){
@@ -1636,7 +1637,7 @@ function saveplugins($sid, $fam, $cve, $saveplugins, $AllPlugins, $NonDOS, $Disa
                 $result->MoveNext();
             }
             while (list($key, $value) = each ($_POST)) {
-                $key=htmlspecialchars(mysql_real_escape_string(trim($key)), ENT_QUOTES);
+                $key=Util::htmlentities(mysql_real_escape_string(trim($key)), ENT_QUOTES);
                 if (substr($key,0,3)=="PID") {
                     $key=substr($key, 3);
                     if(is_numeric($key)){
@@ -1897,7 +1898,7 @@ function update_profile($sid, $sname, $sdescription, $stype, $sautoenable, $auto
       reset ($_POST);   // if form method="post"
 
       while (list($key, $value) = each ($_POST)) {
-         $value=htmlspecialchars(mysql_real_escape_string(trim($value)), ENT_QUOTES);
+         $value=Util::htmlentities(mysql_real_escape_string(trim($value)), ENT_QUOTES);
 
          if (substr($key,0,2)=="f_") {
             $type=substr($key,0,1);

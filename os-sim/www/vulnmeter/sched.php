@@ -839,9 +839,10 @@ EOT;
     </td>
   </tr>
   <tr>
-    <td align='right' width='25%'>Profile:</td>
-    <td style="text-align:left;"><select name='sid'>
 EOT;
+    echo "<td align='right' width='25%'>"._("Profile").":</td>";
+    echo "<td style='text-align:left;'><select name='sid'>";
+
 
    $query = "SELECT distinct(t1.id), t1.name, t1.description 
       FROM vuln_nessus_settings t1
@@ -1040,9 +1041,10 @@ function tab_discovery () {
     </td>
   </tr>
   <tr>
-    <td align='right' width='25%'>Profile:</td>
-    <td style="text-align:left;"><select name='sid'>
 EOT;
+    $discovery .="<td align='right' width='25%'>"._("Profile").":</td>";
+    $discovery .="<td style='text-align:left;'><select name='sid'>";
+
 
    //$query = "SELECT distinct(t1.id), t1.name, t1.description 
    //  FROM vuln_nessus_settings t1
@@ -1120,33 +1122,28 @@ EOT;
     $discovery .="</tr>";
     if($smethod=="inmediately") {
 	    $discovery .= "<tr>";
-	    $discovery .= "<td style=\"text-align:center;\" nowrap>Schedule Method:</td>";
-	    $discovery .= "<td style=\"text-align:left;\" nowrap>Inmediately<td>";
+	    $discovery .= "<td style=\"text-align:center;\" nowrap>"._("Schedule Method").":</td>";
+	    $discovery .= "<td style=\"text-align:left;\" nowrap>"._("Inmediately")."<td>";
 	    $discovery .= "</tr>";
 	    $discovery .= "<tr style='display:none'>";
     }
     else $discovery .="<tr>";
-    $discovery .="<td style=\"text-align:left;padding-left:35px;\">Schedule Method:<br>";
+    $discovery .="<td style=\"text-align:left;padding-left:35px;\">"._("Schedule Method").":<br>";
 
 
 if( !$scheduler && $enScanRequestImmediate) {
-     $discovery .= <<<EOT
-        <input type="radio" name="schedule_type" value="N" onClick="showLayer('idSched', 1)" $sTYPE[N]>Immediately</input><br>
-EOT;
+     $discovery .= "<input type=\"radio\" name=\"schedule_type\" value=\"N\" onClick=\"showLayer('idSched', 1)\" $sTYPE[N]>"._("Immediately")."</input><br>";
 }
 if( !$scheduler ) {
-     $discovery .= <<<EOT
-        <input type="radio" name="schedule_type" value="O" onClick="showLayer('idSched', 3)"  $sTYPE[O]>Run Once</input><br>
-EOT;
+     $discovery .= "<input type=\"radio\" name=\"schedule_type\" value=\"O\" onClick=\"showLayer('idSched', 3)\"  $sTYPE[O]>"._("Run Once")."</input><br>";
 }
 
 if ( $scheduler || $enScanRequestRecur ) {
-     $discovery .= <<<EOT
-        <input type="radio" name="schedule_type" value="D" onClick="showLayer('idSched', 2)" $sTYPE[D]>Daily</input><br>
-        <input type="radio" name="schedule_type" value="W" onClick="showLayer('idSched', 4)" $sTYPE[W]>Day of the Week</input><br>
-        <input type="radio" name="schedule_type" value="M" onClick="showLayer('idSched', 5)"  $sTYPE[M]>Day of the Month</input><br>
-        <input type="radio" name="schedule_type" value="NW" onClick="showLayer('idSched', 6)"  $sTYPE[NW]>N<sup>th</sup> weekday of the month</input><br>
-EOT;
+     $discovery .="<input type=\"radio\" name=\"schedule_type\" value=\"D\" onClick=\"showLayer('idSched', 2)\" $sTYPE[D]>"._("Daily")."</input><br>";
+     $discovery .="<input type=\"radio\" name=\"schedule_type\" value=\"W\" onClick=\"showLayer('idSched', 4)\" $sTYPE[W]>"._("Day of the Week")."</input><br>";
+     $discovery .="<input type=\"radio\" name=\"schedule_type\" value=\"M\" onClick=\"showLayer('idSched', 5)\" $sTYPE[M]>"._("Day of the Month")."</input><br>";
+     $discovery .="<input type=\"radio\" name=\"schedule_type\" value=\"NW\" onClick=\"showLayer('idSched', 6)\" $sTYPE[NW]>"._("N<sup>th</sup> weekday of the month")."</input><br>";
+
 }      
      $discovery .= <<<EOT
     </td>
@@ -1155,13 +1152,14 @@ EOT;
       </div>
       <div id="idSched3" class="forminput">
         <table cellspacing="2" cellpadding="0" width="100%">
-          <tr><td colspan="7" class="noborder">Year&nbsp;<select name="ROYEAR">
 EOT;
+            $discovery .="<tr><td colspan='7' class='noborder'>".gettext("Year")."&nbsp;<select name='ROYEAR'>";
+
             $discovery .="<option value=\"$tyear\" ".(($ROYEAR_selected==""||$ROYEAR_selected==$tyear)? "selected" : "").">$tyear</option>";
             $discovery .="<option value=\"$nyear\" ".(($ROYEAR_selected==$nyear)? "selected" : "").">$nyear</option>";
-     $discovery .= <<<EOT
-            </select>&nbsp;&nbsp;&nbsp;Month&nbsp;<select name="ROMONTH">";
-EOT;
+
+            $discovery .="</select>&nbsp;&nbsp;&nbsp;".gettext("Month")."&nbsp;<select name='ROMONTH'>";
+
 
 /*     $discovery .= <<<EOT
     </td>
@@ -1180,7 +1178,7 @@ EOT;*/
       if (($i==$tmonth && $ROMONTH_selected=="") || $ROMONTH_selected==$i) $discovery .= "selected";
       $discovery .= ">$i</option>";
    }
-   $discovery .= "</select>&nbsp;&nbsp;&nbsp;Day&nbsp;<select name=\"ROday\">";
+   $discovery .= "</select>&nbsp;&nbsp;&nbsp;".gettext("Day")."&nbsp;<select name=\"ROday\">";
    for ($i=1;$i<=31;$i++) {
       $discovery .= "<option value=\"$i\" ";
       if (($i==$tday && $ROday_selected=="") || $ROday_selected==$i) $discovery .= "selected";
@@ -1194,25 +1192,29 @@ EOT;*/
       <div id="idSched4" class="forminput" > 
         <table width="100%">
           <tr>
-            <th align="right">Weekly</td><td colspan="2" class="noborder">
-              <select name="dayofweek">
-                <option value="0" SELECTED >Select week day to run</option>
-                <option value="Su" $day[Su] >Sunday</option>
-                <option value="Mo" $day[Mo] >Monday</option>
-                <option value="Tu" $day[Tu] >Tuesday</option>
-                <option value="We" $day[We] >Wednesday</option>
-                <option value="Th" $day[Th] >Thursday</option>
-                <option value="Fr" $day[Fr] >Friday</option>
-                <option value="Sa" $day[Sa] >Saturday</option>
-              </select>
-            </td>
+EOT;
+            $discovery .= "<th align=\"right\">"._("Weekly")."</td><td colspan=\"2\" class=\"noborder\">";
+            $discovery .= "<select name=\"dayofweek\">";
+            $discovery .= "<option value=\"0\" SELECTED >".gettext("Select week day to run")."</option>";
+            $discovery .= "<option value=\"Su\" $day[Su] >".gettext("Sunday")."</option>";
+            $discovery .= "<option value=\"Mo\" $day[Mo] >".gettext("Monday")."</option>";
+            $discovery .= "<option value=\"Tu\" $day[Tu] >".gettext("Tuesday")."</option>";
+            $discovery .= "<option value=\"We\" $day[We] >".gettext("Wednesday")."</option>";
+            $discovery .= "<option value=\"Th\" $day[Th] >".gettext("Thursday")."</option>";
+            $discovery .= "<option value=\"Fr\" $day[Fr] >".gettext("Friday")."</option>";
+            $discovery .= "<option value=\"Sa\" $day[Sa] >".gettext("Saturday")."</option>";
+            $discovery .= "</select>";
+            $discovery .= "</td>";
+            $discovery .= <<<EOT
           </tr>
         </table>
       </div>
       <div id="idSched5" class="forminput">
         <table width="100%">
           <tr>
-            <th align="right">Select Day</td>
+EOT;
+            $discovery .= "<th align='right'>".gettext("Select Day")."</td>";
+            $discovery .= <<<EOT
             <td colspan="2" class="noborder"><select name="dayofmonth">"
 EOT;
    for ($i=1;$i<=31;$i++) {
@@ -1229,32 +1231,34 @@ EOT;
       <div id="idSched6" class="forminput">
         <table width="100%">
           <tr>
-            <th align="right">Day of week</th><td colspan="2" class="noborder">
-              <select name="nthdayofweek">
-                <option value="0" SELECTED >Select week day to run</option>
-                <option value="Su" $day[Su] >Sunday</option>
-                <option value="Mo" $day[Mo] >Monday</option>
-                <option value="Tu" $day[Tu] >Tuesday</option>
-                <option value="We" $day[We] >Wednesday</option>
-                <option value="Th" $day[Th] >Thursday</option>
-                <option value="Fr" $day[Fr] >Friday</option>
-                <option value="Sa" $day[Sa] >Saturday</option>
-              </select>
-            </td>
+EOT;
+            $discovery .= "<th align=\"right\">".gettext("Day of week")."</th><td colspan=\"2\" class=\"noborder\">";
+            $discovery .= "<select name=\"nthdayofweek\">";
+            $discovery .= "<option value=\"0\" SELECTED >".gettext("Select week day to run")."</option>";
+            $discovery .= "<option value=\"Su\" $day[Su] >".gettext("Sunday")."</option>";
+            $discovery .= "<option value=\"Mo\" $day[Mo] >".gettext("Monday")."</option>";
+            $discovery .= "<option value=\"Tu\" $day[Tu] >".gettext("Tuesday")."</option>";
+            $discovery .= "<option value=\"We\" $day[We] >".gettext("Wednesday")."</option>";
+            $discovery .= "<option value=\"Th\" $day[Th] >".gettext("Thursday")."</option>";
+            $discovery .= "<option value=\"Fr\" $day[Fr] >".gettext("Friday")."</option>";
+            $discovery .= "<option value=\"Sa\" $day[Sa] >".gettext("Saturday")."</option>";
+            $discovery .= "</select>";
+            $discovery .= "</td>";
+            $discovery .= <<<EOT
           </tr>
         </table>
         <br>
         <table width="100%">
           <tr>
-            <th align="right">N<sup>th</sup> weekday</th><td colspan="2" class="noborder">
-              <select name="nthweekday">
 EOT;
-                $discovery .="<option value='0' SELECTED >Select nth weekday to run</option>";
-                $discovery .="<option value='1'".(($dayofmonth==1) ? " selected":"").">First</option>";
-                $discovery .="<option value='2'".(($dayofmonth==2) ? " selected":"").">Second</option>";
-                $discovery .="<option value='3'".(($dayofmonth==3) ? " selected":"").">Third</option>";
-                $discovery .="<option value='4'".(($dayofmonth==4) ? " selected":"").">Fourth</option>";
-                $discovery .="<option value='5'".(($dayofmonth==5) ? " selected":"").">Fifth</option>"; 
+                $discovery .="<th align='right'>".gettext("N<sup>th</sup> weekday")."</th><td colspan='2' class='noborder'>";
+                $discovery .="<select name='nthweekday'>";
+                $discovery .="<option value='0' SELECTED >".gettext("Select nth weekday to run")."</option>";
+                $discovery .="<option value='1'".(($dayofmonth==1) ? " selected":"").">".gettext("First")."</option>";
+                $discovery .="<option value='2'".(($dayofmonth==2) ? " selected":"").">".gettext("Second")."</option>";
+                $discovery .="<option value='3'".(($dayofmonth==3) ? " selected":"").">".gettext("Third")."</option>";
+                $discovery .="<option value='4'".(($dayofmonth==4) ? " selected":"").">".gettext("Fourth")."</option>";
+                $discovery .="<option value='5'".(($dayofmonth==5) ? " selected":"").">".gettext("Fifth")."</option>"; 
             $discovery .= <<<EOT
               </select>
             </td>
@@ -1263,13 +1267,16 @@ EOT;
       </div>
       <div id="idSched2" class="forminput">
         <table width="100%">
-          <tr>
-            <th rowspan="2" align="right" width="30%">Time</td>
-            <td align="right">Hour</td><td>Minutes</td>
-          </tr>
+EOT;
+        $discovery .=  "<tr>";
+        $discovery .=  "<th rowspan='2' align='right' width='30%'>".gettext("Time")."</td>";
+        $discovery .=  "<td align='right'>".gettext("Hour")."</td><td>".gettext("Minutes")."</td>";
+        $discovery .=  "</tr>";
+            $discovery .= <<<EOT
           <tr>
             <td align="right" class="noborder"><select name="time_hour">
 EOT;
+
    for ($i=0;$i<=23;$i++){
       $discovery .=  "<option align=\"right\" value=\"$i\"";
       if (($time_hour==$i && $time_hour_selected=="") || $time_hour_selected==$i) $discovery .= " selected";
