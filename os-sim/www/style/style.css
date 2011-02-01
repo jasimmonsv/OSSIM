@@ -858,7 +858,7 @@ div.bballoon:hover span.bottom {
 
 	font-family: arial;
 	font-size: 12px;
-	text-decoration: none;
+	text-decoration: none !important;
 }
 
 .gtooltip {
@@ -873,7 +873,22 @@ div.bballoon:hover span.bottom {
 
 	font-family: arial;
 	font-size: 12px;
-	text-decoration: none;	
+	text-decoration: none !important;	
+}
+
+.rtooltip {
+	text-align:center;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+
+	color: #303030;
+	background-color: #f5f5b5;
+	border: 1px solid #FFE38F;
+
+	font-family: arial;
+	font-size: 11px;
+	width:250px;
 }
 
 .ytooltip {
@@ -884,11 +899,11 @@ div.bballoon:hover span.bottom {
 
 	color: #303030;
 	background-color: #f5f5b5;
-	border: 1px solid #DCEFB3;
+	border: 1px solid #FFE38F;
 
 	font-family: arial;
 	font-size: 12px;
-	text-decoration: none;	
+	text-decoration: none !important;	
 }
 
 .yltooltip {
@@ -899,11 +914,11 @@ div.bballoon:hover span.bottom {
 
 	color: #303030;
 	background-color: #f5f5b5;
-	border: 1px solid #DCEFB3;
+	border: 1px solid #FFE38F;
 
 	font-family: arial;
 	font-size: 10px;
-	text-decoration: none;	
+	text-decoration: none !important;	
 }
 
 .imgtip {
