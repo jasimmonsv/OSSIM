@@ -122,38 +122,38 @@ if($tab == "#tab1")
 		}
 		else
 			echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
-					
+			
 		@unlink ($path_tmp);
-	
 	}
+	
+	
 }
 else if($tab == "#tab2")
 {
+	$aux_path  = explode("/", $ossec_conf);
+	$filename  = $aux_path[count($aux_path)-1]; 
+	$file_tmp  = uniqid($filename)."_tmp.conf";
+	$path      = $ossec_conf;
+	$path_tmp  = "/tmp/".$file_tmp; 
+	$data      = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
 
-$aux_path  = explode("/", $ossec_conf);
-$filename  = $aux_path[count($aux_path)-1]; 
-$file_tmp  = uniqid($filename)."_tmp.conf";
-$path      = $ossec_conf;
-$path_tmp  = "/tmp/".$file_tmp; 
-$data      = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
-
-if (copy ($path , $path_tmp) == false )
-	echo "error###"._("Error to update")." <b>$ossec_conf</b> (1)";
-else
-{
-	if ( @file_put_contents($path, $data, LOCK_EX) == false )
-	{
-		@unlink ($path);
-		@copy ($path_tmp, $path);
-		echo "error###"._("Error to update")." <b>$ossec_conf</b> (2)";
-	}
+	if (copy ($path , $path_tmp) == false )
+		echo "error###"._("Error to update")." <b>$ossec_conf</b> (1)";
 	else
 	{
-		echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
+		if ( @file_put_contents($path, $data, LOCK_EX) == false )
+		{
+			@unlink ($path);
+			@copy ($path_tmp, $path);
+			echo "error###"._("Error to update")." <b>$ossec_conf</b> (2)";
+		}
+		else
+		{
+			echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
+		}
+		
 		@unlink($path_tmp);	
 	}
-}
-
 }
 else
 	echo "error###"._("Error: Illegal actions");
