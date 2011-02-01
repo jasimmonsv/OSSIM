@@ -68,7 +68,7 @@
 			<?php echo gettext("username"); ?>
 		</td>
 		<td class="nobborder" style="width: 100%; text-align: left;padding-left: 5px; padding-right: 8px">
-			<input type="text" style="width: 120px" name="username" id="username" value="<?php echo $rule->username; ?>" title="<?php echo $rule->username; ?>"/>
+			<input type="text" style="width: 120px" name="username" id="username" autocomplete="off" value="<?php echo $rule->username; ?>" title="<?php echo $rule->username; ?>"/>
 		</td>
 	</tr>
 	
@@ -78,7 +78,7 @@
 			<?php echo gettext("password"); ?>
 		</td>
 		<td class="nobborder" style="width: 100%; text-align: left;padding-left: 5px; padding-right: 8px">
-			<input type="password" style="width: 120px" name="password" id="password" value="<?php echo $rule->password; ?>" title="<?php echo $rule->password; ?>"/>
+			<input type="password" style="width: 120px" name="password" id="password" autocomplete="off" value="<?php echo $rule->password; ?>" title="<?php echo $rule->password; ?>"/>
 		</td>
 	</tr>
 	
