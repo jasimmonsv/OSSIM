@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS host_properties_changes (
 );
        
 use ossim;
-UPDATE config SET value="2011-01-28" WHERE conf="last_update";
+UPDATE config SET value="2011-02-01" WHERE conf="last_update";
 
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file
