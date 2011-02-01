@@ -684,7 +684,7 @@ if ($report_id) {
    }
 
  //Vulnerability table configs
-   $vcols = array('Risk', 'Details');
+   $vcols = array(_("Risk"), _("Details"));
    //widths for columns
    $vwidth_array=array(20, 170); // 196 total
 

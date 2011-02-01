@@ -756,17 +756,17 @@ EOT;
       $fieldMapLinks = array();
 
          $fieldMapLinks = array(
-            "HTML Results" => array(
+            gettext("HTML Results") => array(
                      'url' => '%param%',
                    'param' => 'hlink',
                    'target' => 'main',
                     'icon' => 'images/html.png'),
-             "PDF Results" => array(
+             gettext("PDF Results") => array(
                      'url' => '%param%',
                    'param' => 'plink',
                   'target' => '_blank', 
                     'icon' => 'images/pdf.png'),
-           "EXCEL Results" => array(
+           gettext("EXCEL Results") => array(
                      'url' => '%param%',
                    'param' => 'xlink',
                   'target' => '_blank',

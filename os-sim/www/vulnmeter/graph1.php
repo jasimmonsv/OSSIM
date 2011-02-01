@@ -98,7 +98,7 @@ $graph = new PieGraph(450,200,"auto");
 $graph->SetAntiAliasing();
 //$graph->SetShadow();
 
-$graph->title->Set("Vulnerabilities Found - $totalvulns");
+$graph->title->Set(gettext("Vulnerabilities Found")." - $totalvulns"); 
 $graph->title->SetFont(FF_FONT1,FS_BOLD);
 
 if(intval($w)==1) {
