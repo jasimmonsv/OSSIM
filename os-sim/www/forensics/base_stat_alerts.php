@@ -105,6 +105,9 @@ if($event_cnt == 0){
 $event_cnt = 1;
 }
 }*/
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+
 /* create SQL to get Unique Alerts */
 $cnt_sql = "SELECT count(DISTINCT acid_event.plugin_id, acid_event.plugin_sid) " . $from . $where;
 /* Run the query to determine the number of rows (No LIMIT)*/
@@ -119,9 +122,9 @@ $qro->AddTitle(_TOTAL . "&nbsp;#", "occur_a", " ", " ORDER BY sig_cnt ASC", "occ
 $qro->AddTitle(_SENSOR . "&nbsp;#");
 $qro->AddTitle(_("Src. Addr.") , "saddr_a", ", count(DISTINCT ip_src) AS saddr_cnt ", " ORDER BY saddr_cnt ASC", "saddr_d", ", count(DISTINCT ip_src) AS saddr_cnt ", " ORDER BY saddr_cnt DESC");
 $qro->AddTitle(_("Dst. Addr.") , "daddr_a", ", count(DISTINCT ip_dst) AS daddr_cnt ", " ORDER BY daddr_cnt ASC", "daddr_d", ", count(DISTINCT ip_dst) AS daddr_cnt ", " ORDER BY daddr_cnt DESC");
-$qro->AddTitle(_FIRST, "first_a", ", min(timestamp) AS first_timestamp ", " ORDER BY first_timestamp ASC", "first_d", ", min(timestamp) AS first_timestamp ", " ORDER BY first_timestamp DESC");
+$qro->AddTitle(_("First")." ".Util::timezone($tz), "first_a", ", min(timestamp) AS first_timestamp ", " ORDER BY first_timestamp ASC", "first_d", ", min(timestamp) AS first_timestamp ", " ORDER BY first_timestamp DESC");
 if ($show_previous_alert == 1) $qro->AddTitle("Previous");
-$qro->AddTitle(_LAST, "last_a", ", max(timestamp) AS last_timestamp ", " ORDER BY last_timestamp ASC", "last_d", ", max(timestamp) AS last_timestamp ", " ORDER BY last_timestamp DESC");
+$qro->AddTitle(_("Last")." ".Util::timezone($tz), "last_a", ", max(timestamp) AS last_timestamp ", " ORDER BY last_timestamp ASC", "last_d", ", max(timestamp) AS last_timestamp ", " ORDER BY last_timestamp DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 /* mstone 20050309 add sig_name to GROUP BY & query so it can be used in postgres ORDER BY */
 /* mstone 20050405 add sid & ip counts */
@@ -197,7 +200,10 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     /* First and Last timestamp of this signature */
     $start_time = $myrow["first_timestamp"];
     $stop_time = $myrow["last_timestamp"];
-
+    if ($tz!=0) {
+    	$start_time = date("Y-m-d H:i:s",strtotime($start_time)+(3600*$tz));
+    	$stop_time = date("Y-m-d H:i:s",strtotime($stop_time)+(3600*$tz));
+	}
     /* Print out (Colored Version) -- Alejandro */
     //qroPrintEntryHeader((($colored_alerts == 1) ? GetSignaturePriority($sig_id, $db) : $i) , $colored_alerts);
     qroPrintEntryHeader( $i , $colored_alerts);

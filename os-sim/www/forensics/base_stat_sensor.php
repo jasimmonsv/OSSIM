@@ -85,6 +85,9 @@ if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+ti
         $where = $matches[1] . " AND timestamp >= '" . $matches[2] . "' " . $matches[4];
     }
 }
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+
 //$qs->AddValidAction("ag_by_id");
 //$qs->AddValidAction("ag_by_name");
 //$qs->AddValidAction("add_new_ag");
@@ -114,8 +117,8 @@ $qro->AddTitle(_SIPLTOTALEVENTS, "occur_a", " ", "  ORDER BY event_cnt ASC", "oc
 $qro->AddTitle(_SIPLUNIEVENTS, "sig_a", "", " ORDER BY sig_cnt ASC", "sig_d", "", " ORDER BY sig_cnt DESC");
 $qro->AddTitle(_SUASRCADD, "saddr_a", "", " ORDER BY saddr_cnt ASC", "saddr_d", "", " ORDER BY saddr_cnt DESC");
 $qro->AddTitle(_SUADSTADD, "daddr_a", "", " ORDER BY daddr_cnt ASC", "daddr_d", "", " ORDER BY daddr_cnt DESC");
-$qro->AddTitle(_FIRST, "first_a", "", " ORDER BY first_timestamp ASC", "first_d", "", " ORDER BY first_timestamp DESC");
-$qro->AddTitle(_LAST, "last_a", "", " ORDER BY last_timestamp ASC", "last_d", "", " ORDER BY last_timestamp DESC");
+$qro->AddTitle(_("First")." ".Util::timezone($tz), "first_a", "", " ORDER BY first_timestamp ASC", "first_d", "", " ORDER BY first_timestamp DESC");
+$qro->AddTitle(_("Last")." ".Util::timezone($tz), "last_a", "", " ORDER BY last_timestamp ASC", "last_d", "", " ORDER BY last_timestamp DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , "");
 $sql = "SELECT DISTINCT acid_event.sid, count(acid_event.cid) as event_cnt," . " count(distinct acid_event.plugin_id, acid_event.plugin_sid) as sig_cnt, " . " count(distinct(acid_event.ip_src)) as saddr_cnt, " . " count(distinct(acid_event.ip_dst)) as daddr_cnt, " . "min(timestamp) as first_timestamp, max(timestamp) as last_timestamp" . $sort_sql[0] . $from . $where . " GROUP BY acid_event.sid " . $sort_sql[1];
 //echo $sql."<br>";
@@ -167,6 +170,10 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $num_dst_ip = $myrow[4];
     $start_time = $myrow[5];
     $stop_time = $myrow[6];
+    if ($tz!=0) {
+    	$start_time = date("Y-m-d H:i:s",strtotime($start_time)+(3600*$tz));
+    	$stop_time = date("Y-m-d H:i:s",strtotime($stop_time)+(3600*$tz));
+	}    
     $sname = GetSensorName($sensor_id, $db);
 	$sensor_ip = preg_replace("/\-.*/","",$sname);
 	$homelan = (Net::is_ip_in_cache_cidr($_conn, $sensor_ip) || in_array($sensor_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$sensor_ip'><img src=\"images/homelan.png\" border=0></a>" : "";

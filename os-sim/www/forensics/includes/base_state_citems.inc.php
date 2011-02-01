@@ -851,6 +851,27 @@ class TimeCriteria extends MultipleElementCriteria {
     *
     * $time_cnt : number of rows in the $time[][] structure
     */
+    function GetUTC() {
+    	/* convert to UTC time for sql */
+    	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    	$utc_criteria = $this->criteria;
+        for ($i = 0; $i < $this->criteria_cnt; $i++) if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") {
+        	$y = $this->criteria[$i][4];
+        	$m = ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") ? $this->criteria[$i][2] : "01";
+        	$d = ($this->criteria[$i][3] != " " && $this->criteria[$i][3] != "") ? $this->criteria[$i][3] : "01";
+        	$h = ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") ? $this->criteria[$i][5] : "00";
+        	$m = ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") ? $this->criteria[$i][6] : "00";
+        	$s = ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") ? $this->criteria[$i][7] : "00";
+        	$time = strtotime("$y-$m-$d $h:$m:$s")+(3600*$tz);
+        	if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") $utc_criteria[$i][4] = date("Y",$time);
+        	if ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") $utc_criteria[$i][2] = date("m",$time);
+        	if ($this->criteria[$i][3] != " " && $this->criteria[$i][3] != "") $utc_criteria[$i][3] = date("d",$time);
+        	if ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") $utc_criteria[$i][5] = date("H",$time);
+        	if ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") $utc_criteria[$i][6] = date("i",$time);
+        	if ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") $utc_criteria[$i][7] = date("s",$time);
+        }
+        return $utc_criteria;
+    }
     function Clear() {
         /* clears the criteria */
     }

@@ -85,6 +85,8 @@ if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+ti
         $where = $matches[1] . " AND timestamp >= '" . $matches[2] . "' " . $matches[4];
     }
 }
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 
 //$qs->AddValidAction("ag_by_id");
 //$qs->AddValidAction("ag_by_name");
@@ -123,7 +125,7 @@ $qro->AddTitle(_SENSOR . "&nbsp;#", "sid_a", " ", " ORDER BY sensors ASC, events
 $qro->AddTitle(gettext("Last Event"));
 $qro->AddTitle(gettext("Source Address"));
 $qro->AddTitle(gettext("Dest. Address"));
-$qro->AddTitle(gettext("Date"));
+$qro->AddTitle(gettext("Date")." ".Util::timezone($tz));
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 /* mstone 20050309 add sig_name to GROUP BY & query so it can be used in postgres ORDER BY */
 /* mstone 20050405 add sid & ip counts */
@@ -160,6 +162,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$max_cid = $myrow[0];
 	$plugin_id = $myrow["plugin_id"];
     $timestamp = $myrow["timestamp"];
+    if ($tz!=0) $timestamp = date("Y-m-d H:i:s",strtotime($timestamp)+(3600*$tz));
     $plugin_name = $myrow["name"];
 	$total_occurances = $myrow["events"];
 	$total_sensors = $myrow["sensors"];

@@ -703,3 +703,10 @@ a.white :hover {
 .ne { color:black }
 .gr { color:#999999 }
 
+.imgtip {
+	text-align:left;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+	background-color: transparent;
+}

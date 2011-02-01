@@ -292,13 +292,14 @@ if (!array_key_exists("minimal_view", $_GET)) {
 echo "\n<INPUT TYPE=\"hidden\" NAME=\"action_chk_lst[0]\" VALUE=\"$submit\">\n";
 /* Event */
 //$sql2 = "SELECT signature, timestamp FROM acid_event WHERE sid='" .  filterSql($sid,$db) . "' AND cid='" .  filterSql($cid,$db) . "'";
-$sql2 = "SELECT plugin_id, plugin_sid, timestamp FROM acid_event WHERE sid='" . filterSql($sid,$db) . "' AND cid='" . filterSql($cid,$db) . "'";
+$sql2 = "SELECT plugin_id, plugin_sid, timestamp, tzone FROM acid_event WHERE sid='" . filterSql($sid,$db) . "' AND cid='" . filterSql($cid,$db) . "'";
 //echo $sql2;
 $result2 = $db->baseExecute($sql2);
 $myrow2 = $result2->baseFetchRow();
 $plugin_id = $myrow2[0];
 $plugin_sid = $myrow2[1];
 $timestamp = $myrow2[2];
+$tzone = $myrow2[3];
 if ($plugin_id == "" || $plugin_sid == "") {
     echo '<CENTER><B>';
     ErrorMessage(_QAALERTDELET);
@@ -347,6 +348,19 @@ if ($myrow6 = $result6->baseFetchRow()) {
     $context = $myrow6["context"];
     $result6->baseFreeRows();
 }
+
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$event_date = $timestamp;
+$tzdate = $event_date;
+// Event date timezone
+if ($tzone!=0) $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));    
+// Apply user timezone
+if ($tz!=0) $tzdate = date("Y-m-d H:i:s",strtotime($tzdate)+(3600*$tz));
+	
+$tzcell = ($event_date==$timestamp || $event_date==$tzdate) ? 0 : 1;
+_("Event date").": ".htmlspecialchars("<b>".$event_date."</b><br>"._("Timezone").": <b>".Util::timezone($tzone)."</b>");
+	
 // This is one array that contains all the ids that are been used by snort, this way we will show more info for those events.
 $snort_ids = range(1000, 1500);
 // ojo antes GetTagTriger(BuildSigByID($myrow2[0], $db, 1, $plugin_id) , $db, $sid, $cid))
@@ -356,15 +370,17 @@ echo '
           <TR><TD CLASS="header3" WIDTH=50 ALIGN=CENTER ROWSPAN=4>Meta</TD>
               <TD>
                   <TABLE BORDER=0 CELLPADDING=4>
-                    <TR><TD CLASS="header" >' . _ID . ' #</TD>
-                        <TD CLASS="header" nowrap>' . _CHRTTIME . '</TD>
-                        <TD CLASS="header">' . _QATRIGGERSIG . '</TD>
+                    <TR><TD CLASS="header" >' . _("ID") . ' #</TD>
+                        <TD CLASS="header" nowrap>' . _("Date")." ".Util::timezone($tz) . '</TD>
+                        '.($tzcell ? '<TD CLASS="header" nowrap>'._("Event date").'</TD>' : '').'
+                        <TD CLASS="header">' . _("Triggered Signature") . '</TD>
                         <TD CLASS="header" nowrap>' . _("Data Source Name") . '</TD>
                         <TD CLASS="header" nowrap>' . _("Data Source") . '</TD>
                         <TD CLASS="header" nowrap>' . _("Event Type") . '</TD>
 						<TD></td></TR>
                     <TR><TD CLASS="plfield" nowrap>' . ($sid . " - " . $cid) . '</TD>
-                        <TD CLASS="plfield" nowrap>' . htmlspecialchars($timestamp) . '</TD>
+                        <TD CLASS="plfield" nowrap>' . htmlspecialchars($tzdate) . '</TD>
+                        '.($tzcell ? '<TD CLASS="plfield" nowrap>'.$event_date.'<br>'.Util::timezone($tzone).'</TD>' : '').'
                         <TD CLASS="plfield">';
 	$htmlTriggeredSignature=html_entity_decode(htmlspecialchars(str_replace("##", "", BuildSigByPlugin($plugin_id, $plugin_sid, $db))));
 	echo $htmlTriggeredSignature.'</TD>
