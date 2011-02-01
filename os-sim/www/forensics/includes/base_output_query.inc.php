@@ -261,6 +261,9 @@ function qroPrintEntryHeader($prio = 1, $color = 0, $more = "", $forced_color=""
 function qroPrintEntry($value, $halign = "center", $valign = "top", $passthru = "", $bgcolor = "") {
 	echo "<TD $bgcolor style='border-right:1px solid white;border-top:1px solid white;padding-left:2px' align=\"" . $halign . "\" valign=\"" . $valign . "\" " . $passthru . ">\n" . "  $value\n" . "</TD>\n\n";
 }
+function qroPrintEntryTooltip($value, $halign = "center", $valign = "top", $passthru = "", $tooltip = "") {
+	echo "<TD txt='".str_replace("'","\'",$tooltip)."' class='tztooltip' style='border-right:1px solid white;border-top:1px solid white;padding-left:2px' align=\"" . $halign . "\" valign=\"" . $valign . "\" " . $passthru . ">\n" . "  $value\n" . "</TD>\n\n";
+}
 function qroPrintEntryFooter() {
     echo '</TR>';
 }

@@ -59,11 +59,9 @@ else
 			$_SESSION['_tree']      = $array_xml;
 			echo "6###".base64_encode($tree_json);
 		}
-
-		@unlink($path_tmp);	
-		
 	}
+	
+	@unlink($path_tmp);	
 }
-
 
 ?>

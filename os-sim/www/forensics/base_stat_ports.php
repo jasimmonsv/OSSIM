@@ -153,6 +153,9 @@ switch ($port_type) {
         $port_type_sql = "layer4_dport";
         break;
 }
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+
 /* create SQL to get Unique Alerts */
 $cnt_sql = "SELECT count(DISTINCT $port_type_sql) " . " FROM acid_event " . $criteria_clauses[0] . " WHERE " . $criteria_clauses[1];
 /* Run the query to determine the number of rows (No LIMIT)*/
@@ -167,8 +170,8 @@ $qro->AddTitle(_OCCURRENCES, "occur_a", " ", " ORDER BY num_events ASC", "occur_
 $qro->AddTitle(gettext("Unique Events"), "alerts_a", " ", " ORDER BY num_sig ASC", "alerts_d", " ", " ORDER BY num_sig DESC");
 $qro->AddTitle(_SUASRCADD, "sip_a", " ", " ORDER BY num_sip ASC", "sip_d", " ", " ORDER BY num_sip DESC");
 $qro->AddTitle(_SUADSTADD, "dip_a", " ", " ORDER BY num_dip ASC", "dip_d", " ", " ORDER BY num_dip DESC");
-$qro->AddTitle(_FIRST, "first_a", " ", " ORDER BY first_timestamp ASC", "first_d", " ", " ORDER BY first_timestamp DESC");
-$qro->AddTitle(_LAST, "last_a", " ", " ORDER BY last_timestamp ASC", "last_d", " ", " ORDER BY last_timestamp DESC");
+$qro->AddTitle(_("First")." ".Util::timezone($tz), "first_a", " ", " ORDER BY first_timestamp ASC", "first_d", " ", " ORDER BY first_timestamp DESC");
+$qro->AddTitle(_("Last")." ".Util::timezone($tz), "last_a", " ", " ORDER BY last_timestamp ASC", "last_d", " ", " ORDER BY last_timestamp DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 $where = " WHERE " . $criteria_clauses[1];
 $sql = "SELECT DISTINCT $port_type_sql, MIN(ip_proto), " . " COUNT(acid_event.cid) as num_events," . " COUNT( DISTINCT acid_event.sid) as num_sensors, " . " COUNT( DISTINCT acid_event.plugin_id, acid_event.plugin_sid ) as num_sig, " . " COUNT( DISTINCT ip_src ) as num_sip, " . " COUNT( DISTINCT ip_dst ) as num_dip, " . " MIN(timestamp) as first_timestamp, " . " MAX(timestamp) as last_timestamp " . $sort_sql[0] . " FROM acid_event " . $criteria_clauses[0] . $where . " GROUP BY " . $port_type_sql . " HAVING num_events>0 " . $sort_sql[1];
@@ -257,6 +260,10 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $num_dip = $myrow[6];
     $first_time = $myrow[7];
     $last_time = $myrow[8];
+    if ($tz!=0) {
+    	$first_time = date("Y-m-d H:i:s",strtotime($first_time)+(3600*$tz));
+    	$last_time = date("Y-m-d H:i:s",strtotime($last_time)+(3600*$tz));
+	} 
     if ($port_proto == TCP) {
         $url_port_type = "tcp";
         $url_layer4 = "TCP";

@@ -198,13 +198,15 @@ if ( !empty($agentless_list) && empty($info_error) )
 		}
 		else
 		{
-			@unlink ($path_tmp);
 			@unlink ($path_reload);
 			exec ("sudo /var/ossec/bin/ossec-control restart", $result, $ret);
-			$info_error = ( $ret != 0 ) ? _("Error to restart Ossec.  Try manually") : null;
-		}	
+			$info_error = ( empty($result) ) ? _("Error to restart Ossec.  Try manually") : null;
+		}
 	}
 }
+
+@unlink ($path_tmp2);	
+@unlink ($path_tmp);
 
 ?>
 

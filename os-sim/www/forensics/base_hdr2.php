@@ -34,53 +34,53 @@
 * Function list:
 * Classes list:
 */
-
-$today_d = date("d");
-$today_m = date("m");
-$today_y = date("Y");
-$today_h = date("h");
+$timetz = $GLOBALS["timetz"];
+$today_d = date("d",$timetz);
+$today_m = date("m",$timetz);
+$today_y = date("Y",$timetz);
+$today_h = date("h",$timetz);
 //$yesterday_d = date("d",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
 //$yesterday_m = date("m",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
 //$yesterday_y = date("Y",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
-$yesterday_d = date("d", strtotime("-1 day"));
-$yesterday_m = date("m", strtotime("-1 day"));
-$yesterday_y = date("Y", strtotime("-1 day"));
+$yesterday_d = date("d", strtotime("-1 day",$timetz));
+$yesterday_m = date("m", strtotime("-1 day",$timetz));
+$yesterday_y = date("Y", strtotime("-1 day",$timetz));
 //$week_d = date("d",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
 //$week_m = date("m",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
 //$week_y = date("Y",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
-$week_d = date("d", strtotime("-1 week"));
-$week_m = date("m", strtotime("-1 week"));
-$week_y = date("Y", strtotime("-1 week"));
+$week_d = date("d", strtotime("-1 week",$timetz));
+$week_m = date("m", strtotime("-1 week",$timetz));
+$week_y = date("Y", strtotime("-1 week",$timetz));
 //$two_week_d = date("d",mktime(0,0,0, $today_m, $today_d - 7 - (date("w") +1), $today_y));
 //$two_week_m = date("m",mktime(0,0,0, $today_m, $today_d - 7 -  (date("w") +1), $today_y));
 //$two_week_y = date("Y",mktime(0,0,0, $today_m, $today_d - 7 -  (date("w") +1), $today_y));
-$two_week_d = date("d", strtotime("-2 week"));
-$two_week_m = date("m", strtotime("-2 week"));
-$two_week_y = date("Y", strtotime("-2 week"));
+$two_week_d = date("d", strtotime("-2 week",$timetz));
+$two_week_m = date("m", strtotime("-2 week",$timetz));
+$two_week_y = date("Y", strtotime("-2 week",$timetz));
 //$month_d = date("d",mktime(0,0,0, $today_m, 1, $today_y));
 //$month_m = date("m",mktime(0,0,0, $today_m, 1, $today_y));
 //$month_y = date("Y",mktime(0,0,0, $today_m, 1, $today_y));
-$month_d = date("d", strtotime("-1 month"));
-$month_m = date("m", strtotime("-1 month"));
-$month_y = date("Y", strtotime("-1 month"));
+$month_d = date("d", strtotime("-1 month",$timetz));
+$month_m = date("m", strtotime("-1 month",$timetz));
+$month_y = date("Y", strtotime("-1 month",$timetz));
 //$two_month_d = date("d",mktime(0,0,0, $today_m - 1, 1, $today_y));
 //$two_month_m = date("m",mktime(0,0,0, $today_m - 1, 1, $today_y));
 //$two_month_y = date("Y",mktime(0,0,0, $today_m - 1, 1, $today_y));
-$two_month_d = date("d", strtotime("-2 month"));
-$two_month_m = date("m", strtotime("-2 month"));
-$two_month_y = date("Y", strtotime("-2 month"));
+$two_month_d = date("d", strtotime("-2 month",$timetz));
+$two_month_m = date("m", strtotime("-2 month",$timetz));
+$two_month_y = date("Y", strtotime("-2 month",$timetz));
 //$year_d = date("d",mktime(0,0,0, 1, 1, $today_y));
 //$year_m = date("m",mktime(0,0,0, 1, 1, $today_y));
 //$year_y = date("Y",mktime(0,0,0, 1, 1, $today_y));
-$year_d = date("d", strtotime("-11 month"));
-$year_m = date("m", strtotime("-11 month"));
-$year_y = date("Y", strtotime("-11 month"));
+$year_d = date("d", strtotime("-11 month",$timetz));
+$year_m = date("m", strtotime("-11 month",$timetz));
+$year_y = date("Y", strtotime("-11 month",$timetz));
 //$two_year_d = date("d",mktime(0,0,0, 1, 1, $today_y-1));
 //$two_year_m = date("m",mktime(0,0,0, 1, 1, $today_y-1));
 //$two_year_y = date("Y",mktime(0,0,0, 1, 1, $today_y-1));
-$two_year_d = date("d", strtotime("-2 year"));
-$two_year_m = date("m", strtotime("-2 year"));
-$two_year_y = date("Y", strtotime("-2 year"));
+$two_year_d = date("d", strtotime("-2 year",$timetz));
+$two_year_m = date("m", strtotime("-2 year",$timetz));
+$two_year_y = date("Y", strtotime("-2 year",$timetz));
 
 $sensor = ($_GET["sensor"] != "") ? $_GET["sensor"] : $_SESSION["sensor"];
 
@@ -534,8 +534,8 @@ if (preg_match("/base_qry_alert|base_stat_time/", $urltimecriteria)) {
 }
 if ($_GET["addr_type"] != "") $params.= "&addr_type=" . $_GET["addr_type"];
 if ($_GET["sort_order"] != "") $params.= "&sort_order=" . $_GET["sort_order"];
-//print_r($_GET);
 
+$txtzone = "<a href=\"javascript:;\" class=\"scriptinfoimg\" txt=\"<img src='../pixmaps/timezones/".rawurlencode(Util::timezone($GLOBALS["tz"])).".png' border=0>\">".Util::timezone($GLOBALS["tz"])."</a>";                         
 ?>
 
 <tr>
@@ -547,7 +547,7 @@ if ($_GET["sort_order"] != "") $params.= "&sort_order=" . $_GET["sort_order"];
 					<td>
 						<table cellpadding="0" cellspacing="0">
 						<tr>
-						<td><?=_("Time frame selection")?>:&nbsp;</td>
+						<td><?=_("Time frame selection")." $txtzone"?>:&nbsp;</td>
 						<td style='text-align:left;'>
 							<div id="widget">
 								<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
@@ -718,7 +718,7 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 				return true;
 			}
 		});
-		// TOOLTIP
+		// TOOLTIPS
 		$(".scriptinfo").simpletip({
 			position: 'right',
 			onBeforeShow: function() { 
@@ -726,6 +726,19 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 				this.load('base_netlookup.php?ip=' + ip);
 			}
 		});
+	    $(".scriptinfoimg").simpletip({
+            position: 'right',
+            baseClass: 'imgtip',
+            onBeforeShow: function() {
+                    this.update(this.getParent().attr('txt'));
+            }
+	    });		
+	    $(".tztooltip").simpletip({
+            position: 'right',
+            onBeforeShow: function() {
+                    this.update(this.getParent().attr('txt'));
+            }
+	    });		    
 		// AUTOCOMPLETE SEARCH FACILITY FOR SENSOR
 		var sensors = [
 			<?= preg_replace("/,$/","",$str); ?>
@@ -747,26 +760,26 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 		// CALENDAR
 		<?
 		if ($_SESSION["time_cnt"]==2) {
-			$y1 = ($_SESSION["time"][0][4]!="") ? $_SESSION["time"][0][4] : date("Y");
-			$m1 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2]-1 : date("m");
-			$m11 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2] : date("m");
-			$d1 = ($_SESSION["time"][0][3]!="") ? $_SESSION["time"][0][3] : date("d");
-			$y2 = ($_SESSION["time"][1][4]!="") ? $_SESSION["time"][1][4] : date("Y");
-			$m2 = ($_SESSION["time"][1][2]!="") ? $_SESSION["time"][1][2]-1 : date("m");
-			$m21 = ($_SESSION["time"][1][2]!="") ? $_SESSION["time"][1][2] : date("m");
-			$d2 = ($_SESSION["time"][1][3]!="") ? $_SESSION["time"][1][3] : date("d");
+			$y1 = ($_SESSION["time"][0][4]!="") ? $_SESSION["time"][0][4] : date("Y",$timetz);
+			$m1 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2]-1 : date("m",$timetz);
+			$m11 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2] : date("m",$timetz);
+			$d1 = ($_SESSION["time"][0][3]!="") ? $_SESSION["time"][0][3] : date("d",$timetz);
+			$y2 = ($_SESSION["time"][1][4]!="") ? $_SESSION["time"][1][4] : date("Y",$timetz);
+			$m2 = ($_SESSION["time"][1][2]!="") ? $_SESSION["time"][1][2]-1 : date("m",$timetz);
+			$m21 = ($_SESSION["time"][1][2]!="") ? $_SESSION["time"][1][2] : date("m",$timetz);
+			$d2 = ($_SESSION["time"][1][3]!="") ? $_SESSION["time"][1][3] : date("d",$timetz);
 		?>
 		var datefrom = new Date(<?=$y1?>,<?=$m1?>,<?=$d1?>);
 		var dateto = new Date(<?=$y2?>,<?=$m2?>,<?=$d2?>);
 		<?
 		} elseif ($_SESSION["time_cnt"]==1) {
-			$y1 = ($_SESSION["time"][0][4]!="") ? $_SESSION["time"][0][4] : date("Y");
-			$m1 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2]-1 : date("m");
-			$m11 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2] : date("m");
-			$d1 = ($_SESSION["time"][0][3]!="") ? $_SESSION["time"][0][3] : date("d");
-			$y2 = date("Y");
-			$m2 = $m21 = date("m");
-			$d2 = date("d");
+			$y1 = ($_SESSION["time"][0][4]!="") ? $_SESSION["time"][0][4] : date("Y",$timetz);
+			$m1 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2]-1 : date("m",$timetz);
+			$m11 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2] : date("m",$timetz);
+			$d1 = ($_SESSION["time"][0][3]!="") ? $_SESSION["time"][0][3] : date("d",$timetz);
+			$y2 = date("Y",$timetz);
+			$m2 = $m21 = date("m",$timetz);
+			$d2 = date("d",$timetz);
 		?>
 		var datefrom = new Date(<?=$y1?>,<?=$m1?>,<?=$d1?>);
 		var dateto = new Date();

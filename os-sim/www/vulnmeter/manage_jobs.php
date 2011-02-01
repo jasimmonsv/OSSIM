@@ -174,7 +174,7 @@ echo gettext("Vulnmeter"); ?> </title>
                     $('#nessus_threads').html('');
                     $('#td1').attr("width","100%");
                     $('#td2').attr("width", "1%");
-                    $('#status_server').html('<font color=blue>Idle</font>');
+                    $('#status_server').html('<font color=blue><?php echo gettext("Idle")?></font>');
                     <?php
                     if ($_SESSION["scanner"]!="omp") {?>
                         $('#nmta').html('');
@@ -513,8 +513,10 @@ EOT;
     <td>$nextscan</td>
     $txt_enabled
     <td style="padding-top:2px;"><a href="$ilink"><img alt="$itext" src="$isrc" border=0 title="$itext"></a>&nbsp;
-    <a href="sched.php?disp=edit_sched&sched_id=$schedid&amp;hmenu=Vulnerabilities&amp;smenu=Jobs"><img src="images/pencil.png" title="Edit Sheduled"></a>&nbsp;
-    <a href="manage_jobs.php?disp=delete&amp;schedid=$schedid" onclick="return confirmDelete();"><img src="images/delete.gif" title="Delete Sheduled"></a></td>
+EOT;
+    echo "<a href='sched.php?disp=edit_sched&sched_id=$schedid&amp;hmenu=Vulnerabilities&amp;smenu=Jobs'><img src='images/pencil.png' title='".gettext("Edit Sheduled")."'></a>&nbsp;";
+    echo "<a href='manage_jobs.php?disp=delete&amp;schedid=$schedid' onclick='return confirmDelete();'><img src='images/delete.gif' title='".gettext("Delete Sheduled")."'></a></td>";
+       echo <<<EOT
 </tr>
 EOT;
 

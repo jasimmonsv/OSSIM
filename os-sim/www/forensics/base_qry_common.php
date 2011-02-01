@@ -628,7 +628,9 @@ function ProcessCriteria() {
     $userdata = $cs->criteria['userdata']->criteria;
     $sourcetype = $cs->criteria['sourcetype']->criteria;
     $category = $cs->criteria['category']->criteria;
-    $time = $cs->criteria['time']->criteria;
+    $time = $cs->criteria['time']->GetUTC(); //$cs->criteria['time']->criteria;
+    //print_r($time);
+    //print_r($cs->criteria['time']->criteria);
     $time_cnt = $cs->criteria['time']->GetFormItemCnt();
     $ip_addr = $cs->criteria['ip_addr']->criteria;
     $ip_addr_cnt = $cs->criteria['ip_addr']->GetFormItemCnt();

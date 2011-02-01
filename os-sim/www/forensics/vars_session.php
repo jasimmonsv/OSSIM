@@ -51,6 +51,11 @@ $db_aux = new ossim_db();
 $conn_aux = $db_aux->connect();
 $config = new User_config($conn_aux);
 $_SESSION['views'] = $config->get($login, 'custom_views', 'php', "siem");
+$db_aux->close($conn_aux);
+
+// Timezone correction
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 
 // First save of default view (important!)
 if ($_SESSION['views']['default'] == "") {
@@ -102,7 +107,7 @@ if ($_GET['time_range'] != "") {
         if (isset($_SESSION['time_range'])) $_GET['time_range'] = $_SESSION['time_range'];
     }
 } elseif ($_GET['date_range'] == "week") {
-	$start_week = explode("-",strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7)));
+	$start_week = explode("-",date("Y-m-d", $timetz - (24 * 60 * 60 * 7)));
 	$_GET['time'][0] = array(
         null,
         ">=",
@@ -125,9 +130,9 @@ if ($_GET['time_range'] != "") {
     $_GET['time'][0] = array(
         null,
         ">=",
-        date("m") ,
-        date("d") ,
-        date("Y") ,
+        date("m",$timetz) ,
+        date("d",$timetz) ,
+        date("Y",$timetz) ,
         null,
         null,
         null,
@@ -207,7 +212,7 @@ $unique_country_events_report_type = 48;
 //
 $current_cols_titles = array(
     "SIGNATURE" => _("Signature"),
-    "DATE" => _("Date"),
+    "DATE" => _("Date")." ".Util::timezone($tz),
     "IP_PORTSRC" => _("Source"),
     "IP_PORTDST" => _("Dest."),
     "IP_SRC" => _("Src IP"),

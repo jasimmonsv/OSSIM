@@ -281,6 +281,17 @@ CREATE TABLE IF NOT EXISTS `host_property_reference` (
   PRIMARY KEY  (`id`)
 );
 
+INSERT INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
+(1, 'software', 3, 'Software'),
+(2, 'cpu', 8, 'CPU'),
+(3, 'operating-system', 1, 'Operating System'),
+(4, 'services', 2, 'Services'),
+(5, 'ram', 9, 'RAM'),
+(6, 'department', 5, 'Department'),
+(7, 'macAddress', 7, 'MAC Address'),
+(8, 'workgroup', 6, 'Workgroup'),
+(9, 'role', 4, 'Role');
+
 DROP TABLE IF EXISTS host_properties;
 CREATE TABLE IF NOT EXISTS host_properties (
    id INT NOT NULL AUTO_INCREMENT, 
@@ -290,6 +301,7 @@ CREATE TABLE IF NOT EXISTS host_properties (
    source_id INT,
    value TEXT,
    extra TEXT,
+   anom TINYINT(1) NOT NULL DEFAULT '0',
    PRIMARY KEY  (`id`),
    KEY `date` (`date`),
    KEY `ip` (`ip`,`sensor`),
@@ -315,17 +327,6 @@ CREATE TABLE IF NOT EXISTS host_source_reference (
    name VARCHAR(100),
    priority INT
 );
-
-INSERT INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
-(1, 'software', 3, 'Software'),
-(2, 'cpu', 8, 'CPU'),
-(3, 'operating-system', 1, 'Operating System'),
-(4, 'services', 2, 'Services'),
-(5, 'ram', 9, 'RAM'),
-(6, 'department', 5, 'Department'),
-(7, 'macAddress', 7, 'MAC Address'),
-(8, 'workgroup', 6, 'Workgroup'),
-(9, 'role', 4, 'Role');
 
 INSERT INTO host_source_reference(name, priority) VALUES ('MANUAL', 10);
 INSERT INTO host_source_reference(name, priority) VALUES ('OCS', 9);
@@ -2382,7 +2383,7 @@ CREATE TABLE IF NOT EXISTS `acl_entities` (
   PRIMARY KEY  (`id`),
   KEY `fk_ac_entities_ac_entities_types1` (`type`),
   KEY `fk_acl_entities_acl_users1` (`admin_user`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+);
 
 DROP TABLE IF EXISTS `acl_entities_types`;
 CREATE TABLE IF NOT EXISTS `acl_entities_types` (
@@ -2393,7 +2394,7 @@ CREATE TABLE IF NOT EXISTS `acl_entities_types` (
   `inherit_menus_from_parent` tinyint(4) default NULL,
   `inherit_policies_from_parent` tinyint(4) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
+);
 
 INSERT INTO `acl_entities_types` (`id`, `name`, `inherit_sensors_from_parent`, `inherit_assets_from_parent`, `inherit_menus_from_parent`, `inherit_policies_from_parent`) VALUES
 (1, 'Company', 1, 1, 1, 1),
@@ -2413,7 +2414,7 @@ CREATE TABLE IF NOT EXISTS `acl_perm` (
   `enabled` tinyint(4) default '1',
   `ord` varchar(5) NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=70 ;
+);
 
 INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granularity_sensor`, `granularity_net`, `enabled`, `ord`) VALUES
 (1, 'MENU', 'MenuControlPanel', 'ControlPanelExecutive', 'Dashboard -> Main', 1, 1, 1, '01.01'),
@@ -2500,22 +2501,16 @@ CREATE TABLE IF NOT EXISTS `acl_templates` (
   `allowed_nets` TEXT,
   `entity` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 
 DROP TABLE IF EXISTS `acl_templates_perms`;
 CREATE TABLE IF NOT EXISTS `acl_templates_perms` (
   `ac_templates_id` int(11) NOT NULL,
   `ac_perm_id` int(11) NOT NULL,
-  PRIMARY KEY  (`ac_templates_id`,`ac_perm_id`),
-  KEY `fk_acl_aco_ac_templates1` (`ac_templates_id`),
-  KEY `fk_acl_aco_ac_perm1` (`ac_perm_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`ac_templates_id`,`ac_perm_id`)
+)
 
-ALTER TABLE `acl_entities` ADD CONSTRAINT `fk_ac_entities_ac_entities_types1` FOREIGN KEY (`type`) REFERENCES `acl_entities_types` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE `acl_templates_perms` ADD CONSTRAINT `fk_acl_aco_ac_perm1` FOREIGN KEY (`ac_perm_id`) REFERENCES `acl_perm` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_acl_aco_ac_templates1` FOREIGN KEY (`ac_templates_id`) REFERENCES `acl_templates` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 DROP TABLE IF EXISTS `custom_report_profiles`;
 CREATE TABLE IF NOT EXISTS `custom_report_profiles` (

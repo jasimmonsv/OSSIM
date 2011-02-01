@@ -255,7 +255,7 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
         });
     });
     function confirmDelete(key){
-        var ans = confirm("Are you sure you want to delete this report?");
+        var ans = confirm("<?php echo gettext("Are you sure you want to delete this report?")?>");
         if (ans) document.location.href='reports.php?delete='+key;
     }
     function switch_user(select) {
@@ -750,17 +750,17 @@ EOT;
       $fieldMapLinks = array();
 
          $fieldMapLinks = array(
-            "HTML Results" => array(
+            gettext("HTML Results") => array(
                      'url' => '%param%',
                    'param' => 'hlink',
                    'target' => 'main',
                     'icon' => 'images/html.png'),
-             "PDF Results" => array(
+             gettext("PDF Results") => array(
                      'url' => '%param%',
                    'param' => 'plink',
                   'target' => '_blank', 
                     'icon' => 'images/pdf.png'),
-           "EXCEL Results" => array(
+           gettext("EXCEL Results") => array(
                      'url' => '%param%',
                    'param' => 'xlink',
                   'target' => '_blank',

@@ -112,7 +112,7 @@ echo gettext("Vulnmeter"); ?> </title>
 <?php
 include ("../hmenu.php");
 
-$pageTitle = "HTML Results";
+$pageTitle = gettext("HTML Results");
 require_once('config.php');
 require_once("functions.inc");
 //require_once('auth.php');
@@ -672,7 +672,7 @@ function reportsummary( ){   //GENERATE REPORT SUMMARY
 
     $htmlsummary .= "<table border=\"5\" width=\"900\"><tr><th class=\"noborder\" valign=\"top\" style=\"text-align:left;font-size:12px;\" nowrap>
          
-         <b>Scan time:</b></th><td class=\"noborder\" style=\"text-align:left;padding-left:10px;\">". gen_strtotime($scantime,"")."&nbsp;&nbsp;&nbsp;</td>";
+         <b>"._("Scan time").":</b></th><td class=\"noborder\" style=\"text-align:left;padding-left:10px;\">". gen_strtotime($scantime,"")."&nbsp;&nbsp;&nbsp;</td>";
 
     //Generated date
     $gendate = date("Y-m-d H:i:s");

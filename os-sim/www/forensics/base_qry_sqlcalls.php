@@ -39,6 +39,9 @@ if ($printing_ag) {
     $cnt_sql = "SELECT COUNT(acid_event.cid) FROM acid_event " . $join_sql . $where_sql . $criteria_sql;
     $tmp_page_get = "";
 }
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+
 /* Run the query to determine the number of rows (No LIMIT)*/
 //$qs->GetNumResultRows($cnt_sql, $db);
 $et->Mark("Counting Result size");
@@ -289,6 +292,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     unset($cell_more);
     unset($cell_pdfdata);
     unset($cell_align);
+    unset($cell_tooltip);
     $current_sig = BuildSigByPlugin($myrow["plugin_id"], $myrow["plugin_sid"], $db);
     if (preg_match("/FILENAME|USERNAME|PASSWORD|PAYLOAD|USERDATA\d+/",$current_sig)) $need_extradata = 1;
     //
@@ -405,12 +409,22 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $cell_data['SIGNATURE'] = $temp;
     $cell_pdfdata['SIGNATURE'] = html_entity_decode($despues);
 	$cell_align['SIGNATURE'] = "left";
-    if ($_SESSION['current_cview']=="default") $cell_more['SIGNATURE'] = "width='35%'"; // only in default view
+    if ($_SESSION['current_cview']=="default") $cell_more['SIGNATURE'] = "width='25%'"; // only in default view
     $temp = "";
     // 4- Timestamp
     //qroPrintEntry($myrow["timestamp"], "center");
-	$cell_data['DATE'] = $myrow['timestamp'];
-	$cell_pdfdata['DATE'] = str_replace(" ","<br>",$myrow['timestamp']);
+
+    $tzone = $myrow['tzone'];
+    $event_date = $myrow['timestamp'];
+    $tzdate = $event_date;
+    // Event date timezone
+	if ($tzone!=0) $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));    
+    // Apply user timezone
+	if ($tz!=0) $tzdate = date("Y-m-d H:i:s",strtotime($tzdate)+(3600*$tz));
+		    
+	$cell_data['DATE'] = $tzdate;
+	$cell_tooltip['DATE'] = ($event_date==$myrow['timestamp'] || $event_date==$tzdate) ? "" : _("Event date").": ".htmlspecialchars("<b>".$event_date."</b><br>"._("Timezone").": <b>".Util::timezone($tzone)."</b>");
+	$cell_pdfdata['DATE'] = str_replace(" ","<br>",$tzdate);
 	$cell_align['DATE'] = "center";
 	$cell_more['DATE'] = "nowrap";
     //$tmp_iplookup = 'base_qry_main.php?sig%5B0%5D=%3D' . '&amp;num_result_rows=-1' . '&amp;time%5B0%5D%5B0%5D=+&amp;time%5B0%5D%5B1%5D=+' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1&amp;ip_addr_cnt=2';
@@ -606,8 +620,11 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     //$htmlPdfReport->set("<tr $cc>\n");
     foreach ($_SESSION['views'][$_SESSION['current_cview']]['cols'] as $colname) {
         if ($cell_data[$colname] == "") $cell_data[$colname] = "<font style='color:gray'><i>Empty</i></font>";
-        qroPrintEntry($cell_data[$colname], $cell_align[$colname],"",$cell_more[$colname]);
-        $w = ($current_cols_widths[$colname]!="") ? "style='width:".$current_cols_widths[$colname]."'" : "";
+        if ($cell_tooltip[$colname]!="") 
+        	qroPrintEntryTooltip($cell_data[$colname], $cell_align[$colname],"",$cell_more[$colname],$cell_tooltip[$colname]);
+        else
+        	qroPrintEntry($cell_data[$colname], $cell_align[$colname],"",$cell_more[$colname]);        	
+        //$w = ($current_cols_widths[$colname]!="") ? "style='width:".$current_cols_widths[$colname]."'" : "";
         //$htmlPdfReport->set("<td class='siem' $w align='".$cell_align[$colname]."'>".($cell_pdfdata[$colname]!="" ? $cell_pdfdata[$colname] : $cell_data[$colname])."</td>\n");
     }
     //$htmlPdfReport->set("</tr>\n");
