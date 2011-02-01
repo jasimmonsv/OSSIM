@@ -84,6 +84,7 @@ REPLACE INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granular
 (76, 'MENU', 'MenuIncidents', 'IncidentsOpen', 'Incidents -> Tickets -> Open Tickets', 0, 0, 1, '02.04'),
 (77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', 0, 0, 1, '02.05');
 
+ALTER TABLE host_properties ADD `anom` TINYINT( 1 ) NOT NULL DEFAULT  '0';
 ALTER TABLE host_property_reference ADD  `description` VARCHAR( 128 ) NOT NULL;
 REPLACE INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
 (1, 'software', 3, 'Software'),
@@ -96,7 +97,7 @@ REPLACE INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
 (8, 'workgroup', 6, 'Workgroup'),
 (9, 'role', 4, 'Role');
 
-CREATE TABLE host_properties_changes (
+CREATE TABLE IF NOT EXISTS host_properties_changes (
 	   id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
 	   type        INT, 
 	   ip           VARCHAR(15), 
