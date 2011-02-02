@@ -294,7 +294,8 @@ class Snort(Event):
         "event_type",
         "plugin_id",
         "type",
-        "occurrences"
+        "occurrences",
+        "tzone",
     ]
 
 # vim:ts=4 sts=4 tw=79 expandtab:
