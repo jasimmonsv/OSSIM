@@ -295,7 +295,8 @@ INSERT INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
 DROP TABLE IF EXISTS host_properties;
 CREATE TABLE IF NOT EXISTS host_properties (
    id INT NOT NULL AUTO_INCREMENT, 
-   ip VARCHAR(15),
+   ip VARCHAR(15) NOT NULL,
+   sensor VARCHAR(64) NOT NULL,
    date DATETIME,
    property_ref INT,
    source_id INT,
@@ -2504,14 +2505,12 @@ CREATE TABLE IF NOT EXISTS `acl_templates` (
   PRIMARY KEY  (`id`)
 );
 
-
 DROP TABLE IF EXISTS `acl_templates_perms`;
 CREATE TABLE IF NOT EXISTS `acl_templates_perms` (
   `ac_templates_id` int(11) NOT NULL,
   `ac_perm_id` int(11) NOT NULL,
   PRIMARY KEY  (`ac_templates_id`,`ac_perm_id`)
-)
-
+);
 
 DROP TABLE IF EXISTS `custom_report_profiles`;
 CREATE TABLE IF NOT EXISTS `custom_report_profiles` (
