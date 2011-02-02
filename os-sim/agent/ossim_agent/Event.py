@@ -113,11 +113,11 @@ class Event:
                 # Do not allow dates in the future.
                 if date > int(time()):
                     logger.warning("Detected date in the future (%s), please check your device date" % (self.event[key]))
-
+                
                 # fdate as date is coming.
-                # fdate as date is coming.
-                fdate_utc = datetime.utcfromtimestamp(date).isoformat(" ")
-                self.event["fdate"] = fdate_utc#self.event[key]
+                #fdate_utc = datetime.utcfromtimestamp(date).isoformat(" ")
+                # Later in Detector._plugin_defualt, we normalized the datetime
+                self.event["fdate"] = self.event[key]
                 self.event["date"] = date
 
         elif key != 'event_type':
