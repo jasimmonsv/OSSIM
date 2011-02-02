@@ -93,9 +93,12 @@ function getPropertyImage($property)
 			$icon = "folder.png";
     }
 	
-	if (preg_match("/^OS\=/",$property)) {
+	if (preg_match("/^OS\=/",$property))
+	{
 		$os_icon = Host_os::get_os_pixmap_nodb($property,"../",true);
-		if ($os_icon!="") $icon = $os_icon;
+		
+		if ($os_icon!="") 
+			$icon = $os_icon;
 	}
 	
 	return $icon;
@@ -156,9 +159,14 @@ switch ($tree)
 																				"source_ref"    => $v['source_id'],
 																				"source"        => $v['source'],
 																				"value"         => $v['value'],
-																				"extra"         => $v['extra']);
+																				"extra"         => $v['extra'],
+																				"anom"          => $v['anom']);
 			}
 		}
+		
+		
+		$source_m = "MANUAL";
+			
 		
 		$json_properties  = "[{";
 		$icon             = $image_url.'any.png';
@@ -171,7 +179,7 @@ switch ($tree)
 		foreach ($grouped_properties as $i => $property )
 		{
 			$cont_1++;
-			$p = explode("###", $i);
+			$p      = explode("###", $i);
 			$num_p  = count($property);
 			$cont_2 = 0;
 			$is_folder = ( $num_p > 0 ) ? "true" : "false";
@@ -181,11 +189,13 @@ switch ($tree)
 			foreach ($property as $j => $v )
 			{
 				$cont_2++;
-
-				$json_properties .=  "{ title: '<span class=\'size12n\'>".$v['value']."</span>', key:'prop".$p[1]."_$cont_2###".$v['id']."', isFolder:true, icon:'".$image_url.getPropertyImage("OS=".$v["value"])."', children:[";
-				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Date").": </span><span class=\'ml3 size12b\'>".$v['date']."</span>', hideCheckbox: true, key:'date_".$v['id']."', isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
-				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Source").": </span><span class=\'ml3 size12b\'> ".$v['source']."</span>', hideCheckbox: true, key:'source_".$v['id']."', isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
-				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Version").": </span><span class=\'ml3 size12b\'>".$v['extra']."</span>', hideCheckbox: true, key:'extra_".$v['id']."', isFolder:false,icon:'".$image_url.getPropertyImage('property')."'}";
+				$class       = ( $v['anom'] == 1 ) ? "size12ig" : "size12n";
+				$to_delete   = ( $v['source'] == $source_m ) ? "false" : "true";
+				
+				$json_properties .=  "{ title: '<span class=\'$class\'>".$v['value']."</span>', value:'".$v['value']."', anom:'".$v['anom']."', hideCheckbox: $to_delete, key:'item_prop_".$p[1]."_$cont_2###".$v['id']."###".$p[1]."', isFolder:true, icon:'".$image_url.getPropertyImage("OS=".$v["value"])."', children:[";
+				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Date").": </span><span class=\'ml3 size12b\'>".$v['date']."</span>', date:'".$v['date']."', hideCheckbox: true, key:'date_".$v['id']."', isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
+				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Source").": </span><span class=\'ml3 size12b\'> ".$v['source']."</span>', source:'".$v['source']."',  source_id:'".$v['source_ref']."', hideCheckbox: true, key:'source_".$v['id']."', isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
+				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Version").": </span><span class=\'ml3 size12b\'>".$v['extra']."</span>', extra:'".$v['extra']."', hideCheckbox: true, key:'extra_".$v['id']."', isFolder:false,icon:'".$image_url.getPropertyImage('property')."'}";
 				$json_properties .= ($num_p == $cont_2) ? "]}" : "]},";
 			}
 			
@@ -211,13 +221,14 @@ switch ($tree)
 			
 			$service_name = "<span class=\'size12n\'>".$v['service']."</span><span class=\'size10n ml3\'> (". $v['port']."/".getprotobynumber($v['protocol']).")</span>";
 			
-			$service_key      = "prop4_$cont_3###".$v['host']."###".$v['port']."###".$v['protocol']."###".$v['service'];
+			$service_key      = "item_prop_4_$cont_3###".$v['host']."###".$v['port']."###".$v['protocol']."###".$v['service']."###4";
 			$json_properties .= "{ title: '<span>".$service_name."</span>', key:'$service_key', isFolder:true, icon:'".$image_url.getPropertyImage("")."', children:[";
 			$json_properties .= "{ title: '<span class=\'size12n\'>"._("Version").": </span><span class=\'ml3 size12b\'>".$v['version']."</span>', key:'serv_version_".$cont_3."', hideCheckbox: true, isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
 			$json_properties .= "{ title: '<span class=\'size12n\'>"._("Date").": </span><span class=\'ml3 size12b\'> ".$v['date']."</span>', key:'serv_date_".$cont_3."', hideCheckbox: true, isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
 			$img_nagios 	  = ( $v['nagios'] == true ) ? "nagios_ok" : "nagios_ko";
+			$nagios_key       = "nagios_$cont_3###".$v['port']."###".$img_nagios;
 			$nagios           = "<img src=\'../pixmaps/theme/".getPropertyImage($img_nagios)."\'/>";
-			$json_properties .= "{ title: '<span class=\'size12n\'>"._("Nagios").": </span><span class=\'ml3 size12b\'>$nagios</span>', key:'serv_nagios_".$cont_3."', hideCheckbox: true, isFolder:false, icon:'".$image_url.getPropertyImage('property')."'}";
+			$json_properties .= "{ title: '<span class=\'size12n\'>"._("Nagios").": </span><span class=\'ml3 size12b\'>$nagios</span>', key:'$nagios_key', hideCheckbox: true, isFolder:false, icon:'".$image_url.getPropertyImage('property')."'}";
 			$json_properties .= ($num_s == $cont_3) ? "]}" : "]},";
 		}
 	

@@ -766,7 +766,7 @@ function loadingIframe(){
   }
   
 .tag_cloud { padding: 3px; text-decoration: none; }
-.tag_cloud:link  { color: #81d601; }
+.tag_cloud:link  { color: #8DC41B; }
 .tag_cloud:visited { color: #019c05; }
 .tag_cloud:hover { color: #ffffff; background: #69da03; }
 .tag_cloud:active { color: #ffffff; background: #ACFC65; }

@@ -82,10 +82,10 @@ if (Session::allowedSensors() != "") {
 		//$wheresensor .= ($wheresensor != "") ? " OR ac_sensor_sid.sid='$s'" : " WHERE ac_sensor_sid.sid='$s'";
 	}
 	// SENSOR Filter mysql layer (not implemented)
-	$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt, (select count(distinct(ip_src)) from ac_sensor_ipsrc where ac_sensor_sid.sid=ac_sensor_ipsrc.sid and ac_sensor_sid.day=ac_sensor_ipsrc.day) as saddr_cnt, (select count(distinct(ip_dst)) from ac_sensor_ipdst where ac_sensor_sid.sid=ac_sensor_ipdst.sid and ac_sensor_sid.day=ac_sensor_ipdst.day) as daddr_cnt, min(ac_sensor_sid.first_timestamp) as first_timestamp, max(ac_sensor_sid.last_timestamp) as last_timestamp FROM ac_sensor_sid FORCE INDEX(primary) GROUP BY ac_sensor_sid.sid ORDER BY event_cnt DESC LIMIT 20";
+	$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt, (select count(distinct(ip_src)) from ac_sensor_ipsrc where ac_sensor_sid.sid=ac_sensor_ipsrc.sid and ac_sensor_sid.day=ac_sensor_ipsrc.day) as saddr_cnt, (select count(distinct(ip_dst)) from ac_sensor_ipdst where ac_sensor_sid.sid=ac_sensor_ipdst.sid and ac_sensor_sid.day=ac_sensor_ipdst.day) as daddr_cnt, min(ac_sensor_sid.first_timestamp) as first_timestamp, max(ac_sensor_sid.last_timestamp) as last_timestamp FROM ac_sensor_sid FORCE INDEX(primary) GROUP BY ac_sensor_sid.sid ORDER BY event_cnt DESC LIMIT 10";
 }
 else
-	$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt, (select count(distinct(ip_src)) from ac_sensor_ipsrc where ac_sensor_sid.sid=ac_sensor_ipsrc.sid and ac_sensor_sid.day=ac_sensor_ipsrc.day) as saddr_cnt, (select count(distinct(ip_dst)) from ac_sensor_ipdst where ac_sensor_sid.sid=ac_sensor_ipdst.sid and ac_sensor_sid.day=ac_sensor_ipdst.day) as daddr_cnt, min(ac_sensor_sid.first_timestamp) as first_timestamp, max(ac_sensor_sid.last_timestamp) as last_timestamp FROM ac_sensor_sid FORCE INDEX(primary) GROUP BY ac_sensor_sid.sid ORDER BY event_cnt DESC LIMIT 20";
+	$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt, (select count(distinct(ip_src)) from ac_sensor_ipsrc where ac_sensor_sid.sid=ac_sensor_ipsrc.sid and ac_sensor_sid.day=ac_sensor_ipsrc.day) as saddr_cnt, (select count(distinct(ip_dst)) from ac_sensor_ipdst where ac_sensor_sid.sid=ac_sensor_ipdst.sid and ac_sensor_sid.day=ac_sensor_ipdst.day) as daddr_cnt, min(ac_sensor_sid.first_timestamp) as first_timestamp, max(ac_sensor_sid.last_timestamp) as last_timestamp FROM ac_sensor_sid FORCE INDEX(primary) GROUP BY ac_sensor_sid.sid ORDER BY event_cnt DESC LIMIT 10";
 
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();
@@ -126,7 +126,7 @@ $chart['chart_data'] = $results_array;
 $chart['license'] = "J1XF-CMEW9L.HSK5T4Q79KLYCK07EK";
 $chart['axis_category'] = array(
     'size' => 13,
-    'color' => "4e627c",
+    'color' => "74808F",
     'alpha' => 75,
     'orientation' => "circular"
 );
@@ -162,17 +162,17 @@ $chart['chart_pref'] = array(
 $chart['chart_rect'] = array(
     'x' => 80,
     'y' => 40,
-    'width' => 350,
-    'height' => 225,
-    'positive_color' => "008888",
-    'positive_alpha' => 25
+    'width' => 400,
+    'height' => 230,
+    'positive_color' => "BBC6D0",
+    'positive_alpha' => 40
 );
-$chart['chart_transition'] = array(
+/*$chart['chart_transition'] = array(
     'type' => "zoom",
     'delay' => .5,
     'duration' => .5,
     'order' => "series"
-);
+);*/
 $chart['chart_type'] = "polar";
 $chart['draw'] = array(
     array(
@@ -183,10 +183,10 @@ $chart['draw'] = array(
         'color' => "000000",
         'width' => 500,
         'alpha' => 8,
-        'size' => 95,
+        'size' => 70,
         'x' => 0,
-        'y' => - 30,
-        'text' => "plugins"
+        'y' => - 20,
+        'text' => _("data sources")
     ) ,
     array(
         'type' => "text",
@@ -198,7 +198,7 @@ $chart['draw'] = array(
         'size' => 80,
         'x' => 450,
         'y' => 75,
-        'text' => "sensors"
+        'text' => _("sensors")
     ) ,
     array(
         'type' => "text",
@@ -210,14 +210,14 @@ $chart['draw'] = array(
         'size' => 50,
         'x' => 600,
         'y' => 150,
-        'text' => "amount"
+        'text' => _("amount")
     )
 );
 $chart['legend_label'] = array(
     'layout' => "vertical",
     'bullet' => "circle",
     'size' => 12,
-    'color' => "4e627c",
+    'color' => "74808F",
     'alpha' => 75
 );
 $chart['legend_rect'] = array(
@@ -230,7 +230,7 @@ $chart['legend_rect'] = array(
 );
 $chart['series_color'] = array(
     "ff4400",
-    "4e627c"
+    "74808F"
 );
 $chart['link_data'] = array(
     'url' => "handle.php?target_url=events_sensor&target_var=category",

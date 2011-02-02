@@ -212,13 +212,13 @@ if (GET('interface') == 'ajax') {
     exit;
 }
 ?>
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <script src="../js/prototype.js" type="text/javascript"></script>
     <script src="./panel.js" type="text/javascript"></script>
     <script src="../js/rico/rico.js" type="text/javascript" ></script>
-    <style>
+	<style>
     body {
       background: white;
       color: black;
@@ -234,10 +234,13 @@ if (GET('interface') == 'ajax') {
     input, textarea {
         background: #e7e9ed;
         color: #7b7b7b;
-        font-size: 0.9em;
+        font-size: 11px;
         padding: 1px 2px 1px 1px;
         border: 1px solid #d5d7db;
     }
+	
+	textarea {width: 95%}
+	
     input:hover, textarea:hover{
         border: 1px solid #7b7b7b;
     }
@@ -294,6 +297,103 @@ if (GET('interface') == 'ajax') {
 .tag_cloud:visited { color: #019c05; }
 .tag_cloud:hover { color: #ffffff; background: #69da03; }
 .tag_cloud:active { color: #ffffff; background: #ACFC65; }
+.gristab {
+	font-family:arial; color:#000000; font-weight:normal; font-size:12px;
+	text-decoration:none;
+}
+.gristabon {
+	font-family:arial;  color:#000000; font-weight:bold; font-size:12px;
+	text-decoration:none;
+}
+a.gristab:hover, a.gristabon:hover {
+	text-decoration:none;
+}
+small.white,small.white a { text-decoration:none; color:white }
+.btn { background: #cccccc url(../pixmaps/theme/bg_button.png) 50% 50% repeat-x; font-size: 10px; color: #222222; text-align: center; }
+input.btn:hover { border:1px solid #02A705; background: #4AC600 url(../pixmaps/theme/bg_button_on.png) 50% 50% repeat-x; color: #FFFFFF; }
+.nobborder { border-bottom:0px none; }
+.noborder { border:0px none; }
+
+.hb{
+	padding-top:0px;
+	margin-bottom:0px;
+	font-size:12px;
+	font-family:arial,verdana,geneva,sans-serif;
+	color:#606060;
+	font-weight:bold;
+}
+
+.hb a,.hb a:visited{
+	font-family:arial,verdana,geneva,sans-serif;
+	text-decoration:underline;
+	color:#3f3f3f;
+}
+
+.hb small {
+	color:#3f3f3f; vertical-align:bottom;
+}
+
+.ymymd {
+	background: #ffffff;
+	border: 0px solid #a4a4a4;
+}
+
+.t1 { 
+	background:#EEEEEE; 
+	border-bottom:1px solid #CCCCCC; 
+	border-top:1px solid #CCCCCC; 
+	padding:2px 0px 2px 0px; 
+}
+
+
+div.hd:hover { cursor:-moz-grab; cursor:url(../pixmaps/theme/grab.cur),auto); }
+
+#dashboardsIframe{
+	border:0;
+	width:100%;
+	margin:0;
+	padding:0;
+}
+
+#dashboardsIframeLoading{	
+	text-align: center;
+	background-image: url(../pixmaps/theme/overlay.png); 
+	position: absolute;
+	margin: auto;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	width:  100%;
+	height: 100%;
+	overflow-x:hidden;
+}
+
+* html #dashboardsIframeLoading {
+  background-color: #000;
+  background-color: transparent;
+  background-image: url(../pixmaps/theme/blank.gif);
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="../pixmaps/theme/overlay.png", sizingMethod="scale");
+}
+
+#dashboardsIframeLoading_window {
+  top: 20px;
+  left: 33%;
+  position: absolute;
+  background: #fff;
+  border: 2px solid #787878;
+  width: 300px;
+  height: 80px;
+  z-index: 150;
+  overflow:hidden;
+  text-align: center;
+  padding-top: 50px;
+	opacity: .75;
+	-moz-opacity: .75;
+	filter:alpha(opacity=75);
+	border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+}
     </style>
 </head>
 <body onload="ajax_show(false, 'output')">

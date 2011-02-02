@@ -983,21 +983,15 @@ class Host {
 			return _("You don't have permissions to delete this property");
 	}
 
-	function insert_property($conn, $ip, $sensor, $property_ref, $value, $extra, $source_id)
+	function insert_property($conn, $ip, $sensor, $property_ref, $value, $extra, $source_id=1, $anom=0)
 	{
 		if ( Session::hostAllowed($conn, $ip) )
 		{
-			$sql = "INSERT INTO host_properties (id, ip, sensor, date, property_ref, source_id, value, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			$sql = "INSERT INTO host_properties (id, ip, sensor, date, property_ref, source_id, value, extra, anom) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			$id   = null;
 			$date = date("Y-m-d H:i:s");
-			$source_ref = Host::get_sources_references($conn);
-			
-			if ( !is_array($source_ref) || empty($source_ref["MANUAL"][0]) )
-				return _("Source Id not found");
-			
-			$source_id = $source_ref["MANUAL"][0];
-									
+															
 			$params = array(
 				$id,
 				$ip,
@@ -1006,7 +1000,8 @@ class Host {
 				$property_ref,
 				$source_id,
 				$value,
-				$extra
+				$extra,
+				$anom
 			);
 									
 			if (!$rs = & $conn->Execute($sql,$params))
@@ -1016,6 +1011,52 @@ class Host {
 		}
 		else
 			return _("You don't have permissions to insert this property");
+	}
+	
+	function update_property($conn, $ip, $id, $value, $extra, $date, $source_id=1, $anom=0)
+	{
+	
+		if ( Session::hostAllowed($conn, $ip) )
+		{
+			$sql = "UPDATE host_properties SET value=?,extra=?,date=?,source_id=?, anom=? WHERE ip=? AND id=?";
+			
+			$params = array(
+				$value,
+				$extra,
+				$date,
+				$source_id,
+				$anom,
+				$ip,
+				$id			
+			);
+									
+			if (!$rs = & $conn->Execute($sql,$params))
+				return $conn->ErrorMsg();
+			else 
+				return true;
+		}
+		else
+			return _("You don't have permissions to update this property");
+	}
+	
+	function accept_change($conn, $ip, $id)
+	{
+		if ( Session::hostAllowed($conn, $ip) )
+		{
+			$sql = "UPDATE host_properties SET anom=0 WHERE ip=? AND id=?";
+			
+			$params = array(
+				$ip,
+				$id			
+			);
+												
+			if (!$rs = & $conn->Execute($sql,$params))
+				return $conn->ErrorMsg();
+            else 
+				return true;
+		}
+		else
+			return _("You don't have permissions to update this property");
 	}
 		
 }

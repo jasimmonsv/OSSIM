@@ -39,14 +39,14 @@ require_once 'classes/Frameworkd_socket.inc';
 
 $action = POST('action');
 $ip     = POST('ip');
-$items  = POST('data');
+
 
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
 
-if ( ossim_error() || empty($items) || empty($action) )
+if ( ossim_error() || empty($action) )
 	exit();
 
-$items = explode(',', $items);
+
 
 $db    = new ossim_db();
 $conn  = $db->connect();
@@ -54,6 +54,14 @@ $conn  = $db->connect();
 switch ($action){
 
 	case "delete":
+		
+		$items  = POST('data');
+		
+		if ( !empty($items) )
+			$items = explode(',', $items);
+		else
+			exit();
+				
 		foreach ($items as $k => $v)
 		{
 			$item = explode("###", $v);
@@ -93,7 +101,14 @@ switch ($action){
 	break;
 	
 	case "nagios":
-	
+		
+		$items  = POST('data');
+		
+		if ( !empty($items) )
+			$items = explode(',', $items);
+		else
+			exit();
+		
 		foreach ($items as $k => $item)
 		{
 			$item   = explode("###", $item);
@@ -122,6 +137,95 @@ switch ($action){
 		} 
 		else 
 			echo _("Couldn't connect to frameworkd");
+		
+	break;
+	
+	case "add":
+	
+		$sensor       = null;
+		$property_ref = POST('inv_prop_ref');
+		$value        = POST('inv_prop_value'); 
+		$extra        = POST('inv_prop_version'); 
+		$extra        = ( empty($extra) ) ? "None" : $extra;
+				
+		ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
+		ossim_valid($property_ref, OSS_DIGIT, 'illegal:' . _("Property reference"));
+		ossim_valid($value, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, 'illegal:' . _("Value"));
+					
+		if ( ossim_error() ) 
+			echo ossim_get_error();
+		else
+		{
+			$ret = Host::insert_property($conn, $ip, $sensor, $property_ref, $value, $extra);
+						
+			if ( $ret !== true ) 
+				echo $ret;
+		}
+	
+	
+	break;
+	
+	
+	case "update":
+		
+		
+		$value        = POST('inv_prop_value'); 
+		$extra        = POST('inv_prop_version'); 
+		$extra        = ( empty($extra) ) ? "None" : $extra;
+		$id_prop      = POST('inv_prop_id');
+		$source_id    = POST('inv_prop_source_id'); 	
+		$anom         = POST('inv_prop_anom');	
+		$date 	      = date("Y-m-d H:i:s");	
+		
+		ossim_valid($id_prop,   OSS_DIGIT, 'illegal:' . _("Property id"));
+		ossim_valid($source_id, OSS_DIGIT, 'illegal:' . _("Source id"));
+		ossim_valid($anom,      OSS_DIGIT, 'illegal:' . _("Anomaly"));
+			
+		if ( ossim_error() ) 
+			echo ossim_get_error();
+		else
+		{
+			$ret = Host::update_property($conn, $ip, $id_prop, $value, $extra, $date, $source_id);
+			
+			if ( $ret !== true ) 
+				echo $ret;
+		}
+		
+	break;
+	
+	case "accept_change":
+		
+		$id_prop = POST('id_change');
+						
+		ossim_valid($id_prop,   OSS_DIGIT, 'illegal:' . _("Property id"));
+					
+		if ( ossim_error() ) 
+			echo ossim_get_error();
+		else
+		{
+			$ret = Host::accept_change($conn, $ip, $id_prop);
+			
+			if ( $ret !== true ) 
+				echo $ret;
+		}
+		
+	break;
+	
+	case "discard_change":
+		
+		$id_prop = POST('id_change');
+						
+		ossim_valid($id_prop,   OSS_DIGIT, 'illegal:' . _("Property id"));
+					
+		if ( ossim_error() ) 
+			echo ossim_get_error();
+		else
+		{
+			$ret = Host::delete_property($conn, $ip, $id_prop);
+			
+			if ( $ret !== true ) 
+				echo $ret;
+		}
 		
 	break;
 }

@@ -34,13 +34,6 @@
 * Function list:
 * Classes list:
 */
-/*
-Based on script by:
-Sairam Suresh sai1138@yahoo.com / www.entropyfarm.org
-
-Thermbar pic courtesy http://www.rosiehardman.com/
-*/
-Header("Content-Type: image/jpeg");
 require_once 'classes/Session.inc';
 require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
@@ -49,6 +42,36 @@ if (!Session::menu_perms("MenuControlPanel", "ControlPanelMetrics")) {
   readfile("../../pixmaps/therm/therm_gray.jpg");
   exit();
 }
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Theat Level</title>
+		<script language="javascript" type="text/javascript" src="../../js/jquery-1.3.2.min.js"></script> 
+		<script language="javascript" type="text/javascript" src="../../js/jqplot/jquery.jqplot.js"></script> 
+		<script language="javascript" type="text/javascript" src="../../js/jqplot/plugins/jqplot.meterGaugeRenderer.js"></script> 
+</head>
+<style type="text/css"> 
+	body { font-family:arial; font-size: 13px; }
+	.plot {
+	    margin-bottom: 10px;
+	    margin-left: auto;
+	    margin-right: auto;
+	}
+	 
+	#chart3 .jqplot-meterGauge-tick, #chart0 .jqplot-meterGauge-tic {
+	    font-family:arial; font-size: 11px; color:gray;
+	}
+	.red { background-color:#fe0000; color:white; padding:4px 20px; }
+	.orange { background-color:#ee782e; color:white;  padding:4px 20px; }
+	.yellow { background-color:#fcc200; color:white; padding:4px 20px; }
+	.rough { background-color:#b3ae08; color:white;  padding:4px 20px; }
+	.green { background-color:#338e05; color:white;  padding:4px 20px; }
+	.grayed { background-color:#BBC6D0; color:#EFEFEF;  padding:4px 20px; }
+	
+</style> 
+<?php
 $db = new ossim_db();
 $conn = $db->connect();
 $user = Session::get_session_user();
@@ -67,148 +90,40 @@ if (!$rs = & $conn->Execute($sql, $params)) {
 //thermomether will be 0% (low temperature)
 $level = ($rs->fields["c_sec_level"] + $rs->fields["a_sec_level"]) / 2;
 $level = 100 - $level;
-//$level = 30;
-//Round the level
 $level = intval($level);
-//Select a different background color for the thermometer depending on the sec
-//level
-if ($level >= 80) {
-    $img_ther = "../../pixmaps/therm/therm.jpg";
-    $img_therbar = "../../pixmaps/therm/thermbar.jpg";
-} elseif ($level >= 60) {
-    $img_ther = "../../pixmaps/therm/therm_orange.jpg";
-    $img_therbar = "../../pixmaps/therm/thermbar_orange.jpg";
-} elseif ($level >= 40) {
-    $img_ther = "../../pixmaps/therm/therm_yellow.jpg";
-    $img_therbar = "../../pixmaps/therm/thermbar_yellow.jpg";
-} elseif ($level >= 20) {
-    $img_ther = "../../pixmaps/therm/therm_yellgre.jpg";
-    $img_therbar = "../../pixmaps/therm/thermbar_yellgre.jpg";
-} else {
-    $img_ther = "../../pixmaps/therm/therm_green.jpg";
-    $img_therbar = "../../pixmaps/therm/thermbar_green.jpg";
-}
-$t_unit = 'none';
-$t_max = 100;
-$t_current = $level;
-$finalimagewidth = max(strlen($t_max) , strlen($t_current)) * 25;
-$finalimage = imagecreateTrueColor(60 + $finalimagewidth, 405);
-$white = imagecolorallocate($finalimage, 255, 255, 255);
-$black = imagecolorallocate($finalimage, 0, 0, 0);
-$red = imagecolorallocate($finalimage, 255, 0, 0);
-$orange = imagecolorallocate($finalimage, 238, 120, 46);
-$yellow = imagecolorallocate($finalimage, 252, 194, 0);
-$yellgr = imagecolorallocate($finalimage, 179, 174, 8);
-$green = imagecolorallocate($finalimage, 51, 142, 5);
-imagefill($finalimage, 0, 0, $white);
-ImageAlphaBlending($finalimage, true);
-$thermImage = imagecreatefromjpeg($img_ther);
-$tix = ImageSX($thermImage);
-$tiy = ImageSY($thermImage);
-//ImageCopy($finalimage,$thermImage,0,0,0,0,$tix,$tiy);
-ImageCopy($finalimage, $thermImage, 17, 0, 0, 0, $tix, $tiy);
-$thermbarImage = ImageCreateFromjpeg($img_therbar);
-$barW = ImageSX($thermbarImage);
-$barH = ImageSY($thermbarImage);
-$ybars = "";
-$xpos = 22;
-//$xpos = 5;
-$ypos = 327;
-$ydelta = 15;
-$fsize = 8;
-// Set number of $ybars to use, calculated as a factor of current / max.
-if ($t_current > $t_max) {
-    $ybars = 22;
-} elseif ($t_current > 0) {
-    $ybars = $t_max ? round(22 * ($t_current / $t_max)) : 0;
-}
-// Draw each ybar (filled red bar) in successive shifts of $ydelta.
-while ($ybars--) {
-    ImageCopy($finalimage, $thermbarImage, $xpos, $ypos, 0, 0, $barW, $barH);
-    $ypos = $ypos - $ydelta;
-}
-if ($t_current == $t_max) {
-    ImageCopy($finalimage, $thermbarImage, $xpos, $ypos, 0, 0, $barW, $barH);
-    $ypos-= $ydelta;
-}
-//Write level indicators
-imagettftext($finalimage, $fsize, 0, 70, 105, $black, $font, _("Very High"));
-imagettftext($finalimage, $fsize, 0, 70, 165, $black, $font, _("High"));
-imagettftext($finalimage, $fsize, 0, 70, 225, $black, $font, _("Elevated"));
-imagettftext($finalimage, $fsize, 0, 70, 285, $black, $font, _("Precaution"));
-imagettftext($finalimage, $fsize, 0, 70, 350, $black, $font, _("Low"));
-//Write the percentage in the bulb
-imagettftext($finalimage, 9, 0, 35, 376, $black, $font, $level . "%");
-$value = array(
-    2,
-    19,
-    7,
-    101,
-    27,
-    101,
-    27,
-    19
-);
-imagefilledpolygon($finalimage, $value, 4, $red);
-$value = array(
-    7,
-    102,
-    12,
-    162,
-    27,
-    162,
-    27,
-    102
-);
-imagefilledpolygon($finalimage, $value, 4, $orange);
-$value = array(
-    12,
-    163,
-    17,
-    221,
-    27,
-    221,
-    27,
-    163
-);
-imagefilledpolygon($finalimage, $value, 4, $yellow);
-$value = array(
-    17,
-    222,
-    22,
-    281,
-    27,
-    281,
-    27,
-    222
-);
-imagefilledpolygon($finalimage, $value, 4, $yellgr);
-$value = array(
-    22,
-    282,
-    27,
-    348,
-    27,
-    348,
-    27,
-    282
-);
-imagefilledpolygon($finalimage, $value, 4, $green);
-imagefilledellipse($finalimage, 65, 101, 6, 6, $red);
-imagefilledellipse($finalimage, 65, 161, 6, 6, $orange);
-imagefilledellipse($finalimage, 65, 221, 6, 6, $yellow);
-imagefilledellipse($finalimage, 65, 281, 6, 6, $yellgr);
-imagefilledellipse($finalimage, 65, 346, 6, 6, $green);
-if ($t_current > $t_max) {
-    $burstImg = ImageCreateFromjpeg('burst.jpg');
-    $burstW = ImageSX($burstImg);
-    $burstH = ImageSY($burstImg);
-    ImageCopy($finalimage, $burstImg, 0, 0, 0, 0, $burstW, $burstH);
-}
-//Create the final image
-Imagejpeg($finalimage, NULL, 99);
-//Destroy de rest of images
-Imagedestroy($finalimage);
-Imagedestroy($thermImage);
-Imagedestroy($thermbarImage);
+$db->close($conn);
 ?> 
+<script type="text/javascript"> 
+	$(document).ready(function(){
+	   $.jqplot.config.enablePlugins = true;
+	   s1 = [<?=$level?>];
+	   plot3 = $.jqplot('chart3',[s1],{
+	       seriesDefaults: {
+	           renderer: $.jqplot.MeterGaugeRenderer,
+	           rendererOptions: {
+	               min: 0,
+	               max: 100,
+	               intervals:[20, 40, 60, 80, 100],
+	               intervalColors:['#338e05', '#b3ae08', '#fcc200', '#ee782e', '#fe0000']
+	           }
+	       }
+	   });   
+   });
+</script>
+<body>
+<table border="0" cellpadding="0" cellpadding="0" width="100%">
+<tr>
+	<td valign="top" align="center" style="padding-top:20px">
+		<table border="0" cellpadding="4" cellpadding="1">
+		<tr><td class="<?= ($level>80) ? "red" : "grayed" ?>"> <?=_("Very High")?> </td></tr>
+		<tr><td class="<?= ($level>60) ? "orange" : "grayed" ?>"> <?=_("High")?> </td></tr>
+		<tr><td class="<?= ($level>40) ? "yellow" : "grayed" ?>"> <?=_("Elevated")?> </td></tr>
+		<tr><td class="<?= ($level>20) ? "rough" : "grayed" ?>"> <?=_("Precaution")?> </td></tr>
+		<tr><td class="green"> <?=_("Low")?> </td></tr>
+		</table>
+	</td>
+	<td align="right"><div id="chart3" class="plot" style="width:300px;height:170px;"></div></td>
+</tr>
+</table>
+</body>
+</html>

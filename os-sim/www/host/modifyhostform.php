@@ -258,31 +258,6 @@ if ( GET('newport') != "" || GET('port')!="" )
 
 }
 
-if ( GET('inv_action') == "add_prop"  )
-{
-	$ip           = GET('ip');
-	$sensor       = null;
-	$property_ref = GET('inv_prop_ref');
-	$value        = GET('inv_prop_value'); 
-	$extra        = GET('inv_prop_version'); 
-	$extra        = ( empty($extra) ) ? "None" : $extra;
-	$source_id    = null;
-	
-	
-	ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
-	ossim_valid($property_ref, OSS_DIGIT, 'illegal:' . _("Property reference"));
-	ossim_valid($value, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, 'illegal:' . _("Value"));
-			
-	if ( ossim_error() ) 
-		$error_message = ossim_get_error();
-	else
-	{
-		$ret = Host::insert_property($conn, $ip, $sensor, $property_ref, $value, $extra, $source_id);
-		$error_message = ( $ret !== true ) ? $ret : null;
-	}
-	
-}
-
 if ( $error_message != null )
 {	
 	$style 		   = "style='display: block;'";
@@ -317,7 +292,7 @@ if ( $error_message != null )
 	var messages = new Array();
 		messages[0]  = '<div class="reload"><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
 		
-		function check_host () {
+		function check_host(){
 			
 			var ip = $("#ip").val();
 			
@@ -344,7 +319,8 @@ if ( $error_message != null )
 				alert('<?php echo _("Error: Invalid port.  Insert a value between 0 and 65535")?>');
 				return false;
 			}
-			if($('#service').val()=="") 
+			
+			if( $('#service').val() == "" ) 
 				$('#service').val("Unknown");
 			
 			var newService = $('#port').val()+' - '+$('#protocol').val();
@@ -373,11 +349,7 @@ if ( $error_message != null )
 			
 		}
 			
-		function addProperty()
-		{
-			$('#inv_action').val("add_prop");
-			$('#inventoryform').submit();
-		}
+				
 		
 		var layer_1     = null;
 		var layer_2     = null;
@@ -401,20 +373,75 @@ if ( $error_message != null )
 			$(layer_1).dynatree({
 				initAjax: {url: "draw_properties_tree.php", data: {ip: ip, tree: container} },
 				minExpandLevel: 2,
+				clickFolderMode: 1,
 				checkbox: true,
 				cookieId: "dynatree_1",
-				
-				onActivate: function(node, event) 
+				onClick: function(node, event) 
 				{
+					
+					if ( node.getEventTargetType(event) == 'checkbox' )
+						return;
+						
 					if( node.data.key.match("property_") != null )
 					{
-						var key = node.data.key.split("_");
+						var key      = node.data.key.split("_");
 						var prop_ref = $('#inv_prop_ref').val(key[1]);
 						active_form_properties(key[1]);
-						node.expand(true);
-					}	
+						reset_inputs("add_prop");
+					}
+					else if( node.data.key.match("nagios_") != null )
+					{
+						var key = node.data.key.split("###");					
+						
+						if ( key[2] == "nagios_ok" )
+							key = key[0]+"###"+key[1]+"###nagios_ko";
+						else
+							key = key[0]+"###"+key[1]+"###nagios_ok";
+						
+						update_services(key);
+					}
+					else if	( node.data.key.match("item_prop_") != null &&  node.data.key.match("item_prop_4_" ) == null )
+					{
+						
+						var key         = node.data.key.split("###");						
+						var source_node = $(layer_1).dynatree("getTree").getNodeByKey("source_"+key[1]);
+						var source_id   = source_node.data.source_id;
+												
+						if (source_id == 1 || ( source_id != 1 && node.data.anom == 0) )
+						{
+							var prop_ref = key[2];
+													
+							$('#inv_prop_value').val(node.data.value);
+							
+							var extra_node = $(layer_1).dynatree("getTree").getNodeByKey("extra_"+key[1]);
+							var version = ( extra_node.data.extra != 'None' ) ? extra_node.data.extra : "";
+							
+							$('#inv_prop_version').val(version);
+							
+							if ( source_id != 1 && node.data.anom == 0 )
+								var source_id = 1;
+							
+							$('#inv_prop_source_id').val(source_id);
+							$('#inv_prop_anom').val(node.data.anom);
+							$('#inv_action').val("update_prop");
+							$('#inv_prop_ref').val(prop_ref);
+							$('#inv_prop_id').val(key[1]);
+							
+							active_form_properties(prop_ref);
+						}
+						else
+						{
+							if (source_id != 1 && node.data.anom == 1)
+							{
+								reset_forms('');
+								$('#id_change').val(key[1]);
+								$('#cont_changes').show();
+							}
+						}
+					}
+					
 				},
-				
+								
 				onSelect: function(select, node) {
 					
 					// Get a list of all selected nodes, and convert to a key array:
@@ -449,6 +476,7 @@ if ( $error_message != null )
 			$(layer_2).dynatree({
 				initAjax: {url: "draw_properties_tree.php", data: {ip: ip, tree: container} },
 				minExpandLevel: 2,
+				clickFolderMode: 1,
 				checkbox: true,
 				onSelect: function(select, node) {
 					
@@ -481,10 +509,12 @@ if ( $error_message != null )
 					success: function(msg){
 						
 						load_tree_1('tree_container_1', ip);
-						if ( items.match("prop4_") != null )
+						
+						if ( items.match("item_prop_4") != null )
 							load_tree_2('tree_container_2', ip);
 						
-						$("#cont_delete_selected").hide();	
+						reset_forms('');					
+						
 					}
 				});
 			}
@@ -502,11 +532,11 @@ if ( $error_message != null )
 				success: function(msg){
 					load_tree_2('tree_container_2', ip);
 					load_tree_1('tree_container_1', ip);
-					$("#cont_delete_selected").hide();	
+					reset_forms('');			
 					
 					if ( msg != '' )
 					{
-						$('#info_error').html(msg);
+						$('#info_error').html("<div style='padding-left: 10px'>"+msg+"</div>");
 						$('#info_error').fadeIn(2000);
 					}
 				}
@@ -514,6 +544,55 @@ if ( $error_message != null )
 			
 		}
 		
+		function update_property()
+		{
+			var ip = $('#ip').val();
+			var action = ($('#inv_action').val() == 'add_prop') ? "add" : "update";
+			
+			$('#info_error').html('');
+			
+			$.ajax({
+				type: "POST",
+				url: "properties_actions.php",
+				data: "action="+action+"&"+$('#inventoryform').serialize(),
+				success: function(msg){
+					load_tree_1('tree_container_1', ip);
+					reset_forms('');
+										
+					if ( msg != '' )
+					{
+						$('#info_error').html("<div style='padding-left: 10px'>"+msg+"</div>");
+						$('#info_error').fadeIn(2000);
+					}
+				}
+			});
+			
+		}
+		
+		function make_changes(action)
+		{
+			var ip = $('#ip').val();
+						
+			$('#info_error').html('');
+			
+			$.ajax({
+				type: "POST",
+				url: "properties_actions.php",
+				data: "action="+action+"&ip="+ip+"&"+$('#changeform').serialize(),
+				success: function(msg){
+					load_tree_1('tree_container_1', ip);
+					reset_forms('');
+										
+					if ( msg != '' )
+					{
+						$('#info_error').html("<div style='padding-left: 10px'>"+msg+"</div>");
+						$('#info_error').fadeIn(2000);
+					}
+				}
+			});
+		}
+		
+				
 		function active_form_properties(prop_ref)
 		{
 			if ( prop_ref != 0 )
@@ -537,10 +616,28 @@ if ( $error_message != null )
 				}
 			}
 			else
-			{
-				$('#properties_form_1').hide();
-				$('#properties_form_2').hide();
-			}
+				reset_forms('');
+		}
+		
+		
+		function reset_forms(action)
+		{
+			$("#cont_delete_selected").hide();
+			$('#inv_prop_ref').val('0');
+			$('#properties_form_1').hide();
+			$('#properties_form_2').hide();
+			$("#cont_changes").hide();
+			reset_inputs(action);
+		}
+		
+		function reset_inputs(action)
+		{
+			$('#inv_action').val(action);
+			$('#inv_prop_value').val('');
+			$('#inv_prop_version').val('');
+			$('#inv_prop_id').val('');
+			$('#inv_prop_source_id').val('');
+			$('#inv_prop_anom').val('');
 		}
 
 		
@@ -642,7 +739,10 @@ if ( $error_message != null )
 
 			$('#inv_prop_ref').bind('change', function() {
 				var prop_ref = $('#inv_prop_ref').val();
+								
 				active_form_properties(prop_ref);
+				reset_inputs('add_prop');
+						
 			});
 			
 			$('.scan').bind('click', function(event) {
@@ -651,6 +751,22 @@ if ( $error_message != null )
 				$(".scan").parent().append(img);
 				document.location.href = $(".scan").attr("href");
 			});
+			
+			$('#update_button').bind('click', function() {
+				 update_property();
+			});
+			
+			$('#accept_change').bind('click', function() {
+				make_changes('accept_change');
+				$('#cont_changes').hide();
+				
+			});
+			
+			$('#discard_change').bind('click', function() {
+				make_changes('discard_change');
+				$('#cont_changes').hide();
+			});
+			
 		});
 	
 	
@@ -698,6 +814,8 @@ if ( $error_message != null )
 		#cont_sam {display: none;}
 		
 		div.ui-dynatree-container { border: none !important;}
+		
+		#cont_changes { text-align: center; padding: 10px 0px; display:none;}
 					
 	</style>
 	
@@ -807,7 +925,8 @@ if ( empty( $ip ) ) {
 							
 							if ($sensor_list = Sensor::get_all($conn, "ORDER BY name"))
 							{
-								foreach($sensor_list as $sensor) {
+								foreach($sensor_list as $sensor)
+								{
 									$sensor_name = $sensor->get_name();
 									$sensor_ip = $sensor->get_ip();
 																	
@@ -954,7 +1073,7 @@ if ( empty( $ip ) ) {
 			<!-- INVENTORY -->
 			<table class='noborder' width="100%" cellspacing="0" cellpadding="0">
 			
-                <tr><th style="padding:5px"><?php echo _("Inventory")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?></th></tr>
+                <tr><th style="padding:5px"><?php echo _("Inventory")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan now")."</a> ]"; ?></th></tr>
 				
 				<tr>
 					<td class='noborder'>
@@ -964,6 +1083,16 @@ if ( empty( $ip ) ) {
 							
 							<tr><td class="nobborder sep15">&nbsp;</td></tr>
 												
+							<tr>
+								<td class="nobborder center" id='cont_changes'>
+									<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" id="changeform">
+										<input type='button' class='lbutton' id='accept_change'  value='<?php echo _("Accept changes")?>'/>
+										<input type='button' class='lbuttond' id='discard_change' value='<?php echo _("Discard changes")?>'/>
+										<input type="hidden" id='id_change' name='id_change'/>
+									</form>
+								</td>
+							</tr>
+							
 							<tr>
 								<td class="nobborder" id='cont_delete_selected'>
 									<input type='button' class='lbutton' id='delete_selected' value='<?php echo _("Delete Selected")?>'/>
@@ -982,7 +1111,7 @@ if ( empty( $ip ) ) {
 											$properties_types = Host::get_properties_types($conn);
 											
 											foreach ($properties_types as $k => $v)
-												echo "<option value='".$v["id"]."'>".$v["name"]."</option>";
+												echo "<option value='".$v["id"]."'>".$v["description"]."</option>";
 										?>
 									</select>
 								</td>
@@ -1001,8 +1130,11 @@ if ( empty( $ip ) ) {
 										</tr>
 										<tr>
 											<td class='noborder right cont_inv_action' colspan='2'>
-												<input type="button" value="<?php echo _("Add")?>" onclick="addProperty();" class="lbutton"/>
+												<input type="button" id='update_button' class="lbutton" value="<?php echo _("Update")?>"/>
 												<input type="hidden" id='inv_action' name='inv_action'/>
+												<input type="hidden" id='inv_prop_id' name='inv_prop_id'/>
+												<input type="hidden" id='inv_prop_source_id' name='inv_prop_source_id'/>
+												<input type="hidden" id='inv_prop_anom' name='inv_prop_anom'/>
 											</td>
 										</tr>
 									</table>
@@ -1081,7 +1213,7 @@ if ( empty( $ip ) ) {
 						
 							<tr>
 								<th style="padding:5px">
-									<?php echo _("Services Availability Monitoring")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan Services")."</a> ]"; ?>
+									<?php echo _("Services Availability Monitoring")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan now")."</a> ]"; ?>
 								</th>
 							</tr>
 						
