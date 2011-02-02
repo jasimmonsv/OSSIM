@@ -111,13 +111,13 @@ class Event:
                                        (self.event[key]))
 
                 # Do not allow dates in the future.
-                if date > int(time()):
-                    logger.warning("Detected date in the future (%s), please check your device date" % (self.event[key]))
-
+#                if date > int(time()):
+#                    logger.warning("Detected date in the future (%s), please check your device date" % (self.event[key]))
+#                
                 # fdate as date is coming.
-                # fdate as date is coming.
-                fdate_utc = datetime.utcfromtimestamp(date).isoformat(" ")
-                self.event["fdate"] = fdate_utc#self.event[key]
+                #fdate_utc = datetime.utcfromtimestamp(date).isoformat(" ")
+                # Later in Detector._plugin_defualt, we normalized the datetime
+                self.event["fdate"] = self.event[key]
                 self.event["date"] = date
 
         elif key != 'event_type':
@@ -162,6 +162,7 @@ class EventOS(Event):
         "occurrences",
         "log",
         "fdate",
+        "tzone",
     ]
 
 
@@ -181,6 +182,7 @@ class EventMac(Event):
         "occurrences",
         "log",
         "fdate",
+        "tzone",
     ]
 
 
@@ -202,6 +204,7 @@ class EventService(Event):
         "occurrences",
         "log",
         "fdate",
+        "tzone",
     ]
 
 
@@ -235,6 +238,7 @@ class EventHids(Event):
         "occurrences",
         "log",
         "fdate",
+        "tzone",
     ]
 
 
@@ -290,7 +294,8 @@ class Snort(Event):
         "event_type",
         "plugin_id",
         "type",
-        "occurrences"
+        "occurrences",
+        "tzone",
     ]
 
 # vim:ts=4 sts=4 tw=79 expandtab:

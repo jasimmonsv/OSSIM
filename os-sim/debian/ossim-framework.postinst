@@ -169,6 +169,9 @@ chown www-data:ossec /var/ossec/logs/alerts
 chown www-data:ossec /var/ossec/logs/alerts/alerts.log
 chown www-data:ossec /var/ossec/etc
 
+chmod g+w /var/ossec/logs/
+chmod g+w /var/ossec/logs/alerts/
+chmod g+w /var/ossec/logs/alerts/alerts.log 
 
 
 

@@ -247,7 +247,7 @@ span.ui-dynatree-selected a
 
 span.ui-dynatree-active a
 {
-	background-color: #3169C6 !important;
+	background-color: #D2D2D2 !important;
 	color: white !important; /* @ IE6 */
 }
 
@@ -266,6 +266,8 @@ span.custom1 a
 .size10 span { font-weight: bold;}
 
 .size12 span { font-size: 12px; font-weight: bold;}
+
+.size12ig  { font-size: 12px; font-style: italic; font-weight: normal !important; color:gray !important;}
 
 .bold_red span {color: #D8000C; font-size: 12px; font-weight: bold;}
 

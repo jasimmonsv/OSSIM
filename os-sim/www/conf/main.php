@@ -1684,7 +1684,9 @@ if (REQUEST("reset"))
 				$(this).find("tr:last td").css('border', 'none');
 			 });
 
-			
+			<?	if (intval(GET('passpolicy'))==1)  { ?>
+			$('#test15-header').click(); 
+			<?  }  ?>
 		});
 		
 		function tsim(val)

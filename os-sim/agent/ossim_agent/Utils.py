@@ -32,40 +32,46 @@
 # GLOBAL IMPORTS
 #
 import re, string, struct
+from datetime import datetime, timedelta
+from pytz import timezone, all_timezones
+import pytz
+from time import time, mktime, gmtime, strftime
+from Logger import Logger
+logger = Logger.logger
 
 
 
 def dumphexdata(data):
-	l = len(data)
-	offset = 0
-	blocks = l / 16
-	rest = l % 16
-	pchar = string.letters+string.digits+string.punctuation
-	for i in range(0,blocks):
-		c = "%08x\t" % offset
-		da = ""
-		for j in range(0,16):
-			(d,) = struct.unpack("B",data[16*i+j])
-			cs = "%02x " % d
-			if string.find(pchar,chr(d))!=-1:
-				da=da+chr(d)
-			else:
-				da=da+"."
-			c = c + cs
-		print c+da
-		offset = offset + 16
-	da = ""
-	c = "%08x\t" % offset
-	for i in range(0,rest):
-		(d,) = struct.unpack("B",data[blocks*16+i])
-		cs = "%02x " % d
-		if string.find(pchar,chr(d))!=-1:
-			da = da + chr (d)
-		else:
-			da = da +  "." 
-		c = c + cs
-	c = c+"   "*(16-rest)+da+" "*(16-rest)
-	print c
+    l = len(data)
+    offset = 0
+    blocks = l / 16
+    rest = l % 16
+    pchar = string.letters + string.digits + string.punctuation
+    for i in range(0, blocks):
+        c = "%08x\t" % offset
+        da = ""
+        for j in range(0, 16):
+            (d,) = struct.unpack("B", data[16 * i + j])
+            cs = "%02x " % d
+            if string.find(pchar, chr(d)) != -1:
+                da = da + chr(d)
+            else:
+                da = da + "."
+            c = c + cs
+        print c + da
+        offset = offset + 16
+    da = ""
+    c = "%08x\t" % offset
+    for i in range(0, rest):
+        (d,) = struct.unpack("B", data[blocks * 16 + i])
+        cs = "%02x " % d
+        if string.find(pchar, chr(d)) != -1:
+            da = da + chr (d)
+        else:
+            da = da + "." 
+        c = c + cs
+    c = c + "   " * (16 - rest) + da + " " * (16 - rest)
+    print c
 
 
 
@@ -83,3 +89,34 @@ def get_var(regex, line):
 def get_vars(regex, line):
     return re.findall(regex, line)
 
+patternISO_date = re.compile('(?P<year>\d+)[\s-](?P<month>\d+)[\s-](?P<day>\d+)\s+(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)')
+patternUTClocalized = re.compile('(?P<year>\d+)[\s-](?P<month>\d+)[\s-](?P<day>\d+)\s+(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)(?P<tzone_symbol>[-|+])(?P<tzone_hour>\d{2}):(?P<tzone_min>\d{2})')
+
+def normalizeToUTCDate(event, used_tzone):
+    plugin_date_str = event["fdate"]
+    #2011-02-01 17:00:16
+    matchgroup1 = patternISO_date.match(event["fdate"])
+    plugin_dt = datetime(year=int(matchgroup1.group("year")), month=int(matchgroup1.group("month")), day=int(matchgroup1.group("day")), hour=int(matchgroup1.group("hour")), minute=int(matchgroup1.group("minute")), second=int(matchgroup1.group("second")))
+    logger.debug("Plugin localtime date: %s", plugin_dt)
+    plugin_tz = timezone(used_tzone)
+    logger.debug("Plugin tzone: %s" % plugin_tz.zone)
+    plugin_localized_date = plugin_tz.localize(plugin_dt)
+    logger.debug("Plugin localized time: %s" % plugin_localized_date)
+    matchgroup2 = patternUTClocalized.match(str(plugin_localized_date))
+    tzone_symbol = matchgroup2.group("tzone_symbol")
+    tzone_hour = matchgroup2.group("tzone_hour")
+    tzone_min = matchgroup2.group("tzone_min")
+    tzone_float = (float(tzone_hour) * 60 + float(tzone_min)) / 60
+    
+    if tzone_symbol == "-":
+        tzone_float = -1 * tzone_float
+    logger.debug("Calculated float timezone: %s" % tzone_float)
+    utc_tz = pytz.utc
+    plugin_utc_dt = plugin_localized_date.astimezone(utc_tz)
+    logger.debug("Plugin UTC Date: %s", plugin_utc_dt)
+    dateformat = "%Y-%m-%d %H:%M:%S"
+    logger.debug("Plugin UTC ISO Normalized date: %s" % plugin_utc_dt.strftime(dateformat))
+    event['tzone'] = tzone_float
+    if 'fdate' in event.EVENT_ATTRS:
+        event["date"] = int(mktime(plugin_utc_dt.timetuple()))
+        event["fdate"] = plugin_utc_dt.strftime(dateformat)

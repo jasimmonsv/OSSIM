@@ -41,31 +41,36 @@ from Output import Output
 from Logger import *
 from Task import Task
 from Stats import Stats
+from pytz import timezone, all_timezones
+from datetime import datetime, timedelta
+import time
+from time import mktime
+import re
 logger = Logger.logger
 
 class Watchdog(threading.Thread):
 
     # plugin states
-    PLUGIN_START_MSG            = 'plugin-process-started'
-    PLUGIN_STOP_MSG             = 'plugin-process-stopped'
-    PLUGIN_UNKNOWN_MSG          = 'plugin-process-unknown'
-    PLUGIN_ENABLE_MSG           = 'plugin-enabled'
-    PLUGIN_DISABLE_MSG          = 'plugin-disabled'
+    PLUGIN_START_MSG = 'plugin-process-started'
+    PLUGIN_STOP_MSG = 'plugin-process-stopped'
+    PLUGIN_UNKNOWN_MSG = 'plugin-process-unknown'
+    PLUGIN_ENABLE_MSG = 'plugin-enabled'
+    PLUGIN_DISABLE_MSG = 'plugin-disabled'
 
-    PLUGIN_START_STATE_MSG      = PLUGIN_START_MSG   + " plugin_id=\"%s\"\n"
-    PLUGIN_STOP_STATE_MSG       = PLUGIN_STOP_MSG    + " plugin_id=\"%s\"\n"
-    PLUGIN_UNKNOWN_STATE_MSG    = PLUGIN_UNKNOWN_MSG + " plugin_id=\"%s\"\n"
-    PLUGIN_ENABLE_STATE_MSG     = PLUGIN_ENABLE_MSG  + " plugin_id=\"%s\"\n"
-    PLUGIN_DISABLE_STATE_MSG    = PLUGIN_DISABLE_MSG + " plugin_id=\"%s\"\n"
+    PLUGIN_START_STATE_MSG = PLUGIN_START_MSG + " plugin_id=\"%s\"\n"
+    PLUGIN_STOP_STATE_MSG = PLUGIN_STOP_MSG + " plugin_id=\"%s\"\n"
+    PLUGIN_UNKNOWN_STATE_MSG = PLUGIN_UNKNOWN_MSG + " plugin_id=\"%s\"\n"
+    PLUGIN_ENABLE_STATE_MSG = PLUGIN_ENABLE_MSG + " plugin_id=\"%s\"\n"
+    PLUGIN_DISABLE_STATE_MSG = PLUGIN_DISABLE_MSG + " plugin_id=\"%s\"\n"
 
     # plugin server requests
-    PLUGIN_START_REQ            = 'sensor-plugin-start'
-    PLUGIN_STOP_REQ             = 'sensor-plugin-stop'
-    PLUGIN_ENABLE_REQ           = 'sensor-plugin-enable'
-    PLUGIN_DISABLE_REQ          = 'sensor-plugin-disable'
+    PLUGIN_START_REQ = 'sensor-plugin-start'
+    PLUGIN_STOP_REQ = 'sensor-plugin-stop'
+    PLUGIN_ENABLE_REQ = 'sensor-plugin-enable'
+    PLUGIN_DISABLE_REQ = 'sensor-plugin-disable'
 
     # sensor info
-    AGENT_DATE                  = "agent-date agent_date=\"%s\" tzone=\"%s\"\n"
+    AGENT_DATE = "agent-date agent_date=\"%s\" tzone=\"%s\"\n"
 
 
     def __init__(self, conf, plugins):
@@ -73,6 +78,7 @@ class Watchdog(threading.Thread):
         self.conf = conf
         self.plugins = plugins
         self.interval = self.conf.getfloat("watchdog", "interval") or 3600.0
+        self.patternlocalized = re.compile('(?P<tzone_symbol>[-|+])(?P<tzone_hour>\d{2})(?P<tzone_min>\d{2})')
         threading.Thread.__init__(self)
 
 
@@ -108,17 +114,17 @@ class Watchdog(threading.Thread):
 
     def start_process(plugin, notify=True):
 
-        id          = plugin.get("config", "plugin_id")
-        process     = plugin.get("config", "process")
+        id = plugin.get("config", "plugin_id")
+        process = plugin.get("config", "process")
         process_aux = plugin.get("config", "process_aux")
-        name        = plugin.get("config", "name")
-        command     = plugin.get("config", "startup")
+        name = plugin.get("config", "name")
+        command = plugin.get("config", "startup")
 
         # start service
         if command:
             logger.info("Starting service %s (%s): %s.." % (id, name, command))
             task = Task(command)
-            task.Run(1,0)
+            task.Run(1, 0)
             timeout = 300
             start = datetime.datetime.now()
             plugin.start_time = float(time.time())
@@ -127,7 +133,7 @@ class Watchdog(threading.Thread):
                 time.sleep(0.1)
                 now = datetime.datetime.now()
 
-                if (now - start).seconds> timeout:
+                if (now - start).seconds > timeout:
                     task.Kill()
                     logger.warning("Could not start %s, returning after %s second(s) wait time." % (command, timeout))
 
@@ -150,11 +156,11 @@ class Watchdog(threading.Thread):
 
     def stop_process(plugin, notify=True):
 
-        id          = plugin.get("config", "plugin_id")
-        process     = plugin.get("config", "process")
+        id = plugin.get("config", "plugin_id")
+        process = plugin.get("config", "process")
         process_aux = plugin.get("config", "process_aux")
-        name        = plugin.get("config", "name")
-        command     = plugin.get("config", "shutdown")
+        name = plugin.get("config", "name")
+        command = plugin.get("config", "shutdown")
 
         # stop service
         if command:
@@ -181,8 +187,8 @@ class Watchdog(threading.Thread):
 
     def enable_process(plugin, notify=True):
 
-        id      = plugin.get("config", "plugin_id")
-        name    = plugin.get("config", "name")
+        id = plugin.get("config", "plugin_id")
+        name = plugin.get("config", "name")
 
         # enable plugin
         plugin.set("config", "enable", "yes")
@@ -197,8 +203,8 @@ class Watchdog(threading.Thread):
 
     def disable_process(plugin, notify=True):
 
-        id      = plugin.get("config", "plugin_id")
-        name    = plugin.get("config", "name")
+        id = plugin.get("config", "plugin_id")
+        name = plugin.get("config", "name")
 
         # disable plugin
         plugin.set("config", "enable", "no")
@@ -247,18 +253,39 @@ class Watchdog(threading.Thread):
         first_run = True
 
         while 1:
-       
-            t = datetime.datetime.now()
+            
             tzone = str(self.conf.get("plugin-defaults", "tzone"))
-            Output.plugin_state(self.AGENT_DATE % (str(time.mktime(t.timetuple())),tzone))
-            #logger.info(self.AGENT_DATE % (str(time.mktime(t.timetuple())),tzone))
+            if tzone in all_timezones:
+                agent_tz = timezone(tzone)
+                local_dt = agent_tz.localize(datetime.now())
+                str_tzone = time.strftime("%z")
+                matches = self.patternlocalized.match(str_tzone)
+                if type(matches) is not None:
+                    tzone_symbol = matches.group("tzone_symbol")
+                    tzone_hour = matches.group("tzone_hour")
+                    tzone_min = matches.group("tzone_min")
+                    tzone = (float(tzone_hour) * 60 + float(tzone_min)) / 60
+                    if tzone_symbol == "-":
+                        tzone = -1 * tzone
+                else:
+                    tzone = 0
+                    logger.info("Warning: TimeZone doesn't match: %s --set to 0" % tzone)
+                    
+
+                
+            else:
+                logger.info("Warning: Agent invalid agent tzone: %s --set to 0" % tzone)
+                tzone = 0
+            t = datetime.now()
+            Output.plugin_state(self.AGENT_DATE % (str(mktime(t.timetuple())), tzone))
+            logger.info(self.AGENT_DATE % (str(time.mktime(t.timetuple())), tzone))
 
             for plugin in self.plugins:
 
-                id          = plugin.get("config", "plugin_id")
-                process     = plugin.get("config", "process")
+                id = plugin.get("config", "plugin_id")
+                process = plugin.get("config", "process")
                 process_aux = plugin.get("config", "process_aux")
-                name        = plugin.get("config", "name")
+                name = plugin.get("config", "name")
 
                 logger.debug("Checking process %s for plugin %s." \
                     % (process, name))
