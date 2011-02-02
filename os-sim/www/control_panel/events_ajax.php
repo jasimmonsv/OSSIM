@@ -128,6 +128,8 @@ if ($have_scanmap == 1 && $show_all) {
 } else {
     $have_scanmap = 0;
 }
+// Timezone correction
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 	$count_events = 0;
     $count_alarms = 0;
@@ -233,6 +235,11 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 <?php
         $orig_date = $alarm->get_timestamp();
         $date = Util::timestamp2date($orig_date);
+        $orig_date = $date;
+        $event_date = $date;
+        $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tz));        
+        $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$alarm->get_tzone()));
+        
         $src_ip = $alarm->get_src_ip();
         $dst_ip = $alarm->get_dst_ip();
         $src_port = $alarm->get_src_port();
@@ -271,11 +278,25 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         <!-- end risk -->
 
         <td nowrap>
-          <a href="<?php
-        echo Util::get_acid_date_link($date, $src_ip, "ip_src") ?>">
-            <font color="black"><?php
-        echo $date ?></font>
-          </a>
+          <? if ($event_date==$orig_date || $event_date==$date) { ?>
+            <a href="<?php echo Util::get_acid_date_link($date, $src_ip, "ip_src") ?>">
+              <font color="black"><?php echo $date ?></font>
+            </a>
+          <? } else { ?>
+            <div class="balloon">
+                <a href="<?php echo Util::get_acid_date_link($date, $src_ip, "ip_src") ?>">
+                  <font color="black"><?php echo $date ?></font>
+                </a>
+				<span class="tooltip">
+					<span class="top"></span>
+					<span class="middle ne1 center">
+						<b><?=_("Sensor date")?>:</b><br><?php echo $event_date?><br>
+						<b><?=_("Timezone")?>:</b> <?php echo Util::timezone($alarm->get_tzone())?><br>
+					</span>
+					<span class="bottom"></span>
+				</span>
+			</div>
+          <? } ?>
         </td>
 
 <?php

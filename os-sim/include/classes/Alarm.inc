@@ -105,7 +105,8 @@ class Alarm {
     var $sid_name;
     var $id_tag;
     var $event_data;
-    function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $rule_level = "", $alarm = 1, $id_tag="") {
+    var $tzone;
+    function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $rule_level = "", $alarm = 1, $id_tag="", $tzone=0) {
         $this->event_id = intval($event_id);
         $this->backlog_id = intval($backlog_id);
         $this->timestamp = $timestamp;
@@ -125,6 +126,7 @@ class Alarm {
         $this->alarm = $alarm;
         $this->sid_name = $sid_name;
         $this->id_tag = $id_tag;
+        $this->tzone = $tzone;        
         $this->event_data = array();
         if (is_array($sensors)) $this->sensors = $sensors;
         else $this->sensors = array(
@@ -199,6 +201,9 @@ class Alarm {
     }
     function get_sid_name() {
         return $this->sid_name;
+    }
+    function get_tzone() {
+        return $this->tzone;
     }
 	function get_id_tag() {
         return $this->id_tag;
@@ -526,7 +531,7 @@ class Alarm {
             */
                 $rs->fields["src_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["src_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["src_port"]] : $rs->fields["src_port"];
                 $rs->fields["dst_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] : $rs->fields["dst_port"];
-				$list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(a.src_ip)"], $rs->fields["inet_ntoa(a.dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], "", 1, $rs->fields["id_tag"]);
+				$list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(a.src_ip)"], $rs->fields["inet_ntoa(a.dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], "", 1, $rs->fields["id_tag"], $rs->fields["id_tag"]);
             //}
             $rs->MoveNext();
         }
@@ -674,6 +679,7 @@ class Alarm {
                          event.snort_sid AS snort_sid,
                          event.snort_cid AS snort_cid,
                          event.alarm AS alarm,
+                         event.tzone AS tzone,
                          backlog_event.rule_level AS rule_level
             FROM backlog_event, event
             WHERE backlog_event.event_id = event.id AND
@@ -699,7 +705,7 @@ class Alarm {
                 if (($expand) or ($rs->fields["alarm"] == 1)) {
                     $maxrisk = ($rs->fields["risk_c"] > $rs->fields["risk_a"]) ? $rs->fields["risk_c"] : $rs->fields["risk_a"];
                     $list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], "", /* status */
-                    $rs->fields["backlog_time"], $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["src_ip"], $rs->fields["dst_ip"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $rs->fields["sensor"], $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields['sid_name'], $rs->fields["rule_level"], $rs->fields["alarm"]);
+                    $rs->fields["backlog_time"], $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["src_ip"], $rs->fields["dst_ip"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $rs->fields["sensor"], $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields['sid_name'], $rs->fields["rule_level"], $rs->fields["alarm"], "", $rs->fields["tzone"]);
                 }
                 $rs->MoveNext();
             }

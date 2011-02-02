@@ -5,7 +5,7 @@ BEGIN;
 ALTER TABLE acl_entities DROP FOREIGN KEY fk_ac_entities_ac_entities_types1;
 ALTER TABLE acl_entities DROP INDEX fk_ac_entities_ac_entities_types1;
 ALTER TABLE acl_entities DROP INDEX fk_acl_entities_acl_users1;
-ALTER TABLE  `event` ADD  `tzone` TINYINT( 1 ) NOT NULL DEFAULT  '0' AFTER  `timestamp`;
+ALTER TABLE `event` ADD `tzone` FLOAT NOT NULL DEFAULT  '0' AFTER `timestamp`;
 
 use ossim_acl;
 REPLACE INTO `aco` (`id`, `section_value`, `value`, `order_value`, `name`, `hidden`) VALUES
@@ -87,7 +87,7 @@ REPLACE INTO `aco` (`id`, `section_value`, `value`, `order_value`, `name`, `hidd
 (85, 'MenuEvents', 'EventsForensicsDelete', 0, 'EventsForensicsDelete', 0);
 
 use ossim;
-UPDATE config SET value="2011-02-01" WHERE conf="last_update";
+UPDATE config SET value="2011-02-03" WHERE conf="last_update";
 
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file
