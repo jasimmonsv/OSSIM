@@ -858,6 +858,7 @@ DROP TABLE IF EXISTS event;
 CREATE TABLE event (
         id              BIGINT NOT NULL,
         timestamp       TIMESTAMP NOT NULL,
+        tzone           TINYINT(1) NOT NULL DEFAULT '0',
         sensor          TEXT NOT NULL,
         interface       TEXT NOT NULL,
         type            INTEGER NOT NULL,

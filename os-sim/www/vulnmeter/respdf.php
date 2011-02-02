@@ -70,6 +70,7 @@
 /***********************************************************/
 
 #error_reporting(E_ALL);
+ini_set('memory_limit', '768M');
 
 define('FPDF_FONTPATH','inc/font/');
 require('inc/pdf.php');
