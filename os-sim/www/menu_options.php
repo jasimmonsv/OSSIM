@@ -1156,6 +1156,11 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUsers")) { $configura
           "target" => "main",
           "url" => "../acl/templates.php"
         );
+	$rmenu["Users"][] = array(
+          "name" => gettext("Password Policy"),
+          "target" => "main",
+          "url" => "../conf/main.php?adv=1&passpolicy=1&hmenu=Main&smenu=Advanced"
+        );        
 	}
 }
 if (Session::menu_perms("MenuConfiguration", "ConfigurationUserActionLog")) { $configuration = 1; $hmenu["Users"][] = array(
