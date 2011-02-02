@@ -29,8 +29,8 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $hosts_ips = array_keys($hosts);
 
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $fqdn = ImportHTTPVar("fqdn", VAR_ALPHA | VAR_SPACE);
@@ -42,10 +42,10 @@ $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_alerts, _MOSTFREQALERTS, "occur_d");
-$qs->AddCannedQuery("last_alerts", $last_num_ualerts, _LASTALERTS, "last_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_alerts, gettext("Most Frequent Events"), "occur_d");
+$qs->AddCannedQuery("last_alerts", $last_num_ualerts, gettext("Last Events"), "last_d");
 $qs->MoveView($submit); /* increment the view if necessary */
-$page_title = _SIPLTITLE;
+$page_title = gettext("IP Links");
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
@@ -88,8 +88,8 @@ $where = " WHERE " . $criteria_clauses[1];
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-//$qs->AddValidActionOp(_SELECTED);
-//$qs->AddValidActionOp(_ALLONSCREEN);
+//$qs->AddValidActionOp(gettext("Delete Selected"));
+//$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 $et->Mark("Initialization");
 $qs->RunAction($submit, PAGE_STAT_IPLINK, $db);
@@ -101,15 +101,15 @@ $et->Mark("Counting Result size");
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_iplink.php?fqdn=$fqdn&caller=$caller");
 $qro->AddTitle(" ");
-if ($fqdn=="yes") $qro->AddTitle(_SIPLSOURCEFGDN);
-$qro->AddTitle(_PSSRCIP, "sip_a", "", " ORDER BY ip_src ASC", "sip_d", "", " ORDER BY ip_src DESC");
-$qro->AddTitle(_SIPLDIRECTION);
-$qro->AddTitle(_PSDSTIP, "dip_a", "", " ORDER BY ip_dst ASC", "dip_d", "", " ORDER BY ip_dst DESC");
-if ($fqdn=="yes") $qro->AddTitle(_SIPLDESTFGDN);
-$qro->AddTitle(_SIPLPROTO, "proto_a", "", " ORDER BY ip_proto ASC", "proto_d", "", " ORDER BY ip_proto DESC");
-$qro->AddTitle(_SIPLUNIDSTPORTS, "dport_a", "", " ORDER BY clayer4 ASC", "dport_d", "", " ORDER BY clayer4 DESC");
-$qro->AddTitle(_SIPLUNIEVENTS, "sig_a", "", " ORDER BY csig ASC", "sig_d", "", " ORDER BY csig DESC");
-$qro->AddTitle(_SIPLTOTALEVENTS, "events_a", "", " ORDER BY ccid ASC", "events_d", "", " ORDER BY ccid DESC");
+if ($fqdn=="yes") $qro->AddTitle(gettext("Source FQDN"));
+$qro->AddTitle(gettext("Source IP"), "sip_a", "", " ORDER BY ip_src ASC", "sip_d", "", " ORDER BY ip_src DESC");
+$qro->AddTitle(gettext("Direction"));
+$qro->AddTitle(gettext("Destination IP"), "dip_a", "", " ORDER BY ip_dst ASC", "dip_d", "", " ORDER BY ip_dst DESC");
+if ($fqdn=="yes") $qro->AddTitle(gettext("Destination FQDN"));
+$qro->AddTitle(gettext("Protocol"), "proto_a", "", " ORDER BY ip_proto ASC", "proto_d", "", " ORDER BY ip_proto DESC");
+$qro->AddTitle(gettext("Unique Dst Ports"), "dport_a", "", " ORDER BY clayer4 ASC", "dport_d", "", " ORDER BY clayer4 DESC");
+$qro->AddTitle(gettext("Unique Events"), "sig_a", "", " ORDER BY csig ASC", "sig_d", "", " ORDER BY csig DESC");
+$qro->AddTitle(gettext("Total Events"), "events_a", "", " ORDER BY ccid ASC", "events_d", "", " ORDER BY ccid DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 $sql = "SELECT acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto, COUNT(DISTINCT acid_event.layer4_dport) as clayer4, COUNT(acid_event.cid) as ccid, COUNT(DISTINCT acid_event.plugin_id, acid_event.plugin_sid) csig " . $sort_sql[0] . $from . $where . " GROUP by ip_src, ip_dst, ip_proto " . $sort_sql[1] ;
 #$sql = "SELECT DISTINCT acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto " . $sort_sql[0] . $from . $where . $sort_sql[1];
@@ -192,7 +192,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         qroPrintEntry($tmp . $num_unique_dport . '</A>');
         $tmp = '<A HREF="base_stat_alerts.php?foo=1' . $tmp_ip_criteria . '">';
         qroPrintEntry($tmp . $num_unique . '</A>');
-        $tmp = '<A HREF="base_qry_main.php?new=1' . '&amp;num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1' . $tmp_ip_criteria . '">';
+        $tmp = '<A HREF="base_qry_main.php?new=1' . '&amp;num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1' . $tmp_ip_criteria . '">';
         qroPrintEntry($tmp . $num_occurances . '</A>');
         qroPrintEntryFooter();
     }

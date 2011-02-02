@@ -45,7 +45,7 @@ function UpdateDNSCache($db) {
         ++$cnt;
     }
     $ip_result->baseFreeRows();
-    ErrorMessage(_ADDED . $cnt . _HOSTNAMESDNS);
+    ErrorMessage(gettext("Added ") . $cnt . gettext(" hostnames to the IP DNS cache"));
 }
 function UpdateWhoisCache($db) {
     GLOBAL $debug_mode, $whois_cache_lifetime;
@@ -64,7 +64,7 @@ function UpdateWhoisCache($db) {
         ++$cnt;
     }
     $ip_result->baseFreeRows();
-    ErrorMessage(_ADDED . $cnt . _HOSTNAMESWHOIS);
+    ErrorMessage(gettext("Added ") . $cnt . gettext(" hostnames to the Whois cache"));
 }
 function CacheAlert($sid, $cid, $db) {
     $signature = $timestamp = $ip_src = $ip_dst = null;
@@ -113,7 +113,7 @@ function CacheAlert($sid, $cid, $db) {
             }
         }
     } else {
-        ErrorMessage(_ERRCACHENULL);
+        ErrorMessage(gettext("Caching ERROR: NULL event row found?"));
         echo "<PRE>" . $sql . "</PRE>";
     }
     /* There can be events without certain attributes */
@@ -306,7 +306,7 @@ Caches all alerts for sensor $sid newer than the event $cid
     $update_cnt = count($update_sql);
     for ($i = 0; $i < $update_cnt; $i++) {
         $db->baseExecute($update_sql[$i]);
-        if ($db->baseErrorMessage() != "") ErrorMessage(_ERRCACHEERROR . " [" . _SENSOR . " #$sid][" . _EVENTTYPE . " $i]" . " " . _ERRCACHEUPDATE);
+        if ($db->baseErrorMessage() != "") ErrorMessage(gettext("EVENT CACHING ERROR:") . " [" . gettext("Sensor") . " #$sid][" . gettext("event type") . " $i]" . " " . gettext("Could not update event cache"));
     }
 }
 function UpdateSensorCids($db) {
@@ -371,8 +371,8 @@ function UpdateAlertCache_ossim($db) {
         /* END LOCAL FIX */
     }
     if ($updated_cache_cnt != 0) {
-        if (preg_match("/base_main.php/", $_SERVER['SCRIPT_NAME'])) ErrorMessage(_ADDED . $updated_cache_cnt . _ALERTSCACHE, "yellow");
-        else ErrorMessage(_ADDED . $updated_cache_cnt . _ALERTSCACHE);
+        if (preg_match("/base_main.php/", $_SERVER['SCRIPT_NAME'])) ErrorMessage(gettext("Added ") . $updated_cache_cnt . gettext(" Event(s) to the Event cache"), "yellow");
+        else ErrorMessage(gettext("Added ") . $updated_cache_cnt . gettext(" Event(s) to the Event cache"));
     }
 }
 function UpdateAlertCache($db) {
@@ -438,8 +438,8 @@ function UpdateAlertCache($db) {
         /* END LOCAL FIX */
     }
     if ($updated_cache_cnt != 0) {
-        if (preg_match("/base_main.php/", $_SERVER['SCRIPT_NAME'])) ErrorMessage(_ADDED . $updated_cache_cnt . _ALERTSCACHE, "yellow");
-        else ErrorMessage(_ADDED . $updated_cache_cnt . _ALERTSCACHE);
+        if (preg_match("/base_main.php/", $_SERVER['SCRIPT_NAME'])) ErrorMessage(gettext("Added ") . $updated_cache_cnt . gettext(" Event(s) to the Event cache"), "yellow");
+        else ErrorMessage(gettext("Added ") . $updated_cache_cnt . gettext(" Event(s) to the Event cache"));
     }
 }
 function DropAlertCache($db) {

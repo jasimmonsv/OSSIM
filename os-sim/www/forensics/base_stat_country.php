@@ -33,8 +33,8 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 //$addr_type = ImportHTTPVar("addr_type", VAR_DIGIT);
 $addr_type = 1;
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $dst_ip = NULL;
@@ -54,16 +54,16 @@ if ($debug_mode > 0) {
     PrintCriteriaState();
 }
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_uaddr, _MOSTFREQADDRS, "occur_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_uaddr, gettext("Most Frequent IP addresses"), "occur_d");
 $qs->MoveView($submit); /* increment the view if necessary */
 if ($addr_type == SOURCE_IP) {
-    $page_title = _UNISADD;
-    $results_title = _SUASRCIP;
+    $page_title = gettext("Unique Source Address(es)");
+    $results_title = gettext("Src IP address");
     $addr_type_name = "ip_src";
 } else {
-    if ($addr_type != DEST_IP) ErrorMessage(_SUAERRCRITADDUNK);
-    $page_title = _UNIDADD;
-    $results_title = _SUADSTIP;
+    if ($addr_type != DEST_IP) ErrorMessage(gettext("CRITERIA ERROR: unknown address type -- assuming Dst address"));
+    $page_title = gettext("Unique Destination Address(es)");
+    $results_title = gettext("Dst IP address");
     $addr_type_name = "ip_dst";
 }
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
@@ -116,8 +116,8 @@ if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+ti
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-//$qs->AddValidActionOp(_SELECTED);
-//$qs->AddValidActionOp(_ALLONSCREEN);
+//$qs->AddValidActionOp(gettext("Delete Selected"));
+//$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 $et->Mark("Initialization");
 $qs->RunAction($submit, PAGE_STAT_UADDR, $db);
@@ -192,7 +192,7 @@ arsort($countries);
 
 echo '<TABLE BORDER=0 WIDTH="100%">
            <TR><TD CLASS="header" width="25%">Country</TD>
-               <TD CLASS="header" width="15%"># ' . _QSCOFALERTS . '</TD>
+               <TD CLASS="header" width="15%"># ' . gettext("of events") . '</TD>
                <TD CLASS="header" width="10%"># of Src IPs</TD>
                <TD CLASS="header" width="10%"># of Dst IPs</TD>
 			   <TD CLASS="header">Event</TD></TR>';

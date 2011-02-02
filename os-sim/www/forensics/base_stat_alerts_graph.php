@@ -25,8 +25,8 @@ include_once ("$BASE_path/base_stat_common.php");
 ($debug_time_mode >= 1) ? $et = new EventTiming($debug_time_mode) : '';
 $cs = new CriteriaState("base_stat_alerts.php");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $cs->ReadState();
@@ -35,10 +35,10 @@ $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_alerts, _MOSTFREQALERTS, "occur_d");
-$qs->AddCannedQuery("last_alerts", $last_num_ualerts, _LASTALERTS, "last_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_alerts, gettext("Most Frequent Events"), "occur_d");
+$qs->AddCannedQuery("last_alerts", $last_num_ualerts, gettext("Last Events"), "last_d");
 $qs->MoveView($submit); /* increment the view if necessary */
-$page_title = _ALERTTITLE;
+$page_title = gettext("Event Listing");
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
@@ -91,8 +91,8 @@ $qs->AddValidAction("del_alert");
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-$qs->AddValidActionOp(_SELECTED);
-$qs->AddValidActionOp(_ALLONSCREEN);
+$qs->AddValidActionOp(gettext("Delete Selected"));
+$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 ($debug_time_mode >= 1) ? $et->Mark("Initialization") : '';
 $qs->RunAction($submit, PAGE_STAT_ALERTS, $db);
@@ -114,11 +114,11 @@ if (!$use_ac) $qs->GetNumResultRows($cnt_sql, $db);
 $qro = new QueryResultsOutput("base_stat_alerts_graph.php?caller=" . $caller);
 $qro->AddTitle(" ");
 $qro->AddTitle(gettext("Signature"), "sig_a", " ", " ORDER BY plugin_id ASC,plugin_sid", "sig_d", " ", " ORDER BY plugin_id DESC,plugin_sid");
-$qro->AddTitle(_TOTAL . "&nbsp;#", "occur_a", " ", " ORDER BY sig_cnt ASC", "occur_d", " ", " ORDER BY sig_cnt DESC");
-$qro->AddTitle(_SENSOR . "&nbsp;#");
+$qro->AddTitle(gettext("Total") . "&nbsp;#", "occur_a", " ", " ORDER BY sig_cnt ASC", "occur_d", " ", " ORDER BY sig_cnt DESC");
+$qro->AddTitle(gettext("Sensor") . "&nbsp;#");
 $qro->AddTitle(_("Src. Addr.") , "saddr_a", ", count(DISTINCT ip_src) AS saddr_cnt ", " ORDER BY saddr_cnt ASC", "saddr_d", ", count(DISTINCT ip_src) AS saddr_cnt ", " ORDER BY saddr_cnt DESC");
 $qro->AddTitle(_("Dst. Addr.") , "daddr_a", ", count(DISTINCT ip_dst) AS daddr_cnt ", " ORDER BY daddr_cnt ASC", "daddr_d", ", count(DISTINCT ip_dst) AS daddr_cnt ", " ORDER BY daddr_cnt DESC");
-/*$qro->AddTitle(_FIRST,
+/*$qro->AddTitle(gettext("First"),
 "first_a", ", min(timestamp) AS first_timestamp ",
 " ORDER BY first_timestamp ASC",
 "first_d", ", min(timestamp) AS first_timestamp ",
@@ -127,7 +127,7 @@ $qro->AddTitle(_("Dst. Addr.") , "daddr_a", ", count(DISTINCT ip_dst) AS daddr_c
 if ( $show_previous_alert == 1 )
 $qro->AddTitle("Previous");
 
-$qro->AddTitle(_LAST,
+$qro->AddTitle(gettext("Last"),
 "last_a", ", max(timestamp) AS last_timestamp ",
 " ORDER BY last_timestamp ASC",
 "last_d", ", max(timestamp) AS last_timestamp ",
@@ -259,7 +259,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
              </TD>';
     echo '      <INPUT TYPE="hidden" NAME="action_lst[' . $i . ']" VALUE="' . $tmp_rowid . '">';
     $sigstr = trim(preg_replace("/.*\/\s*(.*)/","\\1",preg_replace("/^[\.\,\"\!]|[\.\,\"\!]$/","",preg_replace("/.*##/","",html_entity_decode(strip_tags($signame))))));
-    $siglink = "base_qry_main.php?new=1&submit=" . _QUERYDBP . "&num_result_rows=-1&sig_type=1&sig%5B0%5D=%3D&sig%5B1%5D=" . urlencode($sig_id);
+    $siglink = "base_qry_main.php?new=1&submit=" . gettext("Query+DB") . "&num_result_rows=-1&sig_type=1&sig%5B0%5D=%3D&sig%5B1%5D=" . urlencode($sig_id);
     $tmpsig = explode("##", $signame);
     if ($tmpsig[1]!="") {
         $antes = $tmpsig[0];
@@ -271,7 +271,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     qroPrintEntry("$antes <a href='$siglink'>".trim($despues)."</a>" , "left", "", "style='vertical-align:middle'");
 
     //qroPrintEntry(BuildSigByID($sig_id, $db),"left","middle");
-    $ocurrlink = 'base_qry_main.php?new=1&amp;sig%5B0%5D=%3D&amp;sig%5B1%5D=' . urlencode($sig_id) . '&amp;sig_type=1' . '&amp;submit=' . _QUERYDBP . '&amp;num_result_rows=-1';
+    $ocurrlink = 'base_qry_main.php?new=1&amp;sig%5B0%5D=%3D&amp;sig%5B1%5D=' . urlencode($sig_id) . '&amp;sig_type=1' . '&amp;submit=' . gettext("Query+DB") . '&amp;num_result_rows=-1';
     qroPrintEntry('<FONT>' . '<A HREF="' . $ocurrlink . '">' . $total_occurances . '</A>' .
     /* mstone 20050309 lose this if we're not showing stats */
     (($avoid_counts != 1) ? ('(' . (round($total_occurances / $event_cnt * 100)) . '%)') : ('')) . '</FONT>', 'center', 'middle', 'nowrap');

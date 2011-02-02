@@ -31,7 +31,7 @@ function returnErrorMessage($message) {
     return $error;
 }
 function FatalError($message) {
-    echo '<FONT COLOR="#FF0000"><B>' . _ERRBASEFATAL . '</B> ' . $message . '</FONT>';
+    echo '<FONT COLOR="#FF0000"><B>' . gettext("BASE FATAL ERROR:") . '</B> ' . $message . '</FONT>';
     die();
 }
 function PrintServerInformation() {

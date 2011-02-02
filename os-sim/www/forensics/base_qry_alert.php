@@ -46,12 +46,12 @@ function PrintCleanURL() {
     if ((isset($_GET['asciiclean']) && $_GET['asciiclean'] == 1) || (isset($_COOKIE['asciiclean']) && ($_COOKIE['asciiclean'] == "clean") && (!isset($_GET['asciiclean'])))) {
         //create link to non-cleaned payload display
         $url = '<center><a href="base_qry_alert.php?' . $query;
-        $url.= '&amp;sort_order=' . urlencode($sort_order) . '&amp;asciiclean=0">' . _QANORMALD . '</a></center>';
+        $url.= '&amp;sort_order=' . urlencode($sort_order) . '&amp;asciiclean=0">' . gettext("Normal Display") . '</a></center>';
         return $url;
     } else {
         //create link to cleaned payload display
         $url = '<center><a href="base_qry_alert.php?' . $query;
-        $url.= '&amp;sort_order=' . urlencode($sort_order) . '&amp;asciiclean=1">' . _QAPLAIND . '</a></center>';
+        $url.= '&amp;sort_order=' . urlencode($sort_order) . '&amp;asciiclean=1">' . gettext("Plain Display") . '</a></center>';
         return $url;
     }
 }
@@ -95,12 +95,12 @@ function PrintPacketLookupBrowseButtons2($seq, $order_by_tmp, $where_tmp, $db, &
         $sql = "SELECT acid_event.sid, acid_event.cid $where $order_by limit $seq,2";
         //echo $sql;
         $result2 = $db->baseExecute($sql);
-        $previous_button = '[ ' . _FIRST . ' ]' . "\n";
+        $previous_button = '[ ' . gettext("First") . ' ]' . "\n";
         $myrow2 = $result2->baseFetchRow();
         $myrow2 = $result2->baseFetchRow();
-        if ($myrow2 == "") $next_button = '[ ' . _LAST . ' ]' . "\n";
+        if ($myrow2 == "") $next_button = '[ ' . gettext("Last") . ' ]' . "\n";
         else {
-            $next_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&gt;&gt; ' . _NEXT . ' #';
+            $next_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&gt;&gt; ' . gettext("Next") . ' #';
             $next_button.= ($seq + 1) . '-(' . $myrow2["sid"] . '-' . $myrow2["cid"] . ')">' . "\n";
         }
     } else {
@@ -108,13 +108,13 @@ function PrintPacketLookupBrowseButtons2($seq, $order_by_tmp, $where_tmp, $db, &
         //echo $sql;
         $result2 = $db->baseExecute($sql);
         $myrow2 = $result2->baseFetchRow();
-        $previous_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&lt;&lt; ' . _PREVIOUS . ' #';
+        $previous_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&lt;&lt; ' . gettext("Previous") . ' #';
         $previous_button.= ($seq - 1) . '-(' . $myrow2["sid"] . '-' . $myrow2["cid"] . ')">' . "\n";
         $myrow2 = $result2->baseFetchRow();
         $myrow2 = $result2->baseFetchRow();
-        if ($myrow2 == "") $next_button = '[ ' . _LAST . ' ]' . "\n";
+        if ($myrow2 == "") $next_button = '[ ' . gettext("Last") . ' ]' . "\n";
         else {
-            $next_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&gt;&gt; ' . _NEXT . ' #';
+            $next_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&gt;&gt; ' . gettext("Next") . ' #';
             $next_button.= ($seq + 1) . '-(' . $myrow2["sid"] . '-' . $myrow2["cid"] . ')">' . "\n";
         }
     }
@@ -127,16 +127,16 @@ function showShellcodeAnalysisLink($cid, $sid, $signature) {
 function PrintPacketLookupBrowseButtons($seq, $save_sql, $db, &$previous_button, &$next_button) {
     echo "\n\n<!-- Single Alert Browsing Buttons -->\n";
     $result2 = $db->baseExecute($save_sql);
-    if ($seq == 0) $previous_button = '[ ' . _FIRST . ' ]' . "\n";
+    if ($seq == 0) $previous_button = '[ ' . gettext("First") . ' ]' . "\n";
     $i = 0;
     while ($i <= $seq + 1) {
         $myrow2 = $result2->baseFetchRow();
-        if ($myrow2 == "") $next_button = '[ ' . _LAST . ' ]' . "\n";
+        if ($myrow2 == "") $next_button = '[ ' . gettext("Last") . ' ]' . "\n";
         else if ($i == $seq - 1) {
-            $previous_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&lt;&lt; ' . _PREVIOUS . ' #';
+            $previous_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&lt;&lt; ' . gettext("Previous") . ' #';
             $previous_button.= ($seq - 1) . '-(' . $myrow2[0] . '-' . $myrow2[1] . ')">' . "\n";
         } else if ($i == $seq + 1) {
-            $next_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&gt;&gt; ' . _NEXT . ' #';
+            $next_button = '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="&gt;&gt; ' . gettext("Next") . ' #';
             $next_button.= ($seq + 1) . '-(' . $myrow2[0] . '-' . $myrow2[1] . ')">' . "\n";
         }
         $i++;
@@ -151,8 +151,8 @@ function PrintPacketLookupBrowseButtons($seq, $save_sql, $db, &$previous_button,
 */
 /* This call can include "#xx-(xx-xx)" values and "submit" values. */
 $submit = ImportHTTPVar("submit", VAR_DIGIT | VAR_PUNC | VAR_LETTER, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 //if(preg_match("/^#0(-\(\d+-\d+\))$/", $submit, $matches)){
@@ -162,10 +162,10 @@ $sort_order = ImportHTTPVar("sort_order", VAR_LETTER | VAR_USCORE);
 $_SERVER["QUERY_STRING"] = "submit=" . rawurlencode($submit);
 //unset($_GET["sort_order"]);
 $et = new EventTiming($debug_time_mode);
-$cs = new CriteriaState("base_qry_main.php", "&amp;new=1&amp;submit=" . _QUERYDBP);
+$cs = new CriteriaState("base_qry_main.php", "&amp;new=1&amp;submit=" . gettext("Query+DB"));
 $cs->ReadState();
 $qs = new QueryState();
-$page_title = _ALERT;
+$page_title = gettext("Event");
 PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
@@ -186,7 +186,7 @@ $qs->AddValidAction("del_alert");
 //$qs->AddValidAction("email_alert2");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-$qs->AddValidActionOp(_SELECTED);
+$qs->AddValidActionOp(gettext("Delete Selected"));
 $qs->SetActionSQL($sort_sql[0] . $from . $where);
 $et->Mark("Initialization");
 $qs->RunAction($submit, PAGE_ALERT_DISPLAY, $db);
@@ -195,7 +195,7 @@ $et->Mark("Alert Action");
 * But if $submit is returning from an alert action
 * get the (sid,cid) back from $caller
 */
-if ($submit == _SELECTED) $submit = ImportHTTPVar("caller", VAR_DIGIT | VAR_PUNC);
+if ($submit == gettext("Delete Selected")) $submit = ImportHTTPVar("caller", VAR_DIGIT | VAR_PUNC);
 else $caller = $submit;
 /* Setup the Query Results Table -- However, this data structure is not
 * really used for output.  Rather, it duplicates the sort SQL set in
@@ -269,7 +269,7 @@ if ($debug_mode > 0) echo "\n====== Alert Lookup =======<BR>
            seq = $seq<BR>\n" . "===========================<BR>\n";
 /* Verify that have extracted (sid, cid) correctly */
 if (!($sid > 0 && $cid > 0)) {
-    ErrorMessage(_QAINVPAIR . " (" . $sid . "," . $cid . ")");
+    ErrorMessage(gettext("Invalid (sid,cid) pair") . " (" . $sid . "," . $cid . ")");
     exit();
 }
 $tmp_sql = $sort_sql[1];
@@ -281,7 +281,7 @@ echo "<FORM METHOD=\"GET\" ACTION=\"base_qry_alert.php\">\n";
 // Normal view
 if (!array_key_exists("minimal_view", $_GET)) {
 	PrintPacketLookupBrowseButtons2($seq, $tmp_sql, $sort_sql[0] . $from . $where, $db, $previous, $next);
-	echo "<CENTER>\n<B>" . _ALERT . " #" . ($seq) . "</B><BR>\n$previous &nbsp&nbsp&nbsp\n$next\n</CENTER>\n";
+	echo "<CENTER>\n<B>" . gettext("Event") . " #" . ($seq) . "</B><BR>\n$previous &nbsp&nbsp&nbsp\n$next\n</CENTER>\n";
 	echo "<HR style='border:none;background:rgb(202, 202, 202);height:1px;margin-top:15px;margin-bottom:15px'>\n";
 // In graybox external minimal view (no pagging)
 } elseif (!array_key_exists("noback", $_GET)) {
@@ -302,7 +302,7 @@ $timestamp = $myrow2[2];
 $tzone = $myrow2[3];
 if ($plugin_id == "" || $plugin_sid == "") {
     echo '<CENTER><B>';
-    ErrorMessage(_QAALERTDELET);
+    ErrorMessage(gettext("Event DELETED"));
     echo '</CENTER></B>';
     echo "</body>\r\n</html>";
     exit(0);
@@ -418,12 +418,12 @@ echo '</TR>
 echo '  <TR>
              <TD>
                 <TABLE BORDER=0 CELLPADDING=4>
-                  <TR><TD CLASS="header2" ALIGN=CENTER ROWSPAN=2>' . _SENSOR  . '</TD>
-                       <TD class="header">', _SENSOR . ' ' . _ADDRESS, '</TD>
-                       <TD class="header">' . _INTERFACE . '</TD>
+                  <TR><TD CLASS="header2" ALIGN=CENTER ROWSPAN=2>' . gettext("Sensor")  . '</TD>
+                       <TD class="header">', gettext("Sensor") . ' ' . gettext("Address"), '</TD>
+                       <TD class="header">' . gettext("Interface") . '</TD>
                   </TR>
                   <TR><TD class="plfield">' . htmlspecialchars(($myrow4["sensor"]!="") ? $myrow4["sensor"] : $myrow4["hostname"]) . '</TD>
-                      <TD class="plfield">' . (($myrow4["interface"] == "") ? "&nbsp;<I>" . _NONE . "</I>&nbsp;" : $myrow4["interface"]) . '</TD>
+                      <TD class="plfield">' . (($myrow4["interface"] == "") ? "&nbsp;<I>" . gettext("none") . "</I>&nbsp;" : $myrow4["interface"]) . '</TD>
                   </TR>
                  </TABLE>     
              </TD>
@@ -433,7 +433,7 @@ if ($resolve_IP == 1) {
               <TD>
                 <TABLE BORDER=0 CELLPADDING=4>
                   <TR><TD CLASS="iptitle" ALIGN=CENTER ROWSPAN=2>FQDN</TD>
-                       <TD class="header">' . _SENSOR . ' ' . _NAME . '</TD>
+                       <TD class="header">' . gettext("Sensor") . ' ' . gettext("Name") . '</TD>
                   </TR>
                   <TR><TD class="plfield">' . (baseGetHostByAddr(($myrow4["sensor"]!="") ? $myrow4["sensor"] : $myrow4["hostname"], $db, $dns_cache_lifetime)) . '</TD>
                   </TR>
@@ -448,14 +448,14 @@ $num = $result4->baseRecordCount();
 echo ' <TR>
 <TD>
 <TABLE BORDER=0 CELLPADDING=4>
-<TR><TD CLASS="metatitle" ALIGN=CENTER ROWSPAN='.($num+1).'>'._ALERTGROUP.'</TD>';
+<TR><TD CLASS="metatitle" ALIGN=CENTER ROWSPAN='.($num+1).'>'.gettext("Event Group").'</TD>';
 
 if ( $num > 0 )
-echo '        <TD class="header">'._ID.'</TD>
-<TD class="header">'._NAME.'</TD>
-<TD class="header">'._DESC.'</TD></TR>';
+echo '        <TD class="header">'.gettext("ID").'</TD>
+<TD class="header">'.gettext("Name").'</TD>
+<TD class="header">'.gettext("Description").'</TD></TR>';
 else
-echo '        <TD class="plfield">&nbsp;&nbsp;<I>'._NONE.'</I>&nbsp;</TD></TR>';
+echo '        <TD class="plfield">&nbsp;&nbsp;<I>'.gettext("none").'</I>&nbsp;</TD></TR>';
 
 for ($i = 0; $i < $num; $i++)
 {
@@ -517,15 +517,15 @@ if ($myrow2 = $result2->baseFetchRow()) {
               <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=3 ALIGN=CENTER>IP';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
-        echo '            <TR><TD class="header">' . _NBSOURCEADDR . '</TD>
-                            <TD class="header">&nbsp;' . _NBDESTADDR . '&nbsp</TD>';
+        echo '            <TR><TD class="header">' . gettext("Source _NBSOURCEADDR nbsp;Address") . '</TD>
+                            <TD class="header">&nbsp;' . gettext("Dest. _NBDESTADDR nbsp;Address") . '&nbsp</TD>';
         if (in_array($plugin_id, $snort_ids)) {
             echo '
                             <TD class="header">Ver</TD>
                             <TD class="header">Hdr Len</TD>
                             <TD class="header">TOS</TD>
-                            <TD class="header">' . _LENGTH . '</TD>
-                            <TD class="header">' . _ID . '</TD>
+                            <TD class="header">' . gettext("length") . '</TD>
+                            <TD class="header">' . gettext("ID") . '</TD>
                             <TD class="header">fragment</TD>
                             <TD class="header">offset</TD>
                             <TD class="header">TTL</TD>
@@ -556,8 +556,8 @@ if ($myrow2 = $result2->baseFetchRow()) {
                   <TD>
                     <TABLE BORDER=0 CELLPADDING=4>
                       <TR><TD CLASS="iptitle" ALIGN=CENTER ROWSPAN=2>FQDN</TD>
-                           <TD class="header">' . _SOURCENAME . '</TD>
-                           <TD class="header">' . _DESTNAME . '</TD>
+                           <TD class="header">' . gettext("Source Name") . '</TD>
+                           <TD class="header">' . gettext("Dest. Name") . '</TD>
                       </TR>
                       <TR><TD class="plfield">' . (baseGetHostByAddr(baseLong2IP($myrow2[0]) , $db, $dns_cache_lifetime)) . '</TD>
                           <TD class="plfield">' . (baseGetHostByAddr(baseLong2IP($myrow2[1]) , $db, $dns_cache_lifetime)) . '</TD>
@@ -569,14 +569,14 @@ if ($myrow2 = $result2->baseFetchRow()) {
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=4>';
         if (in_array($plugin_id, $snort_ids)) {
-            echo '           <TR><TD CLASS="header2" ALIGN=CENTER ROWSPAN=' . (($num_opt != 0) ? ($num_opt + 1) : 1) . '>' . _OPTIONS . '</TD>';
+            echo '           <TR><TD CLASS="header2" ALIGN=CENTER ROWSPAN=' . (($num_opt != 0) ? ($num_opt + 1) : 1) . '>' . gettext("Options") . '</TD>';
         }
         $layer4_proto = $myrow2[11];
         if ($num_opt > 0) {
             echo '            <TD></TD>
-                           <TD class="header">' . _CODE . '</TD>
-                           <TD class="header">' . _LENGTH . '</TD>
-                           <TD class="header" ALIGN=CENTER>' . _DATA . '</TD>';
+                           <TD class="header">' . gettext("code") . '</TD>
+                           <TD class="header">' . gettext("length") . '</TD>
+                           <TD class="header" ALIGN=CENTER>' . gettext("data") . '</TD>';
             for ($i = 0; $i < $num_opt; $i++) {
                 $myrow3 = $result3->baseFetchRow();
                 echo '    <TR><TD>#' . ($i + 1) . '</TD>';
@@ -589,7 +589,7 @@ if ($myrow2 = $result2->baseFetchRow()) {
             }
         } else {
             if (in_array($plugin_id, $snort_ids)) {
-                echo '             <TD class="plfield"> &nbsp&nbsp&nbsp <I>' . _NONE . ' </I></TD></TR>';
+                echo '             <TD class="plfield"> &nbsp&nbsp&nbsp <I>' . gettext("none") . ' </I></TD></TR>';
             }
         }
         echo '         </TABLE></TD></TR>';
@@ -611,8 +611,8 @@ if ($layer4_proto == "6") {
                   <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>TCP';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
-        echo '            <TR><TD class="header">' . _SHORTSOURCE . ' ' . _PORT . '</TD>
-                                <TD class="header"> ' . _SHORTDEST . ' ' . _PORT . ' &nbsp</TD>';
+        echo '            <TR><TD class="header">' . gettext("Source") . ' ' . gettext("Port") . '</TD>
+                                <TD class="header"> ' . gettext("Dest") . ' ' . gettext("Port") . ' &nbsp</TD>';
         if (in_array($plugin_id, $snort_ids)) {
             echo '                <TD class="header">R 1</TD>
             	                    <TD class="header">R 0</TD>
@@ -686,12 +686,12 @@ if ($layer4_proto == "6") {
         echo '      <TD>';
         if (in_array($plugin_id, $snort_ids)) {
             echo '         <TABLE BORDER=0 CELLPADDING=4>';
-            echo '           <TR><TD CLASS="header3" ALIGN=CENTER ROWSPAN=' . (($num_opt != 0) ? ($num_opt + 1) : 1) . '>' . _OPTIONS . '</TD>';
+            echo '           <TR><TD CLASS="header3" ALIGN=CENTER ROWSPAN=' . (($num_opt != 0) ? ($num_opt + 1) : 1) . '>' . gettext("Options") . '</TD>';
             if ($num_opt != 0) {
                 echo '            <TD></TD>
-                               <TD class="header">' . _CODE . '</TD>
-                               <TD class="header">' . _LENGTH . '</TD>
-                               <TD class="header">' . _DATA . '</TD>';
+                               <TD class="header">' . gettext("code") . '</TD>
+                               <TD class="header">' . gettext("length") . '</TD>
+                               <TD class="header">' . gettext("data") . '</TD>';
                 for ($i = 0; $i < $num_opt; $i++) {
                     $myrow3 = $result3->baseFetchRow();
                     echo '    <TR><TD class="plfield">#' . ($i + 1) . '</TD>';
@@ -703,7 +703,7 @@ if ($layer4_proto == "6") {
                     echo '</TD></TR>';
                 }
             } else {
-                echo '             <TD class="plfield"> &nbsp;&nbsp;&nbsp; <I>' . _NONE . ' </I></TD></TR>';
+                echo '             <TD class="plfield"> &nbsp;&nbsp;&nbsp; <I>' . gettext("none") . ' </I></TD></TR>';
             }
             echo '         </TABLE>';
         }
@@ -723,9 +723,9 @@ if ($layer4_proto == "17") {
                   <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>UDP</TD>';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
-        echo '            <TR><TD class="header">' . _SOURCEPORT . '</TD>
-                                <TD class="header">' . _DESTPORT . '</TD>
-                                <TD class="header">' . _LENGTH . '</TD></TR>';
+        echo '            <TR><TD class="header">' . gettext("source port") . '</TD>
+                                <TD class="header">' . gettext("dest port") . '</TD>
+                                <TD class="header">' . gettext("length") . '</TD></TR>';
         $src_port = $myrow2[2] . '<BR>';
         foreach($external_port_link as $name => $baseurl) {
             $src_port = $src_port . '[<A HREF="' . $baseurl . $myrow2[2] . '" TARGET="_ACID_PORT_">' . $name . '</A>] ';
@@ -752,10 +752,10 @@ if ($layer4_proto == "1") {
                   <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=2 ALIGN=CENTER>ICMP';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
-        echo '            <TR><TD class="header">' . _TYPE . '</TD>
-                               <TD class="header">' . _CODE . '</TD>
+        echo '            <TR><TD class="header">' . gettext("type") . '</TD>
+                               <TD class="header">' . gettext("code") . '</TD>
                                <TD class="header">checksum</TD>
-                               <TD class="header">' . _ID . '</TD>
+                               <TD class="header">' . gettext("ID") . '</TD>
                                <TD class="header">seq #</TR>';
         echo '            <TR><TD class="plfield">(' . $myrow2[0] . ') ' . ICMPType2str($myrow2[0]) . '</TD>';
         echo '                <TD class="plfield">(' . $myrow2[1] . ') ' . ICMPCode2str($myrow2[0], $myrow2[1]) . '</TD>';
@@ -902,8 +902,8 @@ if ($payload) {
 } else {
     /* Don't have payload so lets print out why by checking the detail level */
     /* if have fast detail level */
-    if ($detail == "0") echo '<BR> &nbsp <I>' . _QANOPAYLOAD . '</I><BR>';
-    else echo '<BR> &nbsp <I>' . _NONE . ' </I><BR>';
+    if ($detail == "0") echo '<BR> &nbsp <I>' . gettext("Fast logging used -i so payload was discarded") . '</I><BR>';
+    else echo '<BR> &nbsp <I>' . gettext("none") . ' </I><BR>';
 }
 ?>
   <tr>

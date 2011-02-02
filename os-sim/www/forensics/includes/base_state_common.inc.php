@@ -72,7 +72,7 @@ function RegisterGlobalState() {
         }
     }
     //session_start();
-    if ($GLOBALS['debug_mode'] > 0) echo '<FONT COLOR="#FF0000">' . _PHPSESSREG . '</FONT><BR>';
+    if ($GLOBALS['debug_mode'] > 0) echo '<FONT COLOR="#FF0000">' . gettext("Session Registered") . '</FONT><BR>';
 }
 /* ***********************************************************************
 * Function: CleanVariable()

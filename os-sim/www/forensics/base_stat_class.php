@@ -31,12 +31,12 @@ $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $qs->MoveView($submit); /* increment the view if necessary */
-$page_title = _CHRTCLASS;
+$page_title = gettext("Classification");
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
@@ -81,8 +81,8 @@ $qs->AddValidAction("del_alert");
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-$qs->AddValidActionOp(_SELECTED);
-$qs->AddValidActionOp(_ALLONSCREEN);
+$qs->AddValidActionOp(gettext("Delete Selected"));
+$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 $et->Mark("Initialization");
 $qs->RunAction($submit, PAGE_STAT_CLASS, $db);
@@ -97,14 +97,14 @@ $et->Mark("Counting Result size");
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_class.php?caller=" . $caller);
 $qro->AddTitle(" ");
-$qro->AddTitle(_CHRTCLASS, "class_a", " ", " ORDER BY sig_class_id ASC", "class_d", " ", " ORDER BY sig_class_id DESC");
-$qro->AddTitle(_TOTAL . "&nbsp;#", "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
-$qro->AddTitle(_SENSOR . "&nbsp;#", "sensor_a", " ", " ORDER BY num_sensors ASC", "sensor_d", " ", " ORDER BY num_sensors DESC");
+$qro->AddTitle(gettext("Classification"), "class_a", " ", " ORDER BY sig_class_id ASC", "class_d", " ", " ORDER BY sig_class_id DESC");
+$qro->AddTitle(gettext("Total") . "&nbsp;#", "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
+$qro->AddTitle(gettext("Sensor") . "&nbsp;#", "sensor_a", " ", " ORDER BY num_sensors ASC", "sensor_d", " ", " ORDER BY num_sensors DESC");
 $qro->AddTitle(gettext("Signature"), "sig_a", " ", " ORDER BY num_sig ASC", "sig_d", " ", " ORDER BY num_sig DESC");
-$qro->AddTitle(_NBSOURCEADDR, "saddr_a", " ", " ORDER BY num_sip ASC", "saddr_d", " ", " ORDER BY num_sip DESC");
-$qro->AddTitle(_NBDESTADDR, "daddr_a", " ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
-$qro->AddTitle(_FIRST, "first_a", " ", " ORDER BY first_timestamp ASC", "first_d", " ", " ORDER BY first_timestamp DESC");
-$qro->AddTitle(_LAST, "last_a", " ", " ORDER BY last_timestamp ASC", "last_d", " ", " ORDER BY last_timestamp DESC");
+$qro->AddTitle(gettext("Source(_NBSOURCEADDR,nbsp;Address"), "saddr_a", " ", " ORDER BY num_sip ASC", "saddr_d", " ", " ORDER BY num_sip DESC");
+$qro->AddTitle(gettext("Dest.(_NBDESTADDR,nbsp;Address"), "daddr_a", " ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
+$qro->AddTitle(gettext("First"), "first_a", " ", " ORDER BY first_timestamp ASC", "first_d", " ", " ORDER BY first_timestamp DESC");
+$qro->AddTitle(gettext("Last"), "last_a", " ", " ORDER BY last_timestamp ASC", "last_d", " ", " ORDER BY last_timestamp DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 $sql = "SELECT DISTINCT sig_class_id, " . " COUNT(acid_event.cid) as num_events," . " COUNT( DISTINCT acid_event.sid) as num_sensors, " . " COUNT( DISTINCT signature ) as num_sig, " . " COUNT( DISTINCT ip_src ) as num_sip, " . " COUNT( DISTINCT ip_dst ) as num_dip, " . " min(timestamp) as first_timestamp, " . " max(timestamp) as last_timestamp " . $sort_sql[0] . $from . $where . " GROUP BY sig_class_id " . $sort_sql[1];
 //echo $sql."<br>";
@@ -162,7 +162,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
              </TD>';
     echo '      <INPUT TYPE="hidden" NAME="action_lst[' . $i . ']" VALUE="' . $tmp_rowid . '">';
     qroPrintEntry(GetSigClassName($class_id, $db));
-    qroPrintEntry('<FONT>' . '<A HREF="base_qry_main.php?new=1&amp;sig_class=' . $class_id . '&amp;submit=' . _QUERYDBP . '&amp;num_result_rows=-1">' . $total_occurances . '</A> 
+    qroPrintEntry('<FONT>' . '<A HREF="base_qry_main.php?new=1&amp;sig_class=' . $class_id . '&amp;submit=' . gettext("Query+DB") . '&amp;num_result_rows=-1">' . $total_occurances . '</A> 
                    (' . (round($total_occurances / $event_cnt * 100)) . '%)' . '</FONT>');
     qroPrintEntry('<FONT><A HREF="base_stat_sensor.php?sig_class=' . $class_id . '">' . $sensor_num . '</A>');
     qroPrintEntry('<FONT><A HREF="base_stat_alerts.php?sig_class=' . $class_id . '">' . $sig_num . '</FONT>');

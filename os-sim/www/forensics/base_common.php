@@ -311,7 +311,7 @@ function PrintProtocolProfileGraphs($db) {
     else $color = "#CCCCCC";
     $rem_percent = 100 - $tcp_percent;
     echo '<TABLE WIDTH="100%" BORDER=0>
-         <TR><TD>TCP<A HREF="base_qry_main.php?new=1' . '&amp;layer4=TCP&amp;num_result_rows=-1&amp;sort_order=time_d&amp;submit=' . _QUERYDBP . '">
+         <TR><TD>TCP<A HREF="base_qry_main.php?new=1' . '&amp;layer4=TCP&amp;num_result_rows=-1&amp;sort_order=time_d&amp;submit=' . gettext("Query+DB") . '">
                            (' . $tcp_percent_show . '%)</A></TD><TD></TD></TR></TABLE>
                   <TABLE class="summarygraph" WIDTH="100%" BORDER=0 CELLSPACING=0 CELLPADDING=0>
                   <TR><TD ALIGN=CENTER BGCOLOR="' . $color . '" WIDTH="' . $tcp_percent . '%">&nbsp;</TD>';
@@ -321,7 +321,7 @@ function PrintProtocolProfileGraphs($db) {
     else $color = "#CCCCCC";
     $rem_percent = 100 - $udp_percent;
     echo '<TABLE WIDTH="100%" BORDER=0>
-          <TR><TD>UDP<A HREF="base_qry_main.php?new=1' . '&amp;layer4=UDP&amp;num_result_rows=-1&amp;sort_order=time_d&amp;submit=' . _QUERYDBP . '">
+          <TR><TD>UDP<A HREF="base_qry_main.php?new=1' . '&amp;layer4=UDP&amp;num_result_rows=-1&amp;sort_order=time_d&amp;submit=' . gettext("Query+DB") . '">
                             (' . $udp_percent_show . '%)</A></TD><TD></TD></TR></TABLE>
                   <TABLE class="summarygraph" WIDTH="100%" BORDER=0 CELLSPACING=0 CELLPADDING=0>
                   <TR><TD ALIGN=CENTER BGCOLOR="' . $color . '" WIDTH="' . $udp_percent . '%">&nbsp;</TD>';
@@ -331,7 +331,7 @@ function PrintProtocolProfileGraphs($db) {
     else $color = "#CCCCCC";
     $rem_percent = 100 - $icmp_percent;
     echo '<TABLE WIDTH="100%" BORDER=0>
-           <TR><TD>ICMP<A HREF="base_qry_main.php?new=1' . '&amp;layer4=ICMP&amp;num_result_rows=-1&amp;sort_order=time_d&amp;submit=' . _QUERYDBP . '">
+           <TR><TD>ICMP<A HREF="base_qry_main.php?new=1' . '&amp;layer4=ICMP&amp;num_result_rows=-1&amp;sort_order=time_d&amp;submit=' . gettext("Query+DB") . '">
                               (' . $icmp_percent_show . '%)</A></TD><TD></TD></TR></TABLE>
                   <TABLE class="summarygraph" WIDTH="100%" BORDER=0 CELLSPACING=0 CELLPADDING=0>
                   <TR><TD ALIGN=CENTER BGCOLOR="' . $color . '" WIDTH="' . $icmp_percent . '%">&nbsp;</TD>';
@@ -342,8 +342,8 @@ function PrintProtocolProfileGraphs($db) {
     else $color = "#CCCCCC";
     $rem_percent = 100 - $portscan_percent;
     echo '<TABLE WIDTH="100%" BORDER=0>
-           <TR><TD>' . _PORTSCAN . '
-               <A HREF="base_qry_main.php?new=1' . '&amp;layer4=RawIP&amp;num_result_rows=-1&amp;sort_order=time_d&amp;submit=' . _QUERYDBP . '">(' . $portscan_percent_show . '%)</A>
+           <TR><TD>' . gettext("Portscan Traffic") . '
+               <A HREF="base_qry_main.php?new=1' . '&amp;layer4=RawIP&amp;num_result_rows=-1&amp;sort_order=time_d&amp;submit=' . gettext("Query+DB") . '">(' . $portscan_percent_show . '%)</A>
                     </TD><TD></TD></TR></TABLE>
                   <TABLE class="summarygraph" WIDTH="100%" BORDER=0 CELLSPACING=0 CELLPADDING=0>
                   <TR><TD ALIGN=CENTER BGCOLOR="' . $color . '" WIDTH="' . $portscan_percent . '%">&nbsp;</TD>';
@@ -727,7 +727,7 @@ function PrintBase64PacketPayload($encoded_payload, $output_type) {
     $encoded_payload = str_replace("\n", "", $encoded_payload);
     $payload = base64_decode($encoded_payload);
     $len = strlen($payload);
-    $s = " " . _LENGTH . " = " . strlen($payload) . "\n";
+    $s = " " . gettext("length") . " = " . strlen($payload) . "\n";
     for ($i = 0; $i < strlen($payload); $i++) {
         if ($i % 16 == 0) {
             /* dump the ASCII characters */
@@ -758,7 +758,7 @@ function PrintHexPacketPayload($encoded_payload, $output_type) {
     $encoded_payload = str_replace("\n", "", $encoded_payload);
     $payload = $encoded_payload;
     $len = strlen($payload);
-    $s = " " . _LENGTH . " = " . (strlen($payload) / 2) . "\n";
+    $s = " " . gettext("length") . " = " . (strlen($payload) / 2) . "\n";
     for ($i = 0; $i < strlen($payload); $i+= 2) {
         if ($i % 32 == 0) {
             /* dump the ASCII characters */

@@ -427,7 +427,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$cell_pdfdata['DATE'] = str_replace(" ","<br>",$tzdate);
 	$cell_align['DATE'] = "center";
 	$cell_more['DATE'] = "nowrap";
-    //$tmp_iplookup = 'base_qry_main.php?sig%5B0%5D=%3D' . '&amp;num_result_rows=-1' . '&amp;time%5B0%5D%5B0%5D=+&amp;time%5B0%5D%5B1%5D=+' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1&amp;ip_addr_cnt=2';
+    //$tmp_iplookup = 'base_qry_main.php?sig%5B0%5D=%3D' . '&amp;num_result_rows=-1' . '&amp;time%5B0%5D%5B0%5D=+&amp;time%5B0%5D%5B1%5D=+' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1&amp;ip_addr_cnt=2';
     /* TCP or UDP show the associated port #
     if ( ($current_proto == TCP) || ($current_proto == UDP) )
     $result4 = $db->baseExecute("SELECT layer4_sport, layer4_dport FROM acid_event ".
@@ -483,11 +483,11 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
                 }
             }
         } else {
-			//qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . _UNKNOWN . '</A>');
-			$cell_data['IP_PORTSRC'] = '<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . _UNKNOWN . '</A>';
+			//qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>');
+			$cell_data['IP_PORTSRC'] = '<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>';
 		}
-		$cell_data['IP_SRC'] = _UNKNOWN;
-		$cell_data['PORT_SRC'] = _UNKNOWN;
+		$cell_data['IP_SRC'] = gettext("unknown");
+		$cell_data['PORT_SRC'] = gettext("unknown");
     }
     $cell_align['IP_PORTSRC'] = "center";
     $cell_align['IP_SRC'] = "center";
@@ -522,10 +522,10 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 		$cell_data['PORT_DST'] = str_replace(":","",$current_dport);
 		//qroPrintEntry($div.'<A HREF="base_stat_ipaddr.php?ip=' . $current_dip . '&amp;netmask32">' . $dip_aux . '</A><FONT SIZE="-1">' . $current_dport . '</FONT>' . $country_img . $homelan . $bdiv, 'center', 'top', 'nowrap');
     } else {
-		//qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . _UNKNOWN . '</A>');
-		$cell_data['IP_PORTDST'] = '<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . _UNKNOWN . '</A>';
-		$cell_data['IP_DST'] = _UNKNOWN;
-		$cell_data['PORT_DST'] = _UNKNOWN;
+		//qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>');
+		$cell_data['IP_PORTDST'] = '<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>';
+		$cell_data['IP_DST'] = gettext("unknown");
+		$cell_data['PORT_DST'] = gettext("unknown");
 	}
     $cell_align['IP_PORTDST'] = "center";
     $cell_align['IP_DST'] = "center";

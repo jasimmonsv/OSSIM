@@ -82,7 +82,7 @@ class QueryState {
         );
     }
     function PrintCannedQueryList() {
-        echo "<BR><B>" . _VALIDCANNED . "</B>\n<PRE>\n";
+        echo "<BR><B>" . gettext("Valid Canned Query List") . "</B>\n<PRE>\n";
         print_r($this->canned_query_list);
         echo "</PRE>\n";
     }
@@ -206,7 +206,7 @@ class QueryState {
         }
         if ($this->num_result_rows != 0) {
             if ($this->isCannedQuery()) {
-                echo "<div style='text-align:left;margin:auto'>" . _DISPLAYING . " " . $this->GetCurrentCannedQueryDesc() . "</div>";
+                echo "<div style='text-align:left;margin:auto'>" . gettext("Displaying") . " " . $this->GetCurrentCannedQueryDesc() . "</div>";
             } else {
                 // Total rows
                 $rt = $db->baseExecute("SELECT count(*) from acid_event");
@@ -245,7 +245,7 @@ class QueryState {
                 }
                 echo "</tr></table></div>\n";
             }
-        } else printf("<P style='color:#22971F'><B>" . _("No events matching your search criteria have been found. Try fewer conditions.") . "</B>&nbsp;<a href='base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB'>[..." . _("Clear All Criteria") . "...]</a><P>\n");
+        } else printf("<P style='color:#22971F'><B>" . _("No events matching your search criteria have been found. Try fewer conditions.") . "</B>&nbsp;<a href='base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d'>[..." . _("Clear All Criteria") . "...]</a><P>\n");
     }
     function SaveReportData($data,$type=0) {
         GLOBAL $db;
@@ -263,7 +263,7 @@ class QueryState {
         /* Don't print browsing buttons for canned query */
         if ($this->isCannedQuery()) return;
         if (($this->num_result_rows > 0) && ($this->num_result_rows > $show_rows)) {
-            echo "<!-- Query Result Browsing Buttons -->\n" . "<P><CENTER>\n" . "<TABLE cellpadding=6 cellspacing=0 BORDER=0 style='border:1px solid #CACACA'>\n" . "   <TR><TD ALIGN=CENTER style='background:url(\"../pixmaps/fondo_hdr2.png\") repeat-x;font-size:12px;font-weight:bold;padding-bottom:10px'>" . _QUERYRESULTS . "<BR><br>&nbsp\n";
+            echo "<!-- Query Result Browsing Buttons -->\n" . "<P><CENTER>\n" . "<TABLE cellpadding=6 cellspacing=0 BORDER=0 style='border:1px solid #CACACA'>\n" . "   <TR><TD ALIGN=CENTER style='background:url(\"../pixmaps/fondo_hdr2.png\") repeat-x;font-size:12px;font-weight:bold;padding-bottom:10px'>" . gettext("Query Results") . "<BR><br>&nbsp\n";
             $tmp_num_views = ($this->num_result_rows / $show_rows);
             $tmp_top = $tmp_bottom = $max_scroll_buttons / 2;
             if (($this->current_view - ($max_scroll_buttons / 2)) >= 0) $tmp_bottom = $this->current_view - $max_scroll_buttons / 2;
@@ -285,7 +285,7 @@ class QueryState {
 		GLOBAL $BASE_urlpath;
         if ($this->valid_action_list == NULL) return;
         echo "\n\n<!-- Alert Action Buttons -->\n" . "<br><CENTER>\n" . " <TABLE BORDER=0 cellpadding=6 cellspacing=0>\n" . "  <TR>\n" . "   <TD ALIGN=CENTER style='background:url(\"../pixmaps/fondo_hdr2.png\") repeat-x;font-size:12px;font-weight:bold;padding-bottom:10px;padding-top:10px; border:1px solid #CACACA;'>";
-        //echo  _ACTION . "<BR><br>\n<SELECT NAME=\"action\">\n" . '      <OPTION VALUE=" "         ' . chk_select($this->action, " ") . '>' . _DISPACTION . "\n";
+        //echo  gettext("ACTION") . "<BR><br>\n<SELECT NAME=\"action\">\n" . '      <OPTION VALUE=" "         ' . chk_select($this->action, " ") . '>' . gettext("{ action }") . "\n";
         echo "<SELECT style='display:none' NAME=\"action\">";
         reset($this->valid_action_list);
         while ($current_action = each($this->valid_action_list)) {
@@ -295,7 +295,7 @@ class QueryState {
         if ($this->action_arg!="") echo "    <INPUT TYPE=\"text\" NAME=\"action_arg\" VALUE=\"" . $this->action_arg . "\">\n";
         reset($this->valid_action_op_list);
         while ($current_op = each($this->valid_action_op_list)) {
-            if ($current_op["value"] == _ENTIREQUERY) 
+            if ($current_op["value"] == gettext("Delete Entire Query")) 
                 echo "    <input type=\"submit\" style=\"display:none\" id=\"eqbtn\" NAME=\"submit\" VALUE=\"" . $current_op["value"] . "\"/><INPUT TYPE=\"button\" class=\"button\" onclick=\"if (confirm('"._("Are you sure?")."')) $('#eqbtn').click()\" VALUE=\"" . $current_op["value"] . "\">\n";
             else
                 echo "    <input type=\"submit\" class=\"button\" NAME=\"submit\" VALUE=\"" . $current_op["value"] . "\"/>\n";
@@ -328,7 +328,7 @@ class QueryState {
         return "?caller=" . $this->current_canned_query . "&amp;num_result_rows=" . $this->num_result_rows . "&amp;current_view=" . $this->current_view;
     }
     function DumpState() {
-        echo "<B>" . _QUERYSTATE . "</B><BR>
+        echo "<B>" . gettext("Query State") . "</B><BR>
           caller = '$this->current_canned_query'<BR>
           num_result_rows = '$this->num_result_rows'<BR>
           sort_order = '$this->current_sort_order'<BR>

@@ -218,7 +218,7 @@ if ($Use_Auth_System == 1) {
 ?>
 				</td>
 				<td align="right">
-					<table border='0' cellpadding='0' cellspacing='0'>
+					<table border='0' cellpadding='0' cellspacing='0'> 
 					<tr>
 						<td align="right">
 							<table width="100%">
@@ -226,7 +226,7 @@ if ($Use_Auth_System == 1) {
 									<td>
 										<table border='0' cellpadding='0' cellspacing='0'>
 										<tr><td align='right'>
-											<a href="javascript:history.go(-1)" style="color:black;font-size:12px;font-weight:bold"><?php echo _("Back")?> <img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a> &nbsp;<font style="color:green;font-weight:bold;font-size:14px">|</font>&nbsp; <a href="javascript:document.location.reload()" style="color:black;font-size:12px;font-weight:bold"><?php echo _("Refresh")?> <img src='../pixmaps/refresh.png' alt='Back' title='Back' border='0' align='absmiddle'></a><!--<a href="javascript:history.go(-1)"><img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a>-->
+											<a href="javascript:history.go(-1)" style="color:black;font-size:12px;font-weight:bold"><?php echo _("Back")?> <img src='./images/back.png' alt='<?php echo _("Back")?>' title='<?php echo _("Back")?>' border='0' align='absmiddle'></a> &nbsp;<font style="color:green;font-weight:bold;font-size:14px">|</font>&nbsp; <a href="javascript:document.location.reload()" style="color:black;font-size:12px;font-weight:bold"><?php echo _("Refresh")?> <img src='../pixmaps/refresh.png' alt='<?php echo _("Refresh")?>' title='<?php echo _("Refresh")?>' border='0' align='absmiddle'></a><!--<a href="javascript:history.go(-1)"><img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a>-->
 											</td>
 										<td align='right'> <?php echo str_replace (">Back","><span style='padding-left: 5px; color: rgb(51, 51, 51); font-weight: bold;font-size:14px;'>Back</span>",str_replace("|","<font style='color:green;font-size:14px;font-weight:bold'></font>",$back_link))
 			?>  <!--<a style="color:black;font-size:12px;font-weight:bold" href="base_qry_main.php?submit=--><?php //echo _QUERYDB
@@ -605,7 +605,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 			<tr>
 				<td id="task" style="display:none" nowrap>
 					<div class="balloon">
-						<a href="#"><img src="images/alarm-clock-blue.png" align="absmiddle" border=0> <i> Background task in progress</i>
+						<a href="#"><img src="images/alarm-clock-blue.png" align="absmiddle" border=0> <i> <?php echo gettext("Background task in progress"); ?></i>
 						<span class="tooltip">
 								<span class="top"></span>
 								<span class="middle" id="bgtask"><?php echo _("No pending tasks") ?>.</span>
@@ -621,7 +621,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 <!--
 <tr>
 	<td><?php
-//PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+//PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
 //PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
 
 ?></td>
@@ -631,7 +631,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 		<table width="100%">
 			<tr>
 				<td width="250" nowrap><B><?php echo _QUERIED
-?></B><FONT> : <?php echo strftime(_STRFTIMEFORMAT) ?></FONT></td>
+?></B><FONT> : <?php echo strftime(gettext("%a %B %d, %Y %H:%M:%S")) ?></FONT></td>
 				<td width="130" nowrap><div id="forensics_time"></div></td>
 			</tr>
 		</table>

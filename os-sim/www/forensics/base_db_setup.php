@@ -23,7 +23,7 @@ include_once ("$BASE_path/base_common.php");
 include_once ("$BASE_path/setup/setup_db.inc.php");
 $et = new EventTiming($debug_time_mode);
 $page_title = "DB Setup";
-PrintBASESubHeader($page_title, $page_title, _BACK, 1);
+PrintBASESubHeader($page_title, $page_title, gettext("Back"), 1);
 ?>
 
 <FORM METHOD="POST" ACTION="base_db_setup.php">

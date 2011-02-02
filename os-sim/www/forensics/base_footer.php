@@ -20,8 +20,8 @@ if (!isset($noDisplayMenu)) {
     <table width='90%' style='border:0'>
     <tr>
     <td class='menuitem'>
-    <a class='menuitem' href='". $BASE_urlpath ."/base_ag_main.php?ag_action=list'>". _AGMAINT."</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-    <a class='menuitem' href='". $BASE_urlpath ."/base_maintenance.php'>". _CACHE."</a>&nbsp;&nbsp;|&nbsp;&nbsp;";*/
+    <a class='menuitem' href='". $BASE_urlpath ."/base_ag_main.php?ag_action=list'>". gettext("Event Group Maintenance")."</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a class='menuitem' href='". $BASE_urlpath ."/base_maintenance.php'>". gettext("Cache  _CACHE. Status")."</a>&nbsp;&nbsp;|&nbsp;&nbsp;";*/
     // Commented in (20/02/2009 Granada)
     echo "<div>
         <table width='100%' style='border:0'>
@@ -29,10 +29,10 @@ if (!isset($noDisplayMenu)) {
             <td class='administration'>
                 <a href='" . $BASE_urlpath . "/base_maintenance.php'>Administration</a>";
     if ($Use_Auth_System == 1) {
-        echo ("<a class='menuitem' href='" . $BASE_urlpath . "/base_user.php'>" . _USERPREF . "</a>&nbsp;&nbsp;|&nbsp;&nbsp;");
-        echo ("<a class='menuitem' href='" . $BASE_urlpath . "/base_logout.php'>" . _LOGOUT . "</a>&nbsp;&nbsp;|&nbsp;&nbsp;");
+        echo ("<a class='menuitem' href='" . $BASE_urlpath . "/base_user.php'>" . gettext("User Preferences") . "</a>&nbsp;&nbsp;|&nbsp;&nbsp;");
+        echo ("<a class='menuitem' href='" . $BASE_urlpath . "/base_logout.php'>" . gettext("Logout") . "</a>&nbsp;&nbsp;|&nbsp;&nbsp;");
     }
-    //echo "<a class='menuitem' href='". $BASE_urlpath ."/admin/index.php'>". _ADMIN ."</a>
+    //echo "<a class='menuitem' href='". $BASE_urlpath ."/admin/index.php'>". gettext("Administration") ."</a>
     echo "   </td>
         </tr>
     </table>

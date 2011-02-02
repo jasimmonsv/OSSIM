@@ -66,7 +66,7 @@ echo _TITLE . $BASE_VERSION; ?> -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php
-echo _CHARSET; ?>">
+echo gettext("iso-8859-1"); ?>">
   <meta http-equiv="pragma" content="no-cache">
   <link rel="stylesheet" href="../style/style.css"/>
 <?php

@@ -106,7 +106,7 @@ function VerifyGraphingLib() {
     GLOBAL $debug_mode;
     /* Check if GD is compiled into PHP */
     if (!(function_exists("ImageDestroy"))) {
-        echo "<FONT COLOR=\"#FF0000\">" . _ERRPHPERROR . "</FONT>:
+        echo "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>:
             <B>PHP build incomplete</B>: <FONT>
             the prerequisite GD support required to
             generate graphs was not built into PHP.

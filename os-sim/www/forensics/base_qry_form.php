@@ -24,24 +24,24 @@ if ($submit == "UDP") {
 if ($submit == "ICMP") {
     $cs->criteria['layer4']->Set("ICMP");
 }
-if ($submit == _NOLAYER4) {
+if ($submit == gettext("no layer4")) {
     $cs->criteria['layer4']->Set("");
 }
-if ($submit == _ADDTIME && $cs->criteria['time']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['time']->AddFormItem($submit, $cs->criteria['layer4']->Get());
-if ($submit == _ADDADDRESS && $cs->criteria['ip_addr']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['ip_addr']->AddFormItem($submit, $cs->criteria['layer4']->Get());
-if ($submit == _ADDIPFIELD && $cs->criteria['ip_field']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['ip_field']->AddFormItem($submit, $cs->criteria['layer4']->Get());
-if ($submit == _ADDTCPPORT && $cs->criteria['tcp_port']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['tcp_port']->AddFormItem($submit, $cs->criteria['layer4']->Get());
-if ($submit == _ADDTCPFIELD && $cs->criteria['tcp_field']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['tcp_field']->AddFormItem($submit, $cs->criteria['layer4']->Get());
-if ($submit == _ADDUDPPORT && $cs->criteria['udp_port']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['udp_port']->AddFormItem($submit, $cs->criteria['layer4']->Get());
-if ($submit == _ADDUDPFIELD && $cs->criteria['udp_field']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['udp_field']->AddFormItem($submit, $cs->criteria['layer4']->Get());
-if ($submit == _ADDICMPFIELD && $cs->criteria['icmp_field']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['icmp_field']->AddFormItem($submit, $cs->criteria['layer4']->Get());
-if ($submit == _ADDPAYLOAD && $cs->criteria['data']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['data']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD TIME") && $cs->criteria['time']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['time']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD Addr") && $cs->criteria['ip_addr']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['ip_addr']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD IP Field") && $cs->criteria['ip_field']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['ip_field']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD TCP Port") && $cs->criteria['tcp_port']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['tcp_port']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD TCP Field") && $cs->criteria['tcp_field']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['tcp_field']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD UDP Port") && $cs->criteria['udp_port']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['udp_port']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD UDP Field") && $cs->criteria['udp_field']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['udp_field']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD ICMP Field") && $cs->criteria['icmp_field']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['icmp_field']->AddFormItem($submit, $cs->criteria['layer4']->Get());
+if ($submit == gettext("ADD Payload") && $cs->criteria['data']->GetFormItemCnt() < $MAX_ROWS) $cs->criteria['data']->AddFormItem($submit, $cs->criteria['layer4']->Get());
 echo '
 
 <!-- ************ Meta Criteria ******************** -->
 <TABLE WIDTH="100%" BORDER=0 cellspacing=5>
   <TR>
-      <TD WIDTH="100%" CLASS="header"><B>' . _QCMETACRIT . '</B></TD>
+      <TD WIDTH="100%" CLASS="header"><B>' . gettext("Meta Criteria") . '</B></TD>
       </TR>
 </TABLE>';
 ?>
@@ -74,26 +74,26 @@ echo '
 echo '<TABLE WIDTH="100%" cellspacing=5 class="query">
   <TR>
       <TD COLSPAN=2>
-           <B>' . _SENSOR . ': </B>';
+           <B>' . gettext("Sensor") . ': </B>';
 $cs->criteria['sensor']->PrintForm();
 echo '<input type="text" name="filter" size="15"> <input type="button" class="button" value="Apply filter" onclick="changesensor(this.form.filter.value)">'; // filter
 echo '</TD></tr><tr><TD COLSPAN=2>';
-echo '<B>' . _ALERTGROUP . ': </B>';
+echo '<B>' . gettext("Event Group") . ': </B>';
 $cs->criteria['ag']->PrintForm();
 echo '</td></tr>';
 //echo '<TR>
-//            <TD><B>' . _SIGNATURE . ': </B></TD>
+//            <TD><B>' . gettext("Signature") . ': </B></TD>
 //           <TD>';
 //$cs->criteria['sig']->PrintForm();
 //if ($db->baseGetDBversion() >= 103) {
-//    echo '<B>' . _CHRTCLASS . ': </B>';
+//    echo '<B>' . gettext("Classification") . ': </B>';
 //    $cs->criteria['sig_class']->PrintForm();
-//    echo '<B>' . _PRIORITY . ': </B>';
+//    echo '<B>' . gettext("Priority") . ': </B>';
 //    $cs->criteria['sig_priority']->PrintForm();
 //}
 //echo '</TD></TR>';
 echo '<TR>
-      <TD><B>' . _ALERTTIME . ':</B></TD>
+      <TD><B>' . gettext("Event Time") . ':</B></TD>
       <TD>';
 $cs->criteria['time']->PrintForm();
 echo '<TR>
@@ -114,16 +114,16 @@ echo '
 <ul id="zMenu">';
 echo '
 <p>    </p>
-<li> <a href="#">' . _QCIPCRIT . '</a>
+<li> <a href="#">' . gettext("IP Criteria") . '</a>
 <ul>      
 <!-- ************ IP Criteria ******************** -->
 <P>
 
 <TABLE WIDTH="90%" BORDER=0 class="query">';
-echo '<TR><TD VALIGN=TOP><B>' . _ADDRESS . ':</B>';
+echo '<TR><TD VALIGN=TOP><B>' . gettext("Address") . ':</B>';
 echo '    <TD>';
 $cs->criteria['ip_addr']->PrintForm();
-echo '<TR><TD><B>' . _MISC . ':</B>';
+echo '<TR><TD><B>' . gettext("Misc") . ':</B>';
 echo '    <TD>';
 $cs->criteria['ip_field']->PrintForm();
 echo '
@@ -138,21 +138,21 @@ echo '
 if ($cs->criteria['layer4']->Get() == "TCP") {
     echo '
     <p></p>
-<li> <a href="#">' . _QCTCPCRIT . '</a>
+<li> <a href="#">' . gettext("TCP Criteria") . '</a>
       <ul>
 <!-- ************ TCP Criteria ******************** -->
 <P>
 
 
 <TABLE WIDTH="90%" BORDER=0 class="query">';
-    echo '<TR><TD><B>' . _PORT . ':</B>';
+    echo '<TR><TD><B>' . gettext("Port") . ':</B>';
     echo '    <TD>';
     $cs->criteria['tcp_port']->PrintForm();
     echo '
   <TR>
-      <TD VALIGN=TOP><B>' . _FLAGS . ':</B>';
+      <TD VALIGN=TOP><B>' . gettext("Flags") . ':</B>';
     $cs->criteria['tcp_flags']->PrintForm();
-    echo '<TR><TD><B>' . _MISC . ':</B>';
+    echo '<TR><TD><B>' . gettext("Misc") . ':</B>';
     echo '    <TD>';
     $cs->criteria['tcp_field']->PrintForm();
     echo '
@@ -164,16 +164,16 @@ if ($cs->criteria['layer4']->Get() == "TCP") {
 if ($cs->criteria['layer4']->Get() == "UDP") {
     echo '
       <p></p>
-<li> <a href="#">' . _QCUDPCRIT . '</a>
+<li> <a href="#">' . gettext("UDP Criteria") . '</a>
       <ul>
 <!-- ************ UDP Criteria ******************** -->
 <P>
 
 <TABLE WIDTH="100%" BORDER=0 class="query">';
-    echo '<TR><TD><B>' . _PORT . ':</B>';
+    echo '<TR><TD><B>' . gettext("Port") . ':</B>';
     echo '    <TD>';
     $cs->criteria['udp_port']->PrintForm();
-    echo '<TR><TD><B>' . _MISC . ':</B>';
+    echo '<TR><TD><B>' . gettext("Misc") . ':</B>';
     echo '    <TD>';
     $cs->criteria['udp_field']->PrintForm();
     echo '
@@ -186,13 +186,13 @@ if ($cs->criteria['layer4']->Get() == "UDP") {
 if ($cs->criteria['layer4']->Get() == "ICMP") {
     echo '
         <p></p>
-<li> <a href="#">' . _QCICMPCRIT . '</a>
+<li> <a href="#">' . gettext("ICMP Criteria") . '</a>
       <ul>
 <!-- ************ ICMP Criteria ******************** -->
 <P>
 
 <TABLE WIDTH="100%" BORDER=0 class="query">';
-    echo '<TR><TD><B>' . _MISC . ':</B>';
+    echo '<TR><TD><B>' . gettext("Misc") . ':</B>';
     echo '    <TD>';
     $cs->criteria['icmp_field']->PrintForm();
     echo '
@@ -203,13 +203,13 @@ if ($cs->criteria['layer4']->Get() == "ICMP") {
 }
 echo '
       <p></p>
-<li> <a href="#">' . _QCPAYCRIT . '</a>
+<li> <a href="#">' . gettext("Payload Criteria") . '</a>
 <ul>
 <!-- ************ Payload Criteria ******************** -->
 <P>
 <TABLE WIDTH="90%" BORDER=0>
   <TR>
-      <TD WIDTH="40%" CLASS="payload"><B>' . _QCPAYCRIT . '</B></TD>
+      <TD WIDTH="40%" CLASS="payload"><B>' . gettext("Payload Criteria") . '</B></TD>
       <TD></TD></TR>
 </TABLE>
 
@@ -224,25 +224,25 @@ echo '
 </li></ul>';
 echo '<ul><INPUT TYPE="hidden" NAME="new" VALUE="1">';
 //            <INPUT TYPE="radio" NAME="sort_order" 
-//                   VALUE="sig" ' . chk_check($sort_order, "sig") . '> ' . _QFRMSIG . ' |
+//                   VALUE="sig" ' . chk_check($sort_order, "sig") . '> ' . gettext("signature") . ' |
 echo '<P>
         <CENTER>
         <TABLE BORDER=0>
         <TR><TD>
             <FONT>
-            <B>' . _QFRMSORTORDER . ':</B>
+            <B>' . gettext("Sort order") . ':</B>
             <INPUT TYPE="radio" NAME="sort_order" 
-                   VALUE="none" ' . chk_check($sort_order, "none") . '> ' . _QFRMSORTNONE . ' |
+                   VALUE="none" ' . chk_check($sort_order, "none") . '> ' . gettext("none") . ' |
             <INPUT TYPE="radio" NAME="sort_order" 
-                   VALUE="time_a" ' . chk_check($sort_order, "time_a") . '> ' . _QFRMTIMEA . ' |
+                   VALUE="time_a" ' . chk_check($sort_order, "time_a") . '> ' . gettext("timestamp (ascend)") . ' |
             <INPUT TYPE="radio" NAME="sort_order" 
-                   VALUE="time_d" ' . chk_check($sort_order, "time_d") . '> ' . _QFRMTIMED . ' |
+                   VALUE="time_d" ' . chk_check($sort_order, "time_d") . '> ' . gettext("timestamp (descend)") . ' |
             <INPUT TYPE="radio" NAME="sort_order" 
-                   VALUE="sip_a" ' . chk_check($sort_order, "sip_a") . '> ' . _QFRMSIP . ' |
+                   VALUE="sip_a" ' . chk_check($sort_order, "sip_a") . '> ' . gettext("source IP") . ' |
             <INPUT TYPE="radio" NAME="sort_order" 
-                   VALUE="dip_a" ' . chk_check($sort_order, "dip_a") . '> ' . _QFRMDIP . '
+                   VALUE="dip_a" ' . chk_check($sort_order, "dip_a") . '> ' . gettext("dest. IP") . '
             <BR>
-            <CENTER><INPUT TYPE="submit" class="button" NAME="submit" VALUE="' . _QUERYDB . '"></CENTER>
+            <CENTER><INPUT TYPE="submit" class="button" NAME="submit" VALUE="' . gettext("Query DB") . '"></CENTER>
              </FONT>
              </TD>
         </TR>

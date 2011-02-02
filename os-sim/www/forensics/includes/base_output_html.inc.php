@@ -34,7 +34,7 @@ function PrintBASESubHeader($page_title, $page_name, $back_link, $refresh = 0, $
     echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- ' . _TITLE . $BASE_VERSION . ' -->
 <HTML>
-  <HEAD><meta http-equiv="Content-Type" content="text/html; charset=' . _CHARSET . '">';
+  <HEAD><meta http-equiv="Content-Type" content="text/html; charset=' . gettext("iso-8859-1") . '">';
     if ($html_no_cache == 1) echo '<META HTTP-EQUIV="pragma" CONTENT="no-cache">';
     echo '<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />';
 	if ($refresh == 1 && !$_SESSION['norefresh']) PrintFreshPage($refresh_stat_page, $stat_page_refresh_time);
@@ -177,7 +177,7 @@ function dispYearOptions($stored_value) {
     // Creates the years for drop down boxes
     $thisyear = date("Y");
     $options = "";
-    $options = "<OPTION VALUE=' ' " . chk_select($stored_value, " ") . ">" . _DISPYEAR . "\n";
+    $options = "<OPTION VALUE=' ' " . chk_select($stored_value, " ") . ">" . gettext("{ year }") . "\n";
     for ($i = 1999; $i <= $thisyear; $i++) {
         $options = $options . "<OPTION VALUE='" . $i . "' " . chk_select($stored_value, $i) . ">" . $i . "\n";
     }
@@ -188,12 +188,12 @@ function PrintBASEAdminMenuHeader() {
     $menu = "<table width='100%' border=0><tr><td width='15%'>";
     $menu = $menu . "<div class='mainheadermenu'>";
     $menu = $menu . "<table border='0' class='mainheadermenu'>";
-    $menu = $menu . "<tr><td class='menuitem'>" . _USERMAN . "<br>";
-    $menu = $menu . "<hr><a href='base_useradmin.php?action=list' class='menuitem'>" . _LISTU . "</a><br>";
-    $menu = $menu . "<a href='base_useradmin.php?action=create' class='menuitem'>" . _CREATEU . "</a><br>";
-    $menu = $menu . "<br>" . _ROLEMAN . "<br><hr>";
-    $menu = $menu . "<a href='base_roleadmin.php?action=list' class='menuitem'>" . _LISTR . "</a><br>";
-    $menu = $menu . "<a href='base_roleadmin.php?action=create' class='menuitem'>" . _CREATER . "</a><br>";
+    $menu = $menu . "<tr><td class='menuitem'>" . gettext("User Management") . "<br>";
+    $menu = $menu . "<hr><a href='base_useradmin.php?action=list' class='menuitem'>" . gettext("List users") . "</a><br>";
+    $menu = $menu . "<a href='base_useradmin.php?action=create' class='menuitem'>" . gettext("Create a user") . "</a><br>";
+    $menu = $menu . "<br>" . gettext("Role Management") . "<br><hr>";
+    $menu = $menu . "<a href='base_roleadmin.php?action=list' class='menuitem'>" . gettext("List Roles") . "</a><br>";
+    $menu = $menu . "<a href='base_roleadmin.php?action=create' class='menuitem'>" . gettext("Create a Role") . "</a><br>";
     $menu = $menu . "</td></tr></table></div></td><td>";
     echo ($menu);
 }

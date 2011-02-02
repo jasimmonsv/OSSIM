@@ -55,7 +55,7 @@ echo _TITLE . $BASE_VERSION; ?> -->
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php
-echo (_CHARSET); ?>" />
+echo (gettext("iso-8859-1")); ?>" />
   <meta http-equiv="pragma" content="no-cache" />
   <title><?php
 echo (_TITLE . $BASE_VERSION); ?></title>
@@ -77,12 +77,12 @@ if ($displayError == 1) {
   <table width="75%" style='border:0;padding:0;margin:auto;'>
     <tr>
       <td align="right" width="50%"><?php
-echo _FRMLOGIN; ?>&nbsp;</td>
+echo gettext("Login:"); ?>&nbsp;</td>
       <td align="left" width="50%"><input type="text" name="login"></td>
     </tr>
     <tr>
       <td align="right"><?php
-echo _FRMPWD; ?>&nbsp;</td>
+echo gettext("Password:"); ?>&nbsp;</td>
       <td align="left"><input type="password" name="password" /></td>
     </tr>
     <tr>

@@ -158,7 +158,7 @@ function baseGetHostByAddr($ipaddr, $db, $cache_lifetime) {
             $db->baseExecute($sql);
         }
     }
-    if ($tmp == $ipaddr) return "&nbsp;<I>" . _ERRRESOLVEADDRESS . "</I>&nbsp;";
+    if ($tmp == $ipaddr) return "&nbsp;<I>" . gettext("Unable to resolve address") . "</I>&nbsp;";
     else return $tmp;
 }
 /****************************************************************************

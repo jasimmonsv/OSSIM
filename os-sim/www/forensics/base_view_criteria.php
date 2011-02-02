@@ -38,7 +38,7 @@ include_once ("$BASE_path/base_stat_common.php");
 Session::logcheck("MenuEvents", "EventsForensics");
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
 $db->baseDBConnect($db_connect_method, $alert_dbname, $alert_host, $alert_port, $alert_user, $alert_password);
-$cs = new CriteriaState("base_qry_main.php", "&amp;new=1&amp;submit=" . _QUERYDBP);
+$cs = new CriteriaState("base_qry_main.php", "&amp;new=1&amp;submit=" . gettext("Query+DB"));
 $cs->ReadState();
 
 /* Generate the Criteria entered into a human readable form */
@@ -48,22 +48,22 @@ $tmp_len = strlen($save_criteria);
 
 // META
 /*
-$criteria_arr['meta']['Sensor'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Plugin'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Plugin Group'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Userdata'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Source Type'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Category'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Signature'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Sig Class'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Sig Prio'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['ag'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Time'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Risk'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Priority'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Reliability'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Asset Dst'] = '<I> ' . _ANY . ' </I>';
-$criteria_arr['meta']['Type'] = '<I> ' . _ANY . ' </I>';
+$criteria_arr['meta']['Sensor'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Plugin'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Plugin Group'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Userdata'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Source Type'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Category'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Signature'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Sig Class'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Sig Prio'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['ag'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Time'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Risk'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Priority'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Reliability'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Asset Dst'] = '<I> ' . gettext("any") . ' </I>';
+$criteria_arr['meta']['Type'] = '<I> ' . gettext("any") . ' </I>';
 */
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
 $db->baseDBConnect($db_connect_method, $alert_dbname, $alert_host, $alert_port, $alert_user, $alert_password);
@@ -86,7 +86,7 @@ if (!$cs->criteria['ossim_asset_dst']->isEmpty() && $cs->criteria['ossim_asset_d
 if (!$cs->criteria['ossim_type']->isEmpty()) $criteria_arr['meta']['Type'] = $cs->criteria['ossim_type']->Description();
 
 // IP
-//$criteria_arr['ip']['IP Addr'] = '<I> ' . _ANY . ' </I>';
+//$criteria_arr['ip']['IP Addr'] = '<I> ' . gettext("any") . ' </I>';
 if (!$cs->criteria['ip_addr']->isEmpty() || !$cs->criteria['ip_field']->isEmpty() || !$cs->criteria['networkgroup']->isEmpty()) {
 	$criteria_arr['ip']['Network Group'] = $cs->criteria['networkgroup']->Description();
 	if ($cs->criteria['ip_addr']->Description() != "")
@@ -126,7 +126,7 @@ if ($cs->criteria['layer4']->Get() == "TCP") {
 }
 
 /* Payload ************** */
-//$criteria_arr['payload']['Data'] = '<I> ' . _ANY . ' </I>';
+//$criteria_arr['payload']['Data'] = '<I> ' . gettext("any") . ' </I>';
 if (!$cs->criteria['data']->isEmpty()) {
 	$criteria_arr['payload']['Data'] = preg_replace("/contains \"([^\"]+)\"/i","Event payload contains <b>\\1</b>",$cs->criteria['data']->Description());
 }

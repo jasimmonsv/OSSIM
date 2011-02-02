@@ -29,8 +29,8 @@ $hosts_ips = array_keys($hosts);
 ($debug_time_mode >= 1) ? $et = new EventTiming($debug_time_mode) : '';
 $cs = new CriteriaState("base_stat_plugins.php");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $cs->ReadState();
@@ -39,10 +39,10 @@ $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_alerts, _MOSTFREQALERTS, "occur_d");
-$qs->AddCannedQuery("last_alerts", $last_num_ualerts, _LASTALERTS, "last_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_alerts, gettext("Most Frequent Events"), "occur_d");
+$qs->AddCannedQuery("last_alerts", $last_num_ualerts, gettext("Last Events"), "last_d");
 $qs->MoveView($submit); /* increment the view if necessary */
-$page_title = _ALERTTITLE;
+$page_title = gettext("Event Listing");
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
@@ -97,8 +97,8 @@ $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(da
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-//$qs->AddValidActionOp(_SELECTED);
-//$qs->AddValidActionOp(_ALLONSCREEN);
+//$qs->AddValidActionOp(gettext("Delete Selected"));
+//$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 ($debug_time_mode >= 1) ? $et->Mark("Initialization") : '';
 $qs->RunAction($submit, PAGE_STAT_ALERTS, $db);
@@ -121,7 +121,7 @@ $qro = new QueryResultsOutput("base_stat_plugins.php?caller=" . $caller);
 //$qro->AddTitle(" ");
 $qro->AddTitle(_("Data Source"));
 $qro->AddTitle(_("Events") , "occur_a", " ", " ORDER BY events ASC, sensors DESC", "occur_d", ", ", " ORDER BY events DESC, sensors DESC");
-$qro->AddTitle(_SENSOR . "&nbsp;#", "sid_a", " ", " ORDER BY sensors ASC, events DESC", "sid_d", " ", " ORDER BY sensors DESC, events DESC");
+$qro->AddTitle(gettext("Sensor") . "&nbsp;#", "sid_a", " ", " ORDER BY sensors ASC, events DESC", "sid_d", " ", " ORDER BY sensors DESC, events DESC");
 $qro->AddTitle(gettext("Last Event"));
 $qro->AddTitle(gettext("Source Address"));
 $qro->AddTitle(gettext("Dest. Address"));

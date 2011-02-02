@@ -283,11 +283,11 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
             $class_cnt = $myrow[0];
             $result->baseFreeRows();
         }
-        $class_cnt_info[0] = " <strong>" . _SCCATEGORIES . " </strong>";
+        $class_cnt_info[0] = " <strong>" . gettext("Categories:") . " </strong>";
         $class_cnt_info[1] = "<a style='color:black;font-weight:bold' href=\"base_stat_class.php?sort_order=class_a\">";
         $class_cnt_info[2] = "</a><a style='color:black;font-weight:bold' href=\"base_stat_class_graph.php?sort_order=class_a\"> <img src=\"images/ico_graph.gif\" align=\"absmiddle\" border=0></a>";
     }
-    $sensor_cnt_info[0] = "<strong>" . _SCSENSORTOTAL . "</strong>\n";
+    $sensor_cnt_info[0] = "<strong>" . gettext("Sensors/Total:") . "</strong>\n";
     $sensor_cnt_info[1] = "<a style='color:black;font-weight:bold' href=\"base_stat_sensor.php?sort_order=occur_d\">";
     $sensor_cnt_info[2] = "</a>";
     $unique_alert_cnt_info[0] = "<strong>" . gettext("Unique Events") . ":</strong>\n";
@@ -296,13 +296,13 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 	$unique_plugin_cnt_info[0] = "<strong>"._("Unique Data Sources")."</strong>\n";
     $unique_plugin_cnt_info[1] = "<a style='color:black;font-weight:bold' href=\"base_stat_plugins.php?sort_order=occur_d\">";
     $unique_plugin_cnt_info[2] = "</a>";
-    $event_cnt_info[0] = "<strong>" . _SCTOTALNUMALERTS . "</strong>\n";
-    $event_cnt_info[1] = '<a style=\'color:black;font-weight:bold\' href="base_qry_main.php?&amp;num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1">';
+    $event_cnt_info[0] = "<strong>" . gettext("Total Number of Events:") . "</strong>\n";
+    $event_cnt_info[1] = '<a style=\'color:black;font-weight:bold\' href="base_qry_main.php?&amp;num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1">';
     $event_cnt_info[2] = "</a>";
-    $unique_src_ip_cnt_info[0] = _SCSRCIP;
+    $unique_src_ip_cnt_info[0] = gettext("Src IP addrs:");
     $unique_src_ip_cnt_info[1] = " " . BuildUniqueAddressLink(1,"","color:black;font-weight:bold");
     $unique_src_ip_cnt_info[2] = "</a>";
-    $unique_dst_ip_cnt_info[0] = _SCDSTIP;
+    $unique_dst_ip_cnt_info[0] = gettext("Dest. IP addrs:");
     $unique_dst_ip_cnt_info[1] = " " . BuildUniqueAddressLink(2,"","color:black;font-weight:bold");
     $unique_dst_ip_cnt_info[2] = "</a>";
     $unique_ip_cnt_info[1] = " <a style='color:black;font-weight:bold' href=\"base_stat_uaddress.php?sort_order=occur_d\">";
@@ -311,10 +311,10 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
     $unique_links_info[1] = " <a style='color:black;font-weight:bold' href=\"base_stat_iplink.php?sort_order=events_d&fqdn=no\">";
     $unique_links_info[2] = "</a>";
     $unique_links_fqdn = " <a style='color:black;font-weight:bold' href=\"base_stat_iplink.php?sort_order=events_d&fqdn=yes\">[FQDN]</a>";
-    $unique_src_port_cnt_info[0] = _SCSRCPORTS;
+    $unique_src_port_cnt_info[0] = gettext("Source Ports: ");
     $unique_src_port_cnt_info[1] = " <a style='color:black;font-weight:bold' href=\"base_stat_ports.php?sort_order=occur_d&port_type=1&amp;proto=-1\">";
     $unique_src_port_cnt_info[2] = "</a>";
-    $unique_dst_port_cnt_info[0] = _SCDSTPORTS;
+    $unique_dst_port_cnt_info[0] = gettext("Dest Ports: ");
     $unique_dst_port_cnt_info[1] = " <a style='color:black;font-weight:bold' href=\"base_stat_ports.php?sort_order=occur_d&port_type=2&amp;proto=-1\">";
     $unique_dst_port_cnt_info[2] = "</a>";
     $unique_tcp_src_port_cnt_info[0] = "TCP (";
@@ -394,7 +394,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
                 <a href="javascript:;" onclick="javascript:report_launcher('UniqueEvents_Report','<?=$unique_events_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
                 <? } ?>
 				<!--<br>
-				(<?php echo $class_cnt_info[1] . _SCCLASS . $class_cnt_info[2] ?>)-->
+				(<?php echo $class_cnt_info[1] . gettext("classifications") . $class_cnt_info[2] ?>)-->
 			</td>
 
 	  <?php
@@ -418,7 +418,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
             //$li_style = (preg_match("/base_stat_class\.php/",$_SERVER['SCRIPT_NAME'])) ? " style='color:#F37914'" : "";
             $color = (preg_match("/base_stat_plugins\.php/", $_SERVER['SCRIPT_NAME'])) ? "#28BC04" : "#FFFFFF";
             if ($color == "#28BC04") $unique_plugin_cnt_info[1] = str_replace(":black",":white",$unique_plugin_cnt_info[1]);
-			//echo "<li$li_style>&nbsp;&nbsp;&nbsp;( ".$class_cnt_info[1]._SCCLASS."</a> )</li>";
+			//echo "<li$li_style>&nbsp;&nbsp;&nbsp;( ".$class_cnt_info[1].gettext("classifications")."</a> )</li>";
             
 ?>
 			<td nowrap align="center" bgcolor="<?php echo $color
@@ -448,9 +448,9 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
                                    if ($_GET['addr_type'] == '2') $unique_dst_ip_cnt_info[2] .= $pdf . $csv;                                   
                                   }
         else { $pdf = "<br>"; $csv="";}
-		// echo "  <li$li_style>"._SCUNIADDRESS.
+		// echo "  <li$li_style>".gettext("Unique addresses: ").
         //       $unique_src_ip_cnt_info[1].gettext("Source").' | '.$unique_src_ip_cnt_info[2].
-        //       $unique_dst_ip_cnt_info[1]._SCDEST.$unique_dst_ip_cnt_info[2]."</li>";
+        //       $unique_dst_ip_cnt_info[1].gettext("Destination").$unique_dst_ip_cnt_info[2]."</li>";
         //echo "</td><td valign='top' style='padding-left:10px'>";
         $addrtype1 = ($_GET['addr_type'] == '1') ? "underline" : "none";
         $addrtype2 = ($_GET['addr_type'] == '2') ? "underline" : "none";
@@ -467,12 +467,12 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
                                     $pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
                                     $csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report$report_type','$src_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
                                     } else { $pdf = "<br>"; $csv="";}
-		//echo "<li$li_style>".$unique_src_port_cnt_info[1].gettext("Source")." ".$unique_src_port_cnt_info[2]._SCPORT.": ".
+		//echo "<li$li_style>".$unique_src_port_cnt_info[1].gettext("Source")." ".$unique_src_port_cnt_info[2].gettext("Port").": ".
         //       $unique_tcp_src_port_cnt_info[1]." TCP</a> | ".
         //       $unique_tcp_src_port_cnt_info[1]." TCP</a> | ".
         //       $unique_udp_src_port_cnt_info[1]." UDP</a>".
         //     "</li><li$li_style>".
-        //       $unique_dst_port_cnt_info[1]._SCDEST." ".$unique_dst_port_cnt_info[2]._SCPORT.": ".
+        //       $unique_dst_port_cnt_info[1].gettext("Destination")." ".$unique_dst_port_cnt_info[2].gettext("Port").": ".
         //       $unique_tcp_dst_port_cnt_info[1]." TCP</a> | ".
         //       $unique_udp_dst_port_cnt_info[1]." UDP</a>" .
         //     "</li>";

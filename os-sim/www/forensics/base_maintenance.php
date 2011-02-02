@@ -41,7 +41,7 @@ if ($Use_Auth_System == 1) {
         if ($usrrole > $roleneeded) base_header('HTTP/1.0 403');
     } elseif (($BUser->hasRole($roleneeded) == 0)) base_header("Location: " . $BASE_urlpath . "/index.php");
 }
-$page_title = _MAINTTITLE;
+$page_title = gettext("Maintenance");
 PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE);
 ?>
@@ -82,12 +82,12 @@ if ($submit == "Update Alert Cache") {
 echo '<TABLE WIDTH="100%" CELLSPACING=0 CELLPADDING=2 BORDER=0>
          <TR><TD> 
            <TABLE WIDTH="100%" CELLSPACING=0 CELLPADDING=2 BORDER=0 BGCOLOR="#FFFFFF">
-              <TR><TD class="header">' . _MNTPHP . '</TD></TR>
+              <TR><TD class="header">' . gettext("PHP Build:") . '</TD></TR>
               <TR><TD>
-         <B>' . _MNTCLIENT . '</B> ' . XSSPrintSafe($_SERVER['HTTP_USER_AGENT']) . '<BR>
-         <B>' . _MNTSERVER . '</B> ' . XSSPrintSafe($_SERVER['SERVER_SOFTWARE']) . '<BR> 
-         <B>' . _MNTSERVERHW . '</B> ' . php_uname() . '<BR>
-         <B>' . _MNTPHPVER . '</B> ' . phpversion() . '<BR>
+         <B>' . gettext("CLIENT:") . '</B> ' . XSSPrintSafe($_SERVER['HTTP_USER_AGENT']) . '<BR>
+         <B>' . gettext("SERVER:") . '</B> ' . XSSPrintSafe($_SERVER['SERVER_SOFTWARE']) . '<BR> 
+         <B>' . gettext("SERVER HW:") . '</B> ' . php_uname() . '<BR>
+         <B>' . gettext("PHP VERSION:") . '</B> ' . phpversion() . '<BR>
          <B>PHP API:</B> ' . php_sapi_name() . '<BR>';
 $tmp_error_reporting_str = "";
 if ((ini_get("error_reporting") & E_ERROR) > 0) $tmp_error_reporting_str.= " [E_ERROR] ";
@@ -98,8 +98,8 @@ if ((ini_get("error_reporting") & E_CORE_WARNING) > 0) $tmp_error_reporting_str.
 if ((ini_get("error_reporting") & E_CORE_ERROR) > 0) $tmp_error_reporting_str.= " [E_CORE_ERROR] ";
 if ((ini_get("error_reporting") & E_COMPILE_ERROR) > 0) $tmp_error_reporting_str.= " [E_COMPILE_ERROR] ";
 if ((ini_get("error_reporting") & E_COMPILE_WARNING) > 0) $tmp_error_reporting_str.= " [E_COMPILE_WARNING] ";
-echo ' <B>' . _MNTPHPLOGLVL . ' </B> (' . ini_get("error_reporting") . ') ' . $tmp_error_reporting_str . '<BR>
-         <B>' . _MNTPHPMODS . ' </B> ';
+echo ' <B>' . gettext("PHP Logging level:") . ' </B> (' . ini_get("error_reporting") . ') ' . $tmp_error_reporting_str . '<BR>
+         <B>' . gettext("Loaded Modules:") . ' </B> ';
 $module_lst = get_loaded_extensions();
 for ($i = 0; $i < count($module_lst); $i++) echo " [ " . $module_lst[$i] . " ]";
 echo '      </TD></TR>
@@ -109,13 +109,13 @@ echo '      </TD></TR>
 echo '<TABLE WIDTH="100%" CELLSPACING=0 CELLPADDING=2 BORDER=0>
          <TR><TD> 
            <TABLE WIDTH="100%" CELLSPACING=0 CELLPADDING=2 BORDER=0 BGCOLOR="#FFFFFF">
-              <TR><TD class="header">' . _DATABASE . '</TD></TR>
+              <TR><TD class="header">' . gettext("Database:") . '</TD></TR>
               <TR><TD>';
 GLOBAL $ADODB_vers;
-echo "<B>" . _MNTDBTYPE . "</B> $DBtype <BR>  
-        <B>" . _MNTDBALV . "</B> $ADODB_vers <BR>
-        <B>" . _MNTDBALERTNAME . "</B> $alert_dbname <BR>
-        <B>" . _MNTDBARCHNAME . "</B> $archive_dbname <BR>
+echo "<B>" . gettext("DB Type:") . "</B> $DBtype <BR>  
+        <B>" . gettext("DB Abstraction Version:") . "</B> $ADODB_vers <BR>
+        <B>" . gettext("ALERT DB Name:") . "</B> $alert_dbname <BR>
+        <B>" . gettext("ARCHIVE DB Name:") . "</B> $archive_dbname <BR>
 
         <INPUT TYPE=\"submit\" class=\"button\" NAME=\"submit\" VALUE=\"Repair Tables\">
         &nbsp;<INPUT TYPE=\"submit\" class=\"button\" NAME=\"submit\" VALUE=\"Clear Data Tables\">

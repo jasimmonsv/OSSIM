@@ -30,8 +30,8 @@ include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $addr_type = ImportHTTPVar("addr_type", VAR_DIGIT);
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $dst_ip = NULL;
@@ -55,16 +55,16 @@ if ($debug_mode > 0) {
 //print_r($_SESSION['ip_addr']);
 
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_uaddr, _MOSTFREQADDRS, "occur_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_uaddr, gettext("Most Frequent IP addresses"), "occur_d");
 $qs->MoveView($submit); /* increment the view if necessary */
 if ($addr_type == SOURCE_IP) {
-    $page_title = _UNISADD;
-    $results_title = _SUASRCIP;
+    $page_title = gettext("Unique Source Address(es)");
+    $results_title = gettext("Src IP address");
     $addr_type_name = "ip_src";
 } else {
-    if ($addr_type != DEST_IP) ErrorMessage(_SUAERRCRITADDUNK);
-    $page_title = _UNIDADD;
-    $results_title = _SUADSTIP;
+    if ($addr_type != DEST_IP) ErrorMessage(gettext("CRITERIA ERROR: unknown address type -- assuming Dst address"));
+    $page_title = gettext("Unique Destination Address(es)");
+    $results_title = gettext("Dst IP address");
     $addr_type_name = "ip_dst";
 }
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
@@ -117,8 +117,8 @@ $qs->AddValidAction("del_alert");
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-$qs->AddValidActionOp(_SELECTED);
-$qs->AddValidActionOp(_ALLONSCREEN);
+$qs->AddValidActionOp(gettext("Delete Selected"));
+$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 $et->Mark("Initialization");
 $qs->RunAction($submit, PAGE_STAT_UADDR, $db);
@@ -133,15 +133,15 @@ $qro = new QueryResultsOutput("base_stat_uaddr.php?caller=" . $caller . "&amp;ad
 $qro->AddTitle(" ");
 $qro->AddTitle($results_title, "addr_a", " ", " ORDER BY $addr_type_name ASC", "addr_d", " ", " ORDER BY $addr_type_name DESC");
 if ($resolve_IP == 1) $qro->AddTitle("FQDN");
-$qro->AddTitle(_SENSOR . "&nbsp;#");
-$qro->AddTitle(_TOTAL . "&nbsp;#", "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
-$qro->AddTitle(_SUAUNIALERTS, "sig_a", " ", " ORDER BY num_sig ASC", "sig_d", " ", " ORDER BY num_sig DESC");
+$qro->AddTitle(gettext("Sensor") . "&nbsp;#");
+$qro->AddTitle(gettext("Total") . "&nbsp;#", "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
+$qro->AddTitle(gettext("Unique&nbsp;Events"), "sig_a", " ", " ORDER BY num_sig ASC", "sig_d", " ", " ORDER BY num_sig DESC");
 if ($addr_type == DEST_IP) {
 	$displaytitle = _DISPLAYINGTOTALUADDRDST;
-    $qro->AddTitle(_SUASRCADD, "saddr_a", " ", " ORDER BY num_sip ASC", "saddr_d", " ", " ORDER BY num_sip DESC");
+    $qro->AddTitle(gettext("Src.&nbsp;Addr."), "saddr_a", " ", " ORDER BY num_sip ASC", "saddr_d", " ", " ORDER BY num_sip DESC");
 } else {
 	$displaytitle = _DISPLAYINGTOTALUADDRSRC;
-    $qro->AddTitle(_SUADSTADD, "daddr_a", "  ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
+    $qro->AddTitle(gettext("Dest.&nbsp;Addr."), "daddr_a", "  ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
 }
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 $sql = "SELECT DISTINCT $addr_type_name, " . " COUNT(acid_event.cid) as num_events," . " COUNT( DISTINCT acid_event.sid) as num_sensors, " . " COUNT( DISTINCT acid_event.plugin_id, acid_event.plugin_sid ) as num_sig, ";
@@ -222,7 +222,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     /* Check for a NULL IP which indicates an event (e.g. portscan)
     * which has no IP
     */
-    if ($no_ip) qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . _UNKNOWN . '</A>');
+    if ($no_ip) qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>');
     else {
         $country = strtolower(geoip_country_code_by_addr($gi, $currentIP));
         $country_name = geoip_country_name_by_addr($gi, $currentIP);
@@ -241,8 +241,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     }
     if ($resolve_IP == 1) qroPrintEntry('&nbsp;&nbsp;' . baseGetHostByAddr($currentIP, $db, $dns_cache_lifetime) . '&nbsp;&nbsp;');
     /* Print # of Occurances */
-    $tmp_iplookup = 'base_qry_main.php?num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1';
-    $tmp_iplookup2 = 'base_stat_alerts.php?num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1&sort_order=occur_d';
+    $tmp_iplookup = 'base_qry_main.php?num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1';
+    $tmp_iplookup2 = 'base_stat_alerts.php?num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1&sort_order=occur_d';
     if ($addr_type == 1) {
         if ($no_ip) $url_criteria = BuildSrcIPFormVars(NULL_IP);
         else $url_criteria = BuildSrcIPFormVars($currentIP);

@@ -29,15 +29,15 @@
 function createDBIndex($db, $table, $field, $index_name) {
     $sql = 'CREATE INDEX ' . $index_name . ' ON ' . $table . ' (' . $field . ')';
     $db->baseExecute($sql, -1, -1, false);
-    if ($db->baseErrorMessage() != "") ErrorMessage(_ERRDBINDEXCREATE . " '" . $field . "' : " . $db->baseErrorMessage());
-    else ErrorMessage(_DBINDEXCREATE . " '" . $field . "'");
+    if ($db->baseErrorMessage() != "") ErrorMessage(gettext("Unable to CREATE INDEX for") . " '" . $field . "' : " . $db->baseErrorMessage());
+    else ErrorMessage(gettext("Successfully created INDEX for") . " '" . $field . "'");
 }
 function verify_db($db, $alert_dbname, $alert_host) {
-    $msg = '<B>' . _ERRSNORTVER1 . ' ' . $alert_dbname . '@' . $alert_host . ' ' . _ERRSNORTVER2 . '</B>';
+    $msg = '<B>' . gettext("The underlying database") . ' ' . $alert_dbname . '@' . $alert_host . ' ' . gettext("appears to be incomplete/invalid") . '</B>';
     $sql = "SELECT ip_src FROM iphdr";
     $result = $db->baseExecute($sql, 0, 1, false);
     if ($db->baseErrorMessage() != "") return $msg . '<BR>' . $db->baseErrorMessage() . '
-            <P>' . _ERRSNORTVER;
+            <P>' . gettext("It might be an older version.  Only alert databases created by Snort 1.7-beta0 or later are supported");
     $base_table = array(
         "acid_ag",
         "acid_ag_alert",
@@ -47,7 +47,7 @@ function verify_db($db, $alert_dbname, $alert_host) {
         "base_roles"
     );
     for ($i = 0; $i < count($base_table); $i++) {
-        if (!$db->baseTableExists($base_table[$i])) return $msg . '.  <P>' . _ERRDBSTRUCT1 . ' 
+        if (!$db->baseTableExists($base_table[$i])) return $msg . '.  <P>' . gettext("The database version is valid, but the BASE DB structure") . ' 
               (table: ' . $base_table[$i] . ')' . _ERRDBSTRUCT2;
     }
     return "";
@@ -62,25 +62,25 @@ function verify_php_build($DBtype)
     else $version[2] = substr($version[2], 0, 1);
     /* only version PHP 4.0.4+ or 4.1+.* are valid */
     if (!(($version[0] >= 4) && ((($version[1] == 0) && ($version[2] >= 4)) || ($version[1] > 0) || ($version[0] > 4)))) {
-        return "<FONT COLOR=\"#FF0000\">" . _ERRPHPERROR . "</FONT>: " . "<B>" . _ERRPHPERROR1 . "</B>: <FONT>" . _ERRVERSION . " " . $current_php_version . " " . _ERRPHPERROR2 . "</FONT>";
+        return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . "<B>" . gettext("Incompatible version") . "</B>: <FONT>" . gettext("Version") . " " . $current_php_version . " " . gettext("of PHP is too old.  Please upgrade to version 4.0.4 or later") . "</FONT>";
     }
     if (($DBtype == "mysql") || ($DBtype == "mysqlt")) {
         if (!(function_exists("mysql_connect"))) {
-            return "<FONT COLOR=\"#FF0000\">" . _ERRPHPERROR . "</FONT>: " . _ERRPHPMYSQLSUP;
+            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . _ERRPHPMYSQLSUP;
         }
     } else if ($DBtype == "postgres") {
         if (!(function_exists("pg_connect"))) {
-            return "<FONT COLOR=\"#FF0000\">" . _ERRPHPERROR . "</FONT>: " . _ERRPHPPOSTGRESSUP;
+            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . _ERRPHPPOSTGRESSUP;
         }
     } else if ($DBtype == "mssql") {
         if (!(function_exists("mssql_connect"))) {
-            return "<FONT COLOR=\"#FF0000\">" . _ERRPHPERROR . "</FONT>: " . _ERRPHPMSSQLSUP;
+            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . _ERRPHPMSSQLSUP;
         }
     } else if ($DBtype == "oci8") {
         if (!(function_exists("ocilogon"))) {
-            return "<FONT COLOR=\"#FF0000\">" . _ERRPHPERROR . "</FONT>: " . _ERRPHPORACLESUP;
+            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . _ERRPHPORACLESUP;
         }
-    } else return "<B>" . _ERRSQLDBTYPE . "</B>: " . _ERRSQLDBTYPEINFO1 . "'$DBtype'." . _ERRSQLDBTYPEINFO2;
+    } else return "<B>" . gettext("Invalid Database Type Specified") . "</B>: " . _ERRSQLDBTYPEINFO1 . "'$DBtype'." . _ERRSQLDBTYPEINFO2;
     return "";
 }
 /* ******************* DB Query Routines ************************************ */

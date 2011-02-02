@@ -87,14 +87,14 @@ class baseCon {
         if ($sql_trace_mode > 0) {
             $this->sql_trace = fopen($sql_trace_file, "a");
             if (!$this->sql_trace) {
-                ErrorMessage(_ERRSQLTRACE . " '" . $sql_trace_file . "'");
+                ErrorMessage(gettext("Unable to open SQL trace file") . " '" . $sql_trace_file . "'");
                 die();
             }
         }
         $db = $this->DB->Connect((($port == "") ? $host : ($host . ":" . $port)) , $username, $password, $database);
         if (!$db) {
             $tmp_host = ($port == "") ? $host : ($host . ":" . $port);
-            echo '<P><B>' . _ERRSQLCONNECT . ' </B>' . $database . '@' . $tmp_host . _ERRSQLCONNECTINFO;
+            echo '<P><B>' . gettext("Error connecting to DB :") . ' </B>' . $database . '@' . $tmp_host . _ERRSQLCONNECTINFO;
             echo $this->baseErrorMessage();
             die();
         }
@@ -128,14 +128,14 @@ class baseCon {
         if ($sql_trace_mode > 0) {
             $this->sql_trace = fopen($sql_trace_file, "a");
             if (!$this->sql_trace) {
-                ErrorMessage(_ERRSQLTRACE . " '" . $sql_trace_file . "'");
+                ErrorMessage(gettext("Unable to open SQL trace file") . " '" . $sql_trace_file . "'");
                 die();
             }
         }
 		$db = $this->DB->PConnect((($port == "") ? $host : ($host . ":" . $port)) , $username, $password, $database);
 		if (!$db) {
             $tmp_host = ($port == "") ? $host : ($host . ":" . $port);
-            echo '<P><B>' . _ERRSQLPCONNECT . ' </B>' . $database . '@' . $tmp_host . _ERRSQLCONNECTINFO;
+            echo '<P><B>' . gettext("Error (p)connecting to DB :") . ' </B>' . $database . '@' . $tmp_host . _ERRSQLCONNECTINFO;
             echo $this->baseErrorMessage();
             die();
         }
@@ -213,7 +213,7 @@ class baseCon {
         }
         if ((!$rs || $this->baseErrorMessage() != "") && $die_on_error) {
             echo '</TABLE></TABLE></TABLE>
-               <FONT COLOR="#FF0000"><B>' . _ERRSQLDB . '</B>' . ($this->baseErrorMessage()) . '</FONT>' . '<P><PRE>' . ($debug_mode > 0 ? ($this->lastSQL) . $limit_str : "") . '</PRE><P>';
+               <FONT COLOR="#FF0000"><B>' . gettext("Database ERROR:") . '</B>' . ($this->baseErrorMessage()) . '</FONT>' . '<P><PRE>' . ($debug_mode > 0 ? ($this->lastSQL) . $limit_str : "") . '</PRE><P>';
             die();
         } else {
             return $rs;
@@ -221,7 +221,7 @@ class baseCon {
     }
     function baseErrorMessage() {
         GLOBAL $debug_mode;
-        if ($this->DB->ErrorMsg() && ($this->DB_type != 'mssql' || (!strstr($this->DB->ErrorMsg() , 'Changed database context to') && !strstr($this->DB->ErrorMsg() , 'Changed language setting to')))) return '</TABLE></TABLE></TABLE>' . '<FONT COLOR="#FF0000"><B>' . _ERRSQLDB . '</B>' . ($this->DB->ErrorMsg()) . '</FONT>' . '<P><CODE>' . ($debug_mode > 0 ? $this->lastSQL : "") . '</CODE><P>';
+        if ($this->DB->ErrorMsg() && ($this->DB_type != 'mssql' || (!strstr($this->DB->ErrorMsg() , 'Changed database context to') && !strstr($this->DB->ErrorMsg() , 'Changed language setting to')))) return '</TABLE></TABLE></TABLE>' . '<FONT COLOR="#FF0000"><B>' . gettext("Database ERROR:") . '</B>' . ($this->DB->ErrorMsg()) . '</FONT>' . '<P><CODE>' . ($debug_mode > 0 ? $this->lastSQL : "") . '</CODE><P>';
     }
     function baseTableExists($table) {
         if (in_array($table, $this->DB->MetaTables())) return 1;
@@ -387,7 +387,7 @@ class baseRS {
 }
 function VerifyDBAbstractionLib($path) {
     GLOBAL $debug_mode;
-    if ($debug_mode > 0) echo (_DBALCHECK . " '$path'<BR>");
+    if ($debug_mode > 0) echo (gettext("Checking for DB abstraction lib in") . " '$path'<BR>");
     if (!ini_get('safe_mode')) {
         if (is_readable($path)) // is_file
         return true;
@@ -400,7 +400,7 @@ function VerifyDBAbstractionLib($path) {
 function NewBASEDBConnection($path, $type) {
     GLOBAL $debug_mode;
     if (!(($type == "mysql") || ($type == "mysqlt") || ($type == "maxsql") || ($type == "postgres") || ($type == "mssql") || ($type == "oci8"))) {
-        echo "<B>" . _ERRSQLDBTYPE . "</B>" . "<P>:" . _ERRSQLDBTYPEINFO1 . "<CODE>'$type'</CODE>. " . _ERRSQLDBTYPEINFO2;
+        echo "<B>" . gettext("Invalid Database Type Specified") . "</B>" . "<P>:" . _ERRSQLDBTYPEINFO1 . "<CODE>'$type'</CODE>. " . _ERRSQLDBTYPEINFO2;
         die();
     }
     /* Export ADODB_DIR for use by ADODB */
