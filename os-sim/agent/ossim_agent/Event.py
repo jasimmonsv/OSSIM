@@ -162,6 +162,7 @@ class EventOS(Event):
         "occurrences",
         "log",
         "fdate",
+        "tzone",
     ]
 
 
@@ -181,6 +182,7 @@ class EventMac(Event):
         "occurrences",
         "log",
         "fdate",
+        "tzone",
     ]
 
 
@@ -202,6 +204,7 @@ class EventService(Event):
         "occurrences",
         "log",
         "fdate",
+        "tzone",
     ]
 
 
@@ -235,6 +238,7 @@ class EventHids(Event):
         "occurrences",
         "log",
         "fdate",
+        "tzone",
     ]
 
 
