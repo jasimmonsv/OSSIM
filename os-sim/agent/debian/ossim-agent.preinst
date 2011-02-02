@@ -23,7 +23,9 @@ fi
 
 case "$1" in
     install|upgrade)
-        dpkg-divert --add /etc/ossim/agent/config.cfg
+        if [ -f /etc/ossim/agent/config.cfg ]; then
+            dpkg-divert --add /etc/ossim/agent/config.cfg
+        fi
     ;;
 
     abort-upgrade)
