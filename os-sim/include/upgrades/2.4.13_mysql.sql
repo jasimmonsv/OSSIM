@@ -79,7 +79,7 @@ DELIMITER ;
 CALL net_convert;
 DROP PROCEDURE IF EXISTS net_convert;
 
-REPLACE INTO config (conf, value) VALUES ('logger_if_priority', '0');
+REPLACE INTO config (conf, value) VALUES ('server_logger_if_priority', '1');
 
 use snort;
 ALTER TABLE `sensor` CHANGE `sensor` `sensor` TEXT NULL DEFAULT '';

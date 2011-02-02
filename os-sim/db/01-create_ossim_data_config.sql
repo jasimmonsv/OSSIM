@@ -15,6 +15,7 @@ INSERT INTO config (conf, value) VALUES ('server_address', 'localhost');
 INSERT INTO config (conf, value) VALUES ('server_port', '40001');
 INSERT INTO config (conf, value) VALUES ('server_correlate', 'yes');
 INSERT INTO config (conf, value) VALUES ('server_cross_correlate', 'yes');
+INSERT INTO config (conf , value) VALUES ('server_logger_if_priority', '1');
 INSERT INTO config (conf, value) VALUES ('server_qualify', 'yes');
 INSERT INTO config (conf, value) VALUES ('server_store', 'yes');
 INSERT INTO config (conf, value) VALUES ('server_sim', 'yes');
@@ -169,7 +170,6 @@ INSERT INTO config (conf , value) VALUES ('server_remote_logger', 'no');
 INSERT INTO config (conf , value) VALUES ('server_remote_logger_user', '');
 INSERT INTO config (conf , value) VALUES ('server_remote_logger_pass', '');
 INSERT INTO config (conf , value) VALUES ('server_remote_logger_ossim_url', '');
-INSERT INTO config (conf , value) VALUES ('logger_if_priority', '0');
 
 INSERT INTO config (conf,  value) VALUES ('network_auto_discovery', '0');
 INSERT INTO config (conf , value) VALUES ('nedi_autodiscovery', '0');
