@@ -109,6 +109,9 @@ if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DE
 require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
 
+$embed=GET('embed');
+ossim_valid($embed, 'true', OSS_NULLABLE, 'illegal:' . _("embed"));
+//
 $action = REQUEST('action');
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("action"));
 if ($action == "logout")
@@ -236,7 +239,21 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.base64.js"></script>
 	<link rel="Shortcut Icon" type="image/x-icon" href="../favicon.ico">
-	
+<?php if($embed=='true'){ ?>
+	<style type="text/css">
+		.tableEmbed{
+			width: 270px;
+			height: 200px;
+		}
+		.img_logo{
+			width: 205px;
+			height: auto;
+		}
+		.tableEmbed .tableEmbed2{
+			width: 260px;
+		}
+	</style>
+<?php } ?>
 	<script type='text/javascript'>
 		
 		$(document).ready(function() {
@@ -253,50 +270,50 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 </head>
 
 <body bgcolor='#AAAAAA'>
-
 	<?php
 	if ($failed)
 	{ 
 		require_once 'classes/About.inc';
 		$about = new About();
 	?>
-
+<?php if($embed!='true'){ ?>
 	<script>
 	if (location.href != top.location.href) top.location.href = location.href;
 	</script>	
-	
 	<br/><br/><br/><br/><br/><br/><br/><br/><br/>
-	
-	<form name="f" method="POST" action="login.php" onsubmit="$('#pass').val($.base64.encode($('#passu').val()));$('#submit_button').attr('disabled','disabled')" style="margin:1px">
+<?php } ?>	
+	<form <?php if($embed=='true'){ ?>target="_top" <?php } ?>name="f" method="POST" action="login.php" onsubmit="$('#pass').val($.base64.encode($('#passu').val()));$('#submit_button').attr('disabled','disabled')" style="margin:1px">
 
-	<table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class='nobborder'>
+	<table align="center" style="padding:1px;background-color:#f2f2f2;border-color:#aaaaaa" class='tableEmbed nobborder'>
 		<tr>
 			<td class="nobborder">
-				<table align="center" class="noborder" style="background-color:white">
-
+				<table align="center" class="tableEmbed2 noborder" style="background-color:white">
+<?php if($embed!='true'){ ?>
 					<tr>
 						<td class="noborder" style="text-align:right">
 							<a href="javascript:new_wind('http://www.ossim.net/dokuwiki/doku.php?id=user_manual:introduction','Help')">
 							<img src="../pixmaps/help_icon_gray.png" border="0"></a>
 						</td>
 					</tr>
-				  
+<?php } ?>				  
 					<tr>
 						<td class="nobborder" style="text-align:center;padding:20px 20px 0px 20px">
 							<?php if (file_exists("../tmp/headers/_login_logo.png")) { ?>
-							<img src="../tmp/headers/_login_logo.png" border='0' width="300" height="60"></img>
+							<img src="../tmp/headers/_login_logo.png" border='0' width="300" height="60" class="img_logo"></img>
 							<?php } else { ?>
 							<img src="../pixmaps/ossim<?= (preg_match("/.*pro.*/i",$version)) ? "_siem" : ((preg_match("/.*demo.*/i",$version)) ? "_siemdemo" : "") ?>.png" />
 							<?php } ?>
 						</td> 
 					</tr>
- 
+
 				    <tr>
 						<td align="center" class="nobborder" style="text-align:center">
-						  <br/><br/><br/>
+						  <br/>
+						  <?php if($embed!='true'){ ?><br/><br/>
+						  <?php } ?>
 						</td>
 				    </tr>
-					
+
 					<tr>
 						<td class="nobborder center">
 							<table align="center" cellspacing='4' cellpadding='2' style="background-color:#eeeeee;border-color:#dedede">
@@ -314,13 +331,13 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 							</table>
 						</td>
 					</tr>
-  
+  <?php if($embed!='true'){ ?>
 					<tr>
 						<td class="nobborder" style="text-align:center;height:30px;font-size:12px">
 							<input type="checkbox" value="1" name="maximized" style="font-size:7px"/> Maximized
 						</td>
 					</tr>
-					
+<?php } ?>					
 					<tr>
 						<td class="nobborder" style="text-align:center;padding-top:20px;">
 							<input type="submit" id="submit_button" value="<?php echo gettext("Login"); ?>" class="button" style="font-size:12px"/>
@@ -360,7 +377,7 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 	{ 
     ?>
 
-		<form name="f" method="POST" onsubmit="$('#pass').val($.base64.encode($('#pass').val()))" action="login.php" style="margin:1px">
+		<form <?php if($embed=='true'){ ?>target="_top" <?php } ?>name="f" method="POST" onsubmit="$('#pass').val($.base64.encode($('#pass').val()))" action="login.php" style="margin:1px">
 			
 			<input type="hidden" name="user" value="<?php echo $user ?>"/>
 			<input type="hidden" name="pass" id="pass" value="<?php echo $pass ?>"/>
