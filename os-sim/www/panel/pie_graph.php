@@ -70,21 +70,100 @@ switch(GET("type")) {
 		} else {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
-		        $data .= "['".$rg->fields["name"]."',".$rg->fields["num_events"]."],";
+		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
 		        $rg->MoveNext();
 		    }
 		}
 		$colors = '"#E9967A","#9BC3CF"';
 		break;
 		
-	
+	// Malware - Last Week
+	case "malware":
+		$taxonomy = make_where($conn,array("Malware" => array("Spyware","Adware","Fake_Antivirus","KeyLogger","Trojan","Virus","Worm","Generic","Backdoor")));
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
+		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '"#E9967A","#9BC3CF"';
+		break;        
+
+    // Firewall permit vs deny - Last Week
+	case "firewall":
+		$taxonomy = make_where($conn,array("Access" => array("Firewall_Permit","Firewall_Deny","ACL_Permit","ACL_Deny")));
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
+		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '"#E9967A","#E97A7A","#9BC3CF","#9C9BCF"';
+		break;        
+
+    // Antivirus - Last Week
+	case "virus":
+		$taxonomy = make_where($conn,array("Antivirus" => array("Virus_Detected")));
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
+		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '';
+		break;
+        
+    // Exploits by type - Last Week
+	case "exploits":
+		$taxonomy = make_where($conn,array("Exploits" => array("Shellcode","SQL_Injection","Browser","ActiveX","Command_Execution","Cross_Site_Scripting","FTP","File_Inclusion","Windows","Directory_Traversal","Attack_Response","Denial_Of_Service","PDF","Buffer_Overflow","Spoofing","Format_String","Misc","DNS","Mail","Samba","Linux")));
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
+		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '';
+		break;
+
+    // System status - Last Week
+	case "system":
+		$taxonomy = make_where($conn,array("System" => array("Warning","Emergency","Critical","Error","Notification","Information","Debug","Alert")));
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
+		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '';
+		break;
+        
 	default:
 		// ['Sony',7], ['Samsumg',13.3], ['LG',14.7], ['Vizio',5.2], ['Insignia', 1.2]
 		$data = "['"._("Unknown Type")."', 100]";
 }
 $data = preg_replace("/,$/","",$data);
 if ($data=="") {
-	$data = "['"._("No enough data")."', 100]";
+	$data = "['"._("No events")."', 100]";
 }
 $db->close($conn);
 ?>
@@ -139,7 +218,7 @@ $db->close($conn);
 					background: '#ffffff',
 					shadow:false
 				},
-				seriesColors: [ <?=$colors?> ],
+				<? if ($colors!="") { ?>seriesColors: [ <?=$colors?> ], <? } ?>
 				axesDefaults: {
 					
 				},
