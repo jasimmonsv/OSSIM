@@ -137,10 +137,10 @@ $qro->AddTitle(gettext("Sensor") . "&nbsp;#");
 $qro->AddTitle(gettext("Total") . "&nbsp;#", "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
 $qro->AddTitle(gettext("Unique&nbsp;Events"), "sig_a", " ", " ORDER BY num_sig ASC", "sig_d", " ", " ORDER BY num_sig DESC");
 if ($addr_type == DEST_IP) {
-	$displaytitle = _DISPLAYINGTOTALUADDRDST;
+	$displaytitle = gettext("Displaying unique destination addresses %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
     $qro->AddTitle(gettext("Src.&nbsp;Addr."), "saddr_a", " ", " ORDER BY num_sip ASC", "saddr_d", " ", " ORDER BY num_sip DESC");
 } else {
-	$displaytitle = _DISPLAYINGTOTALUADDRSRC;
+	$displaytitle = gettext("Displaying unique source addresses %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
     $qro->AddTitle(gettext("Dest.&nbsp;Addr."), "daddr_a", "  ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
 }
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());

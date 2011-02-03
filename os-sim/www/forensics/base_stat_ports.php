@@ -51,17 +51,17 @@ $page_title = "";
 switch ($proto) {
     case TCP:
         $page_title = gettext("Unique") . " TCP ";
-        $displaytitle = ($port_type==SOURCE_PORT) ? _DISPLAYINGTOTALPTCPSRC : _DISPLAYINGTOTALPTCPDST; 
+        $displaytitle = ($port_type==SOURCE_PORT) ? gettext("Displaying source tcp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.") : gettext("Displaying destination tcp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."); 
         break;
 
     case UDP:
         $page_title = gettext("Unique") . " UDP ";
-        $displaytitle = ($port_type==SOURCE_PORT) ? _DISPLAYINGTOTALPUDPSRC : _DISPLAYINGTOTALPUDPDST;
+        $displaytitle = ($port_type==SOURCE_PORT) ? gettext("Displaying source udp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.") : gettext("Displaying destination udp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
         break;
 
     case -1:
         $page_title = gettext("Unique") . " ";
-        $displaytitle = ($port_type==SOURCE_PORT) ? _DISPLAYINGTOTALPSRC : _DISPLAYINGTOTALPDST;
+        $displaytitle = ($port_type==SOURCE_PORT) ? gettext("Displaying source ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.") : gettext("Displaying destination ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
         break;
 }
 switch ($port_type) {

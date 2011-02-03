@@ -98,7 +98,7 @@ function DBLink() {
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <!-- <?php
-echo _TITLE . $BASE_VERSION; ?> -->
+echo gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION; ?> -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php
@@ -107,13 +107,13 @@ echo gettext("iso-8859-1"); ?>">
 <?php
 PrintFreshPage($refresh_stat_page, $stat_page_refresh_time);
 $archiveDisplay = (isset($_COOKIE['archive']) && $_COOKIE['archive'] == 1) ? "-- ARCHIVE" : "";
-echo ('<title>' . _TITLE . $BASE_VERSION . $archiveDisplay . '</title>
+echo ('<title>' . gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION . $archiveDisplay . '</title>
 <link rel="stylesheet" type="text/css" href="styles/' . $base_style . '">');
 ?>
 </head>
 <body>
   <div class="header">&nbsp;<?php //class ="mainheadertitle"
-echo _TITLE . $archiveDisplay; ?></div>
+echo gettext("Forensics Console " . $BASE_installID) . $archiveDisplay; ?></div>
 <?php
 if ($debug_mode == 1) {
     PrintPageHeader();
@@ -169,7 +169,7 @@ echo '
           <div class="header2">
             <table width="100%" class="systemstats">
               <tr class="main_quick_surf">
-	            <td style="text-align:left;">- ' . _TALERTS . '</td>
+	            <td style="text-align:left;">- ' . gettext("Today's event: ") . '</td>
 	            <td><a href="' . $tmp_today_unique . '">' . gettext("unique") . '</a></td>
 	            <td><a href="' . $tmp_today . '">' . gettext("listing") . '</a></td>
 	            <td><a href="' . $tmp_sip . '">' . gettext("Source IP") . '</a></td>

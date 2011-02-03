@@ -86,7 +86,7 @@ while ($myrow = $result->baseFetchRow()) {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <!-- <?php
-echo _TITLE . $BASE_VERSION; ?> -->
+echo gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION; ?> -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php

@@ -301,7 +301,7 @@ class QueryState {
                 echo "    <input type=\"submit\" class=\"button\" NAME=\"submit\" VALUE=\"" . $current_op["value"] . "\"/>\n";
         }
         //echo "   </TD>\n" . "  </TR>\n" . " </TABLE>\n" . "</CENTER>\n\n";
-		echo "   </TD><TD WIDTH=10>&nbsp;</TD><TD ALIGN=CENTER style='border:1px solid #CACACA;background:url(\"../pixmaps/fondo_hdr2.png\") repeat-x;font-size:12px;font-weight:bold;padding-bottom:10px;vertical-align:bottom'><a href='".$BASE_urlpath."/base_main.php' style='color:black;font-size:12px;font-weight:bold'>Statistical Overview</a> | <a href='".$BASE_urlpath."/base_maintenance.php' style='color:black;font-size:12px;font-weight:bold'>Administration</a> | <a href='".$BASE_urlpath."/base_stat_time.php' style='color:black;font-size:12px;font-weight:bold'>Time Profile</a></TD>\n" . "  </TR>\n" . " </TABLE>\n" . "</CENTER>\n\n";
+		echo "   </TD><TD WIDTH=10>&nbsp;</TD><TD ALIGN=CENTER style='border:1px solid #CACACA;background:url(\"../pixmaps/fondo_hdr2.png\") repeat-x;font-size:12px;font-weight:bold;padding-bottom:10px;vertical-align:bottom'><a href='".$BASE_urlpath."/base_main.php' style='color:black;font-size:12px;font-weight:bold'>".gettext("Statistical Overview")."</a> | <a href='".$BASE_urlpath."/base_maintenance.php' style='color:black;font-size:12px;font-weight:bold'>".gettext("Administration")."</a> | <a href='".$BASE_urlpath."/base_stat_time.php' style='color:black;font-size:12px;font-weight:bold'>".gettext("Time Profile")."</a></TD>\n" . "  </TR>\n" . " </TABLE>\n" . "</CENTER>\n\n";
 	}
     function ReadState() {
         $this->current_canned_query = ImportHTTPVar("caller", VAR_LETTER | VAR_USCORE);

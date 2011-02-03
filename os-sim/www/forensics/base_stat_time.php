@@ -417,12 +417,12 @@ $year_convert = $time[1][4];
 $time[1][0] = $month_convert;
 $time[1][1] = $day_convert;
 $time[1][2] = $year_convert;
-if ($submit != "" && @$time_sep[0] == "") echo _BSTERRPROFILECRIT;
-else if ($submit != "" && $time_sep[1] == " ") echo _BSTERRTIMETYPE;
-else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "on" && $time[0][2] == " ") echo _BSTERRNOYEAR;
-else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "between" && ($time[1][2] == " " || $time[0][2] == " ")) echo _BSTERRNOYEAR;
-else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "between" && ($time[1][0] == " " || $time[0][0] == " ")) echo _BSTERRNOMONTH;
-else if ($submit != "" && ($time_sep[0] != "") && $time_sep[1] == "between" && ($time[1][1] == "" || $time[0][1] == "")) echo _BSTERRNODAY;
+if ($submit != "" && @$time_sep[0] == "") echo gettext("<FONT><B>No profiling criteria was specified!</B>  Click on "hour", "day", or "month" to choose the granularity of the aggregate statistics.</FONT>");
+else if ($submit != "" && $time_sep[1] == " ") echo gettext("<FONT><B>The type of time parameter which will be passed was not specified!</B>  Choose either "on", to specify a single date, or "between" to specify an interval.</FONT>");
+else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "on" && $time[0][2] == " ") echo gettext("<FONT><B>No Year parameter was specified!</B></FONT>");
+else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "between" && ($time[1][2] == " " || $time[0][2] == " ")) echo gettext("<FONT><B>No Year parameter was specified!</B></FONT>");
+else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "between" && ($time[1][0] == " " || $time[0][0] == " ")) echo gettext("<FONT><B>No Month parameter was specified!</B></FONT>");
+else if ($submit != "" && ($time_sep[0] != "") && $time_sep[1] == "between" && ($time[1][1] == "" || $time[0][1] == "")) echo gettext("<FONT><B>No Day parameter was specified!</B></FONT>");
 else if ($submit != "") {
     /* Dump the results of the above specified query */
     $year_start = $year_end = NULL;

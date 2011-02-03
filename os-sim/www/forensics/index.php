@@ -45,12 +45,12 @@ if (isset($_POST['submit'])) {
     }
 } else {
     $displayError = 1;
-    $errorMsg = _LOGINERROR;
+    $errorMsg = gettext("User does not exist or your password was incorrect!<br>Please try again");
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- <?php
-echo _TITLE . $BASE_VERSION; ?> -->
+echo gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION; ?> -->
 <html>
 
 <head>
@@ -58,7 +58,7 @@ echo _TITLE . $BASE_VERSION; ?> -->
 echo (gettext("iso-8859-1")); ?>" />
   <meta http-equiv="pragma" content="no-cache" />
   <title><?php
-echo (_TITLE . $BASE_VERSION); ?></title>
+echo (gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION); ?></title>
   <link rel="stylesheet" type="text/css" href="styles/<?php
 echo ($base_style); ?>" />
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
@@ -66,7 +66,7 @@ echo ($base_style); ?>" />
 <body onload="javascript:document.loginform.login.focus();">
   <div class="mainheadertitle">&nbsp;
 <?php
-echo _TITLE; ?>
+echo gettext("Forensics Console " . $BASE_installID); ?>
   </div><br />
 <?php
 if ($displayError == 1) {

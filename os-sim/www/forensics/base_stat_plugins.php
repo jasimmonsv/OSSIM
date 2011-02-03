@@ -144,7 +144,7 @@ if ($debug_mode == 1) {
     echo "$sql<BR>";
 }
 /* Print the current view number and # of rows */
-$qs->PrintResultCnt("",array(),_DISPLAYINGTOTALUPLUGINS);
+$qs->PrintResultCnt("",array(),gettext("Displaying unique data sources %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."));
 echo '<FORM METHOD="post" name="PacketForm" id="PacketForm" ACTION="base_stat_plugins.php">';
 $qro->PrintHeader();
 $i = 0;

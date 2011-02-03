@@ -48,7 +48,7 @@ function verify_db($db, $alert_dbname, $alert_host) {
     );
     for ($i = 0; $i < count($base_table); $i++) {
         if (!$db->baseTableExists($base_table[$i])) return $msg . '.  <P>' . gettext("The database version is valid, but the BASE DB structure") . ' 
-              (table: ' . $base_table[$i] . ')' . _ERRDBSTRUCT2;
+              (table: ' . $base_table[$i] . ')' . gettext("is not present. Use the <A HREF='base_db_setup.php'>Setup page</A> to configure and optimize the DB.");
     }
     return "";
 }
@@ -66,21 +66,30 @@ function verify_php_build($DBtype)
     }
     if (($DBtype == "mysql") || ($DBtype == "mysqlt")) {
         if (!(function_exists("mysql_connect"))) {
-            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . _ERRPHPMYSQLSUP;
+            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . gettext("<B>PHP build incomplete</B>: <FONT>the prerequisite MySQL support required to read the alert database was not built into PHP. Please recompile PHP with the necessary library (<CODE>--with-mysql</CODE>)</FONT>");
         }
     } else if ($DBtype == "postgres") {
         if (!(function_exists("pg_connect"))) {
-            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . _ERRPHPPOSTGRESSUP;
+            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . gettext("<B>PHP build incomplete</B>: <FONT>the prerequisite PostgreSQL support required to read the alert database was not built into PHP. Please recompile PHP with the necessary library (<CODE>--with-pgsql</CODE>)</FONT>");
         }
     } else if ($DBtype == "mssql") {
         if (!(function_exists("mssql_connect"))) {
-            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . _ERRPHPMSSQLSUP;
+            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . gettext("<B>PHP build incomplete</B>: <FONT>the prerequisite MS SQL Server support required to read the alert database was not built into PHP. Please recompile PHP with the necessary library (<CODE>--enable-mssql</CODE>)</FONT>");
         }
     } else if ($DBtype == "oci8") {
         if (!(function_exists("ocilogon"))) {
-            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . _ERRPHPORACLESUP;
+            return "<FONT COLOR=\"#FF0000\">" . gettext("PHP ERROR") . "</FONT>: " . gettext("<B>PHP build incomplete</B>: <FONT>the prerequisite Oracle support required to read the alert database was not built into PHP. Please recompile PHP with the necessary library (<CODE>--with-oci8</CODE>)</FONT>");
         }
-    } else return "<B>" . gettext("Invalid Database Type Specified") . "</B>: " . _ERRSQLDBTYPEINFO1 . "'$DBtype'." . _ERRSQLDBTYPEINFO2;
+    } else {
+        $errsqldbtypeinfo1 = gettext("The variable <CODE>\$DBtype</CODE> in <CODE>base_conf.php</CODE> was set to the unrecognized database type of ");
+        $errsqldbtypeinfo2 = gettext("Only the following databases are supported: <PRE>
+                MySQL         : 'mysql'
+                PostgreSQL    : 'postgres'
+                MS SQL Server : 'mssql'
+                Oracle        : 'oci8'
+             </PRE>");
+        return "<B>" . gettext("Invalid Database Type Specified") . "</B>: " . $errsqldbtypeinfo1 . "'$DBtype'." . $errsqldbtypeinfo2;
+    }
     return "";
 }
 /* ******************* DB Query Routines ************************************ */
