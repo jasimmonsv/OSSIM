@@ -156,7 +156,6 @@ INSERT INTO config (conf, value) VALUES ('smtp_user', '');
 INSERT INTO config (conf, value) VALUES ('smtp_pass', '');
 INSERT INTO config (conf, value) VALUES ('use_ssl','no');
 
-
 INSERT INTO config (conf, value) VALUES ('dc_acc','');
 INSERT INTO config (conf, value) VALUES ('dc_ip','');
 INSERT INTO config (conf, value) VALUES ('dc_pass','');
@@ -185,4 +184,12 @@ INSERT INTO config (conf , value) VALUES ('pass_length_max', '32');
 INSERT INTO config (conf , value) VALUES ('pass_expire_min', '0');
 INSERT INTO config (conf , value) VALUES ('pass_history', '0');
 
-INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.2');
+INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.15');
+
+INSERT INTO `config` (`conf`, `value`) VALUES
+('customize_send_logs', NULL),
+('customize_title_background_color', '#8CC221'),
+('customize_title_foreground_color', '#000000'),
+('customize_subtitle_background_color', '#7A7A7A'),
+('customize_subtitle_foreground_color', '#FFFFFF'),
+('customize_wizard', NULL);
