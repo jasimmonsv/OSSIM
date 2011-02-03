@@ -230,8 +230,8 @@ if (!$rs = & $conn->Execute($query, $params)) {
 		<td class="nobborder" valign="top">
 			<table class="nobborder" align="center" style="background-color:white">
 			<form method=get>
-			<input type="hidden" id="date_from" name="date_from" value="<?=_("Any date")?>">
-			<input type="hidden" id="date_to" name="date_to" value="<?=_("Any date")?>">
+			<input type="hidden" id="date_from" name="date_from" value="Any date" />
+			<input type="hidden" id="date_to" name="date_to" value="Any date" />
 				<tr>
 					<td class="nobborder">
 						<table id="criteria_form" class="transparent" cellpadding=5 align="center" width="100%">

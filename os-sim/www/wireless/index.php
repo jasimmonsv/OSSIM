@@ -195,7 +195,7 @@ $ossim_sensors = Sensor::get_list($conn,"s, sensor_properties p WHERE s.ip=p.ip 
 <td valign="top" class="noborder" width="275" nowrap>
 
 	<table width="99%">
-	<th style='font-size:14px'>Locations</th>
+	<th style='font-size:14px'><?php echo gettext("Locations"); ?></th>
 	<tr><td class="noborder" style="padding:5px;text-align:left">
 	<div style="width:98%;border:1px dotted black;padding:2px">
 <?

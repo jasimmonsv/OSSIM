@@ -1555,7 +1555,7 @@ require_once ("manage_querys.php");
                         </td>
 					</tr>
                     <tr>
-                        <td colspan="3" nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> Fetch&nbsp;
+                        <td colspan="3" nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> <?php echo gettext("Fetch"); ?>&nbsp;
                             <select name="top" id="top" onchange="document.getElementById('offset').value='0';doQuery('noExport')">
                                 <option value="10">10</option>
                                 <option value="50" selected>50</option>
