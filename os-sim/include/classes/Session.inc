@@ -463,8 +463,8 @@ class Session {
             $ossim_link = $conf->get_conf("ossim_link", FALSE);
             $login_location = $ossim_link . '/session/login.php';
         }
-        if (!isset($_SESSION["_user"])) {
-            header("Location: $login_location");
+        if (!isset($_SESSION["_user"]) || $_SESSION["_user"] == "") {
+        	header("Location: $login_location");
             exit;
         }
     }
