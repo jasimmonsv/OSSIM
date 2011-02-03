@@ -174,14 +174,14 @@ class BaseUser {
             return $error;
         } elseif ($userRS->baseRecordCount() == 0) {
             // User doesn't exist... Someone is playing with their cookie
-            $error = returnErrorMessage(_NOUSER);
+            $error = returnErrorMessage(gettext("User doesn't exist!"));
             return $error;
         }
         $row = $userRS->baseFetchRow();
         $cryptoldpasswd = $this->cryptpassword($oldpassword);
         if ($cryptoldpasswd != $row[0]) {
             // Old password doesn't match record
-            $error = returnErrorMessage(_OLDPWD);
+            $error = returnErrorMessage(gettext("Old password entered doesn't match our records!"));
             return $error;
         }
         // Finally... lets change the password

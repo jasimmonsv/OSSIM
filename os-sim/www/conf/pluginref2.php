@@ -35,7 +35,8 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuConfiguration", "ConfigurationPlugins");
+//Session::logcheck("MenuConfiguration", "ConfigurationPlugins");
+Session::logcheck("MenuIntelligence", "CorrelationCrossCorrelation");
 // load column layout
 require_once ('../conf/layout.php');
 $category = "conf";

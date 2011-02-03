@@ -150,7 +150,7 @@ if ($debug_mode == 1) {
     echo "$sql<BR>";
 }
 /* Print the current view number and # of rows */
-$qs->PrintResultCnt("",array(),_DISPLAYINGTOTALSENSOR);
+$qs->PrintResultCnt("",array(),gettext("Displaying sensors %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."));
 echo '<FORM METHOD="post" NAME="PacketForm" id="PacketForm" ACTION="base_stat_sensor.php">';
 $qro->PrintHeader();
 $i = 0;

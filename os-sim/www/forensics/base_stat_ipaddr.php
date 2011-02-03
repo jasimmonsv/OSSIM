@@ -43,7 +43,7 @@ PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 function PrintPortscanEvents($db, $ip) {
     GLOBAL $portscan_file;
     if (!$portscan_file) {
-        ErrorMessage(gettext("PORTSCAN EVENT ERROR: ") . _PSEVENTERRNOFILE);
+        ErrorMessage(gettext("PORTSCAN EVENT ERROR: ") . gettext("No file was specified in the $portscan_file variable."));
         return;
     }
     $fp = fopen($portscan_file, "r");
@@ -104,10 +104,10 @@ function PrintEventsByIP($db, $ip) {
     echo '<TABLE BORDER=0>
         <TR>
            <TD CLASS="headerbasestat">' . gettext("TCP Flags") . '</TD>
-           <TD CLASS="headerbasestat">' . _PSTOTALOCC . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Total<BR> Occurrences") . '</TD>
            <TD CLASS="headerbasestat">' . gettext("Num of Sensors") . '</TD>
-           <TD CLASS="headerbasestat">' . _PSFIRSTOCC . '</TD>
-           <TD CLASS="headerbasestat">' . _PSLASTOCC . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("First<BR> Occurrence") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Last<BR> Occurrence") . '</TD>
         </TR>';
     for ($i = 0; $i < $unique_event_cnt; $i++) {
         $current_event = $unique_events[$i];
@@ -225,11 +225,11 @@ if (VerifySocketSupport()) echo '&nbsp;&nbsp;( <A HREF="base_stat_ipaddr.php?ip=
 echo '</B>
         <TABLE BORDER=0>
         <TR>
-           <TD CLASS="headerbasestat">' . _PSNUMSENSORSBR . '</TD>
-           <TD CLASS="headerbasestat">' . _PSOCCASSRC . '</TD>
-           <TD CLASS="headerbasestat">' . _PSOCCASDST . '</TD>
-           <TD CLASS="headerbasestat">' . _PSFIRSTOCC . '</TD>
-           <TD CLASS="headerbasestat">' . _PSLASTOCC . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Num of <BR>Sensors") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Occurances <BR>as Src.") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Occurances <BR>as Dest.") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("First<BR> Occurrence") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Last<BR> Occurrence") . '</TD>
         </TR>';
 $ip_src32 = baseIP2long($ip);
 $ip_dst32 = $ip_src32;

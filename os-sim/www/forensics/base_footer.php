@@ -43,6 +43,6 @@ if (!isset($noDisplayMenu)) {
 
 <div class="mainfootertext">
     <a class="largemenuitem" href="http://base.secureideas.net" target="_new">BASE</a> <?php
-echo $BASE_VERSION . _FOOTER; ?>
+echo $BASE_VERSION . gettext(" (by <A class='largemenuitem' href='mailto:base@secureideas.net'>Kevin Johnson</A> and the <A class='largemenuitem' href='http://sourceforge.net/project/memberlist.php?group_id=103348'>BASE Project Team</A><BR>Built on ACID by Roman Danyliw )"); ?>
 </div>
 
