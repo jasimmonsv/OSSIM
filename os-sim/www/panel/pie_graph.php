@@ -1,0 +1,174 @@
+<?php
+require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once 'classes/Util.inc';
+Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
+
+require_once 'ossim_db.inc';
+$db = new ossim_db();
+$conn = $db->connect();
+$data = "";
+//$colors = '"#EFBE68", "#B5CF81"';
+$colors = '"#E9967A","#9BC3CF"';
+
+function make_where ($conn,$arr) {
+	include_once("../report/plugin_filters.php");
+	$w = "";
+	foreach ($arr as $cat => $scs) {
+		$id = GetPluginCategoryID($cat,$conn);
+		$w .= "(p.plugin_id=$id"; 
+		$ids = array();
+		foreach ($scs as $scat) {
+			$ids[] = GetPluginSubCategoryID($scat,$id,$conn);
+		}
+		if (count($ids)>0) $w .= " AND p.sid in (".implode(",",$ids).")";
+		$w .= ") OR ";
+	}
+	return ($w!="") ? "AND (".preg_replace("/ OR $/","",$w).")" : "";
+}
+
+switch(GET("type")) {
+
+	// Top 10 Events by Product Type - Last Week
+	case "source_type":
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.source_type from snort.ac_alerts_signature a,ossim.plugin p where p.id=a.plugin_id AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' group by p.source_type LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["source_type"]=="") $rg->fields["source_type"] = _("Unknown type");
+		        $data .= "['".$rg->fields["source_type"]."',".$rg->fields["num_events"]."],";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '"#D1E8EF","#ADD8E6","#00BFFF","#4169E1","#4682B4","#0000CD","#483D8B","#5355DF","#00008B"';
+		break;
+		
+		
+	// Top 10 Event Categories - Last Week
+	case "category":
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' group by p.category_id LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
+		        $data .= "['".$rg->fields["name"]."',".$rg->fields["num_events"]."],";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '"#FFBFBF","#FF9F9F","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222","#7F1717"';
+		break;
+				
+				
+	// Authentication Login vs Failed Login Events - Last Week
+	case "login":
+		$taxonomy = make_where($conn,array("Authentication" => array("Login","Failed")));
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
+		        $data .= "['".$rg->fields["name"]."',".$rg->fields["num_events"]."],";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '"#E9967A","#9BC3CF"';
+		break;
+		
+	
+	default:
+		// ['Sony',7], ['Samsumg',13.3], ['LG',14.7], ['Vizio',5.2], ['Insignia', 1.2]
+		$data = "['"._("Unknown Type")."', 100]";
+}
+$data = preg_replace("/,$/","",$data);
+if ($data=="") {
+	$data = "['"._("No enough data")."', 100]";
+}
+$db->close($conn);
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+<head>
+	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <title>Bar Charts</title>
+	  <!--[if IE]><script language="javascript" type="text/javascript" src="jqplot/excanvas.js"></script><![endif]-->
+	  
+	  <link rel="stylesheet" type="text/css" href="../js/jqplot/jquery.jqplot.css" />
+		
+	  <!-- BEGIN: load jquery -->
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/jquery-1.4.2.min.js"></script>
+	  <!-- END: load jquery -->
+	  
+	  <!-- BEGIN: load jqplot -->
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/jquery.jqplot.min.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.barRenderer.min.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.pointLabels.min.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.canvasTextRenderer.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.canvasAxisTickRenderer.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.pieRenderer.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.highlighter.js"></script>	  
+
+	 
+  <!-- END: load jqplot -->
+
+	<style type="text/css">
+		
+		#chart .jqplot-point-label {
+		  border: 1.5px solid #aaaaaa;
+		  padding: 1px 3px;
+		  background-color: #eeccdd;
+		}
+
+	</style>
+    
+	<script class="code" type="text/javascript">
+	
+		$(document).ready(function(){
+					
+			$.jqplot.config.enablePlugins = true;
+			
+			s1 = [<?=$data?>];
+
+			plot1 = $.jqplot('chart', [s1], {
+				grid: {
+					drawBorder: false, 
+					drawGridlines: false,
+					background: '#ffffff',
+					shadow:false
+				},
+				seriesColors: [ <?=$colors?> ],
+				axesDefaults: {
+					
+				},
+				seriesDefaults:{
+					renderer:$.jqplot.PieRenderer,
+					rendererOptions: {
+						showDataLabels: true
+					},
+					highlighter: {
+						show:true,
+						tooltipFormatString:'sss',
+						showTooltip:true
+					}				
+				},
+				legend: {
+					show: true,
+					rendererOptions: {
+						numberCols: 1
+					},
+					location: 'w'
+				}
+			}); 
+
+		});
+	</script>
+
+    
+  </head>
+	<body>
+		<div id="chart" style="width:100%; height: 250px;"></div>
+	</body>
+</html>

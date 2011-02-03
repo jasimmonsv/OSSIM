@@ -2,6 +2,7 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once 'classes/Util.inc';
+Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 function SIEM_trends() {
 	$data = array();
