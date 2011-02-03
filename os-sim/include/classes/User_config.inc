@@ -137,8 +137,6 @@ class User_config {
 		return $ret;
     }
     function set($login, $name, $value, $type = 'simple', $category = 'main') {
-        $sql = "REPLACE INTO user_config (login, category, name, value)
-                VALUES (?, ?, ?, ?)";
         if ($type == 'simple') {
             $val = $value;
         } elseif ($type == 'php') {
@@ -150,13 +148,11 @@ class User_config {
         } else {
             die(ossim_error("Invalid config type: $type"));
         }
-        $params = array(
-            $login,
-            $category,
-            $name,
-            $val
-        );
-        if (!$this->conn->Execute($sql, $params)) {
+        
+        $sql = "REPLACE INTO user_config (login, category, name, value)
+        VALUES ('$login', '$category', '$name', '$val')";
+        
+        if (!$this->conn->Execute($sql)) {
             die(ossim_error($this->conn->ErrorMsg()));
         }
         $infolog = array("Tabs");
