@@ -64,6 +64,7 @@ while (list($key, $val) = each($_GET)) {
     list($action, $ip, $what) = split(",", $key, 3);
     $what = ereg_replace("_", " ", $what);
     $what = ereg_replace("rrd anomaly", "rrd_anomaly", $what);
+    $what = preg_replace("/(global|host)\s(\w+)\s(\w+)/","\\1 \\2_\\3",$what);
     
     $regex = "/(IP)\s([A-Z])/";
     $what = preg_replace($regex,"$1_$2",$what);
