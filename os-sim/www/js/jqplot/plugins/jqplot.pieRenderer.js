@@ -551,7 +551,8 @@
                                     pad = true;
                                 }
                             }
-                            rs = (pad) ? this.rowSpacing : '0';
+                            //rs = (pad) ? this.rowSpacing : '0';
+                            rs = '0';
                 
                             td1 = $('<td class="jqplot-table-legend" style="text-align:center;padding-top:'+rs+';">'+
                                 '<div><div class="jqplot-table-legend-swatch" style="border-color:'+color+';"></div>'+

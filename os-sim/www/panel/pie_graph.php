@@ -31,7 +31,7 @@ switch(GET("type")) {
 
 	// Top 10 Events by Product Type - Last Week
 	case "source_type":
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.source_type from snort.ac_alerts_signature a,ossim.plugin p where p.id=a.plugin_id AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' group by p.source_type LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.source_type from snort.ac_alerts_signature a,ossim.plugin p where p.id=a.plugin_id AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' group by p.source_type order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -47,7 +47,7 @@ switch(GET("type")) {
 		
 	// Top 10 Event Categories - Last Week
 	case "category":
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' group by p.category_id LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -64,7 +64,7 @@ switch(GET("type")) {
 	// Authentication Login vs Failed Login Events - Last Week
 	case "login":
 		$taxonomy = make_where($conn,array("Authentication" => array("Login","Failed")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -80,7 +80,7 @@ switch(GET("type")) {
 	// Malware - Last Week
 	case "malware":
 		$taxonomy = make_where($conn,array("Malware" => array("Spyware","Adware","Fake_Antivirus","KeyLogger","Trojan","Virus","Worm","Generic","Backdoor")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -96,7 +96,7 @@ switch(GET("type")) {
     // Firewall permit vs deny - Last Week
 	case "firewall":
 		$taxonomy = make_where($conn,array("Access" => array("Firewall_Permit","Firewall_Deny","ACL_Permit","ACL_Deny")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -112,7 +112,7 @@ switch(GET("type")) {
     // Antivirus - Last Week
 	case "virus":
 		$taxonomy = make_where($conn,array("Antivirus" => array("Virus_Detected")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -128,7 +128,7 @@ switch(GET("type")) {
     // Exploits by type - Last Week
 	case "exploits":
 		$taxonomy = make_where($conn,array("Exploits" => array("Shellcode","SQL_Injection","Browser","ActiveX","Command_Execution","Cross_Site_Scripting","FTP","File_Inclusion","Windows","Directory_Traversal","Attack_Response","Denial_Of_Service","PDF","Buffer_Overflow","Spoofing","Format_String","Misc","DNS","Mail","Samba","Linux")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -144,7 +144,7 @@ switch(GET("type")) {
     // System status - Last Week
 	case "system":
 		$taxonomy = make_where($conn,array("System" => array("Warning","Emergency","Critical","Error","Notification","Information","Debug","Alert")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -182,11 +182,6 @@ $db->close($conn);
 	  
 	  <!-- BEGIN: load jqplot -->
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/jquery.jqplot.min.js"></script>
-	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.barRenderer.min.js"></script>
-	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
-	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.pointLabels.min.js"></script>
-	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.canvasTextRenderer.js"></script>
-	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.canvasAxisTickRenderer.js"></script>
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.pieRenderer.js"></script>
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.highlighter.js"></script>	  
 
@@ -223,13 +218,13 @@ $db->close($conn);
 					
 				},
 				seriesDefaults:{
+                    padding:14,
 					renderer:$.jqplot.PieRenderer,
 					rendererOptions: {
 						showDataLabels: true
 					},
 					highlighter: {
 						show:true,
-						tooltipFormatString:'sss',
 						showTooltip:true
 					}				
 				},
