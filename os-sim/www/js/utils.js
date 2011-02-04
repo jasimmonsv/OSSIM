@@ -386,6 +386,7 @@ function urlencode(textoAcodificar)
 			    codificado += ch;
 			} else {
 			    var charCode = ch.charCodeAt(0);
+				alert(charCode);
 				if (charCode > 255) {
 				   /* alert( "Caracter Unicode '"+ch+"' no puede ser codificado utilizando la codificación URL estandar.\n" +
 					          "(sólo soporta caracteres de 8-bit.)\n" +
