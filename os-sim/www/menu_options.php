@@ -241,6 +241,94 @@ if (is_dir("/var/ossim/")) {
         );
     }
 }
+
+// Detection
+$detection = 0;
+if (Session::menu_perms("MenuEvents", "EventsForensics") ||
+    Session::menu_perms("MenuEvents", "ReportsWireless") ||
+    Session::menu_perms("MenuEvents", "EventsAnomalies")) {
+    if (Session::menu_perms("MenuEvents", "EventsForensics")) {
+        $detection = 1;
+        $menu["Analysis"][] = array(
+            "name" => gettext("Detection") ,
+            "id" => "Detection",
+            "url" => "forensics/base_stat_alerts_graph.php?sort_order=occur_d&plugin=1001&time_range=all"
+        );
+        $hmenu["Detection"][] = array(
+            "name" => gettext("NIDS") ,
+            "id" => "Detection",
+            "url" => "http://dev.alienvault.com:8080/ossim/forensics/base_stat_alerts_graph.php?sort_order=occur_d&plugin=1001&time_range=all",
+            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:NIDS','Help');"
+        );
+        if (Session::am_i_admin()) {
+            $hmenu["Detection"][] = array(
+                "name" => gettext("HIDS") ,
+                "id" => "HIDS",
+                "url" => "ossec/index.php",
+                "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
+            );	
+            $rmenu["HIDS"][] = array(
+                   "name" => gettext("Edit Rules") ,
+                   "url" => "index.php"
+            );
+            $rmenu["HIDS"][] = array(
+                   "name" => gettext("Config") ,
+                   "url" => "config.php"
+            );
+            $rmenu["HIDS"][] = array(
+                   "name" => gettext("Agents") ,
+                   "url" => "agent.php"
+            );
+            $rmenu["HIDS"][] = array(
+                   "name" => gettext("Agentless") ,
+                   "url" => "agentless.php"
+            );
+            $rmenu["HIDS"][] = array(
+                   "name" => gettext("Ossec Control") ,
+                   "url" => "ossec_control.php"
+            );
+        }
+    }
+    if (Session::menu_perms("MenuEvents", "ReportsWireless")) {
+        $ids = "Wireless";
+        if (!$detection) {
+            $detection = 1; $ids = "Detection";
+            $menu["Analysis"][] = array(
+                "name" => gettext("Detection") ,
+                "id" => "Detection",
+                "url" => "wireless/"
+            );
+        }
+        $hmenu["Detection"][] = array(
+           "name" => gettext("Wireless IDS") ,
+           "id" => $ids,
+           "url" => "wireless/",
+           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:wireless','EventHelp')"
+        );
+        $rmenu["Wireless"][] = array(
+           "name" => gettext("Setup"),
+           "url" => "../wireless/setup.php"
+        );
+    };   
+    if (Session::menu_perms("MenuEvents", "EventsAnomalies")) {
+        $ids = "Anomalies";
+        if (!$detection) {
+            $ids = "Detection";
+            $menu["Analysis"][] = array(
+                "name" => gettext("Detection") ,
+                "id" => "Detection",
+                "url" => "control_panel/anomalies.php"
+            );
+        }    
+        $hmenu["Detection"][] = array(
+            "name" => gettext("Anomalies") ,
+            "id" => $ids,
+            "url" => "control_panel/anomalies.php",
+            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:anomalies','EventHelp')"
+        );
+    }   
+}
+
 if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { $events = 1;
     $menu["Analysis"][] = array(
         "name" => gettext("Vulnerabilities") ,
@@ -313,79 +401,6 @@ if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { $events = 1;
            "url" => "../vulnmeter/webconfig.php"
         );
     }
-}
-
-if (Session::am_i_admin()) { $correlation = 1;
-    $menu["Analysis"][] = array(
-        "name" => gettext("HIDS") ,
-        "id" => "HIDS",
-        "url" => "ossec/ossec_control.php"
-    );
-    $hmenu["HIDS"][] = array(
-        "name" => gettext("Ossec") ,
-        "id" => "HIDS",
-        "url" => "ossec/index.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
-    );	
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Edit Rules") ,
-           "url" => "index.php"
-    );
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Config") ,
-           "url" => "config.php"
-    );
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Agents") ,
-           "url" => "agent.php"
-    );
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Agentless") ,
-           "url" => "agentless.php"
-    );
-	
-	$rmenu["HIDS"][] = array(
-           "name" => gettext("Ossec Control") ,
-           "url" => "ossec_control.php"
-    );
-	
-	
-}	
-
-if (Session::menu_perms("MenuEvents", "ReportsWireless")) { $events = 1;
-    $menu["Analysis"][] = array(
-        "name" => gettext("Wireless IDS") ,
-        "id" => "Wireless",
-        "url" => "wireless/"
-    );
-    $hmenu["Wireless"][] = array(
-       "name" => gettext("Wireless IDS") ,
-       "id" => "Wireless",
-       "url" => "wireless/",
-       "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:wireless','EventHelp')"
-    );
-    $rmenu["Wireless"][] = array(
-       "name" => gettext("Setup"),
-       "url" => "../wireless/setup.php"
-    );
-};
-
-if (Session::menu_perms("MenuEvents", "EventsAnomalies")) { $events = 1;
-    $menu["Analysis"][] = array(
-        "name" => gettext("Anomalies") ,
-        "id" => "Anomalies",
-        "url" => "control_panel/anomalies.php"
-    );
-    $hmenu["Anomalies"][] = array(
-        "name" => gettext("Anomalies") ,
-        "id" => "Anomalies",
-        "url" => "control_panel/anomalies.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:anomalies','EventHelp')"
-    );
 }
 
 /* Reports */
