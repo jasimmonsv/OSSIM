@@ -242,7 +242,7 @@ $db->close($conn);
 
     
   </head>
-	<body>
+	<body style="overflow:hidden">
 		<div id="chart" style="width:100%; height: 250px;"></div>
 	</body>
 </html>

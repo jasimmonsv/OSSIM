@@ -170,7 +170,7 @@ if ($debug_mode > 0) {
 }
 /* Run the Query again for the actual data (with the LIMIT) */
 //$result = ""; // $qs->ExecuteOutputQuery($sql, $db);
-echo $sql."<br>";
+//echo $sql."<br>";
 
 $_SESSION['siem_current_query'] = $sql;
 

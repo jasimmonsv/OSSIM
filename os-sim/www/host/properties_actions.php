@@ -66,7 +66,7 @@ switch ($action){
 		{
 			$item = explode("###", $v);
 			
-			if ( preg_match ("/prop4_/", $item[0]) )
+			if ( preg_match ("/item_prop_4_/", $item[0]) )
 			{
 				$host     = $item[1];
 				$port     = $item[2];

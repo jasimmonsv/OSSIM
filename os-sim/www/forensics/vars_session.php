@@ -43,7 +43,6 @@ if (!isset($_SESSION["_user"])) {
 	header("Location: $login_location");
 	exit;
 }
-
 // Custom Views
 require_once('classes/User_config.inc');
 $login = Session::get_session_user();
@@ -87,7 +86,7 @@ $_SESSION['views_data'] = array(
 	"SID_NAME" => array("title"=>"sid name","width"=>"40","celldata" => ""),
 	"IP_PROTO" => array("title"=>"L4-proto","width"=>"40","celldata" => "")
 );
-
+echo "aqui";
 // TIME RANGE
 if ($_GET['time_range'] != "") {
     // defined => save into session
