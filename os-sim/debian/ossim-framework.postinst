@@ -52,13 +52,37 @@ if ! [ `grep -c "agent_control" /etc/sudoers` -ne 0 ]
 then
         echo "www-data ALL=NOPASSWD: /var/ossec/bin/agent_control" >> /etc/sudoers
         echo "www-data ALL=NOPASSWD: /var/ossec/bin/manage_agents" >> /etc/sudoers
-		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control" >> /etc/sudoers
 fi
 
 if ! [ `grep -c "register_host.sh" /etc/sudoers` -ne 0 ]
 then
 		echo "www-data ALL=NOPASSWD: /var/ossec/agentless/register_host.sh" >> /etc/sudoers
 fi
+
+if ! [ `grep -c "ossec-control restart" /etc/sudoers` -ne 0 ]
+then
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control restart" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control stop" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control start" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control status" >> /etc/sudoers
+fi
+
+if ! [ `grep -c "ossec-control enable" /etc/sudoers` -ne 0 ]
+then
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control enable database" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control enable client-syslog" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control enable agentless" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control enable debug" >> /etc/sudoers
+fi
+
+if ! [ `grep -c "ossec-control disable" /etc/sudoers` -ne 0 ]
+then
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control disable database" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control disable client-syslog" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control disable agentless" >> /etc/sudoers
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control disable debug" >> /etc/sudoers
+fi
+
 
 # nmap perms
 if [ -e /usr/bin/nmap ]
@@ -156,18 +180,23 @@ else
 fi
 
 # ossec perms
-chmod o+rx /var/ossec
-chmod -R o+r /var/ossec/rules
-chmod u+rwx /var/ossec/rules
-chmod u+rwx /var/ossec/agentless
+chmod o+rx     /var/ossec
+chmod -R o+r   /var/ossec/rules
+chmod u+rwx    /var/ossec/rules
 
-chmod u+w /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
-chown www-data /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
+chown www-data:ossec /var/ossec/etc
+chown www-data:ossec /var/ossec/etc/ossec.conf
+chmod u+rw           /var/ossec/etc/ossec.conf
+
+chmod u+w            /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
+chown www-data       /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
 chown www-data:ossec /var/ossec/agentless
+chown www-data:ossec /var/ossec/agentless/.passlist
+chmod u+rwx          /var/ossec/agentless/.passlist
+
 chown www-data:ossec /var/ossec/logs
 chown www-data:ossec /var/ossec/logs/alerts
 chown www-data:ossec /var/ossec/logs/alerts/alerts.log
-chown www-data:ossec /var/ossec/etc
 
 chmod g+w /var/ossec/logs/
 chmod g+w /var/ossec/logs/alerts/

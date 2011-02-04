@@ -81,16 +81,13 @@ require_once ('classes/Plugin.inc');
 		function execute_action(action, div_load, extra)
 		{
 			//Load img
-						
+									
 			$(div_load).html(messages[0]);
 			
 			$("#oss_load").css('padding', "40px 0px");
 			
-			var data = "action="+action;
+			var data = "action="+action+"&extra="+extra;
 			
-			if (extra !='')
-				data += "&extra="+extra;
-									
 			$.ajax({
 				type: "POST",
 				url: "ajax/ossec_control_actions.php",
@@ -98,108 +95,45 @@ require_once ('classes/Plugin.inc');
 				success: function(msg){
 					
 					if ( msg.match("Illegal action") != null )	
-						$(div_load).html("<div class='oss_error' style='width:90%'>"+msg+"</div>");
+						$(div_load).html("<div class='oss_error' style='width:90%'><div style='padding: 5px 10px 10px 50px;'>"+msg+"</div></div>");
 					else
 					{
+						var status = msg.split("###");
+						var html   = msg;
+						
 						if (div_load == "#ossc_result")
 						{
-							var status = msg.split("###");
-							
 							if (status[0] == "0")
-								set_action(action);
-													
-							msg = status[1];
+							{
+								
+								$('#ossc_buttons_actions').html(status[2]);
+								bind_action ('#cont_system_action');
+								bind_action ('#cont_db_action');
+								bind_action ('#cont_cs_action');
+								bind_action ('#cont_al_action');
+								bind_action ('#cont_dbg_action');
+							}
+							
+							html = status[1];
 						}
-																	
-						$(div_load).html('');
-						
-						$(div_load).html("<div style='padding: 5px 10px 10px 10px; width:900px;'>"+msg+"</div>");
 					}
+																	
+					$(div_load).html('');
+					$(div_load).html("<div style='padding: 5px 10px 10px 10px; width:900px;'>"+html+"</div>");
+				
 				}
 			});
+			
 		}
 		
-		function set_action(action)
-		{
-			switch (action){
-			
-				case "enable_db":
-					var id     = 'cont_db_action';
-					var input  = "<span class='running'>Database <?php echo _("is running")?></span><br/><br/>";
-						input += "<input type='button' id='db_disable' class='lbutton' value='<?php echo _("Disable") ?>'/>";
-				break;
-				
-				case "disable_db":
-					var id     = 'cont_db_action';
-					var input  = "<span class='not_running'>Database <?php echo _("not running")?></span><br/><br/>";
-						input += "<input type='button' id='db_enable' class='lbuttond' value='<?php echo _("Enable") ?>'/>";
-				break;
-				
-				case "enable_cs":
-					var id     = 'cont_cs_action';
-					var input  = "<span class='running'>Client-syslog <?php echo _("is running")?></span><br/><br/>";
-						input += "<input type='button' id='cs_disable' class='lbuttond' value='<?php echo _("Disable") ?>'/>";
-				break;
-				
-				case "disable_cs":
-					var id     = 'cont_cs_action';
-					var input  = "<span class='not_running'>Client-syslog <?php echo _("not running")?></span><br/><br/>";
-						input += "<input type='button' id='cs_enable' class='lbutton' value='<?php echo _("Enable") ?>'/>";
-				break;
-				
-				case "enable_al":
-					var id     = 'cont_al_action';
-					var input  = "<span class='running'>Agentless <?php echo _("is running")?></span><br/><br/>";
-						input += "<input type='button' id='al_disable' class='lbuttond' value='<?php echo _("Disable") ?>'/>";
-				break;
-				
-				case "disable_al":
-					var id     = 'cont_al_action';
-					var input  = "<span class='not_running'>Agentless <?php echo _("not running")?></span><br/><br/>";
-						input += "<input type='button' id='al_enable' class='lbutton' value='<?php echo _("Enable") ?>'/>";
-				break;
-				
-				case "Stop":
-					var id     = 'cont_system_action';
-					var input  = "<span class='not_running'> <?php echo _("Ossec service is down")?></span><br/><br/>";
-						input += "<input type='button' id='system_start' class='lbutton' value='<?php  echo _("Start")?>'/>";
-						input += "<input type='button' id='system_restart' class='lbutton' value='<?php echo _("Restart")?>'/>";
-				break;
-				
-				case "Restart":
-					var id     = 'cont_system_action';
-					var input  = "<span class='running'> <?php echo _("Ossec service is up")?></span><br/><br/>";
-						input += "<input type='button' id='system_stop' class='lbuttond' value='<?php echo _("Stop")?>'/>";
-						input += "<input type='button' id='system_restart' class='lbutton' value='<?php echo _("Restart")?>'/>";
-				break;
-				
-				case "Start":
-					var id     = 'cont_system_action';
-					var input  = "<span class='running'> <?php echo _("Ossec service is up")?></span><br/><br/>";
-						input += "<input type='button' id='system_stop' class='lbuttond' value='<?php echo _("Stop")?>'/>";
-						input += "<input type='button' id='system_restart' class='lbutton' value='<?php echo _("Restart")?>'/>";
-				break;
-			}
-			
-			
-			$('#'+ id).html(input);		
-			
-			if (action == "<?php echo _("Start")?>" || action == "<?php echo _("Stop")?>" || action == "<?php echo _("Restart")?>")
-				bind_action ('#cont_system_action');
-			else
-			{
-				bind_action ('#cont_db_action');
-				bind_action ('#cont_cs_action');
-				bind_action ('#cont_al_action');
-			}
-		}
+		
 		
 		function bind_action (id)
 		{
 			switch (id){
-				
+								
 				case "#cont_db_action":
-					
+									
 					$(id+ ' input').bind('click', function() {
 						var action = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable_db" : "disable_db";
 						var extra  = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable database" : "disable database";
@@ -223,10 +157,22 @@ require_once ('classes/Plugin.inc');
 					});
 				break;
 				
+				case "#cont_dbg_action":
+					$(id+ ' input').bind('click', function() {
+						var action = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable_dbg" : "disable_dbg";
+						var extra  = ( $(this).val() == "<?php echo _("Enable")?>" ) ? "enable debug" : "disable debug";
+						execute_action(action, "#ossc_result", extra);
+					});
+				break;
+				
 				case "#cont_system_action":
+					
+					
 					$(id+ ' input').bind('click', function() {
 					
+						
 						var action = $(this).val();
+						var extra  = '';
 						
 						if ( action == "<?php echo _("Start")?>" )
 							var action = "Start";
@@ -238,7 +184,7 @@ require_once ('classes/Plugin.inc');
 								var action = "Stop";
 						}
 										
-						load_tab1();
+						execute_action(action, "#ossc_result", extra);
 					});
 				break;
 			}
@@ -251,30 +197,20 @@ require_once ('classes/Plugin.inc');
 			//Tabs
 			$("ul.oss_tabs li:first").addClass("active");
 			
-			$('#oss_num_line').bind('change', function() {
-				load_tab2();
-			});
+			$('#oss_num_line').bind('change', function() { load_tab2(); });
 			
-			$('#alert_num_line').bind('change', function() {
-				load_tab3();
-			});
+			$('#alert_num_line').bind('change', function() { load_tab3(); });
 			
 			$("ul.oss_tabs li").click(function(event) { 
 				event.preventDefault(); 
 				show_tab_content(this); 
 			});
 			
-			$("#link_tab1, #refresh").click(function(event) { 
-				load_tab1();
-			});
+			$("#link_tab1, #refresh").click(function(event) { load_tab1();});
 			
-			$("#link_tab2").click(function(event) { 
-				load_tab2();
-			});
+			$("#link_tab2").click(function(event) { load_tab2(); });
 			
-			$("#link_tab3").click(function(event) { 
-				load_tab3();
-			});
+			$("#link_tab3").click(function(event) { load_tab3();});
 			
 			$("#show_actions").click(function(event) { 
 				event.preventDefault();
@@ -303,6 +239,7 @@ require_once ('classes/Plugin.inc');
 			bind_action ('#cont_db_action');
 			bind_action ('#cont_cs_action');
 			bind_action ('#cont_al_action');
+			bind_action ('#cont_dbg_action');
 			bind_action ('#cont_system_action');
 					
 		});
@@ -389,17 +326,25 @@ $link_siem     = "../forensics/base_qry_main.php?&plugin=".$oss_plugin_id."&num_
 
 
 //Ossec Status
-exec ("sudo /var/ossec/bin/ossec-control status", $result_1);
-$result_1 = implode("<br/>", $result_1);
+exec ("sudo /var/ossec/bin/ossec-control status", $result);
+$result_1 = implode("<br/>", $result);
 $result_1 = str_replace("is running", "<span style='font-weight: bold; color:#15B103;'>is running</span>", $result_1);
 $result_1 = str_replace("not running", "<span style='font-weight: bold; color:#E54D4D;'>not running</span>", $result_1);
 
 
 //Ossec Control
 
-exec ("ps ax | grep ossec | grep -v grep", $output_sys, $result_sys);
+$pattern      = "/ossec-analysisd is running|ossec-syscheckd is running|ossec-remoted is running|ossec-monitord is running/";
+$pattern_db   = "/ossec-dbd is running/";
+$pattern_cs   = "/ossec-csyslogd is running/";
+$pattern_al   = "/ossec-agentlessd is running/";
+$pattern_dbg  = "/ossec-analysisd -d|ossec-syscheckd -d|ossec-remoted -d|ossec-monitord -d | ossec-analysisd -d/";
 
-if ( count($output_sys) < 1)
+$status = implode("", $result);
+
+preg_match_all($pattern, $status, $match);
+
+if ( count($match[0]) < 4)
 {
 	$system_action    = "<span class='not_running'>"._("Ossec service is down")."</span><br/><br/>
 						<input type='button' id='system_start' class='lbutton' value='"._("Start")."'/>"; 
@@ -413,16 +358,22 @@ else
 
 $system_action .= "<input type='button' id='system_restart' class='lbutton' value='"._("Restart")."'/>";
 	
-exec ("ps -ef | grep ossec-csyslogd | grep -v grep", $output_cs, $result_cs);
 
-$syslog_action    = ( count($output_cs) < 1 ) ? "<span class='not_running'>Client-syslog "._("not running")."</span><br/><br/><input type='button' id='cs_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Client-syslog "._("is running")."</span><br/><br/><input type='button' id='cs_disable' class='lbuttond' value='"._("Disable")."'/>";
+preg_match($pattern_cs, $status, $match_cs);
 
-exec ("ps -ef | grep ossec-dbd | grep -v grep", $output_db, $result_db);
-$database_action  = ( count($output_db) < 1 ) ? "<span class='not_running'>Database "._("not running")."</span><br/><br/><input type='button' id='db_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Database "._("is running")."</span><br/><br/><input type='button' id='db_disable' class='lbuttond' value='"._("Disable")."'/>";
+$syslog_action    = ( count($match_cs) < 1 ) ? "<span class='not_running'>Client-syslog "._("not running")."</span><br/><br/><input type='button' id='cs_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Client-syslog "._("is running")."</span><br/><br/><input type='button' id='cs_disable' class='lbuttond' value='"._("Disable")."'/>";
+
+preg_match($pattern_db, $status, $match_db);
+$database_action  = ( count($match_db) < 1 ) ? "<span class='not_running'>Database "._("not running")."</span><br/><br/><input type='button' id='db_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Database "._("is running")."</span><br/><br/><input type='button' id='db_disable' class='lbuttond' value='"._("Disable")."'/>";
 
 
-exec ("ps -ef | grep ossec-agentlessd | grep -v grep", $output_al, $result_aj);
-$agentless_action = ( count($output_al) < 1 ) ? "<span class='not_running'>Agentless "._("not running")."</span><br/><br/><input type='button' id='al_enable' class='lbutton' value='"._("Enable")."''/>" : "<span class='running'>Agentless "._("is running")."</span><br/><br/><input type='button' id='al_disable' class='lbuttond' value='"._("Disable")."'/>";
+preg_match($pattern_al, $status, $match_al);
+$agentless_action = ( count($match_al) < 1 ) ? "<span class='not_running'>Agentless "._("not running")."</span><br/><br/><input type='button' id='al_enable' class='lbutton' value='"._("Enable")."''/>" : "<span class='running'>Agentless "._("is running")."</span><br/><br/><input type='button' id='al_disable' class='lbuttond' value='"._("Disable")."'/>";
+
+exec ("ps -ef | grep ossec | grep -v grep", $res_dbg);
+$status_dbg = implode('', $res_dbg);
+preg_match_all($pattern_dbg, $status_dbg, $match_dbg);
+$debug_action     = ( count($match_dbg[0]) < 1 ) ? "<span class='not_running'>Debug "._(" is disabled")."</span><br/><br/><input type='button' id='dbg_enable' class='lbutton' value='"._("Enable")."''/>" : "<span class='running'>Debug "._("is enabled")."</span><br/><br/><input type='button' id='dbg_disable' class='lbuttond' value='"._("Disable")."'/>";
 
 ?>
 
@@ -454,12 +405,13 @@ $agentless_action = ( count($output_al) < 1 ) ? "<span class='not_running'>Agent
 								
 							<table id='table_ossc_actions'>
 								<tr>
-									<th class='headerpr' colspan='4'><?php echo _("Actions")?></th>
+									<th class='headerpr' colspan='5'><?php echo _("Actions")?></th>
 								</tr>
-								<tr>
+								<tr id='ossc_buttons_actions'>
 									<td class='noborder center pad10' id='cont_db_action'><?php echo $database_action ?></td>
 									<td class='noborder center pad10' id='cont_cs_action'><?php echo $syslog_action ?></td>
 									<td class='noborder center pad10' id='cont_al_action'><?php echo $agentless_action ?></td>
+									<td class='noborder center pad10' id='cont_dbg_action'><?php echo $debug_action ?></td>
 									<td class='noborder center pad10' id='cont_system_action'><?php echo $system_action ?></td>
 								</tr>
 															
@@ -514,7 +466,7 @@ $agentless_action = ( count($output_al) < 1 ) ? "<span class='not_running'>Agent
 			<tr>
 				<td class='bottom_link'>
 					<a href='<?php echo $link_siem?>' target='main'>
-					<span><?php echo _("If you're looking for the HIDS events please go to Analysis -> SIEM")?>
+					<span><?php echo _("If you're looking for the HIDS events please go to Analysis -> SIEM")?></span>
 					</a>
 				</td>
 			</tr>

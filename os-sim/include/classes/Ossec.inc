@@ -80,7 +80,7 @@ class Agentless {
 		$this->pass        = $pass;
 		$this->ppass       = $ppass;
 		$this->status      = $status;
-		$this->descr       = Util::htmlentities($descr);
+		$this->descr       = $descr;
 		$this->foundrows   = $foundrows;
 	}
 	
@@ -183,7 +183,8 @@ class Agentless {
 					"id"        => $rs->fields["id"],   
 					"ip"        => $rs->fields["ip"],   				
 					"type"      => $array_types[$rs->fields["type"]],
-					"frecuency" => $rs->fields["frecuency"],
+					"id_type"   => $rs->fields["type"],
+					"frequency" => $rs->fields["frequency"],
 					"state"     => $rs->fields["state"],
 					"arguments" => $rs->fields["arguments"]							 
 				);
@@ -194,16 +195,16 @@ class Agentless {
         return $list;
 	}
 	
-	public function add_monitoring_entry($conn, $ip, $type, $frecuency, $state, $arguments)
+	public function add_monitoring_entry($conn, $ip, $type, $frequency, $state, $arguments)
 	{
 		$arguments = preg_replace("/[\r?\n]+/", " ", $arguments);
 		
-		$sql = "INSERT INTO host_agentless_entries (id, ip, type, frecuency, state, arguments) VALUES (?, ?, ?, ?, ?, ?)";
+		$sql = "INSERT INTO host_agentless_entries (id, ip, type, frequency, state, arguments) VALUES (?, ?, ?, ?, ?, ?)";
         $params = array(
             null,
 			$ip,
             $type,
-			$frecuency,
+			$frequency,
             $state,
             Util::utf8_decode2($arguments)
         );
@@ -247,15 +248,15 @@ class Agentless {
 		}
 	}
 	
-	public function modify_monitoring_entry($conn, $type, $frecuency, $state, $arguments, $id)
+	public function modify_monitoring_entry($conn, $type, $frequency, $state, $arguments, $id)
 	{
 		
 		$arguments = preg_replace("/[\r?\n]+/", " ", $arguments);
 		
-		$sql = "UPDATE host_agentless_entries SET type=?, frecuency=?, state=?, arguments=? WHERE id=?;";
+		$sql = "UPDATE host_agentless_entries SET type=?, frequency=?, state=?, arguments=? WHERE id=?;";
         $params = array(
             $type,
-			$frecuency,
+			$frequency,
             $type,
 			$state,
             Util::utf8_decode2($arguments),
@@ -364,7 +365,7 @@ class Agentless {
 		$user      = $this->get_user();
 		$pass      = $this->get_pass();
 		$ppass     = $this->get_ppass();
-		$descr     = $this->get_descr();
+		$descr     = html_entity_decode($this->get_descr());
 		
 		$res = $this->modify_host_data ($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status);
 		exec('touch /var/ossec/agentless/.reload');	
@@ -377,7 +378,7 @@ class Agentless {
 		$command = "sudo /var/ossec/agentless/register_host.sh add $user@$ip $pass $ppass";
 		
 		exec ($command, $output, $retval);
-		
+								
 		if ( $retval !== 0 )
 			return false;
 		else

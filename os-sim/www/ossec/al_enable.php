@@ -59,7 +59,7 @@ else
 		elseif ($agentless->get_status() == 1 )
 		{
 			$res = $agentless->change_status($conn, 0);
-			$txt_error = ($res == true) ? null : _("Error to disabled Agentless Host");
+			$txt_error = ($res == true) ? null : _("Error to disable Agentless Host");
 			$db->close($conn);
 		}
 		else

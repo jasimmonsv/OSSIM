@@ -39,8 +39,6 @@
 require_once ('classes/Session.inc');
 require_once ('utils.php');
 
-$agents = array();
-exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -57,49 +55,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 	<script type="text/javascript" src="../js/utils.js"></script>
 	
 	<script type="text/javascript">
-
-		function copyToClipboard(s)
-		{
-			if( window.clipboardData && clipboardData.setData )
-			{
-				clipboardData.setData("Text", s);
-			}
-			else
-			{
-				// You have to sign the code to enable this or allow the action in about:config by changing
-				user_pref("signed.applets.codebase_principal_support", true);
-				netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
-		
-				var clip = Components.classes['@mozilla.org/widget/clipboard;[[[[1]]]]'].createInstance(Components.interfaces.nsIClipboard);
-				if (!clip) return;
-		
-				// create a transferable
-				var trans = Components.classes['@mozilla.org/widget/transferable;[[[[1]]]]'].createInstance(Components.interfaces.nsITransferable);
-				if (!trans) return;
-		
-				// specify the data we wish to handle. Plaintext in this case.
-				trans.addDataFlavor('text/unicode');
-		
-				// To get the data from the transferable we need two new objects
-				var str = new Object();
-				var len = new Object();
-		
-				var str = Components.classes["@mozilla.org/supports-string;[[[[1]]]]"].createInstance(Components.interfaces.nsISupportsString);
-		
-				var copytext=meintext;
-		
-				str.data=copytext;
-		
-				trans.setTransferData("text/unicode",str,copytext.length*[[[[2]]]]);
-		
-				var clipid=Components.interfaces.nsIClipboard;
-		
-				if (!clip) return false;
-		
-				clip.setData(trans,null,clipid.kGlobalClipboard);	   
-			}
-		}
-		
+	
 		function show_agent(id)
 		{
 			if ( $("#"+id).hasClass("visible") )
@@ -145,10 +101,10 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 					{
 						$(".oss_load").html('');
 						
-						if ( $('#agent_table tr').length == 1 )
-							$('#agent_table').html(status[3]);	
-						else
-							$('#agent_table tr:last').after(status[3]);					
+						if ( $('#agent_table .no_agent').length == 1 )
+							$('#cont_no_agent').remove();
+						
+						$('#agent_table tr:last').after(status[3]);					
 												
 						$('#cont_agent_'+status[2]+' .agent_actions a').bind('click', function() {
 							var id = $(this).attr("id");
@@ -326,7 +282,13 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 
 
 
-<?php include ("../hmenu.php"); ?>
+<?php 
+
+	$agents = array();
+	exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
+	include ("../hmenu.php"); 
+	
+?>
 
 <div id='container_center'>
 
@@ -345,22 +307,18 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 		<tr>
 			<td>
 				<table id='agent_table'>
+					<tr>
+						<th style='width: 100px;'><?php echo _("ID")?></th>
+						<th><?php echo _("Name")?></th>
+						<th><?php echo _("IP")?></th>
+						<th><?php echo _("Status")?></th>
+						<th class='agent_actions'><?php echo _("Actions")?></th>
+					</tr>
 										
 					<?php
 											
 						if ( !empty ($agents) )
 						{
-							?>
-							<tr>
-								<th style='width: 100px;'><?php echo _("ID")?></th>
-								<th><?php echo _("Name")?></th>
-								<th><?php echo _("IP")?></th>
-								<th><?php echo _("Status")?></th>
-								<th class='agent_actions'><?php echo _("Actions")?></th>
-							</tr>
-							
-							<?php
-											
 							foreach ($agents as $k => $agent)
 							{
 								if ( empty($agent) )
@@ -369,57 +327,76 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 								$more_info = array();
 								$ret       = null;
 								
-								$agent = explode(",", $agent);
-								exec ( "sudo /var/ossec/bin/agent_control -i ".$agent[0]." -s", $more_info, $ret);
+								$agent         = explode(",", $agent);
+								$agent_type    = null;
+								ossim_valid($agent[0], OSS_DIGIT, 'illegal:' . _("Id agent"));
 								
-								$more_info = ( $ret !== 0 ) ? _("Information from agent not available") : explode(",",$more_info[0]);
+								if ( ossim_error() ) 
+								{
+									ossim_clean_error();
+									$agent_name    = $agent[0];
+									$agent_actions = "  --  ";
+									$agent_type    = 0;
+								}
+								else
+								{
+									exec ( "sudo /var/ossec/bin/agent_control -i ".$agent[0]." -s", $more_info, $ret);
+									$more_info     = ( $ret !== 0 ) ? _("Information from agent not available") : explode(",",$more_info[0]);
+									$agent_name    = "<a class='agent_id'><img src='../pixmaps/plus-small.png' alt='More info' align='absmiddle'/>".$agent[0]."</a>";
+									$agent_actions = get_actions($agent);
+									$agent_type    = 1;
+								}	
+								
 								
 								echo "<tr id='cont_agent_".$agent[0]."'>
-										<td id='agent_".$agent[0]."'><a class='agent_id'><img src='../pixmaps/plus-small.png' alt='More info' align='absmiddle'/>".$agent[0]."</a></td>
+										<td id='agent_".$agent[0]."'>$agent_name</td>
 										<td>".$agent[1]."</td>
 										<td>".$agent[2]."</td>
 										<td>".$agent[3]."</td>
-										<td class='agent_actions center'>".get_actions($agent)."</td>
-									</tr>
-									<tr id='minfo_".$agent[0]."' style='display:none;'>
-										<td colspan='5'>";
-											
-											if ( !is_array($more_info) )
-											{
-												echo "<div style='padding:5px; color: #D8000C; text-align:center;'>$more_info</div>";
-											}
-											else
-											{
-												echo "<div style='padding: 3px 3px 5px 5px; font-weight: bold;'>"._("Agent information").":</div>";
-												
-												echo "<div style='float:left; width: 170px; font-weight: bold; padding:0px 3px 5px 15px;'>
-														<span>"._("Agent ID").":</span><br/> 
-														<span>"._("Agent Name").":</span><br/>
-														<span>"._("IP address").":</span><br/>
-														<span>"._("Status").":</span><br/><br/>
-														<span>"._("Operating system").":</span><br/>
-														<span>"._("Client version").":</span><br/>
-														<span>"._("Last keep alive").":</span><br/><br/>
-														<span>"._("Syscheck last started at").":</span><br/>
-														<span>"._("Rootcheck last started at").":</span><br/>
-												</div>";
-												
-												echo "<div style='float:left; width: auto; padding:0px 3px 5px 15px;'>
-														<span>".$more_info[0]."</span><br/>  
-														<span>".$more_info[1]."</span><br/>
-														<span>".$more_info[2]."</span><br/>
-														<span>".$more_info[3]."</span><br/><br/>
-														<span>".$more_info[4]."</span><br/>
-														<span>".$more_info[5]."</span><br/>
-														<span>".$more_info[6]."</span><br/><br/>
-														<span>".$more_info[7]."</span><br/>
-														<span>".$more_info[8]."</span><br/>
-													 </div>
-												</div>";
-												
-											}
-								echo "</td>
+										<td class='agent_actions center'>$agent_actions</td>
 									</tr>";
+										
+								if ( $agent_type === 1 )		
+								{		
+									echo "<tr id='minfo_".$agent[0]."' style='display:none;'>
+											<td colspan='5'>";
+												
+												if ( !is_array($more_info) )
+												{
+													echo "<div style='padding:5px; color: #D8000C; text-align:center;'>$more_info</div>";
+												}
+												else
+												{
+													echo "<div style='padding: 3px 3px 5px 5px; font-weight: bold;'>"._("Agent information").":</div>";
+													
+													echo "<div style='float:left; width: 170px; font-weight: bold; padding:0px 3px 5px 15px;'>
+															<span>"._("Agent ID").":</span><br/> 
+															<span>"._("Agent Name").":</span><br/>
+															<span>"._("IP address").":</span><br/>
+															<span>"._("Status").":</span><br/><br/>
+															<span>"._("Operating system").":</span><br/>
+															<span>"._("Client version").":</span><br/>
+															<span>"._("Last keep alive").":</span><br/><br/>
+															<span>"._("Syscheck last started at").":</span><br/>
+															<span>"._("Rootcheck last started at").":</span><br/>
+													</div>";
+												
+													echo "<div style='float:left; width: auto; padding:0px 3px 5px 15px;'>
+															<span>".$more_info[0]."</span><br/>  
+															<span>".$more_info[1]."</span><br/>
+															<span>".$more_info[2]."</span><br/>
+															<span>".$more_info[3]."</span><br/><br/>
+															<span>".$more_info[4]."</span><br/>
+															<span>".$more_info[5]."</span><br/>
+															<span>".$more_info[6]."</span><br/><br/>
+															<span>".$more_info[7]."</span><br/>
+															<span>".$more_info[8]."</span><br/>
+														 </div>
+													</div>";
+												}
+									echo "</td>
+										</tr>";
+								}
 							}
 						}
 						else
@@ -435,7 +412,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 								$class = "oss_error";
 								$error = true;
 							}
-							echo "<tr><td colspan='5' class='no_agent bborder_none'><div class='$class info_agent'>$txt</div></td></tr>";
+							echo "<tr id='cont_no_agent'><td colspan='5' class='no_agent bborder_none'><div class='$class info_agent'>$txt</div></td></tr>";
 						}
 						
 					?>
@@ -460,7 +437,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 										<tr>
 											<th><label for='agent_name'><?php echo gettext("Agent Name"); ?></label></th>
 											<td class="left">
-												<input type='text' name='agent_name' id='agent_name' class='vfield req_field' value="<?php echo $agent_name?>"/>
+												<input type='text' name='agent_name' id='agent_name' class='vfield req_field'/>
 												<span style="padding-left: 3px;">*</span>
 											</td>
 										</tr>
@@ -468,7 +445,7 @@ exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 										<tr>
 											<th><label for='ip'><?php echo gettext("IP Address"); ?></label></th>
 											<td class="left">
-												<input type='text' name='ip' id='ip' class='vfield req_field' value="<?php echo $ip?>"/>
+												<input type='text' name='ip' id='ip' class='vfield req_field'/>
 												<span style="padding-left: 3px;">*</span>
 											</td>
 										</tr>

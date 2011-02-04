@@ -38,17 +38,19 @@ $action     	   = strtolower(POST('action'));
 $allowed_act       = array("start", "stop", "restart", "status", 
 						   "status", "ossec_log", "alerts_log", 
 						   "enable_db", "disable_db", "enable_cs", 
-						   "disable_cs", "enable_al", "disable_al");
+						   "disable_cs", "enable_al", "disable_al", "enable_dbg", "disable_dbg");
 						   
 						   
-$allowed_proccess = array ( "enable_db"  => "ossec-dbd", 
-							"disable_db" => "ossec-dbd", 
-							"enable_cs"  => "ossec-csyslogd", 
-						    "disable_cs" => "ossec-csyslogd", 
-						    "enable_al"  => "ossec-agentlessd", 
-							"disable_al" => "ossec-agentlessd"
+$check_pattern      = array ( "enable_db"   => "/ossec-dbd is running/", 
+							  "disable_db"  => "/ossec-dbd is running/", 
+							  "enable_cs"   => "/ossec-csyslogd is running/", 
+						      "disable_cs"  => "/ossec-csyslogd is running/", 
+						      "enable_al"   => "/ossec-agentlessd is running/", 
+							  "disable_al"  => "/ossec-agentlessd is running/",
+							  "enable_dbg"  => "/ossec-analysisd -d|ossec-syscheckd -d|ossec-remoted -d|ossec-monitord -d | ossec-analysisd -d/",
+							  "disable_dbg" => "/ossec-analysisd -d|ossec-syscheckd -d|ossec-remoted -d|ossec-monitord -d | ossec-analysisd -d/",
+							  "system"      => "/ossec-analysisd is running|ossec-syscheckd is running|ossec-remoted is running|ossec-monitord is running/"
 						);
-
 
 if ( in_array($action, $allowed_act) )
 {
@@ -90,17 +92,39 @@ if ( in_array($action, $allowed_act) )
 			else
 			{
 				exec ("sudo /var/ossec/bin/ossec-control ".$extra);
-				exec ("sudo /var/ossec/bin/ossec-control status", $result);
 				
-				exec ("ps -ef | grep ".$allowed_proccess[$action]."| grep -v grep", $output, $ret);
-				
-				if ( preg_match("/enable/", $action) )
-					$ret = ( $output >= 1 ) ? 1 : "error";
+				if ( $action == "enable_dbg" || $action == "disable_dbg")
+				{
+					exec ("sudo /var/ossec/bin/ossec-control restart", $result, $ret);
+					$result = null;
+					
+					exec ("ps -ef | grep ossec | grep -v grep", $result);
+					$status = implode('', $result);
+					
+					preg_match_all($check_pattern[$action], $status, $match);
+					
+					$result = null;
+					exec ("sudo /var/ossec/bin/ossec-control status", $result, $ret);
+					
+					if ( (count($match[0]) > 0 && $action == "disable_dbg") || (count($match[0]) == 0 && $action == "enable_dbg") )
+						$ret = "error";
+								
+				}
 				else
-					$ret = ( $output >= 1 ) ? "error" : 1;
+				{
+					exec ("sudo /var/ossec/bin/ossec-control status", $result);
+					$status = implode('', $result);
+					preg_match($check_pattern[$action], $status, $match);
+					
+					if ( preg_match ('/enable/', $action) )					
+						$ret = ( count($match) >= 1 ) ? 0 : "error";
+					else
+						$ret = ( count($match) == 0 ) ? 0 : "error";
+				}
 			}
-						
-						
+			
+			
+			$status = $result; 
 			$result = implode("<br/>", $result);
 						
 			$pattern     = array('/is running/', '/already running/', '/Completed/', '/Started/', '/not running/', '/Killing/', '/Stopped/');
@@ -113,7 +137,45 @@ if ( in_array($action, $allowed_act) )
 								 '<span style="font-weight: bold; color:#000000;">Killing</span>'.
 								 '<span style="font-weight: bold; color:#E54D4D;">Stopped</span>');
 			
-			echo $ret."###".preg_replace($pattern, $replacement, $result);
+			$output = $ret."###".preg_replace($pattern, $replacement, $result)."###";
+			
+			$status = implode("", $status);
+			preg_match_all($check_pattern['system'], $status, $match);
+
+			if ( count($match[0]) < 4)
+				$system_action    = "<span class='not_running'>"._("Ossec service is down")."</span><br/><br/>
+									<input type='button' id='system_start' class='lbutton' value='"._("Start")."'/>"; 
+			else
+				$system_action   = "<span class='running'>"._("Ossec service is up")."</span><br/><br/>
+									<input type='button' id='system_stop' class='lbuttond' value='"._("Stop")."'/>"; 
+								
+
+			$system_action .= "<input type='button' id='system_restart' class='lbutton' value='"._("Restart")."'/>";
+				
+
+			preg_match($check_pattern['enable_cs'], $status, $match_cs);
+
+			$syslog_action    = ( count($match_cs) < 1 ) ? "<span class='not_running'>Client-syslog "._("not running")."</span><br/><br/><input type='button' id='cs_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Client-syslog "._("is running")."</span><br/><br/><input type='button' id='cs_disable' class='lbuttond' value='"._("Disable")."'/>";
+
+			preg_match($check_pattern['enable_db'], $status, $match_db);
+			$database_action  = ( count($match_db) < 1 ) ? "<span class='not_running'>Database "._("not running")."</span><br/><br/><input type='button' id='db_enable' class='lbutton' value='"._("Enable")."'/>" : "<span class='running'>Database "._("is running")."</span><br/><br/><input type='button' id='db_disable' class='lbuttond' value='"._("Disable")."'/>";
+
+
+			preg_match($check_pattern['enable_al'], $status, $match_al);
+			$agentless_action = ( count($match_al) < 1 ) ? "<span class='not_running'>Agentless "._("not running")."</span><br/><br/><input type='button' id='al_enable' class='lbutton' value='"._("Enable")."''/>" : "<span class='running'>Agentless "._("is running")."</span><br/><br/><input type='button' id='al_disable' class='lbuttond' value='"._("Disable")."'/>";
+
+			exec ("ps -ef | grep ossec | grep -v grep", $res_dbg);
+			$status_dbg = implode('', $res_dbg);
+			preg_match_all($check_pattern['enable_dbg'], $status_dbg, $match_dbg);
+			$debug_action     = ( count($match_dbg[0]) < 1 ) ? "<span class='not_running'>Debug "._(" is disabled")."</span><br/><br/><input type='button' id='dbg_enable' class='lbutton' value='"._("Enable")."''/>" : "<span class='running'>Debug "._("is enabled")."</span><br/><br/><input type='button' id='dbg_disable' class='lbuttond' value='"._("Disable")."'/>";
+	
+			$output .= "<td class='noborder center pad10' id='cont_db_action'>$database_action</td>
+			<td class='noborder center pad10' id='cont_cs_action'>$syslog_action</td>
+			<td class='noborder center pad10' id='cont_al_action'>$agentless_action</td>
+			<td class='noborder center pad10' id='cont_dbg_action'>$debug_action</td>
+			<td class='noborder center pad10' id='cont_system_action'>$system_action</td>";
+			
+			echo $output;
 	
 	}
 }
