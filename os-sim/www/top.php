@@ -276,9 +276,9 @@ if(Session::am_i_admin()){
             </li>
         </ul>
         <span class="jx-separator-left"></span> 
-		<?php if(Session::am_i_admin()) { ?>
+		<?php if(Session::menu_perms("MenuStatus", "MonitorsSensors") || Session::menu_perms("MenuStatus", "ToolsUserLog") || Session::am_i_admin()) { ?>
         <ul>
-        	<li title="<?php echo _("Status")?>"><a href="sysinfo/index.php" target="main"><img src="pixmaps/status.png"></a></li>
+        	<li title="<?php echo _("Status")?>"><a href="<?php echo (Session::am_i_admin()) ? "sysinfo/index.php" : ((Session::menu_perms("MenuStatus", "MonitorsSensors")) ? "sensor/sensor_plugins.php?hmenu=Sysinfo&smenu=Sysinfo" : "userlog/user_action_log.php?hmenu=Sysinfo&smenu=Sysinfo") ?>" target="main"><img src="pixmaps/status.png"></a></li>
         </ul>
         <?php } else { ?>
         <ul>

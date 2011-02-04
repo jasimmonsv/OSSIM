@@ -94,9 +94,14 @@ function mark(id) {
 <? include ("../host_report_menu.php") ?>
 </head>
 <body>                             
-
 <?php
 include ("../hmenu.php");
+
+// Sensors perm check
+if (!Session::menu_perms("MenuConfiguration", "PolicySensors")) {
+	die("<br>"._("You need permissions of section '")."<b>"._("Configuration -> SIEM Components -> Sensors")."</b>"._("' to see this page. Contact with the administrator."));
+}
+
 require_once 'ossim_conf.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/Sensor.inc';
