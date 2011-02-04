@@ -198,7 +198,7 @@ else
 	$threshold_a = $threshold_c = $conf->get_conf("threshold");
 	$descr  = $nagios = "";
 	$hosts  = $sensors = array();
-	
+		
 	if ($hgname != '')
 	{
 		ossim_valid($hgname, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, OSS_SQL, 'illegal:' . _("Host Group Name"));

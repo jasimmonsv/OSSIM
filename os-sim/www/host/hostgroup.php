@@ -57,6 +57,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
   <script type="text/javascript" src="../js/urlencode.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
+  <script type="text/javascript" src="../js/utils.js"></script>
     
 </head>
 <body>
@@ -189,10 +190,10 @@ echo gettext("OSSIM Framework"); ?> </title>
         function menu_action(com,id,fg,fp) {
 
             var hostname = id;
-
+			
             if (com=='modify') {
                     
-                if (typeof(hostname) != 'undefined')
+               	if (typeof(hostname) != 'undefined')
                     document.location.href = 'newhostgroupform.php?name='+urlencode(hostname)
                 else
                   alert('<?=_("Host Group unselected")?>');

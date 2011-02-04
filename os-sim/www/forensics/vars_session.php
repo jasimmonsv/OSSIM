@@ -86,7 +86,6 @@ $_SESSION['views_data'] = array(
 	"SID_NAME" => array("title"=>"sid name","width"=>"40","celldata" => ""),
 	"IP_PROTO" => array("title"=>"L4-proto","width"=>"40","celldata" => "")
 );
-echo "aqui";
 // TIME RANGE
 if ($_GET['time_range'] != "") {
     // defined => save into session
