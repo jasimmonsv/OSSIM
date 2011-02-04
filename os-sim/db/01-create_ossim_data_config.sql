@@ -192,4 +192,4 @@ INSERT INTO `config` (`conf`, `value`) VALUES
 ('customize_title_foreground_color', '#000000'),
 ('customize_subtitle_background_color', '#7A7A7A'),
 ('customize_subtitle_foreground_color', '#FFFFFF'),
-('customize_wizard', NULL);
+('customize_wizard', '0');

@@ -216,7 +216,7 @@ if($save){
 			$pass2=base64_decode(POST('pass2'));
 			ossim_valid($pass2, OSS_ALPHA, OSS_PUNC_EXT, 'illegal:' . _("Rewrite Password"));
 			$s_log=POST('s_log');
-			ossim_valid($s_log, OSS_IP_CIDR, 'illegal:' . _("Send Logs"));
+			ossim_valid($s_log, OSS_IP_ADDRCIDR, 'illegal:' . _("Send Logs"));
 			$email=POST('email');
 			ossim_valid($email, OSS_MAIL_ADDR, 'illegal:' . _("Email"));
 			if (ossim_error()) {
@@ -267,7 +267,7 @@ if($save){
 				$sql = 'UPDATE config SET value="'.$s_log.'" WHERE conf="customize_send_logs"';
 				$result = $conn->Execute($sql);
 				// email
-				$sql = 'UPDATE users SET email="'.$email.'" WHERE login="'.Session::get_session_user().'"';
+				$sql = 'UPDATE users SET email="'.$email.'",first_login=0 WHERE login="'.Session::get_session_user().'"';
 				$result = $conn->Execute($sql);
 				$_SESSION['customize']['step1']['email']=$email;
 				// OK
@@ -308,7 +308,7 @@ if($save){
 			$_SESSION['customize']['step2']['ok']=true;
 			break;
 		case 3:
-			$sql = 'UPDATE config SET value="true" WHERE conf="customize_wizard"';
+			$sql = 'UPDATE config SET value="1" WHERE conf="customize_wizard"';
 			$result = $conn->Execute($sql);
 			unset($_SESSION['customize']);
 			header("Location: ../index.php");
@@ -388,7 +388,7 @@ switch($step){
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<title> AlienVault Unified SIEM. <?php echo gettext("Customize Wizard"); ?> </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="Shortcut Icon" type="image/x-icon" href="../favicon.ico">
@@ -507,13 +507,14 @@ switch($step){
 <body>
 	<div id='container_center'>
 		<p alig="center"><img src="../pixmaps/customization_logo.png" border="0"></p>
+		<p alig="center" class="title"><?php echo _("Customize Wizard") ?></p>
 		<form method="post" name="form" id="form" action="customize.php?step=<?php echo $step+1;?>">
 			<table id='tab_menu'>
 				<tr>
 					<td id='oss_mcontainer'>
 						<ul class='oss_tabs'>
 							<li id='litem_tab1' <?php if($step==1){?>class='active'<?php } ?>><a href="customize.php?step=1" id='link_tab1'><?php echo _("Step 1: Basic Data"); ?></a></li>
-							<li id='litem_tab2' <?php if($step==2){?>class='active'<?php } ?>><?php if($_SESSION['customize']['step1']['ok']){ ?><a href="customize.php?step=2" id='link_tab2'><?php }else{ ?><span><?php } ?><?php echo _("Step 2: Customization"); ?><?php if($_SESSION['customize']['step1']['ok']){ ?></a><?php }else{ ?></span><?php } ?></li>
+							<li id='litem_tab2' <?php if($step==2){?>class='active'<?php } ?>><?php if($_SESSION['customize']['step1']['ok']){ ?><a href="customize.php?step=2" id='link_tab2'><?php }else{ ?><span><?php } ?><?php echo _("Step 2: Customization Logos"); ?><?php if($_SESSION['customize']['step1']['ok']){ ?></a><?php }else{ ?></span><?php } ?></li>
 							<li id='litem_tab3' <?php if($step==3){?>class='active'<?php } ?>><?php if($_SESSION['customize']['step2']['ok']){ ?><a href="customize.php?step=3" id='link_tab3'><?php }else{ ?><span><?php } ?><?php echo _("Step 3"); ?><?php if($_SESSION['customize']['step2']['ok']){ ?></a><?php }else{ ?></span><?php } ?></li>
 						</ul>
 					</td>
@@ -561,14 +562,14 @@ switch($step){
 										<td><input type="text" name="email" id="email" value="<?php echo $email; ?>" /></td>
 									</tr>
 									<tr class="tr_none">
-										<th colspan="2"><?php echo _('Authorized Collection Sources'); ?>:</th>
+										<td class="noborder" colspan="2"></td>
 									</tr>
 									<tr class="tr_none">
-										<td><strong><?php echo _('Send Logs'); ?>:</strong></td>
+										<td><strong><?php echo _('Authorized Collection Sources'); ?>:</strong></td>
 										<td>
 											<input type="text" name="s_log" id="s_log" value="<?php echo $s_log; ?>" /> <span style="color:#808080">xxx.xxx.xxx.xxx/xx</span>
-											<a class='scriptinfo' href="javascript:;">
-												<img src="../pixmaps/help.png" width="16" border='0'/>
+											<a class='scriptinfo' style='text-decoration:none' href="javascript:;">
+												<img src="../pixmaps/greenhelp.png" border='0' align='absmiddle'/>
 												<div class="tooltip fixed" style="display: none;"></div>
 											</a>
 										</td>
@@ -581,12 +582,12 @@ switch($step){
 							<div id='ossc_result' class='div_pre_2'>
 								<table class="transparent" width="100%">
 									<tr>
-										<th style="width: 300px"><?php echo _("Home login Logo") ?> [300x60px]</th>
-										<td class="nobborder" style="width: 2px;"></td>
+										<th style="width: 310px"><?php echo _("Home login Logo") ?> [300x60px]</th>
+										<td class="nobborder"></td>
 										<th><?php echo _("Top header Logo") ?> [210x42px]</th>
 									</tr>
 									<tr>
-										<td class="center nobborder" style="width: 300px">
+										<td class="center nobborder" style="width:300px;border: solid 1px #CCCCCC">
 											<input type="hidden" name="imgfile1" id="imgfile1" value="">
 											<div id="downimage1" class="ne12" align="center">
 												<?php if (file_exists("../tmp/headers/_login_logo.png")) { ?>
@@ -596,10 +597,10 @@ switch($step){
 												<?php } ?>
 											</div>
 											<input type="file" name="fileToUpload1" id="fileToUpload1">
-											<input type="button" class="lbutton" id="buttonUpload" onclick="return ajaxFileUpload(1);" value="<?php echo _('Upload');?>" />
+											<input type="button" class="lbutton" id="buttonUpload" onclick="return ajaxFileUpload(1);" value="<?php echo _('Upload');?>" /><br><br>
 										</td>
 										<td class="nobborder" style="width: 2px;"></td>
-										<td class="center nobborder">
+										<td class="center nobborder" style="border: solid 1px #CCCCCC">
 											<input type="hidden" name="imgfile2" id="imgfile2" value="">
 											<div id="downimage2" class="ne12" align="center">
 												<?php if (file_exists("../tmp/headers/_header_logo.png")) { ?>
@@ -612,22 +613,21 @@ switch($step){
 											<input type="button" class="lbutton" id="buttonUpload" onclick="return ajaxFileUpload(2);" value="<?php echo _('Upload');?>" />
 										</td>
 									</tr>
-								</table>
-							<table class="transparent">
+
 								<tr>
-									<td colspan="3" style="height: 10px"></td>
+									<td colspan="3" style="height: 20px"></td>
 								</tr>
 								<tr>
 									<th><?php echo _("Report Layout - Title")?></th>
-									<td class="nobborder" style="width: 2px;"></td>
+									<td class="nobborder"></td>
 									<th><?php echo _("Report Layout - Subtitle")?></th>
 								</tr>
 								<tr>
-									<td style="text-align:center;margin:0!important;padding:0!important;">
+									<td style="text-align:center;margin:0!important;padding:0!important;border: solid 1px #CCCCCC">
 									  <table width="100%" class="noborder">
 										<tr>
-											<th><?php echo _("Background Color")?></th>
-											<th><?php echo _("Foreground Color")?></th>
+											<td><strong><?php echo _("Background Color")?></strong></td>
+											<td><strong><?php echo _("Foreground Color")?></strong></td>
 										</tr>
 										 <tr>
 											<td class="nobborder" style="margin:0!important;padding:0!important;">
@@ -686,12 +686,12 @@ switch($step){
 										 </tr>
 									  </table>
 									</td>
-									<td class="nobborder" style="width: 2px;"></td>
-									<td style="text-align:center;margin:0!important;padding:0!important;">
+									<td class="nobborder"></td>
+									<td style="text-align:center;margin:0!important;padding:0!important;border: solid 1px #CCCCCC">
 									  <table width="100%" class="noborder">
 										<tr>
-											<th height="14"><?php echo _("Background Color")?></th>
-											<th height="14"><?php echo _("Foreground Color")?></th>
+											<td><strong><?php echo _("Background Color")?></strong></td>
+											<td><strong><?php echo _("Foreground Color")?></strong></td>
 										</tr>
 										 <tr>
 											<td class="nobborder" style="margin:0!important;padding:0!important;">
@@ -751,7 +751,7 @@ switch($step){
 									</td>
 								</tr>
 								<tr>
-									<td colspan="3" style="margin:0!important;padding:0!important;">
+									<td colspan="3" style="margin:0!important;padding:20px 0px 10px 0px!important;">
 										<input id="btn_3" class="lbutton" type="button" onclick="javascript:restoreOriginalStyle();" value="<?php echo _('Restore Original')?>" />
 									</td>
 								</tr>
@@ -764,11 +764,11 @@ switch($step){
 									</th>
 								</tr>
 								<tr>
-									<td colspan="3" class="center nobborder">
+									<td colspan="3" class="center nobborder" style="border: solid 1px #CCCCCC">
 										<input type="hidden" name="imgfile3" id="imgfile3" value="">
 										<div id="downimage3" class="ne12" align="center"><img src="../tmp/headers/default.png" width="700" style="border:1px solid #EEEEEE"></div>
 										<input type="file" name="fileToUpload3" id="fileToUpload3">
-										<input type="button" class="lbutton" id="buttonUpload" onclick="return ajaxFileUpload(3);" value="<?php echo _('Upload');?>" />
+										<input type="button" class="lbutton" id="buttonUpload" onclick="return ajaxFileUpload(3);" value="<?php echo _('Upload');?>" /><br><br>
 									</td>
 								</tr>
 								<tr>
@@ -782,18 +782,18 @@ switch($step){
 							<div id='ossc_result' class='div_pre_3'>
 								<table>
 									<tr>
-										<td valign="top" style="padding-top: 10px">
-											<p><?php echo _('Thank you!(enter), Your system is ready, please go to the testing');?> (<a href="#" target="_blank"><?php echo _('link');?></a>) <?php echo _('section to simulate events for an initial test, or to your Collection configuration documentation to send real logs from your network.');?></p>
 										<?php
 											$url=getProtocolUrl();
 										?>
-											<h2><?php echo _('Insert this HTML code in your home page to allow your customers to login to their multitenanted MSSP service, a login form like the one below will appear')?>:</h2>
-											<code>&lt;iframe src="<?php echo $url; ?>/ossim/session/login.php?embed=true" width="300" height="250" scrolling="auto" frameborder="0" transparency&gt;&lt;/iframe&gt;</code>
+										<td valign="top" style="padding-top:10px">
+											<p style="text-align:justify;padding:0px 5px 0px 5px;font-size:13px"><?php echo _('Thank you!').'<br>'._('Your system is ready, please go to the');?> <a href="#" target="_blank"><strong><?php echo _('testing');?></strong></a> <?php echo _('section to simulate events for an initial test, or to your Collection configuration documentation to send real logs from your network.');?><br><br><?php echo _('Insert this HTML code in your home page to allow your customers to login to their multitenanted MSSP service, a login form like the one below will appear')?>:</p>
 										</td>
-										<td><img src="../pixmaps/arrow-join.png" /></td>
-										<td valign="top" style="padding-top: 10px">
+										<td width="30" align="right"><pre>&lt;iframe src="<?php echo $url; ?>/ossim/session/login.php?embed=true" width="300" height="250" scrolling="auto" frameborder="0" transparency&gt;&lt;/iframe&gt;</pre></td>
+									</tr>
+									<tr>
+									<td colspan="2" style="padding-top:10px">
 											<iframe src="login.php?embed=true" width="300" height="250" scrolling="auto" frameborder="0" transparency></iframe>
-										</td>
+									</td>
 									</tr>
 								</table>
 							</div>

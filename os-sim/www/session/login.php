@@ -153,6 +153,7 @@ if (REQUEST('user') && trim($pass)!="")
 	$last_pass_change = $session->last_pass_change();
 	$login_exists = $session->login_exists();
 	$lockout_duration = intval($conf->get_conf("unlock_user_interval", FALSE)) * 60;
+	$customize_wizard = (intval($conf->get_conf("customize_wizard", FALSE))) ? true : false;
 	
 	if ($login_return != true)
 	{
@@ -200,6 +201,8 @@ if (REQUEST('user') && trim($pass)!="")
 				<body><script>window.open("../index.php","full_main_window","fullscreen,scrollbars")</script></body>
 				</html>
 	<?php
+			} elseif ($customize_wizard && $user == ACL_DEFAULT_OSSIM_ADMIN) {
+				header("Location: customize.php");
             } elseif ($first_userlogin) {
 				header("Location: first_login.php");
 			} elseif ($pass_expire_max > 0 && dateDiff($last_pass_change,date("Y-m-d H:i:s")) >= $pass_expire_max) {
