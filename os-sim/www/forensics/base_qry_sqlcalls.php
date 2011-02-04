@@ -170,7 +170,7 @@ if ($debug_mode > 0) {
 }
 /* Run the Query again for the actual data (with the LIMIT) */
 //$result = ""; // $qs->ExecuteOutputQuery($sql, $db);
-//echo $sql."<br>";
+echo $sql."<br>";
 
 $_SESSION['siem_current_query'] = $sql;
 
@@ -297,8 +297,9 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     if (preg_match("/FILENAME|USERNAME|PASSWORD|PAYLOAD|USERDATA\d+/",$current_sig)) $need_extradata = 1;
     //
     // Load extra data if neccesary
+    
     if ($need_extradata && !array_key_exists("username",$myrow)) {
-		$rs_ed = $qs->ExecuteOutputQuery("SELECT * FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
+		$rs_ed = $qs->ExecuteOutputQueryNoCanned("SELECT * FROM extra_data WHERE sid=".$myrow["sid"]." AND cid=".$myrow["cid"], $db);
 	    while ($row_ed = $rs_ed->baseFetchRow()) {
 	    	foreach ($row_ed as $k => $v) $myrow[$k] = $v;
 	    }
