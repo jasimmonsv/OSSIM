@@ -16,16 +16,18 @@ function make_where ($conn,$arr) {
 	$w = "";
 	foreach ($arr as $cat => $scs) {
 		$id = GetPluginCategoryID($cat,$conn);
-		$w .= "(p.plugin_id=$id"; 
+		$w .= "(c.cat_id=$id"; 
 		$ids = array();
 		foreach ($scs as $scat) {
 			$ids[] = GetPluginSubCategoryID($scat,$id,$conn);
 		}
-		if (count($ids)>0) $w .= " AND p.sid in (".implode(",",$ids).")";
+		if (count($ids)>0) $w .= " AND c.id in (".implode(",",$ids).")";
 		$w .= ") OR ";
 	}
 	return ($w!="") ? "AND (".preg_replace("/ OR $/","",$w).")" : "";
 }
+
+$query = "select sum(sig_cnt) as num_events,c.id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
 
 switch(GET("type")) {
 
@@ -64,7 +66,8 @@ switch(GET("type")) {
 	// Authentication Login vs Failed Login Events - Last Week
 	case "login":
 		$taxonomy = make_where($conn,array("Authentication" => array("Login","Failed")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = str_replace("TAXONOMY",$taxonomy,$query);
+		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -80,7 +83,8 @@ switch(GET("type")) {
 	// Malware - Last Week
 	case "malware":
 		$taxonomy = make_where($conn,array("Malware" => array("Spyware","Adware","Fake_Antivirus","KeyLogger","Trojan","Virus","Worm","Generic","Backdoor")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = str_replace("TAXONOMY",$taxonomy,$query);
+		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -96,7 +100,8 @@ switch(GET("type")) {
     // Firewall permit vs deny - Last Week
 	case "firewall":
 		$taxonomy = make_where($conn,array("Access" => array("Firewall_Permit","Firewall_Deny","ACL_Permit","ACL_Deny")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = str_replace("TAXONOMY",$taxonomy,$query);
+		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -112,7 +117,8 @@ switch(GET("type")) {
     // Antivirus - Last Week
 	case "virus":
 		$taxonomy = make_where($conn,array("Antivirus" => array("Virus_Detected")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = "select count(a.sid) as num_events,inet_ntoa(a.ip_src) as name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d H:i:s",time()-604800)."' AND '".date("Y-m-d H:i:s")."' $taxonomy group by a.ip_src order by num_events desc limit 10";
+		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -128,7 +134,8 @@ switch(GET("type")) {
     // Exploits by type - Last Week
 	case "exploits":
 		$taxonomy = make_where($conn,array("Exploits" => array("Shellcode","SQL_Injection","Browser","ActiveX","Command_Execution","Cross_Site_Scripting","FTP","File_Inclusion","Windows","Directory_Traversal","Attack_Response","Denial_Of_Service","PDF","Buffer_Overflow","Spoofing","Format_String","Misc","DNS","Mail","Samba","Linux")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = str_replace("TAXONOMY",$taxonomy,$query);
+		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -144,7 +151,8 @@ switch(GET("type")) {
     // System status - Last Week
 	case "system":
 		$taxonomy = make_where($conn,array("System" => array("Warning","Emergency","Critical","Error","Notification","Information","Debug","Alert")));
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' $taxonomy group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = str_replace("TAXONOMY",$taxonomy,$query);
+		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
