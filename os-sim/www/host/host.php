@@ -373,7 +373,7 @@ echo "$colModel\n";
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
 		title: '<?=_("Hosts")?>',
-		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("hosts")?>',
+		pagestat: '<?=_("Displaying {from} to {to} of {total} hosts")?>',
 		nomsg: 'No hosts',
 		useRp: true,
 		rp: 20,

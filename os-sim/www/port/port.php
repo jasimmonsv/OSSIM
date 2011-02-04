@@ -240,7 +240,7 @@ echo "$colModel\n";
 ?>",
 		usepager: true,
 		title: '<?=_("Ports & Port groups")?>',
-		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("port groups")?>',
+		pagestat: '<?=_("Displaying {from} to {to} of {total} port groups")?>',
 		nomsg: '<?=_("No port groups")?>',
 		useRp: true,
 		rp: 20,
