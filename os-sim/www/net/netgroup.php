@@ -280,7 +280,7 @@ echo "$colModel\n";
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
 		title: '<?=_("Network groups")?>',
-		pagestat: '<?=_("Displaing {from} to {to} of {total} network groups")?>',
+		pagestat: '<?=_("Displaying {from} to {to} of {total} network groups")?>',
 		nomsg: '<?=_("No network groups")?>',
 		useRp: true,
 		rp: 20,

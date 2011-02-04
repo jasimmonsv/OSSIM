@@ -61,7 +61,7 @@ if ($_SESSION['views']['default'] == "") {
 	$_SESSION['views']['default']['cols'] = array('SIGNATURE','DATE','IP_PORTSRC','IP_PORTDST','ASSET','PRIORITY','RELIABILITY','RISK','IP_PROTO');
 	$session_data = $_SESSION;
 	foreach ($_SESSION as $k => $v) {
-	if (preg_match("/^(_|alarms_|back_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|deletetask).*/",$k))
+	if (preg_match("/^(_|alarms_|back_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|deletetask|mdspw).*/",$k))
 		unset($session_data[$k]);		
 	}
 	$_SESSION['views']['default']['data'] = $session_data;
