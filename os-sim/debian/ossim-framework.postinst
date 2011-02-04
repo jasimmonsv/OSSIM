@@ -180,9 +180,10 @@ else
 fi
 
 # ossec perms
-chmod o+rx     /var/ossec
-chmod -R o+r   /var/ossec/rules
-chmod u+rwx    /var/ossec/rules
+chmod o+rx           /var/ossec
+chown www-data:ossec /var/ossec/rules
+chmod -R o+r         /var/ossec/rules
+chmod u+rwx          /var/ossec/rules
 
 chown www-data:ossec /var/ossec/etc
 chown www-data:ossec /var/ossec/etc/ossec.conf
