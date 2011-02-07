@@ -88,7 +88,7 @@ $layout = load_layout($name_layout, $category);
 	}
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='Delete selected') {
+		if (com=='<?php echo gettext("Delete selected"); ?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
 				$("#flextable").changeStatus('<?= _('Deleting property...')?>',false);
@@ -103,11 +103,11 @@ $layout = load_layout($name_layout, $category);
 			}
 			else alert('<?=_('You must select a property')?>');
 		}
-		else if (com=='Modify') {
+		else if (com=='<?php echo gettext("Modify"); ?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifygeneralform.php?sid='+urlencode(items[0].id.substr(3))
 			else alert('<?=_('You must select a property')?>');
 		}
-		else if (com=='Insert new') {
+		else if (com=='<?php echo gettext("Insert new"); ?>') {
 			document.location.href = 'newgeneralform.php'
 		}
 		else if (com=='Apply') {
@@ -276,7 +276,7 @@ echo "$colModel\n";
 		usepager: true,
 		title: '<?=_('PROPERTIES')?>',
 		nomsg: '<?=_('No objects')?>',
-		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total}',
+		pagestat: '<?=_("Displaying {from} to {to} of {total}")?>',
 		useRp: true,
 		rp: 25,
 		contextMenu: 'myMenu',

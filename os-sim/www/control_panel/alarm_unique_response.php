@@ -149,9 +149,9 @@ $ports = Protocol::get_list($conn);
 	
 	*/
 	$s_src_link = "../report/index.php?host=$s_src_ip&section=events";
-	$src_title = "Src Asset: <b>$s_asset_src</b><br>IP: <b>$s_src_ip</b>";
+	$src_title = gettext("Src Asset:")." <b>$s_asset_src</b><br>IP: <b>$s_src_ip</b>";
 	$s_dst_link = "../report/index.php?host=$s_dst_ip&section=events";
-	$dst_title = "Dst Asset: <b>$s_asset_dst</b><br>IP: <b>$s_dst_ip</b>";
+	$dst_title = gettext("Dst Asset:")." <b>$s_asset_dst</b><br>IP: <b>$s_dst_ip</b>";
 	$s_src_name = Host::ip2hostname($conn, $s_src_ip);
 	$s_dst_name = Host::ip2hostname($conn, $s_dst_ip);
 	// $s_src_name = $s_src_ip;
@@ -196,7 +196,7 @@ $ports = Protocol::get_list($conn);
 	} else {
 		$ocurrences_text = strtolower(gettext("Event"));
 	}
-	$balloon_name = "<div class='balloon'>" . $s_alarm_name . " <font style='font-size: 9px; color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font>" . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>Src Asset: <b>" . $s_asset_src . "</b><br>Dst Asset: <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
+	$balloon_name = "<div class='balloon'>" . $s_alarm_name . " <font style='font-size: 9px; color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font>" . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>".gettext("Src Asset:")." <b>" . $s_asset_src . "</b><br>".gettext("Dst Asset:")." <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
 	/* Risk field */
 	if ($s_risk > 7) {
 		$color = "red; color:white";

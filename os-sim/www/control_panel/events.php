@@ -320,11 +320,11 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 				<span class="tooltip">
 					<span class="top"></span>
 					<span class="middle ne11">
-						Src Asset: <b><?php echo $asset_src
+						<?php echo gettext("Src Asset:"); ?> <b><?php echo $asset_src
 ?></b><br>
-						Dst Asset: <b><?php echo $asset_dst
+						<?php echo gettext("Dst Asset:"); ?> <b><?php echo $asset_dst
 ?></b><br>
-						Priority: <b><?php echo $sid_priority
+						<?php echo gettext("Priority:"); ?> <b><?php echo $sid_priority
 ?></b>
 					</span>
 					<span class="bottom"></span>
@@ -385,9 +385,9 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 
 <?php
         $src_link = "../report/index.php?host=$src_ip&section=events";
-        $src_title = "<ul><li>Src Asset: $asset_src</li><li>IP: $src_ip</li></ul>";
+        $src_title = "<ul><li>".gettext("Src Asset:")." $asset_src</li><li>IP: $src_ip</li></ul>";
         $dst_link = "../report/index.php?host=$dst_ip&section=events";
-        $dst_title = "<ul><li>Dst Asset: $asset_dst</li><li>IP: $dst_ip</li></ul>";
+        $dst_title = "<ul><li>".gettext("Dst Asset:")." $asset_dst</li><li>IP: $dst_ip</li></ul>";
         $src_name = Host::ip2hostname($conn, $src_ip);
         $dst_name = Host::ip2hostname($conn, $dst_ip);
         $src_img = Host_os::get_os_pixmap($conn, $src_ip);

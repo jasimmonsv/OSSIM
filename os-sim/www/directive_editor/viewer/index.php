@@ -719,11 +719,11 @@ Eg: sticky_different="DST_PORT" <?php echo _("(All the events matching the rule 
 </ul> 
  
 <p> 
-username="one,two,three,!four4444,five" filename="1:FILENAME,/etc/password,!/etc/shadow" userdata5="el cocherito lere me dijo anoche lere,!2:USERDATA5"
+username="one,two,three,!four4444,five" filename="1:FILENAME,/etc/password,!/etc/shadow" userdata5="... data ...,!2:USERDATA5"
 </p> 
  
 <p> 
-NOTE: There are some kind of events that stores by default some of that fields:
+<?php echo gettext("NOTE: There are some kind of events that stores by default some of that fields:"); ?>
 </p> 
 <ul> 
 <li class="level1"><div class="li"> Arpwatch events:    Userdata1 = MAC</div> 
@@ -738,7 +738,7 @@ NOTE: There are some kind of events that stores by default some of that fields:
  
 </div> 
  
-<h4>Monitor Rule elements</h4> 
+<h4><?php echo gettext("Monitor Rule elements"); ?></h4> 
 <div class="level4"> 
  
 </div> 
@@ -785,7 +785,7 @@ NOTE: There are some kind of events that stores by default some of that fields:
 </p> 
  
 <p> 
-Eg: reliability="3" reliability="+3"
+<?php echo gettext("Eg:"); ?> reliability="3" reliability="+3"
  
 </p> 
  

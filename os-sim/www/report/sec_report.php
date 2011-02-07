@@ -179,8 +179,8 @@ if (ossim_error()) {
 					</div>
 					</td>
 					<td class="nobborder" nowrap style="color:gray;padding-left:20px"><i>
-					from: <input type="text" name="date_from" id="date_from"  value="<?php echo $date_from ?>" style="border:0px;width:80px;color:gray">
-					to: <input type="text" name="date_to" id="date_to" value="<?php echo $date_to ?>" style="border:0px;width:80px;color:gray">
+					<?php echo gettext("from:"); ?> <input type="text" name="date_from" id="date_from"  value="<?php echo $date_from ?>" style="border:0px;width:80px;color:gray">
+					<?php echo gettext("to:"); ?> <input type="text" name="date_to" id="date_to" value="<?php echo $date_to ?>" style="border:0px;width:80px;color:gray">
 					</i></td>
 				</tr>
 			</table>
@@ -296,7 +296,7 @@ function ip_max_occurrences($target,$date_from,$date_to) {
     }
 ?>
         <table align="center" width="750" cellpadding="0" cellspacing="0" class="noborder">
-            <tr><td class="headerpr"><?=_("Top")?><?php echo "$NUM_HOSTS $title" ?></td></tr>
+            <tr><td class="headerpr"><?=_("Top")?><?php echo " $NUM_HOSTS $title" ?></td></tr>
         </table>
         <table align="center" width="750">
 		<tr><td style="padding-top:15px;" valign="top" class="nobborder">

@@ -18,7 +18,7 @@ $TypeOrder	  = array ( 'flows', 'packets', 'traffic');
  */
 $WinSizeScale  = array ( 0.25,		  0.5,	   1,		 2,		   3.5,		 7,	      14);
 // labels of the scale selector
-$WinSizeLabels = array ( '12 Hours', '1 day', '2 days', '4 days', '1 week', '2 weeks', '1 month' );
+$WinSizeLabels = array ( _("12 Hours"), _("1 day"), _("2 days"), _("4 days"), _("1 week"), _("2 weeks"), _("1 month") );
 
 // Definitions for the netflow processing table
 $TopNOption   = array ( 10, 20, 50, 100, 200, 500);
@@ -776,7 +776,7 @@ function DisplayDetails () {
 		print $label;
 		print "</td>\n";
 	}
-	print "<td style='font-size:14px;font-weight:bold'>Profileinfo:</td>\n";	// Empty right element
+	print "<td style='font-size:14px;font-weight:bold'>".gettext("Profile info:")."</td>\n";	// Empty right element
 	print "</tr><tr>\n";
 
 	for ( $i=1; $i < count($DisplayOrder); $i++ ) {
@@ -895,7 +895,7 @@ function DisplayDetails () {
 			$label = 'flows';
 		// Make first letter uppercase of label to print
 		$printlabel = strtoupper($label[0]).substr($label,1);
-		print "<tr><td>$printlabel</td></tr>\n";
+		print "<tr><td>".gettext($printlabel)."</td></tr>\n";
 		print "<tr><td style='border:none'>\n";
 		$arg = implode ( " ", array( $graph_channels, 
 				$detail_opts['proto'], $label, $_SESSION['profileinfo']['tstart'], 
@@ -1083,7 +1083,7 @@ function DisplayDetails () {
 <?php	
 			for ( $i=0; $i<3; $i++ ) {
 				$col = 1;
-				foreach ( array( 'all:', 'tcp:', 'udp:', 'icmp:', 'other:' ) as $_type ) {
+				foreach ( array( gettext("all:"), 'tcp:', 'udp:', 'icmp:', gettext("other:") ) as $_type ) {
 					if ( $statpref[$i] == 0 ) {
 						$_style = '';
 					} else {
@@ -1480,7 +1480,7 @@ function DisplayProcessing() {
 					<select name="limitwhat" id="limitwhat" size="1">
 <?php
 					$i = 0;
-					foreach ( array('Packets', 'Traffic') as $s ) {
+					foreach ( array(gettext("Packets"), gettext("Traffic")) as $s ) {
 						$checked = $process_form['limitwhat'] == $i ? 'selected' : '';
 						print "<option value='$i' $checked>$s</option>\n";
 						$i++;
