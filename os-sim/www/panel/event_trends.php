@@ -44,8 +44,9 @@ function Logger_trends() {
 </head>
 <?php
 $siem = (GET("type")=="siem") ? true : false; 
-//Session::logcheck("MenuReports", "ReportsReportServer");
-$trend = ($siem) ? SIEM_trends() : Logger_trends();
+//$trend = ($siem) ? SIEM_trends() : Logger_trends();
+$trend = SIEM_trends();
+$trend2 = Logger_trends();
 ?>
 <body scroll="no">		
 	<table id="data" style="display:none">
@@ -60,8 +61,19 @@ $trend = ($siem) ? SIEM_trends() : Logger_trends();
             </tr>
         </tbody>
     </table>
+	<table id="data2" style="display:none">
+        <tfoot>
+            <tr>
+            	<? $i=0; foreach ($trend2 as $day => $value) echo "<th>$day</th>\n"; ?>
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr>
+            	<? foreach ($trend2 as $day => $value) echo "<td>$value</td>\n"; ?>
+            </tr>
+        </tbody>
+    </table>
 	
-	<script> var color = "<?= ($siem) ? "#8DC41B" : "#BBC6D0" ?>"; </script>
 	<script src="../js/raphael/analytics.js"></script>
 	<script src="../js/raphael/popup.js"></script>
     		

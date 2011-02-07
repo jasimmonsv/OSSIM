@@ -229,7 +229,8 @@ $db->close($conn);
                     padding:14,
 					renderer:$.jqplot.PieRenderer,
 					rendererOptions: {
-						showDataLabels: true
+						showDataLabels: true,
+                        dataLabelFormatString: '%d'
 					},
 					highlighter: {
 						show:true,

@@ -257,7 +257,7 @@ if (Session::menu_perms("MenuEvents", "EventsForensics") ||
         $hmenu["Detection"][] = array(
             "name" => gettext("NIDS") ,
             "id" => "Detection",
-            "url" => "http://dev.alienvault.com:8080/ossim/forensics/base_stat_alerts_graph.php?sort_order=occur_d&plugin=1001&time_range=all",
+            "url" => "forensics/base_stat_alerts_graph.php?sort_order=occur_d&plugin=1001&time_range=all",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:NIDS','Help');"
         );
         if (Session::am_i_admin()) {

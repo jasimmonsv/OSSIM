@@ -34,10 +34,10 @@
         //
         // prop: barPadding
         // Number of pixels between adjacent bars at the same axis value.
-        this.barPadding = 8;
+        this.barPadding = 4;
         // prop: barMargin
         // Number of pixels between groups of bars at adjacent axis values.
-        this.barMargin = 10;
+        this.barMargin = 8;
         // prop: barDirection
         // 'vertical' = up and down bars, 'horizontal' = side to side bars
         this.barDirection = 'vertical';

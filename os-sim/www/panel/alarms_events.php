@@ -1,6 +1,7 @@
 <?php
 require_once ('ossim_db.inc');
 require_once ('classes/Alarm.inc');
+require_once ('classes/Incident.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Session.inc');
@@ -22,7 +23,7 @@ Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 	  
 	  <!-- BEGIN: load jqplot -->
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/jquery.jqplot.min.js"></script>
-	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.barRenderer.min.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.barRenderer.js"></script>
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.pointLabels.min.js"></script>
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.canvasTextRenderer.js"></script>
@@ -130,7 +131,7 @@ $query = "SELECT * FROM
 (select count(*)".$_2Ago_div." as 2DAgo from alarm where alarm.timestamp > DATE_ADD(CURDATE(), ".$_2Ago.") and alarm.timestamp < DATE_ADD(".$_2Ago_interv."$sensor_where_ossim, INTERVAL +1 DAY) ) as 2DAgo,
 (select count(*)".$_Week_div." as Week from alarm where alarm.timestamp > DATE_ADD(CURDATE(), ".$_Week.") and alarm.timestamp < ".$_Week_interv."$sensor_where_ossim) as Seamana,
 (select count(*)".$_2Week_div." as 2Weeks from alarm where alarm.timestamp > DATE_ADD(CURDATE(), ".$_2Week.") and alarm.timestamp < ".$_2Week_interv."$sensor_where_ossim) as 2Weeks ;";
-//echo $query."\n\n";
+/*
 if ($sensor_where != "")
 	$query2 = "SELECT * FROM
 	(select count(*) as Today from acid_event where timestamp > CURDATE()$sensor_where) as Today,
@@ -145,7 +146,7 @@ else
 	(select sum(sig_cnt)".$_2Ago_div." as 2DAgo  from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_2Ago.") and day <= ".$_2Ago_interv." ) as 2DAgo,
 	(select sum(sig_cnt)".$_Week_div." as Week from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_Week.") and day <= ".$_Week_interv.") as Seamana,
 	(select sum(sig_cnt)".$_2Week_div." as 2Weeks from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_2Week.") and day <= ".$_2Week_interv.") as 2Weeks;";
-//
+*/
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();
     exit();
@@ -158,6 +159,7 @@ while (!$rs->EOF) {
         $rs->fields["2Weeks"];
     $rs->MoveNext();
 }
+/*
 if (!$rs = & $conn2->Execute($query2)) {
     print $conn->ErrorMsg();
     exit();
@@ -170,6 +172,19 @@ while (!$rs->EOF) {
         $rs->fields["2Weeks"];
     $rs->MoveNext();
 }
+*/
+$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>"CURDATE()"), "", "", 1, 99999999);
+$today = Incident::search_count($conn);
+$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>array("DATE_ADD(CURDATE(), INTERVAL -1 DAY)","CURDATE()")), "", "", 1, 999999999);
+$yday = Incident::search_count($conn);
+$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>array("DATE_ADD(CURDATE(), ".$_2Ago.")",$_2Ago_interv)), "", "", 1, 999999999);
+$ago2 = Incident::search_count($conn);
+$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>array("DATE_ADD(CURDATE(), ".$_Week.")",$_Week_interv)), "", "", 1, 999999999);
+$week = Incident::search_count($conn);
+$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>array("DATE_ADD(CURDATE(), ".$_2Week.")",$_2Week_interv)), "", "", 1, 999999999);
+$week2 = Incident::search_count($conn);
+$values2 = $today.",".$yday.",".$ago2.",".$week.",".$week2;
+//
 $db->close($conn);
 
 ?>  
@@ -182,10 +197,10 @@ $db->close($conn);
 			line2 = [<?=$values2?>];
 			
 			plot1 = $.jqplot('chart', [line1, line2], {
-			    legend:{show:true, location:'ne'},
+			    legend:{show:true, location:'nw', rowSpacing:'2px'},
 			    series:[
 			        { pointLabels:{ show: false }, label:'<?=_("Alarms")?>', renderer:$.jqplot.BarRenderer }, 
-			        { pointLabels:{ show: false }, label:'<?=_("Events")?>', renderer:$.jqplot.BarRenderer },
+			        { pointLabels:{ show: false }, label:'<?=_("Tickets")?>', renderer:$.jqplot.BarRenderer },
 			    ],                                    
 			    grid: { background: '#F5F5F5', shadow: false },
 			    seriesColors: [ "#EFBE68", "#B5CF81" ],
@@ -194,7 +209,7 @@ $db->close($conn);
 			        	renderer:$.jqplot.CategoryAxisRenderer,
 			        	ticks:['<?=_("Today")?>', '<?=_("-1 Day")?>', '<?=_("-2 Days")?>', '<?=_("Week")?>', '<?=_("2 Weeks")?>']
 			        }, 
-			        yaxis:{min:0}
+			        yaxis:{min:0, tickOptions:{formatString:'%d'}}
 			    }
 			});
 
@@ -205,6 +220,6 @@ $db->close($conn);
     
   </head>
 	<body style="overflow:hidden">
-		<div id="chart" style="width:100%; height: 180px;"></div>
+		<div id="chart" style="width:100%; height: 290px;"></div>
 	</body>
 </html>
