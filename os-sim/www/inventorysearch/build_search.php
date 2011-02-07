@@ -72,7 +72,7 @@ $rules = get_rulesconfig ();
 
 $max_rows = 8;
 //echo "<br><br><br><br>";
-//print_r($_SESSION['inventory_search']);
+//print_r($_SESSION['inventory_search']);exit;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -206,7 +206,7 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 	}
 	//echo "Filter $i: ".$filter['type']." ".$filter['subtype']." ".$filter['value']." ".$filter['match']."<br>";
 	//print_r($params);
-	//echo "SQL: ".$query."<br><br>";
+	echo "SQL: ".$query."<br><br>";
 	?><script type="text/javascript">$("#pbar").progressBar(<?=$perc?>);$("#progressText").html('<b><?=gettext("Filtering criteria $i")?></b>...');</script><?
 	//usleep(500000);
 	// FUNCTION MODE (special query)
