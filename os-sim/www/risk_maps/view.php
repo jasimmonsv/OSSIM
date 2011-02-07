@@ -120,7 +120,7 @@ check_writable_relative("./pixmaps/uploaded");
 <title><?= _("Alarms") ?> - <?= _("View")?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="./custom_style.css">
-
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <style type="text/css">
 	.itcanbemoved { position:absolute; }
 </style>

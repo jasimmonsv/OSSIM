@@ -419,14 +419,14 @@ a {
 			</td>
 		</tr>
 		<tr>
-			<td class="nobborder" id="progressText" style="text-align:center"><?=gettext("Loading Report. Please, wait a few seconds...")?></td>
+			<td class="nobborder" id="progressText" style="text-align:center"><?php echo gettext("Loading Report. Please, wait a few seconds...")?></td>
 		</tr>
 	</table>
 </div>
 <script type="text/javascript">
 	$("#pbar").progressBar();
 	$("#pbar").progressBar(10);
-	$("#progressText").html('Loading <b>Report</b>. <br>Please, wait a few seconds...');
+	$("#progressText").html('<?php echo gettext("Loading <b>Report</b>. <br>Please, wait a few seconds...")?>');
 </script>
 <?
 ob_flush();
@@ -448,11 +448,11 @@ usleep(500000);
 										<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0" /></a>
 										<div id="widgetCalendar"></div>
 									</div>
-									From: <input readonly="readonly" type="text" name="date_from" id="date_from"  value="<?php echo $date_from; ?>" style="width:80px;"/>
-									to: <input readonly="readonly" type="text" name="date_to" id="date_to" value="<?php echo $date_to; ?>" style="width:80px;"/>
+									<?php echo gettext("From:"); ?> <input readonly="readonly" type="text" name="date_from" id="date_from"  value="<?php echo $date_from; ?>" style="width:80px;"/>
+									<?php echo gettext("to:"); ?> <input readonly="readonly" type="text" name="date_to" id="date_to" value="<?php echo $date_to; ?>" style="width:80px;"/>
 								</td>
 								<td style="color:#fff;text-align:right">
-									<?php if($type_active=='lastWeek'){?><strong><?php } ?><a href="javascript:executeRange('lastWeek');">Last week</a><?php if($type_active=='lastWeek'){?></strong><?php } ?> | <?php if($type_active=='lastMonth'){?><strong><?php } ?><a href="javascript:executeRange('lastMonth');">Last month</a><?php if($type_active=='lastMonth'){?></strong><?php } ?> | <?php if($type_active=='lastYear'){?><strong><?php } ?><a href="javascript:executeRange('lastYear');">Last year</a><?php if($type_active=='lastYear'){?></strong><?php } ?>
+									<?php if($type_active=='lastWeek'){?><strong><?php } ?><a href="javascript:executeRange('lastWeek');"><?php echo gettext("Last week"); ?></a><?php if($type_active=='lastWeek'){?></strong><?php } ?> | <?php if($type_active=='lastMonth'){?><strong><?php } ?><a href="javascript:executeRange('lastMonth');"><?php echo gettext("Last month"); ?></a><?php if($type_active=='lastMonth'){?></strong><?php } ?> | <?php if($type_active=='lastYear'){?><strong><?php } ?><a href="javascript:executeRange('lastYear');"><?php echo gettext("Last year"); ?></a><?php if($type_active=='lastYear'){?></strong><?php } ?>
 								</td>
 							</tr>
 						</table>
@@ -491,7 +491,7 @@ usleep(500000);
 	<tr>
 		<td>
 			<table style="background-color:#8F6259" height="100%" cellpadding="5">
-				<tr><td style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px">Logger</td></tr>
+				<tr><td style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?php echo gettext("Logger"); ?></td></tr>
 				<tr><td class="nobborder"><? include ("host_report_sem.php") ?></td></tr>
 				<script type="text/javascript">$("#pbar").progressBar(99);$("#progressText").html('<b><?=gettext("Finishing")?></b>...');</script>
 				<?

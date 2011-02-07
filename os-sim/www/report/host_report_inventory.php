@@ -33,6 +33,16 @@
 * Function list:
 * Classes list:
 */
+function orderArray($x, $y){
+	if ( $x['date'] == $y['date'] ){
+		return 0;
+	}else if ( $x['date'] > $y['date'] ){
+		return -1;
+	}else{
+		return 1;
+	}
+}
+
 require_once 'classes/Host.inc';
 require_once 'classes/Host_os.inc';
 require_once 'classes/Host_mac.inc';
@@ -211,18 +221,100 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 				</tr>
 				<tr>
 				  <td colspan="2" class="nobborder">
-				  <form method="GET" action="<?php
-			echo $_SERVER['SCRIPT_NAME'] ?>">
-				  <table class="noborder" width="100%">
-				  <tr>
-					<th> <?php
-			echo gettext("Service"); ?> </th>
-					<th> <?php
-			echo gettext("Version"); ?> </th>
-					<th> <?php
-			echo gettext("Origin"); ?> </th>
-				  </tr>
+				  <form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>">
+				  <style type="text/css">
+					#tableServicesTit{
+						display:block;
+					}
+					#tableServices{
+						display:block;
+						height: 200px;
+						overflow:auto;
+						padding: 0;
+						margin: 0;
+					}
+					#tableServices .tableServices_t1{
+						width: 140px;
+					}
+					#tableServices .tableServices_t2{
+						width: 220px;
+					}
+					#tableServices .tableServices_t3{
+						width: 120px;
+					}
+					#tableServicesTit .tableServices_t1{
+						width: 120px;
+					}
+					#tableServicesTit .tableServices_t2{
+						width: 200px;
+					}
+					#tableServicesTit .tableServices_t3{
+						width: 100px;
+					}
+				  </style>
+				  <table id="tableServicesTit" class="noborder">
+					  <tr>
+						<th class="tableServices_t1"> <?php echo gettext("Property"); ?> </th>
+						<th class="tableServices_t2"> <?php echo gettext("Version"); ?> </th>
+						<th class="tableServices_t3"> <?php echo gettext("Date"); ?> </th>
+					  </tr>
+				  </table>
+				  <table id="tableServices" class="noborder">
 			<?php
+			$services_list = Host_services::get_ip_data($conn, $host, "");
+			$property_list = Host::get_host_properties($conn, $host);
+			$temp_array=array_merge($services_list, $property_list);
+			usort($temp_array, 'orderArray');
+			//
+			if (!empty($temp_array)) {
+				$i = 1;
+				foreach($temp_array as $services) {
+					$bgcolor = ($i%2==0) ? "#E1EFE0" : "#FFFFFF";
+			?>
+			  <tr>
+			  <?php
+			  if(empty($services['id'])){
+						// Services
+			  ?>
+				<td class="tableServices_t1" bgcolor="<?php echo $bgcolor?>">
+					<?php
+					$servname = ($services['service'] != "unknown") ? $services['service'] : getservbyport($services['port'],getprotobynumber($services['protocol']));
+					if ($servname == "") $servname = "unknown";
+					echo ($servname) . " (" . $services['port'] . "/" . getprotobynumber($services['protocol']) . ")" ?>
+				</td>
+				<td class="tableServices_t2" bgcolor="<?php echo $bgcolor?>">
+					<?php if(!empty($services['version'])){ echo $services['version'] ?><br /><?php } ?>
+					Nagios: <?php echo ($services['origin']) ? _("Active") : _("Passive")?>
+				</td>
+				<td class="tableServices_t3" bgcolor="<?php echo $bgcolor?>">
+					<?php echo $services['date']; ?>
+				</td>
+				<?php
+					}else{
+						// Properties
+				?>
+				<td class="tableServices_t1" bgcolor="<?php echo $bgcolor?>">
+					<?php if($services['anom']==1){ ?><img src="../pixmaps/warning.png" title="<?php echo _('Anomaly detection');?>" /><?php } ?>
+					<?php
+						$propertyName=Host::get_properties_types($conn, $services['property_ref']);
+						echo $propertyName [0]['description'];
+					?>
+				</td>
+				<td class="tableServices_t2" bgcolor="<?=$bgcolor?>">
+					<?php if(!empty($services['sensor'])){ ?><?php echo _('Sensor').': '.$services['sensor']; ?><br /><?php } ?>
+					<?php echo $services['value']; ?><br />
+					<?php if(!empty($services['extra'])){ ?>
+					<span style="font-size: 10px;color: grey"><?php echo $services['extra'];?></span><br />
+					<?php } ?>
+					<?php if(!empty($services['source'])){ ?><?php echo _('Source').': '.$services['source']; ?><br /><?php } ?>
+				</td>
+				<td class="tableServices_t3" bgcolor="<?php echo $bgcolor?>"><?php echo $services['date']; ?></td>
+				<?php } ?>
+			  </tr>
+			<?php
+				$i++; }
+			}
+			/*
 			$servs = 0;
 			if ($services_list = Host_services::get_ip_data($conn, $host, "")) {
 				$i = 1;
@@ -234,18 +326,19 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 					$servname = ($services['service'] != "unknown") ? $services['service'] : getservbyport($services['port'],getprotobynumber($services['protocol']));
 					if ($servname == "") $servname = "unknown";
 					echo ($servname) . " (" . $services['port'] . "/" . getprotobynumber($services['protocol']) . ")" ?></td>
-				<td bgcolor="<?=$bgcolor?>"><?php
-					echo $services['version'] ?></td>
-				<td bgcolor="<?=$bgcolor?>"><?=($services['origin']) ? "Active" : "Passive"?></td>
+				<td bgcolor="<?php echo $bgcolor?>"><?php echo $services['version'] ?></td>
+				<?php // echo ($services['origin']) ? "Active" : "Passive"?>
+				<td bgcolor="<?php echo $bgcolor?>"><?php echo $services['date']; ?></td>
 			  </tr>
 			<?php
 				$i++; }
-			}
+			}*/
 			?>
 				  </table>
 					</form>
 				  </td>
 				  </tr>
+				  <?php /*
 				<tr>
 				  <td colspan="2" class="nobborder">
 					<table class="noborder" width="100%">
@@ -254,7 +347,7 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 						<th> <?php echo gettext("Value"); ?> </th>
 					  </tr>
 				<?php
-				if ($property_list = Host::get_host_properties($conn, $host)) {
+				if ($property_list = Host::get_host_properties($conn, $host)) {				
 					$i = 1;
 					foreach($property_list as $properties) {
 						$bgcolor = ($i%2==0) ? "#E1EFE0" : "#FFFFFF";
@@ -282,12 +375,13 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 					  </table>
 				  </td>
 				</tr>
+				*/?>
 			</table>
 		</td>
 		<td valign="top">
 			<table height="100%">
 				<tr>
-					<td colspan="2" class="headerpr" height="20">Network Usage</td>
+					<td colspan="2" class="headerpr" height="20"><?php echo gettext("Network Usage"); ?></td>
 				</tr>
 				<!--
 				<tr>

@@ -205,12 +205,12 @@ usleep(500000);
 		<td style="text-align:center">
 			<table cellpadding=0 cellspacing=0 border=0 align="center">
 			<tr>
-				<td class="blackp" valign="middle" nowrap align="right" style="border:0px solid white;text-align:right"><b>Service</b> level: </td>
+				<td class="blackp" valign="middle" nowrap align="right" style="border:0px solid white;text-align:right"><?php echo gettext("<b>Service</b> level:");?> </td>
 				<td class="<?php echo $levelgr ?>" width="90" height="30" nowrap align="left" id="service_level_gr" style="border:0px solid white"><a href="../top.php?option=0&soption=1&url=control_panel%2Fshow_image.php%3Frange%3Dday%26ip%3Dlevel_admin%26what%3Dattack%26start%3DN-1D%26end%3DN%26type%3Dlevel%26zoom%3D1" target="topmenu" id="service_level" class="black" style="text-decoration:none"><?php echo $level ?> %</a></td>
 				<td></td>
 				<td class="nobborder">
 					<table class="noborder" cellpadding=0 cellspacing=0 border=0 align=""><tr>
-					<td style="padding-left:4px;text-align:right"><a href="../top.php?option=0&soption=1&url=control_panel%2Fglobal_score.php" target="topmenu" class="blackp" style="text-decoration:none"><b>Global</b> score:</a></td>
+					<td style="padding-left:4px;text-align:right"><a href="../top.php?option=0&soption=1&url=control_panel%2Fglobal_score.php" target="topmenu" class="blackp" style="text-decoration:none"><?php echo gettext("<b>Global</b> score:"); ?></a></td>
 					<td class="nobborder" style="text-align:left"><a href="../top.php?option=0&soption=1&url=control_panel%2Fglobal_score.php" target="topmenu"><img id="semaphore" src="../pixmaps/statusbar/sem_<?php echo $score ?>_h.gif" border="0" alt="<?php echo $alt ?>" title="<?php echo $alt ?>"></a></td>
 					</tr>
 					</table>

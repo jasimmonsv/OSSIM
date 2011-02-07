@@ -49,7 +49,7 @@ else $lnk = "ip=$host";
 ?>
 <table width="100%" class="bordered">
 	<tr>
-		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=src_ip=$host OR dst_ip=$host")?>" target="topmenu">Logger Events</a></td>
+		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=src_ip=$host OR dst_ip=$host")?>" target="topmenu"><?php echo gettext("Logger Events"); ?></a></td>
 	</tr>
 	<? if (count($sem_events_week) > 0) { ?>
 	<?

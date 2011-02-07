@@ -449,7 +449,7 @@ if ($edit) {
 <body>
 <?php
 if (GET('nohmenu') == "") include ("../hmenu.php"); ?>
-<h1><?php echo " $ref " . _("Ticket") ?></h1>
+<h1><?php echo " ".gettext($ref)." " . _("Ticket") ?></h1>
 <form id='crt' method="POST" action="manageincident.php" enctype="multipart/form-data">
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />
 <input type="hidden" name="ref" value="<?php echo $ref ?>" />
@@ -950,7 +950,7 @@ else {
 <table align="center" class='noborder' width="600" style='border: none; background: #FFFFFF;'>
 	<tr>
 		<td class="noborder center" style='height:50px;' valign='middle'>
-			<span>Fields marked with (*) are mandatory</span>
+			<span><?php echo gettext("Fields marked with (*) are mandatory");?></span>
 		</td>
 	</tr>
 </table>

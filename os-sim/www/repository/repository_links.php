@@ -90,9 +90,9 @@ if (count($rel_list) > 0) { ?>
 		<td>
 			<table class="noborder" align="center">
 				<tr>
-					<td class="kdb"><?=("Linked to")?></td>
-					<td class="kdb"><?=("Type")?></td>
-					<td class="kdb"><?=("Action")?></td>
+					<td class="kdb"><?php echo gettext("Linked to")?></td>
+					<td class="kdb"><?php echo gettext("Type")?></td>
+					<td class="kdb"><?php echo gettext("Action")?></td>
 				</tr>
 				<?php
     foreach($rel_list as $rel) {
@@ -123,8 +123,8 @@ if (count($rel_list) > 0) { ?>
 		<td>
 			<table class="noborder" align="center">
 				<tr>
-					<td class="kdb"><?=("Link Type")?></td>
-					<td class="kdb"><?=("Value")?></td>
+					<td class="kdb"><?=_("Link Type")?></td>
+					<td class="kdb"><?=_("Value")?></td>
 					<td></td>
 				</tr>
 				<tr>

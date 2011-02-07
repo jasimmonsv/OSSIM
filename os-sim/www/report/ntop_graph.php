@@ -83,15 +83,15 @@ else {
     $ntop_link = Sensor::get_sensor_link($conn,$host);
 	if ($n == 1) {
 		$source = "$ntop_link/hostTimeTrafficDistribution-$host-65535.png?1";
-		$tit = $title." Traffic Sent";
-		$tit2 = "Traffic Sent";
+		$tit = $title." ".gettext("Traffic Sent");
+		$tit2 = gettext("Traffic Sent");
 		$graph = "ntop_graph_thumb.gif";
 	}
 	elseif ($n == 2) {
 		$source = "$ntop_link/hostTimeTrafficDistribution-$host-65535.png";
-		$tit = $title." Traffic Rcvd";
+		$tit = $title." ".gettext("Traffic Rcvd");
 		$graph = "ntop_graph_thumb.gif";
-		$tit2 = "Traffic Rcvd";
+		$tit2 = gettext("Traffic Rcvd");
 	}
 	//echo "headers de: ".$source."<br>";
 	$salida = get_headers($source);

@@ -323,13 +323,13 @@ function _html_metric($metric, $threshold, $link) {
     $color = '';
     if ($risk > 500) {
         $color = 'bgcolor="#FF0000"';
-        $risk = 'high';
+        $risk = gettext("high");
     } elseif ($risk > 300) {
         $color = 'bgcolor="orange"';
-        $risk = 'med';
+        $risk = gettext("med");
     } elseif ($risk > 100) {
         $color = 'bgcolor="green"';
-        $risk = 'low';
+        $risk = gettext("low");
     } else {
         $font_color = 'color="black"';
         $risk = '-';
