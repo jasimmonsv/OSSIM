@@ -5,7 +5,7 @@ require_once 'classes/Util.inc';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 function SIEM_trends() {
-	$data = array();
+	$data = $hours = array();
 	require_once 'ossim_db.inc';
 	$db = new ossim_db();
 	$dbconn = $db->snort_connect();
@@ -14,23 +14,27 @@ function SIEM_trends() {
 	    print $conn->ErrorMsg();
 	} else {
 	    while (!$rg->EOF) {
-	        $data[$rg->fields["intervalo"]."h"] = $rg->fields["num_events"];
+	        $hours[] = $rg->fields["intervalo"]."h";
+	        $data[] = $rg->fields["num_events"];
 	        $rg->MoveNext();
 	    }
 	}
 	$db->close($dbconn);
-	return $data;
+	return array($hours,$data);
 }
 
 function Logger_trends() {
 	require_once("forensics_stats.inc");
-	$data = array();
+	$data = $hours = array();
 	$csv = array_reverse(get_day_csv(date("Y"),date("m"),date("d")));
 	$i=0;
 	foreach ($csv as $key => $value) {
-		if ($i++<=16) $data[$key."h"] = $value;
+		if ($i++<=16) {
+			$hours[] = $key."h";
+			$data[] = $value;
+		}
 	}
-	return $data;
+	return array($hours,$data);
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -45,31 +49,47 @@ function Logger_trends() {
 <?php
 //$siem = (GET("type")=="siem") ? true : false; 
 //$trend = ($siem) ? SIEM_trends() : Logger_trends();
-$trend = SIEM_trends();
-$trend2 = Logger_trends();
+list($hours,$trend) = SIEM_trends();
+list($hours2,$trend2) = Logger_trends();
+$max = (count($trend)>count($trend2)) ? count($trend) : count($trend2);
+if (count($trend)>count($trend2)) {
+	$max  = count($trend);
+} else {
+	$max  = count($trend2);
+	$tmp = $hours;
+	$hours = $hours2;
+	$hours2 = $hours;
+}
 ?>
 <body scroll="no">		
 	<table id="data" style="display:none">
         <tfoot>
             <tr>
-            	<? $i=0; foreach ($trend as $day => $value) echo "<th>$day</th>\n"; ?>
+            	<?	for ($i=0;$i<$max;$i++) {
+            			$day = ($hours[$i]!="") ? $hours[$i] : (($hours2[$i]!="") ? $hours2[$i] : "-");
+            			echo "<th>$day</th>\n";
+            		}
+            	?>
             </tr>
         </tfoot>
         <tbody>
             <tr>
-            	<? foreach ($trend as $day => $value) echo "<td>$value</td>\n"; ?>
+            	<?	for ($i=0;$i<$max;$i++) {
+            			$value = ($trend[$i]!="") ? $trend[$i] : 0;
+            			echo "<td>$value</td>\n"; 
+            		}
+            	?>
             </tr>
         </tbody>
     </table>
     <table id="data2" style="display:none">
-        <tfoot>
-            <tr>
-            	<? $i=0; foreach ($trend2 as $day => $value) echo "<th>$day</th>\n"; ?>
-            </tr>
-        </tfoot>
         <tbody>
             <tr>
-            	<? foreach ($trend2 as $day => $value) echo "<td>$value</td>\n"; ?>
+            	<?	for ($i=0;$i<$max;$i++) {
+            			$value = ($trend2[$i]!="") ? $trend2[$i] : 0;
+            			echo "<td>$value</td>\n"; 
+            		}
+            	?>
             </tr>
         </tbody>
     </table>

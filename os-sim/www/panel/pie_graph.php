@@ -8,6 +8,7 @@ require_once 'ossim_db.inc';
 $db = new ossim_db();
 $conn = $db->connect();
 $data = "";
+$urls = "";
 //$colors = '"#EFBE68", "#B5CF81"';
 $colors = '"#E9967A","#9BC3CF"';
 
@@ -43,7 +44,7 @@ switch(GET("type")) {
 		        $rg->MoveNext();
 		    }
 		}
-		$colors = '"#D1E8EF","#ADD8E6","#00BFFF","#4169E1","#4682B4","#0000CD","#483D8B","#5355DF","#00008B"';
+		$colors = '"#D1E8EF","#ADD8E6","#6FE7FF","#00BFFF","#4169E1","#4682B4","#0000CD","#483D8B","#5355DF","#00008B"';
 		break;
 		
 		
@@ -59,7 +60,7 @@ switch(GET("type")) {
 		        $rg->MoveNext();
 		    }
 		}
-		$colors = '"#FFBFBF","#FF9F9F","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222","#7F1717"';
+		$colors = '"#FFD0BF","#FFBFBF","#FF9F9F","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222","#7F1717"';
 		break;
 				
 				
@@ -179,7 +180,7 @@ $db->close($conn);
 <html lang="en">
 <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	  <title>Bar Charts</title>
+	  <title>Pie Charts</title>
 	  <!--[if IE]><script language="javascript" type="text/javascript" src="jqplot/excanvas.js"></script><![endif]-->
 	  
 	  <link rel="stylesheet" type="text/css" href="../js/jqplot/jquery.jqplot.css" />
@@ -191,9 +192,7 @@ $db->close($conn);
 	  <!-- BEGIN: load jqplot -->
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/jquery.jqplot.min.js"></script>
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.pieRenderer.js"></script>
-	  <script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.highlighter.js"></script>	  
-
-	 
+	  	 
   <!-- END: load jqplot -->
 
 	<style type="text/css">
@@ -208,9 +207,12 @@ $db->close($conn);
     
 	<script class="code" type="text/javascript">
 	
+		var links = [<?=$urls?>];
+		
 		$(document).ready(function(){
 					
 			$.jqplot.config.enablePlugins = true;
+			$.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]); 
 			
 			s1 = [<?=$data?>];
 
@@ -231,10 +233,6 @@ $db->close($conn);
 					rendererOptions: {
 						showDataLabels: true,
                         dataLabelFormatString: '%d'
-					},
-					highlighter: {
-						show:true,
-						showTooltip:true
 					}				
 				},
 				legend: {
@@ -246,6 +244,12 @@ $db->close($conn);
 				}
 			}); 
 
+			function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
+	            //mouseX = ev.pageX; mouseY = ev.pageY;
+	            url = links[neighbor.pointIndex];
+	            if (typeof(url)!='undefined' && url!='') top.document.frames['main'].location.href = url;
+            }
+    
 		});
 	</script>
 
@@ -255,3 +259,4 @@ $db->close($conn);
 		<div id="chart" style="width:100%; height: 250px;"></div>
 	</body>
 </html>
+
