@@ -161,15 +161,21 @@ if ( !empty($agentless_list) && empty($info_error) )
 		}
 		else
 		{
-			@unlink ($path_reload);
-			exec ("sudo /var/ossec/bin/ossec-control restart", $result, $ret);
-			$info_error = ( empty($result) ) ? _("Error to restart Ossec.  Try manually") : null;
+			$result = system("sudo /var/ossec/bin/ossec-control restart > /tmp/ossec-action 2>&1");
+			$result = file('/tmp/ossec-control');
+			$size   = count($result);
+			$info_error = ( preg_match('/Completed/', $result[$size]) ) ? _("Error to restart Ossec.  Try manually") : null;
 		}
 	}
 }
 
+if ($info_error == null)
+	@unlink ($path_reload);
+
+
 @unlink ($path_tmp2);	
 @unlink ($path_tmp);
+
 
 ?>
 
@@ -199,7 +205,7 @@ if ( !empty($agentless_list) && empty($info_error) )
 		else
 		{
 			echo "<div id='apply_ok'>"._("Configuration applied")."</div>";
-			echo "<script>document.location.href='agentless.php?restart=1'</script>";
+			echo "<script>document.location.href='agentless.php'</script>";
 		}
 	?>
 	  

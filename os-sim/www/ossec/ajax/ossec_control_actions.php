@@ -84,8 +84,10 @@ if ( in_array($action, $allowed_act) )
 			{
 				if ( $action != _("status") )
 				{
-					exec ("sudo /var/ossec/bin/ossec-control $action", $result, $ret);
-					$result = null;
+					$result     = system("sudo /var/ossec/bin/ossec-control $action > /tmp/ossec-action 2>&1");
+					$result     = file('/tmp/ossec-control');
+					$size       = count($result);
+					$result     = null;
 				}
 				exec ("sudo /var/ossec/bin/ossec-control status",  $result, $ret);
 			}

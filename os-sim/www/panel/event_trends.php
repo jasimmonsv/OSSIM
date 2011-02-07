@@ -94,6 +94,10 @@ if (count($trend)>count($trend2)) {
         </tbody>
     </table>
 	
+    <script language="javascript">
+        logger_url = '';
+        siem_url = '../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=<?=date("m",time()-$range)?>&time[0][3]=<?=date("d",time()-$range)?>&time[0][4]=<?=date("Y",time()-$range)?>&time[0][5]=HH&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics';
+    </script>
 	<script src="../js/raphael/analytics.js"></script>
 	<script src="../js/raphael/popup.js"></script>
     		

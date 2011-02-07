@@ -25,13 +25,12 @@ $db = new ossim_db();
 $conn = $db->connect();
 $data = "";
 $urls = "";
-//$colors = '"#EFBE68", "#B5CF81"';
 $colors = '"#E9967A","#9BC3CF"';
 
 $range =  604800; // Week
-$forensic_link = "../forensics/base_qry_main.php?time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",time()-$range)."&time[0][3]=".date("d",time()-$range)."&time[0][4]=".date("Y",time()-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d";
+$forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",time()-$range)."&time[0][3]=".date("d",time()-$range)."&time[0][4]=".date("Y",time()-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 
-$query = "select sum(sig_cnt) as num_events,c.id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-$range)."' AND '".date("Y-m-d")."' TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
+$query = "select sum(sig_cnt) as num_events,c.cat_id,c.id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-$range)."' AND '".date("Y-m-d")."' TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
 
 switch(GET("type")) {
 
@@ -44,6 +43,7 @@ switch(GET("type")) {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["source_type"]=="") $rg->fields["source_type"] = _("Unknown type");
 		        $data .= "['".$rg->fields["source_type"]."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&sourcetype=".urlencode($rg->fields["source_type"])."',";
 		        $rg->MoveNext();
 		    }
 		}
@@ -60,6 +60,7 @@ switch(GET("type")) {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $data .= "['".$rg->fields["name"]."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&category%5B1%5D=&category%5B0%5D=".$rg->fields["category_id"]."',";
 		        $rg->MoveNext();
 		    }
 		}
@@ -78,6 +79,7 @@ switch(GET("type")) {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&category%5B0%5D=".$rg->fields["cat_id"]."&category%5B1%5D=".$rg->fields["id"]."',";
 		        $rg->MoveNext();
 		    }
 		}
@@ -95,6 +97,7 @@ switch(GET("type")) {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&category%5B0%5D=".$rg->fields["cat_id"]."&category%5B1%5D=".$rg->fields["id"]."',";
 		        $rg->MoveNext();
 		    }
 		}
@@ -112,6 +115,7 @@ switch(GET("type")) {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&category%5B0%5D=".$rg->fields["cat_id"]."&category%5B1%5D=".$rg->fields["id"]."',";
 		        $rg->MoveNext();
 		    }
 		}
@@ -129,6 +133,7 @@ switch(GET("type")) {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&category%5B0%5D=".$rg->fields["cat_id"]."&category%5B1%5D=".$rg->fields["id"]."',";
 		        $rg->MoveNext();
 		    }
 		}
@@ -146,6 +151,7 @@ switch(GET("type")) {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&category%5B0%5D=".$rg->fields["cat_id"]."&category%5B1%5D=".$rg->fields["id"]."',";
 		        $rg->MoveNext();
 		    }
 		}
@@ -163,6 +169,7 @@ switch(GET("type")) {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&category%5B0%5D=".$rg->fields["cat_id"]."&category%5B1%5D=".$rg->fields["id"]."',";
 		        $rg->MoveNext();
 		    }
 		}
@@ -174,6 +181,7 @@ switch(GET("type")) {
 		$data = "['"._("Unknown Type")."', 100]";
 }
 $data = preg_replace("/,$/","",$data);
+$urls = preg_replace("/,$/","",$urls);
 if ($data=="") {
 	$data = "['"._("No events")."', 100]";
 }
@@ -214,9 +222,8 @@ $db->close($conn);
 
 		function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
             //mouseX = ev.pageX; mouseY = ev.pageY;
-            console.log(neighbor);
             url = links[neighbor.pointIndex];
-            if (typeof(url)!='undefined' && url!='') top.document.frames['main'].location.href = url;
+            if (typeof(url)!='undefined' && url!='') top.frames['main'].location.href = url;
         }
         isShowing = -1;
 		function myMoveHandler(ev, gridpos, datapos, neighbor, plot) {

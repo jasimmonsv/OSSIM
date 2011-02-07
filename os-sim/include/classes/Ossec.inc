@@ -358,6 +358,49 @@ class Agentless {
 			
 	}
 	
+	public function delete_host_ossec($conn, $ip)
+	{
+		$path      = '/var/ossec/agentless/.passlist';
+		$path_tmp  =  "/tmp/".uniqid()."_tmp.passlist";
+				
+		$host      = Agentless::get_list($conn, "WHERE ip='$ip'");
+		
+		if ( !empty($host) )
+		{
+			@copy ($path , $path_tmp);
+			$user       = $host[$ip]->get_user();
+			$hostname   = $host[$ip]->get_hostname();
+			$ossec_file = file($path);
+					
+			$pattern = "/$user@$ip|$user@$hostname/";
+			
+			foreach ($ossec_file as $k => $v)
+			{
+				if( preg_match($pattern, $v) )
+					unset($ossec_file[$k]);
+			}
+			
+			if ( !empty ($ossec_file) )	
+			{
+				$new_file = implode("", $ossec_file);
+			
+				if (@file_put_contents($path, $new_file, LOCK_EX) == false)
+				{
+					@copy ($path_tmp , $path);
+					return false;
+				}
+			}
+			else
+				@unlink($path);	
+			
+			@unlink($path_tmp);
+			return true;
+			
+		}
+		else
+			return false;
+	}
+	
 	public function change_status($conn, $status)
 	{
 		$ip   	   = $this->get_ip();
