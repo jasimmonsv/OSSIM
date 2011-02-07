@@ -173,6 +173,7 @@ if ($_GET['imgfile'] != "" && preg_match("/^\d+$/",$_GET['imgfile'])) {
 	upload($_GET['imgfile']);
 	exit;
 }
+$from_menu = (GET('smenu')=="Customize" || $_SESSION["menu_sopc"]=="Customize") ? true : false;
 //
 $msg_error=array('');
 if ($opensource || $_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN) {
@@ -505,9 +506,12 @@ switch($step){
 	<link rel="stylesheet" type="text/css" href="../style/customize.css"/>
 </head>
 <body>
+	<?php if ($from_menu) include("../hmenu.php"); ?>
 	<div id='container_center'>
+		<?php if (!$from_menu) { ?>
 		<p alig="center"><img src="../pixmaps/customization_logo.png" border="0"></p>
 		<p alig="center" class="title"><?php echo _("Customize Wizard") ?></p>
+		<? } ?>
 		<form method="post" name="form" id="form" action="customize.php?step=<?php echo $step+1;?>">
 			<table id='tab_menu'>
 				<tr>

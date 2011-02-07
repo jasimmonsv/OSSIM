@@ -201,7 +201,7 @@ if (REQUEST('user') && trim($pass)!="")
 				<body><script>window.open("../index.php","full_main_window","fullscreen,scrollbars")</script></body>
 				</html>
 	<?php
-			} elseif ($customize_wizard && $user == ACL_DEFAULT_OSSIM_ADMIN) {
+			} elseif ($customize_wizard && Session::am_i_admin()) {
 				header("Location: customize.php");
             } elseif ($first_userlogin) {
 				header("Location: first_login.php");

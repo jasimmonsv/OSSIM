@@ -1136,6 +1136,15 @@ $CONFIG = array(
                 "desc" => gettext("Show welcome message at next login") ,
                 "advanced" => 0
             ) ,
+            "customize_wizard" => array(
+                "type" => array(
+                    "1" => _("Yes") ,
+                    "0" => _("No")
+                ) ,
+                "help" => _("") ,
+                "desc" => gettext("Show Customization Wizard after admin login") ,
+                "advanced" => 0
+            ) ,            
             "login_enforce_existing_user" => array(
                 "type" => array(
                     "yes" => _("Yes") ,
