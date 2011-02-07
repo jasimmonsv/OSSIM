@@ -322,7 +322,7 @@ if (GET('withoutmenu') != "1")
 				<tr>
 					<td style="text-align: left; border:none; padding-top:3px;" colspan='2'>
 						<a onclick="$('.advanced').toggle()" style="cursor:pointer;">
-						<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/>Advanced</a>
+						<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?php echo gettext("Advanced"); ?></a>
 					</td>
 				</tr>
 		 

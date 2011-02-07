@@ -113,7 +113,7 @@ include ("../hmenu.php");
 	}	
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='Delete selected') {
+		if (com=='<?php echo gettext("Delete selected"); ?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
 				$("#flextable").changeStatus('<?=_("Deleting Active directory")?>...',false);
@@ -129,11 +129,11 @@ include ("../hmenu.php");
 			}
 			else alert('<?=_("You must select a Active directory")?>');
 		}
-		else if (com=='Modify') {
+		else if (com=='<?php echo gettext("Modify"); ?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyactivedirectory.php?id='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a Active directory")?>');
 		}
-		else if (com=='New') {
+		else if (com=='<?php echo gettext("New"); ?>') {
 			document.location.href = 'newactivedirectory.php'
 		}
 	}
@@ -208,7 +208,7 @@ echo "$colModel\n";
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
 		title: '<?=_("Active directory")?>',
-		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("Active directories")?>',
+		pagestat: '<?=_("Displaying {from} to {to} of {total} Active directories")?>',
 		nomsg: '<?=_("No Active directories")?>',
 		useRp: true,
 		rp: 25,

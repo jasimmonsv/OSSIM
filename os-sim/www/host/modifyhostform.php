@@ -1111,7 +1111,7 @@ if ( empty( $ip ) ) {
 											$properties_types = Host::get_properties_types($conn);
 											
 											foreach ($properties_types as $k => $v)
-												echo "<option value='".$v["id"]."'>".$v["description"]."</option>";
+												echo "<option value='".$v["id"]."'>".gettext($v["description"])."</option>";
 										?>
 									</select>
 								</td>

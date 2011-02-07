@@ -88,11 +88,11 @@ function hide_content (i) {
 			<div id="content<?=$i?>" style="display:none">
 			<table class="noborder" width="100%">
 			<tr>
-				<td><b>QUERY</b>:<br><?=$rule->get_query()?></td>
+				<td><b><?php echo gettext("QUERY"); ?></b>:<br><?=$rule->get_query()?></td>
 			</tr>
 			<? if ($rule->get_prelist() != "") { ?>
 			<tr>	
-				<td><i><b>Predefined List</b></i>:<br><?=$rule->get_prelist()?></td>
+				<td><i><b><?php echo gettext("Predefined List"); ?></b></i>:<br><?=$rule->get_prelist()?></td>
 			</tr>
 			<? } ?>
 			<tr>
