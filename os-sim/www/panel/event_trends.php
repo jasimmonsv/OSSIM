@@ -43,7 +43,7 @@ function Logger_trends() {
         <style type="text/css"> body { overflow:hidden; } </style>
 </head>
 <?php
-$siem = (GET("type")=="siem") ? true : false; 
+//$siem = (GET("type")=="siem") ? true : false; 
 //$trend = ($siem) ? SIEM_trends() : Logger_trends();
 $trend = SIEM_trends();
 $trend2 = Logger_trends();
@@ -61,7 +61,7 @@ $trend2 = Logger_trends();
             </tr>
         </tbody>
     </table>
-	<table id="data2" style="display:none">
+    <table id="data2" style="display:none">
         <tfoot>
             <tr>
             	<? $i=0; foreach ($trend2 as $day => $value) echo "<th>$day</th>\n"; ?>
