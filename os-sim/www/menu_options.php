@@ -242,11 +242,85 @@ if (is_dir("/var/ossim/")) {
     }
 }
 
+if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { $events = 1;
+    $menu["Analysis"][] = array(
+        "name" => gettext("Vulnerabilities") ,
+        "id" => "Vulnerabilities",
+        "url" => "vulnmeter/index.php"
+    );
+    $hmenu["Vulnerabilities"][] = array(
+        "name" => gettext("Vulnerabilities") ,
+        "id" => "Vulnerabilities",
+        "url" => "vulnmeter/index.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:vulnerabilities','EventHelp')"
+    );
+    $hmenu["Vulnerabilities"][] = array(
+        "name" => gettext("Reports") ,
+        "id" => "Reports",
+        "url" => "vulnmeter/reports.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:reports','EventHelp')"
+    );
+    $hmenu["Vulnerabilities"][] = array(
+        "name" => gettext("Scan Jobs") ,
+        "id" => "Jobs",
+        "url" => "vulnmeter/manage_jobs.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:jobs','EventHelp')"
+    );
+    $rmenu["Vulnerabilities"][] = array(
+        "name" => gettext("Profiles") ,
+        "id" => "ScanProfiles",
+        "url" => "../vulnmeter/settings.php"
+    );
+    $rmenu["Reports"][] = array(
+        "name" => gettext("Profiles") ,
+        "id" => "ScanProfiles",
+        "url" => "../vulnmeter/settings.php"
+    );
+    $rmenu["Jobs"][] = array(
+        "name" => gettext("Profiles") ,
+        "id" => "ScanProfiles",
+        "url" => "../vulnmeter/settings.php"
+    );
+    $rmenu["Database"][] = array(
+        "name" => gettext("Profiles") ,
+        "id" => "ScanProfiles",
+        "url" => "../vulnmeter/settings.php"
+    );
+    $hmenu["Vulnerabilities"][] = array(
+        "name" => gettext("Threats Database") ,
+        "id" => "Database",
+        "url" => "vulnmeter/threats-db.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:threats_database','EventHelp')"
+    );
+    if($_SESSION["_user"]=="admin") {
+        $rmenu["Vulnerabilities"][] = array(
+           "name" => gettext("Settings") ,
+           "id" => "Settings",
+           "url" => "../vulnmeter/webconfig.php"
+        );
+        $rmenu["Reports"][] = array(
+           "name" => gettext("Settings") ,
+           "id" => "Settings",
+           "url" => "../vulnmeter/webconfig.php"
+        );
+        $rmenu["Jobs"][] = array(
+           "name" => gettext("Settings") ,
+           "id" => "Settings",
+           "url" => "../vulnmeter/webconfig.php"
+        );
+        $rmenu["Database"][] = array(
+           "name" => gettext("Settings") ,
+           "id" => "Settings",
+           "url" => "../vulnmeter/webconfig.php"
+        );
+    }
+}
+
 // Detection
 $detection = 0;
 if (Session::menu_perms("MenuEvents", "EventsForensics") ||
     Session::menu_perms("MenuEvents", "ReportsWireless") ||
-    Session::menu_perms("MenuEvents", "EventsAnomalies")) {
+    Session::menu_perms("MenuEvents", "EventsAnomalies")) { $events = 1;
     if (Session::menu_perms("MenuEvents", "EventsForensics")) {
         $detection = 1;
         $menu["Analysis"][] = array(
@@ -327,80 +401,6 @@ if (Session::menu_perms("MenuEvents", "EventsForensics") ||
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:anomalies','EventHelp')"
         );
     }   
-}
-
-if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { $events = 1;
-    $menu["Analysis"][] = array(
-        "name" => gettext("Vulnerabilities") ,
-        "id" => "Vulnerabilities",
-        "url" => "vulnmeter/index.php"
-    );
-    $hmenu["Vulnerabilities"][] = array(
-        "name" => gettext("Vulnerabilities") ,
-        "id" => "Vulnerabilities",
-        "url" => "vulnmeter/index.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:vulnerabilities','EventHelp')"
-    );
-    $hmenu["Vulnerabilities"][] = array(
-        "name" => gettext("Reports") ,
-        "id" => "Reports",
-        "url" => "vulnmeter/reports.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:reports','EventHelp')"
-    );
-    $hmenu["Vulnerabilities"][] = array(
-        "name" => gettext("Scan Jobs") ,
-        "id" => "Jobs",
-        "url" => "vulnmeter/manage_jobs.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:jobs','EventHelp')"
-    );
-    $rmenu["Vulnerabilities"][] = array(
-        "name" => gettext("Profiles") ,
-        "id" => "ScanProfiles",
-        "url" => "../vulnmeter/settings.php"
-    );
-    $rmenu["Reports"][] = array(
-        "name" => gettext("Profiles") ,
-        "id" => "ScanProfiles",
-        "url" => "../vulnmeter/settings.php"
-    );
-    $rmenu["Jobs"][] = array(
-        "name" => gettext("Profiles") ,
-        "id" => "ScanProfiles",
-        "url" => "../vulnmeter/settings.php"
-    );
-    $rmenu["Database"][] = array(
-        "name" => gettext("Profiles") ,
-        "id" => "ScanProfiles",
-        "url" => "../vulnmeter/settings.php"
-    );
-    $hmenu["Vulnerabilities"][] = array(
-        "name" => gettext("Threats Database") ,
-        "id" => "Database",
-        "url" => "vulnmeter/threats-db.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:threats_database','EventHelp')"
-    );
-    if($_SESSION["_user"]=="admin") {
-        $rmenu["Vulnerabilities"][] = array(
-           "name" => gettext("Settings") ,
-           "id" => "Settings",
-           "url" => "../vulnmeter/webconfig.php"
-        );
-        $rmenu["Reports"][] = array(
-           "name" => gettext("Settings") ,
-           "id" => "Settings",
-           "url" => "../vulnmeter/webconfig.php"
-        );
-        $rmenu["Jobs"][] = array(
-           "name" => gettext("Settings") ,
-           "id" => "Settings",
-           "url" => "../vulnmeter/webconfig.php"
-        );
-        $rmenu["Database"][] = array(
-           "name" => gettext("Settings") ,
-           "id" => "Settings",
-           "url" => "../vulnmeter/webconfig.php"
-        );
-    }
 }
 
 /* Reports */

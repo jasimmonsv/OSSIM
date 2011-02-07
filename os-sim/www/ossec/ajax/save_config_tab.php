@@ -130,6 +130,10 @@ if($tab == "#tab1")
 }
 else if($tab == "#tab2")
 {
+
+}
+else if($tab == "#tab3")
+{
 	$aux_path  = explode("/", $ossec_conf);
 	$filename  = $aux_path[count($aux_path)-1]; 
 	$file_tmp  = uniqid($filename)."_tmp.conf";

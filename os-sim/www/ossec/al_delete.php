@@ -56,6 +56,7 @@ $ip = GET('ip');
 
 <?php
 $txt_error = null;
+
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
 
 if ( ossim_error() ) 
@@ -64,9 +65,14 @@ else
 {
 	$db        = new ossim_db();
 	$conn      = $db->connect();
-		
-	$res       = Agentless::delete_host_data($conn, $ip);
-	$txt_error = ( $res == false ) ? _("Error to delete host") : null;
+	$res       = Agentless::delete_host_ossec($conn, $ip);	
+	$txt_error = ( $res == false ) ? _("Error to delete host from .passlist") : null;
+	
+	if ( $txt_error == null )
+	{
+		$res       = Agentless::delete_host_data($conn, $ip);
+		$txt_error = ( $res == false ) ? _("Error to delete host") : null;
+	}
 	
 	$db->close($conn);
 }

@@ -13,6 +13,12 @@ Raphael.fn.drawGrid = function (x, y, w, h, wv, hv, color) {
 };
 
 window.onload = function () {
+    function clickNear(e,dot,rad) {
+        x = e.clientX || e.pageX; y = e.clientY || e.pageY;
+        dx = dot.attr("cx"); dy = dot.attr("cy");
+        //console.log(x+"-"+y+"-"+dx+"-"+dy);
+        return (x>=dx-rad && x<=dx+rad && y>=dy-rad && y<=dy+rad) ? true : false;
+    }
     function getAnchors(p1x, p1y, p2x, p2y, p3x, p3y) {
         var l1 = (p2x - p1x) / 2,
             l2 = (p3x - p2x) / 2,
@@ -36,7 +42,8 @@ window.onload = function () {
     var labels = [],
         data = [],
         data2 = [],
-        y1 = [];
+        y1 = [],
+        dot1 = [];
     $("#data tfoot th").each(function () {
         labels.push($(this).html());
     });
@@ -75,7 +82,7 @@ window.onload = function () {
     label.push(r.text(60, 12, "XXX SIEM events").attr(txt));
     label.push(r.text(60, 27, "1 January 2011").attr(txt1).attr({fill: color}));
     label.hide();
-    var frame = r.popup(100, 100, label, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .6}).hide();
+    var frame = r.popup(100, 100, label, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
 
     var p, bgpp;
     for (var i = 0, ii = labels.length; i < ii; i++) {
@@ -124,7 +131,7 @@ window.onload = function () {
             });
         })(x, y, data[i], labels[i], dot);
         */
-        y1.push(y);
+        y1.push(y); dot1.push(dot);
     }
     p = p.concat([x, y, x, y]);
     bgpp = bgpp.concat([x, y, x, y, "L", x, height - bottomgutter, "z"]);
@@ -145,7 +152,7 @@ window.onload = function () {
     label2.push(r.text(60, 12, "XXX Logger events").attr(txt));
     label2.push(r.text(60, 27, "1 January 2011").attr(txt1).attr({fill: color}));
     label2.hide();
-    var frame2 = r.popup(100, 100, label2, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .6}).hide();
+    var frame2 = r.popup(100, 100, label2, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
     var p, bgpp;
     for (var i = 0, ii = labels.length; i < ii; i++) {
         var y = Math.round(height - bottomgutter - Y * data2[i]),
@@ -167,7 +174,7 @@ window.onload = function () {
         var dot = r.circle(x, y, 4).attr({fill: "#F2F2F2", stroke: color, "stroke-width": 2});
         blanket2.push(r.rect(leftgutter + X * i, 0, X, height - bottomgutter).attr({stroke: "none", fill: "#fff", opacity: 0}));
         var rect = blanket2[blanket2.length - 1];
-        (function (x, y, y1, data, data1, lbl, dot) {
+        (function (x, y, y1, data, data1, lbl, dot, dot1) {
             var timer, i = 0;
             rect.hover(function () {
                 clearTimeout(leave_timer2);
@@ -185,10 +192,10 @@ window.onload = function () {
                 label[0].attr({text: data + " SIEM event" + (data1 == 1 ? "" : "s")}).show().stop().animateWith(frame, {translation: [ppp1.dx, ppp1.dy]}, 200 * is_label_visible2);
                 label[1].attr({text: lbl }).show().stop().animateWith(frame, {translation: [ppp1.dx, ppp1.dy]}, 200 * is_label_visible2);
 
-                dot.attr("r", 6);
+                dot.attr("r", 6); dot1.attr("r", 6);
                 is_label_visible2 = true;
             }, function () {
-                dot.attr("r", 4);
+                dot.attr("r", 4); dot1.attr("r", 4);
                 leave_timer2 = setTimeout(function () {
                     frame2.hide();
                     frame.hide();
@@ -199,7 +206,19 @@ window.onload = function () {
                     is_label_visible2 = false;
                 }, 1);
             });
-        })(x, y, y1[i], data[i], data2[i], labels[i], dot);
+            rect.click(function (event) {
+                if (clickNear(event,dot,12)) {
+                    url = logger_url.replace(/HH/,lbl.replace(/h$/,''));
+                    console.log(url);
+                    if (url!='') top.frames['main'].location.href = url;
+                }
+                if (clickNear(event,dot1,12)) {
+                    url = siem_url.replace(/HH/,lbl.replace(/h$/,''));
+                    console.log(url);
+                    if (url!='') top.frames['main'].location.href = url;
+                }
+            });            
+        })(x, y, y1[i], data[i], data2[i], labels[i], dot, dot1[i]);
     }
     
     p = p.concat([x, y, x, y]);
