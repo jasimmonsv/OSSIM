@@ -109,7 +109,8 @@ $db->close($conn);
 			    seriesDefaults:{
 			        renderer:$.jqplot.BarRenderer, 
 			        rendererOptions:{barDirection:'horizontal', barPadding:2, barMargin:2}, 
-			        shadowAngle:135},
+			        shadowAngle:135
+			    },
 				series:[
 			        { pointLabels:{ show: false }, renderer:$.jqplot.BarRenderer }
 			    ],			        

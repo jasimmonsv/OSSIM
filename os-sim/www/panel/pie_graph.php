@@ -1,17 +1,4 @@
 <?php
-require_once ('classes/Session.inc');
-require_once ('classes/Security.inc');
-require_once 'classes/Util.inc';
-Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
-
-require_once 'ossim_db.inc';
-$db = new ossim_db();
-$conn = $db->connect();
-$data = "";
-$urls = "";
-//$colors = '"#EFBE68", "#B5CF81"';
-$colors = '"#E9967A","#9BC3CF"';
-
 function make_where ($conn,$arr) {
 	include_once("../report/plugin_filters.php");
 	$w = "";
@@ -28,13 +15,29 @@ function make_where ($conn,$arr) {
 	return ($w!="") ? "AND (".preg_replace("/ OR $/","",$w).")" : "";
 }
 
-$query = "select sum(sig_cnt) as num_events,c.id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
+require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once 'classes/Util.inc';
+Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
+
+require_once 'ossim_db.inc';
+$db = new ossim_db();
+$conn = $db->connect();
+$data = "";
+$urls = "";
+//$colors = '"#EFBE68", "#B5CF81"';
+$colors = '"#E9967A","#9BC3CF"';
+
+$range =  604800; // Week
+$forensic_link = "../forensics/base_qry_main.php?time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",time()-$range)."&time[0][3]=".date("d",time()-$range)."&time[0][4]=".date("Y",time()-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d";
+
+$query = "select sum(sig_cnt) as num_events,c.id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-$range)."' AND '".date("Y-m-d")."' TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
 
 switch(GET("type")) {
 
 	// Top 10 Events by Product Type - Last Week
 	case "source_type":
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.source_type from snort.ac_alerts_signature a,ossim.plugin p where p.id=a.plugin_id AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' group by p.source_type order by num_events desc LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.source_type from snort.ac_alerts_signature a,ossim.plugin p where p.id=a.plugin_id AND a.day BETWEEN '".date("Y-m-d",time()-$range)."' AND '".date("Y-m-d")."' group by p.source_type order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -50,7 +53,7 @@ switch(GET("type")) {
 		
 	// Top 10 Event Categories - Last Week
 	case "category":
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-604800)."' AND '".date("Y-m-d")."' group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-$range)."' AND '".date("Y-m-d")."' group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -118,7 +121,7 @@ switch(GET("type")) {
     // Antivirus - Last Week
 	case "virus":
 		$taxonomy = make_where($conn,array("Antivirus" => array("Virus_Detected")));
-		$sqlgraph = "select count(a.sid) as num_events,inet_ntoa(a.ip_src) as name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d H:i:s",time()-604800)."' AND '".date("Y-m-d H:i:s")."' $taxonomy group by a.ip_src order by num_events desc limit 10";
+		$sqlgraph = "select count(a.sid) as num_events,inet_ntoa(a.ip_src) as name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d H:i:s",time()-$range)."' AND '".date("Y-m-d H:i:s")."' $taxonomy group by a.ip_src order by num_events desc limit 10";
 		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
@@ -208,11 +211,32 @@ $db->close($conn);
 	<script class="code" type="text/javascript">
 	
 		var links = [<?=$urls?>];
-		
+
+		function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
+            //mouseX = ev.pageX; mouseY = ev.pageY;
+            console.log(neighbor);
+            url = links[neighbor.pointIndex];
+            if (typeof(url)!='undefined' && url!='') top.document.frames['main'].location.href = url;
+        }
+        isShowing = -1;
+		function myMoveHandler(ev, gridpos, datapos, neighbor, plot) {
+			if (neighbor == null) {
+	            $('#myToolTip').hide().empty();
+	            isShowing = -1;
+	        }
+	        if (neighbor != null) {
+	        	if (neighbor.pointIndex!=isShowing) {
+	            	$('#myToolTip').html(neighbor.data[0]).css({left:gridpos.x, top:gridpos.y-5}).show();
+	            	isShowing = neighbor.pointIndex
+	            }
+	        }
+        }
+            		
 		$(document).ready(function(){
 					
 			$.jqplot.config.enablePlugins = true;
 			$.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]); 
+			$.jqplot.eventListenerHooks.push(['jqplotMouseMove', myMoveHandler]);
 			
 			s1 = [<?=$data?>];
 
@@ -243,12 +267,8 @@ $db->close($conn);
 					location: 'w'
 				}
 			}); 
-
-			function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
-	            //mouseX = ev.pageX; mouseY = ev.pageY;
-	            url = links[neighbor.pointIndex];
-	            if (typeof(url)!='undefined' && url!='') top.document.frames['main'].location.href = url;
-            }
+			
+			$('#chart').append('<div id="myToolTip"></div>');
     
 		});
 	</script>
