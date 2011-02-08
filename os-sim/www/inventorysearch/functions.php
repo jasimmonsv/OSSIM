@@ -225,19 +225,19 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	//
 	$txt_tmp1=_('Events in the SIEM');
 	$txt_tmp2=_('Events in the logger');
-	if($_SESSION['inventory_search']['date_from'] != "" && $_SESSION['inventory_search']['date_from'] !='1700-01-01'){
+	if ($_SESSION['inventory_search']['date_from'] != "" && $_SESSION['inventory_search']['date_from'] !='1700-01-01'){
 		$start_week = $_SESSION['inventory_search']['date_from'];		
-	}else{
+	} else {
 		$start_week = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
 	}
-	if($_SESSION['inventory_search']['date_to'] != "" && $_SESSION['inventory_search']['date_to'] != '3000-01-01'){
+	if ($_SESSION['inventory_search']['date_to'] != "" && $_SESSION['inventory_search']['date_to'] != '3000-01-01'){
 		$end = $_SESSION['inventory_search']['date_to'];
-	}else{
+	} else {
 		$end = strftime("%Y-%m-%d", time());
 	}
-	if($start_week==strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7))&&$end==strftime("%Y-%m-%d", time())){
+	if ($start_week == strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 1)) && $end == strftime("%Y-%m-%d", time())) {
 		$txt_tmp1.=_(' (Last Week)');
-		$txt_tmp2.=_(' (Last Week)');
+		$txt_tmp2.=_(' (Last Day)');
 	}
 	$start_week_temp=$start_week;
 	$start_week.=' 00:00:00';
@@ -251,7 +251,6 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	else $sem_link = '<b>'.$sem_foundrows_week.'</b>';
 	// Anomalies
 	list($event_list,$anm_foundrows,$anm_foundrows_week,$anm_date) = Status::get_anomalies($conn,$ip);
-	
 	$row = '<tr bgcolor="'.$color.'">
 				<td class="nobborder" style="text-align:center;padding:2px"><a href="../report/host_report.php?host='.$ip.'&star_date='.$start_week_temp.'&end_date='.$end_temp.'" id="'.$ip.';'.$host->get_hostname().'" class="HostReportMenu" style="color:#17457c;font-size:15px;text-align:left"><b>'.$host_name.'</b></font></a><br><font style="color:gray">'.$net.'</font></td>
 				<td class="nobborder" style="text-align:center;padding:2px">'.$os.' '.$os_pixmap.'<br>'.implode("<br>",array_keys($services_arr)).'</td>
