@@ -86,6 +86,7 @@ if ($save == "insert") {
 			$_SESSION['views'][$name]['data'] = array();
 		}
 		$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
+		$db->close($conn);
 		$created = 1;
 	}
 // Edit the Current View
@@ -114,6 +115,7 @@ if ($save == "insert") {
 			$_SESSION['views'][$name]['data'] = array();
 		}
 		$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
+		$db->close($conn);
 		$edit = 1;
 		$msg = "<font style='color:green'>"._("The view has been successfully updated.")."</font>";
 	}
@@ -126,6 +128,7 @@ if ($save == "insert") {
 
     $_SESSION['views'][$name]['cols'] = array('SIGNATURE','DATE','IP_PORTSRC','IP_PORTDST','ASSET','PRIORITY','RELIABILITY','RISK','IP_PROTO');
     $config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
+    $db->close($conn);
     $edit = 1;
     $msg = "<font style='color:green'>"._("The view has been successfully updated.")."</font>";
 } elseif ($save == "delete") {
@@ -139,6 +142,7 @@ if ($save == "insert") {
 		$config = new User_config($conn);
 		unset($_SESSION['views'][$_SESSION['current_cview']]);
 		$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
+		$db->close($conn);
 		$_SESSION['current_cview'] = "default";
 		$deleted = 1;
 	}
@@ -183,6 +187,8 @@ if ($save == "insert") {
 		} else {
 			$msg = "<font style='color:red'>"._("Error creating a new report type.")."</font>";
 		}
+		
+		$db->close($conn);
 	} else {
 		$msg = "<font style='color:red'>"._("Error creating a new report type.")."</font>";
 	}

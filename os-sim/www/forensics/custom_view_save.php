@@ -42,4 +42,5 @@ foreach ($_SESSION as $k => $v) {
 } 
 $_SESSION['views'][$_SESSION['current_cview']]['data'] = $session_data;
 $config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
+$db->close($conn);
 ?>

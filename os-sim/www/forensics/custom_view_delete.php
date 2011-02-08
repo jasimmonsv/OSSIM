@@ -50,5 +50,6 @@ if ($name == "default") {
 	if ($name == $_SESSION['current_cview']) {
 		$_SESSION['current_cview'] = "default";
 	}
+	$db->close($conn);
 }
 ?>

@@ -140,19 +140,19 @@ class User_config {
         if ($type == 'simple') {
             $val = $value;
         } elseif ($type == 'php') {
-            //echo "<br><br><br>SET<br>";
-            //var_dump($value);
-            //echo "<br><br>";
-            //var_dump(serialize($value));
             $val = serialize($value);
         } else {
             die(ossim_error("Invalid config type: $type"));
         }
+		$params = array(
+			$login,
+            $category,
+            $name,
+            $val
+        );
+        $sql = "REPLACE INTO user_config (login, category, name, value) VALUES (?, ?, ?, ?)";
         
-        $sql = "REPLACE INTO user_config (login, category, name, value)
-        VALUES ('$login', '$category', '$name', '$val')";
-        
-        if (!$this->conn->Execute($sql)) {
+        if (!$this->conn->Execute($sql, $params)) {
             die(ossim_error($this->conn->ErrorMsg()));
         }
         $infolog = array("Tabs");

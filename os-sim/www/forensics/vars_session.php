@@ -43,6 +43,10 @@ if (!isset($_SESSION["_user"])) {
 	header("Location: $login_location");
 	exit;
 }
+// Timezone correction
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
+
 // Custom Views
 require_once('classes/User_config.inc');
 $login = Session::get_session_user();
@@ -50,11 +54,6 @@ $db_aux = new ossim_db();
 $conn_aux = $db_aux->connect();
 $config = new User_config($conn_aux);
 $_SESSION['views'] = $config->get($login, 'custom_views', 'php', "siem");
-$db_aux->close($conn_aux);
-
-// Timezone correction
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
-$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 
 // First save of default view (important!)
 if ($_SESSION['views']['default'] == "") {
@@ -67,6 +66,8 @@ if ($_SESSION['views']['default'] == "") {
 	$_SESSION['views']['default']['data'] = $session_data;
 	$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
 }
+$db_aux->close($conn_aux);
+
 if ($_SESSION['view_name_changed']) { $_GET['custom_view'] = $_SESSION['view_name_changed']; $_SESSION['view_name_changed'] = ""; $_SESSION['norefresh'] = 1; }
 else $_SESSION['norefresh'] = "";
 $custom_view = $_GET['custom_view'];
