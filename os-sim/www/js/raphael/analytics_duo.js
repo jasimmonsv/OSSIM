@@ -40,18 +40,24 @@ window.onload = function () {
     }
     // Grab the data
     var labels = [],
-        data = [];
+        data = [],
+        data2 = [],
+        y1 = [],
+        dot1 = [];
     $("#data tfoot th").each(function () {
         labels.push($(this).html());
     });
     $("#data tbody td").each(function () {
         data.push($(this).html());
     });
+    $("#data2 tbody td").each(function () {
+        data2.push($(this).html());
+    });
     
     // Draw
     var color = '#8DC41B',
     	width = 450,
-        height = 185,
+        height = 175,
         leftgutter = 0,
         bottomgutter = 20,
         topgutter = 20,
@@ -62,7 +68,9 @@ window.onload = function () {
         txt1 = {font: '10px Helvetica, Arial', fill: "#000"},
         txt2 = {font: '12px Helvetica, Arial', fill: "#000"},
         X = (width - leftgutter) / labels.length,
-        max = Math.max.apply(Math, data);
+        max1 = Math.max.apply(Math, data),
+        max2 = Math.max.apply(Math, data2);
+    var max = (max1>max2) ? max1 : max2;
     var Y = (height - bottomgutter - topgutter) / max; 
     r.drawGrid(leftgutter + X * .5 + .5, topgutter + .5, width - leftgutter - X, height - topgutter - bottomgutter, 16, 8, "#EEE");
     var path = r.path().attr({stroke: color, "stroke-width": 4, "stroke-linejoin": "round"}),
@@ -97,6 +105,7 @@ window.onload = function () {
         var dot = r.circle(x, y, 4).attr({fill: "#F2F2F2", stroke: color, "stroke-width": 2});
         blanket.push(r.rect(leftgutter + X * i, 0, X, height - bottomgutter).attr({stroke: "none", fill: "#fff", opacity: 0}));
         var rect = blanket[blanket.length - 1];
+        /*
         (function (x, y, data, lbl, dot) {
             var timer, i = 0;
             rect.hover(function () {
@@ -120,29 +129,9 @@ window.onload = function () {
                     is_label_visible = false;
                 }, 1);
             });
-            rect.click(function (event) {
-            	var d = lbl.replace(/\s.*/,'');
-            	if (d<10) d='0'+d;
-            	var m = lbl.replace(/\d+\s/,'');
-                if (m=='Jan') m="01";
-                if (m=='Feb') m="02";
-                if (m=='Mar') m="03";
-                if (m=='Apr') m="04";
-                if (m=='May') m="05";
-                if (m=='Jun') m="06";
-                if (m=='Jul') m="07";
-                if (m=='Ago') m="08";
-                if (m=='Sep') m="09";
-                if (m=='Oct') m="10";
-                if (m=='Nov') m="11";
-                if (m=='Dec') m="12";
-                if (clickNear(event,dot,12)) {
-                    url = siem_url.replace(/MM/,m).replace(/MM/,m).replace(/DD/,d).replace(/DD/,d);
-                    //console.log(url);
-                    if (url!='') top.frames['main'].location.href = url;
-                }
-            });
         })(x, y, data[i], labels[i], dot);
+        */
+        y1.push(y); dot1.push(dot);
     }
     p = p.concat([x, y, x, y]);
     bgpp = bgpp.concat([x, y, x, y, "L", x, height - bottomgutter, "z"]);
@@ -152,4 +141,94 @@ window.onload = function () {
     label[0].toFront();
     label[1].toFront();
     blanket.toFront();
+    
+    color = '#BBC6D0';
+    var path = r.path().attr({stroke: color, "stroke-width": 4, "stroke-linejoin": "round"}),
+        bgp = r.path().attr({stroke: "none", opacity: .3, fill: color}),
+        label2 = r.set(),
+        is_label_visible2 = false,
+        leave_timer2,
+        blanket2 = r.set();
+    label2.push(r.text(60, 12, "XXX Logger events").attr(txt));
+    label2.push(r.text(60, 27, "1 January 2011").attr(txt1).attr({fill: color}));
+    label2.hide();
+    var frame2 = r.popup(100, 100, label2, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
+    var p, bgpp;
+    for (var i = 0, ii = labels.length; i < ii; i++) {
+        var y = Math.round(height - bottomgutter - Y * data2[i]),
+            x = Math.round(leftgutter + X * (i + .5)),
+            t = r.text(x, height - 6, labels[i]).attr(txt).toBack();
+        if (!i) {
+            p = ["M", x, y, "C", x, y];
+            bgpp = ["M", leftgutter + X * .5, height - bottomgutter, "L", x, y, "C", x, y];
+        }
+        if (i && i < ii - 1) {
+            var Y0 = Math.round(height - bottomgutter - Y * data2[i - 1]),
+                X0 = Math.round(leftgutter + X * (i - .5)),
+                Y2 = Math.round(height - bottomgutter - Y * data2[i + 1]),
+                X2 = Math.round(leftgutter + X * (i + 1.5));
+            var a = getAnchors(X0, Y0, x, y, X2, Y2);
+            p = p.concat([a.x1, a.y1, x, y, a.x2, a.y2]);
+            bgpp = bgpp.concat([a.x1, a.y1, x, y, a.x2, a.y2]);
+        }
+        var dot = r.circle(x, y, 4).attr({fill: "#F2F2F2", stroke: color, "stroke-width": 2});
+        blanket2.push(r.rect(leftgutter + X * i, 0, X, height - bottomgutter).attr({stroke: "none", fill: "#fff", opacity: 0}));
+        var rect = blanket2[blanket2.length - 1];
+        (function (x, y, y1, data, data1, lbl, dot, dot1) {
+            var timer, i = 0;
+            rect.hover(function () {
+                clearTimeout(leave_timer2);
+                var side = "right";
+                if (x + frame2.getBBox().width > width) {
+                    side = "left";
+                }
+                var ppp = r.popup(x, y, label2, side, 1);
+                frame2.show().stop().animate({path: ppp.path}, 200 * is_label_visible2);
+                label2[0].attr({text: data1 + " Logger event" + (data == 1 ? "" : "s")}).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
+                label2[1].attr({text: lbl }).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
+
+                var ppp1 = r.popup(x, y1, label, side, 1);
+                frame.show().stop().animate({path: ppp1.path}, 200 * is_label_visible2);
+                label[0].attr({text: data + " SIEM event" + (data1 == 1 ? "" : "s")}).show().stop().animateWith(frame, {translation: [ppp1.dx, ppp1.dy]}, 200 * is_label_visible2);
+                label[1].attr({text: lbl }).show().stop().animateWith(frame, {translation: [ppp1.dx, ppp1.dy]}, 200 * is_label_visible2);
+
+                dot.attr("r", 6); dot1.attr("r", 6);
+                is_label_visible2 = true;
+            }, function () {
+                dot.attr("r", 4); dot1.attr("r", 4);
+                leave_timer2 = setTimeout(function () {
+                    frame2.hide();
+                    frame.hide();
+                    label2[0].hide();
+                    label2[1].hide();
+                    label[0].hide();
+                    label[1].hide();
+                    is_label_visible2 = false;
+                }, 1);
+            });
+            rect.click(function (event) {
+            	var h = lbl.replace(/h$/,'');
+            	if (h<10) h='0'+h;
+                if (clickNear(event,dot,12)) {
+                    url = logger_url.replace(/HH/,h).replace(/HH/,h);
+                    //console.log(url);
+                    if (url!='') top.frames['main'].location.href = url;
+                }
+                if (clickNear(event,dot1,12)) {
+                    url = siem_url.replace(/HH/,h).replace(/HH/,h);
+                    //console.log(url);
+                    if (url!='') top.frames['main'].location.href = url;
+                }
+            });            
+        })(x, y, y1[i], data[i], data2[i], labels[i], dot, dot1[i]);
+    }
+    
+    p = p.concat([x, y, x, y]);
+    bgpp = bgpp.concat([x, y, x, y, "L", x, height - bottomgutter, "z"]);
+    path.attr({path: p});
+    bgp.attr({path: bgpp});
+    frame2.toFront();
+    label2[0].toFront();
+    label2[1].toFront();
+    blanket2.toFront();
 };

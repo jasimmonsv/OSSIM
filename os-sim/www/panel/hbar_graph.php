@@ -158,7 +158,7 @@ $db->close($conn);
 			        shadowAngle:135
 			    },
 				series:[
-			        { pointLabels:{ show: false }, renderer:$.jqplot.BarRenderer }
+			        { pointLabels:{ show: false }, shadow: false, renderer:$.jqplot.BarRenderer }
 			    ],			        
 			    <? if ($colors!="") { ?>seriesColors: [ <?=$colors?> ], <? } ?>                            
 			    grid: { background: '#F5F5F5', shadow: false },

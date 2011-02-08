@@ -23,6 +23,25 @@ function SIEM_trends() {
 	return array($hours,$data);
 }
 
+function SIEM_trends_week() {
+	$data = $hours = array();
+	require_once 'ossim_db.inc';
+	$db = new ossim_db();
+	$dbconn = $db->snort_connect();
+	$sqlgraph = "SELECT COUNT(acid_event.cid) as num_events, day(timestamp) as intervalo, monthname(timestamp) as suf FROM acid_event LEFT JOIN ossim.plugin_sid ON acid_event.plugin_id=plugin_sid.plugin_id AND acid_event.plugin_sid=plugin_sid.sid WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",time()-604800)."' AND '".date("Y-m-d H:i:s")."' GROUP BY suf,intervalo ORDER BY suf,intervalo";
+	if (!$rg = & $dbconn->Execute($sqlgraph)) {
+	    print $conn->ErrorMsg();
+	} else {
+	    while (!$rg->EOF) {
+	        $hours[] = $rg->fields["intervalo"]." ".substr($rg->fields["suf"],0,3);
+	        $data[] = $rg->fields["num_events"];
+	        $rg->MoveNext();
+	    }
+	}
+	$db->close($dbconn);
+	return array($hours,$data);
+}
+
 function Logger_trends() {
 	require_once("forensics_stats.inc");
 	$data = $hours = array();
@@ -47,22 +66,36 @@ function Logger_trends() {
         <style type="text/css"> body { overflow:hidden; } </style>
 </head>
 <?php
-//$siem = (GET("type")=="siem") ? true : false; 
-//$trend = ($siem) ? SIEM_trends() : Logger_trends();
-list($hours,$trend) = SIEM_trends();
-list($hours2,$trend2) = Logger_trends();
-$max = (count($trend)>count($trend2)) ? count($trend) : count($trend2);
-if (count($trend)>count($trend2)) {
-	$max  = count($trend);
-} else {
-	$max  = count($trend2);
-	$tmp = $hours;
-	$hours = $hours2;
-	$hours2 = $hours;
-}
 // Timezone correction
 $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
+
+if (GET("type")=="siemday") { 
+    $js = "analytics";
+    list($hours,$trend) = SIEM_trends();
+    $max  = count($trend);
+    $trend2 = array();
+    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz)."&time[0][3]=".date("d",$timetz)."&time[0][4]=".date("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".date("m",$timetz)."&time[1][3]=".date("d",$timetz)."&time[1][4]=".date("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+} elseif (GET("type")=="siemweek") { 
+    $js = "analytics";
+    list($hours,$trend) = SIEM_trends_week();
+    $max  = count($trend);
+    $trend2 = array();
+    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".date("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".date("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+} else {
+    $js = "analytics_duo";
+    list($hours,$trend) = SIEM_trends();
+    list($hours2,$trend2) = Logger_trends();
+    if (count($trend)>count($trend2)) {
+        $max  = count($trend);
+    } else {
+        $max  = count($trend2);
+        $tmp = $hours;
+        $hours = $hours2;
+        $hours2 = $hours;
+    }
+    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz)."&time[0][3]=".date("d",$timetz)."&time[0][4]=".date("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".date("m",$timetz)."&time[1][3]=".date("d",$timetz)."&time[1][4]=".date("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+}
 ?>
 <body scroll="no" style="overflow:hidden">		
 	<table id="data" style="display:none">
@@ -99,12 +132,12 @@ $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correc
 	
     <script language="javascript">
         logger_url = '../sem/index.php?start=<?=urlencode(date("Y-m-d",$timetz)." HH:00:00")?>&end=<?=urlencode(date("Y-m-d",$timetz)." HH:59:59")?>';
-        siem_url = '../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=<?=date("m",$timetz)?>&time[0][3]=<?=date("d",$timetz)?>&time[0][4]=<?=date("Y",$timetz)?>&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=<?=date("m",$timetz)?>&time[1][3]=<?=date("d",$timetz)?>&time[1][4]=<?=date("Y",$timetz)?>&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics';
+        siem_url = '<?=$siem_url?>';
     </script>
-	<script src="../js/raphael/analytics.js"></script>
+	<script src="../js/raphael/<?=$js?>.js"></script>
 	<script src="../js/raphael/popup.js"></script>
     		
-	<div id="holder" style='height:300px;width:100%;margin: auto;'></div>
+	<div id="holder" style='height:100%;width:100%;margin: auto;'></div>
 
 </body>
 </html>
