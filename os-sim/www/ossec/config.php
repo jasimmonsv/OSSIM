@@ -387,7 +387,7 @@ else
 	.cont_sys {width: 85%; margin:auto; padding: 10px 0px;}
 	
 	.sys_dir {width: 350px;}
-	.sys_ignores {width: 550px; }
+	.sys_ignores {width: 350px; }
 	.sys_actions { width: 60px !important; padding: 2px 0px; }
 	
 	
@@ -396,8 +396,8 @@ else
 		text-align: left;
 	}
 	
-	#table_sys_parameters {width: 80%; text-align: left !important;}
-	#frequency { height: 18px; width: 300px;}
+	#table_sys_parameters {width: 100%; text-align: left !important;}
+	#frequency { height: 18px; width: 210px;}
 	
 	.sys_frequency {width: 150px; padding: 2px 0px;}
 	

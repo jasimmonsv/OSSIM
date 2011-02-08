@@ -27,7 +27,7 @@ if ( file_exists($path) )
 	$file_to_text    = file_get_contents ($path, false);
 	$_level_key_name = set_key_name($_level_key_name, $file_to_text);
 		
-	$pattern = "/\<rule.+id\s*=\s*\"(.*?)\".*\>/";
+	$pattern = "/\<\s*rule.+id\s*=\s*\"(.*?)\".*\>/";
 	
 	if ( preg_match_all ($pattern, $file_to_text, $ids) )
 	{
@@ -50,9 +50,13 @@ else
 $id = $child['tree']['@attributes']["id"];
 $child['tree']['@attributes']["id"] = $max_id;
 
+
+
 $index    		  = ( array_key_exists('@attributes', $child['tree']) ) ? count('@attributes') -1 : count('@attributes');
 $if_sid  		  = array("$index" => array("if_sid" => array("@attributes" => array("__level_key" => ""), "0"=>$id)));
 $new_rule['rule'] = array_merge ($child['tree'], $if_sid);   
+
+
 
 //Tree local_rules.xml
 	

@@ -231,17 +231,19 @@ else if ($tab == '#tab2')
 					<tr>	
 						<th class='sys_frequency'><?php echo _("Frequency")?></th>
 						<td class='left'><input type='text' id='frequency' name='frequency' value='<?php echo $frequency[0][0]?>'/></td>
+					</tr>
+					<tr>
+						<td class='right' colspan='2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></td>
 					</tr>	
 				</table>
 			</div>
-			
-			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
 		</div>
 			
-			<div class='cont_sys'>
+		<div class='cont_sys'>
 			<div class='headerpr'><?php echo _("Files/Directories monitored")?></div>
+		
 			<div>
-				
+					
 				<table id='table_sys_directories' width='100%'>
 					<tr>	
 						<th class='sys_dir'><?php echo _("Files/Directories")?></th>
@@ -251,7 +253,7 @@ else if ($tab == '#tab2')
 								<tr>
 									<?php 
 										foreach ($directory_checks as $k => $v)
-											echo "<th style='padding: 1px; font-size: 10px; text-align:center;'>$v</th>";
+											echo "<th style='padding: 1px; font-size: 10px; text-align:center; white-space:normal; width: 50px;'>$v</th>";
 									?>
 								</tr>
 							</table>
@@ -286,7 +288,7 @@ else if ($tab == '#tab2')
 							echo "<td>
 									<a onclick='delete_dir(\"dir_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
 									<a onclick='add_dir(\"dir_$k\");'><img src='images/add.png' align='absmiddle'/></a>	
-							     </td>";
+								 </td>";
 						echo "</tr>";
 					}
 					
@@ -295,7 +297,7 @@ else if ($tab == '#tab2')
 					</tbody>
 				</table>
 			</div>
-			
+				
 			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
 		</div>
 		
@@ -317,7 +319,7 @@ else if ($tab == '#tab2')
 							<table width='100%'>
 								<tr><th><?php echo _("Parameters")?></th></tr>
 								<tr>
-									<th class='center' style='font-size: 10px;'><?php echo _("Sregex")?></th>
+									<th style='font-size: 10px; text-align:center;'><?php echo _("Sregex")?></th>
 								</tr>
 							</table>
 						</td>
@@ -332,7 +334,7 @@ else if ($tab == '#tab2')
 						echo "<tr class='dir_tr' id='ign_$k'>";
 							echo "<td style='text-align: left;'><textarea name='".$k."_value_ign' id='".$k."_value_ign'>".$ignores[$k][0]."</textarea></td>";
 							$checked = ( !empty($ignores[$k]['@attributes']['type']) ) ? 'checked="checked"' : '';
-							echo "<td><input type='checkbox' name='".$k."_type' id='".$k."_type' $checked/></td>";
+							echo "<td style='text-align: center;'><input type='checkbox' name='".$k."_type' id='".$k."_type' $checked/></td>";
 							echo "<td>
 									<a onclick='delete_ign(\"ign_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
 									<a onclick='add_ign(\"ign_$k\");'><img src='images/add.png' align='absmiddle'/></a>
