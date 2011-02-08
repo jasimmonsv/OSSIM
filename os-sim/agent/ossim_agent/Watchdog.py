@@ -126,12 +126,12 @@ class Watchdog(threading.Thread):
             task = Task(command)
             task.Run(1, 0)
             timeout = 300
-            start = datetime.datetime.now()
+            start = datetime.now()
             plugin.start_time = float(time.time())
 
             while not task.Done():
                 time.sleep(0.1)
-                now = datetime.datetime.now()
+                now = datetime.now()
 
                 if (now - start).seconds > timeout:
                     task.Kill()
