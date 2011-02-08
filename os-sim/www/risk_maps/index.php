@@ -667,7 +667,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		
 		function get_echars(data){
 			var echars='';
-			alert(data);
+			//alert(data);
 			//alert(data.match(/&#(\d{4,5});/));
 			alert(data.match(/^[a-zA-Z]*$/));
 			//if(){
@@ -689,11 +689,11 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					elem = document.getElementById('elem').value;
 					txt = txt + urlencode(type) + ';' + urlencode(elem) + ';';
 					var temp_value=document.f.alarm_name.value;
-					alert(temp_value);
+					//alert(temp_value);
 					if(temp_value.match(/^[a-zA-Z0-9ó]$/)==null){
 						txt = txt + document.f.alarm_name.value + ';';
 					}else{
-						alert('codificandooooo');
+						//alert('codificandooooo');
 						txt = txt + urlencode(document.f.alarm_name.value) + ';';
 					}
 					txt = txt + urlencode(document.f.url.value) + ';';
