@@ -71,7 +71,7 @@ if (GET('basic')) {
 		"subtype"=>"None",
 		"match"=>"LIKE",
 		//"query"=>"SELECT DISTINCT INET_NTOA(ip_dst) AS ip FROM snort.ac_dstaddr_ipsrc WHERE INET_NTOA(ip_src) %op% ? UNION SELECT DISTINCT INET_NTOA(dst_ip) as ip FROM alarm WHERE INET_NTOA(src_ip) %op% ? UNION SELECT DISTINCT INET_NTOA(ip_src) AS ip FROM snort.ac_srcaddr_ipdst WHERE INET_NTOA(ip_dst) %op% ? UNION SELECT DISTINCT INET_NTOA(src_ip) as ip FROM alarm WHERE INET_NTOA(dst_ip) %op% ?",
-		"query"=>"SELECT DISTINCT INET_NTOA(ip_dst) AS ip FROM snort.ac_dstaddr_ipsrc WHERE INET_NTOA(ip_src) > 0 UNION SELECT DISTINCT INET_NTOA(dst_ip) as ip FROM alarm WHERE INET_NTOA(src_ip) > 0 UNION SELECT DISTINCT INET_NTOA(ip_src) AS ip FROM snort.ac_srcaddr_ipdst WHERE INET_NTOA(ip_dst) > 0 UNION SELECT DISTINCT INET_NTOA(src_ip) as ip FROM alarm WHERE INET_NTOA(dst_ip) > 0 LIMIT 500",
+		"query"=>"SELECT DISTINCT INET_NTOA(ip_dst) AS ip FROM snort.ac_dstaddr_ipsrc WHERE INET_NTOA(ip_src) > 0 UNION SELECT DISTINCT INET_NTOA(dst_ip) as ip FROM alarm WHERE INET_NTOA(src_ip) > 0 UNION SELECT DISTINCT INET_NTOA(ip_src) AS ip FROM snort.ac_srcaddr_ipdst WHERE INET_NTOA(ip_dst) > 0 UNION SELECT DISTINCT INET_NTOA(src_ip) as ip FROM alarm WHERE INET_NTOA(dst_ip) > 0",
 		"query_match"=>"boolean");
 		
 	// Network

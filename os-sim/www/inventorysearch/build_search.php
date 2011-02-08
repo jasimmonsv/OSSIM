@@ -206,7 +206,7 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 	}
 	//echo "Filter $i: ".$filter['type']." ".$filter['subtype']." ".$filter['value']." ".$filter['match']."<br>";
 	//print_r($params);
-	echo "SQL: ".$query."<br><br>";
+	//echo "SQL: ".$query."<br><br>";exit;
 	?><script type="text/javascript">$("#pbar").progressBar(<?=$perc?>);$("#progressText").html('<b><?=gettext("Filtering criteria $i")?></b>...');</script><?
 	//usleep(500000);
 	// FUNCTION MODE (special query)
