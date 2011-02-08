@@ -184,7 +184,7 @@ INSERT INTO config (conf , value) VALUES ('pass_length_max', '32');
 INSERT INTO config (conf , value) VALUES ('pass_expire_min', '0');
 INSERT INTO config (conf , value) VALUES ('pass_history', '0');
 
-INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.15');
+INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.16');
 
 INSERT INTO `config` (`conf`, `value`) VALUES
 ('customize_send_logs', NULL),
