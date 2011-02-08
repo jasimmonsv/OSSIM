@@ -108,8 +108,7 @@ else
 			}
 															
 			//Remove error message
-			
-						
+									
 			if ($('#cnf_message').length >= 1)
 			{
 				$('#cnf_message').html('');
@@ -155,6 +154,8 @@ else
 							$('textarea').elastic();
 							$('#table_sys_directories table').css('background', 'transparent');
 							$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+							$('#table_sys_ignores table').css('background', 'transparent');
+						    $('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
 						}
 						else
 						{
@@ -212,11 +213,14 @@ else
 			var data= "tab="+tab;
 			
 			if (tab == "#tab1")	
-				data += "&"+ $('form').serialize();
-			else
+				data += "&"+ $('#cnf_form_rules').serialize();
+			else if (tab == "#tab2")	
 			{
-				if (tab == "#tab3")	
-					data += "&"+"data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES'));
+				data += "&"+ $('#form_syscheck').serialize();
+			}
+			else if (tab == "#tab3")	
+			{
+				data += "&"+"data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES'));
 			}
 				
 			$.ajax({
@@ -258,6 +262,9 @@ else
 					if (status[0] != "error")
 					{
 						$('#'+id).after(status[1]);
+						$('textarea').elastic();
+						$('#table_sys_directories table').css('background', 'transparent');
+						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
 					}
 				}
 			});
@@ -275,11 +282,60 @@ else
 					$('#'+id).remove();
 					if ($('#tbody_sd tr').length <= 2)
 						add_dir();
+					else
+					{
+						$('textarea').elastic();
+						$('#table_sys_directories table').css('background', 'transparent');
+						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+					}
 				}
 			}
 		
 		}
 		
+		function add_ign(id)
+		{
+			
+			$.ajax({
+				type: "POST",
+				url: "ajax/config_actions.php",
+				data: "action=add_ignore",
+				success: function(msg){
+					
+					var status = msg.split("###");
+															
+					if (status[0] != "error")
+					{
+						$('#'+id).after(status[1]);
+						$('textarea').elastic();
+						$('#table_sys_ignores table').css('background', 'transparent');
+						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
+					}
+				}
+			});
+		}
+		
+		function delete_ign(id)
+		{
+			if ( confirm ("<?php echo _("Are you sure to delete this row")?>?") )
+			{
+				
+				if ( $('#'+id).length >= 1 )
+				{
+					$('#'+id).remove();
+					if ($('#tbody_si tr').length <= 2)
+						add_ign();
+					else
+					{
+						$('textarea').elastic();
+						$('#table_sys_ignores table').css('background', 'transparent');
+						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
+					}
+				}
+			}
+		
+		}
+					
 		
 	
 	</script>
@@ -292,17 +348,17 @@ else
 			
 			$("ul.oss_tabs li:first").addClass("active");
 			
-			<?php if ($error !== true) {?>			
+			var error = '<?php echo $error;?>';	
 			
+			if (error != true)
+			{			
 				//On Click Event
 				$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this); load_config_tab($(this).find("a").attr("href"))});
-				
 				load_config_tab("#tab1");
-				
-				<?php } else { ?>
-					$("ul.oss_tabs li a").css("cursor", "text");	
-				<?php } ?>
-						
+			}
+			else  
+				$("ul.oss_tabs li a").css("cursor", "text");	
+								
 		});
 	
 	</script>
@@ -313,11 +369,8 @@ else
 		width: 70%;
 		height: 350px;
 	}
-	
-	
-	
-	.agent_actions { width: auto;}
-	
+		
+		
 	input.button {float: none; margin:auto; padding: 0px 2px;}
 			
 	.buttons_box {	
@@ -327,19 +380,21 @@ else
 		padding-bottom: 10px;
 	}
 	
-	
 	#msg_init{ margin: 150px auto 270px auto; }
 			
 	#tab3 .button {background:none !important;}
 	
-	.cont_sys {width: 98%; margin:auto; padding: 10px 0px;}
+	.cont_sys {width: 85%; margin:auto; padding: 10px 0px;}
 	
 	.sys_dir {width: 350px;}
-	.sys_ignores {width: 450px;}
+	.sys_ignores {width: 550px; }
 	.sys_actions { width: 60px !important; padding: 2px 0px; }
 	
 	
-	#cont_tsp { padding: 10px 0px;}
+	#cont_tsp { 
+		padding: 10px 0px; 
+	}
+	
 	#table_sys_parameters {width: 80%; text-align: left;}
 	#frequency { height: 18px; width: 300px;}
 	
@@ -347,7 +402,9 @@ else
 	
 	textarea { border: solid 1px #888}
 	
-	.cont_savet2{ padding: 20px 0px 20px 0px; text-align: right; margin-right: 10px;}
+	.cont_savet2{ padding: 20px 0px 20px 0px; text-align: right; margin-right: 2px;}
+	
+	ul.oss_tabs li.active a:hover {cursor: pointer !important;} 
 
 	</style>
 	

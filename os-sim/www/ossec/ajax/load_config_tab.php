@@ -91,17 +91,16 @@ if($tab == "#tab1")
 				
 		foreach ($conf_file as $k => $v)
 		{
-			if ( preg_match("/<rules>|<\/rules>/", $v, $match) )
+			if ( preg_match("/(<\s*rules\s*>)|(<\s*\/rules\s*>)/", $v, $match) )
 			{
-				if ($match[0] == "<rules>")
+				if ( !empty($match[1]) )
 				{
 					$num_found++;
 					$start_tag++;
 					$rules[$num_found-1]['start'] = $k;
 					$rules[$num_found-1]['end']   = null;
 				}
-				
-				if ($match[0] == "</rules>")
+				elseif ( !empty($match[2]) )
 				{
 					$end_tag++;
 					$rules[$num_found-1]['end'] = $k;
@@ -213,7 +212,7 @@ else if ($tab == '#tab2')
 			"report_changes" => "Report changes", 
 			"check_all"      => "Chk all", 
 			"check_sum"      => "Chk sum", 
-			"check_sha1sum"  => "Chk aha1sum", 
+			"check_sha1sum"  => "Chk sha1sum", 
 			"check_size"     => "Chk size", 
 			"check_owner"    => "Chk owner", 
 			"check_group"    => "Chk group", 
@@ -236,7 +235,7 @@ else if ($tab == '#tab2')
 				</table>
 			</div>
 			
-			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?=_("save")?>' onclick="save_sys();"/></div>
+			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
 		</div>
 			
 			<div class='cont_sys'>
@@ -252,9 +251,7 @@ else if ($tab == '#tab2')
 								<tr>
 									<?php 
 										foreach ($directory_checks as $k => $v)
-										{
-											echo "<th style='width: 50px; font-size: 10px;'>$v</th>";
-										}
+											echo "<th style='padding: 1px; font-size: 10px; text-align:center;'>$v</th>";
 									?>
 								</tr>
 							</table>
@@ -265,8 +262,6 @@ else if ($tab == '#tab2')
 					<tbody id='tbody_sd'>
 					<?php
 					
-					$directories = array();
-					
 					if ( empty($directories) ) 
 					{
 						$k           = 0;
@@ -276,7 +271,7 @@ else if ($tab == '#tab2')
 					foreach ($directories as $k => $v)
 					{
 						echo "<tr class='dir_tr' id='dir_$k'>";
-							echo "<td style='text-align: left;'><textarea id='".$k."_value'>".$directories[$k][0]."</textarea></td>";
+							echo "<td style='text-align: left;'><textarea name='".$k."_value_dir' id='".$k."_value_dir'>".$directories[$k][0]."</textarea></td>";
 							echo "<td><table width='100%'>
 								  <tr>";
 							$i = 0;
@@ -284,7 +279,7 @@ else if ($tab == '#tab2')
 							{
 								$i++;
 								$checked = ( !empty($directories[$k]['@attributes'][$j]) ) ? 'checked="checked"' : '';
-								echo "<td style='width: 50px;'><input type='checkbox' id='".$j."_".$k."_".$i."' name='".$j."_".$k."_".$i."' $checked/></td>";
+								echo "<td style=' text-align:center;'><input type='checkbox' id='".$j."_".$k."_".$i."' name='".$j."_".$k."_".$i."' $checked/></td>";
 							}
 							echo "</tr>
 								  </table></td>";
@@ -301,7 +296,7 @@ else if ($tab == '#tab2')
 				</table>
 			</div>
 			
-			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?=_("save")?>' onclick="save_sys();"/></div>
+			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
 		</div>
 		
 		<div class='cont_sys'>
@@ -318,7 +313,14 @@ else if ($tab == '#tab2')
 				<table id='table_sys_ignores' width='100%'>
 					<tr>	
 						<th class='sys_ignores'><?php echo _("Files/Directories")?></th>
-						<th class='sys_parameters'><?php echo _("Type")?></th>
+						<td class='sys_parameters'>
+							<table width='100%'>
+								<tr><th><?php echo _("Parameters")?></th></tr>
+								<tr>
+									<th style='width: 50px; font-size: 10px;'><?php echo _("Sregex")?></th>
+								</tr>
+							</table>
+						</td>
 						<th class='sys_actions'><?php echo _("Actions")?></th>
 					</tr>
 					
@@ -328,8 +330,9 @@ else if ($tab == '#tab2')
 					foreach ($ignores as $k => $v)
 					{
 						echo "<tr class='dir_tr' id='ign_$k'>";
-							echo "<td style='text-align: left;'><textarea id='".$k."_value'>".$ignores[$k][0]."</textarea></td>";
-							echo "<td><textarea id='".$k."_type'>".$ignores[$k]['type']."</textarea></td>";
+							echo "<td style='text-align: left;'><textarea name='".$k."_value_ign' id='".$k."_value_ign'>".$ignores[$k][0]."</textarea></td>";
+							$checked = ( !empty($ignores[$k]['@attributes']['type']) ) ? 'checked="checked"' : '';
+							echo "<td><input type='checkbox' name='".$k."_type' id='".$k."_type' $checked/></td>";
 							echo "<td>
 									<a onclick='delete_ign(\"ign_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
 									<a onclick='add_ign(\"ign_$k\");'><img src='images/add.png' align='absmiddle'/></a>
@@ -342,7 +345,7 @@ else if ($tab == '#tab2')
 				</table>
 			</div>
 						
-			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?=_("save")?>' onclick="save_sys();"/></div>
+			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
 		</div>
 		
 	</form>

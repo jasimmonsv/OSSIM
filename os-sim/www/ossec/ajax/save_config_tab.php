@@ -36,13 +36,18 @@ require_once ('classes/Util.inc');
 require_once ('../conf/_conf.php');
 require_once ('../utils.php');
 
-$error   = false;
-
+$error      = false;
 $path  		= $ossec_conf;
 $path_tmp   = "/tmp/".uniqid()."_tmp.conf";
 
+if ( @copy ($path , $path_tmp) == false )
+{
+	echo "error###"._("Failure to update")." <b>$ossec_conf</b> (1)";
+	exit();
+}
 
-$tab     = POST('tab');
+$tab = POST('tab');
+
 
 if($tab == "#tab1")
 {
@@ -55,7 +60,7 @@ if($tab == "#tab1")
 	$disabled_rules    = array_diff($all_rules, $rules_enabled);
 	
 	$conf_file 		   = file_get_contents($ossec_conf);
-	
+	$conf_file         = formatXmlString($conf_file);
 	$pattern   		   = '/[\r?\n]+\s*/';
 	$conf_file         = preg_replace($pattern, "\n", $conf_file);
 	$conf_file         = explode("\n", trim($conf_file));
@@ -94,7 +99,7 @@ if($tab == "#tab1")
 						
 		for ($i=$size-1; $i>0; $i--)
 		{
-			if ( preg_match("/<\/ossec_config>/", $conf_file[$i]) )
+			if ( preg_match("/<\s*ossec_config\s*>/", $conf_file[$i]) )
 			{
 				unset($conf_file[$i]);
 				$aux       = array_slice($copy_cf, $i);
@@ -104,64 +109,174 @@ if($tab == "#tab1")
 			else
 				unset($conf_file[$i]);
 		}
-			
 	}
-	
-	if ( @copy ($path , $path_tmp) == false )
-		echo "error###"._("Failure to update")." <b>$ossec_conf</b> (1)";
-	else
-	{  
-		$conf_file_str = implode("\n", $conf_file);
-		$output        = formatXmlString($conf_file_str);
 		
-		if (@file_put_contents($path, $output, LOCK_EX) == false)
-		{
-			@unlink ($path);
-			@copy ($path_tmp, $path);
-			echo "error###"._("Failure to update")." <b>$ossec_conf</b> (2)";
-		}
-		else
-			echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
-			
-		@unlink ($path_tmp);
+	
+	$conf_file_str = implode("\n", $conf_file);
+	$output        = formatXmlString($conf_file_str);
+	
+	if (@file_put_contents($path, $output, LOCK_EX) == false)
+	{
+		@unlink ($path);
+		@copy ($path_tmp, $path);
+		echo "error###"._("Failure to update")." <b>$ossec_conf</b> (2)";
 	}
-	
-	
+	else
+		echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
+		
 }
 else if($tab == "#tab2")
 {
+	$info_error  = null;
+	$directories = array();
+	$ignores     = array();
+	
+	$dir_checks_names = array("realtime", "report_changes", "check_all", "check_sum","check_sha1sum", "check_size","check_owner","check_group","check_perm");
+		
+	unset($_POST['tab']);
+	
+	$node_sys  = "<syscheck>";
+	
+	$frequency    = POST('frequency'); 
+	ossim_valid($frequency, OSS_DIGIT, 'illegal:' . _("Frequency"));
+			
+	if ( ossim_error() ) 
+	{
+		$info_error[] = ossim_get_error();
+		ossim_clean_error();
+	}
+	else
+		$node_sys .= "<frequency>$frequency</frequency>";
+	
+	unset($_POST['frequency']);
+	
+	$dir = 0;
+	$ign = 0;
+	
+	foreach ($_POST as $k => $v)
+	{
+		if ( preg_match('/(.*)_value_dir/', $k, $match) )
+		{
+			$dir++;
+			$keys_dir[$match[1]] = $v;
+			ossim_valid($v, OSS_ALPHA, OSS_PUNC_EXT, OSS_SLASH, 'illegal:' . _("Directory/File monitored"));
+			if ( ossim_error() )
+			{
+				$info_error[] = ossim_get_error().". Input num. $ign"; 
+				ossim_clean_error();
+			}
+		}
+		else if ( preg_match('/(.*)_value_ign/', $k, $match) )
+		{
+			$ign++;
+			$keys_ign[$match[1]] = $v;
+			ossim_valid($v, OSS_ALPHA, OSS_PUNC_EXT, OSS_SLASH, 'illegal:' . _("Directory/File ignored"));
+			if ( ossim_error() )
+			{
+				$info_error[] = ossim_get_error().". Input num. $ign"; 
+				ossim_clean_error();
+			}
+		}	
+	}
 
+	if ( !empty($info_error) )
+	{
+		$info_error	= "<div style='text-align:left; padding-left: 60px;'>"._("We Found the following errors").":</div><div style='padding:10px 5px 10px 80px; text-align:left;'>".implode( "<br/>", $info_error)."</div>";
+		echo "error###".$info_error;
+		exit();
+	}	
+	
+	
+	foreach ($keys_dir as $k => $v)
+	{
+		$node_sys  .= "<directories";
+		for ($i=0; $i<=9; $i++)
+		{
+			$name = $dir_checks_names[$i]."_".$k."_".($i+1);
+			if ( isset($_POST[$name]) )
+				$node_sys .= " ".$dir_checks_names[$i]."=\"yes\""; 
+		
+		}
+		$node_sys  .= ">$v</directories>";
+	
+	}
+	
+	foreach ($keys_ign as $k => $v)
+	{
+		$node_sys  .= "<ignore";
+		$name = $k."_type";
+		if ( isset($_POST[$name]) )
+				$node_sys .= " type=\"sregex\""; 
+		$node_sys  .= ">$v</ignore>";
+	}
+	
+	$node_sys .= "</syscheck>";
+	
+	
+	$conf_file   = file_get_contents($ossec_conf);
+	$pattern     = '/\s*[\r?\n]+\s*/';
+	$conf_file   = preg_replace($pattern, "", $conf_file);
+	$copy_cf     = $conf_file;
+	
+	
+	$pattern     = array('/<\/\s*syscheck\s*>/');
+	$replacement = array("</syscheck>\n");
+	$conf_file   = preg_replace($pattern, $replacement, $conf_file);
+	
+	
+	preg_match_all('/<\s*syscheck\s*>.*<\/syscheck>/', $conf_file, $match);
+	
+	$size_m    = count($match[0]);
+	$unique_id = uniqid();
+	
+	if ($size_m > 0)
+	{
+		for ($i=0; $i<$size_m-1; $i++)
+		{
+			$pattern   = trim($match[0][$i]);
+			$copy_cf   = str_replace($pattern, "", $copy_cf);
+		}
+		
+		$pattern   = trim($match[0][$size_m-1]);
+		$copy_cf   = str_replace($pattern, $unique_id, $copy_cf);
+	}
+	else
+		$copy_cf  =  preg_replace("/<\/\s*ossec_config\s*>/", "$unique_id</ossec_config>", $copy_cf, 1);
+	
+	
+	$copy_cf   = preg_replace("/$unique_id/", $node_sys, $copy_cf);
+	$output    = formatXmlString($copy_cf);
+
+
+	if (file_put_contents($path, $output, LOCK_EX) == false)
+	{
+		@unlink ($path);
+		@copy ($path_tmp, $path);
+		echo "error###"._("Failure to update")." <b>$ossec_conf</b>";
+	}
+	else
+		echo "1###<b>$ossec_conf</b> "._("updated sucessfully");
+	
+		
 }
 else if($tab == "#tab3")
 {
-	$aux_path  = explode("/", $ossec_conf);
-	$filename  = $aux_path[count($aux_path)-1]; 
-	$file_tmp  = uniqid($filename)."_tmp.conf";
-	$path      = $ossec_conf;
-	$path_tmp  = "/tmp/".$file_tmp; 
-	$data      = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
-
-	if (copy ($path , $path_tmp) == false )
-		echo "error###"._("Error to update")." <b>$ossec_conf</b> (1)";
-	else
+	$data = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
+	
+	if ( @file_put_contents($path, $data, LOCK_EX) == false )
 	{
-		if ( @file_put_contents($path, $data, LOCK_EX) == false )
-		{
-			@unlink ($path);
-			@copy ($path_tmp, $path);
-			echo "error###"._("Error to update")." <b>$ossec_conf</b> (2)";
-		}
-		else
-		{
-			echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
-		}
-		
-		@unlink($path_tmp);	
+		@unlink ($path);
+		@copy ($path_tmp, $path);
+		echo "error###"._("Error to update")." <b>$ossec_conf</b> (2)";
 	}
+	else
+		echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
 }
 else
 	echo "error###"._("Error: Illegal actions");
+	
 
+@unlink($path_tmp);	
 
 
 
