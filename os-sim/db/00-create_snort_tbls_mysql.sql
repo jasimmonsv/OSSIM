@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS `acid_event` (
   `ossim_asset_dst` int(11) default '1',
   `ossim_risk_c` int(11) default '1',
   `ossim_risk_a` int(11) default '1',
+	`ossim_correlation` tinyint(1) default '0',
   `plugin_id` int(11) default NULL,
   `plugin_sid` int(11) default NULL,  
   PRIMARY KEY  (`sid`,`cid`,`timestamp`),
