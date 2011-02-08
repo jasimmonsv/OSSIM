@@ -228,7 +228,7 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	if ($_SESSION['inventory_search']['date_from'] != "" && $_SESSION['inventory_search']['date_from'] !='1700-01-01'){
 		$start_week = $_SESSION['inventory_search']['date_from'];		
 	} else {
-		$start_week = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
+		$start_week = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 1));
 	}
 	if ($_SESSION['inventory_search']['date_to'] != "" && $_SESSION['inventory_search']['date_to'] != '3000-01-01'){
 		$end = $_SESSION['inventory_search']['date_to'];
