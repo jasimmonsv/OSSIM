@@ -186,13 +186,45 @@ $week2 = Incident::search_count($conn);
 $values2 = $today.",".$yday.",".$ago2.",".$week.",".$week2;
 //
 $db->close($conn);
-
+// Timezone correction
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
+//
+$alarm_urls = "'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-86400)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-172800)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-604800)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-1209600)."&date_to=".date("Y-m-d",$timetz)."'";
 ?>  
 	<script class="code" type="text/javascript">
 	
+		var links = [<?=$alarm_urls?>];
+
+		function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
+            //mouseX = ev.pageX; mouseY = ev.pageY;
+            url = links[neighbor.pointIndex];
+            if (neighbor.seriesIndex==1) url = '../incidents/index.php?status=&hmenu=Tickets&smenu=Tickets';
+            if (typeof(url)!='undefined' && url!='') top.frames['main'].location.href = url;
+        }
+		function myMoveHandler(ev, gridpos, datapos, neighbor, plot) {
+			if (neighbor == null) {
+	            $('#myToolTip').hide().empty();
+	            isShowing = -1;
+	        }
+	        if (neighbor != null) {
+	        	if (neighbor.pointIndex!=isShowing) {
+	            	$('#myToolTip').html(neighbor.data[1]).css({left:gridpos.x, top:gridpos.y-5}).show();
+	            	isShowing = neighbor.pointIndex
+	            }
+	        }
+        }
+        
 		$(document).ready(function(){
-			$.jqplot.config.enablePlugins = true;		
 			
+			$.jqplot.config.enablePlugins = true;		
+			$.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]); 
+			$.jqplot.eventListenerHooks.push(['jqplotMouseMove', myMoveHandler]);
+						
 			line1 = [<?=$values?>];
 			line2 = [<?=$values2?>];
 			
@@ -212,6 +244,8 @@ $db->close($conn);
 			        yaxis:{min:0, tickOptions:{formatString:'%d'}}
 			    }
 			});
+			
+			$('#chart').append('<div id="myToolTip"></div>');
 
 		});
 	</script>
@@ -219,7 +253,7 @@ $db->close($conn);
     
     
   </head>
-	<body style="overflow:hidden">
+	<body style="overflow:hidden" scroll="no">
 		<div id="chart" style="width:100%; height: 290px;"></div>
 	</body>
 </html>

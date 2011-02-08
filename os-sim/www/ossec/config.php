@@ -393,9 +393,10 @@ else
 	
 	#cont_tsp { 
 		padding: 10px 0px; 
+		text-align: left;
 	}
 	
-	#table_sys_parameters {width: 80%; text-align: left;}
+	#table_sys_parameters {width: 80%; text-align: left !important;}
 	#frequency { height: 18px; width: 300px;}
 	
 	.sys_frequency {width: 150px; padding: 2px 0px;}

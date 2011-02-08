@@ -64,7 +64,7 @@ if (count($trend)>count($trend2)) {
 $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 ?>
-<body scroll="no">		
+<body scroll="no" style="overflow:hidden">		
 	<table id="data" style="display:none">
         <tfoot>
             <tr>

@@ -129,7 +129,7 @@ $db->close($conn);
 
     
   </head>
-	<body style="overflow:hidden">
+	<body style="overflow:hidden" scroll="no">
 		<div id="chart" style="width:100%; height: 250px;"></div>
 	</body>
 </html>

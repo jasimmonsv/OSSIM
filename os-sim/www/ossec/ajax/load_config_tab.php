@@ -317,7 +317,7 @@ else if ($tab == '#tab2')
 							<table width='100%'>
 								<tr><th><?php echo _("Parameters")?></th></tr>
 								<tr>
-									<th style='width: 50px; font-size: 10px;'><?php echo _("Sregex")?></th>
+									<th class='center' style='font-size: 10px;'><?php echo _("Sregex")?></th>
 								</tr>
 							</table>
 						</td>

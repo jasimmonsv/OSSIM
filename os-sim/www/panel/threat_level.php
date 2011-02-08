@@ -108,7 +108,7 @@ $db->close($conn);
 	   });   
    });
 </script>
-<body>
+<body style="overflow:hidden" scroll="no">
 <table border="0" cellpadding="0" cellpadding="0" width="100%">
 <tr>
 	<td valign="top" align="center" style="padding-top:20px">
