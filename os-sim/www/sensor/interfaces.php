@@ -64,6 +64,7 @@ $has_kismet       = intval(GET('has_kismet'));
 $vuln_user        = GET('vuln_user');
 $vuln_pass        = GET('vuln_pass');
 $vuln_port        = GET('vuln_port');
+$vuln_scans       = GET('vuln_scans');
 
 $base_port = ($nfsen_sensors[$name] != "") ? $nfsen_sensors[$name]['port'] : get_nfsen_baseport($nfsen_sensors);
 $base_type = ($nfsen_sensors[$name] != "") ? $nfsen_sensors[$name]['type'] : "netflow";
@@ -78,6 +79,7 @@ ossim_valid($submit, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Submit"));
 ossim_valid($vuln_user, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Vuln User"));
 ossim_valid($vuln_pass, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Vuln Password"));
 ossim_valid($vuln_port, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Vuln port"));
+ossim_valid($vuln_scans, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Vuln Max Simultaneous Scans"));
 
 if (ossim_error()) {
     die(ossim_error());
@@ -415,7 +417,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 		
         <tr id="vuln_scanner_option" style="display:<?=(($properties["has_vuln_scanner"]=="1") ? "visible":"none"); //  && trim($local_ip)!=$sensor?>">
             <td colspan="5" style="text-align:left;padding-left:152px;" class="nobborder">
-                <table width="50%">
+                <table width="90%">
                     <tr>
                         <th><?=_("Vuln Scanner Options")?></th>
                     </tr>
@@ -439,6 +441,12 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
                                     <td class="nobborder" style="text-align:right;paddin-right:5px;"><?=_("Port");?>:</td>
 									<td class="nobborder">
 										<input type="text" name="vuln_port" value="<?=(($vuln_scanner_options["port"]!="")? $vuln_scanner_options["port"]:$GLOBALS["CONF"]->db_conf["nessus_port"])?>"/>
+									</td>
+                                </tr>
+                                <tr>
+                                    <td class="nobborder" style="text-align:right;paddin-right:5px;"><?=_("Max Simultaneous Scans");?>:</td>
+									<td class="nobborder">
+										<input type="text" name="vuln_scans" value="<?=$vuln_scanner_options["max_scans"]?>"/>
 									</td>
                                 </tr>
                             </table>

@@ -224,9 +224,8 @@ if ($debug_mode == 1) {
 /* Print the current view number and # of rows */
 $qs->PrintResultCnt();
 echo '
-  <script src="js/jquery.flot.pack.js" language="javascript" type="text/javascript"></script>
+  <script src="../js/jquery.flot.pie.js" language="javascript" type="text/javascript"></script>
   ';
-if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) echo '<script src="../js/excanvas.pack.js" language="javascript" type="text/javascript" ></script>';
 echo '<FORM METHOD="post" NAME="PacketForm" id="PacketForm" ACTION="base_stat_alerts_graph.php">';
 $qro->PrintHeader();
 $i = 0;

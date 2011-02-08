@@ -36,11 +36,12 @@ function PrintBASESubHeader($page_title, $page_name, $back_link, $refresh = 0, $
 <HTML>
   <HEAD><meta http-equiv="Content-Type" content="text/html; charset=' . gettext("iso-8859-1") . '">';
     if ($html_no_cache == 1) echo '<META HTTP-EQUIV="pragma" CONTENT="no-cache">';
-    echo '<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />';
+    //echo '<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />';
 	if ($refresh == 1 && !$_SESSION['norefresh']) PrintFreshPage($refresh_stat_page, $stat_page_refresh_time);
     if (@$_COOKIE['archive'] == 0) echo '<TITLE>' . gettext("Forensics Console " . $BASE_installID) . ': ' . $page_title . '</TITLE>';
     else echo '<TITLE>' . gettext("Forensics Console " . $BASE_installID) . ': ' . $pagegettext("Forensics Console " . $BASE_installID) . ' -- ARCHIVE</TITLE>';
     echo '<LINK rel="stylesheet" type="text/css" HREF="' . $BASE_urlpath . '/styles/' . $base_style . '">
+		<!--[if IE]><script language="javascript" type="text/javascript" src="../js/jqplot/excanvas.js"></script><![endif]-->
 		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
         </HEAD>
         <BODY>';

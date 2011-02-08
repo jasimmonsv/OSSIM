@@ -499,7 +499,7 @@ else {
        //$nextscan = $user_time = switchTime_TimeZone( $nextscan, "user", "TZdate" );
        $nextscan = date("Y-m-d H:i:s",strtotime($nextscan));
        
-        if(preg_match('/\d+/', $user)) {
+        if(preg_match('/^\d+$/', $user)) {
             list($entities_all, $num_entities) = Acl::get_entities($dbconn, $user);
             $user = $entities_all[$user]['name'];
         }

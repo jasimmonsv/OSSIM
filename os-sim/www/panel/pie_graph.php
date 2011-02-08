@@ -192,7 +192,7 @@ $db->close($conn);
 <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	  <title>Pie Charts</title>
-	  <!--[if IE]><script language="javascript" type="text/javascript" src="jqplot/excanvas.js"></script><![endif]-->
+	  <!--[if IE]><script language="javascript" type="text/javascript" src="../js/jqplot/excanvas.js"></script><![endif]-->
 	  
 	  <link rel="stylesheet" type="text/css" href="../js/jqplot/jquery.jqplot.css" />
 		

@@ -655,9 +655,6 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
 <script src="../js/datepicker.js" type="text/javascript"></script>
 <? $ipsearch=1; include ("../host_report_menu.php") ?>
-<?php
-if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) echo '<script src="../js/excanvas.pack.js" language="javascript" type="text/javascript" ></script>';
-?>
 <script>
 	var url = new Array(50)
 	function showTooltip(x, y, contents, link) {
