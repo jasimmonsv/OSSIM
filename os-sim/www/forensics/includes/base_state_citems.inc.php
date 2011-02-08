@@ -860,9 +860,9 @@ class TimeCriteria extends MultipleElementCriteria {
         	$m = ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") ? $this->criteria[$i][2] : "01";
         	$d = ($this->criteria[$i][3] != " " && $this->criteria[$i][3] != "") ? $this->criteria[$i][3] : "01";
         	$h = ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") ? $this->criteria[$i][5] : "00";
-        	$m = ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") ? $this->criteria[$i][6] : "00";
+        	$i = ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") ? $this->criteria[$i][6] : "00";
         	$s = ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") ? $this->criteria[$i][7] : "00";
-        	$time = strtotime("$y-$m-$d $h:$m:$s")+(3600*$tz);
+        	$time = strtotime("$y-$m-$d $h:$i:$s")+(3600*$tz);
         	if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") $utc_criteria[$i][4] = date("Y",$time);
         	if ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") $utc_criteria[$i][2] = date("m",$time);
         	if ($this->criteria[$i][3] != " " && $this->criteria[$i][3] != "") $utc_criteria[$i][3] = date("d",$time);

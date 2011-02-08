@@ -235,6 +235,7 @@ my $isTop100Scan       = FALSE;
 my $primaryAuditcheck  = "";
 my $vuln_incident_threshold = $nessus_vars{'vulnerability_incident_threshold'};
 my $job_id_to_log = "";
+my $server_slot = 1;
 
 logwriter("out - threshold = $vuln_incident_threshold",5);
 
@@ -478,6 +479,7 @@ sub select_job {
     #$sql = qq{ SELECT id, hostname, TYPE, site_code, server_feedtype FROM vuln_nessus_servers 
     #    WHERE enabled='1' AND status='A' AND ( max_scans - current_scans > 5 )
     #    ORDER BY ( max_scans - current_scans ) DESC };
+    
     $sql = qq{ SELECT port, user, PASSWORD, id, hostname, TYPE, site_code, server_feedtype FROM vuln_nessus_servers 
         WHERE enabled='1' AND status='A' };
     $sth_sel = $dbh->prepare( $sql );
@@ -508,8 +510,6 @@ sub select_job {
             $sql_filter .= "AND t2.site_code='$serv_code' ";
         }
 
-
-
         # CHECK FOR ASSIGNED JOBS TO SERVER / ZONE
         #$sql = qq{  SELECT t1.id, t1.name, t1.job_TYPE, t1.meth_TARGET, t1.scan_ASSIGNED, 
         #    t1.scan_PRIORITY, t2.site_code, failed_attempts
@@ -535,12 +535,36 @@ sub select_job {
         $sth_sel = $dbh->prepare( $sql );
         $sth_sel->execute(  );
 
-        my ( $job_id, $job_name, $job_type, $job_targets, $job_assigned, $job_priority,
-            $times_failed ) = $sth_sel->fetchrow_array(  );
+        my ( $job_id, $job_name, $job_type, $job_targets, $job_assigned, $job_priority, $times_failed ) = $sth_sel->fetchrow_array(  );
         $sth_sel->finish;
         my $job_code = "";
+        
+        
+        # see the free slots
+        my $sql_slots = "SELECT ( max_scans - current_scans) FROM vuln_nessus_servers WHERE id='$serverid'";
+        $sth_sel = $dbh->prepare( $sql_slots );
+        $sth_sel->execute();
+        my ($free_slots) = $sth_sel->fetchrow_array();
+        $sth_sel->finish;
+        
+        if($free_slots<$server_slot) {
+            $sql = qq{ select NOW() + INTERVAL 15 Minute as next_scan  };
 
-        if ( $job_id ) {
+            $sth_sel = $dbh->prepare( $sql );
+            $sth_sel->execute(  );
+            my ( $next_run ) = $sth_sel->fetchrow_array(  );
+            $sth_sel->finish;
+
+            $next_run  =~ s/://g;
+            $next_run  =~ s/-//g;
+            $next_run  =~ s/\s//g;
+
+            logwriter( "\tNot available scan slot fnextscan=$next_run", 4 );
+
+            $sql = qq{ UPDATE vuln_jobs SET status="S", scan_NEXT='$next_run', meth_Wcheck='Not available scan slots' WHERE id='$job_id' };
+            safe_db_write ( $sql, 1 );
+        }
+        elsif ( $job_id ) {
 
             logwriter( "id=$job_id\tname=$job_name\ttype=$job_type\ttarget=$job_targets\t"
                 ."\tpriority=$job_priority", 5 );
@@ -560,7 +584,6 @@ sub select_job {
             run_job ( $job_id, $serverid );        #RUN ONE JOB THEN QUIT
             return;
         }
-
     }
     logwriter( "No work in scan queues to process", 4 );
     #exit;
@@ -581,7 +604,7 @@ sub run_job {
     }
 
     #UPDATE SERVER COUNT OF RUNNING SCANS
-    $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans+5 WHERE id=$serverid };
+    $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans+$server_slot WHERE id=$serverid };
     safe_db_write ( $sql, 4 );            #use insert/update routine
 
     my $startdate = getCurrentDateTime("datetime");
@@ -756,7 +779,7 @@ sub setup_scan {
      }
 
     #UPDATE SERVER COUNT OF RUNNING SCANS
-    $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans-5 WHERE id=$serverid };
+    $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans-$server_slot WHERE id=$serverid AND current_scans>=$server_slot};
     safe_db_write ( $sql, 4 );            #use insert/update routine
 
     if (!$nessusok && !$scan_timeout) {
@@ -4398,7 +4421,7 @@ sub timeout {
     $sth_sel->execute(  );
     $serverid = $sth_sel->fetchrow_array(  );
 
-    $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans-5 WHERE id=$serverid AND current_scans>0};
+    $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans-$server_slot WHERE id=$serverid AND current_scans>=$server_slot };
     logwriter( $sql, 5 );
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute(  );

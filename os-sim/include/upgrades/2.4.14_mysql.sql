@@ -121,9 +121,6 @@ CREATE TABLE IF NOT EXISTS host_properties_changes (
 use ossim;
 UPDATE config SET value="2011-02-01" WHERE conf="last_update";
 
-use snort;
-ALTER TABLE acid_event ADD `ossim_correlation` TINYINT( 1 ) DEFAULT  '0';
-
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file
 REPLACE INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.14');

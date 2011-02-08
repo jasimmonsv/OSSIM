@@ -437,8 +437,11 @@ REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql
 (1426, 'SIEM/Logger Web Server events', 'SIEM Web Server events', 'SIEM/List.php', 'Number of Events:top:text:OSS_DIGIT:25:250;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:', ' AND plugin.source_type = ''Web Server'' ', 5),
 (1427, 'SIEM/Logger Wireless Security/Management events', 'SIEM Wireless Security/Management events', 'SIEM/List.php', 'Number of Events:top:text:OSS_DIGIT:25:250;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:', ' AND plugin.source_type = ''Wireless Security/Management'' ', 2)
 
+use snort;
+ALTER TABLE acid_event ADD `ossim_correlation` TINYINT( 1 ) DEFAULT  '0';
+
 use ossim;
-UPDATE config SET value="2011-02-07" WHERE conf="last_update";
+UPDATE config SET value="2011-02-08" WHERE conf="last_update";
 
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file

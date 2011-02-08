@@ -147,7 +147,7 @@ class Sensor {
     }
     function get_vuln_scanner_options($conn, $sensor) {
         $result = array();
-        $query = OssimQuery("SELECT port, user, PASSWORD FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
+        $query = OssimQuery("SELECT port, user, PASSWORD, max_scans FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } 
@@ -160,8 +160,8 @@ class Sensor {
         return $result;
     }
     
-    function update_vuln_nessus_servers($conn, $sensor, $user, $password, $port, $enabled) {
-        $query = "UPDATE vuln_nessus_servers SET user='$user', PASSWORD='$password', port = '$port', enabled = '$enabled', current_scans = 0
+    function update_vuln_nessus_servers($conn, $sensor, $user, $password, $port, $vuln_max_scans, $enabled) {
+        $query = "UPDATE vuln_nessus_servers SET user='$user', PASSWORD='$password', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0
                           WHERE hostname='$sensor'";
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
