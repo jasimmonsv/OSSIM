@@ -411,7 +411,7 @@ function page (direction) {
 	else if (direction == "first") var p = 1;
 	else if (direction.match(/^\d+$/)) var p = direction; // from input
 	if (p > 0 && p <= <?=$last_page?>) {
-		document.getElementById('results').innerHTML = "<img src='../pixmaps/loading.gif'> <?=_("Loading...")?>";
+		document.getElementById('results').innerHTML = "<img src='../pixmaps/loading.gif' width='20'> <?=_("Loading...")?>";
 		$.ajax({
 			type: "GET",
 			url: "session_result.php",
