@@ -559,7 +559,7 @@ sub select_job {
             $next_run  =~ s/-//g;
             $next_run  =~ s/\s//g;
 
-            logwriter( "\tNot available scan slot fnextscan=$next_run", 4 );
+            logwriter( "\tNot available scan slot nextscan=$next_run", 4 );
 
             $sql = qq{ UPDATE vuln_jobs SET status="S", scan_NEXT='$next_run', meth_Wcheck='Not available scan slots' WHERE id='$job_id' };
             safe_db_write ( $sql, 1 );
@@ -3654,7 +3654,7 @@ sub get_server_credentials {
     my ( $select_id, $weight ) = @_;
 
     if ( ! is_number( $weight ) ) {
-        $weight = 5;                #CRON JOBS USE 5 SLOTS PER SCAN
+        $weight = $server_slot;                #CRON JOBS USE $server_slot SLOTS PER SCAN
     }
 
     my ($sql, $sql1, $sth_sel, $sth_upd, $tmpserverid);
@@ -3668,16 +3668,17 @@ sub get_server_credentials {
     $sth_sel->execute;
     my ($tmp_serverid, $tmp_max, $tmp_current, $remaining);
     while(($tmp_serverid, $tmp_max, $tmp_current)=$sth_sel->fetchrow_array) {
+        logwriter("serverid: $tmp_serverid, max scans: $tmp_max, current scans: $tmp_current", 4);
         if ( is_number($tmp_serverid) && $tmp_max >= $weight ) {
-            $remaining = $tmp_max - $tmp_current - $weight;        #REQUIRE 5 SLOTS FOR CRON SCAN
-            if ( $remaining >= 1 ) {
+            $remaining = $tmp_max - $tmp_current;        #REQUIRE $server_slot SLOTS FOR CRON SCAN
+            if ( $remaining >= $server_slot ) {
                 $sql = qq{ SELECT hostname, port, user, password FROM vuln_nessus_servers WHERE id=$tmp_serverid };
                 logwriter( $sql, 5 );
                 $sth_sel = $dbh->prepare( $sql );
                 $sth_sel->execute;
                 ($nessushost, $nessusport, $nessususer, $nessuspassword)=$sth_sel->fetchrow_array;
                 $sth_sel->finish;
-                # overlay credentials with ossim conf file
+                # overlay credentials with ossim conf file 
                 $nessusport = $CONFIG{'NESSUSPORT'}; 
                 $nessususer = $CONFIG{'NESSUSUSER'};
                 $nessuspassword = $CONFIG{'NESSUSPASSWORD'};
