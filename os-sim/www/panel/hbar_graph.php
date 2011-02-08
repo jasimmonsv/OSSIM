@@ -13,6 +13,7 @@ $colors = '"#E9967A","#9BC3CF"';
 
 $range =  604800; // Week
 $forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",time()-$range)."&time[0][3]=".date("d",time()-$range)."&time[0][4]=".date("Y",time()-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+$forensic_ulink = "../forensics/base_stat_alerts.php?clear_allcriteria=1&time_range=week&sort_order=occur_d&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",time()-$range)."&time[0][3]=".date("d",time()-$range)."&time[0][4]=".date("Y",time()-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&hmenu=Forensics&smenu=Forensics";
 
 switch(GET("type")) {       
 
@@ -26,7 +27,6 @@ switch(GET("type")) {
 		} else {
 			$i=1;
 		    while (!$rg->EOF) {
-		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $values .= "[".$rg->fields["num_events"].",$i],"; $i++;
 		        $ips .= "'".$rg->fields["name"]."',";
                 $urls .= "'".$forensic_link."&category%5B0%5D=12&category%5B1%5D=97&ip_addr[0][0]=+&ip_addr[0][1]=ip_src&ip_addr[0][2]=%3D&ip_addr[0][3]=".$rg->fields["name"]."&ip_addr[0][8]=+&ip_addr[0][9]=+&ip_addr_cnt=1',";
@@ -36,7 +36,43 @@ switch(GET("type")) {
 		$colors = '"#F08080"';
 		break;
         
-        
+
+    // Top 5 promiscuous hosts - Last Week
+	case "promiscuous":
+		$sqlgraph = "select count(distinct(ip_dst)) as num_events,INET_NTOA(ip_src) as name from snort.acid_event WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",time()-604800)."' AND '".date("Y-m-d H:i:s")."' group by ip_src order by num_events desc limit 10";
+		//print_r($sqlgraph);
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+			$i=1;
+		    while (!$rg->EOF) {
+		        $values .= "[".$rg->fields["num_events"].",$i],"; $i++;
+		        $ips .= "'".$rg->fields["name"]."',";
+                $urls .= "'".$forensic_link."&ip_addr[0][0]=+&ip_addr[0][1]=ip_src&ip_addr[0][2]=%3D&ip_addr[0][3]=".$rg->fields["name"]."&ip_addr[0][8]=+&ip_addr[0][9]=+&ip_addr_cnt=1',";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '"#F080B9"';
+		break;
+
+    // Top 5 hosts with multiple events - Last Week
+	case "unique":
+		$sqlgraph = "select count(distinct plugin_id,plugin_sid) as num_events,INET_NTOA(ip_src) as name from snort.acid_event WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",time()-604800)."' AND '".date("Y-m-d H:i:s")."' group by ip_src order by num_events desc limit 10";
+		//print_r($sqlgraph);
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+			$i=1;
+		    while (!$rg->EOF) {
+		        $values .= "[".$rg->fields["num_events"].",$i],"; $i++;
+		        $ips .= "'".$rg->fields["name"]."',";
+                $urls .= "'".$forensic_ulink."&ip_addr[0][0]=+&ip_addr[0][1]=ip_src&ip_addr[0][2]=%3D&ip_addr[0][3]=".$rg->fields["name"]."&ip_addr[0][8]=+&ip_addr[0][9]=+&ip_addr_cnt=1',";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '"#80BEF0"';
+		break;
+				        
 	default:
 		// ['Sony',7], ['Samsumg',13.3], ['LG',14.7], ['Vizio',5.2], ['Insignia', 1.2]
 		$values = "0";
@@ -93,10 +129,24 @@ $db->close($conn);
             url = links[neighbor.pointIndex];
             if (typeof(url)!='undefined' && url!='') top.frames['main'].location.href = url;
         }
+		function myMoveHandler(ev, gridpos, datapos, neighbor, plot) {
+			if (neighbor == null) {
+	            $('#myToolTip').hide().empty();
+	            isShowing = -1;
+	        }
+	        if (neighbor != null) {
+	        	if (neighbor.pointIndex!=isShowing) {
+	            	$('#myToolTip').html(neighbor.data[0]).css({left:gridpos.x+60, top:gridpos.y-5}).show();
+	            	isShowing = neighbor.pointIndex
+	            }
+	        }
+        }
         
 		$(document).ready(function(){
+		
 			$.jqplot.config.enablePlugins = true;		
 			$.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]); 
+			$.jqplot.eventListenerHooks.push(['jqplotMouseMove', myMoveHandler]);
 			
 			line1 = [<?=$values?>];
 			
