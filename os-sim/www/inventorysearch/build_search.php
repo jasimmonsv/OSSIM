@@ -47,6 +47,14 @@ $conn = $db->connect();
 
 $sensors = $hosts = $ossim_servers = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
+$allowed_hosts_aux = Host::get_list($conn); // Allowed internal hosts
+$allowed_hosts = array();
+
+// Load allowed hosts and all internal hosts to check perms and do not use hostAllowed -> Improve speed!
+foreach ($allowed_hosts_aux as $h) {
+	$allowed_hosts[$h->get_ip()]++;
+}
+
 $networks = "";
 /*$_nets = Net::get_all($conn);
 $_nets_ips = $_host_ips = $_host = array();
@@ -218,7 +226,8 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 				$errorlog[$i] = "CRITERIA $i: <font color='red'><b>ERROR</b></font>. in function <b>'".$found[1]."'</b>: '$ips_add'";
 			} else {
 				foreach ($ips_add as $ip) {
-					if (Session::hostAllowed($conn,$ip)) {
+					//if (Session::hostAllowed($conn,$ip)) {
+					if ($hosts[$ip] == "" || ($hosts[$ip] != "" && $allowed_hosts[$ip] != "")) {
 						$results[$i][] = $ip;
 						$has_criterias[$filter['type'].$filter['subtype']][$ip] = true;
 					}
@@ -238,7 +247,8 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 			//print $conn->ErrorMsg();
 		} else {
 			while (!$rs->EOF) {
-				if (Session::hostAllowed($conn,$rs->fields["ip"])) {
+				//if (Session::hostAllowed($conn,$rs->fields["ip"])) {
+				if ($hosts[$rs->fields["ip"]] == "" || ($hosts[$rs->fields["ip"]] != "" && $allowed_hosts[$rs->fields["ip"]] != "")) {
 					$results[$i][] = $rs->fields["ip"];
 					$has_criterias[$filter['type'].$filter['subtype']][$rs->fields["ip"]] = true;
 				}
@@ -324,7 +334,7 @@ if (count($host_list) < 1 && !$errors) {
 		<td class="nobborder">
 			<table id="results" width="100%" class="noborder" style="background-color:white<? if (GET('userfriendly')) echo ";border:1px solid #CCCCCC"?>" align="center">
 			<? if (GET('userfriendly')) { basic_header(); }?>
-	<? $i = 0; foreach ($_SESSION['inventory_search']['result']['list'] as $host) {?>
+	<? $i = 0; foreach ($_SESSION['inventory_search']['result']['list'] as $host) { ?>
 		<? if ($i < $max_rows) { ?>
 		<?
 		if (GET('userfriendly')) host_row_basic($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips,$i);
