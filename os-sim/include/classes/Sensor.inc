@@ -463,12 +463,13 @@ class Sensor {
         /*if ($net_list = Net::get_list($conn)) {
             foreach($net_list as $net) {*/
             	//if (Net::is_ip_in_cache_cidr($conn, $host_ip, $net->get_ips())) {
-        		if (Net::is_ip_in_cache_cidr($conn, $host_ip)) {
-                    $query = "SELECT ip
+        		if (count($cidrs = Net::get_cache_cidr($conn, $host_ip)) > 0) {
+                    $netname = Net::get_name_by_ip($conn, $cidrs[0]);
+        			$query = "SELECT ip
                               FROM sensor, net_sensor_reference 
                               WHERE name = sensor_name AND net_name = ?";
                     if (!$rs = & $conn->Execute($query, array(
-                        $net->get_name()
+                        $netname
                     ))) {
                         print $conn->ErrorMsg();
                     } elseif (!$rs->EOF) {
