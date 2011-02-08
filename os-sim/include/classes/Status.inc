@@ -442,9 +442,8 @@ class Status {
 		$i = 0;
 		while (!feof($fp)) {
 			$line = trim(fgets($fp));
-			if ($line != "" && !preg_match("/^Accepts two epoch\_timestamps/",$line)) {
+			if ($line != "" && preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'/",$line,$found)) {
 				$result[] = $line;
-				preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='[^']+'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $line, $found);
 				$d = strftime("%e %b", strtotime($found[2]));
 				$sem_wplot_y[$d]++;
 				$i++;

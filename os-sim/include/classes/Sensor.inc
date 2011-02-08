@@ -460,9 +460,10 @@ class Sensor {
             return $sensor_ip;
         }
         /* read from network table */
-        if ($net_list = Net::get_list($conn)) {
-            foreach($net_list as $net) {
-                if (Net::is_ip_in_cache_cidr($conn, $host_ip, $net->get_ips())) {
+        /*if ($net_list = Net::get_list($conn)) {
+            foreach($net_list as $net) {*/
+            	//if (Net::is_ip_in_cache_cidr($conn, $host_ip, $net->get_ips())) {
+        		if (Net::is_ip_in_cache_cidr($conn, $host_ip)) {
                     $query = "SELECT ip
                               FROM sensor, net_sensor_reference 
                               WHERE name = sensor_name AND net_name = ?";
@@ -482,8 +483,8 @@ class Sensor {
                         return $sensor_ip;
                     }
                 }
-            }
-        }
+            /*}
+        }*/
         /* read from /etc/ossim.conf */
         if ($sensor_ip == '') {
             $sensor_ip = $conf->get_conf("ntop_link");
