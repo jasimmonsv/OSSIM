@@ -315,7 +315,7 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 						}
 						else
 						{
-							$action = "<a onclick=\"logout('".$user->get_id()."');\"><img src='../pixmaps/menu/logout.gif' alt='"._("Logout")." ".$user->get_login()."' title='"._("Logout")." ".$user->get_login()."'/></a>";	
+							$action = "<a onclick=\"logout('".$user->get_id()."');\"><img src='../pixmaps/menu/logout.gif' alt='"._("Logout")." ".$user->get_login()."' title='"._("Forced logout")." ".$user->get_login()."'/></a>";	
 							$me = null;
 						}						
 						$gi             = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);

@@ -120,7 +120,7 @@ $db->close($conn);
 		<tr><td class="green"> <?=_("Low")?> </td></tr>
 		</table>
 	</td>
-	<td align="right"><div id="chart3" class="plot" style="width:300px;height:170px;"></div></td>
+	<td align="right"><div id="chart3" class="plot" style="width:300px;height:170px;cursor:hand" onclick="top.frames['topmenu'].location.href='../top.php?option=0&soption=1&url=control_panel%2Fglobal_score.php%3Fhmenu%3DRisk%26smenu%3DMetrics'"></div></a></td>
 </tr>
 </table>
 </body>

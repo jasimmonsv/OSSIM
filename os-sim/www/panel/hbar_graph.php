@@ -52,7 +52,7 @@ switch(GET("type")) {
 		        $rg->MoveNext();
 		    }
 		}
-		$colors = '"#F080B9"';
+		$colors = '"#8EC336"';
 		break;
 
     // Top 5 hosts with multiple events - Last Week
