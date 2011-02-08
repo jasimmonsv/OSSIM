@@ -45,6 +45,7 @@ Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
         <title>Theat Level</title>
+        <!--[if IE]><script language="javascript" type="text/javascript" src="../js/jqplot/excanvas.js"></script><![endif]-->
 		<script language="javascript" type="text/javascript" src="../js/jquery-1.3.2.min.js"></script> 
 		<script language="javascript" type="text/javascript" src="../js/jqplot/jquery.jqplot.js"></script> 
 		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.meterGaugeRenderer.js"></script> 

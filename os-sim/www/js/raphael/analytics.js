@@ -207,14 +207,16 @@ window.onload = function () {
                 }, 1);
             });
             rect.click(function (event) {
+            	var h = lbl.replace(/h$/,'');
+            	if (h<10) h='0'+h;
                 if (clickNear(event,dot,12)) {
-                    url = logger_url.replace(/HH/,lbl.replace(/h$/,''));
-                    console.log(url);
+                    url = logger_url.replace(/HH/,h).replace(/HH/,h);
+                    //console.log(url);
                     if (url!='') top.frames['main'].location.href = url;
                 }
                 if (clickNear(event,dot1,12)) {
-                    url = siem_url.replace(/HH/,lbl.replace(/h$/,''));
-                    console.log(url);
+                    url = siem_url.replace(/HH/,h).replace(/HH/,h);
+                    //console.log(url);
                     if (url!='') top.frames['main'].location.href = url;
                 }
             });            

@@ -97,13 +97,12 @@ foreach($sensor_list as $sensor) if (in_array($sensor->get_ip(), explode(",",$al
   <title> <?php echo gettext("Vulnmeter"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
   <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
-  <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
+  <!--[if IE]><script language="javascript" type="text/javascript" src="../js/jqplot/excanvas.js"></script><![endif]-->
   <script language="JavaScript" src="../js/jquery.flot.pie.js"></script>
   <script type="text/javascript" src="../js/vulnmeter.js"></script>
   <style type="text/css">

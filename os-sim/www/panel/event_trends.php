@@ -60,6 +60,9 @@ if (count($trend)>count($trend2)) {
 	$hours = $hours2;
 	$hours2 = $hours;
 }
+// Timezone correction
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 ?>
 <body scroll="no">		
 	<table id="data" style="display:none">
@@ -95,8 +98,8 @@ if (count($trend)>count($trend2)) {
     </table>
 	
     <script language="javascript">
-        logger_url = '';
-        siem_url = '../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=<?=date("m",time()-$range)?>&time[0][3]=<?=date("d",time()-$range)?>&time[0][4]=<?=date("Y",time()-$range)?>&time[0][5]=HH&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics';
+        logger_url = '../sem/index.php?start=<?=urlencode(date("Y-m-d",$timetz)." HH:00:00")?>&end=<?=urlencode(date("Y-m-d",$timetz)." HH:59:59")?>';
+        siem_url = '../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=<?=date("m",$timetz)?>&time[0][3]=<?=date("d",$timetz)?>&time[0][4]=<?=date("Y",$timetz)?>&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=<?=date("m",$timetz)?>&time[1][3]=<?=date("d",$timetz)?>&time[1][4]=<?=date("Y",$timetz)?>&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics';
     </script>
 	<script src="../js/raphael/analytics.js"></script>
 	<script src="../js/raphael/popup.js"></script>

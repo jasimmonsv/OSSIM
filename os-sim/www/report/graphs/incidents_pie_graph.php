@@ -44,10 +44,9 @@ require_once 'classes/Security.inc';
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="">
 <head>
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+<!--[if IE]><script language="javascript" type="text/javascript" src="../../js/jqplot/excanvas.js"></script><![endif]-->
 <script type="text/javascript" src="../../js/jquery-1.3.2.min.js"></script>
-<!--[if IE]><script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script><![endif]-->
 <script type="text/javascript" src="../../js/jquery.flot.pie.js"></script>
 </head>
 <body scroll="no">

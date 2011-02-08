@@ -618,7 +618,7 @@ function plot_graphic($id, $height, $width, $xaxis, $yaxis, $xticks, $xlabel, $d
 	//var_dump($xticks);
     $urls="";
     $plot = '<script language="javascript" type="text/javascript">';
-    $plot.= '$( function () {';
+    $plot.= '$(document).ready( function() {';
     $plot.= 'var options = { ';
     $plot.= 'lines: { show:true, labelHeight:0, lineWidth: 0.7},';
     $plot.= 'points: { show:false, radius: 2 }, legend: { show: false },';

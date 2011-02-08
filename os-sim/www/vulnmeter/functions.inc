@@ -1489,7 +1489,7 @@ else {
           $meth_TARGETorig = $meth_TARGET;
           $meth_TARGET = trim(nl2br((strlen($meth_TARGET)>=100) ? substr($meth_TARGET,0,100)."..." : $meth_TARGET));
           
-          if(preg_match('/\d+/', $nusername)) { 
+          if(preg_match('/^\d+$/', $nusername)) { 
             list($entities_all, $num_entities) = Acl::get_entities($dbconn, $nusername);
             $nusername = $entities_all[$nusername]['name'];
           }

@@ -39,13 +39,14 @@ switch(GET("type")) {
         
 	default:
 		// ['Sony',7], ['Samsumg',13.3], ['LG',14.7], ['Vizio',5.2], ['Insignia', 1.2]
-		$data = "['"._("Unknown Type")."', 100]";
+		$values = "0";
+		$ips = "'"._("No IPs found")."'";
 }
 $values = preg_replace("/,$/","",$values);
 $ips = preg_replace("/,$/","",$ips);
 if ($values=="") {
 	$values = "0";
-	$ips = _("No IPs found");
+	$ips = "'"._("No IPs found")."'";
 }
 $db->close($conn);
 ?>
@@ -54,7 +55,7 @@ $db->close($conn);
 <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	  <title>Bar Charts</title>
-	  <!--[if IE]><script language="javascript" type="text/javascript" src="jqplot/excanvas.js"></script><![endif]-->
+	  <!--[if IE]><script language="javascript" type="text/javascript" src="../js/jqplot/excanvas.js"></script><![endif]-->
 	  
 	  <link rel="stylesheet" type="text/css" href="../js/jqplot/jquery.jqplot.css" />
 		

@@ -1374,6 +1374,40 @@ EOT;
                   $discovery .="</table>";
                   $discovery .="</td></tr>";
             }
+            else {
+                  $discovery .= "<tr><td>"._("Make this scan job visible for:")."</td>";
+
+                  $discovery .= "<td style=\"text-align:left;\">";
+                  $discovery .= "<table class=\"noborder\">";
+                  $discovery .= "<tr><td class=\"nobborder\">"._("User:")."&nbsp;";
+                  $discovery .= "</td><td style=\"text-align:left;\" class=\"nobborder\">";
+                  $discovery .= "<select name=\"user\" id=\"user\" onchange=\"switch_user('user');return false;\">";
+                  $discovery .= "<option value=\"none\">"._("Not assign")."</option>";
+                  $discovery .= "<option value=\"".Session::get_session_user()."\"".(($editdata["username"]==Session::get_session_user() || $user_selected==Session::get_session_user())? " selected":"").">".Session::get_session_user()."</option>";
+                  $discovery .= "</select>";
+                  if(preg_match("/pro|demo/i",$version)){
+                      $user_details = Acl::get_users($dbconn, Session::get_session_user());
+
+                      $discovery .= "<tr><td class=\"nobborder\">&nbsp;</td><td class=\"nobborder\">"._("OR")."</td></tr>";
+                      $discovery .= "<tr><td class=\"nobborder\">"._("Entity:")."</td><td class=\"nobborder\">";
+                      $entities_types_aux = Acl::get_entities_types($dbconn);
+                      $entities_types = array();
+
+                      foreach ($entities_types_aux as $etype) { 
+                        $entities_types[$etype['id']] = $etype;
+                      }
+                      list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+                      $discovery .="<select name=\"entity\" id=\"entity\" onchange=\"switch_user('entity');return false;\">";
+                      $discovery .="<option value=\"none\">"._("Not assign")."</option>";
+                      foreach ($entities_all as $entity) if (in_array($entity["id"],$user_details["entities"])) {
+                         $discovery .= "<option value=\"".$entity["id"]."\"".(($editdata["username"]==$entity["id"] || $entity_selected==$entity["id"])? " selected":"").">".$entity["name"]." [".$entities_types[$entity["type"]]["name"]."]</option>";
+                      }
+                      $discovery .="</select>";
+                      $discovery .="</td></tr>";
+                  }
+                  $discovery .="</table>";
+                  $discovery .="</td></tr>";
+            }
        }
       $discovery .= "<tr><td>"._("Send an email notification when finished:");
       $discovery .= "</td>";
@@ -1386,10 +1420,10 @@ EOT;
       
       $discovery .= "<tr><td valign=\"top\" align=\"Right\" width=\"20%\" class=\"noborder\"><br>";
       $discovery .= "<input type=\"checkbox\" name=\"hosts_alive\" value=\"1\"".(((count($editdata)<=1 && intval($hosts_alive)==1) || intval($editdata['meth_CRED'])==1)? " checked":"").">"._("Only scan hosts that are alive")."<br>("._("greatly speeds up the scanning process").")<br><br>";
-      if (Session::am_i_admin())
-        $discovery .= "<input type=\"checkbox\" name=\"scan_locally\" value=\"1\"".(((count($editdata)<=1 && intval($scan_locally)==1) || intval($editdata['authorized'])==1)? " checked":"").">"._("Pre-Scan locally")."<br>("._("do not pre-scan from scanning sensor").")";
-      else
-        $discovery .= "<input type=\"hidden\" name=\"scan_locally\" value=\"0\">";
+      //if (Session::am_i_admin())
+      $discovery .= "<input type=\"checkbox\" name=\"scan_locally\" value=\"1\"".(((count($editdata)<=1 && intval($scan_locally)==1) || intval($editdata['authorized'])==1)? " checked":"").">"._("Pre-Scan locally")."<br>("._("do not pre-scan from scanning sensor").")";
+      //else
+      // $discovery .= "<input type=\"hidden\" name=\"scan_locally\" value=\"0\">";
 $discovery .= <<<EOT
         <select name="tarSel" style="display:none;" onClick="if (this.options[this.selectedIndex].value != 'null') {
           showLayer('idTarget', this.options[this.selectedIndex].value ) }">
@@ -2220,7 +2254,15 @@ EOT;*/
         echo "<table class=\"noborder\" width=\"400\" style=\"background-color:transparent;\">";
         echo "<tr><td class=\"nobborder\" style=\"text-align:left;\"><b>"._("Errors Found").":</b></td></tr>";
         if(count($notallowed)>0) {
-            echo "<tr><td class=\"nobborder\" style=\"text-align:left;\">"._("User")." <b>$username</b> "._("is not allowed for the following targets").":</td></tr>";
+            if(!preg_match("/^\d+$/", $username)) {
+                echo "<tr><td class=\"nobborder\" style=\"text-align:left;\">"._("User")." <b>$username</b> "._("is not allowed for the following targets").":</td></tr>";
+            }
+            else {
+                $entity_query = "SELECT name FROM acl_entities WHERE id=$username";
+                $result = $dbconn->execute($entity_query);
+                list($username) = $result->fields;
+                echo "<tr><td class=\"nobborder\" style=\"text-align:left;\">"._("Entiy")." <b>$username</b> "._("is not allowed for the following targets").":</td></tr>";
+            }
             foreach ($notallowed as $target) {
                 echo "<tr><td class=\"nobborder\" style=\"text-align:left;padding-left:5px;\">- <b>$target</b></tr>";
             }
