@@ -180,7 +180,8 @@ else
 fi
 
 # ossec perms
-chmod o+rx           /var/ossec
+chown www-data:ossec /var/ossec
+chmod g+rx           /var/ossec
 chown www-data:ossec /var/ossec/rules
 chmod -R o+r         /var/ossec/rules
 chmod u+rwx          /var/ossec/rules
@@ -189,11 +190,11 @@ chown www-data:ossec /var/ossec/etc
 chown www-data:ossec /var/ossec/etc/ossec.conf
 chmod u+rw           /var/ossec/etc/ossec.conf
 
-chmod u+w            /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
-chown www-data       /var/ossec/rules/local_rules.xml /var/ossec/etc/ossec.conf
+chmod u+w            /var/ossec/rules/local_rules.xml
+chown www-data:ossec /var/ossec/rules/local_rules.xml 
 chown www-data:ossec /var/ossec/agentless
 
-if [ -f "/var/ossec/agentless/.passlist" ];then
+if [ -f "/var/ossec/agentless/.passlist" ]; then
 	chown www-data:ossec /var/ossec/agentless/.passlist
 	chmod u+rwx          /var/ossec/agentless/.passlist
 fi
