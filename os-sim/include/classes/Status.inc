@@ -148,8 +148,8 @@ class Status {
 		// IP Filtering
 		list($ip_where,$ip_where_src,$ip_where_dst) = Status::get_sim_ip_filter($ip_src,$ip_dst);
 		
-		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.sid, plugin_sid.name as sig_name, acid_event.cid, acid_event.plugin_sid, timestamp, acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto, acid_event.ossim_type, acid_event.ossim_priority, acid_event.ossim_reliability, acid_event.ossim_asset_src, acid_event.ossim_asset_dst, acid_event.ossim_risk_c, acid_event.ossim_risk_a, acid_event.layer4_sport, acid_event.layer4_dport FROM acid_event FORCE INDEX (timestamp) LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 AND (timestamp >='$from_date 00:00:00')$sensor_where $ip_where ORDER BY timestamp DESC";
-		//echo $sql."<br>";
+		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.sid, plugin_sid.name as sig_name, acid_event.cid, acid_event.plugin_sid, timestamp, acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto, acid_event.ossim_type, acid_event.ossim_priority, acid_event.ossim_reliability, acid_event.ossim_asset_src, acid_event.ossim_asset_dst, acid_event.ossim_risk_c, acid_event.ossim_risk_a, acid_event.layer4_sport, acid_event.layer4_dport FROM acid_event FORCE INDEX (timestamp) LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 AND (timestamp >='".date("Y-m-d")." 00:00:00')$sensor_where $ip_where ORDER BY timestamp DESC";
+		
         $foundrows = 0;
 		$highrisk = "-";
 		$list = array();
@@ -442,8 +442,9 @@ class Status {
 		$i = 0;
 		while (!feof($fp)) {
 			$line = trim(fgets($fp));
-			if ($line != "" && preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'/",$line,$found)) {
+			if ($line != "" && !preg_match("/^Accepts two epoch\_timestamps/",$line)) {
 				$result[] = $line;
+				preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='[^']+'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $line, $found);
 				$d = strftime("%e %b", strtotime($found[2]));
 				$sem_wplot_y[$d]++;
 				$i++;
@@ -553,17 +554,27 @@ class Status {
 		else $risknum = $risks[$highrisk];
 		return array($list,$foundrows,$highrisk,$risknum);
 		*/
-		if (preg_match("/\/(\d+)/",$host)) {
-			$exp = CIDR::expand_CIDR($host,"SHORT","IP");
-			$host_s_range = $exp[0];
-			$host_e_range = end($exp);
-			$ip_where = "(report_id>=INET_ATON('$host_s_range') AND report_id<=INET_ATON('$host_e_range'))";
+		if($host!='any'){
+			if (preg_match("/\/(\d+)/",$host)) {
+				$exp = CIDR::expand_CIDR($host,"SHORT","IP");
+				$host_s_range = $exp[0];
+				$host_e_range = end($exp);
+				$ip_where = "(report_id>=INET_ATON('$host_s_range') AND report_id<=INET_ATON('$host_e_range'))";
+			}
+			else $ip_where = "report_id=INET_ATON('$host')";
+		}else{
+			$ip_where='';
 		}
-		else $ip_where = "report_id=INET_ATON('$host')";
+		
+		
 		if ($date_from != "" && $date_to != "") {
 			$date_where = " AND scantime >= '".preg_replace("/(\s|\-|\:)/","",$date_from)."000000' AND scantime <= '".preg_replace("/(\s|\-|\:)/","",$date_to)."'";
 		} else $date_where = "";
-		$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results WHERE $ip_where $date_where ORDER BY risk DESC,scantime";
+		if($date_where==''&&$ip_where==''){
+			$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results ORDER BY risk DESC,scantime";
+		}else{
+			$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results WHERE $ip_where $date_where ORDER BY risk DESC,scantime";
+		}
         //echo $sql;
 		$highrisk = "-";
 		$lastdate = "-";
@@ -604,17 +615,23 @@ class Status {
 		}
 		
 		// Network or Host
-		if (preg_match("/\/(\d+)/",$host)) {
-			$exp = CIDR::expand_CIDR($host,"SHORT","IP");
-			$host_s_range = $exp[0];
-			$host_e_range = end($exp);
-			$ip_where = "(e.ip_src>=INET_ATON('$host_s_range') AND e.ip_src<=INET_ATON('$host_e_range')) OR (e.ip_dst>=INET_ATON('$host_s_range') AND e.ip_dst<=INET_ATON('$host_e_range'))";
+		if($host!='any'){
+			if (preg_match("/\/(\d+)/",$host)) {
+				$exp = CIDR::expand_CIDR($host,"SHORT","IP");
+				$host_s_range = $exp[0];
+				$host_e_range = end($exp);
+				$ip_where = "(e.ip_src>=INET_ATON('$host_s_range') AND e.ip_src<=INET_ATON('$host_e_range')) OR (e.ip_dst>=INET_ATON('$host_s_range') AND e.ip_dst<=INET_ATON('$host_e_range'))";
+			}
+			else $ip_where = "e.ip_src=INET_ATON('$host') OR e.ip_dst=INET_ATON('$host')";
+		}else{
+			$ip_where='';
 		}
-		else $ip_where = "e.ip_src=INET_ATON('$host') OR e.ip_dst=INET_ATON('$host')";
-		
 		//$sql = "SELECT SQL_CALC_FOUND_ROWS timestamp, ossim_priority as priority FROM acid_event e WHERE e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
-        $sql = "SELECT count(*) as total, max(timestamp) as maxtime, max(ossim_priority) as priority FROM acid_event e WHERE e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
-		
+		if($ip_where==''){
+			$sql = "SELECT count(*) as total, max(timestamp) as maxtime, max(ossim_priority) as priority FROM acid_event e WHERE e.plugin_id=1525 $sensor_where ORDER BY e.timestamp";
+		}else{
+			$sql = "SELECT count(*) as total, max(timestamp) as maxtime, max(ossim_priority) as priority FROM acid_event e WHERE e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
+		}
 		$max_date = "-";
 		$max_prio = 0;
 		$prionum = 0;
@@ -632,7 +649,11 @@ class Status {
 		}
 		
 		if ($foundrows > 0) {
-			$sql = "SELECT count(*) as total FROM acid_event e WHERE e.ossim_priority=$max_prio AND e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
+			if($ip_where==''){
+				$sql = "SELECT count(*) as total FROM acid_event e WHERE e.ossim_priority=$max_prio AND e.plugin_id=1525 $sensor_where ORDER BY e.timestamp";
+			}else{
+				$sql = "SELECT count(*) as total FROM acid_event e WHERE e.ossim_priority=$max_prio AND e.plugin_id=1525 $sensor_where AND ($ip_where) ORDER BY e.timestamp";
+			}
 			//echo $sql;
 			if (!$rs = & $conn->Execute($sql)) {
 	            print $conn->ErrorMsg();
