@@ -133,7 +133,7 @@ var finish = false;
 		matches[i+1] = "";
 		criteria_count++;
 		syncflag[criteria_count] = false;
-		save_values(); // Save text inputs with values
+		//save_values(); // Save text inputs with values
 		setcriteria_type(i+1,"",0);
 		setcriteria_subtype(i+1,"",0);
 		setcriteria_match(i+1,"",0);
@@ -141,7 +141,7 @@ var finish = false;
 	}
 	
 	function removecriteria (ind) {
-		save_values(); // Save text inputs with values
+		//save_values(); // Save text inputs with values
 		for (i = ind; i < criteria_count; i++) {
 			criterias[i] = criterias[i+1];
 			subcriterias[i] = subcriterias[i+1];
@@ -164,18 +164,15 @@ var finish = false;
 	function reloadcriteria () {
 		// loading
 		document.getElementById('msg').innerHTML = "<?php echo _("Loading data..."); ?>";
-		//
+
 		var or_selected = ""; var and_selected = "";
 		if (operator == "or") { or_selected = "selected"; and_selected = ""; }
 		else { or_selected = ""; and_selected = "selected"; }
-		//document.getElementById('criteria_form').innerHTML = "<tr><td class='nobborder'></td><td class='nobborder'><input type='radio' name='operator' id='operator' value='and' "+and_selected+" onchange='setcriteria_op(this.value)'><?=_('Match \"all\" of the following')?><input type='radio' name='operator' id='operator' value='or' "+or_selected+" onchange='setcriteria_op(this.value)'><?=_('Match \"any\" of the following')?></td></tr>";
 		document.getElementById('criteria_form').innerHTML = "<tr><td class='nobborder'><b><?=_("Description")?></b>: <input type='text' name='description' id='description' onchange='description=this.value' value='"+description+"' style='width:300px'></td></tr>";
-		document.getElementById('criteria_form').innerHTML += "<tr><td class='nobborder'><?=_('If')?> <select name='operator' id='operator' onchange='setcriteria_op(this.value)'><option value='and' "+and_selected+"><?=_("ALL")?><option value='or' "+or_selected+"><?=_("ANY")?></select> <?=_('of the following conditions are met')?>:</td></tr>";
+		document.getElementById('criteria_form').innerHTML += "<tr><td class='nobborder'><?=_('If')?> <select name='operator' id='operator'><option value='and' "+and_selected+"><?=_("ALL")?><option value='or' "+or_selected+"><?=_("ANY")?></select> <?=_('of the following conditions are met')?>:</td></tr>";
 		for (i = 1; i <= criteria_count; i++) {
 			document.getElementById('criteria_form').innerHTML += criteria_html(i);
 		}
-		//document.getElementById('criteria_form').innerHTML += "<tr><td class='nobborder' style='text-align:right'><a href='' onclick='addcriteria("+criteria_count+");return false;'><img src='../pixmaps/plus-small.png' alt='Add Criteria' title='Add Criteria'></a></td><td class='nobborder'><i><?=_("Add another Criteria")?></i></td></tr>";
-		//document.getElementById('criteria_form').innerHTML += "<tr><td class='nobborder'></td><td class='nobborder' style='text-align:right'><input type='button' value='+' class='lbutton' style='font-size:11px;font-weight:bold;width:20px' onclick='addcriteria("+criteria_count+")'></td></tr>";
 		load_dates();
 	}
 	
@@ -329,50 +326,22 @@ var finish = false;
 		values[i] = "";
 		values2[i] = "";
 		matches[i] = "";
-		$.ajax({
-			type: "GET",
-			url: "setvars.php?i="+i+"&type="+criterias[i]+"&subtype="+subcriterias[i]+"&match="+matches[i],
-			data: "",
-			success: function(msg){
-				
-			}
-		});
 		if (r){
 			reloadcriteria();
 		}
 	}
-	function setcriteria_op (val) {
-		operator = val;
-		reloadcriteria();
-	}
+	
 	function setcriteria_subtype (i,val,r) {
 		subcriterias[i] = val;
 		values[i] = "";
 		values2[i] = "";
 		matches[i] = "";
-		$.ajax({
-			type: "GET",
-			url: "setvars.php?i="+i+"&type="+criterias[i]+"&subtype="+subcriterias[i]+"&match="+matches[i],
-			data: "",
-			success: function(msg){
-				syncflag[i] = true;
-				checksync();
-			}
-		});
 		if (r){
 			reloadcriteria();
 		}
 	}
 	function setcriteria_match (i,val,r) {
 		matches[i] = val;
-		$.ajax({
-			type: "GET",
-			url: "setvars.php?i="+i+"&type="+criterias[i]+"&subtype="+subcriterias[i]+"&match="+matches[i],
-			data: "",
-			success: function(msg){
-				
-			}
-		});
 		if (r){
 			reloadcriteria();
 		}
@@ -381,30 +350,6 @@ var finish = false;
 		criterias[i] = val_type;
 		subcriterias[i] = val_subtype;
 		matches[i] = val_match;
-		$.ajax({
-			type: "GET",
-			url: "setvars.php",
-			data: "i="+i+"&type="+criterias[i]+"&subtype="+subcriterias[i]+"&match="+matches[i],
-			success: function(msg){
-				//alert("setvars.php?i="+i+"&type="+criterias[i]+"&subtype="+subcriterias[i]+"&match="+matches[i]);
-				syncflag[i] = true;
-				checksync();
-			}
-		});
-	}
-	function asyncsetcriteria (i,val_type,val_subtype,val_match) {
-		criterias[i] = val_type;
-		subcriterias[i] = val_subtype;
-		matches[i] = val_match;
-		$.ajax({
-			type: "GET",
-			url: "setvars.php?i="+i+"&type="+criterias[i]+"&subtype="+subcriterias[i]+"&match="+matches[i],
-			async: false,
-			data: "",
-			success: function(msg){
-				return "ok";
-			}
-		});
 	}
 	function setcriteria_val (i,val) {
 		values[i] = val;
@@ -452,16 +397,33 @@ var finish = false;
 				params += "&value_two"+i+"="+values2[i];
 			}
 		}
-
-		$.ajax({
-			type: "GET",
-			url: "setvars.php"+params,
-			data: "",
-			success: function(msg){
-				if (finish) window.location.href = "build_search.php?operator="+operator;
-			}
-		});
 	}
+
+	function get_params() {
+		var params = "?operator="+document.getElementById("operator").value+"&num="+criteria_count;
+		for (i = 1; i <= criteria_count; i++) {
+			params += "&type_"+i+"="+document.getElementById("type_"+i).value;
+			params += "&subtype_"+i+"="+document.getElementById("subtype_"+i).value;
+			if (document.getElementById("match_"+i) != null){
+				params += "&match_"+i+"="+document.getElementById("match_"+i).value;
+			}
+			if (document.getElementById("value_"+i) != null){
+				params += "&value_"+i+"="+document.getElementById("value_"+i).value;
+			}
+			if (document.getElementById("value2_"+i) != null){
+				// For FixedText
+				params += "&value2_"+i+"="+document.getElementById("value2_"+i).value;
+			}
+		}
+		return params;
+	}
+	
+	function launch_query () {
+		var params = get_params();
+		//alert("build_search.php"+params);
+		window.location.href = "build_search.php"+params;
+	}
+	
 	function load_values () {
 		for (c in criterias) {
 			if (values[c] != "") {
@@ -478,41 +440,14 @@ var finish = false;
 		if (filter_name == "" || filter_name == "- New Profile -") alert("<?=_("Insert a name to export")?>");
 		else {
 			// save_values() code
-			var params = "?op="+operator+"&n="+criteria_count+"&description="+description;
-			for (i = 1; i <= criteria_count; i++) {
-				if (criterias[i]) {
-					if (document.getElementById("value_"+i) != null) values[i] = document.getElementById("value_"+i).value;
-					if (document.getElementById("value2_"+i) != null){
-						// For FixedText
-						values2[i] = document.getElementById("value2_"+i).value;
-					}
-				}
-				else {
-					values[i] = "";
-					values2[i] = "";
-				}
-				params += "&value"+i+"="+values[i];
-				if(values2!=null){
-					// For FixedText
-					params += "&value_two"+i+"="+values2[i];
-				}
-			}
+			var params = get_params();
 			$.ajax({
 				type: "GET",
-				url: "setvars.php"+params,
-				data: "",
-				success: function(msg){
-			// end of save_values() code (second ajax call)
-					$.ajax({
-						type: "GET",
-						url: "profiles.php",
-						data: { name: filter_name, inv_do: 'export', op: operator, descr: description },
-						success: function(msg) {
-							reload_profiles();
-							put_msg("<?=_("Profile successfully Saved")?>");
-							$('#cur_name').val("");
-						}
-					});
+				url: "profiles.php"+params+"&name="+filter_name+"&inv_do=export&descr="+description,
+				success: function(msg) {
+					reload_profiles();
+					put_msg("<?=_("Profile successfully Saved")?>");
+					$('#cur_name').val("");
 				}
 			});
 		}
@@ -575,8 +510,6 @@ var finish = false;
 					var ret = parseJSON(msg);
 					var data = ret.dt;
 					for (i = 0; i < data.length; i++) {
-						//var ret = asyncsetcriteria(i+1,data[i].type,data[i].subtype,data[i].match);
-						//alert(ret); // jQuery BUG?? ajax async: false does not work!!
 						setcriteria(i+1,data[i].type,data[i].subtype,data[i].match);
 						values[i+1] = data[i].value;
 					}
@@ -584,7 +517,7 @@ var finish = false;
 					operator = ret.op;
 					description = ret.description;
 					current_profile = filter_name;
-					save_values();
+					//save_values();
 					reloadcriteria();
 					put_msg("<?=_("Profile successfully Loaded")?>");
 					//build_request();
@@ -602,15 +535,13 @@ var finish = false;
 				var ret = parseJSON(msg);
 				var data = ret.dt;
 				for (i = 0; i < data.length; i++) {
-					//setcriteria_type(i+1,data[i].type,0);
-					//setcriteria_subtype(i+1,data[i].subtype,0);
-					//setcriteria_match(i+1,data[i].match,0);
 					setcriteria(i+1,data[i].type,data[i].subtype,data[i].match);
 					values[i+1] = data[i].value;
+					values2[i+1] = data[i].value2;
 				}
 				criteria_count = data.length;
 				operator = ret.op;
-				save_values();
+				//save_values();
 				reloadcriteria();
 			}
 		});
@@ -628,28 +559,6 @@ var finish = false;
 			});
 		}
 	}
-	<?php /*
-	function activate_rename () {
-		if (document.getElementById('rename_button').disabled == true) document.getElementById('rename_button').disabled = false;
-		if (document.getElementById('cur_rename').disabled == true) {
-			document.getElementById('cur_rename').disabled = false;
-		}
-		document.getElementById('cur_rename').value = document.getElementById('profile').value;
-	}
-	function profile_rename (cur_name, new_name) {
-		if (cur_name == new_name) alert("<?=_("Insert a different name to rename profile")?> '"+cur_name+"'");
-		else if (cur_name == "" || new_name == "") alert ("<?=_("Select and type a correct name for profile")?>");
-		else {
-			$.ajax({
-				type: "GET",
-				url: "profiles.php",
-				data: { name: cur_name, inv_do: 'rename', new_name: new_name },
-				success: function(msg) {
-					get_conf();
-				}
-			});
-		}
-	}*/?>
 	function profile_rename (cur_name,n) {
 		if(reset_profile_rename()){
 			$('#profile_'+n).html('<input id="profile_rename_block" title="'+cur_name+'" name="profile_'+n+'" type="text" value="'+cur_name+'" style="background:#fff;border:0" />');
@@ -817,7 +726,7 @@ var finish = false;
 						<tr>
 							<td class="nobborder" width="100"><? if (Session::am_i_admin()) { ?><a href="" onclick="open_edit();return false;" target="_blank"><img src="../pixmaps/pencil.png" border="0" alt="<?=_("Edit rules.conf")?>" title="<?=_("Edit rules.conf")?>"><?php echo _("Select Condition")?></a><? } ?></td>
 							<td class="nobborder" style="text-align:right">
-								<input type="button" onclick="build_request()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:12px;" disabled>
+								<input type="button" onclick="launch_query()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:12px;">
 							</td>
 							<td class="nobborder" style="text-align:left">
 								<input type="button" onclick="clean_request()" value="<?=_("Clean")?>" class="button" style="font-size:12px">

@@ -43,12 +43,33 @@ $user = Session::get_session_user();
 // Read config file with filters rules
 $rules = get_rulesconfig ();
 
+ossim_valid(GET('num'), OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num"));
+ossim_valid(GET('operator'), "and", "or", OSS_NULLABLE, 'illegal:' . _("operator"));
+ossim_valid(GET('descr'), OSS_ALPHA, OSS_SPACE, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("descr"));
+if (ossim_error()) {
+    exit;
+}
+
 if (GET('inv_do') == "export") {
 	$inv_session = array();
-	for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
-		$inv_session['data'][$i] = $_SESSION['inventory_search'][$i];
+	for ($i = 1; $i <= GET('num'); $i++) {
+		ossim_valid(GET('type_'.$i), OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("type"));
+		ossim_valid(GET('subtype_'.$i), OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("subtype"));
+		ossim_valid(GET('match_'.$i), OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("match"));
+		if (ossim_error()) {
+		    exit;
+		}
+		
+		$filter = array(
+			"type" => GET('type_'.$i),
+			"subtype" => GET('subtype_'.$i),
+			"value" => GET('value_'.$i),
+			"value2" => GET('value2_'.$i),
+			"match" => GET('match_'.$i)
+		);
+		$inv_session['data'][$i] = $filter;
 	}
-	$inv_session['op'] = GET('op');
+	$inv_session['op'] = GET('operator');
 	$inv_session['description'] = GET('descr');
 	$serialized_inv = serialize ($inv_session);
 	$config->set($user, GET('name'), $serialized_inv, 'simple', "inv_search");
