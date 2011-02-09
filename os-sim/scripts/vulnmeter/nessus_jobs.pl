@@ -263,8 +263,6 @@ my ($outfile, $targetfile, $nessus_cfg, $workfile);
 my $txt_meth_wcheck = "";
 my $txt_unresolved_names = "";
 
-my $openvas_manager_common = "$CONFIG{'NESSUSPATH'} -h $CONFIG{'NESSUSHOST'} -p $CONFIG{'NESSUSPORT'} -u $CONFIG{'NESSUSUSER'} -w $CONFIG{'NESSUSPASSWORD'} -iX";
-
 $outfile = "${outdir}/nessus_s$$.out";
 $targetfile = "${outdir}/target_s$$";
 $nessus_cfg = "${outdir}/nessus_s$$.cfg";
@@ -597,11 +595,10 @@ sub run_job {
     my ( $sql, $sth_sel, $sth_upd );
 
     $serverid = get_server_credentials( $sel_servid );  #GET THE SERVER ID'S FOR WORK PROCESSING
-
-    if ($serverid == 0 ) {  #CHECK FOR AVAILABLE SCAN SLOTS (AN ID WOULD BE RETURNED)
-        logwriter( "WARNING: Currently Not Enough Free scan slots to run cron job", 4 );
-        return;
-    }
+    #if ($serverid == 0 ) {  #CHECK FOR AVAILABLE SCAN SLOTS (AN ID WOULD BE RETURNED)
+    #    logwriter( "WARNING: Currently Not Enough Free scan slots to run cron job", 4 );
+    #    return;
+    #}
 
     #UPDATE SERVER COUNT OF RUNNING SCANS
     $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans+$server_slot WHERE id=$serverid };
@@ -3679,9 +3676,9 @@ sub get_server_credentials {
                 ($nessushost, $nessusport, $nessususer, $nessuspassword)=$sth_sel->fetchrow_array;
                 $sth_sel->finish;
                 # overlay credentials with ossim conf file 
-                $nessusport = $CONFIG{'NESSUSPORT'}; 
-                $nessususer = $CONFIG{'NESSUSUSER'};
-                $nessuspassword = $CONFIG{'NESSUSPASSWORD'};
+                #$nessusport = $CONFIG{'NESSUSPORT'}; 
+                #$nessususer = $CONFIG{'NESSUSUSER'};
+                #$nessuspassword = $CONFIG{'NESSUSPASSWORD'};
                 #
                 return $tmp_serverid;
             }
@@ -4951,7 +4948,8 @@ sub execute_omp_command {
     my $cmd = shift;
 
     my $xml;
-    
+    my $openvas_manager_common = "$CONFIG{'NESSUSPATH'} -h $nessushostip -p $nessusport -u $nessususer -w $nessuspassword -iX";
+
     my $imp = system ("$openvas_manager_common \"$cmd\" > $xml_output 2>&1");
     
     #if ( $imp != 0 ) { die "". logwriter( "nessus_jobs: Failed execute omp command", 2 ); }
