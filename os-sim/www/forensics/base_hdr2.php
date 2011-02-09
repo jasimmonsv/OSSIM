@@ -804,10 +804,12 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 					url = url + '&time%5B0%5D%5B2%5D=' + f1[1]; // month
 					url = url + '&time%5B0%5D%5B3%5D=' + f1[2]; // day
 					url = url + '&time%5B0%5D%5B4%5D=' + f1[0]; // year
+					url = url + '&time%5B0%5D%5B5%5D=00&time%5B0%5D%5B6%5D=00&time%5B0%5D%5B7%5D=00';
 					var f2 = formated[1].split(/-/);
 					url = url + '&time%5B1%5D%5B2%5D=' + f2[1]; // month
 					url = url + '&time%5B1%5D%5B3%5D=' + f2[2]; // day
 					url = url + '&time%5B1%5D%5B4%5D=' + f2[0]; // year
+					url = url + '&time%5B1%5D%5B5%5D=23&time%5B1%5D%5B6%5D=59&time%5B1%5D%5B7%5D=59';
 					document.location.href = '<?=$actual_url?>'+url;
 				} clicks++;
 			},
