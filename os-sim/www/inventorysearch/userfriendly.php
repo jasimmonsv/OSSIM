@@ -193,7 +193,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 	var values = new Array;
 	
 	function save_values () {
-		var params = "?op="+operator+"&date_from="+$('#date_from').val()+"&date_to="+$('#date_to').val();
+		var params = "?op=and&date_from="+$('#date_from').val()+"&date_to="+$('#date_to').val();
 		for (i = 1; i <= 5; i++) {
 			if (document.getElementById("value_"+i) != null && document.getElementById("value_"+i).value != "Any" && document.getElementById("value_"+i).value != "") {
 				params += "&value"+i+"="+document.getElementById("value_"+i).value;
@@ -205,13 +205,19 @@ if (!$rs = & $conn->Execute($query, $params)) {
 			url: "setvars.php"+params+"&basic=1&n="+criteria_count,
 			data: "",
 			success: function(msg){
-				window.location.href = "build_search.php?operator="+operator+"&userfriendly=1";
+				window.location.href = "build_search.php?operator=and&userfriendly=1";
 			}
 		});
 	}
 	
 	function build_request () {
-		save_values();
+		var params = "?num=5&userfriendly=1&operator=and&date_from="+$('#date_from').val()+"&date_to="+$('#date_to').val();
+		for (i = 1; i <= 5; i++) {
+			if (document.getElementById("value_"+i) != null && document.getElementById("value_"+i).value != "Any" && document.getElementById("value_"+i).value != "") {
+				params += "&value_"+i+"="+document.getElementById("value_"+i).value;
+			}
+		}
+		window.location.href = "build_search.php"+params;
 	}
 	
 	function handleEnter(field, event) {

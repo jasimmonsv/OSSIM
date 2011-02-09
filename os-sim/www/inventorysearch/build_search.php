@@ -56,31 +56,24 @@ foreach ($allowed_hosts_aux as $h) {
 }
 
 $networks = "";
-/*$_nets = Net::get_all($conn);
-$_nets_ips = $_host_ips = $_host = array();
-foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
-$networks = implode(",",$_nets_ips);*/
 $hosts_ips = array_keys($hosts);
 
 $operator = GET('operator');
+$num = GET('num');
 ossim_valid($operator, "and", "or", OSS_NULLABLE, 'illegal:' . _("operador"));
+ossim_valid($num, OSS_DIGIT, 'illegal:' . _("num"));
 if (ossim_error()) {
     die(ossim_error());
 }
 
 // Save Search
-for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
-	$_SESSION['inventory_last_search'][$i] = $_SESSION['inventory_search'][$i];
-}
 $_SESSION['inventory_last_search_op'] = $operator;
-$_SESSION['inventory_last_search']['num'] = $_SESSION['inventory_search']['num'];
+$_SESSION['inventory_last_search']['num'] = $num;
 
 // Read config file with filters rules
 $rules = get_rulesconfig ();
 
 $max_rows = 8;
-//echo "<br><br><br><br>";
-//print_r($_SESSION['inventory_search']);exit;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -183,13 +176,37 @@ $errors = 0;
 $errorlog = array();
 $criterias = array();
 $has_criterias = array();
-for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
+for ($i = 1; $i <= $num; $i++) {
+	ossim_valid(GET('type_'.$i), OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("type"));
+	ossim_valid(GET('subtype_'.$i), OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("subtype"));
+	ossim_valid(GET('match_'.$i), OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("match"));
+	if (ossim_error()) {
+	    die(ossim_error());
+	}
+	if (GET('userfriendly')) {
+		if (GET('value_'.$i) != "") {
+			$filter = $basic_search[$i];
+			$filter['value'] = GET('value_'.$i);
+		} else {
+			continue;
+		}
+	} else {
+		$filter = array(
+			"type" => GET('type_'.$i),
+			"subtype" => GET('subtype_'.$i),
+			"value" => GET('value_'.$i),
+			"value2" => GET('value2_'.$i),
+			"match" => GET('match_'.$i)
+		);
+	}
 	$results[$i] = array();
-	$perc = $i/$_SESSION['inventory_search']['num']*100;
-	$filter = $_SESSION['inventory_search'][$i];
+	$perc = $i/$num*100;
+	// Save search
+	$_SESSION['inventory_last_search'][$i] = $filter;
+	
 	$criterias[$filter['type']][$filter['subtype']] = ($filter['value'] != "") ? $filter['value'] : "(is true)";
 	
-	// Advanced: get query from rules. UserFriendly: get query from session
+	// Advanced: get query from rules. UserFriendly: get query from filter array
 	$q = (GET('userfriendly')) ? $filter['query'] : $rules[$filter['type']][$filter['subtype']]['query'];
 	$m = (GET('userfriendly')) ? $filter['query_match'] : $rules[$filter['type']][$filter['subtype']]['match'];
 	
@@ -226,7 +243,6 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 				$errorlog[$i] = "CRITERIA $i: <font color='red'><b>ERROR</b></font>. in function <b>'".$found[1]."'</b>: '$ips_add'";
 			} else {
 				foreach ($ips_add as $ip) {
-					//if (Session::hostAllowed($conn,$ip)) {
 					if ($hosts[$ip] == "" || ($hosts[$ip] != "" && $allowed_hosts[$ip] != "")) {
 						$results[$i][] = $ip;
 						$has_criterias[$filter['type'].$filter['subtype']][$ip] = true;
@@ -247,7 +263,6 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 			//print $conn->ErrorMsg();
 		} else {
 			while (!$rs->EOF) {
-				//if (Session::hostAllowed($conn,$rs->fields["ip"])) {
 				if ($hosts[$rs->fields["ip"]] == "" || ($hosts[$rs->fields["ip"]] != "" && $allowed_hosts[$rs->fields["ip"]] != "")) {
 					$results[$i][] = $rs->fields["ip"];
 					$has_criterias[$filter['type'].$filter['subtype']][$rs->fields["ip"]] = true;
@@ -260,22 +275,11 @@ for ($i = 1; $i <= $_SESSION['inventory_search']['num']; $i++) {
 }
 $_SESSION['inventory_search']['result']['criterias'] = $criterias;
 $_SESSION['inventory_search']['result']['has_criterias'] = $has_criterias;
-//$host_list = array_intersect ($results);
 
-//print_r($results);
 $host_list = $results[1];
 $host_list_aux = array();
-/*
-for ($i = 2; $i <= $_SESSION['inventory_search']['num']; $i++) {
-	if ($operator == "or") {
-		foreach ($results[$i-1] as $ip) {
-			$host_list_aux[$ip]++;
-		}
-	} else {
-		$host_list = array_intersect ($results[$i-1],$results[$i]);
-	}
-}*/
-for ($i = 2; $i <= $_SESSION['inventory_search']['num']; $i++) {
+
+for ($i = 2; $i <= $num; $i++) if (is_array($results[$i])) {
 	if ($operator == "or") {
 		foreach ($results[$i] as $ip) {
 			$host_list_aux[$ip]++;
@@ -293,8 +297,6 @@ if ($operator == "or") {
 
 
 ?><script type="text/javascript">$("#pbar").progressBar(100);$("#progressText").html('<b><?=gettext("Loading results, please wait")?></b>...');</script><?
-	//usleep(500000);
-//if (!GET('userfriendly')) {
 ?>
 <table class="noborder" align="center" width="100%" style="background-color:white">
 	<tr><th style="text-align:center">Criterias</th></tr>
@@ -303,7 +305,6 @@ if ($operator == "or") {
 	<? } ?>
 </table>
 <?
-//}
 if (count($host_list) < 1 && !$errors) {
 ?>
 <table class="noborder" align="center" width="100%">
@@ -316,8 +317,6 @@ if (count($host_list) < 1 && !$errors) {
 	$host_objects = array();
 	foreach ($hosts as $host_obj) {
 		$host_objects[$host_obj->get_ip()] = $host_obj;
-		//if (in_array($host_obj->get_ip(),$host_list))
-			//$_SESSION['inventory_search']['result']['list'][] = $host_obj;
 	}
 	foreach ($host_list as $ip) {
 		if ($host_objects[$ip] != "") $_SESSION['inventory_search']['result']['list'][] = $host_objects[$ip];
