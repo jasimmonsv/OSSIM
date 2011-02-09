@@ -2,6 +2,7 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once 'classes/Util.inc';
+require_once 'sensor_filter.php';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 require_once 'ossim_db.inc';
@@ -11,16 +12,17 @@ $ips = $urls = "";
 $values = "";
 $colors = '"#E9967A","#9BC3CF"';
 
+$sensor_where = make_sensor_filter($conn,"a");
 $range =  604800; // Week
-$forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",time()-$range)."&time[0][3]=".date("d",time()-$range)."&time[0][4]=".date("Y",time()-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
-$forensic_ulink = "../forensics/base_stat_alerts.php?clear_allcriteria=1&time_range=week&sort_order=occur_d&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",time()-$range)."&time[0][3]=".date("d",time()-$range)."&time[0][4]=".date("Y",time()-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&hmenu=Forensics&smenu=Forensics";
+$forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz-$range)."&time[0][3]=".date("d",$timetz-$range)."&time[0][4]=".date("Y",$timetz-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+$forensic_ulink = "../forensics/base_stat_alerts.php?clear_allcriteria=1&time_range=week&sort_order=occur_d&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz-$range)."&time[0][3]=".date("d",$timetz-$range)."&time[0][4]=".date("Y",$timetz-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&hmenu=Forensics&smenu=Forensics";
 
 switch(GET("type")) {       
 
     // Antivirus - Last Week
 	case "virus":
 		$taxonomy = "AND (c.cat_id=12 AND c.id in (97))";
-		$sqlgraph = "select count(a.sid) as num_events,inet_ntoa(a.ip_src) as name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d H:i:s",time()-604800)."' AND '".date("Y-m-d H:i:s")."' $taxonomy group by a.ip_src order by num_events desc limit 10";
+		$sqlgraph = "select count(a.sid) as num_events,inet_ntoa(a.ip_src) as name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d H:i:s",$timetz-$range)."' AND '".date("Y-m-d H:i:s",$timetz)."' $sensor_where $taxonomy group by a.ip_src order by num_events desc limit 10";
 		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
@@ -39,7 +41,7 @@ switch(GET("type")) {
 
     // Top 5 promiscuous hosts - Last Week
 	case "promiscuous":
-		$sqlgraph = "select count(distinct(ip_dst)) as num_events,INET_NTOA(ip_src) as name from snort.acid_event WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",time()-604800)."' AND '".date("Y-m-d H:i:s")."' group by ip_src order by num_events desc limit 10";
+		$sqlgraph = "select count(distinct(ip_dst)) as num_events,INET_NTOA(ip_src) as name from snort.acid_event a WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",$timetz-$range)."' AND '".date("Y-m-d H:i:s",$timetz)."' $sensor_where group by ip_src order by num_events desc limit 10";
 		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
@@ -57,7 +59,7 @@ switch(GET("type")) {
 
     // Top 5 hosts with multiple events - Last Week
 	case "unique":
-		$sqlgraph = "select count(distinct plugin_id,plugin_sid) as num_events,INET_NTOA(ip_src) as name from snort.acid_event WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",time()-604800)."' AND '".date("Y-m-d H:i:s")."' group by ip_src order by num_events desc limit 10";
+		$sqlgraph = "select count(distinct plugin_id,plugin_sid) as num_events,INET_NTOA(ip_src) as name from snort.acid_event a WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",$timetz-$range)."' AND '".date("Y-m-d H:i:s",$timetz)."' $sensor_where group by ip_src order by num_events desc limit 10";
 		//print_r($sqlgraph);
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();

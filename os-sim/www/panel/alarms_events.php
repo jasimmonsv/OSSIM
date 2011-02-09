@@ -5,6 +5,7 @@ require_once ('classes/Incident.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Session.inc');
+require_once 'sensor_filter.php';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -41,20 +42,6 @@ Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 <?php
 
-function GetSensorSids($conn2) {
-	$query = "SELECT * FROM sensor";
-	if (!$rs = & $conn2->Execute($query)) {
-		print $conn2->ErrorMsg();
-		exit();
-	}
-	while (!$rs->EOF) {
-		$sname = ($rs->fields['sensor']!="") ? $rs->fields['sensor'] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$rs->fields['hostname']));
-		$ret[$sname][] = $rs->fields['sid'];
-		$rs->MoveNext();
-	}
-	return $ret;
-}
-
 $db = new ossim_db();
 $conn = $db->connect();
 $conn2 = $db->snort_connect();
@@ -63,7 +50,7 @@ $sensor_where = "";
 $sensor_where_ossim = "";
 if (Session::allowedSensors() != "") {
 	$user_sensors = explode(",",Session::allowedSensors());
-	$snortsensors = GetSensorSids($conn2);
+	$snortsensors = GetSnortSensorSids($conn2);
 	$sids = array();
 	foreach ($user_sensors as $user_sensor) {
 		//echo "Sids de $user_sensor ".$snortsensors[$user_sensor][0]."<br>";
@@ -72,129 +59,45 @@ if (Session::allowedSensors() != "") {
 				$sids[] = $sid;
 	}
 	if (count($sids) > 0) {
-		$sensor_where = " AND sid in (".implode(",",$sids).")";
-		$sensor_where_ossim = " AND alarm.snort_sid in (".implode(",",$sids).")";
+		$sensor_where = " AND a.sid in (".implode(",",$sids).")";
+		$sensor_where_ossim = " AND a.snort_sid in (".implode(",",$sids).")";
 	}
 	else {
-		$sensor_where = " AND sid in (0)"; // Vacio
-		$sensor_where_ossim = " AND alarm.snort_sid in (0)"; // Vacio
+		$sensor_where = " AND a.sid in (0)"; // Vacio
+		$sensor_where_ossim = " AND a.snort_sid in (0)"; // Vacio
 	}
 }
-//
-if($conf->get_conf("backup_day")<=5){
-    $_2Ago='INTERVAL -2 DAY';
-    $_2Ago_div='';
-    $_2Ago_interv='DATE_ADD(CURDATE(), INTERVAL -2 DAY)';
-    //
-    $_Week='INTERVAL -3 DAY';
-    $_Week_div='';
-    $_Week_interv='DATE_ADD(CURDATE(), INTERVAL -3 DAY)';
-    //
-    $_2Week='INTERVAL -4 DAY';
-    $_2Week_div='';
-    $_2Week_interv='DATE_ADD(CURDATE(), INTERVAL -4 DAY)';
-    //
-    //array_push($legend,"-2Days","-3Days","-4Days");
-}elseif($conf->get_conf("backup_day")>=6&&$conf->get_conf("backup_day")<=10){
-    $_2Ago='INTERVAL -2 DAY';
-    $_2Ago_div='';
-    $_2Ago_interv='DATE_ADD(CURDATE(), INTERVAL -2 DAY)';
-    //
-    $_Week='INTERVAL -3 DAY';
-    $_Week_div='';
-    $_Week_interv='DATE_ADD(CURDATE(), INTERVAL -3 DAY)';
-    //
-    $_2Week_value=($conf->get_conf("backup_day")-3)+2;
-    $_2Week='INTERVAL -'.$_2Week_value.' DAY';
-    $_2Week_div='';
-    $_2Week_interv='DATE_ADD(CURDATE(), INTERVAL -'.$_2Week_value.' DAY)';
-    //
-    //array_push($legend,"-2Days","-3Days","-".$_2Week_value."Days");
-}elseif($conf->get_conf("backup_day")>=11){
-    $_2Ago='INTERVAL -2 DAY';
-    $_2Ago_div='';
-    $_2Ago_interv='DATE_ADD(CURDATE(), INTERVAL -2 DAY)';
-    //
-    $_Week='INTERVAL -6 DAY';
-    $_Week_div='/7';
-    $_Week_interv='NOW()';
-    //
-    $_2Week='INTERVAL -13 DAY';
-    $_2Week_div='/14';
-    $_2Week_interv='NOW()';
-    //
-    //array_push($legend,"-2Days","Week","2Weeks");
+
+if (GET("type")=="alarms") {
+	$color = '"#EFBE68"';
+	$query = "select count(*) as num_events,p.name from ossim.alarm a,ossim.plugin_sid p WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid $sensor_where_ossim group by p.name order by num_events desc limit 5";
+} else {
+	$color = '"#B5CF81"';
+	$query = "select count(*) as num_events,p.name from snort.acid_event a,ossim.plugin_sid p WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid $sensor_where group by p.name order by num_events desc limit 5";
 }
-$query = "SELECT * FROM 
-(select count(*) as Today from alarm where alarm.timestamp > CURDATE()$sensor_where_ossim) as Today, 
-(select count(*) as Yesterd from alarm where alarm.timestamp > DATE_ADD(CURDATE(), INTERVAL -1 DAY) and alarm.timestamp < CURDATE()$sensor_where_ossim) as Yesterd,
-(select count(*)".$_2Ago_div." as 2DAgo from alarm where alarm.timestamp > DATE_ADD(CURDATE(), ".$_2Ago.") and alarm.timestamp < DATE_ADD(".$_2Ago_interv."$sensor_where_ossim, INTERVAL +1 DAY) ) as 2DAgo,
-(select count(*)".$_Week_div." as Week from alarm where alarm.timestamp > DATE_ADD(CURDATE(), ".$_Week.") and alarm.timestamp < ".$_Week_interv."$sensor_where_ossim) as Seamana,
-(select count(*)".$_2Week_div." as 2Weeks from alarm where alarm.timestamp > DATE_ADD(CURDATE(), ".$_2Week.") and alarm.timestamp < ".$_2Week_interv."$sensor_where_ossim) as 2Weeks ;";
-/*
-if ($sensor_where != "")
-	$query2 = "SELECT * FROM
-	(select count(*) as Today from acid_event where timestamp > CURDATE()$sensor_where) as Today,
-	(select count(*) as Yesterd from acid_event where timestamp > DATE_ADD(CURDATE(), INTERVAL -1 DAY) and timestamp <= CURDATE()$sensor_where) as Yesterd,
-	(select count(*)".$_2Ago_div." as 2DAgo  from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_2Ago.") and timestamp <= ".$_2Ago_interv."$sensor_where ) as 2DAgo,
-	(select count(*)".$_Week_div." as Week from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_Week.") and timestamp <= ".$_Week_interv."$sensor_where) as Seamana,
-	(select count(*)".$_2Week_div." as 2Weeks from acid_event where timestamp > DATE_ADD(CURDATE(), ".$_2Week.") and timestamp <= ".$_2Week_interv."$sensor_where) as 2Weeks;";
-else
-	$query2 = "SELECT * FROM
-	(select sum(sig_cnt) as Today from ac_alerts_signature where day >= CURDATE()) as Today,
-	(select sum(sig_cnt) as Yesterd from ac_alerts_signature where day >= DATE_ADD(CURDATE(), INTERVAL -1 DAY) and day < CURDATE()) as Yesterd,
-	(select sum(sig_cnt)".$_2Ago_div." as 2DAgo  from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_2Ago.") and day <= ".$_2Ago_interv." ) as 2DAgo,
-	(select sum(sig_cnt)".$_Week_div." as Week from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_Week.") and day <= ".$_Week_interv.") as Seamana,
-	(select sum(sig_cnt)".$_2Week_div." as 2Weeks from ac_alerts_signature where day >= DATE_ADD(CURDATE(), ".$_2Week.") and day <= ".$_2Week_interv.") as 2Weeks;";
-*/
+
+$values = $txts = "";
+
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();
     exit();
 }
 while (!$rs->EOF) {
-    $values =  $rs->fields["Today"].",".
-        $rs->fields["Yesterd"].",".
-        $rs->fields["2DAgo"].",".
-        $rs->fields["Week"].",".
-        $rs->fields["2Weeks"];
+    $values .= $rs->fields["num_events"].",";
+    $name = Util::signaturefilter($rs->fields["name"]);
+    if (strlen($name)>35) $name=substr($name,0,35)."..";
+    $txts .= "'".str_replace("'","\'",$name)."',";
     $rs->MoveNext();
 }
-/*
-if (!$rs = & $conn2->Execute($query2)) {
-    print $conn->ErrorMsg();
-    exit();
-}
-while (!$rs->EOF) {
-    $values2 = $rs->fields["Today"].",".
-        $rs->fields["Yesterd"].",".
-        $rs->fields["2DAgo"].",".
-        $rs->fields["Week"].",".
-        $rs->fields["2Weeks"];
-    $rs->MoveNext();
-}
-*/
-$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>"CURDATE()"), "", "", 1, 99999999);
-$today = Incident::search_count($conn);
-$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>array("DATE_ADD(CURDATE(), INTERVAL -1 DAY)","CURDATE()")), "", "", 1, 999999999);
-$yday = Incident::search_count($conn);
-$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>array("DATE_ADD(CURDATE(), ".$_2Ago.")",$_2Ago_interv)), "", "", 1, 999999999);
-$ago2 = Incident::search_count($conn);
-$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>array("DATE_ADD(CURDATE(), ".$_Week.")",$_Week_interv)), "", "", 1, 999999999);
-$week = Incident::search_count($conn);
-$incident_list = Incident::search($conn, array("status"=>"Open","last_update"=>array("DATE_ADD(CURDATE(), ".$_2Week.")",$_2Week_interv)), "", "", 1, 999999999);
-$week2 = Incident::search_count($conn);
-$values2 = $today.",".$yday.",".$ago2.",".$week.",".$week2;
+$values = preg_replace("/,$/","",$values);
+$txts = preg_replace("/,$/","",$txts);
+
 //
 $db->close($conn);
-// Timezone correction
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
-$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
+$db->close($conn2);
+
 //
 $alarm_urls = "'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz)."&date_to=".date("Y-m-d",$timetz)."'";
-$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-86400)."&date_to=".date("Y-m-d",$timetz)."'";
-$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-172800)."&date_to=".date("Y-m-d",$timetz)."'";
-$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-604800)."&date_to=".date("Y-m-d",$timetz)."'";
-$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-1209600)."&date_to=".date("Y-m-d",$timetz)."'";
 ?>  
 	<script class="code" type="text/javascript">
 	
@@ -206,6 +109,7 @@ $alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&
             if (neighbor.seriesIndex==1) url = '../incidents/index.php?status=&hmenu=Tickets&smenu=Tickets';
             if (typeof(url)!='undefined' && url!='') top.frames['main'].location.href = url;
         }
+        var isShowing = -1;
 		function myMoveHandler(ev, gridpos, datapos, neighbor, plot) {
 			if (neighbor == null) {
 	            $('#myToolTip').hide().empty();
@@ -226,20 +130,25 @@ $alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&
 			$.jqplot.eventListenerHooks.push(['jqplotMouseMove', myMoveHandler]);
 						
 			line1 = [<?=$values?>];
-			line2 = [<?=$values2?>];
 			
-			plot1 = $.jqplot('chart', [line1, line2], {
-			    legend:{show:true, location:'nw', rowSpacing:'2px'},
+			plot1 = $.jqplot('chart', [line1], {
+			    legend:{show:false},
 			    series:[
-			        { pointLabels:{ show: false }, label:'<?=_("Alarms")?>', renderer:$.jqplot.BarRenderer }, 
-			        { pointLabels:{ show: false }, label:'<?=_("Tickets")?>', renderer:$.jqplot.BarRenderer },
+			        { pointLabels:{ show: false }, renderer:$.jqplot.BarRenderer }, 
 			    ],                                    
 			    grid: { background: '#F5F5F5', shadow: false },
-			    seriesColors: [ "#EFBE68", "#B5CF81" ],
+			    seriesColors: [ <?=$color?> ],
+				axesDefaults: {
+				      tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
+				      tickOptions: {
+				        angle: 20,
+				        fontSize: '12px'
+				      }
+				},	    
 			    axes:{
 			        xaxis:{
 			        	renderer:$.jqplot.CategoryAxisRenderer,
-			        	ticks:['<?=_("Today")?>', '<?=_("-1 Day")?>', '<?=_("-2 Days")?>', '<?=_("Week")?>', '<?=_("2 Weeks")?>']
+			        	ticks:[<?=$txts?>]
 			        }, 
 			        yaxis:{min:0, tickOptions:{formatString:'%d'}}
 			    }

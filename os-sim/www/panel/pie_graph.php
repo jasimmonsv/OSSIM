@@ -1,23 +1,8 @@
 <?php
-function make_where ($conn,$arr) {
-	include_once("../report/plugin_filters.php");
-	$w = "";
-	foreach ($arr as $cat => $scs) {
-		$id = GetPluginCategoryID($cat,$conn);
-		$w .= "(c.cat_id=$id"; 
-		$ids = array();
-		foreach ($scs as $scat) {
-			$ids[] = GetPluginSubCategoryID($scat,$id,$conn);
-		}
-		if (count($ids)>0) $w .= " AND c.id in (".implode(",",$ids).")";
-		$w .= ") OR ";
-	}
-	return ($w!="") ? "AND (".preg_replace("/ OR $/","",$w).")" : "";
-}
-
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
-require_once 'classes/Util.inc';
+require_once ('classes/Util.inc');
+require_once 'sensor_filter.php';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 require_once 'ossim_db.inc';
@@ -28,15 +13,16 @@ $urls = "";
 $colors = '"#E9967A","#9BC3CF"';
 
 $range =  604800; // Week
-$forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",time()-$range)."&time[0][3]=".date("d",time()-$range)."&time[0][4]=".date("Y",time()-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+$forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz-$range)."&time[0][3]=".date("d",$timetz-$range)."&time[0][4]=".date("Y",$timetz-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 
-$query = "select sum(sig_cnt) as num_events,c.cat_id,c.id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-$range)."' AND '".date("Y-m-d")."' TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
+$sensor_where = make_sensor_filter($conn,"a");
+$query = "select count(a.sid) as num_events,c.cat_id,c.id,c.name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' $sensor_where TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
 
 switch(GET("type")) {
 
 	// Top 10 Events by Product Type - Last Week
 	case "source_type":
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.source_type from snort.ac_alerts_signature a,ossim.plugin p where p.id=a.plugin_id AND a.day BETWEEN '".date("Y-m-d",time()-$range)."' AND '".date("Y-m-d")."' group by p.source_type order by num_events desc LIMIT 10";
+		$sqlgraph = "select count(a.sid) as num_events,p.source_type from snort.acid_event a,ossim.plugin p where p.id=a.plugin_id AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' $sensor_where group by p.source_type order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -53,7 +39,7 @@ switch(GET("type")) {
 		
 	// Top 10 Event Categories - Last Week
 	case "category":
-		$sqlgraph = "select sum(sig_cnt) as num_events,p.category_id,c.name from snort.ac_alerts_signature a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".date("Y-m-d",time()-$range)."' AND '".date("Y-m-d")."' group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' $sensor_where group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
