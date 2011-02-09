@@ -217,7 +217,7 @@ $CONFIG = array(
                 "advanced" => 1,
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
-            "logger_if_priority" => array(
+            "server_logger_if_priority" => array(
                 "type" => array(
                     "0" => 0,
                     "1" => 1,

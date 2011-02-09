@@ -6,6 +6,9 @@ REPLACE INTO `inventory_search` (`type`, `subtype`, `match`, `list`, `query`, `r
 ('OS', 'OS is', 'fixed', 'SELECT DISTINCT os as os_value, os as os_text FROM host_os WHERE os != "" ORDER BY os', '(select distinct inet_ntoa(h.ip) as ip from host_os h where h.os=? and h.anom=0 and h.ip not in (select h1.ip from host_os h1 where h1.os<>? and h1.anom=0 and h1.date>h.date)) UNION (select distinct inet_ntoa(ip) from host_os where os=? and anom=1 and ip not in (select distinct ip from host_os where anom=0))', 1),
 ('OS', 'OS is Not', 'fixed', 'SELECT DISTINCT os as os_value, os as os_text FROM host_os WHERE os != "" ORDER BY os', 'select distinct inet_ntoa(ip) as ip from host_os where ip not in (select h.ip from host_os h where h.os=? and h.anom=0 and h.ip not in (select h1.ip from host_os h1 where h1.os<>? and h1.anom=0 and h1.date>h.date)) UNION (select ip from host_os where os=? and anom=1 and ip not in (select distinct ip from host_os where anom=0))', 1)
 
+ALTER TABLE `inventory_search` MODIFY `match` ENUM( 'text', 'ip', 'fixed', 'boolean', 'date', 'number', 'concat', 'fixedText') NOT NULL;
+UPDATE `inventory_search` SET `match` = 'fixedText' WHERE `subtype` = 'Contains' AND `type`= 'Property';
+
 -- Replace 'SIEM Events' by 'SIEM/Logger Events'
 REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES
 (128, 'List', 'SIEM/Logger Events', 'SIEM/List.php', 'Top SIEM Events List:top:text:OSS_DIGIT:25:250;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:', '', 29),
@@ -445,6 +448,7 @@ use snort;
 ALTER TABLE acid_event ADD `ossim_correlation` TINYINT( 1 ) DEFAULT  '0';
 
 use ossim;
+UPDATE config SET conf='server_logger_if_priority' WHERE conf='logger_if_priority';
 UPDATE config SET value="2011-02-08" WHERE conf="last_update";
 
 -- WARNING! Keep this at the end of this file

@@ -162,7 +162,7 @@ DROP TABLE IF EXISTS `inventory_search`;
 CREATE TABLE IF NOT EXISTS `inventory_search` (
   `type` varchar(32) NOT NULL,
   `subtype` varchar(32) NOT NULL,
-  `match` enum('text','ip','fixed','boolean','date','number','concat') NOT NULL,
+  `match` enum('text', 'ip', 'fixed', 'boolean', 'date', 'number', 'concat', 'fixedText') NOT NULL,
   `list` varchar(255) default NULL,
   `query` text NOT NULL,
   `ruleorder` int(11) NOT NULL default '999',
