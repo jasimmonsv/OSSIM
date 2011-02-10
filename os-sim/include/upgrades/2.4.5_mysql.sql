@@ -20,12 +20,12 @@ ALTER TABLE `incident_custom` CHANGE `content` `content` BLOB NOT NULL;
 
 REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES (515, 'NetFlows - Trafic Graphs', 'Network', 'Network/TraficGraphs.php', 'Source:SOURCE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT;TCP:tcp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;UDP:udp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;ICMP:icmp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;ANY:any:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1);
 
-CREATE TABLE host_property_reference (
+CREATE TABLE IF NOT EXISTS host_property_reference (
    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
    name VARCHAR(100)
 );
 
-CREATE TABLE host_properties (
+CREATE TABLE IF NOT EXISTS host_properties (
    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
    ip VARCHAR(15),
    date DATETIME,
@@ -35,7 +35,7 @@ CREATE TABLE host_properties (
    extra TEXT
 );
 
-CREATE TABLE host_source_reference (
+CREATE TABLE IF NOT EXISTS host_source_reference (
    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
    name VARCHAR(100),
    priority INT

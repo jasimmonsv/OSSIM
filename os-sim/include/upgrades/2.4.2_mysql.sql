@@ -10,14 +10,27 @@ CREATE PROCEDURE addcol() BEGIN
   THEN
       ALTER TABLE custom_report_scheduler ADD save_in_repository tinyint(1) NOT NULL DEFAULT '1';
   END IF;
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host' AND COLUMN_NAME = 'fqdns')
+  THEN
+      ALTER TABLE `host` ADD `fqdns` VARCHAR( 255 ) NOT NULL AFTER `hostname` ;
+  END IF;  
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'is_admin')
+  THEN
+      ALTER TABLE  `users` ADD  `is_admin` BOOL NOT NULL DEFAULT 0;
+  END IF;  
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'host' AND INDEX_NAME='search')
+  THEN
+      ALTER TABLE `host` ADD INDEX `search` ( `hostname` ,`fqdns` );
+  END IF;  
 END;
 //
 DELIMITER ';'
 CALL addcol();
 DROP PROCEDURE addcol;
 
-ALTER TABLE `host` ADD `fqdns` VARCHAR( 255 ) NOT NULL AFTER `hostname` ;
-ALTER TABLE `host` ADD INDEX `search` ( `hostname` ,`fqdns` );
 DELETE FROM user_config WHERE category = 'policy' AND name = 'host_layout';
 
 CREATE TABLE IF NOT EXISTS alarm_tags (
@@ -35,20 +48,6 @@ CREATE TABLE IF NOT EXISTS `tags_alarm` (
   bold tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (id)
 );
-
-DROP PROCEDURE IF EXISTS addcol;
-DELIMITER '//'
-CREATE PROCEDURE addcol() BEGIN
-  IF NOT EXISTS
-      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'is_admin')
-  THEN
-      ALTER TABLE  `users` ADD  `is_admin` BOOL NOT NULL DEFAULT 0;
-  END IF;
-END;
-//
-DELIMITER ';'
-CALL addcol();
-DROP PROCEDURE addcol;
 
 DROP TRIGGER IF EXISTS auto_incidents;
 

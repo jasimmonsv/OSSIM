@@ -73,10 +73,10 @@ class Inventory:
 			
 	def loadSources(self):
 		self.connectDB()
-		sql = "select id, name, priority from host_source_reference;"
+		sql = "select id, name, relevance from host_source_reference;"
 		data = self.db.exec_query(sql)
 		for d in data:
-			self.sources[d["name"]] = (d["id"], d["priority"])
+			self.sources[d["name"]] = (d["id"], d["relevance"])
 		self.closeDB()
 	
 	def loadCredentialTypes(self):

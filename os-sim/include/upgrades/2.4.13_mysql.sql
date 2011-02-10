@@ -16,7 +16,7 @@ CREATE PROCEDURE addcol() BEGIN
       ALTER TABLE `users` ADD  `timezone` FLOAT NOT NULL DEFAULT '0' AFTER `first_login`;
   END IF;  
   IF NOT EXISTS
-      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host_properties' AND COLUMN_NAME = 'tzone')
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host_properties' AND COLUMN_NAME = 'sensor')
   THEN
       ALTER TABLE `host_properties` ADD `sensor` VARCHAR( 64 ) DEFAULT NULL AFTER `ip`;
   END IF;
@@ -81,10 +81,10 @@ CREATE TABLE IF NOT EXISTS `host_agentless_entries` (
 );
 
 CREATE TABLE IF NOT EXISTS `net_cidrs` (
-`cidr` VARCHAR( 20 ) NOT NULL ,
-`begin` INT(11) UNSIGNED NOT NULL ,
-`end` INT(11) UNSIGNED NOT NULL ,
-PRIMARY KEY ( `cidr` , `begin` , `end` )
+  `cidr` VARCHAR( 20 ) NOT NULL ,
+  `begin` INT(11) UNSIGNED NOT NULL ,
+  `end` INT(11) UNSIGNED NOT NULL ,
+  PRIMARY KEY ( `cidr` , `begin` , `end` )
 );
 
 TRUNCATE net_cidrs;

@@ -14,7 +14,19 @@ REPLACE INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granular
 (61, 'MENU', 'MenuEvents', 'ControlPanelSEM', 'Analysis -> Logger', 1, 0, 1, '03.04'),
 (62, 'MENU', 'MenuEvents', 'ReportsWireless', 'Analysis -> Detection -> Wireless', 1, 0, 1, '03.05');
 
-ALTER TABLE `host_agentless_entries` CHANGE `frecuency` `frequency` INT( 10 ) NOT NULL;
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host_agentless_entries' AND COLUMN_NAME = 'frequency')
+  THEN
+      ALTER TABLE `host_agentless_entries` ADD `frequency` INT( 10 ) NOT NULL;
+  END IF;        
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
 
 use ossim;
 UPDATE config SET value="2011-02-04" WHERE conf="last_update";

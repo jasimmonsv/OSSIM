@@ -184,8 +184,6 @@ INSERT INTO config (conf , value) VALUES ('pass_length_max', '32');
 INSERT INTO config (conf , value) VALUES ('pass_expire_min', '0');
 INSERT INTO config (conf , value) VALUES ('pass_history', '0');
 
-INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.16');
-
 INSERT INTO `config` (`conf`, `value`) VALUES
 ('customize_send_logs', NULL),
 ('customize_title_background_color', '#8CC221'),
@@ -193,3 +191,5 @@ INSERT INTO `config` (`conf`, `value`) VALUES
 ('customize_subtitle_background_color', '#7A7A7A'),
 ('customize_subtitle_foreground_color', '#FFFFFF'),
 ('customize_wizard', '0');
+
+INSERT INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.17');

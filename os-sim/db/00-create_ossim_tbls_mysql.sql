@@ -310,7 +310,7 @@ CREATE TABLE IF NOT EXISTS host_properties (
 );
 
 DROP TABLE IF EXISTS host_properties_changes;
-CREATE TABLE IF NOT EXISTS host_properties_changes (
+CREATE TABLE host_properties_changes (
 	   id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
 	   type        INT, 
 	   ip           VARCHAR(15), 
@@ -323,19 +323,19 @@ CREATE TABLE IF NOT EXISTS host_properties_changes (
 );
 
 DROP TABLE IF EXISTS host_source_reference;
-CREATE TABLE IF NOT EXISTS host_source_reference (
-   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE host_source_reference (
+   id INT NOT NULL PRIMARY KEY,
    name VARCHAR(100),
-   priority INT
+   relevance INT
 );
 
-INSERT INTO host_source_reference(name, priority) VALUES ('MANUAL', 10);
-INSERT INTO host_source_reference(name, priority) VALUES ('OCS', 9);
-INSERT INTO host_source_reference(name, priority) VALUES ('WMI', 8);
-INSERT INTO host_source_reference(name, priority) VALUES ('SSH', 8);
-INSERT INTO host_source_reference(name, priority) VALUES ('PRADS', 6);
-INSERT INTO host_source_reference(name, priority) VALUES ('OPENVAS', 7);
-INSERT INTO host_source_reference(name, priority) VALUES ('NTOP', 7);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (1,'MANUAL', 10);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (2,'OCS', 9);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (3,'WMI', 8);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (4,'SSH', 8);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (5,'PRADS', 6);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (6,'OPENVAS', 7);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (7,'NTOP', 7);
 
 /*Used to store how much events arrive to the server in a specific time, from a
  * specific sensor*/
@@ -908,7 +908,7 @@ CREATE TABLE event_field_reference (
 	host_property_reference_id INTEGER NOT NULL,
 	host_source_reference_id   INTEGER NOT NULL,
 	which_userdata             INTEGER NOT NULL,
-	PRIMARY KEY (plugin_id, plugin_sid, property_id)
+	PRIMARY KEY (plugin_id, plugin_sid, host_property_reference_id)
 );
 
 --

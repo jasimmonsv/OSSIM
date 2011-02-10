@@ -9,6 +9,22 @@ REPLACE INTO `inventory_search` (`type`, `subtype`, `match`, `list`, `query`, `r
 ALTER TABLE `inventory_search` MODIFY `match` ENUM( 'text', 'ip', 'fixed', 'boolean', 'date', 'number', 'concat', 'fixedText') NOT NULL;
 UPDATE `inventory_search` SET `match` = 'fixedText' WHERE `subtype` = 'Contains' AND `type`= 'Property';
 
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host_source_reference' AND COLUMN_NAME = 'relevance')
+  THEN
+      ALTER TABLE  `host_source_reference` CHANGE  `priority` `relevance` INT( 11 ) NULL DEFAULT NULL;
+  END IF;
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+ALTER TABLE  `host_source_reference` CHANGE  `id`  `id` INT( 11 ) NOT NULL;
+
+
 -- Replace 'SIEM Events' by 'SIEM/Logger Events'
 REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES
 (128, 'List', 'SIEM/Logger Events', 'SIEM/List.php', 'Top SIEM Events List:top:text:OSS_DIGIT:25:250;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:', '', 29),
@@ -450,7 +466,7 @@ CREATE TABLE IF NOT EXISTS event_field_reference (
 	host_property_reference_id INTEGER NOT NULL,
 	host_source_reference_id   INTEGER NOT NULL,
 	which_userdata             INTEGER NOT NULL,
-	PRIMARY KEY (plugin_id, plugin_sid, property_id)
+	PRIMARY KEY (plugin_id, plugin_sid, host_property_reference_id)
 );
 
 use snort;
@@ -467,7 +483,6 @@ END;
 DELIMITER ';'
 CALL addcol();
 DROP PROCEDURE addcol;
-
 
 use ossim;
 UPDATE config SET conf='server_logger_if_priority' WHERE conf='logger_if_priority';
