@@ -68,12 +68,20 @@ function html_service_level($conn,$host="",$date_range=null) {
     $level = 100;
     $class = "level4";
     //
-    $sql = "SELECT c_sec_level, a_sec_level FROM control_panel WHERE id = ? AND time_range = ?";
-    $params = array(
-        //"global_$user",
-		$host,
-        $range
-    );
+	if($host!='any'){
+		$sql = "SELECT c_sec_level, a_sec_level FROM control_panel WHERE id = ? AND time_range = ?";
+		$params = array(
+			//"global_$user",
+			$host,
+			$range
+		);
+	}else{
+		$sql = "SELECT c_sec_level, a_sec_level FROM control_panel WHERE id = ? AND time_range = ? AND rrd_type='global'";
+		$params = array(
+			'global_'.$user,
+			$range
+		);
+	}
     if (!$rs = & $conn->Execute($sql, $params)) {
         echo "error";
         die($conn->ErrorMsg());
@@ -94,7 +102,11 @@ function html_service_level($conn,$host="",$date_range=null) {
 function global_score($conn, $host) {
     global $conf_threshold;
     //
-    $sql = "SELECT host_ip, compromise, attack FROM host_qualification WHERE host_ip='$host'";
+	if($host!='any'){
+		$sql = "SELECT host_ip, compromise, attack FROM host_qualification WHERE host_ip='$host'";
+	}else{
+		$sql = "SELECT host_ip, compromise, attack FROM host_qualification";
+	}
     if (!$rs = & $conn->Execute($sql)) {
         die($conn->ErrorMsg());
     }
@@ -130,7 +142,8 @@ $conf_threshold = $conf->get_conf('threshold');
 list($level, $levelgr) = html_service_level($conn,$host,$date_range);
 list($score, $alt) = global_score($conn,$host);
 
-?><script type="text/javascript">$("#pbar").progressBar(30);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("SIEM Events")?></b>...');</script><?
+?>
+<script type="text/javascript">$("#pbar").progressBar(30);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("SIEM Events")?></b>...');</script><?
 ob_flush();
 flush();
 usleep(500000);
@@ -148,18 +161,34 @@ if($date_range!=null){
 
 $date_from_week = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 7));
 $limit = 5;
-list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resume($host,$host,$date_from,$date_to); ?><?php
+if($host!='any'){
+	list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resume($host,$host,$date_from,$date_to);
+}else{
+	list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resume('','',$date_from,$date_to);
+}
 //list($sim_events,$sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date,$unique_events,$event_cnt,$plots,$sim_ports,$sim_ipsrc,$sim_ipdst,$sim_gplot,$sim_numevents) = Status::get_SIM($host,$host);
-list($sim_ports,$sim_ipsrc,$sim_ipdst) = Status::get_SIM_Clouds($host,$host,$date_range);
+if($host!='any'){
+	list($sim_ports,$sim_ipsrc,$sim_ipdst) = Status::get_SIM_Clouds($host,$host,$date_range);
+}else{
+	list($sim_ports,$sim_ipsrc,$sim_ipdst) = Status::get_SIM_Clouds('','',$date_range);
+}
 /*
 echo '-------------';
 echo $date_from_week;
 echo $date_to;
 echo '-------------';
 */
-$sim_gplot = Status::get_SIM_Plot($host,$host,$date_from_week,$date_to);
+if($host!='any'){
+	$sim_gplot = Status::get_SIM_Plot($host,$host,$date_from_week,$date_to);
+}else{
+	$sim_gplot = Status::get_SIM_Plot('','',$date_from_week,$date_to);
+}
 //print_r($sim_gplot);
-list($unique_events,$plots,$sim_numevents) = Status::get_SIM_Unique($host,$host,$date_from_week,$date_to,$limit);
+if($host!='any'){
+	list($unique_events,$plots,$sim_numevents) = Status::get_SIM_Unique($host,$host,$date_from_week,$date_to,$limit);
+}else{
+	list($unique_events,$plots,$sim_numevents) = Status::get_SIM_Unique('','',$date_from_week,$date_to,$limit);
+}
 if ($event_cnt < 1) $event_cnt = 1;
 
 ?><script type="text/javascript">$("#pbar").progressBar(40);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("Logger Events")?></b>...');</script><?
@@ -171,8 +200,13 @@ $start = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60));
 $start_week = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 7));
 $start_year = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 365));
 $end = strftime("%Y-%m-%d %H:%M:%S", time());
-list($sem_events,$sem_foundrows) = Status::get_SEM("",$start,$end,"date",1234,$host);
-list($sem_events_week,$sem_foundrows_week,$sem_date,$sem_wplot_y,$sem_wplot_x) = Status::get_SEM("",$start_week,$end,"none",1234,$host);
+if($host!='any'){
+	list($sem_events,$sem_foundrows) = Status::get_SEM("",$start,$end,"date",1234,$host);
+	list($sem_events_week,$sem_foundrows_week,$sem_date,$sem_wplot_y,$sem_wplot_x) = Status::get_SEM("",$start_week,$end,"none",1234,$host);
+}else{
+	list($sem_events,$sem_foundrows) = Status::get_SEM("",$start,$end,"date",1234);
+	list($sem_events_week,$sem_foundrows_week,$sem_date,$sem_wplot_y,$sem_wplot_x) = Status::get_SEM("",$start_week,$end,"none",1234);
+}
 //list($sem_events_year,$sem_foundrows_year,$sem_date_year,$sem_yplot_y,$sem_yplot_x) = Status::get_SEM("",$start_year,$end,"none",1234,$host);
 
 ?><script type="text/javascript">$("#pbar").progressBar(50);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("Anomalies")?></b>...');</script><?
@@ -180,8 +214,11 @@ ob_flush();
 flush();
 usleep(500000);
 // Anomalies
-list($anm_events,$anm_foundrows,$anm_foundrows_week,$anm_date) = Status::get_anomalies($conn,$host);
-
+if($host!='any'){
+	list($anm_events,$anm_foundrows,$anm_foundrows_week,$anm_date) = Status::get_anomalies($conn,$host);
+}else{
+	list($anm_events,$anm_foundrows,$anm_foundrows_week,$anm_date) = Status::get_anomalies($conn);
+}
 ?><script type="text/javascript">$("#pbar").progressBar(60);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("Vulnerabilities")?></b>...');</script><?
 ob_flush();
 flush();
@@ -242,8 +279,8 @@ usleep(500000);
 					<td><table style="width:auto" cellpadding=0 cellspacing=0><tr><td style="text-align:left"><a href="javascript:;" target="topmenu" class="blackp" id="statusbar_incident_max_priority">-</a></td></tr></table></td>
 				</tr>
 				<tr>
-					<td class="bartitle" width="125"><a href="../top.php?option=1&soption=0&url=control_panel%2Falarm_console.php<?=urlencode("?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms")?>" target="topmenu" class="blackp"><?=gettext("Unresolved")?> <b><?=gettext("Alarms")?></b></a></td>
-					<td class="capsule" width="50"><a href="../top.php?option=1&soption=0&url=control_panel%2Falarm_console.php<?=urlencode("?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms")?>" target="topmenu" class="whitepn" id="statusbar_unresolved_alarms">0</a></td>
+					<td class="bartitle" width="125"><a href="../top.php?option=1&soption=0&url=control_panel%2Falarm_console.php<?php if($host!='any'){ $url_temp="?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms"; }else{ $url_temp="?hide_closed=1&hmenu=Alarms&smenu=Alarms"; } echo urlencode($url_temp)?>" target="topmenu" class="blackp"><?=gettext("Unresolved")?> <b><?=gettext("Alarms")?></b></a></td>
+					<td class="capsule" width="50"><a href="../top.php?option=1&soption=0&url=control_panel%2Falarm_console.php<?php if($host!='any'){ $url_temp="?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms"; }else{ $url_temp="?hide_closed=1&hmenu=Alarms&smenu=Alarms"; } echo urlencode($url_temp)?>" target="topmenu" class="whitepn" id="statusbar_unresolved_alarms">0</a></td>
 					<td class="blackp" style="font-size:8px" align="center" id="alarms_date" nowrap>-</td>
 					<td class="blackp" nowrap style="text-align:right"><a href="javascript:;" target="topmenu" class="blackp" id="statusbar_alarm_max_risk_txt"><?=gettext("Highest")?> <b><?=gettext("risk")?></b>:</a></td>
 					<td><table style="width:auto" cellpadding=0 cellspacing=0><tr><td style="text-align:left"><a href="javascript:;" target="topmenu" class="blackp" id="statusbar_alarm_max_risk">-</a></td></tr></table></td>

@@ -31,7 +31,7 @@
 ?>
 <table class="bordered" height="100%">
 	<tr>
-		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=2&soption=2&url=<?=urlencode("vulnmeter/index.php?value=$host&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities")?>" target='topmenu'><?=gettext("Latest Vulnerabilities")?></a></td>
+		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=2&soption=2&url=<?php if($host!='any'){ $temp_url="vulnmeter/index.php?value=$host&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities"; }else{ $temp_url="vulnmeter/index.php?type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities"; } echo urlencode($temp_url)?>" target='topmenu'><?=gettext("Latest Vulnerabilities")?></a></td>
 	</tr>
 	<? if (count($vul_events) < 1) { ?>
 	<tr><td><?=gettext("No Vulnerabilities Found for")?> <i><?=$host?></i></td></tr>
