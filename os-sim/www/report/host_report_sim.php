@@ -258,7 +258,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 	if($host!='any'){
 		$plot = plot_graphic("plotareag", 60, 800, $x, $yy, $xticks, $xlabels, false, "131,137,175",$host);
 	}else{
-		$plot = plot_graphic("plotareag", 60, 800, $x, $yy, $xticks, $xlabels, false, "131,137,175");
+		$plot = plot_graphic("plotareag", 60, 800, $x, $yy, $xticks, $xlabels, false, "131,137,175",'');
 	}
 	?>
 	<tr>
@@ -301,7 +301,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 								if($host!='any'){
 									$plot = plot_graphic("plotarea" . $i, 37, 300, $x, $yy, $xticks, $xlabels, false, "131,137,175", $host);
 								}else{
-									$plot = plot_graphic("plotarea" . $i, 37, 300, $x, $yy, $xticks, $xlabels, false, "131,137,175");
+									$plot = plot_graphic("plotarea" . $i, 37, 300, $x, $yy, $xticks, $xlabels, false, "131,137,175",'%');
 								}
 								$tmp_rowid = "#1-(" . $ev['sid'] . "-" . $ev['cid'] . ")";
 							?>
