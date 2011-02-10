@@ -4948,7 +4948,8 @@ sub execute_omp_command {
     my $cmd = shift;
 
     my $xml;
-    my $openvas_manager_common = "$CONFIG{'NESSUSPATH'} -h $nessushostip -p $nessusport -u $nessususer -w $nessuspassword -iX";
+    
+    my $openvas_manager_common = "$CONFIG{'NESSUSPATH'} -h $nessushost -p $nessusport -u $nessususer -w $nessuspassword -iX";
 
     my $imp = system ("$openvas_manager_common \"$cmd\" > $xml_output 2>&1");
     
