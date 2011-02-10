@@ -185,8 +185,9 @@ for ($i = 1; $i <= $num; $i++) {
 	    die(ossim_error());
 	}
 	if (GET('userfriendly')) {
-		if (GET('value_'.$i) != "") {
-			$filter = $basic_search[$i];
+		if (GET('value_'.$i) != "" || $num == 1) {
+			// If num == 1 is the All Empty query
+			$filter = ($num == 1) ? $basic_search[0] : $basic_search[$i];
 			$filter['value'] = GET('value_'.$i);
 			// First criteria maybe 2, 3, 4 or 5 in User Friendly Search
 			if ($first_criteria == 1) { $first_criteria = $i; }
