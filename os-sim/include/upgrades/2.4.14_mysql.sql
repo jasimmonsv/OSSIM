@@ -93,8 +93,21 @@ REPLACE INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granular
 (76, 'MENU', 'MenuIncidents', 'IncidentsOpen', 'Incidents -> Tickets -> Open Tickets', 0, 0, 1, '02.04'),
 (77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', 0, 0, 1, '02.05');
 
-ALTER TABLE host_properties ADD `anom` TINYINT( 1 ) NOT NULL DEFAULT  '0';
-ALTER TABLE host_property_reference ADD  `description` VARCHAR( 128 ) NOT NULL;
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host_properties' AND COLUMN_NAME = 'anom')
+  THEN
+      ALTER TABLE host_properties ADD `anom` TINYINT( 1 ) NOT NULL DEFAULT  '0';
+      ALTER TABLE host_property_reference ADD  `description` VARCHAR( 128 ) NOT NULL;
+  END IF;        
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 REPLACE INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
 (1, 'software', 3, 'Software'),
 (2, 'cpu', 8, 'CPU'),

@@ -3,14 +3,43 @@ SET AUTOCOMMIT=0;
 BEGIN;
 
 use snort;
-ALTER TABLE `extra_data` ADD `context` INT(11) NOT NULL DEFAULT '0';
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'extra_data' AND COLUMN_NAME = 'context')
+  THEN
+      ALTER TABLE `extra_data` ADD `context` INT(11) NOT NULL DEFAULT '0';
+  END IF;
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
 
 use ossim;
 REPLACE INTO `config` (`conf`, `value`) VALUES ('session_timeout', '15');
 DELETE FROM `user_config` WHERE category='conf' AND name='plugin_layout';
-ALTER TABLE `ossim`.`plugin_sid` ADD INDEX ( `category_id` , `subcategory_id` );
 
-ALTER TABLE `host_property_reference` ADD `ord` INT NOT NULL DEFAULT '0';
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'plugin_sid' AND INDEX_NAME='category_id')
+  THEN
+      ALTER TABLE `plugin_sid` ADD INDEX ( `category_id` , `subcategory_id` );
+  END IF;
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host_property_reference' AND COLUMN_NAME = 'ord')
+  THEN
+      ALTER TABLE `host_property_reference` ADD `ord` INT NOT NULL DEFAULT '0';
+  END IF;
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 REPLACE INTO `host_property_reference` (`id`, `name`, `ord`) VALUES(1, 'software', 3);
 REPLACE INTO `host_property_reference` (`id`, `name`, `ord`) VALUES(2, 'cpu', 8);
 REPLACE INTO `host_property_reference` (`id`, `name`, `ord`) VALUES(3, 'operating-system', 1);

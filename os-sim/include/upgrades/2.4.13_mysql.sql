@@ -2,13 +2,45 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
-ALTER TABLE `acl_entities` ADD  `timezone` FLOAT NOT NULL DEFAULT '0' AFTER `address`;
-ALTER TABLE `users` ADD  `timezone` FLOAT NOT NULL DEFAULT '0' AFTER `first_login`;
-ALTER TABLE `sensor` ADD `tzone` FLOAT NOT NULL DEFAULT 0;
-ALTER TABLE `host_properties` ADD `sensor` VARCHAR( 64 ) DEFAULT NULL AFTER `ip`;
-ALTER TABLE `host_properties` ADD INDEX (  `date` );
-ALTER TABLE `host_properties` ADD INDEX (  `ip` ,  `sensor` );
-ALTER TABLE `host_properties` ADD INDEX (  `property_ref` ,  `value` ( 255 ) );
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'acl_entities' AND COLUMN_NAME = 'timezone')
+  THEN
+      ALTER TABLE `acl_entities` ADD  `timezone` FLOAT NOT NULL DEFAULT '0' AFTER `address`;
+  END IF;
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'timezone')
+  THEN
+      ALTER TABLE `users` ADD  `timezone` FLOAT NOT NULL DEFAULT '0' AFTER `first_login`;
+  END IF;  
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host_properties' AND COLUMN_NAME = 'tzone')
+  THEN
+      ALTER TABLE `host_properties` ADD `sensor` VARCHAR( 64 ) DEFAULT NULL AFTER `ip`;
+  END IF;
+   IF NOT EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'host_properties' AND INDEX_NAME='date')
+   THEN
+        ALTER TABLE `host_properties` ADD INDEX (  `date` );
+   END IF;
+   IF NOT EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'host_properties' AND INDEX_NAME='ip')
+   THEN
+        ALTER TABLE `host_properties` ADD INDEX (  `ip` ,  `sensor` );
+   END IF;
+   IF NOT EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'host_properties' AND INDEX_NAME='property_ref')
+   THEN
+        ALTER TABLE `host_properties` ADD INDEX (  `property_ref` ,  `value` ( 255 ) );
+   END IF;        
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 
 UPDATE `inventory_search` SET  `query` = '(select distinct inet_ntoa(h.ip) from host_os h where h.os=? and h.anom=0 and h.ip not in (select h1.ip from host_os h1 where h1.os<>? and h1.anom=0 and h1.date>h.date)) UNION (select distinct inet_ntoa(ip) from host_os where os=? and anom=1 and ip not in (select distinct ip from host_os where anom=0))' WHERE  `inventory_search`.`type` =  'OS' AND  `inventory_search`.`subtype` =  'OS is';
 UPDATE `inventory_search` SET  `query` = 'select distinct inet_ntoa(ip) from host_os where ip not in (select h.ip from host_os h where h.os=? and h.anom=0 and h.ip not in (select h1.ip from host_os h1 where h1.os<>? and h1.anom=0 and h1.date>h.date)) UNION (select ip from host_os where os=? and anom=1 and ip not in (select distinct ip from host_os where anom=0))' WHERE  `inventory_search`.`type` =  'OS' AND  `inventory_search`.`subtype` =  'OS is Not';
@@ -79,11 +111,25 @@ DELIMITER ;
 CALL net_convert;
 DROP PROCEDURE IF EXISTS net_convert;
 
-REPLACE INTO config (conf, value) VALUES ('server_logger_if_priority', '1');
+REPLACE INTO config (conf, value) VALUES ('server_logger_if_priority', '0');
 
 use snort;
 ALTER TABLE `sensor` CHANGE `sensor` `sensor` TEXT NULL DEFAULT '';
-ALTER TABLE `acid_event` ADD `tzone` FLOAT NOT NULL DEFAULT '0' AFTER `timestamp`;
+
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'acid_event' AND COLUMN_NAME = 'tzone')
+  THEN
+      ALTER TABLE `acid_event` ADD `tzone` FLOAT NOT NULL DEFAULT '0' AFTER `timestamp`;
+  END IF;        
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;

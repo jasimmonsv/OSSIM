@@ -445,7 +445,20 @@ REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql
 (1427, 'SIEM/Logger Wireless Security/Management events', 'SIEM Wireless Security/Management events', 'SIEM/List.php', 'Number of Events:top:text:OSS_DIGIT:25:250;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:', ' AND plugin.source_type = ''Wireless Security/Management'' ', 2)
 
 use snort;
-ALTER TABLE acid_event ADD `ossim_correlation` TINYINT( 1 ) DEFAULT  '0';
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'acid_event' AND COLUMN_NAME = 'ossim_correlation')
+  THEN
+      ALTER TABLE acid_event ADD `ossim_correlation` TINYINT( 1 ) DEFAULT  '0';
+  END IF;
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 
 use ossim;
 UPDATE config SET conf='server_logger_if_priority' WHERE conf='logger_if_priority';
