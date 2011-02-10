@@ -37,34 +37,35 @@ require_once ('../conf/_conf.php');
 require_once ('../utils.php');
 
 $error      = false;
+$tab_ok     = null;
+$no_action  = false;
 $path  		= $ossec_conf;
 $path_tmp   = "/tmp/".uniqid()."_tmp.conf";
 
 if ( @copy ($path , $path_tmp) == false )
 {
-	echo "error###"._("Failure to update")." <b>$ossec_conf</b> (1)";
+	echo "2###"._("Failure to update")." <b>$ossec_conf</b>";
 	exit();
 }
 
 $tab = POST('tab');
 
-
 if($tab == "#tab1")
 {
 	$rules_enabled  = $disabled_rules = $xml_rules = array();
 	
-	$rules             = $_SESSION['_cnf_rules'];
-	$rules_enabled     = POST('rules_added');
+	$rules          = $_SESSION['_cnf_rules'];
+	$rules_enabled  = POST('rules_added');
 	
-	$all_rules         = get_files ($rules_file);
-	$disabled_rules    = array_diff($all_rules, $rules_enabled);
+	$all_rules      = get_files ($rules_file);
+	$disabled_rules = array_diff($all_rules, $rules_enabled);
 	
-	$conf_file 		   = file_get_contents($ossec_conf);
-	$conf_file         = formatXmlString($conf_file);
-	$pattern   		   = '/[\r?\n]+\s*/';
-	$conf_file         = preg_replace($pattern, "\n", $conf_file);
-	$conf_file         = explode("\n", trim($conf_file));
-	$copy_cf           = $conf_file;
+	$conf_file 		= file_get_contents($ossec_conf);
+	$conf_file      = formatXmlString($conf_file);
+	$pattern   		= '/[\r?\n]+\s*/';
+	$conf_file      = preg_replace($pattern, "\n", $conf_file);
+	$conf_file      = explode("\n", trim($conf_file));
+	$copy_cf        = $conf_file;
 	
 	
 	foreach ($rules_enabled as $k => $v)
@@ -115,14 +116,7 @@ if($tab == "#tab1")
 	$conf_file_str = implode("\n", $conf_file);
 	$output        = formatXmlString($conf_file_str);
 	
-	if (@file_put_contents($path, $output, LOCK_EX) == false)
-	{
-		@unlink ($path);
-		@copy ($path_tmp, $path);
-		echo "error###"._("Failure to update")." <b>$ossec_conf</b> (2)";
-	}
-	else
-		echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
+	$tab_ok    = "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
 		
 }
 else if($tab == "#tab2")
@@ -182,7 +176,9 @@ else if($tab == "#tab2")
 	if ( !empty($info_error) )
 	{
 		$info_error	= "<div style='text-align:left; padding-left: 60px;'>"._("We Found the following errors").":</div><div style='padding:10px 5px 10px 80px; text-align:left;'>".implode( "<br/>", $info_error)."</div>";
-		echo "error###".$info_error;
+		echo "2###".$info_error;
+		@unlink ($path);
+		@copy ($path_tmp, $path);
 		exit();
 	}	
 	
@@ -233,50 +229,65 @@ else if($tab == "#tab2")
 	{
 		for ($i=0; $i<$size_m-1; $i++)
 		{
-			$pattern   = trim($match[0][$i]);
-			$copy_cf   = str_replace($pattern, "", $copy_cf);
+			$pattern = trim($match[0][$i]);
+			$copy_cf = str_replace($pattern, "", $copy_cf);
 		}
 		
-		$pattern   = trim($match[0][$size_m-1]);
-		$copy_cf   = str_replace($pattern, $unique_id, $copy_cf);
+		$pattern = trim($match[0][$size_m-1]);
+		$copy_cf = str_replace($pattern, $unique_id, $copy_cf);
 	}
 	else
-		$copy_cf  =  preg_replace("/<\/\s*ossec_config\s*>/", "$unique_id</ossec_config>", $copy_cf, 1);
+		$copy_cf = preg_replace("/<\/\s*ossec_config\s*>/", "$unique_id</ossec_config>", $copy_cf, 1);
 	
 	
-	$copy_cf   = preg_replace("/$unique_id/", $node_sys, $copy_cf);
-	$output    = formatXmlString($copy_cf);
-
-
-	if (file_put_contents($path, $output, LOCK_EX) == false)
-	{
-		@unlink ($path);
-		@copy ($path_tmp, $path);
-		echo "error###"._("Failure to update")." <b>$ossec_conf</b>";
-	}
-	else
-		echo "1###<b>$ossec_conf</b> "._("updated sucessfully");
+	$copy_cf = preg_replace("/$unique_id/", $node_sys, $copy_cf);
+	$output  = formatXmlString($copy_cf);
 	
-		
+	$tab_ok    = "1###<b>$ossec_conf</b> "._("updated sucessfully");
 }
 else if($tab == "#tab3")
 {
-	$data = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
-	
+	$data   = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
+	$tab_ok = "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
+}
+else
+{
+	$no_action = true;
+	echo "2###"._("Error: Illegal actions");
+}
+
+if ($no_action == false)
+{
 	if ( @file_put_contents($path, $data, LOCK_EX) == false )
+	{
+		echo "2###"._("Failure to update")." <b>$ossec_conf</b> (2)";
+		echo $tab_error;
+	}
+	else
+	{
+		$result = test_conf(); 	
+					
+		if ( $result !== true )
+			echo "3###".$result;
+		else
+			echo $tab_ok;
+	}
+	
+	if ( $error == true )
 	{
 		@unlink ($path);
 		@copy ($path_tmp, $path);
-		echo "error###"._("Error to update")." <b>$ossec_conf</b> (2)";
-	}
-	else
-		echo "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
-}
-else
-	echo "error###"._("Error: Illegal actions");
+	}	
+
 	
+}
 
 @unlink($path_tmp);	
+
+
+	
+
+
 
 
 

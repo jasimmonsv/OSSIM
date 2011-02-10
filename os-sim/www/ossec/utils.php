@@ -839,13 +839,24 @@ function test_conf()
 	
 	$result = file('/tmp/ossec-logtest', FILE_IGNORE_NEW_LINES);
 	
-	$result = implode("<br/><br/>", $result);
+	$res    = true; 
+	
+	if ( is_array($result) )
+	{
+		foreach ( $result as $line )
+		{
+			if ( !preg_match ('/INFO/', $line) )
+			{
+				$res = implode("<br/><br/>", $result);
+				break;
+				
+			}
+		}
+	}
+	
 	@unlink ('/tmp/ossec-logtest');
-		
-	if ( preg_match ('/ERROR/', $result) )
-		return $result;
-	else
-		return true;
+	return $res;	
+	
 }
 
 

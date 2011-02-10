@@ -71,12 +71,13 @@ function load_tab1()
 	$("#tab1").css('display', 'block');
 }
 
-function load_tab2()
+function load_tab2(file)
 {				
-	var file = $('#rules option:selected').attr('value');
+	if (file == '')
+		var file = $('#rules option:selected').attr('value');
 	
 	//Loading div
-	$("#tab2 div").css('display','none');
+	$("#tab2 div").hide();
 	
 	if ( $("#msg_load").length >= 1 )
 		$("#msg_load").remove();
@@ -91,9 +92,7 @@ function load_tab2()
 
 			var msg_int = parseInt(msg);
 			var txt     = "";
-			var style   = "";
-			var content_editor = '';
-																	
+																							
 			if ( isNaN(msg_int) )
 			{	
 				/*Code Mirror*/
@@ -113,15 +112,10 @@ function load_tab2()
 					});
 				}
 				else
-				{
 					editor.setCode(msg);	
-				}
-				
-								
+												
 				if (file != editable_files[0])
-				{
 					$(".button").remove();
-				}
 				else
 				{
 					if ( $(".buttons_box div").html() == '' )
@@ -131,27 +125,17 @@ function load_tab2()
 						$('#send').bind('click', function() { save(editor); });
 					}
 				}
-				
 				$("#msg_load").remove();
-				$("#tab2 div").css('display','');
+				$("#tab2 div").show();
 				
 			}
 			else
 			{
-				switch (msg_int){
-					case 1:
+				if ( msg_int == 1)
 					txt = messages[12];
-					break;
-					
-					case 2:
-					txt = messages[3];
-					break;
-					
-					case 3:
-					txt = messages[2];
-					break;
-				}
-				
+				else
+					txt = messages[19];
+								
 				$(".button").remove();
 				$("#container_code").html('');
 				editor = null;
@@ -171,6 +155,7 @@ function save(editor){
 		data: "data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES')),
 		success: function(msg){
 		 
+			var reload = false;
 			var txt    = "";
 			var style  = "";
 			var status = msg.split("###");
@@ -181,23 +166,23 @@ function save(editor){
 			switch (code){
 							
 				case 1:
-					txt = status[1];
+					txt   = status[1];
 					style = 'oss_error';
 				break;
 				
 				case 2:
-					txt = messages[4];
+					txt   = messages[4];
 					style = 'oss_error';
 				break;
 				
 				case 3:
-					txt = messages[5];
+					txt   = messages[5];
 					style = 'oss_error';
 				break;
 				
 				case 4:
-					txt =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"']</a><br/></span>";
-					txt += "<div id='msg_errors'>"+status[1]+"</div>";
+					txt   =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"]</a><br/></span>";
+					txt  += "<div id='msg_errors'>"+status[1]+"</div>";
 					style = 'oss_error';
 				break;
 				
@@ -205,15 +190,16 @@ function save(editor){
 					txt = messages[6];
 					style = 'oss_success';
 					
-					var key = $(layer).dynatree("getTree").getActiveNode();
-															
-					if (  key != null )
-						key = key.data.key;
+					var node = $(layer).dynatree("getTree").getActiveNode();
+					
+					if (node.data.key != 'load_error')
+					{
+						var key = ( node != null ) ? node.data.key : 1;
+						show_tree(false, key, 'silently');
+					}
 					else
-						key = 1;
-					
-					show_tree(false, key, 'silently');
-					
+						var reload = true
+														
 				break;
 			}
 		 
@@ -225,9 +211,22 @@ function save(editor){
 				if (code != 4)
 				{
 					$('#msg_edit').addClass(style);
-					$('#msg_edit').html(txt);
-					$('#msg_edit').fadeIn(2000);
-					setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
+					
+					
+					if (reload == false)
+					{
+						$('#msg_edit').html(txt);
+						$('#msg_edit').fadeIn(2000);
+						setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
+					}
+					else
+					{
+						var cont = 3;
+						setTimeout("countdown("+cont+")",1000);
+						txt += " .<span style='margin-left: 5px'>"+messages[17]+" <span id='countdown'>"+cont+"</span> "+messages[18]+" ...</span>";
+						$('#msg_edit').html(txt);
+						$('#msg_edit').fadeIn(2000);
+					}
 				}
 				else
 				{
@@ -244,6 +243,18 @@ function save(editor){
 			$(".save").css("width", "90px");
 	    }
 	});
+}
+
+function countdown(seconds)
+{
+	var cont = seconds - 1;
+	if ( cont != 0 )
+	{
+		$("#countdown").html(cont);
+		setTimeout("countdown("+cont+")",1000);
+	}
+	else
+		document.location.href='index.php';
 }
 
 function add_at(id, type, path)
@@ -587,7 +598,7 @@ function copy_rule(id)
 				else
 				{
 					style    = 'oss_error';
-					var html =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"']</a><br/></span>";
+					var html =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"]</a><br/></span>";
 					html    += "<div id='msg_errors' style='margin-left:0px;'>"+status[1]+"</div>";
 				
 					$('#msg_edit').append("<div id='parse_errors'></div>");
@@ -701,7 +712,7 @@ function modify_node(__level_key)
 				else
 				{
 					style    = 'oss_error';
-					var html =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"']</a><br/></span>";
+					var html =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"]</a><br/></span>";
 					html    += "<div id='msg_errors' style='margin-left:0px;'>"+status[1]+"</div>";
 				
 					$('#msg_edit').append("<div id='parse_errors'></div>");
@@ -889,7 +900,7 @@ function clone_rf()
 function show_tree(draw_edit, lk, mode)
 {
 	var rule_file = $('#rules option:selected').attr('value');
-	var tab = null;
+	var tab       = null;
 	
 	if (rule_file == '')
 	{
@@ -908,7 +919,6 @@ function show_tree(draw_edit, lk, mode)
 		$('#msg_init').addClass('oss_error');
 		$('#msg_init').html(html);
 		show_tab_content(tab);
-						
 	}
 	else
 	{
@@ -943,21 +953,21 @@ function show_tree(draw_edit, lk, mode)
 					switch (parseInt(status[0])){
 						
 						case 1:
-							style = 'oss_success';
+							style     = 'oss_success';
 							container = 'msg_init';
-							html = "<div class='oss_info'><span>"+status[1]+"</span></div>";
+							html      = "<div class='oss_info'><span>"+status[1]+"</span></div>";
 						break;
 						
 						case 2:
-							style = 'oss_error';
+							style     = 'oss_error';
 							container = 'msg_init';
-							html = "<div class='oss_error'><span>"+status[1]+"</span></div>";
+							html      = "<div class='oss_error'><span>"+status[1]+"</span></div>";
 						break;
 					
 						case 3:
-							style = 'oss_error';
+							style     = 'oss_error';
 							container = 'info_file';
-							html = "<div id='msg' class='oss_error'>"+status[1]+"</div>";
+							html      = "<div id='msg' class='oss_error'>"+status[1]+"</div>";
 						break;
 					}
 					
@@ -1008,7 +1018,7 @@ function show_actions ()
 	var active = $(".active a").attr("href");
 	
 	if ( active == "#tab2")
-		load_tab2();
+		load_tab2('');
 					   
     var file = $('#rules option:selected').attr('value');
        

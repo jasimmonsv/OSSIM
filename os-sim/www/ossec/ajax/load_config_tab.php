@@ -62,21 +62,19 @@ function get_nodes($tree, $node_name)
 	return $nodes;
 }
 
-$error   = false;
-
-$tab     = POST('tab');
-
+$error     = false;
+$tab       = POST('tab');
 $conf_file = @file_get_contents($ossec_conf);
 	
 if ($conf_file == false)
 {
-	echo "error###<b>$ossec_conf</b> "._("not found or you don't have have permission to access");
+	echo "2###"._("File")." <b>$ossec_conf</b> "._("not found or you don't have have permission to access");
 	exit();
 }
 
 if($tab == "#tab1")
 {
-	$rules = array();
+	$rules     = array();
 	$conf_file = formatXmlString($conf_file);
 	$pattern   = '/[\r?\n]+\s*/';
 	$conf_file = preg_replace($pattern, "\n", $conf_file);
@@ -111,8 +109,8 @@ if($tab == "#tab1")
 				if ( $num_found > 0 && ($end_tag == $start_tag-1) )
 				{
 					
-					$pattern1 = "/^<include>(.*)<\/include>/";
-					$pattern2 = "/<!--\s*<include>(.*)<\/include>\s*-->/";
+					$pattern1 = "/^<\s*include\s*>(.*)<\s*\/include\s*>/";
+					$pattern2 = "/<!--\s*<\s*includev>(.*)<\s*\/include\s*>\s*-->/";
 					if ( preg_match($pattern1, $v, $match) )
 					{
 						$rules[$num_found-1]['rules'][$match[1]]['value']  = $v;
@@ -151,7 +149,7 @@ if($tab == "#tab1")
 			
 			if ($error == true)
 			{
-				echo "error###"._("Error to read configuration file")." (2)";
+				echo "2###"._("Error to read configuration file")." (2)";
 				exit;
 			}
 		}
@@ -191,7 +189,7 @@ if($tab == "#tab1")
 		
 	}
 	else
-		echo "error###"._("Error to read configuration file")." (1)";
+		echo "2###"._("Error to read configuration file")." (1)";
 		
 }
 else if ($tab == '#tab2')
@@ -358,10 +356,10 @@ else if ($tab == '#tab2')
 }
 else if ($tab == '#tab3')
 {
-	echo $conf_file;
+	echo "1###".$conf_file;
 }
 else
-	echo "error###"._("Error: Illegal actions");
+	echo "2###"._("Error: Illegal actions");
 
 
 

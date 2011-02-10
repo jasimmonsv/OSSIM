@@ -45,7 +45,7 @@ else
 	$filename = $rules_file.$file;
 	$_SESSION["_current_file"]  = $file;
 			
-	if ( @file_exists( $filename) )
+	if ( file_exists( $filename) )
 	{
 		$file_xml = @file_get_contents ($filename, false);
 	  

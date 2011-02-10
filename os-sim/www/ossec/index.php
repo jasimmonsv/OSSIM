@@ -38,8 +38,12 @@ require_once ('utils.php');
 
 $filename = $rules_file.$editable_files[0];
 		
-$error = false;
+$error      = false;
+$error_conf = null;
 
+$_SESSION["_current_file"]   = $editable_files[0];
+$_level_key_name             = set_key_name($_level_key_name, $file_xml);
+$_SESSION['_level_key_name'] = $_level_key_name;
 
 if ( file_exists( $filename) )
 {
@@ -48,31 +52,25 @@ if ( file_exists( $filename) )
 	if ( $result !== true )
 	{
 		$error = true;
-		$txt = "<div class='errors_ossec'>$result</div>";
+		$info_conf   = "<span style='font-weight: bold;'>"._("Error to load file")."<a onclick=\"$('#msg_errors').toggle();\"> ["._("View errors")."]</a><br/></span>";
+		$info_conf  .= "<div id='msg_errors'>$result</div>";
+		$error_conf  = "<div id='parse_errors' class='oss_error'>$info_conf</div>";
 	}
 	else
 	{
-		$_SESSION["_current_file"] = $editable_files[0];
 		$file_xml = @file_get_contents ($filename, false);
-		
-		
+				
 		if ($file_xml == false)
-		{
-			$error = true;
-			$txt = _("Directory")." <strong>$rules_file</strong> "._("doesn't exist or you don't have permission to access");
-		}
+			$error   = true;
 		else
 		{
-			$_level_key_name = set_key_name($_level_key_name, $file_xml);
-	        $_SESSION['_level_key_name'] = $_level_key_name;
-		
 			$xml_obj=new xml($_level_key_name);
 			$xml_obj->load_file($filename);
 											
 			/*if ($xml_obj->errors['status'] == false)
 			{
 				$error = true;
-				$txt = "<div>"._("Format not allowed:")."</div><div class='errors_xml'>".implode("", $xml_obj->errors['msg'])."</div>";
+				$info = "<div>"._("Format not allowed:")."</div><div class='errors_xml'>".implode("", $xml_obj->errors['msg'])."</div>";
 			}*/
 			
 			$array_xml=$xml_obj->xml2array();
@@ -87,23 +85,18 @@ if ( file_exists( $filename) )
 	}
 }
 else
-{
-	$error = true;
-	$txt   = '<strong>'.$editable_files[0].'</strong> '._("not found or you don't have have permission to access");
-}
+	$error  = true;
 
-
-
+	
 if ($error == true)
 {
 	$file_xml               = '';
-	$tree_json              = "{title:'<span>".$filename."</span>', icon:'../../../pixmaps/theme/any.png', addClass:'size12', isFolder:'true', key:'1', children:[{title: '<span>"._("No Valid XML File")."</span>', icon:'../../../pixmaps/theme/ltError.gif', addClass:'bold_red', key:'1_1'}]}";
+	$tree_json              = "{title:'<span>".$filename."</span>', icon:'../../../pixmaps/theme/any.png', addClass:'size12', isFolder:'true', key:'1', children:[{title: '<span>"._("No Valid XML File")."</span>', icon:'../../../pixmaps/theme/ltError.gif', addClass:'bold_red', key:'load_error'}]}";
 	$_SESSION['_tree_json'] = $tree_json;
 	$_SESSION['_tree']      = array();
-	$info                   = "<div id='info_file'><div id='msg_init_error' class='oss_error'>$txt</div></div>";
 }
 else
-    $info 					= "<div id='msg_init'><div class='oss_info'><span>"._("Click on a brach to edit a node")."</span></div></div>";
+    $info = "<div id='msg_init'><div class='oss_info'><span>"._("Click on a brach to display a node")."</span></div></div>";
 
 ?>
 
@@ -149,10 +142,13 @@ else
 			messages[10] = '<?php echo _("Click on a brach to edit a node")?>';
 			messages[11] = '<?php echo _("Error to load tree")?>';
 			messages[12] = '<?php echo _("File name not allowed")?>';
-			messages[13] = '<?php echo _("Error to save file")?>';
+			messages[13] = '<?php echo _("Error to update file")?>';
 			messages[14] = '<?php echo _("View errors")?>';
 			messages[15] = '<?php echo _("File not editable")?>';
 			messages[16] = '<?php echo _("First save the changes then you can edit")?>';
+			messages[17] = '<?php echo _("Re-loading in")?>';
+			messages[18] = '<?php echo _("second(s)")?>';
+			messages[19] = "<?php echo _("File")." <strong>$rules_file</strong> "._("doesn't exist or you don't have permission to access")?>";
 							
 		var label = new Array();
 			label[0]  = '<?php echo _("Attribute")?>';
@@ -192,32 +188,50 @@ else
 	
 	$(document).ready(function() {
 		
+		var error   = '<?php echo $error;?>';
 		/* Tabs */
-		$("ul.oss_tabs li:first").addClass("active");
-		
-		var error = '<?php echo $error;?>';
 		
 		if ( error == true ) 
 		{	
-			$("ul.oss_tabs li a").css("cursor", "text");	
+			$("ul.oss_tabs #litem_tab2").addClass("active");
+			
+			$('#link_tab1').addClass("dis_tab");
+			
 			$(".button").html("<input type='button' class='save' id='dis_send' disabled='disabled' value='"+label[12]+"'/>");
+			
+			$("#litem_tab2").click(function(event) { 
+				event.preventDefault(); 
+				var tab = $("#litem_tab2");
+				show_tab_content(tab);
+			});
+			
+			$("#clone_tree img").addClass("dis_icon");
+			$("#link_tab2").bind('click', function()  { load_tab2('local_rules.xml'); });
+			$('#send').bind('click', function()       { save(editor); });
+			
+			load_tab2('local_rules.xml');
+			var tab = $("#litem_tab2");
+			show_tab_content(tab);
+			
+			load_tree("<?php echo base64_encode($_SESSION['_tree_json'])?>", 'load_error', 'normal');
+			
 		} 
 		else 
 		{
-			/* Tabs */
-										
 			//On Click Event
-			$("ul. li").click(function(event) { event.preventDefault(); show_tab_content(this); });
+		    $("ul.oss_tabs li:first").addClass("active");
+		
+			$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this); });
 			
 			$("#link_tab1").bind('click', function()  { load_tab1(); });
-			$("#link_tab2").bind('click', function()  { load_tab2(); });
+			$("#link_tab2").bind('click', function()  { load_tab2(''); });
 						
-			load_tree("<?php echo base64_encode($_SESSION['_tree_json'])?>", 1, 'normal');
-			
 			fill_rules('rules', "<?php echo $filename?>");
 			$('#clone_tree').bind('click', function() { draw_clone(); });
 			$('#rules').bind('change', function()     { show_actions(); });
 			$('#send').bind('click', function()       { save(editor); });
+			
+			load_tree("<?php echo base64_encode($_SESSION['_tree_json'])?>", 1, 'normal');
 		}
 	});
 	
@@ -227,6 +241,10 @@ else
 	
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/ossec.css" />
+	<style type='text/css'>
+		ul.oss_tabs li.active a:hover {cursor: pointer !important;} 
+		#countdown{font-weight: bold;}
+	</style>
 	
 </head>
 
@@ -261,10 +279,10 @@ else
 				</td>
 				
 				<td id='oss_crcontainer'>
-					<div id='results_container'><div id='results'><div id='msg_edit'></div></div></div>
+					<div id='results_container'><div id='results'><div id='msg_edit'><?php echo ($error_conf != null) ? $error_conf : null?></div></div></div>
 					<div class="tab_container">
 						
-						<div id="tab1" class="tab_content"><?php echo $info;?></div>
+						<div id="tab1" class="tab_content"><?php echo ($error == false) ? $info : null?></div>
 						
 						<div id="tab2" class="tab_content" style='display:none;'>
 							<div id='container_code'><textarea id="code"></textarea></div>
@@ -272,6 +290,7 @@ else
 								<div><input type='button' class='save' id='send' value='<?php echo _("Update")?>'/></div>
 							</div>
 						</div>
+						
 					</div>
 					
 					<div class='notice'><div><span>(*)<?php echo _("You must restart Ossec for the changes to take effect")?></span></div></div>

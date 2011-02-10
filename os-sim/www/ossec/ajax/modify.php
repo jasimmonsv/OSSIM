@@ -35,7 +35,7 @@ require_once ('classes/Xml_parser.inc');
 require_once ('../utils.php');
 require_once ('../conf/_conf.php');
 
-$error = true;
+$error = false;
 $_level_key_name = $_SESSION['_level_key_name'];
 
 $file            = $_SESSION["_current_file"];
@@ -319,7 +319,8 @@ if ($ok === false)
 	echo "2###"._("Failure to update XML File")." (2)";
 	$error = true;
 }
-
+else
+{
 	$xml    = new xml($_level_key_name);
 	$output = $xml->array2xml($tree);
 					
@@ -332,41 +333,47 @@ if ($ok === false)
 		echo "2###"._("Failure to update XML File"). " (3)";
 		$error = true;
 	}
-	
-		
-	$res = getTree($file);
-										
-	if ( !is_array($res) )
-		echo $res;
 	else
 	{
-		$tree		            = $res;
-		$tree_json              = array2json($tree, $path);
-		$_SESSION['_tree_json'] = $tree_json;
-		$_SESSION['_tree']      = $tree;
-		
-		
-		$result = test_conf(); 	
-	
-		if ( $result !== true )
+		$res = getTree($file);
+											
+		if ( !is_array($res) )
 		{
+			echo $res;
 			$error = true;
-			echo "3###".$result;
 		}
-		
+		else
+		{
+			$tree		            = $res;
+			$tree_json              = array2json($tree, $path);
+			$_SESSION['_tree_json'] = $tree_json;
+			$_SESSION['_tree']      = $tree;
+			
+			
+			$result = test_conf(); 	
+			
+			if ( $result !== true )
+			{
+				$error = true;
+				echo "3###".$result;
+			}
+		}	
 	}	
-				
-	if ($error == true)
-	{
-		@unlink($path);
-		@copy  ($path_tmp, $path);
-		$_SESSION['_tree']       = $tree_cp;
-		$_SESSION['_tree_json']  = array2json($tree_cp, $path);
-	}
-	else
-		echo "1###"._("XML file update successfully")."###".base64_encode($tree_json);
-	
-	@unlink($path_tmp);
+}
+
+
+			
+if ($error == true)
+{
+	@unlink($path);
+	@copy  ($path_tmp, $path);
+	$_SESSION['_tree']       = $tree_cp;
+	$_SESSION['_tree_json']  = array2json($tree_cp, $path);
+}
+else
+	echo "1###"._("XML file update successfully")."###".base64_encode($tree_json);
+
+@unlink($path_tmp);
 	
 
 ?>
