@@ -46,6 +46,11 @@ $db = new ossim_db();
 $conn = $db->connect();
 $conn2 = $db->snort_connect();
 
+if (GET("type")=="alarms")
+	$link = "'../control_panel/alarm_console.php?num_alarms_page=50&hmenu=Alarms&smenu=Alarms&hide_closed=1&query=QQQ',";
+else
+	$link = "'../forensics/base_qry_main.php?clear_allcriteria=1&time_range=all&search_str=QQQ&submit=Signature&num_result_rows=-1&sort_order=time_d&hmenu=Forensics&smenu=Forensics',";
+
 $sensor_where = "";
 $sensor_where_ossim = "";
 if (Session::allowedSensors() != "") {
@@ -76,7 +81,7 @@ if (GET("type")=="alarms") {
 	$query = "select count(*) as num_events,p.name from snort.acid_event a,ossim.plugin_sid p WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid $sensor_where group by p.name order by num_events desc limit 5";
 }
 
-$values = $txts = "";
+$values = $txts = $urls = "";
 
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();
@@ -87,21 +92,21 @@ while (!$rs->EOF) {
     $name = Util::signaturefilter($rs->fields["name"]);
     if (strlen($name)>35) $name=substr($name,0,35)."..";
     $txts .= "'".str_replace("'","\'",$name)."',";
+    $urls .= str_replace("QQQ",urlencode($rs->fields["name"]),$link);
     $rs->MoveNext();
 }
 $values = preg_replace("/,$/","",$values);
 $txts = preg_replace("/,$/","",$txts);
-
+$urls = preg_replace("/,$/","",$urls);
 //
 $db->close($conn);
 $db->close($conn2);
 
 //
-$alarm_urls = "'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz)."&date_to=".date("Y-m-d",$timetz)."'";
 ?>  
 	<script class="code" type="text/javascript">
 	
-		var links = [<?=$alarm_urls?>];
+		var links = [<?=$urls?>];
 
 		function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
             //mouseX = ev.pageX; mouseY = ev.pageY;

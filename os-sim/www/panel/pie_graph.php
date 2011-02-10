@@ -211,7 +211,7 @@ $db->close($conn);
             url = links[neighbor.pointIndex];
             if (typeof(url)!='undefined' && url!='') top.frames['main'].location.href = url;
         }
-        isShowing = -1;
+        var isShowing = -1;
 		function myMoveHandler(ev, gridpos, datapos, neighbor, plot) {
 			if (neighbor == null) {
 	            $('#myToolTip').hide().empty();
@@ -237,7 +237,7 @@ $db->close($conn);
 				grid: {
 					drawBorder: false, 
 					drawGridlines: false,
-					background: '#ffffff',
+					background: 'transparent',
 					shadow:false
 				},
 				<? if ($colors!="") { ?>seriesColors: [ <?=$colors?> ], <? } ?>
