@@ -188,6 +188,7 @@ for ($i = 1; $i <= $num; $i++) {
 		if (GET('value_'.$i) != "") {
 			$filter = $basic_search[$i];
 			$filter['value'] = GET('value_'.$i);
+			// First criteria maybe 2, 3, 4 or 5 in User Friendly Search
 			if ($first_criteria == 1) { $first_criteria = $i; }
 		} else {
 			continue;
@@ -281,6 +282,7 @@ $_SESSION['inventory_search']['result']['has_criterias'] = $has_criterias;
 $host_list = $results[$first_criteria];
 $host_list_aux = array();
 
+// Merge results: AND = array_intersect, OR = add IPs to a hash
 for ($i = $first_criteria + 1; $i <= $num; $i++) if (is_array($results[$i])) {
 	if ($operator == "or") {
 		foreach ($results[$i] as $ip) {
