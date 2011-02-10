@@ -8,7 +8,7 @@ function load_tree(encode_tree, key, mode){
 	}
 	
 	layer = '#srctree'+i;
-	$('#tree_container_bt').append('<div id="srctree'+i+'" style="width:100%"></div>');
+	$('#tree_container_bt').append('<div id="srctree'+i+'" style="width:100%;"></div>');
 	$(layer).html(messages[0]);
 	$(layer).dynatree({
 		onActivate: function(dtnode) {
@@ -116,6 +116,7 @@ function load_tab2()
 				{
 					editor.setCode(msg);	
 				}
+				
 								
 				if (file != editable_files[0])
 				{
@@ -123,9 +124,9 @@ function load_tab2()
 				}
 				else
 				{
-					if ( $('.button').length < 1 )
+					if ( $(".buttons_box div").html() == '' )
 					{
-						var button_save = "<div class='button'><input type='button' class='save' id='send' value='"+label[12]+"'/></div>";
+						var button_save = "<div><input type='button' class='save' id='send' value='"+label[12]+"'/></div>";
 						$(".buttons_box").html(button_save);
 						$('#send').bind('click', function() { save(editor); });
 					}
@@ -176,41 +177,36 @@ function save(editor){
 			var code   = parseInt(status[0]);
 			$(".save").css("width", "110px");
 			$("#send").val(label[13]);
-				 
+										 
 			switch (code){
+							
 				case 1:
 					txt = status[1];
 					style = 'oss_error';
 				break;
 				
 				case 2:
-					txt = status[1];
-					style = 'oss_error';
-				break;
-				
-				case 3:
 					txt = messages[4];
 					style = 'oss_error';
 				break;
 				
-				case 4:
+				case 3:
 					txt = messages[5];
 					style = 'oss_error';
 				break;
 				
-				case 5:
+				case 4:
 					txt =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"']</a><br/></span>";
 					txt += "<div id='msg_errors'>"+status[1]+"</div>";
 					style = 'oss_error';
 				break;
 				
-				case 6:
+				case 5:
 					txt = messages[6];
 					style = 'oss_success';
 					
 					var key = $(layer).dynatree("getTree").getActiveNode();
-					
-										
+															
 					if (  key != null )
 						key = key.data.key;
 					else
@@ -226,7 +222,7 @@ function save(editor){
 				$('#results').html('');
 				$('#results').append("<div id='msg_edit'></div>");
 			 	
-				if (code != 5)
+				if (code != 4)
 				{
 					$('#msg_edit').addClass(style);
 					$('#msg_edit').html(txt);
@@ -565,13 +561,12 @@ function copy_rule(id)
 		data: "key="+id,
 		success: function(msg){
 			var status    = msg.split("###");
-			var style     = '';
 					
 			if ( parseInt(status[0]) != 1)
-				style = 'oss_error';
+				var style = 'oss_error';
 			else
 			{
-				style = 'oss_success';
+				var style = 'oss_success';
 				var level_key  = status[2];
 				$('#rules').val(editable_files[0]);
 				show_tree(false, level_key, 'normal');
@@ -581,10 +576,27 @@ function copy_rule(id)
 			{
 				$('#results').html('');
 				$('#results').append("<div id='msg_edit'></div>");
-				$('#msg_edit').addClass(style);
-				$('#msg_edit').html(status[1]);
-				$('#msg_edit').fadeIn(4000);
-				setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
+				
+				if (status[0] != 4)
+				{
+					$('#msg_edit').addClass(style);
+					$("#msg_edit").html(status[1]);
+					$("#msg_edit").fadeIn(4000);
+					setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
+				}
+				else
+				{
+					style    = 'oss_error';
+					var html =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"']</a><br/></span>";
+					html    += "<div id='msg_errors' style='margin-left:0px;'>"+status[1]+"</div>";
+				
+					$('#msg_edit').append("<div id='parse_errors'></div>");
+					$('#parse_errors').addClass(style);
+					$('#parse_errors').html(html);
+					$('#parse_errors').fadeIn(2000);
+					window.scroll(0,0);
+					setTimeout('$("#msg_edit").fadeOut(4000);', 25000);
+				}
 			}
 				
 		}
@@ -673,29 +685,32 @@ function modify_node(__level_key)
 			if ( parseInt(status[0]) == 1)
 				load_tree(tree, __level_key, 'silently');
 					
-			switch (parseInt(status[0])){
-				case 1:
-					style = 'oss_success';
-					break;
-				
-				case 2:
-					style = 'oss_error';
-					break;
-				
-				case 3:
-					style = 'oss_error';
-					break;
-							
-			}
-		
 			if ( $("#results").length >= 1 )
 			{
 				$('#results').html('');
 				$('#results').append("<div id='msg_edit'></div>");
-				$('#msg_edit').addClass(style);
-				$("#msg_edit").html(status[1]);
-				$("#msg_edit").fadeIn(2000);
-				setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
+				
+				if (status[0] != 3)
+				{
+					style = (parseInt(status[0]) == 2) ? 'oss_error' : 'oss_success';
+					$('#msg_edit').addClass(style);
+					$("#msg_edit").html(status[1]);
+					$("#msg_edit").fadeIn(2000);
+					setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
+				}
+				else
+				{
+					style    = 'oss_error';
+					var html =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"']</a><br/></span>";
+					html    += "<div id='msg_errors' style='margin-left:0px;'>"+status[1]+"</div>";
+				
+					$('#msg_edit').append("<div id='parse_errors'></div>");
+					$('#parse_errors').addClass(style);
+					$('#parse_errors').html(html);
+					$('#parse_errors').fadeIn(2000);
+					window.scroll(0,0);
+					setTimeout('$("#msg_edit").fadeOut(4000);', 25000);
+				}
 			}
 				
 			
@@ -817,6 +832,9 @@ function draw_clone()
 				$('textarea').elastic();	
 				$("input[type='text']").bind('focus', function() { $(this).css('color', '#2F85CA');});
 				$("input[type='text']").bind('blur',  function() { $(this).css('color', '#000000');});	
+				
+				tab = $("ul.oss_tabs li:first");
+				show_tab_content(tab);
 			}
 			
 		});
@@ -864,7 +882,7 @@ function clone_rf()
 			}
 		}
 			
-		});	
+	});	
 
 }
 
@@ -991,10 +1009,7 @@ function show_actions ()
 	
 	if ( active == "#tab2")
 		load_tab2();
-	
-		
-	
-				   
+					   
     var file = $('#rules option:selected').attr('value');
        
     if ( file == editable_files[0] )
@@ -1036,7 +1051,70 @@ function get_new_id(id)
 	return new_id;
 }
 
+function show_node_xml(id)
+{
+	var cont_id    = '#node_xml-'+id;
+	var content_id = '#cont_node_xml-'+id;
+	
+	if ( $(cont_id).hasClass('oss_show') )
+	{
+		$(cont_id).removeClass();
+		$(cont_id).addClass('oss_hide');
+		$(cont_id).hide();
+	}
+	else
+	{
+	
+		$.ajax({
+			type: "POST",
+			url:  "ajax/show_xml_node.php",
+			data: "key="+id,
+		
+			success: function(msg){
+			
+				var style = '';
+				var status = msg.split("###");
+				
+				if ( status[0] == "error" )
+				{
+					
+					if ( $("#results").length >= 1 )
+					{
+						var style='oss_error';
+						$('#results').html('');
+						$('#results').append("<div id='msg_edit'></div>");
+						$('#msg_edit').addClass(style);
+						$('#msg_edit').html(status[1]);
+						$('#msg_edit').fadeIn(2000);
+						setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
+					}
+				}
+				else
+				{
+					if ( $("#txt_rule-"+id).html() == '' )
+					{
+						var editor_rule = new CodeMirror(CodeMirror.replace("txt_rule-"+id), {
+							parserfile: "parsexml.js",
+							stylesheet: "css/xmlcolors.css",
+							path: "codemirror/",
+							continuousScanning: false,
+							content: status[1],
+							height: "110px",
+							lineNumbers: true,
+							readOnly: true
+						});
+					}
+						
+					$(cont_id).removeClass();
+					$(cont_id).addClass('oss_show');
+					$(cont_id).show();
+				}
+			}
+		});	
+	
+	}
 
+} 
 
 
 

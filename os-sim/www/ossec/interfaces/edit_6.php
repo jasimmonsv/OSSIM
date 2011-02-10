@@ -23,8 +23,8 @@
 		</tbody>
 	</table>
 
-	<div id='buttons_box_edit'>
-		<div class='button'><input type='button' class='clone' onclick="javascript: clone_rf();" value='<?=_("clone")?>'/></div>
+	<div class='buttons_box' style='padding-right:10px;'>
+		<div><input type='button' class='clone' onclick="clone_rf();" value='<?php echo _("clone")?>'/></div>
 	</div>
 	
 </form>

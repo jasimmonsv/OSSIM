@@ -83,6 +83,10 @@ then
 		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-control disable debug" >> /etc/sudoers
 fi
 
+if ! [ `grep -c "ossec-logtest" /etc/sudoers` -ne 0 ]
+then
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-logtest -t" >> /etc/sudoers
+fi
 
 # nmap perms
 if [ -e /usr/bin/nmap ]
