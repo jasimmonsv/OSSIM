@@ -151,6 +151,10 @@ $i = 0;
 $and = (strpos($where, "WHERE") != 0) ? " AND " : " WHERE ";
 $i = 0;
 $report_data = array(); // data to fill report_data 
+if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
+	$_conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
+else
+	$_conn = $dbo->connect();
 while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $bgcolor = ($i%2 == 0) ? "bgcolor='#FFFFFF'" : "bgcolor='#F2F2F2'";
 	$max_cid = $myrow[0];
@@ -168,8 +172,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$submit = "#" . (($qs->GetCurrentView() * $show_rows) + $i) . "-(" . $sig_id . "-" . $max_cid . ")";
 	$current_sip = long2ip($last['ip_src']);
 	$current_dip = long2ip($last['ip_dst']);
-	$homelan_sip = (Net::isIpInNet($current_sip, $networks) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
-	$homelan_dip = (Net::isIpInNet($current_dip, $networks) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
+	$homelan_sip = (Net::is_ip_in_cache_cidr($_conn, $current_sip) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
+	$homelan_dip = (Net::is_ip_in_cache_cidr($_conn, $current_dip) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
 	
     /* Print out (Colored Version) -- Alejandro */
     //qroPrintEntryHeader((($colored_alerts == 1) ? GetSignaturePriority($sig_id, $db) : $i) , $colored_alerts);
@@ -232,6 +236,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     );
 }
 $result->baseFreeRows();
+$dbo->close($_conn);
 $qro->PrintFooter();
 $qs->PrintBrowseButtons();
 $qs->PrintAlertActionButtons();

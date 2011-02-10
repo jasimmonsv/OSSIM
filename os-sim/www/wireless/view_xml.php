@@ -38,6 +38,7 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "ReportsWireless");
 require_once 'classes/Security.inc';
 require_once 'Wireless.inc';
+require_once 'classes/Util.inc';
 //
 $sensor = GET('sensor');
 $file = GET('file');
@@ -65,7 +66,7 @@ if (file_exists($path)) {
     foreach ($xml as $k => $v) if ($k=="wireless-network") {
         $val = trim(str_replace("'","",$v->SSID));
         if ($val=="") $val="<no ssid>";
-        $li =  "key:'key1.$i', isFolder:true, icon:'../../pixmaps/theme/wifi.png', title:'".htmlentities($val)." <font style=\"font-size:80%;font-weight:normal\">(".$v->BSSID.")</font>'";
+        $li =  "key:'key1.$i', isFolder:true, icon:'../../pixmaps/theme/wifi.png', title:'".Util::htmlentities($val)." <font style=\"font-size:80%;font-weight:normal\">(".$v->BSSID.")</font>'";
         $j=1; $html = "";
         foreach ($v as $k1 => $v1) if ($k1=="wireless-client") {
             foreach ($v1 as $k2 => $v2) if ($k2=="client-mac") {

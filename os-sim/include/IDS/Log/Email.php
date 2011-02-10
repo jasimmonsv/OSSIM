@@ -46,7 +46,7 @@ require_once 'IDS/Log/Interface.php';
  * @author    Lars Strojny <lars@strojny.net>
  * @copyright 2007-2009 The PHPIDS Group
  * @license   http://www.gnu.org/licenses/lgpl.html LGPL
- * @version   Release: $Id: Email.php,v 1.1 2010/04/27 16:26:22 jmalbarracin Exp $
+ * @version   Release: $Id:Email.php 517 2007-09-15 15:04:13Z mario $
  * @link      http://php-ids.org/
  */
 class IDS_Log_Email implements IDS_Log_Interface
@@ -175,8 +175,8 @@ class IDS_Log_Email implements IDS_Log_Interface
      * This method allows the passed argument to be either an instance of
      * IDS_Init or an array.
      *
-     * @param mixed  $config IDS_Init | array
-     * @param string the class name to use
+     * @param  mixed  $config    IDS_Init | array
+     * @param  string $classname the class name to use
      *
      * @return object $this
      */
@@ -281,8 +281,8 @@ class IDS_Log_Email implements IDS_Log_Interface
         foreach ($data as $event) {
             $attackedParameters .= $event->getName() . '=' .
                 ((!isset($this->urlencode) ||$this->urlencode) 
-                	? urlencode($event->getValue()) 
-                	: $event->getValue()) . ", ";
+                    ? urlencode($event->getValue()) 
+                    : $event->getValue()) . ", ";
         }
 
         $format .= "Affected parameters: %s \n";
@@ -292,10 +292,10 @@ class IDS_Log_Email implements IDS_Log_Interface
         return sprintf($format,
                        $this->ip,
                        date('c'),
-                       $event->getImpact(),
+                       $data->getImpact(),
                        join(' ', $data->getTags()),
                        trim($attackedParameters),
-                       urlencode($_SERVER['REQUEST_URI']),
+                       htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8'),
                        $_SERVER['SERVER_ADDR']);
     }
 

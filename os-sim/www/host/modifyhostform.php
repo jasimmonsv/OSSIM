@@ -351,13 +351,24 @@ if ( GET('newport') != "" || GET('port')!="" )
 							position: 'top',
 							offset: [-60, -10],
 							content: '',
-							baseClass: 'ytooltip',
+							baseClass: 'yltooltip',
 							onBeforeShow: function() {
 									var txt = this.getParent().attr('txt');
 									this.update(txt);
 							}
 			});
 
+			$(".extra").simpletip({
+							position: 'bottom',
+							offset: [0, 0],
+							content: '',
+							baseClass: 'ytooltip',
+							onBeforeShow: function() {
+									var txt = this.getParent().attr('txt');
+									this.update(txt);
+							}
+			});
+			
 			// Autocomplete ports
 			/*var ports = [ <?= $ports_input ?> ];
 		
@@ -606,7 +617,7 @@ if (count($error_nagios) > 0)
 						</td>
 					</tr>
 									
-					<tr>
+					<tr style="display:none">
 						<td style="text-align: left; border:none; padding-top:3px;">
 							<a onclick="$('.inventory').toggle();">
 							<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Inventory")?></a>
@@ -663,12 +674,85 @@ if (count($error_nagios) > 0)
 						</td>
 					</tr>
 				</table>
+				
+				<table class="noborder" width="100%" cellspacing="0" cellpadding="0" align="center" style='background-color: transparent;'>
+				<tr><td class="noborder"><p align="center" style="font-style: italic;"><?php echo gettext("Values marked with (*) are mandatory"); ?></p></td>
+				</tr></table>
+				
 			</form>
 		</td>
 		
 		<td valign="top" class="nobborder" style="min-width: 400px;">
+						
+			<!-- INVENTORY -->
 			<table class="noborder" width="100%" cellspacing="0" cellpadding="0">
+			
+				<?php
+                $properties = Host::get_host_properties($conn, $ip);
+                ?>
+                <tr>
+                    <th colspan="2" style="padding:5px">
+                    <?php echo gettext("Inventory"); ?>
+                    </th>
+                </tr>
                 <?php
+                if(count($properties)==0) {
+                ?>
+                    <tr>
+                        <td colspan="2" class="nobborder" style="padding:5px 0px 5px 0px;text-align:center">
+                            <?php echo _("No Properties found");?>
+                        </td>
+                    </tr>
+                <?php
+                }
+				else
+				{ 
+				?>
+				<tr>
+					<td colspan="2" class="nobborder">
+						<form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>">
+							<input type="hidden" name="ip" value="<?php echo $ip;?>"/>
+							<table width="450px">
+								<tr>
+									<th><?php echo gettext("Property"); ?></th>
+									<th> <?php echo gettext("Value"); ?> </th>
+									<th> <?php echo gettext("Source"); ?> </th>
+									<th> <?php echo gettext("Date"); ?> </th>
+									<th> <?php echo gettext("Actions"); ?></th>
+								</tr>
+								
+								<?php foreach($properties as $prop) { ?>
+								<tr>
+									<td nowrap><?php echo ucwords($prop['property']) ?></td>
+									<? if ($prop['extra']!="" AND $prop['extra']!="None") { ?>
+									<td style="font-size:8pt;" class="extra" txt="<?=str_replace("/\"/","'",$prop['extra'])?>"><?php echo $prop['value'] ?></td>
+									<? } else { ?>
+									<td style="font-size:8pt;"><?php echo $prop['value'] ?></td>
+									<? } ?>
+									<td style="font-size:8pt;"><?php echo $prop['source'] ?></td>
+									<td style="font-size:7pt;"><?php echo $prop['date'] ?></td>
+									<td valign='middle'>
+										<a href=""><img src="../vulnmeter/images/delete.gif" width="16" height="16" border="0" title="<?=_("Delete property")?>"/></a>
+									</td>
+								</tr>
+								<? } ?>
+							</table>
+						</form>
+					</td>
+				</tr>
+				<? } ?>
+                <tr>
+                    <td colspan="2" class="nobborder">&nbsp;</td>
+                </tr>
+			</table>
+			<br/>
+			
+			<a onclick="$('#availability').toggle();"><img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Availability")?></a>
+			
+			<!-- AVALILABILITY -->
+			<table class="noborder" width="100%" cellspacing="0" cellpadding="0" id="availability" <? if (GET('edit') != _("Update Services")) echo "style='display:none'" ?>>
+			
+				<?php
                 $services_list = Host_services::get_ip_data($conn, $ip, '1');
                 ?>
                 <tr>
@@ -683,7 +767,7 @@ if (count($error_nagios) > 0)
                 ?>
                     <tr>
                         <td colspan="2" class="nobborder" style="padding:5px 0px 5px 0px;text-align:center">
-                            <?php echo _("No Services Found");?>
+                            <?php echo _("No Services found");?>
                         </td>
                     </tr>
                 <?php
@@ -716,7 +800,7 @@ if (count($error_nagios) > 0)
 									</td>
 									<td valign='middle'>
 										<a href="modifyhostform.php?ip=<?php echo $ip; ?>&deleteService=<?php echo $services['port'].'-'.$services['protocol'].'-'.$services['service']; ?>">
-										<img src="../vulnmeter/images/delete.gif" width="16" height="16" border="0" /></a>
+										<img src="../vulnmeter/images/delete.gif" width="16" height="16" border="0"  title="<?=_("Delete service")?>"/></a>
 									</td>
 								</tr>
 								<?php }
@@ -796,10 +880,6 @@ if (count($error_nagios) > 0)
 				</tr>
 			</table>
 		</td>
-	</tr>
-	<tr>
-		<td class="noborder"><p align="center" style="font-style: italic;"><?php echo gettext("Values marked with (*) are mandatory"); ?></p></td>
-		<td class='noborder'></td>
 	</tr>
 </table>
 

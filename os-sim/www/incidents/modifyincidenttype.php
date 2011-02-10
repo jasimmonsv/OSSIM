@@ -34,7 +34,8 @@
 * Function list:
 * Classes list:
 */
-require_once ('classes/Session.inc');
+require_once 'classes/Session.inc';
+require_once 'classes/Util.inc';
 Session::logcheck("MenuIncidents", "IncidentsTypes");
 ?>
 
@@ -104,8 +105,8 @@ require_once ('classes/Incident_type.inc');
 $db = new ossim_db();
 $conn = $db->connect();
 
-$custom_name = htmlentities($custom_name, ENT_QUOTES);
-$custom_old_name = htmlentities($custom_old_name, ENT_QUOTES);
+$custom_name = Util::htmlentities($custom_name, ENT_QUOTES);
+$custom_old_name = Util::htmlentities($custom_old_name, ENT_QUOTES);
 
 if ($action=="modify") 
 {

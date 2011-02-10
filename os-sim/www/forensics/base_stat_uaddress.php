@@ -192,6 +192,12 @@ $qro->PrintHeader();
 $i = 0;
 $hosts_ips = array_keys($hosts);
 $report_data = array(); // data to fill report_data 
+
+if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
+	$_conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
+else
+	$_conn = $dbo->connect();
+	
 while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $currentIP = baseLong2IP($myrow[0]);
     $num_events = $myrow[1];
@@ -215,7 +221,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     else {
         $country = strtolower(geoip_country_code_by_addr($gi, $currentIP));
         $country_name = geoip_country_name_by_addr($gi, $currentIP);
-        $homelan = (Net::isIpInNet($currentIP, $networks) || in_array($currentIP, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$currentIP'><img src=\"images/homelan.png\" border=0></a>" : "";
+        $homelan = (Net::is_ip_in_cache_cidr($_conn, $currentIP) || in_array($currentIP, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$currentIP'><img src=\"images/homelan.png\" border=0></a>" : "";
         if ($country) {
             $country_img = " <img src=\"/ossim/pixmaps/flags/" . $country . ".png\" title=\"" . $country_name . "\">";
             $slnk = $current_url."/pixmaps/flags/".$country.".png";
@@ -260,6 +266,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     );*/
 }
 $result->baseFreeRows();
+$dbo->close($_conn);
 $qro->PrintFooter();
 $qs->PrintBrowseButtons();
 $qs->PrintAlertActionButtons();

@@ -43,6 +43,8 @@
 * - Incident_metric
 */
 require_once ("ossim_db.inc");
+require_once 'classes/Util.inc';
+
 class Incident_metric {
     var $id;
     var $incident_id;
@@ -52,8 +54,8 @@ class Incident_metric {
     function Incident_metric($id, $incident_id, $target, $metric_type, $metric_value) {
         $this->id = intval($id);
         $this->incident_id = intval($incident_id);
-        $this->target = htmlentities($target, ENT_COMPAT, "UTF-8");
-        $this->metric_type = htmlentities($metric_type, ENT_COMPAT, "UTF-8");
+        $this->target = Util::htmlentities($target, ENT_COMPAT, "UTF-8");
+        $this->metric_type = Util::htmlentities($metric_type, ENT_COMPAT, "UTF-8");
         $this->metric_value = intval($metric_value);
     }
     function get_id() {

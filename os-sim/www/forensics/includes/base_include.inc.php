@@ -32,28 +32,28 @@ if (!isset($_SESSION["_user"])) {
 //
 // Get Host names to translate IP -> Host Name
 require_once ("ossim_db.inc");
-$db = new ossim_db();
+$dbo = new ossim_db();
 // Multiple Database Server selector
-$conn = $db->connect();
+$conn = $dbo->connect();
 include("classes/Databases.inc");
 $database_servers = Databases::get_list($conn);
-$db->close($conn);
+$dbo->close($conn);
 //
 if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
-	$conn = $db->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
+	$conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
 else
-	$conn = $db->connect();
+	$conn = $dbo->connect();
 require_once ("$BASE_path/includes/SnortHost.inc");
 $sensors = $hosts = $ossim_servers = array();
 list($sensors, $hosts) = SnortHost::get_ips_and_hostname($conn);
 //$ossim_servers = OServer::get_list($conn);
 //$plugins = SnortHost::get_plugin_list($conn);
 require_once ("classes/Net.inc");
-$networks = "";
+//$networks = "";
 $_nets = Net::get_all($conn);
 $_nets_ips = $_host_ips = $_host = array();
 foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
-$networks = implode(",",$_nets_ips);
+//$networks = implode(",",$_nets_ips);
 //
 // added default home host/lan to SESSION[ip_addr]
 //
@@ -69,7 +69,7 @@ if ($_GET["addhomeips"]=="src" || $_GET["addhomeips"]=="dst") {
 	// adding rest of hosts
 	$_hosts_ips = array_keys($hosts);
 	foreach ($_hosts_ips as $current_ip)
-		if (!Net::isIpInNet($current_ip, $networks)) {
+		if (!Net::is_ip_in_cache_cidr($conn, $current_ip)) {
 			$fields = explode(".",$current_ip);
 			$local_ips[] = array(" ","ip_".$_GET["addhomeips"],"=",$fields[0],$fields[1],$fields[2],$fields[3],$current_ip," ","OR","");
 			$total_ips++;
@@ -81,7 +81,7 @@ if ($_GET["addhomeips"]=="src" || $_GET["addhomeips"]=="dst") {
 	}
 	//print_r($_SESSION["ip_addr"]);
 }
-$db->close($conn);
+$dbo->close($conn);
 //
 include_once ("$BASE_path/includes/base_output_html.inc.php");
 include_once ("$BASE_path/includes/base_state_common.inc.php");

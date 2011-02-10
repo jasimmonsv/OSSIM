@@ -281,7 +281,7 @@ else
 
 <?php
 
-if (GET('/withoutmenu') != "1") 
+if (GET('withoutmenu') != "1") 
 	include ("../hmenu.php");
 
 if ( !empty ($scan) )

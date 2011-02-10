@@ -33,7 +33,9 @@
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
+
 require_once ('classes/Security.inc');
+
 require_once ('config.php');
 require_once ('functions.inc');
 require_once ('ossim_db.inc');
@@ -71,8 +73,13 @@ if ($type=="net" && preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$value)) $net = $valu
 $autocnetworks = $autochosts = $autocsensors = "";
 list($_sensors, $_hosts) = Host::get_ips_and_hostname($dbconn,true);
 $_nets = Net::get_all($dbconn,true);
+//echo "ok"; exit;
+
 $sensor_list = Sensor::get_list($dbconn);
+
 $allowedSensors = Session::allowedSensors();
+
+
 
 foreach ($_hosts as $_ip => $_hostname) {
     if ($_hostname!=$_ip) $autochosts .= '{ txt:"'.$_hostname.' [Host:'.$_ip.']", id: "'.$_ip.'" },';

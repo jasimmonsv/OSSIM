@@ -135,13 +135,13 @@ $conn = $db->connect();
 
 $sensors = $hosts = $logger_servers = array(); $hostnames = array(); $sensornames = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
-$networks = "";
+//$networks = "";
 $_nets = Net::get_all($conn);
 $_nets_ips = $_host_ips = $_host = array(); $netnames = array();
 foreach ($_nets as $_net) { $_nets_ips[] = $_net->get_ips(); $netnames[$_net->get_name()] = $_net->get_ips(); }
 foreach ($hosts as $ip=>$name) { $hostnames[$name] = $ip; }
 foreach ($sensors as $ip=>$name) { $sensornames[$name] = $ip; }
-$networks = implode(",",$_nets_ips);
+//$networks = implode(",",$_nets_ips);
 $hosts_ips = array_keys($hosts);
 
 if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
@@ -554,8 +554,8 @@ foreach($result as $res=>$event_date) {
                 $country_img_dst = "";
             }
 
-                    $homelan_src = (Net::isIpInNet($src_ip, $networks) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
-                    $homelan_dst = (Net::isIpInNet($dst_ip, $networks) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+                    $homelan_src = (Net::is_ip_in_cache_cidr($conn, $src_ip) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+                    $homelan_dst = (Net::is_ip_in_cache_cidr($conn, $dst_ip) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
 
             $src_port = $matches[8];
             $dst_port = $matches[9];

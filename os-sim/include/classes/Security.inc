@@ -48,6 +48,7 @@
 */
 require_once 'ossim_error.inc';
 require_once 'IDS/Init.php';
+require_once 'classes/Util.inc'; 
 
 define("MIN_ECHAR_VALUE", 1000);
 
@@ -425,7 +426,7 @@ function ossim_valid() {
 			//
 			if (preg_match('/^regex:(.+)$/', $p, $m)) {
 				if (!preg_match('/^' . $m[1] . '$/', $v)) {
-					$v= htmlentities($v);
+					$v= Util::htmlentities($v);
 					return ossim_set_error($error_msg . " (the string '<b>$v</b>' has not a valid format)");
 				}
 				continue;
@@ -755,7 +756,7 @@ function valid_echars($value)
 		{
 			if ($v < 10000)
 			{
-				ossim_set_error(_("Invalid characters")."<br/>Entered characters: '<b>".htmlentities($text)."</b>'");
+				ossim_set_error(_("Invalid characters")."<br/>Entered characters: '<b>".Util::htmlentities($text)."</b>'");
 			}
 				
 			$text = str_replace("&#".$v.";", "", $value);
@@ -777,7 +778,7 @@ function valid_echars($value)
 		
 		if ( preg_match_all($pattern, $text, $match) )
 		{
-			ossim_set_error(_("Invalid characters")."<br/>Entered characters: '<b>".htmlentities($text)."</b>'");
+			ossim_set_error(_("Invalid characters")."<br/>Entered characters: '<b>".Util::htmlentities($text)."</b>'");
 		}
 	}
 	

@@ -59,6 +59,8 @@ require_once 'classes/Session.inc';
 require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
+
 class SnortHost {
     var $ip;
     var $hostname;
@@ -71,16 +73,16 @@ class SnortHost {
     var $nat;
     var $descr;
     function Host($ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $descr) {
-        $this->ip = htmlentities($ip, ENT_COMPAT, "UTF-8");
-        $this->hostname = htmlentities($hostname, ENT_COMPAT, "UTF-8");
+        $this->ip = Util::htmlentities($ip, ENT_COMPAT, "UTF-8");
+        $this->hostname = Util::htmlentities($hostname, ENT_COMPAT, "UTF-8");
         $this->asset = intval($asset);
         $this->threshold_c = intval($threshold_c);
         $this->threshold_a = intval($threshold_a);
-        $this->rrd_profile = htmlentities($rrd_profile, ENT_COMPAT, "UTF-8");
+        $this->rrd_profile = Util::htmlentities($rrd_profile, ENT_COMPAT, "UTF-8");
         $this->alert = intval($alert);
         $this->persistence = intval($persistence);
-        $this->nat = htmlentities($nat, ENT_COMPAT, "UTF-8");
-        $this->descr = htmlentities($descr, ENT_COMPAT, "UTF-8");
+        $this->nat = Util::htmlentities($nat, ENT_COMPAT, "UTF-8");
+        $this->descr = Util::htmlentities($descr, ENT_COMPAT, "UTF-8");
     }
     function get_ip() {
         return $this->ip;

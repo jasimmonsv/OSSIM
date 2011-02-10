@@ -49,6 +49,8 @@ require_once 'classes/Plugin.inc';
 require_once 'classes/Security.inc';
 require_once 'server_get_servers.php';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
+
 $page = POST('page');
 if (empty($page)) $page = 1;
 $rp = POST('rp');
@@ -95,7 +97,7 @@ foreach($server_list as $server) {
     $name = htmlspecialchars(utf8_encode($server->get_name()));
     $xml.= "<row id='".$name."'>";
     $ip = $server->get_ip();
-    $link_modify = "<a style='font-weight:bold;' href=\"./newserverform.php?name=".urlencode($server->get_name())."\">" . htmlentities($ip) . "</a>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newserverform.php?name=".urlencode($server->get_name())."\">" . Util::htmlentities($ip) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $name . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $server->get_port() . "]]></cell>";

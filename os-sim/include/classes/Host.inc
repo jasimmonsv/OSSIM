@@ -60,6 +60,7 @@
 * - ip_asset()
 * - in_host()
 * - get_related_sensors()
+* - get_property_values()
 * Classes list:
 * - Host
 */
@@ -74,6 +75,8 @@ require_once 'classes/Session.inc';
 require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
+
 class Host {
     var $ip;
     var $hostname;
@@ -90,17 +93,17 @@ class Host {
     var $descr;
 
     function Host($ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $descr, $foundrows = 0, $lat = "", $lon = "", $fqdns="") {
-        $this->ip = htmlentities($ip);
-        $this->hostname = htmlentities($hostname);
-		$this->fqdns = htmlentities($fqdns);
+        $this->ip = Util::htmlentities($ip);
+        $this->hostname = Util::htmlentities($hostname);
+		$this->fqdns = Util::htmlentities($fqdns);
         $this->asset = intval($asset);
         $this->threshold_c = intval($threshold_c);
         $this->threshold_a = intval($threshold_a);
-        $this->rrd_profile = htmlentities($rrd_profile);
+        $this->rrd_profile = Util::htmlentities($rrd_profile);
         $this->alert = intval($alert);
         $this->persistence = intval($persistence);
-        $this->nat = htmlentities($nat);
-        $this->descr = htmlentities($descr);
+        $this->nat = Util::htmlentities($nat);
+        $this->descr = Util::htmlentities($descr);
         $this->foundrows = $foundrows;
 		$this->lat = $lat;
 		$this->lon = $lon;
@@ -881,8 +884,8 @@ class Host {
  
 	function get_host_properties($conn,$ip,$date="") {
         $list = array();
-        $sql = "SELECT * FROM host_properties WHERE ip=?";
-        if ($date!="") $sql .= " AND date>='$date'";
+        $sql = "SELECT h.*,r.name as property,s.name as source FROM host_properties h LEFT JOIN host_property_reference r ON h.property_ref=r.id LEFT JOIN host_source_reference s ON h.source_id=s.id WHERE h.ip=?";
+        if ($date!="") $sql .= " AND h.date>='$date'";
 		        
 		if (!$rs = & $conn->Execute($sql,array($ip))){ 
             print $conn->ErrorMsg();
@@ -896,9 +899,9 @@ class Host {
         return $list;
 	}
 	
-	function get_latest_properties($conn,$date) {
+	function get_latest_properties($conn,$date,$limit=50) {
         $list = array();
-        $sql = "SELECT * FROM host_properties WHERE date>='$date'";
+        $sql = "SELECT * FROM host_properties WHERE date>='$date' LIMIT $limit";
 
 		if (!$rs = & $conn->Execute($sql)){ 
             print $conn->ErrorMsg();
@@ -911,12 +914,22 @@ class Host {
         }
         return $list;
 	}
-    function get_property_values($conn, $id) {
+	
+	function get_property_values($conn, $id) {
         $list = array();
-        $sql = "SELECT COUNT( ip ) AS total , value FROM host_properties
-                WHERE property_ref=?
-                GROUP BY value";
-                
+        if($id!=7) {
+            $sql = "SELECT COUNT( ip ) AS total , value FROM host_properties
+                    WHERE property_ref=? GROUP BY value";
+        }
+        else {
+            $sql = "SELECT COUNT( ip ) AS total, vendor
+                    FROM (
+                    SELECT hp.ip AS ip, hmv.vendor AS vendor
+                    FROM host_properties AS hp
+                    LEFT JOIN host_mac_vendors AS hmv ON SUBSTRING( hp.value, 1, 8 ) = hmv.mac
+                    WHERE hp.property_ref =?
+                    ) AS result GROUP BY vendor";
+        }
         if (!$rs = & $conn->Execute($sql,array($id))){
             print $conn->ErrorMsg();
             exit();

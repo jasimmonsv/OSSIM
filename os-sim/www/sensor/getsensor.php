@@ -50,6 +50,7 @@ require_once 'classes/Security.inc';
 require_once 'get_sensor_plugins.php';
 require_once 'get_sensors.php';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
 $page = POST('page');
 if (empty($page)) $page = 1;
 $rp = POST('rp');
@@ -120,7 +121,7 @@ foreach($sensor_list as $sensor) {
     $ip = $sensor->get_ip();
     $xml.= "<row id='".htmlspecialchars($name)."#".$ip."'>";
     //$ip = "<a href=\"sensor_plugins.php?sensor=$ip\">$ip</a>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./interfaces.php?sensor=".$ip."&name=".urlencode($sensor->get_name())."\">" . htmlentities($ip) . "</a>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./interfaces.php?sensor=".$ip."&name=".urlencode($sensor->get_name())."\">" . Util::htmlentities($ip) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $total_sensors++;
     $xml.= "<cell><![CDATA[" . $name. "]]></cell>";

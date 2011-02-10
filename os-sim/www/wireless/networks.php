@@ -38,6 +38,7 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "ReportsWireless");
 require_once 'classes/Security.inc';
 require_once 'Wireless.inc';
+require_once 'classes/Util.inc';
 //
 $order = GET('order');
 $sensor = GET('sensor');
@@ -110,9 +111,9 @@ foreach ($networks as $data) {
     $_SESSION["clients"][$data['ssid']] = $data['macs'];
     $enc = ($data['encryption']=="None") ? "None" : str_replace("None","<font color=red>None</font>",str_replace(","," ",$data['encryption']));
     echo "<tr $color>
-    <td style='text-align:left;padding-left:5px'><a href=\"ap.php?ssid=".urlencode(base64_encode($data['ssid']))."&sensor=".urlencode($data['sensor'])."\" class='greybox' title='Access Points: ".htmlentities($data['ssid'])."'>".htmlentities(utf8_encode($data['ssid']))."</a></td>
-    <td><a href=\"ap.php?ssid=".urlencode(base64_encode($data['ssid']))."&sensor=".urlencode($data['sensor'])."\" class='greybox' title='Access Points: ".htmlentities($data['ssid'])."'>".$data['aps']."</a></td>
-    <td><a href=\"clients_gb.php?index=$si&ssid=".urlencode(base64_encode($data['ssid']))."\" class='greybox' title='Clients: ".htmlentities($data['ssid'])."'>".$data['clients']."</a></td>
+    <td style='text-align:left;padding-left:5px'><a href=\"ap.php?ssid=".urlencode(base64_encode($data['ssid']))."&sensor=".urlencode($data['sensor'])."\" class='greybox' title='Access Points: ".Util::htmlentities($data['ssid'])."'>".Util::htmlentities(utf8_encode($data['ssid']))."</a></td>
+    <td><a href=\"ap.php?ssid=".urlencode(base64_encode($data['ssid']))."&sensor=".urlencode($data['sensor'])."\" class='greybox' title='Access Points: ".Util::htmlentities($data['ssid'])."'>".$data['aps']."</a></td>
+    <td><a href=\"clients_gb.php?index=$si&ssid=".urlencode(base64_encode($data['ssid']))."\" class='greybox' title='Clients: ".Util::htmlentities($data['ssid'])."'>".$data['clients']."</a></td>
     <td>".$data['type']."</td>
     <td>$enc</td>
     <td>".str_replace("Yes/No","Yes/<font color=red>No</font>",str_replace("No/Yes","Yes/No",$data['cloaked']))."</td>
@@ -121,7 +122,7 @@ foreach ($networks as $data) {
     <td>".$data['description']."</td>
     <td style='text-align:left;padding-left:5px'>".nl2br($data['notes'])."</td>
     <td nowrap>
-        <a href=\"network_edit.php?ssid=".urlencode(base64_encode($data['ssid']))."&sensor=".urlencode($data['sensor'])."\" class='greybox' title='Edit ".htmlentities($data['ssid'])." description, type and notes'><img src='../repository/images/edit.gif' border=0></a>
+        <a href=\"network_edit.php?ssid=".urlencode(base64_encode($data['ssid']))."&sensor=".urlencode($data['sensor'])."\" class='greybox' title='Edit ".Util::htmlentities($data['ssid'])." description, type and notes'><img src='../repository/images/edit.gif' border=0></a>
         <a href=\"javascript:load_data('networks.php?order=$order&action=delete&ssid=".urlencode(base64_encode($data['ssid']))."&sensor=".urlencode($data['sensor'])."')\"><img src='../repository/images/delete_on.gif' border=0></a>
     </td>
     </tr>";

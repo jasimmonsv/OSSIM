@@ -68,7 +68,7 @@ if ($from!="") {
 	}
 
 	// Json properties data
-	$props = Host::get_latest_properties($conn,date("Y-m-d H:i:s",$from));
+	$props = Host::get_latest_properties($conn,date("Y-m-d H:i:s",$from),20);
 	foreach ($props as $prop) {
 		$prop["value"] = str_replace("'","\'",$prop["value"]);
 		$prop["extra"] = str_replace("'","\'",$prop["extra"]);
@@ -109,7 +109,7 @@ if ($from!="") {
     	}
     	$buffer .= "{ key:'p".$prop["id"]."', isFolder:true, expand:true, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["name"])."' },\n";
     }
-    $buffer .= "{ key:'all', expand:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("All Hosts")."' }\n";
+    $buffer .= "{ key:'all', expand:false, icon:'../../pixmaps/theme/host_add.png', title:'"._("All Hosts")."' }\n";
     $buffer .= "] } ]";
 }
 

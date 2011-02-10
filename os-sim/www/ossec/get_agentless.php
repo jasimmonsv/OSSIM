@@ -71,7 +71,7 @@ $page  		= ( empty($page) )  ? 1  : $page;
 $rp    		= ( empty($rp) )    ? 25 : $rp;
 
 
-$sortname	= ( !empty($sortname)  ) ? $sortname  : "hostname status";
+$sortname	= ( !empty($sortname)  ) ? $sortname  : "hostname,status";
 $sortorder	= ( !empty($sortorder) && strtolower($sortorder) == "desc" ) ? "DESC" : "ASC";
 
 $order= $sortname." ".$sortorder;
@@ -102,8 +102,6 @@ foreach ($ossec_list as $k => $v)
 {
 	if ( !is_object($agentless_list[$k]) )
 		Agentless::add_host_data($conn, $v->get_ip(), $v->get_hostname(), $v->get_user(), $v->get_pass(), $v->get_ppass(), null, $v->get_status());
-	else
-		$key = $k;
 }
 
 $agentless_list = null;
@@ -113,9 +111,11 @@ $extra = ( !empty($search) ) ? $search." ORDER BY $order $limit" : "ORDER BY $or
 $agentless_list = Agentless::get_list_pag($conn, $extra);
 
 
-if ($agentless_list[$key])
+
+if ( !empty($agentless_list) )
 {
-    $total = $agentless_list[$key]->get_foundrows();
+    $key   = array_keys($agentless_list);
+	$total = $agentless_list[$key[0]]->get_foundrows();
     if ($total == 0) 
 		$total = count($agentless_list);
 } 
@@ -131,7 +131,7 @@ $xml.= "<total>$total</total>\n";
 foreach($agentless_list as $host)
 {
     $ip   		= $host->get_ip();
-	$hostname 	= "<a style='font-weight:bold;' href='./modifyhostform.php?ip=".urlencode($ip)."'>" .$host->get_hostname() . "</a>" . Host_os::get_os_pixmap($conn, $ip);
+	$hostname 	= "<a style='font-weight:bold;' href='./al_modifyform.php?ip=".urlencode($ip)."'>" .$host->get_hostname() . "</a>" . Host_os::get_os_pixmap($conn, $ip);
 	$user 		= $host->get_user();
 	
 	if ( $host->get_status() == 0 )

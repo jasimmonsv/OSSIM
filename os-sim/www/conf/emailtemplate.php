@@ -38,6 +38,8 @@ require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
 require_once 'classes/Incident_ticket.inc';
 require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
 Session::logcheck('MenuIncidents', 'ConfigurationEmailTemplate');
 $db = new ossim_db();
 $conn = $db->connect();
@@ -326,7 +328,7 @@ if ($preview) {
     </tr>
     <tr>
         <th valign="top" width="10%" style="text-align: right;"><?php echo _("Body") ?>:</td>
-        <td valign="top" style="text-align: left; border-width: 0px;"><pre><?php echo htmlentities($body, ENT_COMPAT, "UTF-8") ?></pre></td>
+        <td valign="top" style="text-align: left; border-width: 0px;"><pre><?php echo Util::htmlentities($body, ENT_COMPAT, "UTF-8") ?></pre></td>
     </tr>
     </table>
 <?php

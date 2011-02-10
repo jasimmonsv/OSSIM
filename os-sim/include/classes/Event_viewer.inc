@@ -247,11 +247,11 @@ class Event_viewer {
     function get_list($options) {
 		$sensors = $hosts = $ossim_servers = array();
 		list($sensors, $hosts) = Host::get_ips_and_hostname($this->conn);
-		$networks = "";
+		/*$networks = "";
 		$_nets = Net::get_all($this->conn);
 		$_nets_ips = $_host_ips = $_host = array();
 		foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
-		$networks = implode(",",$_nets_ips);
+		$networks = implode(",",$_nets_ips);*/
 		$hosts_ips = array_keys($hosts);
 		
         $from_date = !empty($options['date_from']) ? $options['date_from'] : false;
@@ -410,8 +410,8 @@ class Event_viewer {
             }
             $src = $rs->fields['ip_src'] != '0.0.0.0' ? $rs->fields['ip_src'] : '';
             $dst = $rs->fields['ip_dst'] != '0.0.0.0' ? $rs->fields['ip_dst'] : '';
-			$homelan_src = (Net::isIpInNet($src, $networks) || in_array($src, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src'><img src=\"../forensics/images/homelan.png\" align=absmiddle border=0></a>" : "";
-			$homelan_dst = (Net::isIpInNet($dst, $networks) || in_array($dst, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst'><img src=\"../forensics/images/homelan.png\" align=absmiddle border=0></a>" : "";
+			$homelan_src = (Net::is_ip_in_cache_cidr($conn, $src) || in_array($src, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src'><img src=\"../forensics/images/homelan.png\" align=absmiddle border=0></a>" : "";
+			$homelan_dst = (Net::is_ip_in_cache_cidr($conn, $dst) || in_array($dst, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst'><img src=\"../forensics/images/homelan.png\" align=absmiddle border=0></a>" : "";
             switch ($rs->fields['ip_proto']) {
                 case 6: //tcp
 					$rs->fields['port_src'] = $rs->fields['tcp_sport'];

@@ -97,7 +97,7 @@ if ($net_list = Net::get_list($conn, $wherenet)) {
         $net_name = $net->get_name();
         $net_ips = $net->get_ips();
         $hostin = array();
-        foreach($ossim_hosts as $ip => $hname) if ($net->isIpInNet($ip, $net_ips)) {
+        foreach($ossim_hosts as $ip => $hname) if ($net->is_ip_in_cache_cidr($conn, $ip, $net_ips)) {
             $hostin[$ip] = $hname;
             unset($all_hosts[$ip]);
         }

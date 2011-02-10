@@ -75,11 +75,14 @@
 * Classes list:
 * - Alarm
 */
-require_once ('classes/Net.inc');
-require_once ('classes/Session.inc');
-require_once ('classes/Security.inc');
-require_once ('classes/Log_action.inc');
-require_once ("ossim_db.inc");
+require_once 'classes/Net.inc';
+require_once 'classes/Session.inc';
+require_once 'classes/Security.inc';
+require_once 'classes/Log_action.inc';
+require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
+
 class Alarm {
     var $event_id;
     var $backlog_id;
@@ -954,7 +957,7 @@ class Alarm {
 	        }
 	        if (!$rs->EOF) $this->event_data = $rs->fields;
 	    }
-        return @htmlentities($this->event_data[$key],ENT_QUOTES);
+        return Util::htmlentities($this->event_data[$key],ENT_QUOTES);
     }
 }
 ?>

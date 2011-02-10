@@ -179,7 +179,7 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 					<?php
 					if ($net_list = Net::get_list($conn)) {
 						foreach($net_list as $net) {
-							if (Net::isIpInNet($host, $net->get_ips())) {
+							if (Net::is_ip_in_cache_cidr($conn, $host, $net->get_ips())) {
 					?>
 						  <tr>
 							<th><?php

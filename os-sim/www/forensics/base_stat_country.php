@@ -158,13 +158,17 @@ if ($debug_mode == 1) {
 $country_acc = array();
 $countries = array(); // Ordered
 $hosts_ips = array_keys($hosts);
+if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
+	$_conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
+else
+	$_conn = $dbo->connect();
 while (($myrow = $result->baseFetchRow())) {
 	if ($myrow[0] == NULL) continue;
     $currentIP = baseLong2IP($myrow[0]);
     $ip_type = $myrow[1];
     $num_events = $myrow[2];
     $field = ($ip_type=='S') ? 'srcnum' : 'dstnum';
-    if (geoip_country_name_by_addr($gi, $currentIP)=="" && (Net::isIpInNet($currentIP, $networks) || in_array($currentIP, $hosts_ips))) {
+    if (geoip_country_name_by_addr($gi, $currentIP)=="" && (Net::is_ip_in_cache_cidr($_conn, $currentIP) || in_array($currentIP, $hosts_ips))) {
 		$country_name = _("Local");
 		$country = 'local';
 	} else {
@@ -241,6 +245,7 @@ foreach ($countries as $country=>$num) {
 echo '</TABLE>';
 
 $result->baseFreeRows();
+$dbo->close($_conn);
 $qro->PrintFooter();
 //$qs->PrintBrowseButtons();
 $qs->PrintAlertActionButtons();

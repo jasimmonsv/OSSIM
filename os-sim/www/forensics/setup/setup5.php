@@ -17,6 +17,7 @@
 */
 include ("../includes/base_setup.inc.php");
 include ("base_conf_contents.php");
+require_once 'classes/Util.inc'
 session_start();
 $language = $_SESSION['language'];
 $useauth = $_SESSION['useuserauth'];
@@ -77,7 +78,7 @@ if ($error != 1) {
 <P>
 <?php
 echo ("<div class='errorMsg' align='center'>" . $errorMsg . "</div>");
-echo ("<hr><div class='code'><pre>" . htmlentities($confcontents, ENT_COMPAT, "UTF-8") . "</pre><div><br><hr>");
+echo ("<hr><div class='code'><pre>" . Util::htmlentities($confcontents, ENT_COMPAT, "UTF-8") . "</pre><div><br><hr>");
 ?>
 <center>
 You can now safely remove the <b>setup</b> directory from your BASE folder. Please take the time to do this now.<p>

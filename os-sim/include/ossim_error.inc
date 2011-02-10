@@ -45,6 +45,9 @@
 * - OssimWarn extends OssimMainError
 * - OssimNotice extends OssimMainError
 */
+
+require_once 'classes/Util.inc';
+
 class OssimMainError {
     
 	public $errors;
@@ -222,6 +225,11 @@ class OssimError extends OssimMainError {
             "short_descr" => gettext("Password saving failure") ,
             "long_descr" => gettext("Old password is not correct") ,
         );
+        /* Admin password not correct */
+        $this->errors["BAD_ADMIN_PASSWORD"] = array(
+            "short_descr" => gettext("Password saving failure") ,
+            "long_descr" => gettext("Admin password is not correct") ,
+        );
         /* Password mismatch */
         $this->errors["PASSWORDS_MISMATCH"] = array(
             "short_descr" => gettext("Authentication failure") ,
@@ -375,7 +383,7 @@ function printr($var, $die = false, $return = false) {
     elseif ($var === true) $str = 'true';
     elseif ($var === '') $str = "''";
     else $str = print_r($var, true);
-    $str = "<pre>" . htmlentities($str, ENT_COMPAT, "UTF-8") . "</pre>";
+    $str = "<pre>" . Util::htmlentities($str, ENT_COMPAT, "UTF-8") . "</pre>";
     if ($return) {
         return $str;
     }

@@ -48,10 +48,10 @@ $conn = $db->connect();
 $sensors = $hosts = $ossim_servers = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
 $networks = "";
-$_nets = Net::get_all($conn);
+/*$_nets = Net::get_all($conn);
 $_nets_ips = $_host_ips = $_host = array();
 foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
-$networks = implode(",",$_nets_ips);
+$networks = implode(",",$_nets_ips);*/
 $hosts_ips = array_keys($hosts);
 
 $operator = GET('operator');

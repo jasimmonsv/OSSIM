@@ -65,7 +65,10 @@ require_once 'classes/Host_group_sensor_reference.inc';
 require_once 'ossim_conf.inc';
 require_once 'classes/Log_action.inc';
 require_once 'classes/Session.inc';
-require_once ("ossim_db.inc");
+require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
+
 class Host_group {
     var $name;
     var $threshold_c;
@@ -245,7 +248,7 @@ class Host_group {
     function insert($conn, $name, $threshold_c, $threshold_a, $rrd_profile, $sensors, $hosts, $descr) {
         settype($threshold_c, "int");
         settype($threshold_a, "int");
-        $rrd_profile = htmlentities($rrd_profile);
+        $rrd_profile = Util::htmlentities($rrd_profile);
         $name = str_replace(" ", "_", $name);
         $sql = "INSERT INTO host_group ( name, threshold_c, threshold_a, rrd_profile, descr) VALUES (?, ?, ?, ?,?)";
         $params = array(

@@ -81,6 +81,8 @@ require_once 'classes/Policy_action.inc';
 require_once ('classes/Log_action.inc');
 require_once 'ossim_db.inc';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
+
 class Policy {
     var $id;
     var $priority;
@@ -92,7 +94,7 @@ class Policy {
         $this->active = $active;
         $this->order = $order;
         $this->group = $group;
-        $this->descr = htmlentities($descr);
+        $this->descr = Util::htmlentities($descr);
         $this->foundrows = $foundrows;
     }
     function get_id() {
@@ -393,7 +395,7 @@ class Policy {
         return $last;
     }
     function insert($conn, $priority, $active, $group, $order, $begin_hour, $end_hour, $begin_day, $end_day, $descr, $host_source_list, $host_group_source_list, $host_dest_list, $host_group_dest_list, $net_source_list, $net_group_source_list, $net_dest_list, $net_group_dest_list, $port_list, $plug_groups, $sensor_list, $target_list, $correlate, $cross_correlate, $store, $qualify, $resend_alarm, $resend_event, $sign, $sem, $sim, $id = null) {
-        $descr = htmlentities($descr);
+        $descr = Util::htmlentities($descr);
         $priority = intval($priority);
         $correlate = intval($correlate);
         $cross_correlate = intval($cross_correlate);
@@ -458,7 +460,7 @@ class Policy {
 		return $id;
     }
     function update($conn, $id, $priority, $active, $group, $order, $begin_hour, $end_hour, $begin_day, $end_day, $descr, $host_source_list, $host_group_source_list, $host_dest_list, $host_group_dest_list, $net_source_list, $net_group_source_list, $net_dest_list, $net_group_dest_list, $port_list, $plug_groups, $sensor_list, $target_list, $correlate, $cross_correlate, $store, $qualify, $resend_alarm, $resend_event, $sign, $sem, $sim) {
-        $descr = htmlentities($descr);
+        $descr = Util::htmlentities($descr);
         $id = intval($id);
         $correlate = intval($correlate);
         $cross_correlate = intval($cross_correlate);

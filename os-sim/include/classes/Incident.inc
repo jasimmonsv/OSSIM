@@ -105,6 +105,9 @@ require_once 'classes/Security.inc';
 require_once 'classes/Util.inc';
 require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
+
 define('HIGH_PRIORITY', 7);
 define('MEDIUM_PRIORITY', 4);
 define('LOW_PRIORITY', 1);
@@ -438,7 +441,7 @@ class Incident {
         if ($type == 'vulnerability') return $vulnerability;
     }
     function colorize_status($status,$returnEcho=false) {
-        $status = htmlentities($status, ENT_COMPAT, "UTF-8");
+        $status = Util::htmlentities($status, ENT_COMPAT, "UTF-8");
         if($returnEcho){
             if ($status == 'Open') $returnHtml= "<font style=\"color:#FF0000\"><b>" . _("Open") . "</b></font>";
             elseif ($status == 'Closed') $returnHtml= "<font style=\"color:#0000FF\"><b>" . _("Closed") . "</b></font>";
@@ -1055,8 +1058,8 @@ class Incident {
     */
     function print_td_priority($priority, $bgcolor, $fgcolor) {
         $priority = intval($priority);
-        $bgcolor = htmlentities($bgcolor, ENT_COMPAT, "UTF-8");
-        $fgcolor = htmlentities($fgcolor, ENT_COMPAT, "UTF-8");
+        $bgcolor = Util::htmlentities($bgcolor, ENT_COMPAT, "UTF-8");
+        $fgcolor = Util::htmlentities($fgcolor, ENT_COMPAT, "UTF-8");
         $priority_td = "
         <td>
           <table align=\"center\" bgcolor=\"$bgcolor\" fgcolor=\"$fgcolor\">

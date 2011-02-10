@@ -370,7 +370,7 @@ if (Session::am_i_admin()) { $correlation = 1;
     $menu["Analysis"][] = array(
         "name" => gettext("HIDS") ,
         "id" => "HIDS",
-        "url" => "ossec/index.php"
+        "url" => "ossec/ossec_control.php"
     );
     $hmenu["HIDS"][] = array(
         "name" => gettext("Ossec") ,

@@ -462,14 +462,12 @@ class Sensor {
         /* read from network table */
         if ($net_list = Net::get_list($conn)) {
             foreach($net_list as $net) {
-                $net_name = $net->get_name();
-                $ips = $net->get_ips();
-                if (Net::isIpInNet($host_ip, $ips)) {
+                if (Net::is_ip_in_cache_cidr($conn, $host_ip, $net->get_ips())) {
                     $query = "SELECT ip
                               FROM sensor, net_sensor_reference 
                               WHERE name = sensor_name AND net_name = ?";
                     if (!$rs = & $conn->Execute($query, array(
-                        $net_name
+                        $net->get_name()
                     ))) {
                         print $conn->ErrorMsg();
                     } elseif (!$rs->EOF) {
@@ -524,16 +522,14 @@ class Sensor {
         /* read from network table */
         if ($net_list = Net::get_list($conn)) {
             foreach($net_list as $net) {
-                $net_name = $net->get_name();
-                $ips = $net->get_ips();
-                if (Net::isIpInNet($host_ip, $ips)) {
+                if (Net::is_ip_in_cache_cidr($conn, $host_ip, $net->get_ips())) {
                     $query = "SELECT sensor_interfaces.interface
                               FROM sensor, net_sensor_reference, sensor_interfaces
                               WHERE sensor_interfaces.name = sensor.name AND
                                     net_name = ? AND
                                     sensor_interfaces.main = 1";
                     if (!$rs = & $conn->Execute($query, array(
-                        $net_name
+                        $net->get_name()
                     ))) {
                         print $conn->ErrorMsg();
                     } elseif (!$rs->EOF) {

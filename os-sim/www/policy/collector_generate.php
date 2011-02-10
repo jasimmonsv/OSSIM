@@ -38,6 +38,7 @@ require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
 require_once 'classes/Collectors.inc';
 require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
 
 Session::logcheck("MenuConfiguration", "ConfigurationPlugins");
 $db = new ossim_db();
@@ -147,7 +148,7 @@ if ($download==0) { // view
 	</head>
 	<body style="height: auto; margin: 0 0 10px 0">
 	<pre style='font-size:12px;font-family:courier'><?php
-	foreach ($out as $line) echo htmlentities($line);
+	foreach ($out as $line) echo Util::htmlentities($line);
 	?>
 	</pre>
 	</body>

@@ -188,10 +188,14 @@ elseif (POST("insert"))
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
 			$error->display("PASSWORDS_MISMATCH");
-		} elseif ($_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN && count($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($oldpass) . "'")) < 1) {
+		} elseif (count($user_list = Session::get_list($conn, "WHERE login = '" . $_SESSION["_user"] . "' and pass = '" . md5($oldpass) . "'")) < 1) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
-			$error->display("BAD_OLD_PASSWORD");
+			if ($user != $_SESSION["_user"]) {
+				$error->display(_("BAD_ADMIN_PASSWORD"));
+			} else {
+				$error->display(_("BAD_OLD_PASSWORD"));
+			}
 		} elseif (strlen($pass1) < $pass_length_min) {
 			require_once ("ossim_error.inc");
 		    $error = new OssimError();

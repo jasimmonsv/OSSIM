@@ -50,10 +50,13 @@
 * Classes list:
 * - Action
 */
-require_once ('classes/Action_email.inc');
-require_once ('classes/Action_exec.inc');
-require_once ('classes/Log_action.inc');
-require_once ("ossim_db.inc");
+require_once 'classes/Action_email.inc';
+require_once 'classes/Action_exec.inc';
+require_once 'classes/Log_action.inc';
+require_once 'ossim_db.inc';
+require_once 'classes/Util.inc';
+
+
 class Action {
     var $id;
     var $action_type;
@@ -63,7 +66,7 @@ class Action {
         $this->action_type = $action_type;
 		$this->cond = $cond;
 		$this->on_risk = $on_risk;
-        $this->descr = htmlentities($descr);
+        $this->descr = Util::htmlentities($descr);
         $this->foundrows = $foundrows;
     }
     function get_id() {

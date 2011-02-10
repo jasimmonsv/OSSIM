@@ -59,11 +59,13 @@ $_SERVER["APACHE_PORT"]= (is_array($port) && intval($port[0])>0) ? intval($port[
 //
 // select src_ip from alarm table and not defined into nets
 //
-$networks = "";
+$ips = array();
+/*$networks = "";
 $nets = Net::get_all($conn);
 $nets_ips = $ips = array();
 foreach ($nets as $net) $nets_ips[] = $net->get_ips();
-$networks = implode(",",$nets_ips);
+$networks = implode(",",$nets_ips);*/
+
 // src_ips from acid_event
 if ($date_from!="") $from = "AND day>='$date_from'";
 if ($date_to!="") $to = "AND day<='$date_to'";
@@ -79,7 +81,7 @@ while (!$rs->EOF) {
     $ip = $rs->fields["ip_src"];
     if (!isset($already[$ip]) && Session::hostAllowed($conn,$rs->fields["ip_dst"])) {
         $already[$ip]++;
-        if (!Net::isIpInNet($ip, $networks)) {
+        if (!Net::is_ip_in_cache_cidr($conn, $ip)) {
             // geoip
             $s_country = strtolower(geoip_country_code_by_addr($gi, $ip));
             $s_country_name = geoip_country_name_by_addr($gi, $ip);

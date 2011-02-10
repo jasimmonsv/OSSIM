@@ -56,8 +56,12 @@
 	// end add tabs urls
 	
 	if (is_array($tabsavt)) {
-		foreach ($tabsavt as $tab_id => $tab_values)
-			$tabsmerge[$tab_id] = $tab_values;
+		$orders = array("1001","1005","1003","1007","1004","1002","1006");
+		foreach ($orders as $cur_id) {
+			foreach ($tabsavt as $tab_id => $tab_values) {
+				if ($cur_id == $tab_id) { $tabsmerge[$tab_id] = $tab_values; }
+			}
+		}
 	}
 
 	if (!empty($tabsmerge) && is_array($tabsmerge))
@@ -73,7 +77,7 @@
 			
 			$tabshow[$tab_id] = $tabsmerge[$tab_id];
 		}
-		ksort($tabshow);
+		//ksort($tabshow);
 		
 		$ctabs = count($tabshow) - 1;
 		$j = 0;
@@ -81,8 +85,20 @@
 		//echo '------';
 		//print_r($tabshow);
 		//echo '-----';
+		$avt_icons = array(
+			"1001" => "../pixmaps/panel/executive.png",
+			"1002" => "../pixmaps/panel/network.png",
+			"1003" => "../pixmaps/panel/tickets.png",
+			"1004" => "../pixmaps/panel/compliance.gif",
+			"1005" => "../pixmaps/panel/security.png",
+			"1006" => "../pixmaps/panel/inventory.png",
+			"1007" => "../pixmaps/panel/vulnerabilities.png",
+		);
 		foreach($tabshow as $tab_id => $tab_name) {
-			if (strlen($tabsmerge[$tab_id]["tab_icon_url"]) > 0) {
+			if ($avt_icons[$tab_id] != "" && file_exists($avt_icons[$tab_id])) {
+				$image_string = '<img align="absmiddle" border="0" src="' . $avt_icons[$tab_id] . '" height="20">&nbsp;';
+			}
+			elseif (strlen($tabsmerge[$tab_id]["tab_icon_url"]) > 0) {
 				$image_string = '<img align="absmiddle" border="0" src="' . $tabsmerge[$tab_id]["tab_icon_url"] . '" height="20">&nbsp;';
 			} else {
 				$image_string = "";
@@ -97,7 +113,7 @@
 				$url = '?panel_id='.$tab_id.'&hmenu=dashboards&smenu=dashboards';
 				//$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='".$tabsmerge[$tab_id]["tab_url"]."' class='gristab$on' target='main'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
 			}
-			$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='$url' class='gristab$on'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
+			$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'><a href='$url' style='text-decoration:none'>".$image_string ."</a></td><td class='nobborder'><a href='$url' class='gristab$on'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
 			if ($panel_id == $tab_id) { ?>
 					<td style="vertical-align:bottom" class="noborder">
 						<table border='0' cellpadding='0' cellspacing='0' height="26" class="noborder">

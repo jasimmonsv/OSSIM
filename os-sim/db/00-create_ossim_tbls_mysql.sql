@@ -150,6 +150,14 @@ CREATE TABLE network_device (
   PRIMARY KEY (ip)
 );
                 
+DROP TABLE IF EXISTS net_cidrs;
+CREATE TABLE IF NOT EXISTS `net_cidrs` (
+`cidr` VARCHAR( 20 ) NOT NULL ,
+`begin` INT(11) UNSIGNED NOT NULL ,
+`end` INT(11) UNSIGNED NOT NULL ,
+PRIMARY KEY ( `cidr` , `begin` , `end` )
+);
+
 DROP TABLE IF EXISTS `inventory_search`;
 CREATE TABLE IF NOT EXISTS `inventory_search` (
   `type` varchar(32) NOT NULL,

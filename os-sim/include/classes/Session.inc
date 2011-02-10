@@ -82,10 +82,10 @@ require_once 'ossim_acl.inc';
 require_once 'ossim_conf.inc';
 session_start();
 
-if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) && !$force_gacl)
+if (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE)) && !$force_gacl) {
 	include "Acl.inc";
+}
 else {
-
 //session_start();
 // Locale needs $_SESSION
 require_once 'classes/Locale.inc';
@@ -566,7 +566,7 @@ class Session {
         $allowed_nets = Session::allowedNets($user);
         $allowed_sensors = Session::allowedSensors($user);
 		if ($allowed_nets) {
-			if (!(Net::isIpInNet($host, $allowed_nets))) {
+			if (!(Net::is_ip_in_cache_cidr($conn, $host, $allowed_nets))) {
                 $hostAllowedCache["$user"]["$host"] = false;
 				return false;
             }

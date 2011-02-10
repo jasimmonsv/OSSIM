@@ -152,6 +152,12 @@ echo '<FORM METHOD="post" NAME="PacketForm" id="PacketForm" ACTION="base_stat_se
 $qro->PrintHeader();
 $i = 0;
 $report_data = array(); // data to fill report_data 
+
+if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
+	$_conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
+else
+	$_conn = $dbo->connect();
+	
 while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $sensor_id = $myrow[0];
     $event_cnt = $myrow[1];
@@ -163,7 +169,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $stop_time = $myrow[6];
     $sname = GetSensorName($sensor_id, $db);
 	$sensor_ip = preg_replace("/\-.*/","",$sname);
-	$homelan = (Net::isIpInNet($sensor_ip, $networks) || in_array($sensor_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$sensor_ip'><img src=\"images/homelan.png\" border=0></a>" : "";
+	$homelan = (Net::is_ip_in_cache_cidr($_conn, $sensor_ip) || in_array($sensor_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$sensor_ip'><img src=\"images/homelan.png\" border=0></a>" : "";
 	$country = strtolower(geoip_country_code_by_addr($gi, $sensor_ip));
 	$country_name = geoip_country_name_by_addr($gi, $sensor_ip);
 	if ($country) {
@@ -199,6 +205,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     );
 }
 $result->baseFreeRows();
+$dbo->close($_conn);
 $qro->PrintFooter();
 $qs->PrintBrowseButtons();
 $qs->PrintAlertActionButtons();

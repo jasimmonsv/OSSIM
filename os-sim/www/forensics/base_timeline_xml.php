@@ -3,8 +3,9 @@
 header("Content-type: application/xml"); 
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsForensics");
-require_once ('vars_session.php');
+require_once 'vars_session.php';
 require_once 'ossim_db.inc';
+require_once 'classes/Util.inc'
 
 $db = new ossim_db();
 $conn = $db->connect();
@@ -27,7 +28,7 @@ if (!$rs = $conn->Execute($sql, $params)) {
 $format_date = date("M d Y G:i:s")." GMT";
 $xml .= "<data>";
 
-if ($rs->EOF) $xml .= "<event start='$format_date' title='"._("No events matching your search criteria have been found")."' link='' icon=''>".htmlentities(_("No events matching your search criteria have been found"))."</event>";
+if ($rs->EOF) $xml .= "<event start='$format_date' title='"._("No events matching your search criteria have been found")."' link='' icon=''>".Util::htmlentities(_("No events matching your search criteria have been found"))."</event>";
 
 while( !$rs->EOF ) {
 	
@@ -41,7 +42,7 @@ while( !$rs->EOF ) {
 		
 	$flag = preg_replace("/http\:\/\/(.*?)\//","/",$rs->fields['dataV4']);
 			
-	$xml .="<event start='".$format_date."' title='".str_replace("'", "\"", htmlentities($rs->fields['dataV1']))."' ";
+	$xml .="<event start='".$format_date."' title='".str_replace("'", "\"", Util::htmlentities($rs->fields['dataV1']))."' ";
 	$xml .="link='./base_qry_alert.php?submit=#".$rs->fields['dataI1']."-(".$rs->fields['dataI2']."-".$rs->fields['dataI3'].")&amp;sort_order=time_d'";
 	$flag = ( $flag =="" ) ? "/ossim/pixmaps/1x1.png" : $flag;
 	$xml .= " icon='$flag'>";
