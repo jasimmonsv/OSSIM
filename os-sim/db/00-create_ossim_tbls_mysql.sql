@@ -901,6 +901,16 @@ CREATE TABLE event (
 );
 CREATE INDEX event_idx ON event (timestamp);
 
+DROP TABLE IF EXISTS event_field_reference;
+CREATE TABLE event_field_reference (
+	plugin_id                  INTEGER NOT NULL,
+	plugin_sid                 INTEGER NOT NULL,
+	host_property_reference_id INTEGER NOT NULL,
+	host_source_reference_id   INTEGER NOT NULL,
+	which_userdata             INTEGER NOT NULL,
+	PRIMARY KEY (plugin_id, plugin_sid, property_id)
+);
+
 --
 -- Table: Backlog
 --
