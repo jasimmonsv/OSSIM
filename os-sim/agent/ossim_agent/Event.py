@@ -104,7 +104,7 @@ class Event:
     def __setitem__(self, key, value):
 
         if key in self.EVENT_ATTRS:
-            if key in EVENT.EVENT_BASE64:
+            if key in self.EVENT_BASE64:
                 self.event[key] = b64encode (value)
             else:
                 self.event[key] = value
