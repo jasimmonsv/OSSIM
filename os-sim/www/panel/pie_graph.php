@@ -59,19 +59,18 @@ switch(GET("type")) {
 		require_once("classes/Plugin.inc");
 		$oss_p_id_name = Plugin::get_id_and_name($conn, "WHERE name LIKE 'ossec%'");
 		$plugins = implode(",",array_flip ($oss_p_id_name));
-		$sqlgraph = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' AND a.plugin_id in ($plugins) $sensor_where group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = "select count(a.sid) as num_events,p.id,p.name from snort.acid_event a,ossim.plugin p WHERE p.id=a.plugin_id AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' AND a.plugin_id in ($plugins) $sensor_where group by p.name order by num_events desc LIMIT 8";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
 		    while (!$rg->EOF) {
-		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
 		        $data .= "['".$rg->fields["name"]."',".$rg->fields["num_events"]."],";
-                $urls .= "'".$forensic_link."&category%5B1%5D=&category%5B0%5D=".$rg->fields["category_id"]."',";
+                $urls .= "'".$forensic_link."&plugin=".$rg->fields["id"]."',";
 		        $rg->MoveNext();
 		    }
 		}
 		$colors = '"#FFD0BF","#FFBFBF","#FF9F9F","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222","#7F1717"';
-		$h = 200;
+		$h = 220;
 		break;
 						
 	// Authentication Login vs Failed Login Events - Last Week
