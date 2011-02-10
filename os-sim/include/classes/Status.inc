@@ -148,7 +148,7 @@ class Status {
 		// IP Filtering
 		list($ip_where,$ip_where_src,$ip_where_dst) = Status::get_sim_ip_filter($ip_src,$ip_dst);
 		
-		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.sid, plugin_sid.name as sig_name, acid_event.cid, acid_event.plugin_sid, timestamp, acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto, acid_event.ossim_type, acid_event.ossim_priority, acid_event.ossim_reliability, acid_event.ossim_asset_src, acid_event.ossim_asset_dst, acid_event.ossim_risk_c, acid_event.ossim_risk_a, acid_event.layer4_sport, acid_event.layer4_dport FROM acid_event FORCE INDEX (timestamp) LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 AND (timestamp >='".date("Y-m-d")." 00:00:00')$sensor_where $ip_where ORDER BY timestamp DESC";
+		$sql = "SELECT SQL_CALC_FOUND_ROWS acid_event.sid, plugin_sid.name as sig_name, acid_event.cid, acid_event.plugin_sid, timestamp, acid_event.ip_src, acid_event.ip_dst, acid_event.ip_proto, acid_event.ossim_type, acid_event.ossim_priority, acid_event.ossim_reliability, acid_event.ossim_asset_src, acid_event.ossim_asset_dst, acid_event.ossim_risk_c, acid_event.ossim_risk_a, acid_event.layer4_sport, acid_event.layer4_dport FROM acid_event FORCE INDEX (timestamp) LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 AND (timestamp >='".$from_date." 00:00:00')$sensor_where $ip_where ORDER BY timestamp DESC";
 		
         $foundrows = 0;
 		$highrisk = "-";
