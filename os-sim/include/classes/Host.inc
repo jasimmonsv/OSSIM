@@ -959,7 +959,7 @@ class Host {
 		else 
 		{
             while (!$rs->EOF){
-            	$list[$rs->fields["name"]] = array ($rs->fields["id"], $rs->fields["priority"]);
+            	$list[$rs->fields["name"]] = array ($rs->fields["id"], $rs->fields["relevance"]);
                 $rs->MoveNext();
             }
         }

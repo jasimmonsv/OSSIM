@@ -40,12 +40,21 @@ usleep(500000);
 require_once ('classes/Session.inc');
 //Session::logcheck("MenuIncidents", "ControlPanelAlarms");
 $hide_closed = 1; $date_from = $date_sup = "";
-list($alarm_list, $count) = Alarm::get_list3($conn, $host, $host, $hide_closed, "ORDER BY a.timestamp DESC", 0, 5, $date_from, $date_to, "");
+if($host!='any'){
+	list($alarm_list, $count) = Alarm::get_list3($conn, $host, $host, $hide_closed, "ORDER BY a.timestamp DESC", 0, 5, $date_from, $date_to, "");
+}else{
+	list($alarm_list, $count) = Alarm::get_list3($conn, '', '', $hide_closed, "ORDER BY a.timestamp DESC", 0, 5, $date_from, $date_to, "");
+}
 if ($network) {
 	list($host_start, $host_end) = Util::cidr_conv($host);
 	$retfields = Alarm::get_max_byfield($conn,"risk","WHERE (inet_aton('$host_start') <= a.src_ip AND inet_aton('$host_end') >= a.src_ip) OR (inet_aton('$host_start') <= a.dst_ip AND inet_aton('$host_end') >= a.dst_ip)");
-} else
-	$retfields = Alarm::get_max_byfield($conn,"risk","WHERE a.src_ip=INET_ATON('$host') OR a.dst_ip=INET_ATON('$host')");
+} else {
+	if($host!='any'){
+		$retfields = Alarm::get_max_byfield($conn,"risk","WHERE a.src_ip=INET_ATON('$host') OR a.dst_ip=INET_ATON('$host')");
+	}else{
+		$retfields = Alarm::get_max_byfield($conn,"risk");
+	}
+}
 $a_maxrisk = $retfields[0];
 $backlog_id = $retfields[1];
 $alarm_link = "../top.php?option=1&soption=0&url=".urlencode("control_panel/events.php?backlog_id=$backlog_id&hmenu=Alarms&smenu=Alarms");
@@ -53,7 +62,7 @@ $a_date = "-";
 ?>
 <table align="center" width="100%" height="100%" class="bordered">
 	<tr>
-		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=1&soption=0&url=<?=urlencode("control_panel/alarm_console.php?&hide_closed=1&hmenu=Alarms&smenu=Alarms&src_ip=$host&dst_ip=$host")?>" target='topmenu'><?php echo gettext("Alarms"); ?></a></td>
+		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=1&soption=0&url=<?php if($host!='any'){ $temp_url="control_panel/alarm_console.php?&hide_closed=1&hmenu=Alarms&smenu=Alarms&src_ip=$host&dst_ip=$host"; }else{ $temp_url="control_panel/alarm_console.php?&hide_closed=1&hmenu=Alarms&smenu=Alarms"; }echo urlencode($temp_url)?>" target='topmenu'><?php echo gettext("Alarms"); ?></a></td>
 	</tr>
 	<? if (count($alarm_list) < 1) { ?>
 	<tr><td><?=gettext("No Alarms Found for")?> <i><?=$host?></i></td></tr>
@@ -130,7 +139,7 @@ $a_date = "-";
 					$dst_country_img = "<img src=\"/ossim/pixmaps/flags/" . $dst_country . ".png\" title=\"" . $dst_country_name . "\">";
 				?>
 				<tr>
-				<td bgcolor="<?=$bgcolor?>" style="text-align:left"><a href="../top.php?option=1&soption=0&url=<?=urlencode("control_panel/alarm_console.php?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms")?>" target="topmenu"><?= "<b>".$alarm_name."</b>".$event_count_label ?></a></td>
+				<td bgcolor="<?=$bgcolor?>" style="text-align:left"><a href="../top.php?option=1&soption=0&url=<?php if($host!='any'){ $temp_url="control_panel/alarm_console.php?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms"; }else{ $temp_url="control_panel/alarm_console.php?hide_closed=1&hmenu=Alarms&smenu=Alarms"; } echo urlencode($temp_url)?>" target="topmenu"><?= "<b>".$alarm_name."</b>".$event_count_label ?></a></td>
 				<td style="text-align:center;background-color:<?=$bg?>;color:<?=$color?>"><b><?= $risk ?></b></td>
 				
 				<td style="background-color:<?=$bgcolor?>;padding-left:2px;padding-right:2px;text-align:center">
@@ -160,7 +169,7 @@ $a_date = "-";
 	document.getElementById('statusbar_alarm_max_risk').href = '<?=$alarm_link?>';
 	document.getElementById('statusbar_alarm_max_risk_txt').href = '<?=$alarm_link?>';
 	</script>
-	<tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=1&soption=0&url=<?=urlencode("control_panel/alarm_console.php?&hide_closed=1&hmenu=Alarms&smenu=Alarms&src_ip=$host&dst_ip=$host")?>" target='topmenu'><b>More >></b></a></td></tr>
+	<tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=1&soption=0&url=<?php if($host!='any'){ $temp_url="control_panel/alarm_console.php?&hide_closed=1&hmenu=Alarms&smenu=Alarms&src_ip=$host&dst_ip=$host"; }else{ $temp_url="control_panel/alarm_console.php?&hide_closed=1&hmenu=Alarms&smenu=Alarms"; } echo urlencode($temp_url)?>" target='topmenu'><b>More >></b></a></td></tr>
 	<? } ?>
 	<tr><td></td></tr>
 </table>

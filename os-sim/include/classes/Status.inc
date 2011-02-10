@@ -571,9 +571,11 @@ class Status {
 			$date_where = " AND scantime >= '".preg_replace("/(\s|\-|\:)/","",$date_from)."000000' AND scantime <= '".preg_replace("/(\s|\-|\:)/","",$date_to)."'";
 		} else $date_where = "";
 		if($date_where==''&&$ip_where==''){
-			$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results ORDER BY risk DESC,scantime";
+			//$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results ORDER BY risk DESC,scantime";
+			$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results ORDER BY risk ASC,scantime";
 		}else{
-			$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results WHERE $ip_where $date_where ORDER BY risk DESC,scantime";
+			//$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results WHERE $ip_where $date_where ORDER BY risk DESC,scantime";
+			$sql = "SELECT SQL_CALC_FOUND_ROWS msg as name,risk,INET_NTOA(report_id) as ip,scantime FROM vuln_nessus_latest_results WHERE $ip_where $date_where ORDER BY risk ASC,scantime";
 		}
         //echo $sql;
 		$highrisk = "-";
@@ -581,6 +583,7 @@ class Status {
 		$list = array();
 		$risks = array();
 		$risks["-"] = 0;
+
 		if (!$rs = & $conn->Execute($sql)) {
             print $conn->ErrorMsg();
         }

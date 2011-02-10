@@ -563,9 +563,9 @@ function refreshVitals(xml) {
         if ($(this).attr("CPULoad") !== undefined) {
             loadavg = loadavg + "<br/>" + createBar(parseInt($(this).attr("CPULoad"), 10));
         }
-        document.title = "System information: " + hostname + " (" + ip + ")";
+	document.title = "System information: " + hostname + " (" + ip + ")";
         $("#s_hostname_title").html(hostname);
-        $("#s_ip_title").html(ip);
+        $("#s_ip_title").html("("+ip+") ");
         $("#s_hostname").html(hostname);
         $("#s_ip").html(ip);
         $("#s_kernel").html(kernel);

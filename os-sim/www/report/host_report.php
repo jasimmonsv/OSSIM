@@ -48,7 +48,9 @@ $host = GET('host');
 $hostname = GET('hostname');
 $greybox = GET('greybox');
 $greybox = 0;
-ossim_valid($host, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("Host"));
+if($host!='any'){
+	ossim_valid($host, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("Host"));
+}
 ossim_valid($hostname, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Hostname"));
 ossim_valid($greybox, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("greybox"));
 $date_from=GET('star_date');
@@ -121,9 +123,16 @@ if ($network) {
 	if (!$greybox) {
 		$hostname = Host::ip2hostname($conn,$host);
 	}
-	if ($hostname == $host) $title = "Host Report: $host";
-	else $title = "Host Report: $hostname($host)";
-
+	if($host!='any'){
+		if ($hostname == $host){
+			$title = _("Host Report").": $host";
+		}else{
+			$title = _("Host Report").": $hostname($host)";
+		}
+	}else{
+		$title = _('System Report');
+	}
+	
 	$title_graph = preg_replace ("/Host Report: /","",$title);
 }
 
@@ -195,6 +204,12 @@ a {
 <script type="text/javascript" src="../js/greybox.js"></script>
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
 <script src="../js/datepicker.js" type="text/javascript"></script>
+<?php if($host=='any') { ?>
+<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+<script type="text/javascript" src="../js/jquery.tmpl.1.1.1.js"></script>
+<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+<link rel="stylesheet" type="text/css" href="../style/tree.css" />
+<?php } ?>
 <script type="text/javascript">
 	var url = new Array(50)
 	function showTooltip(x, y, contents, link) {
@@ -231,6 +246,7 @@ a {
 		var graphs = 0;
 		$('#loading').toggle();
 		$('#host_report<? if ($greybox) echo "_mini" ?>').toggle();
+		<?php if($host!='any'){ ?>
 		$.ajax({
 			type: "GET",
 			url: "ntop_graph.php?n=1&host=<?=$host?>&title=<?=$title_graph?>",
@@ -251,6 +267,7 @@ a {
 				graphs++;
 			}
 		});
+		<?php } ?>
 		// CALENDAR
 		<?php
 		if ($date_from != "") {
@@ -304,7 +321,7 @@ a {
 		});
 		$('#widgetCalendar div.datepicker').css('position', 'absolute');
 		//
-		<? if (!$network) { ?>
+		<?php if (!$network&&$host!='any') { ?>
 		$.ajax({
 			type: "GET",
 			url: "ntop_graph.php?n=2&host=<?=$host?>&title=<?=$title_graph?>",
@@ -366,6 +383,23 @@ a {
 				this.load('whois.php?ip=' + ip);
 			}
 		});
+	<?php if($host=='any') { ?>
+		$("#aptree").dynatree({
+			initAjax: { url: "../policy/asset_by_property_tree_wl.php" },
+			onActivate: function(dtnode) {
+				if(dtnode.data.url!='' && typeof(dtnode.data.url)!='undefined') {
+					GB_edit(dtnode.data.url+'&withoutmenu=1');
+				}
+			},
+			onLazyRead: function(dtnode){
+				dtnode.appendAjax({
+					url: "../policy/asset_by_property_tree_wl.php",
+					data: {key: dtnode.data.key}
+				});
+				if (typeof(parent.doIframe2)=="function") parent.doIframe2();
+			}
+		});
+	<?php } ?>
 	});
 	function executeRange(type){
 		var o_date_from='<?php echo $date_range['date_from']; ?>';
@@ -398,6 +432,7 @@ a {
 
 </head>
 <body style="margin:0px">
+<?php if($host=='any') include("../hmenu.php"); ?>
 <? if (!Session::hostAllowed($conn, $host)) { ?>
 <h1>HOST <?=$host?> <?=gettext("not allowed")?></h1>
 </body>
@@ -410,7 +445,7 @@ a {
 <? exit; } ?>
 <form><input type="hidden" name="cursor"></form>
 <? //include("../hmenu.php") ?>
-<? if (1==2) { ?><h1 style="height:23px;padding-top:5px;font-size:16px;margin:0px"><?=$title?></h1><? } ?>
+<?php /*if (1==2) { ?><h1 style="height:23px;padding-top:5px;font-size:16px;margin:0px"><?=$title?></h1><? }*/ ?>
 <div id="loading" style="position:absolute;top:40%;left:40%">
 	<table class="noborder" style="background-color:white">
 		<tr>
@@ -439,7 +474,7 @@ usleep(500000);
 		<td>
 			<table style="background-color:#617F57" height="100%" cellpadding="5">
 				<tr>
-					<td <?php if ($network) { ?>colspan="2"<?php } ?> style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?=gettext("General Data")?>: <?=preg_replace("/\(/","<font style='font-size:14px'><i> - (",preg_replace("/\)/",")</i></font>",$title_graph))?></td>
+					<td <?php if ($network) { ?>colspan="2"<?php } ?> style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?php echo gettext("General Data"); ?><?php if($host!='any'){?>: <?=preg_replace("/\(/","<font style='font-size:14px'><i> - (",preg_replace("/\)/",")</i></font>",$title_graph))?><?php } ?></td>
 					<td id="cont_date">
 						<table class="noborder" cellpadding="0" cellspacing="0" width="100%" style="background:none !important">
 							<tr>
@@ -460,7 +495,32 @@ usleep(500000);
 				</tr>
 				<tr>
 					<td class="nobborder" valign="top" width="50%"><? include ("host_report_status.php") ?></td>
-					<td valign="top" class="nobborder" width="<?=($network) ? "20%" : "50%"?>"><? if ($network) include ("net_report_inventory.php"); else include ("host_report_inventory.php") ?></td>
+					<td valign="top" class="nobborder" width="<?=($network) ? "20%" : "50%"?>">
+					<?php
+						if($host!='any'){
+							if ($network){
+								include ("net_report_inventory.php");
+							}else{
+								include ("host_report_inventory.php");
+							}
+						}else{
+						?>
+							<table border="0" width="100%" class="noborder" align="center" cellspacing="0" cellpadding="0">
+								<tr>
+									<td class="headerpr"><?php echo _("Inventory")?></td>
+								</tr>
+							</table>
+							<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
+								<tr>
+									<td class="nobborder">
+										<div id="aptree" style="font-size:15px;text-align:left;width:98%;padding:8px"></div>
+									</td>
+								</tr>
+							</table>
+					<?php
+						}
+					?>
+					</td>
 					<? if ($network) { ?><td valign="top" class="nobborder"><? include ("net_report_network.php") ?></td><? } ?>
 				</tr>
 			</table>
@@ -471,9 +531,9 @@ usleep(500000);
 			<table style="background-color:#727385" height="100%" cellpadding="5">
 				<tr><td colspan="3" style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px">SIEM</td></tr>
 				<tr>
-					<td class="nobborder" valign="top" width="30%"><? include ("host_report_tickets.php") ?></td>
-					<td class="nobborder" valign="top" width="45%"><? include ("host_report_alarms.php") ?></td>
-					<td class="nobborder" valign="top" width="25%"><? include ("host_report_vul.php") ?></td>
+					<td class="nobborder" valign="top" width="33%"><? include ("host_report_tickets.php") ?></td>
+					<td class="nobborder" valign="top" width="33%"><? include ("host_report_alarms.php") ?></td>
+					<td class="nobborder" valign="top" width="33%"><? include ("host_report_vul.php") ?></td>
 				</tr>
 				<tr><td colspan="3" class="nobborder"><?php include ("host_report_sim.php") ?></td></tr>
 			</table>

@@ -28,7 +28,15 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
-$incident_list2 = Incident::get_list_filter_ips($conn, $host, "ORDER BY date DESC");
+if($host!='any'){
+	//$incident_list2 = Incident::get_list_filter_ips($conn, $host, "AND status='open' ORDER BY date DESC");
+	$tick_num = count(Incident::get_list_filter_ips($conn, $host, "AND status='open' ORDER BY date DESC"));
+	$incident_list2 = Incident::get_list_filter_ips($conn, $host, "ORDER BY date DESC");
+}else{
+	$tick_num = count(Incident::get_list_filter_ips($conn, '', "AND status='open' ORDER BY date DESC"));
+	//$incident_list2 = Incident::search($conn, array('status'=>'open'), "priority", "DESC", 1, 6);
+	$incident_list2 = Incident::search($conn, array(), "priority", "DESC", 1, 6);
+}
 $i_date = "-";
 $i_maxprio = 0;
 $i_maxprio_id = 1;
@@ -36,7 +44,7 @@ $i_maxprio_id = 1;
 ob_flush();
 flush();
 usleep(500000);
-$tick_num = count($incident_list2);
+
 ?>
 <script type="text/javascript">
 document.getElementById('tickets_num').innerHTML = '<a href="../top.php?option=1&soption=1&url=<?php echo urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets") ?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$tick_num,0)?></a>';
@@ -91,7 +99,10 @@ document.getElementById('tickets_num').innerHTML = '<a href="../top.php?option=1
 					<? if ($network == 9) { ?><td><? echo $incident->get_src_ips()?></td><? } ?>
 					<?php
 					$priority = $incident->get_priority();
-					if ($priority > $i_maxprio) { $i_maxprio = $priority; $i_maxprio_id = $incident->get_id(); }
+					if ($priority > $i_maxprio) {
+						$i_maxprio = $priority;
+						$i_maxprio_id = $incident->get_id();
+					}
 					?>
 					<td><?php echo Incident::get_priority_in_html($priority) ?></td>
 					<td><?php

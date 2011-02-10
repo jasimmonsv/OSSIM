@@ -1,4 +1,8 @@
 #!/usr/bin/perl
+use utf8;
+no utf8;
+use HTML::Entities;
+use Data::Dumper;
 
 # 2010/01/25 DK
 # (c) Alienvault
@@ -8,7 +12,8 @@
 
 # Get a valid google translation api key from google
 
-$api_key = "AIzaSyAZZk0oyH8qPRw6AZXEyyxy9ECQk8zgVAM";
+#$api_key = "AIzaSyAZZk0oyH8qPRw6AZXEyyxy9ECQk8zgVAM";
+$api_key = "AIzaSyBttmec0vD6rexKc6d9kquDt6YXCRWa0rw";
 $debug = 1;
 
 # 
@@ -33,9 +38,10 @@ $orig_translate_str = $translate_str;
 $translate_str =~ s/"/6T6T5R5R4S4S/g;
 $translate_str =~ s/\\/6Z6Z5R5R4Z4Z/g;
 
-if($debug){print "Translate: $translate_str\n";}
-
-open(CMD,"wget -q --no-check-certificate \"https://www.googleapis.com/language/translate/v2?key=$api_key&q=$translate_str&source=en&target=$language&callback=handleResponse&prettyprint=true\" -O - | grep translatedText |");
+if($debug){print "Translate: $translate_str\n";} 
+ 
+open(CMD,"wget -q --no-check-certificate -t 2 -erobots=off -l 0 -T 15 -U Mozilla \"https://www.googleapis.com/language/translate/v2?key=$api_key&q=$translate_str&source=en&target=$language&callback=handleResponse&prettyprint=true\" -O - | grep translatedText |");
+#  print "wget -q --no-check-certificate -U Mozilla \"https://www.googleapis.com/language/translate/v2?key=$api_key&q=$translate_str&source=en&target=$language&callback=handleResponse&prettyprint=true\" -O - | grep translatedText |";
 
 while(<CMD>){
 if(/translatedText":\s*"([^"]+)"/){
@@ -201,9 +207,9 @@ exit;
 
 }
 
-
-
 open(IPUT, "<$ARGV[0]") or die "Can't open $ARGV[0] for input: $!";
+@iput = <IPUT>;
+close IPUT;
 open(OPUT, ">$ARGV[1]") or die "Can't open $ARGV[1] for input: $!";
 
 #### Start doing stuff
@@ -211,101 +217,123 @@ open(OPUT, ">$ARGV[1]") or die "Can't open $ARGV[1] for input: $!";
 $inside_msgid = 0;
 $inside_msgstr = 0;
 $translate_str = 0;
-$i = 0;
 
-while(<IPUT>){
-	$msgid = '';
-	$msgstr = '';
+$i=0;
+$j=0;
 
+$size = $#iput + 1;
 
-	if(/^msgid\s*"(.*)"$/){
-		if($debug){print "Entering parsing\n";}
-		$i++;
-		$msgid = $1;
-		$inside_msgid = 1;
+while ($i < $size) {
+    $line = $iput[$i];
+    if ($line =~ /^#/) { $i++; next; }
+ 
+    chop($line);
+    $msgid = '';
+    $msgstr = '';
 
+    if($line =~ /^msgid\s*"(.*)"/){
+        if($debug){print "Entering parsing\n";}
+        $j++;
+        $msgid = $1;
+        $inside_msgid = 1;
+    while($inside_msgid && $i < $size){
+        $i++;
+        while($i < $size){
+            $next = $iput[$i];
+            chop($next);
+            if($next =~ /^msgstr\s*""$/){
+                $second_line = $iput[$i+1];
+                chop($second_line);
+                if ($second_line =~ /^"(.+)"$/){
+                    if($debug){print "Got a translated string\n";}
+                    $inside_msgid = 0;
+                    $inside_msgstr = 1;
+                    $translate_str = 0;
+                    $msgstr = $1;
+                    $i++;
+                }
+                else {
+                    if($debug){print "No translation, move over to translate\n";}
+                    $inside_msgid = 0;
+                    $inside_msgstr = 0;
+                    $translate_str = 1;
+                }
+                last;
+            } elsif ($next =~ /^msgstr\s*"(.+)"$/){
+                if($debug){print "Got a translated string\n";}
+                $inside_msgid = 0;
+                $inside_msgstr = 1;
+                $translate_str = 0;
+                $msgstr = $1;
+                last;
+            } elsif ($next =~ /^"(.*)"$/){
+                if($debug){print "msgid continues\n";}
+                $msgid .= $1;
+            } else {
+                print "This should never be reached, malformed .po?\n";
+            }
+            $i++;
+        }
+        $i++;
+        while($inside_msgstr && $i < $size){
+            while($i < $size){
+                $next = $iput[$i];
+                chop($next);
+                if($next =~ /^"(.*)"$/){
+                    if($debug){print "msgstr continues\n";}
+                    $msgstr .= "\"\n\"".$1;
+                } elsif($next eq "") {
+                    if($debug){print "msgstr done\n";}
+                    $inside_msgstr = 0;	
+                    last;
+                } else {
+                    print "Error inside msgstr: $next\n";
+                }
+                $i++;
+            }
+        }
 
-	while($inside_msgid){
-		while($next = <IPUT>){
-			if($next =~ /^msgstr\s*""$/){
-				if($debug){print "No translation, move over to translate\n";}
-				$inside_msgid = 0;
-				$inside_msgstr = 0;
-				$translate_str = 1;
-				last;
-			} elsif ($next =~ /^msgstr\s*"(.+)"$/){
-				if($debug){print "Got a translated string\n";}
-				$inside_msgid = 0;
-				$inside_msgstr = 1;
-				$translate_str = 0;
-				$msgstr = $1;
-				last;
-			} elsif ($next =~ /^"(.*)"$/){
-				if($debug){print "msgid continues\n";}
-				$msgid .= $1;
-			} else {
-				print "This should never be reached, malformed .po?\n";
-			}
+        if($translate_str && ($msgid ne "")){
+        # Translation hook
+        $msgstr = google_translate($msgid,$ARGV[2]);
+        utf8::decode($msgstr);  
+        $msgstr = encode_entities($msgstr);
+        $msgstr =~ s/\\u\u003c/</g;
+        $msgstr =~ s/\\u\u003d/=/g;
+        $msgstr =~ s/\\u\u003e/>/g;
+    #   $msgstr =~ s/\\\\/\\/g;
+        $msgstr =~ s/\\ n/\\n/g;
+        $msgstr =~ s/\\"/'/g;
+        $msgstr =~ s/\\ N/\\n/g;
+        $msgstr =~ s/\\ " /\\"/g;
+        $msgstr =~ s/ \\ //g;
+        $msgstr =~ s/ " /\\"/g;
+        $msgstr =~ s/&quot;/"/g;
+    #   $msgstr =~ s/\\u//g;
+        }
 
-		}
+    if($debug){
+        print "########################### WRITE TRANSLATION############\n";
+    }
+    print OPUT "msgid \"$msgid\"\n";
+    print OPUT "msgstr \"$msgstr\"\n\n";
 
+    #   $j++; if($j>1000){ exit;}
+        }
+    } else {
 
-		while($inside_msgstr){
-			while($next = <IPUT>){
-			chop($next);
-				if($next =~ /^"(.*)"$/){
-					if($debug){print "msgstr continues\n";}
-					$msgstr .= $1;
-				} elsif($next eq "") {
-					if($debug){print "msgstr done\n";}
-					$inside_msgstr = 0;	
-					last;
-				} else {
-					print "Error inside msgstr: $next\n";
-				}
-			last if eof(IPUT);
-			}
-			last if eof(IPUT);
-		}
+    if($debug){print "Printing another line\n";}
+    
+    }
 
-		if($translate_str && ($msgid ne "")){
-		# Translation hook
-		$msgstr = google_translate($msgid,$ARGV[2]);
-		$msgstr =~ s/\\u\u003c/</g;
-		$msgstr =~ s/\\u\u003d/=/g;
-		$msgstr =~ s/\\u\u003e/>/g;
-#		$msgstr =~ s/\\\\/\\/g;
-		$msgstr =~ s/\\ n/\\n/g;
-		$msgstr =~ s/\\"/'/g;
-		$msgstr =~ s/\\ N/\\n/g;
-		$msgstr =~ s/\\ " /\\"/g;
-		$msgstr =~ s/ \\ //g;
-		$msgstr =~ s/ " /\\"/g;
-#		$msgstr =~ s/\\u//g;
-		}
-
-if($debug){print "########################### WRITE TRANSLATION############\n";}
-
-	print OPUT "msgid \"$msgid\"\n";
-	print OPUT "msgstr \"$msgstr\"\n\n";
-
-#	$i++; if($i>1000){ exit;}
-        }	
-	} else {
-
-if($debug){print "Printing another line\n";}
-
-
-	print OPUT $_;
-
-	}
-
-	$inside_msgid = 0;
-	$inside_msgstr = 0;
-	$translate_str = 0;
+    $inside_msgid = 0;
+    $inside_msgstr = 0;
+    $translate_str = 0;
+    
+    if ($line !~ /^#/)  { $i++; }
 }
 
 #### Cleanup
 
-close IPUT;
+#close IPUT;
 close OPUT;

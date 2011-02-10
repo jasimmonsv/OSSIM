@@ -15,8 +15,24 @@ ALTER TABLE  `vuln_nessus_settings_preferences` CHANGE  `value` `value` TEXT NUL
 
 ALTER TABLE  `incident` CHANGE  `ref`  `ref` ENUM(  'Alarm',  'Alert',  'Event',  'Metric',  'Anomaly',  'Vulnerability',  'Custom' ) NOT NULL DEFAULT  'Alarm';
 
-CREATE INDEX alarm_plugin_id ON alarm(plugin_id);
-CREATE INDEX alarm_plugin_sid ON alarm(plugin_sid);
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN  
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'alarm' AND INDEX_NAME='alarm_plugin_id')
+  THEN
+      CREATE INDEX alarm_plugin_id ON alarm(plugin_id);
+  END IF;  
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'alarm' AND INDEX_NAME='alarm_plugin_sid')
+  THEN
+      CREATE INDEX alarm_plugin_sid ON alarm(plugin_sid);
+  END IF;  
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
 
 CREATE TABLE IF NOT EXISTS ldap (
   id INT NOT NULL AUTO_INCREMENT,

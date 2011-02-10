@@ -147,11 +147,11 @@ $db->close($conn);
 $db->close($conn2);
 
 //
-$alarm_urls = "'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz)."&date_to=".date("Y-m-d",$timetz)."'";
-$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-86400)."&date_to=".date("Y-m-d",$timetz)."'";
-$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-172800)."&date_to=".date("Y-m-d",$timetz)."'";
-$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-604800)."&date_to=".date("Y-m-d",$timetz)."'";
-$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-1209600)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls = "'../control_panel/alarm_console.php?num_alarms_page=50&hmenu=Alarms&smenu=Alarms&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hmenu=Alarms&smenu=Alarms&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-86400)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hmenu=Alarms&smenu=Alarms&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-172800)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hmenu=Alarms&smenu=Alarms&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-604800)."&date_to=".date("Y-m-d",$timetz)."'";
+$alarm_urls .= ",'../control_panel/alarm_console.php?num_alarms_page=50&hmenu=Alarms&smenu=Alarms&hour=00&minutes=00&hide_closed=1&date_from=".date("Y-m-d",$timetz-1209600)."&date_to=".date("Y-m-d",$timetz)."'";
 ?>  
 	<script class="code" type="text/javascript">
 	
