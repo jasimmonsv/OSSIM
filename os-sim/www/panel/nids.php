@@ -40,7 +40,7 @@ $txts = preg_replace("/,$/","",$txts);
 $urls = preg_replace("/,$/","",$urls);
 
 // TOP NIDS EVENT CATEGORIES
-$query = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid $snort_where $sensor_where group by p.category_id order by num_events desc LIMIT 10";
+$query = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid $snort_where $sensor_where group by p.category_id order by num_events desc LIMIT 10";
 $txts1 = $urls1 = "";
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();
@@ -48,6 +48,7 @@ if (!$rs = & $conn->Execute($query)) {
 }
 while (!$rs->EOF) {
 	if ($rs->fields["name"]=="") $rs->fields["name"] = _("Unknown category");
+	$rs->fields["name"] = str_replace("_"," ",$rs->fields["name"]);
     $txts1 .= "['".str_replace("'","\'",$rs->fields["name"])."',".$rs->fields["num_events"]."],";
     $urls1 .= "'".$forensic_link."&category%5B1%5D=&category%5B0%5D=".$rs->fields["category_id"]."',";
     $rs->MoveNext();
@@ -216,7 +217,7 @@ $db->close($conn2);
 					rendererOptions: {
 						numberCols: 1
 					},
-					location: 'w'
+					location: 'e'
 				}
 			}); 
 			            

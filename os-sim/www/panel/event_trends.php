@@ -101,7 +101,7 @@ if (GET("type")=="siemday") {
     $js = "analytics_duo";
     list($hours,$trend) = SIEM_trends();
     list($hours2,$trend2) = Logger_trends();
-    if (count($trend)>count($trend2)) {
+    if (count($trend)>=count($trend2)) {
         $max  = count($trend);
     } else {
         $max  = count($trend2);

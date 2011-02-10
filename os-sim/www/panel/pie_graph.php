@@ -17,7 +17,7 @@ $h = 250; // Graph Height
 $forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz-$range)."&time[0][3]=".date("d",$timetz-$range)."&time[0][4]=".date("Y",$timetz-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 
 $sensor_where = make_sensor_filter($conn,"a");
-$query = "select count(a.sid) as num_events,c.cat_id,c.id,c.name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.subcategory c ON c.cat_id=p.category_id AND c.id=p.subcategory_id WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' $sensor_where TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
+$query = "select count(a.sid) as num_events,c.cat_id,c.id,c.name from snort.acid_event a,ossim.plugin_sid p,ossim.subcategory c WHERE c.id=p.subcategory_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' $sensor_where TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
 
 switch(GET("type")) {
 
@@ -46,7 +46,7 @@ switch(GET("type")) {
 		} else {
 		    while (!$rg->EOF) {
 		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
-		        $data .= "['".$rg->fields["name"]."',".$rg->fields["num_events"]."],";
+		        $data .= "['".str_replace("_"," ",$rg->fields["name"])."',".$rg->fields["num_events"]."],";
                 $urls .= "'".$forensic_link."&category%5B1%5D=&category%5B0%5D=".$rg->fields["category_id"]."',";
 		        $rg->MoveNext();
 		    }
@@ -59,7 +59,7 @@ switch(GET("type")) {
 		require_once("classes/Plugin.inc");
 		$oss_p_id_name = Plugin::get_id_and_name($conn, "WHERE name LIKE 'ossec%'");
 		$plugins = implode(",",array_flip ($oss_p_id_name));
-		$sqlgraph = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' AND a.plugin_id in ($plugins) $sensor_where group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' AND a.plugin_id in ($plugins) $sensor_where group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -107,7 +107,7 @@ switch(GET("type")) {
 		        $rg->MoveNext();
 		    }
 		}
-		$colors = '"#E9967A","#9BC3CF"';
+		$colors = '"#FFD0BF","#FFBFBF","#FF9F9F","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222","#7F1717"';
 		break;        
 
     // Firewall permit vs deny - Last Week
@@ -161,7 +161,7 @@ switch(GET("type")) {
 		        $rg->MoveNext();
 		    }
 		}
-		$colors = '';
+		$colors = '"#D1E8EF","#ADD8E6","#6FE7FF","#00BFFF","#4169E1","#4682B4","#0000CD","#483D8B","#5355DF","#00008B"';
 		break;
 
     // System status - Last Week
@@ -179,7 +179,7 @@ switch(GET("type")) {
 		        $rg->MoveNext();
 		    }
 		}
-		$colors = '';
+		$colors = '"#FFFBCF","#EEE8AA","#F0E68C","#FFD700","#FF8C00","#DAA520","#D2691E","#B8860B","#7F631F"';
 		break;
         
 	default:
