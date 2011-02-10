@@ -290,6 +290,17 @@ require_once ('utils.php');
 	
 ?>
 
+<table border="0" cellpadding="0" cellspacing="0" align="center" class="noborder" style="width:90%;background:transparent">
+<tr>
+	<td class="noborder" align="center">
+		<iframe src="../panel/event_trends.php?type=hids" frameborder="0" style="width:470px;height:220px;overflow:hidden"></iframe>
+	</td>
+	<td class="noborder" align="center">
+		<iframe src="../panel/pie_graph.php?type=hids" frameborder="0" style="width:470px;height:220px;overflow:hidden"></iframe>
+	</td>
+</tr>
+</table>
+
 <div id='container_center'>
 
 	<table id='tab_menu'>

@@ -279,7 +279,7 @@ $db->close($conn2);
 		
 	<br/>
 	
-	<table border="0" cellpadding="0" cellspacing="0" align="center" class="noborder">
+	<table border="0" cellpadding="0" cellspacing="0" align="center" class="noborder" style="background:transparent">
 	<tr>
 	<td valign="top" class="noborder">
 
@@ -335,6 +335,9 @@ $db->close($conn2);
 
 	</td>
 	</tr>	
+	<tr><td colspan="3" class="noborder" align="center">
+		<br><a href="../forensics/base_stat_alerts_graph.php?sort_order=occur_d&plugin=1001,1002,1003,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123,1124,1125,1126,1128,1129,1130,1131&hmenu=Forensics&smenu=Forensics"><b><i>Go to NIDS Console</i></b></a>
+	</td></tr>
 	</table>
 		
 	</body>

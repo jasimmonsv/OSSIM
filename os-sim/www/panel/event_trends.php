@@ -26,14 +26,21 @@ function SIEM_trends() {
 	return array($hours,$data);
 }
 
-function SIEM_trends_week() {
+function SIEM_trends_week($param="") {
 	global $timetz;
 	$data = $hours = array();
+	$plugins = $plugins_sql = "";
 	require_once 'ossim_db.inc';
 	$db = new ossim_db();
-	$dbconn = $db->snort_connect();
+	$dbconn = $db->connect();
 	$sensor_where = make_sensor_filter($dbconn);
-	$sqlgraph = "SELECT COUNT(acid_event.cid) as num_events, day(timestamp) as intervalo, monthname(timestamp) as suf FROM acid_event LEFT JOIN ossim.plugin_sid ON acid_event.plugin_id=plugin_sid.plugin_id AND acid_event.plugin_sid=plugin_sid.sid WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",$timetz-604800)."' AND '".date("Y-m-d H:i:s",$timetz)."' $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
+	if ($param!="") {
+		require_once("classes/Plugin.inc");
+		$oss_p_id_name = Plugin::get_id_and_name($dbconn, "WHERE name LIKE '$param'");
+		$plugins = implode(",",array_flip ($oss_p_id_name));
+		$plugins_sql = "AND acid_event.plugin_id in ($plugins)";
+	}
+	$sqlgraph = "SELECT COUNT(acid_event.cid) as num_events, day(timestamp) as intervalo, monthname(timestamp) as suf FROM snort.acid_event LEFT JOIN ossim.plugin_sid ON acid_event.plugin_id=plugin_sid.plugin_id AND acid_event.plugin_sid=plugin_sid.sid WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",$timetz-604800)."' AND '".date("Y-m-d H:i:s",$timetz)."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
 	if (!$rg = & $dbconn->Execute($sqlgraph)) {
 	    print $dbconn->ErrorMsg();
 	} else {
@@ -44,7 +51,7 @@ function SIEM_trends_week() {
 	    }
 	}
 	$db->close($dbconn);
-	return array($hours,$data);
+	return ($param!="") ? array($hours,$data,$oss_plugin_id) : array($hours,$data);
 }
 
 function Logger_trends() {
@@ -84,6 +91,12 @@ if (GET("type")=="siemday") {
     $max  = count($trend);
     $trend2 = array();
     $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".date("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".date("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+} elseif (GET("type")=="hids") { 
+    $js = "analytics";
+    list($hours,$trend,$plugins) = SIEM_trends_week("ossec%");
+    $max  = count($trend);
+    $trend2 = array();
+    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".date("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".date("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics&plugin=".$plugins;
 } else {
     $js = "analytics_duo";
     list($hours,$trend) = SIEM_trends();

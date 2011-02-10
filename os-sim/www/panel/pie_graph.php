@@ -13,6 +13,7 @@ $urls = "";
 $colors = '"#E9967A","#9BC3CF"';
 
 $range =  604800; // Week
+$h = 250; // Graph Height
 $forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz-$range)."&time[0][3]=".date("d",$timetz-$range)."&time[0][4]=".date("Y",$timetz-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 
 $sensor_where = make_sensor_filter($conn,"a");
@@ -53,7 +54,26 @@ switch(GET("type")) {
 		$colors = '"#FFD0BF","#FFBFBF","#FF9F9F","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222","#7F1717"';
 		break;
 				
-				
+	// Top 10 Ossec Categories - Last Week
+	case "hids":
+		require_once("classes/Plugin.inc");
+		$oss_p_id_name = Plugin::get_id_and_name($conn, "WHERE name LIKE 'ossec%'");
+		$plugins = implode(",",array_flip ($oss_p_id_name));
+		$sqlgraph = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' AND a.plugin_id in ($plugins) $sensor_where group by p.category_id order by num_events desc LIMIT 10";
+		if (!$rg = & $conn->Execute($sqlgraph)) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rg->EOF) {
+		    	if ($rg->fields["name"]=="") $rg->fields["name"] = _("Unknown category");
+		        $data .= "['".$rg->fields["name"]."',".$rg->fields["num_events"]."],";
+                $urls .= "'".$forensic_link."&category%5B1%5D=&category%5B0%5D=".$rg->fields["category_id"]."',";
+		        $rg->MoveNext();
+		    }
+		}
+		$colors = '"#FFD0BF","#FFBFBF","#FF9F9F","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222","#7F1717"';
+		$h = 200;
+		break;
+						
 	// Authentication Login vs Failed Login Events - Last Week
 	case "login":
 		$taxonomy = make_where($conn,array("Authentication" => array("Login","Failed")));
@@ -269,7 +289,7 @@ $db->close($conn);
     
   </head>
 	<body style="overflow:hidden" scroll="no">
-		<div id="chart" style="width:100%; height: 250px;"></div>
+		<div id="chart" style="width:100%; height:<?=$h?>px;"></div>
 	</body>
 </html>
 
