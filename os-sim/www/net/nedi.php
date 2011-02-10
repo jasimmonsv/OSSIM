@@ -149,7 +149,7 @@ echo "</form><br/>";
 	}	
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='Delete selected') {
+		if (com=='<?php echo gettext("Delete selected"); ?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
 				$("#flextable").changeStatus('<?=_("Deleting device")?>...',false);
@@ -165,14 +165,17 @@ echo "</form><br/>";
 			}
 			else alert('<?=_("You must select a device")?>');
 		}
-		else if (com=='Modify') {
+		else if (com=='<?php echo gettext("Modify"); ?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifydevice.php?ip='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a device")?>');
 		}
-		else if (com=='New') {
+		else if (com=='<?php echo gettext("New"); ?>') {
 			document.location.href = 'newdevice.php'
 		}
 	}
+    function linked_to(rowid) {
+        document.location.href = 'modifydevice.php?ip='+urlencode(rowid);
+    }	
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
 		$.ajax({
@@ -232,7 +235,7 @@ echo "$colModel\n";
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
 		title: '<?=_("Devices")?>',
-		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("devices")?>',
+		pagestat: '<?=_("Displaying {from} to {to} of {total} devices")?>',
 		nomsg: '<?=_("No Devices")?>',
 		useRp: true,
 		rp: 25,
@@ -242,6 +245,7 @@ echo "$colModel\n";
 		width: get_width('headerh1'),
 		height: get_height(),
 		onColumnChange: save_layout,
+		onDblClick: linked_to,
 		onEndResize: save_layout
 	});   
 	

@@ -37,12 +37,12 @@ $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $qs->MoveView($submit); /* increment the view if necessary */
-$page_title = SPSENSORLIST;
+$page_title = gettext("Sensor Listing");
 PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
@@ -60,7 +60,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();
@@ -85,6 +85,9 @@ if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+ti
         $where = $matches[1] . " AND timestamp >= '" . $matches[2] . "' " . $matches[4];
     }
 }
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+
 //$qs->AddValidAction("ag_by_id");
 //$qs->AddValidAction("ag_by_name");
 //$qs->AddValidAction("add_new_ag");
@@ -94,8 +97,8 @@ $qs->AddValidAction("del_alert");
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-$qs->AddValidActionOp(_SELECTED);
-$qs->AddValidActionOp(_ALLONSCREEN);
+$qs->AddValidActionOp(gettext("Delete Selected"));
+$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 $et->Mark("Initialization");
 $qs->RunAction($submit, PAGE_STAT_SENSOR, $db);
@@ -108,14 +111,14 @@ $et->Mark("Counting Result size");
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_sensor.php?caller=" . $caller);
 $qro->AddTitle(" ");
-$qro->AddTitle(_SENSOR, "sid_a", " ", " ORDER BY acid_event.sid ASC", "sid_d", " ", " ORDER BY acid_event.sid DESC");
-$qro->AddTitle(_NAME, "", " ", " ", "", " ", " ");
-$qro->AddTitle(_SIPLTOTALEVENTS, "occur_a", " ", "  ORDER BY event_cnt ASC", "occur_d", " ", "  ORDER BY event_cnt DESC");
-$qro->AddTitle(_SIPLUNIEVENTS, "sig_a", "", " ORDER BY sig_cnt ASC", "sig_d", "", " ORDER BY sig_cnt DESC");
-$qro->AddTitle(_SUASRCADD, "saddr_a", "", " ORDER BY saddr_cnt ASC", "saddr_d", "", " ORDER BY saddr_cnt DESC");
-$qro->AddTitle(_SUADSTADD, "daddr_a", "", " ORDER BY daddr_cnt ASC", "daddr_d", "", " ORDER BY daddr_cnt DESC");
-$qro->AddTitle(_FIRST, "first_a", "", " ORDER BY first_timestamp ASC", "first_d", "", " ORDER BY first_timestamp DESC");
-$qro->AddTitle(_LAST, "last_a", "", " ORDER BY last_timestamp ASC", "last_d", "", " ORDER BY last_timestamp DESC");
+$qro->AddTitle(gettext("Sensor"), "sid_a", " ", " ORDER BY acid_event.sid ASC", "sid_d", " ", " ORDER BY acid_event.sid DESC");
+$qro->AddTitle(gettext("Name"), "", " ", " ", "", " ", " ");
+$qro->AddTitle(gettext("Total Events"), "occur_a", " ", "  ORDER BY event_cnt ASC", "occur_d", " ", "  ORDER BY event_cnt DESC");
+$qro->AddTitle(gettext("Unique Events"), "sig_a", "", " ORDER BY sig_cnt ASC", "sig_d", "", " ORDER BY sig_cnt DESC");
+$qro->AddTitle(gettext("Src.&nbsp;Addr."), "saddr_a", "", " ORDER BY saddr_cnt ASC", "saddr_d", "", " ORDER BY saddr_cnt DESC");
+$qro->AddTitle(gettext("Dest.&nbsp;Addr."), "daddr_a", "", " ORDER BY daddr_cnt ASC", "daddr_d", "", " ORDER BY daddr_cnt DESC");
+$qro->AddTitle(_("First")." ".Util::timezone($tz), "first_a", "", " ORDER BY first_timestamp ASC", "first_d", "", " ORDER BY first_timestamp DESC");
+$qro->AddTitle(_("Last")." ".Util::timezone($tz), "last_a", "", " ORDER BY last_timestamp ASC", "last_d", "", " ORDER BY last_timestamp DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , "");
 $sql = "SELECT DISTINCT acid_event.sid, count(acid_event.cid) as event_cnt," . " count(distinct acid_event.plugin_id, acid_event.plugin_sid) as sig_cnt, " . " count(distinct(acid_event.ip_src)) as saddr_cnt, " . " count(distinct(acid_event.ip_dst)) as daddr_cnt, " . "min(timestamp) as first_timestamp, max(timestamp) as last_timestamp" . $sort_sql[0] . $from . $where . " GROUP BY acid_event.sid " . $sort_sql[1];
 //echo $sql."<br>";
@@ -147,7 +150,7 @@ if ($debug_mode == 1) {
     echo "$sql<BR>";
 }
 /* Print the current view number and # of rows */
-$qs->PrintResultCnt("",array(),_DISPLAYINGTOTALSENSOR);
+$qs->PrintResultCnt("",array(),gettext("Displaying sensors %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."));
 echo '<FORM METHOD="post" NAME="PacketForm" id="PacketForm" ACTION="base_stat_sensor.php">';
 $qro->PrintHeader();
 $i = 0;
@@ -167,6 +170,10 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $num_dst_ip = $myrow[4];
     $start_time = $myrow[5];
     $stop_time = $myrow[6];
+    if ($tz!=0) {
+    	$start_time = date("Y-m-d H:i:s",strtotime($start_time)+(3600*$tz));
+    	$stop_time = date("Y-m-d H:i:s",strtotime($stop_time)+(3600*$tz));
+	}    
     $sname = GetSensorName($sensor_id, $db);
 	$sensor_ip = preg_replace("/\-.*/","",$sname);
 	$homelan = (Net::is_ip_in_cache_cidr($_conn, $sensor_ip) || in_array($sensor_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$sensor_ip'><img src=\"images/homelan.png\" border=0></a>" : "";
@@ -186,7 +193,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     echo '        <INPUT TYPE="hidden" NAME="action_lst[' . $i . ']" VALUE="' . $tmp_rowid . '"></TD>';
     qroPrintEntry($sensor_id);
     qroPrintEntry((preg_match("/\-.+/",$sname) ? $sname : $sname."-snort").$country_img.$homelan);
-    qroPrintEntry('<A HREF="base_qry_main.php?new=1&amp;sensor=' . $sensor_id . '&amp;num_result_rows=-1&amp;submit=' . _QUERYDBP . '">' . $event_cnt . '</A>');
+    qroPrintEntry('<A HREF="base_qry_main.php?new=1&amp;sensor=' . $sensor_id . '&amp;num_result_rows=-1&amp;submit=' . gettext("Query+DB") . '">' . $event_cnt . '</A>');
     qroPrintEntry(BuildUniqueAlertLink("?sensor=" . $sensor_id) . $unique_event_cnt . '</A>');
     qroPrintEntry(BuildUniqueAddressLink(1, "&amp;sensor=" . $sensor_id) . $num_src_ip . '</A>');
     qroPrintEntry(BuildUniqueAddressLink(2, "&amp;sensor=" . $sensor_id) . $num_dst_ip . '</A>');

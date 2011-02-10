@@ -65,6 +65,7 @@ $company = POST('company');
 $department = POST('department');
 $language = POST('language');
 $first_login = POST('first_login');
+$tzone = POST('tzone');
 //$copy_panels = POST('copy_panels');
 //ossim_valid($copy_panels, OSS_DIGIT, 'illegal:' . _("Copy Panels"));
 ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
@@ -78,6 +79,7 @@ ossim_valid($company, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _(
 ossim_valid($department, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Department"));
 ossim_valid($language, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Language"));
 ossim_valid($first_login, OSS_DIGIT, 'illegal:' . _("First Login"));
+ossim_valid($tzone, OSS_DIGIT, '-', '+', '.', 'illegal:' . _("tzone"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -152,7 +154,7 @@ elseif (POST("insert")) {
         if ($sensors == "") $sensors = POST("sensor$i");
         else $sensors.= "," . POST("sensor$i");
     }
-    Session::insert($conn, $user, $pass1, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $first_login);
+    Session::insert($conn, $user, $pass1, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $first_login, $tzone);
     Session::log_pass_history($user,md5($pass1));
     $db->close($conn);
 ?>

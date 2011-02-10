@@ -27,15 +27,15 @@
 *  - "last_icmp" :
 *
 * $submit: used to determine the next action which should be taken when the form is submitted.
-*  - _QUERYDB         : triggers a query into the database
-*  - _ADDTIME         : adds another date/time row
+*  - gettext("Query DB")         : triggers a query into the database
+*  - gettext("ADD TIME")         : adds another date/time row
 *  - _ADDADDR         : adds another IP address row
-*  - _ADDIPFIELD      : adds another IP field row
-*  - _ADDTCPPORT      : adds another TCP port row
-*  - _ADDTCPFIELD     : adds another TCP field row
-*  - _ADDUDPPORT      : adds another UDP port row
-*  - _ADDUDPFIELD     : adds another UDP field row
-*  - _ADDICMPFIELD    : adds another ICMP field row
+*  - gettext("ADD IP Field")      : adds another IP field row
+*  - gettext("ADD TCP Port")      : adds another TCP port row
+*  - gettext("ADD TCP Field")     : adds another TCP field row
+*  - gettext("ADD UDP Port")      : adds another UDP port row
+*  - gettext("ADD UDP Field")     : adds another UDP field row
+*  - gettext("ADD ICMP Field")    : adds another ICMP field row
 *  - "#X-(X-X)"       : sid-cid keys for a packet lookup
 *  - _SELECTED
 *  - _ALLONSCREEN
@@ -73,7 +73,7 @@ include_once ("$BASE_path/base_ag_common.php");
 include_once ("$BASE_path/base_qry_common.php");
 
 $et = new EventTiming($debug_time_mode);
-$cs = new CriteriaState("base_qry_main.php", "&amp;new=1&amp;submit=" . _QUERYDBP);
+$cs = new CriteriaState("base_qry_main.php", "&amp;new=1&amp;submit=" . gettext("Query+DB"));
 //echo "<br><br><br>";
 
 // Check role out and redirect if needed -- Kevin
@@ -90,17 +90,17 @@ print "<HR>";
 //print_r($_SESSION);
 /* This call can include many values. */
 $submit = ImportHTTPVar("submit", VAR_DIGIT | VAR_PUNC | VAR_LETTER, array(
-    _SELECTED,
-    _ALLONSCREEN,
-    _ENTIREQUERY,
-    _QUERYDB,
-    _ADDTIME,
-    _ADDADDRESS,
-    _ADDIPFIELD,
-    _ADDTCPPORT,
-    _ADDTCPFIELD,
-    _ADDUDPPORT,
-    _ADDUDPFIELD,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
+    gettext("Delete Entire Query"),
+    gettext("Query DB"),
+    gettext("ADD TIME"),
+    gettext("ADD Addr"),
+    gettext("ADD IP Field"),
+    gettext("ADD TCP Port"),
+    gettext("ADD TCP Field"),
+    gettext("ADD UDP Port"),
+    gettext("ADD UDP Field"),
     _ADDICMPFIELD
 ));
 
@@ -108,21 +108,21 @@ $submit = ImportHTTPVar("submit", VAR_DIGIT | VAR_PUNC | VAR_LETTER, array(
 /* For your own mental health, skip over until 20 or 30 lines below :P */
 //require_once("/usr/share/ossim/include/ossim_error.inc");
 
-if ($submit == "Signature") {
+if ($submit == gettext("Signature")) {
 
     $search_str = ImportHTTPVar("search_str", VAR_DIGIT | VAR_PUNC | VAR_LETTER);
     //print_r ($_GET);
     $_GET['sig'][0] = "LIKE";
     $_GET['sig'][1] = $search_str;
     $_GET['sig_type'] = 0;
-    $_GET['submit'] = $submit = _QUERYDB;
+    $_GET['submit'] = $submit = gettext("Query DB");
 
 } elseif ($submit == "Payload") {
     $search_str = ImportHTTPVar("search_str", VAR_DIGIT | VAR_PUNC | VAR_LETTER);
     $_GET["search"] = 1;
     $_GET["data_cnt"] = 1;
     $_GET["data"][0] = array("","LIKE",$search_str,"","");
-    $_GET['submit'] = $submit = _QUERYDB;  
+    $_GET['submit'] = $submit = gettext("Query DB");  
 //	echo "<br><br>";
 //	echo "dentro de payload<br>";
 
@@ -158,14 +158,14 @@ $db->baseDBConnect($db_connect_method, $alert_dbname, $alert_host, $alert_port, 
 
 if ($_GET['sensor'] != "" || $_GET["ossim_risk_a"] != "") {
 	unset($_GET['search']);
-	$_GET['submit'] = $submit = _QUERYDB;
+	$_GET['submit'] = $submit = gettext("Query DB");
 }
 /* Code to correct 'interesting' (read: unexplained) browser behavior */
 /* Something with Netscape 4.75 such that the $submit variable is no recognized
 * under certain circumstances.  This one is a result of using HTTPS and
 * clicking on TCP traffic profile from base_main.php
 */
-if ($cs->criteria['layer4']->Get() != "" && $submit == "") $submit = _QUERYDB;
+if ($cs->criteria['layer4']->Get() != "" && $submit == "") $submit = gettext("Query DB");
 
 // Set the sort order to the new sort order if one has been selected
 $sort_order = ImportHTTPVar("sort_order", VAR_LETTER | VAR_USCORE);
@@ -173,7 +173,7 @@ if ($sort_order == "" || !isset($sort_order)) {
     // If one wasn't picked, try the prev_sort_order
     $sort_order = ImportHTTPVar("prev_sort_order", VAR_LETTER | VAR_USCORE);
     // If there was no previous sort order, default it to none.
-    if (($sort_order == "" || !isset($sort_order)) && $submit == _QUERYDB) {
+    if (($sort_order == "" || !isset($sort_order)) && $submit == gettext("Query DB")) {
         //$sort_order = "none"; //default to none.
         $_GET["sort_order"] = $sort_order = "time_d"; //if ($_GET['sensor'] != "") $sort_order = "time_d";
     }
@@ -181,7 +181,7 @@ if ($sort_order == "" || !isset($sort_order)) {
 /* End 'interesting' browser code fixes */
 // ADD TIME Criteria
 /*
-if ($submit == _ADDTIME) {
+if ($submit == gettext("ADD TIME")) {
 if ($_SESSION['time_cnt'] == 1) {
 $taux = array("","<=",$_SESSION['time'][0][2],$_SESSION['time'][0][3],$_SESSION['time'][0][4],"","","","");
 $_SESSION['time'][1] = $taux;
@@ -207,7 +207,7 @@ if (($new == 1) && ($submit == "")) {
 /* is this a new query, invoked from the SEARCH screen ? */
 /* if the query string if very long (> 700) then this must be from the Search screen  */
 $back = ImportHTTPVar("back", VAR_DIGIT);
-if (($GLOBALS['maintain_history'] == 1) && ($back != 1) && ($submit == _QUERYDB) && (isset($_GET['search']) && $_GET['search'] == 1)) {
+if (($GLOBALS['maintain_history'] == 1) && ($back != 1) && ($submit == gettext("Query DB")) && (isset($_GET['search']) && $_GET['search'] == 1)) {
     !empty($_SESSION['back_list_cnt']) ? $_SESSION['back_list_cnt']-- : $_SESSION['back_list_cnt'] = 0; /* save on top of initial blank query screen   */
     $submit = ""; /*  save entered search criteria as if one hit Enter */
     $_POST['submit'] = $submit;
@@ -220,18 +220,18 @@ if (($GLOBALS['maintain_history'] == 1) && ($back != 1) && ($submit == _QUERYDB)
 //    } != "") $cs->criteria['data']->criteria_cnt = 1;
 
    if ($_GET["data"][0][2] != "") $cs->criteria['data']->criteria_cnt = 1;
-    $submit = _QUERYDB; /* restore the real submit value  */
+    $submit = gettext("Query DB"); /* restore the real submit value  */
     $_POST['submit'] = $submit;
 }
 $cs->ReadState();
 
 $qs = new QueryState();
-$qs->AddCannedQuery("last_tcp", $last_num_alerts, _LASTTCP, "time_d");
-$qs->AddCannedQuery("last_udp", $last_num_alerts, _LASTUDP, "time_d");
-$qs->AddCannedQuery("last_icmp", $last_num_alerts, _LASTICMP, "time_d");
-$qs->AddCannedQuery("last_any", $last_num_alerts, _LASTALERTS, "time_d");
+$qs->AddCannedQuery("last_tcp", $last_num_alerts, gettext("Last TCP Events"), "time_d");
+$qs->AddCannedQuery("last_udp", $last_num_alerts, gettext("Last UDP Events"), "time_d");
+$qs->AddCannedQuery("last_icmp", $last_num_alerts, gettext("Last ICMP Events"), "time_d");
+$qs->AddCannedQuery("last_any", $last_num_alerts, gettext("Last Events"), "time_d");
 
-$page_title = _QUERYRESULTS;
+$page_title = gettext("Query Results");
 if ($qs->isCannedQuery()) if (!array_key_exists("minimal_view", $_GET)) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , "", 1);
 else if (!array_key_exists("minimal_view", $_GET)) PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
@@ -252,11 +252,11 @@ if ($debug_mode > 0) {
 if (is_numeric($submit)) {
     if ($debug_mode > 0) ErrorMessage("Browsing Clicked ($submit)");
     $qs->MoveView($submit);
-    $submit = _QUERYDB;
+    $submit = gettext("Query DB");
 }
 //echo $submit." ".$qs->isCannedQuery()." ".$qs->GetCurrentSort()." ".$_SERVER["QUERY_STRING"];
 /* Run the SQL Query and get results */
-if ($submit == _QUERYDB || $submit == _QUERYDBP || $submit == _SELECTED || $submit == _ALLONSCREEN || $submit == _ENTIREQUERY || $qs->isCannedQuery() || ($qs->GetCurrentSort() != "" && $qs->GetCurrentSort() != "none" && $_SERVER["QUERY_STRING"]!="new=1")) {
+if ($submit == gettext("Query DB") || $submit == gettext("Query+DB") || $submit == gettext("Delete Selected") || $submit == gettext("Delete ALL on Screen") || $submit == gettext("Delete Entire Query") || $qs->isCannedQuery() || ($qs->GetCurrentSort() != "" && $qs->GetCurrentSort() != "none" && $_SERVER["QUERY_STRING"]!="new=1")) {
 
 	/* Init and run the action */
 	$criteria_clauses = ProcessCriteria();
@@ -283,9 +283,9 @@ if ($submit == _QUERYDB || $submit == _QUERYDBP || $submit == _SELECTED || $subm
     //$qs->AddValidAction("csv_alert");
     //$qs->AddValidAction("archive_alert");
     //$qs->AddValidAction("archive_alert2");
-    $qs->AddValidActionOp(_SELECTED);
-    $qs->AddValidActionOp(_ALLONSCREEN);
-    $qs->AddValidActionOp(_ENTIREQUERY);
+    $qs->AddValidActionOp(gettext("Delete Selected"));
+    $qs->AddValidActionOp(gettext("Delete ALL on Screen"));
+    $qs->AddValidActionOp(gettext("Delete Entire Query"));
     $qs->SetActionSQL("SELECT acid_event.sid, acid_event.cid $from $where");
     $et->Mark("Initialization");
 

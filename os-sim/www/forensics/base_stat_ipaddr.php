@@ -43,22 +43,22 @@ PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 function PrintPortscanEvents($db, $ip) {
     GLOBAL $portscan_file;
     if (!$portscan_file) {
-        ErrorMessage(_PSEVENTERR . _PSEVENTERRNOFILE);
+        ErrorMessage(gettext("PORTSCAN EVENT ERROR: ") . gettext("No file was specified in the $portscan_file variable."));
         return;
     }
     $fp = fopen($portscan_file, "r");
     if (!$fp) {
-        ErrorMessage(_PSEVENTERR . _PSEVENTERROPENFILE . " '" . $portscan_file . "'");
+        ErrorMessage(gettext("PORTSCAN EVENT ERROR: ") . gettext("Unable to open Portscan event file") . " '" . $portscan_file . "'");
         return;
     }
     echo '<TABLE border="0" width="100%" cellspacing="0" cellpadding="5">
         <TR>
-           <TD CLASS="headerbasestat">' . _PSDATETIME . '</TD>
-           <TD CLASS="headerbasestat">' . _PSSRCIP . '</TD>
-           <TD CLASS="headerbasestat">' . _PSSRCPORT . '</TD>
-           <TD CLASS="headerbasestat">' . _PSDSTIP . '</TD>
-           <TD CLASS="headerbasestat">' . _PSDSTPORT . '</TD>
-           <TD CLASS="headerbasestat">' . _PSTCPFLAGS . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Date/Time") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Source IP") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Source Port") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Destination IP") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Destination Port") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("TCP Flags") . '</TD>
         </TR>';
     $total = 0;
     while (!feof($fp)) {
@@ -84,7 +84,7 @@ function PrintPortscanEvents($db, $ip) {
     }
     fclose($fp);
     echo '<TR>
-         <TD CLASS="headerbasestat" align="left">' . _PSTOTALHOSTS . '</TD>
+         <TD CLASS="headerbasestat" align="left">' . gettext("Total Hosts Scanned") . '</TD>
          <TD CLASS="headerbasestat">' . $total . '</TD>
          <TD CLASS="headerbasestat" colspan="4">&nbsp;</TD>
         </TR>
@@ -99,15 +99,15 @@ function PrintEventsByIP($db, $ip) {
     /* Grab unique alerts and count them */
     $unique_events = UniqueEventCntByAddr($db, $ip, $count);
     $unique_event_cnt = count($unique_events);
-    printf("<B>" . _PSDETECTAMONG . "/32</B><BR>", $unique_event_cnt, $event_cnt, $ip);
+    printf("<B>" . gettext("%d unique events detected among %d events on %s") . "/32</B><BR>", $unique_event_cnt, $event_cnt, $ip);
     /* Print the Statistics on Each of the Unique Alerts */
     echo '<TABLE BORDER=0>
         <TR>
-           <TD CLASS="headerbasestat">' . _PSTCPFLAGS . '</TD>
-           <TD CLASS="headerbasestat">' . _PSTOTALOCC . '</TD>
-           <TD CLASS="headerbasestat">' . _PSNUMSENSORS . '</TD>
-           <TD CLASS="headerbasestat">' . _PSFIRSTOCC . '</TD>
-           <TD CLASS="headerbasestat">' . _PSLASTOCC . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("TCP Flags") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Total<BR> Occurrences") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Num of Sensors") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("First<BR> Occurrence") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Last<BR> Occurrence") . '</TD>
         </TR>';
     for ($i = 0; $i < $unique_event_cnt; $i++) {
         $current_event = $unique_events[$i];
@@ -126,7 +126,7 @@ function PrintEventsByIP($db, $ip) {
         if ($debug_mode > 1) {
             SQLTraceLog(__FILE__ . ":" . __LINE__ . ":" . __FUNCTION__ . ": After BuildSigByID()");
         }
-        $tmp_iplookup = 'base_qry_main.php?new=1&sig_type=1&sig%5B0%5D=%3D&sig%5B1%5D=' . urlencode($unique_events[$i][0].";".$unique_events[$i][1]) . '&num_result_rows=-1&submit=' . _QUERYDBP . '&current_view=-1&ip_addr_cnt=2' . BuildIPFormVars($ip);
+        $tmp_iplookup = 'base_qry_main.php?new=1&sig_type=1&sig%5B0%5D=%3D&sig%5B1%5D=' . urlencode($unique_events[$i][0].";".$unique_events[$i][1]) . '&num_result_rows=-1&submit=' . gettext("Query+DB") . '&current_view=-1&ip_addr_cnt=2' . BuildIPFormVars($ip);
         $tmp_sensor_lookup = 'base_stat_sensor.php?sig_type=1&sig%5B0%5D=%3D&sig%5B1%5D=' . urlencode($unique_events[$i][0].";".$unique_events[$i][1]) . '&ip_addr_cnt=2' . BuildIPFormVars($ip);
         echo "  <TD align='center'> <A HREF=\"$tmp_iplookup\">$total</A> ";
         echo "  <TD align='center'> <A HREF=\"$tmp_sensor_lookup\">$num_sensors</A> ";
@@ -146,29 +146,29 @@ if (sizeof($sig) != 0 && strstr($sig[1], "spp_portscan")) $sig[1] = "";
 *                    -- ALS <aschroll@mitre.org>
 */
 $tmp_sensor_lookup = 'base_stat_sensor.php?ip_addr_cnt=2' . BuildIPFormVars($ip);
-$tmp_srcdst_iplookup = 'base_qry_main.php?new=2' . '&amp;num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1&amp;ip_addr_cnt=2' . BuildIPFormVars($ip);
-$tmp_src_iplookup = 'base_qry_main.php?new=2' . '&amp;num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1&amp;ip_addr_cnt=1' . BuildSrcIPFormVars($ip);
-$tmp_dst_iplookup = 'base_qry_main.php?new=2' . '&amp;num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1&amp;ip_addr_cnt=1' . BuildDstIPFormVars($ip);
+$tmp_srcdst_iplookup = 'base_qry_main.php?new=2' . '&amp;num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1&amp;ip_addr_cnt=2' . BuildIPFormVars($ip);
+$tmp_src_iplookup = 'base_qry_main.php?new=2' . '&amp;num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1&amp;ip_addr_cnt=1' . BuildSrcIPFormVars($ip);
+$tmp_dst_iplookup = 'base_qry_main.php?new=2' . '&amp;num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1&amp;ip_addr_cnt=1' . BuildDstIPFormVars($ip);
 echo '<CENTER>';
 echo '<table border=0 cellpadding=0 cellspacing=0 width="90%">';
 echo '<tr height=\'20px\'><td>&nbsp;</td><td>&nbsp;</td></tr>';
 echo '<tr style="background-color:#F2F2F2;"><td align=\'right\'>';
-printf("<FONT>" . _PSALLALERTSAS . ":</FONT>", $ip, $netmask);
+printf("<FONT>" . gettext("all events with %s/%s as") . ":</FONT>", $ip, $netmask);
 echo '</td>';
 echo '<td align=\'left\' style=\'padding-left:15px;\'>
- <A HREF="' . $tmp_src_iplookup . '">' . _SCSOURCE . '</A> | 
- <A HREF="' . $tmp_dst_iplookup . '">' . _SCDEST . '</A> | 
- <A HREF="' . $tmp_srcdst_iplookup . '">' . _SCSOURCE . '/' . _SCDEST . '</A><BR></td></tr>';
+ <A HREF="' . $tmp_src_iplookup . '">' . gettext("Source") . '</A> | 
+ <A HREF="' . $tmp_dst_iplookup . '">' . gettext("Destination") . '</A> | 
+ <A HREF="' . $tmp_srcdst_iplookup . '">' . gettext("Source") . '/' . gettext("Destination") . '</A><BR></td></tr>';
  
 echo '<tr><td align=\'right\'>';
-echo _PSSHOW . ':</td><td align=\'left\' style=\'padding-left:15px;\'>
-       <A HREF="base_stat_ipaddr.php?ip=' . $ip . '&amp;netmask=' . $netmask . '&amp;action=events">' . _PSUNIALERTS . '</A>
+echo gettext("show") . ':</td><td align=\'left\' style=\'padding-left:15px;\'>
+       <A HREF="base_stat_ipaddr.php?ip=' . $ip . '&amp;netmask=' . $netmask . '&amp;action=events">' . gettext("Unique Events") . '</A>
        &nbsp; | &nbsp;
-       <A HREF="base_stat_ipaddr.php?ip=' . $ip . '&amp;netmask=' . $netmask . '&amp;action=portscan">' . _PSPORTSCANEVE . '</A>
+       <A HREF="base_stat_ipaddr.php?ip=' . $ip . '&amp;netmask=' . $netmask . '&amp;action=portscan">' . gettext("Portscan Events") . '</A>
        <BR></td></tr>';
 
 echo "<tr style=\"background-color:#F2F2F2;\"><td style=\"text-align:right;\">";
-echo '<FONT>' . _PSREGWHOIS . ': </td><td align=\'left\' style=\'padding-left:15px;\'>';
+echo '<FONT>' . gettext("Registry lookup (whois) in") . ': </td><td align=\'left\' style=\'padding-left:15px;\'>';
 echo '
        <A HREF="http://ws.arin.net/cgi-bin/whois.pl?queryinput=' . $ip . '" target="_NEW">ARIN</A> |
        <A HREF="http://www.ripe.net/perl/whois?query=' . $ip . '" target="_NEW">RIPE</A> | 
@@ -177,7 +177,7 @@ echo '
 $octet = preg_split("/\./", $ip);
 $classc = sprintf("%03s.%03s.%03s", $octet[0], $octet[1], $octet[2]);
 
-echo '<tr><td align=\'right\'><FONT>' . _PSEXTERNAL . ': </td><td align=\'left\' style=\'padding-left:15px;\'>' . '<A HREF="' . $external_dns_link . $ip . '" target="_NEW">DNS</A>';
+echo '<tr><td align=\'right\'><FONT>' . gettext("external") . ': </td><td align=\'left\' style=\'padding-left:15px;\'>' . '<A HREF="' . $external_dns_link . $ip . '" target="_NEW">DNS</A>';
 echo ' | <A HREF="' . $external_whois_link . $ip . '" target="_NEW">whois</A> | ' . '<A HREF="' . $external_all_link . $ip . '" target="_NEW">Extended whois</A>';
 echo ' | <A HREF="http://www.dshield.org/ipinfo.php?ip=' . $ip . '&amp;Submit=Submit" target="_NEW">DShield.org IP Info</A>';
 echo ' | <A HREF="http://www.trustedsource.org/query.php?q=' . $ip . '" target="_NEW">TrustedSource.org IP Info</A>';
@@ -216,7 +216,7 @@ echo Sensor::get_sensor_link($conn_object, $ip) . "/$ip.html" ?>">See host Detai
   <?php
 $db_object->close($conn_object);
 echo ') <BR>FQDN: <B>';
-if ($resolve_IP == 0) echo '  (' . _PSNODNS . ')';
+if ($resolve_IP == 0) echo '  (' . gettext("no DNS resolution attempted") . ')';
 else {
     if ($ip != "255.255.255.255") echo baseGetHostByAddr($ip, $db, $dns_cache_lifetime);
     else echo $ip . ' (Broadcast)';
@@ -225,11 +225,11 @@ if (VerifySocketSupport()) echo '&nbsp;&nbsp;( <A HREF="base_stat_ipaddr.php?ip=
 echo '</B>
         <TABLE BORDER=0>
         <TR>
-           <TD CLASS="headerbasestat">' . _PSNUMSENSORSBR . '</TD>
-           <TD CLASS="headerbasestat">' . _PSOCCASSRC . '</TD>
-           <TD CLASS="headerbasestat">' . _PSOCCASDST . '</TD>
-           <TD CLASS="headerbasestat">' . _PSFIRSTOCC . '</TD>
-           <TD CLASS="headerbasestat">' . _PSLASTOCC . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Num of <BR>Sensors") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Occurances <BR>as Src.") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Occurances <BR>as Dest.") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("First<BR> Occurrence") . '</TD>
+           <TD CLASS="headerbasestat">' . gettext("Last<BR> Occurrence") . '</TD>
         </TR>';
 $ip_src32 = baseIP2long($ip);
 $ip_dst32 = $ip_src32;
@@ -271,7 +271,7 @@ if ($action == "events") {
     PrintEventsByIP($db, $ip);
     echo ' </CENTER>';
 } else if ($action == "whois") {
-    echo "\n<B>" . _PSWHOISINFO . "</B>" . "<PRE>" . baseGetWhois($ip, $db, $whois_cache_lifetime) . "</PRE>";
+    echo "\n<B>" . gettext("Whois Information") . "</B>" . "<PRE>" . baseGetWhois($ip, $db, $whois_cache_lifetime) . "</PRE>";
 } else if ($action == "portscan") {
     echo '<HR>
             <CENTER><P>';

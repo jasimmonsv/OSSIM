@@ -664,25 +664,44 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			nodetree = $(layer).dynatree("getRoot");
 			i=i+1
 		}
-	
+		
+		function get_echars(data){
+			var echars='';
+			//alert(data);
+			//alert(data.match(/&#(\d{4,5});/));
+			alert(data.match(/^[a-zA-Z]*$/));
+			//if(){
+			
+			//var echars = ( preg_match_all('/&#(\d{4,5});/', $data, $match) != false ) ? $match[1] : array();
+			
+			return echars;
+		}
+		
 		function addnew(map,type) {
 			document.f.alarm_id.value = ''
 			if (type == 'alarm') {
 				if (document.f.alarm_name.value != '') {
-					var txt = ''
+					var txt = '';
 					var robj = document.getElementById("chosen_icon");
-					txt = txt + urlencode(robj.src) + ';'
-					type = document.f.type.value
+					txt = txt + urlencode(robj.src) + ';';
+					type = document.f.type.value;
 					//var id_type = 'elem_'+type
-					elem = document.getElementById('elem').value
-					txt = txt + urlencode(type) + ';' + urlencode(elem) + ';'
-					txt = txt + urlencode(document.f.alarm_name.value) + ';'
-					txt = txt + urlencode(document.f.url.value) + ';'
+					elem = document.getElementById('elem').value;
+					txt = txt + urlencode(type) + ';' + urlencode(elem) + ';';
+					var temp_value=document.f.alarm_name.value;
+					//alert(temp_value);
+					if(temp_value.match(/^[a-zA-Z0-9ó]$/)==null){
+						txt = txt + document.f.alarm_name.value + ';';
+					}else{
+						//alert('codificandooooo');
+						txt = txt + urlencode(document.f.alarm_name.value) + ';';
+					}
+					txt = txt + urlencode(document.f.url.value) + ';';
 					txt = txt.replace(/\//g,"url_slash");
 					txt = txt.replace(/\%3F/g,"url_quest");
 					txt = txt.replace(/\%3D/g,"url_equal");
-					responderAjax('responder.php?map=' + map + '&data=' + txt + '&iconbg=' + document.f.iconbg.value + '&iconsize=' + document.f.iconsize.value)
-					document.f.state.value = '<?= _("New Indicator created.") ?>!'
+					responderAjax('responder.php?map=' + map + '&data=' + txt + '&iconbg=' + document.f.iconbg.value + '&iconsize=' + document.f.iconsize.value);
+					document.f.state.value = '<?= _("New Indicator created.") ?>!';
 				} else {
 					alert("<?= _("Indicator name can't be void") ?>")
 				}	

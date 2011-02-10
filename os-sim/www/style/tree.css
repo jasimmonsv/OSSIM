@@ -241,13 +241,13 @@ span.ui-dynatree-expanded a
 
 span.ui-dynatree-selected a 
 {
-	color: green; 
+	color: red; 
 	font-style: italic;
 }
 
 span.ui-dynatree-active a
 {
-	background-color: #3169C6 !important;
+	background-color: #D2D2D2 !important;
 	color: white !important; /* @ IE6 */
 }
 
@@ -261,12 +261,29 @@ span.custom1 a
 	color: yellow;
 }
 
-.size10 { font-size: 11px; font-weight: normal;}
+.size10 { font-size: 10px; font-weight: normal;}
 
 .size10 span { font-weight: bold;}
 
 .size12 span { font-size: 12px; font-weight: bold;}
 
+.size12ig  { font-size: 12px; font-style: italic; font-weight: normal !important; color:gray !important;}
+
 .bold_red span {color: #D8000C; font-size: 12px; font-weight: bold;}
 
+.size12n { font-size: 12px; font-weight: normal !important;}
+.size12b { font-size: 12px; font-weight: bold;}
+.ml3 { margin-left: 3px;}
+
+.size10n { font-size: 10px !important; font-weight: normal !important; }
+
+span.ui-dynatree-selected a  .nagios
+{
+	color: black; 
+	font-style: normal;
+}
+
+
 #ui-dynatree-id-1 a { cursor: default; text-decoration: none;}
+
+

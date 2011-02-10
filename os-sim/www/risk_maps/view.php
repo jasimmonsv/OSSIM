@@ -120,7 +120,7 @@ check_writable_relative("./pixmaps/uploaded");
 <title><?= _("Alarms") ?> - <?= _("View")?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="./custom_style.css">
-
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <style type="text/css">
 	.itcanbemoved { position:absolute; }
 </style>
@@ -236,11 +236,19 @@ if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
 	txtvvv = '<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
 
 	function responderAjax(url) {
-		var ajaxObject = document.createElement('script');
+		/*var ajaxObject = document.createElement('script');
 		ajaxObject.src = url;
 		ajaxObject.type = "text/javascript";
 		ajaxObject.charset = "utf-8";
-		document.getElementsByTagName('head').item(0).appendChild(ajaxObject);
+		document.getElementsByTagName('head').item(0).appendChild(ajaxObject);*/
+	
+		$.ajax({
+		   type: "GET",
+		   url: url,
+		   success: function(msg){
+			 eval(msg);
+		   }
+		});		
 		
 	}
 	function urlencode(str) { return escape(str).replace('+','%2B').replace('%20','+').replace('*','%2A').replace('/','%2F').replace('@','%40'); }
@@ -295,7 +303,7 @@ if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
 <body leftmargin=5 topmargin=5 class=ne1 onload="initDiv()">
 <table border=0 cellpadding=0 cellspacing=0><tr>
 <td valign=top id="map">
-	<img id="map_img" src="maps/map<? echo $map ?>.jpg" border=0>
+	<img id="map_img" src="maps/map<? echo $map ?>.jpg" border="0">
 </td>
 <td valign=top class=ne1 style="padding-left:5px">
 <?php
@@ -355,9 +363,10 @@ if(!$hide_others){
 				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
 			} else $has_perm = 1;
 			if (Session::am_i_admin()) $has_perm = 1;
+			require_once('classes/Util.inc');
 			if (!$in_assets) {
 				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><a href=\"\" onclick=\"alert('Warning: this asset is not in inventory.');return false\"><img src=\"../pixmaps/marker--exclamation.png\" width=\"".$size."\" height=\"".$size."\" border=0></a></td><td>";
+				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".Util::htmlentities($rs->fields["name"], ENT_COMPAT, "UTF-8")."</i></td></tr><tr><td><a href=\"\" onclick=\"alert('Warning: this asset is not in inventory.');return false\"><img src=\"../pixmaps/marker--exclamation.png\" width=\"".$size."\" height=\"".$size."\" border=0></a></td><td>";
 				echo "<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
 				echo "</td></tr></table></div>\n";
 				$rs->MoveNext(); continue;

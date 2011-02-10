@@ -616,6 +616,7 @@ class Incident {
             'submitter',
             'in_charge',
             'related_to_user',
+            'last_update',
             'tag'
         );
         foreach($search_opts as $o) {
@@ -623,6 +624,11 @@ class Incident {
         }
         $sql = (!$opts['with_text']) ? "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* " : "SELECT DISTINCT incident.* ";
         $where = $parms = array();
+        if (is_array($opts['last_update'])) {
+            $where[] = "incident.last_update between ".$opts['last_update'][0]." AND ".$opts['last_update'][1];
+        } elseif ($opts['last_update']) {
+            $where[] = "incident.last_update >= ".$opts['last_update'];
+        }
         if ($opts['incident_id']) {
             $where[] = "incident.id = ?";
             $parms[] = $opts['incident_id'];
@@ -758,7 +764,7 @@ class Incident {
         
         // order by
         if ($order_by == 'life_time') $order_by = "date";
-        $order_by = "\nORDER BY $order_by $order_mode";
+        $order_by = ($order_by!="") ? "\nORDER BY $order_by $order_mode" : "";
         $sql.= $order_by;
         // limit
         if (!$opts['with_text']) $sql .= " LIMIT ".(abs($page-1)*$rows_per_page).",$rows_per_page";

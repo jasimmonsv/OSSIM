@@ -35,6 +35,32 @@ require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
 require_once ('../conf/_conf.php');
 require_once ('../utils.php');
+require_once ('classes/Xml_parser.inc');
+
+function get_nodes($tree, $node_name)
+{
+	$nodes = null;
+	
+	if ( is_array($tree) )
+	{
+		foreach ($tree as $k => $v)
+		{
+			if ( is_array($v) && $k === $node_name )
+			{
+				$nodes[] = $v;
+			}
+			else if( is_array($v) && $k !== $node_name )
+			{
+				$aux = get_nodes($v, $node_name);
+				$nodes   = ( is_array($nodes) ) ? $nodes : array();
+				$aux     = ( is_array($aux) ) ? $aux : array();
+				$nodes   = array_merge ($nodes, $aux);
+				
+			}
+		}
+	}
+	return $nodes;
+}
 
 $error   = false;
 
@@ -51,12 +77,11 @@ if ($conf_file == false)
 if($tab == "#tab1")
 {
 	$rules = array();
-			
+	$conf_file = formatXmlString($conf_file);
 	$pattern   = '/[\r?\n]+\s*/';
 	$conf_file = preg_replace($pattern, "\n", $conf_file);
 	$conf_file = explode("\n", trim($conf_file));
-		
-		
+			
 	if ( is_array($conf_file) )
 	{
 		$start_tag = 0;
@@ -66,17 +91,16 @@ if($tab == "#tab1")
 				
 		foreach ($conf_file as $k => $v)
 		{
-			if ( preg_match("/<rules>|<\/rules>/", $v, $match) )
+			if ( preg_match("/(<\s*rules\s*>)|(<\s*\/rules\s*>)/", $v, $match) )
 			{
-				if ($match[0] == "<rules>")
+				if ( !empty($match[1]) )
 				{
 					$num_found++;
 					$start_tag++;
 					$rules[$num_found-1]['start'] = $k;
 					$rules[$num_found-1]['end']   = null;
 				}
-				
-				if ($match[0] == "</rules>")
+				elseif ( !empty($match[2]) )
 				{
 					$end_tag++;
 					$rules[$num_found-1]['end'] = $k;
@@ -171,6 +195,168 @@ if($tab == "#tab1")
 		
 }
 else if ($tab == '#tab2')
+{
+	
+	$xml_obj = new xml("key");
+	$xml_obj->load_file($ossec_conf);
+	$array_oss_cnf = $xml_obj->xml2array();
+	
+	$syscheck = get_nodes($array_oss_cnf, 'syscheck');
+	
+	$directories = get_nodes($syscheck, 'directories');
+	$ignores     = get_nodes($syscheck, 'ignore');
+	$frequency   = get_nodes($syscheck, 'frequency');
+	
+	$directory_checks = array(
+			"realtime"       => "Realtime",
+			"report_changes" => "Report changes", 
+			"check_all"      => "Chk all", 
+			"check_sum"      => "Chk sum", 
+			"check_sha1sum"  => "Chk sha1sum", 
+			"check_size"     => "Chk size", 
+			"check_owner"    => "Chk owner", 
+			"check_group"    => "Chk group", 
+			"check_perm"     => "Chk perm"				
+	);
+	
+	echo "1###";
+			
+	?>
+	<form name='form_syscheck' id='form_syscheck'>
+	
+		<div class='cont_sys'>
+			<div class='headerpr'><?php echo _("Configuration parameters")?></div>
+			<div id='cont_tsp'>
+				<table id='table_sys_parameters'>
+					<tr>	
+						<th class='sys_frequency'><?php echo _("Frequency")?></th>
+						<td class='left'><input type='text' id='frequency' name='frequency' value='<?php echo $frequency[0][0]?>'/></td>
+					</tr>
+					<tr>
+						<td class='right' colspan='2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></td>
+					</tr>	
+				</table>
+			</div>
+		</div>
+			
+		<div class='cont_sys'>
+			<div class='headerpr'><?php echo _("Files/Directories monitored")?></div>
+		
+			<div>
+					
+				<table id='table_sys_directories' width='100%'>
+					<tr>	
+						<th class='sys_dir'><?php echo _("Files/Directories")?></th>
+						<td class='sys_parameters'>
+							<table width='100%'>
+								<tr><th colspan='<?php echo count($directory_checks)?>'><?php echo _("Parameters")?></th></tr>
+								<tr>
+									<?php 
+										foreach ($directory_checks as $k => $v)
+											echo "<th style='padding: 1px; font-size: 10px; text-align:center; white-space:normal; width: 50px;'>$v</th>";
+									?>
+								</tr>
+							</table>
+						</td>
+						<th class='sys_actions'><?php echo _("Actions")?></th>
+					</tr>
+						
+					<tbody id='tbody_sd'>
+					<?php
+					
+					if ( empty($directories) ) 
+					{
+						$k           = 0;
+						$directories = array(array("@attributes" => null, "0"=> null));
+					}
+					
+					foreach ($directories as $k => $v)
+					{
+						echo "<tr class='dir_tr' id='dir_$k'>";
+							echo "<td style='text-align: left;'><textarea name='".$k."_value_dir' id='".$k."_value_dir'>".$directories[$k][0]."</textarea></td>";
+							echo "<td><table width='100%'>
+								  <tr>";
+							$i = 0;
+							foreach ($directory_checks as $j => $value)
+							{
+								$i++;
+								$checked = ( !empty($directories[$k]['@attributes'][$j]) ) ? 'checked="checked"' : '';
+								echo "<td style=' text-align:center;'><input type='checkbox' id='".$j."_".$k."_".$i."' name='".$j."_".$k."_".$i."' $checked/></td>";
+							}
+							echo "</tr>
+								  </table></td>";
+							echo "<td>
+									<a onclick='delete_dir(\"dir_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+									<a onclick='add_dir(\"dir_$k\");'><img src='images/add.png' align='absmiddle'/></a>	
+								 </td>";
+						echo "</tr>";
+					}
+					
+						
+					?>
+					</tbody>
+				</table>
+			</div>
+				
+			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
+		</div>
+		
+		<div class='cont_sys'>
+			<div class='headerpr'><?php echo _("Files/Directories ignored")?></div>
+			
+			<div>
+			<?php
+			if ( empty($ignores) ) 
+			{
+				$k       = 0;
+				$ignores = array(array("@attributes" => null, "0"=> null));
+			}
+			?>
+				<table id='table_sys_ignores' width='100%'>
+					<tr>	
+						<th class='sys_ignores'><?php echo _("Files/Directories")?></th>
+						<td class='sys_parameters'>
+							<table width='100%'>
+								<tr><th><?php echo _("Parameters")?></th></tr>
+								<tr>
+									<th style='font-size: 10px; text-align:center;'><?php echo _("Sregex")?></th>
+								</tr>
+							</table>
+						</td>
+						<th class='sys_actions'><?php echo _("Actions")?></th>
+					</tr>
+					
+					<tbody id='tbody_si'>
+					<?php
+													
+					foreach ($ignores as $k => $v)
+					{
+						echo "<tr class='dir_tr' id='ign_$k'>";
+							echo "<td style='text-align: left;'><textarea name='".$k."_value_ign' id='".$k."_value_ign'>".$ignores[$k][0]."</textarea></td>";
+							$checked = ( !empty($ignores[$k]['@attributes']['type']) ) ? 'checked="checked"' : '';
+							echo "<td style='text-align: center;'><input type='checkbox' name='".$k."_type' id='".$k."_type' $checked/></td>";
+							echo "<td>
+									<a onclick='delete_ign(\"ign_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+									<a onclick='add_ign(\"ign_$k\");'><img src='images/add.png' align='absmiddle'/></a>
+							</td>";
+						echo "</tr>";
+					}
+						
+					?>
+					</tbody>
+				</table>
+			</div>
+						
+			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
+		</div>
+		
+	</form>
+	
+	<div class='notice'><div><span>(*)<?php echo _("You must restart Ossec for the changes to take effect")?></span></div></div>
+
+	<?php
+}
+else if ($tab == '#tab3')
 {
 	echo $conf_file;
 }

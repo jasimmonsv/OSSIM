@@ -1021,7 +1021,8 @@ public function getResource($uriString,$wsType) {
       require_once ('ossim_db.inc');
       /* database connect */
       $this->db = new ossim_db();
-      $temp_conn = $this->db->custom_connect('localhost',$path_conf->get_conf("ossim_user"),$path_conf->get_conf("ossim_pass"));
+      $temp_conn = $this->db->connect();
+      //$temp_conn = $this->db->custom_connect('localhost',$path_conf->get_conf("ossim_user"),$path_conf->get_conf("ossim_pass"));
       $temp_conn->Execute('use jasperserver');
 
       return $temp_conn;

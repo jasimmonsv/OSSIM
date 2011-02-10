@@ -208,9 +208,9 @@ function GB_onclose() {
     <tr class="<?=$bgclass?>" txt="sid<?=$id?>">    
         <td class="noborder pleft <?=$bbottom?>" nowrap>
         	<table class="noborder" style="background:transparent"><tr><td class="nobborder">
-        	<? if (count($plugs)>1) { ?><a href="modifyplugingroupsform.php?action=<?= GET('action') ?>&id=<?= $group_id ?>&withoutmenu=<?= GET('withoutmenu') ?>&delete=<?= $id ?>" title="<?=_("Delete sata source from group")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" border="0"></a>
+        	<? if (count($plugs)>1) { ?><a href="modifyplugingroupsform.php?action=<?= GET('action') ?>&id=<?= $group_id ?>&withoutmenu=<?= GET('withoutmenu') ?>&delete=<?= $id ?>" title="<?=_("Delete data source from group")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" border="0"></a>
         	<? } else { ?>
-        	<a href="javascript:;" title="<?=_("Add another sata source defore delete this")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" class="disabled" border="0"></a>
+        	<a href="javascript:;" title="<?=_("Add another data source defore delete this")?>"><img src="../vulnmeter/images/delete.gif" align="absmiddle" class="disabled" border="0"></a>
         	<? } ?>
         	</td>
         	<td class="nobborder"><?= $id ?></td></tr></table>

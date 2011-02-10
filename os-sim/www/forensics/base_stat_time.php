@@ -33,7 +33,7 @@ function StoreAlertNum($sql, $label, $time_sep, $i_year, $i_month, $i_day, $i_ho
     if ($myrow = $result->baseFetchRow()) {
         $value_lst[$cnt] = $myrow[0];
         $result->baseFreeRows();
-        $value_POST_lst[$cnt] = "base_qry_main.php?new=1&amp;submit=" . _QUERYDBP . "&amp;num_result_rows=-1&amp;time_cnt=1" . "&amp;time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3D";
+        $value_POST_lst[$cnt] = "base_qry_main.php?new=1&amp;submit=" . gettext("Query+DB") . "&amp;num_result_rows=-1&amp;time_cnt=1" . "&amp;time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3D";
         if ($time_sep[0] == "hour") $value_POST_lst[$cnt] = $value_POST_lst[$cnt] . '&amp;time%5B0%5D%5B2%5D=' . $i_month . '&amp;time%5B0%5D%5B3%5D=' . $i_day . '&amp;time%5B0%5D%5B4%5D=' . $i_year . '&amp;time%5B0%5D%5B5%5D=' . $i_hour;
         else if ($time_sep[0] == "day") $value_POST_lst[$cnt] = $value_POST_lst[$cnt] . '&amp;time%5B0%5D%5B2%5D=' . $i_month . '&amp;time%5B0%5D%5B3%5D=' . $i_day . '&amp;time%5B0%5D%5B4%5D=' . $i_year;
         else if ($time_sep[0] == "month") $value_POST_lst[$cnt] = $value_POST_lst[$cnt] . '&amp;time%5B0%5D%5B2%5D=' . $i_month . '&amp;time%5B0%5D%5B4%5D=' . $i_year;
@@ -52,7 +52,7 @@ function StoreAlertNum2($count, $label, $time_sep, $i_year, $i_month, $i_day, $i
         );
     }
     $value_lst[$cnt] = $count;
-    $value_POST_lst[$cnt] = "base_qry_main.php?new=1&amp;submit=" . _QUERYDBP . "&amp;num_result_rows=-1" . "&amp;time%5B0%5D%5B0%5D=+";
+    $value_POST_lst[$cnt] = "base_qry_main.php?new=1&amp;submit=" . gettext("Query+DB") . "&amp;num_result_rows=-1" . "&amp;time%5B0%5D%5B0%5D=+";
     if ($time_sep[0] == "hour") $value_POST_lst[$cnt] = $value_POST_lst[$cnt] . '&amp;time_range=today&amp;time%5B0%5D%5B1%5D=%3E%3D&amp;time_cnt=2&amp;time%5B1%5D%5B1%5D=%3C%3D' . '&amp;time%5B0%5D%5B2%5D=' . $i_month . '&amp;time%5B0%5D%5B3%5D=' . $i_day . '&amp;time%5B0%5D%5B4%5D=' . $i_year . '&amp;time%5B0%5D%5B5%5D=' . $i_hour . '&amp;time%5B0%5D%5B6%5D=00&amp;time%5B0%5D%5B7%5D=00' . '&amp;time%5B1%5D%5B2%5D=' . $i_month . '&amp;time%5B1%5D%5B3%5D=' . $i_day . '&amp;time%5B1%5D%5B4%5D=' . $i_year . '&amp;time%5B1%5D%5B5%5D=' . $i_hour . '&amp;time%5B1%5D%5B6%5D=59&amp;time%5B1%5D%5B7%5D=59';
     else if ($time_sep[0] == "day") $value_POST_lst[$cnt] = $value_POST_lst[$cnt] . '&amp;time_range=day&amp;time%5B0%5D%5B1%5D=%3E%3D&amp;time_cnt=2&amp;time%5B1%5D%5B1%5D=%3C%3D' . '&amp;time%5B0%5D%5B2%5D=' . $i_month . '&amp;time%5B0%5D%5B3%5D=' . $i_day . '&amp;time%5B0%5D%5B4%5D=' . $i_year . '&amp;time%5B0%5D%5B5%5D=00&amp;time%5B0%5D%5B6%5D=00&amp;time%5B0%5D%5B7%5D=00' . '&amp;time%5B1%5D%5B2%5D=' . $i_month . '&amp;time%5B1%5D%5B3%5D=' . $i_day . '&amp;time%5B1%5D%5B4%5D=' . $i_year . '&amp;time%5B1%5D%5B5%5D=23&amp;time%5B1%5D%5B6%5D=59&amp;time%5B1%5D%5B7%5D=59';
     else if ($time_sep[0] == "month") {
@@ -125,9 +125,9 @@ function PrintTimeProfile($time) {
     $max_cnt = $value_lst[0];
     for ($i = 0; $i < $cnt; $i++) if ($value_lst[$i] > $max_cnt) $max_cnt = $value_lst[$i];
     echo '<TABLE BORDER=0 WIDTH="100%">
-           <TR><TD CLASS="header" width="25%">' . _CHRTTIME . '</TD>
-               <TD CLASS="header" width="15%"># ' . _QSCOFALERTS . '</TD>
-               <TD CLASS="header">' . _ALERT . '</TD></TR>';
+           <TR><TD CLASS="header" width="25%">' . gettext("Time") . '</TD>
+               <TD CLASS="header" width="15%"># ' . gettext("of events") . '</TD>
+               <TD CLASS="header">' . gettext("Event") . '</TD></TR>';
     $total = 0;
     for ($i = 0; $i < $cnt; $i++) {
         if ($value_lst[$i] == 0) $entry_width = 0;
@@ -193,7 +193,7 @@ $cs->ReadState();
 $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
-$page_title = _BSTTITLE;
+$page_title = gettext("Time Profile of Events");
 PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
 $db = NewBASEDBConnection($DBlib_path, $DBtype);
@@ -210,7 +210,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
         //echo "CRITERIA: $join_sql ; $where_sql ; $criteria_sql<br>\n";
         
@@ -235,7 +235,7 @@ echo '<FORM ACTION="base_stat_time.php" METHOD="get" style="margin-top:3px">
         <input type="hidden" name="time_range" value="today">
 		<TABLE WIDTH="100%" BORDER=0 cellpadding=0 cellspacing=0>
          <TR>
-          <TD WIDTH="100%" class="header">' . _BSTTIMECRIT . '</TD>
+          <TD WIDTH="100%" class="header">' . gettext("Time Criteria") . '</TD>
           <TD></TD></TR>
         </TABLE>';
 $today_d = date("d");
@@ -341,17 +341,17 @@ echo ($_GET['time_option'] == "my2") ? "#28BC04" : "#EEEEEE" ?>"><A style="color
         <TR>
          <TD>
 
-  <B><?php echo _BSTPROFILEBY ?> :</B> &nbsp;
-        <INPUT NAME="time_sep[0]" TYPE="radio" VALUE="hour" <?php echo @chk_check($time_sep[0], "hour") ?> checked> <?php echo _HOUR ?>
-        <INPUT NAME="time_sep[0]" TYPE="radio" VALUE="day" <?php echo @chk_check($time_sep[0], "day") ?>> <?php echo _DAY ?>
-        <INPUT NAME="time_sep[0]" TYPE="radio" VALUE="month" <?php echo @chk_check($time_sep[0], "month") ?> onclick="document.getElementById('timesep1').value='between'"> <?php echo _MONTH ?>
+  <B><?php echo gettext("Profile by") ?> :</B> &nbsp;
+        <INPUT NAME="time_sep[0]" TYPE="radio" VALUE="hour" <?php echo @chk_check($time_sep[0], "hour") ?> checked> <?php echo gettext("Hour") ?>
+        <INPUT NAME="time_sep[0]" TYPE="radio" VALUE="day" <?php echo @chk_check($time_sep[0], "day") ?>> <?php echo gettext("Day") ?>
+        <INPUT NAME="time_sep[0]" TYPE="radio" VALUE="month" <?php echo @chk_check($time_sep[0], "month") ?> onclick="document.getElementById('timesep1').value='between'"> <?php echo gettext("Month") ?>
         <BR>
 	<input type="hidden" name="time[0][1]" value="<=">
 <?php
 echo '<SELECT NAME="time_sep[1]" id="timesep1">
-         <OPTION VALUE=" "  ' . @chk_select($time_sep[1], " ") . '>' . _DISPTIME . '
-         <OPTION VALUE="on" ' . @chk_select($time_sep[1], "on") . ' selected>' . _TIMEON . '
-         <OPTION VALUE="between"' . @chk_select($time_sep[1], "between") . '>' . _TIMEBETWEEN . '
+         <OPTION VALUE=" "  ' . @chk_select($time_sep[1], " ") . '>' . gettext("{ time }") . '
+         <OPTION VALUE="on" ' . @chk_select($time_sep[1], "on") . ' selected>' . gettext("on") . '
+         <OPTION VALUE="between"' . @chk_select($time_sep[1], "between") . '>' . gettext("between") . '
         </SELECT>';
 echo '<input type="hidden" name="time[0][1]" value=">=">';
 echo '<input type="hidden" name="time[1][1]" value="<=">';
@@ -360,34 +360,34 @@ echo '<input type="hidden" name="time[1][1]" value="<=">';
 if ($_GET['time_option'] == "") $time = $_SESSION['time'];
 for ($i = 0; $i < 2; $i++) {
     /*      echo '<SELECT NAME="time['.$i.'][0]">
-    <OPTION VALUE=" "  '.chk_select($time[$i][0]," " ).'>'._DISPMONTH.'
-    <OPTION VALUE="01" '.chk_select($time[$i][0],"01").'>'._JANUARY.'
-    <OPTION VALUE="02" '.chk_select($time[$i][0],"02").'>'._FEBRUARY.'
-    <OPTION VALUE="03" '.chk_select($time[$i][0],"03").'>'._MARCH.'
-    <OPTION VALUE="04" '.chk_select($time[$i][0],"04").'>'._APRIL.'
-    <OPTION VALUE="05" '.chk_select($time[$i][0],"05").'>'._MAY.'
-    <OPTION VALUE="06" '.chk_select($time[$i][0],"06").'>'._JUNE.'
-    <OPTION VALUE="07" '.chk_select($time[$i][0],"07").'>'._JULY.'
-    <OPTION VALUE="08" '.chk_select($time[$i][0],"08").'>'._AUGUST.'
-    <OPTION VALUE="09" '.chk_select($time[$i][0],"09").'>'._SEPTEMBER.'
-    <OPTION VALUE="10" '.chk_select($time[$i][0],"10").'>'._OCTOBER.'
-    <OPTION VALUE="11" '.chk_select($time[$i][0],"11").'>'._NOVEMBER.'
-    <OPTION VALUE="12" '.chk_select($time[$i][0],"12").'>'._DECEMBER.'
+    <OPTION VALUE=" "  '.chk_select($time[$i][0]," " ).'>'.gettext("{ month }").'
+    <OPTION VALUE="01" '.chk_select($time[$i][0],"01").'>'.gettext("January").'
+    <OPTION VALUE="02" '.chk_select($time[$i][0],"02").'>'.gettext("February").'
+    <OPTION VALUE="03" '.chk_select($time[$i][0],"03").'>'.gettext("March").'
+    <OPTION VALUE="04" '.chk_select($time[$i][0],"04").'>'.gettext("April").'
+    <OPTION VALUE="05" '.chk_select($time[$i][0],"05").'>'.gettext("May").'
+    <OPTION VALUE="06" '.chk_select($time[$i][0],"06").'>'.gettext("June").'
+    <OPTION VALUE="07" '.chk_select($time[$i][0],"07").'>'.gettext("July").'
+    <OPTION VALUE="08" '.chk_select($time[$i][0],"08").'>'.gettext("August").'
+    <OPTION VALUE="09" '.chk_select($time[$i][0],"09").'>'.gettext("September").'
+    <OPTION VALUE="10" '.chk_select($time[$i][0],"10").'>'.gettext("October").'
+    <OPTION VALUE="11" '.chk_select($time[$i][0],"11").'>'.gettext("November").'
+    <OPTION VALUE="12" '.chk_select($time[$i][0],"12").'>'.gettext("December").'
     </SELECT>';*/
     echo '<SELECT NAME="time[' . $i . '][2]">
-             <OPTION VALUE=" "  ' . chk_select($time[$i][2], " ") . '>' . _DISPMONTH . '
-             <OPTION VALUE="01" ' . chk_select($time[$i][2], "01") . '>' . _JANUARY . '
-             <OPTION VALUE="02" ' . chk_select($time[$i][2], "02") . '>' . _FEBRUARY . '
-             <OPTION VALUE="03" ' . chk_select($time[$i][2], "03") . '>' . _MARCH . '
-             <OPTION VALUE="04" ' . chk_select($time[$i][2], "04") . '>' . _APRIL . '
-             <OPTION VALUE="05" ' . chk_select($time[$i][2], "05") . '>' . _MAY . '
-             <OPTION VALUE="06" ' . chk_select($time[$i][2], "06") . '>' . _JUNE . '
-             <OPTION VALUE="07" ' . chk_select($time[$i][2], "07") . '>' . _JULY . '
-             <OPTION VALUE="08" ' . chk_select($time[$i][2], "08") . '>' . _AUGUST . '
-             <OPTION VALUE="09" ' . chk_select($time[$i][2], "09") . '>' . _SEPTEMBER . '
-             <OPTION VALUE="10" ' . chk_select($time[$i][2], "10") . '>' . _OCTOBER . '
-             <OPTION VALUE="11" ' . chk_select($time[$i][2], "11") . '>' . _NOVEMBER . '
-             <OPTION VALUE="12" ' . chk_select($time[$i][2], "12") . '>' . _DECEMBER . '
+             <OPTION VALUE=" "  ' . chk_select($time[$i][2], " ") . '>' . gettext("{ month }") . '
+             <OPTION VALUE="01" ' . chk_select($time[$i][2], "01") . '>' . gettext("January") . '
+             <OPTION VALUE="02" ' . chk_select($time[$i][2], "02") . '>' . gettext("February") . '
+             <OPTION VALUE="03" ' . chk_select($time[$i][2], "03") . '>' . gettext("March") . '
+             <OPTION VALUE="04" ' . chk_select($time[$i][2], "04") . '>' . gettext("April") . '
+             <OPTION VALUE="05" ' . chk_select($time[$i][2], "05") . '>' . gettext("May") . '
+             <OPTION VALUE="06" ' . chk_select($time[$i][2], "06") . '>' . gettext("June") . '
+             <OPTION VALUE="07" ' . chk_select($time[$i][2], "07") . '>' . gettext("July") . '
+             <OPTION VALUE="08" ' . chk_select($time[$i][2], "08") . '>' . gettext("August") . '
+             <OPTION VALUE="09" ' . chk_select($time[$i][2], "09") . '>' . gettext("September") . '
+             <OPTION VALUE="10" ' . chk_select($time[$i][2], "10") . '>' . gettext("October") . '
+             <OPTION VALUE="11" ' . chk_select($time[$i][2], "11") . '>' . gettext("November") . '
+             <OPTION VALUE="12" ' . chk_select($time[$i][2], "12") . '>' . gettext("December") . '
             </SELECT>';
     //echo '<INPUT TYPE="text" NAME="time['.$i.'][1]" SIZE=2 VALUE="'.$time[$i][1].'"> &nbsp;'."\n";
     echo '<INPUT TYPE="text" NAME="time[' . $i . '][3]" SIZE=2 VALUE="' . $time[$i][3] . '"> &nbsp;' . "\n";
@@ -399,7 +399,7 @@ for ($i = 0; $i < 2; $i++) {
     echo '<SELECT NAME="time[' . $i . '][4]">' . dispYearOptions($time[$i][4]) . '</SELECT>';
     if ($i == 0) echo '&nbsp; -- &nbsp;&nbsp;';
 }
-echo '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="' . _PROFILEALERT . '">
+echo '<INPUT TYPE="submit" class="button" NAME="submit" VALUE="' . gettext("Profile Event") . '">
         </TD></TR></TABLE>
         </FORM>
 
@@ -417,12 +417,12 @@ $year_convert = $time[1][4];
 $time[1][0] = $month_convert;
 $time[1][1] = $day_convert;
 $time[1][2] = $year_convert;
-if ($submit != "" && @$time_sep[0] == "") echo _BSTERRPROFILECRIT;
-else if ($submit != "" && $time_sep[1] == " ") echo _BSTERRTIMETYPE;
-else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "on" && $time[0][2] == " ") echo _BSTERRNOYEAR;
-else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "between" && ($time[1][2] == " " || $time[0][2] == " ")) echo _BSTERRNOYEAR;
-else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "between" && ($time[1][0] == " " || $time[0][0] == " ")) echo _BSTERRNOMONTH;
-else if ($submit != "" && ($time_sep[0] != "") && $time_sep[1] == "between" && ($time[1][1] == "" || $time[0][1] == "")) echo _BSTERRNODAY;
+if ($submit != "" && $time_sep[0] == "") echo gettext('<FONT><B>No profiling criteria was specified!</B>  Click on "hour", "day", or "month" to choose the granularity of the aggregate statistics.</FONT>');
+else if ($submit != "" && $time_sep[1] == " ") echo gettext('<FONT><B>The type of time parameter which will be passed was not specified!</B>  Choose either "on", to specify a single date, or "between" to specify an interval.</FONT>');
+else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "on" && $time[0][2] == " ") echo gettext('<FONT><B>No Year parameter was specified!</B></FONT>');
+else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "between" && ($time[1][2] == " " || $time[0][2] == " ")) echo gettext("<FONT><B>No Year parameter was specified!</B></FONT>");
+else if ($submit != "" && $time_sep[0] != "" && $time_sep[1] == "between" && ($time[1][0] == " " || $time[0][0] == " ")) echo gettext("<FONT><B>No Month parameter was specified!</B></FONT>");
+else if ($submit != "" && ($time_sep[0] != "") && $time_sep[1] == "between" && ($time[1][1] == "" || $time[0][1] == "")) echo gettext("<FONT><B>No Day parameter was specified!</B></FONT>");
 else if ($submit != "") {
     /* Dump the results of the above specified query */
     $year_start = $year_end = NULL;

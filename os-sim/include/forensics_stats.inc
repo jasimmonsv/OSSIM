@@ -50,7 +50,7 @@ function get_date_str($month = "", $day = "", $type = "", $year = "") {
     return strftime("%b", $month) . ", " . date("Y");
 }
 function get_all_csv() {
-    $config = parse_ini_file("everything.ini");
+    $config = parse_ini_file("/usr/share/ossim/www/sem/everything.ini");
     if (file_exists($config['log_dir'] . ".csv_total_events")) $csv = file_get_contents($config['log_dir'] . ".csv_total_events");
     else $csv = array();
     $all = array();
@@ -64,7 +64,7 @@ function get_all_csv() {
     return $all;
 }
 function get_year_csv($year) {
-    $config = parse_ini_file("everything.ini");
+    $config = parse_ini_file("/usr/share/ossim/www/sem/everything.ini");
 	if (Session::allowedSensors() != "") {
 		$sensors = explode (",",Session::allowedSensors());
 		$months = array();
@@ -95,7 +95,7 @@ function get_year_csv($year) {
 }
 
 function get_range_csv($date_from,$date_to,$range) {
-	$config = parse_ini_file("everything.ini");
+	$config = parse_ini_file("/usr/share/ossim/www/sem/everything.ini");
 	// time format range
 	$from = strtotime($date_from);
 	$to = strtotime($date_to);
@@ -148,7 +148,7 @@ function get_range_csv($date_from,$date_to,$range) {
 }
 
 function get_month_csv($year, $month) {
-    $config = parse_ini_file("everything.ini");
+    $config = parse_ini_file("/usr/share/ossim/www/sem/everything.ini");
 	if (Session::allowedSensors() != "") {
 		$sensors = explode (",",Session::allowedSensors());
 		$days = array();
@@ -184,7 +184,7 @@ function get_month_csv($year, $month) {
 }
 
 function get_day_csv($year, $month, $day) {
-	$config = parse_ini_file("everything.ini");
+	$config = parse_ini_file("/usr/share/ossim/www/sem/everything.ini");
     if (Session::allowedSensors() != "") {
 		$sensors = explode (",",Session::allowedSensors());
 		$days = array();

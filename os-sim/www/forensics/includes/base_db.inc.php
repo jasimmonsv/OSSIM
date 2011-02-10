@@ -87,14 +87,23 @@ class baseCon {
         if ($sql_trace_mode > 0) {
             $this->sql_trace = fopen($sql_trace_file, "a");
             if (!$this->sql_trace) {
-                ErrorMessage(_ERRSQLTRACE . " '" . $sql_trace_file . "'");
+                ErrorMessage(gettext("Unable to open SQL trace file") . " '" . $sql_trace_file . "'");
                 die();
             }
         }
         $db = $this->DB->Connect((($port == "") ? $host : ($host . ":" . $port)) , $username, $password, $database);
         if (!$db) {
             $tmp_host = ($port == "") ? $host : ($host . ":" . $port);
-            echo '<P><B>' . _ERRSQLCONNECT . ' </B>' . $database . '@' . $tmp_host . _ERRSQLCONNECTINFO;
+            $errsqlconnectinfo =  gettext("<P>Check the DB connection variables in <I>base_conf.php</I> 
+              <PRE>
+               = $alert_dbname   : MySQL database name where the alerts are stored 
+               = $alert_host     : host where the database is stored
+               = $alert_port     : port where the database is stored
+               = $alert_user     : username into the database
+               = $alert_password : password for the username
+              </PRE>
+              <P>");
+            echo '<P><B>' . gettext("Error connecting to DB :") . ' </B>' . $database . '@' . $tmp_host . $errsqlconnectinfo;
             echo $this->baseErrorMessage();
             die();
         }
@@ -128,14 +137,24 @@ class baseCon {
         if ($sql_trace_mode > 0) {
             $this->sql_trace = fopen($sql_trace_file, "a");
             if (!$this->sql_trace) {
-                ErrorMessage(_ERRSQLTRACE . " '" . $sql_trace_file . "'");
+                ErrorMessage(gettext("Unable to open SQL trace file") . " '" . $sql_trace_file . "'");
                 die();
             }
         }
 		$db = $this->DB->PConnect((($port == "") ? $host : ($host . ":" . $port)) , $username, $password, $database);
 		if (!$db) {
             $tmp_host = ($port == "") ? $host : ($host . ":" . $port);
-            echo '<P><B>' . _ERRSQLPCONNECT . ' </B>' . $database . '@' . $tmp_host . _ERRSQLCONNECTINFO;
+            
+            $errsqlconnectinfo =  gettext("<P>Check the DB connection variables in <I>base_conf.php</I> 
+              <PRE>
+               = $alert_dbname   : MySQL database name where the alerts are stored 
+               = $alert_host     : host where the database is stored
+               = $alert_port     : port where the database is stored
+               = $alert_user     : username into the database
+               = $alert_password : password for the username
+              </PRE>
+              <P>");
+            echo '<P><B>' . gettext("Error (p)connecting to DB :") . ' </B>' . $database . '@' . $tmp_host . $errsqlconnectinfo;
             echo $this->baseErrorMessage();
             die();
         }
@@ -213,7 +232,7 @@ class baseCon {
         }
         if ((!$rs || $this->baseErrorMessage() != "") && $die_on_error) {
             echo '</TABLE></TABLE></TABLE>
-               <FONT COLOR="#FF0000"><B>' . _ERRSQLDB . '</B>' . ($this->baseErrorMessage()) . '</FONT>' . '<P><PRE>' . ($debug_mode > 0 ? ($this->lastSQL) . $limit_str : "") . '</PRE><P>';
+               <FONT COLOR="#FF0000"><B>' . gettext("Database ERROR:") . '</B>' . ($this->baseErrorMessage()) . '</FONT>' . '<P><PRE>' . ($debug_mode > 0 ? ($this->lastSQL) . $limit_str : "") . '</PRE><P>';
             die();
         } else {
             return $rs;
@@ -221,7 +240,7 @@ class baseCon {
     }
     function baseErrorMessage() {
         GLOBAL $debug_mode;
-        if ($this->DB->ErrorMsg() && ($this->DB_type != 'mssql' || (!strstr($this->DB->ErrorMsg() , 'Changed database context to') && !strstr($this->DB->ErrorMsg() , 'Changed language setting to')))) return '</TABLE></TABLE></TABLE>' . '<FONT COLOR="#FF0000"><B>' . _ERRSQLDB . '</B>' . ($this->DB->ErrorMsg()) . '</FONT>' . '<P><CODE>' . ($debug_mode > 0 ? $this->lastSQL : "") . '</CODE><P>';
+        if ($this->DB->ErrorMsg() && ($this->DB_type != 'mssql' || (!strstr($this->DB->ErrorMsg() , 'Changed database context to') && !strstr($this->DB->ErrorMsg() , 'Changed language setting to')))) return '</TABLE></TABLE></TABLE>' . '<FONT COLOR="#FF0000"><B>' . gettext("Database ERROR:") . '</B>' . ($this->DB->ErrorMsg()) . '</FONT>' . '<P><CODE>' . ($debug_mode > 0 ? $this->lastSQL : "") . '</CODE><P>';
     }
     function baseTableExists($table) {
         if (in_array($table, $this->DB->MetaTables())) return 1;
@@ -387,12 +406,17 @@ class baseRS {
 }
 function VerifyDBAbstractionLib($path) {
     GLOBAL $debug_mode;
-    if ($debug_mode > 0) echo (_DBALCHECK . " '$path'<BR>");
+    if ($debug_mode > 0) echo (gettext("Checking for DB abstraction lib in") . " '$path'<BR>");
     if (!ini_get('safe_mode')) {
         if (is_readable($path)) // is_file
         return true;
         else {
-            echo _ERRSQLDBALLOAD1 . '"' . $path . '"' . _ERRSQLDBALLOAD2;
+            $errsqldbalload1 =  gettext("<P><B>Error loading the DB Abstraction library: </B> from ");
+            $errsqldbalload2 =  gettext("<P>Check the DB abstraction library variable <CODE>$DBlib_path</CODE> in <CODE>base_conf.php</CODE>
+            <P>
+            The underlying database library currently used is ADODB, that can be downloaded
+            at <A HREF='http://adodb.sourceforge.net/'>http://adodb.sourceforge.net/</A>");
+            echo $errsqldbalload1 . '"' . $path . '"' . $errsqldbalload2;
             die();
         }
     }
@@ -400,7 +424,14 @@ function VerifyDBAbstractionLib($path) {
 function NewBASEDBConnection($path, $type) {
     GLOBAL $debug_mode;
     if (!(($type == "mysql") || ($type == "mysqlt") || ($type == "maxsql") || ($type == "postgres") || ($type == "mssql") || ($type == "oci8"))) {
-        echo "<B>" . _ERRSQLDBTYPE . "</B>" . "<P>:" . _ERRSQLDBTYPEINFO1 . "<CODE>'$type'</CODE>. " . _ERRSQLDBTYPEINFO2;
+        $errsqldbtypeinfo1 = gettext("The variable <CODE>\$DBtype</CODE> in <CODE>base_conf.php</CODE> was set to the unrecognized database type of ");
+        $errsqldbtypeinfo2 = gettext("Only the following databases are supported: <PRE>
+                MySQL         : 'mysql'
+                PostgreSQL    : 'postgres'
+                MS SQL Server : 'mssql'
+                Oracle        : 'oci8'
+             </PRE>");
+        echo "<B>" . gettext("Invalid Database Type Specified") . "</B>" . "<P>:" . $errsqldbtypeinfo1 . "<CODE>'$type'</CODE>. " . $errsqldbtypeinfo2;
         die();
     }
     /* Export ADODB_DIR for use by ADODB */

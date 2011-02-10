@@ -65,7 +65,7 @@ function IsValidActionOp($action_op, $valid_action_op) {
 /*
 = action: action to perform (e.g. ag_by_id, ag_by_name, clear_alerts, delete_alerts, email_alerts)
 = valid_action: array of valid actions ($action must be in valid_action)
-= action_op: select operation to perform with $action (e.g. _SELECTED, _ALLONSCREEN, _ENTIREQUERY)
+= action_op: select operation to perform with $action (e.g. gettext("Delete Selected"), gettext("Delete ALL on Screen"), gettext("Delete Entire Query"))
 $action_op needs to be passed by reference, because its value will need to get
 changed in order for alerts to be re-displayed after the operation.
 = valid_action_op: array of valid action operations ($action_op must be in $valid_action_op)
@@ -81,22 +81,22 @@ changed in order for alerts to be re-displayed after the operation.
 - 8: base_stat_uaddr.php	PAGE_STAT_UADDR
 - 9: base_stat_ports.php	PAGE_STAT_PORTS
 
-= $action_chk_lst: (used only when _SELECTED is the $action_op)
+= $action_chk_lst: (used only when gettext("Delete Selected") is the $action_op)
 a sparse array where each element contains a key to alerts which should be acted
 on.  Some elements will be blank based on the checkbox state.
 Depending on the setting of $context, these keys may be either
 sid/cid pairs ($context=1), signature IDs ($context=2), or sensor IDs ($context=3)
 
-= $action_lst: (used only when _ALLONSCREEN is the $action_op)
+= $action_lst: (used only when gettext("Delete ALL on Screen") is the $action_op)
 an array denoting all elements on the screen, where each element contains a key to
 alerts which should be acted on. Depending on the setting of $context, these keys
 may be either sid/cid pairs ($context=1), signature IDs ($context=2), or sensor
 IDs ($context=3)
 = $num_alert_on_screen: count of alerts on screen (used to parse through $alert_chk_lst for
-_SELECTED and _ALLONSCREEN $action_op).
+_SELECTED and gettext("Delete ALL on Screen") $action_op).
 = $num_alert_in_query: count of alerts in entire query. Passed by reference since delete operations
 will decrement its value
-= $action_sql: (used only when _ENTIREQUERY is the $action_op)
+= $action_sql: (used only when gettext("Delete Entire Query") is the $action_op)
 SQL used to extract all the alerts to operate on
 = $page_caller: $caller variable from page
 = $db: handle to the database
@@ -109,12 +109,12 @@ function ActOnSelectedAlerts($action, $valid_action, &$action_op, $valid_action_
     if (!IsValidActionOp($action_op, $valid_action_op)) return;
     /* Verify that action was selected when action operation is clicked */
     if (IsValidActionOp($action_op, $valid_action_op) && $action == " ") {
-        ErrorMessage(_NOACTION);
+        ErrorMessage(gettext("No action was specified on the events"));
         return;
     }
     /* Verify that validity of action   */
     if (!(IsValidAction($action, $valid_action) && IsValidActionOp($action_op, $valid_action_op))) {
-        ErrorMessage("'" . $action . "'" . _INVALIDACT);
+        ErrorMessage("'" . $action . "'" . gettext(" is an invalid action"));
         return;
     }
     /* Verify that those actions that need an argument have it
@@ -122,17 +122,17 @@ function ActOnSelectedAlerts($action, $valid_action, &$action_op, $valid_action_
     * Verify #1: Adding to an AG needs an argument
     */
     if (($action_arg == "") && (($action == "ag_by_id") || ($action == "ag_by_name"))) {
-        ErrorMessage(_ERRNOAG);
+        ErrorMessage(gettext("Could not add events since no AG was specified"));
         return;
     }
     /* Verify #2: Emailing alerts needs an argument */
     if (($action_arg == "") && (($action == "email_alert") || ($action == "email_alert2") || ($action_arg == "csv_alert"))) {
-        ErrorMessage(_ERRNOEMAIL);
+        ErrorMessage(gettext("Could not email events since no email address was specified"));
         return;
     }
-    if ($debug_mode > 0) echo "==== " . _ACTION . " ======<BR>" . _CONTEXT . " = $context<BR><BR>";
+    if ($debug_mode > 0) echo "==== " . gettext("ACTION") . " ======<BR>" . gettext("context") . " = $context<BR><BR>";
     if (ini_get("safe_mode") != true) set_time_limit($max_script_runtime);
-    if ($action_op == _SELECTED) {
+    if ($action_op == gettext("Delete Selected")) {
         /* on packet lookup, only examine the first packet */
         if ($context == PAGE_ALERT_DISPLAY) {
             $tmp = 1;
@@ -141,9 +141,9 @@ function ActOnSelectedAlerts($action, $valid_action, &$action_op, $valid_action_
         } else {
             ProcessSelectedAlerts($action, $action_op, $action_arg, $action_param, $context, $action_chk_lst, $num_alert_in_query, $action_sql, $db);
         }
-    } else if ($action_op == _ALLONSCREEN) {
+    } else if ($action_op == gettext("Delete ALL on Screen")) {
         ProcessSelectedAlerts($action, $action_op, $action_arg, $action_param, $context, $action_lst, $num_alert_in_query, $action_sql, $db);
-    } else if ($action_op == _ENTIREQUERY) {
+    } else if ($action_op == gettext("Delete Entire Query")) {
         if (($context == PAGE_QRY_ALERTS)) /* on alert listing page */ {
             if ($page_caller == "last_tcp" || $page_caller == "last_udp" || $page_caller == "last_icmp" || $page_caller == "last_any") {
                 $limit_start = 0;
@@ -187,7 +187,7 @@ function ActOnSelectedAlerts($action, $valid_action, &$action_op, $valid_action_
     */
     if (($context == PAGE_QRY_ALERTS) || ($context == PAGE_QRY_AG)) {
         /* Reset $submit to a browsing view # */
-        if ((strstr($page_caller, "#") == "") && ($action_op != _QUERYDB)) {
+        if ((strstr($page_caller, "#") == "") && ($action_op != gettext("Query DB"))) {
             $action_op = $current_view;
         }
         /* but if in Alert Lookup, set $submit to (sid,cid) */
@@ -203,16 +203,16 @@ function ActOnSelectedAlerts($action, $valid_action, &$action_op, $valid_action_
     }
 }
 function GetActionDesc($action_name) {
-    $action_desc["ag_by_id"] = _ADDAGID;
-    $action_desc["ag_by_name"] = _ADDAGNAME;
-    $action_desc["add_new_ag"] = _CREATEAG;
-    $action_desc["clear_alert"] = _CLEARAG;
-    $action_desc["del_alert"] = _DELETEALERT;
-    $action_desc["email_alert"] = _EMAILALERTSFULL;
-    $action_desc["email_alert2"] = _EMAILALERTSSUMM;
-    $action_desc["csv_alert"] = _EMAILALERTSCSV;
-    $action_desc["archive_alert"] = _ARCHIVEALERTSCOPY;
-    $action_desc["archive_alert2"] = _ARCHIVEALERTSMOVE;
+    $action_desc["ag_by_id"] = gettext("ADD to AG (by ID)");
+    $action_desc["ag_by_name"] = gettext("ADD to AG (by Name)");
+    $action_desc["add_new_ag"] = gettext("Create AG (by Name)");
+    $action_desc["clear_alert"] = gettext("Clear from AG");
+    $action_desc["del_alert"] = gettext("Delete event(s)");
+    $action_desc["email_alert"] = gettext("Email event(s) (full)");
+    $action_desc["email_alert2"] = gettext("Email event(s) (summary)");
+    $action_desc["csv_alert"] = gettext("Email event(s) (csv)");
+    $action_desc["archive_alert"] = gettext("Archive event(s) (copy)");
+    $action_desc["archive_alert2"] = gettext("Archive event(s) (move)");
     return $action_desc[$action_name];
 }
 function ProcessSelectedAlerts($action, &$action_op, $action_arg, $action_param, $context, $action_lst, &$num_alert, $action_sql, $db, $limit_start = - 1, $limit_offset = - 1) {
@@ -220,16 +220,16 @@ function ProcessSelectedAlerts($action, &$action_op, $action_arg, $action_param,
     $action_cnt = 0;
     $dup_cnt = 0;
     $action_desc = "";
-    if ($action == "ag_by_id") $action_desc = _ADDAGID;
-    else if ($action == "ag_by_name") $action_desc = _ADDAGNAME;
-    else if ($action == "del_alert") $action_desc = _DELETEALERT;
-    else if ($action == "email_alert") $action_desc = _EMAILALERTSFULL;
-    else if ($action == "email_alert2") $action_desc = _EMAILALERTSSUMM;
-    else if ($action == "csv_alert") $action_desc = _EMAILALERTSCSV;
-    else if ($action == "clear_alert") $action_desc = _CLEARAG;
-    else if ($action == "archive_alert") $action_desc = _ARCHIVEALERTSCOPY;
-    else if ($action == "archive_alert2") $action_desc = _ARCHIVEALERTSMOVE;
-    else if ($action == "add_new_ag") $action_desc = _ADDAG;
+    if ($action == "ag_by_id") $action_desc = gettext("ADD to AG (by ID)");
+    else if ($action == "ag_by_name") $action_desc = gettext("ADD to AG (by Name)");
+    else if ($action == "del_alert") $action_desc = gettext("Delete event(s)");
+    else if ($action == "email_alert") $action_desc = gettext("Email event(s) (full)");
+    else if ($action == "email_alert2") $action_desc = gettext("Email event(s) (summary)");
+    else if ($action == "csv_alert") $action_desc = gettext("Email event(s) (csv)");
+    else if ($action == "clear_alert") $action_desc = gettext("Clear from AG");
+    else if ($action == "archive_alert") $action_desc = gettext("Archive event(s) (copy)");
+    else if ($action == "archive_alert2") $action_desc = gettext("Archive event(s) (move)");
+    else if ($action == "add_new_ag") $action_desc = gettext("ADD-New-AG");
     if ($action == "") return;
     if ($debug_mode > 0) {
         echo "<BR>==== $action_desc Alerts ========<BR>
@@ -251,7 +251,7 @@ function ProcessSelectedAlerts($action, &$action_op, $action_arg, $action_param,
     * used to extract the list, where the passed selected keyed
     * will be the criteria in this SQL.
     *
-    * Note: When acting on any page where _ENTIREQUERY is
+    * Note: When acting on any page where gettext("Delete Entire Query") is
     * selected this is also a blob.
     */
     /* if only manipulating specific alerts --
@@ -259,7 +259,7 @@ function ProcessSelectedAlerts($action, &$action_op, $action_arg, $action_param,
     */
     if (($context == PAGE_QRY_ALERTS) || ($context == PAGE_QRY_AG) || ($context == PAGE_ALERT_DISPLAY)) {
         $num_alert_blobs = 1;
-        if ($action_op == _ENTIREQUERY) $using_blobs = true;
+        if ($action_op == gettext("Delete Entire Query")) $using_blobs = true;
         else $using_blobs = false;
     }
     /* else manipulating by alert blobs -- e.g. signature, sensor */
@@ -454,20 +454,20 @@ function ProcessSelectedAlerts($action, &$action_op, $action_arg, $action_param,
        $function_post($action_arg, $action_ctx, $db, $num_alert, $action_cnt, $context, $deltmp);
     else
        $function_post($action_arg, $action_ctx, $db, $num_alert, $action_cnt);
-    if ($dup_cnt > 0) ErrorMessage(_IGNORED . $dup_cnt . _DUPALERTS);
+    if ($dup_cnt > 0) ErrorMessage(gettext("Ignored ") . $dup_cnt . gettext(" duplicate event(s)"));
     if ($action_cnt > 0) {
         /*
         *  Print different message if alert action units (e.g. sensor
         *  or signature) are not individual alerts
         */
         if (($context == PAGE_STAT_ALERTS) || ($context == PAGE_STAT_SENSOR) || ($context == PAGE_STAT_CLASS) || ($context == PAGE_STAT_IPLINK) || ($context == PAGE_STAT_UADDR) || ($context == PAGE_STAT_PORTS)) {
-            if ($action == "del_alert") ErrorMessage(_("Deleting") . " " . $action_cnt . _ALERTSPARA);
-            else ErrorMessage(_SUCCESS . " $action_desc - " . _ON . " $action_cnt " . _ALERTSPARA . " (" . _IN . " $num_alert_blobs blobs)");
+            if ($action == "del_alert") ErrorMessage(_("Deleting") . " " . $action_cnt . gettext(" event(s)"));
+            else ErrorMessage(gettext("Successful") . " $action_desc - " . gettext("on") . " $action_cnt " . gettext(" event(s)") . " (" . gettext("in") . " $num_alert_blobs blobs)");
         } else {
-            if ($action == "del_alert") ErrorMessage(_("Deleting") . " " . $action_cnt . _ALERTSPARA);
-            else ErrorMessage(_SUCCESS . " $action_desc - " . $action_cnt . _ALERTSPARA);
+            if ($action == "del_alert") ErrorMessage(_("Deleting") . " " . $action_cnt . gettext(" event(s)"));
+            else ErrorMessage(gettext("Successful") . " $action_desc - " . $action_cnt . gettext(" event(s)"));
         }
-    } else if ($action_cnt == 0) ErrorMessage(_NOALERTSSELECT . " $action_desc " . _NOTSUCCESSFUL);
+    } else if ($action_cnt == 0) ErrorMessage(gettext("No events were selected or the") . " $action_desc " . gettext("was not successful"));
     //error_log("cnt:$action_cnt,dup:$dup_cnt,desc:$action_desc,file:$deltmp\n",3,"/var/tmp/dellog");
     if ($debug_mode > 0) {
         echo "-------------------------------------<BR>
@@ -498,7 +498,7 @@ function Action_ag_by_id_Pre($action_arg, $action_param, $db)
 /*
 * $action_arg: a AG ID
 */ {
-    if (VerifyAGID($action_arg, $db) == 0) ErrorMessage(_ERRUNKAGID);
+    if (VerifyAGID($action_arg, $db) == 0) ErrorMessage(gettext("Unknown AG ID specified (AG probably does not exist)"));
     return null;
 }
 function Action_ag_by_id_Op($sid, $cid, $db, $action_arg, &$ctx) {
@@ -564,7 +564,7 @@ function Action_add_new_ag_Post($action_arg, &$action_ctx, $db, &$num_alert, $ac
     if ($cnt <= 0) {
         $sql = "DELETE FROM acid_ag WHERE ag_id='" . $action_ctx . "'";
         $db->baseExecute($sql, -1, -1, false);
-        if ($db->baseErrorMessage() != "") ErrorMessage(_ERRREMOVEFAIL);
+        if ($db->baseErrorMessage() != "") ErrorMessage(gettext("Failed to remove new AG"));
     } else {
         /* Add was successful, so redirect user to AG edit page */
         echo '<script type=text/javascript>
@@ -619,7 +619,7 @@ function Action_email_alert_post($action_arg, &$action_ctx, $db, &$num_alert, $a
     /* Return if there is no alerts */
     if ($action_ctx == "") return;
     $mail_subject = $action_email_subject;
-    $mail_content = $action_email_msg . _GENBASE . " v$BASE_VERSION on " . date("r", time()) . "\n";
+    $mail_content = $action_email_msg . gettext("Generated by BASE") . " v$BASE_VERSION on " . date("r", time()) . "\n";
     $mail_recip = $action_arg;
     $mail_header = "From: " . $action_email_from;
     /* alerts inline */
@@ -644,7 +644,7 @@ function Action_email_alert_post($action_arg, &$action_ctx, $db, &$num_alert, $a
         $body.= "\n\n$mail_content\n\n$action_ctx";
         $body.= "\n--$boundary--\n";
     }
-    if (!send_email($mail_recip, $mail_subject, $body, $mail_header)) ErrorMessage(_ERRNOEMAILEXP . " '" . $mail_recip . "'.  " . _ERRNOEMAILPHP);
+    if (!send_email($mail_recip, $mail_subject, $body, $mail_header)) ErrorMessage(gettext("EXPORT ERROR: Could not send exported events to") . " '" . $mail_recip . "'.  " . gettext("Check the mail configuration in PHP."));
 }
 /* Email ***************************************************/
 function Action_email_alert2_pre($action_arg, $action_param, $db) {
@@ -686,7 +686,7 @@ function Action_clear_alert_op($sid, $cid, $db, $action_arg, &$ctx) {
     for ($j = 0; $j < count($clear_table_list); $j++) {
         $sql2 = "DELETE FROM " . $clear_table_list[$j] . " WHERE ag_sid='" . $sid . "' AND ag_cid='" . $cid . "' AND ag_id='" . $action_arg . "'"; //$ctx;
         $db->baseExecute($sql2);
-        if ($db->baseErrorMessage() != "") ErrorMessage(_ERRDELALERT . " " . $del_table_list[$j]);
+        if ($db->baseErrorMessage() != "") ErrorMessage(gettext("Error Deleting Event") . " " . $del_table_list[$j]);
         else ++$cnt;
     }
     return $cnt;
@@ -1067,7 +1067,7 @@ function Action_archive_alert_op($sid, $cid, &$db, $action_arg, &$ctx) {
             /* When we get such an error, assume that this is ok */
             if (strstr($insert_sql[$j], "SET IDENTITY_INSERT")) ++$archive_cnt;
             else {
-                if ($debug_mode > 1) ErrorMessage(_ERRARCHIVE . $db2->baseErrorMessage() . "<BR>" . $insert_sql[$j]);
+                if ($debug_mode > 1) ErrorMessage(gettext("Archive error:") . $db2->baseErrorMessage() . "<BR>" . $insert_sql[$j]);
                 /* When detect a duplicate then stop */
                 break;
             }
@@ -1149,7 +1149,7 @@ function PurgeAlert($sid, $cid, $db, $deltmp, $j, $interval, $f) {
         else $sql2 = "DELETE FROM " . $del_table_list[$k] . " WHERE ag_sid='" . $sid . "' AND ag_cid='" . $cid . "'";
         //$db->baseExecute($sql2);
         if ($sid != "" && $cid != "") fputs($f, "$sql2;\n");
-        if ($db->baseErrorMessage() != "") ErrorMessage(_ERRDELALERT . " " . $del_table_list[$k]);
+        if ($db->baseErrorMessage() != "") ErrorMessage(gettext("Error Deleting Event") . " " . $del_table_list[$k]);
         else if ($k == 0) $del_cnt = 1;
     }
     fputs($f, PurgeAlert_ac($sid, $cid, $db));
@@ -1235,7 +1235,7 @@ function send_email($to, $subject, $body, $mime) {
     if ($to != "") {
         return mail($to, $subject, $body, $mime);
     } else {
-        ErrorMessage(_ERRMAILNORECP);
+        ErrorMessage(gettext("MAIL ERROR: No recipient Specified"));
         return false;
     }
 }

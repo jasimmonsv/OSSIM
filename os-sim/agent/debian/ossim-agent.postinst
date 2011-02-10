@@ -1,32 +1,40 @@
 #!/bin/sh -e
 
+# configuration variables
+OSSIM_AGENT_TMP_DIR="/tmp/ossim-agent"
+
 case "$1" in
     upgrade|configure)
         # Execute ossim-reconfig
-        #if [ -x /usr/bin/ossim-reconfig ]; then
-        #    if [ -x /usr/bin/postpone ]; then
-        #        /usr/bin/postpone --verbose --lock /var/run/ossim-reconfig.lock --output /tmp/ossim-reconfig.XXXXXX --debian /usr/bin/ossim-reconfig -v -c --dpkg
-        #    else
-        #        /usr/bin/ossim-reconfig -v -c --dpkg
-        #    fi
-        #else
-        #    echo "#######################################"
-        #    echo "#######################################"
-        #    echo "Please run ossim-reconfig after install"
-        #    echo "#######################################"
-        #    echo "#######################################"
-        #fi
+        if [ -x /usr/bin/ossim-reconfig ]; then
+            #if [ -x /usr/bin/postpone ]; then
+            #   /usr/bin/postpone --verbose --lock /var/run/ossim-reconfig.lock --output /tmp/ossim-reconfig.XXXXXX --debian /usr/bin/ossim-reconfig -v -c --dpkg
+            #else
+                /usr/bin/ossim-reconfig -v -c --dpkg
+            #fi
+        else
+            echo "#######################################"
+            echo "#######################################"
+            echo "Please run ossim-reconfig after install"
+            echo "#######################################"
+            echo "#######################################"
+        fi
 
-          /usr/bin/ossim-reconfig -c -v --dpkg
-        #fi
+        if [ -d ${OSSIM_AGENT_TMP_DIR} ]; then
+          rm -r ${OSSIM_AGENT_TMP_DIR}
+        fi
     ;;
+
     abort-upgrade|abort-remove|abort-deconfigure)
     ;;
+
     *)
         echo "postinst called with unknown argument \`$1'" >&2
         exit 0
     ;;
 esac
+
+
 
 #DEBHELPER#
 

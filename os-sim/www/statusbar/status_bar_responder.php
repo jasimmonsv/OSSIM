@@ -36,12 +36,13 @@
 * - global_score()
 * Classes list:
 */
+
 require_once 'ossim_db.inc';
 require_once 'classes/Incident.inc';
 require_once 'classes/Incident_ticket.inc';
 require_once 'classes/Alarm.inc';
 require_once 'classes/Util.inc';
-require_once("classes/Session.inc");
+require_once 'classes/Session.inc';
 Session::logcheck("MainMenu", "Index");
 
 function html_service_level($conn) {

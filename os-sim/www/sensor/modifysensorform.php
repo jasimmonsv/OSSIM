@@ -39,7 +39,7 @@ require_once ('classes/Sensor.inc');
 require_once ('ossim_db.inc');
 require_once ('classes/Security.inc');
 
-Session::logcheck("MenuPolicy", "PolicySensors");
+Session::logcheck("MenuConfiguration", "PolicySensors");
 
 $array_priority   = array ("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5", "6"=>"6", "7"=>"7", "8"=>"8", "9"=>"9", "10"=>"10");
 
@@ -192,33 +192,48 @@ if (GET('withoutmenu') != "1")
 	<tr>
 		<th> <?php echo gettext("Timezone"); ?> </th>
 		<td class="left">
-			<select name="tzone" id="tzone" class='req_field vfield'>
-			<option value="-12"<?= ($tz==-12) ? " selected='selected'" : "" ?>>GMT-12</option>
-			<option value="-11"<?= ($tz==-11) ? " selected='selected'" : "" ?>>GMT-11</option>
-			<option value="-10"<?= ($tz==-10) ? " selected='selected'" : "" ?>>GMT-10</option>
-			<option value="-9"<?= ($tz==-9) ? " selected='selected'" : "" ?>>GMT-9</option>
-			<option value="-8"<?= ($tz==-8) ? " selected='selected'" : "" ?>>GMT-8</option>
-			<option value="-7"<?= ($tz==-7) ? " selected='selected'" : "" ?>>GMT-7</option>
-			<option value="-6"<?= ($tz==-6) ? " selected='selected'" : "" ?>>GMT-6</option>
-			<option value="-5"<?= ($tz==-5) ? " selected='selected'" : "" ?>>GMT-5</option>
-			<option value="-4"<?= ($tz==-4) ? " selected='selected'" : "" ?>>GMT-4</option>
-			<option value="-3"<?= ($tz==-3) ? " selected='selected'" : "" ?>>GMT-3</option>
-			<option value="-2"<?= ($tz==-2) ? " selected='selected'" : "" ?>>GMT-2</option>
-			<option value="-1"<?= ($tz==-1) ? " selected='selected'" : "" ?>>GMT-1</option>
-			<option value="0"<?= ($tz==0) ? " selected='selected'" : "" ?>>UTC</option>
-			<option value="1"<?= ($tz==1) ? " selected='selected'" : "" ?>>GMT+1</option>
-			<option value="2"<?= ($tz==2) ? " selected='selected'" : "" ?>>GMT+2</option>
-			<option value="3"<?= ($tz==3) ? " selected='selected'" : "" ?>>GMT+3</option>			
-			<option value="4"<?= ($tz==4) ? " selected='selected'" : "" ?>>GMT+4</option>			
-			<option value="5"<?= ($tz==5) ? " selected='selected'" : "" ?>>GMT+5</option>			
-			<option value="6"<?= ($tz==6) ? " selected='selected'" : "" ?>>GMT+6</option>			
-			<option value="7"<?= ($tz==7) ? " selected='selected'" : "" ?>>GMT+7</option>			
-			<option value="8"<?= ($tz==8) ? " selected='selected'" : "" ?>>GMT+8</option>			
-			<option value="9"<?= ($tz==9) ? " selected='selected'" : "" ?>>GMT+9</option>			
-			<option value="10"<?= ($tz==10) ? " selected='selected'" : "" ?>>GMT+10</option>
-			<option value="11"<?= ($tz==11) ? " selected='selected'" : "" ?>>GMT+11</option>			
-			<option value="12"<?= ($tz==12) ? " selected='selected'" : "" ?>>GMT+12</option
-	        </select>
+	    <select name="tzone" id="tzone">
+	        <option value="-12" <?php if ($tz == "-12") echo "selected" ?>>GMT-12:00</option>
+	        <option value="-11" <?php if ($tz == "-11") echo "selected" ?>>GMT-11:00</option>
+	        <option value="-10" <?php if ($tz == "-10") echo "selected" ?>>GMT-10:00</option>
+	        <option value="-9.5" <?php if ($tz == "-9.5") echo "selected" ?>>GMT-9:30</option>
+	        <option value="-9" <?php if ($tz == "-9") echo "selected" ?>>GMT-9:00</option>
+	        <option value="-8" <?php if ($tz == "-8") echo "selected" ?>>GMT-8:00</option>
+	        <option value="-7" <?php if ($tz == "-7") echo "selected" ?>>GMT-7:00</option>
+	        <option value="-6" <?php if ($tz == "-6") echo "selected" ?>>GMT-6:00</option>
+	        <option value="-5" <?php if ($tz == "-5") echo "selected" ?>>GMT-5:00</option>
+	        <option value="-4.5" <?php if ($tz == "-4.5") echo "selected" ?>>GMT-4:30</option>
+	        <option value="-4" <?php if ($tz == "-4") echo "selected" ?>>GMT-4:00</option>
+	        <option value="-3.5" <?php if ($tz == "-3.5") echo "selected" ?>>GMT-3:30</option>
+	        <option value="-3" <?php if ($tz == "-3") echo "selected" ?>>GMT-3:00</option>
+	        <option value="-2" <?php if ($tz == "-2") echo "selected" ?>>GMT-2:00</option>
+	        <option value="-1" <?php if ($tz == "-1") echo "selected" ?>>GMT-1:00</option>
+	        <option value="0" <?php if ($tz == "0") echo "selected" ?>>UTC</option>
+	        <option value="1" <?php if ($tz == "1") echo "selected" ?>>GMT+1:00</option>
+	        <option value="2" <?php if ($tz == "2") echo "selected" ?>>GMT+2:00</option>
+	        <option value="3" <?php if ($tz == "3") echo "selected" ?>>GMT+3:00</option>
+	        <option value="3.5" <?php if ($tz == "3.5") echo "selected" ?>>GMT+3:30</option>
+	        <option value="4" <?php if ($tz == "4") echo "selected" ?>>GMT+4:00</option>
+	        <option value="4.5" <?php if ($tz == "4.5") echo "selected" ?>>GMT+4:30</option>
+	        <option value="5" <?php if ($tz == "5") echo "selected" ?>>GMT+5:00</option>
+	        <option value="5.5" <?php if ($tz == "5.5") echo "selected" ?>>GMT+5:30</option>
+	        <option value="5.75" <?php if ($tz == "5.75") echo "selected" ?>>GMT+5:45</option>
+	        <option value="6" <?php if ($tz == "6") echo "selected" ?>>GMT+6:00</option>
+	        <option value="6.5" <?php if ($tz == "6.5") echo "selected" ?>>GMT+6:30</option>
+	        <option value="7" <?php if ($tz == "7") echo "selected" ?>>GMT+7:00</option>
+	        <option value="8" <?php if ($tz == "8") echo "selected" ?>>GMT+8:00</option>
+	        <option value="8.75" <?php if ($tz == "8.75") echo "selected" ?>>GMT+8:45</option>
+	        <option value="9" <?php if ($tz == "9") echo "selected" ?>>GMT+9:00</option>
+	        <option value="9.5" <?php if ($tz == "9.5") echo "selected" ?>>GMT+9:30</option>
+	        <option value="10" <?php if ($tz == "10") echo "selected" ?>>GMT+10:00</option>
+	        <option value="10.5" <?php if ($tz == "10.5") echo "selected" ?>>GMT+10:30</option>
+	        <option value="11" <?php if ($tz == "11") echo "selected" ?>>GMT+11:00</option>
+	        <option value="11.5" <?php if ($tz == "11.5") echo "selected" ?>>GMT+11:30</option>
+	        <option value="12" <?php if ($tz == "12") echo "selected" ?>>GMT+12:00</option>
+	        <option value="12.75" <?php if ($tz == "12.75") echo "selected" ?>>GMT+12:45</option>
+	        <option value="13" <?php if ($tz == "13") echo "selected" ?>>GMT+13:00</option>
+	        <option value="14" <?php if ($tz == "14") echo "selected" ?>>GMT+14:00</option>
+	    </select>
 		</td>
 	</tr> 
 	

@@ -53,7 +53,7 @@ $ip          	   = POST('ip');
 $id          	   = POST('id');
 $action     	   = POST('action');
 $type    	       = POST('type');
-$frecuency 	       = POST('frecuency');
+$frequency 	       = POST('frequency');
 $state    	       = POST('state');
 $arguments 	       = POST('arguments');
 
@@ -70,7 +70,7 @@ $arguments 	       = POST('arguments');
 			$validate = array (
 			"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
 			"type"        => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
-			"frecuency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Frecuency")),
+			"frequency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("frequency")),
 			"state"       => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
 			"arguments"   => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
 		
@@ -85,7 +85,7 @@ $arguments 	       = POST('arguments');
 			$validate = array (
 			"id"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Id")),
 			"type"        => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
-			"frecuency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Frecuency")),
+			"frequency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("frequency")),
 			"state"       => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
 			"arguments"   => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
 		break;
@@ -143,7 +143,7 @@ $arguments 	       = POST('arguments');
 	{
 		case "add_monitoring_entry":
 				
-			$id = Agentless::add_monitoring_entry($conn, $ip, $type, $frecuency, $state, $arguments);
+			$id = Agentless::add_monitoring_entry($conn, $ip, $type, $frequency, $state, $arguments);
 								
 			if ($id !== false)
 			{		
@@ -152,7 +152,7 @@ $arguments 	       = POST('arguments');
 				echo "1###".
 					"<tr id='m_entry_$id'>
 						<td class='nobborder center' id='al_type_$id'>$type</td>
-						<td class='nobborder center' id='al_frecuency_$id'>$frecuency</td>
+						<td class='nobborder center' id='al_frequency_$id'>$frequency</td>
 						<td class='nobborder center' id='al_state_$id'>$state</td>
 						<td class='nobborder left' id='al_arguments_$id'>$arguments</td>
 						<td class='center nobborder'>
@@ -177,7 +177,7 @@ $arguments 	       = POST('arguments');
 		break;
 						
 		case "modify_monitoring_entry":
-			$res = Agentless::modify_monitoring_entry($conn, $type, $frecuency, $state, $arguments, $id);
+			$res = Agentless::modify_monitoring_entry($conn, $type, $frequency, $state, $arguments, $id);
 							
 			if ($res !== false)
 			{		
@@ -185,7 +185,7 @@ $arguments 	       = POST('arguments');
 							
 				echo "1###".
 					"	<td class='nobborder center' id='al_type_$id'>". get_type($type)."</td>
-						<td class='nobborder center' id='al_frecuency_$id'>$frecuency</td>
+						<td class='nobborder center' id='al_frequency_$id'>$frequency</td>
 						<td class='nobborder center' id='al_state_$id'>$state</td>
 						<td class='nobborder left' id='al_arguments_$id'>$arguments</td>
 						<td class='center nobborder'>

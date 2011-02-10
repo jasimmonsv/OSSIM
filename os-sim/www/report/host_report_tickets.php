@@ -43,7 +43,7 @@ document.getElementById('tickets_num').innerHTML = '<a href="../top.php?option=1
 </script>
 <table align="center" width="100%" height="100%" class="bordered">
 	<tr>
-		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=1&soption=1&url=<?=urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets&with_text=$host")?>" target='topmenu'>Tickets</a></td>
+		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=1&soption=1&url=<?=urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets&with_text=$host")?>" target='topmenu'><?php echo gettext("Tickets"); ?></a></td>
 	</tr>
 	<? if (count($incident_list2) < 1) { ?>
 	<tr><td><?=gettext("No Tickets Found for")?> <i><?=$host?></i></td></tr>

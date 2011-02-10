@@ -41,6 +41,7 @@ require_once ("classes/Session.inc");
 Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ("classes/Host.inc");
 require_once ("classes/Net.inc");
+require_once ("classes/Util.inc");
 require_once ("process.inc");
 require_once ('ossim_db.inc');
 function dateDiff($startDate, $endDate)
@@ -124,6 +125,9 @@ ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, OSS_PUNC, 'illegal:' 
 if (ossim_error()) {
     die(ossim_error());
 }
+
+$start_query = $start;
+$end_query = $end;
 
 if ($tzone!=0) {
 	$start = date("Y-m-d H:i:s",strtotime($start)+(-3600*$tzone));
@@ -408,12 +412,14 @@ $totaltime = round($time2 - $time1, 2);
 	-->
 <?php
 //}
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$txtzone = Util::timezone($tz);
 ?>
 <div id="processcontent" style="display:none">
 <?php if (has_results($num_lines)) { ?>
 <table width="100%" class="noborder" style="background-color:transparent;">
 	<tr>
-		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif"><?php print _("Time Range").": <b>$start <-> $end</b>" ?></td>
+		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif"><?php print _("Time Range").": <b>$start_query <-> $end_query</b>" ?></td>
 		<td align="center">
 			<?php if ($from_remote) { ?>
 			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" <b>first</b> events")._(" for <b>each server</b>")." (<b>".(($offset*$num_servers)+1)."</b> - <b>".(($offset*$num_servers)+count($result))."</b> total)" ?>.&nbsp;
@@ -439,8 +445,8 @@ $totaltime = round($time2 - $time1, 2);
 		<?php if ($from_remote) { ?>
 		<td class='plfieldhdr' style='padding-left:3px;padding-right:3px;border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Server") ?></td>
 		<?php } ?>
-		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'>
-			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date") . " " ?>
+		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;' nowrap>
+			<a href="javascript:DateAsc()"><img src="../forensics/images/order_sign_a.gif" border="0"></a><?php print " " . _("Date") . " $txtzone " ?>
 			<a href="javascript:DateDesc()"><img src="../forensics/images/order_sign_d.gif" border="0"></a>
 		</td>
 		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("Type") ?></td>
@@ -526,13 +532,23 @@ foreach($result as $res=>$event_date) {
         }
         // para coger
         $date = $matches[2];
-        $tzone = $matches[10];
-        /*
+        $event_date = $matches[2];
+        $tzone = intval($matches[10]);
+        $txtzone = Util::timezone($tzone);
+
+        // Special case: old events
         $eventhour = date("H",strtotime($date));
         $ctime = explode("/",$logfile); $storehour = $ctime[count($ctime)-3]; // hours
-        $date = date("Y-m-d H:i:s",strtotime($date)+(3600*($storehour-$eventhour)));
-        */
-		if ($tzone!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tzone));
+        $warning = ($storehour-$eventhour != 0) ? "<a href='javascript:;' txt='"._("Date may not be normalized")."' class='scriptinfotxt'><img src='../pixmaps/warning.png' border=0 style='margin-left:3px;margin-right:3px'></a>" : "";
+        //$date = date("Y-m-d H:i:s",strtotime($date)+(3600*($storehour-$eventhour)));
+        
+        // Event date timezone
+		if ($tzone!=0) $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));
+        
+        // Apply user timezone
+		if ($tz!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
+	
+		//echo "$date - $event_date - $tzone - $tz<br>";
 		
         // fin para coger
         if($htmlResult){
@@ -568,15 +584,15 @@ foreach($result as $res=>$event_date) {
                     $dst_div = "<div id=\"$dst_ip;$dst_ip_name\" class=\"HostReportMenu\" style=\"display:inline\">";
 
             $line = "<tr".(($colort%2==0) ? " style=\"background-color: #F2F2F2\"" : "").">
-            <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
+            <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . $warning . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
             if ($from_remote) {
             	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
             }
             
-            if ($matches[2]==$date)
+            if ($event_date==$matches[2] || $event_date==$date) // compare real date with timezone corrected date
             	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . htmlspecialchars($date) . "</td>";
 			else
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Sensor date").": ". htmlspecialchars("<b>".$matches[2]."</b><br>"._("Timezone").": <b>".(($tzone!=0) ? "GMT$tzone" : "UTC")."</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . htmlspecialchars($date) . "</a></td>";
+            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Event date").": ". htmlspecialchars("<b>".$event_date."</b><br>"._("Timezone").": <b>$txtzone</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . htmlspecialchars($date) . "</a></td>";
 			
 
             //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin=' + this.innerHTML)\"\">$plugin</span></td>";

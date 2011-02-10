@@ -127,7 +127,7 @@ if($key=="") {
             break;
         }
         if(count(Host::get_property_values($conn, $prop["id"]))>0) {
-            $buffer .= "{ key:'p".$prop["id"]."', isFolder:true, isLazy:true, expand:false, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["name"])."' },\n";
+            $buffer .= "{ key:'p".$prop["id"]."', isFolder:true, isLazy:true, expand:false, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["description"])."' },\n";
         }
         else {
             $buffer .= "{ icon:'../../pixmaps/theme/$png.png', title:'"._($prop["name"])."' },\n";

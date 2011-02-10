@@ -80,7 +80,7 @@ if ($validate_step == '1')
 {
 	$validate = array (
 		"type"        => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
-		"frecuency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Frecuency")),
+		"frequency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Frequency")),
 		"state"       => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
 		"arguments"   => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
 }
@@ -340,12 +340,12 @@ else if ($step == 2)
 		function add_values(id)
 		{
 			var type       = $("#al_type_"+id).text();
-			var frecuency  = $("#al_frecuency_"+id).text();
+			var frequency  = $("#al_frequency_"+id).text();
 			var state      = $("#al_state_"+id).text();
 			var arguments  = $("#al_arguments_"+id).text();
 									
 			$('#type').val(type);
-			$('#frecuency').val(frecuency);
+			$('#frequency').val(frequency);
 			$('#state').val(state);
 			change_type(type);
 			$('#arguments').val(arguments);
@@ -509,7 +509,7 @@ else if ($step == 2)
 		.fleft { width: 48%; float: left; text-align: left !important;}
 		.fright { width: 48%; float: right; text-align: right !important;}
 		.al_type { width: 150px !important; padding: 3px 0px;}
-		.al_frecuency { width: 100px !important; padding: 2px 0px;}
+		.al_frequency { width: 100px !important; padding: 2px 0px;}
 		.al_state { width: 100px !important; padding: 2px 0px;}
 		.al_arguments{ padding: 2px 0px;}
 		.al_actions { width: 60px !important; padding: 2px 0px; }
@@ -517,7 +517,7 @@ else if ($step == 2)
 		.al_sep {height: 20px; border: none;}
 		.cont_al_message {position: relative; width: 80%; margin:auto;}
 		.al_message {position: absolute; width: 100%; top: -55px;}
-		.ossim_error {padding: 10px 10px 10px 50px !important; }
+		.ossim_error {padding: 8px 10px 8px 50px !important; }
 		.al_advice {font-size: 10px; font-style: italic; padding: 3px 0px; width:90%;}
 		#monitoring_table td {font-size:11px;}
 		#arguments {float: left; width:90%;}
@@ -684,9 +684,9 @@ else if ($step == 2)
 					</tr>
 		
 					<tr>
-						<th><label for='frecuency'><?php echo _("Frecuency"); ?></label></th>
+						<th><label for='frequency'><?php echo _("Frequency"); ?></label></th>
 						<td class="left">
-							<input type="text" class='req_field vfield' name="frecuency" id="frecuency" value="86400"/>
+							<input type="text" class='req_field vfield' name="frequency" id="frequency" value="86400"/>
 							<span style="padding-left: 3px;">*</span>
 						</td>
 					</tr>
@@ -757,7 +757,7 @@ else if ($step == 2)
 									<tr><th colspan='5' class='headerpr center;' style='padding: 3px 0px;'><?php echo _("Monitoring entries added")?></th></tr>
 									<tr>
 										<th class='al_type'><?php echo _("Type")?></th>
-										<th class='al_frecuency'><?php echo _("Frecuency")?></th>
+										<th class='al_frequency'><?php echo _("Frequency")?></th>
 										<th class='al_state'><?php echo _("State")?></th>
 										<th class='al_arguments'><?php echo _("Arguments")?></th>
 										<th class='al_actions'><?php echo _("Actions")?></th>
@@ -774,7 +774,7 @@ else if ($step == 2)
 											{
 												echo "<tr id='m_entry_".$v['id']."'>
 														<td class='nobborder center' id='al_type_$id'>". $v['type']."</td>
-														<td class='nobborder center' id='al_frecuency_".$v['id']."'>".$v['frecuency']."</td>
+														<td class='nobborder center' id='al_frequency_".$v['id']."'>".$v['frequency']."</td>
 														<td class='nobborder center' id='al_state_".$v['id']."'>".$v['state']."</td>
 														<td class='nobborder left' id='al_arguments_".$v['id']."'>".$v['arguments']."</td>
 														<td class='center nobborder'>

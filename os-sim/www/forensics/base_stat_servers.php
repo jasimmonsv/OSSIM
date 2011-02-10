@@ -32,10 +32,10 @@
   if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1))
     base_header("Location: ". $BASE_urlpath . "/index.php");
 
-  $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(_SELECTED, _ALLONSCREEN, _ENTIREQUERY));
+  $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(gettext("Delete Selected"), gettext("Delete ALL on Screen"), gettext("Delete Entire Query")));
   $qs->MoveView($submit);             /* increment the view if necessary */
 
-  $page_title = SPSENSORLIST;
+  $page_title = gettext("Sensor Listing");
   PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink(), 1);
   
   /* Connect to the Alert database */
@@ -63,7 +63,7 @@
       
 	if(!array_key_exists("minimal_view",$_GET))
 	{
-		PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+		PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
 		PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
 	}
 
@@ -95,8 +95,8 @@
   //$qs->AddValidAction("archive_alert");
   //$qs->AddValidAction("archive_alert2");
 
-  $qs->AddValidActionOp(_SELECTED);
-  $qs->AddValidActionOp(_ALLONSCREEN);
+  $qs->AddValidActionOp(gettext("Delete Selected"));
+  $qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 
   $qs->SetActionSQL($from.$where);
   $et->Mark("Initialization");

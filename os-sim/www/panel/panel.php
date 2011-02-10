@@ -154,8 +154,17 @@ if (GET('edit_tabs') == 1) {
         $tab_id = intval(GET('tab_id'));
         if (!$tab_id) $tab_id=1;
         $tab_name = GET('tab_name');
-    	if (strlen($tab_name) > 25) {
-			$tab_name = substr($tab_name,0,25);
+		//
+		$echars          = get_echars($tab_name);
+		$exists_echars   = ( is_array($echars) && !empty($echars) ) ? true : false;
+		if($exists_echars){
+			$len_max=125;
+		}else{
+			$len_max=25;
+		}
+		//
+    	if (strlen($tab_name) > $len_max) {
+			$tab_name = substr($tab_name,0,$len_max);
 			$truncmsg = _("Warning: Tab name too long, truncated to 15 characters.");
 		}
         $tab_icon_url = str_replace("slash_special_char","/",GET('tab_icon_url'));
@@ -757,7 +766,7 @@ function loadingIframe(){
   }
   
 .tag_cloud { padding: 3px; text-decoration: none; }
-.tag_cloud:link  { color: #81d601; }
+.tag_cloud:link  { color: #8DC41B; }
 .tag_cloud:visited { color: #019c05; }
 .tag_cloud:hover { color: #ffffff; background: #69da03; }
 .tag_cloud:active { color: #ffffff; background: #ACFC65; }
@@ -899,7 +908,7 @@ if (GET('edit') && $tabsavt[$panel_id] != "") {
 	}
 	if ($last_tab_id < 1) $last_tab_id = 1;
 	?>
-<span align="center"><?php echo _("This tab can not be edited, ") ?><a href="panel.php?edit_tabs=1&panel_id=<?php echo $panel_id ?>&mode=clone&clonefrom=<?php echo $panel_id ?>&tab_name=<?php echo $tabsavt[$panel_id]['tab_name'] ?>Clone&tab_id=<?php echo $last_tab_id + 1 ?>">click here</a><?php echo _(" to clone and edit a copy of this tab") ?>. <i>[You will create a new tab called '<b><?php echo $tabsavt[$panel_id]['tab_name'] ?>Clone</b>']</i></span>
+<span align="center"><?php echo _("This tab can not be edited, ") ?><a href="panel.php?edit_tabs=1&panel_id=<?php echo $panel_id ?>&mode=clone&clonefrom=<?php echo $panel_id ?>&tab_name=<?php echo $tabsavt[$panel_id]['tab_name'] ?>Clone&tab_id=<?php echo $last_tab_id + 1 ?>"> <?php echo gettext("click here"); ?> </a><?php echo _(" to clone and edit a copy of this tab") ?>. <i>[<?php echo gettext("You will create a new tab called"); ?> '<b><?php echo $tabsavt[$panel_id]['tab_name'] ?>Clone</b>']</i></span>
 <?php exit; }
 
 if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {

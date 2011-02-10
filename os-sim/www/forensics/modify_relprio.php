@@ -1,6 +1,9 @@
 <?
-include('classes/Security.inc');
-include('classes/Plugin_sid.inc');
+include_once('classes/Session.inc');
+include_once('classes/Security.inc');
+include_once('classes/Plugin_sid.inc');
+Session::logcheck("MenuEvents", "EventsForensics");
+
 require_once ('ossim_db.inc');
 /* connect to db */
 $db = new ossim_db();

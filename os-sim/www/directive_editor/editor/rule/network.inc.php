@@ -99,8 +99,8 @@
 												<table class="noborder" align='center'>
 												<tr><td class="left nobborder" id="inventory_loading_sources"></td></tr>
 												<tr>
-													<td class="left nobborder">
-														<?=_("Asset")?>: <input type="text" id="filterfrom" name="filterfrom" size='25'/>
+													<td class="left nobborder" nowrap>
+														<?=_("Asset")?>: <input type="text" id="filterfrom" name="filterfrom" size='18'/>
 														&nbsp;<input type="button" class="lbutton" value="<?=_("Filter")?>" onclick="load_tree(this.form.filterfrom.value)" /> 
 														<div id="containerfrom" class='container_ptree'></div>
 													</td>

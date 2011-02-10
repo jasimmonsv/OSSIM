@@ -42,7 +42,7 @@ function GetSignatureName($sig_id, $db) {
         $myrow = $tmp_result->baseFetchRow();
         $name = $myrow[0];
         $tmp_result->baseFreeRows();
-    } else $name = "[" . _ERRSIGNAMEUNK . "]";
+    } else $name = "[" . gettext("SigName unknown") . "]";
     $_SESSION['acid_sig_names'][$sig_id] = Util::htmlentities($name, ENT_COMPAT, "UTF-8");
     return $name;
 }
@@ -54,7 +54,7 @@ function GetSignaturePriority($sig_id, $db) {
         $myrow = $tmp_result->baseFetchRow();
         $priority = $myrow[0];
         $tmp_result->baseFreeRows();
-    } else $priority = "[" . _ERRSIGPROIRITYUNK . "]";
+    } else $priority = "[" . gettext("SigPriority unknown") . "]";
     return $priority;
 }
 function GetSignatureID($sig_id, $db) {
@@ -232,8 +232,8 @@ function BuildSigByID($sig_id, $sid, $cid, $db, $style = 1)
         if ($sig_name != "") {
             return GetSignatureReferences($sid, $cid, $db) . " " . BuildSigLookup($sig_name, $style);
         } else {
-            if ($style == 1) return "($sig_id)<I>" . _ERRSIGNAMEUNK . "</I>";
-            else return "($sig_id) " . _ERRSIGNAMEUNK;
+            if ($style == 1) return "($sig_id)<I>" . gettext("SigName unknown") . "</I>";
+            else return "($sig_id) " . gettext("SigName unknown");
         }
     } else return BuildSigLookup($sig_id, $style);
 }
@@ -273,7 +273,7 @@ function BuildSigByPlugin($plugin_id, $plugin_sid, $db) {
     if ($sig_name != "") {
         return GetOssimSignatureReferences($plugin_id, $plugin_sid, $db)." ".$sig_name;
     } else {
-        return "($plugin_id,$plugin_sid) " . _ERRSIGNAMEUNK;
+        return "($plugin_id,$plugin_sid) " . gettext("SigName unknown");
     }
 }
 
@@ -386,8 +386,8 @@ function GetSigClassName($class_id, $db) {
     $result = $db->baseExecute($sql);
     $row = $result->baseFetchRow();
     if ($row == "") {
-        $_SESSION['acid_sig_class_name'][$sig_id] = "<I>" . _UNCLASS . "</I>";
-        return "<I>" . _UNCLASS . "</I>";
+        $_SESSION['acid_sig_class_name'][$sig_id] = "<I>" . gettext("unclassified") . "</I>";
+        return "<I>" . gettext("unclassified") . "</I>";
     } else {
         $_SESSION['acid_sig_class_name'][$sig_id] = Util::htmlentities($row[0], ENT_COMPAT, "UTF-8");
         return $row[0];

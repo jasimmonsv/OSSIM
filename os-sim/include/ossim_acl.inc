@@ -85,7 +85,7 @@ $GLOBALS['ACL'] = new gacl($ACL_OPTIONS);
 $ACL_MAIN_MENU = array(
     "MainMenu" => array(
         "Index" => array(
-            "name" => "Top Frame Status",
+            "name" => "Top Frame",
             "default_perm" => true
         )
     ) ,
@@ -115,18 +115,19 @@ $ACL_MAIN_MENU = array(
             "default_perm" => true
         ) ,
 		"MonitorsRiskmeter" => array(
-            "name" => "Dashboards -> Metrics -> Riskmeter",
+            "name" => "Dashboard -> Metrics -> Riskmeter",
             "default_perm" => true
-        ) ,
+        ) //,
         /*
 		"ControlPanelEvents" => array(
             "name" => "Control Panel -> Events",
             "default_perm" => true
         ) ,*/
+        /*
         "ControlPanelVulnerabilities" => array(
             "name" => "Dashboard -> Vulnerabilities",
             "default_perm" => true
-        )/* ,
+        ) ,
 		
         "ControlPanelAnomalies" => array(
             "name" => "Control Panel -> Anomalies",
@@ -143,17 +144,33 @@ $ACL_MAIN_MENU = array(
 		*/
     ) ,
 	"MenuIncidents" => array(
+    	"ControlPanelAlarms" => array(
+            "name" => "Incidents -> Alarms",
+            "default_perm" => true
+        ) ,
+		"ReportsAlarmReport" => array(
+            "name" => "Incidents -> Alarms -> Reports",
+            "default_perm" => true
+        ) ,
         "IncidentsIncidents" => array(
             "name" => "Incidents -> Tickets",
+            "default_perm" => true
+        ) ,
+        "IncidentsOpen" => array(
+            "name" => "Incidents -> Tickets -> Open Tickets",
+            "default_perm" => true
+        ) ,
+        "IncidentsDelete" => array(
+            "name" => "Incidents -> Tickets -> Delete",
+            "default_perm" => true
+        ) ,
+        "IncidentsReport" => array(
+            "name" => "Incidents -> Tickets -> Report",
             "default_perm" => true
         ) ,
 		"IncidentsTypes" => array(
             "name" => "Incidents -> Tickets -> Types",
             "default_perm" => false
-        ) ,
-        "IncidentsReport" => array(
-            "name" => "Incidents -> Tickets -> Report",
-            "default_perm" => true
         ) ,
         "IncidentsTags" => array(
             "name" => "Incidents -> Tickets -> Tags",
@@ -163,14 +180,6 @@ $ACL_MAIN_MENU = array(
             "name" => "Incidents -> Tickets -> Incidents Email Template",
             "default_perm" => false
         ) ,
-		"ControlPanelAlarms" => array(
-            "name" => "Incidents -> Alarms",
-            "default_perm" => true
-        ) ,
-		"ReportsAlarmReport" => array(
-            "name" => "Incidents -> Alarms -> Reports",
-            "default_perm" => true
-        ) ,
         "Osvdb" => array(
             "name" => "Incidents -> Knowledge DB",
             "default_perm" => true
@@ -178,32 +187,32 @@ $ACL_MAIN_MENU = array(
     ) ,
     "MenuEvents" => array(
         "EventsForensics" => array(
-            "name" => "Analysis -> Security DB",
+            "name" => "Analysis -> SIEM Events",
             "default_perm" => true
         ) ,
-		"EventsViewer" => array(
-            "name" => "Analysis -> Security DB -> Custom",
-            "default_perm" => false
-        ) ,
-		"ReportsWireless" => array(
-            "name" => "Analysis -> Security DB -> Wireless",
+        "EventsForensicsDelete" => array(
+            "name" => "Analysis -> SIEM Events -> Delete Events",
             "default_perm" => true
         ) ,
-		"EventsRT" => array(
-            "name" => "Analysis -> Security DB -> Real Time",
+        "EventsRT" => array(
+            "name" => "Analysis -> SIEM Events -> Real Time",
             "default_perm" => true
         ) ,
-		"ControlPanelSEM" => array(
-            "name" => "Analysis -> Log Archive",
-            "default_perm" => false
-        ) ,
-        "EventsVulnerabilities" => array(
-            "name" => "Analysis -> Vulnerabilities",
-            "default_perm" => false
+        "ReportsWireless" => array(
+            "name" => "Analysis -> SIEM Events -> Wireless",
+            "default_perm" => true
         ) ,
         "EventsAnomalies" => array(
             "name" => "Analysis -> Anomalies",
             "default_perm" => true
+        ) ,
+		"ControlPanelSEM" => array(
+            "name" => "Analysis -> Logger",
+            "default_perm" => false
+        ) ,
+        "EventsVulnerabilities" => array(
+            "name" => "Analysis -> Vulnerabilities -> View",
+            "default_perm" => false
         )
     ) ,
 	"MenuReports" => array(
@@ -217,19 +226,24 @@ $ACL_MAIN_MENU = array(
             "name" => "Reports -> PDFReport",
             "default_perm" => true
         ) ,*/
+    	"ReportsHostReport" => array(
+        	"name" => "Reports -> Asset Report",
+        	"default_perm" => true
+        ) ,
 		"ReportsReportServer" => array(
             "name" => "Reports -> Reports -> Advanced",
             "default_perm" => true
-        ) ,
+        )
+        
         /*
         "ReportsGLPI" => array(
             "name" => "Reports -> GLPI",
             "default_perm" => true
-        ) ,*/
+        ) ,*//*
 		"ToolsUserLog" => array(
             "name" => "Reports -> Reports -> User log",
             "default_perm" => true
-        ) ,/*
+        ) ,*//*
         "ReportsOCSInventory" => array(
             "name" => "Reports -> OCS Inventory",
             "default_perm" => true
@@ -238,37 +252,6 @@ $ACL_MAIN_MENU = array(
             "name" => "Reports -> Wireless",
             "default_perm" => true
         ) ,*/
-    ) ,
-	"MenuMonitors" => array(
-        /*
-		"MonitorsSession" => array(
-            "name" => "Monitors -> Session",
-            "default_perm" => true
-        ) ,*/
-        "MonitorsNetwork" => array(
-            "name" => "Monitors -> Network",
-            "default_perm" => true
-        ) ,
-        "MonitorsNetflows" => array(
-            "name" => "Monitors -> Netflows",
-            "default_perm" => true
-        ) ,
-        "MonitorsAvailability" => array(
-            "name" => "Monitors -> Availability",
-            "default_perm" => true
-        ) ,/*
-        "MonitorsVServers" => array(
-            "name" => "Monitors -> Virtual Servers",
-            "default_perm" => true
-        ) ,*/
-        "MonitorsSensors" => array(
-            "name" => "Monitors -> System",
-            "default_perm" => false
-        ) /*,
-        "MonitorsRiskmeter" => array(
-            "name" => "Monitors -> Riskmeter",
-            "default_perm" => true
-        )*/
     ) ,
     "MenuPolicy" => array(
         "5DSearch" => array(
@@ -287,16 +270,12 @@ $ACL_MAIN_MENU = array(
             "name" => "Assets -> Assets -> Ports",
             "default_perm" => false
         ) ,
-        "PolicySensors" => array(
-            "name" => "Assets -> SIEM Components -> Sensors",
-            "default_perm" => false
-        ) ,
-        "PolicyServers" => array(
-            "name" => "Assets -> SIEM Components -> Servers",
-            "default_perm" => false
-        ) ,
 		"ReportsOCSInventory" => array(
             "name" => "Assets -> Assets -> Inventory",
+            "default_perm" => true
+        ) ,
+        "ToolsScan" => array(
+            "name" => "Assets -> Assets Discovery",
             "default_perm" => true
         )
         /*
@@ -326,16 +305,44 @@ $ACL_MAIN_MENU = array(
             "name" => "Intelligence -> Correlation Directives -> Backlog",
             "default_perm" => true
         ) ,
-		"CorrelationCrossCorrelation" => array(
-            "name" => "Intelligence -> Cross Correlation",
-            "default_perm" => false
-        ) ,
 		"ComplianceMapping" => array(
             "name" => "Intelligence -> Compliance Mapping",
+            "default_perm" => false
+        ) ,
+		"CorrelationCrossCorrelation" => array(
+            "name" => "Intelligence -> Cross Correlation",
             "default_perm" => false
         )/* ,
         "CorrelationBacklog" => array(
             "name" => "Correlation -> Backlog",
+            "default_perm" => true
+        )*/
+    ) ,
+    "MenuMonitors" => array(
+        /*
+		"MonitorsSession" => array(
+            "name" => "Monitors -> Session",
+            "default_perm" => true
+        ) ,*/
+    	"MonitorsNetflows" => array(
+            "name" => "Monitors -> Network -> Traffic",
+            "default_perm" => true
+        ) ,
+        "MonitorsNetwork" => array(
+            "name" => "Monitors -> Network -> Profiles",
+            "default_perm" => true
+        ) ,
+        "MonitorsAvailability" => array(
+            "name" => "Monitors -> Availability",
+            "default_perm" => true
+        ) /*
+        "MonitorsVServers" => array(
+            "name" => "Monitors -> Virtual Servers",
+            "default_perm" => true
+        ) ,*/
+         /*,
+        "MonitorsRiskmeter" => array(
+            "name" => "Monitors -> Riskmeter",
             "default_perm" => true
         )*/
     ) ,
@@ -352,12 +359,28 @@ $ACL_MAIN_MENU = array(
             "name" => "Configuration -> Users -> User activity",
             "default_perm" => false
         ) ,
+        "PolicySensors" => array(
+            "name" => "Configuration -> SIEM Components -> Sensors",
+            "default_perm" => false
+        ) ,
+        "PolicyServers" => array(
+            "name" => "Configuration -> SIEM Components -> Servers",
+            "default_perm" => false
+        ) ,
         "ConfigurationPlugins" => array(
-            "name" => "Configuration -> Collection",
+            "name" => "Configuration -> Collection -> Data Sources",
             "default_perm" => false
         ),
 		"PluginGroups" => array(
-            "name" => "Configuration -> Collection -> PluginGroups",
+            "name" => "Configuration -> Collection -> DS Groups",
+            "default_perm" => false
+        ),
+        "ToolsDownloads" => array(
+            "name" => "Configuration -> Collection -> Downloads",
+            "default_perm" => true
+        ),
+        "ToolsBackup" => array(
+            "name" => "Configuration -> Backup",
             "default_perm" => false
         )/*
         "ConfigurationRRDConfig" => array(
@@ -373,28 +396,38 @@ $ACL_MAIN_MENU = array(
             "name" => "Configuration -> Software Upgrade",
             "default_perm" => false
         )*/
-    ) ,
+    ),
+    "MenuStatus" => array(
+    	"MonitorsSensors" => array(
+            "name" => "Status -> Sensors",
+            "default_perm" => false
+        ),
+    	"ToolsUserLog" => array(
+            "name" => "Status -> Sensors -> User Activity",
+            "default_perm" => false
+        )
+    )/* ,
     "MenuTools" => array(
         "ToolsScan" => array(
             "name" => "Tools -> Net Scan",
             "default_perm" => true
-        ) ,/*
+        ) ,
         "ToolsRuleViewer" => array(
             "name" => "Tools -> RuleViewer",
             "default_perm" => false
-        ) ,*/
+        ) ,
         "ToolsBackup" => array(
             "name" => "Tools -> Backup",
             "default_perm" => false
-        ) ,/*
+        ) ,
         "ToolsUserLog" => array(
             "name" => "Tools -> User log",
             "default_perm" => true
-        ) ,*/
+        ) ,
         "ToolsDownloads" => array(
             "name" => "Tools -> Downloads",
             "default_perm" => true
-        )
-    )
+        )*/
+    //)
 );
 ?>

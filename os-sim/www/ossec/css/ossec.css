@@ -155,7 +155,6 @@ html ul.oss_tabs li.active a:hover  {
 
 .code {width: 100%; height: 300px;}
 
-div .button { float: right; margin-top: 10px;}
 
 .save { 
 	width:90px;
@@ -168,8 +167,8 @@ div .button { float: right; margin-top: 10px;}
 	background-image: url("../images/database-ins.png") !important;
 	background-repeat: no-repeat !important;
 	background-position: 4px 49% !important;
-	cursor: pointer;
-	font-size: 13px !important;
+	cursor: pointer !important;
+	font-size: 12px !important;
 	border-radius: 4px;
 	-khtml-border-radius: 4px;
 	-webkit-border-radius: 4px; 
@@ -177,7 +176,6 @@ div .button { float: right; margin-top: 10px;}
 	-khtml-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border: solid 1px #9F9F9F;
-	text-transform: uppercase !important;
 	text-align: left;
 	font-weight: bold;
 }
@@ -232,6 +230,7 @@ background-color: #E3E3E3 !important;
 input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']:hover { 
 	background-color: #b5d2ad !important;
 	color: #000000 !important;
+	cursor: pointer;
 }
 
 #dis_send { 
@@ -279,12 +278,13 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 }
 
 .buttons_box {	
-	float: right; 
-	width: 95%;
-	padding-right: 30px;
-	padding-bottom: 20px;
-	height: 38px;
+	float: right;
+	width: 50%;
+	padding: 10px 30px 20px 30px;
+	height: 60px;
 }
+
+.buttons_box  div {float: right; width: 200px; text-align: right; }
 
 .notice {
 	text-align:center; 
@@ -330,6 +330,15 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 	margin: 150px auto 290px auto;
 	text-align: center;
 }
+
+#msg_init_error {
+	width: 95%; 
+	margin: auto; 
+	font-size: 12px; 
+	font-style: bold; 
+	margin: 30px auto 150px auto;
+	text-align: left;
+}
 	
 #msg_init  span{font-size: 14px; font-weight: bold;}
 
@@ -351,11 +360,11 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 
 #msg_errors {
 	text-align: left;
-	margin: 20px 0px 20px 20px;
-	font-size: 12px;
-	font-weight: bold;
-	width: 100%;
+	margin: 20px 10px 20px 60px;
+	font-size: 11px;
+	width: 88%;
 	display: none;
+	color: #333333;
 }
 
 #parse_errors { width: 90%;} 
@@ -396,6 +405,13 @@ input[class='save']:hover , input[class='clone']:hover, input[class='save_edit']
 
 .errors_xml {
 	padding-left: 70px;
+	color: #333333;
+	overflow-x : hidden;
+}
+
+.errors_ossec {
+	padding-left: 70px;
+	text-align: left;
 	color: #333333;
 	overflow-x : hidden;
 }
@@ -530,18 +546,18 @@ textarea {
 .at_header span, .txt_node_header span {padding-left: 5px;}
 
 .er_container{ 
-padding:5px; 
-color: rgb(34, 34, 34); 
-font-size: 12px; 
-font-weight: bold; 
-line-height: 16px;
-width: 100%;
-margin-bottom: 20px;
+	padding:5px; 
+	color: rgb(34, 34, 34); 
+	font-size: 12px; 
+	font-weight: bold; 
+	line-height: 16px;
+	width: 100%;
+	margin-bottom: 20px;
 }
 
 .r_subheader { height: 20px; font-weight: bold;}
 
-.actions_at, .actions_node, .actions_tn  { width: 60px; }
+.actions_at, .actions_node, .actions_tn  { width: 80px;}
 
 .actions_bt_at, .actions_bt_tn, .actions_bt_node {
 	border-radius: 5px;
@@ -557,8 +573,6 @@ margin-bottom: 20px;
 }
 
 .actions_bt_at img, .actions_bt_tn img, .actions_bt_node img { width: 16px; height: 16px; margin: auto; padding: 2px; border: none; }
-
-#buttons_box_edit { height: 50px; padding: 2px; padding-right: 10px;}
 
 
 .cont_ats_txt_node{ 
@@ -671,6 +685,30 @@ th { height: 15px;}
 	position: absolute;
 	top: 10px;
 	left: 0px;
+}
+
+.header_node_xml{
+	padding: 3px 5px;
+	font-size: 11px;
+	width:100%;
+	text-align: left;
+}
+
+.cont_node_xml{
+	padding: 0px 3px 10px 3px;
+	width:98%;
+	margin: auto;
+}
+
+.oss_hide, .oss_show {display:none; }
+.txt_rule_format {width: 98%;}
+
+.show_node_error {
+	color: #D8000C; 
+	margin: auto; 
+	text-align:center; 
+	padding: 2px 0px 10px 0px; 
+	font-size:11px;
 }
 
 

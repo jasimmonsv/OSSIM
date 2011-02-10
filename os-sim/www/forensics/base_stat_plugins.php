@@ -29,8 +29,8 @@ $hosts_ips = array_keys($hosts);
 ($debug_time_mode >= 1) ? $et = new EventTiming($debug_time_mode) : '';
 $cs = new CriteriaState("base_stat_plugins.php");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $cs->ReadState();
@@ -39,10 +39,10 @@ $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_alerts, _MOSTFREQALERTS, "occur_d");
-$qs->AddCannedQuery("last_alerts", $last_num_ualerts, _LASTALERTS, "last_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_alerts, gettext("Most Frequent Events"), "occur_d");
+$qs->AddCannedQuery("last_alerts", $last_num_ualerts, gettext("Last Events"), "last_d");
 $qs->MoveView($submit); /* increment the view if necessary */
-$page_title = _ALERTTITLE;
+$page_title = gettext("Event Listing");
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
@@ -61,7 +61,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();
@@ -85,6 +85,8 @@ if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+ti
         $where = $matches[1] . " AND timestamp >= '" . $matches[2] . "' " . $matches[4];
     }
 }
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 
 //$qs->AddValidAction("ag_by_id");
 //$qs->AddValidAction("ag_by_name");
@@ -95,8 +97,8 @@ if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+ti
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-//$qs->AddValidActionOp(_SELECTED);
-//$qs->AddValidActionOp(_ALLONSCREEN);
+//$qs->AddValidActionOp(gettext("Delete Selected"));
+//$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 ($debug_time_mode >= 1) ? $et->Mark("Initialization") : '';
 $qs->RunAction($submit, PAGE_STAT_ALERTS, $db);
@@ -117,13 +119,13 @@ $qs->GetNumResultRows($cnt_sql, $db);
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_plugins.php?caller=" . $caller);
 //$qro->AddTitle(" ");
-$qro->AddTitle(_("Plugin"));
+$qro->AddTitle(_("Data Source"));
 $qro->AddTitle(_("Events") , "occur_a", " ", " ORDER BY events ASC, sensors DESC", "occur_d", ", ", " ORDER BY events DESC, sensors DESC");
-$qro->AddTitle(_SENSOR . "&nbsp;#", "sid_a", " ", " ORDER BY sensors ASC, events DESC", "sid_d", " ", " ORDER BY sensors DESC, events DESC");
+$qro->AddTitle(gettext("Sensor") . "&nbsp;#", "sid_a", " ", " ORDER BY sensors ASC, events DESC", "sid_d", " ", " ORDER BY sensors DESC, events DESC");
 $qro->AddTitle(gettext("Last Event"));
 $qro->AddTitle(gettext("Source Address"));
 $qro->AddTitle(gettext("Dest. Address"));
-$qro->AddTitle(gettext("Date"));
+$qro->AddTitle(gettext("Date")." ".Util::timezone($tz));
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 /* mstone 20050309 add sig_name to GROUP BY & query so it can be used in postgres ORDER BY */
 /* mstone 20050405 add sid & ip counts */
@@ -142,7 +144,7 @@ if ($debug_mode == 1) {
     echo "$sql<BR>";
 }
 /* Print the current view number and # of rows */
-$qs->PrintResultCnt("",array(),_DISPLAYINGTOTALUPLUGINS);
+$qs->PrintResultCnt("",array(),gettext("Displaying unique data sources %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."));
 echo '<FORM METHOD="post" name="PacketForm" id="PacketForm" ACTION="base_stat_plugins.php">';
 $qro->PrintHeader();
 $i = 0;
@@ -160,6 +162,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$max_cid = $myrow[0];
 	$plugin_id = $myrow["plugin_id"];
     $timestamp = $myrow["timestamp"];
+    if ($tz!=0) $timestamp = date("Y-m-d H:i:s",strtotime($timestamp)+(3600*$tz));
     $plugin_name = $myrow["name"];
 	$total_occurances = $myrow["events"];
 	$total_sensors = $myrow["sensors"];

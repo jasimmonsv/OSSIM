@@ -242,7 +242,7 @@ foreach($menu as $name => $opc) if ($name != "Logout") {
 </td></tr>
 
 <tr><td height="26" class="outmenu">
-		<img src="pixmaps/users.png" width="12" border='0' align="absmiddle"> &nbsp; <a href="userlog/opened_sessions.php?hmenu=Sessions&smenu=Sessions" target="main"><span style='color:black'><?php echo _("Opened Sessions")?></span></a>
+		<img src="pixmaps/users.png" width="12" border='0' align="absmiddle"> &nbsp; <a href="userlog/opened_sessions.php?hmenu=Sessions&smenu=Sessions" target="main"><span style='color:black'><?php echo _("Current Sessions")?></span></a>
 </td></tr>
 
 <tr><td height="26" class="outmenu">
@@ -275,21 +275,19 @@ if(Session::am_i_admin()){
                 </ul>
             </li>
         </ul>
-        <span class="jx-separator-left"></span> 
-		<?php if(Session::am_i_admin()) { ?>
-        <ul>
-        	<li title="<?php echo _("Status")?>"><a href="sysinfo/index.php" target="main"><img src="pixmaps/status.png"></a></li>
+        <ul class="jx-bar-button-right">
+        	<li title="<?php echo _("Maximize")?>"><a href="#" onClick="fullwin()"><img src="pixmaps/maximize.png"></a></li>
+        </ul>
+        <span class="jx-separator-right"></span>
+		<?php if(Session::menu_perms("MenuStatus", "MonitorsSensors") || Session::menu_perms("MenuStatus", "ToolsUserLog") || Session::am_i_admin()) { ?>
+        <ul class="jx-bar-button-right">
+        	<li title="<?php echo _("Status")?>"><a href="<?php echo (Session::am_i_admin()) ? "sysinfo/index.php" : ((Session::menu_perms("MenuStatus", "MonitorsSensors")) ? "sensor/sensor_plugins.php?hmenu=Sysinfo&smenu=Sysinfo" : "userlog/user_action_log.php?hmenu=Sysinfo&smenu=Sysinfo") ?>" target="main"><img src="pixmaps/status.png"></a></li>
         </ul>
         <?php } else { ?>
         <ul>
         	<li title="<?php echo _("Status")?>"><img src="pixmaps/status_gray.png"></li>
         </ul>
         <?php } ?>
-        <span class="jx-separator-left"></span>        
-        <ul>
-        	<li title="<?php echo _("Maximize")?>"><a href="#" onClick="fullwin()"><img src="pixmaps/maximize.png"></a></li>
-        </ul>
-        <!-- <span class="jx-separator-right"></span> -->
 </div>
 
 <?
@@ -335,9 +333,9 @@ $db->close($conn);
 ?>
 <div class="jx-bottom-bar jx-bar-rounded-bl jx-bar-rounded-br">
 <table><tr><td class="jx-gray">
-<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a> "._("logon") ?>
+<?= _("User session").": <a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a>" ?>
 <br>
-<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("users log into the system") ?>
+<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("active users") ?>
 </td></tr></table>
 </div>
 

@@ -32,29 +32,29 @@ function PrintCriteriaState() {
     GLOBAL $layer4, $new, $submit, $sort_order, $num_result_rows, $current_view, $caller, $action, $action_arg, $sort_order;
     if ($GLOBALS['debug_mode'] >= 2) {
         echo "<PRE>";
-        echo "<B>" . _SENSOR . ":</B> " . $_SESSION['sensor'] . "<BR>\n" . "<B>AG:</B> " . $_SESSION['ag'] . "<BR>\n" . "<B>" . _QCSIG . "</B>\n";
+        echo "<B>" . gettext("Sensor") . ":</B> " . $_SESSION['sensor'] . "<BR>\n" . "<B>AG:</B> " . $_SESSION['ag'] . "<BR>\n" . "<B>" . gettext("signature") . "</B>\n";
         print_r($_SESSION['sig']);
         echo "<BR><B>time struct (" . $_SESSION['time_cnt'] . "):</B><BR>";
         print_r($_SESSION['time']);
-        echo "<BR><B>" . _QCIPADDR . " (" . $_SESSION['ip_addr_cnt'] . "):</B><BR>";
+        echo "<BR><B>" . gettext("IP addresses") . " (" . $_SESSION['ip_addr_cnt'] . "):</B><BR>";
         print_r($_SESSION['ip_addr']);
-        echo "<BR><B>" . _QCIPFIELDS . " (" . $_SESSION['ip_field_cnt'] . "):</B><BR>";
+        echo "<BR><B>" . gettext("IP fields") . " (" . $_SESSION['ip_field_cnt'] . "):</B><BR>";
         print_r($_SESSION['ip_field']);
-        echo "<BR><B>" . _QCTCPPORTS . " (" . $_SESSION['tcp_port_cnt'] . "):</B><BR>";
+        echo "<BR><B>" . gettext("TCP ports") . " (" . $_SESSION['tcp_port_cnt'] . "):</B><BR>";
         print_r($_SESSION['tcp_port']);
-        echo "<BR><B>" . _QCTCPFLAGS . "</B><BR>";
+        echo "<BR><B>" . gettext("TCP flags") . "</B><BR>";
         print_r($_SESSION['tcp_flags']);
-        echo "<BR><B>" . _QCTCPFIELD . " (" . $_SESSION['tcp_field_cnt'] . "):</B><BR>";
+        echo "<BR><B>" . gettext("TCP fields") . " (" . $_SESSION['tcp_field_cnt'] . "):</B><BR>";
         print_r($_SESSION['tcp_field']);
-        echo "<BR><B>" . _QCUDPPORTS . " (" . $_SESSION['udp_port_cnt'] . "):</B><BR>";
+        echo "<BR><B>" . gettext("UDP ports") . " (" . $_SESSION['udp_port_cnt'] . "):</B><BR>";
         print_r($_SESSION['udp_port']);
-        echo "<BR><B>" . _QCUDPFIELDS . " (" . $_SESSION['udp_field_cnt'] . "):</B><BR>";
+        echo "<BR><B>" . gettext("UDP fields") . " (" . $_SESSION['udp_field_cnt'] . "):</B><BR>";
         print_r($_SESSION['udp_field']);
-        echo "<BR><B>" . _QCICMPFIELDS . " (" . $_SESSION['icmp_field_cnt'] . "):</B><BR>";
+        echo "<BR><B>" . gettext("ICMP fields") . " (" . $_SESSION['icmp_field_cnt'] . "):</B><BR>";
         print_r($_SESSION['icmp_field']);
         echo "<BR><B>RawIP field (" . $_SESSION['rawip_field_cnt'] . "):</B><BR>";
         print_r($_SESSION['rawip_field']);
-        echo "<BR><B>" . _QCDATA . " (" . $_SESSION['data_cnt'] . "):</B><BR>";
+        echo "<BR><B>" . gettext("Data") . " (" . $_SESSION['data_cnt'] . "):</B><BR>";
         print_r($_SESSION['data']);
         echo "</PRE>";
     }
@@ -77,11 +77,11 @@ function FieldRows2sql($field, $cnt, &$s_sql) {
         if ($field[$i][3] != "" && $field[$i][1] != " ") {
             $tmp = $field[$i][0] . " " . $field[$i][1] . " " . $field[$i][2] . " '" . $field[$i][3] . "' " . $field[$i][4] . " " . $field[$i][5];
         } else {
-            if ($field[$i][3] != "" && $field[$i][1] == " ") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRVALUE . " '" . $field[$i][3] . "' " . _QCERRSPECFIELD);
-            if (($field[$i][1] != " " && $field[$i][1] != "") && $field[$i][3] == "") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRFIELD . " '" . $field[$i][1] . "' " . _QCERRSPECVALUE);
+            if ($field[$i][3] != "" && $field[$i][1] == " ") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("A value of") . " '" . $field[$i][3] . "' " . gettext(" was entered for a protocol field, but the particular field was not specified."));
+            if (($field[$i][1] != " " && $field[$i][1] != "") && $field[$i][3] == "") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("A field of") . " '" . $field[$i][1] . "' " . gettext("was selected indicating that it should be a criteria, but no value was specified on which to match."));
         }
         $tmp2 = $tmp2 . $tmp;
-        if ($i > 0 && $field[$i - 1][5] == ' ') ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRBOOLEAN);
+        if ($i > 0 && $field[$i - 1][5] == ' ') ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("Multiple protocol field criteria entered without a boolean operator (e.g. AND, OR) between them."));
     }
     if ($tmp2 != "") {
         $s_sql = $s_sql . " AND ( " . $tmp2 . " )";
@@ -155,7 +155,7 @@ function DateTimeRows2sql($field, $cnt, &$s_sql) {
                 /* fixup if have a <= by adding an extra day */
                 else if ($op == "<=" && $field[$i][4] != " ") $t = $t . " 23:59:59";
                 /* neither date or time */
-                if ($field[$i][4] == " " && $field[$i][5] == "") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERROPER . " '" . $field[$i][1] . "' " . _QCERRDATEVALUE);
+                if ($field[$i][4] == " " && $field[$i][5] == "") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("An operator of") . " '" . $field[$i][1] . "' " . gettext("was selected indicating that some date/time criteria should be matched, but no value was specified."));
                 /* date or date/time */
                 else if (($field[$i][4] != " " && $field[$i][5] != "") || $field[$i][4] != " ") {
                     if ($db->DB_type == "oci8") {
@@ -195,7 +195,7 @@ function DateTimeRows2sql($field, $cnt, &$s_sql) {
                 }
                 /* time */
                 else if (($field[$i][5] != " ") && ($field[$i][5] != "")) {
-                    ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRINVHOUR);
+                    ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("(Invalid Hour) No date criteria were entered with the specified time."));
                 }
             }
             /* Build the SQL string when the = operator is used */
@@ -210,16 +210,16 @@ function DateTimeRows2sql($field, $cnt, &$s_sql) {
                 $query_str = preg_replace("/\s*\:+\s*$/", "", $query_str);
                 addSQLItem($tmp, "timestamp like \"$query_str%\"");
                 /* neither date or time */
-                if ($tmp == "") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERROPER . " '" . $field[$i][1] . "' " . _QCERRDATECRIT);
+                if ($tmp == "") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("An operator of") . " '" . $field[$i][1] . "' " . gettext("was selected indicating that some date/time criteria should be matched, but no value was specified."));
                 else if ($i < $cnt - 1) $tmp = $field[$i][0] . $tmp . ')' . $field[$i][8] . CleanVariable($field[$i][9], VAR_ALPHA);
                 else $tmp = $field[$i][0] . $tmp . ')' . $field[$i][8];
             }
         } else {
             if (isset($field[$i])) {
-                if (($field[$i][2] != "" || $field[$i][3] != "" || $field[$i][4] != "") && $field[$i][1] == "") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRDATETIME . " '" . $field[$i][2] . "-" . $field[$i][3] . "-" . $field[$i][4] . " " . $field[$i][5] . ":" . $field[6] . ":" . $field[7] . "' " . _QCERROPERSELECT);
+                if (($field[$i][2] != "" || $field[$i][3] != "" || $field[$i][4] != "") && $field[$i][1] == "") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("A date/time value of") . " '" . $field[$i][2] . "-" . $field[$i][3] . "-" . $field[$i][4] . " " . $field[$i][5] . ":" . $field[6] . ":" . $field[7] . "' " . gettext("was entered but no operator was selected."));
             }
         }
-        if ($i > 0 && $field[$i - 1][9] == ' ' && $field[$i - 1][4] != " ") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRDATEBOOL);
+        if ($i > 0 && $field[$i - 1][9] == ' ' && $field[$i - 1][4] != " ") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("Multiple Date/Time criteria entered without a boolean operator (e.g. AND, OR) between them."));
         $tmp2 = (preg_match("/\s+(AND|OR)\s*$/", $tmp2) || $i == 0) ? $tmp2 . $tmp : $tmp2 . " AND " . $tmp;
     }
     $tmp2 = trim(preg_replace("/(\s*(AND|OR)\s*)+$/", "", $tmp2));
@@ -273,11 +273,11 @@ function DataRows2sql($field, $cnt, $data_encode, &$s_sql) {
             //$tmp = " acid_event.sid=extra_.sid AND acid_event.cid=extra_.cid AND data_payload LIKE '%".FormatPayload($field[$i][2], $data_encode)."%'";
             
         } else {
-            if ($field[$i][2] != "" && $field[$i][1] == " ") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRPAYLOAD . " '" . $field[$i][2] . "' " . _QCERRPAYCRITOPER);
-            if (($field[$i][1] != " " && $field[$i][1] != "") && $field[$i][2] == "") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERROPER . " '" . $field[$i][1] . "' " . _QCERRPAYCRITVALUE);
+            if ($field[$i][2] != "" && $field[$i][1] == " ") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("A payload value of") . " '" . $field[$i][2] . "' " . gettext("was entered for a payload criteria field, but an operator (e.g. has, has not) was not specified."));
+            if (($field[$i][1] != " " && $field[$i][1] != "") && $field[$i][2] == "") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("An operator of") . " '" . $field[$i][1] . "' " . gettext("was selected indicating that payload should be a criteria, but no value on which to match was specified."));
         }
         $tmp2 = $tmp2 . $tmp;
-        if ($i > 0 && $field[$i - 1][4] == ' ') ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRPAYBOOL);
+        if ($i > 0 && $field[$i - 1][4] == ' ') ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("Multiple Data payload criteria entered without a boolean operator (e.g. AND, OR) between them."));
     }
     if ($tmp2 != "") {
         $s_sql = $s_sql . " AND ( " . $tmp2 . " )";
@@ -292,10 +292,10 @@ function PrintCriteria($caller) {
     /* If printing any of the LAST-X stats then ignore all the other criteria */
     if ($caller == "last_tcp" || $caller == "last_udp" || $caller == "last_icmp" || $caller == "last_any") {
         $save_criteria = $save_criteria . '&nbsp;&nbsp;';
-        if ($caller == "last_tcp") $save_criteria.= _LAST . ' ' . $last_num_alerts . ' TCP ' . _ALERT;
-        else if ($caller == "last_udp") $save_criteria.= _LAST . ' ' . $last_num_alerts . ' UDP ' . _ALERT;
-        else if ($caller == "last_icmp") $save_criteria.= _LAST . ' ' . $last_num_alerts . ' ICMP ' . _ALERT;
-        else if ($caller == "last_any") $save_criteria.= _LAST . ' ' . $last_num_alerts . ' ' . _ALERT;
+        if ($caller == "last_tcp") $save_criteria.= gettext("Last") . ' ' . $last_num_alerts . ' TCP ' . gettext("Event");
+        else if ($caller == "last_udp") $save_criteria.= gettext("Last") . ' ' . $last_num_alerts . ' UDP ' . gettext("Event");
+        else if ($caller == "last_icmp") $save_criteria.= gettext("Last") . ' ' . $last_num_alerts . ' ICMP ' . gettext("Event");
+        else if ($caller == "last_any") $save_criteria.= gettext("Last") . ' ' . $last_num_alerts . ' ' . gettext("Event");
         $save_criteria.= '&nbsp;&nbsp;</TD></TR></TABLE>';
         echo $save_criteria;
         return;
@@ -325,8 +325,8 @@ function PrintCriteria($caller) {
     $criteria_arr['meta'].= $cs->criteria['ossim_asset_dst']->Description();
     $criteria_arr['meta'].= $cs->criteria['ossim_type']->Description();
     if ($criteria_arr['meta'] == "") {
-        $criteria_arr['meta'].= '<I> ' . _ANY . ' </I>';
-        $save_criteria.= '<I> ' . _ANY . ' </I>';
+        $criteria_arr['meta'].= '<I> ' . gettext("any") . ' </I>';
+        $save_criteria.= '<I> ' . gettext("any") . ' </I>';
     }
     $save_criteria.= '&nbsp;&nbsp;</TD>';
     $save_criteria.= '<TD>';
@@ -337,8 +337,8 @@ function PrintCriteria($caller) {
         $save_criteria.= $cs->criteria['ip_addr']->Description();
         $save_criteria.= $cs->criteria['ip_field']->Description();
     } else {
-        $save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
-        $criteria_arr['ip'] = '<I> ' . _ANY . ' </I>';
+        $save_criteria.= '<I> &nbsp;&nbsp; ' . gettext("any") . ' </I>';
+        $criteria_arr['ip'] = '<I> ' . gettext("any") . ' </I>';
     }
     $save_criteria.= '&nbsp;&nbsp;</TD>';
     $save_criteria.= '<TD CLASS="layer4title">';
@@ -353,8 +353,8 @@ function PrintCriteria($caller) {
             $save_criteria.= $cs->criteria['tcp_flags']->Description();
             $save_criteria.= $cs->criteria['tcp_field']->Description();
         } else {
-            $criteria_arr['layer4'] = '<I> ' . _ANY . ' </I>';
-            $save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
+            $criteria_arr['layer4'] = '<I> ' . gettext("any") . ' </I>';
+            $save_criteria.= '<I> &nbsp;&nbsp; ' . gettext("any") . ' </I>';
         }
         $save_criteria.= '&nbsp;&nbsp;</TD>';
     } else if ($cs->criteria['layer4']->Get() == "UDP") {
@@ -364,8 +364,8 @@ function PrintCriteria($caller) {
             $save_criteria.= $cs->criteria['udp_port']->Description();
             $save_criteria.= $cs->criteria['udp_field']->Description();
         } else {
-            $criteria_arr['layer4'] = '<I> ' . _ANY . ' </I>';
-            $save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
+            $criteria_arr['layer4'] = '<I> ' . gettext("any") . ' </I>';
+            $save_criteria.= '<I> &nbsp;&nbsp; ' . gettext("any") . ' </I>';
         }
         $save_criteria.= '&nbsp;&nbsp;</TD>';
     } else if ($cs->criteria['layer4']->Get() == "ICMP") {
@@ -373,8 +373,8 @@ function PrintCriteria($caller) {
             $criteria_arr['layer4'] = $cs->criteria['icmp_field']->Description();
             $save_criteria.= $cs->criteria['icmp_field']->Description();
         } else {
-            $criteria_arr['layer4'] = '<I> ' . _ANY . ' </I>';
-            $save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
+            $criteria_arr['layer4'] = '<I> ' . gettext("any") . ' </I>';
+            $save_criteria.= '<I> &nbsp;&nbsp; ' . gettext("any") . ' </I>';
         }
         $save_criteria.= '&nbsp;&nbsp;</TD>';
     } else if ($cs->criteria['layer4']->Get() == "RawIP") {
@@ -382,13 +382,13 @@ function PrintCriteria($caller) {
             $criteria_arr['layer4'] = $cs->criteria['rawip_field']->Description();
             $save_criteria.= $cs->criteria['rawip_field']->Description();
         } else {
-            $criteria_arr['layer4'] = '<I> ' . _ANY . ' </I>';
-            $save_criteria.= '<I> &nbsp&nbsp ' . _ANY . ' </I>';
+            $criteria_arr['layer4'] = '<I> ' . gettext("any") . ' </I>';
+            $save_criteria.= '<I> &nbsp&nbsp ' . gettext("any") . ' </I>';
         }
         $save_criteria.= '&nbsp;&nbsp;</TD>';
     } else {
-        $criteria_arr['layer4'] = '<I> ' . _NONE . ' </I>';
-        $save_criteria.= '<I> &nbsp;&nbsp; ' . _NONE . ' </I></TD>';
+        $criteria_arr['layer4'] = '<I> ' . gettext("none") . ' </I>';
+        $save_criteria.= '<I> &nbsp;&nbsp; ' . gettext("none") . ' </I></TD>';
     }
     /* Payload ************** */
     $save_criteria.= '
@@ -397,11 +397,11 @@ function PrintCriteria($caller) {
         $criteria_arr['payload'] = $cs->criteria['data']->Description();
         $save_criteria.= $cs->criteria['data']->Description();
     } else {
-        $criteria_arr['payload'] = '<I> ' . _ANY . ' </I>';
-        $save_criteria.= '<I> &nbsp;&nbsp; ' . _ANY . ' </I>';
+        $criteria_arr['payload'] = '<I> ' . gettext("any") . ' </I>';
+        $save_criteria.= '<I> &nbsp;&nbsp; ' . gettext("any") . ' </I>';
     }
     $save_criteria.= '&nbsp;&nbsp;</TD>';
-    if (!setlocale(LC_TIME, _LOCALESTR1)) if (!setlocale(LC_TIME, _LOCALESTR2)) setlocale(LC_TIME, _LOCALESTR3);
+    if (!setlocale(LC_TIME, gettext("eng_ENG.ISO8859-1"))) if (!setlocale(LC_TIME, gettext("eng_ENG.utf-8"))) setlocale(LC_TIME, gettext("english"));
     
     // Report Data
     $report_data = array();
@@ -423,7 +423,7 @@ function PrintCriteria($caller) {
 					<table width="100%">
 						<tr>
 							<td width="60"></td>
-							<td style="text-align:center;color:#333333;font-size:14px;font-weight:bold">&nbsp;<?php echo _("Current Search Criteria")?>&nbsp;&nbsp; [<a href="base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB" style="font-weight:normal;color:black">...Clear All Criteria...</a>]</td>
+							<td style="text-align:center;color:#333333;font-size:14px;font-weight:bold">&nbsp;<?php echo _("Current Search Criteria")?>&nbsp;&nbsp; [<a href="base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d" style="font-weight:normal;color:black">...<?php echo _("Clear All Criteria") ?>...</a>]</td>
 							<td width="120" nowrap><a href="base_view_criteria.php" onclick="GB_show('<?=_("Current Search Criteria")?>','base_view_criteria.php',420,600);return false"><img src="../pixmaps/arrow_green.gif" alt="" border="0"></img> <?php echo _("Show full criteria")?> <img src="../pixmaps/ui-scroll-pane-detail.png" border="0" alt="<?php echo _("View entire current search criteria") ?>" title="<?php echo _("View entire current search criteria") ?>"></img></a></td>
 						</tr>
 					</table>
@@ -628,7 +628,9 @@ function ProcessCriteria() {
     $userdata = $cs->criteria['userdata']->criteria;
     $sourcetype = $cs->criteria['sourcetype']->criteria;
     $category = $cs->criteria['category']->criteria;
-    $time = $cs->criteria['time']->criteria;
+    $time = $cs->criteria['time']->GetUTC(); //$cs->criteria['time']->criteria;
+    //print_r($time);
+    //print_r($cs->criteria['time']->criteria);
     $time_cnt = $cs->criteria['time']->GetFormItemCnt();
     $ip_addr = $cs->criteria['ip_addr']->criteria;
     $ip_addr_cnt = $cs->criteria['ip_addr']->GetFormItemCnt();
@@ -819,14 +821,14 @@ function ProcessCriteria() {
             if ($tmp != "") $tmp = $ip_addr[$i][0] . "(" . $tmp . ")" . $ip_addr[$i][8] . $ip_addr[$i][9];
         } else if ((isset($ip_addr[$i][3]) && $ip_addr[$i][3] != "") || $ip_addr[$i][1] != " ") {
             /* IP_addr_type, but MALFORMED IP address */
-            if ($ip_addr[$i][1] != " " && $ip_addr[$i][3] == "" && ($ip_addr[$i][4] != "" || $ip_addr[$i][5] != "" || $ip_addr[$i][6] != "")) ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRINVIPCRIT . " ' *." . $ip_addr[$i][4] . "." . $ip_addr[$i][5] . "." . $ip_addr[$i][6] . " '");
+            if ($ip_addr[$i][1] != " " && $ip_addr[$i][3] == "" && ($ip_addr[$i][4] != "" || $ip_addr[$i][5] != "" || $ip_addr[$i][6] != "")) ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("Invalid IP address criteria") . " ' *." . $ip_addr[$i][4] . "." . $ip_addr[$i][5] . "." . $ip_addr[$i][6] . " '");
             /* ADDRESS, but NO IP_addr_type was given */
-            if (isset($ip_addr[$i][3]) && $ip_addr[$i][1] == " ") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRIP . " '" . $ip_addr[$i][3] . "." . $ip_addr[$i][4] . "." . $ip_addr[$i][5] . "." . $ip_addr[$i][6] . "' " . _QCERRCRITADDRESSTYPE);
+            if (isset($ip_addr[$i][3]) && $ip_addr[$i][1] == " ") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("A IP address of") . " '" . $ip_addr[$i][3] . "." . $ip_addr[$i][4] . "." . $ip_addr[$i][5] . "." . $ip_addr[$i][6] . "' " . gettext("was entered for as a criteria value, but the type of address (e.g. source, destination) was not specified."));
             /* IP_addr_type IS FILLED, but no ADDRESS */
-            if (($ip_addr[$i][1] != " " && $ip_addr[$i][1] != "") && $ip_addr[$i][3] == "") ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRIPTYPE . " '" . $ip_addr[$i][1] . "' " . _QCERRCRITIPADDRESSNONE1 . $i . ") " . _QCERRCRITIPADDRESSNONE);
+            if (($ip_addr[$i][1] != " " && $ip_addr[$i][1] != "") && $ip_addr[$i][3] == "") ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("An IP address of type") . " '" . $ip_addr[$i][1] . "' " . gettext("was selected (at #") . $i . ") " . gettext("indicating that an IP address should be a criteria, but no address on which to match was specified."));
         }
         $tmp2 = $tmp2 . $tmp;
-        if (($i > 0 && $ip_addr[$i - 1][9] == ' ' && $ip_addr[$i - 1][3] != "")) ErrorMessage("<B>" . _QCERRCRITWARN . "</B> " . _QCERRCRITIPIPBOOL . " #$i and #" . ($i + 1) . ".");
+        if (($i > 0 && $ip_addr[$i - 1][9] == ' ' && $ip_addr[$i - 1][3] != "")) ErrorMessage("<B>" . gettext("Criteria warning:") . "</B> " . gettext("Multiple IP address criteria entered without a boolean operator (e.g. AND, OR) between IP Criteria") . " #$i and #" . ($i + 1) . ".");
     }
     if ($tmp2 != "") $criteria_sql = $criteria_sql . " AND ( " . $tmp2 . " )";
     else $cs->criteria['ip_addr']->SetFormItemCnt(0);

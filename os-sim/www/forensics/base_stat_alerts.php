@@ -25,8 +25,8 @@ include_once ("$BASE_path/base_stat_common.php");
 ($debug_time_mode >= 1) ? $et = new EventTiming($debug_time_mode) : '';
 $cs = new CriteriaState("base_stat_alerts.php");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $cs->ReadState();
@@ -35,10 +35,10 @@ $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_alerts, _MOSTFREQALERTS, "occur_d");
-$qs->AddCannedQuery("last_alerts", $last_num_ualerts, _LASTALERTS, "last_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_alerts, gettext("Most Frequent Events"), "occur_d");
+$qs->AddCannedQuery("last_alerts", $last_num_ualerts, gettext("Last Events"), "last_d");
 $qs->MoveView($submit); /* increment the view if necessary */
-$page_title = _ALERTTITLE;
+$page_title = gettext("Event Listing");
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 /* Connect to the Alert database */
@@ -57,7 +57,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();
@@ -91,8 +91,8 @@ $qs->AddValidAction("del_alert");
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-$qs->AddValidActionOp(_SELECTED);
-$qs->AddValidActionOp(_ALLONSCREEN);
+$qs->AddValidActionOp(gettext("Delete Selected"));
+$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 ($debug_time_mode >= 1) ? $et->Mark("Initialization") : '';
 $qs->RunAction($submit, PAGE_STAT_ALERTS, $db);
@@ -105,6 +105,9 @@ if($event_cnt == 0){
 $event_cnt = 1;
 }
 }*/
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+
 /* create SQL to get Unique Alerts */
 $cnt_sql = "SELECT count(DISTINCT acid_event.plugin_id, acid_event.plugin_sid) " . $from . $where;
 /* Run the query to determine the number of rows (No LIMIT)*/
@@ -113,15 +116,15 @@ if (!$use_ac) $qs->GetNumResultRows($cnt_sql, $db);
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_alerts.php?caller=" . $caller);
 $qro->AddTitle(" ");
-$qro->AddTitle(_SIGNATURE, "sig_a", " ", " ORDER BY plugin_id ASC,plugin_sid", "sig_d", " ", " ORDER BY plugin_id DESC,plugin_sid");
-//if ($db->baseGetDBversion() >= 103) $qro->AddTitle(_CHRTCLASS, "class_a", ", MIN(sig_class_id) ", " ORDER BY sig_class_id ASC ", "class_d", ", MIN(sig_class_id) ", " ORDER BY sig_class_id DESC ");
-$qro->AddTitle(_TOTAL . "&nbsp;#", "occur_a", " ", " ORDER BY sig_cnt ASC", "occur_d", " ", " ORDER BY sig_cnt DESC");
-$qro->AddTitle(_SENSOR . "&nbsp;#");
+$qro->AddTitle(gettext("Signature"), "sig_a", " ", " ORDER BY plugin_id ASC,plugin_sid", "sig_d", " ", " ORDER BY plugin_id DESC,plugin_sid");
+//if ($db->baseGetDBversion() >= 103) $qro->AddTitle(gettext("Classification"), "class_a", ", MIN(sig_class_id) ", " ORDER BY sig_class_id ASC ", "class_d", ", MIN(sig_class_id) ", " ORDER BY sig_class_id DESC ");
+$qro->AddTitle(gettext("Total") . "&nbsp;#", "occur_a", " ", " ORDER BY sig_cnt ASC", "occur_d", " ", " ORDER BY sig_cnt DESC");
+$qro->AddTitle(gettext("Sensor") . "&nbsp;#");
 $qro->AddTitle(_("Src. Addr.") , "saddr_a", ", count(DISTINCT ip_src) AS saddr_cnt ", " ORDER BY saddr_cnt ASC", "saddr_d", ", count(DISTINCT ip_src) AS saddr_cnt ", " ORDER BY saddr_cnt DESC");
 $qro->AddTitle(_("Dst. Addr.") , "daddr_a", ", count(DISTINCT ip_dst) AS daddr_cnt ", " ORDER BY daddr_cnt ASC", "daddr_d", ", count(DISTINCT ip_dst) AS daddr_cnt ", " ORDER BY daddr_cnt DESC");
-$qro->AddTitle(_FIRST, "first_a", ", min(timestamp) AS first_timestamp ", " ORDER BY first_timestamp ASC", "first_d", ", min(timestamp) AS first_timestamp ", " ORDER BY first_timestamp DESC");
+$qro->AddTitle(_("First")." ".Util::timezone($tz), "first_a", ", min(timestamp) AS first_timestamp ", " ORDER BY first_timestamp ASC", "first_d", ", min(timestamp) AS first_timestamp ", " ORDER BY first_timestamp DESC");
 if ($show_previous_alert == 1) $qro->AddTitle("Previous");
-$qro->AddTitle(_LAST, "last_a", ", max(timestamp) AS last_timestamp ", " ORDER BY last_timestamp ASC", "last_d", ", max(timestamp) AS last_timestamp ", " ORDER BY last_timestamp DESC");
+$qro->AddTitle(_("Last")." ".Util::timezone($tz), "last_a", ", max(timestamp) AS last_timestamp ", " ORDER BY last_timestamp ASC", "last_d", ", max(timestamp) AS last_timestamp ", " ORDER BY last_timestamp DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 /* mstone 20050309 add sig_name to GROUP BY & query so it can be used in postgres ORDER BY */
 /* mstone 20050405 add sid & ip counts */
@@ -174,7 +177,7 @@ if ($debug_mode == 1) {
     echo "$sql<BR>";
 }
 /* Print the current view number and # of rows */
-$qs->PrintResultCnt("",array(),_DISPLAYINGTOTALUEVENTS);
+$qs->PrintResultCnt("",array(),gettext("Displaying unique events %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."));
 echo '<FORM METHOD="post" name="PacketForm" id="PacketForm" ACTION="base_stat_alerts.php">';
 $qro->PrintHeader();
 $i = 0;
@@ -197,7 +200,10 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     /* First and Last timestamp of this signature */
     $start_time = $myrow["first_timestamp"];
     $stop_time = $myrow["last_timestamp"];
-
+    if ($tz!=0) {
+    	$start_time = date("Y-m-d H:i:s",strtotime($start_time)+(3600*$tz));
+    	$stop_time = date("Y-m-d H:i:s",strtotime($stop_time)+(3600*$tz));
+	}
     /* Print out (Colored Version) -- Alejandro */
     //qroPrintEntryHeader((($colored_alerts == 1) ? GetSignaturePriority($sig_id, $db) : $i) , $colored_alerts);
     qroPrintEntryHeader( $i , $colored_alerts);
@@ -208,7 +214,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
              </TD>';
     echo '      <INPUT TYPE="hidden" NAME="action_lst[' . $i . ']" VALUE="' . $tmp_rowid . '">';
     $sigstr = trim(preg_replace("/.*\/\s*(.*)/","\\1",preg_replace("/^[\.\,\"\!]|[\.\,\"\!]$/","",preg_replace("/.*##/","",html_entity_decode(strip_tags($signame))))));
-    $siglink = "base_qry_main.php?new=1&submit=" . _QUERYDBP . "&num_result_rows=-1&sig_type=1&sig%5B0%5D=%3D&sig%5B1%5D=" . urlencode($sig_id);
+    $siglink = "base_qry_main.php?new=1&submit=" . gettext("Query+DB") . "&num_result_rows=-1&sig_type=1&sig%5B0%5D=%3D&sig%5B1%5D=" . urlencode($sig_id);
     $tmpsig = explode("##", $signame);
     if ($tmpsig[1]!="") {
         $antes = $tmpsig[0];
@@ -220,7 +226,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     qroPrintEntry("$antes <a href='$siglink'>".trim($despues)."</a>" , "left");
     //if ($db->baseGetDBversion() >= 103) qroPrintEntry(GetSigClassName(GetSigClassID($sig_id, $db) , $db));
     $perc = (($avoid_counts != 1) ? ('&nbsp;(' . (round($total_occurances / $event_cnt * 100)) . '%)') : (''));
-    //qroPrintEntry('<FONT>' . '<A HREF="base_qry_main.php?new=1amp;&amp;sig%5B0%5D=%3D&amp;sig%5B1%5D=' . (rawurlencode($sig_id)) . '&amp;sig_type=1' . '&amp;submit=' . _QUERYDBP . '&amp;num_result_rows=-1">' . $total_occurances . '</A>' .
+    //qroPrintEntry('<FONT>' . '<A HREF="base_qry_main.php?new=1amp;&amp;sig%5B0%5D=%3D&amp;sig%5B1%5D=' . (rawurlencode($sig_id)) . '&amp;sig_type=1' . '&amp;submit=' . gettext("Query+DB") . '&amp;num_result_rows=-1">' . $total_occurances . '</A>' .
     qroPrintEntry('<FONT>' . '<A HREF="' . $siglink . '">' . $total_occurances . '</A>' .
     /* mstone 20050309 lose this if we're not showing stats */
     $perc . '</FONT>', 'center', 'top', 'nowrap');

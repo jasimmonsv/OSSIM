@@ -46,7 +46,7 @@ $actual_url = str_replace("?clear_allcriteria=1&","?",str_replace("&clear_allcri
 	<td valign="top">
 		<table border=0 cellpadding=0 cellspacing=0>
 		<?
-		if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers") && preg_match("/pro|demo/i",$version)) { 
+		if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "PolicyServers") && preg_match("/pro|demo/i",$version)) { 
 			// session server
 			$ss = (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="") ? $_SESSION["server"][0] : "local";
 			echo "<tr><td align='left'><img src='../server/getdbsicon.php?name=".urlencode($ss)."' border=0 width='32' height='32'><a href='javascript:;' onclick='$(\"#dbs\").toggle();$(\"#imgplus\").attr(\"src\",(($(\"#imgplus\").attr(\"src\").match(/plus/)) ? \"images/minus-small.png\" : \"images/plus-small.png\"))'><img src='images/plus-small.png' border=0 id='imgplus'></a></td></tr>";
@@ -71,7 +71,7 @@ $actual_url = str_replace("?clear_allcriteria=1&","?",str_replace("&clear_allcri
 		</td>
 		<td style="padding:0px 0px 10px 20px">
 			<form style="margin:0px" action="../control_panel/event_panel.php" method="get">
-			<input type="submit" class="button" value="Real Time" name="submit" style="font-weight:bold">
+			<input type="submit" class="button" value="<?php echo gettext("Real Time")?>" name="submit" style="font-weight:bold">
 			</form>
 		</td>
 		</tr>

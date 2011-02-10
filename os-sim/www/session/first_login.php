@@ -130,7 +130,7 @@ if ($flag != "") {
 				Session::changefirst($conn, $user);
 			
 			Session::log_pass_history($user,md5($pass1));
-			if (GET('expired') == "" && GET('changeadmin') == "" && $user == ACL_DEFAULT_OSSIM_ADMIN) {
+			if (GET('expired') == "" && GET('changeadmin') == "" && $user == ACL_DEFAULT_OSSIM_ADMIN && preg_match("/.*pro.*/i",$version)) {
 				header("location:customize_logos.php");
 			} else {
 				header("location:../index.php");

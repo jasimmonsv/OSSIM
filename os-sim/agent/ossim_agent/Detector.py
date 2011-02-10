@@ -44,6 +44,12 @@ from Logger import Logger
 from Output import Output
 from Stats import Stats
 from Threshold import EventConsolidation
+#import re
+#from datetime import datetime, timedelta
+from pytz import timezone, all_timezones
+#import pytz
+from time import time, mktime, gmtime, strftime
+import Utils
 
 #
 # GLOBAL VARIABLES
@@ -74,8 +80,24 @@ class Detector(threading.Thread):
                     (self._plugin.get("config", "name"),
                      self._plugin.get("DEFAULT", "plugin_id")))
         threading.Thread.__init__(self)
-
-
+        self._agenttimezone = self._conf.get("plugin-defaults", "tzone")
+        self._EventTimeZone = None
+        #2011-02-01 17:00:16
+#        self.patternISO_date = re.compile('(?P<year>\d+)[\s-](?P<month>\d+)[\s-](?P<day>\d+)\s+(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)')
+#        self.patternUTClocalized = re.compile('(?P<year>\d+)[\s-](?P<month>\d+)[\s-](?P<day>\d+)\s+(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)(?P<tzone_symbol>[-|+])(?P<tzone_hour>\d{2}):(?P<tzone_min>\d{2})')
+        self.checkTimeZone()
+        
+    def checkTimeZone(self):
+        used_tzone = strftime("%z", gmtime())
+        if self._timezone in all_timezones:
+            used_tzone = self._timezone
+            logger.debug("Using custom plugin tzone data: %s" % used_tzone)
+        elif self._agenttimezone in all_timezones:
+            used_tzone = self._agenttimezone
+            logger.info("Warning: Invalid plugin tzone information. Using agent tzone: %s" % used_tzone)
+        else:
+            logger.info("Warning: Invalid plugin tzone and invalid agent tzone, using system tzone: %s" % systemtzone)
+        self._EventTimeZone = used_tzone
     def _event_os_cached(self, event):
 
         if isinstance(event, Event.EventOS):
@@ -149,9 +171,8 @@ class Detector(threading.Thread):
 
         # 5) Time zone 
             #default_tzone = self._conf.get("plugin-defaults", "tzone")
-            if event["tzone"] is None and 'tzone' in event.EVENT_ATTRS:
-                event["tzone"] = self._timezone
-
+            if 'tzone' in event.EVENT_ATTRS:
+                Utils.normalizeToUTCDate(event, self._EventTimeZone)
         # 6) sensor,source ip and dest != localhost
             if event["sensor"] in ('127.0.0.1', '127.0.1.1'):
                 event["sensor"] = default_sensor
@@ -166,10 +187,49 @@ class Detector(threading.Thread):
         # the type of this event should always be 'detector'
         if event["type"] is None and 'type' in event.EVENT_ATTRS:
             event["type"] = 'detector'
+        
+            
 
         return event
 
-
+#    def normalizeToUTCDate(self, event):
+#        plugin_date_str = event["fdate"]
+#        #2011-02-01 17:00:16
+#        matchgroup1 = self.patternISO_date.match(event["fdate"])
+#        plugin_dt = datetime(year=int(matchgroup1.group("year")), month=int(matchgroup1.group("month")), day=int(matchgroup1.group("day")), hour=int(matchgroup1.group("hour")), minute=int(matchgroup1.group("minute")), second=int(matchgroup1.group("second")))
+#        used_tzone = strftime("%z", gmtime())
+#        if self._timezone in all_timezones:
+#            used_tzone = self._timezone
+#            logger.debug("Using custom plugin tzone data: %s" % used_tzone)
+#        elif self._agenttimezone in all_timezones:
+#            used_tzone = self._agenttimezone
+#            logger.info("Warning: Invalid plugin tzone information. Using agent tzone: %s" % used_tzone)
+#        else:
+#            logger.info("Warning: Invalid plugin tzone and invalid agent tzone, using system tzone: %s" % systemtzone)
+#        logger.debug("Plugin localtime date: %s", plugin_dt)
+#        plugin_tz = timezone(used_tzone)
+#        logger.debug("Plugin tzone: %s" % plugin_tz.zone)
+#        plugin_localized_date = plugin_tz.localize(plugin_dt)
+#        logger.debug("Plugin localized time: %s" % plugin_localized_date)
+#        matchgroup2 = self.patternUTClocalized.match(str(plugin_localized_date))
+#        tzone_symbol = matchgroup2.group("tzone_symbol")
+#        tzone_hour = matchgroup2.group("tzone_hour")
+#        tzone_min = matchgroup2.group("tzone_min")
+#        tzone_float = (float(tzone_hour) * 60 + float(tzone_min)) / 60
+#        
+#        if tzone_symbol == "-":
+#            tzone_float = -1 * tzone_float
+#        logger.debug("Calculated float timezone: %s" % tzone_float)
+#        utc_tz = pytz.utc
+#        plugin_utc_dt = plugin_localized_date.astimezone(utc_tz)
+#        logger.debug("Plugin UTC Date: %s", plugin_utc_dt)
+#        dateformat = "%Y-%m-%d %H:%M:%S"
+#        logger.debug("Plugin UTC ISO Normalized date: %s" % plugin_utc_dt.strftime(dateformat))
+#        event['tzone'] = tzone_float
+#        if 'fdate' in event.EVENT_ATTRS:
+#            event["date"] = int(mktime(plugin_utc_dt.timetuple()))
+#            event["fdate"] = plugin_utc_dt.strftime(dateformat)
+            
     def send_message(self, event):
 
         if self._event_os_cached(event):

@@ -97,13 +97,12 @@ foreach($sensor_list as $sensor) if (in_array($sensor->get_ip(), explode(",",$al
   <title> <?php echo gettext("Vulnmeter"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
   <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
-  <script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script>
+  <!--[if IE]><script language="javascript" type="text/javascript" src="../js/jqplot/excanvas.js"></script><![endif]-->
   <script language="JavaScript" src="../js/jquery.flot.pie.js"></script>
   <script type="text/javascript" src="../js/vulnmeter.js"></script>
   <style type="text/css">
@@ -389,7 +388,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
         $q = $value;
         $queryw = " AND t5.service LIKE '%$q%' $query_onlyuser order by $sortby $sortdir";
         $queryl = " limit $offset,$pageSize"; 
-        $stext =  "<b>"._("Search for Service")."</b> = '*$q*'";
+        $stext =  "<b>"._("Search for Service")."</b> = '*".html_entity_decode($q)."*'";
         $url_filter="&type=$type&value=$value";
     }
     else if($type=="freetext" && $value!="") {
@@ -397,7 +396,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
         $q = $value;
         $queryw = " AND t5.msg LIKE '%$q%' $query_onlyuser order by $sortby $sortdir";
         $queryl = " limit $offset,$pageSize"; 
-        $stext =  "<b>"._("Search for Free Text")."</b> = '*$q*'";
+        $stext =  "<b>"._("Search for Free Text")."</b> = '*".html_entity_decode($q)."*'";
         $url_filter="&type=$type&value=$value";
     }
    else if($type=="hostip" && $value!="") {
@@ -456,7 +455,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
 
       $queryl = " limit $offset,$pageSize";
       if (!preg_match("/\//",$value)) {
-        $stext =  "<b>"._("Search for Host")."</b> = '$q'";
+        $stext =  "<b>"._("Search for Host")."</b> = '".html_entity_decode($q)."'";
       }
       else {
         $stext =  "<b>"._("Search for Subnet/CIDR")."</b> = '$value'";
@@ -515,7 +514,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
         $last = $next;
       }*/
       $pageEnd = $offset + $pageSize;
-
+	$value=html_entity_decode($value);
 echo "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"900\"><tr><td class=\"headerpr\" style=\"border:0;\">"._("Current Vulnerablities")."</td></tr></table>";
       //echo "<p>There are $reportCount scans defined in the system.";
       // output the search form
@@ -756,17 +755,17 @@ EOT;
       $fieldMapLinks = array();
 
          $fieldMapLinks = array(
-            "HTML Results" => array(
+            gettext("HTML Results") => array(
                      'url' => '%param%',
                    'param' => 'hlink',
                    'target' => 'main',
                     'icon' => 'images/html.png'),
-             "PDF Results" => array(
+             gettext("PDF Results") => array(
                      'url' => '%param%',
                    'param' => 'plink',
                   'target' => '_blank', 
                     'icon' => 'images/pdf.png'),
-           "EXCEL Results" => array(
+           gettext("EXCEL Results") => array(
                      'url' => '%param%',
                    'param' => 'xlink',
                   'target' => '_blank',

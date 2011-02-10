@@ -45,7 +45,7 @@ require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 require_once ('classes/Log_action.inc');
 class Backup {
-    function Insert($insert) {
+    function Insert($insert, $filter_by = "") {
         $newfiles = array();
         $oldfiles = array();
         $message = "";
@@ -56,7 +56,7 @@ class Backup {
         $backup_dir = $conf->get_conf("backup_dir");
         $user = Session::get_session_user();
         $user = escapeshellcmd($user);
-
+		
         foreach ($insert as $file) {
             $command = "zcat $backup_dir/insert-$file.sql.gz|grep 'acid_event_input'|wc -l";
             $count = `$command`;
@@ -97,15 +97,15 @@ class Backup {
         else if (count($oldfiles)>0) {
             $files = Backup::array2str($oldfiles);
             $files = escapeshellcmd($files);
-            echo "Launching: $data_dir/scripts/insertdb.pl $files $user\n";
+            //echo "Launching: $data_dir/scripts/insertdb.pl $files $user\n";
             shell_exec("nohup perl $data_dir/scripts/insertdb.pl $files $user > /tmp/insertdb.log 2>&1 &");
         
         }
         else if (count($newfiles)>0) {
             $files = Backup::array2str($newfiles);
             $files = escapeshellcmd($files);
-            echo "Launching: $data_dir/scripts/restoredb.pl insert $files $user\n";
-            shell_exec("nohup perl $data_dir/scripts/restoredb.pl insert $files $user > /tmp/restoredb.log 2>&1 &");
+            //echo "Launching: $data_dir/scripts/restoredb.pl insert $files $user $filter_by\n";
+            //shell_exec("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $filter_by > /tmp/restoredb.log 2>&1 &");
         }
         
         $infolog = array(

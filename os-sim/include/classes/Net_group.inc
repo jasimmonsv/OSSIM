@@ -132,14 +132,19 @@ class Net_group {
 	function get_list($conn, $args = "", $order = "ORDER BY name") {
         $args = preg_replace("/^\s*where /i","",$args);
 		$iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
-        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
+        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS g.*" : "g.*";
         $networks = "";
         $all_nets = Net::get_list($conn);
         foreach ($all_nets as $net) {
         	$networks .= ($networks != "") ? ",'".$net->get_name()."'" : "'".$net->get_name()."'";
         }
-        $query = OssimQuery("SELECT $select FROM net_group g,net_group_reference r WHERE $args".(($args != "") ? " AND" : "")." g.name=r.net_group_name AND r.net_name in ($networks) $order");
-        //echo $query."<br>";
+        if ($networks != "" && (Session::allowedNets() != "" || Session::allowedSensors() != "")) {
+        	$net_where = " AND r.net_name in ($networks)";
+        } else {
+        	$net_where = "";
+		}
+        $query = OssimQuery("SELECT DISTINCT $select FROM net_group g,net_group_reference r WHERE $args".(($args != "") ? " AND" : "")." g.name=r.net_group_name$net_where $order");
+        error_log ($query."<br>",3,"/tmp/log");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {

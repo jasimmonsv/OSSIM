@@ -54,14 +54,17 @@ if (!preg_match("/pro|demo/i",$version)) {
 $db_aux = new ossim_db();
 $conn_aux = $db_aux->connect();
 
-//
+// Timezone correction
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
+
 $param_query = GET("query") ? GET("query") : "";
-$param_start = GET("start") ? GET("start") : strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60));
-$param_end = GET("end") ? GET("end") : strftime("%Y-%m-%d %H:%M:%S", time());
+$param_start = GET("start") ? GET("start") : gmdate("Y-m-d H:i:s", $timetz - (24 * 60 * 60));
+$param_end = GET("end") ? GET("end") : gmdate("Y-m-d H:i:s", $timetz);
 
 //$_SESSION['graph_type'] = "last_month";
 $_SESSION['graph_type'] = "day";
-$_SESSION['cat'] = date("M j, Y");
+$_SESSION['cat'] = date("M j, Y",$timetz);
 
 $framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
@@ -428,6 +431,14 @@ ul.tagit input.tagit-hidden {
 
         font-family: arial;
         font-size: 11px;   
+        text-decoration: none;
+}
+.imgtip {
+	text-align:left;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+	background-color: transparent;
 }
 </style>
 
@@ -476,13 +487,21 @@ function SetFromIframe(content,str,start,end,sort) {
                     this.load('../control_panel/alarm_netlookup.php?ip=' + ip);
             }
     });
+    $(".scriptinfoimg").simpletip({
+            offset: [0, -104],
+            position: 'right',
+            baseClass: 'imgtip',
+            onBeforeShow: function() {
+                    this.update(this.getParent().attr('txt'));
+            }
+    });
     $(".scriptinfotxt").simpletip({
             position: 'right',
             baseClass: 'ytooltip',
             onBeforeShow: function() {
                     this.update(this.getParent().attr('txt'));
             }
-    });
+    });    
 }
 
 function GetSearchString() {
@@ -542,7 +561,7 @@ function MakeRequest()
 	var top = escape(document.getElementById('top').value);
 
     var txtexport = document.getElementById('txtexport').value;
-    var tzone =  document.getElementById('tzone').options[document.getElementById('tzone').selectedIndex].value;
+    var tzone =  document.getElementById('tzone').value;
     
     document.getElementById('ResponseDiv').innerHTML = "";
 	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&top=" + top + "&start=" + start + "&end=" + end + "&sort=" + sort + "&tzone=" + tzone + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
@@ -811,6 +830,7 @@ function setFixed(start, end, gtype, datef)
 	document.getElementById('start_aaa').value = start;
 	document.getElementById('end').value = end;
 	document.getElementById('end_aaa').value = end;
+      
 	if (gtype != '' && datef != '') {
 		UpdateByDate("forensic.php?graph_type="+gtype+"&cat="+datef);
 	}
@@ -832,7 +852,7 @@ function setFixed2()
 		var start_pad = " 00:00:00";
 	}
 	if(document.getElementById('end_aaa').value.length == 10){
-		var end_pad = " 00:00:00";
+		var end_pad = " 23:59:59";
 	}
 
 	document.getElementById('start').value = document.getElementById('start_aaa').value + start_pad;
@@ -1101,16 +1121,18 @@ $(document).ready(function(){
 	});
 	<? if (trim($_GET['query'])!="") { ?>
 	bold_dates('date5');
-	setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','year','<?php echo urlencode(date("Y")) ?>');
+	setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','year','<?php echo urlencode(date("Y",$timetz)) ?>');
 	<? } ?>
 	
 	// CALENDAR
 	<?
-	$y = strftime("%Y", time() - (24 * 60 * 60));
-	$m = strftime("%m", time() - (24 * 60 * 60));
-	//$d = strftime("%d", time() - ((24 * 60 * 60) * 1));
-	$d = strftime("%d", time() - (24 * 60 * 60));
+	$y = strftime("%Y", $timetz - (24 * 60 * 60));
+	$m = strftime("%m", $timetz - (24 * 60 * 60));
+	//$d = strftime("%d", $timetz - ((24 * 60 * 60) * 1));
+	$d = strftime("%d", $timetz - (24 * 60 * 60));
 	?>
+	byDateStart='<?php echo date("Y-m-d", $timetz - (24 * 60 * 60)) ?>';
+	byDateEnd='<?php echo date("Y-m-d", $timetz) ?>';
 	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
 	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m")-1 ?>,<?php echo date("d") ?>);
     var dayswithevents = [ ];
@@ -1125,8 +1147,8 @@ $(document).ready(function(){
 			if (formated[0]!=formated[1]) {
 				var f1 = formated[0].split(/-/);
 				var f2 = formated[1].split(/-/);
-				document.getElementById('start_aaa').value = f1[0]+'-'+f1[1]+'-'+f1[2];
-				document.getElementById('end_aaa').value = f2[0]+'-'+f2[1]+'-'+f2[2];
+				document.getElementById('start_aaa').value = f1[0]+'-'+f1[1]+'-'+f1[2]+' 00:00:00';
+				document.getElementById('end_aaa').value = f2[0]+'-'+f2[1]+'-'+f2[2]+' 23:59:59';
                 $("#widget>a").trigger('click');
 				setFixed2();
 			}
@@ -1134,8 +1156,8 @@ $(document).ready(function(){
 		
 		onRender: function(date) {
 			return {
-					//disabled: (date.getTime() < now.getTime()),
-					//className: dayswithevents.in_array(date.getTime()) ? 'datepickerSpecial' : false
+					//disabled: (date.get$timetz < now.get$timetz),
+					//className: dayswithevents.in_array(date.get$timetz) ? 'datepickerSpecial' : false
 			}
 		}*/
 	});
@@ -1275,7 +1297,7 @@ include ("../hmenu.php"); ?>
 
 <table border=0 cellpadding=0 cellspacing=0 align="right">
 <?
-if (count($database_servers)>0 && Session::menu_perms("MenuPolicy", "PolicyServers")) { 
+if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "PolicyServers")) { 
 	// session server
 	?>
 	<form name="serverform">
@@ -1334,10 +1356,10 @@ document.getElementById('cursor').value = document.body.style.cursor;
 <?php // Possible sort values: none, date, date_desc
  ?>
 <input type="hidden" id="sort" value="none">
-<input type="hidden" id="start" value="<?php echo ($param_start != "" && date_parse($param_start)) ? $param_start : strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60)) ?>">
+<input type="hidden" id="start" value="<?php echo ($param_start != "" && date_parse($param_start)) ? $param_start : gmdate("Y-m-d H:i:s", $timetz - (24 * 60 * 60)) ?>">
 <?php // Temporary fix until the server logs right
  ?>
-<input type="hidden" id="end" value="<?php echo ($param_end != "" && date_parse($param_end)) ? $param_end : strftime("%Y-%m-%d %H:%M:%S", time()) ?>">
+<input type="hidden" id="end" value="<?php echo ($param_end != "" && date_parse($param_end)) ? $param_end : gmdate("Y-m-d H:i:s", $timetz) ?>">
 <!--
 <div id="compress">
 <center><a href="javascript:closeLayer('entiregauge');closeLayer('test');closeLayer('compress');" onMouseOver="showTip('<?php echo $help_entries["close_all"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="black"><?php echo _("Click here in order to compress everything") ?></a></center>
@@ -1503,7 +1525,10 @@ require_once ("manage_querys.php");
 				<td class="nobborder">
 					<table class="transparent">
                     <tr>
-                        <td class="nobborder" nowrap><?=_("Time frame selection UTC")?>:</td>
+                         <?php
+                            $txtzone = "<a href=\"javascript:;\" class=\"scriptinfoimg\" txt=\"<img src='../pixmaps/timezones/".rawurlencode(Util::timezone($tz)).".png' border=0>\">".Util::timezone($tz)."</a>";
+                         ?>
+                        <td class="nobborder" nowrap><?=_("Time frame selection")." $txtzone"?>:</td>
                         <td class="nobborder">
                             <div id="widget">
                                 <a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
@@ -1520,44 +1545,17 @@ require_once ("manage_querys.php");
                         <?php
                         } else {
                         ?>
-                            <input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60)) ?>">
-                            <input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>">
+                            <input type="text" size="18" id="start_aaa" name="start_aaa" value="<?php echo gmdate("Y-m-d H:i:s", $timetz - (24 * 60 * 60)) ?>">
+                            <input type="text" size="18" id="end_aaa" name="end_aaa" value="<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>">
                         <?php
                         }
-                        $tz=intval(date("O"))/100;
                         ?>
-                        <select name="tzone" id="tzone">
-						<option value="-12"<?= ($tz==-12) ? " selected='selected'" : "" ?>>GMT-12</option>
-						<option value="-11"<?= ($tz==-11) ? " selected='selected'" : "" ?>>GMT-11</option>
-						<option value="-10"<?= ($tz==-10) ? " selected='selected'" : "" ?>>GMT-10</option>
-						<option value="-9"<?= ($tz==-9) ? " selected='selected'" : "" ?>>GMT-9</option>
-						<option value="-8"<?= ($tz==-8) ? " selected='selected'" : "" ?>>GMT-8</option>
-						<option value="-7"<?= ($tz==-7) ? " selected='selected'" : "" ?>>GMT-7</option>
-						<option value="-6"<?= ($tz==-6) ? " selected='selected'" : "" ?>>GMT-6</option>
-						<option value="-5"<?= ($tz==-5) ? " selected='selected'" : "" ?>>GMT-5</option>
-						<option value="-4"<?= ($tz==-4) ? " selected='selected'" : "" ?>>GMT-4</option>
-						<option value="-3"<?= ($tz==-3) ? " selected='selected'" : "" ?>>GMT-3</option>
-						<option value="-2"<?= ($tz==-2) ? " selected='selected'" : "" ?>>GMT-2</option>
-						<option value="-1"<?= ($tz==-1) ? " selected='selected'" : "" ?>>GMT-1</option>
-						<option value="0"<?= ($tz==0) ? " selected='selected'" : "" ?>>UTC</option>
-						<option value="1"<?= ($tz==1) ? " selected='selected'" : "" ?>>GMT+1</option>
-						<option value="2"<?= ($tz==2) ? " selected='selected'" : "" ?>>GMT+2</option>
-						<option value="3"<?= ($tz==3) ? " selected='selected'" : "" ?>>GMT+3</option>			
-						<option value="4"<?= ($tz==4) ? " selected='selected'" : "" ?>>GMT+4</option>			
-						<option value="5"<?= ($tz==5) ? " selected='selected'" : "" ?>>GMT+5</option>			
-						<option value="6"<?= ($tz==6) ? " selected='selected'" : "" ?>>GMT+6</option>			
-						<option value="7"<?= ($tz==7) ? " selected='selected'" : "" ?>>GMT+7</option>			
-						<option value="8"<?= ($tz==8) ? " selected='selected'" : "" ?>>GMT+8</option>			
-						<option value="9"<?= ($tz==9) ? " selected='selected'" : "" ?>>GMT+9</option>			
-						<option value="10"<?= ($tz==10) ? " selected='selected'" : "" ?>>GMT+10</option>
-						<option value="11"<?= ($tz==11) ? " selected='selected'" : "" ?>>GMT+11</option>			
-						<option value="12"<?= ($tz==12) ? " selected='selected'" : "" ?>>GMT+12</option
-                        </select>
+                        <input type="hidden" name="tzone" id="tzone" value="<?=$tz?>">
                         <input type="button" value="<?=_("OK")?>" onclick="change_calendar();setFixed2();" class="button" style="font-size:10px;height:22px;width:28px" />
                         </td>
 					</tr>
                     <tr>
-                        <td colspan="3" nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> Fetch&nbsp;
+                        <td colspan="3" nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> <?php echo gettext("Fetch"); ?>&nbsp;
                             <select name="top" id="top" onchange="document.getElementById('offset').value='0';doQuery('noExport')">
                                 <option value="10">10</option>
                                 <option value="50" selected>50</option>
@@ -1571,19 +1569,19 @@ require_once ("manage_querys.php");
 					<table class="transparent">
 					<tr>
 					<td class="nobborder" nowrap id="date2td" style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "day") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "day") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','day','<?php echo urlencode(date("M d, Y")) ?>');" onClick="javascript:bold_dates('date2');" id="date2a"><?=_("Last 24 Hours")?></a>
+if ($_GET['time_range'] == "day") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - (24 * 60 * 60)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','day','<?php echo urlencode(date("M d, Y")) ?>');" onClick="javascript:bold_dates('date2');" id="date2a"><?=_("Last 24 Hours")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
 					<td class="nobborder" id="date3td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "week") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "week") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 7)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_week','<?php echo urlencode(date("M, Y")) ?>');" onClick="javascript:bold_dates('date3');" id="date3a"><?=_("Last Week")?></a>
+if ($_GET['time_range'] == "week") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 7)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_week','<?php echo urlencode(date("M, Y")) ?>');" onClick="javascript:bold_dates('date3');" id="date3a"><?=_("Last Week")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
 					<td class="nobborder" id="date4td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "month") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_month','<?php echo urlencode(date("M, Y")) ?>');" onClick="javascript:bold_dates('date4');" id="date4a"><?=_("Last Month")?></a>
+if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 31)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_month','<?php echo urlencode(date("M, Y")) ?>');" onClick="javascript:bold_dates('date4');" id="date4a"><?=_("Last Month")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
 					<td class="nobborder" id="date5td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365)) ?>','<?php echo strftime("%Y-%m-%d %H:%M:%S", time()); ?>','last_year','<?php echo urlencode(date("Y")) ?>');" onClick="javascript:bold_dates('date5');" id="date5a"><?=_("Last Year")?></a>
+if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_year','<?php echo urlencode(date("Y")) ?>');" onClick="javascript:bold_dates('date5');" id="date5a"><?=_("Last Year")?></a>
 					</td>
 					</tr>
 					</table>

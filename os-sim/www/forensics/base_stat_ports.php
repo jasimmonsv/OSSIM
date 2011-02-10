@@ -37,11 +37,11 @@ $cs->ReadState();
 $roleneeded = 10000;
 $port_proto = "TCP";
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_uports, _MOSTFREQPORTS, "occur_d");
-$qs->AddCannedQuery("last_ports", $last_num_uports, _LASTPORTS, "last_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_uports, gettext("Most Frequent Ports"), "occur_d");
+$qs->AddCannedQuery("last_ports", $last_num_uports, gettext("Last Ports"), "last_d");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $port_type = ImportHTTPVar("port_type", VAR_DIGIT);
@@ -50,27 +50,27 @@ $qs->MoveView($submit); /* increment the view if necessary */
 $page_title = "";
 switch ($proto) {
     case TCP:
-        $page_title = _UNIQ . " TCP ";
-        $displaytitle = ($port_type==SOURCE_PORT) ? _DISPLAYINGTOTALPTCPSRC : _DISPLAYINGTOTALPTCPDST; 
+        $page_title = gettext("Unique") . " TCP ";
+        $displaytitle = ($port_type==SOURCE_PORT) ? gettext("Displaying source tcp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.") : gettext("Displaying destination tcp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."); 
         break;
 
     case UDP:
-        $page_title = _UNIQ . " UDP ";
-        $displaytitle = ($port_type==SOURCE_PORT) ? _DISPLAYINGTOTALPUDPSRC : _DISPLAYINGTOTALPUDPDST;
+        $page_title = gettext("Unique") . " UDP ";
+        $displaytitle = ($port_type==SOURCE_PORT) ? gettext("Displaying source udp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.") : gettext("Displaying destination udp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
         break;
 
     case -1:
-        $page_title = _UNIQ . " ";
-        $displaytitle = ($port_type==SOURCE_PORT) ? _DISPLAYINGTOTALPSRC : _DISPLAYINGTOTALPDST;
+        $page_title = gettext("Unique") . " ";
+        $displaytitle = ($port_type==SOURCE_PORT) ? gettext("Displaying source ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.") : gettext("Displaying destination ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
         break;
 }
 switch ($port_type) {
     case SOURCE_PORT:
-        $page_title = $page_title . _SRCPS;
+        $page_title = $page_title . gettext("Source Port(s)");
         break;
 
     case DEST_PORT:
-        $page_title = $page_title . _DSTPS;
+        $page_title = $page_title . gettext("Destination Port(s)");
         break;
 }
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
@@ -90,7 +90,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();
@@ -123,8 +123,8 @@ $qs->AddValidAction("del_alert");
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-$qs->AddValidActionOp(_SELECTED);
-$qs->AddValidActionOp(_ALLONSCREEN);
+$qs->AddValidActionOp(gettext("Delete Selected"));
+$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $et->Mark("Initialization");
 $qs->RunAction($submit, PAGE_STAT_PORTS, $db);
 $et->Mark("Alert Action");
@@ -153,6 +153,9 @@ switch ($port_type) {
         $port_type_sql = "layer4_dport";
         break;
 }
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+
 /* create SQL to get Unique Alerts */
 $cnt_sql = "SELECT count(DISTINCT $port_type_sql) " . " FROM acid_event " . $criteria_clauses[0] . " WHERE " . $criteria_clauses[1];
 /* Run the query to determine the number of rows (No LIMIT)*/
@@ -161,14 +164,14 @@ $et->Mark("Counting Result size");
 /* Setup the Query Results Table */
 $qro = new QueryResultsOutput("base_stat_ports.php?caller=$caller" . "&amp;port_type=$port_type&amp;proto=$proto");
 $qro->AddTitle(" ");
-$qro->AddTitle(_PORT, "port_a", " ", " ORDER BY $port_type_sql ASC", "port_d", " ", " ORDER BY $port_type_sql DESC");
-$qro->AddTitle(_SENSOR, "sensor_a", " ", " ORDER BY num_sensors ASC", "sensor_d", " ", " ORDER BY num_sensors DESC");
-$qro->AddTitle(_OCCURRENCES, "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
-$qro->AddTitle(_UNIALERTS, "alerts_a", " ", " ORDER BY num_sig ASC", "alerts_d", " ", " ORDER BY num_sig DESC");
-$qro->AddTitle(_SUASRCADD, "sip_a", " ", " ORDER BY num_sip ASC", "sip_d", " ", " ORDER BY num_sip DESC");
-$qro->AddTitle(_SUADSTADD, "dip_a", " ", " ORDER BY num_dip ASC", "dip_d", " ", " ORDER BY num_dip DESC");
-$qro->AddTitle(_FIRST, "first_a", " ", " ORDER BY first_timestamp ASC", "first_d", " ", " ORDER BY first_timestamp DESC");
-$qro->AddTitle(_LAST, "last_a", " ", " ORDER BY last_timestamp ASC", "last_d", " ", " ORDER BY last_timestamp DESC");
+$qro->AddTitle(gettext("Port"), "port_a", " ", " ORDER BY $port_type_sql ASC", "port_d", " ", " ORDER BY $port_type_sql DESC");
+$qro->AddTitle(gettext("Sensor"), "sensor_a", " ", " ORDER BY num_sensors ASC", "sensor_d", " ", " ORDER BY num_sensors DESC");
+$qro->AddTitle(gettext("Occurrences"), "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
+$qro->AddTitle(gettext("Unique Events"), "alerts_a", " ", " ORDER BY num_sig ASC", "alerts_d", " ", " ORDER BY num_sig DESC");
+$qro->AddTitle(gettext("Src.&nbsp;Addr."), "sip_a", " ", " ORDER BY num_sip ASC", "sip_d", " ", " ORDER BY num_sip DESC");
+$qro->AddTitle(gettext("Dest.&nbsp;Addr."), "dip_a", " ", " ORDER BY num_dip ASC", "dip_d", " ", " ORDER BY num_dip DESC");
+$qro->AddTitle(_("First")." ".Util::timezone($tz), "first_a", " ", " ORDER BY first_timestamp ASC", "first_d", " ", " ORDER BY first_timestamp DESC");
+$qro->AddTitle(_("Last")." ".Util::timezone($tz), "last_a", " ", " ORDER BY last_timestamp ASC", "last_d", " ", " ORDER BY last_timestamp DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 $where = " WHERE " . $criteria_clauses[1];
 $sql = "SELECT DISTINCT $port_type_sql, MIN(ip_proto), " . " COUNT(acid_event.cid) as num_events," . " COUNT( DISTINCT acid_event.sid) as num_sensors, " . " COUNT( DISTINCT acid_event.plugin_id, acid_event.plugin_sid ) as num_sig, " . " COUNT( DISTINCT ip_src ) as num_sip, " . " COUNT( DISTINCT ip_dst ) as num_dip, " . " MIN(timestamp) as first_timestamp, " . " MAX(timestamp) as last_timestamp " . $sort_sql[0] . " FROM acid_event " . $criteria_clauses[0] . $where . " GROUP BY " . $port_type_sql . " HAVING num_events>0 " . $sort_sql[1];
@@ -257,6 +260,10 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $num_dip = $myrow[6];
     $first_time = $myrow[7];
     $last_time = $myrow[8];
+    if ($tz!=0) {
+    	$first_time = date("Y-m-d H:i:s",strtotime($first_time)+(3600*$tz));
+    	$last_time = date("Y-m-d H:i:s",strtotime($last_time)+(3600*$tz));
+	} 
     if ($port_proto == TCP) {
         $url_port_type = "tcp";
         $url_layer4 = "TCP";
@@ -277,7 +284,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     echo '        <INPUT TYPE="hidden" NAME="action_lst[' . $i . ']" VALUE="' . $tmp_rowid . '">';
     qroPrintEntry($currentPort);
     qroPrintEntry('<A HREF="base_stat_sensor.php?' . $url_param . '">' . $num_sensors . '</A>');
-    qroPrintEntry('<A HREF="base_qry_main.php?' . $url_param . '&amp;new=1&amp;submit=' . _QUERYDBP . '&amp;sort_order=sig_a">' . $num_events . '</A>');
+    qroPrintEntry('<A HREF="base_qry_main.php?' . $url_param . '&amp;new=1&amp;submit=' . gettext("Query+DB") . '&amp;sort_order=sig_a">' . $num_events . '</A>');
     qroPrintEntry('<A HREF="base_stat_alerts.php?' . $url_param . '&amp;&sort_order=occur_d">' . $num_sig . '</A>');
     qroPrintEntry('<A HREF="base_stat_uaddr.php?' . $url_param . '&amp;addr_type=1' . '&amp;sort_order=addr_a">' . $num_sip);
     qroPrintEntry('<A HREF="base_stat_uaddr.php?' . $url_param . '&amp;addr_type=2' . '&amp;sort_order=addr_a">' . $num_dip);

@@ -147,7 +147,7 @@ class Sensor {
     }
     function get_vuln_scanner_options($conn, $sensor) {
         $result = array();
-        $query = OssimQuery("SELECT port, user, PASSWORD FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
+        $query = OssimQuery("SELECT port, user, PASSWORD, max_scans FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } 
@@ -160,8 +160,8 @@ class Sensor {
         return $result;
     }
     
-    function update_vuln_nessus_servers($conn, $sensor, $user, $password, $port, $enabled) {
-        $query = "UPDATE vuln_nessus_servers SET user='$user', PASSWORD='$password', port = '$port', enabled = '$enabled', current_scans = 0
+    function update_vuln_nessus_servers($conn, $sensor, $user, $password, $port, $vuln_max_scans, $enabled) {
+        $query = "UPDATE vuln_nessus_servers SET user='$user', PASSWORD='$password', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0
                           WHERE hostname='$sensor'";
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
@@ -460,14 +460,16 @@ class Sensor {
             return $sensor_ip;
         }
         /* read from network table */
-        if ($net_list = Net::get_list($conn)) {
-            foreach($net_list as $net) {
-                if (Net::is_ip_in_cache_cidr($conn, $host_ip, $net->get_ips())) {
-                    $query = "SELECT ip
+        /*if ($net_list = Net::get_list($conn)) {
+            foreach($net_list as $net) {*/
+            	//if (Net::is_ip_in_cache_cidr($conn, $host_ip, $net->get_ips())) {
+        		if (count($cidrs = Net::get_cache_cidr($conn, $host_ip)) > 0) {
+                    $netname = Net::get_name_by_ip($conn, $cidrs[0]);
+        			$query = "SELECT ip
                               FROM sensor, net_sensor_reference 
                               WHERE name = sensor_name AND net_name = ?";
                     if (!$rs = & $conn->Execute($query, array(
-                        $net->get_name()
+                        $netname
                     ))) {
                         print $conn->ErrorMsg();
                     } elseif (!$rs->EOF) {
@@ -482,8 +484,8 @@ class Sensor {
                         return $sensor_ip;
                     }
                 }
-            }
-        }
+            /*}
+        }*/
         /* read from /etc/ossim.conf */
         if ($sensor_ip == '') {
             $sensor_ip = $conf->get_conf("ntop_link");

@@ -30,8 +30,8 @@ include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $addr_type = ImportHTTPVar("addr_type", VAR_DIGIT);
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $dst_ip = NULL;
@@ -55,7 +55,7 @@ if ($debug_mode > 0) {
 //print_r($_SESSION['ip_addr']);
 $page_title = _("Unique Address");
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_uaddr, _MOSTFREQADDRS, "occur_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_uaddr, gettext("Most Frequent IP addresses"), "occur_d");
 $qs->MoveView($submit); /* increment the view if necessary */
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
@@ -72,7 +72,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();
@@ -107,8 +107,8 @@ $qs->AddValidAction("del_alert");
 //$qs->AddValidAction("csv_alert");
 //$qs->AddValidAction("archive_alert");
 //$qs->AddValidAction("archive_alert2");
-$qs->AddValidActionOp(_SELECTED);
-$qs->AddValidActionOp(_ALLONSCREEN);
+$qs->AddValidActionOp(gettext("Delete Selected"));
+$qs->AddValidActionOp(gettext("Delete ALL on Screen"));
 $qs->SetActionSQL($from . $where);
 $et->Mark("Initialization");
 $qs->RunAction($submit, PAGE_STAT_UADDR, $db);
@@ -122,8 +122,8 @@ $et->Mark("Counting Result size");
 $qro = new QueryResultsOutput("base_stat_uaddress.php?caller=" . $caller . "&amp;addr_type=" . $addr_type);
 $qro->AddTitle(" ");
 $qro->AddTitle(_("IP address"), "addr_a", " ", " ORDER BY ip ASC", "addr_d", " ", " ORDER BY ip DESC");
-$qro->AddTitle(_SENSOR . "&nbsp;#");
-$qro->AddTitle(_TOTAL . "&nbsp;#", "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
+$qro->AddTitle(gettext("Sensor") . "&nbsp;#");
+$qro->AddTitle(gettext("Total") . "&nbsp;#", "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
 $qro->AddTitle(_("Unique Events Src"), "sigsrc_a", " ", " ORDER BY num_sig_src ASC", "sigsrc_d", " ", " ORDER BY num_sig_src DESC");
 $qro->AddTitle(_("Unique Events Dst"), "sigdst_a", " ", " ORDER BY num_sig_dst ASC", "sigdst_d", " ", " ORDER BY num_sig_dst DESC");
 $qro->AddTitle(_("Src. Addr."), "saddr_a", " ", " ORDER BY num_sip ASC", "saddr_d", " ", " ORDER BY num_sip DESC");
@@ -186,7 +186,7 @@ if ($debug_mode == 1) {
     echo "$sql<BR>";
 }
 /* Print the current view number and # of rows */
-$qs->PrintResultCnt("",array(),_DISPLAYINGTOTALUADDRESS);
+$qs->PrintResultCnt("",array(),gettext("Displaying unique addresses %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."));
 echo '<FORM METHOD="post" name="PacketForm" id="PacketForm" ACTION="base_stat_uaddress.php">';
 $qro->PrintHeader();
 $i = 0;
@@ -217,7 +217,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     /* Check for a NULL IP which indicates an event (e.g. portscan)
     * which has no IP
     */
-    if ($no_ip) qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . _UNKNOWN . '</A>');
+    if ($no_ip) qroPrintEntry('<A HREF="' . $BASE_urlpath . '/help/base_app_faq.php#1">' . gettext("unknown") . '</A>');
     else {
         $country = strtolower(geoip_country_code_by_addr($gi, $currentIP));
         $country_name = geoip_country_name_by_addr($gi, $currentIP);
@@ -236,8 +236,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     }
     if ($resolve_IP == 1) qroPrintEntry('&nbsp;&nbsp;' . baseGetHostByAddr($currentIP, $db, $dns_cache_lifetime) . '&nbsp;&nbsp;');
     /* Print # of Occurances */
-    $tmp_iplookup = 'base_qry_main.php?num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1';
-    $tmp_iplookup2 = 'base_stat_alerts.php?num_result_rows=-1' . '&amp;submit=' . _QUERYDBP . '&amp;current_view=-1&sort_order=occur_d';
+    $tmp_iplookup = 'base_qry_main.php?num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1';
+    $tmp_iplookup2 = 'base_stat_alerts.php?num_result_rows=-1' . '&amp;submit=' . gettext("Query+DB") . '&amp;current_view=-1&sort_order=occur_d';
 
     if ($no_ip) $url_criteria = BuildIPFormVars(NULL_IP);
     else $url_criteria = BuildIPFormVars($currentIP);

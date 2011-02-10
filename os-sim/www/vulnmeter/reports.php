@@ -255,7 +255,7 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
         });
     });
     function confirmDelete(key){
-        var ans = confirm("Are you sure you want to delete this report?");
+        var ans = confirm("<?php echo gettext("Are you sure you want to delete this report?")?>");
         if (ans) document.location.href='reports.php?delete='+key;
     }
     function switch_user(select) {
@@ -478,7 +478,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
       $q = strtolower($value);
       $queryw = " AND t1.name LIKE '%$q%' $query_onlyuser order by $sortby $sortdir";
       $queryl = " limit $offset,$pageSize"; 
-      $stext =  "<b>"._("Search for Job Name")."</b> = '*$q*'";
+      $stext =  "<b>"._("Search for Job Name")."</b> = '*".html_entity_decode($q)."*'";
       $url_filter="&type=$type&value=$value";
       break;
    case "fk_name":
@@ -519,7 +519,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
       $queryw = " AND t4.meth_TARGET LIKE '%$q%' $query_onlyuser order by $sortby $sortdir";
       $queryl = " limit $offset,$pageSize";
       if (!preg_match("/\//",$value)) {
-        $stext =  "<b>"._("Search for Host")."</b> = '*$q*'";
+        $stext =  "<b>"._("Search for Host")."</b> = '*".html_entity_decode($q)."*'";
       }
       else {
         $stext =  "<b>"._("Search for Subnet/CIDR")."</b> = '*$q*'";
@@ -568,7 +568,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
          $next = $last;
       }
       $pageEnd = $offset + $pageSize;
-
+$value=html_entity_decode($value);
 echo "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\"><tr><td class=\"headerpr\" style=\"border:0;\">"._("Reports")."</td></tr></table></center>";
       //echo "<p>There are $reportCount scans defined in the system.";
       // output the search form
@@ -750,17 +750,17 @@ EOT;
       $fieldMapLinks = array();
 
          $fieldMapLinks = array(
-            "HTML Results" => array(
+            gettext("HTML Results") => array(
                      'url' => '%param%',
                    'param' => 'hlink',
                    'target' => 'main',
                     'icon' => 'images/html.png'),
-             "PDF Results" => array(
+             gettext("PDF Results") => array(
                      'url' => '%param%',
                    'param' => 'plink',
                   'target' => '_blank', 
                     'icon' => 'images/pdf.png'),
-           "EXCEL Results" => array(
+           gettext("EXCEL Results") => array(
                      'url' => '%param%',
                    'param' => 'xlink',
                   'target' => '_blank',

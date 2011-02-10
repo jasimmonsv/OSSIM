@@ -344,7 +344,7 @@ DEFINE('_DISPLAYINGTOTALUEVENTS', _('Displaying unique events %d-%d of <b>%s</b>
 DEFINE('_DISPLAYINGTOTALUADDRSRC', _('Displaying unique source addresses %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.'));
 DEFINE('_DISPLAYINGTOTALUADDRDST', _('Displaying unique destination addresses %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.'));
 DEFINE('_DISPLAYINGTOTALUADDRESS', _('Displaying unique addresses %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.'));
-DEFINE('_DISPLAYINGTOTALUPLUGINS', _('Displaying unique plugins %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.'));
+DEFINE('_DISPLAYINGTOTALUPLUGINS', _('Displaying unique data sources %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.'));
 DEFINE('_DISPLAYINGTOTALUIPLINKS', _('Displaying unique ip links %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.'));
 DEFINE('_DISPLAYINGTOTALPSRC', _('Displaying source ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.'));
 DEFINE('_DISPLAYINGTOTALPTCPSRC', _('Displaying source tcp ports %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.'));

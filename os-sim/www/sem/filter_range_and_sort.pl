@@ -103,7 +103,7 @@ foreach my $file (@files) {
 	my @fields = split(/\//,$file);
 	my $sdirtime = timegm(0, 0, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
 	my $edirtime = timegm(59, 59, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
-    if ($start<=$sdirtime && $edirtime<=$end) { #if ($edirtime > $start && $sdirtime < $end) {
+    if ($start<=$edirtime && $end>=$sdirtime) { #if ($edirtime > $start && $sdirtime < $end) {
 		#print "$file: $start - $dirtime - $end\n" if ($debug);
 		if ($fields[4].$fields[5].$fields[6].$fields[7]==$hourday || $complete_lines<$lines_threshold) { # read files while same hourday or need more events
 			$hourday = $fields[4].$fields[5].$fields[6].$fields[7];
@@ -150,15 +150,19 @@ foreach my $file (@files) {
 			#
 			my $pre_filter = $filter;
             if ( $pre_filter !~ /^[^ ]*\!=]*/ ) {
-                $pre_filter =~ s/^[^ ]*= AND //; # remove broken entries like: data= AND data="string"; This should actually be fixed where $filer is set first, to apply both here and in the set_filter function.
-                $pre_filter =~ s/^[^ ]*\!=[^ ]*//;
+                $pre_filter =~ s/^[^ ]*= AND //g; # remove broken entries like: data= AND data="string"; This should actually be fixed where $filer is set first, to apply both here and in the set_filter function.
+                $pre_filter =~ s/^[^ ]*\!=[^ ]*//g;
                 $pre_filter =~ s/ .*//; # keep just the first filter expression
-                $pre_filter =~ s/=/\[^=]*=\[^=]*/; # create the grep filter
+                $pre_filter =~ s/=/\[^=]*=\[^=]*/g; # create the grep filter
                 $pre_filter =~ s/\./\\./g;
-                $pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\" |grep -l \"$pre_filter\"|" : "$order_by \"$file\" |grep -l \"$pre_filter\"|"; # -l stops on the first match
+                $pre_filter =~ s/#/\|/g;
+                $pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\" |egrep -l \"$pre_filter\"|" : "$order_by \"$file\" |egrep -l \"$pre_filter\"|"; # -l stops on the first match
             } else {
                 $pre_cmd = ($file =~ /\.gz$/) ? "zcat \"$file\"|" : "$order_by \"$file\" |";
             }
+            #open (G,">>/tmp/filter");
+            #print G $pre_cmd."\n";
+            #close G;
 			open(F,$pre_cmd );
 			my $first_line = <F>;
 			close F;

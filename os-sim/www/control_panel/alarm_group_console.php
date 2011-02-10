@@ -703,7 +703,11 @@ $tree_count = 0;
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold' width='7%'><?=gettext("Status")?></td>
 		<td width='7%' style='text-decoration: none; background-color:#9DD131;font-weight:bold'><?=gettext("Action")?></td>
 	</tr>
-<? foreach($alarm_group as $group) { 
+<?
+    // Timezone correction
+    $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    foreach($alarm_group as $group) { 
+        $group['date'] = date("Y-m-d H:i:s",strtotime($group['date'])+(3600*$tz));
 		$group_id = $group['group_id'];
 		$_SESSION[$group_id] = $group['name'];
 		$ocurrences = $group['group_count'];

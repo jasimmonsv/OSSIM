@@ -42,6 +42,15 @@ require_once 'ossim_db.inc';
 require_once 'classes/Security.inc';
 require_once 'classes/Host_os.inc';
 require_once 'classes/Ossec.inc';
+require_once 'conf/_conf.php';
+
+function clean_tags($tag, $string)
+{
+	if ( preg_match("/<\s*$tag\s*>(.*)<\/\s*$tag\s*>/", $string, $match ) )
+		return $match[1];
+	else
+		return false;
+}
 
 
 echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
@@ -93,6 +102,7 @@ $start  = ( ($page - 1) * $rp );
 $limit  = "LIMIT $start, $rp";
 $db 	= new ossim_db();
 $conn   = $db->connect();
+$error  = true;
 
 $ossec_list     = Agentless::get_list_ossec($conn);
 
@@ -101,15 +111,79 @@ $agentless_list = Agentless::get_list($conn, "");
 foreach ($ossec_list as $k => $v)
 {
 	if ( !is_object($agentless_list[$k]) )
+	{
 		Agentless::add_host_data($conn, $v->get_ip(), $v->get_hostname(), $v->get_user(), $v->get_pass(), $v->get_ppass(), null, $v->get_status());
+		
+		$agentless_entry_ossec[$v->get_user()."@".$v->get_ip()] = null;
+	}
 }
+
+
+if ( !empty ($agentless_entry_ossec))
+{
+	$conf_file = file_get_contents($ossec_conf);
+	$pattern   = '/[\r?\n]+\s*/';
+	$conf_file = preg_replace($pattern, "\n", $conf_file);
+	$conf_file = explode("\n", trim($conf_file));
+		
+		
+	$i 	     = 0;
+	$size_cf = count($conf_file);
+					
+			
+	while ($i<count($conf_file))
+	{
+		if ( preg_match("/<\s*agentless\s*>/", $conf_file[$i], $match) )
+		{
+			$entry = null;
+						
+			for ($j=$i+1; $j<$size_cf; $j++)
+			{
+				$entry[] = $conf_file[$j];
+								
+				if ( preg_match("/<\/\s*agentless\s*>/", $conf_file[$j], $match) )
+				{
+					$i      = $j++;
+					array_pop($entry);
+					sort($entry);
+					
+					if ( count($entry) == 5 )
+					{
+					
+						$host_tag = clean_tags("host", $entry[2]);
+																	
+						if ( array_key_exists($host_tag, $agentless_entry_ossec) )
+						{
+							$host        = explode("@", $host_tag);
+							$ip          = $host[1];
+							$arguments   = clean_tags("arguments", $entry[0]);
+							$frequency   = clean_tags("frequency", $entry[1]);
+							$state  	 = clean_tags("state", $entry[3]);
+							$type        = clean_tags("type", $entry[4]);
+														
+							Agentless::add_monitoring_entry($conn, $ip, $type, $frequency, $state, $arguments);
+						}
+					}
+					
+					$entry = null;
+					$i     = $j++;
+					
+					break;
+				}
+			}
+		}
+		else
+			$i++;
+	}
+
+}
+
 
 $agentless_list = null;
 
 $extra = ( !empty($search) ) ? $search." ORDER BY $order $limit" : "ORDER BY $order $limit";
 
 $agentless_list = Agentless::get_list_pag($conn, $extra);
-
 
 
 if ( !empty($agentless_list) )
@@ -141,15 +215,15 @@ foreach($agentless_list as $host)
 	else
 		$status = "<img src='../pixmaps/tables/exclamation.png' alt='"._("Not configured")."' title='"._("Not configured")."'/>";
 		
-	$desc 		= ( $host->get_descr() == '' ) ? "&nbsp;" : $host->get_descr();
+	$desc 		= ( $host->get_descr() == '' ) ? "&nbsp;" :  Util::htmlentities($host->get_descr());
   
   
     $xml.= "<row id='$ip'>";
-		$xml.= "<cell><![CDATA[" .  $hostname          . "]]></cell>";
-		$xml.= "<cell><![CDATA[" .  $ip                . "]]></cell>";
-		$xml.= "<cell><![CDATA[" .  $user              . "]]></cell>";
-		$xml.= "<cell><![CDATA[" .  $status            . "]]></cell>";
-		$xml.= "<cell><![CDATA[" .  utf8_encode($desc) . "]]></cell>";
+		$xml.= "<cell><![CDATA[" .  $hostname  . "]]></cell>";
+		$xml.= "<cell><![CDATA[" .  $ip        . "]]></cell>";
+		$xml.= "<cell><![CDATA[" .  $user      . "]]></cell>";
+		$xml.= "<cell><![CDATA[" .  $status    . "]]></cell>";
+		$xml.= "<cell><![CDATA[" .  $desc      . "]]></cell>";
     $xml.= "</row>\n";
 }
 

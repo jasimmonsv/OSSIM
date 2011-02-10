@@ -315,7 +315,7 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 						}
 						else
 						{
-							$action = "<a onclick=\"logout('".$user->get_id()."');\"><img src='../pixmaps/menu/logout.gif' alt='"._("Logout")." ".$user->get_login()."' title='"._("Logout")." ".$user->get_login()."'/></a>";	
+							$action = "<a onclick=\"logout('".$user->get_id()."');\"><img src='../pixmaps/menu/logout.gif' alt='"._("Logout")." ".$user->get_login()."' title='"._("Forced logout")." ".$user->get_login()."'/></a>";	
 							$me = null;
 						}						
 						$gi             = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
@@ -327,6 +327,7 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 						$style          = ( is_expired($user->get_activity()) ) ? "background:#EFE1E0;" : "background:#EFFFF7;";	
 						$expired        = ( is_expired($user->get_activity()) ) ? "<span style='color:red'>("._("Expired").")</span>" : "";
 						$agent          = explode("###", $user->get_agent()); 	
+						if ($agent[1]=="av report scheduler") $agent = array("AV Report Scheduler","wget");
 						
 						echo "  <tr style='$style' id='".$user->get_id()."'>
 									<td class='ops_user' $me><img class='user_icon' src='".get_user_icon($user->get_login(), $pro)."' alt='"._("User icon")."' title='"._("User icon")."' align='absmiddle'/> ".$user->get_login()."</td>

@@ -276,8 +276,8 @@ $list_categories=Category::get_list($conn);
 						<img id='img_family_<?php echo $category->get_id();?>' title='<?php echo _("Show details");?>' src='../pixmaps/plus-small.png' align='absmiddle'/>
 					</a>
 					<span style='margin-left:8px;'>
-						<a href="javascript:void(0);" onclick="edit('category',<?php echo $category->get_id().",'".$category->get_name()."'";?>)" title="Edit"><img border="0" align="absmiddle" src="../vulnmeter/images/pencil.png" height="12" /></a>
-						<?php if(!$category->get_inUse()){?><a href="javascript:void(0);" onclick="confirmDelete('category',<?php echo $category->get_id();?>)" title="Delete"><?php } ?><img border="0" align="absmiddle" src="../vulnmeter/images/delete.gif" height="12" class="<?php if($category->get_inUse()){?>desactive<?php } ?>" /><?php if(!$category->get_inUse()){?></a><?php } ?>
+						<a href="javascript:void(0);" onclick="edit('category',<?php echo $category->get_id().",'".$category->get_name()."'";?>)" title="<?php echo _("Edit")?>"><img border="0" align="absmiddle" src="../vulnmeter/images/pencil.png" height="12" /></a>
+						<?php if(!$category->get_inUse()){?><a href="javascript:void(0);" onclick="confirmDelete('category',<?php echo $category->get_id();?>)" title="<?php echo _("Delete")?>"><?php } ?><img border="0" align="absmiddle" src="../vulnmeter/images/delete.gif" height="12" class="<?php if($category->get_inUse()){?>desactive<?php } ?>" /><?php if(!$category->get_inUse()){?></a><?php } ?>
 					</span>
 					<span style='margin-left:5px;padding-right: 5px'><?php echo $category->get_name(); ?></span>
 				</div>
@@ -295,8 +295,8 @@ $list_categories=Category::get_list($conn);
 						<td class="nobborder" style="padding-left:40px">
 							<div style="float:left">
 								<span style='margin-right:8px;'>
-									<a href="javascript:void(0);" onclick="edit('subcategory',<?php echo $subcategory->get_id().",'".$subcategory->get_name()."'";?>)" title="Edit"><img border="0" align="absmiddle" src="../vulnmeter/images/pencil.png" height="12" /></a>
-									<?php if(!$subcategory->get_inUse()){?><a href="javascript:void(0);" onclick="confirmDelete('subcategory',<?php echo $subcategory->get_id();?>,<?php echo $category->get_id();?>)" title="Delete"><?php } ?><img border="0" align="absmiddle" src="../vulnmeter/images/delete.gif" height="12" class="<?php if($subcategory->get_inUse()){?>desactive<?php } ?>" /><?php if(!$subcategory->get_inUse()){?></a><?php } ?>
+									<a href="javascript:void(0);" onclick="edit('subcategory',<?php echo $subcategory->get_id().",'".$subcategory->get_name()."'";?>)" title="<?php echo _("Edit")?>"><img border="0" align="absmiddle" src="../vulnmeter/images/pencil.png" height="12" /></a>
+									<?php if(!$subcategory->get_inUse()){?><a href="javascript:void(0);" onclick="confirmDelete('subcategory',<?php echo $subcategory->get_id();?>,<?php echo $category->get_id();?>)" title="<?php echo _("Delete")?>"><?php } ?><img border="0" align="absmiddle" src="../vulnmeter/images/delete.gif" height="12" class="<?php if($subcategory->get_inUse()){?>desactive<?php } ?>" /><?php if(!$subcategory->get_inUse()){?></a><?php } ?>
 								</span>
 								<strong><?php echo $subcategory->get_name();?></strong>
 							</div>

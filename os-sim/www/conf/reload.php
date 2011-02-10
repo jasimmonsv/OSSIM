@@ -35,7 +35,6 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuPolicy", "PolicyServers"); // Who manage server can reload server conf
 require_once ("classes/Session.inc");
 require_once ("classes/Security.inc");
 require_once ("classes/Util.inc");
@@ -48,6 +47,17 @@ if (ossim_error()) {
 }
 /* what to reload... */
 if (empty($what)) $what = 'all';
+
+if ($what == "policies") {
+	Session::logcheck("MenuIntelligence", "PolicyPolicy");
+} elseif ($what == "hosts") {
+	Session::logcheck("MenuPolicy", "PolicyHosts");
+} elseif ($what == "nets") {
+	Session::logcheck("MenuPolicy", "PolicyNetworks");
+} else {
+	Session::logcheck("MenuConfiguration", "PolicyServers"); // Who manage server can reload server conf
+}
+
 require_once ('ossim_conf.inc');
 $ossim_conf = $GLOBALS["CONF"];
 /* get the port and IP address of the server */

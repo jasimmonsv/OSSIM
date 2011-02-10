@@ -1,35 +1,77 @@
 <?php
+/*****************************************************************************
+*
+*    License:
+*
+*   Copyright (c) 2003-2006 ossim.net
+*   Copyright (c) 2007-2009 AlienVault
+*   All rights reserved.
+*
+*   This package is free software; you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation; version 2 dated June, 1991.
+*   You may not use, modify or distribute this program under any other version
+*   of the GNU General Public License.
+*
+*   This package is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this package; if not, write to the Free Software
+*   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+*   MA  02110-1301  USA
+*
+*
+* On Debian GNU/Linux systems, the complete text of the GNU General
+* Public License can be found in `/usr/share/common-licenses/GPL-2'.
+*
+* Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+****************************************************************************/
 
 require_once ('classes/Session.inc');
 require_once ('classes/Xml_parser.inc');
 require_once ('../utils.php');
 require_once ('../conf/_conf.php');
 
+$error = true;
 $_level_key_name = $_SESSION['_level_key_name'];
+
 $file            = $_SESSION["_current_file"];
+$path            = $rules_file.$file;
 
-ossim_valid($file, $editable_files[0], 'illegal:' . _("XML file"));
-
-if ( ossim_error() )
-{
-	echo "4###"._("XML file can not be edited");
-	exit();
-}
-
-$path        = $rules_file.$file;
 
 $file_tmp    = uniqid($file)."_tmp.xml";
 $path_tmp    = "/tmp/tmp_".$file_tmp;
 
+if ( !in_array($file, $editable_files) )
+{
+	echo "2###"._("XML file can not be edited");
+	exit();
+}
+
+
+if (copy ($path , $path_tmp) == false )
+{
+	echo "2###"._("Failure to update XML File"). " (1)";
+	exit();
+}
+
+
 $node_name   = $_SESSION["_current_node"];
+
 $__level_key = $_SESSION["_current_level_key"];
 $__level_key = preg_replace("/^attr_/", '', $__level_key);
 
-$tree        = $_SESSION["_tree"];
-$child       = $_SESSION["_current_branch"];
-$node_type   = $_SESSION["_current_node_type"];
+$tree     = $_SESSION["_tree"];
 
-$branch      = '['.implode("][", $child['parents']).']';
+$tree_cp  = $tree;
+
+$child            = $_SESSION["_current_branch"];
+$node_type        = $_SESSION["_current_node_type"];
+
+$branch           = '['.implode("][", $child['parents']).']';
 
 $ok = null;
 
@@ -266,60 +308,65 @@ switch ($node_type){
 		$cont++;
 	}	
 	
-		
-	$ok = eval ("\$tree$branch= \$nodes;");
+	$ok = eval ("\$tree$branch=\$nodes;");
 			
 	break;
 }
 
 
 if ($ok === false)
-	echo "2###"._("Failure to update XML File")." (1)";
-else
 {
+	echo "2###"._("Failure to update XML File")." (2)";
+	$error = true;
+}
+
 	$xml    = new xml($_level_key_name);
 	$output = $xml->array2xml($tree);
 					
-	if (!file_exists($path))
-		echo "3###"._("XML file not found");
-	else
-	{
-		if (@copy ($path , $path_tmp) == false )
-			echo "2###"._("Failure to update XML File"). " (2)";
-		else
-		{   
-		   	
-			$output = formatOutput($output, $_level_key_name);
-			$output = utf8_decode($output);		
+	$output = formatOutput($output, $_level_key_name);
+	$output = utf8_decode($output);		
 						
 									
-			if (@file_put_contents($path, $output, LOCK_EX) == false)
-			{
-				@unlink ($path);
-				@copy ($path_tmp, $path);
-				echo "2###"._("Failure to update XML File"). " (3)";
-			}
-			else
-			{
-				
-				$res = getTree($file);
-								
-				if ( !is_array($res) )
-					echo $res;
-				else
-				{
-					$tree		            = $res;
-					$tree_json              = array2json($tree, $path);
-					$_SESSION['_tree_json'] = $tree_json;
-					$_SESSION['_tree']      = $tree;
-					
-					echo "1###"._("XML file update successfully")."###".base64_encode($tree_json);
-				}	
-			}
-			
-			@unlink($path_tmp);
-		}
+	if (@file_put_contents($path, $output, LOCK_EX) == false)
+	{
+		echo "2###"._("Failure to update XML File"). " (3)";
+		$error = true;
 	}
-}
+	
+		
+	$res = getTree($file);
+										
+	if ( !is_array($res) )
+		echo $res;
+	else
+	{
+		$tree		            = $res;
+		$tree_json              = array2json($tree, $path);
+		$_SESSION['_tree_json'] = $tree_json;
+		$_SESSION['_tree']      = $tree;
+		
+		
+		$result = test_conf(); 	
+	
+		if ( $result !== true )
+		{
+			$error = true;
+			echo "3###".$result;
+		}
+		
+	}	
+				
+	if ($error == true)
+	{
+		@unlink($path);
+		@copy  ($path_tmp, $path);
+		$_SESSION['_tree']       = $tree_cp;
+		$_SESSION['_tree_json']  = array2json($tree_cp, $path);
+	}
+	else
+		echo "1###"._("XML file update successfully")."###".base64_encode($tree_json);
+	
+	@unlink($path_tmp);
+	
 
 ?>

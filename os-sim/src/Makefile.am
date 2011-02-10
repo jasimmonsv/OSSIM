@@ -49,7 +49,7 @@ ossim_server_SOURCES = \
 	  sim-text-fields.c \
 		main.c
 
-ossim_server_LDADD = $(LIBGDA_LIBS) $(GNET_LIBS) $(GLIB_LIBS) $(OPENSSL_LIBS) $(LIBUUID_LIBS) 
+ossim_server_LDADD = $(LIBGDA_LIBS) $(GNET_LIBS) $(GLIB_LIBS) $(OPENSSL_LIBS) $(LIBUUID_LIBS) $(LIBPCRE_LIBS)
 
 
 DISTCLEANFILES = Makefile.in

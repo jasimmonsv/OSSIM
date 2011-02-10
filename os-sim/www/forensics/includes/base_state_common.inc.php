@@ -55,24 +55,27 @@ function InitArray(&$a, $dim1, $dim2, $value) {
 function RegisterGlobalState() {
     /* Deal with user specified session handlers */
     if (session_module_name() == "user") {
+        $phperrorcsession = gettext("PHP ERROR: A custom (user) PHP session have been detected. However, BASE has not been set to explicitly use this custom handler.  Set <CODE>use_user_session=1</CODE> in <CODE>base_conf.php</CODE>");
+        $phperrorcsessioncode = gettext("PHP ERROR: A custom (user) PHP session hander has been configured, but the supplied hander code specified in <CODE>user_session_path</CODE> is invalid.");
+        $phperrorcsessionvar = gettext("PHP ERROR: A custom (user) PHP session handler has been configured, but the implementation of this handler has not been specified in BASE.  If a custom session handler is desired, set the <CODE>user_session_path</CODE> variable in <CODE>base_conf.php</CODE>.");
         if ($GLOBALS['use_user_session'] != 1) {
-            ErrorMessage(_PHPERRORCSESSION);
+            ErrorMessage($phperrorcsession);
             die();
         } else if ($GLOBALS['user_session_path'] != "") {
             if (is_file($GLOBALS['user_session_path'])) {
                 include_once ($GLOBALS['user_session_path']);
                 if ($GLOBALS['user_session_function'] != "") $GLOBALS['user_session_function']();
             } else {
-                ErrorMessage(_PHPERRORCSESSIONCODE);
+                ErrorMessage($phperrorcsessioncode);
                 die();
             }
         } else {
-            ErrorMessage(_PHPERRORCSESSIONVAR);
+            ErrorMessage($phperrorcsessionvar);
             die();
         }
     }
     //session_start();
-    if ($GLOBALS['debug_mode'] > 0) echo '<FONT COLOR="#FF0000">' . _PHPSESSREG . '</FONT><BR>';
+    if ($GLOBALS['debug_mode'] > 0) echo '<FONT COLOR="#FF0000">' . gettext("Session Registered") . '</FONT><BR>';
 }
 /* ***********************************************************************
 * Function: CleanVariable()

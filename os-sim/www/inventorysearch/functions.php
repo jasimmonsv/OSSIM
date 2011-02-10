@@ -4,6 +4,74 @@ require_once ('classes/Host.inc');
 require_once ('classes/Host_os.inc');
 require_once ('classes/Net.inc');
 include ("geoip.inc");
+
+$date_from = (GET('date_from') != "Any date" && GET('date_from') != "") ? preg_replace("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\1-\\2",GET('date_from')) : "1700-01-01";
+$date_to = (GET('date_to') != "Any date" && GET('date_to') != "") ? preg_replace("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\1-\\2",GET('date_to')) : "3000-01-01";
+ossim_valid($date_from, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from date"));
+ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to date"));
+// All Empty
+$basic_search = array();
+$basic_search[0] = array(
+	"type"=>"Generic",
+	"subtype"=>"None",
+	"match"=>"LIKE",
+	//"query"=>"SELECT DISTINCT INET_NTOA(ip_dst) AS ip FROM snort.ac_dstaddr_ipsrc WHERE INET_NTOA(ip_src) %op% ? UNION SELECT DISTINCT INET_NTOA(dst_ip) as ip FROM alarm WHERE INET_NTOA(src_ip) %op% ? UNION SELECT DISTINCT INET_NTOA(ip_src) AS ip FROM snort.ac_srcaddr_ipdst WHERE INET_NTOA(ip_dst) %op% ? UNION SELECT DISTINCT INET_NTOA(src_ip) as ip FROM alarm WHERE INET_NTOA(dst_ip) %op% ?",
+	"query"=>"SELECT DISTINCT INET_NTOA(ip_dst) AS ip FROM snort.ac_dstaddr_ipsrc WHERE INET_NTOA(ip_src) > 0 UNION SELECT DISTINCT INET_NTOA(dst_ip) as ip FROM alarm WHERE INET_NTOA(src_ip) > 0 UNION SELECT DISTINCT INET_NTOA(ip_src) AS ip FROM snort.ac_srcaddr_ipdst WHERE INET_NTOA(ip_dst) > 0 UNION SELECT DISTINCT INET_NTOA(src_ip) as ip FROM alarm WHERE INET_NTOA(dst_ip) > 0",
+	"query_match"=>"boolean");
+	
+// Network
+$basic_search[1] = array(
+	"type"=>"Network",
+	"subtype"=>"Network is like",
+	"match"=>"LIKE",
+	"query"=>"SELECT ip FROM host WHERE INET_ATON(ip) BETWEEN ?",
+	"query_match"=>"network");
+
+// Inventory
+$basic_search[2] = array(
+	"type"=>"Inventory",
+	"subtype"=>"Has Serv/OS",
+	"match"=>"LIKE",
+	"query"=>"function:query_inventory",
+	"query_match"=>"text");
+
+// Vulnerabilities
+$basic_search[3] = array(
+	"type"=>"Vulnerabilities",
+	"subtype"=>"Vuln contains",
+	"match"=>"LIKE",
+	"query"=>"SELECT DISTINCT INET_NTOA(hp.host_ip) as ip FROM host_plugin_sid hp, plugin_sid p WHERE hp.plugin_id = 3001 AND p.plugin_id = 3001 AND hp.plugin_sid = p.sid AND p.name %op% ? 
+		UNION 
+		SELECT DISTINCT INET_NTOA(s.host_ip) as ip FROM vuln_nessus_plugins p,host_plugin_sid s WHERE s.plugin_id=3001 and s.plugin_sid=p.id AND p.cve_id %op% ?",
+	"query_match"=>"text");
+
+// Tickets
+$basic_search[4] = array(
+	"type"=>"Incidents",
+	"subtype"=>"Incident contains",
+	"match"=>"LIKE",
+	"query"=>"SELECT DISTINCT a.src_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from' AND i.date <= '$date_to' AND a.src_ips != '' AND i.title %op% ? 
+		UNION 
+		SELECT DISTINCT a.dst_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from' AND i.date <= '$date_to' AND a.dst_ips != '' AND i.title %op% ? 
+		UNION 
+		SELECT DISTINCT inet_ntoa(a.src_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from' AND a.timestamp <= '$date_to' AND a.src_ip != '' AND p.name %op% ? 
+		UNION 
+		SELECT DISTINCT inet_ntoa(a.dst_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from' AND a.timestamp <= '$date_to' AND a.dst_ip != '' AND p.name %op% ? 
+		UNION
+		SELECT r.keyname as ip FROM repository d,repository_relationships r WHERE d.id=r.id_document AND r.type='host' AND keyname!='' AND d.text %op% ?",
+	"query_match"=>"text");
+
+// Security Events
+$basic_search[5] = array(
+	"type"=>"Security Events",
+	"subtype"=>"Event contains",
+	"match"=>"LIKE",
+	"query"=>"SELECT DISTINCT INET_NTOA(ac.ip_src) as ip FROM snort.ac_srcaddr_signature ac,ossim.plugin_sid s WHERE s.plugin_id=ac.plugin_id AND s.sid=ac.plugin_sid AND ac.day >= '$date_from' AND ac.day <= '$date_to' AND s.name %op% ?
+		UNION
+		SELECT DISTINCT INET_NTOA(ac.ip_dst) as ip FROM snort.ac_dstaddr_signature ac,ossim.plugin_sid s WHERE s.plugin_id=ac.plugin_id AND s.sid=ac.plugin_sid AND ac.day >= '$date_from' AND ac.day <= '$date_to' AND s.name %op% ?",
+	"query_match"=>"text");
+
+
 function get_rulesconfig () {
 	require_once ('classes/InventorySearch.inc');
 	require_once 'ossim_db.inc';
@@ -225,19 +293,19 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	//
 	$txt_tmp1=_('Events in the SIEM');
 	$txt_tmp2=_('Events in the logger');
-	if($_SESSION['inventory_search']['date_from'] != "" && $_SESSION['inventory_search']['date_from'] !='1700-01-01'){
+	if ($_SESSION['inventory_search']['date_from'] != "" && $_SESSION['inventory_search']['date_from'] !='1700-01-01'){
 		$start_week = $_SESSION['inventory_search']['date_from'];		
-	}else{
-		$start_week = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
+	} else {
+		$start_week = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 1));
 	}
-	if($_SESSION['inventory_search']['date_to'] != "" && $_SESSION['inventory_search']['date_to'] != '3000-01-01'){
+	if ($_SESSION['inventory_search']['date_to'] != "" && $_SESSION['inventory_search']['date_to'] != '3000-01-01'){
 		$end = $_SESSION['inventory_search']['date_to'];
-	}else{
+	} else {
 		$end = strftime("%Y-%m-%d", time());
 	}
-	if($start_week==strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7))&&$end==strftime("%Y-%m-%d", time())){
+	if ($start_week == strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 1)) && $end == strftime("%Y-%m-%d", time())) {
 		$txt_tmp1.=_(' (Last Week)');
-		$txt_tmp2.=_(' (Last Week)');
+		$txt_tmp2.=_(' (Last Day)');
 	}
 	$start_week_temp=$start_week;
 	$start_week.=' 00:00:00';
@@ -251,7 +319,6 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	else $sem_link = '<b>'.$sem_foundrows_week.'</b>';
 	// Anomalies
 	list($event_list,$anm_foundrows,$anm_foundrows_week,$anm_date) = Status::get_anomalies($conn,$ip);
-	
 	$row = '<tr bgcolor="'.$color.'">
 				<td class="nobborder" style="text-align:center;padding:2px"><a href="../report/host_report.php?host='.$ip.'&star_date='.$start_week_temp.'&end_date='.$end_temp.'" id="'.$ip.';'.$host->get_hostname().'" class="HostReportMenu" style="color:#17457c;font-size:15px;text-align:left"><b>'.$host_name.'</b></font></a><br><font style="color:gray">'.$net.'</font></td>
 				<td class="nobborder" style="text-align:center;padding:2px">'.$os.' '.$os_pixmap.'<br>'.implode("<br>",array_keys($services_arr)).'</td>

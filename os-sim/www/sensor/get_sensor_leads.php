@@ -36,7 +36,7 @@
 */
 require_once ('classes/Session.inc');
 require_once 'classes/Security.inc';
-Session::logcheck("MenuMonitors", "MonitorsSensors");
+Session::logcheck("MenuStatus", "MonitorsSensors");
 require_once 'ossim_conf.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/Plugin.inc';

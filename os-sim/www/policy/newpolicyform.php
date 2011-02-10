@@ -732,7 +732,7 @@ if ($insert != "") {
 		<li><a href="#tabs-1" class="ptab"><?php echo _("Source") . required() ?></a></li>
 		<li><a href="#tabs-2" class="ptab"><?php echo _("Dest") . required() ?></a></li>
 		<li><a href="#tabs-3" class="ptab"><?php echo _("Destination Ports") . required() ?></a></li>
-		<li><a href="#tabs-4" class="ptab"><?php echo _("Plugin Groups") . required() ?></a></li>
+		<li><a href="#tabs-4" class="ptab"><?php echo _("DS Groups") . required() ?></a></li>
 		<li><a href="#tabs-5" class="ptab"><?php echo _("Sensors") . required() ?></a></li>
 		<li <?= ($opensource) ? "style='display:none'" : "" ?>><a href="#tabs-6" class="ptab"><?php echo _("Install in") . required() ?></a></li>
 		<li><a href="#tabs-7" class="ptab"><?php echo _("Time Range") . required() ?></a></li>
@@ -857,9 +857,9 @@ if ($insert != "") {
 	<div id="tabs-4">
 		<table class='tab_table'>
 		<tr>
-			<th style="background-position:top"> <?php echo _("Plugin Groups") . required() ?> <br/>
-			<span class='size10'><a href="../policy/modifyplugingroupsform.php?action=new&withoutmenu=1" class="greybox"> <?php echo gettext("Insert new plugin group?"); ?> </a></span><br/>
-			<span class='size10'><a href="../policy/plugingroups.php?withoutmenu=1" class="greybox"> <?php echo gettext("View all plugin groups"); ?></a></span><br/>
+			<th style="background-position:top"> <?php echo _("DS Groups") . required() ?> <br/>
+			<span class='size10'><a href="../policy/modifyplugingroupsform.php?action=new&withoutmenu=1" class="greybox"> <?php echo gettext("Insert new DS Group?"); ?> </a></span><br/>
+			<span class='size10'><a href="../policy/plugingroups.php?withoutmenu=1" class="greybox"> <?php echo gettext("View all DS Groups"); ?></a></span><br/>
 			</th>
 			
 			<td class="left nobborder" valign="top">
@@ -878,7 +878,7 @@ if ($insert != "") {
                             foreach(Plugingroup::get_list($conn, "", "name") as $g) {
                                 echo "<td class='nobborder' style='text-align:left;padding-right:10px'>";
                                 ?>
-                                    <input type="checkbox" id="plugin_<?php echo $g->get_name() ?>" onclick="drawpolicy()" name="plugins[<?php echo $g->get_id() ?>]" <?php echo (in_array($g->get_id() , $plugingroups)) ? "checked='checked'" : "" ?>> <a href="../policy/modifyplugingroupsform.php?action=edit&id=<?php echo $g->get_id() ?>&withoutmenu=1" class="greybox" title="<?=_('View plugin group')?>"><?php echo $g->get_name() ?></a><br/>
+                                    <input type="checkbox" id="plugin_<?php echo $g->get_name() ?>" onclick="drawpolicy()" name="plugins[<?php echo $g->get_id() ?>]" <?php echo (in_array($g->get_id() , $plugingroups)) ? "checked='checked'" : "" ?>> <a href="../policy/modifyplugingroupsform.php?action=edit&id=<?php echo $g->get_id() ?>&withoutmenu=1" class="greybox" title="<?=_('View DS Group')?>"><?php echo $g->get_name() ?></a><br/>
                                 <?php
                                 echo "</td>";
                                 if($iplugin++ % 3==2) { echo "<tr></tr>"; }
@@ -1306,7 +1306,7 @@ if ($insert != "") {
 			<?php echo _("Destination Ports") ?> <img src="../pixmaps/tables/cross-small.png" id="imgports" align="absmiddle"/>
 		</th>
 		<th nowrap='nowrap'>
-			<?php echo _("Plugin Groups")?> <img src="../pixmaps/tables/cross-small.png" id="imgplugins" align="absmiddle"/>
+			<?php echo _("DS Groups")?> <img src="../pixmaps/tables/cross-small.png" id="imgplugins" align="absmiddle"/>
 		</th>
 		<th nowrap='nowrap'>
 			<?php echo _("Sensors")?> <img src="../pixmaps/tables/cross-small.png" id="imgsensors" align="absmiddle"/>

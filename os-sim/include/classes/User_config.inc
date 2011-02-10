@@ -137,25 +137,21 @@ class User_config {
 		return $ret;
     }
     function set($login, $name, $value, $type = 'simple', $category = 'main') {
-        $sql = "REPLACE INTO user_config (login, category, name, value)
-                VALUES (?, ?, ?, ?)";
         if ($type == 'simple') {
             $val = $value;
         } elseif ($type == 'php') {
-            //echo "<br><br><br>SET<br>";
-            //var_dump($value);
-            //echo "<br><br>";
-            //var_dump(serialize($value));
             $val = serialize($value);
         } else {
             die(ossim_error("Invalid config type: $type"));
         }
-        $params = array(
-            $login,
+		$params = array(
+			$login,
             $category,
             $name,
             $val
         );
+        $sql = "REPLACE INTO user_config (login, category, name, value) VALUES (?, ?, ?, ?)";
+        
         if (!$this->conn->Execute($sql, $params)) {
             die(ossim_error($this->conn->ErrorMsg()));
         }

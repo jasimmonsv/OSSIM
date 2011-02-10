@@ -165,9 +165,9 @@ case "POST" :
    break;
 }
 
-if ($increment == 'Previous') {
+if ( $increment == gettext("Previous") ) {
      $page = $page -1;
-} elseif ($increment == 'Next') {
+} elseif ($increment == gettext("Next") ) {
      $page = $page + 1;
 }
 
@@ -344,23 +344,23 @@ function search($page, $kw, $cve,$family, $risk, $start_date, $end_date) {
     echo "</td></tr>";
     echo "</table>";
 
-     echo <<<EOT
+     echo '
 <table cellpadding="0" cellspacing="0" align="center" width="800">
      <tr><td height="50" class="nobborder">
      <table cellpadding="0" cellspacing="2" align="center" width="95%">
-          <tr><th>Keywords</th><th>CVE Id</th><th>Family</th><th>Risk Factor</th><th>Start Date</th><th>End Date</th></tr>
-          <tr><td class="nobborder" style="text-align:center;">$txt_kw</td>
-          <td class="nobborder" style="text-align:center;">$txt_cve</td>
-          <td class="nobborder" style="text-align:center;">$txt_family</td>
-          <td class="nobborder" style="text-align:center;">$txt_risk</td>
-          <td class="nobborder" style="text-align:center;">$txt_start_date</td>
-          <td class="nobborder" style="text-align:center;">$txt_end_date</td>
+          <tr><th>'.gettext("Keywords").'</th><th>'.gettext("CVE Id").'</th><th>'.gettext("Family").'</th><th>'.gettext("Risk Factor").'</th><th>'.gettext("Start Date").'</th><th>'.gettext("End Date").'</th></tr>
+          <tr><td class="nobborder" style="text-align:center;">'.html_entity_decode($txt_kw).'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_cve.'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_family.'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_risk.'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_start_date.'</td>
+          <td class="nobborder" style="text-align:center;">'.$txt_end_date.'</td>
           </tr>
      </table>
      </td></tr>
      <tr><td class="nobborder" style="text-align:center;padding-bottom:10px;">
 
-EOT;
+';
 
      $query_filter = "";
 
@@ -416,14 +416,15 @@ if (!$result->EOF) {
         <INPUT TYPE=HIDDEN NAME="cve" VALUE="$cve">
 
         <table id="results-table" class="tabular" cellpadding="2" cellspacing="2" width="95%" align="center">
-                <thead><tr><th sort:format="int" align="center">ID</th>
-                <th sort:format="int" align="center">Risk</th>
-                <th sort:format="int" align="center">Defined On</th>
-                <th sort:format="str" align="left">Threat Family &amp; Summary</th>
-                <th>CVE Id</th>
-                </tr></thead>
-
 EOT;
+            echo "<thead><tr><th sort:format=\"int\" align=\"center\">".gettext("ID")."</th>";
+            echo "<th sort:format=\"int\" align=\"center\">".gettext("Risk")."</th>";
+            echo "<th sort:format=\"int\" align=\"center\">".gettext("Defined On")."</th>";
+            echo "<th sort:format=\"str\" align=\"left\">".gettext("Threat Family &amp; Summary")."</th>";
+            echo "<th>".gettext("CVE Id")."</th>";
+            echo "</tr></thead>";
+
+
 
          while (!$result->EOF) {
               list( $cve_id, $pid, $prisk, $pcreated, $pfamily, $psummary )
@@ -460,10 +461,10 @@ EOT;
         if ($previous >0 || $next > 0){
             echo "<tr><td class=\"nobborder\" style=\"text-align:center;\" colSpan=\"12\" height=\"18\">"; 
             if ($previous > 0) {
-                echo "<input type=\"submit\" name=\"increment\" value=\"Previous\" class=\"button\">&nbsp;&nbsp;&nbsp;";
+                echo "<input type=\"submit\" name=\"increment\" value=\"".gettext("Previous")."\" class=\"button\">&nbsp;&nbsp;&nbsp;";
             }
             if ($next > 0) {
-                echo "<input type=\"submit\" name=\"increment\" value=\"Next\" class=\"button\">";
+                echo "<input type=\"submit\" name=\"increment\" value=\"".gettext("Next")."\" class=\"button\">";
             }
          echo "</td></tr></table></form>";
         }

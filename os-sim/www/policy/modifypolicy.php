@@ -218,7 +218,7 @@ if (POST('insert')) {
             $plugins = POST('plugins');
             if ($plugins) {
                 foreach($plugins as $group_id => $on) {
-                    ossim_valid($group_id, OSS_DIGIT, 'illegal:' . _("Plugin Group ID"));
+                    ossim_valid($group_id, OSS_DIGIT, 'illegal:' . _("DS Group ID"));
                     $plug_groups[] = $group_id;
                     $ids = Plugingroup::get_list($conn, "plugin_group.group_id=$group_id");
                     if ($ids[0]) foreach($ids[0]->get_plugins() as $plg) $plug_ids[] = $plg['id'];
@@ -226,7 +226,7 @@ if (POST('insert')) {
                 }
             }
             if (!count($plug_groups)) {
-                die(ossim_error(_("No plugin group selected")));
+                die(ossim_error(_("No DS Group selected")));
             }
             if (ossim_error()) {
                 die(ossim_error());

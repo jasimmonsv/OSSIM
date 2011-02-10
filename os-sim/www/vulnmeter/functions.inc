@@ -1489,7 +1489,7 @@ else {
           $meth_TARGETorig = $meth_TARGET;
           $meth_TARGET = trim(nl2br((strlen($meth_TARGET)>=100) ? substr($meth_TARGET,0,100)."..." : $meth_TARGET));
           
-          if(preg_match('/\d+/', $nusername)) { 
+          if(preg_match('/^\d+$/', $nusername)) { 
             list($entities_all, $num_entities) = Acl::get_entities($dbconn, $nusername);
             $nusername = $entities_all[$nusername]['name'];
           }
@@ -1510,14 +1510,14 @@ else {
           
 
           if ($nstatus == "C") {
-          $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href=\"reshtml.php?disp=html&amp;output=full&amp;scantime=$id_report&amp;scantype=M&amp;hmenu=Vulnerabilities&amp;smenu=Vulnerabilities\" txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts).(($meth_Wcheck!="")? "</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>" : "")."' class='scriptinfo'>$nname</a>";
+          $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href=\"reshtml.php?disp=html&amp;output=full&amp;scantime=$id_report&amp;scantype=M&amp;hmenu=Vulnerabilities&amp;smenu=Vulnerabilities\" txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts).(($meth_Wcheck!="")? "</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>" : "")."' class='scriptinfo'>".html_entity_decode($nname)."</a>";
           $sInfo .= "</td>";
           }
           else if ($nstatus=="F") {
-            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts)."</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>' class='scriptinfo'>$nname</a></td>";
+            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts)."</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>' class='scriptinfo'>".html_entity_decode($nname)."</a></td>";
           }
           else {
-            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts).(($meth_Wcheck!="")? "</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>" : "")."' class='scriptinfo'>$nname</a></td>";
+            $sInfo .= "<td style=\"text-align:left;\">$image&nbsp;<a style=\"text-decoration:none;\" href='javascript:;' txt='<b>"._("Owner").":</b> $nusername<br><b>"._("Server").":</b> $shostname<br>$job_status<b>"._("Job ID").":</b> $nid<br><b>"._("Profile").":</b> $profile<br><b>"._("Failed attempts").":</b> $failed_attempts<br><b>"._("Targets").":</b><br><div style=\"margin-left:5px;\">".tooltip_hosts($meth_TARGETorig,$hosts).(($meth_Wcheck!="")? "</div><b>"._("Messages").":</b><br><div style=\"margin-left:5px;\">".nl2br(trim($meth_Wcheck))."</div>" : "")."' class='scriptinfo'>".html_entity_decode($nname)."</a></td>";
           }
           $sInfo .= "<td>$submit_date</td>
                <td>$start_date</td>

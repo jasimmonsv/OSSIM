@@ -192,26 +192,17 @@ if (!$rs = & $conn->Execute($query, $params)) {
 	var operator = "and";
 	var values = new Array;
 	
-	function save_values () {
-		var params = "?op="+operator+"&date_from="+$('#date_from').val()+"&date_to="+$('#date_to').val();
+	function build_request () {
+		var params = "?userfriendly=1&operator=and&date_from="+$('#date_from').val()+"&date_to="+$('#date_to').val();
+		var num = 1;
 		for (i = 1; i <= 5; i++) {
 			if (document.getElementById("value_"+i) != null && document.getElementById("value_"+i).value != "Any" && document.getElementById("value_"+i).value != "") {
-				params += "&value"+i+"="+document.getElementById("value_"+i).value;
-				criteria_count++;
+				params += "&value_"+i+"="+document.getElementById("value_"+i).value;
+				num = 5;
 			}
 		}
-		$.ajax({
-			type: "GET",
-			url: "setvars.php"+params+"&basic=1&n="+criteria_count,
-			data: "",
-			success: function(msg){
-				window.location.href = "build_search.php?operator="+operator+"&userfriendly=1";
-			}
-		});
-	}
-	
-	function build_request () {
-		save_values();
+		params += "&num="+num;
+		window.location.href = "build_search.php"+params;
 	}
 	
 	function handleEnter(field, event) {
@@ -230,8 +221,8 @@ if (!$rs = & $conn->Execute($query, $params)) {
 		<td class="nobborder" valign="top">
 			<table class="nobborder" align="center" style="background-color:white">
 			<form method=get>
-			<input type="hidden" id="date_from" name="date_from" value="<?=_("Any date")?>">
-			<input type="hidden" id="date_to" name="date_to" value="<?=_("Any date")?>">
+			<input type="hidden" id="date_from" name="date_from" value="Any date" />
+			<input type="hidden" id="date_to" name="date_to" value="Any date" />
 				<tr>
 					<td class="nobborder">
 						<table id="criteria_form" class="transparent" cellpadding=5 align="center" width="100%">

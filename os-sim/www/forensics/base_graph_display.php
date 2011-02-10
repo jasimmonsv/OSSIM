@@ -377,10 +377,10 @@ if (($chart_type == 15) || ($chart_type == 17)) {
     if (
     ($number_elements > 1) &&
     (
-    ($xaxis_label == _CHRTTIME) ||
-    ($xaxis_label == _CHRTSIP) ||
-    ($xaxis_label == _CHRTDIP) ||
-    ($xaxis_label == _CHRTCLASS)
+    ($xaxis_label == gettext("Time")) ||
+    ($xaxis_label == gettext("Source IP Address")) ||
+    ($xaxis_label == gettext("Destination IP Address")) ||
+    ($xaxis_label == gettext("Classification"))
     )
     )
     */

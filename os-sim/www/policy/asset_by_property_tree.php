@@ -107,7 +107,7 @@ if ($from!="") {
     		case "role": $png = "server_role";
     		break;
     	}
-    	$buffer .= "{ key:'p".$prop["id"]."', isFolder:true, expand:true, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["name"])."' },\n";
+    	$buffer .= "{ key:'p".$prop["id"]."', isFolder:true, expand:true, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["description"])."' },\n";
     }
     $buffer .= "{ key:'all', expand:false, icon:'../../pixmaps/theme/host_add.png', title:'"._("All Hosts")."' }\n";
     $buffer .= "] } ]";

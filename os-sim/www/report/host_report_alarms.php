@@ -53,7 +53,7 @@ $a_date = "-";
 ?>
 <table align="center" width="100%" height="100%" class="bordered">
 	<tr>
-		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=1&soption=0&url=<?=urlencode("control_panel/alarm_console.php?&hide_closed=1&hmenu=Alarms&smenu=Alarms&src_ip=$host&dst_ip=$host")?>" target='topmenu'>Alarms</a></td>
+		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=1&soption=0&url=<?=urlencode("control_panel/alarm_console.php?&hide_closed=1&hmenu=Alarms&smenu=Alarms&src_ip=$host&dst_ip=$host")?>" target='topmenu'><?php echo gettext("Alarms"); ?></a></td>
 	</tr>
 	<? if (count($alarm_list) < 1) { ?>
 	<tr><td><?=gettext("No Alarms Found for")?> <i><?=$host?></i></td></tr>

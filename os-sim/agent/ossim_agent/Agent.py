@@ -83,7 +83,12 @@ class Agent:
         # aliases
         aliases = Aliases()
         aliases.read([os.path.join(os.path.dirname(conffile), "aliases.cfg")])
-
+        local_aliases_fn = os.path.join(os.path.dirname(conffile), "aliases.local")
+        #if aliases.local exists, after we've loaded aliases default file, 
+        #we load aliases.local
+        if os.path.isfile(local_aliases_fn):
+            logger.info("Reading local aliases file: %s" % local_aliases_fn)
+            aliases.read(local_aliases_fn)
         # list of plugins and total number of rules within them
         self.plugins = []
         self.nrules = 0
@@ -184,7 +189,7 @@ class Agent:
                 # connect the control agent
                 self.conn_framework = FrameworkConn(self.conf)
 
-                if self.conn_framework.connect(attempts = 3, waittime = 30):
+                if self.conn_framework.connect(attempts=3, waittime=30):
                     logger.debug("Control framework connection is now enabled!")
                     self.conn_framework.control_messages()
     
@@ -344,7 +349,7 @@ class Agent:
 
         for plugin in self.plugins:
             if plugin.get("config", "type") == "detector":
-                plugin_id = plugin.get("DEFAULT","plugin_id")
+                plugin_id = plugin.get("DEFAULT", "plugin_id")
 
                 if plugin.get("config", "source") == "log":
                     if plugin_id in self.conn_plugins:
@@ -366,7 +371,7 @@ class Agent:
                     parser.start()
                     self.detector_objs.append(parser)
 
-                elif plugin.get("config","source") == "database":
+                elif plugin.get("config", "source") == "database":
                     if plugin_id in self.conn_plugins:
                         parser = ParserDatabase(self.conf, plugin, self.conn_plugins[plugin_id])
 
@@ -376,13 +381,13 @@ class Agent:
                     parser.start()
                     self.detector_objs.append(parser)
 
-                elif plugin.get("config","source") == "wmi":
-                    line_cnt=0
+                elif plugin.get("config", "source") == "wmi":
+                    line_cnt = 0
                     try:
-                        credentials = open(plugin.get("config","credentials_file"), "rb")
+                        credentials = open(plugin.get("config", "credentials_file"), "rb")
                     except:
-                        logger.warning("Unable to load wmi credentials file %s, disabling wmi collection." % (plugin.get("config","credentials_file")))
-                        plugin.set("config","enable","no")
+                        logger.warning("Unable to load wmi credentials file %s, disabling wmi collection." % (plugin.get("config", "credentials_file")))
+                        plugin.set("config", "enable", "no")
                         continue
                     for row in credentials:
                         creds = row.split(",")

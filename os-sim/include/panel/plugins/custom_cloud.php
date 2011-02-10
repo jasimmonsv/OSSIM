@@ -45,7 +45,7 @@ class Plugin_Custom_cloud extends Panel {
         'cloud_sql' => 'SELECT inet_ntoa(src_ip) AS ip, count(*) AS num FROM alarm 
                        WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= timestamp 
                        GROUP BY ip ORDER BY num DESC LIMIT 15',
-        'cloud_link' => 'http://localhost/ossim/report/menu.php?host=_TAG_&section=metrics',
+        'cloud_link' => '../report/menu.php?host=_TAG_&section=metrics',
         'cloud_tag_max_len' => 0,
         'cloud_resolv_ip' => 0
     );
@@ -130,12 +130,9 @@ class Plugin_Custom_cloud extends Panel {
 		//echo "Ejecutando en $dbname: $sql";
 		
         if (!$rs = $conn->Execute($sql)) {
-            echo "Error was: " . $conn->ErrorMsg() . "\n\nQuery was: " . $sql;
-            exit();
+            return "Error was: " . $conn->ErrorMsg() . "\n\nQuery was: " . $sql;
         }
-        if ($resolv_hostname) {
-            require_once ("classes/Host.inc");
-        }
+        if ($resolv_hostname) require_once ("classes/Host.inc");
         $tags = array();
         while (!$rs->EOF) {
             if ($resolv_hostname) {
@@ -162,12 +159,13 @@ class Plugin_Custom_cloud extends Panel {
         }
         $cloud_html = '';
         $cloud_tags = array(); // create an array to hold tag code
-        foreach($tags as $tag => $count) {
+		
+		foreach($tags as $tag => $count) {
             $local_link = str_replace("_TAG_", $tag, $link);
             $local_name = $tag;
             if ($resolv_hostname) $local_name = $tag_names[$tag];
             if ($max_len > 0) $tag = substr($tag, 0, $max_len);
-            $size = $min_font_size + ($count - $minimum_count) * ($max_font_size - $min_font_size) / $spread;
+            $size = ( count($tags) == 1 ) ? $max_font_size : $min_font_size + ($count - $minimum_count) * ($max_font_size - $min_font_size) / $spread;
             $cloud_tags[] = '<a style="font-size: ' . floor($size) . 'px' . '" class="tag_cloud" href="' . htmlspecialchars($local_link) . '" title="\'' . $tag . '\' returned a count of ' . $count . '">' . htmlspecialchars(stripslashes($local_name)) . '</a>&nbsp;';
         }
         $cloud_html = join("\n", $cloud_tags) . "\n";

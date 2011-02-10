@@ -30,8 +30,8 @@ $hosts_ips = array_keys($hosts);
 ($debug_time_mode >= 1) ? $et = new EventTiming($debug_time_mode) : '';
 $cs = new CriteriaState("base_timeline.php");
 $submit = ImportHTTPVar("submit", VAR_ALPHA | VAR_SPACE, array(
-    _SELECTED,
-    _ALLONSCREEN,
+    gettext("Delete Selected"),
+    gettext("Delete ALL on Screen"),
     _ENTIREQUERY
 ));
 $max = ImportHTTPVar("max", VAR_DIGIT);
@@ -45,10 +45,10 @@ $roleneeded = 10000;
 $BUser = new BaseUser();
 if (($BUser->hasRole($roleneeded) == 0) && ($Use_Auth_System == 1)) base_header("Location: " . $BASE_urlpath . "/index.php");
 $qs = new QueryState();
-$qs->AddCannedQuery("most_frequent", $freq_num_alerts, _MOSTFREQALERTS, "occur_d");
-$qs->AddCannedQuery("last_alerts", $last_num_ualerts, _LASTALERTS, "last_d");
+$qs->AddCannedQuery("most_frequent", $freq_num_alerts, gettext("Most Frequent Events"), "occur_d");
+$qs->AddCannedQuery("last_alerts", $last_num_ualerts, gettext("Last Events"), "last_d");
 $qs->MoveView($submit); /* increment the view if necessary */
-$page_title = _ALERTTITLE;
+$page_title = gettext("Event Listing");
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 0);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 0);
 /* Connect to the Alert database */
@@ -129,7 +129,7 @@ if (!$printing_ag) {
     echo '</TD></tr><tr>
            <TD VALIGN=TOP>';
     if (!array_key_exists("minimal_view", $_GET)) {
-        PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+        PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
         PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
     }
     PrintFramedBoxFooter();

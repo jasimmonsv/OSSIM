@@ -30,12 +30,11 @@
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
 
-require_once ('classes/Session.inc');
+
+require_once ('utils.php');
 require_once ('classes/Ossec.inc');
 require_once ('classes/Security.inc');
-require_once ('classes/Util.inc');
 require_once ('conf/_conf.php');
-require_once ('utils.php');
 
 
 $info_error  = null;
@@ -46,15 +45,15 @@ $path_reload   =  "/var/ossec/agentless/.reload";
 $path_passlist =  "/var/ossec/agentless/.passlist";	
 $path_tmp2     =  "/tmp/".uniqid()."_tmp.passlist";
 
-exec("cat /dev/null > $path_passlist", $output, $retval);	
-$retval = 0;
-$output = null;
 
 if ( @copy ($path , $path_tmp) == false )
 	$info_error = _("Failed to create temporary copy of")." <b>$ossec_conf</b>";
 	
-if ( @copy ($path_passlist , $path_tmp2) == false || $retval != 0 )
+if ( @copy ($path_passlist , $path_tmp2) == false )
 	$info_error = _("Failed to create temporary copy of")." <b>$path_passlist</b>";
+	
+exec("cat /dev/null > $path_passlist", $output, $retval);	
+$output = null;
 	
 
 $db 	         = new ossim_db();
@@ -73,43 +72,43 @@ if ( !empty($agentless_list) && empty($info_error) )
 	foreach ($agentless_list as $k => $v)
 	{
 		$ip = $k;
-		
+						
 		$extra     = "WHERE ip = '$ip'";
 		$monitoring_entries = Agentless::get_list_m_entries($conn, $extra);
 		
-		if (is_array($monitoring_entries))
+		$user   = $v->get_user();
+		$host   = ( !empty($ppass) ) ? "use_su " : "";
+		$host  .= $user."@".$ip;
+		$pass   = $v->get_pass();
+		$ppass  = $v->get_ppass();
+		$status = $v->get_status();
+		
+		if ( $status == "1" || $status == "2" )
+		{
+			$res = Agentless::enable_host($ip, $user, $pass, $ppass);
+			
+			if ($res == false)
+			{
+				$info_error = _("Error to add Agentless Host");
+				@copy ($path_tmp2, $path_passlist);
+				break;
+			}
+		}
+		
+		if ( is_array($monitoring_entries) && $status != 0 )
 		{
 			foreach ($monitoring_entries as $i => $entry)
 			{
-				$user   = $v->get_user();
-				$host   = ( !empty($ppass) ) ? "use_su " : "";
-				$host  .= $user."@".$ip;
-				$pass   = $v->get_pass();
-				$ppass  = $v->get_ppass();
-				$status = $v->get_status();
 				
 				$arguments       = ( !empty($entry['arguments']) ) ? "<arguments>".$entry['arguments']."</arguments>" : "";
 								
 				$agentless_xml[] = "<agentless>";
-				$agentless_xml[] = "<type>".$entry['type']."</type>";
-				$agentless_xml[] = "<frequency>".$entry['frecuency']."</frequency>";
+				$agentless_xml[] = "<type>".$entry['id_type']."</type>";
+				$agentless_xml[] = "<frequency>".$entry['frequency']."</frequency>";
 				$agentless_xml[] = "<host>$host</host>";
 				$agentless_xml[] = "<state>".$entry['state']."</state>";
 				$agentless_xml[] = "$arguments";
 				$agentless_xml[] = "</agentless>";
-				
-				
-				if ( $status == "1" || $status == "2" )
-				{
-				    $res = Agentless::enable_host($ip, $user, $pass, $ppass);
-					
-					if ($res == false)
-					{
-						$info_error = _("Error to add Agentless Host");
-						@copy ($path_tmp2, $path_passlist);
-						break 2;
-					}
-				}
 				
 			}
 		}
@@ -117,79 +116,43 @@ if ( !empty($agentless_list) && empty($info_error) )
 	
 	$db->close($conn);
 	
-	
 	if ( !empty($agentless_xml) && empty($info_error) )
 	{
-		$conf_file = file_get_contents($ossec_conf);
-		$pattern   		   = '/[\r?\n]+\s*/';
-		$conf_file         = preg_replace($pattern, "\n", $conf_file);
-		$conf_file         = explode("\n", trim($conf_file));
-		$copy_cf           = $conf_file;
+		$conf_file   = file_get_contents($ossec_conf);
+		$pattern     = '/\s*[\r?\n]+\s*/';
+		$conf_file   = preg_replace($pattern, "", $conf_file);
+		$copy_cf     = $conf_file;
 		
-		$agentless = array();
 		
-		$i 	 = 0;
-		$num = 0;
+		$pattern     = array('/<\/\s*agentless\s*>/');
+		$replacement = array("</agentless>\n");
+		$conf_file   = preg_replace($pattern, $replacement, $conf_file);
+		
+		
+		preg_match_all('/<\s*agentless\s*>.*<\/agentless>/', $conf_file, $match);
+		
+		$size_m    = count($match[0]);
+		$unique_id = uniqid();
 						
-				
-		while ($i<count($conf_file))
+		if ($size_m > 0)
 		{
-			if ( preg_match("/<\s*agentless\s*>/", $conf_file[$i], $match) )
+			for ($i=0; $i<$size_m-1; $i++)
 			{
-				$agentless[$num]['start'] = $i;
-				for ($j=$i+1; $j<count($conf_file); $j++)
-				{
-					if ( preg_match("/<\/\s*agentless\s*>/", $conf_file[$j], $match) )
-					{
-						$agentless[$num]['end'] = $j;
-						$num++;
-						$i = $j++;
-						break;
-					}
-				}
+				$pattern   = trim($match[0][$i]);
+				$copy_cf   = str_replace($pattern, "", $copy_cf);
 			}
-			else
-				$i++;
-		}
-								
-		foreach ($agentless as $k => $v)
-		{
-			if ( is_numeric($v['start']) && is_numeric($v['end']) )
-			{
-				for ($i=$v['start']; $i<=$v['end']; $i++)
-					unset($conf_file[$i]);
-			}
-			else
-			{
-				$info_error = "error###"._("Not valid format in")." <b>$ossec_conf</b>"; 
-				break;
-			}
-		}
-				
-		
-		//No agents are inserted
-		if ( $num > 0 && empty($info_error) )
-		{	
-			$size = count($copy_cf);
-							
-			for ($i=$size-1; $i>0; $i--)
-			{
-				if ( preg_match("/<\/ossec_config>/", $copy_cf[$i]) )
-				{
-					unset($conf_file[$i]);
-					$aux       = array_slice($copy_cf, $i, $size);
-					$conf_file = array_merge($conf_file, $agentless_xml, $aux);
-					break;
-				}
-				else
-					unset($conf_file[$i]);
-			}
-		}
-						
-		
-		$conf_file_str = implode("\n", $conf_file);
-		$output 	   = formatXmlString($conf_file_str);
 			
+			$pattern   = trim($match[0][$size_m-1]);
+			$copy_cf   = str_replace($pattern, $unique_id, $copy_cf);
+		}
+		else
+			$copy_cf  =  preg_replace("/<\/\s*ossec_config\s*>/", "$unique_id</ossec_config>", $copy_cf, 1);
+		
+						
+		$agentless_xml = implode("",$agentless_xml);
+		$copy_cf       = preg_replace("/$unique_id/", $agentless_xml, $copy_cf);
+		$output 	   = formatXmlString($copy_cf);
+		
 		if (@file_put_contents($path, $output, LOCK_EX) == false)
 		{
 			@unlink ($path);
@@ -198,13 +161,21 @@ if ( !empty($agentless_list) && empty($info_error) )
 		}
 		else
 		{
-			@unlink ($path_tmp);
-			@unlink ($path_reload);
-			exec ("sudo /var/ossec/bin/ossec-control restart", $result, $ret);
-			$info_error = ( $ret != 0 ) ? _("Error to restart Ossec.  Try manually") : null;
-		}	
+			$result = system("sudo /var/ossec/bin/ossec-control restart > /tmp/ossec-action 2>&1");
+			$result = file('/tmp/ossec-control');
+			$size   = count($result);
+			$info_error = ( preg_match('/Completed/', $result[$size]) ) ? _("Error to restart Ossec.  Try manually") : null;
+		}
 	}
 }
+
+if ($info_error == null)
+	@unlink ($path_reload);
+
+
+@unlink ($path_tmp2);	
+@unlink ($path_tmp);
+
 
 ?>
 
@@ -216,6 +187,9 @@ if ( !empty($agentless_list) && empty($info_error) )
 		<meta http-equiv="Pragma" content="no-cache"/>
 		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+		<style type='text/css'>
+			#apply_ok { font-size: 13px; padding: 10px; width: 80%; margin: auto; text-align: center;}
+		</style>
 	</head>
 
 	<body>
@@ -230,7 +204,7 @@ if ( !empty($agentless_list) && empty($info_error) )
 		}
 		else
 		{
-			echo "<p>"._("Configuration applied")."</p>";
+			echo "<div id='apply_ok'>"._("Configuration applied")."</div>";
 			echo "<script>document.location.href='agentless.php'</script>";
 		}
 	?>

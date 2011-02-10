@@ -41,7 +41,7 @@ header("Pragma: no-cache");
 header("Content-type: text/xml");
 require_once ('classes/Session.inc');
 echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-Session::logcheck("MenuPolicy", "PolicyServers");
+Session::logcheck("MenuConfiguration", "PolicyServers");
 require_once 'ossim_db.inc';
 require_once 'ossim_conf.inc';
 require_once 'classes/Databases.inc';

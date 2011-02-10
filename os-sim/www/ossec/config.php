@@ -36,6 +36,8 @@ require_once ('classes/Xml_parser.inc');
 require_once ('conf/_conf.php');
 require_once ('utils.php');
 
+$error == false;
+
 if ( file_exists( $ossec_conf) )
 {
 	$file_xml = @file_get_contents ($ossec_conf, false);
@@ -54,6 +56,7 @@ else
 	$txt      = "<b>$ossec_conf</b> "._("not found or you don't have have permission to access");
 }
 
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -68,10 +71,8 @@ else
 	
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type='text/javascript' src='codemirror/codemirror.js' ></script>
-		
-	<!-- Elastic textarea: -->
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
-	
+		
 	<!-- Own libraries: -->
 	<script type='text/javascript' src='utils.js'></script>
 	<script type='text/javascript' src='functions.js'></script>
@@ -107,8 +108,7 @@ else
 			}
 															
 			//Remove error message
-			
-						
+									
 			if ($('#cnf_message').length >= 1)
 			{
 				$('#cnf_message').html('');
@@ -132,6 +132,7 @@ else
 					{
 						var error_message = "<div id='msg_init'><div class='oss_error'>"+status[1]+"</div></div>";
 						$(tab).html(error_message);
+						$(tab+" div").css('display', 'block');
 						
 					}
 					else
@@ -144,10 +145,21 @@ else
 								searchDelay: 500,
 								dividerLocation: 0.5
 							});
+							
+							$(tab+" div").css('display', 'block');
+						}
+						else if (tab == "#tab2")
+						{
+							$(tab+" div").css('display', 'block');
+							$('textarea').elastic();
+							$('#table_sys_directories table').css('background', 'transparent');
+							$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+							$('#table_sys_ignores table').css('background', 'transparent');
+						    $('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
 						}
 						else
 						{
-							if (tab == "#tab2")
+							if (tab == "#tab3")
 							{
 								if (editor == null)
 								{
@@ -162,11 +174,13 @@ else
 								}
 								else
 									editor.setCode(msg);
+								
+								$(tab+" div").css('display', 'block');
 							}	
 						}
 					}
 					
-					$(tab+" div").css('display', 'block');
+					
 						
 				}
 			});
@@ -199,11 +213,14 @@ else
 			var data= "tab="+tab;
 			
 			if (tab == "#tab1")	
-				data += "&"+ $('form').serialize();
-			else
+				data += "&"+ $('#cnf_form_rules').serialize();
+			else if (tab == "#tab2")	
 			{
-				if (tab == "#tab2")	
-					data += "&"+"data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES'));
+				data += "&"+ $('#form_syscheck').serialize();
+			}
+			else if (tab == "#tab3")	
+			{
+				data += "&"+"data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES'));
 			}
 				
 			$.ajax({
@@ -231,6 +248,95 @@ else
 		}
 		
 		
+		function add_dir(id)
+		{
+			
+			$.ajax({
+				type: "POST",
+				url: "ajax/config_actions.php",
+				data: "action=add_directory",
+				success: function(msg){
+					
+					var status = msg.split("###");
+															
+					if (status[0] != "error")
+					{
+						$('#'+id).after(status[1]);
+						$('textarea').elastic();
+						$('#table_sys_directories table').css('background', 'transparent');
+						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+					}
+				}
+			});
+			
+		
+		}
+		
+		function delete_dir(id)
+		{
+			if ( confirm ("<?php echo _("Are you sure to delete this row")?>?") )
+			{
+				
+				if ( $('#'+id).length >= 1 )
+				{
+					$('#'+id).remove();
+					if ($('#tbody_sd tr').length <= 2)
+						add_dir();
+					else
+					{
+						$('textarea').elastic();
+						$('#table_sys_directories table').css('background', 'transparent');
+						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+					}
+				}
+			}
+		
+		}
+		
+		function add_ign(id)
+		{
+			
+			$.ajax({
+				type: "POST",
+				url: "ajax/config_actions.php",
+				data: "action=add_ignore",
+				success: function(msg){
+					
+					var status = msg.split("###");
+															
+					if (status[0] != "error")
+					{
+						$('#'+id).after(status[1]);
+						$('textarea').elastic();
+						$('#table_sys_ignores table').css('background', 'transparent');
+						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
+					}
+				}
+			});
+		}
+		
+		function delete_ign(id)
+		{
+			if ( confirm ("<?php echo _("Are you sure to delete this row")?>?") )
+			{
+				
+				if ( $('#'+id).length >= 1 )
+				{
+					$('#'+id).remove();
+					if ($('#tbody_si tr').length <= 2)
+						add_ign();
+					else
+					{
+						$('textarea').elastic();
+						$('#table_sys_ignores table').css('background', 'transparent');
+						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
+					}
+				}
+			}
+		
+		}
+					
+		
 	
 	</script>
 	
@@ -242,16 +348,17 @@ else
 			
 			$("ul.oss_tabs li:first").addClass("active");
 			
-			<?php if ($error !== true) {?>			
+			var error = '<?php echo $error;?>';	
 			
+			if (error != true)
+			{			
 				//On Click Event
 				$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this); load_config_tab($(this).find("a").attr("href"))});
-				
 				load_config_tab("#tab1");
-				
-				<?php } else { ?>
-					$("ul.oss_tabs li a").css("cursor", "text");	
-				<?php } ?>
+			}
+			else  
+				$("ul.oss_tabs li a").css("cursor", "text");	
+								
 		});
 	
 	</script>
@@ -262,9 +369,8 @@ else
 		width: 70%;
 		height: 350px;
 	}
-	
-	.agent_actions { width: auto;}
-	
+		
+		
 	input.button {float: none; margin:auto; padding: 0px 2px;}
 			
 	.buttons_box {	
@@ -274,11 +380,33 @@ else
 		padding-bottom: 10px;
 	}
 	
-	
 	#msg_init{ margin: 150px auto 270px auto; }
 			
-	#tab2 .button {background:none !important;}
-			
+	#tab3 .button {background:none !important;}
+	
+	.cont_sys {width: 85%; margin:auto; padding: 10px 0px;}
+	
+	.sys_dir {width: 350px;}
+	.sys_ignores {width: 350px; }
+	.sys_actions { width: 60px !important; padding: 2px 0px; }
+	
+	
+	#cont_tsp { 
+		padding: 10px 0px; 
+		text-align: left;
+	}
+	
+	#table_sys_parameters {width: 100%; text-align: left !important;}
+	#frequency { height: 18px; width: 210px;}
+	
+	.sys_frequency {width: 150px; padding: 2px 0px;}
+	
+	textarea { border: solid 1px #888}
+	
+	.cont_savet2{ padding: 20px 0px 20px 0px; text-align: right; margin-right: 2px;}
+	
+	ul.oss_tabs li.active a:hover {cursor: pointer !important;} 
+
 	</style>
 	
 	
@@ -295,8 +423,9 @@ else
 			<tr>
 				<td id='oss_mcontainer'>
 					<ul class='oss_tabs'>
-						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Active Rules")?></a></li>
-						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?=_("XML Source")?></a></li>
+						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Rules")?></a></li>
+						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?=_("Syscheck")?></a></li>
+						<li id='litem_tab3'><a href="#tab3" id='link_tab3'><?=_("XML Source")?></a></li>
 					</ul>
 				</td>
 			</tr>
@@ -318,6 +447,14 @@ else
 					</div>
 					
 					<div id="tab2" class="tab_content" style='display:none;'>
+						<?php if ( $error == true ) 
+							echo "<div id='msg_init'><div class='oss_error'>$txt</div></div>";
+						else
+							echo "<div id='cnf_load'><img src='images/loading.gif' border='0' align='absmiddle' alt='Loading'/><span>".('Loading data ...')."</span></div>";
+						?>
+					</div>
+					
+					<div id="tab3" class="tab_content" style='display:none;'>
 						<div id='container_code'><textarea id="code"></textarea></div>
 						<div class='buttons_box'>
 							<?php if ( $error == false ) { ?>

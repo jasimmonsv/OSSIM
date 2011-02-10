@@ -133,7 +133,11 @@ if ($validate_file != "" && file_exists($validate_file)) {
         fclose($f);
         //$pub_key = openssl_pkey_get_public($config["pubkey"]);
         //$verified = openssl_verify( $data, $sig_dec, $pub_key);
-        $cmdv = "openssl dgst -sha1 -verify ".trim(str_replace("file://","",$config["pubkey"]))." -signature /tmp/sig_decoded '" . $validate_file . "'";
+        
+        //$cmdv = "openssl dgst -sha1 -verify ".trim(str_replace("file://","",$config["pubkey"]))." -signature /tmp/sig_decoded '" . $validate_file . "'";
+        $cat_cmd = (preg_match("/\.gz$/",$validate_file)) ? "zcat '$validate_file'" : "cat '$validate_file'";
+        $cmdv = "$cat_cmd | openssl dgst -sha1 -verify ".trim(str_replace("file://","",$config["pubkey"]))." -signature /tmp/sig_decoded";
+        
         //error_log("$cmdv\n", 3, "/tmp/validate");
         $status = exec($cmdv, $res);
         $verified = (preg_match("/Verified OK/i", $status)) ? 1 : 0;

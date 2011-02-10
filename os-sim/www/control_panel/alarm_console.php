@@ -658,14 +658,11 @@ if ($sup < $count) {
 				</table>
 			</td>
 		</tr>
-    
+    <?php
+    // Timezone correction
+    $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    ?>
       <tr>
-<!--
-        <th><a href="<?php /* echo $_SERVER["SCRIPT_NAME"]?>?order=<?php
-echo ossim_db::get_order("plugin_id", $order) .
-"&inf=$inf&sup=$sup"
-*/ ?>">Plugin id</a></th>
--->
         <td class="nobborder" width="20" align="center"><input type="checkbox" name="allcheck" onclick="checkall()"></td>
 		<td style="background-color:#9DD131;font-weight:bold">#</td>
         <td width="25%" style="background-color:#9DD131;font-weight:bold"><a href="<?php
@@ -684,12 +681,12 @@ echo ossim_db::get_order("sensor", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&
 ?>"> <?php
 echo gettext("Sensor"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"> <?php
-echo gettext("Since"); ?> </td>
+echo gettext("Since")."<br>".Util::timezone($tz); ?> </td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
 echo ossim_db::get_order("timestamp", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>"> 
             <?php
-echo gettext("Last"); ?> </a></td>
+echo gettext("Last")."<br>".Util::timezone($tz); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
 echo ossim_db::get_order("src_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
@@ -759,8 +756,10 @@ if ($count > 0) {
         */
         $sid_name = $alarm->get_sid_name(); // Plugin_sid table just joined (Granada 27 mayo 2009)
         $date = Util::timestamp2date($alarm->get_timestamp());
+        $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
         if ($backlog_id && $id==1505) {
             $since = Util::timestamp2date($alarm->get_since());
+            $since = date("Y-m-d H:i:s",strtotime($since)+(3600*$tz));            
         } else {
             $since = $date;
         }

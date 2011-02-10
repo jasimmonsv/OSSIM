@@ -32,7 +32,7 @@ $cs->ReadState();
 $userprefs = new BaseUserPrefs();
 $userobj = new BaseUser();
 $username = $userobj->returnUser();
-$page_title = _BASEUSERTITLE;
+$page_title = gettext("BASE User preferences");
 PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 if (isset($_GET['action'])) {
     //This is where the processing of this page happens.
@@ -44,16 +44,16 @@ if (isset($_GET['action'])) {
                 $page_body = $pwdresponse;
                 break;
             } else {
-                $page_body = _BASEUSERERRPWD;
+                $page_body = gettext("Your password can not be blank or the two passwords did not match!");
             }
         case "changepassword":
             $form = "<form action='base_user.php?action=change' Method='POST'>";
             $form = $form . "<table border=1 class='query'>";
-            $form = $form . "<tr><td width='25%' align='right'>" . _BASEUSEROLDPWD . "</td>";
+            $form = $form . "<tr><td width='25%' align='right'>" . gettext("Old Password:") . "</td>";
             $form = $form . "<td align='left'><input type='password' name='oldpasswd'></td></tr>";
-            $form = $form . "<tr><td width='25%' align='right'>" . _BASEUSERNEWPWD . "</td>";
+            $form = $form . "<tr><td width='25%' align='right'>" . gettext("New Password:") . "</td>";
             $form = $form . "<td align='left'><input type='password' name='newpasswd1'></td></tr>";
-            $form = $form . "<tr><td width='25%' align='right'>" . _BASEUSERNEWPWDAGAIN . "</td>";
+            $form = $form . "<tr><td width='25%' align='right'>" . gettext("New Password Again:") . "</td>";
             $form = $form . "<td align='left'><input type='password' name='newpasswd2'></td></tr>";
             $form = $form . "<tr><td colspan='2' align='center'><input type='submit' name='submit'></td>";
             $form = $form . "</tr></table>";
@@ -66,13 +66,13 @@ if (isset($_GET['action'])) {
             $userid = $user->returnUserID($userlogin);
             $userinfo = $user->returnEditUser($userid);
             $form = "<table border=1 class='query'>";
-            $form = $form . "<tr><td width='25%' align='right'>" . _FRMUID . "</td>";
+            $form = $form . "<tr><td width='25%' align='right'>" . gettext("User ID:") . "</td>";
             $form = $form . "<td align='left'>" . $userinfo[0] . "</td></tr>";
-            $form = $form . "<tr><td width='25%' align='right'>" . _FRMLOGIN . "</td>";
+            $form = $form . "<tr><td width='25%' align='right'>" . gettext("Login:") . "</td>";
             $form = $form . "<td align='left'>" . $userinfo[1] . "</td></tr>";
-            $form = $form . "<tr><td width='25%' align='right'>" . _FRMFULLNAME . "</td>";
+            $form = $form . "<tr><td width='25%' align='right'>" . gettext("Full Name:") . "</td>";
             $form = $form . "<td align='left'>" . $userinfo[3] . "</td></tr>";
-            $form = $form . "<tr><td width='25%' align='right'>" . _FRMROLE . "</td>";
+            $form = $form . "<tr><td width='25%' align='right'>" . gettext("Role:") . "</td>";
             $form = $form . "<td align='left'>" . $user->roleName($userinfo[2]) . "</td></tr>";
             $form = $form . "</tr></table>";
             $page_body = $form;
@@ -91,9 +91,9 @@ if (isset($_GET['action'])) {
         <td class="menuitem">
 
 <a href="base_user.php?action=changepassword" class="menuitem"><?php
-echo _CHNGPWD; ?></a><br>
+echo gettext("Change password"); ?></a><br>
 <a href="base_user.php?action=display" class="menuitem"><?php
-echo _DISPLAYU; ?></a><br>
+echo gettext("Display user"); ?></a><br>
 
 </td>
     </tr>

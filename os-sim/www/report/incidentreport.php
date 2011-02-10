@@ -46,6 +46,7 @@ Session::logcheck("MenuIncidents", "IncidentsReport");
   <title> <?php
 echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+  <!--[if IE]><script language="javascript" type="text/javascript" src="../js/jqplot/excanvas.js"></script><![endif]-->
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>

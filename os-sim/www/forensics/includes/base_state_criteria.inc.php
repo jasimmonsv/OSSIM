@@ -117,20 +117,20 @@ class CriteriaState {
         return PrintBackButton();
     }
     function GetClearCriteriaString($name, $element = "") {
-        return '&nbsp;&nbsp;<A HREF="' . $this->clear_url . '?clear_criteria=' . $name . '&amp;clear_criteria_element=' . str_replace('&amp;new=1','',$element.$this->clear_url_params) . '">...' . _CLEAR . '...</A>';
+        return '&nbsp;&nbsp;<A HREF="' . $this->clear_url . '?clear_criteria=' . $name . '&amp;clear_criteria_element=' . str_replace('&amp;new=1','',$element.$this->clear_url_params) . '">...' . gettext("Clear") . '...</A>';
     }
     function ClearCriteriaStateElement($name, $element) {
         $valid_criteria_list = array_keys($this->criteria);
         if (in_array($name, $valid_criteria_list)) {
-            //ErrorMessage(_REMOVE . " '$name' " . _FROMCRIT);
+            //ErrorMessage(gettext("Removing") . " '$name' " . gettext("from criteria"));
             $this->criteria[$name]->Init();
             $this->criteria[$name]->Import();
-        } else ErrorMessage(_ERRCRITELEM);
+        } else ErrorMessage(gettext("Invalid criteria element"));
     }
     function ClearAllCriteria() {
         $valid_criteria_list = array_keys($this->criteria);
         foreach($valid_criteria_list as $name) {
-            //ErrorMessage(_REMOVE . " '$name' " . _FROMCRIT);
+            //ErrorMessage(gettext("Removing") . " '$name' " . gettext("from criteria"));
             $this->criteria[$name]->Init();
             $this->criteria[$name]->Import();
         }
@@ -246,7 +246,7 @@ function PushHistory() {
 function PrintBackButton() {
     if ($GLOBALS['maintain_history'] == 0) return "&nbsp;";
     $criteria_num = $_SESSION['back_list_cnt'] - 1;
-    if (isset($_SESSION['back_list'][$criteria_num]["SCRIPT_NAME"])) return "<FONT><A HREF=\"" . $_SESSION['back_list'][$criteria_num]["SCRIPT_NAME"] . "?back=1&" . $_SESSION['back_list'][$criteria_num]["QUERY_STRING"] . "\">" . _BACK . "</A></FONT>&nbsp;|&nbsp;";
+    if (isset($_SESSION['back_list'][$criteria_num]["SCRIPT_NAME"])) return "<FONT><A HREF=\"" . $_SESSION['back_list'][$criteria_num]["SCRIPT_NAME"] . "?back=1&" . $_SESSION['back_list'][$criteria_num]["QUERY_STRING"] . "\">" . gettext("Back") . "</A></FONT>&nbsp;|&nbsp;";
     else return "&nbsp;";
 }
 ?>

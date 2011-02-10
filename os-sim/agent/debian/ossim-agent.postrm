@@ -21,8 +21,7 @@ set -e
 
 case "$1" in
     purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
-        # Remove diversions for ossim-agent's config file
-#        dpkg-divert --rename --remove /etc/ossim/agent/config.cfg 
+        dpkg-divert --remove /etc/ossim/agent/config.cfg
     ;;
 
     *)

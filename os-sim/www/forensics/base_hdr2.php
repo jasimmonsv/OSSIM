@@ -34,53 +34,53 @@
 * Function list:
 * Classes list:
 */
-
-$today_d = date("d");
-$today_m = date("m");
-$today_y = date("Y");
-$today_h = date("h");
+$timetz = $GLOBALS["timetz"];
+$today_d = date("d",$timetz);
+$today_m = date("m",$timetz);
+$today_y = date("Y",$timetz);
+$today_h = date("h",$timetz);
 //$yesterday_d = date("d",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
 //$yesterday_m = date("m",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
 //$yesterday_y = date("Y",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
-$yesterday_d = date("d", strtotime("-1 day"));
-$yesterday_m = date("m", strtotime("-1 day"));
-$yesterday_y = date("Y", strtotime("-1 day"));
+$yesterday_d = date("d", strtotime("-1 day",$timetz));
+$yesterday_m = date("m", strtotime("-1 day",$timetz));
+$yesterday_y = date("Y", strtotime("-1 day",$timetz));
 //$week_d = date("d",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
 //$week_m = date("m",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
 //$week_y = date("Y",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
-$week_d = date("d", strtotime("-1 week"));
-$week_m = date("m", strtotime("-1 week"));
-$week_y = date("Y", strtotime("-1 week"));
+$week_d = date("d", strtotime("-1 week",$timetz));
+$week_m = date("m", strtotime("-1 week",$timetz));
+$week_y = date("Y", strtotime("-1 week",$timetz));
 //$two_week_d = date("d",mktime(0,0,0, $today_m, $today_d - 7 - (date("w") +1), $today_y));
 //$two_week_m = date("m",mktime(0,0,0, $today_m, $today_d - 7 -  (date("w") +1), $today_y));
 //$two_week_y = date("Y",mktime(0,0,0, $today_m, $today_d - 7 -  (date("w") +1), $today_y));
-$two_week_d = date("d", strtotime("-2 week"));
-$two_week_m = date("m", strtotime("-2 week"));
-$two_week_y = date("Y", strtotime("-2 week"));
+$two_week_d = date("d", strtotime("-2 week",$timetz));
+$two_week_m = date("m", strtotime("-2 week",$timetz));
+$two_week_y = date("Y", strtotime("-2 week",$timetz));
 //$month_d = date("d",mktime(0,0,0, $today_m, 1, $today_y));
 //$month_m = date("m",mktime(0,0,0, $today_m, 1, $today_y));
 //$month_y = date("Y",mktime(0,0,0, $today_m, 1, $today_y));
-$month_d = date("d", strtotime("-1 month"));
-$month_m = date("m", strtotime("-1 month"));
-$month_y = date("Y", strtotime("-1 month"));
+$month_d = date("d", strtotime("-1 month",$timetz));
+$month_m = date("m", strtotime("-1 month",$timetz));
+$month_y = date("Y", strtotime("-1 month",$timetz));
 //$two_month_d = date("d",mktime(0,0,0, $today_m - 1, 1, $today_y));
 //$two_month_m = date("m",mktime(0,0,0, $today_m - 1, 1, $today_y));
 //$two_month_y = date("Y",mktime(0,0,0, $today_m - 1, 1, $today_y));
-$two_month_d = date("d", strtotime("-2 month"));
-$two_month_m = date("m", strtotime("-2 month"));
-$two_month_y = date("Y", strtotime("-2 month"));
+$two_month_d = date("d", strtotime("-2 month",$timetz));
+$two_month_m = date("m", strtotime("-2 month",$timetz));
+$two_month_y = date("Y", strtotime("-2 month",$timetz));
 //$year_d = date("d",mktime(0,0,0, 1, 1, $today_y));
 //$year_m = date("m",mktime(0,0,0, 1, 1, $today_y));
 //$year_y = date("Y",mktime(0,0,0, 1, 1, $today_y));
-$year_d = date("d", strtotime("-11 month"));
-$year_m = date("m", strtotime("-11 month"));
-$year_y = date("Y", strtotime("-11 month"));
+$year_d = date("d", strtotime("-11 month",$timetz));
+$year_m = date("m", strtotime("-11 month",$timetz));
+$year_y = date("Y", strtotime("-11 month",$timetz));
 //$two_year_d = date("d",mktime(0,0,0, 1, 1, $today_y-1));
 //$two_year_m = date("m",mktime(0,0,0, 1, 1, $today_y-1));
 //$two_year_y = date("Y",mktime(0,0,0, 1, 1, $today_y-1));
-$two_year_d = date("d", strtotime("-2 year"));
-$two_year_m = date("m", strtotime("-2 year"));
-$two_year_y = date("Y", strtotime("-2 year"));
+$two_year_d = date("d", strtotime("-2 year",$timetz));
+$two_year_m = date("m", strtotime("-2 year",$timetz));
+$two_year_y = date("Y", strtotime("-2 year",$timetz));
 
 $sensor = ($_GET["sensor"] != "") ? $_GET["sensor"] : $_SESSION["sensor"];
 
@@ -202,8 +202,8 @@ line-height:28px; height: 28px; background: transparent url(../pixmaps/fondo_col
 		<table width='100%'>
 			<tr>
 				<td class='menuitem' nowrap>
-				<a class='menuitem' href='<?php echo $BASE_urlpath ?>/base_qry_main.php?new=1'><font style="font-size:18px;color:#333333"><?php echo _SEARCH ?></font></a>&nbsp;&nbsp;<font style="color:green;font-weight:bold;font-size:16px">|</font>&nbsp;&nbsp;
-				<a class='menuitem' href='<?php echo $BASE_urlpath ?>/base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB'><font style="font-size:18px;color:#333333"><?php echo _HOME ?></font></a>&nbsp;&nbsp;
+				<a class='menuitem' href='<?php echo $BASE_urlpath ?>/base_qry_main.php?new=1'><font style="font-size:18px;color:#333333"><?php echo gettext("Search") ?></font></a>&nbsp;&nbsp;<font style="color:green;font-weight:bold;font-size:16px">|</font>&nbsp;&nbsp;
+				<a class='menuitem' href='<?php echo $BASE_urlpath ?>/base_qry_main.php?time_range=all&clear_allcriteria=1&submit=Query+DB'><font style="font-size:18px;color:#333333"><?php echo gettext("Clear") ?></font></a>&nbsp;&nbsp;
 				<?php
 if ($Use_Auth_System == 1) {
 ?>
@@ -218,7 +218,7 @@ if ($Use_Auth_System == 1) {
 ?>
 				</td>
 				<td align="right">
-					<table border='0' cellpadding='0' cellspacing='0'>
+					<table border='0' cellpadding='0' cellspacing='0'> 
 					<tr>
 						<td align="right">
 							<table width="100%">
@@ -226,7 +226,7 @@ if ($Use_Auth_System == 1) {
 									<td>
 										<table border='0' cellpadding='0' cellspacing='0'>
 										<tr><td align='right'>
-											<a href="javascript:history.go(-1)"><img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a>
+											<a href="javascript:history.go(-1)" style="color:black;font-size:12px;font-weight:bold"><?php echo _("Back")?> <img src='./images/back.png' alt='<?php echo _("Back")?>' title='<?php echo _("Back")?>' border='0' align='absmiddle'></a> &nbsp;<font style="color:green;font-weight:bold;font-size:14px">|</font>&nbsp; <a href="javascript:document.location.reload()" style="color:black;font-size:12px;font-weight:bold"><?php echo _("Refresh")?> <img src='../pixmaps/refresh.png' alt='<?php echo _("Refresh")?>' title='<?php echo _("Refresh")?>' border='0' align='absmiddle'></a><!--<a href="javascript:history.go(-1)"><img src='./images/back.png' alt='Back' title='Back' border='0' align='absmiddle'></a>-->
 											</td>
 										<td align='right'> <?php echo str_replace (">Back","><span style='padding-left: 5px; color: rgb(51, 51, 51); font-weight: bold;font-size:14px;'>Back</span>",str_replace("|","<font style='color:green;font-size:14px;font-weight:bold'></font>",$back_link))
 			?>  <!--<a style="color:black;font-size:12px;font-weight:bold" href="base_qry_main.php?submit=--><?php //echo _QUERYDB
@@ -266,7 +266,7 @@ if ($Use_Auth_System == 1) {
 							<td align="right">
 								<table>
 									<tr>
-										<td><input type="submit" class="button" value="IP" name="submit" style='width:30px'>&nbsp;<input type="submit" class="button" value="Signature" id="signature" name="submit">&nbsp;<input type="submit" class="button" value="Payload" name="submit"></td>
+										<td><input type="submit" class="button" value="IP" name="submit" style='width:30px'>&nbsp;<input type="submit" class="button" value="<?php echo gettext("Signature")?>" id="signature" name="submit">&nbsp;<input type="submit" class="button" value="Payload" name="submit"></td>
 									</tr>
 								</table>
 							</td>
@@ -395,7 +395,7 @@ if ($Use_Auth_System == 1) {
 													<tr class="noborder">
 														<td style='padding:5px;'>
 															<div style='text-align: left; padding-bottom: 15px; clear: both;'>
-																<div style='float: left; width:90px; font-size:11px'><?=_("Plugin Groups")?>:</div>
+																<div style='float: left; width:90px; font-size:11px'><?=_("DS Groups")?>:</div>
 																<div style='float: left;'>
 																	<select name="plugingroup" class="selectp" style="width:185px" onchange="this.form.bsf.click()"><option value=''></option> 
 																	<?
@@ -534,8 +534,8 @@ if (preg_match("/base_qry_alert|base_stat_time/", $urltimecriteria)) {
 }
 if ($_GET["addr_type"] != "") $params.= "&addr_type=" . $_GET["addr_type"];
 if ($_GET["sort_order"] != "") $params.= "&sort_order=" . $_GET["sort_order"];
-//print_r($_GET);
 
+$txtzone = "<a href=\"javascript:;\" class=\"scriptinfoimg\" txt=\"<img src='../pixmaps/timezones/".rawurlencode(Util::timezone($GLOBALS["tz"])).".png' border=0>\">".Util::timezone($GLOBALS["tz"])."</a>";                         
 ?>
 
 <tr>
@@ -547,7 +547,7 @@ if ($_GET["sort_order"] != "") $params.= "&sort_order=" . $_GET["sort_order"];
 					<td>
 						<table cellpadding="0" cellspacing="0">
 						<tr>
-						<td><?=_("Time frame selection")?>:&nbsp;</td>
+						<td><?=_("Time frame selection")." $txtzone"?>:&nbsp;</td>
 						<td style='text-align:left;'>
 							<div id="widget">
 								<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
@@ -576,27 +576,27 @@ if ($_GET["sort_order"] != "") $params.= "&sort_order=" . $_GET["sort_order"];
 					<table>
 					<tr>
 					<td nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "today") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "today") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=today&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $today_m ?>&time%5B0%5D%5B3%5D=<?php echo $today_d ?>&time%5B0%5D%5B4%5D=<?php echo $today_y ?>&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>"> Today </a>
+if ($_GET['time_range'] == "today") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=today&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $today_m ?>&time%5B0%5D%5B3%5D=<?php echo $today_d ?>&time%5B0%5D%5B4%5D=<?php echo $today_y ?>&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>"><?php echo _("Today")?></a>
 					</td>
 					<td><font style="color:green;font-weight:bold">|</font></td>
 					<td nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "day") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "day") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=day&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $yesterday_m ?>&time%5B0%5D%5B3%5D=<?php echo $yesterday_d ?>&time%5B0%5D%5B4%5D=<?php echo $yesterday_y ?>&time%5B0%5D%5B5%5D=<?php echo $today_h ?>&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>">Last 24 Hours</a>
+if ($_GET['time_range'] == "day") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=day&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $yesterday_m ?>&time%5B0%5D%5B3%5D=<?php echo $yesterday_d ?>&time%5B0%5D%5B4%5D=<?php echo $yesterday_y ?>&time%5B0%5D%5B5%5D=<?php echo $today_h ?>&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>"><?php echo _("Last 24 Hours")?></a>
 					</td>
 					<td><font style="color:green;font-weight:bold">|</font></td>
 					<td nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "week") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "week") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=week&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $week_m ?>&time%5B0%5D%5B3%5D=<?php echo $week_d ?>&time%5B0%5D%5B4%5D=<?php echo $week_y ?>&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>">Last Week</a>
+if ($_GET['time_range'] == "week") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=week&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $week_m ?>&time%5B0%5D%5B3%5D=<?php echo $week_d ?>&time%5B0%5D%5B4%5D=<?php echo $week_y ?>&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>"><?php echo _("Last Week")?></a>
 					</td>
 					<td><font style="color:green;font-weight:bold">|</font></td>
 					<td nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "weeks") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "weeks") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=weeks&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $two_week_m ?>&time%5B0%5D%5B3%5D=<?php echo $two_week_d ?>&time%5B0%5D%5B4%5D=<?php echo $two_week_y ?>&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>">Last two Weeks</a>
+if ($_GET['time_range'] == "weeks") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=weeks&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $two_week_m ?>&time%5B0%5D%5B3%5D=<?php echo $two_week_d ?>&time%5B0%5D%5B4%5D=<?php echo $two_week_y ?>&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>"><?php echo _("Last two Weeks")?></a>
 					</td>
 					<td><font style="color:green;font-weight:bold">|</font></td>
 					<td nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "month") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=month&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $month_m ?>&time%5B0%5D%5B3%5D=<?php echo $month_d ?>&time%5B0%5D%5B4%5D=<?php echo $month_y ?>&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>">Last Month</a>
+if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=month&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=<?php echo $month_m ?>&time%5B0%5D%5B3%5D=<?php echo $month_d ?>&time%5B0%5D%5B4%5D=<?php echo $month_y ?>&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&submit=Query+DB&num_result_rows=-1&time_cnt=1<?php echo $params ?>"><?php echo _("Last Month")?></a>
 					</td>
 					<td><font style="color:green;font-weight:bold">|</font></td>
 					<td nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
-if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=all&clear_criteria=time&clear_criteria_element=&submit=Query+DB<?php echo $params ?>">All</a>
+if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="<?php echo $urltimecriteria ?>?time_range=all&clear_criteria=time&clear_criteria_element=&submit=Query+DB<?php echo $params ?>"><?php echo _("All")?></a>
 					</td>
 					</tr>
 					</table>
@@ -605,7 +605,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 			<tr>
 				<td id="task" style="display:none" nowrap>
 					<div class="balloon">
-						<a href="#"><img src="images/alarm-clock-blue.png" align="absmiddle" border=0> <i> Background task in progress</i>
+						<a href="#"><img src="images/alarm-clock-blue.png" align="absmiddle" border=0> <i> <?php echo gettext("Background task in progress"); ?></i>
 						<span class="tooltip">
 								<span class="top"></span>
 								<span class="middle" id="bgtask"><?php echo _("No pending tasks") ?>.</span>
@@ -621,7 +621,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 <!--
 <tr>
 	<td><?php
-//PrintFramedBoxHeader(_QSCSUMM, "#669999", "#FFFFFF");
+//PrintFramedBoxHeader(gettext("Summary Statistics"), "#669999", "#FFFFFF");
 //PrintGeneralStats($db, 1, $show_summary_stats, "$join_sql ", "$where_sql $criteria_sql");
 
 ?></td>
@@ -631,7 +631,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 		<table width="100%">
 			<tr>
 				<td width="250" nowrap><B><?php echo _QUERIED
-?></B><FONT> : <?php echo strftime(_STRFTIMEFORMAT) ?></FONT></td>
+?></B><FONT> : <?php echo strftime(gettext("%a %B %d, %Y %H:%M:%S")) ?></FONT></td>
 				<td width="130" nowrap><div id="forensics_time"></div></td>
 			</tr>
 		</table>
@@ -655,9 +655,6 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
 <script src="../js/datepicker.js" type="text/javascript"></script>
 <? $ipsearch=1; include ("../host_report_menu.php") ?>
-<?php
-if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) echo '<script src="../js/excanvas.pack.js" language="javascript" type="text/javascript" ></script>';
-?>
 <script>
 	var url = new Array(50)
 	function showTooltip(x, y, contents, link) {
@@ -718,7 +715,7 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 				return true;
 			}
 		});
-		// TOOLTIP
+		// TOOLTIPS
 		$(".scriptinfo").simpletip({
 			position: 'right',
 			onBeforeShow: function() { 
@@ -726,6 +723,19 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 				this.load('base_netlookup.php?ip=' + ip);
 			}
 		});
+	    $(".scriptinfoimg").simpletip({
+            position: 'right',
+            baseClass: 'imgtip',
+            onBeforeShow: function() {
+                    this.update(this.getParent().attr('txt'));
+            }
+	    });		
+	    $(".tztooltip").simpletip({
+            position: 'right',
+            onBeforeShow: function() {
+                    this.update(this.getParent().attr('txt'));
+            }
+	    });		    
 		// AUTOCOMPLETE SEARCH FACILITY FOR SENSOR
 		var sensors = [
 			<?= preg_replace("/,$/","",$str); ?>
@@ -747,26 +757,26 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 		// CALENDAR
 		<?
 		if ($_SESSION["time_cnt"]==2) {
-			$y1 = ($_SESSION["time"][0][4]!="") ? $_SESSION["time"][0][4] : date("Y");
-			$m1 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2]-1 : date("m");
-			$m11 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2] : date("m");
-			$d1 = ($_SESSION["time"][0][3]!="") ? $_SESSION["time"][0][3] : date("d");
-			$y2 = ($_SESSION["time"][1][4]!="") ? $_SESSION["time"][1][4] : date("Y");
-			$m2 = ($_SESSION["time"][1][2]!="") ? $_SESSION["time"][1][2]-1 : date("m");
-			$m21 = ($_SESSION["time"][1][2]!="") ? $_SESSION["time"][1][2] : date("m");
-			$d2 = ($_SESSION["time"][1][3]!="") ? $_SESSION["time"][1][3] : date("d");
+			$y1 = ($_SESSION["time"][0][4]!="") ? $_SESSION["time"][0][4] : date("Y",$timetz);
+			$m1 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2]-1 : date("m",$timetz);
+			$m11 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2] : date("m",$timetz);
+			$d1 = ($_SESSION["time"][0][3]!="") ? $_SESSION["time"][0][3] : date("d",$timetz);
+			$y2 = ($_SESSION["time"][1][4]!="") ? $_SESSION["time"][1][4] : date("Y",$timetz);
+			$m2 = ($_SESSION["time"][1][2]!="") ? $_SESSION["time"][1][2]-1 : date("m",$timetz);
+			$m21 = ($_SESSION["time"][1][2]!="") ? $_SESSION["time"][1][2] : date("m",$timetz);
+			$d2 = ($_SESSION["time"][1][3]!="") ? $_SESSION["time"][1][3] : date("d",$timetz);
 		?>
 		var datefrom = new Date(<?=$y1?>,<?=$m1?>,<?=$d1?>);
 		var dateto = new Date(<?=$y2?>,<?=$m2?>,<?=$d2?>);
 		<?
 		} elseif ($_SESSION["time_cnt"]==1) {
-			$y1 = ($_SESSION["time"][0][4]!="") ? $_SESSION["time"][0][4] : date("Y");
-			$m1 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2]-1 : date("m");
-			$m11 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2] : date("m");
-			$d1 = ($_SESSION["time"][0][3]!="") ? $_SESSION["time"][0][3] : date("d");
-			$y2 = date("Y");
-			$m2 = $m21 = date("m");
-			$d2 = date("d");
+			$y1 = ($_SESSION["time"][0][4]!="") ? $_SESSION["time"][0][4] : date("Y",$timetz);
+			$m1 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2]-1 : date("m",$timetz);
+			$m11 = ($_SESSION["time"][0][2]!="") ? $_SESSION["time"][0][2] : date("m",$timetz);
+			$d1 = ($_SESSION["time"][0][3]!="") ? $_SESSION["time"][0][3] : date("d",$timetz);
+			$y2 = date("Y",$timetz);
+			$m2 = $m21 = date("m",$timetz);
+			$d2 = date("d",$timetz);
 		?>
 		var datefrom = new Date(<?=$y1?>,<?=$m1?>,<?=$d1?>);
 		var dateto = new Date();
@@ -794,10 +804,12 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 					url = url + '&time%5B0%5D%5B2%5D=' + f1[1]; // month
 					url = url + '&time%5B0%5D%5B3%5D=' + f1[2]; // day
 					url = url + '&time%5B0%5D%5B4%5D=' + f1[0]; // year
+					url = url + '&time%5B0%5D%5B5%5D=00&time%5B0%5D%5B6%5D=00&time%5B0%5D%5B7%5D=00';
 					var f2 = formated[1].split(/-/);
 					url = url + '&time%5B1%5D%5B2%5D=' + f2[1]; // month
 					url = url + '&time%5B1%5D%5B3%5D=' + f2[2]; // day
 					url = url + '&time%5B1%5D%5B4%5D=' + f2[0]; // year
+					url = url + '&time%5B1%5D%5B5%5D=23&time%5B1%5D%5B6%5D=59&time%5B1%5D%5B7%5D=59';
 					document.location.href = '<?=$actual_url?>'+url;
 				} clicks++;
 			},

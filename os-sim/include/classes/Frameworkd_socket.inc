@@ -71,5 +71,3 @@ echo "Can't connect to frameworkd...<br>";
 echo "status: ".$s->status."<br>";
 ***/
 ?>
-
-

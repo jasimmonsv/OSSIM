@@ -39,9 +39,11 @@ require_once 'classes/Session.inc';
 Session::logcheck("MenuConfiguration", "ConfigurationMain");
 require_once 'ossim_conf.inc';
 require_once 'classes/Security.inc';
+require_once 'languages.inc';
 
 $ossim_conf = $GLOBALS["CONF"];
-$system_lang = trim(`/usr/bin/locale|grep LANG|cut -f 2 -d "="|head -1`);
+$config_languages = $GLOBALS["config_languages"];
+
 $CONFIG = array(
     "Language" => array(
         "title" => gettext("Language") ,
@@ -49,18 +51,7 @@ $CONFIG = array(
         "advanced" => 0,
         "conf" => array(
             "language" => array(
-                "type" => array(
-                    "en_GB" => gettext("English") ,
-                    "de_DE" => gettext("German") ,
-                    "es_ES" => gettext("Spanish") ,
-                    "fr_FR" => gettext("French") ,
-                    "ja_JP" => gettext("Japanese") ,
-                    "pt_BR" => gettext("Brazilian Portuguese") ,
-                    "zh_CN" => gettext("Simplified Chinese") ,
-                    "zh_TW" => gettext("Traditional Chinese") ,
-                    "ru_RU.UTF-8" => gettext("Russian"),
-					$system_lang => gettext("Default Language")        
-                ) ,
+                "type" => $config_languages,
                 "help" => gettext("Obsolete, configure at Configuration -> Users") ,
                 "desc" => gettext("Language") ,
                 "advanced" => 0
@@ -223,6 +214,20 @@ $CONFIG = array(
                 "type" => "text",
                 "help" => gettext("Remote Logger Url") ,
                 "desc" => gettext("Remote Logger OSSIM Url") ,
+                "advanced" => 1,
+				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
+            ) ,
+            "server_logger_if_priority" => array(
+                "type" => array(
+                    "0" => 0,
+                    "1" => 1,
+            		"2" => 2,
+            		"3" => 3,
+            		"4" => 4,
+            		"5" => 5
+                ) ,
+                "help" => gettext("Store in Logger if priority <= this value") ,
+                "desc" => gettext("Store in Logger if priority") ,
                 "advanced" => 1,
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             )
@@ -1131,6 +1136,15 @@ $CONFIG = array(
                 "desc" => gettext("Show welcome message at next login") ,
                 "advanced" => 0
             ) ,
+            "customize_wizard" => array(
+                "type" => array(
+                    "1" => _("Yes") ,
+                    "0" => _("No")
+                ) ,
+                "help" => _("") ,
+                "desc" => gettext("Show Customization Wizard after admin login") ,
+                "advanced" => 0
+            ) ,            
             "login_enforce_existing_user" => array(
                 "type" => array(
                     "yes" => _("Yes") ,
@@ -1679,7 +1693,9 @@ if (REQUEST("reset"))
 				$(this).find("tr:last td").css('border', 'none');
 			 });
 
-			
+			<?	if (intval(GET('passpolicy'))==1)  { ?>
+			$('#test15-header').click(); 
+			<?  }  ?>
 		});
 		
 		function tsim(val)

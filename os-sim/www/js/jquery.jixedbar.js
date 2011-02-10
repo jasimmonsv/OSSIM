@@ -74,6 +74,7 @@
 			}
 			pos = "absolute"; // alienvault fixed
 			
+			/*
 			// create hide container and button
 			if ($(".jx-bar-button-right", this).exists()) { // check if there are currently an item on the right side portion of the bar
 				$("<ul />").attr("id", "jx-hid-con-id").insertBefore($(this).find(".jx-bar-button-right:first")); // insert hide/show button "before" the existing item and let the "float right" do its magic
@@ -86,6 +87,7 @@
 				} else if ($.browser.msie && ie7) {
 					$("#jx-hid-con-id").css({"width": "40px", "float": "right"}); // fix hide container width to prevent float drop issue on IE7
 				}
+			*/
 
 			/* check what position should be the arrow indicator will be */
 			if (defaults.showOnTop) {
@@ -266,13 +268,14 @@
 			$("<div />").attr("id", "jx-ttip-con-id").appendTo("body"); // create div element and append in html body
 			$("#jx-ttip-con-id").css({ // CSS for tooltip container (invisible to viewer(s))
 				"height": "auto",
+                "text-align": "center",
 				"margin-left": "0px",
 				"width": "100%", // use entire width
 				"overflow": constants["constOverflow"],
 				"position": pos
 			});
 
-			var diffY = 6;
+			var diffY = 5;
 			if (defaults.diffY) diffY = diffY + defaults.diffY; // calculate bottom margin
 									
 			// set tooltip container: top or bottom

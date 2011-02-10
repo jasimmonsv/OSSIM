@@ -62,16 +62,16 @@ $result = $qs->ExecuteOutputQuery($sql, $db);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <!-- <?php
-echo _TITLE . $BASE_VERSION; ?> -->
+echo gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION; ?> -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php
-echo _CHARSET; ?>">
+echo gettext("iso-8859-1"); ?>">
   <meta http-equiv="pragma" content="no-cache">
   <link rel="stylesheet" href="../style/style.css"/>
 <?php
 $archiveDisplay = (isset($_COOKIE['archive']) && $_COOKIE['archive'] == 1) ? "-- ARCHIVE" : "";
-echo ('<title>' . _TITLE . $BASE_VERSION . $archiveDisplay . '</title>
+echo ('<title>' . gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION . $archiveDisplay . '</title>
 <link rel="stylesheet" type="text/css" href="styles/' . $base_style . '">');
 ?>
 

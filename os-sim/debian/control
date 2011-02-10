@@ -29,7 +29,7 @@ Description: Open Source Security Information Management (MySQL)
 
 Package: ossim-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, gda2-mysql | gda2-postgres, sudo, lsb-base (>= 3.0-6), ossim-database-migration, alienvault-directives-free
+Depends: ${shlibs:Depends}, ${misc:Depends}, gda2-mysql | gda2-postgres, sudo, lsb-base (>= 3.0-6), ossim-database-migration, alienvault-directives-free, libpcre3-dev
 Pre-Depends: postpone
 Suggests: ossim-contrib
 Description: Open Source Security Information Management (Server)
@@ -44,10 +44,17 @@ Description: Open Source Security Information Management (Server)
  This package contains the correlation engine server of OSSIM.
  .
  Homepage: http://www.ossim.net 
+
+Package: ossim-server-dbg
+Architecture: any
+Section: devel
+Priority: extra
+Depends: ossim-server (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for ossim-server
  
 Package: ossim-framework
 Architecture: all
-Depends: ${misc:Depends}, ossim-framework-daemon (>= ${binary:Version}), libphp-adodb (>= 4.21), php5-mysql, php5-gd, php5-xsl, php5-mcrypt, rrdtool (>= 1.1.0), librrdp-perl (>= 1.1.0), librrds-perl (>= 1.1.0), nmap, php-fpdf (>= 1.52), libphp-jpgraph (>= 1.5.2), phpgacl (>= 3.3.4), php-xajax, ttf-bitstream-vera, ossim-utils (>= ${binary:Version}), lsb-base (>= 3.0-6), ossim-geoip, libcrypt-cbc-perl, libmime-lite-perl, libdate-calc-perl, php-soap, libcrypt-blowfish-perl, libdate-manip-perl, libapache2-mod-proxy-html, nfsen, ossim-compliance, libclass-methodmaker-perl, binutils
+Depends: ${misc:Depends}, ossim-framework-daemon (>= ${binary:Version}), libphp-adodb (>= 4.21), php5-mysql, php5-gd, php5-xsl, php5-mcrypt, rrdtool (>= 1.1.0), librrdp-perl (>= 1.1.0), librrds-perl (>= 1.1.0), nmap, php-fpdf (>= 1.52), libphp-jpgraph (>= 1.5.2), phpgacl (>= 3.3.4), php-xajax, ttf-bitstream-vera, ossim-utils (>= ${binary:Version}), lsb-base (>= 3.0-6), ossim-geoip, libcrypt-cbc-perl, libmime-lite-perl, libdate-calc-perl, php-soap, libcrypt-blowfish-perl, libdate-manip-perl, libapache2-mod-proxy-html, nfsen, ossim-compliance, libclass-methodmaker-perl, binutils, locales-all, locales
 Suggests: ossim-contrib, nessus, nessus-plugins
 Description: Open Source Security Information Management (Framework)
  OSSIM Framework

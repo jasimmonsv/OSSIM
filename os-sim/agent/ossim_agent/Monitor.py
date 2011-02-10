@@ -37,9 +37,11 @@ import re, time
 # LOCAL IMPORTS
 #
 from Config import Conf, Plugin, Aliases, CommandLineOptions
+import Config
 from Logger import Logger
 from Output import Output
 from Stats import Stats
+import Utils
 logger = Logger.logger
 
 
@@ -99,6 +101,7 @@ class Monitor:
 
         # get default values from config
         #
+
         if self._conf.has_section("plugin-defaults"):
 
         # 1) date
@@ -205,8 +208,8 @@ class Monitor:
                     str(value))
                 return False
 
-        logger.debug("Monitor expresion evaluation: " +\
-            "%s(arg2) <%s> %s(arg1) + %s(value)?" %\
+        logger.debug("Monitor expresion evaluation: " + \
+            "%s(arg2) <%s> %s(arg1) + %s(value)?" % \
             (str(arg2), str(cond), str(arg1), str(value)))
 
         if cond == "eq":
@@ -249,7 +252,7 @@ class Monitor:
         count = 1
 
         regexp = self.regexps[rule_name]
-        pattern = re.compile(regexp, re.IGNORECASE|re.MULTILINE)
+        pattern = re.compile(regexp, re.IGNORECASE | re.MULTILINE)
         
         # TODO: monitor_response could possibly be a list
         if isinstance(monitor_response, list):
@@ -303,10 +306,10 @@ class Monitor:
 	    	return True
 	    #if not value:
             #    continue
-            if self.eval_condition(cond = self.watch_rule["condition"],
-                                   arg1 = self.first_value,
-                                   arg2 = value,
-                                   value = int(self.watch_rule["value"])):
+            if self.eval_condition(cond=self.watch_rule["condition"],
+                                   arg1=self.first_value,
+                                   arg2=value,
+                                   value=int(self.watch_rule["value"])):
                 self.watch_rule["type"] = "monitor"
 		try:
 			cond = self.watch_rule["condition"]
@@ -369,7 +372,7 @@ class Monitor:
 
         # 2) we are in time, check the result of the watch-rule
         elif (self.initial_time + \
-                int(self.watch_rule["interval"]) >current_time):
+                int(self.watch_rule["interval"]) > current_time):
             return self.evaluate(rule_name)
 
         # 3) we are out of time

@@ -2,7 +2,9 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
-ALTER TABLE `sensor` ADD `tzone` INT NOT NULL DEFAULT 0;
+ALTER TABLE `acl_entities` ADD  `timezone` FLOAT NOT NULL DEFAULT '0' AFTER `address`;
+ALTER TABLE `users` ADD  `timezone` FLOAT NOT NULL DEFAULT '0' AFTER `first_login`;
+ALTER TABLE `sensor` ADD `tzone` FLOAT NOT NULL DEFAULT 0;
 ALTER TABLE `host_properties` ADD `sensor` VARCHAR( 64 ) DEFAULT NULL AFTER `ip`;
 ALTER TABLE `host_properties` ADD INDEX (  `date` );
 ALTER TABLE `host_properties` ADD INDEX (  `ip` ,  `sensor` );
@@ -77,8 +79,11 @@ DELIMITER ;
 CALL net_convert;
 DROP PROCEDURE IF EXISTS net_convert;
 
+REPLACE INTO config (conf, value) VALUES ('server_logger_if_priority', '1');
+
 use snort;
 ALTER TABLE `sensor` CHANGE `sensor` `sensor` TEXT NULL DEFAULT '';
+ALTER TABLE `acid_event` ADD `tzone` FLOAT NOT NULL DEFAULT '0' AFTER `timestamp`;
 
 -- From now on, always add the date of the new releases to the .sql files
 use ossim;

@@ -39,7 +39,7 @@ header("Last-Modified: " . gmdate("D, d M Y H:i:s") . "GMT");
 header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
 require_once ('classes/Session.inc');
-Session::logcheck("MenuPolicy", "PolicyServers");
+Session::logcheck("MenuConfiguration", "PolicyServers");
 require_once 'ossim_db.inc';
 require_once 'ossim_conf.inc';
 require_once 'classes/Databases.inc';

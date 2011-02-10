@@ -43,6 +43,9 @@ if (!isset($_SESSION["_user"])) {
 	header("Location: $login_location");
 	exit;
 }
+// Timezone correction
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 
 // Custom Views
 require_once('classes/User_config.inc');
@@ -57,12 +60,14 @@ if ($_SESSION['views']['default'] == "") {
 	$_SESSION['views']['default']['cols'] = array('SIGNATURE','DATE','IP_PORTSRC','IP_PORTDST','ASSET','PRIORITY','RELIABILITY','RISK','IP_PROTO');
 	$session_data = $_SESSION;
 	foreach ($_SESSION as $k => $v) {
-	if (preg_match("/^(_|alarms_|back_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|deletetask).*/",$k))
+	if (preg_match("/^(_|alarms_|back_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|deletetask|mdspw).*/",$k))
 		unset($session_data[$k]);		
 	}
 	$_SESSION['views']['default']['data'] = $session_data;
 	$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
 }
+$db_aux->close($conn_aux);
+
 if ($_SESSION['view_name_changed']) { $_GET['custom_view'] = $_SESSION['view_name_changed']; $_SESSION['view_name_changed'] = ""; $_SESSION['norefresh'] = 1; }
 else $_SESSION['norefresh'] = "";
 $custom_view = $_GET['custom_view'];
@@ -82,7 +87,6 @@ $_SESSION['views_data'] = array(
 	"SID_NAME" => array("title"=>"sid name","width"=>"40","celldata" => ""),
 	"IP_PROTO" => array("title"=>"L4-proto","width"=>"40","celldata" => "")
 );
-
 // TIME RANGE
 if ($_GET['time_range'] != "") {
     // defined => save into session
@@ -102,7 +106,7 @@ if ($_GET['time_range'] != "") {
         if (isset($_SESSION['time_range'])) $_GET['time_range'] = $_SESSION['time_range'];
     }
 } elseif ($_GET['date_range'] == "week") {
-	$start_week = explode("-",strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7)));
+	$start_week = explode("-",date("Y-m-d", $timetz - (24 * 60 * 60 * 7)));
 	$_GET['time'][0] = array(
         null,
         ">=",
@@ -125,9 +129,9 @@ if ($_GET['time_range'] != "") {
     $_GET['time'][0] = array(
         null,
         ">=",
-        date("m") ,
-        date("d") ,
-        date("Y") ,
+        date("m",$timetz) ,
+        date("d",$timetz) ,
+        date("Y",$timetz) ,
         null,
         null,
         null,
@@ -207,7 +211,7 @@ $unique_country_events_report_type = 48;
 //
 $current_cols_titles = array(
     "SIGNATURE" => _("Signature"),
-    "DATE" => _("Date"),
+    "DATE" => _("Date")." ".Util::timezone($tz),
     "IP_PORTSRC" => _("Source"),
     "IP_PORTDST" => _("Dest."),
     "IP_SRC" => _("Src IP"),
@@ -233,13 +237,13 @@ $current_cols_titles = array(
     "USERNAME" => _("Username"),
     "FILENAME" => _("Filename"),
     "PASSWORD" => _("Password"),
-	"PAYLOAD" => _("Payload"),
+    "PAYLOAD" => _("Payload"),
     "SID" => _("SID"),
     "CID" => _("CID"),
-    "PLUGIN_ID" => _("Plugin ID"),
-    "PLUGIN_SID" => _("Plugin SID"),
-    "PLUGIN_DESC" => _("Plugin Description"),
-    "PLUGIN_NAME" => _("Plugin Name"),
+    "PLUGIN_ID" => _("Data Source"),
+    "PLUGIN_SID" => _("Event Type"),
+    "PLUGIN_DESC" => _("Data Source Description"),
+    "PLUGIN_NAME" => _("Data Source Name"),
     "PLUGIN_SOURCE_TYPE" => _("Source Type"),
     "PLUGIN_SID_CATEGORY" => _("Category"),
     "PLUGIN_SID_SUBCATEGORY" => _("SubCategory"),

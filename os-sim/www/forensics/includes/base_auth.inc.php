@@ -128,7 +128,7 @@ class BaseUser {
         $sql = "INSERT INTO base_users (usr_id, usr_login, usr_pwd, role_id, usr_name, usr_enabled)";
         $sql = $sql . "VALUES (" . $userid . ", '" . $user . "','" . $cryptpassword . "'," . $role . ",'" . $name . "', 1);";
         $db->baseExecute($sql, -1, -1, false);
-        return _ADDEDSF;
+        return gettext("Added Successfully");
     }
     function disableUser($user) {
         //disables user
@@ -170,18 +170,18 @@ class BaseUser {
         $userRS = $db->baseExecute($sql);
         if ($db->baseErrorMessage() != "") {
             // Generic SQL error
-            $error = returnErrorMessage(_NOPWDCHANGE . $db->baseErrorMessage());
+            $error = returnErrorMessage(gettext("Unable to change your password: ") . $db->baseErrorMessage());
             return $error;
         } elseif ($userRS->baseRecordCount() == 0) {
             // User doesn't exist... Someone is playing with their cookie
-            $error = returnErrorMessage(_NOUSER);
+            $error = returnErrorMessage(gettext("User doesn't exist!"));
             return $error;
         }
         $row = $userRS->baseFetchRow();
         $cryptoldpasswd = $this->cryptpassword($oldpassword);
         if ($cryptoldpasswd != $row[0]) {
             // Old password doesn't match record
-            $error = returnErrorMessage(_OLDPWD);
+            $error = returnErrorMessage(gettext("Old password entered doesn't match our records!"));
             return $error;
         }
         // Finally... lets change the password
@@ -190,10 +190,10 @@ class BaseUser {
         $chngpwd = $db->baseExecute($sql);
         if ($db->baseErrorMessage() != "") {
             // Generic SQL error
-            $error = returnErrorMessage(_PWDCANT . $db->baseErrorMessage());
+            $error = returnErrorMessage(gettext("Unable to change your password: ") . $db->baseErrorMessage());
             return $error;
         }
-        return _PWDDONE;
+        return gettext("Your password has been changed!");
     }
     function returnUser() {
         // returns user login from role cookie
@@ -303,17 +303,17 @@ class BaseRole {
         $sql = "SELECT * FROM base_roles WHERE role_name = '" . $rolename . "'";
         $exists = $db->baseExecute($sql);
         if ($exists->baseRecordCount() > 0) {
-            return _ROLEEXIST;
+            return gettext("Role Already Exists");
         }
         $sql = "SELECT * FROM base_roles WHERE role_id = '" . $roleid . "'";
         $exists = $db->baseExecute($sql);
         if ($exists->baseRecordCount() > 0) {
-            return _ROLEIDEXIST;
+            return gettext("Role ID Already Exists");
         }
         $sql = "INSERT INTO base_roles (role_id, role_name, role_desc)";
         $sql = $sql . "VALUES (" . $roleid . ", '" . $rolename . "','" . $desc . "');";
         $db->baseExecute($sql, -1, -1, false);
-        return _ROLEADDED;
+        return gettext("Role Added Successfully");
     }
     function returnEditRole($roleid) {
         /* returns an array of all Role's info

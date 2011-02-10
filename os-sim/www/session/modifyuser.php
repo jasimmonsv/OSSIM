@@ -60,6 +60,7 @@ $language   		= POST('language');
 $frommenu    		= POST('frommenu');
 $first_login 		= POST('first_login');
 $is_admin           = POST('is_admin') ? POST('is_admin') : 0;
+$tzone				= POST('tzone');
 $last_pass_change   = POST('last_pass_change');
 //$copy_panels = POST('copy_panels');
 //ossim_valid($copy_panels, OSS_DIGIT, 'illegal:' . _("Copy Panels"));
@@ -77,6 +78,7 @@ ossim_valid($language, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _
 ossim_valid($frommenu, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("frommenu"));
 ossim_valid($first_login, OSS_DIGIT, 'illegal:' . _("First Login"));
 ossim_valid($is_admin, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("is admin"));
+ossim_valid($tzone, OSS_DIGIT, '-', '+', '.', 'illegal:' . _("tzone"));
 ossim_valid($last_pass_change, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("last pass change"));
 
 $kdbperms = "";
@@ -155,11 +157,11 @@ elseif (POST("insert"))
     
 	if (Session::am_i_admin()) {
 		require_once("classes/Util.inc");
-		Session::update($conn, $user, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdbperms, $first_login, $is_admin);
+		Session::update($conn, $user, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $kdbperms, $first_login, $is_admin, $tzone);
 		Util::clean_json_cache_files("",$user);
 	}
 	else {
-		Session::update_noperms($conn, $user, $name, $email, $company, $department, $language, $first_login, $is_admin);
+		Session::update_noperms($conn, $user, $name, $email, $company, $department, $language, $first_login, $is_admin, $tzone);
 	}
 	
 	if ($user == Session::get_session_user() && $language != $_SESSION['_user_language']) {

@@ -35,6 +35,19 @@ require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
 require_once ('../utils.php');
 
+
+function get_last_agent($agents)
+{
+	$size = count($agents) - 1;
+	for($i = $size; $i>=0; $i--)
+    {
+		if (preg_match("/^[0-9]+,/", $agents[$i]) )
+			return $agents[$i];
+	}
+}
+
+
+
 $error             = false;
 $message_error     = array();
 $validation_errors = array();
@@ -132,7 +145,7 @@ if ($error == true)
 else
 {
 	$agents = array ();
-	$ret = null;
+	$ret    = null;
 	
 	switch ($action)
 	{
@@ -145,11 +158,11 @@ else
 			else
 			{
 				exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
-				
-				
+								
 				if ( is_array ($agents) )
 				{
-					$agent       = $agents[count($agents)-2];
+					$agent       = get_last_agent($agents);
+					
 					$agent_field = explode(",", $agent);
 										
 					if (count($agents) == 1 )
@@ -168,7 +181,7 @@ else
 					if ( is_array($agent_field))
 					{
 						$more_info = array();
-						$ret = null;
+						$ret       = null;
 												
 						exec ( "sudo /var/ossec/bin/agent_control -i ".$agent_field[0]." -s", $more_info, $ret);
 						$more_info = ( $ret !== 0 ) ? _("Information from agent not available") : explode(",",$more_info[0]);
@@ -283,7 +296,7 @@ else
 					$key = trim(str_replace('**', '', $txt[1]));
 					//$ckey = $key;
 					//$key = ( strlen($key) ) > 90 ? substr($key, 0, 90)."<br/>".substr($key, 90) : $key;
-					echo "1###<div class='agent_key'>".$txt[0].":<br/><br/><span class='akey'>$key</span><!--<a href=\"javascript:;\" onclick=\"copyToClipboard('$key')\"><img src='images/clipboard-paste.png' border='0' title='"._("Copy to clipboard")."'></a>--></div>";
+					echo "1###<div class='agent_key'>".$txt[0].":<br/><br/><span class='akey'>$key</span></div>";
 				}
 				else
 					echo "error###"._("Error to extract key for an agent")." (2)";

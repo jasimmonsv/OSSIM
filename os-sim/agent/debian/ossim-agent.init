@@ -97,7 +97,7 @@ d_stop() {
 			fi
 		 fi 
       else
-         log_daemon_msg "[Stop] PIDFILE exits but no process running... remove pidfile"
+         log_daemon_msg "PIDFILE exits but no process running... remove pidfile"
          rm -rf $PIDFILE
 #--	  	
       fi
@@ -112,7 +112,7 @@ d_restart() {
 
 case "$1" in
   start)
-    log_daemon_msg "[Start] Starting $DESC" "$NAME"
+    log_daemon_msg "Starting $DESC" "$NAME"
     d_start
     log_end_msg $?     
 	;;
@@ -120,13 +120,13 @@ case "$1" in
 #starting is only used by monit 
   starting)
    # rm -rf $PIDFILE
-    log_daemon_msg "[Starting] Starting $DESC" "$NAME"
+    log_daemon_msg "Starting $DESC" "$NAME"
     d_start
     log_end_msg $?  
         ;;
 
   stop)
-    log_daemon_msg "[Stop] Stopping $DESC" "$NAME"
+    log_daemon_msg "Stopping $DESC" "$NAME"
     d_stop        
     log_end_msg $?
     

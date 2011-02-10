@@ -23,8 +23,8 @@ function GetAGIDbyName($ag_name, $db) {
     $ag_id = "";
     $sql = "SELECT ag_id FROM acid_ag WHERE ag_name='" . $ag_name . "'";
     $result = $db->baseExecute($sql, -1, -1, false);
-    if ($db->baseErrorMessage() != "") ErrorMessage(_ERRAGNAMESEARCH);
-    else if ($result->baseRecordCount() < 1) ErrorMessage(_ERRAGNAMEEXIST);
+    if ($db->baseErrorMessage() != "") ErrorMessage(gettext("The specified AG name search is invalid.  Try again!"));
+    else if ($result->baseRecordCount() < 1) ErrorMessage(gettext("The specified AG does not exist."));
     else {
         $myrow = $result->baseFetchRow();
         $ag_id = $myrow[0];
@@ -36,8 +36,8 @@ function GetAGNameByID($ag_id, $db) {
     $ag_name = "";
     $sql = "SELECT ag_name FROM acid_ag WHERE ag_id='" . $ag_id . "'";
     $result = $db->baseExecute($sql, -1, -1, false);
-    if ($db->baseErrorMessage() != "") ErrorMessage(_ERRAGIDSEARCH);
-    else if ($result->baseRecordCount() < 1) ErrorMessage(_ERRAGNAMEEXIST);
+    if ($db->baseErrorMessage() != "") ErrorMessage(gettext("The specified AG ID search is invalid.  Try again!"));
+    else if ($result->baseRecordCount() < 1) ErrorMessage(gettext("The specified AG does not exist."));
     else {
         $myrow = $result->baseFetchRow();
         $ag_name = $myrow[0];
@@ -49,7 +49,7 @@ function VerifyAGID($ag_id, $db) {
     $sql = "SELECT ag_id FROM acid_ag WHERE ag_id='" . $ag_id . "'";
     $result = $db->baseExecute($sql);
     if ($db->baseErrorMessage() != "") {
-        ErrorMessage(_ERRAGLOOKUP);
+        ErrorMessage(gettext("Error looking up an AG ID"));
         return 0;
     } else if ($result->baseRecordCount() < 1) return 0;
     else {
@@ -60,7 +60,7 @@ function VerifyAGID($ag_id, $db) {
 function CreateAG($db, $ag_name, $ag_desc) {
     $sql = "INSERT INTO acid_ag (ag_name, ag_desc) VALUES ('" . $ag_name . "','" . $ag_desc . "');";
     $db->baseExecute($sql, -1, -1, false);
-    if ($db->baseErrorMessage() != "") FatalError(_ERRAGINSERT);
+    if ($db->baseErrorMessage() != "") FatalError(gettext("Error Inserting new AG"));
     $ag_id = $db->baseInsertID();
     /* The following code is a kludge and can cause errors.  Since it is not possible
     * to determine the last insert ID of the AG, we requery the DB to ascertain the ID

@@ -35,6 +35,8 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once 'languages.inc';
+
 Session::logcheck("MenuConfiguration", "ConfigurationUsers");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -191,20 +193,6 @@ if ($session_list = Session::get_list($conn, "ORDER BY $order")) {
             echo "
      <form name=\"langform_" . $login . "\" action=\"users.php\" method=\"post\">
 	<td>";
-            $languages = array(
-                "type" => array(
-                    "de_DE" => gettext("German") ,
-                    "en_GB" => gettext("English") ,
-                    "es_ES" => gettext("Spanish") ,
-                    "fr_FR" => gettext("French") ,
-                    "ja_JP" => gettext("Japanese") ,
-                    "pt_BR" => gettext("Brazilian Portuguese") ,
-                    "zh_CN" => gettext("Simplified Chinese") ,
-                    "zh_TW" => gettext("Traditional Chinese") ,
-                    "ru_RU.UTF-8" => gettext("Russian")
-                ) ,
-                "help" => gettext("")
-            );
             $lform = "<select name=\"language\" onChange='document.langform_" . $login . ".submit()'>";
             foreach($languages['type'] as $option_value => $option_text) {
                 $lform.= "<option ";

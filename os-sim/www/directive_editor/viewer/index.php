@@ -633,7 +633,7 @@ port="!22,25,110,!21"
 </p> 
  
 <p> 
-<?php echo _("Although Host_ARP_Event, Host_<acronym title=\"Operating System\">OS</acronym>_Event, etc, are not really a protocol, you can use them if you want to do directives with ARP, <acronym title=\"Operating System\">OS</acronym>, IDS or Service events. You can also use relative referencing like in 1:TCP, 2:Host_ARP_Event, etc…") ?>
+<?php echo _("Although Host_ARP_Event, Host_OS_Event, etc, are not really a protocol, you can use them if you want to do directives with ARP, <acronym title=\"Operating System\">OS</acronym>, IDS or Service events. You can also use relative referencing like in 1:TCP, 2:Host_ARP_Event, etc") ?>
 </p> 
  
 <p> 
@@ -719,11 +719,11 @@ Eg: sticky_different="DST_PORT" <?php echo _("(All the events matching the rule 
 </ul> 
  
 <p> 
-username="one,two,three,!four4444,five" filename="1:FILENAME,/etc/password,!/etc/shadow" userdata5="el cocherito lere me dijo anoche lere,!2:USERDATA5"
+username="one,two,three,!four4444,five" filename="1:FILENAME,/etc/password,!/etc/shadow" userdata5="... data ...,!2:USERDATA5"
 </p> 
  
 <p> 
-NOTE: There are some kind of events that stores by default some of that fields:
+<?php echo gettext("NOTE: There are some kind of events that stores by default some of that fields:"); ?>
 </p> 
 <ul> 
 <li class="level1"><div class="li"> Arpwatch events:    Userdata1 = MAC</div> 
@@ -738,7 +738,7 @@ NOTE: There are some kind of events that stores by default some of that fields:
  
 </div> 
  
-<h4>Monitor Rule elements</h4> 
+<h4><?php echo gettext("Monitor Rule elements"); ?></h4> 
 <div class="level4"> 
  
 </div> 
@@ -785,7 +785,7 @@ NOTE: There are some kind of events that stores by default some of that fields:
 </p> 
  
 <p> 
-Eg: reliability="3" reliability="+3"
+<?php echo gettext("Eg:"); ?> reliability="3" reliability="+3"
  
 </p> 
  
@@ -815,7 +815,7 @@ Eg: reliability="3" reliability="+3"
 <div class="level5"> 
  
 <p> 
-<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn’t have a time_out value.") ?>
+<?php echo _("Waiting time before the rule expires and the directive process defined in that rule is discarded. The first rule doesn't have a time_out value.") ?>
  
 </p> 
  

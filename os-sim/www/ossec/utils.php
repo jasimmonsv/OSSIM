@@ -1,4 +1,35 @@
 <?php
+/*****************************************************************************
+*
+*    License:
+*
+*   Copyright (c) 2003-2006 ossim.net
+*   Copyright (c) 2007-2009 AlienVault
+*   All rights reserved.
+*
+*   This package is free software; you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation; version 2 dated June, 1991.
+*   You may not use, modify or distribute this program under any other version
+*   of the GNU General Public License.
+*
+*   This package is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this package; if not, write to the Free Software
+*   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+*   MA  02110-1301  USA
+*
+*
+* On Debian GNU/Linux systems, the complete text of the GNU General
+* Public License can be found in `/usr/share/common-licenses/GPL-2'.
+*
+* Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
+****************************************************************************/
+
 require_once 'classes/Session.inc';
 require_once 'classes/Util.inc';
 
@@ -275,10 +306,10 @@ function print_subfooter($params, $editable)
 {
 	if ($editable == true)
     {
-		$footer .= "<div id='buttons_box_edit'>";
+		$footer .= "<div class='buttons_box' style='padding-right:10px;'>";
 
-		$opt1 =  "<div class='button'><input type='button' id='send' class='save_edit' onclick=\"javascript: ".$params[0]."('".$params[1]."');\" value='"._("save")."'/></div>";
-		$opt2 =  "<div class='button'><input type='button' id='dis_send' class='save_edit' value='"._("save")."'/></div></div>";
+		$opt1 =  "<div><input type='button' id='send' class='save_edit' onclick=\"javascript: ".$params[0]."('".$params[1]."');\" value='"._("Update")."'/></div>";
+		$opt2 =  "<div><input type='button' id='dis_send' class='save_edit' value='"._("Update")."'/></div></div>";
 
 		$footer .= ($params[2] == false ) ? $opt1 : $opt2;
 	}
@@ -448,6 +479,7 @@ function print_children($children, $editable, $path='images')
 							<a class='edit_c' onclick=\"edit_child('$__level_key');\"><img src='$path/edit.png' alt='"._("Edit Rule")."' title='"._("Edit Rule")."'/></a>
 							<a $class onclick=\"delete_child('$__level_key','$path');\"><img src='$path/delete.gif' alt='"._("Delete")."' title='"._("Delete Rule")."'/></a>
 							<a onclick=\"clone_child('$__level_key', '$path');\"><img src='$path/clone.png' alt='"._("Clone")."' title='"._("Clone Rule")."'/></a>
+							<a onclick=\"show_node_xml('$__level_key');\"><img src='$path/xml.png' alt='"._("Show node XML")."' title='"._("Show node XML")."'/></a>
 						</td>";
 			}
 		else
@@ -456,13 +488,22 @@ function print_children($children, $editable, $path='images')
 					<td class='actions_bt_node'>
 						<a class='edit_c' onclick=\"edit_child('$__level_key');\"><img src='$path/show.png' alt='"._("Show Rule")."' title='"._("Show Rule")."'/></a>
 						<a onclick=\"copy_rule('$__level_key');\"><img src='$path/clone.png' alt='"._("Clone Rule to".$editable_files[0])."' title='"._("Clone Rule to ".$editable_files[0])."'/></a>
+						<a onclick=\"show_node_xml('$__level_key');\"><img src='$path/xml.png' alt='"._("Show node XML")."' title='"._("Show node XML")."'/></a>
 					</td>";
 		}
 		
 		$tr .= "</tr>";
+		$tr .= "<tr id='node_xml-$__level_key' class='oss_hide'>
+					<td colspan='2'>
+						<div class='header_node_xml' style='text-align:left;'>"._("Node XML").":</div>
+						<div class='cont_node_xml' id='cont_node_xml-$__level_key'>
+							<textarea id='txt_rule-$__level_key' class='txt_rule_format'></textarea>
+						</div>
+					</td>
+				</tr>";
 		
 	}
-	
+		
 	return $tr;
 }
 
@@ -737,7 +778,6 @@ function getTree($file)
 			
 	if ( file_exists( $filename) )
 	{
-		
 		$file_xml = @file_get_contents ($filename, false);
 			
 		$_level_key_name             = set_key_name($_level_key_name, $file_xml);
@@ -749,13 +789,16 @@ function getTree($file)
 		}
 		else
 		{
+			$result = test_conf(); 
+			
+			if ( $result !== true )
+				return "3###<div class='errors_ossec'>$result</div>";
+			
+			
 			$xml_obj=new xml($_level_key_name);
 			$xml_obj->load_file($filename);
 			
-			if ($xml_obj->errors['status'] == false)
-				return "3###". _("Format not allowed:")."<br/><div class='errors_xml'>".implode("<br/>", $xml_obj->errors['msg'])."</div>";
-			else
-				return $xml_obj->xml2array();
+			return $xml_obj->xml2array();
 		}	
 		
 	}
@@ -789,6 +832,21 @@ function get_actions ($agent)
 	return $restart.$check.$key.$delete;
 }
 
+//check if configuration files are OK
+function test_conf()
+{
+	exec("sudo /var/ossec/bin/ossec-logtest -t > /tmp/ossec-logtest 2>&1", $result, $res);
+	
+	$result = file('/tmp/ossec-logtest', FILE_IGNORE_NEW_LINES);
+	
+	$result = implode("<br/><br/>", $result);
+	@unlink ('/tmp/ossec-logtest');
+		
+	if ( preg_match ('/ERROR/', $result) )
+		return $result;
+	else
+		return true;
+}
 
 
 

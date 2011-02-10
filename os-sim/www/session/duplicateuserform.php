@@ -38,6 +38,8 @@
 require_once ('classes/Session.inc');
 Session::logcheck("MenuConfiguration", "ConfigurationUsers");
 require_once ('ossim_acl.inc');
+require_once 'languages.inc';
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -150,22 +152,9 @@ echo $user->get_email(); ?>" /></td>
 echo gettext("User language"); ?></th>
     <td class="left">
 <?php
-$language = array(
-    "type" => array(
-        "pt_BR" => gettext("Brazilian Portuguese") ,
-        "en_GB" => gettext("English") ,
-        "fr_FR" => gettext("French") ,
-        "de_DE" => gettext("German") ,
-        "ja_JP" => gettext("Japanese") ,
-        "ru_RU.UTF-8" => gettext("Russian"),
-        "zh_CN" => gettext("Simplified Chinese") ,
-        "es_ES" => gettext("Spanish") ,
-        "zh_TW" => gettext("Traditional Chinese")
-    ) ,
-    "help" => gettext("")
-);
+
 $lform = "<select name=\"language\">";
-foreach($language['type'] as $option_value => $option_text) {
+foreach($languages['type'] as $option_value => $option_text) {
     $lform.= "<option ";
     if ($user->get_language() == $option_value) $lform.= " SELECTED ";
     $lform.= "value=\"$option_value\">$option_text</option>";

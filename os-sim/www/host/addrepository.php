@@ -37,7 +37,7 @@
 require_once ("classes/Repository.inc");
 // menu authentication
 require_once ('classes/Session.inc');
-Session::logcheck("MenuTools", "ToolsScan");
+Session::logcheck("MenuPolicy", "ToolsScan");
 $user = $_SESSION["_user"];
 // get upload dir from ossim config file
 require_once 'ossim_conf.inc';

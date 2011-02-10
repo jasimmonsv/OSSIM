@@ -78,11 +78,11 @@ CREATE TABLE IF NOT EXISTS host_apps (
 );
 
 DROP TABLE IF EXISTS `host_agentless`;
-CREATE TABLE IF NOT EXISTS `host_agentless` (
+CREATE TABLE `host_agentless` (
   `ip` varchar(15) NOT NULL,
   `hostname` varchar(128) NOT NULL,
-  `user` varchar(128) default NULL,
-  `pass` varchar(128) default NULL,
+  `user` varchar(128) NOT NULL,
+  `pass` varchar(128) NOT NULL,
   `ppass` varchar(128) default NULL,
   `descr` varchar(255) default NULL,
   `status` int(2) NOT NULL default '1',
@@ -91,14 +91,14 @@ CREATE TABLE IF NOT EXISTS `host_agentless` (
 );
 
 DROP TABLE IF EXISTS `host_agentless_entries`;
-CREATE TABLE IF NOT EXISTS `host_agentless_entries` (
-  `id` int(11) NOT NULL auto_increment,
-  `ip` varchar(15) collate latin1_general_ci NOT NULL,
-  `type` varchar(64) collate latin1_general_ci NOT NULL,
-  `frecuency` int(10) NOT NULL,
-  `state` varchar(20) collate latin1_general_ci NOT NULL,
-  `arguments` varchar(255) collate latin1_general_ci default NULL,
-  PRIMARY KEY  (`id`),
+CREATE TABLE `host_agentless_entries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip` varchar(15) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `type` varchar(64) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `frequency` int(10) NOT NULL,
+  `state` varchar(20) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL,
+  `arguments` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `ip` (`ip`,`type`)
 );
 
@@ -162,7 +162,7 @@ DROP TABLE IF EXISTS `inventory_search`;
 CREATE TABLE IF NOT EXISTS `inventory_search` (
   `type` varchar(32) NOT NULL,
   `subtype` varchar(32) NOT NULL,
-  `match` enum('text','ip','fixed','boolean','date','number','concat') NOT NULL,
+  `match` enum('text', 'ip', 'fixed', 'boolean', 'date', 'number', 'concat', 'fixedText') NOT NULL,
   `list` varchar(255) default NULL,
   `query` text NOT NULL,
   `ruleorder` int(11) NOT NULL default '999',
@@ -243,7 +243,7 @@ CREATE TABLE sensor (
     connect         smallint NOT NULL,
 /*    sig_group_id    int  NOT NULL, */
     descr           varchar(255) NOT NULL,
-    tzone           int NOT NULL DEFAULT 0,
+    tzone           float NOT NULL DEFAULT 0,
     PRIMARY KEY     (name)
 );
 
@@ -272,35 +272,62 @@ CREATE TABLE net_sensor_reference (
     PRIMARY KEY     (net_name, sensor_name)
 );
 
-CREATE TABLE host_property_reference (
-   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   name VARCHAR(100)
+DROP TABLE IF EXISTS host_property_reference;
+CREATE TABLE IF NOT EXISTS `host_property_reference` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(100) default NULL,
+  `ord` int(11) NOT NULL default '0',
+  `description` varchar(128) NOT NULL,
+  PRIMARY KEY  (`id`)
 );
 
-CREATE TABLE host_properties (
-   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
-   ip VARCHAR(15),
+INSERT INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
+(1, 'software', 3, 'Software'),
+(2, 'cpu', 8, 'CPU'),
+(3, 'operating-system', 1, 'Operating System'),
+(4, 'services', 2, 'Services'),
+(5, 'ram', 9, 'RAM'),
+(6, 'department', 5, 'Department'),
+(7, 'macAddress', 7, 'MAC Address'),
+(8, 'workgroup', 6, 'Workgroup'),
+(9, 'role', 4, 'Role');
+
+DROP TABLE IF EXISTS host_properties;
+CREATE TABLE IF NOT EXISTS host_properties (
+   id INT NOT NULL AUTO_INCREMENT, 
+   ip VARCHAR(15) NOT NULL,
+   sensor VARCHAR(64) NOT NULL,
    date DATETIME,
    property_ref INT,
    source_id INT,
    value TEXT,
-   extra TEXT
+   extra TEXT,
+   anom TINYINT(1) NOT NULL DEFAULT '0',
+   PRIMARY KEY  (`id`),
+   KEY `date` (`date`),
+   KEY `ip` (`ip`,`sensor`),
+   KEY `property_ref` (`property_ref`,`value`(255))   
 );
 
-CREATE TABLE host_source_reference (
+DROP TABLE IF EXISTS host_properties_changes;
+CREATE TABLE IF NOT EXISTS host_properties_changes (
+	   id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+	   type        INT, 
+	   ip           VARCHAR(15), 
+	   sensor       VARCHAR(64), 
+	   date         DATETIME, 
+	   property_ref INT, 
+	   source_id    INT, 
+	   value        TEXT, 
+	   extra        TEXT
+);
+
+DROP TABLE IF EXISTS host_source_reference;
+CREATE TABLE IF NOT EXISTS host_source_reference (
    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
    name VARCHAR(100),
    priority INT
 );
-
-INSERT INTO host_property_reference(name) VALUES ('software');
-INSERT INTO host_property_reference(name) VALUES ('cpu');
-INSERT INTO host_property_reference(name) VALUES ('operating-system');
-INSERT INTO host_property_reference(name) VALUES ('worgroup');
-INSERT INTO host_property_reference(name) VALUES ('ram');
-INSERT INTO host_property_reference(name) VALUES ('department');
-INSERT INTO host_property_reference(name) VALUES ('macAddress');
-INSERT INTO host_property_reference(name) VALUES ('workgroup');
 
 INSERT INTO host_source_reference(name, priority) VALUES ('MANUAL', 10);
 INSERT INTO host_source_reference(name, priority) VALUES ('OCS', 9);
@@ -832,6 +859,7 @@ DROP TABLE IF EXISTS event;
 CREATE TABLE event (
         id              BIGINT NOT NULL,
         timestamp       TIMESTAMP NOT NULL,
+        tzone           FLOAT NOT NULL DEFAULT '0',
         sensor          TEXT NOT NULL,
         interface       TEXT NOT NULL,
         type            INTEGER NOT NULL,
@@ -1156,6 +1184,7 @@ CREATE TABLE users (
     language varchar(12) DEFAULT 'en_GB' NOT NULL,
     enabled TINYINT(1) NOT NULL DEFAULT '1',
     first_login TINYINT(1) NOT NULL DEFAULT '1',
+    timezone FLOAT NOT NULL DEFAULT '0',
     last_pass_change timestamp NOT NULL default CURRENT_TIMESTAMP,
     last_logon_try datetime NOT NULL,
     is_admin TINYINT(1) NOT NULL DEFAULT 0,
@@ -2343,6 +2372,7 @@ CREATE TABLE IF NOT EXISTS `acl_entities` (
   `admin_user` varchar(60) NOT NULL,
   `name` varchar(128) default NULL,
   `address` tinytext,
+  `timezone` FLOAT NOT NULL DEFAULT '0',
   `parent_id` int(11) default NULL,
   `inherit_sensors_from_parent` tinyint(4) default NULL,
   `inherit_assets_from_parent` tinyint(4) default NULL,
@@ -2355,7 +2385,7 @@ CREATE TABLE IF NOT EXISTS `acl_entities` (
   PRIMARY KEY  (`id`),
   KEY `fk_ac_entities_ac_entities_types1` (`type`),
   KEY `fk_acl_entities_acl_users1` (`admin_user`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+);
 
 DROP TABLE IF EXISTS `acl_entities_types`;
 CREATE TABLE IF NOT EXISTS `acl_entities_types` (
@@ -2366,7 +2396,7 @@ CREATE TABLE IF NOT EXISTS `acl_entities_types` (
   `inherit_menus_from_parent` tinyint(4) default NULL,
   `inherit_policies_from_parent` tinyint(4) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
+);
 
 INSERT INTO `acl_entities_types` (`id`, `name`, `inherit_sensors_from_parent`, `inherit_assets_from_parent`, `inherit_menus_from_parent`, `inherit_policies_from_parent`) VALUES
 (1, 'Company', 1, 1, 1, 1),
@@ -2386,7 +2416,7 @@ CREATE TABLE IF NOT EXISTS `acl_perm` (
   `enabled` tinyint(4) default '1',
   `ord` varchar(5) NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=70 ;
+);
 
 INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granularity_sensor`, `granularity_net`, `enabled`, `ord`) VALUES
 (1, 'MENU', 'MenuControlPanel', 'ControlPanelExecutive', 'Dashboard -> Main', 1, 1, 1, '01.01'),
@@ -2394,70 +2424,75 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (3, 'MENU', 'MenuControlPanel', 'ControlPanelExecutiveEdit', 'Dashboard -> Executive Panel Edit', 1, 1, 1, '01.02'),
 (4, 'MENU', 'MenuControlPanel', 'ControlPanelMetrics', 'Dashboard -> Metrics', 1, 1, 1, '01.06'),
 (5, 'MENU', 'MenuControlPanel', 'ControlPanelEvents', '', 0, 0, 0, '0'),
-(6, 'MENU', 'MenuControlPanel', 'ControlPanelVulnerabilities', 'Dashboard -> Vulnerabilities', 1, 1, 1, '01.03'),
 (7, 'MENU', 'MenuControlPanel', 'ControlPanelAnomalies', '', 0, 0, 0, '0'),
 (8, 'MENU', 'MenuControlPanel', 'ControlPanelHids', '', 0, 0, 0, '0'),
 (9, 'MENU', 'MenuIntelligence', 'PolicyPolicy', 'Intelligence -> Policy', 1, 1, 1, '06.01'),
 (10, 'MENU', 'MenuPolicy', 'PolicyHosts', 'Assets -> Assets -> Hosts', 1, 0, 1, '05.02'),
 (11, 'MENU', 'MenuPolicy', 'PolicyNetworks', 'Assets -> Assets -> Networks', 0, 1, 1, '05.03'),
-(12, 'MENU', 'MenuPolicy', 'PolicySensors', 'Assets -> SIEM Components -> Sensors', 1, 0, 1, '05.06'),
+(12, 'MENU', 'MenuConfiguration', 'PolicySensors', 'Configuration -> SIEM Components -> Sensors', 1, 0, 1, '08.04'),
 (13, 'MENU', 'MenuPolicy', 'PolicySignatures', '', 0, 0, 0, '0'),
 (14, 'MENU', 'MenuPolicy', 'PolicyPorts', 'Assets -> Assets -> Ports', 0, 0, 1, '05.04'),
 (15, 'MENU', 'MenuIntelligence', 'PolicyActions', 'Intelligence -> Actions', 0, 0, 1, '06.02'),
 (16, 'MENU', 'MenuPolicy', 'PolicyResponses', '', 0, 0, 0, '0'),
-(17, 'MENU', 'MenuConfiguration', 'PluginGroups', 'Configuration -> Collection -> PluginGroups', 0, 0, 1, '08.05'),
+(17, 'MENU', 'MenuConfiguration', 'PluginGroups', 'Configuration -> Collection -> DS Groups', 0, 0, 1, '08.07'),
 (18, 'MENU', 'MenuReports', 'ReportsHostReport', 'Reports -> Asset Report', 1, 1, 1, '04.01'),
 (19, 'MENU', 'MenuIncidents', 'ReportsAlarmReport', 'Incidents -> Alarms -> Reports', 1, 0, 1, '02.02'),
 (20, 'MENU', 'MenuReports', 'ReportsSecurityReport', 'Incidents -> Alarms -> Reports', 1, 0, 0, '0'),
 (21, 'MENU', 'MenuReports', 'ReportsPDFReport', '', 1, 0, 0, '0'),
 (22, 'MENU', 'MenuIncidents', 'IncidentsIncidents', 'Incidents -> Tickets', 1, 0, 1, '02.03'),
-(23, 'MENU', 'MenuIncidents', 'IncidentsTypes', 'Incidents -> Tickets -> Types', 0, 0, 1, '02.05'),
-(24, 'MENU', 'MenuIncidents', 'IncidentsReport', 'Incidents -> Tickets -> Report', 1, 0, 1, '02.04'),
-(25, 'MENU', 'MenuIncidents', 'IncidentsTags', 'Incidents -> Tickets -> Tags', 0, 0, 1, '02.06'),
+(23, 'MENU', 'MenuIncidents', 'IncidentsTypes', 'Incidents -> Tickets -> Types', 0, 0, 1, '02.07'),
+(24, 'MENU', 'MenuIncidents', 'IncidentsReport', 'Incidents -> Tickets -> Report', 1, 0, 1, '02.06'),
+(25, 'MENU', 'MenuIncidents', 'IncidentsTags', 'Incidents -> Tickets -> Tags', 0, 0, 1, '02.08'),
 (26, 'MENU', 'MenuMonitors', 'MonitorsSession', '', 0, 0, 0, '0'),
 (27, 'MENU', 'MenuMonitors', 'MonitorsNetwork', 'Monitors -> Network -> Profiles', 1, 0, 1, '07.02'),
 (28, 'MENU', 'MenuMonitors', 'MonitorsAvailability', 'Monitors -> Availability', 0, 0, 1, '07.03'),
-(29, 'MENU', 'MenuMonitors', 'MonitorsSensors', 'Monitors -> System', 1, 0, 1, '07.04'),
+(29, 'MENU', 'MenuStatus', 'MonitorsSensors', 'Status -> Sensors', 1, 0, 1, '09.01'),
 (30, 'MENU', 'MenuControlPanel', 'MonitorsRiskmeter', 'Dashboard -> Metrics -> Riskmeter', 1, 1, 1, '01.07'),
 (31, 'MENU', 'MenuIntelligence', 'CorrelationDirectives', 'Intelligence -> Correlation Directives', 0, 0, 1, '06.03'),
 (32, 'MENU', 'MenuIntelligence', 'CorrelationCrossCorrelation', 'Intelligence -> Cross Correlation', 0, 0, 1, '06.06'),
 (33, 'MENU', 'MenuIntelligence', 'CorrelationBacklog', 'Intelligence -> Correlation Directives -> Backlog', 1, 0, 1, '06.04'),
 (34, 'MENU', 'MenuConfiguration', 'ConfigurationMain', 'Configuration -> Main', 0, 0, 1, '08.01'),
 (35, 'MENU', 'MenuConfiguration', 'ConfigurationUsers', 'Configuration -> Users', 0, 0, 1, '08.02'),
-(36, 'MENU', 'MenuConfiguration', 'ConfigurationPlugins', 'Configuration -> Collection', 0, 0, 1, '08.04'),
+(36, 'MENU', 'MenuConfiguration', 'ConfigurationPlugins', 'Configuration -> Collection -> Data Sources', 0, 0, 1, '08.06'),
 (37, 'MENU', 'MenuConfiguration', 'ConfigurationRRDConfig', '', 0, 0, 0, '0'),
 (38, 'MENU', 'MenuConfiguration', 'ConfigurationHostScan', '', 0, 0, 0, '0'),
 (39, 'MENU', 'MenuConfiguration', 'ConfigurationUserActionLog', 'Configuration -> Users -> User activity', 0, 0, 1, '08.03'),
-(40, 'MENU', 'MenuIncidents', 'ConfigurationEmailTemplate', 'Incidents -> Tickets -> Incidents Email Template', 0, 0, 1, '02.07'),
-(41, 'MENU', 'MenuConfiguration', 'ConfigurationUpgrade', 'Configuration -> Software Upgrade', 0, 0, 1, '08.06'),
-(42, 'MENU', 'MenuTools', 'ToolsScan', 'Tools -> Net Discovery', 0, 1, 1, '09.03'),
+(40, 'MENU', 'MenuIncidents', 'ConfigurationEmailTemplate', 'Incidents -> Tickets -> Incidents Email Template', 0, 0, 1, '02.09'),
+(41, 'MENU', 'MenuConfiguration', 'ConfigurationUpgrade', 'Configuration -> Software Upgrade', 0, 0, 1, '08.09'),
+(42, 'MENU', 'MenuPolicy', 'ToolsScan', 'Assets -> Assets Discovery', 0, 1, 1, '05.06'),
 (43, 'MENU', 'MenuTools', 'ToolsRuleViewer', '', 0, 0, 0, '0'),
-(44, 'MENU', 'MenuTools', 'ToolsBackup', 'Tools -> Backup', 0, 0, 1, '09.01'),
-(45, 'MENU', 'MenuReports', 'ToolsUserLog', 'Reports -> Reports -> User log', 0, 0, 1, '04.04'),
+(44, 'MENU', 'MenuConfiguration', 'ToolsBackup', 'Configuration -> Backup', 0, 0, 1, '08.10'),
 (46, 'MENU', 'MenuControlPanel', 'BusinessProcesses', 'Dashboard -> Risk Maps', 1, 1, 1, '01.04'),
 (47, 'MENU', 'MenuControlPanel', 'BusinessProcessesEdit', 'Dashboard -> Risk Maps Edit', 1, 1, 1, '01.05'),
 (48, 'MENU', 'MenuEvents', 'EventsForensics', 'Analysis -> SIEM Events', 1, 1, 1, '03.01'),
-(49, 'MENU', 'MenuEvents', 'EventsVulnerabilities', 'Analysis -> Vulnerabilities', 1, 1, 1, '03.07'),
-(50, 'MENU', 'MenuEvents', 'EventsAnomalies', 'Analysis -> SIEM Events -> Anomalies', 1, 1, 1, '03.05'),
-(51, 'MENU', 'MenuEvents', 'EventsRT', 'Analysis -> SIEM Events -> Real Time', 1, 0, 1, '03.02'),
-(52, 'MENU', 'MenuEvents', 'EventsViewer', 'Analysis -> SIEM Events -> Custom', 1, 0, 1, '03.03'),
-(53, 'MENU', 'MenuPolicy', 'PolicyServers', 'Assets -> SIEM Components -> Servers', 0, 0, 1, '05.07'),
+(49, 'MENU', 'MenuEvents', 'EventsVulnerabilities', 'Analysis -> Vulnerabilities -> View', 1, 1, 1, '03.07'),
+(50, 'MENU', 'MenuEvents', 'EventsAnomalies', 'Analysis -> Detection -> Anomalies', 1, 1, 1, '03.06'),
+(51, 'MENU', 'MenuEvents', 'EventsRT', 'Analysis -> SIEM Events -> Real Time', 1, 0, 1, '03.03'),
+(53, 'MENU', 'MenuConfiguration', 'PolicyServers', 'Configuration -> SIEM Components -> Servers', 0, 0, 1, '08.05'),
 (54, 'MENU', 'MenuPolicy', 'ReportsOCSInventory', 'Assets -> Assets -> Inventory', 1, 1, 1, '05.05'),
-(55, 'MENU', 'MenuIncidents', 'Osvdb', 'Incidents -> Knowledge DB', 0, 0, 1, '02.08'),
+(55, 'MENU', 'MenuIncidents', 'Osvdb', 'Incidents -> Knowledge DB', 0, 0, 1, '02.10'),
 (56, 'MENU', 'MenuConfiguration', 'ConfigurationMaps', '', 0, 0, 0, '0'),
-(57, 'MENU', 'MenuTools', 'ToolsDownloads', 'Tools -> Downloads', 0, 0, 1, '09.02'),
+(57, 'MENU', 'MenuConfiguration', 'ToolsDownloads', 'Configuration -> Collection -> Downloads', 0, 0, 1, '08.08'),
 (58, 'MENU', 'MenuReports', 'ReportsGLPI', '', 0, 0, 0, '0'),
 (59, 'MENU', 'MenuMonitors', 'MonitorsVServers', '', 0, 0, 0, '0'),
-(60, 'MENU', 'MenuIncidents', 'ControlPanelAlarms', 'Incidents -> Alarms', 1, 0, 1, '02.01'),
-(61, 'MENU', 'MenuEvents', 'ControlPanelSEM', 'Analysis -> Logger', 1, 0, 1, '03.06'),
-(62, 'MENU', 'MenuEvents', 'ReportsWireless', 'Analysis -> SIEM Events -> Wireless', 1, 0, 1, '03.04'),
+(60, 'MENU', 'MenuIncidents', 'ControlPanelAlarms', 'Incidents -> Alarms', 1, 0, 1, '02.00'),
+(61, 'MENU', 'MenuEvents', 'ControlPanelSEM', 'Analysis -> Logger', 1, 0, 1, '03.04'),
+(62, 'MENU', 'MenuEvents', 'ReportsWireless', 'Analysis -> Detection -> Wireless', 1, 0, 1, '03.05'),
 (63, 'MENU', 'MenuIntelligence', 'ComplianceMapping', 'Intelligence -> Compliance Mapping', 0, 0, 1, '06.05'),
 (64, 'MENU', 'MenuPolicy', '5DSearch', 'Assets -> Asset Search', 0, 0, 1, '05.01'),
-(65, 'MENU', 'MenuReports', 'ReportsReportServer', 'Reports -> Reports -> Advanced', 0, 0, 1, '04.05'),
+(65, 'MENU', 'MenuReports', 'ReportsReportServer', 'Reports -> Custom Reports', 0, 0, 1, '04.02'),
 (66, 'MENU', 'MenuMonitors', 'MonitorsNetflows', 'Monitors -> Network -> Traffic', 0, 0, 1, '07.01'),
 (67, 'MENU', 'MenuReports', '5DSearch', 'Assets -> Asset Search', 0, 0, 0, '0'),
-(68, 'MENU', 'MainMenu', 'Index', 'Top Frame Status', 1, 1, 1, '00.01'),
-(69, 'MENU', 'MenuMonitors', 'ToolsUserLog', 'Monitors -> System -> User Activity', 0, 0, 1, '07.05');
+(68, 'MENU', 'MainMenu', 'Index', 'Top Frame', 1, 1, 1, '00.01'),
+(69, 'MENU', 'MenuStatus', 'ToolsUserLog', 'Status -> Sensors -> User Activity', 0, 0, 1, '09.02'),
+(70, 'MENU', 'MenuIncidents', 'ControlPanelAlarmsDelete', 'Incidents -> Alarms -> Delete Alarms', 0, 0, 1, '02.01'),
+(71, 'MENU', 'MenuEvents', 'EventsForensicsDelete', 'Analysis -> SIEM Events -> Delete Events', 0, 0, 1, '03.02'),
+(72, 'MENU', 'MenuEvents', 'EventsVulnerabilitiesScan', 'Analysis -> Vulnerabilities -> Scan/Import', 1, 1, 1, '03.08'),
+(73, 'MENU', 'MenuEvents', 'EventsVulnerabilitiesDeleteScan', 'Analysis -> Vulnerabilities -> Delete Scan Report', 1, 1, 1, '03.09'),
+(74, 'MENU', 'MenuReports', 'ReportsCreateCustom', 'Reports -> Custom Reports -> Create Custom Report', 0, 0, 1, '04.06'),
+(75, 'MENU', 'MenuReports', 'ReportsScheduler', 'Reports -> Custom Reports -> Scheduler', 0, 0, 1, '04.07'),
+(76, 'MENU', 'MenuIncidents', 'IncidentsOpen', 'Incidents -> Tickets -> Open Tickets', 0, 0, 1, '02.04'),
+(77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', 0, 0, 1, '02.05');
 
 
 DROP TABLE IF EXISTS `acl_templates`;
@@ -2468,22 +2503,14 @@ CREATE TABLE IF NOT EXISTS `acl_templates` (
   `allowed_nets` TEXT,
   `entity` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
+);
 
 DROP TABLE IF EXISTS `acl_templates_perms`;
 CREATE TABLE IF NOT EXISTS `acl_templates_perms` (
   `ac_templates_id` int(11) NOT NULL,
   `ac_perm_id` int(11) NOT NULL,
-  PRIMARY KEY  (`ac_templates_id`,`ac_perm_id`),
-  KEY `fk_acl_aco_ac_templates1` (`ac_templates_id`),
-  KEY `fk_acl_aco_ac_perm1` (`ac_perm_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-ALTER TABLE `acl_entities` ADD CONSTRAINT `fk_ac_entities_ac_entities_types1` FOREIGN KEY (`type`) REFERENCES `acl_entities_types` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
-ALTER TABLE `acl_templates_perms` ADD CONSTRAINT `fk_acl_aco_ac_perm1` FOREIGN KEY (`ac_perm_id`) REFERENCES `acl_perm` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_acl_aco_ac_templates1` FOREIGN KEY (`ac_templates_id`) REFERENCES `acl_templates` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  PRIMARY KEY  (`ac_templates_id`,`ac_perm_id`)
+);
 
 DROP TABLE IF EXISTS `custom_report_profiles`;
 CREATE TABLE IF NOT EXISTS `custom_report_profiles` (

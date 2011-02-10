@@ -35,7 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuTools", "ToolsScan");
+Session::logcheck("MenuPolicy", "ToolsScan");
 ?>
 
 <html>

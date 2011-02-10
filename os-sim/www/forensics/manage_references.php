@@ -86,11 +86,11 @@ while ($myrow = $result->baseFetchRow()) {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <!-- <?php
-echo _TITLE . $BASE_VERSION; ?> -->
+echo gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION; ?> -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php
-echo _CHARSET; ?>">
+echo gettext("iso-8859-1"); ?>">
   <meta http-equiv="pragma" content="no-cache">
   <link rel="stylesheet" href="../style/style.css"/>
 
@@ -179,7 +179,7 @@ function formsubmit () {
 			}
 		});
 	}
-	else alert ("<?=_("Must select Plugin ID/Plugin SID pair and type a value")?>");
+	else alert ("<?=_("Must select Data Source/Event Type pair and type a value")?>");
 }
 </script>
 </head>
@@ -241,7 +241,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 								</td>
 							</tr>
 							<tr>
-								<td class="left nobborder"><?=_("Plugin ID")?>: 
+								<td class="left nobborder"><?=_("Data Source")?>: 
 								<select name="plugin_id1" id="plugin_id1" onchange="load_sid(document.frules.plugin_id1.value);" style="width:202px">
 								<option value=""><?=_("Select Plugin ID")?>
 							<?
@@ -256,7 +256,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 							  </tr>
 							  
 							<tr>
-								<td id="sid1" class="left nobborder"><?=_("Plugin SID")?>:
+								<td id="sid1" class="left nobborder"><?=_("Event Type")?>:
 									<select name="" disabled style="width:200px">
 										<option value=""><?=_("Select Plugin SID")?>
 									</select>

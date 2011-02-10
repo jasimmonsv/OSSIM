@@ -94,7 +94,7 @@ if ($action=="del_sensor" && $location!=""  && $sensor!="") {
 		showhide('#cell<?=$layer?>','#img<?=$layer?>')
 		<? } ?>
 		$("#location").Watermark('<?=_("Location")?>');
-		$("#desc").Watermark('<?=_("Description")?>');
+		$("#desc").Watermark('<?=html_entity_decode(_("Description"))?>');
 		for (var i=1;i<=max;i++) {
 			$("#model"+i).Watermark('<?=_("Model")?>');
 			$("#serial"+i).Watermark('<?=_("Serial")?>');
@@ -122,7 +122,7 @@ if ($action=="del_sensor" && $location!=""  && $sensor!="") {
 	<tr>
 		<td class="noborder"><input type="text" size="30" id="location" name="location"></td>
 		<td class="noborder"><input type="text" size="60" id="desc" name="desc"></td>
-		<td class="noborder"><input type="submit" value="Add New Location" class="lbutton"></td>
+		<td class="noborder"><input type="submit" value="<?php echo gettext("Add New Location"); ?>" class="lbutton"></td>
 	</tr>
 	</table>
 	</form>

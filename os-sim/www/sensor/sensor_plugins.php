@@ -35,7 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuMonitors", "MonitorsSensors");
+Session::logcheck("MenuStatus", "MonitorsSensors");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -94,9 +94,14 @@ function mark(id) {
 <? include ("../host_report_menu.php") ?>
 </head>
 <body>                             
-
 <?php
 include ("../hmenu.php");
+
+// Sensors perm check
+if (!Session::menu_perms("MenuConfiguration", "PolicySensors")) {
+	die("<br>"._("You need permissions of section '")."<b>"._("Configuration -> SIEM Components -> Sensors")."</b>"._("' to see this page. Contact with the administrator."));
+}
+
 require_once 'ossim_conf.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/Sensor.inc';
@@ -237,13 +242,26 @@ foreach($sensor_list as $sensor) {
         if ($munin_link=="") $munin_link = "/munin/";
         $server_ip=trim(`grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
         $https=trim(`grep framework_https /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
-        if ($ip == $server_ip)
+        if ($ip == $server_ip) {
         	$munin_url='http'.(($https=="yes") ? "s" : "").'://'.$_SERVER["SERVER_NAME"].$munin_link;
-        else
+        	$munin_url=str_replace("localhost",$ip,$munin_url);
+        	$testmunin = "http://" . $ip . "/munin/";
+        } else {
         	$munin_url='http://'.$ip.$munin_link;
-?><a href="<?php
-        echo $munin_url; ?>"><img align="bottom" src="../pixmaps/chart_bar.png" border="0"></a>
-				<?php
+        	$testmunin = $munin_url;
+		}	
+		// check valid munin url
+		error_reporting(0);
+		$testlink = get_headers($testmunin);
+		error_reporting(E_ALL ^ E_NOTICE);
+		
+		if (preg_match("/200 OK/",$testlink[0])) {
+    ?>
+    	    <a href="<?php echo $munin_url; ?>"><img align="bottom" src="../pixmaps/chart_bar.png" border="0"></a>
+	<?php
+	    } else {
+	    	echo "<img align=\"bottom\" src=\"../pixmaps/chart_bar_off.png\" border=\"0\">";
+	    }
     }
     echo "</td><td class=\"noborder\" style=\"text-align: left;\">";
     echo "<span style=\"font-family:tahoma; font-size:11px;font-weight:normal;\">[ "._("UP or ENABLED").": </span>";

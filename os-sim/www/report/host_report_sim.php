@@ -243,12 +243,12 @@ function plot_graphic($id, $height, $width, $xaxis, $yaxis, $xticks, $xlabel, $d
 
 
 list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
-//list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
+//list($x, $y, $xticks, $xlabels) = Status::range_graphic("week"); 
 ?>
 
 <table align="center" width="100%" class="bordered">
 	<tr>
-		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu">SIEM Events</a></td>
+		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu"><?php echo gettext("SIEM Events"); ?></a></td>
 	</tr>
 	<?php
 	// GRAPH
@@ -261,7 +261,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 		<td style="text-align:center">
 			<table align="center" style="width:auto">
 				<tr>
-					<td nowrap style="text-align:left"><b><?=$sim_numevents?></b> SIEM total unique events<br> in <b>week range</b></td>
+					<td nowrap style="text-align:left"><b><?=$sim_numevents?></b> <?php echo gettext("SIEM total unique events<br> in <b>week range</b>"); ?></td>
 					<td><?=$graph.$plot?></td>
 				</tr>
 			</table>
@@ -279,11 +279,11 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 							<? } else { ?>
 							<tr>
 								<th><?=gettext("Most Common Event: Last Week")?></th>
-								<th>Total #</th>
-								<? if ($network) { ?><th>IP src</th><? } ?>
-								<? if ($network) { ?><th>IP dst</th><? } ?>
-								<th>Sensor #</th>
-								<th>Src/Dst Addr.</th>
+								<th><?php echo gettext("Total #"); ?></th>
+								<? if ($network) { ?><th><?php echo gettext("IP src"); ?></th><? } ?>
+								<? if ($network) { ?><th><?php echo gettext("IP dst"); ?></th><? } ?>
+								<th><?php echo gettext("Sensor #"); ?></th>
+								<th><?php echo gettext("Src/Dst Addr."); ?></th>
 								<th><?=gettext("Graph")?></th>
 							</tr>
 							<? $i = 0;foreach ($unique_events as $ev) {

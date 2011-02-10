@@ -92,8 +92,7 @@ if ($error != true)
 			$status = array ("not_running", _("Not running"));
 		else
 			$status = array ("running", _("Running"));
-
-	}
+    }
 }
 
 ?>
@@ -138,7 +137,7 @@ if ($error != true)
 		{
 		   return parseInt($(document).height()) - 200;
 		}
-		
+						
 		function action(com,grid)
 		{ 
 			var items = $('.trSelected', grid);
@@ -215,6 +214,12 @@ if ($error != true)
 			if (com=='new')
 				document.location.href = 'al_newform.php';
 		}
+		
+		
+		function linked_to(rowid) {
+			document.location.href = 'al_modifyform.php?ip='+urlencode(rowid);
+		}
+		
 				
 		$(document).ready(function() {
 			
@@ -270,6 +275,7 @@ if ($error != true)
 				width: get_width('headerh1'),
 				height: get_height(),
 				onColumnChange: save_layout,
+				onDblClick: linked_to,
 				onEndResize: save_layout
 			});
 		});
