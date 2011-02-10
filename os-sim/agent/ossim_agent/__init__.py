@@ -31,5 +31,5 @@
 #
 # GLOBAL CONSTANTS
 #
-__version__ = "2.1"
-__date__    = "$Date: 2009/07/06 08:59:16 $"
+__version__ = "2.3.1"
+__date__    = "$Date: 2011/02/11 08:59:16 $"

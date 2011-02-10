@@ -32,6 +32,7 @@
 # GLOBAL IMPORTS
 #
 from time import mktime, strptime, time
+from base64 import b64encode
 #
 # LOCAL IMPORTS
 #
@@ -45,7 +46,19 @@ logger = Logger.logger
 
 
 class Event:
-
+    EVENT_BASE64 = [
+        'username',
+        'password',
+        'filename',
+        'userdata1',
+        'userdata2',
+        'userdata3',
+        'userdata4',
+        'userdata5',
+        'userdata6',
+        'userdata7',
+        'userdata8',
+        'userdata9','log']
     EVENT_TYPE = 'event'
     EVENT_ATTRS = [
         "type",
@@ -89,7 +102,10 @@ class Event:
     def __setitem__(self, key, value):
 
         if key in self.EVENT_ATTRS:
-            self.event[key] = self.sanitize_value(value)
+            if key in EVENT.EVENT_BASE64:
+                self.event[key] = b64encode (value)
+            else:
+                self.event[key] = value
             if key == "date":
                 # Fill with a default date.
                 date = int(time())
