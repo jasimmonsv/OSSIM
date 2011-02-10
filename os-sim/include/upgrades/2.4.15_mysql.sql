@@ -2,10 +2,34 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
-ALTER TABLE acl_entities DROP FOREIGN KEY fk_ac_entities_ac_entities_types1;
-ALTER TABLE acl_entities DROP INDEX fk_ac_entities_ac_entities_types1;
-ALTER TABLE acl_entities DROP INDEX fk_acl_entities_acl_users1;
-ALTER TABLE `event` ADD `tzone` FLOAT NOT NULL DEFAULT  '0' AFTER `timestamp`;
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+   IF EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS WHERE TABLE_NAME = 'host_properties' AND CONSTRAINT_NAME='fk_ac_entities_ac_entities_types1')
+   THEN
+        ALTER TABLE acl_entities DROP FOREIGN KEY fk_ac_entities_ac_entities_types1;
+   END IF;
+   IF EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'acl_entities' AND INDEX_NAME='k_ac_entities_ac_entities_types1')
+   THEN
+        ALTER TABLE acl_entities DROP INDEX fk_ac_entities_ac_entities_types1;
+   END IF;
+   IF EXISTS
+        (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'acl_entities' AND INDEX_NAME='fk_acl_entities_acl_users1')
+   THEN
+        ALTER TABLE acl_entities DROP INDEX fk_acl_entities_acl_users1;
+   END IF;        
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'event' AND COLUMN_NAME = 'tzone')
+  THEN
+      ALTER TABLE `event` ADD `tzone` FLOAT NOT NULL DEFAULT  '0' AFTER `timestamp`;
+  END IF;   
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
 
 use ossim_acl;
 REPLACE INTO `aco` (`id`, `section_value`, `value`, `order_value`, `name`, `hidden`) VALUES

@@ -21,21 +21,11 @@ CREATE PROCEDURE addsindex() BEGIN
    THEN
         ALTER TABLE `incident_ticket` ADD INDEX `users` ( `incident_id` , `users` , `in_charge` , `transferred` ) ;
    END IF;
-END;
-//
-DELIMITER ';'
-CALL addsindex();
-DROP PROCEDURE addsindex;
-
-
-DROP PROCEDURE IF EXISTS addsindex;
-DELIMITER '//'
-CREATE PROCEDURE addsindex() BEGIN
    IF NOT EXISTS
         (SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = 'incident' AND INDEX_NAME='in_charge')
    THEN
         ALTER TABLE `incident` ADD INDEX ( `in_charge` );
-   END IF;
+   END IF;   
 END;
 //
 DELIMITER ';'

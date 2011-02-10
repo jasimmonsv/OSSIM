@@ -2,7 +2,7 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
-ALTER TABLE `vuln_job_schedule` CHANGE `schedule_type` `schedule_type` ENUM( 'O','D', 'W', 'M', 'NW' ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'M';
+ALTER TABLE `vuln_job_schedule` CHANGE `schedule_type` `schedule_type` ENUM( 'O','D', 'W', 'M', 'NW' ) NOT NULL DEFAULT 'M';
 DELETE FROM `user_config` WHERE category='policy' AND name='sensors_layout';
 REPLACE INTO config (conf , value) VALUES ('tickets_max_days', '15');
 

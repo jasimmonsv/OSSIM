@@ -2,8 +2,22 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
-ALTER TABLE `incident_custom_types` ADD `ord` INT NOT NULL;
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'incident_custom_types' AND COLUMN_NAME = 'ord')
+  THEN
+      ALTER TABLE `incident_custom_types` ADD `ord` INT NOT NULL;
+  END IF;
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 ALTER TABLE `incident_custom` CHANGE `content` `content` BLOB NOT NULL;
+
 REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`, `dr`) VALUES (515, 'NetFlows - Trafic Graphs', 'Network', 'Network/TraficGraphs.php', 'Source:SOURCE:multiselect:OSS_ALPHA.OSS_COLON.OSS_SPACE.OSS_SCORE.OSS_DOT;TCP:tcp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;UDP:udp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;ICMP:icmp:checkbox:OSS_NULLABLE.OSS_DIGIT:1;ANY:any:checkbox:OSS_NULLABLE.OSS_DIGIT:1', '', 1);
 
 CREATE TABLE host_property_reference (
