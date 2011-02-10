@@ -60,7 +60,7 @@ class Event:
         'userdata6',
         'userdata7',
         'userdata8',
-        'userdata9','log']
+        'userdata9', 'log']
     EVENT_TYPE = 'event'
     EVENT_ATTRS = [
         "type",
@@ -100,31 +100,25 @@ class Event:
     def __init__(self):
         self.event = {}
         self.event["event_type"] = self.EVENT_TYPE
-
+        self.normalized = False
     def __setitem__(self, key, value):
 
         if key in self.EVENT_ATTRS:
             if key in self.EVENT_BASE64:
                 self.event[key] = b64encode (value)
             else:
-                self.event[key] = value
-            if key == "date":
+                self.event[key] = value#self.sanitize_value(value)
+            if key == "date" and not self.normalized:
                 # Fill with a default date.
-                date = int(time())
-
+                date_epoch = int(time())
                 # Try first for string dates.
                 try:
-                    date = int(mktime(strptime(self.event[key], "%Y-%m-%d %H:%M:%S")))
+                    date_epoch = int(mktime(strptime(value, "%Y-%m-%d %H:%M:%S")))
+                    self.event["fdate"] = value
+                    self.event["date"] = date_epoch
+                    self.normalized = True
                 except (ValueError):
-                    # May it be epoch?
-                    try:
-                        date = int(self.event[key])
-                    except:
-                        logger.warning("There was an error parsing an epoch date (%s)" % \
-                                           (self.event[key]))
-                except:
-                    logger.warning("There was an error parsing a string date (%s)" % \
-                                       (self.event[key]))
+                    logger.warning("There was an error parsing a string date (%s)" % (value))
 
                 # Do not allow dates in the future.
 #                if date > int(time()):
@@ -133,8 +127,8 @@ class Event:
                 # fdate as date is coming.
                 #fdate_utc = datetime.utcfromtimestamp(date).isoformat(" ")
                 # Later in Detector._plugin_defualt, we normalized the datetime
-                self.event["fdate"] = self.event[key]
-                self.event["date"] = date
+
+
 
         elif key != 'event_type':
             logger.warning("Bad event attribute: %s" % (key))
