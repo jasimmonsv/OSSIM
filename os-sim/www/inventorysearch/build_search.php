@@ -176,6 +176,7 @@ $errors = 0;
 $errorlog = array();
 $criterias = array();
 $has_criterias = array();
+$first_criteria = 1; // Main host list array, the others criterias will be intersected with this
 for ($i = 1; $i <= $num; $i++) {
 	ossim_valid(GET('type_'.$i), OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("type"));
 	ossim_valid(GET('subtype_'.$i), OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("subtype"));
@@ -187,6 +188,7 @@ for ($i = 1; $i <= $num; $i++) {
 		if (GET('value_'.$i) != "") {
 			$filter = $basic_search[$i];
 			$filter['value'] = GET('value_'.$i);
+			if ($first_criteria == 1) { $first_criteria = $i; }
 		} else {
 			continue;
 		}
@@ -276,10 +278,10 @@ for ($i = 1; $i <= $num; $i++) {
 $_SESSION['inventory_search']['result']['criterias'] = $criterias;
 $_SESSION['inventory_search']['result']['has_criterias'] = $has_criterias;
 
-$host_list = $results[1];
+$host_list = $results[$first_criteria];
 $host_list_aux = array();
 
-for ($i = 2; $i <= $num; $i++) if (is_array($results[$i])) {
+for ($i = $first_criteria + 1; $i <= $num; $i++) if (is_array($results[$i])) {
 	if ($operator == "or") {
 		foreach ($results[$i] as $ip) {
 			$host_list_aux[$ip]++;
