@@ -75,7 +75,7 @@ class Detector(threading.Thread):
                           self._timezone))
         else:
             self._timezone = self._conf.get("plugin-defaults", "tzone")
-            
+
         logger.info("Starting detector %s (%s).." % \
                     (self._plugin.get("config", "name"),
                      self._plugin.get("DEFAULT", "plugin_id")))
@@ -86,7 +86,7 @@ class Detector(threading.Thread):
 #        self.patternISO_date = re.compile('(?P<year>\d+)[\s-](?P<month>\d+)[\s-](?P<day>\d+)\s+(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)')
 #        self.patternUTClocalized = re.compile('(?P<year>\d+)[\s-](?P<month>\d+)[\s-](?P<day>\d+)\s+(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)(?P<tzone_symbol>[-|+])(?P<tzone_hour>\d{2}):(?P<tzone_min>\d{2})')
         self.checkTimeZone()
-        
+
     def checkTimeZone(self):
         used_tzone = strftime("%z", gmtime())
         if self._timezone in all_timezones:
@@ -96,7 +96,7 @@ class Detector(threading.Thread):
             used_tzone = self._agenttimezone
             logger.info("Warning: Invalid plugin tzone information. Using agent tzone: %s" % used_tzone)
         else:
-            logger.info("Warning: Invalid plugin tzone and invalid agent tzone, using system tzone: %s" % systemtzone)
+            logger.info("Warning: Invalid plugin tzone and invalid agent tzone, using system tzone: %s" % used_tzone)
         self._EventTimeZone = used_tzone
     def _event_os_cached(self, event):
 
@@ -117,7 +117,7 @@ class Detector(threading.Thread):
 
 
     def _exclude_event(self, event):
-        
+
         if self._plugin.has_option("config", "exclude_sids"):
             exclude_sids = self._plugin.get("config", "exclude_sids")
             if event["plugin_sid"] in Config.split_sids(exclude_sids):
@@ -187,8 +187,8 @@ class Detector(threading.Thread):
         # the type of this event should always be 'detector'
         if event["type"] is None and 'type' in event.EVENT_ATTRS:
             event["type"] = 'detector'
-        
-            
+
+
 
         return event
 
@@ -229,7 +229,7 @@ class Detector(threading.Thread):
 #        if 'fdate' in event.EVENT_ATTRS:
 #            event["date"] = int(mktime(plugin_utc_dt.timetuple()))
 #            event["fdate"] = plugin_utc_dt.strftime(dateformat)
-            
+
     def send_message(self, event):
 
         if self._event_os_cached(event):
@@ -237,7 +237,7 @@ class Detector(threading.Thread):
 
         if self._exclude_event(event):
             return
-    
+
         # use default values for some empty attributes
         event = self._plugin_defaults(event)
 
