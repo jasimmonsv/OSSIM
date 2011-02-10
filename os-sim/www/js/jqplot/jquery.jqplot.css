@@ -209,6 +209,7 @@ div.jqplot-bubble-label.jqplot-bubble-label-highlight {
 
 #myToolTip {
 	position:absolute;
+	z-index:1000;
 	display:none;
 	background:#E4E8EC;
 	font-size:12px;

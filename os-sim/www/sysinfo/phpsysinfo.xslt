@@ -31,13 +31,7 @@
                                         <xsl:text>System Information: </xsl:text>
                                     </span>
                                     <xsl:value-of select="@Hostname" />
-                                    <span>
-                                        <xsl:text> (</xsl:text>
-                                    </span>
                                     <xsl:value-of select="@IPAddr" />
-                                    <span>
-                                        <xsl:text>)</xsl:text>
-                                    </span>
                                 </h1>
                             </xsl:for-each>
                             <div id="vitals">

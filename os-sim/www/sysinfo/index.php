@@ -34,7 +34,7 @@
 * Function list:
 * Classes list:
 */
-require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -47,7 +47,7 @@ echo gettext("OSSIM"); ?> </title>
 </head>
 
 <frameset rows="35,*" border="0" frameborder="0">
-    <frame src="top.php?hmenu=Sysinfo&smenu=Sysinfo" scrolling='no'>
+    <frame src="top.php?hmenu=<?=urlencode(GET('hmenu'))?>&smenu=<?=urlencode(GET('smenu'))?>" scrolling='no'>
     <frame src="sysinfo.php" name="info">
 </frameset>
 </html>
