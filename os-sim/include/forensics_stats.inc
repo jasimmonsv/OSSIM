@@ -190,22 +190,24 @@ function get_day_csv($year, $month, $day) {
 		$days = array();
 		for ($a = 23; $a >= 0; $a--) $days[$a] = 0;
 		foreach ($sensors as $s) if ($s != "") {
-			if (file_exists($config['log_dir'] . "$year/$month/" . sprintf("%02d", $day) . "/.csv_total_events_$s")) $csv = file_get_contents($config['log_dir'] . "$year/$month/" . sprintf("%02d", $day) . "/.csv_total_events_$s");
+			$file = $config['log_dir'] . "$year/$month/" . sprintf("%02d", $day) . "/.csv_total_events_$s";
+			if (file_exists($file)) $csv = file_get_contents($file);
 			else $csv = array();
 			if (strlen($csv) > 0) $lines = explode("\n", $csv);
 			if (count($lines) > 1) foreach($lines as $line) {
-				$val = explode(",", $line);
+				$val = explode(",", trim($line));
 				if ($val[0] >= 1) $days[sprintf("%d", $val[0]) ] += $val[1];
 			}
 		}
 	} else {
-		if (file_exists($config['log_dir'] . "$year/$month/" . sprintf("%02d", $day) . "/.csv_total_events")) $csv = file_get_contents($config['log_dir'] . "$year/$month/" . sprintf("%02d", $day) . "/.csv_total_events");
+		$file = $config['log_dir'] . "$year/$month/" . sprintf("%02d", $day) . "/.csv_total_events";
+		if (file_exists($file)) $csv = file_get_contents($file);
 		else $csv = array();
 		$days = array();
 		for ($a = 23; $a >= 0; $a--) $days[$a] = 0;
 		if (strlen($csv) > 0) $lines = explode("\n", $csv);
 		if (count($lines) > 1) foreach($lines as $line) {
-			$val = explode(",", $line);
+			$val = explode(",", trim($line));
 			if ($val[0] >= 1) $days[sprintf("%d", $val[0]) ] = $val[1];
 		}
 	}

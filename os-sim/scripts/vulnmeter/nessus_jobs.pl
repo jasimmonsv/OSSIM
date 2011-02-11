@@ -4954,6 +4954,8 @@ sub execute_omp_command {
 
     my $imp = system ("$openvas_manager_common \"$cmd\" > $xml_output 2>&1");
     
+    logwriter("$openvas_manager_common \"$cmd\" > $xml_output 2>&1", 4);
+    
     #if ( $imp != 0 ) { die "". logwriter( "nessus_jobs: Failed execute omp command", 2 ); }
 
     # if ($cmd =~ /.*get_reports.*/ ) {
