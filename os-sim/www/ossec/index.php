@@ -52,16 +52,19 @@ if ( file_exists( $filename) )
 	if ( $result !== true )
 	{
 		$error = true;
-		$info_conf   = "<span style='font-weight: bold;'>"._("Error to load file")."<a onclick=\"$('#msg_errors').toggle();\"> ["._("View errors")."]</a><br/></span>";
+		$link_txt    = _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$editable_files[0];
+		$info_conf   = "<span style='font-weight: bold;'>$link_txt<a onclick=\"$('#msg_errors').toggle();\"> ["._("View errors")."]</a><br/></span>";
 		$info_conf  .= "<div id='msg_errors'>$result</div>";
 		$error_conf  = "<div id='parse_errors' class='oss_error'>$info_conf</div>";
+		
+		
 	}
 	else
 	{
 		$file_xml = @file_get_contents ($filename, false);
 				
 		if ($file_xml == false)
-			$error   = true;
+			$error = true;
 		else
 		{
 			$xml_obj=new xml($_level_key_name);
@@ -123,8 +126,8 @@ else
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
 	
 	<!-- Own libraries: -->
-	<script type='text/javascript' src='utils.js'></script>
-	<script type='text/javascript' src='functions.js' ></script>
+	<script type='text/javascript' src='js/utils.js'></script>
+	<script type="text/javascript" src="js/rules.js"></script>
 	
 	<script type='text/javascript'>
 			
@@ -140,15 +143,14 @@ else
 			messages[8]  = '<?php echo _("Unauthorized action. There must be one child at least")?>';
 			messages[9]  = '<?php echo _("Rules File is empty")?>';
 			messages[10] = '<?php echo _("Click on a brach to edit a node")?>';
-			messages[11] = '<?php echo _("Error to load tree")?>';
+			messages[11] = "<?php echo _("File")." <strong>$rules_file</strong> "._("doesn't exist or you don't have permission to access")?>";
 			messages[12] = '<?php echo _("File name not allowed")?>';
-			messages[13] = '<?php echo _("Error to update file")?>';
+			messages[13] = '<?php echo _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$editable_files[0]?>';
 			messages[14] = '<?php echo _("View errors")?>';
 			messages[15] = '<?php echo _("File not editable")?>';
 			messages[16] = '<?php echo _("First save the changes then you can edit")?>';
 			messages[17] = '<?php echo _("Re-loading in")?>';
 			messages[18] = '<?php echo _("second(s)")?>';
-			messages[19] = "<?php echo _("File")." <strong>$rules_file</strong> "._("doesn't exist or you don't have permission to access")?>";
 							
 		var label = new Array();
 			label[0]  = '<?php echo _("Attribute")?>';

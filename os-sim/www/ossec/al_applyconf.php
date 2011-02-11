@@ -30,14 +30,13 @@
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
 
-
-require_once ('utils.php');
+require_once ('classes/Session.inc');
 require_once ('classes/Ossec.inc');
 require_once ('classes/Security.inc');
 require_once ('conf/_conf.php');
+require_once ('utils.php');
 
-
-$info_error  = null;
+$info_error    = null;
 
 $path  		   =  $ossec_conf;
 $path_tmp      =  "/tmp/".uniqid()."_tmp.conf";
@@ -51,11 +50,21 @@ if ( @copy ($path , $path_tmp) == false )
 	
 if ( @copy ($path_passlist , $path_tmp2) == false )
 	$info_error = _("Failed to create temporary copy of")." <b>$path_passlist</b>";
+else
+{	
+	exec("cat /dev/null > $path_passlist", $output, $retval);	
+	$output = null;
+}
 	
-exec("cat /dev/null > $path_passlist", $output, $retval);	
-$output = null;
+$result = test_conf(); 
 	
-
+if ( $result !== true )
+{
+	$info_error = "<div class='errors_ossec'>$result</div>";
+	$error_conf = true;
+}
+	
+	
 $db 	         = new ossim_db();
 $conn   	     = $db->connect();
 $info_error      = null;
@@ -161,10 +170,22 @@ if ( !empty($agentless_list) && empty($info_error) )
 		}
 		else
 		{
-			$result = system("sudo /var/ossec/bin/ossec-control restart > /tmp/ossec-action 2>&1");
-			$result = file('/tmp/ossec-control');
-			$size   = count($result);
-			$info_error = ( preg_match('/Completed/', $result[$size]) ) ? _("Error to restart Ossec.  Try manually") : null;
+			$result = test_conf(); 
+	
+			if ( $result !== true )
+			{
+				$info_error = "<div class='errors_ossec'>$result</div>";
+				$error_conf = true;
+				@copy ($path_tmp, $path);
+				@copy ($path_tmp2, $path_passlist);
+			}
+			else
+			{
+				$result     = system("sudo /var/ossec/bin/ossec-control restart > /tmp/ossec-action 2>&1");
+				$result     = file('/tmp/ossec-control');
+				$size       = count($result);
+				$info_error = ( preg_match('/Completed/', $result[$size]) == false ) ? _("Error to restart Ossec.  Try manually") : null;
+			}
 		}
 	}
 }
@@ -186,7 +207,17 @@ if ($info_error == null)
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 		<meta http-equiv="Pragma" content="no-cache"/>
 		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+		<link rel="stylesheet" type="text/css" href="css/ossec.css"/>
 		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+		<script type="text/javascript">
+			function go_sec(sec)
+			{
+				if (sec == "config")
+					document.location.href='config.php';
+				else if (sec == "rules")
+					document.location.href='index.php';
+			}
+		</script>
 		<style type='text/css'>
 			#apply_ok { font-size: 13px; padding: 10px; width: 80%; margin: auto; text-align: center;}
 		</style>
@@ -200,7 +231,21 @@ if ($info_error == null)
 		if ($info_error != null)
 		{
 			Util::print_error($info_error);	
-			Util::make_form("POST", "agentless.php");
+			if ( $error_conf == true )
+			{
+				?>
+				<div style='margin:auto; width:90%'>
+					<form method='POST' name='sec' id='sec'>
+						<div style='margin:auto; text-align: center;'>
+							<input type='button' name='send1' id='send1' class='button' value='<?php echo _("Go to Config")?>' onclick='go_sec("config");'/>
+							<input type='button' name='send2' id='send2' class='button' value='<?php echo _("Go to Edit Rules")?>' onclick='go_sec("rules");'/>
+						</div>
+					</form>
+				</div>
+				<?php
+			}
+			else
+				Util::make_form("POST", "agentless.php");
 		}
 		else
 		{

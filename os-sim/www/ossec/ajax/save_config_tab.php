@@ -268,7 +268,10 @@ if ($no_action == false)
 		$result = test_conf(); 	
 					
 		if ( $result !== true )
+		{
 			echo "3###".$result;
+			$error = true;
+		}
 		else
 			echo $tab_ok;
 	}

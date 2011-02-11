@@ -134,7 +134,7 @@ function load_tab2(file)
 				if ( msg_int == 1)
 					txt = messages[12];
 				else
-					txt = messages[19];
+					txt = messages[11];
 								
 				$(".button").remove();
 				$("#container_code").html('');
@@ -222,10 +222,10 @@ function save(editor){
 					else
 					{
 						var cont = 3;
-						setTimeout("countdown("+cont+")",1000);
-						txt += " .<span style='margin-left: 5px'>"+messages[17]+" <span id='countdown'>"+cont+"</span> "+messages[18]+" ...</span>";
+						txt     += " .<span style='margin-left: 5px'>"+messages[17]+" <span id='countdown'>"+cont+"</span> "+messages[18]+" ...</span>";
 						$('#msg_edit').html(txt);
 						$('#msg_edit').fadeIn(2000);
+						setTimeout("countdown("+cont+")",1000);
 					}
 				}
 				else

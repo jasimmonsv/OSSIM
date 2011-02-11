@@ -31,16 +31,28 @@
 ****************************************************************************/
 
 require_once ('classes/Session.inc');
+require_once ('utils.php');
 
 $info_error = null;
 $retval     = null;
 $error      = false;
 
-exec ("sudo /var/ossec/bin/ossec-control enable agentless", $output, $retval);
-if ($retval !== 0)
+$result = test_conf(); 
+	
+if ( $result !== true )
 {
-	$info_error = "Fail to enable the agentless monitoring</b>";
 	$error      = true;
+	$info_error = "<div class='errors_ossec'>$result</div>";
+}
+else
+{
+	exec ("sudo /var/ossec/bin/ossec-control enable agentless", $output, $retval);
+	
+	if ($retval !== 0)
+	{
+		$error      = true;
+		$info_error = "<strong>"._("Failure to enable agentless monitoring")."</strong>";
+	}
 }
 
 if ($error != true)
@@ -49,7 +61,7 @@ if ($error != true)
 		
 	if ($retval !== 0)
 	{
-		$info_error = "You don't have the <span class='ibold'>expect library</span> installed on the server. <br/>You can do the following to install: <b># apt-get install expect</b>";
+		$info_error = _("You don't have <span class='ibold'>expect library</span> installed on the server. <br/>Please, execute: <strong># apt-get install expect</strong>");
 		$error      = true;
 	}
 	else
@@ -60,40 +72,41 @@ if ($error != true)
 		if ($retval !== 0)
 			exec('touch /var/ossec/agentless/.passlist', $output);	
 	}
-}
-
-if ($error != true)
-{
-	// load column layout
-	require_once ('../conf/layout.php');
-	require_once 'ossim_db.inc';
-
-	$category    = "ossec";
-	$name_layout = "agentless_layout";
-	$layout      = load_layout($name_layout, $category);
 	
-	$output = null;
-	exec(' sudo /var/ossec/agentless/register_host.sh list', $output, $retval);	
-
-	$status 	  = null;
-	$apply_status = ( file_exists ("/var/ossec/agentless/.reload") ) ? "reload_red" : "reload";
-	
-	if ( count($output) == 1 ) 
-		$status = array ("not_configured", _("Not configured"));
-	else
+	if ($error != true)
 	{
+		// load column layout
+		require_once ('../conf/layout.php');
+		require_once 'ossim_db.inc';
+
+		$category    = "ossec";
+		$name_layout = "agentless_layout";
+		$layout      = load_layout($name_layout, $category);
+		
 		$output = null;
-		exec ("sudo /var/ossec/bin/ossec-control status",  $output);
+		exec(' sudo /var/ossec/agentless/register_host.sh list', $output, $retval);	
+
+		$status 	  = null;
+		$apply_status = ( file_exists ("/var/ossec/agentless/.reload") ) ? "reload_red" : "reload";
 		
-		$output = implode("\n", $output);
-		$pattern = '/ossec-agentlessd not running/';
-		
-		if ( preg_match($pattern, $output) )
-			$status = array ("not_running", _("Not running"));
+		if ( count($output) == 1 ) 
+			$status = array ("not_configured", _("Not configured"));
 		else
-			$status = array ("running", _("Running"));
-    }
+		{
+			$output = null;
+			exec ("sudo /var/ossec/bin/ossec-control status",  $output);
+			
+			$output = implode("\n", $output);
+			$pattern = '/ossec-agentlessd not running/';
+			
+			if ( preg_match($pattern, $output) )
+				$status = array ("not_running", _("Not running"));
+			else
+				$status = array ("running", _("Running"));
+		}
+	}
 }
+
 
 ?>
 
@@ -102,17 +115,19 @@ if ($error != true)
 <head>
 	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-	<META http-equiv="Pragma" content="no-cache"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
 	<meta http-equiv="X-UA-Compatible" content="IE=7"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="css/ossec.css"/>
 	<link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
 	<script type="text/javascript" src="../js/urlencode.js"></script>
 	
-	<?php if ($info_error == null) {?>
+	<?php if ($error == false ) { ?>
+	
 	<script type='text/javascript'>
-		
+				
 		function save_layout(clayout) {
 			$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
 			$.ajax({
@@ -310,7 +325,6 @@ if ($error != true)
 		.not_configured {color:#504D4D;}
 		.not_running {color:#E54D4D;}
 		.running {color:#15B103';}
-		
 	</style>
 </head>
 

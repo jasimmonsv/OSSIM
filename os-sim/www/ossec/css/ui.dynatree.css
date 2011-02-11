@@ -10,8 +10,6 @@ ul.dynatree-container
 
 	background-color: white;
 	border: 1px dotted gray;
-
-	
 }
 
 ul.dynatree-container ul
@@ -334,8 +332,7 @@ span.dynatree-selected a
 
 span.dynatree-active a
 {
-	background-color: #3169C6 !important;
-	color: white !important; /* @ IE6 */
+	background-color: #EFEFEF !important;
 }
 
 /*******************************************************************************

@@ -61,17 +61,10 @@ else
 if ( $error == false )
 {
 	$result = test_conf(); 	
-		
-	if ( $result !== true )
-	{
-		$error       = true;
-		$test_conf   = "<div id='parse_errors' class='oss_error'><span style='font-weight: bold;'>"._("Error to load file")."<a onclick=\"$('#msg_errors').toggle();\"> ["._("View errors")."]</a><br/></span>";
-		$test_conf  .= "<div id='msg_errors'>$result</div></div>";
-		$test_conf   = "<div id='cont_cnf_message'>$test_conf</div>";						
-	}
+	$error  = ( $result !== true ) ? true : false;	
 }
 
-$cnf_message   = "<div id='cnf_load'><img src='images/loading.gif' border='0' align='absmiddle' alt='Loading'/><span>".('Loading data ...')."</span></div>";
+$cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' align='absmiddle' alt='Loading'/><span>".('Loading data ...')."</span></div>";
 
 ?>
 
@@ -89,21 +82,6 @@ $cnf_message   = "<div id='cnf_load'><img src='images/loading.gif' border='0' al
 	<script type='text/javascript' src='codemirror/codemirror.js' ></script>
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
 		
-	<!-- Own libraries: -->
-	<script type='text/javascript' src='utils.js'></script>
-	<script type='text/javascript' src='functions.js'></script>
-	
-	<script type='text/javascript'>
-		var messages = new Array();
-			messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Loading data ... ")?></span>';
-			messages[1]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Saving data ... ")?></span>';
-			messages[2]  = '<span style="padding-left: 5px;"><?php echo _("Illegal action")?></span>';
-			messages[3]  = '<?php echo _("Error to update file")?>';
-			messages[4]  = '<?php echo _("View errors")?>';
-		
-		var editor       = null;	
-	</script>
-			
 	<!-- Multiselect: -->
 	
     <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
@@ -113,267 +91,22 @@ $cnf_message   = "<div id='cnf_load'><img src='images/loading.gif' border='0' al
 	<link rel="stylesheet" type="text/css" href="../style/ui.multiselect.css"/>
 	
 	<script type='text/javascript'>
-		
-		function load_config_tab(tab)
-		{
+		var messages = new Array();
+			messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Loading data ... ")?></span>';
+			messages[1]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Saving data ... ")?></span>';
+			messages[2]  = '<span style="padding-left: 5px;"><?php echo _("Illegal action")?></span>';
+			messages[3]  = '<?php echo _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$editable_files[0]?>';
+			messages[4]  = '<?php echo _("View errors")?>';
+			messages[5]  = "<?php echo _("Are you sure to delete this row")?>?";
+			messages[6]  = '<?php echo _("Re-loading in")?>';
+			messages[7]  = '<?php echo _("second(s)")?>';
 			
-			//Add Load img
-			if ($('#cnf_load').length < 1)
-			{
-				$(tab+" div").css('display', 'none');
-				var load ="<div id='cnf_load'>"+messages[0]+"</div>";
-				$(tab).append(load);
-			}
-															
-			//Remove error message
-									
-			if ($('#cnf_message').length >= 1)
-				$('#cnf_message').html('');
-				
-						
-			$.ajax({
-				type: "POST",
-				url: "ajax/load_config_tab.php",
-				data: "tab="+tab,
-				success: function(msg){
-															
-					//Remove load img
-					
-					if ( $('#cnf_load').length >= 1 )
-						$('#cnf_load').remove();
-						
-					var status = msg.split("###");
-															
-					if (status[0] != "1")
-					{
-						var style = ( status[0] == 3 ) ? "margin-left: 70px;" : "margin-left: 70px; text-align:center;"
-						var error_message = "<div id='msg_init_error'><div class='oss_error'><div style='"+style+"'>"+status[1]+"</div></div></div>";
-						$(tab).html(error_message);
-						$(tab+" div").css('display', 'block');
-					}
-					else
-					{
-						$(tab).html(status[1]);	
-													
-						if (tab == "#tab1")
-						{
-							$(".multiselect").multiselect({
-								searchDelay: 500,
-								dividerLocation: 0.5
-							});
-							
-							$(tab+" div").css('display', 'block');
-						}
-						else if (tab == "#tab2")
-						{
-							$(tab+" div").css('display', 'block');
-							$('textarea').elastic();
-							$('#table_sys_directories table').css('background', 'transparent');
-							$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
-							$('#table_sys_ignores table').css('background', 'transparent');
-						    $('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
-						}
-						else
-						{
-							if (tab == "#tab3")
-							{
-								if (editor == null)
-								{
-									editor = new CodeMirror(CodeMirror.replace("code"), {
-										parserfile: "parsexml.js",
-										stylesheet: "css/xmlcolors.css",
-										path: "codemirror/",
-										continuousScanning: 500,
-										content: msg,
-										lineNumbers: true
-									});
-								}
-								else
-									editor.setCode(msg);
-								
-								$(tab+" div").css('display', 'block');
-							}	
-						}
-					}
-					
-					
-						
-				}
-			});
-		}
-		
-		function save_config_tab()
-		{
-			
-			var tab = $(".active a").attr("href");
-						
-			if ($('#cnf_message').length >= 1)
-			{
-				$('#cnf_message').html('<div id="cont_cnf_message"></div>');
-				$('#cont_cnf_message').removeClass($('#cont_cnf_message').attr('class'));
-			}
-			
-			
-			if (tab == '')
-			{
-				$('#cont_cnf_message').addClass("oss_error");
-				$('#cont_cnf_message').html(messages[2]);
-				return;
-			}
-			
-			//Add Load img
-						
-			$('#cont_cnf_message').html("<div id='cnf_wait_save'></div>");
-			$('#cnf_wait_save').html(messages[1]);
-						
-			var data= "tab="+tab;
-			
-			switch(tab){
-				case "#tab1":
-					data += "&"+ $('#cnf_form_rules').serialize();
-				break;
-				
-				case "#tab2":
-					data += "&"+ $('#form_syscheck').serialize();
-				break;
-				
-				case "#tab3":
-					data += "&"+"data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES'));
-				break;
-			}
-										
-			$.ajax({
-				type: "POST",
-				url: "ajax/save_config_tab.php",
-				data: data,
-				success: function(msg){
-															
-					//Remove load img
-					if ( $('#cnf_wait_save').length >= 1 )
-						$('#cnf_wait_save').remove();
-											
-					var status = msg.split("###");
-															
-					if ( status[0] == "1" )
-					{
-						$('#cont_cnf_message').addClass("oss_success");
-						$('#cont_cnf_message').html(status[1]);
-						setTimeout('$("#cont_cnf_message").fadeOut(4000);', 4000);
-					}
-					else
-					{
-						if ( status[0] == "3" )
-						{
-							var html   =  "<span style='font-weight: bold;'>"+messages[3]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[4]+"]</a><br/></span>";
-							    html  += "<div id='msg_errors'>"+status[1]+"</div>";
-								
-							$('#cont_cnf_message').append("<div id='parse_errors'></div>");
-							$('#parse_errors').addClass("oss_error");
-							$('#parse_errors').html(html);
-							window.scroll(0,0);
-							setTimeout('$("#cont_cnf_message").fadeOut(4000);', 25000);
-						}
-						else
-						{
-							$('#cont_cnf_message').addClass("oss_error");
-							$('#cont_cnf_message').html(status[1]);
-							window.scroll(0,0);
-							setTimeout('$("#cont_cnf_message").fadeOut(4000);', 4000);
-						}
-					}		
-				}
-			});
-		}
-		
-		
-		function add_dir(id)
-		{
-			$.ajax({
-				type: "POST",
-				url: "ajax/config_actions.php",
-				data: "action=add_directory",
-				success: function(msg){
-					
-					var status = msg.split("###");
-															
-					if (status[0] != "error")
-					{
-						$('#'+id).after(status[1]);
-						$('textarea').elastic();
-						$('#table_sys_directories table').css('background', 'transparent');
-						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
-					}
-				}
-			});
-		}
-		
-		function delete_dir(id)
-		{
-			if ( confirm ("<?php echo _("Are you sure to delete this row")?>?") )
-			{
-				
-				if ( $('#'+id).length >= 1 )
-				{
-					$('#'+id).remove();
-					if ($('#tbody_sd tr').length <= 2)
-						add_dir();
-					else
-					{
-						$('textarea').elastic();
-						$('#table_sys_directories table').css('background', 'transparent');
-						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
-					}
-				}
-			}
-		
-		}
-		
-		function add_ign(id)
-		{
-			
-			$.ajax({
-				type: "POST",
-				url: "ajax/config_actions.php",
-				data: "action=add_ignore",
-				success: function(msg){
-					
-					var status = msg.split("###");
-															
-					if (status[0] != "error")
-					{
-						$('#'+id).after(status[1]);
-						$('textarea').elastic();
-						$('#table_sys_ignores table').css('background', 'transparent');
-						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
-					}
-				}
-			});
-		}
-		
-		function delete_ign(id)
-		{
-			if ( confirm ("<?php echo _("Are you sure to delete this row")?>?") )
-			{
-				
-				if ( $('#'+id).length >= 1 )
-				{
-					$('#'+id).remove();
-					if ($('#tbody_si tr').length <= 2)
-						add_ign();
-					else
-					{
-						$('textarea').elastic();
-						$('#table_sys_ignores table').css('background', 'transparent');
-						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
-					}
-				}
-			}
-		
-		}
-					
-		
-	
+		var editor = null;
 	</script>
+	
+	<!-- Own libraries: -->
+	<script type="text/javascript" src="js/config.js"></script>
+	<script type='text/javascript' src='js/utils.js'></script>	
 	
 	<script type='text/javascript'>
 		
@@ -389,7 +122,12 @@ $cnf_message   = "<div id='cnf_load'><img src='images/loading.gif' border='0' al
 				
 				$("ul.oss_tabs li:first").addClass("active");
 				
-				$("ul.oss_tabs li").click(function(event) { event.preventDefault(); show_tab_content(this); load_config_tab($(this).find("a").attr("href"))});
+				$("ul.oss_tabs li").click(function(event) { 
+					event.preventDefault(); 
+					show_tab_content(this); 
+					load_config_tab($(this).find("a").attr("href"));
+				});
+				
 				load_config_tab("#tab1");
 			}
 			else
@@ -404,17 +142,11 @@ $cnf_message   = "<div id='cnf_load'><img src='images/loading.gif' border='0' al
 					load_config_tab("#tab3");
 				});
 								
-				editor = new CodeMirror(CodeMirror.replace("code"), {
-					parserfile: "parsexml.js",
-					stylesheet: "css/xmlcolors.css",
-					path: "codemirror/",
-					continuousScanning: 500,
-					content: $('#code').val(),
-					lineNumbers: true
-				});
+				load_config_tab("#tab3");
 				
 				var tab = $("#litem_tab3");
 				show_tab_content(tab);
+				
 			}
 							
 			$('#send').bind('click', function()  { save_config_tab(); });	
@@ -459,14 +191,12 @@ $cnf_message   = "<div id='cnf_load'><img src='images/loading.gif' border='0' al
 	.sys_frequency {width: 150px; padding: 2px 0px;}
 	
 	textarea { border: solid 1px #888}
+	#code { border:none;}
 	.cont_savet2{ padding: 20px 0px 20px 0px; text-align: right; margin-right: 2px;}
 	
 	ul.oss_tabs li.active a:hover {cursor: pointer !important;} 
 
 	</style>
-	
-	
-
 </head>
 
 <body>
@@ -490,14 +220,14 @@ $cnf_message   = "<div id='cnf_load'><img src='images/loading.gif' border='0' al
 		<table id='tab_container'>
 		    <tr>
 				<td id='oss_cnf_container'>
-					<div id='cnf_message'><?php echo $test_conf;?></div>
+					<div id='cnf_message'></div>
 					
 					<div id="tab1" class="tab_content"><?php echo $cnf_message;?></div>
 					
 					<div id="tab2" class="tab_content" style='display:none;'><?php echo $cnf_message;?></div>
 					
 					<div id="tab3" class="tab_content" style='display:none;'>
-						<div id='container_code'><textarea id="code"><?php echo $file_xml?></textarea></div>
+						<div id='container_code'><textarea id="code"></textarea></div>
 						<div class='buttons_box'>
 							<div><input type='button' class='save' id='send' value='<?php echo _("Update")?>'/></div>				
 						</div>

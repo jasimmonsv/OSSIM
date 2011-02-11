@@ -72,6 +72,14 @@ if ($conf_file == false)
 	exit();
 }
 
+$result = test_conf(); 	
+					
+if ( $result !== true )
+{
+	echo "3###".$conf_file."###$result";
+	exit;
+}
+
 if($tab == "#tab1")
 {
 	$rules     = array();

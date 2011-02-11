@@ -970,11 +970,11 @@ div.pGroup {
 	}
 .flexigrid div.fbutton .reload, .flexigrid div.ibutton .reload, .flexigrid div.rbutton .reload
 	{
-		background: #e4e4e4 url(../pixmaps/tables/table_refresh.png) no-repeat center left;
+		background: #e4e4e4 url(../pixmaps/tables/table_refresh.png) no-repeat center left; font-weight: normal !important;
 	}
 .flexigrid div.fbutton .reload_red, .flexigrid div.ibutton .reload_red, .flexigrid div.rbutton .reload_red
 	{
-		background: #e4e4e4 url(../pixmaps/tables/table_refresh_red.png) no-repeat center left; color:red;
+		background: #e4e4e4 url(../pixmaps/tables/table_refresh_red.png) no-repeat center left; color:red; font-weight: normal !important;
 	}
 .flexigrid div.fbutton .various, .flexigrid div.ibutton .various, .flexigrid div.rbutton .various
 	{
