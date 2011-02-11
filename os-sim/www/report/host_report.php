@@ -196,6 +196,11 @@ a {
 #cont_date #date_from, #cont_date #date_to{
 	color: #C0C0C0;
 }
+/*
+#host_report table tr td {
+	border-bottom: none !important;
+	border-color: none !important;
+}*/
 -->
 </style>
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>

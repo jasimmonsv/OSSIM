@@ -47,7 +47,49 @@
 			<? $i = 0; foreach ($vul_events as $vul_event) { if ($i > 4) continue; $color = (($i+1)%2==0) ? "#E1EFE0" : "#FFFFFF"; ?>
 				<tr>
 					<td bgcolor="<?=$color?>" style="text-align:left;color: #17457c;font-size:10px"><b><?=$vul_event['name']?></b></td>
-					<td bgcolor="<?=$color?>"><?=Incident::get_priority_in_html($vul_event['risk'])?></td>
+					<td bgcolor="<?=$color?>">
+					<?php
+					switch($vul_event['risk']){
+						case 1:
+							$bgcolor = 'FF0000';
+							$fgcolor = 'fff';
+							$name_risk='Serious';
+							break;
+						case 2:
+							$bgcolor = 'FF0000';
+							$fgcolor = 'fff';
+							$name_risk='High';
+							break;
+						case 3:
+							$bgcolor = 'FFA500';
+							$fgcolor = 'fff';
+							$name_risk='Medium';
+							break;
+						case 6:
+							$bgcolor = 'FFD700';
+							$fgcolor = '000';
+							$name_risk='Low';
+							break;
+						case 7:
+							$bgcolor = 'F0E68C';
+							$fgcolor = '000';
+							$name_risk='Info';
+							break;
+						default:
+							$bgcolor = 'FF0000';
+							$fgcolor = 'fff';
+							$name_risk=$vul_event['risk'];
+							break;
+					}
+					?>
+						<table align="center" bgcolor="#<?php echo $bgcolor; ?>" fgcolor="#<?php echo $fgcolor; ?>" class="transparent" width="20">
+							<tr>
+							  <td bgcolor="#<?php echo $bgcolor; ?>" fgcolor="#<?php echo $fgcolor; ?>" style="border-width: 0px;" width="20">
+								&nbsp;<font color="#<?php echo $fgcolor; ?>"><?php echo _($name_risk);?></font>&nbsp;
+							  </td>
+							</tr>
+						  </table>
+			  </td>
 					<?php if ($network|$host=='any') { ?><td bgcolor="<?=$color?>"><a href="host_report.php?host=<?=$vul_event['ip']?>" class="HostReportMenu" id="<?=$vul_event['ip']?>;<?=$vul_event['ip']?>"><?=$vul_event['ip']?></a></td><? } ?>
 				</tr>
 			<? $i++; } ?>
