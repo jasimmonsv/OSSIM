@@ -44,7 +44,7 @@
 					<th><?=gettext("Risk")?></th>
 					<?php if ($network||$host=='any') { ?><th>IP</th><? } ?>
 				</tr>
-			<? $i = 0; foreach ($vul_events as $vul_event) { if ($i > 5) continue; $color = (($i+1)%2==0) ? "#E1EFE0" : "#FFFFFF"; ?>
+			<? $i = 0; foreach ($vul_events as $vul_event) { if ($i > 4) continue; $color = (($i+1)%2==0) ? "#E1EFE0" : "#FFFFFF"; ?>
 				<tr>
 					<td bgcolor="<?=$color?>" style="text-align:left;color: #17457c;font-size:10px"><b><?=$vul_event['name']?></b></td>
 					<td bgcolor="<?=$color?>"><?=Incident::get_priority_in_html($vul_event['risk'])?></td>

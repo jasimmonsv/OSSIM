@@ -86,12 +86,14 @@ else $lnk = "ip=$host";
 				<?
 				$inc_counter = 1 + $offset;
 				$cont = 0;
-				foreach($sem_events_week as $res) if ($cont++ < 5) {
+				foreach($sem_events_week as $res) if ($cont < 5) {
 					$bgcolor = (($cont)%2==0) ? "#EFE0E0" : "#FFFFFF";
 					$res = str_replace("<", "", $res);
 					$res = str_replace(">", "", $res);
 					//entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
+					//echo $res."\n\n";
 					if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='[^']+'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
+						$cont++;
 						$lf = explode(";", $res);
 						$logfile = urlencode(end($lf));
 						$data = $matches[10];

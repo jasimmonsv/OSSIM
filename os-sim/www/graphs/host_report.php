@@ -90,14 +90,16 @@ if (preg_match("/\/\d+/",$host)) {
 	$exp = CIDR::expand_CIDR($host,"SHORT","IP");
 	$src_s_range = $exp[0];
 	$src_e_range = end($exp);
-	$ip_where = "ip_src>=INET_ATON('$src_s_range') AND ip_src<=INET_ATON('$src_e_range')";
+	$ip_where = "ip_src>=INET_ATON('$src_s_range') AND ip_src<=INET_ATON('$src_e_range') and";
+} elseif($host=='any') {
+	$ip_where = "";
 } else {
-	$ip_where = "ip_src=INET_ATON('$host')";
+	$ip_where = "ip_src=INET_ATON('$host') and";
 }
 
 $time_week = strftime("%Y-%m-%d", time() - (24 * 60 * 60 * 7));
 
-$query = "select count(*) as howmany,plugin_id from acid_event force index(ip_src) where $ip_where and timestamp>='$time_week'$sensor_where group by plugin_id order by howmany desc limit 10;";
+$query = "select count(*) as howmany,plugin_id from acid_event force index(ip_src) where $ip_where timestamp>='$time_week'$sensor_where group by plugin_id order by howmany desc limit 10;";
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();
     exit();
