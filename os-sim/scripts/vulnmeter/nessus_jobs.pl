@@ -974,6 +974,7 @@ sub run_nessus {
     my $nessushostip = $nessushost;
     if ($fk_name =~ /^(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)/) {
     	$nessushostip = $fk_name;
+        $nessushost = $fk_name;
     	my @data = get_server_data($nessushostip);
     	$nessusport = $data[0] if ($data[0] ne "");
     	$nessususer = $data[1] if ($data[1] ne "");
