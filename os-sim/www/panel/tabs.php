@@ -56,7 +56,7 @@
 	// end add tabs urls
 	
 	if (is_array($tabsavt)) {
-		$orders = array("1001","1005","1003","1007","1004","1002","1006");
+		$orders = array("1001","1005","1008","1003","1007","1004","1002","1006");
 		foreach ($orders as $cur_id) {
 			foreach ($tabsavt as $tab_id => $tab_values) {
 				if ($cur_id == $tab_id) { $tabsmerge[$tab_id] = $tab_values; }
@@ -93,6 +93,7 @@
 			"1005" => "../pixmaps/panel/security.png",
 			"1006" => "../pixmaps/panel/inventory.png",
 			"1007" => "../pixmaps/panel/vulnerabilities.png",
+			"1008" => "../pixmaps/panel/taxonomy.png"
 		);
 		foreach($tabshow as $tab_id => $tab_name) {
 			if ($avt_icons[$tab_id] != "" && file_exists($avt_icons[$tab_id])) {
