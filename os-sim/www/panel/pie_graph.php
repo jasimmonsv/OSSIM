@@ -40,7 +40,7 @@ switch(GET("type")) {
 		
 	// Top 10 Event Categories - Last Week
 	case "category":
-		$sqlgraph = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p LEFT JOIN ossim.category c ON c.id=p.category_id where p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' $sensor_where group by p.category_id order by num_events desc LIMIT 10";
+		$sqlgraph = "select count(a.sid) as num_events,p.category_id,c.name from snort.acid_event a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-$range)."' AND '".date("Y-m-d 23:59:59",$timetz)."' $sensor_where group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
