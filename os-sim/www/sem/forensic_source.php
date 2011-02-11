@@ -319,7 +319,7 @@ a:hover { text-decoration: underline; }
 	        series: {stack: 0,
 	                 lines: {show: false, steps: false },
 	                 bars: {show: true, barWidth: 0.9, align: 'center'}
-	                 },
+	                 },       
 	        xaxis: { tickDecimals:0, ticks: [<? $flag = 0; foreach ($remote_data as $ip=>$arr) { if($flag) continue; $flag = 1; foreach ($arr['chart_data'][0] as $i=>$tick) { if ($i > 0) echo ","; if ($i % $salto == $with) { ?>[<?=$i?>,"<?=$tick?>"]<? } else { ?>[<?=$i?>,""]<? } ?><? } }?>] },
 	        grid: { color: "#8E8E8E", labelMargin:3, borderWidth:2, backgroundColor: "#EDEDED", tickColor: "#D2D2D2", hoverable:true, clickable:true}, shadowSize:1
 	    };
@@ -332,15 +332,14 @@ a:hover { text-decoration: underline; }
         var options = {
             bars: {
                 show: true,
-                lineWidth: 2, // in pixels
-                barWidth: 0.8, // in units of the x axis
-                fill: true,
-                    fillColor: null,
-                    align: "center" // or "center"
+                barWidth: 0.9, // in units of the x axis
+	            fill: true,
+                fillColor: null,
+                align: "center" // or "center"
             },
 			points: { show:false, radius: 2 },
             legend: { show: false },
-            yaxis: { ticks:[] },
+            yaxis: { autoscale:true },
             xaxis: { tickDecimals:0, ticks: [<? foreach ($chart['chart_data'][0] as $i=>$tick) { if ($i > 0) echo ","; if ($i % $salto == $with) { ?>[<?=$i?>,"<?=$tick?>"]<? } else { ?>[<?=$i?>,""]<? } ?><? } ?>] },
             grid: { color: "#8E8E8E", labelMargin:3, borderWidth:2, backgroundColor: "#EDEDED", tickColor: "#D2D2D2", hoverable:true, clickable:true}, shadowSize:1 
         };
