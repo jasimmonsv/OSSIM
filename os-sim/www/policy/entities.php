@@ -20,6 +20,7 @@ $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 $withusers          = intval(GET('users'));
 $withsiemcomponents = intval(GET('siem'));
 $realtime           = intval(GET('realtime'));
+$onlyinventory      = intval(GET('onlyinventory'));
 
 
 $_SESSION["_with_users"]           = $withusers;
@@ -208,9 +209,10 @@ if (!$opensource) {
 </script>
 </head>
 <body>
-<? include("../hmenu.php"); ?>
+<?php include("../hmenu.php"); ?>
 
 <table border="0" width="90%" class="noborder" align="center" cellspacing="0" cellpadding="0" style="background-color:transparent">
+<?php if (!$onlyinventory) { ?>
 <tr><td valign="top" class="noborder" width="49%">
 
 	<!-- All Assets -->
@@ -251,12 +253,18 @@ if (!$opensource) {
 
 </td><td width="2%" class="noborder"></td><td valign="top" class="noborder" width="49%">
 
+<?php } else { ?>
+
+<tr><td valign="top" class="noborder" align="center">
+
+<?php } ?>
 	<!-- Asset by Property -->
 	<table border="0" width="100%" class="noborder" align="center" cellspacing="0" cellpadding="0">
 	    <tr>
 	        <td class="headerpr"><?=_("Inventory")?></td>
 	    </tr>
 	</table>
+    
 	<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
 	    <tr>
 	        <td class="nobborder">
@@ -265,6 +273,7 @@ if (!$opensource) {
 	    </tr>
 	    <tr>
 	        <td class="nobborder" style="padding:3px 0px 5px 5px;background-color:transparent">
+                <?php if (!$onlyinventory) { ?>
                 <table class="transparent">
                     <tr>
                         <td class="nobborder">&nbsp;</td>
@@ -276,10 +285,10 @@ if (!$opensource) {
                         </td>
                     </tr>
                 </table>
+                <?php } ?>
             </td>
 	    </tr>
 	</table>
-	<!--<a href="javascript:refresh_tree()">refresh</a>-->
 
 </td></tr>
 </table>

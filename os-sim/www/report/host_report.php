@@ -484,12 +484,14 @@ usleep(500000);
 						<table class="noborder" cellpadding="0" cellspacing="0" width="100%" style="background:none !important">
 							<tr>
 								<td style="color:#fff;text-align:left">
+									<?php if($host!='any') { ?>
 									<div id="widget" style="display: inline;margin-right: 7px;">
 										<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0" /></a>
 										<div id="widgetCalendar"></div>
 									</div>
 									<?php echo gettext("From:"); ?> <input readonly="readonly" type="text" name="date_from" id="date_from"  value="<?php echo $date_from; ?>" style="width:80px;"/>
 									<?php echo gettext("to:"); ?> <input readonly="readonly" type="text" name="date_to" id="date_to" value="<?php echo $date_to; ?>" style="width:80px;"/>
+									<? } ?>
 								</td>
 								<td style="color:#fff;text-align:right">
 									<?php if($type_active=='lastWeek'){?><strong><?php } ?><a href="javascript:executeRange('lastWeek');"><?php echo gettext("Last week"); ?></a><?php if($type_active=='lastWeek'){?></strong><?php } ?> | <?php if($type_active=='lastMonth'){?><strong><?php } ?><a href="javascript:executeRange('lastMonth');"><?php echo gettext("Last month"); ?></a><?php if($type_active=='lastMonth'){?></strong><?php } ?> | <?php if($type_active=='lastYear'){?><strong><?php } ?><a href="javascript:executeRange('lastYear');"><?php echo gettext("Last year"); ?></a><?php if($type_active=='lastYear'){?></strong><?php } ?>

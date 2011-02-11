@@ -169,7 +169,7 @@ foreach($menu as $name => $opc) if ($name != "Logout") {
     if ($i > 0) echo $i ?>-header" class="accordion_headings <?php
     echo $open ?>">
 		&nbsp;<img src="pixmaps/menu/<?php
-    echo strtolower($name) ?>.gif" border=0 align="absmiddle"> &nbsp; <?php
+    echo str_replace(" ","",strtolower($name)) ?>.gif" border=0 align="absmiddle"> &nbsp; <?php
     echo $txtopc ?>
 	  </div>
 	  

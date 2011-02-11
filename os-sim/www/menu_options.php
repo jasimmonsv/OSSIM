@@ -804,7 +804,7 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $c
 /* Monitors */
 $monitors = 0;
 if (Session::menu_perms("MenuMonitors", "MonitorsNetflows")) { $monitors = 1;
-	$menu["Monitors"][] = array(
+	$menu["Situational Awareness"][] = array(
         "name" => gettext("Network") ,
         "id" => "Network",
         "url" => "nfsen/index.php?tab=2",
@@ -848,7 +848,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsNetflows")) { $monitors = 1;
 }
 
 if (Session::menu_perms("MenuMonitors", "MonitorsAvailability")) { $monitors = 1;
-    $menu["Monitors"][] = array(
+    $menu["Situational Awareness"][] = array(
         "name" => gettext("Availability") ,
         "id" => "Availability",
         "url" => "nagios/index.php?sensor=" . $sensor_nagios["host"]
@@ -869,6 +869,19 @@ if (Session::menu_perms("MenuMonitors", "MonitorsAvailability")) { $monitors = 1
     );
 }
 
+$menu["Situational Awareness"][] = array(
+    "name" => gettext("Inventory") ,
+    "id" => "Inventory",
+    "url" => "policy/entities.php?onlyinventory=1",
+);
+$hmenu["Inventory"][] = array(
+    "name" => gettext("Inventory") ,
+    "id" => "Inventory",
+    "target" => "main",
+    "url" => "policy/entities.php?onlyinventory=1",
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors','Help');"
+);    
+   
 /* Configuration */
 $configuration = 0;
 if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) { //if (file_exists($version_file)) {
@@ -1072,7 +1085,7 @@ if (Session::menu_perms("MenuConfiguration", "ToolsBackup")) {
 $sstatus = 0;
 if (Session::menu_perms("MenuReports", "ReportsHostReport")) {
     $hmenu["Sysinfo"][] = array(
-        "name" => gettext("System Resume") ,
+        "name" => gettext("System Status") ,
         "id" => "Sysinfo",
         "target" => "main",
         "url" => "report/host_report.php?host=any&star_date=".date("Y-m-d",time()-604800)."&end_date=".date("Y-m-d"),
