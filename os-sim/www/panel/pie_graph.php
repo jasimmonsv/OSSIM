@@ -64,7 +64,8 @@ switch(GET("type")) {
 		    print $conn->ErrorMsg();
 		} else {
 		    while (!$rg->EOF) {
-		        $data .= "['".$rg->fields["name"]."',".$rg->fields["num_events"]."],";
+		    	$name = ucwords(str_replace("_"," ",str_replace("ossec-","ossec: ",$rg->fields["name"])));
+		        $data .= "['".$name."',".$rg->fields["num_events"]."],";
                 $urls .= "'".$forensic_link."&plugin=".$rg->fields["id"]."',";
 		        $rg->MoveNext();
 		    }

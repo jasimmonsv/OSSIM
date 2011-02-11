@@ -67,7 +67,7 @@ $demo = (preg_match("/demo/i",$version)) ? true : false;
 <frame src="header.php" name="header" scrolling="no" marginwidth='0' marginheight='0'>
 <frameset cols="180,*" border="0" frameborder="0">
 	<frame src="top.php?option=<?php echo $option ?>&soption=<?php echo $soption ?>&url=<?php echo urlencode($url) ?>" name="topmenu" scrolling="no" marginwidth='0' marginheight='0'>
-	<frame src="#" name="main" id="maincontent" marginwidth='0' marginheight='0'>
+	<frame src="" name="main" id="maincontent" marginwidth='0' marginheight='0'>
 </frameset>
 </frameset>
 </html>
