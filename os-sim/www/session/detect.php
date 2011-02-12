@@ -75,17 +75,14 @@ if (ossim_error()) {
         if ($activate) {
             // Launch script with ip and plugin file
             foreach ($_GET as $k => $v) if (preg_match("/\.cfg/",$v)) {
-                if (file_exists($v)) {
-                    echo "\n-- "._("Activating plugin")." $v ($ip)\n\n";
-                    $f = popen("sudo /usr/share/ossim/scripts/detect.pl $ip $v 2>&1","r");
-                    while (!feof($f)) {
-                        $line = fgets($f);
-                        echo "$line"; flush(); ob_flush();
-                    }
-                    pclose($f);
-                } else {
-                    echo "\n-- "._("Can't activating plugin")." $v ("._("File not found")."\n\n";
+                echo "\n-- "._("Activating plugin")." $v ($ip)\n\n";
+                $f = popen("sudo /usr/share/ossim/scripts/detect.pl $ip $v 2>&1","r");
+                while (!feof($f)) {
+                    $line = fgets($f);
+                    echo "$line"; flush(); ob_flush();
                 }
+                pclose($f);
+                echo "\n\n";
             }
     ?>
     </pre><br/>

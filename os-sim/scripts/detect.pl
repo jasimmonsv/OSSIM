@@ -25,17 +25,19 @@ $agent_conf_file_orig = "/etc/ossim/agent/config.cfg.orig";
 $ossim_setup_conf = "/etc/ossim/ossim_setup.conf";
 
 $skip_detection = 0;
+$plugin_dir = "/etc/ossim/agent/plugins/";
 
 if($ARGV[1]){
-$plugin = $ARGV[1];
-$skip_detection = 1;
+    $plugin = $ARGV[1];
+    $skip_detection = 1;
+    if (!-f "$plugin_dir/$plugin") {
+        print "Error: $plugin_dir/$plugin not exists\n";
+        exit;
+    }
 }
 
 # Validate IP
 if($debug){print "[+] Validating IP\n";}
-
-$plugin_dir = "/etc/ossim/agent/plugins/";
-
 
 ########################################
 ######## Start doing things ############
