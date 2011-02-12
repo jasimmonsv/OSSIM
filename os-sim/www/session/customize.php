@@ -155,8 +155,8 @@ function upload($num) {
 		//@unlink($_FILES['fileToUpload']);
 	}
 	echo "{";
-	echo				"error: '" . $error . "',\n";
-	echo				"msg: '" . $msg . "'\n";
+	echo				"error: '" . _($error) . "',\n";
+	echo				"msg: '" . _($msg) . "'\n";
 	echo "}";
 }
 //
@@ -399,7 +399,9 @@ switch($step){
 		switch($step){
 			case 1:
 	?>
-	<script type="text/javascript" src="../js/jquery.pstrength.js"></script>
+    <script type="text/javascript" src="../js/greybox.js"></script>
+	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+    <script type="text/javascript" src="../js/jquery.pstrength.js"></script>
 	<script type="text/javascript" src="../js/jquery.base64.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
 	<?php
@@ -445,6 +447,10 @@ switch($step){
 				content: 'Write the Public ip adress or network, from which the system is authorized to receive logs, for example: 193.148.29.99 for a single IP, or 193.148.29.99/24'
 			});
 		});
+        function GB_hide() { return; }
+        function validate(ip) {
+            GB_show("<?php echo _("Validate IP. Plugin Detection & Configuration")?>",'detect.php?ip='+ip,'80%','70%');
+        }
 	<?php
 				break;
 			case 2:
@@ -576,6 +582,7 @@ switch($step){
 												<img src="../pixmaps/greenhelp.png" border='0' align='absmiddle'/>
 												<div class="tooltip fixed" style="display: none;"></div>
 											</a>
+                                            <input type="button" class="lbutton" value="<?php echo _("Plugin Detection & Configuration")?>" onclick="validate($('#s_log').val())">
 										</td>
 									</tr>
 								</table>

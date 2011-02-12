@@ -24,6 +24,16 @@ def get_entry(config, section, option):
     value = _strip_value(value)
     return value
 
+aliases = {}
+aliases['IPV4']="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+aliases['IPV6_MAP']="::ffff:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+aliases['MAC']="\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}"
+aliases['PORT']="\d{1,5}"
+aliases['HOSTNAME']="((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)([a-zA-Z])+)"
+aliases['TIME']="\d\d:\d\d:\d\d"
+aliases['SYSLOG_DATE']="\w{3}\s+\d{1,2}\s\d\d:\d\d:\d\d"
+aliases['SYSLOG_WY_DATE']="\w+\s+\d{1,2}\s\d{4}\s\d\d:\d\d:\d\d"
+
 
 ############################## End definitions ###########################
 
@@ -103,6 +113,13 @@ else:
         for rule in rules.iterkeys():
             rulename = rule
             regexp = get_entry(config, rule, 'regexp')
+            if regexp is "":
+                continue
+            # Replace vars
+            for alias in aliases:
+                tmp_al = ""
+                tmp_al = "\\" + alias;
+                regexp = regexp.replace(tmp_al,aliases[alias])
             result = re.findall(regexp,line)
             try:
                 tmp = result[0]

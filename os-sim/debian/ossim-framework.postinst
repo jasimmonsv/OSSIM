@@ -88,6 +88,11 @@ then
 		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-logtest -t" >> /etc/sudoers
 fi
 
+if ! [ `grep -c "detect.pl" /etc/sudoers` -ne 0 ]
+then
+		echo "www-data ALL=NOPASSWD: /usr/share/ossim/scripts/detect.pl" >> /etc/sudoers
+fi
+
 # nmap perms
 if [ -e /usr/bin/nmap ]
 then
