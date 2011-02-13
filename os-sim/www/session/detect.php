@@ -36,6 +36,7 @@
 * Classes list:
 */
 //
+ini_set('max_execution_time',300);
 ob_implicit_flush();
 require_once "classes/Security.inc";
 require_once "classes/Session.inc";
@@ -75,15 +76,16 @@ if (ossim_error()) {
         if ($activate) {
             // Launch script with ip and plugin file
             foreach ($_GET as $k => $v) if (preg_match("/\.cfg/",$v)) {
-                echo "\n-- "._("Activating plugin")." $v ($ip)\n\n";
+                echo "\n-> "._("Activating plugin")." $v ($ip) <-\n\n";
                 $f = popen("sudo /usr/share/ossim/scripts/detect.pl $ip $v 2>&1","r");
                 while (!feof($f)) {
                     $line = fgets($f);
                     echo "$line"; flush(); ob_flush();
                 }
                 pclose($f);
-                echo "\n\n";
+                echo "\n";
             }
+            echo "\n"._("Finished").".\n";
     ?>
     </pre><br/>
 <?php
@@ -110,15 +112,20 @@ if (ossim_error()) {
                 $db   = new ossim_db();
                 $conn = $db->connect();
                 echo "<form action='detect.php' method='get'><input type='hidden' name='ip' value='$ip'><input type='hidden' name='activate' value='1'>\n";
-                foreach ($plugs as $plg) {
+                foreach ($plugs as $plg => $perc) {
                     $plugin_name = str_replace(".cfg","",$plg);
                     $rp = Plugin::get_list($conn,"WHERE name='$plugin_name'");
-                    if (isset($rp[0]))
-                        echo "<input type='radio' name='$plugin_name' value='$plg'> ".$plugin_name.": ".$rp[0]->get_description()."\n";
+                    # syslog comment
+                    $comment = "";
+                    if (preg_match("/syslog/",$plugin_name)) {
+                    	$comment = "<br>&nbsp;&nbsp;<span style='color:gray;font-style:italic'>(*)"._("This plugin does not categorize the events. It is only recommended for mass gathering events for compliance.")."</span>";
+                    }
+                    if (isset($rp[0]) && $rp[0]->get_description()!="")
+                        echo "<input type='radio' name='$plugin_name' value='$plg'> ".$plugin_name.": ".$rp[0]->get_description()." $comment <br>\n";
                     else
-                        echo "<input type='radio' name='$plugin_name' value='$plg'> ".$plugin_name."\n";                
+                        echo "<input type='radio' name='$plugin_name' value='$plg'> $plugin_name $comment<br>\n";                
                 }
-                echo "<input type='button' class='lbutton' value='"._("Activate selected plugins")."'>\n";
+                echo "<br><input type='submit' class='lbutton' value='"._("Activate selected plugins")."'><br>\n";
                 echo "</form>\n";
                 $db->close($conn);
             } else {
