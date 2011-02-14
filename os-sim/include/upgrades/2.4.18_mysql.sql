@@ -16,6 +16,16 @@ CREATE PROCEDURE addcol() BEGIN
   THEN
       ALTER TABLE event_field_reference ADD source_id INT NOT NULL;
   END IF;
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'host_properties' AND COLUMN_NAME = 'tzone')
+  THEN
+      ALTER TABLE host_properties ADD tzone FLOAT NOT NULL DEFAULT '0';
+  END IF;
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'credentials' AND COLUMN_NAME = 'sensor_ip')
+  THEN
+      ALTER TABLE credentials ADD sensor_ip VARCHAR(64) NOT NULL DEFAULT '';
+  END IF;    
 END;
 //
 DELIMITER ';'

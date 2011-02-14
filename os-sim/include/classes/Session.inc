@@ -1350,8 +1350,8 @@ class DBA_shared {
 	private $dbfile;
 	
 	function __construct($dbfile="") {
-		$this->dbfile = ($dbfile!="") ? "/var/tmp/report_".$dbfile : tempnam("/var/tmp", "report_");
-		$this->dbfile .= ".db";
+		$this->dbfile = ($dbfile!="") ? $dbfile : tempnam("/var/tmp", "report_");
+		if (!preg_match("/^\/var\/tmp/",$this->dbfile)) $this->dbfile = "/var/tmp/report_".$this->dbfile.".db";
 	}
 	
 	/*function __destruct(){
@@ -1360,24 +1360,28 @@ class DBA_shared {
 	
 	function truncate() {
 		// create empty db
-		$f = dba_open($this->dbfile, "n", "db4");
-		dba_insert("create",date("Y-m-d H:i:s"),$f);
-		dba_close($f);
+		if ($f = @dba_open($this->dbfile, "n", "db4")) {
+			dba_insert("create",date("Y-m-d H:i:s"),$f);
+			dba_close($f);
+		}
 	}
 		
 	function get($key) {
 		$value = "";
-		$f = dba_open($this->dbfile, "rl", "db4");
-		if (dba_exists($key,$f)) $value = dba_fetch($key,$f);
-		dba_close($f);
-		return ($this->is_serialized($value)) ? unserialize($value) : $value;
+		if ($f = @dba_open($this->dbfile, "rl", "db4")) {
+			if (dba_exists($key,$f)) $value = dba_fetch($key,$f);
+			dba_close($f);
+			return ($this->is_serialized($value)) ? unserialize($value) : $value;
+		}
+		return $value;
 	}
 	
 	function put($key,$value) {
-		$f = dba_open($this->dbfile, "wl", "db4");
-		if (is_array($value)) $value = serialize($value);
-		dba_insert($key,$value,$f);
-		dba_close($f);
+		if ($f = @dba_open($this->dbfile, "wl", "db4")) {
+			if (is_array($value)) $value = serialize($value);
+			dba_insert($key,$value,$f);
+			dba_close($f);
+		}
 	}
 
 	function dbfile() {

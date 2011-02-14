@@ -293,7 +293,7 @@ INSERT INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
 (9, 'role', 4, 'Role');
 
 DROP TABLE IF EXISTS host_properties;
-CREATE TABLE IF NOT EXISTS host_properties (
+CREATE TABLE host_properties (
    id INT NOT NULL AUTO_INCREMENT, 
    ip VARCHAR(15) NOT NULL,
    sensor VARCHAR(64) NOT NULL,
@@ -303,6 +303,7 @@ CREATE TABLE IF NOT EXISTS host_properties (
    value TEXT,
    extra TEXT,
    anom TINYINT(1) NOT NULL DEFAULT '0',
+   tzone FLOAT NOT NULL DEFAULT '0',
    PRIMARY KEY  (`id`),
    KEY `date` (`date`),
    KEY `ip` (`ip`,`sensor`),
@@ -2590,6 +2591,7 @@ CREATE TABLE IF NOT EXISTS credentials (
   username TEXT,
   password TEXT,
   extra TEXT,
+  sensor_ip VARCHAR(64) NOT NULL DEFAULT '',
   PRIMARY KEY (id)
 );
 
