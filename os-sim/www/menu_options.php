@@ -338,7 +338,7 @@ if (Session::menu_perms("MenuEvents", "EventsForensics") ||
             $hmenu["Detection"][] = array(
                 "name" => gettext("HIDS") ,
                 "id" => "HIDS",
-                "url" => "ossec/agent.php",
+                "url" => "ossec/status.php",
                 "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
             );	
             $rmenu["HIDS"][] = array(
