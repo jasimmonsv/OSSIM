@@ -1341,6 +1341,58 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 
 }
 
+//
+// DBA shared
+// Allow shared vars between phps with db files (without use session vars)
+//
+class DBA_shared {
+	
+	private $dbfile;
+	
+	function __construct($dbfile="") {
+		$this->dbfile = ($dbfile!="") ? "/var/tmp/report_".$dbfile : tempnam("/var/tmp", "report_");
+		$this->dbfile .= ".db";
+	}
+	
+	/*function __destruct(){
+		unlink($this->dbfile);
+	}*/
+	
+	function truncate() {
+		// create empty db
+		$f = dba_open($this->dbfile, "n", "db4");
+		dba_insert("create",date("Y-m-d H:i:s"),$f);
+		dba_close($f);
+	}
+		
+	function get($key) {
+		$value = "";
+		$f = dba_open($this->dbfile, "rl", "db4");
+		if (dba_exists($key,$f)) $value = dba_fetch($key,$f);
+		dba_close($f);
+		return ($this->is_serialized($value)) ? unserialize($value) : $value;
+	}
+	
+	function put($key,$value) {
+		$f = dba_open($this->dbfile, "wl", "db4");
+		if (is_array($value)) $value = serialize($value);
+		dba_insert($key,$value,$f);
+		dba_close($f);
+	}
+
+	function dbfile() {
+		return $this->dbfile;
+	}
+
+	private function is_serialized($val){ 
+	    if (!is_string($val)) { return false; } 
+	    if (trim($val) == "") { return false; }  
+	    if (preg_match("/^(i|s|a|o|d):(.*);/si",$val) !== false) { return true; } 
+	    return false; 
+	}
+
+}
+
 // Expire Session check. (15 minutes) PCI Compliance 
 function expire_session_check() {
 	$conf = $GLOBALS["CONF"];

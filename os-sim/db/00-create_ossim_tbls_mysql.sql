@@ -908,6 +908,7 @@ CREATE TABLE event_field_reference (
 	host_property_reference_id INTEGER NOT NULL,
 	host_source_reference_id   INTEGER NOT NULL,
 	which_userdata             INTEGER NOT NULL,
+	source_id                  INT NOT NULL,
 	PRIMARY KEY (plugin_id, plugin_sid, host_property_reference_id)
 );
 
@@ -916,11 +917,11 @@ CREATE TABLE event_field_reference (
 --
 DROP TABLE IF EXISTS backlog;
 CREATE TABLE backlog (
-    id        BIGINT NOT NULL DEFAULT 0,
+    id              BIGINT NOT NULL DEFAULT 0,
     directive_id    INTEGER NOT NULL,
-    timestamp    TIMESTAMP NOT NULL,
-    matched        TINYINT,
-		uuid	CHAR(36) ASCII,
+    timestamp       TIMESTAMP NOT NULL,
+    matched         TINYINT,
+    uuid            CHAR(36) ASCII,
     PRIMARY KEY (id)
 );
 
