@@ -2258,8 +2258,8 @@ function createHiddenDiv($name, $num, $data, $fam, $sid) {
    $text .= "</tr>\n";
    $text .= "<tr>";
    $text .= "<th>"._("Enabled")."</th>";
-   $text .= "<th>"._("PluginID")."</th>";
-   $text .= "<th>"._("Plugin Name")."</th>";
+   $text .= "<th>"._("VulnID")."</th>";
+   $text .= "<th>"._("Vuln Name")."</th>";
    $text .= "<th>"._("CVE Id")."</th>";
    $text .= "<th>"._("Plugin Category")."</th>";
    $text .= "</tr>\n";
@@ -2319,12 +2319,12 @@ function createHiddenDivCve($name, $num, $data, $cve, $sid) {
    $text .= "</tr>\n";
    $text .= "<tr>";
    $text .= "<th>"._("Enabled")."</th>";
-   $text .= "<th>"._("PluginID")."</th>";
-   $text .= "<th>"._("Plugin Name")."</th>";
+   $text .= "<th>"._("VulnID")."</th>";
+   $text .= "<th>"._("Vuln Name")."</th>";
    $text .= "<th>"._("CVE Id")."</th>";
    $text .= "<th>"._("Plugin Category")."</th>";
    $text .= "</tr>\n";
-   #$text .= "<span id=\"family" . $num . "\">";
+   #$text .= "<span id=\"family" . $num . "\">"; 
    foreach($data as $element) {
       $text .= "<tr>";
       $checked = "";

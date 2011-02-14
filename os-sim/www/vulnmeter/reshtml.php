@@ -1210,8 +1210,8 @@ EOT;
 <tr>
 EOT;
 
-echo "<th>"._("Plugin Name")."</th>";
-echo "<th>"._("PluginID")."</th>";
+echo "<th>"._("Vuln Name")."</th>"; 
+echo "<th>"._("VulnID")."</th>";
 echo "<th>"._("Service")."</th>";
 echo "<th>"._("Severity")."</th>";
 echo "</tr>";
@@ -1387,7 +1387,7 @@ echo "<tr ".(($falsepositive=='Y')? "class=\"trsk risk$risk fp\"" : "class=\"trs
 </font>
 <?php
          // Add info from osvdb
-         echo "&nbsp;&nbsp;<a title=\""._("Info from OSVDB for plugin id ")."$scriptid\" class=\"greybox\" href=\"osvdb_info.php?scriptid=$scriptid\"><img src=\"images/osvdb.png\" border=\"0\"></a>&nbsp;&nbsp;";
+         echo "&nbsp;&nbsp;<a title=\""._("Info from OSVDB for vuln id ")."$scriptid\" class=\"greybox\" href=\"osvdb_info.php?scriptid=$scriptid\"><img src=\"images/osvdb.png\" border=\"0\"></a>&nbsp;&nbsp;";
          // Add link to popup with Script Info
          echo <<<EOT
 <a href="javascript:;" lid="$scriptid" class="scriptinfo"><img alt="Info" src="images/info.png" border=0></a>

@@ -878,7 +878,7 @@ EOT;
 
    $settings .= <<<EOT
       </select><br>
-      <textarea name='cust_plugins' cols='48' rows='12'>$editdata[meth_CPLUGINS]</textarea><font color='red'>Enter Plugin ID's</font>
+      <textarea name='cust_plugins' cols='48' rows='12'>$editdata[meth_CPLUGINS]</textarea><font color='red'>Enter Vuln ID's</font>
     </td>
   </tr>
 EOT;

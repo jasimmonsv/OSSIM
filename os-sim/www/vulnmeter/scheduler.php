@@ -198,7 +198,7 @@ if ($action == "insert") {
 ?>
 <table width="100%" align="left">
 <tr>
-<th><?php echo _("Plugin ID"); ?></th>
+<th><?php echo _("Vuln ID"); ?></th>
 <th><?php echo _("Minute"); ?></th>
 <th><?php echo _("Hour"); ?></th>
 <th><?php echo _("Day of Month"); ?></th>

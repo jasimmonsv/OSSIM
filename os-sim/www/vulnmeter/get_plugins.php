@@ -104,8 +104,8 @@ $text .= "<table width='800'>\n";
 
 $text .= "<tr>";
 $text .= "<th>"._("Enabled")."</th>";
-$text .= "<th>"._("PluginID")."</th>";
-$text .= "<th>"._("Plugin Name")."</th>";
+$text .= "<th>"._("VulnID")."</th>";
+$text .= "<th>"._("Vuln Name")."</th>";
 $text .= "<th>"._("CVE Id")."</th>";
 $text .= "<th>"._("Plugin Category")."</th>";
 $text .= "</tr>\n";
