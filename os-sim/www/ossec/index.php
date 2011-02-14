@@ -56,8 +56,6 @@ if ( file_exists( $filename) )
 		$info_conf   = "<span style='font-weight: bold;'>$link_txt<a onclick=\"$('#msg_errors').toggle();\"> ["._("View errors")."]</a><br/></span>";
 		$info_conf  .= "<div id='msg_errors'>$result</div>";
 		$error_conf  = "<div id='parse_errors' class='oss_error'>$info_conf</div>";
-		
-		
 	}
 	else
 	{
@@ -145,7 +143,7 @@ else
 			messages[10] = '<?php echo _("Click on a brach to edit a node")?>';
 			messages[11] = "<?php echo _("File")." <strong>$rules_file</strong> "._("doesn't exist or you don't have permission to access")?>";
 			messages[12] = '<?php echo _("File name not allowed")?>';
-			messages[13] = '<?php echo _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$editable_files[0]?>';
+			messages[13] = '<?php echo _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$rules_file.$editable_files[0]?>';
 			messages[14] = '<?php echo _("View errors")?>';
 			messages[15] = '<?php echo _("File not editable")?>';
 			messages[16] = '<?php echo _("First save the changes then you can edit")?>';

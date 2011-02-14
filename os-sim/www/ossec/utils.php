@@ -832,9 +832,36 @@ function get_actions ($agent)
 	return $restart.$check.$key.$delete;
 }
 
+function get_nodes($tree, $node_name)
+{
+	$nodes = null;
+	
+	if ( is_array($tree) )
+	{
+		foreach ($tree as $k => $v)
+		{
+			if ( is_array($v) && $k === $node_name )
+			{
+				$nodes[] = $v;
+			}
+			else if( is_array($v) && $k !== $node_name )
+			{
+				$aux = get_nodes($v, $node_name);
+				$nodes   = ( is_array($nodes) ) ? $nodes : array();
+				$aux     = ( is_array($aux) ) ? $aux : array();
+				$nodes   = array_merge ($nodes, $aux);
+				
+			}
+		}
+	}
+	return $nodes;
+}
+
 //check if configuration files are OK
 function test_conf()
 {
+	require_once("conf/_conf.php");
+	
 	exec("sudo /var/ossec/bin/ossec-logtest -t > /tmp/ossec-logtest 2>&1", $result, $res);
 	
 	$result = file('/tmp/ossec-logtest', FILE_IGNORE_NEW_LINES);
@@ -853,8 +880,31 @@ function test_conf()
 			}
 		}
 	}
+	else
+		$res = _("Error to read $ossec_conf and/or $rules_file".$editable_files[0]);
 	
 	@unlink ('/tmp/ossec-logtest');
+	return $res;	
+	
+}
+
+//check if agent.conf is OK
+function test_agents()
+{
+	require_once("conf/_conf.php");
+	
+	exec("sudo /var/ossec/bin/verify-agent-conf > /tmp/ossec-agent-conf 2>&1", $result, $res);
+	
+	$result = file('/tmp/ossec-agent-conf', FILE_IGNORE_NEW_LINES);
+	
+	$res    = true; 
+	
+	if ( !is_array($result) )
+		$res = _("Error to read $agent_conf");
+	else if (is_array($result) && count($result) > 0)  
+		$res = implode("<br/><br/>", $result);
+		
+	@unlink ('/tmp/ossec-agent-conf');
 	return $res;	
 	
 }
