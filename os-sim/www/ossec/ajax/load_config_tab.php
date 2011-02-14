@@ -37,31 +37,6 @@ require_once ('../conf/_conf.php');
 require_once ('../utils.php');
 require_once ('classes/Xml_parser.inc');
 
-function get_nodes($tree, $node_name)
-{
-	$nodes = null;
-	
-	if ( is_array($tree) )
-	{
-		foreach ($tree as $k => $v)
-		{
-			if ( is_array($v) && $k === $node_name )
-			{
-				$nodes[] = $v;
-			}
-			else if( is_array($v) && $k !== $node_name )
-			{
-				$aux = get_nodes($v, $node_name);
-				$nodes   = ( is_array($nodes) ) ? $nodes : array();
-				$aux     = ( is_array($aux) ) ? $aux : array();
-				$nodes   = array_merge ($nodes, $aux);
-				
-			}
-		}
-	}
-	return $nodes;
-}
-
 $error     = false;
 $tab       = POST('tab');
 $conf_file = @file_get_contents($ossec_conf);

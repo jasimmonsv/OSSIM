@@ -42,8 +42,6 @@ $error      = false;
 $error_conf = null;
 
 $_SESSION["_current_file"]   = $editable_files[0];
-$_level_key_name             = set_key_name($_level_key_name, $file_xml);
-$_SESSION['_level_key_name'] = $_level_key_name;
 
 if ( file_exists( $filename) )
 {
@@ -56,8 +54,6 @@ if ( file_exists( $filename) )
 		$info_conf   = "<span style='font-weight: bold;'>$link_txt<a onclick=\"$('#msg_errors').toggle();\"> ["._("View errors")."]</a><br/></span>";
 		$info_conf  .= "<div id='msg_errors'>$result</div>";
 		$error_conf  = "<div id='parse_errors' class='oss_error'>$info_conf</div>";
-		
-		
 	}
 	else
 	{
@@ -67,6 +63,9 @@ if ( file_exists( $filename) )
 			$error = true;
 		else
 		{
+			$_level_key_name             = set_key_name($_level_key_name, $file_xml);
+			$_SESSION['_level_key_name'] = $_level_key_name;
+
 			$xml_obj=new xml($_level_key_name);
 			$xml_obj->load_file($filename);
 											
@@ -145,7 +144,7 @@ else
 			messages[10] = '<?php echo _("Click on a brach to edit a node")?>';
 			messages[11] = "<?php echo _("File")." <strong>$rules_file</strong> "._("doesn't exist or you don't have permission to access")?>";
 			messages[12] = '<?php echo _("File name not allowed")?>';
-			messages[13] = '<?php echo _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$editable_files[0]?>';
+			messages[13] = '<?php echo _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$rules_file.$editable_files[0]?>';
 			messages[14] = '<?php echo _("View errors")?>';
 			messages[15] = '<?php echo _("File not editable")?>';
 			messages[16] = '<?php echo _("First save the changes then you can edit")?>';

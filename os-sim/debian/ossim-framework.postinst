@@ -88,6 +88,11 @@ then
 		echo "www-data ALL=NOPASSWD: /var/ossec/bin/ossec-logtest -t" >> /etc/sudoers
 fi
 
+if ! [ `grep -c "verify-agent-conf" /etc/sudoers` -ne 0 ]
+then
+		echo "www-data ALL=NOPASSWD: /var/ossec/bin/verify-agent-conf" >> /etc/sudoers
+fi
+
 if ! [ `grep -c "detect.pl" /etc/sudoers` -ne 0 ]
 then
 		echo "www-data ALL=NOPASSWD: /usr/share/ossim/scripts/detect.pl" >> /etc/sudoers
@@ -198,6 +203,7 @@ chmod u+rwx          /var/ossec/rules
 chown www-data:ossec /var/ossec/etc
 chown www-data:ossec /var/ossec/etc/ossec.conf
 chmod u+rw           /var/ossec/etc/ossec.conf
+chown www-data:ossec /var/ossec/etc/shared
 
 chmod u+w            /var/ossec/rules/local_rules.xml
 chown www-data:ossec /var/ossec/rules/local_rules.xml 

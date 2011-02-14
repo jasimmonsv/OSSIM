@@ -95,7 +95,7 @@ $cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' alig
 			messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Loading data ... ")?></span>';
 			messages[1]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Saving data ... ")?></span>';
 			messages[2]  = '<span style="padding-left: 5px;"><?php echo _("Illegal action")?></span>';
-			messages[3]  = '<?php echo _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$editable_files[0]?>';
+			messages[3]  = '<?php echo _("Configuration error at")." ".$ossec_conf." "._("and/or")." ".$rules_file.$editable_files[0]?>';
 			messages[4]  = '<?php echo _("View errors")?>';
 			messages[5]  = "<?php echo _("Are you sure to delete this row")?>?";
 			messages[6]  = '<?php echo _("Re-loading in")?>';
@@ -190,7 +190,7 @@ $cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' alig
 	#frequency { height: 18px; width: 210px;}
 	.sys_frequency {width: 150px; padding: 2px 0px;}
 	
-	textarea { border: solid 1px #888}
+	textarea { border: solid 1px #888;}
 	#code { border:none;}
 	.cont_savet2{ padding: 20px 0px 20px 0px; text-align: right; margin-right: 2px;}
 	

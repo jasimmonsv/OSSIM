@@ -30,20 +30,76 @@
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
 
+require_once ('classes/Session.inc');
+require_once ('classes/Security.inc');
+require_once ('classes/Util.inc');
+require_once ('../conf/_conf.php');
+require_once ('../utils.php');
 
-//Key attribute
-$_level_key_name = "__level_key";
+$error      = false;
+$tab_ok     = null;
+$no_action  = false;
+$path  		= $agent_conf;
+$path_tmp   = "/tmp/".uniqid()."_tmp.conf";
 
-//Directory ossec rules files
-$rules_file = "/var/ossec/rules/";
+if ( @copy ($path , $path_tmp) == false )
+{
+	echo "2###"._("Failure to update")." <b>$agent_conf</b>";
+	exit();
+}
 
-//Editable rules files
-$editable_files = array("local_rules.xml");
+$tab = POST('tab');
 
-//Ossec conf
-$agent_conf = "/var/ossec/etc/shared/agent.conf";
+if($tab == "#tab2")
+{
+	;
+}
+else if($tab == "#tab3")
+{
+	$data   = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
+	$tab_ok = "1###<b>$agent_conf "._("updated sucessfully")."</b>";
+}
+else
+{
+	$no_action = true;
+	echo "2###"._("Error: Illegal actions");
+}
 
-//Agent conf
-$ossec_conf = "/var/ossec/etc/ossec.conf";
+if ($no_action == false)
+{
+	if ( @file_put_contents($path, $data, LOCK_EX) == false )
+	{
+		echo "2###"._("Failure to update")." <b>$agent_conf</b> (2)";
+		echo $tab_error;
+	}
+	else
+	{
+		$result = test_agents(); 	
+					
+		if ( $result !== true )
+		{
+			echo "3###".$result;
+			$error = true;
+		}
+		else
+			echo $tab_ok;
+	}
+	
+	if ( $error == true )
+	{
+		@unlink ($path);
+		@copy ($path_tmp, $path);
+	}	
+}
+
+@unlink($path_tmp);	
+
+
+	
+
+
+
+
+
 
 ?>

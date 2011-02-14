@@ -37,7 +37,13 @@
 */
 
 require_once ('classes/Session.inc');
+require_once ('conf/_conf.php');
 require_once ('utils.php');
+
+$result = test_agents();
+
+if ( $result !== true )
+	$error = true;
 
 ?>
 
@@ -53,151 +59,181 @@ require_once ('utils.php');
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>
 	<script type="text/javascript" src="../js/messages.php"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
-	
+	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/agents.js"></script>
+	<script type='text/javascript' src='codemirror/codemirror.js'></script>
+	<script type="text/javascript">
+		var messages = new Array();
+			messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Adding agent... ")?></span>';
+			messages[1]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Processing action... ")?></span>';
+			messages[2]  = '<img src="images/loading.gif" border="0" align="absmiddle" alt="Loading"/><span style="padding-left: 5px;"><?php echo _("Loading data ... ")?></span>';
+			messages[3]  = '<?php echo _("Configuration error at")." ".$agent_conf?>';
+			messages[4]  = '<?php echo _("View errors")?>';
+			messages[5]  = "<?php echo _("Are you sure to delete this row")?>?";
+			messages[6]  = '<?php echo _("Re-loading in")?>';
+			messages[7]  = '<?php echo _("second(s)")?>';
+			
+		var editor = null;
+	</script>
 	<script type="text/javascript">
 	
-		function show_agent(id)
+	
+		function load_agent_tab(tab)
 		{
-			if ( $("#"+id).hasClass("visible") )
+			//Add Load img
+			if ($('#cnf_load').length < 1)
 			{
-				$("#"+id).show();
-				$("#"+id).removeClass("visible");
-				$("#"+id).addClass("no_visible");
+				$(tab+" div").css('display', 'none');
+				var load ="<div id='cnf_load'>"+messages[2]+"</div>";
+				$(tab).append(load);
 			}
-			else
+															
+			//Remove error message
+									
+			if ($('#cnf_message').length >= 1)
 			{
-				$("#"+id).hide();
-				$("#"+id).removeClass("no_visible");
-				$("#"+id).addClass("visible");
+				$('#cnf_message').removeClass();
+				$('#cnf_message').html('<div id="cont_cnf_message"></div>');
 			}
-		}
 		
-		
-		function add_agent()
-		{
-			var form_id = $('form[method="post"]').attr("id");
-			
-			$(".oss_load").html(messages[0]);
-						
+				
 			$.ajax({
 				type: "POST",
-				url: "ajax/agent_actions.php",
-				data: $('#'+form_id).serialize() + "&action=add_agent",
-				success: function(html){
-					var status = html.split("###");
-					if ( status[0] == "error")
+				url: "ajax/load_agent_tab.php",
+				data: "tab="+tab,
+				success: function(msg){
+															
+					//Remove load img
+					
+					if ( $('#cnf_load').length >= 1 )
+						$('#cnf_load').remove();
+						
+					var status = msg.split("###");
+					var txt    = null;
+					
+					switch( status[0] )
 					{
-						$(".oss_load").html('');
-						
-						if ( status[1].match("<br/>") == null )
-							var style= '';
-						else
-						    var style = "class='error_left'";
-						
-						$(".info").html("<div class='oss_error'><div "+style+">"+status[1]+"</div></div>");
-						$(".info").fadeIn(2000);
-					}
-					else
-					{
-						$(".oss_load").html('');
-						
-						if ( $('#agent_table .no_agent').length == 1 )
-							$('#cont_no_agent').remove();
-						
-						$('#agent_table tr:last').after(status[3]);					
-												
-						$('#cont_agent_'+status[2]+' .agent_actions a').bind('click', function() {
-							var id = $(this).attr("id");
-							get_action(id);
-						});
-						
-						$('#agent_'+status[2]+ ' .agent_id').bind('click', function() {
-							var id   = $(this).text();
-							var src  = $(this).find("img").attr("src");
-							var src1 = "../pixmaps/minus-small.png";
-							var src2 = "../pixmaps/plus-small.png";
-							
-							if (src == src1)
+						case "1":
+							if (tab == "#tab1")
 							{
-								$("#minfo_"+id).css('display', 'none');
-								$(this).find("img").attr("src", src2);
+								
+								$(tab).html(status[1]);
+															
+								$('#show_agent').bind('click', function() { show_agent("cont_add_agent") });
+								$('#send').bind('click', function() { add_agent() });
+								
+								$("#agent_table tr[id^='cont_agent_']").each(function(index) {
+									
+									if (index % 2 == 0)
+										$(this).css("background-color", "#EEEEEE");
+								});
+								
+								$("#agent_table tr[id^='minfo_']").each(function(index) {
+									
+									if (index % 2 != 0)
+										$(this).css("background-color", "#EEEEEE");
+								});		
+											
+								$('.vfield').bind('blur', function() {
+									 validate_field($(this).attr("id"), "ajax/agent_actions.php");
+								});
+								
+								$('#agent_table .agent_actions a').bind('click', function() {
+									var id = $(this).attr("id");
+									get_action(id);
+								});
+								
+								$('#agent_table .agent_id').bind('click', function() {
+									var id = $(this).text();
+									var src  = $(this).find("img").attr("src");
+									var src1 = "../pixmaps/minus-small.png";
+									var src2 = "../pixmaps/plus-small.png";
+									if (src == src1)
+									{
+										$("#minfo_"+id).css('display', 'none');
+										$(this).find("img").attr("src", src2);
+									}
+									else
+									{
+										$("#minfo_"+id).css('display', '');
+										$(this).find("img").attr("src", src1);
+									}
+												
+								});
+								
+								$(tab).css('display', 'block');
+													
+							}
+							else if (tab == "#tab2")
+							{
+								$(tab).html(status[1]);	
+								
+								$(tab+" div").css('display', 'block');
+								$('textarea').elastic();
+								$('#table_sys_directories table').css('background', 'transparent');
+								$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+								$('#table_sys_ignores table').css('background', 'transparent');
+								$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
+							}
+							else if (tab == "#tab3")
+							{
+								if (editor == null)
+								{
+									editor = new CodeMirror(CodeMirror.replace("code"), {
+										parserfile: "parsexml.js",
+										stylesheet: "css/xmlcolors.css",
+										path: "codemirror/",
+										continuousScanning: 500,
+										content: status[1],
+										lineNumbers: true
+									});
+								}
+								else
+									editor.setCode(status[1]);
+								
+								$(tab+" div").css('display', 'block');
+							}
+							
+						break;
+						
+						case "2":
+							txt = "<div id='msg_init_error'><div class='oss_error'><div style='margin-left: 70px; text-align:center;'>"+status[1]+"</div></div></div>";
+							$(tab).html(txt);
+							$(tab+" div").css('display', 'block');
+						break;
+						
+						case "3":
+							
+							$('#cont_cnf_message').hide();
+							txt   = "<span style='font-weight: bold;'>"+messages[3]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[4]+"]</a><br/></span>";
+							txt  += "<div id='msg_errors'>"+status[2]+"</div>";
+								
+							$('#cont_cnf_message').append("<div id='parse_errors'></div>");
+							$('#parse_errors').addClass("oss_error");
+							$('#parse_errors').html(txt);
+							
+												
+							if (editor == null)
+							{
+								editor = new CodeMirror(CodeMirror.replace("code"), {
+									parserfile: "parsexml.js",
+									stylesheet: "css/xmlcolors.css",
+									path: "codemirror/",
+									continuousScanning: 500,
+									content: status[1],
+									lineNumbers: true
+								});
 							}
 							else
-							{
-								$("#minfo_"+id).css('display', '');
-								$(this).find("img").attr("src", src1);
-							}
-										
-						});
-												
-						$(".info").html("<div class='oss_success'>"+status[1]+"</div>");
-						$(".info").fadeIn(4000);
-					}
-				}
-			});
-		}
-		
-		function get_action(id)
-		{
-			var action = null;
-			if ( id.match("_key##") != null )	
-				send_action(id, 'extract_key');
-			else if ( id.match("_del##") != null )
-				send_action(id, 'delete_agent');
-			else if ( id.match("_check##") != null )
-				send_action(id, 'check_agent');	
-			else 
-			{
-				if ( id.match("_restart##") != null )
-					send_action(id, 'restart_agent');
-			}
-		}
-		
-		function send_action(id, action)
-		{
-			var id = id.split("##")
-			
-			//Load img
-			$(".oss_load").html(messages[1]);
-			
-			$.ajax({
-				type: "POST",
-				url: "ajax/agent_actions.php",
-				data: "id="+ id[1] + "&action="+action,
-				success: function(html){
-					var status = html.split("###");
-					
-					if ( status[0] == "error")
-					{
-						$(".oss_load").css('display', 'none');
-						$(".info").html("<div class='oss_error'>"+status[1]+"</div>");
-						$(".info").fadeIn(4000);
-					}
-					else
-					{
-						$(".oss_load").html('');
-						switch (action){
-							case "extract_key":
-								$(".info").html("<div class='oss_info'>"+status[1]+"</div>");
-								$(".info").fadeIn(4000);
-							break;
+								editor.setCode(status[1]);
 							
-							case "delete_agent":
-								$("#agent_"+id[1]).parent().remove();
-								$(".info").html("<div class='oss_success'>"+status[1]+"</div>"); 
-								$(".info").fadeIn(4000);
-							break;
-							
-							case "check_agent":
-								$(".info").html("<div class='oss_success'>"+status[1]+"</div>"); 
-								$(".info").fadeIn(4000);
-							break;
-							
-							case "restart_agent":
-								$(".info").html("<div class='oss_success'>"+status[1]+"</div>");
-								$(".info").fadeIn(4000);
-							break;
-						}
+							$(tab+" div").show();
+							$('#cont_cnf_message').show();
+
+							window.scroll(0,0);
+							setTimeout('$("#cont_cnf_message").fadeOut(4000);', 25000);	
+						
+						break;
 					}
 				}
 			});
@@ -205,65 +241,50 @@ require_once ('utils.php');
 		
 		$(document).ready(function() {
 			
-			//Tabs
-			$("ul.oss_tabs li:first").addClass("active");
-			
-			$('#show_agent').bind('click', function() { show_agent("cont_add_agent") });
-			$('#send').bind('click', function() { add_agent() });
-			
-			$("#agent_table tr[id^='cont_agent_']").each(function(index) {
+			var error = '<?php echo $error;?>';
+								
+			if (error == false)
+			{			
+				//On Click Event
 				
-				if (index % 2 == 0)
-					$(this).css("background-color", "#EEEEEE");
-			});
-			
-			$("#agent_table tr[id^='minfo_']").each(function(index) {
+				$("ul.oss_tabs li:first").addClass("active");
 				
-				if (index % 2 != 0)
-					$(this).css("background-color", "#EEEEEE");
-			});		
-						
-			$('.vfield').bind('blur', function() {
-				 validate_field($(this).attr("id"), "ajax/agent_actions.php");
-			});
+				$("ul.oss_tabs li").click(function(event) { 
+					event.preventDefault(); 
+					show_tab_content(this); 
+					load_agent_tab($(this).find("a").attr("href"));
+				});
+				
+				load_agent_tab("#tab1");
+			}
+			else
+			{
+				$("ul.oss_tabs #litem_tab3").addClass("active");
+				$('#link_tab1,#link_tab2').addClass("dis_tab");
+				
+				$("#litem_tab3").click(function(event) { 
+					event.preventDefault(); 
+					var tab = $("#litem_tab3");
+					show_tab_content(tab);
+					load_agent_tab("#tab3");
+				});
+								
+				load_agent_tab("#tab3");
+				
+				var tab = $("#litem_tab3");
+				show_tab_content(tab);
+			}
 			
-			$('#agent_table .agent_actions a').bind('click', function() {
-				var id = $(this).attr("id");
-				get_action(id);
-			});
-			
-			$('#agent_table .agent_id').bind('click', function() {
-				var id = $(this).text();
-				var src  = $(this).find("img").attr("src");
-				var src1 = "../pixmaps/minus-small.png";
-				var src2 = "../pixmaps/plus-small.png";
-				if (src == src1)
-				{
-					$("#minfo_"+id).css('display', 'none');
-					$(this).find("img").attr("src", src2);
-				}
-				else
-				{
-					$("#minfo_"+id).css('display', '');
-					$(this).find("img").attr("src", src1);
-				}
 							
-			});
+			$('#send').bind('click', function()  { save_agent_tab(); });	
 		});
 				
 		
 	</script>
-	
-	<script type="text/javascript">
-	var messages = new Array();
-		messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Adding agent... ")?></span>';
-		messages[1]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Processing action... ")?></span>';
-	</script>
-	
+		
 	<style type='text/css'>
 		a {cursor:pointer; text-decoration: none !important;}			
 		input[type='text'] {width: 90%; height: 20px;}
-		textarea { height: 45px;}
 		label {border: none; cursor: default;}
 		.bborder_none { border-bottom: none !important; background-color: #FFFFFF !important;}
 		
@@ -276,30 +297,31 @@ require_once ('utils.php');
 		td.center {text-align: center !important;}
 		.notice { position:relative !important; margin: auto; padding-top: 3px;}
 		.akey { font-size:9px; }
+		
+		.buttons_box {	
+			float: right; 
+			width: 20%;
+			padding-right: 40px;
+			padding-bottom: 10px;
+		}
+		
+		ul.oss_tabs li.active a:hover {cursor: pointer !important;} 
+		
+		textarea { border: solid 1px #888;}
+		loc_txt { width: 200px;}
+		
+		.ag_name {width: 180px;}
+		.ag_location, ag_logformat { padding: 1px; font-size: 10px; text-align:center; white-space:normal;}
+		.ag_logformat {width: 120px;}
+		.ag_actions { width: 60px !important; padding: 2px 0px; }
+		
+		.cont_savet2{ padding: 20px 0px 20px 0px; text-align: right; margin-right: 2px;}
+	
 	</style>
 </head>
 <body>
 
-
-
-<?php 
-
-	$agents = array();
-	exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
-	include ("../hmenu.php"); 
-	
-?>
-
-<table border="0" cellpadding="0" cellspacing="0" align="center" class="noborder" style="width:90%;background:transparent">
-<tr>
-	<td class="noborder" align="center">
-		<iframe src="../panel/event_trends.php?type=hids" frameborder="0" style="width:470px;height:220px;overflow:hidden"></iframe>
-	</td>
-	<td class="noborder" align="center">
-		<iframe src="../panel/pie_graph.php?type=hids" frameborder="0" style="width:470px;height:220px;overflow:hidden"></iframe>
-	</td>
-</tr>
-</table>
+<?php include("../hmenu.php"); ?>
 
 <div id='container_center'>
 
@@ -307,7 +329,9 @@ require_once ('utils.php');
 		<tr>
 			<td id='oss_mcontainer'>
 				<ul class='oss_tabs'>
-					<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Agent Control")?></a></li>
+					<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?php echo _("Agent Control")?></a></li>
+					<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?php echo _("Config Agent")?></a></li>
+					<li id='litem_tab3'><a href="#tab3" id='link_tab3'><?php echo _("XML Source")?></a></li>
 				</ul>
 			</td>
 		</tr>
@@ -315,170 +339,30 @@ require_once ('utils.php');
 	
 	<table id='tab_container'>
 		<tr class='nobborder'><td><div class='cont_oss_load'><div class='oss_load'></div></div></td></tr>
+		
 		<tr>
 			<td>
-				<table id='agent_table'>
-					<tr>
-						<th style='width: 100px;'><?php echo _("ID")?></th>
-						<th><?php echo _("Name")?></th>
-						<th><?php echo _("IP")?></th>
-						<th><?php echo _("Status")?></th>
-						<th class='agent_actions'><?php echo _("Actions")?></th>
-					</tr>
-										
-					<?php
-											
-						if ( !empty ($agents) )
-						{
-							foreach ($agents as $k => $agent)
-							{
-								if ( empty($agent) )
-									continue;
-									
-								$more_info = array();
-								$ret       = null;
-								
-								$agent         = explode(",", $agent);
-								$agent_type    = null;
-								ossim_valid($agent[0], OSS_DIGIT, 'illegal:' . _("Id agent"));
-								
-								if ( ossim_error() ) 
-								{
-									ossim_clean_error();
-									$agent_name    = $agent[0];
-									$agent_actions = "  --  ";
-									$agent_type    = 0;
-								}
-								else
-								{
-									exec ( "sudo /var/ossec/bin/agent_control -i ".$agent[0]." -s", $more_info, $ret);
-									$more_info     = ( $ret !== 0 ) ? _("Information from agent not available") : explode(",",$more_info[0]);
-									$agent_name    = "<a class='agent_id'><img src='../pixmaps/plus-small.png' alt='More info' align='absmiddle'/>".$agent[0]."</a>";
-									$agent_actions = get_actions($agent);
-									$agent_type    = 1;
-								}	
-								
-								
-								echo "<tr id='cont_agent_".$agent[0]."'>
-										<td id='agent_".$agent[0]."'>$agent_name</td>
-										<td>".$agent[1]."</td>
-										<td>".$agent[2]."</td>
-										<td>".$agent[3]."</td>
-										<td class='agent_actions center'>$agent_actions</td>
-									</tr>";
-										
-								if ( $agent_type === 1 )		
-								{		
-									echo "<tr id='minfo_".$agent[0]."' style='display:none;'>
-											<td colspan='5'>";
-												
-												if ( !is_array($more_info) )
-												{
-													echo "<div style='padding:5px; color: #D8000C; text-align:center;'>$more_info</div>";
-												}
-												else
-												{
-													echo "<div style='padding: 3px 3px 5px 5px; font-weight: bold;'>"._("Agent information").":</div>";
-													
-													echo "<div style='float:left; width: 170px; font-weight: bold; padding:0px 3px 5px 15px;'>
-															<span>"._("Agent ID").":</span><br/> 
-															<span>"._("Agent Name").":</span><br/>
-															<span>"._("IP address").":</span><br/>
-															<span>"._("Status").":</span><br/><br/>
-															<span>"._("Operating system").":</span><br/>
-															<span>"._("Client version").":</span><br/>
-															<span>"._("Last keep alive").":</span><br/><br/>
-															<span>"._("Syscheck last started at").":</span><br/>
-															<span>"._("Rootcheck last started at").":</span><br/>
-													</div>";
-												
-													echo "<div style='float:left; width: auto; padding:0px 3px 5px 15px;'>
-															<span>".$more_info[0]."</span><br/>  
-															<span>".$more_info[1]."</span><br/>
-															<span>".$more_info[2]."</span><br/>
-															<span>".$more_info[3]."</span><br/><br/>
-															<span>".$more_info[4]."</span><br/>
-															<span>".$more_info[5]."</span><br/>
-															<span>".$more_info[6]."</span><br/><br/>
-															<span>".$more_info[7]."</span><br/>
-															<span>".$more_info[8]."</span><br/>
-														 </div>
-													</div>";
-												}
-									echo "</td>
-										</tr>";
-								}
-							}
-						}
-						else
-						{
-							if ($ret === 0)
-							{
-								$txt   = _("No agents available");
-								$class = "oss_info";
-							}
-							else
-							{
-								$txt   = _("You don't have execute permissions");
-								$class = "oss_error";
-								$error = true;
-							}
-							echo "<tr id='cont_no_agent'><td colspan='5' class='no_agent bborder_none'><div class='$class info_agent'>$txt</div></td></tr>";
-						}
-						
-					?>
-				</table>
+				<div id='cnf_message'></div>
 				
-				<?php if ($error !== true) { ?> 
-				<table id='agent_actions'>
-					<tr>
-						<td id='cont_commom_ac'>
-							<div class='commom_ac'>
-								<a id='show_agent'><img src='../pixmaps/user--plus.png' alt='Arrow' align='absmiddle'/><span><?php echo _("Add agent")?></span></a>
-							</div>
-						</td>
-						<td class='info'></td>
-					</tr>
+				<div id="tab1" class="tab_content"></div>
 					
-					<tr>
-						<td colspan='2'>
-							<div id='cont_add_agent' class='visible'>
-								<form method='POST' name='form_agent' id='form_agent'>
-									<table>
-										<tr>
-											<th><label for='agent_name'><?php echo gettext("Agent Name"); ?></label></th>
-											<td class="left">
-												<input type='text' name='agent_name' id='agent_name' class='vfield req_field'/>
-												<span style="padding-left: 3px;">*</span>
-											</td>
-										</tr>
-										
-										<tr>
-											<th><label for='ip'><?php echo gettext("IP Address"); ?></label></th>
-											<td class="left">
-												<input type='text' name='ip' id='ip' class='vfield req_field'/>
-												<span style="padding-left: 3px;">*</span>
-											</td>
-										</tr>
-										<tr>
-											<td class="cont_send" colspan='2'><input type="button" id='send' class="button" value="<?=_("Update")?>"/></td>
-										</tr>
-									</table>
-								</form>
-							</div>
-						</td>
-					</tr>
-							
-				</table>
-				
-				<?php } ?>
+				<div id="tab2" class="tab_content" style='display:none;'></div>
+	
+				<div id="tab3" class="tab_content" style='display:none;'>
+					<div id='container_code'><textarea id="code"></textarea></div>
+					<div class='buttons_box'>
+						<div><input type='button' class='save' id='send' value='<?php echo _("Update")?>'/></div>				
+					</div>
+				</div>
 						
-			</div>
-		<td>
-	</tr>	
-</table>
+			</td>
+		</tr>
+	
+	</table>
 
-<div class='notice'><span>(*)<?php echo _("You must restart Ossec for the changes to take effect")?></span></div>
+	<div class='notice'><span>(*)<?php echo _("You must restart Ossec for the changes to take effect")?></span></div>
+
+</div>
 
 </body>
 </html>

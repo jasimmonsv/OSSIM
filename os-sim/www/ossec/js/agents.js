@@ -7,15 +7,162 @@ function show_tab_content(tab)
 	$(activeTab).show(); //Fade in the active content
 	return false;
 }
-		
-function load_config_tab(tab)
+
+function show_agent(id)
 {
+	if ( $("#"+id).hasClass("visible") )
+	{
+		$("#"+id).show();
+		$("#"+id).removeClass("visible");
+		$("#"+id).addClass("no_visible");
+	}
+	else
+	{
+		$("#"+id).hide();
+		$("#"+id).removeClass("no_visible");
+		$("#"+id).addClass("visible");
+	}
+}
 	
+	
+function add_agent()
+{
+	var form_id = $('form[method="post"]').attr("id");
+	
+	$(".oss_load").html(messages[0]);
+				
+	$.ajax({
+		type: "POST",
+		url: "ajax/agent_actions.php",
+		data: $('#'+form_id).serialize() + "&action=add_agent",
+		success: function(html){
+			var status = html.split("###");
+			if ( status[0] == "error")
+			{
+				$(".oss_load").html('');
+				
+				if ( status[1].match("<br/>") == null )
+					var style= '';
+				else
+					var style = "class='error_left'";
+				
+				$(".info").html("<div class='oss_error'><div "+style+">"+status[1]+"</div></div>");
+				$(".info").fadeIn(2000);
+			}
+			else
+			{
+				$(".oss_load").html('');
+				
+				if ( $('#agent_table .no_agent').length == 1 )
+					$('#cont_no_agent').remove();
+				
+				$('#agent_table tr:last').after(status[3]);					
+										
+				$('#cont_agent_'+status[2]+' .agent_actions a').bind('click', function() {
+					var id = $(this).attr("id");
+					get_action(id);
+				});
+				
+				$('#agent_'+status[2]+ ' .agent_id').bind('click', function() {
+					var id   = $(this).text();
+					var src  = $(this).find("img").attr("src");
+					var src1 = "../pixmaps/minus-small.png";
+					var src2 = "../pixmaps/plus-small.png";
+					
+					if (src == src1)
+					{
+						$("#minfo_"+id).css('display', 'none');
+						$(this).find("img").attr("src", src2);
+					}
+					else
+					{
+						$("#minfo_"+id).css('display', '');
+						$(this).find("img").attr("src", src1);
+					}
+								
+				});
+										
+				$(".info").html("<div class='oss_success'>"+status[1]+"</div>");
+				$(".info").fadeIn(4000);
+			}
+		}
+	});
+}
+
+function get_action(id)
+{
+	var action = null;
+	if ( id.match("_key##") != null )	
+		send_action(id, 'extract_key');
+	else if ( id.match("_del##") != null )
+		send_action(id, 'delete_agent');
+	else if ( id.match("_check##") != null )
+		send_action(id, 'check_agent');	
+	else 
+	{
+		if ( id.match("_restart##") != null )
+			send_action(id, 'restart_agent');
+	}
+}
+
+function send_action(id, action)
+{
+	var id = id.split("##")
+	
+	//Load img
+	$(".oss_load").html(messages[1]);
+	
+	$.ajax({
+		type: "POST",
+		url: "ajax/agent_actions.php",
+		data: "id="+ id[1] + "&action="+action,
+		success: function(html){
+			var status = html.split("###");
+			
+			if ( status[0] == "error")
+			{
+				$(".oss_load").css('display', 'none');
+				$(".info").html("<div class='oss_error'>"+status[1]+"</div>");
+				$(".info").fadeIn(4000);
+			}
+			else
+			{
+				$(".oss_load").html('');
+				switch (action){
+					case "extract_key":
+						$(".info").html("<div class='oss_info'>"+status[1]+"</div>");
+						$(".info").fadeIn(4000);
+					break;
+					
+					case "delete_agent":
+						$("#agent_"+id[1]).parent().remove();
+						$(".info").html("<div class='oss_success'>"+status[1]+"</div>"); 
+						$(".info").fadeIn(4000);
+					break;
+					
+					case "check_agent":
+						$(".info").html("<div class='oss_success'>"+status[1]+"</div>"); 
+						$(".info").fadeIn(4000);
+					break;
+					
+					case "restart_agent":
+						$(".info").html("<div class='oss_success'>"+status[1]+"</div>");
+						$(".info").fadeIn(4000);
+					break;
+				}
+			}
+		}
+	});
+}
+
+
+function load_agent_tab(tab)
+{
 	//Add Load img
 	if ($('#cnf_load').length < 1)
 	{
 		$(tab+" div").css('display', 'none');
-		var load ="<div id='cnf_load'>"+messages[0]+"</div>";
+		var load ="<div id='cnf_load'>"+messages[2]+"</div>";
 		$(tab).append(load);
 	}
 													
@@ -26,11 +173,11 @@ function load_config_tab(tab)
 		$('#cnf_message').removeClass();
 		$('#cnf_message').html('<div id="cont_cnf_message"></div>');
 	}
+
 		
-				
 	$.ajax({
 		type: "POST",
-		url: "ajax/load_config_tab.php",
+		url: "ajax/load_agent_tab.php",
 		data: "tab="+tab,
 		success: function(msg){
 													
@@ -47,25 +194,64 @@ function load_config_tab(tab)
 				case "1":
 					if (tab == "#tab1")
 					{
-						$(tab).html(status[1]);	
 						
-						$(".multiselect").multiselect({
-							searchDelay: 500,
-							dividerLocation: 0.5
+						$(tab).html(status[1]);
+													
+						$('#show_agent').bind('click', function() { show_agent("cont_add_agent") });
+						$('#send').bind('click', function() { add_agent() });
+						
+						$("#agent_table tr[id^='cont_agent_']").each(function(index) {
+							
+							if (index % 2 == 0)
+								$(this).css("background-color", "#EEEEEE");
 						});
 						
-						$(tab+" div").css('display', 'block');
+						$("#agent_table tr[id^='minfo_']").each(function(index) {
+							
+							if (index % 2 != 0)
+								$(this).css("background-color", "#EEEEEE");
+						});		
+									
+						$('.vfield').bind('blur', function() {
+							 validate_field($(this).attr("id"), "ajax/agent_actions.php");
+						});
+						
+						$('#agent_table .agent_actions a').bind('click', function() {
+							var id = $(this).attr("id");
+							get_action(id);
+						});
+						
+						$('#agent_table .agent_id').bind('click', function() {
+							var id = $(this).text();
+							var src  = $(this).find("img").attr("src");
+							var src1 = "../pixmaps/minus-small.png";
+							var src2 = "../pixmaps/plus-small.png";
+							if (src == src1)
+							{
+								$("#minfo_"+id).css('display', 'none');
+								$(this).find("img").attr("src", src2);
+							}
+							else
+							{
+								$("#minfo_"+id).css('display', '');
+								$(this).find("img").attr("src", src1);
+							}
+										
+						});
+						
+						$(tab).css('display', 'block');
+											
 					}
 					else if (tab == "#tab2")
 					{
 						$(tab).html(status[1]);	
 						
-						$(tab+" div").css('display', 'block');
+						/*$(tab+" div").css('display', 'block');
 						$('textarea').elastic();
 						$('#table_sys_directories table').css('background', 'transparent');
 						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
 						$('#table_sys_ignores table').css('background', 'transparent');
-						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
+						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');*/
 					}
 					else if (tab == "#tab3")
 					{
@@ -90,8 +276,8 @@ function load_config_tab(tab)
 				
 				case "2":
 					txt = "<div id='msg_init_error'><div class='oss_error'><div style='margin-left: 70px; text-align:center;'>"+status[1]+"</div></div></div>";
-				    $(tab).html(txt);
-				    $(tab+" div").css('display', 'block');
+					$(tab).html(txt);
+					$(tab+" div").css('display', 'block');
 				break;
 				
 				case "3":
@@ -131,7 +317,6 @@ function load_config_tab(tab)
 	});
 }
 
-
 function countdown(seconds)
 {
 	var cont = seconds - 1;
@@ -141,11 +326,11 @@ function countdown(seconds)
 		setTimeout("countdown("+cont+")",1000);
 	}
 	else
-		document.location.href='config.php';
-}
+		document.location.href='agent.php';
+	}
 
 
-function save_config_tab()
+function save_agent_tab()
 {
 	
 	var tab = $(".active a").attr("href");
@@ -172,10 +357,7 @@ function save_config_tab()
 	var data= "tab="+tab;
 	
 	switch(tab){
-		case "#tab1":
-			data += "&"+ $('#cnf_form_rules').serialize();
-		break;
-		
+			
 		case "#tab2":
 			data += "&"+ $('#form_syscheck').serialize();
 		break;
@@ -187,7 +369,7 @@ function save_config_tab()
 								
 	$.ajax({
 		type: "POST",
-		url: "ajax/save_config_tab.php",
+		url: "ajax/save_agent_tab.php",
 		data: data,
 		success: function(msg){
 													
@@ -238,88 +420,4 @@ function save_config_tab()
 			}		
 		}
 	});
-}
-
-
-function add_dir(id)
-{
-	$.ajax({
-		type: "POST",
-		url: "ajax/config_actions.php",
-		data: "action=add_directory",
-		success: function(msg){
-			
-			var status = msg.split("###");
-													
-			if (status[0] != "error")
-			{
-				$('#'+id).after(status[1]);
-				$('textarea').elastic();
-				$('#table_sys_directories table').css('background', 'transparent');
-				$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
-			}
-		}
-	});
-}
-
-function delete_dir(id)
-{
-	if ( confirm (messages[5]) )
-	{
-		
-		if ( $('#'+id).length >= 1 )
-		{
-			$('#'+id).remove();
-			if ($('#tbody_sd tr').length <= 2)
-				add_dir();
-			else
-			{
-				$('textarea').elastic();
-				$('#table_sys_directories table').css('background', 'transparent');
-				$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
-			}
-		}
-	}
-
-}
-
-function add_ign(id)
-{
-	$.ajax({
-		type: "POST",
-		url: "ajax/config_actions.php",
-		data: "action=add_ignore",
-		success: function(msg){
-			
-			var status = msg.split("###");
-													
-			if (status[0] != "error")
-			{
-				$('#'+id).after(status[1]);
-				$('textarea').elastic();
-				$('#table_sys_ignores table').css('background', 'transparent');
-				$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
-			}
-		}
-	});
-}
-
-function delete_ign(id)
-{
-	if ( confirm (messages[5]) )
-	{
-		
-		if ( $('#'+id).length >= 1 )
-		{
-			$('#'+id).remove();
-			if ($('#tbody_si tr').length <= 2)
-				add_ign();
-			else
-			{
-				$('textarea').elastic();
-				$('#table_sys_ignores table').css('background', 'transparent');
-				$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
-			}
-		}
-	}
 }
