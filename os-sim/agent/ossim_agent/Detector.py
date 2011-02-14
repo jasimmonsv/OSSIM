@@ -48,7 +48,7 @@ from Threshold import EventConsolidation
 #from datetime import datetime, timedelta
 from pytz import timezone, all_timezones
 #import pytz
-from time import time, mktime, gmtime, strftime
+from time import mktime, gmtime, strftime
 import Utils
 
 #

@@ -305,6 +305,8 @@ class Snort(Event):
         "plugin_id",
         "type",
         "occurrences",
+        "date",
+        "fdate",
         "tzone",
     ]
 

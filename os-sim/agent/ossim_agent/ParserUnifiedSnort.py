@@ -50,11 +50,11 @@ class ParserUnifiedSnort(Detector):
     """This class read the events from a directory, following all the events"""
 
     def __init__(self, conf, plugin, conn):
-        
+
         self._conf = conf       # main agent config file
         self._plugin = plugin   # plugin config file
         self.conn = conn
-        self._prefix = "" 
+        self._prefix = ""
 
         Detector.__init__(self, conf, plugin, self.conn)
 
@@ -69,13 +69,12 @@ class ParserUnifiedSnort(Detector):
                 self._prefix = self._plugin.get("config", "prefix")
 
                 if self._prefix != "":
-                    snort = ParserSnort(linklayer=self._linklayer, unified_version = self._unified_version)
+                    snort = ParserSnort(linklayer=self._linklayer, unified_version=self._unified_version)
                     snort.init_log_dir(self._dir, self._prefix)
 
                     while 1:
                         # get next snort event (blocking)
                         ev = snort.get_snort_event()
-
                         # create the Snort event
                         event = Snort()
                         event["event_type"] = Snort.EVENT_TYPE
@@ -91,6 +90,7 @@ class ParserUnifiedSnort(Detector):
                         if event['type'] is None:
                             event['type'] = self._plugin.get("config", "type")
 
+
                         self.send_message(event)
 
                 else:
@@ -100,5 +100,5 @@ class ParserUnifiedSnort(Detector):
             else:
                 logger.error("Unknown link layer")
                 sys.exit(-1)
-                        
+
 # vim:ts=4 sts=4 tw=79 expandtab:

@@ -36,7 +36,7 @@ import re
 import stat
 import zlib
 import socket
-from binascii import hexlify 
+from binascii import hexlify
 
 #
 # LOCAL IMPORTS
@@ -75,7 +75,7 @@ class SnortUnified:
                        U2_TYPE_IDS_EVENT_IPV6_MPLS]
 
 
-        
+
 
 #
 # 
@@ -104,7 +104,7 @@ class EventSnort:
         self.ref_tv_sec = 0
         self.ref_tv_usec = 0
         self.tv_sec = 0
-        self.tv_usec = 0 
+        self.tv_usec = 0
         self.sip = 0
         self.dip = 0
         self.sport = 0
@@ -112,14 +112,13 @@ class EventSnort:
         self.protocol = 0
         self.flags = 0
 
+
         if linklayertype == "ethernet":
             self.offsetip = 14
         elif linklayertype == "cookedlinux":
             self.offsetip = 16
         else:
-            raise Exception,"Unknown link layer type"
-
-
+            raise Exception, "Unknown link layer type"
     def addevent(self, t, data):
         if self._unified_version == 1:
             # extract event information
@@ -131,7 +130,7 @@ class EventSnort:
              self.event_id, \
              self.event_reference, \
              self.ref_tv_sec, \
-             self.ref_tv_usec) = struct.unpack(self._endian+"IIIIIIIII", data[:36])
+             self.ref_tv_usec) = struct.unpack(self._endian + "IIIIIIIII", data[:36])
 
             if t == SnortUnified.U1_TYPE_ALERT:
                 # extract event time
@@ -142,7 +141,7 @@ class EventSnort:
                  self.sport, \
                  self.dport, \
                  self.protocol, \
-                 self.flags) = struct.unpack(self._endian+"IIIIHHII", data[36:64])
+                 self.flags) = struct.unpack(self._endian + "IIIIHHII", data[36:64])
 
             elif t == SnortUnified.U1_TYPE_LOG:
                 pass
@@ -181,7 +180,7 @@ class EventSnort:
 
         if self._unified_version == 1:
             if t == SnortUnified.U1_TYPE_ALERT:
-                logger.debug("No packet information exists in this record.")    
+                logger.debug("No packet information exists in this record.")
 
             elif t == SnortUnified.U1_TYPE_LOG:
 
@@ -189,14 +188,14 @@ class EventSnort:
                  self.tv_sec, \
                  self.tv_usec, \
                  self.__packet_caplen, \
-                 self.__packet_realcaplen ) = struct.unpack(self._endian+"IIIII", data[36:56])
+                 self.__packet_realcaplen) = struct.unpack(self._endian + "IIIII", data[36:56])
                 self._pkt = data[56:]
 
                 # Snort pseudopacket (from sfportscan)
                 if self._pkt[0:12] == "MACDADMACDAD":
                     self.offsetip = 14
 
-                self._ethertype, = struct.unpack("!H", self._pkt[self.offsetip-2:self.offsetip])
+                self._ethertype, = struct.unpack("!H", self._pkt[self.offsetip - 2:self.offsetip])
                 #print "Ethertype: %04x" % self._ethertype
                 if self._ethertype == 0x0800:
                     self._packet = IPPacket(self._pkt[self.offsetip:])
@@ -275,9 +274,9 @@ class EventSnort:
                 raise Exception, "Unhandled unified1 record type."
 
         elif self._unified_version == 2:
-            if t in [SnortUnified.U2_TYPE_EVENT, SnortUnified.U2_TYPE_IDS_EVENT]: 
-                logger.debug("No packet information exists in this record.")    
-            elif t == SnortUnified.U2_TYPE_PACKET: 
+            if t in [SnortUnified.U2_TYPE_EVENT, SnortUnified.U2_TYPE_IDS_EVENT]:
+                logger.debug("No packet information exists in this record.")
+            elif t == SnortUnified.U2_TYPE_PACKET:
                 (self.sensor_id, \
                  self.event_id, \
                  self.event_sec, \
@@ -286,13 +285,13 @@ class EventSnort:
                  self._linktype, \
                  self.__caplen) = struct.unpack("!IIIIIII", data[0:28])
                 self._pkt = data[28:]
-                self._ethertype, = struct.unpack("!H", self._pkt[self.offsetip-2:self.offsetip])
+                self._ethertype, = struct.unpack("!H", self._pkt[self.offsetip - 2:self.offsetip])
                 if self._ethertype == 0x0800:
                     self._packet = IPPacket(self._pkt[self.offsetip:])
                     self.flags = 0
                 elif self._ethertype == 0x8100:  #VLAN!
                     self.offsetip += 4
-                    self._sethertype, = struct.unpack("!H", self._pkt[self.offsetip-2:self.offsetip])
+                    self._sethertype, = struct.unpack("!H", self._pkt[self.offsetip - 2:self.offsetip])
                     if self._sethertype == 0x0800: #IP
                         self._packet = IPPacket(self._pkt[self.offsetip:])
                         self.flags = 0
@@ -321,6 +320,8 @@ class EventSnort:
         st = st % (int(time.mktime(lt)), time.strftime("%Y-%m-%d %H:%M:%S", lt), \
                 self.sig_generator, self.sig_id, self.sig_rev, \
                 self.classification, self.priority)
+        self._date = int(time.mktime(lt))
+        self._fdate = time.strftime("%Y-%m-%d %H:%M:%S", lt)
 
         if self._packet != None:
             if isinstance(self._packet, IPPacket):
@@ -339,11 +340,11 @@ class EventSnort:
     def strgzip(self):
         data = zlib.compress(self.__str__())
         return (len(self.__str__()), hexlify(data))
-        
+
 
     def geteventid(self):
         return self.event_id
-        
+
 
     def getcaplen(self):
         return self.__packet_caplen
@@ -364,43 +365,43 @@ class EventSnort:
             else:
                 return "UNKNOWN GENERATOR"
 
-        eventtime = time.strftime("%d-%m-%Y %H:%M:%S",time.localtime(self.tv_sec))
+        eventtime = time.strftime("%d-%m-%Y %H:%M:%S", time.localtime(self.tv_sec))
 
         if (self.snortconf != None):
-            selfgen = "%s.%10u ID: %u G:%s SID:%s CLASS:%u PRI:%u" % (eventtime,self.tv_sec, \
+            selfgen = "%s.%10u ID: %u G:%s SID:%s CLASS:%u PRI:%u" % (eventtime, self.tv_sec, \
                 self.event_id, \
                 _searchgen(self.sig_generator), \
                 self.snortconf.searchsid(self.sig_id, self.sig_generator), \
                 self.classification, \
                 self.priority)
         else:
-            selfgen = "%s.%10u ID: %u G:%s SID:%s CLASS:%u PRI:%u" % (eventtime,self.tv_sec, \
+            selfgen = "%s.%10u ID: %u G:%s SID:%s CLASS:%u PRI:%u" % (eventtime, self.tv_sec, \
                 self.event_id, \
                 _searchgen(self.sig_generator), \
                 self.sig_id, \
                 self.classification, \
                 self.priority)
-       
-        eventreftime = time.strftime("%d-%m-%Y %H:%M:%S",time.localtime(self.ref_tv_sec))
-        eventref = " REF:%u REFTIME:%s.%10u" % (self.event_reference,eventreftime,self.ref_tv_usec)
+
+        eventreftime = time.strftime("%d-%m-%Y %H:%M:%S", time.localtime(self.ref_tv_sec))
+        eventref = " REF:%u REFTIME:%s.%10u" % (self.event_reference, eventreftime, self.ref_tv_usec)
         selfipinfo = " PROTO:%s SRC:%s:%d -> DST:%s:%d F:%08x" % (getprotobynumber(self.protocol), \
-            socket.inet_ntoa(struct.pack("L",socket.htonl((self.sip)))), \
+            socket.inet_ntoa(struct.pack("L", socket.htonl((self.sip)))), \
             self.sport, \
-            socket.inet_ntoa(struct.pack("L",socket.htonl((self.dip)))), \
+            socket.inet_ntoa(struct.pack("L", socket.htonl((self.dip)))), \
             self.dport, \
             self.flags)
-            
+
         if (self.event_reference != self.event_id):
             selfrefevent = "\t%s\n" % (eventref)
         else:
             selfrefevent = ""
 
         if self.type == EventSnort.TYPEALARM:
-            print "ALARM "+selfgen+selfipinfo+selfrefevent
+            print "ALARM " + selfgen + selfipinfo + selfrefevent
         elif self.type == EventSnort.TYPELOG:
-            print "ALARMLOG " +selfgen+selfipinfo+selfrefevent
+            print "ALARMLOG " + selfgen + selfipinfo + selfrefevent
         else:
-            raise Exception,"Bad alarm type"
+            raise Exception, "Bad alarm type"
 
 
 
@@ -422,7 +423,7 @@ class ParserSnort(object):
     def __init__(self, linklayer="ethernet", snort=None, unified_version=1):
         self.snortconf = snort
         self._fd = None
-        self._currentname=""
+        self._currentname = ""
         self._prefix = ""
         self._dir = ""
         self._hdrread = False
@@ -433,14 +434,14 @@ class ParserSnort(object):
         # packet information with
         self._event_cache = {}
 
-        if linklayer=="ethernet":
+        if linklayer == "ethernet":
             self.offsetip = 14
             self.linklayer = linklayer
-        elif linklayer=="cookedlinux":
+        elif linklayer == "cookedlinux":
             self.offsetip = 16
             self.linklayer = linklayer
         else:
-            raise Exception,"Unknown linklayer"
+            raise Exception, "Unknown linklayer"
 
         # TODO: clean these variable names up _logdir is the files to be processed.
         self._logfiles = []
@@ -457,7 +458,7 @@ class ParserSnort(object):
         Keyword arguments:
         file -- filename being processed   
         """
-        r = re.compile(self._prefix+r'\.\d+$')
+        r = re.compile(self._prefix + r'\.\d+$')
 
         return os.path.isfile(os.path.join(self._dir, file)) and \
                r.match(file) != None
@@ -467,7 +468,7 @@ class ParserSnort(object):
         dircontents = filter(self._filterfile, os.listdir(self._dir))
         dircontents.sort()
 
-        if len(dircontents)>0:
+        if len(dircontents) > 0:
             return os.path.join(self._dir, dircontents[-1])
         else:
             return None
@@ -495,24 +496,24 @@ class ParserSnort(object):
         if (self._unified_version == 1):
             if self._filesize >= self.U1_SIZEHDR:
                 data = fd.read(self.U1_SIZEHDR)
-    
+
                 if len(data) != self.U1_SIZEHDR:
                     raise Exception, "I/O error on %s" % self._currentname
-    
+
                 # pull out the file magic
                 (magic, flags) = struct.unpack("II", data)
-    
+
                 if magic == self.U1_MAGICLITTEENDIAN:
                     self._endian = '<'
                 elif magic == self.U1_MAGICBIGENDIAN:
                     self._endian = '>'
                 else:
                     raise Exception, "Bad magic number on %s" % self._currentfile
-    
+
                 return True
 
         elif (self._unified_version == 2):
-            self._endian = '!' 
+            self._endian = '!'
             return True
 
         return False
@@ -532,7 +533,7 @@ class ParserSnort(object):
         # quick check to see if have at least the header (version 1 only)
         if (self._unified_version == 1):
             pos = fd.tell()
-            if (pos+self.U1_SIZEHDR) > self._filesize:
+            if (pos + self.U1_SIZEHDR) > self._filesize:
                 return True
 
         while not skipping_complete:
@@ -540,16 +541,16 @@ class ParserSnort(object):
             # save current position for rewinding if required
             pos = fd.tell()
 
-            if (pos+self.UX_SIZERECORDHDR) <= self._filesize:
+            if (pos + self.UX_SIZERECORDHDR) <= self._filesize:
                 data = fd.read(self.UX_SIZERECORDHDR)
-    
+
                 if len(data) != self.UX_SIZERECORDHDR:
                     raise Exception, "I/O error on file %s" % self._currentfile
-    
-                (type, size) = struct.unpack(self._endian+"II", data)
-  
+
+                (type, size) = struct.unpack(self._endian + "II", data)
+
                 # check record can be extracted from current file 
-                if (pos+size) <= self._filesize:
+                if (pos + size) <= self._filesize:
 
                     # the record header holds the true length of the record for 
                     # all unified2 records and unified1 event records only
@@ -561,19 +562,19 @@ class ParserSnort(object):
                     # determined to get the true record length
                     elif (self._unified_version == 1 and type == 2):
                         data = fd.read(size)
-    
+
                         if len(data) != size:
                             raise Exception, "I/O error on file %s" % self._currentfile
-    
+
                         # grab the capture length from the libpcap packet header
-                        (caplen,) = struct.unpack(self._endian+"I", data[48:52])
-    
-                        if (pos+caplen) <= self._filesize:
+                        (caplen,) = struct.unpack(self._endian + "I", data[48:52])
+
+                        if (pos + caplen) <= self._filesize:
                             fd.seek(caplen, os.SEEK_CUR)
                         else:
                             skipping_complete = True
                             fd.seek(pos, os.SEEK_SET)
-    
+
                     else:
                         raise Exception, "Bad type of record %s on file %s" % (type, self._currentfile)
 
@@ -584,10 +585,10 @@ class ParserSnort(object):
             else:
                 skipping_complete = True
                 fd.seek(pos, os.SEEK_SET)
-        
+
         logger.debug("Skipped all existing events...")
 
-            
+
     def init_log_dir(self, directory, prefix):
         # close existing file descriptor if open
         if self._fd != None:
@@ -603,7 +604,7 @@ class ParserSnort(object):
 
         # grab directory contents and sort
         dircontents = filter(self._filterfile, os.listdir(self._dir))
-        dircontents.sort() 
+        dircontents.sort()
 
         self._logdir = []
 
@@ -614,7 +615,7 @@ class ParserSnort(object):
             # The snort timestamp is:
             # prefix.timestamp, where timestamp is the Unix ctime
             temp = dircontents[-1]
-            self._timestamp = temp[temp.rindex('.')+1:]
+            self._timestamp = temp[temp.rindex('.') + 1:]
             self._logdir = [os.path.join(self._dir, dircontents[-1])]
 
         self._currentfile = ""
@@ -634,7 +635,7 @@ class ParserSnort(object):
             timestamp = 0
 
             for f in dircontents:
-                timestamp = f[f.rindex('.')+1:]
+                timestamp = f[f.rindex('.') + 1:]
                 f = os.path.join(self._dir, f)
 
             if (timestamp > self._timestamp) and f not in self._logdir:
@@ -666,13 +667,13 @@ class ParserSnort(object):
                     logger.debug("There are some files to read...")
                     self._currentfile = self._logdir[0]
                     del self._logdir[0]
-                    self._timestamp = self._currentfile[self._currentfile.rindex('.')+1:]
+                    self._timestamp = self._currentfile[self._currentfile.rindex('.') + 1:]
 
                     logger.debug("self._currentfile: %s" % self._currentfile)
                     logger.debug("self._timestamp: %s" % self._timestamp)
 
                     try:
-                        self._fd =  open(self._currentfile,"r")
+                        self._fd = open(self._currentfile, "r")
                     except IOError:
                         logger.error("Error reading file %s: it no longer exists" % self._currentfile)
 
@@ -683,7 +684,7 @@ class ParserSnort(object):
             if not self._hdrread:
                 if not self._readhdr(self._fd):
                     self._update_log_list()
-                    if len(self._logdir) > 0: 
+                    if len(self._logdir) > 0:
                         #We have a newer file
                         self._fd.close()
                         self._fd = None
@@ -704,51 +705,51 @@ class ParserSnort(object):
             st = os.fstat(self._fd.fileno())
             self._filesize = st[stat.ST_SIZE]
 
-            if (pos+self.UX_SIZERECORDHDR) <= self._filesize:
+            if (pos + self.UX_SIZERECORDHDR) <= self._filesize:
                 data = self._fd.read(self.UX_SIZERECORDHDR)
 
                 if len(data) != self.UX_SIZERECORDHDR:
                     raise Exception, "I/O error on %s" % self._currentfile
 
-                (type, size) = struct.unpack(self._endian+"II", data)
+                (type, size) = struct.unpack(self._endian + "II", data)
 
                 # check we can grab the entire record
-                if pos+size <= self._filesize:
+                if pos + size <= self._filesize:
                     data = self._fd.read(size)
 
                     if len(data) != size:
                         raise Exception, "I/O error on %s" % self._currentfile
-    
+
                     if self._unified_version == 1:
                         if type == SnortUnified.U1_TYPE_ALERT:
                             if filtertype == type:
                                 ev = EventSnort(self._endian, 1, None, linklayertype=self.linklayer)
                                 ev.addevent(type, data)
                                 return ev
-       
+
                         elif type == SnortUnified.U1_TYPE_LOG:
-                            (caplen,) = struct.unpack(self._endian+"L", data[48:52])
-    
-                            if (pos+caplen) <= self._filesize:
+                            (caplen,) = struct.unpack(self._endian + "L", data[48:52])
+
+                            if (pos + caplen) <= self._filesize:
                                 pkt = self._fd.read(caplen)
-    
+
                                 if len(pkt) != caplen:
                                     raise Exception, "I/O error on %s" % self._currentfile
-  
+
                                 data += pkt
 
-                                if filtertype==type:
+                                if filtertype == type:
                                     ev = EventSnort(self._endian, 1, None, linklayertype=self.linklayer)
                                     ev.addevent(type, data)
                                     ev.addpacket(type, data)
                                     return ev
-    
+
                             # rewind if we couldn't get the complete record and packet
                             else:
                                 self._fd.seek(pos, os.SEEK_SET)
                                 self._try_rotate()
-    
-                        else: 
+
+                        else:
                             raise Exception, "Bad/Unimplemented record type %u for unified1 file %s" % (type, self._currentfile)
                             self._fd.seek(size, os.SEEK_CUR)
 
@@ -780,7 +781,7 @@ class ParserSnort(object):
 
                                     # only return packets with associated event information
                                     return ev
-   
+
                         else:
                             raise Exception, "Bad/Unimplemented record type %u for unified2 file %s" % (type, self._currentfile)
                             self._fd.seek(size, os.SEEK_CUR)
@@ -788,7 +789,7 @@ class ParserSnort(object):
                 # rewind if we couldn't get the complete record
                 else:
                     self._fd.seek(pos, os.SEEK_SET)
-                    self._try_rotate()    
+                    self._try_rotate()
 
             else:
                 # If there isn't any more data (we can read the header of the alarm)
@@ -815,13 +816,13 @@ class ParserSnort(object):
                 continue
 
             # Now, the rotate file logic
-            if self._currentname<>tempname:
-                if self._fd<>None:
+            if self._currentname <> tempname:
+                if self._fd <> None:
                     self._fd.close()
 
                 print "Tempname: %s" % tempname
                 self._currentname = tempname
-                self._fd = open(self._currentname,"r")
+                self._fd = open(self._currentname, "r")
                 print "File Descriptor: %u" % self._fd.fileno()
                 self._hdrread = False
 
@@ -839,60 +840,60 @@ class ParserSnort(object):
             pos = self._fd.tell()
             st = os.fstat(self._fd.fileno())
 
-            if (pos+self.UX_SIZERECORDHDR)<=st[stat.ST_SIZE]:
+            if (pos + self.UX_SIZERECORDHDR) <= st[stat.ST_SIZE]:
                 data = self._fd.read(self.UX_SIZERECORDHDR)
-                if len(data)!=self.UX_SIZERECORDHDR:
-                    raise Exception,"I/O error on %s" % self._currentname
+                if len(data) != self.UX_SIZERECORDHDR:
+                    raise Exception, "I/O error on %s" % self._currentname
 
-                (type,size) = struct.unpack(self._endian+"II",data)
+                (type, size) = struct.unpack(self._endian + "II", data)
 
-                if type == 1 and pos+size<=st[stat.ST_SIZE]:
+                if type == 1 and pos + size <= st[stat.ST_SIZE]:
                     if filtertype == type:
                         data = self._fd.read(size)
-                        if len(data)!=size:
-                            raise Exception,"I/O error on %s" % self._currentname
-                        ev = EventSnort(EventSnort.TYPEALARM,data,self._endian,None,None,linklayertype=self.linklayer)
+                        if len(data) != size:
+                            raise Exception, "I/O error on %s" % self._currentname
+                        ev = EventSnort(EventSnort.TYPEALARM, data, self._endian, None, None, linklayertype=self.linklayer)
                         return ev
                     else:
                         # Skip record
-                        self._fd.seek(size,1)
+                        self._fd.seek(size, 1)
 
-                elif type == 2 and pos+size<=st[stat.ST_SIZE]:
+                elif type == 2 and pos + size <= st[stat.ST_SIZE]:
                     data = self._fd.read(size)
-                    if len(data)!=size:
-                        raise Exception,"I/O error on %s" % self._currentname
-                    (caplen,)=struct.unpack(self._endian+"L",data[48:52])
-                    if (pos+caplen)<=st[stat.ST_SIZE]:
+                    if len(data) != size:
+                        raise Exception, "I/O error on %s" % self._currentname
+                    (caplen,) = struct.unpack(self._endian + "L", data[48:52])
+                    if (pos + caplen) <= st[stat.ST_SIZE]:
                         pkt = self._fd.read(caplen)
-                        if len(pkt)!=caplen:
-                            raise Exception,"I/O error on %s" % self._currentname
-                        if filtertype==type:
-                            ev = EventSnort(EventSnort.TYPELOG,data,self._endian,None,pkt,linklayertype=self.linklayer)
+                        if len(pkt) != caplen:
+                            raise Exception, "I/O error on %s" % self._currentname
+                        if filtertype == type:
+                            ev = EventSnort(EventSnort.TYPELOG, data, self._endian, None, pkt, linklayertype=self.linklayer)
                             return  ev
                     else:
-                        self._fd.seek(pos,0)
+                        self._fd.seek(pos, 0)
 
-                elif (type!=1 and type!=2):
-                    raise Exception,"Bad type of record on file %s" % self._currentname
+                elif (type != 1 and type != 2):
+                    raise Exception, "Bad type of record on file %s" % self._currentname
             else:
                 time.sleep(10)
             # end while
 
 
-    def dumpfile(self,f,filtertype=2):
+    def dumpfile(self, f, filtertype=2):
         """ dump a unified alarm / log record"""
         if not os.path.isfile(f):
-            raise Exception,"Error: %s is not a file" % file
-        fd = open(f,"r")
+            raise Exception, "Error: %s is not a file" % file
+        fd = open(f, "r")
         self._currentname = f
         if self._unified_version == 1:
-            self.dumpfile_u1(fd,filtertype)
+            self.dumpfile_u1(fd, filtertype)
         elif self._unified_version == 2:
             self.dumpfile_u2(fd)
         else:
             print "Error: Unknown Snort Unified Version %u" % self._unified_version
 
-    def dump_snort_unified2_record(self,type,data):
+    def dump_snort_unified2_record(self, type, data):
         if type == SnortUnified.U2_TYPE_PACKET:
             print "Unified2 Packet"
             (sensor_id, \
@@ -901,7 +902,7 @@ class ParserSnort(object):
             packet_second, \
             packet_microsecond, \
             lynktype, \
-            packet_length) = struct.unpack(">IIIIIII",data[:28])
+            packet_length) = struct.unpack(">IIIIIII", data[:28])
             print """
             sensor_id: %u
             event_id: %u
@@ -910,11 +911,11 @@ class ParserSnort(object):
             packet_microsecond: %u
             lynktype: %u
             packet_length: %u""" % \
-            (sensor_id,event_id,event_second, \
-            packet_second,packet_microsecond, \
-            lynktype,packet_length)
-            ev = EventSnort(">",unified_version = 2,linklayertype="ethernet")
-            ev.addpacket(2,data)
+            (sensor_id, event_id, event_second, \
+            packet_second, packet_microsecond, \
+            lynktype, packet_length)
+            ev = EventSnort(">", unified_version=2, linklayertype="ethernet")
+            ev.addpacket(2, data)
             dumphexdata(data[28:])
         elif type == SnortUnified.U2_TYPE_IDS_EVENT:
             print "Unified2 IDS Event"
@@ -925,14 +926,14 @@ class ParserSnort(object):
             signature_id, \
             generator_id, \
             signature_revision, \
-            classification_id,  \
+            classification_id, \
             priority_id, \
             ip_source, \
             ip_destination, \
             sport_itype, \
             dport_icode, \
             protocol, \
-            packet_action) = struct.unpack(">IIIIIIIII4s4sHHBB",data)
+            packet_action) = struct.unpack(">IIIIIIIII4s4sHHBB", data)
             print """
             sensor_id: %u
             event_id: %u
@@ -949,30 +950,30 @@ class ParserSnort(object):
             dport_icode: %u
             protocol: %u
             action: %u\n""" \
-            % (sensor_id,event_id,event_second, \
-            event_microsecond,signature_id,generator_id, \
-            signature_revision,classification_id,priority_id, \
+            % (sensor_id, event_id, event_second, \
+            event_microsecond, signature_id, generator_id, \
+            signature_revision, classification_id, priority_id, \
             socket.inet_ntoa(ip_source), \
             socket.inet_ntoa(ip_destination), \
-            sport_itype,dport_icode,protocol,packet_action)
+            sport_itype, dport_icode, protocol, packet_action)
         else:
             print "Unified2 event no implemented %u" % type
-  
-          
-    def dumpfile_u2(self,fd):
+
+
+    def dumpfile_u2(self, fd):
         if self._readhdr(fd):
             while 1:
                 data = fd.read(self.UX_SIZERECORDHDR)
-                if len(data)<self.UX_SIZERECORDHDR:
+                if len(data) < self.UX_SIZERECORDHDR:
                     fd.close()
                     print "End of file"
                     return
                 # Unified 2 always big endian
-                (type,size) = struct.unpack(">II",data)
+                (type, size) = struct.unpack(">II", data)
                 if type in SnortUnified.U2_RECORD_TYPES:
-                    recorddata = fd.read(size)  
+                    recorddata = fd.read(size)
                     if type == SnortUnified.U2_TYPE_PACKET:
-                        self.dump_snort_unified2_record(type,recorddata)
+                        self.dump_snort_unified2_record(type, recorddata)
 
                 else:
                     print "Unknown unified2 record type:%u" % type
@@ -981,41 +982,41 @@ class ParserSnort(object):
                 # Read the data
                 #print "Datos %u" % len(data)
         fd.close()
-                
-                
-    def dumpfile_u1(self,fd,filtertype):
+
+
+    def dumpfile_u1(self, fd, filtertype):
         if self._readhdr(fd):
             while 1:
                 data = fd.read(self.UX_SIZERECORDHDR)
-                if data=="":
+                if data == "":
                     fd.close()
                     print "End of file"
                     return
 
-                if len(data)==self.UX_SIZERECORDHDR:
-                    (type,size) = struct.unpack(self._endian+"II",data)
+                if len(data) == self.UX_SIZERECORDHDR:
+                    (type, size) = struct.unpack(self._endian + "II", data)
                     if type == EventSnort.TYPEALARM:
                         data = fd.read(size)
-                        if len(data)!=size:
-                            raise Exception,"I/O error on %s" % self._currentname
+                        if len(data) != size:
+                            raise Exception, "I/O error on %s" % self._currentname
                         if (filtertype == type):
-                            ev = EventSnort(EventSnort.TYPEALARM,data,self._endian,None,None)
+                            ev = EventSnort(EventSnort.TYPEALARM, data, self._endian, None, None)
                             print ev
 
                     elif type == EventSnort.TYPELOG:
                         data = fd.read(size)
-                        if len(data)!=size:
-                            raise Exception,"I/O error on %s" % self._currentname
-                        (caplen,)=struct.unpack(self._endian+"L",data[48:52])
+                        if len(data) != size:
+                            raise Exception, "I/O error on %s" % self._currentname
+                        (caplen,) = struct.unpack(self._endian + "L", data[48:52])
                         pkt = fd.read(caplen)
-                        if len(pkt)!=caplen:
-                            raise Exception,"I/O error on %s" % self._currentname
-                        if filtertype==type:
-                            ev = EventSnort(EventSnort.TYPELOG,data,self._endian,None,pkt)
+                        if len(pkt) != caplen:
+                            raise Exception, "I/O error on %s" % self._currentname
+                        if filtertype == type:
+                            ev = EventSnort(EventSnort.TYPELOG, data, self._endian, None, pkt)
                             print ev
 
                     else:
-                        raise Exception,"Bad type of record on file %s" % self._currentname        
+                        raise Exception, "Bad type of record on file %s" % self._currentname
 
         else:
             print "Can't read the header of %s" % file

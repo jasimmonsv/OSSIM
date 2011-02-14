@@ -68,7 +68,7 @@ def dumphexdata(data):
         if string.find(pchar, chr(d)) != -1:
             da = da + chr (d)
         else:
-            da = da + "." 
+            da = da + "."
         c = c + cs
     c = c + "   " * (16 - rest) + da + " " * (16 - rest)
     print c
@@ -93,6 +93,9 @@ patternISO_date = re.compile('(?P<year>\d+)[\s-](?P<month>\d+)[\s-](?P<day>\d+)\
 patternUTClocalized = re.compile('(?P<year>\d+)[\s-](?P<month>\d+)[\s-](?P<day>\d+)\s+(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)(?P<tzone_symbol>[-|+])(?P<tzone_hour>\d{2}):(?P<tzone_min>\d{2})')
 
 def normalizeToUTCDate(event, used_tzone):
+    if event["fdate"] == "" or event["fdate"] is None:
+        logger.debug("Warning: fdate key doesn't exist in event object!")
+        return
     plugin_date_str = event["fdate"]
     #2011-02-01 17:00:16
     matchgroup1 = patternISO_date.match(event["fdate"])
@@ -107,7 +110,7 @@ def normalizeToUTCDate(event, used_tzone):
     tzone_hour = matchgroup2.group("tzone_hour")
     tzone_min = matchgroup2.group("tzone_min")
     tzone_float = (float(tzone_hour) * 60 + float(tzone_min)) / 60
-    
+
     if tzone_symbol == "-":
         tzone_float = -1 * tzone_float
     logger.debug("Calculated float timezone: %s" % tzone_float)
