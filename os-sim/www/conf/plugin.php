@@ -78,6 +78,7 @@ include ("../hmenu.php"); ?>
 			padding:0px; margin:0px;
 		}
 	</style>
+	<p style="text-align:center"><a href="../session/detect.php" style="text-decoration:none"><span class="buttonlink"><img src="../pixmaps/wand--plus.png" border="0" align="absmiddle" style="padding-bottom:2px;padding-right:8px"><?=_("Auto-detect Data Sources")?></span></a></p>
 	<table id="flextable" style="display:none"></table>
 	<script>
 	function get_width(id) {
@@ -87,7 +88,7 @@ include ("../hmenu.php"); ?>
 			return 700;
 	}
 	function get_height() {
-	   return parseInt($(document).height()) - 200;
+	   return parseInt($(document).height()) - 250;
 	}
     
 	function action(com,grid) {

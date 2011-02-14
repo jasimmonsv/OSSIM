@@ -217,7 +217,7 @@ if($save){
 			$pass2=base64_decode(POST('pass2'));
 			ossim_valid($pass2, OSS_ALPHA, OSS_PUNC_EXT, 'illegal:' . _("Rewrite Password"));
 			$s_log=POST('s_log');
-			ossim_valid($s_log, OSS_IP_ADDRCIDR, 'illegal:' . _("Send Logs"));
+			ossim_valid($s_log, OSS_IP_ADDR, 'illegal:' . _("Send Logs"));
 			$email=POST('email');
 			ossim_valid($email, OSS_MAIL_ADDR, 'illegal:' . _("Email"));
 			if (ossim_error()) {
@@ -389,7 +389,7 @@ switch($step){
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-	<title> AlienVault Unified SIEM. <?php echo gettext("Customize Wizard"); ?> </title>
+	<title> AlienVault Unified SIEM. <?php echo gettext("Customization Wizard"); ?> </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="Shortcut Icon" type="image/x-icon" href="../favicon.ico">
@@ -516,7 +516,7 @@ switch($step){
 	<div id='container_center'>
 		<?php if (!$from_menu) { ?>
 		<p alig="center"><img src="../pixmaps/customization_logo.png" border="0"></p>
-		<p alig="center" class="title"><?php echo _("Customize Wizard") ?></p>
+		<p alig="center" class="title"><?php echo _("Customization Wizard") ?></p>
 		<? } ?>
 		<form method="post" name="form" id="form" action="customize.php?step=<?php echo $step+1;?>">
 			<table id='tab_menu'>
@@ -577,7 +577,7 @@ switch($step){
 									<tr class="tr_none">
 										<td><strong><?php echo _('Authorized Collection Sources'); ?>:</strong></td>
 										<td>
-											<input type="text" name="s_log" id="s_log" value="<?php echo $s_log; ?>" /> <span style="color:#808080">xxx.xxx.xxx.xxx/xx</span>
+											<input type="text" name="s_log" id="s_log" value="<?php echo $s_log; ?>" /> <span style="color:#808080">xxx.xxx.xxx.xxx</span>
 											<a class='scriptinfo' style='text-decoration:none' href="javascript:;">
 												<img src="../pixmaps/greenhelp.png" border='0' align='absmiddle'/>
 												<div class="tooltip fixed" style="display: none;"></div>

@@ -905,7 +905,7 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) { //if (file_
     );
     if (Session::am_i_admin()) {
         $hmenu["Main"][] = array(
-	        "name" => gettext("Customize Wizard") ,
+	        "name" => gettext("Customization Wizard") ,
 	        "id" => "Customize",
 	        "url" => "session/customize.php",
 	        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:customize','Help');"
@@ -988,18 +988,29 @@ if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_p
         );
     }
 }
-if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) { $configuration = 1;
+if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session::menu_perms("MenuStatus", "MonitorsSensors") || Session::menu_perms("MenuConfiguration", "PluginGroups")) { $configuration = 1;
     $menu["Configuration"][] = array(
         "name" => gettext("Collection") ,
         "id" => "Plugins",
-        "url" => "conf/plugin.php"
+        "url" => "sensor/sensor_plugins.php"
     );
-    $hmenu["Plugins"][] = array(
-        "name" => gettext("Data Sources") ,
-        "id" => "Plugins",
-        "url" => "conf/plugin.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugins','Help');"
-    );
+    if (Session::menu_perms("MenuStatus", "MonitorsSensors")) {
+	    $hmenu["Plugins"][] = array(
+	        "name" => gettext("Sensors") ,
+	        "id" => "Plugins",
+	        "target" => "main",
+	        "url" => "sensor/sensor_plugins.php",
+	        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
+	    );
+	}
+	if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) {
+	    $hmenu["Plugins"][] = array(
+	        "name" => gettext("Data Sources") ,
+	        "id" => "Data Sources",
+	        "url" => "conf/plugin.php",
+	        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugins','Help');"
+	    );
+	}
     if (Session::menu_perms("MenuConfiguration", "PluginGroups")) {
 		$hmenu["Plugins"][] = array(
 			"name" => gettext("DS Groups") ,

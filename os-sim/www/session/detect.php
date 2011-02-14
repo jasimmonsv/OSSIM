@@ -46,6 +46,7 @@ require_once "ossim_db.inc";
 require_once "ossim_conf.inc";
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
+$s_logs = $conf->get_conf("customize_send_logs", FALSE);
 $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 if ($opensource || $_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN) {
@@ -54,9 +55,18 @@ if ($opensource || $_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN) {
 //
 $ip = GET('ip');
 $activate = intval(GET('activate'));
-ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("IP"));
+ossim_valid($ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("IP"));
 if (ossim_error()) {
 	die(ossim_error());
+}
+if ($ip!="") {
+	$db   = new ossim_db();
+	$conn = $db->connect();
+	$conn->Execute('UPDATE config SET value="'.$ip.'" WHERE conf="customize_send_logs"');
+	$s_logs = $ip;
+	$db->close($conn);
+} else {
+	$s_logs = $conf->get_conf("customize_send_logs", FALSE);
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -71,31 +81,50 @@ if (ossim_error()) {
 	<link rel="stylesheet" type="text/css" href="../style/customize.css"/>
 </head>
 <body style="text-align:left">
-    <pre style="width:93%">
+
+	<?php include("../hmenu.php"); ?>
+    <form action='detect.php' method='get'>
+	<table>
+	<tr>
+		<td><strong><?php echo _('Authorized Collection Source IP'); ?>:</strong></td>
+		<td>
+			<input type="text" name="ip" value="<?php echo $s_logs; ?>" />
+			<input type="submit" class="lbutton" value="<?php echo _("Plugin Detection & Configuration")?>">
+		</td>
+	</tr>
+	</table>
+	</form>
 <?php
+	if ($ip!="") {
         if ($activate) {
+            echo "[+] "._("Activating Data Sources, please wait a few seconds")." <img src='../pixmaps/loading.gif' id='loading' border='0' width='16px'><br>";
             // Launch script with ip and plugin file
             foreach ($_GET as $k => $v) if (preg_match("/\.cfg/",$v)) {
-                echo "\n-> "._("Activating plugin")." $v ($ip) <-\n\n";
+                echo "[+] "._("Activating Data Source")." $v ($ip)<br>";
                 $f = popen("sudo /usr/share/ossim/scripts/detect.pl $ip $v 2>&1","r");
                 while (!feof($f)) {
                     $line = fgets($f);
-                    echo "$line"; flush(); ob_flush();
+                    //echo "$line"; flush(); ob_flush();
                 }
                 pclose($f);
                 echo "\n";
             }
-            echo "\n"._("Finished").".\n";
+            echo "<b>"._("Finished")."!</b><br/><br/>";
+            echo "<script>$('#loading').toggle()</script>";
     ?>
-    </pre><br/>
+    </table><br/>
 <?php
         } else {
             $plugins=0;
             $plugs=array();
             $f = popen("sudo /usr/share/ossim/scripts/detect.pl $ip 2>&1","r");
+            echo "[+] "._("Validating IP")." $ip<br>";
+            echo "[+] "._("Auto-detecting  Data Sources, please wait a few seconds")." <img src='../pixmaps/loading.gif' id='loading' border='0' width='16px'><br>";
+            echo "</table>";
+            flush(); ob_flush();
             while (!feof($f)) {
                 $line = fgets($f);
-                echo "$line"; flush(); ob_flush();
+                //echo "$line"; flush(); ob_flush();
                 if ($plugins && preg_match("/^\[/",$line)) $plugins=0;
                 if ($plugins) {
                     if (preg_match("/.*Plugin (.*?): Matched (\d+)/",$line,$found)) {
@@ -106,7 +135,7 @@ if (ossim_error()) {
             }
             pclose($f);
     ?>
-    </pre><br/>
+    <br/>
     <?php
             if (count($plugs)>0) {
                 $db   = new ossim_db();
@@ -129,9 +158,11 @@ if (ossim_error()) {
                 echo "</form>\n";
                 $db->close($conn);
             } else {
-                echo _("Sorry, Seems that $ip doesn't send logs. No plugins found")."<br/><br/>";
+                echo "<b>"._("Sorry, Seems that $ip doesn't send logs. No plugins found")."</b><br/><br/>";
             }
+            echo "<script>$('#loading').toggle()</script>";
         }
-    ?>
+    }
+?>
 </body>
 </html>
