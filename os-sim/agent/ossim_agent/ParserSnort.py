@@ -320,8 +320,6 @@ class EventSnort:
         st = st % (int(time.mktime(lt)), time.strftime("%Y-%m-%d %H:%M:%S", lt), \
                 self.sig_generator, self.sig_id, self.sig_rev, \
                 self.classification, self.priority)
-        self._date = int(time.mktime(lt))
-        self._fdate = time.strftime("%Y-%m-%d %H:%M:%S", lt)
 
         if self._packet != None:
             if isinstance(self._packet, IPPacket):
