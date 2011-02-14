@@ -325,15 +325,15 @@ $ACL_MAIN_MENU = array(
             "default_perm" => true
         ) ,*/
     	"MonitorsNetflows" => array(
-            "name" => "Monitors -> Network -> Traffic",
+            "name" => "Situational Awareness -> Network -> Traffic",
             "default_perm" => true
         ) ,
         "MonitorsNetwork" => array(
-            "name" => "Monitors -> Network -> Profiles",
+            "name" => "Situational Awareness -> Network -> Profiles",
             "default_perm" => true
         ) ,
         "MonitorsAvailability" => array(
-            "name" => "Monitors -> Availability",
+            "name" => "Situational Awareness -> Availability",
             "default_perm" => true
         ) /*
         "MonitorsVServers" => array(
