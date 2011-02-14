@@ -42,8 +42,6 @@ $error      = false;
 $error_conf = null;
 
 $_SESSION["_current_file"]   = $editable_files[0];
-$_level_key_name             = set_key_name($_level_key_name, $file_xml);
-$_SESSION['_level_key_name'] = $_level_key_name;
 
 if ( file_exists( $filename) )
 {
@@ -65,6 +63,9 @@ if ( file_exists( $filename) )
 			$error = true;
 		else
 		{
+			$_level_key_name             = set_key_name($_level_key_name, $file_xml);
+			$_SESSION['_level_key_name'] = $_level_key_name;
+
 			$xml_obj=new xml($_level_key_name);
 			$xml_obj->load_file($filename);
 											
