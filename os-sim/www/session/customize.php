@@ -582,7 +582,7 @@ switch($step){
 												<img src="../pixmaps/greenhelp.png" border='0' align='absmiddle'/>
 												<div class="tooltip fixed" style="display: none;"></div>
 											</a>
-                                            <input type="button" class="lbutton" value="<?php echo _("Plugin Detection & Configuration")?>" onclick="validate($('#s_log').val())">
+                                            <!-- <input type="button" class="lbutton" value="<?php echo _("Plugin Detection & Configuration")?>" onclick="validate($('#s_log').val())"> -->
 										</td>
 									</tr>
 								</table>

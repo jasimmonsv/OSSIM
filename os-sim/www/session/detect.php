@@ -97,7 +97,7 @@ if ($ip!="") {
 <?php
 	if ($ip!="") {
         if ($activate) {
-            echo "[+] "._("Activating Data Sources, please wait a few seconds")." <img src='../pixmaps/loading.gif' id='loading' border='0' width='16px'><br>";
+            echo "[+] "._("Activating Data Sources. Finishing configuration")." <img src='../pixmaps/loading.gif' id='loading' border='0' width='16px'><br>";
             // Launch script with ip and plugin file
             foreach ($_GET as $k => $v) if (preg_match("/\.cfg/",$v)) {
                 echo "[+] "._("Activating Data Source")." $v ($ip)<br>";
