@@ -219,6 +219,8 @@ $boarder_type = 1; #doesn't work yet, there's always a full boarder for now
 //row height for the table
 $row_height = 5;
 
+$links_to_vulns = array();
+
 /*
 if ( $client_uname == $client_ip ) {
     $query_byuser = "AND report_key='$key'"; # AND DATEDIFF ( $scantime, now ) <= 15 )";
@@ -531,6 +533,7 @@ if ($report_id) {
        //}
        
        ${"IP_".$hostIP}=$pdf->AddLink();
+       
        $pdf->Cell(28, 6, $hostIP, 1, 0, 'C', 0, ${"IP_".$hostIP});
        $pdf->Cell(52, 6, $hostname, 1, 0, 'C', 0, ${"IP_".$hostIP});
        //$pdf->Cell(20, 6, $check_text,1,0,'C');
@@ -577,10 +580,17 @@ if ($report_id) {
        	  $value = "--";
        	  $width = "22";
           if ( $host_risk[$rvalue] > 0  ) {
-             $value = $host_risk[$rvalue];
+                $value = $host_risk[$rvalue];
+                $links_to_vulns[$hostIP][$rvalue] = $pdf->AddLink();
           }
           if ( $rvalue == 8 ) { $width = "20"; }
-          $pdf->Cell( $width, 6, $value ,1,0,'C');
+          
+          if ($links_to_vulns[$hostIP][$rvalue] != "") {
+                $pdf->Cell( $width, 6, $value , 1, 0, 'C', 0, $links_to_vulns[$hostIP][$rvalue]);
+          }
+          else {
+                $pdf->Cell( $width, 6, $value , 1, 0, 'C');
+          }
        }
        $pdf->Ln();
 
@@ -692,100 +702,81 @@ if ($report_id) {
    $count=0;
    $oldip="";
    // iterate through the IP is the results
-   foreach ($arrResults as $hostIP=>$scanData) {
    
-      $hostIP=htmlspecialchars_decode($hostIP);
-      $hostname=htmlspecialchars_decode($hosts[$hostIP]);
-      // new host record?
-      if($oldip!=$hostIP) {
-         $oldip=$hostIP;
+    foreach ($arrResults as $hostIP=>$scanData) {
+        $hostIP=htmlspecialchars_decode($hostIP);
+        $hostname=htmlspecialchars_decode($hosts[$hostIP]);
+      
+        $pdf->SetLink(${"IP_".$hostIP},$pdf->GetY());
+        
+        //print out the host cell
+        $pdf->SetFillColor(229, 229, 229);
+        $pdf->SetFont('','B',10);
+        $pdf->Cell(95, 6, $hostIP,1,0,'C',1);
+        $pdf->Cell(95, 6, $hostname,1,0,'C',1);
+        //$pdf->Cell(105, 6, "",1,0,'C');
+        $pdf->SetFont('','');
+        $pdf->Ln();
+            
+        // now iterate through the scan results for this IP
+        $all_results = array();
+        foreach($scanData as $vuln) {
+            $exception = ""; 
+            $risk_value = $vuln['risk'];
+            $actual_risk = getrisk($risk_value);
 
-         // don't print the table on the first host
-         if($count==1) { 
-             $pdf->PrintTable($vcols, $all_results, $vwidth_array, $head_fill_color, $head_text_color, $fill_color,
-                $text_color, $line_color, $boarder_type, $row_height, ${"IP_".$hostIP});
-            $pdf->Ln();
-         }
+            if ( $vuln['exception'] != ""  ) { 
+                $exception = "\n"._("EXCEPTION").": $vuln[exception]\n";
+                $risk_value = 8;
+            }
 
-         $pdf->SetLink(${"IP_".$hostIP},$pdf->GetY());
-               
-         //print out the host cell
-         $pdf->SetFont('','B',10);
-         $pdf->Cell(95, 6, $hostIP,1,0,'C',1);
-         $pdf->Cell(95, 6, $hostname,1,0,'C',1);
-         //$pdf->Cell(105, 6, "",1,0,'C');
-         $pdf->SetFont('','');
-         $pdf->Ln();
-         #PORT STUFF
-      }
+            $risk = getrisk($risk_value);
 
-      // now iterate through the scan results for this IP
-      $all_results = array();
-      foreach($scanData as $vuln) {
-      	 $exception = ""; 
-      	 $risk_value = $vuln['risk'];
-      	 $actual_risk = getrisk($risk_value);
+             $info = "";
+             
+            if ($exception!="") {
+               $info  .= "\n$exception"; 
+            }
+            $info .= "\n".$vuln["pname"];
+            $info .= "\nRisk:". $actual_risk;
+            $info .= "\nApplication:".$vuln["application"];
+            $info .= "\nPort:".$vuln["port"];
+            $info .= "\nProtocol:".$vuln["protocol"];
+            $info .= "\nScriptID:".$vuln["scriptid"]."\n\n";
 
-      	 if ( $vuln['exception'] != ""  ) { 
-      	 	$exception = "\n"._("EXCEPTION").": $vuln[exception]\n";
-      	    $risk_value = 8;
-      	 }
+            #$info=htmlspecialchars_decode($info);
+            $msg=trim($vuln['msg']);
+            $msg=htmlspecialchars_decode($msg);
+            $msg=preg_replace('/^\n+/','',$msg);
+            $msg= str_replace("&#039;","'", $msg);
+            $msg = str_replace("\\r", "", $msg);
+            $info .= $msg;
+            
+            $plugin_info = $dbconn->execute("SELECT t2.name, t3.name, t1.copyright, t1.summary, t1.version 
+                    FROM vuln_nessus_plugins t1
+                    LEFT JOIN vuln_nessus_family t2 on t1.family=t2.id
+                    LEFT JOIN vuln_nessus_category t3 on t1.category=t3.id
+                    WHERE t1.id='".$vuln["scriptid"]."'");
 
-      	 $risk = getrisk($risk_value);
+            list($pfamily, $pcategory, $pcopyright, $psummary, $pversion) = $plugin_info->fields;
+            $info .= "\n";
+            if ($pfamily!="")    { $info .= "\nFamily name: ".$pfamily;} 
+            if ($pcategory!="")  { $info .= "\nCategory: ".$pcategory; }
+            if ($pcopyright!="") { $info .= "\nCopyright: ".$pcopyright; }
+            if ($psummary!="")   { $info .= "\nSummary: ".$psummary; }
+            if ($pversion!="")   { $info .= "\nVersion: ".$pversion; }
 
-         $info = "";
-         
-         if ($exception!="") {
-            $info  .= "\n$exception"; 
-         }
-         $info .= "\n".$vuln["pname"];
-         $info .= "\nRisk:". $actual_risk;
-         $info .= "\nApplication:".$vuln["application"];
-         $info .= "\nPort:".$vuln["port"];
-         $info .= "\nProtocol:".$vuln["protocol"];
-         $info .= "\nScriptID:".$vuln["scriptid"]."\n\n";
-
-         #$info=htmlspecialchars_decode($info);
-         $msg=trim($vuln['msg']);
-         $msg=htmlspecialchars_decode($msg);
-         $msg=preg_replace('/^\n+/','',$msg);
-         $msg= str_replace("&#039;","'", $msg);
-         $msg = str_replace("\\r", "", $msg);
-         $info .= $msg;
-         
-         $plugin_info = $dbconn->execute("SELECT t2.name, t3.name, t1.copyright, t1.summary, t1.version 
-                FROM vuln_nessus_plugins t1
-                LEFT JOIN vuln_nessus_family t2 on t1.family=t2.id
-                LEFT JOIN vuln_nessus_category t3 on t1.category=t3.id
-                WHERE t1.id='".$vuln["scriptid"]."'");
-
-         list($pfamily, $pcategory, $pcopyright, $psummary, $pversion) = $plugin_info->fields;
-         $info .= "\n";
-         if ($pfamily!="")    { $info .= "\nFamily name: ".$pfamily;} 
-         if ($pcategory!="")  { $info .= "\nCategory: ".$pcategory; }
-         if ($pcopyright!="") { $info .= "\nCopyright: ".$pcopyright; }
-         if ($psummary!="")   { $info .= "\nSummary: ".$psummary; }
-         if ($pversion!="")   { $info .= "\nVersion: ".$pversion; }
-
-         // append it to the results array
-         if ( ! $critical || $risk_value <= $critical ) {
-           $all_results[] = array( $risk, $info);
-         }
-      }
-      // increment host counter
-      $count=1;
-
-   }
-   // print out the final table
-   if($count!=0) {
-        $pdf->PrintTable($vcols, $all_results, $vwidth_array, $head_fill_color, $head_text_color, $fill_color, $text_color,
-        $line_color, $boarder_type, $row_height, ${"IP_".$hostIP});
-   }
-
+            // append it to the results array
+            if ( ! $critical || $risk_value <= $critical ) {
+                $all_results[] = array( $risk, $info);
+            }
+        }
+        $pdf->PrintTable($vcols, $all_results, $vwidth_array, $head_fill_color, $head_text_color, $fill_color,
+        $text_color, $line_color, $boarder_type, $row_height, $hostIP, $links_to_vulns);
+        $pdf->Ln();
+    }
     $pdf->Ln();
-
-
-} #$pdf->Image('/var/www/html/images/Picture2.png',50,90,0,0,$type='',$link='');
+} 
 
 
 header("Cache-Control: public, must-revalidate");

@@ -5,7 +5,7 @@ class PDF extends PDF_Diag
 {
 //This Function creates a table formated for the Vulnerability Scanner.  It allows the last column to be multilined
 //currently boarderType does nothing
-	function PrintTable($header,$data,$w,$headFillColor,$headTextColor, $fillColor, $textColor, $lineColor, $boarderType, $h)
+	function PrintTable($header,$data,$w,$headFillColor,$headTextColor, $fillColor, $textColor, $lineColor, $boarderType, $h, $ip, $links_to_vulns)
 	{
 //currently boarder does nothing
 		$boarder="";
@@ -41,19 +41,41 @@ class PDF extends PDF_Diag
 		$this->h=$this->fh;
 		foreach($data as $row)
 		{
-            if ($row[0]=="Serious")
+            if ($row[0]=="Serious") {
+                if($links_to_vulns[$ip]["1"]!="") {
+                    $this->SetLink($links_to_vulns[$ip]["1"],$this->GetY());
+                    $links_to_vulns[$ip]["1"]="";
+                }
                 $this->SetFillColor(255, 205, 255);
-            else if($row[0]=="High")
+            }
+            else if($row[0]=="High") {
+                if($links_to_vulns[$ip]["2"]!="") {
+                    $this->SetLink($links_to_vulns[$ip]["2"],$this->GetY());
+                    $links_to_vulns[$ip]["2"]="";
+                }
                 $this->SetFillColor(255, 219, 219);
-            else if($row[0]=="Medium")
+            }
+            else if($row[0]=="Medium") {
+                if($links_to_vulns[$ip]["3"]!="") {
+                    $this->SetLink($links_to_vulns[$ip]["3"],$this->GetY());
+                    $links_to_vulns[$ip]["3"]="";
+                }
                 $this->SetFillColor(255, 242, 131);
-                //$this->SetFillColor(255, 255, 168);
-            else if($row[0]=="Low")
+            }
+            else if($row[0]=="Low") {
+                if($links_to_vulns[$ip]["6"]!="") {
+                    $this->SetLink($links_to_vulns[$ip]["6"],$this->GetY());
+                    $links_to_vulns[$ip]["6"]="";
+                }
                 $this->SetFillColor(255, 255, 192);
-                //$this->SetFillColor(219, 255, 219);
-            else
+            }
+            else {
+                if($links_to_vulns[$ip]["7"]!="") {
+                    $this->SetLink($links_to_vulns[$ip]["7"],$this->GetY());
+                    $links_to_vulns[$ip]["7"]="";
+                }
                 $this->SetFillColor(255, 255, 227);
-                //$this->SetFillColor(242, 242, 242);
+            }
 //         $ip=$row[0];
          //$logh->log("ip: $ip",PEAR_LOG_INFO);
 //         if($oldip!=$ip) {
