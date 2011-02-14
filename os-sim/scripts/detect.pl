@@ -108,7 +108,7 @@ if($plugin_file =~ /forensics-db-1/){next} # skip false matching ones
 print "[+]\tTesting $plugin_file\n";
 	open(TEST_PLUGIN, "python /usr/share/ossim/scripts/regexp.py $tmp_logfile $plugin_dir/$plugin_file q|");
 	while(<TEST_PLUGIN>){
-		if(/Matched\s+(\d+)\s+lines/){
+		if(/Matched\s+(\d+)\s+lines/ && $plugin_file !~ /\d+\.\d+\.\d+\.\d+/){
 			$plugins_matched{$plugin_file} = $1;
 		}
 	}
