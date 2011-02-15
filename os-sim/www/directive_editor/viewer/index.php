@@ -694,7 +694,7 @@ Eg: sticky_different="DST_PORT" <?php echo _("(All the events matching the rule 
 <div class="level5"> 
  
 <p> 
-<?php echo _("This keywords are optional. They can be used to store special data from agents. Obviously, this only will work if the event has this modificators. The following things are accpeted:") ?>
+<?php echo _("This keywords are optional. They can be used to store special data from agents. Obviously, this only will work if the event has this modificators. The following things are accepted:") ?>
 <?php echo _("You can insert any string to match here. If you want that this matches with any keyword, you can skip these keywords, or use ANY as the value. ") ?>
 </p> 
 <ul> 

@@ -634,7 +634,7 @@ protocol="!Host_ARP_Event,UDP,!ICMP"
 <br><br>
 <h3 style="text-align: left;">Username, password, filename, userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9</h3>
 <?php
-    echo gettext("This keywords are optional. They can be used to store special data from agents. Obviously, this only will work if the event has this modificators. The following things are accpeted"); ?>:<br>
+    echo gettext("This keywords are optional. They can be used to store special data from agents. Obviously, this only will work if the event has this modificators. The following things are accepted"); ?>:<br>
 <?php
     echo gettext("You can insert any string to match here. If you want that this matches with any keyword, you can skip these keywords, or use ANY as the value"); ?>. <br/>
 <ol>
