@@ -76,7 +76,8 @@ $conf = $GLOBALS["CONF"];
 $XML_FILE = '/etc/ossim/server/directives.xml';
 $xml = domxml_open_file($XML_FILE, DOMXML_LOAD_SUBSTITUTE_ENTITIES);
 ?>
-	<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
 		<head>
 			<link rel="stylesheet" href="../style/style.css" />
 			<link rel="stylesheet" href="style/directives.css" />
@@ -176,7 +177,7 @@ function background_clone(id,xml_file,mini) {
 
 		<body id="leftmenu" style="overflow-x:hidden">
 		
-<?php include("../hmenu.php") ?>
+		<?php include("../hmenu.php") ?>
 		
 			<table align="center" width="300" cellpadding='0' cellspacing='0' style="border:0px;background-color:transparent;">
 			<tr>
@@ -246,10 +247,16 @@ function background_clone(id,xml_file,mini) {
 											  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px; " title="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Enable this category"); ?>" title="<?php echo gettext("Enable this category"); ?>"/></a>
 											  <?php } ?>
 											</td>
-											<td width="20" align="right" style="border:0px">
+											<td width="40" align="right" style="border:0px">
 											<span id="add_dir" name="add_dir"><a href="index.php?action=add_directive&xml_file=<?php echo $category->xml_file?>&id=<?php
 											  echo $category->id . $onlydir; ?>" style="marging-left:20px;" title="<?php
-											  echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a></span>
+											  echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
+											  <?php if ($category->active) { ?>
+											  <a href="editxml.php?xml_file=<?php echo $category->xml_file?>" style="marging-left:20px;" title="<?php echo gettext("Edit XML directive file"); ?>"><img src="../pixmaps/theme/any.png" border="0" alt="<?php echo gettext("Edit XML directive file"); ?>" title="<?php echo gettext("Edit XML directive file"); ?>"/></a>
+											  <?php } else { ?>
+											  <img src="../pixmaps/theme/any.png" border="0" style="opacity:.30;filter:Alpha(Opacity=30);"/></a>
+											  <?php } ?>
+											  </span>
 											</td>
 										</tr>
 									</table>
