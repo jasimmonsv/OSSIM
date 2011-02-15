@@ -80,7 +80,7 @@ if (GET('submit')) {
     echo "<br><br>";
     echo "<form>";
     echo "<table width=\"100%\" class=\"noborder\" style=\"background:transparent;\"><tr><td class=\"nobborder\" style=\"text-align:center;\">";
-    echo "<input type=\"button\" class=\"btn\" onclick=\"top.frames['topmenu'].window.location.reload();top.frames['header'].window.location.reload();document.location.href=' ". $_SERVER['SCRIPT_NAME'] ." '\" value=\""._("Continue")."\">";
+    echo "<input type=\"button\" class=\"button\" onclick=\"top.frames['topmenu'].window.location.reload();top.frames['header'].window.location.reload();document.location.href=' ". $_SERVER['SCRIPT_NAME'] ." '\" value=\""._("Continue")."\">";
     echo "</td></tr></table>";
     echo "</form>";
     exit;
@@ -209,7 +209,7 @@ foreach($list as $k => $v) {
     <?php
     if ($v['required']) { ?>
     <center>
-        <input type="submit" name="submit" class="btn" style="font-size:12px"
+        <input type="submit" name="submit" class="button" style="font-size:12px"
             value="<?php echo _("Apply Changes") ?>"
             onClick="return confirm('<?php echo _("IMPORTANT: Please make sure you have made a backup of the database before continue") ?>')"
             >
