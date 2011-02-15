@@ -379,6 +379,14 @@ $ACL_MAIN_MENU = array(
             "name" => "Configuration -> Collection -> Downloads",
             "default_perm" => true
         ),
+        "MonitorsSensors" => array(
+            "name" => "Configuration -> Collection -> Sensors",
+            "default_perm" => false
+        ),
+        "ToolsUserLog" => array(
+            "name" => "Configuration -> Collection -> User Activity",
+            "default_perm" => false
+        ),
         "ToolsBackup" => array(
             "name" => "Configuration -> Backup",
             "default_perm" => false
@@ -396,16 +404,6 @@ $ACL_MAIN_MENU = array(
             "name" => "Configuration -> Software Upgrade",
             "default_perm" => false
         )*/
-    ),
-    "MenuStatus" => array(
-    	"MonitorsSensors" => array(
-            "name" => "Status -> Sensors",
-            "default_perm" => false
-        ),
-    	"ToolsUserLog" => array(
-            "name" => "Status -> Sensors -> User Activity",
-            "default_perm" => false
-        )
     )/* ,
     "MenuTools" => array(
         "ToolsScan" => array(
