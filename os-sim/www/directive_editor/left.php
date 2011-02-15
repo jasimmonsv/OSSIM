@@ -190,10 +190,17 @@ foreach($categories as $category) {
 		                 style="cursor:pointer"/>
         			</td>
         			<td style="text-align:left;border:0px"><?php echo gettext(ucwords($name_div)); ?></td>
-        			<td width="20" align="right" style="border:0px">
+        			<td width="40" align="right" style="border:0px">
             		<span id="add_dir" name="add_dir"><a href="include/utils.php?xml_file=<?php echo $category->xml_file?>&query=add_directive&id=<?php
       				  echo $category->id . $onlydir; ?>" target="right" style="marging-left:20px;" TITLE="<?php
-      				  echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a></span>
+      				  echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
+      				  <?php if ($category->active) { ?>
+      				  <a href="editxml.php?withoutmenu=1&xml_file=<?php echo $category->xml_file?>" style="marging-left:20px;" title="<?php echo gettext("Edit XML directive file"); ?>" target="right"><img src="../pixmaps/theme/any.png" border="0" alt="<?php echo gettext("Edit XML directive file"); ?>" title="<?php echo gettext("Edit XML directive file"); ?>"/></a>
+					  <?php } else { ?>
+					  <img src="../pixmaps/theme/any.png" border="0" style="opacity:.30;filter:Alpha(Opacity=30);"/></a>
+					  <?php } ?>
+
+      				  </span>
         			</td>
         		</tr>
         	</table>

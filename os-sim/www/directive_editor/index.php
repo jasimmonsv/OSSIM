@@ -60,7 +60,6 @@ else $cols = "280,100%";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-  </head>
 	<frameset rows="35,*" frameborder=0 framespacing=0>
 	<frame src="top.php?<?php echo $_SERVER['QUERY_STRING'] ?>" scrolling='no'>
 		<frameset id="frames" cols="<?php echo $cols ?>" frameborder="no" border='0' framespacing='0'>
