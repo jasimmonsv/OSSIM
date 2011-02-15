@@ -59,13 +59,14 @@ if ( file_exists( $filename) )
 	{
 		$file_xml = @file_get_contents ($filename, false);
 				
-		if ($file_xml == false)
+		if ($file_xml === false)
 			$error = true;
 		else
 		{
+						
 			$_level_key_name             = set_key_name($_level_key_name, $file_xml);
 			$_SESSION['_level_key_name'] = $_level_key_name;
-
+			
 			$xml_obj=new xml($_level_key_name);
 			$xml_obj->load_file($filename);
 											
@@ -259,8 +260,8 @@ else
 			<tr>
 				<td id='oss_mcontainer'>
 					<ul class='oss_tabs'>
-						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Edit Rules")?></a></li>
-						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?=_("XML Source")?></a></li>
+						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?php echo _("Rules Files")?></a></li>
+						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?php echo ucfirst($editable_files[0])?></a></li>
 					</ul>
 				</td>
 			</tr>

@@ -40,10 +40,10 @@ $rules_file = "/var/ossec/rules/";
 //Editable rules files
 $editable_files = array("local_rules.xml");
 
-//Ossec conf
+//Agent conf
 $agent_conf = "/var/ossec/etc/shared/agent.conf";
 
-//Agent conf
+//Ossec conf
 $ossec_conf = "/var/ossec/etc/ossec.conf";
 
 ?>

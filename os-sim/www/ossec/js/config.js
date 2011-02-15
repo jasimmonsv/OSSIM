@@ -233,7 +233,10 @@ function save_config_tab()
 					$('#cont_cnf_message').addClass("oss_error");
 					$('#cont_cnf_message').html(status[1]);
 					window.scroll(0,0);
-					setTimeout('$("#cont_cnf_message").fadeOut(4000);', 4000);
+					if ( tab == "#tab2" )
+						setTimeout('$("#cont_cnf_message").fadeOut(4000);', 25000);
+					else
+						setTimeout('$("#cont_cnf_message").fadeOut(4000);', 4000);
 				}
 			}		
 		}
@@ -241,28 +244,55 @@ function save_config_tab()
 }
 
 
-function add_dir(id)
+function add_row(id, action)
 {
 	$.ajax({
 		type: "POST",
 		url: "ajax/config_actions.php",
-		data: "action=add_directory",
+		data: "action="+action,
 		success: function(msg){
 			
 			var status = msg.split("###");
 													
 			if (status[0] != "error")
 			{
-				$('#'+id).after(status[1]);
+				if ( id.match("tbody_") != null )
+					$(id).html(status[1]);
+				else
+					$('#'+id).after(status[1]);
+				
 				$('textarea').elastic();
-				$('#table_sys_directories table').css('background', 'transparent');
-				$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+				
+				switch (action)
+				{
+					case "add_directory":
+						$('#table_sys_directories table').css('background', 'transparent');
+						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+					break;
+					
+					case "add_wentry":
+						$('#table_sys_wentries table').css('background', 'transparent');
+						$('#table_sys_wentries .went_tr:odd').css('background', '#EFEFEF');
+					break;
+					
+					case "add_reg_ignore":
+						$('#table_sys_reg_ignores table').css('background', 'transparent');
+						$('#table_sys_reg_ignores .regi_tr:odd').css('background', '#EFEFEF');
+					break;
+					
+					case "add_ignore":
+						$('#table_sys_ignores table').css('background', 'transparent');
+						$('#table_sys_ignores .ign_tr:odd').css('background', '#EFEFEF');
+					break;
+				}
+				
 			}
 		}
 	});
 }
 
-function delete_dir(id)
+
+function delete_row(id, action)
 {
 	if ( confirm (messages[5]) )
 	{
@@ -270,56 +300,48 @@ function delete_dir(id)
 		if ( $('#'+id).length >= 1 )
 		{
 			$('#'+id).remove();
-			if ($('#tbody_sd tr').length <= 2)
-				add_dir();
-			else
+			switch (action)
 			{
-				$('textarea').elastic();
-				$('#table_sys_directories table').css('background', 'transparent');
-				$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
+				case "delete_directory":
+					var tbody 	   = "#tbody_sd";
+					var table 	   = "#table_sys_directories table";
+					var tr   	   = "#table_sys_directories .dir_tr:odd";
+					var add_action = "add_directory";
+				break;
+				
+				case "delete_wentry":
+					var tbody      = "#tbody_swe";
+					var table      = "#table_sys_wentries table";
+					var tr         = "#table_sys_wentries .went_tr:odd";
+					var add_action = "add_wentry";
+				break;
+				
+				case "delete_reg_ignore":
+					var tbody      = "#tbody_sri";
+					var table      = "#table_sys_reg_ignores table";
+					var tr         = "#table_sys_reg_ignores .regi_tr:odd";
+					var add_action = "add_reg_ignore";
+				break;
+				
+				case "delete_ignore":
+					var tbody      = "#tbody_si";
+					var table      = "#table_sys_ignores table";
+					var tr         = "#table_sys_ignores .ign_tr:odd";
+					var add_action = "add_ignore";
+				break;
 			}
-		}
-	}
-
-}
-
-function add_ign(id)
-{
-	$.ajax({
-		type: "POST",
-		url: "ajax/config_actions.php",
-		data: "action=add_ignore",
-		success: function(msg){
 			
-			var status = msg.split("###");
-													
-			if (status[0] != "error")
-			{
-				$('#'+id).after(status[1]);
-				$('textarea').elastic();
-				$('#table_sys_ignores table').css('background', 'transparent');
-				$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
-			}
-		}
-	});
-}
-
-function delete_ign(id)
-{
-	if ( confirm (messages[5]) )
-	{
-		
-		if ( $('#'+id).length >= 1 )
-		{
-			$('#'+id).remove();
-			if ($('#tbody_si tr').length <= 2)
-				add_ign();
+			if ($(tbody + " tr").length <= 0)
+				add_row(tbody, add_action);
 			else
 			{
 				$('textarea').elastic();
-				$('#table_sys_ignores table').css('background', 'transparent');
-				$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
+				$(table).css('background', 'transparent');
+				$(tr).css('background', '#EFEFEF');
 			}
 		}
 	}
+
 }
+
+

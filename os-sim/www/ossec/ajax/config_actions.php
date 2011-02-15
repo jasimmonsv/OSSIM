@@ -69,8 +69,8 @@ $message_error  = array();
 				echo "</tr>
 					  </table></td>";
 				echo "<td>
-						<a onclick='delete_dir(\"dir_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
-						<a onclick='add_dir(\"dir_$k\");'><img src='images/add.png' align='absmiddle'/></a>
+						<a onclick='delete_row(\"dir_$k\", \"delete_directory\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+						<a onclick='add_row(\"dir_$k\", \"$action\");'><img src='images/add.png' align='absmiddle'/></a>
 				     </td>";
 			echo "</tr>";
 		
@@ -80,16 +80,48 @@ $message_error  = array();
 			
 			$k = uniqid(md5(rand()), false); 
 			
-			echo "1###<tr class='dir_tr' id='ign_$k'>";
+			echo "1###<tr class='ign_tr' id='ign_$k'>";
 				echo "<td style='text-align: left;'><textarea name='".$k."_value_ign' id='".$k."_value_ign'></textarea></td>";
 				echo "<td><input type='checkbox' name='".$k."_type' id='".$k."_type'/></td>";
 				echo "<td>
-					<a onclick='delete_ign(\"ign_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
-					<a onclick='add_ign(\"ign_$k\");'><img src='images/add.png' align='absmiddle'/></a>
+					<a onclick='delete_row(\"ign_$k\", \"delete_ignore\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+					<a onclick='add_row(\"ign_$k\", \"$action\");'><img src='images/add.png' align='absmiddle'/></a>
 				</td>";
 			echo "</tr>";
 
 		break;
+		
+		case "add_wentry":
+			
+			$k = uniqid(md5(rand()), false); 
+			
+			echo "1###<tr class='went_tr' id='went_$k'>";
+				echo "<td style='text-align: left;'><input class='wentry' name='".$k."_value_went' id='".$k."_value_went'/></td>";
+				echo "<td>
+						<a onclick='delete_row(\"went_$k\", \"delete_wentry\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+						<a onclick='add_row(\"went_$k\", \"$action\");'><img src='images/add.png' align='absmiddle'/></a>	
+					 </td>";
+			echo "</tr>";
+
+		break;
+		
+		case "add_reg_ignore":
+			
+			$k = uniqid(md5(rand()), false); 
+			
+			echo "1###<tr class='regi_tr' id='regi_$k'>";
+				echo "<td style='text-align: left;'><input class='sreg_ignore' name='".$k."_value_regi' id='".$k."_value_regi'/></td>";
+				echo "<td>
+						<a onclick='delete_row(\"regi_$k\", \"delete_reg_ignore\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+						<a onclick='add_row(\"regi_$k\", \"$action\");'><img src='images/add.png' align='absmiddle'/></a>	
+					 </td>";
+			echo "</tr>";
+			
+
+		break;
+		
+		default:
+			echo "error###"._("Illegal action");
 	}
 
 

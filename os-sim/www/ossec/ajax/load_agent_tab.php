@@ -44,21 +44,6 @@ $array_os    = array ( "Windows" => "Microsoft Windows",
 					   "Linux"   => "Linux",
 					   "FreeBSD" => "FreeBSD");
 					
-$array_logf  = array ( "syslog" 		 => "Syslog",
-					   "snort-full"  	 => "Snort full",
-					   "sc"          	 => "Sc",
-					   "squid"       	 => "Squid",
-					   "iis"  			 => "Iis",
-					   "postgresql_log"  => "Postgre SQL log",
-					   "nmapg" 			 => "Nmapg",
-					   "apache"  		 => "Apache",
-					   "command"  		 => "Command",
-					   "full_command"	 => "Full command"
-);
-
- 
-
-
 if($tab == "#tab1")
 {
 	echo "1###";
@@ -229,13 +214,9 @@ if($tab == "#tab1")
 }
 else if ($tab == '#tab2')
 {
-		;
-}
-else if ($tab == '#tab3')
-{
 	$conf_agent = @file_get_contents($agent_conf);
 	
-	if ($conf_agent == false)
+	if ($conf_agent === false)
 	{
 		echo "2###"._("File")." <b>$agent_conf</b> "._("not found or you don't have have permission to access");
 		exit();

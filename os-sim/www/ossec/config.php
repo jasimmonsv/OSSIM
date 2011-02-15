@@ -46,7 +46,7 @@ if ( file_exists( $ossec_conf) )
 {
 	$file_xml = @file_get_contents ($ossec_conf, false);
 					  	  		
-	if ($file_xml == false)
+	if ($file_xml === false)
 	{
 		$error    = true;
 		$file_xml = null;
@@ -188,13 +188,22 @@ $cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' alig
 	
 	#table_sys_parameters {width: 100%; text-align: left !important;}
 	#frequency { height: 18px; width: 210px;}
-	.sys_frequency {width: 150px; padding: 2px 0px;}
+	.sys_parameter {width: 150px; padding: 2px 0px;}
+	.sys_value { width: 200px; padding: 2px 10px; text-align: left;}
 	
 	textarea { border: solid 1px #888;}
 	#code { border:none;}
 	.cont_savet2{ padding: 20px 0px 20px 0px; text-align: right; margin-right: 2px;}
 	
 	ul.oss_tabs li.active a:hover {cursor: pointer !important;} 
+	
+	.time { width: 22px;}
+	
+	.select_yn {width: 210px;}
+	
+	.select_wd {width: 210px;}
+	
+	.wentry, .sreg_ignore {width: 100%; height: 18px;}
 
 	</style>
 </head>
@@ -209,9 +218,9 @@ $cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' alig
 			<tr>
 				<td id='oss_mcontainer'>
 					<ul class='oss_tabs'>
-						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Rules")?></a></li>
-						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?=_("Syscheck")?></a></li>
-						<li id='litem_tab3'><a href="#tab3" id='link_tab3'><?=_("XML Source")?></a></li>
+						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?php echo _("Rules")?></a></li>
+						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?php echo _("Syscheck")?></a></li>
+						<li id='litem_tab3'><a href="#tab3" id='link_tab3'><?php echo ucfirst(basename($ossec_conf))?></a></li>
 					</ul>
 				</td>
 			</tr>

@@ -48,13 +48,7 @@ if ( @copy ($path , $path_tmp) == false )
 	exit();
 }
 
-$tab = POST('tab');
-
 if($tab == "#tab2")
-{
-	;
-}
-else if($tab == "#tab3")
 {
 	$data   = html_entity_decode(base64_decode($_POST['data']),ENT_QUOTES, "UTF-8");
 	$tab_ok = "1###<b>$agent_conf "._("updated sucessfully")."</b>";
@@ -62,7 +56,7 @@ else if($tab == "#tab3")
 else
 {
 	$no_action = true;
-	echo "2###"._("Error: Illegal actions");
+	echo "2###"._("Error: Illegal action");
 }
 
 if ($no_action == false)
@@ -93,13 +87,5 @@ if ($no_action == false)
 }
 
 @unlink($path_tmp);	
-
-
-	
-
-
-
-
-
 
 ?>

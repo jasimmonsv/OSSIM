@@ -75,170 +75,9 @@ if ( $result !== true )
 			
 		var editor = null;
 	</script>
+	
 	<script type="text/javascript">
-	
-	
-		function load_agent_tab(tab)
-		{
-			//Add Load img
-			if ($('#cnf_load').length < 1)
-			{
-				$(tab+" div").css('display', 'none');
-				var load ="<div id='cnf_load'>"+messages[2]+"</div>";
-				$(tab).append(load);
-			}
-															
-			//Remove error message
-									
-			if ($('#cnf_message').length >= 1)
-			{
-				$('#cnf_message').removeClass();
-				$('#cnf_message').html('<div id="cont_cnf_message"></div>');
-			}
-		
-				
-			$.ajax({
-				type: "POST",
-				url: "ajax/load_agent_tab.php",
-				data: "tab="+tab,
-				success: function(msg){
-															
-					//Remove load img
-					
-					if ( $('#cnf_load').length >= 1 )
-						$('#cnf_load').remove();
-						
-					var status = msg.split("###");
-					var txt    = null;
-					
-					switch( status[0] )
-					{
-						case "1":
-							if (tab == "#tab1")
-							{
-								
-								$(tab).html(status[1]);
-															
-								$('#show_agent').bind('click', function() { show_agent("cont_add_agent") });
-								$('#send').bind('click', function() { add_agent() });
-								
-								$("#agent_table tr[id^='cont_agent_']").each(function(index) {
-									
-									if (index % 2 == 0)
-										$(this).css("background-color", "#EEEEEE");
-								});
-								
-								$("#agent_table tr[id^='minfo_']").each(function(index) {
-									
-									if (index % 2 != 0)
-										$(this).css("background-color", "#EEEEEE");
-								});		
-											
-								$('.vfield').bind('blur', function() {
-									 validate_field($(this).attr("id"), "ajax/agent_actions.php");
-								});
-								
-								$('#agent_table .agent_actions a').bind('click', function() {
-									var id = $(this).attr("id");
-									get_action(id);
-								});
-								
-								$('#agent_table .agent_id').bind('click', function() {
-									var id = $(this).text();
-									var src  = $(this).find("img").attr("src");
-									var src1 = "../pixmaps/minus-small.png";
-									var src2 = "../pixmaps/plus-small.png";
-									if (src == src1)
-									{
-										$("#minfo_"+id).css('display', 'none');
-										$(this).find("img").attr("src", src2);
-									}
-									else
-									{
-										$("#minfo_"+id).css('display', '');
-										$(this).find("img").attr("src", src1);
-									}
-												
-								});
-								
-								$(tab).css('display', 'block');
-													
-							}
-							else if (tab == "#tab2")
-							{
-								$(tab).html(status[1]);	
-								
-								$(tab+" div").css('display', 'block');
-								$('textarea').elastic();
-								$('#table_sys_directories table').css('background', 'transparent');
-								$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
-								$('#table_sys_ignores table').css('background', 'transparent');
-								$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');
-							}
-							else if (tab == "#tab3")
-							{
-								if (editor == null)
-								{
-									editor = new CodeMirror(CodeMirror.replace("code"), {
-										parserfile: "parsexml.js",
-										stylesheet: "css/xmlcolors.css",
-										path: "codemirror/",
-										continuousScanning: 500,
-										content: status[1],
-										lineNumbers: true
-									});
-								}
-								else
-									editor.setCode(status[1]);
-								
-								$(tab+" div").css('display', 'block');
-							}
-							
-						break;
-						
-						case "2":
-							txt = "<div id='msg_init_error'><div class='oss_error'><div style='margin-left: 70px; text-align:center;'>"+status[1]+"</div></div></div>";
-							$(tab).html(txt);
-							$(tab+" div").css('display', 'block');
-						break;
-						
-						case "3":
-							
-							$('#cont_cnf_message').hide();
-							txt   = "<span style='font-weight: bold;'>"+messages[3]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[4]+"]</a><br/></span>";
-							txt  += "<div id='msg_errors'>"+status[2]+"</div>";
-								
-							$('#cont_cnf_message').append("<div id='parse_errors'></div>");
-							$('#parse_errors').addClass("oss_error");
-							$('#parse_errors').html(txt);
-							
-												
-							if (editor == null)
-							{
-								editor = new CodeMirror(CodeMirror.replace("code"), {
-									parserfile: "parsexml.js",
-									stylesheet: "css/xmlcolors.css",
-									path: "codemirror/",
-									continuousScanning: 500,
-									content: status[1],
-									lineNumbers: true
-								});
-							}
-							else
-								editor.setCode(status[1]);
-							
-							$(tab+" div").show();
-							$('#cont_cnf_message').show();
-
-							window.scroll(0,0);
-							setTimeout('$("#cont_cnf_message").fadeOut(4000);', 25000);	
-						
-						break;
-					}
-				}
-			});
-		}
-		
+			
 		$(document).ready(function() {
 			
 			var error = '<?php echo $error;?>';
@@ -259,24 +98,24 @@ if ( $result !== true )
 			}
 			else
 			{
-				$("ul.oss_tabs #litem_tab3").addClass("active");
-				$('#link_tab1,#link_tab2').addClass("dis_tab");
+				$("ul.oss_tabs #litem_tab2").addClass("active");
+				$('#link_tab1').addClass("dis_tab");
 				
-				$("#litem_tab3").click(function(event) { 
+				$("#litem_tab2").click(function(event) { 
 					event.preventDefault(); 
-					var tab = $("#litem_tab3");
+					var tab = $("#litem_tab2");
 					show_tab_content(tab);
-					load_agent_tab("#tab3");
+					load_agent_tab("#tab2");
 				});
 								
-				load_agent_tab("#tab3");
+				load_agent_tab("#tab2");
 				
-				var tab = $("#litem_tab3");
+				var tab = $("#litem_tab2");
 				show_tab_content(tab);
 			}
 			
 							
-			$('#send').bind('click', function()  { save_agent_tab(); });	
+			$('#send').bind('click', function()  { save_agent_conf(); });	
 		});
 				
 		
@@ -330,8 +169,7 @@ if ( $result !== true )
 			<td id='oss_mcontainer'>
 				<ul class='oss_tabs'>
 					<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?php echo _("Agent Control")?></a></li>
-					<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?php echo _("Config Agent")?></a></li>
-					<li id='litem_tab3'><a href="#tab3" id='link_tab3'><?php echo _("XML Source")?></a></li>
+					<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?php echo ucfirst(basename($agent_conf))?></a></li>
 				</ul>
 			</td>
 		</tr>
@@ -346,15 +184,12 @@ if ( $result !== true )
 				
 				<div id="tab1" class="tab_content"></div>
 					
-				<div id="tab2" class="tab_content" style='display:none;'></div>
-	
-				<div id="tab3" class="tab_content" style='display:none;'>
+				<div id="tab2" class="tab_content" style='display:none;'>
 					<div id='container_code'><textarea id="code"></textarea></div>
 					<div class='buttons_box'>
 						<div><input type='button' class='save' id='send' value='<?php echo _("Update")?>'/></div>				
 					</div>
 				</div>
-						
 			</td>
 		</tr>
 	

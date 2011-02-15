@@ -127,7 +127,7 @@ if ( !empty($agentless_list) && empty($info_error) )
 	
 	if ( !empty($agentless_xml) && empty($info_error) )
 	{
-		$conf_file   = file_get_contents($ossec_conf);
+		$conf_file   = @file_get_contents($ossec_conf);
 		$pattern     = '/\s*[\r?\n]+\s*/';
 		$conf_file   = preg_replace($pattern, "", $conf_file);
 		$copy_cf     = $conf_file;
@@ -155,8 +155,12 @@ if ( !empty($agentless_list) && empty($info_error) )
 			$copy_cf   = str_replace($pattern, $unique_id, $copy_cf);
 		}
 		else
-			$copy_cf  =  preg_replace("/<\/\s*ossec_config\s*>/", "$unique_id</ossec_config>", $copy_cf, 1);
-		
+		{
+			if ( preg_match("/<\s*ossec_config\s*>/", $copy_cf) )
+				$copy_cf = preg_replace("/<\/\s*ossec_config\s*>/", "$unique_id</ossec_config>", $copy_cf, 1);
+			else
+				$copy_cf = "<ossec_config>$unique_id</ossec_config>";
+		}
 						
 		$agentless_xml = implode("",$agentless_xml);
 		$copy_cf       = preg_replace("/$unique_id/", $agentless_xml, $copy_cf);

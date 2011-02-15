@@ -47,7 +47,6 @@ $rule = array ("@attributes"=> array($_level_key_name => "1"), "0" => array("rul
 
 if ( !empty($child) )
 {
-	$_level_key_name = $_SESSION['_level_key_name'];
 	$xml_obj         = new xml($_level_key_name);
 	$output          = $xml_obj->array2xml($rule);
 	

@@ -49,7 +49,7 @@ else
 	{
 		$file_xml = @file_get_contents ($filename, false);
 	  
-		if ($file_xml == false)
+		if ($file_xml === false)
 			echo "2";
 		else
 			echo $file_xml;

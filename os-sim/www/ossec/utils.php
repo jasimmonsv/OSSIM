@@ -726,7 +726,7 @@ function get_files($file, $num_files=0)
 		
 	while ( $element = readdir($dir) )
 	{
-		if ($element != "." && $element != ".." && preg_match("/\_rules.xml$/", $element))
+		if ($element != "." && $element != ".." && preg_match("/\-rules.xml$/", $element))
 			$rules[] = $element;
 	}
 
@@ -857,7 +857,8 @@ function get_nodes($tree, $node_name)
 	return $nodes;
 }
 
-//check if configuration files are OK
+//Check if configuration files are OK
+
 function test_conf()
 {
 	require_once("conf/_conf.php");
@@ -888,7 +889,8 @@ function test_conf()
 	
 }
 
-//check if agent.conf is OK
+//Check if agent.conf is OK
+
 function test_agents()
 {
 	require_once("conf/_conf.php");
@@ -908,13 +910,6 @@ function test_agents()
 	return $res;	
 	
 }
-
-
-
-
-
-
-
 
 
 ?>

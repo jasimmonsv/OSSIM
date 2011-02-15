@@ -48,7 +48,8 @@ function get_last_agent($agents)
 
 
 
-$error             = false;
+$error = false;
+
 $message_error     = array();
 $validation_errors = array();
 $agents            = array();
@@ -83,7 +84,7 @@ if ( GET('ajax_validation') == true )
 }
 else
 {
-	if ( !array_key_exists($action, $permitted_actions) ||  $permitted_actions[$action] != 1)
+	if ( !array_key_exists($action, $permitted_actions) || $permitted_actions[$action] != 1)
 	{
 		$error           = true;
 		$message_error[] = _("Invalid action");
@@ -307,5 +308,3 @@ else
 }
 
 ?>
-
-

@@ -40,8 +40,8 @@ require_once ('classes/Xml_parser.inc');
 $error     = false;
 $tab       = POST('tab');
 $conf_file = @file_get_contents($ossec_conf);
-	
-if ($conf_file == false)
+
+if ($conf_file === false)
 {
 	echo "2###"._("File")." <b>$ossec_conf</b> "._("not found or you don't have have permission to access");
 	exit();
@@ -146,10 +146,7 @@ if($tab == "#tab1")
 						
 			$no_added_rules  = array_diff($all_rules, $rules_enabled);	
 			
-			sort($rules_enabled);
-			sort($no_added_rules);
-			
-						
+									
 			echo "<tr><td style='padding: 0px 0px 10px 0px;'>";
 			echo "<span>(*) "._("You must restart Ossec for the changes to take effect")."</span><br/>";
 			echo "<span>(*) "._('Drag & Drop the file you want to add/remove or use [+] and [-] links')."</span>";
@@ -160,13 +157,13 @@ if($tab == "#tab1")
 				echo "<td style='padding: 3px 0px 20px 0px;'><form name='cnf_form_rules' id='cnf_form_rules' method='POST'><select id='rules_added' class='multiselect' multiple='multiple' name='rules_added[]'>";
 					foreach($rules_enabled as $k => $v)
 						echo "<option value='$v' selected='selected'>$v</option>";
-					
+						
 					foreach($no_added_rules as $k => $v)
-						echo "<option value='$v'>$v</option>";
+						echo "<option value='$v' >$v</option>";
 				echo "</select></form></td>";
 			echo "</tr>";
 			
-			echo "<tr><td><input type='button' class='button' id='send' value='"._('Send')."' onclick=\"save_config_tab();\"/></td></tr>";
+			echo "<tr><td><input type='button' class='button' id='send' value='"._('Update')."' onclick=\"save_config_tab();\"/></td></tr>";
 		
 		echo "</table></div>";
 		
@@ -185,8 +182,32 @@ else if ($tab == '#tab2')
 	$syscheck = get_nodes($array_oss_cnf, 'syscheck');
 	
 	$directories = get_nodes($syscheck, 'directories');
+	$wentries    = get_nodes($syscheck, 'windows_registry');
+	$reg_ignores = get_nodes($syscheck, 'registry_ignore');
 	$ignores     = get_nodes($syscheck, 'ignore');
-	$frequency   = get_nodes($syscheck, 'frequency');
+	
+	
+	$frequency       = get_nodes($syscheck, 'frequency');
+	$frequency       = $frequency[0][0];
+	
+	$scan_day        = get_nodes($syscheck, 'scan_day');
+	$scan_day        = $scan_day[0][0];
+	
+	
+	$scan_time       = get_nodes($syscheck, 'scan_time');
+	$scan_time       = $scan_time[0][0];
+	$st              = ( !empty($scan_time) ) ? explode(":", $scan_time) : array();
+	
+	$auto_ignore     = get_nodes($syscheck, 'auto_ignore');
+	$auto_ignore     = ( empty($auto_ignore[0][0]) ) ? "no" : $auto_ignore[0][0];
+	
+	$alert_new_files = get_nodes($syscheck, 'alert_new_files');
+	$alert_new_files = ( empty($alert_new_files[0][0]) ) ? "no" : $alert_new_files[0][0];
+	
+	$scan_on_start   = get_nodes($syscheck, 'scan_on_start');
+	$scan_on_start   = ( empty($scan_on_start[0][0]) ) ? "yes" : $scan_on_start[0][0];
+	
+
 	
 	$directory_checks = array(
 			"realtime"       => "Realtime",
@@ -200,6 +221,22 @@ else if ($tab == '#tab2')
 			"check_perm"     => "Chk perm"				
 	);
 	
+	$week_days = array(
+			""             => "-- Select a day --",
+			"monday"       => "Monday",
+			"tuesday"      => "Tuesday", 
+			"wednesday"    => "Wednesday", 
+			"thursday"     => "Thursday", 
+			"friday"       => "Friday", 
+			"saturday"     => "Saturday", 
+			"sunday"       => "Sunday"
+	);
+	
+	$yes_no = array(
+			"yes"     => "Yes",
+			"no"      => "No"
+	);
+	
 	echo "1###";
 			
 	?>
@@ -210,15 +247,166 @@ else if ($tab == '#tab2')
 			<div id='cont_tsp'>
 				<table id='table_sys_parameters'>
 					<tr>	
-						<th class='sys_frequency'><?php echo _("Frequency")?></th>
-						<td class='left'><input type='text' id='frequency' name='frequency' value='<?php echo $frequency[0][0]?>'/></td>
+						<th class='sys_parameter'><?php echo _("Frequency")?></th>
+						<td class='sys_value'><input type='text' id='frequency' name='frequency' value='<?php echo $frequency?>'/></td>
+						
+						<th class='sys_parameter'><?php echo _("Scan time")?></th>
+						<td class='sys_value'>
+							<input type='text' class='time' maxlength='2' id='scan_time_h' name='scan_time_h' value='<?php echo $st[0]?>'/>
+							<span style='margin: 0px 2px'>:</span>
+							<input type='text' class='time' maxlength='2' id='scan_time_m' name='scan_time_m' value='<?php echo $st[1]?>'/>
+						</td>
 					</tr>
+					
+					<tr>	
+						<th class='sys_parameter'><?php echo _("Scan_day")?></th>
+						<td class='sys_value'>
+							<select id='scan_day' name='scan_day' class='select_wd'>
+								<?php 
+									foreach ($week_days as $k => $v)
+									{
+										$selected = ( $k == $scan_day ) ? "selected='selected'" : "";
+										echo "<option value='$k' $selected>$v</option>";
+									}
+								?>
+							</select>
+						</td>
+						
+						<th class='sys_parameter'><?php echo _("Auto ignore")?></th>
+						<td class='sys_value'>
+							<select id='auto_ignore' name='auto_ignore' class='select_yn'>
+								<?php 
+									foreach ($yes_no as $k => $v)
+									{
+										$selected = ( $k == $auto_ignore ) ? "selected='selected'" : "";
+										echo "<option value='$k' $selected>$v</option>";
+									}
+								?>
+							</select>
+						</td>
+					</tr>
+					
+					<tr>	
+						<th class='sys_parameter'><?php echo _("Alert new files")?></th>
+						<td class='sys_value'>
+							<select id='alert_new_files' name='alert_new_files' class='select_yn'>
+								<?php 
+									foreach ($yes_no as $k => $v)
+									{
+										$selected = ( $k == $alert_new_files ) ? "selected='selected'" : "";
+										echo "<option value='$k' $selected>$v</option>";
+									}
+								?>
+							</select>
+						</td>
+						
+						<th class='sys_parameter'><?php echo _("Scan on start")?></th>
+						<td class='sys_value'>
+							<select id='scan_on_start' name='scan_on_start' class='select_yn'>
+								<?php 
+									foreach ($yes_no as $k => $v)
+									{
+										$selected = ( $k == $scan_on_start ) ? "selected='selected'" : "";
+										echo "<option value='$k' $selected>$v</option>";
+									}
+								?>
+							</select>
+						</td>
+					</tr>
+					
 					<tr>
-						<td class='right' colspan='2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></td>
+						<td class='right' colspan='4'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></td>
 					</tr>	
 				</table>
 			</div>
 		</div>
+		
+		<div class='cont_sys'>
+			<div class='headerpr'><?php echo _("Windows registry entries monitored (Windows system only)")?></div>
+		
+			<div>
+					
+				<table id='table_sys_wentries' width='100%'>
+					<thead>
+						<tr>	
+							<th class='sys_wentry'><?php echo _("Windows registry entry")?></th>
+							<th class='sys_actions'><?php echo _("Actions")?></th>
+						</tr>
+					</thead>	
+					
+					<tbody id='tbody_swe'>
+					<?php
+					
+					if ( empty($wentries) ) 
+					{
+						$k           = 0;
+						$wentries = array(array("@attributes" => null, "0"=> null));
+					}
+					
+					foreach ($wentries as $k => $v)
+					{
+						echo "<tr class='went_tr' id='went_$k'>";
+							echo "<td style='text-align: left;'><input class='sreg_ignore' name='".$k."_value_went' id='".$k."_value_went' value='".$wentries[$k][0]."'/></td>";
+							echo "<td>
+									<a onclick='delete_row(\"went_$k\", \"delete_wentry\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+									<a onclick='add_row(\"went_$k\", \"add_wentry\");'><img src='images/add.png' align='absmiddle'/></a>	
+								 </td>";
+						echo "</tr>";
+					}
+					
+						
+					?>
+					</tbody>
+				</table>
+			</div>
+				
+			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
+		</div>
+		
+		
+		<div class='cont_sys'>
+			<div class='headerpr'><?php echo _("Registry entries ignored")?></div>
+		
+			<div>
+					
+				<table id='table_sys_reg_ignores' width='100%'>
+					<thead>
+						<tr>	
+							<th class='sys_reg_ignores'><?php echo _("Registry entry ignored")?></th>
+							<th class='sys_actions'><?php echo _("Actions")?></th>
+						</tr>
+					</thead>
+					
+					<tbody id='tbody_sri'>
+					<?php
+					
+					if ( empty($reg_ignores) ) 
+					{
+						$k           = 0;
+						$reg_ignores = array(array("@attributes" => null, "0"=> null));
+					}
+					
+					foreach ($reg_ignores as $k => $v)
+					{
+						echo "<tr class='regi_tr' id='regi_$k'>";
+							echo "<td style='text-align: left;'><input class='sreg_ignore' name='".$k."_value_regi' id='".$k."_value_regi' value='".$reg_ignores[$k][0]."'/></td>";
+							echo "<td>
+									<a onclick='delete_row(\"regi_$k\", \"delete_reg_ignore\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+									<a onclick='add_row(\"regi_$k\", \"add_reg_ignore\");'><img src='images/add.png' align='absmiddle'/></a>	
+								 </td>";
+						echo "</tr>";
+					}
+					
+						
+					?>
+					</tbody>
+				</table>
+			</div>
+				
+			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
+		</div>
+		
+		
 			
 		<div class='cont_sys'>
 			<div class='headerpr'><?php echo _("Files/Directories monitored")?></div>
@@ -226,22 +414,24 @@ else if ($tab == '#tab2')
 			<div>
 					
 				<table id='table_sys_directories' width='100%'>
-					<tr>	
-						<th class='sys_dir'><?php echo _("Files/Directories")?></th>
-						<td class='sys_parameters'>
-							<table width='100%'>
-								<tr><th colspan='<?php echo count($directory_checks)?>'><?php echo _("Parameters")?></th></tr>
-								<tr>
-									<?php 
-										foreach ($directory_checks as $k => $v)
-											echo "<th style='padding: 1px; font-size: 10px; text-align:center; white-space:normal; width: 50px;'>$v</th>";
-									?>
-								</tr>
-							</table>
-						</td>
-						<th class='sys_actions'><?php echo _("Actions")?></th>
-					</tr>
-						
+						<thead>
+						<tr>	
+							<th class='sys_dir'><?php echo _("Files/Directories")?></th>
+							<td class='sys_parameters'>
+								<table width='100%'>
+									<tr><th colspan='<?php echo count($directory_checks)?>'><?php echo _("Parameters")?></th></tr>
+									<tr>
+										<?php 
+											foreach ($directory_checks as $k => $v)
+												echo "<th style='padding: 1px; font-size: 10px; text-align:center; white-space:normal; width: 50px;'>$v</th>";
+										?>
+									</tr>
+								</table>
+							</td>
+							<th class='sys_actions'><?php echo _("Actions")?></th>
+						</tr>
+					</thead>	
+					
 					<tbody id='tbody_sd'>
 					<?php
 					
@@ -267,8 +457,8 @@ else if ($tab == '#tab2')
 							echo "</tr>
 								  </table></td>";
 							echo "<td>
-									<a onclick='delete_dir(\"dir_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
-									<a onclick='add_dir(\"dir_$k\");'><img src='images/add.png' align='absmiddle'/></a>	
+									<a onclick='delete_row(\"dir_$k\", \"delete_directory\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+									<a onclick='add_row(\"dir_$k\", \"add_directory\");'><img src='images/add.png' align='absmiddle'/></a>	
 								 </td>";
 						echo "</tr>";
 					}
@@ -294,31 +484,33 @@ else if ($tab == '#tab2')
 			}
 			?>
 				<table id='table_sys_ignores' width='100%'>
-					<tr>	
-						<th class='sys_ignores'><?php echo _("Files/Directories")?></th>
-						<td class='sys_parameters'>
-							<table width='100%'>
-								<tr><th><?php echo _("Parameters")?></th></tr>
-								<tr>
-									<th style='font-size: 10px; text-align:center;'><?php echo _("Sregex")?></th>
-								</tr>
-							</table>
-						</td>
-						<th class='sys_actions'><?php echo _("Actions")?></th>
-					</tr>
+					<thead>
+						<tr>	
+							<th class='sys_ignores'><?php echo _("Files/Directories")?></th>
+							<td class='sys_parameters'>
+								<table width='100%'>
+									<tr><th><?php echo _("Parameters")?></th></tr>
+									<tr>
+										<th style='font-size: 10px; text-align:center;'><?php echo _("Sregex")?></th>
+									</tr>
+								</table>
+							</td>
+							<th class='sys_actions'><?php echo _("Actions")?></th>
+						</tr>
+					</thead>
 					
 					<tbody id='tbody_si'>
 					<?php
 													
 					foreach ($ignores as $k => $v)
 					{
-						echo "<tr class='dir_tr' id='ign_$k'>";
+						echo "<tr class='ign_tr' id='ign_$k'>";
 							echo "<td style='text-align: left;'><textarea name='".$k."_value_ign' id='".$k."_value_ign'>".$ignores[$k][0]."</textarea></td>";
 							$checked = ( !empty($ignores[$k]['@attributes']['type']) ) ? 'checked="checked"' : '';
 							echo "<td style='text-align: center;'><input type='checkbox' name='".$k."_type' id='".$k."_type' $checked/></td>";
 							echo "<td>
-									<a onclick='delete_ign(\"ign_$k\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
-									<a onclick='add_ign(\"ign_$k\");'><img src='images/add.png' align='absmiddle'/></a>
+									<a onclick='delete_row(\"ign_$k\", \"delete_ignore\");'><img src='../vulnmeter/images/delete.gif' align='absmiddle'/></a>
+									<a onclick='add_row(\"ign_$k\", \"add_ignore\");'><img src='images/add.png' align='absmiddle'/></a>
 							</td>";
 						echo "</tr>";
 					}

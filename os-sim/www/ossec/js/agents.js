@@ -244,17 +244,6 @@ function load_agent_tab(tab)
 					}
 					else if (tab == "#tab2")
 					{
-						$(tab).html(status[1]);	
-						
-						/*$(tab+" div").css('display', 'block');
-						$('textarea').elastic();
-						$('#table_sys_directories table').css('background', 'transparent');
-						$('#table_sys_directories .dir_tr:odd').css('background', '#EFEFEF');
-						$('#table_sys_ignores table').css('background', 'transparent');
-						$('#table_sys_ignores .dir_tr:odd').css('background', '#EFEFEF');*/
-					}
-					else if (tab == "#tab3")
-					{
 						if (editor == null)
 						{
 							editor = new CodeMirror(CodeMirror.replace("code"), {
@@ -330,7 +319,7 @@ function countdown(seconds)
 	}
 
 
-function save_agent_tab()
+function save_agent_conf()
 {
 	
 	var tab = $(".active a").attr("href");
@@ -353,23 +342,12 @@ function save_agent_tab()
 				
 	$('#cont_cnf_message').html("<div id='cnf_wait_save'></div>");
 	$('#cnf_wait_save').html(messages[1]);
-				
-	var data= "tab="+tab;
-	
-	switch(tab){
 			
-		case "#tab2":
-			data += "&"+ $('#form_syscheck').serialize();
-		break;
-		
-		case "#tab3":
-			data += "&"+"data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES'));
-		break;
-	}
-								
+	var data = "tab="+ tab + "&"+"data="+Base64.encode(htmlentities(editor.getCode(), 'HTML_ENTITIES'));
+									
 	$.ajax({
 		type: "POST",
-		url: "ajax/save_agent_tab.php",
+		url: "ajax/save_agent_conf.php",
 		data: data,
 		success: function(msg){
 													
