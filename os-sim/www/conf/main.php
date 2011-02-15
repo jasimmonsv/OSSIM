@@ -1257,7 +1257,7 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => gettext("The system will check once a day for updated packages, rules, directives, etc. No system information will be sent, it just gest a file with dates and update messages using wget.") ,
+                "help" => gettext("The system will check once a day for updated packages, rules, directives, etc. No system information will be sent, it just gets a file with dates and update messages using wget.") ,
                 "desc" => gettext("Enable auto update-checking") ,
                 "advanced" => 0
             ) ,

@@ -180,7 +180,7 @@ function getMouseXY(e) {
 function ticketon(i) { 
 	if (document.getElementById) {
 		pause = true;
-		if (getcontent('footer') != 'Stoped.') changecontent('footer','<?php echo _("Paused") ?>.')
+		if (getcontent('footer') != '<?php echo _("Stopped")?>.') changecontent('footer','<?php echo _("Paused") ?>.')
 		// generating detail info
 		var txt1 = '<table border=0 cellpadding=8 cellspacing=0 class="semiopaque"><tr><td class=nobborder style="line-height:18px" nowrap>'
 		txt1 = txt1 + 'Date: <b>' + edata[i][1] + '</b><br>'
@@ -214,7 +214,7 @@ function ticketoff() {
 		document.getElementById("numeroDiv").style.visibility = 'hidden'
 		document.getElementById("numeroDiv").style.display = 'none'
 		document.getElementById("numeroDiv").innerHTML = ''
-		if (getcontent('footer') != '<?php echo _("Stoped") ?>.') changecontent('footer','<?php echo _("Continue...waiting next refresh") ?>')
+		if (getcontent('footer') != '<?php echo _("Stopped") ?>.') changecontent('footer','<?php echo _("Continue...waiting next refresh") ?>')
 		pause = false;
 	}
 }
@@ -477,7 +477,7 @@ function play() {
 	refresh();
 	if (idr == null) idr = setInterval("refresh()",document.controls.speed.options[document.controls.speed.selectedIndex].value);
 }
-function stop() { clearInterval(idr); idr = null; changecontent('footer','<?php echo _("Stoped") ?>.') }
+function stop() { clearInterval(idr); idr = null; changecontent('footer','<?php echo _("Stopped") ?>.') }
 function reload() { stop(); play() }
 function pausecontinue() { if (idr==null) play(); else stop(); }
 function go() {

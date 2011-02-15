@@ -514,8 +514,8 @@ EOT;
     $txt_enabled
     <td style="padding-top:2px;"><a href="$ilink"><img alt="$itext" src="$isrc" border=0 title="$itext"></a>&nbsp;
 EOT;
-    echo "<a href='sched.php?disp=edit_sched&sched_id=$schedid&amp;hmenu=Vulnerabilities&amp;smenu=Jobs'><img src='images/pencil.png' title='".gettext("Edit Sheduled")."'></a>&nbsp;";
-    echo "<a href='manage_jobs.php?disp=delete&amp;schedid=$schedid' onclick='return confirmDelete();'><img src='images/delete.gif' title='".gettext("Delete Sheduled")."'></a></td>";
+    echo "<a href='sched.php?disp=edit_sched&sched_id=$schedid&amp;hmenu=Vulnerabilities&amp;smenu=Jobs'><img src='images/pencil.png' title='".gettext("Edit Scheduled")."'></a>&nbsp;";
+    echo "<a href='manage_jobs.php?disp=delete&amp;schedid=$schedid' onclick='return confirmDelete();'><img src='images/delete.gif' title='".gettext("Delete Scheduled")."'></a></td>";
        echo <<<EOT
 </tr>
 EOT;
@@ -584,7 +584,7 @@ $out = all_jobs(($page-1)*$pagesize,$pagesize);
                     <td bgcolor="#D1E7EF" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Running")?></td>
                 </tr>
                 <tr>
-                    <td bgcolor="#DFF7FF" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Sheduled")?></td>
+                    <td bgcolor="#DFF7FF" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Scheduled")?></td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFDF" style="border:1px solid #999999" width="25%"></td><td class="nobborder"  width="75%" style="text-align:left;padding-left:7px;"><?=_("Timeout")?></td>
