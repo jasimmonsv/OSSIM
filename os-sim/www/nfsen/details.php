@@ -651,7 +651,7 @@ function Process_Details_tab ($tab_changed, $profile_changed) {
 		if ( array_key_exists($_tmp, $OutputFormatOption)) {
 			SetMessage('error', _("Can not delete built in format")." '$_tmp'");
 		} else if ( !array_key_exists($_tmp, $_SESSION['formatlist'])) {
-			SetMessage('error', _("Unknon format")." '$_tmp'");
+			SetMessage('error', _("Unknown format")." '$_tmp'");
 		} else {
 			$cmd_opts['format'] = $_tmp;
 			$cmd_out =  nfsend_query("delete-format", $cmd_opts, 0);

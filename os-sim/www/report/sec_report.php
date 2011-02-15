@@ -600,7 +600,7 @@ function less_stable_services() {
     } else {
 ?>
         <h2><?=_("Top")?> <?php
-        echo "$NUM_HOSTS" ?> <?=_("less stabe services")?></h2>
+        echo "$NUM_HOSTS" ?> <?=_("less stable services")?></h2>
         <table align="center">
           <tr>
             <th> <?php
