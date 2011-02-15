@@ -35,7 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-Session::logcheck("MenuStatus", "ToolsUserLog");
+Session::logcheck("MenuConfiguration", "ToolsUserLog");
 
 require_once 'ossim_db.inc';
 require_once 'classes/Util.inc';

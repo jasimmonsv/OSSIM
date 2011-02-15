@@ -77,8 +77,8 @@ $granularity['MenuReports']['ReportsSecurityReport']['net'] = 0;
 $granularity['MenuReports']['ReportsPDFReport']['sensor'] = 1;
 $granularity['MenuReports']['ReportsPDFReport']['net'] = 0;
 
-$granularity['MenuStatus']['ToolsUserLog']['sensor'] = 0;
-$granularity['MenuStatus']['ToolsUserLog']['net'] = 0;
+$granularity['MenuConfiguration']['ToolsUserLog']['sensor'] = 0;
+$granularity['MenuConfiguration']['ToolsUserLog']['net'] = 0;
 
 $granularity['MenuPolicy']['ReportsOCSInventory']['sensor'] = 1;
 $granularity['MenuPolicy']['ReportsOCSInventory']['net'] = 1;
@@ -119,8 +119,8 @@ $granularity['MenuMonitors']['MonitorsAvailability']['net'] = 0;
 $granularity['MenuMonitors']['MonitorsNetflows']['sensor'] = 0;
 $granularity['MenuMonitors']['MonitorsNetflows']['net'] = 0;
 
-$granularity['MenuStatus']['MonitorsSensors']['sensor'] = 1;
-$granularity['MenuStatus']['MonitorsSensors']['net'] = 0;
+$granularity['MenuConfiguration']['MonitorsSensors']['sensor'] = 1;
+$granularity['MenuConfiguration']['MonitorsSensors']['net'] = 0;
 
 $granularity['MenuIntelligence']['CorrelationDirectives']['sensor'] = 0;
 $granularity['MenuIntelligence']['CorrelationDirectives']['net'] = 0;
