@@ -101,20 +101,21 @@ do
 done
 
 update_last_hours
+YY=/`date +%Y`
 
-for b in `find . -mindepth 3 -maxdepth 3 -type d|grep /`date +%Y`|tr "\n" " "`
+for b in `find . -mindepth 3 -maxdepth 3 -type d|grep "$YY"|tr "\n" " "`
 do
 	echo "33333333333"
 	reverse_acum $b
 done
 
-for c in `find . -mindepth 2 -maxdepth 2 -type d|grep -v searches|grep /`date +%Y`|tr "\n" " "`
+for c in `find . -mindepth 2 -maxdepth 2 -type d|grep -v searches|grep "$YY"|tr "\n" " "`
 do
 	echo "222222222222"
 	reverse_acum $c
 done
 
-for d in `find . -mindepth 1 -maxdepth 1 -type d|grep -v searches|grep /`date +%Y`|tr "\n" " "`
+for d in `find . -mindepth 1 -maxdepth 1 -type d|grep -v searches|grep "$YY"|tr "\n" " "`
 do
 	echo "111111111111"
 	reverse_acum $d
