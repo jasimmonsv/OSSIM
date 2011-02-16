@@ -225,7 +225,7 @@ $size = $#iput + 1;
 
 while ($i < $size) {
     $line = $iput[$i];
-    if ($line =~ /^#/) { $i++; next; }
+    if ($line =~ /^#/) { print OPUT "$line"; $i++; next; }
  
     chop($line);
     $msgid = '';
@@ -310,6 +310,8 @@ while ($i < $size) {
         $msgstr =~ s/ " /\\"/g;
         $msgstr =~ s/&quot;/"/g;
     #   $msgstr =~ s/\\u//g;
+    
+        print OPUT "#Translated by Google API\n";
         }
 
     if($debug){
