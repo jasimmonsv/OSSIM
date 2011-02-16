@@ -239,12 +239,11 @@ else if ($tab == '#tab2')
 							</select>
 						</td>
 					</tr>
-					
-					<tr>
-						<td class='right' colspan='4'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></td>
-					</tr>	
 				</table>
 			</div>
+			
+			<div class='cont_savet2'><input type='button' class='button' id='send' value='<?php echo _("Update")?>' onclick="save_config_tab();"/></div>
+			
 		</div>
 		
 		<div class='cont_sys'>

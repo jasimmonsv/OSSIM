@@ -131,6 +131,7 @@ $db->close($conn);
             url = links[neighbor.pointIndex];
             if (typeof(url)!='undefined' && url!='') top.frames['main'].location.href = url;
         }
+		var isShowing = -1;
 		function myMoveHandler(ev, gridpos, datapos, neighbor, plot) {
 			if (neighbor == null) {
 	            $('#myToolTip').hide().empty();

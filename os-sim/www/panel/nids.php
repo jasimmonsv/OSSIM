@@ -102,7 +102,7 @@ $db->close($conn2);
 	  <link rel="stylesheet" type="text/css" href="../js/jqplot/jquery.jqplot.css" />
 		
 	  <!-- BEGIN: load jquery -->
-	  <script language="javascript" type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	  <script language="javascript" type="text/javascript" src="../js/jqplot/jquery-1.4.2.min.js"></script>
 	  <!-- END: load jquery -->
 	  
 	  <!-- BEGIN: load jqplot -->
@@ -130,7 +130,7 @@ $db->close($conn2);
     
 	<script class="code" type="text/javascript">
 	
-		var links = [<?=$urls?>];
+		var links  = [<?=$urls?>];
 		var links1 = [<?=$urls1?>];
 		var links2 = [<?=$urls2?>];
 		var links3 = [<?=$urls3?>];
@@ -171,11 +171,19 @@ $db->close($conn2);
 			
 			s1 = [<?=$values?>];
 			
+						
 			plot = $.jqplot('chart', [s1], {
 			    legend:{show:false},
-			    series:[
-			        { pointLabels:{ show: false }, renderer:$.jqplot.BarRenderer }, 
-			    ],                                    
+			    
+				seriesDefaults:{
+			        renderer:$.jqplot.BarRenderer
+			    },  
+				
+				series:[
+					{pointLabels:{show:false}}
+				],
+
+									
 			    grid: { background: '#F5F5F5', shadow: false },
 			    seriesColors: [ "#B5CF81" ],
 				axesDefaults: {
@@ -200,7 +208,7 @@ $db->close($conn2);
 				grid: {
 					drawBorder: false, 
 					drawGridlines: false,
-					background: 'transparent',
+					background: 'rgba(255, 255, 255, 0)',
 					shadow:false
 				},
 				seriesColors: [ "#FFD0BF","#FFBFBF","#FF9F9F","#F08080","#FF6347","#FF4500","#FF0000","#DC143C","#B22222","#7F1717" ],
@@ -275,70 +283,77 @@ $db->close($conn2);
 
     
   </head>
-	<body style="overflow-y:scroll">
+	<body style="overflow-y:hidden;">
 	<?php include("../hmenu.php"); ?>
 		
 	<br/>
 	
 	<table border="0" cellpadding="0" cellspacing="0" align="center" class="noborder" style="background:transparent">
-	<tr>
-	<td valign="top" class="noborder">
-
-		<table border="0" cellpadding="0" cellspacing="2" align="center">
-		<tr><th style="font-size:12px"><?=_("Top 10 NIDS Events")?></th></tr>
 		<tr>
-			<td style="width:470px;padding:10px" class="noborder">
-				<div id="chart" style="width:100%; height:260px;"></div>
-			</td>			
+			<td valign="top" class="noborder">
+
+				<table border="0" cellpadding="0" cellspacing="2" align="center">
+					<tr><th style="font-size:12px"><?=_("Top 10 NIDS Events")?></th></tr>
+					<tr>
+						<td style="width:470px;padding:10px" class="noborder">
+							<div id="chart" style="width:100%; height:260px;"></div>
+						</td>			
+					</tr>
+				</table>
+
+			</td>
+			
+			<td width="20" class="noborder"></td>
+			
+			<td valign="top" class="noborder">
+				<table border="0" cellpadding="0" cellspacing="2" align="center">
+					<tr><th style="font-size:12px"><?=_("Top 10 NIDS Event Categories")?></th></tr>
+					<tr>
+						<td style="width:470px;padding:10px" class="noborder">
+							<div id="chart1" style="width:100%; height:260px;"></div>
+						</td>			
+					</tr>
+				</table>
+			</td>
 		</tr>
-		</table>
-
-	</td>
-	<td width="20" class="noborder"></td>
-	<td valign="top" class="noborder">
-
-		<table border="0" cellpadding="0" cellspacing="2" align="center">
-		<tr><th style="font-size:12px"><?=_("Top 10 NIDS Event Categories")?></th></tr>
+	
+		<tr><td height="20" colspan="3" class="noborder"></td></tr>
+	
 		<tr>
-			<td style="width:470px;padding:10px" class="noborder">
-				<div id="chart1" style="width:100%; height:260px;"></div>
-			</td>			
-		</tr>
-		</table>
+			<td valign="top" class="noborder">
+				<table border="0" cellpadding="0" cellspacing="2" align="center">
+					<tr><th style="font-size:12px"><?=_("Top 10 NIDS Sources")?></th></tr>
+					<tr>
+						<td style="width:470px;padding:10px" class="noborder">
+							<div id="chart2" style="width:100%; height:260px;"></div>
+						</td>			
+					</tr>
+				</table>
 
-	</td>
-	</tr>
-	<tr><td height="20" colspan="3" class="noborder"></td></tr>
-	<tr>
-	<td valign="top" class="noborder">
+			</td>
+			
+			<td width="20" class="noborder"></td>
+			
+			<td valign="top" class="noborder">
 
-		<table border="0" cellpadding="0" cellspacing="2" align="center">
-		<tr><th style="font-size:12px"><?=_("Top 10 NIDS Sources")?></th></tr>
+				<table border="0" cellpadding="0" cellspacing="2" align="center">
+					<tr><th style="font-size:12px"><?=_("Top 10 NIDS Destinations")?></th></tr>
+					<tr>
+						<td style="width:470px;padding:10px" class="noborder">
+							<div id="chart3" style="width:100%; height:260px;"></div>
+						</td>			
+					</tr>
+				</table>
+
+			</td>
+		</tr>	
+	
 		<tr>
-			<td style="width:470px;padding:10px" class="noborder">
-				<div id="chart2" style="width:100%; height:260px;"></div>
-			</td>			
+			<td colspan="3" class="noborder" align="center">
+				<br><a href="../forensics/base_stat_alerts_graph.php?sort_order=occur_d&plugin=1001,1002,1003,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123,1124,1125,1126,1128,1129,1130,1131&hmenu=Forensics&smenu=Forensics"><b><i>Go to NIDS Console</i></b></a>
+			</td>
 		</tr>
-		</table>
-
-	</td>
-	<td width="20" class="noborder"></td>
-	<td valign="top" class="noborder">
-
-		<table border="0" cellpadding="0" cellspacing="2" align="center">
-		<tr><th style="font-size:12px"><?=_("Top 10 NIDS Destinations")?></th></tr>
-		<tr>
-			<td style="width:470px;padding:10px" class="noborder">
-				<div id="chart3" style="width:100%; height:260px;"></div>
-			</td>			
-		</tr>
-		</table>
-
-	</td>
-	</tr>	
-	<tr><td colspan="3" class="noborder" align="center">
-		<br><a href="../forensics/base_stat_alerts_graph.php?sort_order=occur_d&plugin=1001,1002,1003,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123,1124,1125,1126,1128,1129,1130,1131&hmenu=Forensics&smenu=Forensics"><b><i>Go to NIDS Console</i></b></a>
-	</td></tr>
+	
 	</table>
 		
 	</body>

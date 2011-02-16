@@ -224,23 +224,25 @@ $db->close($conn);
     
 	<script class="code" type="text/javascript">
 	
-		var links = [<?=$urls?>];
+		var links     = [<?=$urls?>];
+		var isShowing = -1;
 
 		function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
             //mouseX = ev.pageX; mouseY = ev.pageY;
             url = links[neighbor.pointIndex];
             if (typeof(url)!='undefined' && url!='') top.frames['main'].location.href = url;
         }
-        var isShowing = -1;
+        
+				
 		function myMoveHandler(ev, gridpos, datapos, neighbor, plot) {
 			if (neighbor == null) {
 	            $('#myToolTip').hide().empty();
 	            isShowing = -1;
 	        }
 	        if (neighbor != null) {
-	        	if (neighbor.pointIndex!=isShowing) {
+	        	if ( neighbor.pointIndex != isShowing ) {
 	            	$('#myToolTip').html(neighbor.data[0]).css({left:gridpos.x, top:gridpos.y-5}).show();
-	            	isShowing = neighbor.pointIndex
+	            	isShowing = neighbor.pointIndex;
 	            }
 	        }
         }
@@ -257,7 +259,7 @@ $db->close($conn);
 				grid: {
 					drawBorder: false, 
 					drawGridlines: false,
-					background: 'transparent',
+					background: 'rgba(255, 255, 255, 0)',
 					shadow:false
 				},
 				<? if ($colors!="") { ?>seriesColors: [ <?=$colors?> ], <? } ?>
