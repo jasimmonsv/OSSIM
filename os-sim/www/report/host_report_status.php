@@ -160,7 +160,7 @@ if($date_range!=null){
 //
 
 $date_from_week = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 7));
-$limit = 5;
+$limit = 6;
 if($host!='any'){
 	list($sim_foundrows,$sim_highrisk,$sim_risknum,$sim_date) = Status::get_SIM_Resume($host,$host,$date_from,$date_to);
 }else{
