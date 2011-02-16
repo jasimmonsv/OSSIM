@@ -169,6 +169,9 @@ elseif (POST("insert"))
 		ossim_set_lang($language);
 		$langchanged = 1;
 	}
+	if ($user == Session::get_session_user() && $_SESSION['_timezone'] != $tzone) {
+		$_SESSION['_timezone'] = $tzone;
+	}
     
 	// PASSWORD
 	if (POST("pass1") && POST("pass2"))
