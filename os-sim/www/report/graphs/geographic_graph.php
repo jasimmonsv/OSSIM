@@ -40,7 +40,11 @@ require_once 'classes/Util.inc';
 
 //Session::logcheck("MenuReports", "ReportsSecurityReport");
 Session::logcheck("MenuEvents", "EventsForensics");
-$ips = $_SESSION["geoips"];
+
+$shared = new DBA_shared(GET('shared'));
+$ips = $shared->get("geoips");
+if (!is_array($ips)) $ips = array();
+
 $data_pie = array();
 $legend = $data = array();
 foreach($ips as $country => $val) {

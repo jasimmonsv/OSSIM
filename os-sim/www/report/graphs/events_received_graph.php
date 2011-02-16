@@ -35,6 +35,7 @@
 * Classes list:
 */
 require_once 'classes/SecurityReport.inc';
+require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
 require_once 'classes/Util.inc';
 
@@ -60,12 +61,15 @@ if (empty($type)) {
     $type = "event";
 }
 $security_report = new SecurityReport();
-if ($type == "event" && is_array($_SESSION["SS_TopEvents$runorder"]) && count($_SESSION["SS_TopEvents$runorder"])>0)
-	$list = $_SESSION["SS_TopEvents$runorder"];
-elseif ($type == "alarm" && is_array($_SESSION["SA_TopAlarms$runorder"]) && count($_SESSION["SA_TopAlarms$runorder"])>0)
-	$list = $_SESSION["SA_TopAlarms$runorder"];
-else
-	$list = $security_report->Events($limit, $type, $date_from, $date_to);
+$shared = new DBA_shared(GET('shared'));
+$SS_TopEvents = $shared->get("SS_TopEvents$runorder");
+$SA_TopAlarms = $shared->get("SA_TopAlarms$runorder");
+if ($type == "event" && is_array($SS_TopEvents) && count($SS_TopEvents)>0)
+	$list = $SS_TopEvents;
+elseif ($type == "alarm" && is_array($SA_TopAlarms) && count($SA_TopAlarms)>0)
+	$list = $SA_TopAlarms;
+else $list = array();
+	//$list = $security_report->Events($limit, $type, $date_from, $date_to);
 $data_pie = array();
 $legend = $data = array();
 foreach($list as $key => $l) {

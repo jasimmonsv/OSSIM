@@ -35,6 +35,7 @@
 * Classes list:
 */
 require_once 'classes/SecurityReport.inc';
+require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
 //Session::logcheck("MenuReports", "ReportsSecurityReport");
 Session::logcheck("MenuIncidents", "ReportsAlarmReport");
@@ -85,10 +86,14 @@ if (!strcmp($target, "ip_src") || !strcmp($target, "src_ip")) {
     //$color2 = "lightred";
     $titlecolor = "darkred";
 }
-if ($type == "event" && is_array($_SESSION["SS_Attack".$sufix."Host$runorder"]) && count($_SESSION["SS_Attack".$sufix."Host$runorder"])>0)
-	$list = $_SESSION["SS_Attack".$sufix."Host$runorder"];
-elseif ($type == "alarm" && is_array($_SESSION["SA_Attack".$sufix."Host$runorder"]) && count($_SESSION["SA_Attack".$sufix."Host$runorder"])>0)
-	$list = $_SESSION["SA_Attack".$sufix."Host$runorder"];
+$shared = new DBA_shared(GET('shared'));
+$SS_Attack = $shared->get("SS_Attack".$sufix."Host$runorder");
+$SA_Attack = $shared->get("SA_Attack".$sufix."Host$runorder");
+
+if ($type == "event" && is_array($SS_Attack) && count($SS_Attack)>0)
+	$list = $SS_Attack;
+elseif ($type == "alarm" && is_array($SA_Attack) && count($SA_Attack)>0)
+	$list = $SA_Attack;
 else
 	$list = $security_report->AttackHost($security_report->ossim_conn, $target, $limit, $type, $date_from, $date_to);
 $datax = $datay = array();

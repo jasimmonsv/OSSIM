@@ -10,11 +10,13 @@ include ("$jpgraph/jpgraph_line.php");
 include ("$jpgraph/jpgraph_scatter.php");
 
 
-$geo_year=$_GET["year"];
-$geo_month=$_GET["month"];
-$user=$_GET["user"];
+$geo_year=GET("year");
+$geo_month=GET("month");
+$user=GET("user");
 
-$ips = $_SESSION["geoips"];
+$shared = new DBA_shared(GET('shared'));
+$ips = $shared->get("geoips");
+if (!is_array($ips)) $ips = array();
 
 #Resolution de la database:
 $xdb=620;

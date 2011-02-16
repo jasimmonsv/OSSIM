@@ -35,6 +35,7 @@
 * Classes list:
 */
 require_once 'classes/SecurityReport.inc';
+require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
 //Session::logcheck("MenuReports", "ReportsSecurityReport");
 Session::logcheck("MenuIncidents", "ReportsAlarmReport");
@@ -65,10 +66,13 @@ if (empty($type)) {
     $type = "event";
 }
 $security_report = new SecurityReport();
-if ($type == "event" && is_array($_SESSION["SS_UsedPorts$runorder"]) && count($_SESSION["SS_UsedPorts$runorder"])>0)
-	$list = $_SESSION["SS_UsedPorts$runorder"];
-elseif ($type == "alarm" && is_array($_SESSION["SA_UsedPorts$runorder"]) && count($_SESSION["SA_UsedPorts$runorder"])>0)
-	$list = $_SESSION["SA_UsedPorts$runorder"];
+$shared = new DBA_shared(GET('shared'));
+$SS_UsedPorts = $shared->get("SS_UsedPorts$runorder");
+$SA_UsedPorts = $shared->get("SA_UsedPorts$runorder");
+if ($type == "event" && is_array($SS_UsedPorts) && count($SS_UsedPorts)>0)
+	$list = $SS_UsedPorts;
+elseif ($type == "alarm" && is_array($SA_UsedPorts) && count($SA_UsedPorts)>0)
+	$list = $SA_UsedPorts;
 else
 	$list = $security_report->Ports($limit, $type, $date_from, $date_to);
 $datax = $datay = array();
