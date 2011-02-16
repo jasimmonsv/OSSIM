@@ -70,12 +70,6 @@ if ( file_exists( $filename) )
 			$xml_obj=new xml($_level_key_name);
 			$xml_obj->load_file($filename);
 											
-			/*if ($xml_obj->errors['status'] == false)
-			{
-				$error = true;
-				$info = "<div>"._("Format not allowed:")."</div><div class='errors_xml'>".implode("", $xml_obj->errors['msg'])."</div>";
-			}*/
-			
 			$array_xml=$xml_obj->xml2array();
 							
 			$tree_json = array2json($array_xml, $filename);
@@ -110,7 +104,7 @@ else
 	<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-	<script type='text/javascript' src='codemirror/codemirror.js' ></script>
+	<script type='text/javascript' src='../js/codemirror/codemirror.js' ></script>
 	
 	<!-- Dynatree libraries: -->
 	<script type="text/javascript" src="../js/jquery-ui-1.8.custom.min.js"></script>

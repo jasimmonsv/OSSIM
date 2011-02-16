@@ -53,14 +53,7 @@ $tab = POST('tab');
 
 if($tab == "#tab1")
 {
-	$rules_enabled  = $disabled_rules = $xml_rules = array();
-	
-	$rules          = $_SESSION['_cnf_rules'];
-	$rules_enabled  = POST('rules_added');
-	
-	$all_rules      = get_files ($rules_file);
-	$disabled_rules = array_diff($all_rules, $rules_enabled);
-	
+		
 	$conf_file 		= file_get_contents($ossec_conf);
 	
 	if ($conf_file === false)
@@ -70,70 +63,179 @@ if($tab == "#tab1")
 		@unlink ($path);
 		@copy ($path_tmp, $path);
 		exit();
-	}
-	
-	
-	$conf_file      = formatXmlString($conf_file);
-	$pattern   		= '/[\r?\n]+\s*/';
-	$conf_file      = preg_replace($pattern, "\n", $conf_file);
-	$conf_file      = explode("\n", trim($conf_file));
-	$copy_cf        = $conf_file;
-	
-	
-	foreach ($rules_enabled as $k => $v)
-		$xml_rules[] = "<include>".$v."</include>"; 
-				
-	foreach ($disabled_rules as $k => $v)
-		$xml_rules[] = "<!-- <include>".$v."</include> -->"; 
+	}	
 		
+		
+	$rules_order = array(
+		"rules_config.xml" 			 => "1",
+		"apache_rules.xml" 			 => "2",
+		"arpwatch_rules.xml" 	     => "3",
+		"asterisk_rules.xml" 		 => "4",
+		"cimserver_rules.xml" 		 => "5",
+		"cisco-ios_rules.xml" 		 => "6",
+		"courier_rules.xml" 		 => "7",
+		"dovecot_rules.xml" 		 => "8",
+		"firewall_rules.xml" 		 => "9",
+		"ftpd_rules.xml" 			 => "10",
+		"hordeimp_rules.xml" 		 => "11",
+		"ids_rules.xml" 			 => "12",
+		"imapd_rules.xml" 			 => "13",
+		"mailscanner_rules.xml" 	 => "14",
+		"ms-exchange_rules.xml" 	 => "15",
+		"ms-se_rules.xml" 			 => "16",
+		"ms_dhcp_rules.xml" 		 => "17",
+		"ms_ftpd_rules.xml" 		 => "18",
+		"msauth_rules.xml" 			 => "19",
+		"mysql_rules.xml" 			 => "20",
+		"named_rules.xml" 			 => "21",
+		"netscreenfw_rules.xml" 	 => "22",
+		"nginx_rules.xml" 			 => "23",
+		"ossec_rules.xml"			 => "24",
+		"pam_rules.xml" 			 => "25",
+		"php_rules.xml" 			 => "26",
+		"pix_rules.xml" 			 => "27",
+		"policy_rules.xml" 			 => "28",
+		"postfix_rules.xml" 		 => "29",
+		"postgresql_rules.xml" 		 => "30",
+		"proftpd_rules.xml" 		 => "31",
+		"pure-ftpd_rules.xml" 		 => "32",
+		"racoon_rules.xml" 			 => "33",
+		"roundcube_rules.xml" 		 => "34",
+		"sendmail_rules.xml" 		 => "35",
+		"smbd_rules.xml" 			 => "36",
+		"solaris_bsm_rules.xml"		 => "37",
+		"sonicwall_rules.xml" 		 => "38",
+		"spamd_rules.xml" 			 => "39",
+		"squid_rules.xml" 			 => "40",
+		"sshd_rules.xml" 			 => "41",
+		"symantec-av_rules.xml" 	 => "42",
+		"symantec-ws_rules.xml" 	 => "43",
+		"syslog_rules.xml" 			 => "44",
+		"telnetd_rules.xml" 		 => "45",
+		"trend-osce_rules.xml" 		 => "46",
+		"vmpop3d_rules.xml" 		 => "47",
+		"vmware_rules.xml"           => "48",
+		"vpn_concentrator_rules.xml" => "49",
+		"vpopmail_rules.xml"         => "50",
+		"vsftpd_rules.xml" 			 => "51",
+		"web_rules.xml" 			 => "52",
+		"wordpress_rules.xml" 		 => "53",
+		"zeus_rules.xml" 			 => "54",
+		"mcafee_av_rules.xml" 		 => "55",
+		"attack_rules.xml" 			 => "56",
+		"local_rules.xml" 			 => "57"
+	);
 	
-	if ( !empty($rules) )
+	$rules_enabled  = $xml_rules = array();
+	$all_rules      = get_files ($rules_file);
+		
+	$xml_rules      = array_fill(0, count($rules_order), null);
+	$xml_rules[0]   = "<rules>";
+	$rules_enabled  = POST('rules_added');
+	
+	$index_ne       = count($rules_order);
+	
+	foreach ($all_rules as $k => $v)
 	{
-		if ( count($rules)> 1 )
+		if ( in_array($v, $rules_enabled) )
 		{
-			for ($i=1; $i<count($rules); $i++)
+			if( array_key_exists($v, $rules_order) )
+				$xml_rules[$rules_order[$v]] = "<include>$v</include>";
+			else
 			{
-				for ($j=$rules[$i]['start']; $j <=$rules[$i]['end']; $j++)
-					unset($conf_file[$j]);
+				$xml_rules[$index_ne] = "<include>$v</include>";
+				$index_ne++;
 			}
 		}
+		else
+		{
+			if( array_key_exists($v, $rules_order) )
+				$xml_rules[$rules_order[$v]] = "<!--<include>$v</include>-->";
+			else
+			{
+				$xml_rules[$index_ne] = "<!--<include>$v</include>-->";
+				$index_ne++;
+			}
 		
-		$aux_1     = array_slice($conf_file, 0, $rules[0]['start']+1);
-		$aux_2     = array_slice($conf_file, $rules[0]['end']);
-		$conf_file = array_merge($aux_1, $xml_rules, $aux_2);
+		}
+	}
+	
+	if ( count($xml_rules) > 57 )
+	{
+		$local_rules = $xml_rules[57];
+		$xml_rules[] = $local_rules;
+		unset($xml_rules[57]);
+	}
+	
+	exec("egrep \"<[[:space:]]*rule[[:space:]]*>.*<[[:space:]]*/[[:space:]]*rule[[:space:]]*>\" $ossec_conf", $rule_xml);
+	exec("egrep \"<[[:space:]]*rule_dir[[:space:]]*>.*<[[:space:]]*/[[:space:]]*rule_dir[[:space:]]*>\" $ossec_conf", $rule_dir_xml);
+	exec("egrep \"<[[:space:]]*decode[[:space:]]*>.*<[[:space:]]*/[[:space:]]*decode[[:space:]]*>\" $ossec_conf", $decode_xml);
+	exec("egrep \"<[[:space:]]*decode_dir[[:space:]]*>.*<[[:space:]]*/[[:space:]]*decode_dir[[:space:]]*>\" $ossec_conf", $decode_dir_xml);
+	
+	if (is_array($rule_xml) && !empty($rule_xml))
+	{
+		foreach ($rule_xml as $k => $v)
+			$xml_rules[] = trim($v);
+	}
+	
+	if (is_array($rule_dir_xml) && !empty($rule_dir_xml))
+	{
+		foreach ($rule_dir_xml as $k => $v)
+			$xml_rules[] = trim($v);
+	}
+	
+	if (is_array($decode_xml) && !empty($decode_xml))
+	{
+		foreach ($decode_xml as $k => $v)
+			$xml_rules[] = trim($v);
+	}
 		
+	if (is_array($decode_dir_xml) && !empty($decode_dir_xml))
+	{
+		foreach ($decode_dir_xml as $k => $v)
+			$xml_rules[] = trim($v);
+	}
+	
+	$xml_rules[] = "</rules>";
+	
+	
+	$pattern     = '/\s*[\r?\n]+\s*/';
+	$conf_file   = preg_replace($pattern, "", $conf_file);
+	$copy_cf     = $conf_file;
+	
+	$pattern     = array('/<\/\s*rules\s*>/');
+	$replacement = array("</rules>\n");
+	$conf_file   = preg_replace($pattern, $replacement, $conf_file);
+	
+	
+	preg_match_all('/<\s*rules\s*>.*<\/rules>/', $conf_file, $match);
+	
+	$size_m    = count($match[0]);
+	$unique_id = uniqid();
+	
+	if ($size_m > 0)
+	{
+		for ($i=0; $i<$size_m-1; $i++)
+		{
+			$pattern = trim($match[0][$i]);
+			$copy_cf = str_replace($pattern, "", $copy_cf);
+		}
+		
+		$pattern = trim($match[0][$size_m-1]);
+		$copy_cf = str_replace($pattern, $unique_id, $copy_cf);
 	}
 	else
 	{
-		$xml_rules = array_merge(array("<rules>"), $xml_rules, array("</rules>"));
-		
-		$size  = count($conf_file);
-		$found = false;
-						
-		for ($i=$size-1; $i>0; $i--)
-		{
-			if ( preg_match("/<\s*ossec_config\s*>/", $conf_file[$i]) )
-			{
-				unset($conf_file[$i]);
-				$aux       = array_slice($copy_cf, $i);
-				$conf_file = array_merge($conf_file, $xml_rules, $aux);
-				$found     = true;
-				break;
-			}
-			else
-				unset($conf_file[$i]);
-		}
-		
-		if ($found == false)
-			$conf_file = array_merge(array("<ossec_config>"), $xml_rules, array("</ossec_config>"));
+		if ( preg_match("/<\s*ossec_config\s*>/", $copy_cf) )
+			$copy_cf = preg_replace("/<\/\s*ossec_config\s*>/", "$unique_id</ossec_config>", $copy_cf, 1);
+		else
+			$copy_cf = "<ossec_config>$unique_id</ossec_config>";
 	}
-		
 	
+	$copy_cf = preg_replace("/$unique_id/", implode("", $xml_rules), $copy_cf);
+	$output  = formatXmlString($copy_cf);
 	
-	$conf_file_str = implode("\n", $conf_file);
-	$output        = formatXmlString($conf_file_str);
-	
-	$tab_ok        = "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
+	$tab_ok  = "1###<b>$ossec_conf "._("updated sucessfully")."</b>";
 		
 }
 else if($tab == "#tab2")
@@ -149,9 +251,19 @@ else if($tab == "#tab2")
 		
 	unset($_POST['tab']);
 	
+	$conf_file = file_get_contents($ossec_conf);
+	
+	if ($conf_file === false)
+	{
+		$info_error	= "<div style='text-align:left; padding-left: 60px;'>"._("Failure to read")." <strong>$ossec_conf</strong></div>";
+		echo "2###".$info_error;
+		@unlink ($path);
+		@copy ($path_tmp, $path);
+		exit();
+	}
+	
 	$node_sys  = "<syscheck>";
-	
-	
+		
 	$parameters ['frequency']       = POST('frequency'); 
 	$parameters ['scan_day']        = POST('scan_day'); 
 	$parameters ['scan_time']       = ( empty($_POST['scan_time_h']) && empty($_POST['scan_time_m'])) ? null : POST('scan_time_h').":".POST('scan_time_m'); 
@@ -277,20 +389,7 @@ else if($tab == "#tab2")
 		$node_sys  .= "<registry_ignore>$v</registry_ignore>";
 		
 	$node_sys .= "</syscheck>";
-	
-	
-	$conf_file = file_get_contents($ossec_conf);
-	
-	if ($conf_file === false)
-	{
-		$info_error	= "<div style='text-align:left; padding-left: 60px;'>"._("Failure to read")." <strong>$ossec_conf</strong></div>";
-		echo "2###".$info_error;
-		@unlink ($path);
-		@copy ($path_tmp, $path);
-		exit();
-	}
-	
-			
+		
 	
 	$pattern     = '/\s*[\r?\n]+\s*/';
 	$conf_file   = preg_replace($pattern, "", $conf_file);

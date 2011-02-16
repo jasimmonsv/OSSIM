@@ -79,7 +79,7 @@ $cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' alig
 	<link rel="stylesheet" type="text/css" href="css/ossec.css" />
 	
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-	<script type='text/javascript' src='codemirror/codemirror.js' ></script>
+	<script type='text/javascript' src='../js/codemirror/codemirror.js' ></script>
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
 		
 	<!-- Multiselect: -->

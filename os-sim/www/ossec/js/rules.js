@@ -104,8 +104,8 @@ function load_tab2(file)
 										
 					editor = new CodeMirror(CodeMirror.replace("code"), {
 						parserfile: "parsexml.js",
-						stylesheet: "css/xmlcolors.css",
-						path: "codemirror/",
+						stylesheet: "../style/xmlcolors.css",
+						path: "../js/codemirror/",
 						continuousScanning: 500,
 						content: msg,
 						lineNumbers: true
@@ -1105,8 +1105,8 @@ function show_node_xml(id)
 					{
 						var editor_rule = new CodeMirror(CodeMirror.replace("txt_rule-"+id), {
 							parserfile: "parsexml.js",
-							stylesheet: "css/xmlcolors.css",
-							path: "codemirror/",
+							stylesheet: "../style/xmlcolors.css",
+							path: "../js/codemirror/",
 							continuousScanning: false,
 							content: status[1],
 							height: "110px",

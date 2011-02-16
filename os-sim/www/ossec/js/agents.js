@@ -248,8 +248,8 @@ function load_agent_tab(tab)
 						{
 							editor = new CodeMirror(CodeMirror.replace("code"), {
 								parserfile: "parsexml.js",
-								stylesheet: "css/xmlcolors.css",
-								path: "codemirror/",
+								stylesheet: "../style/xmlcolors.css",
+								path: "../js/codemirror/",
 								continuousScanning: 500,
 								content: status[1],
 								lineNumbers: true
@@ -284,8 +284,8 @@ function load_agent_tab(tab)
 					{
 						editor = new CodeMirror(CodeMirror.replace("code"), {
 							parserfile: "parsexml.js",
-							stylesheet: "css/xmlcolors.css",
-							path: "codemirror/",
+							stylesheet: "../style/xmlcolors.css",
+							path: "../js/codemirror/",
 							continuousScanning: 500,
 							content: status[1],
 							lineNumbers: true

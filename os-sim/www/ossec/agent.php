@@ -60,8 +60,8 @@ if ( $result !== true )
 	<script type="text/javascript" src="../js/messages.php"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+	<script type='text/javascript' src='../js/codemirror/codemirror.js'></script>
 	<script type="text/javascript" src="js/agents.js"></script>
-	<script type='text/javascript' src='codemirror/codemirror.js'></script>
 	<script type="text/javascript">
 		var messages = new Array();
 			messages[0]  = '<img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Adding agent... ")?></span>';

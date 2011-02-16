@@ -51,6 +51,7 @@ function load_config_tab(tab)
 						
 						$(".multiselect").multiselect({
 							searchDelay: 500,
+							nodeComparator: function (node1,node2){ return 1 },
 							dividerLocation: 0.5
 						});
 						
@@ -73,8 +74,8 @@ function load_config_tab(tab)
 						{
 							editor = new CodeMirror(CodeMirror.replace("code"), {
 								parserfile: "parsexml.js",
-								stylesheet: "css/xmlcolors.css",
-								path: "codemirror/",
+								stylesheet: "../style/xmlcolors.css",
+								path: "../js/codemirror/",
 								continuousScanning: 500,
 								content: status[1],
 								lineNumbers: true
@@ -109,8 +110,8 @@ function load_config_tab(tab)
 					{
 						editor = new CodeMirror(CodeMirror.replace("code"), {
 							parserfile: "parsexml.js",
-							stylesheet: "css/xmlcolors.css",
-							path: "codemirror/",
+							stylesheet: "../style/xmlcolors.css",
+							path: "../js/codemirror/",
 							continuousScanning: 500,
 							content: status[1],
 							lineNumbers: true

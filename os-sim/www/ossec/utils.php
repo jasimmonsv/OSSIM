@@ -726,7 +726,7 @@ function get_files($file, $num_files=0)
 		
 	while ( $element = readdir($dir) )
 	{
-		if ($element != "." && $element != ".." && preg_match("/\-rules.xml$/", $element))
+		if ($element != "." && $element != ".." && preg_match("/\.xml$/", $element))
 			$rules[] = $element;
 	}
 

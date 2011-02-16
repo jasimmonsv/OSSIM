@@ -57,97 +57,26 @@ if ( $result !== true )
 
 if($tab == "#tab1")
 {
-	$rules     = array();
-	$conf_file = formatXmlString($conf_file);
-	$pattern   = '/[\r?\n]+\s*/';
-	$conf_file = preg_replace($pattern, "\n", $conf_file);
-	$conf_file = explode("\n", trim($conf_file));
-			
-	if ( is_array($conf_file) )
+	exec("egrep \"<[[:space:]]*include[[:space:]]*>.*xml<[[:space:]]*/[[:space:]]*include[[:space:]]*>\" $ossec_conf", $output, $retval);
+	
+	if ($retval !== 0)
 	{
-		$start_tag = 0;
-		$end_tag   = 0;
-		$num_found = 0;
-		$rules     = $rules_enabled = $rules_disabled = array(); 
-				
-		foreach ($conf_file as $k => $v)
-		{
-			if ( preg_match("/(<\s*rules\s*>)|(<\s*\/rules\s*>)/", $v, $match) )
-			{
-				if ( !empty($match[1]) )
-				{
-					$num_found++;
-					$start_tag++;
-					$rules[$num_found-1]['start'] = $k;
-					$rules[$num_found-1]['end']   = null;
-				}
-				elseif ( !empty($match[2]) )
-				{
-					$end_tag++;
-					$rules[$num_found-1]['end'] = $k;
-				}
-			}
-			else
-			{
-				if ( $num_found > 0 && ($end_tag == $start_tag-1) )
-				{
-					
-					$pattern1 = "/^<\s*include\s*>(.*)<\s*\/include\s*>/";
-					$pattern2 = "/<!--\s*<\s*includev>(.*)<\s*\/include\s*>\s*-->/";
-					if ( preg_match($pattern1, $v, $match) )
-					{
-						$rules[$num_found-1]['rules'][$match[1]]['value']  = $v;
-						$rules[$num_found-1]['rules'][$match[1]]['status'] = "enabled";
-						$rules_enabled[] = $match[1];
-					}
-					else
-					{ 
-						if ( preg_match($pattern2, $v, $match) )
-						{
-							$rules[$num_found-1]['rules'][$match[1]]['value']  = $v;
-							$rules[$num_found-1]['rules'][$match[1]]['status'] = "disabled";
-							$rules_disabled[] = $match[1];
-						}
-					}
-				}	
-			}
-		
-		}
-				
-		
-		//Check Parse errors
-		foreach ($rules as $k => $v)
-		{
-			$error = false;
+		echo "2###"._("File")." <b>$ossec_conf</b> "._("not found or you don't have have permission to access");
+		exit();
+	}
+	
+	foreach ( $output as $k => $v )
+	{
+		if ( preg_match("/^<\s*include\s*>(.*)<\s*\/include\s*>/", trim($v), $match) )
+			$rules_enabled[] = $match[1];
+	}
+	
+	$all_rules       = get_files ($rules_file);
+	$no_added_rules  = array_diff($all_rules, $rules_enabled);	
 			
-			if ( !is_numeric($rules[$k]['start']) && !is_numeric($rules[$k]['start']) ) 
-				$error = true;
-			else if ( $rules[$k]['start'] > $rules[$k]['end'] )
-				$error = true;
-			else
-			{
-				if (count($rules[$k]['rules']) <= 0)
-					$error = true;
-			}
-			
-			if ($error == true)
-			{
-				echo "2###"._("Error to read configuration file")." (2)";
-				exit;
-			}
-		}
-		
-		$_SESSION['_cnf_rules'] = $rules;
-		
-		
 		echo "1###<div id='cnf_rules_cont'><table class='cnf_rules_table'>";
-		
-			$all_rules       = get_files ($rules_file);
-						
-			$no_added_rules  = array_diff($all_rules, $rules_enabled);	
-			
-									
-			echo "<tr><td style='padding: 0px 0px 10px 0px;'>";
+											
+			echo "<tr><td style='padding: 8px 0px 6px 0px;'>";
 			echo "<span>(*) "._("You must restart Ossec for the changes to take effect")."</span><br/>";
 			echo "<span>(*) "._('Drag & Drop the file you want to add/remove or use [+] and [-] links')."</span>";
 			echo  "</td></tr>";
@@ -156,6 +85,7 @@ if($tab == "#tab1")
 			echo "<tr>";
 				echo "<td style='padding: 3px 0px 20px 0px;'><form name='cnf_form_rules' id='cnf_form_rules' method='POST'><select id='rules_added' class='multiselect' multiple='multiple' name='rules_added[]'>";
 					foreach($rules_enabled as $k => $v)
+					
 						echo "<option value='$v' selected='selected'>$v</option>";
 						
 					foreach($no_added_rules as $k => $v)
@@ -163,14 +93,10 @@ if($tab == "#tab1")
 				echo "</select></form></td>";
 			echo "</tr>";
 			
-			echo "<tr><td><input type='button' class='button' id='send' value='"._('Update')."' onclick=\"save_config_tab();\"/></td></tr>";
+			echo "<tr><td style='padding-bottom:10px;'><input type='button' class='button' id='send' value='"._('Update')."' onclick=\"save_config_tab();\"/></td></tr>";
 		
 		echo "</table></div>";
-		
-	}
-	else
-		echo "2###"._("Error to read configuration file")." (1)";
-		
+			
 }
 else if ($tab == '#tab2')
 {
