@@ -35,6 +35,7 @@ import re, string, struct
 from datetime import datetime, timedelta
 from pytz import timezone, all_timezones
 import pytz
+import calendar
 from time import time, mktime, gmtime, strftime
 from Logger import Logger
 logger = Logger.logger
@@ -121,5 +122,5 @@ def normalizeToUTCDate(event, used_tzone):
     logger.debug("Plugin UTC ISO Normalized date: %s" % plugin_utc_dt.strftime(dateformat))
     event['tzone'] = tzone_float
     if 'fdate' in event.EVENT_ATTRS:
-        event["date"] = int(mktime(plugin_utc_dt.timetuple()))
+        event["date"] = calendar.timegm(plugin_utc_dt.timetuple()) #int(mktime(plugin_utc_dt.timetuple()))
         event["fdate"] = plugin_utc_dt.strftime(dateformat)
