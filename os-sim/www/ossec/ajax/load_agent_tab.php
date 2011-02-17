@@ -214,6 +214,13 @@ if($tab == "#tab1")
 }
 else if ($tab == '#tab2')
 {
+	if ( !file_exists($agent_conf) )
+	{
+		exec("touch $agent_conf");
+		echo "1###";
+		exit;
+	}
+	
 	$conf_agent = @file_get_contents($agent_conf);
 	
 	if ($conf_agent === false)
@@ -221,15 +228,14 @@ else if ($tab == '#tab2')
 		echo "2###"._("File")." <b>$agent_conf</b> "._("not found or you don't have have permission to access");
 		exit();
 	}
-	else
-		exec("touch $agent_conf");	
-		
+			
 	$result = test_agents(); 	
 						
 	if ( $result !== true )
 		echo "3###".$conf_agent."###$result";
 	else
 		echo "1###".$conf_agent;
+	
 }
 else
 	echo "2###"._("Error: Illegal actions");

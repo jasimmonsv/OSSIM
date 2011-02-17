@@ -282,12 +282,14 @@ function load_agent_tab(tab)
 										
 					if (editor == null)
 					{
+						var content = (status[1] == null) ? '' : status[1];
+						
 						editor = new CodeMirror(CodeMirror.replace("code"), {
 							parserfile: "parsexml.js",
 							stylesheet: "../style/xmlcolors.css",
 							path: "../js/codemirror/",
 							continuousScanning: 500,
-							content: status[1],
+							content: content,
 							lineNumbers: true
 						});
 					}

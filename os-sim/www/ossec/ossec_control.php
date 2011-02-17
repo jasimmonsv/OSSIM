@@ -50,8 +50,7 @@ require_once ('classes/Plugin.inc');
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/ossec.css"/>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-	<script type="text/javascript" src="functions.js"></script>
-			
+	
 	<script type="text/javascript">
 	var messages = new Array();
 		messages[0]  = '<div id="oss_load" style="height:20px; width: 100%; font-size:12px; text-align:center;"><img src="images/loading.gif" border="0" align="absmiddle"/><span style="padding-left: 5px;"><?php echo _("Processing action...")?> </span></div>';
@@ -59,6 +58,17 @@ require_once ('classes/Plugin.inc');
 	
 	<script type="text/javascript">
 				
+		
+		function show_tab_content(tab)
+		{
+			$("ul.oss_tabs li").removeClass("active"); //Remove any "active" class
+			$(tab).addClass("active"); //Add "active" class to selected tab
+			$(".tab_content").hide(); //Hide all tab content
+			var activeTab = $(tab).find("a").attr("href"); //Find the rel attribute value to identify the active tab + content
+			$(activeTab).show(); //Fade in the active content
+			return false;
+		}
+		
 		function load_tab1()
 		{
 			var extra = '';

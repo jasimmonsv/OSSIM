@@ -200,8 +200,8 @@ require_once ('utils.php');
 				<?php
 				
 				$agents = array();
-				exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);					
-				
+				exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);		
+
 				if ( !empty ($agents) )
 				{
 					foreach ($agents as $k => $agent)
