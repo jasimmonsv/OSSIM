@@ -117,7 +117,7 @@ require_once ('utils.php');
 		td.center {text-align: center !important;}
 		
 		#list_agent_table {
-			width: 80%; 
+			width: 92%; 
 			margin: 10px auto; 
 			background: transparent;
 		}
@@ -141,7 +141,7 @@ require_once ('utils.php');
 		
 		#ossc_result{
 			margin: auto; 
-			width: 80%; 
+			width: 92%; 
 			border: 1px solid #D3D3D3;
 			-moz-border-radius:4px;
 			-webkit-border-radius: 4px;
@@ -158,10 +158,10 @@ require_once ('utils.php');
 			overflow:auto;
 		}
 		
-		#ossec_header {width: 80%; margin:auto; text-align:center;}
+		#ossec_header {width: 92%; margin:auto; text-align:center;}
 		
 		.oss_containter_graph { 
-			width:80%; 
+			width:92%; 
 			background:transparent; 
 			margin: 10px auto 0px auto; 
 			text-align: center; 
