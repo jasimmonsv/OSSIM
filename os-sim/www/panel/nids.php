@@ -283,7 +283,7 @@ $db->close($conn2);
 
     
   </head>
-	<body style="overflow-y:hidden;">
+	<body>
 	<?php include("../hmenu.php"); ?>
 		
 	<br/>
