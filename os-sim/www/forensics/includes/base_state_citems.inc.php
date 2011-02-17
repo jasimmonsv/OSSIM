@@ -860,15 +860,15 @@ class TimeCriteria extends MultipleElementCriteria {
         	$m = ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") ? $this->criteria[$i][2] : "01";
         	$d = ($this->criteria[$i][3] != " " && $this->criteria[$i][3] != "") ? $this->criteria[$i][3] : "01";
         	$h = ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") ? $this->criteria[$i][5] : "00";
-        	$i = ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") ? $this->criteria[$i][6] : "00";
+        	$u = ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") ? $this->criteria[$i][6] : "00";
         	$s = ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") ? $this->criteria[$i][7] : "00";
-        	$time = strtotime("$y-$m-$d $h:$i:$s")+(3600*$tz);
-        	if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") $utc_criteria[$i][4] = date("Y",$time);
-        	if ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") $utc_criteria[$i][2] = date("m",$time);
-        	if ($this->criteria[$i][3] != " " && $this->criteria[$i][3] != "") $utc_criteria[$i][3] = date("d",$time);
-        	if ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") $utc_criteria[$i][5] = date("H",$time);
-        	if ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") $utc_criteria[$i][6] = date("i",$time);
-        	if ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") $utc_criteria[$i][7] = date("s",$time);
+        	$time = gmmktime($h,$u,$s,$m,$d,$y)-(3600*$tz);
+        	if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") $utc_criteria[$i][4] = gmdate("Y",$time);
+        	if ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") $utc_criteria[$i][2] = gmdate("m",$time);
+        	if ($this->criteria[$i][3] != " " && $this->criteria[$i][3] != "") $utc_criteria[$i][3] = gmdate("d",$time);
+        	if ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") $utc_criteria[$i][5] = gmdate("H",$time);
+        	if ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") $utc_criteria[$i][6] = gmdate("i",$time);
+        	if ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") $utc_criteria[$i][7] = gmdate("s",$time);
         }
         return $utc_criteria;
     }
