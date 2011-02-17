@@ -401,7 +401,7 @@ switch($type){
 				grid: {
 					drawBorder: false, 
 					drawGridlines: false,
-					background: 'transparent',
+					background: 'rgba(255,255,255,0)',
 					shadow:false
 				},
 				<?php if ($colors!="") { ?>seriesColors: [ <?php echo $colors; ?> ], <?php } ?>

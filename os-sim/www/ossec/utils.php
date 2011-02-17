@@ -32,6 +32,7 @@
 
 require_once 'classes/Session.inc';
 require_once 'classes/Util.inc';
+require_once 'classes/Xml_parser.inc';
 
 // Edit Section Functions
 
@@ -861,7 +862,7 @@ function get_nodes($tree, $node_name)
 
 function test_conf()
 {
-	require_once("conf/_conf.php");
+	require("conf/_conf.php");
 	
 	exec("sudo /var/ossec/bin/ossec-logtest -t > /tmp/ossec-logtest 2>&1", $result, $res);
 	
@@ -893,15 +894,16 @@ function test_conf()
 
 function test_agents()
 {
-	require_once ("conf/_conf.php");
-	require_once ("classes/Xml_parser.inc");
+	require("conf/_conf.php");
+	
 	$res    = true; 
+		
 	if ( file_exists($agent_conf) )
 	{
-		exec("sudo /var/ossec/bin/verify-agent-conf > /tmp/ossec-agent-conf 2>&1", $result, $res);
 		
-		if ( file_exists("/tmp/ossec-agent-conf") )
+		if ( file_exists("/var/ossec/bin/verify-agent-conf") )
 		{
+			exec("sudo /var/ossec/bin/verify-agent-conf > /tmp/ossec-agent-conf 2>&1", $result, $res);
 			$result = file('/tmp/ossec-agent-conf', FILE_IGNORE_NEW_LINES);
 			
 			if ( !is_array($result) )
