@@ -120,7 +120,7 @@ else
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
 	
 	<!-- Own libraries: -->
-	<script type='text/javascript' src='js/utils.js'></script>
+	<script type='text/javascript' src='../js/utils.js'></script>
 	<script type="text/javascript" src="js/rules.js"></script>
 	
 	<script type='text/javascript'>

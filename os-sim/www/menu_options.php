@@ -1092,6 +1092,23 @@ if (Session::menu_perms("MenuConfiguration", "ToolsBackup")) {
     );
 }
 
+/*if (Session::am_i_admin()) {
+       
+	$menu["Configuration"][] = array(
+		"name" => gettext("License") ,
+		"id" => "License",
+		"url" => "license/index.php"
+    );
+       
+	$hmenu["License"][] = array(
+		"name" => gettext("License") ,
+		"id" => "License",
+		"url" => "license/index.php",
+		"target" => "main", 
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:license','Help');"
+	);
+}*/
+
 // Status (next to profile link)
 $sstatus = 0;
 if (Session::menu_perms("MenuReports", "ReportsHostReport")) {

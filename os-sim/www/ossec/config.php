@@ -106,7 +106,7 @@ $cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' alig
 	
 	<!-- Own libraries: -->
 	<script type="text/javascript" src="js/config.js"></script>
-	<script type='text/javascript' src='js/utils.js'></script>	
+	<script type='text/javascript' src='../js/utils.js'></script>	
 	
 	<script type='text/javascript'>
 		

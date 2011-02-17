@@ -167,7 +167,11 @@ var Base64 = {
         entity = hash_map[symbol];
         tmp_str = tmp_str.split(symbol).join(entity);
     }
-        return tmp_str;
+    
+	//Hack Chinese Characters
+	tmp_str = tmp_str.replace(/&amp;#(\d{4,5});/g, "&#$1;");
+	
+	return tmp_str;
 }
 
 function html_entity_decode(string, quote_style) {
@@ -201,8 +205,8 @@ function html_entity_decode(string, quote_style) {
         entity = hash_map[symbol];        tmp_str = tmp_str.split(entity).join(symbol);
     }
     tmp_str = tmp_str.split('&#039;').join("'");
-    
-    return tmp_str;}
+	
+	return tmp_str;}
 
 function get_html_translation_table (table, quote_style) {
     // http://kevin.vanzonneveld.net
