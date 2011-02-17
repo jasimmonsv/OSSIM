@@ -12,8 +12,8 @@ function SIEM_trends($h=24) {
 	$db = new ossim_db();
 	$dbconn = $db->snort_connect();
 	$sensor_where = make_sensor_filter($dbconn);
-	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, hour(timestamp) as intervalo, day(timestamp) as suf FROM acid_event WHERE timestamp BETWEEN '".gmdate("Y-m-d H:i:s",time()-(3660*$h))."' AND '".gmdate("Y-m-d H:i:s")."' $sensor_where GROUP BY suf,intervalo";
-	//print_r($sqlgraph);
+	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, hour(timestamp) as intervalo, day(timestamp) as suf FROM acid_event WHERE timestamp BETWEEN '".gmdate("Y-m-d H:i:s",gmdate("U")-(3600*$h))."' AND '".gmdate("Y-m-d H:i:s")."' $sensor_where GROUP BY suf,intervalo";
+	//print_r($timetz); print_r($sqlgraph);
 	if (!$rg = & $dbconn->Execute($sqlgraph)) {
 	    print $dbconn->ErrorMsg();
 	} else {
@@ -21,6 +21,7 @@ function SIEM_trends($h=24) {
 	    	$tzhour = $rg->fields["intervalo"] + $tz;
 	    	if ($tzhour<0) $tzhour+=23;
 	        $data[$tzhour."h"] = $rg->fields["num_events"];
+	        //$data[$rg->fields["intervalo"]."h"] = $rg->fields["num_events"];
 	        $rg->MoveNext();
 	    }
 	}
@@ -29,7 +30,6 @@ function SIEM_trends($h=24) {
 }
 
 function SIEM_trends_week($param="") {
-	global $tz;
 	$data = array();
 	$plugins = $plugins_sql = "";
 	require_once 'ossim_db.inc';
@@ -42,7 +42,7 @@ function SIEM_trends_week($param="") {
 		$plugins = implode(",",array_flip ($oss_p_id_name));
 		$plugins_sql = "AND acid_event.plugin_id in ($plugins)";
 	}
-	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, day(timestamp) as intervalo, monthname(timestamp) as suf FROM snort.acid_event LEFT JOIN ossim.plugin ON acid_event.plugin_id=plugin.id WHERE timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",time()-604800)."' AND '".gmdate("Y-m-d 23:59:59")."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
+	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, day(timestamp) as intervalo, monthname(timestamp) as suf FROM snort.acid_event LEFT JOIN ossim.plugin ON acid_event.plugin_id=plugin.id WHERE timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-604800)."' AND '".gmdate("Y-m-d 23:59:59")."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
 	if (!$rg = & $dbconn->Execute($sqlgraph)) {
 	    print $dbconn->ErrorMsg();
 	} else {
@@ -59,11 +59,12 @@ function SIEM_trends_week($param="") {
 function Logger_trends() {
 	require_once("forensics_stats.inc");
 	global $tz;
-	$data = $hours = array();
+	$data = array();
 	$csv = get_day_csv(gmdate("Y"),gmdate("m"),gmdate("d"));
-        foreach ($csv as $key => $value) {
-        	$tzhour = $key + $tz;
-		if ($tzhour<0) $tzhour+=23; 
+	//print_r($csv);
+	foreach ($csv as $key => $value) {
+		$tzhour = $key + $tz;
+		if ($tzhour<0) $tzhour+=23;
 		$data[$tzhour."h"] = $value;
 	}
 	return $data;
@@ -90,7 +91,7 @@ if (GET("type")=="siemday") {
     	$trend[] = ($v!="") ? $v : 0;
     }
     $max = count($hours);
-    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz)."&time[0][3]=".date("d",$timetz)."&time[0][4]=".date("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".date("m",$timetz)."&time[1][3]=".date("d",$timetz)."&time[1][4]=".date("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz)."&time[0][3]=".gmdate("d",$timetz)."&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".gmdate("m",$timetz)."&time[1][3]=".gmdate("d",$timetz)."&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 } elseif (GET("type")=="siemweek") { 
     $js = "analytics";
     $data = SIEM_trends_week();
@@ -99,7 +100,7 @@ if (GET("type")=="siemday") {
     	$trend[] = ($v!="") ? $v : 0;
     }
     $max = count($hours);
-    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".date("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".date("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 } elseif (GET("type")=="hids") { 
     $js = "analytics";
     list($data,$plugins) = SIEM_trends_week("ossec%");
@@ -108,18 +109,18 @@ if (GET("type")=="siemday") {
     	$trend[] = ($v!="") ? $v : 0;
     }
     $max = count($hours);
-    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".date("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".date("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics&plugin=".$plugins;
+    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics&plugin=".$plugins;
 } else {
     $js = "analytics_duo";
     $data = SIEM_trends();
     $data2 = Logger_trends();
-    for ($i=$max; $i>=0; $i--) {
-    	$h = gmdate("G",time()-(3600*$i))."h";
+    for ($i=$max-1; $i>=0; $i--) {
+    	$h = gmdate("G",$timetz-(3600*$i))."h";
     	$hours[] = $h;
     	$trend[] = ($data[$h]!="") ? $data[$h] : 0;
     	$trend2[] = ($data2[$h]!="") ? $data2[$h] : 0;
     }
-    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".date("m",$timetz)."&time[0][3]=".date("d",$timetz)."&time[0][4]=".date("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".date("m",$timetz)."&time[1][3]=".date("d",$timetz)."&time[1][4]=".date("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+    $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz)."&time[0][3]=".gmdate("d",$timetz)."&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".gmdate("m",$timetz)."&time[1][3]=".gmdate("d",$timetz)."&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 }
 ?>
 <body scroll="no" style="overflow:hidden">		
