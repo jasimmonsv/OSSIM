@@ -122,7 +122,7 @@ CREATE PROCEDURE addcol() BEGIN
   IF NOT EXISTS
       (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'acid_event' AND COLUMN_NAME = 'tzone')
   THEN
-      ALTER TABLE `acid_event` ADD `tzone` FLOAT NOT NULL DEFAULT '0' AFTER `timestamp`;
+      ALTER TABLE `acid_event` ADD `tzone` FLOAT NOT NULL DEFAULT '0';
   END IF;        
 END;
 //
