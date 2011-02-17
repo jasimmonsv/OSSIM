@@ -24,7 +24,7 @@ switch($type){
 		$user = $_SESSION['_user'];
 		if (Session::am_i_admin()) {
 			$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* 
-			FROM incident";
+			FROM incident ";
 		} else {
 			$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* 
 			FROM incident LEFT JOIN incident_ticket ON incident_ticket.incident_id = incident.id, users, incident_subscrip WHERE  incident_subscrip.incident_id=incident.id AND users.login = incident_subscrip.login AND (incident_ticket.users='$user' OR incident_ticket.in_charge='$user' OR incident_ticket.transferred='$user' OR users.login='$user')
@@ -40,7 +40,7 @@ switch($type){
 			foreach($status as $value => $key){
 				$data.="['".$value."',".$key."],";
 			}
-			$links="'../incidents/index.php?&status=open&hmenu=&smenu=','../incidents/index.php?&status=closed&hmenu=&smenu='";
+			$links="'../incidents/index.php?&status=open&hmenu=Tickets&smenu=Tickets','../incidents/index.php?&status=closed&hmenu=Tickets&smenu=Tickets'";
 		}else{
 			$data="['Open',0],['Closed',0]";
 		}
@@ -52,7 +52,7 @@ switch($type){
 		$query = "select u.ref, count(*) as num from 
 		((SELECT i.id,i.ref FROM incident i WHERE i.in_charge='".$_SESSION['_user']."')
 		UNION
-		(SELECT i.id,i.ref FROM incident i, incident_ticket t WHERE i.id=t.incident_id AND t.in_charge='".$_SESSION['_user']."')) u group by u.ref;";
+		(SELECT i.id,i.ref FROM incident i, incident_ticket t WHERE i.id=t.incident_id AND t.in_charge='".$_SESSION['_user']."')) u group by u.ref order by num desc";
 		
 		if (!$rs = &$conn->Execute($query)) {
 			print $conn->ErrorMsg();
@@ -67,7 +67,7 @@ switch($type){
 		//Opened Tickets by User
 		$type_graph='pie';
 		$admin_where = (Session::am_i_admin()) ? "" : " AND in_charge!='admin'";
-		$query = "select in_charge, count(*) as num from incident where status='Open'$admin_where group by in_charge;";
+		$query = "select in_charge, count(*) as num from incident where status='Open'$admin_where group by in_charge order by num desc";
 		
 		if (!$rs = &$conn->Execute($query)) {
 			print $conn->ErrorMsg();
@@ -81,7 +81,7 @@ switch($type){
 			if(preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$rs->fields["in_charge"])) {
 				list($name, $type) = Acl::get_entity_name_type($conn,$rs->fields["in_charge"]);
 				if($type!="" && $name!="")
-					array_push($legend, $name." [".$type."]");
+					$data.="['$name ($type)',".$rs->fields["num"]."],";
 			}
 			else {
 				$data.="['".$rs->fields["in_charge"]."',".$rs->fields["num"]."],";
@@ -262,18 +262,60 @@ switch($type){
 		
 		$conf = $GLOBALS["CONF"];
 		$version = $conf->get_conf("ossim_server_version", FALSE);
-
+		
+		$temp_colors='';
 		while (!$rs->EOF){
-			if(preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$rs->fields["in_charge"])) {
-				list($name, $type) = Acl::get_entity_name_type($conn,$rs->fields["in_charge"]);
-				if($type!="" && $name!="")
-					array_push($legend, $name." [".$type."]");
-			}
-			else {
 				$data.="['".$rs->fields["priority"]."',".$rs->fields["num"]."],";
+				switch($rs->fields["priority"]){
+					case 10:
+						// red
+						$temp_colors['#8B0000']=true;
+						break;
+					case 9:
+						// red
+						$temp_colors['#bb0000']=true;
+						break;
+					case 8:
+						// red
+						$temp_colors['#da0000']=true;
+						break;
+					case 7:
+						// orange
+						$temp_colors['#ff7700']=true;
+						break;						
+					case 6:
+						// orange
+						$temp_colors['#FF8C00']=true;
+						break;
+					case 5:
+						// orange
+						$temp_colors['#ffa500']=true;
+						break;
+					case 4:
+						// verde
+						$temp_colors['#ffb900']=true;
+						break;
+					case 3:
+						// verde
+						$temp_colors['#ffce00']=true;
+						break;
+					case 2:
+						// verde
+						$temp_colors['#ffe200']=true;
+						break;
+					case 1:
+						$temp_colors['#fffd00']=true;
+						break;
+					case 0:
+						$temp_colors['#FFFEAF']=true;
+						break;
 			}
 			
 			$rs->MoveNext();
+		}
+		$colors='';
+		foreach($temp_colors as $key => $value){
+			$colors.='"'.$key.'",';
 		}
 		break;
 	default:
@@ -377,7 +419,7 @@ switch($type){
 				legend: {
 					show: true,
 					rendererOptions: {
-						numberCols: 1
+						numberCols: 2
 					},
 					location: 'w'
 				}
@@ -437,7 +479,16 @@ switch($type){
 			?>
 				plot1 = $.jqplot('chart', [<?php echo substr ($lineValueName, 0, -1);?>], {
 				stackSeries: true,
-				legend:{show:true, location:'s', noColumns: 2, yoffset: 2},
+				legend:{
+					renderer: $.jqplot.EnhancedLegendRenderer,
+					rendererOptions: {
+						numberColumns: 3
+					},
+					show:true, 
+					location:'ne',
+					yoffset: 0
+					},
+				
 				seriesDefaults: {
 					pointLabels:{ show: false },
 					renderer: $.jqplot.BarRenderer,

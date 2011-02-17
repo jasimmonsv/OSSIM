@@ -1003,15 +1003,6 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session:
 	        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
 	    );
 	}
-	if (Session::menu_perms("MenuConfiguration", "ToolsUserLog")) {
-		$hmenu["Plugins"][] = array(
-			"name" => gettext("User Activity") ,
-			"id" => "User Log",
-			"url" => "userlog/user_action_log.php",
-			"target" => "main",
-			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
-		);
-	}
 	if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) {
 	    $hmenu["Plugins"][] = array(
 	        "name" => gettext("Data Sources") ,
@@ -1112,6 +1103,25 @@ if (Session::menu_perms("MenuReports", "ReportsHostReport")) {
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:status','Help');"
     );
     $sstatus = 1;
+}
+
+if (Session::menu_perms("MenuConfiguration", "MonitorsSensors")) {
+    $hmenu["Sysinfo"][] = array(
+        "name" => gettext("Sensors") ,
+        "id" => "Plugins",
+        "target" => "main",
+        "url" => "sensor/sensor_plugins.php",
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
+      );
+}
+if (Session::menu_perms("MenuConfiguration", "ToolsUserLog")) {
+	$hmenu["Sysinfo"][] = array(
+		"name" => gettext("User Activity") ,
+		"id" => "User Log",
+		"url" => "userlog/user_action_log.php",
+		"target" => "main",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
+	);
 }
 if (Session::am_i_admin()) {
 	$hmenu["Sysinfo"][] = array(
