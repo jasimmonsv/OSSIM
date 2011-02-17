@@ -19,7 +19,8 @@ function SIEM_trends($h=24) {
 	} else {
 	    while (!$rg->EOF) {
 	    	$tzhour = $rg->fields["intervalo"] + $tz;
-	    	if ($tzhour<0) $tzhour+=23;
+	    	if ($tzhour<0) $tzhour+=24;
+	    	elseif ($tzhour>23) $tzhour-=24;
 	        $data[$tzhour."h"] = $rg->fields["num_events"];
 	        //$data[$rg->fields["intervalo"]."h"] = $rg->fields["num_events"];
 	        $rg->MoveNext();
@@ -64,7 +65,8 @@ function Logger_trends() {
 	//print_r($csv);
 	foreach ($csv as $key => $value) {
 		$tzhour = $key + $tz;
-		if ($tzhour<0) $tzhour+=23;
+		if ($tzhour<0) $tzhour+=24;
+		elseif ($tzhour>23) $tzhour-=24;
 		$data[$tzhour."h"] = $value;
 	}
 	return $data;
