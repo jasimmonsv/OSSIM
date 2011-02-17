@@ -6,18 +6,21 @@ require_once 'sensor_filter.php';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
 function SIEM_trends($h=24) {
-	global $timetz;
+	global $tz;
 	$data = array();
 	require_once 'ossim_db.inc';
 	$db = new ossim_db();
 	$dbconn = $db->snort_connect();
 	$sensor_where = make_sensor_filter($dbconn);
-	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, hour(timestamp) as intervalo, day(timestamp) as suf FROM acid_event WHERE timestamp BETWEEN '".date("Y-m-d H:i:s",$timetz-(3660*$h))."' AND '".date("Y-m-d H:i:s",$timetz)."' $sensor_where GROUP BY suf,intervalo";
+	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, hour(timestamp) as intervalo, day(timestamp) as suf FROM acid_event WHERE timestamp BETWEEN '".gmdate("Y-m-d H:i:s",time()-(3660*$h))."' AND '".gmdate("Y-m-d H:i:s")."' $sensor_where GROUP BY suf,intervalo";
+	//print_r($sqlgraph);
 	if (!$rg = & $dbconn->Execute($sqlgraph)) {
 	    print $dbconn->ErrorMsg();
 	} else {
 	    while (!$rg->EOF) {
-	        $data[$rg->fields["intervalo"]."h"] = $rg->fields["num_events"];
+	    	$tzhour = $rg->fields["intervalo"] + $tz;
+	    	if ($tzhour<0) $tzhour+=23;
+	        $data[$tzhour."h"] = $rg->fields["num_events"];
 	        $rg->MoveNext();
 	    }
 	}
@@ -26,7 +29,7 @@ function SIEM_trends($h=24) {
 }
 
 function SIEM_trends_week($param="") {
-	global $timetz;
+	global $tz;
 	$data = array();
 	$plugins = $plugins_sql = "";
 	require_once 'ossim_db.inc';
@@ -39,7 +42,7 @@ function SIEM_trends_week($param="") {
 		$plugins = implode(",",array_flip ($oss_p_id_name));
 		$plugins_sql = "AND acid_event.plugin_id in ($plugins)";
 	}
-	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, day(timestamp) as intervalo, monthname(timestamp) as suf FROM snort.acid_event LEFT JOIN ossim.plugin ON acid_event.plugin_id=plugin.id WHERE timestamp BETWEEN '".date("Y-m-d 00:00:00",$timetz-604800)."' AND '".date("Y-m-d  23:59:59",$timetz)."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
+	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, day(timestamp) as intervalo, monthname(timestamp) as suf FROM snort.acid_event LEFT JOIN ossim.plugin ON acid_event.plugin_id=plugin.id WHERE timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",time()-604800)."' AND '".gmdate("Y-m-d 23:59:59")."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
 	if (!$rg = & $dbconn->Execute($sqlgraph)) {
 	    print $dbconn->ErrorMsg();
 	} else {
@@ -55,10 +58,14 @@ function SIEM_trends_week($param="") {
 
 function Logger_trends() {
 	require_once("forensics_stats.inc");
-	global $timetz;
+	global $tz;
 	$data = $hours = array();
-	$csv = get_day_csv(date("Y",$timetz),date("m",$timetz),date("d",$timetz));
-	foreach ($csv as $key => $value) $data[$key."h"] = $value;
+	$csv = get_day_csv(gmdate("Y"),gmdate("m"),gmdate("d"));
+        foreach ($csv as $key => $value) {
+        	$tzhour = $key + $tz;
+		if ($tzhour<0) $tzhour+=23; 
+		$data[$tzhour."h"] = $value;
+	}
 	return $data;
 }
 ?>
@@ -107,7 +114,7 @@ if (GET("type")=="siemday") {
     $data = SIEM_trends();
     $data2 = Logger_trends();
     for ($i=$max; $i>=0; $i--) {
-    	$h = date("G",$timetz-(3600*$i))."h";
+    	$h = gmdate("G",time()-(3600*$i))."h";
     	$hours[] = $h;
     	$trend[] = ($data[$h]!="") ? $data[$h] : 0;
     	$trend2[] = ($data2[$h]!="") ? $data2[$h] : 0;
