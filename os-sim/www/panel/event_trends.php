@@ -125,7 +125,7 @@ if (GET("type")=="siemday") {
     $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz)."&time[0][3]=".gmdate("d",$timetz)."&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".gmdate("m",$timetz)."&time[1][3]=".gmdate("d",$timetz)."&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 }
 ?>
-<body scroll="no" style="overflow:hidden">		
+<body scroll="no" style="overflow:hidden;font-family:arial;font-size:12px">		
 	<table id="data" style="display:none">
         <tfoot>
             <tr>
@@ -162,11 +162,21 @@ if (GET("type")=="siemday") {
         logger_url = '../sem/index.php?start=<?=urlencode(date("Y-m-d",$timetz)." HH:00:00")?>&end=<?=urlencode(date("Y-m-d",$timetz)." HH:59:59")?>';
         siem_url = '<?=$siem_url?>';
     </script>
+    
+    <?php if (!empty($hours)) { ?>
+	
 	<script src="../js/raphael/<?=$js?>.js"></script>
-	<script src="../js/raphael/popup.js"></script>
-    		
+	<script src="../js/raphael/popup.js"></script>		
 	<div id="holder" style='height:100%;width:100%;margin: auto;'></div>
-
+	
+	<? } else { ?>
+	
+	<table style="width:100%;margin-top:25px">
+	<tr><td style="text-align:center"><img src="../pixmaps/shape.png" align="center" border="0"></td></tr>
+	<tr><td style="text-align:center;color:gray"><?=_("No events found")?></td></tr>
+	</table>
+	
+	<? } ?>
 </body>
 </html>
 

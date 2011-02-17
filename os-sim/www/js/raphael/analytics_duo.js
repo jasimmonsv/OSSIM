@@ -146,13 +146,21 @@ window.onload = function () {
     var path = r.path().attr({stroke: color, "stroke-width": 4, "stroke-linejoin": "round"}),
         bgp = r.path().attr({stroke: "none", opacity: .3, fill: color}),
         label2 = r.set(),
+        label3 = r.set(),
         is_label_visible2 = false,
         leave_timer2,
         blanket2 = r.set();
-    label2.push(r.text(60, 12, "XXX Logger events").attr(txt));
-    label2.push(r.text(60, 27, "1 January 2011").attr(txt1).attr({fill: color}));
+    label2.push(r.text(60, 12, "XXXXXX Logger events").attr(txt));
+    label2.push(r.text(60, 27, "31 January 2011").attr(txt1).attr({fill: color}));
     label2.hide();
     var frame2 = r.popup(100, 100, label2, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
+        
+    label3.push(r.text(60, 12, "XXXXXX SIEM events").attr(txt));
+    label3.push(r.text(60, 27, "XXXXXX Logger events").attr(txt2));
+    label3.push(r.text(60, 42, "31 January 2011").attr(txt1).attr({fill: '#338E05'}));
+    label3.hide();
+    var frame3 = r.popup(100, 100, label3, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
+    
     var p, bgpp;
     for (var i = 0, ii = labels.length; i < ii; i++) {
         var y = Math.round(height - bottomgutter - Y * data2[i]),
@@ -182,23 +190,47 @@ window.onload = function () {
                 if (x + frame2.getBBox().width > width) {
                     side = "left";
                 }
-                var ppp = r.popup(x, y, label2, side, 1);
-                frame2.show().stop().animate({path: ppp.path}, 200 * is_label_visible2);
-                label2[0].attr({text: data1 + " Logger event" + (data == 1 ? "" : "s")}).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
-                label2[1].attr({text: lbl }).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
-
-                var ppp1 = r.popup(x, y1, label, side, 1);
-                frame.show().stop().animate({path: ppp1.path}, 200 * is_label_visible2);
-                label[0].attr({text: data + " SIEM event" + (data1 == 1 ? "" : "s")}).show().stop().animateWith(frame, {translation: [ppp1.dx, ppp1.dy]}, 200 * is_label_visible2);
-                label[1].attr({text: lbl }).show().stop().animateWith(frame, {translation: [ppp1.dx, ppp1.dy]}, 200 * is_label_visible2);
+                var dify = Math.abs(y1-y);
+                if (dify<=12) { // so closer
+	                var ppp = r.popup(x, y, label3, side, 1);
+	                frame3.show().stop().animate({path: ppp.path}, 200 * is_label_visible2);
+	                label3[0].attr({text: data + " SIEM event" + (data == 1 ? "" : "s")}).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
+	                label3[1].attr({text: data1 + " Logger event" + (data1 == 1 ? "" : "s")}).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
+	                label3[2].attr({text: lbl }).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
+                    frame2.hide();
+                    frame.hide();
+                    label2[0].hide();
+                    label2[1].hide();
+                    label[0].hide();
+                    label[1].hide();	                
+                } else {
+	                var ppp = r.popup(x, y, label2, side, 1);
+	                frame2.show().stop().animate({path: ppp.path}, 200 * is_label_visible2);
+	                label2[0].attr({text: data1 + " Logger event" + (data1 == 1 ? "" : "s")}).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
+	                label2[1].attr({text: lbl }).show().stop().animateWith(frame2, {translation: [ppp.dx, ppp.dy]}, 200 * is_label_visible2);
+	
+	                var ppp1 = r.popup(x, y1, label, side, 1);
+	                frame.show().stop().animate({path: ppp1.path}, 200 * is_label_visible2);
+	                label[0].attr({text: data + " SIEM event" + (data == 1 ? "" : "s")}).show().stop().animateWith(frame, {translation: [ppp1.dx, ppp1.dy]}, 200 * is_label_visible2);
+	                label[1].attr({text: lbl }).show().stop().animateWith(frame, {translation: [ppp1.dx, ppp1.dy]}, 200 * is_label_visible2);
+                    frame3.hide();
+                    label3[0].hide();
+                    label3[1].hide();
+                    label3[2].hide();
+	            }
 
                 dot.attr("r", 6); dot1.attr("r", 6);
+                //console.log(dot); console.log(dot1);
                 is_label_visible2 = true;
             }, function () {
                 dot.attr("r", 4); dot1.attr("r", 4);
                 leave_timer2 = setTimeout(function () {
                     frame2.hide();
+                    frame3.hide();
                     frame.hide();
+                    label3[0].hide();
+                    label3[1].hide();
+                    label3[2].hide();
                     label2[0].hide();
                     label2[1].hide();
                     label[0].hide();
@@ -230,5 +262,9 @@ window.onload = function () {
     frame2.toFront();
     label2[0].toFront();
     label2[1].toFront();
+    frame3.toFront();
+    label3[0].toFront();
+    label3[1].toFront();
+    label3[2].toFront();
     blanket2.toFront();
 };
