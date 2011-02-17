@@ -262,18 +262,64 @@ switch($type){
 		
 		$conf = $GLOBALS["CONF"];
 		$version = $conf->get_conf("ossim_server_version", FALSE);
-
+		
+		$temp_colors='';
 		while (!$rs->EOF){
 			if(preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$rs->fields["in_charge"])) {
 				list($name, $type) = Acl::get_entity_name_type($conn,$rs->fields["in_charge"]);
 				if($type!="" && $name!="")
 					array_push($legend, $name." [".$type."]");
 			}
-			else {
+			else {				
 				$data.="['".$rs->fields["priority"]."',".$rs->fields["num"]."],";
+				switch($rs->fields["priority"]){
+					case 10:
+						// red
+						$temp_colors['#8B0000']=true;
+						break;
+					case 9:
+						// red
+						$temp_colors['#bb0000']=true;
+						break;
+					case 8:
+						// red
+						$temp_colors['#da0000']=true;
+						break;
+					case 7:
+						// orange
+						$temp_colors['#ff7700']=true;
+						break;						
+					case 6:
+						// orange
+						$temp_colors['#FF8C00']=true;
+						break;
+					case 5:
+						// orange
+						$temp_colors['#ffa500']=true;
+						break;
+					case 4:
+						// verde
+						$temp_colors['#ffb900']=true;
+						break;
+					case 3:
+						// verde
+						$temp_colors['#ffce00']=true;
+						break;
+					case 2:
+						// verde
+						$temp_colors['#ffe200']=true;
+						break;
+					case 1:
+						$temp_colors['#fffd00']=true;
+						break;
+				}
 			}
 			
 			$rs->MoveNext();
+		}
+		$colors='';
+		foreach($temp_colors as $key => $value){
+			$colors.='"'.$key.'",';
 		}
 		break;
 	default:
@@ -377,7 +423,7 @@ switch($type){
 				legend: {
 					show: true,
 					rendererOptions: {
-						numberCols: 1
+						numberCols: 2
 					},
 					location: 'w'
 				}
@@ -437,7 +483,16 @@ switch($type){
 			?>
 				plot1 = $.jqplot('chart', [<?php echo substr ($lineValueName, 0, -1);?>], {
 				stackSeries: true,
-				legend:{show:true, location:'s', noColumns: 2, yoffset: 2},
+				legend:{
+					renderer: $.jqplot.EnhancedLegendRenderer,
+					rendererOptions: {
+						numberColumns: 3
+					},
+					show:true, 
+					location:'ne',
+					yoffset: 0
+					},
+				
 				seriesDefaults: {
 					pointLabels:{ show: false },
 					renderer: $.jqplot.BarRenderer,
