@@ -63,21 +63,13 @@ if (copy ($path , $path_tmp) == false )
 }
 
 
-if ( @file_put_contents($path, $data, LOCK_EX) == false )
+if ( @file_put_contents($path, $data, LOCK_EX) === false )
 {
 	$error = true;
 	echo "3###";
 }
 else
 {
-	/*
-	if ($xml_obj->errors['status'] == false)
-	{
-		echo "5###<span style='padding-left:45px;'>"._("Format not allowed:")."</span><br/><div class='errors_xml'>".implode("\n", $xml_obj->errors['msg'])."</div>";
-		
-	}
-	*/
-	
 	$result = test_conf(); 	
 	
 	if ( $result !== true )

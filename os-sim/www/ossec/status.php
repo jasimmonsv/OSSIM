@@ -135,11 +135,9 @@ require_once ('utils.php');
 			padding: 3px;
 		}
 		
-		.headerpr{text-align: center;}
+		.headerpr{text-align: center; padding: 5px 0px !important;}
 		
-		.agents_graphs {width:90%; background:transparent; margin:auto; text-align: center; border: none;}
-		
-		.status_sec {padding-bottom: 10px;}
+		.status_sec {padding-bottom: 10px; clear: both;}
 		
 		#ossc_result{
 			margin: auto; 
@@ -162,6 +160,26 @@ require_once ('utils.php');
 		
 		#ossec_header {width: 80%; margin:auto; text-align:center;}
 		
+		.oss_containter_graph { 
+			width:80%; 
+			background:transparent; 
+			margin: 10px auto 0px auto; 
+			text-align: center; 
+			border: none; 
+			height: 235px;
+		}
+		
+		.oss_graph {
+			background: transparent;
+			text-align: center;
+			border: 1px solid #BBBBBB;
+			color: black;
+			text-align: center;
+			-moz-border-radius:8px;
+			-webkit-border-radius: 8px;
+			-khtml-border-radius: 8px;
+		}		
+		
 	</style>
 </head>
 <body>
@@ -172,16 +190,20 @@ require_once ('utils.php');
 
 	<div class='status_sec'>
 	
-		<table border="0" cellpadding="0" cellspacing="0" class="agents_graphs">
-			<tr>
-				<td class="noborder" align="center">
-					<iframe src="../panel/event_trends.php?type=hids" frameborder="0" style="width:470px;height:215px;overflow:hidden"></iframe>
-				</td>
-				<td class="noborder" align="center">
-					<iframe src="../panel/pie_graph.php?type=hids" frameborder="0" style="width:470px;height:215px;overflow:hidden"></iframe>
-				</td>
-			</tr>
-		</table>
+		<div class="oss_containter_graph">
+			<div style='float:left; width:480px'>
+				<table class='oss_graph'>
+					<tr><th><?php echo _("Ossec Events Trend")?></th></tr>
+					<tr><td><iframe src="../panel/event_trends.php?type=hids" frameborder="0" style="width:470px;height:215px;overflow:hidden"></iframe></td></tr>
+				</table>
+			</div>
+			<div style='float:right; width:480px'>
+				<table class='oss_graph'>
+					<tr><th><?php echo _("Ossec Data Sources")?></th></tr>
+					<tr><td><iframe src="../panel/pie_graph.php?type=hids" frameborder="0" style="width:470px;height:215px;overflow:hidden"></iframe></td></tr>
+				</table>
+			</div>
+		</div>
 		
 	</div>
 	

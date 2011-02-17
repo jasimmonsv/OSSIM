@@ -54,7 +54,7 @@ $tab = POST('tab');
 if($tab == "#tab1")
 {
 		
-	$conf_file 		= file_get_contents($ossec_conf);
+	$conf_file = file_get_contents($ossec_conf);
 	
 	if ($conf_file === false)
 	{
@@ -443,7 +443,7 @@ else
 
 if ($no_action == false)
 {
-	if ( @file_put_contents($path, $output, LOCK_EX) == false )
+	if ( @file_put_contents($path, $output, LOCK_EX) === false )
 	{
 		echo "2###"._("Failure to update")." <b>$ossec_conf</b> (2)";
 		echo $tab_error;

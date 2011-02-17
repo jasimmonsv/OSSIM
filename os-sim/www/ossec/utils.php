@@ -893,22 +893,36 @@ function test_conf()
 
 function test_agents()
 {
-	require_once("conf/_conf.php");
-	
-	exec("sudo /var/ossec/bin/verify-agent-conf > /tmp/ossec-agent-conf 2>&1", $result, $res);
-	
-	$result = file('/tmp/ossec-agent-conf', FILE_IGNORE_NEW_LINES);
-	
+	require_once ("conf/_conf.php");
+	require_once ("classes/Xml_parser.inc");
 	$res    = true; 
-	
-	if ( !is_array($result) )
-		$res = _("Error to read $agent_conf");
-	else if (is_array($result) && count($result) > 0)  
-		$res = implode("<br/><br/>", $result);
+	if ( file_exists($agent_conf) )
+	{
+		exec("sudo /var/ossec/bin/verify-agent-conf > /tmp/ossec-agent-conf 2>&1", $result, $res);
 		
-	@unlink ('/tmp/ossec-agent-conf');
-	return $res;	
+		if ( file_exists("/tmp/ossec-agent-conf") )
+		{
+			$result = file('/tmp/ossec-agent-conf', FILE_IGNORE_NEW_LINES);
+			
+			if ( !is_array($result) )
+				$res = _("Error to read $agent_conf");
+			else if (is_array($result) && count($result) > 0)  
+				$res = implode("<br/><br/>", $result);
+			
+			@unlink ('/tmp/ossec-agent-conf');
+		}
+		else
+		{
+			$xml_obj=new xml("_level_key");
+			
+			$xml_obj->load_file($agent_conf);
+			
+			if ($xml_obj->errors['status'] == false)
+				$res = implode("", $xml_obj->errors['msg']);
+		}
+	}
 	
+	return $res;	
 }
 
 

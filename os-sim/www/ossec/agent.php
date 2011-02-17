@@ -40,6 +40,8 @@ require_once ('classes/Session.inc');
 require_once ('conf/_conf.php');
 require_once ('utils.php');
 
+$error = false;
+
 if ( !file_exists($agent_conf) )
 {
 	$result = test_agents();
@@ -47,7 +49,10 @@ if ( !file_exists($agent_conf) )
 	if ( $result !== true )
 		$error = true;
 }
+
 ?>
+
+
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>

@@ -166,7 +166,7 @@ if ( !empty($agentless_list) && empty($info_error) )
 		$copy_cf       = preg_replace("/$unique_id/", $agentless_xml, $copy_cf);
 		$output 	   = formatXmlString($copy_cf);
 		
-		if (@file_put_contents($path, $output, LOCK_EX) == false)
+		if (@file_put_contents($path, $output, LOCK_EX) === false)
 		{
 			@unlink ($path);
 			@copy ($path_tmp, $path);

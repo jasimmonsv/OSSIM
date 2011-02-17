@@ -126,7 +126,7 @@ else
 	$output = utf8_decode($output);		
 
 	
-	if (@file_put_contents($path, $output, LOCK_EX) == false)
+	if (@file_put_contents($path, $output, LOCK_EX) === false)
 	{
 		$error = true;
 		echo "3###"._("Failure to update XML File")." (3)";

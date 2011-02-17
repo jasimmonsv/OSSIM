@@ -40,6 +40,7 @@ $error      = false;
 $tab_ok     = null;
 $no_action  = false;
 $path  		= $agent_conf;
+$tab        = POST('tab');
 $path_tmp   = "/tmp/".uniqid()."_tmp.conf";
 
 if ( @copy ($path , $path_tmp) == false )
@@ -61,7 +62,7 @@ else
 
 if ($no_action == false)
 {
-	if ( @file_put_contents($path, $data, LOCK_EX) == false )
+	if ( file_put_contents($path, $data, LOCK_EX) === false )
 	{
 		echo "2###"._("Failure to update")." <b>$agent_conf</b> (2)";
 		echo $tab_error;

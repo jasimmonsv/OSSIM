@@ -205,6 +205,11 @@ chown www-data:ossec /var/ossec/etc/ossec.conf
 chmod u+rw           /var/ossec/etc/ossec.conf
 chown www-data:ossec /var/ossec/etc/shared
 
+if [ -f "/var/ossec/etc/shared/agent.conf" ]; then
+	chown www-data:ossec /var/ossec/etc/shared/agent.conf
+	chmod u+rwx          /var/ossec/etc/shared/agent.conf
+fi
+
 chmod u+w            /var/ossec/rules/local_rules.xml
 chown www-data:ossec /var/ossec/rules/local_rules.xml 
 chown www-data:ossec /var/ossec/agentless
