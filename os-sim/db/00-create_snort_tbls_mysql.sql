@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `acid_event` (
   `ossim_asset_dst` int(11) default '1',
   `ossim_risk_c` int(11) default '1',
   `ossim_risk_a` int(11) default '1',
-	`ossim_correlation` tinyint(1) default '0',
+  `ossim_correlation` tinyint(1) default '0',
   `plugin_id` int(11) default NULL,
   `plugin_sid` int(11) default NULL,  
   PRIMARY KEY  (`sid`,`cid`,`timestamp`),
@@ -675,6 +675,7 @@ CREATE TABLE IF NOT EXISTS `extra_data` (
   `userdata8` text,
   `userdata9` text,
   `data_payload` text,
+  `context` INT(11) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`sid`,`cid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -821,9 +822,9 @@ CREATE TABLE IF NOT EXISTS `sensor` (
   `detail` tinyint(4) default NULL,
   `encoding` tinyint(4) default NULL,
   `last_cid` int(10) unsigned NOT NULL,
-  `sensor` text NOT NULL,
+  `sensor` TEXT NOT NULL DEFAULT '',
   PRIMARY KEY  (`sid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=206 ;
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
