@@ -276,9 +276,9 @@ if ( $error_message != null )
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
+	<script type="text/javascript" src="../js/messages.php"></script>
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
-	<script type="text/javascript" src="../js/messages.php"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
 	<!-- Dynatree libraries: -->
 	<script type="text/javascript" src="../js/jquery.cookie.js"></script>
@@ -289,8 +289,7 @@ if ( $error_message != null )
 
 	<script type="text/javascript">
 	
-	var messages = new Array();
-		messages[0]  = '<div class="reload"><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
+		messages[6]  = '<div class="reload"><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
 		
 		function check_host(){
 			
@@ -303,7 +302,7 @@ if ( $error_message != null )
 				success: function(msg){
 					if (msg == "1")
 					{
-						if (confirm("<?php _("Do you want to update host")?> '"+ip+"'?"))
+						if (confirm("<?php echo _("Do you want to update host")?> '"+ip+"'?"))
 							submit_form();
 					}
 					else 
@@ -368,7 +367,7 @@ if ( $error_message != null )
 			layer_1 = '#srctree1_'+i;
 			$('#'+container).append('<div id="srctree1_'+i+'" style="width:100%"></div>');
 			
-			$(layer_1).html(messages[0]);
+			$(layer_1).html(messages[6]);
 						
 			$(layer_1).dynatree({
 				initAjax: {url: "draw_properties_tree.php", data: {ip: ip, tree: container} },
@@ -471,7 +470,7 @@ if ( $error_message != null )
 			
 			layer_2 = '#srctree2_'+i;
 			$('#'+container).append('<div id="srctree2_'+i+'" style="width:100%"></div>');
-			$(layer_2).html(messages[0]);
+			$(layer_2).html(messages[6]);
 									
 			$(layer_2).dynatree({
 				initAjax: {url: "draw_properties_tree.php", data: {ip: ip, tree: container} },
