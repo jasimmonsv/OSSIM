@@ -1094,25 +1094,45 @@ EOT;
     
    $result=$dbconn->execute($query);
 
+   $job_profiles = array();
+   $id_found = false;
+   $ipr = 0;
    while (!$result->EOF) {
-      list($sid, $sname, $sdescription)=$result->fields;
-      $discovery .= "<option value=\"$sid\" ";
-      
-      if (($sid_selected!="" && $sid_selected == $sid) || $profileid==$sid){
-          if ($sdescription!="")
-            $discovery .= "selected>$sname - $sdescription</option>";
-          else
-            $discovery .= "selected>$sname</option>";
-      }
-      else {
-          if ($sdescription!="")
-            $discovery .= (preg_match("/default/i", $sname) ? "selected": "").">$sname - $sdescription</option>";
-          else
-            $discovery .= (preg_match("/default/i", $sname) ? "selected": "").">$sname</option>";
-      }
-      $result->MoveNext();
-    }
+        list($sid, $sname, $sdescription)=$result->fields;
+        
+        if($sid_selected==$sid) {
+            $id_found = true;
+        }
+        $job_profiles[$ipr]["sid"]           = $sid;
+        $job_profiles[$ipr]["sname"]         = $sname;
+        $job_profiles[$ipr]["sdescription"]  = $sdescription;
 
+        $ipr++;
+        $result->MoveNext();
+    }
+    
+    foreach($job_profiles as $profile_data) {
+        
+        $sid          = $profile_data["sid"];
+        $sname        = $profile_data["sname"];
+        $sdescription = $profile_data["sdescription"];
+        
+        $discovery .= "<option value=\"$sid\" ";
+      
+        if ( $sid_selected == $sid ){
+            if ($sdescription!="")
+                $discovery .= "selected>$sname - $sdescription</option>";
+            else
+                $discovery .= "selected>$sname</option>";
+        }
+        else {
+            if ($sdescription!="")
+                $discovery .= ((preg_match("/default/i", $sname) && !$id_found) ? 'selected="selected"': "").">$sname - $sdescription</option>";
+            else
+                $discovery .= ((preg_match("/default/i", $sname) && !$id_found) ? 'selected="selected"': "").">$sname</option>";
+        }
+    }
+    
     $discovery .="</select>&nbsp;&nbsp;&nbsp[<a href=\"settings.php?hmenu=Vulnerabilities&amp;smenu=ScanProfiles\">"._("Edit Profiles")."</a>]</td>";
     $discovery .="</tr>";
     $discovery .="<tr>";

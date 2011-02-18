@@ -674,6 +674,7 @@ function plot_graphic($id, $height, $width, $xaxis, $yaxis, $xticks, $xlabel, $d
 				var x = item.datapoint[0].toFixed(0), y = formatNmb(item.datapoint[1].toFixed(0));
 				var link = y+"-"+x;
 				link = link.replace(".","");
+                link = link.replace(",","");
 				if (typeof(url[link]) != "undefined") document.location.href=url[link]+"&submit=Query DB";
 				else alert("URL not found for "+link);
             }

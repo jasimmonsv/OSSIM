@@ -382,6 +382,7 @@ if ($screen == "status") {
 						}
 						function showTooltip(x, y, contents, link) {
 							link = link.replace(".","");
+                            link = link.replace(",","");
 							$('<div id="tooltip" class="tooltipLabel"><span style="font-size:10px;">' + contents + '</span></div>').css( {
 								position: 'absolute',
 								display: 'none',

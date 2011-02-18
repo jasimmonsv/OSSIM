@@ -6,7 +6,7 @@ UPDATE `custom_report_types` SET `type` = 'SIEM/Logger Events' WHERE `custom_rep
 UPDATE `custom_report_types` SET `type` = 'SIEM/Logger Events' WHERE `custom_report_types`.`id` =1100;
 
 use snort;
-ALTER TABLE `acid_event` MODIFY `tzone` FLOAT NOT NULL DEFAULT '0' AFTER `plugin_id`;
+ALTER TABLE `acid_event` MODIFY `tzone` FLOAT NOT NULL DEFAULT '0' AFTER `plugin_sid`;
 
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file

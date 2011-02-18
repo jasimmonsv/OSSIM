@@ -659,6 +659,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 	var url = new Array(50)
 	function showTooltip(x, y, contents, link) {
 		link = link.replace(".","");
+        link = link.replace(",","");
 		$('<div id="tooltip" class="tooltipLabel" onclick="document.location.href=\'' + url[link] + '&submit=Query DB\'"><a href="' + url[link] + '&submit=Query DB" style="font-size:10px;">' + contents + '</a></div>').css( {
 			position: 'absolute',
 			display: 'none',
