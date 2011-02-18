@@ -1,7 +1,7 @@
 <?
 ini_set("include_path", ".:/usr/share/ossim/include:/usr/share/phpgacl");
 require_once ('ossim_conf.inc');
-require_once ('classes/Acl.inc');
+//require_once ('classes/Acl.inc');
 $conf = $GLOBALS["CONF"];
 $days = $conf->get_conf("backup_day", FALSE);
 if ($days < 1 || $days > 999) exit;
