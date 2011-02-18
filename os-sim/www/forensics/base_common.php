@@ -751,7 +751,8 @@ function PrintBase64PacketPayload($encoded_payload, $output_type) {
     return $s;
 }
 function PrintAsciiPacketPayload($encoded_payload, $output_type) {
-    return wordwrap($encoded_payload, 70);
+	require_once('classes/Util.inc');
+    return Util::htmlentities(wordwrap($encoded_payload, 70));
 }
 function PrintHexPacketPayload($encoded_payload, $output_type) {
     /* strip out the <CR> at the end of each block */
