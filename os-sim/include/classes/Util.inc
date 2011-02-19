@@ -712,8 +712,8 @@ class Util {
 	}
 	
     function is_utf8($str) {
-        $cur_encoding = mb_detect_encoding($str);
- 		if ($cur_encoding == "UTF-8" && mb_check_encoding($str,"UTF-8"))
+        $cur_encoding = mb_detect_encoding($str." ");
+ 		if ($cur_encoding == "UTF-8" && mb_check_encoding($str." ","UTF-8"))
    			return true;
 		else
    			return false;
@@ -741,6 +741,11 @@ class Util {
         }
         return true;*/
     } 
+    
+    function utf8entities($str) {
+    	return html_entity_decode(preg_replace('/&#(\d{4,5});/','&amp;#$1;',mb_convert_encoding($str,'HTML-ENTITIES','UTF-8')));
+    }
+    
     function timezone($tz) {
         $arr = array( "-12" => "GMT-12:00", "-11" => "GMT-11:00", "-10" => "GMT-10:00",
                 "-9.5" => "GMT-9:30", "-9" => "GMT-9:00", "-8" => "GMT-8:00",

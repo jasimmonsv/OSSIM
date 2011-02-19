@@ -140,7 +140,7 @@ function validate_field(id, url)
 	$.ajax({
 		type: "GET",
 		url: url,
-		data: "name="+ name + "&value="+urlencode(Base64._utf8_encode(value)) +"&ajax_validation=true",
+		data: "name=" + name + "&value=" + value + "&ajax_validation=true",
 		success: function(html){
 
 			var status = parseInt(html);

@@ -88,6 +88,7 @@ function ids(){
 		{
 			foreach ($type as $k => $v)
 			{
+				$v = (mb_detect_encoding($v." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($v) : $v;
 				$general_data[$i][$k] = clean_echars($v);
 			}
 		}
@@ -260,17 +261,17 @@ define('OSS_LETTER', 'A-Za-z');
 define('OSS_SPACE', ' ');
 define('OSS_SCORE', '_\-');
 define('OSS_DOT', '\.');
-define('OSS_MIDDLEDOT', '\Â·');
+define('OSS_MIDDLEDOT', '\Ã‚Â·');
 define('OSS_COLON', ':');
 define('OSS_AT', '@');
 define('OSS_MAC', 'a-fA-F0-9:');
-define('OSS_PUNC_EXT', '\'"\.\!#\$%\^&\*_\-\=\+\:;,@\[\]\{\}\|\?\\\(\)\/ºª·' . OSS_SPACE);
+define('OSS_PUNC_EXT', '\'"\.\!#\$%\^&\*_\-\=\+\:;,@\[\]\{\}\|\?\\\(\)\/ÂºÂªÂ·' . OSS_SPACE);
 // Temporary fix, need to check out each and every OSS_PUNC use throughout the code
 define('OSS_PUNC', '\.,:@_\-\/\?&\=' . OSS_SPACE);
 define('OSS_SLASH', '\/');
 define('OSS_URL', '\.\/');
-define('OSS_EALPHA_LOWER', 'áéíóúıàèìòùäëïöüÿâêîôûãñõ¨åæç½ğøşß');
-define('OSS_EALPHA_UPPER', 'ÁÉÍÓÚİÀÈÌÒÙÄËÏÖÜ¾ÂÊÎÔÛÃÑÕ¦ÅÆÇ¼ĞØŞ');
+define('OSS_EALPHA_LOWER', 'Ã¡Ã©Ã­Ã³ÃºÃ½Ã Ã¨Ã¬Ã²Ã¹Ã¤Ã«Ã¯Ã¶Ã¼Ã¿Ã¢ÃªÃ®Ã´Ã»Ã£Ã±ÃµÂ¨Ã¥Ã¦Ã§Â½Ã°Ã¸Ã¾ÃŸ');
+define('OSS_EALPHA_UPPER', 'ÃÃ‰ÃÃ“ÃšÃÃ€ÃˆÃŒÃ’Ã™Ã„Ã‹ÃÃ–ÃœÂ¾Ã‚ÃŠÃÃ”Ã›ÃƒÃ‘Ã•Â¦Ã…Ã†Ã‡Â¼ÃÃ˜Ã');
 define('OSS_ALPHA', OSS_DIGIT . OSS_LETTER . OSS_EALPHA_LOWER . OSS_EALPHA_UPPER);
 define('OSS_CRONTAB', OSS_DIGIT . OSS_LETTER . '\*\-,\/'); // Somewhat dangerous, if "/" is allowed don't allow spaces, tabs or anything similar.
 define('OSS_NL', '\r\n');
@@ -532,18 +533,19 @@ function validate_form_fields($type, $validate)
 		$validate_rules = $validate;
 		foreach ($_POST as $k => $v)
 		{
+			//var_dump($v);
 			if ( !is_array($v) )
-				$values[$k]= Util::utf8_encode2(POST($k));
+				$values[$k]= Util::utf8entities(POST($k));
 			else
 			{
-				$post_array = POST($k);
-				
-				foreach ($post_array as $i => $j)
-					$aux[$i] = Util::utf8_encode2($j);
+				foreach ($v as $i => $j)
+					$aux[$i] = Util::utf8entities($j);
 				
 				$values[$k] = $aux;
 			}
+			//var_dump($values[$k]);	
 		}
+		
 	}
 	else if ($type == 'GET')
 	{
@@ -552,7 +554,7 @@ function validate_form_fields($type, $validate)
 		if ( isset($validate[$k]) )
 		{
 			$validate_rules[$k] = $validate[$k];
-			$values[$k]         = $_GET['value'];
+			$values[$k]         = Util::utf8entities(GET('value'));
 		}
 		
 	}
@@ -770,8 +772,8 @@ function valid_echars($value)
 	if ( $text != '' )
 	{
 		$latin_text[0] = "A-Za-z";
-		$latin_text[1] = "áéíóúıàèìòùäëïöüÿâêîôûãñõ¨åæç½ğøşß";
-		$latin_text[2] = "ÁÉÍÓÚİÀÈÌÒÙÄËÏÖÜ¾ÂÊÎÔÛÃÑÕ¦ÅÆÇ¼ĞØŞ";
+		$latin_text[1] = "Ã¡Ã©Ã­Ã³ÃºÃ½Ã Ã¨Ã¬Ã²Ã¹Ã¤Ã«Ã¯Ã¶Ã¼Ã¿Ã¢ÃªÃ®Ã´Ã»Ã£Ã±ÃµÂ¨Ã¥Ã¦Ã§Â½Ã°Ã¸Ã¾ÃŸ";
+		$latin_text[2] = "ÃÃ‰ÃÃ“ÃšÃÃ€ÃˆÃŒÃ’Ã™Ã„Ã‹ÃÃ–ÃœÂ¾Ã‚ÃŠÃÃ”Ã›ÃƒÃ‘Ã•Â¦Ã…Ã†Ã‡Â¼ÃÃ˜Ã";
 		$latin_text[3] = "0-9";
 		
 		$pattern = "/[^".implode("", $latin_text)."]/";
