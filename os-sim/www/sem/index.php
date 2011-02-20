@@ -1333,7 +1333,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "Poli
 ?>
 </table>
 
-<a href="javascript:toggleLayer('by_date');"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph by date")?>"> <small><font color="black"><?=_("Graphs by dates")?></font></small></a>
+<a href="javascript:toggleLayer('by_date');"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph by date")?>"> <small><font color="black"><?=_("Graphs by UTC dates")?></font></small></a>
 <center style="margin:0px">
 <div id="by_date">
     <div id="testLoading2"><img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading Graphs, please a wait a few seconds...') ?></div>
