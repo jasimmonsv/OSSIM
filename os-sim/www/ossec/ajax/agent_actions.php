@@ -99,7 +99,7 @@ else
 			exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
 									
 			if ($ret !== 0)
-				$message_error[] = _("Errot to Add Agent")." (1)";
+				$message_error[] = _("Error to Add Agent")." (1)";
 			else
 			{
 				if ( is_array($agents) )
@@ -155,7 +155,7 @@ else
 			exec("echo 'A'$'\n''$agent_name'$'\n''$ip'$'\n'$'\n''y'$'\n''Q'$'\n' | sudo /var/ossec/bin/manage_agents", $agents, $ret);
 			
 			if ($ret !== 0)
-				echo "error###"._("Errot to Add Agent")." (2)";
+				echo "error###"._("Error to Add Agent")." (2)";
 			else
 			{
 				exec ( "sudo /var/ossec/bin/agent_control -ls", $agents, $ret);
@@ -235,7 +235,7 @@ else
 					}	
 				}
 				else
-					echo "error###"._("Errot to Add Agent")." (3)";
+					echo "error###"._("Error to Add Agent")." (3)";
 					
 			}
 		break;
@@ -244,7 +244,7 @@ else
 			exec("echo 'R'$'\n''$id'$'\n'$'\n''y'$'\n''Q'$'\n' | sudo /var/ossec/bin/manage_agents", $result, $ret);	
 						
 			if ($ret !== 0)
-				echo "error###"._("Errot to delete Agent");
+				echo "error###"._("Error to delete Agent");
 			else
 				echo "1###"._("Agent deleted sucessfully");
 		break;
@@ -285,7 +285,7 @@ else
 						
 			
 			if ($ret !== 0)
-				echo "error###"._("Error to extract key for an agent")." (1)";
+				echo "error###"._("Error to extract key for agent")." (1)";
 			else
 			{
 				$results = implode("", $result);
@@ -300,7 +300,7 @@ else
 					echo "1###<div class='agent_key'>".$txt[0].":<br/><br/><span class='akey'>$key</span></div>";
 				}
 				else
-					echo "error###"._("Error to extract key for an agent")." (2)";
+					echo "error###"._("Error to extract key for agent")." (2)";
 					
 			}
 		break;

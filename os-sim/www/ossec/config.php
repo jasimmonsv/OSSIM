@@ -168,7 +168,7 @@ $cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' alig
 	.buttons_box {	
 		float: right; 
 		width: 20%;
-		padding-right: 40px;
+		padding-right: 47px;
 		padding-bottom: 10px;
 	}
 	

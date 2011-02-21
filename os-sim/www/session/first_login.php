@@ -168,10 +168,11 @@ if ($flag != "") {
 			if ( pass1 != '' )         $('#pass1').val($.base64.encode(pass1));
 			if ( pass2 != '' )         $('#pass2').val($.base64.encode(pass2));
 			if ( current_pass != '' )  $('#current_pass').val($.base64.encode(current_pass));
+			
 		}
 		
 		$(document).ready(function () {
-		  $('#foo').bind('click', function() { send_p();});
+		  $('#fnewpass').bind('click', function() { send_p();});
 		});
 
 						

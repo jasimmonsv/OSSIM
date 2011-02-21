@@ -147,7 +147,7 @@ if ( !file_exists($agent_conf) )
 		.buttons_box {	
 			float: right; 
 			width: 20%;
-			padding-right: 40px;
+			padding-right: 47px;
 			padding-bottom: 10px;
 		}
 		
