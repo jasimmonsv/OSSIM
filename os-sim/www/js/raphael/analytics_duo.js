@@ -79,10 +79,6 @@ window.onload = function () {
         is_label_visible = false,
         leave_timer,
         blanket = r.set();
-    label.push(r.text(60, 12, "XXXXXX SIEM events").attr(txt));
-    label.push(r.text(60, 27, "31 January 2011").attr(txt1).attr({fill: color}));
-    label.hide();
-    var frame = r.popup(100, 100, label, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
 
     var p, bgpp;
     for (var i = 0, ii = labels.length; i < ii; i++) {
@@ -137,9 +133,6 @@ window.onload = function () {
     bgpp = bgpp.concat([x, y, x, y, "L", x, height - bottomgutter, "z"]);
     path.attr({path: p});
     bgp.attr({path: bgpp});
-    frame.toFront();
-    label[0].toFront();
-    label[1].toFront();
     blanket.toFront();
     
     color = '#BBC6D0';
@@ -150,6 +143,12 @@ window.onload = function () {
         is_label_visible2 = false,
         leave_timer2,
         blanket2 = r.set();
+
+    label.push(r.text(60, 12, "XXXXXX SIEM events").attr(txt));
+    label.push(r.text(60, 27, "31 January 2011").attr(txt1).attr({fill: color}));
+    label.hide();
+    var frame = r.popup(100, 100, label, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
+
     label2.push(r.text(60, 12, "XXXXXX Logger events").attr(txt));
     label2.push(r.text(60, 27, "31 January 2011").attr(txt1).attr({fill: color}));
     label2.hide();
@@ -259,6 +258,9 @@ window.onload = function () {
     bgpp = bgpp.concat([x, y, x, y, "L", x, height - bottomgutter, "z"]);
     path.attr({path: p});
     bgp.attr({path: bgpp});
+    frame.toFront();
+    label[0].toFront();
+    label[1].toFront();
     frame2.toFront();
     label2[0].toFront();
     label2[1].toFront();
