@@ -101,8 +101,14 @@ def normalizeToUTCDate(event, used_tzone):
     #2011-02-01 17:00:16
     matchgroup1 = patternISO_date.match(event["fdate"])
     plugin_dt = datetime(year=int(matchgroup1.group("year")), month=int(matchgroup1.group("month")), day=int(matchgroup1.group("day")), hour=int(matchgroup1.group("hour")), minute=int(matchgroup1.group("minute")), second=int(matchgroup1.group("second")))
-    logger.debug("Plugin localtime date: %s", plugin_dt)
-    plugin_tz = timezone(used_tzone)
+    logger.debug("Plugin localtime date: %s and used time zone: %s", plugin_dt, used_tzone)
+
+    try:
+        plugin_tz = timezone(used_tzone)
+    except UnknownTimeZoneError, e:
+        logger.info("Error: Unknow tzone, %s may be not valid" % used_tzone)
+        plugin_tz = timezone('GMT')
+
     logger.debug("Plugin tzone: %s" % plugin_tz.zone)
     plugin_localized_date = plugin_tz.localize(plugin_dt)
     logger.debug("Plugin localized time: %s" % plugin_localized_date)

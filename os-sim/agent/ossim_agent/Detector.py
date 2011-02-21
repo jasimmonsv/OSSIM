@@ -88,7 +88,6 @@ class Detector(threading.Thread):
         self.checkTimeZone()
 
     def checkTimeZone(self):
-        used_tzone = strftime("%z", gmtime())
         if self._timezone in all_timezones:
             used_tzone = self._timezone
             logger.debug("Using custom plugin tzone data: %s" % used_tzone)
@@ -96,8 +95,20 @@ class Detector(threading.Thread):
             used_tzone = self._agenttimezone
             logger.info("Warning: Invalid plugin tzone information. Using agent tzone: %s" % used_tzone)
         else:
+            try:
+                #read local timezone information. 
+                f = open('/etc/timezone', 'r')
+                used_tzone = f.readline().rstrip()
+                f.close()
+                if used_tzone not in all_timezones:
+                    logger.info("Warning, we can't read valid timezone data.Using GMT")
+                    used_tzone = 'GMT'
+            except e:
+                used_tzone = 'GMT'
+                logger.info("Warning, we can't read valid timezone data.Using GMT")
             logger.info("Warning: Invalid plugin tzone and invalid agent tzone, using system tzone: %s" % used_tzone)
         self._EventTimeZone = used_tzone
+
     def _event_os_cached(self, event):
 
         if isinstance(event, Event.EventOS):
