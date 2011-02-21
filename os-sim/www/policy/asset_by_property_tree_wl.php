@@ -46,11 +46,24 @@ require_once ('ossim_db.inc');
 Session::logcheck("MenuPolicy", "PolicyHosts");
 
 $key = GET('key');
+$page = intval(GET('page')); 
+
 ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("key"));
+ossim_valid($page, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("page"));
+
+if (ossim_error()) {
+    die(ossim_error());
+}
+
+if ($page == "" || $page<=0) $page = 1;
+$maxresults = 50;
+$to = $page * $maxresults;
+$from = $to - $maxresults;
+$nextpage = $page + 1;
 
 $buffer = "";
 
-$db = new ossim_db();
+$db = new ossim_db(); 
 $conn = $db->connect();
 
 if(preg_match("/cclass_(\d+)_(.+)/",$key) || preg_match("/all_\d+\.\d+\.\d+_(\d+)_(.+)/",$key) ||  preg_match("/all/",$key) || preg_match("/all_\d+\.\d+\.\d+/",$key)) {
@@ -139,60 +152,103 @@ if($key=="") {
 else if(preg_match("/p(.*)/",$key,$found)) {
         $value_list = Host::get_property_values($conn, $found[1]);
         
+        $j = 0;
         if(intval($found[1])!=7) {
             foreach($value_list as $v) {
-                $buffer .= "{ key:'cclass_".$found[1]."_".md5($v["value"])."', isLazy:true , title:'".$v["value"]." <font style=\"font-weight:normal;font-size:80%\">(" . $v["total"] . ")</font>', isFolder:true},";
+                if($j>=$from && $j<$to) {
+                    $buffer .= "{ key:'cclass_".$found[1]."_".md5($v["value"])."', isLazy:true , title:'".$v["value"]." <font style=\"font-weight:normal;font-size:80%\">(" . $v["total"] . ")</font>', isFolder:true},";
+                }
+                $j++;
             }
         }
         else {
             foreach($value_list as $v) {
-                $buffer .= "{ icon:'../../pixmaps/theme/mac.png', key:'cclass_".$found[1]."_".(($v["vendor"]=="") ? "Unknown" : md5($v["vendor"]))."', isLazy:true , title:'".(($v["vendor"]=="") ? _("Unknown") : $v["vendor"])." <font style=\"font-weight:normal;font-size:80%\">(" . $v["total"] . ")</font>', isFolder:true},";
+                if($j>=$from && $j<$to) {
+                    $buffer .= "{ icon:'../../pixmaps/theme/mac.png', key:'cclass_".$found[1]."_".(($v["vendor"]=="") ? "Unknown" : md5($v["vendor"]))."', isLazy:true , title:'".(($v["vendor"]=="") ? _("Unknown") : $v["vendor"])." <font style=\"font-weight:normal;font-size:80%\">(" . $v["total"] . ")</font>', isFolder:true},";
+                }
+                $j++;
             }
+        }
+        if ($j>$to) {
+            $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults '},";
         }
         $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
 else if(preg_match("/cclass_(\d+)_(.*)/",$key,$found)) {
+    $j = 0;
     foreach($all_cclass_hosts as $cclass => $hg) {
-        $buffer .= "{ key:'all_".$cclass."_".$found[1]."_".$found[2]."', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'\n},";
+        if($j>=$from && $j<$to) {
+            $buffer .= "{ key:'all_".$cclass."_".$found[1]."_".$found[2]."', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'\n},";
+        }
+        $j++;
     }
+    if ($j>$to) {
+        $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("cclass")."'},";
+    }
+
     $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
 else if(preg_match("/all_(\d+\.\d+\.\d+)_(\d+)_(.*)/",$key,$found)) {
     foreach($all_cclass_hosts as $cclass => $host_list) if($cclass==$found[1]) {
+        $j = 0;
         foreach ($host_list as $host_data) {
-            $host_name = "";
-            if($host_data[1]!="") {
-                $host_name = "<font style=\"font-size:80%\">(" . $host_data[1] . ")</font>";
-                $url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
+            if($j>=$from && $j<$to) {
+                $host_name = "";
+                if($host_data[1]!="") {
+                    $host_name = "<font style=\"font-size:80%\">(" . $host_data[1] . ")</font>";
+                    $url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
+                }
+                else {
+                    $url = "url:'../host/newhostform.php?ip=".$host_data[0]."',";
+                }
+                $buffer.= "{ ".$url." icon:'../../pixmaps/theme/host.png', title:'".$host_data[0]." ".$host_name."' },";
             }
-            else {
-                $url = "url:'../host/newhostform.php?ip=".$host_data[0]."',";
-            }
-            $buffer.= "{ ".$url." icon:'../../pixmaps/theme/host.png', title:'".$host_data[0]." ".$host_name."' },";
+            $j++;
         }
     }
+    
+    if ($j>$to) {
+        $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("hosts")."'},";
+    }
+    
     $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
 else if($key=="all") {
+    $j = 0;
     foreach($all_cclass_hosts as $cclass => $hg) {
-        $buffer .= "{ key:'all_$cclass', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'\n},";
+        if($j>=$from && $j<$to) {
+            $buffer .= "{ key:'all_$cclass', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'\n},";
+        }
+        $j++;
+    }
+    if ($j>$to) {
+        $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("cclass")."'},";
     }
     $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
 else if(preg_match("/all_(\d+\.\d+\.\d+)/",$key,$found)) {
     foreach($all_cclass_hosts as $cclass => $host_list) if($cclass==$found[1]) {
+        $j = 0;
         foreach ($host_list as $host_data) {
-            $host_name = "";
-            if($host_data[1]!="") {
-                $host_name = "<font style=\"font-size:80%\">(" . $host_data[1] . ")</font>";
-                $url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
+            if($j>=$from && $j<$to) {
+                $host_name = "";
+                if($host_data[1]!="") {
+                    $host_name = "<font style=\"font-size:80%\">(" . $host_data[1] . ")</font>";
+                    $url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
+                }
+                else {
+                    $url = "url:'../host/newhostform.php?ip=".$host_data[0]."',";
+                }
+                $buffer.= "{ ".$url." icon:'../../pixmaps/theme/host.png', title:'".$host_data[0]." ".$host_name."' },";
             }
-            else {
-                $url = "url:'../host/newhostform.php?ip=".$host_data[0]."',";
-            }
-            $buffer.= "{ ".$url." icon:'../../pixmaps/theme/host.png', title:'".$host_data[0]." ".$host_name."' },";
+            $j++;
         }
     }
+
+    if ($j>$to) {
+        $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("hosts")."'},";
+    }
+    
     $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
 
