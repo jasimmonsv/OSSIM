@@ -177,6 +177,8 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="">
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
 <link rel="stylesheet" href="../forensics/styles/ossim_style.css">
 <link href="../style/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>

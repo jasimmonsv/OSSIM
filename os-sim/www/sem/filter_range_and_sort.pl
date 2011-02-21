@@ -27,6 +27,7 @@ $end = $ARGV[1];
 $start_line = $ARGV[2];
 $num_lines = $ARGV[3];
 $filter = $ARGV[4];
+$filter =~ s/\%u([0-9A-F]+)/sprintf("\&\#%d;", hex($1))/seg;
 $order_by = ($ARGV[5] eq "date") ? "perl -e 'print <>'" : "perl -e 'print reverse <>'";
 $reverse =  ($ARGV[5] eq "date") ? 0 : 1;
 $server = $ARGV[6];

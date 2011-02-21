@@ -636,6 +636,12 @@ foreach($result as $res=>$event_date) {
         // fin para coger
         if($htmlResult){
                 $matches[11] = wordwrap($matches[11], 60, " ", true);
+                $matches[11] = preg_replace("/(;) (&#\d+;)/",";\\1\\2",$matches[11]);
+                $matches[11] = preg_replace("/(&) (#\d+;)/","\\1\\2",$matches[11]);
+                $matches[11] = preg_replace("/(&#) (\d+;)/","\\1\\2",$matches[11]);
+                $matches[11] = preg_replace("/(&#\d+) (\d+;)/","\\1\\2",$matches[11]);
+                $matches[11] = preg_replace("/(&#\d+) (;)/","\\1\\2",$matches[11]);
+                $matches[11] = preg_replace("/(&#\d+;) (&)/","\\1\\2",$matches[11]);
                 foreach(split("[\| \t:]", $matches[11]) as $piece) {
                     $clean_piece = str_replace("(", " ", $piece);
                     $clean_piece = str_replace(")", " ", $clean_piece);
