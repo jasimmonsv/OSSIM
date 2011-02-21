@@ -632,16 +632,16 @@ foreach($result as $res=>$event_date) {
         // fin para coger
         // change ,\s* or #\s* adding blank space to force html break line
         // para coger
-        $matches[11] = preg_replace("/(\,|\#)\s*/", "\\1 ", $matches[11]);
+        $matches[11] = preg_replace("/(\,|\#)[^\d+]\s*/", "\\1 ", $matches[11]);
         // fin para coger
         if($htmlResult){
                 $matches[11] = wordwrap($matches[11], 60, " ", true);
-		foreach(split("[\| \t;:]", $matches[11]) as $piece) {
+                foreach(split("[\| \t:]", $matches[11]) as $piece) {
                     $clean_piece = str_replace("(", " ", $piece);
                     $clean_piece = str_replace(")", " ", $clean_piece);
                     $clean_piece = str_replace("[", " ", $clean_piece);
                     $clean_piece = str_replace("]", " ", $clean_piece);
-                                $clean_piece = Util::htmlentities($clean_piece);
+                    $clean_piece = Util::htmlentities($clean_piece);
                     $red = 0;
                     foreach($color_words as $word) {
                         if (stripos($clean_piece, $word)) {
