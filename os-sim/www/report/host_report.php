@@ -399,7 +399,7 @@ a {
 			onLazyRead: function(dtnode){
 				dtnode.appendAjax({
 					url: "../policy/asset_by_property_tree_wl.php",
-					data: {key: dtnode.data.key}
+					data: {key: dtnode.data.key, page: dtnode.data.page}
 				});
 				if (typeof(parent.doIframe2)=="function") parent.doIframe2();
 			}

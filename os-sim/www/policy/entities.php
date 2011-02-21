@@ -58,7 +58,7 @@ if (!$opensource) {
             onLazyRead: function(dtnode){
                 dtnode.appendAjax({
                     url: "entities_tree.php",
-                    data: {key: dtnode.data.key}
+                    data: {key: dtnode.data.key, page: dtnode.data.page}
                 });
                 if (typeof(parent.doIframe2)=="function") parent.doIframe2();
             }
@@ -76,7 +76,7 @@ if (!$opensource) {
             onLazyRead: function(dtnode){
                 dtnode.appendAjax({
                     url: "asset_by_property_tree_wl.php",
-                    data: {key: dtnode.data.key}
+                    data: {key: dtnode.data.key, page: dtnode.data.page}
                 });
                 if (typeof(parent.doIframe2)=="function") parent.doIframe2();
             }
