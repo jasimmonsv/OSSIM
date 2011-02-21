@@ -1,7 +1,10 @@
 #!/usr/bin/perl
 
-# Create temporary OSSIM and SNORT database Structure
-# IMPORTANT: Execute this each time you modify /db/*.sql files
+# CREATE temporary OSSIM and SNORT database Structure into ossim_temp, snort_temp...
+# After this DROPS _temp databases
+# Execute this each time you modify /db/*.sql files
+# USE: perl ossim_check_creates.pl [ossim|snort|datawarehouse|jasperserver|ossim_acl]
+# Database parameter is optional. If empty it will check all database creates
 # 2011-02-21 Pablo Vargas
 use ossim_conf;
 use DBI;
