@@ -163,6 +163,13 @@ sub createOssimStructure {
         print $_;
     }
     close F;
+    $cmd = "cat ../db/plugins/*.sql | $cmdline_ossim";
+    print "Execute plugins/*.sql\n";
+    open (F,"$cmd |");
+    while (<F>) {
+        print $_;
+    }
+    close F;
 }
 
 sub printNumTables {
