@@ -163,7 +163,8 @@ var Base64 = {
     if (false === (hash_map = this.get_html_translation_table('HTML_ENTITIES', quote_style))) {
         return false;
     }
-    hash_map["'"] = '&#039;';    for (symbol in hash_map) {
+    hash_map["'"] = '&#039;';
+    for (symbol in hash_map) {
         entity = hash_map[symbol];
         tmp_str = tmp_str.split(symbol).join(entity);
     }
@@ -202,11 +203,13 @@ function html_entity_decode(string, quote_style) {
     hash_map['&'] = '&amp;';
  
     for (symbol in hash_map) {
-        entity = hash_map[symbol];        tmp_str = tmp_str.split(entity).join(symbol);
+        entity = hash_map[symbol];
+        tmp_str = tmp_str.split(entity).join(symbol);
     }
     tmp_str = tmp_str.split('&#039;').join("'");
 	
-	return tmp_str;}
+	return tmp_str;
+}
 
 function get_html_translation_table (table, quote_style) {
     // http://kevin.vanzonneveld.net
@@ -368,14 +371,13 @@ function get_html_translation_table (table, quote_style) {
 }
 
 
-   function uniqid()
-   {
-      var newDate = new Date;
-      return newDate.getTime();
-   }
+function uniqid()
+{
+  var newDate = new Date;
+  return newDate.getTime();
+}
 
 
-   
 function urlencode(textoAcodificar)
 {
 	var nocodificar = "0123456789"+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"+"abcdefghijklmnopqrstuvwxyz" +"-_.!~*'()";
@@ -405,8 +407,6 @@ function urlencode(textoAcodificar)
 		}
 	return codificado;
 }
-
-
 
 
 function urldecode(codificado){

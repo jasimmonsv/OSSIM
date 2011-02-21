@@ -100,7 +100,7 @@ else
 	if ( POST('ajax_validation_all') == true )
 	{
 		if ( is_array($message_error) && !empty($message_error) )
-			echo implode( "<br/>", $message_error);
+			echo utf8_encode(implode( "<br/>", $message_error));
 		else
 			echo 0;
 		
