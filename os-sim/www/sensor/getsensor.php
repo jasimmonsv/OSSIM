@@ -117,14 +117,14 @@ $xml.= "<total>$total</total>\n";
 foreach($sensor_list as $sensor) {
     if (!in_array($sensor->get_ip() , $sensor_stack) && $onlyactive>0) continue;
     if (in_array($sensor->get_ip() , $sensor_stack) && $onlyactive<0) continue;
-    $name = utf8_encode($sensor->get_name());
+    $name = $sensor->get_name();
     $ip = $sensor->get_ip();
-    $xml.= "<row id='".htmlspecialchars($name)."#".$ip."'>";
+    $xml.= "<row id='".htmlspecialchars($name)."###".$ip."'>";
     //$ip = "<a href=\"sensor_plugins.php?sensor=$ip\">$ip</a>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./interfaces.php?sensor=".$ip."&name=".urlencode($sensor->get_name())."\">" . Util::htmlentities($ip) . "</a>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./interfaces.php?sensor=".$ip."&name=".urlencode($sensor->get_name())."\">" . $ip . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $total_sensors++;
-    $xml.= "<cell><![CDATA[" . $name. "]]></cell>";
+    $xml.= "<cell><![CDATA[" . Util::htmlentities($name). "]]></cell>";
     $xml.= "<cell><![CDATA[" . $sensor->get_priority() . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $sensor->get_port() . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $sensor->get_version() . "]]></cell>";

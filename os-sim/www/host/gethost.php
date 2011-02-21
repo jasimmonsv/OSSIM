@@ -57,13 +57,22 @@ $order = GET('sortname');
 if (empty($order)) $order = POST('sortname');
 if ($order == "ip") $order = "INET_ATON(ip)"; // Numeric ORDER for IP
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
+
 $search = GET('query');
 if (empty($search)) $search = POST('query');
+
+if ( !empty($search) )
+	$search = (mb_detect_encoding($search." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($search) : $search;
+
+
 $field = POST('qtype');
-$page = POST('page');
-if (empty($page)) $page = 1;
+$page  = POST('page');
+if (empty($page)) 
+	$page = 1;
 $rp = POST('rp');
-if (empty($rp)) $rp = 25;
+if (empty($rp)) 
+	$rp = 25;
+	
 $lsearch = $search;
 if (!empty($search))
 // The CIDR validation is not working...

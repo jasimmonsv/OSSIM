@@ -140,8 +140,8 @@ $tz=$tzone;
 <body>
                                                                                 
 <?php
-
-if (GET('withoutmenu') != "1") 
+$wm = (POST('withoutmenu')!="") ? POST('withoutmenu') : GET('withoutmenu');
+if ($wm != "1") 
 	include ("../hmenu.php"); 
 ?>
 
@@ -152,7 +152,7 @@ if (GET('withoutmenu') != "1")
 <table align="center" id='table_form'>
 	
 	<input type="hidden" name="insert" value="insert"/>
-	<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
+	<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo $wm?>"/>
 	
 	<tr>
 		<th><label for='name'><?php echo gettext("Name");?></label></th>

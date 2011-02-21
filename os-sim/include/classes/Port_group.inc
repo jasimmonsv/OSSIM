@@ -52,7 +52,7 @@ class Port_group {
     var $name;
     var $descr;
     function Port_group($name, $descr, $foundrows = 0) {
-        $this->name = stripslashes($name);
+        $this->name = $name;
         $this->descr = $descr;
         $this->foundrows = $foundrows;
     }

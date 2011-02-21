@@ -291,27 +291,6 @@ if ( $error_message != null )
 	
 		messages[6]  = '<div class="reload"><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
 		
-		function check_host(){
-			
-			var ip = $("#ip").val();
-			
-			$.ajax({
-				type: "GET",
-				url: "check_host_response.php?ip="+ip,
-				data: "",
-				success: function(msg){
-					if (msg == "1")
-					{
-						if (confirm("<?php echo _("Do you want to update host")?> '"+ip+"'?"))
-							submit_form();
-					}
-					else 
-						submit_form();
-				}
-			});
-		}
-		
-    
 		function saveService(){
 			if($('#port').val()<0 || $('#port').val()>65535)
 			{
@@ -1049,7 +1028,7 @@ if ( empty( $ip ) ) {
 					
 					<tr>
 						<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-							<input type="button" class="button" id='send' value="<?=_("Update")?>" onclick="check_host();"/>
+							<input type="button" class="button" id='send' value="<?=_("Update")?>" onclick="submit_form();"/>
 							<input type="reset"  class="button" value="<?php echo gettext("Clear form"); ?>"/>
 						</td>
 					</tr>

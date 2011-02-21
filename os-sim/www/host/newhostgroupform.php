@@ -98,6 +98,7 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 		var addnodes = false;
 	
 		function load_tree(filter) {
+			
 			combo = 'hosts';
 			if (nodetree!=null) {
 				nodetree.removeChildren();

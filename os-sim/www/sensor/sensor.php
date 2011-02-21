@@ -177,14 +177,14 @@ if ($diff_arr) {
 		if (com=='<?php echo _("Delete selected")?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
-				var sdata = items[0].id.substr(3).split('#');
+				var sdata = items[0].id.substr(3).split('###');
 				document.location.href = 'deletesensor.php?confirm=yes&name='+urlencode(sdata[0])
 			}
 			else alert('<?=_("You must select a sensor")?>');
 		}
 		else if (com=='<?php echo _("Modify")?>') {
 			if (typeof(items[0]) != 'undefined') {
-				var sdata = items[0].id.substr(3).split('#');
+				var sdata = items[0].id.substr(3).split('###');
 				document.location.href = 'interfaces.php?sensor='+urlencode(sdata[1])+'&name='+urlencode(sdata[0]);
 			}
 			else alert('<?=_("You must select a sensor")?>');
@@ -197,13 +197,13 @@ if ($diff_arr) {
 		}
 	}
     function linked_to(rowid) {
-		var aux = rowid.split(/#/);
+		var aux = rowid.split(/###/);
 		var ip = aux[1];
 		var hostname = aux[0];    
         document.location.href = 'interfaces.php?sensor='+urlencode(ip)+'&name='+urlencode(hostname);
     }
 	function menu_action(com,id,fg,fp) {
-		var aux = id.split(/#/);
+		var aux = id.split(/###/);
 		var ip = aux[1];
 		var hostname = aux[0];
 

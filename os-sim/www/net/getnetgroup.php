@@ -59,8 +59,12 @@ $page = POST('page');
 if (empty($page)) $page = 1;
 $rp = POST('rp');
 if (empty($rp)) $rp = 25;
-$nessus_action = GET('nessus_action');
+$nessus_action  = GET('nessus_action');
 $net_group_name = GET('net_group_name');
+
+if ( !empty($search) )
+	$search = (mb_detect_encoding($search." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($search) : $search;
+
 ossim_valid($nessus_action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Nessus action"));
 ossim_valid($net_group_name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Net group name"));
 ossim_valid($order, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Order"));

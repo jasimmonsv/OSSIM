@@ -50,15 +50,24 @@ require_once 'classes/Plugin.inc';
 require_once 'classes/Security.inc';
 require_once ("classes/Repository.inc");
 $order = GET('sortname');
-if (empty($order)) $order = POST('sortname');
-if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
+if (empty($order))  $order  = POST('sortname');
+if (!empty($order)) $order .= (POST('sortorder') == "asc") ? "" : " desc";
+
 $search = GET('query');
-if (empty($search)) $search = POST('query');
+if (empty($search)) 
+	$search = POST('query');
+
+if ( !empty($search) )
+	$search = (mb_detect_encoding($search." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($search) : $search;
+	
 $field = POST('qtype');
+
 $page = POST('page');
 if (empty($page)) $page = 1;
+
 $rp = POST('rp');
 if (empty($rp)) $rp = 25;
+
 $nagios_action   = GET('nagios_action');
 $nessus_action   = GET('nessus_action');
 $host_group_name = GET('host_group_name');

@@ -46,6 +46,7 @@ require_once 'ossim_db.inc';
 require_once 'ossim_conf.inc';
 require_once 'classes/Databases.inc';
 require_once 'classes/Security.inc';
+require_once 'classes/Util.inc';
 $page = POST('page');
 if (empty($page)) $page = 1;
 $rp = POST('rp');
@@ -75,12 +76,10 @@ $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($server_list as $server) {
-    $name = utf8_encode($server->get_name());
-    $xml.= "<row id='".htmlspecialchars($name)."'>";
+    $name = $server->get_name();
     $ip = $server->get_ip();
-
-    $link_modify = "<a style='font-weight:bold;' href=\"./newdbsform.php?name=".urlencode($server->get_name())."\">".$name."</a>";
-
+    $xml.= "<row id='".htmlspecialchars($name)."'>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newdbsform.php?name=".urlencode($server->get_name())."\">".Util::htmlentities($name)."</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $ip . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $server->get_port() . "]]></cell>";

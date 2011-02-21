@@ -65,7 +65,7 @@ if (ossim_error()) {
     die(ossim_error());
 }
 if (empty($order)) $order = "name";
-if ($order == "ip") $order = "INET_ATON(ip)"; // Numeric ORDER for IP
+if ($order == "ip") $order = "INET_ATON(ip)"; // Numeric ORDER for IPs
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
 $db = new ossim_db();
@@ -94,12 +94,12 @@ $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($server_list as $server) {
     $total_servers++;
-    $name = htmlspecialchars(utf8_encode($server->get_name()));
-    $xml.= "<row id='".$name."'>";
+    $name = $server->get_name();
     $ip = $server->get_ip();
-    $link_modify = "<a style='font-weight:bold;' href=\"./newserverform.php?name=".urlencode($server->get_name())."\">" . Util::htmlentities($ip) . "</a>";
+    $xml.= "<row id='".htmlspecialchars($name)."'>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newserverform.php?name=".urlencode($name)."\">" . $ip . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
-    $xml.= "<cell><![CDATA[" . $name . "]]></cell>";
+    $xml.= "<cell><![CDATA[" . Util::htmlentities($name) . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $server->get_port() . "]]></cell>";
     if (in_array($name, $server_stack)) {
         $xml.= "<cell><![CDATA[<img src='../pixmaps/tables/tick.png'>]]></cell>";

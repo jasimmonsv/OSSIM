@@ -34,7 +34,6 @@
 * Function list:
 * Classes list:
 */
-
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('ossim_db.inc');
@@ -63,7 +62,6 @@ $mac          = POST('mac');
 $mac_vendor   = POST('mac_vendor');
 $latitude     = POST('latitude');
 $longitude    = POST('longitude');
-
 
 $num_sensors = count($sensors);
 
@@ -102,7 +100,7 @@ if ( GET('ajax_validation') == true )
 else
 {
 	$validation_errors = validate_form_fields('POST', $validate);
-	
+
 	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors)) || $num_sensors == 0)
 	{
 		$error = true;
@@ -125,7 +123,7 @@ else
 	if ( POST('ajax_validation_all') == true )
 	{
 		if ( is_array($message_error) && !empty($message_error) )
-			echo implode( "<br/>", $message_error);
+			echo utf8_encode(implode( "<br/>", $message_error));
 		else
 			echo 0;
 		

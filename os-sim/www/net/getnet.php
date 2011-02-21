@@ -54,15 +54,21 @@ $order = GET('sortname');
 if (empty($order)) $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 $search = GET('query');
+
 if (empty($search)) $search = POST('query');
 $field = POST('qtype');
 $page = POST('page');
 if (empty($page)) $page = 1;
 $rp = POST('rp');
 if (empty($rp)) $rp = 25;
+
 $nagios_action = GET('nagios_action');
 $nessus_action = GET('nessus_action');
-$net_name = GET('net_name');
+$net_name      = GET('net_name');
+
+if ( !empty($search) )
+	$search = (mb_detect_encoding($search." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($search) : $search;
+
 ossim_valid($nessus_action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Nessus action"));
 ossim_valid($nagios_action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Nagios action"));
 ossim_valid($net_name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Net name"));
@@ -71,13 +77,17 @@ ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
 ossim_valid($search, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("search"));
 ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("field"));
+
+
 if (ossim_error()) {
     die(ossim_error());
 }
 $db = new ossim_db();
 $conn = $db->connect();
-if ((!empty($nessus_action)) AND (!empty($net_name))) {
-    if ($nessus_action == "toggle") {
+if ((!empty($nessus_action)) AND (!empty($net_name)))
+{
+    			
+	if ($nessus_action == "toggle") {
         $nessus_action = ($scan_list = Net_scan::get_list($conn, "WHERE net_name = '$net_name' AND plugin_id = 3001")) ? "disable" : "enable";
     }
     if ($nessus_action == "enable") {
@@ -86,6 +96,7 @@ if ((!empty($nessus_action)) AND (!empty($net_name))) {
         Net::disable_plugin($conn, $net_name, 3001);
     }
 }
+
 if ((!empty($nagios_action)) AND (!empty($net_name))) {
     if ($nagios_action == "toggle") {
         $nagios_action = ($scan_list = Net_scan::get_list($conn, "WHERE net_name = '$net_name' AND plugin_id = 2007")) ? "disable" : "enable";

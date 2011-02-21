@@ -192,7 +192,9 @@ else
 		function check_host () {
 			
 			var ip = $("#ip").val();
-			
+			$('#info_error').hide();
+			$('#info_error').html("");
+						
 			$.ajax({
 				type: "GET",
 				url: "check_host_response.php?ip="+ip,
@@ -200,8 +202,9 @@ else
 				success: function(msg){
 					if (msg == "1")
 					{
-						if (confirm("Do you want to update host '"+ip+"'?"))
-							submit_form();
+						var text = "<?php echo _("This ip already exists. Please, go to modify menu to edit this host") ?>";
+						$('#info_error').html("<div style='text-align:center'>"+text+"</div>");
+						$('#info_error').show();
 					}
 					else 
 						submit_form();

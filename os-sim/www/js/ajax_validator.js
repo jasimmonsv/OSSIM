@@ -222,7 +222,6 @@ function submit_form()
 			$(".invalid").get(0).focus();
 		return false;
 	}
-		
 }
 
 

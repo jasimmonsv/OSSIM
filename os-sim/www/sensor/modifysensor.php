@@ -94,7 +94,7 @@ else
 	if ( POST('ajax_validation_all') == true )
 	{
 		if ( is_array($message_error) && !empty($message_error) )
-			echo implode( "<br/>", $message_error);
+			echo utf8_encode(implode( "<br/>", $message_error));
 		else
 			echo 0;
 		
@@ -163,7 +163,7 @@ if ( isset($_SESSION['_sensor']) )
 		
 ?>
     <p> <?php echo gettext("Sensor succesfully updated"); ?> </p>
-    <script>document.location.href="modifysensorform.php?name=<?=$name?>&withoutmenu=1"</script>
+    <script>document.location.href="modifysensorform.php?name=<?=urlencode($name)?>&withoutmenu=1"</script>
 	
 
 
