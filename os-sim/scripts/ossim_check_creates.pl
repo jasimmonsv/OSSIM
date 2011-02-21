@@ -45,30 +45,37 @@ my $ossim_pass = $ossim_conf::ossim_data->{"ossim_pass"};
 
 # Create aux databases
 my $dbh=DBI->connect('dbi:mysql:',$ossim_conf::ossim_data->{"ossim_user"},$ossim_conf::ossim_data->{"ossim_pass"}, {RaiseError=>1}) or die "Couldn't connect:".DBI->errstr();
-$dbh->do("create database if not exists $snort_name");
-$dbh->do("create database if not exists $ossim_name");
-$dbh->do("create database if not exists ossim_acl_temp");
-$dbh->do("create database if not exists datawarehouse_temp");
-$dbh->do("create database if not exists jasperserver_temp");
-$dbh->do("create database if not exists osvdb_temp");
-
-my $snort_dsn = "dbi:" . $snort_type . ":" . $snort_name . ":" . $snort_host . ":" . $snort_port;
-my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
-
-my $ossim_dsn = "dbi:" . $ossim_type . ":" . $ossim_name . ":" . $ossim_host . ":" . $ossim_port . ":";
-my $ossim_conn = DBI->connect($ossim_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
-
-my $ossim_acl_dsn = "dbi:" . $ossim_type . ":" . "ossim_acl_temp" . ":" . $ossim_host . ":" . $ossim_port . ":";
-my $ossim_acl_conn = DBI->connect($ossim_acl_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
-
-my $datawarehouse_dsn = "dbi:" . $ossim_type . ":" . "datawarehouse_temp" . ":" . $ossim_host . ":" . $ossim_port . ":";
-my $datawarehouse_conn = DBI->connect($datawarehouse_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
-
-my $jasperserver_dsn = "dbi:" . $ossim_type . ":" . "jasperserver_temp" . ":" . $ossim_host . ":" . $ossim_port . ":";
-my $jasperserver_conn = DBI->connect($jasperserver_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
-
-my $osvdb_dsn = "dbi:" . $ossim_type . ":" . "osvdb_temp" . ":" . $ossim_host . ":" . $ossim_port . ":";
-my $osvdb_conn = DBI->connect($osvdb_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
+my $snort_dsn;my $snort_conn;my $ossim_dsn;my $ossim_conn;my $ossim_acl_dsn;my $ossim_acl_conn;my $datawarehouse_dsn;my $datawarehouse_conn;my $jasperserver_dsn;my $jasperserver_conn;my $osvdb_dsn;my $osvdb_conn;
+if (!defined $ARGV[0] || $ARGV[0] eq "snort") {
+	$dbh->do("create database if not exists $snort_name");
+	$snort_dsn = "dbi:" . $snort_type . ":" . $snort_name . ":" . $snort_host . ":" . $snort_port;
+	$snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
+}
+if (!defined $ARGV[0] || $ARGV[0] eq "ossim") {
+	$dbh->do("create database if not exists $ossim_name") if (!defined $ARGV[0] || $ARGV[0] eq "ossim");
+	$ossim_dsn = "dbi:" . $ossim_type . ":" . $ossim_name . ":" . $ossim_host . ":" . $ossim_port . ":";
+	$ossim_conn = DBI->connect($ossim_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
+}
+if (!defined $ARGV[0] || $ARGV[0] eq "ossim_acl") {
+	$dbh->do("create database if not exists ossim_acl_temp") if (!defined $ARGV[0] || $ARGV[0] eq "ossim_acl");
+	$ossim_acl_dsn = "dbi:" . $ossim_type . ":" . "ossim_acl_temp" . ":" . $ossim_host . ":" . $ossim_port . ":";
+	$ossim_acl_conn = DBI->connect($ossim_acl_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
+}
+if (!defined $ARGV[0] || $ARGV[0] eq "datawarehouse") {
+	$dbh->do("create database if not exists datawarehouse_temp") if (!defined $ARGV[0] || $ARGV[0] eq "datawarehouse");
+	$datawarehouse_dsn = "dbi:" . $ossim_type . ":" . "datawarehouse_temp" . ":" . $ossim_host . ":" . $ossim_port . ":";
+	$datawarehouse_conn = DBI->connect($datawarehouse_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
+}
+if (!defined $ARGV[0] || $ARGV[0] eq "jasperserver") {
+	$dbh->do("create database if not exists jasperserver_temp") if (!defined $ARGV[0] || $ARGV[0] eq "jasperserver");
+	$jasperserver_dsn = "dbi:" . $ossim_type . ":" . "jasperserver_temp" . ":" . $ossim_host . ":" . $ossim_port . ":";
+	$jasperserver_conn = DBI->connect($jasperserver_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
+}
+if (!defined $ARGV[0] || $ARGV[0] eq "osvdb") {
+	$dbh->do("create database if not exists osvdb_temp") if (!defined $ARGV[0] || $ARGV[0] eq "osvdb");
+	$osvdb_dsn = "dbi:" . $ossim_type . ":" . "osvdb_temp" . ":" . $ossim_host . ":" . $ossim_port . ":";
+	$osvdb_conn = DBI->connect($osvdb_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
+}
 
 my $cmdline_snort = "mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port $snort_name";
 my $cmdline_ossim = "mysql -u$ossim_user -p$ossim_pass -h$ossim_host -P$ossim_port $ossim_name";
