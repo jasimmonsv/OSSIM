@@ -143,7 +143,7 @@ sub createOssimStructure {
     }
     close F;
     $cmd = "cat ../db/02-create_ossim_data_data.sql | $cmdline_ossim";
-    print "Execute 02-create_ossim_tbls_mysql.sql\n";
+    print "Execute 02-create_ossim_data_data.sql\n";
     open (F,"$cmd |");
     while (<F>) {
         print $_;
@@ -157,7 +157,7 @@ sub createOssimStructure {
     }
     close F;
     $cmd = "cat ../db/04-create_ossim_data_vulnerabilities.sql | $cmdline_ossim";
-    print "Execute 04-create_ossim_tbls_mysql.sql\n";
+    print "Execute 04-create_ossim_data_vulnerabilities.sql\n";
     open (F,"$cmd |");
     while (<F>) {
         print $_;
