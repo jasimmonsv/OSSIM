@@ -35,6 +35,7 @@
 * - server_get_sensor_plugins()
 * Classes list:
 */
+ini_set("max_execution_time","300");
 require_once ('classes/Session.inc');
 Session::logcheck("MenuConfiguration", "PolicySensors");
 ?>

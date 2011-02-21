@@ -657,12 +657,12 @@ if (Session::menu_perms("MenuPolicy", "5DSearch")) { $assets = 1;
     );
     $hmenu["Asset Search"][] = array(
         "id" => "Asset Search",
-        "name" => gettext("Asset Search") ,
+        "name" => gettext("Simple") ,
         "url" => "inventorysearch/userfriendly.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_search','Help');"
     );
 	$hmenu["Asset Search"][] = array(
-        "name" => gettext("Asset Categories") ,
+        "name" => gettext("Advanced") ,
         "id" => "Advanced",
         "url" => "inventorysearch/inventory_search.php?new=1",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_search','Help');"
