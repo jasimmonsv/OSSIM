@@ -34,10 +34,11 @@
 * Function list:
 * Classes list:
 */
-require_once "classes/Security.inc";
+
 require_once "classes/Session.inc";
+require_once "classes/Security.inc";
 require_once "ossim_conf.inc";
-require_once ('ossim_db.inc');
+require_once "ossim_db.inc";
 
 /* connect to db */
 $db   = new ossim_db();
@@ -63,6 +64,7 @@ if (!isset($_SESSION["_user"]) && !isset($_SESSION["_backup_user"]))
 	header("Location: $login_location");
 	exit;
 }
+
 
 $version    =  $conf->get_conf("ossim_server_version", FALSE);
 $opensource = (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$version)) ? true : false;
@@ -129,12 +131,7 @@ if ($flag != "") {
 			else 
 				Session::changefirst($conn, $user);
 			
-			Session::log_pass_history($user,md5($pass1));
-			if (GET('expired') == "" && GET('changeadmin') == "" && $user == ACL_DEFAULT_OSSIM_ADMIN && preg_match("/.*pro.*/i",$version)) {
-				header("location:customize_logos.php");
-			} else {
-				header("location:../index.php");
-			}
+			header("location:../index.php");
 		}
 		else
 			$msg = "Current password does not match";
@@ -156,18 +153,27 @@ if ($flag != "") {
 	<link rel="Shortcut Icon" type="image/x-icon" href="../favicon.ico">
 	
 	<script type='text/javascript'>
-		$(document).ready(function() {
-			$('#fnewpass').bind('submit', function() {
-				
-				var pass1        = $('#pass1u').val().trim();
-				var pass2        = $('#pass2u').val().trim();
-				var current_pass = $('#current_passu').val().trim();
-				
-				if ( pass1 != '' )        $('#pass1').val($.base64.encode(pass1));
-				if ( pass2 != '' )        $('#pass2').val($.base64.encode(pass2));
-				if ( current_pass != '' ) $('#current_pass').val($.base64.encode(current_pass));
-			});
+		function send_p()
+		{
+			var pass1        = $('#pass1u').val();
+			pass1 = jQuery.trim(pass1);
+
+			var pass2        = $('#pass2u').val();
+			pass2 = jQuery.trim(pass2);
+
+			var current_pass = $('#current_passu').val();
+			current_pass = jQuery.trim(current_pass);
+
+			
+			if ( pass1 != '' )         $('#pass1').val($.base64.encode(pass1));
+			if ( pass2 != '' )         $('#pass2').val($.base64.encode(pass2));
+			if ( current_pass != '' )  $('#current_pass').val($.base64.encode(current_pass));
+		}
+		
+		$(document).ready(function () {
+		  $('#foo').bind('click', function() { send_p();});
 		});
+
 						
 	</script>
   
@@ -177,7 +183,7 @@ if ($flag != "") {
 <body onload="$('#pass1u').pstrength()">
 
 <br/><br/><br/><br/><br/><br/><br/><br/><br/>
-<form id='fnewpass' name='fnewpass' method='POST'>
+<form id='fnewpass' name='fnewpass' method='POST' onsubmit="send_p();">
 	<input type="hidden" name="flag" value="1"/>
 	<input type="hidden" name="changeadmin" value="<?=$changeadmin?>"/>
 	<input type="hidden" name="expired" value="<?=$expired?>">

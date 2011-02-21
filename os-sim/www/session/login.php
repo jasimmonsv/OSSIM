@@ -237,7 +237,7 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 <head>
 	<title> <?php echo gettext("AlienVault - ".($opensource ? "Open Source SIEM" : ($demo ? "Professional SIEM Demo" : "Professional SIEM"))); ?> </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<META http-equiv="Pragma" content="no-cache"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.base64.js"></script>
@@ -280,7 +280,7 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 		$about = new About();
 	?>
 <?php if($embed!='true'){ ?>
-	<script>
+	<script type='text/javascript'>
 	if (location.href != top.location.href) top.location.href = location.href;
 	</script>	
 	<br/><br/><br/><br/><br/><br/><br/><br/><br/>
