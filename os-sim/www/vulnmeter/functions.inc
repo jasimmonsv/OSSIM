@@ -3102,6 +3102,9 @@ function cellprint ($map, $data, $entry, $color="", $image, $class, $random) {
             }
             if(count($ips)>0)
                 echo "<a class='greybox' gtitle='"._("Insert into assets:")."' gheight='".(110+count($ips)*20)."' href='add_hosts.php?report_id=".$entry["report_id"]."'><img src='../pixmaps/theme/host_add.png' title='Add Hosts to Assets' alt='Add Hosts to Assets' border='0'></a>";
+            ?>
+            <a class="greybox" gwidth="550" gtitle="<?php echo _("Compare reports:")?>" gheight="120" href="select_report.php?freport=<?php echo $entry["report_id"];?>"><img src="../pixmaps/compare.png" title="<?php echo _("Compare with other")?>" alt="<?php echo _("Compare with other")?>" border="2"></a>
+            <?
             if($entry["report_type"]=="I")  echo "<a href=\"javascript:;\" onclick=\"confirmDelete('".$entry["report_id"]."')\" alt=\""._("Delete Imported Report")."\" title=\""._("Delete Imported Report")."\" ><img src=\"images/delete.gif\" alt=\""._("Delete Imported Report")."\"></img></a>";
             echo "</td>";
        }
