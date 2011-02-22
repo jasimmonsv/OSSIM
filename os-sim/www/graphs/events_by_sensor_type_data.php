@@ -50,8 +50,9 @@ function GetSensorName($sid, $db) {
     $temp_sql = "SELECT * FROM sensor WHERE sid='" . $sid . "'";
     $myrow = & $db->Execute($temp_sql);
     if ($myrow) {
-    	$plugin = explode("-",$myrow->fields['hostname'],2);
-    	$sname = ($myrow->fields["sensor"]) ? $myrow->fields["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow->fields['hostname'])) . '-' . $plugin[1];
+    	$plugin = explode("-",preg_replace("/.*\]\s*/","",$myrow->fields['hostname']),2);
+    	//$sname = ($myrow->fields["sensor"]) ? $myrow->fields["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow->fields['hostname'])) . '-' . $plugin[1];
+    	$sname = preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow->fields['hostname'])) . '-' . $plugin[1];
         if (!$multiple) {
             $sname .= ':' . $myrow->fields["interface"];
             if ($myrow->fields["filter"] != "") $sname .= ':' . $myrow->fields["filter"];
@@ -97,6 +98,7 @@ while (!$rs->EOF) {
 	$sensor_plugin = explode("-", GetSensorName($rs->fields["sid"], $conn), 2);
     if (Session::allowedSensors() == "" || $sensorkeys[$sensor_plugin[0]] > 0) {
 		$plugin = ($sensor_plugin[1] != "") ? preg_replace("/:.*/", "", $sensor_plugin[1]) : "snort";
+		if ($plugin=="") $plugin="snort";
 		$sensor_plugin[0] = preg_replace("/:.*/", "", $sensor_plugin[0]);
 		$sensor = ($sensors[$sensor_plugin[0]] != "") ? $sensors[$sensor_plugin[0]] : $sensor_plugin[0];
 		$data[$sensor][$plugin]+= $rs->fields["event_cnt"];
