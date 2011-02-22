@@ -415,8 +415,8 @@ LyteBox.prototype.resizeContainer = function(imgWidth, imgHeight) {
 	if ((hDiff == 0) && (wDiff == 0)) {
 		if (this.ie){ this.pause(250); } else { this.pause(100); } 
 	}
-	this.doc.getElementById('lbPrev').style.height = imgHeight + "px";
-	this.doc.getElementById('lbNext').style.height = imgHeight + "px";
+	this.doc.getElementById('lbPrev').style.height = "40px";
+	this.doc.getElementById('lbNext').style.height = "40px";
 	this.doc.getElementById('lbDetailsContainer').style.width = (imgWidth + (this.borderSize * 2) + (this.ie && this.doc.compatMode == "BackCompat" && this.outerBorder ? 2 : 0)) + "px";
 	this.showContent();
 };

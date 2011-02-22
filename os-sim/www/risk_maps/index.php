@@ -1192,7 +1192,6 @@ print "</div>\n";
 	<td valign='top' id="map">
 		<img src="maps/map<? echo $map ?>.jpg" id="map_img" border='0'/>
 	</td>
-	<td valign='top' id="map"></td>
 </tr>
 </table>
 
