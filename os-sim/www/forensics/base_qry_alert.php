@@ -375,8 +375,8 @@ echo '
                         '.($tzcell ? '<TD CLASS="header" nowrap>'._("Event date").'</TD>' : '').'
                         <TD CLASS="header">' . _("Triggered Signature") . '</TD>
                         <TD CLASS="header" nowrap>' . _("Data Source Name") . '</TD>
-                        <TD CLASS="header" nowrap>' . _("Data Source") . '</TD>
-                        <TD CLASS="header" nowrap>' . _("Event Type") . '</TD>
+                        <TD CLASS="header" nowrap>' . _("Data Source ID") . '</TD>
+                        <TD CLASS="header" nowrap>' . _("Event Type ID") . '</TD>
 						<TD></td></TR>
                     <TR><TD CLASS="plfield" nowrap>' . ($sid . " - " . $cid) . '</TD>
                         <TD CLASS="plfield" nowrap>' . htmlspecialchars($tzdate) . '</TD>
@@ -517,8 +517,8 @@ if ($myrow2 = $result2->baseFetchRow()) {
               <TR><TD CLASS="header3" WIDTH=50 ROWSPAN=3 ALIGN=CENTER>IP';
         echo '      <TD>';
         echo '         <TABLE BORDER=0 CELLPADDING=2>';
-        echo '            <TR><TD class="header">' . gettext("Source _NBSOURCEADDR nbsp;Address") . '</TD>
-                            <TD class="header">&nbsp;' . gettext("Dest. _NBDESTADDR nbsp;Address") . '&nbsp</TD>';
+        echo '            <TR><TD class="header">' . gettext("Source Address") . '</TD>
+                            <TD class="header">' . gettext("Dest. Address") . '</TD>';
         if (in_array($plugin_id, $snort_ids)) {
             echo '
                             <TD class="header">Ver</TD>

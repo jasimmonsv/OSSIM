@@ -101,8 +101,8 @@ $qro->AddTitle(gettext("Classification"), "class_a", " ", " ORDER BY sig_class_i
 $qro->AddTitle(gettext("Total") . "&nbsp;#", "occur_a", " ", " ORDER BY num_events ASC", "occur_d", " ", " ORDER BY num_events DESC");
 $qro->AddTitle(gettext("Sensor") . "&nbsp;#", "sensor_a", " ", " ORDER BY num_sensors ASC", "sensor_d", " ", " ORDER BY num_sensors DESC");
 $qro->AddTitle(gettext("Signature"), "sig_a", " ", " ORDER BY num_sig ASC", "sig_d", " ", " ORDER BY num_sig DESC");
-$qro->AddTitle(gettext("Source(_NBSOURCEADDR,nbsp;Address"), "saddr_a", " ", " ORDER BY num_sip ASC", "saddr_d", " ", " ORDER BY num_sip DESC");
-$qro->AddTitle(gettext("Dest.(_NBDESTADDR,nbsp;Address"), "daddr_a", " ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
+$qro->AddTitle(gettext("Source Address"), "saddr_a", " ", " ORDER BY num_sip ASC", "saddr_d", " ", " ORDER BY num_sip DESC");
+$qro->AddTitle(gettext("Dest. Address"), "daddr_a", " ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
 $qro->AddTitle(gettext("First"), "first_a", " ", " ORDER BY first_timestamp ASC", "first_d", " ", " ORDER BY first_timestamp DESC");
 $qro->AddTitle(gettext("Last"), "last_a", " ", " ORDER BY last_timestamp ASC", "last_d", " ", " ORDER BY last_timestamp DESC");
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());

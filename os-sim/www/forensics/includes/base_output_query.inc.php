@@ -134,7 +134,7 @@ class QueryResultsOutput {
 				elseif (preg_match("/INPUT/",$title['key'])) $width = " width=30";
 				elseif ($title['key'] == "Risk" || $title['key'] == "Rel" || $title['key'] == "Prio" || $title['key'] == "Asst") $width = "";
 				//elseif ($title['key'] == gettext("Date")) $width = " width=130";
-				//elseif ($title['key'] == gettext("Source _NBSOURCEADDR nbsp;Address") || $title['key'] == gettext("Dest. _NBDESTADDR)nbsp;Address")) $width = " width=140";
+				//elseif ($title['key'] == gettext("Source Address") || $title['key'] == gettext("Dest. Address")) $width = " width=140";
 				else $width = "";
 				//$border = ($title['key'] == "L4-proto" || $title['key'] == "Last" || $title['key'] == "Total Events" || (preg_match("/(Dest\.|Src\.).+Addr\./",$title['key']) && $_GET['addr_type']>0) || !$flag) ? "border-bottom:1px solid #AAAAAA;" : "border-right:1px solid #AAAAAA;border-bottom:1px solid #AAAAAA;";
                 $border = ($field>0 ? "border-left:1px solid #AAAAAA;" : "")."border-bottom:1px solid #AAAAAA;";

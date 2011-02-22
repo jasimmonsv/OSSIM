@@ -148,7 +148,7 @@ echo '<TR><TD>
         </TR>
         <TR>
          <TD>
-           <B>' . gettext("Data Source:") . '</B> &nbsp;
+           <B>' . gettext("Data Source ID:") . '</B> &nbsp;
            <SELECT NAME="data_source">
            <OPTION VALUE=" " ' . chk_select($data_source, " ") . '>{ data source (AG) }';
 $temp_sql = "SELECT ag_id, ag_name FROM acid_ag";

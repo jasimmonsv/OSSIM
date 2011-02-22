@@ -660,7 +660,7 @@ class PluginCriteria extends SingleElementCriteria {
     }
     function Description() {
         $tmp = "";
-        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("Data Source") . ' = (' . GetPluginName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
+        if ($this->criteria != " " && $this->criteria != "") $tmp = $tmp . _("Data Source ID") . ' = (' . GetPluginName($this->criteria, $this->db) .')'. $this->cs->GetClearCriteriaString($this->export_name) . '<BR>';
         return $tmp;
     }
 }; /* PluginCriteria */
