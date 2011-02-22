@@ -274,7 +274,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 	document.getElementById(td_id).innerHTML = "<img src='../pixmaps/loading.gif'>";
 	$.ajax({
 		type: "GET",
-		url: "events_ajax.php?backlog_id="+backlog_id,
+		url: "events_ajax.php?backlog_id="+backlog_id+"&show_all=2",
 		data: "",
 		success: function(msg){
 			//alert (msg);
@@ -766,7 +766,7 @@ $tree_count = 0;
 		<? } ?>
 	<tr>
 		<td class="nobborder" width="50"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
-		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?php echo $group['name']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<?=$group['date']?>','');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
+		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?php echo $group['name']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<? echo ($group_type == "name") ? "" : $group['date'] ?>','');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
 		<th style='text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
 		<th width='10%' style='text-align: center; border-width: 0px; background: <?=$background?>'><?=$owner?></th>
 		<th width='20%' style='text-align: center; border-width: 0px; background: <?=$background?>;padding:3px'>

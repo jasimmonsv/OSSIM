@@ -81,9 +81,11 @@ $top = (GET('top') != "") ? GET('top') : 100;
 $from = (GET('from') != "") ? GET('from') : 0;
 $top += $from;
 
+$timestamp = preg_replace("/\s\d\d\:\d\d\:\d\d$/","",$timestamp);
+
 ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
 ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
-ossim_valid($timestamp, OSS_SPACE, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("timestamp"));
+ossim_valid($timestamp, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("timestamp"));
 ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'illegal:' . _("name"));
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
 ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
@@ -124,7 +126,6 @@ if ($only_close) {
 		$src_ip = $data[1];
 		$dst_ip = $data[2];
 		$timestamp = $data[3];
-		echo "cerrando id $name OR $data[0]";
 		AlarmGroups::change_status ($conn, $data[0], "closed");
 		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$from_date,$to_date,$name);
 		foreach ($list as $s_alarm) {
@@ -143,7 +144,6 @@ if ($only_open) {
 		$src_ip = $data[1];
 		$dst_ip = $data[2];
 		$timestamp = $data[3];
-		echo "cerrando id $name OR $data[0]";
 		AlarmGroups::change_status ($conn, $data[0], "open");
 		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$from_date,$to_date,$name);
 		foreach ($list as $s_alarm) {
