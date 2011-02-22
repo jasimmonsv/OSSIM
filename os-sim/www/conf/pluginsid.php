@@ -174,56 +174,56 @@ echo gettext("Event types"); ?> </title>
 			<?php
 $default = array(
     "plugin_id" => array(
-        'Id',
-        50,
+        _('Data Source ID'),
+        100,
         'false',
         'center',
         false
     ) ,
     "sid" => array(
-        'Sid',
-        50,
+        _('Event type ID'),
+        100,
         'true',
         'center',
         false
     ) ,
     "category" => array(
-        'Category',
+        _('Category'),
         120,
         'false',
         'center',
         false
     ) ,
 	"subcategory" => array(
-        'Subcategory',
+        _('Subcategory'),
         120,
         'false',
         'center',
         false
     ) ,
     "class" => array(
-        'Class',
+        _('Class'),
         120,
         'false',
         'center',
         false
     ) ,
     "name" => array(
-        'Name',
+        _('Name'),
         300,
         'true',
         'left',
         false
     ) ,
     "priority" => array(
-        'Priority',
+        _('Priority'),
         70,
         'true',
         'center',
         false
     ) ,
     "reliability" => array(
-        'Reliability',
+        _('Reliability'),
         70,
         'true',
         'center',

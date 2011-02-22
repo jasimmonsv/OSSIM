@@ -122,8 +122,8 @@ include ("../hmenu.php"); ?>
 			<?php
 $default = array(
     "id" => array(
-        _('Id'),
-        50,
+        _('Data Source ID'),
+        100,
         'true',
         'center',
         false

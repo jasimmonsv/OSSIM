@@ -137,7 +137,7 @@ if($name!="" && $sid!=""){
 </td>
   </tr>
   <tr>
-    <th> <?php echo gettext("sid"); ?> (*)</th>
+    <th> <?php echo gettext("Event type ID"); ?> (*)</th>
     <td class="left"><input type="text" name="sid" value="<?php echo GET('sid')?>"/></td>
   </tr>
   <tr>
