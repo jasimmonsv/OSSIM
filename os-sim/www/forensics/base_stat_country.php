@@ -15,8 +15,6 @@
 ** Built upon work by Roman Danyliw <rdd@cert.org>, <roman@danyliw.com>
 ** Built upon work by the BASE Project Team <kjohnson@secureideas.net>
 */
-//ini_set('memory_limit', '256M');
-set_time_limit(300);
 include ("base_conf.php");
 include ("vars_session.php");
 include ("$BASE_path/includes/base_constants.inc.php");
@@ -24,6 +22,7 @@ include ("$BASE_path/includes/base_include.inc.php");
 include_once ("$BASE_path/base_db_common.php");
 include_once ("$BASE_path/base_common.php");
 include_once ("$BASE_path/base_qry_common.php");
+set_time_limit(300);
 
 if (GET('sensor') != "") ossim_valid(GET('sensor'), OSS_DIGIT, 'illegal:' . _("sensor"));;
 
