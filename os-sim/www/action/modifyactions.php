@@ -187,23 +187,27 @@ if ( $action == 'new' || $action == 'edit' )
     $db = new ossim_db();
     $conn = $db->connect();
 
-    if ($action == 'new') { // new action
-        if ($action_type == 'email')
-            Action::insertEmail($conn, $action_type, $cond, $on_risk, $descr, $email_from, $email_to, $email_subject, $email_message);
-        else if ($action_type == 'exec')
-            Action::insertExec($conn, $action_type, $cond, $on_risk, $descr, $exec_command);
-        else
-            Action::insert($conn, $action_type, $cond, $on_risk, $descr);
-    }
-    else if($action == 'edit') { // update action 
-        if ($action_type == 'email') 
-            Action::updateEmail($conn, $action_id, $action_type, $cond, $on_risk, $descr, $email_from, $email_to, $email_subject, $email_message);
-        else if ($action_type == 'exec')
-            Action::updateExec($conn, $action_id, $action_type, $cond, $on_risk, $descr, $exec_command);
-        else if ($action_type == 'ticket') 
-            Action::update($conn, $action_id , $action_type, $cond, $on_risk, $descr);
-    }
-
+	if ($action_type=="exec" && !Session::am_i_admin()) {
+		$txt_end = '<b>'._("Only global admins can add or modify 'exec' actions").'</b>';
+	} else {
+	    if ($action == 'new') { // new action
+	        if ($action_type == 'email')
+	            Action::insertEmail($conn, $action_type, $cond, $on_risk, $descr, $email_from, $email_to, $email_subject, $email_message);
+	        else if ($action_type == 'exec')
+	            Action::insertExec($conn, $action_type, $cond, $on_risk, $descr, $exec_command);
+	        else
+	            Action::insert($conn, $action_type, $cond, $on_risk, $descr);
+	    }
+	    else if($action == 'edit') { // update action 
+	        if ($action_type == 'email') 
+	            Action::updateEmail($conn, $action_id, $action_type, $cond, $on_risk, $descr, $email_from, $email_to, $email_subject, $email_message);
+	        else if ($action_type == 'exec')
+	            Action::updateExec($conn, $action_id, $action_type, $cond, $on_risk, $descr, $exec_command);
+	        else if ($action_type == 'ticket') 
+	            Action::update($conn, $action_id , $action_type, $cond, $on_risk, $descr);
+	    }
+	}
+	
     $db->close($conn);
 
     if ( isset($_SESSION['_actions']) )

@@ -62,7 +62,8 @@ class Action_type {
         } else {
             $list = array();
             while (!$rs->EOF) {
-                $list[] = new Action_type($rs->fields["_type"], $rs->fields["descr"]);
+                if ($rs->fields["_type"]!="exec" || ($rs->fields["_type"]=="exec" && Session::am_i_admin()))
+                	$list[] = new Action_type($rs->fields["_type"], $rs->fields["descr"]);
                 $rs->MoveNext();
             }
         }

@@ -95,9 +95,12 @@ class Plugin_Custom_SQL extends Panel {
             <br/>
         ';
         $html.= _("SQL code") . ':<br/>';
-        $html.= '<textarea name="graph_sql" rows="17" cols="55" wrap="soft">';
+        $hidden = (!Session::am_i_admin()) ? ' style="display:none"' : '';
+        $html.= '<textarea name="graph_sql" rows="17" cols="55" wrap="soft"'.$hidden.'>';
         $html.= $this->get('graph_sql');
         $html.= '</textarea>';
+        if (!Session::am_i_admin())
+        	$html.= '<b>'._("Only global admins can change this query!")."</b><br/>";
         return $html;
     }
     function showSettingsHTML() {

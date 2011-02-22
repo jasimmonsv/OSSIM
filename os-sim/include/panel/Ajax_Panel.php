@@ -319,8 +319,10 @@ class Window_Panel_Ajax {
             } else {
                 $checked = '';
             }
-            $html.= '<input type="radio" name="plugin" value="' . $plug['class'] . "\" $checked>" . $plug['cat'];
-            $html.= '<br/>';
+            $disabled = "";
+            if (preg_match("/SQL|Cloud/i",$plug['cat']) && !Session::am_i_admin()) $disabled = "disabled='disabled'";
+            $html.= '<input type="radio" name="plugin" value="' . $plug['class'] . "\" $checked $disabled>" . $plug['cat'];
+	        $html.= '<br/>';
         }
         $html.= '<br/>' . _("HTML Window Help Message") . ':<br/>';
         $html.= "<textarea name='window_help' rows='10' cols='35' wrap='on'>$help</textarea>";

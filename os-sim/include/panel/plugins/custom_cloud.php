@@ -73,9 +73,13 @@ class Plugin_Custom_cloud extends Panel {
             <hr noshade>
         ';
         $html.= _("SQL code") . ':<br/>';
-        $html.= '<textarea name="cloud_sql" rows="6" cols="55" wrap="soft">';
+        $hidden = (!Session::am_i_admin()) ? ' style="display:none"' : '';
+        $html.= '<textarea name="cloud_sql" rows="6" cols="55" wrap="soft"'.$hidden.'>';
         $html.= $this->get('cloud_sql');
-        $html.= '</textarea><br/>';
+        $html.= '</textarea>';
+        if (!Session::am_i_admin())
+        	$html.= '<b>'._("Only global admins can change this query!")."</b><br/>";        	
+        $html.= '<br/>';
         $html.= _("Cloud link. Use _TAG_ for placeholder");
         $html.= ': <input type ="text" name="cloud_link" size="30" value ="' . $this->get('cloud_link') . '"><br/>';
         $html.= _("Cloud tag max length, 0 means unlimited");
