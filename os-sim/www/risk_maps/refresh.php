@@ -64,9 +64,9 @@ if (!$rs = &$conn->Execute($query, $params)) {
         // r --> bad
         // a --> medium
         // v --> good
-        $RiskValue = 'v';
-        $VulnValue = 'v';
-        $AvailValue = 'v';
+        $RiskValue = 'b';
+        $VulnValue = 'b';
+        $AvailValue = 'b';
 
         $what = "name"; $ips = $name;
 
