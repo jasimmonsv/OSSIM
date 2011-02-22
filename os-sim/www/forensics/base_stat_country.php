@@ -16,7 +16,7 @@
 ** Built upon work by the BASE Project Team <kjohnson@secureideas.net>
 */
 //ini_set('memory_limit', '256M');
-set_time_limit(180);
+set_time_limit(300);
 include ("base_conf.php");
 include ("vars_session.php");
 include ("$BASE_path/includes/base_constants.inc.php");
