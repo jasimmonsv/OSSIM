@@ -61,6 +61,7 @@ class Host_mac {
         $sup = (int)$sup;
         $nanoms = $sup - $inf;
         $sql = "SELECT distinct ip, sensor FROM host_mac LIMIT ? OFFSET ?";
+
         $params = array(
             $nanoms,
             $inf
@@ -85,11 +86,11 @@ class Host_mac {
                             "ip" => $aux->fields["ip_addr"],
                             "mac" => $aux->fields["mac"],
                             "date" => $aux->fields["date"],
-                            "old_mac" => $aux->fields["mac"],
-                            "old_date" => $aux->fields["date"],
+                            "old_mac" => "-",
+                            "old_date" => "-",
+                            "old_vendor" => "-",
                             "sensor" => $aux->fields["ip_sensor"],
                             "vendor" => $aux->fields["vendor"],
-                            "old_vendor" => $aux->fields["vendor"],
                             "interface" => $aux->fields["interface"]
                         );
                     } else {
@@ -99,13 +100,30 @@ class Host_mac {
                         $date = $aux->fields["date"];
                         $sensor = $aux->fields["ip_sensor"];
                         $interface = $aux->fields["interface"];
+                        
+                        $old_mac = "-";
+                        $old_vendor = "-";
+                        $old_date = "-";
+                        
+                        $previous = false;
+
                         $aux->MoveNext();
                         while ((!$aux->EOF) && ($aux->fields["anom"] != "0")) {
-                            $old_mac = $aux->fields["mac"];
-                            $old_date = $aux->fields["date"];
-                            $old_vendor = $aux->fields["vendor"];
+                            if ($aux->fields["anom"] == "1" && !$previous && $aux->fields["mac"]!=$mac) {
+                                $previous = true;
+                                $previous_mac = $aux->fields["mac"];
+                                $previous_vendor = $aux->fields["vendor"];
+                                $previous_date = $aux->fields["date"];
+                            }
                             $aux->MoveNext();
                         }
+                        
+                        if($previous) {
+                            $old_mac = $previous_mac;
+                            $old_vendor = $previous_vendor;
+                            $old_date = $previous_date;
+                        }
+                        
                         if ($aux->fields["anom"] == "0") {
                             $list[] = array(
                                 "ip" => $ip,
@@ -261,29 +279,48 @@ class Host_mac {
                         $date = $aux->fields["date"];
                         $sensor = $aux->fields["ip_sensor"];
                         $interface = $aux->fields["interface"];
-                        $next_anom = true;
-                        $is_anom = false;
-                        while ($aux->MoveNext() and $next_anom) {
-                            if ($aux->fields["anom"] == "0") $next_anom = false;
-                            $old_mac = $aux->fields["mac"];
-                            $old_vendor = $aux->fields["vendor"];
-                            $old_date = $aux->fields["date"];
-                            $is_anom = true;
+                        
+                        $old_mac = "-";
+                        $old_vendor = "-";
+                        $old_date = "-";
+
+                        $previous = false;
+                        $found_zero = false;
+                        
+                        while ($aux->MoveNext() && !$found_zero) {
+                            if ($aux->fields["anom"] == "1" && !$previous && $aux->fields["mac"]!=$mac) {
+                                $previous = true;
+                                $previous_mac = $aux->fields["mac"];
+                                $previous_vendor = $aux->fields["vendor"];
+                                $previous_date = $aux->fields["date"];
+                            }
+                            if ($aux->fields["anom"] == "0") {
+                                $old_mac = $aux->fields["mac"];
+                                $old_vendor = $aux->fields["vendor"];
+                                $old_date = $aux->fields["date"];
+                                $found_zero = true;
+                            }
                         }
-                        if ($is_anom) {
-                            $num_anom++;
-                            $list[] = array(
-                                "ip" => $ip,
-                                "mac" => $mac,
-                                "date" => $date,
-                                "old_mac" => $old_mac,
-                                "old_date" => $old_date,
-                                "sensor" => $sensor,
-                                "vendor" => $vendor,
-                                "old_vendor" => $old_vendor,
-                                "interface" => $interface
-                            );
+                        
+                        if(!$found_zero && $previous) {
+                                $old_mac = $previous_mac;
+                                $old_vendor = $previous_vendor;
+                                $old_date = $previous_date;
                         }
+                        
+                        $num_anom++;
+                        $list[] = array(
+                            "ip" => $ip,
+                            "mac" => $mac,
+                            "date" => $date,
+                            "old_mac" => $old_mac,
+                            "old_date" => $old_date,
+                            "sensor" => $sensor,
+                            "vendor" => $vendor,
+                            "old_vendor" => $old_vendor,
+                            "interface" => $interface
+                        );
+                        
                     }
                 }
                 $ips->MoveNext();
