@@ -1203,11 +1203,19 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 			
 	public function insert($dbconn)
 	{
-		$id          = session_id();
-		$login       = Session::get_session_user();
-		$ip          = self::getRealIpAddr();
-		$agent       = self::get_ua();
 		
+		$exceptions [] = "av report scheduler";
+		$pattern_exp   = "/".implode("|", $exceptions)."/";
+				
+		$id            = session_id();
+		$login         = Session::get_session_user();
+		$ip            = self::getRealIpAddr();
+		$agent         = self::get_ua();
+		
+		
+		if ( preg_match($pattern_exp, $agent) == true )
+			return true;
+						
 		$logon_date  = $activity = date("Y-m-d H:i:s");
 				
 		$conf = $GLOBALS["CONF"];

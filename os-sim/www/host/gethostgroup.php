@@ -40,7 +40,7 @@ header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
 header("Content-type: text/xml");
 require_once ('classes/Session.inc');
-echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>";
+echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 Session::logcheck("MenuPolicy", "PolicyHosts");
 require_once 'ossim_db.inc';
 require_once 'classes/Host_group.inc';
@@ -149,7 +149,7 @@ $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($host_group_list as $host_group) {
     $name = $host_group->get_name();
-	$xml.= "<row id='".htmlspecialchars($name)."'>";
+	$xml.= "<row id='".htmlspecialchars(utf8_encode($name))."'>";
     $link_modify = "<a style='font-weight:bold;' href=\"./newhostgroupform.php?name=".urlencode($name)."\">" .html_entity_decode($name). "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $list = "";

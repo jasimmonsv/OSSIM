@@ -743,7 +743,7 @@ class Util {
     } 
     
     function utf8entities($str) {
-    	return html_entity_decode(preg_replace('/&#(\d{4,5});/','&amp;#$1;',mb_convert_encoding($str,'HTML-ENTITIES','UTF-8')));
+    	return html_entity_decode(preg_replace('/&#(\d{4,5});/','&amp;#$1;',mb_convert_encoding($str,'HTML-ENTITIES','UTF-8')), ENT_COMPAT, 'UTF-8');
     }
     
     function timezone($tz) {

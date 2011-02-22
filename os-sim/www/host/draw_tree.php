@@ -53,6 +53,7 @@ function cmpf($a, $b) {
 $filter = GET('filter');
 $filter = (mb_detect_encoding($filter." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($filter) : $filter;
 
+
 $key = GET('key');
 $page = intval(GET('page'));
 ossim_valid($filter, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, 'illegal:' . _("Filter"));
@@ -72,7 +73,6 @@ $cachefile = "/var/ossim/sessions/".$_SESSION["_user"]."_hostgroup_".base64_enco
 if (file_exists($cachefile)) {
     readfile($cachefile);
     exit;
-
 }
 
 $buffer = "";
@@ -83,11 +83,13 @@ $ossim_hosts = $all_hosts = $filterhosts = array();
 $total_hosts=0;
 $ossim_nets = array();
 if ($host_list = Host::get_list($conn, "", "ORDER BY hostname")) 
+	
 	foreach($host_list as $host) 
 	{
-		if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $host->get_hostname())))) 
+		$hname = Util::utf8entities($host->get_hostname());
+		
+		if ($filter == "" || ($filter != "" && (preg_match("/$filter/i", $host->get_ip()) || preg_match("/$filter/i", $hname)))) 
 		{
-			$hname = $host->get_hostname();
 			$hip = $host->get_ip();
 			$ossim_hosts[$hip] = (trim($hname) != "") ? $hname : $hip;
 			$cclas = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $hip);

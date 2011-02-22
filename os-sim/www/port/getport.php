@@ -65,6 +65,7 @@ $db = new ossim_db();
 $conn = $db->connect();
 $xml = "";
 $port_list = Port_group::get_list($conn, "ORDER BY $order $limit");
+
 if ($port_list[0]) {
     $total = $port_list[0]->get_foundrows();
     if ($total == 0) $total = count($port_list);
@@ -74,8 +75,8 @@ $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($port_list as $port_group) {
     $name = $port_group->get_name();
-    $xml.= "<row id='".htmlspecialchars($name)."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./newportform.php?portname=".urlencode($port_group->get_name())."\">" .Util::htmlentities($name) . "</a>";
+    $xml.= "<row id='".htmlspecialchars(utf8_encode($name))."'>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newportform.php?portname=".urlencode($name)."\">" .Util::htmlentities($name) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $ports = "";
     foreach($port_group->get_reference_ports($conn, $port_group->get_name()) as $port) {

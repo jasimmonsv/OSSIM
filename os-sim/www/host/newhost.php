@@ -65,7 +65,7 @@ $longitude   = POST('longitude');
 $num_sensors = count($sensors);
 
 $validate = array (
-	"hostname"    => array("validation"=>"OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Host name")),
+	"hostname"    => array("validation"=>"OSS_NOECHARS, OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Host name")),
 	"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
 	"fqdns"       => array("validation"=>"OSS_FQDNS, OSS_NULLABLE", "e_message" => 'illegal:' . _("FQDN/Aliases")),
 	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
@@ -77,8 +77,8 @@ $validate = array (
 	"threshold_c" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),
 	"nagios"      => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" => 'illegal:' . _("Nagios")),
 	"os"          => array("validation"=>"OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Os")),
-	"mac"         => array("validation"=>"OSS_NULLABLE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Mac Address")),
-	"mac_vendor"  => array("validation"=>"OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, \"(\", \")\"", "e_message" => 'illegal:' . _("Mac Vendor")),
+	"mac"         => array("validation"=>"OSS_NOECHARS, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Mac Address")),
+	"mac_vendor"  => array("validation"=>"OSS_NOECHARS, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, \"(\", \")\"", "e_message" => 'illegal:' . _("Mac Vendor")),
 	"latitude"    => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Latitude")),
 	"longitude"   => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Longitude")),
 );

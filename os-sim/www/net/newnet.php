@@ -58,7 +58,7 @@ $nagios       = POST('nagios');
 $num_sensors = count($sensors);
 
 $validate = array (
-	"netname"     => array("validation"=>"OSS_NET_NAME", "e_message" => 'illegal:' . _("Network Name")),
+	"netname"     => array("validation"=>"OSS_NOECHARS, OSS_NET_NAME", "e_message" => 'illegal:' . _("Network Name")),
 	"cidr"        => array("validation"=>"OSS_IP_CIDR", "e_message" => 'illegal:' . _("CIDR")),
 	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
 	"asset"       => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Asset value")),

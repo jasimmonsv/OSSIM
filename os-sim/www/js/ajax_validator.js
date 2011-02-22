@@ -134,13 +134,13 @@ function get_value(id)
 function validate_field(id, url)
 {
 	var name  = $("#"+id).attr("name");
-	var value = $("#"+id).val();
+	var data  = $("#"+id).serialize();
 	var error_msg = ''
 				
 	$.ajax({
 		type: "GET",
 		url: url,
-		data: "name=" + name + "&value=" + value + "&ajax_validation=true",
+		data: data + "&name=" + name + "&ajax_validation=true",
 		success: function(html){
 
 			var status = parseInt(html);

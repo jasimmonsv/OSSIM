@@ -99,7 +99,7 @@ function ids(){
 			'COOKIE' => $general_data[2],
 			'FILES'  => $general_data[3]
 		);
-				
+		
 		
 		/*$request = array(
 			'GET' => $_GET,
@@ -261,17 +261,17 @@ define('OSS_LETTER', 'A-Za-z');
 define('OSS_SPACE', ' ');
 define('OSS_SCORE', '_\-');
 define('OSS_DOT', '\.');
-define('OSS_MIDDLEDOT', '\Ã‚Â·');
+define('OSS_MIDDLEDOT', '\Â·');
 define('OSS_COLON', ':');
 define('OSS_AT', '@');
 define('OSS_MAC', 'a-fA-F0-9:');
-define('OSS_PUNC_EXT', '\'"\.\!#\$%\^&\*_\-\=\+\:;,@\[\]\{\}\|\?\\\(\)\/ÂºÂªÂ·' . OSS_SPACE);
+define('OSS_PUNC_EXT', '\'"\.\!#\$%\^&\*_\-\=\+\:;,@\[\]\{\}\|\?\\\(\)\/ºª·' . OSS_SPACE);
 // Temporary fix, need to check out each and every OSS_PUNC use throughout the code
 define('OSS_PUNC', '\.,:@_\-\/\?&\=' . OSS_SPACE);
 define('OSS_SLASH', '\/');
 define('OSS_URL', '\.\/');
-define('OSS_EALPHA_LOWER', 'Ã¡Ã©Ã­Ã³ÃºÃ½Ã Ã¨Ã¬Ã²Ã¹Ã¤Ã«Ã¯Ã¶Ã¼Ã¿Ã¢ÃªÃ®Ã´Ã»Ã£Ã±ÃµÂ¨Ã¥Ã¦Ã§Â½Ã°Ã¸Ã¾ÃŸ');
-define('OSS_EALPHA_UPPER', 'ÃÃ‰ÃÃ“ÃšÃÃ€ÃˆÃŒÃ’Ã™Ã„Ã‹ÃÃ–ÃœÂ¾Ã‚ÃŠÃÃ”Ã›ÃƒÃ‘Ã•Â¦Ã…Ã†Ã‡Â¼ÃÃ˜Ã');
+define('OSS_EALPHA_LOWER', 'áéíóúıàèìòùäëïöüÿâêîôûãñõ¨åæç½ğøşß');
+define('OSS_EALPHA_UPPER', 'ÁÉÍÓÚİÀÈÌÒÙÄËÏÖÜ¾ÂÊÎÔÛÃÑÕ¦ÅÆÇ¼ĞØŞ');
 define('OSS_NOECHARS', 'no_echars');
 define('OSS_ALPHA', OSS_DIGIT . OSS_LETTER . OSS_EALPHA_LOWER . OSS_EALPHA_UPPER);
 define('OSS_CRONTAB', OSS_DIGIT . OSS_LETTER . '\*\-,\/'); // Somewhat dangerous, if "/" is allowed don't allow spaces, tabs or anything similar.
@@ -382,6 +382,7 @@ function ossim_valid() {
 	if ( empty($subject) )
 		$subject[0] = array();
 		
+		
 	
 	foreach ($subject as $k => $v)
 	{
@@ -399,7 +400,8 @@ function ossim_valid() {
 			}
 		}
 		
-		$v = ( Util::is_utf8($v) ) ? utf8_decode($v) : $v;
+			
+		$v = ( mb_detect_encoding($v." ",'UTF-8,ISO-8859-1') == 'UTF-8' ) ? mb_convert_encoding($v, 'ISO-8859-1', 'UTF-8') : $v ;
 		
 		$val_str         = '';
 		$oss_echars      = false;
@@ -449,7 +451,7 @@ function ossim_valid() {
 				$oss_echars = true;
 		
 		$clean_v = $v;
-
+		
 		if ( $exists_echars == true && $val_str )
 		{
 			if ( $oss_echars == false  )
@@ -460,6 +462,7 @@ function ossim_valid() {
 					return ossim_set_error($error_msg. "<br/>String: <b>" . sprintf(_("\"%s\"")."</b> "._("not allowed."), $v));
 				else
 				{
+					
 					foreach ($echars as $k => $char)
 					{
 						if ($char < MIN_ECHAR_VALUE)
@@ -471,7 +474,7 @@ function ossim_valid() {
 			}
 		}
 		
-				 
+					 
 		if ($val_str && preg_match("/[^$val_str]/", $clean_v, $m))
 		{
 			$not = $m[0];
@@ -481,7 +484,8 @@ function ossim_valid() {
 			$v   = Util::htmlentities($v);
 			$not = Util::htmlentities($not);
 			
-									
+			
+			
 			if (preg_match("/Password/i",$error_msg))
 				return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , $not)); 
 			else 
@@ -522,11 +526,12 @@ function ossim_error($error_msg = null, $style=null) {
 	
 	$ossim_warn = new OssimWarn($style);
     
-	$error = $error_msg ? $error_msg : $GLOBALS['ossim_last_error'];
+	$error = ($error_msg !== null) ? $error_msg : $GLOBALS['ossim_last_error'];
+	
     if (!$error) {
         return false;
     }
-    
+   
     return $ossim_warn->get('ERROR', array( $error ));
 }
 
@@ -543,7 +548,6 @@ function validate_form_fields($type, $validate)
 		$validate_rules = $validate;
 		foreach ($_POST as $k => $v)
 		{
-			//var_dump($v);
 			if ( !is_array($v) )
 				$values[$k]= Util::utf8entities(POST($k));
 			else
@@ -553,7 +557,6 @@ function validate_form_fields($type, $validate)
 				
 				$values[$k] = $aux;
 			}
-			//var_dump($values[$k]);	
 		}
 		
 	}
@@ -564,7 +567,7 @@ function validate_form_fields($type, $validate)
 		if ( isset($validate[$k]) )
 		{
 			$validate_rules[$k] = $validate[$k];
-			$values[$k]         = Util::utf8entities(GET('value'));
+			$values[$k]         = Util::utf8entities(GET($k));
 		}
 		
 	}
@@ -782,8 +785,8 @@ function valid_echars($value)
 	if ( $text != '' )
 	{
 		$latin_text[0] = "A-Za-z";
-		$latin_text[1] = "Ã¡Ã©Ã­Ã³ÃºÃ½Ã Ã¨Ã¬Ã²Ã¹Ã¤Ã«Ã¯Ã¶Ã¼Ã¿Ã¢ÃªÃ®Ã´Ã»Ã£Ã±ÃµÂ¨Ã¥Ã¦Ã§Â½Ã°Ã¸Ã¾ÃŸ";
-		$latin_text[2] = "ÃÃ‰ÃÃ“ÃšÃÃ€ÃˆÃŒÃ’Ã™Ã„Ã‹ÃÃ–ÃœÂ¾Ã‚ÃŠÃÃ”Ã›ÃƒÃ‘Ã•Â¦Ã…Ã†Ã‡Â¼ÃÃ˜Ã";
+		$latin_text[1] = "áéíóúıàèìòùäëïöüÿâêîôûãñõ¨åæç½ğøşß";
+		$latin_text[2] = "ÁÉÍÓÚİÀÈÌÒÙÄËÏÖÜ¾ÂÊÎÔÛÃÑÕ¦ÅÆÇ¼ĞØŞ";
 		$latin_text[3] = "0-9";
 		
 		$pattern = "/[^".implode("", $latin_text)."]/";

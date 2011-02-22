@@ -41,7 +41,7 @@ header("Pragma: no-cache");
 header("Content-type: text/xml");
 require_once 'classes/Session.inc';
 require_once 'classes/Util.inc';
-echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>";
+echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 Session::logcheck("MenuPolicy", "PolicyNetworks");
 require_once 'ossim_db.inc';
 require_once 'classes/Net_group.inc';
@@ -103,9 +103,9 @@ $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
 foreach($net_group_list as $net_group) {
-    $name = htmlspecialchars($net_group->get_name());
-	$xml.= "<row id='".$name."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./newnetgroupform.php?name=".urlencode(html_entity_decode($name))."\">" . html_entity_decode($name) . "</a>";
+    $name = $net_group->get_name();
+	$xml.= "<row id='".htmlspecialchars(utf8_encode($name))."'>";
+    $link_modify = "<a style='font-weight:bold;' href=\"./newnetgroupform.php?name=".urlencode($name)."\">" . Util::htmlentities($name) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $nets = "";
     if ($network_list = $net_group->get_networks($conn)) 

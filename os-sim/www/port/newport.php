@@ -53,7 +53,7 @@ $num_act_ports = count($actives_ports);
 
 
 $validate = array (
-	"pgname"    => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Port Group Name")),
+	"pgname"    => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SCORE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Port Group Name")),
 	"act_ports" => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Pair Port - Protocol")),
 	"descr"     => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")));
 	
