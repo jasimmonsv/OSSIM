@@ -156,6 +156,7 @@ if ($debug_mode == 1) {
 //$qs->PrintResultCnt();
 
 $country_acc = array();
+$country_uhn = array();
 $countries = array(); // Ordered
 $hosts_ips = array_keys($hosts);
 if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
@@ -168,22 +169,25 @@ while (($myrow = $result->baseFetchRow())) {
     $ip_type = $myrow[1];
     $num_events = $myrow[2];
     $field = ($ip_type=='S') ? 'srcnum' : 'dstnum';
-    if (geoip_country_name_by_addr($gi, $currentIP)=="" && (Net::is_ip_in_cache_cidr($_conn, $currentIP) || in_array($currentIP, $hosts_ips))) {
-		$country_name = _("Local");
-		$country = 'local';
-	} else {
+    //if (geoip_country_name_by_addr($gi, $currentIP)=="" && (Net::is_ip_in_cache_cidr($_conn, $currentIP) || in_array($currentIP, $hosts_ips))) {
+	//	$country_name = _("Local");
+	//	$country = 'local';
+	//} else {
 		$country = strtolower(geoip_country_code_by_addr($gi, $currentIP));
         $country_name = geoip_country_name_by_addr($gi, $currentIP);
-    }
+    //}
 	if ($country_name == "") $country_name = _("Unknown Country");
 	//echo "IP $currentIP $country_name <br>";
-	if ($country!="local") {
+	if ($country_name!=_("Unknown Country")) {
 		$countries[$country_name] += $num_events;
 		$country_acc[$country_name][$field]++;
 		$country_acc[$country_name]['events'] += $num_events;
 		$country_acc[$country_name]['flag'] = ($country_name != _("Unknown Country")) ? (($country=="local") ? "<img src=\"images/homelan.png\" border=0 title=\"$country_name\">" : " <img src=\"/ossim/pixmaps/flags/" . $country . ".png\" title=\"$country_name\">") : "";
 		$country_acc[$country_name]['flagr'] = ($country_name != _("Unknown Country")) ? (($country=="local") ? $current_url."/forensics/images/homelan.png" : $current_url."/pixmaps/flags/".$country.".png") : "";
 		$country_acc[$country_name]['code'] = $country;
+	} else {
+		$country_uhn['Unknown'] += $num_events;
+		$country_uhn[$field]++;
 	}
 	// 
 }
@@ -239,6 +243,31 @@ foreach ($countries as $country=>$num) {
         $country, $data['flagr'],
         "", "", "", "", "", "", "", "", "",
         $data['events'], $data['srcnum']+$data['dstnum'], $entry_width
+    );
+}
+
+if ($country_uhn['Unknown']>0) {
+	$cc = ($i % 2 == 0) ? "#eeeeee" : "#ffffff";
+	$country = _("Unknown Country")." / "._("Local IPs");
+?>
+	<tr bgcolor="<?=$cc?>">
+		<td style="padding:3px"><?=$country?></td>
+		<td align="center"><a href="base_stat_country_alerts.php?cc=unknown&location=alerts&query=<?=urlencode(base64_encode($sql))?>"><?=Util::number_format_locale($country_uhn['Unknown'],0)?></a></td>
+		<td align="center">
+			<? if ($country_uhn['srcnum']>0) { ?><a href="base_stat_country_alerts.php?cc=unknown&location=srcaddress&query=<?=urlencode(base64_encode($sql))?>"><?=Util::number_format_locale($country_uhn['srcnum'],0)?></a></td>
+			<? } else echo "0" ?>
+		<td align="center">
+			<? if ($country_uhn['dstnum']>0) { ?><a href="base_stat_country_alerts.php?cc=unknown&location=dstaddress&query=<?=urlencode(base64_encode($sql))?>"><?=Util::number_format_locale($country_uhn['dstnum'],0)?></a>
+			<? } else echo "0" ?>
+			</td>
+		  </TR>
+		 </TABLE>
+		</TD>
+	</tr>
+<?
+    $report_data[] = array (
+        $country, "", "", "", "", "", "", "", "", "", "",
+        $country_uhn['Unknown'], $country_uhn['srcnum']+$country_uhn['dstnum'], 0
     );
 }
 
