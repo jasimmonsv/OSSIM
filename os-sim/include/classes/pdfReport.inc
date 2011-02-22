@@ -105,10 +105,23 @@ class PdfReport{
         return $date['year'].$date['yday'].$date['hours'].$date['minutes'].$date['seconds'];
     }
 
+    private function convertEntities(){
+    	$file = @file($this->rutaHtml);
+    	for ($i=0; $i<count($file); $i++) {
+    		if (preg_match('/&#(\d{4,5});/',$file[$i]) && !preg_match('/\/image/',$file[$i]))
+    			$file[$i] = mb_convert_encoding($file[$i],'UTF-8','HTML-ENTITIES');
+    		else
+    			$file[$i] = mb_convert_encoding($file[$i],'UTF-8','ISO-8859-1');
+    	}
+		file_put_contents($this->rutaHtml,$file);
+		unset($file);
+    }
+    
     public function getPdf($output='navegador'){
         if($this->existHtml()){
+        	$this->convertEntities();
             require_once("classes/html2pdf/html2pdf.class.php");
-            $html2pdf = new HTML2PDF($this->orientation,$this->paperformat,'en', true, 'ISO-8859-1',array(0,0,0,0));
+            $html2pdf = new HTML2PDF($this->orientation,$this->paperformat,'en', true, 'UTF-8',array(0,0,0,0));
             $html2pdf->pdf->SetDisplayMode('real');
             $html2pdf->setTestTdInOnePage(false);
             $html2pdf->WriteHTML(file_get_contents($this->rutaHtml));
