@@ -220,6 +220,9 @@ $user = $_SESSION["_user"];
 
 if($export=='exportEntireQuery') {
 	$outdir = $config["searches_dir"].$user."_"."$start"."_"."$end"."_"."$sort_order"."_".base64_encode($a);
+	if(strlen($outdir) > 255) {
+		$outdir = substr($outdir,0,255);
+	}
 	if (!is_dir($outdir)) mkdir($outdir);
 	background_task($outdir);
 	unset($export); // continues normal execution
