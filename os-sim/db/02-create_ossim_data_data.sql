@@ -15933,3 +15933,8 @@ REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql
 (145, 'Top Events', 'Logger', 'Logger/List.php', 'Top Logger Events List:top:text:OSS_DIGIT:25:250;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:;Plugin Groups:plugin_groups:select:OSS_DIGIT.OSS_NULLABLE:PLUGINGROUPS:', '', 1);
 REPLACE INTO `inventory_search` (`type`, `subtype`, `match`, `list`, `query`, `ruleorder`) VALUES ('Vulnerabilities', 'Vuln Contains', 'text', '', 'SELECT DISTINCT INET_NTOA(hp.host_ip) as ip FROM host_plugin_sid hp, plugin_sid p WHERE hp.plugin_id = 3001 AND p.plugin_id = 3001 AND hp.plugin_sid = p.sid AND p.name %op% ? UNION SELECT DISTINCT INET_NTOA(s.host_ip) as ip FROM vuln_nessus_plugins p,host_plugin_sid s WHERE s.plugin_id=3001 and s.plugin_sid=p.id AND p.name %op% ?', 4);
 REPLACE INTO `inventory_search` (`type`, `subtype`, `match`, `list`, `query`, `ruleorder`) VALUES ('SIEM Events', 'Has Plugin Groups', 'fixed', 'SELECT group_id,name FROM plugin_group_descr', 'SELECT INET_NTOA(ip_src) as ip FROM snort.acid_event WHERE plugin_id in (SELECT plugin_id FROM ossim.plugin_group WHERE group_id=?) UNION SELECT INET_NTOA(ip_dst) as ip FROM snort.acid_event WHERE plugin_id in (SELECT plugin_id FROM ossim.plugin_group WHERE group_id=?)', 5);
+
+-- Default Alarms Labels
+INSERT INTO `tags_alarm` (`id`, `name`, `bgcolor`, `fgcolor`, `italic`, `bold`) VALUES
+(1, 'False Positive', 'ffe3e3', 'cc0000', 0, 0),
+(2, 'Analysis', '206cff', 'e0ecff', 0, 0);
