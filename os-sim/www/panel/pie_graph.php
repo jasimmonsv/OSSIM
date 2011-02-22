@@ -8,6 +8,8 @@ Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 require_once 'ossim_db.inc';
 $db = new ossim_db();
 $conn = $db->connect();
+session_write_close();
+
 $data = "";
 $urls = "";
 $colors = '"#E9967A","#9BC3CF"';
@@ -23,16 +25,30 @@ switch(GET("type")) {
 
 	// Top 10 Events by Product Type - Last Week
 	case "source_type":
-		$sqlgraph = "select count(a.sid) as num_events,p.source_type from snort.acid_event a,ossim.plugin p where p.id=a.plugin_id AND a.timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' $sensor_where group by p.source_type order by num_events desc LIMIT 10";
+		$types = $ac = array();
+		if (!$rp = & $conn->Execute("select id,source_type from ossim.plugin")) {
+		    print $conn->ErrorMsg();
+		} else {
+		    while (!$rp->EOF) {
+		    	if ($rp->fields["source_type"]=="") $rp->fields["source_type"] = _("Unknown type");
+		        $types[$rp->fields["id"]] = $rp->fields["source_type"];
+		        $rp->MoveNext();
+		    }
+		}
+		$sqlgraph = "select count(sid) as num_events,plugin_id from snort.acid_event where timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' group by plugin_id";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
 		    while (!$rg->EOF) {
-		    	if ($rg->fields["source_type"]=="") $rg->fields["source_type"] = _("Unknown type");
-		        $data .= "['".$rg->fields["source_type"]."',".$rg->fields["num_events"]."],";
-                $urls .= "'".$forensic_link."&sourcetype=".urlencode($rg->fields["source_type"])."',";
+		    	$type = ($types[$rg->fields["plugin_id"]]!="") ? $types[$rg->fields["plugin_id"]] : _("Unknown type");
+		    	$ac[$type] += $rg->fields["num_events"];
 		        $rg->MoveNext();
 		    }
+		}
+		arsort($ac); $ac=array_slice($ac, 0, 10);
+		foreach ($ac as $st => $events) {
+			$data .= "['".$st."',".$events."],";
+			$urls .= "'".$forensic_link."&sourcetype=".urlencode($st)."',";
 		}
 		$colors = '"#D1E8EF","#ADD8E6","#6FE7FF","#00BFFF","#4169E1","#4682B4","#0000CD","#483D8B","#5355DF","#00008B"';
 		break;

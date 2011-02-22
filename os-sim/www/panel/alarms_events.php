@@ -72,6 +72,7 @@ if (Session::allowedSensors() != "") {
 		$sensor_where_ossim = " AND a.snort_sid in (0)"; // Vacio
 	}
 }
+session_write_close();
 
 if (GET("type")=="alarms") {
 	$color = '"#EFBE68"';
