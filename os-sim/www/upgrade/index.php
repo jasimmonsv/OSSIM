@@ -126,15 +126,15 @@ if (GET('version') && GET('type') && GET('force')) {
 <table width="50%" align="center">
 <tr>
     <th><?php
-echo gettext("Detected Ossim Version"); ?>:</th><td><?php echo $upgrade->ossim_current_version ?>&nbsp;</td>
+echo gettext("Alienvault SIEM Version Detected"); ?>:</th><td><?php echo $upgrade->ossim_current_version ?>&nbsp;</td>
 </tr>
 <tr>
     <th><?php
-echo gettext("Detected Schema Version"); ?>:</th><td><?php echo $upgrade->ossim_schema_version ?>&nbsp;</td>
+echo gettext("Schema Version Detected"); ?>:</th><td><?php echo $upgrade->ossim_schema_version ?>&nbsp;</td>
 </tr>
 <tr>
     <th><?php
-echo gettext("Detected Database Type"); ?>:</th><td><?php echo $upgrade->ossim_dbtype ?>&nbsp;</td>
+echo gettext("Database Type Detected"); ?>:</th><td><?php echo $upgrade->ossim_dbtype ?>&nbsp;</td>
 </tr>
 </table>
 <br/>
