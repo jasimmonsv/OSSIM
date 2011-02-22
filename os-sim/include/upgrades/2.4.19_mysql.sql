@@ -5,6 +5,10 @@ BEGIN;
 UPDATE `custom_report_types` SET `type` = 'SIEM/Logger Events' WHERE `custom_report_types`.`id` =1099;
 UPDATE `custom_report_types` SET `type` = 'SIEM/Logger Events' WHERE `custom_report_types`.`id` =1100;
 
+REPLACE INTO `tags_alarm` (`name`, `bgcolor`, `fgcolor`, `italic`, `bold`) VALUES
+('False Positive', 'ffe3e3', 'cc0000', 0, 0),
+('Analysis', '206cff', 'e0ecff', 0, 0);
+
 use snort;
 ALTER TABLE `acid_event` MODIFY `tzone` FLOAT NOT NULL DEFAULT '0' AFTER `plugin_sid`;
 
