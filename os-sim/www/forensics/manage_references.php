@@ -241,9 +241,9 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 								</td>
 							</tr>
 							<tr>
-								<td class="left nobborder"><?=_("Data Source")?>: 
+								<td class="left nobborder"><?=_("Data Source ID")?>: 
 								<select name="plugin_id1" id="plugin_id1" onchange="load_sid(document.frules.plugin_id1.value);" style="width:202px">
-								<option value=""><?=_("Select Plugin ID")?>
+								<option value=""><?=_("Select Data Source ID")?>
 							<?
 							foreach($plugin_list as $plugin) {
 								$id = $plugin->get_id();
@@ -256,9 +256,9 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 							  </tr>
 							  
 							<tr>
-								<td id="sid1" class="left nobborder"><?=_("Event Type")?>:
+								<td id="sid1" class="left nobborder"><?=_("Event Type ID")?>:
 									<select name="" disabled style="width:200px">
-										<option value=""><?=_("Select Plugin SID")?>
+										<option value=""><?=_("Select Event Type ID")?>
 									</select>
 								</td>
 							</tr>

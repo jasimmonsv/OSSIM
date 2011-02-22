@@ -4,6 +4,7 @@ require_once ('classes/Security.inc');
 require_once 'classes/Util.inc';
 require_once 'sensor_filter.php';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
+session_write_close();
 
 function SIEM_trends($h=24) {
 	global $tz;

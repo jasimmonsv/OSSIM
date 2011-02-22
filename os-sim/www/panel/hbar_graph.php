@@ -8,6 +8,8 @@ Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 require_once 'ossim_db.inc';
 $db = new ossim_db();
 $conn = $db->connect();
+session_write_close();
+
 $ips = $urls = "";
 $values = "";
 $colors = '"#E9967A","#9BC3CF"';

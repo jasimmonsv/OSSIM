@@ -66,6 +66,8 @@ if (Session::allowedSensors() != "") {
 		$sensor_where_ossim = " AND alarm.snort_sid in (0)"; // Vacio
 	}
 }
+session_write_close();
+
 //
 if($conf->get_conf("backup_day")<=5){
     $_2Ago='INTERVAL -2 DAY';
