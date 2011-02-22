@@ -83,7 +83,7 @@ $top += $from;
 
 ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
 ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
-ossim_valid($timestamp, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("timestamp"));
+ossim_valid($timestamp, OSS_SPACE, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("timestamp"));
 ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'illegal:' . _("name"));
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
 ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
