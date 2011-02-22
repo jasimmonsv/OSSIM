@@ -69,10 +69,10 @@ $arguments 	       = POST('arguments');
 		
 			$validate = array (
 			"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
-			"type"        => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
+			"type"        => array("validation"=>"OSS_NOECHARS, OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
 			"frequency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("frequency")),
-			"state"       => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
-			"arguments"   => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
+			"state"       => array("validation"=>"OSS_NOECHARS, OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
+			"arguments"   => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
 		
 		break;
 		
@@ -84,34 +84,34 @@ $arguments 	       = POST('arguments');
 		case "modify_monitoring_entry":
 			$validate = array (
 			"id"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Id")),
-			"type"        => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
+			"type"        => array("validation"=>"OSS_NOECHARS, OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("Type")),
 			"frequency"   => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("frequency")),
-			"state"       => array("validation"=>"OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
-			"arguments"   => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
+			"state"       => array("validation"=>"OSS_NOECHARS, OSS_SCORE, OSS_LETTER", "e_message" => 'illegal:' . _("State")),
+			"arguments"   => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Arguments")));
 		break;
 		
 		case "modify_host_data":
 			$validate = array (
-				"hostname"    => array("validation"=>"OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Hostname")),
+				"hostname"    => array("validation"=>"OSS_NOECHARS, OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Hostname")),
 				"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
-				"user"        => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("User")),
-				"descr"       => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Description")),
-				"pass"        => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
-				"passc"       => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Pass confirm")),
-				"ppass"       => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Password")),
-				"ppassc"      => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Pass confirm")));
+				"user"        => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("User")),
+				"descr"       => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Description")),
+				"pass"        => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
+				"passc"       => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Pass confirm")),
+				"ppass"       => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Password")),
+				"ppassc"      => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Pass confirm")));
 		break;
 		
 		case "add_host_data":
 			$validate = array (
-				"hostname"    => array("validation"=>"OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Hostname")),
+				"hostname"    => array("validation"=>"OSS_NOECHARS, OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Hostname")),
 				"ip"          => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
-				"user"        => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("User")),
-				"descr"       => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Description")),
-				"pass"        => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
-				"passc"       => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Pass confirm")),
-				"ppass"       => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Password")),
-				"ppassc"      => array("validation"=>"OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Pass confirm")));
+				"user"        => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("User")),
+				"descr"       => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL, OSS_NULLABLE", "e_message" => 'illegal:' . _("Description")),
+				"pass"        => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
+				"passc"       => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Pass confirm")),
+				"ppass"       => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Password")),
+				"ppassc"      => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE", "e_message" => 'illegal:' . _("Priv. Pass confirm")));
 		break;
 	
 	}

@@ -272,6 +272,7 @@ define('OSS_SLASH', '\/');
 define('OSS_URL', '\.\/');
 define('OSS_EALPHA_LOWER', 'áéíóúýàèìòùäëïöüÿâêîôûãñõ¨åæç½ðøþß');
 define('OSS_EALPHA_UPPER', 'ÁÉÍÓÚÝÀÈÌÒÙÄËÏÖÜ¾ÂÊÎÔÛÃÑÕ¦ÅÆÇ¼ÐØÞ');
+define('OSS_NOECHARS', 'no_echars');
 define('OSS_ALPHA', OSS_DIGIT . OSS_LETTER . OSS_EALPHA_LOWER . OSS_EALPHA_UPPER);
 define('OSS_CRONTAB', OSS_DIGIT . OSS_LETTER . '\*\-,\/'); // Somewhat dangerous, if "/" is allowed don't allow spaces, tabs or anything similar.
 define('OSS_NL', '\r\n');
@@ -402,6 +403,7 @@ function ossim_valid() {
 		
 		$val_str         = '';
 		$oss_echars      = false;
+		$no_echars       = false;
 		$echars          = get_echars($v);
 		$exists_echars   = ( is_array($echars) && !empty($echars) ) ? true : false;
 
@@ -435,15 +437,18 @@ function ossim_valid() {
 			//
 			// OSS_* constants
 			//
-						
-			$val_str.= $p;
+			
+			if ( $p == OSS_NOECHARS )
+				$no_echars = true;
+			else
+				$val_str.= $p;
 		}
 				
 		
 		if ( stripos($val_str, OSS_LETTER) !== false )
 				$oss_echars = true;
 		
-		$clean_v = $v;		
+		$clean_v = $v;
 
 		if ( $exists_echars == true && $val_str )
 		{
@@ -451,13 +456,18 @@ function ossim_valid() {
 				return ossim_set_error($error_msg. "<br/>String: <b>" . sprintf(_("\"%s\"")."</b> "._("not allowed."), $v));
 			else
 			{
-				foreach ($echars as $k => $char)
+				if ( $no_echars == true )
+					return ossim_set_error($error_msg. "<br/>String: <b>" . sprintf(_("\"%s\"")."</b> "._("not allowed."), $v));
+				else
 				{
-					if ($char < MIN_ECHAR_VALUE)
-						return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , "&#".$char.";") . "<br/>Introduced string: '<b>$v</b>'");
+					foreach ($echars as $k => $char)
+					{
+						if ($char < MIN_ECHAR_VALUE)
+							return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , "&#".$char.";") . "<br/>Introduced string: '<b>$v</b>'");
+					}
+					
+					$clean_v = clean_echars($v);
 				}
-				
-				$clean_v = clean_echars($v);
 			}
 		}
 		

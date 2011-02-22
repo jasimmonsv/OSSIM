@@ -629,24 +629,37 @@ function modify(__level_key)
 			var tree      = status[2];	
 			var style     = '';
 			
-			if ( parseInt(status[0]) != 1)
-				style = 'oss_error';
-			else
-			{
-				style = 'oss_success';
-				load_tree(tree, __level_key, 'normal');	
-			}
-			
 			if ( $("#results").length >= 1 )
 			{
 				$('#results').html('');
 				$('#results').append("<div id='msg_edit'></div>");
-				$('#msg_edit').addClass(style);
-				$('#msg_edit').html(status[1]);
-				$('#msg_edit').fadeIn(2000);
-				setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
 			}
+			
+			
+			if (status[0] != 3)
+			{
+				style = (parseInt(status[0]) == 2) ? 'oss_error' : 'oss_success';
+				$('#msg_edit').addClass(style);
+				$("#msg_edit").html(status[1]);
+				$("#msg_edit").fadeIn(2000);
+				setTimeout('$("#msg_edit").fadeOut(4000);', 4000);
 				
+				if (status[0] == 1)
+					load_tree(tree, __level_key, 'normal');	
+			}
+			else
+			{
+				style    = 'oss_error';
+				var html =  "<span style='font-weight: bold;'>"+messages[13]+"<a onclick=\"$('#msg_errors').toggle();\"> ["+messages[14]+"]</a><br/></span>";
+				html    += "<div id='msg_errors' style='margin-left:0px;'>"+status[1]+"</div>";
+			
+				$('#msg_edit').append("<div id='parse_errors'></div>");
+				$('#parse_errors').addClass(style);
+				$('#parse_errors').html(html);
+				$('#parse_errors').fadeIn(2000);
+				window.scroll(0,0);
+				setTimeout('$("#msg_edit").fadeOut(4000);', 25000);
+			}
 		}
 	});
 		
