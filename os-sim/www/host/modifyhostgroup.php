@@ -232,6 +232,8 @@ if ( POST('insert') && !empty($hgname) )
 	Host_group::update($conn, $hgname, $threshold_c, $threshold_a, $rrd_profile, $sensors, $hosts, $descr);
 	
     $db->close($conn);
+	
+	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
 }
 
 if ( isset($_SESSION['_hostgroup']) )

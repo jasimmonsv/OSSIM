@@ -153,10 +153,10 @@ if ( $error == true)
 
 if (POST('insert')) {
 	Port::insert($conn, $port, $protocol, $service, $descr);
-	
-	if ( isset($_SESSION['_singleport']) )
-		unset($_SESSION['_singleport']);
 }
+
+if ( isset($_SESSION['_singleport']) )
+	unset($_SESSION['_singleport']);
 
 $db->close($conn);
 

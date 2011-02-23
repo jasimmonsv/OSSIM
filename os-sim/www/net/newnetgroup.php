@@ -165,12 +165,13 @@ if (POST('insert'))
 	/*if (POST('nessus')) { Net_group_scan::insert($conn, $ngname, 3001, 0); }*/
     
 	$db->close($conn);
-    Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
-	
-	if ( isset($_SESSION['_netgroup']) )
-		unset($_SESSION['_netgroup']);
-	
+    
+	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
 }
+
+if ( isset($_SESSION['_netgroup']) )
+	unset($_SESSION['_netgroup']);
+
 ?>
     <p> <?php echo gettext("Network Group succesfully inserted"); ?> </p>
     <? if ( $_SESSION["menu_sopc"]=="Network groups" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="netgroup.php"</script><? } ?>

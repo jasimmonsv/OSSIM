@@ -206,10 +206,12 @@ if (POST('insert'))
     $db->close($conn);
 	
     Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
-	
-	if ( isset($_SESSION['_host']) )
-		unset($_SESSION['_host']);
 }
+
+if ( isset($_SESSION['_host']) )
+	unset($_SESSION['_host']);
+
+
 ?>
     <p> <?php echo gettext("Host succesfully inserted"); ?> </p>
     <?if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1" ) { ?><script>document.location.href="host.php"</script><? } ?>

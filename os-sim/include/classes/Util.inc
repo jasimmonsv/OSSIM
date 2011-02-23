@@ -684,7 +684,7 @@ class Util {
 	}
 
     // clean json cache session files
-    function clean_json_cache_files($pattern="",$user="") {
+    /*function clean_json_cache_files($pattern="",$user="") {
     	if ($user=="") $user = $_SESSION["_user"];
         $cachedir = "/var/ossim/sessions";
         if (is_dir($cachedir) && $dh = opendir($cachedir)) {
@@ -694,7 +694,67 @@ class Util {
                 }
             }
         }
-    }
+    }*/
+	
+	// clean json cache session files
+    function clean_json_cache_files($pattern="",$user="") {
+    	
+		require_once ('classes/Session.inc');
+		require_once ('ossim_conf.inc');
+		require_once ('ossim_db.inc');
+		
+		$db         = new ossim_db();
+		$dbconn     = $db->connect();
+		
+		$conf       = $GLOBALS["CONF"];
+		$version    = $conf->get_conf("ossim_server_version", FALSE);
+		$pro        = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+		
+		$users        = array();
+		$cache_dir    = "/var/ossim/sessions";
+		$delete_all   = false;
+		
+		
+		if ( $user != "" ) 
+			$users[] = $user;
+		else
+		{
+			if  ( Session::am_i_admin() )
+				$delete_all = true;
+			else if( $pro && Acl::am_i_proadmin() ) 
+			{
+				$users_list = Acl::get_my_users($dbconn,Session::get_session_user());
+				foreach($users_list as $k => $v)
+					$users[] = $v['login'];
+				
+			}
+			else
+				$users[] = Session::get_session_user();
+			
+		}
+		
+		if ( $delete_all == true )
+		{
+			$command   = "ls -C1 $cache_dir";
+			$command  .= ( !empty($pattern) ) ? " | egrep \"$pattern\"" : "";
+			exec($command, $output, $res);
+		}
+		else
+		{
+			$usernames = implode("|", $users);
+			$command   = "ls -C1 $cache_dir | egrep \"$usernames\"";
+			$command  .= ( !empty($pattern) ) ? " | egrep \"$pattern\"" : "";
+			exec($command, $output, $res);
+		}
+		
+		if ( !is_array($output) )
+			return false;
+		
+		foreach ($output as $k => $v)
+			@unlink($cache_dir."/".$v);
+		
+		return true;
+	}
     
     function utf8_encode2($string) {
         return (Util::is_utf8($string)) ? $string : utf8_encode($string);

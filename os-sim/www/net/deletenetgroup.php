@@ -35,21 +35,22 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Util.inc');
 Session::logcheck("MenuPolicy", "PolicyNetworks");
 ?>
 
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
+
 <body>
 
-  <h1> <?php
-echo gettext("Delete network group"); ?> </h1>
+<h1> <?php echo gettext("Delete network group"); ?> </h1>
 
 <?php
 require_once 'classes/Security.inc';
@@ -60,16 +61,12 @@ if (ossim_error()) {
 }
 if (!GET('confirm')) {
 ?>
-    <p> <?php
-    echo gettext("Are you sure"); ?> ?</p>
-    <p><a 
-      href="<?php
-    echo $_SERVER["SCRIPT_NAME"] . "?name=$name&confirm=yes"; ?>">
-      <?php
-    echo gettext("Yes"); ?> </a>
-      &nbsp;&nbsp;&nbsp;<a href="netgroup.php">
-      <?php
-    echo gettext("No"); ?> </a>
+    <p> <?php echo gettext("Are you sure"); ?> ?</p>
+    <p>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?name=$name&confirm=yes"; ?>">
+		<?php echo gettext("Yes"); ?> </a>
+		&nbsp;&nbsp;&nbsp;<a href="netgroup.php">
+		<?php echo gettext("No"); ?> </a>
     </p>
 <?php
     exit();
@@ -77,24 +74,28 @@ if (!GET('confirm')) {
 require_once 'ossim_db.inc';
 require_once 'classes/Net_group.inc';
 require_once 'classes/Net_group_scan.inc';
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
-if (Net_group::can_delete($conn,$name)) {
-Net_group::delete($conn, $name);
-Net_group_scan::delete($conn, $name, 3001);
-} else {
+
+if (Net_group::can_delete($conn,$name))
+{
+	Net_group::delete($conn, $name);
+	Net_group_scan::delete($conn, $name, 3001);
+} 
+else 
+{
 	echo "ERROR_CANNOT";
 }
 $db->close($conn);
 ?>
 
-    <p> <?php
-echo gettext("Network group deleted"); ?> </p>
-    <p><a href="netgroup.php">
+    <p> <?php echo gettext("Network group deleted"); ?> </p>
+    <p><a href="netgroup.php"><?php echo gettext("Back"); ?> </a></p>
     <?php
-echo gettext("Back"); ?> </a></p>
-    <?php
-exit(); ?>
+		Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
+		exit(); 
+	?>
 
 </body>
 </html>

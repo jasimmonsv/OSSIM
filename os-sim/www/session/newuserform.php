@@ -137,20 +137,19 @@ function formsubmit() {
 </head>
 <body onload="$('#pass1').pstrength()">
 
-	<?php
-include ("../hmenu.php"); ?>
+<?php include ("../hmenu.php"); 
 
-<?php
-$user = GET('user');
-$pass1 = GET('pass1');
-$pass2 = GET('pass2');
-$name = GET('name');
-$email = GET('email');
-$company = GET('company');
+$user       = GET('user');
+$pass1      = GET('pass1');
+$pass2      = GET('pass2');
+$name       = GET('name');
+$email      = GET('email');
+$company    = GET('company');
 $department = GET('department');
-$networks = GET('networks');
-$sensors = GET('sensors');
-$perms = GET('perms');
+$networks   = GET('networks');
+$sensors    = GET('sensors');
+$perms      = GET('perms');
+
 //$copy_panels = GET('copy_panels');
 ossim_valid($user, OSS_USER, OSS_NULLABLE, 'illegal:' . _("User name"));
 //ossim_valid($copy_panels, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Copy panels"));
@@ -169,251 +168,253 @@ $all = $defaults = array();
 ?>
 
 <form method="post" action="newuser.php" id="fnewuser" name="fnewuser">
+
 <table align="center">
-  <input type="hidden" name="insert" value="insert" />
-  <tr>
-    <th> <?php echo _("User login") . required() ?></th>
-    <td class="left">
-        <input type="text" id="1" name="user" onkeyup="checklogin()" value="<?php echo $user ?>" size="30" />
-        <div id="msg_login" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("No spaces") ?></div>
-    </td>
-  </tr>
-  <tr>
-    <th> <?php echo _("User full name") . required() ?> </th>
-    <td class="left">
-        <input type="text" id="2" name="name" value="<?php echo $name ?>" size="30" />
-    </td>
-  </tr>
-  <tr>
-    <th> <?php echo _("User Email") . required() ?> <img src="../pixmaps/email_icon.gif"></th>
-    <td class="left">
-        <input type="text" id="3" name="email" onblur="checkemail()" value="<?php echo $email ?>" size="30" />
-        <div id="msg_email" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("Incorrect email") ?></div>
-    </td>
-  </tr>
-  <tr>
-    <th> <?php echo _("Enter password") . required() ?> </th>
-    <td class="left">
-        <input type="password" id="pass1" name="pass1" value="<?php echo $pass1 ?>" size="30" />
-    </td>
-  </tr>
-  <tr>
-	<td class="nobborder" style="padding:0px"></td>
-	<td class="nobborder" style="padding:0px"><div id="pass1_text"></div><div id="pass1_bar"></div></td>
-  </tr>
-  <tr>
-    <th> <?php echo _("Re-enter password") . required() ?> </th>
-    <td class="left">
-        <input type="password" id="pass2" name="pass2" value="<?php echo $pass2 ?>" size="30" />
-    </td>
-  </tr>
-  <tr>
-    <th> <?php
-echo gettext("User language"); ?></th>
-    <td class="left">
-<?php
-$lform = "<select name=\"language\">";
-foreach($languages['type'] as $option_value => $option_text) {
-    $lform.= "<option ";
-    $lform.= "value=\"$option_value\">$option_text</option>";
-}
-$lform.= "</select>";
-echo $lform;
-?>
-</td>
-  </tr>
+	<input type="hidden" name="insert" value="insert" />
+	<tr>
+		<th> <?php echo _("User login") . required() ?></th>
+		<td class="left">
+			<input type="text" id="1" name="user" onkeyup="checklogin()" value="<?php echo $user ?>" size="30" />
+			<div id="msg_login" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("No spaces") ?></div>
+		</td>
+	</tr>
+	
+	<tr>
+		<th> <?php echo _("User full name") . required() ?> </th>
+		<td class="left">
+			<input type="text" id="2" name="name" value="<?php echo $name ?>" size="30" />
+		</td>
+	</tr>
+	
+	<tr>
+		<th> <?php echo _("User Email") . required() ?> <img src="../pixmaps/email_icon.gif"></th>
+		<td class="left">
+			<input type="text" id="3" name="email" onblur="checkemail()" value="<?php echo $email ?>" size="30" />
+			<div id="msg_email" style="display:none;border:2px solid red;padding-left:3px;padding-right:3px"><?php echo _("Incorrect email") ?></div>
+		</td>
+	</tr>
+	
+	<tr>
+		<th> <?php echo _("Enter password") . required() ?> </th>
+		<td class="left">
+			<input type="password" id="pass1" name="pass1" value="<?php echo $pass1 ?>" size="30" />
+		</td>
+	</tr>
+	
+	<tr>
+		<td class="nobborder" style="padding:0px"></td>
+		<td class="nobborder" style="padding:0px"><div id="pass1_text"></div><div id="pass1_bar"></div></td>
+	</tr>
   
-  <tr>
-	<th><?=_("Timezone:")?></th>
-    <? $tz = intval(date("O"))/100; ?>
-	<td class="left">
-    <select name="tzone" id="tzone">
-        <option value="-12" <?php if ($tz == "-12") echo "selected" ?>>GMT-12:00</option>
-        <option value="-11" <?php if ($tz == "-11") echo "selected" ?>>GMT-11:00</option>
-        <option value="-10" <?php if ($tz == "-10") echo "selected" ?>>GMT-10:00</option>
-        <option value="-9.5" <?php if ($tz == "-9.5") echo "selected" ?>>GMT-9:30</option>
-        <option value="-9" <?php if ($tz == "-9") echo "selected" ?>>GMT-9:00</option>
-        <option value="-8" <?php if ($tz == "-8") echo "selected" ?>>GMT-8:00</option>
-        <option value="-7" <?php if ($tz == "-7") echo "selected" ?>>GMT-7:00</option>
-        <option value="-6" <?php if ($tz == "-6") echo "selected" ?>>GMT-6:00</option>
-        <option value="-5" <?php if ($tz == "-5") echo "selected" ?>>GMT-5:00</option>
-        <option value="-4.5" <?php if ($tz == "-4.5") echo "selected" ?>>GMT-4:30</option>
-        <option value="-4" <?php if ($tz == "-4") echo "selected" ?>>GMT-4:00</option>
-        <option value="-3.5" <?php if ($tz == "-3.5") echo "selected" ?>>GMT-3:30</option>
-        <option value="-3" <?php if ($tz == "-3") echo "selected" ?>>GMT-3:00</option>
-        <option value="-2" <?php if ($tz == "-2") echo "selected" ?>>GMT-2:00</option>
-        <option value="-1" <?php if ($tz == "-1") echo "selected" ?>>GMT-1:00</option>
-        <option value="0" <?php if ($tz == "0") echo "selected" ?>>UTC</option>
-        <option value="1" <?php if ($tz == "1") echo "selected" ?>>GMT+1:00</option>
-        <option value="2" <?php if ($tz == "2") echo "selected" ?>>GMT+2:00</option>
-        <option value="3" <?php if ($tz == "3") echo "selected" ?>>GMT+3:00</option>
-        <option value="3.5" <?php if ($tz == "3.5") echo "selected" ?>>GMT+3:30</option>
-        <option value="4" <?php if ($tz == "4") echo "selected" ?>>GMT+4:00</option>
-        <option value="4.5" <?php if ($tz == "4.5") echo "selected" ?>>GMT+4:30</option>
-        <option value="5" <?php if ($tz == "5") echo "selected" ?>>GMT+5:00</option>
-        <option value="5.5" <?php if ($tz == "5.5") echo "selected" ?>>GMT+5:30</option>
-        <option value="5.75" <?php if ($tz == "5.75") echo "selected" ?>>GMT+5:45</option>
-        <option value="6" <?php if ($tz == "6") echo "selected" ?>>GMT+6:00</option>
-        <option value="6.5" <?php if ($tz == "6.5") echo "selected" ?>>GMT+6:30</option>
-        <option value="7" <?php if ($tz == "7") echo "selected" ?>>GMT+7:00</option>
-        <option value="8" <?php if ($tz == "8") echo "selected" ?>>GMT+8:00</option>
-        <option value="8.75" <?php if ($tz == "8.75") echo "selected" ?>>GMT+8:45</option>
-        <option value="9" <?php if ($tz == "9") echo "selected" ?>>GMT+9:00</option>
-        <option value="9.5" <?php if ($tz == "9.5") echo "selected" ?>>GMT+9:30</option>
-        <option value="10" <?php if ($tz == "10") echo "selected" ?>>GMT+10:00</option>
-        <option value="10.5" <?php if ($tz == "10.5") echo "selected" ?>>GMT+10:30</option>
-        <option value="11" <?php if ($tz == "11") echo "selected" ?>>GMT+11:00</option>
-        <option value="11.5" <?php if ($tz == "11.5") echo "selected" ?>>GMT+11:30</option>
-        <option value="12" <?php if ($tz == "12") echo "selected" ?>>GMT+12:00</option>
-        <option value="12.75" <?php if ($tz == "12.75") echo "selected" ?>>GMT+12:45</option>
-        <option value="13" <?php if ($tz == "13") echo "selected" ?>>GMT+13:00</option>
-        <option value="14" <?php if ($tz == "14") echo "selected" ?>>GMT+14:00</option>
-    </select>
-	</td>
-</tr>
+	<tr>
+		<th> <?php echo _("Re-enter password") . required() ?> </th>
+		<td class="left">
+			<input type="password" id="pass2" name="pass2" value="<?php echo $pass2 ?>" size="30" />
+		</td>
+	</tr>
+	
+	<tr>
+		<th> <?php echo gettext("User language"); ?></th>
+		<td class="left">
+		<?php
+		$lform = "<select name=\"language\">";
+		foreach($languages['type'] as $option_value => $option_text) {
+			$lform.= "<option ";
+			$lform.= "value=\"$option_value\">$option_text</option>";
+		}
+		$lform.= "</select>";
+		echo $lform;
+		?>
+		</td>
+	</tr>
   
-  <tr>
-    <th> <?php echo _("Company") ?> </th>
-    <td class="left">
-        <input type="text" id="6" name="company" value="<?php echo $company ?>" size="30" />
-    </td>
-  </tr>
-  <tr>
-    <th> <?php echo _("Department") ?> </th>
-    <td class="left">
-        <input type="text" id="7" name="department" value="<?php echo $department ?>" size="30" />
-    </td>
-  </tr>
+	<tr>
+		<th><?=_("Timezone:")?></th>
+		<? $tz = intval(date("O"))/100; ?>
+		<td class="left">
+			<select name="tzone" id="tzone">
+				<option value="-12" <?php if ($tz == "-12") echo "selected" ?>>GMT-12:00</option>
+				<option value="-11" <?php if ($tz == "-11") echo "selected" ?>>GMT-11:00</option>
+				<option value="-10" <?php if ($tz == "-10") echo "selected" ?>>GMT-10:00</option>
+				<option value="-9.5" <?php if ($tz == "-9.5") echo "selected" ?>>GMT-9:30</option>
+				<option value="-9" <?php if ($tz == "-9") echo "selected" ?>>GMT-9:00</option>
+				<option value="-8" <?php if ($tz == "-8") echo "selected" ?>>GMT-8:00</option>
+				<option value="-7" <?php if ($tz == "-7") echo "selected" ?>>GMT-7:00</option>
+				<option value="-6" <?php if ($tz == "-6") echo "selected" ?>>GMT-6:00</option>
+				<option value="-5" <?php if ($tz == "-5") echo "selected" ?>>GMT-5:00</option>
+				<option value="-4.5" <?php if ($tz == "-4.5") echo "selected" ?>>GMT-4:30</option>
+				<option value="-4" <?php if ($tz == "-4") echo "selected" ?>>GMT-4:00</option>
+				<option value="-3.5" <?php if ($tz == "-3.5") echo "selected" ?>>GMT-3:30</option>
+				<option value="-3" <?php if ($tz == "-3") echo "selected" ?>>GMT-3:00</option>
+				<option value="-2" <?php if ($tz == "-2") echo "selected" ?>>GMT-2:00</option>
+				<option value="-1" <?php if ($tz == "-1") echo "selected" ?>>GMT-1:00</option>
+				<option value="0" <?php if ($tz == "0") echo "selected" ?>>UTC</option>
+				<option value="1" <?php if ($tz == "1") echo "selected" ?>>GMT+1:00</option>
+				<option value="2" <?php if ($tz == "2") echo "selected" ?>>GMT+2:00</option>
+				<option value="3" <?php if ($tz == "3") echo "selected" ?>>GMT+3:00</option>
+				<option value="3.5" <?php if ($tz == "3.5") echo "selected" ?>>GMT+3:30</option>
+				<option value="4" <?php if ($tz == "4") echo "selected" ?>>GMT+4:00</option>
+				<option value="4.5" <?php if ($tz == "4.5") echo "selected" ?>>GMT+4:30</option>
+				<option value="5" <?php if ($tz == "5") echo "selected" ?>>GMT+5:00</option>
+				<option value="5.5" <?php if ($tz == "5.5") echo "selected" ?>>GMT+5:30</option>
+				<option value="5.75" <?php if ($tz == "5.75") echo "selected" ?>>GMT+5:45</option>
+				<option value="6" <?php if ($tz == "6") echo "selected" ?>>GMT+6:00</option>
+				<option value="6.5" <?php if ($tz == "6.5") echo "selected" ?>>GMT+6:30</option>
+				<option value="7" <?php if ($tz == "7") echo "selected" ?>>GMT+7:00</option>
+				<option value="8" <?php if ($tz == "8") echo "selected" ?>>GMT+8:00</option>
+				<option value="8.75" <?php if ($tz == "8.75") echo "selected" ?>>GMT+8:45</option>
+				<option value="9" <?php if ($tz == "9") echo "selected" ?>>GMT+9:00</option>
+				<option value="9.5" <?php if ($tz == "9.5") echo "selected" ?>>GMT+9:30</option>
+				<option value="10" <?php if ($tz == "10") echo "selected" ?>>GMT+10:00</option>
+				<option value="10.5" <?php if ($tz == "10.5") echo "selected" ?>>GMT+10:30</option>
+				<option value="11" <?php if ($tz == "11") echo "selected" ?>>GMT+11:00</option>
+				<option value="11.5" <?php if ($tz == "11.5") echo "selected" ?>>GMT+11:30</option>
+				<option value="12" <?php if ($tz == "12") echo "selected" ?>>GMT+12:00</option>
+				<option value="12.75" <?php if ($tz == "12.75") echo "selected" ?>>GMT+12:45</option>
+				<option value="13" <?php if ($tz == "13") echo "selected" ?>>GMT+13:00</option>
+				<option value="14" <?php if ($tz == "14") echo "selected" ?>>GMT+14:00</option>
+			</select>
+		</td>
+	</tr>
+  
+	<tr>
+		<th> <?php echo _("Company") ?> </th>
+		<td class="left">
+			<input type="text" id="6" name="company" value="<?php echo $company ?>" size="30" />
+		</td>
+	</tr>
+	
+	<tr>
+		<th> <?php echo _("Department") ?> </th>
+		<td class="left">
+			<input type="text" id="7" name="department" value="<?php echo $department ?>" size="30" />
+		</td>
+	</tr>
 
-<tr>
-<th><?php echo _("Ask to change password at first login") ?></th>
-    <td align="center">
-   <input type="radio" name="first_login" value="1"> <?php echo _("Yes"); ?>
-   <input type="radio" name="first_login" value="0" checked> <?php echo _("No"); ?> 
-    </td>
-</tr>
+	<tr>
+		<th><?php echo _("Ask to change password at first login") ?></th>
+		<td align="center">
+			<input type="radio" name="first_login" value="1"> <?php echo _("Yes"); ?>
+			<input type="radio" name="first_login" value="0" checked> <?php echo _("No"); ?> 
+		</td>
+	</tr>
 
-<tr>
-  <td>&nbsp;</td>
-  <td align="center">
-    <input type="button" onclick="formsubmit()" class="btn" value="OK">
-    <input type="reset" class="btn" value="<?php
-echo gettext("reset"); ?>">
-  </td>
-</tr>
- </table>
+	<tr>
+		<td class="nobborder center" colspan='2' style='padding: 10px 0px;'>
+			<input type="button" onclick="formsubmit()" class="button" value="OK"/>
+			<input type="reset" class="button" value="<?php echo gettext("Reset"); ?>">
+		</td>
+	</tr>
+</table>
  
-  <br/>
-  <table align="center" cellspacing=8>
-  <tr>
-    <th><?php echo _("Allowed nets") ?></th>
-	<td class="nobborder"></td>
-    <th><?php echo _("Allowed sensors") ?></th>
-	<td class="nobborder"></td>
-    <th colspan="2"> <?php echo _("Allowed Sections") ?> </th>
-  </tr>
-  <tr>
-    <td class="nobborder" valign="top" style="padding-top:8px">
+<br/>
+<table align="center" cellspacing='8'>
+	<tr>
+		<th><?php echo _("Allowed nets") ?></th>
+		<td class="nobborder"></td>
+		<th><?php echo _("Allowed sensors") ?></th>
+		<td class="nobborder"></td>
+		<th colspan="2"> <?php echo _("Allowed Sections") ?> </th>
+	</tr>
+	<tr>
+		<td class="nobborder" valign="top" style="padding-top:8px">
+			<a href="#" onclick="checkall('nets');return false;"><?php echo _("Select / Unselect all") ?></a>
+			<hr noshade>
 
+			<?php
+			$i = 0;
+			foreach($net_list as $net) {
+				$all['nets'][] = "net" . $i;
+			?>
+					<input type="checkbox" class="nets" id="<?php echo "net" . $i ?>" name="<?php echo "net" . $i ?>"
+						   value="<?php echo $net->get_name(); ?>" /><?php echo $net->get_name() ?><br/>
+			<?php
+				$i++;
+			}
+			?>
+			<input type="hidden" name="nnets" value="<?php echo $i ?>" /><br>
+			<i><?php echo gettext("NOTE: No selection allows ALL") . " " . gettext("nets"); ?></i>
+		</td>
+		
+		<td class="noborder" style="border-right:2px solid #E0E0E0"></td>
+		
+		<td class="nobborder" valign="top" style="padding-top:8px">
+		
+			<a href="#" onclick="checkall('sensor');return false;"><?php echo gettext("Select / Unselect all"); ?></a>
+			
+			<hr noshade>
 
-<a href="#" onclick="checkall('nets');return false;"><?php echo _("Select / Unselect all") ?></a>
-<hr noshade>
-
-<?php
-$i = 0;
-foreach($net_list as $net) {
-    $all['nets'][] = "net" . $i;
-?>
-        <input type="checkbox" class="nets" id="<?php echo "net" . $i ?>" name="<?php echo "net" . $i ?>"
-               value="<?php echo $net->get_name(); ?>" /><?php echo $net->get_name() ?><br/>
-<?php
-    $i++;
-}
-?>
-        <input type="hidden" name="nnets" value="<?php
-echo $i ?>" /><br>
-        <i><?php
-echo gettext("NOTE: No selection allows ALL") . " " . gettext("nets"); ?></i>
-    </td>
-	<td class="noborder" style="border-right:2px solid #E0E0E0"></td>
-	<td class="nobborder" valign="top" style="padding-top:8px">
-<a href="#" onclick="checkall('sensor');return false;"><?php
-    echo gettext("Select / Unselect all"); ?></a>
-<hr noshade>
-
-<?php
-$i = 0;
-foreach($sensor_list as $sensor) {
-    $sensor_name = $sensor->get_name();
-    $sensor_ip = $sensor->get_ip();
-    $input = "<input type=\"checkbox\" class='sensor' name=\"sensor$i\" value=\"" . $sensor_ip . "\"";
-    $input.= "/>$sensor_name<br/>";
-    echo $input;
-    $i++;
-}
-?>
-      <input type="hidden" name="nsensors" value="<?php
-echo $i ?>" />
-      <br><i><?php
-echo gettext("NOTE: No selection allows ALL") . " " . gettext("sensors"); ?></i>
-    </td>
-	<td class="noborder" style="border-right:2px solid #E0E0E0"></td>
-<td class="nobborder">
-	<table class="noborder">
-		<tr>
-			<td class="nobborder">
-				<a href="#" onclick="checkall('perms');return false;"><?php
-					echo gettext("Select / Unselect all"); ?></a>
-			</td>
-			<td class="nobborder" style="color:#777777;text-align:center" nowrap>
-				<font style="color:black"><b>Granularity</b> Net / Sensor</font>
-				<!--<br><img src="../pixmaps/tick.png"> <i>Checked is filtered</i>-->
-			</td>
-		</tr>
-		<tr><td colspan=2 class="nobborder"><hr noshade></td></tr>
+			<?php
+			$i = 0;
+			foreach($sensor_list as $sensor) {
+				$sensor_name = $sensor->get_name();
+				$sensor_ip = $sensor->get_ip();
+				$input = "<input type=\"checkbox\" class='sensor' name=\"sensor$i\" value=\"" . $sensor_ip . "\"";
+				$input.= "/>$sensor_name<br/>";
+				echo $input;
+				$i++;
+			}
+			?>
+			<input type="hidden" name="nsensors" value="<?php echo $i ?>" />
+			<br><i><?php echo gettext("NOTE: No selection allows ALL") . " " . gettext("sensors"); ?></i>
+		</td>
+		
+		<td class="noborder" style="border-right:2px solid #E0E0E0"></td>
+		
+		<td class="nobborder">
+			<table class="noborder">
+				<tr>
+					<td class="nobborder"><a href="#" onclick="checkall('perms');return false;"><?php echo gettext("Select / Unselect all"); ?></a></td>
+					<td class="nobborder" style="color:#777777;text-align:center" nowrap>
+						<font style="color:black"><b>Granularity</b> Net / Sensor</font>
+						<!--<br><img src="../pixmaps/tick.png"> <i>Checked is filtered</i>-->
+					</td>
+				</tr>
+				
+				<tr><td colspan='2' class="nobborder"><hr noshade></td></tr>
 	
-<?php
-include ("granularity.php");
-$i=0;
-foreach($ACL_MAIN_MENU as $mainmenu => $menus) {
-    foreach($menus as $key => $menu) {
-		$color = ($i++ % 2 != 0) ? "bgcolor='#f2f2f2'" : "";
-?>
-            <tr <?=$color?>><td class="nobborder"><input class="perms" type="checkbox" name="<?php
-        echo $key ?>"
-<?php
-        $checked = 0;
-		//if ($user->get_login() == 'admin') echo " disabled";
-		if ($perms) $checked = 1;
-        //if (check_perms($user->get_login() , $mainmenu, $key)) $checked = 1;
-        //if ($perms || ($user->get_login() == 'admin')) echo " checked ";
-		if ($checked) echo " checked";
-?>>
-<?php
-        $sensor_tick = ($granularity[$mainmenu][$key]['sensor']) ? "<img src='../pixmaps/tick.png'>" : "<img src='../pixmaps/tick_gray.png'>";
-		$net_tick = ($granularity[$mainmenu][$key]['net']) ? "<img src='../pixmaps/tick.png'>" : "<img src='../pixmaps/tick_gray.png'>";
-		echo $menu["name"] . "</td><td class='nobborder' style='text-align:center'>".$net_tick." ".$sensor_tick."</td></tr>\n";
-    }
-    echo "<tr><td colspan=2 class='nobborder'><hr noshade></td></tr>";
-}
-?>
-	
-	
-	</table>
-    </td>
-  </tr>
+				<?php
+				include ("granularity.php");
+				$i=0;
+				
+				foreach($ACL_MAIN_MENU as $mainmenu => $menus) {
+					foreach($menus as $key => $menu) {
+						$color = ($i++ % 2 != 0) ? "bgcolor='#f2f2f2'" : "";
+				?>
+							<tr <?=$color?>><td class="nobborder"><input class="perms" type="checkbox" name="<?php
+						echo $key ?>"
+				<?php
+						$checked = 0;
+						//if ($user->get_login() == 'admin') echo " disabled";
+						if ($perms) $checked = 1;
+						//if (check_perms($user->get_login() , $mainmenu, $key)) $checked = 1;
+						//if ($perms || ($user->get_login() == 'admin')) echo " checked ";
+						if ($checked) echo " checked='checked'";
+				?>>
+				<?php
+						$sensor_tick = ($granularity[$mainmenu][$key]['sensor']) ? "<img src='../pixmaps/tick.png'>" : "<img src='../pixmaps/tick_gray.png'>";
+						$net_tick = ($granularity[$mainmenu][$key]['net']) ? "<img src='../pixmaps/tick.png'>" : "<img src='../pixmaps/tick_gray.png'>";
+						echo $menu["name"] . "</td><td class='nobborder' style='text-align:center'>".$net_tick." ".$sensor_tick."</td></tr>\n";
+					}
+					echo "<tr><td colspan='2' class='nobborder'><hr noshade></td></tr>";
+				}
+				?>
+			</table>
+		</td>
+	</tr>
 </table>
 
 <br/>
-<table align="center">
-  <tr>
-    <td colspan="2" align="center" valign="top">
-      <input type="button" onclick="formsubmit()" class="btn" value="OK">
-      <input type="reset" class="btn" value="<?php
-echo gettext("reset"); ?>">
-    </td>
-  </tr>
+
+<table align="center" class='transparent'>
+	<tr>
+		<td colspan="2" class="center nobborder" valign="top">
+			<input type="button" onclick="formsubmit()" class="button" value="OK"/>
+			<input type="reset" class="button" value="<?php echo gettext("Reset"); ?>"/>
+		</td>
+	</tr>
 </table>
+
 </form>  
 </body>
 </html>

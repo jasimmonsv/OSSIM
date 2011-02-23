@@ -178,9 +178,7 @@ if (POST('insert')) {
 	Host_group::insert($conn, $hgname, $threshold_c, $threshold_a, $rrd_profile, $sensors, $hosts, $descr);
     
 	Host_group_scan::delete($conn, $hgname, 3001, 0);
-	
-	
-	
+		
 	if ( $nagios )
 	{
 	    if (!Host_group_scan::in_host_group_scan($conn, $hgname, 2007)) 
@@ -193,11 +191,12 @@ if (POST('insert')) {
     $db->close($conn);
     
 	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
-	
-	if ( isset($_SESSION['_hostgroup']) )
-		unset($_SESSION['_hostgroup']);
 			
 }
+
+if ( isset($_SESSION['_hostgroup']) )
+	unset($_SESSION['_hostgroup']);
+
 ?>
     <p> <?php echo gettext("Host group succesfully inserted"); ?> </p>
     <? if ( $_SESSION["menu_sopc"]=="Host groups" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="hostgroup.php"</script><? } ?>

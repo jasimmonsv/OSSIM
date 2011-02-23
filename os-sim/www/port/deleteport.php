@@ -35,21 +35,22 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Util.inc');
 Session::logcheck("MenuPolicy", "PolicyPorts");
 ?>
 
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
+
 <body>
 
-  <h1> <?php
-echo gettext("Delete port group"); ?> </h1>
+  <h1> <?php echo gettext("Delete port group"); ?> </h1>
 
 <?php
 require_once 'classes/Security.inc';
@@ -60,38 +61,39 @@ if (ossim_error()) {
 }
 if (!GET('confirm')) {
 ?>
-    <p> <?php
-    echo gettext("Are you sure"); ?> ?</p>
-    <p><a href="<?php
-    echo $_SERVER["SCRIPT_NAME"] . "?portname=$port_name&confirm=yes"; ?>">
-    <?php
-    echo gettext("Yes"); ?> </a>&nbsp;&nbsp;&nbsp;<a href="port.php">
-    <?php
-    echo gettext("No"); ?> </a>
+    <p> <?php echo gettext("Are you sure"); ?> ?</p>
+    <p>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?portname=$port_name&confirm=yes"; ?>">
+		<?php echo gettext("Yes"); ?> </a>&nbsp;&nbsp;&nbsp;<a href="port.php">
+		<?php echo gettext("No"); ?> </a>
     </p>
 <?php
     exit();
 }
+
 require_once 'ossim_db.inc';
 require_once 'classes/Port_group.inc';
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
-if (Port_group::can_delete($conn,$port_name)) {
+
+if (Port_group::can_delete($conn,$port_name))
+{
 	Port_group::delete($conn, $port_name);
 }
-else {
+else
+{
 	echo "ERROR_CANNOT";
 }
+
 $db->close($conn);
 ?>
 
-    <p> <?php
-echo gettext("Port group deleted"); ?> </p>
-    <p><a href="port.php">
-    <?php
-echo gettext("Back"); ?> </a></p>
-    <?php
-exit(); ?>
+    <p> <?php echo gettext("Port group deleted"); ?> </p>
+    <p><a href="port.php"><?php echo gettext("Back"); ?> </a></p>
+    <?php 
+	    Util::clean_json_cache_files("ports");
+		exit(); 
+	?>
 
 </body>
 </html>

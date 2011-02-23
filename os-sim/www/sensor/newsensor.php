@@ -154,10 +154,12 @@ if (POST('insert'))
 		
 	$db->close($conn);
     Util::clean_json_cache_files("sensors");
-	
-	if ( isset($_SESSION['_sensor']) )
-		unset($_SESSION['_sensor']);
 }
+
+if ( isset($_SESSION['_sensor']) )
+	unset($_SESSION['_sensor']);
+
+
 ?>
     <p><?php echo gettext("Sensor succesfully inserted"); ?></p>
     <? if ( $_SESSION["menu_sopc"]=="SIEM Components" && POST('withoutmenu') != "1" ) { ?><script>setTimeout("document.location.href='sensor.php'",1000)</script><? } ?>

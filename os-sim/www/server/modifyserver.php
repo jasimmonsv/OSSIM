@@ -180,7 +180,7 @@ if ( POST('insert') && !empty($name) )
 		die();
 	}
 		
-    $db = new ossim_db();
+    $db   = new ossim_db();
     $conn = $db->connect();
 	
     if(!isset( $resend_alarms) ) $resend_alarms = 0;

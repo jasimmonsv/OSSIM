@@ -35,23 +35,27 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Util.inc');
 Session::logcheck("MenuConfiguration", "PolicySensors");
 ?>
 
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
+
 <body>
+
 <?php include ("../hmenu.php"); ?>
-  <h1> <?php
-echo gettext("Delete sensor"); ?> </h1>
+
+<h1> <?php echo gettext("Delete sensor"); ?> </h1>
 
 <?php
+
 require_once 'classes/Security.inc';
 $name = GET('name');
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Sensor name"));
@@ -60,26 +64,25 @@ if (ossim_error()) {
 }
 if (!GET('confirm')) {
 ?>
-    <p> <?php
-    echo gettext("Are you sure?"); ?> </p>
-    <p><a 
-      href="<?php
-    echo $_SERVER["SCRIPT_NAME"] . "?name=$name&confirm=yes"; ?>">
-      <?php
-    echo gettext("Yes"); ?> </a>
-      &nbsp;&nbsp;&nbsp;<a href="sensor.php"> 
-      <?php
-    echo gettext("No"); ?> </a>
+    <p> <?php echo gettext("Are you sure?"); ?> </p>
+    <p>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?name=$name&confirm=yes"; ?>">
+			<?php echo gettext("Yes"); ?> </a>
+			&nbsp;&nbsp;&nbsp;<a href="sensor.php"> 
+			<?php echo gettext("No"); ?> </a>
     </p>
 <?php
     exit();
 }
+
 require_once 'ossim_db.inc';
 require_once 'classes/Sensor.inc';
 require_once 'classes/Sensor_interfaces.inc';
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
 //
+
 require_once 'classes/Policy_sensor_reference.inc';
 $list_policy_sensor_reference=Policy_sensor_reference::get_policy_by_sensor($conn,$name);
 
@@ -87,21 +90,19 @@ if(count($list_policy_sensor_reference)!=0){
     // this sensor have a policy
     if (GET('policyConfirm')!='yes') {
         ?>
-            <p> <strong><?php
-            echo gettext("This sensor have a Policy"); ?></strong>, <?php
+            <p> <strong><?php echo gettext("This sensor have a Policy"); ?></strong>, <?php
             echo gettext("Are you sure?"); ?> </p>
-            <p><a
-              href="<?php
-            echo $_SERVER["SCRIPT_NAME"] . "?name=$name&confirm=yes&policyConfirm=yes"; ?>" class="buttonlink">
-              <?php
-            echo gettext("Yes"); ?></a>
-              &nbsp;&nbsp;&nbsp;<a href="sensor.php" class="buttonlink">
-              <?php
-            echo gettext("No"); ?></a>
+            <p>
+				<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?name=$name&confirm=yes&policyConfirm=yes"; ?>" class="buttonlink">
+					<?php echo gettext("Yes"); ?></a>
+					&nbsp;&nbsp;&nbsp;<a href="sensor.php" class="buttonlink">
+					<?php echo gettext("No"); ?></a>
             </p>
             <?php
             exit();
-    }else{
+    }
+	else
+	{
         // delete sensor and deactivate policy
         require_once 'classes/Policy.inc';
         foreach($list_policy_sensor_reference as $policy_sensor_reference){
@@ -111,22 +112,26 @@ if(count($list_policy_sensor_reference)!=0){
 
 }
 //
-if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $name)) {
+if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $name))
+{
     foreach($sensor_interface_list as $s_int) {
         Sensor_interfaces::delete_interfaces($conn, $name, $s_int->get_interface());
     }
 }
-Sensor::delete($conn, $name);
-$db->close($conn);
+	
+	Sensor::delete($conn, $name);
+	$db->close($conn);
+	Util::clean_json_cache_files("sensors");
+	
 ?>
 
-    <p> <?php
-echo gettext("Sensor deleted"); ?> </p>
+    <p> <?php echo gettext("Sensor deleted"); ?> </p>
     <script>document.location.href="sensor.php"</script>
-<?php
-// update indicators on top frame*/
-$OssimWebIndicator->update_display();
-?>
+	
+	<?php
+	// update indicators on top frame*/
+	$OssimWebIndicator->update_display();
+	?>
 
 </body>
 </html>

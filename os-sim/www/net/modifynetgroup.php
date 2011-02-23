@@ -168,6 +168,8 @@ if ( POST('insert') && !empty($ngname) )
 	//if (POST('nessus')) { Net_group_scan::insert($conn, $ngname, 3001, 0); }
     
 	$db->close($conn);
+	
+	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
 }
 
 if ( isset($_SESSION['_netgroup']) )

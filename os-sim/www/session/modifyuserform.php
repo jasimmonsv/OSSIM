@@ -156,6 +156,7 @@ if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_
 		#fprofile { width: 500px;}
 		#fprofile td input[type='text'], #fprofile td input[type='password']{width: 100%;}
 		.bold {font-weight: bold;}
+		.ossim_success {width:auto;}
 	</style>
 	
 </head>
@@ -216,7 +217,7 @@ include ("../hmenu.php");
 	<table align="center" class='transparent'>
 			
 		<? if ($success) { ?>
-		<tr><td class="center nobborder" style="color:green; padding-bottom:5px;"><div class='ossim_sucess'><?=_("Successfully Saved")?></div></td></tr>
+		<tr><td class="center nobborder" style="color:green; padding-bottom:5px;"><div class='ossim_success'><?php echo _("Successfully Saved")?></div></td></tr>
 		<? } ?>
 		
 		<tr><td class="center nobborder"><table class='noborder' width='100%'><tr><th style='padding:5px;'><?php echo _("User Profile")?></th></tr></table></td></tr>

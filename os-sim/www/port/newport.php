@@ -147,10 +147,10 @@ if (POST('insert')) {
     
     Port_group::insert($conn, $pgname, $actives_ports, $descr);
     Util::clean_json_cache_files("ports");
-	
-	if ( isset($_SESSION['_portgroup']) )
-		unset($_SESSION['_portgroup']);
 }
+
+if ( isset($_SESSION['_portgroup']) )
+	unset($_SESSION['_portgroup']);
 
 $db->close($conn);
 

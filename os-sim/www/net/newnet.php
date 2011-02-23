@@ -175,23 +175,17 @@ if (POST('insert'))
 	
 	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
 	
-	if ( isset($_SESSION['_net']) )
-		unset($_SESSION['_net']);
 }
+
+if ( isset($_SESSION['_net']) )
+	unset($_SESSION['_net']);
 	
 ?>
-	
-	
-
-
+		
     <p> <?php echo gettext("Network succesfully inserted"); ?> </p>
 	<? if ( $_SESSION["menu_sopc"]=="Networks" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="net.php"</script><? } ?>
 
-	<?php
-	// update indicators on top frame
-	//$OssimWebIndicator->update_display();
-	?>
-
+	
 	</body>
 </html>
 

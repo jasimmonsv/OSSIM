@@ -35,40 +35,39 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
-require_once 'languages.inc';
+require_once ('languages.inc');
+require_once ('ossim_db.inc');
+require_once ('classes/Session.inc');
+require_once ('ossim_acl.inc');
+require_once ('classes/Security.inc');
 
 Session::logcheck("MenuConfiguration", "ConfigurationUsers");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache">
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
 
-	<?php
-include ("../hmenu.php"); ?>
+	<?php include ("../hmenu.php"); 
 
-<?php
-require_once ('ossim_db.inc');
-require_once ('classes/Session.inc');
-require_once ('ossim_acl.inc');
-require_once ('classes/Security.inc');
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
 
 require_once "ossim_conf.inc";
-$conf = $GLOBALS["CONF"];
+$conf    = $GLOBALS["CONF"];
 $complex = ($conf->get_conf("pass_complex", FALSE)) ? $conf->get_conf("pass_complex", FALSE) : "lun";
 
-$order = GET('order');
+$order          = GET('order');
 $change_enabled = GET('change_enabled');
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($change_enabled, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("change_enabled"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -214,11 +213,11 @@ if ($session_list = Session::get_list($conn, "ORDER BY $order")) {
 if (Session::am_i_admin()) {
 ?>
     <tr>
-      <td colspan="8"><a href="newuserform.php"> <b><?php echo gettext("Insert new user"); ?></b> </a></td>
+		<td colspan="8"><a href="newuserform.php"> <b><?php echo gettext("Insert new user"); ?></b> </a></td>
     </tr>
 <? } ?>
     <tr>
-      <td colspan="8"><a href="../setup/ossim_acl.php"> <b><?php echo gettext("Reload ACLS"); ?></b> </a></td>
+		<td colspan="8" class='nobborder center'><a href="../setup/ossim_acl.php"> <b><?php echo gettext("Reload ACLS"); ?></b> </a></td>
     </tr>
   </table>
 

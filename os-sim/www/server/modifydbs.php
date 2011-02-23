@@ -168,7 +168,7 @@ if ( POST('insert') && !empty($name) )
 }
 
 if ( isset($_SESSION['_dbs']) )
-		unset($_SESSION['_dbs']);
+	unset($_SESSION['_dbs']);
 
 ?>
     <p> <?php echo gettext("Database server succesfully updated"); ?> </p>

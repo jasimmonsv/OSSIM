@@ -171,7 +171,6 @@ if (POST('insert'))
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
 		Util::print_error($txt_error);	
-		
 		Util::make_form("POST", "newserverform.php?".$get_param);
 		die();
 	}
@@ -184,10 +183,10 @@ if (POST('insert'))
     
     Server::insert($conn, $name, $ip, $port, $descr, $correlate, $cross_correlate, $store, $qualify, $resend_alarms, $resend_events, $sign, $sem, $sim);
     $db->close($conn);
-	
-	if ( isset($_SESSION['_server']) )
-		unset($_SESSION['_server']);
 }
+
+if ( isset($_SESSION['_server']) )
+	unset($_SESSION['_server']);
 
 
 ?>

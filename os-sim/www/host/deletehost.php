@@ -35,72 +35,76 @@
 * Classes list:
 */
 require_once ('classes/Session.inc');
+require_once ('classes/Util.inc');
 Session::logcheck("MenuPolicy", "PolicyHosts");
 ?>
 
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
+
 <body>
 
-  <h1> <?php
-echo gettext("Delete host"); ?> </h1>
+  <h1> <?php echo gettext("Delete host"); ?> </h1>
 
 <?php
 require_once ('classes/Security.inc');
-$ip = GET('ip');
+$ip      = GET('ip');
 $confirm = GET('confirm');
+
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("ip"));
 ossim_valid($confirm, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("confirm"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
 if (empty($confirm)) {
 ?>
-    <p> <?php
-    echo gettext("Are you sure"); ?> ?</p>
-    <p><a
-      href="<?php
-    echo $_SERVER["SCRIPT_NAME"] . "?ip=$ip&confirm=yes"; ?>">
-      <?php
-    echo gettext("Yes"); ?> </a>
-      &nbsp;&nbsp;&nbsp;<a href="host.php">
-      <?php
-    echo gettext("No"); ?> </a>
+    <p> <?php echo gettext("Are you sure"); ?> ?</p>
+    <p>
+		<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?ip=$ip&confirm=yes"; ?>">
+		<?php echo gettext("Yes"); ?> </a> &nbsp;&nbsp;&nbsp;<a href="host.php">
+		<?php echo gettext("No"); ?>  </a>
     </p>
 <?php
     exit();
 }
+
 require_once 'ossim_db.inc';
 require_once 'classes/Host.inc';
 require_once 'classes/Host_scan.inc';
-$db = new ossim_db();
-$conn = $db->connect();
-if (Host::can_delete($conn,$ip)) {
-	if (Host_scan::in_host_scan($conn, $ip, 2007)) Host_scan::delete($conn, $ip, 2007);
+
+$db    = new ossim_db();
+$conn  = $db->connect();
+
+if (Host::can_delete($conn,$ip))
+{
+	if (Host_scan::in_host_scan($conn, $ip, 2007)) 
+		Host_scan::delete($conn, $ip, 2007);
+	
 	Host_scan::delete($conn, $ip, 3001);
 	Host::delete($conn, $ip);
 }
-else {
+else 
+{
 	echo "ERROR_CANNOT";
 }
 $db->close($conn);
 ?>
 
-    <p> <?php
-echo gettext("Host deleted"); ?> </p>
-    <p><a href="host.php">
-    <?php
-echo gettext("Back"); ?> </a></p>
-<?php
-// update indicators on top frame
-$OssimWebIndicator->update_display();
-?>
+    <p> <?php echo gettext("Host deleted"); ?> </p>
+    <p><a href="host.php"><?php echo gettext("Back"); ?> </a></p>
+	
+	<?php
+	// update indicators on top frame
+	$OssimWebIndicator->update_display();
+	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
+	?>
 
 </body>
 </html>
