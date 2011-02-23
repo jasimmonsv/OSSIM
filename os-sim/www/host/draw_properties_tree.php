@@ -35,6 +35,7 @@ require_once 'classes/Security.inc';
 require_once 'classes/Host.inc';
 require_once 'classes/Host_os.inc';
 require_once 'classes/Host_services.inc';
+require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 require_once '../ossec/utils.php';
 
@@ -184,6 +185,8 @@ switch ($tree)
 			$cont_2 = 0;
 			$is_folder = ( $num_p > 0 ) ? "true" : "false";
 			
+			
+			
 			$json_properties .= "{title: '<span>"._(ucfirst($p[2]))."</span>', addClass:'size12', key:'property_".$p[1]."', isFolder:".$is_folder.", hideCheckbox: true, expand:true, icon:'".$image_url.getPropertyImage($p[0])."', children:[";
 								
 			foreach ($property as $j => $v )
@@ -192,10 +195,10 @@ switch ($tree)
 				$class       = ( $v['anom'] == 1 ) ? "size12ig" : "size12n";
 				$to_delete   = ( $v['source'] == $source_m ) ? "false" : "true";
 				
-				$json_properties .=  "{ title: '<span class=\'$class\'>".$v['value']."</span>', value:'".$v['value']."', anom:'".$v['anom']."', hideCheckbox: $to_delete, key:'item_prop_".$p[1]."_$cont_2###".$v['id']."###".$p[1]."', isFolder:true, icon:'".$image_url.getPropertyImage("OS=".$v["value"])."', children:[";
+				$json_properties .=  "{ title: '<span class=\'$class\'>".utf8_encode($v['value'])."</span>', value:'".utf8_encode($v['value'])."', anom:'".$v['anom']."', hideCheckbox: $to_delete, key:'item_prop_".$p[1]."_$cont_2###".$v['id']."###".$p[1]."', isFolder:true, icon:'".$image_url.getPropertyImage("OS=".$v["value"])."', children:[";
 				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Date").": </span><span class=\'ml3 size12b\'>".$v['date']."</span>', date:'".$v['date']."', hideCheckbox: true, key:'date_".$v['id']."', isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
 				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Source").": </span><span class=\'ml3 size12b\'> ".$v['source']."</span>', source:'".$v['source']."',  source_id:'".$v['source_ref']."', hideCheckbox: true, key:'source_".$v['id']."', isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
-				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Version").": </span><span class=\'ml3 size12b\'>".$v['extra']."</span>', extra:'".$v['extra']."', hideCheckbox: true, key:'extra_".$v['id']."', isFolder:false,icon:'".$image_url.getPropertyImage('property')."'}";
+				$json_properties .=  "{ title: '<span class=\'size12n\'>"._("Version").": </span><span class=\'ml3 size12b\'>".utf8_encode($v['extra'])."</span>', extra:'".utf8_encode($v['extra'])."', hideCheckbox: true, key:'extra_".$v['id']."', isFolder:false,icon:'".$image_url.getPropertyImage('property')."'}";
 				$json_properties .= ($num_p == $cont_2) ? "]}" : "]},";
 			}
 			
