@@ -1,10 +1,11 @@
 #!/usr/bin/perl
+$|=1;
 
 # Script 
 #
 # 2004-07-28 Fabio Ospitia Trujillo <fot@ossim.net>
 # 2009-05-13 jmalbarracin
-
+# 2011-02-18 Pablo Vargas
 use ossim_conf;
 use DBI;
 use POSIX;
@@ -27,6 +28,11 @@ unless ($base_dir) {
     exit;
 }
 
+my $filter_by = ($ARGV[3]) ? $ARGV[3] : "";
+if ($filter_by ne "" && $filter_by !~ /^[a-zA-Z0-9\-\_\.]+$/) {
+	print "Parameters error\n";
+}
+
 my $pidfile = "/tmp/ossim-restoredb.pid";
 
 my $pid = $$;
@@ -40,20 +46,18 @@ open(PID, ">$pidfile") or die "Unable to open $pidfile\n";
 print PID $$;
 close(PID);
 
+open(LOG, ">/tmp/restoredb.log");
+
 my $backup_dir = $ossim_conf::ossim_data->{"backup_dir"};
 my $backup_day = $ossim_conf::ossim_data->{"backup_day"};
 
 # Data Source 
 my $snort_type = $ossim_conf::ossim_data->{"snort_type"};
-my $snort_name = $ossim_conf::ossim_data->{"snort_base"};
+my $snort_name = ($filter_by ne "") ? "snort_restore_".$filter_by : $ossim_conf::ossim_data->{"snort_base"};
 my $snort_host = $ossim_conf::ossim_data->{"snort_host"};
 my $snort_port = $ossim_conf::ossim_data->{"snort_port"};
 my $snort_user = $ossim_conf::ossim_data->{"snort_user"};
 my $snort_pass = $ossim_conf::ossim_data->{"snort_pass"};
-
-
-my $snort_dsn = "dbi:" . $snort_type . ":" . $snort_name . ":" . $snort_host . ":" . $snort_port;
-my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
 
 # Data Source 
 my $ossim_type = $ossim_conf::ossim_data->{"ossim_type"};
@@ -67,6 +71,17 @@ my $ossim_dsn = "dbi:" . $ossim_type . ":" . $ossim_name . ":" . $ossim_host . "
 my $ossim_conn = DBI->connect($ossim_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
 
 my $cmdline = "mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port $snort_name";
+
+# Create aux databases for selective restore
+if ($filter_by ne "") {
+	my $dbh=DBI->connect('dbi:mysql:',$ossim_conf::ossim_data->{"ossim_user"},$ossim_conf::ossim_data->{"ossim_pass"}, {RaiseError=>1}) or die "Couldn't connect:".DBI->errstr();
+	my $dbname = "snort_restore_".$filter_by;
+	$dbh->do("create database if not exists $dbname");
+	createAuxDBStructure();
+}
+
+my $snort_dsn = "dbi:" . $snort_type . ":" . $snort_name . ":" . $snort_host . ":" . $snort_port;
+my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
 
 my $line_curr = 0;
 my $lines = 0;
@@ -106,10 +121,26 @@ sub linesFile {
 }
 
 sub executeFile {
-    my ($id, $file) = @_;
+    my ($id, $file, $action) = @_;
+	
+	# Patch: When action == remove
+	my $remove_egrep = "";
+	if ($action eq "remove") {
+		$remove_egrep = "| egrep -v ' data | ossim_event | event |alertsclas'";
+	}
+	
+    my $cmd = "zcat \"$file\" $remove_egrep|egrep -vi ' `event` '|perl -npe 's/DELETE \\*/DELETE/i'|perl /usr/share/ossim/scripts/restoredb_sql_patches.pl| $cmdline";
+    print LOG "Execute $cmd\n";
+    open (F,"$cmd |");
+    while (<F>) {
+        print $_;
+    }
+    close F;
+}
 
-    my $cmd = "zcat \"$file\" |egrep -vi ' `event` '|perl -npe 's/DELETE \\*/DELETE/i'| $cmdline";
-    print "Execute $cmd\n";
+sub createAuxDBStructure {
+	my $cmd = "cat /usr/share/ossim/db/00-create_snort_tbls_mysql.sql | $cmdline";
+    print LOG "Execute $cmd\n";
     open (F,"$cmd |");
     while (<F>) {
         print $_;
@@ -121,12 +152,17 @@ sub main {
     my $action = shift;
     my $list = shift;
     my $user = shift;
+    my $filtered_by = shift;
+    $filtered_by = "" if (!defined $filtered_by);
 
     return unless (($action eq "insert") || ($action eq "remove"));
 
     my @dates = split(",", $list);
 
+	print LOG "Snort Backup Log (action = $action, list = $list, user = $user, filtered_by = $filtered_by)\n\n";
+
     my $curr = getCurrentTimestamp();
+    
     my $query = "INSERT INTO restoredb_log (date, pid, users, data, status, percent) VALUES ('$curr', $pid, '$user', '$action: $list', 1, 0)";
     my $stm = $ossim_conn->prepare($query);
     $stm->execute();
@@ -135,7 +171,7 @@ sub main {
     $stm->execute();
     my @row = $stm->fetchrow_array; 
     my $id = $row[0];
-
+	$stm->finish();
     # Disconnect from database
     $ossim_conn->disconnect();
     
@@ -147,16 +183,17 @@ sub main {
         if ($action eq "insert") {
             $file = "$backup_dir/insert-$date.sql.gz";
         } elsif ($action eq "remove") {
-            #$file = "$backup_dir/delete-$date.sql.gz";
-
-            system("rm -f /tmp/delete_sql*; zcat $backup_dir/delete-$date.sql.gz | egrep -v ' data | ossim_event | event |alertsclas' > /tmp/delete_sql; gzip /tmp/delete_sql");
-            $file = "/tmp/delete_sql.gz";
-    }
-
-	next unless (-e $file);
-
-	print "Launching sql file: $file\n";
-	executeFile($id, $file);
+            $file = "$backup_dir/delete-$date.sql.gz";
+	    }
+	
+		next unless (-e $file);
+		
+		my $date_format = $date;
+		$date_format =~ s/(\d\d\d\d)(\d\d)(\d\d)/$3-$2-$1/;
+		print "Launching date: $date_format\n";
+		print LOG "Launching file: $file\n";
+		sleep(1);
+		executeFile($id, $file, $action);
     }
 
     # Connect to Database
@@ -167,7 +204,16 @@ sub main {
     $stm->execute();
     
     $stm->finish();
+    
+    # Selective insert. Filtering by php script
+    if ($filtered_by ne "") {
+    	my $cmd = "php restoredb_filter.php $filtered_by";
+    	print "$cmd\n";
+    }
+    
     die_clean();
 }
 
 main(@ARGV);
+
+close(LOG);
