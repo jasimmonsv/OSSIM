@@ -35,8 +35,69 @@
 require_once('ossim_conf.inc');
 require_once ('classes/Session.inc');
 require_once('functions.inc');
+require_once ('classes/Host.inc');
+require_once('config.php');
 
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
+
+$freport = GET("freport");
+$sreport = GET("sreport");
+$pag     = GET("pag");
+
+ossim_valid($freport, OSS_DIGIT, 'illegal:' . _("First report id"));
+ossim_valid($sreport, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Second report id"));
+ossim_valid($pag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("pag"));
+
+if (ossim_error()) {
+    die(ossim_error());
+}
+
+$db = new ossim_db();
+$dbconn = $db->connect();
+
+// get ossim server version
+
+$conf = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
+
+// check permissions
+
+$arruser = array();
+$reports = array();
+
+$query_onlyuser="";
+$error = "";
+
+if(!preg_match("/pro|demo/i",$version)){
+    $user = Session::get_session_user();
+    $arruser[] = $user;
+    if (Session::get_session_user() != ACL_DEFAULT_OSSIM_ADMIN && Session::am_i_admin())  $arruser[] = ACL_DEFAULT_OSSIM_ADMIN;
+}
+else {
+    $entities = array();
+    $entities = Acl::get_user_entities();
+    $entities[] = Session::get_session_user(); // add current user
+    if (Session::get_session_user() != ACL_DEFAULT_OSSIM_ADMIN && Session::am_i_admin())  $entities[] = ACL_DEFAULT_OSSIM_ADMIN;
+    $arruser = $entities;
+}
+
+$user = implode("', '",$arruser);
+
+if(!in_array("admin", $arruser)) { $query_onlyuser = " AND username in ('$user')"; }
+
+$query = "SELECT report_id FROM vuln_nessus_reports where (report_id= $freport OR report_id= $sreport) $query_onlyuser ORDER BY scantime DESC";
+
+$result = $dbconn->Execute($query);
+
+while (!$result->EOF) {
+    $reports[] = $result->fields["report_id"];
+    $result->MoveNext();
+}
+
+
+if(!in_array($freport, $reports) || !in_array($sreport, $reports)) {
+    $error= _("You don't have permission to compare these reports.");
+}
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -52,7 +113,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
   <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
   <script type="text/javascript">
       function toogle_details(id) {
-        $('#td'+id).toggle();
+        $('#tr'+id).toggle();
         if ($('#img'+id).attr('src').match(/plus/)){
             $('#img'+id).attr('src','../pixmaps/minus-small.png');
             $('#msg'+id).html('<?php echo gettext("Hide details")?>');
@@ -69,31 +130,21 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 <?php
 include ("../hmenu.php");
 
-
-require_once('config.php');
-require_once("functions.inc");
-
-$freport = GET("freport");
-$sreport = GET("sreport");
-$pag     = GET("pag");
-
-ossim_valid($freport, OSS_DIGIT, 'illegal:' . _("First report id"));
-ossim_valid($sreport, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Second report id"));
-ossim_valid($pag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("pag"));
-
-if (ossim_error()) {
-    die(ossim_error());
+if($error!="") {
+    ?>
+    <div style="margin:auto;text-align:center">
+    <?php echo $error; ?>
+    </div>
+    </body>
+    </html>
+    <?php
+    exit();
 }
 
-$conf = $GLOBALS["CONF"];
-$version = $conf->get_conf("ossim_server_version", FALSE);
+
 if ($pag=="" || $pag<1) $pag=1;
 
-$maxpag = 2;
-
-$db = new ossim_db();
-$dbconn = $db->connect();
-
+$maxpag = 10;
 
 $query = "SELECT name, scantime FROM vuln_nessus_reports where report_id=".$freport;
 $result=$dbconn->Execute($query);
@@ -184,14 +235,14 @@ $vulns = get_vulns($dbconn, $freport, $sreport);
     foreach ($vulns as $key => $value) {
 
         if($i>$from && $i<=$to) {
-            $naip = array();
-            $naip = explode("|",$key);
+            $name = Host::ip2hostname($dbconn, $key);
             
-            $ips_to_show[] = $key;
+            $ips_to_show[] = $key ."|". $name;
+            
             ?>
             <tr>
-                <td style="text-align:center"><?php echo $naip[0]?></td>
-                <td style="text-align:center"><?php echo $naip[1]?></td>
+                <td style="text-align:center"><?php echo $key?></td>
+                <td style="text-align:center"><?php echo $name?></td>
                 <?php
                 $image = get_image($value[1]);
                 ?>
@@ -341,6 +392,12 @@ foreach($ips_to_show as $ip_name)
         
         foreach($report1_data as $key => $value) {
             $tmprisk = getrisk($value["risk"]);
+            $value["msg"] = preg_replace("/^[ \t]*/","",$value["msg"]);
+            $value["msg"] = preg_replace("/\n/","<br>",$value["msg"]);
+            $value["msg"] = preg_replace("/^\<br\>/i","",str_replace("\\r", "", $value["msg"]));
+            $value["msg"] = preg_replace("/(Solution|Overview|Synopsis|Description|See also|Plugin output|References|Vulnerability Insight|
+                                            Impact|Impact Level|Affected Software\/OS|Fix|Information about this scan)\s*:/","<br /><strong>\\1:</strong><br />",$value["msg"]);
+
             ?>
                 <tr>
                     <td colspan="4" width="50%" style="background-color:<?php echo $colors[$value["risk"]] ?>">
@@ -365,13 +422,7 @@ foreach($ips_to_show as $ip_name)
                                 ?>
                                 </td>
                             </tr>
-                            <tr><td colspan="4" valign="top" id="td<?php echo $j; $j++;?>" style="text-align:left;display:none;padding-left:21px;" class="nobborder"><?php
-                                $value["msg"] = preg_replace("/(Solution|Overview|Synopsis|Description|See also|Plugin output|References|Vulnerability Insight|
-                                                                Impact|Impact Level|Affected Software\/OS|Fix|Information about this scan)\s*:/","<br /><br /><strong>\\1:</strong><br />",$value["msg"]);
-                                $value["msg"] = preg_replace("/^\<br\s\/\>/","",$value["msg"]);
-                                echo $value["msg"]; ?> 
-                            </td></tr>
-                            </table>
+                        </table>
                     </td>
                     <td colspan="4" width="50%" style="background-color:<?php echo ($report2_data[$key]=="") ? "#EFFFF6" : $colors[$value["risk"]];?>" valign="top">
                         <?php 
@@ -394,7 +445,6 @@ foreach($ips_to_show as $ip_name)
                                     ?>
                                     </td>
                                 </tr>
-                                <tr><td colspan="4" style="text-align:left;" class="nobborder">&nbsp;</td></tr>
                             </table>
                             <?php
                             unset($report2_data[$key]);
@@ -405,10 +455,23 @@ foreach($ips_to_show as $ip_name)
                         ?>
                     </td>
                 </tr>
-            <?php
+                <tr style="display:none;" id="tr<?php echo $j; ?>">
+                    <td colspan="8" style="text-align:left;padding:0px 10px 10px 10px;background-color:<?php echo $colors[$value["risk"]];?>">
+                        <?php echo $value["msg"]; ?>
+                    </td>
+                </tr>
+                <?php
+                
+            $j++;
         }
         foreach($report2_data as $key => $value) {
             $tmprisk = getrisk($value["risk"]);
+            
+            $value["msg"] = preg_replace("/^[ \t]*/","",$value["msg"]);
+            $value["msg"] = preg_replace("/\n/","<br>",$value["msg"]);
+            $value["msg"] = preg_replace("/^\<br\>/i","",str_replace("\\r", "", $value["msg"]));
+            $value["msg"] = preg_replace("/(Solution|Overview|Synopsis|Description|See also|Plugin output|References|Vulnerability Insight|
+                                            Impact|Impact Level|Affected Software\/OS|Fix|Information about this scan)\s*:/","<br /><strong>\\1:</strong><br />",$value["msg"]);
             ?>
                 <tr>
                     <td colspan="4" width="50%" style="text-align:center;background-color:#FFEFF3;">
@@ -438,13 +501,11 @@ foreach($ips_to_show as $ip_name)
                                     ?>
                                     </td>
                                 </tr>
-                                <tr><td colspan="4" valign="top" id="td<?php echo $j; $j++;?>" style="text-align:left;display:none;padding-left:21px;" class="nobborder"><?php
-                                $value["msg"] = preg_replace("/(Solution|Overview|Synopsis|Description|See also|Plugin output|References|Vulnerability Insight|
-                                                                Impact|Impact Level|Affected Software\/OS|Fix|Information about this scan)\s*:/","<br /><strong>\\1:</strong><br />",$value["msg"]);
-                                $value["msg"] = preg_replace("/^\<br\s\/\>/","",$value["msg"]);
-                                echo $value["msg"]; ?>
-                            </td></tr>
-
+                                <tr id="tr<?php echo $j; ?>" style="display:none;">
+                                    <td colspan="4" valign="top" style="text-align:left;padding-left:21px;" class="nobborder"><?php
+                                    echo $value["msg"]; ?>
+                                    </td>
+                                </tr>
                             </table>
                             <?php
                         }
@@ -455,8 +516,8 @@ foreach($ips_to_show as $ip_name)
                     </td>
                 </tr>
             <?php
+            $j++;
         }
-        
     }
     ?>
     </table>
@@ -508,32 +569,32 @@ function get_vulns($dbconn, $freport, $sreport) {
     
     // first report
     $vulns = array();
-    $query = "SELECT count(risk) as count, risk, hostIP, hostname
-                     FROM (SELECT DISTINCT risk, hostIP, hostname, port, protocol, app, scriptid, msg FROM vuln_nessus_results
+    $query = "SELECT count(risk) as count, risk, hostIP
+                     FROM (SELECT DISTINCT risk, hostIP, port, protocol, app, scriptid, msg FROM vuln_nessus_results
                      WHERE report_id=$freport and falsepositive='N') as t GROUP BY risk, hostIP";
     
     
     $result=$dbconn->Execute($query);
 
     while (!$result->EOF) {
-        $vulns[$result->fields["hostIP"]."|".$result->fields["hostname"]][$result->fields["risk"]] = $result->fields["count"]."/0";
+        $vulns[$result->fields["hostIP"]][$result->fields["risk"]] = $result->fields["count"]."/0";
         $result->MoveNext();
     }
     
     // second report
-    $query = "SELECT count(risk) as count, risk, hostIP, hostname
-                 FROM (SELECT DISTINCT risk, hostIP, hostname, port, protocol, app, scriptid, msg FROM vuln_nessus_results
+    $query = "SELECT count(risk) as count, risk, hostIP
+                 FROM (SELECT DISTINCT risk, hostIP, port, protocol, app, scriptid, msg FROM vuln_nessus_results
                  WHERE report_id=$sreport and falsepositive='N') as t GROUP BY risk, hostIP";
 
     $result=$dbconn->Execute($query);
 
     while (!$result->EOF) {
-        if($vulns[$result->fields["hostIP"]."|".$result->fields["hostname"]][$result->fields["risk"]]!= "") {
-            $vulns[$result->fields["hostIP"]."|".$result->fields["hostname"]][$result->fields["risk"]] = $vulns[$result->fields["hostIP"]."|".$result->fields["hostname"]][$result->fields["risk"]]."/".$result->fields["count"];
-            $vulns[$result->fields["hostIP"]."|".$result->fields["hostname"]][$result->fields["risk"]] = preg_replace('/(\d+)\/0\/(\d+)/i', '$1/$2', $vulns[$result->fields["hostIP"]."|".$result->fields["hostname"]][$result->fields["risk"]]);
+        if($vulns[$result->fields["hostIP"]][$result->fields["risk"]]!= "") {
+            $vulns[$result->fields["hostIP"]][$result->fields["risk"]] = $vulns[$result->fields["hostIP"]][$result->fields["risk"]]."/".$result->fields["count"];
+            $vulns[$result->fields["hostIP"]][$result->fields["risk"]] = preg_replace('/(\d+)\/0\/(\d+)/i', '$1/$2', $vulns[$result->fields["hostIP"]][$result->fields["risk"]]);
             }
         else {
-            $vulns[$result->fields["hostIP"]."|".$result->fields["hostname"]][$result->fields["risk"]] = "0/".$result->fields["count"];
+            $vulns[$result->fields["hostIP"]][$result->fields["risk"]] = "0/".$result->fields["count"];
         }
         $result->MoveNext();
     }
