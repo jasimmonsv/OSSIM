@@ -543,6 +543,11 @@ $num_pages = ceil($jobCount/$pagesize);
 //echo "num_pages:[".$num_pages."]";
 //echo "jobCount:[".$jobCount."]";
 //echo "page:[".$page."]";
+
+all_jobs(0,10, "R"); // only running jobs
+?>
+<br />
+<?php
 $out = all_jobs(($page-1)*$pagesize,$pagesize);
 ?>
 <table width="90%" align="center" class="transparent">

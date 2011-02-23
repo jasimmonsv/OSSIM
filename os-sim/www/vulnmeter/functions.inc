@@ -1290,10 +1290,11 @@ div.legend td { text-align:left; font-size:11px }
 <?
 }
 
-function all_jobs($offset,$pageSize){
+function all_jobs($offset, $pageSize, $status=""){
 global $username, $uroles, $dbconn, $hosts;
 
 $out = 0;
+$message = "";
 
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
@@ -1327,7 +1328,7 @@ if (in_array("admin", $arruser)){
                FROM vuln_jobs t1
                LEFT JOIN vuln_nessus_servers t3 on t1.scan_ASSIGNED = t3.id
                LEFT JOIN vuln_nessus_reports t5 on t1.report_id = t5.report_id
-               LEFT JOIN vuln_nessus_settings t6 on t1.meth_VSET=t6.id
+               LEFT JOIN vuln_nessus_settings t6 on t1.meth_VSET=t6.id WHERE ".(($status=="")? "t1.status!='R'":"t1.status='R'")."
                ORDER BY t1.id DESC LIMIT $offset,$pageSize";
 }
 else {
@@ -1337,12 +1338,13 @@ else {
                LEFT JOIN vuln_nessus_servers t3 on t1.scan_ASSIGNED = t3.id
                LEFT JOIN vuln_nessus_reports t5 on t1.report_id = t5.report_id 
                LEFT JOIN vuln_nessus_settings t6 on t1.meth_VSET=t6.id
-               WHERE t1.username in ('$user')
+               WHERE t1.username in ('$user') AND  ".(($status=="")? "t1.status!='R'":"t1.status='R'")."
                ORDER BY t1.id DESC LIMIT $offset,$pageSize";
 }
 
      $result = $dbconn->Execute($query);
-     $sInfo .= "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"90%\"><tr><td class=\"headerpr\" style=\"border:0;\">"._("All Scans")."</td></tr></table>";
+     $sInfo .= "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"90%\"><tr><td class=\"headerpr\" style=\"border:0;\">".(($status=="") ? _("All Scans") : _("All Running Scans"))."</td></tr></table>";
+
 
      if(!$result->EOF) {
      $out = 1;
@@ -1672,8 +1674,18 @@ else {
 
      }
 
-     $sInfo .= "</table></center>";
+     $sInfo .= "</table>";
      }
+     if($out==0) {
+         if($status=="R") {
+            $sInfo .="<table width='90%'><tr><td class='nobborder' height='20' style='text-align:center'>"._("No Running Jobs")."</td></tr></table>";
+         }
+         else {
+            $sInfo .="<table width='90%'><tr><td class='nobborder' height='20' style='text-align:center'>"._("No Jobs")."</td></tr></table>";
+         }
+     }
+     $sInfo .="</center>";
+     
      echo $sInfo;
      return $out;
 
