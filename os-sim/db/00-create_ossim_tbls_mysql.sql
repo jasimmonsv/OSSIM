@@ -315,15 +315,21 @@ CREATE TABLE host_properties (
 
 DROP TABLE IF EXISTS host_properties_changes;
 CREATE TABLE host_properties_changes (
-   id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
-   type         INT, 
-   ip           VARCHAR(15) NOT NULL, 
-   sensor       VARCHAR(64) NULL DEFAULT '', 
-   date         DATETIME, 
-   property_ref INT, 
-   source_id    INT, 
-   value        TEXT, 
-   extra        TEXT
+   id INT NOT NULL AUTO_INCREMENT,
+   type INT NOT NULL,
+   ip VARCHAR(15) NOT NULL,
+   sensor VARCHAR(64) NULL DEFAULT '',
+   date DATETIME,
+   property_ref INT,
+   source_id INT,
+   value TEXT,
+   extra TEXT,
+   anom TINYINT(1) NOT NULL DEFAULT '0',
+   tzone FLOAT NOT NULL DEFAULT '0',
+   PRIMARY KEY  (`id`),
+   KEY `date` (`date`),
+   KEY `ip` (`ip`,`sensor`),
+   KEY `property_ref` (`property_ref`,`value`(255))
 );
        
 DROP TABLE IF EXISTS host_source_reference;
