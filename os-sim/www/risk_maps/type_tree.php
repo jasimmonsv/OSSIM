@@ -36,7 +36,7 @@
 */
 require_once 'classes/Security.inc';
 require_once ('classes/Session.inc');
-Session::logcheck("MenuIntelligence", "PolicyPolicy");
+Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit");
 
 $filter = GET('filter');
 $key = GET('key');
