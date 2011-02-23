@@ -196,7 +196,7 @@
 								//} 
 								?>
 								<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&panel_id=<?php echo $panel_id ?>"><?php
-								echo gettext("Edit Tabs"); ?></a>	|
+								echo ($show_edit) ? gettext("Edit Tabs")."</a>	|" : ""; ?>
 								[<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?fullscreen=1&panel_id=<?php echo $panel_id ?>" target="popup" onClick="wopen('<?php echo $_SERVER['SCRIPT_NAME'] ?>?fullscreen=1&panel_id=<?php echo $panel_id ?>', 'popup', 800, 600); return false;"><?php echo _("Fullscreen") ?></a>]
 							</small>
 						</td>

@@ -131,7 +131,7 @@ if (Session::menu_perms("MenuControlPanel", "ControlPanelExecutiveEdit")) {
     $can_edit = $show_edit = false;
 }
 
-if (GET('edit_tabs') == 1) {
+if (GET('edit_tabs') == 1 && $show_edit) {
     $tabs = Window_Panel_Ajax::getPanelTabs();
 	
 	// add tabs urls
