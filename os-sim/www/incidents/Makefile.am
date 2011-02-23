@@ -10,7 +10,6 @@ incidents_DATA = attachment.php \
 	modifyincidenttype.php \
 	newincident.php \
 	newincidenttypeform.php \
-	newincidenttype.php \
 	manageincident.php \
 	osvdb.php
 

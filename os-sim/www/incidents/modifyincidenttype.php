@@ -43,7 +43,7 @@ Session::logcheck("MenuIncidents", "IncidentsTypes");
 <head>
   <title> <?php echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+  <meta http-equiv="Pragma" content="no-cache"/>
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
@@ -105,20 +105,20 @@ require_once ('classes/Incident_type.inc');
 $db = new ossim_db();
 $conn = $db->connect();
 
-$custom_name = Util::htmlentities($custom_name, ENT_QUOTES);
+$custom_name     = Util::htmlentities($custom_name, ENT_QUOTES);
 $custom_old_name = Util::htmlentities($custom_old_name, ENT_QUOTES);
 
-if ($action=="modify") 
+if ( $action=="modify" ) 
 {
 	Incident_type::update($conn, $inctype_id, $inctype_descr,(($custom==1) ? "custom" : ""));
 	$location = "incidenttype.php";
 } 
-elseif ($action=="modify_ct") 
+elseif ( $action=="modify_ct" ) 
 {
 	Incident_type::update_custom($conn, $custom_name, $custom_type, $custom_options, $custom_required, $inctype_id, $custom_old_name);
 	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
 }
-elseif ($action=="modify_pos") 
+elseif ( $action=="modify_pos" ) 
 {
 	Incident_type::update_ord($conn, $custom_oldpos, $custom_newpos, $inctype_id, $custom_old_name);
 	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
