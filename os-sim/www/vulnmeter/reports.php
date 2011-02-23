@@ -249,8 +249,15 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
         });
         GB_TYPE = 'w';
         $("a.greybox").click(function(){
-            dest = $(this).attr('href');
-            GB_show($(this).attr('gtitle'),dest,$(this).attr('gheight'),400);
+            var dest = $(this).attr('href');
+            var gwidth = '';
+            if($(this).attr('gwidth')!="") {
+                gwidth = $(this).attr('gwidth');
+            }
+            else {
+                gwidth = 400;
+            }
+            GB_show($(this).attr('gtitle'), dest, $(this).attr('gheight'), gwidth);
             return false;
         });
     });

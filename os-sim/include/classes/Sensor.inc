@@ -122,7 +122,7 @@ class Sensor {
                 else $foundrows = $rf->fields["total"];
             }
             while (!$rs->EOF) {
-				if (Session::sensorAllowed($conn, $rs->fields["ip"])) {
+				if (Session::sensorAllowed($rs->fields["ip"])) {
 					$vrsnqry = OssimQuery("SELECT version FROM sensor_properties WHERE ip='" . $rs->fields["ip"] . "'");
                     $version = ($rv = & $conn->Execute($vrsnqry)) ? $version = $rv->fields["version"] : "unknown";
                     $list[] = new Sensor($rs->fields["name"], $rs->fields["ip"], $rs->fields["priority"], $rs->fields["port"], $rs->fields["tzone"], $version, $rs->fields["connect"], $rs->fields["descr"], $foundrows);

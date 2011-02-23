@@ -104,7 +104,10 @@ else {
 $result = $dbconn->Execute($query);
 while (!$result->EOF) {
     $date = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)/i', '$1-$2-$3 $4:$5:$6', $result->fields["scantime"]);
-    $reports[$result->fields["report_id"]] = $result->fields["name"] . ", " . $date;
+    
+    $result->fields["name"] = preg_replace('/\d+\s-\s/', '', $result->fields["name"]);
+    
+    $reports[$result->fields["report_id"]] = $date . " - ". $result->fields["name"];
     $result->MoveNext();
 }
 if(count($reports)==0 && GET("submit")!="") {
@@ -136,7 +139,6 @@ else if($freport!="" && $sreport!="" && array_key_exists ($freport , $reports) &
             <select name="sreport">
                 <?php
                 foreach($reports as $key => $value) {
-                    $value = preg_replace('/\d+\s-\s/', '', $value);
                     ?>
                       <option value="<?php echo $key; ?>"><?php echo $value; ?></option>
                     <?php

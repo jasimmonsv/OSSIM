@@ -102,10 +102,35 @@ class Backup {
         
         }
         else if (count($newfiles)>0) {
-            $files = Backup::array2str($newfiles);
+        	$total = count($newfiles);
+        	if ($total < 1) { $total = 1; }
+        	$inc = 100/$total;
+        	$files = Backup::array2str($newfiles);
             $files = escapeshellcmd($files);
             //echo "Launching: $data_dir/scripts/restoredb.pl insert $files $user $filter_by\n";
             //shell_exec("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $filter_by > /tmp/restoredb.log 2>&1 &");
+        	?><script type="text/javascript">$("#pbar").progressBar(0);$("#progressText").html('<?php echo _("Executing insert script") ?>...');</script><?php
+            $fp = popen("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $filter_by 2>>/dev/null", "r");
+            $perc = 0;
+            $error = "";
+            while (!feof($fp)) {
+            	ob_flush();
+    			flush();
+            	$line = trim(fgets($fp));
+    			if (preg_match("/^Launching/",$line)) {
+    				$perc += $inc;
+    				?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('<?php echo $line ?>...');</script><?php
+    			} elseif ($line != "") {
+    				$error .= $line."<br>";
+    			}
+            }
+            fclose($fp);
+            if ($error != "") {
+            	?><script type="text/javascript">$("#loading").hide();</script><?php
+    			echo _("An error has occured executing")." '<b>$data_dir/scripts/restoredb.pl</b>':<br><b>'$error'</b>";
+            } else {
+            	?><script type="text/javascript">parent.reload_backup()</script><?php
+            }
         }
         
         $infolog = array(
@@ -118,18 +143,39 @@ class Backup {
         $conf = $GLOBALS["CONF"];
         $data_dir = $conf->get_conf("data_dir");
         $backup_dir = $conf->get_conf("backup_dir");
+        $total = count($delete);
+        if ($total < 1) { $total = 1; }
+        $inc = 100/$total;
         $files = Backup::array2str($delete);
         if ($files != "") {
             $user = Session::get_session_user();
             $files = escapeshellcmd($files);
             $user = escapeshellcmd($user);
             //$res = popen("$data_dir/scripts/restoredb.pl delete $files $user &", "r");
-            //echo "<br><br><br>nohup perl $data_dir/scripts/restoredb.pl remove $files $user >/tmp/restoredb.log 2>&1 &";
-            shell_exec("nohup perl $data_dir/scripts/restoredb.pl remove $files $user >/tmp/restoredb.log 2>&1 &");
-
-            $isDisabled = 1;
-            //sleep(3);
-            
+            //echo "<br><br><br>nohup perl $data_dir/scripts/restoredb.pl remove $files $user";exit;
+            //shell_exec("nohup perl $data_dir/scripts/restoredb.pl remove $files $user >/tmp/restoredb.log 2>&1 &");
+            ?><script type="text/javascript">$("#pbar").progressBar(2);$("#progressText").html('<?php echo _("Executing remove script") ?>...');</script><?php
+            $fp = popen("nohup perl $data_dir/scripts/restoredb.pl remove $files $user 2>>/dev/null", "r");
+            $perc = 0;
+            $error = "";
+            while (!feof($fp)) {
+            	ob_flush();
+    			flush();
+            	$line = trim(fgets($fp));
+    			if (preg_match("/^Launching/",$line)) {
+    				$perc += $inc;
+    				?><script type="text/javascript">$("#pbar").progressBar(<?php echo floor($perc) ?>);$("#progressText").html('<?php echo $line ?>...');</script><?php
+    			} elseif ($line != "") {
+    				$error .= $line."<br>";
+    			}
+            }
+            fclose($fp);
+        	if ($error != "") {
+            	?><script type="text/javascript">$("#loading").hide();</script><?php
+    			echo _("An error has occured executing")." '<b>$data_dir/scripts/restoredb.pl</b>':<br><b>'$error'</b>";
+            } else {
+            	?><script type="text/javascript">parent.reload_backup()</script><?php
+            }
         }
         $infolog = array(
             $files

@@ -34,6 +34,7 @@
 
 require_once('ossim_conf.inc');
 require_once ('classes/Session.inc');
+require_once('functions.inc');
 
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
@@ -43,30 +44,25 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 <html>
 <head>
   <title> <?php
-echo gettext("Vulnmeter"); ?> </title>
-<!--  <meta http-equiv="refresh" content="3"> -->
+  echo gettext("Vulnmeter"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
-  
-  <? include ("../host_report_menu.php") ?>
-  <style type="text/css">
-  .tooltip {
-   position: absolute;
-   padding: 2px;
-   z-index: 10;
-   
-   color: #303030;
-   background-color: #f5f5b5;
-   border: 1px solid #DECA7E;
-   width:500px;
-   
-   font-family: arial;
-   font-size: 11px;
-   }
-  </style>
+  <script type="text/javascript">
+      function toogle_details(id) {
+        $('#td'+id).toggle();
+        if ($('#img'+id).attr('src').match(/plus/)){
+            $('#img'+id).attr('src','../pixmaps/minus-small.png');
+            $('#msg'+id).html('<?php echo gettext("Hide details")?>');
+        }
+        else {
+            $('#img'+id).attr('src','../pixmaps/plus-small.png');
+            $('#msg'+id).html('<?php echo gettext("Show details")?>');
+        }
+    }
+</script>
 </head>
 
 <body>
@@ -113,7 +109,7 @@ $sreport_scantime = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d
 
 ?>
 <br />
-<table style="margin:auto;" width="75%" class="transparent" cellspacing="0" cellpadding="0">
+<table style="margin:auto;" width="95%" class="transparent" cellspacing="0" cellpadding="0">
     <tr>
         <td class="noborder" width="49%">
             <table style="margin:auto;border: 0pt none;" width="100%" cellspacing="0" cellpadding="0">
@@ -123,7 +119,7 @@ $sreport_scantime = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d
             </table>
             <table style="margin:auto;background: transparent;" width="100%" cellspacing="0" cellpadding="0">
             <tr>
-                <td class="noborder"><?php   echo vulnbreakdown($dbconn, $freport);  ?></td>
+                <td class="noborder" style="padding-bottom:10px;"><?php   echo vulnbreakdown($dbconn, $freport);  ?></td>
             </tr>
             </table>
         </td>
@@ -138,7 +134,7 @@ $sreport_scantime = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d
             </table>
             <table style="margin:auto;background: transparent;" width="100%" cellspacing="0" cellpadding="0">
             <tr>
-                <td class="noborder"><?php   echo vulnbreakdown($dbconn, $sreport);  ?></td>
+                <td class="noborder" style="padding-bottom:10px;"><?php   echo vulnbreakdown($dbconn, $sreport);  ?></td>
             </tr>
             </table>
         </td>
@@ -150,12 +146,12 @@ $sreport_scantime = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d
 $vulns = get_vulns($dbconn, $freport, $sreport);
 
 ?>
-<table style="margin:auto;border: 0pt none;" width="75%" cellspacing="0" cellpadding="0">
+<table style="margin:auto;border: 0pt none;" width="95%" cellspacing="0" cellpadding="0">
 <tr>
     <td class="headerpr"><?php echo gettext("Summary of Scanned Hosts");?></span></td>
 </tr>
 </table>
-<table style="margin:auto;" width="75%">
+<table style="margin:auto;" width="95%">
     <th><strong><?php echo _("Host")?></strong></th>
     <th><strong><?php echo _("Hostname")?></strong></th>
      <td width="128" style='background-color:#FFCDFF;border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px;border: 1px solid #C835ED;'>
@@ -232,6 +228,17 @@ $vulns = get_vulns($dbconn, $freport, $sreport);
                 <a href="compare_reports.php?freport=<?php echo $freport;?>&sreport=<?php echo $sreport;?>&pag=<?php echo ($pag-1); ?>" style="padding:0px 5px 0px 5px"><?php echo _("< Previous");?></a>
             <?php
             }
+            for($ipage=1;$ipage<=$tp;$ipage++) {
+               ?>
+                <a href="compare_reports.php?freport=<?php echo $freport;?>&sreport=<?php echo $sreport;?>&pag=<?php echo ($ipage) ?>" style="padding:0px 5px 0px 5px">
+                <?php
+                    if($ipage==$pag) { echo "<strong>"; }
+                    echo $ipage;
+                    if($ipage==$pag) { echo "</strong>"; }
+                ?>
+                </a>
+               <?php
+            }
             if ($pag<$tp) {?>
                 <a href="compare_reports.php?freport=<?php echo $freport;?>&sreport=<?php echo $sreport;?>&pag=<?php echo ($pag+1) ?>" style="padding:0px 5px 0px 5px"><?php echo _("Next >");?></a>
                 <a href="compare_reports.php?freport=<?php echo $freport;?>&sreport=<?php echo $sreport;?>&pag=<?php echo $tp; ?>" style="padding:0px 5px 0px 5px"><?php echo _("Last >");?></a>
@@ -248,6 +255,10 @@ $vulns = get_vulns($dbconn, $freport, $sreport);
 
 <?php
 
+$images = array ("Serious" => "./images/risk7.gif", "High" => "./images/risk6.gif", "Medium" => "./images/risk3.gif", "Low" => "./images/risk2.gif", "Info" => "./images/risk1.gif");
+
+$j = 0;
+    
 foreach($ips_to_show as $ip_name)
 {
     $naip = array();
@@ -256,45 +267,196 @@ foreach($ips_to_show as $ip_name)
     $ip   = $naip[0];
     $name = $naip[1];
     
-    $report1_data = array();
-    $query ="SELECT DISTINCT risk, hostIP, hostname, port, protocol, app, scriptid, msg FROM vuln_nessus_results
-                     WHERE report_id=$freport and hostIP='$ip' and falsepositive='N'";
-
-    $result=$dbconn->Execute($query);
-    
-    while (list($risk, $hostIP, $hostname, $port, $protocol, $app, $scriptid, $msg)=$result->fields) {
-        $report1_data[] = $scriptid;
-        $result->MoveNext();
-    }
-    
-    $report2_data = array();
-    $query ="SELECT DISTINCT risk, hostIP, hostname, port, protocol, app, scriptid, msg FROM vuln_nessus_results
-                     WHERE report_id=$sreport and hostIP='$ip' and falsepositive='N'";
-
-    $result=$dbconn->Execute($query);
-    
-    while (list($risk, $hostIP, $hostname, $port, $protocol, $app, $scriptid, $msg)=$result->fields) {
-        $report2_data[] = $scriptid;
-        $result->MoveNext();
-    }
-    ?>
-    <table style="margin:auto;border: 0pt none;" width="75%" cellspacing="0" cellpadding="0">
-    <tr>
-        <td class="headerpr"><?php echo $ip. " - ".$name;?></span></td>
-    </tr>
-    </table>
-    <table style="margin:auto;" width="75%" cellspacing="0" cellpadding="0">
-    <?php
-    $j = 0;
-    $max_results = max( count($report1_data), count($report2_data) );
-    while($j<$max_results) {
         ?>
-            <tr>
-                <td width="50%" style="text-align:center;" <?php echo ($j+1==$max_results) ? "class='nobborder'" : ""; ?>><?php echo ($report1_data[$j]!="") ? $report1_data[$j] : "-";?></td>
-                <td width="50%" style="border-left:1px solid #BBBBBB;text-align:center;" <?php echo ($j+1==$max_results) ? "class='nobborder'" : ""; ?>><?php echo $report2_data[$j]?></td>
-            </tr>
-        <?php
-        $j++;
+    <table style="margin:auto;border: 0pt none;" width="95%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td colspan="8" class="headerpr"><?php echo $ip. " - ".$name;?></span></td>
+        </tr>
+    </table>
+    <table style="margin:auto;" width="95%">
+        <tr>
+            <th width="20%"><?php echo gettext("Vulname"); ?></th>
+            <th width="10%"><?php echo gettext("Vuln id"); ?></th>
+            <th width="10%"><?php echo gettext("Service"); ?></th>
+            <th width="10%"><?php echo gettext("Severity"); ?></th>
+            <th width="20%"><?php echo gettext("Vulname"); ?></th>
+            <th width="10%"><?php echo gettext("Vuln id"); ?></th>
+            <th width="10%"><?php echo gettext("Service"); ?></th>
+            <th width="10%"><?php echo gettext("Severity"); ?></th>
+        </tr>
+
+    <?php
+    
+    $risks = array ("1" , "2" , "3" , "6" , "7");
+
+    foreach ($risks as $risk_value) {
+    
+        $report1_data = array();
+        $query ="SELECT DISTINCT t1.risk, t1.hostIP, t1.hostname, t1.port, t1.protocol, t1.app, t1.scriptid, t1.msg, t2.name FROM vuln_nessus_results as t1
+                        LEFT JOIN vuln_nessus_plugins as t2 on t2.id=t1.scriptid
+                        WHERE t1.report_id=$freport and t1.hostIP='$ip' and t1.falsepositive='N' and t1.risk=$risk_value";
+
+        $result=$dbconn->Execute($query);
+        
+        while (list($risk, $hostIP, $hostname, $port, $protocol, $app, $scriptid, $msg, $plugin_name)=$result->fields) {
+            $aux = array();
+            
+            $aux["risk"]        = $risk;
+            $aux["app"]         = $app;
+            $aux["msg"]         = $msg;
+            $aux["scriptid"]    = $scriptid;
+            $aux["port"]        = $port;
+            $aux["protocol"]    = $protocol;
+            $aux["plugin_name"] = $plugin_name;
+            
+            $report1_data["$scriptid|$port|$protocol"] = $aux;
+            
+            $result->MoveNext();
+        }
+        
+        $report2_data = array();
+        $query ="SELECT DISTINCT t1.risk, t1.hostIP, t1.hostname, t1.port, t1.protocol, t1.app, t1.scriptid, t1.msg, t2.name FROM vuln_nessus_results as t1
+                        LEFT JOIN vuln_nessus_plugins as t2 on t2.id=t1.scriptid
+                        WHERE t1.report_id=$sreport and t1.hostIP='$ip' and t1.falsepositive='N' and t1.risk=$risk_value";
+
+        $result=$dbconn->Execute($query);
+        
+        while (list($risk, $hostIP, $hostname, $port, $protocol, $app, $scriptid, $msg, $plugin_name)=$result->fields) {
+            $aux = array();
+            
+            $aux["risk"]        = $risk;
+            $aux["app"]         = $app;
+            $aux["msg"]         = $msg;
+            $aux["scriptid"]    = $scriptid;
+            $aux["port"]        = $port;
+            $aux["protocol"]    = $protocol;
+            $aux["plugin_name"] = $plugin_name;
+            
+            $report2_data["$scriptid|$port|$protocol"] = $aux;
+            
+            $result->MoveNext();
+        }
+
+        $colors = array ("1" => "#FFCDFF", "2" => "#FFDBDB", "3" => "#FFF283", "6" => "#FFFFC0", "7" => "#FFFFE3");
+        
+        foreach($report1_data as $key => $value) {
+            $tmprisk = getrisk($value["risk"]);
+            ?>
+                <tr>
+                    <td colspan="4" width="50%" style="background-color:<?php echo $colors[$value["risk"]] ?>">
+                        <table width="100%" class="transparent">
+                            <tr>
+                                <td width="40%" valign="top" style="text-align:left;" class="nobborder">
+                                    <a style="padding-left:0px;" href="" onclick="toogle_details('<?php echo $j; ?>');return false;">
+                                        <img id="img<?php echo $j; ?>" src="../pixmaps/plus-small.png" align="absmiddle"/></a>
+                                    <strong><?php echo $value["plugin_name"] ?></strong>
+                                </td>
+                                <td width="20%" valign="top" style="text-align:center;" class="nobborder"><?php echo $value["scriptid"]; ?></td>
+                                <td width="20%" valign="top" style="text-align:center;" class="nobborder">
+                                    <table width="100%" class="transparent" cellpadding="0" cellspacing="0">
+                                        <tr><td class="nobborder" style="text-align:center"><?php echo $value["app"]; ?></td></tr>
+                                        <tr><td class="nobborder" style="text-align:center">(<?php echo $value["port"]."/".$value["protocol"]; ?>)</td></tr>
+                                    </table>
+                                </td>
+                                <td width="20%" valign="top" style="text-align:center;" class="nobborder">
+                                <?php
+                                    echo $tmprisk;
+                                    echo "<img align='absmiddle' src='".$images[$tmprisk]."' style='border: 1px solid ;margin-left:5px;width: 25px; height: 10px;'/>";
+                                ?>
+                                </td>
+                            </tr>
+                            <tr><td colspan="4" valign="top" id="td<?php echo $j; $j++;?>" style="text-align:left;display:none;padding-left:21px;" class="nobborder"><?php
+                                $value["msg"] = preg_replace("/(Solution|Overview|Synopsis|Description|See also|Plugin output|References|Vulnerability Insight|
+                                                                Impact|Impact Level|Affected Software\/OS|Fix|Information about this scan)\s*:/","<br /><br /><strong>\\1:</strong><br />",$value["msg"]);
+                                $value["msg"] = preg_replace("/^\<br\s\/\>/","",$value["msg"]);
+                                echo $value["msg"]; ?> 
+                            </td></tr>
+                            </table>
+                    </td>
+                    <td colspan="4" width="50%" style="background-color:<?php echo ($report2_data[$key]=="") ? "#EFFFF6" : $colors[$value["risk"]];?>" valign="top">
+                        <?php 
+                        if ($report2_data[$key]!="") {
+                            ?>
+                            <table width="100%" class="transparent">
+                                <tr>
+                                    <td width="40%" valign="top" style="text-align:left;" class="nobborder">
+                                    <strong><?php echo $value["plugin_name"] ?></strong></td>
+                                    <td width="20%" valign="top" style="text-align:center;" class="nobborder"><?php echo $value["scriptid"]; ?></td>
+                                    <td width="20%" valign="top" class="nobborder">
+                                        <table width="100%" class="transparent" cellpadding="0" cellspacing="0">
+                                            <tr><td class="nobborder" style="text-align:center"><?php echo $value["app"]; ?></td></tr>
+                                            <tr><td class="nobborder" style="text-align:center">(<?php echo $value["port"]."/".$value["protocol"]; ?>)</td></tr>
+                                        </table>
+                                    <td width="20%" valign="top" style="text-align:center;" class="nobborder">
+                                        <?php
+                                        echo $tmprisk;
+                                        echo "<img align='absmiddle' src='".$images[$tmprisk]."' style='border: 1px solid ;margin-left:5px;width: 25px; height: 10px;'/>";
+                                    ?>
+                                    </td>
+                                </tr>
+                                <tr><td colspan="4" style="text-align:left;" class="nobborder">&nbsp;</td></tr>
+                            </table>
+                            <?php
+                            unset($report2_data[$key]);
+                        }
+                        else {
+                            echo "&nbsp;";
+                        }
+                        ?>
+                    </td>
+                </tr>
+            <?php
+        }
+        foreach($report2_data as $key => $value) {
+            $tmprisk = getrisk($value["risk"]);
+            ?>
+                <tr>
+                    <td colspan="4" width="50%" style="text-align:center;background-color:#FFEFF3;">
+                        &nbsp;
+                    </td>
+                    <td colspan="4" width="50%" style="text-align:center;background-color:<?php echo $colors[$value["risk"]] ?>">
+                        <?php 
+                        if ($report2_data[$key]!="") {
+                            ?>
+                            <table width="100%" class="transparent">
+                                <tr>
+                                    <td width="40%" valign="top" class="nobborder" style="text-align:left;">
+                                        <a style="padding-left:0px;" href="" onclick="toogle_details('<?php echo $j; ?>');return false;">
+                                            <img id="img<?php echo $j; ?>" src="../pixmaps/plus-small.png" align="absmiddle"/></a>
+                                    <strong><?php echo $value["plugin_name"] ?></strong></td>
+                                    <td width="20%" valign="top" class="nobborder" style="text-align:center;"><?php echo $value["scriptid"]; ?></td>
+                                    <td width="20%" valign="top" class="nobborder" style="text-align:center;">
+                                    <table width="100%" class="transparent" cellpadding="0" cellspacing="0">
+                                        <tr><td class="nobborder" style="text-align:center"><?php echo $value["app"]; ?></td></tr>
+                                        <tr><td class="nobborder" style="text-align:center">(<?php echo $value["port"]."/".$value["protocol"]; ?>)</td></tr>
+                                    </table>
+                                    </td>
+                                    <td width="20%" valign="top" class="nobborder" style="text-align:center;">
+                                    <?php
+                                        echo $tmprisk;
+                                        echo "<img align='absmiddle' src='".$images[$tmprisk]."' style='border: 1px solid ;margin-left:5px;width: 25px; height: 10px;'/>";
+                                    ?>
+                                    </td>
+                                </tr>
+                                <tr><td colspan="4" valign="top" id="td<?php echo $j; $j++;?>" style="text-align:left;display:none;padding-left:21px;" class="nobborder"><?php
+                                $value["msg"] = preg_replace("/(Solution|Overview|Synopsis|Description|See also|Plugin output|References|Vulnerability Insight|
+                                                                Impact|Impact Level|Affected Software\/OS|Fix|Information about this scan)\s*:/","<br /><strong>\\1:</strong><br />",$value["msg"]);
+                                $value["msg"] = preg_replace("/^\<br\s\/\>/","",$value["msg"]);
+                                echo $value["msg"]; ?>
+                            </td></tr>
+
+                            </table>
+                            <?php
+                        }
+                        else {
+                            echo "&nbsp;";
+                        }
+                        ?>
+                    </td>
+                </tr>
+            <?php
+        }
+        
     }
     ?>
     </table>
