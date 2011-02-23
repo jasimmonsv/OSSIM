@@ -9,6 +9,23 @@ REPLACE INTO `tags_alarm` (`name`, `bgcolor`, `fgcolor`, `italic`, `bold`) VALUE
 ('False Positive', 'ffe3e3', 'cc0000', 0, 0),
 ('Analysis', '206cff', 'e0ecff', 0, 0);
 
+REPLACE INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
+(1, 'software', 3, 'Software'),
+(2, 'cpu', 8, 'CPU'),
+(3, 'operating-system', 1, 'Operating System'),
+(4, 'workgroup', 6, 'Workgroup'),
+(5, 'memory', 9, 'Memory'),
+(6, 'department', 5, 'Department'),
+(7, 'macAddress', 7, 'MAC Address'),
+(8, 'service', 2, 'Services'),
+(9, 'acl', 10, 'ACL'),
+(10, 'route', 11, 'Route'),
+(11, 'storage', 12, 'Storage'),
+(12, 'role', 4, 'Role');
+
+REPLACE INTO host_source_reference(id, name, relevance) VALUES (8,'TELNET', 9);
+REPLACE INTO host_source_reference(id, name, relevance) VALUES (9,'SNMP', 9);
+
 use snort;
 ALTER TABLE `acid_event` MODIFY `tzone` FLOAT NOT NULL DEFAULT '0' AFTER `plugin_sid`;
 

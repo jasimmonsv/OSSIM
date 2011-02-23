@@ -94,9 +94,9 @@ if ($from!="") {
     		break;
     		case "cpu": $png = "cpu";
     		break;
-    		case "services": $png = "ports";
+    		case "service": $png = "ports";
     		break;
-    		case "ram": $png = "ram";
+    		case "memory": $png = "ram";
     		break;
     		case "department": $png = "host_group";
     		break;
@@ -106,6 +106,12 @@ if ($from!="") {
     		break;
     		case "role": $png = "server_role";
     		break;
+            case "acl": $png = "acl";
+            break;
+            case "storage": $png = "storage";
+            break;
+            case "route": $png = "route";
+            break;    		
     	}
     	$buffer .= "{ key:'p".$prop["id"]."', isFolder:true, expand:true, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["description"])."' },\n";
     }
