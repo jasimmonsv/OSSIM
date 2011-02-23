@@ -115,6 +115,7 @@
  |      1632 | WuFtp              | detector |
  |      1633 | Motorola-Firewall  | detector |
  |      1634 | ElJefe             | detector |
+ |      1635 | netscreen-igs      | detector |
  +-----------+--------------------+----------+
  |      1801 | forensics-db-1     | detector |
  +-----------+--------------------+----------+
