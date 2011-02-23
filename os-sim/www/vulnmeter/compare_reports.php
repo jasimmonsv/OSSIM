@@ -406,7 +406,7 @@ foreach($ips_to_show as $ip_name)
                                 <td width="40%" valign="top" style="text-align:left;" class="nobborder">
                                     <a style="padding-left:0px;" href="" onclick="toogle_details('<?php echo $j; ?>');return false;">
                                         <img id="img<?php echo $j; ?>" src="../pixmaps/plus-small.png" align="absmiddle"/></a>
-                                    <strong><?php echo $value["plugin_name"] ?></strong>
+                                    <strong><?php if (trim($value["plugin_name"])!="") { echo $value["plugin_name"]; } else { echo _("No plugin name"); }?></strong>
                                 </td>
                                 <td width="20%" valign="top" style="text-align:center;" class="nobborder"><?php echo $value["scriptid"]; ?></td>
                                 <td width="20%" valign="top" style="text-align:center;" class="nobborder">
@@ -431,7 +431,7 @@ foreach($ips_to_show as $ip_name)
                             <table width="100%" class="transparent">
                                 <tr>
                                     <td width="40%" valign="top" style="text-align:left;" class="nobborder">
-                                    <strong><?php echo $value["plugin_name"] ?></strong></td>
+                                    <strong><?php if (trim($value["plugin_name"])!="") { echo $value["plugin_name"]; } else { echo _("No plugin name"); }?></strong></td>
                                     <td width="20%" valign="top" style="text-align:center;" class="nobborder"><?php echo $value["scriptid"]; ?></td>
                                     <td width="20%" valign="top" class="nobborder">
                                         <table width="100%" class="transparent" cellpadding="0" cellspacing="0">
@@ -486,7 +486,7 @@ foreach($ips_to_show as $ip_name)
                                     <td width="40%" valign="top" class="nobborder" style="text-align:left;">
                                         <a style="padding-left:0px;" href="" onclick="toogle_details('<?php echo $j; ?>');return false;">
                                             <img id="img<?php echo $j; ?>" src="../pixmaps/plus-small.png" align="absmiddle"/></a>
-                                    <strong><?php echo $value["plugin_name"] ?></strong></td>
+                                    <strong><?php if (trim($value["plugin_name"])!="") { echo $value["plugin_name"]; } else { echo _("No plugin name"); }?></strong></td>
                                     <td width="20%" valign="top" class="nobborder" style="text-align:center;"><?php echo $value["scriptid"]; ?></td>
                                     <td width="20%" valign="top" class="nobborder" style="text-align:center;">
                                     <table width="100%" class="transparent" cellpadding="0" cellspacing="0">
