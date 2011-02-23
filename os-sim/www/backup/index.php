@@ -45,29 +45,7 @@ $conf = $GLOBALS["CONF"];
 $data_dir = $conf->get_conf("data_dir");
 $backup_dir = $conf->get_conf("backup_dir");
 //$backup_dir = "/root/pruebas_backup";
-$isDisabled = Backup::running_restoredb();
-$perform = POST("perform");
-$message = "";
-ossim_valid($perform, "insert", "delete", OSS_NULLABLE, 'illegal:' . _("perform"));
-if (ossim_error()) {
-    die(ossim_error());
-}
 
-if (!$isDisabled) {
-    if ($perform == "insert") {
-        $insert = POST("insert");
-        $message = Backup::Insert($insert);
-        if($message=="")
-            $message = _("Insert action is running, please wait a few seconds...");
-    } elseif ($perform == "delete") {
-        $delete = POST("delete");
-        Backup::Delete($delete);
-        $message = _("Remove action is running, please wait a few seconds...");
-    }
-}
-else {
-    $message = _("Remove or insert action is running, please wait a few seconds...");
-}
 $db = new ossim_db();
 $conn = $db->snort_connect();
 $insert = Array();
@@ -101,7 +79,6 @@ $db->close($conn);
 	<head>
 		<title><?=_('Backup')?></title>
  		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-        <meta http-equiv="refresh" content="60;url=index.php?bypassexpirationupdate=1">
   		<meta http-equiv="Pragma" content="no-cache">
   		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
@@ -109,6 +86,9 @@ $db->close($conn);
   			function boton (form, act) {
   				form.perform.value = act;
   				form.submit();
+  			}
+  			function reload_backup() {
+				document.location.href="index.php";
   			}
   		</script>
   	</head>
@@ -121,8 +101,7 @@ include ("../hmenu.php"); ?>
             echo "<b><span style='color:#FFA500'>".$message."</span></b><br><br>";
         }
         ?>
-  		<form name="backup" action="<?php
-echo $_SERVER["SCRIPT_NAME"] ?>" method="post">
+  		<form name="backup" action="launch.php" target="process_iframe" method="post">
   	  	<table>
   			<tr>
   				<th colspan="3"><?php
@@ -182,7 +161,9 @@ if (count($delete) > 0) {
   		</table>
   		<input type="hidden" name="perform" value="">
   		</form>
-  		<br>
+  		<table class="transparent">
+  			<tr><td class="nobborder"><iframe name="process_iframe" src="" height="50" frameborder="0"></iframe></td></tr>
+  		</table>
 		<table align="center">
 			<tr>
 				<th colspan="5"><?php
