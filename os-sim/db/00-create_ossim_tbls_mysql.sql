@@ -285,18 +285,21 @@ INSERT INTO host_property_reference (`id`, `name`, `ord`, `description`) VALUES
 (1, 'software', 3, 'Software'),
 (2, 'cpu', 8, 'CPU'),
 (3, 'operating-system', 1, 'Operating System'),
-(4, 'services', 2, 'Services'),
-(5, 'ram', 9, 'RAM'),
+(4, 'workgroup', 6, 'Workgroup'),
+(5, 'memory', 9, 'Memory'),
 (6, 'department', 5, 'Department'),
 (7, 'macAddress', 7, 'MAC Address'),
-(8, 'workgroup', 6, 'Workgroup'),
-(9, 'role', 4, 'Role');
+(8, 'service', 2, 'Services'),
+(9, 'acl', 10, 'ACL'),
+(10, 'route', 11, 'Route'),
+(11, 'storage', 12, 'Storage'),
+(12, 'role', 4, 'Role');
 
 DROP TABLE IF EXISTS host_properties;
 CREATE TABLE host_properties (
    id INT NOT NULL AUTO_INCREMENT, 
    ip VARCHAR(15) NOT NULL,
-   sensor VARCHAR(64) NOT NULL,
+   sensor VARCHAR(64) NULL DEFAULT '',
    date DATETIME,
    property_ref INT,
    source_id INT,
@@ -312,17 +315,23 @@ CREATE TABLE host_properties (
 
 DROP TABLE IF EXISTS host_properties_changes;
 CREATE TABLE host_properties_changes (
-	   id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
-	   type        INT, 
-	   ip           VARCHAR(15), 
-	   sensor       VARCHAR(64), 
-	   date         DATETIME, 
-	   property_ref INT, 
-	   source_id    INT, 
-	   value        TEXT, 
-	   extra        TEXT
+   id INT NOT NULL AUTO_INCREMENT,
+   type INT NOT NULL,
+   ip VARCHAR(15) NOT NULL,
+   sensor VARCHAR(64) NULL DEFAULT '',
+   date DATETIME,
+   property_ref INT,
+   source_id INT,
+   value TEXT,
+   extra TEXT,
+   anom TINYINT(1) NOT NULL DEFAULT '0',
+   tzone FLOAT NOT NULL DEFAULT '0',
+   PRIMARY KEY  (`id`),
+   KEY `date` (`date`),
+   KEY `ip` (`ip`,`sensor`),
+   KEY `property_ref` (`property_ref`,`value`(255))
 );
-
+       
 DROP TABLE IF EXISTS host_source_reference;
 CREATE TABLE host_source_reference (
    id INT NOT NULL PRIMARY KEY,
@@ -337,6 +346,8 @@ INSERT INTO host_source_reference(id, name, relevance) VALUES (4,'SSH', 8);
 INSERT INTO host_source_reference(id, name, relevance) VALUES (5,'PRADS', 6);
 INSERT INTO host_source_reference(id, name, relevance) VALUES (6,'OPENVAS', 7);
 INSERT INTO host_source_reference(id, name, relevance) VALUES (7,'NTOP', 7);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (8,'TELNET', 9);
+INSERT INTO host_source_reference(id, name, relevance) VALUES (9,'SNMP', 9);
 
 /*Used to store how much events arrive to the server in a specific time, from a
  * specific sensor*/
@@ -1132,7 +1143,10 @@ CREATE TABLE `tags_alarm` (
     bold tinyint(1) NOT NULL DEFAULT '0',
     PRIMARY KEY (id)
 );
-                      
+REPLACE INTO `tags_alarm` (`name`, `bgcolor`, `fgcolor`, `italic`, `bold`) VALUES
+('False Positive', 'ffe3e3', 'cc0000', 0, 0),
+('Analysis', '206cff', 'e0ecff', 0, 0);
+         
 --
 -- Table: plugin_reference
 --

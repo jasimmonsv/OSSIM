@@ -226,6 +226,8 @@ if ( POST('insert') && !empty($ip) )
 	
 }
 
+Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
+
 if ( isset($_SESSION['_host']) )
 	unset($_SESSION['_host']);
 

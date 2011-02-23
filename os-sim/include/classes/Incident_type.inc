@@ -82,7 +82,8 @@ class Incident_type {
         }
         return $list;
     }
-    function insert($conn, $id, $descr, $keywords="") {
+    
+	function insert($conn, $id, $descr, $keywords="") {
         $sql = "INSERT into incident_type ( id, descr, keywords) VALUES   (?, ?, ?)";
         $params = array(
             $id,
@@ -90,12 +91,14 @@ class Incident_type {
             $keywords
         );
         if ($conn->Execute($sql, $params) == false) {
-            print 'Error inserting: ' . $conn->ErrorMsg() . '<BR>';
-            exit;
+            return 'Error inserting: ' . $conn->ErrorMsg();
         }
         $infolog = array($id);
         Log_action::log(53, $infolog);
+		
+		return true;
     }
+	
     function update($conn, $id, $descr, $keywords="") {
     	if ($keywords=="custom") {
 	        $sql = "UPDATE incident_type SET descr= ?,keywords=TRIM(CONCAT(keywords,' custom')) WHERE id = ?";
@@ -155,12 +158,12 @@ class Incident_type {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-                $list[] = array("id" => $rs->fields['id'], 
-								"name" => $rs->fields['name'], 
-								"type" => $rs->fields['type'], 
-								"options" => $rs->fields['options'],
+                $list[] = array("id"       => $rs->fields['id'], 
+								"name"     => $rs->fields['name'], 
+								"type"     => $rs->fields['type'], 
+								"options"  => $rs->fields['options'],
 								"required" => $rs->fields['required'],
-								"ord" => $rs->fields['ord']);
+								"ord"      => $rs->fields['ord']);
                 $rs->MoveNext();
             }
         }

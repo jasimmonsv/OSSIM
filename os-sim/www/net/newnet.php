@@ -171,9 +171,9 @@ if (POST('insert'))
 	if ( $nagios ) 
         Net_scan::insert($conn, $net_name, 2007, 0);
     
-    Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
+    $db->close($conn);
 	
-	$db->close($conn);
+	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
 	
 	if ( isset($_SESSION['_net']) )
 		unset($_SESSION['_net']);

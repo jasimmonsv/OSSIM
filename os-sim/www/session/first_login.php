@@ -170,12 +170,7 @@ if ($flag != "") {
 			if ( current_pass != '' )  $('#current_pass').val($.base64.encode(current_pass));
 			
 		}
-		
-		$(document).ready(function () {
-		  $('#fnewpass').bind('click', function() { send_p();});
-		});
-
-						
+										
 	</script>
   
   

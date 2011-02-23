@@ -126,9 +126,9 @@ if($key=="") {
             break;
             case "cpu": $png = "cpu";
             break;
-            case "services": $png = "ports";
+            case "service": $png = "ports";
             break;
-            case "ram": $png = "ram";
+            case "memory": $png = "ram";
             break;
             case "department": $png = "host_group";
             break;
@@ -137,6 +137,12 @@ if($key=="") {
             case "workgroup": $png = "net_group";
             break;
             case "role": $png = "server_role";
+            break;
+            case "acl": $png = "acl";
+            break;
+            case "storage": $png = "storage";
+            break;
+            case "route": $png = "route";
             break;
         }
         if(count(Host::get_property_values($conn, $prop["id"]))>0) {
