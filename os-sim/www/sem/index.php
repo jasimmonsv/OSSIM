@@ -208,7 +208,7 @@ var load_stop=false;
 
 // ****************************************** ON LOAD ******************************************************
 $(document).ready(function(){
-	// CALENDAR
+	// INITIALIZE CALENDAR
 	$("#start_aaa,#end_aaa").change(function(objEvent){
 		CalendarOnChange();
 	});
@@ -248,8 +248,10 @@ $(document).ready(function(){
 		return false;
 	});
 	$('#widgetCalendar div.datepicker').css('position', 'absolute');
-
-	/* AUTOCOMPLETE SEARCH */
+	$('#date2').addClass('negrita');
+	bold_dates('date2');
+	
+	// INITIALIZE AUTOCOMPLETE SEARCH
 	<?php 
 	list($sensors, $hosts) = Host::get_ips_and_hostname($conn_aux);
 	?>
@@ -259,16 +261,15 @@ $(document).ready(function(){
 		availableTags: ["data"<?php foreach ($sensors as $ip=>$name) { ?>, "sensor:<?php echo $name?>"<?php } ?><?php $top = 0; foreach ($hosts as $ip=>$name) if ($top < 20) { ?>, "source:<?php echo $name?>", "destination:<?php echo $name ?>"<?php $top++; } ?>]
 	});
 	
+	// LAUNCH LOGGER FETCH
 	//UpdateByDate('forensic.php?graph_type=all&cat=');
 	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
+	// From GET query
 	<? if (trim($_GET['query'])!="") { ?>
-	$('#date5').addClass('negrita');
-	bold_dates('date5');
 	SetSearch("src=<?php echo $_GET['query'] ?> OR dst=<?php echo $_GET['query'] ?>");
-	setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','year','<?php echo urlencode(date("Y",$timetz)) ?>');
+	//setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','year','<?php echo urlencode(date("Y",$timetz)) ?>');
+	// Default load
 	<? } else { ?>
-	$('#date2').addClass('negrita');
-	bold_dates('date2');
 	RequestLines();
 	MakeRequest();
 	<? } ?>
@@ -381,7 +382,7 @@ function MakeRequest()
     //alert(str);
 
 	<? if (GET('query') != "")  { ?>
-	var str = "<?php echo GET('query')?>";
+	var str = "src=<?php echo GET('query')?> OR dst=<?php echo GET('query') ?>";
 	<? } ?>
 	var offset = parseInt(document.getElementById('offset').value);
 	var start = escape(document.getElementById('start').value);
