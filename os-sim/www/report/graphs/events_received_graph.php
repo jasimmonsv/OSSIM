@@ -68,8 +68,8 @@ if ($type == "event" && is_array($SS_TopEvents) && count($SS_TopEvents)>0)
 	$list = $SS_TopEvents;
 elseif ($type == "alarm" && is_array($SA_TopAlarms) && count($SA_TopAlarms)>0)
 	$list = $SA_TopAlarms;
-else $list = array();
-	//$list = $security_report->Events($limit, $type, $date_from, $date_to);
+else 
+	$list = $security_report->Events($limit, $type, $date_from, $date_to);
 $data_pie = array();
 $legend = $data = array();
 foreach($list as $key => $l) {
