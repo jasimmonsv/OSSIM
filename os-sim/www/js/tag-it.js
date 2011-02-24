@@ -92,15 +92,18 @@
 				//pass request to server
 				var param = tag_input.val();
 				$.getJSON("autocomplete.php?str="+param, req, function(data) {
-					//create array for response objects  
-					var suggestions = [];  
-					//process response  
-					$.each(data, function(i, val){  
-						suggestions.push(val.name);  
-					});  
-					
-					//pass array to callback  
-					add(suggestions);  
+					// Only show autocomplete if user has not pressed any key between "ajax call-ajax response"
+					if (param == tag_input.val()) {
+						//create array for response objects  
+						var suggestions = [];  
+						//process response  
+						$.each(data, function(i, val){  
+							suggestions.push(val.name);  
+						});  
+						
+						//pass array to callback  
+						add(suggestions);  
+					}
 				});  
 			},
 			select: function(event,ui){
