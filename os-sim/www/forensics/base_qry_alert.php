@@ -354,9 +354,9 @@ $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(da
 $event_date = $timestamp;
 $tzdate = $event_date;
 // Event date timezone
-if ($tzone!=0) $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));    
+if ($tzone!=0) $event_date = gmdate("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));    
 // Apply user timezone
-if ($tz!=0) $tzdate = date("Y-m-d H:i:s",strtotime($tzdate)+(3600*$tz));
+if ($tz!=0) $tzdate = gmdate("Y-m-d H:i:s",strtotime($tzdate)+(3600*$tz));
 	
 $tzcell = ($event_date==$timestamp || $event_date==$tzdate) ? 0 : 1;
 _("Event date").": ".htmlspecialchars("<b>".$event_date."</b><br>"._("Timezone").": <b>".Util::timezone($tzone)."</b>");
