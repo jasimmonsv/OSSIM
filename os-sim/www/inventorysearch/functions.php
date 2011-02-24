@@ -166,13 +166,20 @@ function check_security ($value, $match, $value2=NULL, $userfriendly=false) {
 			ossim_valid($value, OSS_ALPHA, OSS_SCORE, OSS_SLASH, 'illegal:' . _("$match value"));
 			break;
 	}
-	if (ossim_error()) {
+	if ( ossim_error() )
+	{
 	?>
-		<table class="noborder" align="center" width="94%">
-			<tr><td class="nobborder" style="padding:10px 0;text-align:center"><input type="button" value="Back" onclick="document.location.href='<?php if($userfriendly){ echo "userfriendly.php"; }else{ echo "inventory_search.php"; } ?>'" class="button" /></td></tr>
+		<table class="noborder transparent" align="center" width="94%">
+			<tr><td class='nobborder'><div class='ossim_error'><?php echo ossim_get_error();?></div></td></tr>
+			<tr>
+				<td class="nobborder" style="padding:10px 0;text-align:center">
+					<?php $location = "/wizard_custom_run.php?step=2" ?>
+					<input type="button" value="Back" onclick="document.location.href='<?php echo $location;?>'" class="button"/>
+				</td>
+			</tr>
 		</table>
-	<?php		
-		die(ossim_error());
+	<?php
+		exit();
 	}
 }
 

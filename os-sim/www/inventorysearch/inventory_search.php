@@ -39,13 +39,15 @@ include ("functions.php");
 $new = ($_GET['new'] == "1") ? 1 : 0;
 
 // Database Object
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
 // Read config file with filters rules
 $rules = get_rulesconfig ();
 //echo "<br><br><br><br>";
 //print_r($_SESSION['inventory_last_search']);
+
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
