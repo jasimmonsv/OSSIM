@@ -28,6 +28,8 @@ scripts_SCRIPTS = acid_cache.pl \
 				intrushield_update.py \
 				insertHostNetbiosFromAD.py \
 				create_sidmap_preprocessors.pl \
+				restoredb_filter.php \
+				restoredb_sql_patches.pl \
 				console_alarms.py \
 				check_vars.pl 
 
