@@ -419,9 +419,9 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $event_date = $myrow['timestamp'];
     $tzdate = $event_date;
     // Event date timezone
-	if ($tzone!=0) $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));    
+	if ($tzone!=0) $event_date = gmdate("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));    
     // Apply user timezone
-	if ($tz!=0) $tzdate = date("Y-m-d H:i:s",strtotime($tzdate)+(3600*$tz));
+	if ($tz!=0) $tzdate = gmdate("Y-m-d H:i:s",strtotime($tzdate)+(3600*$tz));
 		    
 	$cell_data['DATE'] = $tzdate;
 	$cell_tooltip['DATE'] = ($event_date==$myrow['timestamp'] || $event_date==$tzdate) ? "" : _("Event date").": ".htmlspecialchars("<b>".$event_date."</b><br>"._("Timezone").": <b>".Util::timezone($tzone)."</b>");

@@ -531,10 +531,10 @@ foreach($result as $res=>$event_date) {
         $warning = ($storehour-$eventhour != 0) ? "<a href='javascript:;' txt='"._("Date may not be normalized")."' class='scriptinfotxt'><img src='../pixmaps/warning.png' border=0 style='margin-left:3px;margin-right:3px'></a>" : "";
         
         // Event date timezone
-		if ($tzone!=0) $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));
+		if ($tzone!=0) $event_date = gmdate("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));
         
         // Apply user timezone
-		if ($tz!=0) $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
+		if ($tz!=0) $date = gmdate("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
 	
 		//echo "$date - $event_date - $tzone - $tz<br>";
 		

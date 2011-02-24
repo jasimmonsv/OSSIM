@@ -756,10 +756,10 @@ if ($count > 0) {
         */
         $sid_name = $alarm->get_sid_name(); // Plugin_sid table just joined (Granada 27 mayo 2009)
         $date = Util::timestamp2date($alarm->get_timestamp());
-        $date = date("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
+        $date = gmdate("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
         if ($backlog_id && $id==1505) {
             $since = Util::timestamp2date($alarm->get_since());
-            $since = date("Y-m-d H:i:s",strtotime($since)+(3600*$tz));            
+            $since = gmdate("Y-m-d H:i:s",strtotime($since)+(3600*$tz));            
         } else {
             $since = $date;
         }
