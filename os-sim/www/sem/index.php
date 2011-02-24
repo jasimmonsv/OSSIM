@@ -179,6 +179,7 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 
 <link rel="stylesheet" type="text/css" href="../style/style.css">
+<link rel="stylesheet" type="text/css" href="../forensics/styles/ossim_style.css">
 <link rel="stylesheet" type="text/css" href="../style/jquery.contextMenu.css" />
 <link rel="stylesheet" type="text/css" href="../style/jquery.tagit.css" />
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
@@ -1073,7 +1074,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "Poli
 					<tr bgcolor='#EEEEEE'>
 						<td class="nobborder"><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; } if ($logger_error[$name]) { echo " disabled"; } ?>></input></td>
 						<td class="nobborder"></td>
-						<td class="nobborder"><table class="transparent"><tr><td class="nobborder" style="padding:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i]?>;color:<?php echo '#'.$fcolors[$i]?>"><?php echo $name ?></td></tr></table></td>
+						<td class="nobborder"><table class="transparent"><tr><td class="nobborder" style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i]?>;color:<?php echo '#'.$fcolors[$i]?>"><?php echo $name ?></td></tr></table></td>
 					</tr>
 				<?php $i++; } ?>
 				</table>
@@ -1313,19 +1314,19 @@ require_once ("manage_querys.php");
 				<td nowrap class="nobborder" valign="top">
 					<table class="transparent">
 					<tr>
-					<td class="nobborder" nowrap id="date2td" style="padding:5px" <? if ($_GET['time_range'] == "day") echo "bgcolor='#28BC04'" ?>><a <?php
+					<td class="nobborder" nowrap id="date2td" style="padding-left:5px;padding-right:5px" <? if ($_GET['time_range'] == "day") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "day") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - (24 * 60 * 60)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','day','<?php echo urlencode(date("M d, Y")) ?>');" onClick="javascript:bold_dates('date2');" id="date2a"><?=_("Last 24 Hours")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
-					<td class="nobborder" id="date3td" nowrap style="padding:5px" <? if ($_GET['time_range'] == "week") echo "bgcolor='#28BC04'" ?>><a <?php
+					<td class="nobborder" id="date3td" nowrap style="padding-left:5px;padding-right:5px" <? if ($_GET['time_range'] == "week") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "week") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 7)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_week','<?php echo urlencode(date("M, Y")) ?>');" onClick="javascript:bold_dates('date3');" id="date3a"><?=_("Last Week")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
-					<td class="nobborder" id="date4td" nowrap style="padding:5px" <? if ($_GET['time_range'] == "month") echo "bgcolor='#28BC04'" ?>><a <?php
+					<td class="nobborder" id="date4td" nowrap style="padding-left:5px;padding-right:5px" <? if ($_GET['time_range'] == "month") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 31)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_month','<?php echo urlencode(date("M, Y")) ?>');" onClick="javascript:bold_dates('date4');" id="date4a"><?=_("Last Month")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
-					<td class="nobborder" id="date5td" nowrap style="padding:5px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
+					<td class="nobborder" id="date5td" nowrap style="padding-left:5px;padding-right:5px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_year','<?php echo urlencode(date("Y")) ?>');" onClick="javascript:bold_dates('date5');" id="date5a"><?=_("Last Year")?></a>
 					</td>
 					</tr>

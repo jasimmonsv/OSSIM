@@ -574,7 +574,7 @@ foreach($result as $res=>$event_date) {
             $line = "<tr".(($colort%2==0) ? " style=\"background-color: #F2F2F2\"" : "").">
             <td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . $warning . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
             if ($from_remote) {
-            	$line .= "<td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table class='transparent' align='center'><tr><td class='nobborder' style='padding:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
+            	$line .= "<td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table class='transparent' align='center'><tr><td class='nobborder' style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
             }
             
             // compare real date with timezone corrected date
