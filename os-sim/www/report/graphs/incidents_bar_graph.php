@@ -80,16 +80,18 @@ if ($by == "monthly_by_status") {
     if($type=="wizard"){
         // se llama desde el wizard
         // obtenemos el host y la red
-        if(isset($_SESSION['TicketsStatus5']['host'])){
+        $shared = new DBA_shared(GET('shared'));
+		$asset = $shared->get('TicketsStatus5');
+        if(!is_array($asset)){
             // es un host
             $host[0]=array(
-                'host'=>$_SESSION['TicketsStatus5']['host'],
-                'host2'=>($_SESSION['TicketsStatus5']['host']=="%") ? "1=1" : "incident_vulns.ip='".$_SESSION['TicketsStatus5']['host']."'"
+                'host'=>$asset,
+                'host2'=>($asset=="%") ? "1=1" : "incident_vulns.ip='".$asset."'"
             );
         }else{
             // es una red
             $host=array();
-            foreach($_SESSION['TicketsStatus5']['assetsVar'] as $value){
+            foreach($asset as $value){
                 if (strpos($value, '/') === false) {
                     // si es un host
                     $host[]=array(
@@ -158,21 +160,9 @@ if ($by == "monthly_by_status") {
     if($type=="wizard"){
         // se llama desde el wizard
         // obtenemos el host y la red
-        if(isset($_SESSION['TicketsStatus4']['host'])){
-            // es un host
-            $host=$_SESSION['TicketsStatus4']['host'];
-        }else{
-            // es una red
-            $assetsVar=$_SESSION['TicketsStatus4']['assetsVar'];
-        }
-        //
-        if(isset($assetsVar)){
-            // una red
-            $list = Incident::incidents_by_status($conn,$assetsVar,true);
-        }else{
-            // un host
-            $list = Incident::incidents_by_status($conn,$host,true);
-        }
+        $shared = new DBA_shared(GET('shared'));
+		$asset = $shared->get('TicketsStatus4');
+        $list = Incident::incidents_by_status($conn,$asset,true);
         $list=$list[0];
     }else{
         $list = Incident::search($conn, array(
