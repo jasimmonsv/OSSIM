@@ -206,6 +206,75 @@ var byDateStart="";
 var byDateEnd="";
 var load_stop=false;
 
+// ****************************************** ON LOAD ******************************************************
+$(document).ready(function(){
+	// CALENDAR
+	$("#start_aaa,#end_aaa").change(function(objEvent){
+		CalendarOnChange();
+	});
+	<?php
+	$y = strftime("%Y", $timetz - (24 * 60 * 60));
+	$m = strftime("%m", $timetz - (24 * 60 * 60));
+	$d = strftime("%d", $timetz - (24 * 60 * 60));
+	?>
+	byDateStart='<?php echo date("Y-m-d", $timetz - (24 * 60 * 60)) ?>';
+	byDateEnd='<?php echo date("Y-m-d", $timetz) ?>';
+	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
+	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m")-1 ?>,<?php echo date("d") ?>);
+    var dayswithevents = [ ];
+	$('#widgetCalendar').DatePicker({
+		flat: true,
+		format: 'Y-m-d',
+		date: [new Date(datefrom), new Date(dateto)],
+		calendars: 3,
+		mode: 'range',
+		starts: 1,
+		onChange: function(formated) {
+			if (formated[0]!=formated[1]) {
+				var f1 = formated[0].split(/-/);
+				var f2 = formated[1].split(/-/);
+				document.getElementById('start_aaa').value = f1[0]+'-'+f1[1]+'-'+f1[2]+' 00:00:00';
+				document.getElementById('end_aaa').value = f2[0]+'-'+f2[1]+'-'+f2[2]+' 23:59:59';
+                $("#widget>a").trigger('click');
+				setFixed2();
+			}
+		}
+	});
+	var state = false;
+	$('#widget>a').bind('click', function(){
+		$('#widgetCalendar').stop().animate({height: state ? 0 : $('#widgetCalendar div.datepicker').get(0).offsetHeight}, 500);
+		$('#imgcalendar').attr('src',state ? '../pixmaps/calendar.png' : '../pixmaps/tables/cross.png');
+		state = !state;
+		return false;
+	});
+	$('#widgetCalendar div.datepicker').css('position', 'absolute');
+
+	/* AUTOCOMPLETE SEARCH */
+	<?php 
+	list($sensors, $hosts) = Host::get_ips_and_hostname($conn_aux);
+	?>
+	$("#mytags").tagit({
+		autoFormat: true,
+		changeFunction: function() { MakeRequest(); },
+		availableTags: ["data"<?php foreach ($sensors as $ip=>$name) { ?>, "sensor:<?php echo $name?>"<?php } ?><?php $top = 0; foreach ($hosts as $ip=>$name) if ($top < 20) { ?>, "source:<?php echo $name?>", "destination:<?php echo $name ?>"<?php $top++; } ?>]
+	});
+	
+	//UpdateByDate('forensic.php?graph_type=all&cat=');
+	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
+	<? if (trim($_GET['query'])!="") { ?>
+	$('#date5').addClass('negrita');
+	bold_dates('date5');
+	SetSearch("src=<?php echo $_GET['query'] ?> OR dst=<?php echo $_GET['query'] ?>");
+	setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','year','<?php echo urlencode(date("Y",$timetz)) ?>');
+	<? } else { ?>
+	$('#date2').addClass('negrita');
+	bold_dates('date2');
+	RequestLines();
+	MakeRequest();
+	<? } ?>
+	
+});
+
 // Change selected date option
 function bold_dates(which_one){
 	$('#date1td,#date2td,#date3td,#date4td,#date5td').css('background-color','white');
@@ -869,77 +938,6 @@ Array.prototype.in_array = function(p_val) {
     return false;
 }
 
-$(document).ready(function(){
-	//UpdateByDate('forensic.php?graph_type=all&cat=');
-	$('#date2').addClass('negrita');
-	bold_dates('date2');
-	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
-	RequestLines();
-	MakeRequest();
-	$("#start_aaa,#end_aaa").change(function(objEvent){
-		CalendarOnChange();
-	});
-	<? if (trim($_GET['query'])!="") { ?>
-	bold_dates('date5');
-	setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','year','<?php echo urlencode(date("Y",$timetz)) ?>');
-	<? } ?>
-	
-	// CALENDAR
-	<?
-	$y = strftime("%Y", $timetz - (24 * 60 * 60));
-	$m = strftime("%m", $timetz - (24 * 60 * 60));
-	//$d = strftime("%d", $timetz - ((24 * 60 * 60) * 1));
-	$d = strftime("%d", $timetz - (24 * 60 * 60));
-	?>
-	byDateStart='<?php echo date("Y-m-d", $timetz - (24 * 60 * 60)) ?>';
-	byDateEnd='<?php echo date("Y-m-d", $timetz) ?>';
-	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
-	var dateto = new Date(<?php echo date("Y") ?>,<?php echo date("m")-1 ?>,<?php echo date("d") ?>);
-    var dayswithevents = [ ];
-	$('#widgetCalendar').DatePicker({
-		flat: true,
-		format: 'Y-m-d',
-		date: [new Date(datefrom), new Date(dateto)],
-		calendars: 3,
-		mode: 'range',
-		starts: 1,
-		onChange: function(formated) {
-			if (formated[0]!=formated[1]) {
-				var f1 = formated[0].split(/-/);
-				var f2 = formated[1].split(/-/);
-				document.getElementById('start_aaa').value = f1[0]+'-'+f1[1]+'-'+f1[2]+' 00:00:00';
-				document.getElementById('end_aaa').value = f2[0]+'-'+f2[1]+'-'+f2[2]+' 23:59:59';
-                $("#widget>a").trigger('click');
-				setFixed2();
-			}
-		}/*,
-		
-		onRender: function(date) {
-			return {
-					//disabled: (date.get$timetz < now.get$timetz),
-					//className: dayswithevents.in_array(date.get$timetz) ? 'datepickerSpecial' : false
-			}
-		}*/
-	});
-	var state = false;
-	$('#widget>a').bind('click', function(){
-		$('#widgetCalendar').stop().animate({height: state ? 0 : $('#widgetCalendar div.datepicker').get(0).offsetHeight}, 500);
-		$('#imgcalendar').attr('src',state ? '../pixmaps/calendar.png' : '../pixmaps/tables/cross.png');
-		state = !state;
-		return false;
-	});
-	$('#widgetCalendar div.datepicker').css('position', 'absolute');
-
-	/* AUTOCOMPLETE SEARCH */
-	<?php 
-	list($sensors, $hosts) = Host::get_ips_and_hostname($conn_aux);
-	?>
-	$("#mytags").tagit({
-		autoFormat: true,
-		changeFunction: function() { MakeRequest(); },
-		availableTags: ["data"<?php foreach ($sensors as $ip=>$name) { ?>, "sensor:<?php echo $name?>"<?php } ?><?php $top = 0; foreach ($hosts as $ip=>$name) if ($top < 20) { ?>, "source:<?php echo $name?>", "destination:<?php echo $name ?>"<?php $top++; } ?>]
-	});
-});
 function change_calendar() {
 	var n = 0;
 	var date_arr = new Array; date_arr[0] = document.getElementById('start_aaa').value; date_arr[1] = document.getElementById('end_aaa').value;
