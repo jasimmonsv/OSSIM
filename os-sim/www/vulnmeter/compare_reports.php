@@ -55,6 +55,13 @@ if (ossim_error()) {
 $db = new ossim_db();
 $dbconn = $db->connect();
 
+$query = "SELECT report_id FROM vuln_nessus_reports where (report_id=$freport OR report_id=$sreport) ORDER BY scantime DESC";
+
+$result = $dbconn->Execute($query);
+$sreport = $result->fields["report_id"];
+$result->MoveNext();
+$freport = $result->fields["report_id"];
+
 // get ossim server version
 
 $conf = $GLOBALS["CONF"];
