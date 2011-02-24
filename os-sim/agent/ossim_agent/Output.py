@@ -93,7 +93,7 @@ class OutputPlain(OutputPlugins):
     def __init__(self, conf):
         self.conf = conf
         logger.info("Added Plain output")
-        logger.debug("OutputPlain options: %s" %\
+        logger.debug("OutputPlain options: %s" % \
             (self.conf.hitems("output-plain")))
         self.plain = self._open_file(self.conf.get("output-plain", "file"))
         self.activated = True
@@ -134,7 +134,7 @@ class OutputServer(OutputPlugins):
         else:
             conffile = self.conf.DEFAULT_CONFIG_FILE
 
-        self.conf.read([conffile])
+        self.conf.read([conffile], False)
 
         if self.conf.has_section("output-server"):
             if self.conf.getboolean("output-server", "send_events"):
@@ -382,7 +382,7 @@ class Output:
         for output in Output._outputs:
             output.shutdown()
 
-    shutdown =  staticmethod(shutdown)
+    shutdown = staticmethod(shutdown)
 
 
 if __name__ == "__main__":

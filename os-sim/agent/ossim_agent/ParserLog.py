@@ -33,7 +33,7 @@
 #
 import os, sys, time, re, socket
 from time import sleep
-
+import pdb
 #
 # LOCAL IMPORTS
 #
@@ -50,13 +50,12 @@ class RuleMatch:
     NEWLINE = "\\n"
 
     def __init__(self, name, rule, plugin):
-
         logger.debug("Adding rule (%s).." % (name))
 
         self.rule = rule
         self.name = name
         self.plugin = plugin
-
+        self._unicode = plugin.getboolean("config", "unicode_support")
         # store {precheck:, regexp: , pattern: , result: } hashes
         self.lines = []
 
@@ -72,13 +71,16 @@ class RuleMatch:
             precheck = ""
 
         regexp = self.rule["regexp"]
-
+        if self._unicode:
+            regex_flags = re.IGNORECASE | re.UNICODE
+        else:
+            regex_flags = re.IGNORECASE
         for r in regexp.split(RuleMatch.NEWLINE):
             try:
                 self.lines.append({
                     "precheck": precheck,
                     "regexp": r,
-                    "pattern": re.compile(r, re.IGNORECASE),
+                    "pattern": re.compile(r, regex_flags),
                     "result": None})
             except Exception, e:
                 logger.error("Error reading rule [%s]: %s" % (self.name, e))
@@ -89,15 +91,16 @@ class RuleMatch:
         self.log = ""
         self.groups = {}
 
-        
+
         # in order to eliminate unnecessary calls to the expensive re.findall(),
         # perform assessments on the _replace_* functions of the Conf class to
         # determine which are necessary.
         self._replace_assessment = {}
-   
+
         for key, value in self.rule.iteritems():
             if key != "regexp":
                 self._replace_assessment[key] = self.plugin.replace_value_assess(value)
+
 
 
     def feed(self, line):
@@ -199,7 +202,10 @@ class RuleMatch:
         # else, 
         #   use original event has log attribute  (self.log)
         if self.log and not event['log']:
-            event['log'] = self.log
+            if self._unicode:
+                event['log'] = self.log.encode('utf-8')
+            else:
+                event['log'] = self.log
 
         return event
 
@@ -283,13 +289,13 @@ class ParserLog(Detector):
 
         tails = []
         for location in locations:
-            tails.append(TailFollowBookmark(location, 1, bookmark_dir))
+            tails.append(TailFollowBookmark(location, 1, bookmark_dir, self._plugin.getboolean("config", "unicode_support")))
 
         while not self.stop_processing:
 
             # is plugin enabled?
             if not self._plugin.getboolean("config", "enable"):
-            
+
                 # wait until plugin is enabled
                 while not self._plugin.getboolean("config", "enable"):
                     time.sleep(1)
@@ -306,6 +312,7 @@ class ParserLog(Detector):
                     break
 
                 for line in tail:
+
                     matches = 0
                     rules = 0
 

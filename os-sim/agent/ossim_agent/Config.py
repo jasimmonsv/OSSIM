@@ -32,6 +32,8 @@
 # GLOBAL IMPORTS
 #
 import os, sys, string, re
+import codecs
+import pdb
 
 
 #
@@ -41,6 +43,7 @@ from ConfigParser import ConfigParser
 from optparse import OptionParser
 from Exceptions import AgentCritical
 from Logger import Logger
+
 logger = Logger.logger
 import ParserUtil
 
@@ -63,14 +66,20 @@ class Conf(ConfigParser):
 
     # same as ConfigParser.read() but also check
     # if configuration files exists
-    def read(self, filenames):
+    def read(self, filenames, utf8):
         for filename in filenames:
             if not os.path.isfile(filename):
                 AgentCritical("Configuration file (%s) does not exist!" % \
                     (filename))
-        ConfigParser.read(self, filenames)
+        if not utf8:
+            ConfigParser.read(self, filenames)
+        else:
+            fp = codecs.open(filenames, 'r', encoding='utf-8')
+            fp.readline()#discard first line
+            self.readfp(fp)
+
         self.check_needed_config_entries()
-    
+
 
     # check for needed entries in .cfg files
     # this function uses the variable _NEEDED_CONFIG_ENTRIES
@@ -146,7 +155,6 @@ class Plugin(Conf):
         'config': ['type', 'source', 'enable']
     }
     _EXIT_IF_MALFORMED_CONFIG = False
-
     TRANSLATION_SECTION = 'translation'
     TRANSLATION_FUNCTION = 'translate'
     TRANSLATION_DEFAULT = '_DEFAULT_'
@@ -155,7 +163,6 @@ class Plugin(Conf):
     # constants for _replace_*_assess functions
     _MAP_REPLACE_TRANSLATIONS = 4
     _MAP_REPLACE_USER_FUNCTIONS = 8
-
 
     def rules(self):
         rules = {}
@@ -167,27 +174,38 @@ class Plugin(Conf):
 
 
     def _replace_array_variables(self, value, groups):
-       for i in range(2):
-           search = re.findall("\{\$[^\}\{]+\}", value)
-           if search != []:
-               for string in search:
-                   var = string[2:-1]
-                   value = value.replace(string, str(groups[int(var)]))
+        unicode = self.getboolean("config", "unicode_support")
 
-       return value
+        for i in range(2):
+            if unicode:
+                search = re.findall("\{\$[^\}\{]+\}", value)
+            else:
+                search = re.findall("\{\$[^\}\{]+\}", value, re.UNICODE)
+            if search != []:
+                for string in search:
+                    var = string[2:-1]
+                    value = value.replace(string, str(groups[int(var)]))
 
+        return value
 
     def get_replace_array_value(self, value, groups):
         # 1) replace variables
         value = self._replace_array_variables(value, groups)
-        # 3) replace user functions  
+        # 2) replace user functions
         value = self._replace_user_array_functions(value, groups)
 
         return value
 
 
     def _replace_user_array_functions(self, value, groups):
-        search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value)
+        if value is None:
+            return None
+        #logger.info("config.repace_user_array_functions --value:%s", value)
+        unicode = self.getboolean("config", "unicode_support")
+        if unicode:
+            search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value, re.UNICODE)
+        else:
+            search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value)
         if search != []:
             for string in search:
                 (string_matched, func, variables) = string
@@ -212,7 +230,7 @@ class Plugin(Conf):
                     # 'vars' are the list of arguments of the function
                     # 'args' are a custom representation of the list
                     #        to be used as f argument [ f(args) ]
-                    args  = ""
+                    args = ""
                     #for i in (range(len(vars))):
                         #args += "groups[vars[%s]]," % (str(i))
                         #args += "groups[vars[%s]]," % (str(i))
@@ -223,24 +241,33 @@ class Plugin(Conf):
                         #exec replacement
                     try:
                         #logger.info("value = value.replace(string_matched," + "str(f(" + args + ")))")
-                        exec "value = value.replace(string_matched," +\
+                        exec "value = value.replace(string_matched," + \
                             "str(f(" + args + ")))"
                         #logger.info(value)
                     except TypeError, e:
                         logger.error(e)
 
                 else:
-                    logger.warning(
-                        "Function '%s' is not implemented" % (func))
-                    value = value.replace(string_matched, \
-                                          str(groups[var]))
+                    #pdb.set_trace()
+                    #logger.warning("Function '%s' is not implemented" % (func))
+                    #value = value.replace(string_matched, str(groups[var]))
+                    logger.debug("Tranlation fucntion...")
 
-                    # exec replacement
-                    try:
-                        exec "value = value.replace(string_matched," +\
-                            "str(f(" + args + ")))"
-                    except TypeError, e:
-                        logger.error(e)
+                    for v in vars:
+                        #check if the positions exists.
+                        if int(var) > (len(groups) - 1):
+                            logger.debug("Error var:%d, is greatter than groups size. (%d)" % (int(var), len(groups)))
+                        else:
+                            if self.has_section(Plugin.TRANSLATION_SECTION):
+                                if self.has_option(Plugin.TRANSLATION_SECTION, var):
+                                    value = self.get(Plugin.TRANSLATION_SECTION, var)
+
+#                    # exec replacement
+#                    try:
+#                        exec "value = value.replace(string_matched," + \
+#                            "str(f(" + args + ")))"
+#                    except TypeError, e:
+#                        logger.error(e)
 
 
         return value
@@ -249,11 +276,14 @@ class Plugin(Conf):
     # look for \_CFG(section,option) values in config parameters
     # and replace this with value found in global config file 
     def replace_config(self, conf):
-
+        unicode = self.getboolean("config", "unicode_support")
         for section in self.sections():
             for option in self.options(section):
                 regexp = self.get(section, option)
-                search = re.findall("(\\\\_CFG\(([\w-]+),([\w-]+)\))", regexp)
+                if not unicode:
+                    search = re.findall("(\\\\_CFG\(([\w-]+),([\w-]+)\))", regexp)
+                else:
+                    search = re.findall("(\\\\_CFG\(([\w-]+),([\w-]+)\))", regexp, re.UNICODE)
 
                 if search != []:
                     for string in search:
@@ -265,7 +295,7 @@ class Plugin(Conf):
 
 
     def replace_aliases(self, aliases):
-
+        unicode = self.getboolean("config", "unicode_support")
         # iter over all rules
         for rule in self.rules().iterkeys():
 
@@ -278,7 +308,10 @@ class Plugin(Conf):
             # "\\", and each backslash must be expressed as "\\" inside
             # a regular Python string literal
             #
-            search = re.findall("\\\\\w\w+", regexp)
+            if not unicode:
+                search = re.findall("\\\\\w\w+", regexp)
+            else:
+                search = re.findall("\\\\\w\w+", regexp, re.UNICODE)
 
             if search != []:
                 for string in search:
@@ -295,9 +328,12 @@ class Plugin(Conf):
     # you can use two-anidated variables: {${$v}}
     # this function is called from get_replace_value()
     def _replace_variables(self, value, groups, rounds=2):
-        
+        unicode = self.getboolean("config", "unicode_support")
         for i in range(rounds):
-            search = re.findall("\{\$[^\}\{]+\}", value)
+            if not unicode:
+                search = re.findall("\{\$[^\}\{]+\}", value)
+            else:
+                search = re.findall("\{\$[^\}\{]+\}", value, re.UNICODE)
             if search != []:
                 for string in search:
                     var = string[2:-1]
@@ -306,25 +342,33 @@ class Plugin(Conf):
 
         return value
 
-   
+
     # determine if replace variables achieves anything and if not we can
     # skip it later on in get_replace_value()
     def _replace_variables_assess(self, value):
+        unicode = self.getboolean("config", "unicode_support")
         ret = 0
         for i in range(2):
-            search = re.findall("\{\$[^\}\{]+\}", value)
+            if unicode:
+                search = re.findall("\{\$[^\}\{]+\}", value, re.UNICODE)
+            else:
+                search = re.findall("\{\$[^\}\{]+\}", value)
             if search != []:
                 ret = i
 
         return ret
 
-    
+
     # special function translate() for translations
     # translations are defined in the own plugin with a [translation] entry
     # this function is called from get_replace_value()
     def _replace_translations(self, value, groups):
+        unicode = self.getboolean("config", "unicode_support")
         regexp = "(\{(" + Plugin.TRANSLATION_FUNCTION + ")\(\$([^\)]+)\)\})"
-        search = re.findall(regexp, value)
+        if unicode:
+            search = re.findall(regexp, value, re.UNICODE)
+        else:
+            search = re.findall(regexp, value)
         if search != []:
             for string in search:
                 (string_matched, func, var) = string
@@ -335,7 +379,7 @@ class Plugin(Conf):
                             value = self.get(Plugin.TRANSLATION_SECTION,
                                              groups[var])
                         else:
-                            logger.warning("Can not translate '%s' value" %\
+                            logger.warning("Can not translate '%s' value" % \
                                 (groups[var]))
 
                             # It's not possible to translate the value,
@@ -356,18 +400,25 @@ class Plugin(Conf):
     # determine if replace translations achieves anything and if not we can
     # skip it later on in get_replace_value()
     def _replace_translations_assess(self, value):
+        unicode = self.getboolean("config", "unicode_support")
         regexp = "(\{(" + Plugin.TRANSLATION_FUNCTION + ")\(\$([^\)]+)\)\})"
-        search = re.findall(regexp, value)
+        if unicode:
+            search = re.findall(regexp, value, re.UNICODE)
+        else:
+            search = re.findall(regexp, value)
         if search != []:
             return self._MAP_REPLACE_TRANSLATIONS
 
         return 0
 
-
     # functions are specified as {f($v)}
     # this function is called from get_replace_value()
     def _replace_user_functions(self, value, groups):
-        search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value)
+        unicode = self.getboolean("config", "unicode_support")
+        if unicode:
+            search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value, re.UNICODE)
+        else:
+            search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value)
         if search != []:
             for string in search:
                 (string_matched, func, variables) = string
@@ -391,13 +442,13 @@ class Plugin(Conf):
                     # 'vars' are the list of arguments of the function
                     # 'args' are a custom representation of the list
                     #        to be used as f argument [ f(args) ]
-                    args  = ""
+                    args = ""
                     for i in (range(len(vars))):
                         args += "groups[vars[%s]]," % (str(i))
 
                     # exec replacement
                     try:
-                        cmd = "value = value.replace(string_matched," +\
+                        cmd = "value = value.replace(string_matched," + \
                               "str(f(" + args + ")))"
                         exec cmd
                     except TypeError, e:
@@ -406,6 +457,7 @@ class Plugin(Conf):
                 else:
                     logger.warning(
                         "Function '%s' is not implemented" % (func))
+
                     value = value.replace(string_matched, \
                                           str(groups[var]))
 
@@ -414,27 +466,34 @@ class Plugin(Conf):
     # determine if replace translations achieves anything and if not we can
     # skip it later on in get_replace_value()
     def _replace_user_functions_assess(self, value):
-        search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value)
+        unicode = self.getboolean("config", "unicode_support")
+        if unicode:
+            search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value, re.UNICODE)
+        else:
+            search = re.findall("(\{(\w+)\((\$[^\)]+)\)\})", value)
         if search != []:
             return self._MAP_REPLACE_USER_FUNCTIONS
 
         return 0
 
-    
+
     def replace_value_assess(self, value):
         ret = self._replace_variables_assess(value)
+
+        ret = self._replace_translations_assess(value)
         ret |= self._replace_translations_assess(value)
+        ret = self._replace_user_functions_assess(value)
         ret |= self._replace_user_functions_assess(value)
 
         return ret
 
-    
+
     # replace config values matching {$X} with self.groups["X"]
     # and {f($X)} with f(self.groups["X"])
     def get_replace_value(self, value, groups, replace=15):
 
         # do we need to replace anything?
-        if replace > 0: 
+        if replace > 0:
 
             # replace variables
             if replace & 3:
@@ -443,12 +502,17 @@ class Plugin(Conf):
             # replace translations
             if replace & 4:
                 value = self._replace_translations(value, groups)
-    
+
             # replace user functions
             if replace & 8:
                 value = self._replace_user_functions(value, groups)
 
         return value
+    def setUnicode(self):
+        self.__UTF8_ENCODED = True
+    def isUnicode(self):
+        return self.__UTF8_ENCODED
+
 
 
 
@@ -463,8 +527,8 @@ class CommandLineOptions:
         self.__options = None
 
         parser = OptionParser(
-            usage = "%prog [-v] [-q] [-d] [-f] [-c config_file]",
-            version = "OSSIM (Open Source Security Information Management) " + \
+            usage="%prog [-v] [-q] [-d] [-f] [-c config_file]",
+            version="OSSIM (Open Source Security Information Management) " + \
                       "- Agent ")
 
         parser.add_option("-v", "--verbose", dest="verbose",
@@ -473,9 +537,9 @@ class CommandLineOptions:
         parser.add_option("-d", "--daemon", dest="daemon", action="store_true",
                           help="Run agent in daemon mode")
         parser.add_option("-f", "--force", dest="force", action="store_true",
-                          help = "Force startup overriding pidfile")
+                          help="Force startup overriding pidfile")
         parser.add_option("-c", "--config", dest="config_file", action="store",
-                          help = "read config from FILE", metavar="FILE")
+                          help="read config from FILE", metavar="FILE")
         (self.__options, args) = parser.parse_args()
 
         if len(args) > 1:
@@ -511,7 +575,7 @@ def split_sids(string, separator=','):
         a = sid.split('-')
         if len(a) == 2:
             list.remove(sid)
-            for i in range(int(a[0]), int(a[1])+1):
+            for i in range(int(a[0]), int(a[1]) + 1):
                 list_tmp.append(str(i))
 
     list.extend(list_tmp)

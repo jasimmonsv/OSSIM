@@ -42,6 +42,7 @@ from Logger import *
 # GLOBAL VARIABLES
 #
 logger = Logger.logger
+import codecs
 
 class TailFollowBookmark(object):
     """
@@ -57,11 +58,12 @@ class TailFollowBookmark(object):
     and re-open the new file.
     """
 
-    def __init__(self, filename, track=1, bookmark_dir=""):
+    def __init__(self, filename, track=1, bookmark_dir="", unicode_support=False):
         """Constructor that specifies the file to be tailed.  An
         optional keyword argument specifies whether or not the file
         should be tracked.
         """
+        self.unicode_support = unicode_support
         # bookmarks enabled based on existence of path
         self.bookmark = os.path.exists(bookmark_dir)
 
@@ -75,7 +77,7 @@ class TailFollowBookmark(object):
             logger.info('Bookmarking "%s" at: %s' % (self.filename, self.bookmark_path))
         self.nlines = 0
 
-        self._stat_file()        
+        self._stat_file()
         self._open_file(False)
 
 
@@ -110,13 +112,13 @@ class TailFollowBookmark(object):
                 try:
                     data = "%s\n%s" % (str(bookmark_pos), line)
                     b.write(data)
-            
+
                 finally:
                     b.close()
 
             except IOError:
                 logger.warning('Unable to write bookmark file "%s" for log "%s"' % (self.bookmark_path, self.filename))
-            
+
 
         return line
 
@@ -146,9 +148,12 @@ class TailFollowBookmark(object):
                     log rotation is detected
         """
 
-        self._current_file = open(self.filename, 'r')
+        if self.unicode_support:
+            self._current_file = codecs.open(self.filename, 'r', encoding='utf-8')
+        else:
+            self._current_file = open(self.filename, 'r')
         if not fromrotate:
-            self._current_file.seek(0, os.SEEK_END)        
+            self._current_file.seek(0, os.SEEK_END)
 
         # check if we are using bookmarks and seek accordingly
         if self.bookmark:
@@ -164,7 +169,7 @@ class TailFollowBookmark(object):
 
                     # seek to the bookmarked position
                     self._current_file.seek(bookmark_pos, os.SEEK_SET)
-            
+
                     # check that the current line is what we last read (and noted in the bookmark)
                     line = self._current_file.readline()
 
@@ -196,12 +201,12 @@ class TailFollowBookmark(object):
             old_file = self._current_file
 
             self._stat_file()
-            
+
             if self._current_stat.st_ino != old_stat.st_ino or \
-               self._current_stat.st_dev != old_stat.st_dev: 
-                
+               self._current_stat.st_dev != old_stat.st_dev:
+
                #self._current_stat.st_size < old_stat.st_size:
-               
+
                 # Open the new log file after the rotation 
                 # and indicate that this action is after a log rotation
                 self._open_file(True)

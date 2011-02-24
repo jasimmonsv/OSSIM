@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # License:
 #
@@ -55,7 +56,8 @@ from ParserDatabase import ParserDatabase
 from ParserWMI import ParserWMI
 from ParserSDEE import ParserSDEE
 from ParserRemote import ParserRemote
-
+import codecs
+import pdb
 #
 # GLOBAL VARIABLES
 #
@@ -78,17 +80,17 @@ class Agent:
         else:
             conffile = self.conf.DEFAULT_CONFIG_FILE
 
-        self.conf.read([conffile])
+        self.conf.read([conffile], False)
 
         # aliases
         aliases = Aliases()
-        aliases.read([os.path.join(os.path.dirname(conffile), "aliases.cfg")])
+        aliases.read([os.path.join(os.path.dirname(conffile), "aliases.cfg")], False)
         local_aliases_fn = os.path.join(os.path.dirname(conffile), "aliases.local")
         #if aliases.local exists, after we've loaded aliases default file, 
         #we load aliases.local
         if os.path.isfile(local_aliases_fn):
             logger.info("Reading local aliases file: %s" % local_aliases_fn)
-            aliases.read(local_aliases_fn)
+            aliases.read(local_aliases_fn, False)
         # list of plugins and total number of rules within them
         self.plugins = []
         self.nrules = 0
@@ -97,9 +99,20 @@ class Agent:
             if os.path.exists(path):
                 plugin = Plugin()
 
+                #Check if unicode support is needed.
+                ff = open (path, 'r')
+                bom = ff.read(4)
+                withunicode = False
+
+                if bom.startswith(codecs.BOM_UTF8):
+                    logger.info("Plugin configuration file: %s is encoded as utf-8, all regular expressions will be compiled as unicode" % path)
+                    withunicode = True
+                ff.close()
+
                 # Now read the config file
-                plugin.read(path)
+                plugin.read(path, withunicode)
                 plugin.set("config", "name", name)
+                plugin.set("config", "unicode_support", str(withunicode))
                 plugin.replace_aliases(aliases)
                 plugin.replace_config(self.conf)
                 self.plugins.append(plugin)
@@ -112,7 +125,7 @@ class Agent:
 
         # server connection (only available if output-server is enabled)
         self.conn = None
-        
+
         self.conn_framework = None
 
         # pro server connection (only available if output-server-pro is enabled)
@@ -183,7 +196,7 @@ class Agent:
 
 
     def connect_framework(self):
-        
+
         if self.conf.has_section("control-framework"):
             if self.conf.getboolean("control-framework", "enable"):
                 # connect the control agent
@@ -192,7 +205,7 @@ class Agent:
                 if self.conn_framework.connect(attempts=3, waittime=30):
                     logger.debug("Control framework connection is now enabled!")
                     self.conn_framework.control_messages()
-    
+
                 else:
                     self.conn_framework = None
                     logger.error("Control framework connection is now disabled!")
@@ -284,18 +297,18 @@ class Agent:
 
             if (hasattr(os, "devnull")):
                 REDIRECT_TO = os.devnull
-         
+
             try:
                 pid = os.fork()
 
             except OSError, e:
                 raise Exception, "%s [%d]" % (e.strerror, e.errno)
                 sys.exit(1)
-        
+
             # check if we are the first child
             if (pid == 0):
                 os.setsid()
-         
+
                 # attempt to fork a second child
                 try:
                     pid = os.fork()   # Fork a second child.
@@ -303,7 +316,7 @@ class Agent:
                 except OSError, e:
                     raise Exception, "%s [%d]" % (e.strerror, e.errno)
                     sys.exit(1)
-         
+
                 # check if we are the second child
                 if (pid == 0):
                     os.chdir(WORKDIR)
@@ -317,12 +330,12 @@ class Agent:
             # otherwise exit the parent of the first child
             else:
                 os._exit(0)
- 
+
             import resource         # Resource usage information.
             maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
             if (maxfd == resource.RLIM_INFINITY):
                 maxfd = MAXFD
- 
+
             for fd in range(0, maxfd):
                 try:
                     os.close(fd)
@@ -413,7 +426,7 @@ class Agent:
                         parser = ParserRemote(self.conf, plugin, None)
                         logger.info("Remote Log parser.........................................")
 
-                   parser.start()                    
+                   parser.start()
                    self.detector_objs.append(parser)
 
         logger.info("%d detector rules loaded" % (self.nrules))
@@ -546,6 +559,6 @@ class Agent:
 if __name__ == "__main__":
     a = Agent()
     a.main()
-  
-  
+
+
 # vim:ts=4 sts=4 tw=79 expandtab:
