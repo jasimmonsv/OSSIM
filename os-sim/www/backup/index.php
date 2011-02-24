@@ -44,10 +44,13 @@ require_once ('classes/Backup.inc');
 $conf = $GLOBALS["CONF"];
 $data_dir = $conf->get_conf("data_dir");
 $backup_dir = $conf->get_conf("backup_dir");
+$version = $conf->get_conf("ossim_server_version", FALSE);
+$pro = (preg_match("/pro|demo/i",$version)) ? true : false;
 //$backup_dir = "/root/pruebas_backup";
 
 $db = new ossim_db();
 $conn = $db->snort_connect();
+$conn_ossim = $db->connect();
 $insert = Array();
 $delete = Array();
 if (!is_dir($backup_dir)) {
@@ -72,7 +75,12 @@ while ($file = $dir->read()) {
 }
 rsort($insert);
 $dir->close();
+
+$users = Session::get_list($conn_ossim);
+list($entities,$num_entities_all) = Acl::get_entities_all($conn_ossim);
+
 $db->close($conn);
+$db->close($conn_ossim);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -115,8 +123,10 @@ echo gettext("Dates to Restore"); ?></th>
 echo gettext("Dates in Database"); ?></th>
   			</tr>
   			<tr>
-  				<td class="nobborder" style="text-align:center;">
-		<select name="insert[]" size="10" multiple>
+  				<td class="nobborder" style="text-align:center;" valign="top">
+  				<table class="transparent">
+  				<tr><td class="nobborder">
+		<select name="insert[]" size="<?php echo ($pro) ? "7" : "10" ?>" multiple>
 <?php
 if (count($insert) > 0) {
     foreach($insert as $insert_item) {
@@ -129,10 +139,28 @@ if (count($insert) > 0) {
 	<option size="100" disabled>&nbsp;&nbsp;--&nbsp;<?php echo _("NONE") ?>&nbsp;--&nbsp;&nbsp;</option>
 <?php
 } ?>
+	   </select></td></tr>
+	   <?php if ($pro) { ?>
+	   <tr><td class="nobborder">
+	   <select name="user">
+	   <option value="">- <?php echo _("All Users") ?> -</option>
+	   <?php foreach ($users as $user) { ?>
+	   <option value="<?php echo $user->login ?>"><?php echo $user->login ?></option>
+	   <?php } ?>
 	   </select>
+	   </td></tr>
+	   <tr><td class="nobborder">
+	   <select name="entity">
+	   <option value="">- <?php echo _("All Entities") ?> -</option>
+	   <?php foreach ($entities as $entity) { ?>
+	   <option value="<?php echo $entity['id'] ?>"><?php echo $entity['name'] ?></option>
+	   <?php } ?>
+	   </select>
+	   </td></tr>
+	   <?php } ?></table>
   				</td>
 				<td class="nobborder">&nbsp;</td>
-				<td class="nobborder" style="text-align:center;">
+				<td class="nobborder" style="text-align:center;padding-top:3px" valign="top">
 		<select name="delete[]" size="10" multiple>
 <?php
 if (count($delete) > 0) {
