@@ -133,6 +133,8 @@ if (!$rs = &$conn->Execute($query, $params)) {
                 $RiskValue = 'r';
             } elseif(intval($rs2->fields["severity"]) > 3){
                 $RiskValue = 'a';
+            } elseif($rs2->fields["severity"] != "") {
+            	$RiskValue = 'v';
             }
         }
 
@@ -151,6 +153,8 @@ if (!$rs = &$conn->Execute($query, $params)) {
                 $VulnValue = 'r';
             } elseif(intval($rs2->fields["severity"]) > 3){
                 $VulnValue = 'a';
+            } elseif($rs2->fields["severity"] != "") {
+            	$VulnValue = 'v';
             }
         }
 
@@ -169,6 +173,8 @@ if (!$rs = &$conn->Execute($query, $params)) {
                 $AvailValue = 'r';
             } elseif(intval($rs2->fields["severity"]) > 3){
                 $AvailValue = 'a';
+            } elseif($rs2->fields["severity"] != "") {
+            	$AvailValue = 'v';
             }
         }
 
