@@ -262,15 +262,12 @@ $(document).ready(function(){
 	});
 	
 	// LAUNCH LOGGER FETCH
-	//UpdateByDate('forensic.php?graph_type=all&cat=');
-	//UpdateByDate('forensic.php?graph_type=last_year&cat=<?php echo urlencode(date("M, Y")) ?>');
+	RequestLines();
 	// From GET query
 	<? if (trim($_GET['query'])!="") { ?>
 	SetSearch("src=<?php echo $_GET['query'] ?> OR dst=<?php echo $_GET['query'] ?>");
-	//setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','year','<?php echo urlencode(date("Y",$timetz)) ?>');
 	// Default load
 	<? } else { ?>
-	RequestLines();
 	MakeRequest();
 	<? } ?>
 	
@@ -833,7 +830,6 @@ function graph_by_date( col ,row ,value, category, series, t_year, t_month)
       return;
     break;
   }
-  //alert (urlres);
   UpdateByDate(urlres);
 }
 function monthToNumber(m)
@@ -1277,7 +1273,7 @@ require_once ("manage_querys.php");
                          <?php
                             $txtzone = "<a href=\"javascript:;\" class=\"scriptinfoimg\" style=\"color:black\" txt=\"<img src='../pixmaps/timezones/".rawurlencode(Util::timezone($tz)).".png' border=0>\">".Util::timezone($tz)."</a>";
                          ?>
-                        <td class="nobborder" nowrap style="font-size:12px"><?=_("Time frame selection")." $txtzone"?>:</td>
+                        <td class="nobborder" nowrap style="font-size:11px;font-family:arial"><?=_("Time frame selection")." $txtzone"?>:</td>
                         <td class="nobborder">
                             <div id="widget">
                                 <a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
@@ -1300,7 +1296,7 @@ require_once ("manage_querys.php");
                         }
                         ?>
                         <input type="hidden" name="tzone" id="tzone" value="<?=$tz?>">
-                        <input type="button" value="<?=_("OK")?>" onclick="change_calendar();setFixed2();" class="button" style="font-size:10px;height:22px;width:28px" />
+                        <input type="button" value="<?=_("OK")?>" onclick="change_calendar();setFixed2();" class="button" style="font-size:10px;height:20px;width:28px" />
                         </td>
 					</tr>
                     <tr>
