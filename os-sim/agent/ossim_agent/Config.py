@@ -479,8 +479,6 @@ class Plugin(Conf):
 
     def replace_value_assess(self, value):
         ret = self._replace_variables_assess(value)
-
-        ret = self._replace_translations_assess(value)
         ret |= self._replace_translations_assess(value)
         ret |= self._replace_user_functions_assess(value)
 
