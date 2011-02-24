@@ -297,6 +297,7 @@ class EventSnort:
                         self.flags = 0
                     else:
                         logger.info("L2 Unsupported Ethertype: %04x" % self._sethertype)
+                        logger.info("Dump packet %s " % hexlify (self._pkt))
                         self.sip = self.dip = self.dport = self.sport = 0
                         self.protocol = self.flags = 0
                         self._packet = RawPacket(self._pkt)
