@@ -81,7 +81,7 @@ $i = 0;
 foreach($result as $line) if (trim($line) != "") {
     if ($ips != "") {
     	$current_server = $ip_to_name[$ips_arr[$i]];
-    	echo "<table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td><td nowrap style='padding-left:5px'>"."<b>" . Util::number_format_locale($line, 0) . "</b> "._("logs")."</td></tr></table>";
+    	echo "<table class='transparent' align='center'><tr><td style='padding:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td><td class='nobborder' nowrap style='padding-left:5px'>"."<b>" . Util::number_format_locale($line, 0) . "</b> "._("logs")."</td></tr></table>";
     	$ok = 1;
     	$i++;
     } else {

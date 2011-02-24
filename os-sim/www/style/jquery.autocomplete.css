@@ -46,3 +46,27 @@
 	background-color: #72AF2F;
 	color: white;
 }
+
+.ui-autocomplete {
+	background-color: #F8F8F8;
+	border:1px solid #CCCCCC;
+	position: absolute;
+	cursor: default;
+}
+.ui-autocomplete .ui-menu-item { }
+.ui-autocomplete  .ui-menu-item a {
+	display:block;
+	padding:4px 6px;
+	text-decoration:none;
+	line-height:12px;
+}
+.ui-autocomplete .ui-menu-item a.ui-state-hover,
+.ui-autocomplete .ui-menu-item a.ui-state-active {
+	background-color:#28BC04;
+	color:#fff;
+	margin:0;
+}
+.ui-autocomplete-loading {
+	background: white url(../pixmaps/loading3.gif) right center no-repeat;
+}
+

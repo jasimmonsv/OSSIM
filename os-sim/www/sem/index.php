@@ -62,7 +62,7 @@ $param_query = GET("query") ? GET("query") : "";
 $param_start = GET("start") ? GET("start") : gmdate("Y-m-d H:i:s", $timetz - (24 * 60 * 60));
 $param_end = GET("end") ? GET("end") : gmdate("Y-m-d H:i:s", $timetz);
 
-//$_SESSION['graph_type'] = "last_month";
+// Default GRAPH RANGE [day|last_month]";
 $_SESSION['graph_type'] = "day";
 $_SESSION['cat'] = date("M j, Y",$timetz);
 
@@ -133,7 +133,6 @@ $uniqueid = uniqid(rand() , true);
 
 // Filters
 $uconfig = new User_config($conn_aux);
-
 $_SESSION['logger_filters'] = $uconfig->get(Session::get_session_user(), 'logger_filters', 'php', "logger");
 if ($_SESSION['logger_filters']['default'] == "") {
 	$_SESSION['logger_filters']['default']['start_aaa'] = $param_start;
@@ -179,278 +178,35 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
 <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 
-<link rel="stylesheet" href="../forensics/styles/ossim_style.css">
-<link href="../style/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="../style/style.css">
+<link rel="stylesheet" type="text/css" href="../style/jquery.contextMenu.css" />
+<link rel="stylesheet" type="text/css" href="../style/jquery.tagit.css" />
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
+<link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css"/>
 
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-<script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
+<script type="text/javascript" src="../js/jquery.contextMenu.js"></script>
 <script type="text/javascript" src="../js/greybox_post.js"></script>
 <!--[if IE]><script language="javascript" type="text/javascript" src="../js/excanvas.pack.js"></script><![endif]-->
-<script src="../js/jquery-ui-1.8.core-and-interactions.min.js" type="text/javascript" charset="utf-8"></script>
-<script src="../js/jquery-ui-1.8.autocomplete.min.js" type="text/javascript" charset="utf-8"></script>
-<script src="../js/tag-it.js" type="text/javascript" charset="utf-8"></script>
-
-
+<script type="text/javascript" src="../js/jquery-ui-1.8.core-and-interactions.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="../js/jquery-ui-1.8.autocomplete.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="../js/tag-it.js" charset="utf-8"></script>
 <script type="text/javascript" src="../js/jquery.flot.pie.js"></script>
-<script src="../js/datepicker.js" type="text/javascript"></script>
-<script src="../js/jquery.simpletip.js" type="text/javascript"></script>
-<script src="../js/urlencode.js" type="text/javascript"></script>
+<script type="text/javascript" src="../js/datepicker.js"></script>
+<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
+<script type="text/javascript" src="../js/urlencode.js"></script>
 
 <? include ("../host_report_menu.php") ?>
 
-<style type="text/css">
-
-#searches table {
-    background:none repeat scroll 0 0 #FAFAFA;
-    border:1px solid #BBBBBB;
-    color:black;
-    text-align:center;
-   -moz-border-radius:8px 8px 8px 8px;
-   padding: 2px;
-}
-
-#searches table tr td{
-    padding: 0;
-}
-#searches table tr td input, #searches table{
-    font-size: 0.9em;
-    line-height: 0.5em;
-}
-#searches table tr td ul{
-    padding: 0px;
-}
-#searches table tr td ul li{
-    padding: 0px 0px 0px 12px;
-    list-style-type: none;
-    text-align: left;
-    margin: 0px;
-    clear:left;
-    position: relative;
-    height: 23px;
-    line-height: 1em;
-}
-#searches table tr td ul li.par{
-    background: #f2f2f2;
-}
-#searches table tr td ul li.impar{
-    background: #fff;
-}
-#searches table tr th{
-    background:url("../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png") repeat-x scroll 50% 50% #CCCCCC;
-    border:1px solid #AAAAAA;
-    color:#222222;
-    font-size:11px;
-    font-weight:bold;
-    padding:0 10px;
-    text-align:center;
-    white-space:nowrap;
-    -moz-border-radius:5px 5px 5px 5px;
-}
-
-#exports table {
-    background:none repeat scroll 0 0 #FAFAFA;
-    border:1px solid #BBBBBB;
-    color:black;
-    text-align:center;
-   -moz-border-radius:8px 8px 8px 8px;
-   padding: 2px;
-}
-
-#exports table tr td{
-    padding: 0;
-}
-#exports table tr td input, #searches table{
-    font-size: 0.9em;
-    line-height: 0.5em;
-}
-#exports table tr td ul{
-    padding: 0px;
-}
-#exports table tr td ul li{
-    padding: 0px 0px 0px 0px;
-    list-style-type: none;
-    text-align: left;
-    margin: 0px;
-    clear:left;
-    position: relative;
-    height: 23px;
-    line-height: 1em;
-}
-#exports table tr td ul li.par{
-    background: #f2f2f2;
-}
-#exports table tr td ul li.impar{
-    background: #fff;
-}
-#exports table tr th{
-    background:url("../pixmaps/theme/ui-bg_highlight-soft_75_cccccc_1x300.png") repeat-x scroll 50% 50% #CCCCCC;
-    border:1px solid #AAAAAA;
-    color:#222222;
-    font-size:11px;
-    font-weight:bold;
-    padding:0 10px;
-    text-align:center;
-    white-space:nowrap;
-    -moz-border-radius:5px 5px 5px 5px;
-}
-
-
-#searchbox{
-	font-size: 1.5em;
-	margin: 0.5em;
-}
-
-#dhtmltooltip{
-position: absolute;
-width: 150px;
-border: 2px solid black;
-padding: 2px;
-background-color: lightyellow;
-visibility: hidden;
-z-index: 100;
-}
-
-img{
-	vertical-align:middle;
-}
-small {
-	font:12px arial;
-}
-
-#maintable{
-background-color: white;
-}
-#searchtable{
-background-color: white;
-}
-.negrita { font-weight:bold; font-size:14px; }
-.thickbox { color:gray; font-size:10px; }
-.header{
-line-height:28px; height: 28px; background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 0% 0%; color: rgb(51, 51, 51); font-size: 12px; font-weight: bold; text-align:center;
-}
-
-ol, ul, li {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	outline: 0;
-}
-.ui-autocomplete {
-	background-color: #F8F8F8;
-	border:1px solid #CCCCCC;
-	position: absolute;
-	cursor: default;
-}
-.ui-autocomplete .ui-menu-item {
-}
-.ui-autocomplete  .ui-menu-item a {
-	display:block;
-	padding:4px 6px;
-	text-decoration:none;
-	line-height:12px;
-}
-.ui-autocomplete .ui-menu-item a.ui-state-hover,
-.ui-autocomplete .ui-menu-item a.ui-state-active {
-	background-color:#28BC04;
-	color:#fff;
-	margin:0;
-}
-.ui-autocomplete-loading {
-	background: white url(../pixmaps/loading3.gif) right center no-repeat;
-}
-
-ul.tagit {
-	padding:1px 5px;
-	border-style:solid;
-	border-width:1px;
-	border-color:#C6C6C6;
-	overflow:auto;
-}
-ul.tagit li {
-	-moz-border-radius:5px 5px 5px 5px;
-	display: block;
-	float: left;
-	margin:2px 5px 2px 5px;
-}
-ul.tagit li.tagit-choice {
-	background-color:#eeeeee;
-	border:1px solid #dddddd;
-	padding:2px 4px 3px;
-	font-size:13px;
-}
-ul.tagit li.tagit-choice:hover {
-	background-color:#C0E380;
-	border-color:#AEDF52;
-}
-ul.tagit li.tagit-new {
-	padding:2px 4px 3px;
-	padding:2px 4px 1px;
-	padding:2px 4px 1px 3px;
-}
-
-ul.tagit li.tagit-choice input {
-	display:block;
-	float:left;
-	margin:2px 5px 2px 0;
-}
-ul.tagit li.tagit-choice a.close {
-	color:#777777;
-	cursor:pointer;
-	font-size:12px;
-	font-weight:bold;
-	outline:medium none;
-	padding:2px 0 2px 3px;
-	text-decoration:none;
-}
-ul.tagit input[type="text"] {
-	-moz-box-sizing:border-box;
-	border:none;
-	margin:0;
-	padding:0;
-	width:150px;
-	height:24px;
-	border-color:#C6C6C6;
-	background-color:#FFFFFF;
-	color:#333333;
-	font-size:13px;
-}
-ul.tagit input.tagit-hidden {
-	width:5px;
-}
-
-.ytooltip {
-        text-align:left;
-        position: absolute;
-        padding: 5px;
-        z-index: 10; 
-
-        color: #303030;
-        background-color: #f5f5b5;
-        border: 1px solid #DCEFB3;
-
-        font-family: arial;
-        font-size: 11px;   
-        text-decoration: none;
-}
-.imgtip {
-	text-align:left;
-	position: absolute;
-	padding: 5px;
-	z-index: 10;
-	background-color: transparent;
-}
-</style>
-
-<script>
+<script type="text/javascript">
 
 var first_load = 1;
 var byDateStart="";
 var byDateEnd="";
 var load_stop=false;
 
+// Change selected date option
 function bold_dates(which_one){
 	$('#date1td,#date2td,#date3td,#date4td,#date5td').css('background-color','white');
 	$('#date1a,#date2a,#date3a,#date4a,#date5a').css('color','black');
@@ -458,8 +214,8 @@ function bold_dates(which_one){
 	if (which_one) $('#'+which_one+"a").css('color','white');
 }
 
-function display_info ( var1, var2, var3, var4, var5, var6 ){
 // Handle clicks on graphs
+function display_info ( var1, var2, var3, var4, var5, var6 ){
 	hideGraphs();
 	var combined = var6 + "=" + var4;
 	SetSearch(combined);
@@ -470,6 +226,8 @@ function is_operator (value) {
 	return (value == "and" || value == "AND" || value == "or" || value == "OR") ? 1 : 0;
 }
 
+// Called by process.php when fetchall.pl is done
+// Fill the results div with the logger response
 function SetFromIframe(content,str,start,end,sort) {
 	HandleResponse(content);
 	$("#processcontent").show();
@@ -1297,18 +1055,18 @@ function reload_export() {
 <?php
 include ("../hmenu.php"); ?>
 
-<table border=0 cellpadding=0 cellspacing=0 align="right">
+<table class="transparent" border=0 cellpadding=0 cellspacing=0 align="right">
 <?
 if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "PolicyServers")) { 
 	// session server
 	?>
 	<form name="serverform">
 	<tr>
-		<td align='left' style="padding-right:10px">
-		<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#rservers').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Remote Servers")?></a>
+		<td class="left nobborder" style="padding-right:10px">
+		<a style='cursor:pointer; font-weight:bold;color:#222222' class='ndc' onclick="$('#rservers').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Remote Servers")?></a>
 			<div style="position:relative; z-index:1">
 			<div id="rservers" style="position:absolute;right:0;top:0;display:none;border:1px solid gray;background-color:#EEEEEE">
-				<table border=0 cellpadding=1 cellspacing=2 width="100%">
+				<table class="transparent" border=0 cellpadding=1 cellspacing=2 width="100%">
 				<?php
 				$i = 0;
 				foreach ($database_servers as $db) {
@@ -1318,9 +1076,9 @@ if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "Poli
 					$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i];
 					?>
 					<tr bgcolor='#EEEEEE'>
-						<td><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; } if ($logger_error[$name]) { echo " disabled"; } ?>></input></td>
-						<td></td>
-						<td><table><tr><td style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i]?>;color:<?php echo '#'.$fcolors[$i]?>"><?php echo $name ?></td></tr></table></td>
+						<td class="nobborder"><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; } if ($logger_error[$name]) { echo " disabled"; } ?>></input></td>
+						<td class="nobborder"></td>
+						<td class="nobborder"><table class="transparent"><tr><td class="nobborder" style="padding:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i]?>;color:<?php echo '#'.$fcolors[$i]?>"><?php echo $name ?></td></tr></table></td>
 					</tr>
 				<?php $i++; } ?>
 				</table>
@@ -1335,11 +1093,11 @@ if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "Poli
 ?>
 </table>
 
-<a href="javascript:toggleLayer('by_date');"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph by date")?>"> <small><font color="black"><?=_("Graphs by UTC dates")?></font></small></a>
+<a href="javascript:toggleLayer('by_date');"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" align="absmiddle" title="<?=_("Toggle Graph by date")?>"> <font style="color:black;font-family:arial"><?=_("Graphs by UTC dates")?></font></a>
 <center style="margin:0px">
 <div id="by_date">
     <div id="testLoading2"><img align="middle" style="vertical-align: middle;" src="../pixmaps/sem/loading.gif"> <?php echo _('Loading Graphs, please a wait a few seconds...') ?></div>
-    <a href="javascript:UpdateByDate('forensic.php?graph_type=all&cat=&uniqueID=<?php echo $uniqueid ?>');"><small><font color="black"><?=_("Click to show the main chart")?></font></small></a>
+    <a href="javascript:UpdateByDate('forensic.php?graph_type=all&cat=&uniqueID=<?php echo $uniqueid ?>');" style="color:black"><?=_("Click to show the main chart")?></a>
     <IFRAME src="forensic_source.php?ips=<?php echo $ip_list ?>" frameborder="0" style="margin-top:0px;width:100%;height:180px;overflow:hidden"></IFRAME>
 </div>
 </center>
@@ -1349,7 +1107,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "Poli
 </div>-->
 <!-- Misc internal vars -->
 <form id="search" action="javascript:MakeRequest();">
-<input type="hidden" id="searchbox"></input>
+<input type="hidden" id="searchbox" style="font-size: 1.5em;margin: 0.5em;"></input>
 <input type="hidden" name="cursor" id="cursor" value="">
 <script>
 document.getElementById('cursor').value = document.body.style.cursor;
@@ -1372,7 +1130,7 @@ document.getElementById('cursor').value = document.body.style.cursor;
 require_once ("manage_querys.php");
 ?>
 </div>
-<table cellspacing="0" width="100%" border="0" id="maintable">
+<table class="transparent" cellspacing="0" width="100%" border="0" id="maintable">
 <tr>
 <td nowrap class="nobborder">
 	<table cellspacing="0" width="100%" id="searchtable" style="border: 1px solid rgb(170, 170, 170);border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px;background:url(../pixmaps/fondo_hdr2.png) repeat-x">
@@ -1380,49 +1138,37 @@ require_once ("manage_querys.php");
 			<table class="transparent" align="center">
 				<tr>
 					<td class="nobborder" style="font-size:18px;font-weight:bold;color:#222222"><?=_("Search")?>:</td>
-					<!--
-					<a href="javascript:toggleLayer('saved_searches');" onMouseOver="showTip('<?php echo $help_entries["saved_searches"] ?>','lightblue','300')" onMouseOut="hideTip()"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="Toggle Graph"> <small><font color="#AAAAAA"><?php echo _("Saved Searches") ?></font></small></a>
-
-						
-						<a href="javascript:AddQuery()" onMouseOver="showTip('<?php echo $help_entries["saved_searches"] ?>','lightblue','300')" onMouseOut="hideTip()"><img src="<?php echo $config["save_graph"] ?>" border="0" style="vertical-align:middle; padding-left:5px; padding-right:5px;"></a>
-						-->
-						<!--<input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"><a onMouseOver="showTip('<?php echo $help_entries["play"] ?>','lightblue','300')" onMouseOut="hideTip()" href="javascript:doQuery()" title="<?php echo _("Submit Query") ?>"><img src="<?php echo $config["play_graph"]; ?>" border="0" align="middle" style="padding-left:5px; padding-right:5px;"></a>-->
-					<td>
-					<div style="clear:both">
-					<ul id="mytags" style="list-style: none"></ul>
-					</div>
+					<td class="nobborder">
+						<div style="clear:both">
+						<ul id="mytags" style="list-style: none"></ul>
+						</div>
 					</td>
-					<!-- <td class="nobborder"><input type="text" id="searchbox" size="60" value="<?=$_GET['query']?>" style="vertical-align:middle;" onKeyUp="return EnterSubmitForm(event)" onMouseOver="showTip('<?php echo $help_entries["search_box"] ?>','lightblue','300')" onMouseOut="hideTip()"></td> -->
 					<td class="nobborder"><input type="button" class="button" onclick="SubmitClick()" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
-                                        <?php /*
-					<!--<a href="javascript:ClearSearch()" onMouseOver="showTip('<?php echo $help_entries["clear"] ?>','lightblue','300')" onMouseOut="hideTip()"><font color="#999999"><small><?php echo _("Clear Query"); ?></small></font></a>-->
-					<td class="nobborder"><input type="button" onclick="ClearSearch()" value="<?php echo _("Clear Query"); ?>" class="button" style="height:20px"></td>
-                                         */?>
 					<td class="nobborder" style="padding:10px">
                         <input type="hidden" name="txtexport" id="txtexport" value="noExport" />
-                        <a href="javascript:;" onclick="$('#exports').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Exports")?></b></a>
+                        <a href="javascript:;" onclick="$('#exports').toggle()" style="color:black"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Exports")?></b></a>
                         <div style="position:relative">
                         <div id="exports" style="position:absolute;left:0;top:0;display:none;z-index:1000">
-                        <table cellpadding=0 cellspacing=0 align="center">
+                        <table cellpadding=0 cellspacing=0 align="center" style="padding:2px">
 	                        <tr>
 	                        	<th style="padding:0px">
 	                        		<table style="background-color:transparent;border:0px" width="100%">
 	                        			<tr>
 	                        				<td width="30"></td>
-	                        				<td align="center"><?php echo _("Saved exports") ?></th>
+	                        				<td align="center"><?php echo _("Saved exports") ?></td>
 	                        				<td align="right" width="30"><a style="margin: 0 0 0 5px" href="javascript:;" onclick="$('#exports').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" /></a></td>
 	                        			</tr>
 	                        		</table>
 	                        	</th>
 	                        </tr>
 	                        <tr>
-	                        	<td style="padding:10px" align="center">
+	                        	<td class="nobborder" style="padding:10px" align="center">
 	                        	<a onclick="doQuery('exportScreen')" href="#" alt="<?php echo _("Export screen")?>"><img src="../pixmaps/exportScreen.png" border="0" title="<?php echo _("Export screen")?>" alt="<?php echo _("Export screen")?>" /> <?php echo _("Screen export") ?></a>
 	                        	&nbsp;<a onclick="doQuery('exportEntireQuery')" href="#" alt="<?php echo _("Export entire query")?>"><img src="../pixmaps/exportQuery.png" border="0" title="<?php echo _("Export entire query")?>" alt="<?php echo _("Export entire query")?>" /> <?php echo _("Entire export") ?></a>
 	                        	</td>
 	                        </tr>
-	                        <tr class="noborder">
-		                        <td id="exports_box">
+	                        <tr class="nobborder">
+		                        <td class="nobborder" id="exports_box">
 			                        <?php if (count($exports) < 1) { ?>
 			                        <i><?php echo _("No export files found") ?>.</i>
 			                        <?php } else { ?>
@@ -1453,7 +1199,7 @@ require_once ("manage_querys.php");
 			                        <?php } ?>
 		                        </td>
 	                        </tr>
-	                        <tr><td id="exports_bg"></td></tr>
+	                        <tr><td class="nobborder" id="exports_bg"></td></tr>
                         </table>
                         </div>
                         </div>
@@ -1464,40 +1210,42 @@ require_once ("manage_querys.php");
                     </td>
                      -->
                     <td class="nobborder">
-                    	<a href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Predefined Searches")?></b></a>
+                    	<a href="javascript:;" onclick="$('#searches').toggle()" style="color:black"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Predefined Searches")?></b></a>
                         <div style="position:relative">
                         <div id="searches" style="position:absolute;right:0;top:0;display:none">
-                        <table cellpadding=0 cellspacing=0 align="center">
+                        <table cellpadding=0 cellspacing=0 align="center" style="padding:2px">
 	                        <tr>
-	                        	<th style="padding-right:3px"><?php echo _("Select a predefined to search") ?> <a style="margin: 0 0 0 5px" href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" /></a></th>
+	                        	<th style="padding:3px"><?php echo _("Select a predefined to search") ?> <a style="margin: 0 0 0 5px" href="javascript:;" onclick="$('#searches').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" /></a></th>
 	                        </tr>
-	                        <tr class="noborder">
+	                        <tr class="nobborder">
 		                        <td id="filter_box">
 		                        	<input type="hidden" name="filter" id="filter" value="default" />
-			                        <ul>
+									<table class="transparent" width="100%">
 			                        <? $i=0;
 			                        foreach ($_SESSION['logger_filters'] as $name=>$attr) {
 			                        $i++;    ?>
-			                        <li class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>">
-				                        <div style="float:left">
+			                        <tr>
+									<td class="nobborder" style="background-color:<?php if($i%2==0){ echo 'transparent'; }else{ echo '#F2F2F2'; } ?>">
 				                        <a onclick="change_filter('<?php echo $name ?>')" href="#" id="filter_<?php echo $name ?>">
 				                        <?php echo $name ?>
 				                        </a>
-				                        </div>
-				                        <div style="position: absolute;right:2px;float:left;width: 40px;opacity:0.4;filter:alpha(opacity=40)">
+									</td>
+									<td class="nobborder" width="30" nowrap>
+				                        <div style="width: 40px;opacity:0.4;filter:alpha(opacity=40)">
 				                        <img src="../pixmaps/disk-gray.png" alt="<?php echo _("Update"); ?>" title="<?php echo _("Update"); ?>" border="0" />
 				                        <img src="../vulnmeter/images/delete.gif" alt="<?php echo _("Delete"); ?>" title="<?php echo _("Delete"); ?>" border="0" />
 				                        </div>
-			                        </li>
+									</td>
+									</tr>
 			                        <? } ?>
-			                        </ul>
+									</table>
 		                        </td>
 	                        </tr>
 	                        <tr>
-	                       		<td id="filter_msg" class="noborder"></td>
+	                       		<td id="filter_msg" class="nobborder"></td>
 	                        </tr>
 	                        <tr>
-	                        	<td class="noborder" style="text-align: left;padding-left: 7px">
+	                        	<td class="nobborder" style="text-align: left;padding-left: 7px;padding-top:2px">
 		                        <input type="text" name="filter_name" id="filter_name" value="" style="width:140px"  />
 		                        <input type="button" value="<?php echo _("add")?>" onclick="new_filter()" class="button" style="height:18px;width:30px" />
 	                       		</td>
@@ -1508,8 +1256,8 @@ require_once ("manage_querys.php");
                     </td>
 				</tr>
 				<tr>
-					<td style="font-size:9x">&nbsp;</td>
-					<td>
+					<td class="nobborder" style="font-size:9x">&nbsp;</td>
+					<td class="nobborder">
 					<div id="tip_msg" style="font-family:arial;font-size:9px;color:gray;display:none">
 					<?php echo _("Add new criteria search or click Submit button to get events.") ?>
 					</div>
@@ -1518,7 +1266,7 @@ require_once ("manage_querys.php");
 			</table>
 		</tr>
 		
-		<tr><td style="padding-left:10px;padding-right:10px" colspan="5" class="nobborder"><table class="noborder" width="100%" cellpadding=0 cellspacing=0 border=0><tr><td class="nobborder" style="background:url('../pixmaps/points.gif') repeat-x"><img src="../pixmaps/points.gif"></td></tr></table></td></tr>
+		<tr><td style="padding-left:10px;padding-right:10px" colspan="5" class="nobborder"><table class="transparent" width="100%" cellpadding=0 cellspacing=0 border=0><tr><td class="nobborder" style="background:url('../pixmaps/points.gif') repeat-x"><img src="../pixmaps/points.gif"></td></tr></table></td></tr>
 		
 		<tr>
 			<td class="nobborder" style="padding:10px" valign="top">
@@ -1528,9 +1276,9 @@ require_once ("manage_querys.php");
 					<table class="transparent">
                     <tr>
                          <?php
-                            $txtzone = "<a href=\"javascript:;\" class=\"scriptinfoimg\" txt=\"<img src='../pixmaps/timezones/".rawurlencode(Util::timezone($tz)).".png' border=0>\">".Util::timezone($tz)."</a>";
+                            $txtzone = "<a href=\"javascript:;\" class=\"scriptinfoimg\" style=\"color:black\" txt=\"<img src='../pixmaps/timezones/".rawurlencode(Util::timezone($tz)).".png' border=0>\">".Util::timezone($tz)."</a>";
                          ?>
-                        <td class="nobborder" nowrap><?=_("Time frame selection")." $txtzone"?>:</td>
+                        <td class="nobborder" nowrap style="font-size:12px"><?=_("Time frame selection")." $txtzone"?>:</td>
                         <td class="nobborder">
                             <div id="widget">
                                 <a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
@@ -1557,7 +1305,7 @@ require_once ("manage_querys.php");
                         </td>
 					</tr>
                     <tr>
-                        <td colspan="3" nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> <?php echo gettext("Fetch"); ?>&nbsp;
+                        <td class="nobborder" colspan="3" nowrap><img src="../pixmaps/arrow_green.gif" alt="" align="absmiddle"></img> <?php echo gettext("Fetch"); ?>&nbsp;
                             <select name="top" id="top" onchange="document.getElementById('offset').value='0';doQuery('noExport')">
                                 <option value="10">10</option>
                                 <option value="50" selected>50</option>
@@ -1570,19 +1318,19 @@ require_once ("manage_querys.php");
 				<td nowrap class="nobborder" valign="top">
 					<table class="transparent">
 					<tr>
-					<td class="nobborder" nowrap id="date2td" style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "day") echo "bgcolor='#28BC04'" ?>><a <?php
+					<td class="nobborder" nowrap id="date2td" style="padding:5px" <? if ($_GET['time_range'] == "day") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "day") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - (24 * 60 * 60)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','day','<?php echo urlencode(date("M d, Y")) ?>');" onClick="javascript:bold_dates('date2');" id="date2a"><?=_("Last 24 Hours")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
-					<td class="nobborder" id="date3td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "week") echo "bgcolor='#28BC04'" ?>><a <?php
+					<td class="nobborder" id="date3td" nowrap style="padding:5px" <? if ($_GET['time_range'] == "week") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "week") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 7)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_week','<?php echo urlencode(date("M, Y")) ?>');" onClick="javascript:bold_dates('date3');" id="date3a"><?=_("Last Week")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
-					<td class="nobborder" id="date4td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "month") echo "bgcolor='#28BC04'" ?>><a <?php
+					<td class="nobborder" id="date4td" nowrap style="padding:5px" <? if ($_GET['time_range'] == "month") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "month") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 31)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_month','<?php echo urlencode(date("M, Y")) ?>');" onClick="javascript:bold_dates('date4');" id="date4a"><?=_("Last Month")?></a>
 					</td>
 					<td class="nobborder"><font style="color:green;font-weight:bold">|</font></td>
-					<td class="nobborder" id="date5td" nowrap style="padding-left:4px;padding-right:4px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
+					<td class="nobborder" id="date5td" nowrap style="padding:5px" <? if ($_GET['time_range'] == "all") echo "bgcolor='#28BC04'" ?>><a <?php
 if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; else echo "style='color:black;font-weight:bold'" ?> href="javascript:setFixed('<?php echo gmdate("Y-m-d H:i:s", $timetz - ((24 * 60 * 60) * 365)) ?>','<?php echo gmdate("Y-m-d H:i:s", $timetz); ?>','last_year','<?php echo urlencode(date("Y")) ?>');" onClick="javascript:bold_dates('date5');" id="date5a"><?=_("Last Year")?></a>
 					</td>
 					</tr>
@@ -1603,10 +1351,10 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 	</tr>
 	</table>
 </form>
-<table width="100%">
+<table class="transparent" width="100%">
 <tr>
-<td width="50" valign="top"><a href="javascript:getGraphs();" id="graphs_link"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph")?>"> <small><font color="black"><?php echo _("Stats") ?></font></small></a></td>
-<td><div id="loadingProcess">
+<td class="nobborder" width="50" valign="top"><a href="javascript:getGraphs();" id="graphs_link"><img src="<?php echo $config["toggle_graph"]; ?>" border="0" title="<?=_("Toggle Graph")?>"> <small><font color="black"><?php echo _("Stats") ?></font></small></a></td>
+<td class="nobborder"><div id="loadingProcess">
 <iframe id="processframe" src="" width="100%" style="height:30px" frameborder="0" scrolling="no"></iframe>
 </div></td>
 </tr>
@@ -1628,7 +1376,7 @@ if ($param_start != "" && $param_end != "" && date_parse($param_start) && date_p
 ?>
 </script>
 
-<div id="dhtmltooltip"></div>
+<div id="dhtmltooltip" style="position: absolute;width: 150px;border: 2px solid black;padding: 2px;background-color: lightyellow;visibility: hidden;z-index: 100;"></div>
 
 <script type="text/javascript">
 

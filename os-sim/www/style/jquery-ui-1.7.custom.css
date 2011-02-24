@@ -402,3 +402,27 @@
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
 .ui-tabs .ui-tabs-panel { padding: 1em 1.4em; display: block; border-width: 0; background: none; }
 .ui-tabs .ui-tabs-hide { display: none !important; }
+
+/* Autocomplete */
+.ui-autocomplete {
+	background-color: #F8F8F8;
+	border:1px solid #CCCCCC;
+	position: absolute;
+	cursor: default;
+}
+.ui-autocomplete .ui-menu-item { }
+.ui-autocomplete  .ui-menu-item a {
+	display:block;
+	padding:4px 6px;
+	text-decoration:none;
+	line-height:12px;
+}
+.ui-autocomplete .ui-menu-item a.ui-state-hover,
+.ui-autocomplete .ui-menu-item a.ui-state-active {
+	background-color:#28BC04;
+	color:#fff;
+	margin:0;
+}
+.ui-autocomplete-loading {
+	background: white url(../pixmaps/loading3.gif) right center no-repeat;
+}

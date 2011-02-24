@@ -55,37 +55,39 @@ if ($mode == "new") {
 	$uconfig->set(Session::get_session_user(), 'logger_filters', $_SESSION['logger_filters'], 'php', 'logger');
 	?>
         <input type="hidden" name="filter" id="filter" value="<?php echo $filter_name; ?>" />
-        <ul>
+        <table class="transparent" width="100%">
         <? $i=0;
         foreach ($_SESSION['logger_filters'] as $name=>$attr) {
             $i++;
             ?>
-            <li class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>" style="clear:left">
-                <div style="float:left">
+            <tr>
+				<td class="nobborder" style="background-color:<?php if($i%2==0){ echo 'transparent'; }else{ echo '#F2F2F2'; } ?>">
                     <a onclick="change_filter('<?php echo $name ?>')" href="#" id="filter_<?php echo $name ?>">
                         <?php if ($filter_name == $name){ ?><strong><?php } ?>
                             <?php echo $name ?>
                         <?php if ($filter_name == $name){ ?></strong><?php } ?>
                     </a>
-                </div>
-                <div style="position: absolute;right:2px;float:left;width: 40px;<?php if ($filter_name != $name){ ?>
-                     opacity:0.4;filter:alpha(opacity=40)<?php } ?>">
-                    <?php if ($filter_name == $name){ ?>
-                    <a href="#" onclick="save_filter('<?php echo $name ?>')" alt="<?=_("Update")?>" title="<?=_("Update")?>">
-                    <?php } ?>
-                        <img src="../pixmaps/disk-gray.png" alt="<?=_("Update")?>" border="0" />
-                    <?php if ($filter_name == $name){ ?>
-                    </a>
-                    <a href="#" onclick="delete_filter('<?php echo $name ?>')" alt="<?=_("Delete")?>" title="<?=_("Delete")?>">
-                    <?php } ?>
-                        <img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" border="0" />
-                    <?php if ($filter_name == $name){ ?>
-                    </a>
-                    <?php } ?>
-                </div>
-            </li>
+				</td>
+				<td class="nobborder" width="30" nowrap>
+					<div style="width: 40px;<?php if ($filter_name != $name){ ?>
+						 opacity:0.4;filter:alpha(opacity=40)<?php } ?>">
+						<?php if ($filter_name == $name){ ?>
+						<a href="#" onclick="save_filter('<?php echo $name ?>')" alt="<?=_("Update")?>" title="<?=_("Update")?>">
+						<?php } ?>
+							<img src="../pixmaps/disk-gray.png" alt="<?=_("Update")?>" border="0" />
+						<?php if ($filter_name == $name){ ?>
+						</a>
+						<a href="#" onclick="delete_filter('<?php echo $name ?>')" alt="<?=_("Delete")?>" title="<?=_("Delete")?>">
+						<?php } ?>
+							<img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" border="0" />
+						<?php if ($filter_name == $name){ ?>
+						</a>
+						<?php } ?>
+					</div>
+				</td>
+            </tr>
         <? } ?>
-        </ul>
+        </table>
 	<?
 }
 if ($mode == "load") {
@@ -94,37 +96,39 @@ if ($mode == "load") {
         ?>
         <input type="hidden" name="filter_data" id="filter_data" value="##<?php echo $filter['start_aaa']."##".$filter['end_aaa']."##".$filter['query']; ?>##" />
         <input type="hidden" name="filter" id="filter" value="<?php echo $filter_name; ?>" />
-        <ul>
+        <table class="transparent" width="100%">
         <? $i=0;
         foreach ($_SESSION['logger_filters'] as $name=>$attr) {
             $i++;
             ?>
-            <li class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>" style="clear:left">
-                <div style="float:left">
+            <tr>
+				<td class="nobborder" style="background-color:<?php if($i%2==0){ echo 'transparent'; }else{ echo '#F2F2F2'; } ?>">
                     <a onclick="change_filter('<?php echo $name ?>')" href="#" id="filter_<?php echo $name ?>">
                         <?php if ($filter_name == $name){ ?><strong><?php } ?>
                             <?php echo $name ?>
                         <?php if ($filter_name == $name){ ?></strong><?php } ?>
                     </a>
-                </div>
-                <div style="position: absolute;right:2px;float:left;width: 40px;<?php if ($filter_name != $name){ ?>
-                     opacity:0.4;filter:alpha(opacity=40)<?php } ?>">
-                    <?php if ($filter_name == $name){ ?>
-                    <a href="#" onclick="save_filter('<?php echo $name ?>')" alt="<?=_("Update")?>" title="<?=_("Update")?>">
-                    <?php } ?>
-                        <img src="../pixmaps/disk-gray.png" alt="<?=_("Update")?>" border="0" />
-                    <?php if ($filter_name == $name){ ?>
-                    </a>
-                    <a href="#" onclick="delete_filter('<?php echo $name ?>')" alt="<?=_("Delete")?>" title="<?=_("Delete")?>">
-                    <?php } ?>
-                        <img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" border="0" />
-                    <?php if ($filter_name == $name){ ?>
-                    </a>
-                    <?php } ?>
-                </div>
-            </li>
+                </td>
+				<td class="nobborder" width="30" nowrap>
+					<div style="width: 40px;<?php if ($filter_name != $name){ ?>
+						 opacity:0.4;filter:alpha(opacity=40)<?php } ?>">
+						<?php if ($filter_name == $name){ ?>
+						<a href="#" onclick="save_filter('<?php echo $name ?>')" alt="<?=_("Update")?>" title="<?=_("Update")?>">
+						<?php } ?>
+							<img src="../pixmaps/disk-gray.png" alt="<?=_("Update")?>" border="0" />
+						<?php if ($filter_name == $name){ ?>
+						</a>
+						<a href="#" onclick="delete_filter('<?php echo $name ?>')" alt="<?=_("Delete")?>" title="<?=_("Delete")?>">
+						<?php } ?>
+							<img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" border="0" />
+						<?php if ($filter_name == $name){ ?>
+						</a>
+						<?php } ?>
+					</div>
+				</td>
+			</tr>
         <? } ?>
-        </ul>
+        </table>
         <?php
 }
 if ($mode == "delete") {
@@ -132,23 +136,25 @@ if ($mode == "delete") {
 	$uconfig->set(Session::get_session_user(), 'logger_filters', $_SESSION['logger_filters'], 'php', 'logger');
 	?>
         <input type="hidden" name="filter" id="filter" value="default" />
-        <ul>
+        <table class="transparent" width="100%">
         <? $i=0;
             foreach ($_SESSION['logger_filters'] as $name=>$attr) {
             $i++;    ?>
-            <li class="<?php if($i%2==0){ echo 'impar'; }else{ echo 'par'; } ?>" style="clear:left">
-                <div style="float:left">
+            <tr>
+				<td class="nobborder" style="background-color:<?php if($i%2==0){ echo 'transparent'; }else{ echo '#F2F2F2'; } ?>">
                     <a onclick="change_filter('<?php echo $name ?>')" href="#" id="filter_<?php echo $name ?>">
-                            <?php echo $name ?>
+                        <?php echo $name ?>
                     </a>
-                </div>
-                <div style="position: absolute;right:2px;float:left;width: 40px;opacity:0.4;filter:alpha(opacity=40)">
-                        <img src="../pixmaps/disk-gray.png" alt="<?=_("Update")?>" border="0" />
-                        <img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" border="0" />
-                </div>
-            </li>
+                </td>
+				<td class="nobborder" width="30" nowrap>
+					<div style="width: 40px;opacity:0.4;filter:alpha(opacity=40)">
+						<img src="../pixmaps/disk-gray.png" alt="<?=_("Update")?>" border="0" />
+						<img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" border="0" />
+					</div>
+				</td>
+			</tr>
         <? } ?>
-        </ul>
+        </table>
 	<?
 }
 ?>

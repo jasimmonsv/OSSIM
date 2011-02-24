@@ -1250,8 +1250,5 @@ div.bballoon:hover span.bottom {
 	width: 150px;
 }
 
-
-
-
-
-
+.negrita { font-weight:bold; font-size:14px; }
+.thickbox { color:gray; font-size:10px; }

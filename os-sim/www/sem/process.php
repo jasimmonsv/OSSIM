@@ -401,20 +401,6 @@ if ($from_remote) {
 fclose($fp);
 $time2 = microtime(true);
 $totaltime = round($time2 - $time1, 2);
-//print "</td><td class=\"nobborder\" width=\"10\">&nbsp;</td><td class=\"nobborder\" style=\"text-align:right;\" nowrap>"._("Parsing time").": <b>$totaltime</b> "._("seconds").".</td></tr></table>";
-//$num_lines = get_lines($a, $start, $end, $offset, $sort_order, "logs", $uniqueid);
-
-// Avoid graphs being drawn with more than 100000 events
-//if ($num_lines > 500000) {
-?>
-	<!--
-	<script>
-	document.getElementById('too_many_events').style.display = 'block';
-	document.getElementById('test').style.display = 'none';
-	</script>
-	-->
-<?php
-//}
 $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $txtzone = Util::timezone($tz);
 ?>
@@ -422,8 +408,8 @@ $txtzone = Util::timezone($tz);
 <?php if (has_results($num_lines)) { ?>
 <table width="100%" class="noborder" style="background-color:transparent;">
 	<tr>
-		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif"><?php print _("Time Range").": <b>$start_query <-> $end_query</b>" ?></td>
-		<td align="center">
+		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif" align="absmiddle"><?php print _("Time Range").": <b>$start_query <-> $end_query</b>" ?></td>
+		<td class="center nobborder">
 			<?php if ($from_remote) { ?>
 			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" <b>first</b> events")._(" for <b>each server</b>")." (<b>".(($offset*$num_servers)+1)."</b> - <b>".(($offset*$num_servers)+count($result))."</b> total)" ?>.&nbsp;
 			<?php } else { ?>
@@ -442,7 +428,7 @@ $txtzone = Util::timezone($tz);
 	</tr>
 </table>
 
-<table class='transparent' style='border: 1px solid rgb(170, 170, 170);border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px;' width='100%' cellpadding='2' cellspacing='0'>
+<table class='transparent' style='border: 1px solid rgb(170, 170, 170);border-radius: 0px; -moz-border-radius: 0px; -webkit-border-radius: 0px;' width='100%' cellpadding='5' cellspacing='0'>
 	<tr height="35">
 		<td class='plfieldhdr' style='border-right: 1px solid rgb(170, 170, 170);border-bottom: 1px solid rgb(170, 170, 170); background: transparent url(../pixmaps/fondo_col.gif) repeat-x scroll 50% 50%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; color: rgb(34, 34, 34); font-size: 12px; font-weight: bold;'><?php echo _("ID") ?></td>
 		<?php if ($from_remote) { ?>
@@ -543,7 +529,6 @@ foreach($result as $res=>$event_date) {
         $eventhour = date("H",strtotime($date));
         $ctime = explode("/",$logfile); $storehour = $ctime[count($ctime)-3]; // hours
         $warning = ($storehour-$eventhour != 0) ? "<a href='javascript:;' txt='"._("Date may not be normalized")."' class='scriptinfotxt'><img src='../pixmaps/warning.png' border=0 style='margin-left:3px;margin-right:3px'></a>" : "";
-        //$date = date("Y-m-d H:i:s",strtotime($date)+(3600*($storehour-$eventhour)));
         
         // Event date timezone
 		if ($tzone!=0) $event_date = date("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));
@@ -587,29 +572,23 @@ foreach($result as $res=>$event_date) {
                     $dst_div = "<div id=\"$dst_ip;$dst_ip_name\" class=\"HostReportMenu\" style=\"display:inline\">";
 
             $line = "<tr".(($colort%2==0) ? " style=\"background-color: #F2F2F2\"" : "").">
-            <td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . $warning . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
+            <td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . $warning . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\"/></a> " . $total_counter . "</td>";
             if ($from_remote) {
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table align='center'><tr><td style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
+            	$line .= "<td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table class='transparent' align='center'><tr><td class='nobborder' style='padding:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
             }
             
-            if ($event_date==$matches[2] || $event_date==$date) // compare real date with timezone corrected date
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . Util::htmlentities($date) . "</td>";
-			else
-            	$line .= "<td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Event date").": ". Util::htmlentities("<b>".$event_date."</b><br>"._("Timezone").": <b>$txtzone</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . Util::htmlentities($date) . "</a></td>";
+            // compare real date with timezone corrected date
+			if ($event_date==$matches[2] || $event_date==$date) {
+            	$line .= "<td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>" . Util::htmlentities($date) . "</td>";
+			} else {
+            	$line .= "<td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap> <a href='javascript:;' txt='" ._("Event date").": ". Util::htmlentities("<b>".$event_date."</b><br>"._("Timezone").": <b>$txtzone</b>") . "' class='scriptinfotxt' style='text-decoration:none'>" . Util::htmlentities($date) . "</a></td>";
+			}
 			
-
-            //$line.= "<td><font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color'; this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('plugin=' + this.innerHTML)\"\">$plugin</span></td>";
-       		$line.= "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('<b>plugin</b>=' + this.innerHTML)\"\">$plugin</a></td>";
-            $line.="<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'>";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . Util::htmlentities($sensor_name) . "</span></td><td nowrap>$src_div";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_ip=' + this.innerHTML)\"\">" . Util::htmlentities($src_ip_name) . "</span></div>:";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('src_port=' + this.innerHTML)\"\">" . Util::htmlentities($matches[8]) . "</span>$country_img_src</td><td nowrap>$dst_div";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_ip=' + this.innerHTML)\"\">" . Util::htmlentities($dst_ip_name) . "</span></div>:";
-            //$line.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green'; this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.forms[0].cursor.value;\" onclick=\"javascript:SetSearch('dst_port=' + this.innerHTML)\"\">" . Util::htmlentities($matches[9]) . "</span>$country_img_dst</td>";
-
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name');return false\"\">" . Util::htmlentities($sensor_name) . "</a></td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
+       		$line.= "<td class='nobborder' style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'><a href=\"#\" onclick=\"javascript:SetSearch('<b>plugin</b>=' + this.innerHTML)\"\">$plugin</a></td>";
+            $line.="<td class='nobborder' style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;text-align:center;'>";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>sensor</b>=$sensor_name');return false\"\">" . Util::htmlentities($sensor_name) . "</a></td><td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$src_div";
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src</b>=$src_ip_name');return false\"\">" . Util::htmlentities($src_ip_name) . "</a></div>:";
-            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src_port</b>=$matches[8]');return false\">" . Util::htmlentities($matches[8]) . "</a>$country_img_src $homelan_src</td><td style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
+            $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>src_port</b>=$matches[8]');return false\">" . Util::htmlentities($matches[8]) . "</a>$country_img_src $homelan_src</td><td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;padding-left:5px;padding-right:5px;' nowrap>$dst_div";
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst</b>=$dst_ip_name');return false\"\">" . Util::htmlentities($dst_ip_name) . "</a></div>:";
             $line.= "<a href=\"#\" onclick=\"javascript:SetSearch('<b>dst_port</b>=$matches[9]');return false\">" . Util::htmlentities($matches[9]) . "</a>$country_img_dst $homelan_dst</td>";
             if ($alt) {
@@ -628,7 +607,7 @@ foreach($result as $res=>$event_date) {
                 //error_log("$data\n$signature\n", 3, "/tmp/validate");
             }
             $encoded_data = base64_encode($data);
-            $data = "<td style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;'>";
+            $data = "<td class='nobborder' style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;'>";
         }
         // para coger
 		$data_out = "";
@@ -679,7 +658,7 @@ foreach($result as $res=>$event_date) {
 		$data_out = $matches[11];
         // fin para coger
         if($htmlResult){
-            $data.= '</td><td style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="javascript:;" class="thickbox" rel="AjaxGroup" onclick="validate_signature(\''.$encoded_data.'\',\''.$start.'\',\''.$end.'\',\''.$logfile.'\',\''.$signature.'\',\''.$current_server_ip.'\');return false"><img src="../pixmaps/lock-small.png" border=0><i>'._("Validate").'</i></a>';
+            $data.= '</td><td class="nobborder" style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="javascript:;" class="thickbox" rel="AjaxGroup" onclick="validate_signature(\''.$encoded_data.'\',\''.$start.'\',\''.$end.'\',\''.$logfile.'\',\''.$signature.'\',\''.$current_server_ip.'\');return false" style="font-family:arial;color:gray"><img src="../pixmaps/lock-small.png" align="absmiddle" border=0><i>'._("Validate").'</i></a>';
             $data.= "</td>";
             $line.= $data;
         }
@@ -699,7 +678,7 @@ foreach($result as $res=>$event_date) {
 	        $total_counter++;
 	    }
     } else {
-    	echo "<tr><td colspan='9'>WARNING: NOT MATCHING EVENT</td></tr>";
+    	echo "<tr><td class='nobborder' colspan='9'>WARNING: NOT MATCHING EVENT</td></tr>";
     }
 }
 print "</table>";
@@ -727,12 +706,12 @@ if (!has_results($num_lines)) {
 <?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+count($result))."</b>"._(" events") ?>.&nbsp;
 <?php } ?>
 <?php if ($offset > 0) { ?>
-<a href="javascript:DecreaseOffset(<?php echo GET('top')?>);"><?php echo ($from_remote) ? "<< "._("Fetch the previous ") : "<< "._("Previous ")?><?php echo "<b>".GET('top')."</b>" ?></a>
+<a href="javascript:DecreaseOffset(<?php echo GET('top')?>);" style="color:black"><?php echo ($from_remote) ? "<< "._("Fetch the previous ") : "<< "._("Previous ")?><?php echo "<b>".GET('top')."</b>" ?></a>
 <?php } ?>
 <?php if ($has_next_page) { //if($num_lines > $offset + 50){
     echo ($offset != 0) ?  "&nbsp;<b>|</b>&nbsp;" : "";
 ?>
-<a href="javascript:IncreaseOffset(<?php echo GET('top')?>);"><?php echo ($from_remote) ? _("Fetch the next ") : _("Next ")?><?php echo "<b>".GET('top')."</b> >>" ?></a>
+<a href="javascript:IncreaseOffset(<?php echo GET('top')?>);" style="color:black"><?php echo ($from_remote) ? _("Fetch the next ") : _("Next ")?><?php echo "<b>".GET('top')."</b> >>" ?></a>
 <?php } ?>
 </center>
 <br>
