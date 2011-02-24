@@ -482,7 +482,6 @@ class Plugin(Conf):
 
         ret = self._replace_translations_assess(value)
         ret |= self._replace_translations_assess(value)
-        ret = self._replace_user_functions_assess(value)
         ret |= self._replace_user_functions_assess(value)
 
         return ret
