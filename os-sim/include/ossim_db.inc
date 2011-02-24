@@ -109,6 +109,16 @@ class ossim_db {
         $this->conn->NConnect($host, $user, $pass, $base);
         return $this->conn;
     }
+	function snort_custom_connect($base) {
+        $conf = $GLOBALS["CONF"];
+        $user = $conf->get_conf("snort_user");
+        $pass = $conf->get_conf("snort_pass");
+        $host = $conf->get_conf("snort_host");
+        $type = $conf->get_conf("snort_type");
+        $this->conn = & ADONewConnection($type);
+        $this->conn->NConnect($host, $user, $pass, $base);
+        return $this->conn;
+    }
     function opennms_connect() {
         $conf = $GLOBALS["CONF"];
         $base = $conf->get_conf("opennms_base");
