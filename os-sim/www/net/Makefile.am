@@ -8,6 +8,7 @@ net_DATA = deletenet.php \
 	modifynet.php \
 	net.php \
 	newnetform.php \
+	draw_nets.php \
 	newnet.php
 
 EXTRA_DIST   = $(net_DATA)
