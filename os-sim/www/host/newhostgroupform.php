@@ -268,7 +268,7 @@ if (GET('withoutmenu') != "1")
 						<span><a href="newhostform.php"><?php echo gettext("Insert new host"); ?> ?</a></span><br/>
 					</th>
 					<td class="left nobborder">
-						<select id="hosts" name="ips[]" class='req_field' size="20" multiple="multiple" style="width:250px">
+						<select id="hosts" name="ips[]" class='req_field' size="19" multiple="multiple" style="width:250px">
 						<?php
 						foreach($hosts as $k => $v)
 							echo "<option value='$v' selected='selected'>$v</option>";

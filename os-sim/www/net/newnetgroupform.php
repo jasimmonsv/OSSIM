@@ -226,7 +226,7 @@ else
                 </th> 
                         
                 <td class="left nobborder">
-                    <select style="width: 250px;height:100%" multiple="multiple" size="20" class="req_field" name="nets[]" id="nets">
+                    <select style="width:250px;height:90%" multiple="multiple" size="19" class="req_field" name="nets[]" id="nets">
                     <?php
                     /* ===== Networks ==== */
                     if ($network_list = Net::get_list($conn)) 
