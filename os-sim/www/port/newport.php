@@ -41,7 +41,7 @@ require_once ('classes/Util.inc');
 
 Session::logcheck("MenuPolicy", "PolicyPorts");
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
 $error = false;
@@ -72,7 +72,7 @@ if ( GET('ajax_validation') == true )
 else
 {
 	$validation_errors = validate_form_fields('POST', $validate);
-	
+		
 	if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors)) || $num_act_ports == 0 )
 	{
 		$error = true;
@@ -81,9 +81,11 @@ else
 	
 		if ( $num_act_ports == 0 )
 			$message_error [] = _("You must select a port");
-		
+				
 		if ( is_array($validation_errors) && !empty($validation_errors) )
+		{
 			$message_error = array_merge($message_error, $validation_errors);
+		}
 		else
 		{
 			if ($validation_errors == 1)
@@ -103,7 +105,6 @@ else
 	
 }
 
-
 if ( $error == true )
 {
 	$_SESSION['_portgroup']['pgname']        = $pgname;        
@@ -118,7 +119,7 @@ if ( $error == true )
 <head>
 	<title><?php echo gettext("OSSIM Framework");?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-	<meta http-equiv="Pragma" CONTENT="no-cache">
+	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
