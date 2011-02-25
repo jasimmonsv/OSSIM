@@ -51,14 +51,14 @@ $ngname      = POST('ngname');
 $threshold_a = POST('threshold_a');
 $threshold_c = POST('threshold_c');
 $rrd_profile = POST('rrd_profile');
-$networks    = ( isset($_POST['mboxs'] ) && !empty ( $_POST['mboxs']) ) ? Util::clean_array(POST('mboxs')) : array();
+$networks    = ( isset($_POST['nets'] ) && !empty ( $_POST['nets']) ) ? Util::clean_array(POST('nets')) : array();
 
 $num_networks = count($networks);
 
 $validate = array (
 	"ngname"      => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Network Group Name")),
 	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
-	"mboxs"       => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Networks")),
+	"nets"       => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Networks")),
 	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
 	"threshold_a" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold A")),
 	"threshold_c" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),

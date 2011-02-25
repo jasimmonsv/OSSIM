@@ -52,37 +52,68 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-	<meta http-equiv="Pragma" content="no-cache"/>
-	<link type="text/css" rel="stylesheet" href="../style/style.css"/>
-	<link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
-	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
-	<script type="text/javascript" src="../js/ajax_validator.js"></script>
-	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
-	<script type="text/javascript" src="../js/messages.php"></script>
-	<script type="text/javascript" src="../js/utils.js"></script>
+    <title> <?php echo gettext("OSSIM Framework"); ?> </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <link type="text/css" rel="stylesheet" href="../style/style.css"/>
+    <link type="text/css" rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
+    <link rel="stylesheet" type="text/css" href="../style/tree.css" />
+    <script type="text/javascript" src="../js/combos.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
+    <script type="text/javascript" src="../js/ajax_validator.js"></script>
+    <script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+    <script type="text/javascript" src="../js/ui.multiselect.js"></script>
+    <script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../js/messages.php"></script>
+    <script type="text/javascript" src="../js/utils.js"></script>
     <script type="text/javascript">
-		$(document).ready(function(){
-			$('textarea').elastic();
-				
-			$('.vfield').bind('blur', function() {
-				 validate_field($(this).attr("id"), "newnetgroup.php");
-			});
-		});
-	</script>
+        function load_tree(filter) {
+            combo = 'nets';
+            $("#nets_tree").remove();
+            $('#td_nets').append('<div id="nets_tree" style="width:100%"></div>');
+            $("#nets_tree").dynatree({
+                initAjax: { url: "draw_nets.php", data: {filter: filter} },
+                clickFolderMode: 2,
+                onActivate: function(dtnode) {
+                        if (!dtnode.hasChildren()) {
+                            // add from a final node
+                            addto(combo,dtnode.data.title,dtnode.data.key)
+                        } else {
+                            // simulate expand and load
+                            addnodes = true;
+                            dtnode.toggleExpand();
+                        }
+                },
+                onDeactivate: function(dtnode) {},
+                onLazyRead: function(dtnode){
+                    dtnode.appendAjax({
+                        url: "draw_nets.php",
+                        data: {key: dtnode.data.key, filter:filter}
+                    });
+                }
+            });
+        }
+        $(document).ready(function(){
+            $('textarea').elastic();
+            $('.vfield').bind('blur', function() {
+                 validate_field($(this).attr("id"), "newnetgroup.php");
+            });
+            load_tree('');
+        });
+    </script>
 	
 	<style type='text/css'>
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-			echo "#table_form {background: transparent; width: 400px;}";
-		    echo "#table_form th {width: 120px;}";
+			echo "#table_form {background: transparent; width: 500px;}";
+		    echo "#table_form th {width: 150px;}";
 		}
 		else
 		{
-			echo "#table_form {background: transparent; width: 500px;}";
+			echo "#table_form {background: transparent; width: 460px;}";
 		    echo "#table_form th {width: 150px;}";
 		}
 		?>
@@ -92,6 +123,7 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 		label {border: none; cursor: default;}
 		.bold {font-weight: bold;}
 		div.bold {line-height: 18px;}
+        #del_selected {float:right; padding-top: 5px; width: 52px;}
 	</style>
 </head>
 
@@ -168,119 +200,135 @@ else
 <input type="hidden" name="insert" value="insert"/>
 <input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 
-<table align="center" id='table_form'>
-	
-	<tr>
-		<th><label for='ngname'><?php echo gettext("Name"); ?></label></th>
-			
-		<td class="left">
-			<?php if (GET('name') == "" ) {?>
-				<input type='text' name='ngname' id='ngname' class='vfield req_field' value="<?php echo $ngname?>"/>
-				<span style="padding-left: 3px;">*</span>
-			<?php } else { ?>	
-				<input type='hidden' name='ngname' id='ngname' class='vfield req_field' value="<?php echo $ngname?>"/>
-				<div class='bold'><?php echo $ngname?></div>
-			<?php }  ?>
-		</td>
-		
-	</tr>
-
-	<tr>
-		<th> 
-			<label for='mboxs1'><?php echo gettext("Networks");?></label><br/>
-			<span><a href="newnetform.php"> <?php echo gettext("Insert new network"); ?> ?</a></span>
-		</th> 
-				
-		<td class="left">
-						
-			<?php
-			/* ===== Networks ==== */
-			$i = 1;
-			if ($network_list = Net::get_list($conn)) 
-			{
-				foreach($network_list as $network) 
-				{
-					$net_name = $network->get_name();
-					$net_ips  = $network->get_ips();
-					
-					$class = ($i == 1) ? "class='req_field'" : "";
-					
-					$name = "mboxs".$i;
-					$checked = ( in_array($net_name, $networks) )  ? "checked='checked'"  : '';
-										
-					echo "<input type='checkbox' name='mboxs[]' id='$name' $class value='$net_name' $checked/>";
-					echo $net_name . " (" . $net_ips . ")<br/>"; 
-      
-					$i++;
-				}
-			}
-			?>
-						
-			
-		</td>
-	</tr>
-
-	<tr>
-		<th><label for='descr'><?php echo gettext("Description"); ?></label><br/>
-		<td class="left"><textarea name="descr" id='descr' class='vfield'><?php echo $descr; ?></textarea></td>
-	</tr>
-	
-	<tr>
-		<td style="text-align: left; border:none; padding-top:3px;">
-			<a onclick="$('.advanced').toggle()" style="cursor:pointer;">
-			<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?php echo _("Advanced");?></a>
-		</td>
-	</tr>
-
-  
-	<tr class="advanced" style="display:none;">
-		<th> 
-			<label for='rrd_profile'><?php echo gettext("RRD Profile"); ?></label><br/>
-			<span><a href="../rrd_conf/new_rrd_conf_form.php"><?php echo gettext("Insert new profile"); ?> ?</a></span>
-		</th>
-		<td class="left">
-			<select name="rrd_profile" id='rrd_profile' class='vfield'>
-				<option value="" selected='selected'><?php echo gettext("None"); ?></option>
-				<?php
-				foreach(RRD_Config::get_profile_list($conn) as $profile) {
-					if (strcmp($profile, "global"))
-					{
-						$selected = ( $rrd_profile == $profile  ) ? " selected='selected'" : '';
-						echo "<option value=\"$profile\" $selected>$profile</option>\n";
-					}
-				}
-				?>
-			</select>
-		</td>
-	</tr>
-
-	<tr class="advanced" style="display:none;">
-		<th><label for='threshold_c'><?php echo gettext("Threshold C"); ?></label></th>
-		<td class="left">
-			<input type="text" name="threshold_c" id='threshold_c' class='req_field vfield' value="<?php echo $threshold_c?>"/>
-			<span style="padding-left: 3px;">*</span>
-		</td>
-	</tr>
-
-	<tr class="advanced" style="display:none;">
-		<th><label for='threshold_a'><?php echo gettext("Threshold A"); ?></label></th>
-		<td class="left">
-			<input type="text" name="threshold_a" id='threshold_a' class='req_field vfield' value="<?php echo $threshold_a?>"/>
-			<span style="padding-left: 3px;">*</span>
-		</td>
-	</tr>
-
+<table align="center" class="transparent">
     <tr>
-		<td colspan="2" align="center" style="padding: 10px;" class='noborder'>
-			<input type="button" class="button" id='send' value="<?php echo _("Update")?>" onclick="submit_form()">
-			<input type="reset" class="button" value="<?=_("Clear form")?>"/>
-		</td>
-	</tr>
-		
+    <td class="nobborder">
+        <table align="center" id='table_form'>
+            <tr>
+                <th><label for='ngname'><?php echo gettext("Name"); ?></label></th>
+                    
+                <td class="left">
+                    <?php if (GET('name') == "" ) {?>
+                        <input type='text' name='ngname' id='ngname' class='vfield req_field' value="<?php echo $ngname?>"/>
+                        <span style="padding-left: 3px;">*</span>
+                    <?php } else { ?>	
+                        <input type='hidden' name='ngname' id='ngname' class='vfield req_field' value="<?php echo $ngname?>"/>
+                        <div class='bold'><?php echo $ngname?></div>
+                    <?php }  ?>
+                </td>
+                
+            </tr>
+
+            <tr>
+                <th> 
+                    <label for='mboxs1'><?php echo gettext("Networks");?></label><br/>
+                    <span><a href="newnetform.php"> <?php echo gettext("Insert new network"); ?> ?</a></span>
+                </th> 
+                        
+                <td class="left nobborder">
+                    <select style="width: 250px;height:100%" multiple="multiple" size="20" class="req_field" name="nets[]" id="nets">
+                    <?php
+                    /* ===== Networks ==== */
+                    if ($network_list = Net::get_list($conn)) 
+                    {
+                        foreach($network_list as $network) 
+                        {
+                            $net_name = $network->get_name();
+                            $net_ips  = $network->get_ips();
+                            
+                            if(in_array($net_name, $networks))    echo "<option value='$net_name'>$net_name ($net_ips)</option>";
+                        }
+                    }
+                    ?>
+                    </select>
+                    <span style="padding-left: 3px; vertical-align: top;">*</span>
+                    <div id='del_selected'><input type="button" value=" [X] " onclick="deletefrom('nets')" class="lbutton"/></div>
+                </td>
+            </tr>
+
+            <tr>
+                <th><label for='descr'><?php echo gettext("Description"); ?></label><br/>
+                <td class="left"><textarea name="descr" id='descr' class='vfield'><?php echo $descr; ?></textarea></td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: left; border:none; padding-top:3px;">
+                    <a onclick="$('.advanced').toggle()" style="cursor:pointer;">
+                    <img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?php echo _("Advanced");?></a>
+                </td>
+            </tr>
+
+          
+            <tr class="advanced" style="display:none;">
+                <th> 
+                    <label for='rrd_profile'><?php echo gettext("RRD Profile"); ?></label><br/>
+                    <span><a href="../rrd_conf/new_rrd_conf_form.php"><?php echo gettext("Insert new profile"); ?> ?</a></span>
+                </th>
+                <td class="left">
+                    <select name="rrd_profile" id='rrd_profile' class='vfield'>
+                        <option value="" selected='selected'><?php echo gettext("None"); ?></option>
+                        <?php
+                        foreach(RRD_Config::get_profile_list($conn) as $profile) {
+                            if (strcmp($profile, "global"))
+                            {
+                                $selected = ( $rrd_profile == $profile  ) ? " selected='selected'" : '';
+                                echo "<option value=\"$profile\" $selected>$profile</option>\n";
+                            }
+                        }
+                        ?>
+                    </select>
+                </td>
+            </tr>
+
+            <tr class="advanced" style="display:none;">
+                <th><label for='threshold_c'><?php echo gettext("Threshold C"); ?></label></th>
+                <td class="left">
+                    <input type="text" name="threshold_c" id='threshold_c' class='req_field vfield' value="<?php echo $threshold_c?>"/>
+                    <span style="padding-left: 3px;">*</span>
+                </td>
+            </tr>
+
+            <tr class="advanced" style="display:none;">
+                <th><label for='threshold_a'><?php echo gettext("Threshold A"); ?></label></th>
+                <td class="left">
+                    <input type="text" name="threshold_a" id='threshold_a' class='req_field vfield' value="<?php echo $threshold_a?>"/>
+                    <span style="padding-left: 3px;">*</span>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2" align="center" style="padding: 10px;" class='noborder'>
+                    <input type="button" class="button" id='send' value="<?php echo _("Update")?>" onclick="selectall('nets'); submit_form()">
+                    <input type="reset" class="button" value="<?=_("Clear form")?>"/>
+                </td>
+            </tr>
+                
+        </table>
+    </td>
+    <td class="nobborder" valign="top" width="300">
+        <div style="float:left;width:100%;">
+            <table class="transparent" align='center' width="100%">
+                <tr>
+                    <td class="left nobborder">
+                        <?=_("Filter")?>: <input type="text" id="filtern" name="filtern" style="height: 18px;width: 65%;" />
+                        &nbsp;<input type="button" class="lbutton" value="<?=_("Apply")?>" onclick="load_tree(this.form.filtern.value)" /> 
+                    </td>
+                </tr>
+                <tr>
+                    <td class="nobborder" id="td_nets">
+                    <div id="nets_tree"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </td>
+</tr>
+    <tr>
+        <td colspan="2" class="nobborder">
+            <p align="center" style="font-style: italic;"><?php echo gettext("Values marked with (*) are mandatory"); ?></p>
+        </td>
+    </tr>
 </table>
-
-<p align="center" style="font-style: italic;"><?php echo gettext("Values marked with (*) are mandatory"); ?></p>
-
 </form>
 
 <?php $db->close($conn); ?>
