@@ -234,30 +234,31 @@ if ($tr=="range") {
     else $tr = "day";
     $trdata = array ($desde,$hasta,"range");
 }
+$tzc = ($tz>0) ? "+$tz:00" : "$tz:00";
 switch ($tr) {
     case "today":
-        $interval = "hour(timestamp) as intervalo, 'h' as suf";
+        $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, 'h' as suf";
         $grpby = " GROUP BY intervalo,suf";
         break;
 
     case "day":
-        $interval = "hour(timestamp) as intervalo, day(timestamp) as suf";
+        $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, day(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = " GROUP BY intervalo,suf";
         break;
 
     case "week":
     case "weeks":
-        $interval = "day(timestamp) as intervalo, monthname(timestamp) as suf";
+        $interval = "day(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, monthname(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = " GROUP BY intervalo,suf ORDER BY suf,intervalo";
         break;
 
     case "month":
-        $interval = "day(timestamp) as intervalo, monthname(timestamp) as suf";
+        $interval = "day(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, monthname(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = " GROUP BY intervalo,suf ORDER BY suf,intervalo";
         break;
 
     default:
-        $interval = "monthname(timestamp) as intervalo, year(timestamp) as suf";
+        $interval = "monthname(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, year(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = " GROUP BY intervalo,suf ORDER BY suf,intervalo";
 }
 //$sqlgraph = "SELECT COUNT(acid_event.cid) as num_events, $interval FROM acid_event " . $join_sql . $where_sql . $criteria_sql . $grpby;
@@ -641,7 +642,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     /* report_data */
     $report_data[] = array (
         trim(html_entity_decode($despues)),
-        $myrow["timestamp"],
+        $tzdate,
         $sip_aux.$current_sport, $slnkrd,
         $dip_aux.$current_dport, $dlnkrd,
         $current_url."/forensics/bar2.php?value=" . $current_oasset_s . "&value2=" . $current_oasset_d . "&max=5",

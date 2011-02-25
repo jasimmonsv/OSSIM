@@ -8,22 +8,23 @@ session_write_close();
 
 function SIEM_trends($h=24) {
 	global $tz;
+	$tzc = ($tz>0) ? "+$tz:00" : "$tz:00";
 	$data = array();
 	require_once 'ossim_db.inc';
 	$db = new ossim_db();
 	$dbconn = $db->snort_connect();
 	$sensor_where = make_sensor_filter($dbconn);
-	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, hour(timestamp) as intervalo, day(timestamp) as suf FROM acid_event WHERE timestamp BETWEEN '".gmdate("Y-m-d H:i:s",gmdate("U")-(3600*$h))."' AND '".gmdate("Y-m-d H:i:s")."' $sensor_where GROUP BY suf,intervalo";
+	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, day(convert_tz(timestamp,'+00:00','$tzc')) as suf FROM acid_event WHERE timestamp BETWEEN '".gmdate("Y-m-d H:i:s",gmdate("U")-(3600*$h))."' AND '".gmdate("Y-m-d H:i:s")."' $sensor_where GROUP BY suf,intervalo";
 	//print_r($timetz); print_r($sqlgraph);
 	if (!$rg = & $dbconn->Execute($sqlgraph)) {
 	    print $dbconn->ErrorMsg();
 	} else {
 	    while (!$rg->EOF) {
-	    	$tzhour = $rg->fields["intervalo"] + $tz;
-	    	if ($tzhour<0) $tzhour+=24;
-	    	elseif ($tzhour>23) $tzhour-=24;
-	        $data[$tzhour."h"] = $rg->fields["num_events"];
-	        //$data[$rg->fields["intervalo"]."h"] = $rg->fields["num_events"];
+	    	//$tzhour = $rg->fields["intervalo"] + $tz;
+	    	//if ($tzhour<0) $tzhour+=24;
+	    	//elseif ($tzhour>23) $tzhour-=24;
+	        //$data[$tzhour."h"] = $rg->fields["num_events"];
+	        $data[$rg->fields["intervalo"]."h"] = $rg->fields["num_events"];
 	        $rg->MoveNext();
 	    }
 	}
@@ -32,6 +33,8 @@ function SIEM_trends($h=24) {
 }
 
 function SIEM_trends_week($param="") {
+	global $tz;
+	$tzc = ($tz>0) ? "+$tz:00" : "$tz:00";
 	$data = array();
 	$plugins = $plugins_sql = "";
 	require_once 'ossim_db.inc';
@@ -44,7 +47,7 @@ function SIEM_trends_week($param="") {
 		$plugins = implode(",",array_flip ($oss_p_id_name));
 		$plugins_sql = "AND acid_event.plugin_id in ($plugins)";
 	}
-	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, day(timestamp) as intervalo, monthname(timestamp) as suf FROM snort.acid_event LEFT JOIN ossim.plugin ON acid_event.plugin_id=plugin.id WHERE timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-604800)."' AND '".gmdate("Y-m-d 23:59:59")."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
+	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, day(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, monthname(convert_tz(timestamp,'+00:00','$tzc')) as suf FROM snort.acid_event LEFT JOIN ossim.plugin ON acid_event.plugin_id=plugin.id WHERE timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-604800)."' AND '".gmdate("Y-m-d 23:59:59")."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
 	if (!$rg = & $dbconn->Execute($sqlgraph)) {
 	    print $dbconn->ErrorMsg();
 	} else {

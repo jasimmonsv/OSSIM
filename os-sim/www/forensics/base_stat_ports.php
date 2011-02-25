@@ -261,8 +261,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $first_time = $myrow[7];
     $last_time = $myrow[8];
     if ($tz!=0) {
-    	$first_time = date("Y-m-d H:i:s",strtotime($first_time)+(3600*$tz));
-    	$last_time = date("Y-m-d H:i:s",strtotime($last_time)+(3600*$tz));
+    	$first_time = gmdate("Y-m-d H:i:s",strtotime($first_time)+(3600*$tz));
+    	$last_time = gmdate("Y-m-d H:i:s",strtotime($last_time)+(3600*$tz));
 	} 
     if ($port_proto == TCP) {
         $url_port_type = "tcp";

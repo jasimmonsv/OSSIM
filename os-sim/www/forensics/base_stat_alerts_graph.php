@@ -155,30 +155,31 @@ if ($tr=="range") {
     $trdata = array ($desde,$hasta,"range");
 }
 list($x, $y, $xticks, $xlabels) = range_graphic($trdata);
+$tzc = ($tz>0) ? "+$tz:00" : "$tz:00";
 switch ($tr) {
     case "today":
-        $interval = "hour(timestamp) as intervalo, 'h' as suf";
+        $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, 'h' as suf";
         $grpby = " GROUP BY intervalo,suf";
         break;
 
     case "day":
-        $interval = "hour(timestamp) as intervalo, day(timestamp) as suf";
+        $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, day(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = " GROUP BY intervalo,suf";
         break;
 
     case "week":
     case "weeks":
-        $interval = ($use_ac) ? "day(day) as intervalo, monthname(day) as suf" : "day(timestamp) as intervalo, monthname(timestamp) as suf";
+        $interval = ($use_ac) ? "day(day) as intervalo, monthname(day) as suf" : "day(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, monthname(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = "GROUP BY intervalo,suf ORDER BY suf,intervalo";
         break;
 
     case "month":
-        $interval = ($use_ac) ? "day(day) as intervalo, monthname(day) as suf" : "day(timestamp) as intervalo, monthname(timestamp) as suf";
+        $interval = ($use_ac) ? "day(day) as intervalo, monthname(day) as suf" : "day(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, monthname(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = "GROUP BY intervalo,suf ORDER BY suf,intervalo";
         break;
 
     default:
-        $interval = ($use_ac) ? "monthname(day) as intervalo, year(day) as suf" : "monthname(timestamp) as intervalo, year(timestamp) as suf";
+        $interval = ($use_ac) ? "monthname(day) as intervalo, year(day) as suf" : "monthname(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, year(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = "GROUP BY intervalo,suf ORDER BY suf,intervalo";
 }
 $sqlgraph = "SELECT count(acid_event.plugin_sid) as sig_cnt, $interval $from $where AND acid_event.plugin_id=PLUGINID AND acid_event.plugin_sid=PLUGINSID $grpby";

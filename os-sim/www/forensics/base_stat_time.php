@@ -65,8 +65,12 @@ function StoreAlertNum2($count, $label, $time_sep, $i_year, $i_month, $i_day, $i
     $cnt++;
 }
 // DK 2008-03-19
+// Jmar 2011
 function GetTimeProfile2($start_date, $end_date, $time_sep, $join, $where) {
     GLOBAL $db, $cnt, $label_lst, $value_lst, $value_POST_lst, $debug_mode;
+    // Timezone
+	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+	$tzc = ($tz>0) ? "+$tz:00" : "$tz:00";
     $precision = $time_sep[0];
     // group by date_format(timestamp, "%Y%m%d %H")
     switch ($precision) {
@@ -83,8 +87,8 @@ function GetTimeProfile2($start_date, $end_date, $time_sep, $join, $where) {
             $format = "%Y%m";
             break;
     }
-    if ($where != "") $sql = "select date_format(timestamp, \"$format\") as date, count(timestamp) as count from acid_event $join $where group by date_format(timestamp, \"$format\");";
-    else $sql = "select date_format(timestamp, \"$format\") as date, count(timestamp) as count from acid_event where timestamp between \"$start_date\" and \"$end_date\" + interval 1 day group by date_format(timestamp, \"$format\");";
+    if ($where != "") $sql = "select date_format(convert_tz(timestamp,'+00:00','$tzc'), \"$format\") as date, count(convert_tz(timestamp,'+00:00','$tzc')) as count from acid_event $join $where group by date";
+    else $sql = "select date_format(convert_tz(timestamp,'+00:00','$tzc'), \"$format\") as date, count(convert_tz(timestamp,'+00:00','$tzc')) as count from acid_event where timestamp between \"$start_date\" and \"$end_date\" + interval 1 day group by date";
     if ($debug_mode > 0) echo $sql;
     $result = $db->baseExecute($sql);
     while ($myrow = $result->baseFetchRow()) {
@@ -238,33 +242,53 @@ echo '<FORM ACTION="base_stat_time.php" METHOD="get" style="margin-top:3px">
           <TD WIDTH="100%" class="header">' . gettext("Time Criteria") . '</TD>
           <TD></TD></TR>
         </TABLE>';
-$today_d = date("d");
-$today_m = date("m");
-$today_y = date("Y");
-$yesterday_d = date("d", mktime(0, 0, 0, $today_m, $today_d - 1, $today_y));
-$yesterday_m = date("m", mktime(0, 0, 0, $today_m, $today_d - 1, $today_y));
-$yesterday_y = date("Y", mktime(0, 0, 0, $today_m, $today_d - 1, $today_y));
-$week_d = date("d", mktime(0, 0, 0, $today_m, $today_d - (date("w") - 1) , $today_y));
-$week_m = date("m", mktime(0, 0, 0, $today_m, $today_d - (date("w") - 1) , $today_y));
-$week_y = date("Y", mktime(0, 0, 0, $today_m, $today_d - (date("w") - 1) , $today_y));
-$two_week_d = date("d", mktime(0, 0, 0, $today_m, $today_d - 7 - (date("w") - 1) , $today_y));
-$two_week_m = date("m", mktime(0, 0, 0, $today_m, $today_d - 7 - (date("w") - 1) , $today_y));
-$two_week_y = date("Y", mktime(0, 0, 0, $today_m, $today_d - 7 - (date("w") - 1) , $today_y));
-$month_d = date("d", mktime(0, 0, 0, $today_m, 1, $today_y));
-$month_m = date("m", mktime(0, 0, 0, $today_m, 1, $today_y));
-$month_y = date("Y", mktime(0, 0, 0, $today_m, 1, $today_y));
-$two_month_d = date("d", mktime(0, 0, 0, $today_m - 1, 1, $today_y));
-$two_month_m = date("m", mktime(0, 0, 0, $today_m - 1, 1, $today_y));
-$two_month_y = date("Y", mktime(0, 0, 0, $today_m - 1, 1, $today_y));
-$year_d = date("d", mktime(0, 0, 0, 1, 1, $today_y));
-$year_m = date("m", mktime(0, 0, 0, 1, 1, $today_y));
-$year_y = date("Y", mktime(0, 0, 0, 1, 1, $today_y));
-$lyear_d = date("d", mktime(0, 0, 0, $today_m, $today_d, $today_y - 1));
-$lyear_m = date("m", mktime(0, 0, 0, $today_m, $today_d, $today_y - 1));
-$lyear_y = date("Y", mktime(0, 0, 0, $today_m, $today_d, $today_y - 1));
-$two_year_d = date("d", mktime(0, 0, 0, $today_m, $today_d, $today_y - 2));
-$two_year_m = date("m", mktime(0, 0, 0, $today_m, $today_d, $today_y - 2));
-$two_year_y = date("Y", mktime(0, 0, 0, $today_m, $today_d, $today_y - 2));
+$timetz = $GLOBALS["timetz"];
+$today_d = gmdate("d",$timetz);
+$today_m = gmdate("m",$timetz);
+$today_y = gmdate("Y",$timetz);
+$today_h = gmdate("h",$timetz);
+//$yesterday_d = date("d",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
+//$yesterday_m = date("m",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
+//$yesterday_y = date("Y",mktime(0,0,0, $today_m, $today_d - 1, $today_y));
+$yesterday_d = gmdate("d", strtotime("-1 day",$timetz));
+$yesterday_m = gmdate("m", strtotime("-1 day",$timetz));
+$yesterday_y = gmdate("Y", strtotime("-1 day",$timetz));
+//$week_d = date("d",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
+//$week_m = date("m",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
+//$week_y = date("Y",mktime(0,0,0, $today_m, $today_d - (date("w") +1), $today_y));
+$week_d = gmdate("d", strtotime("-1 week",$timetz));
+$week_m = gmdate("m", strtotime("-1 week",$timetz));
+$week_y = gmdate("Y", strtotime("-1 week",$timetz));
+//$two_week_d = date("d",mktime(0,0,0, $today_m, $today_d - 7 - (date("w") +1), $today_y));
+//$two_week_m = date("m",mktime(0,0,0, $today_m, $today_d - 7 -  (date("w") +1), $today_y));
+//$two_week_y = date("Y",mktime(0,0,0, $today_m, $today_d - 7 -  (date("w") +1), $today_y));
+$two_week_d = gmdate("d", strtotime("-2 week",$timetz));
+$two_week_m = gmdate("m", strtotime("-2 week",$timetz));
+$two_week_y = gmdate("Y", strtotime("-2 week",$timetz));
+//$month_d = date("d",mktime(0,0,0, $today_m, 1, $today_y));
+//$month_m = date("m",mktime(0,0,0, $today_m, 1, $today_y));
+//$month_y = date("Y",mktime(0,0,0, $today_m, 1, $today_y));
+$month_d = gmdate("d", strtotime("-1 month",$timetz));
+$month_m = gmdate("m", strtotime("-1 month",$timetz));
+$month_y = gmdate("Y", strtotime("-1 month",$timetz));
+//$two_month_d = date("d",mktime(0,0,0, $today_m - 1, 1, $today_y));
+//$two_month_m = date("m",mktime(0,0,0, $today_m - 1, 1, $today_y));
+//$two_month_y = date("Y",mktime(0,0,0, $today_m - 1, 1, $today_y));
+$two_month_d = gmdate("d", strtotime("-2 month",$timetz));
+$two_month_m = gmdate("m", strtotime("-2 month",$timetz));
+$two_month_y = gmdate("Y", strtotime("-2 month",$timetz));
+//$year_d = date("d",mktime(0,0,0, 1, 1, $today_y));
+//$year_m = date("m",mktime(0,0,0, 1, 1, $today_y));
+//$year_y = date("Y",mktime(0,0,0, 1, 1, $today_y));
+$year_d = gmdate("d", strtotime("-11 month",$timetz));
+$year_m = gmdate("m", strtotime("-11 month",$timetz));
+$year_y = gmdate("Y", strtotime("-11 month",$timetz));
+//$two_year_d = date("d",mktime(0,0,0, 1, 1, $today_y-1));
+//$two_year_m = date("m",mktime(0,0,0, 1, 1, $today_y-1));
+//$two_year_y = date("Y",mktime(0,0,0, 1, 1, $today_y-1));
+$two_year_d = gmdate("d", strtotime("-2 year",$timetz));
+$two_year_m = gmdate("m", strtotime("-2 year",$timetz));
+$two_year_y = gmdate("Y", strtotime("-2 year",$timetz));
 ?>
 <table cellpadding=0 cellspacing=2 border=0 width="100%" style="border:1px solid #ABB7C7">
 <tr>

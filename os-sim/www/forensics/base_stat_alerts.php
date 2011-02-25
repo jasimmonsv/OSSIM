@@ -201,8 +201,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $start_time = $myrow["first_timestamp"];
     $stop_time = $myrow["last_timestamp"];
     if ($tz!=0) {
-    	$start_time = date("Y-m-d H:i:s",strtotime($start_time)+(3600*$tz));
-    	$stop_time = date("Y-m-d H:i:s",strtotime($stop_time)+(3600*$tz));
+    	$start_time = gmdate("Y-m-d H:i:s",strtotime($start_time)+(3600*$tz));
+    	$stop_time = gmdate("Y-m-d H:i:s",strtotime($stop_time)+(3600*$tz));
 	}
     /* Print out (Colored Version) -- Alejandro */
     //qroPrintEntryHeader((($colored_alerts == 1) ? GetSignaturePriority($sig_id, $db) : $i) , $colored_alerts);

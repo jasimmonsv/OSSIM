@@ -58,6 +58,10 @@ if ($event_cache_auto_update == 1) UpdateAlertCache($db);
 $criteria_clauses = ProcessCriteria();
 $qro = new QueryResultsOutput("base_qry_main.php" . $qs->SaveStateGET());
 $qro->AddTitle(qroReturnSelectALLCheck());
+
+// Timezone
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+
 /* Apply sort criteria */
 if ($qs->isCannedQuery()) $sort_sql = " ORDER BY timestamp DESC ";
 else {
@@ -156,6 +160,7 @@ else
 	
 while ($myrow = $result->baseFetchRow()) {
     //
+    if ($tz!=0) $myrow["timestamp"] = gmdate("Y-m-d H:i:s",strtotime($myrow["timestamp"])+(3600*$tz));
     $current_sip32 = $myrow["ip_src"];
     $current_sip = baseLong2IP($current_sip32);
     $current_dip32 = $myrow["ip_dst"];
