@@ -58,7 +58,7 @@ function getPropertyImage($property)
 			$icon = "ports.png";
 		break;
 		
-		case "ram": 
+		case "memory": 
 			$icon = "ram.png";
 		break;
 		
@@ -89,7 +89,16 @@ function getPropertyImage($property)
 		case "nagios_ko": 
 			$icon = "cross.png";
 		break;
+
+		case "acl": $icon = "acl.png";
+		break;
 		
+		case "storage": $icon = "storage.png";
+		break;
+		
+		case "route": $icon = "route.png";
+		break;
+                                                                        		
 		default:
 			$icon = "folder.png";
     }
@@ -143,10 +152,9 @@ switch ($tree)
 		
 		foreach ($properties_types as $k => $v)
 		{
-			if ( $v['id'] != 4)
+			if ( $v['name'] != 'Service')
 				$grouped_properties[$v['name']."###".$v['id']."###".$v['description']]	= array();
 		}
-				
 		
 		if (count($properties) > 0 )
 		{
@@ -216,7 +224,7 @@ switch ($tree)
 		$num_s            = count($services_list);
 		$cont_3           = 0;
 		$is_folder 		  = ( $num_s > 0 ) ? "true" : "false";
-		$json_properties .= "{title: '<span>"._("Services")."</span>', addClass:'size12', key:'property_4', isFolder:".$is_folder.", hideCheckbox: true, expand:true, icon:'".$image_url.getPropertyImage('services')."', children:[";
+		$json_properties .= "{title: '<span>"._("Services")."</span>', addClass:'size12', key:'property_8', isFolder:".$is_folder.", hideCheckbox: true, expand:true, icon:'".$image_url.getPropertyImage('services')."', children:[";
 			
 		foreach ($services_list as $k => $v )
 		{
@@ -224,7 +232,7 @@ switch ($tree)
 			
 			$service_name = "<span class=\'size12n\'>".$v['service']."</span><span class=\'size10n ml3\'> (". $v['port']."/".getprotobynumber($v['protocol']).")</span>";
 			
-			$service_key      = "item_prop_4_$cont_3###".$v['host']."###".$v['port']."###".$v['protocol']."###".$v['service']."###4";
+			$service_key      = "item_prop_8_$cont_3###".$v['host']."###".$v['port']."###".$v['protocol']."###".$v['service']."###4";
 			$json_properties .= "{ title: '<span>".$service_name."</span>', key:'$service_key', isFolder:true, icon:'".$image_url.getPropertyImage("")."', children:[";
 			$json_properties .= "{ title: '<span class=\'size12n\'>"._("Version").": </span><span class=\'ml3 size12b\'>".$v['version']."</span>', key:'serv_version_".$cont_3."', hideCheckbox: true, isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
 			$json_properties .= "{ title: '<span class=\'size12n\'>"._("Date").": </span><span class=\'ml3 size12b\'> ".$v['date']."</span>', key:'serv_date_".$cont_3."', hideCheckbox: true, isFolder:false, icon:'".$image_url.getPropertyImage('property')."'},";
@@ -252,7 +260,7 @@ switch ($tree)
 		$num_s     		  = count($services_list);
 		$cont      		  = 0;
 		$is_folder 		  = ( $num_s > 0 ) ? "true" : "false";
-		$json_properties  = "[{title: '<span>"._("Services")."</span>', addClass:'size12', key:'property_4', isFolder:".$is_folder.", hideCheckbox: true, icon:'".$image_url.getPropertyImage('services')."', children:[";
+		$json_properties  = "[{title: '<span>"._("Services")."</span>', addClass:'size12', key:'property_8', isFolder:".$is_folder.", hideCheckbox: true, icon:'".$image_url.getPropertyImage('services')."', children:[";
 			
 		foreach ($services_list as $k => $v )
 		{

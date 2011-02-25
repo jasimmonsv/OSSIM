@@ -378,7 +378,7 @@ if ( $error_message != null )
 						
 						update_services(key);
 					}
-					else if	( node.data.key.match("item_prop_") != null &&  node.data.key.match("item_prop_4_" ) == null )
+					else if	( node.data.key.match("item_prop_") != null &&  node.data.key.match("item_prop_8_" ) == null )
 					{
 						
 						var key         = node.data.key.split("###");						
@@ -488,7 +488,7 @@ if ( $error_message != null )
 						
 						load_tree_1('tree_container_1', ip);
 						
-						if ( items.match("item_prop_4") != null )
+						if ( items.match("item_prop_8") != null )
 							load_tree_2('tree_container_2', ip);
 						
 						reset_forms('');					
@@ -576,7 +576,7 @@ if ( $error_message != null )
 			if ( prop_ref != 0 )
 			{
 				//Services
-				if ( prop_ref == 4 )
+				if ( prop_ref == 8 )
 				{	
 					$('#properties_form_1').hide();
 					$('#properties_form_2').show();
