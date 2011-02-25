@@ -474,7 +474,6 @@ function ossim_valid() {
 			}
 		}
 		
-					 
 		if ($val_str && preg_match("/[^$val_str]/", $clean_v, $m))
 		{
 			$not = $m[0];
@@ -483,9 +482,7 @@ function ossim_valid() {
 			
 			$v   = Util::htmlentities($v);
 			$not = Util::htmlentities($not);
-			
-			
-			
+						
 			if (preg_match("/Password/i",$error_msg))
 				return ossim_set_error($error_msg. " " . sprintf(_("(\"%s\" not allowed)") , $not)); 
 			else 
@@ -549,16 +546,15 @@ function validate_form_fields($type, $validate)
 		foreach ($_POST as $k => $v)
 		{
 			if ( !is_array($v) )
-				$values[$k]= Util::utf8entities(POST($k));
+				$values[$k]= ( mb_detect_encoding($v." ",'UTF-8,ISO-8859-1') == 'UTF-8' )  ? Util::utf8entities(POST($k)) : POST($k);
 			else
 			{
 				foreach ($v as $i => $j)
-					$aux[$i] = Util::utf8entities($j);
+					$aux[$i] = ( mb_detect_encoding($v." ",'UTF-8,ISO-8859-1') == 'UTF-8' )  ? Util::utf8entities($j) : $j;
 				
 				$values[$k] = $aux;
 			}
 		}
-		
 	}
 	else if ($type == 'GET')
 	{
@@ -567,13 +563,14 @@ function validate_form_fields($type, $validate)
 		if ( isset($validate[$k]) )
 		{
 			$validate_rules[$k] = $validate[$k];
-			$values[$k]         = Util::utf8entities(GET($k));
+			$values[$k]         = ( mb_detect_encoding($v." ",'UTF-8,ISO-8859-1') == 'UTF-8' ) ? Util::utf8entities(GET($k)) : GET($k);
 		}
 		
 	}
 	else
 		return 1;
-		
+	
+
 	foreach ($validate_rules as $k => $v)
 	{
 		if ( !isset($values[$k]) )
@@ -590,7 +587,7 @@ function validate_form_fields($type, $validate)
 		}
 		
 	}
-	
+		
 	return $validation_errors;
 
 }
