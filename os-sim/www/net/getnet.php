@@ -139,7 +139,7 @@ foreach($net_list as $net) {
     if ($sensor_list = $net->get_sensors($conn)) foreach($sensor_list as $sensor) {
       $sensors.= ($sensors == "" ? '':', ') . $sensor->get_sensor_name();
     }
-    $xml.= "<cell><![CDATA[" . $sensors . "]]></cell>";
+    $xml.= "<cell><![CDATA[" . utf8_encode($sensors) . "]]></cell>";
 
     $xml.= "<cell><![CDATA[" . $net->get_threshold_c() . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net->get_threshold_a() . "]]></cell>";

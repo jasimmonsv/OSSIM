@@ -68,7 +68,6 @@ require_once 'classes/Session.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/Util.inc';
 
-
 class Host_group {
     var $name;
     var $threshold_c;
@@ -80,7 +79,7 @@ class Host_group {
         $this->threshold_c = $threshold_c;
         $this->threshold_a = $threshold_a;
         $this->rrd_profile = $rrd_profile;
-        $this->descr = $descr;
+        $this->descr = Util::htmlentities($descr);
         $this->foundrows = $foundrows;
     }
     function get_name() {

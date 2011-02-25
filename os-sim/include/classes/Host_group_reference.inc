@@ -45,11 +45,13 @@
 * - Host_group_reference
 */
 require_once ("ossim_db.inc");
+require_once 'classes/Util.inc';
+
 class Host_group_reference {
     var $host_group_name;
     var $host_ip;
     function Host_group_reference($host_group_name, $host_ip) {
-        $this->host_group_name = $host_group_name;
+        $this->host_group_name = Util::htmlentities($host_group_name);
         $this->host_ip = $host_ip;
     }
     function get_host_group_name() {

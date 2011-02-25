@@ -164,7 +164,7 @@ foreach($host_group_list as $host_group) {
 			}
 			$list.=$host->get_host_ip();
 			if($host->get_host_ip()!=$host->get_host_name($conn)){
-				$list.=' ('.$host->get_host_name($conn).')';
+				$list.=' ('.utf8_encode($host->get_host_name($conn)).')';
 			}
 		}
 	}
@@ -177,7 +177,7 @@ foreach($host_group_list as $host_group) {
     if ($sensor_list = $host_group->get_sensors($conn)) foreach($sensor_list as $sensor) {
        $sensors.= ($sensors == "" ? '':', ') . $sensor->get_sensor_name();
     }
-    $xml.= "<cell><![CDATA[" . $sensors . "]]></cell>";
+    $xml.= "<cell><![CDATA[" . utf8_encode($sensors) . "]]></cell>";
 
     $xml.= "<cell><![CDATA[" . $host_group->get_threshold_c() . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $host_group->get_threshold_a() . "]]></cell>";
