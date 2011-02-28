@@ -49,7 +49,7 @@ d_start() {
         exit $RUNNING_INSTANCE_EXITS_E
    fi     
    
-   # If pidfile exits, we remove it before start.    
+   # If pidfile exists, we remove it before start.    
    if [ -f $PIDFILE ]
       then
          rm -rf $PIDFILE         
@@ -69,7 +69,7 @@ d_stop() {
    # default signal: SIGTERM (15)
    
    # Check if an ossim-agent instance is running    
-   # It's possible that PID file exits but the process is not running. 
+   # It's possible that PID file exists but the process is not running. 
    # For example, if ossim-agent was killed by kill -9
    
    if [ -f $PIDFILE ]           
@@ -97,7 +97,7 @@ d_stop() {
 			fi
 		 fi 
       else
-         log_daemon_msg "PIDFILE exits but no process running... remove pidfile"
+         log_daemon_msg "PIDFILE exists but no process running... remove pidfile"
          rm -rf $PIDFILE
 #--	  	
       fi
