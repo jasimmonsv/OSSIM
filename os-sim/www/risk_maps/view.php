@@ -165,7 +165,7 @@ if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
 }
 ?>
 <script>
-	template_begin = '<table border=0 cellspacing=0 cellpadding=1 style="background-color:BGCOLOR"><tr><td colspan=2 class=ne1 align=center><i>NAME</i></td></tr><tr><td><a href="URL"><img src="ICON" width="SIZE" border=0></a></td><td>'
+	template_begin = '<table border=0 cellspacing=0 cellpadding=1 style="background-color:BGCOLOR"><tr><td colspan=2 class=ne align=center><i>NAME</i></td></tr><tr><td><a href="URL"><img src="ICON" width="SIZE" border=0></a></td><td>'
 	template_end = '</td></tr></table>'
 	txtbbb = '<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
 	txtbbr = '<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
@@ -369,14 +369,13 @@ if(!$hide_others){
 				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".Util::htmlentities($rs->fields["name"], ENT_COMPAT, "UTF-8")."</i></td></tr><tr><td><a href=\"\" onclick=\"alert('Warning: this asset is not in inventory.');return false\"><img src=\"../pixmaps/marker--exclamation.png\" width=\"".$size."\" height=\"".$size."\" border=0></a></td><td>";
 				echo "<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
 				echo "</td></tr></table></div>\n";
-				$rs->MoveNext(); continue;
+			} elseif ($has_perm) {
+				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				if ($rs->fields["url"]=="") $rs->fields["url"]="javascript:;";
+				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><a href=\"".$rs->fields["url"]."\"><img src=\"".$rs->fields["icon"]."\" width=\"".$size."\" height=\"".$size."\" border=0></a></td><td>";
+				echo "<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+				echo "</td></tr></table></div>\n";
 			}
-			if (!$has_perm) { $rs->MoveNext(); continue; }
-			echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-			if ($rs->fields["url"]=="") $rs->fields["url"]="javascript:;";
-			echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><a href=\"".$rs->fields["url"]."\"><img src=\"".$rs->fields["icon"]."\" width=\"".$size."\" height=\"".$size."\" border=0></a></td><td>";
-			echo "<table border=0 cellspacing=0 cellpadding=1><tr><td>R</td><td>V</td><td>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
-			echo "</td></tr></table></div>\n";
 			$rs->MoveNext();
 		}
 	}
@@ -404,13 +403,12 @@ if(!$hide_others){
 				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
 				echo "<a href=\"\" onclick=\"alert('Warning: this asset is not in inventory.');return false;\" target=\"_blank\" style=\"text-decoration:none\"><table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table></a>";
 				echo "</div>\n";
-				$rs->MoveNext(); continue;
+			} elseif ($has_perm) {
+				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				if ($rs->fields["url"]=="") $rs->fields["url"]="javascript:;";
+				echo "<a href=\"".$rs->fields["url"]."\" target=\"_blank\" style=\"text-decoration:none\"><table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table></a>";
+				echo "</div>\n";
 			}
-			if (!$has_perm) { $rs->MoveNext(); continue; }
-			echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-			if ($rs->fields["url"]=="") $rs->fields["url"]="javascript:;";
-			echo "<a href=\"".$rs->fields["url"]."\" target=\"_blank\" style=\"text-decoration:none\"><table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table></a>";
-			echo "</div>\n";
             $rs->MoveNext();
 	    }
     }

@@ -38,42 +38,15 @@
 require_once 'classes/Session.inc';
 Session::logcheck("MenuControlPanel", "BusinessProcesses");
 
-require_once 'ossim_db.inc';
-require_once 'classes/Security.inc';
-
-$map = $_GET["map"];
-
-ossim_valid($map, OSS_DIGIT, OSS_ALPHA, ".",'illegal:'._("map"));
-
-if (ossim_error()) {
-die(ossim_error());
-}
-
-$db = new ossim_db();
-$conn = $db->connect();
-$params = array($map);
-$query = "select * from risk_indicators where name <> 'rect' AND map= ? ";
-
-if (!$rs = &$conn->Execute($query, $params)) {
-    print $conn->ErrorMsg();
-} else {
-    while (!$rs->EOF){
-        $name = $rs->fields["type_name"];
-        $type = $rs->fields["type"];
-        $host_types = array("host", "server", "sensor");
-        // r --> bad
-        // a --> medium
-        // v --> good
-        $RiskValue = 'b';
-        $VulnValue = 'b';
-        $AvailValue = 'b';
-
-        $what = "name"; $ips = $name;
-
-        $in_assets = 1;
-        
-        if(in_array($type, $host_types)){
-            if($type == "host") $what = "hostname";                
+function get_values($conn,$host_types,$type,$name) {
+	// r --> bad
+    // a --> medium
+    // v --> good
+    $RiskValue = 'b';
+    $VulnValue = 'b';
+    $AvailValue = 'b';	
+		if(in_array($type, $host_types)){
+       		if($type == "host") $what = "hostname";                
             $query = "select ip from $type where $what = ?";
             $params = array($name);
             if ($rs3 = &$conn->Execute($query, $params)) {
@@ -177,6 +150,38 @@ if (!$rs = &$conn->Execute($query, $params)) {
             	$AvailValue = 'v';
             }
         }
+        
+        return array($RiskValue,$VulnValue,$AvailValue,$sensor,$r_ip,$v_ip);
+}
+
+require_once 'ossim_db.inc';
+require_once 'classes/Security.inc';
+
+$map = $_GET["map"];
+
+ossim_valid($map, OSS_DIGIT, OSS_ALPHA, ".",'illegal:'._("map"));
+
+if (ossim_error()) {
+die(ossim_error());
+}
+
+$db = new ossim_db();
+$conn = $db->connect();
+$params = array($map);
+$query = "select * from risk_indicators where name <> 'rect' AND map= ? ";
+
+if (!$rs = &$conn->Execute($query, $params)) {
+    print $conn->ErrorMsg();
+} else {
+    while (!$rs->EOF){
+        $name = $rs->fields["type_name"];
+        $type = $rs->fields["type"];
+        $host_types = array("host", "server", "sensor");
+
+        $what = "name"; $ips = $name;
+
+        $in_assets = 1;
+        list($RiskValue,$VulnValue,$AvailValue,$sensor,$r_ip,$v_ip) = get_values($conn,$host_types,$type,$name);
 
         $new_value = "txt".$RiskValue.$VulnValue.$AvailValue;
         

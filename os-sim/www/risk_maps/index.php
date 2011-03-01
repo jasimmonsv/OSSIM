@@ -335,7 +335,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		}
 
 
-		template_begin = '<table border=0 cellspacing=0 cellpadding=1 style="background-color:BGCOLOR"><tr><td colspan=2 class=ne1 align=center><i>NAME</i></td></tr><tr><td><img src="ICON" width="SIZE" border=0></td><td>'
+		template_begin = '<table border=0 cellspacing=0 cellpadding=1 style="background-color:BGCOLOR"><tr><td colspan=2 class=ne align=center><i>NAME</i></td></tr><tr><td><img src="ICON" width="SIZE" border=0></td><td>'
 		template_end = '</td></tr></table>'
 		template_rect = '<table border=0 cellspacing=0 cellpadding=0 width="100%" height="100%"><tr><td style="border:1px dotted black">&nbsp;</td></tr></table>'
 		txtbbb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
@@ -482,8 +482,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				var ida = fobj.id.replace("alarma","").replace("rect","");
 				if (document.getElementById('dataname'+ida)) {
 					if (document.getElementById('dataurl'+ida).value=="REPORT") {
-						document.getElementById('linktomapurl').style.display = 'none';
-						document.getElementById('linktomapmaps').style.display = 'none';
 						document.getElementById('check_report').checked=1;
 					}
 					else {
@@ -527,12 +525,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		document.onmousemove = dragging;
 
 		function responderAjax(url) {
-			/*var ajaxObject = document.createElement('script');
-			ajaxObject.src = url;
-			ajaxObject.type = "text/javascript";
-			ajaxObject.charset = "utf-8";
-			document.getElementsByTagName('head').item(0).appendChild(ajaxObject);*/
-			
 			$.ajax({
 			   type: "GET",
 			   url: url,
@@ -540,8 +532,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				 eval(msg);
 			   }
 			});
-			
-			
 		}
 		
 		function urlencode(str) { return escape(str).replace('+','%2B').replace('%20','+').replace('*','%2A').replace('/','%2F').replace('@','%40'); }
@@ -650,7 +640,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					document.getElementById('elem').value = keys[1];
 					if (keys[0] == "host" || keys[0] == "net") document.getElementById('check_report').checked = true;
 					else document.getElementById('check_report').checked = false;
-					toggle_rm();
 					change_select()
 				},
 				onDeactivate: function(dtnode) {},
@@ -682,18 +671,16 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			if (type == 'alarm') {
 				if (document.f.alarm_name.value != '') {
 					var txt = '';
-					var robj = document.getElementById("chosen_icon");
-					txt = txt + urlencode(robj.src) + ';';
+					var robj = document.getElementById("chosen_icon").src;
+					robj = robj.replace(/.*\/ossim\/risk\_maps\//,"");
+					txt = txt + urlencode(robj) + ';';
 					type = document.f.type.value;
-					//var id_type = 'elem_'+type
 					elem = document.getElementById('elem').value;
 					txt = txt + urlencode(type) + ';' + urlencode(elem) + ';';
 					var temp_value=document.f.alarm_name.value;
-					//alert(temp_value);
-					if(temp_value.match(/^[a-zA-Z0-9ó]$/)==null){
+					if(temp_value.match(/^[a-zA-Z0-9ó]$/)==null) {
 						txt = txt + document.f.alarm_name.value + ';';
-					}else{
-						//alert('codificandooooo');
+					} else {
 						txt = txt + urlencode(document.f.alarm_name.value) + ';';
 					}
 					txt = txt + urlencode(document.f.url.value) + ';';
@@ -793,19 +780,27 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			else {
 				document.getElementById('linktoreport').style.display = '';
 			}
+			if (document.f.url.value.match(/view\.php/)) {
+				document.getElementById('link_option_map').checked = true;
+				show_maplink();
+			} else {
+				document.getElementById('link_option_asset').checked = true;
+				show_assetlink();
+			}
 		}
 		
-		function toggle_rm() {
-			if (document.getElementById('check_report').checked==true) {
-				document.getElementById('linktomapurl').style.display = 'none';
-				document.getElementById('linktomapmaps').style.display = 'none';
-				document.f.url.value = "REPORT";
-			}
-			else {
-				document.getElementById('linktomapurl').style.display = '';
-				document.getElementById('linktomapmaps').style.display = '';
-				document.f.url.value = "";
-			}
+		function show_maplink() {
+			document.getElementById('link_map').style.display = "block";
+			document.getElementById('link_asset').style.display = "none";
+			if (!document.f.url.value.match(/view\.php/)) document.f.url.value = "";
+			document.getElementById('check_report').checked = false;
+			document.f.type.value = "";
+			document.f.elem.value = "";
+			document.getElementById('selected_msg').innerHTML = "";
+		}
+		function show_assetlink() {
+			document.getElementById('link_map').style.display = "none";
+			document.getElementById('link_asset').style.display = "block";
 		}
 		
 		function checkSaved()
@@ -848,7 +843,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		<td valign='top' class='ne1' nowrap='nowrap' style="padding:5px;">
 		
 		<table width="100%">
-			<tr><th colspan='2' class='rm_tit_section'><?php echo _("Upload New Indicator")?></th></tr>
+			<tr><th colspan="2" class='rm_tit_section'><?php echo _("Icons")?></th></tr>
 			<tr>
 				<td colspan='2' class='ne1' id="uploadform" style="display:none;">
 					<form action="index.php" method='post' name='f2' enctype="multipart/form-data" onsubmit="return chk(document.f2)">
@@ -869,7 +864,12 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					</form>
 				</td>
 			</tr>
-			
+			<form name="f" action="modify.php">
+			<tr><td>
+			<div style="display:none">
+			<input type='hidden' name="alarm_id" value=""/> x <input type='text' size='1' name='posx'/> y <input type='text' size='1' name='posy'/> <input type='text' size='30' name='state' style="border:1px solid white;"/>
+			</div>
+			</td></tr>
 			<tr>
 				<td>
 				<?php
@@ -915,17 +915,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					<a onclick="$('#uploadform').show();return false" style="font-size:12px"><?=_("Upload your own icon")?></a><br/>
 				</td>
 			</tr>
-		</table>
-		
-		<div style="display:none">
-			<form name="f" action="modify.php"><input type='hidden' name="alarm_id" value=""/> x <input type='text' size='1' name='posx'/> y <input type='text' size='1' name='posy'/> <input type='text' size='30' name='state' style="border:1px solid white;"/>
-		</div>
-				
-		<table class='cont_icons' border="0" width="100%">		
-			<tr><th class='rm_tit_section'><?php echo _("Icons")?></th></tr>
-							
 			<tr>
-				<td class='bold'><?=_("Background")?>: 
+				<td colspan="2" class='bold'><?=_("Background")?>: 
 					<select name="iconbg" id="iconbg">
 						<option value=""><?=_("Transparent")?></option>
 						<option value="white"><?=_("White")?></option>
@@ -934,7 +925,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			</tr>
 			
 			<tr>
-				<td class='bold'><?=_("Size")?>: 
+				<td colspan="2" class='bold'><?=_("Size")?>: 
 					<select name="iconsize" id="iconsize">
 						<option value="0"><?=_("Default")?></option>
 						<option value="30"><?=_("Small")?></option>
@@ -944,7 +935,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				</td>
 			</tr>
 		</table>
-
 	<?php
 	if(0){
 	?>
@@ -982,34 +972,49 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
  <table width="100%">
 	<tr>
 		<td class='ne1'>
-			<table width="100%" border="0" class="noborder">
-				<tr><th colspan="2" class='rm_tit_section' valign="top"><?php echo _("Asset") ?></th></tr>
-				
-				<tr><td colspan="2" nowrap='nowrap'><div id="tree"></div></td></tr>
-
-				<tr><td colspan="2" id="selected_msg"></td></tr>
-
+			<table width="100%" class="noborder">
 				<tr>
-					<td class='ne11' nowrap> <?= _("Indicator Name"); ?> </td>
+					<th class='rm_tit_section' style="font-size:12px" nowrap><?= _("Indicator Name"); ?></th>
 					<td><input type='text' size='30' name="alarm_name" class='ne1'/></td>
 				</tr>
+				<tr><td colspan="2" id="selected_msg"></td></tr>
 				
-				<tr id="linktoreport">
-					<td colspan="2" class='ne11' nowrap='nowrap'>
-						<?= _("Click to link to host/network report"); ?>&nbsp;&nbsp;
-						<input type="checkbox" id="check_report" onclick="toggle_rm();"/></td>
+				<tr>
+					<td colspan="2" class='ne1'><input type="radio" onclick="show_assetlink()" name="link_option" id="link_option_asset" value="asset" checked></input><?php echo _("Link to Asset") ?></td>
 				</tr>
 				
-				<tr id="linktomapurl">
-					<td class='ne11'> <?= _("URL"); ?> </td>
-					<td><input type='text' size='30' name="url" class='ne1'/></td>
-				</tr>
-				
-				<tr id="linktomapmaps">
-					<td class='ne1 bold'><i> <?= _("Choose map to link") ?> </i></td>
-					<td><table><tr><? echo $linkmaps ?></tr></table></td>
+				<tr>
+					<td colspan="2">
+						<table width="100%" id="link_asset" style="display:block">
+							<tr><td nowrap='nowrap'><div id="tree"></div></td></tr>
+							<tr id="linktoreport">
+								<td class='ne11' nowrap='nowrap'>
+								<?= _("Click to link to host/network report"); ?>&nbsp;&nbsp;
+								<input type="checkbox" id="check_report"/>
+								</td>
+							</tr>
+						</table>
+					</td>
 				</tr>
 
+				<tr>
+					<td colspan="2" class='ne1'><input type="radio" onclick="show_maplink()" name="link_option" id="link_option_map" value="map"></input><?php echo _("Link to Map") ?></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<table id="link_map" style="display:none">
+						<tr id="linktomapurl">
+							<td class='ne11'> <?= _("URL"); ?> </td>
+							<td><input type='text' size='30' name="url" class='ne1'/></td>
+						</tr>
+						<tr id="linktomapmaps">
+							<td class='ne1 bold'><i> <?= _("Choose map to link") ?> </i></td>
+							<td><table><tr><? echo $linkmaps ?></tr></table></td>
+						</tr>
+						</table>
+					</td>
+				</tr>
+				
 				<tr>
 					<td colspan="2" nowrap='nowrap'>
 						<input type='button' value="<?= _("New Indicator") ?>" onclick="addnew('<? echo $map ?>','alarm')" class="lbutton" /> 
@@ -1060,21 +1065,21 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
 				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
 				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><img src=\"".preg_replace("/\#.+/","",str_replace("//","/",$rs->fields["icon"]))."\" width=\"".$size."\" height=\"".$size."\" border=0></td><td>";
-				echo "<table border=0 cellspacing=0 cellpadding=1style=\"background:url(../pixmaps/1x1.png);\"><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background:url(../pixmaps/1x1.png);\"><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
+				echo "</td></tr></table></div>\n";
+			} elseif ($has_perm) {
+				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
+				echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
+				echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
+				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
+				echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
+				echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
+				echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
+				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><img src=\"".preg_replace("/\#.+/","",str_replace("//","/",$rs->fields["icon"]))."\" width=\"".$size."\" height=\"".$size."\" border=0></td><td>";
+				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background:url(../pixmaps/1x1.png);\"><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
 				echo "</td></tr></table></div>\n";
 			}
-			if (!$has_perm) { $rs->MoveNext(); continue; }
-			echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-			echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
-			echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
-			echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-			echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
-			echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
-			echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
-			echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-			echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><img src=\"".preg_replace("/\#.+/","",str_replace("//","/",$rs->fields["icon"]))."\" width=\"".$size."\" height=\"".$size."\" border=0></td><td>";
-			echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background:url(../pixmaps/1x1.png);\"><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
-			echo "</td></tr></table></div>\n";
 			$rs->MoveNext();
 		}
 	}
@@ -1104,15 +1109,14 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
                 echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
 				echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
 				echo "</div>\n";
-				$rs->MoveNext(); continue;
+			} elseif ($has_perm) {
+				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
+				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
+				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
+	            echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
+				echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
+				echo "</div>\n";
 			}
-			if (!$has_perm) { $rs->MoveNext(); continue; }
-			echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-			echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-			echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-            echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
-			echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
-			echo "</div>\n";
 			$rs->MoveNext();
 		}
 	}
