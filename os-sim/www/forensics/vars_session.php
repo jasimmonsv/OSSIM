@@ -75,10 +75,10 @@ if ($custom_view != "") {
 	$_SESSION['current_cview'] = $custom_view;
 	if (is_array($_SESSION['views'][$custom_view]['data']))
 		foreach ($_SESSION['views'][$custom_view]['data'] as $skey=>$sval) {
-			if (!preg_match("/^(_|deletetask)/",$skey))
+			if (!preg_match("/^(_|alarms_|back_list|current_cview|views|ports_cache|acid_|report_|graph_radar|siem_event|deletetask|mdspw).*/",$skey))
 			    $_SESSION[$skey] = $sval;
-                        else
-                           unset($_SESSION[$skey]);
+			else
+                unset($_SESSION[$skey]);
 		}
 }
 if ($_SESSION['current_cview'] == "") $_SESSION['current_cview'] = 'default';

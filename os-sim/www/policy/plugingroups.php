@@ -62,7 +62,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 <body style="height: auto; margin: 0 0 10px 0">
 
 <?php
-if (GET('withoutmenu') != "1" && GET('collection') != "1" && ($_SESSION["menu_sopc"]=="Plugin Groups" || $_SESSION["menu_sopc"]=="Plugins")) include ("../hmenu.php");
+if (GET('withoutmenu') != "1" && GET('collection') != "1" && ($_SESSION["menu_sopc"]=="Plugin Groups" || $_SESSION["menu_opc"]=="Plugins")) include ("../hmenu.php");
 ?>
 
 <script>

@@ -40,7 +40,6 @@ require_once ('classes/Session.inc');
 require_once ('utils.php');
 
 ?>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
@@ -163,18 +162,15 @@ require_once ('utils.php');
 		.oss_containter_graph { 
 			width:92%; 
 			background:transparent; 
-			margin: 10px auto 0px auto; 
+			margin: 10px auto 0px auto;
 			text-align: center; 
-			border: none; 
-			height: 235px;
+			border: none;		
 		}
 		
 		.oss_graph {
 			background: transparent;
-			text-align: center;
 			border: 1px solid #BBBBBB;
 			color: black;
-			text-align: center;
 			-moz-border-radius:8px;
 			-webkit-border-radius: 8px;
 			-khtml-border-radius: 8px;
@@ -191,18 +187,19 @@ require_once ('utils.php');
 	<div class='status_sec'>
 	
 		<div class="oss_containter_graph">
-			<div style='float:left; width:480px'>
+			<table style="width:100%" cellpadding="0" cellspacing="0">
+			<tr><td>
 				<table class='oss_graph'>
 					<tr><th><?php echo _("Ossec Events Trend")?></th></tr>
 					<tr><td><iframe src="../panel/event_trends.php?type=hids" frameborder="0" style="width:470px;height:215px;overflow:hidden"></iframe></td></tr>
 				</table>
-			</div>
-			<div style='float:right; width:480px'>
-				<table class='oss_graph'>
+            </td><td>
+				<table class='oss_graph' align="right">
 					<tr><th><?php echo _("Ossec Data Sources")?></th></tr>
 					<tr><td><iframe src="../panel/pie_graph.php?type=hids" frameborder="0" style="width:470px;height:215px;overflow:hidden"></iframe></td></tr>
 				</table>
-			</div>
+			</td></tr>
+			</table>
 		</div>
 		
 	</div>
