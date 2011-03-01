@@ -6,6 +6,9 @@ $|=1;
 # 2004-07-28 Fabio Ospitia Trujillo <fot@ossim.net>
 # 2009-05-13 jmalbarracin
 # 2011-02-18 Pablo Vargas
+
+# restoredb.pl action YYYYMMDD user entity
+# perl /usr/share/ossim/scripts/restoredb.pl insert 20100601 admin 1 
 use ossim_conf;
 use DBI;
 use POSIX;
@@ -90,7 +93,7 @@ sub die_clean {
     unlink $pidfile;
     $ossim_conn->disconnect();
     $snort_conn->disconnect();
-    exit;
+    return;
 }
 
 sub getCurrentTimestamp {
@@ -207,7 +210,7 @@ sub main {
     
     # Selective insert. Filtering by php script
     if ($filtered_by ne "") {
-    	my $cmd = "php restoredb_filter.php $filtered_by";
+    	my $cmd = "php /usr/share/ossim/scripts/restoredb_filter.php $filtered_by";
     	print "$cmd\n";
     }
     

@@ -35,6 +35,7 @@
 * Classes list:
 */
 require_once ('classes/Security.inc');
+require_once ('classes/Util.inc');
 $sid = GET('sid');
 $cid = GET('cid');
 ossim_valid($sid, OSS_DIGIT, 'illegal:' . _("sid"));
@@ -87,6 +88,7 @@ if (file_exists($pdmlfile) && filesize($pdmlfile) > 0) {
 		                echo "<ul>";
 		                foreach($atr as $key3 => $value) {
 		                    if ($key3 == "showname") continue;
+		                    $value = Util::htmlentities($value);
 		                    echo "<li id=\"key1.$i.$j.$k\" data=\"isFolder:false, icon:'../../images/host.png'\">" . $key3 . ": <b>" . $value . "</b>\n";
 		                    $k++;
 		                }

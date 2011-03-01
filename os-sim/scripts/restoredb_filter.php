@@ -11,6 +11,8 @@ require_once ('classes/Session.inc');
 require_once "ossim_db.inc";
 $db = new ossim_db();
 $conn = $db->connect();
+
+echo "Retrieving Assets from entity/user: $filter_by...";
 // Entity
 if (preg_match("/^\d+$/",$filter_by)) {
 	$allowedSensors = Session::entityPerm($conn,$filter_by,"sensors");
@@ -79,20 +81,107 @@ if (!$rs = & $conn->Execute($query)) {
        $rs->MoveNext();
     }
 }
+echo "ok.\n";
 
 // 2) CLEAN TEMP DATABASE NOT ALLOWED EVENTS
 if ($allowedHosts != "") {
+	echo "Filtering acid_event table...";
 	$snort_temp_conn = $db->snort_custom_connect("snort_restore_".$filter_by);
 	$sql = "DELETE FROM acid_event WHERE INET_NTOA(ip_src) not in ($allowedHosts) AND INET_NTOA(ip_dst) not in ($allowedHosts)";
 	$snort_temp_conn->Execute($sql);
-	$sql = "DELETE FROM ac_alerts_ipdst WHERE INET_NTOA(ip_dst) not in ($allowedHosts)";
-	$snort_temp_conn->Execute($sql);
-	$sql = "DELETE FROM ac_alerts_ipsrc WHERE INET_NTOA(ip_src) not in ($allowedHosts)";
-	$snort_temp_conn->Execute($sql);
-	echo "Filtering $filter_by\n";
+	echo "ok.\n";
 }
 
+// REGENERATING AC_* TABLES
+echo "Cleaning ac_* tables...";
+$snort_temp_conn->Execute("DELETE FROM ac_sensor_sid");
+$snort_temp_conn->Execute("DELETE FROM ac_sensor_signature");
+$snort_temp_conn->Execute("DELETE FROM ac_sensor_ipsrc");
+$snort_temp_conn->Execute("DELETE FROM ac_sensor_ipdst");
+$snort_temp_conn->Execute("DELETE FROM ac_alerts_sid");
+$snort_temp_conn->Execute("DELETE FROM ac_alerts_signature");
+$snort_temp_conn->Execute("DELETE FROM ac_alerts_ipsrc");
+$snort_temp_conn->Execute("DELETE FROM ac_alerts_ipdst");
+$snort_temp_conn->Execute("DELETE FROM ac_srcaddr_ipdst");
+$snort_temp_conn->Execute("DELETE FROM ac_srcaddr_ipsrc");
+$snort_temp_conn->Execute("DELETE FROM ac_srcaddr_sid");
+$snort_temp_conn->Execute("DELETE FROM ac_srcaddr_signature");
+$snort_temp_conn->Execute("DELETE FROM ac_dstaddr_ipdst");
+$snort_temp_conn->Execute("DELETE FROM ac_dstaddr_ipsrc");
+$snort_temp_conn->Execute("DELETE FROM ac_dstaddr_sid");
+$snort_temp_conn->Execute("DELETE FROM ac_dstaddr_signature");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_sport");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_sport_sid");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_sport_signature");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_sport_ipsrc");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_sport_ipdst");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_dport");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_dport_sid");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_dport_signature");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_dport_ipsrc");
+$snort_temp_conn->Execute("DELETE FROM ac_layer4_dport_ipdst");
+echo "ok.\nGenerating ac_* tables from acid_event...";
+if (!$rs = & $snort_temp_conn->Execute("SELECT * FROM acid_event FORCE INDEX(timestamp) ORDER BY timestamp")) {
+    print $snort_temp_conn->ErrorMsg();
+} else {
+	$j=0;
+    while (!$rs->EOF) {
+		if ($i==100) { echo "."; $j=0; }
+		$sid = $rs->fields["sid"];
+		$cid = $rs->fields["cid"];
+		$timestamp = $rs->fields["timestamp"];
+		$day=preg_replace("/\s.*/","",$timestamp);
+		$ip_src = $rs->fields["ip_src"];
+		$ip_dst = $rs->fields["ip_dst"];
+		$ip_proto = $rs->fields["ip_proto"];
+		$layer4_sport = $rs->fields["layer4_sport"];
+		$layer4_dport = $rs->fields["layer4_dport"];
+		$plugin_id = $rs->fields["plugin_id"];
+		$plugin_sid = $rs->fields["plugin_sid"];
+		#
+		$sqls = array();
+		$i=0;
+		# AC_SENSOR queries
+		$sqls[$i++] = "INSERT INTO ac_sensor_sid (sid,day,cid,first_timestamp,last_timestamp) VALUES ($sid,'$day',1,'$timestamp','$timestamp') ON DUPLICATE KEY UPDATE cid=cid+1,last_timestamp='$timestamp'";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_sensor_signature (sid,day,plugin_id,plugin_sid) VALUES ($sid,'$day',$plugin_id,$plugin_sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_sensor_ipsrc (sid,day,ip_src) VALUES ($sid,'$day',$ip_src)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_sensor_ipdst (sid,day,ip_dst) VALUES ($sid,'$day',$ip_dst)";
+		# AC_ALERTS queries
+		$sqls[$i++] = "INSERT INTO ac_alerts_signature (day,sig_cnt,first_timestamp,last_timestamp,plugin_id,plugin_sid) VALUES ('$day',1,'$timestamp','$timestamp',$plugin_id,$plugin_sid) ON DUPLICATE KEY UPDATE sig_cnt=sig_cnt+1,last_timestamp='$timestamp'";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_alerts_sid (day,sid,plugin_id,plugin_sid) VALUES ('$day',$sid,$plugin_id,$plugin_sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_alerts_ipsrc (day,ip_src,plugin_id,plugin_sid) VALUES ('$day',$ip_src,$plugin_id,$plugin_sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_alerts_ipdst (day,ip_dst,plugin_id,plugin_sid) VALUES ('$day',$ip_dst,$plugin_id,$plugin_sid)";
+		# AC_SRC_ADDRESS queries
+		$sqls[$i++] = "INSERT INTO ac_srcaddr_ipsrc (ip_src,day,cid) VALUES ($ip_src,'$day',1) ON DUPLICATE KEY UPDATE cid=cid+1";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_srcaddr_sid (ip_src,day,sid) VALUES ($ip_src,'$day',$sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_srcaddr_signature (ip_src,day,plugin_id,plugin_sid) VALUES ($ip_src,'$day',$plugin_id,$plugin_sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_srcaddr_ipdst (ip_src,day,ip_dst) VALUES ($ip_src,'$day',$ip_dst)";
+		# AC_DST_ADDRESS queries
+		$sqls[$i++] = "INSERT INTO ac_dstaddr_ipdst (ip_dst,day,cid) VALUES ($ip_dst,'$day',1) ON DUPLICATE KEY UPDATE cid=cid+1";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_dstaddr_sid (ip_dst,day,sid) VALUES ($ip_dst,'$day',$sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_dstaddr_signature (ip_dst,day,plugin_id,plugin_sid) VALUES ($ip_dst,'$day',$plugin_id,$plugin_sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_dstaddr_ipsrc (ip_dst,day,ip_src) VALUES ($ip_dst,'$day',$ip_src)";
+		# AC_LAYER4_SPORT queries
+		$sqls[$i++] = "INSERT INTO ac_layer4_sport (layer4_sport,ip_proto,day,cid,first_timestamp,last_timestamp) VALUES ($layer4_sport,$ip_proto,'$day',1,'$timestamp','$timestamp') ON DUPLICATE KEY UPDATE cid=cid+1,last_timestamp='$timestamp'";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_layer4_sport_sid (layer4_sport,ip_proto,day,sid) VALUES ($layer4_sport,$ip_proto,'$day',$sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_layer4_sport_signature (layer4_sport,ip_proto,day,plugin_id,plugin_sid) VALUES ($layer4_sport,$ip_proto,'$day',$plugin_id,$plugin_sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_layer4_sport_ipsrc (layer4_sport,ip_proto,day,ip_src) VALUES ($layer4_sport,$ip_proto,'$day',$ip_src)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_layer4_sport_ipdst (layer4_sport,ip_proto,day,ip_dst) VALUES ($layer4_sport,$ip_proto,'$day',$ip_dst)";
+		# AC_LAYER4_SPORT queries
+		$sqls[$i++] = "INSERT INTO ac_layer4_dport (layer4_dport,ip_proto,day,cid,first_timestamp,last_timestamp) VALUES ($layer4_dport,$ip_proto,'$day',1,'$timestamp','$timestamp') ON DUPLICATE KEY UPDATE cid=cid+1,last_timestamp='$timestamp'";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_layer4_dport_sid (layer4_dport,ip_proto,day,sid) VALUES ($layer4_dport,$ip_proto,'$day',$sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_layer4_dport_signature (layer4_dport,ip_proto,day,plugin_id,plugin_sid) VALUES ($layer4_dport,$ip_proto,'$day',$plugin_id,$plugin_sid)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_layer4_dport_ipsrc (layer4_dport,ip_proto,day,ip_src) VALUES ($layer4_dport,$ip_proto,'$day',$ip_src)";
+		$sqls[$i++] = "INSERT IGNORE INTO ac_layer4_dport_ipdst (layer4_dport,ip_proto,day,ip_dst) VALUES ($layer4_dport,$ip_proto,'$day',$ip_dst)";
+		foreach ($sqls as $sql) $snort_temp_conn->Execute($sql);
+		$rs->MoveNext();
+		$j++;
+    }
+}
+echo "ok.\n";
+
 // 3) COPY TEMP TO ORIGINAL SNORT
+/*
 $conf = $GLOBALS["CONF"];
 $snort_user = $conf->get_conf("snort_user");
 $snort_port = $conf->get_conf("snort_port");
@@ -101,5 +190,7 @@ $snort_host = $conf->get_conf("snort_host");
 $snort_name = "snort_restore_".$filter_by;
 $type = $conf->get_conf("snort_type");
 $cmdline = "mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port $snort_name";
-system("");
+*/
+// 3) CREATE A NEW Database Profile for SIEM
+echo "Done.\n";
 ?>
