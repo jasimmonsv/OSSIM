@@ -62,6 +62,7 @@ $mac          = POST('mac');
 $mac_vendor   = POST('mac_vendor');
 $latitude     = POST('latitude');
 $longitude    = POST('longitude');
+$zoom         = intval(POST('zoom'));
 
 $num_sensors = count($sensors);
 
@@ -83,7 +84,7 @@ $validate = array (
 	"mac"          => array("validation"=>"OSS_NOECHARS, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Mac Address")),
 	"mac_vendor"   => array("validation"=>"OSS_NOECHARS, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, \"(\", \")\"", "e_message" => 'illegal:' . _("Mac Vendor")),
 	"latitude"     => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Latitude")),
-	"longitude"    => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Longitude")),
+	"longitude"    => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Longitude"))
 );
 
 if ( GET('ajax_validation') == true )
@@ -143,15 +144,16 @@ if ( $error == true )
 	$_SESSION['_host']['asset']        = $asset;
 	$_SESSION['_host']['nat']          = $nat;  	
 	$_SESSION['_host']['sensors']      = $sensors;  
-	$_SESSION['_host']['nagios']       = $nagios;	
-	$_SESSION['_host']['rrd_profile']  = $rrd_profile;  
-	$_SESSION['_host']['threshold_a']  = $threshold_a; 
-	$_SESSION['_host']['threshold_c']  = $threshold_c; 
-	$_SESSION['_host']['os']           = $os; 
-	$_SESSION['_host']['mac']          = $mac; 
-	$_SESSION['_host']['mac_vendor']   = $mac_vendor; 
-	$_SESSION['_host']['latitude']     = $latitude; 
-	$_SESSION['_host']['longitude']    = $longitude; 
+	$_SESSION['_host']['nagios']       = $nagios;
+	$_SESSION['_host']['rrd_profile']  = $rrd_profile;
+	$_SESSION['_host']['threshold_a']  = $threshold_a;
+	$_SESSION['_host']['threshold_c']  = $threshold_c;
+	$_SESSION['_host']['os']           = $os;
+	$_SESSION['_host']['mac']          = $mac;
+	$_SESSION['_host']['mac_vendor']   = $mac_vendor;
+	$_SESSION['_host']['latitude']     = $latitude;
+	$_SESSION['_host']['longitude']    = $longitude;
+	$_SESSION['_host']['zoom']         = $zoom;
 }
 
 ?>
@@ -195,7 +197,7 @@ if ( POST('insert') && !empty($ip) )
 	$db = new ossim_db();
     $conn = $db->connect();
     
-	Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
+	Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, "$longitude;$zoom", $fqdns);
     
 	if ( $hostname != $old_hostname ) {
     	$query = "UPDATE risk_indicators SET type_name=? WHERE type='host' AND type_name=?";

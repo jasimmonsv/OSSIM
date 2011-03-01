@@ -111,8 +111,10 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 						echo gettext("Host Info"); ?> </th></tr>
 						<?php
 						$sensor_list = array();
+                        $coordinates = array(0,0,2);
 						if ($host_list = Host::get_list($conn, "WHERE ip = '$host'")) {
 							$host_aux = $host_list[0];
+                            $coordinates = $host_aux->get_coordinates();
 							$sensor_list = $host_aux->get_sensors($conn);
 						?>
 							  <tr>
@@ -219,6 +221,25 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 					</table>
 					</td>
 				</tr>
+                <?php
+                if (intval($coordinates['lat'])!=0 && intval($coordinates['lon'])!=0) {
+                ?>
+                <tr>
+                    <td colspan="2" class="nobborder">
+                        <div id='map' style='height:200px; width:425px'></div>
+                        <script>
+                            var latitude = '<?php echo $coordinates['lat']?>';
+                            var longitude = '<?php echo $coordinates['lon']?>';
+                            var zoom = <?php echo $coordinates['zoom']?>;
+                            $(document).ready(function(){ 
+                                initialize();
+                            });
+                        </script>
+                    </td>
+                </tr>
+                <?php
+                }
+                ?>
 				<tr>
 				  <td colspan="2" class="nobborder">
 				  <form method="GET" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>">
@@ -243,13 +264,13 @@ if (GET('origin') == 'active' && GET('update') == 'services') {
 						width: 120px;
 					}
 					#tableServicesTit .tableServices_t1{
-						width: 120px;
+						width: 120px; font-size:11px;
 					}
 					#tableServicesTit .tableServices_t2{
-						width: 200px;
+						width: 200px; font-size:11px;
 					}
 					#tableServicesTit .tableServices_t3{
-						width: 100px;
+						width: 100px; font-size:11px;
 					}
 				  </style>
 				  <table id="tableServicesTit" class="noborder">

@@ -47,6 +47,7 @@ require_once ('classes/Frameworkd_socket.inc');
 require_once ('classes/Port.inc');
 require_once ('classes/Protocol.inc');
 require_once ('classes/Util.inc');
+include_once ("geoipcity.inc");
 
 
 Session::logcheck("MenuPolicy", "PolicyHosts");
@@ -90,24 +91,26 @@ foreach($lines as $line)
 $array_assets = array ( '0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
 $array_os = array ( "Unknown" => "",
-					"Win"     => "Microsoft Windows",
+					"Microsoft Windows" => "Microsoft Windows",
 					"Linux"   => "Linux",
 					"FreeBSD" => "FreeBSD",
 					"NetBSD"  => "NetBSD",
 					"OpenBSD" => "OpenBSD",
-					"MacOS"   => "Apple MacOS",
-					"Solaris" => "SUN Solaris",
-					"Cisco"   => "Cisco IOS",
-					"AIX"     => "IBM AIX",
+					"Apple MacOSX"   => "Apple MacOSX",
+					"SUN Solaris" => "SUN Solaris",
+					"Cisco IOS"   => "Cisco IOS",
+					"IBM AIX"     => "IBM AIX",
 					"HP-UX"   => "HP-UX",
-					"Tru64"   => "Compaq Tru64",
-					"IRIX"    => "SGI IRIX",
+					"Compaq Tru64"   => "Compaq Tru64",
+					"SGI IRIX"    => "SGI IRIX",
 					"BSD\/OS"  => "BSD/OS",
 					"SunOS"   => "SunOS",
 					"Plan9"   => "Plan9",
 					"IPhone"  => "IPhone");
 
-$conf     = $GLOBALS["CONF"];					
+$conf     = $GLOBALS["CONF"];	
+$map_key = $conf->get_conf("google_maps_key", FALSE);
+if ($map_key=="") $map_key="ABQIAAAAbnvDoAoYOSW2iqoXiGTpYBTIx7cuHpcaq3fYV4NM0BaZl8OxDxS9pQpgJkMv0RxjVl6cDGhDNERjaQ";
 $sensors  = array();
 
 $threshold_a = $threshold_c = $conf->get_conf("threshold");
@@ -141,7 +144,8 @@ if ( isset($_SESSION['_host']) )
 	$mac           = $_SESSION['_host']['mac']; 
 	$mac_vendor    = $_SESSION['_host']['mac_vendor']; 
 	$latitude      = $_SESSION['_host']['latitude']; 
-	$longitude     = $_SESSION['_host']['longitude']; 
+	$longitude     = $_SESSION['_host']['longitude'];
+	$zoom          = $_SESSION['_host']['zoom'];
 	
 	unset($_SESSION['_host']);
 }
@@ -181,7 +185,25 @@ else
 
 		$latitude        = $coordinates['lat'];
 		$longitude       = $coordinates['lon'];
+		$zoom            = $coordinates['zoom'];
 		
+		if ( empty($latitude) || empty($longitude) )
+		{
+			$gi     = geoip_open("/usr/share/geoip/GeoLiteCity.dat", GEOIP_STANDARD);
+			$record = geoip_record_by_addr($gi,$ip);
+			
+			if (is_null($record)) 
+				$record = geoip_record_by_addr($gi,Session_activity::getRealIpAddr());
+			if (!is_null($record))
+			{
+				$city      =  $record->city;
+				$country   =  $record->country_name;
+				$latitude  =  $record->latitude;
+				$longitude =  $record->longitude;
+			}
+			geoip_close($gi);
+		}
+				
 		$num_sensors     = count($sensors);
 	}
 }
@@ -266,7 +288,6 @@ if ( $error_message != null )
 }
 
 ?>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
@@ -280,6 +301,7 @@ if ( $error_message != null )
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&key=<?php echo $map_key ?>"></script> 
 	<!-- Dynatree libraries: -->
 	<script type="text/javascript" src="../js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
@@ -617,8 +639,58 @@ if ( $error_message != null )
 			$('#inv_prop_source_id').val('');
 			$('#inv_prop_anom').val('');
 		}
-
 		
+		
+		var map;
+		var marker;
+				
+		function initialize()
+		{
+			var latitude  = '<?php echo $latitude;?>';
+			var longitude = '<?php echo $longitude;?>';
+			
+			var latlng = new google.maps.LatLng(latitude, longitude);
+			var myOptions = {
+			  zoom: <?php echo $zoom;?>,
+			  center: latlng,
+			  mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+			
+			map = new google.maps.Map(document.getElementById("map"), myOptions);
+			
+			marker = new google.maps.Marker({
+				position: latlng, 
+				draggable:true,
+				animation: google.maps.Animation.DROP,
+				map: map, 
+				title: '<?php echo "$ip "._("Location")?>'
+			}); 
+			
+			google.maps.event.addListener(marker, 'click',   toggleBounce);
+			google.maps.event.addListener(marker, 'dragend', updatePosition);
+			google.maps.event.addListener(map, 'zoom_changed', changeZoom);
+		}
+		
+		function changeZoom()
+		{
+			$('#zoom').val(map.zoom);
+		}
+		
+		function updatePosition()
+		{
+			$('#latitude').val(Math.round(marker.position.lat()*10000)/10000);
+			$('#longitude').val(Math.round(marker.position.lng()*10000)/10000);
+		}
+				
+		function toggleBounce()
+		{
+
+			if (marker.getAnimation() != null) 
+				marker.setAnimation(null);
+			else 
+				marker.setAnimation(google.maps.Animation.BOUNCE);
+		}
+  			
 		$(document).ready(function(){
 
 			load_tree_1('tree_container_1', '<?php echo $ip?>');
@@ -745,8 +817,21 @@ if ( $error_message != null )
 				$('#cont_changes').hide();
 			});
 			
+			initialize();
+			
+			$('#latitude').bind('change', function() {
+				var latlng = new google.maps.LatLng($('#latitude').val(),$('#longitude').val());
+				 marker.setPosition(latlng);
+				 map.setCenter(latlng);
+			});
+			
+			$('#longitude').bind('change', function() {
+				var latlng = new google.maps.LatLng($('#latitude').val(),$('#longitude').val());
+				 marker.setPosition(latlng);
+				 map.setCenter(latlng);
+			});
+									
 		});
-	
 	
 	</script>
 	
@@ -1009,23 +1094,30 @@ if ( empty( $ip ) ) {
 						<td class="left"><input type="text" class='vfield' name="mac_vendor" id="mac_vendor" value="<?php echo $mac_vendor;?>"/></td>
 					</tr>
 
-					<tr style="display:none">
+					<tr>
 						<td style="text-align: left; border:none; padding-top:3px;">
 							<a onclick="$('.geolocation').toggle();">
-							<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Geolocation Info")?></a>
+							<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?=gettext("Host Location")?></a>
 						</td>
 					</tr>
 						
-					<tr class="geolocation" style="display:none;">
+					<tr class="geolocation">
 						<th><label for='latitude'><?php echo gettext("Latitude"); ?></label></th>
-						<td class="left"><input type="text" class='vfield' id="latitude" name="latitude" value="<?php echo $latitude;?>"/></td>
+						<td class="left"><input type="text" id="latitude" name="latitude" value="<?php echo $latitude;?>"/></td>
 					</tr>
 					
-					<tr class="geolocation" style="display:none;">
+					<tr class="geolocation">
 						<th><label for='longitude'><?php echo gettext("Longitude"); ?></label></th>
 						<td class="left"><input type="text" id="longitude" name="longitude" value="<?php echo $longitude;?>"/></td>
 					</tr>
 					
+					<tr class="geolocation">
+						<td colspan="2">
+							<input type="hidden" id="zoom" name="zoom" value="<?php echo $zoom;?>"/>
+							<div id='map' style='height:200px; width:380px;'></div>
+						</td>
+					</tr>
+										
 					<tr>
 						<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
 							<input type="button" class="button" id='send' value="<?=_("Update")?>" onclick="submit_form();"/>

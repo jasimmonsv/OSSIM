@@ -1117,7 +1117,7 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 	public function set_activity($activity) { $this->activity= $activity;}	
 	
 	
-	private function getRealIpAddr()
+	public function getRealIpAddr()
 	{
 		if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
 			$ip=$_SERVER['HTTP_CLIENT_IP'];

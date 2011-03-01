@@ -50,18 +50,18 @@ $conn = $db->connect();
 $array_assets = array ('0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
 $array_os = array ( "Unknown" => "",
-					"Win"     => "Microsoft Windows",
+					"Microsoft Windows" => "Microsoft Windows",
 					"Linux"   => "Linux",
 					"FreeBSD" => "FreeBSD",
 					"NetBSD"  => "NetBSD",
 					"OpenBSD" => "OpenBSD",
-					"MacOS"   => "Apple MacOS",
-					"Solaris" => "SUN Solaris",
-					"Cisco"   => "Cisco IOS",
-					"AIX"     => "IBM AIX",
+					"Apple MacOSX"   => "Apple MacOSX",
+					"SUN Solaris" => "SUN Solaris",
+					"Cisco IOS"   => "Cisco IOS",
+					"IBM AIX"     => "IBM AIX",
 					"HP-UX"   => "HP-UX",
-					"Tru64"   => "Compaq Tru64",
-					"IRIX"    => "SGI IRIX",
+					"Compaq Tru64"   => "Compaq Tru64",
+					"SGI IRIX"    => "SGI IRIX",
 					"BSD\/OS"  => "BSD/OS",
 					"SunOS"   => "SunOS",
 					"Plan9"   => "Plan9",
@@ -171,7 +171,6 @@ else
 	}
 }
 ?>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>

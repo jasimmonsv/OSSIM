@@ -269,8 +269,8 @@ usleep(500000);
 	</tr>
 	<tr><td class="vsep" style="border:0px solid white"></td></tr>
 	<tr>
-		<td>
-			<table cellspacing="2" cellpadding="1">
+		<td valign="top">
+			<table cellspacing="2" cellpadding="4">
 				<tr bgcolor="#E1EFE0">
 					<td class="bartitle" width="125"><a href="../top.php?option=1&soption=1&url=<?php echo "incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets" ?>" target="topmenu" class="blackp"><?=gettext("Tickets")?> <b><?=gettext("Opened")?></b></a></td>
 					<td class="capsule" width="50" id="tickets_num"><a href="../top.php?option=1&soption=1&url=<?php echo urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets") ?>" target="topmenu" class="whitepn">-</a></td>

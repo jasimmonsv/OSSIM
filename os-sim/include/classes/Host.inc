@@ -83,6 +83,7 @@ class Host {
 	var $fqdns;
     var $lat;
     var $lon;
+    var $zoom;
     var $asset;
     var $threshold_c;
     var $threshold_a;
@@ -106,7 +107,9 @@ class Host {
         $this->descr = Util::htmlentities($descr);
         $this->foundrows = $foundrows;
 		$this->lat = $lat;
-		$this->lon = $lon;
+		$lz = explode(";",$lon);
+		$this->lon = $lz[0];
+		$this->zoom = ($lz[1]!="") ? $lz[1] : 2;
     }
     function get_ip() {
         return $this->ip;
@@ -130,6 +133,7 @@ class Host {
 		$coordinates = array();
 		$coordinates['lat'] = $this->lat;
 		$coordinates['lon'] = $this->lon;
+		$coordinates['zoom'] = $this->zoom;
 		return $coordinates;
     }
     function get_rrd_profile() {
@@ -351,26 +355,33 @@ class Host {
                 $db_sensor_list[$aux->get_name() ] = $aux->get_ip();
             }
         }
+        // OS and Mac
         foreach($sensors as $sensor) {
             if ($os != "Unknown") {
-                $sql = "INSERT INTO host_os (ip, os, date, anom, sensor)
-                    VALUES (inet_aton(?), ?, CURRENT_TIMESTAMP, '0', inet_aton(?))";
+                //$sql = "INSERT INTO host_os (ip, os, date, anom, sensor)
+                //    VALUES (inet_aton(?), ?, CURRENT_TIMESTAMP, '0', inet_aton(?))";
+                $sql = "INSERT INTO host_properties (ip, sensor, date, property_ref, source_id,value,extra,anom,tzone)
+                    VALUES (?,?,?,3,1,?,'',0,?)";                    
                 $params = array(
                     $ip,
+                    $db_sensor_list[$sensor],
+                    date("Y-m-d H:i:s"),
                     $os,
-                    $db_sensor_list[$sensor]
+                    intval(date("O"))/100
                 );
-				
 				$conn->Execute($sql, $params);
             }
             if ($mac != "") {
-                $sql = "INSERT INTO host_mac (ip, mac, date, vendor, anom, sensor) 
-                    VALUES (inet_aton(?), ?, CURRENT_TIMESTAMP, ?, '0', inet_aton(?))";
+                //$sql = "INSERT INTO host_mac (ip, mac, date, vendor, anom, sensor) 
+                //    VALUES (inet_aton(?), ?, CURRENT_TIMESTAMP, ?, '0', inet_aton(?))";
+                $sql = "INSERT INTO host_properties (ip, sensor, date, property_ref, source_id,value,extra,anom,tzone)
+                    VALUES (?,?,?,7,1,?,'',0,?)";                    
                 $params = array(
                     $ip,
+                    $db_sensor_list[$sensor],
+                    date("Y-m-d H:i:s"),
                     $mac,
-                    $mac_vendor,
-                    $db_sensor_list[$sensor]
+                    intval(date("O"))/100
                 );
                 $conn->Execute($sql, $params);
             }

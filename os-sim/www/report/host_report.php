@@ -138,6 +138,8 @@ if ($network) {
 
 $user = Session::get_session_user();
 $conf = $GLOBALS['CONF'];
+$map_key = $conf->get_conf("google_maps_key", FALSE);
+if ($map_key=="") $map_key="ABQIAAAAbnvDoAoYOSW2iqoXiGTpYBTIx7cuHpcaq3fYV4NM0BaZl8OxDxS9pQpgJkMv0RxjVl6cDGhDNERjaQ";
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 ?>
@@ -209,6 +211,7 @@ a {
 <script type="text/javascript" src="../js/greybox.js"></script>
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
 <script src="../js/datepicker.js" type="text/javascript"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&key=<?php echo $map_key ?>"></script>
 <?php if($host=='any') { ?>
 <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
 <script type="text/javascript" src="../js/jquery.tmpl.1.1.1.js"></script>
@@ -247,6 +250,27 @@ a {
 <? $noready=1; include ("../host_report_menu.php") ?>
 
 <script type="text/javascript">
+ 
+    function initialize()
+    {
+        var latlng = new google.maps.LatLng(latitude, longitude);
+        var myOptions = {
+          zoom: zoom,
+          center: latlng,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        
+        var map = new google.maps.Map(document.getElementById("map"), myOptions);
+        
+        var marker = new google.maps.Marker({
+            position: latlng, 
+            draggable: false,
+            animation: google.maps.Animation.DROP,
+            map: map, 
+            title: '<?php echo "$host "._("Location")?>'
+        }); 
+    }
+        
 	$(document).ready(function(){
 		var graphs = 0;
 		$('#loading').toggle();
