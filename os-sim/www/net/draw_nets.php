@@ -52,6 +52,8 @@ if (ossim_error()) {
 }
 if ($filter == "undefined") $filter = "";
 
+$low_limit  = 10;
+$high_limit = 100;
 
 require_once ('classes/Net.inc');
 require_once ('ossim_db.inc');
@@ -99,7 +101,7 @@ ksort($nets);
 
 if ($key=="") {
     $buffer .= "[ {title: '"._("Networks")."', key:'keyn', url:'networks', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";
-    if(count($bclasses) <= 20 ) {
+    if(count($bclasses) <= $low_limit ) {
         foreach($cclasses as $cclass => $v) {
             $buffer .= "{ key:'cclass_$cclass', icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--', expand:true, children:[\n";
             foreach($nets as $net_name => $net_cidrs) if(preg_match("/$cclass\..*/",$net_cidrs)) {
@@ -112,7 +114,7 @@ if ($key=="") {
             $buffer .= "]},";
         }
     }
-    else if(count($bclasses) > 20 && count($bclasses) <= 100) {
+    else if(count($bclasses) > $low_limit && count($bclasses) <= $high_limit) {
         foreach($bclasses as $bclass => $v)
             $buffer .= "{ key:'bclass_$bclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$bclass.---.---/--'},";
     }
