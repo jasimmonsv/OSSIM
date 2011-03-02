@@ -2,7 +2,7 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
-UPDATE `custom_report_types` SET `inputs` = 'Top SIEM Events List:top:text:OSS_DIGIT:25:250;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:;Source:source:select:OSS_ALPHA:EVENTSOURCE:' WHERE `id` = 128;
+UPDATE `custom_report_types` SET `inputs` = 'Top SIEM Events List:top:text:OSS_DIGIT:25:250;Product Type:sourcetype:select:OSS_ALPHA.OSS_SLASH.OSS_SPACE.OSS_NULLABLE:SOURCETYPE:;Event Category:category:select:OSS_DIGIT.OSS_NULLABLE:CATEGORY:;Event SubCategory:subcategory:select:OSS_DIGIT.OSS_NULLABLE:SUBCATEGORY:;Source:source:select:OSS_ALPHA:EVENTSOURCE:' WHERE `id`=128;
 
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file
