@@ -482,9 +482,10 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="datatype' + id + '" id="datatype' + id + '" value="' + type + '">\n';
 			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="type_name' + id + '" id="type_name' + id + '" value="' + type_name + '">\n';
 			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataurl' + id + '" id="dataurl' + id + '" value="' + url + '">\n';
-			if (document.getElementById('dataicon' + id) != null) {
-				document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataicon' + id + '" id="dataicon' + id + '" value="' + icon + '">\n';
-			}
+			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataicon' + id + '" id="dataicon' + id + '" value="' + icon + '">\n';
+			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataiconsize' + id + '" id="dataiconsize' + id + '" value="' + size + '">\n';
+			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataiconbg' + id + '" id="dataiconbg' + id + '" value="' + iconbg + '">\n';
+			
 			document.getElementById('state').innerHTML = "<?= _("New") ?>"
 		}
 
@@ -542,7 +543,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					document.getElementById('elem').value = keys[1];
 					if (keys[0] == "host" || keys[0] == "net") document.getElementById('check_report').checked = true;
 					else document.getElementById('check_report').checked = false;
-					change_select()
 				},
 				onDeactivate: function(dtnode) {},
 				onLazyRead: function(dtnode){
@@ -671,7 +671,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			icon_aux = icon_aux.replace(/\%3F/g,"url_quest");
 			icon_aux = icon_aux.replace(/\%3D/g,"url_equal");
 			urlsave = 'save.php?type=' +urlencode(document.f.type.value)+'&type_name='+ urlencode(document.getElementById('elem').value) +'&map=' + map + '&id=' + document.f.alarm_id.value + '&name=' + urlencode(document.f.alarm_name.value) + '&url=' + url_aux + '&icon=' + icon_aux + '&data=' + txt + '&iconbg=' + document.f.iconbg.value + '&iconsize=' + document.f.iconsize.value;
-			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20'>";
+			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20' align='absmiddle'> <?php echo _("Saving changes") ?>...";
 			$.ajax({
 			   	type: "GET",
 			   	url: urlsave,
@@ -680,11 +680,15 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			   		changed = 0;
 			   		document.getElementById('save_button').className = "lbutton";
 			   		refresh_indicators();
+			   		document.getElementById('dataicon'+document.f.alarm_id.value).value = document.getElementById("chosen_icon").src;
+			   		document.getElementById('dataiconsize'+document.f.alarm_id.value).value = document.f.iconsize.value;
+			   		document.getElementById('dataiconbg'+document.f.alarm_id.value).value = document.f.iconbg.value;
 				}
 			});
 		}
 
 		function refresh_indicators() {
+			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20' align='absmiddle'> <?php echo _("Refreshing indicators") ?>...";
 			$.ajax({
 			   type: "GET",
 			   url: "get_indicators.php?map=<?php echo $map ?>",
@@ -697,6 +701,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 							document.getElementById('alarma'+data[0]).innerHTML = data[1];
 						}
 				   }
+				   document.getElementById('state').innerHTML = "";
 			   }
 			});	
 		}
