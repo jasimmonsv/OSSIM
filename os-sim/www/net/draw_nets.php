@@ -76,20 +76,30 @@ if($key=="")
     $all_nets = Net::get_list($conn, $condition);
     
 else if(preg_match("/bclass_(\d+\.\d+)/",$key,$found)) 
-    $all_nets = Net::get_list($conn,"ips LIKE '".$found[1]."%'" . $condition);
+    $all_nets = Net::get_list($conn,"(ips LIKE '".$found[1]."%' OR ips LIKE '%,".$found[1]."%')" . $condition);
     
 else if(preg_match("/cclass_(\d+\.\d+\.\d+)/",$key,$found))
-    $all_nets = Net::get_list($conn,"ips LIKE '".$found[1]."%'" . $condition);
-
+    $all_nets = Net::get_list($conn,"(ips LIKE '".$found[1]."%' OR ips LIKE '%,".$found[1]."%')" . $condition);
 
 foreach ($all_nets as $net) {
+    if($key=="" || preg_match("/bclass_(\d+\.\d+)/",$key,$found)) {
+        $acidrs = array();
+        $cidrs = trim($net->get_ips());
+        $acidrs = explode(",",$cidrs);
+        sort($acidrs);
+    }
+
     if($key=="") {
-        preg_match("/(\d+\.\d+)\..*/",$net->get_ips(),$found);
-        if(!in_array($found[1],$bclasses))  $bclasses[] = $found[1];
+        foreach($acidrs as $cidr) {
+            preg_match("/(\d+\.\d+)\..*/",$cidr,$found);
+            if(!in_array($found[1],$bclasses))  $bclasses[] = $found[1];
+        }
     }
     else if(preg_match("/bclass_(\d+\.\d+)/",$key,$found)) {
-        preg_match("/(\d+\.\d+\.\d+)\..*/",$net->get_ips(),$found);
-        if(!in_array($found[1],$cclasses)) $cclasses[] = $found[1];
+        foreach($acidrs as $cidr) {
+            preg_match("/(\d+\.\d+\.\d+)\..*/",$cidr,$found);
+            if(!in_array($found[1],$cclasses)) $cclasses[] = $found[1];
+        }
     }
     else if(preg_match("/cclass_(\d+\.\d+\.\d+)/",$key,$found)) {
         $cidrs = trim($net->get_ips());
@@ -97,6 +107,7 @@ foreach ($all_nets as $net) {
         if(count($tmp_cidrs)>1) $cidrs = $tmp_cidrs[0]."...".$tmp_cidrs[count($tmp_cidrs)-1];
         $name = trim($net->get_name());
         $nets[$name] = $cidrs;
+        ksort($nets);
     }
 }
 
