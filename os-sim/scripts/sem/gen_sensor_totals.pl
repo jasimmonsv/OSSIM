@@ -9,7 +9,11 @@ $folder = $ARGV[0];
 $folder =~ s/\/$//;
 $qfolder = quotemeta $folder;
 
-$cmd_years = "ls -1t $folder/*/*/*/*/*/.total_events |";
+#$cmd_years = "ls -1t $folder/*/*/*/*/*/.total_events |";
+
+$year = `date +%Y`;
+chomp($year);
+$cmd_years = "find $folder/$year/ -name .total_events | egrep '[0-9]{2,3}\.[0-9]' |";
 
 open (LS,$cmd_years);
 foreach $line (<LS>) {
