@@ -130,8 +130,8 @@ $start_query = $start;
 $end_query = $end;
 
 if ($tzone!=0) {
-	$start = date("Y-m-d H:i:s",strtotime($start)+(-3600*$tzone));
-	$end = date("Y-m-d H:i:s",strtotime($end)+(-3600*$tzone));
+	$start = gmdate("Y-m-d H:i:s",strtotime($start)+(-3600*$tzone));
+	$end = gmdate("Y-m-d H:i:s",strtotime($end)+(-3600*$tzone));
 }	
 
 $db = new ossim_db();
@@ -499,7 +499,12 @@ foreach($result as $res=>$event_date) {
 	    
 	    $res = str_replace("<", "", $res);
 	    $res = str_replace(">", "", $res);
-    
+
+        # decode if data is stored in base64
+        $data = $matches[11];
+        $matches[11] = base64_decode($matches[11],true);
+        if ($matches[11]==FALSE) $matches[11] = $data;
+                            
         if($htmlResult){
             $data = $matches[11];
             $signature = $matches[13];

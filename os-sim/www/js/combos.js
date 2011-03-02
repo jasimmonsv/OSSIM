@@ -13,6 +13,15 @@
 		for (var i=delems.length-1; i>=0; i--)
 			myselect.remove(delems[i])
 	}
+	// delete all options in a combo
+	function deleteall (mysel) {
+		var delems = [];
+		var myselect=document.getElementById(mysel)
+		for (var i=0; i<myselect.options.length; i++)
+			delems.push(i);
+		for (var i=delems.length-1; i>=0; i--)
+			myselect.remove(delems[i])
+	}
 	// add element to a combo
 	function addto (mysel,txt,val) {
 		if (val==null) val=txt
