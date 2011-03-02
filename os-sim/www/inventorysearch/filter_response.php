@@ -43,7 +43,7 @@ $conn = $db->connect();
 
 $rules = get_rulesconfig();
 
-$type = GET('type');
+$type    = GET('type');
 $subtype = GET('subtype');
 ossim_valid($type, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("type"));
 ossim_valid($subtype, OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("subtype"));
@@ -52,14 +52,19 @@ if (ossim_error()) {
 }
 
 $sql = $rules[$type][$subtype]['list'];
-if (!$rs = & $conn->Execute($sql)) {
+
+if (!$rs = & $conn->Execute($sql))
+{
 	echo $conn->ErrorMsg();
-} else {
+} 
+else
+ {
 	$i = 0;
 	while (!$rs->EOF) {
 		if ($rs->fields[0] != "") {
 			// Filter by sensor user perms
 			$aux = str_replace(",","",$rs->fields[0]);
+			
 			if (preg_match("/^\d+\.\d+\.\d+\.\d+$/",$aux)) {
 				if (!Session::hostAllowed($conn,$aux)) {
 					$rs->MoveNext();
@@ -67,11 +72,16 @@ if (!$rs = & $conn->Execute($sql)) {
 				}
 			}
 			
-			if ($i) echo ",";
+			if ($i) echo "###";
+			
 			echo str_replace(",","",$rs->fields[0]);
-			if ($rules[$type][$subtype]['match'] == "fixed" || $rules[$type][$subtype]['match'] == "concat" || $rules[$type][$subtype]['match'] == "fixedText") {
-				if ($rs->fields[1] != "") echo ";".str_replace(",","",$rs->fields[1]); //id;name
-				else echo ";".str_replace(",","",$rs->fields[0]); //name;name
+			if ($rules[$type][$subtype]['match'] == "fixed" || $rules[$type][$subtype]['match'] == "concat" || $rules[$type][$subtype]['match'] == "fixedText")
+			{
+				if ($rs->fields[1] != "") 
+					echo "_#_".str_replace(",","",$rs->fields[1]); //id;name
+				else 
+					echo "_#_".str_replace(",","",$rs->fields[0]); //name;name
+					
 			}
 			$rs->MoveNext();
 			$i++;

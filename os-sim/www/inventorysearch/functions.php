@@ -78,13 +78,13 @@ function get_rulesconfig () {
 	require_once 'ossim_conf.inc';
 	
 	// Database Object
-	$db = new ossim_db();
+	$db   = new ossim_db();
 	$conn = $db->connect();
 
 	$db_rules = InventorySearch::get_all($conn);
 
 	foreach ($db_rules as $rule) {
-		$type = $rule->get_type();
+		$type    = $rule->get_type();
 		$subtype = $rule->get_subtype();
 		$rules[$type][$subtype]['list'] = $rule->get_prelist();
 		$rules[$type][$subtype]['query'] = $rule->get_query();
@@ -137,6 +137,7 @@ function get_params ($value,$sql) {
 }
 function check_security ($value, $match, $value2=NULL, $userfriendly=false) {
 	require_once ("classes/Security.inc");
+				
 	switch($match) {
 		case "text":
 			ossim_valid($value, OSS_SPACE, OSS_ALPHA, OSS_SCORE, OSS_SLASH, OSS_DOT, 'illegal:' . _("$match value"));
@@ -173,7 +174,7 @@ function check_security ($value, $match, $value2=NULL, $userfriendly=false) {
 			<tr><td class='nobborder'><div class='ossim_error'><?php echo ossim_get_error();?></div></td></tr>
 			<tr>
 				<td class="nobborder" style="padding:10px 0;text-align:center">
-					<?php $location = "/wizard_custom_run.php?step=2" ?>
+					<?php $location = ( $userfriendly ) ? "/ossim/inventorysearch/userfriendly.php" : "/ossim/inventorysearch/inventory_search.php";  ?>
 					<input type="button" value="Back" onclick="document.location.href='<?php echo $location;?>'" class="button"/>
 				</td>
 			</tr>

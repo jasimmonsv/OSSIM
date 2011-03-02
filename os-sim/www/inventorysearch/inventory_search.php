@@ -28,15 +28,17 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
+
 require_once ('classes/Session.inc');
 Session::logcheck("MenuPolicy", "5DSearch");
 require_once ('classes/Host.inc');
-require_once 'ossim_db.inc';
-require_once 'ossim_conf.inc';
+require_once ('classes/User_config.inc');
+require_once ('classes/Util.inc');
+require_once ('ossim_db.inc');
+require_once ('ossim_conf.inc');
 
 include ("functions.php");
 
-$new = ($_GET['new'] == "1") ? 1 : 0;
 
 // Database Object
 $db   = new ossim_db();
@@ -44,8 +46,43 @@ $conn = $db->connect();
 
 // Read config file with filters rules
 $rules = get_rulesconfig ();
-//echo "<br><br><br><br>";
-//print_r($_SESSION['inventory_last_search']);
+
+$config = new User_config($conn);
+$user   = Session::get_session_user();
+$data   = $config->get_all($user, "inv_search");
+
+$new    = ( isset($_GET['new']) && !empty($_GET['new'])) ? 1 : 0;
+$case   = 1;
+
+
+if ( $new === 1 )
+{
+	unset($_SESSION['inventory_search']);
+	unset($_SESSION['inventory_last_search']);
+	unset($_SESSION['inventory_last_descr']);
+	unset($_SESSION['profile']);
+	$current_profile  = null;
+}
+else 
+{
+	$current_profile     = ( !empty($_GET['profile']) ) ? $_GET['profile'] : $_SESSION['profile'];
+	$_SESSION['profile'] = $current_profile;
+	
+			
+	if ( isset($_SESSION['inventory_last_search']) )
+		$case = 2;
+	else
+	{
+		$case = 3;
+		
+		if ( empty($current_profile) && $new === 0 && (is_array($data) || empty($data)) )
+		{
+			$name                  = (mb_detect_encoding($data[0]." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? $data[0] : mb_convert_encoding($data[0], 'UTF-8', 'ISO-8859-1');
+			$_SESSION['profile']   = base64_encode($name);
+		}
+	}
+}
+
 
 
 ?>
@@ -54,26 +91,29 @@ $rules = get_rulesconfig ();
 <head>
 <title> <?php echo $title ?> </title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<meta http-equiv="Pragma" content="no-cache"/>
 <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
 <link rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
 <style type="text/css">
-	.active_filter{
-		font-weight: bold;
-	}
+	 a {cursor: pointer;}
+	.active_filter{ font-weight: bold; }
+	.msg_ok {text-align: center; color:green; font-weight:bold;}
+	.msg_ko {text-align: center; color:red;   font-weight:bold;}
 </style>
 <script src="../js/jquery-1.3.2.min.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
 <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+<script type="text/javascript" src="../js/utils.js"></script>
 
 <script type="text/javascript">
 // Parse ajax response
 function parseJSON (data) {
+	
 	try {
 		return eval ("(" + data + ")");
 	} catch (e) {
-		alert ("<?=_("ERROR")?> JSON "+e.message+" : "+data);
+		alert ("<?php echo _("ERROR")?> JSON "+e.message+" : "+data);
 		return null;
 	}
 }
@@ -82,17 +122,17 @@ function parseJSON (data) {
 var syncflag = new Array;
 
 // First level selects
-var criterias = new Array; // (Events, Alarms, etc.)
-var operator = "and";
-var description = "";
+var criterias    = new Array; // (Events, Alarms, etc.)
+var operator     = "and";
+var description  = "";
 // Second level selects
 var subcriterias = new Array; // Events -> (HasEvent, HasIP, HasProtocol, etc.)
 // Third level selects
-var values = new Array; // Events -> HasIP -> (192.168)
-var values2 = new Array;
-var matches = new Array; // Events -> HasIP -> (eq,like)
-var sayts = new Array;
-var datepickers = new Array;
+var values       = new Array; // Events -> HasIP -> (192.168)
+var values2      = new Array;
+var matches      = new Array; // Events -> HasIP -> (eq,like)
+var sayts        = new Array;
+var datepickers  = new Array;
 
 var criteria_count = 0;
 var rules = new Array;
@@ -100,16 +140,14 @@ var rules = new Array;
 	rules['<?=$criteria_type?>'] = new Array;
 	<? foreach ($arr as $rule=>$prop) { ?>
 		rules['<?=$criteria_type?>']['<?=$rule?>'] = new Array;
-		rules['<?=$criteria_type?>']['<?=$rule?>']['match'] = "<?=$prop['match']?>";
-		rules['<?=$criteria_type?>']['<?=$rule?>']['list'] = <?=($prop['list'] != "") ? "true" : "false"?>;
+		rules['<?=$criteria_type?>']['<?=$rule?>']['match'] = "<?php echo $prop['match']?>";
+		rules['<?=$criteria_type?>']['<?=$rule?>']['list']  = <?=($prop['list'] != "") ? "true" : "false"?>;
 	<? } ?>
 <? } ?>
 
 // Profiles div
 var show_profiles = false;
-var current_profile = "";
-
-var finish = false;
+var finish        = false;
 
 	function addcriteria (i) {
 		// Insert criteria in the middle
@@ -128,11 +166,11 @@ var finish = false;
 			values[i+1] = "";
 			matches[i+1] = "";
 		}*/
-		criterias[i+1] = ""; // New criteria empty
+		criterias[i+1]    = ""; // New criteria empty
 		subcriterias[i+1] = "";
-		values[i+1] = "";
-		values2[i+1] = "";
-		matches[i+1] = "";
+		values[i+1]       = "";
+		values2[i+1]      = "";
+		matches[i+1]      = "";
 		criteria_count++;
 		syncflag[criteria_count] = false;
 		//save_values(); // Save text inputs with values
@@ -142,20 +180,22 @@ var finish = false;
 		reloadcriteria();
 	}
 	
-	function removecriteria (ind) {
+	function removecriteria (ind)
+	{
 		//save_values(); // Save text inputs with values
 		for (i = ind; i < criteria_count; i++) {
-			criterias[i] = criterias[i+1];
+			criterias[i]    = criterias[i+1];
 			subcriterias[i] = subcriterias[i+1];
-			values[i] = values[i+1];
-			values2[i] = values2[i+1];
-			matches[i] = matches[i+1];
+			values[i]       = values[i+1];
+			values2[i]      = values2[i+1];
+			matches[i]      = matches[i+1];
 		}
-		criterias[i] = ""; // Remove criteria data
+		
+		criterias[i]    = ""; // Remove criteria data
 		subcriterias[i] = "";
-		values[i] = "";
-		values2[i] = "";
-		matches[i] = "";
+		values[i]       = "";
+		values2[i]      = "";
+		matches[i]      = "";
 		criteria_count--;
 		setcriteria_type(i,"",0);
 		setcriteria_subtype(i,"",0);
@@ -165,13 +205,25 @@ var finish = false;
 	
 	function reloadcriteria () {
 		// loading
-		document.getElementById('msg').innerHTML = "<?php echo _("Loading data..."); ?>";
+		$('#msg').html("<?php echo _("Loading data...");?>");
 
 		var or_selected = ""; var and_selected = "";
-		if (operator == "or") { or_selected = "selected"; and_selected = ""; }
-		else { or_selected = ""; and_selected = "selected"; }
-		document.getElementById('criteria_form').innerHTML = "<tr><td class='nobborder'><b><?=_("Description")?></b>: <input type='text' name='description' id='description' onchange='description=this.value' value='"+description+"' style='width:300px'></td></tr>";
-		document.getElementById('criteria_form').innerHTML += "<tr><td class='nobborder'><?=_('If')?> <select name='operator' id='operator'><option value='and' "+and_selected+"><?=_("ALL")?><option value='or' "+or_selected+"><?=_("ANY")?></select> <?=_('of the following conditions are met')?>:</td></tr>";
+		if (operator == "or") 
+		{
+			or_selected = "selected"; 
+			and_selected = ""; 
+		}
+		else 
+		{
+			or_selected = ""; 
+			and_selected = "selected"; 
+		}
+		
+		var html = "<tr><td class='nobborder'><strong><?php echo _("Description")?></strong>: <input type='text' name='description' id='description' onchange='description=this.value' value='"+description+"' style='width:300px'></td></tr>";
+			html += "<tr><td class='nobborder'><?php echo _('If')?> <select name='operator' id='operator'><option value='and' "+and_selected+"><?php echo _("ALL")?><option value='or' "+or_selected+"><?=_("ANY")?></select> <?php echo _('of the following conditions are met')?>:</td></tr>";
+		
+		$('#criteria_form').html(html);
+		
 		for (i = 1; i <= criteria_count; i++) {
 			document.getElementById('criteria_form').innerHTML += criteria_html(i);
 		}
@@ -181,11 +233,11 @@ var finish = false;
 	// Get the output in html for 'i' criteria (inputs and values)
 	function criteria_html (i) {
 		// Criteria
-		var has_subtype = false;
-		var has_filter = false;
+		var has_subtype     = false;
+		var has_filter      = false;
 		var criteria_select = "";
-		datepickers[i] = false;
-		criteria_select = "<select id='type_"+i+"' name='type_"+i+"' onchange='setcriteria_type("+i+",this.value,1)'><option value=''>- <?=_("Select Condition")?> -";
+		datepickers[i]      = false;
+		criteria_select     = "<select id='type_"+i+"' name='type_"+i+"' onchange='setcriteria_type("+i+",this.value,1)'><option value=''>- <?php echo _("Select Condition")?> -";
 		
 		
 		// FIRST LEVEL (type, and/or)
@@ -211,8 +263,12 @@ var finish = false;
 		// THIRD LEVEL (Filter is selected)
 		if (has_filter) {
 			// Text-Type Input
+			
 			if (rules[criterias[i]][subcriterias[i]]['match'] == "text" || rules[criterias[i]][subcriterias[i]]['match'] == "ip") {
-				var val = ""; var eq_selected = ""; var like_selected = "";
+				var val = ""; 
+				var eq_selected = ""; 
+				var like_selected = "";
+				
 				if (values[i] != "") val = values[i];
 				if (matches[i] == "eq") eq_selected = "selected";
 				else if (matches[i] == "LIKE") like_selected = "selected";
@@ -236,17 +292,18 @@ var finish = false;
 				// AJAX! (if rule has 'list' field)
 				if (rules[criterias[i]][subcriterias[i]]['list']) {
 					criteria_select += "&nbsp;<select id='value_"+i+"' name='value_"+i+"' style='width:120px'>";
+					
 					$.ajax({
 						type: "GET",
 						url: "filter_response.php?type="+criterias[i]+"&subtype="+subcriterias[i],
 						data: "",
 						success: function(msg){
 							if (msg != "\n") {
-								var list = msg.split(",");
+								var list = msg.split("###");
 								var k = 0;
 								for (elem in list) {
-									var elem_fields = list[elem].split(";");
-									var newOpt = new Option(elem_fields[1], elem_fields[0]);
+									var elem_fields = list[elem].split("_#_");
+									var newOpt      = new Option(elem_fields[1], elem_fields[0]);
 									document.getElementById('value_'+i).options[k] = newOpt;
 									if (values[i] == elem_fields[0]) document.getElementById('value_'+i).options[k].selected = true;
 									k++;
@@ -279,7 +336,7 @@ var finish = false;
 					if (values2[i] != ""){
 						val2 = values2[i];
 					}
-
+					
 					criteria_select += "&nbsp;<select id='value_"+i+"' name='value_"+i+"' style='width:120px'>";
 					$.ajax({
 						type: "GET",
@@ -287,10 +344,10 @@ var finish = false;
 						data: "",
 						success: function(msg){
 							if (msg != "\n") {
-								var list = msg.split(",");
+								var list = msg.split("###");
 								var k = 0;
 								for (elem in list) {
-									var elem_fields = list[elem].split(";");
+									var elem_fields = list[elem].split("_#_");
 									var newOpt = new Option(elem_fields[1], elem_fields[0]);
 									document.getElementById('value_'+i).options[k] = newOpt;
 									if (values[i] == elem_fields[0]) document.getElementById('value_'+i).options[k].selected = true;
@@ -360,7 +417,7 @@ var finish = false;
 	
 	function load_sayts (i) {
 		if (sayts[i] != undefined && sayts[i] != "") {
-			$("#value_"+i).focus().autocomplete(sayts[i].split(","), {
+			$("#value_"+i).focus().autocomplete(sayts[i].split("###"), {
 				minChars: 0,
 				width: 150,
 				matchContains: "word",
@@ -402,57 +459,118 @@ var finish = false;
 	}
 
 	function get_params() {
-		var params = "?operator="+document.getElementById("operator").value+"&num="+criteria_count;
-		for (i = 1; i <= criteria_count; i++) {
-			params += "&type_"+i+"="+document.getElementById("type_"+i).value;
-			params += "&subtype_"+i+"="+document.getElementById("subtype_"+i).value;
-			if (document.getElementById("match_"+i) != null){
-				params += "&match_"+i+"="+document.getElementById("match_"+i).value;
+		
+		var operator = $("#operator").serialize();
+		var params   = "?"+operator+"&num="+criteria_count;
+		
+		var valid_criteria = 0;
+		
+		
+		for (i=1; i<=criteria_count; i++)
+		{
+			
+			var type    = $("#type_"+i).serialize();
+			var subtype = $("#subtype_"+i).serialize();
+			
+			if (type == '' || subtype == '' )
+				continue;
+			else
+				valid_criteria++;
+						
+			params += "&"+type;
+			params += "&"+subtype;
+			
+			if (match != null){
+			    var match   = $("#match_"+i).serialize();
+				params     += "&"+match;
 			}
-			if (document.getElementById("value_"+i) != null){
-				params += "&value_"+i+"="+document.getElementById("value_"+i).value;
+			
+			if (document.getElementById("value_"+i) != null)
+			{
+				var value   = $("#value_"+i).serialize();
+				params += "&"+value;
 			}
+			
 			if (document.getElementById("value2_"+i) != null){
 				// For FixedText
-				params += "&value2_"+i+"="+document.getElementById("value2_"+i).value;
+				var value2  = $("#value2_"+i).serialize();
+				params     += "&"+value2;
 			}
 		}
+		
+		if (valid_criteria > 0)
+		{
+			params += "&profile="+$('#current_profile').val();
+			params += "&"+$('#description').serialize();
+		}
+		else
+			params = '';
+		
 		return params;
 	}
 	
 	function launch_query () {
 		var params = get_params();
-		//alert("build_search.php"+params);
-		window.location.href = "build_search.php"+params;
+		
+		if (params != '')
+			window.location.href = "build_search.php"+params;
+		else
+			alert ('<?php echo _("You must fill in all conditions") ?>')
 	}
 	
 	function load_values () {
-		for (c in criterias) {
-			if (values[c] != "") {
+		for (c in criterias) 
+		{
+			if (values[c] != "") 
 				document.getElementById(c).value = values[c];
-			}
-			else {
-				if (document.getElementById(c) != null) document.getElementById(c).value = "";
-			}
+			else if (document.getElementById(c) != null) 
+				document.getElementById(c).value = "";
 		}
 	}
 	
-	function profile_save (filter_name) {
-		if (filter_name == "- New Profile -" && current_profile != "") filter_name = current_profile;
-		if (filter_name == "" || filter_name == "- New Profile -") alert("<?=_("Insert a name to export")?>");
-		else {
-			// save_values() code
-			var params = get_params();
-			$.ajax({
-				type: "GET",
-				url: "profiles.php"+params+"&name="+filter_name+"&inv_do=export&descr="+description,
-				success: function(msg) {
-					reload_profiles();
-					put_msg("<?=_("Profile successfully Saved")?>");
-					$('#cur_name').val("");
-				}
-			});
+	function profile_save ()
+	{
+		var params      = get_params();
+				
+		if (params == '')
+		{
+			alert ('<?php echo _("You must fill in all conditions") ?>');
+			return;
 		}
+		
+		var filter_name     = $('#cur_name').val();
+		var filter_name_s   = $('#cur_name').serialize();
+				
+		if ( (filter_name == '' ) ) 
+		{
+			alert("<?php echo _("Insert a name to export")?>");
+			return;
+		}
+				
+			
+		$.ajax({
+			type: "GET",
+			url: "profiles.php"+params+"&"+filter_name_s+"&inv_do=export",
+			success: function(msg){
+				
+				var status = msg.split("###");
+				
+				if ( status[0] == "error" )
+				{
+					$('#msg').removeClass("msg_ok");
+					$('#msg').addClass("msg_ko");
+					put_msg(status[1], "msg");
+					
+				}
+				else
+				{
+					reload_profiles();
+					put_msg("<?php echo _("Profile successfully Saved")?>", "msg");
+					$('#current_profile').val(status[1]);
+				}
+			}
+		});
+		
 	}
 	
 	function reset_active_filter(){
@@ -460,16 +578,23 @@ var finish = false;
 	}
 	
 	function profile_load (filter_name,id) {
-		reset_profile_rename();
 		
-		if (filter_name == ""){
-			alert("<?=_("Select a profile to import")?>");
-		} else {
-			if(id!=false){
-				reset_active_filter();
+		if (filter_name == "")
+			alert("<?php echo _("Select a profile to import")?>");
+		else 
+		{
+			if ( id != false )
+			{
+				var value = $('#'+id+ ' a').text();
+			    $('#cur_name').val(value);
 				$('#'+id).addClass('active_filter');
 			}
-			document.getElementById('msg').innerHTML = "<?=_("Loading profile...")?>";
+			
+			$('#current_profile').val(filter_name);
+			reset_active_filter();
+			
+						
+			$('#msg').html("<?php echo _("Loading profile...")?>");
 			$('#search_btn').attr('disabled','');
 			$('#search_btn').css('color','grey');
 			$.ajax({
@@ -477,56 +602,32 @@ var finish = false;
 				url: "profiles.php",
 				data: { name: filter_name, inv_do: 'import' },
 				success: function(msg) {
-					//alert(msg);
-					var ret = parseJSON(msg);
-					var data = ret.dt;
+					var ret        = parseJSON(msg);
+					var data       = ret.dt;
 					criteria_count = data.length;
-					for (i = 0; i < data.length; i++) {
+					for (i = 0; i < data.length; i++)
+					{
 						setcriteria(i+1,data[i].type,data[i].subtype,data[i].match);
 						values[i+1] = data[i].value;
 						values2[i+1] = data[i].value2;
-						if (document.getElementById("value_"+(i+1)) != null) document.getElementById("value_"+(i+1)).value = data[i].value;
-						if (document.getElementById("value2_"+(i+1)) != null){
-							document.getElementById("value2_"+(i+1)).value = data[i].value2;
-						}
+						if (document.getElementById("value_"+(i+1)) != null) 
+							$("#value_"+(i+1)).value = data[i].value;
+						if (document.getElementById("value2_"+(i+1)) != null)
+							$("#value2_"+(i+1)).value = data[i].value2;
+						
 					}
-					operator = ret.op;
-					description = ret.description;
-					current_profile = filter_name;
+					operator    = ret.op;
+					description = ( ret.descr == undefined) ? '' : ret.descr;
 					//save_values();
 					reloadcriteria();
-					put_msg("<?=_("Profile successfully Loaded")?>");
+					put_msg("<?php echo _("Profile successfully Loaded")?>", "msg");
 				}
 			});
 		}
 	}
-	function profile_exec (filter_name) {
-		if (filter_name == "") alert("<?=_("Select a profile to import")?>");
-		else {
-			$.ajax({
-				type: "GET",
-				url: "profiles.php",
-				data: { name: filter_name, inv_do: 'import' },
-				success: function(msg) {
-					//alert(msg);
-					var ret = parseJSON(msg);
-					var data = ret.dt;
-					for (i = 0; i < data.length; i++) {
-						setcriteria(i+1,data[i].type,data[i].subtype,data[i].match);
-						values[i+1] = data[i].value;
-					}
-					criteria_count = data.length;
-					operator = ret.op;
-					description = ret.description;
-					current_profile = filter_name;
-					//save_values();
-					reloadcriteria();
-					put_msg("<?=_("Profile successfully Loaded")?>");
-					//build_request();
-				}
-			});
-		}
-	}
+	
+	
+	
 	function profile_last () {
 		$.ajax({
 			type: "GET",
@@ -534,152 +635,138 @@ var finish = false;
 			data: { inv_do: 'last_search' },
 			success: function(msg) {
 				//alert(msg);
-				var ret = parseJSON(msg);
+				var ret  = parseJSON(msg);
 				var data = ret.dt;
 				for (i = 0; i < data.length; i++) {
 					setcriteria(i+1,data[i].type,data[i].subtype,data[i].match);
-					values[i+1] = data[i].value;
+					values[i+1]  = data[i].value;
 					values2[i+1] = data[i].value2;
 				}
 				criteria_count = data.length;
-				operator = ret.op;
+				operator       = ret.op;
+				description    = ret.descr;
 				//save_values();
 				reloadcriteria();
 			}
 		});
 	}
 	function profile_delete (filter_name) {
-		if (filter_name == "") alert("<?=_("Select a profile to delete")?>");
+		if (filter_name == "") alert("<?php echo _("Select a profile to delete")?>");
 		else {
 			$.ajax({
 				type: "GET",
 				url: "profiles.php",
 				data: { name: filter_name, inv_do: 'delete' },
 				success: function(msg) {
-					document.location.href='inventory_search.php?new=1';
+					document.location.href='inventory_search.php';
 				}
 			});
-		}
-	}
-	function profile_rename (cur_name,n) {
-		if(reset_profile_rename()){
-			$('#profile_'+n).html('<input id="profile_rename_block" title="'+cur_name+'" name="profile_'+n+'" type="text" value="'+cur_name+'" style="background:#fff;border:0" />');
-			
-			$('#profile_'+n).keypress(function(event) {
-				if (event.which == '13') {
-					var new_name_tmp=$('#profile_'+n+' input').val();
-
-					$.ajax({
-						type: "GET",
-						url: "profiles.php",
-						data: { name: cur_name, inv_do: 'rename', new_name: new_name_tmp },
-						success: function(msg) {
-							$('#profile_'+n).html('<a href="#" onclick="profile_load(\''+new_name_tmp+'\',\'profile_'+n+'\')">'+new_name_tmp+'</a>');
-							get_conf();
-						}
-					});
-				}else if (event.which == '0'){
-					reset_profile_rename();
-				}
-			});
-		}else{
-			profile_rename(cur_name,n);
 		}
 	}
 	
-	function reset_profile_rename(){
-		if($('#profile_rename_block').html()==null){
-			return true;
-		}else{
-			var profile_id_tmp=$('#profile_rename_block').attr('name');
-			var profile_name_tmp=$('#profile_rename_block').attr('title');
-
-			$('#'+profile_id_tmp).html('<a href="#" onclick="profile_load(\''+profile_name_tmp+'\',\''+profile_id_tmp+'\')">'+profile_name_tmp+'</a>');
-			return false;
-		}
-	}
 	
 	function inic () {
-		reload_profiles();
-		<?
-		if ($_SESSION['inventory_last_search'] != "" && !$new && $_GET['profile'] == "") {
-		?>
-		profile_last();
-		<?
-		} elseif($_GET['profile'] == "") {
-		?>
-		addcriteria(0);
-		<?
+				
+		var status = '<?php echo $case;?>';
+		
+		if( status == 2 || status == 3 )
+		{
+			var profile  = '<?php echo $_SESSION['profile']?>';
+			
+			if ( status == 2 ) 
+				profile_last();
+			else if (profile != '')
+				profile_load(profile, false);
+				
 		}
-		?>
-		<? if ($_GET['profile'] != "") { ?>
-		profile_load("<?=$_GET['profile']?>",false);
-		<? } ?>
+		
+		addcriteria(0);
+		$('#current_profile').val('');
+		$('#cur_name').val('');
+		
+		
+		reload_profiles();	
 	}
+	
 	function reload_profiles() {
+		
 		$.ajax({
 			type: "GET",
 			url: "profiles.php",
 			data: { inv_do: 'getall' },
 			success: function(msg) {
-			<?php /*
-				var names = msg.split(",");
-				var profiles = "<select id='profile' name='profile' multiple='true' size='6' style='width:250px' onclick='activate_rename(); profile_load(this.value)'>";
-				for (n in names) {
-					profiles += "<option value='"+names[n]+"'>"+names[n];
-				}
-				profiles += "</select>";
-				document.getElementById('profiles').innerHTML = profiles;
-				*/?>
-				var names = msg.split(",");
+				
 				var profiles = "<table width='100%' class='noborder' border='0' cellpadding='0' cellspacing='0'>";
-				for (n in names) {
-					profiles += '<tr><td><span id="profile_'+n+'" style="width:170px;display:block;float:left;"><a href="#" onclick="profile_load(\''+names[n]+'\',\'profile_'+n+'\')">'+names[n]+'</a></span> <a href="#" onclick="profile_rename(\''+names[n]+'\','+n+')"><img border="0" align="absmiddle" src="../vulnmeter/images/pencil.png" style="vertical-align: middle" /></a> <a href="#" onclick="profile_delete(\''+names[n]+'\')"><img alt="Delete" src="../pixmaps/delete.gif" style="vertical-align: middle" /></a></td></tr>';
+								
+				if (msg != '')
+				{
+					var names           = msg.split(",");
+					var current_profile = $('#current_profile').val();
+					
+					for (n in names)
+					{
+						var data  = names[n].split("###");
+						var style = ( data[0] == current_profile ) ? 'class="active_filter"' : '';
+						profiles += '<tr><td>';
+						profiles += '<span id="profile_'+n+'" style="width:170px;display:block;float:left;" '+style+'>';
+						profiles += '<a style="cursor:pointer" onclick="profile_load(\''+data[0]+'\',\'profile_'+n+'\')">'+data[1]+'</a></span>';
+						profiles += '<a style="cursor:pointer" onclick="profile_delete(\''+data[0]+'\')"><img alt="Delete" src="../pixmaps/delete.gif" style="vertical-align: middle"/></a>';
+						profiles += '</td></tr>';
+					}
 				}
+				else
+				{
+					$('#current_profile').val('');
+					profiles += "<tr><td><?php echo _("No profiles found") ?></td></tr>";
+				}	
+				
+				
 				profiles += "</table>";
-				document.getElementById('profiles').innerHTML = profiles;
+				
+				$('#profiles').html(profiles);				
 			}
 		});
 	}
-	/*
-	function profiles_show () {
-		if (!show_profiles) {
-			document.getElementById('profiles_div').style.display = "block";
-			document.getElementById('prof_link').value = "Hide <<";
-			show_profiles = true;
-		}
-		else {
-			document.getElementById('profiles_div').style.display = "none";
-			document.getElementById('prof_link').value = "Profiles >>";
-			show_profiles = false;
-		}
-	}
-	*/
+	
 	function build_request () {
 		finish = true;
 		save_values();
 	}
+	
 	function clean_request () {
 		$.ajax({
 			type: "GET",
 			url: "profiles.php",
 			data: { inv_do: 'clean' },
 			success: function(msg) {
-				document.location.href='inventory_search.php'
+				document.location.href='inventory_search.php?new=1'
 			}
 		});
 	}
 	
-	function put_msg (str) {
-		document.getElementById('msg').innerHTML = str;
-		setInterval("document.getElementById('msg').innerHTML=''",2000);
+	function put_msg (str, id) {
+		$('#'+id).html(str);
+		setTimeout ("reset_msg('#"+id+"');", 2000);
 	}
+	
+	function reset_msg(id)
+	{
+		$(id).html('');
+		
+		if ( $(id).hasClass('msg_ko') )
+		{
+			$(id).removeClass("msg_ko");
+			$(id).addClass("msg_ok");
+		}
+	}
+	
 	
 	<? if (Session::am_i_admin()) { ?>
 	function open_edit () {
 		var edit_wnd = window.open('editrules.php','Edit rules.conf','scrollbars=yes,location=no,toolbar=no,status=no,directories=no,width=700,height=400');
 		edit_wnd.focus()
 	}
+	
 	function recarga () {
 		window.location.reload();
 	}
@@ -697,46 +784,48 @@ var finish = false;
 		}
 	}
 	
+		
 	$(document).ready(function(){
 		inic();
 	});
 </script>
 </head>
-<? //print_r($rules); ?>
+
 <body style="margin:0px">
-<? include ("../hmenu.php") ?>
+<? include ("../hmenu.php"); ?>
+
 <table class="noborder" align="center" style="background-color:white">
 	<tr>
 		<td class="nobborder" valign="top">
 			<table class="nobborder" align="center" style="background-color:white">
 				<tr>
-					<td class="nobborder" style="padding-bottom:10px">
+					<td class="nobborder" style="padding-bottom:2px">
 						<table style="background:url(../pixmaps/fondo_hdr2.png) repeat-x" width="100%">
-							<tr><td class="nobborder" style="font-weight:bold;text-align:center;font-size:13px;height:30px"><?=_("Asset Categories")?></td></tr>
+							<tr><td class="nobborder" style="font-weight:bold;text-align:center;font-size:13px;height:25px"><?php echo _("Asset Categories")?></td></tr>
 						</table>
 					</td>
 				</tr>
-			<form method=get>
+			<form method='GET'>
 				<tr>
 					<td class="nobborder">
-						<table id="criteria_form" cellpadding=5 align="center" width="100%" style="background:url(../pixmaps/background_green1.gif) repeat-x;border:1px solid #AAAAAA">
+						<table id="criteria_form" cellpadding='5' align="center" width="100%" style="background:url(../pixmaps/background_green1.gif) repeat-x;border:1px solid #AAAAAA">
 						</table>
 					</td>
 				</tr>
-				<tr><td class="nobborder">
-					<table class="noborder" width="100%" style="background-color:white">
-						<tr>
-							<td class="nobborder" width="100"><? if (Session::am_i_admin()) { ?><a href="" onclick="open_edit();return false;" target="_blank"><img src="../pixmaps/pencil.png" border="0" alt="<?=_("Edit rules.conf")?>" title="<?=_("Edit rules.conf")?>"><?php echo _("Select Condition")?></a><? } ?></td>
-							<td class="nobborder" style="text-align:right">
-								<input type="button" onclick="launch_query()" id="search_btn" value="<?=_("Search")?>" class="button" style="font-size:12px;">
-							</td>
-							<td class="nobborder" style="text-align:left">
-								<input type="button" onclick="clean_request()" value="<?=_("Clean")?>" class="button" style="font-size:12px">
-							</td>
-							<td class="nobborder" width="100" style="text-align:right">&nbsp;</td>
-							<!--<td class="nobborder" width="100" style="text-align:right"><input type="button" class="lbutton" onclick="profiles_show()" id="prof_link" value="<?=_("Profiles")?> >>"></td>-->
-						</tr>
-					</table>
+				<tr>
+					<td class="nobborder">
+						<table class="noborder" width="100%" style="background-color:white">
+							<tr>
+								<td class="nobborder" width="100"><? if (Session::am_i_admin()) { ?><a href="" onclick="open_edit();return false;" target="_blank"><img src="../pixmaps/pencil.png" border="0" alt="<?=_("Edit rules.conf")?>" title="<?=_("Edit rules.conf")?>"><?php echo _("Select Condition")?></a><? } ?></td>
+								<td class="nobborder" style="text-align:right">
+									<input type="button" onclick="launch_query()" id="search_btn" value="<?php echo _("Search")?>" class="button"/>
+								</td>
+								<td class="nobborder" style="text-align:left">
+									<input type="button" onclick="clean_request()" value="<?php echo _("Clean")?>" class="button"/>
+								</td>
+								<td class="nobborder" width="100" style="text-align:right">&nbsp;</td>
+							</tr>
+						</table>
 					</td>
 				</tr>
 				<tr><td class="nobborder"><div id="debug"></div></td></tr>
@@ -750,13 +839,22 @@ var finish = false;
 					<td class="nobborder">
 						<div id="profiles_div">
 						<table width="250" align="center">
-							<tr><th><?=_("Predefined Searches")?></th></tr>
+							<tr><th><?php echo _("Predefined Searches")?></th></tr>
 							<tr>
 								<td class="nobborder" id="profiles"></td>
 							</tr>
-						<?php /*	<tr><td class="nobborder"><!--<input type="button" value="Load" onclick="profile_load(document.getElementById('profile').value)" class="lbutton">--><input type="button" value="<?=_("Delete")?>" onclick="profile_delete(document.getElementById('profile').value)" class="lbutton"></td></tr> */ ?>
-							<tr><td class="nobborder" style="padding-top:10px"><input type="text" id="cur_name" value="- <?=_("New Profile")?> -" onfocus="this.value=''"> <input type="button" value="<?=_("Save Current")?>" onclick="profile_save(document.getElementById('cur_name').value)" class="lbutton"></td></tr>
-						<?php /*	<tr><td class="nobborder"><input type="text" id="cur_rename" value="" disabled> <input type="button" value="<?=_("Rename")?>" id="rename_button" onclick="profile_rename(document.getElementById('profile').value,document.getElementById('cur_rename').value)" class="lbutton" disabled></td></tr> */ ?>
+							<tr>
+								<td class="nobborder" style="padding-top:10px">
+									<?php
+										$cur_name = base64_decode($_SESSION['profile']);
+										$cur_name = (mb_detect_encoding($cur_name." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? mb_convert_encoding($cur_name, 'ISO-8859-1', 'UTF-8') : $cur_name;
+									?>
+																		
+									<input type="text"   id="cur_name" name="cur_name" value="<?php echo $cur_name;?>"/>
+									<input type="hidden" id="current_profile" name="current_profile" value="<?php echo $_SESSION['profile']?>"/>
+									<input type="button" id="save_current" value="<?php echo _("Save Current")?>" onclick="profile_save()" class="lbutton"/>
+								</td>
+							</tr>
 						</table>
 						</div>
 					</td>
@@ -764,7 +862,10 @@ var finish = false;
 			</table>
 		</td>
 	</tr>
-	<tr><td class="nobborder" style="text-align:center;color:green;font-weight:bold" id="msg"></td></tr>
+	<tr>
+		<td class="nobborder msg_ok" id="msg"></td>
+		<td class="nobborder">&nbsp;</td>
+	</tr>
 </table>
 </body>
 </html>

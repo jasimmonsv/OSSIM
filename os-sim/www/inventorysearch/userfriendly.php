@@ -31,21 +31,22 @@
 require_once ('classes/Session.inc');
 Session::logcheck("MenuPolicy", "5DSearch");
 require_once ('classes/Host.inc');
-require_once 'classes/User_config.inc';
-require_once 'ossim_db.inc';
-require_once 'ossim_conf.inc';
+require_once ('classes/User_config.inc');
+require_once ('ossim_db.inc');
+require_once ('ossim_conf.inc');
 
 include ("functions.php");
 
 $new = (GET('new') == "1") ? 1 : 0;
-$ip = GET('ip');
+$ip  = GET('ip');
+
 ossim_valid($ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("ip"));
 if (ossim_error()) {
     die(ossim_error());
 }
 
 // Database Object
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
 $net_search = Net::GetClosestNet($conn,$ip,1);
@@ -66,10 +67,12 @@ foreach ($_hosts as $_ip => $_hostname) {
 // Get Services and OS
 $inventory = "";
 $query = "(SELECT DISTINCT os as element FROM host_os ORDER BY os) UNION (SELECT DISTINCT service as element FROM host_services ORDER BY service)";
-if (!$rs = & $conn->Execute($query, $params)) {
+if (!$rs = & $conn->Execute($query, $params))
 	print $conn->ErrorMsg();
-} else {
-	while (!$rs->EOF) {
+else
+{
+	while (!$rs->EOF)
+	{
 		if ($rs->fields['element'] != "") {
 			if ($inventory != "") $inventory .= ",";
 			$inventory .= $rs->fields["element"];
@@ -77,13 +80,14 @@ if (!$rs = & $conn->Execute($query, $params)) {
 		$rs->MoveNext();
 	}
 }
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <title> <?php echo $title ?> </title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Pragma" content="no-cache"/>
 <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
 <link rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
@@ -225,7 +229,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 			<input type="hidden" id="date_to" name="date_to" value="Any date" />
 				<tr>
 					<td class="nobborder">
-						<table id="criteria_form" class="transparent" cellpadding=5 align="center" width="100%">
+						<table id="criteria_form" class="transparent" cellpadding='5' align="center" width="100%">
 							<tr>
 								<td class="left nobborder" style="padding-left:10px">
 									<table class="transparent" width="100%">
@@ -238,7 +242,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 												<?=_("To:")?> <input type="text" id="date_to" name="date_to" onchange="this.style.color='black'" value="<?=_("Any date")?>" style="width:80px;font-size:13px;color:#BBBBBB;text-align:center">
 											</td>
 											-->
-											<td style="text-align: left; border-width: 0px" nowrap width="130">
+											<td style="text-align: left; border-width: 0px" nowrap='nowrap' width="130">
 												<b><?php echo _('Date frame selection') ?></b>:
 											</td>
 											<td class="nobborder" width="20">
@@ -258,7 +262,7 @@ if (!$rs = & $conn->Execute($query, $params)) {
 								<td class="nobborder" width="500">
 									<table style="background:url(../pixmaps/background_gray1.gif) repeat-x;border:1px solid #AAAAAA" cellpadding="4" width="100%">
 										<tr>
-											<td width="50" nowrap class="nobborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?=_("Network")?>:</td>
+											<td width="50" nowrap='nowrap' class="nobborder" style="padding-left:40px;font-size:16px;font-weight:bold;color:#333333;text-align:left"><?=_("Network")?>:</td>
 											<td class="nobborder" style="padding-top:15px;padding-bottom:15px"><input type="text" name="value_1" id="value_1" onkeypress="handleEnter(this, event)" value="<? if (preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$net_search)) echo $net_search; else echo "Any"; ?>" onfocus="init_sayt(1)" style="width:100%;color:<? if (preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$net_search)) echo "black"; else echo "#BBBBBB"; ?>;font-size:14px"></td>
 											<td class="nobborder" style="padding-right:40px" width="30"><div class="scriptinfo" data="<?=base64_encode("<i>"._("Type the")." <b>"._("Network Name")."</b> "._("or")." <b>"._("IP range")."</b></i>")?>"><font style="font-weight:bold;font-size:15px;color:#666666">?</font></div></td>
 										</tr>

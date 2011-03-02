@@ -30,6 +30,7 @@
 ****************************************************************************/
 set_time_limit(3600);
 ob_implicit_flush();
+
 require_once ('classes/Session.inc');
 Session::logcheck("MenuPolicy", "5DSearch");
 require_once ('classes/Host.inc');
@@ -37,17 +38,17 @@ require_once ('classes/Host_os.inc');
 require_once ('classes/Net.inc');
 require_once ('classes/Host_scan.inc');
 require_once ('classes/Plugin.inc');
-require_once 'ossim_db.inc';
-require_once 'ossim_conf.inc';
+require_once ('ossim_db.inc');
+require_once ('ossim_conf.inc');
 include ("functions.php");
 
 // Database Object
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
 $sensors = $hosts = $ossim_servers = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
-$allowed_hosts_aux = Host::get_list($conn); // Allowed internal hosts
+$allowed_hosts_aux     = Host::get_list($conn); // Allowed internal hosts
 $allowed_hosts = array();
 
 // Load allowed hosts and all internal hosts to check perms and do not use hostAllowed -> Improve speed!
@@ -55,20 +56,31 @@ foreach ($allowed_hosts_aux as $h) {
 	$allowed_hosts[$h->get_ip()]++;
 }
 
-$networks = "";
+$networks  = "";
 $hosts_ips = array_keys($hosts);
 
-$operator = GET('operator');
-$num = GET('num');
-ossim_valid($operator, "and", "or", OSS_NULLABLE, 'illegal:' . _("operador"));
-ossim_valid($num, OSS_DIGIT, 'illegal:' . _("num"));
+$operator  = GET('operator');
+$descr     = GET('description');
+$num       = GET('num');
+
+$descr     = (mb_detect_encoding($descr." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? $descr : mb_convert_encoding($descr, 'UTF-8', 'ISO-8859-1');
+$descr     =  Util::utf8entities($descr);
+
+$current_profile     = ( !empty($_GET['profile']) ) ? $_GET['profile'] : $_SESSION['profile'];
+$_SESSION['profile'] = $current_profile;
+
+
+ossim_valid($operator, "and", "or", OSS_NULLABLE, 'illegal:' . _("Operator"));
+ossim_valid($descr, OSS_ALPHA, OSS_SPACE, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Description"));
+ossim_valid($num, OSS_DIGIT, 'illegal:' . _("Num"));
 if (ossim_error()) {
     die(ossim_error());
 }
 
 // Save Search
-$_SESSION['inventory_last_search_op'] = $operator;
+$_SESSION['inventory_last_search_op']     = $operator;
 $_SESSION['inventory_last_search']['num'] = $num;
+$_SESSION['inventory_last_descr']         = $descr;
 
 // Read config file with filters rules
 $rules = get_rulesconfig ();
@@ -80,7 +92,7 @@ $max_rows = 8;
 <head>
 <title> <?php echo $title ?> </title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<meta http-equiv="Pragma" content="no-cache"/>
 <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
@@ -88,6 +100,7 @@ $max_rows = 8;
 <script type="text/javascript" src="../js/greybox.js"></script>
 <script src="../js/jquery.simpletip.js" type="text/javascript"></script>
 <? include ("../host_report_menu.php") ?>
+
 <script type="text/javascript">
 var pag = 1;
 
@@ -101,6 +114,7 @@ var pag = 1;
 				this.load('../control_panel/alarm_netlookup.php?ip=' + ip);
 			}
 		});
+		
 		$(".greybox_caption").simpletip({
 			position: 'right',
 			onBeforeShow: function() {
@@ -108,11 +122,13 @@ var pag = 1;
 				if (data != "") this.update(data);
 			}
 		});
+		
 		$("a.greybox_caption").click(function(){
 			var t = this.title || $(this).text() || this.href;
 			GB_show(t,this.href,450,'90%');
 			return false;
 		});
+		
 		$("a.greybox").click(function(){
 			var t = this.title || $(this).text() || this.href;
 			GB_show(t,this.href,400,400);
@@ -120,9 +136,14 @@ var pag = 1;
 		});
 	});
 	
-	function profile_save(filter_name) {
-		if (filter_name == "") alert("<?=_("Please, type a name for this predefined search")?>");
-		else {
+	function profile_save() {
+		
+		var filter_name = $('#last_profile').val();
+		
+		if (filter_name == "") 
+			alert("<?php echo _("Please, type a name for this predefined search")?>");
+		else
+		{
 			$('#save_button').attr('disabled','disabled');
 			$('#last_profile').val("Wait...");
 			$('#last_profile').css("color","gray");
@@ -130,24 +151,76 @@ var pag = 1;
 				type: "GET",
 				url: "profiles.php",
 				data: { name: filter_name, inv_do: 'export_last' },
-				success: function(msg) {
-					alert("<?=_("Current search successfully saved as ")?>'"+filter_name+"'");
-					$('#last_profile').val("");
+				success: function(msg){
+					
+					var status = msg.split("###");
+				
+					if ( status[0] == "error" )
+					{
+						$('#msg_save').removeClass("msg_ok");
+						$('#msg_save').addClass("msg_ko");
+						put_msg(status[1], "msg_save");
+						$('#last_profile').val("");
+						
+					}
+					else
+					{
+						var txt ='<?php echo _("Current search successfully saved as")?> ' + filter_name;
+						put_msg(txt, "msg_save");
+						$('#last_profile').val("");
+						$('#current_profile').val(status[1]);	
+					}
 				}
 			});
 		}
 	}
-	function put_msg (str) {
-		document.getElementById('msg').innerHTML = str;
-		setInterval("document.getElementById('msg').innerHTML=''",2000);
+	
+	function put_msg (str, id) {
+		$('#'+id).html(str);
+		setTimeout ("reset_msg('#"+id+"');", 2000);
 	}
-</script>
-</head>
-<?
+	
+	function reset_msg(id)
+	{
+		$(id).html('');
+		
+		if ( $(id).hasClass('msg_ko') )
+		{
+			$(id).removeClass("msg_ko");
+			$(id).addClass("msg_ok");
+		}
+	}
+	
+	
+	
+	function edit_search()
+	{
+		var profile = $('#current_profile').val();
+		document.location.href = 'inventory_search.php?hmenu=Asset+Search&smenu=Advanced&profile='+profile;
+	}
+	
+	function new_search()
+	{
+		document.location.href = 'inventory_search.php?new=1&hmenu=Asset+Search&smenu=Advanced';
+	}
+	
+	
+	</script>
+	
+	<style type="text/css">
+		 a {cursor: pointer;}
+		.active_filter{ font-weight: bold; }
+		.msg_ok {text-align: center; color:green; font-weight:bold; padding: 5px 0px;}
+		.msg_ko {text-align: center; color:red;   font-weight:bold; padding: 5px 0px;}
+		#last_profile {width: 100px; font-size:10px;}
+	</style>
 
-?>
+</head>
+
 <body style="margin:0px">
-<? include ("../hmenu.php") ?>
+
+<?php include ("../hmenu.php") ?>
+
 <div id="loading" style="width:33%;position:absolute;top:40%;left:33%;">
 	<table width="100%" class="transparent">
 		<tr>
@@ -160,51 +233,71 @@ var pag = 1;
 		</tr>
 	</table>
 </div>
+
 <script type="text/javascript">
-	$("#progressText").html('<?=_("Filtering. Please, wait a few seconds...")?>');
+	$("#progressText").html('<?php echo _("Filtering. Please, wait a few seconds...")?>');
     $("#pbar").progressBar();
 	$("#pbar").progressBar(0);
-	$("#progressText").html('<?=_("Loading <b>Report</b>. <br>Please, wait a few seconds...")?>');
+	$("#progressText").html('<?php echo _("Loading <b>Report</b>. <br>Please, wait a few seconds...")?>');
 </script>
-<?
-//usleep(500000);
-?>
+
 <div id="search_result" style="display:none;width:100%">
+
 <?php
-$results = array();
-$errors = 0;
-$errorlog = array();
-$criterias = array();
-$has_criterias = array();
+$results        = array();
+$errors         = 0;
+$errorlog       = array();
+$criterias      = array();
+$has_criterias  = array();
 $first_criteria = 1; // Main host list array, the others criterias will be intersected with this
-for ($i = 1; $i <= $num; $i++) {
-	ossim_valid(GET('type_'.$i), OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("type"));
-	ossim_valid(GET('subtype_'.$i), OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("subtype"));
-	ossim_valid(GET('match_'.$i), OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("match"));
-	if (ossim_error()) {
+
+for ($i = 1; $i <= $num; $i++)
+{
+	ossim_valid(GET('type_'.$i),     OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Type"));
+	ossim_valid(GET('subtype_'.$i),  OSS_ALPHA, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Subtype"));
+	ossim_valid(GET('match_'.$i),    OSS_ALPHA, OSS_NULLABLE           , 'illegal:' . _("Match"));
+	
+	$value   = null;
+	$value2  = null;
+	
+	$value   = ( mb_detect_encoding(GET('value_'.$i)." ",'UTF-8,ISO-8859-1') == 'UTF-8' )  ? GET('value_'.$i) : mb_convert_encoding(GET('value_'.$i), 'UTF-8', 'ISO-8859-1');
+	$value   = Util::utf8entities($value);
+		
+	if (ossim_error())
 	    die(ossim_error());
-	}
-	if (GET('userfriendly')) {
-		if (GET('value_'.$i) != "" || $num == 1) {
+		
+	
+	if (GET('userfriendly'))
+	{
+		if ($value != "" || $num == 1)
+		{
 			// If num == 1 is the All Empty query
-			$filter = ($num == 1) ? $basic_search[0] : $basic_search[$i];
-			$filter['value'] = GET('value_'.$i);
+			$filter          = ($num == 1) ? $basic_search[0] : $basic_search[$i];
+			$filter['value'] = $value;
 			// First criteria maybe 2, 3, 4 or 5 in User Friendly Search
 			if ($first_criteria == 1) { $first_criteria = $i; }
-		} else {
+		} 
+		else
 			continue;
-		}
-	} else {
-		$filter = array(
-			"type" => GET('type_'.$i),
-			"subtype" => GET('subtype_'.$i),
-			"value" => GET('value_'.$i),
-			"value2" => GET('value2_'.$i),
-			"match" => GET('match_'.$i)
-		);
+		
 	}
+	else 
+	{
+		$value2  = ( mb_detect_encoding(GET('value2_'.$i)." ",'UTF-8,ISO-8859-1') == 'UTF-8' ) ? GET('value2_'.$i) : mb_convert_encoding(GET('value2_'.$i), 'UTF-8', 'ISO-8859-1');
+		$value2  = Util::utf8entities($value2);
+		
+		$filter = array(
+			"type"    => GET('type_'.$i),
+			"subtype" => GET('subtype_'.$i),
+			"value"   => $value,
+			"value2"  => $value2,
+			"match"   => GET('match_'.$i)
+		);
+		
+	}
+	
 	$results[$i] = array();
-	$perc = $i/$num*100;
+	$perc        = $i/$num*100;
 	// Save search
 	$_SESSION['inventory_last_search'][$i] = $filter;
 	
@@ -214,25 +307,24 @@ for ($i = 1; $i <= $num; $i++) {
 	$q = (GET('userfriendly')) ? $filter['query'] : $rules[$filter['type']][$filter['subtype']]['query'];
 	$m = (GET('userfriendly')) ? $filter['query_match'] : $rules[$filter['type']][$filter['subtype']]['match'];
 	
-	if($m=='fixedText'){
+	if( $m=='fixedText')
+	{
 		// For FixedText
-		if(!empty($filter['value2'])){
-			$value2 = $filter['value2'];
-		}else{
-			$value2=null;
-		}
-		
+				
+		$value2 = ( !empty($filter['value2']) ) ? $filter['value2'] : null;
 		check_security($filter['value'],$m,$value2,GET('userfriendly'));
-	}else{
+	}
+	else
 		check_security($filter['value'],$m,NULL,GET('userfriendly'));
-	}
-	if ($rules[$filter['type']][$filter['subtype']]['match'] == "concat"){
+	
+	
+	if ($rules[$filter['type']][$filter['subtype']]['match'] == "concat")
 		list($query,$params) = build_concat_query ($q,$filter['value'],$filter['match'],"concat");
-	}elseif($m=='fixedText'){
+	elseif($m=='fixedText')
 		list($query,$params) = build_query_two_values ($q,$filter['value'],$filter['value2'],$filter['match'],$m);
-	}else{
+	else
 		list($query,$params) = build_query ($q,$filter['value'],$filter['match'],$m);
-	}
+	
 	//echo "Filter $i: ".$filter['type']." ".$filter['subtype']." ".$filter['value']." ".$filter['match']."<br>";
 	//print_r($params);
 	//echo "SQL: ".$query."<br><br>";exit;
@@ -277,7 +369,7 @@ for ($i = 1; $i <= $num; $i++) {
 		}
 	}
 }
-$_SESSION['inventory_search']['result']['criterias'] = $criterias;
+$_SESSION['inventory_search']['result']['criterias']     = $criterias;
 $_SESSION['inventory_search']['result']['has_criterias'] = $has_criterias;
 
 $host_list = $results[$first_criteria];
@@ -301,102 +393,145 @@ if ($operator == "or") {
 }
 
 
-?><script type="text/javascript">$("#pbar").progressBar(100);$("#progressText").html('<b><?=gettext("Loading results, please wait")?></b>...');</script><?
 ?>
-<table class="noborder" align="center" width="100%" style="background-color:white">
-	<tr><th style="text-align:center">Criterias</th></tr>
-	<? foreach ($errorlog as $e) { ?>
-	<tr><td class="nobborder" style="text-align:center"><?=$e?></td></tr>
-	<? } ?>
-</table>
-<?
-if (count($host_list) < 1 && !$errors) {
-?>
-<table class="noborder" align="center" width="100%">
-	<tr><td class="nobborder" style="text-align:center">All host filtered. No results found.</td></tr>
-	<tr><td class="nobborder" style="padding-top:10px;text-align:center"><input type="button" value="Back" onclick="document.location.href='<?=(GET('userfriendly')) ? "userfriendly.php" : "inventory_search.php"?>'" class="button"></td></tr>
-</table>
-<? } elseif(!$errors) {
-	$hosts = Host::get_list($conn);
-	$_SESSION['inventory_search']['result']['list'] = array();
-	$host_objects = array();
-	foreach ($hosts as $host_obj) {
-		$host_objects[$host_obj->get_ip()] = $host_obj;
-	}
-	foreach ($host_list as $ip) {
-		if ($host_objects[$ip] != "") $_SESSION['inventory_search']['result']['list'][] = $host_objects[$ip];
-		else {
-			$obj = new Host($ip, $ip, 0, 0, 0, "", 0, 0, null, "", 0,0,0);
-			$_SESSION['inventory_search']['result']['list'][] = $obj;
-		}
-	}
-	$total = count($_SESSION['inventory_search']['result']['list']);
-	$last_page = floor(($total-1)/$max_rows)+1;
-?>
-<table class="noborder" width="100%" style="background-color:white">
-	<tr>
-		<td class="nobborder">
-			<table id="results" width="100%" class="noborder" style="background-color:white<? if (GET('userfriendly')) echo ";border:1px solid #CCCCCC"?>" align="center">
-			<? if (GET('userfriendly')) { basic_header(); }?>
-	<? $i = 0; foreach ($_SESSION['inventory_search']['result']['list'] as $host) { ?>
-		<? if ($i < $max_rows) { ?>
-		<?
-		if (GET('userfriendly')) host_row_basic($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips,$i);
-		else host_row($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips);
-		?>
-	<? } ?>
-	<? $i++; } ?>
-			</table>
-		</td>
-	</tr>
+<script type="text/javascript">$("#pbar").progressBar(100);$("#progressText").html('<strong><?php echo gettext("Loading results, please wait")?></strong>...');</script>
+
+<table class="noborder" align="center" width="100%" style="background-color:white;">
+	<tr><th style="text-align:center"><?php echo _("Criterias")?></th></tr>
+	<?php 
+	foreach ($errorlog as $e)  
+		echo "<tr><td class='nobborder' style='text-align:center'>$e</td></tr>";
 	
-	<tr>
-		<td class="nobborder" style="padding:5px;text-align:center">
-			<table align="center" width="100%">
-				<tr>
-					<td class="left nobborder" style="text-align:left;padding:5px" width="33%" nowrap>
-						<? if (GET('userfriendly')) { ?>
-						<input type="button" value="<?=_("New Search")?>" onclick="document.location.href = 'userfriendly.php?hmenu=Asset+Search&smenu=Asset+Search'" class="button" style="font-size:12px">&nbsp;
-						<? } else { ?>
-						<input type="button" value="<?=_("Edit Search")?>" onclick="document.location.href = 'inventory_search.php?hmenu=Asset+Search&smenu=Advanced'" class="button" style="font-size:12px">&nbsp;
-						<input type="button" value="<?=_("New Search")?>" onclick="document.location.href = 'inventory_search.php?new=1&hmenu=Asset+Search&smenu=Advanced'" class="button" style="font-size:12px">&nbsp;&nbsp;
-						<input type="text" value="" name="last_profile" id="last_profile" style="width:60px;font-size:10px">
-						<input type="button" value="<?=_("Save Search")?>" id="save_button" onclick="profile_save(document.getElementById('last_profile').value)" class="button" style="font-size:10px">&nbsp;
-						<? } ?>
-						<!--<input type="button" value="<?=_("Reload")?>" onclick="document.location.reload()" class="button" style="font-size:12px">-->
-					</td>
-					<? if ($last_page > 1) { ?>
-					<td class="center nobborder" width="34%">
-						<table align="center" class="transparent">
-							<tr>
-								<td class="nobborder" style="padding-left:10px;padding-top:10px;padding-bottom:10px"><a href="javascript;" onclick="page('first');return false;"><img src="../pixmaps/first.gif" border="0"></a></td>
-								<td class="nobborder" id="prev_link"><a href="javascript:;" onclick="page('prev');return false;"><img src="../pixmaps/prev.gif" border="0"></a></td>
-								<td class="nobborder"><?=_("Page")?></td>
-								<td class="nobborder"><input id="pag_input" type="text" value="1" onkeypress="enter(this.value, event);" style="width:30px"></td>
-								<td class="nobborder"><?=_("of")?> <?=$last_page?></td>
-								<td class="nobborder" id="last_link"><a href="javascript:;" onclick="page('next');return false;"><img src="../pixmaps/next.gif" border="0"></a></td>
-								<td class="nobborder" style="padding-bottom:10px;padding-top:10px;padding-right:10px"><a href="javascript;" onclick="page('last');return false;"><img src="../pixmaps/last.gif" border="0"></a></td>
-							</tr>
-						</table>
-					</td>
-					<? } ?>
-					<td class="right nobborder" width="33%">
-						<table align="right" class="transparent">
-							<tr>
-								<td class="nobborder" width="30"><?=_("Results")?>:</td>
-								<td class="nobborder" width="5" id="from" style="font-weight:bold">1</td>
-								<td class="nobborder" width="5"> - </td>
-								<td class="nobborder" width="5" id="to" style="font-weight:bold"><?=($total < $max_rows) ? $total : $max_rows?></td>
-								<td class="nobborder" width="40" nowrap style="padding-right:20px"><?=_("of")?> <b><?=$total?></b></td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-	<tr><td class="nobborder" style="text-align:center;color:green;font-weight:bold" id="msg"></td></tr>
+	?>
 </table>
+
+<?php
+if (count($host_list) < 1 && !$errors)
+{
+?>
+	<table class="noborder" align="center" width="100%" style="background-color:white;">
+		<tr><td class="nobborder" style="text-align:center"><?php echo _("All host filtered. No results found.")?></td></tr>
+		<tr>
+			<td class="nobborder" style="padding-top:10px;text-align:center">
+				<input type="button" value="Back" onclick="document.location.href='<?=(GET('userfriendly')) ? "userfriendly.php" : "inventory_search.php"?>'" class="button"/>
+			</td>
+		</tr>
+	</table>
+<?php 
+} 
+	elseif(!$errors)
+	{
+		$hosts = Host::get_list($conn);
+		$_SESSION['inventory_search']['result']['list'] = array();
+		$host_objects = array();
+	
+		foreach ($hosts as $host_obj) 
+			$host_objects[$host_obj->get_ip()] = $host_obj;
+	
+		foreach ($host_list as $ip)
+		{
+			if ($host_objects[$ip] != "") $_SESSION['inventory_search']['result']['list'][] = $host_objects[$ip];
+			else {
+				$obj = new Host($ip, $ip, 0, 0, 0, "", 0, 0, null, "", 0,0,0);
+				$_SESSION['inventory_search']['result']['list'][] = $obj;
+			}
+		}
+		
+		$total     = count($_SESSION['inventory_search']['result']['list']);
+		$last_page = floor(($total-1)/$max_rows)+1;
+?>
+		<table class="noborder" width="100%" style="background-color:white">
+			<tr>
+				<td class="nobborder">
+					<table id="results" width="100%" class="noborder" style="background-color:white<? if (GET('userfriendly')) echo ";border:1px solid #CCCCCC"?>" align="center">
+					<?php
+					if (GET('userfriendly'))
+						basic_header(); 
+					
+					$i = 0; 
+					foreach ($_SESSION['inventory_search']['result']['list'] as $host)
+					{ 
+						if ($i < $max_rows)
+						{ 
+							if (GET('userfriendly')) 
+								host_row_basic($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips,$i);
+							else 
+								host_row($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips);
+			
+						} 
+						$i++; 
+					}
+					?>
+					</table>
+				</td>
+			</tr>
+			
+			<tr><td class="nobborder msg_ok" id="msg_save"></td></tr>
+	
+			<tr>
+				<td class="nobborder" style="padding:5px;text-align:center">
+					<table align="center" width="100%">
+												
+						<tr>
+							<td class="left nobborder" style="text-align:left;padding:5px" width="33%" nowrap='nowrap'>
+								<? if (GET('userfriendly')) { ?>
+								
+									<input type="button" value="<?php echo _("New Search")?>" onclick="document.location.href = 'userfriendly.php?hmenu=Asset+Search&smenu=Asset+Search'" class="button" style="font-size:12px">&nbsp;
+								
+								<? } else { ?>
+									<input type="button" class="button" id='edit_search' onclick="edit_search();"  value="<?php echo _("Edit Search")?>"/>&nbsp;
+									<input type="button" class="button" onclick="new_search();"   value="<?php echo _("New Search")?>"/>&nbsp;&nbsp;
+									<input type="text"   name="last_profile" id="last_profile"    value=""/>
+									<input type="button" class="button" id="save_button" onclick="profile_save()" value="<?php echo _("Save Search")?>"/>&nbsp;
+									<input type="hidden" name="current_profile" id="current_profile" value="<?php echo $_SESSION['profile'];?>"/>
+									
+								<? } ?>
+							</td>
+							
+							<?php if ($last_page > 1) { ?>
+							<td class="center nobborder" width="34%">
+								<table align="center" class="transparent">
+									<tr>
+										<td class="nobborder" style="padding: 10px 0px 10px 10px;">
+											<a onclick="page('first');return false;"><img src="../pixmaps/first.gif" border="0"/></a>
+										</td>
+										<td class="nobborder" id="prev_link">
+											<a onclick="page('prev');return false;"><img src="../pixmaps/prev.gif" border="0"></a>
+										</td>
+										<td class="nobborder"><?php echo _("Page")?></td>
+										<td class="nobborder">
+											<input id="pag_input" type="text" value="1" onkeypress="enter(this.value, event);" style="width:30px">
+										</td>
+										<td class="nobborder"><?php echo _("of")?> <?=$last_page?></td>
+										<td class="nobborder" id="last_link">
+											<a onclick="page('next');return false;"><img src="../pixmaps/next.gif" border="0"/></a>
+										</td>
+										<td class="nobborder" style="padding: 10px 10px 10px 0px">
+											<a onclick="page('last');return false;"><img src="../pixmaps/last.gif" border="0"/></a>
+										</td>
+									</tr>
+								</table>
+							</td>
+							<? } ?>
+							
+							<td class="right nobborder" width="33%">
+								<table align="right" class="transparent">
+									<tr>
+										<td class="nobborder" width="30"><?=_("Results")?>:</td>
+										<td class="nobborder" width="5" id="from" style="font-weight:bold">1</td>
+										<td class="nobborder" width="5"> - </td>
+										<td class="nobborder" width="5" id="to" style="font-weight:bold"><?=($total < $max_rows) ? $total : $max_rows?></td>
+										<td class="nobborder" width="40" nowrap='nowrap' style="padding-right:20px"><?php echo _("of")?> <strong><?php echo $total?></strong></td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<tr><td class="nobborder msg_ok" id="msg"></td></tr>
+		</table>
 	
 <script type="text/javascript">
 // Parse ajax response
@@ -410,8 +545,8 @@ function parseJSON (data) {
 }
 function page (direction) {
 	if (direction == "next") var p = pag+1;
-	else if (direction == "prev") var p = pag-1;
-	else if (direction == "last") var p = <?=$last_page?>;
+	else if (direction == "prev")  var p = pag-1;
+	else if (direction == "last")  var p = <?=$last_page?>;
 	else if (direction == "first") var p = 1;
 	else if (direction.match(/^\d+$/)) var p = direction; // from input
 	if (p > 0 && p <= <?=$last_page?>) {
@@ -428,6 +563,7 @@ function page (direction) {
 				document.getElementById('to').innerHTML = ret.to;
 				document.getElementById('pag_input').value = pag;
 				load_contextmenu();
+				
 				$(".scriptinfo").simpletip({
 					position: 'right',
 					onBeforeShow: function() { 
@@ -435,6 +571,7 @@ function page (direction) {
 						this.load('../control_panel/alarm_netlookup.php?ip=' + ip);
 					}
 				});
+				
 				$(".greybox_caption").simpletip({
 					position: 'right',
 					onBeforeShow: function() { 
@@ -442,11 +579,13 @@ function page (direction) {
 						if (data != "") this.update(data);
 					}
 				});
+				
 				$("a.greybox_caption").click(function(){
 					var t = this.title || $(this).text() || this.href;
 					GB_show(t,this.href,450,'90%');
 					return false;
 				});
+				
 				$("a.greybox").click(function(){
 					var t = this.title || $(this).text() || this.href;
 					GB_show(t,this.href,400,400);
@@ -457,7 +596,7 @@ function page (direction) {
 	}
 }
 function order(ord) {
-	document.getElementById('results').innerHTML = "<img src='../pixmaps/loading.gif'> <?=_("Loading...")?>";
+	document.getElementById('results').innerHTML = "<img src='../pixmaps/loading.gif'> <?php echo _("Loading...")?>";
 		$.ajax({
 			type: "GET",
 			url: "session_result.php",
@@ -466,10 +605,11 @@ function order(ord) {
 				var ret = parseJSON(msg);
 				document.getElementById('results').innerHTML = ret.results;
 				pag = ret.page;
-				document.getElementById('from').innerHTML = ret.from;
-				document.getElementById('to').innerHTML = ret.to;
-				document.getElementById('pag_input').value = pag;
+				document.getElementById('from').innerHTML    = ret.from;
+				document.getElementById('to').innerHTML      = ret.to;
+				document.getElementById('pag_input').value   = pag;
 				load_contextmenu();
+				
 				$(".scriptinfo").simpletip({
 					position: 'right',
 					onBeforeShow: function() { 
@@ -477,6 +617,7 @@ function order(ord) {
 						this.load('../control_panel/alarm_netlookup.php?ip=' + ip);
 					}
 				});
+				
 				$(".greybox_caption").simpletip({
 					position: 'right',
 					onBeforeShow: function() { 
@@ -484,11 +625,13 @@ function order(ord) {
 						if (data != "") this.update(data);
 					}
 				});
+				
 				$("a.greybox_caption").click(function(){
 					var t = this.title || $(this).text() || this.href;
 					GB_show(t,this.href,450,'90%');
 					return false;
 				});
+				
 				$("a.greybox").click(function(){
 					var t = this.title || $(this).text() || this.href;
 					GB_show(t,this.href,450,'90%');
@@ -497,19 +640,20 @@ function order(ord) {
 			}
 		});
 }
-function enter (val,e) {
+function enter (val,e)
+{
 	var key;
 
-	if (window.event){
+	if (window.event)
 		key = window.event.keyCode;
-	}else if (e){
+	else if (e)
 		key = e.which;
-	}else{
+	else
 		return;
-	}
-	if (key == 13) {
+	
+	if ( key == 13 ) 
 		page (val);
-	}
+	
 }
 </script>
 <? } ?>
