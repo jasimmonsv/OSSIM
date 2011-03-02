@@ -140,6 +140,7 @@ function get_values($conn,$host_types,$type,$name,$ips,$only_values = false) {
 function print_indicator_content($conn,$rs) {
     $name = $rs->fields["type_name"];
     $type = $rs->fields["type"];
+    $what = "name"; $ips = $name;
     $host_types = array("host", "server", "sensor");
     $in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
     if(in_array($type, $host_types)){
