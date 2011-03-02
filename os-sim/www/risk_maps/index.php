@@ -37,6 +37,7 @@
 */
 require_once 'classes/Session.inc';
 require_once 'ossim_conf.inc';
+include("riskmaps_functions.php");
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
@@ -62,19 +63,6 @@ function mapAllowed($perms_arr,$version) {
 		}
 	}
 	return $ret;
-}
-function is_in_assets($conn,$name,$type) {
-	if ($type == "host") {
-		$sql = "SELECT * FROM host WHERE hostname=\"$name\"";
-	} elseif ($type == "sensor") {
-		$sql = "SELECT * FROM sensor WHERE name=\"$name\"";
-	} elseif ($type == "net") {
-		$sql = "SELECT * FROM net WHERE name=\"$name\"";
-	} elseif ($type == "host_group") {
-		$sql = "SELECT * FROM host_group WHERE name=\"$name\"";
-	}
-	$result = $conn->Execute($sql);
-	return (!$result->EOF) ? 1 : 0;
 }
 
 function check_writable_relative($dir){
@@ -303,19 +291,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		function choose_icon(icon){
 		var cat   = document.getElementById('category').value;
 		var timg = document.getElementById('chosen_icon');
-		//var res = "48x48";
-		//
-		//for( i = 0; i < document.f.resolution2.length; i++ )
-		//{
-		//	if( document.f.resolution2[i].checked == true ){
-		//		res = document.f.resolution2[i].value;
-		//		break;
-		//	}
-		//}
-		//icon2 = icon.replace("RESOLUTION",res);
-		//timg.src= icon2;
 		timg.src = icon
 		changed = 1;
+		document.getElementById('save_button').className = "lbutton_unsaved";
 		}
 
 		function toggleLayer( whichLayer )
@@ -333,78 +311,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
 		  vis.display = (vis.display==''||vis.display=='block')?'none':'block';
 		}
-
-
-		template_begin = '<table border=0 cellspacing=0 cellpadding=1 style="background-color:BGCOLOR"><tr><td colspan=2 class=ne align=center><i>NAME</i></td></tr><tr><td><img src="ICON" width="SIZE" border=0></td><td>'
-		template_end = '</td></tr></table>'
-		template_rect = '<table border=0 cellspacing=0 cellpadding=0 width="100%" height="100%"><tr><td style="border:1px dotted black">&nbsp;</td></tr></table>'
-		txtbbb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtbbr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtbba = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtbbv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtbrb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtbrr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtbra = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtbrv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtbab = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtbar = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtbaa = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtbav = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtbvb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtbvr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtbva = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtbvv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/b.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-
-		txtrbb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtrbr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtrba = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtrbv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtrrb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtrrr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtrra = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtrrv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtrab = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtrar = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtraa = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtrav = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtrvb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtrvr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtrva = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtrvv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/r.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-
-		txtabb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtabr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtaba = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtabv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtarb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtarr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtara = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtarv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtaab = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtaar = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtaaa = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtaav = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtavb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtavr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtava = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtavv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/a.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-
-		txtvbb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtvbr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtvba = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtvbv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/b.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtvrb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtvrr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtvra = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtvrv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/r.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtvab = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtvar = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtvaa = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtvav = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/a.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
-		txtvvb = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/b.gif" border=0></td></tr></table>'
-		txtvvr = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/r.gif" border=0></td></tr></table>'
-		txtvva = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/a.gif" border=0></td></tr></table>'
-		txtvvv = '<table border=0 cellspacing=0 cellpadding=1><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td><td><img src="images/v.gif" border=0></td></tr></table>'
 
 		function findPos(obj) {
 			var curleft = curtop = 0;
@@ -429,7 +335,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				y = moz ? e.clientY : event.clientY;
 				sx = (typeof(window.scrollX) != 'undefined') ? window.scrollX : ((typeof(document.body.scrollLeft) != 'undefined') ? document.body.scrollLeft : 0);
 				sy = (typeof(window.scrollY) != 'undefined') ? window.scrollY : ((typeof(document.body.scrollTop) != 'undefined') ? document.body.scrollTop : 0);
-				document.f.state.value = "<?= _("moving...") ?>";
+				document.getElementById('state').innerHTML = "<?= _("moving...") ?>";
 				document.f.posx.value = x + sx
 				document.f.posy.value = y + sy
 				dobj.style.left = x + sx - parseInt(dobj.style.width.replace('px',''))/2;
@@ -442,6 +348,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					dobj.style.visibility = 'hidden'
 				}
 				changed = 1;
+				document.getElementById('save_button').className = "lbutton_unsaved";
 				return false;
 			}
 			
@@ -450,7 +357,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				sy = (typeof(window.scrollY) != 'undefined') ? window.scrollY : ((typeof(document.body.scrollTop) != 'undefined') ? document.body.scrollTop : 0);
 				x = moz ? e.clientX+10+ sx : event.clientX+10+ sx;
 				y = moz ? e.clientY+10+ sy : event.clientY+10+ sy;
-				document.f.state.value = "<?= _("resizing...") ?>";
+				document.getElementById('state').innerHTML = "<?= _("resizing...") ?>";
 				document.f.posx.value = x + sx;
 				document.f.posy.value = y + sy;
 				xx = parseInt(dobj.style.left.replace('px','')) + 5;
@@ -460,6 +367,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				dobj.style.width = w
 				dobj.style.height = h 
 				changed = 1;
+				document.getElementById('save_button').className = "lbutton_unsaved";
 				return false;
 			}
     }
@@ -467,18 +375,39 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		function releasing(e) {
 			moving = false;
 			resizing = false;
-			document.f.state.value = ""
-			if (dobj != undefined) dobj.style.cursor = 'pointer'
+			document.getElementById('state').innerHTML = ""
+			if (dobj != undefined) {
+				dobj.style.cursor = 'pointer';
+			}
+		}
+
+		function reset_values() {
+			// Reset form values
+			$('.itcanbemoved').css("border","1px solid transparent");
+			document.f.url.value = "";
+			document.f.alarm_id.value = "";
+			document.f.alarm_name.value = "";
+			document.f.type.value = "";
+			document.getElementById('check_report').checked = false;
+			document.getElementById('elem').value = "";
+			document.getElementById('selected_msg').innerHTML = "";
+			document.getElementById('chosen_icon').src = "pixmaps/standard/default.png";
 		}
 		
 		function pushing(e) {
 			var fobj = moz ? e.target : event.srcElement;
 			var button = moz ? e.which : event.button;
-			if (typeof fobj.tagName == 'undefined') return false;
+
+			$('.itcanbemoved').css("border","1px solid transparent");
+			
+			if (typeof fobj.tagName == 'undefined') {
+				return false;
+			}
 			while (fobj.tagName.toLowerCase() != "html" && fobj.className != "itcanbemoved") {
 				fobj = moz ? fobj.parentNode : fobj.parentElement;
 			}
 			if (fobj.className == "itcanbemoved") {
+				fobj.style.border = "1px dotted red";
 				var ida = fobj.id.replace("alarma","").replace("rect","");
 				if (document.getElementById('dataname'+ida)) {
 					if (document.getElementById('dataurl'+ida).value=="REPORT") {
@@ -523,16 +452,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		document.onmousedown = pushing;
 		document.onmouseup = releasing;
 		document.onmousemove = dragging;
-
-		function responderAjax(url) {
-			$.ajax({
-			   type: "GET",
-			   url: url,
-			   success: function(msg){
-				 eval(msg);
-			   }
-			});
-		}
 		
 		function urlencode(str) { return escape(str).replace('+','%2B').replace('%20','+').replace('*','%2A').replace('/','%2F').replace('@','%40'); }
 
@@ -556,8 +475,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			el.style.top = y
 			el.style.width = w
 			el.style.height = h
-			var content = template_begin.replace('NAME',name).replace('ICON',icon).replace('SIZE',size).replace('SIZE',size).replace('BGCOLOR',iconbg) + valor + template_end
-			el.innerHTML = content;
+			el.innerHTML = "<img src='../pixmaps/loading.gif'>";
 			el.style.visibility = 'visible'
 			document.body.appendChild(el);
 			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataname' + id + '" id="dataname' + id + '" value="' + name + '">\n';
@@ -567,23 +485,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			if (document.getElementById('dataicon' + id) != null) {
 				document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataicon' + id + '" id="dataicon' + id + '" value="' + icon + '">\n';
 			}
-			document.f.state.value = "<?= _("New") ?>"
-		}
-
-		function changeDiv (id,name,url,icon,valor, x, y, w, h, size) {
-			//
-			if (size == 0) size = '100%';
-			if (icon.match(/\#/)) {
-				var aux = icon.split(/\#/);
-				var iconbg = aux[1];
-				icon = aux[0];
-			} else {
-				var iconbg = "transparent";
-			}
-			var content = template_begin.replace('NAME',name).replace('ICON',icon).replace('SIZE',size).replace('SIZE',size).replace('BGCOLOR',iconbg) + valor + template_end
-			if (typeof(document.getElementById('alarma'+id)) != null) document.getElementById('alarma'+id).innerHTML = content;
-			document.f.state.value = ""
-			//changed = 1;
+			document.getElementById('state').innerHTML = "<?= _("New") ?>"
 		}
 
 		function initDiv () {
@@ -607,7 +509,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					objs[i].style.visibility = "visible"
 				}
 			}
-			refresh_indicators()
+			refresh_indicators();
 			// greybox
 			$("a.greybox").click(function(){
 			   var t = this.title || $(this).text() || this.href;
@@ -687,16 +589,33 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					txt = txt.replace(/\//g,"url_slash");
 					txt = txt.replace(/\%3F/g,"url_quest");
 					txt = txt.replace(/\%3D/g,"url_equal");
-					responderAjax('responder.php?map=' + map + '&data=' + txt + '&iconbg=' + document.f.iconbg.value + '&iconsize=' + document.f.iconsize.value);
-					document.f.state.value = '<?= _("New Indicator created.") ?>!';
+					document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20'>";
+					$.ajax({
+					   type: "GET",
+					   url: 'responder.php?map=' + map + '&data=' + txt + '&iconbg=' + document.f.iconbg.value + '&iconsize=' + document.f.iconsize.value,
+					   success: function(msg){
+							eval(msg);
+							refresh_indicators();
+							document.getElementById('state').innerHTML = '<?= _("New Indicator created") ?>';
+					   }
+					});	
 				} else {
 					alert("<?= _("Indicator name can't be void") ?>")
 				}	
 			} else {
-				responderAjax('responder.php?map=' + map + '&type=rect&url=' + urlencode(document.f.url.value))
-				document.f.state.value = '<?= _("New rectangle created") ?>'
+				document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20'>";
+				$.ajax({
+				   type: "GET",
+				   url: 'responder.php?map=' + map + '&type=rect&url=' + urlencode(document.f.url.value),
+				   success: function(msg){
+					   	eval(msg);
+						refresh_indicators();
+						document.getElementById('state').innerHTML = '<?= _("New Rectangle created") ?>';
+				   }
+				});	
 			}
 			changed = 1;
+			document.getElementById('save_button').className = "lbutton_unsaved";
 		}
 
 		function drawRect (id,x,y,w,h) {
@@ -715,8 +634,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			el.innerHTML = "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>" + content;
 			el.style.visibility = 'visible'
 			document.body.appendChild(el);
-			document.f.state.value = "<?= _("New") ?>"
+			document.getElementById('state').innerHTML = "<?= _("New") ?>"
 			changed = 1;
+			document.getElementById('save_button').className = "lbutton_unsaved";
 		}
 
 		function save(map) {
@@ -740,6 +660,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			}
 			var id_type = 'elem_'+document.f.type.value;
 			var url_aux = urlencode(document.f.url.value);
+			if (document.f.type.value == "host" || document.f.type.value == "net") {
+				url_aux = (document.getElementById('check_report').checked) ? "REPORT" : "";
+			}
 			var icon_aux = urlencode(document.getElementById("chosen_icon").src);
 			url_aux = url_aux.replace(/\//g,"url_slash");
 			url_aux = url_aux.replace(/\%3F/g,"url_quest");
@@ -748,18 +671,35 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			icon_aux = icon_aux.replace(/\%3F/g,"url_quest");
 			icon_aux = icon_aux.replace(/\%3D/g,"url_equal");
 			urlsave = 'save.php?type=' +urlencode(document.f.type.value)+'&type_name='+ urlencode(document.getElementById('elem').value) +'&map=' + map + '&id=' + document.f.alarm_id.value + '&name=' + urlencode(document.f.alarm_name.value) + '&url=' + url_aux + '&icon=' + icon_aux + '&data=' + txt + '&iconbg=' + document.f.iconbg.value + '&iconsize=' + document.f.iconsize.value;
-			//alert(urlsave)
-			responderAjax(urlsave);
-			document.f.state.value = "<?= _("Indicators saved.") ?>";
-			changed = 0;
+			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20'>";
+			$.ajax({
+			   	type: "GET",
+			   	url: urlsave,
+			   	success: function(msg){
+			   		document.getElementById('state').innerHTML = "<?= _("Indicators saved.") ?>";
+			   		changed = 0;
+			   		document.getElementById('save_button').className = "lbutton";
+			   		refresh_indicators();
+				}
+			});
 		}
 
 		function refresh_indicators() {
-			responderAjax("refresh.php?map=<? echo $map ?>&bypassexpirationupdate=1")
+			$.ajax({
+			   type: "GET",
+			   url: "get_indicators.php?map=<?php echo $map ?>",
+			   success: function(msg){
+				// Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
+				   var indicators = msg.split("@@@@");
+				   for (i = 0; i < indicators.length; i++) if (indicators[i].match(/\#\#\#\#/)) {
+						var data = indicators[i].split("####");
+						if ('alarma'+data[0] != null) {
+							document.getElementById('alarma'+data[0]).innerHTML = data[1];
+						}
+				   }
+			   }
+			});	
 		}
-		refresh_indicators();
-		setInterval(refresh_indicators,5000);
-
 
 		function chk(fo) {
 			if  (fo.name.value=='') {
@@ -801,6 +741,11 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		function show_assetlink() {
 			document.getElementById('link_map').style.display = "none";
 			document.getElementById('link_asset').style.display = "block";
+		}
+
+		function set_changed() {
+			document.getElementById('save_button').className = 'lbutton_unsaved';
+			changed=1;
 		}
 		
 		function checkSaved()
@@ -867,7 +812,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			<form name="f" action="modify.php">
 			<tr><td>
 			<div style="display:none">
-			<input type='hidden' name="alarm_id" value=""/> x <input type='text' size='1' name='posx'/> y <input type='text' size='1' name='posy'/> <input type='text' size='30' name='state' style="border:1px solid white;"/>
+			<input type='hidden' name="alarm_id" value=""/> x <input type='text' size='1' name='posx'/> y <input type='text' size='1' name='posy'/>
 			</div>
 			</td></tr>
 			<tr>
@@ -917,7 +862,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			</tr>
 			<tr>
 				<td colspan="2" class='bold'><?=_("Background")?>: 
-					<select name="iconbg" id="iconbg">
+					<select name="iconbg" id="iconbg" onchange="set_changed()">
 						<option value=""><?=_("Transparent")?></option>
 						<option value="white"><?=_("White")?></option>
 					</select>
@@ -926,7 +871,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			
 			<tr>
 				<td colspan="2" class='bold'><?=_("Size")?>: 
-					<select name="iconsize" id="iconsize">
+					<select name="iconsize" id="iconsize" onchange="set_changed()">
 						<option value="0"><?=_("Default")?></option>
 						<option value="30"><?=_("Small")?></option>
 						<option value="40"><?=_("Medium")?></option>
@@ -1014,12 +959,12 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 						</table>
 					</td>
 				</tr>
-				
+				<tr><td colspan="2" id="state" class="ne" height="30">&nbsp;</td></tr>
 				<tr>
 					<td colspan="2" nowrap='nowrap'>
 						<input type='button' value="<?= _("New Indicator") ?>" onclick="addnew('<? echo $map ?>','alarm')" class="lbutton" /> 
 						<input type='button' value="<?= _("New Rect") ?>" onclick="addnew('<? echo $map ?>','rect')" class="lbutton"/> 
-						<input type='button' value="<?= _("Save Changes") ?>" onclick="save('<? echo $map ?>')" class="lbutton"/>
+						<input id="save_button" type='button' value="<?= _("Save Changes") ?>" onclick="save('<? echo $map ?>')" class="lbutton"/>
 					</td>
 				</tr>	
 			</table>
@@ -1029,101 +974,10 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 	<tr><td id="tdnuevo"></td></tr>
 </table>
 <?
-	// Get Host, Sensor, Net lists to check user perms
-	list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
-	$nets = Net::get_list($conn);
-	$query = "select * from risk_indicators where name <> 'rect' AND map= ?";
-	$params = array($map);
-	if (!$rs = &$conn->Execute($query, $params)) {
-		print $conn->ErrorMsg();
-	} else {
-		while (!$rs->EOF) {
-			$size = ($rs->fields["size"] > 0) ? $rs->fields["size"] : '100%';
-			if (preg_match("/\#/",$rs->fields["icon"])) {
-				$aux = explode("#",$rs->fields["icon"]);
-				$icon = $aux[0]; $bgcolor = $aux[1];
-			} else $bgcolor = "transparent";
-			$has_perm = 0;
-			$in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
-			if ($rs->fields['type'] == "host") {
-				foreach ($hosts as $hip=>$hname) if ($hname == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "sensor" || $rs->fields['type'] == "server") {
-				foreach ($sensors as $sip=>$sname) if ($sname == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "net") {
-				foreach ($nets as $net) if ($net->get_name() == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "host_group") {
-				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
-			} else $has_perm = 1;
-			if (Session::am_i_admin()) $has_perm = 1;
-			if (!$in_assets) {
-				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
-				echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-				echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
-				echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
-				echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
-				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><img src=\"".preg_replace("/\#.+/","",str_replace("//","/",$rs->fields["icon"]))."\" width=\"".$size."\" height=\"".$size."\" border=0></td><td>";
-				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background:url(../pixmaps/1x1.png);\"><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
-				echo "</td></tr></table></div>\n";
-			} elseif ($has_perm) {
-				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
-				echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-				echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
-				echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
-				echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
-				echo "<div id=\"alarma".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background-color:$bgcolor\"><tr><td colspan=2 class=ne align=center><i>".$rs->fields["name"]."</i></td></tr><tr><td><img src=\"".preg_replace("/\#.+/","",str_replace("//","/",$rs->fields["icon"]))."\" width=\"".$size."\" height=\"".$size."\" border=0></td><td>";
-				echo "<table border=0 cellspacing=0 cellpadding=1 style=\"background:url(../pixmaps/1x1.png);\"><tr><td class=ne11>R</td><td class=ne11>V</td><td class=ne11>A</td></tr><tr><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td><td><img src='images/b.gif' border=0></td></tr></table>";
-				echo "</td></tr></table></div>\n";
-			}
-			$rs->MoveNext();
-		}
-	}
-	$query = "select * from risk_indicators where name='rect' AND map = ?";
-	$params = array($map);
+// *************** Print Indicators DIVs (print_inputs = true) ******************
+print_indicators($map,true);
 
-	if (!$rs = &$conn->Execute($query, $params)) {            
-	print $conn->ErrorMsg();
-	} else {
-		while (!$rs->EOF) {
-			$has_perm = 0;
-			$in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
-			if ($rs->fields['type'] == "host") {
-				foreach ($hosts as $hip=>$hname) if ($hname == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "sensor" || $rs->fields['type'] == "server") {
-				foreach ($sensors as $sip=>$sname) if ($sname == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "net") {
-				foreach ($nets as $net) if ($net->get_name() == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "host_group") {
-				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
-			} else $has_perm = 1;
-			if (Session::am_i_admin()) $has_perm = 1;
-			if (!$in_assets) {
-				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-                echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
-				echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
-				echo "</div>\n";
-			} elseif ($has_perm) {
-				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-	            echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
-				echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
-				echo "</div>\n";
-			}
-			$rs->MoveNext();
-		}
-	}
-	
-	$conn->close();
-?>
-<?php
+$conn->close();
 
 $uploaded_dir = "pixmaps/uploaded/";
 $uploaded_link = "pixmaps/uploaded/";
@@ -1166,39 +1020,16 @@ $i++;
 }
 
 print "</div>\n";
-
-/*
-$docroot = "/var/www/";
-$resolution = "128x128";
-$icon_cats = explode("\n",`ls -1 '$docroot/ossim_icons/Regular/'`);
-foreach($icon_cats as $ico_cat){
-if(!$ico_cat)continue;
-$icons = explode("\n",`ls -1 '$docroot/ossim_icons/Regular/$ico_cat/$resolution/'`);
-print "<div style=\"display:none;\">";
-$i = 0;
-foreach($icons as $ico){
-if(is_dir("$docroot/ossim_icons/Regular/$ico_cat/$resolution/$ico") || !getimagesize("$docroot/ossim_icons/Regular/$ico_cat/$resolution/$ico")){ continue;}
-if(!$ico)continue;
-print "<a href=\"/ossim_icons/Regular/$ico_cat/$resolution/$ico\" id=\"$ico_cat-$i\" rel=\"lytebox[$ico_cat]\" title=\"&lt;a href='javascript:choose_icon(&quot;/ossim_icons/Regular/$ico_cat/RESOLUTION/$ico&quot;);'&gt;Choose this one.&lt;/a&gt;\">$ico_cat</a>";
-$i++;
-}
-print "</div>\n";
-}
-*/
 ?>
-
 		</form>
 	</td>
-
 	<td width="48" valign='top'>
 		<img src='images/wastebin.gif' id="wastebin" border='0'/>
 	</td>
 	<td valign='top' id="map">
-		<img src="maps/map<? echo $map ?>.jpg" id="map_img" border='0'/>
+		<img src="maps/map<? echo $map ?>.jpg" id="map_img" onclick="reset_values()" border='0'/>
 	</td>
 </tr>
 </table>
-
-
 </body>
 </html>

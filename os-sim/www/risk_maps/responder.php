@@ -64,65 +64,59 @@ ossim_valid($iconbg, OSS_ALPHA, OSS_NULLABLE, 'illegal:'._("iconbg"));
 ossim_valid($iconsize, OSS_DIGIT, 'illegal:'._("iconsize"));
 
 if (ossim_error()) {
-die(ossim_error());
+	die(ossim_error());
 }
-
-
-	if ($element_type =="rect") {
-		$sql = "insert into risk_indicators (name,map,url,type,type_name,icon,x,y,w,h) values ('rect',?,?,'','','',100,100,50,50)";
-		$params = array($map, $url);
-        	if (!$rs = &$conn->Execute($sql, $params)) {
-            		print $conn->ErrorMsg();
-        	} else {
-			$query = "select last_insert_id() as id";
-  		        if (!$rs = &$conn->Execute($query)) {
-		            print $conn->ErrorMsg();
-		        } else {
-		                if(!$rs->EOF){
-					$id = $rs->fields["id"];
-				}
+if ($element_type =="rect") {
+	$sql = "insert into risk_indicators (name,map,url,type,type_name,icon,x,y,w,h) values ('rect',?,?,'','','',100,100,50,50)";
+	$params = array($map, $url);
+       	if (!$rs = &$conn->Execute($sql, $params)) {
+           		print $conn->ErrorMsg();
+       	} else {
+		$query = "select last_insert_id() as id";
+	        if (!$rs = &$conn->Execute($query)) {
+	            print $conn->ErrorMsg();
+	        } else {
+	                if(!$rs->EOF){
+				$id = $rs->fields["id"];
 			}
-
-		echo "drawRect('$id',100,100,50,50);\n";
 		}
-	} else { 
-		$dt = explode(";",$data);
-		$type = $dt[1];
-		$ip = $type_name = $dt[2];
-		$what = "name";
-		$icon = ($iconbg != "" && $iconbg != "transparent") ? $dt[0]."#".$iconbg : $dt[0];
-		$valid_types = array("host", "net", "server", "sensor");
-
-		if(in_array($type, $valid_types)){
+	echo "drawRect('$id',100,100,50,50);\n";
+	}
+} else { 
+	$dt = explode(";",$data);
+	$type = $dt[1];
+	$ip = $type_name = $dt[2];
+	$what = "name";
+	$icon = ($iconbg != "" && $iconbg != "transparent") ? $dt[0]."#".$iconbg : $dt[0];
+	$valid_types = array("host", "net", "server", "sensor");
+	if(in_array($type, $valid_types)){
 		if($type == "host"){
 			$what = "hostname";
 		}
 		$query = "select ip from $type where $what = \"$type_name\"";
-        	if ($rs = &$conn->Execute($query)) {
-               		$ip = $rs->fields["ip"];
+	   	if ($rs = &$conn->Execute($query)) {
+			$ip = $rs->fields["ip"];
 		}
-		}
-
-
-		$sql = "insert ignore into bp_asset_member values (0, ?, ?)";
-		$params = array($ip, $type);
-		$conn->Execute($sql, $params);
-		
-		$sql = "insert into risk_indicators (url,map,icon,type_name,name,type,x,y,w,h,size) values (?,?,?,?,?,?,100,100,90,60,?)";
-		$params = array($dt[4], $map, $icon, $dt[2], $dt[3], $dt[1], $iconsize);
-		$conn->Execute($sql, $params);
-
-		$query = "select last_insert_id() as id";
-        if (!$rs = &$conn->Execute($query)) {
-            print $conn->ErrorMsg();
-        } else {
-                if(!$rs->EOF){
-                $id = $rs->fields["id"];
-                }
-        }
-
-		echo "drawDiv('$id','".$dt[3]."',txtbbb,'".$icon."','".$dt[4]."',100,100,90,60,'".$dt[1]."','".$dt[2]."', $iconsize);\n";
-
 	}
-	$conn->close();
+
+
+	$sql = "insert ignore into bp_asset_member values (0, ?, ?)";
+	$params = array($ip, $type);
+	$conn->Execute($sql, $params);
+		
+	$sql = "insert into risk_indicators (url,map,icon,type_name,name,type,x,y,w,h,size) values (?,?,?,?,?,?,100,100,90,60,?)";
+	$params = array($dt[4], $map, $icon, $dt[2], $dt[3], $dt[1], $iconsize);
+	$conn->Execute($sql, $params);
+
+	$query = "select last_insert_id() as id";
+    if (!$rs = &$conn->Execute($query)) {
+       print $conn->ErrorMsg();
+    } else {
+		if(!$rs->EOF){
+        	$id = $rs->fields["id"];
+        }
+    }
+    echo "drawDiv('$id','".$dt[3]."','','".$icon."','".$dt[4]."',100,100,90,60,'".$dt[1]."','".$dt[2]."', $iconsize);\n";
+}
+$conn->close();
 ?>

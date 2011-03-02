@@ -311,7 +311,19 @@ input.lbutton:hover
 	padding-bottom:2px !important;
     margin-right:5px;
 }
-
+.lbutton_unsaved
+{
+    border-width: 0px !important;
+    color: #FFFFFF !important;
+	height:20px !important;
+	background-color: transparent !important;
+    background: url(../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important;
+    padding-bottom:2px !important;
+    font-family: arial,verdana,helvetica,sans-serif !important;
+    font-size: 11px !important;
+	font-weight:bold !important;
+    margin-right:5px;
+}
 
 .rm_tit_section {
 	padding:3px; 
