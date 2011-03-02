@@ -61,6 +61,7 @@ $filter = str_replace ( "/" , "\/" , $filter);
 $db = new ossim_db();
 $conn = $db->connect();
 
+$aclasses = array();
 $bclasses = array();
 $cclasses = array();
 $nets     = array();
@@ -74,55 +75,67 @@ if($filter!="") {
 
 if($key=="")    
     $all_nets = Net::get_list($conn, $condition);
-    
-else if(preg_match("/bclass_(\d+\.\d+)/",$key,$found)) 
-    $all_nets = Net::get_list($conn,"(ips LIKE '".$found[1]."%' OR ips LIKE '%,".$found[1]."%')" . $condition);
-    
-else if(preg_match("/cclass_(\d+\.\d+\.\d+)/",$key,$found))
-    $all_nets = Net::get_list($conn,"(ips LIKE '".$found[1]."%' OR ips LIKE '%,".$found[1]."%')" . $condition);
+else {
+    preg_match("/.class_(.*)/",$key,$found);
+    $all_nets = Net::get_list($conn,"(ips LIKE '".$found[1].".%' OR ips LIKE '%,".$found[1].".%')" . $condition);
+}
 
 foreach ($all_nets as $net) {
-    if($key=="" || preg_match("/bclass_(\d+\.\d+)/",$key,$found)) {
-        $acidrs = array();
-        $cidrs = trim($net->get_ips());
-        $acidrs = explode(",",$cidrs);
-        sort($acidrs);
+    $cidrs = trim($net->get_ips());
+    $acidrs = explode(",", $cidrs);
+    foreach($acidrs as $cidr) {
+        $data = explode(".", $cidr);
+        
+        if($cclasses[$data[0].".".$data[1].".".$data[2]]!=1)  $cclasses[$data[0].".".$data[1].".".$data[2]] = 1;
+        if($cclasses[$data[0].".".$data[1]]!=1)               $bclasses[$data[0].".".$data[1]] = 1;
+        if($cclasses[$data[0]]!=1)                            $aclasses[$data[0]] = 1;
     }
-
-    if($key=="") {
-        foreach($acidrs as $cidr) {
-            preg_match("/(\d+\.\d+)\..*/",$cidr,$found);
-            if(!in_array($found[1],$bclasses))  $bclasses[] = $found[1];
-        }
-    }
-    else if(preg_match("/bclass_(\d+\.\d+)/",$key,$found)) {
-        foreach($acidrs as $cidr) {
-            preg_match("/(\d+\.\d+\.\d+)\..*/",$cidr,$found);
-            if(!in_array($found[1],$cclasses)) $cclasses[] = $found[1];
-        }
-    }
-    else if(preg_match("/cclass_(\d+\.\d+\.\d+)/",$key,$found)) {
-        $cidrs = trim($net->get_ips());
-        $tmp_cidrs = explode(",",$cidrs);
-        if(count($tmp_cidrs)>1) $cidrs = $tmp_cidrs[0]."...".$tmp_cidrs[count($tmp_cidrs)-1];
-        $name = trim($net->get_name());
-        $nets[$name] = $cidrs;
-        ksort($nets);
-    }
+    
+    $name = trim($net->get_name());
+    $nets[$name] = $cidrs;
 }
+
+ksort($nets);
 
 if ($key=="") {
     $buffer .= "[ {title: '"._("Networks")."', key:'keyn', url:'networks', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";
-    foreach($bclasses as $bclass)
-        $buffer .= "{ key:'bclass_$bclass', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$bclass.---.---/--'},";
+    if(count($bclasses) <= 20 ) {
+        foreach($cclasses as $cclass => $v) {
+            $buffer .= "{ key:'cclass_$cclass', icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--', expand:true, children:[\n";
+            foreach($nets as $net_name => $net_cidrs) if(preg_match("/$cclass\..*/",$net_cidrs)) {
+                $cidrs = $net_cidrs;
+                $tmp_cidrs = explode(",", $net_cidrs);
+                if(count($tmp_cidrs)>1) $cidrs = $tmp_cidrs[0]."...".$tmp_cidrs[count($tmp_cidrs)-1];
+                $buffer .= "{ key:'$net_name', isFolder:false, isLazy:false, icon:'../../pixmaps/theme/net.png', title:'$net_name ($cidrs)'},";
+            }
+            $buffer = preg_replace("/,$/", "", $buffer);
+            $buffer .= "]},";
+        }
+    }
+    else if(count($bclasses) > 20 && count($bclasses) <= 100) {
+        foreach($bclasses as $bclass => $v)
+            $buffer .= "{ key:'bclass_$bclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$bclass.---.---/--'},";
+    }
+    else {
+        foreach($aclasses as $aclass => $v)
+            $buffer .= "{ key:'aclass_$aclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$aclass.---.---.---/--'},";
+    }
     $buffer = preg_replace("/,$/", "", $buffer);
     $buffer .= "] } ]";
+}
+else if(preg_match("/aclass_(\d+)/",$key,$found)){
+
+    $buffer .= "[";
+    foreach($bclasses as $bclass => $v)
+        $buffer .= "{ key:'bclass_$bclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$bclass.---.---/--'},";
+    $buffer = preg_replace("/,$/", "", $buffer);
+    $buffer .= "]";
 }
 else if(preg_match("/bclass_(\d+\.\d+)/",$key,$found)){
 
     $buffer .= "[";
-    foreach($cclasses as $cclass)
-        $buffer .= "{ key:'cclass_$cclass', page:'', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--'},";
+    foreach($cclasses as $cclass => $v)
+        $buffer .= "{ key:'cclass_$cclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--'},";
     $buffer = preg_replace("/,$/", "", $buffer);
     $buffer .= "]";
 }
@@ -130,7 +143,10 @@ else if(preg_match("/cclass_(\d+\.\d+\.\d+)/",$key,$found)){
     $buffer .= "[";
 
     foreach($nets as $net_name => $net_cidrs) {
-        $buffer .= "{ key:'$net_name', page:'', isFolder:false, isLazy:false, icon:'../../pixmaps/theme/net.png', title:'$net_name ($net_cidrs)'},";
+        $cidrs = $net_cidrs;
+        $tmp_cidrs = explode(",", $net_cidrs);
+        if(count($tmp_cidrs)>1) $cidrs = $tmp_cidrs[0]."...".$tmp_cidrs[count($tmp_cidrs)-1];
+        $buffer .= "{ key:'$net_name', isFolder:false, isLazy:false, icon:'../../pixmaps/theme/net.png', title:'$net_name ($cidrs)'},";
     }
 
     $buffer = preg_replace("/,$/", "", $buffer);

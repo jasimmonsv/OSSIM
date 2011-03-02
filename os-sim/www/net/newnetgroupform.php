@@ -202,7 +202,7 @@ else
 
 <table align="center" class="transparent">
     <tr>
-    <td class="nobborder">
+    <td class="nobborder" valign="top">
         <table align="center" id='table_form'>
             <tr>
                 <th><label for='ngname'><?php echo gettext("Name"); ?></label></th>
