@@ -293,8 +293,21 @@ if ( $error_message != null )
 <head>
 	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css" />
+	<style type='text/css'>		
+		.ac_results li img {float: left;margin-right: 5px;}
+		
+		.wfl1 {float:left; width: auto;} 
+		.wfr1 {float:left; padding: 5px 0px 0px 15px; width: auto;} 
+
+		.wfl2 {float:left; width: 460px; } 
+		.wfr2 {float:left; padding: 5px 0px 0px 10px; width: 30px;} 
+		
+		.wf3 {float:left; width: 480px; }
+	</style>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
 	<script type="text/javascript" src="../js/messages.php"></script>
@@ -302,13 +315,13 @@ if ( $error_message != null )
 	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&key=<?php echo $map_key ?>"></script> 
+	<script type="text/javascript" src="../js/jquery.autocomplete_geomod.js"></script> 
+	<script type="text/javascript" src="../js/geo_autocomplete.js"></script> 
 	<!-- Dynatree libraries: -->
 	<script type="text/javascript" src="../js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.tmpl.1.1.1.js"></script>
 	<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
-	<link type="text/css" rel="stylesheet" href="../style/tree.css" />
-
 	<script type="text/javascript">
 	
 		messages[6]  = '<div class="reload"><img src="../pixmaps/theme/ltWait.gif" border="0" align="absmiddle"/> <?php echo _("Re-loading data...") ?></div>';
@@ -696,6 +709,25 @@ if ( $error_message != null )
 			load_tree_1('tree_container_1', '<?php echo $ip?>');
 			load_tree_2('tree_container_2', '<?php echo $ip?>');
 			
+            $('#location_search').geo_autocomplete(new google.maps.Geocoder, {
+                mapkey: '<?php echo $map_key?>', 
+                selectFirst: false,
+                minChars: 3,
+                cacheLength: 50,
+                width: 300,
+                scroll: true,
+                scrollHeight: 330
+            }).result(function(_event, _data) {
+                if (_data) 
+                {
+                    map.fitBounds(_data.geometry.viewport);
+                    map.setCenter(_data.geometry.location);
+                    marker.setPosition(_data.geometry.location);  
+                    $('#latitude').val(Math.round(marker.position.lat()*10000)/10000);
+                    $('#longitude').val(Math.round(marker.position.lng()*10000)/10000);
+                }
+            });
+            
 			$(".sensor_info").simpletip({
 				position: 'top',
 				offset: [-60, -10],
@@ -821,14 +853,14 @@ if ( $error_message != null )
 			
 			$('#latitude').bind('change', function() {
 				var latlng = new google.maps.LatLng($('#latitude').val(),$('#longitude').val());
-				 marker.setPosition(latlng);
-				 map.setCenter(latlng);
+				marker.setPosition(latlng);
+				map.setCenter(latlng);
 			});
 			
 			$('#longitude').bind('change', function() {
 				var latlng = new google.maps.LatLng($('#latitude').val(),$('#longitude').val());
-				 marker.setPosition(latlng);
-				 map.setCenter(latlng);
+				marker.setPosition(latlng);
+				map.setCenter(latlng);
 			});
 									
 		});
@@ -1109,6 +1141,10 @@ if ( empty( $ip ) ) {
 					<tr class="geolocation">
 						<th><label for='longitude'><?php echo gettext("Longitude"); ?></label></th>
 						<td class="left"><input type="text" id="longitude" name="longitude" value="<?php echo $longitude;?>"/></td>
+					</tr>
+
+					<tr class="geolocation noborder">
+						<td class="left" colspan=2><img src="../pixmaps/search_icon.png" border="0" align="top"><input type="text" id="location_search" name="location_search" style="margin-top:2px"></td>
 					</tr>
 					
 					<tr class="geolocation">

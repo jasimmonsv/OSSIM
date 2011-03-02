@@ -443,7 +443,7 @@ if ($edit) {
 		.wfr2 {float:left; padding: 5px 0px 0px 10px; width: 30px;} 
 		
 		.wf3 {float:left; width: 480px; }
-	</style
+	</style>
 </head>
 
 <body>
