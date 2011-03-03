@@ -89,7 +89,6 @@ function get_values($conn,$host_types,$type,$name,$ips,$only_values = false) {
     } else {
         $query = "select severity,member from bp_member_status where member = ? and measure_type = \"net_metric\"";
     }
-
     if (!$rs2 = &$conn->Execute($query, $params)) {
         print $conn->ErrorMsg();
     } else {
@@ -227,7 +226,7 @@ function print_indicator_content($conn,$rs) {
 	} else {
 		$bgcolor = "transparent";
 	}
-	$url = ($rs->fields["url"] == "REPORT") ? "../report/index.php?host=".$ips : "javascript:;";
+	$url = ($rs->fields["url"] == "REPORT") ? "../report/index.php?host=".$ips : (($rs->fields["url"] != "") ? $rs->fields["url"] : "javascript:;");
 	if (!$in_assets) {
 		$icon = "../pixmaps/marker--exclamation.png";
 		$size = "16";
