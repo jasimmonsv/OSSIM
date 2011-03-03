@@ -40,6 +40,8 @@ ossim_valid($data, OSS_TEXT, OSS_PUNC_EXT, "Invalid: data");
 ossim_valid($type, OSS_ALPHA, "Invalid: type");
 ossim_valid($date_from, OSS_DIGIT, OSS_SCORE, "Invalid: date_from");
 ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, "Invalid: date_to");
+if ($date_from=="") $date_from=date("Y-m-d",strtotime("-10 year"));
+if ($date_to=="") $date_to=date("Y-m-d");
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -66,7 +68,7 @@ if (ossim_error()) {
 		$('#<?=$data?>').submit();
 
 		
-		$('#msg').html('<?=_("Report launched successfully, please wait for the download report!")?><br>');
+		$('#msg').html('<?=_("Please wait for report download!")?><br>');
 		$('input[name=closebtn]').show();
 		
 	}

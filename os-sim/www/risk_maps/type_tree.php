@@ -192,7 +192,7 @@ else if ($key!="all") {
 }
 
 if ($buffer=="" || $buffer=="[]")
-    $buffer = "[{title:'"._("No Hosts Found")."'}]";
+    $buffer = "[{title:'"._("No Assets found")."'}]";
 
 echo $buffer;
 error_reporting(0);

@@ -647,7 +647,7 @@ else {
     }
 
     if ($buffer=="" || $buffer=="[]")
-        $buffer = "[{title:'"._("No Hosts Found")."'}]";
+        $buffer = "[{title:'"._("No Assets found")."'}]";
 
     echo $buffer;
     
