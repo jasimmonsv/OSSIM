@@ -270,8 +270,8 @@ if (GET('withoutmenu') != "1")
 					<?php /*<input type="text" id="ports" name="ports" value="" size="32"/>*/?>
 					<input type="text" id="ports_name" name="ports_name" value="" size="5" style="width: 160px" />
 					<select id="ports_protocol" name="ports_protocol" style="width: 70px">
-					  <option value="udp">UDP</option>
-					  <option value="tcp">TCP</option>
+						<option value="tcp" selected='selected'>TCP</option>
+						<option value="udp">UDP</option>
 					</select>
 					<input type="button" id='insert' class="lbutton" value="<?php echo _("add")?>" onclick="portAndProtocol();"/>
 				</td></tr>

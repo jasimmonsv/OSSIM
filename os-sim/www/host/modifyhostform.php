@@ -90,23 +90,23 @@ foreach($lines as $line)
 
 $array_assets = array ( '0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
-$array_os = array ( "Unknown" => "",
+$array_os = array ( "Unknown"           => "",
 					"Microsoft Windows" => "Microsoft Windows",
-					"Linux"   => "Linux",
-					"FreeBSD" => "FreeBSD",
-					"NetBSD"  => "NetBSD",
-					"OpenBSD" => "OpenBSD",
-					"Apple MacOSX"   => "Apple MacOSX",
-					"SUN Solaris" => "SUN Solaris",
-					"Cisco IOS"   => "Cisco IOS",
-					"IBM AIX"     => "IBM AIX",
-					"HP-UX"   => "HP-UX",
-					"Compaq Tru64"   => "Compaq Tru64",
-					"SGI IRIX"    => "SGI IRIX",
-					"BSD\/OS"  => "BSD/OS",
-					"SunOS"   => "SunOS",
-					"Plan9"   => "Plan9",
-					"IPhone"  => "IPhone");
+					"Linux"             => "Linux",
+					"FreeBSD"           => "FreeBSD",
+					"NetBSD"            => "NetBSD",
+					"OpenBSD"           => "OpenBSD",
+					"Apple MacOSX"      => "Apple MacOSX",
+					"SUN Solaris"       => "SUN Solaris",
+					"Cisco IOS"         => "Cisco IOS",
+					"IBM AIX"           => "IBM AIX",
+					"HP-UX"             => "HP-UX",
+					"Compaq Tru64"      => "Compaq Tru64",
+					"SGI IRIX"          => "SGI IRIX",
+					"BSD\/OS"           => "BSD/OS",
+					"SunOS"             => "SunOS",
+					"Plan9"             => "Plan9",
+					"IPhone"            => "IPhone");
 
 $conf     = $GLOBALS["CONF"];	
 $map_key = $conf->get_conf("google_maps_key", FALSE);
@@ -297,6 +297,7 @@ if ( $error_message != null )
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
     <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css" />
+	<link rel="stylesheet" type="text/css" href="../style/tree.css"/>
 	<style type='text/css'>		
 		.ac_results li img {float: left;margin-right: 5px;}
 		

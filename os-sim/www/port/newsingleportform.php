@@ -124,8 +124,8 @@ if (GET('withoutmenu') != "1")
 		<th><label for='protocol'><?php echo gettext("Protocol"); ?></label></th>
 		<td class="left">
 			<select name="protocol" class='vfield req_field' id='protocol'>
-				<option value="udp"<?=(($protocol=="udp") ? "selected='selected'" : "")?>><?php echo gettext("UDP"); ?> </option>
 				<option value="tcp"<?=(($protocol=="tcp") ? "selected='selected'" : "")?>><?php echo gettext("TCP"); ?> </option>
+				<option value="udp"<?=(($protocol=="udp") ? "selected='selected'" : "")?>><?php echo gettext("UDP"); ?> </option>
 			</select>
 			<span style="padding-left: 3px;">*</span>
 		</td>
