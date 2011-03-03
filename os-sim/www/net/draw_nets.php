@@ -42,10 +42,13 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 
 $filter = GET('filter');
 $filter = (mb_detect_encoding($filter." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($filter) : $filter;
-$key = GET('key');
+$key    = GET('key');
+$entity = GET('entity');
+
 
 ossim_valid($filter, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, 'illegal:' . _("Filter"));
 ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("key"));
+ossim_valid($entity, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("entity"));
 
 if (ossim_error()) {
     die(ossim_error());
@@ -58,10 +61,20 @@ $high_limit = 100;
 require_once ('classes/Net.inc');
 require_once ('ossim_db.inc');
 
-$filter = str_replace ( "/" , "\/" , $filter);
-
 $db = new ossim_db();
 $conn = $db->connect();
+
+$current_entity_perms = array();
+
+if($entity!="") {
+    require_once ('classes/Acl.inc');
+    $current_entity_perms = Acl::entityPerms($conn,$entity);
+}
+else {
+    $entity = 0;
+}
+
+$filter = str_replace ( "/" , "\/" , $filter);
 
 $aclasses = array();
 $bclasses = array();
@@ -83,18 +96,20 @@ else {
 }
 
 foreach ($all_nets as $net) {
-    $cidrs = trim($net->get_ips());
-    $acidrs = explode(",", $cidrs);
-    foreach($acidrs as $cidr) {
-        $data = explode(".", $cidr);
+    if (($entity > 0 && $current_entity_perms['assets'][$net->get_ips()]) || $entity==0) {
+        $cidrs = trim($net->get_ips());
+        $acidrs = explode(",", $cidrs);
+        foreach($acidrs as $cidr) {
+            $data = explode(".", $cidr);
+            
+            if($cclasses[$data[0].".".$data[1].".".$data[2]]!=1)  $cclasses[$data[0].".".$data[1].".".$data[2]] = 1;
+            if($cclasses[$data[0].".".$data[1]]!=1)               $bclasses[$data[0].".".$data[1]] = 1;
+            if($cclasses[$data[0]]!=1)                            $aclasses[$data[0]] = 1;
+        }
         
-        if($cclasses[$data[0].".".$data[1].".".$data[2]]!=1)  $cclasses[$data[0].".".$data[1].".".$data[2]] = 1;
-        if($cclasses[$data[0].".".$data[1]]!=1)               $bclasses[$data[0].".".$data[1]] = 1;
-        if($cclasses[$data[0]]!=1)                            $aclasses[$data[0]] = 1;
+        $name = trim($net->get_name());
+        $nets[$name] = $cidrs;
     }
-    
-    $name = trim($net->get_name());
-    $nets[$name] = $cidrs;
 }
 
 ksort($nets);
