@@ -38,6 +38,7 @@ require_once 'ossim_db.inc';
 require_once 'classes/Security.inc';
 
 $map = $_GET["map"];
+$print_inputs = ($_GET["print_inputs"] == "1") ? true : false;
 
 ossim_valid($map, OSS_DIGIT, OSS_ALPHA, ".",'illegal:'._("map"));
 
@@ -49,13 +50,23 @@ $db = new ossim_db();
 $conn = $db->connect();
 $params = array($map);
 $query = "select * from risk_indicators where name <> 'rect' AND map= ? ";
-
 if (!$rs = &$conn->Execute($query, $params)) {
     print $conn->ErrorMsg();
 } else {
     while (!$rs->EOF){
 		// Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
-		echo $rs->fields["id"] ?>####<?php print_indicator_content($conn,$rs) ?>@@@@<?php
+		echo "indicator".$rs->fields["id"] ?>####<?php print_indicator_content($conn,$rs) ?>@@@@<?php
+        //if ($in_assets) echo $change_div;
+        $rs->MoveNext();
+    }
+}
+$query = "select * from risk_indicators where name = 'rect' AND map= ? ";
+if (!$rs = &$conn->Execute($query, $params)) {
+    print $conn->ErrorMsg();
+} else {
+    while (!$rs->EOF){
+		// Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
+		echo "rect".$rs->fields["id"] ?>####<?php print_rectangle_content($conn,$print_inputs) ?>@@@@<?php
         //if ($in_assets) echo $change_div;
         $rs->MoveNext();
     }

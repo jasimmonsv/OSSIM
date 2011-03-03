@@ -392,6 +392,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			document.getElementById('elem').value = "";
 			document.getElementById('selected_msg').innerHTML = "";
 			document.getElementById('chosen_icon').src = "pixmaps/standard/default.png";
+			document.getElementById('linktoreport').style.display = 'none';
 		}
 		
 		function pushing(e) {
@@ -403,12 +404,18 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			if (typeof fobj.tagName == 'undefined') {
 				return false;
 			}
-			while (fobj.tagName.toLowerCase() != "html" && fobj.className != "itcanbemoved") {
+			while (fobj.tagName.toLowerCase() != "html" && fobj.className != "itcanbemoved" && fobj.className != "itcanberesized") {
 				fobj = moz ? fobj.parentNode : fobj.parentElement;
 			}
-			if (fobj.className == "itcanbemoved") {
+			if (fobj.className == "itcanberesized") {
+				resizing = true;
+				fobj = moz ? fobj.parentNode : fobj.parentElement;
+				dobj = fobj
+				return false;
+			}
+			else if (fobj.className == "itcanbemoved") {
 				fobj.style.border = "1px dotted red";
-				var ida = fobj.id.replace("alarma","").replace("rect","");
+				var ida = fobj.id.replace("indicator","").replace("rect","");
 				if (document.getElementById('dataname'+ida)) {
 					if (document.getElementById('dataurl'+ida).value=="REPORT") {
 						document.getElementById('check_report').checked=1;
@@ -437,13 +444,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 						}
 					}
 				}
-				if (button>1) {
-					resizing = true;
-					fobj.style.cursor = 'nw-resize'
-				} else {
-					moving = true;
-					fobj.style.cursor = 'move'
-				}
+				moving = true;
+				fobj.style.cursor = 'move';
 				dobj = fobj
 				return false;
 			}
@@ -468,7 +470,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			var the_map= document.getElementById("map_img")
 			var map_pos = [];
 			map_pos = findPos(the_map);
-			el.id='alarma'+id
+			el.id='indicator'+id
 			el.className='itcanbemoved'
 			el.style.position = 'absolute';
 			el.style.left = x + map_pos[0];
@@ -541,8 +543,15 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					var keys = dtnode.data.key.split(/\;/);
 					document.getElementById('type').value = keys[0];
 					document.getElementById('elem').value = keys[1];
-					if (keys[0] == "host" || keys[0] == "net") document.getElementById('check_report').checked = true;
+					if (keys[0] == "host" || keys[0] == "net" || keys[0] == "sensor") document.getElementById('check_report').checked = true;
 					else document.getElementById('check_report').checked = false;
+					document.getElementById('selected_msg').innerHTML = "<b><?=_("Selected type")?></b>:"+document.f.type.value+" - "+document.f.elem.value;
+					if (document.f.type.value == "host_group" || document.f.type.value == "server") {
+						document.getElementById('linktoreport').style.display = 'none';
+					}
+					else {
+						document.getElementById('linktoreport').style.display = '';
+					}
 				},
 				onDeactivate: function(dtnode) {},
 				onLazyRead: function(dtnode){
@@ -609,8 +618,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				   url: 'responder.php?map=' + map + '&type=rect&url=' + urlencode(document.f.url.value),
 				   success: function(msg){
 					   	eval(msg);
+					   	document.getElementById('state').innerHTML = '<?= _("New Rectangle created") ?>';
 						refresh_indicators();
-						document.getElementById('state').innerHTML = '<?= _("New Rectangle created") ?>';
 				   }
 				});	
 			}
@@ -630,8 +639,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			el.style.top = y
 			el.style.width = w
 			el.style.height = h
-			var content = template_rect
-			el.innerHTML = "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>" + content;
+			el.innerHTML = "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
 			el.style.visibility = 'visible'
 			document.body.appendChild(el);
 			document.getElementById('state').innerHTML = "<?= _("New") ?>"
@@ -660,7 +668,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			}
 			var id_type = 'elem_'+document.f.type.value;
 			var url_aux = urlencode(document.f.url.value);
-			if (document.f.type.value == "host" || document.f.type.value == "net") {
+			if (document.f.type.value == "host" || document.f.type.value == "net" || document.f.type.value == "sensor") {
 				url_aux = (document.getElementById('check_report').checked) ? "REPORT" : "";
 			}
 			var icon_aux = urlencode(document.getElementById("chosen_icon").src);
@@ -691,14 +699,14 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20' align='absmiddle'> <?php echo _("Refreshing indicators") ?>...";
 			$.ajax({
 			   type: "GET",
-			   url: "get_indicators.php?map=<?php echo $map ?>",
+			   url: "get_indicators.php?map=<?php echo $map ?>&print_inputs=1",
 			   success: function(msg){
 				// Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
 				   var indicators = msg.split("@@@@");
 				   for (i = 0; i < indicators.length; i++) if (indicators[i].match(/\#\#\#\#/)) {
 						var data = indicators[i].split("####");
-						if ('alarma'+data[0] != null) {
-							document.getElementById('alarma'+data[0]).innerHTML = data[1];
+						if (data[0] != null) {
+							document.getElementById(data[0]).innerHTML = data[1];
 						}
 				   }
 				   document.getElementById('state').innerHTML = "";
@@ -935,12 +943,15 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				
 				<tr>
 					<td colspan="2">
-						<table width="100%" id="link_asset" style="display:block">
+						<table width="100%" id="link_asset" style="display:block;border:0px">
 							<tr><td nowrap='nowrap'><div id="tree"></div></td></tr>
-							<tr id="linktoreport">
-								<td class='ne11' nowrap='nowrap'>
-								<?= _("Click to link to host/network report"); ?>&nbsp;&nbsp;
-								<input type="checkbox" id="check_report"/>
+							<tr id="linktoreport" style="display:none">
+								<td class="nobborder">
+									<table style="border:0px"><tr>
+										<td><input type="checkbox" id="check_report"/></td>
+										<td class='ne1' nowrap='nowrap'><i><?= _("Link to Asset Report"); ?></i></td>
+										</tr>
+									</table>
 								</td>
 							</tr>
 						</table>

@@ -161,8 +161,8 @@ if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
 			   var indicators = msg.split("@@@@");
 			   for (i = 0; i < indicators.length; i++) if (indicators[i].match(/\#\#\#\#/)) {
 					var data = indicators[i].split("####");
-					if ('alarma'+data[0] != null) {
-						document.getElementById('alarma'+data[0]).innerHTML = data[1];
+					if (data[0] != null) {
+						document.getElementById(data[0]).innerHTML = data[1];
 					}
 			   }
 		   }
