@@ -125,7 +125,7 @@ switch($type){
 		$type_graph='barCumulative';
 		$query = array();
 
-		$user_where = " AND in_charge='".$_SESSION['_user']."'";
+		$user_where = " AND status='Closed' AND in_charge='".$_SESSION['_user']."'";
 
 		$year = date("Y");
 

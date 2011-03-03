@@ -15920,7 +15920,7 @@ REPLACE INTO `user_config` VALUES ('admin','custom_report','Logger Unified threa
 -- Add some info to the tickets, to avoid empty pies
 INSERT INTO `incident_ticket` (`id`, `incident_id`, `date`, `status`, `priority`, `users`, `description`, `action`, `in_charge`, `transferred`) VALUES (1,1,'2010-07-23 16:03:38','Open',5,'admin','ertwert','wertwert','admin',''),(2,1,'2009-01-09 16:03:50','Open',5,'admin','sdfgsdfg','sdgsdfg','admin',''),(3,1,'2009-01-09 16:04:22','Open',5,'admin','jklh','hnjhnjh','admin',''),(4,1,'2009-01-09 16:04:40','Open',5,'admin','sadf','asdf','admin','');
 INSERT INTO `incident_event` (`id`, `incident_id`, `src_ips`, `src_ports`, `dst_ips`, `dst_ports`) VALUES (1,1,'','','','');
-INSERT INTO `incident` (`id`, `title`, `date`, `ref`, `type_id`, `priority`, `status`, `last_update`, `in_charge`, `submitter`, `event_start`, `event_end`) VALUES (1,'Welcome to OSSIM','2010-07-23 04:41:13','Event','Generic',5,'Open','2010-07-23 16:04:40','admin','','2010-07-23 04:41:13','2010-07-23 04:41:13');
+INSERT INTO `incident` (`id`, `title`, `date`, `ref`, `type_id`, `priority`, `status`, `last_update`, `in_charge`, `submitter`, `event_start`, `event_end`) VALUES (1,'Welcome to OSSIM','2010-07-23 04:41:13','Event','Generic',2,'Open','2010-07-23 16:04:40','admin','','2010-07-23 04:41:13','2010-07-23 04:41:13');
 INSERT INTO `incident_ticket_seq` (`id`) VALUES (1);
 
 

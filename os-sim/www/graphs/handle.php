@@ -144,7 +144,7 @@ switch ($target_url) {
         break;
 
     case "inventory":
-        $url = "/ossim/index.php?option=4&soption=4&url=ocsreports%2Findex.php";
+        $url = "/ossim/index.php?option=4&soption=0&url=".urlencode("policy/ocs_index.php?hmenu=Assets&smenu=Inventory");
         break;
 
     case "alarms_events":
