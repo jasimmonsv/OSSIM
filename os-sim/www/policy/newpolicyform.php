@@ -833,7 +833,7 @@ if ($insert != "") {
 		<tr>
 			<th style="background-position:top center"><?php echo _("Destination Ports") . required() ?><br/>
 				<span class='size10'><a href="../port/newportform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new port group?") ?></a></span><br/>
-				<span class='size10'><a href="../port/newsingleportform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new port?") ?></a></span><br/>
+				<!--<span class='size10'><a href="../port/newsingleportform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new port?") ?></a></span><br/>-->
 			</th>
 			<td class="left nobborder" valign="top">
 				<select id="ports" name="mboxp[]" size="20" multiple="multiple" class="multi" style="width:200px">
