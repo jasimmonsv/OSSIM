@@ -74,7 +74,7 @@ window.onload = function () {
     label.push(r.text(60, 12, "XXXXXX SIEM events").attr(txt));
     label.push(r.text(60, 27, "31 January 2011").attr(txt1).attr({fill: color}));
     label.hide();
-    var frame = r.popup(100, 100, label, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
+    var frame = r.popup(100, 100, label, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .85}).hide();
 
     var p, bgpp;
     for (var i = 0, ii = labels.length; i < ii; i++) {

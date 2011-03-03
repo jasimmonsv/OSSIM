@@ -128,8 +128,10 @@ if (GET("type")=="siemday") {
     }
     $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz)."&time[0][3]=".gmdate("d",$timetz)."&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".gmdate("m",$timetz)."&time[1][3]=".gmdate("d",$timetz)."&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 }
+//
+$empty = true;
 ?>
-<body scroll="no" style="overflow:hidden;font-family:arial;font-size:12px">		
+<body scroll="no" style="overflow:hidden;font-family:arial;font-size:11px">		
 	<table id="data" style="display:none">
         <tfoot>
             <tr>
@@ -144,6 +146,7 @@ if (GET("type")=="siemday") {
             <tr>
             	<?	for ($i=0;$i<$max;$i++) {
             			$value = ($trend[$i]!="") ? $trend[$i] : 0;
+            			if ($value!=0) $empty=false;
             			echo "<td>$value</td>\n"; 
             		}
             	?>
@@ -155,6 +158,7 @@ if (GET("type")=="siemday") {
             <tr>
             	<?	for ($i=0;$i<$max;$i++) {
             			$value = ($trend2[$i]!="") ? $trend2[$i] : 0;
+            			if ($value!=0) $empty=false;
             			echo "<td>$value</td>\n"; 
             		}
             	?>
@@ -163,6 +167,7 @@ if (GET("type")=="siemday") {
     </table>
 	
     <script language="javascript">
+    	<?php if ($empty) echo "var max_aux=100;\n"; ?>    	
         logger_url = '../sem/index.php?start=<?=urlencode(date("Y-m-d",$timetz)." HH:00:00")?>&end=<?=urlencode(date("Y-m-d",$timetz)." HH:59:59")?>';
         siem_url = '<?=$siem_url?>';
     </script>
@@ -171,7 +176,7 @@ if (GET("type")=="siemday") {
 	
 	<script src="../js/raphael/<?=$js?>.js"></script>
 	<script src="../js/raphael/popup.js"></script>		
-	<div id="holder" style='height:100%;width:100%;margin: auto;'></div>
+	<div id="holder" style='height:100%;width:100%;margin:0;'></div>
 	
 	<? } else { ?>
 	

@@ -57,20 +57,21 @@ window.onload = function () {
     // Draw
     var color = '#8DC41B',
     	width = 450,
-        height = 175,
+        height = 180,
         leftgutter = 0,
-        bottomgutter = 20,
-        topgutter = 20,
+        bottomgutter = 25,
+        topgutter = 15,
         colorhue = .6 || Math.random(),
         //color = "hsb(" + [colorhue, .5, 1] + ")",
         r = Raphael("holder", width, height),
-        txt = {font: '12px Helvetica, Arial', fill: "#000"},
+        txt = {font: '11px Helvetica, Arial', fill: "#000"},
         txt1 = {font: '10px Helvetica, Arial', fill: "#000"},
         txt2 = {font: '12px Helvetica, Arial', fill: "#000"},
         X = (width - leftgutter) / labels.length,
         max1 = Math.max.apply(Math, data),
         max2 = Math.max.apply(Math, data2);
     var max = (max1>max2) ? max1 : max2;
+    if (max==0 && max_aux!=0) max=max_aux; // fixed all zero values
     var Y = (height - bottomgutter - topgutter) / max; 
     r.drawGrid(leftgutter + X * .5 + .5, topgutter + .5, width - leftgutter - X, height - topgutter - bottomgutter, 16, 8, "#EEE");
     var path = r.path().attr({stroke: color, "stroke-width": 4, "stroke-linejoin": "round"}),
@@ -84,7 +85,7 @@ window.onload = function () {
     for (var i = 0, ii = labels.length; i < ii; i++) {
         var y = Math.round(height - bottomgutter - Y * data[i]),
             x = Math.round(leftgutter + X * (i + .5)),
-            t = r.text(x, height - 6, labels[i]).attr(txt).toBack();
+            t = r.text(x, height - 6, labels[i]).attr(txt2).toBack();
         if (!i) {
             p = ["M", x, y, "C", x, y];
             bgpp = ["M", leftgutter + X * .5, height - bottomgutter, "L", x, y, "C", x, y];
@@ -147,24 +148,24 @@ window.onload = function () {
     label.push(r.text(60, 12, "XXXXXX SIEM events").attr(txt));
     label.push(r.text(60, 27, "31 January 2011").attr(txt1).attr({fill: color}));
     label.hide();
-    var frame = r.popup(100, 100, label, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
+    var frame = r.popup(100, 100, label, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .85}).hide();
 
     label2.push(r.text(60, 12, "XXXXXX Logger events").attr(txt));
     label2.push(r.text(60, 27, "31 January 2011").attr(txt1).attr({fill: color}));
     label2.hide();
-    var frame2 = r.popup(100, 100, label2, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
+    var frame2 = r.popup(100, 100, label2, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .85}).hide();
         
     label3.push(r.text(60, 12, "XXXXXX SIEM events").attr(txt));
-    label3.push(r.text(60, 27, "XXXXXX Logger events").attr(txt2));
-    label3.push(r.text(60, 42, "31 January 2011").attr(txt1).attr({fill: '#338E05'}));
+    label3.push(r.text(60, 25, "XXXXXX Logger events").attr(txt));
+    label3.push(r.text(60, 39, "31 January 2011").attr(txt1).attr({fill: '#338E05'}));
     label3.hide();
-    var frame3 = r.popup(100, 100, label3, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .8}).hide();
+    var frame3 = r.popup(100, 100, label3, "right").attr({fill: "#EEEEEE", stroke: "#CCC", "stroke-width": 2, "fill-opacity": .85}).hide();
     
     var p, bgpp;
     for (var i = 0, ii = labels.length; i < ii; i++) {
         var y = Math.round(height - bottomgutter - Y * data2[i]),
             x = Math.round(leftgutter + X * (i + .5)),
-            t = r.text(x, height - 6, labels[i]).attr(txt).toBack();
+            t = r.text(x, height - 6, labels[i]).attr(txt2).toBack();
         if (!i) {
             p = ["M", x, y, "C", x, y];
             bgpp = ["M", leftgutter + X * .5, height - bottomgutter, "L", x, y, "C", x, y];
