@@ -98,7 +98,7 @@ die(ossim_error());
     $elems = explode(";",$data);
     foreach ($elems as $elem) if (trim($elem)!="") {
         $param = explode(",",$elem);
-        $id = str_replace("rect","",str_replace("alarma","",$param[0]));
+        $id = str_replace("rect","",str_replace("indicator","",$param[0]));
         $indicators[$id]["x"] = str_replace("px","",$param[1]);
         $indicators[$id]["y"] = str_replace("px","",$param[2]);
         $indicators[$id]["w"] = str_replace("px","",$param[3]);

@@ -168,7 +168,7 @@ function print_indicator_content($conn,$rs) {
         // related sensor
         require_once 'classes/Net.inc';
         $sensors = Net::get_related_sensors($conn,$name);
-        $sensor = ($sensors[0]!="") ? $sensors[0] : $name;
+        $sensor = ($sensors[0]!="") ? $sensors[0] : "";
     } elseif ($type == "host_group") {
         $query = "select host_ip from host_group_reference where host_group_name = ?";
         $params = array($name);
@@ -214,12 +214,12 @@ function print_indicator_content($conn,$rs) {
     }
     
     $gtype = ($type=="net") ? "net" : "host";
-    $ips = ($type=="net") ? $ips : $rs->fields["type_name"];
-    $r_url = "../control_panel/show_image.php?ip=".urlencode(($type == "host_group") ? $r_ip : $name)."&range=year&what=compromise&start=N-1Y&end=N&type=$gtype&zoom=1&hmenu=Risk&smenu=Metrics";
+    $ips = ($type=="net") ? $ips : $name;
+    $r_url = "../control_panel/show_image.php?ip=".urlencode(($type == "host_group") ? $r_ip : $name)."&range=week&what=compromise&start=N-1Y&end=N&type=$gtype&zoom=1&hmenu=Risk&smenu=Metrics";
     $v_url = "../vulnmeter/index.php?value=".urlencode(($type == "host_group") ? $v_ip : $ips)."&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities";
     $a_url = "../nagios/index.php?sensor=".urlencode($sensor)."&hmenu=Availability&smenu=Availability&nagios_link=".urlencode("/cgi-bin/status.cgi?host=all");
 
-    $size = ($rs->fields["size"] > 0) ? $rs->fields["size"] : '100%';
+    $size = ($rs->fields["size"] > 0) ? $rs->fields["size"] : '';
 	$icon = $rs->fields["icon"];
 	if (preg_match("/\#/",$icon)) {
 		$aux = explode("#",$icon);
@@ -233,6 +233,10 @@ function print_indicator_content($conn,$rs) {
 		$size = "16";
 	}
 	?><table width="100%" border=0 cellspacing=0 cellpadding=1 style="background-color:<?php echo $bgcolor ?>"><tr><td colspan=2 align=center><a href="<?php echo $url ?>" class="ne"><i><?php echo $rs->fields["name"] ?></i></a></td></tr><tr><td><img src="<?php echo $icon ?>" width="<?php echo $size ?>" border=0></td><td><table border=0 cellspacing=0 cellpadding=1><tr><td><a class="ne11" target="main" href="<?php echo $r_url ?>">R</a></td><td><a class="ne11" target="main" href="<?php echo $v_url ?>">V</a></td><td><a class="ne11" target="main" href="<?php echo $a_url ?>">A</a></td></tr><tr><td><img src="images/<?php echo $RiskValue ?>.gif" border=0></td><td><img src="images/<?php echo $VulnValue ?>.gif" border=0></td><td><img src="images/<?php echo $AvailValue ?>.gif" border=0></td></tr></table></td></tr></table><?php
+}
+function print_rectangle_content($conn,$print_inputs) {
+	if ($print_inputs) { ?><div class="itcanberesized" style='position:absolute;bottom:0px;right:0px;cursor:nw-resize'><img src='../pixmaps/resize.gif' border=0></div><?php } ?>
+	<table border=0 cellspacing=0 cellpadding=0 width="100%" height="100%" style="border:0px"><tr><td style="border:1px dotted black">&nbsp;</td></tr></table><?php
 }
 function print_indicators($map, $print_inputs = false) {
 	require_once 'classes/Host.inc';
@@ -259,7 +263,7 @@ function print_indicators($map, $print_inputs = false) {
 				echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
 				echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
 			}
-			?><div id="alarma<?php echo $rs->fields["id"] ?>" class="itcanbemoved" style="border:1px solid transparent;cursor:pointer;background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:<?php echo $rs->fields["x"] ?>px;top:<?php echo $rs->fields["y"] ?>px;height:<?php echo $rs->fields["h"] ?>px;width:<?php echo $rs->fields["w"] ?>px"><?php print_indicator_content($conn,$rs) ?></div><?php
+			?><div id="indicator<?php echo $rs->fields["id"] ?>" class="itcanbemoved" style="z-index:10;border:1px solid transparent;cursor:pointer;background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:<?php echo $rs->fields["x"] ?>px;top:<?php echo $rs->fields["y"] ?>px;height:<?php echo $rs->fields["h"] ?>px;width:<?php echo $rs->fields["w"] ?>px"><?php print_indicator_content($conn,$rs) ?></div><?php
 			$rs->MoveNext();
 		}
 	}
@@ -282,20 +286,12 @@ function print_indicators($map, $print_inputs = false) {
 				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
 			} else $has_perm = 1;
 			if (Session::am_i_admin()) $has_perm = 1;
-			if (!$in_assets) {
-				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-                echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
-				echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
-				echo "</div>\n";
-			} elseif ($has_perm) {
-				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-				echo "<div id=\"rect".$rs->fields["id"]."\" class=\"itcanbemoved\" style=\"position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:".$rs->fields["x"]."px;top:".$rs->fields["y"]."px;height:".$rs->fields["h"]."px;width:".$rs->fields["w"]."px\">";
-	            echo "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
-				echo "<table border=0 cellspacing=0 cellpadding=0 width=\"100%\" height=\"100%\"><tr><td style=\"border:1px dotted black\">&nbsp;</td></tr></table>";
-				echo "</div>\n";
+			if ($has_perm) {
+				if ($print_inputs) {
+					echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
+					echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
+				}
+				?><div id="rect<?php echo $rs->fields["id"] ?>" class="itcanbemoved" style="cursor:pointer;position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:<?php echo $rs->fields["x"] ?>px;top:<?php echo $rs->fields["y"] ?>px;height:<?php echo $rs->fields["h"] ?>px;width:<?php echo $rs->fields["w"] ?>px"><?php print_rectangle_content($conn,$print_inputs) ?></div><?php
 			}
 			$rs->MoveNext();
 		}
