@@ -678,7 +678,7 @@ if(Session::am_i_admin()) {
         "url" => "netscan/index.php"
     );
     $hmenu["Asset Discovery"][] = array(
-        "name" => gettext("Spot Scan") ,
+        "name" => gettext("Instant Scan") ,
         "id" => "Asset Discovery",
         "url" => "netscan/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"

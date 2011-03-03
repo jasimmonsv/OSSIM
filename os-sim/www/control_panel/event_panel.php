@@ -60,7 +60,10 @@ if (!isset($row_num)) {
 if (!isset($_SESSION['plugins_to_show'])) $_SESSION['plugins_to_show'] = array();
 // responder js
 if (GET('modo') == "responder") {
-    $plugins = base64_decode(GET('plugins'));
+    $plugins = "";
+    $plgs = explode(",",GET('plugins'));
+    foreach ($plgs as $encoded) $plugins .= ",".base64_decode($encoded);
+    $plugins = preg_replace("/^,/","",$plugins);
     $risk = GET('risk');
     if ($from_snort) {
         // read from acid_event

@@ -84,6 +84,9 @@ $result->baseFreeRows();
 $dbo->close($_conn);
 geoip_close($gi);
 //
+if ($location == "srcaddress") $country_dst=array();
+if ($location == "dstaddress") $country_src=array();
+//
 $ips = array();
 $i = 1;
 $total = count($country_src)+count($country_dst);
