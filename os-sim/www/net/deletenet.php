@@ -74,6 +74,7 @@ if (!GET('confirm')) {
     exit();
 }
 require_once 'ossim_db.inc';
+require_once 'ossim_conf.inc';
 require_once 'classes/Net.inc';
 require_once 'classes/Net_scan.inc';
 
@@ -82,7 +83,13 @@ $conn = $db->connect();
 
 if (Net::can_delete($conn,$name))
 {
-	Net::delete($conn, $name);
+	$conf = $GLOBALS["CONF"];
+	$version = $conf->get_conf("ossim_server_version", FALSE);
+	if (!preg_match("/pro|demo/i",$version))
+		Net::delete($conn, $name);
+	else
+		Net::delete($conn, $name, 0, 0); // also delete linked nets in templates
+	
 	Net_scan::delete($conn, $name, 3001);
 	Net_scan::delete($conn, $name, 2007);
 }

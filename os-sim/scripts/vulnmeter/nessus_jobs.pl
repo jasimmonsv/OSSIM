@@ -535,52 +535,53 @@ sub select_job {
 
         my ( $job_id, $job_name, $job_type, $job_targets, $job_assigned, $job_priority, $times_failed ) = $sth_sel->fetchrow_array(  );
         $sth_sel->finish;
-        my $job_code = "";
         
-        
-        # see the free slots
-        my $sql_slots = "SELECT ( max_scans - current_scans) FROM vuln_nessus_servers WHERE id='$serverid'";
-        $sth_sel = $dbh->prepare( $sql_slots );
-        $sth_sel->execute();
-        my ($free_slots) = $sth_sel->fetchrow_array();
-        $sth_sel->finish;
-        
-        if($free_slots<$server_slot) {
-            $sql = qq{ select NOW() + INTERVAL 15 Minute as next_scan  };
-
-            $sth_sel = $dbh->prepare( $sql );
-            $sth_sel->execute(  );
-            my ( $next_run ) = $sth_sel->fetchrow_array(  );
+        if(defined($job_id)) {
+            # see the free slots
+            my $sql_slots = "SELECT ( max_scans - current_scans) FROM vuln_nessus_servers WHERE id='$serverid'";
+            logwriter( "SELECT ( max_scans - current_scans) FROM vuln_nessus_servers WHERE id='$serverid'", 4 );
+            $sth_sel = $dbh->prepare( $sql_slots );
+            $sth_sel->execute();
+            my ($free_slots) = $sth_sel->fetchrow_array();
             $sth_sel->finish;
+        
+            if($free_slots<$server_slot) {
+                $sql = qq{ select NOW() + INTERVAL 15 Minute as next_scan  };
 
-            $next_run  =~ s/://g;
-            $next_run  =~ s/-//g;
-            $next_run  =~ s/\s//g;
+                $sth_sel = $dbh->prepare( $sql );
+                $sth_sel->execute(  );
+                my ( $next_run ) = $sth_sel->fetchrow_array(  );
+                $sth_sel->finish;
 
-            logwriter( "\tNot available scan slot nextscan=$next_run", 4 );
+                $next_run  =~ s/://g;
+                $next_run  =~ s/-//g;
+                $next_run  =~ s/\s//g;
 
-            $sql = qq{ UPDATE vuln_jobs SET status="S", scan_NEXT='$next_run', meth_Wcheck='Not available scan slots' WHERE id='$job_id' };
-            safe_db_write ( $sql, 1 );
-        }
-        elsif ( $job_id ) {
+                logwriter( "\tNot available scan slot nextscan=$next_run", 4 );
 
-            logwriter( "id=$job_id\tname=$job_name\ttype=$job_type\ttarget=$job_targets\t"
-                ."\tpriority=$job_priority", 5 );
-            # FOUND SCHEDULED SCAN
-
-            if ( $times_failed ge 3 ) {                   #FAIL JOB TOO MANY FAILURES
-                $sql = qq{ UPDATE vuln_jobs SET status='F', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
-                safe_db_write ( $sql, 3 );         #use insert/update routine
+                $sql = qq{ UPDATE vuln_jobs SET status="S", scan_NEXT='$next_run', meth_Wcheck='Not available scan slots' WHERE id='$job_id' };
+                safe_db_write ( $sql, 1 );
             }
+            else {
 
-            if($vuln_nessus_servers->{$serverid}->{'port'} ne "" && $vuln_nessus_servers->{$serverid}->{'user'} ne "" && $vuln_nessus_servers->{$serverid}->{'PASSWORD'} ne ""){
-                $CONFIG{'NESSUSUSER'} = $vuln_nessus_servers->{$serverid}->{'user'};
-                $CONFIG{'NESSUSPASSWORD'} = $vuln_nessus_servers->{$serverid}->{'PASSWORD'};
-                $CONFIG{'NESSUSHOST'} = $vuln_nessus_servers->{$serverid}->{'hostname'};
-                $CONFIG{'NESSUSPORT'} = $vuln_nessus_servers->{$serverid}->{'port'};
+                logwriter( "id=$job_id\tname=$job_name\ttype=$job_type\ttarget=$job_targets\t"
+                    ."\tpriority=$job_priority", 5 );
+                # FOUND SCHEDULED SCAN
+
+                if ( $times_failed ge 3 ) {                   #FAIL JOB TOO MANY FAILURES
+                    $sql = qq{ UPDATE vuln_jobs SET status='F', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
+                    safe_db_write ( $sql, 3 );         #use insert/update routine
+                }
+
+                if($vuln_nessus_servers->{$serverid}->{'port'} ne "" && $vuln_nessus_servers->{$serverid}->{'user'} ne "" && $vuln_nessus_servers->{$serverid}->{'PASSWORD'} ne ""){
+                    $CONFIG{'NESSUSUSER'} = $vuln_nessus_servers->{$serverid}->{'user'};
+                    $CONFIG{'NESSUSPASSWORD'} = $vuln_nessus_servers->{$serverid}->{'PASSWORD'};
+                    $CONFIG{'NESSUSHOST'} = $vuln_nessus_servers->{$serverid}->{'hostname'};
+                    $CONFIG{'NESSUSPORT'} = $vuln_nessus_servers->{$serverid}->{'port'};
+                }
+                run_job ( $job_id, $serverid );        #RUN ONE JOB THEN QUIT
+                return;
             }
-            run_job ( $job_id, $serverid );        #RUN ONE JOB THEN QUIT
-            return;
         }
     }
     logwriter( "No work in scan queues to process", 4 );
@@ -616,6 +617,20 @@ sub run_job {
     my ( $Jname, $juser, $jbfk_name, $Jtype, $host_list, $Jvset, $jtimout, $meth_CRED, $scan_locally) = $sth_sel->fetchrow_array(  );
     $sth_sel->finish;
 
+    # CHECK SID
+    $sql = qq{ SELECT id FROM vuln_nessus_settings WHERE id = '$Jvset' UNION SELECT id FROM vuln_nessus_settings WHERE name = 'Default' LIMIT 1 };
+    logwriter( $sql, 5 );
+    $sth_sel = $dbh->prepare( $sql );
+    $sth_sel->execute( );
+
+    $Jvset = $sth_sel->fetchrow_array(  );
+    $sth_sel->finish;
+    
+    # SET PROFILE ID
+    $sql = qq{ UPDATE vuln_jobs SET meth_VSET=$Jvset WHERE id='$job_id' };
+    safe_db_write ( $sql, 4 );
+    
+    
     #CODE TO RUN TOP100 HOST SCANS ( PERFERABLLY DAILY ) WILL NOT IMPORT A FULL REPORT / UPDATE CUMULATIVE ONLY )
     if ( $Jtype =~ /t/i ) {	#TYPE T is top100
 	$Jtype = "M";		#RELABEL TO MANUAL (SO NOT OTHER CHANGES ARE NEEDED)
@@ -1008,7 +1023,7 @@ sub run_nessus {
 
     
     if ($CONFIG{'NESSUSPATH'} !~ /omp\s*$/) {
-    
+        logwriter("Selected sid: $sid", 4);
         create_profile( \%nes_prefs, \@nes_plugins, $nessus_cfg, $username, $sid ); 
 
         # version test

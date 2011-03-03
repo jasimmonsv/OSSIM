@@ -301,7 +301,7 @@ class Net {
     }
     function update($conn, $name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr) {
         $skip_group_update = 1;
-        Net::delete($conn, $name, $skip_group_update);
+        Net::delete($conn, $name, $skip_group_update, 1);
         Net::insert($conn, $name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr);
         $infolog = array(
             $name
@@ -310,7 +310,7 @@ class Net {
         WebIndicator::set_on("Reload_nets");
         WebIndicator::set_on("ReloadPolicy");
     }
-    function delete($conn, $name, $skip_group_update = 0) {
+    function delete($conn, $name, $skip_group_update = 0, $skip_template = 1) {
     	$ips = Net::get_ips_by_name($conn, $name);
         $sql = "DELETE FROM net WHERE name = ?";
         $params = array(
@@ -325,6 +325,9 @@ class Net {
         Net_vulnerability::delete($conn, $name);
         if ($skip_group_update != 1) {
             Net_group_reference::check_orphan($conn, $name);
+        }
+        if (!$skip_template) {
+            Acl::remove_cidrs_from_templates($conn, explode(",",$ips));
         }
         Net_sensor_reference::delete($conn, $name);
         Net::cache_delete_cidr($conn, $ips);

@@ -103,7 +103,7 @@ class Host {
         $this->rrd_profile = Util::htmlentities($rrd_profile);
         $this->alert = intval($alert);
         $this->persistence = intval($persistence);
-        $this->nat = Util::htmlentities($nat);
+        $this->nat = ($nat!='NULL') ? Util::htmlentities($nat) : '';
         $this->descr = Util::htmlentities($descr);
         $this->foundrows = $foundrows;
 		$this->lat = $lat;

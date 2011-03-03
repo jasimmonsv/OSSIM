@@ -91,30 +91,47 @@ $hours = $trend = $trend2 = array();
 //
 if (GET("type")=="siemday") { 
     $js = "analytics";
-    $data = SIEM_trends(16);
-    foreach ($data as $h => $v) {
+    $data = SIEM_trends($max);
+    /*foreach ($data as $h => $v) {
     	$hours[] = $h;
     	$trend[] = ($v!="") ? $v : 0;
     }
-    $max = count($hours);
+    $max = count($hours);*/
+    for ($i=$max-1; $i>=0; $i--) {
+    	$h = gmdate("G",$timetz-(3600*$i))."h";
+    	$hours[] = $h;
+    	$trend[] = ($data[$h]!="") ? $data[$h] : 0;
+    }    
     $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz)."&time[0][3]=".gmdate("d",$timetz)."&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".gmdate("m",$timetz)."&time[1][3]=".gmdate("d",$timetz)."&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 } elseif (GET("type")=="siemweek") { 
     $js = "analytics";
     $data = SIEM_trends_week();
-    foreach ($data as $h => $v) {
+    $max = 7;
+    for ($i=$max-1; $i>=0; $i--) {
+    	$d = gmdate("j M",$timetz-(86400*$i));
+    	$hours[] = $d;
+    	$trend[] = ($data[$d]!="") ? $data[$d] : 0;
+    }
+    /*foreach ($data as $h => $v) {
     	$hours[] = $h;
     	$trend[] = ($v!="") ? $v : 0;
     }
-    $max = count($hours);
+    $max = count($hours);*/
     $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 } elseif (GET("type")=="hids") { 
     $js = "analytics";
     list($data,$plugins) = SIEM_trends_week("ossec%");
-    foreach ($data as $h => $v) {
+    $max = 7;
+    for ($i=$max-1; $i>=0; $i--) {
+    	$d = gmdate("j M",$timetz-(86400*$i));
+    	$hours[] = $d;
+    	$trend[] = ($data[$d]!="") ? $data[$d] : 0;
+    }    
+    /*foreach ($data as $h => $v) {
     	$hours[] = $h;
     	$trend[] = ($v!="") ? $v : 0;
     }
-    $max = count($hours);
+    $max = count($hours);*/
     $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=MM&time[0][3]=DD&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=00&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=MM&time[1][3]=DD&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=23&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics&plugin=".$plugins;
 } else {
     $js = "analytics_duo";

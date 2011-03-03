@@ -63,6 +63,7 @@ window.onload = function () {
         txt2 = {font: '12px Helvetica, Arial', fill: "#000"},
         X = (width - leftgutter) / labels.length,
         max = Math.max.apply(Math, data);
+        if (max==0 && max_aux!=0) max=max_aux; // fixed all zero values
     var Y = (height - bottomgutter - topgutter) / max; 
     r.drawGrid(leftgutter + X * .5 + .5, topgutter + .5, width - leftgutter - X, height - topgutter - bottomgutter, 16, 8, "#EEE");
     var path = r.path().attr({stroke: color, "stroke-width": 4, "stroke-linejoin": "round"}),
