@@ -250,13 +250,10 @@ $sql = "SELECT net_name FROM net_group_reference";
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
-$nets_grouped = "";
+$nets_grouped = array();
 while (!$rs->EOF) {
-	$nets_grouped .= ($nets_grouped != "") ? ",\"".$rs->fields['net_name']."\"" : "\"".$rs->fields['net_name']."\"";
+	$nets_grouped[$rs->fields['net_name']]++;
 	$rs->MoveNext();
-}
-if ($nets_grouped == "") {
-	$nets_grouped = "''";
 }
 
 $sql = "SELECT
@@ -267,14 +264,15 @@ $sql = "SELECT
         FROM
             net
         WHERE
-            net.name AND net.name NOT IN ($nets_grouped)$net_where$net_limit";
+            net.name$net_where$net_limit";
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
 
 $networks = array();
+$count = 1;
 while (!$rs->EOF) {
-    // check perms over the network
+	// check perms over the network
     //$has_net_perms = check_net_perms($rs->fields['net_address']);
 	// Fixed: netAllowed check net/sensor granularity perms
 	//$has_perms = Session::netAllowed($conn, $rs->fields['net_address']);
@@ -282,6 +280,7 @@ while (!$rs->EOF) {
     // if no perms over the network, try perms over the related sensor
     //$has_perms = $has_net_perms ? true : check_sensor_perms($rs->fields['net_address'], 'net');
 	$net = $rs->fields['net_name'];
+	if ($nets_grouped[$net] == "" || $count > $max) { $rs->MoveNext(); continue; }
 	$score = get_score($net, 'net');
     // If there is no threshold specified for the network, pick the global configured threshold
     $net_threshold_a = $rs->fields['net_threshold_a'] ? $rs->fields['net_threshold_a'] : $conf_threshold;
@@ -300,6 +299,7 @@ while (!$rs->EOF) {
         'has_perms' => $has_perms
     );
     $rs->MoveNext();
+    $count++;
 }
 
 ////////////////////////////////////////////////////////////////
