@@ -304,13 +304,12 @@ for ($i = 1; $i <= $num; $i++)
 	$criterias[$filter['type']][$filter['subtype']] = ($filter['value'] != "") ? $filter['value'] : "(is true)";
 	
 	// Advanced: get query from rules. UserFriendly: get query from filter array
-	$q = (GET('userfriendly')) ? $filter['query'] : $rules[$filter['type']][$filter['subtype']]['query'];
+	$q = (GET('userfriendly')) ? $filter['query']       : $rules[$filter['type']][$filter['subtype']]['query'];
 	$m = (GET('userfriendly')) ? $filter['query_match'] : $rules[$filter['type']][$filter['subtype']]['match'];
 	
+	// For FixedText
 	if( $m=='fixedText')
 	{
-		// For FixedText
-				
 		$value2 = ( !empty($filter['value2']) ) ? $filter['value2'] : null;
 		check_security($filter['value'],$m,$value2,GET('userfriendly'));
 	}
@@ -325,6 +324,8 @@ for ($i = 1; $i <= $num; $i++)
 	else
 		list($query,$params) = build_query ($q,$filter['value'],$filter['match'],$m);
 	
+	
+		
 	//echo "Filter $i: ".$filter['type']." ".$filter['subtype']." ".$filter['value']." ".$filter['match']."<br>";
 	//print_r($params);
 	//echo "SQL: ".$query."<br><br>";exit;

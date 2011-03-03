@@ -110,6 +110,7 @@ function build_query ($sql,$value,$match="",$match_type="") {
 	for ($i = 0; $i < $count; $i++) $params[] = $value;
 	return array($sql,$params);
 }
+
 function build_query_two_values ($sql,$value,$value2,$match="",$match_type="") {
 	if($match == "" && $match_type == "fixedText"){
 		$match = "=";
@@ -122,6 +123,7 @@ function build_query_two_values ($sql,$value,$value2,$match="",$match_type="") {
 	
 	return array($sql,$params);
 }
+
 function build_concat_query ($sql,$value) {
 	$values = explode("-",$value);
 	if ($sql != "") $count = substr_count($sql,"?",0,strlen($sql))/2;
@@ -129,12 +131,14 @@ function build_concat_query ($sql,$value) {
 	for ($i = 0; $i < $count; $i++) { $params[] = $values[0]; $params[] = $values[1]; }
 	return array($sql,$params);
 }
+
 function get_params ($value,$sql) {
 	$count = substr_count($sql,"?",0,strlen($sql));
 	$ret = array();
 	for ($i = 0; $i < $count; $i++) $ret[] = $value;
 	return $ret;
 }
+
 function check_security ($value, $match, $value2=NULL, $userfriendly=false) {
 	require_once ("classes/Security.inc");
 				

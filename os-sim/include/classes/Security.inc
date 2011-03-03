@@ -293,6 +293,9 @@ define('OSS_DAY', 'func:valid_day');
 define('OSS_MAIL_ADDR', 'regex:[a-zA-Z0-9_\-\.+]+@[a-zA-Z0-9_\-\.]+\.[a-zA-Z]+');
 define('OSS_ERROR', _("unkown error")); // default error message
 define('OSS_SQL', 'illegal:(select |union |update |delete |insert )');
+define('OSS_URL_ADDRESS', 'func:valid_url');
+
+
 // don't use
 $GLOBALS['ossim_last_error'] = false; // track the latest error
 /*
@@ -733,6 +736,35 @@ function valid_fqdns($fqdns)
 	return true;
 }
 
+function valid_url($url)
+{
+	// Scheme
+	//$pattern = "/^((https?|ftp)\:\/\/)?";
+	$pattern = "/^((https?)\:\/\/)?";
+
+	// User and pass (optional)
+	$pattern .= "([a-z0-9+!*(),;?&=\$_.-]+(\:[a-z0-9+!*(),;?&=\$_.-]+)?@)?";
+
+	// Hostname or ip
+	$pattern .= "[a-z0-9+\$_-]+(\.[a-z0-9+\$_-]+)*"; // http://x = allowed (ex. http://localhost, http://routerlogin)
+	//use only one of the above
+
+	// Port (optional)
+	$pattern .= "(\:[0-9]{2,5})?";
+	// Path (optional)
+	$pattern .= "(\/([a-z0-9+\$_-]\.?)+)*\/?";
+	// GET Query (optional)
+	$pattern .= "(\?[a-z\+\&\$_.-][a-z0-9;:@\/\&%=\+\$_.-]*)?";
+	// Anchor (optional)
+	$pattern .= "(#[a-z_.-][a-z0-9+\$_.-]*)?$/";
+	
+	if ( preg_match($pattern, $url) )
+		return true;
+	
+	ossim_set_error(_("Invalid url. Format allowed: <http[s]|ftp> :// [user[:pass]@] hostname [port] [/path] [?getquery] [anchor]") . "<br/>Entered url: '<strong>$url</strong>'");
+    return false;
+}
+
 
 function valid_quotes($value) {
     if (!preg_match('/\'|\"/', $value)) {
@@ -741,6 +773,7 @@ function valid_quotes($value) {
     ossim_set_error(_("Invalid Quotes. Don't use quotes ' or \""));
     return false;
 }
+
 function valid_day($value) {
     if (preg_match('/(\d+)-(\d+)-(\d+)/', $value, $m)) {
         return checkdate($m[2],$m[3],$m[1]);
@@ -748,6 +781,7 @@ function valid_day($value) {
     ossim_set_error(_("Invalid Date. Format allowed: YYYY-MM-DD"));
     return false;
 }
+
 /* Test perms in sensor_ip */
 function validate_sensor_perms($conn,$sensor_ip,$sql="") {
     require_once 'classes/Sensor.inc';

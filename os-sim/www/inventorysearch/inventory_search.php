@@ -83,6 +83,9 @@ else
 	}
 }
 
+$cur_name = base64_decode($_SESSION['profile']);
+$cur_name = (mb_detect_encoding($cur_name." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? mb_convert_encoding($cur_name, 'ISO-8859-1', 'UTF-8') : $cur_name;
+
 
 
 ?>
@@ -100,6 +103,11 @@ else
 	.active_filter{ font-weight: bold; }
 	.msg_ok {text-align: center; color:green; font-weight:bold;}
 	.msg_ko {text-align: center; color:red;   font-weight:bold;}
+	#run_search { position: absolute; width: 99%; height: 99%; background: white; margin: auto;}
+	#cont_run_search { position:relative; margin: auto; top:30%;}
+	.loading_rs {width: 300px;}
+	.error_rs { width: 700px; text-align:center;}
+	.cont_back {padding:30px 0px; margin:auto; width: 100px; text-align:center;}
 </style>
 <script src="../js/jquery-1.3.2.min.js" language="javascript" type="text/javascript"></script>
 <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
@@ -518,6 +526,7 @@ var finish        = false;
 			alert ('<?php echo _("You must fill in all conditions") ?>')
 	}
 	
+		
 	function load_values () {
 		for (c in criterias) 
 		{
@@ -667,8 +676,8 @@ var finish        = false;
 	
 	function inic () {
 				
-		var status = '<?php echo $case;?>';
-		
+		var status     = '<?php echo $case;?>';
+				
 		if( status == 2 || status == 3 )
 		{
 			var profile  = '<?php echo $_SESSION['profile']?>';
@@ -723,7 +732,13 @@ var finish        = false;
 				
 				profiles += "</table>";
 				
-				$('#profiles').html(profiles);				
+				$('#profiles').html(profiles);	
+
+
+
+				//Run predefined search profile
+
+				
 			}
 		});
 	}
@@ -784,15 +799,67 @@ var finish        = false;
 		}
 	}
 	
+	function back_to_search()
+	{
+		document.location.href='userfriendly.php?hmenu=Asset+Search&smenu=Asset+Search';
+	}
+	
+	function run_search(cont)
+	{
+	
+		var params = get_params();
+		
+		if (params != '')
+		{	
+			window.location.href = "build_search.php"+params;
+		}
+		else
+		{
+			cont++;
+			
+			if (cont >= 20)
+			{
+				var text  = "<img src='../ossim_error.png' align='absmiddle'><span style='margin-left:20px'><?php echo _("Error to loading predefined search.  Try again")?></span>";
+				   
+				$('#cont_run_search').removeClass();
+				$('#cont_run_search').css('top', '5%');
+				$('#cont_run_search').addClass('error_rs ossim_error');
+				$('#cont_run_search').html(text);
+				text = "<div class='cont_back'><input type='button' class='button' value='<?php echo _("Back")?>' onclick='back_to_search();'/></div>";
+				$('#cont_run_search').after(text);
+			}
+			else
+				setTimeout ("run_search("+cont+");", 1000);
+		}
+	}
+	
 		
 	$(document).ready(function(){
 		inic();
+		
+		var run = '<?php echo $_GET['run_search'];?>';
+		var cont = 0;
+		
+		if (run == 1)
+			run_search(0);
+		
 	});
 </script>
 </head>
 
 <body style="margin:0px">
-<? include ("../hmenu.php"); ?>
+<?php 
+
+include ("../hmenu.php"); 
+
+if ( isset($_GET['run_search']) && $_GET['run_search'] == 1) {
+?>
+
+<div id='run_search'>
+	<div id='cont_run_search' class='loading_rs'><img src='../pixmaps/loading3.gif' align='absmiddle'/><span style='margin-left:10px;'><?php echo _("Loading predefined search profile")."<strong> ".$cur_name."</strong>..."?></span></div>
+</div>
+
+<?php }?>
 
 <table class="noborder" align="center" style="background-color:white">
 	<tr>
@@ -839,17 +906,12 @@ var finish        = false;
 					<td class="nobborder">
 						<div id="profiles_div">
 						<table width="250" align="center">
-							<tr><th><?php echo _("Predefined Searches")?></th></tr>
+							<tr><th><?php echo _("Predefined Search")?></th></tr>
 							<tr>
 								<td class="nobborder" id="profiles"></td>
 							</tr>
 							<tr>
 								<td class="nobborder" style="padding-top:10px">
-									<?php
-										$cur_name = base64_decode($_SESSION['profile']);
-										$cur_name = (mb_detect_encoding($cur_name." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? mb_convert_encoding($cur_name, 'ISO-8859-1', 'UTF-8') : $cur_name;
-									?>
-																		
 									<input type="text"   id="cur_name" name="cur_name" value="<?php echo $cur_name;?>"/>
 									<input type="hidden" id="current_profile" name="current_profile" value="<?php echo $_SESSION['profile']?>"/>
 									<input type="button" id="save_current" value="<?php echo _("Save Current")?>" onclick="profile_save()" class="lbutton"/>
