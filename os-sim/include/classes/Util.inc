@@ -821,5 +821,18 @@ class Util {
                 "12.75" => "GMT+12:45", "13" => "GMT+13:00", "14" => "GMT+14:00");
         return $arr[$tz];
     }
+    
+    // Convert date to UTC unixtime using mysql
+	function get_utc_unixtime($conn,$date) {
+        $unix = strtotime($date);
+        $conn->Execute("SET SESSION time_zone='+00:00'");
+        if (!$rs = & $conn->Execute("select UNIX_TIMESTAMP('$date')")) {
+            return $unix;
+        } 
+        else {
+            if (!$rs->EOF) $unix = $rs->fields[0];
+        }
+        return $unix;
+	}
 }
 ?>

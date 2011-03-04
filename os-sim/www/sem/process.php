@@ -126,16 +126,16 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
+$db = new ossim_db();
+$conn = $db->connect();
+
 $start_query = $start;
 $end_query = $end;
 
 if ($tzone!=0) {
-	$start = gmdate("Y-m-d H:i:s",strtotime($start)+(-3600*$tzone));
-	$end = gmdate("Y-m-d H:i:s",strtotime($end)+(-3600*$tzone));
+	$start = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$start)+(-3600*$tzone));
+	$end = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$end)+(-3600*$tzone));
 }	
-
-$db = new ossim_db();
-$conn = $db->connect();
 
 $sensors = $hosts = $logger_servers = array(); $hostnames = array(); $sensornames = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
@@ -529,17 +529,18 @@ foreach($result as $res=>$event_date) {
         $event_date = $matches[2];
         $tzone = intval($matches[10]);
         $txtzone = Util::timezone($tzone);
+        $event_date_uut = Util::get_utc_unixtime($conn,$event_date);
 
         // Special case: old events
-        $eventhour = date("H",strtotime($date));
+        $eventhour = gmdate("H",$event_date_uut);
         $ctime = explode("/",$logfile); $storehour = $ctime[count($ctime)-3]; // hours
         $warning = ($storehour-$eventhour != 0) ? "<a href='javascript:;' txt='"._("Date may not be normalized")."' class='scriptinfotxt'><img src='../pixmaps/warning.png' border=0 style='margin-left:3px;margin-right:3px'></a>" : "";
         
         // Event date timezone
-		if ($tzone!=0) $event_date = gmdate("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));
+		if ($tzone!=0) $event_date = gmdate("Y-m-d H:i:s",$event_date_uut+(3600*$tzone));
         
         // Apply user timezone
-		if ($tz!=0) $date = gmdate("Y-m-d H:i:s",strtotime($date)+(3600*$tz));
+		if ($tz!=0) $date = gmdate("Y-m-d H:i:s",$event_date_uut+(3600*$tz));
 	
 		//echo "$date - $event_date - $tzone - $tz<br>";
 		
