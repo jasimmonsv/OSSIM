@@ -306,18 +306,22 @@ var finish        = false;
 						url: "filter_response.php?type="+criterias[i]+"&subtype="+subcriterias[i],
 						data: "",
 						success: function(msg){
-							if (msg != "\n") {
+							if (msg != "") {
 								var list = msg.split("###");
 								var k = 0;
 								for (elem in list) {
 									var elem_fields = list[elem].split("_#_");
-									var newOpt      = new Option(elem_fields[1], elem_fields[0]);
+									var text        = ( elem_fields[1] == undefined) ? '' : elem_fields[1];
+									var value       = ( elem_fields[0] == undefined) ? '' : elem_fields[0];
+									var newOpt      = new Option(text,value);
 									document.getElementById('value_'+i).options[k] = newOpt;
 									if (values[i] == elem_fields[0]) document.getElementById('value_'+i).options[k].selected = true;
 									k++;
 								}
-							} else {
-								var newOpt = new Option("<?=_("Empty list (check rules)")?>", "");
+							} 
+							else
+							{
+								var newOpt = new Option("<?php echo _("Empty list (check rules)")?>", "");
 								document.getElementById('value_'+i).options[0] = newOpt;
 							}
 						}
@@ -351,17 +355,22 @@ var finish        = false;
 						url: "filter_response.php?type="+criterias[i]+"&subtype="+subcriterias[i],
 						data: "",
 						success: function(msg){
-							if (msg != "\n") {
+							alert(msg);
+							if (msg != "") {
 								var list = msg.split("###");
 								var k = 0;
 								for (elem in list) {
 									var elem_fields = list[elem].split("_#_");
-									var newOpt = new Option(elem_fields[1], elem_fields[0]);
+									var text        = ( elem_fields[1] == undefined) ? '' : elem_fields[1];
+									var value       = ( elem_fields[0] == undefined) ? '' : elem_fields[0];
+									var newOpt      = new Option(text,value);
 									document.getElementById('value_'+i).options[k] = newOpt;
 									if (values[i] == elem_fields[0]) document.getElementById('value_'+i).options[k].selected = true;
 									k++;
 								}
-							} else {
+							} 
+							else
+							{
 								var newOpt = new Option("<?=_("Empty list (check rules)")?>", "");
 								document.getElementById('value_'+i).options[0] = newOpt;
 							}
