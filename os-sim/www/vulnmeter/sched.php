@@ -2526,7 +2526,7 @@ function delete_scan( $job_id ) {
         list($job_name, $kill_id, $nserver_id, $report_id, $status) = $result->fields;
 
         if($status=="R"){
-            $query = "UPDATE vuln_nessus_servers SET current_scans=current_scans-5 WHERE id='$nserver_id' and current_scans>0 LIMIT 1";
+            $query = "UPDATE vuln_nessus_servers SET current_scans=current_scans-1 WHERE id='$nserver_id' and current_scans>0 LIMIT 1";
             $result = $dbconn->execute($query);
         }
         //$query = "UPDATE vuln_jobs SET status='C' WHERE id='$kill_id' LIMIT 1";

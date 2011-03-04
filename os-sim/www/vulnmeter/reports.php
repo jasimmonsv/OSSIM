@@ -467,7 +467,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
      FROM vuln_nessus_reports t1
      LEFT JOIN vuln_nessus_settings t3 ON t1.sid=t3.id
      LEFT JOIN vuln_jobs t4 on t1.report_id = t4.report_id
-     WHERE t1.deleted = '0' ";
+     WHERE t1.deleted = '0' AND t4.scan_submit IS NOT NULL ";
   
    
    // set up the SQL query based on the search form input (if any)
@@ -562,7 +562,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
    // set up the pager and search fields if viewing all hosts
    $reportCount = 0;
    if(!$filteredView) {
-      $queryc = "SELECT count(report_id) FROM vuln_nessus_reports t1 WHERE t1.deleted = '0' ";
+      $queryc = "SELECT count(t1.report_id) FROM vuln_nessus_reports t1 LEFT JOIN vuln_jobs t2 on t1.report_id = t2.report_id WHERE t1.deleted = '0' AND t2.scan_submit IS NOT NULL ";
       $reportCount = $dbconn->GetOne($queryc.$queryw);
       $previous = $offset - $pageSize;
       if ($previous < 0) {
@@ -644,6 +644,7 @@ EOT;
    } else {
       $tdata = array();
       foreach($result as $data) {
+      
          $data['vSerious'] = 0;
          $data['vHigh'] = 0;
          $data['vMed'] = 0;

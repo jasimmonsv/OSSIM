@@ -504,7 +504,7 @@ EOT;
 function generate_results($output){
    
    global $user, $border, $report_id, $sid, $scantime, $scansubmit, $scantype, $fp, $nfp, $output, $filterip, 
-   $query_risk, $dbconn, $treport, $ipl, $key, $query_byuser;
+   $query_risk, $dbconn, $treport, $ipl, $key, $query_byuser, $arruser;
 
     if($report_id!="") {
         $query = "SELECT sid FROM vuln_nessus_latest_reports WHERE 1=1".(($report_id!="all")? " AND report_id=$report_id":"")." $query_byuser";
@@ -520,7 +520,7 @@ function generate_results($output){
     else {
        if ($scansubmit!="" && $treport!="latest") {
            $query = "SELECT r.report_id, r.sid FROM vuln_nessus_reports r,vuln_jobs j WHERE r.report_id=j.report_id AND j.scan_SUBMIT='$scansubmit'".((in_array("admin", $arruser))? "" : " AND r.username in ('$user') ");
-           //print_r($query);
+           //print_r($arruser);
            $result=$dbconn->execute($query);
            while ( !$result->EOF ) {
                 list( $report_id, $sid ) = $result->fields;
