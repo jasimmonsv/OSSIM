@@ -66,8 +66,8 @@ $vuln_pass        = GET('vuln_pass');
 $vuln_port        = GET('vuln_port');
 $vuln_max_scans       = GET('vuln_max_scans');
 
-$base_port = ($nfsen_sensors[$name] != "") ? $nfsen_sensors[$name]['port'] : get_nfsen_baseport($nfsen_sensors);
-$base_type = ($nfsen_sensors[$name] != "") ? $nfsen_sensors[$name]['type'] : "netflow";
+$base_port  = ($nfsen_sensors[$name] != "") ? $nfsen_sensors[$name]['port'] : get_nfsen_baseport($nfsen_sensors);
+$base_type  = ($nfsen_sensors[$name] != "") ? $nfsen_sensors[$name]['type'] : "netflow";
 $base_color = ($nfsen_sensors[$name] != "") ? $nfsen_sensors[$name]['color'] : "#0000ff";
 
 $submit = GET('submit');
@@ -245,11 +245,12 @@ $local_ip = `grep framework_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`;
 </script>
 
 <style type='text/css'>
-	input[type='text'], select, textarea {width: 90%; height: 18px;}
+	input[type='text'], input[type='password'], select, textarea {width: 90%; height: 18px;}
 	textarea { height: 45px;}
 	label {border: none; cursor: default;}
 	.bold {font-weight: bold;}
 	div.bold {line-height: 18px;}
+	.ossim_success, .ossim_error {padding: 8px 10px; text-align:center;}
 </style>
 
 </head>
@@ -261,30 +262,31 @@ if (GET('withoutmenu') != "1")
 	include ("../hmenu.php");
 
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
 if (GET('submit'))
 {
-    $temp_msg = "inserted.";
-    
-    if ($submit == _("Insert"))
+    $temp_msg = "<div class='ossim_success'>"._("Inserted successfully")."</div>";
+	
+	if ($submit == _("Insert"))
 	{
     	if ($interface != "")
     		Sensor_interfaces::insert_interfaces($conn, $sensor, $interface, $int_name, $main);
     	else
-    		$temp_msg = _("Error: Interface input can not be empty");
+    		$temp_msg = "<div class='ossim_error'>"._("Error: Interface input can not be empty")."</div>";
     	
     }
 	elseif ($submit == _("Update"))
 	{
-        $temp_msg = gettext("updated") . " .";
-        Sensor_interfaces::update_interfaces($conn, $sensor, $interface, $int_name, $main);
+        $temp_msg = "<div class='ossim_success'>"._("Updated successfully")."</div>";
+        
+		Sensor_interfaces::update_interfaces($conn, $sensor, $interface, $int_name, $main);
     }
 	elseif ($submit == _("Delete"))
 	{
 		Sensor_interfaces::delete_interfaces($conn, $sensor, $interface);
-        $temp_msg = gettext("deleted") . " .";
+        $temp_msg = "<div class='ossim_success'>"._("Deleted successfully")."</div>";
     }
     //    Sensor::update ($conn, $name, $ip, $priority, $port, $descr);
     //$db->close($conn);
@@ -323,7 +325,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 
 <table align="center" class="noborder" style="background-color:#ffffff">
 
-	<?php if ($temp_msg != "") { ?> <tr><td><?php echo $temp_msg ?></td></tr> <?php } ?>
+	<?php if ($temp_msg != "") { ?> <tr><td class='nobborder center'><?php echo $temp_msg ?></td></tr> <?php } ?>
 
 	<tr>
 		<td class="noborder" valign="top">
@@ -358,15 +360,15 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 								} 
 								else 
 								{
-									echo "<option value='1' selected='selected'>".gettext("No")."</option>";
-									echo "<option value='0'>".gettext("Yes")."</option>";
+									echo "<option value='0' selected='selected'>".gettext("No")."</option>";
+									echo "<option value='1'>".gettext("Yes")."</option>";
 								}
 						?>
 						</select>
 					</td>
 					<td class="nobborder" nowrap='nowrap'>
-						<input type="submit" name="submit" value="<?=_("Update")?>" class="button" />
-						<input type="submit" name="submit" value="<?=_("Delete")?>" class="button" />
+						<input type="submit" name="submit" value="<?php echo _("Update")?>" class="button" />
+						<input type="submit" name="submit" value="<?php echo _("Delete")?>" class="button" />
 					</td>
 				</tr>
 				</form>
@@ -378,16 +380,16 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 					<input type="hidden" name="name" value="<?php echo $name; ?>"/>
 					
 					<tr>
-						<td class="nobborder"><input type="text" name="interface"></td>
-						<td class="nobborder"><input type="text" name="int_name"></td>
+						<td class="nobborder"><input type="text" name="interface"/></td>
+						<td class="nobborder"><input type="text" name="int_name"/></td>
 						<td class="nobborder">
 							<select name="main" id='main'>
-								<option value="1" selected> <?php echo gettext("Yes"); ?> </option>
-								<option value="0"> <?php echo gettext("No"); ?> </option>
+								<option value="1" selected='selected'><?php echo gettext("Yes");?></option>
+								<option value="0"><?php echo gettext("No"); ?></option>
 							</select>
 						</td>
 						<td class="center nobborder">
-							<input type="submit" name="submit" value="<?=_("Insert")?>" class="lbutton"/>
+							<input type="submit" name="submit" value="<?php echo _("Insert")?>" class="lbutton"/>
 						</td>
 					</tr>
 				</form>
@@ -408,10 +410,10 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 			<th><?php echo gettext("Action"); ?></th>
 		</tr>
 		<tr>
-			<td class="center nobborder"><input type="checkbox" name="has_nagios"value="1"  <?=(($properties["has_nagios"]=="1") ? "checked='checked'" : "")?>></td>
-			<td class="center nobborder"><input type="checkbox" name="has_ntop" value="1"  <?=(($properties["has_ntop"]=="1") ? "checked='checked'" : "")?>></td>
-			<td class="center nobborder"><input type="checkbox" name="has_vuln_scanner" onclick="toggle_vuln_scanner_options()"  value="1"  <?=(($properties["has_vuln_scanner"]=="1") ? "checked" : "")?>></td>
-			<td class="center nobborder"><input type="checkbox" name="has_kismet" value="1"  <?=(($properties["has_kismet"]=="1") ? "checked='checked'" : "")?>></td>
+			<td class="center nobborder"><input type="checkbox" name="has_nagios"value="1"  <?=(($properties["has_nagios"]=="1") ? "checked='checked'" : "")?>/></td>
+			<td class="center nobborder"><input type="checkbox" name="has_ntop" value="1"  <?=(($properties["has_ntop"]=="1") ? "checked='checked'" : "")?>/></td>
+			<td class="center nobborder"><input type="checkbox" name="has_vuln_scanner" onclick="toggle_vuln_scanner_options()"  value="1"  <?=(($properties["has_vuln_scanner"]=="1") ? "checked='checked'" : "")?>/></td>
+			<td class="center nobborder"><input type="checkbox" name="has_kismet" value="1"  <?=(($properties["has_kismet"]=="1") ? "checked='checked'" : "")?>/></td>
 			<td class="center nobborder"><input type="submit" name="update" class="lbutton" value="<?php echo _("Update")?>"/></td>
 		</tr>
 		
@@ -468,8 +470,8 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 			<td class="nobborder" colspan="6">
 				<table class="transparent" align="center" width="100%">
 					<tr>
-						<th><?=_("Netflow Collection Configuration")?></th>
-						<th><?=_("Action")?></th>
+						<th><?php echo _("Netflow Collection Configuration")?></th>
+						<th><?php echo _("Action")?></th>
 					</tr>
 					<tr>
 						<td class="nobborder">
@@ -483,7 +485,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 									<td class="left nobborder">
 										<div id="backgroundTitle1" class="colorSelector">
 											<div style="background-color: <?=$base_color?>;">
-												<input type="hidden" name="backgroundTitle" value="#0000ff">
+												<input type="hidden" name="backgroundTitle" value="#0000ff"/>
 											</div>
 										</div>
 									</td>
@@ -492,8 +494,8 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 									<td class="right nobborder" width="30" style="padding-left:20px"><?=_("Type")?>:</td>
 									<td class="left nobborder">
 										<select name="nfsen_type" id="nfsen_type">
-											<option value="netflow" <? if ($base_type == "netflow") echo "selected='selected'"?>><?=_("netflow")?>
-											<option value="sflow" <? if ($base_type == "sflow") echo "selected='selected'"?>><?=_("sflow")?>
+											<option value="netflow" <? if ($base_type == "netflow") echo "selected='selected'"?>><?php echo _("netflow")?>
+											<option value="sflow" <? if ($base_type == "sflow") echo "selected='selected'"?>><?php echo _("sflow")?>
 										</select>
 									</td>
 									
@@ -507,7 +509,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 								<tr>
 									<td class="center nobborder">
 										<input type="button" id="netflow_button" value="<? if ($nfsen_sensors[$name] != "") echo _("Stop and Remove"); else echo _("Configure and Run") ?>" onclick="<? if ($nfsen_sensors[$name] != "") echo "del_nfsen()"; else echo "nfsen_config()"; ?>" class="lbutton"/></td></tr>
-								<tr><td nowrap='nowrap' class="center nobborder" style="padding-top:10px"><img src="../pixmaps/help_icon.gif" align="absmiddle"> <a href="../nfsen/helpflows.php" class="greybox"><b><?=_("Configuration help")?></b></a></td></tr>
+								<tr><td nowrap='nowrap' class="center nobborder" style="padding-top:10px"><img src="../pixmaps/help_icon.gif" align="absmiddle"/> <a href="../nfsen/helpflows.php" class="greybox"><b><?=_("Configuration help")?></b></a></td></tr>
 							</table>
 						</td>
 					</tr>
@@ -523,7 +525,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 if (GET('withoutmenu') != "1")
 {
 ?>
-    <p><input type="button" onclick="document.location.href='sensor.php'" class="button" value="<?=_("Back")?>"/></p>
+    <p><input type="button" onclick="document.location.href='sensor.php'" class="button" value="<?php echo _("Back")?>"/></p>
 <?php
 }
 ?>

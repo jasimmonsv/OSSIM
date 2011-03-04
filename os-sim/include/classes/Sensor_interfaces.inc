@@ -85,7 +85,21 @@ class Sensor_interfaces {
     }
     function insert_interfaces($conn, $sensor, $interface, $name, $main) {
         $main = intval($main);
-        $sql = "INSERT INTO sensor_interfaces (sensor, interface, name, main) VALUES (?, ?, ?, ?)";
+        
+		if ($main == 1)
+		{
+			$sql = "UPDATE sensor_interfaces SET main = ? WHERE sensor = ?";
+			$params = array(
+				0,
+				$sensor,
+			);
+			if ($conn->Execute($sql, $params) === false) {
+				print 'Error updating (1): ' . $conn->ErrorMsg() . '<br/>';
+				exit;
+			}
+		}
+		
+		$sql = "INSERT INTO sensor_interfaces (sensor, interface, name, main) VALUES (?, ?, ?, ?)";
         $params = array(
             $sensor,
             $interface,
@@ -99,7 +113,21 @@ class Sensor_interfaces {
     }
     function update_interfaces($conn, $sensor, $interface, $name, $main) {
         $main = intval($main);
-        $sql = "UPDATE sensor_interfaces SET name = ?, main = ? WHERE sensor = ? and interface = ?";
+        
+		if ($main == 1)
+		{
+			$sql = "UPDATE sensor_interfaces SET main = ? WHERE sensor = ?";
+			$params = array(
+				0,
+				$sensor,
+			);
+			if ($conn->Execute($sql, $params) === false) {
+				print 'Error updating (1): ' . $conn->ErrorMsg() . '<br/>';
+				exit;
+			}
+		}		
+		
+		$sql = "UPDATE sensor_interfaces SET name = ?, main = ? WHERE sensor = ? and interface = ?";
         $params = array(
             $name,
             $main,
@@ -107,7 +135,7 @@ class Sensor_interfaces {
             $interface
         );
         if ($conn->Execute($sql, $params) === false) {
-            print 'error updating: ' . $conn->ErrorMsg() . '<BR>';
+            print 'Error updating (2): ' . $conn->ErrorMsg() . '<BR>';
             exit;
         }
     }

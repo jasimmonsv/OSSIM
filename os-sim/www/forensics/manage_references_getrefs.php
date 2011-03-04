@@ -30,16 +30,21 @@
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
 require_once 'classes/Security.inc';
-$plugin_id = GET('plugin_id');
-$plugin_sid = GET('plugin_sid');
-$delete_ref_id = GET('delete_ref_id');
+
+$plugin_id      = GET('plugin_id');
+$plugin_sid     = GET('plugin_sid');
+$delete_ref_id  = GET('delete_ref_id');
 $newref_type_id = GET('newref_type');
-$newref_value = GET('newref_value');
-ossim_valid($plugin_id, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("plugin_id"));
-ossim_valid($plugin_sid, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("plugin_sid"));
-ossim_valid($delete_ref_id, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("delete_ref_id"));
+$newref_value   = GET('newref_value');
+
+
+ossim_valid($plugin_id,      OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("plugin_id"));
+ossim_valid($plugin_sid,     OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("plugin_sid"));
+ossim_valid($delete_ref_id,  OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("delete_ref_id"));
 ossim_valid($newref_type_id, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("newref_type_id"));
-ossim_valid($newref_value, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, OSS_SCORE, OSS_SPACE, OSS_URL, OSS_COLON, 'illegal:' . _("newref_value"));
+ossim_valid($newref_value,   OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, OSS_SCORE, OSS_URL, OSS_COLON, OSS_PUNC_EXT, 'illegal:' . _("newref_value"));
+	
+	
 if ($plugin_sid == "" || $plugin_id == "") exit;
 if (ossim_error()) {
     die(ossim_error());
