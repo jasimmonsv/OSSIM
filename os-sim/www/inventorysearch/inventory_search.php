@@ -355,7 +355,7 @@ var finish        = false;
 						url: "filter_response.php?type="+criterias[i]+"&subtype="+subcriterias[i],
 						data: "",
 						success: function(msg){
-							alert(msg);
+							//alert(msg);
 							if (msg != "") {
 								var list = msg.split("###");
 								var k = 0;
