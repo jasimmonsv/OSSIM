@@ -684,7 +684,7 @@ $CONFIG = array(
         )
     ) ,
     "ACLs" => array(
-        "title" => gettext("phpGACL configuration") ,
+        "title" => gettext("ACL phpGACL configuration") ,
         "desc" => gettext("Access control list database configuration") ,
         "advanced" => 1,
         "conf" => array(
@@ -1409,6 +1409,8 @@ $CONFIG = array(
         )
     )
 );
+
+ksort($CONFIG);
 
 function valid_value($key, $value, $numeric_values)
 {
