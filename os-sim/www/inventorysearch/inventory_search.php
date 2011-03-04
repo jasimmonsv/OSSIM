@@ -281,7 +281,7 @@ var finish        = false;
 				if (matches[i] == "eq") eq_selected = "selected";
 				else if (matches[i] == "LIKE") like_selected = "selected";
 				criteria_select += "&nbsp;<select id='match_"+i+"' name='match_"+i+"' onchange='setcriteria_match("+i+",this.value,1)'><option value='LIKE' "+like_selected+"><?=_("Contains")?><option value='eq' "+eq_selected+"><?=_("Is equal")?></select>";
-				criteria_select += "&nbsp;<input type='text' id='value_"+i+"' name='value_"+i+"' value='"+val+"'>";
+				criteria_select += "&nbsp;<input type='text' id='value_"+i+"' onkeyup='setcriteria_val("+i+",this.value)' name='value_"+i+"' value='"+val+"'>";
 				// AJAX! (if rule has 'list' field)
 				if (rules[criterias[i]][subcriterias[i]]['list']) {
 					$.ajax({
@@ -299,7 +299,7 @@ var finish        = false;
 			else if (rules[criterias[i]][subcriterias[i]]['match'] == "fixed" || rules[criterias[i]][subcriterias[i]]['match'] == "concat") {
 				// AJAX! (if rule has 'list' field)
 				if (rules[criterias[i]][subcriterias[i]]['list']) {
-					criteria_select += "&nbsp;<select id='value_"+i+"' name='value_"+i+"' style='width:120px'>";
+					criteria_select += "&nbsp;<select id='value_"+i+"' name='value_"+i+"' onchange='setcriteria_val("+i+",this.value)' style='width:120px'>";
 					
 					$.ajax({
 						type: "GET",
@@ -429,7 +429,7 @@ var finish        = false;
 	}
 	function setcriteria_val (i,val) {
 		values[i] = val;
-		reloadcriteria();
+		//reloadcriteria();
 	}
 	
 	function load_sayts (i) {
