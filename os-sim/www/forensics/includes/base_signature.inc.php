@@ -345,6 +345,7 @@ function GetOssimSignatureReferences($plugin_id, $plugin_sid, $db) {
     $external_sig_link = $GLOBALS['external_sig_link'];
     $str = "";
     $temp_sql = "SELECT r.ref_tag,rs.ref_system_name,rs.url,rs.icon,rs.ref_system_id FROM sig_reference s, reference r, reference_system rs WHERE rs.ref_system_id=r.ref_system_id AND r.ref_id=s.ref_id AND s.plugin_id=$plugin_id and s.plugin_sid=$plugin_sid";
+    //print_r($temp_sql);
     $tmp_result = $db->baseExecute($temp_sql);
     if ($tmp_result) {
         while ($row = $tmp_result->baseFetchRow()) {
@@ -353,6 +354,7 @@ function GetOssimSignatureReferences($plugin_id, $plugin_sid, $db) {
             $row["ref_tag"] = trim($row["ref_tag"]);
             $row["ref_system_name"] = strtolower(trim($row["ref_system_name"]));
             if ($url_src != "") {
+            	if (preg_match("/^http/",$row["ref_tag"])) $url_src = str_replace("http://","",$url_src);
                 $url = str_replace("%value%",rawurlencode($row["ref_tag"]),$url_src);
                 $target = (preg_match("/^http/",$url)) ? "_blank" : "main";
                 $anchor = ($row["icon"] != "") ? "<img src='manage_references_icon.php?id=".$row['ref_system_id']."' alt='".$row['ref_system_name']."' title='".$row['ref_system_name']."' border='0'>" : "[".$row["ref_system_name"]."]";

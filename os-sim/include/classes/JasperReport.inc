@@ -945,12 +945,13 @@ public function getResource($uriString,$wsType) {
       }
       header('Content-type: '.$contentType);
       header("Cache-Control: public, must-revalidate");
+      $fname = $report_unit.$params.$extension;
       header("Pragma: hack");
       if ($attachment) {
-      	 header('Content-Disposition: attachment; filename="'.$report_unit.$params.$extension.'"');
+      	 header('Content-Disposition: attachment; filename="'.$fname.'"');
       	 header("Content-Transfer-Encoding: binary ");
       } else {
-      	header('Content-Disposition: inline; filename="'.$report_unit.$params.$extension.'"');
+      	header('Content-Disposition: inline; filename="'.$fname.'"');
       }
       return;
   }

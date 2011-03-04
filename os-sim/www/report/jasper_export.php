@@ -24,9 +24,9 @@
 
         if(count($_POST)>1){
             foreach($_POST as $key => $value){
-               if($key!='reportUnit'){
+               if($key!='reportUnit' && trim($key)!=""){
                    $report_params[$key]=$value;
-                   $params.='_'.$value;
+                   if (!preg_match("/^http/",$value)) $params.='_'.$value;
                }
             }
         }else{
