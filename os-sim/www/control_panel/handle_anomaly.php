@@ -101,8 +101,7 @@ echo gettext("Successfully Acked/Deleted"); ?> </p>
 $location = "anomalies.php";
 sleep(2);
 echo "<script>
-///history.go(-1);
-window.location='$location';
+parent.GB_CloseAndRedir('$location');
 </script>
 ";
 ?>

@@ -1062,3 +1062,14 @@ function qsort2 (&$array, $column=0, $order=SORT_ASC, $first=0, $last=-2) {
 		qsort2 ($array, $column, $order, $alpha, $last); 
 	}
 }
+// Convert date to UTC unixtime using mysql
+function get_utc_unixtime($db,$date) {
+  $unix = strtotime($date);
+  $db->baseExecute("SET SESSION time_zone='+00:00'");
+  $res = $db->baseExecute("select UNIX_TIMESTAMP('$date')");
+  if ($row = $res->baseFetchRow()) {
+    $unix = $row[0];
+    $res->baseFreeRows();
+  }
+  return $unix;
+}

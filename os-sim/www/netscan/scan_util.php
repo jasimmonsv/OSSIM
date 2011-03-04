@@ -102,7 +102,7 @@ EOF;
       <tr>
         <td colspan="5">
 EOF;
-    echo "<input type=\"submit\" class=\"btn\" value=\"" . gettext("Update database values") . "\" />";
+    echo "<input type=\"submit\" class=\"button\" value=\"" . gettext("Update database values") . "\" />";
     echo <<<EOF
         </td>
       </tr>

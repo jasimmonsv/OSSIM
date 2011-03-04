@@ -353,10 +353,11 @@ if ($myrow6 = $result6->baseFetchRow()) {
 $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $event_date = $timestamp;
 $tzdate = $event_date;
+$event_date_uut = get_utc_unixtime($db,$event_date);
 // Event date timezone
-if ($tzone!=0) $event_date = gmdate("Y-m-d H:i:s",strtotime($event_date)+(3600*$tzone));    
+if ($tzone!=0) $event_date = gmdate("Y-m-d H:i:s",$event_date_uut+(3600*$tzone));    
 // Apply user timezone
-if ($tz!=0) $tzdate = gmdate("Y-m-d H:i:s",strtotime($tzdate)+(3600*$tz));
+if ($tz!=0) $tzdate = gmdate("Y-m-d H:i:s",$event_date_uut+(3600*$tz));
 	
 $tzcell = ($event_date==$timestamp || $event_date==$tzdate) ? 0 : 1;
 _("Event date").": ".htmlspecialchars("<b>".$event_date."</b><br>"._("Timezone").": <b>".Util::timezone($tzone)."</b>");

@@ -74,6 +74,7 @@ $from = " FROM acid_event " . $criteria_clauses[0];
 $where = ($criteria_clauses[1] != "") ? " WHERE " . $criteria_clauses[1] : " ";
 // use accumulate tables only with timestamp criteria
 $use_ac = (preg_match("/AND/", preg_replace("/AND \( timestamp/", "", $criteria_clauses[1]))) ? false : true;
+if (preg_match("/ \d\d:\d\d:\d\d/",$criteria_clauses[1])) $use_ac = false;
 //$use_ac = false;
 if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)(.*)$/", $where, $matches)) {
     if ($matches[2] != $matches[3]) {
@@ -201,8 +202,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $start_time = $myrow["first_timestamp"];
     $stop_time = $myrow["last_timestamp"];
     if ($tz!=0) {
-    	$start_time = gmdate("Y-m-d H:i:s",strtotime($start_time)+(3600*$tz));
-    	$stop_time = gmdate("Y-m-d H:i:s",strtotime($stop_time)+(3600*$tz));
+    	$start_time = gmdate("Y-m-d H:i:s",get_utc_unixtime($db,$start_time)+(3600*$tz));
+    	$stop_time = gmdate("Y-m-d H:i:s",get_utc_unixtime($db,$stop_time)+(3600*$tz));
 	}
     /* Print out (Colored Version) -- Alejandro */
     //qroPrintEntryHeader((($colored_alerts == 1) ? GetSignaturePriority($sig_id, $db) : $i) , $colored_alerts);

@@ -162,7 +162,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$max_cid = $myrow[0];
 	$plugin_id = $myrow["plugin_id"];
     $timestamp = $myrow["timestamp"];
-    if ($tz!=0) $timestamp = gmdate("Y-m-d H:i:s",strtotime($timestamp)+(3600*$tz));
+    if ($tz!=0) $timestamp = gmdate("Y-m-d H:i:s",get_utc_unixtime($db,$timestamp)+(3600*$tz));
     $plugin_name = $myrow["name"];
 	$total_occurances = $myrow["events"];
 	$total_sensors = $myrow["sensors"];

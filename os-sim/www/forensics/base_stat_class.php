@@ -72,6 +72,7 @@ $from = " FROM acid_event " . $criteria_clauses[0];
 $where = " WHERE " . $criteria_clauses[1];
 // use accumulate tables only with timestamp criteria
 $use_ac = (preg_match("/AND/", preg_replace("/AND \( timestamp/", "", $criteria_clauses[1]))) ? false : true;
+if (preg_match("/ \d\d:\d\d:\d\d/",$criteria_clauses[1])) $use_ac = false;
 //$qs->AddValidAction("ag_by_id");
 //$qs->AddValidAction("ag_by_name");
 //$qs->AddValidAction("add_new_ag");

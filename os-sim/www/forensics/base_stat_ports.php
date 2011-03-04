@@ -106,6 +106,7 @@ if (!$printing_ag) {
 $criteria = $criteria_clauses[0] . " " . $criteria_clauses[1];
 // use accumulate tables only with timestamp criteria
 $use_ac = (preg_match("/AND/", preg_replace("/AND \( timestamp|AND acid_event\.ip_proto/", "", $criteria_clauses[1]))) ? false : true;
+if (preg_match("/ \d\d:\d\d:\d\d/",$criteria_clauses[1])) $use_ac = false;
 //$use_ac = false;
 if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)(.*)$/", $where, $matches)) {
     if ($matches[2] != $matches[3]) {
@@ -261,8 +262,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $first_time = $myrow[7];
     $last_time = $myrow[8];
     if ($tz!=0) {
-    	$first_time = gmdate("Y-m-d H:i:s",strtotime($first_time)+(3600*$tz));
-    	$last_time = gmdate("Y-m-d H:i:s",strtotime($last_time)+(3600*$tz));
+    	$first_time = gmdate("Y-m-d H:i:s",get_utc_unixtime($db,$first_time)+(3600*$tz));
+    	$last_time = gmdate("Y-m-d H:i:s",get_utc_unixtime($db,$last_time)+(3600*$tz));
 	} 
     if ($port_proto == TCP) {
         $url_port_type = "tcp";

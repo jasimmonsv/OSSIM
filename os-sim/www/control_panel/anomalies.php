@@ -55,6 +55,12 @@ echo gettext("Control Panel"); ?> </title>
             return false; 		
   		});
   	});
+    function GB_onclose() {
+    }
+    function GB_CloseAndRedir(redir) {
+        GB_onclose();
+        document.location.href=redir;
+    }
   </script>
 </head>
 
