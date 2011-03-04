@@ -484,7 +484,7 @@ if ($anom_mac_list = Host_mac::get_anom_list($conn)) {
 	<a href="<?php
             echo $_SERVER["SCRIPT_NAME"] ?>"><img src="../pixmaps/arrow.gif" border=\"0\"></a>
 <?php
-        } else { ?>
+        } else if($anom_mac["old_mac"]!="-") { ?>
 	<a href="<?php
             echo $_SERVER["SCRIPT_NAME"] . "?ex_mac=" . $anom_mac["ip"] . "&ex_macs=" . $anom_mac["sensor"] ?>"><img src="../pixmaps/arrow2.gif" border="0"></a>
 <?php
