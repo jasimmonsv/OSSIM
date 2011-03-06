@@ -84,6 +84,17 @@ if(preg_match("/cclass_(\d+)_(.+)/",$key) || preg_match("/all_\d+\.\d+\.\d+_(\d+
                         WHERE hp.property_ref=".$found[1]." AND SUBSTRING( hp.value, 1, 8 )=hmv.mac AND MD5(hmv.vendor)='".$found[2]."' ORDER BY hp.ip";
             }
         }
+        elseif($found[1]==8) {
+            $sql = "SELECT hp.ip, h.hostname
+                   FROM host_properties AS hp LEFT JOIN host AS h
+                   ON hp.ip = h.ip
+                   WHERE hp.property_ref=".$found[1]." AND MD5(hp.value)='".$found[2]."' 
+                   UNION SELECT inet_ntoa(hs.ip) as ip, h.hostname
+                   FROM host_services AS hs LEFT JOIN host AS h
+                   ON inet_ntoa(hs.ip) = h.ip
+                   WHERE MD5(CONCAT(hs.service,' (',hs.port,'/',hs.protocol,')'))='".$found[2]."'
+                   ORDER BY ip";
+        }
         else {
             $sql = "SELECT hp.ip, h.hostname
                    FROM host_properties AS hp LEFT JOIN host AS h

@@ -925,23 +925,41 @@ class Host {
                 $rs->MoveNext();
             }
         }
+        $services = Host_services::get_list($conn,0,$limit);
+        foreach ($services as $service) {
+            $list[] = array("source_id" => 1, "property_ref" => 8, # services
+                            "ip" => $service["ip"],
+                            "sensor" => $service["sensor"],
+                            "date" => $service["date"],
+                            "value" => $service["service"]." (".$service["port"]."/".$service["protocol"].")",
+                            "extra" => $service["interface"],
+                            "anom" => 0);
+        }
+        
         return $list;
 	}
 	
 	function get_property_values($conn, $id) {
         $list = array();
-        if($id!=7) {
-            $sql = "SELECT COUNT( ip ) AS total , value FROM host_properties
-                    WHERE property_ref=? GROUP BY value";
-        }
-        else {
-            $sql = "SELECT COUNT( ip ) AS total, vendor
+        if($id==7) {
+            $sql = "SELECT COUNT(DISTINCT ip ) AS total, vendor
                     FROM (
                     SELECT hp.ip AS ip, hmv.vendor AS vendor
                     FROM host_properties AS hp
                     LEFT JOIN host_mac_vendors AS hmv ON SUBSTRING( hp.value, 1, 8 ) = hmv.mac
-                    WHERE hp.property_ref =?
+                    WHERE hp.property_ref = ?
                     ) AS result GROUP BY vendor";
+        }
+        elseif($id==8) {
+            $sql = "SELECT COUNT(DISTINCT ip ) AS total , value FROM host_properties
+                    WHERE property_ref = ? GROUP BY value
+                    UNION
+                    SELECT COUNT(DISTINCT ip) AS total , CONCAT(service,' (',port,'/',protocol,')') as value
+                    FROM host_services GROUP BY value";
+        }
+        else {
+            $sql = "SELECT COUNT(DISTINCT ip ) AS total , value FROM host_properties
+                    WHERE property_ref = ? GROUP BY value";
         }
         if (!$rs = & $conn->Execute($sql,array($id))){
             print $conn->ErrorMsg();
@@ -951,7 +969,7 @@ class Host {
                 $list[] = $rs->fields;
                 $rs->MoveNext();
             }
-        }
+        }        
         return $list;
     }
 	
