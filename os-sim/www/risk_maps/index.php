@@ -693,6 +693,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			   		changed = 0;
 			   		document.getElementById('save_button').className = "lbutton";
 			   		refresh_indicators();
+			   		document.getElementById('type_name'+document.f.alarm_id.value).value = document.getElementById('elem').value;
+			   		document.getElementById('datatype'+document.f.alarm_id.value).value = document.f.type.value;
+			   		document.getElementById('datanurl'+document.f.alarm_id.value).value = document.f.url.value;
 			   		document.getElementById('dataicon'+document.f.alarm_id.value).value = document.getElementById("chosen_icon").src;
 			   		document.getElementById('dataiconsize'+document.f.alarm_id.value).value = document.f.iconsize.value;
 			   		document.getElementById('dataiconbg'+document.f.alarm_id.value).value = document.f.iconbg.value;
