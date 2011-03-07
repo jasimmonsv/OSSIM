@@ -45,7 +45,7 @@ $basic_search[3] = array(
 		SELECT DISTINCT INET_NTOA(s.host_ip) as ip FROM vuln_nessus_plugins p,host_plugin_sid s WHERE s.plugin_id=3001 and s.plugin_sid=p.id AND p.cve_id %op% ?",*/
 	"query"=>"SELECT DISTINCT hostIP as ip FROM vuln_nessus_latest_results WHERE msg %op% ? 
 		UNION 
-		SELECT DISTINCT INET_NTOA(s.host_ip) as ip FROM vuln_nessus_plugins p,host_plugin_sid s WHERE s.plugin_id=3001 and s.plugin_sid=p.id AND p.cve_id %op% ?",
+		SELECT DISTINCT hostIP as ip FROM vuln_nessus_plugins p,vuln_nessus_latest_results s WHERE p.id=s.scriptid and p.cve_id %op% ?",
 	"query_match"=>"text");
 
 // Tickets
