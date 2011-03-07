@@ -45,6 +45,7 @@ function indicatorAllowed($conn,$type,$type_name,$hosts,$sensors,$nets) {
 	
 	return $has_perm;
 }
+// convert risk value into risk semaphore
 function get_value_by_digit($digit) {
 	if (intval($digit) > 7) {
         return 'r';
@@ -58,6 +59,7 @@ function get_value_by_digit($digit) {
     	return 'b';
     }
 }
+// asset value in BBDD?
 function is_in_assets($conn,$name,$type) {
 	if ($type == "host") {
 		$sql = "SELECT * FROM host WHERE hostname=\"$name\"";
@@ -71,78 +73,14 @@ function is_in_assets($conn,$name,$type) {
 	$result = $conn->Execute($sql);
 	return (!$result->EOF) ? 1 : 0;
 }
-function get_values($conn,$host_types,$type,$name,$ips,$only_values = false) {
-	if ($only_values) {
-		$RiskValue = -1;
-    	$VulnValue = -1;
-    	$AvailValue = -1;
-	} else {
-		$RiskValue = 'b';
-    	$VulnValue = 'b';
-    	$AvailValue = 'b';
-	}
-	$params = ($type == "host_group") ? array() : array($name);
-    if (in_array($type, $host_types)) {
-	    $query = "select severity,member from bp_member_status where member = ? and measure_type = \"host_metric\"";
-    } elseif ($type == "host_group") {
-        $query = "select severity,member from bp_member_status where member in ($ips) and measure_type = \"host_metric\" order by severity desc limit 1";
-    } else {
-        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"net_metric\"";
-    }
-    if (!$rs2 = &$conn->Execute($query, $params)) {
-        print $conn->ErrorMsg();
-    } else {
-        $r_ip = $rs2->fields["member"];
-    	if ($only_values) {
-        	$RiskValue = ($rs2->fields["severity"] == "") ? -1 : intval($rs2->fields["severity"]);
-        } else {
-        	$RiskValue = get_value_by_digit($rs2->fields["severity"]);
-        }
-    }
-    if (in_array($type, $host_types)) {
-        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"host_vulnerability\"";
-    } elseif ($type == "host_group") {
-        $query = "select severity,member from bp_member_status where member in ($ips) and measure_type = \"host_vulnerability\" order by severity desc limit 1";
-    } else {
-        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"net_vulnerability\"";
-    }
-    if (!$rs2 = &$conn->Execute($query, $params)) {
-        print $conn->ErrorMsg();
-    } else {
-        $v_ip = $rs2->fields["member"];
-        if ($only_values) {
-        	$VulnValue = ($rs2->fields["severity"] == "") ? -1 : intval($rs2->fields["severity"]);
-        } else {
-	        $VulnValue = get_value_by_digit($rs2->fields["severity"]);
-        }
-    }
-
-    if (in_array($type, $host_types)) {
-        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"host_availability\"";
-    } elseif ($type == "host_group") {
-        $query = "select severity,member from bp_member_status where member in ($ips) and measure_type = \"host_availability\" order by severity desc limit 1";
-    } else {
-        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"net_availability\"";
-    }
-    if (!$rs2 = &$conn->Execute($query, $params)) {
-        print $conn->ErrorMsg();
-    } else {
-        $a_ip = $rs2->fields["member"];
-        if ($only_values) {
-        	$AvailValue = ($rs2->fields["severity"] == "") ? -1 : intval($rs2->fields["severity"]);
-        } else {
-	        $AvailValue = get_value_by_digit($rs2->fields["severity"]);
-        }
-    }
-    return array($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip);
-}
-function print_indicator_content($conn,$rs) {
-    $name = $rs->fields["type_name"];
-    $type = $rs->fields["type"];
-    $what = "name"; $ips = $name;
-    $host_types = array("host", "server", "sensor");
-    $in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
-    if(in_array($type, $host_types)){
+// get asset name, value and sensor
+function get_assets($conn,$name,$type,$host_types) {
+	// in_assets first
+	$in_assets = is_in_assets($conn,$name,$type);
+	// asset values
+	$ips = $name;
+	$what = "name";
+	if(in_array($type, $host_types)){
     	if($type == "host") $what = "hostname";                
         $query = "select ip from $type where $what = ?";
         $params = array($name);
@@ -185,31 +123,125 @@ function print_indicator_content($conn,$rs) {
         $sensors = Host_group::get_related_sensors($conn,$name);
         $sensor = ($sensors[0]!="") ? $sensors[0] : $name;
     }
-    
+
+	return array($name,$sensor,$type,$ips,$what,$in_assets);
+}
+// get asset risk values
+function get_values($conn,$host_types,$type,$name,$ips,$only_values = false) {
+	if ($only_values) {
+		$RiskValue = -1;
+    	$VulnValue = -1;
+    	$AvailValue = -1;
+	} else {
+		$RiskValue = 'b';
+    	$VulnValue = 'b';
+    	$AvailValue = 'b';
+	}
+	$params = ($type == "host_group") ? array() : array($name);
+    if (in_array($type, $host_types)) {
+	    $query = "select severity,member from bp_member_status where member = ? and measure_type = \"host_metric\"";
+    } elseif ($type == "host_group") {
+        $query = "select severity,member from bp_member_status where member in ($ips) and measure_type = \"host_metric\" order by severity desc limit 1";
+    } else {
+        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"net_metric\"";
+    }
+    //echo "$query\n<br>";
+    if (!$rs2 = &$conn->Execute($query, $params)) {
+        print $conn->ErrorMsg();
+    } else {
+        $r_ip = $rs2->fields["member"];
+    	if ($only_values) {
+        	$RiskValue = ($rs2->fields["severity"] == "") ? -1 : intval($rs2->fields["severity"]);
+        } else {
+        	$RiskValue = get_value_by_digit($rs2->fields["severity"]);
+        }
+    }
+    if (in_array($type, $host_types)) {
+        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"host_vulnerability\"";
+    } elseif ($type == "host_group") {
+        $query = "select severity,member from bp_member_status where member in ($ips) and measure_type = \"host_vulnerability\" order by severity desc limit 1";
+    } else {
+        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"net_vulnerability\"";
+    }
+    //echo "$query\n<br>";
+    if (!$rs2 = &$conn->Execute($query, $params)) {
+        print $conn->ErrorMsg();
+    } else {
+        $v_ip = $rs2->fields["member"];
+        if ($only_values) {
+        	$VulnValue = ($rs2->fields["severity"] == "") ? -1 : intval($rs2->fields["severity"]);
+        } else {
+	        $VulnValue = get_value_by_digit($rs2->fields["severity"]);
+        }
+    }
+
+    if (in_array($type, $host_types)) {
+        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"host_availability\"";
+    } elseif ($type == "host_group") {
+        $query = "select severity,member from bp_member_status where member in ($ips) and measure_type = \"host_availability\" order by severity desc limit 1";
+    } else {
+        $query = "select severity,member from bp_member_status where member = ? and measure_type = \"net_availability\"";
+    }
+    //echo "$query\n<br>";
+    if (!$rs2 = &$conn->Execute($query, $params)) {
+        print $conn->ErrorMsg();
+    } else {
+        $a_ip = $rs2->fields["member"];
+        if ($only_values) {
+        	$AvailValue = ($rs2->fields["severity"] == "") ? -1 : intval($rs2->fields["severity"]);
+        } else {
+	        $AvailValue = get_value_by_digit($rs2->fields["severity"]);
+        }
+    }
+    return array($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip);
+}
+// get risk values for linked map (recursive)
+function get_map_values($conn,$map,$name,$type,$host_types) {
+	$query = "select * from risk_indicators where name <> 'rect' AND map= ?";
+	$params = array($map);
+	$RiskValue_max = -1;
+	$VulnValue_max = -1;
+	$AvailValue_max = -1;
+	$v_ip = $a_ip = $sensor = "";
+	$ips = $name;
+	$what = "name";
+	$in_assets = 0;
+	if (!$rs4 = &$conn->Execute($query, $params)) {
+		print $conn->ErrorMsg();
+	} else {
+		while (!$rs4->EOF) {
+			//print_r($rs4->fields);
+			// Linked to other map? recursive
+			if (preg_match("/view\.php\?map\=(\d+)/",$rs4->fields['url'],$found)) 
+				return get_map_values($conn,$found[1],$rs4->fields["type_name"],$rs4->fields["type"],$host_types);
+				
+			// Asset Values per link. Get the most risk value
+			list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$rs4->fields["type_name"],$rs4->fields["type"],$host_types);
+			list ($RiskValue_aux,$VulnValue_aux,$AvailValue_aux,$v_ip_aux,$a_ip_aux) = get_values($conn,$host_types,$rs4->fields["type"],$name,$ips,true);
+			if ($RiskValue_aux > $RiskValue_max) { $RiskValue_max = $RiskValue_aux; }
+			if ($VulnValue_aux > $VulnValue_max) { $VulnValue_max = $VulnValue_aux; $v_ip = $v_ip_aux; }
+			if ($AvailValue_aux > $AvailValue_max) { $AvailValue_max = $AvailValue_aux; $a_ip = $a_ip_aux; }
+			//echo "$RiskValue_aux,$VulnValue_aux,$AvailValue_aux,$v_ip_aux,$a_ip_aux\n<br>";
+			$rs4->MoveNext();
+		}
+	}
+	$RiskValue = get_value_by_digit($RiskValue_max);
+	$VulnValue = get_value_by_digit($VulnValue_max);
+	$AvailValue = get_value_by_digit($AvailValue_max);
+	return array($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$name,$sensor,$type,$ips,$what,$in_assets);
+}
+// print risk indicator table 
+function print_indicator_content($conn,$rs) {
+
+    $host_types = array("host", "server", "sensor");
+        
     // Linked to another map: loop by this map indicators
     if (preg_match("/view\.php\?map\=(\d+)/",$rs->fields['url'],$found)) {
-    	$query = "select * from risk_indicators where name <> 'rect' AND map= ?";
-		$params = array($found[1]);
-		if (!$rs4 = &$conn->Execute($query, $params)) {
-			print $conn->ErrorMsg();
-		} else {
-			$RiskValue_max = -1;
-			$VulnValue_max = -1;
-			$AvailValue_max = -1;
-			while (!$rs4->EOF) {
-				list ($RiskValue_aux,$VulnValue_aux,$AvailValue_aux,$v_ip_aux,$a_ip_aux) = get_values($conn,$host_types,$rs4->fields["type"],$rs4->fields["type_name"],$ips,true);
-				if ($RiskValue_aux > $RiskValue_max) { $RiskValue_max = $RiskValue_aux; }
-				if ($VulnValue_aux > $VulnValue_max) { $VulnValue_max = $VulnValue_aux; }
-				if ($AvailValue_aux > $AvailValue_max) { $AvailValue_max = $AvailValue_aux; }
-				$rs4->MoveNext();
-			}
-			$RiskValue = get_value_by_digit($RiskValue_max);
-			$VulnValue = get_value_by_digit($VulnValue_max);
-			$AvailValue = get_value_by_digit($AvailValue_max);
-		}
-    // Asset Values
+		list ($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$name,$sensor,$type,$ips,$what,$in_assets) = get_map_values($conn,$found[1],$rs->fields["type_name"],$rs->fields["type"],$host_types);
     } else {
-    	list ($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip) = get_values($conn,$host_types,$type,$name,$ips);
+    	// Asset Values
+    	list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$rs->fields["type_name"],$rs->fields["type"],$host_types);
+    	list ($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip) = get_values($conn,$host_types,$type,$name,$ips,false);
     }
     
     $gtype = ($type=="net") ? "net" : "host";

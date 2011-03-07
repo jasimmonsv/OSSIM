@@ -237,7 +237,7 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         $date = Util::timestamp2date($orig_date);
         $orig_date = $date;
         $event_date = $date;
-        $event_date_uut = get_utc_unixtime($conn,$event_date);
+        $event_date_uut = Util::get_utc_unixtime($conn,$event_date);
         $date = gmdate("Y-m-d H:i:s",$event_date_uut+(3600*$tz));        
         $event_date = gmdate("Y-m-d H:i:s",$event_date_uut+(3600*$alarm->get_tzone()));
         
