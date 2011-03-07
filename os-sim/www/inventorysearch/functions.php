@@ -40,7 +40,10 @@ $basic_search[3] = array(
 	"type"=>"Vulnerabilities",
 	"subtype"=>"Vuln contains",
 	"match"=>"LIKE",
-	"query"=>"SELECT DISTINCT INET_NTOA(hp.host_ip) as ip FROM host_plugin_sid hp, plugin_sid p WHERE hp.plugin_id = 3001 AND p.plugin_id = 3001 AND hp.plugin_sid = p.sid AND p.name %op% ? 
+	/*"query"=>"SELECT DISTINCT INET_NTOA(hp.host_ip) as ip FROM host_plugin_sid hp, plugin_sid p WHERE hp.plugin_id = 3001 AND p.plugin_id = 3001 AND hp.plugin_sid = p.sid AND p.name %op% ? 
+		UNION 
+		SELECT DISTINCT INET_NTOA(s.host_ip) as ip FROM vuln_nessus_plugins p,host_plugin_sid s WHERE s.plugin_id=3001 and s.plugin_sid=p.id AND p.cve_id %op% ?",*/
+	"query"=>"SELECT DISTINCT hostIP as ip FROM vuln_nessus_latest_results WHERE msg %op% ? 
 		UNION 
 		SELECT DISTINCT INET_NTOA(s.host_ip) as ip FROM vuln_nessus_plugins p,host_plugin_sid s WHERE s.plugin_id=3001 and s.plugin_sid=p.id AND p.cve_id %op% ?",
 	"query_match"=>"text");
@@ -334,7 +337,7 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	$row = '<tr bgcolor="'.$color.'">
 				<td class="nobborder" style="text-align:center;padding:2px"><a href="../report/host_report.php?host='.$ip.'&star_date='.$start_week_temp.'&end_date='.$end_temp.'" id="'.$ip.';'.$host->get_hostname().'" class="HostReportMenu" style="color:#17457c;font-size:15px;text-align:left"><b>'.$host_name.'</b></font></a><br><font style="color:gray">'.$net.'</font></td>
 				<td class="nobborder" style="text-align:center;padding:2px">'.$os.' '.$os_pixmap.'<br>'.implode("<br>",array_keys($services_arr)).'</td>
-				<td class="nobborder" style="text-align:center;padding:2px"><a href="../vulnmeter/index.php?value='.$ip.'&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities" title="Vulnerabilities for '.$ip.'"'.$vuln_caption.'>'.$num_vuln.'</a></td>
+				<td class="nobborder" style="text-align:center;padding:2px"><a href="../vulnmeter/index.php?value='.$ip.'&type=hn&withoutmenu=1&hmenu=Vulnerabilities&smenu=Vulnerabilities" title="Vulnerabilities for '.$ip.'"'.$vuln_caption.'>'.$num_vuln.'</a></td>
 				<td class="nobborder" style="text-align:center;padding:2px">'.$alarm_link.' '._("Alarms").'<br>'.$tickets_link.' '._("Tickets").'</td>
 				<td class="nobborder" style="padding:2px">'.$sim_link.' '.$txt_tmp1.'<br>'.$sem_link.' '.$txt_tmp2.'</td>
 				<td class="nobborder" style="text-align:center;padding:2px"><a href="../control_panel/anomalies.php?hmenu=Anomalies&smenu=Anomalies" class="greybox" title="'._("Anomalies").'"><b>'.$anm_foundrows.'</b></a></td>
