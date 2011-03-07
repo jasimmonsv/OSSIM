@@ -540,18 +540,23 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				initAjax: { url: "type_tree.php", data: {filter: filter} },
 				clickFolderMode: 2,
 				onActivate: function(dtnode) {
-					var keys = dtnode.data.key.split(/\;/);
-					document.getElementById('type').value = keys[0];
-					document.getElementById('elem').value = keys[1];
-					if (keys[0] == "host" || keys[0] == "net" || keys[0] == "sensor") document.getElementById('check_report').checked = true;
-					else document.getElementById('check_report').checked = false;
-					document.getElementById('selected_msg').innerHTML = "<b><?=_("Selected type")?></b>:"+document.f.type.value+" - "+document.f.elem.value;
-					if (document.f.type.value == "host_group" || document.f.type.value == "server") {
-						document.getElementById('linktoreport').style.display = 'none';
-					}
-					else {
-						document.getElementById('linktoreport').style.display = '';
-					}
+                    if (dtnode.data.key.indexOf(';')!=-1) {
+                        var keys = dtnode.data.key.split(/\;/);
+                        document.getElementById('type').value = keys[0];
+                        document.getElementById('elem').value = keys[1];
+                        if (keys[0] == "host" || keys[0] == "net" || keys[0] == "sensor") document.getElementById('check_report').checked = true;
+                        else document.getElementById('check_report').checked = false;
+                        document.getElementById('selected_msg').innerHTML = "<b><?=_("Selected type")?></b>:"+document.f.type.value+" - "+document.f.elem.value;
+                        if (document.f.type.value == "host_group" || document.f.type.value == "server") {
+                            document.getElementById('linktoreport').style.display = 'none';
+                        }
+                        else {
+                            document.getElementById('linktoreport').style.display = '';
+                        }
+                    }
+                    else {
+                        dtnode.toggleExpand();
+                    }
 				},
 				onDeactivate: function(dtnode) {},
 				onLazyRead: function(dtnode){

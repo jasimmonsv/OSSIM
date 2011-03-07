@@ -54,7 +54,9 @@ $sensor = GET('sensor');
 $interface = GET('interface');
 $proto = GET('proto');
 $opc = GET('opc');
+$link_ip = GET('link_ip');
 ossim_valid($sensor, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor"));
+ossim_valid($link_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Link IP"));
 ossim_valid($interface, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("interface"));
 ossim_valid($proto, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("proto"));
 ossim_valid($opc, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Default option"));
@@ -82,6 +84,10 @@ if (!$conf->get_conf("use_ntop_rewrite")) {
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
     $ntop = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop".(($_SERVER['SERVER_NAME']!=$sensor) ? "_$sensor/" : "/");
     $testntop = "http://" . $sensor . ":3000/";
+}
+if ($link_ip!="") {
+	$testntop .= (!preg_match("/\/$/",$testntop) ? "/" : "").$link_ip.".html";
+	$ntop .= (!preg_match("/\/$/",$ntop) ? "/" : "").$link_ip.".html";
 }
 // check $ntop valid
 error_reporting(0);

@@ -67,7 +67,7 @@ echo gettext("Control Panel"); ?> </title>
 <body>
 
 <?php
-include ("../hmenu.php");
+if (GET('withoutmenu')!=1) include ("../hmenu.php");
 require_once ('ossim_conf.inc');
 require_once ('ossim_db.inc');
 require_once ('classes/Host.inc');

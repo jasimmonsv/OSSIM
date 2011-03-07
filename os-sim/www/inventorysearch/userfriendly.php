@@ -149,13 +149,14 @@ else
 		});
 		// CALENDAR
 		<?
+		$date_from = $date_to = ""; // force calculate
 		if ($date_from != "") {
 			$aux = split("-",$date_from);
 			$y = $aux[0]; $m = $aux[1]; $d = $aux[2];
 		} else {
-			$y = strftime("%Y", time() - (24 * 60 * 60));
-			$m = strftime("%m", time() - (24 * 60 * 60 * 31));
-			$d = strftime("%d", time() - (24 * 60 * 60));
+			$y = date("Y", time() - (24 * 60 * 60 * 31));
+			$m = date("m", time() - (24 * 60 * 60 * 31));
+			$d = date("d", time() - (24 * 60 * 60 * 31));
 		}
 		if ($date_to != "") {
 			$aux = split("-",$date_to);

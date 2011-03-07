@@ -234,7 +234,7 @@ if ($tr=="range") {
     else $tr = "day";
     $trdata = array ($desde,$hasta,"range");
 }
-$tzc = ($tz>0) ? "+$tz:00" : "$tz:00";
+$tzc = ($tz>=0) ? "+$tz:00" : "$tz:00";
 switch ($tr) {
     case "today":
         $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, 'h' as suf";

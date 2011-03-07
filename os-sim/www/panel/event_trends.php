@@ -8,7 +8,7 @@ session_write_close();
 
 function SIEM_trends($h=24) {
 	global $tz;
-	$tzc = ($tz>0) ? "+$tz:00" : "$tz:00";
+	$tzc = ($tz>=0) ? "+$tz:00" : "$tz:00";
 	$data = array();
 	require_once 'ossim_db.inc';
 	$db = new ossim_db();
@@ -34,7 +34,7 @@ function SIEM_trends($h=24) {
 
 function SIEM_trends_week($param="") {
 	global $tz;
-	$tzc = ($tz>0) ? "+$tz:00" : "$tz:00";
+	$tzc = ($tz>=0) ? "+$tz:00" : "$tz:00";
 	$data = array();
 	$plugins = $plugins_sql = "";
 	require_once 'ossim_db.inc';

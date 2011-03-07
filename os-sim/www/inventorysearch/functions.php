@@ -5,8 +5,12 @@ require_once ('classes/Host_os.inc');
 require_once ('classes/Net.inc');
 include ("geoip.inc");
 
-$date_from = (GET('date_from') != "Any date" && GET('date_from') != "") ? preg_replace("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\1-\\2",GET('date_from')) : "1700-01-01";
-$date_to = (GET('date_to') != "Any date" && GET('date_to') != "") ? preg_replace("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\1-\\2",GET('date_to')) : "3000-01-01";
+//$date_from = (GET('date_from') != "Any date" && GET('date_from') != "") ? preg_replace("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\1-\\2",GET('date_from')) : "1970-01-01";
+//$date_to = (GET('date_to') != "Any date" && GET('date_to') != "") ? preg_replace("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\1-\\2",GET('date_to')) : "3000-01-01";
+
+$date_from = (GET('date_from') != "Any date" && GET('date_from') != "") ? GET('date_from') : date("Y-m-d",strtotime("-1 year"));
+$date_to = (GET('date_to') != "Any date" && GET('date_to') != "") ? GET('date_to') : date("Y-m-d");
+
 ossim_valid($date_from, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from date"));
 ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to date"));
 // All Empty
@@ -53,13 +57,15 @@ $basic_search[4] = array(
 	"type"=>"Incidents",
 	"subtype"=>"Incident contains",
 	"match"=>"LIKE",
-	"query"=>"SELECT DISTINCT a.src_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from' AND i.date <= '$date_to' AND a.src_ips != '' AND i.title %op% ? 
+	"query"=>"SELECT DISTINCT a.src_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from 00:00:00' AND i.date <= '$date_to 23:59:59' AND a.src_ips != '' AND i.title %op% ? 
 		UNION 
-		SELECT DISTINCT a.dst_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from' AND i.date <= '$date_to' AND a.dst_ips != '' AND i.title %op% ? 
+		SELECT DISTINCT a.dst_ips as ip FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND i.date >= '$date_from 00:00:00' AND i.date <= '$date_to 23:59:59' AND a.dst_ips != '' AND i.title %op% ? 
 		UNION 
-		SELECT DISTINCT inet_ntoa(a.src_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from' AND a.timestamp <= '$date_to' AND a.src_ip != '' AND p.name %op% ? 
+		SELECT DISTINCT v.ip FROM incident i,incident_vulns v WHERE i.id=v.incident_id AND i.date >= '$date_from 00:00:00' AND i.date <= '$date_to 23:59:59' AND v.ip != '' AND (i.title %op% ? OR v.description %op% ?)
 		UNION 
-		SELECT DISTINCT inet_ntoa(a.dst_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from' AND a.timestamp <= '$date_to' AND a.dst_ip != '' AND p.name %op% ? 
+		SELECT DISTINCT inet_ntoa(a.src_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from 00:00:00' AND a.timestamp <= '$date_to 23:59:59' AND a.src_ip != '' AND p.name %op% ? 
+		UNION 
+		SELECT DISTINCT inet_ntoa(a.dst_ip) as ip FROM alarm a,plugin_sid p WHERE a.plugin_id=p.plugin_id AND a.plugin_sid=p.sid AND a.timestamp >= '$date_from 00:00:00' AND a.timestamp <= '$date_to 23:59:59' AND a.dst_ip != '' AND p.name %op% ? 
 		UNION
 		SELECT r.keyname as ip FROM repository d,repository_relationships r WHERE d.id=r.id_document AND r.type='host' AND keyname!='' AND d.text %op% ?",
 	"query_match"=>"text");
@@ -231,7 +237,7 @@ function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips) {
 }
 
 function basic_header () {
-	?><tr><th><?=_("Host / Network")?></th><th><?=_("Inventory")?></th><th><?=_("Vulnerabilities")?></th><th><?=_("Incidents")?></th><th><?=_("Events")?></th><th><?=_("Anomalies")?></th><th><?=_("Traffic Profile")?></th></tr><?
+	?><tr><th><?=_("Assets")?></th><th><?=_("Inventory")?></th><th><?=_("Vulnerabilities")?></th><th><?=_("Incidents")?></th><th><?=_("Events")?></th><th><?=_("Anomalies")?></th><th><?=_("Traffic Profile")?></th></tr><?
 }
 
 function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips,$i) {
@@ -255,7 +261,7 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 		$ips = Net::get_ips_by_name($conn,$netname);
 		$net = "<b>$netname</b> ($ips)";
 	}
-	else $net = "<i>"._("Net Unknown")."</i>";
+	else $net = "<i>"._("Asset Unknown")."</i>";
 	// Inventory
 	$os_data = Host_os::get_ip_data($conn, $ip);
 	if ($os_data["os"] != "") {
@@ -274,8 +280,8 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	// Vulnerabilities
 	require_once('classes/Status.inc');
 	list($vuln_list,$num_vuln,$vuln_highrisk,$vuln_risknum) = Status::get_vul_events($conn,$ip);
-	$vuln_list_str = "";
-	foreach ($vuln_list as $vuln) $vuln_list_str .= $vuln['name']."<br>";
+	$vuln_list_str = ""; $v=0;
+	foreach ($vuln_list as $vuln) if ($v++<20) $vuln_list_str .= $vuln['name']."<br>";
 	$vuln_list_str = str_replace("\"","",$vuln_list_str);
 	$vuln_caption = ($num_vuln > 0) ?  ' class="greybox_caption" data="'.$vuln_list_str.'"' : ' class="greybox"';
 	// Incidents
@@ -330,26 +336,33 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	//$start_week = strftime("%Y-%m-%d %H:%M:%S", time() - (24 * 60 * 60 * 7));
 	//$end = strftime("%Y-%m-%d %H:%M:%S", time());
 	list($sem_events_week,$sem_foundrows_week,$sem_date,$sem_wplot_y,$sem_wplot_x) = Status::get_SEM("",$start_week,$end,"none",1234,$ip);
-	if ($sem_foundrows_week > 0) $sem_link = '<a href="../sem/index.php?hmenu=SEM&smenu=SEM&query=src_ip='.$ip.' OR dst_ip='.$ip.'" target="main"><b>'.$sem_foundrows_week.'</b></a>';
+	if ($sem_foundrows_week > 0) $sem_link = '<a href="../sem/index.php?hmenu=SEM&smenu=SEM&query='.urlencode($ip).'&start='.urlencode($start_week).'" target="main"><b>'.$sem_foundrows_week.'</b></a>';
 	else $sem_link = '<b>'.$sem_foundrows_week.'</b>';
 	// Anomalies
 	list($event_list,$anm_foundrows,$anm_foundrows_week,$anm_date) = Status::get_anomalies($conn,$ip);
+	// Ntp link
+	$ntop_lnk = Sensor::get_sensor_link($conn,$ip);
+	if (preg_match("/(\d+\.\d+\.\d+\.\d+)/",$ntop_lnk,$fnd)) $ntop_ip = $fnd[1];
+	else $ntop_ip = $ip;
+	//
 	$row = '<tr bgcolor="'.$color.'">
 				<td class="nobborder" style="text-align:center;padding:2px"><a href="../report/host_report.php?host='.$ip.'&star_date='.$start_week_temp.'&end_date='.$end_temp.'" id="'.$ip.';'.$host->get_hostname().'" class="HostReportMenu" style="color:#17457c;font-size:15px;text-align:left"><b>'.$host_name.'</b></font></a><br><font style="color:gray">'.$net.'</font></td>
 				<td class="nobborder" style="text-align:center;padding:2px">'.$os.' '.$os_pixmap.'<br>'.implode("<br>",array_keys($services_arr)).'</td>
-				<td class="nobborder" style="text-align:center;padding:2px"><a href="../vulnmeter/index.php?value='.$ip.'&type=hn&withoutmenu=1&hmenu=Vulnerabilities&smenu=Vulnerabilities" title="Vulnerabilities for '.$ip.'"'.$vuln_caption.'>'.$num_vuln.'</a></td>
+				<td class="nobborder" style="text-align:center;padding:2px"><a href="../vulnmeter/index.php?value='.$ip.'&type=hn&withoutmenu=1&hmenu=Vulnerabilities&smenu=Vulnerabilities" title="Top 20 '._("Vulnerabilities for").' '.$ip.'"'.$vuln_caption.'>'.$num_vuln.'</a></td>
 				<td class="nobborder" style="text-align:center;padding:2px">'.$alarm_link.' '._("Alarms").'<br>'.$tickets_link.' '._("Tickets").'</td>
 				<td class="nobborder" style="padding:2px">'.$sim_link.' '.$txt_tmp1.'<br>'.$sem_link.' '.$txt_tmp2.'</td>
-				<td class="nobborder" style="text-align:center;padding:2px"><a href="../control_panel/anomalies.php?hmenu=Anomalies&smenu=Anomalies" class="greybox" title="'._("Anomalies").'"><b>'.$anm_foundrows.'</b></a></td>
+				<td class="nobborder" style="text-align:center;padding:2px"><a href="../control_panel/anomalies.php?withoutmenu=1" class="greybox" title="'._("Anomalies").'"><b>'.$anm_foundrows.'</b></a></td>
 				<td class="nobborder" style="text-align:center;padding:2px">
 					<table class="transparent">
 						<tr>
 							<td class="nobborder"><img src="../pixmaps/ntop_graph_thumb.gif" width="40"></td>
-							<td class="nobborder"><a href="'.Sensor::get_sensor_link($conn,$ip).'/hostTimeTrafficDistribution-'.$ip.'-65535.png?1" class="greybox">'._("Traffic Sent").'</a><br><a href="'.Sensor::get_sensor_link($conn,$ip).'/hostTimeTrafficDistribution-'.$ip.'-65535.png" class="greybox">'._("Traffic Rcvd").'</a></td>
+							
+							<td class="nobborder"><a href="../ntop/index.php?opc=services&sensor='.$ntop_ip.'&hmenu=Network&smenu=Profiles&link_ip='.$ip.'" target="main">'._("Traffic Sent/Rcvd").'</a></td>
 						</tr>
 					</table>
 				</td>
 			</tr>';
+	// <td class="nobborder"><a href="'.Sensor::get_sensor_link($conn,$ip).'/hostTimeTrafficDistribution-'.$ip.'-65535.png?1" class="greybox">'._("Traffic Sent").'</a><br><a href="'.Sensor::get_sensor_link($conn,$ip).'/hostTimeTrafficDistribution-'.$ip.'-65535.png" class="greybox">'._("Traffic Rcvd").'</a></td>
 	echo str_replace("\n","",str_replace("\r","",str_replace("'","",$row)));
 }
 

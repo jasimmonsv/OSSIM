@@ -51,6 +51,7 @@ echo gettext("OSSIM"); ?> </title>
 require_once ("classes/Security.inc");
 $sensor = GET('sensor');
 $opc = GET('opc');
+$link_ip = GET('link_ip');
 ossim_valid($sensor, OSS_ALPHA, OSS_PUNC, OSS_SPACE, 'illegal:' . _("Sensor"));
 ossim_valid($opc, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Default option"));
 if (ossim_error()) {
@@ -68,6 +69,7 @@ if (!$conf->get_conf("use_ntop_rewrite")) {
     $port = $url_parsed["port"];
     $protocol = $url_parsed["scheme"];
     $fr_up = "menu.php?sensor=$sensor&port=$port&proto=$protocol&opc=$opc";
+	if (preg_match("/\d+\.\d+\.\d+\.\d+/",$link_ip)) $fr_up .= "&link_ip=$link_ip";
     #$fr_down = "$protocol://$sensor:$port/trafficStats.html";
     #if ($opc == "services") $fr_down = "$protocol://$sensor:$port/sortDataIP.html?showL=0";
     #if ($opc == "throughput") $fr_down = "$protocol://$sensor:$port/sortDataThpt.html?col=1&showL=0";

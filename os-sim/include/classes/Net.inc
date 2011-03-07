@@ -61,6 +61,7 @@
 * - GetClosestNet()
 * - check_orphan()
 * - get_related_sensors()
+* - get_cidrs_summary();
 * Classes list:
 * - Net
 */
@@ -622,6 +623,24 @@ class Net {
              if (!$rs->EOF) return true;
         }
         return false;
+    }
+    function get_cidrs_summary($conn, $net_name) {
+        $sql = "SELECT ips FROM net
+                WHERE name = ? ";
+        $params = array(
+            $net_name
+        );
+        if (!$rs = & $conn->Execute($sql, $params)) {
+            print $conn->ErrorMsg();
+        } else {
+            $tmp = explode(",", $rs->fields["ips"]);
+            if(count($tmp)>2) {
+                return $tmp[0]."...".$tmp[count($tmp)-1];
+            }
+            else {
+                return $rs->fields["ips"];
+            }
+        }
     }
 }
 ?>

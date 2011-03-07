@@ -36,7 +36,8 @@
 */
 set_time_limit(300);
 require_once 'classes/Security.inc';
-require_once ('classes/Session.inc');
+require_once 'classes/Session.inc';
+require_once 'classes/Net.inc';
 
 Session::logcheck("MenuPolicy", "PolicyNetworks");
 
@@ -57,7 +58,7 @@ if ($filter == "undefined") $filter = "";
 
 $low_limit  = 10;
 $high_limit = 100;
-
+ 
 require_once ('classes/Net.inc');
 require_once ('ossim_db.inc');
 
@@ -120,10 +121,7 @@ if ($key=="") {
         foreach($cclasses as $cclass => $v) {
             $buffer .= "{ key:'cclass_$cclass', icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--', expand:true, children:[\n";
             foreach($nets as $net_name => $net_cidrs) if(preg_match("/$cclass\..*/",$net_cidrs)) {
-                $cidrs = $net_cidrs;
-                $tmp_cidrs = explode(",", $net_cidrs);
-                if(count($tmp_cidrs)>1) $cidrs = $tmp_cidrs[0]."...".$tmp_cidrs[count($tmp_cidrs)-1];
-                $buffer .= "{ key:'$net_name', isFolder:false, isLazy:false, icon:'../../pixmaps/theme/net.png', title:'$net_name ($cidrs)'},";
+                $buffer .= "{ key:'$net_name', isFolder:false, isLazy:false, icon:'../../pixmaps/theme/net.png', title:'$net_name (".Net::get_cidrs_summary($conn, $net_name).")'},";
             }
             $buffer = preg_replace("/,$/", "", $buffer);
             $buffer .= "]},";
@@ -160,10 +158,7 @@ else if(preg_match("/cclass_(\d+\.\d+\.\d+)/",$key,$found)){
     $buffer .= "[";
 
     foreach($nets as $net_name => $net_cidrs) {
-        $cidrs = $net_cidrs;
-        $tmp_cidrs = explode(",", $net_cidrs);
-        if(count($tmp_cidrs)>1) $cidrs = $tmp_cidrs[0]."...".$tmp_cidrs[count($tmp_cidrs)-1];
-        $buffer .= "{ key:'$net_name', isFolder:false, isLazy:false, icon:'../../pixmaps/theme/net.png', title:'$net_name ($cidrs)'},";
+        $buffer .= "{ key:'$net_name', isFolder:false, isLazy:false, icon:'../../pixmaps/theme/net.png', title:'$net_name (".Net::get_cidrs_summary($conn, $net_name).")'},";
     }
 
     $buffer = preg_replace("/,$/", "", $buffer);
@@ -173,6 +168,7 @@ else if(preg_match("/cclass_(\d+\.\d+\.\d+)/",$key,$found)){
 if ($buffer=="" || $buffer=="[]")
     $buffer = "[{title:'"._("No Nets Found")."'}]";
 
+$db->close($conn);
 echo $buffer;
 
 ?>

@@ -116,24 +116,19 @@ var pag = 1;
 		});
 		
 		$(".greybox_caption").simpletip({
-			position: 'right',
+			position: 'bottom',
 			onBeforeShow: function() {
 				var data = this.getParent().attr('data');
 				if (data != "") this.update(data);
 			}
 		});
 		
-		$("a.greybox_caption").click(function(){
+		$("a.greybox_caption, a.greybox").click(function(){
 			var t = this.title || $(this).text() || this.href;
 			GB_show(t,this.href,450,'90%');
 			return false;
 		});
 		
-		$("a.greybox").click(function(){
-			var t = this.title || $(this).text() || this.href;
-			GB_show(t,this.href,400,400);
-			return false;
-		});
 	});
 	
 	function profile_save() {
@@ -323,12 +318,10 @@ for ($i = 1; $i <= $num; $i++)
 		list($query,$params) = build_query_two_values ($q,$filter['value'],$filter['value2'],$filter['match'],$m);
 	else
 		list($query,$params) = build_query ($q,$filter['value'],$filter['match'],$m);
-	
-	
 		
 	//echo "Filter $i: ".$filter['type']." ".$filter['subtype']." ".$filter['value']." ".$filter['match']."<br>";
 	//print_r($params);
-	//echo "SQL: ".$query."<br><br>";exit;
+	//echo "SQL: ".$query."<br><br>";
 	?><script type="text/javascript">$("#pbar").progressBar(<?=$perc?>);$("#progressText").html('<b><?=gettext("Filtering criteria $i")?></b>...');</script><?
 	//usleep(500000);
 	// FUNCTION MODE (special query)

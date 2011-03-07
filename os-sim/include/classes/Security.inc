@@ -46,6 +46,7 @@
 * - REQUEST()
 * Classes list:
 */
+ini_set('session.bug_compat_warn','off');
 require_once 'ossim_error.inc';
 require_once 'IDS/Init.php';
 require_once 'classes/Util.inc'; 
