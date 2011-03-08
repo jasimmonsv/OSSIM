@@ -113,7 +113,7 @@ if ($plugin_id1!="" && $plugin_id2!="" && $plugin_sid1!="" && $plugin_sid2!="") 
 <input type="hidden" name="plugin_sid1" value="">
 <input type="hidden" name="plugin_sid2" value="">
 <?php
-$plugin_list = Plugin::get_list($conn, "ORDER BY id", 0);
+$plugin_list = Plugin::get_list($conn, "ORDER BY name", 0);
 ?>
 	<? if ($message != "") { ?>
 	<tr><td class="" colspan=2 id="message" class="nobborder" style="text-align:center;border:0px">

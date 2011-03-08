@@ -53,13 +53,15 @@ if (ossim_error()) {
 	die(ossim_error());
 }
 $text = GET('text');
+$close = false;
 if (GET('save') == "1") {
-	ossim_valid($text, OSS_ALPHA, OSS_SCORE, OSS_DOT, OSS_SPACE, OSS_NULLABLE, '-', 'illegal:' . _("Text"));
+	ossim_valid($text, OSS_ALPHA, OSS_SCORE, OSS_DOT, OSS_SPACE, OSS_PUNC_EXT, OSS_NULLABLE, '-', 'illegal:' . _("Text"));
 	if (ossim_error()) {
 		die(ossim_error());
 	}
 	if ($pci) PCI::save_text($conn,$table,$ref,$text);
 	else ISO27001::save_text($conn,$table,$ref,$text);
+	$close = true;
 }
 if ($pci) $text = PCI::get_text($conn,$table,$ref);
 else $text = ISO27001::get_text($conn,$table,$ref);
@@ -88,6 +90,7 @@ else $text = ISO27001::get_text($conn,$table,$ref);
 	</tr>
 	<tr><td class="nobborder" style="text-align:center"><input type="submit" value="<?=_("Update")?>" class="button"></td></tr>
 	</form>
+	<?php if ($close) echo "<script>parent.GB_hide();</script>\n"; ?>
 </table>
 </body>
 </html>

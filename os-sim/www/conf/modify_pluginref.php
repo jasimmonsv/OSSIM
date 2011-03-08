@@ -132,7 +132,7 @@ if ($message != "") {
 <input type="hidden" name="plugin_sid2" value="<?=$sid2?>">
 
 <?php
-$plugin_list = Plugin::get_list($conn, "ORDER BY id", 0);
+$plugin_list = Plugin::get_list($conn, "ORDER BY name", 0);
 if ($message==""){ ?>
 	<tr><th colspan="2" style="padding:5px;font-size:12px"><?php echo _("Change Cross-Correlation rule") ?></th></tr>
 	<tr>
@@ -167,7 +167,7 @@ if ($message==""){ ?>
 	<tr>
 		<td id="sid1" class="nobborder" style="text-align:center;padding:20px">
 			<?
-			$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id1 ORDER BY sid", 0);
+			$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id1 ORDER BY name", 0);
 			?>
 			<?=_('Plugin SID')?>:
 			<select id="sidajax1" onchange="document.frules.plugin_sid1.value=this.value">
@@ -183,7 +183,7 @@ if ($message==""){ ?>
 		</td>
 		<td id="sid2" class="nobborder" style="text-align:center;padding:20px">
 			<?
-			$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id2 ORDER BY sid", 0);
+			$plugin_list = Plugin_sid::get_list($conn, "WHERE plugin_id=$id2 ORDER BY name", 0);
 			?>
 			<?=_('Reference SID')?>:
 			<select id="sidajax2" onchange="document.frules.plugin_sid2.value=this.value">
