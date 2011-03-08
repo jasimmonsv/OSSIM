@@ -262,7 +262,7 @@ function event_max_risk($NUM_HOSTS, $security_report, $report_type, $date_from,$
             $url = explode  ('/',  $url[1],2);
             $url_http = explode  ('/',  $_SERVER['SCRIPT_NAME']);
 
-            $url_http2 = '"http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
+            $url_http2 = '"http'.($_SERVER["APACHE_PORT"]=="443" ? "s" : "").'://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
             $url_http2.= '/'.$url_http[1].'/'.$url[1].'"';
         } else {
             $url_http2='NULL';

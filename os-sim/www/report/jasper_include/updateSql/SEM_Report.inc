@@ -90,10 +90,10 @@ while (!$rs->EOF) {
 			if($s_country=="me"||$s_country=="eu"||$s_country=="ap"||$s_country==""){
                             $flag='NULL';
                         }else{
-                            $flag = '"http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
+                            $flag = '"http'.($_SERVER["APACHE_PORT"]=="443" ? "s" : "").'://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
                             $flag.='/ossim/pixmaps/flags/'.$s_country.'.png';
                         }
-                        $os_img='"http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
+                        $os_img='"http'.($_SERVER["APACHE_PORT"]=="443" ? "s" : "").'://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
                         $os_img.='/ossim/pixmaps';
 			$os = Host_os::get_os_pixmap_nodb($rs->fields["os"],$os_img,true);
 			//$s_country_name = geoip_country_name_by_addr($gi, $ip);

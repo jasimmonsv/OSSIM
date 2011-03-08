@@ -125,15 +125,12 @@ if ( $error == true )
 <body>
 
 <?php
-if (POST('withoutmenu') != "1") 
-	include ("../hmenu.php"); 
-else
-	$get_param = "withoutmenu=1";	
-?>
-
-<h1> <?php echo gettext("New port"); ?> </h1>
-
-<?php
+if (POST('withoutmenu') != "1") {
+    include ("../hmenu.php");
+    $get_param = "withoutmenu=0";
+}
+else 
+    $get_param = "portname=$pgname&withoutmenu=1";
 
 if ( $error == true)
 {
@@ -155,9 +152,14 @@ if ( isset($_SESSION['_portgroup']) )
 
 $db->close($conn);
 
-?>
-    <p> <?php echo gettext("Port Group succesfully inserted"); ?> </p>
-    <? if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="port.php"</script><? } ?>
+    if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) { ?>
+        <p> <?php echo gettext("Port Group succesfully inserted"); ?> </p>
+        <script>document.location.href="port.php"</script><?
+    }
+    else {?>
+        <script>document.location.href="newportform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php
+    }?>
 
 </body>
 </html>

@@ -271,8 +271,8 @@ Session::logcheck("MenuReports", "ReportsReportServer");
                                           <td colspan="3" style="text-align:center;border-bottom:0px">
                                             <input type="hidden" name="action" value="changeColors">
                                             <input type="hidden" name="reportUnit" value="'.$report['name'].'">
-                                            <input id="btn_'.$report['name'].'_3" class="btn" type="submit" value="'._('Modify Colors').'" />
-                                            <input id="btn_'.$report['name'].'_3" class="btn" type="button" onclick="javascript:restoreOriginalStyle(\''.$report['name'].'\');" value="'._('Restore Original').'" />
+                                            <input id="btn_'.$report['name'].'_3" class="button" type="submit" value="'._('Modify Colors').'" />
+                                            <input id="btn_'.$report['name'].'_3" class="button" type="button" onclick="javascript:restoreOriginalStyle(\''.$report['name'].'\');" value="'._('Restore Original').'" />
                                           </td>
                                       </tr>
                                   </table>
@@ -296,7 +296,7 @@ Session::logcheck("MenuReports", "ReportsReportServer");
                                     </li>
                                     <li>
                                         <input type="hidden" name="reportUnit" value="'.$report['name'].'">
-                                        <input id="btn_'.$report['name'].'" class="btn" type="submit" value="'._('Modify').'" />
+                                        <input id="btn_'.$report['name'].'" class="button" type="submit" value="'._('Modify').'" />
                                     </li>
                                  </ul>
                                  </form>
@@ -305,7 +305,7 @@ Session::logcheck("MenuReports", "ReportsReportServer");
                                          <li>
                                              <input type="hidden" name="action" value="RestoreOriginal">
                                              <input type="hidden" name="reportUnit" value="'.$report['name'].'">
-                                             <input id="btn_'.$report['name'].'_2" class="btn" type="submit" value="'._('Restore Original').'" />
+                                             <input id="btn_'.$report['name'].'_2" class="button" type="submit" value="'._('Restore Original').'" />
                                          </li>
                                      </ul>
                                  </form>';

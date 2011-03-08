@@ -53,6 +53,15 @@ $port_list       = array();
 $arr_ports_input = array();
 $ports_input     = "";
 
+$update  = intval(GET('update'));
+
+$style_success = "style='display: none;'";
+
+if ($update==1) {
+    $success_message = gettext("Port Group succesfully updated");
+    $style_success   = "style='display: block;text-align:center;'"; 
+}
+
 if ($port_list = Port::get_list($conn))
 {
     foreach($port_list as $port) 
@@ -133,6 +142,11 @@ $db->close($conn);
 	<script type="text/javascript" src="../js/utils.js"></script>
 	
 	<script language="javascript">
+        function remove_success_message()
+        {
+            if ( $('#success_message').length == 1 )
+                $("#success_message").remove();
+        }
 		$(document).ready(function() {
 		<?php /*
 			var ports = [ <?= $ports_input ?> ];
@@ -237,7 +251,7 @@ $db->close($conn);
 if (GET('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
 ?>
-
+<div id='success_message' class='ossim_success' <?php echo $style_success ?>><?php echo $success_message;?></div>
 <div id='info_error' class='ossim_error' style='display: none;'></div>
 
 <form method="post" name='formpg' id='formpg' action="<?php echo ( GET('portname') != "") ? "modifyport.php" : "newport.php" ?>">
@@ -319,7 +333,7 @@ if (GET('withoutmenu') != "1")
   
 	<tr>
 		<td colspan="2" class="nobborder" style="text-align:center;padding:10px">
-			<input type="button" id='send' class="button" value="<?=_("Update")?>" onclick="selectall('selected_ports'); submit_form();"/>
+			<input type="button" id='send' class="button" value="<?=_("Update")?>" onclick="remove_success_message();selectall('selected_ports'); submit_form();"/>
 			<input type="reset" class="button" value="<?=_("Clear form")?>"/>
 		</td>
 	</tr>

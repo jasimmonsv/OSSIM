@@ -178,17 +178,12 @@ if (POST('withoutmenu') != "1")
 }
 else
 	$get_param = "ip=$ip&withoutmenu=1";	
-?>
 
-<h1> <?php echo gettext("Modify Host"); ?> </h1>  
-
-<?php
-	
 if ( POST('insert') && !empty($ip) )
 {
     if ( $error == true)
 	{
-		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";				
+		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";
 		Util::print_error($txt_error);	
 		Util::make_form("POST", "modifyhostform.php?".$get_param);
 		die();
@@ -235,9 +230,18 @@ if ( isset($_SESSION['_host']) )
 	unset($_SESSION['_host']);
 
 ?>
-    <p><?php echo _("Host succesfully updated") ?></p>
-    <?if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1") { ?><script>document.location.href="host.php"</script><? } ?>
+    <?php
 		
-	</body>
+    if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1") { ?>
+        <p><?php echo _("Host succesfully updated") ?></p>    
+        <script>document.location.href="host.php"</script><?
+    }
+    else {
+		 ?><script>document.location.href="modifyhostform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php
+    }
+    ?>
+        
+    </body>
 </html>
 

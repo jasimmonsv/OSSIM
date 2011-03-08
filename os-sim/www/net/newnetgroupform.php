@@ -69,6 +69,11 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
     <script type="text/javascript" src="../js/messages.php"></script>
     <script type="text/javascript" src="../js/utils.js"></script>
     <script type="text/javascript">
+        function remove_success_message()
+        {
+            if ( $('#success_message').length == 1 )    
+                $("#success_message").remove();
+        }
         function load_tree(filter) {
             combo = 'nets';
             $("#nets_tree").remove();
@@ -109,7 +114,7 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 		if ( GET('withoutmenu') == "1" )
 		{
 			echo "#table_form {background: transparent; width: 500px;}";
-		    echo "#table_form th {width: 150px;}";
+		    echo "#table_form th {width: 185px;}";
 		}
 		else
 		{
@@ -135,6 +140,14 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 $ngname = GET('name');
+$update  = intval(GET('update'));
+
+$style_success = "style='display: none;'";
+
+if ($update==1) {
+    $success_message = gettext("Network Group succesfully updated");
+    $style_success   = "style='display: block;text-align:center;'"; 
+}
 
 if ( isset($_SESSION['_netgroup']) )
 {
@@ -192,7 +205,7 @@ else
 
 ?>
 
-
+<div id='success_message' class='ossim_success' <?php echo $style_success ?>><?php echo $success_message;?></div>
 <div id='info_error' class='ossim_error' style='display: none;'></div>
 
 <form name='form_ng' id='form_ng' method="POST" action="<?php echo $action;?>">
@@ -298,7 +311,7 @@ else
 
             <tr>
                 <td colspan="2" align="center" style="padding: 10px;" class='noborder'>
-                    <input type="button" class="button" id='send' value="<?php echo _("Update")?>" onclick="selectall('nets'); submit_form()">
+                    <input type="button" class="button" id='send' value="<?php echo _("Update")?>" onclick="remove_success_message();selectall('nets'); submit_form()">
                     <input type="reset" class="button" value="<?=_("Clear form")?>"/>
                 </td>
             </tr>

@@ -137,16 +137,10 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
 {
 	include ("../hmenu.php"); 
-	$get_param = "name=$ngname";	
+	$get_param = "name=$ngname";
 }
 else
-	$get_param = "name=$ngname&withoutmenu=1";	
-?>
-
-<h1> <?php echo gettext("Update Network Group"); ?> </h1>
-                                                                               
-
-<?php
+	$get_param = "name=$ngname&withoutmenu=1";
 
 if ( POST('insert') && !empty($ngname) )
 {
@@ -175,10 +169,18 @@ if ( POST('insert') && !empty($ngname) )
 if ( isset($_SESSION['_netgroup']) )
 	unset($_SESSION['_netgroup']);
 
-?>
-    <p> <?php echo gettext("Network Group succesfully updated"); ?> </p>
-    <? if ( $_SESSION["menu_sopc"]=="Network groups" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="netgroup.php"</script><? } ?>
-
+    if ( $_SESSION["menu_sopc"]=="Network groups" && POST('withoutmenu') != "1" ) {
+        ?>
+        <p> <?php echo gettext("Network Group succesfully updated"); ?> </p>
+        <script>document.location.href="netgroup.php"</script>
+        <?
+    }
+    else {
+    ?>
+        <script>document.location.href="newnetgroupform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php 
+    }
+    ?>
 	</body>
 </html>
 

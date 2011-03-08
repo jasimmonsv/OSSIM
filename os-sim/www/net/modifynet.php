@@ -145,18 +145,10 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
 {
 	include ("../hmenu.php"); 
-	$get_param = "name=$net_name";	
+	$get_param = "name=$net_name";
 }
 else
-	$get_param = "name=$net_name&withoutmenu=1";	
-?>
-
-
-<h1> <?php echo gettext("Update Network"); ?> </h1>   
-
-
-<?php
-
+    $get_param = "name=$net_name&withoutmenu=1";
 
 if ( POST('insert') && !empty($net_name) )
 {
@@ -187,14 +179,17 @@ if ( POST('insert') && !empty($net_name) )
 	Util::clean_json_cache_files("(policy|vulnmeter|hostgroup)");
 }
 
-if ( isset($_SESSION['_net']) )
-	unset($_SESSION['_net']);
-	
-?>
-    <p> <?php echo gettext("Network succesfully updated"); ?> </p>
-    <? if ( $_SESSION["menu_sopc"]=="Networks" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="net.php"</script><? } ?>
-	
+if ( isset($_SESSION['_net']) )     unset($_SESSION['_net']);
 
-	</body>
+    if ( $_SESSION["menu_sopc"]=="Networks" && POST('withoutmenu') != "1" ) { ?>
+        <p> <?php echo gettext("Network succesfully updated"); ?> </p>
+        <script>document.location.href="net.php"</script><? 
+    }
+    else {?>
+        <script>document.location.href="newnetform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php
+    }
+    ?>
+    </body>
 </html>
 

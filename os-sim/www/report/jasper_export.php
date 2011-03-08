@@ -7,7 +7,7 @@
     $attach_mode=(GET('attachment')=="true") ? true : false;
     $port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
     $_SERVER["APACHE_PORT"]= (is_array($port) && intval($port[0])>0) ? intval($port[0]) : 80;
-    $_POST['reportWWW']='http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"].'/';
+    $_POST['reportWWW']='http'.($_SERVER["APACHE_PORT"]=="443" ? "s" : "").'://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"].'/';
     if(!is_null($POSTReportUnit)){
         require_once ('ossim_conf.inc');
         $client = new JasperClient($conf);

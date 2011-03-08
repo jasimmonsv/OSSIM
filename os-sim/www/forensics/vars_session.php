@@ -194,9 +194,7 @@ if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="") {
 	error_reporting(E_ALL ^ E_NOTICE);
 }
 
-$port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
-$_SERVER["APACHE_PORT"]= (is_array($port) && intval($port[0])>0) ? intval($port[0]) : 80;
-$current_url = "http://".$_SERVER["SERVER_ADDR"].":".$_SERVER["APACHE_PORT"]."/ossim";
+$current_url = Util::get_ossim_url();
 $events_report_type = 33;
 $graph_report_type = 34;
 $criteria_report_type = 35;

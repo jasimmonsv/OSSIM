@@ -55,8 +55,16 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 $db    = new ossim_db();
 $conn  = $db->connect();
 
-$ip    = GET('ip');
-$style = "style='display: none;'";
+$ip      = GET('ip');
+$update  = intval(GET('update'));
+
+$style = $style_success = "style='display: none;'";
+
+if ($update==1) {
+    $success_message = gettext("Host succesfully updated");
+    $style_success   = "style='display: block;text-align:center;'"; 
+}
+
 
 ossim_valid($ip, OSS_IP_ADDR, 'illegal:' . _("Ip Address"));
 
@@ -704,7 +712,13 @@ if ( $error_message != null )
 			else 
 				marker.setAnimation(google.maps.Animation.BOUNCE);
 		}
-  			
+        
+        function remove_success_message()
+		{
+            if ( $('#success_message').length == 1 )    
+				$("#success_message").remove();
+        }
+
 		$(document).ready(function(){
 
 			load_tree_1('tree_container_1', '<?php echo $ip?>');
@@ -933,7 +947,8 @@ if ( empty( $ip ) ) {
 }
 
 ?>
-	<div id='info_error' class='ossim_error' <?php echo $style ?>><?php echo $error_message;?></div>
+	<div id='success_message' class='ossim_success' <?php echo $style_success ?>><?php echo $success_message;?></div>
+    <div id='info_error' class='ossim_error' <?php echo $style ?>><?php echo $error_message;?></div>
 	
 	<div id='host_container'>
 	
@@ -1157,7 +1172,7 @@ if ( empty( $ip ) ) {
 										
 					<tr>
 						<td colspan="2" align="center" style="border-bottom: none; padding: 10px;">
-							<input type="button" class="button" id='send' value="<?=_("Update")?>" onclick="submit_form();"/>
+							<input type="button" class="button" id='send' value="<?echo _("Update")?>" onclick="remove_success_message();submit_form();"/>
 							<input type="reset"  class="button" value="<?php echo gettext("Clear form"); ?>"/>
 						</td>
 					</tr>

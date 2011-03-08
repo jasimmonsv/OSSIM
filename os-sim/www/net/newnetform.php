@@ -51,7 +51,15 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 $net_name  =  GET('name');
+$update    =  intval(GET('update'));
 $clone     =  ( GET('clone') == 1 ) ? 1 : 0;
+
+$style_success = "style='display: none;'";
+
+if ($update==1) {
+    $success_message = gettext("Network succesfully updated");
+    $style_success   = "style='display: block;text-align:center;'"; 
+}
 
 $array_assets  = array ('0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5");
 
@@ -130,6 +138,9 @@ else
 	<script type="text/javascript" src="../js/messages.php"></script>
 	<script type="text/javascript" src="../js/utils.js"></script>
 	<script type="text/javascript">
+        function remove_success_message() {
+            if ( $('#success_message').length == 1 )    $("#success_message").remove();
+        }
 		$(document).ready(function(){
 
 			$(".sensor_info").simpletip({
@@ -197,8 +208,8 @@ else
 if (GET('withoutmenu') != "1") 
 	include ("../hmenu.php"); 
 	
-?>																				
-																				
+?>
+<div id='success_message' class='ossim_success' <?php echo $style_success ?>><?php echo $success_message;?></div>
 <div id='info_error' class='ossim_error' style='display: none;'></div>
 
 <form method="post" name='formnet' id='formnet' action="<?php echo $action?>">
@@ -350,7 +361,7 @@ if (GET('withoutmenu') != "1")
 
     <tr>
 		<td colspan="2" align="center" style="padding: 10px;" class='noborder'>
-			<input type="button" class="button" id='send' value="<?php echo _("Update");?>" onclick="submit_form();">
+			<input type="button" class="button" id='send' value="<?php echo _("Update");?>" onclick="remove_success_message();submit_form();">
 			<input type="reset"  class="button" value="<?=_("Clear form")?>"/>
 		</td>
 	</tr>

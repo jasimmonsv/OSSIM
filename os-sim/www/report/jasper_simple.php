@@ -386,7 +386,7 @@ $db->close($conn);
                                      <div id="pre_'.$report['name'].'" style="visibility:hidden;" class="left">
                                          <img src="../pixmaps/loading.gif" width="16" height="16" />
                                      </div>
-                                     <input id="btn_'.$report['name'].'" class="btn left" type="button" value="'._('Generate').'" onclick="javascript:executeReport(\''.$report['name'].'\')" />
+                                     <input id="btn_'.$report['name'].'" class="button left" type="button" value="'._('Generate').'" onclick="javascript:executeReport(\''.$report['name'].'\')" />
                                  </div>
                                         </td>
                                     </tr>
@@ -422,7 +422,7 @@ $db->close($conn);
                                 <ul><li><label><?= _("Host Name/IP")."<br>"._("Network/CIDR") ?></label><div><input type="text" name="host" id="hosts"></div></li></ul>
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("Generate") ?>" />
+                                 <input class="button" type="submit" value="<?= _("Generate") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -471,7 +471,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form> -->
@@ -539,7 +539,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -558,7 +558,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -578,7 +578,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -598,7 +598,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -619,7 +619,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -640,7 +640,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -659,7 +659,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -679,7 +679,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -697,7 +697,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -734,7 +734,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -752,7 +752,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -769,7 +769,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -787,7 +787,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -805,7 +805,7 @@ $db->close($conn);
                                 &nbsp;
                              </td>
                              <td class="export">
-                                 <input class="btn" type="submit" value="<?= _("View") ?>" />
+                                 <input class="button" type="submit" value="<?= _("View") ?>" />
                              </td>
                             </tr>
                             </form>
@@ -892,7 +892,7 @@ $db->close($conn);
 									  </ul><br><br>
                              </td>
                              <td class="export">
-                                 <input class="btn" type="button" onclick="open_userlog('../userlog/user_action_log.php','<?=_("User Log Report")?>')" value="<?= _("View") ?>" />
+                                 <input class="button" type="button" onclick="open_userlog('../userlog/user_action_log.php','<?=_("User Log Report")?>')" value="<?= _("View") ?>" />
                              </td>
                             </tr>
 							</form>
@@ -940,7 +940,7 @@ $db->close($conn);
 									  </ul><br><br>
                              </td>
                              <td class="export">
-                                 <input class="btn" type="button" onclick="nagios_link(document.avfilter.nagioslink.value,document.avfilter.sensor.value,document.avfilter.section.value)" value="<?= _("View") ?>" />
+                                 <input class="button" type="button" onclick="nagios_link(document.avfilter.nagioslink.value,document.avfilter.sensor.value,document.avfilter.section.value)" value="<?= _("View") ?>" />
                              </td>
                             </tr>
 							</form>

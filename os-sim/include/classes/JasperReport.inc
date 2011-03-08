@@ -195,7 +195,7 @@ class JasperClient {
           echo "<p><strong>"._("Error Jasper").":</strong> ".$result[0]."</p>\n";
       }
       echo '
-            <p><input class="btn center" type="button" value="Close" onclick="javascript:window.close();" /></p>
+            <p><input class="btn center" type="button" value="Close" onclick="javascript:window.close();parent.GB_hide();" /></p>
             </form>
          </body>
     </html>';

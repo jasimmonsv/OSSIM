@@ -222,11 +222,28 @@ else if (preg_match("/mac_(.*)/",$key,$found)) {
     }
         
 }
-else if ($key == "all" && $total_hosts > 0) {
+else if ($key=="all"){
+    $buffer .= "[";
+    $j = 0;
+
+    foreach($all_hosts as $cclass => $hg) {
+        if ($j>=$from && $j<$to) {
+            $li = "key:'all_$cclass', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'\n";
+            $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
+        }
+        $j++;
+    }
+    if ($j>$to) {
+        $li = "key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("c-class")."'";
+        $buffer .= ",{ $li }\n";
+    }
+    $buffer .= "]";
+}
+else if (preg_match("/all_(.*)/",$key,$found)) {
         $buffer .= "[";
         $j = 1;
         $i = 0;
-        foreach($all_hosts as $cclass => $hg) {
+        foreach($all_hosts as $cclass => $hg) if ($found[1]==$cclass) {
             foreach($hg as $ip) {
                 if($i>=$from && $i<$to) {
                     $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";

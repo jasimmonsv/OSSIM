@@ -140,16 +140,13 @@ if ( $error == true )
 <body>
 
 <?php
-if (POST('withoutmenu') != "1") 
-	include ("../hmenu.php"); 
+if (POST('withoutmenu') != "1") {
+    include ("../hmenu.php");
+    $get_param = "withoutmenu=0";
+}
 else
-	$get_param = "withoutmenu=1";	
-?>
+    $get_param = "name=$net_name&withoutmenu=1";
 
-<h1> <?php echo gettext("New Network"); ?> </h1>   
-
-<?php
-	
 if (POST('insert'))
 {
     if ( $error == true)
@@ -177,15 +174,17 @@ if (POST('insert'))
 	
 }
 
-if ( isset($_SESSION['_net']) )
-	unset($_SESSION['_net']);
-	
-?>
-		
-    <p> <?php echo gettext("Network succesfully inserted"); ?> </p>
-	<? if ( $_SESSION["menu_sopc"]=="Networks" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="net.php"</script><? } ?>
+if ( isset($_SESSION['_net']) )    unset($_SESSION['_net']);
 
-	
-	</body>
+    if ( $_SESSION["menu_sopc"]=="Networks" && POST('withoutmenu') != "1" ) { ?>
+        <p> <?php echo gettext("Network succesfully inserted"); ?> </p>
+        <script>document.location.href="net.php"</script><?
+    }
+    else {?>
+        <script>document.location.href="newnetform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php
+    }
+    ?>
+    </body>
 </html>
 

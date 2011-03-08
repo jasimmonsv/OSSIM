@@ -124,16 +124,10 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
 {
 	include ("../hmenu.php"); 
-	$get_param = "portname=$pgname";	
+	$get_param = "portname=$pgname";
 }
 else
-	$get_param = "portname=$pgname&withoutmenu=1";	
-?>
-
-
-<h1> <?php echo gettext("Update port"); ?> </h1>
-
-<?php
+	$get_param = "portname=$pgname&withoutmenu=1";
 
 if ( POST('insert') && !empty($pgname) )
 {
@@ -157,16 +151,18 @@ if ( POST('insert') && !empty($pgname) )
 if ( isset($_SESSION['_portgroup']) )
 	unset($_SESSION['_portgroup']);
 
-?>
-    <p> <?php echo gettext("Port group succesfully updated"); ?> </p>
-    <? if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="port.php"</script><? } ?>
+ if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) {
+        ?>
+        <p> <?php echo gettext("Port group succesfully updated"); ?> </p>
+        <script>document.location.href="port.php"</script><?
+    }
+    else {
+        ?><script>document.location.href="newportform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php
+    } ?>
 
 </body>
 </html>
 
-
-   
-}
-?>
     
 

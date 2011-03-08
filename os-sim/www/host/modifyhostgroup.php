@@ -153,16 +153,10 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
 {
 	include ("../hmenu.php"); 
-	$get_param = "name=$hgname";	
+	$get_param = "name=$hgname";
 }
 else
-	$get_param = "name=$hgname&withoutmenu=1";	
-?>
-
-<h1> <?php echo gettext("Update Host Group"); ?> </h1>
-
-<?php
-
+	$get_param = "name=$hgname&withoutmenu=1";
 
 if ( POST('insert') && !empty($hgname) )
 {
@@ -240,9 +234,16 @@ if ( isset($_SESSION['_hostgroup']) )
 	unset($_SESSION['_hostgroup']);
 
 ?>
-    <p><?php echo gettext("Host group succesfully updated"); ?></p>
-    <? if ( $_SESSION["menu_sopc"]=="Host groups" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="hostgroup.php"</script><? } ?>
-
+    <? if ( $_SESSION["menu_sopc"]=="Host groups" && POST('withoutmenu') != "1" ) {
+        ?>
+        <p><?php echo gettext("Host group succesfully updated"); ?></p>
+        <script>document.location.href="hostgroup.php"</script><?
+    }
+    else {
+        ?><script>document.location.href="newhostgroupform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php
+    }
+    ?>
 	</body>
 </html>
 

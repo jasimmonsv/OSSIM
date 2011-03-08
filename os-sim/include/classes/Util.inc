@@ -834,5 +834,21 @@ class Util {
         }
         return $unix;
 	}
+	
+	// Get current ossim complete url
+	function get_ossim_url() {
+		require_once ('ossim_conf.inc');
+        $conf = $GLOBALS["CONF"];
+        $ossim_link = $conf->get_conf("ossim_link");
+        if ($ossim_link=="") $ossim_link = "/ossim";
+		$port = explode ("\n",`grep 'Listen' /etc/apache2/ports.conf | awk '{print $2}'`);
+		$_SERVER["APACHE_PORT"] = (is_array($port) && intval($port[0])>0) ? intval($port[0]) : 80;
+		$port = ":".$_SERVER["APACHE_PORT"];
+		$proto = "http";
+		if ($_SERVER["APACHE_PORT"]=="80") { $port = ""; }
+		elseif ($_SERVER["APACHE_PORT"]=="443") { $proto = "https"; $port = ""; }
+		$current_url = $proto."://".$_SERVER["SERVER_ADDR"].$port.$ossim_link;
+		return preg_replace("/\/$/","",$current_url);
+	}
 }
 ?>

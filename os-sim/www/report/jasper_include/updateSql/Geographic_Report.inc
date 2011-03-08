@@ -113,10 +113,10 @@ foreach ($ips as $country => $val) {
             if($cou[0]=="me"||$cou[0]=="eu"||$cou[0]=="ap"){
                 $flag = '"NULL"';
             }elseif ($cou[0]=="local") {
-                $flag = '"http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
+                $flag = '"http'.($_SERVER["APACHE_PORT"]=="443" ? "s" : "").'://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
                 $flag.='/ossim/images/homelan.png';
             }else{
-                $flag = '"http://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
+                $flag = '"http'.($_SERVER["APACHE_PORT"]=="443" ? "s" : "").'://'.$_SERVER['SERVER_ADDR'].':'.$_SERVER["APACHE_PORT"];
                 $flag.='/ossim/pixmaps/flags/'.$cou[0].'.png"';
             }
         }

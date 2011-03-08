@@ -164,16 +164,15 @@ if ( $error == true )
 <body>
 
 <?php
-if (POST('withoutmenu') != "1") 
-	include ("../hmenu.php"); 
+
+if (POST('withoutmenu') != "1")
+{
+    include ("../hmenu.php");
+    $get_param = "withoutmenu=0";
+}
 else
-	$get_param = "withoutmenu=1";	
-?>
+    $get_param = "ip=$ip&withoutmenu=1";
 
-<h1> <?php echo gettext("New Host"); ?> </h1>                                  
-	
-
-<?php
 
 if (POST('insert'))
 {
@@ -208,13 +207,18 @@ if (POST('insert'))
 }
 
 if ( isset($_SESSION['_host']) )
-	unset($_SESSION['_host']);
+    unset($_SESSION['_host']);
 
-
-?>
-    <p> <?php echo gettext("Host succesfully inserted"); ?> </p>
-    <?if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1" ) { ?><script>document.location.href="host.php"</script><? } ?>
-	
+    if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1" ) {
+    ?>
+        <p> <?php echo gettext("Host succesfully inserted"); ?> </p>
+        <script>document.location.href="host.php"</script><? 
+    }
+    else {?>
+        <script>document.location.href="modifyhostform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php
+    }
+    ?>
 </body>
 </html>
 
