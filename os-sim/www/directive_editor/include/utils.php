@@ -832,6 +832,13 @@ elseif ($query == "save_category") {
         echo _("Error while parsing the document")."\n";
         exit;
     }
+	ossim_valid($_POST["xml_file"], OSS_ALPHA, OSS_DIGIT, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml file"));
+	if (ossim_error()) {
+		die(ossim_error());
+	}
+	if (!preg_match("/\.xml$/",$_POST['xml_file'])) {
+		die(_("xml_file must be a valid XML file name"));
+	}
     $category = unserialize($_SESSION['category']);
     $oldid = $category->id;
     $oldfile = $category->xml_file;
