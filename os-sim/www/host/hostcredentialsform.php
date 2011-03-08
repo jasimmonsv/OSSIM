@@ -197,7 +197,7 @@ $ucredentials = array();
         <td class='ipname nobborder'><label for='hostname'><div class='bold'><?php echo gettext("Hostname:"); ?></div></label></td>
         <td class="left nobborder">
             <input type="hidden" class='req_field vfield' name="hostname" id="hostname" value="<?php echo $hostname;?>"/>
-            <?php echo $hostname?></div>
+            <?php echo $hostname?>
         </td>
     </tr>
     <tr>
@@ -211,7 +211,7 @@ $ucredentials = array();
     if(count($credentials)!=0) {
     ?>
     <tr>
-        <td colspan="2" style="padding-top:5px;" class="nobborder">
+        <td colspan="2" style="padding-top:5px;" class="nobborder" nowrap>
             <table class="transparent" id='table_data'>
             <tr>
                 <th><?php echo gettext("Type"); ?></th>
@@ -267,7 +267,7 @@ $ucredentials = array();
         {
         ?>
         <tr>
-        <td colspan="2" style="padding:10px 0px 10px 0px;" class="nobborder">
+        <td colspan="2" style="padding:10px 0px 10px 0px;" class="nobborder" nowrap>
         <table align='center' class="transparent">
             <tr>
                 <th><label for='type'><?php echo gettext("Type"); ?></label></th>

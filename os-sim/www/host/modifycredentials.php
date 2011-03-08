@@ -60,9 +60,9 @@ $validate = array (
     "ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip address")),
     "type"      => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Type")),
     "user_ct"   => array("validation"=>"OSS_ALPHA, OSS_USER", "e_message" => 'illegal:' . _("Username")),
-    "pass_ct"   => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Password")),
-    "pass_ct2"  => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Repeat Password")),
-    "extra"     => array("validation"=>"OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Extra")));
+    "pass_ct"   => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
+    "pass_ct2"  => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Repeat Password")),
+    "extra"     => array("validation"=>"OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Extra")));
 
 
 if ($action ==  "edit")

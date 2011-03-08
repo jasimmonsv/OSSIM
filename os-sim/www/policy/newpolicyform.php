@@ -88,9 +88,11 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 					if (dtnode.data.url.match(/CCLASS/)) {
 						// add childrens if is a C class
 						var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
+						deletefrom(combo,'ANY','ANY');
 						for (c=0;c<children.length; c++)
 							addto(combo,children[c].data.url,children[c].data.url)
 					} else {
+						deletefrom(combo,'ANY','ANY');
 						addto(combo,dtnode.data.url,dtnode.data.url);
 					}
 					drawpolicy();
@@ -122,7 +124,10 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 				initAjax: { url: "draw_ports_tree.php" },
 				clickFolderMode: 2,
 				onActivate: function(dtnode) {
-					if (dtnode.data.url!='noport') addto('ports',dtnode.data.url,dtnode.data.url);
+					if (dtnode.data.url!='noport') {
+						deletefrom('ports','ANY','ANY');
+						addto('ports',dtnode.data.url,dtnode.data.url);
+					}
 					drawpolicy();
 				},
 				onDeactivate: function(dtnode) {},
@@ -385,7 +390,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 		
 		function putit(id,txt)
 		{
-			if (txt == '') {
+			if (txt == '' || txt.match(/class='red'/)) {
 				$(id).removeClass('bgred').removeClass('bggreen').addClass('bgred');
 				$("#img"+id.substr(3)).attr("src","../pixmaps/tables/cross-small.png");
 				$(id).html(txt);
@@ -451,6 +456,13 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 			//
 			txt = "<?=_('Begin')?>: <b>" + document.fop.begin_day.options[document.fop.begin_day.selectedIndex].text + " - " + document.fop.begin_hour.options[document.fop.begin_hour.selectedIndex].text + "</b><br>";
 			txt = txt + "<?=_('End')?>: <b>" + document.fop.end_day.options[document.fop.end_day.selectedIndex].text + " - " + document.fop.end_hour.options[document.fop.end_hour.selectedIndex].text + "</b><br>";
+			var b=document.fop.begin_hour.options[document.fop.begin_hour.selectedIndex].value;
+			b=1*(document.fop.begin_day.options[document.fop.begin_day.selectedIndex].value+((b<10) ? "0" : "")+b);			
+			var e=document.fop.end_hour.options[document.fop.end_hour.selectedIndex].value;
+			e=1*(document.fop.end_day.options[document.fop.end_day.selectedIndex].value+((e<10) ? "0" : "")+e);	
+			if (e < b) {
+				txt = txt + "<p class='red'><?=_("Begin can't set after End")?></p>";
+			}
 			putit("#tdtime",txt);
 			//
 			txt = "<?=_('Policy Group')?>: <b> " + document.fop.group.options[document.fop.group.selectedIndex].text + "</b><br>";
@@ -555,6 +567,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 		#p_conseq {width: 350px;}
 		#p_conseq th {width: 130px;}
 		.cont_elem{ width: 90%; float: left;}
+		.red { color:red;font-weight:bold }
 	</style>
 </head>
 <body>
@@ -734,7 +747,7 @@ if ($insert != "") {
 		<li><a href="#tabs-3" class="ptab"><?php echo _("Destination Ports") . required() ?></a></li>
 		<li><a href="#tabs-4" class="ptab"><?php echo _("DS Groups") . required() ?></a></li>
 		<li><a href="#tabs-5" class="ptab"><?php echo _("Sensors") . required() ?></a></li>
-		<li <?= ($opensource) ? "style='display:none'" : "" ?>><a href="#tabs-6" class="ptab"><?php echo _("Install in") . required() ?></a></li>
+		<li <?= ($opensource) ? "style='display:none'" : "" ?>><a href="#tabs-6" class="ptab"><?php echo _("Install on") . required() ?></a></li>
 		<li><a href="#tabs-7" class="ptab"><?php echo _("Time Range") . required() ?></a></li>
 		<li><a href="#tabs-8" class="ptab"><?php echo _("Policy group") . required() ?></a></li>
 		<li><a href="#tabs-9" class="ptab"><img src="../pixmaps/arrow-join.png" border="0"></a></li>
@@ -757,7 +770,7 @@ if ($insert != "") {
 						<select id="sources" name="sources[]" size="21" multiple="multiple" style="width:250px">
 							<?php foreach($sources as $source) echo "<option value='$source'>$source"; ?>
 						</select>
-						<input type="button" class="lbutton" value=" [X] " onclick="deletefrom('sources');drawpolicy()"/>
+						<input type="button" class="lbutton" value=" [X] " onclick="deleteselectedfrom('sources');drawpolicy()"/>
 					</td>
 				</tr>
 				</table>
@@ -800,7 +813,7 @@ if ($insert != "") {
 						<select id="dests" name="dests[]" size="21" multiple="multiple" style="width:250px">
 							<?php foreach($dests as $dest) echo "<option value='$dest'>$dest"; ?>
 						</select>
-						<input type="button" value=" [X] " onclick="deletefrom('dests');drawpolicy()" class="lbutton"/>
+						<input type="button" value=" [X] " onclick="deleteselectedfrom('dests');drawpolicy()" class="lbutton"/>
 					</td>
 				</tr>
 				</table>
@@ -839,7 +852,7 @@ if ($insert != "") {
 				<select id="ports" name="mboxp[]" size="20" multiple="multiple" class="multi" style="width:200px">
 					<?php foreach($ports as $pgrp) echo "<option value='$pgrp'>$pgrp"; ?>
 				</select>
-				<input type="button" value=" [X] " class="lbutton" onclick="deletefrom('ports');drawpolicy()"/>
+				<input type="button" value=" [X] " class="lbutton" onclick="deleteselectedfrom('ports');drawpolicy()"/>
 			</td>
 			
 			<td class="left nobborder" valign="top">
@@ -914,7 +927,7 @@ if ($insert != "") {
 				<select id="sensors" name="mboxs[]" size="20" multiple="multiple" class="multi" style="width:200px">
 					<?php foreach($sensors as $sensor) echo "<option value='$sensor'>$sensor"; ?>
 				</select>
-				<input type="button" value=" [X] " onclick="deletefrom('sensors');drawpolicy()" class="lbutton"/>
+				<input type="button" value=" [X] " onclick="deleteselectedfrom('sensors');drawpolicy()" class="lbutton"/>
 			</td>
 			<td class="left nobborder" valign="top">
 				<div id="containerse" style="width:350px"></div>
@@ -932,7 +945,7 @@ if ($insert != "") {
 	<div id="tabs-6"<? if ($opensource) echo " style='display:none'" ?>>
 		<table class='tab_table'>
 		<tr>
-			<th><?php echo _("Install in") . required() ?><br/>
+			<th><?php echo _("Install on") . required() ?><br/>
 				<span class='size10'><a href="../server/newserverform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new server?") ?></a></span><br/>
 			</th>
 			<td class="left nobborder" valign="top" id="targets">
@@ -1006,7 +1019,7 @@ if ($insert != "") {
 					</tr>
 					<tr>
 						<td class="nobborder">
-							<select name="begin_day">
+							<select name="begin_day" onchange="drawpolicy()">
 								<option <?php echo ($timearr[0] == 1) ? "selected='selected'" : "" ?> value="1"><?php echo _("Mon"); ?></option>
 								<option <?php echo ($timearr[0] == 2) ? "selected='selected'" : "" ?> value="2"><?php echo _("Tue"); ?></option>
 								<option <?php echo ($timearr[0] == 3) ? "selected='selected'" : "" ?> value="3"><?php echo _("Wed"); ?></option>
@@ -1016,7 +1029,7 @@ if ($insert != "") {
 								<option <?php echo ($timearr[0] == 7) ? "selected='selected'" : "" ?> value="7"><?php echo _("Sun"); ?></option>
 							</select>
 							
-							<select name="begin_hour">
+							<select name="begin_hour" onchange="drawpolicy()">
 								<?php
 									for ($i=0; $i<24; $i++)
 									{
@@ -1028,7 +1041,7 @@ if ($insert != "") {
 						</td>
 						<td class="nobborder">-</td>
 						<td class="nobborder">
-							<select name="end_day">
+							<select name="end_day" onchange="drawpolicy()">
 								<option <?php echo ($timearr[2] == 1) ? "selected='selected'" : "" ?> value="1"><?php echo _("Mon"); ?></option>
 								<option <?php echo ($timearr[2] == 2) ? "selected='selected'" : "" ?> value="2"><?php echo _("Tue"); ?></option>
 								<option <?php echo ($timearr[2] == 3) ? "selected='selected'" : "" ?> value="3"><?php echo _("Wed"); ?></option>
@@ -1038,7 +1051,7 @@ if ($insert != "") {
 								<option <?php echo ($timearr[2] == 7) ? "selected='selected'" : "" ?> value="7"><?php echo _("Sun"); ?></option>
 							</select>
 							
-							<select name="end_hour">
+							<select name="end_hour" onchange="drawpolicy()">
 								<?php
 									for ($i=0; $i<24; $i++)
 									{
@@ -1065,7 +1078,7 @@ if ($insert != "") {
 				<span class="size"><a href="newpolicygroupform.php?withoutmenu=1" class="greybox"><?php echo _("Insert new policy group?") ?></a></span><br/>
 			</th>
 			<td class="left nobborder" valign="top">
-				<select name="group" size="20" class="multi" style="width:200px" id="groups"id="groups">
+				<select name="group" size="20" class="multi" style="width:200px" id="groups" onchange="drawpolicy()">
 					<?php
 					$policygroups = Policy_group::get_list($conn, "ORDER BY name");
 					foreach($policygroups as $policygrp)
@@ -1312,7 +1325,7 @@ if ($insert != "") {
 			<?php echo _("Sensors")?> <img src="../pixmaps/tables/cross-small.png" id="imgsensors" align="absmiddle"/>
 		</th>
 		<th <?=($opensource) ? " style='display:none'" : "nowrap='nowrap'"?>>
-			<?php echo _("Install in") ?> <img src="../pixmaps/tables/cross-small.png" id="imgtargets" align="absmiddle"/>
+			<?php echo _("Install on") ?> <img src="../pixmaps/tables/cross-small.png" id="imgtargets" align="absmiddle"/>
 		</th>
 		<th nowrap='nowrap'>
 			<?php echo _("Time Range")?> <img src="../pixmaps/tables/cross-small.png" id="imgtime" align="absmiddle"/>
