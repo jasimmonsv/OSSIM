@@ -48,7 +48,7 @@ if ($debug_log ne "") {
 %neg_filters = ();
 set_filters($filter);
 
-#debug_filters(); exit;
+debug_filters(); exit;
 
 #chop($grep_str);
 if ($debug_log ne "") {
@@ -328,7 +328,7 @@ sub set_filters {
 			# EQUAL
 			}
 			$atom =~ s/SPACESCAPE/ /g;
-			if ($atom =~ /^\s*(.*)!=(.*)$/ || $atom =~ /^\s*(.*)=(.*)$/){
+			if ($atom =~ /^\s*(.*)!=(.*)$/ || $atom =~ /^\s*([^\=]*)=(.*)$/){
 				# Taxonomy filter
 				if ($atom =~ /taxonomy\=/) {
 					set_taxonomy_filters($atom,$and_num,$or_num);
