@@ -44,6 +44,7 @@ require_once ('classes/Host_plugin_sid.inc');
 require_once ('classes/Host_services.inc');
 require_once ('classes/Host_group.inc');
 require_once ('classes/Host_group_scan.inc');
+require_once ('classes/Protocol.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
 	
@@ -63,6 +64,14 @@ function update_db($global_info, $scan)
 	$sensors = $global_info["sboxs"];
 	$nagios  = $global_info['nagios'];
 	
+    // load protocol ids
+    $protocol_ids = array();
+    if($protocol_list = Protocol::get_list($conn)) {
+        foreach($protocol_list as $protocol_data) {
+            $protocol_ids[$protocol_data->get_name()] = $protocol_data->get_id(); 
+        }
+    }    
+    
     for ($i = 0; $i < $ips; $i++)
 	{
         $ip = $global_info["ip_$i"];
@@ -125,6 +134,7 @@ function update_db($global_info, $scan)
             
 			foreach($scan[$ip]["services"] as $port_proto => $service)
 			{
+                $service["proto"] = $protocol_ids[strtolower(trim($service["proto"]))];
                 Host_services::insert($conn, $ip, $service["port"], strftime("%Y-%m-%d %H:%M:%S") , $_SERVER["SERVER_ADDR"], $service["proto"], $service["service"], $service["service"], $service["version"], 1);
                 Host_plugin_sid::insert($conn, $ip, 5002, $service["port"]);
             }
@@ -317,7 +327,6 @@ if ( $error == true)
 	}
 	die();
 }
-
 
 if ( isset($_SESSION["_scan"]) )
 {

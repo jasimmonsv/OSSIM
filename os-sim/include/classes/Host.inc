@@ -950,12 +950,12 @@ class Host {
                     WHERE hp.property_ref = ?
                     ) AS result GROUP BY vendor";
         }
-        elseif($id==8) {
+        elseif($id==8) { // Services
             $sql = "SELECT COUNT(DISTINCT ip ) AS total , value FROM host_properties
                     WHERE property_ref = ? GROUP BY value
                     UNION
-                    SELECT COUNT(DISTINCT ip) AS total , CONCAT(service,' (',port,'/',protocol,')') as value
-                    FROM host_services GROUP BY value";
+                    SELECT COUNT(DISTINCT hs.ip) AS total , CONCAT(hs.service,' (',hs.port,'/',LCASE(p.alias),')') as value
+                    FROM host_services hs LEFT JOIN protocol p ON p.id=hs.protocol GROUP BY value";
         }
         else {
             $sql = "SELECT COUNT(DISTINCT ip ) AS total , value FROM host_properties
