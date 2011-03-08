@@ -158,6 +158,9 @@ if (preg_match("/(.*?)=(.*)/",$a,$fnd)) {
 // Patch "sensor=A OR sensor=B"
 $a = preg_replace("/SPACESCAPEORSPACESCAPE([a-zA-Z\_]+)\=/"," or \\1=",$a);
 
+// Filter batch injection
+$a = str_replace(";","",$a);
+
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
 
 foreach ($atoms as $atom) {
