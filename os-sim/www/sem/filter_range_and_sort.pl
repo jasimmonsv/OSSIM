@@ -48,7 +48,7 @@ if ($debug_log ne "") {
 %neg_filters = ();
 set_filters($filter);
 
-debug_filters(); exit;
+#debug_filters(); exit;
 
 #chop($grep_str);
 if ($debug_log ne "") {
