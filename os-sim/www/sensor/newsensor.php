@@ -127,15 +127,13 @@ if ( $error == true )
 <body>
 
 <?php
-if (POST('withoutmenu') != "1") 
-	include ("../hmenu.php"); 
+if (POST('withoutmenu') != "1")
+{
+    include ("../hmenu.php");
+    $get_param = "withoutmenu=0";
+}
 else
-	$get_param = "withoutmenu=1";	
-?>
-
-<h1><?php echo gettext("New sensor"); ?></h1>
-
-<?php
+    $get_param = "name=$name&withoutmenu=1";
 
 if (POST('insert'))
 {
@@ -157,12 +155,17 @@ if (POST('insert'))
 }
 
 if ( isset($_SESSION['_sensor']) )
-	unset($_SESSION['_sensor']);
+    unset($_SESSION['_sensor']);
 
-
-?>
-    <p><?php echo gettext("Sensor succesfully inserted"); ?></p>
-    <? if ( $_SESSION["menu_sopc"]=="SIEM Components" && POST('withoutmenu') != "1" ) { ?><script>setTimeout("document.location.href='sensor.php'",1000)</script><? } ?>
-	
-	</body>
+    if ( $_SESSION["menu_sopc"]=="SIEM Components" && POST('withoutmenu') != "1" ) { ?>
+        <p><?php echo gettext("Sensor succesfully inserted"); ?></p>
+        <script>setTimeout("document.location.href='sensor.php'",1000)</script><? 
+    
+    }
+    else {?>
+        <script>document.location.href="modifysensorform.php?<?php echo $get_param; ?>&update=1"</script>
+    <?php
+    }
+    ?>
+    </body>
 </html>

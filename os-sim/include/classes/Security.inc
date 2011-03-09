@@ -266,6 +266,7 @@ define('OSS_MIDDLEDOT', '\Â·');
 define('OSS_COLON', ':');
 define('OSS_AT', '@');
 define('OSS_MAC', 'a-fA-F0-9:');
+define('OSS_BRACKET', '\[\]\{\}');
 define('OSS_PUNC_EXT', '\'"\.\!#\$%\^&\*_\-\=\+\:;,@\[\]\{\}\|\?\\\(\)\/ºª·' . OSS_SPACE);
 // Temporary fix, need to check out each and every OSS_PUNC use throughout the code
 define('OSS_PUNC', '\.,:@_\-\/\?&\=' . OSS_SPACE);
@@ -450,7 +451,7 @@ function ossim_valid() {
 				$val_str.= $p;
 		}
 				
-		
+				
 		if ( stripos($val_str, OSS_LETTER) !== false )
 				$oss_echars = true;
 		
@@ -478,6 +479,8 @@ function ossim_valid() {
 			}
 		}
 		
+		
+		
 		if ($val_str && preg_match("/[^$val_str]/", $clean_v, $m))
 		{
 			$not = $m[0];
@@ -494,6 +497,14 @@ function ossim_valid() {
 			
 		}
 	}
+	
+	/*
+	echo "<pre>";
+	print_r(preg_match("/[^$val_str]/", $clean_v, $m));
+	echo "<br/>";
+	print_r($val_str."<=>".$clean_v);
+	echo "</pre>";
+	*/	
 	
     return true;
 }

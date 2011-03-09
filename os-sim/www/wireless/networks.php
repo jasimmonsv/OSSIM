@@ -48,7 +48,7 @@ $hideold = intval(GET('hideold'));
 $trusted = intval(GET('trusted'));
 $sensors = (isset($_SESSION['sensors'][$si])) ? $_SESSION['sensors'][$si] : "";
 ossim_valid($order, OSS_ALPHA, OSS_NULLABLE, 'illegal: order');
-ossim_valid($ssid, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, OSS_PUNC_EXT, '\<\|\>%"{}`', 'illegal: ssid');
+ossim_valid($ssid, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, OSS_PUNC_EXT, '\<\|\>%"\{\}\`', 'illegal: ssid');
 ossim_valid($sensor, OSS_IP_ADDR, OSS_NULLABLE, 'illegal: sensor');
 ossim_valid($sensors, OSS_ALPHA, OSS_PUNC, 'illegal: sensors');
 if (ossim_error()) {

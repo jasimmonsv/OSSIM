@@ -131,12 +131,13 @@ if ( $error == true )
 
 <?php
 if (POST('withoutmenu') != "1") 
-	include ("../hmenu.php"); 
-?>
-
-<h1><?php echo gettext("New sensor"); ?></h1>
-
-<?php
+{
+    include ("../hmenu.php");
+    $get_param = "name=".urlencode($name);
+}
+else {
+    $get_param = "name=".urlencode($name)."&withoutmenu=1";
+}
 
 if ( POST('insert') && !empty($name) )
 {
@@ -159,13 +160,10 @@ if ( POST('insert') && !empty($name) )
 }
 
 if ( isset($_SESSION['_sensor']) )
-	unset($_SESSION['_sensor']);
-		
-?>
-    <p> <?php echo gettext("Sensor succesfully updated"); ?> </p>
-    <script>document.location.href="modifysensorform.php?name=<?=urlencode($name)?>&withoutmenu=1"</script>
-	
-
+    unset($_SESSION['_sensor']);
+    
+    ?>
+    <script>document.location.href="modifysensorform.php?<?php echo $get_param; ?>&update=1"</script>
 
 </body>
 </html>

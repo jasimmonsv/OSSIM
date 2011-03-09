@@ -110,7 +110,7 @@ if (count($logger_servers) == 0) {
 $from_remote = ($ip_list != "") ? 1 : 0;
 $_SESSION['logger_servers'] = $logger_servers;
 
-ossim_valid($param_query, OSS_TEXT, OSS_NULLABLE, '[', ']', 'illegal:' . _("query"));
+ossim_valid($param_query, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, 'illegal:' . _("query"));
 ossim_valid($param_start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("start date"));
 ossim_valid($param_end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("end date"));
 ossim_valid($num_servers, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_servers"));

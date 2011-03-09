@@ -81,11 +81,11 @@ include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 
 $config = parse_ini_file("everything.ini");
-$a = GET("query");
+$a      = GET("query");
 
 //$export = (GET('txtexport') == "true") ? 1 : 0;
 $export = GET('txtexport');
-$top = GET('top');
+$top    = GET('top');
 
 if ($export=='stop') {
 ?>
@@ -107,11 +107,11 @@ $offset = GET("offset");
 if (intval($offset) < 1) {
     $offset = 0;
 }
-$start = GET("start");
-$end = GET("end");
+$start      = GET("start");
+$end        = GET("end");
 $sort_order = GET("sort");
-$uniqueid = GET("uniqueid");
-$tzone = intval(GET("tzone"));
+$uniqueid   = GET("uniqueid");
+$tzone      = intval(GET("tzone"));
 
 $debug_log = GET("debug_log");
 ossim_valid($debug_log, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, OSS_PUNC, OSS_SCORE, OSS_SLASH, 'illegal:' . _("debug_log"));
@@ -119,7 +119,7 @@ ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($offset, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("offset"));
 ossim_valid($top, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("top"));
-ossim_valid($a, OSS_TEXT, OSS_NULLABLE, '[', ']', 'illegal:' . _("a"));
+ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, 'illegal:' . _("a"));
 ossim_valid($sort_order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("sort order"));
 ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("uniqueid"));
 if (ossim_error()) {
@@ -335,7 +335,7 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 		$("#pbar_local").progressBar(1);
 	</script>
 	<?php
-	foreach ($_SESSION['logger_servers'] as $key=>$val) {
+	if (is_array($_SESSION['logger_servers'])) foreach ($_SESSION['logger_servers'] as $key=>$val) {
 		$logger_servers[$val] = $key;
 	}
 	$from_remote = 0;
