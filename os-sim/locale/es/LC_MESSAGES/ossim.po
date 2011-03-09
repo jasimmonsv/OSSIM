@@ -3231,34 +3231,34 @@ msgid "Displaying unique source addresses %d-%d of <b>%s</b> matching your selec
 msgstr "Mostrando direcciones &uacute;nicas de origen %d al %d de <b>%s</b> que cumplen el criterio de b&uacute;squeda. <b>%s</b> total de eventos en la base de datos."
 
 msgid "Displaying {from} to {to} of {total}"
-msgstr "Mostrando {de} a {a} de {} total"
+msgstr "Mostrando del {from} al {to} de {total}"
 
 msgid "Displaying {from} to {to} of {total} Actions"
-msgstr "Mostrando del {from} a {to} de {total} acciones"
+msgstr "Mostrando del {from} al {to} de {total} acciones"
 
 msgid "Displaying {from} to {to} of {total} Active directories"
-msgstr "Viendo {de} a {a} de {} total de directorios activos"
+msgstr "Mostrando del {from} al {to} de {total} directorios activos"
 
 msgid "Displaying {from} to {to} of {total} data sources"
-msgstr "Viendo {de} a {a} de {} total de fuentes de datos"
+msgstr "Mostrando del {from} al {to} de {total} fuentes de datos"
 
 msgid "Displaying {from} to {to} of {total} devices"
 msgstr "Mostrando del {from} al {to} de {total} dispositivos"
 
 msgid "Displaying {from} to {to} of {total} event types"
-msgstr "Mostrando del {from} a {to} de {total} tipo de eventos"
+msgstr "Mostrando del {from} al {to} de {total} tipo de eventos"
 
 msgid "Displaying {from} to {to} of {total} host groups"
-msgstr "Mostrando del {from} a {to} de {total} grupos de equipos"
+msgstr "Mostrando del {from} al {to} de {total} grupos de equipos"
 
 msgid "Displaying {from} to {to} of {total} hosts"
-msgstr "Mostrando del {from} a {to} de {total} equipos"
+msgstr "Mostrando del {from} al {to} de {total} equipos"
 
 msgid "Displaying {from} to {to} of {total} network groups"
 msgstr "Mostrando del {from} al {to} de {total} grupos de redes"
 
 msgid "Displaying {from} to {to} of {total} networks"
-msgstr "Mostrando del {from} a {to} de {total} redes"
+msgstr "Mostrando del {from} al {to} de {total} redes"
 
 msgid "Displaying {from} to {to} of {total} policy groups"
 msgstr "Mostrando del {from} al {to} de {total} grupos de pol&iacute;ticas"
@@ -3267,7 +3267,7 @@ msgid "Displaying {from} to {to} of {total} port groups"
 msgstr "Mostrando del {from} al {to} de {total} grupos de puertos"
 
 msgid "Displaying {from} to {to} of {total} rules"
-msgstr "Mostrando del {from} a {to} de {total} reglas"
+msgstr "Mostrando del {from} al {to} de {total} reglas"
 
 msgid "Distributed Scanning"
 msgstr "Escaneo distribuido"
@@ -16201,3 +16201,8 @@ msgstr "actualizar la base de datos a la versi&oacute;n >= 0.9.8"
 msgid "yes"
 msgstr "s&iacute;"
 
+msgid "<b>Enable/Disable</b> policy"
+msgstr "<b>Habilitar/deshabilitar</b> pol&iacute;tica"
+
+msgid "Displaying {from} to {to} of {total} policies"
+msgstr "Mostrando del {from} al {to} de {total} pol&iacute;ticas"

@@ -174,7 +174,7 @@ foreach($policy_groups as $group) {
 		else if (com=='<?=_("Reload Policies")?>') {
 			document.location.href = '../conf/reload.php?what=policies&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>'
 		}
-		else if (com=='<b>Enable/Disable</b> policy' || com=='enabledisable') {
+		else if (com=='<?=_("<b>Enable/Disable</b> policy")?>' || com=='enabledisable') {
 			//Activate/Deactivate selected items or all by default via ajax
 			if (typeof(items[0]) == 'undefined') items = $('tbody tr', grid);
 			var ids='';
@@ -463,7 +463,7 @@ foreach($policy_groups as $group) {
             'center',
             false
         )
-    );
+    ); 
     list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "order", "asc", 150);
     echo "$colModel\n";
 ?>
@@ -479,7 +479,7 @@ foreach($policy_groups as $group) {
 			{separator: true},
 			{name: '<?=_("Reload Policies")?>', bclass: '<?php echo (WebIndicator::is_on("Reload_policies")) ? "reload_red" : "reload" ?>', onpress : action},
 			{separator: true},
-			{name: '<b><?=_("Enable/Disable")?></b> <?=_("policy")?>', bclass: 'yesno', onpress : action},
+			{name: '<?=_("<b>Enable/Disable</b> policy")?>', bclass: 'yesno', onpress : action},
 			{separator: true}
 			],
 		sortname: "<?php echo $sortname ?>",
@@ -493,7 +493,7 @@ foreach($policy_groups as $group) {
 		contextMenuh: 'myMenuh',
 		onContextMenuClick: menu_action,
 		//onContextMenuClickh: menu_action_h,
-		pagestat: '<?=_("Displaying")?> {from} <?=_("to")?> {to} <?=_("of")?> {total} <?=_("policies")?>',
+		pagestat: '<?=_("Displaying {from} to {to} of {total} policies")?>',
 		nomsg: '<?=_("No policies")?>',
 		useRp: false,
 		showTableToggleBtn: true,
