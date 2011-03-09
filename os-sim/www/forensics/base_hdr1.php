@@ -49,12 +49,13 @@ $actual_url = str_replace("?clear_allcriteria=1&","?",str_replace("&clear_allcri
 		if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "PolicyServers") && preg_match("/pro|demo/i",$version)) { 
 			// session server
 			$ss = (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="") ? $_SESSION["server"][0] : "local";
+			$sn = (is_array($_SESSION["server"]) && $_SESSION["server"][4]!="") ? $_SESSION["server"][4] : "snort";
 			echo "<tr><td align='left'><img src='../server/getdbsicon.php?name=".urlencode($ss)."' border=0 width='32' height='32'><a href='javascript:;' onclick='$(\"#dbs\").toggle();$(\"#imgplus\").attr(\"src\",(($(\"#imgplus\").attr(\"src\").match(/plus/)) ? \"images/minus-small.png\" : \"images/plus-small.png\"))'><img src='images/plus-small.png' border=0 id='imgplus'></a></td></tr>";
 			echo "<tr style='display:none' id='dbs'><td colspan=2 style='border:1px solid #CCCCCC'><table border=0 cellpadding=1 cellspacing=0>";
 			foreach ($database_servers as $db) {
 				$svar = base64_encode($db->get_ip().":".$db->get_port().":".$db->get_user().":".$db->get_pass().":".$db->get_name());
 				echo "<tr bgcolor='#EEEEEE'><td><img src='../server/getdbsicon.php?name=".urlencode($db->get_ip())."' border=0 width='16' height='16'></td>";
-				$name = ($ss==$db->get_ip()) ? "<b>".$db->get_name()."</b>" : $db->get_name(); 
+				$name = ($ss==$db->get_ip() && $sn == $db->get_name()) ? "<b>".$db->get_name()."</b>" : $db->get_name(); 
 				echo "<td><a href='".preg_replace("/\&server\=[^\&]+/","",$actual_url)."server=$svar'>".$name."</a></td></tr>";
 			}
 			echo "<tr bgcolor='#EEEEEE'><td><img src='../server/getdbsicon.php?name=local' border=0 width='16' height='16'></td>";
