@@ -73,7 +73,7 @@ else {
 $validate = array (
     "action_id" => array("validation"=>"OSS_DIGIT, OSS_NULLABLE", "e_message" => 'illegal:' ._("Action id")),
     "action_type" => array("validation"=>"OSS_ALPHA", "e_message" => 'illegal:' ._("Action type")),
-    "cond" => array("validation"=>"OSS_PUNC_EXT, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE", "e_message" => 'illegal:' ._("Condition")),
+    "cond" => array("validation"=>"OSS_PUNC_EXT, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, \"\>\<\"", "e_message" => 'illegal:' ._("Condition")),
     "descr" => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SCORE, OSS_AT, OSS_NULLABLE", "e_message" => 'illegal:' ._("Description")),
     "email_from" => array("validation"=>"OSS_MAIL_ADDR".$v_email, "e_message" => 'illegal:' ._("Email from")),
     "email_to" => array("validation"=>"OSS_MAIL_ADDR".$v_email, "e_message" => 'illegal:' ._("Email to")),
@@ -85,8 +85,7 @@ $validate = array (
 
 if ($action == "edit" || $action == "new")
 {
-    $txt_start = "Update Action";
-    $txt_end   = "Action succesfully updated";
+    $txt_end   = _("Action succesfully updated");
 }
 else
 {
@@ -166,11 +165,9 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
     include ("../hmenu.php"); 
 
-echo "<h1>".gettext($txt_start)."</h1>";
-
 if ( $error == true)
 {
-    $txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
+    $txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";
     Util::print_error($txt_error);	
 
     if (!empty($action_id))
@@ -192,11 +189,11 @@ if ( $action == 'new' || $action == 'edit' )
 	} else {
 	    if ($action == 'new') { // new action
 	        if ($action_type == 'email')
-	            Action::insertEmail($conn, $action_type, $cond, $on_risk, $descr, $email_from, $email_to, $email_subject, $email_message);
+	            $last_id = Action::insertEmail($conn, $action_type, $cond, $on_risk, $descr, $email_from, $email_to, $email_subject, $email_message);
 	        else if ($action_type == 'exec')
-	            Action::insertExec($conn, $action_type, $cond, $on_risk, $descr, $exec_command);
+	            $last_id = Action::insertExec($conn, $action_type, $cond, $on_risk, $descr, $exec_command);
 	        else
-	            Action::insert($conn, $action_type, $cond, $on_risk, $descr);
+	            $last_id = Action::insert($conn, $action_type, $cond, $on_risk, $descr);
 	    }
 	    else if($action == 'edit') { // update action 
 	        if ($action_type == 'email') 
@@ -214,9 +211,17 @@ if ( $action == 'new' || $action == 'edit' )
         unset($_SESSION['_actions']);
 
 }
-    echo "<p>"._($txt_end)."</p>";
-    if (POST('withoutmenu')!=1) echo "<script type='text/javascript'>document.location.href=\"action.php\"</script>";
 
+    if (POST('withoutmenu')!=1) {
+        echo "<p>".$txt_end."</p>";
+        echo "<script type='text/javascript'>document.location.href=\"action.php\"</script>";
+    }
+    else {
+        if(_("Action succesfully updated")!= $txt_end)      echo "<p>".$txt_end."</p>";
+        ?>
+        <script type='text/javascript'>document.location.href="actionform.php?id=<?php echo (($action =='new') ? $last_id : $action_id); ?>&withoutmenu=1&update=1"</script>
+        <?php
+    }
 ?>
 </body>
 </html>

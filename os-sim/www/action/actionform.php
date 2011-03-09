@@ -92,6 +92,16 @@ else {
         $description = "";
     }
 }
+
+$update  = intval(GET('update'));
+
+$style_success = "style='display: none;'";
+
+if ($update==1) {
+    $success_message = gettext("Action succesfully updated");
+    $style_success   = "style='display: block;text-align:center;'"; 
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -182,6 +192,11 @@ else {
             $('#exec_comand').removeClass('req_field');
         }
     }
+    function remove_success_message()
+    {
+        if ( $('#success_message').length == 1 )    
+            $("#success_message").remove();
+    }
   </script>
   <style type='text/css'>
     #table_form {
@@ -259,7 +274,7 @@ function submit() {
     <tr>
         <td align="center" style="border-bottom: medium none; padding: 10px;" colspan="2">
             <input type="hidden" name="withoutmenu" value="<?php echo GET('withoutmenu')?>">
-            <input type="button" class="button" id='send' value="<?php echo _("Update");?>" onclick="submit_form();" /> 
+            <input type="button" class="button" id='send' value="<?php echo _("Update");?>" onclick="remove_success_message();submit_form();" /> 
         </td>
     </tr>
 <?php
@@ -313,7 +328,10 @@ echo gettext("You can use the following keywords within any field which will be 
 </ul>
 </td></tr></table>
 </td></tr>
+
+<div id='success_message' class='ossim_success' <?php echo $style_success ?>><?php echo $success_message;?></div>
 <div id='info_error' class='ossim_error' style='display:none;'></div>
+
 <form method="post" action="modifyactions.php" id="new_action" name="new_action">
   <input type="hidden" name="id" value="<?php echo ((is_null($action)) ? "":$action->get_id()); ?>" />
   <input type="hidden" name="action" value="<?php echo (($action_id=="") ? "new" : "edit"); ?>" />

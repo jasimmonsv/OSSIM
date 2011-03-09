@@ -156,14 +156,27 @@ class Action {
             "(" . $descr . ")"
         );
         Log_action::log(82, $infolog);
+        
+        $sql ="SELECT LAST_INSERT_ID() as last_id";
+        if (!$rs = & $conn->Execute($sql)) {
+            print _('error reading last insert ID:').' '.$conn->ErrorMsg() . '<BR>';
+            exit;
+        }
+        else {
+            return($rs->fields["last_id"]);
+        }
     }
     function insertEmail($conn, $action_type, $cond, $on_risk, $descr, $from, $to, $subject, $message) {
-        Action::insert($conn, $action_type, $cond, $on_risk, $descr);
+        $last_id = Action::insert($conn, $action_type, $cond, $on_risk, $descr);
         Action_email::insert($conn, $from, $to, $subject, $message);
+        
+        return($last_id);
     }
     function insertExec($conn, $action_type, $cond, $on_risk, $descr, $command) {
-        Action::insert($conn, $action_type, $cond, $on_risk, $descr);
+        $last_id = Action::insert($conn, $action_type, $cond, $on_risk, $descr);
         Action_exec::insert($conn, $command);
+        
+        return($last_id);
     }
     function update($conn, $id, $action_type, $cond, $on_risk, $descr) {
         $sql = "UPDATE action SET action_type = ?, cond = ?, on_risk = ?, descr = ? WHERE id = ?";
