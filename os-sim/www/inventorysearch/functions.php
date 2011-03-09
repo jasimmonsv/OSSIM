@@ -206,6 +206,7 @@ function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips) {
 	$gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 	$country = strtolower(geoip_country_code_by_addr($gi, $ip));
 	$country_name = geoip_country_name_by_addr($gi, $ip);
+	geoip_close($gi);
 	if ($country) {
 		$country_img = " <img src=\"../pixmaps/flags/" . $country . ".png\" alt=\"$country_name\" title=\"$country_name\">";
 	} else {
@@ -248,6 +249,7 @@ function host_row_basic ($host,$conn,$criterias,$has_criterias,$networks,$hosts_
 	$gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 	$country = strtolower(geoip_country_code_by_addr($gi, $ip));
 	$country_name = geoip_country_name_by_addr($gi, $ip);
+	geoip_close($gi);	
 	if ($country) {
 		$country_img = " <img src=\"../pixmaps/flags/" . $country . ".png\" alt=\"$country_name\" title=\"$country_name\">";
 	} else {

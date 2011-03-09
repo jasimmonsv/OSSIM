@@ -144,15 +144,15 @@ class User_config {
         } else {
             die(ossim_error("Invalid config type: $type"));
         }
-		$params = array(
-			$login,
+	$params = array(
+	    $login,
             $category,
             $name,
             $val
         );
-		
-	    $sql = "REPLACE INTO user_config (login, category, name, value) VALUES (?, ?, ?, ?)";
-        
+
+	$sql = "REPLACE INTO user_config (login, category, name, value) VALUES (?, ?, ?, ?)";
+
         if (!$this->conn->Execute($sql, $params)) {
             die(ossim_error($this->conn->ErrorMsg()));
         }
