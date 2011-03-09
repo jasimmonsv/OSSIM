@@ -181,6 +181,7 @@ if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="") {
 	$alert_port = $_SESSION["server"][1];
 	$alert_user = $_SESSION["server"][2];
 	$alert_password = $_SESSION["server"][3];
+	$alert_dbname = $_SESSION["server"][4];
 	require_once ("$BASE_path/includes/base_db.inc.php");
 	$dbtest = NewBASEDBConnection($DBlib_path, $DBtype);
 	$dbtest->DB = NewADOConnection();
