@@ -142,7 +142,7 @@ sub executeFile {
 }
 
 sub createAuxDBStructure {
-	my $cmd = "cat /usr/share/ossim/db/00-create_snort_tbls_mysql.sql | $cmdline";
+    my $cmd = "cat /usr/share/ossim/db/00-create_snort_tbls_mysql.sql | $cmdline";
     print LOG "Execute $cmd\n";
     open (F,"$cmd |");
     while (<F>) {
@@ -210,8 +210,8 @@ sub main {
     
     # Selective insert. Filtering by php script
     if ($filtered_by ne "") {
-    	my $cmd = "php /usr/share/ossim/scripts/restoredb_filter.php $filtered_by";
-    	print "$cmd\n";
+    	my $cmd = "php /usr/share/ossim/scripts/restoredb_filter.php $filtered_by nodebug";
+    	system($cmd);
     }
     
     die_clean();
