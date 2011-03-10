@@ -116,7 +116,13 @@ echo gettext("OSSIM Framework"); ?> </title>
 		if (com=='<?php echo _('Delete selected')?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
-				document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(items[0].id.substr(3))
+				if (items[0].id.substr(3).match(/snort\_restore/)) {
+					if (confirm("<?php echo _("Database") ?> "+items[0].id.substr(3)+" <?php echo _("will be dropped").". "._("Are you sure?") ?>")) {
+						document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(items[0].id.substr(3));
+					}
+                } else {
+					document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(items[0].id.substr(3))
+                }
 			}
 			else alert('<?=_("You must select a database server")?>');
 		}
@@ -147,7 +153,10 @@ echo gettext("OSSIM Framework"); ?> </title>
             if (com=='delete') {
                 //Delete host by ajax
                 if (typeof(hostname) != 'undefined') {
-                        document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(hostname);
+                    if (hostname.match(/snort\_restore/)) {
+						alert("<?php echo _("Database") ?> "+hostname+" <?php echo _("will be dropped").". "._("Are you sure?") ?>");
+                    }
+                        //document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(hostname);
                 }
                 else alert('<?=_("Database server unselected")?>');
             }

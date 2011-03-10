@@ -132,11 +132,14 @@ class Databases {
         Log_action::log(80, $infolog);
     }
     function delete($conn, $name) {
-        $sql = "DELETE FROM `databases` WHERE name = ?";
+    	$sql = "DELETE FROM `databases` WHERE name = ?";
         if (!$conn->Execute($sql, array(
             $name
         ))) {
             die($conn->ErrorMsg());
+        }
+        if (preg_match("/snort\_restore/",$name)) {
+        	$conn->Execute("drop database $name");
         }
         $infolog = array(
             $name
