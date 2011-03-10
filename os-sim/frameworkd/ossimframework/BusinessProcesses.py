@@ -226,7 +226,7 @@ class MeasureList:
                     measure_type = 'host_vulnerability',
                     request = """
                 SELECT vulnerability AS host_vulnerability
-                    FROM host_vulnerability WHERE ip = '%s';
+                    FROM host_vulnerability WHERE ip = '%s' ORDER BY scan_date DESC;
                     """ % (self.member),
                     severity_max = 10
                 ),
@@ -342,7 +342,7 @@ class MeasureList:
                     measure_type = 'net_vulnerability',
                     request = """
                         SELECT vulnerability AS net_vulnerability
-                            FROM net_vulnerability WHERE net = '%s';
+                            FROM net_vulnerability WHERE net = '%s' ORDER BY scan_date DESC;
                         """ % (self.member),
                     severity_max = 10,
                 ),

@@ -99,14 +99,24 @@ if ($element_type =="rect") {
 		}
 	}
 
+    if($type=="sensor" || $type=="server")      $type="host";
 
-	$sql = "insert ignore into bp_asset_member values (0, ?, ?)";
-	$params = array($ip, $type);
-	$conn->Execute($sql, $params);
-		
-	$sql = "insert into risk_indicators (url,map,icon,type_name,name,type,x,y,w,h,size) values (?,?,?,?,?,?,100,100,90,60,?)";
-	$params = array($dt[4], $map, $icon, $dt[2], $dt[3], $dt[1], $iconsize);
-	$conn->Execute($sql, $params);
+    $params = array($ip, $type);
+    
+    $sql = "SELECT member, member_type FROM bp_asset_member WHERE member=? AND member_type=?";
+    
+    if (!$rs = &$conn->Execute($sql, $params)) {
+        print $conn->ErrorMsg();
+    }
+    else if ($rs->RecordCount() == "0") { // check if asset exist
+        $sql = "INSERT INTO bp_asset_member (asset_id, member, member_type) VALUES (0, ?, ?)";
+        $conn->Execute($sql, $params);
+    }
+
+
+    $sql = "insert into risk_indicators (url,map,icon,type_name,name,type,x,y,w,h,size) values (?,?,?,?,?,?,100,100,90,60,?)";
+    $params = array($dt[4], $map, $icon, $dt[2], $dt[3], $dt[1], $iconsize);
+    $conn->Execute($sql, $params);
 
 	$query = "select last_insert_id() as id";
     if (!$rs = &$conn->Execute($query)) {

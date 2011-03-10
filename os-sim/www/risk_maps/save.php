@@ -39,6 +39,7 @@ require_once 'ossim_db.inc';
 require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
 require_once 'classes/Log_action.inc';
+include("riskmaps_functions.php");
 
 Session::logcheck("MenuControlPanel", "BusinessProcesses");
 
@@ -92,7 +93,12 @@ if (ossim_error()) {
 die(ossim_error());
 }
 
-
+    // clean bp_asset_member
+    $query = "DELETE FROM bp_asset_member WHERE member = ''";
+    if (!$rs = &$conn->Execute($query)) {
+        print $conn->ErrorMsg();
+    }
+    
     $indicators = array();
     $delete_list = array();
     $elems = explode(";",$data);
@@ -106,7 +112,7 @@ die(ossim_error());
     }
 
     $active = array_keys($indicators);
-    $query = "select id from risk_indicators where map=?";
+    $query = "select id, type, type_name from risk_indicators where map=?";
     $params = array($map);
         if (!$rs = &$conn->Execute($query, $params)) {
             $log = $conn->ErrorMsg();
@@ -118,7 +124,7 @@ die(ossim_error());
                     $params = array($pos["x"],$pos["y"],$pos["w"],$pos["h"], $rs->fields["id"]);
                     $conn->Execute($query, $params);
                 } else {
-                    $delete_list[] = $rs->fields["id"];
+                    $delete_list[] = array($rs->fields["id"],$rs->fields["type"],$rs->fields["type_name"]);
                 }
             $rs->MoveNext();
         }
@@ -140,11 +146,18 @@ die(ossim_error());
         }
     }
     foreach ($delete_list as $idb) {
-        $query = "delete bp_asset_member.* from bp_asset_member, risk_indicators where risk_indicators.type_name = bp_asset_member.member and risk_indicators.type = bp_asset_member.member_type and risk_indicators.id = ?";
-        $params = array($idb);
+        $host_types = array("host", "server", "sensor");
+
+        list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$idb[2],$idb[1],$host_types);
+        
+        if($type=="sensor" || $type=="server")      $type="host";
+        
+        $query = "delete from bp_asset_member where asset_id=0 and member=? and member_type=?";
+        $params = array($name,$type);
         $conn->Execute($query, $params);
+        
         $query = "delete from risk_indicators where id= ?";
-        $conn->Execute($query, $params);
+        $conn->Execute($query, array($idb[0]));
     }
     $conn->close();
 ?>

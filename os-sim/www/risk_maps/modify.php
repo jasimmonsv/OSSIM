@@ -37,6 +37,7 @@
 */
 
 require_once 'classes/Session.inc';
+include("riskmaps_functions.php");
 
 Session::logcheck("MenuControlPanel", "BusinessProcesses");
 
@@ -66,46 +67,50 @@ ossim_valid($id, OSS_DIGIT, 'illegal:'._("id"));
 if (ossim_error()) {
     die(ossim_error());
 }
+    $indicators = array();
+    $delete_list = array();
+    $elems = explode(";",$data);
+    foreach ($elems as $elem) if (trim($elem)!="") {
+        $param = explode(",",$elem);
+        $id = str_replace("rect","",str_replace("indicator","",$param[0]));
+        $indicators[$id]["x"] = str_replace("px","",$param[1]);
+        $indicators[$id]["y"] = str_replace("px","",$param[2]);
+        $indicators[$id]["w"] = str_replace("px","",$param[3]);
+        $indicators[$id]["h"] = str_replace("px","",$param[4]);
+    }
 
-
-	$indicators = array();
-	$delete_list = array();
-	$elems = explode(";",$data);
-	foreach ($elems as $elem) if (trim($elem)!="") {
-		$param = explode(",",$elem);
-		$id = str_replace("rect","",str_replace("indicator","",$param[0]));
-		$indicators[$id]["x"] = str_replace("px","",$param[1]);
-		$indicators[$id]["y"] = str_replace("px","",$param[2]);
-		$indicators[$id]["w"] = str_replace("px","",$param[3]);
-		$indicators[$id]["h"] = str_replace("px","",$param[4]);
-	}
-
-
-	$active = array_keys($indicators);
-	$query = "select id from risk_indicators where map=?";
-	$params = array($map);
+    $active = array_keys($indicators);
+    $query = "select id, type, type_name from risk_indicators where map=?";
+    $params = array($map);
         if (!$rs = &$conn->Execute($query, $params)) {
             $log = $conn->ErrorMsg();
         } else {
                 while (!$rs->EOF){
-		if (in_array($rs->fields["id"],$active)) {
-			$pos = $indicators[$rs->fields["id"]];
-			$query = "update risk_indicators set x= ?,y= ?, w= ?, h= ? where id= ?";
-			$params = array($pos["x"],$pos["y"],$pos["w"],$pos["h"],$rs->fields["id"]);
-			$conn->Execute($query, $params);
-		} else {
-			$delete_list[] = $rs->fields["id"];
-		}
-		$rs->MoveNext();
-	}
-	}
-	foreach ($delete_list as $idb)
-	{
-	$query = "delete bp_asset_member.* from bp_asset_member, risk_indicators where risk_indicators.type_name = bp_asset_member.member and risk_indicators.type = bp_asset_member.member_type and risk_indicators.id = ?";
-	$params = array($idb);
-	$conn->Execute($query, $params);
-	$query = "delete from risk_indicators where id= ?";
-	$conn->Execute($query, $params);
-	}
-	$conn->close();
+        if (in_array($rs->fields["id"],$active)) {
+            $pos = $indicators[$rs->fields["id"]];
+            $query = "update risk_indicators set x= ?,y= ?, w= ?, h= ? where id= ?";
+            $params = array($pos["x"],$pos["y"],$pos["w"],$pos["h"],$rs->fields["id"]);
+            $conn->Execute($query, $params);
+        } else {
+            $delete_list[] = array($rs->fields["id"],$rs->fields["type"],$rs->fields["type_name"]);
+        }
+        $rs->MoveNext();
+    }
+    }
+    foreach ($delete_list as $idb)
+    {
+        $host_types = array("host", "server", "sensor");
+
+        list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$idb[2],$idb[1],$host_types);
+        
+        if($type=="sensor" || $type=="server")      $type="host";
+        
+        $query = "delete from bp_asset_member where asset_id=0 and member=? and member_type=?";
+        $params = array($name,$type);
+        $conn->Execute($query, $params);
+    
+        $query = "delete from risk_indicators where id= ?";
+        $conn->Execute($query, $params);
+    }
+    $conn->close();
 ?>
