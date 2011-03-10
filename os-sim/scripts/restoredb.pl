@@ -151,13 +151,17 @@ sub executeFile {
 }
 
 sub createAuxDBStructure {
-    my $cmd = "cat /usr/share/ossim/db/00-create_snort_tbls_mysql.sql | $cmdline";
-    print LOG "Execute $cmd\n";
-    open (F,"$cmd |");
-    while (<F>) {
-        print $_;
+    if (-e "/usr/share/doc/ossim-mysql/contrib/00-create_snort_tbls_mysql.sql.gz") {
+	    my $cmd = "zcat /usr/share/doc/ossim-mysql/contrib/00-create_snort_tbls_mysql.sql.gz | $cmdline";
+	    print LOG "Execute $cmd\n";
+	    open (F,"$cmd |");
+	    while (<F>) {
+	        print $_;
+	    }
+	    close F;
+    } else {
+    	print "Error creating temporary database\n";
     }
-    close F;
 }
 
 sub main {
