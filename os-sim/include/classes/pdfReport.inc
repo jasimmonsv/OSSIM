@@ -119,6 +119,7 @@ class PdfReport{
     
     public function getPdf($output='navegador'){
         if($this->existHtml()){
+        	session_write_close();
         	$this->convertEntities();
             require_once("classes/html2pdf/html2pdf.class.php");
             $html2pdf = new HTML2PDF($this->orientation,$this->paperformat,'en', true, 'UTF-8',array(0,0,0,0));
