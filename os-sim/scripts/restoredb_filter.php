@@ -6,8 +6,15 @@
  * Insert finally into snort current database the filtered events
  */
 ini_set("include_path", ".:/usr/share/ossim/include:/usr/share/phpgacl");
-$filter_by = $argv[1];
-$debug = ($argv[2] != "") ? 0 : 1;
+if ($argv[2] == "") {
+	echo "USAGE: retoredb_filter.php temp_database_name nomerge filter_by [nodebug]";
+	exit;
+}
+$snort_name_temp = $argv[1];
+$nomerge = ($argv[2] == "nomerge") ? 1 : 0;
+$filter_by = $argv[3];
+$debug = ($argv[4] != "") ? 0 : 1;
+
 require_once ('classes/Session.inc');
 require_once ('classes/Databases.inc');
 require_once "ossim_db.inc";
@@ -15,14 +22,18 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 if ($debug) echo "Retrieving Assets from entity/user: $filter_by...";
-// Entity
-if (preg_match("/^\d+$/",$filter_by)) {
-	$allowedSensors = Session::entityPerm($conn,$filter_by,"sensors");
-	$allowedNets = Session::entityPerm($conn,$filter_by,"assets");
-// Username
-} elseif (preg_match("/^[A-Za-z0-9\_\-\.]+$/",$filter_by)) {
-	$allowedSensors = Session::allowedSensors($filter_by);
-	$allowedNets = Session::allowedNets($filter_by);
+
+$allowedNets = ""; $allowedSensors = "";
+if ($filter_by != "") {
+	// Entity
+	if (preg_match("/^\d+$/",$filter_by)) {
+		$allowedSensors = Session::entityPerm($conn,$filter_by,"sensors");
+		$allowedNets = Session::entityPerm($conn,$filter_by,"assets");
+	// Username
+	} elseif (preg_match("/^[A-Za-z0-9\_\-\.]+$/",$filter_by)) {
+		$allowedSensors = Session::allowedSensors($filter_by);
+		$allowedNets = Session::allowedNets($filter_by);
+	}
 }
 
 if ($allowedNets == "" && $allowedSensors == "") {
@@ -91,7 +102,7 @@ if ($allowedNets == "" && $allowedSensors == "") {
 	// 2) CLEAN TEMP DATABASE NOT ALLOWED EVENTS
 	if ($allowedHosts != "") {
 		if ($debug) echo "Filtering acid_event table...";
-		$snort_temp_conn = $db->snort_custom_connect("snort_restore_".$filter_by);
+		$snort_temp_conn = $db->snort_custom_connect($snort_name_temp);
 		$sql = "DELETE FROM acid_event WHERE INET_NTOA(ip_src) not in ($allowedHosts) AND INET_NTOA(ip_dst) not in ($allowedHosts)";
 		$snort_temp_conn->Execute($sql);
 		if ($debug) echo "ok.\n";
@@ -189,7 +200,7 @@ if ($allowedNets == "" && $allowedSensors == "") {
 	if ($debug) echo "ok.\n";
 	$snort_temp_conn->disconnect();
 }
-// 3) COPY TEMP TO ORIGINAL SNORT
+
 $conf = $GLOBALS["CONF"];
 $snort_user = $conf->get_conf("snort_user");
 $snort_port = $conf->get_conf("snort_port");
@@ -197,18 +208,22 @@ $snort_pass = $conf->get_conf("snort_pass");
 $snort_host = $conf->get_conf("snort_host");
 $snort_name = $conf->get_conf("snort_base");
 $type = $conf->get_conf("snort_type");
-$cmdline = "mysqldump -p$snort_pass -n -t -f --no-autocommit --insert-ignore snort_restore_$filter_by | mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port $snort_name";
-if ($debug) echo "Merge events into snort database...";
-system($cmdline);
-if ($debug) echo "ok\n";
-// 4) CREATE A NEW Database Profile for SIEM
-if ($debug) echo "Creating Database Profile...";
-$list = Databases::get_list($conn,"WHERE name='snort_restore_$filter_by'");
-if (count($list) < 1) {
-	Databases::insert($conn, "snort_restore_".$filter_by, $snort_host, $snort_port, $snort_user, $snort_pass, "");
+// 3.1) MERGE TEMP TO ORIGINAL SNORT
+if (!$nomerge) {
+	$cmdline = "mysqldump -p$snort_pass -n -t -f --no-autocommit --insert-ignore snort_restore_$filter_by | mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port $snort_name";
+	if ($debug) echo "Merge events into snort database...";
+	system($cmdline);
 	if ($debug) echo "ok\n";
+// 3.2) CREATE A NEW Database Profile for SIEM
 } else {
-	if ($debug) echo "already exists\n";
+	if ($debug) echo "Creating Database Profile...";
+	$list = Databases::get_list($conn,"WHERE name='$snort_name_temp'");
+	if (count($list) < 1) {
+		Databases::insert($conn, $snort_name_temp, $snort_host, $snort_port, $snort_user, $snort_pass, "");
+		if ($debug) echo "ok\n";
+	} else {
+		if ($debug) echo "already exists\n";
+	}
 }
 if ($debug) echo "All Done.\n";
 $conn->disconnect();

@@ -12,6 +12,12 @@ while (<STDIN>) {
 		my $values = $1;
 		my @values_cols = split(/\,/,$values);
 		my $num_cols = @values_cols;
+		if ($num_cols == 20 && $values =~ /\d+\,\d+\,\'\d\d\d\d\-\d\d\-\d\d \d\d\:\d\d\:\d\d\',0\,0\,/) {
+			$line =~ s/(\d+\,\d+\,\'\d\d\d\d\-\d\d\-\d\d \d\d\:\d\d\:\d\d\'),0\,0/$1/g;
+			$values =~ s/(\d+\,\d+\,\'\d\d\d\d\-\d\d\-\d\d \d\d\:\d\d\:\d\d\'),0\,0/$1/;
+			@values_cols = split(/\,/,$values);
+			$num_cols = @values_cols;
+		}
 		if (defined $columns['acid_event'][$num_cols]) {
 			my $replace_string = $columns['acid_event'][$num_cols];
 			$line =~ s/INSERT\s+IGNORE\s+INTO\s+\`acid\_event\`\s+VALUES/INSERT IGNORE INTO `acid_event` ($replace_string) VALUES/;

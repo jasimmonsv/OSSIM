@@ -49,9 +49,11 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 //$backup_dir = "/root/pruebas_backup";
 $isDisabled = Backup::running_restoredb();
 $perform = POST("perform");
+$nomerge = (POST("nomerge") != "") ? POST("nomerge") : "merge";
 $filter_by = (POST('user') != "") ? POST('user') : (POST('entity') != "" ? POST('entity') : "");
 $message = "";
 ossim_valid($perform, "insert", "delete", OSS_NULLABLE, 'illegal:' . _("perform"));
+ossim_valid($nomerge, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nomerge"));
 ossim_valid($filter_by, OSS_NULLABLE, OSS_DIGIT, OSS_USER, 'illegal:' . _("filter_by"));
 if (is_array(POST("insert"))) {
 	foreach (POST("insert") as $insert_date) {
@@ -121,7 +123,7 @@ a {
 if (!$isDisabled) {
     if ($perform == "insert" && is_array(POST("insert"))) {
     	$insert = POST("insert");
-        $message = Backup::Insert($insert,$filter_by);
+        $message = Backup::Insert($insert,$filter_by,$nomerge);
         if($message=="")
             $message = _("Insert action is running, please wait a few seconds...");
     } elseif ($perform == "delete") {

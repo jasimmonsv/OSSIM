@@ -45,12 +45,11 @@ require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 require_once ('classes/Log_action.inc');
 class Backup {
-    function Insert($insert, $filter_by = "") {
+    function Insert($insert, $filter_by = "", $nomerge = "merge") {
         $newfiles = array();
         $oldfiles = array();
         $message = "";
         $files = "";
-        
         $conf = $GLOBALS["CONF"];
         $data_dir = $conf->get_conf("data_dir");
         $backup_dir = $conf->get_conf("backup_dir");
@@ -107,10 +106,10 @@ class Backup {
         	$inc = 100/$total;
         	$files = Backup::array2str($newfiles);
             $files = escapeshellcmd($files);
-            //echo "Launching: $data_dir/scripts/restoredb.pl insert $files $user $filter_by\n";
+            //echo "Launching: $data_dir/scripts/restoredb.pl insert $files $user $nomerge $filter_by\n";exit;
             //shell_exec("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $filter_by > /tmp/restoredb.log 2>&1 &");
         	?><script type="text/javascript">$("#pbar").progressBar(0);$("#progressText").html('<?php echo _("Executing insert script") ?>...');</script><?php
-            $fp = popen("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $filter_by 2>>/dev/null", "r");
+            $fp = popen("nohup perl $data_dir/scripts/restoredb.pl insert $files $user $nomerge $filter_by 2>>/dev/null", "r");
             $perc = 0;
             $error = "";
             while (!feof($fp)) {
@@ -155,7 +154,7 @@ class Backup {
             //echo "<br><br><br>nohup perl $data_dir/scripts/restoredb.pl remove $files $user";exit;
             //shell_exec("nohup perl $data_dir/scripts/restoredb.pl remove $files $user >/tmp/restoredb.log 2>&1 &");
             ?><script type="text/javascript">$("#pbar").progressBar(2);$("#progressText").html('<?php echo _("Executing remove script") ?>...');</script><?php
-            $fp = popen("nohup perl $data_dir/scripts/restoredb.pl remove $files $user 2>>/dev/null", "r");
+            $fp = popen("nohup perl $data_dir/scripts/restoredb.pl remove $files $user null 2>>/dev/null", "r");
             $perc = 0;
             $error = "";
             while (!feof($fp)) {

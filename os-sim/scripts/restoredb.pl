@@ -7,8 +7,8 @@ $|=1;
 # 2009-05-13 jmalbarracin
 # 2011-02-18 Pablo Vargas
 
-# restoredb.pl action YYYYMMDD user entity
-# perl /usr/share/ossim/scripts/restoredb.pl insert 20100601 admin 1 
+# restoredb.pl action YYYYMMDD user nomerge entity|user
+# perl /usr/share/ossim/scripts/restoredb.pl insert 20100601 admin nomerge 1 
 use ossim_conf;
 use DBI;
 use POSIX;
@@ -31,7 +31,16 @@ unless ($base_dir) {
     exit;
 }
 
-my $filter_by = ($ARGV[3]) ? $ARGV[3] : "";
+if ($ARGV[3] eq "") {
+	print "USAGE: restoredb.pl action YYYYMMDD user nomerge|null [entity|user]\n";
+	exit;
+}
+
+my $today = getCurrentTimestamp();
+
+my $nomerge = ($ARGV[3] eq "nomerge") ? 1 : 0;
+
+my $filter_by = ($ARGV[4]) ? $ARGV[4] : "";
 if ($filter_by ne "" && $filter_by !~ /^[a-zA-Z0-9\-\_\.]+$/) {
 	print "Parameters error\n";
 }
@@ -56,7 +65,8 @@ my $backup_day = $ossim_conf::ossim_data->{"backup_day"};
 
 # Data Source 
 my $snort_type = $ossim_conf::ossim_data->{"snort_type"};
-my $snort_name = ($filter_by ne "") ? "snort_restore_".$filter_by : $ossim_conf::ossim_data->{"snort_base"};
+my $snort_name = ($nomerge) ? "snort_restore_".$today."_".$filter_by : $ossim_conf::ossim_data->{"snort_base"};
+$snort_name =~ s/(\s|\-|\:)/_/g;
 my $snort_host = $ossim_conf::ossim_data->{"snort_host"};
 my $snort_port = $ossim_conf::ossim_data->{"snort_port"};
 my $snort_user = $ossim_conf::ossim_data->{"snort_user"};
@@ -73,13 +83,12 @@ my $ossim_pass = $ossim_conf::ossim_data->{"ossim_pass"};
 my $ossim_dsn = "dbi:" . $ossim_type . ":" . $ossim_name . ":" . $ossim_host . ":" . $ossim_port . ":";
 my $ossim_conn = DBI->connect($ossim_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
 
-my $cmdline = "mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port $snort_name";
+my $cmdline = "mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port '$snort_name'";
 
-# Create aux databases for selective restore
-if ($filter_by ne "") {
+# Create aux database for restore
+if ($ARGV[0] eq "insert" && $nomerge) {
 	my $dbh=DBI->connect('dbi:mysql:',$ossim_conf::ossim_data->{"ossim_user"},$ossim_conf::ossim_data->{"ossim_pass"}, {RaiseError=>1}) or die "Couldn't connect:".DBI->errstr();
-	my $dbname = "snort_restore_".$filter_by;
-	$dbh->do("create database if not exists $dbname");
+	$dbh->do("create database if not exists $snort_name");
 	createAuxDBStructure();
 }
 
@@ -155,8 +164,11 @@ sub main {
     my $action = shift;
     my $list = shift;
     my $user = shift;
+    my $nomerge_param = shift;
     my $filtered_by = shift;
     $filtered_by = "" if (!defined $filtered_by);
+
+	my $nomerge = ($nomerge_param eq "nomerge") ? 1 : 0;
 
     return unless (($action eq "insert") || ($action eq "remove"));
 
@@ -209,8 +221,8 @@ sub main {
     $stm->finish();
     
     # Selective insert. Filtering by php script
-    if ($filtered_by ne "") {
-    	my $cmd = "php /usr/share/ossim/scripts/restoredb_filter.php $filtered_by nodebug";
+    if ($filtered_by ne "" || $nomerge) {
+    	my $cmd = "php /usr/share/ossim/scripts/restoredb_filter.php '$snort_name' $nomerge_param '$filtered_by' nodebug";
     	system($cmd);
     }
     
