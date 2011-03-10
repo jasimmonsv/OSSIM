@@ -629,7 +629,7 @@ function valid_cidr($cidrs)
 			continue;
 		else
 		{
-			ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<b>".$v."</b>'");
+			ossim_set_error(_("Invalid IP/Mask address. Format allowed: nnn.nnn.nnn.nnn/nn") . "<br/>Entered CIDR: '<strong>".$v."</strong>'");
 			return false;
 		}
 	}
@@ -786,12 +786,19 @@ function valid_quotes($value) {
     return false;
 }
 
-function valid_day($value) {
-    if (preg_match('/(\d+)-(\d+)-(\d+)/', $value, $m)) {
-        return checkdate($m[2],$m[3],$m[1]);
-    }
-    ossim_set_error(_("Invalid Date. Format allowed: YYYY-MM-DD"));
-    return false;
+function valid_day($value)
+{
+	if ( preg_match('/(\d+)-(\d+)-(\d+)/', $value, $m) )
+	{
+		$valid_date = checkdate($m[2],$m[3],$m[1]);
+
+		if ($valid_date === true)
+			return true;
+
+	}
+
+	ossim_set_error(_("Invalid Date. Format allowed: YYYY-MM-DD") . "<br/>Entered date: '<strong>".$value."</strong>'");
+	return false;
 }
 
 /* Test perms in sensor_ip */
