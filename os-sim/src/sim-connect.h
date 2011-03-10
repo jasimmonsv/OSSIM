@@ -43,7 +43,11 @@ Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 
 G_BEGIN_DECLS
 
-
+typedef struct
+{
+  gchar *key;
+  gchar *base64data;
+}base64_param;
 gpointer  sim_connect_send_alarm			(gpointer data);
 void		pipe_handler				(int signum);
 
