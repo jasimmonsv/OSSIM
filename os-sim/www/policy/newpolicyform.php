@@ -88,11 +88,11 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 					if (dtnode.data.url.match(/CCLASS/)) {
 						// add childrens if is a C class
 						var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
-						deletefrom(combo,'ANY','ANY');
+						deletevaluefrom(combo,'ANY','ANY');
 						for (c=0;c<children.length; c++)
 							addto(combo,children[c].data.url,children[c].data.url)
 					} else {
-						deletefrom(combo,'ANY','ANY');
+						deletevaluefrom(combo,'ANY','ANY');
 						addto(combo,dtnode.data.url,dtnode.data.url);
 					}
 					drawpolicy();
@@ -125,7 +125,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 				clickFolderMode: 2,
 				onActivate: function(dtnode) {
 					if (dtnode.data.url!='noport') {
-						deletefrom('ports','ANY','ANY');
+						deletevaluefrom('ports','ANY','ANY');
 						addto('ports',dtnode.data.url,dtnode.data.url);
 					}
 					drawpolicy();
@@ -770,7 +770,7 @@ if ($insert != "") {
 						<select id="sources" name="sources[]" size="21" multiple="multiple" style="width:250px">
 							<?php foreach($sources as $source) echo "<option value='$source'>$source"; ?>
 						</select>
-						<input type="button" class="lbutton" value=" [X] " onclick="deleteselectedfrom('sources');drawpolicy()"/>
+						<input type="button" class="lbutton" value=" [X] " onclick="deletefrom('sources');drawpolicy()"/>
 					</td>
 				</tr>
 				</table>
@@ -813,7 +813,7 @@ if ($insert != "") {
 						<select id="dests" name="dests[]" size="21" multiple="multiple" style="width:250px">
 							<?php foreach($dests as $dest) echo "<option value='$dest'>$dest"; ?>
 						</select>
-						<input type="button" value=" [X] " onclick="deleteselectedfrom('dests');drawpolicy()" class="lbutton"/>
+						<input type="button" value=" [X] " onclick="deletefrom('dests');drawpolicy()" class="lbutton"/>
 					</td>
 				</tr>
 				</table>
@@ -852,7 +852,7 @@ if ($insert != "") {
 				<select id="ports" name="mboxp[]" size="20" multiple="multiple" class="multi" style="width:200px">
 					<?php foreach($ports as $pgrp) echo "<option value='$pgrp'>$pgrp"; ?>
 				</select>
-				<input type="button" value=" [X] " class="lbutton" onclick="deleteselectedfrom('ports');drawpolicy()"/>
+				<input type="button" value=" [X] " class="lbutton" onclick="deletefrom('ports');drawpolicy()"/>
 			</td>
 			
 			<td class="left nobborder" valign="top">
@@ -927,7 +927,7 @@ if ($insert != "") {
 				<select id="sensors" name="mboxs[]" size="20" multiple="multiple" class="multi" style="width:200px">
 					<?php foreach($sensors as $sensor) echo "<option value='$sensor'>$sensor"; ?>
 				</select>
-				<input type="button" value=" [X] " onclick="deleteselectedfrom('sensors');drawpolicy()" class="lbutton"/>
+				<input type="button" value=" [X] " onclick="deletefrom('sensors');drawpolicy()" class="lbutton"/>
 			</td>
 			<td class="left nobborder" valign="top">
 				<div id="containerse" style="width:350px"></div>

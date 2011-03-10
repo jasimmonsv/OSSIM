@@ -2,7 +2,7 @@
 	// COMBO functions
 	//
 	// delete selected options in a combo
-	function deleteselectedfrom (mysel) {
+	function deletefrom (mysel) {
 		var delems = [];
 		var myselect=document.getElementById(mysel);
 		for (var i=0; i<myselect.options.length; i++)
@@ -46,7 +46,7 @@
 		return false;
 	}
 	// delete option if txt,val exists in combo mysel
-	function deletefrom(mysel,txt,val) {
+	function deletevaluefrom(mysel,txt,val) {
 		var delems = [];
 		var myselect=document.getElementById(mysel);
 		for (var i=0; i<myselect.options.length; i++)
