@@ -2682,7 +2682,12 @@ sub process_results {
                     $i = 0;
                 }
             }
-            $vuln_resume{$hostip}++;
+            if(!defined($vuln_resume{$hostip})) {
+                $vuln_resume{$hostip} = $risk;
+            }
+            elsif($risk < $vuln_resume{$hostip}) {
+                $vuln_resume{$hostip} = $risk;
+            }
             # incidents
             update_ossim_incidents($hostip, $port, $risk, $desc, $scanid, $username, $sid);
         } #END FOR EACH RECORD
@@ -2706,12 +2711,21 @@ sub process_results {
             }
         }      
         
+        my $max_risk = 0;
+        
         foreach $hostip (keys %vuln_resume) {
+            # max_risk is the field risk in vuln_nessus_results table
+            $max_risk = $vuln_resume{$hostip};
+            
+            if($max_risk<=2)        {  $max_risk = 10;  }
+            elsif ($max_risk<=6)    {  $max_risk = 7;   }
+            else                    {  $max_risk = 3;   }
+            
             $sql = qq{ SELECT scriptid FROM vuln_nessus_latest_results WHERE hostIP='$hostip' };
             logwriter( $sql, 5 );
             $sth_sel = $dbh->prepare( $sql );
             $sth_sel->execute;
-            my $vt = 0;
+
             while ((my $scanid) = $sth_sel->fetchrow_array) {
                 #logwriter( "Scan id: $scanid", 5 );
                 # plugin_sid
@@ -2720,15 +2734,21 @@ sub process_results {
                 $sth_update = $dbh->prepare( $sql_update );
                 $sth_update->execute;
                 #
-                $vt++;
             }
-            # net accumulation
+            # net max risk
             foreach my $anet (keys %ntargets) {
                 $ntargets{$anet} =~ s/^\s*|\s*$//g;
-                $acnets{$ntargets{$anet}} += $vt if (ipinnet($hostip,$anet));
+                if (ipinnet($hostip,$anet)) {
+                    if(!defined($acnets{$ntargets{$anet}})) {
+                        $acnets{$ntargets{$anet}} = $max_risk ;
+                    }
+                    elsif($max_risk > $acnets{$ntargets{$anet}}) {
+                        $acnets{$ntargets{$anet}} = $max_risk ;
+                    }
+                }
             }
             # host_vulnerability
-            $sql_update = qq{ INSERT INTO host_vulnerability VALUES ('$hostip', '$scantime', $vt) ON DUPLICATE KEY UPDATE vulnerability=$vt  };
+            $sql_update = qq{ INSERT INTO host_vulnerability VALUES ('$hostip', '$scantime', $max_risk) ON DUPLICATE KEY UPDATE vulnerability=$max_risk  };
             logwriter( $sql_update, 5 );
             $sth_update = $dbh->prepare( $sql_update );
             $sth_update->execute;
