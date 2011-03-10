@@ -84,6 +84,7 @@ my $ossim_dsn = "dbi:" . $ossim_type . ":" . $ossim_name . ":" . $ossim_host . "
 my $ossim_conn = DBI->connect($ossim_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
 
 my $cmdline = "mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port '$snort_name'";
+my $cmddump = "mysqldump -p$snort_pass --no-data snort";
 
 # Create aux database for restore
 if ($ARGV[0] eq "insert" && $nomerge) {
@@ -151,17 +152,13 @@ sub executeFile {
 }
 
 sub createAuxDBStructure {
-    if (-e "/usr/share/doc/ossim-mysql/contrib/00-create_snort_tbls_mysql.sql.gz") {
-	    my $cmd = "zcat /usr/share/doc/ossim-mysql/contrib/00-create_snort_tbls_mysql.sql.gz | $cmdline";
-	    print LOG "Execute $cmd\n";
-	    open (F,"$cmd |");
-	    while (<F>) {
-	        print $_;
-	    }
-	    close F;
-    } else {
-    	print "Error creating temporary database\n";
+    my $cmd = "$cmddump | $cmdline";
+    print LOG "Execute $cmd\n";
+    open (F,"$cmd |");
+    while (<F>) {
+        print $_;
     }
+    close F;
 }
 
 sub main {
