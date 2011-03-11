@@ -61,204 +61,199 @@ sim_organizer_snort_sensor_get_sid(SimDatabase *db_snort, gchar *hostname,
 gboolean
 sim_command_snort_event_packet_scan(GScanner *scanner, SimCommand *command)
 {
-  gboolean r = FALSE;
+  gboolean r = TRUE;
   SimPacket *packet;
   if ((packet = sim_packet_new()) != NULL)
     {
       command->packet = packet;
-      r = TRUE;
+    }
+  else
+    {
+      g_message("sim_command_snort_event_packet_scan - sim_packet_new() fail!");
+      return FALSE;
     }
   g_scanner_set_scope(scanner, SIM_COMMAND_SCOPE_SNORT_EVENT_DATA);
 
-  g_scanner_get_next_token(scanner);
-  /* type */
-  if (r && scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_DATA_TYPE)
-    {
-      r = FALSE;
-      g_scanner_get_next_token(scanner); /* = */
-      g_scanner_get_next_token(scanner); /* type */
-      if (scanner->token == G_TOKEN_STRING)
-        {
-          command->data.event.type = g_strdup(scanner->value.v_string);
-          r = TRUE;
-        }
-    }
-
-  if (r)
+  do
     {
       g_scanner_get_next_token(scanner);
-      r = FALSE;
-      if (scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_DATE)
+      switch (scanner->token)
         {
-          struct tm t;
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* Date */
-          if (scanner->token == G_TOKEN_STRING)
-            {
-              command->data.event.date = strtol(scanner->value.v_string,
-                  (char **) NULL, 10);
-              r = TRUE;
-              g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-                  "sim_command_snort_event_packet_scan: getting date");
-            }
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_DATA_TYPE:
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* type */
+        if (scanner->token == G_TOKEN_STRING)
+          {
+            command->data.event.type = g_strdup(scanner->value.v_string);
+          }
+        else
+          {
+            g_message("Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_DATA_TYPE");
+            return FALSE;
+          }
+        break;
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_GID:/* snort_gid: Snort generator */
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* snort_gid */
+        if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
+            scanner->value.v_string, 0))
+          {
+            guint32 snort_gid = strtoul(scanner->value.v_string, (char**) NULL,
+                10);
+            if (errno != ERANGE && errno != EINVAL && snort_gid < (G_MAXUINT32
+                - 1000))
+              {
+                command->snort_event.snort_gid = snort_gid;
+                command->data.event.plugin_id = snort_gid + 1000;
+                r = TRUE;
+              }
+            else
+              {
+                g_message("Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_GID");
+                return FALSE;
+              }
+          }
+        else
+          {
+            g_message(
+                "Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_GID. String not a number");
+            return FALSE;
+          }
+        break;
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_SID: /* snort_sid */
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* snort_sid */
+        if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
+            scanner->value.v_string, 0))
+          {
+            guint32 snort_sid = strtoul(scanner->value.v_string, (char**) NULL,
+                10);
+            if (errno != ERANGE && errno != EINVAL)
+              {
+                command->snort_event.snort_sid = snort_sid;
+                command->data.event.plugin_sid = snort_sid;
+                r = TRUE;
+              }
+            else
+              {
+                g_message("Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_SID");
+                return FALSE;
+              }
+          }
+        else
+          {
+            g_message(
+                "Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_SID. String not a number");
+            return FALSE;
+          }
+        break;
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_REV:
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* snort_rev */
+        if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
+            scanner->value.v_string, 0))
+          {
+            guint32 snort_rev = strtoul(scanner->value.v_string, (char**) NULL,
+                10);
+            if (errno != ERANGE && errno != EINVAL)
+              {
+                command->snort_event.snort_rev = snort_rev;
+                r = TRUE;
+              }
+            else
+              {
+                g_message("Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_REV");
+                return FALSE;
+              }
+          }
+        else
+          {
+            g_message(
+                "Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_REV. String not a number");
+            return FALSE;
+          }
+        break;
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_CLASSIFICATION: /* snort_classification */
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* snort_classification */
+        if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
+            scanner->value.v_string, 0))
+          {
+            guint32 snort_classification = strtoul(scanner->value.v_string,
+                (char**) NULL, 10);
+            if (errno != ERANGE && errno != EINVAL)
+              {
+                command->snort_event.snort_classification
+                    = snort_classification;
+                r = TRUE;
+              }
+            else
+              {
+                g_message(
+                    "Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_CLASSIFICATION");
+                return FALSE;
+              }
+          }
+        else
+          {
+            g_message(
+                "Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_CLASSIFICATION. String not a number");
+            return FALSE;
+          }
+        break;
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_PRIORITY:
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* snort_priority */
+        if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
+            scanner->value.v_string, 0))
+          {
+            guint32 snort_priority = strtoul(scanner->value.v_string,
+                (char**) NULL, 10);
+            if (errno != ERANGE && errno != EINVAL)
+              {
+                command->snort_event.snort_priority = snort_priority;
+                r = TRUE;
+              }
+            else
+              {
+                g_message("Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_PRIORITY");
+                return FALSE;
+              }
+          }
+        else
+          {
+            g_message(
+                "Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_PRIORITY. String not a number");
+            return FALSE;
+          }
+        break;
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_PACKET_TYPE:
+        /* now we haven't raw packects logs. Discart it, but the
+         * Snort event is created*/
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* value, discar it */
+        if (scanner->token == G_TOKEN_STRING)
+          {
+            if (strcmp(scanner->value.v_string, "raw") == 0)
+              r = sim_command_snort_event_packet_raw_scan(scanner, command);
+            else if (strcmp(scanner->value.v_string, "ip") == 0)
+              r = sim_command_snort_event_packet_ip_scan(scanner, command);
+            else
+              {
+                g_message("Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_PACKET_TYPE");
+                return FALSE;
+              }
+          }
+        else
+          {
+            g_message(
+                "Fail case SIM_COMMAND_SYMBOL_SNORT_EVENT_PACKET_TYPE. String not a number");
+            return FALSE;
+          }
+        break;
         }
     }
-
-  if (r)
-    {
-      g_scanner_get_next_token(scanner);
-      r = FALSE;
-      if (scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_DATE_STRING)
-        {
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* Date */
-          if (scanner->token == G_TOKEN_STRING)
-            {
-              command->data.event.date_str = g_strdup(scanner->value.v_string);
-              r = TRUE;
-            }
-          g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-              "sim_command_snort_event_packet_scan: getting date string");
-        }
-    }
-
-  /* snort_gid: Snort generator */
-  if (r)
-    {
-      g_scanner_get_next_token(scanner);
-      r = FALSE;
-      if (scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_GID)
-        {
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* snort_gid */
-          if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
-              scanner->value.v_string, 0))
-            {
-              guint32 snort_gid = strtoul(scanner->value.v_string,
-                  (char**) NULL, 10);
-              if (errno != ERANGE && errno != EINVAL && snort_gid
-                  < (G_MAXUINT32 - 1000))
-                {
-                  command->snort_event.snort_gid = snort_gid;
-                  command->data.event.plugin_id = snort_gid + 1000;
-                  r = TRUE;
-                }
-            }
-        }
-    }
-  /* snort_sid */
-  if (r)
-    {
-      g_scanner_get_next_token(scanner);
-      if (scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_SID)
-        {
-          r = FALSE;
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* snort_sid */
-          if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
-              scanner->value.v_string, 0))
-            {
-              guint32 snort_sid = strtoul(scanner->value.v_string,
-                  (char**) NULL, 10);
-              if (errno != ERANGE && errno != EINVAL)
-                {
-                  command->snort_event.snort_sid = snort_sid;
-                  command->data.event.plugin_sid = snort_sid;
-                  r = TRUE;
-                }
-            }
-        }
-    }
-  /* snort_rev */
-  if (r)
-    {
-      g_scanner_get_next_token(scanner);
-      if (scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_REV)
-        {
-          r = FALSE;
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* snort_rev */
-          if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
-              scanner->value.v_string, 0))
-            {
-              guint32 snort_rev = strtoul(scanner->value.v_string,
-                  (char**) NULL, 10);
-              if (errno != ERANGE && errno != EINVAL)
-                {
-                  command->snort_event.snort_rev = snort_rev;
-                  r = TRUE;
-                }
-            }
-        }
-
-    }
-  /* snort_classification */
-  if (r)
-    {
-      g_scanner_get_next_token(scanner);
-      if (scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_CLASSIFICATION)
-        {
-          r = FALSE;
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* snort_classification */
-          if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
-              scanner->value.v_string, 0))
-            {
-              guint32 snort_classification = strtoul(scanner->value.v_string,
-                  (char**) NULL, 10);
-              if (errno != ERANGE && errno != EINVAL)
-                {
-                  command->snort_event.snort_classification
-                      = snort_classification;
-                  r = TRUE;
-                }
-            }
-        }
-    }
-  /* snort_priority */
-  if (r)
-    {
-      g_scanner_get_next_token(scanner);
-      if (scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_PRIORITY)
-        {
-          r = FALSE;
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* snort_priority */
-          if (scanner->token == G_TOKEN_STRING && sim_string_is_number(
-              scanner->value.v_string, 0))
-            {
-              guint32 snort_priority = strtoul(scanner->value.v_string,
-                  (char**) NULL, 10);
-              if (errno != ERANGE && errno != EINVAL)
-                {
-                  command->snort_event.snort_priority = snort_priority;
-                  r = TRUE;
-                }
-            }
-        }
-    }
-  /* Now, scan the packet */
-  if (r)
-    {
-      g_scanner_get_next_token(scanner);
-      r = FALSE;
-      if (scanner->token == SIM_COMMAND_SYMBOL_SNORT_EVENT_PACKET_TYPE)
-        {
-          /* now we haven't raw packects logs. Discart it, but the
-           * Snort event is created*/
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* value, discar it */
-          if (scanner->token == G_TOKEN_STRING)
-            {
-              if (strcmp(scanner->value.v_string, "raw") == 0)
-                r = sim_command_snort_event_packet_raw_scan(scanner, command);
-              else if (strcmp(scanner->value.v_string, "ip") == 0)
-                r = sim_command_snort_event_packet_ip_scan(scanner, command);
-              else
-                r = FALSE;
-            }
-        }
-    }
+  while (scanner->token != G_TOKEN_EOF);
 
   /* remember, after we insert in the database the event, the snort cid,sid of the event data
    * points to the event*/
@@ -1425,7 +1420,7 @@ sim_command_snort_event_scan(SimCommand *command, GScanner *scanner)
   memset(&command->data, sizeof(command->data), 0);
   memset(&zstr, sizeof(zstr), 0);
 
-  gchar* real_time_str = NULL;
+  //gchar* real_time_str = NULL;
 
   g_scanner_set_scope(scanner, SIM_COMMAND_SCOPE_SNORT_EVENT);
   do
@@ -1449,22 +1444,61 @@ sim_command_snort_event_scan(SimCommand *command, GScanner *scanner)
               }
             break;
           }
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_DATE:
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* value */
+
+        if (scanner->token != G_TOKEN_STRING)
+          {
+            command->type = SIM_COMMAND_TYPE_NONE;
+            break;
+          }
+        if (sim_string_is_number(scanner->value.v_string, 1))
+          command->data.event.date = strtol(scanner->value.v_string,
+              (char **) NULL, 10);
+        else
+          {
+            g_message(
+                "Error: event incorrect. Please check the date issued from the agent: %s",
+                scanner->value.v_string);
+            return FALSE;
+          }
+        break;
+
       case SIM_COMMAND_SYMBOL_SNORT_EVENT_DATE_STRING:
-        {
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* value */
 
-          g_scanner_get_next_token(scanner); /* = */
-          g_scanner_get_next_token(scanner); /* Date */
-          if (scanner->token == G_TOKEN_STRING)
-            {
-              //command->data.event.date_str = g_strdup(scanner->value.v_string);
-              real_time_str = g_strdup(scanner->value.v_string);
-              r = TRUE;
-            }
-          g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-              "sim_command_snort_event_packet_scan: getting date string");
+        if (scanner->token != G_TOKEN_STRING)
+          {
+            command->type = SIM_COMMAND_TYPE_NONE;
+            break;
+          }
 
-          break;
-        }
+        command->data.event.date_str = g_strdup(scanner->value.v_string);
+        break;
+
+      case SIM_COMMAND_SYMBOL_SNORT_EVENT_TZONE:
+        g_scanner_get_next_token(scanner); /* = */
+        g_scanner_get_next_token(scanner); /* value */
+
+        if (scanner->token != G_TOKEN_STRING)
+          {
+            command->type = SIM_COMMAND_TYPE_NONE;
+            break;
+          }
+        if (sim_string_is_number(scanner->value.v_string, 1))
+          command->data.event.tzone = g_ascii_strtod(scanner->value.v_string,
+              (gchar**) NULL);
+        else
+          {
+            g_message(
+                "Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s",
+                scanner->value.v_string);
+            return FALSE;
+          }
+        break;
+
       case SIM_COMMAND_SYMBOL_SNORT_EVENT_IF:
         g_scanner_get_next_token(scanner); /* = */
         g_scanner_get_next_token(scanner); /* value */
@@ -1521,7 +1555,7 @@ sim_command_snort_event_scan(SimCommand *command, GScanner *scanner)
           }
         break;
 
-        }
+        }//end switch
 
 #if 0
 
@@ -1678,17 +1712,17 @@ sim_command_snort_event_scan(SimCommand *command, GScanner *scanner)
           "sim_command_snort_event_scan: Cannot alloc memory");
     }
 
-  if (real_time_str!=NULL)
-    {
-      if (command->data.event.date_str)
-        {
-          g_free(command->data.event.date_str);
-          command->data.event.date_str = g_strdup(real_time_str);
-        }
-    }
+  //  if (real_time_str != NULL)
+  //    {
+  //      if (command->data.event.date_str)
+  //        {
+  //          g_free(command->data.event.date_str);
+  //          command->data.event.date_str = g_strdup(real_time_str);
+  //        }
+  //    }
 
-//  if (real_time_str != NULL)
-//    g_free(real_time_str);
+  //  if (real_time_str != NULL)
+  //    g_free(real_time_str);
   return r;
 }
 /* Update the snort database */
