@@ -547,6 +547,8 @@ static const struct
     { "unziplen", SIM_COMMAND_SYMBOL_UNZIPLEN },
     { "gzipdata", SIM_COMMAND_SYMBOL_GZIPDATA },
     { "event_type", SIM_COMMAND_SYMBOL_SNORT_EVENT_TYPE },
+    { "date", SIM_COMMAND_SYMBOL_SNORT_EVENT_DATE },
+    { "tzone", SIM_COMMAND_SYMBOL_SNORT_EVENT_TZONE },
     { "fdate", SIM_COMMAND_SYMBOL_SNORT_EVENT_DATE_STRING } };
 static const struct
 {
@@ -555,9 +557,6 @@ static const struct
 } snort_event_data_symbols[] =
   {
     { "type", SIM_COMMAND_SYMBOL_SNORT_EVENT_DATA_TYPE },
-    { "date", SIM_COMMAND_SYMBOL_SNORT_EVENT_DATE },
-    { "fdate", SIM_COMMAND_SYMBOL_SNORT_EVENT_DATE_STRING },
-    { "tzone", SIM_COMMAND_SYMBOL_DATE_TZONE },
     { "snort_gid", SIM_COMMAND_SYMBOL_SNORT_EVENT_GID },
     { "snort_sid", SIM_COMMAND_SYMBOL_SNORT_EVENT_SID },
     { "snort_rev", SIM_COMMAND_SYMBOL_SNORT_EVENT_REV },
