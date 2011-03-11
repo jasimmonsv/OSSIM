@@ -193,7 +193,7 @@ function get_values($conn,$host_types,$type,$name,$ips,$only_values = false) {
 	        $AvailValue = get_value_by_digit($rs2->fields["severity"]);
         }
     }
-    return array($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip);
+    return array($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$r_ip);
 }
 // get risk values for linked map (recursive)
 function get_map_values($conn,$map,$name,$type,$host_types) {
@@ -217,7 +217,7 @@ function get_map_values($conn,$map,$name,$type,$host_types) {
 				
 			// Asset Values per link. Get the most risk value
 			list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$rs4->fields["type_name"],$rs4->fields["type"],$host_types);
-			list ($RiskValue_aux,$VulnValue_aux,$AvailValue_aux,$v_ip_aux,$a_ip_aux) = get_values($conn,$host_types,$rs4->fields["type"],$name,$ips,true);
+			list ($RiskValue_aux,$VulnValue_aux,$AvailValue_aux,$v_ip_aux,$a_ip_aux,$r_ip_aux) = get_values($conn,$host_types,$rs4->fields["type"],$name,$ips,true);
 			if ($RiskValue_aux > $RiskValue_max) { $RiskValue_max = $RiskValue_aux; }
 			if ($VulnValue_aux > $VulnValue_max) { $VulnValue_max = $VulnValue_aux; $v_ip = $v_ip_aux; }
 			if ($AvailValue_aux > $AvailValue_max) { $AvailValue_max = $AvailValue_aux; $a_ip = $a_ip_aux; }
@@ -241,7 +241,7 @@ function print_indicator_content($conn,$rs) {
     } else {
     	// Asset Values
     	list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$rs->fields["type_name"],$rs->fields["type"],$host_types);
-    	list ($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip) = get_values($conn,$host_types,$type,$name,$ips,false);
+    	list ($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$r_ip) = get_values($conn,$host_types,$type,$name,$ips,false);
     }
     
     $gtype = ($type=="net") ? "net" : "host";
