@@ -154,9 +154,12 @@ echo gettext("OSSIM Framework"); ?> </title>
                 //Delete host by ajax
                 if (typeof(hostname) != 'undefined') {
                     if (hostname.match(/snort\_restore/)) {
-						alert("<?php echo _("Database") ?> "+hostname+" <?php echo _("will be dropped").". "._("Are you sure?") ?>");
+                    	if (confirm("<?php echo _("Database") ?> "+hostname+" <?php echo _("will be dropped").". "._("Are you sure?") ?>")) {
+    						document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(hostname);
+    					}
+                    } else {
+                        document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(hostname);
                     }
-                        //document.location.href = 'deletedbs.php?confirm=yes&name='+urlencode(hostname);
                 }
                 else alert('<?=_("Database server unselected")?>');
             }
