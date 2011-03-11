@@ -547,7 +547,7 @@ REPLACE INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file
 use ossim;
-REPLACE INTO config (conf, value) VALUES ('last_update', '2011-03-07');
+REPLACE INTO config (conf, value) VALUES ('last_update', '2011-03-11');
 REPLACE INTO config (conf, value) VALUES ('ossim_schema_version', '2.4.21');
 COMMIT;
 -- NOTHING BELOW THIS LINE / NADA DEBAJO DE ESTA LINEA
