@@ -176,7 +176,7 @@ while (!$rs->EOF) {
 ?>
 <table width="100%" class="transparent">
 	<tr>
-        <th colspan="3"><?php echo _("Group") ?></th>
+        <th colspan="3"><?php echo _("Network") ?></th>
         <th><?php echo _("Max Date") ?></th>
         <th><?php echo _("Max") ?></th>
         <th><?php echo _("Current") ?></th>
