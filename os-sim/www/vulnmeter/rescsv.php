@@ -380,7 +380,7 @@ echo "<th>"._("RISK LEVEL")."</th>";
 echo "<th>"._("VULNERABILITY")."</th>";
 echo "<th>"._("OBSERVATION")."</th>";
 echo "<th>"._("REMEDIATION")."</th>";
-echo "<th>"._("CONSECUENCES")."</th>";
+echo "<th>"._("CONSEQUENCES")."</th>";
 echo "<th>"._("TEST OUTPUT")."</th>";
 echo "<th>"._("OPERATING SYSTEM")."</th>";
 echo "</tr>";

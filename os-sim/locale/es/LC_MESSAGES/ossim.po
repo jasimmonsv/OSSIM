@@ -1651,7 +1651,7 @@ msgstr "CIDR"
 msgid "CLIENT:"
 msgstr "CLIENTE:"
 
-msgid "CONSECUENCES"
+msgid "CONSEQUENCES"
 msgstr "CONSECUENCIAS"
 
 msgid "CRITERIA ERROR: unknown address type -- assuming Dst address"
