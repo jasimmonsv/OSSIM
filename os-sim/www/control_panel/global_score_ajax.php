@@ -39,12 +39,20 @@ Session::logcheck("MenuControlPanel", "ControlPanelMetrics");
 
 $group_name = GET('group_name');
 $ac = GET('ac');
+$range = GET('range');
+if (!$range) {
+    $range = 'day';
+}
 
 ossim_valid($group_name, OSS_TEXT, OSS_SPACE, 'illegal:' . _("group_name"));
 ossim_valid($ac, OSS_ALPHA, 'illegal:' . _("ac"));
+ossim_valid($range, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("range"));
 if (ossim_error()) {
     die(ossim_error());
 }
+
+$conf = $GLOBALS['CONF'];
+$conf_threshold = $conf->get_conf('threshold');
 
 $db = new ossim_db();
 $conn = $db->connect();
@@ -68,12 +76,12 @@ if ($allowed_sensors) {
 $net_where = "";
 if ($allowed_sensors != "" || $allowed_nets != "") {
 	$nets_aux = Net::get_list($conn);
-	$networks = "";
+	$networks_str = "";
 	foreach ($nets_aux as $net) {
-		$networks .= ($networks != "") ? ",'".$net->get_name()."'" : "'".$net->get_name()."'"; 
+		$networks_str .= ($networks_str != "") ? ",'".$net->get_name()."'" : "'".$net->get_name()."'"; 
 	}
-	if ($networks != "") {
-		$net_where = " AND net.name in ($networks)";
+	if ($networks_str != "") {
+		$net_where = " AND net.name in ($networks_str)";
 	}
 }
 //$net_limit = " LIMIT $from,$max";
@@ -98,6 +106,7 @@ if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
 $groups = array();
+$networks = array();
 $group_max_c = $group_max_a = 0;
 
 while (!$rs->EOF) {
@@ -170,6 +179,131 @@ while (!$rs->EOF) {
         'has_perms' => $has_perms
     );
     
+    $rs->MoveNext();
+}
+
+////////////////////////////////////////////////////////////////
+// Hosts
+////////////////////////////////////////////////////////////////
+$host_where = "";
+if ($allowed_sensors != "" || $allowed_nets != "") {
+	$hosts_aux = Host::get_list($conn);
+	$hosts = "";
+	foreach ($hosts_aux as $host) {
+		$hosts .= ($hosts != "") ? ",'".$host->get_ip()."'" : "'".$host->get_ip()."'";
+	}
+	if ($hosts != "") {
+		$host_where = " AND control_panel.id in ($hosts)";
+	}
+}
+$sql = "SELECT
+            control_panel.id,
+            control_panel.max_c,
+            control_panel.max_a,
+            control_panel.max_c_date,
+            control_panel.max_a_date,
+            host.threshold_a,
+            host.threshold_c,
+            host.hostname
+        FROM
+            control_panel
+        LEFT JOIN host ON control_panel.id = host.ip
+        WHERE
+            control_panel.time_range = ? AND
+            control_panel.rrd_type = 'host'$host_where";
+$params = array(
+    $range
+);
+if (!$rs = & $conn->Execute($sql, $params)) {
+    die($conn->ErrorMsg());
+}
+$hosts = $ext_hosts = array();
+$global_a = $global_c = 0;
+while (!$rs->EOF) {
+    $ip = $rs->fields['id'];
+    $net = host_get_network_data($ip);
+    // No perms over the host's network
+    if ($net === false) {
+        $rs->MoveNext();
+        continue;
+        // Host doesn't belong to any network
+        
+    } elseif ($net === null) {
+        $threshold_a = $conf_threshold;
+        $threshold_c = $conf_threshold;
+        // User got perms
+        
+    } else {
+        // threshold inheritance
+        $threshold_a = $rs->fields['threshold_a'] ? $rs->fields['threshold_a'] : $net['threshold_a'];
+        $threshold_c = $rs->fields['threshold_c'] ? $rs->fields['threshold_c'] : $net['threshold_c'];
+    }
+	
+	// No perms over the host (by sensor filter)
+	/* Patch: already filtered
+    if (!Session::hostAllowed($conn,$ip)) {
+		$rs->MoveNext();
+		continue;
+	}
+	*/
+	
+    // get host & global metrics
+    $current_a = get_current_metric($host_qualification_cache,$net_qualification_cache,$ip, 'host', 'attack');
+    $current_c = get_current_metric($host_qualification_cache,$net_qualification_cache,$ip, 'host', 'compromise');
+    $global_a+= $current_a;
+    $global_c+= $current_c;
+    // only show hosts over their threshold
+    $max_a_level = round($rs->fields['max_a'] / $threshold_a);
+    $current_a_level = round($current_a / $threshold_a);
+    $max_c_level = round($rs->fields['max_c'] / $threshold_c);
+    $current_c_level = round($current_c / $threshold_c);
+    //* comment out this if you want to see all hosts
+    /* Always show toggle button
+    if ($max_a_level <= 1 && $current_a_level <= 1 && $max_c_level <= 1 && $current_c_level <= 1) {
+        $rs->MoveNext();
+        continue;
+    }
+    */
+    //*/
+    $name = Host::ip2hostname($conn, $ip);
+    // $name = $rs->fields['hostname'] ? $rs->fields['hostname'] : $ip;
+    if ($net === null) {
+        $ext_hosts[$ip] = array(
+            'name' => $name,
+            'threshold_a' => $threshold_a,
+            'threshold_c' => $threshold_c,
+            'max_c' => $rs->fields['max_c'],
+            'max_a' => $rs->fields['max_a'],
+            'max_c_date' => $rs->fields['max_c_date'],
+            'max_a_date' => $rs->fields['max_a_date'],
+            'current_a' => $current_a,
+            'current_c' => $current_c,
+        );
+    } else {
+    	$data = array(
+            'name' => $name,
+            'threshold_a' => $threshold_a,
+            'threshold_c' => $threshold_c,
+            'max_c' => $rs->fields['max_c'],
+            'max_a' => $rs->fields['max_a'],
+            'max_c_date' => $rs->fields['max_c_date'],
+            'max_a_date' => $rs->fields['max_a_date'],
+            'current_a' => $current_a,
+            'current_c' => $current_c,
+            'network' => $net['name'],
+            'group' => $net['group']
+        );
+        $hosts[$ip] = $data;
+        $group = $net['group'];
+        $net_name = $net['name'];
+        if ($group) {
+            $groups[$group]['nets'][$net_name]['hosts'][$ip] = $data;
+        } else {
+            $networks[$net_name]['hosts'][$ip] = $data;
+        }
+        //printr($data);
+        
+    }
     $rs->MoveNext();
 }
 

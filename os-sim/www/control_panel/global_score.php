@@ -167,7 +167,6 @@ $sql = "SELECT
 if (!$rs = & $conn->Execute($sql)) {
     die($conn->ErrorMsg());
 }
-
 $groups = array();
 $group_max_c = $group_max_a = 0;
 
@@ -204,6 +203,7 @@ while (!$rs->EOF) {
     $score = get_score($net, 'net');
     @$groups[$group]['max_c']+= $score['max_c'];
     @$groups[$group]['max_a']+= $score['max_a'];
+    
     $net_max_c_time = strtotime($score['max_c_date']);
     $net_max_a_time = strtotime($score['max_a_date']);
     if (!isset($groups[$group]['max_c_date'])) {
@@ -540,7 +540,7 @@ echo gettext("Control Panel"); ?> </title>
 			$("#group_"+link_id+'_'+ac).html("<img src='../pixmaps/loading.gif' width='20'>");
 	    	$.ajax({
 	    		type: "GET",
-	    		url: "global_score_ajax.php?group_name="+group_name+"&ac="+ac,
+	    		url: "global_score_ajax.php?group_name="+group_name+"&ac="+ac+"&range=<?php echo $range ?>",
 	    		data: "",
 	    		success: function(msg){
 	    			$("#"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
@@ -766,76 +766,32 @@ Network Groups
 ?>
             <tr>
             <td class="noborder">
-                <!-- <a id="a_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle('net', <?php echo $net + 1 ?>, <?php echo $num_nets ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a> -->
+                <?php if (round($group_data["max_$ac"] / $group_data["threshold_$ac"] * 100) > 100) { ?>
                 <a id="a_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','a_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
+                <?php } ?>
             </td>
             <td style="text-align: left"><b><?php echo $group_name ?></b></td>
             <?php
             html_set_values('group_' . $group_name, 'net', $group_data["max_$ac"], $group_data["max_{$ac}_date"], $group_data["current_$ac"], $group_data["threshold_$ac"], $ac);
+            // html_rrd, html_incident... functions ignored. Direct print of data:
 ?>
-            <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-            <td nowrap><?php echo html_date() ?></td>
-            <?php echo html_max() ?>
-            <?php echo html_current() ?>
+            <td nowrap>
+            	<a href="<?php echo Util::graph_image_link('group_' . $group_name, 'net', $metric_type, $rrd_start, "N", 1, $range) ?>"><img src="../pixmaps/graph.gif" border="0"/></a>&nbsp;
+            	<a href="../incidents/newincident.php?ref=Metric&title=<?php echo urlencode(_("Metric Threshold: ".strtoupper($ac)." level exceeded")." (Net: group_$group_name)") ?>&priority=<?php echo $group_data["max_$ac"]/$group_data["threshold_$ac"] ?>&target=<?php echo urlencode("Net: group_$group_name") ?>&metric_type=<?php echo $metric_type ?>&metric_value=<?php echo $metric_type ?>&event_start=<?php echo $group_data["max_{$ac}_date"] ?>&event_end=<?php echo $group_data["max_{$ac}_date"] ?>"><img src="../pixmaps/incident.png" width="12" alt="i" border="0"/></a>
+            </td>
+            <td nowrap><?php echo ($group_data["max_{$ac}_date"] == 0 || strtotime($group_data["max_{$ac}_date"]) == 0) ? _('n/a') : $group_data["max_{$ac}_date"] ?></td>
+            <?php
+            // Group MAX
+            $link_aux = ($group_data["max_{$ac}_date"] == 0) ? "#" : Util::get_acid_date_link($group_data["max_{$ac}_date"]);
+            echo _html_metric($group_data["max_$ac"], $group_data["threshold_$ac"], $link_aux);
+            
+            // Group CURRENT
+            echo _html_metric($group_data["current_$ac"], $group_data["threshold_$ac"], $link);
+            ?>
             </tr>
             <tr>
             	<td colspan="6" class="nobborder"><div id="group_a_<?php echo $a ?>_<?php echo $ac ?>"></div></td>
             </tr>
-            <?php
-            /*
-            foreach($group_data['nets'] as $net_name => $net_data) {
-                $net++;
-                $num_hosts = isset($net_data['hosts']) ? count($net_data['hosts']) : 0;
-?>
-                <tr id="net_<?php echo $net
-?>_<?php echo $ac
-?>" style="display: none">
-                    
-                    <td width="3%" class="noborder">&nbsp;</td>
-                    <td style="text-align: left">
-                        <?php
-                if ($num_hosts) { ?>
-                        <a id="a_<?php echo ++$a
-?>_<?php echo $ac
-?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
-                        <?php
-                } ?>
-                        <?php echo $net_name ?>
-                    </td>
-                    <?php
-                html_set_values($net_name, 'net', $net_data["max_$ac"], $net_data["max_{$ac}_date"], $net_data["current_$ac"], $net_data["threshold_$ac"], $ac);
-?>
-                    <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-                    <td nowrap><?php echo html_date() ?></td>
-                    <?php echo html_max() ?>
-                    <?php echo html_current() ?>
-                </tr>
-                <?php
-                if (isset($net_data['hosts'])) {
-                    foreach($net_data['hosts'] as $host_ip => $host_data) {
-                        $host++;
-?>
-                        <tr id="host_<?php echo $host
-?>_<?php echo $ac
-?>" style="display: none">
-                            <td width="6%" style="border: 0px;">&nbsp;</td>
-                            <td style="text-align: left">&nbsp;&nbsp;
-                                <?php echo html_host_report($host_ip, $host_data['name']) ?>
-                            </td>
-                            <?php
-                        html_set_values($host_ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac);
-?>
-                            <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-                            <td nowrap><?php echo html_date() ?></td>
-                            <?php echo html_max() ?>
-                            <?php echo html_current() ?>
-                        </tr>   
-                   <?php
-                    } ?>
-               <?php
-                } ?>
-            <?php
-            } */?>
         <?php
         } ?>
     <?php
