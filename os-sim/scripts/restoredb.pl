@@ -84,7 +84,7 @@ my $ossim_dsn = "dbi:" . $ossim_type . ":" . $ossim_name . ":" . $ossim_host . "
 my $ossim_conn = DBI->connect($ossim_dsn, $ossim_user, $ossim_pass) or die "Can't connect to Database\n";
 
 my $cmdline = "mysql -u$snort_user -p$snort_pass -h$snort_host -P$snort_port '$snort_name'";
-my $cmddump = "mysqldump -p$snort_pass --no-data snort";
+my $cmddump = "mysqldump -uroot -p$snort_pass --no-data snort";
 
 # Create aux database for restore
 if ($ARGV[0] eq "insert" && $nomerge) {
