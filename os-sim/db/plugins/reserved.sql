@@ -6,26 +6,19 @@
 -- Prelude
 DELETE FROM plugin WHERE id = "1513";
 DELETE FROM plugin_sid where plugin_id = "1513";
-
 INSERT INTO plugin (id, type, name, description) VALUES (1513, 1, 'prelude', 'Prelude Hybrid IDS');
 
 -- syslog
 DELETE FROM plugin WHERE id = "4002";
 DELETE FROM plugin_sid where plugin_id = "4002";
-
- 
 -- INSERT INTO plugin (id, type, name, description) VALUES (4002, 1, 'syslogd', 'Syslog Daemon');
 
--- Nessus
-DELETE FROM plugin WHERE id = "3001";
-DELETE FROM plugin_sid where plugin_id = "3001";
-
-
-INSERT INTO plugin (id, type, name, description) VALUES (3001, 3, 'nessus', 'Nessus');
+-- Nessus (Check nessus.sql.gz)
+-- DELETE FROM plugin WHERE id = "3001";
+-- DELETE FROM plugin_sid where plugin_id = "3001";
+-- INSERT INTO plugin (id, type, name, description) VALUES (3001, 3, 'nessus', 'Nessus');
 
 -- nmap
 DELETE FROM plugin WHERE id = "3002";
 DELETE FROM plugin_sid where plugin_id = "3002";
-
-
 INSERT INTO plugin (id, type, name, description) VALUES (3002, 3, 'nmap', 'NMap');
