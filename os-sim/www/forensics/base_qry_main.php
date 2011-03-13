@@ -126,17 +126,18 @@ if ($submit == gettext("Signature")) {
 //	echo "<br><br>";
 //	echo "dentro de payload<br>";
 
-} elseif ($submit == "IP") {
+} elseif (preg_match("/.*IP/",$submit)) {
     $ip_search = ImportHTTPVar("search_str", VAR_DIGIT | VAR_PUNC | VAR_FSLASH | VAR_LETTER);
     $ip_search = preg_replace("/\s*AND.*/","",$ip_search);
     $ipsf = preg_split("/\s*OR\s*/",$ip_search);
     $ipfilter = array();
+    $ipop = ($submit==_("Src IP")) ? "ip_src" : (($submit==_("Dst IP")) ? "ip_dst" : "ip_both");
     for ($i=0;$i<count($ipsf);$i++) {
         $ip_search = $ipsf[$i];
         $mask = explode ("/",$ip_search);
         $ip_aux = explode (".",$mask[0]);
         $or = (($i+1)==count($ipsf)) ? "" : "OR";
-        $ipfilter[] = array ("","ip_both","=",$ip_aux[0],$ip_aux[1],$ip_aux[2],$ip_aux[3],$ip_search,"",$or,$mask[1]);
+        $ipfilter[] = array ("",$ipop,"=",$ip_aux[0],$ip_aux[1],$ip_aux[2],$ip_aux[3],$ip_search,"",$or,$mask[1]);
     }
     $_SESSION["ip_addr"] = $ipfilter;
     $_SESSION["ip_addr_cnt"] = count($ipfilter);

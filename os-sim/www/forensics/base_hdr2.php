@@ -266,7 +266,22 @@ if ($Use_Auth_System == 1) {
 							<td align="right">
 								<table>
 									<tr>
-										<td><input type="submit" class="button" value="IP" name="submit" style='width:30px'>&nbsp;<input type="submit" class="button" value="<?php echo gettext("Signature")?>" id="signature" name="submit">&nbsp;<input type="submit" class="button" value="Payload" name="submit"></td>
+										<td>
+										<input type="button" class="button" value="IP" onclick="$('#ipsearch').toggle()" style='width:30px'>&nbsp;
+										<!-- SRC / DST IP combo -->
+										<div style="position:relative; z-index:2; text-align:left">
+											<div id="ipsearch" style="position:absolute;top:0;display:none;margin-top:1px">
+												<input type="submit" class="button" value="<?=_("Src or Dst IP")?>" name="submit" style='width:85px;font-size:11px'>
+												<br>
+												<input type="submit" class="button" value="<?=_("Src IP")?>" name="submit" style='width:85px;font-size:11px'>
+												<br>
+												<input type="submit" class="button" value="<?=_("Dst IP")?>" name="submit" style='width:85px;font-size:11px'>
+											</div>
+										</div>	
+										</td><td>
+										<input type="submit" class="button" value="<?php echo gettext("Signature")?>" id="signature" name="submit">&nbsp;
+										<input type="submit" class="button" value="Payload" name="submit">
+										</td>
 									</tr>
 								</table>
 							</td>

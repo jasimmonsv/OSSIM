@@ -66,6 +66,11 @@ if ($_SESSION['views']['default'] == "") {
 	$_SESSION['views']['default']['data'] = $session_data;
 	$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
 }
+// resolv host2ip if needed
+if ($_GET["search_str"]!="" && preg_match("/.*IP/",$_GET["submit"]) && !preg_match("/^\d+\.\d+\.\d+\.\d+$/",$_GET["search_str"])) {
+	include_once("classes/Host.inc");
+	$_GET["search_str"] = Host::hostname2ip($conn_aux,$_GET["search_str"],true);
+}
 $db_aux->close($conn_aux);
 
 if ($_SESSION['view_name_changed']) { $_GET['custom_view'] = $_SESSION['view_name_changed']; $_SESSION['view_name_changed'] = ""; $_SESSION['norefresh'] = 1; }

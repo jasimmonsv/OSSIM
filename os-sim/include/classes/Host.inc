@@ -598,6 +598,19 @@ class Host {
         }
     }
 	function hostname2ip($conn, $hostname, $resolv=false) {
+		if ($resolv == true) {
+            $sql = "SELECT * FROM sensor WHERE name = ?";
+            $params = array(
+                $hostname
+            );
+            if (!$rs = $conn->Execute($sql, $params)) {
+                print 'error: ' . $conn->ErrorMsg() . '<BR>';
+                exit;
+            }
+            if (!$rs->EOF) {
+                return $rs->fields["ip"];
+            }
+        }
         $sql = "SELECT * FROM host WHERE hostname = ?";
         $params = array(
             $hostname
