@@ -285,16 +285,18 @@ function print_indicators($map, $print_inputs = false) {
 		while (!$rs->EOF) {
 			$has_perm = indicatorAllowed($conn,$rs->fields['type'],$rs->fields['type_name'],$hosts,$sensors,$nets);
 			if (Session::am_i_admin()) $has_perm = 1;
-			if ($print_inputs) {
-				echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
-				echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
-				echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-				echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
-				echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
-				echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
+			if ($has_perm) {
+				if ($print_inputs) {
+					echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
+					echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
+					echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
+					echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
+					echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
+					echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
+					echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
+				}
+				?><div id="indicator<?php echo $rs->fields["id"] ?>" class="itcanbemoved" style="z-index:10;border:1px solid transparent;cursor:pointer;background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:<?php echo $rs->fields["x"] ?>px;top:<?php echo $rs->fields["y"] ?>px;height:<?php echo $rs->fields["h"] ?>px;width:<?php echo $rs->fields["w"] ?>px"><?php print_indicator_content($conn,$rs) ?></div><?php
 			}
-			?><div id="indicator<?php echo $rs->fields["id"] ?>" class="itcanbemoved" style="z-index:10;border:1px solid transparent;cursor:pointer;background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:<?php echo $rs->fields["x"] ?>px;top:<?php echo $rs->fields["y"] ?>px;height:<?php echo $rs->fields["h"] ?>px;width:<?php echo $rs->fields["w"] ?>px"><?php print_indicator_content($conn,$rs) ?></div><?php
 			$rs->MoveNext();
 		}
 	}
