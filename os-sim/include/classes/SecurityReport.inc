@@ -142,10 +142,12 @@ class SecurityReport {
                   a.$ip_target as ip FROM alarm a $join2 $sensor_join where a.$ip_target != 0 AND a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59'$sensor_str_alarm $where2
                   $sql_plugin_groups GROUP BY a.$ip_target ORDER BY occurrences DESC LIMIT $limit");
                 $temp_conn = $this->ossim_conn;
+				
                 break;
 
             case "event":
-            default:
+           
+			default:
                 //
                 list($join2,$where2) = SecurityReport::make_join_where("acid_event.",$ip_target,$assets,$sourcetype,$category,$subcategory);
                 //            
@@ -157,12 +159,11 @@ class SecurityReport {
 				//$temp_conn = $this->snort_conn;
         }
 		
-		//echo "SQL:$query";
-		//exit;
-		if (!$rs = & $temp_conn->Execute($query)) {
-			print $temp_conn->ErrorMsg();
-        } else {
+			
+		if ($rs = & $temp_conn->Execute($query))
+		{
 			$i = 0;
+			
             while (!$rs->EOF) {
 				// sensor filter in query
 				//if (Session::hostAllowed($conn, $rs->fields["ip"])) {
@@ -182,6 +183,7 @@ class SecurityReport {
                 }
             }
         }
+		
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }

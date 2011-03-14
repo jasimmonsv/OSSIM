@@ -36,19 +36,19 @@
 * - OssimQuery()
 * Classes list:
 */
-if (!defined('OSS_DIGIT')) define('OSS_DIGIT', "0-9");
+if (!defined('OSS_DIGIT'))  define('OSS_DIGIT', "0-9");
 if (!defined('OSS_LETTER')) define('OSS_LETTER', "A-Za-zαινσϊρ");
-if (!defined('OSS_SPACE')) define('OSS_SPACE', " ");
-if (!defined('OSS_ALPHA')) define('OSS_ALPHA', OSS_DIGIT . OSS_LETTER);
-if (!defined('OSS_SCORE')) define('OSS_SCORE', "\_\-");
-if (!defined('OSS_DOT')) define('OSS_DOT', "\.");
-if (!defined('OSS_COLON')) define('OSS_COLON', "\:");
-if (!defined('OSS_IP')) define('OSS_IP', OSS_DIGIT . OSS_DOT);
-if (!defined('OSS_MAC')) define('OSS_MAC', OSS_ALPHA . OSS_COLON);
-if (!defined('OSS_PUNC')) define('OSS_PUNC', "\.\!\#\$\%\^\&\*\_\-\=\+\:\;\,\?\ \(\))\/");
-if (!defined('OSS_AT')) define('OSS_AT', "\@");
-if (!defined('OSS_MAIL')) define('OSS_MAIL', OSS_AT . OSS_ALPHA . OSS_DOT . OSS_SCORE);
-if (!defined('OSS_USER')) define('OSS_USER', OSS_LETTER . OSS_DIGIT . OSS_SCORE . OSS_DOT); // for validating logins/users
+if (!defined('OSS_SPACE'))  define('OSS_SPACE', " ");
+if (!defined('OSS_ALPHA'))  define('OSS_ALPHA', OSS_DIGIT . OSS_LETTER);
+if (!defined('OSS_SCORE'))  define('OSS_SCORE', "\_\-");
+if (!defined('OSS_DOT'))    define('OSS_DOT', "\.");
+if (!defined('OSS_COLON'))  define('OSS_COLON', "\:");
+if (!defined('OSS_IP'))     define('OSS_IP', OSS_DIGIT . OSS_DOT);
+if (!defined('OSS_MAC'))    define('OSS_MAC', OSS_ALPHA . OSS_COLON);
+if (!defined('OSS_PUNC'))   define('OSS_PUNC', "\.\!\#\$\%\^\&\*\_\-\=\+\:\;\,\?\ \(\))\/");
+if (!defined('OSS_AT'))     define('OSS_AT', "\@");
+if (!defined('OSS_MAIL'))   define('OSS_MAIL', OSS_AT . OSS_ALPHA . OSS_DOT . OSS_SCORE);
+if (!defined('OSS_USER'))   define('OSS_USER', OSS_LETTER . OSS_DIGIT . OSS_SCORE . OSS_DOT); // for validating logins/users
 /*
 * Escapes special characters in a SQL statement
 */
@@ -63,9 +63,54 @@ function scapeSql($sql) {
     }
     return $sql;
 }
+
 function OssimQuery($sql, $debug = FALSE) {
-    if ($debug) print "Ossim query: $sql<br/>\n";
-    $force_ending = array(
+    if ($debug) print "Ossim query init: $sql<br/>\n";
+    
+	$force_ending = array(
+        /* attempt to do a 2nd SQL query */
+        ";",
+        /* attempt to unused part of the SQL query */
+        "--|#",
+        /* SQL injection like 1=1 or a=a */
+        "((OR|AND|LIKE)\s*(\S+))\s*(=|<>)\s*\\4",
+    );
+	
+	//Chinese characters Hack
+	if ( preg_match_all('/&#(\d{4,5});/', $sql, $match_ec) )
+	{
+		foreach ($match_ec[1] as $k => $v)
+			$sql = str_replace("&#".$v.";", "ch".$v."pc", $sql);
+	}
+	
+    foreach($force_ending as $limit) 
+	{
+        /*** DEBUG, will be removed.. ***/
+        if (1) {
+            if (preg_match("/(.*?)$limit.*$/", $sql)) 
+			{
+                $sql = preg_replace("/(.*?)$limit.*$/i", "\\1", $sql);
+				require_once ('ossim_error.inc');
+                $error = new ossimWarn();
+                $error->display("STRING_NOT_VALID");
+            }
+        }
+        /*** end DEBUG ***/
+    }
+			
+	//Chinese characters Hack
+	foreach ($match_ec[1] as $k => $v)
+		$sql = str_replace("ch".$v."pc", "&#".$v.";", $sql);
+	
+	if ($debug) print "Ossim query end: $sql<br/>\n";
+	 
+    return $sql;
+}
+
+function OssimQuery2($sql, $debug = FALSE) {
+    if ($debug) print "Ossim query init: $sql<br/>\n";
+    
+	$force_ending = array(
         /* attempt to do a 2nd SQL query */
         ";",
         /* attempt to unused part of the SQL query */
@@ -84,9 +129,10 @@ function OssimQuery($sql, $debug = FALSE) {
     foreach($force_ending as $limit) {
         /*** DEBUG, will be removed.. ***/
         if (1) {
-            if (preg_match("/(.*?)$limit.*$/", $sql)) {
+            if (preg_match("/(.*?)$limit.*$/", $sql)) 
+			{
                 $tmp = preg_replace("/(.*?)$limit.*$/", "\\1", $sql);
-                require_once ('ossim_error.inc');
+				require_once ('ossim_error.inc');
                 $error = new ossimWarn();
                 $error->display("STRING_NOT_VALID");
             }
@@ -94,11 +140,15 @@ function OssimQuery($sql, $debug = FALSE) {
         /*** end DEBUG ***/
         $sql = preg_replace("/(.*?)$limit.*$/i", "\\1", $sql);
     }
-	
+			
 	//Chinese characters Hack
 	foreach ($match_ec[1] as $k => $v)
 		$sql = str_replace("ch".$v."pc", "&#".$v.";", $sql);
 	
+	if ($debug) print "Ossim query end: $sql<br/>\n";
+	 
     return $sql;
 }
+
+
 ?>
