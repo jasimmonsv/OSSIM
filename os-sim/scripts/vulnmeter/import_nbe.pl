@@ -423,8 +423,7 @@ sub process_results {
     }
     my $last_string = join(";",@risks_stats);
     
-    #logwriter("Ip: $hostip",4);
-    #logwriter("Hostname: $hostname",4);
+    print ("Ip: $hostip,$host,$hostname\n");
     
     #delete vuln_nessus_latest_results results
     $sql_delete = qq{ DELETE FROM vuln_nessus_latest_results WHERE report_id = inet_aton('$hostip') and username = '$username' and sid = '$sid' };
@@ -579,7 +578,14 @@ sub process_results {
                     $i = 0;
                 }
             }
-            $vuln_resume{$hostip}++;
+            #$vuln_resume{$hostip}++;
+            if(!defined($vuln_resume{$hostip})) {
+                $vuln_resume{$hostip} = $risk;
+            }
+            elsif($risk < $vuln_resume{$hostip}) {
+                $vuln_resume{$hostip} = $risk;
+            }
+            
             # incidents
             update_ossim_incidents($hostip, $port, $risk, $desc, $scanid, $username);
         } #END FOR EACH RECORD
@@ -602,13 +608,18 @@ sub process_results {
                 $sql_insert2 = "";
             }
         }      
-        
+        my $max_risk = 0;
         foreach $hostip (keys %vuln_resume) {
+			# max_risk is the field risk in vuln_nessus_results table
+            $max_risk = $vuln_resume{$hostip};
+            if($max_risk<=2)        {  $max_risk = 10;  }
+            elsif ($max_risk<=6)    {  $max_risk = 7;   }
+            else                    {  $max_risk = 3;   }
+            #
             $sql = qq{ SELECT scriptid FROM vuln_nessus_latest_results WHERE hostIP='$hostip' };
             logwriter( $sql, 5 );
             $sth_sel = $dbh->prepare( $sql );
             $sth_sel->execute;
-            my $vt = 0;
             while ((my $scanid) = $sth_sel->fetchrow_array) {
                 #logwriter( "Scan id: $scanid", 5 );
                 # plugin_sid
@@ -616,16 +627,21 @@ sub process_results {
                 logwriter( $sql_update, 5 );
                 $sth_update = $dbh->prepare( $sql_update );
                 $sth_update->execute;
-                #
-                $vt++;
             }
-            # net accumulation
+            # net max risk
             foreach my $anet (keys %ntargets) {
                 $ntargets{$anet} =~ s/^\s*|\s*$//g;
-                $acnets{$ntargets{$anet}} += $vt if (ipinnet($hostip,$anet));
+				if (ipinnet($hostip,$anet)) {
+                    if(!defined($acnets{$ntargets{$anet}})) {
+                        $acnets{$ntargets{$anet}} = $max_risk ;
+                    }
+                    elsif($max_risk > $acnets{$ntargets{$anet}}) {
+                        $acnets{$ntargets{$anet}} = $max_risk ;
+                    }
+                }
             }
             # host_vulnerability
-            $sql_update = qq{ INSERT INTO host_vulnerability VALUES ('$hostip', '$scantime', $vt) ON DUPLICATE KEY UPDATE vulnerability=$vt  };
+            $sql_update = qq{ INSERT INTO host_vulnerability VALUES ('$hostip', '$scantime', $max_risk) ON DUPLICATE KEY UPDATE vulnerability=$max_risk  };
             logwriter( $sql_update, 5 );
             $sth_update = $dbh->prepare( $sql_update );
             $sth_update->execute;
@@ -860,7 +876,6 @@ sub pop_hosthash {
             }
         }
 
-        
         #print "pop_host_hash\n";
         #print Dumper($hostHash{$host}{'aliases'});
 
@@ -1464,6 +1479,12 @@ sub resolve_name2ip {
     # VER: 2.0 MODIFIED: 5/06/08 15:30
     my ( $hostname ) = @_;
     if ( ! defined ( $hostname ) || $hostname eq "" ) { return ""; }
+    
+    my $ip = getassetbyname( $hostname );
+
+    if ($ip ne "") {
+        return $ip;
+    }
 
     # ATTEMPT GET HOST BY ADDRESS WILL CHECK FILES/DNS PRIMARY
     my $packed_ip = gethostbyname( $hostname );
@@ -1606,4 +1627,77 @@ sub in_array {
         }
     }
     return 0;
+}
+
+sub getassetbyname {
+    my $asset_name = $_[0];
+    my @result = ();
+    my ($sql, $sthse, $ip, $net, $sql2, $sthse2);
+    
+    # check host groups
+    $sql = qq{ SELECT host_ip FROM host_group_reference WHERE host_group_name='$asset_name' };
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    while ( $ip = $sthse->fetchrow_array() ) {
+        if(defined($ip)) {
+            push(@result, "$ip");
+        }
+    }
+    $sthse->finish;
+    
+    if ($#result!=-1) { return (join("\r", @result)); }
+    
+    # check nets
+    $sql = qq{ SELECT ips FROM net WHERE name='$asset_name' };
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    $ip = $sthse->fetchrow_array();
+    if(defined($ip)) {
+        push(@result, "$ip");
+    }
+    
+    $sthse->finish;
+    
+    if ($#result!=-1) { return (join("\r", @result)); }
+    
+    
+    # check network groups
+    $sql = qq{ SELECT net_name FROM net_group_reference WHERE net_group_name='$asset_name' };
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    while ( $net = $sthse->fetchrow_array() ) {
+        $sql2 = qq{ SELECT ips FROM net WHERE name='$net' };
+        $sthse2 = $dbh->prepare( $sql2 );
+        $sthse2->execute;
+        $ip = $sthse2->fetchrow_array();
+        if(defined($ip)) {
+            push(@result, "$ip");
+        }
+    }
+    $sthse->finish;
+    
+    if ($#result!=-1) { return (join("\r", @result)); }
+    
+    # check hosts
+    $sql = qq{ SELECT ip FROM host WHERE hostname='$asset_name' OR fqdns LIKE '%$asset_name%'};
+
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    while( $ip = $sthse->fetchrow_array() ) {
+        if(defined($ip)) {
+            print "Push $ip\n";
+            push(@result, "$ip");
+        }
+    }
+    $sthse->finish;
+    
+    if ($#result!=-1) { 
+        return (join("\r", @result));
+    }
+    else {
+        logwriter("Unresolved name: ".$asset_name,4);
+    }
+    
+    return "";
+
 }

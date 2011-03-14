@@ -217,6 +217,7 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
             system("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 1 > /dev/null");
         }
         else {
+            //error_log("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 0\n",3,"/tmp/import.log");
             system("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 0 > /dev/null");
         }
         unlink($dest); 
@@ -462,12 +463,15 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
      LEFT JOIN vuln_jobs t4 on t1.report_id = t4.report_id
      LEFT JOIN vuln_nessus_report_stats t5 on t1.report_id = t5.report_id
      WHERE t1.deleted = '0' ";*/
+     $leftjoin = "";
+     if ($type=="net" && trim($value)!="") $leftjoin = "LEFT JOIN vuln_nessus_results t5 ON t5.report_id=t1.report_id";
+     
       $querys="SELECT distinct t1.sid as sid, t1.report_id, t4.name as jobname, t4.scan_submit, t4.meth_target, t1.scantime,
      t1.username, t1.scantype, t1.report_key, t1.report_type as report_type, t3.name as profile, t4.id as jobid, t4.meth_SCHED, t1.name as report_name
      FROM vuln_nessus_reports t1
      LEFT JOIN vuln_nessus_settings t3 ON t1.sid=t3.id
-     LEFT JOIN vuln_jobs t4 on t1.report_id = t4.report_id
-     WHERE t1.deleted = '0' AND t4.scan_submit IS NOT NULL ";
+     LEFT JOIN vuln_jobs t4 on t1.report_id = t4.report_id $leftjoin
+     WHERE t1.deleted = '0' AND t1.scantime IS NOT NULL ";
   
    
    // set up the SQL query based on the search form input (if any)
@@ -523,7 +527,7 @@ function list_results ( $type, $value, $sortby, $sortdir ) {
                 $q = $bytes[0].".".$bytes[1].".".$bytes[2].".".$bytes[3];
       }
             
-      $queryw = " AND t4.meth_TARGET LIKE '%$q%' $query_onlyuser order by $sortby $sortdir";
+      $queryw = " AND (t4.meth_TARGET LIKE '%$q%' OR t5.hostIP LIKE '%$q%') $query_onlyuser order by $sortby $sortdir";
       $queryl = " limit $offset,$pageSize";
       if (!preg_match("/\//",$value)) {
         $stext =  "<b>"._("Search for Host")."</b> = '*".html_entity_decode($q)."*'";
@@ -635,6 +639,7 @@ EOT;
    echo "</p>";
    echo "</td></tr></table>";
    // get the hosts to display
+   //print_r($querys.$queryw.$queryl);
    $result=$dbconn->GetArray($querys.$queryw.$queryl);
    //echo "[$querys$queryw$queryl]";
    if($result === false) {
