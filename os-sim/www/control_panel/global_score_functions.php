@@ -96,9 +96,10 @@ function get_current_metric($host_qualification_cache, $net_qualification_cache,
 *                   - false: user have no perms over the network
 *                   - null: host is not in any defined network
 */
-function host_get_network_data($ip) {
-    global $groups, $networks;
+function host_get_network_data($ip, $groups, $networks) {
     // search in groups
+    $groups_belong['groups'] = array();
+    $groups_belong['nets'] = array();
     foreach($groups as $group_name => $g_data) {
         foreach($g_data['nets'] as $net_name => $n_data) {
             $address = $n_data['address'];
@@ -109,29 +110,24 @@ function host_get_network_data($ip) {
             }
             if (Net::isIpInNet($ip, $address)) {
                 if (!$n_data['has_perms'] && !check_sensor_perms($ip, 'host')) {
-                    return false;
+                    continue;
                 }
-                $n_data['group'] = $group_name;
-                $n_data['name'] = $net_name;
-                return $n_data;
+                $groups_belong['groups'][$group_name]++;
+                $groups_belong['nets'][$net_name] = $n_data;
             }
         }
     }
     // search in nets
     foreach($networks as $net_name => $n_data) {
         $address = $n_data['address'];
-        if (Net::isIpInNet($ip, $address)) {
+        if ($address != "" && Net::isIpInNet($ip, $address)) {
             if (!$n_data['has_perms'] && !check_sensor_perms($ip, 'host')) {
-                return false;
+                continue;
             }
-            $n_data['group'] = false;
-            $n_data['name'] = $net_name;
-            return $n_data;
+            $groups_belong['nets'][$net_name] = $n_data;
         }
     }
-    // This means the host didn't belong to any net
-    //echo "$ip not in any network<br>";
-    return null;
+    return $groups_belong;
 }
 /*
 * A user has perms over a:

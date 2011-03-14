@@ -176,7 +176,8 @@ while (!$rs->EOF) {
         'address' => $rs->fields['net_address'],
         'current_a' => $net_current_a,
         'current_c' => $net_current_c,
-        'has_perms' => $has_perms
+        'has_perms' => $has_perms,
+    	'group' => $group
     );
     
     $rs->MoveNext();
@@ -221,22 +222,40 @@ $hosts = $ext_hosts = array();
 $global_a = $global_c = 0;
 while (!$rs->EOF) {
     $ip = $rs->fields['id'];
-    $net = host_get_network_data($ip);
+    // Modified 14/03/2011. This function returns array.
+    // Host can be linked into may nets and groups
+    $groups_belong = host_get_network_data($ip, $groups, $networks);
+    $net_belong = "";
     // No perms over the host's network
-    if ($net === false) {
+    $threshold_a = $conf_threshold;
+    $threshold_c = $conf_threshold;
+    if (count($groups_belong['nets']) < 1) {
         $rs->MoveNext();
         continue;
         // Host doesn't belong to any network
-        
+    /*    
     } elseif ($net === null) {
         $threshold_a = $conf_threshold;
         $threshold_c = $conf_threshold;
         // User got perms
-        
+    */  
     } else {
-        // threshold inheritance
-        $threshold_a = $rs->fields['threshold_a'] ? $rs->fields['threshold_a'] : $net['threshold_a'];
-        $threshold_c = $rs->fields['threshold_c'] ? $rs->fields['threshold_c'] : $net['threshold_c'];
+        // threshold inheritance (for multiple nets get the closest)
+        $closest_net = Net::GetClosestNet($conn, $ip);
+    	foreach ($groups_belong['nets'] as $net_name_aux=>$net) {
+    		if ($net_name_aux == $closest_net) {
+    			$net_threshold_a = $net['threshold_a'];
+    			$net_threshold_c = $net['threshold_c'];
+    			$net_belong = $net_name_aux;
+    			$group_belong = $net['group'];
+    		}
+        }
+        if ($net_belong == "") {
+        	$net_belong = $net_name_aux;
+        	$group_belong = $net['group'];
+        }
+        $threshold_a = $rs->fields['threshold_a'] ? $rs->fields['threshold_a'] : $net_threshold_a;
+        $threshold_c = $rs->fields['threshold_c'] ? $rs->fields['threshold_c'] : $net_threshold_c;
     }
 	
 	// No perms over the host (by sensor filter)
@@ -258,16 +277,14 @@ while (!$rs->EOF) {
     $max_c_level = round($rs->fields['max_c'] / $threshold_c);
     $current_c_level = round($current_c / $threshold_c);
     //* comment out this if you want to see all hosts
-    /* Always show toggle button
     if ($max_a_level <= 1 && $current_a_level <= 1 && $max_c_level <= 1 && $current_c_level <= 1) {
         $rs->MoveNext();
         continue;
     }
-    */
     //*/
     $name = Host::ip2hostname($conn, $ip);
     // $name = $rs->fields['hostname'] ? $rs->fields['hostname'] : $ip;
-    if ($net === null) {
+    if ($net_belong == "") {
         $ext_hosts[$ip] = array(
             'name' => $name,
             'threshold_a' => $threshold_a,
@@ -280,7 +297,7 @@ while (!$rs->EOF) {
             'current_c' => $current_c,
         );
     } else {
-    	$data = array(
+        $data = array(
             'name' => $name,
             'threshold_a' => $threshold_a,
             'threshold_c' => $threshold_c,
@@ -290,16 +307,13 @@ while (!$rs->EOF) {
             'max_a_date' => $rs->fields['max_a_date'],
             'current_a' => $current_a,
             'current_c' => $current_c,
-            'network' => $net['name'],
-            'group' => $net['group']
+            'network' => $net_belong,
+            'group' => $group_belong
         );
         $hosts[$ip] = $data;
-        $group = $net['group'];
-        $net_name = $net['name'];
-        if ($group) {
-            $groups[$group]['nets'][$net_name]['hosts'][$ip] = $data;
-        } else {
-            $networks[$net_name]['hosts'][$ip] = $data;
+        $networks[$net_belong]['hosts'][$ip] = $data;
+        if ($group_belong) {
+            $groups[$group_belong]['nets'][$net_belong]['hosts'][$ip] = $data;
         }
         //printr($data);
         
