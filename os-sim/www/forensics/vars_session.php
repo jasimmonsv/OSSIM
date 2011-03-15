@@ -218,6 +218,7 @@ $current_cols_titles = array(
     "DATE" => _("Date")." ".Util::timezone($tz),
     "IP_PORTSRC" => _("Source"),
     "IP_PORTDST" => _("Dest."),
+    "SENSOR" => _("Sensor"),
     "IP_SRC" => _("Src IP"),
     "IP_DST" => _("Dst IP"),   
     "IP_SRC_FQDN" => _("Src IP FQDN"),

@@ -91,6 +91,7 @@ $qro->AddTitle("PLUGIN_SOURCE_TYPE");
 $qro->AddTitle("PLUGIN_SID_CATEGORY");
 $qro->AddTitle("PLUGIN_SID_SUBCATEGORY");
 $qro->AddTitle("CONTEXT");
+$qro->AddTitle("SENSOR");
 /* Apply sort criteria */
 if ($qs->isCannedQuery()) $sort_sql = " ORDER BY timestamp DESC ";
 else {
@@ -310,6 +311,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     // SID, CID, PLUGIN_*
     $cell_data['SID'] = $myrow["sid"];
     $cell_align['SID'] = "center";
+    $cell_data['SENSOR'] = ($sensors[$myrow["sid"]] != "") ? $sensors[$myrow["sid"]] : gettext("unknown");
+    $cell_align['SENSOR'] = "center";
     $cell_data['CID'] = $myrow["cid"];
     $cell_align['CID'] = "center";
     $cell_data['PLUGIN_ID'] = $myrow["plugin_id"];
