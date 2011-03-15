@@ -86,6 +86,7 @@ aruba=/etc/ossim/agent/plugins/aruba.cfg
 avast=/etc/ossim/agent/plugins/avast.cfg
 bind=/etc/ossim/agent/plugins/bind.cfg
 bro-ids=/etc/ossim/agent/plugins/bro-ids.cfg
+cisco-asa=/etc/ossim/agent/plugins/cisco-asa.cfg
 cisco-ids=/etc/ossim/agent/plugins/cisco-ids.cfg
 cisco-pix=/etc/ossim/agent/plugins/cisco-pix.cfg
 cisco-router=/etc/ossim/agent/plugins/cisco-router.cfg
