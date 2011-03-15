@@ -89,6 +89,18 @@ function GetSensorSids($db) {
     $tmp_result->baseFreeRows();
     return $sensors;
 }
+function GetSensorSidsNames($db) {
+    $sensors = array();
+    $temp_sql = "SELECT * FROM sensor";
+    //echo $temp_sql;
+    $tmp_result = $db->baseExecute($temp_sql);
+    while ($myrow = $tmp_result->baseFetchRow()) {
+    	$name = ($myrow["sensor"]!="") ? $myrow["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$myrow["hostname"]));
+    	$sensors[$myrow["sid"]]= $name;
+    }
+    $tmp_result->baseFreeRows();
+    return $sensors;
+}
 function GetSensorPluginSids($db,$sensor_keys) {
     $sensors = array();
     $temp_sql = "SELECT * FROM sensor";

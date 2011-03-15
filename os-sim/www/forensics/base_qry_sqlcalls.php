@@ -283,6 +283,7 @@ $qro->PrintHeader('',1);
 $i = 0;
 $hosts_ips = array_keys($hosts);
 $report_data = array(); // data to fill report_data 
+$sensornames = GetSensorSidsNames($db);
 
 if (is_array($_SESSION["server"]) && $_SESSION["server"][0]!="")
 	$_conn = $dbo->custom_connect($_SESSION["server"][0],$_SESSION["server"][2],$_SESSION["server"][3]);
@@ -311,7 +312,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     // SID, CID, PLUGIN_*
     $cell_data['SID'] = $myrow["sid"];
     $cell_align['SID'] = "center";
-    $cell_data['SENSOR'] = ($sensors[$myrow["sid"]] != "") ? $sensors[$myrow["sid"]] : gettext("unknown");
+    $cell_data['SENSOR'] = ($sensornames[$myrow["sid"]] != "") ? $sensornames[$myrow["sid"]] : gettext("unknown");
     $cell_align['SENSOR'] = "center";
     $cell_data['CID'] = $myrow["cid"];
     $cell_align['CID'] = "center";
