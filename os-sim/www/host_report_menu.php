@@ -14,6 +14,11 @@
 						var ip = aux[0];
 						url = "../forensics/base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_both&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D="+ip+"&ip_addr%5B0%5D%5B8%5D=+";
 						document.location.href = url;
+					} else if (action=='edit') {
+						var aux = $(el).attr('id').split(/;/);
+						var ip = aux[0];
+						url = "../host/modifyhostform.php?hmenu=Assets&smenu=Hosts&ip="+ip;
+						top.frames['main'].document.location.href = url;
 					} else if (action=='unique') {
 						var aux = $(el).attr('id').split(/;/);
 						var ip = aux[0];
@@ -102,7 +107,8 @@
 <? } ?>
 <ul id="myMenu" class="contextMenu">
 <li class="report"><a href="#report"><?=_("Asset Report")?></a></li>
-<li class="report"><a href="#search"><?=_("Asset Search")?></a></li>
+<li class="assetsearch"><a href="#search"><?=_("Asset Search")?></a></li>
+<li class="edit"><a href="#edit"><?=_("Configure Asset")?></a></li>
 <li class="tickets"><a href="#tickets"><?=_("Tickets")?></a></li>
 <li class="alarms"><a href="#alarms"><?=_("Alarms")?></a></li>
 <?

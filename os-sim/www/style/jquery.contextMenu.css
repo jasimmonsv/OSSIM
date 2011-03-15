@@ -60,7 +60,9 @@
 */
 
 .contextMenu LI.report A { background-image: url(../pixmaps/reports.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.assetsearch A { background-image: url(../pixmaps/magnifier-zoom-fit.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.search A { background-image: url(../pixmaps/funnel--plus.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.edit A { background-image: url(../vulnmeter/images/pencil.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.tickets A { background-image: url(../pixmaps/tickets.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.alarms A { background-image: url(../pixmaps/alarms.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.sim A { background-image: url(../pixmaps/sim.png); background-repeat:no-repeat; font-weight:bold; }
@@ -68,7 +70,7 @@
 .contextMenu LI.vulns A { background-image: url(../pixmaps/vulns.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.kndb A { background-image: url(../pixmaps/kdb.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.ntop A { background-image: url(../pixmaps/ntop.png); background-repeat:no-repeat; font-weight:bold; }
-.contextMenu LI.flows A { background-image: url(../pixmaps/menu/monitors.gif); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.flows A { background-image: url(../pixmaps/monitor.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.nagios A { background-image: url(../pixmaps/nagios.png); background-repeat:no-repeat; font-weight:bold; }
 
 .contextMenu LI.addAll A { background-image: url(../pixmaps/panel/tab_all.png); background-repeat:no-repeat; font-weight:bold; }
