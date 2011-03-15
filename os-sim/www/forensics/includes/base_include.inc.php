@@ -29,6 +29,8 @@ if (!isset($_SESSION["_user"])) {
 	header("Location: $login_location");
 	exit;
 }
+// Solera API
+$_SESSION["_solera"] = ($conf->get_conf("solera_enable", FALSE)) ? true : false;
 //
 // Get Host names to translate IP -> Host Name
 require_once ("ossim_db.inc");

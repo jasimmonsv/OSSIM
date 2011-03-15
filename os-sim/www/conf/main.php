@@ -233,6 +233,46 @@ $CONFIG = array(
             )
         )
     ) ,
+    "Solera" => array(
+        "title" => gettext("Solera") ,
+        "desc" => gettext("Integration into the Solera DeepSee forensic suit") ,
+        "advanced" => 1,
+        "conf" => array(
+            "solera_enable" => array(
+                "type" => array(
+                    "0" => gettext("No") ,
+                    "1" => gettext("Yes")
+                ) ,
+                "help" => gettext("") ,
+                "desc" => gettext("Enable Solera integration") ,
+                "advanced" => 1
+            ),
+            "solera_host" => array(
+                "type" => "text",
+                "help" => gettext("Solera API host. IP or FQDN") ,
+                "desc" => gettext("Solera API host") ,
+                "advanced" => 1,
+            ),
+            "solera_port" => array(
+                "type" => "text",
+                "help" => gettext("Solera API port") ,
+                "desc" => gettext("Solera API port") ,
+                "advanced" => 1,
+            ),            
+            "solera_user" => array(
+                "type" => "text",
+                "help" => gettext("Solera API user") ,
+                "desc" => gettext("Solera API user") ,
+                "advanced" => 1,
+            ),
+            "solera_pass" => array(
+                "type" => "password",
+                "help" => gettext("Solera API password") ,
+                "desc" => gettext("Solera API password") ,
+                "advanced" => 1,
+            )
+        )
+    ),  
     "Ossim Framework" => array(
         "title" => gettext("Ossim Framework") ,
         "desc" => gettext("PHP Configuration (graphs, acls, database api) and links to other applications") ,

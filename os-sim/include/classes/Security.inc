@@ -292,6 +292,7 @@ define('OSS_IP_ADDRCIDR', 'func:valid_ipcidr'); // is ip OR cidr format
 define('OSS_FQDNS', 'func:valid_fqdns');
 define('OSS_QUOTES', 'func:valid_quotes');
 define('OSS_DAY', 'func:valid_day');
+define('OSS_DATETIME', 'func:valid_datetime');
 define('OSS_MAIL_ADDR', 'regex:[a-zA-Z0-9_\-\.+]+@[a-zA-Z0-9_\-\.]+\.[a-zA-Z]+');
 define('OSS_ERROR', _("unkown error")); // default error message
 define('OSS_SQL', 'illegal:(select |union |update |delete |insert )');
@@ -784,6 +785,15 @@ function valid_quotes($value) {
     }
     ossim_set_error(_("Invalid Quotes. Don't use quotes ' or \""));
     return false;
+}
+
+function valid_datetime($value)
+{
+	if ( strtotime($value)!=FALSE ) {
+		return true;
+	}
+	ossim_set_error(_("Invalid Date-time. Format allowed: YYYY-MM-DD HH:MM:SS") . "<br/>Entered date: '<strong>".$value."</strong>'");
+	return false;
 }
 
 function valid_day($value)

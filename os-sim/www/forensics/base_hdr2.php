@@ -178,10 +178,16 @@ line-height:28px; height: 28px; background: transparent url(../pixmaps/fondo_col
 </style>
 
 <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
-<script type="text/javascript" src="../js/greybox.js"></script>
 
-
-
+<form action="../conf/solera.php" method="post" id="solera_form">
+<input type="hidden" name="from">
+<input type="hidden" name="to">
+<input type="hidden" name="src_ip">
+<input type="hidden" name="dst_ip">
+<input type="hidden" name="src_port">
+<input type="hidden" name="dst_port">
+<input type="hidden" name="proto">
+</form>
 
 <!-- MAIN HEADER TABLE -->
 <table width='100%' cellspacing=0 border='0' align="center" class="headermenu" style="background-color:white;border:0px solid white">
@@ -663,7 +669,7 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
 <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
 
-<script src="../js/greybox.js" type="text/javascript"></script>
+<script src="../js/greybox_post.js" type="text/javascript"></script>
 <script src="../js/jquery.flot.pie.js" language="javascript" type="text/javascript"></script>
 <script language="javascript" src="../js/jquery.bgiframe.min.js"></script>
 <script language="javascript" src="../js/jquery.autocomplete.pack.js"></script>
@@ -967,7 +973,18 @@ if ($_GET['time_range'] == "all") echo "style='color:white;font-weight:bold'"; e
     		$('#subcategory').find('option:first').attr("selected","selected");
     	}
     }
-    
+
+    function solera_deepsee (from,to,src_ip,src_port,dst_ip,dst_port,proto) {
+        $('#solera_form input[name=from]').val(from);
+        $('#solera_form input[name=to]').val(to);
+        $('#solera_form input[name=src_ip]').val(src_ip);
+        $('#solera_form input[name=src_port]').val(src_port);
+        $('#solera_form input[name=dst_ip]').val(dst_ip);
+        $('#solera_form input[name=dst_port]').val(dst_port);
+        $('#solera_form input[name=proto]').val(proto);
+        GB_show_post('Solera DeepSee &trade;','#solera_form',300,600);
+    }
+        
 	<?php
 if ($_SESSION["deletetask"] != "") echo "bgtask();\n"; ?>
 </script>

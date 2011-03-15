@@ -184,6 +184,8 @@ INSERT INTO config (conf , value) VALUES ('pass_length_max', '32');
 INSERT INTO config (conf , value) VALUES ('pass_expire_min', '0');
 INSERT INTO config (conf , value) VALUES ('pass_history', '0');
 
+INSERT INTO config (conf, value) VALUES ('solera_enable', '0');
+
 INSERT INTO `config` (`conf`, `value`) VALUES
 ('customize_send_logs', NULL),
 ('customize_title_background_color', '#8CC221'),

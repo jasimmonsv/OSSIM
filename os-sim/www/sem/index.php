@@ -54,6 +54,9 @@ if (!preg_match("/pro|demo/i",$version)) {
 $db_aux = new ossim_db();
 $conn_aux = $db_aux->connect();
 
+// Solera API
+$_SESSION["_solera"] = ($conf->get_conf("solera_enable", FALSE)) ? true : false;
+
 // Timezone correction
 $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
@@ -1453,8 +1456,17 @@ if (ie||ns6)
 <input type="hidden" name="signature">
 <input type="hidden" name="server">
 </form>
+<form action="../conf/solera.php" method="post" id="solera_form">
+<input type="hidden" name="from">
+<input type="hidden" name="to">
+<input type="hidden" name="src_ip">
+<input type="hidden" name="dst_ip">
+<input type="hidden" name="src_port">
+<input type="hidden" name="dst_port">
+<input type="hidden" name="proto">
+</form>
 <script>
-    function validate_signature(log,start,end,logfile,signature,server) {
+    function validate_signature (log,start,end,logfile,signature,server) {
         $('#validate_form input[name=log]').val(log);
         $('#validate_form input[name=start]').val(start);
         $('#validate_form input[name=end]').val(end);
@@ -1462,6 +1474,16 @@ if (ie||ns6)
         $('#validate_form input[name=signature]').val(signature);
         $('#validate_form input[name=server]').val(server);
         GB_show_post('<?=_("Validate signature")?>','#validate_form',300,600);
+    }
+    function solera_deepsee (from,to,src_ip,src_port,dst_ip,dst_port,proto) {
+        $('#solera_form input[name=from]').val(from);
+        $('#solera_form input[name=to]').val(to);
+        $('#solera_form input[name=src_ip]').val(src_ip);
+        $('#solera_form input[name=src_port]').val(src_port);
+        $('#solera_form input[name=dst_ip]').val(dst_ip);
+        $('#solera_form input[name=dst_port]').val(dst_port);
+        $('#solera_form input[name=proto]').val(proto);
+        GB_show_post('Solera DeepSee &trade;','#solera_form',300,600);
     }
 </script>
 </body>

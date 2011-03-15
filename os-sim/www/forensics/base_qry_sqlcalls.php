@@ -384,18 +384,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $rowid = ($qs->GetCurrentView() * $show_rows) + $i;
     $tmp_rowid = "#" . $rowid . "-(" . $myrow["sid"] . "-" . $myrow["cid"] . ")";
     // <TD>
-    // 1- Checkbox
-    qroPrintEntry('<INPUT TYPE="checkbox" NAME="action_chk_lst[' . $i . ']" VALUE="' . htmlspecialchars($tmp_rowid) . '">',"","","","style='border-left:1px solid white;border-top:1px solid white'");
-    echo '    <INPUT TYPE="hidden" NAME="action_lst['.$i.']" VALUE="'.htmlspecialchars($tmp_rowid).'">';
-    // 2- ID
-    
-    /** Fix for bug #1116034 -- Input by Tim Rupp, original solution and code by Alejandro Flores **/
-    //$temp = "<A HREF='base_qry_alert.php?submit=".rawurlencode($tmp_rowid)."&amp;sort_order=";
-    //$temp .= ($qs->isCannedQuery()) ? $qs->getCurrentCannedQuerySort() : $qs->getCurrentSort();
-    //$temp .= "'>".$tmp_rowid."</a>";
-    //qroPrintEntry($temp);
-    //$temp = "";
-    // 3- Signature
+    // Signature
     $tmpsig = explode("##", $current_sig);
 	if ($tmpsig[1]!="") {
 		$antes = $tmpsig[0];
@@ -404,7 +393,16 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 		$antes = "";
 		$despues = $current_sig;
 	}
-    //$temp = $tmpsig[0]."] <A HREF='base_qry_alert.php?submit=".rawurlencode($tmp_rowid)."&amp;sort_order=";
+    // Solera DeepSee API
+    $solera = "";
+    if ($_SESSION["_solera"]) {
+        $solera = "<a href=\"javascript:;\" onclick=\"solera_deepsee('".$myrow['timestamp']."','".$myrow['timestamp']."','$current_sip','".$myrow["layer4_sport"]."','$current_dip','".$myrow["layer4_dport"]."','".strtolower(IPProto2str($current_proto))."')\"><img src='../pixmaps/solera.png' border='0' align='absmiddle'></a>";
+    }
+    $incident = "<a href=\"../incidents/newincident.php?" . "ref=Event&" . "title=" . urlencode($despues) . "&" . "priority=1&" . "src_ips=".$current_sip."&" . "event_start=".$myrow['timestamp']."&" . "event_end=".$myrow['timestamp']."&" . "src_ports=".$myrow["layer4_sport"]."&" . "dst_ips=".$current_dip."&" . "dst_ports=".$myrow["layer4_dport"]."&hmenu=Tickets&smenu=Tickets\"><img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\" align='absmiddle'/></a>";
+    // 1- Checkbox
+    qroPrintEntry($solera.' '.$incident.' <INPUT TYPE="checkbox" NAME="action_chk_lst[' . $i . ']" VALUE="' . htmlspecialchars($tmp_rowid) . '">',"","","","style='border-left:1px solid white;border-top:1px solid white' nowrap");
+    echo '    <INPUT TYPE="hidden" NAME="action_lst['.$i.']" VALUE="'.htmlspecialchars($tmp_rowid).'">';
+    // 2- Signature    
     $temp = "$antes <A HREF='base_qry_alert.php?submit=" . rawurlencode($tmp_rowid) . "&amp;sort_order=";
     $temp.= ($qs->isCannedQuery()) ? $qs->getCurrentCannedQuerySort() : $qs->getCurrentSort();
     $temp.= "'>" . $despues . "</a>"; // $tmpsig[1]
