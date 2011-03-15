@@ -442,7 +442,7 @@ if (GET('edit_tabs') == 1 && $show_edit) {
 		<td nowrap='nowrap' style='background-color: <?=$back_color?>'>
 			<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='update';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../pixmaps/disk-black.png" alt="<?=_("Update")?>" title="<?=_("Update")?>" border="0"></a>
 			&nbsp;<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='delete';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" title="<?=_("Delete")?>" border="0"></a>
-			&nbsp;<input type="button" onclick="document.ftabs<?=$tab_id?>.mode.value='change';document.getElementById('ftabs<?=$tab_id?>').submit();return false;" value="<?=($tabs[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="<?=($tabs[$tab_id]['disable']) ? "lbutton" : "lbuttond" ?>" style="width:80px">
+			&nbsp;<input type="button" onclick="document.ftabs<?=$tab_id?>.mode.value='change';document.getElementById('ftabs<?=$tab_id?>').submit();return false;" value="<?=($tabs[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="<?=($tabs[$tab_id]['disable']) ? "lbutton" : "lbuttond" ?>" style="width:80px" <?php if (!$tabs[$tab_id]['disable'] && $tabdefault == $tab_id) echo "disabled"?>>
 		</td>
 		<?php if($tabs[$tab_id]["tab_url"]){ ?>
 			<input type="hidden" name="tab_url" value="<?php echo $tabs[$tab_id]["tab_url"]; ?>">
@@ -511,7 +511,7 @@ document.fnew.tab_id.value = '<?=$last_tab_id + 1?>';
 <td nowrap='nowrap'>
 <a href="" onclick="document.location.href='<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&avtchangename=<?=$tab_values['tab_file']?>&newname='+document.getElementById('newname<?=$tab_id?>').value;return false;"><img src="../pixmaps/disk-black.png" alt="<?=_("Update")?>" title="<?=_("Update")?>" border="0"></a>
 &nbsp;<img style="filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;" src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" title="<?=_("Delete")?>">
-&nbsp;<input type="button" onclick="document.location.href='<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&avtchange=<?=$tab_values['tab_file']?>'" value="<?=($tabsavt[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="<?=($tabsavt[$tab_id]['disable']) ? "lbutton" : "lbuttond" ?>" style="width:80px">
+&nbsp;<input type="button" onclick="document.location.href='<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&avtchange=<?=$tab_values['tab_file']?>'" value="<?=($tabsavt[$tab_id]['disable']) ? _("Enable") : _("Disable")?>" class="<?=($tabsavt[$tab_id]['disable']) ? "lbutton" : "lbuttond" ?>" style="width:80px" <?php if (!$tabsavt[$tab_id]['disable'] && $tabdefault == $tab_id) echo "disabled"?>>
 </td>
 <input type="hidden" name="edit_tabs" value="1">
 <input type="hidden" name="panel_id" value="<?php echo $panel_id ?>">
