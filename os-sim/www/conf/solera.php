@@ -58,7 +58,7 @@ ossim_valid($src_ip, OSS_IP_ADDR, 'illegal:' . _("Src IP"));
 ossim_valid($src_port, OSS_DIGIT, 'illegal:' . _("Src port"));
 ossim_valid($dst_ip, OSS_IP_ADDR, 'illegal:' . _("Dst IP"));
 ossim_valid($dst_port, OSS_DIGIT, 'illegal:' . _("Dst port"));
-ossim_valid($proto, "tcp|udp|icmp", 'illegal:' . _("Protocol"));
+ossim_valid($proto, "tcp|udp|icmp|raw", 'illegal:' . _("Protocol"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -95,6 +95,7 @@ if (POST("action")=="submit") {
 	<option value="tcp"<? if ($proto=="tcp") echo " selected='selected'";?>>TCP
 	<option value="udp"<? if ($proto=="udp") echo " selected='selected'";?>>UDP
 	<option value="icmp"<? if ($proto=="icmp") echo " selected='selected'";?>>ICMP
+	<option value="raw"<? if ($proto=="raw") echo " selected='selected'";?>>RAW
 </select></td></tr>
 <tr><td><?=_("Source")?>:</td><td class="left"><input type="text" name="src_ip" value="<?=$src_ip?>">:<input type="text" name="src_port" size="4" value="<?=$src_port?>"></td></tr>
 <tr><td class="noborder"><?=_("Destination")?>:</td><td class="left noborder"><input type="text" name="dst_ip" value="<?=$dst_ip?>">:<input type="text" name="dst_port" size="4" value="<?=$dst_port?>"></td></tr>

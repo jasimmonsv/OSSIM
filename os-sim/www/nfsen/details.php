@@ -1612,6 +1612,9 @@ function DisplayProcessing() {
                 require_once ("classes/Host.inc");
                 require_once ("classes/Net.inc");
                 require_once ('ossim_db.inc');
+                require_once "ossim_conf.inc";
+				$conf = $GLOBALS["CONF"];
+				$solera = ($conf->get_conf("solera_enable", FALSE)) ? true : false;
                 include ("geoip.inc");
                 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
                 $db = new ossim_db();
@@ -1657,6 +1660,7 @@ function DisplayProcessing() {
                     <th>"._("bps")."</th>
                     <th>"._("Bpp")."</th>
                     <th>"._("Flows")."</th>
+                	".($solera ? "<th></th>" : "")."
                     </tr>" : "<tr>
                     <th>"._("Date flow seen")."</th>
                     <th>"._("Duration")."</th>
@@ -1668,6 +1672,7 @@ function DisplayProcessing() {
                     <th>"._("pps")."</th>
                     <th>"._("bps")."</th>
                     <th>"._("bpp")."</th>
+                	".($solera ? "<th></th>" : "")."
                     </tr>";
                 $status = $errors = array();
                 foreach ( $cmd_out['nfdump'] as $k => $line ) {
@@ -1679,6 +1684,8 @@ function DisplayProcessing() {
                     # print results
                     $line = preg_replace("/\(\s(\d)/","(\\1",$line); // Patch for ( 0.3)
                     $line = preg_replace("/(\d)\sM/","\\1M",$line); // Patch for 1.2 M(99.6) 
+                    $start = $end = $proto = "";
+                    $ips = $ports = array();
                     if (preg_match($regex,preg_replace('/\s*/', ' ', $line),$found)) {
                     	foreach ($found as $ki => $field) if ($ki>0) {
                             $wrap = ($ki==1) ? "nowrap" : "";
@@ -1698,9 +1705,23 @@ function DisplayProcessing() {
                                 }
                                 $field = "<a href='javascript:;' class='HostReportMenu' id='$ip;$name'>$name</a>$port $country_img $homelan";
                                 $wrap = "nowrap";
+                                $ips[] = $ip;
+                                $ports[] = str_replace(":","",$port);
                             }
+                            if (preg_match("/(\d+-\d+-\d+ \d+:\d+:\d+)(.*)/",$field,$fnd)) {
+                            	# match date
+                            	$start = $end = $fnd[1];
+                            }
+                            if (preg_match("/(TCP|UDP|ICMP|RAW)/",$field,$fnd)) {
+                            	# match date
+                            	$proto = strtolower($fnd[1]);
+                            }                            
                             print "<td $wrap>$field</td>";
                         }
+	                    // solera deepsee integration
+			            if ($solera) {
+			                echo "<td><a href=\"javascript:;\" onclick=\"solera_deepsee('$start','$end','".$ips[0]."','".$ports[0]."','".$ips[1]."','".$ports[1]."','$proto')\"><img src='/ossim/pixmaps/solera.png' border='0' align='absmiddle'></a></td>";
+			            }
                     }
                     echo "</tr>\n";
                 }

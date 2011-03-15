@@ -833,5 +833,28 @@ CloseLogFile();
 
 <!-- <div id="footer" class="footer" align="right">nfsen <?php echo $version ?></div> -->
 <div id="hintbox"></div>
+<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+<script type="text/javascript" src="../js/greybox_post.js"></script>
+<form action="../conf/solera.php" method="post" id="solera_form">
+<input type="hidden" name="from">
+<input type="hidden" name="to">
+<input type="hidden" name="src_ip">
+<input type="hidden" name="dst_ip">
+<input type="hidden" name="src_port">
+<input type="hidden" name="dst_port">
+<input type="hidden" name="proto">
+</form>
+<script>
+    function solera_deepsee (from,to,src_ip,src_port,dst_ip,dst_port,proto) {
+        $('#solera_form input[name=from]').val(from);
+        $('#solera_form input[name=to]').val(to);
+        $('#solera_form input[name=src_ip]').val(src_ip);
+        $('#solera_form input[name=src_port]').val(src_port);
+        $('#solera_form input[name=dst_ip]').val(dst_ip);
+        $('#solera_form input[name=dst_port]').val(dst_port);
+        $('#solera_form input[name=proto]').val(proto);
+        GB_show_post('Solera DeepSee &trade;','#solera_form',300,600);
+    }
+</script>
 </body>
 </html>
