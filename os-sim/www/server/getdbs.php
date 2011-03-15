@@ -78,7 +78,7 @@ $xml.= "<total>$total</total>\n";
 foreach($server_list as $server) {
     $name = $server->get_name();
     $ip = $server->get_ip();
-    $xml.= "<row id='".htmlspecialchars($name)."'>";
+    $xml.= "<row id='".htmlspecialchars(utf8_encode($name))."'>";
     $link_modify = "<a style='font-weight:bold;' href=\"./newdbsform.php?name=".urlencode($server->get_name())."\">".Util::htmlentities($name)."</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $ip . "]]></cell>";

@@ -107,48 +107,4 @@ function OssimQuery($sql, $debug = FALSE) {
     return $sql;
 }
 
-function OssimQuery2($sql, $debug = FALSE) {
-    if ($debug) print "Ossim query init: $sql<br/>\n";
-    
-	$force_ending = array(
-        /* attempt to do a 2nd SQL query */
-        ";",
-        /* attempt to unused part of the SQL query */
-        "--|#",
-        /* SQL injection like 1=1 or a=a */
-        "((OR|AND|LIKE)\s*(\S+))\s*(=|<>)\s*\\4",
-    );
-	
-	//Chinese characters Hack
-	if ( preg_match_all('/&#(\d{4,5});/', $sql, $match_ec) )
-	{
-		foreach ($match_ec[1] as $k => $v)
-			$sql = str_replace("&#".$v.";", "ch".$v."pc", $sql);
-	}
-	
-    foreach($force_ending as $limit) {
-        /*** DEBUG, will be removed.. ***/
-        if (1) {
-            if (preg_match("/(.*?)$limit.*$/", $sql)) 
-			{
-                $tmp = preg_replace("/(.*?)$limit.*$/", "\\1", $sql);
-				require_once ('ossim_error.inc');
-                $error = new ossimWarn();
-                $error->display("STRING_NOT_VALID");
-            }
-        }
-        /*** end DEBUG ***/
-        $sql = preg_replace("/(.*?)$limit.*$/i", "\\1", $sql);
-    }
-			
-	//Chinese characters Hack
-	foreach ($match_ec[1] as $k => $v)
-		$sql = str_replace("ch".$v."pc", "&#".$v.";", $sql);
-	
-	if ($debug) print "Ossim query end: $sql<br/>\n";
-	 
-    return $sql;
-}
-
-
 ?>

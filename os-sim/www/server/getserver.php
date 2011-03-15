@@ -96,7 +96,7 @@ foreach($server_list as $server) {
     $total_servers++;
     $name = $server->get_name();
     $ip = $server->get_ip();
-    $xml.= "<row id='".htmlspecialchars($name)."'>";
+    $xml.= "<row id='".htmlspecialchars(utf8_encode($name))."'>";
     $link_modify = "<a style='font-weight:bold;' href=\"./newserverform.php?name=".urlencode($name)."\">" . $ip . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $xml.= "<cell><![CDATA[" . Util::htmlentities($name) . "]]></cell>";
