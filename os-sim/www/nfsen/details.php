@@ -280,7 +280,7 @@ function Process_Details_tab ($tab_changed, $profile_changed) {
 	// put a compiled list into the POST array, which is scanned afterwards
 	if ( isset($_POST['srctrigger']) ) {
 		if ( isset($_POST['MultipleSources']) ) {
-			if ( $_POST['MultipleSources'] == 'All' ) {
+			if ( $_POST['MultipleSources'] == _("All") ) {
 				$_POST['channellist'] = implode('!', array_keys($_SESSION['profileinfo']['channel']));
 			} else {
 				$_POST['channellist'] = '';
