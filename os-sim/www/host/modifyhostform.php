@@ -159,12 +159,14 @@ if ( isset($_SESSION['_host']) )
 }
 else
 {
-	if ($host_list = Host::get_list($conn, "WHERE ip = '$ip'")) 
+	if ($host_list = Host::get_list($conn, "WHERE ip = '$ip'")) { 
 		$host = $host_list[0];
+	}
 		
-	
-	if ( !empty($host) )
-	{
+	if ( empty($host) ) {
+		header("location:newhostform.php?hmenu=Assets&smenu=Hosts&ip=$ip");
+	}
+	else {
     	$hostname        = $old_hostname = $host->get_hostname();
 		$fqdns           = $host->get_fqdns();
 		$descr	         = $host->get_descr();
