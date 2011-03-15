@@ -115,22 +115,24 @@ echo gettext("OSSIM Framework"); ?> </title>
 
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='<?=_("Delete selected")?>') {
-			//Delete host by ajax
-			if (typeof(items[0]) != 'undefined') {
-				$("#flextable").changeStatus('<?=_("Deleting network")?>...',false);
-				$.ajax({
-						type: "GET",
-						url: "deletenet.php?confirm=yes&name="+urlencode(items[0].id.substr(3)),
-						data: "",
-						success: function(msg) {
-							if(msg.match("ERROR_CANNOT")) alert("<?=_("Sorry, cannot delete this network because it belongs to a policy")?>");
-							else $("#flextable").flexReload();
-						}
-				});
-			}
-			else alert('<?=_("You must select a network")?>');
-		}
+        if (com=='<?=_("Delete selected")?>') {
+            //Delete host by ajax
+            if (typeof(items[0]) != 'undefined') {
+                for (i=0;i<items.length;i++){
+                    $("#flextable").changeStatus('<?=_("Deleting network")?>...',false);
+                    $.ajax({
+                            type: "GET",
+                            url: "deletenet.php?confirm=yes&name="+urlencode(items[i].id.substr(3)),
+                            data: "",
+                            success: function(msg) {
+                                if(msg.match("ERROR_CANNOT")) alert("<?=_("Sorry, cannot delete this network because it belongs to a policy")?>");
+                                else $("#flextable").flexReload();
+                            }
+                    });
+                }
+            }
+            else alert('<?=_("You must select a network")?>');
+        }
 		else if (com=='<?=_("Modify")?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'newnetform.php?name='+urlencode(items[0].id.substr(3))
 			else alert('<?=_("You must select a network")?>');
@@ -145,6 +147,14 @@ echo gettext("OSSIM Framework"); ?> </title>
 		else if (com=='<?=_("Apply")?>') {
 			document.location.href = '../conf/reload.php?what=nets&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>'
 		}
+        else if (com=='<?=_("Select all")?>') {
+            var rows = $("#flextable").find("tr").get();
+            if(rows.length > 0) {
+                $.each(rows,function(i,n) {
+                    $(n).addClass("trSelected");
+                });
+            }
+        }
 		if (com=='Enable/Disable <b>Nessus</b>') {
 			// Enable/Disable Nessus via ajax
 			if (typeof(items[0]) != 'undefined') {
@@ -357,8 +367,10 @@ echo "$colModel\n";
 			{separator: true},
 			//{name: '<?=_("Enable/Disable")?> <b><?=_("Nessus")?></b>', bclass: 'various', onpress : action},
 			//{separator: true},
-			{name: '<?=_("Enable/Disable <b>Nagios</b>")?>', bclass: 'various', onpress : action},
+			{name: '<?=_("Enable/Disable <b>Nagios</b>")?>', bclass: 'gear', onpress : action},
 			{separator: true},
+            {name: '<?=_("Select all")?>', bclass: 'various', onpress : action},
+            {separator: true},
 			{name: '<?=_("Apply")?>', bclass: '<?php echo (WebIndicator::is_on("Reload_nets")) ? "reload_red" : "reload" ?>', onpress : action},
 			{separator: true}
 			],
@@ -376,7 +388,7 @@ echo "$colModel\n";
 		contextMenu: 'myMenu',
 		onContextMenuClick: menu_action,
 		showTableToggleBtn: true,
-		singleSelect: true,
+		//singleSelect: true,
 		width: get_width('headerh1'),
 		height: get_height(),
 		onColumnChange: save_layout,

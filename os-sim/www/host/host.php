@@ -123,22 +123,24 @@ echo gettext("OSSIM Framework"); ?> </title>
 
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
-		if (com=='<?=_("Delete selected")?>') {
-			//Delete host by ajax
-			if (typeof(items[0]) != 'undefined') {
-				$("#flextable").changeStatus('<?=_("Deleting host")?>...',false);
-				$.ajax({
-						type: "GET",
-						url: "deletehost.php?confirm=yes&ip="+urlencode(items[0].id.substr(3)),
-						data: "",
-						success: function(msg) {
-							if(msg.match("ERROR_CANNOT")) alert("<?=_("Sorry, cannot delete this host because it belongs to a policy")?>");
-							else $("#flextable").flexReload();
-						}
-				});
-			}
-			else alert('You must select a host');
-		}
+        if (com=='<?=_("Delete selected")?>') {
+            //Delete host by ajax
+            if (typeof(items[0]) != 'undefined') {
+                for (i=0;i<items.length;i++) {
+                    $("#flextable").changeStatus('<?=_("Deleting host")?>...',false);
+                    $.ajax({
+                            type: "GET",
+                            url: "deletehost.php?confirm=yes&ip="+urlencode(items[i].id.substr(3)),
+                            data: "",
+                            success: function(msg) {
+                                if(msg.match("ERROR_CANNOT")) alert("<?=_("Sorry, cannot delete this host because it belongs to a policy")?>");
+                                else $("#flextable").flexReload();
+                            }
+                    });
+                }
+            }
+            else alert('You must select a host');
+        }
 		else if (com=='<?=_("Modify")?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifyhostform.php?ip='+urlencode(items[0].id.substr(3));
 			else alert('You must select a host');
@@ -160,7 +162,15 @@ echo gettext("OSSIM Framework"); ?> </title>
 		{
 			if (typeof(items[0]) != 'undefined')  document.location.href = 'hostcredentialsform.php?ip='+urlencode(items[0].id.substr(3));
 			else  alert('<?=_("Host unselected")?>');
-		} 
+		}
+        else if (com=='<?=_("Select all")?>') {
+            var rows = $("#flextable").find("tr").get();
+            if(rows.length > 0) {
+                $.each(rows,function(i,n) {
+                    $(n).addClass("trSelected");
+                });
+            }
+        }
 	}
 	
 	
@@ -359,6 +369,8 @@ echo "$colModel\n";
 			{separator: true},
 			{name: '<?=_("Edit Credentials")?>', bclass: 'credentials', onpress : action},
 			{separator: true},
+            {name: '<?=_("Select all")?>', bclass: 'various', onpress : action},
+            {separator: true},
 			{name: '<?=_("Import CSV")?>', bclass: 'i_csv', onpress : action},
 			{separator: true},
 			{name: '<?=_("Apply")?>', bclass: '<?php echo (WebIndicator::is_on("Reload_hosts")) ? "reload_red" : "reload" ?>', onpress : action},
@@ -380,7 +392,7 @@ echo "$colModel\n";
 		contextMenu: 'myMenu',
 		onContextMenuClick: menu_action,
 		showTableToggleBtn: true,
-		singleSelect: true,
+		//singleSelect: true,
 		width: get_width('headerh1'),
                 height: get_height(),
 		onColumnChange: save_layout,
