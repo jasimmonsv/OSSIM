@@ -125,14 +125,14 @@ function PrintPredefinedViews() {
 								 $style = 'font-weight: bold;';
 								 $opacidad = '';
 								 $boton0 = "<a style='cursor:pointer;' onclick=\"GB_show('"._('Edit custom view')."','custom_view_edit.php?edit=1&forcesave=1',460,600);\"><img src='../pixmaps/documents-save.png' alt='"._('Save as report')."' title='"._('Save as report')."' border='0'/></a>&nbsp;";
-								 $boton1 = "<a style='cursor:pointer;' onclick=\"save_view('save_".$i."');\"><img id='save_".$i."' src='../pixmaps/disk-gray.png' alt='"._('Save Current')."' title='"._('Save')."' border='0'/></a>&nbsp;";
+								 $boton1 = "<a style='cursor:pointer;' onclick=\"save_view('save_".$i."');\"><img id='save_".$i."' src='../pixmaps/disk-gray.png' alt='"._('Update View')."' title='"._('Update View')."' border='0'/></a>&nbsp;";
 								 $boton2 = "<a style='cursor:pointer;' onclick=\"GB_show('"._('Edit custom view')."','custom_view_edit.php?edit=1',460,600);\"><img src='../vulnmeter/images/pencil.png' alt='"._('Modify')."' title='"._('Modify')."' border='0'/></a>";
 							  }
 							  else{
 								 $style='';
 								 $opacidad = 'opacity:0.4;filter:alpha(opacity=40);';
 								 $boton0 = "";
-								 $boton1 = "<img id='save_".$i."' src='../pixmaps/disk-gray.png' alt='"._('Save Current')."' title='"._('Save')."' border='0'/>&nbsp;";
+								 $boton1 = "<img id='save_".$i."' src='../pixmaps/disk-gray.png' alt='"._('Update View')."' title='"._('Update View')."' border='0'/>&nbsp;";
 								 $boton2 = "<img src='../vulnmeter/images/pencil.png' alt='"._('Modify') ."' title='"._('Modify')."' border='0'/>";
 							  }
 							
