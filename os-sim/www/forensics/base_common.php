@@ -237,7 +237,7 @@ function GetPluginName($pid, $db) {
         $name = $myrow[0];
     }
     $tmp_result->baseFreeRows();
-    return $name;
+    return preg_replace("/(ossec)-.*/","\\1",$name);
 }
 function GetVendor($mac) {
     $mac = str_replace(":", "", $mac);
