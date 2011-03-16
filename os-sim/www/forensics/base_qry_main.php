@@ -123,11 +123,9 @@ if ($submit == gettext("Signature")) {
     $_GET["data_cnt"] = 1;
     $_GET["data"][0] = array("","LIKE",$search_str,"","");
     $_GET['submit'] = $submit = gettext("Query DB");  
-//	echo "<br><br>";
-//	echo "dentro de payload<br>";
 
 } elseif (preg_match("/.*IP/",$submit)) {
-    $ip_search = ImportHTTPVar("search_str", VAR_DIGIT | VAR_PUNC | VAR_FSLASH | VAR_LETTER);
+	$ip_search = ImportHTTPVar("search_str", VAR_DIGIT | VAR_PUNC | VAR_FSLASH | VAR_LETTER);
     $ip_search = preg_replace("/\s*AND.*/","",$ip_search);
     $ipsf = preg_split("/\s*OR\s*/",$ip_search);
     $ipfilter = array();
@@ -136,6 +134,16 @@ if ($submit == gettext("Signature")) {
         $ip_search = $ipsf[$i];
         $mask = explode ("/",$ip_search);
         $ip_aux = explode (".",$mask[0]);
+        if (count($ip_aux) == 2) {
+        	$ip_aux[2] = "0";
+        	$ip_aux[3] = "0";
+        	$mask[1] = "16";
+        	$ip_search .= ".0.0/16";
+        } elseif (count($ip_aux) == 2) {
+        	$ip_aux[3] = "0";
+        	$mask[1] = "24";
+        	$ip_search .= ".0/24";
+        }
         $or = (($i+1)==count($ipsf)) ? "" : "OR";
         $ipfilter[] = array ("",$ipop,"=",$ip_aux[0],$ip_aux[1],$ip_aux[2],$ip_aux[3],$ip_search,"",$or,$mask[1]);
     }
