@@ -98,6 +98,30 @@ function PrintCustomViews() {
 	<?
 }
 
+function PrintReportView() {
+	?>
+	<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#report').toggle()"><img src="../pixmaps/menu/reports.gif" align="absmiddle" border="0"/> <?php echo _("Report this view")?></a>
+   	<div style="position:relative">
+		<div id="report" style="position:absolute;right:0;top:0;display:none">
+			<table cellpadding='0' cellspacing='0' align="center" >
+				<tr>
+					<th style="padding-right:3px">
+						<div style='float:left; width:70%; text-align: right;'><?php echo _("Insert report name")?></div>
+						<div style='float:right; width:18%; padding-top: 2px;  text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#report').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
+					</th>
+				</tr>
+				<tr>
+					<td style='text-align: center; padding: 7px; font-size: 10px;' class="noborder">
+						<input type="text" value="" id="savereport_custom_name">&nbsp;
+						<input type="button" value="<?=_("Create New Report")?>" onclick="GB_show('<?=_("Create new report")?>','custom_view_edit.php?edit=1&forcesave=1&savereport_custom_name='+document.getElementById('savereport_custom_name').value,460,600);" class="button">
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+<?php
+}
+
 function PrintPredefinedViews() {
 	?>
 

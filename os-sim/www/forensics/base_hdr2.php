@@ -90,7 +90,7 @@ $risk = ($_GET["ossim_risk_a"] != "") ? $_GET["ossim_risk_a"] : $_SESSION["ossim
 
 <style type="text/css">
 
-#views table, #taxonomy table, #mfilters table  {
+#views table, #taxonomy table, #mfilters table, #report table  {
     background:none repeat scroll 0 0 #FAFAFA;
     border:1px solid #BBBBBB;
     color:black;
@@ -99,11 +99,12 @@ $risk = ($_GET["ossim_risk_a"] != "") ? $_GET["ossim_risk_a"] : $_SESSION["ossim
    padding: 2px;
 }
 
-#views table tr td, #taxonomy table tr td, #mfilters table tr td{
+#views table tr td, #taxonomy table tr td, #mfilters table tr td, #report table tr td{
     padding: 0;
 }
 #views table tr td input, #views table, 
 #taxonomy table tr td input, #taxonomy table,
+#taxonomy table tr td input, #report table,
 #mfilters table tr td input, #mfilters table
 {
     font-size: 0.9em;

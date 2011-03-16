@@ -42,6 +42,7 @@ $edit = GET('edit');
 $save = GET('save');
 $forcesave = GET('forcesave');
 $name = GET('name');
+$savereport_custom_name = GET('savereport_custom_name');
 $oldname = GET('oldname');
 $columns = GET('selected_cols');
 $save_criteria = (GET('save_criteria') != "") ? 1 : 0;
@@ -49,6 +50,7 @@ ossim_valid($edit, OSS_NULLABLE, OSS_DIGIT, "Invalid: edit");
 ossim_valid($save, OSS_NULLABLE, OSS_ALPHA, "Invalid: save");
 ossim_valid($forcesave, OSS_NULLABLE, OSS_DIGIT, "Invalid: forcesave");
 ossim_valid($name, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: name");
+ossim_valid($savereport_custom_name, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: custom report name");
 ossim_valid($oldname, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_PUNC, "Invalid: oldname");
 ossim_valid($columns, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, "Invalid: columns");
 ossim_valid($save_criteria, OSS_NULLABLE, OSS_DIGIT, "Invalid: save criteria");
@@ -155,6 +157,11 @@ if ($save == "insert") {
 	$query2 = preg_replace("/AND \( timestamp \>\='[^\']+'\s*AND timestamp \<\='[^\']+' \) /i","",$query2);
 	$query2 = preg_replace("/AND \( timestamp \>\=\'[^\']+\' \)\s*/","",$query2);
 	
+	// Diferent name than the view name
+	if ($savereport_custom_name != "") {
+		$name = $savereport_custom_name;
+	}
+	
 	if ($query1 != "" && $query2 != "" && $columns != "") {
 		$db = new ossim_db();
 		$conn = $db->connect();
@@ -242,10 +249,11 @@ if ($opensource) {
 <input type="hidden" id="action" name="save" value="<?=($edit) ? "modify" : "insert"?>">
 <input type="hidden" name="selected_cols" value="">
 <input type="hidden" name="oldname" value="<?=$_SESSION['current_cview']?>">
+<input type="hidden" name="savereport_custom_name" value="<?=$savereport_custom_name?>">
 	<tr><td class="center nobborder"><?=_("Select the <b>columns</b> to show in SIEM events listing")?></td></tr>
 	<tr><td class="nobborder">
 	<select id="cols" class="multiselect" multiple="multiple" name="columns[]">
-    <? if ($edit) {
+	<? if ($edit) {
             $rel=0;
             foreach($_SESSION['views'][$_SESSION['current_cview']]['cols'] as $label) { ?>
                 <option value="<?=$label?>" selected="selected"><?=($tags[$label] != "") ? $tags[$label] : $label?></option>

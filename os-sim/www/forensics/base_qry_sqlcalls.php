@@ -201,13 +201,16 @@ if (!$printing_ag) {
     }
 	echo '</TD></tr>';
 	
-	echo '<tr><td style="padding-top:10px; padding-right:25px; text-align:right;">';
+	echo '<tr><td><table width="100%"><tr><td style="padding-top:10px; text-align:left;">';
 	
+	PrintReportView();
+	
+	echo '</td><td style="padding-top:10px; padding-right:25px; text-align:right;">';
     //PrintCustomViews();
 	PrintPredefinedViews();
 	
     echo ' </td>
-           </tr>';
+           </tr></table></td></tr>';
     echo '
           </TABLE>
 		  <!-- END HEADER TABLE -->
