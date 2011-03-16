@@ -76,8 +76,26 @@ while ($file = $dir->read()) {
 rsort($insert);
 $dir->close();
 
-$users = Session::get_list($conn_ossim);
-list($entities,$num_entities_all) = Acl::get_entities_all($conn_ossim);
+if($pro) {
+    // users
+    $users = array();
+    if(Session::am_i_admin()) {
+        $users_list = Session::get_list($conn_ossim);
+        foreach ($users_list as $user_data) {
+            $users[] = $user_data->login;
+        }
+    }
+    else {
+        $users_list = Acl::get_my_users($conn_ossim,Session::get_session_user());
+        foreach ($users_list as $user_data) {
+            $users[] = $user_data["login"];
+        }
+    }
+    // entities
+    list($entities_all,$num_entities) = Acl::get_entities($conn_ossim);
+    list($entities_admin,$num) = Acl::get_entities_admin($conn_ossim, Session::get_session_user());
+    $entities_list = array_keys($entities_admin);
+}
 
 $db->close($conn);
 $db->close($conn_ossim);
@@ -145,16 +163,18 @@ if (count($insert) > 0) {
 	   <select name="user">
 	   <option value="">- <?php echo _("All Users") ?> -</option>
 	   <?php foreach ($users as $user) { ?>
-	   <option value="<?php echo $user->login ?>"><?php echo $user->login ?></option>
+	   <option value="<?php echo $user ?>"><?php echo $user ?></option>
 	   <?php } ?>
 	   </select>
 	   </td></tr>
 	   <tr><td class="nobborder">
 	   <select name="entity">
 	   <option value="">- <?php echo _("All Entities") ?> -</option>
-	   <?php foreach ($entities as $entity) { ?>
-	   <option value="<?php echo $entity['id'] ?>"><?php echo $entity['name'] ?></option>
-	   <?php } ?>
+	   <?php
+        foreach ( $entities_all as $entity ) if(Session::am_i_admin() || (Acl::am_i_proadmin() && in_array($entity["id"], $entities_list))) { ?>
+            <option value="<?php echo $entity["id"] ?>"><?php echo $entity["name"] ?></option>
+        <?php
+        } ?>
 	   </select>
 	   </td></tr>
 	   <?php } ?></table>
@@ -186,7 +206,7 @@ if (count($delete) > 0) {
   					<input type="button" class="button" name="deleteB" value="<?php echo gettext("Purge"); ?>" type="submit" onclick="boton(this.form, 'delete')"  <?php echo ($isDisabled) ? "disabled" : "" ?> />
   				</td>
   			</tr>
-  			<tr><td colspan="3" class="nobborder"><table class="transparent"><tr><td class="nobborder"><input type="checkbox" name="nomerge" value="nomerge"></input></td><td class="nobborder"><?php echo _("Restore into a new database server") ?></td></tr></table></td></tr>
+  			<tr><td colspan="3" class="nobborder"><table class="transparent"><tr><td class="nobborder"><input type="checkbox" name="nomerge" value="nomerge" checked="checked"></input></td><td class="nobborder"><?php echo _("Restore into a new database") ?></td></tr></table></td></tr>
   		</table>
   		<input type="hidden" name="perform" value="">
   		</form>
