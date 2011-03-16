@@ -199,7 +199,7 @@ if($tab == "#tab1")
 									</td>
 								</tr>
 								<tr>
-									<td class="cont_send" colspan='2'><input type="button" id='send' class="button" value="<?=_("Update")?>"/></td>
+									<td class="cont_send" colspan='2'><input type="button" id='send' class="button" value="<?php echo _("Update")?>"/></td>
 								</tr>
 							</table>
 						</form>
@@ -225,14 +225,14 @@ else if ($tab == '#tab2')
 	
 	if ($conf_agent === false)
 	{
-		echo "2###"._("File")." <b>$agent_conf</b> "._("not found or you don't have have permission to access");
+		echo "2###"._("File")." <strong>$agent_conf</strong> "._("not found or you don't have have permission to access");
 		exit();
 	}
 			
 	$result = test_agents(); 	
-						
+	
 	if ( $result !== true )
-		echo "3###".$conf_agent."###$result";
+		echo "3###".$conf_agent."###".$result;
 	else
 		echo "1###".$conf_agent;
 	

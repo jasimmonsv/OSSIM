@@ -39,6 +39,80 @@
 require_once ('classes/Session.inc');
 require_once ('utils.php');
 
+$tz     =(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
+
+
+function plot_graphic($id, $height, $width, $xaxis, $yaxis, $xticks, $xlabel, $display = false, $lnk = "") {
+	
+    $min_h = min($yaxis);
+	$max_h = max($yaxis);
+	
+	$max_h = ( $min_h == $max_h && $max_h === 0) ? $max_h+1 : $max_h;
+	
+	
+	$plot = '<script language="javascript" type="text/javascript">';
+    $plot.= '$(document).ready( function() {';
+    $plot.= 'var options = { ';
+    $plot.= 'lines: { show:true, labelHeight:0, lineWidth: 0.7},';
+    $plot.= 'points: { show:false, radius: 2 }, legend: { show: false },';
+    $plot.= 'yaxis: { ticks:[], min:'.$min_h.', max:'.$max_h.' }, xaxis: { tickDecimals:0, ticks: [';
+    
+	if (sizeof($xticks) > 0) {
+        foreach($xticks as $k => $v) {
+            $plot.= '[' . $v . ',"' . $xlabel[$k] . '"],';
+		}
+        $plot = preg_replace("/\,$/", "", $plot);
+    }
+	
+    $plot.= ']},';
+    $plot.= 'grid: { color: "#8E8E8E", labelMargin:0, backgroundColor: "#EDEDED", tickColor: "#D2D2D2", hoverable:true, clickable:true}';
+    $plot.= ', shadowSize:1 };';
+    $plot.= 'var data = [{';
+    $plot.= 'color: "rgb(170,170,170)", label: "Events", ';
+    $plot.= 'lines: { show: true, fill: true},'; 
+    $plot.= 'data:[';
+	
+	foreach($xaxis as $k => $v) {
+        $plot.= '[' . $v . ',' . $yaxis[$k] . '],';
+    }
+	
+    $plot = preg_replace("/\,$/", "]", $plot);
+    $plot.= ' }];';
+    $plot.= 'var plotarea = $("#' . $id . '");';
+    if ($display == true) {
+        $plot.= 'plotarea.css("display", "");';
+        $width = '((window.innerWidth || document.body.clientWidth)/2)';
+    }
+    $plot.= 'plotarea.css("height", ' . $height . ');';
+    $plot.= 'plotarea.css("width", ' . $width . ');';
+    $plot.= '$.plot( plotarea , data, options );';
+    //if ($display==true) {
+    $plot.= 'var previousPoint = null;
+			$("#' . $id . '").bind("plothover", function (event, pos, item) {
+				if (item) {
+					if (previousPoint != item.datapoint) {
+						previousPoint = item.datapoint;
+						$("#tooltip").remove();
+						var x = item.datapoint[0].toFixed(0), y = formatNmb(item.datapoint[1].toFixed(0));
+						showTooltip(item.pageX, item.pageY, y + " " + item.series.label);
+					}
+				}
+				else 
+				{
+					$("#tooltip").remove();
+					previousPoint = null;
+				}
+			});';
+    	
+    $plot.= "});\n";
+    $plot.= '</script>';
+    return $plot;
+}
+
+
+
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -47,11 +121,52 @@ require_once ('utils.php');
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/ossim_style.css"/>
 	<link rel="stylesheet" type="text/css" href="css/ossec.css"/>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.flot.pie.js"></script>
+	<script src="../js/jquery.simpletip.js" type="text/javascript"></script>
+	
 	
 	<script type="text/javascript">
 			
+		<?php 
+		function thousands_locale() {
+			$locale    = ( isset($_COOKIE['locale']) ? $_COOKIE['locale'] : $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
+			$languages = explode(",",$locale);
+			switch($languages[0]) {
+				case 'es-es':
+				case 'de-de':
+				case 'es-mx':
+					$thousands = '.';
+				break;
+				default:
+					$thousands = ',';
+			}
+			return $thousands;
+		}
+		?>
+		
+		function formatNmb(nNmb){
+			var sRes = ""; 
+			for (var j, i = nNmb.length - 1, j = 0; i >= 0; i--, j++)
+				sRes = nNmb.charAt(i) + ((j > 0) && (j % 3 == 0)? "<?php echo thousands_locale()?>": "") + sRes;
+			return sRes;
+		}
+		
+		function showTooltip(x, y, contents) {
+			
+			$('<div id="tooltip" class="tooltipLabel"><span style="font-size:10px;">' + contents + '</span></div>').css( {
+				position: 'absolute',
+				display: 'none',
+				top: y - 28,
+				left: x - 10,
+				border: '1px solid #ADDF53',
+				padding: '1px 2px 1px 2px',
+				'background-color': '#CFEF95',
+				opacity: 0.80
+			}).appendTo("body").fadeIn(200);
+		}
 		
 		function show_agent(id)
 		{
@@ -114,6 +229,25 @@ require_once ('utils.php');
 		.bborder_none { border-bottom: none !important; background-color: #FFFFFF !important;}
 		.load { height: 25px; margin: auto;}
 		td.center {text-align: center !important;}
+		
+		
+		.cont_plot  { width:420px; margin:auto; }
+
+
+		#dhtmltooltip{
+			position: absolute;
+			width: 150px;
+			border: 2px solid black;
+			padding: 2px;
+			background-color: lightyellow;
+			visibility: hidden;
+			z-index: 100;
+		}
+
+		img{
+			vertical-align:middle;
+		}
+		
 		
 		#list_agent_table {
 			width: 92%; 
@@ -207,12 +341,13 @@ require_once ('utils.php');
 	<div class='status_sec'>
 		<table id='list_agent_table'>
 			<thead>
-				<tr><td class='headerpr' colspan='4'><?php echo _("Agents List")?></td></tr>
+				<tr><td class='headerpr' colspan='5'><?php echo _("Agents List")?></td></tr>
 				<tr>
 					<th style='width: 100px;'><?php echo _("ID")?></th>
 					<th><?php echo _("Name")?></th>
 					<th><?php echo _("IP")?></th>
 					<th><?php echo _("Status")?></th>
+					<th><?php echo _("Trend")?></th>
 				</tr>
 			</thead>
 			<tbody>					
@@ -228,8 +363,8 @@ require_once ('utils.php');
 						if ( empty($agent) )
 							continue;
 							
-						$more_info = array();
-						$ret       = null;
+						$more_info     = array();
+						$ret           = null;
 						
 						$agent         = explode(",", $agent);
 						$agent_type    = null;
@@ -251,12 +386,48 @@ require_once ('utils.php');
 							$agent_type    = 1;
 						}	
 						
+						//Agents trends
+					    $trend = array();
+					    $data  = SIEM_trends_hids($agent[2]);
 						
+						if ( is_array($data) )
+					    {
+							$max   = 7;
+							for ($ii=$max-1; $ii>=0; $ii--)
+							{
+								$d         = gmdate("j M",$timetz-(86400*$ii));
+								$trend[$d] = ( $data[$d]!="" ) ? $data[$d] : 0;
+							}
+							
+							$i = 0;
+							foreach ($trend as $k => $v)
+							{
+								$x[$k] = $i;
+								$i++;
+							}
+							
+							$y       = $trend;
+							
+							$xticks  = $x;
+							
+							foreach ($trend as $k => $v)
+								$xlabels[$k] = $k;
+								
+								
+							$trend = "<div class='cont_plot'><div id='plotarea_".$agent[0]."'>".plot_graphic("plotarea_".$agent[0], 40, 400, $x, $y, $xticks, $xlabels, false, "")."</div></div>";	
+						}
+						else
+						{
+							$trend = "<div style='color:red; margin:auto; text-align:center;'>"._("Trend chart not available")."</div>";
+						}
+						
+								
 						echo "<tr id='cont_agent_".$agent[0]."'>
 								<td id='agent_".$agent[0]."'>$agent_name</td>
 								<td>".$agent[1]."</td>
 								<td>".$agent[2]."</td>
 								<td>".$agent[3]."</td>
+								<td style='width:440px;'>$trend</td>
 							</tr>";
 								
 						if ( $agent_type === 1 )		
@@ -324,6 +495,13 @@ require_once ('utils.php');
 	</div>
 	
 	<div class='status_sec'>
+
+	<p style="width:92%;text-align:left;margin-top:0px;margin-bottom:5px">
+		<a onclick="$('#ossec_header,#ossc_result').toggle();">
+			<img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Ossec Status");?> 
+		</a>
+	</p>
+
 		<?php
 		
 			//Ossec Status
@@ -333,9 +511,9 @@ require_once ('utils.php');
 			$result = str_replace("not running", "<span style='font-weight: bold; color:#E54D4D;'>not running</span>", $result);
 		?>
 		
-		<div class='headerpr' id='ossec_header'><?php echo _("Ossec Status");?></div>
+		<div class='headerpr' id='ossec_header' style='display:none'><?php echo _("Ossec Status");?></div>
 		
-		<div id='ossc_result' class='div_pre'>
+		<div id='ossc_result' class='div_pre' style='display:none'>
 			<div style='padding: 5px 10px 10px 10px;'><?php echo $result;?></div>
 		</div>
 	

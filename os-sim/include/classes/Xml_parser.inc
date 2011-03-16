@@ -53,20 +53,25 @@ class xml {
 	}
 		
 	public function load_file($filename){
-		if (is_readable($filename)){
+		if (is_readable($filename))
+		{
 			$this->filename=$filename;
 			$content = @file_get_contents ($filename, false);
 			$this->load_string($content); 	
-							
-		} else {
+		} 
+		else
+		{
 			$this->errors['status'] = false;
-	   		$this->errors['msg'][] = 'XML error - the file $filename is not readable!';
+	   		$this->errors['msg'][]  = 'XML error - the file $filename is not readable!';
 			return;
 		}
 	}
 	
 	public function load_string($string){
-		if ($string!='')
+		
+		$string = ltrim(rtrim($string));
+		
+		if ( $string !='' )
 		{
 			if (preg_match ('/\<\?xml/', $string) == false )
 				$string = "<?xml version='1.0' encoding='utf8'?><__rootnode>".$string."</__rootnode>";
@@ -99,9 +104,10 @@ class xml {
 			}
 					
 		}
-		else {
+		else
+		{
 			$this->errors['status'] = false;
-	   		$this->errors['msg'][] = "XML error - the parameter $string is ''";
+	   		$this->errors['msg'][] = "XML error - Content is empty";
 			return;
 		}
 	}

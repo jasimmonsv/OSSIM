@@ -72,6 +72,7 @@ if ( in_array($action, $allowed_act) )
 			$extra = ( empty($extra) ) ? 50 : $extra;
 			
 			exec ("tail -n$extra /var/ossec/logs/alerts/alerts.log", $result, $ret);
+									
 			$result = implode("<br/>", $result);
 			echo preg_replace("/\*\* Alert ([0-9]+\.[0-9]+)/", "<span style='font-weight: bold; color:#E54D4d;'>$0</span>", $result);
 		break;

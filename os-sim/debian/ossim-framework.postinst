@@ -200,6 +200,8 @@ chown www-data:ossec /var/ossec/rules
 chmod -R o+r         /var/ossec/rules
 chmod u+rwx          /var/ossec/rules
 
+chown www-data:ossec /var/ossec/bin
+
 chown www-data:ossec /var/ossec/etc
 chown www-data:ossec /var/ossec/etc/ossec.conf
 chmod u+rw           /var/ossec/etc/ossec.conf
@@ -225,8 +227,8 @@ chown www-data:ossec /var/ossec/logs/alerts/alerts.log
 
 chmod g+w /var/ossec/logs/
 chmod g+w /var/ossec/logs/alerts/
+chmod u+x /var/ossec/logs/alerts/alerts.log 
 chmod g+w /var/ossec/logs/alerts/alerts.log 
-
 
 
 # Sem log file

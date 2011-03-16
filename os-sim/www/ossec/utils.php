@@ -900,32 +900,81 @@ function test_agents()
 		
 	if ( file_exists($agent_conf) )
 	{
-		
 		if ( file_exists("/var/ossec/bin/verify-agent-conf") )
 		{
 			exec("sudo /var/ossec/bin/verify-agent-conf > /tmp/ossec-agent-conf 2>&1", $result, $res);
+			
 			$result = file('/tmp/ossec-agent-conf', FILE_IGNORE_NEW_LINES);
 			
 			if ( !is_array($result) )
 				$res = _("Error to read $agent_conf");
 			else if (is_array($result) && count($result) > 0)  
 				$res = implode("<br/><br/>", $result);
+			else
+				$res = true;
 			
 			@unlink ('/tmp/ossec-agent-conf');
+						
 		}
 		else
 		{
-			$xml_obj=new xml("_level_key");
+			$agent_file = @file_get_contents($agent_conf);
 			
-			$xml_obj->load_file($agent_conf);
+			if ( !empty($agent_file) )
+			{
+				$xml_obj=new xml("_level_key");
 			
-			if ($xml_obj->errors['status'] == false)
-				$res = implode("", $xml_obj->errors['msg']);
+				$xml_obj->load_file($agent_conf);
+				
+				if ($xml_obj->errors['status'] == false)
+					$res = implode("", $xml_obj->errors['msg']);
+			}
 		}
 	}
 	
 	return $res;	
 }
 
+// Get hids events from agent
+function SIEM_trends_hids($agent_ip)
+{
+	require_once '../panel/sensor_filter.php';
+	require_once 'classes/Plugin.inc';
+	require_once 'ossim_db.inc';
+	
+	$tzc     = ($tz>=0) ? "+$tz:00" : "$tz:00";
+	$data    = array();
+	$plugins = $plugins_sql = "";
+	
+	$db           = new ossim_db();
+	$dbconn       = $db->connect();
+	$sensor_where = make_sensor_filter($dbconn);
+	
+	// Ossec filter
+	$oss_p_id_name = Plugin::get_id_and_name($dbconn, "WHERE name LIKE 'ossec%'");
+	$plugins       = implode(",",array_flip ($oss_p_id_name));
+	$plugins_sql   = "AND acid_event.plugin_id in ($plugins)";
+	
+	// Agent ip filter
+	$agent_where  = make_sid_filter($dbconn,$agent_ip);	
+	if ( $agent_where=="" ) $agent_where = "0";
+	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, day(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, monthname(convert_tz(timestamp,'+00:00','$tzc')) as suf FROM snort.acid_event LEFT JOIN ossim.plugin ON acid_event.plugin_id=plugin.id WHERE sid in ($agent_where) AND timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-604800)."' AND '".gmdate("Y-m-d 23:59:59")."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
+		
+	if (!$rg = & $dbconn->Execute($sqlgraph))
+	{
+	    return false;
+	} 
+	else 
+	{
+	    while (!$rg->EOF)
+		{
+	        $hours = $rg->fields["intervalo"]." ".substr($rg->fields["suf"],0,3);
+	        $data[$hours] = $rg->fields["num_events"];
+	        $rg->MoveNext();
+	    }
+	}
+	$db->close($dbconn);
+	return $data;
+}
 
 ?>
