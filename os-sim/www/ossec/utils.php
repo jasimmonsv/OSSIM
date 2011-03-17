@@ -957,9 +957,10 @@ function SIEM_trends_hids($agent_ip)
 	
 	// Agent ip filter
 	$agent_where  = make_sid_filter($dbconn,$agent_ip);	
-	if ( $agent_where=="" ) $agent_where = "0";
+	if ( $agent_where =="" ) $agent_where = "0";
 	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, day(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, monthname(convert_tz(timestamp,'+00:00','$tzc')) as suf FROM snort.acid_event LEFT JOIN ossim.plugin ON acid_event.plugin_id=plugin.id WHERE sid in ($agent_where) AND timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-604800)."' AND '".gmdate("Y-m-d 23:59:59")."' $plugins_sql $sensor_where GROUP BY suf,intervalo ORDER BY suf,intervalo";
-		
+	
+	//print $sqlgraph;	
 	if (!$rg = & $dbconn->Execute($sqlgraph))
 	{
 	    return false;

@@ -962,6 +962,80 @@ function check_uniqueid($unique_id1,$unique_id2) {
 	}
 }
 
+//Check security in passwords
+
+function checkpass($conn, $current_pass, $pass1, $pass2, $user)
+{
+	require_once "classes/Session.inc";
+	require_once "ossim_conf.inc";
+	require_once "ossim_db.inc";
+	
+	$conf         = $GLOBALS["CONF"];
+	$conf         = ( !$conf ) ? new ossim_conf() : $conf;
+	$info_error   = true;
+	$error        = false;
+		
+	$recent_pass = Log_action::get_last_pass($conn, $user);
+	
+	
+	$parameters['current_pass'] = $current_pass;
+	$parameters['pass1'] 	    = $pass1;
+	$parameters['pass2'] 	    = $pass2;
+	
+	
+	$validate  = array (
+			"current_pass"   => array("validation" => "OSS_ALPHA, OSS_PUNC_EXT"  ,"e_message" => 'illegal:' . _("Current pass")),
+			"pass1"          => array("validation" => "OSS_ALPHA, OSS_PUNC_EXT"  ,"e_message" => 'illegal:' . _("New password")),
+			"pass2"          => array("validation" => "OSS_ALPHA, OSS_PUNC_EXT"  ,"e_message" => 'illegal:' . _("Rewrite password")),
+		);
+
+
+	foreach ($parameters as $k => $v )
+	{
+		eval("ossim_valid(\$v, ".$validate[$k]['validation'].", '".$validate[$k]['e_message']."');");
+	
+		if ( ossim_error() )
+		{
+			$info_error[] = ossim_get_error();
+			$error        = true;
+			ossim_clean_error();
+		}
+	}
+
+	if ( $error == true )
+		return $info_error;
+	
+	$pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
+	$pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
+	
+	
+	if ( empty($current_pass) )
+		return array(_("Current password is empty"));
+	
+	if ( strcmp($pass1, $pass2) != '0' ) 
+		return array(_("Passwords mismatches"));
+	
+	if (strlen($pass1) < $pass_length_min) 
+		return array(_("Password is long enough. The minimum is ").$pass_length_min._(" characters."));
+	
+	if (strlen($pass1) > $pass_length_max) 
+		return array(_("Password is too long. The maximum is ").$pass_length_max._(" characters."));
+	
+	if (!Session::pass_check_complexity($pass1)) 
+		return array(_("Password is not complex enough."));
+	
+	if (count($recent_pass) > 0 && in_array(md5($pass1),$recent_pass)) 
+		return array(_("This password is recently used. Try another."));
+	
+	if (count($user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($pass1) . "'")) > 0) 
+		return array( _("You must change your old password."));
+		
+	
+	return true;
+}
+
+
+
 // IDS Security
 ids();
 ?>
