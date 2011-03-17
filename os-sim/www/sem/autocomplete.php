@@ -51,6 +51,38 @@ function GetSourceTypes($db) {
     $tmp_result->free();
     return $srctypes;
 }
+function GetPluginCategories($db,$forced_sql="") {
+    $categories = array();
+    if ($forced_sql!="") 
+        $temp_sql = "select distinct category.* from plugin, plugin_sid LEFT JOIN category on category.id=plugin_sid.category_id where category.id is not null AND plugin.id=plugin_sid.plugin_id $forced_sql order by name";
+    else
+        $temp_sql = "select * from ossim.category order by name";
+    $tmp_result = $db->Execute($temp_sql);
+    while (!$tmp_result->EOF) {
+        $myrow = $tmp_result->fields;
+        $categories[$myrow["id"]] = str_replace("_"," ",$myrow["name"]);
+        $tmp_result->MoveNext();
+    }
+    $tmp_result->free();
+    return $categories;
+}
+function GetPluginSubCategories($db,$categories,$forced_sql="") {
+    $subcategories = array();
+    foreach ($categories as $idcat => $namecat) {
+		if ($forced_sql!="") 
+		    $temp_sql = "select distinct subcategory.* from plugin, plugin_sid LEFT JOIN subcategory on subcategory.id=plugin_sid.subcategory_id and subcategory.cat_id=$idcat where subcategory.id is not null AND plugin.id=plugin_sid.plugin_id $forced_sql order by name";
+		else
+		    $temp_sql = "select * from ossim.subcategory where cat_id=$idcat order by name";
+	    $tmp_result = $db->Execute($temp_sql);
+	    while (!$tmp_result->EOF) {
+            $myrow = $tmp_result->fields;
+	        $subcategories[$idcat][$myrow["id"]] = str_replace("_"," ",$myrow["name"]);
+            $tmp_result->MoveNext();
+	    }
+	    $tmp_result->free(); 
+	}
+    return $subcategories;
+}
 function GetPlugins($db) {
     $plugins = array();
     $temp_sql = "select name,id from plugin";
@@ -100,9 +132,11 @@ if (trim($str) != "") {
 	$sourcetypes = GetSourceTypes($conn);
 	$plugingroups = Plugingroup::get_list($conn);
 	$ports = Port::get_list($conn);
+	$categories = GetPluginCategories($conn);
+	$subcategories = GetPluginSubCategories($conn,$categories);
 	
 	// Typing a tag
-	if (preg_match("/^(sensor|src|dst|plugin|plugingroup|src_port|dst_port|sourcetype|data)(\!?\=)(.*)/i",$str,$found)) {
+	if (preg_match("/^(sensor|src|dst|plugin|datasource|plugingroup|dsgroup|src_port|dst_port|product_type|event_category|category|data)(\!?\=)(.*)/i",$str,$found)) {
 		$tag_typing = 1;
 		$str = $found[3];
 		$op = $found[2];
@@ -127,24 +161,33 @@ if (trim($str) != "") {
 					$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$name");
 				}
 			}
-		} elseif ($found[1] == "plugin") {
+		} elseif ($found[1] == "plugin" || $found[1] == "datasource") {
 			foreach ($plugins as $plugin_id=>$plugin) {
 				if ((preg_match("/^$qstr/i",$plugin)) && !preg_match("/$plugin/i",$fnd[2]) && count($data) < $top && $current_query["plugin_id".$op.$plugin_id] == "") {
-					$data[] = array("name"=>"<b>plugin</b>$op$prev$plugin");
+					$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$plugin");
 				}
 			}
-		} elseif ($found[1] == "plugingroup") {
+		} elseif ($found[1] == "plugingroup" || $found[1] == "dsgroup") {
 			foreach ($plugingroups as $group) {
 				$groupname = $group->get_name();
 				if ((preg_match("/^$qstr/i",$groupname)) && !preg_match("/$groupname/i",$fnd[2]) && count($data) < $top) {
-					$data[] = array("name"=>"<b>plugingroup</b>$op$prev$groupname");
+					$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$groupname");
 				}
 			}
-		} elseif ($found[1] == "sourcetype") {
+		} elseif ($found[1] == "product_type") {
 			foreach ($sourcetypes as $sourcetype) {
 				$qsourcetype = str_replace("/","\\/",$sourcetype);
 				if ((preg_match("/^$qstr/i",$sourcetype)) && !preg_match("/$qsourcetype/i",$fnd[2]) && count($data) < $top) {
-					$data[] = array("name"=>"<b>sourcetype</b>$op$prev$sourcetype");
+					$data[] = array("name"=>"<b>product_type</b>$op$prev$sourcetype");
+				}
+			}
+		} elseif ($found[1] == "category" || $found[1] == "event_category") {
+			foreach ($categories as $category_id=>$category) {
+				if ((preg_match("/^$qstr/i",$category)) && !preg_match("/$category/i",$fnd[2]) && count($data) < $top) {
+					$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$category");
+					foreach ($subcategories[$category_id] as $subcategory_id=>$subcategory) {
+						$data[] = array("name"=>"<b>".$found[1]."</b>$op$prev$category-$subcategory");
+					}
 				}
 			}
 		} elseif ($found[1] == "src_port" || $found[1] == "dst_port") {
