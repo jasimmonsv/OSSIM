@@ -44,6 +44,7 @@ require_once ("classes/Net.inc");
 require_once ("classes/Util.inc");
 require_once ("process.inc");
 require_once ('ossim_db.inc');
+
 function dateDiff($startDate, $endDate)
 {
     // Parse dates for conversion
@@ -75,6 +76,27 @@ function background_task($path_dir) {
 	$url = $server.'/sem/process.php?'.str_replace("exportEntireQuery","exportEntireQueryNow",$_SERVER["QUERY_STRING"]);
 	$wget = "wget -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='$cookieFile' '$url' -O -";
 	exec("$wget > '$tmpFile' 2>&1 & echo $!");
+}
+function GetPluginCategoryID($catname, $db) {
+    $idcat = 0;
+    $temp_sql = "SELECT id FROM ossim.category WHERE name='$catname'";
+    $tmp_result = $db->Execute($temp_sql);
+    if ($myrow = $tmp_result->fields) {
+        $idcat = $myrow[0];
+    }
+    $tmp_result->free();
+    return $idcat;
+}
+function GetPluginSubCategoryID($scatname, $idcat, $db) {
+    $scatname = str_replace(" ","_",$scatname);
+	$idscat = 0;
+    $temp_sql = "SELECT id FROM ossim.subcategory WHERE cat_id=$idcat AND name='$scatname'";
+    $tmp_result = $db->Execute($temp_sql);
+    if ($myrow = $tmp_result->fields) {
+        $idscat = $myrow[0];
+    }
+    $tmp_result->free();
+    return $idscat;
 }
 
 include ("geoip.inc");
@@ -162,14 +184,26 @@ $a = preg_replace("/SPACESCAPEORSPACESCAPE([a-zA-Z\_]+)\=/"," or \\1=",$a);
 $a = str_replace(";","",$a);
 
 $atoms = explode("|",preg_replace("/ (and|or) /i","|",$a));
-
+$source_type = ""; $category = ""; $subcategory = "";
 foreach ($atoms as $atom) {
     $atom = trim($atom);
 	$atom = str_replace("src_ip=","src=",$atom);
 	$atom = str_replace("dst_ip=","dst=",$atom);
-	if (preg_match("/sourcetype(\!?\=)(.+)/", $atom, $matches)) {
+	if (preg_match("/product_type(\!?\=)(.+)/", $atom, $matches)) {
 	    $source_type = $matches[2];
-	    $a = str_replace("sourcetype".$matches[1].$matches[2],"taxonomy".$matches[1]."'".$source_type."-0-0'",$a);
+	    $a = str_replace("product_type".$matches[1].$matches[2],"taxonomy".$matches[1]."'".$source_type."-0-0'",$a);
+	}
+	if (preg_match("/(category|event_category)(\!?\=)(.+)/", $atom, $matches)) {
+	    $cat = str_replace("SPACESCAPE"," ",$matches[3]);
+	    $subcat = "";
+	    if (preg_match("/\-/",$cat)) {
+	    	$aux = explode("-",$cat);
+	    	$cat = $aux[0];
+	    	$subcat = $aux[1];
+	    }
+	    $category_id = GetPluginCategoryID($cat,$conn);
+	    $subcategory_id = GetPluginSubCategoryID($subcat,$category_id,$conn);
+	    $a = str_replace($matches[1].$matches[2].$matches[3],"taxonomy".$matches[2]."'-$category_id-$subcategory_id'",$a);
 	}
 	if (preg_match("/plugin(\!?\=)(.+)/", $atom, $matches)) {
 	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));	    
