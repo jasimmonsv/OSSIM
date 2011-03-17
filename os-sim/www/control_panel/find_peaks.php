@@ -46,6 +46,7 @@ if (Session::menu_perms("MenuControlPanel", "ControlPanelEvents")) {
 } else {
     $event_perms = false;
 }
+$event_perms = true; // ControlPanelEvents temporarily disabled
 $conf = $GLOBALS["CONF"];
 $acid_link = $conf->get_conf("acid_link");
 $type = GET('type');

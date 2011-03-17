@@ -70,6 +70,7 @@ if (Session::menu_perms("MenuControlPanel", "ControlPanelEvents")) {
 } else {
     $event_perms = false;
 }
+$event_perms = true; // ControlPanelEvents temporarily disabled
 if (Session::menu_perms("MenuReports", "ReportsHostReport")) {
     $host_report_perms = true;
 } else {
