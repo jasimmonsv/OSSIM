@@ -73,6 +73,7 @@ switch ($port_type) {
         $page_title = $page_title . gettext("Destination Port(s)");
         break;
 }
+if (!Session::am_i_admin()) $displaytitle = preg_replace("/\. <b>.*/",".",$displaytitle);
 if ($qs->isCannedQuery()) PrintBASESubHeader($page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $page_title . ": " . $qs->GetCurrentCannedQueryDesc() , $cs->GetBackLink() , 1);
 else PrintBASESubHeader($page_title, $page_title, $cs->GetBackLink() , 1);
 if ($event_cache_auto_update == 1) UpdateAlertCache($db);

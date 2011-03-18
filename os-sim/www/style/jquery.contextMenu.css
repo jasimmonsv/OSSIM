@@ -72,6 +72,7 @@
 .contextMenu LI.ntop A { background-image: url(../pixmaps/ntop.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.flows A { background-image: url(../pixmaps/monitor.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.nagios A { background-image: url(../pixmaps/nagios.png); background-repeat:no-repeat; font-weight:bold; }
+.contextMenu LI.whois A { background-image: url(../pixmaps/whois.png); background-repeat:no-repeat; font-weight:bold; }
 
 .contextMenu LI.addAll A { background-image: url(../pixmaps/panel/tab_all.png); background-repeat:no-repeat; font-weight:bold; }
 .contextMenu LI.addUser A { background-image: url(../pixmaps/panel/tab_user.png); background-repeat:no-repeat; font-weight:bold; }
