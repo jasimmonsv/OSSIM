@@ -17,7 +17,7 @@ function GetSnortSensorSids($conn2) {
 	}
 	return $ret;
 }
-// Sensor allowsed filter
+// Sensor allowed filter
 function make_sensor_filter($conn,$alias="acid_event") {
 	$sensor_where = "";
 	if (Session::allowedSensors() != "") {
@@ -49,5 +49,20 @@ function make_where ($conn,$arr) {
 		$w .= ") OR ";
 	}
 	return ($w!="") ? "AND (".preg_replace("/ OR $/","",$w).")" : "";
+}
+// SID filter from snort.sensor
+function make_sid_filter($conn,$ip) {
+	$sids = array();
+	$query = "SELECT sid FROM snort.sensor WHERE hostname like '%$ip%' OR sensor='$ip'";
+	//print_r($query);
+	if (!$rs = & $conn->Execute($query)) {
+		print $conn->ErrorMsg();
+		exit();
+	}
+	while (!$rs->EOF) {
+		$sids[] = $rs->fields['sid'];
+		$rs->MoveNext();
+	}
+	return implode(",",$sids);
 }
 ?>
