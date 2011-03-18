@@ -524,11 +524,12 @@ class SecurityReport {
 		switch ($type) {
             case "alarm":
                 //
-                list($join2,$where2) = SecurityReport::make_join_where("a.","src_ip;dst_ip",$assets,$sourcetype,$category,$subcategory);
+                list($join2,$where2) = SecurityReport::make_join_where("a.","src_ip;dst_ip",$assets,$sourcetype,$category,$subcategory,1);
                 //
-                $query = OssimQuery("SELECT plugin.name as sig_name, a.risk as ossim_risk_a FROM alarm a $join2, plugin_sid$sensor_join
+                $query = OssimQuery("SELECT plugin_sid.name as sig_name, a.risk as ossim_risk_a FROM alarm a $join2, plugin_sid$sensor_join
                   WHERE  a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59' AND plugin_sid.plugin_id = a.plugin_id AND plugin_sid.sid = a.plugin_sid$sensor_str_alarm $where2
-                  $sql_plugin_groups GROUP BY plugin.name ORDER BY risk DESC LIMIT $limit");
+                  $sql_plugin_groups GROUP BY plugin_sid.name ORDER BY risk DESC LIMIT $limit");
+
                 $temp_conn = $this->ossim_conn;
                 break;
 
