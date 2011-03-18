@@ -144,7 +144,7 @@ $groups = ISO27001::get_groups($conn);
 				<td class="nobborder"></td>
 				<th><?=_("Security Controls")?></th>
 				<th><?=_("Applies")?></th>
-				<th><?=_("Implemented")?></th>
+				<th><?=_("Operational")?></th>
 				<th><?=_("Justification")?></th>
 				<th><?=_("Plugins")?></th>
 			</tr>

@@ -80,6 +80,11 @@
 						var ip = aux[0];
 						url = "/secured_nagios3/cgi-bin/status.cgi?host="+ip;
 						var wnd = window.open(url,'nagios_'+ip,'scrollbars=yes,location=no,toolbar=no,status=no,directories=no');
+					} else if (action=='whois') {
+						var aux = $(el).attr('id').split(/;/);
+						var ip = aux[0];
+						url = "http://www.dnsstuff.com/tools/whois/?ip="+ip;
+						var wnd = window.open(url,'whois_'+ip,'scrollbars=yes,location=no,toolbar=no,status=no,directories=no');
 					}
 				}
 			);
@@ -109,6 +114,7 @@
 <li class="report"><a href="#report"><?=_("Asset Report")?></a></li>
 <li class="assetsearch"><a href="#search"><?=_("Asset Search")?></a></li>
 <li class="edit"><a href="#edit"><?=_("Configure Asset")?></a></li>
+<li class="whois"><a href="#whois"><?=_("Whois")?></a></li>
 <li class="tickets"><a href="#tickets"><?=_("Tickets")?></a></li>
 <li class="alarms"><a href="#alarms"><?=_("Alarms")?></a></li>
 <?

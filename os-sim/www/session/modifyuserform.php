@@ -45,9 +45,14 @@ require_once ('classes/Net.inc');
 require_once ('classes/Sensor.inc');
 require_once ('ossim_db.inc');
 
+// Get password length
 $pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
 $pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
-if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_max = 255; }
+
+$pass_length_max = ( $pass_length_max < $pass_length_min || $pass_length_max < 1 ) ? 255 : $pass_length_max;
+
+
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -67,22 +72,21 @@ if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_
 		document.fmodify.knowledgedb_perms.value = users;
 		}
 	</script>
-	
-	
-	
+		
 	<script type="text/javascript">
 		var checks = new Array;
 		checks['nets'] = 0;
 		checks['sensor'] = 0;
 		checks['perms'] = 0;
 		function checkall(col) {
-			if (checks[col]) {
+			if (checks[col]) 
+			{
 				$("#fmodify").unCheckCheckboxes("."+col, true)
-				//$('input:checkbox[class="'+col+'"]').attr("checked", ""); 
 				checks[col] = 0;
-			} else {
+			} 
+			else 
+			{
 				$("#fmodify").checkCheckboxes("."+col, true)
-				//$('input:checkbox[class="'+col+'"]').attr("checked", "checked"); 
 				checks[col] = 1;
 			}
 		}
@@ -143,7 +147,7 @@ if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_
 			GB_TYPE = 'w';
 			$("a.greybox").click(function(){
 				var t = this.title || $(this).text() || this.href;
-				GB_show(t,this.href,300,"70%");
+				GB_show(t,this.href,340,"70%");
 				return false;
 			});
 		});
@@ -232,7 +236,7 @@ include ("../hmenu.php");
 					<input type="hidden" name="user" value="<?php echo $user->get_login() ?>" />
 					<tr>
 						<th> <?php echo gettext("User login"); ?> </th>
-						<td class="left"><b><?php echo $user->get_login(); ?></b></td>
+						<td class="left"><strong><?php echo $user->get_login(); ?></strong></td>
 					</tr>
 					
 					<tr>
@@ -269,46 +273,46 @@ include ("../hmenu.php");
                         <? $tz = intval(date("O"))/100; ?>
 						<td class="left">
                         <select name="tzone" id="tzone">
-                            <option value="-12" <?php if ($user->get_timezone() == "-12" || ($tz == "-12" && $user->get_timezone() == "")) echo "selected" ?>>GMT-12:00</option>
-                            <option value="-11" <?php if ($user->get_timezone() == "-11" || ($tz == "-11" && $user->get_timezone() == "")) echo "selected" ?>>GMT-11:00</option>
-                            <option value="-10" <?php if ($user->get_timezone() == "-10" || ($tz == "-10" && $user->get_timezone() == "")) echo "selected" ?>>GMT-10:00</option>
-                            <option value="-9.5" <?php if ($user->get_timezone() == "-9.5" || ($tz == "-9.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-9:30</option>
-                            <option value="-9" <?php if ($user->get_timezone() == "-9" || ($tz == "-9" && $user->get_timezone() == "")) echo "selected" ?>>GMT-9:00</option>
-                            <option value="-8" <?php if ($user->get_timezone() == "-8" || ($tz == "-8" && $user->get_timezone() == "")) echo "selected" ?>>GMT-8:00</option>
-                            <option value="-7" <?php if ($user->get_timezone() == "-7" || ($tz == "-7" && $user->get_timezone() == "")) echo "selected" ?>>GMT-7:00</option>
-                            <option value="-6" <?php if ($user->get_timezone() == "-6" || ($tz == "-6" && $user->get_timezone() == "")) echo "selected" ?>>GMT-6:00</option>
-                            <option value="-5" <?php if ($user->get_timezone() == "-5" || ($tz == "-5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-5:00</option>
-                            <option value="-4.5" <?php if ($user->get_timezone() == "-4.5" || ($tz == "-4.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-4:30</option>
-                            <option value="-4" <?php if ($user->get_timezone() == "-4" || ($tz == "-4" && $user->get_timezone() == "")) echo "selected" ?>>GMT-4:00</option>
-                            <option value="-3.5" <?php if ($user->get_timezone() == "-3.5" || ($tz == "-3.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-3:30</option>
-                            <option value="-3" <?php if ($user->get_timezone() == "-3" || ($tz == "-3" && $user->get_timezone() == "")) echo "selected" ?>>GMT-3:00</option>
-                            <option value="-2" <?php if ($user->get_timezone() == "-2" || ($tz == "-2" && $user->get_timezone() == "")) echo "selected" ?>>GMT-2:00</option>
-                            <option value="-1" <?php if ($user->get_timezone() == "-1" || ($tz == "-1" && $user->get_timezone() == "")) echo "selected" ?>>GMT-1:00</option>
-                            <option value="0" <?php if ($user->get_timezone() == "0" || ($tz == "0" && $user->get_timezone() == "")) echo "selected" ?>>UTC</option>
-                            <option value="1" <?php if ($user->get_timezone() == "1" || ($tz == "1" && $user->get_timezone() == "")) echo "selected" ?>>GMT+1:00</option>
-                            <option value="2" <?php if ($user->get_timezone() == "2" || ($tz == "2" && $user->get_timezone() == "")) echo "selected" ?>>GMT+2:00</option>
-                            <option value="3" <?php if ($user->get_timezone() == "3" || ($tz == "3" && $user->get_timezone() == "")) echo "selected" ?>>GMT+3:00</option>
-                            <option value="3.5" <?php if ($user->get_timezone() == "3.5" || ($tz == "3.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+3:30</option>
-                            <option value="4" <?php if ($user->get_timezone() == "4" || ($tz == "4" && $user->get_timezone() == "")) echo "selected" ?>>GMT+4:00</option>
-                            <option value="4.5" <?php if ($user->get_timezone() == "4.5" || ($tz == "4.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+4:30</option>
-                            <option value="5" <?php if ($user->get_timezone() == "5" || ($tz == "5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+5:00</option>
-                            <option value="5.5" <?php if ($user->get_timezone() == "5.5" || ($tz == "5.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+5:30</option>
-                            <option value="5.75" <?php if ($user->get_timezone() == "5.75" || ($tz == "5.75" && $user->get_timezone() == "")) echo "selected" ?>>GMT+5:45</option>
-                            <option value="6" <?php if ($user->get_timezone() == "6" || ($tz == "6" && $user->get_timezone() == "")) echo "selected" ?>>GMT+6:00</option>
-                            <option value="6.5" <?php if ($user->get_timezone() == "6.5" || ($tz == "6.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+6:30</option>
-                            <option value="7" <?php if ($user->get_timezone() == "7" || ($tz == "7" && $user->get_timezone() == "")) echo "selected" ?>>GMT+7:00</option>
-                            <option value="8" <?php if ($user->get_timezone() == "8" || ($tz == "8" && $user->get_timezone() == "")) echo "selected" ?>>GMT+8:00</option>
-                            <option value="8.75" <?php if ($user->get_timezone() == "8.75" || ($tz == "8.75" && $user->get_timezone() == "")) echo "selected" ?>>GMT+8:45</option>
-                            <option value="9" <?php if ($user->get_timezone() == "9" || ($tz == "9" && $user->get_timezone() == "")) echo "selected" ?>>GMT+9:00</option>
-                            <option value="9.5" <?php if ($user->get_timezone() == "9.5" || ($tz == "9.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+9:30</option>
-                            <option value="10" <?php if ($user->get_timezone() == "10" || ($tz == "10" && $user->get_timezone() == "")) echo "selected" ?>>GMT+10:00</option>
-                            <option value="10.5" <?php if ($user->get_timezone() == "10.5" || ($tz == "10.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+10:30</option>
-                            <option value="11" <?php if ($user->get_timezone() == "11" || ($tz == "11" && $user->get_timezone() == "")) echo "selected" ?>>GMT+11:00</option>
-                            <option value="11.5" <?php if ($user->get_timezone() == "11.5" || ($tz == "11.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+11:30</option>
-                            <option value="12" <?php if ($user->get_timezone() == "12" || ($tz == "12" && $user->get_timezone() == "")) echo "selected" ?>>GMT+12:00</option>
+                            <option value="-12"   <?php if ($user->get_timezone() == "-12" || ($tz == "-12" && $user->get_timezone() == "")) echo "selected" ?>>GMT-12:00</option>
+                            <option value="-11"   <?php if ($user->get_timezone() == "-11" || ($tz == "-11" && $user->get_timezone() == "")) echo "selected" ?>>GMT-11:00</option>
+                            <option value="-10"   <?php if ($user->get_timezone() == "-10" || ($tz == "-10" && $user->get_timezone() == "")) echo "selected" ?>>GMT-10:00</option>
+                            <option value="-9.5"  <?php if ($user->get_timezone() == "-9.5" || ($tz == "-9.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-9:30</option>
+                            <option value="-9"    <?php if ($user->get_timezone() == "-9" || ($tz == "-9" && $user->get_timezone() == "")) echo "selected" ?>>GMT-9:00</option>
+                            <option value="-8"    <?php if ($user->get_timezone() == "-8" || ($tz == "-8" && $user->get_timezone() == "")) echo "selected" ?>>GMT-8:00</option>
+                            <option value="-7"    <?php if ($user->get_timezone() == "-7" || ($tz == "-7" && $user->get_timezone() == "")) echo "selected" ?>>GMT-7:00</option>
+                            <option value="-6"    <?php if ($user->get_timezone() == "-6" || ($tz == "-6" && $user->get_timezone() == "")) echo "selected" ?>>GMT-6:00</option>
+                            <option value="-5"    <?php if ($user->get_timezone() == "-5" || ($tz == "-5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-5:00</option>
+                            <option value="-4.5"  <?php if ($user->get_timezone() == "-4.5" || ($tz == "-4.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-4:30</option>
+                            <option value="-4"    <?php if ($user->get_timezone() == "-4" || ($tz == "-4" && $user->get_timezone() == "")) echo "selected" ?>>GMT-4:00</option>
+                            <option value="-3.5"  <?php if ($user->get_timezone() == "-3.5" || ($tz == "-3.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT-3:30</option>
+                            <option value="-3"    <?php if ($user->get_timezone() == "-3" || ($tz == "-3" && $user->get_timezone() == "")) echo "selected" ?>>GMT-3:00</option>
+                            <option value="-2"    <?php if ($user->get_timezone() == "-2" || ($tz == "-2" && $user->get_timezone() == "")) echo "selected" ?>>GMT-2:00</option>
+                            <option value="-1"    <?php if ($user->get_timezone() == "-1" || ($tz == "-1" && $user->get_timezone() == "")) echo "selected" ?>>GMT-1:00</option>
+                            <option value="0"     <?php if ($user->get_timezone() == "0" || ($tz == "0" && $user->get_timezone() == "")) echo "selected" ?>>UTC</option>
+                            <option value="1"     <?php if ($user->get_timezone() == "1" || ($tz == "1" && $user->get_timezone() == "")) echo "selected" ?>>GMT+1:00</option>
+                            <option value="2"     <?php if ($user->get_timezone() == "2" || ($tz == "2" && $user->get_timezone() == "")) echo "selected" ?>>GMT+2:00</option>
+                            <option value="3"     <?php if ($user->get_timezone() == "3" || ($tz == "3" && $user->get_timezone() == "")) echo "selected" ?>>GMT+3:00</option>
+                            <option value="3.5"   <?php if ($user->get_timezone() == "3.5" || ($tz == "3.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+3:30</option>
+                            <option value="4"     <?php if ($user->get_timezone() == "4" || ($tz == "4" && $user->get_timezone() == "")) echo "selected" ?>>GMT+4:00</option>
+                            <option value="4.5"   <?php if ($user->get_timezone() == "4.5" || ($tz == "4.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+4:30</option>
+                            <option value="5"     <?php if ($user->get_timezone() == "5" || ($tz == "5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+5:00</option>
+                            <option value="5.5"   <?php if ($user->get_timezone() == "5.5" || ($tz == "5.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+5:30</option>
+                            <option value="5.75"  <?php if ($user->get_timezone() == "5.75" || ($tz == "5.75" && $user->get_timezone() == "")) echo "selected" ?>>GMT+5:45</option>
+                            <option value="6"     <?php if ($user->get_timezone() == "6" || ($tz == "6" && $user->get_timezone() == "")) echo "selected" ?>>GMT+6:00</option>
+                            <option value="6.5"   <?php if ($user->get_timezone() == "6.5" || ($tz == "6.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+6:30</option>
+                            <option value="7"     <?php if ($user->get_timezone() == "7" || ($tz == "7" && $user->get_timezone() == "")) echo "selected" ?>>GMT+7:00</option>
+                            <option value="8"     <?php if ($user->get_timezone() == "8" || ($tz == "8" && $user->get_timezone() == "")) echo "selected" ?>>GMT+8:00</option>
+                            <option value="8.75"  <?php if ($user->get_timezone() == "8.75" || ($tz == "8.75" && $user->get_timezone() == "")) echo "selected" ?>>GMT+8:45</option>
+                            <option value="9"     <?php if ($user->get_timezone() == "9" || ($tz == "9" && $user->get_timezone() == "")) echo "selected" ?>>GMT+9:00</option>
+                            <option value="9.5"   <?php if ($user->get_timezone() == "9.5" || ($tz == "9.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+9:30</option>
+                            <option value="10"    <?php if ($user->get_timezone() == "10" || ($tz == "10" && $user->get_timezone() == "")) echo "selected" ?>>GMT+10:00</option>
+                            <option value="10.5"  <?php if ($user->get_timezone() == "10.5" || ($tz == "10.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+10:30</option>
+                            <option value="11"    <?php if ($user->get_timezone() == "11" || ($tz == "11" && $user->get_timezone() == "")) echo "selected" ?>>GMT+11:00</option>
+                            <option value="11.5"  <?php if ($user->get_timezone() == "11.5" || ($tz == "11.5" && $user->get_timezone() == "")) echo "selected" ?>>GMT+11:30</option>
+                            <option value="12"    <?php if ($user->get_timezone() == "12" || ($tz == "12" && $user->get_timezone() == "")) echo "selected" ?>>GMT+12:00</option>
                             <option value="12.75" <?php if ($user->get_timezone() == "12.75" || ($tz == "12.75" && $user->get_timezone() == "")) echo "selected" ?>>GMT+12:45</option>
-                            <option value="13" <?php if ($user->get_timezone() == "13" || ($tz == "13" && $user->get_timezone() == "")) echo "selected" ?>>GMT+13:00</option>
-                            <option value="14" <?php if ($user->get_timezone() == "14" || ($tz == "14" && $user->get_timezone() == "")) echo "selected" ?>>GMT+14:00</option>
+                            <option value="13"    <?php if ($user->get_timezone() == "13" || ($tz == "13" && $user->get_timezone() == "")) echo "selected" ?>>GMT+13:00</option>
+                            <option value="14"    <?php if ($user->get_timezone() == "14" || ($tz == "14" && $user->get_timezone() == "")) echo "selected" ?>>GMT+14:00</option>
                         </select>
 						</td>
 					</tr>
@@ -472,7 +476,7 @@ include ("../hmenu.php");
 							<a href="#" onclick="checkall('perms');return false;"><?php echo _("Select / Unselect all");?></a>
 						</td>
 						<td class="nobborder" style="color:#777777;text-align:center;" nowrap='nowrap'>
-							<span style="color:black"><b><?php echo _("Granularity")?></b> <?php echo _("Net")?> / <?php echo _("Sensor")?></span>
+							<span style="color:black"><strong><?php echo _("Granularity")?></strong> <?php echo _("Net")?> / <?php echo _("Sensor")?></span>
 							<!--<br><img src="../pixmaps/tick.png"> <i>Checked is filtered</i>-->
 						</td>
 					</tr>

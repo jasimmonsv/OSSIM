@@ -785,6 +785,14 @@ if (Session::menu_perms("MenuIntelligence", "ComplianceMapping")) { $correlation
        "url" => "compliance/pci-dss.php",
        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:compliance_mapping:pci_dss','Help');"
     );
+    $rmenu["Compliance"][] = array(
+       "name" => gettext("Launch compliance scripts") ,
+       "url" => "../compliance/mod_scripts.php"
+    );
+    $rmenu["PCIDSS"][] = array(
+       "name" => gettext("Launch compliance scripts") ,
+       "url" => "../compliance/mod_scripts.php"
+    );
 }
 
 if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $correlation = 1;

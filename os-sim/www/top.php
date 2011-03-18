@@ -39,6 +39,13 @@ require_once 'classes/Session.inc';
 require_once 'classes/WebIndicator.inc';
 require_once 'classes/Util.inc';
 Session::useractive("session/login.php");
+// refresh hour
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$timetz = gmdate("U")+(3600*$tz);
+if (GET("lasthour")=="1") {
+	echo gmdate("H:i",$timetz);
+	exit();
+}
 require_once ('ossim_conf.inc');
 $conf = $GLOBALS["CONF"];
 $ntop_link = $conf->get_conf("ntop_link", FALSE);
@@ -63,6 +70,7 @@ if (!isset($sensor_nagios['host'])) {
 }
 $menu = array();
 $hmenu = array();
+/*
 $placeholder = gettext("Dashboard");
 $placeholder = gettext("Events");
 $placeholder = gettext("Monitors");
@@ -72,6 +80,7 @@ $placeholder = gettext("Policy");
 $placeholder = gettext("Correlation");
 $placeholder = gettext("Configuration");
 $placeholder = gettext("Tools");
+*/
 $placeholder = gettext("Logout");
 // Passthrough Vars
 $status = "Open";
@@ -270,24 +279,32 @@ if(Session::am_i_admin()){
 		<ul>        
             <li title="<?php echo _("User options")?>"><a href="#"><img src="pixmaps/myprofile.png" alt="<?php echo Session::get_session_user()?>" /></a>
                 <ul>
-		            <li title="<?php echo _("Logout")?>"><a href="session/login.php?action=logout"><img src="pixmaps/logout.png">&nbsp;&nbsp;&nbsp;<?php echo _("Logout")?></a></li>
-		            <li title="<?php echo _("My Profile")?>"><a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile";?>" target="main"><img src="pixmaps/myprofile.png" alt="" />&nbsp;&nbsp;&nbsp;<?php echo _("My Profile")?></a></li>
+                	<li title="<?php echo _("Maximize")?>"><a href="#" onClick="fullwin()"><img src="pixmaps/maximize.png" align="absmiddle">&nbsp;&nbsp;&nbsp;<?php echo _("Maximize")?></a></li>
+		            <li title="<?php echo _("Logout")?>"><a href="session/login.php?action=logout"><img src="pixmaps/logout.png" align="absmiddle">&nbsp;&nbsp;&nbsp;<?php echo _("Logout")?></a></li>
+		            <li title="<?php echo _("My Profile")?>"><a href="<?=($opensource) ? "session/modifyuserform.php?user=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile" : "acl/users_edit.php?login=".Session::get_session_user()."&frommenu=1&hmenu=Userprofile&smenu=Userprofile";?>" target="main"><img src="pixmaps/myprofile.png" align="absmiddle">&nbsp;&nbsp;&nbsp;<?php echo _("My Profile")?></a></li>
                 </ul>
             </li>
         </ul>
-        <ul class="jx-bar-button-right">
-        	<li title="<?php echo _("Maximize")?>"><a href="#" onClick="fullwin()"><img src="pixmaps/maximize.png"></a></li>
-        </ul>
+        
         <span class="jx-separator-right"></span>
-		<?php if(Session::menu_perms("MenuReports", "ReportsHostReport") || Session::am_i_admin()) { ?>
+		<?php if(Session::am_i_admin()) { ?>
         <ul class="jx-bar-button-right">
-        	<li title="<?php echo _("Status")?>"><a href="<?php echo "report/host_report.php?hmenu=Sysinfo&smenu=Sysinfo&host=any&star_date=".date("Y-m-d",time()-604800)."&end_date=".date("Y-m-d") ?>" target="main"><img src="pixmaps/status.png"></a></li>
+        	<li title="<?php echo _("System Status")?>"><a href="sysinfo/index.php?hmenu=Sysinfo&smenu=Hardware+Info" target="main"><img src="pixmaps/hardware.png"></a></li>
         </ul>
         <?php } else { ?>
         <ul>
-        	<li title="<?php echo _("Status")?>"><img src="pixmaps/status_gray.png"></li>
+        	<li title="<?php echo _("System Status")?>"><img src="pixmaps/status_gray.png"></li>
         </ul>
         <?php } ?>
+        
+        <ul class="jx-bar-button-right">
+		<?php if(Session::menu_perms("MenuReports", "ReportsHostReport") || Session::am_i_admin()) { ?>
+        	<li title="<?php echo _("Data Snapshot")?>"><a href="<?php echo "report/host_report.php?hmenu=Sysinfo&smenu=Sysinfo&host=any&star_date=".gmdate("Y-m-d",$timetz-604800)."&end_date=".gmdate("Y-m-d",$timetz) ?>" target="main"><img src="pixmaps/status.png"></a></li>
+        <?php } else { ?>
+        	<li title="<?php echo _("Data Snapshot")?>"><img src="pixmaps/status_gray.png"></li>
+        <?php } ?>
+        </ul>
+        
 </div>
 
 <?
@@ -332,10 +349,10 @@ foreach ($all_sessions as $sess) {
 $db->close($conn);
 ?>
 <div class="jx-bottom-bar jx-bar-rounded-bl jx-bar-rounded-br">
-<table><tr><td class="jx-gray">
+<table style="width:100%"><tr><td class="jx-gray">
 <?= _("User session").": <a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$ago</a>" ?>
 <br>
-<?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("active users") ?>
+<span style="float:left"><?= "<a href='userlog/opened_sessions.php?hmenu=Sysinfo&smenu=Sessions' target='main' class='jx-gray-b'>$users</a> "._("active users") ?></span><span style="float:right" id="hour"><?= gmdate("H:i",$timetz)?></span>
 </td></tr></table>
 </div>
 
@@ -353,5 +370,17 @@ if ($url != "") {
 }
 //$OssimWebIndicator->update_display();
 ?>
+<script>
+    function refresh_hour() {
+        $.ajax({
+            type: "GET",  
+            url: "top.php?lasthour=1",
+            success: function(msg) {
+                    $("#hour").html(msg); 
+            }
+        });
+    }
+    setInterval('refresh_hour()',60000);
+</script>
 </body>
 </html>
