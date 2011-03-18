@@ -104,6 +104,7 @@ sim_connect_send_alarm(gpointer data)
       GString *st;
       int inx = 0;
       event = (SimEvent*) sim_container_pop_ar_event(ossim.container);
+
       if (!event)
         {
           g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: No event", __FUNCTION__);
@@ -117,7 +118,14 @@ sim_connect_send_alarm(gpointer data)
             {
               base64_params[i].key = g_strdup(sim_text_field_get_name(i));
               base64_params[i].base64data = g_strdup(event->textfields[i]);
-              //g_printf(" %s=\"%s\"", sim_text_field_get_name(i), event->textfields[i]);
+              g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s:%d %s=\"%s\"",
+                  __FILE__, __LINE__, sim_text_field_get_name(i),
+                  event->textfields[i]);
+            }
+          else
+            {
+              base64_params[i].key = '\0';
+              base64_params[i].base64data = '\0';
             }
         }
       // Send max risk
@@ -196,10 +204,12 @@ sim_connect_send_alarm(gpointer data)
       st = g_string_new(aux);
       for (inx = 0; inx < G_N_ELEMENTS(base64_params); inx++)
         {
-          g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: %u:%s %p", __FUNCTION__,
-              inx, base64_params[inx].base64data, base64_params[inx].base64data);
-          if (base64_params[inx].base64data != NULL)
+
+          if (base64_params[inx].base64data)
             {
+              g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: %u:%s %p",
+                  __FUNCTION__, inx, base64_params[inx].base64data,
+                  base64_params[inx].base64data);
               g_string_append_printf(
                   st,
                   " %s=\"%s\"",
@@ -208,7 +218,8 @@ sim_connect_send_alarm(gpointer data)
                       : "");
               g_free(base64_params[inx].base64data); /* we dont't need the data, anymore, so free it*/
             }
-        }
+
+        }//end for nelements
       g_string_append(st, "\n");
       buffer = g_string_free(st, FALSE);
 
@@ -349,6 +360,7 @@ sim_connect_send_alarm(gpointer data)
       if (error != G_IO_ERROR_NONE)
         {
           //back to the queue so we dont loose the action/response
+          g_object_ref(event);
           sim_container_push_ar_event(ossim.container, event);
           g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
               "sim_connect_send_alarm: message could not be sent.. reseting");

@@ -196,6 +196,8 @@ sim_organizer_run(SimOrganizer *organizer)
    g_mutex_unlock (ossim.mutex_directives);
    ******************/
 
+
+
   SimEvent *event = NULL;
   SimCommand *cmd = NULL;
   gchar *str;
@@ -219,6 +221,7 @@ sim_organizer_run(SimOrganizer *organizer)
   while (TRUE)
     {
       event = sim_container_pop_event(ossim.container);//gets and remove the last event in queue
+
       sim_server_debug_print_sessions(ossim.server);
 
       if (!event)
@@ -247,6 +250,7 @@ sim_organizer_run(SimOrganizer *organizer)
       //For example we can decide that this server will be able to qualify events, but not to correlate them.
 
       SimPolicy *policy;
+
       policy = sim_organizer_get_policy(organizer, event);
 
       SimRole *role;
@@ -306,6 +310,7 @@ sim_organizer_run(SimOrganizer *organizer)
 
           if (role->correlate)
             {
+
               insert_event_alarm(event); //insert alarm in ossim db & assign event->id
 
               //If the event is too old (i.e. when the agent-server has been disconnected some time) , we can't do the correlation. We can't correlate a old event
@@ -367,7 +372,15 @@ sim_organizer_run(SimOrganizer *organizer)
        sim_connect_send_alarm (organizer->_priv->config,event);
        }
        */
-      g_object_unref(event);
+
+      if (event && ((GObject*)event)->ref_count > 0)
+        {
+          g_object_unref(event);
+        }
+      else
+        {
+          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, " What's happening??? EV_DIR: %p EV_ID: %d -- EV_RC:%d",event,event->id,((GObject*)event)->ref_count);
+        }
     }
 }
 
@@ -1297,6 +1310,7 @@ sim_organizer_risk_levels(SimOrganizer *organizer, SimEvent *event)
 void
 sim_organizer_correlation(SimOrganizer *organizer, SimEvent *event)
 {
+
   GList *groups = NULL;
   GList *lgs = NULL;
   GList *list = NULL;
@@ -1867,6 +1881,8 @@ sim_organizer_correlation(SimOrganizer *organizer, SimEvent *event)
   g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
       "sim_organizer_correlation: END backlogs %d", g_list_length(
           sim_container_get_backlogs_ul(ossim.container)));
+
+
 }
 
 /*
@@ -2082,7 +2098,7 @@ sim_organizer_snort_event_update_acid_event(SimDatabase *db_snort,
               event->dst_ia) : -1, event->protocol, event->src_port,
           event->dst_port, event->priority, event->reliability,
           event->asset_src, event->asset_dst, c, a, event->plugin_id,
-          event->plugin_sid,event->tzone);
+          event->plugin_sid, event->tzone);
 
   //query = g_strdup_printf ("INSERT INTO event (sid, cid, signature, timestamp) VALUES (%u, %u, %u, '%s')", sid, cid, sig_id, timestamp);
 
@@ -2747,7 +2763,6 @@ sim_organizer_snort(SimOrganizer *organizer, SimEvent *event)
   if (event->log)
     g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
         "sim_organizer_snort event->log:-%s-", event->log);
-
 
   if (event->log)
     {

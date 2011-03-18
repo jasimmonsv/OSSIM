@@ -7511,7 +7511,7 @@ sim_command_get_event(SimCommand *command)
   GInetAddr *ia_temp;
   g_return_val_if_fail(command, NULL);
   g_return_val_if_fail(SIM_IS_COMMAND (command), NULL);
-
+  gboolean insert_warning_message = FALSE;
   if (command->type != SIM_COMMAND_TYPE_EVENT && command->type
       != SIM_COMMAND_TYPE_SNORT_EVENT)
     return NULL;
@@ -7521,7 +7521,11 @@ sim_command_get_event(SimCommand *command)
   type = sim_event_get_type_from_str(command->data.event.type); //monitor or detector?
 
   if (type == SIM_EVENT_TYPE_NONE)
-    return NULL;
+    {
+      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
+          "sim_command_get_event event->type = None");
+      return NULL;
+    }
 
   event = sim_event_new_from_type(type); //creates a new event just filled with type.
 
@@ -7536,7 +7540,11 @@ sim_command_get_event(SimCommand *command)
           "sim_command_get_event event->diff_time= %u", event->diff_time);
     }
   else
-    return NULL;
+    {
+      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
+          "sim_command_get_event command->data.event.date= NULL");
+      return NULL;
+    }
 
   if (command->data.event.date_str)
     event->time_str = g_strdup(command->data.event.date_str);
@@ -7598,16 +7606,34 @@ sim_command_get_event(SimCommand *command)
         }
     }
   else
-    //If no protocol is defined use TCP, this allow using port filters in base
-    //forensics console
-    event->protocol = SIM_PROTOCOL_TYPE_TCP;
+    { //If no protocol is defined use TCP, this allow using port filters in base
+      //forensics console
+      event->protocol = SIM_PROTOCOL_TYPE_TCP;
+    }
 
   //sanitize the event. An event ALWAYS must have a src_ip. And should have a dst_ip (not mandatory).
   //If it's not defined, it will be 0.0.0.0 to avoid problems inside DB and other places.
   if (command->data.event.src_ip)
-    event->src_ia = gnet_inetaddr_new_nonblock(command->data.event.src_ip, 0);
+    {
+      event->src_ia = gnet_inetaddr_new_nonblock(command->data.event.src_ip, 0);
+    }
   if (!event->src_ia)
     {
+      event->src_ia = gnet_inetaddr_new_nonblock(command->data.sensor.host, 0);
+      if (!event->src_ia)
+        {
+          g_log(
+              G_LOG_DOMAIN,
+              G_LOG_LEVEL_DEBUG,
+              "sim_command_get_event: event->src_ia = NULL, command->data.event.src_ip: %s command->data.sensor.host:%s ?? Maybe not valid command?",
+              command->data.event.src_ip, command->data.sensor.host);
+          g_object_unref(event);
+          return NULL;
+        }
+      else
+        {
+          insert_warning_message = TRUE;
+        }
       g_object_unref(event);
       return NULL;
     }
@@ -7670,30 +7696,84 @@ sim_command_get_event(SimCommand *command)
   if (command->data.event.userdata1)
     event->textfields[SimTextFieldUserdata1] = g_strdup(
         command->data.event.userdata1);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata1] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
   if (command->data.event.userdata2)
     event->textfields[SimTextFieldUserdata2] = g_strdup(
         command->data.event.userdata2);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata2] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
   if (command->data.event.userdata3)
     event->textfields[SimTextFieldUserdata3] = g_strdup(
         command->data.event.userdata3);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata3] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
   if (command->data.event.userdata4)
     event->textfields[SimTextFieldUserdata4] = g_strdup(
         command->data.event.userdata4);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata4] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
   if (command->data.event.userdata5)
     event->textfields[SimTextFieldUserdata5] = g_strdup(
         command->data.event.userdata5);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata5] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
   if (command->data.event.userdata6)
     event->textfields[SimTextFieldUserdata6] = g_strdup(
         command->data.event.userdata6);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata6] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
   if (command->data.event.userdata7)
     event->textfields[SimTextFieldUserdata7] = g_strdup(
         command->data.event.userdata7);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata7] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
   if (command->data.event.userdata8)
     event->textfields[SimTextFieldUserdata8] = g_strdup(
         command->data.event.userdata8);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata8] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
   if (command->data.event.userdata9)
     event->textfields[SimTextFieldUserdata9] = g_strdup(
         command->data.event.userdata9);
+  else if (insert_warning_message)
+    {
+      event->textfields[SimTextFieldUserdata9] = g_strdup(
+          "Please check the src ip of this plugin");
+      insert_warning_message = FALSE;
+    }
 
   event->buffer = g_strdup(command->buffer); //we need this to resend data to other servers, or to send
   //events that matched with policy to frameworkd (future implementation)

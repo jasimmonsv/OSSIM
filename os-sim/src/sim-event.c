@@ -62,6 +62,7 @@ static void
 sim_event_impl_finalize(GObject *gobject)
 {
   int i;
+  g_message("sim_event_impl_finalize");
   SimEvent *event = (SimEvent *) gobject;
 
   g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,

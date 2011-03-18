@@ -1619,6 +1619,8 @@ sim_session_cmd_event(SimSession *session, SimCommand *command)
   event = sim_command_get_event(command); //generates an event from the command received
   g_return_if_fail(event != NULL);
 
+  if (!event)
+    return;
   if (event->device) //If the device is defined, we take the sensor as the IP connected to the server. This can be changed when all the sensors use the
   //right nomenclature.
     {
@@ -1627,9 +1629,6 @@ sim_session_cmd_event(SimSession *session, SimCommand *command)
       GInetAddr *sensor_ia = sim_session_get_ia(session);
       event->sensor = gnet_inetaddr_get_canonical_name(sensor_ia);
     }
-
-  if (!event)
-    return;
 
   g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_session_read: Inside2");
   if (event->type == SIM_EVENT_TYPE_NONE)
