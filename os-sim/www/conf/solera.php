@@ -52,11 +52,14 @@ $src_port = POST("src_port");
 $dst_ip = POST("dst_ip");
 $dst_port = POST("dst_port");
 $proto = POST("proto");
+if ($dst_port=="") $dst_port="0";
+if ($src_port=="") $src_port="0";
+if ($proto=="") $proto="tcp";
 ossim_valid($from, OSS_DATETIME, 'illegal:' . _("From date"));
 ossim_valid($to, OSS_DATETIME, 'illegal:' . _("To date"));
-ossim_valid($src_ip, OSS_IP_ADDR, 'illegal:' . _("Src IP"));
+ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Src IP"));
 ossim_valid($src_port, OSS_DIGIT, 'illegal:' . _("Src port"));
-ossim_valid($dst_ip, OSS_IP_ADDR, 'illegal:' . _("Dst IP"));
+ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Dst IP"));
 ossim_valid($dst_port, OSS_DIGIT, 'illegal:' . _("Dst port"));
 ossim_valid($proto, "tcp|udp|icmp|raw", 'illegal:' . _("Protocol"));
 if (ossim_error()) {
@@ -71,7 +74,24 @@ if (POST("action")=="submit") {
 	$pass = $conf->get_conf("solera_pass", FALSE);
 	// Solera DeepSee sample url
 	// https://192.168.2.52/deepsee_reports?user=admin&password=Solera#pathString=/timespan/02.02.2011.21.09.11.02.02.2011.21.09.11/tcp_port/57676_and_80/ipv4_address/204.128.123.4_and_10.1.3.5/;reportIndex=0
-	$solera_url = "https://$host:$port/deepsee_reports?user=$user&password=$pass#pathString=/timespan/".$from.".".$to."/".$proto."_port/".$src_port."_and_".$dst_port."/ipv4_address/".$src_ip."_and_".$dst_ip."/;reportIndex=0";
+	// dates
+	$from = str_replace(" ",".",str_replace("-",".",str_replace(":",".",$from)));
+	$to = str_replace(" ",".",str_replace("-",".",str_replace(":",".",$to)));
+	$solera_url = "https://$host:$port/deepsee_reports?user=$user&password=$pass#pathString=/timespan/".$from.".".$to."/";
+	// src and dst port
+	$values = array(); 
+	if ($src_port!="0") $values[] = $src_port;
+	if ($dst_port!="0") $values[] = $dst_port;
+	if (count($values)>0)
+		$solera_url .= $proto."_port/".implode("_and_",$values)."/";
+	// src and dst ip
+	$values = array(); 
+	if ($src_ip!="" && preg_match("/\d+\.\d+\.\d+\.\d+/",$src_ip)) $values[] = $src_ip;
+	if ($dst_ip!="" && preg_match("/\d+\.\d+\.\d+\.\d+/",$dst_ip)) $values[] = $dst_ip;
+	if (count($values)>0)
+		$solera_url .= "ipv4_address/".implode("_and_",$values)."/";
+	// end
+	$solera_url .= ";reportIndex=0";
 	?>
 	<script>
 		$(document).ready(function() { 

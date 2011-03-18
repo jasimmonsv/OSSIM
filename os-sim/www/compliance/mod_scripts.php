@@ -66,6 +66,8 @@ foreach ($psresponse as $line) {
 <table class="transparent">
 	<?php if ($inprogress) { ?>
 	<tr><td class="nobborder"><?php echo _("The compliance scripts are running right now") ?>.</td></tr>
+	<?php } elseif ($action == "launch") { ?>
+	<tr><td class="nobborder"><b><?php echo _("The compliance scripts has been successfully launched") ?>.</b></td></tr>
 	<?php } else { ?>
 	<tr>
 		<td class="nobborder"><?php echo _("Click here to launch now the compliance scripts") ?></td>
