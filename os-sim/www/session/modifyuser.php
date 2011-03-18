@@ -64,6 +64,7 @@ $tzone				= POST('tzone');
 $last_pass_change   = POST('last_pass_change');
 //$copy_panels = POST('copy_panels');
 //ossim_valid($copy_panels, OSS_DIGIT, 'illegal:' . _("Copy Panels"));
+
 ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_SPACE, 'illegal:' . _("Name"));
 ossim_valid($pass1, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass1"));
@@ -183,17 +184,24 @@ elseif (POST("insert"))
 			$error->display("FORM_MISSING_FIELDS");
 		}
 		*/
-		$recent_pass = Log_action::get_last_pass($conn, $user);
+		
+		//Password complexity check
+		
+		$recent_pass     = Log_action::get_last_pass($conn, $user);
 		$pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
 		$pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
+		
 		if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_max = 255; }
 		$pass_expire_min = ($conf->get_conf("pass_expire_min", FALSE)) ? $conf->get_conf("pass_expire_min", FALSE) : 0;
+		
 		$user_list = Session::get_list($conn, "WHERE login = '" . $user . "' and pass = '" . md5($oldpass) . "'");
 		if (0 != strcmp($pass1, $pass2)) {
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
 			$error->display("PASSWORDS_MISMATCH");
-		} elseif (count($user_list = Session::get_list($conn, "WHERE login = '" . $_SESSION["_user"] . "' and pass = '" . md5($oldpass) . "'")) < 1) {
+		} 
+		elseif (count($user_list = Session::get_list($conn, "WHERE login = '" . $_SESSION["_user"] . "' and pass = '" . md5($oldpass) . "'")) < 1) 
+		{
 			require_once ("ossim_error.inc");
 			$error = new OssimError();
 			if ($user != $_SESSION["_user"]) {
@@ -201,23 +209,33 @@ elseif (POST("insert"))
 			} else {
 				$error->display(_("BAD_OLD_PASSWORD"));
 			}
-		} elseif (strlen($pass1) < $pass_length_min) {
+		} 
+		elseif (strlen($pass1) < $pass_length_min)
+		{
 			require_once ("ossim_error.inc");
 		    $error = new OssimError();
 		    $error->display("PASSWORD_SIZE");
-		} elseif (strlen($pass1) > $pass_length_max) {
+		}
+		elseif (strlen($pass1) > $pass_length_max)
+		{
 			require_once ("ossim_error.inc");
 		    $error = new OssimError();
 		    $error->display("PASSWORD_SIZE_MAX");
-		} elseif (!Session::pass_check_complexity($pass1)) {
+		} 
+		elseif (!Session::pass_check_complexity($pass1))
+		{
 			require_once ("ossim_error.inc");
 		    $error = new OssimError();
 		    $error->display("PASSWORD_ALPHANUM");
-		} elseif ($pass_expire_min > 0 && dateDiff_min($last_pass_change,date("Y-m-d H:i:s")) < $pass_expire_min) {
+		} 
+		elseif ($pass_expire_min > 0 && dateDiff_min($last_pass_change,date("Y-m-d H:i:s")) < $pass_expire_min) 
+		{
 			require_once ("ossim_error.inc");
 		    $error = new OssimError();
 		    $error->display("PASSWORD_EXPIRE_MIN");
-		} elseif (count($recent_pass) > 0 && in_array(md5($pass1),$recent_pass)) {
+		} 
+		elseif (count($recent_pass) > 0 && in_array(md5($pass1),$recent_pass))
+		{
 			require_once ("ossim_error.inc");
 		    $error = new OssimError();
 		    $error->display("PASSWORD_RECENT");
@@ -252,6 +270,7 @@ elseif (POST("insert"))
 		<META http-equiv="Pragma" content="no-cache"/>
 		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	</head>
+	
 	<body>
 		<h1> <?php echo gettext("Modify User"); ?> </h1>
 	

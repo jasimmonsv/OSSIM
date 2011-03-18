@@ -109,8 +109,8 @@ function upload($num)
 	}
 
 	echo "{";
-	echo	"error: '" . _($error) . "',\n";
-	echo	"msg: '"   . _($msg) . "'\n";
+	echo	"error: '" . $error . "',\n";
+	echo	"msg: '"   . $msg . "'\n";
 	echo "}";
 
 }

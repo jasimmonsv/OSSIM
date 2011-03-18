@@ -6,33 +6,28 @@
 *
 ****************************************************************************/
 
-//AJAX Upload
-if ( $_GET['imgfile'] != "" && preg_match("/^\d+$/",$_GET['imgfile']) )
-{
-	upload($_GET['imgfile']);
-	exit;
-}
-
-require_once "classes/Session.inc";
+require_once "customize_common.php";
 require_once "classes/Security.inc";
+require_once "classes/Session.inc";
 require_once "ossim_db.inc";
 require_once "ossim_conf.inc";
-require_once "customize_common.php";
 Session::useractive("../session/login.php");
 
+$info_error    = null;
+$error         = false;
+$parameters    = array();
 
-$info_error = null;
-$error      = false;
-$parameters = array();
+$conf          = $GLOBALS["CONF"];
+$version       = $conf->get_conf("ossim_server_version", FALSE);
 
-$conf       = $GLOBALS["CONF"];
-$version    = $conf->get_conf("ossim_server_version", FALSE);
-$opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
-$demo       = (preg_match("/.*demo.*/i",$version))  ? true : false;
+$opensource    = (!preg_match("/pro|demo/i",$version)) ? true : false;
+$demo          = (preg_match("/.*demo.*/i",$version))  ? true : false;
 
-$from_menu = ( GET('smenu')== "Customize" || $_SESSION["menu_sopc"] == "Customize") ? true : false;
+$from_menu     = ( GET('smenu')== "Customize" || $_SESSION["menu_sopc"] == "Customize") ? true : false;
 
-if ( $opensource || $_SESSION['_user'] != ACL_DEFAULT_OSSIM_ADMIN ) 
+$current_user  = Session::get_session_user();
+
+if ( $opensource || $current_user != ACL_DEFAULT_OSSIM_ADMIN ) 
 {
 	ossim_set_error(_("You're don´t have permissions to see this page"));
 	ossim_error();
@@ -43,7 +38,7 @@ $step               = ( !empty($_GET['step']) ) ? GET('step') : 1;
 $customize_wizard   = (int)$conf->get_conf("customize_wizard", FALSE);
 
 $display_class = "customize_hide";
-$current_user  = Session::get_session_user();
+
 
 
 ossim_valid($step, OSS_DIGIT, 'illegal:' . _("Step"));
@@ -245,7 +240,9 @@ if ( isset($_POST['save']) && !empty($_POST['save']) )
 				$sql    = 'UPDATE config SET value="0" WHERE conf="customize_wizard"';
 				$result = $dbconn->Execute($sql);
 				unset($_SESSION['customize']);
-				header("Location: ../index.php");
+				
+				if ( $from_menu == false )
+					header("Location: ../index.php");
 			
 			break;
 			
@@ -409,13 +406,12 @@ $db->close($dbconn);
 						
 						$.ajaxFileUpload (
 							{
-								url:'customize.php?imgfile='+num,
+								url:'customize_logos.php?imgfile='+num,
 								secureuri:false,
 								fileElementId:'fileToUpload'+num,
 								dataType: 'json',
 								success: function (data, status) 
 								{
-									
 									if(typeof(data.error) != 'undefined')
 									{
 										if(data.error != '') 
@@ -424,9 +420,14 @@ $db->close($dbconn);
 										}
 										else
 										{
-											var rand = Math.floor(Math.random()*1001);
-											var w    = (num == 3) ? " width='700'" : "";
-											$('#downimage'+num).html("<img src='../tmp/headers/"+data.msg+"?d="+rand+"' alt='Logo uploaded'"+w+">");
+											if ( data.msg != '')
+											{
+												var rand = Math.floor(Math.random()*1001);
+												var w    = (num == 3) ? " width='700'" : "";
+												$('#downimage'+num).html("<img src='../tmp/headers/"+data.msg+"?d="+rand+"' alt='Logo uploaded'"+w+"/>");
+											}
+											else
+												$('#downimage'+num).html("<div style='color:red'><?php echo _("File was not uploaded")?></div>");
 										}
 									}
 								},
@@ -605,6 +606,8 @@ $db->close($dbconn);
 					}
 					else if($step==2)
 					{ 
+					
+						$rand  = rand(1, 1000); 
 					?>
 						<div id='tab2' class='generic_tab tab_content'>
 							<div class='cont_customize'>
@@ -625,14 +628,15 @@ $db->close($dbconn);
 												else
 												{
 													$path  = "../pixmaps/ossim";
-													$path .= ( preg_match("/.*pro.*/i",$version) ) ? "_siem" : ( preg_match("/.*demo.*/i",$version) ) ? "_siemdemo" : "" ;
-													$path .= ".png";
-													$img = "<img src='$path' style='border:1px solid #EEEEEE'/>";
+													$path .= ( $demo == true ) ? "_siemdemo.png" : "_siem.png";
+													$path .= "?d=$rand";
+													$img   = "<img src='$path' style='border:1px solid #EEEEEE'/>";
 												}
 												
 												echo $img;
 											?>
 											</div>
+											
 											<input type="file" name="fileToUpload1" id="fileToUpload1"/>
 											<input type="button" class="lbutton" id="buttonUpload" onclick="return ajaxFileUpload(1);" value="<?php echo _('Upload');?>" /><br/><br/>
 										</td>
@@ -644,9 +648,9 @@ $db->close($dbconn);
 											<div id="downimage2" class='cw_cont_img'>
 												<?php 
 													if (file_exists("../tmp/headers/_header_logo.png")) 
-														echo "<img src='../tmp/headers/_header_logo.png' border='0' width='210' height='42'/>";
+														echo "<img src='../tmp/headers/_header_logo.png?d=$rand' border='0' width='210' height='42'/>";
 													else
-														echo  "<img src='../pixmaps/top/logo_siem.png' style='border:1px solid #EEEEEE'/>";
+														echo  "<img src='../pixmaps/top/logo_siem.png?d=$rand' style='border:1px solid #EEEEEE'/>";
 												?>
 											</div>
 											<input type="file" name="fileToUpload2" id="fileToUpload2"/>
@@ -742,7 +746,7 @@ $db->close($dbconn);
 										<td colspan="3" class="center border_c_img">
 											<input type="hidden" name="imgfile3" id="imgfile3" value=""/>
 											<div id="downimage3" class="cw_cont_img">
-												<img src="../tmp/headers/default.png" width="700" style="border:1px solid #EEEEEE"/>
+												<?php echo "<img src='../tmp/headers/default.png?d=$rand' width='700' style='border:1px solid #EEEEEE'/>" ?>
 											</div>
 											<input type="file" name="fileToUpload3" id="fileToUpload3">
 											<input type="button" class="lbutton" id="buttonUpload" onclick="return ajaxFileUpload(3);" value="<?php echo _('Upload');?>" />
@@ -774,12 +778,12 @@ $db->close($dbconn);
 											</p>
 										</td>
 										<td width="30" align="right">
-											<pre>&lt;iframe src="<?php echo $url; ?>/ossim/session/login.php?embed=true" width="300" height="250" scrolling="auto" frameborder="0" style="background:transparent;"&gt;&lt;/iframe&gt;</pre>
+											<pre>&lt;iframe src="<?php echo $url; ?>/ossim/session/login.php?embed=true" width="400" height="250" scrolling="auto" frameborder="0" style="background:transparent;"&gt;&lt;/iframe&gt;</pre>
 										</td>
 									</tr>
 									<tr>
 										<td colspan="2" style="padding-top:10px">
-											<iframe src="login.php?embed=true" width="300" height="250" scrolling="auto" frameborder="0" style='background:transparent;'></iframe>
+											<iframe src="login.php?embed=true" width="400" height="250" scrolling="auto" frameborder="0" style='background:transparent;'></iframe>
 										</td>
 									</tr>
 								</table>
@@ -791,7 +795,10 @@ $db->close($dbconn);
 				
 				<tr>
 					<td class="tdButton">
-						<input type="submit" id="saveButton" class="button" name='save' value="<?php echo _('Save &amp; Next'); ?>"/>
+						<?php 
+							if (!($from_menu == true && $step == 3) )
+								echo "<input type='submit' id='saveButton' class='button' name='save' value='"._("Save &amp; Next")."'/>";
+						?>
 					</td>
 				</tr>
 			
