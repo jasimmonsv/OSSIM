@@ -20,6 +20,23 @@ A:HOVER    { text-decoration:underline; }
 	text-align:center; width:45px; height:18px;
 	padding-bottom:1px; white-space: nowrap;
 }
+
+.theme_i {
+	background:url('../pixmaps/statusbar/i.png') no-repeat 50% 50%;
+	text-align:center; width:3px; height:17px;
+	white-space: nowrap;
+}
+.theme_b {
+	background:url('../pixmaps/statusbar/b.png') repeat 50% 50%;
+	text-align:center; height:17px;
+	white-space: nowrap;
+}
+.theme_d {
+	background:url('../pixmaps/statusbar/d.png') no-repeat 50% 50%;
+	text-align:center; width:3px; height:17px;
+	white-space: nowrap;
+}
+
 .bartitle {
 	padding-right:10px;
 	text-align:right;

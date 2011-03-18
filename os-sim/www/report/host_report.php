@@ -536,12 +536,10 @@ usleep(500000);
 							}
 						}else{
 						?>
-							<table border="0" width="100%" class="noborder" align="center" cellspacing="0" cellpadding="0">
-								<tr>
-									<td class="headerpr"><?php echo _("Inventory")?></td>
-								</tr>
-							</table>
 							<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
+								<tr>
+									<td class="headerpr" height="20"><?php echo _("Inventory")?></td>
+								</tr>
 								<tr>
 									<td class="nobborder">
 										<div id="aptree" style="font-size:15px;text-align:left;width:98%;padding:8px"></div>

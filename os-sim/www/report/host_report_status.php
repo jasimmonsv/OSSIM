@@ -271,54 +271,114 @@ usleep(500000);
 	<tr>
 		<td valign="top">
 			<table cellspacing="2" cellpadding="4">
+				<!-- TICKETS -->
 				<tr bgcolor="#E1EFE0">
 					<td class="bartitle" width="125"><a href="../top.php?option=1&soption=1&url=<?php echo "incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets" ?>" target="topmenu" class="blackp"><?=gettext("Tickets")?> <b><?=gettext("Opened")?></b></a></td>
-					<td class="capsule" width="50" id="tickets_num"><a href="../top.php?option=1&soption=1&url=<?php echo urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets") ?>" target="topmenu" class="whitepn">-</a></td>
+					<td width="50">
+					
+						<table class="noborder" cellpadding="0" cellspacing="0"><tr>
+						<td class="theme_i"></td>
+						<td class="theme_b" id="tickets_num"><a href="../top.php?option=1&soption=1&url=<?php echo urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets") ?>" target="topmenu" class="whitepn">-</a></td>
+						<td class="theme_d"></td>
+						</tr></table>
+						
+					</td>
 					<td class="blackp" style="font-size:8px;border:0px solid white" align="center" id="tickets_date" nowrap>-</td>
 					<td class="blackp" nowrap style="text-align:right"><a href="javascript:;" target="topmenu" id="statusbar_incident_max_priority_txt" class="blackp"><?=gettext("Max")?> <b><?=gettext("priority")?></b>:</a></td>
 					<td><table style="width:auto" cellpadding=0 cellspacing=0><tr><td style="text-align:left"><a href="javascript:;" target="topmenu" class="blackp" id="statusbar_incident_max_priority">-</a></td></tr></table></td>
 				</tr>
+				<!-- ALARMS -->
 				<tr>
 					<td class="bartitle" width="125"><a href="../top.php?option=1&soption=0&url=control_panel%2Falarm_console.php<?php if($host!='any'){ $url_temp="?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms"; }else{ $url_temp="?hide_closed=1&hmenu=Alarms&smenu=Alarms"; } echo urlencode($url_temp)?>" target="topmenu" class="blackp"><?=gettext("Unresolved")?> <b><?=gettext("Alarms")?></b></a></td>
-					<td class="capsule" width="50"><a href="../top.php?option=1&soption=0&url=control_panel%2Falarm_console.php<?php if($host!='any'){ $url_temp="?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms"; }else{ $url_temp="?hide_closed=1&hmenu=Alarms&smenu=Alarms"; } echo urlencode($url_temp)?>" target="topmenu" class="whitepn" id="statusbar_unresolved_alarms">0</a></td>
+					<td width="50">
+					
+						<table class="noborder" cellpadding="0" cellspacing="0"><tr>
+						<td class="theme_i"></td>
+						<td class="theme_b"><a href="../top.php?option=1&soption=0&url=control_panel%2Falarm_console.php<?php if($host!='any'){ $url_temp="?hide_closed=1&src_ip=$host&dst_ip=$host&hmenu=Alarms&smenu=Alarms"; }else{ $url_temp="?hide_closed=1&hmenu=Alarms&smenu=Alarms"; } echo urlencode($url_temp)?>" target="topmenu" class="whitepn" id="statusbar_unresolved_alarms">0</a></td>
+						<td class="theme_d"></td>
+						</tr></table>					
+					
+					</td>
 					<td class="blackp" style="font-size:8px" align="center" id="alarms_date" nowrap>-</td>
 					<td class="blackp" nowrap style="text-align:right"><a href="javascript:;" target="topmenu" class="blackp" id="statusbar_alarm_max_risk_txt"><?=gettext("Highest")?> <b><?=gettext("risk")?></b>:</a></td>
 					<td><table style="width:auto" cellpadding=0 cellspacing=0><tr><td style="text-align:left"><a href="javascript:;" target="topmenu" class="blackp" id="statusbar_alarm_max_risk">-</a></td></tr></table></td>
 				</tr>
-				
+				<!-- VULNS -->
 				<tr bgcolor="#E1EFE0">
 					<td class="bartitle"><?=gettext("Vulnerabilities")?></td>
-					<td class="capsule" width="50"><a href="../top.php?option=2&soption=2&url=<?=urlencode("vulnmeter/index.php?value=$host&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities")?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$vul_foundrows,0)?></a></td>
+					<td width="50">
+					
+						<table class="noborder" cellpadding="0" cellspacing="0"><tr>
+						<td class="theme_i"></td>
+						<td class="theme_b"><a href="../top.php?option=2&soption=2&url=<?=urlencode("vulnmeter/index.php?value=$host&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities")?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$vul_foundrows,0)?></a></td>
+						<td class="theme_d"></td>
+						</tr></table>					
+					
+					</td>
 					<td class="blackp" style="font-size:8px" nowrap><?=$vul_lastdate?></td>
 					<td class="blackp" nowrap style="text-align:right"><?=gettext("Highest Risk")?>:</td>
 					<td class="blackp" style="text-align:left"><table style="width:auto;background-color:transparent" cellpadding=0 cellspacing=0><tr><td class="blackp"><a href="../top.php?option=2&soption=2&url=<?=urlencode("vulnmeter/index.php?value=$host&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities")?>" target="topmenu" class="blackp" style="background-color:transparent"><?=Incident::get_priority_in_html($vul_highrisk)?></a></td><td class="blackp" style="background-color:transparent"> (<b><?=$vul_risknum?></b> <i><?=gettext("events")?></i>)</td></tr></table></td>
 				</tr>
+				<!-- SIEM EVENTS -->
 				<tr>
 					<td style="border:0px solid white" class="bartitle"><b><?=_("SIEM")?></b> <?=gettext("Events")?></td>
-					<td style="border:0px solid white" class="capsule" width="50"><a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$sim_foundrows,0)?></a></td>
+					<td style="border:0px solid white" width="50">
+					
+						<table class="noborder" cellpadding="0" cellspacing="0"><tr>
+						<td class="theme_i"></td>
+						<td class="theme_b"><a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$sim_foundrows,0)?></a></td>
+						<td class="theme_d"></td>
+						</tr></table>		
+										
+					</td>
 					<td class="blackp" style="font-size:8px;border:0px" align="center" nowrap><?=$sim_date?></td>
 					<td class="blackp" nowrap style="text-align:right"><?=gettext("Highest Risk")?>:</td>
 					<td class="blackp" style="text-align:left" nowrap><table style="width:auto" cellpadding=0 cellspacing=0><tr><td class="blackp"><a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu" class="blackp"><?=Incident::get_priority_in_html($sim_highrisk)?></a></td><td class="blackp"> (<b><?=$sim_risknum?></b> <i><?=gettext("events")?></i>)</td></tr></table></td>
 				</tr>
-
+				<!-- LOGGER -->
 				<tr bgcolor="#E1EFE0">
 					<td style="border:0px" class="bartitle"><b><?=_("Logger")?></b> <?=gettext("Events")?></td>
-					<td style="border:0px" class="capsule" width="50"><a href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=".urlencode("ip=$host"))?>" target="topmenu" class="whitepn"><?=(($sem_foundrows == 50000) ? ">" : "").Util::number_format_locale((int)$sem_foundrows,0)?></a></td>
+					<td style="border:0px" width="50">
+					
+						<table class="noborder" cellpadding="0" cellspacing="0"><tr>
+						<td class="theme_i"></td>
+						<td class="theme_b"><a href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=".urlencode("ip=$host"))?>" target="topmenu" class="whitepn"><?=(($sem_foundrows == 50000) ? ">" : "").Util::number_format_locale((int)$sem_foundrows,0)?></a></td>
+						<td class="theme_d"></td>
+						</tr></table>		
+						
+					</td>
 					<td class="blackp" style="font-size:8px;border:0px" align="center" nowrap><?=$sem_date?></td>
 					<td class="blackp" nowrap style="text-align:right"><?=gettext("Last Week")?>:</td>
 					<td class="blackp" style="text-align:left"><a href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=".urlencode("ip=$host"))?>" target="topmenu" class="blackp"><b><?=Util::number_format_locale((int)$sem_foundrows_week,0)?></b> <i><?=gettext("events")?></i></a></td>
 				</tr>
+				<!-- ANOMALIES -->
 				<tr>
 					<td class="bartitle"><?=gettext("Anomalies")?></td>
-					<td class="capsule" width="50"><a href="../top.php?option=2&soption=3&url=<?=urlencode("control_panel/anomalies.php?hmenu=Anomalies&smenu=Anomalies")?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$anm_foundrows,0)?></a></td>
+					<td class="capsule" width="50">
+					
+						<table class="noborder" cellpadding="0" cellspacing="0"><tr>
+						<td class="theme_i"></td>
+						<td class="theme_b"><a href="../top.php?option=2&soption=3&url=<?=urlencode("control_panel/anomalies.php?hmenu=Anomalies&smenu=Anomalies")?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$anm_foundrows,0)?></a></td>
+						<td class="theme_d"></td>
+						</tr></table>					
+						
+					</td>
 					<td class="blackp" style="font-size:8px" align="center" nowrap><?=$anm_date?></td>
 					<td class="blackp" nowrap style="text-align:right"><?=gettext("Last Week")?>:</td>
 					<td class="blackp" style="text-align:left"><a href="../top.php?option=2&soption=3&url=<?=urlencode("control_panel/anomalies.php?hmenu=Anomalies&smenu=Anomalies")?>" target="topmenu" class="blackp"><b><?=Util::number_format_locale((int)$anm_foundrows_week,0)?></b> <i><?=gettext("events")?></i></a></td>
 				</tr>
-
+				<!-- AVAILABILITY -->
 				<tr bgcolor="#E1EFE0">
 					<td class="bartitle"><?=gettext("Availability Events")?></td>
-					<td class="capsule" width="50"><a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$ava_foundrows,0)?></a></td>
+					<td width="50">
+					
+						<table class="noborder" cellpadding="0" cellspacing="0"><tr>
+						<td class="theme_i"></td>
+						<td class="theme_b"><a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$ava_foundrows,0)?></a></td>
+						<td class="theme_d"></td>
+						</tr></table>					
+											
+					</td>
 					<td class="blackp" style="font-size:8px;border:0px" align="center" nowrap><?=$ava_date?></td>
 					<td class="blackp" nowrap style="text-align:right"><?=gettext("High Prio")?>:</td>
 					<td class="blackp" style="text-align:left"><a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu" class="blackp"><b><?=$ava_highprio?></b></a> (<b><?=Util::number_format_locale((int)$ava_prionum,0)?></b> <i><?=gettext("events")?></i>)</td>

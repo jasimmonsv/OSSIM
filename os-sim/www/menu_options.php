@@ -1121,7 +1121,7 @@ if (Session::menu_perms("MenuConfiguration", "ToolsBackup")) {
 $sstatus = 0;
 if (Session::menu_perms("MenuReports", "ReportsHostReport")) {
     $hmenu["Sysinfo"][] = array(
-        "name" => gettext("System Status") ,
+        "name" => gettext("Data Snapshot") ,
         "id" => "Sysinfo",
         "target" => "main",
         "url" => "report/host_report.php?host=any&star_date=".date("Y-m-d",time()-604800)."&end_date=".date("Y-m-d"),
