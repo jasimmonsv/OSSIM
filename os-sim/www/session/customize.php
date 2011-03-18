@@ -243,7 +243,9 @@ if ( isset($_POST['save']) && !empty($_POST['save']) )
 				
 				if ( $from_menu == false )
 					header("Location: ../index.php");
-			
+				else
+					echo "<script type='text/javascript'>top.topmenu.location = '../top.php';</script>";
+					exit();
 			break;
 			
 			default:
@@ -795,10 +797,7 @@ $db->close($dbconn);
 				
 				<tr>
 					<td class="tdButton">
-						<?php 
-							if (!($from_menu == true && $step == 3) )
-								echo "<input type='submit' id='saveButton' class='button' name='save' value='"._("Save &amp; Next")."'/>";
-						?>
+						<input type='submit' id='saveButton' class='button' name='save' value='<?php echo _("Save &amp; Next")?>'/>
 					</td>
 				</tr>
 			
