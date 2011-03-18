@@ -416,6 +416,7 @@ sub set_taxonomy_filters {
 	my @plugin_ids = ();
 	if ($filter =~ /taxonomy\!?='?(.*)-(.*)-(.*)'?/) {
 		$has_results = 0;
+		$plugin_query = "";
 		if ($1 ne "") {
 			my $st = $1;
 			$st =~ s/\_/ /g;
