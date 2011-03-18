@@ -144,6 +144,7 @@ if ($addr_type == DEST_IP) {
 	$displaytitle = gettext("Displaying unique source addresses %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
     $qro->AddTitle(gettext("Dest.&nbsp;Addr."), "daddr_a", "  ", " ORDER BY num_dip ASC", "daddr_d", " ", " ORDER BY num_dip DESC");
 }
+if (!Session::am_i_admin()) $displaytitle = preg_replace("/\. <b>.*/",".",$displaytitle);
 $sort_sql = $qro->GetSortSQL($qs->GetCurrentSort() , $qs->GetCurrentCannedQuerySort());
 $sql = "SELECT DISTINCT $addr_type_name, " . " COUNT(acid_event.cid) as num_events," . " COUNT( DISTINCT acid_event.sid) as num_sensors, " . " COUNT( DISTINCT acid_event.plugin_id, acid_event.plugin_sid ) as num_sig, ";
 if ($addr_type == DEST_IP) $sql = $sql . " COUNT( DISTINCT ip_src ) as num_sip ";

@@ -151,7 +151,9 @@ if ($debug_mode == 1) {
     echo "$sql<BR>";
 }
 /* Print the current view number and # of rows */
-$qs->PrintResultCnt("",array(),gettext("Displaying sensors %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database."));
+$displaying = gettext("Displaying sensors %d-%d of <b>%s</b> matching your selection.");
+if (Session::am_i_admin()) $displaying .= gettext(" <b>%s</b> total events in database.");
+$qs->PrintResultCnt("",array(),$displaying);
 echo '<FORM METHOD="post" NAME="PacketForm" id="PacketForm" ACTION="base_stat_sensor.php">';
 $qro->PrintHeader();
 $i = 0;

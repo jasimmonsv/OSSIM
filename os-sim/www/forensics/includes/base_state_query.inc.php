@@ -202,7 +202,8 @@ class QueryState {
     function PrintResultCnt($sqlgraph = "", $tr = array(), $displaying="") {
         GLOBAL $show_rows, $db;
         if($displaying=="") {
-            $displaying = gettext("Displaying events %d-%d of <b>%s</b> matching your selection. <b>%s</b> total events in database.");
+            $displaying = gettext("Displaying events %d-%d of <b>%s</b> matching your selection.");
+            if (Session::am_i_admin()) $displaying .= gettext(" <b>%s</b> total events in database.");
         }
         if ($this->num_result_rows != 0) {
             if ($this->isCannedQuery()) {
