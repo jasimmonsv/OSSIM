@@ -2100,66 +2100,6 @@ function inArray ($tmpItem, $tmpArray) {
    else { return 0; }
 }
 
-function checkPass($pass) {
-   global $minLength, $maxLength, $minAlpha, $minLower, $minUpper, $minSpecial, $minNumber;
-
-   $lAlpha = '#[a-z]#'; //"abcdefghijklmnopqrstuvwxyz";
-   $uAlpha = '#[A-Z]#'; //"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-   $numbers = '#[0-9]#'; //'0123456789';
-   $specials = '/[�!"�$%^&*()`{}\[\]:@~;\'#<>?,.\/\\-=_+\|]/';
-   // moved to config.php
-//   $minLength = 8;
-//   $maxLength = 64;
-//   $minAlpha = 1;
-//   $minLower = 1;
-//   $minUpper = 1;
-//   $minSpecial = 1;
-//   $minNumber = 1;
-
-   $isValid = true;
-   if($minLength > 0) {
-      if(strlen($pass) < $minLength) { return "fail minLength"; }
-      //echo "passed minLength\n";
-   }
-   if($maxLength > 0) {
-      if(strlen($pass) > $maxLength) { return "fail maxLength"; }
-      //echo "passed maxLength\n";
-   }
-   if($minAlpha > 0) {
-      preg_match_all('#[a-z]#',$pass,$lmatches);
-      preg_match_all('#[A-Z]#',$pass,$umatches);
-      if((count($lmatches[0]) + count($umatches[0])) < $minAlpha) { return "fail minAlpha"; }
-      //echo "passed minAlpha\n";
-      //if(strspn($pass,$lAlpha.$uAlpha) < $minAlpha) { return false; }
-   }
-   if($minSpecial > 0) {
-      preg_match_all($specials,$pass,$matches);
-      if(count($matches[0]) < $minSpecial) { return "fail minSpecial"; }
-      //echo "passed minSpecial\n";
-      //if(strspn($pass,$specials) < $minSpecial) { return false; }
-   }
-   if($minNumber > 0) {
-      preg_match_all('#[0-9]#',$pass,$matches);
-      if(count($matches[0]) < $minNumber) { return "fail minNumber"; }
-      //echo "passed minNumber\n";
-      //if(strspn($pass,$numbers) < $minNumber) { return false; }
-   }
-   if($minUpper > 0) {
-      preg_match_all('#[A-Z]#',$pass,$matches);
-      if(count($matches[0]) < $minUpper) { return "fail minUpper"; }
-      //echo "passed minUpper\n";
-      //if(strspn($pass,$lAlpha) < $minUpper) { return false; }
-   }
-   if($minLower > 0) {
-      preg_match_all('#[a-z]#',$pass,$matches);
-      if(count($matches[0]) < $minLower) { return "fail minLower"; }
-      //echo "passed minLower\n";
-      //if(strspn($pass,$uAlpha) < $minLower) { return false; }
-   }
-
-   return "pass"; 
-}
-
 function getrisk($risk) {
 
     switch ($risk) {
