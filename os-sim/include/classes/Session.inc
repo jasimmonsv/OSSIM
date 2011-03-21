@@ -60,6 +60,7 @@
 * - groupHostAllowed()
 * - netAllowed()
 * - get_session_user()
+* - get_secure_id()
 * - am_i_admin()
 * - is_expert()
 * - get_session_info()
@@ -170,12 +171,13 @@ class Session {
         }
         return $list;
     }
-    // Check 'enabled', 'first_login', 'exists_last' fields exists
+    // Check 'enabled', 'first_login', 'exists_last', 'last_logon_try', 'uuid' fields exists
     function check_enabled_field($conn) {
         $exists = false;
 		$exists_flogin = false;
 		$exists_last = false;
 		$exists_last_logon = false;
+		$exists_uuid = false;
         $query = OssimQuery("show columns from users");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
@@ -185,6 +187,7 @@ class Session {
 				if ($rs->fields["Field"]=="first_login") $exists_flogin = true;
 				if ($rs->fields["Field"]=="last_pass_change") $exists_last = true;
 				if ($rs->fields["Field"]=="last_logon_try") $exists_last_logon = true;
+				if ($rs->fields["Field"]=="uuid") $exists_uuid = true;
                 $rs->MoveNext();
             }
             if (!$exists) $conn->Execute("ALTER TABLE `users` ADD `enabled` BOOL NOT NULL DEFAULT '1'");
@@ -200,6 +203,10 @@ class Session {
 				$conn->Execute("ALTER TABLE `users` ADD `last_logon_try` DATETIME NOT NULL AFTER `last_pass_change`");
 				$conn->Execute("UPDATE users SET last_logon_try = NOW()");
 			}	
+			if (!$exists_uuid) {
+				$conn->Execute("ALTER TABLE `users` ADD `uuid` VARCHAR(255) NOT NULL DEFAULT ''");
+				$conn->Execute("UPDATE users SET uuid=SHA1(CONCAT(login,'#',pass))");
+			}
         }
         return $exists;
     }
@@ -289,6 +296,7 @@ class Session {
 			$_SESSION['_user_language'] = $rs->fields['language'];
 			$_SESSION['_is_admin'] = $rs->fields['is_admin'];
 			$_SESSION['_timezone'] = $rs->fields['timezone'];
+			$_SESSION['_secureid'] = $rs->fields['uuid'];
 			ossim_set_lang($rs->fields['language']);
 			return true;
         }
@@ -425,7 +433,7 @@ class Session {
     }
     function logout() {
         Session_activity::delete();
-	Session_activity::delete_session();
+		Session_activity::delete_session();
 
         if (!$login_location) {
             $conf = $GLOBALS['CONF'];
@@ -692,9 +700,15 @@ class Session {
         $netAllowedCache["$user"]["$net"] = true;
         return true;
     }
-    function get_session_user() {
+    
+	function get_session_user() {
         return @$_SESSION["_user"];
     }
+	
+	function get_secure_id() {
+        return @$_SESSION["_secureid"];
+    }
+	
     /* return true if we are admin user */
     function am_i_admin() {
         return ($_SESSION["_user"] == ACL_DEFAULT_OSSIM_ADMIN || $_SESSION["_is_admin"]);
