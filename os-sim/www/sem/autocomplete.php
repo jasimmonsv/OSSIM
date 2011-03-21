@@ -210,20 +210,20 @@ if (trim($str) != "") {
 		foreach ($plugingroups as $group) {
 			$groupname = $group->get_name();
 			if ((preg_match("/^$qstr/i",$groupname)) && count($data) < $top) {
-				$data[] = array("name"=>"<b>plugingroup</b>=$groupname");
-				$data[] = array("name"=>"<b>plugingroup</b>!=$groupname");
+				$data[] = array("name"=>"<b>dsgroup</b>=$groupname");
+				$data[] = array("name"=>"<b>dsgroup</b>!=$groupname");
 			}
 		}
 		foreach ($sourcetypes as $sourcetype) {
 			if ((preg_match("/^$qstr/i",$sourcetype)) && count($data) < $top) {
-				$data[] = array("name"=>"<b>sourcetype</b>=$sourcetype");
-				$data[] = array("name"=>"<b>sourcetype</b>!=$sourcetype");
+				$data[] = array("name"=>"<b>product_type</b>=$sourcetype");
+				$data[] = array("name"=>"<b>product_type</b>!=$sourcetype");
 			}
 		}
 		foreach ($plugins as $plugin_id=>$plugin) {
 			if ((preg_match("/^$qstr/i",$plugin)) && count($data) < $top && $current_query["plugin_id=$plugin_id"] == "" && $current_query["plugin_id!=$plugin_id"] == "") {
-				$data[] = array("name"=>"<b>plugin</b>=$plugin");
-				$data[] = array("name"=>"<b>plugin</b>!=$plugin");
+				$data[] = array("name"=>"<b>datasource</b>=$plugin");
+				$data[] = array("name"=>"<b>datasource</b>!=$plugin");
 			}
 		}
 		foreach ($sensors as $ip=>$name) {
