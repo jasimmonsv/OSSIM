@@ -204,9 +204,9 @@ class Session {
 				$conn->Execute("UPDATE users SET last_logon_try = NOW()");
 			}	
 			if (!$exists_uuid) {
-				$conn->Execute("ALTER TABLE `users` ADD `uuid` VARCHAR(255) NOT NULL DEFAULT ''");
-				$conn->Execute("UPDATE users SET uuid=SHA1(CONCAT(login,'#',pass))");
+				$conn->Execute("ALTER TABLE `users` ADD `uuid` VARCHAR(255) NOT NULL DEFAULT ''");				
 			}
+			$conn->Execute("UPDATE users SET uuid=SHA1(CONCAT(login,'#',pass)) WHERE uuid=''");
         }
         return $exists;
     }
