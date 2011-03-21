@@ -297,7 +297,7 @@ define('OSS_MAIL_ADDR', 'regex:[a-zA-Z0-9_\-\.+]+@[a-zA-Z0-9_\-\.]+\.[a-zA-Z]+')
 define('OSS_ERROR', _("unkown error")); // default error message
 define('OSS_SQL', 'illegal:(select |union |update |delete |insert )');
 define('OSS_URL_ADDRESS', 'func:valid_url');
-
+define('OSS_WEEKDAY', 'func:valid_weekday');
 
 // don't use
 $GLOBALS['ossim_last_error'] = false; // track the latest error
@@ -810,6 +810,30 @@ function valid_day($value)
 	ossim_set_error(_("Invalid Date. Format allowed: YYYY-MM-DD") . "<br/>Entered date: '<strong>".$value."</strong>'");
 	return false;
 }
+
+
+function valid_weekday($value)
+{
+	$weekdays = array ( _("Sunday"),
+						_("Monday"),
+						_("Tuesday"),
+						_("Wednesday"),
+						_("Thursday"),
+						_("Friday"),
+						_("Saturday"),
+	);
+	
+	if ( !in_array($value, $weekdays) )
+	{
+		ossim_set_error(_("Invalid weekday.") . "<br/>Entered day: '<strong>".$value."</strong>'");
+		return false;
+	}
+	
+	return true;
+	
+}
+
+
 
 /* Test perms in sensor_ip */
 function validate_sensor_perms($conn,$sensor_ip,$sql="") {
