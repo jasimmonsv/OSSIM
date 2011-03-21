@@ -150,7 +150,7 @@ foreach my $file (@files) {
 			# msandulescu filter improvement
 			#
 			my $pre_filter = $filter;
-            if ( $pre_filter !~ /^[^ ]*\!=]*/ ) {
+            if ( $pre_filter !~ /^[^ ]*\!=]*/ && $pre_filter !~ /taxonomy/) {
                 $pre_filter =~ s/^[^ ]*= AND //g; # remove broken entries like: data= AND data="string"; This should actually be fixed where $filer is set first, to apply both here and in the set_filter function.
                 $pre_filter =~ s/^[^ ]*\!=[^ ]*//g;
                 $pre_filter =~ s/ .*//; # keep just the first filter expression
