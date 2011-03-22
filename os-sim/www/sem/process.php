@@ -196,10 +196,9 @@ foreach ($atoms as $atom) {
 	if (preg_match("/(category|event_category)(\!?\=)(.+)/", $atom, $matches)) {
 	    $cat = str_replace("SPACESCAPE"," ",$matches[3]);
 	    $subcat = "";
-	    if (preg_match("/\-/",$cat)) {
-	    	$aux = explode("-",$cat);
-	    	$cat = $aux[0];
-	    	$subcat = $aux[1];
+	    if (preg_match("/([^\-]+)\-(.+)/",$cat,$catfound)) {
+	    	$cat = $catfound[1];
+	    	$subcat = $catfound[2];
 	    }
 	    $category_id = GetPluginCategoryID($cat,$conn);
 	    $subcategory_id = GetPluginSubCategoryID($subcat,$category_id,$conn);
