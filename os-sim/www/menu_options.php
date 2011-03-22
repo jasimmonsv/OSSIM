@@ -780,7 +780,7 @@ if (Session::menu_perms("MenuIntelligence", "ComplianceMapping")) { $correlation
        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:compliance_mapping:iso_27001','Help');"
     );
     $hmenu["Compliance"][] = array(
-       "name" => gettext("PCI DSS") ,
+       "name" => gettext("PCI DSS 2.0") ,
        "id" => "PCIDSS",
        "url" => "compliance/pci-dss.php",
        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:compliance_mapping:pci_dss','Help');"

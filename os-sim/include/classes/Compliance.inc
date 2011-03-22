@@ -311,7 +311,7 @@ class PCI {
 			"R10_Monitoring",
 			"R11_Security_test",
 			"R12_IS_Policy"
-		);
+		);		
 		foreach ($tables as $table) {
 			$sql = "SELECT * FROM PCI.$table $args";
 			if (!$rs = & $conn->Execute($sql)) {
@@ -327,7 +327,7 @@ class PCI {
 					$ref = $rs->fields['x1'].".".$rs->fields['x2'];
 					if ($rs->fields['x3'] != "") $ref .= ".".$rs->fields['x3'];
 					if ($rs->fields['x4'] != "") $ref .= ".".$rs->fields['x4'];
-					$groups[$gr]['subgroups'][$key] = array("Ref"=>$ref,"Security_controls"=>$rs->fields['Security_control'],"operational"=>$rs->fields['operational'],"not_operational"=>$rs->fields['not_operational'],"comments"=>$rs->fields['comments'],"SIDSS_Ref"=>$rs->fields['SIDSS_ref'],"table"=>$table);
+					$groups[$gr]['subgroups'][$key] = array("Ref"=>$ref,"Security_controls"=>$rs->fields['Security_control'],"operational"=>$rs->fields['operational'],"not_operational"=>$rs->fields['not_operational'],"comments"=>$rs->fields['comments'],"SIDSS_Ref"=>$rs->fields['SIDSS_ref'],"testing_procedures"=>$rs->fields['testing_procedures'],"table"=>$table);
 					$rs->MoveNext();
 				}
 			}

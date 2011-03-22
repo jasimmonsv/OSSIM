@@ -144,9 +144,9 @@ $groups = ISO27001::get_groups($conn);
 				<td class="nobborder"></td>
 				<th><?=_("Security Controls")?></th>
 				<th><?=_("Applies")?></th>
-				<th><?=_("Operational")?></th>
+				<th><?=_("Implemented")?></th>
 				<th><?=_("Justification")?></th>
-				<th><?=_("Plugins")?></th>
+				<th><?=_("Data Sources")?></th>
 			</tr>
 		<? foreach ($data['subgroups'] as $s_title=>$subgroup) { 
 				$implemented = ($subgroup['Selected']) ? "<a href='iso27001.php?attr=Implemented&table=".$subgroup['table']."&ref=".$subgroup['Ref']."&toggle=".$title."'>" : "";
