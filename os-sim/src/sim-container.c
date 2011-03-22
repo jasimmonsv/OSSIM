@@ -73,7 +73,8 @@ struct _SimContainerPrivate
   GList *backlogs; //SimDirective
 
   GList *plugin_references; //cross correlation. Relations between one and another plugins.(snort/nessus ie.)
-  GList *host_plugin_sids; //cross correlation. Host, and sids with vulnerabilities associated.
+	GHashTable	* host_plugin_sids; //cross correlation. Host, and sids with vulnerabilities associated.
+	GMutex			*mutex_host_plugin_sids;
 
   //FIXME
   //AQUI: create plugin_references and host_plugin_sids objects to load it in memory without DB.
@@ -138,6 +139,8 @@ sim_container_impl_finalize(GObject *gobject)
   g_cond_free(container->_priv->rload_cond);
   g_mutex_free(container->_priv->rload_mutex);
 
+  g_mutex_free(container->_priv->mutex_host_plugin_sids);
+
   g_free(container->_priv);
 
   G_OBJECT_CLASS(parent_class)->finalize(gobject);
@@ -176,6 +179,9 @@ sim_container_instance_init(SimContainer *container)
   container->_priv->ar_events = g_async_queue_new();
 
   container->_priv->servers = NULL;
+
+  container->_priv->host_plugin_sids = NULL; // Needed for cross-correlation.
+  container->_priv->mutex_host_plugin_sids = g_mutex_new();
 
   /* Mutex Events Init */
   container->_priv->cond_events = g_cond_new();
@@ -1771,10 +1777,9 @@ sim_container_db_insert_host_plugin_sid(SimContainer *container,
   g_return_if_fail(SIM_IS_DATABASE (database));
   g_return_if_fail(ia);
 
-  G_LOCK(s_mutex_host_plugin_sids);
-  sim_container_db_insert_host_plugin_sid_ul(container, database, ia,
-      plugin_id, plugin_sid);
-  G_UNLOCK(s_mutex_host_plugin_sids);
+  g_mutex_lock (container->_priv->mutex_host_plugin_sids);
+  sim_container_db_insert_host_plugin_sid_ul (container, database, ia, plugin_id, plugin_sid);
+	g_mutex_unlock (container->_priv->mutex_host_plugin_sids);
 }
 
 /*
@@ -2839,13 +2844,157 @@ sim_container_get_plugin_sid_by_name(SimContainer *container, gint plugin_id,
 }
 
 /*
+ * Get the hash table of host plugin sids mutex.
+ *
+ */
+GMutex *
+sim_container_get_host_plugin_sids_mutex (SimContainer * container)
+{
+	g_return_val_if_fail (container, NULL);
+	g_return_val_if_fail (SIM_IS_CONTAINER(container), NULL);
+
+	return (container->_priv->mutex_host_plugin_sids);
+}
+
+
+/*
+ * Get the hash table of host plugin sids.
+ *
+ */
+GHashTable *
+sim_container_get_host_plugin_sids (SimContainer * container)
+{
+	g_return_val_if_fail (container, NULL);
+	g_return_val_if_fail (SIM_IS_CONTAINER(container), NULL);
+
+	return (container->_priv->host_plugin_sids);
+}
+
+/*
+ * Set the hash table of host plugin sids.
+ *
+ */
+void
+sim_container_set_host_plugin_sids (SimContainer * container, GHashTable * host_plugin_sids)
+{
+	g_return_if_fail (container);
+	g_return_if_fail (SIM_IS_CONTAINER(container));
+
+	container->_priv->host_plugin_sids = host_plugin_sids;
+}
+
+/*
+ * Load all the plugins related to well known conditions in a specific host and
+ * return a hash table.
+ *
+ */
+void
+sim_container_db_load_host_plugin_sids_ul (SimContainer * container, SimDatabase * database)
+{
+  GdaDataModel  * dm;
+  GdaValue      * value;
+  gchar         * query;
+  gint            row;
+  GList         * list = NULL;
+	gchar         * key = NULL;
+	GHashTable    * host_plugin_sids;
+	SimPluginSid  * sid;
+	gulong          host_ip;
+	gint            plugin_id;
+	gint            plugin_sid;
+  gint            reference_id;
+  gint            reference_sid;
+
+	if ((host_plugin_sids = container->_priv->host_plugin_sids) != NULL)
+		g_hash_table_destroy(host_plugin_sids);
+	/* FIXME: This may be a g_int_hash/g_int_equal instead to be more efficient. */
+	host_plugin_sids = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_list_free);
+
+	query = g_strdup_printf ("SELECT host_ip, plugin_reference.plugin_id, plugin_reference.plugin_sid, reference_id, reference_sid "
+													 "FROM host_plugin_sid INNER JOIN plugin_reference "
+													 "ON (host_plugin_sid.plugin_id = plugin_reference.reference_id "
+													 "AND host_plugin_sid.plugin_sid = plugin_reference.reference_sid) "
+													 "GROUP BY host_ip, plugin_reference.plugin_id, plugin_reference.plugin_sid");
+
+  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: Query: %s", __func__, query);
+
+  dm = sim_database_execute_single_command (database, query);
+
+  if (dm)
+  {
+    for (row = 0; row < gda_data_model_get_n_rows (dm); row++)
+		{
+			/* Build a hash with the first three values. */
+			value = (GdaValue *) gda_data_model_get_value_at (dm, 0, row);
+			host_ip = gda_value_get_uinteger (value);
+			value = (GdaValue *) gda_data_model_get_value_at (dm, 1, row);
+			plugin_id = gda_value_get_integer (value);		
+			value = (GdaValue *) gda_data_model_get_value_at (dm, 2, row);
+			plugin_sid = gda_value_get_integer (value);		
+			key = g_strdup_printf("%lu:%d:%d", host_ip, plugin_id, plugin_sid);
+
+			/* Get reference plugin id and sid and build a new SimPluginSid. */
+		  value = (GdaValue *) gda_data_model_get_value_at (dm, 3, row);
+	  	reference_id = gda_value_get_integer (value);
+		  value = (GdaValue *) gda_data_model_get_value_at (dm, 4, row);
+		  reference_sid = gda_value_get_integer (value);
+
+	  	sid = sim_container_get_plugin_sid_by_pky (container,
+																						     reference_id,
+																						     reference_sid);
+
+			/* Search for this hash. */
+			if (sid)
+			{
+				if (list = (GList *) g_hash_table_lookup (host_plugin_sids, key))
+				{
+					g_free (key);
+					list = g_list_append (list, sid);
+				}
+				else
+				{
+					list = g_list_append (list, sid);
+					g_hash_table_insert (host_plugin_sids, key, list);
+				}
+			}
+		}
+
+    g_object_unref(dm);
+  }
+  else
+    g_message ("%s: DATA MODEL ERROR", __func__);
+  
+	g_free (query);
+	container->_priv->host_plugin_sids = host_plugin_sids;
+}
+
+
+/*
+ * Lock db and load all the plugins related to well known conditions in a specific host and
+ * return a hash table.
+ */
+void
+sim_container_db_load_host_plugin_sids (SimContainer * container, SimDatabase * database)
+{
+  g_return_if_fail (container);
+  g_return_if_fail (SIM_IS_CONTAINER (container));
+  g_return_if_fail (database);
+  g_return_if_fail (SIM_IS_DATABASE (database));
+
+  g_mutex_lock (container->_priv->mutex_host_plugin_sids);
+  sim_container_db_load_host_plugin_sids_ul (container, database);
+	g_mutex_unlock (container->_priv->mutex_host_plugin_sids);
+}
+
+/*
  *
  *
  *
  *
  */
 void
-sim_container_db_load_sensors_ul(SimContainer *container, SimDatabase *database)
+sim_container_db_load_sensors_ul (SimContainer  *container,
+				  SimDatabase   *database)
 {
   SimSensor *sensor;
   GdaDataModel *dm;

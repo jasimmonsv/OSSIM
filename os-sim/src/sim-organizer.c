@@ -664,8 +664,10 @@ config_send_notify_email(SimConfig *config, SimEvent *event)
 void
 sim_organizer_correlation_plugin(SimOrganizer *organizer, SimEvent *event)
 {
-  //GList           *list;
-  GList *list_host;
+	GHashTable * host_plugin_sids = NULL;
+	gchar * key = NULL;
+  GList *list = NULL;
+	SimPluginSid * plugin_sid;
   GList *list_OS;
   GList *list_ports;
   GList *list_refsid;
@@ -696,224 +698,236 @@ sim_organizer_correlation_plugin(SimOrganizer *organizer, SimEvent *event)
   g_return_if_fail(event);
   g_return_if_fail(SIM_IS_EVENT (event));
 
-  g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-      "sim_organizer_correlation_plugin: entering");
+  g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: entering", __func__);
   if (!event->dst_ia)
     return;
 
-  list_host = sim_container_db_host_get_single_plugin_sid(ossim.container,
-      ossim.dbossim, event->dst_ia);
-
-  g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-      "sim_organizer_correlation_plugin: Number of entries: %d", g_list_length(
-          list_host));
-
-  if (!list_host) //if there aren't any plugin_sid associated with the dst_ia...
+	g_mutex_lock (sim_container_get_host_plugin_sids_mutex(ossim.container));
+	if ((host_plugin_sids = sim_container_get_host_plugin_sids (ossim.container)) != NULL)
+	{
+		key = g_strdup_printf ("%lu:%d:%d", sim_inetaddr_ntohl(event->dst_ia), event->plugin_id, event->plugin_sid);
+		list = (GList *) g_hash_table_lookup (host_plugin_sids, key);
+		g_free (key);
+	}
+	else
+	{
+		g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: Cannot retrieve host_plugin_sids.", __func__);
+		g_mutex_unlock (sim_container_get_host_plugin_sids_mutex(ossim.container));
     return;
+	}
 
-  while (list_host)
+  if (!list) //if there aren't any plugin_sid associated with the dst_ia...
+  {
+		g_mutex_unlock (sim_container_get_host_plugin_sids_mutex(ossim.container));
+		return;
+	}
+
+  while (list)
+	{
+		g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: Checking host : event->dst_ia: %lu", __func__, sim_inetaddr_ntohl(event->dst_ia));
+
+		plugin_sid = (SimPluginSid *) list->data;
+    plugin_id = sim_plugin_sid_get_plugin_id(plugin_sid);
+
+		if (plugin_id == sim_container_get_plugin_id_by_name (ossim.container, "nessus")) //match nessus attack
     {
-      g_log(
-          G_LOG_DOMAIN,
-          G_LOG_LEVEL_DEBUG,
-          "sim_organizer_correlation_plugin: Checking host : event->dst_ia: %u",
-          sim_inetaddr_ntohl(event->dst_ia));
-
-      SimPluginSid *plugin_sid = (SimPluginSid *) list_host->data;
-
-      plugin_id = sim_plugin_sid_get_plugin_id(plugin_sid);
-      sid = sim_plugin_sid_get_sid(plugin_sid);
-      g_log(
-          G_LOG_DOMAIN,
-          G_LOG_LEVEL_DEBUG,
-          "sim_organizer_correlation_plugin: BBDD: %d - %d *** Evento: %d - %d",
-          plugin_id, sid, event->plugin_id, event->plugin_sid);
-
-      if (plugin_id == sim_container_get_plugin_id_by_name(ossim.container,
-          "nessus")) //match nessus attack
-        {
-          if (sim_container_db_plugin_reference_match(ossim.container,
-              ossim.dbossim, event->plugin_id, event->plugin_sid, plugin_id,
-              sid))
-            {
-              g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-                  "sim_organizer_correlation_plugin: Match! Nessus vuln found");
-              event->reliability = 10;
-              event->is_reliability_setted = TRUE;
-              aux_nessus = TRUE;
-            }
-          g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-              "sim_organizer_correlation_plugin: NESSUS");
-        }
-      else if (plugin_id == sim_container_get_plugin_id_by_name(
-          ossim.container, "os")) ////match O.S.
-        {
-          list_OS = sim_container_db_get_reference_sid(ossim.container,
-              ossim.dbossim, plugin_id, //SO reference_id, probably 5001
-              event->plugin_id, event->plugin_sid);
-          aux_os_tested = TRUE; //needed if we want to "stop" the iteration when the OS is found.
-          while (list_OS)
-            {
-              g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-                  "sim_organizer_correlation_plugin: OS, list_OS= %d",
-                  GPOINTER_TO_INT(list_OS->data));
-              if (GPOINTER_TO_INT(list_OS->data) == sid) //match O.S.?
-                aux_os = TRUE;
-              list_OS = list_OS->next;
-            }
-
-          if (list_OS) //just in case there are some OS's listed
-            {
-              if (!aux_os)
-                {
-                  event->reliability = 0; //the host O.S. differs from the type of atack. this won't be successfull.
-                  event->is_reliability_setted = TRUE;
-                  return;
-                }
-              else
-                {
-                  event->reliability += 1;
-                  event->is_reliability_setted = TRUE;
-                }
-
-            }
-        }
-      else if (plugin_id == sim_container_get_plugin_id_by_name(
-          ossim.container, "services")) //match port &&/|| version
-        {
-          list_ports = sim_container_db_get_host_services(ossim.container,
-              ossim.dbossim, event->dst_ia, event->sensor, event->dst_port);
-
-          while (list_ports)
-            {
-              HostService = (SimHostServices *) list_ports->data;
-              g_log(
-                  G_LOG_DOMAIN,
-                  G_LOG_LEVEL_DEBUG,
-                  "sim_organizer_correlation_plugin: SERVICES port/proto= %d/%d",
-                  event->dst_port, event->protocol);
-              g_log(
-                  G_LOG_DOMAIN,
-                  G_LOG_LEVEL_DEBUG,
-                  "sim_organizer_correlation_plugin: SERVICES HostService port/proto: %d/%d",
-                  HostService->port, HostService->protocol);
-              if (event->dst_port == sid)
-                {
-                  if (HostService->protocol != event->protocol) //event->protocol != protocol stored inside host_services table
-                    aux_port = TRUE;
-                  else
-                    {
-                      aux_port = FALSE;
-                      break;
-                    }
-                } //event->port == sid
-              list_ports = list_ports->next;
-            }
-          if (aux_port) //if the attack is (i.e.) UDP, but we know that this machine only has that specific TCP port open, this is not an attack and reliability is zero.
-            {
-              event->reliability = 0;
-              event->is_reliability_setted = TRUE;
-              return;
-            }
-#if 0			
-          else //if the protocol (tcp or udp) matches...
-          if (event->dst_port == sid) //and of course if the port matches...
-
-            { //if there are relationship between OSVDB and the event, we'll try to check the strings
-              if (list_refsid = sim_container_db_get_reference_sid (ossim.container,
-                      ossim.dbossim,
-                      5003, //OSVDB reference_id
-                      event->plugin_id,
-                      event->plugin_sid))
-                { //in this case (osvdb checking) very probably here will appears only one base_name.
-                  //It's a list just because we use that function in more places
-                  while (list_refsid)
-                    {
-                      list_base_name = sim_container_db_get_osvdb_base_name (ossim.dbosvdb, GPOINTER_TO_INT (list_refsid->data));
-                      while (list_base_name)
-                        {
-                          gchar *cmp_base_name = (gchar *) list_base_name->data;
-                          g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_organizer_correlation_plugin: SERVICES OSVDB cmp base name= %s/%s", cmp_base_name, HostService->version);
-                          //do the check always in lower case:
-                          gchar *lower_hostversion = g_ascii_strdown (HostService->version, strlen (HostService->version));
-                          gchar *lower_cmpbasename = g_ascii_strdown (cmp_base_name, strlen (cmp_base_name));
-
-                          if (g_strstr_len (lower_hostversion, strlen (lower_hostversion), lower_cmpbasename))
-                            {
-                              event->reliability += 2; //if the base name ("Apache") matches...
-                              event->is_reliability_setted = TRUE;
-                              //we have to check if also matches the version number ("4.3.4" i.e.)
-                              list_version_name = sim_container_db_get_osvdb_version_name (ossim.dbosvdb, GPOINTER_TO_INT (list_refsid->data));
-                              while (list_version_name)
-                                {
-                                  gchar *cmp_version_name = (gchar *) list_version_name->data;
-                                  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_organizer_correlation_plugin: SERVICES OSVDB cmp version name= %s", cmp_version_name);
-                                  gchar *lower_versionname = g_ascii_strdown (cmp_version_name, strlen (cmp_version_name));
-                                  if (g_strstr_len (lower_hostversion, strlen (lower_hostversion), lower_versionname))
-                                    {
-                                      event->reliability = 9;
-                                      event->is_reliability_setted = TRUE;
-                                      aux_version_name = TRUE;
-                                      break;
-                                    }
-                                  g_free (lower_versionname);
-                                  list_version_name = list_version_name->next;
-                                }
-                              if (aux_version_name)
-                              break;
-                            }
-                          g_free (lower_hostversion);
-                          g_free (lower_cmpbasename);
-                          list_base_name = list_base_name->next;
-                        }
-
-                      list_refsid = list_refsid->next;
-                      if (aux_version_name)
-                      break;
-                    }
-                }
-            }
-#endif
-        }
-      else //this is a "generic" type. This will match any new type that the user defines.
-        { //For example, a user may want to do cross-correlation between 2 new plugins, say 25000 and 25001.
-          //He need to insert plugin_id 25001 and plugin_sid 1 (i.e.) into host_plugin_sid. After that he needs to fill the
-          //plugin_reference table wiuth data like (25000, 1, 25001, 22), so plugin sid 1 has a relationship with plugin_sid 22.
-          //If the correlation is done in this way, we set the reliability to 10.
-
-          //this is exactly the same case than the nessus correlation
-          if (sim_container_db_plugin_reference_match(ossim.container,
-              ossim.dbossim, event->plugin_id, event->plugin_sid, plugin_id,
-              sid))
-            {
-              event->reliability += sim_plugin_sid_get_reliability(plugin_sid);
-              event->is_reliability_setted = TRUE;
-              aux_generic = TRUE;
-            }
-        }
-
-      if (aux_nessus || aux_generic) //we know that it's a real attack thanks to nessus or generic cross-correlation.
-        {
-          g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-              "sim_organizer_correlation_plugin: aux_nessus || aux_generic");
-          break;
-        }
-      if ((!aux_os) && aux_os_tested) //if the OS doesn't matches, nothing else matters
-        {
-          g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
-              "sim_organizer_correlation_plugin: aux_OS");
-          break;
-        }
-
-      list_host = list_host->next;
+      event->reliability = 10;
+      event->is_reliability_setted = TRUE;
+	    g_log(G_LOG_DOMAIN, G_LOG_LEVEL_INFO, "%s: Match! Nessus vuln found. new reliability: 10", __func__);
+      aux_nessus = TRUE;
     }
-  g_list_free(list_host);
 
-  if (event->reliability >= 1) //FIXME: generating an alarm with just 1?
-    event->alarm = TRUE;
+#if 0 // Disable all the plugins but nessus.
+/* FIXME: after the changes above, there is a lot of things here that won't work. */
+		else if (plugin_id == sim_container_get_plugin_id_by_name(
+							 ossim.container, "os")) ////match O.S.
+		{
+			list_OS = sim_container_db_get_reference_sid(ossim.container,
+																									 ossim.dbossim, plugin_id, //SO reference_id, probably 5001
+																									 event->plugin_id, event->plugin_sid);
+			aux_os_tested = TRUE; //needed if we want to "stop" the iteration when the OS is found.
+			while (list_OS)
+			{
+				g_log(G_LOG_DOMAIN, G_LOG_LEVEL_INFO,
+							"sim_organizer_correlation_plugin_new: OS, list_OS= %d",
+							GPOINTER_TO_INT(list_OS->data));
+				if (GPOINTER_TO_INT(list_OS->data) == sid) //match O.S.?
+					aux_os = TRUE;
+				list_OS = list_OS->next;
+			}
 
-  if (event->reliability >= 10)
+			if (list_OS) //just in case there are some OS's listed
+			{
+				if (!aux_os)
+				{
+					event->reliability = 0; //the host O.S. differs from the type of atack. this won't be successfull.
+					event->is_reliability_setted = TRUE;
+					g_log(
+						G_LOG_DOMAIN,
+						G_LOG_LEVEL_INFO,
+						"sim_organizer_correlation_plugin_new: Match! OS differs. Attack not succesfull. new reliability: 0");
+					return;
+				}
+				else
+				{
+					event->reliability += 1;
+					event->is_reliability_setted = TRUE;
+					g_log(
+						G_LOG_DOMAIN,
+						G_LOG_LEVEL_INFO,
+						"sim_organizer_correlation_plugin_new: Match! OS matches. Succesfull Attack. new reliability: +1");
+				}
+
+			}
+		}
+		else if (plugin_id == sim_container_get_plugin_id_by_name(
+							 ossim.container, "services")) //match port &&/|| version
+		{
+			list_ports = sim_container_db_get_host_services(ossim.container,
+																											ossim.dbossim, event->dst_ia, event->sensor, event->dst_port);
+
+			while (list_ports)
+			{
+				HostService = (SimHostServices *) list_ports->data;
+				g_log(
+					G_LOG_DOMAIN,
+					G_LOG_LEVEL_INFO,
+					"sim_organizer_correlation_plugin_new: SERVICES port/proto= %d/%d",
+					event->dst_port, event->protocol);
+				g_log(
+					G_LOG_DOMAIN,
+					G_LOG_LEVEL_INFO,
+					"sim_organizer_correlation_plugin_new: SERVICES HostService port/proto: %d/%d",
+					HostService->port, HostService->protocol);
+				if (event->dst_port == sid)
+				{
+					if (HostService->protocol != event->protocol) //event->protocol != protocol stored inside host_services table
+						aux_port = TRUE;
+					else
+					{
+						aux_port = FALSE;
+						break;
+					}
+				} //event->port == sid
+				list_ports = list_ports->next;
+			}
+			if (aux_port) //if the attack is (i.e.) UDP, but we know that this machine only has that specific TCP port open, this is not an attack and reliability is zero.
+			{
+				event->reliability = 0;
+				event->is_reliability_setted = TRUE;
+				g_log(
+					G_LOG_DOMAIN,
+					G_LOG_LEVEL_INFO,
+					"sim_organizer_correlation_plugin_new: Match! port differs. Attack not succesfull. new reliability: 0");
+				return;
+			}
+			else //if the protocol (tcp or udp) matches...
+				if (event->dst_port == sid) //and of course if the port matches...
+
+				{ //if there are relationship between OSVDB and the event, we'll try to check the strings
+					if (list_refsid = sim_container_db_get_reference_sid (ossim.container,
+																																ossim.dbossim,
+																																5003, //OSVDB reference_id
+																																event->plugin_id,
+																																event->plugin_sid))
+					{ //in this case (osvdb checking) very probably here will appears only one base_name.
+						//It's a list just because we use that function in more places
+						while (list_refsid)
+						{
+							list_base_name = sim_container_db_get_osvdb_base_name (ossim.dbosvdb, GPOINTER_TO_INT (list_refsid->data));
+							while (list_base_name)
+							{
+								gchar *cmp_base_name = (gchar *) list_base_name->data;
+								g_log (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, "sim_organizer_correlation_plugin_new: SERVICES OSVDB cmp base name= %s/%s", cmp_base_name, HostService->version);
+								//do the check always in lower case:
+								gchar *lower_hostversion = g_ascii_strdown (HostService->version, strlen (HostService->version));
+								gchar *lower_cmpbasename = g_ascii_strdown (cmp_base_name, strlen (cmp_base_name));
+
+								if (g_strstr_len (lower_hostversion, strlen (lower_hostversion), lower_cmpbasename))
+								{
+									event->reliability += 2; //if the base name ("Apache") matches...
+									g_log (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, "sim_organizer_correlation_plugin_new: Match! base name. Succesfull attack. new reliability: +2");
+									event->is_reliability_setted = TRUE;
+									//we have to check if also matches the version number ("4.3.4" i.e.)
+									list_version_name = sim_container_db_get_osvdb_version_name (ossim.dbosvdb, GPOINTER_TO_INT (list_refsid->data));
+									while (list_version_name)
+									{
+										gchar *cmp_version_name = (gchar *) list_version_name->data;
+										g_log (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, "sim_organizer_correlation_plugin_new: SERVICES OSVDB cmp version name= %s", cmp_version_name);
+										gchar *lower_versionname = g_ascii_strdown (cmp_version_name, strlen (cmp_version_name));
+										if (g_strstr_len (lower_hostversion, strlen (lower_hostversion), lower_versionname))
+										{
+											event->reliability = 9;
+											event->is_reliability_setted = TRUE;
+											aux_version_name = TRUE;
+											g_log (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, "sim_organizer_correlation_plugin_new: Match! version name. Succesfull attack. new reliability: 9");
+											break;
+										}
+										g_free (lower_versionname);
+										list_version_name = list_version_name->next;
+									}
+									if (aux_version_name)
+										break;
+								}
+								g_free (lower_hostversion);
+								g_free (lower_cmpbasename);
+								list_base_name = list_base_name->next;
+							}
+
+							list_refsid = list_refsid->next;
+							if (aux_version_name)
+								break;
+						}
+					}
+				}
+		}
+#endif
+    else //this is a "generic" type. This will match any new type that the user defines.
+    { //For example, a user may want to do cross-correlation between 2 new plugins, say 25000 and 25001.
+      //He need to insert plugin_id 25001 and plugin_sid 1 (i.e.) into host_plugin_sid. After that he needs to fill the
+      //plugin_reference table wiuth data like (25000, 1, 25001, 22), so plugin sid 1 has a relationship with plugin_sid 22.
+      //If the correlation is done in this way, we set the reliability to 10.
+
+      event->reliability += sim_plugin_sid_get_reliability(plugin_sid);
+      event->is_reliability_setted = TRUE;
+			g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: Match! plugin id: %d. Succesfull attack. new reliability: %d", 
+   				__func__, plugin_id, event->reliability);
+
+      aux_generic = TRUE;
+    }
+
+    if (aux_nessus || aux_generic) //we know that it's a real attack thanks to nessus or generic cross-correlation.
+    {
+  		g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: aux_nessus || aux_generic", __func__);
+      break;
+    }
+
+#if 0
+    if ((!aux_os) && aux_os_tested) //if the OS doesn't matches, nothing else matters
+    {
+      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
+            "sim_organizer_correlation_plugin: aux_OS");
+      break;
+    }
+#endif
+
+		list = list->next;
+	}
+
+	g_mutex_unlock (sim_container_get_host_plugin_sids_mutex(ossim.container));
+
+	if (event->is_reliability_setted)
+	{
+		if (event->correlation == EVENT_MATCH_DIRECTIVE_CORR)
+			event->correlation = EVENT_MATCH_DIRECTIVE_AND_CROSS;
+		else
+			event->correlation = EVENT_MATCH_CROSS_CORR;
+	}
+
+  if (event->reliability > 10)
     event->reliability = 10;
+
+  g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "%s: end", __func__);
 }
 
 /*
@@ -1361,6 +1375,11 @@ sim_organizer_correlation(SimOrganizer *organizer, SimEvent *event)
               "sim_directive_backlog_match_by_event TRUE. event->id: %d, id: %d, backlog_id : %d",
               event->id, sim_directive_get_id(backlog),
               sim_directive_get_backlog_id(backlog));
+
+					if (event->correlation == EVENT_MATCH_CROSS_CORR)
+						event->correlation = EVENT_MATCH_DIRECTIVE_AND_CROSS;
+					else
+						event->correlation = EVENT_MATCH_DIRECTIVE_CORR;
 
           GNode *rule_node;
           SimRule *rule_root;
@@ -2091,14 +2110,14 @@ sim_organizer_snort_event_update_acid_event(SimDatabase *db_snort,
           "INSERT INTO acid_event (sid, cid, timestamp, ip_src, ip_dst, \
           ip_proto, layer4_sport, layer4_dport, ossim_priority,\
           ossim_reliability, ossim_asset_src, ossim_asset_dst, \
-          ossim_risk_c, ossim_risk_a, plugin_id, plugin_sid,tzone ) \
-          VALUES (%u, %u, '%s', %u, %u, %d, %u, %u, %u, %u, %u, %u, %d, %d, %d, %d,%4.2f)",
+          ossim_risk_c, ossim_risk_a, plugin_id, plugin_sid, tzone, ossim_correlation) \
+          VALUES (%u, %u, '%s', %u, %u, %d, %u, %u, %u, %u, %u, %u, %d, %d, %d, %d, %4.2f, %d)",
           sid, cid, event->time_str, (event->src_ia) ? sim_inetaddr_ntohl(
               event->src_ia) : -1, (event->dst_ia) ? sim_inetaddr_ntohl(
               event->dst_ia) : -1, event->protocol, event->src_port,
           event->dst_port, event->priority, event->reliability,
           event->asset_src, event->asset_dst, c, a, event->plugin_id,
-          event->plugin_sid, event->tzone);
+          event->plugin_sid, event->tzone, event->correlation);
 
   //query = g_strdup_printf ("INSERT INTO event (sid, cid, signature, timestamp) VALUES (%u, %u, %u, '%s')", sid, cid, sig_id, timestamp);
 

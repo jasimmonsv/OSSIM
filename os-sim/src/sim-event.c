@@ -222,6 +222,7 @@ sim_event_instance_init(SimEvent *event)
   event->store_in_DB = TRUE; //we want to store everything by default
 
   event->is_correlated = FALSE; //local mode
+	event->correlation = EVENT_MATCH_NOTHING;
   event->is_prioritized = FALSE; //this is sent across network
   event->is_reliability_setted = FALSE; //local only at this time
 

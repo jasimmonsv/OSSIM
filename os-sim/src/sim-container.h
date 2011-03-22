@@ -94,7 +94,6 @@ G_LOCK_DEFINE_STATIC (s_mutex_host_levels);
 G_LOCK_DEFINE_STATIC (s_mutex_net_levels);
 G_LOCK_DEFINE_STATIC (s_mutex_events);
 G_LOCK_DEFINE_STATIC (s_mutex_servers);
-G_LOCK_DEFINE_STATIC (s_mutex_host_plugin_sids); //to insert new entries in host_plugin_sid safely
 
 GType             sim_container_get_type                        (void);
 SimContainer*     sim_container_new                             (SimConfig     *config);
@@ -219,6 +218,15 @@ GList*	sim_container_db_get_osvdb_base_name (SimDatabase   *database,
 									                             gint           osvdb_id);
 GList*	sim_container_db_get_osvdb_version_name (SimDatabase   *database,
 							                                 gint           osvdb_id);
+
+GHashTable *
+sim_container_get_host_plugin_sids (SimContainer * container);
+
+GMutex *
+sim_container_get_host_plugin_sids_mutex (SimContainer * container);
+
+void
+sim_container_db_load_host_plugin_sids (SimContainer * container, SimDatabase * database);
 
 //loading data...
 void		sim_container_remote_load_element						(SimDBElementType element_type);

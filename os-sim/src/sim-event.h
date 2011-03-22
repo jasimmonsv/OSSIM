@@ -54,6 +54,18 @@ extern "C"
 #define SIM_IS_EVENT_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), SIM_TYPE_EVENT))
 #define SIM_EVENT_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), SIM_TYPE_EVENT, SimEventClass))
 
+/* Needed to know which correlation process matched with a event. */
+enum
+{
+	EVENT_MATCH_NOTHING = 0,
+	EVENT_MATCH_DIRECTIVE_CORR,
+	EVENT_MATCH_CROSS_CORR,
+	EVENT_MATCH_DIRECTIVE_AND_CROSS
+};
+
+
+//SimPolicy is each one of the "lines" in the policy. It has one or more sources, one or more destinations, a time range, and so on.
+
 #ifndef __TYPEPOLICY__
 #define __TYPEPOLICY__
   typedef struct _SimPolicy SimPolicy;
@@ -183,6 +195,15 @@ extern "C"
     // to re-correlate "host_mac_event...", because the correlation information is in "event...". So in
     // sim_organizer_correlation() we check this variable. Also, in this way, we are able to correlate
     // the event with another event wich arrives to server2.
+
+	gint              correlation;    /* Needed to know which correlation mechanism has matched this event.
+																		 * Valid values:
+																		 * EVENT_MATCH_NOTHING : 0             (didn't matched)
+																		 * EVENT_MATCH_DIRECTIVE_CORR : 1      (matched with directive in correlation)
+																		 * EVENT_MATCH_CROSS_CORR : 2          (matched in cross correlation process)
+																		 * EVENT_MATCH_DIRECTIVE_AND_CROSS : 3 (matched with directive and cross correlation)
+																		 */
+
     gboolean is_prioritized; // Needed to know in the master server if the event sent from children server has the priority changed or not.
     gboolean is_reliability_setted; //I dont' know how to reduce this variable, it's auto-explained :)
     SimRole *role;
