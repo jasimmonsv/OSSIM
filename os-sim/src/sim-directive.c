@@ -1550,8 +1550,32 @@ sim_directive_db_delete_backlog_by_id_ul (guint32	backlog_id)
 	g_free (query0);
 }
 
+/*
+ * Deletes info stored in db without alarm asociated (backlogs and events)
+ */
 
+void sim_directive_purge_db_backlogs(SimDatabase *db)
+{
+	gchar	*query;
 
+	// Deleting rows in backlog table
+	g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: Deleting rows from backlog table without alarm", __FUNCTION__);
+	query = g_strdup_printf ("DELETE FROM backlog WHERE id NOT IN (SELECT DISTINCT(backlog_id) FROM alarm)");
+  sim_database_execute_no_query (db, query);
+  g_free (query);
+
+	// Deleting rows in backlog_event
+	g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: Deleting rows from backlog_event table without alarm", __FUNCTION__);
+	query = g_strdup_printf ("DELETE FROM backlog_event WHERE backlog_id NOT IN (SELECT DISTINCT(backlog_id) FROM alarm)");
+  sim_database_execute_no_query (db, query);
+  g_free (query);
+
+	// Deleting rows in event
+	g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: Deleting rows from event table without backlog", __FUNCTION__);
+	query = g_strdup_printf ("DELETE FROM event WHERE id NOT IN (SELECT DISTINCT(event_id) FROM backlog_event)");
+  sim_database_execute_no_query (db, query);
+  g_free (query);
+}
 
 // vim: set tabstop=2:
 
