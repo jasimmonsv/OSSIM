@@ -833,6 +833,7 @@ elseif ($query == "save_category") {
         exit;
     }
 	ossim_valid($_POST["xml_file"], OSS_ALPHA, OSS_DIGIT, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml file"));
+	ossim_valid($_POST["name"], OSS_ALPHA, OSS_DIGIT, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("name"));
 	if (ossim_error()) {
 		die(ossim_error());
 	}
