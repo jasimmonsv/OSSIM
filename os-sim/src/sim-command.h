@@ -461,7 +461,8 @@ extern "C"
 
   gboolean
   sim_command_is_valid(SimCommand *command);
-
+  gboolean (*sim_command_get_agent_scan(SimCommand *command))(SimCommand*,GScanner*);
+  gboolean (*sim_command_get_default_scan(SimCommand *command))(SimCommand*,GScanner*);
 G_END_DECLS
 #ifdef __cplusplus
 }

@@ -7848,7 +7848,7 @@ gboolean (*
       gboolean
       (*pf)(SimCommand *, GScanner*);
       int i = 0;
-      pf = sim_command_event_scan;
+      pf = &sim_command_event_scan;
       if (command->data.connect.version != NULL)
         {
           while (agent_parsers_table[i].pf != NULL)
@@ -7864,5 +7864,9 @@ gboolean (*
         }
       return pf;
     }
-    // vim: set tabstop=2:
 
+
+gboolean (*sim_command_get_default_scan(SimCommand *command))(SimCommand*,GScanner*){
+        return &sim_command_event_scan;
+}
+// vim: set tabstop=2:

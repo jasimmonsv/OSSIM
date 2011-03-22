@@ -93,6 +93,8 @@ struct _SimSessionPrivate
   //sent us, and it will be kept during all the messages.
   gboolean
   (*agent_scan_fn)(SimCommand *, GScanner*);
+  gboolean
+   (*default_scan_fn)(SimCommand *, GScanner*);
 
 };
 
@@ -191,6 +193,7 @@ sim_session_instance_init(SimSession *session)
   session->_priv->id = 0;
   // Init de scannner to NULL
   session->_priv->agent_scan_fn = NULL;
+  session->_priv->default_scan_fn = sim_command_get_default_scan (NULL);
 }
 
 /* Public Methods */
@@ -4609,7 +4612,20 @@ gboolean (*
   {
     g_return_if_fail(session != NULL);
     g_return_if_fail(SIM_IS_SESSION (session));
-    return session->_priv->agent_scan_fn;
+    switch (session->type)
+      {
+    case SIM_SESSION_TYPE_SENSOR:
+      return session->_priv->agent_scan_fn;
+      break;
+    case SIM_SESSION_TYPE_NONE:
+      return session->_priv->default_scan_fn;
+    default:
+      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
+          "Unknown session type. Aborting program");
+      assert (0);
+
+      }
+    return NULL;
 
   }
   static void
