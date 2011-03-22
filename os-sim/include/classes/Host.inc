@@ -61,6 +61,7 @@
 * - in_host()
 * - get_related_sensors()
 * - get_property_values()
+* - connect_to_frameworkd()
 * Classes list:
 * - Host
 */
@@ -76,6 +77,7 @@ require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/WebIndicator.inc';
 require_once 'classes/Util.inc';
+require_once 'classes/Frameworkd_socket.inc';
 
 class Host {
     var $ip;
@@ -92,6 +94,7 @@ class Host {
     var $persistence;
     var $nat;
     var $descr;
+    var $frcon;
 
     function Host($ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $descr, $foundrows = 0, $lat = "", $lon = "", $fqdns="") {
         $this->ip = Util::htmlentities($ip);
@@ -386,6 +389,15 @@ class Host {
                 $conn->Execute($sql, $params);
             }
         }
+        // Agent update
+    	$frcon = new Frameworkd_socket();
+        if (!$frcon->status) {
+            echo gettext("Can't connect to frameworkd...<br>");
+        }
+        else {
+        	$frcon->write('add_asset hostname='.$hostname.' ip='.$ip);
+        }
+        
         $infolog = array(
             $hostname,
             "[" . $ip . "]"
@@ -507,6 +519,15 @@ class Host {
         if (!$conn->Execute($sql, $params)) {
             die('error deleting: ' . $conn->ErrorMsg());
         }
+        // Agent update
+        $frcon = new Frameworkd_socket();
+        if (!$frcon->status) {
+            echo gettext("Can't connect to frameworkd...<br>");
+        }
+        else {
+        	$frcon->write('remove_asset hostname='.$hostname);
+        }
+        
         $infolog = array(
             $ip
         );
