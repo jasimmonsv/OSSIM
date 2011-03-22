@@ -252,6 +252,9 @@ class Detector(threading.Thread):
         # use default values for some empty attributes
         event = self._plugin_defaults(event)
 
+        Output.event(event)
+        Stats.new_event(event)
+        return
         # check for consolidation
         if self.conn is not None:
             try:
