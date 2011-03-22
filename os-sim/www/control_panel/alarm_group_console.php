@@ -749,7 +749,7 @@ $tree_count = 0;
 				$group_box = "<input type='checkbox' disabled = 'true' name='group' value='" . $group_id . "' >";
 			}
 		
-		$delete_link = ($status == "open" && $owner_take) ? "<a title='" . gettext("Close") . "' href=''><img border=0 src='../pixmaps/cross-circle-frame.png'/>" . "</a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'/>";
+		$delete_link = ($status == "open" && $owner_take) ? "<a title='" . gettext("Close") . "' href='' onclick=\"close_group('".$group_id."','".$group['name']."','".$group['ip_src']."','".$group['ip_dst']."','".$group['date']."');return false\"><img border=0 src='../pixmaps/cross-circle-frame.png'/>" . "</a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'/>";
         if ($status == 'open') {
             if ($owner_take) $close_link = "<a href='' onclick=\"close_group('".$group_id."','".$group['name']."','".$group['ip_src']."','".$group['ip_dst']."','".$group['date']."');return false\"><img src='../pixmaps/lock-unlock.png' alt='"._("Open, click to close group")."' title='"._("Open, click to close group")."' border=0></a>";
             else $close_link = "<img src='../pixmaps/lock-unlock.png' alt='"._("Open, take this group then click to close")."' title='"._("Open, take this group then click to close")."' border=0>";

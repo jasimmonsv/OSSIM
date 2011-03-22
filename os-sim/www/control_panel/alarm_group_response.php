@@ -101,15 +101,15 @@ $from_date = ($timestamp!="") ? $timestamp." 00:00:00" : null;
 $to_date = ($timestamp!="") ? $timestamp : null;
 
 if ($only_delete) {
-	$group_ids = explode(",",$name);
 	for ($i = 1; $i <= $only_delete; $i++) {
 		$data = explode("_",GET('group'.$i));
 		$name = $_SESSION[$data[0]];
 		$src_ip = $data[1];
 		$dst_ip = $data[2];
 		$timestamp = $data[3];
+		$timestamp_date = preg_replace("/ \d\d\:\d\d\:\d\d/","",$timestamp);
 		AlarmGroups::delete_group ($conn, $data[0], $_SESSION["_user"]);
-		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$timestamp." 00:00:00",$timestamp,$name);
+		list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,0,"",null,null,$timestamp,$timestamp_date,$name);
 		foreach ($list as $s_alarm) {
 			$s_backlog_id = $s_alarm->get_backlog_id();
 			$s_event_id = $s_alarm->get_event_id();
@@ -119,7 +119,6 @@ if ($only_delete) {
 	exit;
 }
 if ($only_close) {
-	$group_ids = explode(",",$name);
 	for ($i = 1; $i <= $only_close; $i++) {
 		$data = explode("_",GET('group'.$i));
 		$name = $_SESSION[$data[0]];
@@ -137,7 +136,6 @@ if ($only_close) {
 	exit;
 }
 if ($only_open) {
-	$group_ids = explode(",",$name);
 	for ($i = 1; $i <= $only_open; $i++) {
 		$data = explode("_",GET('group'.$i));
 		$name = $_SESSION[$data[0]];
