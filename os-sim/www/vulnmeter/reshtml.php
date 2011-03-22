@@ -264,6 +264,7 @@ if (ossim_error()) {
         onBeforeShow: function() { 
             var id = this.getParent().attr('lid');
             this.load('lookup.php?id=' + id);
+            $(".gtooltip").css({ width: "650px" });
         }
     });
     $(".checkinfo").simpletip({
@@ -1390,7 +1391,7 @@ echo "<tr ".(($falsepositive=='Y')? "class=\"trsk risk$risk fp\"" : "class=\"trs
          echo "&nbsp;&nbsp;<a title=\""._("Info from OSVDB for vuln id ")."$scriptid\" class=\"greybox\" href=\"osvdb_info.php?scriptid=$scriptid\"><img src=\"images/osvdb.png\" border=\"0\"></a>&nbsp;&nbsp;";
          // Add link to popup with Script Info
          echo <<<EOT
-<a href="javascript:;" lid="$scriptid" class="scriptinfo"><img alt="Info" src="images/info.png" border=0></a>
+<a href="javascript:;" lid="$scriptid" style="text-decoration:none;" class="scriptinfo"><img alt="Info" src="images/info.png" border=0></a>
 EOT;
          // Add Custom Notes icon
          // don't filter on username - any user can add a note to any result

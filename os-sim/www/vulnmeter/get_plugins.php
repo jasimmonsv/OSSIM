@@ -126,7 +126,7 @@ foreach($data as $element) {
     else {
         $text .= "<td>" . $element['id'] . "</td>";
     }
-    $text .= "<td style=\"text-align:left;\"><a href='javascript:;' lid='".$element['id']."' class='scriptinfo'>".$element['name']."</a></td>";
+    $text .= "<td style=\"text-align:left;\"><a href='javascript:;' lid='".$element['id']."' class='scriptinfo' style='text-decoration:none;'>".$element['name']."</a></td>";
     $text .= "<td>";
     if($element['cve']=="") {
         $text .= "-";
@@ -135,7 +135,7 @@ foreach($data as $element) {
         $listcves = explode(",", $element['cve']);
         foreach($listcves as $c){
             $c = trim($c);
-            $text .= "<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=$c' lid='".$element['id']."' class='scriptinfo' target='_blank'>$c</a><br>";
+            $text .= "<a href='http://www.cvedetails.com/cve/$c/' lid='".$element['id']."' class='scriptinfo' style='text-decoration:none;' target='_blank'>$c</a><br>";
         }
     }
     $text .= "</td>";

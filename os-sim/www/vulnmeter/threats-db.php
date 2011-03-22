@@ -530,7 +530,7 @@ EOT;
                     $listcves = explode(",", $cve_id); 
                     foreach($listcves as $c){
                         $c = trim($c);
-                        echo "<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=$c' target='_blank'>$c</a><br>";
+                        echo "<a href='http://www.cvedetails.com/cve/$c/' target='_blank'>$c</a><br>";
                     }  
                 }
             echo "</td></tr>";

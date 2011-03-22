@@ -141,7 +141,7 @@ echo "
 <B>CVE IDs: </B>";
 $CVEs = preg_split ("/[\s,]+/", $pcve_id);
 foreach($CVEs as $CVE){
-   echo"<a href=\"http://cve.mitre.org/cgi-bin/cvename.cgi?name=$CVE\">$CVE</a> ";
+   echo"<a href=\"http://www.cvedetails.com/cve/$CVE/\" target=\"_blank\">$CVE</a> ";
 }
 $Bugtraqs = preg_split ("/[\s,]+/", $pbugtraq_id);
 echo"<br/><B>Bugtraq IDs: </B>";

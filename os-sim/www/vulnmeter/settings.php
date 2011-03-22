@@ -2281,7 +2281,7 @@ function createHiddenDiv($name, $num, $data, $fam, $sid) {
         $listcves = explode(",", $element['cve']);
         foreach($listcves as $c){
             $c = trim($c);
-            $text .= "<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=$c' target='_blank'>$c</a><br>";
+            $text .= "<a href='http://www.cvedetails.com/cve/$c/' target='_blank'>$c</a><br>";
         }  
       }
       $text .= "</td>";
@@ -2333,7 +2333,7 @@ function createHiddenDivCve($name, $num, $data, $cve, $sid) {
       $element['id'] . "' $checked></input></td>";
       $text .= "<td>" . $element['id'] . "</td>";
 //      $text .= "<td><a href='lookup.php?id=" . $element['id'] . "' target='_blank'>" . $element['name'] ."</a></td>";
-      $text .= "<td style=\"text-align:left;\"><a href='javascript:;' lid='".$element['id']."' class='scriptinfo'>".$element['name']."</a></td>";
+      $text .= "<td style=\"text-align:left;\"><a href='javascript:;' lid='".$element['id']."' class='scriptinfo' style='text-decoration:none;'>".$element['name']."</a></td>";
       $text .= "<td>";
       if($element['cve']=="") {
         $text .= "-";
@@ -2342,7 +2342,7 @@ function createHiddenDivCve($name, $num, $data, $cve, $sid) {
         $listcves = explode(",", $element['cve']);
         foreach($listcves as $c){
             $c = trim($c);
-            $text .= "<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=$c' target='_blank'>$c</a><br>";
+            $text .= "<a href='http://www.cvedetails.com/cve/$c/' target='_blank'>$c</a><br>";
         }  
       }
       $text .= "</td>";
