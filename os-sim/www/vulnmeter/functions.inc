@@ -124,7 +124,7 @@ function tooltip_hosts($hosts,$ipsnames){
 function subjobs ($name, $scan_submit, $data) {
     $result=array();
     foreach($data as $entry) {
-        if($entry['jobname']==$name && $entry['scan_submit']==$scan_submit && $entry['sid']!=0){
+        if($entry['jobname']==$name && $entry['scan_submit']==$scan_submit && $entry['sid']!=0 && $scan_submit!=""){
             $result[] = $entry;
         }
     }
