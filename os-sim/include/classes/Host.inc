@@ -395,7 +395,10 @@ class Host {
             echo gettext("Can't connect to frameworkd...<br>");
         }
         else {
-        	$frcon->write('add_asset hostname='.$hostname.' ip='.$ip);
+        	$error_code = $frcon->write('add_asset hostname='.$hostname.' ip='.$ip);
+        	if (!$error_code) {
+        		echo _("An error has been found updating the Agent cache...<br>");
+        	}
         }
         
         $infolog = array(
@@ -525,7 +528,10 @@ class Host {
             echo gettext("Can't connect to frameworkd...<br>");
         }
         else {
-        	$frcon->write('remove_asset hostname='.$hostname);
+        	$error_code = $frcon->write('remove_asset hostname='.$hostname);
+        	if (!$error_code) {
+        		echo _("An error has been found updating the Agent cache...<br>");
+        	}
         }
         
         $infolog = array(
