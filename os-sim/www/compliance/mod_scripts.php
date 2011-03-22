@@ -72,7 +72,7 @@ foreach ($psresponse as $line) {
 	<tr>
 		<td class="nobborder"><?php echo _("Click here to launch now the compliance scripts") ?></td>
 	</tr>
-	<tr><td class="nobborder"><input type="submit" value="<?php echo _("Run") ?>"></td></tr>
+	<tr><td class="nobborder"><input type="submit" class="button" value="<?php echo _("Run") ?>"></td></tr>
 	<?php } ?>
 </table>
 </form>
