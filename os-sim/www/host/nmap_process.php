@@ -57,7 +57,7 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
-<div id="content"></div>
+<div id="content"></div><div id="progress"></div>
 </body>
 </html>
 <?php
@@ -93,9 +93,20 @@ $reload = false;
 $cmd = "";
 if (scanning_now($ip)) {
 	$reload = true;
-	?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='nmap_process.php?ip=<?php echo $ip ?>&action=stop'>Stop</a>] Running Nmap for <?php echo $ip ?>";</script><?php
+	?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='nmap_process.php?ip=<?php echo $ip ?>&action=stop'>Stop</a>] Running Nmap for <?php echo $ip ?> <img src='../pixmaps/loading.gif' align='absmiddle' width='20'>";</script><?php
 	while (scanning_now($ip)) {
-		?><script type="text/javascript">document.getElementById('content').innerHTML += " .";</script><?php
+		if (file_exists("/tmp/nmap_scan_$ip.log")) {
+			$lines = file("/tmp/nmap_scan_$ip.log");
+			$perc = 0;
+			foreach ($lines as $line) {
+				if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
+					$perc = $found[1];
+				}
+			}
+			if ($perc > 0) {
+				?><script type="text/javascript">document.getElementById('progress').innerHTML = "<?php echo $found[1] ?>%";</script><?php
+			}
+		}
 		sleep(3);
 	}
 }
