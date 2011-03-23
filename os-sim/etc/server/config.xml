@@ -22,12 +22,5 @@
   <server port="40001" name="server" ip="0.0.0.0"/>
 		
     
-    <!-- Replication Servers -->
-<!-- if you need a server without DB, you'll need a primary server from where to load data -->		
-<!--
-	<rservers>
-		<rserver name="serverUP" ip="192.168.2.174" port="40001" primary="true"/>
-	</rservers>
--->
 </config>
 
