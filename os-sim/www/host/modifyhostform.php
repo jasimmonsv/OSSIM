@@ -232,6 +232,8 @@ if ( GET('update') == 'services' )
 	system($cmd);
 }
 
+$scanning = scanning_now($ip);
+
 if ( GET('newport') != "" || GET('port')!="" )
 {
 	if( GET('newport') == "" )
@@ -1186,7 +1188,7 @@ if ( empty( $ip ) ) {
 			<table class='noborder' width="100%" cellspacing="0" cellpadding="0">
 			
                 <tr><th style="padding:5px"><?php echo _("Inventory") ?> 
-                <?php if (scanning_now($ip)) { ?>[ <?php echo _("Now Scanning") ?> ]
+                <?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
                 <?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services'><?php echo _("Scan now") ?></a> ] <?php } ?>
                 </th></tr>
 				
@@ -1349,7 +1351,7 @@ if ( empty( $ip ) ) {
 					</td>
 				</tr>
 				
-				<?php if (scanning_now($ip)) { ?>
+				<?php if ($scanning) { ?>
 				<tr><td class="nobborder"><IFRAME src="nmap_process.php?ip=<?php echo $ip ?>" frameborder="0"></IFRAME></td></tr>
 				<?php } ?>
 			</table>
