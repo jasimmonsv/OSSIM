@@ -6,6 +6,21 @@ REPLACE INTO repository values (27001, 'AV Possible Scada Modbus device scanning
 REPLACE INTO repository values (27001, 'AV Possible Scada Modbus device scanning from  SRC_IP (Network Detection)', '<b>Description:</b><br><br>A scanning activity has been detected via network traffic (IDS) logs. This activity indicates that the process is scanning for the presence of Modbus enabled PLCs. An attack to these devices can have a severe impact in the system, for example, a PLC may control the flow of cooling water through part of an industrial process.<br><br>', now(), 'admin', '');
 REPLACE INTO repository values (27003, 'AV Possible Scada Modbus Scanning or Fingerprinting against DST_IP', '<b>Description:</b><br><br>A scanning pattern against Modbus devices has been detected with ModScan or a similar tool. ModScan is a new tool designed to map a SCADA MODBUS TCP based network. The tool is written in python for portability and can be used on virtually any system with few required libraries.<br><br>An attack to these devices can have a severe impact in the system, for example, a PLC may control the flow of cooling water through part of an industrial process.<br><br>References:<br>	- http://code.google.com/p/modscan/<br>', now(), 'admin', '');
 
+ALTER TABLE `custom_report_scheduler` CHANGE `schedule_type` `schedule_type` VARCHAR(5) NOT NULL;
+DROP PROCEDURE IF EXISTS addcol;
+DELIMITER '//'
+CREATE PROCEDURE addcol() BEGIN
+  IF NOT EXISTS
+      (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'custom_report_scheduler' AND COLUMN_NAME = 'schedule_name')
+  THEN
+      ALTER TABLE `custom_report_scheduler` ADD `schedule_name` VARCHAR(20) NOT NULL AFTER `schedule_type`;
+  END IF;
+END;
+//
+DELIMITER ';'
+CALL addcol();
+DROP PROCEDURE addcol;
+
 REPLACE INTO config (conf, value) VALUES ('solera_enable', '0');
 
 -- WARNING! Keep this at the end of this file

@@ -2566,7 +2566,8 @@ PRIMARY KEY (`id`)
 DROP TABLE IF EXISTS `custom_report_scheduler`;
 CREATE TABLE IF NOT EXISTS `custom_report_scheduler` (
   `id` int(11) NOT NULL auto_increment,
-  `schedule_type` varchar(20) NOT NULL,
+  `schedule_type` varchar(5) NOT NULL,
+  `schedule_name` varchar(20) NOT NULL,
   `schedule` text NOT NULL,
   `next_launch` datetime NOT NULL,
   `id_report` varchar(100) NOT NULL,
