@@ -136,8 +136,8 @@ $(document).ready(function(){
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Name") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Description") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Type") ?></td>
-        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Plugin ID") ?></td>
-        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Plugin Source Type") ?></td>
+        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Data Source ID") ?></td>
+        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Product Type") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Source") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Actions") ?></td>
     </tr>

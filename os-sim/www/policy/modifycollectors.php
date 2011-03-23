@@ -117,15 +117,15 @@ $source_types = Collectors::get_source_types($conn);
   <input type="hidden" name="id" value="<?=$id?>">
   <table align="center">
   <tr>
-    <th> <?php echo gettext("Plugin Name"); ?> (*)</th>
+    <th> <?php echo gettext("Data Source Name"); ?> (*)</th>
     <td class="left"><input type="text" name="name" size="42" value="<?php echo $name?>"/></td>
   </tr>
   <tr>
-    <th> <?php echo gettext("Plugin Description"); ?> </th>
+    <th> <?php echo gettext("Description"); ?> </th>
     <td class="left"><textarea name="description" rows="2" cols="39"><?php echo $description?></textarea></td>
   </tr>
   <tr>
-    <th> <?php echo gettext("Plugin Type"); ?> </th>
+    <th> <?php echo gettext("Type"); ?> </th>
     <td class="left">
         <select name="type">
 		<option value='1'<?= ($type==1) ? " selected" : "" ?>><?=_("Detector")?></option>
@@ -136,7 +136,7 @@ $source_types = Collectors::get_source_types($conn);
     </td>
   </tr>
   <tr>
-    <th> <?php echo gettext("Plugin ID"); ?> (*)</th>
+    <th> <?php echo gettext("Data Source ID"); ?> (*)</th>
     <td class="left"><input type="text" name="plugin_id" size="42" value="<?php echo $plugin_id?>"/></td>
   </tr>  
   <tr>
