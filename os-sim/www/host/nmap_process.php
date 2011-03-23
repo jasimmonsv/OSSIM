@@ -129,7 +129,7 @@ if ($reload && file_exists("/tmp/nmap_scan_$ip.log")) {
 		if (isset($regs[0]))
 		{
             list($port, $protocol) = explode("/", $regs[1]);
-            $protocol = $protocol_ids[strtolower(trim($protocol))];
+            $protocol = ($protocol_ids[strtolower(trim($protocol))] != "") ? $protocol_ids[strtolower(trim($protocol))] : "0";
             			
             $service = $regs[2];
             $service_type = $regs[2];
