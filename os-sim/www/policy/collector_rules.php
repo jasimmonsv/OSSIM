@@ -218,7 +218,7 @@ $(document).ready(function(){
         <td height="30" class="plfieldhdr pall"><?php echo _("Name") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Description") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Type") ?></td>
-        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Plugin ID") ?></td>
+        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Data Source ID") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Source") ?></td>
     </tr>
     <?php
@@ -248,8 +248,8 @@ foreach($collectors as $coll) {
         <td height="30" class="plfieldhdr pbottom pright"><?php echo _("Rule Label/Descr") ?></td>
         <td height="30" width="50" class="plfieldhdr pbottom pright"><?php echo _("Prio") ?></td>
         <td height="30" width="50" class="plfieldhdr pbottom pright"><?php echo _("Rel") ?></td>
-        <td height="30" width="80" class="plfieldhdr pbottom pright"><?php echo _("Plugin Sub-ID") ?></td>
-        <td height="30" width="110" class="plfieldhdr pbottom pright"><?php echo _("Plugin Category") ?></td>
+        <td height="30" width="80" class="plfieldhdr pbottom pright"><?php echo _("Data Source Sub-ID") ?></td>
+        <td height="30" width="110" class="plfieldhdr pbottom pright"><?php echo _("Event Category") ?></td>
         <td height="30" class="plfieldhdr pbottom pright"><?php echo _("Actions") ?></td>
     </tr>
 <? if (count($rules)>0) {
@@ -427,11 +427,11 @@ if ($action=="new" || $action=="") {
 	    </td>
 	  </tr>  
 	  <tr>
-	    <th> <?php echo gettext("Plugin Sub-ID"); ?> (*)</th>
+	    <th> <?php echo gettext("Data Source Sub-ID"); ?> (*)</th>
 	    <td class="left"><input type="text" name="plugin_sid" size="42" value="<?php echo $plugin_sid?>"/></td>
 	  </tr> 
 	  <tr>
-	    <th> <?php echo gettext("Plugin Category"); ?> </th>
+	    <th> <?php echo gettext("Event Category"); ?> </th>
 	    <td class="left">
 	        <select id="category_id" name="category_id" onchange="fill_subcategories('#category_id','#subcategory_id','')"><option value='0'>&nbsp;</option>
 	        <?
@@ -444,7 +444,7 @@ if ($action=="new" || $action=="") {
 	    </td>
 	  </tr> 	  
 	  <tr>
-	    <th> <?php echo gettext("Plugin SubCategory"); ?> </th>
+	    <th> <?php echo gettext("Event Sub-Category"); ?> </th>
 	    <td class="left">
 	    <?
 	    	foreach ($subcategories as $idcat => $scats) {

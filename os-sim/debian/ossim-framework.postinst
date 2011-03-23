@@ -160,10 +160,11 @@ fi
 chown -R www-data:www-data /usr/share/ossim/www/uploads/
 chown www-data:www-data /usr/share/ossim/www/forensics/tmp/
 
-# Knowledge database
+# Knowledge database and Custom Collectors
 if [ ! -d /usr/share/ossim/uploads/ ]; then
 	mkdir /usr/share/ossim/uploads/
 fi
+chown -R www-data:www-data /usr/share/ossim/uploads/
 
 # Jasper tmp emails
 if [ ! -d /usr/share/ossim/www/report/jasper_include/temp/ ]; then

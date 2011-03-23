@@ -48,7 +48,11 @@ require_once ('classes/Port.inc');
 require_once ('classes/Protocol.inc');
 require_once ('classes/Util.inc');
 include_once ("geoipcity.inc");
-
+function scanning_now($ip) {
+	$cmd = "ps ax | grep nmap | grep $ip | grep -v grep";
+	$output = explode("\n",`$cmd`);
+	return (preg_match("/nmap/",$output[0])) ? 1 : 0;
+}
 
 Session::logcheck("MenuPolicy", "PolicyHosts");
 
@@ -223,26 +227,12 @@ if ( GET('update') == 'services' )
 {
     $conf     = $GLOBALS["CONF"];
     $nmap     = $conf->get_conf("nmap_path");
-    $services = shell_exec("$nmap -sV -P0 $ip");
-    $lines    = split("[\n\r]", $services);
-    foreach($lines as $line)
-	{
-        preg_match('/(\S+)\s+open\s+([\w\-\_\?]+)(\s+)?(.*)$/', $line, $regs);
-        
-		if (isset($regs[0]))
-		{
-            list($port, $protocol) = explode("/", $regs[1]);
-            $protocol = $protocol_ids[strtolower(trim($protocol))];
-            			
-            $service = $regs[2];
-            $service_type = $regs[2];
-            $version = $regs[4];
-            $origin = 1;
-            $date = strftime("%Y-%m-%d %H:%M:%S");
-            Host_services::insert($conn, $ip, $port, $date, $_SERVER["SERVER_ADDR"], $protocol, $service, $service_type, $version, $origin); // origin = 0 (pads), origin = 1 (nmap)
-        }
-    }
+    touch("/tmp/nmap_scan_$ip.log");
+    $cmd = "$nmap -sV -d1 -P0 $ip > /tmp/nmap_scan_$ip.log 2>&1 &";
+	system($cmd);
 }
+
+$scanning = scanning_now($ip);
 
 if ( GET('newport') != "" || GET('port')!="" )
 {
@@ -1197,7 +1187,10 @@ if ( empty( $ip ) ) {
 			<!-- INVENTORY -->
 			<table class='noborder' width="100%" cellspacing="0" cellpadding="0">
 			
-                <tr><th style="padding:5px"><?php echo _("Inventory")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan now")."</a> ]"; ?></th></tr>
+                <tr><th style="padding:5px"><?php echo _("Inventory") ?> 
+                <?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
+                <?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services'><?php echo _("Scan now") ?></a> ] <?php } ?>
+                </th></tr>
 				
 				<tr>
 					<td class='noborder'>
@@ -1337,7 +1330,9 @@ if ( empty( $ip ) ) {
 						
 							<tr>
 								<th style="padding:5px">
-									<?php echo _("Services Availability Monitoring")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan now")."</a> ]"; ?>
+									<?php echo _("Services Availability Monitoring") ?> 
+									<?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
+                					<?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services'><?php echo _("Scan now") ?></a> ] <?php } ?>
 								</th>
 							</tr>
 						
@@ -1357,6 +1352,10 @@ if ( empty( $ip ) ) {
 						</table>
 					</td>
 				</tr>
+				
+				<?php if ($scanning) { ?>
+				<tr><td class="nobborder"><IFRAME src="nmap_process.php?ip=<?php echo $ip ?>" frameborder="0"></IFRAME></td></tr>
+				<?php } ?>
 			</table>
 		</td>
 	</tr>

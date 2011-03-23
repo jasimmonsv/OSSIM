@@ -68,7 +68,7 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 $xml = "";
-list ($category_list, $total) = Compliance::get_category($conn,$limit);
+list ($category_list, $total) = Compliance::get_category($conn,"","ORDER BY $order $limit");
 
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";

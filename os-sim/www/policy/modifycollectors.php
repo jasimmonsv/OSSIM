@@ -140,7 +140,7 @@ $source_types = Collectors::get_source_types($conn);
     <td class="left"><input type="text" name="plugin_id" size="42" value="<?php echo $plugin_id?>"/></td>
   </tr>  
   <tr>
-    <th> <?php echo gettext("Source Type"); ?> </th>
+    <th> <?php echo gettext("Product Type"); ?> </th>
     <td class="left">
         <select name="source_type">
 		<?

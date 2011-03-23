@@ -191,7 +191,7 @@ if (!empty($directive_id)) {
 </table>
 <?
 $directive_name = Plugin_sid::get_name_by_idsid($conn,"1505",$directive_id);
-list($properties,$num_properties) = Compliance::get_category($conn,"WHERE sid=$directive_id");
+list($properties,$num_properties) = Compliance::get_category($conn,"AND category.sid=$directive_id");
 $iso_groups = ISO27001::get_groups($conn,"WHERE SIDSS_Ref LIKE '$directive_id' OR SIDSS_Ref LIKE '$directive_id,%' OR SIDSS_Ref LIKE '%,$directive_id' OR SIDSS_Ref LIKE '%,$directive_id,%'");
 $pci_groups = PCI::get_groups($conn,"WHERE SIDSS_ref LIKE '$directive_id' OR SIDSS_ref LIKE '$directive_id,%' OR SIDSS_ref LIKE '%,$directive_id' OR SIDSS_ref LIKE '%,$directive_id,%'");
 list($alarms,$num_alarms) = Alarm::get_list3($conn,"","",0,"",null,null,null,null,"",$directive_id);

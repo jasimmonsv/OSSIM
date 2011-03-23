@@ -82,7 +82,7 @@ ossim_valid($name, OSS_SCORE, OSS_NULLABLE, OSS_LETTER, OSS_DIGIT, 'illegal:' . 
 ossim_valid($description, OSS_NULLABLE, OSS_TEXT, 'illegal:' . _("description"));
 ossim_valid($type, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("type"));
 ossim_valid($plugin_id, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("plugin id"));
-ossim_valid($source_type, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_SCORE, 'illegal:' . _("source type"));
+ossim_valid($source_type, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_SCORE, "\/", 'illegal:' . _("source type"));
 ossim_valid($enable, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("enable"));
 ossim_valid($create, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("create"));
 ossim_valid($process, OSS_NULLABLE, OSS_TEXT, 'illegal:' . _("process"));

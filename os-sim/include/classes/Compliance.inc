@@ -180,15 +180,16 @@ class Compliance {
         $infolog = array($sid);
         Log_action::log(89, $infolog);
 	}
-	function get_category($conn,$str="") { 
-        if(preg_match('/sid/', $str)) {
-            preg_match("/.*(\d+).*/",$str,$found);
-            $str = "and category.sid=".$found[1]; 
-        }
-        $sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT category.*,ssi.descr, plugin_sid.name as plugin_name FROM datawarehouse.category 
-                        left join datawarehouse.ssi on ssi.sid=category.sid
-                        left join ossim.plugin_sid on category.sid=plugin_sid.sid
-                        where plugin_sid.plugin_id=1505 and plugin_sid.name<>'' $str";
+	function get_category($conn,$where="",$order="") { 
+        /*$sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT category.*,ssi.descr, plugin_sid.name as plugin_name
+        		FROM datawarehouse.category 
+                LEFT JOIN datawarehouse.ssi on ssi.sid=category.sid
+                LEFT JOIN ossim.plugin_sid on category.sid=plugin_sid.sid
+                WHERE plugin_sid.plugin_id=1505 and plugin_sid.name<>'' $where $order";*/
+        $sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT category.*,plugin_sid.name as plugin_name
+        		FROM datawarehouse.category 
+                LEFT JOIN ossim.plugin_sid ON category.sid=plugin_sid.sid
+                WHERE plugin_sid.plugin_id=1505 AND plugin_sid.name<>'' $where $order";
                         
         //echo $sql; 
         $ret = array();
@@ -202,8 +203,10 @@ class Compliance {
         if (!$total->EOF) $num_rows = $total->fields['counter'];
         while (!$rs->EOF) {
             $ret[] = new Compliance($rs->fields["descr"],$rs->fields["plugin_name"],$rs->fields["sid"],$rs->fields["targeted"],
-                                    $rs->fields["untargeted"],$rs->fields["approach"],$rs->fields["exploration"],$rs->fields["penetration"],$rs->fields["generalmalware"],
-                                    $rs->fields["imp_qos"],$rs->fields["imp_infleak"],$rs->fields["imp_lawful"],$rs->fields["imp_image"],$rs->fields["imp_financial"],
+                                    $rs->fields["untargeted"],$rs->fields["approach"],$rs->fields["exploration"],
+                                    $rs->fields["penetration"],$rs->fields["generalmalware"],
+                                    $rs->fields["imp_qos"],$rs->fields["imp_infleak"],$rs->fields["imp_lawful"],
+                                    $rs->fields["imp_image"],$rs->fields["imp_financial"],
                                     $rs->fields["D"],$rs->fields["I"],$rs->fields["C"],$rs->fields["net_anomaly"]);
             $rs->MoveNext();
         }

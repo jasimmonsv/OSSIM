@@ -86,6 +86,9 @@ $layout = load_layout($name_layout, $category);
 		else
 			return 700;
 	}
+    function linked_to(rowid) {
+        document.location.href = 'modifygeneralform.php?sid='+urlencode(rowid);
+    }
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
 		if (com=='<?php echo gettext("Delete selected"); ?>') {
@@ -147,7 +150,7 @@ $default = array(
         false
     ) ,
 	"plugin_name" => array(
-        _('Plugin'),
+        _('Data Source'),
         250,
         'true',
         'left',
@@ -286,6 +289,7 @@ echo "$colModel\n";
 		width: get_width('headerh1'),
 		height: h-175,
 		onColumnChange: save_layout,
+		onDblClick: linked_to,
 		onEndResize: save_layout
 	});   
 	
