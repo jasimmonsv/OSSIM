@@ -120,4 +120,6 @@ if ($reload && file_exists("/tmp/nmap_scan_$ip.log")) {
     unlink("/tmp/nmap_scan_$ip.log");
     ?><script type="text/javascript">parent.location.href='modifyhostform.php?ip=<?php echo $ip ?>'</script><?php
 }
-?>
+
+// Case: Scan is done
+?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='nmap_process.php?ip=<?php echo $ip ?>' target='_parent'>Reload</a>] Nmap is done for <?php echo $ip ?>";</script>
