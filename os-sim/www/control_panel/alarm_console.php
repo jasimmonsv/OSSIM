@@ -821,9 +821,9 @@ if ($count > 0) {
             #$event_count_label = $summary["total_count"] . " "._("events");
             $event_count_label = Alarm::get_total_events($conn, $backlog_id)." "._("events");
         } else {
-            $event_count_label = 1 . " "._("event");
+            $event_count_label = "";
         }
-        echo "<br><font color=\"#AAAAAA\" style=\"font-size: 8px;\">(" . $event_count_label . ")</font>";
+        echo ($event_count_label != "") ? "<br><font color=\"#AAAAAA\" style=\"font-size: 8px;\">(" . $event_count_label . ")</font>" : "";
 ?>
         </td>
         </tr></table>
