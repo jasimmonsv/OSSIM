@@ -37,6 +37,7 @@
 */
 ob_implicit_flush();
 require_once ('classes/Session.inc');
+require_once ('classes/Host.inc');
 function scanning_now($ip) {
 	$cmd = "ps ax | grep nmap | grep $ip | grep -v grep";
 	$output = explode("\n",`$cmd`);
