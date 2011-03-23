@@ -39,7 +39,7 @@ require_once "ossim_conf.inc";
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 if (!preg_match("/pro|demo/i",$version)) {
-	echo "<html><body><a href='http://www.alienvault.com/information.php?interest=ProfessionalSIEM' target='_blank' title='Profesional SIEM'><img src='../pixmaps/sem_pro.png' border=0></a></body></tml>";
+	echo "<html><body><a href='http://alienvault.com/about/contact' target='_blank' title='Profesional SIEM'><img src='../pixmaps/sem_pro.png' border=0></a></body></tml>";
 	exit;
 }
 ossim_valid(GET('del_export'), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, '=', 'illegal:' . _("del_export"));
