@@ -38,6 +38,8 @@
 ob_implicit_flush();
 require_once ('classes/Session.inc');
 require_once ('classes/Host.inc');
+require_once ('classes/Protocol.inc');
+require_once ('ossim_db.inc');
 function scanning_now($ip) {
 	$cmd = "ps ax | grep nmap | grep $ip | grep -v grep";
 	$output = explode("\n",`$cmd`);
@@ -99,6 +101,15 @@ if (scanning_now($ip)) {
 }
 
 if ($reload && file_exists("/tmp/nmap_scan_$ip.log")) {
+	$db    = new ossim_db();
+	$conn  = $db->connect();
+	// load protocol ids
+	$protocol_ids = array();
+	if($protocol_list = Protocol::get_list($conn)) {
+	    foreach($protocol_list as $protocol_data) {
+	        $protocol_ids[$protocol_data->get_name()] = $protocol_data->get_id(); 
+	    }
+	}
 	$lines = file("/tmp/nmap_scan_$ip.log");
     foreach($lines as $line)
 	{
