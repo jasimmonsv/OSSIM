@@ -256,7 +256,8 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	} else {
 		$ocurrences_text = strtolower(gettext("Event"));
 	}
-	$balloon_name = "<div class='balloon'>" . $s_alarm_name . "<br><font style='font-size: 9px; color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font>" . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>".gettext("Src Asset:")." <b>" . $s_asset_src . "</b><br>".gettext("Dst Asset:")." <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
+	$events_count = ($event_ocurrences > 0) ? "<br><font style='font-size: 9px; color: #AAAAAA;'>($event_ocurrences $ocurrences_text)</font>" : "";
+	$balloon_name = "<div class='balloon'>" . $s_alarm_name . $events_count . "<span class='tooltip'><span class='top'></span><span class='middle ne11'>".gettext("Src Asset:")." <b>" . $s_asset_src . "</b><br>".gettext("Dst Asset:")." <b>" . $s_asset_dst . "</b><br>Priority: <b>" . $s_sid_priority . "</b></span><span class='bottom'></span></span></div>";
 	/* Risk field */
 	if ($s_risk > 7) {
 		$color = "red; color:white";
@@ -304,11 +305,11 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	/* Expand button */
-	if ($event_ocurrences > 0) $expand_button = "<a href='" . $s_alarm_link . "' ><strong><img src='../pixmaps/plus-small.png' border=0></strong></a>";
-	else $expand_button = "<img src='../pixmaps/minus-small.png' border='0' alt='plus'>";
+	if ($event_ocurrences > 0) $expand_button = "<a href='' onclick=\"toggle_alarm('$s_backlog_id','$s_event_id');return false;\"><img src='../pixmaps/plus-small.png' border='0' alt='plus'></img></a>";
+	else $expand_button = "<img src='../pixmaps/plus-small-gray.png' border='0' alt='plus'>";
 ?>
 	<tr>
-		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><a href="" onclick="toggle_alarm('<?=$s_backlog_id?>','<?=$s_event_id?>');return false;"><img src="../pixmaps/plus-small.png" border="0" alt="plus"></img></a></td>
+		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center;padding-left:30px' width='3%' id="eventplus<?=$s_backlog_id . "-" . $s_event_id?>"><?php echo $expand_button ?></td>
 		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$checkbox?></td>
 		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: left; padding-left:10px' width='30%'><strong><?=$balloon_name?></strong></td>
 		<?=$risk_field?>

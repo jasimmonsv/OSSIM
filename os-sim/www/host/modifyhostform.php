@@ -228,7 +228,7 @@ if ( GET('update') == 'services' )
     $conf     = $GLOBALS["CONF"];
     $nmap     = $conf->get_conf("nmap_path");
     touch("/tmp/nmap_scan_$ip.log");
-    $cmd = "$nmap -sV -P0 $ip > /tmp/nmap_scan_$ip.log 2>&1 &";
+    $cmd = "$nmap -sV -d1 -P0 $ip > /tmp/nmap_scan_$ip.log 2>&1 &";
 	system($cmd);
 }
 
@@ -1330,7 +1330,9 @@ if ( empty( $ip ) ) {
 						
 							<tr>
 								<th style="padding:5px">
-									<?php echo _("Services Availability Monitoring")." [ <a class='scan' href='".$_SERVER["SCRIPT_NAME"]."?ip=$ip&update=services'>"._("Scan now")."</a> ]"; ?>
+									<?php echo _("Services Availability Monitoring") ?> 
+									<?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
+                					<?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services'><?php echo _("Scan now") ?></a> ] <?php } ?>
 								</th>
 							</tr>
 						

@@ -82,7 +82,7 @@ ossim_valid($name, OSS_SCORE, OSS_NULLABLE, OSS_LETTER, OSS_DIGIT, 'illegal:' . 
 ossim_valid($description, OSS_NULLABLE, OSS_TEXT, 'illegal:' . _("description"));
 ossim_valid($type, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("type"));
 ossim_valid($plugin_id, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("plugin id"));
-ossim_valid($source_type, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_SCORE, 'illegal:' . _("source type"));
+ossim_valid($source_type, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, OSS_SCORE, "\/", 'illegal:' . _("source type"));
 ossim_valid($enable, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("enable"));
 ossim_valid($create, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("create"));
 ossim_valid($process, OSS_NULLABLE, OSS_TEXT, 'illegal:' . _("process"));
@@ -136,8 +136,8 @@ $(document).ready(function(){
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Name") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Description") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Type") ?></td>
-        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Plugin ID") ?></td>
-        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Plugin Source Type") ?></td>
+        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Data Source ID") ?></td>
+        <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Product Type") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Source") ?></td>
         <td height="30" class="plfieldhdr ptop pbottom pright"><?php echo _("Actions") ?></td>
     </tr>

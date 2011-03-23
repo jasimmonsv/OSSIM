@@ -38,6 +38,8 @@
 ob_implicit_flush();
 require_once ('classes/Session.inc');
 require_once ('classes/Host.inc');
+require_once ('classes/Protocol.inc');
+require_once ('ossim_db.inc');
 function scanning_now($ip) {
 	$cmd = "ps ax | grep nmap | grep $ip | grep -v grep";
 	$output = explode("\n",`$cmd`);
@@ -55,7 +57,7 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
-<div id="content"></div>
+<div id="content"></div><div id="progress"></div>
 </body>
 </html>
 <?php
@@ -91,14 +93,34 @@ $reload = false;
 $cmd = "";
 if (scanning_now($ip)) {
 	$reload = true;
-	?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='nmap_process.php?ip=<?php echo $ip ?>&action=stop'>Stop</a>] Running Nmap for <?php echo $ip ?>";</script><?php
+	?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='nmap_process.php?ip=<?php echo $ip ?>&action=stop'>Stop</a>] Running Nmap for <?php echo $ip ?> <img src='../pixmaps/loading.gif' align='absmiddle' width='20'>";</script><?php
 	while (scanning_now($ip)) {
-		?><script type="text/javascript">document.getElementById('content').innerHTML += " .";</script><?php
+		if (file_exists("/tmp/nmap_scan_$ip.log")) {
+			$lines = file("/tmp/nmap_scan_$ip.log");
+			$perc = 0;
+			foreach ($lines as $line) {
+				if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
+					$perc = $found[1];
+				}
+			}
+			if ($perc > 0) {
+				?><script type="text/javascript">document.getElementById('progress').innerHTML = "<?php echo $found[1] ?>%";</script><?php
+			}
+		}
 		sleep(3);
 	}
 }
 
 if ($reload && file_exists("/tmp/nmap_scan_$ip.log")) {
+	$db    = new ossim_db();
+	$conn  = $db->connect();
+	// load protocol ids
+	$protocol_ids = array();
+	if($protocol_list = Protocol::get_list($conn)) {
+	    foreach($protocol_list as $protocol_data) {
+	        $protocol_ids[$protocol_data->get_name()] = $protocol_data->get_id(); 
+	    }
+	}
 	$lines = file("/tmp/nmap_scan_$ip.log");
     foreach($lines as $line)
 	{
@@ -107,7 +129,7 @@ if ($reload && file_exists("/tmp/nmap_scan_$ip.log")) {
 		if (isset($regs[0]))
 		{
             list($port, $protocol) = explode("/", $regs[1]);
-            $protocol = $protocol_ids[strtolower(trim($protocol))];
+            $protocol = ($protocol_ids[strtolower(trim($protocol))] != "") ? $protocol_ids[strtolower(trim($protocol))] : "0";
             			
             $service = $regs[2];
             $service_type = $regs[2];

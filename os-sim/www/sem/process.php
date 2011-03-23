@@ -570,7 +570,7 @@ foreach($result as $res=>$event_date) {
         // Special case: old events
         $eventhour = gmdate("H",$event_date_uut);
         $ctime = explode("/",$logfile); $storehour = $ctime[count($ctime)-3]; // hours
-        $warning = ($storehour-$eventhour != 0) ? "<a href='javascript:;' txt='"._("Date may not be normalized")."' class='scriptinfotxt'><img src='../pixmaps/warning.png' border=0 style='margin-left:3px;margin-right:3px'></a>" : "";
+        $warning = ($storehour-$eventhour != 0) ? "<a href='javascript:;' style='text-decoration:none' txt='"._("Date may not be normalized")."' class='scriptinfotxt'><img src='../pixmaps/warning.png' align='absmiddle' border='0' style='margin-left:3px;margin-right:3px'></a>" : "";
         
         // Event date timezone
 		if ($tzone!=0) $event_date = gmdate("Y-m-d H:i:s",$event_date_uut+(3600*$tzone));

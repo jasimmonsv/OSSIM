@@ -909,7 +909,8 @@ function tab_discovery () {
      $SVRid_selected = $SVRid;
      
      $sid_selected = ($sid!="") ? $sid : $editdata['meth_VSET'];
-     $timeout_selected = $timeout;
+
+     $timeout_selected = $editdata["meth_TIMEOUT"];
      $ip_list_selected = str_replace("\\r\\n", "\n", str_replace(";;", "\n", $ip_list));
      $ROYEAR_selected = $ROYEAR;
      $ROday_selected = $ROday;
@@ -1679,7 +1680,7 @@ function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $RO
      $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
      $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
      $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail) {
-
+     
      global $wdaysMap, $daysMap, $allowscan, $uroles, $username, $schedOptions, $adminmail, $mailfrom, $dbk, $dbconn;
      
 
@@ -2128,23 +2129,21 @@ EOT;*/
         $query = array();
 
         if ( $op == "editrecurring" && $sched_id > 0 ) {
-            //$query[] = "UPDATE vuln_job_schedule SET name='$sname', fk_name=$fk_name, job_TYPE='$jobType',
-            //   schedule_type='$schedule_type', day_of_week='$dayofweek', day_of_month='$dayofmonth', time='$time_value',
-            //   email='$notify_email', meth_TARGET=$target_list, meth_CRED=$I3crID, meth_VSET='$sid', meth_CUSTOM='$custadd_type',
-            //   meth_CPLUGINS=$plugs_list, meth_Wcheck=$arrAudits[w], meth_Wfile=$arrAudits[f], meth_Ucheck=$arrAudits[u],
-            //   meth_TIMEOUT='$timeout', next_CHECK='$requested_run' WHERE id='$sched_id' LIMIT 1";
-         
-            $query[] = "UPDATE vuln_job_schedule SET name='$sname', username='$username', fk_name='".Session::get_session_user()."', job_TYPE='$jobType',
-                        schedule_type='$schedule_type', day_of_week='$dayofweek', day_of_month='$dayofmonth', time='$time_value',
-                        meth_TARGET=$target_list, meth_CRED=$I3crID, meth_VSET='$sid', meth_CUSTOM='$custadd_type',
-                        meth_CPLUGINS=$plugs_list, meth_Wcheck=$arrAudits[w], meth_Wfile=$semail, meth_Ucheck='$scan_locally',
-                        meth_TIMEOUT='$timeout', next_CHECK='$requested_run' WHERE id='$sched_id' LIMIT 1";
-                        
-                        
-          //logAccess( "USER $username Submitted $reccur_type JOB Schedule [$sname]" );
+            $query[] = "DELETE FROM vuln_job_schedule WHERE id='$sched_id'";
+            $i = 1;
+            foreach ($sgr as $notify_sensor => $targets) {
+                $target_list = implode("\n",$targets);
+                $query[] = "INSERT INTO vuln_job_schedule ( name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, 
+                            time, email, meth_TARGET, meth_CRED, meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, 
+                            meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', '".Session::get_session_user()."', '$jobType',
+                            '$schedule_type', '$dayofweek', '$dayofmonth', '$time_value', '$notify_sensor', '$target_list',
+                            $I3crID, '$sid', '$custadd_type', $plugs_list, $arrAudits[w], $semail, '$scan_locally',
+                            '$timeout', $SVRid, '$requested_run', '$insert_time', '1' ) ";
+                $sjobs_names [] = $sname.$i;
+                $i++;
+            }
         }
         elseif ( $recurring ) {
-            //if ($SVRid=="Null") {
                 $i = 1;
                 foreach ($sgr as $notify_sensor => $targets) {
                     $target_list = implode("\n",$targets);
@@ -2157,20 +2156,8 @@ EOT;*/
                     $sjobs_names [] = $sname.$i;
                     $i++;
                 }
-            //} 
-            //else {
-            //    $query[] = "INSERT INTO vuln_job_schedule ( name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, 
-            //                time, email, meth_TARGET, meth_CRED, meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, 
-            //                meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', $fk_name, '$jobType',
-            //                '$schedule_type', '$dayofweek', '$dayofmonth', '$time_value', '', '$target_list',
-            //                $I3crID, '$sid', '$custadd_type', $plugs_list, $arrAudits[w], $arrAudits[f], '$scan_locally', 
-            //                '$timeout', $SVRid, '$requested_run', '$insert_time', '1' ) ";
-            //    $sjobs_names [] = $sname;
-            //}
-          //logAccess( "USER $username Submitted $reccur_type JOB Schedule [$sname]" );
         } 
         else {
-            //if ($SVRid=="Null") {
                 $i = 1;
                 foreach ($sgr as $notify_sensor => $targets) {
                     $target_list = implode("\n",$targets);
@@ -2183,27 +2170,11 @@ EOT;*/
                     $jobs_names [] = $sname.$i;
                     $i++;
                 }
-            //} 
-            //else {
-            //    $query[] = "INSERT INTO vuln_jobs ( name, username, fk_name, job_TYPE, meth_SCHED, meth_TARGET,  meth_CRED, 
-            //        meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED,
-            //        scan_SUBMIT, scan_next, scan_PRIORITY, status, notify, authorized, author_uname ) VALUES ( '$sname',
-            //        '$username', $fk_name, '$jobType', '$schedule_type', '$target_list', $I3crID, '$sid', '$custadd_type', $plugs_list,
-            //        $arrAudits[w], $arrAudits[f], $arrAudits[u], '$timeout', $SVRid, '$insert_time', '$requested_run', '3',
-            //        'S', '', '1', 'ACL' ) ";
-            //    $jobs_names [] = $sname;
-            //}
-    //logAccess( "USER $username Submitted a Run Once JOB Schedule [$sname]" );
         }
-   //}
-   
-   //print_r($allowed); echo "<br>"; print_r($notallowed); echo "<br>"; print_r($query); echo "<br>"; print_r($unables);echo "<br>";print_r($sgr);echo "<br>"; print_r($SVRid); exit();
-   //if ( $uroles['debug'] ) { echo "query=$query<br>"; }
-   //$result = $dbconn->execute($query);
-   
+  
         $query_insert_time = gen_strtotime( $insert_time, "" );
         foreach ($query as $sql) {
-			$sql = str_replace(", ',",", '',",str_replace("''","'",$sql));
+            $sql = str_replace(", ',",", '',",str_replace("''","'",$sql));
             if ($dbconn->execute($sql) === false) {
                 echo _("Error creating scan job").": " .$dbconn->ErrorMsg();
                 $error = 1;
