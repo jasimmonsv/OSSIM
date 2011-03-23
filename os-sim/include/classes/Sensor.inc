@@ -183,7 +183,7 @@ class Sensor {
                                         port, user, PASSWORD, server_nversion, server_feedtype, server_feedversion,
                                         max_scans, current_scans, TYPE, site_code, owner, checkin_time, status , enabled)
                                         VALUES (
-                                        '$name', 'RemoteHost', '$sensor', '$port', '', '', '2.2.10', 'GPL only', '200704181215', '100', '0', 'R', '', 'admin', NULL , 'A', '$enabled')");
+                                        '$name', 'RemoteHost', '$sensor', '$port', '', '', '2.2.10', 'GPL only', '200704181215', '5', '0', 'R', '', 'admin', NULL , 'A', '$enabled')");
             }
             if (!$rs = & $conn->Execute($query)) {
                 print $conn->ErrorMsg();
