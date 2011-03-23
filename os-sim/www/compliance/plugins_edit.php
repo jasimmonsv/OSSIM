@@ -123,7 +123,7 @@ $directives = Plugin_sid::get_list($conn,"WHERE plugin_id=1505");
 	<input type="hidden" value="<?=$pci?>" name="pci">
 	<input type="hidden" value="" name="remove">
 	<input type="hidden" name="sids" value="<?=$sids?>">
-	<tr><th><?=_("SIDs for")?> <?=$title?></th></tr>
+	<tr><th style="white-space:normal;word-wrap:break-word;"><?=_("SIDs for")?> <?=$title?></th></tr>
 	<tr>
 		<td class="" style="padding-top:2px;padding-bottom:10px"><?=_("Associated Values")?>
 			<div style="height:100px;overflow:auto">
