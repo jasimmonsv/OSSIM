@@ -1572,7 +1572,7 @@ void sim_directive_purge_db_backlogs(SimDatabase *db)
 
 	// Deleting rows in event
 	g_log (G_LOG_DOMAIN,G_LOG_LEVEL_DEBUG,"%s: Deleting rows from event table without backlog", __FUNCTION__);
-	query = g_strdup_printf ("DELETE FROM event WHERE id NOT IN (SELECT DISTINCT(event_id) FROM backlog_event)");
+	query = g_strdup_printf ("DELETE FROM event WHERE alarm = 0 AND id NOT IN (SELECT DISTINCT(event_id) FROM backlog_event)");
   sim_database_execute_no_query (db, query);
   g_free (query);
 }
