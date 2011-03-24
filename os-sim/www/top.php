@@ -374,7 +374,7 @@ if ($url != "") {
     function refresh_hour() {
         $.ajax({
             type: "GET",  
-            url: "top.php?lasthour=1",
+            url: "top.php?lasthour=1&bypassexpirationupdate=1",
             success: function(msg) {
                     $("#hour").html(msg); 
             }

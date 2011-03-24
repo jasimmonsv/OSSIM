@@ -157,7 +157,7 @@ $directives = Plugin_sid::get_list($conn,"WHERE plugin_id=1505");
 					<td class="nobborder" style="padding:0px 5px 5px 5px">
 					<select name="newsid[]" multiple="multiple" size="8">
 					<? foreach ($directives as $d) if (!$sids_keys[$d->get_sid()]) { ?>
-						<option value="<?=$d->get_sid()?>"><?=str_replace("directive_event: ","",$d->get_name())?>
+						<option value="<?=$d->get_sid()?>"><?=str_replace("directive_event: ","",$d->get_name())." (".$d->get_sid().")"?>
 					<? } ?>
 					</select>
 					</td>

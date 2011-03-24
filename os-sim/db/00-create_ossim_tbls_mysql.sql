@@ -2572,6 +2572,7 @@ CREATE TABLE IF NOT EXISTS `custom_report_scheduler` (
   `next_launch` datetime NOT NULL,
   `id_report` varchar(100) NOT NULL,
   `name_report` varchar(100) NOT NULL,
+  `user` VARCHAR( 64 ) NOT NULL,
   `email` varchar(255) default NULL,
   `date_from` date default NULL,
   `date_to` date default NULL,
