@@ -175,16 +175,16 @@ if (is_array($net_list) && !empty($net_list)) {
     <!-- do scan -->
     <tr>
       <td colspan="2" class="nobborder center">
-        <input type="submit" class="button" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
+        <input type="submit" class="button" onclick="$('#process_div').show()" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
         
         <? if (Session::am_i_admin()) { ?>&nbsp;&nbsp;
-        <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="document.location.href='remote_scans.php'"/>
+        <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="$('#process_div').show();document.location.href='remote_scans.php'"/>
 		<? } ?>
 		
 		</td>
     </tr>
     <!-- end do scan -->
-	<tr><td><IFRAME name="process" id="process" src="" frameborder="0" width="300"></IFRAME></td></tr>
+	<tr><td id="process_div" style="display:none"><IFRAME name="process" id="process" src="" frameborder="0" width="300"></IFRAME></td></tr>
   </table>
   </form>
   <!-- end of net selector form -->
