@@ -283,21 +283,21 @@ if (GET('interface') == 'ajax') {
     .accordionTabTitleBar {
         font-size           : 12px;
         padding             : 4px 6px 4px 6px;
-        border-style        : solid none solid none;
-        border-top-color    : #BDC7E7;
-        border-bottom-color : #182052;
-        border-width        : 1px 0px 1px 0px;
+        border-left    : 1px solid #CACACA;
+        border-right    : 1px solid #CACACA;
+        background: url(../pixmaps/fondo_col.gif) 50% 50% repeat-x !important;
+        color            : #222222 !important;
     }
 
     .accordionTabTitleBarHover {
         font-size        : 11px;
-        background-color : #1f669b;
+        background-color : #CACACA;
         color            : #000000;
     }
 
     .accordionTabContentBox {
        font-size        : 11px;
-       border           : 1px solid #1f669b;
+       border           : 1px solid #CACACA !important;
        border-top-width : 0px;
        padding          : 0px 8px 0px 8px;
     }
@@ -458,7 +458,7 @@ include ("tabs.php");
 <table width="100%" align="center">
 <tr>
 <td width="40%">
-<div style="margin-top:6px; border-top-width:1px; border-top-style:solid;"
+<div style="margin-top:6px; border-top:1px solid #CACACA; border-bottom:1px solid #CACACA !important"
     id="accordionExample">
 
     <div id="panel1">

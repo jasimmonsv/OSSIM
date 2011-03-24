@@ -98,6 +98,8 @@ class Window_Panel_Ajax {
         $conf = & $GLOBALS['conf'];
         $plugins_dir = array();
         $extra_plugins = $conf->get_conf('panel_plugins_dir');
+        $version = $conf->get_conf("ossim_server_version", FALSE);
+		$opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
         if ($extra_plugins) {
             $plugins_dir = preg_split('/\s*,\s*/', $extra_plugins);
         }
@@ -109,7 +111,7 @@ class Window_Panel_Ajax {
                 continue;
             }
             while (false !== ($file = $d->read())) {
-                if (!preg_match('/\.php$/', $file)) {
+                if (!preg_match('/\.php$/', $file) || ($file == "custom_report.php" && $opensource)) {
                     continue;
                 }
 				
