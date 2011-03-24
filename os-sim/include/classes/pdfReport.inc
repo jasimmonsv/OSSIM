@@ -223,7 +223,7 @@ class PdfReport{
                     $(idForm).attr("target","GB_frame");
                     $(idForm).submit();
                 }
-                function emailValidate()
+                function emailValidate(id)
                     {
                         if(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test($("#email").val()))
                         {
@@ -262,7 +262,7 @@ class PdfReport{
                <form method="POST" action="#" id="email_form">
                    <div style="margin-top:5px">
                         <input id="email" name="email" type="text" style="width:120px">
-                        <input type="button" class="vsbutton" onclick="emailValidate();" value="'._("Send").'"\>
+                        <input type="button" class="vsbutton" onclick="emailValidate(\'#email\');" value="'._("Send").'"\>
                         </div>
                 </form>
                 </div>

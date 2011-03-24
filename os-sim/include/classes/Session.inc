@@ -970,18 +970,23 @@ class Session {
     function delete($conn, $login) {
         global $ACL_MAIN_MENU;
         global $ACL_OPTIONS;
-        if ($login == ACL_DEFAULT_OSSIM_ADMIN) {
+        
+		if ($login == ACL_DEFAULT_OSSIM_ADMIN) {
             print "<p>Can't remove default user</p>";
             exit;
         }
-        $sql = "DELETE FROM users WHERE login = ?";
-        $params = array(
+        
+		$sql    = "DELETE FROM users WHERE login = ?";
+        
+		$params = array(
             $login
         );
+		
         if ($conn->Execute($sql, $params) === false) {
-            print 'error deleting: ' . $conn->ErrorMsg() . '<BR>';
+            print 'Error deleting: ' . $conn->ErrorMsg() . '<BR>';
             exit;
         }
+		
         $gacl_api = new gacl_api($ACL_OPTIONS);
         /* delete ACLs */
         if ($acl_ids = $gacl_api->search_acl(false, false, ACL_DEFAULT_USER_SECTION, $login, false, false, false, false, false)) {
@@ -1107,7 +1112,7 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 		$this->agent         = $agent;
 		$this->logon_date    = $logon_date;
 		$this->activity      = $activity;
-	;}
+	}
 	
 	
 	public function get_id()    { return $this->id;}

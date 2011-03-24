@@ -142,8 +142,6 @@ if  ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin()) )
 		foreach($users_list as $k => $v)
 			$users[] = ( is_object($v) )? $v->get_login() : $v["login"];
 		
-		$users[] = Session::get_session_user();
-			
 		$where = "WHERE login in ('".implode("','",$users)."')";
 	}
 }
@@ -151,7 +149,6 @@ else
 	$where = "WHERE login = '".Session::get_session_user()."'";
 
 $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity desc");
-
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
