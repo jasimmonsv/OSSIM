@@ -105,13 +105,13 @@
 				$image_string = "";
 			}
 			$on = ($panel_id == $tab_id) ? "on" : "";
-			$url = "?panel_id=$tab_id";
+			$url = "panel.php?panel_id=$tab_id";
 			if(empty($tabsmerge[$tab_id]["tab_url"])){
 				// normal tabs
-				$url = "?panel_id=$tab_id";
+				$url = "panel.php?panel_id=$tab_id";
 			}else{
 				// tabs urls
-				$url = '?panel_id='.$tab_id.'&hmenu=dashboards&smenu=dashboards';
+				$url = 'panel.php?panel_id='.$tab_id.'&hmenu=dashboards&smenu=dashboards';
 				//$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'>".$image_string ."</td><td class='nobborder'><a href='".$tabsmerge[$tab_id]["tab_url"]."' class='gristab$on' target='main'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";
 			}
 			$txt = "<table cellpadding='0' cellspacing='0' border='0' class='transparent'><tr><td class='nobborder'><a href='$url' style='text-decoration:none'>".$image_string ."</a></td><td class='nobborder'><a href='$url' class='gristab$on'>".gettext($tabsmerge[$tab_id]["tab_name"])."</a></td></tr></table>";

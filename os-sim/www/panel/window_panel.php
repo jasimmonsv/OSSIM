@@ -38,6 +38,31 @@ require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
 require_once 'panel/Ajax_Panel.php';
 require_once 'classes/Util.inc';
+function gettabsavt($configs_dir) {
+	$user = Session::get_session_user();
+	$tabsavt = array();
+	if (is_dir($configs_dir)) {
+		if ($dh = opendir($configs_dir)) {
+			while (($file = readdir($dh)) !== false) {
+				if (preg_match("/^$user.*\.avt/",$file)) {
+					list($avt_id,$avt_values) = getavt($file,$configs_dir);
+					$tabsavt[$avt_id] = $avt_values;
+				}
+			}
+			closedir($dh);
+		}
+	}
+	return $tabsavt;
+}
+function getavt($file,$configs_dir="") {
+	if (file_exists($configs_dir."/".$file)) {
+		$data = file($configs_dir."/".$file);
+		if (preg_match("/([^\_]+)\_([^\_]+)\_([^\_]+)\_disabled\.avt/",$file,$found))
+			return array($found[3],array("tab_name"=>base64_decode($found[2]),"tab_file"=>$file,"tab_data"=>$data,"tab_icon_url"=>"../pixmaps/alienvault_icon.gif","disable"=>1));
+		elseif (preg_match("/([^\_]+)\_([^\_]+)\_([^\_]+)\.avt/",$file,$found))
+			return array($found[3],array("tab_name"=>base64_decode($found[2]),"tab_file"=>$file,"tab_data"=>$data,"tab_icon_url"=>"../pixmaps/alienvault_icon.gif","disable"=>0));
+	} else return array("",array());
+}
 Session::logcheck("MenuControlPanel", "ControlPanelExecutiveEdit");
 /*
 * Brief architecture overview:
@@ -72,7 +97,9 @@ Session::logcheck("MenuControlPanel", "ControlPanelExecutiveEdit");
 *
 */
 $id = GET('id');
+$panel_id = GET('panel_id');
 ossim_valid($id, OSS_DIGIT, 'x', OSS_NULLABLE, 'illegal:' . _("id"));
+ossim_valid($panel_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("panel id"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -309,8 +336,27 @@ a.gristab:hover, a.gristabon:hover {
 	text-decoration:none;
 }
 small.white,small.white a { text-decoration:none; color:white }
-.btn { background: #cccccc url(../pixmaps/theme/bg_button.png) 50% 50% repeat-x; font-size: 10px; color: #222222; text-align: center; }
-input.btn:hover { border:1px solid #02A705; background: #4AC600 url(../pixmaps/theme/bg_button_on.png) 50% 50% repeat-x; color: #FFFFFF; }
+.btn {
+	border-width: 0px !important;
+	#border-left-color:#C9C9C9 !important;
+	#border-top-color:#C9C9C9 !important;
+	#border-right-color:#B3B3B3 !important;
+	#border-bottom-color:#B3B3B3 !important;
+    color: #FFFFFF !important;
+	height:24px !important;
+	background-color: transparent !important;
+    #background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+	background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+    padding:2px 5px !important;
+    font-family: arial,verdana,helvetica,sans-serif !important;
+    font-size: 12px !important;
+	font-weight:bold !important;
+}
+input.btn:hover {
+	color:white !important;
+	background: url(../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important;
+	padding-bottom:2px !important;
+}
 .nobborder { border-bottom:0px none; }
 .noborder { border:0px none; }
 
@@ -397,6 +443,12 @@ div.hd:hover { cursor:-moz-grab; cursor:url(../pixmaps/theme/grab.cur),auto); }
     </style>
 </head>
 <body onload="ajax_show(false, 'output')">
+<?php
+$configs_dir = $conf->get_conf('panel_configs_dir');
+$tabsavt = gettabsavt($configs_dir);
+$tabs = Window_Panel_Ajax::getPanelTabs();
+include ("tabs.php");
+?>
 <div id="loading" class="loading">Loading..</div>
 <div id="help" class="help"></div>
 <script>Element.hide('help');</script>
@@ -445,13 +497,13 @@ div.hd:hover { cursor:-moz-grab; cursor:url(../pixmaps/theme/grab.cur),auto); }
 </div>
 <br>
 <center>
-    <input type="button" value="<?php echo _("Save Window") ?>"
+    <input type="button" class="btn" value="<?php echo _("Save Window") ?>"
            onClick="javascript: ajax_save('<?php echo $id ?>'); document.location = 'panel.php?panel_id=<?php echo GET("panel_id") ?>';">
     &nbsp;
-    <input type="button" name="export" value="<?php echo _("Export Config") ?> -&gt;"
+    <input type="button" class="btn" name="export" value="<?php echo _("Export Config") ?> -&gt;"
            onClick="javascript: ajax_save('<?php echo $id ?>'); ajax_show(false, 'export');">
     &nbsp;
-    <input type="button" name="update" value="<?php echo _("Preview") ?> -&gt;"
+    <input type="button" class="btn" name="update" value="<?php echo _("Preview") ?> -&gt;"
            onClick="javascript: ajax_save('<?php echo $id ?>'); ajax_show(false, 'output');">
 </center>
 </td>
