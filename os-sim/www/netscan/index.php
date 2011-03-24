@@ -102,7 +102,6 @@ echo gettext("Please, select the network you want to scan:") ?>
         <p align="center">
         <select name="net" onChange="javascript:check_change()">
 <?php
-$net_list = array();
 if (is_array($net_list) && !empty($net_list)) {
     $first_net = $net_list[0]->get_ips();
     foreach($net_list as $net) {
