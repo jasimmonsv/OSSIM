@@ -89,7 +89,7 @@ if (!$nmap_exists) {
 }
 ?>
   <!-- net selector form -->
-  <form name="net_form" method="GET" action="do_scan.php">
+  <form name="net_form" method="GET" action="do_scan.php" target="process">
   <table align="center">
     <tr>
       <th colspan="2">
@@ -102,6 +102,7 @@ echo gettext("Please, select the network you want to scan:") ?>
         <p align="center">
         <select name="net" onChange="javascript:check_change()">
 <?php
+$net_list = array();
 if (is_array($net_list) && !empty($net_list)) {
     $first_net = $net_list[0]->get_ips();
     foreach($net_list as $net) {
@@ -184,7 +185,7 @@ if (is_array($net_list) && !empty($net_list)) {
 		</td>
     </tr>
     <!-- end do scan -->
-
+	<tr><td><IFRAME name="process" id="process" src="" frameborder="0" width="300"></IFRAME></td></tr>
   </table>
   </form>
   <!-- end of net selector form -->

@@ -48,25 +48,44 @@ echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+  <script type="text/javascript">
+	function stop_nmap(asset) {
+		$.ajax({
+			type: "POST",
+			url: "do_scan.php?only_stop=1&net="+asset,
+			success: function(msg){
+				$('#loading').html("");
+			}
+		});
+	}
+  </script>
 </head>
 <body>
 
 <?php
 require_once 'classes/Security.inc';
-include ("../hmenu.php");
 $net = GET('net');
 $full_scan = GET('full_scan');
 $timing_template = GET('timing_template');
 $net_input = GET('net_input');
+$only_stop = GET('only_stop');
 ossim_valid($net, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Net"));
 ossim_valid($net_input, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Net"));
 ossim_valid($full_scan, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("full scan"));
 ossim_valid($timing_template, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("timing_template"));
+ossim_valid($only_stop, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only stop"));
 if (ossim_error()) {
     die(ossim_error());
 }
 if (empty($net)) $net = $net_input;
 require_once ('classes/Scan.inc');
+
+if ($only_stop) {
+	$scan = new Scan($net);
+	$scan->stop_nmap($net);
+	exit;
+}
 
 $rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
 if ($rscan->available_scan()) { // $full_scan!="full" && 
@@ -82,7 +101,7 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 } else {
 
 	echo _("Unable to launch remote network scan: ") . "<font color=red>".$rscan->err() ."</font><br/>\n"; // if ($full_scan!="full") 
-	echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br/>\n";
+	echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div><br><center><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></center>\n";
 	
 	// try local nmap
 	$scan = new Scan($net);
@@ -102,7 +121,7 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 	
 }
 echo gettext("Scan completed") . ".<br/><br/>";
-echo "<a href=\"index.php#results\">" . gettext("Click here to show the results") . "</a>";
+if (count($scan->scan) > 0) { echo "<a href=\"index.php#results\">" . gettext("Click here to show the results") . "</a>"; }
 ?>
 
 </body>

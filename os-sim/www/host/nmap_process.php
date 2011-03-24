@@ -93,7 +93,7 @@ $reload = false;
 $cmd = "";
 if (scanning_now($ip)) {
 	$reload = true;
-	?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='nmap_process.php?ip=<?php echo $ip ?>&action=stop'>Stop</a>] Running Nmap for <?php echo $ip ?> <img src='../pixmaps/loading.gif' align='absmiddle' width='20'>";</script><?php
+	?><script type="text/javascript">document.getElementById('content').innerHTML = "[<a href='nmap_process.php?ip=<?php echo $ip ?>&action=stop'>Stop</a>] Running Nmap for <?php echo $ip ?> <img src='../pixmaps/loading.gif' align='absmiddle' width='16'>";</script><?php
 	while (scanning_now($ip)) {
 		if (file_exists("/tmp/nmap_scan_$ip.log")) {
 			$lines = file("/tmp/nmap_scan_$ip.log");
