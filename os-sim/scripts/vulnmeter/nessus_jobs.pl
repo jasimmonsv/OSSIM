@@ -278,7 +278,7 @@ exit;
 
 sub main {
     my ( $work, $outfile, $targets );
-
+    
     if( $options{d} ) {                                              #ENABLE DEBUGGING
         use warnings;
         print "Debugging mode\n";
@@ -302,7 +302,10 @@ sub main {
         # CONNECT TO DATABASE
         $dbh = conn_db();
         #check_connect();
-
+        
+        # set failed hung jobs
+        check_running_scans ( );
+        
         #CHECK FOR JOB STATUS OF "P" Pending Kill 
         check_Kill();
 
@@ -537,6 +540,26 @@ sub select_job {
         $sth_sel->finish;
         
         if(defined($job_id)) {
+            # select server ip to check free slots
+            my $used_slots = 0;
+            my $scanner    = $CONFIG{'NESSUSPATH'};
+            my $sql_server_ip = "SELECT hostname FROM vuln_nessus_servers WHERE id='$serverid'";
+            $sth_sel = $dbh->prepare( $sql_server_ip );
+            $sth_sel->execute();
+            my ($server_ip) = $sth_sel->fetchrow_array();
+            $sth_sel->finish;
+            
+            my $command_output = `ps ax | grep $scanner | grep $server_ip | egrep -v "ps ax"`;
+            
+            my @output_lines = split(/\n/, $command_output);
+            
+            foreach my $line (@output_lines ) {
+                if($line ne "") {  $used_slots++;  }
+            }
+            
+            $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=$used_slots WHERE id='$serverid' };
+            safe_db_write ( $sql, 4 );
+            
             # see the free slots
             my $sql_slots = "SELECT ( max_scans - current_scans) FROM vuln_nessus_servers WHERE id='$serverid'";
             logwriter( "SELECT ( max_scans - current_scans) FROM vuln_nessus_servers WHERE id='$serverid'", 4 );
@@ -546,6 +569,7 @@ sub select_job {
             $sth_sel->finish;
         
             if($free_slots<$server_slot) {
+                # launch job after 15 minutes
                 $sql = qq{ select NOW() + INTERVAL 15 Minute as next_scan  };
 
                 $sth_sel = $dbh->prepare( $sql );
@@ -5273,5 +5297,21 @@ sub getassetbyname {
     }
     
     return "";
+}
 
+# to set failed the hung jobs
+sub check_running_scans {
+    my ($sql, $sthse, $running);
+
+    $sql = qq{ SELECT id, scan_PID FROM vuln_jobs WHERE status='R' };
+    $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    while ( my($id, $scan_pid) = $sthse->fetchrow_array() ) {
+        $running =`ps ax | grep $scan_pid | grep nessus_jobs | grep -v "ps ax" | wc -l`;
+        if($running==0) {
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='Job task ended prematurely' WHERE id='$id' };
+            safe_db_write ( $sql, 4 );
+        }
+    }
+    $sthse->finish;
 }
