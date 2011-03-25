@@ -292,7 +292,7 @@ if (!array_key_exists("minimal_view", $_GET)) {
 echo "\n<INPUT TYPE=\"hidden\" NAME=\"action_chk_lst[0]\" VALUE=\"$submit\">\n";
 /* Event */
 //$sql2 = "SELECT signature, timestamp FROM acid_event WHERE sid='" .  filterSql($sid,$db) . "' AND cid='" .  filterSql($cid,$db) . "'";
-$sql2 = "SELECT plugin_id, plugin_sid, timestamp, tzone FROM acid_event WHERE sid='" . filterSql($sid,$db) . "' AND cid='" . filterSql($cid,$db) . "'";
+$sql2 = "SELECT plugin_id, plugin_sid, timestamp, tzone, ip_src, ip_dst, ip_proto, layer4_sport, layer4_dport FROM acid_event WHERE sid='" . filterSql($sid,$db) . "' AND cid='" . filterSql($cid,$db) . "'";
 //echo $sql2;
 $result2 = $db->baseExecute($sql2);
 $myrow2 = $result2->baseFetchRow();
@@ -300,6 +300,11 @@ $plugin_id = $myrow2[0];
 $plugin_sid = $myrow2[1];
 $timestamp = $myrow2[2];
 $tzone = $myrow2[3];
+$ip_src = $myrow2[4]; $current_sip = baseLong2IP($ip_src);
+$ip_dst = $myrow2[5]; $current_dip = baseLong2IP($ip_dst);
+$ip_proto = $myrow2[6];
+$layer4_sport = $myrow2[7]; if ($layer4_sport!="0") $layer4_sport = ":".$layer4_sport;
+$layer4_dport = $myrow2[8]; if ($layer4_dport!="0") $layer4_dport = ":".$layer4_dport;
 if ($plugin_id == "" || $plugin_sid == "") {
     echo '<CENTER><B>';
     ErrorMessage(gettext("Event DELETED"));
@@ -416,6 +421,48 @@ echo '</TR>
                   </TABLE>
               </TD>
            </TR>';
+// COMMON DATA
+//
+include ("geoip.inc");
+$gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
+$_conn = $dbo->connect();
+// Source
+$country = strtolower(geoip_country_code_by_addr($gi, $current_sip));
+$country_name = geoip_country_name_by_addr($gi, $current_sip);
+$country_img = ($country) ? " <img src=\"../pixmaps/flags/" . $country . ".png\" alt=\"$country_name\" title=\"$country_name\">" : "";
+$sip_aux = ($sensors[$current_sip] != "") ? $sensors[$current_sip] : (($hosts[$current_sip] != "") ? $hosts[$current_sip] : $current_sip);
+if ($sip_aux!=$current_sip)
+	$sip_aux = "[$sip_aux] $current_sip";
+$homelan = (Net::is_ip_in_cache_cidr($_conn, $current_sip) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
+$ip_src_data = '<A HREF="base_stat_ipaddr.php?ip=' . $current_sip . '&amp;netmask=32">' . $sip_aux . '</A><FONT SIZE="-1">' . $layer4_sport . '</FONT>' . $country_img . $homelan;
+// Destionation
+$country = strtolower(geoip_country_code_by_addr($gi, $current_dip));
+$country_name = geoip_country_name_by_addr($gi, $current_dip);
+$country_img = ($country) ? " <img src=\"../pixmaps/flags/" . $country . ".png\" alt=\"$country_name\" title=\"$country_name\">" : "";
+$dip_aux = ($sensors[$current_dip] != "") ? $sensors[$current_dip] : (($hosts[$current_dip] != "") ? $hosts[$current_dip] : $current_dip);
+if ($dip_aux!=$current_dip)
+	$dip_aux = "[$dip_aux] $current_dip";
+$homelan = (Net::is_ip_in_cache_cidr($_conn, $current_dip) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
+$ip_dst_data = '<A HREF="base_stat_ipaddr.php?ip=' . $current_dip . '&amp;netmask=32">' . $dip_aux . '</A><FONT SIZE="-1">' . $layer4_dport . '</FONT>' . $country_img . $homelan;
+geoip_close($gi);
+$dbo->close($_conn);
+echo '  <TR>
+             <TD>
+                <TABLE BORDER=0 CELLPADDING=4>
+                  <TR><TD CLASS="header2" ALIGN=CENTER ROWSPAN=2>' . gettext("IPs")  . '</TD>
+                       <TD class="header">'. gettext("Source") . '</TD>
+                       <TD class="header">' . gettext("Destination") . '</TD>
+                       <TD class="header">' . gettext("Protocol") . '</TD>
+                  </TR>
+                  <TR><TD class="plfield" nowrap>' . $ip_src_data . '</TD>
+                      <TD class="plfield" nowrap>' . $ip_dst_data . '</TD>
+                      <TD class="plfield" nowrap>' . IPProto2str($ip_proto) . '</TD>
+                  </TR>
+                 </TABLE>     
+             </TD>
+          </TR>';            
+// END COMMON DATA
+           
 echo '  <TR>
              <TD>
                 <TABLE BORDER=0 CELLPADDING=4>
