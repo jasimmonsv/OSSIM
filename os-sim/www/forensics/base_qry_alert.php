@@ -470,7 +470,7 @@ echo '  <TR>
                       <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_asset_src . '&value2=' . $ossim_asset_dst . '&max=5" border="0" align="absmiddle" title="'.$ossim_asset_src -> $ossim_asset_dst.'"></TD>
                       <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_priority . '&max=5" border="0" align="absmiddle" title="'.$ossim_priority.'"></TD>
                       <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_reliability . '&max=9" border="0" align="absmiddle" title="'.$ossim_reliability.'"></TD>
-                      <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_risk_c . '&value2=' . $ossim_risk_a . '&max=9" border="0" align="absmiddle" title="'.$ossim_risk_c -> $ossim_risk_a.'"></TD>
+                      <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_risk_c . '&value2=' . $ossim_risk_a . '&max=9&range=1" border="0" align="absmiddle" title="'.$ossim_risk_c -> $ossim_risk_a.'"></TD>
                   </TR>
                  </TABLE>     
              </TD>
