@@ -414,7 +414,7 @@ sim_organizer_get_policy(SimOrganizer *organizer, SimEvent *event)
 
   curtime = time(NULL);
   loctime = localtime(&curtime);
-  date = (loctime->tm_wday * 24) + loctime->tm_hour;
+  date = ((loctime->tm_wday - 1) * 24) + loctime->tm_hour;
 
   //get the port/protocol used to obtain the policy that matches.
   pp = sim_port_protocol_new(event->dst_port, event->protocol);

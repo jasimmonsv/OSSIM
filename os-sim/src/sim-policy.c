@@ -66,6 +66,8 @@ struct _SimPolicyPrivate {
   gint    end_hour;
   gint    begin_day;
   gint    end_day;
+	gint		begin_dayhour;
+	gint		end_dayhour;
 
 	gint    has_actions;
   SimRole	*role;				//this is not intended to match. This is the behaviour of the events that matches with this policy
@@ -140,6 +142,8 @@ sim_policy_instance_init (SimPolicy *policy)
   policy->_priv->end_hour = 0;
   policy->_priv->begin_day = 0;
   policy->_priv->end_day = 0;
+	policy->_priv->begin_dayhour = 0;
+	policy->_priv->end_dayhour = 0;
 
   policy->_priv->src = NULL;
   policy->_priv->dst = NULL;
@@ -236,6 +240,9 @@ sim_policy_new_from_dm (GdaDataModel  *dm,
 
   value = (GdaValue *) gda_data_model_get_value_at (dm, 6, row);
   policy->_priv->end_day = gda_value_get_smallint (value);
+
+	policy->_priv->begin_dayhour = (policy->_priv->begin_day - 1) * 24 + policy->_priv->begin_hour;
+	policy->_priv->end_dayhour =  (policy->_priv->end_day - 1) * 24 + policy->_priv->end_hour;
 
   return policy;
 }
@@ -354,6 +361,7 @@ sim_policy_set_begin_day (SimPolicy* policy,
   g_return_if_fail (SIM_IS_POLICY (policy));
 
   policy->_priv->begin_day = begin_day;
+	policy->_priv->begin_dayhour =  (begin_day - 1) * 24 + policy->_priv->begin_hour;
 }
 
 /*
@@ -383,6 +391,7 @@ sim_policy_set_end_day (SimPolicy* policy,
   g_return_if_fail (SIM_IS_POLICY (policy));
 
   policy->_priv->end_day = end_day;
+	policy->_priv->end_dayhour = (end_day - 1) * 24 + policy->_priv->end_hour;
 }
 
 /*
@@ -412,6 +421,7 @@ sim_policy_set_begin_hour (SimPolicy* policy,
   g_return_if_fail (SIM_IS_POLICY (policy));
 
   policy->_priv->begin_hour = begin_hour;
+	policy->_priv->begin_dayhour = (policy->_priv->begin_day - 1) * 24 + begin_hour;
 }
 
 /*
@@ -441,6 +451,7 @@ sim_policy_set_end_hour (SimPolicy* policy,
   g_return_if_fail (SIM_IS_POLICY (policy));
 
   policy->_priv->end_hour = end_hour;
+	policy->_priv->end_dayhour = (policy->_priv->end_day - 1) * 24 + end_hour;
 }
 
 /*
@@ -1018,7 +1029,6 @@ sim_policy_match (SimPolicy        *policy,
 {
   GList     *list;
   gboolean   found = FALSE;
-  gint       start, end;
 
   g_return_val_if_fail (policy, FALSE);
   g_return_val_if_fail (SIM_IS_POLICY (policy), FALSE);
@@ -1046,11 +1056,7 @@ sim_policy_match (SimPolicy        *policy,
 	}
   if (!found) return FALSE;
 
-
-  start = ((policy->_priv->begin_day - 1) * 24 + policy->_priv->begin_hour);
-  end = ((policy->_priv->end_day - 1) * 24 + policy->_priv->end_hour);
-  
-  if ((start > date) || (end < date))
+  if ((policy->_priv->begin_dayhour > date) || (policy->_priv->end_dayhour < date))
 	{
 		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_policy_match: Not match: BAD DATE");
     return FALSE;
@@ -1235,9 +1241,11 @@ void sim_policy_debug_print	(SimPolicy	*policy)
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               id: %d",policy->_priv->id);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               description: %s",policy->_priv->description);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               begin_day:  %d",policy->_priv->begin_day);
-	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               end_day:  %d",policy->_priv->end_day);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               begin_hour:  %d",policy->_priv->begin_hour);
+	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               begin_dayhour:  %d",policy->_priv->begin_dayhour);
+	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               end_day:  %d",policy->_priv->end_day);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               end_hour:  %d",policy->_priv->end_hour);
+	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               end_dayhour:  %d",policy->_priv->end_dayhour);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               src:         %x",policy->_priv->src);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               dst:         %x",policy->_priv->dst);
 	g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "                               ports:       %x",policy->_priv->ports);
