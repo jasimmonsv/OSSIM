@@ -786,11 +786,18 @@ if ($count > 0) {
                 ";
         }
         $datemark = $date_slices[0];
+    	$event_count_label = "";
+		if ($backlog_id && $id==1505) {
+            $aid = $alarm->get_event_id();
+            #$summary = Alarm::get_total_events($conn, $backlog_id);
+            #$event_count_label = $summary["total_count"] . " "._("events");
+            $event_count_label = Alarm::get_total_events($conn, $backlog_id)." "._("events");
+        }
 ?>
       <tr>
         <td class="nobborder"><input style="border:none" type="checkbox" name="check_<?php echo $backlog_id ?>_<?php echo $alarm->get_event_id() ?>" id="check_<?php echo $backlog_id ?>" class="alarm_check" datecheck="<?php echo $date_unformated ?>" value="1"></td>
         <td class="nobborder" nowrap id="plus<?php echo $inf + 1 ?>">
-           <? if ($backlog_id && $id==1505) { ?>
+           <? if ($backlog_id && $id==1505 && $event_count_label > 0) { ?>
            <a href="" onclick="show_alarm('<?php echo $backlog_id ?>','<?php echo $inf + 1 ?>');return false;"><img align='absmiddle' src='../pixmaps/plus-small.png' border='0'></a><?php echo ++$inf ?>
            <? } else { ?>
            <img align='absmiddle' src='../pixmaps/plus-small-gray.png' border='0'><font style="color:gray"><?php echo ++$inf ?></font>
@@ -815,15 +822,7 @@ if ($count > 0) {
         <?php if ($tags_html[$id_tag] != "") { ?><td class="nobborder"><?php echo $tags_html[$id_tag]; ?></td><?php } ?>
         <td class="nobborder"><b><?php echo $alarm_name; ?></b>
 		<?php
-        if ($backlog_id && $id==1505) {
-            $aid = $alarm->get_event_id();
-            #$summary = Alarm::get_total_events($conn, $backlog_id);
-            #$event_count_label = $summary["total_count"] . " "._("events");
-            $event_count_label = Alarm::get_total_events($conn, $backlog_id)." "._("events");
-        } else {
-            $event_count_label = "";
-        }
-        echo ($event_count_label != "") ? "<br><font color=\"#AAAAAA\" style=\"font-size: 8px;\">(" . $event_count_label . ")</font>" : "";
+        echo ($event_count_label > 0) ? "<br><font color=\"#AAAAAA\" style=\"font-size: 8px;\">(" . $event_count_label . ")</font>" : "";
 ?>
         </td>
         </tr></table>
