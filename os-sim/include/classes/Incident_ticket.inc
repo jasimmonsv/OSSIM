@@ -153,7 +153,7 @@ class Incident_ticket {
                 'error:' . _("Priority should be a value between 1 and 10")
             ) ,
             'user' => array(
-                OSS_ALPHA,
+                OSS_USER,
                 'error:' . _("Invalid user login format")
             ) ,
             'description' => array(
@@ -167,9 +167,11 @@ class Incident_ticket {
 				OSS_PUNC_EXT
             ) ,
             'transferred' => array(
-                OSS_ALPHA,
                 OSS_NULLABLE,
-                OSS_DIGIT,
+                OSS_USER,
+                OSS_ALPHA,
+                OSS_SPACE,
+                OSS_PUNC_EXT,
                 'error:' . _("Invalid transferred login format")
             ) ,
             'tag' => array(
