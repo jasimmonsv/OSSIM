@@ -65,8 +65,10 @@ $complex = ($conf->get_conf("pass_complex", FALSE)) ? $conf->get_conf("pass_comp
 
 $order          = GET('order');
 $change_enabled = GET('change_enabled');
-ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
-ossim_valid($change_enabled, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("change_enabled"));
+
+
+ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("Order"));
+ossim_valid($change_enabled, OSS_USER, OSS_NULLABLE, 'illegal:' . _("Change_enabled"));
 
 if (ossim_error()) {
     die(ossim_error());
