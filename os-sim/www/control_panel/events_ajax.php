@@ -343,11 +343,11 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 <?php
         if ($highest_rule_level == 0) $highest_rule_level = $alarm->get_rule_level();
         // Alarm summary
-        if ((!$show_all) or ($risk > 1)) {
+        if (!$show_all || $alarm->get_alarm()) {
             $summary = Alarm::get_alarm_stats($conn, $backlog_id, $aid);
             $summ_count = $summary["count"];
 			$totales += $summary['total_count'];
-            $summ_event_count+= $summ_count;
+            $summ_event_count+= $summ_count + 1;  // +1 because we add event with alarm=1
             $summ_dst_ips = $summary["dst_ips"];
             $summ_types = $summary["types"];
             $summ_dst_ports = $summary["dst_ports"];
