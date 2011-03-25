@@ -370,6 +370,7 @@ function MakeRequest()
     	if ($.browser.msie) document.execCommand('Stop'); 
     	else window.stop();
 	}
+	$('input.tagit-input').removeClass('ui-autocomplete-loading');
     if(document.getElementById('txtexport').value=='noExport') {
         //$("#href_download").hide();
         //$("#img_download").hide();

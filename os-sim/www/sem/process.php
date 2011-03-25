@@ -135,13 +135,14 @@ $sort_order = GET("sort");
 $uniqueid   = GET("uniqueid");
 $tzone      = intval(GET("tzone"));
 
+$debug = 0;
 $debug_log = GET("debug_log");
 ossim_valid($debug_log, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, OSS_PUNC, OSS_SCORE, OSS_SLASH, 'illegal:' . _("debug_log"));
 ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("start date"));
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($offset, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("offset"));
 ossim_valid($top, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("top"));
-ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, 'illegal:' . _("a"));
+ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, "\!", 'illegal:' . _("a"));
 ossim_valid($sort_order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("sort order"));
 ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("uniqueid"));
 if (ossim_error()) {
@@ -204,8 +205,8 @@ foreach ($atoms as $atom) {
 	    $subcategory_id = GetPluginSubCategoryID($subcat,$category_id,$conn);
 	    $a = str_replace($matches[1].$matches[2].$matches[3],"taxonomy".$matches[2]."'-$category_id-$subcategory_id'",$a);
 	}
-	if (preg_match("/plugin(\!?\=)(.+)/", $atom, $matches)) {
-	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));	    
+	if (preg_match("/(plugin|datasource)(\!?\=)(.+)/", $atom, $matches)) {
+	    $plugin_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[3]));	    
 	    $query = "select id from plugin where name like '" . $plugin_name . "%' order by id";
 	    if (!$rs = & $conn->Execute($query)) {
 	        print $conn->ErrorMsg();
@@ -214,9 +215,9 @@ foreach ($atoms as $atom) {
 	    if ($plugin_id = $rs->fields["id"] != "") {
 	        $plugin_id = $rs->fields["id"];
 	    } else {
-	        $plugin_id = $matches[2];
+	        $plugin_id = $matches[3];
 	    }
-	    $a = str_replace("plugin".$matches[1].$matches[2],"plugin_id".$matches[1]."'".$plugin_id."'",$a);
+	    $a = str_replace($matches[1].$matches[2].$matches[3],"plugin_id".$matches[2]."'".$plugin_id."'",$a);
 	}
 	if (preg_match("/sensor(\!?\=)(\S+)/", $atom, $matches)) {
 	    $sensor_name = str_replace('\\\\','\\',str_replace('\\"','"',$matches[2]));
@@ -520,7 +521,7 @@ $alt = 0;
 $htmlResult=true;
 foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
-	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='([^']*)')?/", $res, $matches)) {
+	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='(.*)'/", $res, $matches)) {
 		$lf = explode(";", $res);
         $logfile = $lf[count($lf)-3];
         $current_server = urlencode($lf[count($lf)-1]);
@@ -536,6 +537,14 @@ foreach($result as $res=>$event_date) {
 	    $res = str_replace("<", "", $res);
 	    $res = str_replace(">", "", $res);
 
+		# Clean data => matches[11] may contains sig and/or plugin_sid
+		$matches[11] = preg_replace("/ plugin_sid=.*/","",$matches[11]);
+		$signature = "";
+		if (preg_match("/' sig='(.*)('?)/",$matches[11],$found)) {
+			$signature = $found[1];
+			$matches[11] = preg_replace("/' sig=.*/","",$matches[11]);
+		}
+
         # decode if data is stored in base64
         $data = $matches[11];
         $matches[11] = base64_decode($matches[11],true);
@@ -543,15 +552,14 @@ foreach($result as $res=>$event_date) {
                             
         if($htmlResult){
             $data = $matches[11];
-            $signature = $matches[13];
+            //$signature = $matches[13];
             $query = "select name from plugin where id = " . intval($matches[4]);
             if (!$rs = & $conn->Execute($query)) {
                 print $conn->ErrorMsg();
-                exit();
             }
+	        // para coger
+	        $plugin = Util::htmlentities($rs->fields["name"]);            
         }
-        // para coger
-        $plugin = Util::htmlentities($rs->fields["name"]);
         if ($plugin == "") {
             $plugin = intval($matches[4]);
         }
@@ -656,7 +664,7 @@ foreach($result as $res=>$event_date) {
             $data = "<td class='nobborder' style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;'>";
         }
         // para coger
-		$data_out = "";
+		$data_out = $matches[11];
         // fin para coger
         // change ,\s* or #\s* adding blank space to force html break line
         // para coger
@@ -700,10 +708,8 @@ foreach($result as $res=>$event_date) {
                     }
                 }
         }
-        // para coger
-		$data_out = $matches[11];
-        // fin para coger
         if($htmlResult){
+        	if ($debug) $data.= '<br><pre>'.htmlentities($res).'</pre>';
             $data.= '</td><td class="nobborder" style="text-align:center;padding-left:5px;padding-right:5px;" nowrap><a href="javascript:;" class="thickbox" rel="AjaxGroup" onclick="validate_signature(\''.$encoded_data.'\',\''.$start.'\',\''.$end.'\',\''.$logfile.'\',\''.$signature.'\',\''.$current_server_ip.'\');return false" style="font-family:arial;color:gray"><img src="../pixmaps/lock-small.png" align="absmiddle" border=0><i>'._("Validate").'</i></a>';
             $data.= "</td>";
             $line.= $data;
