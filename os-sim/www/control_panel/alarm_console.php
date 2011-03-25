@@ -77,7 +77,7 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 	//alert (id);
 	$.ajax({
 		type: "GET",
-		url: "events_ajax.php?backlog_id="+id,
+		url: "events_ajax.php?backlog_id="+id+"&show_all=1",
 		data: "",
 		success: function(msg){
 			//alert (msg);
@@ -251,7 +251,7 @@ $num_events_op = GET('num_events_op');
 $params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&sensor_query=$sensor_query&tag=$tag";
 
 $sensors = $hosts = $ossim_servers = array();
-list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
+list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
 /*$networks = "";
 $_nets = Net::get_all($conn);
 $_nets_ips = $_host_ips = $_host = array();

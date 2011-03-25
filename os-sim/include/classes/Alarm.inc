@@ -717,7 +717,7 @@ class Alarm {
         $sql = "SELECT count(*) as total_events
                 FROM backlog_event, event 
                 WHERE backlog_event.backlog_id = ? 
-                AND event.id = backlog_event.event_id AND event.plugin_id<>1505";
+                AND event.id = backlog_event.event_id"; // AND event.plugin_id<>1505
         if (!$rs = & $conn->Execute($sql, array($backlog_id))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) { 
