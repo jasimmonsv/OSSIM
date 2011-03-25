@@ -292,7 +292,7 @@ if (!array_key_exists("minimal_view", $_GET)) {
 echo "\n<INPUT TYPE=\"hidden\" NAME=\"action_chk_lst[0]\" VALUE=\"$submit\">\n";
 /* Event */
 //$sql2 = "SELECT signature, timestamp FROM acid_event WHERE sid='" .  filterSql($sid,$db) . "' AND cid='" .  filterSql($cid,$db) . "'";
-$sql2 = "SELECT plugin_id, plugin_sid, timestamp, tzone, ip_src, ip_dst, ip_proto, layer4_sport, layer4_dport FROM acid_event WHERE sid='" . filterSql($sid,$db) . "' AND cid='" . filterSql($cid,$db) . "'";
+$sql2 = "SELECT plugin_id, plugin_sid, timestamp, tzone, ip_src, ip_dst, ip_proto, layer4_sport, layer4_dport, ossim_priority, ossim_reliability, ossim_asset_src, ossim_asset_dst, ossim_risk_c, ossim_risk_a FROM acid_event WHERE sid='" . filterSql($sid,$db) . "' AND cid='" . filterSql($cid,$db) . "'";
 //echo $sql2;
 $result2 = $db->baseExecute($sql2);
 $myrow2 = $result2->baseFetchRow();
@@ -305,6 +305,12 @@ $ip_dst = $myrow2[5]; $current_dip = baseLong2IP($ip_dst);
 $ip_proto = $myrow2[6];
 $layer4_sport = $myrow2[7]; if ($layer4_sport!="0") $layer4_sport = ":".$layer4_sport;
 $layer4_dport = $myrow2[8]; if ($layer4_dport!="0") $layer4_dport = ":".$layer4_dport;
+$ossim_priority= $myrow2[9];
+$ossim_reliability = $myrow2[10];
+$ossim_asset_src = $myrow2[11];
+$ossim_asset_dst = $myrow2[12];
+$ossim_risk_c = $myrow2[13];
+$ossim_risk_a = $myrow2[14];
 if ($plugin_id == "" || $plugin_sid == "") {
     echo '<CENTER><B>';
     ErrorMessage(gettext("Event DELETED"));
@@ -449,14 +455,22 @@ $dbo->close($_conn);
 echo '  <TR>
              <TD>
                 <TABLE BORDER=0 CELLPADDING=4>
-                  <TR><TD CLASS="header2" ALIGN=CENTER ROWSPAN=2>' . gettext("IPs")  . '</TD>
+                  <TR>
                        <TD class="header">'. gettext("Source") . '</TD>
                        <TD class="header">' . gettext("Destination") . '</TD>
                        <TD class="header">' . gettext("Protocol") . '</TD>
+                       <TD class="header">' . gettext("Asset").' S<img border="0" align="absmiddle" src="images/arrow-000-small.gif">D</TD>
+                       <TD class="header">' . gettext("Priority") . '</TD>
+                       <TD class="header">' . gettext("Reliability") . '</TD>
+                       <TD class="header">' . gettext("Risk") . '</TD>
                   </TR>
                   <TR><TD class="plfield" nowrap>' . $ip_src_data . '</TD>
                       <TD class="plfield" nowrap>' . $ip_dst_data . '</TD>
                       <TD class="plfield" nowrap>' . IPProto2str($ip_proto) . '</TD>
+                      <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_asset_src . '&value2=' . $ossim_asset_dst . '&max=5" border="0" align="absmiddle" title="'.$ossim_asset_src -> $ossim_asset_dst.'"></TD>
+                      <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_priority . '&max=5" border="0" align="absmiddle" title="'.$ossim_priority.'"></TD>
+                      <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_reliability . '&max=9" border="0" align="absmiddle" title="'.$ossim_reliability.'"></TD>
+                      <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_risk_c . '&value2=' . $ossim_risk_a . '&max=9" border="0" align="absmiddle" title="'.$ossim_risk_c -> $ossim_risk_a.'"></TD>
                   </TR>
                  </TABLE>     
              </TD>
