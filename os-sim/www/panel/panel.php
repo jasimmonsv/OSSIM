@@ -350,7 +350,7 @@ if (GET('edit_tabs') == 1 && $show_edit) {
 
 <body>
 <?php include ("tabs.php"); ?>
-<!-- <div style="text-align: right; width: 100%;">[<a href="<?php //echo $_SERVER['SCRIPT_NAME'] ?>"><?php //echo _("Return to executive panel"); ?></a>]</div> -->
+<div style="text-align: right; width: 100%;">[<a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?panel_id=<?php echo $panel_id ?>"><?php echo _("Return to panel"); ?></a>]</div>
 <br/>
 <table align="center">
 	<tr>
