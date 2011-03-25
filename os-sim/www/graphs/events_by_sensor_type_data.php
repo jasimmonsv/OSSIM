@@ -99,6 +99,7 @@ while (!$rs->EOF) {
     if (Session::allowedSensors() == "" || $sensorkeys[$sensor_plugin[0]] > 0) {
 		$plugin = ($sensor_plugin[1] != "") ? preg_replace("/:.*/", "", $sensor_plugin[1]) : "snort";
 		if ($plugin=="") $plugin="snort";
+		$plugin= preg_replace("/ossec-.*/", "ossec", $plugin);
 		$sensor_plugin[0] = preg_replace("/:.*/", "", $sensor_plugin[0]);
 		$sensor = ($sensors[$sensor_plugin[0]] != "") ? $sensors[$sensor_plugin[0]] : $sensor_plugin[0];
 		$data[$sensor][$plugin]+= $rs->fields["event_cnt"];
@@ -163,7 +164,7 @@ $chart['chart_pref'] = array(
 );
 $chart['chart_rect'] = array(
     'x' => 80,
-    'y' => 40,
+    'y' => 30,
     'width' => 400,
     'height' => 230,
     'positive_color' => "BBC6D0",
@@ -196,22 +197,22 @@ $chart['draw'] = array(
         'delay' => 0,
         'duration' => 5,
         'color' => "000000",
-        'alpha' => 5,
+        'alpha' => 3,
         'size' => 80,
         'x' => 450,
-        'y' => 75,
+        'y' => 150,
         'text' => _("sensors")
     ) ,
     array(
         'type' => "text",
         'transition' => "slide_right",
         'delay' => 0,
-        'duration' => 10,
+        'duration' => 5,
         'color' => "000000",
-        'alpha' => 4,
+        'alpha' => 3,
         'size' => 50,
-        'x' => 600,
-        'y' => 150,
+        'x' => 450,
+        'y' => 220,
         'text' => _("amount")
     )
 );
