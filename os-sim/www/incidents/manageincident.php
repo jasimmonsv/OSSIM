@@ -43,16 +43,17 @@ require_once 'classes/Incident.inc';
 require_once 'classes/Incident_type.inc';
 require_once 'classes/Incident_ticket.inc';
 require_once 'classes/Incident_tag.inc';
-function die_error($msg = null, $append = null) {
+function die_error($msg = null, $append = null)
+ {
     if ($msg) ossim_set_error($msg);
-    echo ossim_error();
+		echo ossim_error();
     ?>
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html>
     <head>
         <title> <?php echo gettext("OSSIM Framework"); ?> </title>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-        <META http-equiv="Pragma" content="no-cache"/>
+        <meta http-equiv="Pragma" content="no-cache"/>
         <link rel="stylesheet" type="text/css" href="../style/style.css"/>
     </head>
     <body>
@@ -65,6 +66,7 @@ function die_error($msg = null, $append = null) {
     <?php
     exit;
 }
+
 if (!count($_GET) && count($_POST)>0) foreach ($_POST as $k => $v) $_GET[$k]=$v;
 //
 $db = new ossim_db();
@@ -74,8 +76,9 @@ $id = GET('incident_id');
 
 
 
-$action = (POST('action')=="newincident")? "newincident":GET('action');
-$from_vuln = (POST('from_vuln')!="")? POST('from_vuln'):GET('from_vuln');
+$action    = ( POST('action' ) == "newincident" )? "newincident":GET('action');
+$from_vuln = ( POST('from_vuln') != "" ) ? POST('from_vuln'):GET('from_vuln');
+$edit      = ( isset($_GET['edit']) || isset($_POST['edit']) ) ? 1 : 0;
 
 ossim_valid($id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("id"));
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("action"));
@@ -118,7 +121,7 @@ if ($action == 'subscrip') {
             die_error("Invalid user");
         }
     }
-    header("Location: incident.php?id=$id");
+    header("Location: incident.php?id=$id&edit=$edit");
     exit;
 }
 //
@@ -192,7 +195,7 @@ if ($action == 'delticket') {
         die("Invalid Ticket ID");
     }
     Incident_ticket::delete($conn, GET('ticket_id'));
-    header("Location: incident.php?id=$id");
+    header("Location: incident.php?id=$id&edit=$edit");
     exit;
 }
 //
@@ -370,7 +373,7 @@ if ($action == 'editincident') {
         Incident::update_vulnerability($conn, $incident_id, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description);
     } /*elseif vulnerability*/
     if (ossim_error()) die_error();
-    header("Location: incident.php?id=$incident_id");
+    header("Location: incident.php?id=$incident_id&edit=$edit");
     exit;
 }
 //
@@ -628,7 +631,7 @@ if ($action == 'newincident') {
     if(intval($from_vuln)==1)
         header("Location: index.php?hmenu=Tickets&smenu=Tickets"); 
     else
-        header("Location: incident.php?id=$incident_id");
+        header("Location: incident.php?id=$incident_id&edit=$edit");
     exit;
 }
 ?>

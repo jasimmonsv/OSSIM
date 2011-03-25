@@ -56,9 +56,9 @@ function get_params_field($field){
 	
 	GLOBAL $map_key;
 	$unique_id = md5( uniqid() );
-	$fld = "custom_".$unique_id;
-	$name = "custom_".base64_encode($field['name']."_####_".$field['type']);
-	$required = ( $field['required'] == 1 ) ? "req_field" : "";
+	$fld       = "custom_".$unique_id;
+	$name      = "custom_".base64_encode($field['name']."_####_".$field['type']);
+	$required  = ( $field['required'] == 1 ) ? "req_field" : "";
 	
 	switch ($field['type']){
 		case "Asset":
@@ -159,24 +159,31 @@ function get_params_field($field){
 
 }
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 $edit = GET('action') && GET('action') == 'edit' ? true : false;
-$ref = !ossim_valid(GET('ref') , OSS_LETTER) ? die("Ref required") : GET('ref');
-if ($edit) {
-    if (!ossim_valid(GET('incident_id') , OSS_DIGIT)) {
+$ref  = !ossim_valid(GET('ref') , OSS_LETTER) ? die("Ref required") : GET('ref');
+if ($edit) 
+{
+    if (!ossim_valid(GET('incident_id') , OSS_DIGIT)) 
+	{
         die("Wrong ID");
     }
     $incident_id = GET('incident_id');
-    $list = Incident::get_list($conn, "WHERE incident.id=$incident_id");
-    if (count($list) != 1) die("Wrong ID");
-    $incident = $list[0];
-    $title = $incident->get_title();
-    $submitter = $incident->get_submitter();
-    $priority = $incident->get_priority();
+    
+	$list       = Incident::get_list($conn, "WHERE incident.id=$incident_id");
+    
+	if (count($list) != 1) 
+		die("Wrong ID");
+    
+		
+	$incident    = $list[0];
+    $title       = $incident->get_title();
+    $submitter   = $incident->get_submitter();
+    $priority    = $incident->get_priority();
     $event_start = $incident->get_event_start();
-    $event_end = $incident->get_event_end();
-    $type = $incident->get_type();
+    $event_end   = $incident->get_event_end();
+    $type        = $incident->get_type();
 	switch ($ref) {
         case 'Alarm':
 			list($alarm) = Incident_alarm::get_list($conn, "WHERE incident_alarm.incident_id=$incident_id");

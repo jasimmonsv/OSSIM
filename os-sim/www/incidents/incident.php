@@ -44,23 +44,112 @@ require_once 'classes/Incident_ticket.inc';
 require_once 'classes/Incident_tag.inc';
 require_once 'classes/Osvdb.inc';
 require_once ("classes/Repository.inc");
-$id = GET('id');
+
+
+function format_user($user, $html = true, $show_email = false) 
+{
+    if (is_a($user, 'Session')) 
+	{
+        $login   = $user->get_login();
+        $name    = $user->get_name();
+        $depto   = $user->get_department();
+        $company = $user->get_company();
+        $mail    = $user->get_email();
+    } 
+	elseif (is_array($user))
+	{
+        $login   = $user['login'];
+        $name    = $user['name'];
+        $depto   = $user['department'];
+        $company = $user['company'];
+        $mail    = $user['email'];
+    } 
+	else 
+	{
+        return '';
+    }
+	
+    $ret = $name;
+    
+	if ($depto && $company)   $ret.= " / $depto / $company";
+    if ($mail && $show_email) $ret = "$ret &lt;$mail&gt;";
+    if ($login)               $ret = "<label title=\"Login: $login\">$ret</label>";
+    
+	if ($mail)
+        $ret = '<a href="mailto:' . $mail . '">' . $ret . '</a>';
+    else 
+        $ret = "$ret <font size='small' color='red'><i>(No email)</i></font>";
+    
+    return $html ? $ret : strip_tags($ret);
+}
+
+function get_my_users_vision($dbconn, $pro)
+{
+	
+	require_once('classes/Session.inc');
+	
+	if  ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin()) )
+	{
+		if ( Session::am_i_admin() )
+			$users_list = Session::get_list($dbconn, "ORDER BY login");
+		else
+			$users_list = Acl::get_my_users($dbconn,Session::get_session_user());
+		
+		
+		if ( is_array($users_list) && !empty($users_list) )
+		{
+			foreach($users_list as $k => $v)
+				$users[] = ( is_object($v) )? $v->get_login() : $v["login"];
+			
+			$where = "WHERE login in ('".implode("','",$users)."')";
+		}
+	}
+	else
+	{
+	
+		if ( !$pro )
+			$where = "";
+		else
+		{
+			$brothers = Acl::get_brothers($dbconn);
+			
+			foreach($brothers as $k => $v)
+				$users[] = $v["login"];
+			
+			if ( count($brothers) > 0 )	
+				$where = "WHERE login in ('".implode("','",$users)."')";
+			else
+				$where = "WHERE login in ('".Session::get_session_user()."')";
+		}	
+	}	
+		
+
+	return Session::get_list($dbconn, $where." ORDER BY login ASC");
+}
+
+$id   = GET('id');
+$edit = ( isset($_GET['edit']) || isset($_POST['edit']) ) ? 1 : 0;
+
 ossim_valid($id, OSS_ALPHA, 'illegal:' . _("Incident ID"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
-$incident_list = Incident::search($conn, array(
-    'incident_id' => $id
-));
+
+$incident_list = Incident::search($conn, array('incident_id' => $id));
+
 if (count($incident_list) != 1) {
     die(_("Invalid ticket ID or insufficient permissions"));
 }
+
 $incident = $incident_list[0];
 
-$conf = $GLOBALS["CONF"];
-$version = $conf->get_conf("ossim_server_version", FALSE);
+$conf     = $GLOBALS["CONF"];
+$version  = $conf->get_conf("ossim_server_version", FALSE);
+$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -94,6 +183,7 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 			$('#custom_table tr:odd').css('background', "#F2F2F2");
 			
 		});
+		
 		function switch_user(select) {
 			if(select=='entity' && $('#transferred_entity').val()!=''){
 				$('#user').val('');
@@ -143,210 +233,191 @@ $version = $conf->get_conf("ossim_server_version", FALSE);
 	<style type='text/css'>
 		td { border-width: 0px;}
 	</style>
-<? include ("../host_report_menu.php") ?>
+	<?php include ("../host_report_menu.php") ?>
 </head>
-<body>
-<?php
-include ("../hmenu.php"); ?>
-<table align="center" width="100%">
-  <tr>
-    <th> <?php echo _("Ticket ID") ?> </th>
-    <th width="600px"><?php echo _("Ticket") ?></th>
-    <th> <?php echo _("Status") ?> </th>
-    <th> <?php echo _("Priority") ?> </th>
-	<th> <?php echo _("Knowledge DB") ?> </th>
-    <th> <?php echo _("Action") ?> </th>
-  </tr>
-  <tr>
-<?php
-function format_user($user, $html = true, $show_email = false) {
-    if (is_a($user, 'Session')) {
-        $login = $user->get_login();
-        $name = $user->get_name();
-        $depto = $user->get_department();
-        $company = $user->get_company();
-        $mail = $user->get_email();
-    } elseif (is_array($user)) {
-        $login = $user['login'];
-        $name = $user['name'];
-        $depto = $user['department'];
-        $company = $user['company'];
-        $mail = $user['email'];
-    } else {
-        return '';
-    }
-    $ret = $name;
-    if ($depto && $company) $ret.= " / $depto / $company";
-    if ($mail && $show_email) $ret = "$ret &lt;$mail&gt;";
-    if ($login) $ret = "<label title=\"Login: $login\">$ret</label>";
-    if ($mail) {
-        $ret = '<a href="mailto:' . $mail . '">' . $ret . '</a>';
-    } else {
-        $ret = "$ret <font size=small color=red><i>(No email)</i></font>";
-    }
-    return $html ? $ret : strip_tags($ret);
-}
-$name 				= $incident->get_ticket();
-$title 				= $incident->get_title();
-$ref 				= $incident->get_ref();
-$type 				= $incident->get_type();
-$created 			= $incident->get_date();
-$life 				= $incident->get_life_time();
-$updated 			= $incident->get_last_modification();
-$priority 			= $incident->get_priority();
-$incident_status    = $incident->get_status();
-$incident_in_charge = $incident->get_in_charge();
-$users              = Session::get_list($conn);
-$incident_tags      = $incident->get_tags();
-$incident_tag       = new Incident_tag($conn);
-$taga = array();
-foreach($incident_tags as $tag_id) {
-    $taga[] = $incident_tag->get_html_tag($tag_id);
-}
-$taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
-?>
 
-    <td>
-    	<table width="100%" class="noborder">
-		<tr>
-			<td><?php echo $name ?></b></td>
-    	</tr>
-		</table>
-    </td>
-    <td class="left">
-        <table width="100%" class="noborder">
-		<tr>
-			<td>
-				<table class="noborder" width="100%">
+<body>
+<?php include ("../hmenu.php"); ?>
+
+<table align="center" width="100%">
+	<tr>
+		<th> <?php echo _("Ticket ID") ?> </th>
+		<th width="600px"><?php echo _("Ticket") ?></th>
+		<th> <?php echo _("Status") ?> </th>
+		<th> <?php echo _("Priority") ?> </th>
+		<th> <?php echo _("Knowledge DB") ?> </th>
+		<th> <?php echo _("Action") ?> </th>
+	</tr>
+	
+	<tr>
+		<?php
+
+		$name 				= $incident->get_ticket();
+		$title 				= $incident->get_title();
+		$ref 				= $incident->get_ref();
+		$type 				= $incident->get_type();
+		$created 			= $incident->get_date();
+		$life 				= $incident->get_life_time();
+		$updated 			= $incident->get_last_modification();
+		$priority 			= $incident->get_priority();
+		$incident_status    = $incident->get_status();
+		$incident_in_charge = $incident->get_in_charge();
+		$users              = get_my_users_vision($conn, $pro);
+		$incident_tags      = $incident->get_tags();
+		$incident_tag       = new Incident_tag($conn);
+		$taga = array();
+		
+		foreach($incident_tags as $tag_id) {
+			$taga[] = $incident_tag->get_html_tag($tag_id);
+		}
+		$taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
+		?>
+
+		<td>
+			<table width="100%" class="noborder">
 				<tr>
-					<td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
-						<?php echo _("Name") ?>: <b><?php echo $title ?> </b><br/>
-						<?php echo _("Class") ?>: <?php echo $ref ?><br/>
-						<?php echo _("Type") ?>: <?php echo $type ?><br/>
-						<?php echo _("Created") ?>: <?php echo $created ?> (<?php echo $life ?>)<br/>
-						<?php echo _("Last Update") ?>: <?php echo $updated ?><br/>
-						<?php
-						if ($incident->get_status($conn) == "Closed") {
-							echo _("Resolution time") . ": " . $incident->get_life_time() . "<br/>";
-						}
-						?>      
+					<td><?php echo $name ?></b></td>
+				</tr>
+			</table>
+		</td>
+		<td class="left">
+			<table width="100%" class="noborder">
+				<tr>
+					<td>
+						<table class="noborder" width="100%">
+							<tr>
+								<td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
+									<?php echo _("Name") ?>: <b><?php echo $title ?> </b><br/>
+									<?php echo _("Class") ?>: <?php echo $ref ?><br/>
+									<?php echo _("Type") ?>: <?php echo $type ?><br/>
+									<?php echo _("Created") ?>: <?php echo $created ?> (<?php echo $life ?>)<br/>
+									<?php echo _("Last Update") ?>: <?php echo $updated ?><br/>
+									<?php
+									if ($incident->get_status($conn) == "Closed") {
+										echo _("Resolution time") . ": " . $incident->get_life_time() . "<br/>";
+									}
+									?>      
+								</td>
+							</tr>
+						
+							<tr>
+								<td style="text-align:left;padding-left:10px;">
+									<!--<hr/>-->
+									<?php 
+									if (!preg_match("/^\d+$/",$incident->get_in_charge_name($conn)))
+									{
+										$in_charge_name = $incident->get_in_charge_name($conn);
+									}
+									else 
+									{
+										$querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=".$incident->get_in_charge_name($conn);
+										$resulte=$conn->execute($querye);
+										list($entity_name, $entity_type) = $resulte->fields;
+										$in_charge_name = $entity_name." [".$entity_type."]";
+									}
+									?>
+									<?php echo _("In charge") ?>: <b style="color: darkblue"><?php echo $in_charge_name; ?></b><br/>
+									<?php echo _("Submitter") ?>: <b><?php echo $incident->get_submitter() ?></b>
+								</td>
+								</tr>
+							<tr>
+								<td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
+									<?php echo _("Extra") ?>: <?php echo $taghtm ?><br/>
+								</td>
+							</tr>
+						<?php		
+							if ($ref == 'Custom')
+								$td_st = 'text-align:left;';
+							else
+								$td_st = 'padding-left:10px; text-align:left;';
+						   
+							echo "<tr><td style='$td_st'>";
+			 
+							if ($ref == 'Alarm' or $ref == 'Event')
+							{
+								if ($ref == 'Alarm') {
+									$alarm_list = $incident->get_alarms($conn);
+								} else {
+									$alarm_list = $incident->get_events($conn);
+								}
+								foreach($alarm_list as $alarm_data) {
+									echo "Source Ips: <a href='../report/host_report.php?host=".$alarm_data->get_src_ips()."' class='HostReportMenu' id='".$alarm_data->get_src_ips().";".$alarm_data->get_src_ips()."'><b>" . $alarm_data->get_src_ips() . "</b></a> - " . "Source Ports: <b>" . $alarm_data->get_src_ports() . "</b><br/>" . "Dest Ips: <a href='../report/host_report.php?host=".$alarm_data->get_dst_ips()."' class='HostReportMenu' id='".$alarm_data->get_dst_ips().";".$alarm_data->get_dst_ips()."'><b>" . $alarm_data->get_dst_ips() . "</b></a> - " . "Dest Ports: <b>" . $alarm_data->get_dst_ports() . "</b>";
+								}
+							} 
+							elseif ($ref == 'Metric')
+							{
+								$metric_list = $incident->get_metrics($conn);
+								foreach($metric_list as $metric_data) {
+									echo "Target: <b>" . $metric_data->get_target() . "</b> - " . "Metric Type: <b>" . $metric_data->get_metric_type() . "</b> - " . "Metric Value: <b>" . $metric_data->get_metric_value() . "</b>";
+								}
+							} 
+							elseif ($ref == 'Anomaly')
+							{
+								$anom_list = $incident->get_anomalies($conn);
+								foreach($anom_list as $anom_data) {
+									$anom_type = $anom_data->get_anom_type();
+									$anom_ip = $anom_data->get_ip();
+									$anom_info_o = $anom_data->get_data_orig();
+									$anom_info = $anom_data->get_data_new();
+									if ($anom_type == 'mac') {
+										list($a_sen, $a_date_o, $a_mac_o, $a_vend_o) = explode(",", $anom_info_o);
+										list($a_sen, $a_date, $a_mac, $a_vend) = explode(",", $anom_info);
+										echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous Mac: <b>" . $a_mac_o . "(" . $a_vend_o . ")</b><br>" . "New Mac: <b>" . $a_mac . "(" . $a_vend . ")</b><br>";
+									} elseif ($anom_type == 'service') {
+										list($a_sen, $a_date, $a_port, $a_prot_o, $a_ver_o) = explode(",", $anom_info_o);
+										list($a_sen, $a_date, $a_port, $a_prot, $a_ver) = explode(",", $anom_info);
+										echo "Host: <b>" . $anom_ip . "</b><br>" . "Port: <b>" . $a_port . "</b><br>" . "Previous Protocol [Version]: <b>" . $a_prot_o . " [" . $a_ver_o . "]</b><br>" . "New Protocol [Version]: <b>" . $a_prot . " [" . $a_ver . "]</b><br>";
+									} elseif ($anom_type == 'os') {
+										list($a_sen, $a_date, $a_os_o) = explode(",", $anom_info_o);
+										list($a_sen, $a_date, $a_os) = explode(",", $anom_info);
+										echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous OS: <b>" . $a_os_o . "</b><br>" . "New OS: <b>" . $a_os . "</b><br>";
+									}
+								}
+							} 
+							elseif ($ref == 'Vulnerability')
+							{
+								$vulnerability_list = $incident->get_vulnerabilities($conn);
+								foreach($vulnerability_list as $vulnerability_data) {
+									// Osvdb starting
+									$nessus_id = $vulnerability_data->get_nessus_id();
+									$osvdb_id = Osvdb::get_osvdbid_by_nessusid($conn, $nessus_id);
+									if ($osvdb_id) $nessus_id = "<a href=\"osvdb.php?id=" . $osvdb_id . "\">" . $nessus_id . "</a>";
+									// Osvdb end
+									// add name and kdb link
+									require_once ("classes/Host.inc");
+									require_once ("classes/Repository.inc");
+									$txt_temp='';
+									$hostname_temp=Host::ip2hostname($conn,$vulnerability_data->get_ip());
+									if($hostname_temp!=$vulnerability_data->get_ip()){
+										$txt_temp.=$hostname_temp.' - ';
+									}
+									if ($linkedocs = Repository::have_linked_documents($conn, $vulnerability_data->get_ip(), 'host')){
+										$txt_temp.="<a href=\"javascript:;\" onclick=\"GB_edit('../repository/repository_list.php?keyname=" . urlencode($vulnerability_data->get_ip()) . "&type=host')\" class=\"blue\" target=\"main\">[" . $linkedocs . "] "._('Knowledge DB')."</a>";
+									}
+									if($txt_temp!=''){
+										$txt_temp=' ('.$txt_temp.')';
+									}
+									//
+									echo "<b>IP:</b> " . $vulnerability_data->get_ip() .$txt_temp."<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity($vulnerability_data->get_description()) . "<br>";
+								}
+							} 
+							elseif ($ref == 'Custom')
+							{
+								$custom_list = $incident->get_custom($conn);
+								echo "<table class='noborder' width='100%' id='custom_table'>";
+								foreach($custom_list as $custom) {
+									echo "<tr><td class='left noborder' align='middle'><b>".$custom[0].":</b></td>"; 
+									echo "<td class='left'>".Incident::format_custom_field($custom[3],$id,$custom[1], $custom[2])."</td></tr>\n";
+								}
+								echo "</table>";
+							}
+						?>
 					</td>
 				</tr>
-				<tr>
-					<td style="text-align:left;padding-left:10px;">
-					<!--<hr/>-->
-					<?php 
-					if (!preg_match("/^\d+$/",$incident->get_in_charge_name($conn))) {
-						$in_charge_name = $incident->get_in_charge_name($conn);
-					}
-					else {
-						$querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=".$incident->get_in_charge_name($conn);
-						$resulte=$conn->execute($querye);
-						list($entity_name, $entity_type) = $resulte->fields;
-						$in_charge_name = $entity_name." [".$entity_type."]";
-					}
-					?>
-					<?php echo _("In charge") ?>: <b style="color: darkblue"><?php echo $in_charge_name; ?></b><br/>
-					<?php echo _("Submitter") ?>: <b><?php echo $incident->get_submitter() ?></b>
-					</td>
-				</tr>
-				<tr>
-					<td style="text-align:left;padding-left:10px;" bgcolor="#efefef">
-					<!--<hr/>-->
-					<?php echo _("Extra") ?>: <?php echo $taghtm ?><br/>
-					<!--<hr/>-->
-					</td>
-				</tr>
-		<?php		
-			if ($ref == 'Custom')
-				$td_st = 'text-align:left;';
-			else
-				$td_st = 'padding-left:10px; text-align:left;';
-           
-			echo "<tr><td style='$td_st'>";
- 
-	if ($ref == 'Alarm' or $ref == 'Event')
-	{
-		if ($ref == 'Alarm') {
-			$alarm_list = $incident->get_alarms($conn);
-		} else {
-			$alarm_list = $incident->get_events($conn);
-		}
-		foreach($alarm_list as $alarm_data) {
-			echo "Source Ips: <a href='../report/host_report.php?host=".$alarm_data->get_src_ips()."' class='HostReportMenu' id='".$alarm_data->get_src_ips().";".$alarm_data->get_src_ips()."'><b>" . $alarm_data->get_src_ips() . "</b></a> - " . "Source Ports: <b>" . $alarm_data->get_src_ports() . "</b><br/>" . "Dest Ips: <a href='../report/host_report.php?host=".$alarm_data->get_dst_ips()."' class='HostReportMenu' id='".$alarm_data->get_dst_ips().";".$alarm_data->get_dst_ips()."'><b>" . $alarm_data->get_dst_ips() . "</b></a> - " . "Dest Ports: <b>" . $alarm_data->get_dst_ports() . "</b>";
-		}
-	} 
-	elseif ($ref == 'Metric')
-	{
-		$metric_list = $incident->get_metrics($conn);
-		foreach($metric_list as $metric_data) {
-			echo "Target: <b>" . $metric_data->get_target() . "</b> - " . "Metric Type: <b>" . $metric_data->get_metric_type() . "</b> - " . "Metric Value: <b>" . $metric_data->get_metric_value() . "</b>";
-		}
-	} 
-	elseif ($ref == 'Anomaly')
-	{
-		$anom_list = $incident->get_anomalies($conn);
-		foreach($anom_list as $anom_data) {
-			$anom_type = $anom_data->get_anom_type();
-			$anom_ip = $anom_data->get_ip();
-			$anom_info_o = $anom_data->get_data_orig();
-			$anom_info = $anom_data->get_data_new();
-			if ($anom_type == 'mac') {
-				list($a_sen, $a_date_o, $a_mac_o, $a_vend_o) = explode(",", $anom_info_o);
-				list($a_sen, $a_date, $a_mac, $a_vend) = explode(",", $anom_info);
-				echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous Mac: <b>" . $a_mac_o . "(" . $a_vend_o . ")</b><br>" . "New Mac: <b>" . $a_mac . "(" . $a_vend . ")</b><br>";
-			} elseif ($anom_type == 'service') {
-				list($a_sen, $a_date, $a_port, $a_prot_o, $a_ver_o) = explode(",", $anom_info_o);
-				list($a_sen, $a_date, $a_port, $a_prot, $a_ver) = explode(",", $anom_info);
-				echo "Host: <b>" . $anom_ip . "</b><br>" . "Port: <b>" . $a_port . "</b><br>" . "Previous Protocol [Version]: <b>" . $a_prot_o . " [" . $a_ver_o . "]</b><br>" . "New Protocol [Version]: <b>" . $a_prot . " [" . $a_ver . "]</b><br>";
-			} elseif ($anom_type == 'os') {
-				list($a_sen, $a_date, $a_os_o) = explode(",", $anom_info_o);
-				list($a_sen, $a_date, $a_os) = explode(",", $anom_info);
-				echo "Host: <b>" . $anom_ip . "</b><br>" . "Previous OS: <b>" . $a_os_o . "</b><br>" . "New OS: <b>" . $a_os . "</b><br>";
-			}
-		}
-	} 
-	elseif ($ref == 'Vulnerability')
-	{
-		$vulnerability_list = $incident->get_vulnerabilities($conn);
-		foreach($vulnerability_list as $vulnerability_data) {
-			// Osvdb starting
-			$nessus_id = $vulnerability_data->get_nessus_id();
-			$osvdb_id = Osvdb::get_osvdbid_by_nessusid($conn, $nessus_id);
-			if ($osvdb_id) $nessus_id = "<a href=\"osvdb.php?id=" . $osvdb_id . "\">" . $nessus_id . "</a>";
-			// Osvdb end
-			// add name and kdb link
-			require_once ("classes/Host.inc");
-			require_once ("classes/Repository.inc");
-			$txt_temp='';
-			$hostname_temp=Host::ip2hostname($conn,$vulnerability_data->get_ip());
-			if($hostname_temp!=$vulnerability_data->get_ip()){
-				$txt_temp.=$hostname_temp.' - ';
-			}
-			if ($linkedocs = Repository::have_linked_documents($conn, $vulnerability_data->get_ip(), 'host')){
-				$txt_temp.="<a href=\"javascript:;\" onclick=\"GB_edit('../repository/repository_list.php?keyname=" . urlencode($vulnerability_data->get_ip()) . "&type=host')\" class=\"blue\" target=\"main\">[" . $linkedocs . "] "._('Knowledge DB')."</a>";
-			}
-			if($txt_temp!=''){
-				$txt_temp=' ('.$txt_temp.')';
-			}
-			//
-			echo "<b>IP:</b> " . $vulnerability_data->get_ip() .$txt_temp."<br> " . "<b>Port:</b> " . $vulnerability_data->get_port() . "<br> " . "<b>Scanner ID:</b> " . $nessus_id . "<br>" . "<b>Risk:</b> " . $vulnerability_data->get_risk() . "<br>" . "<b>Description:</b> " . Osvdb::sanity($vulnerability_data->get_description()) . "<br>";
-		}
-	} 
-	elseif ($ref == 'Custom')
-	{
-		$custom_list = $incident->get_custom($conn);
-		echo "<table class='noborder' width='100%' id='custom_table'>";
-		foreach($custom_list as $custom) {
-			echo "<tr><td class='left noborder' align='middle'><b>".$custom[0].":</b></td>"; 
-			echo "<td class='left'>".Incident::format_custom_field($custom[3],$id,$custom[1], $custom[2])."</td></tr>\n";
-		}
-		echo "</table>";
-	}
-?>
-        </td></tr>
-        </table>
-    </td></tr></table>
+			</table>
+		</td>
+	</tr>
+	</table>
     </td>
     <!-- end incident data -->
 
@@ -357,11 +428,12 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 			</tr>
 		</table>
 	</td>
-    <td valign='top'>
+    
+	<td valign='top'>
     	<table width="100%" class="noborder">
-		<tr>
-    		<td><?php echo Incident::get_priority_in_html($priority) ?></td>
-		</tr>
+			<tr>
+				<td><?php echo Incident::get_priority_in_html($priority) ?></td>
+			</tr>
     	</table>
     </td>
 
@@ -431,19 +503,33 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 					?>
 					</td>
 					<td style="text-align: right;" nowrap='nowrap'>
+					
 						<select name="login">
-							<?php if (count($users) < 1) { ?>
-							<option value="">- <?=_("No users found")?> -</option>
-							<?php } else { ?> 
-							<option value=""></option>
-							<?php } ?>
-							<?php
-							foreach($users as $u) { ?>
+							<?php 
+							$current_user = Session:: get_session_user();
+							$number_users = count($users) - 1;
+							
+							if ( $number_users < 1 ) 
+							{ 
+								?>
+								<option value="">- <?php echo _("No users found")?> -</option>
+								<?php 
+							} 
+							
+							foreach($users as $u) 
+							{ 
+								if ( $u->get_login() != $current_user )
+								{
+								?>
 								<option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
-							<?php } ?>
+								<?php 
+								}
+							} 
+							?>
 						</select>
-						<input type="submit" class="button" name="subscribe" value="<?=_("Subscribe")?>">&nbsp;
-						<input type="submit" class="button" name="unsubscribe" value="<?=_("Unsubscribe")?>">
+						
+						<input type="submit" class="button" name="subscribe" value="<?php echo _("Subscribe")?>"/>&nbsp;
+						<input type="submit" class="button" name="unsubscribe" value="<?php echo _("Unsubscribe")?>"/>
 					</td>
 				</tr>
 			</table>
@@ -611,12 +697,12 @@ for ($i = 0; $i < count($tickets_list); $i++) {
         
 </script>
   
-<form name="newticket" method="POST"
-      action="manageincident.php?action=newticket&incident_id=<?php echo $id
+<form name="newticket" method="POST" action="manageincident.php?action=newticket&incident_id=<?php echo $id
 ?>"
       ENCTYPE="multipart/form-data">
-      <input type="hidden" name="prev_status" value="<?php echo $incident_status ?>"></input>
-      <input type="hidden" name="prev_prio" value="<?php echo $priority ?>"></input>
+      <input type="hidden" name="prev_status" value="<?php echo $incident_status ?>"/>
+      <input type="hidden" name="prev_prio" value="<?php echo $priority ?>"/>
+	  <input type="hidden" name="edit" value="<?php echo $edit ?>"/>
 <!--<table align="center" width="100%" style="border-width: 0px" cellspacing="5">-->
 <table align="center" width="100%" cellspacing="2">
 <tr><td valign="top">
@@ -625,32 +711,31 @@ for ($i = 0; $i < count($tickets_list); $i++) {
     <tr>
         <th><?php echo _("Status") ?></th>
         <td style="text-align: left">
-          <select name="status">
-            <option value="Open" <?php
-if ($incident_status == 'Open') echo 'SELECTED' ?>><?php echo _("Open") ?></option>
-            <option value="Closed" <?php
-if ($incident_status == 'Closed') echo 'SELECTED' ?>><?php echo _("Closed") ?></option>
-          </select>
+			<select name="status">
+				<option value="Open" <?php if ($incident_status == 'Open') echo "selected='selected'" ?>><?php echo _("Open") ?></option>
+				<option value="Closed" <?php if ($incident_status == 'Closed') echo "selected='selected'" ?>><?php echo _("Closed") ?></option>
+			</select>
         </td>
     </tr>
     <tr>
         <th><?php echo _("Priority") ?></th>
         <td style="text-align: left">
-          <select name="priority" onChange="chg_prio_str();">
+			<select name="priority" onChange="chg_prio_str();">
             <?php
-for ($i = 1; $i <= 10; $i++) { ?>
-                <?php
-    $selected = $priority == $i ? 'SELECTED' : ''; ?>
-                <option value="<?php echo $i
-?>" <?php echo $selected ?>><?php echo $i ?></option>
-            <?php
-} ?>
-          </select>
-          -&gt;
-          <select name="prio_str" onChange="chg_prio_num();">
-            <option value="Low"><?php echo _("Low") ?></option>
-            <option value="Medium"><?php echo _("Medium") ?></option>
-            <option value="High"><?php echo _("High") ?></option>
+				for ($i = 1; $i <= 10; $i++) { ?>
+								<?php
+					$selected = $priority == $i ? 'SELECTED' : ''; ?>
+								<option value="<?php echo $i
+				?>" <?php echo $selected ?>><?php echo $i ?></option>
+							<?php
+				} ?>
+			</select>
+			-&gt;
+			<select name="prio_str" onChange="chg_prio_num();">
+				<option value="Low"><?php echo _("Low") ?></option>
+				<option value="Medium"><?php echo _("Medium") ?></option>
+				<option value="High"><?php echo _("High") ?></option>
+			</select>
          </td>
     </tr>
     
@@ -677,15 +762,17 @@ for ($i = 1; $i <= 10; $i++) { ?>
                             <td><?php echo _("User:");?></td>
                             <td>
                               <select name="transferred_user" id="user" style="width:140px;" onchange="switch_user('user');return false;">
-                                <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-                                <?php
-                                foreach($users as $u) { ?>
-                                <?php
-                                    if ($u->get_login() == $incident_in_charge) continue; // Don't add current in charge
-                                     ?>
-                                                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
-                                            <?php
-                                } ?>
+									<option value=""><? if (count($users) < 1) { ?>- <?php echo _("No users found")?> -<? } ?></option>
+									<?php
+									foreach($users as $u) { ?>
+									<?php
+										if ($u->get_login() == $incident_in_charge) 
+											continue; // Don't add current in charge
+											
+											?>
+											<option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
+											<?php
+									} ?>
                               </select>
                             </td>
                             <td style="padding:0px 5px 0px 5px;text-align:center;"><?php echo _("OR");?></td>
@@ -840,8 +927,14 @@ for ($i = 1; $i <= 10; $i++) { ?>
     <tr>
         <td>&nbsp;</td>
         <td align="center" style="text-align: center">
-        <input type="submit" class="button" name="add_ticket" value="<?php echo _("Add ticket") ?>"/>
-    </td></tr>
+        <?php 
+			$stext = ( $edit == 1 ) ? _("Update ticket") : _("Add ticket");
+			$sname = ( $edit == 1 ) ? _("update_ticket") : _("add_ticket");
+			
+		?>
+		<input type="submit" class="button" name="<?php echo $sname ?>" value="<?php echo $stext ?>"/>
+		</td>
+	</tr>
     </table>
 
 </td>
@@ -851,7 +944,7 @@ for ($i = 1; $i <= 10; $i++) { ?>
     <?php
 foreach($incident_tag->get_list() as $t) { ?>
     <tr>
-        <td style="text-align: left" NOWRAP>
+        <td style="text-align: left" nowrap='nowrap'>
             <?php
     $checked = in_array($t['id'], $incident_tags) ? 'checked' : '' ?>
             <input type="checkbox" name="tags[]" value="<?php echo $t['id'] ?>" <?php echo $checked ?>>
