@@ -474,7 +474,7 @@ class Alarm {
 		}
 		if ($sensor != "") {
 			$sensor_join = " ,event e";
-			$sql_where .= " AND e.sensor='$sensor' AND e.id=a.event_id";
+			$sql_where .= ($sensor_str != "") ? $sensor_str." AND e.sensor='$sensor'" : " AND e.sensor='$sensor' AND e.id=a.event_id";
 		} elseif ($sensor_str != "") {
 			$sensor_join = " ,event e";
 			$sql_where .= $sensor_str;
