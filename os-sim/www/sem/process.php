@@ -668,7 +668,7 @@ foreach($result as $res=>$event_date) {
         // fin para coger
         // change ,\s* or #\s* adding blank space to force html break line
         // para coger
-        $matches[11] = preg_replace("/(\,|\#)[^\d+]\s*/", "\\1 ", $matches[11]);
+        $matches[11] = preg_replace("/([\,\#])([^\d;])\s*/", "\\1 \\2", $matches[11]);
         // fin para coger
         if($htmlResult){
                 $matches[11] = wordwrap($matches[11], 60, " ", true);
