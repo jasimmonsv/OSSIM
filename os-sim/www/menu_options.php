@@ -146,13 +146,13 @@ if (Session::menu_perms("MenuIncidents", "IncidentsIncidents")) { $incidents = 1
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:tickets','Help');"
     );
 }
-if (Session::menu_perms("MenuIncidents", "IncidentsTypes")) { $incidents = 1; $rmenu["Tickets"][] = array(
+if (Session::menu_perms("MenuIncidents", "IncidentsTypes") && Session::am_i_admin()) { $incidents = 1; $rmenu["Tickets"][] = array(
     "name" => gettext("Types") ,
     "id" => "Types",
     "url" => "../incidents/incidenttype.php"
 );
 }
-if (Session::menu_perms("MenuIncidents", "IncidentsTags")) { $incidents = 1; $rmenu["Tickets"][] = array(
+if (Session::menu_perms("MenuIncidents", "IncidentsTags") && Session::am_i_admin()) { $incidents = 1; $rmenu["Tickets"][] = array(
     "name" => gettext("Tags") ,
     "id" => "Tags",
     "url" => "../incidents/incidenttag.php"
@@ -165,7 +165,7 @@ if (Session::menu_perms("MenuIncidents", "IncidentsReport")) { $incidents = 1; $
     "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:report','Help');"
 );
 }
-if (Session::menu_perms("MenuIncidents", "ConfigurationEmailTemplate")) { $incidents = 1;
+if (Session::menu_perms("MenuIncidents", "ConfigurationEmailTemplate") && Session::am_i_admin()) { $incidents = 1;
     $rmenu["Tickets"][] = array(
         "name" => gettext("Email Template") ,
         "id" => "Incidents Email Template",
