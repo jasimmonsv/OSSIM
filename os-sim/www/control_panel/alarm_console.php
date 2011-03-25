@@ -77,7 +77,7 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 	//alert (id);
 	$.ajax({
 		type: "GET",
-		url: "events_ajax.php?backlog_id="+id+"&show_all=1",
+		url: "events_ajax.php?backlog_id="+id,
 		data: "",
 		success: function(msg){
 			//alert (msg);
