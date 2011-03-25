@@ -431,7 +431,7 @@ class Host_mac {
             $vendor = $aux->fields["vendor"];
             $iface = $aux->fields["interface"];
         }
-        $sql = "INSERT INTO host_mac (ip, mac, vendor, date, sensor, interface, anom) VALUES 
+        $sql = "INSERT IGNORE INTO host_mac (ip, mac, vendor, date, sensor, interface, anom) VALUES 
                 (inet_aton(?), ?, ?, CURRENT_TIMESTAMP, inet_aton(?), ?, '0')";
         $params = array(
             $host,

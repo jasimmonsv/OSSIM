@@ -97,14 +97,9 @@ $db->close($conn);
 ?>
     <p> <?php
 echo gettext("Successfully Acked/Deleted"); ?> </p>
-<?php
-$location = "anomalies.php";
-sleep(2);
-echo "<script>
-parent.GB_CloseAndRedir('$location');
-</script>
-";
-?>
+
+<script>document.location.href="anomalies.php"</script>
+
 </body>
 </html>
 

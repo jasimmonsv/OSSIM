@@ -137,7 +137,8 @@ $count = RRD_anomaly_global::get_list_count($conn);
 if ($event_list_global = RRD_anomaly_global::get_list($conn, $where_clause, "order by anomaly_time desc", "0", $count)) {
     foreach($event_list_global as $event) {
         $ip = "Global";
-        if ($rrd_list_temp = RRD_config::get_list($conn, "WHERE profile = \"global\"")) {
+        $tmp_data = explode(" ",$event->get_what());
+            if ($rrd_list_temp = RRD_config::get_list($conn, "WHERE profile = \"global\" AND rrd_attrib =\"".end($tmp_data)."\"")) {
             $rrd_temp = $rrd_list_temp[0];
         }
 ?>
@@ -148,13 +149,13 @@ if ($event_list_global = RRD_anomaly_global::get_list($conn, $where_clause, "ord
         echo "$ntop_link/plugins/rrdPlugin?action=list&key=interfaces/eth0&title=interface%20eth0"; ?>" target="_blank"> 
 <?php
         echo $ip; ?></A> </th><td> <?php
-        echo $rrd_names_global[$event->get_what() ]; ?></td>
+        echo $event->get_what(); ?></td>
 <td> <?php
         echo $event->get_anomaly_time(); ?></td>
 <td> <?php
         echo round(($event->get_count()) / $perl_interval); ?><?=_("h.")?> </td>
 <td><font color="red"><?php
-        echo ($event->get_over() / $rrd_temp->get_col($event->get_what() , "threshold")) * 100; ?>%</font>/<?php
+        echo ($event->get_over() / $rrd_temp->get_threshold()) * 100; ?>%</font>/<?php
         echo $event->get_over(); ?></td>
 <td align="center"><input type="checkbox" name="ack,<?php
         echo $ip ?>,<?php

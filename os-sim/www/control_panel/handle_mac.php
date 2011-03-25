@@ -58,8 +58,8 @@ require_once 'classes/Security.inc';
 ?>
 
 <?php
-$back = urldecode(GET("back"));
-ossim_valid($back, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("back"));
+//$back = urldecode(GET("back"));
+//ossim_valid($back, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("back"));
 $db = new ossim_db();
 $conn = $db->connect();
 while (list($key, $val) = each($_GET)) {
@@ -89,7 +89,6 @@ while (list($key, $val) = each($_GET)) {
         if (ossim_error()) {
             die(ossim_error());
         }
-        print _("Ignore").": $ip $date $sensor<br>";
         Host_mac::ack_ign($conn, $ip, $date, $sensor, "ignore");
     }
 }
@@ -98,7 +97,8 @@ $db->close($conn);
     <p> <?php
 echo gettext("Successfully Acked/Deleted"); ?> </p>
 <?php
-$location = "$back";
+//$location = "$back";
+$location = "anomalies.php";
 sleep(2);
 echo "<script>
 ///history.go(-1);
