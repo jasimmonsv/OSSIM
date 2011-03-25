@@ -134,9 +134,12 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 		$aux = split("-",$date_from);
 		$y = $aux[0]; $m = $aux[1]; $d = $aux[2];
 	} else {
+		/*
 		$y = strftime("%Y", time() - (24 * 60 * 60));
 		$m = strftime("%m", time() - (24 * 60 * 60));
 		$d = strftime("%d", time() - (24 * 60 * 60));
+		*/
+		$y = date("Y"); $m = date("m"); $d = date("d");
 	}
 	if ($date_to != "") {
 		$aux = split("-",$date_to);
@@ -162,6 +165,7 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 				document.getElementById('date_from').value = f1[0]+'-'+f1[1]+'-'+f1[2];
 				document.getElementById('date_to').value = f2[0]+'-'+f2[1]+'-'+f2[2];
 				$('#date_str').css('text-decoration', 'underline');
+				document.getElementById('queryform').submit();
 			}
 		}
 	});
@@ -376,7 +380,7 @@ list($alarm_list, $count) = Alarm::get_list3($conn, $src_ip, $dst_ip, $hide_clos
 if (!isset($_GET["hide_search"])) {
 ?>
 
-<form method="GET">
+<form method="GET" id="queryform">
 <input type="hidden" name="tag" value="<?php echo $tag ?>">
 <input type="hidden" name="date_from" id="date_from"  value="<?php echo $date_from ?>">
 <input type="hidden" name="date_to" id="date_to" value="<?php echo $date_to ?>">
@@ -435,7 +439,7 @@ if (!isset($_GET["hide_search"])) {
 			</tr>
 			<tr>
 			    <td width="20%" id="date_str" style="text-align: right; border-width: 0px<? if ($date_from != "" && $date_to != "") echo ";text-decoration:underline"?>">
-			        <b><?php echo _('Date') ?></b>:
+			        <b><?php echo _('Date') ?></b><?php if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; } ?>:
 				</td>
 				<td class="nobborder">
 					<div id="widget">
@@ -1039,20 +1043,6 @@ $(document).ready(function(){
 		return false;
 	});
 	
-	/*
-	$('.HostReportMenu').contextMenu({
-		menu: 'myMenu'
-	},
-		function(action, el, pos) {
-		var aux = $(el).attr('id').split(/;/);
-		var ip = aux[0];
-		var hostname = aux[1];
-		var url = "../report/host_report.php?host="+ip+"&hostname="+hostname+"&greybox=1";
-		if (hostname == ip) var title = "Host Report: "+ip;
-		else var title = "Host Report: "+hostname+"("+ip+")";
-		GB_show(title,url,450,'90%');
-		}
-	);*/
 	load_contextmenu();
 	
 	$(".scriptinfo").simpletip({
@@ -1075,6 +1065,9 @@ $(document).ready(function(){
 	}).result(function(event, item) {
 		$("#sensors").val(item.id);
 	});
+	<?php if ($date_from != "") { ?>
+	tooglebtn();
+	<?php } ?>
 });
 </script>
 </body>

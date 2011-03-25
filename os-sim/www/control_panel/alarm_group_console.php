@@ -445,9 +445,12 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 		$aux = split("-",$date_from);
 		$y = $aux[0]; $m = $aux[1]; $d = $aux[2];
 	} else {
+		/*
 		$y = strftime("%Y", time() - (24 * 60 * 60));
 		$m = strftime("%m", time() - (24 * 60 * 60));
 		$d = strftime("%d", time() - (24 * 60 * 60));
+		*/
+		$y = date("Y"); $m = date("m"); $d = date("d");
 	}
 	if ($date_to != "") {
 		$aux = split("-",$date_to);
@@ -456,8 +459,8 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 		$y2 = date("Y"); $m2 = date("m"); $d2 = date("d");
 	}
 	?>
-	var datefrom = new Date(<?php echo $y ?>,<?php echo $m ?>,<?php echo $d ?>);
-	var dateto = new Date(<?php echo $y2 ?>,<?php echo $m2 ?>,<?php echo $d2 ?>);
+	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
+	var dateto = new Date(<?php echo $y2 ?>,<?php echo $m2-1 ?>,<?php echo $d2 ?>);
 	$('#widgetCalendar').DatePicker({
 		flat: true,
 		format: 'Y-m-d',
@@ -472,6 +475,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 				document.getElementById('date_from').value = f1[0]+'-'+f1[1]+'-'+f1[2];
 				document.getElementById('date_to').value = f2[0]+'-'+f2[1]+'-'+f2[2];
 				$('#date_str').css('text-decoration', 'underline');
+				document.getElementById('queryform').submit();
 			}
 		}
 	});
@@ -558,7 +562,7 @@ $tree_count = 0;
 
     if (GET('withoutmenu') != "1") include ("../hmenu.php");
     /* Filter & Action Console */
-    print '<form name="filters" method="GET">';
+    print '<form name="filters" id="queryform" method="GET">';
 	?>
 	<input type="hidden" name="date_from" id="date_from"  value="<?php echo $date_from ?>">
 	<input type="hidden" name="date_to" id="date_to" value="<?php echo $date_to ?>">
@@ -571,8 +575,9 @@ $tree_count = 0;
     // Date filter
     $underlined = ($date_from != "" && $date_to != "") ? ";text-decoration:underline" : "";
 	print '<tr><td width="10%" id="date_str" style="text-align: right; border-width: 0px'.$underlined.'">';
-    print '<b>' . _('Date') . '</b>:
-    </td>';
+    print '<b>' . _('Date') . '</b>';
+    if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; }
+    print ':</td>';
     print '<td class="nobborder">
 		<div id="widget">
 			<a href="javascript:;"><img src="../pixmaps/calendar.png" id="imgcalendar" border="0"></a>
@@ -832,6 +837,9 @@ $(document).ready(function(){
 		GB_show(t,this.href,150,'40%');
 		return false;
 	});
+	<?php if ($date_from != "") { ?>
+	tooglebtn();
+	<?php } ?>
 });
 </script>
 </body>
