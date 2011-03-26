@@ -432,6 +432,7 @@ echo '</TR>
 include ("geoip.inc");
 $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $_conn = $dbo->connect();
+$hosts_ips = array_keys($hosts);
 // Source
 $country = strtolower(geoip_country_code_by_addr($gi, $current_sip));
 $country_name = geoip_country_name_by_addr($gi, $current_sip);
