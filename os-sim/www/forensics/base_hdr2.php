@@ -272,13 +272,13 @@ if ($Use_Auth_System == 1) {
 					<table width='100%'>
 						<tr>
 							<td width="28"><img src="../pixmaps/search_icon.png" border=0 alt="You can use +,-,* modifiers" title="You can use +,-,* modifiers"></td>
-							<td><input type="text" name="search_str" id="search_str" style="width:215px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
+							<td><input type="text" name="search_str" id="search_str" style="width:225px;height:22px" class="gr" value="<?php echo $sterm ?>" onfocus="if(this.value=='search term') { this.value=''; this.className='ne'; }"></td>
 							
 							<td align="right">
 								<table>
 									<tr>
 										<td nowrap>
-										<input type="button" class="button" value="IP" onclick="$('#ipsearch').toggle()" style='width:30px'></td><td>
+										<input type="button" class="button" value="IP" onclick="$('#ipsearch').toggle()" style='width:30px'>
 										<!-- SRC / DST IP combo -->
 										<div style="position:relative; z-index:2; text-align:left">
 											<div id="ipsearch" style="position:absolute;top:0;display:none;margin-top:1px">

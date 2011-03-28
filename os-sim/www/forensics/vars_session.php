@@ -66,6 +66,7 @@ if ($_SESSION['views']['default'] == "") {
 	$_SESSION['views']['default']['data'] = $session_data;
 	$config->set($login, 'custom_views', $_SESSION['views'], 'php', 'siem');
 }
+if ($_GET["search_str"]=="search term") unset($_GET["search_str"]); 
 // resolv host2ip if needed
 if ($_GET["search_str"]!="" && preg_match("/.*IP/",$_GET["submit"]) && !preg_match("/^\d+\.\d+(\.\d+\.\d+)?$/",$_GET["search_str"])) {
 	include_once("classes/Host.inc");
