@@ -46,8 +46,9 @@
 * mod2step: Values validation and update db
 *
 */
-require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
+if(!Session::am_i_admin()) { exit; }
+require_once 'classes/Security.inc';
 Session::logcheck("MenuIncidents", "IncidentsTags");
 require_once 'ossim_db.inc';
 require_once 'classes/Incident_tag.inc';

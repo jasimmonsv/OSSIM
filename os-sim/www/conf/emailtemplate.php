@@ -34,8 +34,9 @@
 * Function list:
 * Classes list:
 */
-require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
+if(!Session::am_i_admin()) { exit; }
+require_once 'classes/Security.inc';
 require_once 'classes/Incident_ticket.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/Util.inc';
