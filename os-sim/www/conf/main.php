@@ -993,6 +993,15 @@ $CONFIG = array(
                 "desc" => gettext("Distributed Scanning") ,
                 "advanced" => 1
             ) ,
+            "nessus_pre_scan_locally" => array(
+                "type" => array(
+                    "0" => gettext("No") ,
+                    "1" => gettext("Yes")
+                ) ,
+                "help" => gettext("do not pre-scan from scanning sensor") ,
+                "desc" => gettext("Enable Pre-Scan locally") ,
+                "advanced" => 1
+            ) ,
             "vulnerability_incident_threshold" => array(
                 "type" => array(
                     "0" => "0",

@@ -895,14 +895,17 @@ EOT;
 }
 
 function tab_discovery () {
-    global $component, $uroles, $editdata, $scheduler, $username, $useremail, $dbconn, $disp,
+     global $component, $uroles, $editdata, $scheduler, $username, $useremail, $dbconn, $disp,
           $enScanRequestImmediate, $enScanRequestRecur, $timeout, $smethod,$SVRid, $sid, $ip_list,
           $schedule_type, $ROYEAR, $ROday, $ROMONTH, $time_hour, $time_min, $dayofweek, $dayofmonth,
           $sname,$user,$entity,$hosts_alive,$scan_locally,$version,$nthweekday,$semail;
           
-    global $pluginOptions, $enComplianceChecks, 
-          $profileid;
-          
+     global $pluginOptions, $enComplianceChecks, $profileid;
+     
+     $conf = $GLOBALS["CONF"];
+     
+     $pre_scan_locally_status = $conf->get_conf("nessus_pre_scan_locally", FALSE);
+
      $user_selected = $user;
      $entity_selected = $entity;
           
@@ -1320,7 +1323,7 @@ EOT;
     </tr>
     
 EOT;
-    $conf = $GLOBALS["CONF"];
+    
     $version = $conf->get_conf("ossim_server_version", FALSE);
     if(Session::am_i_admin()) {
           $discovery .= "<tr><td>"._("Make this scan job visible for:")."</td>";
@@ -1442,7 +1445,10 @@ EOT;
       $discovery .= "<tr><td valign=\"top\" align=\"Right\" width=\"20%\" class=\"noborder\"><br>";
       $discovery .= "<input type=\"checkbox\" name=\"hosts_alive\" value=\"1\"".(((count($editdata)<=1 && intval($hosts_alive)==1) || intval($editdata['meth_CRED'])==1)? " checked":"").">"._("Only scan hosts that are alive")."<br>("._("greatly speeds up the scanning process").")<br><br>";
       //if (Session::am_i_admin())
-      $discovery .= "<input type=\"checkbox\" name=\"scan_locally\" value=\"1\"".(((count($editdata)<=1 && intval($scan_locally)==1) || intval($editdata['authorized'])==1)? " checked":"").">"._("Pre-Scan locally")."<br>("._("do not pre-scan from scanning sensor").")";
+      $discovery .= "<input type=\"checkbox\" name=\"scan_locally\" value=\"1\"".
+          (($pre_scan_locally_status==0) ? " disabled=\"disabled\"":"").
+          (($pre_scan_locally_status==1 && ((count($editdata)<=1 && intval($scan_locally)==1) || intval($editdata['authorized'])==1))? " checked":"").">"._("Pre-Scan locally").
+          "<br>("._("do not pre-scan from scanning sensor").")";
       //else
       // $discovery .= "<input type=\"hidden\" name=\"scan_locally\" value=\"0\">";
 $discovery .= <<<EOT

@@ -57,6 +57,7 @@ INSERT INTO config (conf, value) VALUES ('scanner_type', 'openvas3');
 INSERT INTO config (conf, value) VALUES ('nessus_rpt_path', '/usr/share/ossim/www/vulnmeter/');
 INSERT INTO config (conf, value) VALUES ('nessus_distributed', '0');
 INSERT INTO config (conf, value) VALUES ('nessusrc_path', '/usr/share/ossim/www/vulnmeter/tmp/.nessusrc');
+INSERT INTO config (conf, value) VALUES ('nessus_pre_scan_locally', '1');
 INSERT INTO config (conf, value) VALUES ('acid_user', 'admin');
 INSERT INTO config (conf, value) VALUES ('acid_pass', 'admin');
 INSERT INTO config (conf, value) VALUES ('ossim_web_user', '');
