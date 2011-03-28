@@ -43,6 +43,84 @@ ini_set("max_execution_time","300");
 $unique_id = uniqid("alrm_");
 $prev_unique_id = $_SESSION['alarms_unique_id'];
 $_SESSION['alarms_unique_id'] = $unique_id;
+
+require_once ('ossim_db.inc');
+require_once ('classes/Host.inc');
+require_once ('classes/Net.inc');
+require_once ('classes/Host_os.inc');
+require_once ('classes/Alarm.inc');
+require_once ('classes/Plugin.inc');
+require_once ('classes/Plugin_sid.inc');
+require_once ('classes/Port.inc');
+require_once ('classes/Sensor.inc');
+require_once ('classes/Util.inc');
+require_once ('classes/Tags.inc');
+include ("geoip.inc");
+$gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
+/* default number of events per page */
+$ROWS = 50;
+/* connect to db */
+$db = new ossim_db();
+$conn = $db->connect();
+$delete = GET('delete');
+$close = GET('close');
+$open = GET('open');
+$delete_day = GET('delete_day');
+$order = GET('order');
+$src_ip = GET('src_ip');
+$dst_ip = GET('dst_ip');
+$backup_inf = $inf = GET('inf');
+$sup = GET('sup');
+$hide_closed = GET('hide_closed');
+$norefresh = GET('norefresh');
+$query = (GET('query') != "") ? GET('query') : "";
+$directive_id = GET('directive_id');
+$sensor_query = GET('sensor_query');
+$tag = GET('tag');
+$num_events = GET('num_events');
+$num_events_op = GET('num_events_op');
+$params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&sensor_query=$sensor_query&tag=$tag";
+
+$sensors = $hosts = $ossim_servers = array();
+list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
+/*$networks = "";
+$_nets = Net::get_all($conn);
+$_nets_ips = $_host_ips = $_host = array();
+foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
+$networks = implode(",",$_nets_ips);*/
+$hosts_ips = array_keys($hosts);
+
+$tags = Tags::get_list($conn);
+$tags_html = Tags::get_list_html($conn);
+
+$date_from = GET('date_from');
+$date_to = GET('date_to');
+$num_alarms_page = GET('num_alarms_page');
+$param_unique_id = GET('unique_id');
+ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, '.', 'illegal:' . _("order"));
+ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("delete"));
+ossim_valid($close, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("close"));
+ossim_valid($open, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("open"));
+ossim_valid($delete_day, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("delete_day"));
+ossim_valid($query, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("query"));
+ossim_valid($norefresh, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("norefresh"));
+ossim_valid($directive_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive_id"));
+ossim_valid($src_ip, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
+ossim_valid($dst_ip, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
+ossim_valid($inf, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("inf"));
+ossim_valid($sup, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("order"));
+ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
+ossim_valid($date_from, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from date"));
+ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to date"));
+ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
+ossim_valid($num_alarms_page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("field number of alarms per page"));
+ossim_valid($sensor_query, OSS_IP_ADDR, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("sensor_query"));
+ossim_valid($tag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("tag"));
+ossim_valid($num_events, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_events"));
+ossim_valid($num_events_op, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("num_events_op"));
+if (ossim_error()) {
+    die(ossim_error());
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -213,94 +291,7 @@ $_SESSION['alarms_unique_id'] = $unique_id;
 
 <?php
 if (GET('withoutmenu') != "1") include ("../hmenu.php");
-require_once ('ossim_db.inc');
-require_once ('classes/Host.inc');
-require_once ('classes/Net.inc');
-require_once ('classes/Host_os.inc');
-require_once ('classes/Alarm.inc');
-require_once ('classes/Plugin.inc');
-require_once ('classes/Plugin_sid.inc');
-require_once ('classes/Port.inc');
-require_once ('classes/Sensor.inc');
-require_once ('classes/Util.inc');
-require_once ('classes/Tags.inc');
-include ("geoip.inc");
-$gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
-/* default number of events per page */
-$ROWS = 50;
-/* connect to db */
-$db = new ossim_db();
-$conn = $db->connect();
-$delete = GET('delete');
-$close = GET('close');
-$open = GET('open');
-$delete_day = GET('delete_day');
-$order = GET('order');
-$src_ip = GET('src_ip');
-$dst_ip = GET('dst_ip');
-$backup_inf = $inf = GET('inf');
-$sup = GET('sup');
-$hide_closed = GET('hide_closed');
-$norefresh = GET('norefresh');
-$query = (GET('query') != "") ? GET('query') : "";
-$directive_id = GET('directive_id');
-$sensor_query = GET('sensor_query');
-$tag = GET('tag');
-$num_events = GET('num_events');
-$num_events_op = GET('num_events_op');
-$params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&sensor_query=$sensor_query&tag=$tag";
 
-$sensors = $hosts = $ossim_servers = array();
-list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
-/*$networks = "";
-$_nets = Net::get_all($conn);
-$_nets_ips = $_host_ips = $_host = array();
-foreach ($_nets as $_net) $_nets_ips[] = $_net->get_ips();
-$networks = implode(",",$_nets_ips);*/
-$hosts_ips = array_keys($hosts);
-
-$tags = Tags::get_list($conn);
-$tags_html = Tags::get_list_html($conn);
-
-// By default only show alarms from the past week
-/*
-// DK 2007/04/02
-if (!GET('date_from')) {
-list($y, $m, $d) = explode('-', date('Y-m-d'));
-$date_from = date('Y-m-d', mktime(0, 0, 0, $m, $d-7, $y));
-} else {
-*/
-$date_from = GET('date_from');
-/*
-}
-*/
-$date_to = GET('date_to');
-$num_alarms_page = GET('num_alarms_page');
-$param_unique_id = GET('unique_id');
-ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, '.', 'illegal:' . _("order"));
-ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("delete"));
-ossim_valid($close, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("close"));
-ossim_valid($open, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("open"));
-ossim_valid($delete_day, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("delete_day"));
-ossim_valid($query, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("query"));
-ossim_valid($norefresh, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("norefresh"));
-ossim_valid($directive_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive_id"));
-ossim_valid($src_ip, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
-ossim_valid($dst_ip, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
-ossim_valid($inf, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("inf"));
-ossim_valid($sup, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("order"));
-ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
-ossim_valid($date_from, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from date"));
-ossim_valid($date_to, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to date"));
-ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
-ossim_valid($num_alarms_page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("field number of alarms per page"));
-ossim_valid($sensor_query, OSS_IP_ADDR, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("sensor_query"));
-ossim_valid($tag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("tag"));
-ossim_valid($num_events, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_events"));
-ossim_valid($num_events_op, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("num_events_op"));
-if (ossim_error()) {
-    die(ossim_error());
-}
 if (!empty($delete)) {
 	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
 		die(ossim_error("You don't have required permissions to delete Alarms"));
