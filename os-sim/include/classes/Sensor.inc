@@ -455,7 +455,7 @@ class Sensor {
             } else { //if use_ntop_rewrite is enabled
                 $protocol = "http";
                 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-                $sensor_ip = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop-" . $rs->fields["ip"];
+                $sensor_ip = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_" . $rs->fields["ip"];
             }
             return $sensor_ip;
         }
@@ -479,7 +479,7 @@ class Sensor {
                         } else {
                             $protocol = "http";
                             if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-                            $sensor_ip = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop-" . $rs->fields["ip"];
+                            $sensor_ip = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_" . $rs->fields["ip"];
                         }
                         return $sensor_ip;
                     }

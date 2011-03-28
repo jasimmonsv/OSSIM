@@ -71,7 +71,7 @@ if (!$conf->get_conf("use_ntop_rewrite")) {
     $protocol = "http";
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
     $fr_up = "menu.php?sensor=$sensor";
-    $fr_down = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop-$sensor/NetNetstat.html";
+    $fr_down = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor/NetNetstat.html";
 }
 ?>
 

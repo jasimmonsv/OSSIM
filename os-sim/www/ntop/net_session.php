@@ -82,7 +82,7 @@ foreach($ip_list as $host) {
     if ($conf->get_conf("use_ntop_rewrite")) {
         $protocol = "http";
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-        $ntop_link = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop-$sensor";
+        $ntop_link = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor";
     }
     if ($fd = @fopen("$ntop_link/$host.html", "r")) {
         while (!feof($fd)) {
