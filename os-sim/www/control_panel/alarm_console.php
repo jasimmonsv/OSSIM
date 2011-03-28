@@ -797,7 +797,7 @@ if ($count > 0) {
         }
         $datemark = $date_slices[0];
     	$event_count_label = "";
-		if ($backlog_id && $id==1505) {
+		if ($backlog_id) {
             $aid = $alarm->get_event_id();
             #$summary = Alarm::get_total_events($conn, $backlog_id);
             #$event_count_label = $summary["total_count"] . " "._("events");

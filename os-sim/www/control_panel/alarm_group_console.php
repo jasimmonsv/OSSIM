@@ -160,6 +160,22 @@ if (empty($show_options) || ($show_options < 1 || $show_options > 4)) {
 if (empty($refresh_time) || ($refresh_time != 30 && $refresh_time != 60 && $refresh_time != 180 && $refresh_time != 600)) {
     $refresh_time = 60;
 }
+//Options
+$selected1 = $selected2 = $selected3 = $selected4 = "";
+if ($show_options == 1) $selected1 = 'selected="true"';
+if ($show_options == 2) $selected2 = 'selected="true"';
+if ($show_options == 3) $selected3 = 'selected="true"';
+if ($show_options == 4) $selected4 = 'selected="true"';
+if ($hide_closed) {
+    $hide_check = 'checked="true"';
+} else {
+    $hide_check = "";
+}
+$refresh_sel1 = $refresh_sel2 = $refresh_sel3 = $refresh_sel4 = "";
+if ($refresh_time == 30) $refresh_sel1 = 'selected="true"';
+if ($refresh_time == 60) $refresh_sel2 = 'selected="true"';
+if ($refresh_time == 180) $refresh_sel3 = 'selected="true"';
+if ($refresh_time == 600) $refresh_sel4 = 'selected="true"';
 
 if (GET('take') != "") {
 	if (!ossim_valid(GET('take'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("take"))) exit;
@@ -559,86 +575,82 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 //print_r($alarm_group);
 //$count = count($alarm_group);
 $tree_count = 0;
-
-    if (GET('withoutmenu') != "1") include ("../hmenu.php");
-    /* Filter & Action Console */
-    print '<form name="filters" id="queryform" method="GET">';
-	?>
-	<input type="hidden" name="date_from" id="date_from"  value="<?php echo $date_from ?>">
-	<input type="hidden" name="date_to" id="date_to" value="<?php echo $date_to ?>">
-	<?
-    print '<table width="90%" align="center" class="transparent"><tr><td class="nobborder left">';
-    print '<a href="javascript:;" onclick="tooglebtn()"><img src="../pixmaps/sem/toggle.gif" border="0" id="timg" title="Toggle"> <small><font color="black">'._("Filters, Actions and Options").'</font></small></a>';
-    print '</td></tr></table>';
-    print '<table width="90%" align="center" id="searchtable" style="display:none"><tr><th colspan="2" width="60%">';
-    print _("Filter") . '</th><th>' . _("Actions") . '</th><th>' . _("Options") . '</th></tr>';
-    // Date filter
-    $underlined = ($date_from != "" && $date_to != "") ? ";text-decoration:underline" : "";
-	print '<tr><td width="10%" id="date_str" style="text-align: right; border-width: 0px'.$underlined.'">';
-    print '<b>' . _('Date') . '</b>';
-    print ':</td>';
-    print '<td class="nobborder" style="font-size:10px">
-		<div id="widget" style="display:inline">
-			<a href="javascript:;"><img src="../pixmaps/calendar.png" id="imgcalendar" border="0"></a>
-			<div id="widgetCalendar"></div>
-		</div>';
-    if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; }
-	print '</td>';
-    //Actions
-    ?>
-    <td rowspan="3" style="text-align: left;border-bottom:0px solid white" nowrap>
-		<input type="button" onclick="close_groups()" value="<?php echo _("Close Selected") ?>" class="lbutton">
-		<br><br><input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
-	</td>
-<?php
-    //Options
-    $selected1 = $selected2 = $selected3 = $selected4 = "";
-    if ($show_options == 1) $selected1 = 'selected="true"';
-    if ($show_options == 2) $selected2 = 'selected="true"';
-    if ($show_options == 3) $selected3 = 'selected="true"';
-    if ($show_options == 4) $selected4 = 'selected="true"';
-    if ($hide_closed) {
-        $hide_check = 'checked="true"';
-    } else {
-        $hide_check = "";
-    }
-    $refresh_sel1 = $refresh_sel2 = $refresh_sel3 = $refresh_sel4 = "";
-    if ($refresh_time == 30) $refresh_sel1 = 'selected="true"';
-    if ($refresh_time == 60) $refresh_sel2 = 'selected="true"';
-    if ($refresh_time == 180) $refresh_sel3 = 'selected="true"';
-    if ($refresh_time == 600) $refresh_sel4 = 'selected="true"';
-    if ($autorefresh) {
-        $hide_autorefresh = 'checked="true"';
-        $disable_autorefresh = '';
-    } else {
-        $hide_autorefresh = '';
-        $disable_autorefresh = 'disabled="true"';
-    }
-    print '<td rowspan="3" style="text-align: left;border-bottom:0px solid white"><strong>'._("Show").':</strong>&nbsp;<select name="show_options">' . '<option value="1" ' . $selected1 . '>'._("All Groups").'</option>' . '<option value="2" ' . $selected2 . '>'._("My Groups").'</option>' . '<option value="3" ' . $selected3 . '>'._("Groups Without Owner").'</option>' . '<option value="4" ' . $selected4 . '>'._("My Groups & Without Owner").'</option>' . '</select> <br/>' . '<input type="checkbox" name="hide_closed" ' . $hide_check . ' />' . gettext("Hide closed alarms") . '<br/><input type="checkbox" name="autorefresh" onclick="javascript:document.filters.refresh_time.disabled=!document.filters.refresh_time.disabled;" ' . $hide_autorefresh . ' />' . gettext("Autorefresh") . '&nbsp;<select name="refresh_time" ' . $disable_autorefresh . ' >' . '<option value="30" ' . $refresh_sel1 . ' >'._("30 sec").'</options>' . '<option value="60" ' . $refresh_sel2 . ' >'._("1 min").'</options>' . '<option value="180" ' . $refresh_sel3 . ' >'._("3 min").'</options>' . '<option value="600" ' . $refresh_sel4 . ' >'._("10 min").'</options>' . '</select>' . '&nbsp;<a href="' . build_url("", "") . '" >['._("Refresh").']</a>' . '</td> </tr>';
-    // IP filter
-    print '
-<tr>
-    <td width="10%" style="text-align: right; border-width: 0px">
-        <b>' . _("IP Address") . ' </b>:
-    </td>
-    <td style="text-align: left; border-width: 0px" nowrap>' . _("source") . ': <input type="text" size="15" name="src_ip" value="' . $src_ip . '"> ' . _("destination") . ': <input type="text" size="15" name="dst_ip" value="' . $dst_ip . '">
-    </td>
-</tr>
-';
-    // Num alarm page filter
-    print '
-<tr>
-    <td width="10%" style="text-align: right; border-width: 0px" nowrap>
-        <b>' . _("Num. alarms per page") . '</b>:
-    </td>
-    <td style="text-align: left; border-width: 0px">
-        <input type="text" size=3 name="num_alarms_page" value="' . $ROWS . '">
-    </td>
-</tr>
-';
-    print '<tr ><th colspan="4" style="padding:5px"><input type="submit" class="button" value="' . _("Go") . '"> <div id="loading_div" style="display:inline"></div></th></tr></table>';
-    print '<br>';
+if (GET('withoutmenu') != "1") include ("../hmenu.php");
+/* Filter & Action Console */
 ?>
+<form name="filters" id="queryform" method="GET">
+<input type="hidden" name="date_from" id="date_from"  value="<?php echo $date_from ?>">
+<input type="hidden" name="date_to" id="date_to" value="<?php echo $date_to ?>">
+
+<table width="90%" align="center" class="transparent">
+	<tr><td class="nobborder left"><a href="javascript:;" onclick="tooglebtn()"><img src="../pixmaps/sem/toggle.gif" border="0" id="timg" title="Toggle"> <small><font color="black"><?php echo _("Filters, Actions and Options") ?></font></small></a></td></tr>
+</table>
+
+<table width="90%" align="center" id="searchtable" style="display:none">
+	<tr>
+		<th width="60%"><?php echo _("Filter") ?></th>
+		<th><?php echo _("Actions") ?></th>
+		<th><?php echo _("Options") ?></th>
+	</tr>
+	<?php $underlined = ($date_from != "" && $date_to != "") ? ";text-decoration:underline" : ""; ?>
+	<tr>
+		<td class="nobborder">
+			<table class="transparent">
+				<tr>
+				    <td width="10%" style="text-align: right; border-width: 0px">
+				        <b><?php echo _("IP Address") ?></b>:
+				    </td>
+				    <td style="text-align: left; border-width: 0px" nowrap><?php echo _("source") ?>: <input type="text" size="15" name="src_ip" value="<?php echo $src_ip ?>"> <?php echo _("destination") ?>: <input type="text" size="15" name="dst_ip" value="<?php echo $dst_ip ?>">
+				    </td>
+				</tr>
+				<tr>
+				    <td width="10%" style="text-align: right; border-width: 0px" nowrap>
+				        <b><?php echo _("Num. alarms per page") ?></b>:
+				    </td>
+				    <td style="text-align: left; border-width: 0px">
+				        <input type="text" size=3 name="num_alarms_page" value="<?php echo $ROWS ?>">
+				    </td>
+				</tr>
+				<tr>
+					<td width="10%" id="date_str" style="text-align: right; border-width: 0px<?php echo $underlined ?>"><b><?php echo _('Date') ?></b>:</td>
+					<td class="nobborder" style="font-size:10px">
+					<div id="widget" style="display:inline">
+						<a href="javascript:;"><img src="../pixmaps/calendar.png" id="imgcalendar" border="0"></a>
+						<div id="widgetCalendar"></div>
+					</div><?php if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; } ?>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td style="text-align: left;border-bottom:0px solid white" nowrap>
+			<input type="button" onclick="close_groups()" value="<?php echo _("Close Selected") ?>" class="lbutton">
+			<br><br><input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
+		</td>
+		<td style="text-align: left;border-bottom:0px solid white">
+			<strong><?php echo _("Show") ?>:</strong>&nbsp;
+			<select name="show_options">
+				<option value="1" <?php echo $selected1 ?>><?php echo _("All Groups") ?></option>
+				<option value="2" <?php echo $selected2 ?>><?php echo _("My Groups") ?></option>
+				<option value="3" <?php echo $selected3 ?>><?php echo _("Groups Without Owner") ?></option>
+				<option value="4" <?php echo $selected4 ?>><?php echo _("My Groups & Without Owner") ?></option>
+			</select>
+			<br/>
+			<input type="checkbox" name="hide_closed" <?php echo $hide_check ?> /><?php echo gettext("Hide closed alarms") ?><br/>
+			<input type="checkbox" name="autorefresh" onclick="javascript:document.filters.refresh_time.disabled=!document.filters.refresh_time.disabled;" <?php echo ($autorefresh) ? "checked='true'" : "" ?> /><?php echo gettext("Autorefresh") ?>&nbsp;
+			<select name="refresh_time" <?php echo (!$autorefresh) ? "disabled='true'" : "" ?>>
+				<option value="30" <?php echo $refresh_sel1 ?>><?php echo _("30 sec") ?></options>
+				<option value="60" <?php echo $refresh_sel2 ?>><?php echo _("1 min") ?></options>
+				<option value="180" <?php echo $refresh_sel3 ?>><?php echo _("3 min")?></options>
+				<option value="600" <?php echo $refresh_sel4 ?>><?php echo _("10 min") ?></options>
+			</select>&nbsp;<a href="<?php echo build_url("", "") ?>" >[<?php echo _("Refresh") ?>]</a>
+		</td>
+	</tr>
+
+	<tr><th colspan="4" style="padding:5px"><input type="submit" class="button" value="<?php echo _("Go") ?>"> <div id="loading_div" style="display:inline"></div></th></tr>
+</table>
+
+<br>
+
 <table cellpadding=0 cellspacing=1 width='100%'>
 	<tr>
 		<td colspan="7" class="nobborder" style="text-align:center">
