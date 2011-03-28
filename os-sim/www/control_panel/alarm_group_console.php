@@ -73,6 +73,7 @@ $conn = $db->connect();
 $ROWS = 10;
 $db = new ossim_db();
 $conn = $db->connect();
+list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
 // Xajax . Register function getEvents
 //$xajax = new xajax();
 //$xajax->registerFunction("getEvents");
@@ -103,6 +104,8 @@ $group_type = GET('group_type') ? GET('group_type') : "all";
 $query = (GET('query') != "") ? GET('query') : "";
 $directive_id = GET('directive_id');
 $sensor_query = GET('sensor_query');
+$num_events = GET('num_events');
+$num_events_op = GET('num_events_op');
 
 ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($disp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("disp"));
@@ -128,6 +131,8 @@ ossim_valid($alarm, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("alarm"));
 ossim_valid($sensor_query, OSS_IP_ADDR, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("sensor_query"));
 ossim_valid($query, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("query"));
 ossim_valid($directive_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive_id"));
+ossim_valid($num_events, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_events"));
+ossim_valid($num_events_op, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("num_events_op"));
 //action=change_descr
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("action"));
 if (ossim_error()) {
@@ -230,8 +235,15 @@ if (GET('action') == "delete_alarm") {
     if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete($conn, GET('alarm'));
     else die(ossim_error("Can't do this action for security reasons."));
 }
+
+
+foreach ($sensors as $s_ip=>$s_name) {
+	if ($s_name!=$s_ip) $sensors_str .= '{ txt:"'.$s_ip.' ['.$s_name.']", id: "'.$s_ip.'" },';
+    else $sensors_str .= '{ txt:"'.$s_ip.'", id: "'.$s_ip.'" },';
+}
+
 $db_groups = AlarmGroups::get_dbgroups($conn);
-list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, $sensor_query, $query, $directive_id, "LIMIT $inf,$sup");
+list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, $sensor_query, $query, $directive_id, $num_events, $num_events_op, "LIMIT $inf,$sup");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -248,11 +260,13 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
   <link rel="stylesheet" href="../style/jquery-ui-1.7.custom.css"/>
   <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
   <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
 
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
   <script src="../js/datepicker.js" type="text/javascript"></script>
+  <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
   <script type="text/javascript">
   var open = false;
   
@@ -632,8 +646,14 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 				        <b><?php echo _("Num. alarms per page") ?></b>:
 				    </td>
 				    <td style="text-align: left; border-width: 0px">
-				        <input type="text" size=3 name="num_alarms_page" value="<?php echo $ROWS ?>">
-				    </td>
+			        <input type="text" size=3 name="num_alarms_page" value="<?php echo $ROWS ?>">
+			        &nbsp;<b><?php echo _("Number of events in alarm") ?></b>:
+			        &nbsp;<select name="num_events_op">
+			        	<option value="less" <?php if ($num_events_op == "less") echo "selected"?>>&lt;=</option>
+			        	<option value="more" <?php if ($num_events_op == "more") echo "selected"?>>&gt;=</option>
+			        </select>
+			        &nbsp;<input type="text" name="num_events" size=3 value="<?php echo $num_events ?>"></input>
+			   		</td>
 				</tr>
 				<tr>
 					<td width="10%" id="date_str" style="text-align: right; border-width: 0px<?php echo $underlined ?>"><b><?php echo _('Date') ?></b>:</td>
@@ -873,7 +893,19 @@ $(document).ready(function(){
 		GB_show(t,this.href,150,'40%');
 		return false;
 	});
-	<?php if ($date_from != "") { ?>
+	var sensors = [<?=preg_replace("/\,$/","",$sensors_str)?>];
+	$("#sensors").autocomplete(sensors, {
+		minChars: 0,
+		width: 225,
+		matchContains: "word",
+		autoFill: true,
+		formatItem: function(row, i, max) {
+			return row.txt;
+		}
+	}).result(function(event, item) {
+		$("#sensors").val(item.id);
+	});
+	<?php if ($date_from != "" || $query != "" || $sensor_query != "" || $directive_id != "" || $num_events > 0) { ?>
 	tooglebtn();
 	<?php } ?>
 });

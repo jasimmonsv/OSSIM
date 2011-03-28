@@ -273,7 +273,7 @@ class AlarmGroups {
     function get_alarm()            { return $this->alarm;          }
     */
     /* deprecated */
-	function get_grouped_alarms($conn, $group_type, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $sensor="", $query="", $directive_id="", $limit="LIMIT 0,10") {
+	function get_grouped_alarms($conn, $group_type, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $sensor="", $query="", $directive_id="", $num_events="", $num_events_op="", $limit="LIMIT 0,10") {
 		// CRITERIAS
 		// Hide Closed
 		$closed_where = ($hide_closed) ? " AND status='open'" : "";
@@ -312,6 +312,14 @@ class AlarmGroups {
 			$directive_where = " AND a.backlog_id=b.id AND b.directive_id=$directive_id";
 			$directive_join = ",backlog b";
 		}
+		// Num Events
+		$ev_where = "";
+		if ($num_events != "" && $num_events_op != "") {
+			if ($num_events_op == "less") $num_events_op = "<=";
+			elseif ($num_events_op == "more") $num_events_op = ">=";
+			else $num_events_op = "=";
+			$ev_where = " AND a.backlog_id in (select backlog_id from (SELECT count(*) as total_events,backlog_event.backlog_id FROM backlog_event, event WHERE event.id = backlog_event.event_id AND event.plugin_id<>1505 GROUP BY backlog_id having total_events $num_events_op $num_events) as bk)";
+		}
 		
 		// User Sensor filter
 		$sensor_where = "";
@@ -349,6 +357,7 @@ class AlarmGroups {
 			$ip_where
 			$name_where
 			$directive_where
+			$ev_where
 			$sensor_where)
 			) as alarm_event $groups_where
 			GROUP BY name
@@ -368,6 +377,7 @@ class AlarmGroups {
 			$ip_where
 			$name_where
 			$directive_where
+			$ev_where
 			$sensor_where)
 			) as alarm_event $groups_join$groups_where
 			GROUP BY name, day
@@ -389,6 +399,7 @@ class AlarmGroups {
 			$ip_where
 			$name_where
 			$directive_where
+			$ev_where
 			$sensor_where)
 			) as alarm_event $groups_join$groups_where
 			GROUP BY name, src_ip, dst_ip, day

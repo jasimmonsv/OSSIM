@@ -1071,7 +1071,7 @@ $(document).ready(function(){
 	}).result(function(event, item) {
 		$("#sensors").val(item.id);
 	});
-	<?php if ($date_from != "") { ?>
+	<?php if ($date_from != "" || $query != "" || $sensor_query != "" || $directive_id != "" || $num_events > 0) { ?>
 	tooglebtn();
 	<?php } ?>
 });
