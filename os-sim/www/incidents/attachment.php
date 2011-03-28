@@ -38,7 +38,7 @@ require_once 'classes/Session.inc';
 Session::logcheck("MenuIncidents", "IncidentsIncidents");
 require_once ('ossim_db.inc');
 require_once ('classes/Incident_file.inc');
-require_once ('classes/Incident_file.inc');
+require_once ('classes/Incident.inc');
 require_once ('classes/Security.inc');
 $id = intval(GET('id'));
 ossim_valid($id, OSS_NULLABLE, OSS_ALPHA, OSS_SCORE, 'illegal:' . _("id"));
@@ -48,6 +48,16 @@ if (ossim_error()) {
 if (!empty($id)) {
     $db = new ossim_db();
     $conn = $db->connect();
+    
+    $result = $conn->Execute("SELECT incident_id FROM incident_file WHERE id=$id");
+    $ticket_id = $result->fields["incident_id"];
+    
+    $incident_list = Incident::search($conn, array('incident_id' => $ticket_id));
+
+    if (count($incident_list) != 1) {
+        die(_("Invalid ticket ID or insufficient permissions"));
+    }
+    
     if ($files = Incident_file::get_list($conn, "WHERE id = $id")) {
         $type = $files[0]->get_type();
         $fname = $files[0]->get_name();
