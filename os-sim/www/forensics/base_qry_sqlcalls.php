@@ -245,6 +245,7 @@ switch ($tr) {
         $grpby = " GROUP BY intervalo,suf";
         break;
 
+    case "day2":
     case "day":
         $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, day(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = " GROUP BY intervalo,suf";
@@ -316,6 +317,9 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $cell_data['SID'] = $myrow["sid"];
     $cell_align['SID'] = "center";
     $cell_data['SENSOR'] = ($sensornames[$myrow["sid"]] != "") ? $sensornames[$myrow["sid"]] : gettext("unknown");
+    if (preg_match("/\d+\.\d+\.\d+\.\d+/",$cell_data['SENSOR'])) {
+    	$cell_data['SENSOR'] = '<A HREF="base_stat_ipaddr.php?ip=' . $cell_data['SENSOR'] . '&amp;netmask=32">'.Host::ip2hostname($_conn,$cell_data['SENSOR'],true).'</A>';
+    }
     $cell_align['SENSOR'] = "center";
     $cell_data['CID'] = $myrow["cid"];
     $cell_align['CID'] = "center";

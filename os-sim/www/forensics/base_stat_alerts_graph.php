@@ -162,6 +162,7 @@ switch ($tr) {
         $grpby = " GROUP BY intervalo,suf";
         break;
 
+    case "day2":
     case "day":
         $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, day(convert_tz(timestamp,'+00:00','$tzc')) as suf";
         $grpby = " GROUP BY intervalo,suf";
@@ -204,7 +205,7 @@ if ($use_ac) {
        WHERE ac_alerts_signature.sig_cnt>0 $where GROUP BY plugin_id, plugin_sid $orderby";
     $event_cnt = EventCnt($db, "", "", "SELECT sum(sig_cnt) FROM ac_alerts_signature FORCE INDEX(primary) ".preg_replace("/^AND /","WHERE ",$where));
     $where = "AND " . str_replace("timestamp", "day", $criteria_clauses[1]);
-    if ($tr != "today" && $tr != "day") {
+    if ($tr != "today" && $tr != "day" && $tr != "day2") {
         // we dont have hour interval in ac_* tables
         $sqlgraph = "SELECT sum(sig_cnt) as sig_cnt, $interval FROM ac_alerts_signature WHERE plugin_id=PLUGINID AND plugin_sid=PLUGINSID $grpby";
     }

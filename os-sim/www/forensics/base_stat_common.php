@@ -707,6 +707,16 @@ function range_graphic($trdata) {
             $hasta = time() + $jump;
             break;
 
+        case "day2":
+            $desde = strtotime("-47 hour");
+            $suf = "";
+            $jump = 3600;
+            $noprint = 6;
+            $interval = "G\h jM";
+            $key = "G j";
+            $hasta = time() + $jump;
+            break;
+
         case "week":
             $desde = strtotime("-1 week");
             $suf = "";
