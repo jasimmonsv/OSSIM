@@ -11,6 +11,6 @@ fi
 otpi="/var/lib/dpkg/info/ossim-taxonomy.postinst"
 if [ -f "$otpi" ]; then
 #        echo -e "\nTaxonomy found (Updating)..."
-            sh "$otpi"
+            /bin/bash "$otpi"
 fi
 
