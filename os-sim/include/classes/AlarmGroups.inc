@@ -273,7 +273,7 @@ class AlarmGroups {
     function get_alarm()            { return $this->alarm;          }
     */
     /* deprecated */
-	function get_grouped_alarms($conn, $group_type, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $limit="LIMIT 0,10") {
+	function get_grouped_alarms($conn, $group_type, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $sensor="", $query="", $directive_id="", $limit="LIMIT 0,10") {
 		// CRITERIAS
 		// Hide Closed
 		$closed_where = ($hide_closed) ? " AND status='open'" : "";
@@ -300,20 +300,38 @@ class AlarmGroups {
 		// IP
 		if ($ip_src != "") $ip_where = " AND a.src_ip=INET_ATON('$ip_src')";
 		if ($ip_dst != "") $ip_where .= " AND a.dst_ip=INET_ATON('$ip_dst')";
+		// Alarm Name
+		$name_where = "";
+		if ($query != "") {
+            $name_where= " AND p.name LIKE \"%$query%\"";
+        }
+        // Directive ID
+		$directive_join = "";
+		$directive_where = "";
+		if ($directive_id != "") {
+			$directive_where = " AND a.backlog_id=b.id AND b.directive_id=$directive_id";
+			$directive_join = ",backlog b";
+		}
 		
 		// User Sensor filter
 		$sensor_where = "";
 		$sensor_str = "";
 		if (Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
-			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
-				$sensor_str .= ($sensor_str == "") ? "'".$user_sensor."'" : ",'".$user_sensor."'";
-			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
+			foreach ($user_sensors as $user_sensor) {
+				if ($user_sensor!="") {
+					$sensor_str .= ($sensor_str == "") ? "'".$user_sensor."'" : ",'".$user_sensor."'";
+				}
+			}
 			$sensor_where = " AND e.sensor in ($sensor_str) AND e.id=a.event_id";
 		}
 		
-		if ($sensor_str != "") {
+		if ($sensor != "") {
 			$sensor_join = " ,event e";
+			$sensor_where = ($sensor_where != "") ? $sensor_where." AND e.sensor='$sensor'" : " AND e.sensor='$sensor' AND e.id=a.event_id";
+		} elseif ($sensor_str != "") {
+			$sensor_join = " ,event e";
+			$sensor_where .= $sensor_str;
 		} else $sensor_join = "";
 		
 		// QUERY
@@ -323,12 +341,14 @@ class AlarmGroups {
 			sha1( alarm_event.name ) AS group_id,
 			alarm_event.name AS name
 			FROM (
-			(SELECT p.name FROM alarm a, plugin_sid p$sensor_join
+			(SELECT p.name FROM alarm a, plugin_sid p$sensor_join$directive_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
 			$date_where
 			$ip_where
+			$name_where
+			$directive_where
 			$sensor_where)
 			) as alarm_event $groups_where
 			GROUP BY name
@@ -340,12 +360,14 @@ class AlarmGroups {
 			alarm_event.name AS name,
 			DATE( alarm_event.timestamp ) AS day
 			FROM (
-			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join
+			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join$directive_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
 			$date_where
 			$ip_where
+			$name_where
+			$directive_where
 			$sensor_where)
 			) as alarm_event $groups_join$groups_where
 			GROUP BY name, day
@@ -359,12 +381,14 @@ class AlarmGroups {
 			INET_NTOA( alarm_event.dst_ip ) AS dst_ip,
 			DATE( alarm_event.timestamp ) AS day
 			FROM (
-			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join
+			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join$directive_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
 			$date_where
 			$ip_where
+			$name_where
+			$directive_where
 			$sensor_where)
 			) as alarm_event $groups_join$groups_where
 			GROUP BY name, src_ip, dst_ip, day

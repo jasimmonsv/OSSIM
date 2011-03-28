@@ -100,6 +100,10 @@ $autorefresh = GET('autorefresh');
 $alarm = GET('alarm');
 $param_unique_id = GET('unique_id');
 $group_type = GET('group_type') ? GET('group_type') : "all";
+$query = (GET('query') != "") ? GET('query') : "";
+$directive_id = GET('directive_id');
+$sensor_query = GET('sensor_query');
+
 ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($disp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("disp"));
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
@@ -121,6 +125,9 @@ ossim_valid($new_descr, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, OSS_PUNC,
 ossim_valid($show_options, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("show_options"));
 ossim_valid($refresh_time, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("refresh_time"));
 ossim_valid($alarm, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("alarm"));
+ossim_valid($sensor_query, OSS_IP_ADDR, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("sensor_query"));
+ossim_valid($query, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("query"));
+ossim_valid($directive_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive_id"));
 //action=change_descr
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("action"));
 if (ossim_error()) {
@@ -224,7 +231,7 @@ if (GET('action') == "delete_alarm") {
     else die(ossim_error("Can't do this action for security reasons."));
 }
 $db_groups = AlarmGroups::get_dbgroups($conn);
-list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, "LIMIT $inf,$sup");
+list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, $sensor_query, $query, $directive_id, "LIMIT $inf,$sup");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -596,6 +603,23 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 	<tr>
 		<td class="nobborder">
 			<table class="transparent">
+				<tr>
+					<td width="20%" style="text-align: right; border-width: 0px">
+				        <b><?=_("Sensor")?></b>:
+				    </td>
+				    <td style="text-align: left; border-width: 0px" nowrap>
+						<input type="text" name="sensor_query" id="sensors" value="<?php echo $sensor_query ?>">
+				    </td>
+				</tr>
+				<tr>
+					<td width="20%" style="text-align: right; border-width: 0px">
+				        <b><?=_("Alarm name")?></b>:
+				    </td>
+				    <td style="text-align: left; border-width: 0px" nowrap>
+				        <input type="text" name="query" value="<?php echo $query ?>">
+						&nbsp;<b><?=_("Directive ID")?></b>: <input type="text" name="directive_id" value="<?=$directive_id?>">
+				    </td>
+				</tr>
 				<tr>
 				    <td width="10%" style="text-align: right; border-width: 0px">
 				        <b><?php echo _("IP Address") ?></b>:
