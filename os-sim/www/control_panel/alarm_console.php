@@ -72,7 +72,8 @@ $dst_ip = GET('dst_ip');
 $backup_inf = $inf = GET('inf');
 $sup = GET('sup');
 $hide_closed = GET('hide_closed');
-$norefresh = GET('norefresh');
+$refresh_time = GET('refresh_time');
+$autorefresh = GET('autorefresh');
 $query = (GET('query') != "") ? GET('query') : "";
 $directive_id = GET('directive_id');
 $sensor_query = GET('sensor_query');
@@ -103,7 +104,8 @@ ossim_valid($close, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("close"));
 ossim_valid($open, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("open"));
 ossim_valid($delete_day, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("delete_day"));
 ossim_valid($query, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("query"));
-ossim_valid($norefresh, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("norefresh"));
+ossim_valid($autorefresh, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("autorefresh"));
+ossim_valid($refresh_time, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("refresh_time"));
 ossim_valid($directive_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive_id"));
 ossim_valid($src_ip, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
 ossim_valid($dst_ip, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
@@ -121,6 +123,14 @@ ossim_valid($num_events_op, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("num_events_
 if (ossim_error()) {
     die(ossim_error());
 }
+if ($autorefresh == 'on') {
+    $autorefresh = 1;
+} else {
+    $autorefresh = 0;
+}
+if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 && $refresh_time != 180000 && $refresh_time != 600000)) {
+    $refresh_time = 60000;
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -131,9 +141,9 @@ if (ossim_error()) {
   <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
   <link rel="stylesheet" type="text/css" href="../style/datepicker.css"/>
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
-  <?php if (GET('norefresh') == "") { ?>
+  <?php if ($autorefresh) { ?>
   <script type="text/javascript">
-	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>&bypassexpirationupdate=1'",60000);
+	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>&refresh_time=<?php echo GET('refresh_time') ?>&autorefresh=<?php echo GET('autorefresh') ?>&bypassexpirationupdate=1'",<?php echo $refresh_time ?>);
   </script>
   <?php } ?>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
@@ -371,7 +381,7 @@ list($alarm_list, $count) = Alarm::get_list3($conn, $src_ip, $dst_ip, $hide_clos
 if (!isset($_GET["hide_search"])) {
 ?>
 
-<form method="GET" id="queryform">
+<form method="GET" id="queryform" name="filters">
 <input type="hidden" name="tag" value="<?php echo $tag ?>">
 <input type="hidden" name="date_from" id="date_from"  value="<?php echo $date_from ?>">
 <input type="hidden" name="date_to" id="date_to" value="<?php echo $date_to ?>">
@@ -526,15 +536,20 @@ if (!isset($_GET["hide_search"])) {
 			<tr>
 				<td style="text-align: left; border-width: 0px">
 				<?php
-    if ($norefresh != "") { ?>
-				<input style="border:none" name="norefresh" type="checkbox" value="1" checked onclick="document.location.href='alarm_console.php?<?php echo $params_string
-?>'"> <?=_("Do not refresh console")?>
-				<?php
-    } else { ?>
-				<input style="border:none" name="norefresh" type="checkbox" value="1" onclick="document.location.href='alarm_console.php?norefresh=1&<?php echo $params_string
-?>'"> <?=_("Do not refresh console")?>
-				<?php
-    } ?>
+				$refresh_sel1 = $refresh_sel2 = $refresh_sel3 = $refresh_sel4 = "";
+			    if ($refresh_time == 30000) $refresh_sel1 = 'selected="true"';
+			    if ($refresh_time == 60000) $refresh_sel2 = 'selected="true"';
+			    if ($refresh_time == 180000) $refresh_sel3 = 'selected="true"';
+			    if ($refresh_time == 600000) $refresh_sel4 = 'selected="true"';
+			    if ($autorefresh) {
+			        $hide_autorefresh = 'checked="true"';
+			        $disable_autorefresh = '';
+			    } else {
+			        $hide_autorefresh = '';
+			        $disable_autorefresh = 'disabled="true"';
+			    }
+    			?>
+				<input type="checkbox" name="autorefresh" onclick="javascript:document.filters.refresh_time.disabled=!document.filters.refresh_time.disabled;" <?php echo $hide_autorefresh ?> /><?php echo gettext("Autorefresh") ?>&nbsp;<select name="refresh_time" <?php echo $disable_autorefresh ?> ><option value="30000" <?php echo $refresh_sel1 ?> ><?php echo _("30 sec") ?></options><option value="60000" <?php echo $refresh_sel2 ?>><?php echo _("1 min") ?></options><option value="180000" <?php echo $refresh_sel3 ?>><?php echo _("3 min") ?></options><option value="600000" <?php echo $refresh_sel4 ?>><?php echo _("10 min") ?></options></select>&nbsp;<a href="<? echo $_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>" >[<?php echo _("Refresh") ?>]</a>
 				</td>
 			</tr>
 		</table>

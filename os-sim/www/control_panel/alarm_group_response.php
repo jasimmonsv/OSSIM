@@ -70,6 +70,9 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 $src_ip = GET('ip_src');
 $dst_ip = GET('ip_dst');
 $timestamp = GET('timestamp');
+$from_date = GET('date_from');
+$to_date = GET('date_to');
+$timestamp = GET('timestamp');
 $name = $_SESSION[GET('name')];
 $group_id = GET('group_id');
 $hide_closed = GET('hide_closed');
@@ -86,6 +89,8 @@ $timestamp = preg_replace("/\s\d\d\:\d\d\:\d\d$/","",$timestamp);
 ossim_valid($src_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("src_ip"));
 ossim_valid($dst_ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("dst_ip"));
 ossim_valid($timestamp, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("timestamp"));
+ossim_valid($from_date, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("from_date"));
+ossim_valid($to_date, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("to_date"));
 ossim_valid($name, OSS_DIGIT, OSS_ALPHA, OSS_PUNC_EXT, OSS_NULLABLE, '\>\<', 'illegal:' . _("name"));
 ossim_valid($hide_closed, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("hide_closed"));
 ossim_valid($only_delete, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_delete"));
@@ -97,8 +102,10 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
-$from_date = ($timestamp!="") ? $timestamp." 00:00:00" : null;
-$to_date = ($timestamp!="") ? $timestamp : null;
+if ($timestamp != "") {
+	$from_date = ($timestamp!="") ? $timestamp." 00:00:00" : null;
+	$to_date = ($timestamp!="") ? $timestamp : null;
+}
 
 if ($only_delete) {
 	for ($i = 1; $i <= $only_delete; $i++) {
@@ -158,7 +165,6 @@ $assets = array();
 foreach($host_list as $host) {
 	$assets[$host->get_ip() ] = $host->get_asset();
 }
-
 list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",$from,$top,$from_date,$to_date,$name);
 
 ?>

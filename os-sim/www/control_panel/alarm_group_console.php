@@ -237,7 +237,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 	document.getElementById(group_id+from).innerHTML = "<img src='../pixmaps/loading.gif'>";
 	$.ajax({
 		type: "GET",
-		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>",
+		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>&date_from=<?php echo GET('date_from') ?>&date_to=<?php echo GET('date_to') ?>",
 		data: "",
 		success: function(msg){
 			//alert (msg);
@@ -711,7 +711,7 @@ $tree_count = 0;
 <?
     // Timezone correction
     $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
-    foreach($alarm_group as $group) { 
+    foreach($alarm_group as $group) {
         $group['date'] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($conn,$group['date'])+(3600*$tz));
 		$group_id = $group['group_id'];
 		$_SESSION[$group_id] = $group['name'];
@@ -720,7 +720,7 @@ $tree_count = 0;
 			$lastday = $group['date'];
 			list($year, $month, $day) = split("-", $group['date']);
 			$date = Util::htmlentities(strftime("%A %d-%b-%Y", mktime(0, 0, 0, $month, $day, $year)));
-			$show_day = 1;
+			$show_day = ($group_type == "name") ? 0 : 1;
 		} else $show_day = 0;
 		$descr = $db_groups[$group_id]['descr'];
 		$status = ($db_groups[$group_id]['status'] != "") ? $db_groups[$group_id]['status'] : "open";
