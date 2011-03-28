@@ -576,14 +576,14 @@ $tree_count = 0;
     $underlined = ($date_from != "" && $date_to != "") ? ";text-decoration:underline" : "";
 	print '<tr><td width="10%" id="date_str" style="text-align: right; border-width: 0px'.$underlined.'">';
     print '<b>' . _('Date') . '</b>';
-    if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; }
     print ':</td>';
-    print '<td class="nobborder">
-		<div id="widget">
+    print '<td class="nobborder" style="font-size:10px">
+		<div id="widget" style="display:inline">
 			<a href="javascript:;"><img src="../pixmaps/calendar.png" id="imgcalendar" border="0"></a>
 			<div id="widgetCalendar"></div>
-		</div>
-	</td>';
+		</div>';
+    if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; }
+	print '</td>';
     //Actions
     ?>
     <td rowspan="3" style="text-align: left;border-bottom:0px solid white" nowrap>

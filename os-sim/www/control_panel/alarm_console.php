@@ -430,13 +430,13 @@ if (!isset($_GET["hide_search"])) {
 			</tr>
 			<tr>
 			    <td width="20%" id="date_str" style="text-align: right; border-width: 0px<? if ($date_from != "" && $date_to != "") echo ";text-decoration:underline"?>">
-			        <b><?php echo _('Date') ?></b><?php if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; } ?>:
+			        <b><?php echo _('Date') ?></b>:
 				</td>
-				<td class="nobborder">
-					<div id="widget">
+				<td class="nobborder" style="font-size:10px">
+					<div id="widget" style="display:inline">
 						<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
 						<div id="widgetCalendar"></div>
-					</div>
+					</div><?php if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; } ?>
 			    </td>
 			</tr>
 		</table>
