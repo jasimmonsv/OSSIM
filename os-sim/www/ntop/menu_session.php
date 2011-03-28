@@ -133,7 +133,7 @@ if (preg_match('/\d+\.\d+\.\d+\.\d+/', $sensor)) {
     } else { //if use_ntop_rewrite is enabled
         $protocol = "http";
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $protocol = "https";
-        $ntop_link = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop-$sensor";
+        $ntop_link = "$protocol://" . $_SERVER['SERVER_NAME'] . "/ntop_$sensor";
     }
 ?>
 <a href="<?php
