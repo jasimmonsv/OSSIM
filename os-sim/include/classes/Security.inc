@@ -534,18 +534,35 @@ function ossim_get_error_clean() {
 }
 
 
-function ossim_error($error_msg = null, $style=null) {
+function ossim_error($error_msg = null, $error_type='ERROR', $error_code=null) {
 	include_once 'ossim_error.inc';
 	
-	$ossim_warn = new OssimWarn($style);
-    
-	$error = ($error_msg !== null) ? $error_msg : $GLOBALS['ossim_last_error'];
+	switch ($error_type)
+	{
+		case "ERROR":
+			$ossim_eclass = new OssimError($error_msg);
+		break;
+		
+		case "WARNING":
+			$ossim_eclass = new OssimWarn($error_msg);
+		break;
+		
+		case "NOTICE":
+			$ossim_eclass = new OssimNotice($error_msg);
+		break;
+		
+		default:
+			$ossim_eclass = new OssimError($error_msg);
+	}
 	
-    if (!$error) {
+	$error_msg  = ($error_msg !== null) ? $error_msg : $GLOBALS['ossim_last_error'];
+	
+	if (!$error_msg) {
         return false;
     }
-   
-    return $ossim_warn->get('ERROR', array( $error ));
+	
+	   
+    return $ossim_eclass->get($error_code, array( $error_msg ));
 }
 
 function validate_form_fields($type, $validate)

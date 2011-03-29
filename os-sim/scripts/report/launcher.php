@@ -287,26 +287,28 @@ $to_text .= "\n\n"._('Date').': '.date("Y-m-d H:i:s")."\n\n";
 $to_text .= _('Starting Report Scheduler')."...\n\n";
 
 
-// Login
-$step1 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --save-cookies='.$cookieName.' --post-data="user='.$user.'&pass='.$pass.'" "'.$server.'/session/login.php" -O -',$output);
-
-$result = searchString($output,$info_text[0]);
-
-if ( $result == true )
-{
-	$to_text .= sprintf("\n%-15s\n\n", _('ERROR: Wrong User & Password'));
-	echo $to_text;
-    clean($cookieName);
-    exit();
-}
-
 
 // Run reports
 $report_list = getScheduler();
 
 foreach ( $report_list as $value)
 {
-    $r_data   = base64_decode($value['id_report']);
+    
+	// Login
+	$step1 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --save-cookies='.$cookieName.' --post-data="user='.$user.'&pass='.$pass.'" "'.$server.'/session/login.php" -O -',$output);
+
+	$result = searchString($output,$info_text[0]);
+
+	if ( $result == true )
+	{
+		$to_text .= sprintf("\n%-15s\n\n", _('ERROR: Wrong User & Password'));
+		echo $to_text;
+		clean($cookieName);
+		exit();
+	}
+		
+	
+	$r_data   = base64_decode($value['id_report']);
     $r_data   = explode('###',$r_data);
 	$user     = $r_data[1];
 	

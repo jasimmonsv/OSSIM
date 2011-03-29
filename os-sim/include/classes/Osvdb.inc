@@ -68,7 +68,8 @@ class Osvdb {
     var $external_refs;
     var $credits;
     var $status;
-    function Osvdb($id, $title, $disclosure_date, $description, $technical_description, $classifications, $products, $solution, $manual_test, $external_refs, $credits, $status) {
+   
+	function Osvdb($id, $title, $disclosure_date, $description, $technical_description, $classifications, $products, $solution, $manual_test, $external_refs, $credits, $status) {
         $this->id = $id;
         $this->title = $title;
         $this->disclosure_date = $disclosure_date;
@@ -82,60 +83,66 @@ class Osvdb {
         $this->credits = $credits;
         $this->status = $status;
     }
-    function get_id() {
+    
+	function get_id() {
         return $this->id;
     }
-    function get_title() {
+    
+	function get_title() {
         return $this->title;
     }
-    function get_classifications() {
+    
+	function get_classifications() {
         return $this->classifications;
     }
-    function get_disclosure_date() {
+    
+	function get_disclosure_date() {
         return $this->disclosure_date;
     }
-    function get_description() {
+    
+	function get_description() {
         return $this->description;
     }
-    function get_technical_description() {
+    
+	function get_technical_description() {
         return $this->technical_description;
     }
-    function get_products() {
+    
+	function get_products() {
         return $this->products;
     }
-    function get_solution() {
+    
+	function get_solution() {
         return $this->solution;
     }
-    function get_manual_test() {
+    
+	function get_manual_test() {
         return Osvdb::sanity($this->manual_test);
     }
-    function get_external_refs() {
+    
+	function get_external_refs() {
         return $this->external_refs;
     }
-    function get_credits() {
+    
+	function get_credits() {
         return $this->credits;
     }
-    function get_status() {
+    
+	function get_status() {
         return $this->status;
     }
-    function sanity($text) {
+    
+	function sanity($text) {
 		require_once("classes/Util.inc");
-        $tmp = preg_replace("/[^\d{5}];/", "<br>", nl2br($text));
-        $tmp = Util::htmlentities($tmp);
+		$tmp = Util::htmlentities($text);
+        $tmp = preg_replace("/[^\d{5}];/", "<br/>", nl2br($tmp));
         return $tmp;
-    }
-    function get_osvdbid_by_nessusid($conn_ossim, $nessus_id) {
-        $sql = "SELECT 
-                    plugin_sid 
-                FROM 
-                    plugin_reference 
-                WHERE 
-                    reference_id = 3001 
-                AND 
-                    plugin_id = 5003 
-                AND 
-                    reference_sid = ?";
-        $params = array(
+	}
+    
+	function get_osvdbid_by_nessusid($conn_ossim, $nessus_id) {
+        $sql = "SELECT plugin_sid FROM plugin_reference WHERE reference_id = 3001 AND plugin_id = 5003 AND reference_sid = ?";
+       
+	   $params = array(
             $nessus_id
         );
         if (!$rs = $conn_ossim->Execute($sql, $params)) {
@@ -144,14 +151,7 @@ class Osvdb {
         return $rs->fields["plugin_sid"];
     }
     function get_osvdb($conn_osvdb, $osvdb_id) {
-        $sql = "SELECT 
-                    v.osvdb_id,
-                    osvdb_title,
-                    disclosure_date
-                FROM
-                    vuln v
-                WHERE
-                    v.osvdb_id = ?";
+        $sql = "SELECT v.osvdb_id, osvdb_title,disclosure_date FROM vuln v WHERE v.osvdb_id = ?";
         $params = array(
             $osvdb_id
         );
