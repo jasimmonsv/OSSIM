@@ -876,6 +876,21 @@ div.bballoon:hover span.bottom {
 	text-decoration: none !important;	
 }
 
+.btooltip {
+	text-align:left;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+
+	color: #00529B;
+	background-color: #BDE5F8;
+	border: 1px solid #00529B;
+
+	font-family: arial;
+	font-size: 11px;
+	text-decoration: none !important;	
+}
+
 .rtooltip {
 	text-align:center;
 	position: absolute;
