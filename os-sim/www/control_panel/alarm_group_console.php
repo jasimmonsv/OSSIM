@@ -498,6 +498,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 	?>
 	var datefrom = new Date(<?php echo $y ?>,<?php echo $m-1 ?>,<?php echo $d ?>);
 	var dateto = new Date(<?php echo $y2 ?>,<?php echo $m2-1 ?>,<?php echo $d2 ?>);
+	var clicks = 0;
 	$('#widgetCalendar').DatePicker({
 		flat: true,
 		format: 'Y-m-d',
@@ -506,14 +507,14 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 		mode: 'range',
 		starts: 1,
 		onChange: function(formated) {
-			if (formated[0]!=formated[1]) {
+			if (formated[0]!="" && formated[1]!="" && clicks>0) {
 				var f1 = formated[0].split(/-/);
 				var f2 = formated[1].split(/-/);
 				document.getElementById('date_from').value = f1[0]+'-'+f1[1]+'-'+f1[2];
 				document.getElementById('date_to').value = f2[0]+'-'+f2[1]+'-'+f2[2];
 				$('#date_str').css('text-decoration', 'underline');
 				document.getElementById('queryform').submit();
-			}
+			} clicks++;
 		}
 	});
 	var state = false;

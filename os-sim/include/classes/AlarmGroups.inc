@@ -292,9 +292,11 @@ class AlarmGroups {
 		}
 		// Date
 		if ($from_date != "") {
+			if (preg_match("/^\d\d\d\d\-\d\d-\d\d$/", $from_date)) { $from_date .= " 00:00:00"; }
 			$date_where = " AND a.timestamp >= '$from_date'";
 		}
 		if ($to_date != "") {
+			if (preg_match("/^\d\d\d\d\-\d\d-\d\d$/", $to_date)) { $to_date .= " 23:59:59"; }
 			$date_where .= " AND a.timestamp <= '$to_date'";
 		}
 		// IP
