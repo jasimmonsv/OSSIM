@@ -81,11 +81,20 @@ if (empty($show_all)) {
     $show_all = 0;
 }
 $assets = array();
+$host_names = array();
 $host_list = Host::get_list($conn);
 foreach($host_list as $host) {
-    $assets[$host->get_ip() ] = $host->get_asset();
+    $assets[$host->get_ip()] = $host->get_asset();
+    $host_names[$host->get_ip()] = $host->get_hostname();
 }
 $master_alarm_sid = 0;
+// Preload Plugin Sids
+$plugin_sid_list_aux = Plugin_sid::get_list($conn);
+$plugin_sid_list = array();
+foreach ($plugin_sid_list_aux as $psid) {
+	$plugin_sid_list[$psid->get_plugin_id()][$psid->get_sid()]['name'] = $psid->get_name();
+	$plugin_sid_list[$psid->get_plugin_id()][$psid->get_sid()]['priority'] = $psid->get_priority();
+}
 ?>
 	<?php
 if (GET('box') == "1") { ?>
@@ -148,9 +157,9 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         $id_name = $plugin_id_list[0]->get_name();
         */
         $sid_name = "";
-        if ($plugin_sid_list = Plugin_sid::get_list($conn, "WHERE plugin_id = $id AND sid = $sid")) {
-            $sid_name = $plugin_sid_list[0]->get_name();
-            $sid_priority = $plugin_sid_list[0]->get_priority();
+        if (is_array($plugin_sid_list[$id][$sid])) {
+            $sid_name = $plugin_sid_list[$id][$sid]['name'];
+            $sid_priority = $plugin_sid_list[$id][$sid]['priority'];
         } else {
             $sid_name = "Unknown (id=$id sid=$sid)";
             $sid_priority = "N/A";
@@ -305,8 +314,8 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         $src_title = _("Src Asset").": <b>$asset_src</b><br>"._("IP").": <b>$src_ip</b>";
         $dst_link = "../report/host_report.php?host=$dst_ip";
         $dst_title = _("Dst Asset").": <b>$asset_dst</b><br>"._("IP").": <b>$dst_ip</b>";
-        $src_name = Host::ip2hostname($conn, $src_ip);
-        $dst_name = Host::ip2hostname($conn, $dst_ip);
+        $src_name = ($host_names[$src_ip] != "") ? $host_names[$src_ip] : $src_ip;
+        $dst_name = ($host_names[$dst_ip] != "") ? $host_names[$dst_ip] : $dst_ip;
         $src_img = Host_os::get_os_pixmap($conn, $src_ip);
         $dst_img = Host_os::get_os_pixmap($conn, $dst_ip);
 		$src_country = strtolower(geoip_country_code_by_addr($gi, $src_ip));
@@ -345,9 +354,9 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         // Alarm summary
         if (!$show_all || $alarm->get_alarm()) {
             $summary = Alarm::get_alarm_stats($conn, $backlog_id, $aid);
-            $summ_count = $summary["count"];
-			$totales += $summary['total_count'];
-            $summ_event_count+= $summ_count + 1;  // +1 because we add event with alarm=1
+            $summ_count = $summary["count"] + 1;  // +1 because we add event with alarm=1
+            $totales += $summary['total_count'];
+            $summ_event_count+= $summ_count;
             $summ_dst_ips = $summary["dst_ips"];
             $summ_types = $summary["types"];
             $summ_dst_ports = $summary["dst_ports"];
