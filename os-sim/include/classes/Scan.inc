@@ -80,10 +80,21 @@ class Scan {
         Log_action::log(43, $infolog);
     }
 
-	function scanning_now($ip) {
-		$cmd = "ps ax | grep nmap | grep $ip | grep -v grep";
+	function scanning_now($ip="") {
+		$cmd = ($ip != "") ? "ps ax | grep nmap | grep $ip | grep -v grep" : "ps ax | grep nmap | grep -v grep";
 		$output = explode("\n",`$cmd`);
 		return (preg_match("/nmap/",$output[0])) ? 1 : 0;
+	}
+	function scanning_what() {
+		$cmd = "ps ax | grep nmap | grep -v grep";
+		$output = explode("\n",`$cmd`);
+		$ips = array();
+		foreach ($output as $line) {
+			if (preg_match("/(\d+\.\d+\.\d+\.\d+\/\d+)/",$line,$found)) {
+				$ips[] = $found[1];
+			}
+		}
+		return $ips;
 	}
 	function stop_nmap($ip) {
 		$tmp_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$ip));

@@ -70,11 +70,13 @@ $full_scan = GET('full_scan');
 $timing_template = GET('timing_template');
 $net_input = GET('net_input');
 $only_stop = GET('only_stop');
+$only_status = GET('only_status');
 ossim_valid($net, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Net"));
 ossim_valid($net_input, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Net"));
 ossim_valid($full_scan, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("full scan"));
 ossim_valid($timing_template, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("timing_template"));
 ossim_valid($only_stop, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only stop"));
+ossim_valid($only_status, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only status"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -84,6 +86,17 @@ require_once ('classes/Scan.inc');
 if ($only_stop) {
 	$scan = new Scan($net);
 	$scan->stop_nmap($net);
+	exit;
+}
+if ($only_status) {
+	$scanning_nets = Scan::scanning_what();
+	if (count($scanning_nets) > 0) {
+		foreach($scanning_nets as $net) {
+			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div><br><center><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></center><br>\n";
+		}
+	} else {
+		echo "No nmap process found.";
+	}
 	exit;
 }
 
@@ -99,7 +112,7 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 		$rscan->save_scan();
 	
 } else {
-
+?><script type="text/javascript">parent.document.getElementById('scan_button').disabled = true</script><?php
 	echo _("Unable to launch remote network scan: ") . "<font color=red>".$rscan->err() ."</font><br/>\n"; // if ($full_scan!="full") 
 	echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div><br><center><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></center>\n";
 	
@@ -123,7 +136,7 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 echo gettext("Scan completed") . ".<br/><br/>";
 if (count($scan->scan) > 0) { echo "<a href=\"index.php#results\">" . gettext("Click here to show the results") . "</a>"; }
 ?>
-
+<script type="text/javascript">parent.document.getElementById('scan_button').disabled = false</script>
 </body>
 </html>
 

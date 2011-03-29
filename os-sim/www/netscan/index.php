@@ -42,6 +42,7 @@ require_once ("ossim_db.inc");
 $db = new ossim_db();
 $conn = $db->connect();
 require_once ("classes/Net.inc");
+require_once ("classes/Scan.inc");
 $net_list = Net::get_list($conn);
 $db->close($conn);
 require_once 'ossim_conf.inc';
@@ -52,6 +53,7 @@ if (file_exists($nmap_path)) {
 } else {
     $nmap_exists = 0;
 }
+$nmap_running = Scan::scanning_now();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -102,6 +104,7 @@ echo gettext("Please, select the network you want to scan:") ?>
         <p align="center">
         <select name="net" onChange="javascript:check_change()">
 <?php
+$net_list = array();
 if (is_array($net_list) && !empty($net_list)) {
     $first_net = $net_list[0]->get_ips();
     foreach($net_list as $net) {
@@ -175,7 +178,7 @@ if (is_array($net_list) && !empty($net_list)) {
     <!-- do scan -->
     <tr>
       <td colspan="2" class="nobborder center">
-        <input type="submit" class="button" onclick="$('#process_div').show()" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists) ? "disabled" : "" ?> />
+        <input type="submit" id="scan_button" class="button" onclick="$('#process_div').show()" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists || $nmap_running) ? "disabled" : "" ?> />
         
         <? if (Session::am_i_admin()) { ?>&nbsp;&nbsp;
         <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="$('#process_div').show();document.location.href='remote_scans.php'"/>
@@ -184,7 +187,7 @@ if (is_array($net_list) && !empty($net_list)) {
 		</td>
     </tr>
     <!-- end do scan -->
-	<tr><td id="process_div" style="display:none"><IFRAME name="process" id="process" src="" frameborder="0" width="300"></IFRAME></td></tr>
+	<tr><td id="process_div" style="display:<?php echo ($nmap_running) ? "block" : "none" ?>"><IFRAME name="process" id="process" src="<?php if ($nmap_running) echo "do_scan.php?only_status=1" ?>" frameborder="0" width="300"></IFRAME></td></tr>
   </table>
   </form>
   <!-- end of net selector form -->
