@@ -589,7 +589,7 @@ class PDF extends FPDF {
                      $content["SourceIps"]=$alarm->get_src_ips();
                      $content["DestinationIps"]=$alarm->get_dst_ips();
                      $content["SourcePorts"]=$alarm->get_src_ports();
-                     $content["DestinationPorts"]=$alarm->get_src_ports();
+                     $content["DestinationPorts"]=$alarm->get_dst_ports();
                      
                 } /*foreach*/
             } /*if*/
