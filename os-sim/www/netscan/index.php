@@ -104,7 +104,6 @@ echo gettext("Please, select the network you want to scan:") ?>
         <p align="center">
         <select name="net" onChange="javascript:check_change()">
 <?php
-$net_list = array();
 if (is_array($net_list) && !empty($net_list)) {
     $first_net = $net_list[0]->get_ips();
     foreach($net_list as $net) {
@@ -178,7 +177,7 @@ if (is_array($net_list) && !empty($net_list)) {
     <!-- do scan -->
     <tr>
       <td colspan="2" class="nobborder center">
-        <input type="submit" id="scan_button" class="button" onclick="$('#process_div').show()" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists || $nmap_running) ? "disabled" : "" ?> />
+        <input type="submit" id="scan_button" class="button" onclick="if(document.net_form.net.value=='' && document.net_form.net_input.value=='') {alert('<?php echo _("You must select a network") ?>');return false;} $('#process_div').show()" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists || $nmap_running) ? "disabled" : "" ?> />
         
         <? if (Session::am_i_admin()) { ?>&nbsp;&nbsp;
         <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="$('#process_div').show();document.location.href='remote_scans.php'"/>
