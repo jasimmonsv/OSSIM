@@ -64,7 +64,10 @@ switch ($target_url) {
         //break;
         
     case "top_hosts":
-        $url = "/ossim/report/host_report.php?host=" . $_GET['category'];
+        if($_GET['category']=="no data")
+            $url = "/ossim/report/host_report.php?host=0.0.0.0";
+        else 
+            $url = "/ossim/report/host_report.php?host=" . $_GET['category'];
         break;
 
     case "events_sensor":

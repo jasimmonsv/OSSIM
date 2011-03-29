@@ -45,6 +45,22 @@ require_once ('classes/Host.inc');
 Session::logcheck("MenuReports", "ReportsHostReport");
 require_once 'classes/Security.inc';
 $host = GET('host');
+if($host=="0.0.0.0") {
+    ?>
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html>
+        <head>
+          <title> <?php echo _("Asset not found"); ?> </title>
+          <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+          <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+        </head>
+        <body>
+            <?php echo ossim_error(_("Asset not found"), "ossim_alert"); ?>
+        </body>
+    </html>
+    <?php
+exit;
+}
 $hostname = GET('hostname');
 $greybox = GET('greybox');
 $greybox = 0;
