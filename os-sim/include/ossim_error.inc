@@ -51,58 +51,68 @@ require_once 'classes/Util.inc';
 class OssimMainError {
     
 	public $errors;
+	
+	public $error_type;
     
 	public $current_style;
 	
 	public $action;
 	
 	public static $base_style = 'font-family:Arial, Helvetica, sans-serif; 
-								font-size:13px; border: 1px solid; 
-								width: 90%; 
-								margin: 10px auto; 
-								padding:15px 10px 15px 50px;  
-								background-repeat: no-repeat; 
-								background-position: 10px center; ';
+								 font-size:13px; border: 1px solid; 
+								 width: 90%; 
+								 margin: 10px auto; 
+								 padding:15px 10px 15px 50px;  
+								 background-repeat: no-repeat; 
+								 background-position: 10px center;';
+	
 	
 	public static $styles = array ( "ossim_error" => 'color: #D8000C; 
-													background-color: #FFBABA; 
-													background-image: url("../pixmaps/ossim_error.png");',
+													  background-color: #FFBABA; 
+													  background-image: url("../pixmaps/ossim_error.png");',
 									"ossim_alert" => 'color: #9F6000;
-													background-color: #FEEFB3;
-													background-image: url("../pixmaps/ossim_alert.png");'
-								);
+													  background-color: #FEEFB3;
+													  background-image: url("../pixmaps/ossim_alert.png");',
+									"ossim_info"  => 'color: #00529B;
+													  background-color: #BDE5F8;
+													  background-image: url("../pixmaps/ossim_info.png");'
+								    );
 	
-    public function __construct($style=null){
+	public function __construct($error_msg, $style='ossim_error', $error_type = 'DEFAULT'){
         $this->errors = array(
             "DEFAULT" => array(
-                "short_descr" => gettext("Error") ,
-                "long_descr" => gettext("Error") ,
-            )
-        );
+                "short_descr" => gettext("Error"),
+                "long_descr"  => gettext("Error"),
+            ),
+		);
+		
+		$this->error_type     = $error_type;
 		$this->current_style  = OssimMainError::$base_style;
-		$this->current_style .= ( !empty($style) ) ? OssimMainError::$styles[$style] : OssimMainError::$styles["ossim_error"];
-		$this->action  = "/* no action */";
+		$this->current_style .= OssimMainError::$styles[$style];
+		$this->action         = "/* no action */";
     }
 			
     public function display($error_code, $extrainfo = NULL, $option = "") {
-        print $this->get($error_code, $extrainfo);
+        print $this->get($extrainfo);
         if ($option == "noback") {
         	$this->action = "die();";
         }
         eval($this->action);
     }
-    function get($error_code, $extrainfo = NULL) {
-        if (!array_key_exists($error_code, $this->errors)) 
-			$error_code = "DEFAULT";
+    
+	function get($error_code, $extrainfo = NULL) {
         
+		$error_code = ( empty($this->errors[$error_code]) ) ? "DEFAULT" : $error_code;
+		        
 		$msg = "<div style='".$this->current_style."'>\n";
-        $msg.= "<b>" . $this->errors["$error_code"]["short_descr"] . "</b><br/>";
+        $msg.= "<strong>" . $this->errors["$error_code"]["short_descr"] . "</strong><br/>";
         $msg.= $this->errors["$error_code"]["long_descr"];
         
 		if (count($extrainfo))
 		{
             $n = 1;
-            foreach($extrainfo as $info) {
+            foreach($extrainfo as $info)
+			{
                 $msg = str_replace("%" . $n . "%", $info, $msg);
                 $n = $n + 1;
             }
@@ -112,15 +122,21 @@ class OssimMainError {
     }
 }
 class OssimError extends OssimMainError {
-    function OssimError($style=null) {
+    function OssimError($error_msg) {
         
-        parent::__construct($style);
+        parent::__construct($error_msg, $style='ossim_error', $error_type = 'ERROR');
 		
 		/* action after display error */
         $this->action = 'echo "<br/><center><a style=\"color: #000000;\" href=\"javascript:history.back();\"><b>' . gettext("Back") . '</b></a></center>"; die();';
         /* specific errors */
         /* PHP-adodb */
-        $this->errors["ADODB_PATH"] = array(
+        
+		$this->errors["DEFAULT"] = array(
+			"short_descr" => gettext("Error!") ,
+			"long_descr" => "%1%"
+        );
+		
+		$this->errors["ADODB_PATH"] = array(
             "short_descr" => gettext("Unable to load ADODB library") ,
             "long_descr" => gettext("
                 Make sure that adodb_path is pointing to the right path") ,
@@ -337,40 +353,48 @@ class OssimError extends OssimMainError {
     }
 }
 class OssimWarn extends OssimMainError {
-    public function __construct($style=null) {
+    public function __construct($error_msg) {
         /* warn - yellow colors */
        
         /* call to main error class */
         
-		parent::__construct($style);
+		parent::__construct($error_msg, $style='ossim_alert', $error_type = 'WARNING');
 		
 		$this->current_style =( !empty($style) ) ? OssimMainError::$base_style.OssimMainError::$styles[$style] : $this->current_style;
 		
         $this->errors["STRING_NOT_VALID"] = array(
             "short_descr" => gettext("String is not valid!") ,
             "long_descr" => gettext("For security reasons, bad characters have been skipped") ,
-        
-		$this->errors["ERROR"] = array(
-                "short_descr" => gettext("Error!") ,
-                "long_descr" => "%1%"
-            ) ,
         );
+		
+		$this->errors["DEFAULT"] = array(
+                "short_descr" => gettext("Warning!") ,
+                "long_descr" => "%1%"
+        );
+		
+		
     }
 }
 class OssimNotice extends OssimMainError {
-    public function __construct($style=null) {
+    public function __construct($error_msg) {
         /* Notice - blue colors */
-        parent::__construct($style);
+        parent::__construct($error_msg, $style='ossim_info', $error_type = 'NOTICE');
         
 		$this->current_style =( !empty($style) ) ? OssimMainError::$base_style.OssimMainError::$styles[$style] : $this->current_style;
 		
         /* action after display error */
         $this->action = 'echo "<br/><br/><a style=\"color: #000000;\" href=\"javascript:history.back();\">' . gettext("Back") . '</a>";';
         /* empty required field */
-        $this->errors["FORM_NOFILL"] = array(
+        
+		$this->errors["FORM_NOFILL"] = array(
             "short_descr" => gettext("Empty a required field") ,
-            "long_descr" => gettext("Please fill in all required fields") ,
+            "long_descr"  => gettext("Please fill in all required fields") ,
         ); 
+		
+		$this->errors["DEFAULT"] = array(
+			"short_descr" => gettext("Notice!") ,
+			"long_descr"  => "%1%"
+		);
     }
 }
 
