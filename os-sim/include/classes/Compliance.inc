@@ -264,13 +264,26 @@ class ISO27001 {
 	}
 	
 	function update_attr ($conn,$table,$ref,$attr) {
-		$more = ($attr=="Selected") ? ",Excluded=NOT(Excluded)" : ",Selected=NOT(Selected)";
-		$sql = "UPDATE ISO27001An.$table SET $attr=NOT($attr) $more WHERE Ref='$ref'";
-		
-		if (!$rs = & $conn->Execute($sql)) {
-			print $conn->ErrorMsg();
-			exit;
-		}
+		if ($attr=="Implemented") {
+          $sql = "UPDATE ISO27001An.$table SET `Implemented`=NOT(`Implemented`) WHERE Ref='$ref'";
+        }
+        if ($attr=="Selected") {
+          $more = ($attr=="Selected") ? ",Excluded=NOT(Excluded)" : ",Selected=NOT(Selected)";
+          $sql = "UPDATE ISO27001An.$table SET `Selected`=NOT(`Selected`) $more WHERE Ref='$ref'";
+        }
+
+        if (!$rs = & $conn->Execute($sql)) {
+                print $conn->ErrorMsg();
+                exit;
+        }
+
+        $sql = "UPDATE ISO27001An.$table SET `Implemented`='0' WHERE `Ref`='$ref' AND `Selected`='0'";
+
+        if (!$rs = & $conn->Execute($sql)) {
+                print $conn->ErrorMsg();
+                exit;
+        }
+
 	}
 	
 	function get_text ($conn,$table,$ref) {
