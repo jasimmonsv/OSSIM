@@ -45,30 +45,35 @@ require_once ('classes/Host.inc');
 Session::logcheck("MenuReports", "ReportsHostReport");
 require_once 'classes/Security.inc';
 $host = GET('host');
-if($host=="0.0.0.0") {
+if( $host == "0.0.0.0" ) 
+{
     ?>
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html>
         <head>
           <title> <?php echo _("Asset not found"); ?> </title>
           <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-          <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+          <meta http-equiv="Pragma" content="no-cache"/>
         </head>
         <body>
-            <?php echo ossim_error(_("Asset not found"), "ossim_alert"); ?>
-        </body>
+            <?php echo ossim_error(_("Asset not found"), "WARNING"); ?>
+		</body>
     </html>
     <?php
-exit;
+	exit;
 }
+
+
 $hostname = GET('hostname');
-$greybox = GET('greybox');
-$greybox = 0;
+$greybox  = GET('greybox');
+$greybox  = 0;
+
 if($host!='any'){
 	ossim_valid($host, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("Host"));
 }
 ossim_valid($hostname, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Hostname"));
 ossim_valid($greybox, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("greybox"));
+
 $date_from=GET('star_date');
 ossim_valid($date_from, OSS_DIGIT, OSS_NULLABLE, '-', 'illegal:' . _("Date from"));
 $date_to=GET('end_date');
@@ -81,6 +86,7 @@ if($date_from==''||$date_to==''){
 if (ossim_error()) {
     die(ossim_error());
 }
+
 $date_range=array('date_from'=>$date_from,'date_to'=>$date_to);
 if($date_from==date('Y-m-d', strtotime("-1 week"))&&$date_to==date('Y-m-d', time())){
 	$type_active='lastWeek';
