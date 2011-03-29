@@ -438,7 +438,7 @@ if (GET('edit_tabs') == 1 && $show_edit) {
 		<td style='background-color: <?=$back_color?>'>
 			<input type="text" size="30" name="tab_name" style="color:<?=($tabs[$tab_id]['disable']) ? "gray" : "black"?>" value="<?php echo $tabs[$tab_id]["tab_name"]; ?>">
 		</td>
-		<td style="text-align:center; background-color: <?=$back_color?>"><input type="radio" style="border:0px;background:transparent" name="tabdefault" value="" onclick="setdefault(<?=$tab_id?>)" <? if ($tabdefault == $tab_id) echo "checked" ?>></td>
+		<td style="text-align:center; background-color: <?=$back_color?>"><input type="radio" style="border:0px;background:transparent" name="tabdefault" value="" onclick="setdefault(<?=$tab_id?>)" <? if ($tabdefault == $tab_id) echo "checked" ?> <?php if ($tabs[$tab_id]['disable']) echo "disabled" ?>></td>
 		<td nowrap='nowrap' style='background-color: <?=$back_color?>'>
 			<input type="button" class="lbutton" value="<?php echo _("Update") ?>" onclick="document.ftabs<?=$tab_id?>.mode.value='update';document.getElementById('ftabs<?=$tab_id?>').submit()">
 			&nbsp;<a href="" onclick="document.ftabs<?=$tab_id?>.mode.value='delete';document.getElementById('ftabs<?=$tab_id?>').submit();return false;"><img src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" title="<?=_("Delete")?>" border="0"></a>
@@ -507,7 +507,7 @@ document.fnew.tab_id.value = '<?=$last_tab_id + 1?>';
 <td>
 <input type="text" size="30" name="tab_name" id="newname<?=$tab_id?>" style="color:<?=($tabsavt[$tab_id]['disable']) ? "gray" : "black"?>" value="<?php echo $tabsavt[$tab_id]["tab_name"]; ?>">
 </td>
-<td style="text-align:center"><input type="radio" style="border:0px;background:transparent" name="tabdefault" value="" onclick="setdefault(<?=$tab_id?>)" <? if ($tabdefault == $tab_id) echo "checked" ?>></td>
+<td style="text-align:center"><input type="radio" style="border:0px;background:transparent" name="tabdefault" value="" onclick="setdefault(<?=$tab_id?>)" <? if ($tabdefault == $tab_id) echo "checked" ?> <?php if ($tabsavt[$tab_id]['disable']) echo "disabled" ?>></td>
 <td nowrap='nowrap'>
 <input type="button" class="lbutton" value="<?php echo _("Update") ?>" onclick="document.location.href='<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit_tabs=1&avtchangename=<?=$tab_values['tab_file']?>&newname='+document.getElementById('newname<?=$tab_id?>').value">
 &nbsp;<img style="filter:alpha(opacity=50);-moz-opacity:0.5;-khtml-opacity: 0.5;opacity: 0.5;" src="../vulnmeter/images/delete.gif" alt="<?=_("Delete")?>" title="<?=_("Delete")?>">
