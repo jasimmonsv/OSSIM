@@ -273,7 +273,23 @@ function BuildSigByPlugin($plugin_id, $plugin_sid, $db) {
     if ($sig_name != "") {
         return GetOssimSignatureReferences($plugin_id, $plugin_sid, $db)." ".$sig_name;
     } else {
-        return "($plugin_id,$plugin_sid) " . gettext("SigName unknown");
+        $plugin_name = "";
+        if (isset($_SESSION["_pname_".$plugin_id])) {
+            $plugin_name = $_SESSION["_pname_".$plugin_id];
+        } elseif ($plugin_id!="") {
+            $temp_sql = "SELECT name FROM ossim.plugin WHERE id=$plugin_id";
+            $tmp_result = $db->baseExecute($temp_sql);
+            if ($tmp_result) {
+                $myrow = $tmp_result->baseFetchRow();
+                $plugin_name = $myrow[0];
+                $tmp_result->baseFreeRows();
+            }
+            $_SESSION["_pname_".$plugin_id] = $plugin_name;
+        }
+        if ($plugin_name!="" && $plugin_sid=2000000000)
+            return "$plugin_name: ".gettext("Generic event");
+        else
+            return gettext("SigName unknown"); //return "($plugin_id,$plugin_sid) " . gettext("SigName unknown");
     }
 }
 
