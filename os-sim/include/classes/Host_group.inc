@@ -137,7 +137,7 @@ class Host_group {
         $host_where = "";
         if (Session::allowedSensors() != "" || Session::allowedNets() != "") {
 	    	include_once("classes/Host.inc");
-			$host_where = " AND r.host_ip in (";
+			$host_where = " AND r.host_ip in ('0',";
 			$all_host = Host::get_list($conn);
 			foreach ($all_host as $host) {
 				$host_where .= "'".$host->get_ip()."',";
