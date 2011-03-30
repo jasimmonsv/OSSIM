@@ -98,7 +98,8 @@ class Scan {
 		return $ips;
 	}
 	function stop_nmap($ip) {
-		$tmp_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$ip));
+		$root_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$ip));
+		$ping_file = sprintf(NMAP_PING_TMP_FILE, str_replace("/","_",$ip));
 		$cmd = "ps ax | grep -v 'grep' | grep '$ip' | grep nmap | grep -v remote_nmap";
 	    $fp = popen("$cmd 2>&1", "r");
 	    $pids = "";
@@ -109,9 +110,10 @@ class Scan {
 	    }
 	    fclose($fp);
 	    $cmd = "kill -9 $pids";
-	    if (preg_match("/^kill \-9\s+\d+$/",$cmd)) {
+	    if (preg_match("/^kill \-9\s+[\d\s]+$/",$cmd)) {
 	    	system($cmd);
-	    	if (file_exists($tmp_file)) unlink($tmp_file);
+	    	if (file_exists($root_file)) unlink($root_file);
+	    	if (file_exists($ping_file)) unlink($ping_file);
 	    }
 	}
     
@@ -137,6 +139,7 @@ class Scan {
                 $this->root_scan($ip);
             }
         }
+        if ($full_scan) { $this->save_scan(); } // Second Save overwrite, first was the ping
     }
     function ping_scan() {
         $tmp_file = sprintf(NMAP_PING_TMP_FILE, str_replace("/","_",$this->network));
@@ -162,9 +165,10 @@ class Scan {
 			}
         	sleep(3);
         }
-        $this->__ping_scan_process_output($this->__get_nmap_output($tmp_file));
+        $this->__ping_scan_process_output($tmp_file);
     }
-    function __ping_scan_process_output($output) {
+    function __ping_scan_process_output($tmp_file) {
+    	$output = $this->__get_nmap_output($tmp_file);
     	foreach($output as $line) {
             if (preg_match(NMAP_PING_SCAN_REGEXP, $line, $regs)) {
                 $this->scan[$regs[1]] = array(
@@ -176,6 +180,7 @@ class Scan {
                 );
             }
         }
+        if (file_exists($tmp_file)) { unlink($tmp_file); }
         $this->save_scan();
     }
     function root_scan($ip) {
