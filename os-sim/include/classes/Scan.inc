@@ -81,7 +81,7 @@ class Scan {
     }
 
 	function scanning_now($ip="") {
-		$cmd = ($ip != "") ? "ps ax | grep nmap | grep $ip | grep -v grep" : "ps ax | grep nmap | grep -v grep";
+		$cmd = ($ip != "") ? "ps ax | grep nmap | grep $ip | grep -v grep | grep -v remote_nmap" : "ps ax | grep nmap | grep -v grep | grep -v remote_nmap";
 		$output = explode("\n",`$cmd`);
 		return (preg_match("/nmap/",$output[0])) ? 1 : 0;
 	}
@@ -122,7 +122,7 @@ class Scan {
     }
 
     function do_scan($full_scan = TRUE) {
-        $this->ping_scan();
+    	$this->ping_scan();
         printf("%d alive hosts detected<br/>", count($this->scan)); flush();
         foreach($this->scan as $host) {
             $ip = $host["ip"];
@@ -147,7 +147,7 @@ class Scan {
         $this->__execute_bgcommand($command);
         // Read '/tmp/nmap_scan_ip.log' file each 3 seconds
         while($this->scanning_now($this->network)) {
-	        if (file_exists($tmp_file)) {
+        	if (file_exists($tmp_file)) {
 				$lines = file($tmp_file);
 				$perc = 0;
 				foreach ($lines as $line) {
