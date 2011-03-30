@@ -49,7 +49,7 @@ $conn2 = $db->snort_connect();
 if (GET("type")=="alarms")
 	$link = "'../control_panel/alarm_console.php?num_alarms_page=50&hmenu=Alarms&smenu=Alarms&hide_closed=1&query=QQQ',";
 else
-	$link = "'../forensics/base_qry_main.php?clear_allcriteria=1&time_range=all&search_str=QQQ&submit=Signature&num_result_rows=-1&sort_order=time_d&hmenu=Forensics&smenu=Forensics',";
+	$link = "'../forensics/base_qry_main.php?clear_allcriteria=1&time_range=all&submit=Query+DB&sig_type=1&sig%5B0%5D=%3D&sig%5B1%5D=QQQ&sort_order=time_d&hmenu=Forensics&smenu=Forensics',";
 
 $sensor_where = "";
 $sensor_where_ossim = "";
@@ -79,7 +79,7 @@ if (GET("type")=="alarms") {
 	$query = "select count(*) as num_events,p.name from ossim.alarm a,ossim.plugin_sid p WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid $sensor_where_ossim group by p.name order by num_events desc limit 5";
 } else {
 	$color = '"#B5CF81"';
-	$query = "select count(*) as num_events,p.name from snort.acid_event a,ossim.plugin_sid p WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid $sensor_where group by p.name order by num_events desc limit 5";
+	$query = "select count(*) as num_events,p.name,p.plugin_id,p.sid from snort.acid_event a,ossim.plugin_sid p WHERE p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid $sensor_where group by p.name order by num_events desc limit 5";
 }
 
 $values = $txts = $urls = "";
@@ -93,7 +93,7 @@ while (!$rs->EOF) {
     $name = Util::signaturefilter($rs->fields["name"]);
     if (strlen($name)>35) $name=substr($name,0,35)."..";
     $txts .= "'".str_replace("'","\'",$name)."',";
-    $urls .= str_replace("QQQ",urlencode($rs->fields["name"]),$link);
+    $urls .= (GET("type")=="alarms") ? str_replace("QQQ",$rs->fields["name"],$link) : str_replace("QQQ",$rs->fields["plugin_id"]."%3B".$rs->fields["sid"],$link);
     $rs->MoveNext();
 }
 $values = preg_replace("/,$/","",$values);
