@@ -379,6 +379,7 @@ class RemoteScan {
     }
     
     function do_scan($quiet=TRUE) {
+    	session_write_close();
     	$this->scan = array();
     	// prepare to launch nmap
 		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
@@ -409,8 +410,9 @@ class RemoteScan {
 	    $in = 'control action="nmap_status" id="'.$this->id.'"' . "\n";
 	    $out = '';
 	    $status=1;
+	    if (!$quiet) echo _("Waiting remote scan status\n");
 	    while ($status>0) {
-	    	if (!$quiet) echo _("Waiting remote scan status...<br>\n");
+	    	if (!$quiet) echo _(" .");
 		    socket_write($socket, $in, strlen($in));
 		    $out = socket_read($socket, 2048, PHP_NORMAL_READ);
 		    if (!preg_match("/ack(end)?$/",$out)) {

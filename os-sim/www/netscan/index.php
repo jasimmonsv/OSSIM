@@ -125,11 +125,8 @@ echo gettext("Please, select the network you want to scan:") ?>
     <tr>
       <td colspan="2">
         <p align="center">
-        <input type="text" value=""
-                 name="net" id="net"/>
-        <br/>
-        <small style="color:grey"><?=_("<b>Network</b> examples")?>: 192.168.1.0/24, 192.168.1.64/68</small>
-      </p>
+        <input type="text" value="" name="net" id="net"/>
+      	</p>
       </td>
     </tr>
 

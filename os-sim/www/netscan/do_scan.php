@@ -86,10 +86,31 @@ if ($only_stop) {
 	exit;
 }
 if ($only_status) {
+	session_write_close();
 	$scanning_nets = Scan::scanning_what();
 	if (count($scanning_nets) > 0) {
+		// print html
 		foreach($scanning_nets as $net) {
-			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div><br><center><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></center><br>\n";
+			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading_$net'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div><br><center><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></center><br>\n";
+		}
+		// change status
+		while(Scan::scanning_now()) {
+			foreach($scanning_nets as $net) {
+				$tmp_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$net));
+	       		if (file_exists($tmp_file)) {
+					$lines = file($tmp_file);
+					$perc = 0;
+					foreach ($lines as $line) {
+						if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
+							$perc = $found[1];
+						}
+					}
+					if ($perc > 0) {
+						?><script type="text/javascript">document.getElementById('loading_<?php echo $net?>').innerHTML = "Scan: <?php echo $found[1] ?>%";</script><?php
+					}
+				}
+	        }
+	        sleep(3);
 		}
 	} else {
 		echo "No nmap process found.";
