@@ -44,6 +44,10 @@ $conn = $db->connect();
 require_once ("classes/Net.inc");
 require_once ("classes/Scan.inc");
 $net_list = Net::get_list($conn);
+$networks = "";
+foreach ($net_list as $_net) {
+	$networks .= '{ txt:"'.$_net->get_name().' ['.$_net->get_ips().']", id: "'.$_net->get_ips().'" },';
+}
 $db->close($conn);
 require_once 'ossim_conf.inc';
 $conf = $GLOBALS["CONF"];
@@ -64,7 +68,9 @@ echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+  <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
   <script>
     // enable text input when manual option is selected
     function check_change() {
@@ -75,6 +81,23 @@ echo gettext("OSSIM Framework"); ?> </title>
             form.net_input.disabled = false;
         form.net_input.value = form.net.value;
     }
+
+    $(document).ready(function(){
+    	var networks = [
+    	   	<?= preg_replace("/,$/","",$networks); ?>
+    	   	];
+    	$("#net").autocomplete(networks, {
+    	   	minChars: 0,
+    	    width: 225,
+    	    matchContains: "word",
+    	    autoFill: true,
+    	    formatItem: function(row, i, max) {
+    	    	return row.txt;
+    	    }
+    	    }).result(function(event, item) {
+    	    	$("#net").val(item.id);
+    	});
+    });
   </script>
   
 </head>
@@ -102,30 +125,10 @@ echo gettext("Please, select the network you want to scan:") ?>
     <tr>
       <td colspan="2">
         <p align="center">
-        <select name="net" onChange="javascript:check_change()">
-<?php
-if (is_array($net_list) && !empty($net_list)) {
-    $first_net = $net_list[0]->get_ips();
-    foreach($net_list as $net) {
-?>
-          <option name="<?php
-        echo $net->get_name() ?>" 
-                  value="<?php
-        echo $net->get_ips() ?>">
-            <?php
-        echo $net->get_name() ?>
-          </option>
-<?php
-    }
-}
-?>
-          <option name="manual" selected value=""><?=_("Manual")?></option>
-        </select>
-        &nbsp;
         <input type="text" value=""
-                 name="net_input" enabled />
+                 name="net" id="net"/>
         <br/>
-        <small style="color:grey"><?=_("<b>Manual input</b> examples")?>: 192.168.1.0/24, 192.168.1.64-68</small>
+        <small style="color:grey"><?=_("<b>Network</b> examples")?>: 192.168.1.0/24, 192.168.1.64/68</small>
       </p>
       </td>
     </tr>
@@ -177,7 +180,7 @@ if (is_array($net_list) && !empty($net_list)) {
     <!-- do scan -->
     <tr>
       <td colspan="2" class="nobborder center">
-        <input type="submit" id="scan_button" class="button" onclick="if(document.net_form.net.value=='' && document.net_form.net_input.value=='') {alert('<?php echo _("You must select a network") ?>');return false;} $('#process_div').show()" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists || $nmap_running) ? "disabled" : "" ?> />
+        <input type="submit" id="scan_button" class="button" onclick="if(document.net_form.net.value=='') {alert('<?php echo _("You must choose a network") ?>');return false;} $('#process_div').show()" style="font-size:12px" value="<?=_("Start Scan") ?>" <?php echo (!$nmap_exists || $nmap_running) ? "disabled" : "" ?> />
         
         <? if (Session::am_i_admin()) { ?>&nbsp;&nbsp;
         <input type="button" class="button" style="font-size:12px" value="<?=_("Manage Remote Scans") ?>" onclick="$('#process_div').show();document.location.href='remote_scans.php'"/>

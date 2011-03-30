@@ -68,11 +68,9 @@ require_once 'classes/Security.inc';
 $net = GET('net');
 $full_scan = GET('full_scan');
 $timing_template = GET('timing_template');
-$net_input = GET('net_input');
 $only_stop = GET('only_stop');
 $only_status = GET('only_status');
 ossim_valid($net, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Net"));
-ossim_valid($net_input, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Net"));
 ossim_valid($full_scan, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("full scan"));
 ossim_valid($timing_template, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("timing_template"));
 ossim_valid($only_stop, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only stop"));
@@ -80,7 +78,6 @@ ossim_valid($only_status, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only status")
 if (ossim_error()) {
     die(ossim_error());
 }
-if (empty($net)) $net = $net_input;
 require_once ('classes/Scan.inc');
 
 if ($only_stop) {
