@@ -274,19 +274,24 @@ class Scan {
         print "</pre>";
     }
     function save_scan() {
-        $_SESSION["_scan"] = $this->scan;
+        $done_file = "/tmp/nmap_completed_scan.log";
+    	$f = fopen($done_file,"w");
+    	fputs($f,json_encode($this->scan));
+    	fclose($f);
     }
     function get_scan() {
-        if (isset($_SESSION["_scan"])) {
-            return $_SESSION["_scan"];
-        } else {
-            return $this->scan;
-        }
+        $scan = array();
+    	if (file_exists("/tmp/nmap_completed_scan.log")) {
+    		$logfile_content = file("/tmp/nmap_completed_scan.log");
+    		$json_string = $logfile_content[0];
+    		$scan = json_decode($json_string, true);
+    	}
+    	return $scan;
     }
     function del_scan() {
-        if (isset($_SESSION["_scan"])) {
-            unset($_SESSION["_scan"]);
-        }
+    	if (file_exists("/tmp/nmap_completed_scan.log")) {
+    		unlink("/tmp/nmap_completed_scan.log");
+    	}
     }
 }
 
