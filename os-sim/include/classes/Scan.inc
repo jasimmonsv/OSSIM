@@ -165,7 +165,6 @@ class Scan {
         if (file_exists($tmp_file)) { unlink($tmp_file); }
     }
     function __ping_scan_process_output($output) {
-        
     	foreach($output as $line) {
             if (preg_match(NMAP_PING_SCAN_REGEXP, $line, $regs)) {
                 $this->scan[$regs[1]] = array(
@@ -185,7 +184,7 @@ class Scan {
                            $this->options,
                            $ip, $tmp_file);
         // Launch nmap in background
-        $this->__execute_bgcommand($cmd);
+        $this->__execute_bgcommand($command);
         // Read '/tmp/nmap_scan_ip.log' file each 3 seconds
         while($this->scanning_now($ip)) {
        		if (file_exists($tmp_file)) {
@@ -262,7 +261,7 @@ class Scan {
         return split("\n", $output);
     }
     function __get_nmap_output($tmp_file) {
-    	return (file_exists($tmp_file)) ? split("\n",file($tmp_file)) : array();
+    	return (file_exists($tmp_file)) ? file($tmp_file) : array();
     }
     function __execute_bgcommand($cmd) {
     	session_write_close();

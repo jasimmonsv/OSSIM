@@ -186,7 +186,7 @@ echo gettext("Please, select the network you want to scan:") ?>
 		</td>
     </tr>
     <!-- end do scan -->
-	<tr><td id="process_div" style="display:<?php echo ($nmap_running) ? "block" : "none" ?>"><IFRAME name="process" id="process" src="<?php if ($nmap_running) echo "do_scan.php?only_status=1" ?>" frameborder="0" width="300"></IFRAME></td></tr>
+	<tr><td id="process_div" style="display:<?php echo ($nmap_running) ? "block" : "none" ?>"><IFRAME name="process" id="process" src="<?php if ($nmap_running) echo "do_scan.php?only_status=1" ?>" frameborder="0" width="100%"></IFRAME></td></tr>
   </table>
   </form>
   <!-- end of net selector form -->

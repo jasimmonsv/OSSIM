@@ -61,7 +61,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 	}
   </script>
 </head>
-<body>
+<body style="background-color:#FAFAFA">
 
 <?php
 require_once 'classes/Security.inc';
@@ -91,7 +91,7 @@ if ($only_status) {
 	if (count($scanning_nets) > 0) {
 		// print html
 		foreach($scanning_nets as $net) {
-			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading_$net'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div><br><center><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></center><br>\n";
+			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading_$net'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
 		}
 		// change status
 		while(Scan::scanning_now()) {
@@ -132,7 +132,7 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 } else {
 ?><script type="text/javascript">parent.document.getElementById('scan_button').disabled = true</script><?php
 	echo _("Unable to launch remote network scan: ") . "<font color=red>".$rscan->err() ."</font><br/>\n"; // if ($full_scan!="full") 
-	echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div><br><center><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></center>\n";
+	echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
 	
 	// try local nmap
 	$scan = new Scan($net);
@@ -152,7 +152,7 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 	
 }
 echo gettext("Scan completed") . ".<br/><br/>";
-if (count($scan->scan) > 0) { echo "<a href=\"index.php#results\">" . gettext("Click here to show the results") . "</a>"; }
+if (count($scan->scan) > 0) { echo "<a href=\"index.php#results\" target=\"_parent\">" . gettext("Click here to show the results") . "</a>"; }
 ?>
 <script type="text/javascript">$('#loading').html("");parent.document.getElementById('scan_button').disabled = false</script>
 </body>
