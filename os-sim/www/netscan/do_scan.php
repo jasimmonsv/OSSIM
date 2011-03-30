@@ -148,7 +148,7 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 	} else {
 	    $scan->do_scan(FALSE);
 	}
-	$scan->save_scan();
+	//$scan->save_scan();
 	
 }
 echo gettext("Scan completed") . ".<br/><br/>";

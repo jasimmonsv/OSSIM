@@ -49,7 +49,8 @@
  */
 define('NMAP_PING_SCAN_COMMAND', "%s -d1 -sP -n %s > %s 2>&1 &");
 define('NMAP_ROOT_SCAN_COMMAND', "%s -d1 -sS -O -sV -n %s %s > %s 2>&1 &");
-define('NMAP_ROOT_TMP_FILE', "/tmp/nmap_scan_%s.log");
+define('NMAP_PING_TMP_FILE', "/tmp/nmap_scan_%s.log");
+define('NMAP_ROOT_TMP_FILE', "/tmp/nmap_rootscan_%s.log");
 define('NMAP_PING_SCAN_REGEXP', "/^Host (\d+\.\d+\.\d+\.\d+) appears to be up/");
 define('NMAP_MAC_ADDRESS_REGEXP', "/^MAC Address: (\w{2}:\w{2}:\w{2}:\w{2}:\w{2}:\w{2}) (\(.*\))?$/");
 define('NMAP_OS_REGEXP', "/^Running: (.*)$/");
@@ -86,7 +87,7 @@ class Scan {
 		return (preg_match("/nmap/",$output[0])) ? 1 : 0;
 	}
 	function scanning_what() {
-		$cmd = "ps ax | grep nmap | grep -v grep";
+		$cmd = "ps ax | grep nmap | grep -v grep | grep -v remote_nmap";
 		$output = explode("\n",`$cmd`);
 		$ips = array();
 		foreach ($output as $line) {
@@ -98,7 +99,7 @@ class Scan {
 	}
 	function stop_nmap($ip) {
 		$tmp_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$ip));
-		$cmd = "ps ax | grep -v 'grep' | grep '$ip' | grep nmap";
+		$cmd = "ps ax | grep -v 'grep' | grep '$ip' | grep nmap | grep -v remote_nmap";
 	    $fp = popen("$cmd 2>&1", "r");
 	    $pids = "";
 	    while (!feof($fp)) {
@@ -138,7 +139,7 @@ class Scan {
         }
     }
     function ping_scan() {
-        $tmp_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$this->network));
+        $tmp_file = sprintf(NMAP_PING_TMP_FILE, str_replace("/","_",$this->network));
     	$command = sprintf(NMAP_PING_SCAN_COMMAND,
                            $this->nmap,
                            $this->network,
@@ -162,7 +163,6 @@ class Scan {
         	sleep(3);
         }
         $this->__ping_scan_process_output($this->__get_nmap_output($tmp_file));
-        if (file_exists($tmp_file)) { unlink($tmp_file); }
     }
     function __ping_scan_process_output($output) {
     	foreach($output as $line) {
@@ -176,6 +176,7 @@ class Scan {
                 );
             }
         }
+        $this->save_scan();
     }
     function root_scan($ip) {
         $tmp_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$ip));
@@ -202,7 +203,6 @@ class Scan {
         	sleep(3);
         }
         $this->__root_scan_process_output($this->__get_nmap_output($tmp_file) , $ip);
-        if (file_exists($tmp_file)) { unlink($tmp_file); }
     }
     function __root_scan_process_output($output, $ip) {
         foreach($output as $line) {
@@ -254,6 +254,7 @@ class Scan {
             echo "<br/>";
         }
         echo "<hr/>";
+        $this->save_scan($ip);
         flush();
     }
     function __get_command_output($cmd) {
@@ -273,10 +274,11 @@ class Scan {
         print_r($this->scan);
         print "</pre>";
     }
-    function save_scan() {
-        $done_file = "/tmp/nmap_completed_scan.log";
+    function save_scan($ip="") {
+    	$done_file = "/tmp/nmap_completed_scan$ip.log";
     	$f = fopen($done_file,"w");
-    	fputs($f,json_encode($this->scan));
+    	$scandata = ($ip != "") ? $this->scan[$ip] : $this->scan;
+    	fputs($f,json_encode($scandata));
     	fclose($f);
     }
     function get_scan() {
