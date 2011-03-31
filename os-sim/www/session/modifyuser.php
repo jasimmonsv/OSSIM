@@ -130,21 +130,22 @@ elseif (POST("insert"))
     }
 	*/
     $nets = "";
-    for ($i = 0; $i < $nnets; $i++)
-	{
-        $net_name = POST("net$i");
-        ossim_valid($net_name, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("net$i"));
-        if (ossim_error()) {
-            die(ossim_error());
-        }
-        if ($net_list = Net::get_list($conn, "name = '$net_name'")) {
-            foreach($net_list as $net) {
-                if ($nets == "") $nets = $net->get_ips();
-                else $nets.= "," . $net->get_ips();
+    $nets_selected = POST("nets");
+    $nets = "";
+    if(is_array($nets_selected)) {
+        foreach ($nets_selected as $index => $net_name) {
+            ossim_valid($net_name, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("net$i"));
+            if (ossim_error()) {
+                die(ossim_error());
+            }
+            if ($net_list_aux = Net::get_list($conn, "name = '$net_name'")) {
+                foreach($net_list_aux as $net) {
+                    if ($nets == "") $nets = $net->get_ips();
+                    else $nets.= "," . $net->get_ips();
+                }
             }
         }
     }
-	
     $sensors = "";
     
 	for ($i = 0; $i < $nsensors; $i++) {

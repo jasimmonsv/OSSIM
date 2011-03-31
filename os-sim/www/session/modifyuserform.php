@@ -62,11 +62,16 @@ $pass_length_max = ( $pass_length_max < $pass_length_min || $pass_length_max < 1
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/tree.css" />
 	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+	
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/greybox.js"></script>
 	<script type="text/javascript" src="../js/jquery.checkboxes.js"></script>
 	<script type="text/javascript" src="../js/jquery.pstrength.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+	<script type="text/javascript" src="../js/combos.js"></script>
 	<script type="text/javascript">
 		function kdbperms (users) {
 		document.fmodify.knowledgedb_perms.value = users;
@@ -140,8 +145,40 @@ $pass_length_max = ( $pass_length_max < $pass_length_min || $pass_length_max < 1
 		}
 
 		function formsubmit() {
-			if (checkpasslength() && checkpass() && checkemail()) document.fmodify.submit();
+			if (checkpasslength() && checkpass() && checkemail()) {
+				selectall('nets');
+				document.fmodify.submit();
+			}
 		}
+
+		function load_tree(filter, entity) {
+	        combo = 'nets';
+
+	        $("#nets_tree").remove();
+	        $('#td_nets').append('<div id="nets_tree" style="width:100%"></div>');
+
+	        $("#nets_tree").dynatree({
+	            initAjax: { url: "../net/draw_nets.php", data: {filter: filter, entity: entity} },
+	            clickFolderMode: 2,
+	            onActivate: function(dtnode) {
+	                    if (!dtnode.hasChildren()) {
+	                        // add from a final node
+	                        addto(combo,dtnode.data.title,dtnode.data.key)
+	                    } else {
+	                        // simulate expand and load
+	                        addnodes = true;
+	                        dtnode.toggleExpand();
+	                    }
+	            },
+	            onDeactivate: function(dtnode) {},
+	            onLazyRead: function(dtnode){
+	                dtnode.appendAjax({
+	                    url: "../net/draw_nets.php",
+	                    data: {key: dtnode.data.key, filter:filter, entity: entity}
+	                });
+	            }
+	        });
+	    }
 		
 		$(document).ready(function(){
 			GB_TYPE = 'w';
@@ -150,6 +187,7 @@ $pass_length_max = ( $pass_length_max < $pass_length_min || $pass_length_max < 1
 				GB_show(t,this.href,340,"70%");
 				return false;
 			});
+			load_tree('','');
 		});
 		
 		
@@ -412,30 +450,67 @@ include ("../hmenu.php");
 		
 		<tr>
 			<td class="nobborder" valign="top" style="padding-top:8px">
-				<a href="#" onclick="checkall('nets');return false;"><?php echo _("Select / Unselect all") ?></a>
-				<hr noshade='noshade'>
-				<?php
-				$i = 0;
-				foreach($net_list as $net) {
-					$net_name = $net->get_name();
-					$input = "<input type=\"checkbox\" class=\"nets\" name=\"net$i\" value=\"" . $net_name . "\"";
-					if (false !== strpos(Session::allowedNets($user->get_login()) , $net->get_ips())) {
-						$input.= " checked='checked' ";
-					}
-					if ($networks || ($user->get_login() == 'admin')) {
-						$input.= " checked='checked' ";
-					}
-					if ($user->get_login() == 'admin') {
-						$input.= "disabled='disabled'";
-					}
-					$input.= "/>$net_name<br/>";
-					echo $input;
-					$i++;
-				}
-				?>
-			
-				<input type="hidden" name="nnets" value="<?php echo $i ?>" />
-				<br/><br/><i><?php echo gettext("NOTE: No selection allows ALL") . " " . gettext("nets"); ?></i>
+				<table>
+					 <tr>
+                     	<td class="left nobborder">
+							<select style="width:100%;height:90%" multiple="multiple" size="19" name="nets[]" id="nets">
+                            <?php
+                            $deleted_nets = $template['nets'];
+                            unset($deleted_nets[""]);
+                            /* ===== Networks ==== */
+                            foreach($net_list as $net) {
+                            	$net_name = $net->get_name();
+                                $net_ips  = $net->get_ips();
+                                $cidrs = explode(",",$net_ips);
+                                foreach($cidrs as $cidr)
+                                	unset($deleted_nets[$cidr]);
+                                	if (false !== strpos(Session::allowedNets($user->get_login()) , $net_ips)) {
+                                			echo "<option value='$net_name'>$net_name ($net_ips)</option>";
+                                	}
+                            }
+                            ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                    	<td class="nobborder" style="text-align:right">
+                        <input type="button" value=" [X] " onclick="deletefrom('nets')" class="lbutton"/>
+                        <input type="button" style="margin-right:0px;" value="<?php echo gettext("Clean All Nets");?>" onclick="deleteall('nets')" class="lbutton"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="left nobborder">
+                            <i><?php echo gettext("NOTE: No selection allows ALL") . " " . gettext("nets"); ?></i>
+                        </td>
+                    </tr>
+                    <?php
+                    if (count($deleted_nets)>0) {
+                    ?>
+                    <tr>
+                        <td class="nobborder left">
+                            <span style="color:red"><?php echo gettext("The following networks don't exist:");  echo " ".implode(", ",array_keys($deleted_nets)); ?> </span>
+                        </td>
+                    </tr>
+                    <?php
+                    }
+                    ?>
+                    <tr>
+                        <td class="left nobborder" style="padding-top:10px;">
+                            <div>
+                                <div style="float:left">
+                                    <?=_("Filter")?>: <input type="text" id="filtern" name="filtern" style="height: 18px;width: 170px;" />
+                                </div>
+                                <div style="float:right">
+                                    <input type="button" style="margin-right:0px;" class="lbutton" value="<?=_("Apply")?>" onclick="load_tree(document.fmodify.filtern.value,'<?php echo $current_entity ?>')" /> 
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="nobborder" id="td_nets">
+                        </td>
+                    </tr>
+				</table>
 			</td>
 			
 			<td class="noborder" style="border-right:2px solid #E0E0E0;"></td>
@@ -469,7 +544,7 @@ include ("../hmenu.php");
 		
 			<td class="noborder" style="border-right:2px solid #E0E0E0;"></td>
 		
-			<td class="nobborder">
+			<td class="nobborder" valign="top">
 				<table class="noborder">
 					<tr>
 						<td class="nobborder">
