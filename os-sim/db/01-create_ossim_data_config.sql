@@ -139,7 +139,6 @@ INSERT INTO config (conf, value) VALUES ('update_checks_use_proxy','no');
 INSERT INTO config (conf, value) VALUES ('proxy_url','');
 INSERT INTO config (conf, value) VALUES ('proxy_user','');
 INSERT INTO config (conf, value) VALUES ('proxy_password','');
-INSERT INTO config (conf, value) VALUES ('last_update','2010-07-20');
 INSERT INTO config (conf, value) VALUES ('update_checks_source','http://data.alienvault.com/updates/update_log.txt');
 INSERT INTO config (conf, value) VALUES ('repository_upload_dir', "/usr/share/ossim/uploads");
 INSERT INTO config (conf, value) VALUES ('bi_type','jasperserver');
