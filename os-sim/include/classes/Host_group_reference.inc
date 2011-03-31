@@ -71,7 +71,8 @@ class Host_group_reference {
             print $conn->ErrorMsg();
         } else {
             while (!$rs->EOF) {
-                $list[] = new Host_group_reference(stripslashes($rs->fields["host_group_name"]) , stripslashes($rs->fields["host_ip"]));
+                if (Session::hostAllowed($conn,$rs->fields["host_ip"]))
+                	$list[] = new Host_group_reference(stripslashes($rs->fields["host_group_name"]) , stripslashes($rs->fields["host_ip"]));
                 $rs->MoveNext();
             }
         }

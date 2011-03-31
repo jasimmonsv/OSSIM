@@ -40,7 +40,6 @@ session_start();
 // load column layout
 require_once ('../conf/layout.php');
 $category = "policy";
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -66,6 +65,10 @@ include ("../hmenu.php"); ?>
 
 	<table class="noborder">
 <?php
+require_once ('ossim_conf.inc');
+$conf = $GLOBALS["CONF"];
+$server_logger_if_priority = $conf->get_conf("server_logger_if_priority");
+//
 //create one grid per policy group
 require_once 'ossim_db.inc';
 require_once 'classes/Policy.inc';
@@ -82,6 +85,7 @@ foreach($policy_groups as $group) {
 	</td><tr>
 <?php
 } ?>
+	<tr><td style="color:gray;text-align:left;padding-top:2px"><?php echo _("SIEM process priority threshold") ?>: <b><?=$server_logger_if_priority ?></b></td></tr>
 	</table>
 
 	<!-- Right Click Menu -->
