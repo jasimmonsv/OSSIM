@@ -32,43 +32,190 @@
 
 require_once('ossim_conf.inc');
 require_once('classes/Session.inc');
-$conf = $GLOBALS["CONF"];
-$version = $conf->get_conf("ossim_server_version", FALSE);
 
-if (!Session::am_i_admin() && (preg_match("/pro|demo/i",$version) && !Acl::am_i_proadmin())) {
-	echo "<br><br><center>"._("You don't have permission to see this page.")."</center>";
+function get_my_users_vision($conn, $pro)
+{
+	
+	require_once('classes/Session.inc');
+	
+	if  ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin()) )
+	{
+		if ( Session::am_i_admin() )
+			$users_list = Session::get_list($conn, "ORDER BY login");
+		else
+			$users_list = Acl::get_my_users($conn,Session::get_session_user());
+		
+		
+		if ( is_array($users_list) && !empty($users_list) )
+		{
+			foreach($users_list as $k => $v)
+				$users[] = ( is_object($v) )? $v->get_login() : $v["login"];
+			
+			$where = "WHERE login in ('".implode("','",$users)."')";
+		}
+	}
+	else
+	{
+	
+		if ( !$pro )
+			$where = "";
+		else
+		{
+			$brothers = Acl::get_brothers($conn);
+			
+			foreach($brothers as $k => $v)
+				$users[] = $v["login"];
+			
+			if ( count($brothers) > 0 )	
+				$where = "WHERE login in ('".implode("','",$users)."')";
+			else
+				$where = "WHERE login in ('".Session::get_session_user()."')";
+		}	
+	}	
+		
+
+	return Session::get_list($conn, $where." ORDER BY login ASC");
+}
+
+//Return array with entities that you can see
+
+function get_my_entities_vision($dbconn, $pro)
+{
+	
+	require_once('classes/Session.inc');
+	$entities_types       = array();
+	$entities_types_aux   = array();
+	$entities             = array();
+	
+	if  ( Session::am_i_admin() )
+	{
+		list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+		$entities_types_aux               = Acl::get_entities_types($dbconn);
+			
+
+		foreach ($entities_types_aux as $etype) { 
+			$entities_types[$etype['id']] = $etype;
+		}
+		
+		foreach ( $entities_all as $entity ) 
+			$entities[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+		
+	}
+	else if ($pro && Acl::am_i_proadmin())
+	{
+		list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+		list($entities_admin,$num)        = Acl::get_entities_admin($dbconn,Session::get_session_user());
+		
+		$entities_list      = array_keys($entities_admin);
+		$entities_types_aux = Acl::get_entities_types($dbconn);
+	   
+		foreach ($entities_types_aux as $etype) { 
+			$entities_types[$etype['id']] = $etype;
+		}
+		
+		foreach ( $entities_all as $entity ) 
+		{
+			if(	in_array($entity["id"], $entities_list) ) 
+				$entities[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+		
+		}
+	
+	}
+
+	return $entities;
+}
+
+
+
+$conf    = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
+$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+
+if ( !Session::am_i_admin() && ( $pro && !Acl::am_i_proadmin()) ) 
+{
+	echo "<br/><br/><center>"._("You don't have permission to see this page.")."</center>";
 	exit;
 }
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-<!--  <meta http-equiv="refresh" content="3"> -->
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script>
-    function switch_user(select) {
-        if(select=='entity' && $('#entity').val()!='none'){
-            $('#user').val('none');
-        }
-        else if (select=='user' && $('#user').val()!='none'){
-            $('#entity').val('none');
-        }
-    }
-  </script>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script>
+		function switch_user(select) {
+			if(select=='entity' && $('#entity').val()!=''){
+				$('#user').val('');
+			}
+			else if (select=='user' && $('#user').val()!=''){
+				$('#entity').val('');
+			}
+		}
+	</script>
+  
+  	<style type='text/css'>
+	
+	table{
+		margin: 10px auto;
+		text-align:center;
+		width: 330px;
+	} 
+	
+		
+	#update { 
+		padding: 10px 0px 0px 0px;
+		border: none;
+	}
+	
+	#user, #entity {width: 220px;}
+		
+	.format_user,.format_entity{
+		margin-right: 3px;
+		width: 50px;
+		text-align: right;
+	}
+	
+	.select_user,.select_entity{
+		width: 260px;
+	}
+	
+	
+	.format_or{ 
+		padding:5px;
+		text-align:center; 
+		border-bottom: none;
+	}
+	
+	.owners {
+		margin-bottom: 10px;
+		width: 250px;
+		
+	}
+	
+	.owners .action { width: 20px; text-align: center;}
+	
+	.owners td { padding-left: 10px;}
+	
+	.normal {text-align: left;}
+	
+	.right { 
+		text-align: right !important;
+		padding-right: 15px;
+	}
+	
+	</style>
+  
 </head>
 <body>
 <?
 
-$id_map = $_GET["id_map"];
-$entity = $_GET["entity"];
-$user = $_GET["user"];
+$id_map      = $_GET["id_map"];
+$entity      = $_GET["entity"];
+$user        = $_GET["user"];
 $delete_perm = $_GET["delete"];
 
 ossim_valid($id_map, OSS_DIGIT, OSS_ALPHA, OSS_DOT, 'illegal:' . _("ID Map"));
@@ -80,29 +227,36 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
-$db = new ossim_db();
+$db     = new ossim_db();
 $dbconn = $db->connect();
 
-if($entity!="" || $user!="") { // save data to DB
-    if($user!="none" && $user != "") $newuser = $user;
-    if($entity!="none" && $entity != "") $newuser = $entity;
-    $query = "INSERT IGNORE INTO risk_maps (map,perm) VALUES ('$id_map','$newuser')";
-    $result=$dbconn->execute($query);
-}
-if ($delete_perm != "") {
-	$query = "DELETE FROM risk_maps WHERE map='$id_map' AND perm='$delete_perm'";
-	$result=$dbconn->execute($query);
+if( $entity != "" || $user != "" ) 
+{
+    $newuser = ( $entity != "" ) ? $entity : $user;
+    $query   = "INSERT IGNORE INTO risk_maps (map,perm) VALUES ('$id_map','$newuser')";
+    $result  = $dbconn->execute($query);
 }
 
-$perms = array();
-$query = "SELECT perm FROM risk_maps where map='$id_map'";
+if ($delete_perm != "") {
+	$query  = "DELETE FROM risk_maps WHERE map='$id_map' AND perm='$delete_perm'";
+	$result = $dbconn->execute($query);
+}
+
+$perms  = array();
+$query  = "SELECT perm FROM risk_maps where map='$id_map'";
 $result = $dbconn->Execute($query);
+
 while (!$result->EOF) {
 	$perms[$result->fields['perm']]++;
     $result->MoveNext();
 }
 
-if (preg_match("/pro|demo/i",$version)) {
+
+$users    = get_my_users_vision($dbconn, $pro);
+$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+
+if ($pro) 
+{
 	$entities_types_aux = Acl::get_entities_types($dbconn);
 	$entities_types = array();
 	foreach ($entities_types_aux as $etype) { 
@@ -113,87 +267,98 @@ if (preg_match("/pro|demo/i",$version)) {
     $entities_list = array_keys($entities_admin);
 }
 ?>
-<center>
+
 <form action="change_user.php" method="get">
-<input type="hidden" name="id_map" value="<?php echo $id_map ?>">
-<table class="transparent" align="center">
-	<?php foreach ($perms as $perm=>$val) { ?>
-    <tr>
-    	<td class="nobborder"><a href="change_user.php?id_map=<?php echo $id_map ?>&delete=<?php echo $perm ?>"><img src="../pixmaps/cross-circle-frame.png" border="0"></img></a></td>
-    	<td class="nobborder"><?php echo (preg_match("/^\d+$/",$perm) && $entities_all[$perm] != "") ? $entities_all[$perm]['name']  : $perm ?></td>
-    </tr>
-    <?php } ?>
-    <?php
-if (!preg_match("/pro|demo/i",$version)) {
-    $users = Session::get_list($dbconn);
-    ?>
-    <tr>
-    	<td class="nobborder"><?php echo _("User:")?></td>
-    	<td class="nobborder">
-	    	<select name="user">
-	        <option value="none"> - </option>
-	    	<? foreach ( $users as $user ) { if ($perms[$user]) continue; ?>
-	            <option value="<?php echo $user->get_login() ?>" <?php echo (($user_name==$user->get_login()) ? " selected":"") ?>><?php echo $user->get_login() ?></option>
-	        <?php } ?>
-	    	</select>
-    	</td>
-    </tr>
-<?
-}
-else {
-    ?>
-    <tr>
-    	<td class="nobborder"><?php echo _("User:")?></td>
-    	<td class="nobborder">
-	    	<select name="user" id="user" onchange="switch_user('user');return false;">
-	        <option value="none"> - </option>
-    <?
-      if(Session::am_i_admin()) {
-            $users = Session::get_list($dbconn);
-            foreach ($users as $user) { if ($perms[$user->get_login()]) continue; ?>
-                <option value="<?=$user->get_login()?>" <?=(($user_name==$user->get_login()) ? " selected":"")?>><?=$user->get_login()?></option>
-          <?}
-      }
-      else {
-            $users = Acl::get_my_users($dbconn,Session::get_session_user());
-            foreach ($users as $user){ if ($perms[$user->get_login()]) continue; ?>
-                <option value="<?=$user["login"]?>" <?=(($user_name==$user["login"]) ? " selected":"")?>><?=$user["login"]?></option>
-            <?}
-      }
-    ?>
-		</select>
-    
-    	</td>
-    </tr>
-    <tr><td class="nobborder">&nbsp;</td><td class="nobborder"><?php echo _("OR")?></td></tr>
-    <tr>
-    	<td class="nobborder"><?php echo _("Entity:")?></td>
-	    <td class="nobborder">
-	    <select name="entity" id="entity" onchange="switch_user('entity');return false;">
-	        <option value="none"> - </option>
-	    <?
-	        foreach ( $entities_all as $entity ) if(Session::am_i_admin() || (Acl::am_i_proadmin() && in_array($entity["id"], $entities_list))) {
-	        	if ($perms[$entity['id']]) continue;
-	            echo "<option value=\"".$entity["id"]."\"".(($user_name==$entity["id"]) ? " selected":"").">".$entity["name"]." [".$entities_types[$entity["type"]]["name"]."]</option>";
-	        }
-	    ?>
-	    </select>
-	    </td>
-    </tr>
-    <?//var_dump($entities_all);
-}
-?>
-	<tr>
-		<td class="nobborder"></td>
-		<td class="nobborder" style="text-align:left;padding-top:5px;">
-			<input type="submit" class="button" value="<?php echo _("Update")?>">
-		</td>
-	</tr>
-</table>
+	<input type="hidden" name="id_map" value="<?php echo $id_map ?>">
+	
+	
+	<?php 
+		if ( is_array($perms) && !empty($perms) )
+		{
+		?>
+			<table class='owners'>
+				<tr><th class='own' colspan='2'><?php echo _("Owners")?></th></tr>
+			<?php
+			$num_owners = count($perms);
+			$i          = 0;
+			
+			foreach ($perms as $perm=>$val) 
+			{ 
+				$class = ( $num_owners == $i+1 ) ? "nobborder" : "normal";
+				?>
+				<tr>
+					<td class='<?php echo $class;?>'><?php echo (preg_match("/^\d+$/",$perm) && $entities_all[$perm] != "") ? $entities_all[$perm]['name']  : $perm ?></td>
+					<td class='<?php echo $class;?> right'><a href="change_user.php?id_map=<?php echo $id_map ?>&delete=<?php echo $perm ?>"><img src="../pixmaps/cross-circle-frame.png" border="0"/></td>
+					</td>
+				</tr>
+				<?php 
+				$i++;
+			}
+			?>
+			</table>
+		<?php
+		}		
+		?>
+		<table class="transparent" align="center">
+			<tr>
+				<td class='format_user nobborder'><?php echo _("User:");?></td>	
+				<td class='select_user nobborder'>				
+					<select name="user" id="user" onchange="switch_user('user');return false;">
+						
+						<?php
+													
+						$num_users = 0;
+						foreach( $users as $k => $v )
+						{
+							$login = $v->get_login();
+							
+							if ( empty($perms[$login]) )
+							{
+								$options .= "<option value='".$login."'>$login</option>\n";
+								$num_users++;
+							}
+							
+						}
+						
+						if ($num_users == 0)
+							echo "<option value='' style='text-align:center !important;'>- "._("No users found")." -</option>";
+						else
+						{
+							echo "<option value='' style='text-align:center !important;'>- "._("Select one user")." -</option>\n";
+							echo $options;
+						}
+												
+						?>
+					</select>
+				</td>
+			</tr>
+		
+			<tr>
+			
+			<?php if ( !empty($entities) ) { ?>
+			<tr><td class="format_or nobborder" colspan='2'><?php echo _("OR");?></td></tr>
+			
+			<tr>
+				<td class='format_entity nobborder'><?php echo _("Entity:");?></td>
+				<td class='select_entity nobborder'>	
+					<select name="entity" id="entity" onchange="switch_user('entity');return false;">
+						<option value="" style='text-align:center !important;'>- <?php echo _("Select one entity") ?> -</option>
+						<?php
+						foreach ( $entities as $k => $v ) 
+						{
+							if (  empty($perms[$k]) ) 
+								echo "<option value='$k' $selected>$v</option>";
+						}
+						?>
+					</select>
+				</td>
+				<?php } ?>
+			</tr>
+			
+			<tr><td id='update' colspan='2'><input type='submit' class='button' value='<?php echo _("Update")?>'/></td></tr>	
+
 </form>
-</center>
-<?php
-$dbconn->disconnect();
-?>
+
+<?php $dbconn->disconnect(); ?>
 </body>
 </html>

@@ -72,76 +72,82 @@ require_once ('classes/Session.inc');
 require_once ('ossim_conf.inc');
 require_once ('classes/OMP.inc');
 require_once ('classes/Util.inc');
+require_once ('functions.inc');
 
-$conf = $GLOBALS["CONF"];
-$version = $conf->get_conf("ossim_server_version", FALSE);
+$conf        = $GLOBALS["CONF"];
+$version     = $conf->get_conf("ossim_server_version", FALSE);
 $nessus_path = $conf->get_conf("nessus_path", FALSE);
+$pro         = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html>
 <head>
-  <title> <?php
-echo gettext("Vulnmeter"); ?> </title>
-<!--  <meta http-equiv="refresh" content="3"> -->
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
-  <script type="text/javascript" src="../js/vulnmeter.js"></script>
-  <? include ("../host_report_menu.php") ?>
-  <script>
-  function postload() {
-	$(".scriptinfo").simpletip({
-		position: 'right',
-		onBeforeShow: function() { 
-			var id = this.getParent().attr('lid');
-			this.load('lookup.php?id=' + id);
+    <title> <?php echo gettext("Vulnmeter"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache">
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
+	<script type="text/javascript" src="../js/vulnmeter.js"></script>
+	<? include ("../host_report_menu.php") ?>
+	<script type="text/javascript">
+		function postload() {
+			$(".scriptinfo").simpletip({
+				position: 'right',
+				onBeforeShow: function() { 
+					var id = this.getParent().attr('lid');
+					this.load('lookup.php?id=' + id);
+				}
+			});
+			
+			$('#loading').toggle();
+			
+			$('.updateplugins').bind('click', function() {
+				$('#div_updateplugins').show();
+			});
+			
+			$('.updateautoenable').bind('click', function() {
+				$('#div_updateautoenable').show();
+			});
+			
+			$('.createprofile').bind('click', function() {
+				$('#div_createprofile').show();
+			});
+			
+			$('.saveprefs').bind('click', function() {
+				$('#div_saveprefs').show();
+			});
 		}
-	});
-	$('#loading').toggle();
-    $('.updateplugins').bind('click', function() {
-        $('#div_updateplugins').show();
-    });
-    $('.updateautoenable').bind('click', function() {
-        $('#div_updateautoenable').show();
-    });
-    $('.createprofile').bind('click', function() {
-        $('#div_createprofile').show();
-    });
-    $('.saveprefs').bind('click', function() {
-        $('#div_saveprefs').show();
-    });
-    
-  }
-  function showEnableBy(){
-    $("#cat1").toggle();
-    $("#fam1").toggle();
-    $("#cat2").toggle();
-    $("#fam2").toggle();  
-  }
-  function showEnableByNew() {
-    $("#cat1n").toggle();
-    $("#fam1n").toggle();
-    $("#cat2n").toggle();
-    $("#fam2n").toggle();
-  }
-  function switch_user(select) {
-    if(select=='entity' && $('#entity').val()!='-1'){
-        $('#user').val('-1');
-    }
-    else if (select=='user' && $('#user').val()!='-1'){
-        $('#entity').val('-1');
-    }
-    
-    if($('#entity').val()=='-1' && $('#user').val()=='-1') { 
-        $('#user').val('0'); 
-    }
- }
+  
+		function showEnableBy(){
+			$("#cat1").toggle();
+			$("#fam1").toggle();
+			$("#cat2").toggle();
+			$("#fam2").toggle();  
+		}
+	  
+		function showEnableByNew() {
+			$("#cat1n").toggle();
+			$("#fam1n").toggle();
+			$("#cat2n").toggle();
+			$("#fam2n").toggle();
+		}
+
+		function switch_user(select) {
+			if(select=='entity' && $('#entity').val()!='-1'){
+				$('#user').val('-1');
+			}
+			else if (select=='user' && $('#user').val()!='-1'){
+				$('#entity').val('-1');
+			}
+
+			if($('#entity').val()=='-1' && $('#user').val()=='-1') { 
+				$('#user').val('0'); 
+			}
+		}
   </script>
 </head>
 
@@ -166,28 +172,29 @@ $postParams = array( "disp", "saveplugins", "page", "delete", "prefs", "uid", "s
 
 switch ($_SERVER['REQUEST_METHOD'])
 {
-case "GET" :
-   foreach ($getParams as $gp) {
-      if (isset($_GET[$gp])) {
-         $$gp=Util::htmlentities(mysql_real_escape_string(trim($_GET[$gp])), ENT_QUOTES);
-      } else {
-         $$gp="";
-      }
-   }
-   $submit="";
-   $AllPlugins="";
-   $NonDOS="";
-   $DisableAll="";
-   $saveplugins="";
+	case "GET" :
+	   foreach ($getParams as $gp) {
+		  if (isset($_GET[$gp])) {
+			 $$gp=Util::htmlentities(mysql_real_escape_string(trim($_GET[$gp])), ENT_QUOTES);
+		  } else {
+			 $$gp="";
+		  }
+	   }
+	   $submit      = "";
+	   $AllPlugins  = "";
+	   $NonDOS      = "";
+	   $DisableAll  = "";
+	   $saveplugins ="";
    break;
-case "POST" :
-   foreach ($postParams as $pp) {
-      if (isset($_POST[$pp])) {
-         $$pp=Util::htmlentities(mysql_real_escape_string(trim($_POST[$pp])), ENT_QUOTES);
-      } else {
-         $$pp="";
-      }
-   }
+
+   case "POST" :
+	   foreach ($postParams as $pp) {
+		  if (isset($_POST[$pp])) {
+			 $$pp=Util::htmlentities(mysql_real_escape_string(trim($_POST[$pp])), ENT_QUOTES);
+		  } else {
+			 $$pp="";
+		  }
+	   }
    break;
 }
 
@@ -209,10 +216,10 @@ if(isset($_POST['authorized_users'])) {
 //   die();
 //}
 
-$db = new ossim_db();
+$db     = new ossim_db();
 $dbconn = $db->connect();
 
-$query = "select count(*) from vuln_nessus_plugins";
+$query  = "SELECT count(*) FROM vuln_nessus_plugins";
 $result = $dbconn->execute($query);
 list($pluginscount)=$result->fields;
 
@@ -317,127 +324,104 @@ EOT;
 </div>
 
 <?php
-    echo "<td>"._("Name").":</td>";
+    echo "<td class='left'>"._("Name").":</td>";
     echo <<<EOT
-<td><input type="text" name="sname" value=""></td>
+<td class="left"><input type="text" name="sname" value=""/></td>
 </tr>
 <tr>
 EOT;
-    echo "<td>"._("Description").":</td>";
+    echo "<td class='left'>"._("Description").":</td>";
     echo <<<EOT
-<td><input type="text" name="sdescription" value=""></td>
+<td class="left"><input type="text" name="sdescription" value=""/></td>
 </tr>
 <tr>
 EOT;
-    echo "<td>"._("Clone existing scan policy").":</td><td>$allpolicies</td>";
+    echo "<td class='left'>"._("Clone existing scan policy").":</td><td class='left'>$allpolicies</td>";
     echo <<<EOT
 </tr>
 EOT;
 
-if(Session::am_i_admin()) {?>
-    <tr>
-        <td><?php echo _("Make this profile available for");?></td>
-        <td>
-            <table class="noborder" align="center">
-                <tr><td class="nobborder"><?=_("User:")?>&nbsp;
-                    <?$users = Session::get_list($dbconn); // Get all user ?> 
-                    </td><td style="text-align:left;" class="nobborder">
-                        <select name="user" id="user" onchange="switch_user('user');return false;" style="width:120px">
-                            <option value="-1"><?=_("Not assign")?></option>
-                            <option value="0" <?=((($user=="" || intval($user)==0) && $entity=="")? " selected":"")?>><?=_("ALL")?></option>
-                            <?foreach ($users as $us) {?>
-                                <option value="<?=$us->get_login()?>" <?=(($user==$us->get_login())? " selected":"")?>><?=$us->get_login()?></option>
-                            <?}?>
-                        </select>
-                    </td>
-                    <?if(preg_match("/pro|demo/i",$version)){?>
-                        <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?>&nbsp;&nbsp;</td>
-                        <td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
-                        <?
-                        $entities_types_aux = Acl::get_entities_types($dbconn);
-                        $entities_types = array();
+$users    = get_my_users_vision($dbconn, $pro);
+$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+?>
+	<tr>
+        <td class='left'><?php echo _("Make this profile available for");?></td>
+        <td class='left'>
+			<table cellspacing="0" cellpadding="0" class="transparent">
+				<tr>
+					<td class='left nobborder'><span style='margin-right:3px'><?php echo _("User:");?></span></td>	
+					<td class='nobborder'>				
+						<select name="user" style="width:150px" id="user" onchange="switch_user('user');return false;" >
+							
+							<?php
+														
+							$num_users    = 0;
+							$current_user = Session::get_session_user();
+							
+							if ( ! Session::am_i_admin() )
+								$user = (  $user == "" && $entity == "" ) ? $current_user : $user;
+							
+							foreach( $users as $k => $v )
+							{
+								$login = $v->get_login();
+								
+								$selected = ( $login == $user ) ? "selected='selected'": "";
+								$options .= "<option value='".$login."' $selected>$login</option>\n";
+								$num_users++;
+							}
+							
+							if ($num_users == 0)
+								echo "<option value='-1' style='text-align:center !important;'>- "._("No users found")." -</option>";
+							else
+							{
+								echo "<option value='-1' style='text-align:center !important;'>- "._("Select users")." -</option>";
+								if ( Session::am_i_admin() )
+								{
+									$default_selected = ( ( $user == "" || intval($user) == 0 ) && $entity == "" ) ? "selected='selected'" : "";
+									echo "<option value='0' $default_selected>"._("ALL")."</option>\n";
+								}
+															
+								echo $options;
+							}
+													
+							?>
+						</select>
+					</td>
+			
+					<?php if ( !empty($entities) ) { ?>
+					<td style='text-align:center; border:none; !important'><span style='padding:5px;'><?php echo _("OR")?><span></td>
+									
+					<td class='nobborder'><span style='margin-right:3px'><?php echo _("Entity:");?></span></td>
+					<td class='nobborder'>	
+						<select name="entity" style="width:170px" id="entity" onchange="switch_user('entity');return false;">
+							<option value="-1" style='text-align:center !important;'>- <?php echo _("Entity not assigned") ?> -</option>
+							<?php
+							foreach ( $entities as $k => $v ) 
+							{
+								$selected = ( $k == $user_entity ) ? "selected='selected'": "";
+								echo "<option value='$k' $selected>$v</option>";
+							}
+							?>
+						</select>
+					</td>
+						<?php } ?>
+				</tr>
+			</table>
+		</td>
+	</tr>
 
-                        foreach ($entities_types_aux as $etype) { 
-                            $entities_types[$etype['id']] = $etype;
-                        }
-                        list($entities_all,$num_entities) = Acl::get_entities($dbconn); // Get all entities?>
-                        <select name="entity" id="entity" onchange="switch_user('entity');return false;" style="width:130px">
-                            <option value="-1"><?=_("Not assign")?></option>
-                            <?
-                            foreach ($entities_all as $en) {?>
-                                <option value="<?=$en["id"]?>" <?=(($en["id"]==intval($entity))? " selected":"")?>><?=$en["name"]." [".$entities_types[$en["type"]]["name"]."]"?></option>
-                            <?}?>
-                        </select>
-                        </td>
-                    <? 
-                    } ?>
-                </tr>
-            </table>
-        </td>
-    </tr>
-<? }
-else if(preg_match("/pro|demo/i",$version)) {
-    if(Acl::am_i_proadmin()) { ?>
-    <tr>
-        <td><?php echo _("Make this profile available for");?></td>
-        <td>
-            <table class="noborder" align="center">
-                <tr><td class="nobborder"><?=_("User:")?>&nbsp;
-                    <? $users = Acl::get_my_users($dbconn, Session::get_session_user()); // Get users for admin pro?>
-                    </td><td style="text-align:left;" class="nobborder">
-                        <select name="user" id="user" onchange="switch_user('user');return false;" style="width:142px">
-                            <option value="-1"><?=_("Not assign")?></option>
-                            <?
-                            foreach ($users as $us) {?>
-                                <option value="<?=$us["login"]?>" <?=(($user==$us["login"] || $us["login"]==Session::get_session_user())? " selected":"")?>><?=$us["login"]?></option>
-                            <?}?>
-                        </select>
-                        </td>
-                    <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?></td>
-                    <td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
-                    <?
-                        list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-                        //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
-                        //$entities_list = array_keys($entities_admin);
-                        $entities_list = Acl::get_user_entities($current_user); 
-                        $entities_types_aux = Acl::get_entities_types($dbconn);
-                        $entities_types = array();
-                        foreach ($entities_types_aux as $etype) { 
-                            $entities_types[$etype['id']] = $etype;
-                        }
-                        ?>
-                        <select name="entity" id="entity" onchange="switch_user('entity');return false;"> 
-                            <option value="-1"><?=_("Not assign")?></option>
-                        <?
-                            foreach ( $entities_all as $ent ) if(Session::am_i_admin() || (Acl::am_i_proadmin() && in_array($ent["id"], $entities_list))) {
-                                    echo "<option value=\"".$ent["id"]."\"".(($entity==$ent["id"]) ? " selected":"").">".$ent["name"]." [".$entities_types[$ent["type"]]["name"]."]</option>"; 
-                            }
-                        ?>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-    <?
-    }
-    else { ?>
-        <input type="hidden" name="user" value="<?=(($user!="")? $user:Session::get_session_user())?>"/>
-    <?}
-}
-else { ?>
-    <input type="hidden" name="user" value="<?=(($user!="")? $user:Session::get_session_user())?>"/>
-<?}
+<?php
+
 echo "<tr style='display:none'>";
-echo "<td>"._("Link scans run by this profile in Network Hosts")."<br>"._("Purpose so that Network Hosts can be tracking full/perfered audits").".</td>";
-echo "<td><input type='checkbox' name='tracker' ><font color='red'>"._("Update Host Tracker \"Network Hosts\" Status")."</font></input></td>";
+echo "<td class='left'>"._("Link scans run by this profile in Network Hosts")."<br>"._("Purpose so that Network Hosts can be tracking full/perfered audits").".</td>";
+echo "<td class='left'><input type='checkbox' name='tracker'/><font color='red'>"._("Update Host Tracker \"Network Hosts\" Status")."</font></input></td>";
 echo "</tr>";
 echo <<<EOT
 <tr>
 EOT;
-echo "<td>"._("Autoenable plugins option").":</td>";
+echo "<td class='left'>"._("Autoenable plugins option").":</td>";
     echo <<<EOT
-<td><select name="sautoenable"  onChange="showEnableByNew();return false;">
+<td class='left'><select name="sautoenable"  onChange="showEnableByNew();return false;">
 EOT;
 
 echo "<option value=\"C\" selected>"._("Autoenable by category")."</option>";
@@ -447,9 +431,9 @@ echo <<<EOT
 </tr>
 <tr id="cat1n">
 EOT;
-echo "<td>"._("Set all autoenabled categories to").":</td>";
+echo "<td class='nobborder left'>"._("Set all autoenabled categories to").":</td>";
 echo <<<EOT
-<td><select name="auto_cat_status">
+<td class='left nobborder'><select name="auto_cat_status">
 EOT;
 echo "<option value=\"1\">"._("Enable All")."</Option>";
 echo "<option value=\"2\">"._("Enable New")."</Option>";
@@ -460,7 +444,7 @@ echo <<<EOT
 </select></td></tr>
 <tr id="fam1n" style="display:none;">
 EOT;
-echo "<td>"._("Set all autoenabled families to").":</td>";
+echo "<td class='left'>"._("Set all autoenabled families to").":</td>";
 echo <<<EOT
 <td><select name="auto_fam_status">
 EOT;
@@ -616,112 +600,89 @@ EOT;
 EOT;
    echo "<th>"._("Name").":</th>";
    echo '
-   <td><input type="text" name="sname" value="'.html_entity_decode($sname).'" size=50>
+   <td><input type="text" name="sname" value="'.html_entity_decode($sname).'" size=50/>
 </tr>
 <tr>
 ';
    echo "<th>"._("Description").":</th>";
    echo '
-   <td><input type="text" name="sdescription" value="'.html_entity_decode($sdescription).'" size=50></td>
-</tr>
-';
-if(Session::am_i_admin()) {?>
-    <tr>
-        <th><?php echo _("Make this profile available for");?></th>
-        <td>
-            <table class="noborder" align="center">
-                <tr><td class="nobborder"><?=_("User:")?>&nbsp;
-                    <?$users = Session::get_list($dbconn); // Get all user ?> 
-                    </td><td style="text-align:left;" class="nobborder">
-                        <select name="user" id="user" onchange="switch_user('user');return false;" style="width:120px">
-                            <option value="-1"><?=_("Not assign")?></option>
-                            <option value="0" <?=((($user=="" || intval($user)==0) && $entity=="")? " selected":"")?>><?=_("ALL")?></option>
-                            <?foreach ($users as $us) {?>
-                                <option value="<?=$us->get_login()?>" <?=(($user==$us->get_login())? " selected":"")?>><?=$us->get_login()?></option>
-                            <?}?>
-                        </select>
-                    </td>
-                    <?if(preg_match("/pro|demo/i",$version)){?>
-                        <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?>&nbsp;&nbsp;</td> 
-                        <td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
-                        <?
-                        $entities_types_aux = Acl::get_entities_types($dbconn);
-                        $entities_types = array();
+   <td><input type="text" name="sdescription" value="'.html_entity_decode($sdescription).'" size=50/></td>
+</tr>';
 
-                        foreach ($entities_types_aux as $etype) { 
-                            $entities_types[$etype['id']] = $etype;
-                        }
-                        list($entities_all,$num_entities) = Acl::get_entities($dbconn); // Get all entities?>
-                        <select name="entity" id="entity" onchange="switch_user('entity');return false;" style="width:130px">
-                            <option value="-1"><?=_("Not assign")?></option>
-                            <?
-                            foreach ($entities_all as $en) {?>
-                                <option value="<?=$en["id"]?>" <?=(($en["id"]==intval($entity))? " selected":"")?>><?=$en["name"]." [".$entities_types[$en["type"]]["name"]."]"?></option>
-                            <?}?>
-                        </select>
-                        </td>
-                    <? 
-                    } ?>
-                </tr>
-            </table>
-        </td>
-    </tr>
-<? }
-else if(preg_match("/pro|demo/i",$version)) { 
-    if(Acl::am_i_proadmin()) { ?>
-    <tr>
-        <th><?php echo _("Make this profile available for");?></th>
+$users    = get_my_users_vision($dbconn, $pro);
+$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+?>
+	<tr>
+        <th><?php echo _("Make this profile available for");?>:</th>
         <td>
-            <table class="noborder" align="center">
-                <tr><td class="nobborder"><?=_("User:")?>&nbsp;
-                    <? $users = Acl::get_my_users($dbconn, Session::get_session_user()); // Get users for admin pro?>
-                    </td><td style="text-align:left;" class="nobborder">
-                        <select name="user" id="user" onchange="switch_user('user');return false;" style="width:142px">
-                            <option value="-1"><?=_("Not assign")?></option>
-                            <?
-                            foreach ($users as $us) {?>
-                                <option value="<?=$us["login"]?>" <?=(($user==$us["login"])? " selected":"")?>><?=$us["login"]?></option>
-                            <?}?>
-                        </select>
-                        </td>
-                    <td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?></td>
-                    <td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
-                    <?
-                        list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-                        //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
-                        //$entities_list = array_keys($entities_admin);
-                        $entities_list = Acl::get_user_entities($current_user); 
-                        $entities_types_aux = Acl::get_entities_types($dbconn);
-                        $entities_types = array();
-                        foreach ($entities_types_aux as $etype) { 
-                            $entities_types[$etype['id']] = $etype;
-                        }
-                        ?>
-                        <select name="entity" id="entity" onchange="switch_user('entity');return false;"> 
-                            <option value="-1"><?=_("Not assign")?></option>
-                        <?
-                            foreach ( $entities_all as $ent ) if(Session::am_i_admin() || (Acl::am_i_proadmin() && in_array($ent["id"], $entities_list))) {
-                                    echo "<option value=\"".$ent["id"]."\"".(($entity==$ent["id"]) ? " selected":"").">".$ent["name"]." [".$entities_types[$ent["type"]]["name"]."]</option>"; 
-                            }
-                        ?>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-    <?
-    }
-    else { ?>
-    <input type="hidden" name="user" value="<?=(($user!="")? $user:Session::get_session_user())?>"/> 
-<?}
-}
-else { ?>
-    <input type="hidden" name="user" value="<?=(($user!="")? $user:Session::get_session_user())?>"/>
-<?}
+			<table cellspacing="0" cellpadding="0" align='center' class="transparent">
+				<tr>
+					<td class='nobborder'><span style='margin-right:3px'><?php echo _("User:");?></span></td>	
+					<td class='nobborder'>				
+						<select name="user" style="width:150px" id="user" onchange="switch_user('user');return false;" >
+							
+							<?php
+														
+							$num_users    = 0;
+							$current_user = Session::get_session_user();
+							
+							if ( ! Session::am_i_admin() )
+								$user = (  $user == "" && $entity == "" ) ? $current_user : $user;
+							
+							foreach( $users as $k => $v )
+							{
+								$login = $v->get_login();
+								
+								$selected = ( $login == $user ) ? "selected='selected'": "";
+								$options .= "<option value='".$login."' $selected>$login</option>\n";
+								$num_users++;
+							}
+							
+							if ($num_users == 0)
+								echo "<option value='-1' style='text-align:center !important;'>- "._("No users found")." -</option>";
+							else
+							{
+								echo "<option value='-1' style='text-align:center !important;'>- "._("Select users")." -</option>";
+								if ( Session::am_i_admin() )
+								{
+									$default_selected = ( ( $user == "" || intval($user) == 0 ) && $entity == "" ) ? "selected='selected'" : "";
+									echo "<option value='0' $default_selected>"._("ALL")."</option>\n";
+								}
+															
+								echo $options;
+							}
+													
+							?>
+						</select>
+					</td>
+			
+					<?php if ( !empty($entities) ) { ?>
+					<td style='text-align:center; border:none; !important'><span style='padding:5px;'><?php echo _("OR")?><span></td>
+									
+					<td class='nobborder'><span style='margin-right:3px'><?php echo _("Entity:");?></span></td>
+					<td class='nobborder'>	
+						<select name="entity" style="width:170px" id="entity" onchange="switch_user('entity');return false;">
+							<option value="-1" style='text-align:center !important;'>- <?php echo _("Entity not assigned") ?> -</option>
+							<?php
+							foreach ( $entities as $k => $v ) 
+							{
+								$selected = ( $k == $user_entity ) ? "selected='selected'": "";
+								echo "<option value='$k' $selected>$v</option>";
+							}
+							?>
+						</select>
+					</td>
+						<?php } ?>
+				</tr>
+			</table>
+		</td>
+	</tr>
+
+<?php
+
 echo "<tr style='display:none'>";
 echo "<th>"._("Link scans run by this profile in Network Hosts")."<br>"._("Purpose so that Network Hosts can be tracking full/perfered audits").".</th>";
-echo "<td><input type='checkbox' name='tracker' $cktracker><font color='red'>"._("Update Host Tracker \"Network Hosts\" Status")."</font></input></td>";
+echo "<td class='left'><input type='checkbox' name='tracker' $cktracker/><font color='red'>"._("Update Host Tracker \"Network Hosts\" Status")."</font></input></td>";
 echo "</tr>";
 echo "<tr>
 <th valign='top' style='background-position:top center;'>"._("Autoenable options").":</th>

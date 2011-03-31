@@ -91,7 +91,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
   <script type="text/javascript" src="../js/utils.js"></script>
   <script type="text/javascript" src="../js/vulnmeter.js"></script>
   <? include ("../host_report_menu.php") ?>
-  <script>
+  <script type="text/javascript">
 	function postload() {
 		var filter = "";
 		$("#htree").dynatree({
@@ -141,11 +141,11 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 		});
 	}
     function switch_user(select) {
-        if(select=='entity' && $('#entity').val()!='none'){
-            $('#user').val('none');
+        if(select=='entity' && $('#entity').val()!=''){
+            $('#user').val('');
         }
-        else if (select=='user' && $('#user').val()!='none'){
-            $('#entity').val('none');
+        else if (select=='user' && $('#user').val()!=''){
+            $('#entity').val('');
         }
     }
     var loading = '<img width="16" align="absmiddle" src="images/loading.gif">';
@@ -277,35 +277,35 @@ if ($schedule_type=="NW") {
 $error_message="";
 
 if ($sname=="") {
-    $error_message .= _("Invalid Job name")."<br>";
+    $error_message .= _("Invalid Job name")."<br/>";
 }
 if ($ip_list=="") {
-    $error_message .= _("Invalid Targets")."<br>";
+    $error_message .= _("Invalid Targets")."<br/>";
 }
 if ($timeout=="") {
-    $error_message .= _("Invalid Timeout")."<br>";
+    $error_message .= _("Invalid Timeout")."<br/>";
 }
 
 ossim_valid(html_entity_decode($sname), OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("Job name"));
 if (ossim_error()) {
-    $error_message .= _("Invalid Job name")."<br>";
+    $error_message .= _("Invalid Job name")."<br/>";
 }
 ossim_set_error(false);
 ossim_valid($entity, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, 'illegal:' . _("Entity"));
 if (ossim_error()) {
-    $error_message .= _("Invalid entity")."<br>";
+    $error_message .= _("Invalid entity")."<br/>";
 }
 
 ossim_set_error(false);
 ossim_valid($user, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("User"));
 if (ossim_error()) {
-    $error_message .= _("Invalid user")."<br>";
+    $error_message .= _("Invalid user")."<br/>";
 }
 
 ossim_set_error(false);
 ossim_valid($timeout, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Timeout"));
 if (ossim_error()) {
-    $error_message .= _("Invalid timeout")."<br>";
+    $error_message .= _("Invalid timeout")."<br/>";
 }
 
 $ip_targets = explode("\\r\\n", $ip_list);
@@ -314,10 +314,10 @@ foreach($ip_targets as $ip_target) {
     ossim_set_error(false);
     ossim_valid($ip_target, OSS_NULLABLE, OSS_DIGIT, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, '\.\,\/', 'illegal:' . _("Target"));
     if (ossim_error()) {
-        $error_message .= _("Invalid target").": $ip_target<br>";
+        $error_message .= _("Invalid target").": $ip_target<br/>";
     }
 }
-$hosts_alive = intval($hosts_alive);
+$hosts_alive  = intval($hosts_alive);
 $scan_locally = intval($scan_locally);
 
 
@@ -1324,134 +1324,89 @@ EOT;
     
 EOT;
     
-    $version = $conf->get_conf("ossim_server_version", FALSE);
-    if(Session::am_i_admin()) {
-          $discovery .= "<tr><td>"._("Make this scan job visible for:")."</td>";
+	$conf     = $GLOBALS["CONF"];
+	$version  = $conf->get_conf("ossim_server_version", FALSE);
+	$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
-          $discovery .= "<td style=\"text-align:left;\">";
-          $discovery .= "<table class=\"noborder\">";
-          $discovery .= "<tr><td class=\"nobborder\">"._("User:")."&nbsp;";
-          $users = Session::get_list($dbconn);
-          $discovery .= "</td><td style=\"text-align:left;\" class=\"nobborder\">";
-          $discovery .= "<select name=\"user\" id=\"user\" onchange=\"switch_user('user');return false;\">";
-          $discovery .= "<option value=\"none\">"._("Not assign")."</option>";
-          foreach ($users as $user) {
-            $discovery .= "<option value=\"".$user->get_login()."\"".(($editdata["username"]==$user->get_login() || $user_selected==$user->get_login())? " selected":"").">".$user->get_login()."</option>";
-          }
-          $discovery .= "</select>";
-          if(preg_match("/pro|demo/i",$version)){
-              $discovery .= "<tr><td class=\"nobborder\">&nbsp;</td><td class=\"nobborder\">"._("OR")."</td></tr>";
-              $discovery .= "<tr><td class=\"nobborder\">"._("Entity:")."</td><td class=\"nobborder\">";
-              $entities_types_aux = Acl::get_entities_types($dbconn);
-              $entities_types = array();
+	$users    = get_my_users_vision($dbconn, $pro);
+	$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+    
+	$discovery .= "<tr>
+						<td>"._("Make this scan job visible for:")."</td>
+						<td style='text-align: left'>
+							<table cellspacing='0' cellpadding='0' class='transparent' style='margin: 5px 0px;'>
+								<tr>
+									<td class='nobborder'><span style='margin-right:3px'>"._('User:')."</span></td>	
+									<td class='nobborder'>				
+										<select name='user' id='user' onchange=\"switch_user('user');return false;\">";
+										
+										$num_users = 0;
+										foreach( $users as $k => $v )
+										{
+											$login = $v->get_login();
+											
+											$selected = ( $editdata["username"] == $login || $user_selected == $login ) ? "selected='selected'": "";
+											$options .= "<option value='".$login."' $selected>$login</option>\n";
+											$num_users++;
+										}
+										
+										if ($num_users == 0)
+											$discovery .= "<option value='' style='text-align:center !important;'>- "._("No users found")." -</option>";
+										else
+										{
+											$discovery .= "<option value='' style='text-align:center !important;'>- "._("Select one user")." -</option>\n";
+											$discovery .= $options;
+										}
+											
+				
+	$discovery .= "						</select>
+									</td>";
+								
+	if ( !empty($entities) )
+	{ 
+		
+	$discovery .= "	    			<td style='text-align:center; border:none; !important'><span style='padding:5px;'>"._("OR")."<span></td>
+									<td class='nobborder'><span style='margin-right:3px'>"._("Entity:")."</span></td>
+									<td class='nobborder'>	
+										<select name='entity' id='entity' onchange=\"switch_user('entity');return false;\">
+											<option value='' style='text-align:center !important;'>-"._("Select one entity")."-</option>";
+						
+												foreach ( $entities as $k => $v ) 
+												{
+													$selected = ( ( $editdata["username"] == $k || $entity_selected == $k ) ) ? "selected='selected'": "";
+													$discovery .= "<option value='$k' $selected>$v</option>";
+												}
+		
+		$discovery .= "					</select>
+									</td>";
+	}
+	
+	$discovery .= " 	    	</tr>
+							</table>
+						</td>
+					</tr>";
+	   
+	   
+	$discovery .= "<tr><td>"._("Send an email notification when finished:");
+	$discovery .= "</td>";
+	$discovery .= "<td style=\"text-align:left;\">";
+	$discovery .= "<input type=\"radio\" name=\"semail\" value=\"0\"".(((count($editdata)<=1 && intval($semail)==0) || intval($editdata['meth_Wfile'])==0)? " checked":"")."/>"._("No");
+	$discovery .= "<input type=\"radio\" name=\"semail\" value=\"1\"".(((count($editdata)<=1 && intval($semail)==1) || intval($editdata['meth_Wfile'])==1)? " checked":"")."/>"._("Yes");
+	$discovery .= "</td></tr>";
 
-              foreach ($entities_types_aux as $etype) { 
-                $entities_types[$etype['id']] = $etype;
-              }
-              list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-              $discovery .="<select name=\"entity\" id=\"entity\" onchange=\"switch_user('entity');return false;\">";
-              $discovery .="<option value=\"none\">"._("Not assign")."</option>";
-                foreach ($entities_all as $entity) {
-                    $discovery .= "<option value=\"".$entity["id"]."\"".(($editdata["username"]==$entity["id"] || $entity_selected==$entity["id"])? " selected":"").">".$entity["name"]." [".$entities_types[$entity["type"]]["name"]."]</option>";
-                }
-              $discovery .="</select>";
-              $discovery .="</td></tr>";
-          }
-          $discovery .="</table>";
-          $discovery .="</td></tr>";
-      }
-       else if(preg_match("/pro|demo/i",$version)) {
-            if(Acl::am_i_proadmin()) {
-                  $discovery .= "<tr><td>"._("Make this scan job visible for:")."</td>";
+	$targets_message = _("Targets")."<br>"._("(Hosts/Networks)")."<br>";
 
-                  $discovery .= "<td style=\"text-align:left;\">";
-                  $discovery .= "<table class=\"noborder\">";
-                  $discovery .= "<tr><td class=\"nobborder\">"._("User:")."&nbsp;";
-                  $users = Acl::get_my_users($dbconn,Session::get_session_user());
-                  $discovery .= "</td><td style=\"text-align:left;\" class=\"nobborder\">";
-                  $discovery .= "<select name=\"user\" id=\"user\" onchange=\"switch_user('user');return false;\">";
-                  $discovery .= "<option value=\"none\">"._("Not assign")."</option>";
-                  foreach ($users as $user) {
-                    $discovery .= "<option value=\"".$user["login"]."\"".(($editdata["username"]==$user["login"] || $user_selected==$user["login"]) ? " selected":"").">".$user["login"]."</option>";
-                  }
-                  $discovery .= "</select>";
-                  $discovery .= "<tr><td class=\"nobborder\">&nbsp;</td><td class=\"nobborder\">"._("OR")."</td></tr>";
-                  $discovery .= "<tr><td class=\"nobborder\">"._("Entity:")."</td><td class=\"nobborder\">";
-                  $entities_types_aux = Acl::get_entities_types($dbconn);
-                  $entities_types = array();
-
-                  foreach ($entities_types_aux as $etype) { 
-                     $entities_types[$etype['id']] = $etype;
-                  }
-                  list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
-                  $entities_list = array_keys($entities_admin);
-                  list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-                  
-                  $discovery .="<select name=\"entity\" id=\"entity\" onchange=\"switch_user('entity');return false;\">";
-                  $discovery .="<option value=\"none\">"._("Not assign")."</option>";
-                  foreach ($entities_all as $entity)  if(Session::am_i_admin() || (Acl::am_i_proadmin() && in_array($entity["id"], $entities_list))) {
-                      $discovery .= "<option value=\"".$entity["id"]."\"".(($editdata["username"]==$entity["id"] || $entity_selected==$entity["id"])? " selected":"").">".$entity["name"]." [".$entities_types[$entity["type"]]["name"]."]</option>";
-                  }
-                  $discovery .="</select>";
-                  $discovery .="</td></tr>";
-                  
-                  $discovery .="</table>";
-                  $discovery .="</td></tr>";
-            }
-            else {
-                  $discovery .= "<tr><td>"._("Make this scan job visible for:")."</td>";
-
-                  $discovery .= "<td style=\"text-align:left;\">";
-                  $discovery .= "<table class=\"noborder\">";
-                  $discovery .= "<tr><td class=\"nobborder\">"._("User:")."&nbsp;";
-                  $discovery .= "</td><td style=\"text-align:left;\" class=\"nobborder\">";
-                  $discovery .= "<select name=\"user\" id=\"user\" onchange=\"switch_user('user');return false;\">";
-                  $discovery .= "<option value=\"none\">"._("Not assign")."</option>";
-                  $discovery .= "<option value=\"".Session::get_session_user()."\"".(($editdata["username"]==Session::get_session_user() || $user_selected==Session::get_session_user())? " selected":"").">".Session::get_session_user()."</option>";
-                  $discovery .= "</select>";
-                  if(preg_match("/pro|demo/i",$version)){
-                      $user_details = Acl::get_users($dbconn, Session::get_session_user());
-
-                      $discovery .= "<tr><td class=\"nobborder\">&nbsp;</td><td class=\"nobborder\">"._("OR")."</td></tr>";
-                      $discovery .= "<tr><td class=\"nobborder\">"._("Entity:")."</td><td class=\"nobborder\">";
-                      $entities_types_aux = Acl::get_entities_types($dbconn);
-                      $entities_types = array();
-
-                      foreach ($entities_types_aux as $etype) { 
-                        $entities_types[$etype['id']] = $etype;
-                      }
-                      list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-                      $discovery .="<select name=\"entity\" id=\"entity\" onchange=\"switch_user('entity');return false;\">";
-                      $discovery .="<option value=\"none\">"._("Not assign")."</option>";
-                      foreach ($entities_all as $entity) if (in_array($entity["id"],$user_details["entities"])) {
-                         $discovery .= "<option value=\"".$entity["id"]."\"".(($editdata["username"]==$entity["id"] || $entity_selected==$entity["id"])? " selected":"").">".$entity["name"]." [".$entities_types[$entity["type"]]["name"]."]</option>";
-                      }
-                      $discovery .="</select>";
-                      $discovery .="</td></tr>";
-                  }
-                  $discovery .="</table>";
-                  $discovery .="</td></tr>";
-            }
-       }
-      $discovery .= "<tr><td>"._("Send an email notification when finished:");
-      $discovery .= "</td>";
-      $discovery .= "<td style=\"text-align:left;\">";
-      $discovery .= "<input type=\"radio\" name=\"semail\" value=\"0\"".(((count($editdata)<=1 && intval($semail)==0) || intval($editdata['meth_Wfile'])==0)? " checked":"")."/>"._("No");
-      $discovery .= "<input type=\"radio\" name=\"semail\" value=\"1\"".(((count($editdata)<=1 && intval($semail)==1) || intval($editdata['meth_Wfile'])==1)? " checked":"")."/>"._("Yes");
-      $discovery .= "</td></tr>";
-
-      $targets_message = _("Targets")."<br>"._("(Hosts/Networks)")."<br>";
-      
-      $discovery .= "<tr><td valign=\"top\" align=\"Right\" width=\"20%\" class=\"noborder\"><br>";
-      $discovery .= "<input type=\"checkbox\" name=\"hosts_alive\" value=\"1\"".(((count($editdata)<=1 && intval($hosts_alive)==1) || intval($editdata['meth_CRED'])==1)? " checked":"").">"._("Only scan hosts that are alive")."<br>("._("greatly speeds up the scanning process").")<br><br>";
-      //if (Session::am_i_admin())
-      $discovery .= "<input type=\"checkbox\" name=\"scan_locally\" value=\"1\"".
-          (($pre_scan_locally_status==0) ? " disabled=\"disabled\"":"").
-          (($pre_scan_locally_status==1 && ((count($editdata)<=1 && intval($scan_locally)==1) || intval($editdata['authorized'])==1))? " checked":"").">"._("Pre-Scan locally").
-          "<br>("._("do not pre-scan from scanning sensor").")";
+	$discovery .= "<tr><td valign=\"top\" align=\"Right\" width=\"20%\" class=\"noborder\"><br>";
+	$discovery .= "<input type=\"checkbox\" name=\"hosts_alive\" value=\"1\"".(((count($editdata)<=1 && intval($hosts_alive)==1) || intval($editdata['meth_CRED'])==1)? " checked":"").">"._("Only scan hosts that are alive")."<br>("._("greatly speeds up the scanning process").")<br><br>";
+	//if (Session::am_i_admin())
+	$discovery .= "<input type=\"checkbox\" name=\"scan_locally\" value=\"1\"".
+	  (($pre_scan_locally_status==0) ? " disabled=\"disabled\"":"").
+	  (($pre_scan_locally_status==1 && ((count($editdata)<=1 && intval($scan_locally)==1) || intval($editdata['authorized'])==1))? " checked":"").">"._("Pre-Scan locally").
+	  "<br>("._("do not pre-scan from scanning sensor").")";
       //else
       // $discovery .= "<input type=\"hidden\" name=\"scan_locally\" value=\"0\">";
-$discovery .= <<<EOT
+	
+	$discovery .= <<<EOT
         <select name="tarSel" style="display:none;" onClick="if (this.options[this.selectedIndex].value != 'null') {
           showLayer('idTarget', this.options[this.selectedIndex].value ) }">
           <option name="schedule" value="1" $sjTYPE[M] selected>IP List</option>
@@ -2547,12 +2502,13 @@ switch($disp) {
 
    case "create":
     if($error_message!=""){
-        echo "<br><center><span style=\"color:red\"><b>$error_message</b></span></center><br>";
+        echo "<br/><div class='ossim_error' style='width:80%;'><div>"._("We found the following errors:")."</div<div style='padding-left: 10px;'>$error_message</div></div><br>";
         main_page( $job_id, $op );
     }
-    else {
+    else 
+	{
         if($entity!="" && $entity!="none") $username = $entity;
-        if($user!="" && $user!="none") $username = $user;
+        if($user!="" && $user!="none")    $username  = $user;
     
         submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $ROYEAR,$ROMONTH, $ROday,
         $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list,

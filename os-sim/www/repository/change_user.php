@@ -34,35 +34,165 @@ require_once('ossim_conf.inc');
 require_once('classes/Session.inc');
 
 Session::logcheck("MenuIncidents", "Osvdb");
+
+//Return array with users that you can see
+
+function get_my_users_vision($conn, $pro)
+{
+	
+	require_once('classes/Session.inc');
+	
+	if  ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin()) )
+	{
+		if ( Session::am_i_admin() )
+			$users_list = Session::get_list($conn, "ORDER BY login");
+		else
+			$users_list = Acl::get_my_users($conn,Session::get_session_user());
+		
+		
+		if ( is_array($users_list) && !empty($users_list) )
+		{
+			foreach($users_list as $k => $v)
+				$users[] = ( is_object($v) )? $v->get_login() : $v["login"];
+			
+			$where = "WHERE login in ('".implode("','",$users)."')";
+		}
+	}
+	else
+	{
+	
+		if ( !$pro )
+			$where = "";
+		else
+		{
+			$brothers = Acl::get_brothers($conn);
+			
+			foreach($brothers as $k => $v)
+				$users[] = $v["login"];
+			
+			if ( count($brothers) > 0 )	
+				$where = "WHERE login in ('".implode("','",$users)."')";
+			else
+				$where = "WHERE login in ('".Session::get_session_user()."')";
+		}	
+	}	
+		
+
+	return Session::get_list($conn, $where." ORDER BY login ASC");
+}
+
+//Return array with entities that you can see
+
+function get_my_entities_vision($dbconn, $pro)
+{
+	
+	require_once('classes/Session.inc');
+	$entities_types       = array();
+	$entities_types_aux   = array();
+	$entities             = array();
+	
+	if  ( Session::am_i_admin() )
+	{
+		list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+		$entities_types_aux               = Acl::get_entities_types($dbconn);
+			
+
+		foreach ($entities_types_aux as $etype) { 
+			$entities_types[$etype['id']] = $etype;
+		}
+		
+		foreach ( $entities_all as $entity ) 
+			$entities[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+		
+	}
+	else if ($pro && Acl::am_i_proadmin())
+	{
+		list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+		list($entities_admin,$num)        = Acl::get_entities_admin($dbconn,Session::get_session_user());
+		
+		$entities_list      = array_keys($entities_admin);
+		$entities_types_aux = Acl::get_entities_types($dbconn);
+	   
+		foreach ($entities_types_aux as $etype) { 
+			$entities_types[$etype['id']] = $etype;
+		}
+		
+		foreach ( $entities_all as $entity ) 
+		{
+			if(	in_array($entity["id"], $entities_list) ) 
+				$entities[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+		
+		}
+	
+	}
+
+	return $entities;
+}
+
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-<!--  <meta http-equiv="refresh" content="3"> -->
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script>
-    function switch_user(select) {
-        if(select=='entity' && $('#entity').val()!='none'){
-            $('#user').val('none');
-        }
-        else if (select=='user' && $('#user').val()!='none'){
-            $('#entity').val('none');
-        }
-    }
-  </script>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script type="text/javascript">
+		function switch_user(select) {
+			if(select=='entity' && $('#entity').val()!=''){
+				$('#user').val('');
+			}
+			else if (select=='user' && $('#user').val()!=''){
+				$('#entity').val('');
+			}
+		}
+	</script>
+	
+	<style type='text/css'>
+	
+	table{
+		margin: 10px auto;
+		text-align:center;
+		width: 330px;
+	} 
+	
+	td { border: none; }
+	
+	#update { 
+		padding: 10px 0px 0px 0px;
+		border: none;
+	}
+	
+	#user, #entity {width: 220px;}
+		
+	.format_user,.format_entity{
+		margin-right: 3px;
+		width: 50px;
+		text-align: right;
+	}
+	
+	.select_user,.select_entity{
+		width: 260px;
+	}
+	
+	
+	.format_or{ 
+		padding:5px;
+		text-align:center; 
+		border-bottom: none;
+	}
+		
+	</style>
+	
 </head>
 <body>
 <?
 
 $id_document = $_GET["id_document"];
-$entity = $_GET["entity"];
-$user = $_GET["user"];
+$entity      = $_GET["entity"];
+$user        = $_GET["user"];
 
 ossim_valid($id_document, OSS_DIGIT, 'illegal:' . _("Document id"));
 ossim_valid($entity, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, 'illegal:' . _("Entity"));
@@ -72,107 +202,100 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
-$db = new ossim_db();
+$db     = new ossim_db();
 $dbconn = $db->connect();
 
-if($entity!="" || $user!="") { // save data to DB
-    if($user!="none") $newuser = $user;
-    if($entity!="none") $newuser = $entity;
-    $query = "UPDATE repository SET user='$newuser' WHERE id=$id_document";
-    $result=$dbconn->execute($query);
+if( $entity != "" || $user != "" ) 
+{
+    $newuser = ( $entity != "" ) ? $entity : $user;
+    $query   = "UPDATE repository SET user='$newuser' WHERE id='$id_document'";
+	$result  = $dbconn->execute($query);
+	
     ?>
-    <script type="text/javascript">
-        parent.GB_onclose();
-    </script><?
-}
-if($entity=="" && $user=="") {
-    $query = "SELECT user FROM repository where id=$id_document";
-    $result = $dbconn->Execute($query);
-    $user_name = $result->fields['user'];
+	<script type="text/javascript">parent.GB_onclose();</script>
+	<?php
 }
 
-$conf = $GLOBALS["CONF"];
-$version = $conf->get_conf("ossim_server_version", FALSE);
-echo "<center>";
-echo "<form action=\"change_user.php\" method=\"get\">";
-echo "<input type=\"hidden\" name=\"id_document\" value=\"".$id_document."\">";
-if(!preg_match("/pro|demo/i",$version)){
-    $users = Session::get_list($dbconn);
-    echo "<table class=\"transparent\"><tr><td class=\"nobborder\">";
-    echo _("User:")."</td>";
-    echo "<td class=\"nobborder\">";
-    ?>
-    <select name="user">
-        <option value="none"><?=_("Not assign")?></option>
-    <?
-        foreach ( $users as $user ) {
-            echo "<option value=\"".$user->get_login()."\"".(($user_name==$user->get_login()) ? " selected":"").">".$user->get_login()."</option>";
-        }
-    ?>
-    </select>
-    <?
-    echo "</td></tr></table>";
-}
-else {
-    list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-    list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
-    $entities_list = array_keys($entities_admin);
-    
-    echo "<table class=\"transparent\"><tr><td class=\"nobborder\">";
-    echo _("User:")."</td>";
-    echo "<td class=\"nobborder\">";
-    ?>
-    <select name="user" id="user" onchange="switch_user('user');return false;">
-        <option value="none"><?=_("Not assign")?></option>
-    <?
-      if(Session::am_i_admin()) {
-            $users = Session::get_list($dbconn);
-            foreach ($users as $user) {?>
-                <option value="<?=$user->get_login()?>" <?=(($user_name==$user->get_login()) ? " selected":"")?>><?=$user->get_login()?></option>
-          <?}
-      }
-      else {
-            $users = Acl::get_my_users($dbconn,Session::get_session_user());
-            foreach ($users as $user){?>
-                <option value="<?=$user["login"]?>" <?=(($user_name==$user["login"]) ? " selected":"")?>><?=$user["login"]?></option>
-            <?}
-      }
-    ?>
-    </select>
-    <?
-    echo "</td></tr>";
-    echo "<tr><td class=\"nobborder\">&nbsp;</td><td class=\"nobborder\">"._("OR")."</td></tr>";
-    echo "<tr><td class=\"nobborder\">"._("Entity:")."</td>";
-    echo "<td class=\"nobborder\">";
-    $entities_types_aux = Acl::get_entities_types($dbconn);
-    $entities_types = array();
-
-    foreach ($entities_types_aux as $etype) { 
-        $entities_types[$etype['id']] = $etype;
-    }
-    ?>
-    
-    <select name="entity" id="entity" onchange="switch_user('entity');return false;">
-        <option value="none"><?=_("Not assign")?></option>
-    <?
-        foreach ( $entities_all as $entity ) if(Session::am_i_admin() || (Acl::am_i_proadmin() && in_array($entity["id"], $entities_list))) {
-                echo "<option value=\"".$entity["id"]."\"".(($user_name==$entity["id"]) ? " selected":"").">".$entity["name"]." [".$entities_types[$entity["type"]]["name"]."]</option>";
-        }
-    ?>
-    </select>
-    <?//var_dump($entities_all);
-    echo "</td></tr></table>";
+if( $entity == "" && $user == "") 
+{
+    $query       = "SELECT user FROM repository where id='$id_document'";
+    $result      = $dbconn->Execute($query);
+    $user_entity = $result->fields['username'];
 }
 
-echo "<table class=\"transparent\" width=\"100%\" align=\"center\">";
-echo "<tr><td class=\"nobborder\" style=\"text-align:center;padding-top:5px;\">";
-echo "<input type=\"submit\" class=\"button\" value=\""._("Update")."\">"; 
-echo "</td></tr>";
-echo "</table>";
-echo "</form>";
-echo "</center>";
 
-$dbconn->disconnect();
+
+$conf     = $GLOBALS["CONF"];
+$version  = $conf->get_conf("ossim_server_version", FALSE);
+$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+
+$users    = get_my_users_vision($dbconn, $pro);
+$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+
+
 ?>
+
+<form action='change_user.php' method='GET'>
+	<input type='hidden' name='id_document' value='<?php echo $id_document?>'/>
+
+		<table cellspacing="0" cellpadding="0" class="transparent">
+			<tr>
+				<td class='format_user'><?php echo _("User:");?></td>	
+				<td class='select_user'>				
+					<select name="user" id="user" onchange="switch_user('user');return false;">
+						
+						<?php
+													
+						$num_users = 0;
+						foreach( $users as $k => $v )
+						{
+							$login = $v->get_login();
+							
+							$selected = ( $login == $user_entity ) ? "selected='selected'": "";
+							$options .= "<option value='".$login."' $selected>$login</option>\n";
+							$num_users++;
+						}
+						
+						if ($num_users == 0)
+							echo "<option value='' style='text-align:center !important;'>- "._("No users found")." -</option>";
+						else
+						{
+							echo "<option value='' style='text-align:center !important;'>- "._("Select one user")." -</option>\n";
+							echo $options;
+						}
+												
+						?>
+					</select>
+				</td>
+			</tr>
+			
+			<tr>
+			
+			<?php if ( !empty($entities) ) { ?>
+			<tr><td class="format_or" colspan='2'><?php echo _("OR");?></td></tr>
+		
+			<tr>
+				<td class='format_entity'><?php echo _("Entity:");?></td>
+				<td class='select_entity'>	
+					<select name="entity" id="entity" onchange="switch_user('entity');return false;">
+						<option value="" style='text-align:center !important;'>- <?php echo _("Select one entity") ?> -</option>
+						<?php
+						foreach ( $entities as $k => $v ) 
+						{
+							$selected = ( $k == $user_entity ) ? "selected='selected'": "";
+							echo "<option value='$k' $selected>$v</option>";
+						}
+						?>
+					</select>
+				</td>
+				<?php } ?>
+			</tr>
+		
+			<tr><td id='update' colspan='2'><input type='submit' class='button' value='<?php echo _("Update")?>'/></td></tr>
+		
+	</table>
+</form>
+
+<?php $dbconn->disconnect(); ?>
 </body>
 </html>

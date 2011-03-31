@@ -58,12 +58,12 @@ function mapAllowed($perms_arr,$version) {
 	return $ret;
 }
 
-$conf = $GLOBALS["CONF"];
+$conf    = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
-$map = (POST("map") != "") ? POST("map") : ((GET("map") != "") ? GET("map") : (($_SESSION["riskmap"]!="") ? $_SESSION["riskmap"] : 1));
+$map  = (POST("map") != "") ? POST("map") : ((GET("map") != "") ? GET("map") : (($_SESSION["riskmap"]!="") ? $_SESSION["riskmap"] : 1));
 $name = POST('name');
 $erase_element = GET('delete');
 $setdefault = GET('default');
@@ -126,24 +126,23 @@ while (!$result->EOF) {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title><?= _("Alarms") ?> - <?= _("View")?></title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="stylesheet" type="text/css" href="./custom_style.css">
-<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="../js/greybox.js"></script>
-<script type="text/javascript">
-  // GrayBox
-	$(document).ready(function(){
-		GB_TYPE = 'w';
-		$("a.greyboxo").click(function(){
-			var t = this.title || $(this).text() || this.href;
-			GB_show(t,this.href,250,500);
-			return false;
+	<title><?= _("Alarms") ?> - <?= _("View")?></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" type="text/css" href="./custom_style.css">
+	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/greybox.js"></script>
+	<script type="text/javascript">
+	  // GrayBox
+		$(document).ready(function(){
+			GB_TYPE = 'w';
+			$("a.greyboxo").click(function(){
+				var t = this.title || $(this).text() || this.href;
+				GB_show(t,this.href,270,400);
+				return false;
+			});
 		});
-	});
-  
-  </script>
+	</script>
 <style type="text/css">
 	.itcanbemoved { position:absolute; }
 </style>
@@ -152,8 +151,8 @@ while (!$result->EOF) {
 <table align="center" style="border:0px">
 	<tr>
 		<td class="ne1" align="center" colspan="5">
-			<form action="changemap.php" method=post name=f1 enctype="multipart/form-data">
-			<?= _("Upload map file") ?>: <input type=hidden value="<? echo $map ?>" name=map>
+			<form action="changemap.php" method='POST' name='f1' enctype="multipart/form-data">
+			<?= _("Upload map file") ?>: <input type='hidden' value="<? echo $map ?>" name=map>
             <?php
             $max_id = 0;
             $limage = explode("\n",`ls -1t 'maps'`);
@@ -163,8 +162,8 @@ while (!$result->EOF) {
             	}
             }
             ?>
-			<input type=hidden name=name value="map<? echo ($max_id+1) ?>"><input type=file class=ne1 size=15 name=ficheromap>
-			<input type=submit value="<?= _("Upload") ?>" class="button" style="font-size:12px">
+			<input type='hidden' name='name' value="map<? echo ($max_id+1) ?>"><input type='file' class='ne1' size='30' name='ficheromap'/>
+			<input type='submit' value="<?php echo _("Upload") ?>" class="button"/>
 			</form>
 		</td>
 	</tr>

@@ -29,235 +29,361 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
-/**
-* Class and Function List:
-* Function list:
-* Classes list:
-*/
+
 require_once ("classes/Repository.inc");
-// menu authentication
 require_once ('classes/Session.inc');
-Session::logcheck("MenuIncidents", "Osvdb");
-$user = $_SESSION["_user"];
-$full = intval(GET('full'));
+require_once ('classes/Security.inc');
 require_once ("ossim_db.inc");
-$db = new ossim_db();
-$conn = $db->connect();
+Session::logcheck("MenuIncidents", "Osvdb");
 
-$vuser = POST('user');
-$ventity = POST('entity');
-ossim_valid($vuser, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("User"));
-ossim_valid($ventity, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, 'illegal:' . _("Entity"));
+//Return array with users that you can see
 
-if (POST('title') != "" && POST('doctext') != "") {
+function get_my_users_vision($conn, $pro)
+{
+	
+	require_once('classes/Session.inc');
+	
+	if  ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin()) )
+	{
+		if ( Session::am_i_admin() )
+			$users_list = Session::get_list($conn, "ORDER BY login");
+		else
+			$users_list = Acl::get_my_users($conn,Session::get_session_user());
+		
+		
+		if ( is_array($users_list) && !empty($users_list) )
+		{
+			foreach($users_list as $k => $v)
+				$users[] = ( is_object($v) )? $v->get_login() : $v["login"];
+			
+			$where = "WHERE login in ('".implode("','",$users)."')";
+		}
+	}
+	else
+	{
+	
+		if ( !$pro )
+			$where = "";
+		else
+		{
+			$brothers = Acl::get_brothers($conn);
+			
+			foreach($brothers as $k => $v)
+				$users[] = $v["login"];
+			
+			if ( count($brothers) > 0 )	
+				$where = "WHERE login in ('".implode("','",$users)."')";
+			else
+				$where = "WHERE login in ('".Session::get_session_user()."')";
+		}	
+	}	
+		
+
+	return Session::get_list($conn, $where." ORDER BY login ASC");
+}
+
+//Return array with entities that you can see
+
+function get_my_entities_vision($dbconn, $pro)
+{
+	
+	require_once('classes/Session.inc');
+	$entities_types       = array();
+	$entities_types_aux   = array();
+	$entities             = array();
+	
+	if  ( Session::am_i_admin() )
+	{
+		list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+		$entities_types_aux               = Acl::get_entities_types($dbconn);
+			
+
+		foreach ($entities_types_aux as $etype) { 
+			$entities_types[$etype['id']] = $etype;
+		}
+		
+		foreach ( $entities_all as $entity ) 
+			$entities[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+		
+	}
+	else if ($pro && Acl::am_i_proadmin())
+	{
+		list($entities_all,$num_entities) = Acl::get_entities($dbconn);
+		list($entities_admin,$num)        = Acl::get_entities_admin($dbconn,Session::get_session_user());
+		
+		$entities_list      = array_keys($entities_admin);
+		$entities_types_aux = Acl::get_entities_types($dbconn);
+	   
+		foreach ($entities_types_aux as $etype) { 
+			$entities_types[$etype['id']] = $etype;
+		}
+		
+		foreach ( $entities_all as $entity ) 
+		{
+			if(	in_array($entity["id"], $entities_list) ) 
+				$entities[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
+		
+		}
+	
+	}
+
+	return $entities;
+}
+
+
+
+$user       = Session::get_session_user();
+$full       = intval(GET('full'));
+
+$db         = new ossim_db();
+$conn       = $db->connect();
+
+$vuser      = POST('user');
+$ventity    = POST('entity');
+
+$info_error = null;
+$error      = false;
+
+
+if ( isset($_POST['title']) || isset($_POST['doctext']) ) 
+{
+	ossim_valid($vuser, OSS_NULLABLE, OSS_USER, 'illegal:' . _("User"));
+	ossim_valid($ventity, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, 'illegal:' . _("Entity"));
+	
+	if ( ossim_error() )
+	{
+		$info_error[] = ossim_get_error();
+		ossim_clean_error();
+		$error = true;
+	}
+	
+	if ( POST('title') == "" ) 
+	{
+		$info_error[] = _("Error in the 'title' field (missing required field)");
+		$error        = true;
+	}
+	
+	if ( POST('doctext') == "" ) 
+	{
+		$info_error[] = _("Error in the 'text' field (missing required field)");
+		$error        = true;
+	}
+}
+
+
+if ( POST('title') != "" && POST('doctext') != "" && $error == false) 
+{
     // Get a list of nets from db
-    if($vuser != "none" && $vuser != "") $user = $vuser;
-    if($ventity != "none" && $ventity != "") $user = $ventity;
-    $id_inserted = Repository::insert($conn, POST('title') , POST('doctext') , POST('keywords') , $user);
-?>
-<html>
-<head>
-  <title> <?php
-    echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-</head>
+    if($vuser != "")   $user = $vuser;
+    if($ventity != "") $user = $ventity;
+   
+    $id_inserted             = Repository::insert($conn, POST('title') , POST('doctext') , POST('keywords') , $user);
+	?>
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	<html>
+	<head>
+		<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+		<META http-equiv="Pragma" content="no-cache">
+		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	</head>
 
-<body style="margin:0">
-<table cellpadding=0 cellspacing=2 border=0 width="100%" class="transparent">
-    <? if ($full!=1) { ?>
-	<tr>
-		<th><?=_("NEW DOCUMENT")?></th>
-	</tr>
-    <? } ?>
-	<tr>
-		<td class="center"><?=_("Document inserted with id")?>: <?php echo $id_inserted ?></td>
-	</tr>
-	<tr><td class="center"><?=_("Do you want to attach a document file?")?> <input type="button" class="button" onclick="document.location.href='repository_attachment.php?id_document=<?php echo $id_inserted ?>'" value="<?=_("YES")?>">&nbsp;<input class="button" type="button" onclick="parent.document.location.href='index.php'" value="<?=_("NO")?>"></td></tr>
-</table>
+	<body style="margin:0">
+	
+	<table cellpadding='0' cellspacing='2' border='0' width="100%" class="transparent">
+		<?php
+		if ( $full!=1 ) { 
+			?>
+			<tr><th><?php echo _("NEW DOCUMENT")?></th></tr>
+			<?php
+		} 
+		?>
+		<tr><td class="center"><?php echo _("Document inserted with id")?>: <?php echo $id_inserted ?></td></tr>
+		<tr>
+			<td class="center"><?php echo _("Do you want to attach a document file?")?> 
+				<input type="button" class="button" onclick="document.location.href='repository_attachment.php?id_document=<?php echo $id_inserted ?>'" value="<?php echo _("YES")?>">&nbsp;
+				<input class="button" type="button" onclick="parent.document.location.href='index.php'" value="<?php echo _("NO")?>"/>
+			</td>
+		</tr>
+	</table>
 <?php
-} else { ?>
-<html>
-<head>
-  <title> <?php
-    echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/jquery.wysiwyg.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.wysiwyg.js"></script>
-  <script type="text/javascript">
-	$(document).ready(function() {
-		$('#textarea').wysiwyg({
-			css : { fontFamily: 'Arial, Tahoma', fontSize : '13px'}
-		});
-	});
-    function switch_user(select) {
-        if(select=='entity' && $('#entity').val()!='none'){
-            $('#user').val('none');
-        }
-        else if (select=='user' && $('#user').val()!='none'){
-            $('#entity').val('none');
-        }
-    }
-  </script>
-</head>
+} 
+else 
+{ 
+?>
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	<html>
+	<head>
+		<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+		<meta http-equiv="Pragma" content="no-cache"/>
+		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+		<link rel="stylesheet" type="text/css" href="../style/jquery.wysiwyg.css"/>
+		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+		<script type="text/javascript" src="../js/jquery.wysiwyg.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('#textarea').wysiwyg({
+					css : { fontFamily: 'Arial, Tahoma', fontSize : '13px'}
+				});
+			});
+			function switch_user(select) {
+				if(select=='entity' && $('#entity').val()!=''){
+					$('#user').val('');
+				}
+				else if (select=='user' && $('#user').val()!=''){
+					$('#entity').val('');
+				}
+			}
+		</script>
+		<style type='text/css'>
+			#update { 
+				padding: 10px 0px 0px 0px;
+				border: none;
+			}
+			
+			.error_item {
+				padding:2px 0px 0px 20px; 
+				text-align:left;
+			}
+			
+		</style>
+	</head>
 
-<body style="margin:0">
-<table cellpadding=0 cellspacing=2 border=0 width="100%" <? if ($full==1) echo "class='transparent'" ?>>
-    <? if ($full!=1) { ?>
-	<tr>
-		<th class="kdb"><?=_("NEW DOCUMENT")?></th>
-	</tr>
-    <? } ?>
-	<tr>
-		<td class="nobborder">
-			<!-- repository insert form -->
-			<form name="repository_insert_form?full=<?=$full?>" method="POST" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" enctype="multipart/form-data">
-			<table cellpadding=0 cellspacing=2 border=0 class="noborder" width="100%">
-				<tr>
-					<td class="nobborder" style="padding-left:5px"><b><?=_("Title")?>:</b></td>
-				</tr>
-				<tr>
-					<td class="nobborder" style="padding-left:5px"><input type="text" name="title" style="width:<?= ($full==1) ? "98%" : "473px" ?>" value="<?php echo POST('title') ?>"></td>
-				</tr>
-				<tr>
-					<td class="nobborder" style="padding-left:5px"><b><?php echo _("Text") ?>:</b></td>
-				</tr>
-				<tr>
-					<td class="nobborder" style="padding-left:5px">
-						<textarea id="textarea" name="doctext" rows="4" style="width:<?= ($full==1) ? "98%" : "460px" ?>"><?php echo POST('doctext') ?></textarea>
-					</td>
-				</tr>
+<body style="margin:0px">
+	<table cellpadding='0' cellspacing='2' border='0' width="100%" <? if ($full==1) echo "class='transparent'" ?>>
+		<?php 
+		if ( $full !=1 ) 
+		{ 
+			?>
+			<tr>
+				<th class="kdb"><?php echo _("NEW DOCUMENT")?></th>
+			</tr>
+			<?php
+		} 
+		if ( $error == true ) 
+		{ 
+			$info_error = implode($info_error, "</div><div class='error_item'>");
+			?>
+			<tr>
+				<td>
+					<div class='ossim_error' style='width: 80%;'>
+						<div class='error_item' style='padding-left: 5px;'><?php echo _("We found the following errors")?>:</div>
+						<div class='error_item'><?php echo $info_error?></div>
+					</div>
+				</td>
+			</tr>
+			<?php
+		}
+		?>
+		<tr>
+			<td class="nobborder">
+				<!-- repository insert form -->
+				<form name="repository_insert_form?full=<?=$full?>" method="POST" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" enctype="multipart/form-data">
 				
-				<tr>
-					<td class="nobborder" style="padding-left:5px"><b><?php echo _("Keywords") ?>:</b></td>
-				</tr>
-				<tr>
-					<td class="nobborder" style="padding-left:5px">
-						<textarea name="keywords"  style="width:<?= ($full==1) ? "98%" : "473px" ?>"><?php echo POST('keywords') ?></textarea>
-					</td>
-				</tr>
-                <?
-                $conf = $GLOBALS["CONF"];
-                $version = $conf->get_conf("ossim_server_version", FALSE);
-                if(Session::am_i_admin()) {?>
-                <tr>
-                    <td class="nobborder">
-                        <table cellpadding=0 cellspacing=2 border=0 class="noborder" width="100%">
-                        <tr><td class="nobborder" width="160"><?=_("Make this document visible for:")?></td>
-                        <td class="nobborder" style="text-align:left;">
-                        <table class="noborder">
-                         <tr><td class="nobborder"><?
-                          echo _("User:")."&nbsp;";
-                          ?>
-                          </td><td style="text-align:left;" class="nobborder">
-                          <select name="user" id="user" onchange="switch_user('user');return false;">
-                          <option value="none"><?=_("Not assign")?></option>
-                          <?
-                           $users = Session::get_list($conn);
-                            foreach ($users as $user) {?>
-                                <option value="<?=$user->get_login()?>"><?=$user->get_login()?></option>
-                          <?}
-                          ?>
-                          </select>
-                          <?
-                          if(preg_match("/pro|demo/i",$version)){?>
-                              <tr><td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?></td></tr>
-                              <tr><td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
-                              <?
-                              $entities_types_aux = Acl::get_entities_types($conn);
-                              $entities_types = array();
+				<table cellpadding='0' cellspacing='2' border='0' class="noborder" width="100%">
+					<tr>
+						<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Title")?>:</strong></td>
+					</tr>
+					
+					<tr>
+						<td class="nobborder" style="padding-left:5px"><input type="text" name="title" style="width:<?= ($full==1) ? "98%" : "473px" ?>" value="<?php echo POST('title') ?>"></td>
+					</tr>
+					
+					<tr>
+						<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Text") ?>:</strong></td>
+					</tr>
+					
+					<tr>
+						<td class="nobborder" style="padding-left:5px">
+							<textarea id="textarea" name="doctext" rows="4" style="width:<?= ($full==1) ? "98%" : "460px" ?>"><?php echo POST('doctext') ?></textarea>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Keywords") ?>:</strong></td>
+					</tr>
+					
+					<tr>
+						<td class="nobborder" style="padding-left:5px">
+							<textarea name="keywords"  style="width:<?= ($full==1) ? "98%" : "473px" ?>"><?php echo POST('keywords') ?></textarea>
+						</td>
+					</tr>
+					<?php
+					
+					$conf     = $GLOBALS["CONF"];
+					$version  = $conf->get_conf("ossim_server_version", FALSE);
+					$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
-                              foreach ($entities_types_aux as $etype) { 
-                                $entities_types[$etype['id']] = $etype;
-                              }
-                              list($entities_all,$num_entities) = Acl::get_entities($conn);
-                              ?>
-                              <select name="entity" id="entity" onchange="switch_user('entity');return false;">
-                                <option value="none"><?=_("Not assign")?></option>
-                                <?
-                                foreach ($entities_all as $entity) {?>
-                                    <option value="<?=$entity["id"]?>"><?=$entity["name"]." [".$entities_types[$entity["type"]]["name"]."]"?></option>
-                                <?}?>
-                              </select>
-                              </td>
-                              </tr>
-                          <?}?>
-                          </td></tr>
-                        </table>
-                        </td>
-                        </tr>
-                    </table>
-                    </td>
-                </tr>
-                <?}
-                else if(preg_match("/pro|demo/i",$version)) {
-                    if(Acl::am_i_proadmin()) {?>
-                    <tr>
-                        <td class="nobborder">
-                            <table cellpadding=0 cellspacing=2 border=0 class="noborder" width="100%">
-                            <tr><td class="nobborder" width="160"><?=_("Make this document visible for:")?></td>
-                            <td class="nobborder" style="text-align:left;">
-                            <table class="noborder">
-                             <tr><td class="nobborder"><?
-                              echo _("User:")."&nbsp;";
-                              ?>
-                              </td><td style="text-align:left;" class="nobborder">
-                              <select name="user" id="user" onchange="switch_user('user');return false;">
-                              <option value="none"><?=_("Not assign")?></option>
-                              <?
-                                $users = Acl::get_my_users($conn,Session::get_session_user());
-                                foreach ($users as $user){?>
-                                    <option value="<?=$user["login"]?>"><?=$user["login"]?></option>
-                                <?}
-                              ?>
-                              </select>
-                                  <tr><td class="nobborder">&nbsp;</td><td class="nobborder"><?=_("OR")?></td></tr>
-                                  <tr><td class="nobborder"><?=_("Entity:")?></td><td class="nobborder">
-                                  <?
-                                  $entities_types_aux = Acl::get_entities_types($conn);
-                                  $entities_types = array();
-
-                                  foreach ($entities_types_aux as $etype) { 
-                                    $entities_types[$etype['id']] = $etype;
-                                  }
-                                  list($entities_admin,$num) = Acl::get_entities_admin($conn,Session::get_session_user());
-                                  list($entities_all,$num_entities) = Acl::get_entities($conn);
-                                  $entities_list = array_keys($entities_admin);
-                                  ?>
-                                  <select name="entity" id="entity" onchange="switch_user('entity');return false;">
-                                    <option value="none"><?=_("Not assign")?></option>
-                                    <?
-                                    foreach ($entities_all as $entity) if(in_array($entity["id"], $entities_list)) {?>
-                                        <option value="<?=$entity["id"]?>"><?=$entity["name"]." [".$entities_types[$entity["type"]]["name"]."]"?></option>
-                                    <?}?>
-                                  </select>
-                                  </td>
-                                  </tr>
-                            </table>
-                            </td>
-                            </tr>
-                        </table>
-                        </td>
-                    </tr>
-                    <?
-                    }
-                }
-                ?> 
-				<tr><td class="nobborder" style="padding-left:5px;text-align:center"><input class="button" type="submit" value="<?php echo _("Update") ?>"></td></tr>
-			</table>
-			</form>
-			<!-- end of repository insert form -->
-		</td>
-	</tr>
-</table>
+					$users    = get_my_users_vision($conn, $pro);
+					$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($conn, $pro) : null;
+									
+					?>
+					<tr>
+						<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Make this document visible for:") ?></strong></td>
+					</tr>
+					
+					<tr>
+						<td class='nobborder left'>
+							<table cellspacing="0" cellpadding="0" class="transparent">
+								<tr>
+									<td class='nobborder'><span style='margin-right:3px'><?php echo _("User:");?></span></td>
+									<td class='nobborder'>				
+										<select name="user" id="user" onchange="switch_user('user');return false;">
+											
+											<?php
+																		
+											$num_users = 0;
+											foreach( $users as $k => $v )
+											{
+												$login = $v->get_login();
+												
+												$options .= "<option value='".$login."'>$login</option>\n";
+												$num_users++;
+											}
+											
+											if ($num_users == 0)
+												echo "<option value='' style='text-align:center !important;'>- "._("No users found")." -</option>";
+											else
+											{
+												echo "<option value='' style='text-align:center !important;'>- "._("Select one user")." -</option>\n";
+												echo $options;
+											}
+																	
+											?>
+										</select>
+									</td>
+														
+													
+								<?php if ( !empty($entities) ) { ?>
+									<td style='text-align:center; border:none; !important'><span style='padding:5px;'><?php echo _("OR")?><span></td>
+						
+									<td class='nobborder'><span style='margin-right:3px'><?php echo _("Entity:");?></span></td>
+									<td class='select_entity'>	
+										<select name="entity" id="entity" onchange="switch_user('entity');return false;">
+											<option value="" style='text-align:center !important;'>- <?php echo _("Select one entity") ?> -</option>
+											<?php
+											foreach ( $entities as $k => $v ) 
+											{
+												echo "<option value='$k'>$v</option>";
+											}
+											?>
+										</select>
+									</td>
+									<?php } ?>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					
+					<tr><td id='update'><input type='submit' class='button' value='<?php echo _("Update")?>'/></td></tr>
+					
+				</form>
+			</td>
+		</tr>
+	</table>
 <?php
 } ?>
 </body>
 </html>
-<?
-$db->close($conn);
-?>
+<?php $db->close($conn); ?>

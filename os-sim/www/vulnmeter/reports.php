@@ -37,11 +37,11 @@ require_once 'classes/Host.inc';
 require_once 'classes/Sensor.inc';
 require_once 'classes/Incident.inc';
 
-$value = GET('value');
-$type = GET('type');
+$value       = GET('value');
+$type        = GET('type');
 $report_name = POST('report_name');
-$delete = GET('delete');
-$assignto = (POST('transferred_user')!="")? POST('transferred_user'):POST('transferred_entity');
+$delete      = GET('delete');
+$assignto    = (POST('transferred_user')!="")? POST('transferred_user'):POST('transferred_entity');
 
 ossim_valid($value, OSS_TEXT, OSS_NULLABLE, 'illegal: value');  
 ossim_valid($type, OSS_ALPHA, OSS_NULLABLE, 'illegal: type');
@@ -49,19 +49,20 @@ ossim_valid($report_name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illega
 ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal: delete');
 ossim_valid($assignto, OSS_DIGIT, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal: delete');
 
-if($assignto=="") $assignto = Session::get_session_user();
+if( $assignto == "" ) $assignto = Session::get_session_user();
 
 if (ossim_error()) {
     die(ossim_error());
 }
-$db = new ossim_db();
-$dbconn = $db->connect();
+$db      = new ossim_db();
+$dbconn  = $db->connect();
 
-$conf = $GLOBALS["CONF"];
+$conf    = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
+$pro     = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
-$net = "";
-$hosts = array();
+$net     = "";
+$hosts   = array();
 
 if ($type=="net" && preg_match("/\d+\.\d+\.\d+\.\d+\/\d+/",$value)) $net = $value;
 
@@ -236,7 +237,12 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/greybox.js"></script>
   <style type="text/css">
-  img.downclick { cursor:pointer; }
+	  img.downclick { cursor:pointer; }
+	  .format_or{ 
+		padding:0px 5px 0px 5px;
+		text-align:center; 
+		border-bottom: none;
+		}
   </style>
   <script>
     $(document).ready(function() {
@@ -869,171 +875,69 @@ echo "</table>";
         <th width="100"><?=_("File")?></th>
         <td width="785" class="nobborder" style="text-align:left;padding-left:5px;"><input name="nbe_file" type="file" size="25"></td>
     </tr>
-                <?
-                $users = Session::get_list($dbconn);
-
-                $conf = $GLOBALS["CONF"];
-                $version = $conf->get_conf("ossim_server_version", FALSE);
-
-                if(preg_match("/pro|demo/i",$version)) {
-                    $users_pro_login = array();
-                    $users_pro = array();
-                    $entities_pro = array();
-                    
-                    if(Session::am_i_admin()) { // admin in professional version
-                        list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-                        $entities_types_aux = Acl::get_entities_types($dbconn);
-                        $entities_types = array();
-
-                        foreach ($entities_types_aux as $etype) { 
-                            $entities_types[$etype['id']] = $etype;
-                        }
-                        
-                        ?>
-                        <tr>
-                            <th><?php echo _("Assign To") ?></th>
-                            <td style="text-align:left;padding-left:5px;" class="nobborder">
-                                <table width="400" cellspacing="0" cellpadding="0" class="transparent">
-                                    <tr>
-                                        <td class="nobborder"><?php echo _("User:");?></td>
-                                        <td class="nobborder">
-                                          <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
-                                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-                                            <?php
-                                            foreach($users as $u) if(Session::get_session_user()!=$u->get_login()){ ?>
-                                                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
-                                            <?php
-                                            } ?>
-                                          </select>
-                                        </td>
-                                        <td style="padding:0px 5px 0px 5px;text-align:center;" class="nobborder"><?php echo _("OR");?></td>
-                                        <td class="nobborder"><?php echo _("Entity:");?></td>
-                                        <td class="nobborder">
-                                            <select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
-                                            <option value=""><? if (count($entities_all) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
-                                            <?php
-                                                foreach ( $entities_all as $entity ) {
-                                                ?>
-                                                <option value="<?php echo $entity["id"]; ?>"><?php echo $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr> 
-                <?}
-                    elseif(Acl::am_i_proadmin()) { // pro admin
-                        //users
-                        $users_admin = Acl::get_my_users($dbconn,Session::get_session_user()); 
-                        foreach ($users_admin as $u){
-                            if($u["login"]!=Session::get_session_user()){
-                                $users_pro_login[] = $u["login"];
-                            }
-                        }
-                        //if(!in_array(Session::get_session_user(), $users_pro_login) && $incident_in_charge!=Session::get_session_user())   $users_pro_login[] = Session::get_session_user();
-                        
-                        //entities
-                        list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-                        list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
-                        $entities_list = array_keys($entities_admin);
-                        
-                        $entities_types_aux = Acl::get_entities_types($dbconn);
-                        $entities_types = array();
-
-                        foreach ($entities_types_aux as $etype) { 
-                            $entities_types[$etype['id']] = $etype;
-                        }
-                        
-                        //save entities for proadmin
-                        foreach ( $entities_all as $entity ) if(in_array($entity["id"], $entities_list)) {
-                            $entities_pro[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
-                        }
-                        
-                        // filter users
-                        foreach($users as $u) {
-                            if (!in_array($u->get_login(),$users_pro_login)) continue;
-                            $users_pro[$u->get_login()] = format_user($u, false);
-                        }
-                        ?>
-                        <tr>
-                            <th><?php echo _("Assign To") ?></th>
-                            <td style="text-align:left;padding-left:5px;" class="nobborder">
-                                <table width="400" cellspacing="0" cellpadding="0" class="transparent">
-                                    <tr>
-                                        <td class="nobborder"><?php echo _("User:");?></td>
-                                        <td class="nobborder">
-                                          <select name="transferred_user" id="user" onchange="switch_user('user');return false;">
-                                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-                                            <?php
-                                            foreach($users_pro as $loginu => $nameu) { ?>
-                                                <option value="<?php echo $loginu; ?>"><?php echo $nameu; ?></option>
-                                            <?php
-                                            } ?>
-                                          </select>
-                                        </td>
-                                        <td style="padding:0px 5px 0px 5px;text-align:center;" class="nobborder"><?php echo _("OR");?></td>
-                                        <td class="nobborder"><?php echo _("Entity:");?></td>
-                                        <td class="nobborder">
-                                            <select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
-                                            <option value=""><? if (count($entities_pro) < 1) { ?>- <?=_("No entities found")?> -<? } ?></option>
-                                            <?php
-                                                foreach ( $entities_pro as $entity_id => $entity_name ) {
-                                                ?>
-                                                <option value="<?php echo $entity_id; ?>"><?php echo $entity_name;?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr> 
-                    <?
-                    }
-                    else { // normal user
-                            $brothers = Acl::get_brothers($dbconn,Session::get_session_user());
-                            foreach ($brothers as $brother){
-                                $users_pro_login[] = $brother["login"];
-                            }
-                            //if(!in_array(Session::get_session_user(), $users_pro_login))   $users_pro_login[] = Session::get_session_user();
-                            // filter users
-                                foreach($users as $u) {
-                                    if (!in_array($u->get_login(),$users_pro_login)) continue;
-                                    $users_pro[$u->get_login()] = format_user($u, false);
-                                }
-                            ?>
-                                <tr>
-                                    <th><?php echo _("Assign To") ?></th>
-                                    <td style="text-align:left;padding-left:5px;" class="nobborder">
-                                      <select name="transferred_user">
-                                        <option value=""><? if (count($users_pro) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-                                        <?php
-                            foreach($users_pro as $loginu => $nameu) { ?>
-                                    <option value="<?php echo $loginu ?>"><?php echo $nameu ?></option>
-                            <?php
-                            } ?>
-                                      </select>
-                                    </td>
-                                </tr>
-                            <?
-                    }
-                }
-                else {
-                    ?>
-                    <tr>
-                        <th><?php echo _("Assign To") ?></th>
-                        <td style="text-align:left;padding-left:5px;" class="nobborder">
-                          <select name="transferred_user">
-                            <option value=""><? if (count($users) < 1) { ?>- <?=_("No users found")?> -<? } ?></option>
-                            <?php
-                            foreach($users as $u) if ($u->get_login()!=Session::get_session_user()) { ?>
-                                <option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
-                            <?php
-                            } ?>
-                          </select>
-                        </td>
-                    </tr> 
-                <?}?>
+               
+	<tr>
+		<th><?php echo _("Assign To") ?></th>
+		<td style="text-align:left;padding-left:5px;" class="nobborder">
+			<table width="400" cellspacing="0" cellpadding="0" class="transparent">
+				<tr>
+					<td class="nobborder"><?php echo _("User:");?></td>
+					<td class="nobborder">
+						<select name="transferred_user" id="user" onchange="switch_user('user');return false;" style="width:150px">
+																			
+							<?php
+							
+							$users    = get_my_users_vision($dbconn, $pro);
+							$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+									
+							$num_users = 0;
+							
+							foreach( $users as $k => $v )
+							{
+								$login = $v->get_login();
+								
+								$options .= "<option value='$login' $selected>$login</option>\n";
+								$num_users++;
+							}
+							
+							if ($num_users == 0)
+								echo "<option value='' style='text-align:center !important;'>- "._("No users found")." -</option>";
+							else
+							{
+								echo "<option value='' style='text-align:center !important;'>- "._("Select one user")." -</option>\n";
+								echo $options;
+							}
+													
+							?>
+						</select>
+					</td>
+										
+					<?php if ( !empty($entities) ) { ?>
+					
+					<td class="format_or"><?php echo _("OR");?></td>
+					<td class="nobborder"><?php echo _("Entity:");?></td>
+					
+					<td class="nobborder">
+					
+						<select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;" style="width:160px">
+																												
+							<option value="-1" style='text-align:center !important;'>- <?php echo _("No entity assigned") ?> -</option>
+							<?php
+							foreach ( $entities as $k => $v ) 
+							{
+								echo "<option value='$k'>$v</option>";
+							}
+							?>
+						</select>
+					</td>
+					<?php } ?>
+				</tr>
+		
+				
+			</table>
+		</td>
+	</tr> 
+                
     <tr>
         <td colspan="5" style="text-align:center;padding:15px 0px 5px 0px;" class="nobborder"> 
             <input class="button" name="submit" type="submit" value="<?=_("Import")?>">&nbsp;&nbsp;
