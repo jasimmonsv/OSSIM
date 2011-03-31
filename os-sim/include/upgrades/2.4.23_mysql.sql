@@ -19,7 +19,9 @@ REPLACE INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granular
 (62, 'MENU', 'MenuEvents', 'ReportsWireless', 'Analysis -> Detection -> Wireless', 1, 0, 1, '03.12'),
 (50, 'MENU', 'MenuEvents', 'EventsAnomalies', 'Analysis -> Detection -> Anomalies', 1, 1, 1, '03.13');
 
-INSERT INTO `ossim_acl`.`aco` (`id`, `section_value`, `value`, `order_value`, `name`, `hidden`) VALUES ('86', 'MenuEvents', 'EventsNids', '0', 'EventsNids', '0'), ('87', 'MenuEvents', 'EventsHids', '0', 'EventsHids', '0');
+REPLACE INTO `ossim_acl`.`aco` (`id`, `section_value`, `value`, `order_value`, `name`, `hidden`) VALUES ('86', 'MenuEvents', 'EventsNids', '0', 'EventsNids', '0'),
+('87', 'MenuEvents', 'EventsHids', '0', 'EventsHids', '0'),
+('88', 'MenuConfiguration', 'NetworkDiscovery', '0', 'NetworkDiscovery', '0');
 
 REPLACE INTO `protocol` (`id`, `name`, `alias`, `descr`) VALUES
 (0, 'hopopt', 'HOPOPT', 'IPv6 Hop-by-Hop Option'),

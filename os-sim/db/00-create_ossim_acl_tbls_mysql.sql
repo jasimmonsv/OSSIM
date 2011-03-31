@@ -137,7 +137,8 @@ INSERT INTO `aco` (`id`, `section_value`, `value`, `order_value`, `name`, `hidde
 (84, 'MenuIncidents', 'IncidentsDelete', 0, 'IncidentsDelete', 0),
 (85, 'MenuEvents', 'EventsForensicsDelete', 0, 'EventsForensicsDelete', 0),
 (86, 'MenuEvents', 'EventsNids', 0, 'EventsNids', 0),
-(87, 'MenuEvents', 'EventsHids', 0, 'EventsHids', 0);
+(87, 'MenuEvents', 'EventsHids', 0, 'EventsHids', 0),
+(88, 'MenuConfiguration', 'NetworkDiscovery', 0, 'NetworkDiscovery', 0);
 
 DROP TABLE IF EXISTS `aco_map`;
 CREATE TABLE IF NOT EXISTS `aco_map` (
