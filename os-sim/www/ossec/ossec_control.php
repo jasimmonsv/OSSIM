@@ -38,6 +38,7 @@
 
 require_once ('classes/Session.inc');
 require_once ('classes/Plugin.inc');
+Session::logcheck("MenuEvents", "EventsHids");
 
 ?>
 

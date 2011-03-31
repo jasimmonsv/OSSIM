@@ -321,7 +321,7 @@ $detection = 0;
 if (Session::menu_perms("MenuEvents", "EventsForensics") ||
     Session::menu_perms("MenuEvents", "ReportsWireless") ||
     Session::menu_perms("MenuEvents", "EventsAnomalies")) { $events = 1;
-    if (Session::menu_perms("MenuEvents", "EventsForensics")) {
+    if (Session::menu_perms("MenuEvents", "EventsNids")) {
         $detection = 1;
         $menu["Analysis"][] = array(
             "name" => gettext("Detection") ,
@@ -334,7 +334,8 @@ if (Session::menu_perms("MenuEvents", "EventsForensics") ||
             "url" => "panel/nids.php",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:NIDS','Help');"
         );
-        if (Session::am_i_admin()) {
+    }
+    if (Session::menu_perms("MenuEvents", "EventsHids")) {
             $hmenu["Detection"][] = array(
                 "name" => gettext("HIDS") ,
                 "id" => "HIDS",
@@ -361,7 +362,6 @@ if (Session::menu_perms("MenuEvents", "EventsForensics") ||
                    "name" => gettext("Ossec Control") ,
                    "url" => "ossec_control.php"
             );
-        }
     }
     if (Session::menu_perms("MenuEvents", "ReportsWireless")) {
         $ids = "Wireless";

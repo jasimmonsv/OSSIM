@@ -39,6 +39,7 @@
 require_once ('classes/Session.inc');
 require_once ('conf/_conf.php');
 require_once ('utils.php');
+Session::logcheck("MenuEvents", "EventsHids");
 
 $error = false;
 

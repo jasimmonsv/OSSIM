@@ -3,7 +3,7 @@ require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once 'classes/Util.inc';
 require_once 'sensor_filter.php';
-Session::logcheck("MenuEvents", "EventsForensics");
+Session::logcheck("MenuEvents", "EventsNids");
 
 require_once 'ossim_db.inc';
 $db = new ossim_db();

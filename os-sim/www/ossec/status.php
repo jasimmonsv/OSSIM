@@ -38,6 +38,7 @@
 
 require_once ('classes/Session.inc');
 require_once ('utils.php');
+Session::logcheck("MenuEvents", "EventsHids");
 
 $tz     =(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
