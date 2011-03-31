@@ -198,20 +198,28 @@ $ACL_MAIN_MENU = array(
             "name" => "Analysis -> SIEM Events -> Real Time",
             "default_perm" => true
         ) ,
-        "ReportsWireless" => array(
-            "name" => "Analysis -> SIEM Events -> Wireless",
-            "default_perm" => true
-        ) ,
-        "EventsAnomalies" => array(
-            "name" => "Analysis -> Anomalies",
-            "default_perm" => true
-        ) ,
 		"ControlPanelSEM" => array(
             "name" => "Analysis -> Logger",
             "default_perm" => false
         ) ,
         "EventsVulnerabilities" => array(
             "name" => "Analysis -> Vulnerabilities -> View",
+            "default_perm" => false
+        ) ,
+        "EventsNids" => array(
+            "name" => "Analysis -> Detection -> Nids",
+            "default_perm" => false
+        ) ,
+        "EventsHids" => array(
+            "name" => "Analysis -> Detection -> Hids",
+            "default_perm" => false
+        ) ,
+        "ReportsWireless" => array(
+            "name" => "Analysis -> Detection -> Wireless",
+            "default_perm" => false
+        ) ,
+        "EventsAnomalies" => array(
+            "name" => "Analysis -> Detection -> Anomalies",
             "default_perm" => false
         )
     ) ,
