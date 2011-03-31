@@ -876,20 +876,20 @@ if (Session::menu_perms("MenuMonitors", "MonitorsAvailability")) { $monitors = 1
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:availability','Help');"
     );
 }
-
-$menu["Situational Awareness"][] = array(
-    "name" => gettext("Inventory") ,
-    "id" => "Inventory",
-    "url" => "policy/entities.php?onlyinventory=1",
-);
-$hmenu["Inventory"][] = array(
-    "name" => gettext("Inventory") ,
-    "id" => "Inventory",
-    "target" => "main",
-    "url" => "policy/entities.php?onlyinventory=1",
-    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors','Help');"
-);    
-   
+if ($prodemo) { $monitors = 1;
+	$menu["Situational Awareness"][] = array(
+	    "name" => gettext("Inventory") ,
+	    "id" => "Inventory",
+	    "url" => "policy/entities.php?onlyinventory=1",
+	);
+	$hmenu["Inventory"][] = array(
+	    "name" => gettext("Inventory") ,
+	    "id" => "Inventory",
+	    "target" => "main",
+	    "url" => "policy/entities.php?onlyinventory=1",
+	    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors','Help');"
+	);
+}
 /* Configuration */
 $configuration = 0;
 if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) { //if (file_exists($version_file)) {

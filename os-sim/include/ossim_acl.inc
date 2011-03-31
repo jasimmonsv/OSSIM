@@ -262,10 +262,6 @@ $ACL_MAIN_MENU = array(
         ) ,*/
     ) ,
     "MenuPolicy" => array(
-        "5DSearch" => array(
-            "name" => "Assets -> Asset Search",
-            "default_perm" => true
-        ) ,
 		"PolicyHosts" => array(
             "name" => "Assets -> Assets -> Hosts",
             "default_perm" => false
@@ -280,6 +276,10 @@ $ACL_MAIN_MENU = array(
         ) ,
 		"ReportsOCSInventory" => array(
             "name" => "Assets -> Assets -> Inventory",
+            "default_perm" => true
+        ) ,
+        "5DSearch" => array(
+            "name" => "Assets -> Asset Search",
             "default_perm" => true
         ) ,
         "ToolsScan" => array(
