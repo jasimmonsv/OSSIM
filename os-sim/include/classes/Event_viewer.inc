@@ -239,7 +239,7 @@ class Event_viewer {
 		$temp_sql = "SELECT * FROM sensor";
 		$rs = $db->Execute($temp_sql);
 		while (!$rs->EOF) {
-			$sname = ($rs->fields["sensor"]) ? $rs->fields["sensor"] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$rs->fields['hostname']));
+			$sname = (preg_match("/\d+.\d+.\d+.\d+/",$rs->fields["sensor"])) ? $rs->fields["sensor"] : trim(preg_replace("/-.*/","",preg_replace("/.*\]/","",$rs->fields['hostname'])));
 			$sensors[$sname][] = $rs->fields['sid'];
 			$rs->MoveNext();
 		}

@@ -2229,136 +2229,145 @@ INSERT INTO port (port_number, protocol_name, service, descr) VALUES (65301, 'tc
 --
 -- Data: Protocols
 --
-DELETE FROM protocol;
-INSERT INTO protocol (id, name, alias, descr) VALUES (0, 'hopopt', 'HOPOPT', 'IPv6 Hop-by-Hop Option');
-INSERT INTO protocol (id, name, alias, descr) VALUES (1, 'icmp', 'ICMP', 'Internet Control Message');
-INSERT INTO protocol (id, name, alias, descr) VALUES (2, 'igmp', 'IGMP', 'Internet Group Management');
-INSERT INTO protocol (id, name, alias, descr) VALUES (3, 'ggp', 'GGP', 'Gateway-to-Gateway');
-INSERT INTO protocol (id, name, alias, descr) VALUES (4, 'ip', 'IP', 'IP in IP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (5, 'st', 'ST', 'Stream');
-INSERT INTO protocol (id, name, alias, descr) VALUES (6, 'tcp', 'TCP', 'Transmission Control');
-INSERT INTO protocol (id, name, alias, descr) VALUES (7, 'cbt', 'CBT', 'CBT');
-INSERT INTO protocol (id, name, alias, descr) VALUES (8, 'egp', 'EGP', 'Exterior Gateway Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (9, 'igp', 'IGP', 'any private interior gateway');
-INSERT INTO protocol (id, name, alias, descr) VALUES (10, 'bbn-rcc-mon', 'BBN-RCC-MON', 'BBN RCC Monitoring');
-INSERT INTO protocol (id, name, alias, descr) VALUES (11, 'nvp-ii', 'NVP-II', 'Network Voice Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (12, 'pup', 'PUP', 'PUP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (13, 'argus', 'ARGUS', 'ARGUS');
-INSERT INTO protocol (id, name, alias, descr) VALUES (14, 'emcon', 'EMCON', 'EMCON');
-INSERT INTO protocol (id, name, alias, descr) VALUES (15, 'xnet', 'XNET', 'Cross Net Debugger');
-INSERT INTO protocol (id, name, alias, descr) VALUES (16, 'chaos', 'CHAOS', 'Chaos');
-INSERT INTO protocol (id, name, alias, descr) VALUES (17, 'udp', 'UDP', 'User Datagram');
-INSERT INTO protocol (id, name, alias, descr) VALUES (18, 'mux', 'MUX', 'Multiplexing');
-INSERT INTO protocol (id, name, alias, descr) VALUES (19, 'dcn-meas', 'DCN-MEAS', 'DCN Measurement Subsystems');
-INSERT INTO protocol (id, name, alias, descr) VALUES (20, 'hmp', 'HMP', 'Host Monitoring');
-INSERT INTO protocol (id, name, alias, descr) VALUES (21, 'prm', 'PRM', 'Packet Radio Measurement');
-INSERT INTO protocol (id, name, alias, descr) VALUES (22, 'xns-idp', 'XNS-IDP', 'XEROX NS IDP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (23, 'trunk-1', 'TRUNK-1', 'Trunk-1');
-INSERT INTO protocol (id, name, alias, descr) VALUES (24, 'trunk-2', 'TRUNK-2', 'Trunk-2');
-INSERT INTO protocol (id, name, alias, descr) VALUES (25, 'leaf-1', 'LEAF-1', 'Leaf-1');
-INSERT INTO protocol (id, name, alias, descr) VALUES (26, 'leaf-2', 'LEAF-2', 'Leaf-2');
-INSERT INTO protocol (id, name, alias, descr) VALUES (27, 'rdp', 'RDP', 'Reliable Data Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (28, 'irtp', 'IRTP', 'Internet Reliable Transaction');
-INSERT INTO protocol (id, name, alias, descr) VALUES (29, 'iso-tp4', 'ISO-TP4', 'ISO Transport Protocol Class 4');
-INSERT INTO protocol (id, name, alias, descr) VALUES (30, 'netblt', 'NETBLT', 'Bulk Data Transfer Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (31, 'mfe-nsp', 'MFE-NSP', 'MFE Network Services Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (32, 'merit-inp', 'MERIT-INP', 'MERIT Internodal Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (33, 'sep', 'SEP', 'Sequential Exchange Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (34, '3pc', '3PC', 'Third Party Connect Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (35, 'idpr', 'IDPR', 'Inter-Domain Policy Routing Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (36, 'xtp', 'XTP', 'XTP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (37, 'ddp', 'DDP', 'Datagram Delivery Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (38, 'idpr-cmtp', 'IDPR-CMTP', 'IDPR Control Message Transport Proto');
-INSERT INTO protocol (id, name, alias, descr) VALUES (39, 'tp++', 'TP', 'TP++ Transport Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (40, 'il', 'IL', 'IL Transport Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (41, 'ipv6', 'IPv6', 'Ipv6');
-INSERT INTO protocol (id, name, alias, descr) VALUES (42, 'sdrp', 'SDRP', 'Source Demand Routing Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (43, 'ipv6-route', 'IPv6-Route', 'Routing Header for IPv6');
-INSERT INTO protocol (id, name, alias, descr) VALUES (44, 'ipv6-frag', 'IPv6-Frag', 'Fragment Header for IPv6');
-INSERT INTO protocol (id, name, alias, descr) VALUES (45, 'idrp', 'IDRP', 'Inter-Domain Routing Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (46, 'rsvp', 'RSVP', 'Reservation Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (47, 'gre', 'GRE', 'General Routing Encapsulation');
-INSERT INTO protocol (id, name, alias, descr) VALUES (48, 'mhrp', 'MHRP', 'Mobile Host Routing Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (49, 'bna', 'BNA', 'BNA');
-INSERT INTO protocol (id, name, alias, descr) VALUES (50, 'esp', 'ESP', 'Encap Security Payload for IPv6');
-INSERT INTO protocol (id, name, alias, descr) VALUES (51, 'ah', 'AH', 'Authentication Header for IPv6');
-INSERT INTO protocol (id, name, alias, descr) VALUES (52, 'i-nlsp', 'I-NLSP', 'Integrated Net Layer Security  TUBA');
-INSERT INTO protocol (id, name, alias, descr) VALUES (53, 'swipe', 'SWIPE', 'IP with Encryption');
-INSERT INTO protocol (id, name, alias, descr) VALUES (54, 'narp', 'NARP', 'NBMA Address Resolution Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (55, 'mobile', 'MOBILE', 'IP Mobility');
-INSERT INTO protocol (id, name, alias, descr) VALUES (56, 'tlsp', 'TLSP', 'Transport Layer Security Protocol using Kryptonet key management');
-INSERT INTO protocol (id, name, alias, descr) VALUES (57, 'skip', 'SKIP', 'SKIP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (58, 'ipv6-icmp', 'IPv6-ICMP', 'ICMP for IPv6');
-INSERT INTO protocol (id, name, alias, descr) VALUES (59, 'ipv6-nonxt', 'IPv6-NoNxt', 'No Next Header for IPv6');
-INSERT INTO protocol (id, name, alias, descr) VALUES (60, 'ipv6-opts', 'IPv6-Opts', 'Destination Options for IPv6');
-INSERT INTO protocol (id, name, alias, descr) VALUES (62, 'cftp', 'CFTP', 'CFTP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (64, 'sat-expak', 'SAT-EXPAK', 'SATNET and Backroom EXPAK');
-INSERT INTO protocol (id, name, alias, descr) VALUES (65, 'kryptolan', 'KRYPTOLAN', 'Kryptolan');
-INSERT INTO protocol (id, name, alias, descr) VALUES (66, 'rvd', 'RVD', 'MIT Remote Virtual Disk Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (67, 'ippc', 'IPPC', 'Internet Pluribus Packet Core');
-INSERT INTO protocol (id, name, alias, descr) VALUES (69, 'sat-mon', 'SAT-MON', 'SATNET Monitoring');
-INSERT INTO protocol (id, name, alias, descr) VALUES (70, 'visa', 'VISA', 'VISA Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (71, 'ipcv', 'IPCV', 'Internet Packet Core Utility');
-INSERT INTO protocol (id, name, alias, descr) VALUES (72, 'cpnx', 'CPNX', 'Computer Protocol Network Executive');
-INSERT INTO protocol (id, name, alias, descr) VALUES (73, 'cphb', 'CPHB', 'Computer Protocol Heart Beat');
-INSERT INTO protocol (id, name, alias, descr) VALUES (74, 'wsn', 'WSN', 'Wang Span Network');
-INSERT INTO protocol (id, name, alias, descr) VALUES (75, 'pvp', 'PVP', 'Packet Video Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (76, 'br-sat-mon', 'BR-SAT-MON', 'Backroom SATNET Monitoring');
-INSERT INTO protocol (id, name, alias, descr) VALUES (77, 'sun-nd', 'SUN-ND', 'SUN ND PROTOCOL-Temporary');
-INSERT INTO protocol (id, name, alias, descr) VALUES (78, 'wb-mon', 'WB-MON', 'WIDEBAND Monitoring');
-INSERT INTO protocol (id, name, alias, descr) VALUES (79, 'wb-expak', 'WB-EXPAK', 'WIDEBAND EXPAK');
-INSERT INTO protocol (id, name, alias, descr) VALUES (80, 'iso-ip', 'ISO-IP', 'ISO Internet Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (81, 'vmtp', 'VMTP', 'VMTP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (82, 'secure-vmtp', 'SECURE-VMTP', 'SECURE-VMTP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (83, 'vines', 'VINES', 'VINES');
-INSERT INTO protocol (id, name, alias, descr) VALUES (84, 'ttp', 'TTP', 'TTP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (85, 'nsfnet-igp', 'NSFNET-IGP', 'NSFNET-IGP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (86, 'dgp', 'DGP', 'Dissimilar Gateway Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (87, 'tcf', 'TCF', 'TCF');
-INSERT INTO protocol (id, name, alias, descr) VALUES (88, 'eigrp', 'EIGRP', 'EIGRP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (89, 'ospfigp', 'OSPFIGP', 'OSPFIGP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (90, 'sprite-rpc', 'Sprite-RPC', 'Sprite RPC Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (91, 'larp', 'LARP', 'Locus Address Resolution Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (92, 'mtp', 'MTP', 'Multicast Transport Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (93, '25', 'AX', 'AX');
-INSERT INTO protocol (id, name, alias, descr) VALUES (94, 'ipip', 'IPIP', 'IP-within-IP Encapsulation Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (95, 'micp', 'MICP', 'Mobile Internetworking Control Pro');
-INSERT INTO protocol (id, name, alias, descr) VALUES (96, 'scc-SP', 'SCC-SP', 'Semaphore Communications Sec');
-INSERT INTO protocol (id, name, alias, descr) VALUES (97, 'etherip', 'ETHERIP', 'Ethernet-within-IP Encapsulation');
-INSERT INTO protocol (id, name, alias, descr) VALUES (98, 'encap', 'ENCAP', 'Encapsulation Header');
-INSERT INTO protocol (id, name, alias, descr) VALUES (100, 'gmtp', 'GMTP', 'GMTP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (101, 'ifmp', 'IFMP', 'Ipsilon Flow Management Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (102, 'pnni', 'PNNI', 'PNNI over IP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (103, 'pim', 'PIM', 'Protocol Independent Multicast');
-INSERT INTO protocol (id, name, alias, descr) VALUES (104, 'aris', 'ARIS', 'ARIS');
-INSERT INTO protocol (id, name, alias, descr) VALUES (105, 'scps', 'SCPS', 'SCPS');
-INSERT INTO protocol (id, name, alias, descr) VALUES (106, 'qnx', 'QNX', 'QNX');
-INSERT INTO protocol (id, name, alias, descr) VALUES (107, 'n', 'A', 'Active Networks');
-INSERT INTO protocol (id, name, alias, descr) VALUES (108, 'ipcomp', 'IPComp', 'IP Payload Compression Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (109, 'snp', 'SNP', 'Sitara Networks Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (110, 'compaq-peer', 'Compaq-Peer', 'Compaq Peer Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (111, 'ipx-in-ip', 'IPX-in-IP', 'IPX in IP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (112, 'vrrp', 'VRRP', 'Virtual Router Redundancy Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (113, 'pgm', 'PGM', 'PGM Reliable Transport Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (115, 'l2tp', 'L2TP', 'Layer Two Tunneling Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (116, 'ddx', 'DDX', 'D-II Data Exchange');
-INSERT INTO protocol (id, name, alias, descr) VALUES (117, 'iatp', 'IATP', 'Interactive Agent Transfer Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (118, 'stp', 'STP', 'Schedule Transfer Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (119, 'srp', 'SRP', 'SpectraLink Radio Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (120, 'uti', 'UTI', 'UTI');
-INSERT INTO protocol (id, name, alias, descr) VALUES (121, 'smp', 'SMP', 'Simple Message Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (122, 'sm', 'SM', 'SM');
-INSERT INTO protocol (id, name, alias, descr) VALUES (123, 'ptp', 'PTP', 'Performance Transparency Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (124, 'isis-over-ipv4', 'ISIS-over-IPv4', '');
-INSERT INTO protocol (id, name, alias, descr) VALUES (125, 'fire', 'FIRE', '');
-INSERT INTO protocol (id, name, alias, descr) VALUES (126, 'crtp', 'CRTP', 'Combat Radio Transport Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (127, 'crudp', 'CRUDP', 'Combat Radio User Datagram');
-INSERT INTO protocol (id, name, alias, descr) VALUES (128, 'sscopmce', 'SSCOPMCE', '');
-INSERT INTO protocol (id, name, alias, descr) VALUES (129, 'iplt', 'IPLT', '');
-INSERT INTO protocol (id, name, alias, descr) VALUES (130, 'sps', 'SPS', 'Secure Packet Shield');
-INSERT INTO protocol (id, name, alias, descr) VALUES (131, 'pipe', 'PIPE', 'Private IP Encapsulation within IP');
-INSERT INTO protocol (id, name, alias, descr) VALUES (132, 'sctp', 'SCTP', 'Stream Control Transmission Protocol');
-INSERT INTO protocol (id, name, alias, descr) VALUES (133, 'fc', 'FC', 'Fibre Channel');
+REPLACE INTO `protocol` (`id`, `name`, `alias`, `descr`) VALUES
+(0, 'hopopt', 'HOPOPT', 'IPv6 Hop-by-Hop Option'),
+(1, 'icmp', 'ICMP', 'Internet Control Message'),
+(2, 'igmp', 'IGMP', 'Internet Group Management'),
+(3, 'ggp', 'GGP', 'Gateway-to-Gateway'),
+(4, 'ip', 'IP', 'IP in IP'),
+(5, 'st', 'ST', 'Stream'),
+(6, 'tcp', 'TCP', 'Transmission Control'),
+(7, 'cbt', 'CBT', 'CBT'),
+(8, 'egp', 'EGP', 'Exterior Gateway Protocol'),
+(9, 'igp', 'IGP', 'any private interior gateway'),
+(10, 'bbn-rcc-mon', 'BBN-RCC-MON', 'BBN RCC Monitoring'),
+(11, 'nvp-ii', 'NVP-II', 'Network Voice Protocol'),
+(12, 'pup', 'PUP', 'PUP'),
+(13, 'argus', 'ARGUS', 'ARGUS'),
+(14, 'emcon', 'EMCON', 'EMCON'),
+(15, 'xnet', 'XNET', 'Cross Net Debugger'),
+(16, 'chaos', 'CHAOS', 'Chaos'),
+(17, 'udp', 'UDP', 'User Datagram'),
+(18, 'mux', 'MUX', 'Multiplexing'),
+(19, 'dcn-meas', 'DCN-MEAS', 'DCN Measurement Subsystems'),
+(20, 'hmp', 'HMP', 'Host Monitoring'),
+(21, 'prm', 'PRM', 'Packet Radio Measurement'),
+(22, 'xns-idp', 'XNS-IDP', 'XEROX NS IDP'),
+(23, 'trunk-1', 'TRUNK-1', 'Trunk-1'),
+(24, 'trunk-2', 'TRUNK-2', 'Trunk-2'),
+(25, 'leaf-1', 'LEAF-1', 'Leaf-1'),
+(26, 'leaf-2', 'LEAF-2', 'Leaf-2'),
+(27, 'rdp', 'RDP', 'Reliable Data Protocol'),
+(28, 'irtp', 'IRTP', 'Internet Reliable Transaction'),
+(29, 'iso-tp4', 'ISO-TP4', 'ISO Transport Protocol Class 4'),
+(30, 'netblt', 'NETBLT', 'Bulk Data Transfer Protocol'),
+(31, 'mfe-nsp', 'MFE-NSP', 'MFE Network Services Protocol'),
+(32, 'merit-inp', 'MERIT-INP', 'MERIT Internodal Protocol'),
+(33, 'sep', 'SEP', 'Sequential Exchange Protocol'),
+(34, '3pc', '3PC', 'Third Party Connect Protocol'),
+(35, 'idpr', 'IDPR', 'Inter-Domain Policy Routing Protocol'),
+(36, 'xtp', 'XTP', 'XTP'),
+(37, 'ddp', 'DDP', 'Datagram Delivery Protocol'),
+(38, 'idpr-cmtp', 'IDPR-CMTP', 'IDPR Control Message Transport Proto'),
+(39, 'tp++', 'TP', 'TP++ Transport Protocol'),
+(40, 'il', 'IL', 'IL Transport Protocol'),
+(41, 'ipv6', 'IPv6', 'Ipv6'),
+(42, 'sdrp', 'SDRP', 'Source Demand Routing Protocol'),
+(43, 'ipv6-route', 'IPv6-Route', 'Routing Header for IPv6'),
+(44, 'ipv6-frag', 'IPv6-Frag', 'Fragment Header for IPv6'),
+(45, 'idrp', 'IDRP', 'Inter-Domain Routing Protocol'),
+(46, 'rsvp', 'RSVP', 'Reservation Protocol'),
+(47, 'gre', 'GRE', 'General Routing Encapsulation'),
+(48, 'mhrp', 'MHRP', 'Mobile Host Routing Protocol'),
+(49, 'bna', 'BNA', 'BNA'),
+(50, 'esp', 'ESP', 'Encap Security Payload for IPv6'),
+(51, 'ah', 'AH', 'Authentication Header for IPv6'),
+(52, 'i-nlsp', 'I-NLSP', 'Integrated Net Layer Security  TUBA'),
+(53, 'swipe', 'SWIPE', 'IP with Encryption'),
+(54, 'narp', 'NARP', 'NBMA Address Resolution Protocol'),
+(55, 'mobile', 'MOBILE', 'IP Mobility'),
+(56, 'tlsp', 'TLSP', 'Transport Layer Security Protocol using Kryptonet key management'),
+(57, 'skip', 'SKIP', 'SKIP'),
+(58, 'ipv6-icmp', 'IPv6-ICMP', 'ICMP for IPv6'),
+(59, 'ipv6-nonxt', 'IPv6-NoNxt', 'No Next Header for IPv6'),
+(60, 'ipv6-opts', 'IPv6-Opts', 'Destination Options for IPv6'),
+(62, 'cftp', 'CFTP', 'CFTP'),
+(64, 'sat-expak', 'SAT-EXPAK', 'SATNET and Backroom EXPAK'),
+(65, 'kryptolan', 'KRYPTOLAN', 'Kryptolan'),
+(66, 'rvd', 'RVD', 'MIT Remote Virtual Disk Protocol'),
+(67, 'ippc', 'IPPC', 'Internet Pluribus Packet Core'),
+(69, 'sat-mon', 'SAT-MON', 'SATNET Monitoring'),
+(70, 'visa', 'VISA', 'VISA Protocol'),
+(71, 'ipcv', 'IPCV', 'Internet Packet Core Utility'),
+(72, 'cpnx', 'CPNX', 'Computer Protocol Network Executive'),
+(73, 'cphb', 'CPHB', 'Computer Protocol Heart Beat'),
+(74, 'wsn', 'WSN', 'Wang Span Network'),
+(75, 'pvp', 'PVP', 'Packet Video Protocol'),
+(76, 'br-sat-mon', 'BR-SAT-MON', 'Backroom SATNET Monitoring'),
+(77, 'sun-nd', 'SUN-ND', 'SUN ND PROTOCOL-Temporary'),
+(78, 'wb-mon', 'WB-MON', 'WIDEBAND Monitoring'),
+(79, 'wb-expak', 'WB-EXPAK', 'WIDEBAND EXPAK'),
+(80, 'iso-ip', 'ISO-IP', 'ISO Internet Protocol'),
+(81, 'vmtp', 'VMTP', 'VMTP'),
+(82, 'secure-vmtp', 'SECURE-VMTP', 'SECURE-VMTP'),
+(83, 'vines', 'VINES', 'VINES'),
+(84, 'ttp', 'TTP', 'TTP'),
+(85, 'nsfnet-igp', 'NSFNET-IGP', 'NSFNET-IGP'),
+(86, 'dgp', 'DGP', 'Dissimilar Gateway Protocol'),
+(87, 'tcf', 'TCF', 'TCF'),
+(88, 'eigrp', 'EIGRP', 'EIGRP'),
+(89, 'ospfigp', 'OSPFIGP', 'OSPFIGP'),
+(90, 'sprite-rpc', 'Sprite-RPC', 'Sprite RPC Protocol'),
+(91, 'larp', 'LARP', 'Locus Address Resolution Protocol'),
+(92, 'mtp', 'MTP', 'Multicast Transport Protocol'),
+(93, '25', 'AX', 'AX'),
+(94, 'ipip', 'IPIP', 'IP-within-IP Encapsulation Protocol'),
+(95, 'micp', 'MICP', 'Mobile Internetworking Control Pro'),
+(96, 'scc-SP', 'SCC-SP', 'Semaphore Communications Sec'),
+(97, 'etherip', 'ETHERIP', 'Ethernet-within-IP Encapsulation'),
+(98, 'encap', 'ENCAP', 'Encapsulation Header'),
+(100, 'gmtp', 'GMTP', 'GMTP'),
+(101, 'ifmp', 'IFMP', 'Ipsilon Flow Management Protocol'),
+(102, 'pnni', 'PNNI', 'PNNI over IP'),
+(103, 'pim', 'PIM', 'Protocol Independent Multicast'),
+(104, 'aris', 'ARIS', 'ARIS'),
+(105, 'scps', 'SCPS', 'SCPS'),
+(106, 'qnx', 'QNX', 'QNX'),
+(107, 'n', 'A', 'Active Networks'),
+(108, 'ipcomp', 'IPComp', 'IP Payload Compression Protocol'),
+(109, 'snp', 'SNP', 'Sitara Networks Protocol'),
+(110, 'compaq-peer', 'Compaq-Peer', 'Compaq Peer Protocol'),
+(111, 'ipx-in-ip', 'IPX-in-IP', 'IPX in IP'),
+(112, 'vrrp', 'VRRP', 'Virtual Router Redundancy Protocol'),
+(113, 'pgm', 'PGM', 'PGM Reliable Transport Protocol'),
+(115, 'l2tp', 'L2TP', 'Layer Two Tunneling Protocol'),
+(116, 'ddx', 'DDX', 'D-II Data Exchange'),
+(117, 'iatp', 'IATP', 'Interactive Agent Transfer Protocol'),
+(118, 'stp', 'STP', 'Schedule Transfer Protocol'),
+(119, 'srp', 'SRP', 'SpectraLink Radio Protocol'),
+(120, 'uti', 'UTI', 'UTI'),
+(121, 'smp', 'SMP', 'Simple Message Protocol'),
+(122, 'sm', 'SM', 'SM'),
+(123, 'ptp', 'PTP', 'Performance Transparency Protocol'),
+(124, 'isis-over-ipv4', 'ISIS-over-IPv4', ''),
+(125, 'fire', 'FIRE', ''),
+(126, 'crtp', 'CRTP', 'Combat Radio Transport Protocol'),
+(127, 'crudp', 'CRUDP', 'Combat Radio User Datagram'),
+(128, 'sscopmce', 'SSCOPMCE', ''),
+(129, 'iplt', 'IPLT', ''),
+(130, 'sps', 'SPS', 'Secure Packet Shield'),
+(131, 'pipe', 'PIPE', 'Private IP Encapsulation within IP'),
+(132, 'sctp', 'SCTP', 'Stream Control Transmission Protocol'),
+(133, 'fc', 'FC', 'Fibre Channel'),
+(134, 'rsvp-e2e-ignore', 'RSVP-E2E-IGNORE', ''),
+(135, 'mobility header', 'MOBILITY HEADER', ''),
+(136, 'udplite', 'UDPLITE', ''),
+(137, 'mpls-in-ip', 'MPLS-IN-IP', ''),
+(138, 'manet', 'MANET', 'MANET Protocols'),
+(139, 'hip', 'HIP', 'Host Identity Protocol'),
+(140, 'shim6', 'SHIM6', 'Shim6 Protocol'),
+(141, 'wesp', 'WESP', 'Wrapped Encapsulating Security Payload'),
+(142, 'rohc', 'ROHC', 'Robust Header Compression');
 
 --
 -- Data: Signature:
