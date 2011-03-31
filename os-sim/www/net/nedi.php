@@ -37,7 +37,7 @@
 //error_reporting(E_NOTICE);
 require_once ('classes/Session.inc');
 require_once ('classes/CIDR.inc');
-if (!Session::am_i_admin()) die(_("You don't have permissions for Asset Discovery"));
+Session::logcheck("MenuConfiguration", "NetworkDiscovery");
 
 // load column layout
 require_once ('../conf/layout.php');

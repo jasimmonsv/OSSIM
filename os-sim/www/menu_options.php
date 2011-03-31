@@ -1047,7 +1047,7 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session:
         );
 }
 
-if(Session::am_i_admin()) {
+if(Session::menu_perms("MenuConfiguration", "NetworkDiscovery")) { $configuration = 1;
     $menu["Configuration"][] = array(
         "name" => gettext("Network Discovery") ,
         "id" => "Network Discovery",

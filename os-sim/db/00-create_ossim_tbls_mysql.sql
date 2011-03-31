@@ -2472,7 +2472,7 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (26, 'MENU', 'MenuMonitors', 'MonitorsSession', '', 0, 0, 0, '0'),
 (27, 'MENU', 'MenuMonitors', 'MonitorsNetwork', 'Situational Awareness -> Network -> Profiles', 1, 0, 1, '07.02'),
 (28, 'MENU', 'MenuMonitors', 'MonitorsAvailability', 'Situational Awareness -> Availability', 0, 0, 1, '07.03'),
-(29, 'MENU', 'MenuConfiguration', 'MonitorsSensors', 'Configuration -> Collection -> Sensors', 1, 0, 1, '09.01'),
+(29, 'MENU', 'MenuConfiguration', 'MonitorsSensors', 'Configuration -> Collection -> Sensors', 1, 0, 1, '08.09'),
 (30, 'MENU', 'MenuControlPanel', 'MonitorsRiskmeter', 'Dashboard -> Metrics -> Riskmeter', 1, 1, 1, '01.07'),
 (31, 'MENU', 'MenuIntelligence', 'CorrelationDirectives', 'Intelligence -> Correlation Directives', 0, 0, 1, '06.03'),
 (32, 'MENU', 'MenuIntelligence', 'CorrelationCrossCorrelation', 'Intelligence -> Cross Correlation', 0, 0, 1, '06.06'),
@@ -2484,10 +2484,10 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (38, 'MENU', 'MenuConfiguration', 'ConfigurationHostScan', '', 0, 0, 0, '0'),
 (39, 'MENU', 'MenuConfiguration', 'ConfigurationUserActionLog', 'Configuration -> Users -> User activity', 0, 0, 1, '08.03'),
 (40, 'MENU', 'MenuIncidents', 'ConfigurationEmailTemplate', 'Incidents -> Tickets -> Incidents Email Template', 0, 0, 1, '02.09'),
-(41, 'MENU', 'MenuConfiguration', 'ConfigurationUpgrade', 'Configuration -> Software Upgrade', 0, 0, 1, '08.09'),
+(41, 'MENU', 'MenuConfiguration', 'ConfigurationUpgrade', 'Configuration -> Software Upgrade', 0, 0, 1, '08.12'),
 (42, 'MENU', 'MenuPolicy', 'ToolsScan', 'Assets -> Assets Discovery', 0, 1, 1, '05.06'),
 (43, 'MENU', 'MenuTools', 'ToolsRuleViewer', '', 0, 0, 0, '0'),
-(44, 'MENU', 'MenuConfiguration', 'ToolsBackup', 'Configuration -> Backup', 0, 0, 1, '08.10'),
+(44, 'MENU', 'MenuConfiguration', 'ToolsBackup', 'Configuration -> Backup', 0, 0, 1, '08.13'),
 (46, 'MENU', 'MenuControlPanel', 'BusinessProcesses', 'Dashboard -> Risk Maps', 1, 1, 1, '01.04'),
 (47, 'MENU', 'MenuControlPanel', 'BusinessProcessesEdit', 'Dashboard -> Risk Maps Edit', 1, 1, 1, '01.05'),
 (48, 'MENU', 'MenuEvents', 'EventsForensics', 'Analysis -> SIEM Events', 1, 1, 1, '03.01'),
@@ -2510,7 +2510,7 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (66, 'MENU', 'MenuMonitors', 'MonitorsNetflows', 'Situational Awareness -> Network -> Traffic', 0, 0, 1, '07.01'),
 (67, 'MENU', 'MenuReports', '5DSearch', 'Assets -> Asset Search', 0, 0, 0, '0'),
 (68, 'MENU', 'MainMenu', 'Index', 'Top Frame', 1, 1, 1, '00.01'),
-(69, 'MENU', 'MenuConfiguration', 'ToolsUserLog', 'Configuration -> Collection -> User Activity', 0, 0, 1, '09.02'),
+(69, 'MENU', 'MenuConfiguration', 'ToolsUserLog', 'Configuration -> Collection -> User Activity', 0, 0, 1, '08.10'),
 (70, 'MENU', 'MenuIncidents', 'ControlPanelAlarmsDelete', 'Incidents -> Alarms -> Delete Alarms', 0, 0, 1, '02.01'),
 (71, 'MENU', 'MenuEvents', 'EventsForensicsDelete', 'Analysis -> SIEM Events -> Delete Events', 0, 0, 1, '03.02'),
 (72, 'MENU', 'MenuEvents', 'EventsVulnerabilitiesScan', 'Analysis -> Vulnerabilities -> Scan/Import', 1, 1, 1, '03.08'),
@@ -2520,7 +2520,8 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (76, 'MENU', 'MenuIncidents', 'IncidentsOpen', 'Incidents -> Tickets -> Open Tickets', 0, 0, 1, '02.04'),
 (77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', 0, 0, 1, '02.05'),
 (78, 'MENU', 'MenuEvents', 'EventsNids', 'Analysis -> Detection -> NIDS', 1, 1, 1, '03.10'),
-(79, 'MENU', 'MenuEvents', 'EventsHids', 'Analysis -> Detection -> HIDS', 1, 1, 1, '03.11');
+(79, 'MENU', 'MenuEvents', 'EventsHids', 'Analysis -> Detection -> HIDS', 1, 1, 1, '03.11'),
+(80, 'MENU', 'MenuConfiguration', 'NetworkDiscovery', 'Configuration -> Network Discovery', 0, 0, 1, '08.11');
 
 DROP TABLE IF EXISTS `acl_templates`;
 CREATE TABLE IF NOT EXISTS `acl_templates` (

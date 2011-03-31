@@ -395,6 +395,10 @@ $ACL_MAIN_MENU = array(
             "name" => "Configuration -> Collection -> User Activity",
             "default_perm" => false
         ),
+        "NetworkDiscovery" => array(
+            "name" => "Configuration -> Network Discovery",
+            "default_perm" => false
+        ),
         "ToolsBackup" => array(
             "name" => "Configuration -> Backup",
             "default_perm" => false

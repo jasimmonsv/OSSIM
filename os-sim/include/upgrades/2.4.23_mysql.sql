@@ -19,6 +19,24 @@ REPLACE INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granular
 (62, 'MENU', 'MenuEvents', 'ReportsWireless', 'Analysis -> Detection -> Wireless', 1, 0, 1, '03.12'),
 (50, 'MENU', 'MenuEvents', 'EventsAnomalies', 'Analysis -> Detection -> Anomalies', 1, 1, 1, '03.13');
 
+REPLACE INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granularity_sensor`, `granularity_net`, `enabled`, `ord`) VALUES
+(56, 'MENU', 'MenuConfiguration', 'ConfigurationMaps', '', 0, 0, 0, '0'),
+(38, 'MENU', 'MenuConfiguration', 'ConfigurationHostScan', '', 0, 0, 0, '0'),
+(37, 'MENU', 'MenuConfiguration', 'ConfigurationRRDConfig', '', 0, 0, 0, '0'),
+(34, 'MENU', 'MenuConfiguration', 'ConfigurationMain', 'Configuration -> Main', 0, 0, 1, '08.01'),
+(35, 'MENU', 'MenuConfiguration', 'ConfigurationUsers', 'Configuration -> Users', 0, 0, 1, '08.02'),
+(39, 'MENU', 'MenuConfiguration', 'ConfigurationUserActionLog', 'Configuration -> Users -> User activity', 0, 0, 1, '08.03'),
+(12, 'MENU', 'MenuConfiguration', 'PolicySensors', 'Configuration -> SIEM Components -> Sensors', 1, 0, 1, '08.04'),
+(53, 'MENU', 'MenuConfiguration', 'PolicyServers', 'Configuration -> SIEM Components -> Servers', 0, 0, 1, '08.05'),
+(36, 'MENU', 'MenuConfiguration', 'ConfigurationPlugins', 'Configuration -> Collection -> Data Sources', 0, 0, 1, '08.06'),
+(17, 'MENU', 'MenuConfiguration', 'PluginGroups', 'Configuration -> Collection -> DS Groups', 0, 0, 1, '08.07'),
+(57, 'MENU', 'MenuConfiguration', 'ToolsDownloads', 'Configuration -> Collection -> Downloads', 0, 0, 1, '08.08'),
+(29, 'MENU', 'MenuConfiguration', 'MonitorsSensors', 'Configuration -> Collection -> Sensors', 1, 0, 1, '08.09'),
+(69, 'MENU', 'MenuConfiguration', 'ToolsUserLog', 'Configuration -> Collection -> User Activity', 0, 0, 1, '08.10'),
+(80, 'MENU', 'MenuConfiguration', 'NetworkDiscovery', 'Configuration -> Network Discovery', 0, 0, 1, '08.11'),
+(41, 'MENU', 'MenuConfiguration', 'ConfigurationUpgrade', 'Configuration -> Software Upgrade', 0, 0, 1, '08.12'),
+(44, 'MENU', 'MenuConfiguration', 'ToolsBackup', 'Configuration -> Backup', 0, 0, 1, '08.13');
+
 REPLACE INTO `ossim_acl`.`aco` (`id`, `section_value`, `value`, `order_value`, `name`, `hidden`) VALUES ('86', 'MenuEvents', 'EventsNids', '0', 'EventsNids', '0'),
 ('87', 'MenuEvents', 'EventsHids', '0', 'EventsHids', '0'),
 ('88', 'MenuConfiguration', 'NetworkDiscovery', '0', 'NetworkDiscovery', '0');

@@ -29,7 +29,7 @@
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
 require_once ('classes/Session.inc');
-if (!Session::am_i_admin()) die(_("You don't have permissions for Asset Discovery"));
+Session::logcheck("MenuConfiguration", "NetworkDiscovery");
 
 require_once 'ossim_db.inc';
 require_once 'ossim_conf.inc';
