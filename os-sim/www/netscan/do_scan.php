@@ -80,45 +80,64 @@ if (ossim_error()) {
 }
 require_once ('classes/Scan.inc');
 
+// Only Stop
 if ($only_stop) {
 	$scan = new Scan($net);
 	$scan->stop_nmap($net);
 	exit;
 }
-if ($only_status) {
-	session_write_close();
-	$scanning_nets = Scan::scanning_what();
-	if (count($scanning_nets) > 0) {
-		// print html
-		foreach($scanning_nets as $net) {
-			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading_$net'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
-		}
-		?><script type="text/javascript">parent.doIframe();</script><?php
-		// change status
-		while(Scan::scanning_now()) {
-			foreach($scanning_nets as $net) {
-				$tmp_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$net));
-	       		if (file_exists($tmp_file)) {
-					$lines = file($tmp_file);
-					$perc = 0;
-					foreach ($lines as $line) {
-						if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
-							$perc = $found[1];
-						}
-					}
-					if ($perc > 0) {
-						?><script type="text/javascript">document.getElementById('loading_<?php echo $net?>').innerHTML = "Scan: <?php echo $found[1] ?>%";</script><?php
-					}
-				}
-	        }
-	        sleep(3);
-		}
-	} else {
-		echo "No nmap process found.";
-	}
-	exit;
+
+// Launch Scan
+session_write_close();
+if (!$only_status && !$only_stop) {
+	$full_param = ($full_scan=="full") ? "full" : "";
+	$cmd = "/usr/bin/php /usr/share/ossim/scripts/vulnmeter/remote_nmap.php $net '' $full_param > /tmp/nmap_scanning.log 2>&1 &";
+	if (file_exists("/tmp/nmap_completed_scan.log")) unlink("/tmp/nmap_completed_scan.log");
+	system($cmd);
 }
 
+// Scan Status
+$scanning_nets = Scan::scanning_what();
+if (count($scanning_nets) > 0) {
+	// print html
+	foreach($scanning_nets as $net) {
+		echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
+	}
+	?><script type="text/javascript">parent.doIframe();</script><?php
+	// change status
+	while(Scan::scanning_now()) {
+		foreach($scanning_nets as $net) {
+			$tmp_file = "/tmp/nmap_scanning.log";
+       		if (file_exists($tmp_file)) {
+				$lines = file($tmp_file);
+				$perc = 0;
+				foreach ($lines as $line) {
+					if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
+						$perc = $found[1];
+					}
+				}
+				if ($perc > 0) {
+					?><script type="text/javascript">document.getElementById('loading').innerHTML = "Scan: <?php echo $found[1] ?>%";</script><?php
+				}
+			}
+        }
+        sleep(3);
+	}
+	$output = file("/tmp/nmap_scanning.log");
+	foreach ($output as $line) {
+		if (!preg_match("/appears to be up/",$line)) {
+			echo $line;
+		}
+	}
+	echo gettext("Scan completed") . ".<br/><br/>";
+	?>
+	<input type="button" class="button" onclick="parent.document.location.href='index.php#results'" value="<?php echo gettext("View results") ?>">
+	<script type="text/javascript">$('#loading').html("");parent.document.getElementById('scan_button').disabled = false</script><?php
+} else {
+	echo "No nmap process found.";
+}
+
+/*
 $rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
 if ($rscan->available_scan()) { // $full_scan!="full" && 
 	
@@ -152,11 +171,8 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 	//$scan->save_scan();
 	
 }
-echo gettext("Scan completed") . ".<br/><br/>";
-if (count($scan->scan) > 0) { ?>
-<input type="button" class="button" onclick="parent.document.location.href='index.php#results'" value="<?php echo gettext("View results") ?>">
-<?php } ?>
-<script type="text/javascript">$('#loading').html("");parent.document.getElementById('scan_button').disabled = false</script>
+*/
+?>
 </body>
 </html>
 

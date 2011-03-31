@@ -47,8 +47,8 @@
  * Classes list:
  * - Scan
  */
-define('NMAP_PING_SCAN_COMMAND', "%s -d1 -sP -n %s > %s 2>&1 &");
-define('NMAP_ROOT_SCAN_COMMAND', "%s -d1 -sS -O -sV -n %s %s > %s 2>&1 &");
+define('NMAP_PING_SCAN_COMMAND', "%s -d1 -sP -n %s");
+define('NMAP_ROOT_SCAN_COMMAND', "%s -d1 -sS -O -sV -n %s %s");
 define('NMAP_PING_TMP_FILE', "/tmp/nmap_scan_%s.log");
 define('NMAP_ROOT_TMP_FILE', "/tmp/nmap_rootscan_%s.log");
 define('NMAP_PING_SCAN_REGEXP', "/^Host (\d+\.\d+\.\d+\.\d+) appears to be up/");
@@ -82,12 +82,12 @@ class Scan {
     }
 
 	function scanning_now($ip="") {
-		$cmd = ($ip != "") ? "ps ax | grep nmap | grep $ip | grep -v grep | grep -v remote_nmap" : "ps ax | grep nmap | grep -v grep | grep -v remote_nmap";
+		$cmd = ($ip != "") ? "ps ax | grep remote_nmap.php | grep $ip | grep -v grep" : "ps ax | grep remote_nmap.php | grep -v grep";
 		$output = explode("\n",`$cmd`);
-		return (preg_match("/nmap/",$output[0])) ? 1 : 0;
+		return (preg_match("/remote\_nmap/",$output[0])) ? 1 : 0;
 	}
 	function scanning_what() {
-		$cmd = "ps ax | grep nmap | grep -v grep | grep -v remote_nmap";
+		$cmd = "ps ax | grep remote_nmap.php | grep -v grep";
 		$output = explode("\n",`$cmd`);
 		$ips = array();
 		foreach ($output as $line) {
@@ -98,9 +98,7 @@ class Scan {
 		return $ips;
 	}
 	function stop_nmap($ip) {
-		$root_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$ip));
-		$ping_file = sprintf(NMAP_PING_TMP_FILE, str_replace("/","_",$ip));
-		$cmd = "ps ax | grep -v 'grep' | grep '$ip' | grep nmap | grep -v remote_nmap";
+		$cmd = "ps ax | grep -v 'grep' | grep '$ip' | grep remote_nmap.php";
 	    $fp = popen("$cmd 2>&1", "r");
 	    $pids = "";
 	    while (!feof($fp)) {
@@ -112,8 +110,6 @@ class Scan {
 	    $cmd = "kill -9 $pids";
 	    if (preg_match("/^kill \-9\s+[\d\s]+$/",$cmd)) {
 	    	system($cmd);
-	    	if (file_exists($root_file)) unlink($root_file);
-	    	if (file_exists($ping_file)) unlink($ping_file);
 	    }
 	}
     
@@ -139,36 +135,15 @@ class Scan {
                 $this->root_scan($ip);
             }
         }
-        if ($full_scan) { $this->save_scan(); } // Second Save overwrite, first was the ping
+        $this->save_scan();
     }
     function ping_scan() {
-        $tmp_file = sprintf(NMAP_PING_TMP_FILE, str_replace("/","_",$this->network));
-    	$command = sprintf(NMAP_PING_SCAN_COMMAND,
+        $command = sprintf(NMAP_PING_SCAN_COMMAND,
                            $this->nmap,
-                           $this->network,
-                           $tmp_file);
-                           // Launch nmap in background
-        $this->__execute_bgcommand($command);
-        // Read '/tmp/nmap_scan_ip.log' file each 3 seconds
-        while($this->scanning_now($this->network)) {
-        	if (file_exists($tmp_file)) {
-				$lines = file($tmp_file);
-				$perc = 0;
-				foreach ($lines as $line) {
-					if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
-						$perc = $found[1];
-					}
-				}
-				if ($perc > 0) {
-					?><script type="text/javascript">document.getElementById('loading').innerHTML = "Ping Scan: <?php echo $found[1] ?>%";</script><?php
-				}
-			}
-        	sleep(3);
-        }
-        $this->__ping_scan_process_output($tmp_file);
+                           $this->network);
+        $this->__ping_scan_process_output($this->__get_command_output($command));
     }
-    function __ping_scan_process_output($tmp_file) {
-    	$output = $this->__get_nmap_output($tmp_file);
+    function __ping_scan_process_output($output) {
     	foreach($output as $line) {
             if (preg_match(NMAP_PING_SCAN_REGEXP, $line, $regs)) {
                 $this->scan[$regs[1]] = array(
@@ -180,34 +155,13 @@ class Scan {
                 );
             }
         }
-        if (file_exists($tmp_file)) { unlink($tmp_file); }
-        $this->save_scan();
     }
     function root_scan($ip) {
-        $tmp_file = sprintf(NMAP_ROOT_TMP_FILE, str_replace("/","_",$ip));
-    	$command = sprintf(NMAP_ROOT_SCAN_COMMAND,
+        $command = sprintf(NMAP_ROOT_SCAN_COMMAND,
                            $this->nmap,
                            $this->options,
-                           $ip, $tmp_file);
-        // Launch nmap in background
-        $this->__execute_bgcommand($command);
-        // Read '/tmp/nmap_scan_ip.log' file each 3 seconds
-        while($this->scanning_now($ip)) {
-       		if (file_exists($tmp_file)) {
-				$lines = file($tmp_file);
-				$perc = 0;
-				foreach ($lines as $line) {
-					if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
-						$perc = $found[1];
-					}
-				}
-				if ($perc > 0) {
-					?><script type="text/javascript">document.getElementById('loading').innerHTML = "Scan: <?php echo $found[1] ?>%";</script><?php
-				}
-			}
-        	sleep(3);
-        }
-        $this->__root_scan_process_output($this->__get_nmap_output($tmp_file) , $ip);
+                           $ip);
+        $this->__root_scan_process_output($this->__get_command_output($command) , $ip);
     }
     function __root_scan_process_output($output, $ip) {
         foreach($output as $line) {
@@ -259,7 +213,6 @@ class Scan {
             echo "<br/>";
         }
         echo "<hr/>";
-        $this->save_scan($ip);
         flush();
     }
     function __get_command_output($cmd) {
@@ -269,21 +222,15 @@ class Scan {
     function __get_nmap_output($tmp_file) {
     	return (file_exists($tmp_file)) ? file($tmp_file) : array();
     }
-    function __execute_bgcommand($cmd) {
-    	session_write_close();
-    	system($cmd);
-    }
     function debug() {
         // Show scan result
         print "<pre>";
         print_r($this->scan);
         print "</pre>";
     }
-    function save_scan($ip="") {
-    	$done_file = "/tmp/nmap_completed_scan$ip.log";
-    	$f = fopen($done_file,"w");
-    	$scandata = ($ip != "") ? $this->scan[$ip] : $this->scan;
-    	fputs($f,json_encode($scandata));
+    function save_scan() {
+    	$f = fopen("/tmp/nmap_completed_scan.log","w");
+    	fputs($f,json_encode($this->scan));
     	fclose($f);
     }
     function get_scan() {
