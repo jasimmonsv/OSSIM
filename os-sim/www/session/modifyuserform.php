@@ -455,15 +455,12 @@ include ("../hmenu.php");
                      	<td class="left nobborder">
 							<select style="width:100%;height:90%" multiple="multiple" size="19" name="nets[]" id="nets">
                             <?php
-                            $deleted_nets = $template['nets'];
-                            unset($deleted_nets[""]);
                             /* ===== Networks ==== */
                             foreach($net_list as $net) {
                             	$net_name = $net->get_name();
                                 $net_ips  = $net->get_ips();
                                 $cidrs = explode(",",$net_ips);
                                 foreach($cidrs as $cidr)
-                                	unset($deleted_nets[$cidr]);
                                 	if (false !== strpos(Session::allowedNets($user->get_login()) , $net_ips)) {
                                 			echo "<option value='$net_name'>$net_name ($net_ips)</option>";
                                 	}
@@ -483,17 +480,6 @@ include ("../hmenu.php");
                             <i><?php echo gettext("NOTE: No selection allows ALL") . " " . gettext("nets"); ?></i>
                         </td>
                     </tr>
-                    <?php
-                    if (count($deleted_nets)>0) {
-                    ?>
-                    <tr>
-                        <td class="nobborder left">
-                            <span style="color:red"><?php echo gettext("The following networks don't exist:");  echo " ".implode(", ",array_keys($deleted_nets)); ?> </span>
-                        </td>
-                    </tr>
-                    <?php
-                    }
-                    ?>
                     <tr>
                         <td class="left nobborder" style="padding-top:10px;">
                             <div>

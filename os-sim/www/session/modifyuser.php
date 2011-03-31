@@ -131,7 +131,6 @@ elseif (POST("insert"))
 	*/
     $nets = "";
     $nets_selected = POST("nets");
-    $nets = "";
     if(is_array($nets_selected)) {
         foreach ($nets_selected as $index => $net_name) {
             ossim_valid($net_name, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("net$i"));

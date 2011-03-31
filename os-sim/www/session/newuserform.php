@@ -62,9 +62,14 @@ echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  <link rel="stylesheet" type="text/css" href="../style/tree.css" />
+  
 <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="../js/jquery.checkboxes.js"></script>
 <script type="text/javascript" src="../js/jquery.pstrength.js"></script>
+<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+<script type="text/javascript" src="../js/combos.js"></script>
 <script type="text/javascript">
 	var checks = new Array;
 	checks['nets'] = 0;
@@ -131,11 +136,46 @@ function checkemail() {
 	}
 }
 function formsubmit() {
-	if (checkpasslength() && checkpass() && checklogin() && checkemail()) document.fnewuser.submit();
+	if (checkpasslength() && checkpass() && checklogin() && checkemail()) {
+		selectall('nets');
+		document.fnewuser.submit();
+	}
 }
+function load_tree(filter, entity) {
+    combo = 'nets';
+
+    $("#nets_tree").remove();
+    $('#td_nets').append('<div id="nets_tree" style="width:100%"></div>');
+
+    $("#nets_tree").dynatree({
+        initAjax: { url: "../net/draw_nets.php", data: {filter: filter, entity: entity} },
+        clickFolderMode: 2,
+        onActivate: function(dtnode) {
+                if (!dtnode.hasChildren()) {
+                    // add from a final node
+                    addto(combo,dtnode.data.title,dtnode.data.key)
+                } else {
+                    // simulate expand and load
+                    addnodes = true;
+                    dtnode.toggleExpand();
+                }
+        },
+        onDeactivate: function(dtnode) {},
+        onLazyRead: function(dtnode){
+            dtnode.appendAjax({
+                url: "../net/draw_nets.php",
+                data: {key: dtnode.data.key, filter:filter, entity: entity}
+            });
+        }
+    });
+}
+$(document).ready(function(){
+	$('#pass1').pstrength();
+	load_tree('','');
+});
 </script>
 </head>
-<body onload="$('#pass1').pstrength()">
+<body>
 
 <?php include ("../hmenu.php"); 
 
@@ -318,22 +358,41 @@ $all = $defaults = array();
 	</tr>
 	<tr>
 		<td class="nobborder" valign="top" style="padding-top:8px">
-			<a href="#" onclick="checkall('nets');return false;"><?php echo _("Select / Unselect all") ?></a>
-			<hr noshade>
-
-			<?php
-			$i = 0;
-			foreach($net_list as $net) {
-				$all['nets'][] = "net" . $i;
-			?>
-					<input type="checkbox" class="nets" id="<?php echo "net" . $i ?>" name="<?php echo "net" . $i ?>"
-						   value="<?php echo $net->get_name(); ?>" /><?php echo $net->get_name() ?><br/>
-			<?php
-				$i++;
-			}
-			?>
-			<input type="hidden" name="nnets" value="<?php echo $i ?>" /><br>
-			<i><?php echo gettext("NOTE: No selection allows ALL") . " " . gettext("nets"); ?></i>
+			<table>
+				<tr>
+                     <td class="left nobborder">
+						<select style="width:100%;height:90%" multiple="multiple" size="19" name="nets[]" id="nets">
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                  	<td class="nobborder" style="text-align:right">
+                    <input type="button" value=" [X] " onclick="deletefrom('nets')" class="lbutton"/>
+                    <input type="button" style="margin-right:0px;" value="<?php echo gettext("Clean All Nets");?>" onclick="deleteall('nets')" class="lbutton"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="left nobborder">
+                        <i><?php echo gettext("NOTE: No selection allows ALL") . " " . gettext("nets"); ?></i>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="left nobborder" style="padding-top:10px;">
+                        <div>
+                            <div style="float:left">
+                                <?=_("Filter")?>: <input type="text" id="filtern" name="filtern" style="height: 18px;width: 170px;" />
+                            </div>
+                            <div style="float:right">
+                                <input type="button" style="margin-right:0px;" class="lbutton" value="<?=_("Apply")?>" onclick="load_tree(document.fnewuser.filtern.value,'<?php echo $current_entity ?>')" /> 
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="nobborder" id="td_nets">
+                    </td>
+                </tr>
+			</table>
 		</td>
 		
 		<td class="noborder" style="border-right:2px solid #E0E0E0"></td>
@@ -361,7 +420,7 @@ $all = $defaults = array();
 		
 		<td class="noborder" style="border-right:2px solid #E0E0E0"></td>
 		
-		<td class="nobborder">
+		<td class="nobborder" valign="top">
 			<table class="noborder">
 				<tr>
 					<td class="nobborder"><a href="#" onclick="checkall('perms');return false;"><?php echo gettext("Select / Unselect all"); ?></a></td>
