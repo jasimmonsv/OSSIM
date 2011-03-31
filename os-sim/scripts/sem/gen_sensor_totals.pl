@@ -13,28 +13,29 @@ $qfolder = quotemeta $folder;
 
 $year = `date +%Y`;
 chomp($year);
-$cmd_years = "find $folder/$year/ -name .total_events | egrep '[0-9]{2,3}\.[0-9]' |";
+$cmd_years = "find $folder/$year/ -name .total_events | egrep '[0-9]{2,3}\.[0-9]' | sort -u |";
 
 open (LS,$cmd_years);
 foreach $line (<LS>) {
 	chomp ($line);
-	$line =~ /(\d\d\d\d)\/(\d\d)\/(\d\d)\/(\d\d)\/(.+)\/\.total_events/;
-	my $year = $1;
-	my $month = $2;
-	my $day = $3;
-	my $hour = $4;
-	my $sensor = $5;
+	if ($line =~ /(\d\d\d\d)\/(\d\d)\/(\d\d)\/(\d\d)\/(.+)\/\.total_events/) {
+		my $year = $1;
+		my $month = $2;
+		my $day = $3;
+		my $hour = $4;
+		my $sensor = $5;
 	
-	open (E,$line);
-	@val = <E>;
-	close E;
+		open (E,$line);
+		@val = <E>;
+		close E;
 	
-	$yearly{$sensor}{$year} += $val[0];
-	$monthly{$sensor}{$year}{$month} += $val[0];
-	$daily{$sensor}{$year}{$month}{$day} += $val[0];
-	$hourly{$sensor}{$year}{$month}{$day}{$hour} += $val[0];
+		$yearly{$sensor}{$year} += int($val[0]);
+		$monthly{$sensor}{$year}{$month} += int($val[0]);
+		$daily{$sensor}{$year}{$month}{$day} += int($val[0]);
+		$hourly{$sensor}{$year}{$month}{$day}{$hour} += int($val[0]);
 	
-	#print $sensor." $day/$month/$year at $hour hours: $val[0]\n";
+		print $sensor." $year/$month/$day at $hour hours: $val[0] $line\n";
+	}
 }
 close LS;
 
