@@ -71,6 +71,7 @@ echo gettext("OSSIM Framework"); ?> </title>
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="../js/jquery.autocomplete.pack.js"></script>
+  <script type="text/javascript" src="../js/autoHeight.js"></script>
   <script>
     // enable text input when manual option is selected
     function check_change() {
@@ -186,7 +187,7 @@ echo gettext("Please, select the network you want to scan:") ?>
 		</td>
     </tr>
     <!-- end do scan -->
-	<tr><td id="process_div" style="display:<?php echo ($nmap_running) ? "block" : "none" ?>"><IFRAME name="process" id="process" src="<?php if ($nmap_running) echo "do_scan.php?only_status=1" ?>" frameborder="0" width="100%"></IFRAME></td></tr>
+	<tr><td class="nobborder" id="process_div" style="display:<?php echo ($nmap_running) ? "block" : "none" ?>"><IFRAME name="process" id="process" class="autoHeight" src="<?php if ($nmap_running) echo "do_scan.php?only_status=1" ?>" frameborder="0" width="100%"></IFRAME></td></tr>
   </table>
   </form>
   <!-- end of net selector form -->

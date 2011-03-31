@@ -93,6 +93,7 @@ if ($only_status) {
 		foreach($scanning_nets as $net) {
 			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading_$net'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
 		}
+		?><script type="text/javascript">parent.doIframe();</script><?php
 		// change status
 		while(Scan::scanning_now()) {
 			foreach($scanning_nets as $net) {
@@ -133,7 +134,7 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 ?><script type="text/javascript">parent.document.getElementById('scan_button').disabled = true</script><?php
 	echo _("Unable to launch remote network scan: ") . "<font color=red>".$rscan->err() ."</font><br/>\n"; // if ($full_scan!="full") 
 	echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
-	
+	?><script type="text/javascript">parent.doIframe();</script><?php
 	// try local nmap
 	$scan = new Scan($net);
 	$scan->append_option($timing_template);
