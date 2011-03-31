@@ -118,7 +118,8 @@ echo "<B>" . gettext("DB Type:") . "</B> $DBtype <BR>
         <B>" . gettext("ARCHIVE DB Name:") . "</B> $archive_dbname <BR>
 
         <INPUT TYPE=\"submit\" class=\"button\" NAME=\"submit\" VALUE=\"Repair Tables\">
-        &nbsp;<INPUT TYPE=\"submit\" class=\"button\" NAME=\"submit\" VALUE=\"Clear Data Tables\">
+        <input type=\"submit\" style=\"display:none\" id=\"eqbtn\" NAME=\"submit\" VALUE=\"Clear Data Tables\"/>
+        &nbsp;<INPUT TYPE=\"button\" class=\"button\" onclick=\"if (confirm('". gettext("Are you sure") ."?')) $('#eqbtn').click()\"  VALUE=\"Clear Data Tables\">
         &nbsp;<INPUT TYPE=\"submit\" class=\"button\" NAME=\"submit\" VALUE=\"Clean Unused Sensors\">";
 echo $repair_output;
 echo '
