@@ -51,7 +51,7 @@ class SecurityReport {
         $this->ossim_conn = $db->connect();
         $this->snort_conn = $db->snort_connect();
     }
-    function AttackHost($conn, $ip_target, $limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null) {
+    function AttackHost($conn, $ip_target, $limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
         require_once ('classes/Host.inc');
         require_once ('classes/Net.inc');
         require_once ('classes/Session.inc');
@@ -66,8 +66,9 @@ class SecurityReport {
 		// User sensor filtering
 		$sensor_str_alarm = "";
 		$sensor_str_event = "";
-		if (Session::allowedSensors() != "") {
-			$user_sensors = explode(",",Session::allowedSensors());
+		if (Session::allowedSensors() != "" || count($sensors)>0) {
+			//$user_sensors = explode(",",Session::allowedSensors());
+			$user_sensors = (Session::allowedSensors()=="" || !count($sensors)) ? array_merge(explode(",",Session::allowedSensors()),$sensors) : array_intersect(explode(",",Session::allowedSensors()), $sensors);
 			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
 				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
 			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
@@ -187,7 +188,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function Events($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false) {
+    function Events($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false, $sensors=array()) {
         require_once ('classes/Event_viewer.inc');
 		
 		$list = array();
@@ -199,8 +200,9 @@ class SecurityReport {
 		// User sensor filtering
 		$sensor_str_alarm = "";
 		$sensor_str_event = "";
-		if (Session::allowedSensors() != "") {
-			$user_sensors = explode(",",Session::allowedSensors());
+		if (Session::allowedSensors() != "" || count($sensors)>0) {
+			//$user_sensors = explode(",",Session::allowedSensors());
+			$user_sensors = (Session::allowedSensors()=="" || !count($sensors)) ? array_merge(explode(",",Session::allowedSensors()),$sensors) : array_intersect(explode(",",Session::allowedSensors()), $sensors);
 			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
 				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
 			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
@@ -322,7 +324,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function Ports($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false) {
+    function Ports($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $ips=false, $sensors=array()) {
         require_once ('classes/Port.inc');
         require_once ('classes/Event_viewer.inc');
 		$list = array();
@@ -334,8 +336,9 @@ class SecurityReport {
 		// User sensor filtering
 		$sensor_str_alarm = "";
 		$sensor_str_event = "";
-		if (Session::allowedSensors() != "") {
-			$user_sensors = explode(",",Session::allowedSensors());
+		if (Session::allowedSensors() != "" || count($sensors)>0) {
+			//$user_sensors = explode(",",Session::allowedSensors());
+			$user_sensors = (Session::allowedSensors()=="" || !count($sensors)) ? array_merge(explode(",",Session::allowedSensors()),$sensors) : array_intersect(explode(",",Session::allowedSensors()), $sensors);
 			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
 				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
 			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
@@ -457,7 +460,7 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
-    function EventsByRisk($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null) {
+    function EventsByRisk($limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
         require_once ('classes/Event_viewer.inc');
 		
 		$list = array();
@@ -469,9 +472,10 @@ class SecurityReport {
 		// User sensor filtering
 		$sensor_str_alarm = "";
 		$sensor_str_event = "";
-		if (Session::allowedSensors() != "") {
+		if (Session::allowedSensors() != "" || count($sensors)>0) {
 			// ossim
-			$user_sensors = explode(",",Session::allowedSensors());
+			//$user_sensors = explode(",",Session::allowedSensors());
+			$user_sensors = (Session::allowedSensors()=="" || !count($sensors)) ? array_merge(explode(",",Session::allowedSensors()),$sensors) : array_intersect(explode(",",Session::allowedSensors()), $sensors);
 			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
 				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
 			$sensor_str_alarm = " AND ($sensor_str) AND e.id=a.event_id";
