@@ -2472,7 +2472,7 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (26, 'MENU', 'MenuMonitors', 'MonitorsSession', '', 0, 0, 0, '0'),
 (27, 'MENU', 'MenuMonitors', 'MonitorsNetwork', 'Situational Awareness -> Network -> Profiles', 1, 0, 1, '07.02'),
 (28, 'MENU', 'MenuMonitors', 'MonitorsAvailability', 'Situational Awareness -> Availability', 0, 0, 1, '07.03'),
-(29, 'MENU', 'MenuConfiguration', 'MonitorsSensors', 'Status -> Sensors', 1, 0, 1, '09.01'),
+(29, 'MENU', 'MenuConfiguration', 'MonitorsSensors', 'Configuration -> Collection -> Sensors', 1, 0, 1, '09.01'),
 (30, 'MENU', 'MenuControlPanel', 'MonitorsRiskmeter', 'Dashboard -> Metrics -> Riskmeter', 1, 1, 1, '01.07'),
 (31, 'MENU', 'MenuIntelligence', 'CorrelationDirectives', 'Intelligence -> Correlation Directives', 0, 0, 1, '06.03'),
 (32, 'MENU', 'MenuIntelligence', 'CorrelationCrossCorrelation', 'Intelligence -> Cross Correlation', 0, 0, 1, '06.06'),
@@ -2492,7 +2492,7 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (47, 'MENU', 'MenuControlPanel', 'BusinessProcessesEdit', 'Dashboard -> Risk Maps Edit', 1, 1, 1, '01.05'),
 (48, 'MENU', 'MenuEvents', 'EventsForensics', 'Analysis -> SIEM Events', 1, 1, 1, '03.01'),
 (49, 'MENU', 'MenuEvents', 'EventsVulnerabilities', 'Analysis -> Vulnerabilities -> View', 1, 1, 1, '03.07'),
-(50, 'MENU', 'MenuEvents', 'EventsAnomalies', 'Analysis -> Detection -> Anomalies', 1, 1, 1, '03.06'),
+(50, 'MENU', 'MenuEvents', 'EventsAnomalies', 'Analysis -> Detection -> Anomalies', 1, 1, 1, '03.13'),
 (51, 'MENU', 'MenuEvents', 'EventsRT', 'Analysis -> SIEM Events -> Real Time', 1, 0, 1, '03.03'),
 (53, 'MENU', 'MenuConfiguration', 'PolicyServers', 'Configuration -> SIEM Components -> Servers', 0, 0, 1, '08.05'),
 (54, 'MENU', 'MenuPolicy', 'ReportsOCSInventory', 'Assets -> Assets -> Inventory', 1, 1, 1, '05.05'),
@@ -2503,14 +2503,14 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (59, 'MENU', 'MenuMonitors', 'MonitorsVServers', '', 0, 0, 0, '0'),
 (60, 'MENU', 'MenuIncidents', 'ControlPanelAlarms', 'Incidents -> Alarms', 1, 0, 1, '02.00'),
 (61, 'MENU', 'MenuEvents', 'ControlPanelSEM', 'Analysis -> Logger', 1, 0, 1, '03.04'),
-(62, 'MENU', 'MenuEvents', 'ReportsWireless', 'Analysis -> Detection -> Wireless', 1, 0, 1, '03.05'),
+(62, 'MENU', 'MenuEvents', 'ReportsWireless', 'Analysis -> Detection -> Wireless', 1, 0, 1, '03.12'),
 (63, 'MENU', 'MenuIntelligence', 'ComplianceMapping', 'Intelligence -> Compliance Mapping', 0, 0, 1, '06.05'),
 (64, 'MENU', 'MenuPolicy', '5DSearch', 'Assets -> Asset Search', 0, 0, 1, '05.01'),
 (65, 'MENU', 'MenuReports', 'ReportsReportServer', 'Reports -> Custom Reports', 0, 0, 1, '04.02'),
 (66, 'MENU', 'MenuMonitors', 'MonitorsNetflows', 'Situational Awareness -> Network -> Traffic', 0, 0, 1, '07.01'),
 (67, 'MENU', 'MenuReports', '5DSearch', 'Assets -> Asset Search', 0, 0, 0, '0'),
 (68, 'MENU', 'MainMenu', 'Index', 'Top Frame', 1, 1, 1, '00.01'),
-(69, 'MENU', 'MenuConfiguration', 'ToolsUserLog', 'Status -> Sensors -> User Activity', 0, 0, 1, '09.02'),
+(69, 'MENU', 'MenuConfiguration', 'ToolsUserLog', 'Configuration -> Collection -> User Activity', 0, 0, 1, '09.02'),
 (70, 'MENU', 'MenuIncidents', 'ControlPanelAlarmsDelete', 'Incidents -> Alarms -> Delete Alarms', 0, 0, 1, '02.01'),
 (71, 'MENU', 'MenuEvents', 'EventsForensicsDelete', 'Analysis -> SIEM Events -> Delete Events', 0, 0, 1, '03.02'),
 (72, 'MENU', 'MenuEvents', 'EventsVulnerabilitiesScan', 'Analysis -> Vulnerabilities -> Scan/Import', 1, 1, 1, '03.08'),
@@ -2518,8 +2518,9 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (74, 'MENU', 'MenuReports', 'ReportsCreateCustom', 'Reports -> Custom Reports -> Create Custom Report', 0, 0, 1, '04.06'),
 (75, 'MENU', 'MenuReports', 'ReportsScheduler', 'Reports -> Custom Reports -> Scheduler', 0, 0, 1, '04.07'),
 (76, 'MENU', 'MenuIncidents', 'IncidentsOpen', 'Incidents -> Tickets -> Open Tickets', 0, 0, 1, '02.04'),
-(77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', 0, 0, 1, '02.05');
-
+(77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', 0, 0, 1, '02.05'),
+(78, 'MENU', 'MenuEvents', 'EventsNids', 'Analysis -> Detection -> NIDS', 1, 1, 1, '03.10'),
+(79, 'MENU', 'MenuEvents', 'EventsHids', 'Analysis -> Detection -> HIDS', 1, 1, 1, '03.11');
 
 DROP TABLE IF EXISTS `acl_templates`;
 CREATE TABLE IF NOT EXISTS `acl_templates` (
