@@ -153,8 +153,9 @@ if ($rscan->available_scan()) { // $full_scan!="full" &&
 	
 }
 echo gettext("Scan completed") . ".<br/><br/>";
-if (count($scan->scan) > 0) { echo "<a href=\"index.php#results\" target=\"_parent\">" . gettext("Click here to show the results") . "</a>"; }
-?>
+if (count($scan->scan) > 0) { ?>
+<input type="button" class="button" onclick="parent.document.location.href='index.php#results'" value="<?php echo gettext("View results") ?>">
+<?php } ?>
 <script type="text/javascript">$('#loading').html("");parent.document.getElementById('scan_button').disabled = false</script>
 </body>
 </html>

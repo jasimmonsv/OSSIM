@@ -108,9 +108,8 @@ EOF;
       </tr>
       <tr>
         <td colspan="5">
-          <a href="../netscan/index.php?clearscan=1">
 EOF;
-    echo _('Clear scan result');
+    echo "<input type=\"button\" class=\"button\" onclick=\"document.location.href='../netscan/index.php?clearscan=1'\" value=\""._('Clear scan result')."\">";
     echo <<<EOF
     </a>
         </td>
