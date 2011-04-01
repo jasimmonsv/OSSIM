@@ -97,8 +97,8 @@ class Scan {
 		}
 		return $ips;
 	}
-	function stop_nmap($ip) {
-		$cmd = "ps ax | grep -v 'grep' | grep '$ip' | grep remote_nmap.php";
+	function stop_nmap() {
+		$cmd = "ps ax | grep -v 'grep' | grep nmap";
 	    $fp = popen("$cmd 2>&1", "r");
 	    $pids = "";
 	    while (!feof($fp)) {

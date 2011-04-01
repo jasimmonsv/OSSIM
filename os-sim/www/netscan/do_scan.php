@@ -83,15 +83,14 @@ require_once ('classes/Scan.inc');
 // Only Stop
 if ($only_stop) {
 	$scan = new Scan($net);
-	$scan->stop_nmap($net);
+	$scan->stop_nmap();
 	exit;
 }
 
 // Launch Scan
 session_write_close();
 if (!$only_status && !$only_stop) {
-	$full_param = ($full_scan=="full") ? "full" : "";
-	$cmd = "/usr/bin/php /usr/share/ossim/scripts/vulnmeter/remote_nmap.php $net '' $full_param > /tmp/nmap_scanning.log 2>&1 &";
+	$cmd = "/usr/bin/php /usr/share/ossim/scripts/vulnmeter/remote_nmap.php $net '' $full_scan > /tmp/nmap_scanning.log 2>&1 &";
 	if (file_exists("/tmp/nmap_completed_scan.log")) unlink("/tmp/nmap_completed_scan.log");
 	system($cmd);
 }
@@ -101,7 +100,12 @@ $scanning_nets = Scan::scanning_what();
 if (count($scanning_nets) > 0) {
 	// print html
 	foreach($scanning_nets as $net) {
-		echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
+		$rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
+		if ($rscan->available_scan()) { // $full_scan!="full" &&
+			echo _("Scanning network") . " ($net), " . _(" with a remote sensor, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
+		} else {
+			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
+		}
 	}
 	?><script type="text/javascript">parent.doIframe();</script><?php
 	// change status
