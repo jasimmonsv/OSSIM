@@ -408,11 +408,11 @@ while (!feof($fp)) {
     }
     */
 	// Searching message
-    if (preg_match("/^(###.\s*)?Searching in (\d\d\d\d\d\d\d\d) from (\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
+    if (preg_match("/^(###.\s*)?Searching in (\d\d\d\d)\/?(\d\d)\/?(\d\d) from (\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
     	ob_flush();
 		flush();
-		$sdate = date("d F Y",strtotime($found[1]));
-		$current_server = ($logger_servers[$found[2]] != "") ? $logger_servers[$found[2]] : $found[2];
+		$sdate = date("d F Y",strtotime($found[2].$found[3].$found[4]));
+		$current_server = ($logger_servers[$found[5]] != "") ? $logger_servers[$found[5]] : $found[5];
 		if (!$from_remote) $current_server = "local";
 		if ($perc[$current_server] == "") { $perc[$current_server] = 1; }
 		$from_str = ($from_remote) ? " from <b>".$current_server."</b>" : ""; 
