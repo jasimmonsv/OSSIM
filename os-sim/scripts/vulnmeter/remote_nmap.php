@@ -39,10 +39,12 @@ ini_set('include_path', '/usr/share/ossim/include');
 require_once ('classes/Scan.inc');
 $net = $argv[1];
 $remote_sensor = $argv[2];
-$full = ($argv[3] == "full") ? true : false;
+$timing_template = ($argv[3] != "") ? $argv[3] : "-T3";
+$full = ($argv[4] == "full" || $argv[4] == "fast") ? $argv[4] : "";
+
 if (!preg_match("/\d+\.\d+\.\d+\.\d+/",$net)) die("Incorrect net/host format $net\n");
 
-if ($remote_sensor!="") {
+if ($remote_sensor != "" && $remote_sensor != "null") {
     $rscan = new RemoteScan($net,"ping",$remote_sensor);
     echo "Scanning remote network: $net\n";
     $rscan->do_scan(TRUE);
@@ -55,8 +57,12 @@ if ($remote_sensor!="") {
 } else {
     echo "Scanning local network: $net\n";
     $scan = new Scan($net);
-    if ($full) {
-		$scan->do_scan(TRUE);
+    $scan->append_option($timing_template);
+    if ($full == "fast") {
+		$scan->append_option("-F");
+    	$scan->do_scan(TRUE);
+    } elseif ($full == "full") {
+    	$scan->do_scan(TRUE);
     } else {
     	$scan->do_scan(FALSE);
     }

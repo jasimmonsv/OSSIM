@@ -49,8 +49,8 @@
  */
 define('NMAP_PING_SCAN_COMMAND', "%s -d1 -sP -n %s");
 define('NMAP_ROOT_SCAN_COMMAND', "%s -d1 -sS -O -sV -n %s %s");
-define('NMAP_PING_TMP_FILE', "/tmp/nmap_scan_%s.log");
-define('NMAP_ROOT_TMP_FILE', "/tmp/nmap_rootscan_%s.log");
+define('NMAP_PING_TMP_FILE', "/tmp/nmap_ping.log");
+define('NMAP_ROOT_TMP_FILE', "/tmp/nmap_root.log");
 define('NMAP_PING_SCAN_REGEXP', "/^Host (\d+\.\d+\.\d+\.\d+) appears to be up/");
 define('NMAP_MAC_ADDRESS_REGEXP', "/^MAC Address: (\w{2}:\w{2}:\w{2}:\w{2}:\w{2}:\w{2}) (\(.*\))?$/");
 define('NMAP_OS_REGEXP', "/^Running: (.*)$/");
@@ -112,6 +112,8 @@ class Scan {
 	    	system($cmd);
 	    }
 	    if (file_exists("/tmp/nmap_scanning.log")) unlink("/tmp/nmap_scanning.log");
+	    if (file_exists("/tmp/nmap_ping.log")) unlink("/tmp/nmap_ping.log");
+	    if (file_exists("/tmp/nmap_root.log")) unlink("/tmp/nmap_root.log");
 	}
     
     function append_option($options) {
@@ -142,7 +144,7 @@ class Scan {
         $command = sprintf(NMAP_PING_SCAN_COMMAND,
                            $this->nmap,
                            $this->network);
-        $this->__ping_scan_process_output($this->__get_command_output($command));
+        $this->__ping_scan_process_output($this->__get_command_output($command, NMAP_PING_TMP_FILE));
     }
     function __ping_scan_process_output($output) {
     	foreach($output as $line) {
@@ -162,7 +164,7 @@ class Scan {
                            $this->nmap,
                            $this->options,
                            $ip);
-        $this->__root_scan_process_output($this->__get_command_output($command) , $ip);
+        $this->__root_scan_process_output($this->__get_command_output($command, NMAP_ROOT_TMP_FILE) , $ip);
     }
     function __root_scan_process_output($output, $ip) {
         foreach($output as $line) {
@@ -216,9 +218,16 @@ class Scan {
         echo "<hr/>";
         flush();
     }
-    function __get_command_output($cmd) {
-    	$output = shell_exec(escapeshellcmd($cmd));
-        return split("\n", $output);
+    function __get_command_output($cmd,$logfile="") {
+    	if ($logfile != "") {
+    		system(escapeshellcmd($cmd)." > ".$logfile);
+    		$output = file($logfile);
+    		unlink($logfile);
+    		return $output;
+    	} else {
+    		$output = shell_exec(escapeshellcmd($cmd));
+        	return split("\n", $output);
+    	}
     }
     function __get_nmap_output($tmp_file) {
     	return (file_exists($tmp_file)) ? file($tmp_file) : array();
@@ -281,13 +290,13 @@ class RemoteScan {
 	    $socket = socket_create(AF_INET, SOCK_STREAM, 0);
 	    if ($socket < 0) {
 	        $this->errmsg = _("Can't connect with frameworkd").": ". socket_strerror($socket);
-	        return false;
+	        return "";
 	    }
 	    /* connect */
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
-	        return false;
+	        return "";
 	    }
 	    socket_set_block($socket);
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
@@ -298,12 +307,12 @@ class RemoteScan {
 	    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
 	    if (!preg_match("/ack(end)?$/",$out)) {
 	        $this->errmsg = _("Bad response from frameworkd").": $out";
-	        return false;
+	        return "";
 	    }
 		preg_match("/names=\"(.*?)\"/",$out,$found);
 		if (count($found)<2) {
 	        $this->errmsg = _("Bad response from frameworkd").": $out";
-	        return false;
+	        return "";
 	    }
 	    $found[1] = explode("|",$found[1]);
 	    socket_close($socket);
@@ -327,14 +336,14 @@ class RemoteScan {
 	    if (count($sensors)<1) {
 	    	$db->close($conn);
 	        $this->errmsg = _("Network sensors are not available for remote scan");
-	        return false;
+	        return "";
 	    }
 	    // use the first available agent id to scan
 	    $this->id = $names[$sensors[0]];
 	    $this->allids = $names;
 	    $db->close($conn);
 	    //
-		return true;
+		return $sensors[0];
     }
     
     function do_scan($quiet=TRUE) {

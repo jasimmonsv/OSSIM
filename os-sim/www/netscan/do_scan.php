@@ -90,7 +90,13 @@ if ($only_stop) {
 // Launch Scan
 session_write_close();
 if (!$only_status && !$only_stop) {
-	$cmd = "/usr/bin/php /usr/share/ossim/scripts/vulnmeter/remote_nmap.php $net '' $full_scan > /tmp/nmap_scanning.log 2>&1 &";
+	$rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
+	if (($available = $rscan->available_scan()) != "") {
+		$remote_sensor = $available;
+	} else {
+		$remote_sensor = "null";
+	}
+	$cmd = "/usr/bin/php /usr/share/ossim/scripts/vulnmeter/remote_nmap.php $net $remote_sensor '$timing_template' '$full_scan' > /tmp/nmap_scanning.log 2>&1 &";
 	if (file_exists("/tmp/nmap_completed_scan.log")) unlink("/tmp/nmap_completed_scan.log");
 	system($cmd);
 }
@@ -102,32 +108,38 @@ if (count($scanning_nets) > 0) {
 	foreach($scanning_nets as $net) {
 		$rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
 		if ($rscan->available_scan()) { // $full_scan!="full" &&
-			echo _("Scanning network") . " ($net), " . _(" with a remote sensor, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
+			echo _("Scanning network") . " ($net), " . _(" with a remote sensor, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'></div><br>\n";
 		} else {
-			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
+			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
 		}
 	}
 	?><script type="text/javascript">parent.doIframe();</script><?php
 	// change status
 	while(Scan::scanning_now()) {
 		foreach($scanning_nets as $net) {
-			$tmp_file = "/tmp/nmap_scanning.log";
+			$tmp_file = ("/tmp/nmap_root.log") ? "/tmp/nmap_root.log" : "/tmp/nmap_ping.log";
        		if (file_exists($tmp_file)) {
 				$lines = file($tmp_file);
 				$perc = 0;
+				$ip = "";
 				foreach ($lines as $line) {
+					if (preg_match("/^Scanning\s+(\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
+						$ip = $found[1];
+					}
 					if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
 						$perc = $found[1];
 					}
 				}
 				if ($perc > 0) {
-					?><script type="text/javascript">document.getElementById('loading').innerHTML = "Scan: <?php echo $found[1] ?>%";</script><?php
+					?><script type="text/javascript">document.getElementById('loading').innerHTML = "Scan<?php if ($ip != "") echo " [$ip]" ?>: <?php echo $found[1] ?>%";</script><?php
 				}
 			}
         }
         sleep(3);
 	}
+	$has_results = false;
 	if (file_exists("/tmp/nmap_scanning.log")) {
+		$has_results = true;
 		$output = file("/tmp/nmap_scanning.log");
 		foreach ($output as $line) {
 			if (!preg_match("/appears to be up/",$line)) {
@@ -136,10 +148,11 @@ if (count($scanning_nets) > 0) {
 		}
 		unlink("/tmp/nmap_scanning.log");
 	}
-	echo gettext("Scan completed") . ".<br/><br/>";
-	?>
-	<input type="button" class="button" onclick="parent.document.location.href='index.php#results'" value="<?php echo gettext("View results") ?>">
-	<script type="text/javascript">$('#loading').html("");parent.document.getElementById('scan_button').disabled = false</script><?php
+	echo "<br>";
+	echo ($has_results) ? _("Scan completed") : _("Scan aborted");
+	echo "<br><br>";
+	if ($has_results) { ?><input type="button" class="button" onclick="parent.document.location.href='index.php#results'" value="<?php echo gettext("View results") ?>"><?php } ?>
+	<script type="text/javascript">$('#loading').html("");$('#stop_div').html("");parent.document.getElementById('scan_button').disabled = false</script><?php
 } else {
 	echo "No nmap process found.";
 }
