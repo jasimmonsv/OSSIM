@@ -343,7 +343,7 @@ class RemoteScan {
 	    $this->allids = $names;
 	    $db->close($conn);
 	    //
-		return $sensors[0];
+		return $names[$sensors[0]];
     }
     
     function do_scan($quiet=TRUE) {
