@@ -24,13 +24,9 @@ $debug = $ARGV[4];
 
 if ($start =~ /(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/) {
 	$start_epoch = timegm($6, $5, $4, $3, $2-1, $1);
-# Temporary fix until server fix
-#$start_epoch += 25200;
 }
 if ($end =~ /(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/) {
 	$end_epoch = timegm($6, $5, $4, $3, $2-1, $1);
-# Temporary fix until server fix
-#$end_epoch += 25200;
 }
 
 $common_date = `perl return_sub_dates_locate.pl \"$start\" \"$end\"`;
@@ -46,17 +42,17 @@ $swish = "locate.findutils -d $loc_db $common_date | grep -E \".(log|log.gz)\$\"
 print L "WCL.pl: calling $swish\n" if ($debug ne "");
 open (G,$swish);
 while ($file=<G>) {
+	next if ($file =~ /Warning|\/searches\// || $file eq "");
 	chomp($file);
 	my @fields = split(/\//,$file);
 	my $sdirtime = timegm(0, 0, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
 	my $edirtime = timegm(59, 59, $fields[7], $fields[6], $fields[5]-1, $fields[4]);
-	print L "WCL.pl: $start_epoch <= $sdirtime && $edirtime <= $end_epoch ?: " if ($debug ne "");
-#	if ($edirtime > $start_epoch && $sdirtime < $end_epoch) {
-	if($start_epoch<=$sdirtime && $edirtime<=$end_epoch){
+	print L "WCL.pl: $start <= ".$fields[4]."-".$fields[5]."-".$fields[6]." ".$fields[7]."h <= $end ?: " if ($debug ne "");
+	if ($start_epoch<=$edirtime && $end_epoch>=$sdirtime) {
 		my $sf = dirname($file)."/../.total_events_".$fields[8];
 		my $ac = $fields[7]."-".$fields[6]."-".($fields[5]-1)."-".$fields[4]."-".$fields[8];
 		#$sf =~ s/log$/ind/;
-		print L "yes $sf += " if ($debug ne "");
+		print L "yes $fields[8] += " if ($debug ne "");
 		if (!$already{$ac}++) {
 			open (F,$sf);
 			while (<F>) {

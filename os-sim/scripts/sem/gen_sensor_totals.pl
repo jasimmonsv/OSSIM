@@ -34,7 +34,7 @@ foreach $line (<LS>) {
 		$daily{$sensor}{$year}{$month}{$day} += int($val[0]);
 		$hourly{$sensor}{$year}{$month}{$day}{$hour} += int($val[0]);
 	
-		print $sensor." $year/$month/$day at $hour hours: $val[0] $line\n";
+		#print $sensor." $year/$month/$day at $hour hours: $val[0] $line\n";
 	}
 }
 close LS;

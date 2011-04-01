@@ -209,6 +209,7 @@ var first_load = 1;
 var byDateStart="";
 var byDateEnd="";
 var load_stop=false;
+var old_query=false;
 
 // ****************************************** ON LOAD ******************************************************
 $(document).ready(function(){
@@ -396,7 +397,7 @@ function MakeRequest()
     var tzone =  document.getElementById('tzone').value;
     
     document.getElementById('ResponseDiv').innerHTML = "";
-	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&top=" + top + "&start=" + start + "&end=" + end + "&sort=" + sort + "&tzone=" + tzone + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport;
+	document.getElementById('processframe').src = "process.php?query=" + str + "&offset=" + offset + "&top=" + top + "&start=" + start + "&end=" + end + "&sort=" + sort + "&tzone=" + tzone + "&uniqueid=<?php echo $uniqueid ?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>&txtexport="+txtexport+"&old_query="+old_query;
 	
 	return false;
 }
@@ -413,6 +414,7 @@ function RequestLines()
 	var end = escape(document.getElementById('end').value);
 	var url = "wcl.php?ips=<?php echo $ip_list ?>&start=" + start + "&end=" + end + "&uniqueid=<?php echo $uniqueid?><?=(($config["debug"]==1) ? "&debug_log=".urlencode($config["debug_log"]) : "")?>";
 	load_stop = false;
+	//alert(url);
 	$.ajax({
 		type: "GET",
 		url: url,
@@ -542,7 +544,8 @@ function closeLayer( whichLayer )
   vis.display = 'none';
 }
 
-function SubmitClick() {
+function SubmitClick(cmd) {
+	old_query = (cmd=='ignore') ? true : false;
 	$('#offset').val('0');
 	if (typeof($('.tagit-input')).val() != 'undefined' && $('.tagit-input').val() != ''){
 		AddAtom($('.tagit-input').val());$('.tagit-input').val('');
@@ -763,7 +766,7 @@ function UpdateByDate(urlres)
 }
 
 
-function graph_by_date( col ,row ,value, category, series, t_year, t_month)
+function graph_by_date( col ,row ,value, category, series, t_year, t_month, t_day)
 {
     var urlres = "forensic.php";
     var month;
@@ -827,8 +830,10 @@ function graph_by_date( col ,row ,value, category, series, t_year, t_month)
       //Dont create another graph... refresh the search and stop here
       hour=category.replace(/[^\d]+/,"");
       hour=hour.replace(/[^\d]+/,"");
-      document.getElementById('start_aaa').value = document.getElementById('start').value = byDateStart+" "+hour+":00:00";
-      document.getElementById('end_aaa').value = document.getElementById('end').value = byDateEnd+ " "+hour+":59:59";
+      from_day = (t_day!="" && typeof(t_day)!="undefined") ? t_year+"-"+t_month+"-"+t_day : byDateStart;
+      to_day = (t_day!="" && typeof(t_day)!="undefined") ? t_year+"-"+t_month+"-"+t_day : byDateEnd;      
+      document.getElementById('start_aaa').value = document.getElementById('start').value = from_day+" "+hour+":00:00";
+      document.getElementById('end_aaa').value = document.getElementById('end').value = to_day+ " "+hour+":59:59";
       RequestLines(); 
       MakeRequest();
       bold_dates();
@@ -1143,7 +1148,15 @@ require_once ("manage_querys.php");
 						<ul id="mytags" style="list-style: none"></ul>
 						</div>
 					</td>
-					<td class="nobborder"><input type="button" class="button" onclick="SubmitClick()" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px"></td>
+					<td class="nobborder">
+					
+					<? if (file_exists($config["searcher"])) { ?>
+					<input type="button" class="button" onclick="SubmitClick('')" value="<?php echo _("Indexed Query") ?>" style="font-weight:bold;height:30px">&nbsp;<input type="button" class="button" onclick="SubmitClick('ignore')" value="<?php echo _("Raw Query") ?>" style="font-weight:bold;height:30px">
+					<? } else { ?>
+					<input type="button" class="button" onclick="SubmitClick('ignore')" value="<?php echo _("Submit Query") ?>" style="font-weight:bold;height:30px">
+					<? } ?>
+					
+					</td>
 					<td class="nobborder" style="padding:10px">
                         <input type="hidden" name="txtexport" id="txtexport" value="noExport" />
                         <a href="javascript:;" onclick="$('#exports').toggle()" style="color:black"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"> <b><?php echo _("Exports")?></b></a>

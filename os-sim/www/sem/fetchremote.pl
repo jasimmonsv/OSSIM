@@ -69,7 +69,7 @@ $query =~ s/\'/'\\''/g;
 
 my @ips_arr = split(/\,/,$ips);
 foreach $ip (@ips_arr) {
-    my $pid=fork();
+    my $pid = fork();
     if ($pid == 0) { # child
         #print "Connecting $ip\n";
         if ($ip eq "127.0.0.1") {

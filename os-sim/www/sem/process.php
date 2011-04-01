@@ -133,6 +133,7 @@ $start      = GET("start");
 $end        = GET("end");
 $sort_order = GET("sort");
 $uniqueid   = GET("uniqueid");
+$uniqueid   = (GET("old_query")=="true") ? "NOINDEX" : $uniqueid;
 $tzone      = intval(GET("tzone"));
 
 $debug = 0;
@@ -142,7 +143,7 @@ ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($offset, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("offset"));
 ossim_valid($top, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("top"));
-ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, "\!", 'illegal:' . _("a"));
+ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, "\!\|", 'illegal:' . _("a"));
 ossim_valid($sort_order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("sort order"));
 ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("uniqueid"));
 if (ossim_error()) {
@@ -175,9 +176,18 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 	$a = "data='".$a."'";
 }
 
-if (preg_match("/(.*?)=(.*)/",$a,$fnd)) {
-    $a = preg_replace("/(\|)/","\\1".$fnd[1]."=",$a);
+//error_log("A1: $a\n",3,"/tmp/fetch");
+// Chanage filter=val1|val2 to filter=val1|filter=val2
+if (preg_match("/ AND /",$a)) {
+	$aa = explode(" AND ",$a);
+	$a = "";
+	foreach ($aa as $aa1) {
+		$aa1 = preg_replace("/(.*?)=(.*)(\|)(.*)/","\\1=\\2\\3\\1=\\4",$aa1);
+		$a .= ($a=="") ? $aa1 : " AND $aa1";
+	}
 }
+//error_log("A2: $a\n",3,"/tmp/fetch");
+
 // Patch "sensor=A OR sensor=B"
 $a = preg_replace("/SPACESCAPEORSPACESCAPE([a-zA-Z\_]+)\=/"," or \\1=",$a);
 
@@ -349,8 +359,8 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 		</tr>
 		</table>
 	</div><script type="text/javascript">parent.resize_iframe();</script><?php
-	//echo "$cmd '$user' $servers_string 2>>/dev/null";exit;
 	$fp = popen("$cmd '$user' $servers_string 2>>/dev/null", "r");
+	//error_log("$cmd '$user' $servers_string 2>>/dev/null\n",3,"/tmp/fetch");
 } else {
 	?>
 	<div id="loading" style="position:absolute;top:0;left:30%">
@@ -374,7 +384,8 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 	}
 	$from_remote = 0;
 	$num_servers = 1;
-	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null", "r");
+	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/tmp/popen", "r");
+	error_log("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null\n",3,"/tmp/fetch");
 }
 $perc = array();
 $ndays = dateDiff($start,$end);
@@ -397,7 +408,7 @@ while (!feof($fp)) {
     }
     */
 	// Searching message
-    if (preg_match("/^Searching in (\d\d\d\d\d\d\d\d) from (\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
+    if (preg_match("/^(###.\s*)?Searching in (\d\d\d\d\d\d\d\d) from (\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
     	ob_flush();
 		flush();
 		$sdate = date("d F Y",strtotime($found[1]));
@@ -414,6 +425,9 @@ while (!feof($fp)) {
     // Event line
     } elseif (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'/",$line,$found)) {
     	$fields = explode(";",$line);
+    	// added 127.0.0.1 if not exists
+    	if (is_numeric($fields[count($fields)-1])) $fields[] = "127.0.0.1";
+    	//
     	$current_server = ($logger_servers[trim($fields[count($fields)-1])] != "") ? $logger_servers[trim($fields[count($fields)-1])] : trim($fields[count($fields)-1]);
     	$event_date = preg_replace("/\s|\-/","",$found[2]);
     	$num_lines[$current_server]++;
@@ -523,6 +537,9 @@ foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
 	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='(.*)'/", $res, $matches)) {
 		$lf = explode(";", $res);
+		// added 127.0.0.1 if not exists
+    	if (is_numeric($lf[count($lf)-1])) $lf[] = "127.0.0.1";
+    	//
         $logfile = $lf[count($lf)-3];
         $current_server = urlencode($lf[count($lf)-1]);
         $current_server_ip = $current_server;
@@ -678,7 +695,7 @@ foreach($result as $res=>$event_date) {
                 $matches[11] = preg_replace("/(&#\d+) (\d+;)/","\\1\\2",$matches[11]);
                 $matches[11] = preg_replace("/(&#\d+) (;)/","\\1\\2",$matches[11]);
                 $matches[11] = preg_replace("/(&#\d+;) (&)/","\\1\\2",$matches[11]);
-                foreach(split("[\| \t:]", $matches[11]) as $piece) {
+                foreach(split("[\=\| \t:]", $matches[11]) as $piece) {
                     $clean_piece = str_replace("(", " ", $piece);
                     $clean_piece = str_replace(")", " ", $clean_piece);
                     $clean_piece = str_replace("[", " ", $clean_piece);

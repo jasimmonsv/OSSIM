@@ -12,11 +12,16 @@ fi
 
 # extract logs dir from ini
 LOGS='/var/ossim/logs/'
+eval `egrep "^indexer" /usr/share/ossim/www/sem/everything.ini `
 eval `egrep "^log_dir" /usr/share/ossim/www/sem/everything.ini `
 if [ -d $log_dir ];then
 	LOGS=$log_dir
 fi
 
+# indexer
+if [ -e $indexer ]; then
+	$indexer $LOGS
+fi
 # --force command line option forces recalculation all stats files from last hour new logs
 if [ "$1" != "--force" ];then
     cd /usr/share/ossim/scripts/sem/ && sh /usr/share/ossim/scripts/sem/forensic_stats_last_hour.sh

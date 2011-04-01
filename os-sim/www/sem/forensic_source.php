@@ -122,6 +122,7 @@ if ($_GET['ips'] != "") {
 	        $tmp = explode(" ", $tmp[0]);
 	        $t_month = str_replace(" ", "", $tmp[0]);
 	        $t_day = str_replace(" ", "", $tmp[1]);
+	        if ($t_day<10) $t_day="0".$t_day;
 	        break;
 	}
 	$t_month = date('m', strtotime("01 " . $t_month . " 2000"));
@@ -129,7 +130,7 @@ if ($_GET['ips'] != "") {
 	//Target allYears by default
 	if ($gt == "") $gt = "allYears";
 	$chart['link_data'] = array(
-	    'url' => "javascript:parent.graph_by_date( _col_, _row_, _value_, _category_, _series_, '" . $t_year . "','" . $t_month . "')",
+	    'url' => "javascript:parent.graph_by_date( _col_, _row_, _value_, _category_, _series_, '" . $t_year . "', '" . $t_month . "', '".$t_day."')",
 	    'target' => "javascript"
 	);
 	$allYears = array();
@@ -295,7 +296,7 @@ a:hover { text-decoration: underline; }
 			var aux = links[row].split(", ");
 			year_str = aux[1];
 		}
-		$('<div id="tooltip" class="tooltipLabel" onclick="parent.graph_by_date( \''+col+'\', <?=$row?>, 0, \''+links[row]+'\', \'\', \'<?if ($t_year != "") echo $t_year; else { ?>'+year_str+'<? } ?>\',\'<?=$t_month?>\')">'+links[row]+': <a href="javascript:parent.graph_by_date( \''+col+'\', <?=$row?>, 0, \''+links[row]+'\', \'\', \'<?if ($t_year != "") echo $t_year; else { ?>'+year_str+'<? } ?>\',\'<?=$t_month?>\')" style="font-size:10px;">' + contents + '</a></div>').css( {
+		$('<div id="tooltip" class="tooltipLabel" onclick="parent.graph_by_date( \''+col+'\', <?=$row?>, 0, \''+links[row]+'\', \'\', \'<?if ($t_year != "") echo $t_year; else { ?>'+year_str+'<? } ?>\',\'<?=$t_month?>\')">'+links[row]+': <a href="javascript:parent.graph_by_date( \''+col+'\', <?=$row?>, 0, \''+links[row]+'\', \'\', \'<?if ($t_year != "") echo $t_year; else { ?>'+year_str+'<? } ?>\', \'<?=$t_month?>\', \'<?=$t_day?>\')" style="font-size:10px;">' + contents + '</a></div>').css( {
             position: 'absolute',
             display: 'none',
             top: y - 10,
@@ -379,7 +380,7 @@ a:hover { text-decoration: underline; }
 					var aux = links[x].split(", ");
 					year_str = aux[1];
 				}
-				parent.graph_by_date(y, <?=$row?>, 0, links[x], '', <?if ($t_year != "") echo "'".$t_year."'"; else { ?>year_str<? } ?>,'<?=$t_month?>');
+				parent.graph_by_date(y, <?=$row?>, 0, links[x], '', <?if ($t_year != "") echo "'".$t_year."'"; else { ?>year_str<? } ?>, '<?=$t_month?>', '<?=$t_day?>');
             }
 		});
     });
