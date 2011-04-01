@@ -77,7 +77,7 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && $query !~ /taxonomy|pluging
 	$filtertr{'src_port'} = "sport";
 	$filtertr{'dst_port'} = "dport";
 	#	
-	$param = "s_utc_time='$start_utc',e_utc_time='$end_utc'"; #,server=$server";
+	$param = "s_utc_time='$start_utc',e_utc_time='$end_utc',server=$server";
 	# filters
 	if ($query ne "") {
 		# get different filters
