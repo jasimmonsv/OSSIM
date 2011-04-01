@@ -34,12 +34,11 @@
 * Function list:
 * Classes list:
 */
+ob_implicit_flush();
 require_once ('classes/Session.inc');
 //Session::logcheck("MenuEvents", "EventsViewer");
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
-?>
 
-<?php
 require_once ('ossim_db.inc');
 require_once ('ossim_conf.inc');
 require_once ('classes/Host.inc');
@@ -88,13 +87,14 @@ foreach($host_list as $host) {
     $host_names[$host->get_ip()] = $host->get_hostname();
 }
 $master_alarm_sid = 0;
-// Preload Plugin Sids
+/*
 $plugin_sid_list_aux = Plugin_sid::get_list($conn);
 $plugin_sid_list = array();
 foreach ($plugin_sid_list_aux as $psid) {
 	$plugin_sid_list[$psid->get_plugin_id()][$psid->get_sid()]['name'] = $psid->get_name();
 	$plugin_sid_list[$psid->get_plugin_id()][$psid->get_sid()]['priority'] = $psid->get_priority();
-}
+}*/
+$plugin_sid_list = array();
 ?>
 	<?php
 if (GET('box') == "1") { ?>
@@ -149,21 +149,10 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         $risk = $alarm->get_risk();
         $snort_sid = $alarm->get_snort_sid();
         $snort_cid = $alarm->get_snort_cid();
-        /* get plugin_id and plugin_sid names */
-        /*
-        * never used?
-        *
-        $plugin_id_list = Plugin::get_list($conn, "WHERE id = $id");
-        $id_name = $plugin_id_list[0]->get_name();
-        */
-        $sid_name = "";
-        if (is_array($plugin_sid_list[$id][$sid])) {
-            $sid_name = $plugin_sid_list[$id][$sid]['name'];
-            $sid_priority = $plugin_sid_list[$id][$sid]['priority'];
-        } else {
-            $sid_name = "Unknown (id=$id sid=$sid)";
-            $sid_priority = "N/A";
-        }
+        $sid_name = $alarm->get_sid_name();
+        $sid_priority = $alarm->get_sid_priority();
+        if ($sid_name=="") $sid_name = "Unknown (id=$id sid=$sid)";
+        if ($sid_priority=="") $sid_priority = "N/A";
         $color = ($alarm->get_alarm()) ? "#DEEBDB" : "#f2f2f2";
 ?>
       <tr bgcolor="<?=$color?>">
@@ -354,8 +343,8 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         // Alarm summary
         if (!$show_all || $alarm->get_alarm()) {
             $summary = Alarm::get_alarm_stats($conn, $backlog_id, $aid);
-            $summ_count = $summary["count"] + 1;  // +1 because we add event with alarm=1
-            $totales += $summary['total_count'];
+            $summ_count = $summary["count"];
+            //$totales += $summary['total_count'];
             $summ_event_count+= $summ_count;
             $summ_dst_ips = $summary["dst_ips"];
             $summ_types = $summary["types"];
@@ -432,3 +421,4 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 if ($have_scanmap) fclose($backlog_file);
 $db->close($conn);
 ?>
+

@@ -106,7 +106,7 @@ class Alarm {
     var $id_tag;
     var $event_data;
     var $tzone;
-    function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $rule_level = "", $alarm = 1, $id_tag="", $tzone=0) {
+    function Alarm($event_id, $backlog_id, $timestamp, $status, $since, $plugin_id, $plugin_sid, $protocol, $src_ip, $dst_ip, $src_port, $dst_port, $risk, $sensors, $snort_sid, $snort_cid, $sid_name, $sid_priority, $rule_level = "", $alarm = 1, $id_tag="", $tzone=0) {
         $this->event_id = intval($event_id);
         $this->backlog_id = intval($backlog_id);
         $this->timestamp = $timestamp;
@@ -125,6 +125,7 @@ class Alarm {
         $this->rule_level = intval($rule_level);
         $this->alarm = $alarm;
         $this->sid_name = $sid_name;
+        $this->sid_priority = $sid_priority;
         $this->id_tag = $id_tag;
         $this->tzone = $tzone;        
         $this->event_data = array();
@@ -153,6 +154,12 @@ class Alarm {
     }
     function get_plugin_sid() {
         return $this->plugin_sid;
+    }
+    function get_sid_name() {
+        return $this->sid_name;
+    }
+    function get_sid_priority() {
+        return $this->sid_priority;
     }
     function get_protocol() {
         return $this->protocol;
@@ -198,9 +205,6 @@ class Alarm {
     }
     function get_alarm() {
         return $this->alarm;
-    }
-    function get_sid_name() {
-        return $this->sid_name;
     }
     function get_tzone() {
         return $this->tzone;
@@ -380,7 +384,7 @@ class Alarm {
                 if (Session::hostAllowed($conn, $sensor)) $sensor_allowed = 1;
             }
             if ((Session::hostAllowed($conn, $rs->fields["inet_ntoa(src_ip)"])) or (Session::hostAllowed($conn, $rs->fields["inet_ntoa(dst_ip)"])) or ($sensor_allowed)) {
-                $list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(src_ip)"], $rs->fields["inet_ntoa(dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], "", 1);
+                $list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(src_ip)"], $rs->fields["inet_ntoa(dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], "", 0, 1);
             }
             $rs->MoveNext();
         }
@@ -495,18 +499,18 @@ class Alarm {
 		}
 		
 		// ... ", a.timestamp + 0 AS timestamp" what is this?
-        $sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, 
+        $sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, p.priority, 
                   inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip)
                 FROM alarm a$tag_left_join,plugin_sid p$sensor_join$directive_join$tag_join $sql_where $order $limit";
         //echo "SQL1: ".$sql."<br>";
         //exit;
 		// Sensor order exception:
 		if ($order == "ORDER BY sensor") {
-			$sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, 
+			$sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, p.priority 
                   inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip)
                 FROM alarm a,event e,plugin_sid p$directive_join $sql_where AND e.id=a.event_id ORDER BY e.sensor $limit";
 		} elseif ($order == "ORDER BY sensor DESC") {
-			$sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, 
+			$sql = "SELECT SQL_CALC_FOUND_ROWS *, p.name as sid_name, p.priority, 
                   inet_ntoa(a.src_ip), inet_ntoa(a.dst_ip)
                 FROM alarm a,event e,plugin_sid p$directive_join $sql_where AND e.id=a.event_id ORDER BY e.sensor DESC $limit";
 		}
@@ -523,7 +527,7 @@ class Alarm {
             $sensors = Alarm::__get_sensors($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]);
             $rs->fields["src_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["src_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["src_port"]] : $rs->fields["src_port"];
             $rs->fields["dst_port"] = ($ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] != "") ? $ports[$rs->fields["protocol"]][$rs->fields["dst_port"]] : $rs->fields["dst_port"];
-			$list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(a.src_ip)"], $rs->fields["inet_ntoa(a.dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], "", 1, $rs->fields["id_tag"], $rs->fields["id_tag"]);
+			$list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], $rs->fields["status"], Alarm::__get_since($conn, $rs->fields["event_id"], $rs->fields["backlog_id"]) , $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(a.src_ip)"], $rs->fields["inet_ntoa(a.dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $rs->fields["risk"], $sensors, $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], $rs->fields["priority"], "", 1, $rs->fields["id_tag"], $rs->fields["id_tag"]);
             $rs->MoveNext();
         }
         return array(
@@ -634,7 +638,7 @@ class Alarm {
                     ((Session::hostAllowed($conn, $db_src)) or (Session::hostAllowed($conn, $db_dst)))) {
                         $inf++;
                         $maxrisk = ($rs->fields["risk_c"] > $rs->fields["risk_a"]) ? $rs->fields["risk_c"] : $rs->fields["risk_a"];
-                        $list[] = new Alarm($event_id, $array_backlog_id, $rs->fields["timestamp"], $array_since, $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(src_ip)"], $rs->fields["inet_ntoa(dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $array_sensor, $rs->fields["snort_sid"], $rs->fields["snort_cid"], "", "", 1);
+                        $list[] = new Alarm($event_id, $array_backlog_id, $rs->fields["timestamp"], $array_since, $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["inet_ntoa(src_ip)"], $rs->fields["inet_ntoa(dst_ip)"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $array_sensor, $rs->fields["snort_sid"], $rs->fields["snort_cid"], "", 0, "", 1);
                     }
                 }
                 //                    $rs->MoveNext();
@@ -671,8 +675,11 @@ class Alarm {
                          event.snort_cid AS snort_cid,
                          event.alarm AS alarm,
                          event.tzone AS tzone,
-                         backlog_event.rule_level AS rule_level
-            FROM backlog_event, event
+                         backlog_event.rule_level AS rule_level,
+                         plugin_sid.name as sid_name,
+                         plugin_sid.priority as sid_priority
+            FROM backlog_event, event 
+            LEFT JOIN plugin_sid ON plugin_sid.plugin_id=event.plugin_id AND plugin_sid.sid=event.plugin_sid
             WHERE backlog_event.event_id = event.id AND
                 backlog_event.backlog_id = $backlog_id ";
         if (!$show_all) {
@@ -696,7 +703,7 @@ class Alarm {
                 if (($expand) or ($rs->fields["alarm"] == 1)) {
                     $maxrisk = ($rs->fields["risk_c"] > $rs->fields["risk_a"]) ? $rs->fields["risk_c"] : $rs->fields["risk_a"];
                     $list[] = new Alarm($rs->fields["event_id"], $rs->fields["backlog_id"], $rs->fields["timestamp"], "", /* status */
-                    $rs->fields["backlog_time"], $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["src_ip"], $rs->fields["dst_ip"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $rs->fields["sensor"], $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields['sid_name'], $rs->fields["rule_level"], $rs->fields["alarm"], "", $rs->fields["tzone"]);
+                    $rs->fields["backlog_time"], $rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["protocol"], $rs->fields["src_ip"], $rs->fields["dst_ip"], $rs->fields["src_port"], $rs->fields["dst_port"], $maxrisk, $rs->fields["sensor"], $rs->fields["snort_sid"], $rs->fields["snort_cid"], $rs->fields["sid_name"], $rs->fields["sid_priority"], $rs->fields["rule_level"], $rs->fields["alarm"], "", $rs->fields["tzone"]);
                 }
                 $rs->MoveNext();
             }
@@ -708,7 +715,7 @@ class Alarm {
         $sql = "SELECT count(*) as total_events
                 FROM backlog_event, event 
                 WHERE backlog_event.backlog_id = ? 
-                AND event.id = backlog_event.event_id"; // AND event.plugin_id<>1505
+                AND event.id = backlog_event.event_id AND event.plugin_id<>1505";
         if (!$rs = & $conn->Execute($sql, array($backlog_id))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) { 
@@ -754,7 +761,7 @@ class Alarm {
                 if ((!$expand) and ($rs->fields["event_id"] == $event_id)) {
                     $expand = true;
                 }
-                $total_count++;
+                if ($rs->fields["alarm"] != 1) $total_count++; // alarm not count
                 $rs->MoveNext();
             }
         }

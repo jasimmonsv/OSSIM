@@ -161,7 +161,7 @@ if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 &&
   
   function show_alarm (id,tr_id) {
 	tr = "tr"+tr_id;
-	document.getElementById(tr).innerHTML = "<img src='../pixmaps/loading.gif' alt='Loading'>";
+	document.getElementById(tr).innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	//alert (id);
 	$.ajax({
 		type: "GET",
@@ -293,6 +293,7 @@ if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 &&
 	  function set_pointer_cursor() {
 		document.body.style.cursor = 'default';
 	  }
+	  	  
   </script>
 
 </head>
@@ -825,7 +826,10 @@ if ($count > 0) {
             $events_link = $_SERVER["SCRIPT_NAME"];
             /*$alarm_link = Util::get_acid_pair_link($date, $alarm->get_src_ip() , $alarm->get_dst_ip());*/
             $alarm_link = Util::get_acid_single_event_link ($alarm->get_snort_sid(), $alarm->get_snort_cid());
-            $alarm_name = "<a href=\"" . $alarm_link . "\">$alarm_name</a>";
+            if ($show_all>=1)
+            	$alarm_name = "<a href=\"" . $alarm_link . "\">$alarm_name</a>";
+            else
+            	$alarm_name = "<a href=\"" . $alarm_link . "&minimal_view=1&noback=1\" class=\"greybox2\">$alarm_name</a>";
         }
         ?>
         <table class="transparent"><tr>

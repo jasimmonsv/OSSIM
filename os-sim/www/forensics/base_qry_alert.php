@@ -1018,5 +1018,6 @@ echo "\n</FORM>\n";
 PrintBASESubFooter();
 $et->Mark("Get Query Elements");
 if (!array_key_exists("minimal_view", $_GET)) $et->PrintTiming();
+else echo "<script>load_tree();</script>";
 echo "</body>\r\n</html>";
 ?>

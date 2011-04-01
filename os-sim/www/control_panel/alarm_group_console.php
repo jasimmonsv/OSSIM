@@ -271,7 +271,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
   var open = false;
   
   function toggle_group (group_id,name,ip_src,ip_dst,time,from) {
-	document.getElementById(group_id+from).innerHTML = "<img src='../pixmaps/loading.gif'>";
+	document.getElementById(group_id+from).innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	$.ajax({
 		type: "GET",
 		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>&date_from=<?php echo GET('date_from') ?>&date_to=<?php echo GET('date_to') ?>",
@@ -308,7 +308,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
   function toggle_alarm (backlog_id,event_id) {
 	var td_id = "eventbox"+backlog_id+"-"+event_id;
 	var plus = "eventplus"+backlog_id+"-"+event_id;
-	document.getElementById(td_id).innerHTML = "<img src='../pixmaps/loading.gif'>";
+	document.getElementById(td_id).innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	$.ajax({
 		type: "GET",
 		url: "events_ajax.php?backlog_id="+backlog_id+"&show_all=2",
