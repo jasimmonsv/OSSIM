@@ -111,6 +111,7 @@ class Scan {
 	    if (preg_match("/^kill \-9\s+[\d\s]+$/",$cmd)) {
 	    	system($cmd);
 	    }
+	    if (file_exists("/tmp/nmap_scanning.log")) unlink("/tmp/nmap_scanning.log");
 	}
     
     function append_option($options) {

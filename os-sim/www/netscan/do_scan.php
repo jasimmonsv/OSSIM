@@ -123,11 +123,14 @@ if (count($scanning_nets) > 0) {
         }
         sleep(3);
 	}
-	$output = file("/tmp/nmap_scanning.log");
-	foreach ($output as $line) {
-		if (!preg_match("/appears to be up/",$line)) {
-			echo $line;
+	if (file_exists("/tmp/nmap_scanning.log")) {
+		$output = file("/tmp/nmap_scanning.log");
+		foreach ($output as $line) {
+			if (!preg_match("/appears to be up/",$line)) {
+				echo $line;
+			}
 		}
+		unlink("/tmp/nmap_scanning.log");
 	}
 	echo gettext("Scan completed") . ".<br/><br/>";
 	?>
