@@ -107,8 +107,8 @@ if (count($scanning_nets) > 0) {
 	// print html
 	foreach($scanning_nets as $net) {
 		$rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
-		if ($rscan->available_scan()) { // $full_scan!="full" &&
-			echo _("Scanning network") . " ($net), " . _(" with a remote sensor, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'></div><br>\n";
+		if (($available = $rscan->available_scan()) != "") { // $full_scan!="full" &&
+			echo _("Scanning network") . " ($net), " . _(" with a remote sensor")." [$available], "._("please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'></div><br>\n";
 		} else {
 			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
 		}
