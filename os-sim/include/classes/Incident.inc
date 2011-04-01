@@ -133,21 +133,21 @@ class Incident {
     var $tags;
     var $_life_time_diff;
     function Incident($id, $title, $date, $ref, $type, $submitter, $priority, $in_charge, $status, $last_update, $tags, $life_time_diff = null, $event_start, $event_end, $src_ips="") {
-        $this->id = intval($id);
-        $this->title = $title;
-        $this->date = $date;
-        $this->ref = $ref;
-        $this->type = $type;
-        $this->submitter = $submitter;
-        $this->priority = $priority;
-        $this->in_charge = $in_charge;
-        $this->status = $status;
-        $this->last_update = $last_update;
-        $this->tags = $tags;
+        $this->id              = intval($id);
+        $this->title           = $title;
+        $this->date            = $date;
+        $this->ref             = $ref;
+        $this->type            = $type;
+        $this->submitter       = $submitter;
+        $this->priority        = $priority;
+        $this->in_charge       = $in_charge;
+        $this->status          = $status;
+        $this->last_update     = $last_update;
+        $this->tags            = $tags;
         $this->_life_time_diff = $life_time_diff; /* Private property */
-        $this->event_start = $event_start;
-        $this->event_end = $event_end;
-		$this->src_ips = $src_ips;
+        $this->event_start     = $event_start;
+        $this->event_end 	   = $event_end;
+		$this->src_ips         = $src_ips;
     }
     function get_id() {
         return intval($this->id);
@@ -333,18 +333,22 @@ class Incident {
                 'illegal:' . _("Priority")
             ) ,
         );
-        $incident_insert = array(
+        
+		$incident_insert = array(
             'ref' => array(
                 OSS_LETTER,
                 'illegal:' . _("Incident Ref")
             )
         );
-        $incident_update = array(
+        
+		$incident_update = array(
             'incident_id' => array(
-                OSS_DIGIT
+                OSS_DIGIT,
+				'illegal:' . _("Incident id")
             )
         );
-        $event = array(
+        
+		$event = array(
             'src_ips' => array(
                 OSS_LETTER,
                 OSS_DIGIT,
@@ -378,6 +382,7 @@ class Incident {
                 'illegal:' . _("Dest Ports")
             )
         );
+		
         $metric = array(
             'target' => array(
                 OSS_PUNC,
@@ -434,22 +439,28 @@ class Incident {
                 'illegal:' . _("Risk")
             )
         );
+		
         if ($type == 'incident_insert') return array_merge($incident, $incident_insert);
         if ($type == 'incident_update') return array_merge($incident, $incident_update);
-        if ($type == 'event') return $event;
-        if ($type == 'metric') return $metric;
-        if ($type == 'vulnerability') return $vulnerability;
+        if ($type == 'event')           return $event;
+        if ($type == 'metric')          return $metric;
+        if ($type == 'vulnerability')   return $vulnerability;
     }
+	
     function colorize_status($status,$returnEcho=false) {
-        $status = Util::htmlentities($status, ENT_COMPAT, "UTF-8");
-        if($returnEcho){
+		$status = Util::htmlentities($status, ENT_COMPAT, "UTF-8");
+       
+		if($returnEcho)
+		{
             if ($status == 'Open') $returnHtml= "<font style=\"color:#FF0000\"><b>" . _("Open") . "</b></font>";
             elseif ($status == 'Closed') $returnHtml= "<font style=\"color:#0000FF\"><b>" . _("Closed") . "</b></font>";
             elseif ($status == 'False') $returnHtml= "<b>" . _("Closed (False)") . "</b>";
             else $returnHtml= "<b>$status</b>";
 
             return $returnHtml;
-        }else{
+        }
+		else
+		{
             if ($status == 'Open') echo "<font color=\"red\"><b>" . _("Open") . "</b></font>";
             elseif ($status == 'Closed') echo "<font color=\"blue\"><b>" . _("Closed") . "</b></font>";
             elseif ($status == 'False') echo "<b>" . _("Closed (False)") . "</b>";
@@ -459,69 +470,84 @@ class Incident {
     }
     function get_list($conn, $args = "", $user = "") {
         require_once ('classes/Session.inc');
-        if ($user == "" || (is_array($user) && count($user) < 1)) $user = Session::get_session_user();
-        $list = array();
-        $sql = "SELECT incident.id," . "incident.title," . "incident.date, " . "incident.ref, " . "incident.type_id as type, " . "incident.submitter as submitter, " . "incident.priority, " . "incident.in_charge, " . "incident.status, " . "incident.last_update, " . "incident.event_start, " . "incident.event_end " . "FROM incident $args";
+        if ( $user == "" || (is_array($user) && count($user) < 1) ) 
+			$user = Session::get_session_user();
+        
+		$list  = array();
+        $sql   = "SELECT incident.id, incident.title, incident.date, incident.ref, incident.type_id as type, incident.submitter as submitter, 
+						 incident.priority, incident.in_charge, incident.status, incident.last_update, incident.event_start, incident.event_end FROM incident $args";
 
-        if (!$rs = & $conn->Execute(OssimQuery($sql))) {
-            die($conn->ErrorMsg());
-        } else {
+        if ( !$rs = & $conn->Execute(OssimQuery($sql)) ) 
+		    die($conn->ErrorMsg());
+        else 
+		{
             while (!$rs->EOF) {
-                // XXX This should be improved, this is doing 2 queries
-                //     per record
-                $allowed = Incident::get_users_list($conn, $rs->fields["id"]);
-                //print_r($allowed);
-                if (is_array($user)) {
+                
+                $allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"]);
+								                
+                if ( is_array($user) ) 
+				{
                 	$flag = false;
-                	foreach ($user as $u) {
+                	
+					foreach ($user as $u) 
+					{
                 		if (in_array($u, $allowed))
 	                    	$flag = true;
                 	}
-                	if ($flag) {
+                	if ($flag) 
                 		$list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
-                	}
-                } else {
-                	if (in_array($user, $allowed)) {
+                	
+                } 
+				else 
+				{
+                	if ( !empty($allowed[$user]) )
                     	$list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
-                	}
+                	
                 }
                 $rs->MoveNext();
             }
         }
         return $list;
     }
+	
 	function get_list_all($conn, $args = "") {
         require_once ('classes/Session.inc');
         $list = array();
         $sql = "SELECT incident.id," . "incident.title," . "incident.date, " . "incident.ref, " . "incident.type_id as type, " . "incident.submitter as submitter, " . "incident.priority, " . "incident.in_charge, " . "incident.status, " . "incident.last_update, " . "incident.event_start, " . "incident.event_end " . "FROM incident $args";
 
-        if (!$rs = & $conn->Execute(OssimQuery($sql))) {
+        if ( !$rs = & $conn->Execute(OssimQuery($sql)) )
             die($conn->ErrorMsg());
-        } else {
-            while (!$rs->EOF) {
+        else 
+		{
+            while (!$rs->EOF) 
+			{
                 $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
+	
     function get_list_filter_ips($conn, $host_ip, $args = "") {
         require_once ('classes/Session.inc');
         $user = Session::get_session_user();
         $list = array();
 		// Network or Host
-		if (preg_match("/\/(\d+)/",$host_ip,$found)) {
+		if (preg_match("/\/(\d+)/",$host_ip,$found)) 
+		{
 			if ($found[1] >= 24) $host_ip = preg_replace("/\.\d+\/.*/","",$host_ip);
 			elseif ($found[1] >= 16) $host_ip = preg_replace("/\.\d+\.\d+\/.*/","",$host_ip);
 			elseif ($found[1] >= 8) $host_ip = preg_replace("/\.\d+\.\d+\.\d+\/.*/","",$host_ip);
-			$host_where = "a.src_ips LIKE '$host_ip%' OR a.dst_ips LIKE '$host_ip%' OR a.src_ips LIKE ',$host_ip%' OR a.dst_ips LIKE ',$host_ip%'";
+			$host_where   = "a.src_ips LIKE '$host_ip%' OR a.dst_ips LIKE '$host_ip%' OR a.src_ips LIKE ',$host_ip%' OR a.dst_ips LIKE ',$host_ip%'";
             $host_where_2 = "a.ip LIKE '$host_ip%'";
             $host_where_3 = "a.target LIKE '$host_ip%'";
-            } else {
-                $host_where = "a.src_ips LIKE '%$host_ip%' OR a.dst_ips LIKE '%$host_ip%'";
-                $host_where_2 = "a.ip LIKE '%$host_ip%'";
-                $host_where_3 = "a.target LIKE '%$host_ip%'"; 
-            }
+		} 
+		else 
+		{
+			$host_where = "a.src_ips LIKE '%$host_ip%' OR a.dst_ips LIKE '%$host_ip%'";
+			$host_where_2 = "a.ip LIKE '%$host_ip%'";
+			$host_where_3 = "a.target LIKE '%$host_ip%'"; 
+		}
 		
 		//$sql = "SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_alarm a WHERE i.id=a.incident_id AND ($host_where) $args";
         /*$sql = "(SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips FROM incident i,incident_alarm a 
@@ -555,34 +581,41 @@ class Incident {
         //echo "***";
         //echo $sql;
         //echo "***";
-		if (!$rs = $conn->Execute(OssimQuery($sql))) {
+		
+		if (!$rs = $conn->Execute(OssimQuery($sql))) 
             die($conn->ErrorMsg());
-        } else {
-            while (!$rs->EOF) {
-                // XXX This should be improved, this is doing 2 queries
-                //     per record
-                $allowed = Incident::get_users_list($conn, $rs->fields["id"]);
-                if (in_array($user, $allowed)) {
+        else 
+		{
+            while (!$rs->EOF) 
+			{
+                
+                $allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"]);
+                if ( !empty($allowed[$user]) )  
                     $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"], $rs->fields["event_end"], $rs->fields['src_ips']);
-                }
+                
                 $rs->MoveNext();
             }
         }
+		
         return $list;
     }
     function get_list_type_descr($conn, $args = "") {
         require_once ('classes/Session.inc');
-        $user = Session::get_session_user();
+        
+		$user = Session::get_session_user();
         $list = array();
-        $sql = "SELECT incident.id," . "incident.title," . "incident.date, " . "incident.ref, " . "incident.type_id as type, " . "incident.submitter as submitter, " . "incident.priority, " . "incident.in_charge, " . "incident.status, " . "incident.last_update, " . "incident.event_start, " . "incident.event_end, " . "incident_type.descr " . "FROM incident LEFT JOIN incident_type ON (incident.type_id = incident_type.id) $args";
-        if (!$rs = & $conn->Execute(OssimQuery($sql))) {
+        $sql  = "SELECT incident.id," . "incident.title," . "incident.date, " . "incident.ref, " . "incident.type_id as type, " . "incident.submitter as submitter, " . "incident.priority, " . "incident.in_charge, " . "incident.status, " . "incident.last_update, " . "incident.event_start, " . "incident.event_end, " . "incident_type.descr " . "FROM incident LEFT JOIN incident_type ON (incident.type_id = incident_type.id) $args";
+        
+		if (!$rs = & $conn->Execute(OssimQuery($sql))) 
             die($conn->ErrorMsg());
-        } else {
-            while (!$rs->EOF) {
-                // XXX This should be improved, this is doing 2 queries
-                //     per record
-                $allowed = Incident::get_users_list($conn, $rs->fields["id"]);
-                if (in_array($user, $allowed)) {
+        else 
+		{
+            while (!$rs->EOF) 
+			{
+                $allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"]);
+				
+				if ( !empty($allowed[$user]) )  
+				{
                     $my_incident = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
                     $my_incident->set_type_descr($rs->fields["descr"]);
                     $list[] = $my_incident;
@@ -594,13 +627,14 @@ class Incident {
     }
     function get_keywords_from_type($conn) {
         $keywords = "";
-        $id_type = $this->get_type();
+        $id_type  = $this->get_type();
         $sql = "SELECT keywords FROM incident_type WHERE id='$id_type'";
-        if (!$rs = & $conn->Execute(OssimQuery($sql))) {
+		
+		if (!$rs = & $conn->Execute(OssimQuery($sql))) 
             die($conn->ErrorMsg());
-        } else {
+        else
             if (!$rs->EOF) $keywords = $rs->fields["keywords"];
-        }
+        
         return $keywords;
     }
     function search($conn, $search_criteria, $order_by = 'life_time', $order_mode = 'DESC', $page=1, $rows_per_page=50) {
@@ -622,14 +656,16 @@ class Incident {
         foreach($search_opts as $o) {
             $opts[$o] = isset($search_criteria[$o]) ? $search_criteria[$o] : null;
         }
-        $sql = (!$opts['with_text']) ? "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* " : "SELECT DISTINCT incident.* ";
+        $sql   = (!$opts['with_text']) ? "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* " : "SELECT DISTINCT incident.* ";
         $where = $parms = array();
-        if (is_array($opts['last_update'])) {
+        
+		if (is_array($opts['last_update'])) {
             $where[] = "incident.last_update between ".$opts['last_update'][0]." AND ".$opts['last_update'][1];
         } elseif ($opts['last_update']) {
             $where[] = "incident.last_update >= ".$opts['last_update'];
         }
-        if ($opts['incident_id']) {
+        
+		if ($opts['incident_id']) {
             $where[] = "incident.id = ?";
             $parms[] = $opts['incident_id'];
         }
@@ -858,7 +894,7 @@ class Incident {
         if (!Session::am_i_admin()) { //  $user != ACL_DEFAULT_OSSIM_ADMIN
             if (preg_match("/incident_event/",$w) || preg_match("/incident_alarm/",$w)
                 || preg_match("/incident_metric/",$w) || preg_match("/incident_vulns/",$w) || preg_match("/incident_custom/",$w) ) {
-                $sql .= "LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE incident_subscrip.login in ($user_where)";
+                $sql .= " LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE incident_subscrip.login in ($user_where)";
             } else {
                 $incident_ticket = (!preg_match("/incident_ticket/",$from)) ? true : false;
                 $sql .= (($incident_ticket) ? " LEFT JOIN incident_ticket ON incident_ticket.incident_id = incident.id" : "")." LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE ".((!$incident_ticket) ? "incident_ticket.incident_id=incident.id AND" : "");
@@ -931,31 +967,69 @@ class Incident {
     /* get users that are part of an incident (the main Admin included)
     * (user, in_charge, transferred and subscribed to incidents)
     */
-    function get_users_list($conn, $incident_id) {
-    	if (Session::am_i_admin()) return array(ACL_DEFAULT_OSSIM_ADMIN);
-        $list = array();
-        $query = OssimQuery("SELECT users, in_charge, transferred FROM incident_ticket WHERE incident_id = " . $incident_id);
-        if (!$rs = & $conn->Execute($query)) {
-            die($conn->ErrorMsg());
-        } else {
-            while (!$rs->EOF) {
-                if (($rs->fields["users"]) and !in_array($rs->fields["users"], $list)) $list[] = $rs->fields["users"];
-                if (($rs->fields["in_charge"]) and !in_array($rs->fields["in_charge"], $list)) $list[] = $rs->fields["in_charge"];
-                if (($rs->fields["transferred"]) and !in_array($rs->fields["transferred"], $list)) $list[] = $rs->fields["transferred"];
-                $rs->MoveNext();
+    
+	function get_users_list($conn, $incident_id, $submitter, $in_charge) {
+    	
+		$list = array();
+		$conf = $GLOBALS["CONF"];
+		
+		if (!$conf) {
+			require_once 'ossim_db.inc';
+			require_once 'ossim_conf.inc';
+			$conf = new ossim_conf();
+		}
+						
+		$version  = $conf->get_conf("ossim_server_version", FALSE);
+		$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+		
+		$me = Session::get_session_user();
+		
+		//I´m admin
+		if ( Session::am_i_admin() ) 
+			return array($me);
+        
+		//I'm the submmiter or I´m in charge
+		if ( $submitter == $me || $in_charge == $me )
+			return array($me);
+		elseif ( $pro && preg_match("/^\d+$/",$in_charge) )
+			$list = Acl::get_all_users_by_entity($conn, $in_charge);
+					
+		
+		$query = OssimQuery("SELECT users, transferred FROM incident_ticket WHERE incident_id = " . $incident_id);
+				
+		if (!$rs = & $conn->Execute($query)) 
+		    die($conn->ErrorMsg());
+        else 
+		{
+            while (!$rs->EOF) 
+			{
+                $users       =  $rs->fields["users"];
+				$transferred =  $rs->fields["transferred"];
+				
+				if ( !empty($users) ) 
+					$list[$users] = $users;
+                
+				if ( !empty($transferred) )
+				{
+					if ( $pro && preg_match("/^\d+$/",$transferred) )
+						$list = array_merge ($list, Acl::get_all_users_by_entity($conn, $transferred));
+					elseif (!preg_match("/^\d+$/",$transferred) )
+						$list[$transferred] = $transferred;
+				}	
+                
+				$rs->MoveNext();
             }
         }
-        $suscrib = Incident::get_subscribed_users($conn, $incident_id);
-        foreach($suscrib as $s) {
-            if (!in_array($s['login'], $list)) {
-                $list[] = $s['login'];
-            }
-        }
-        if (!in_array(ACL_DEFAULT_OSSIM_ADMIN, $list)) {
-            $list[] = ACL_DEFAULT_OSSIM_ADMIN;
-        }
-        return $list;
+		
+		$suscrib = Incident::get_subscribed_users($conn, $incident_id);
+        
+		foreach($suscrib as $s)
+            $list[$s['login']] = $s['login'];
+        
+		return $list;
     }
+	
+		
     /*
     * @return array in the form:
     *              array(0 => array('login' => 'foo',
@@ -964,35 +1038,44 @@ class Incident {
     *                               'company' => XXX,
     *                               'department' => XXX))
     */
+	
     function get_subscribed_users($conn, $incident_id, $entity_id="") {
         $list1 = array();
         $list2 = array();
         
-        $sql = "SELECT u.login, u.name, u.email," . "      u.company, u.department " . "FROM users u, incident_subscrip s " . "WHERE s.incident_id = ? AND u.login = s.login " . "ORDER BY u.name";
+        $sql = "SELECT u.login, u.name, u.email," . " u.company, u.department " . "FROM users u, incident_subscrip s " . "WHERE s.incident_id = ? AND u.login = s.login " . "ORDER BY u.name";
         if (!$rs = & $conn->Execute($sql, $incident_id)) {
             print $conn->ErrorMsg();
-        } else {
+        } 
+		else 
+		{
             while (!$rs->EOF) {
                 $list1[] = $rs->fields;
                 $rs->MoveNext();
             }
         }
         
-        if (preg_match("/\d+/",$entity_id)) {
-            $user_list = array();
+        if (preg_match("/\d+/",$entity_id)) 
+		{
+            $user_list    = array();
             $users_entity = array();
-            $users = Acl::get_users($conn);
-            $user_list = $users[0];
+            $users 		  = Acl::get_users($conn);
+            $user_list    = $users[0];
             
-            foreach ($user_list as $user) if(in_array($entity_id,$user['entities'])) $users_entity[] = "'".$user["login"]."'";
+            foreach ($user_list as $user) 
+				if(in_array($entity_id,$user['entities'])) $users_entity[] = "'".$user["login"]."'";
             
             
-            if(count($users_entity)>0) {
+            if(count($users_entity)>0) 
+			{
                 $sql = "SELECT u.login, u.name, u.email, u.company, u.department FROM users u WHERE u.login in (".implode(",",$users_entity).") ORDER BY u.name";
 
-                if (!$rs = & $conn->Execute($sql)) {
+                if (!$rs = & $conn->Execute($sql))
+				{
                     print $conn->ErrorMsg();
-                } else {
+                } 
+				else 
+				{
                     while (!$rs->EOF) {
                         $list2[] = $rs->fields;
                         $rs->MoveNext();
@@ -1000,15 +1083,16 @@ class Incident {
                 }
             }
         }
+		
         return array_merge($list1, $list2);
     }
-    /*
-    * @deprecated
-    */
-    /* returns True if user is admin or is in charge
-    * of the incident, instead returns False
-    */
-    function user_incident_perms($conn, $user, $incident_id) {
+    
+	/*
+		@return true if current user have permissions to edit, delete, 
+		subscribe and unsubscribe incidents
+	*/
+	
+    function user_incident_perms($conn, $incident_id, $action, $user=null) {
         /*require_once 'ossim_acl.inc';
         require_once ('ossim_conf.inc');
         
@@ -1035,11 +1119,81 @@ class Incident {
             if ($user == $incident->get_in_charge($conn) || (preg_match("/pro|demo/i",$version) && in_array($incident->get_in_charge($conn),$user_tmp))) return true;
         }
         return false;
-        */
+        
         if (Session::am_i_admin()) return true; // $user == ACL_DEFAULT_OSSIM_ADMIN
         $incident_list = Incident::search($conn, array( 'incident_id' => $incident_id ));
         return (count($incident_list)>0) ? true : false;
-    }
+		*/
+		
+		$me = ( empty($user) ) ? Session::get_session_user() : $user;
+		
+		$conf = $GLOBALS["CONF"];
+						
+		if (!$conf) {
+			require_once 'ossim_db.inc';
+			require_once 'ossim_conf.inc';
+			$conf = new ossim_conf();
+		}
+		
+		$version  = $conf->get_conf("ossim_server_version", FALSE);
+		$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+				
+		
+		//I'm admin
+		if ( Session::am_i_admin() ) 
+			return true;
+		
+				
+		$query = OssimQuery("SELECT submitter, in_charge FROM incident WHERE id = ".$incident_id);
+		
+		if (!$rs = & $conn->Execute($query)) 
+		    return $conn->ErrorMsg();
+        else 
+		{
+            if (!$rs->EOF) 
+			{
+			    $submitter = $rs->fields["submitter"];
+				$in_charge = $rs->fields["in_charge"];
+			}
+		}
+		
+		//I'm the submmiter 
+		if ( $submitter == $me )
+			return true;
+		
+		
+		if ( $action == 'show' || $action == 'subscrip' || $action == 'newticket' )
+		{
+			$allowed = Acl::get_users_list($conn, $incident_id, $submitter, $in_charge);
+			if ( !empty($allowed[$me]) )
+				return true;
+		}
+		elseif ( $action == "delincident" || $action == "editincident" )
+		{
+			if ( $pro && preg_match("/^\d+$/",$in_charge) )
+			{
+				$entity = Acl::get_entity($conn, $in_charge);
+				
+				if ( $me == $entity['admin_user'] ) 
+					return true;
+					
+			}
+		}
+		elseif ( $action == 'delticket' )
+		{
+			if ( $pro && preg_match("/^\d+$/",$in_charge) )
+			{
+				$entity = Acl::get_entity($conn, $in_charge);
+				
+				if ( $me == $entity['admin_user'] ) 
+					return true;
+					
+			}
+						
+		}
+		
+		return false;
+	}
     /*
     * @deprecated
     */
@@ -1049,8 +1203,7 @@ class Incident {
     function user_ticket_perms($conn, $user, $ticket_id) {
         require_once ('ossim_acl.inc');
         if ($user == ACL_DEFAULT_OSSIM_ADMIN) return true;
-        $query = OssimQuery("SELECT in_charge FROM incident_ticket WHERE id =
-        $ticket_id");
+        $query = OssimQuery("SELECT in_charge FROM incident_ticket WHERE id = $ticket_id");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
             return false;
@@ -1099,21 +1252,31 @@ class Incident {
         $output.= '</select></td>';
         print $output;
     }
-    function __insert($conn, $title, $type, $submitter, $priority, $ref, $event_start, $event_end, $in_charge="") {
-        foreach(Incident::get_validations('incident_insert') as $var => $rule) {
+    
+	function __insert($conn, $title, $type, $submitter, $priority, $ref, $event_start, $event_end, $in_charge="") 
+	{
+        foreach(Incident::get_validations('incident_insert') as $var => $rule) 
+		{
             if (!ossim_valid($$var, $rule)) return false;
         }
-        require_once ('classes/Session.inc');
-        $user = Session::get_session_user();
-        if($in_charge=="") $in_charge = $user;
+        
+		require_once ('classes/Session.inc');
+        
+		$user = Session::get_session_user();
+        
+		if( $in_charge == "" ) $in_charge = $user;
         
         if (empty($event_start)) $event_start = "now";
-        if (empty($event_end)) $event_end = "now";
-        $event_start = date('Y-m-d H:i:s', strtotime($event_start));
-        $event_end = date('Y-m-d H:i:s', strtotime($event_end));
-        $query = "INSERT INTO incident (title, type_id, ref, submitter, priority, in_charge, status, date, last_update, event_start, event_end) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $date = date('Y-m-d H:i:s');
-        $params = array(
+        if (empty($event_end))   $event_end = "now";
+        
+		$event_start = date('Y-m-d H:i:s', strtotime($event_start));
+        $event_end   = date('Y-m-d H:i:s', strtotime($event_end));
+        
+		$query = "INSERT INTO incident (title, type_id, ref, submitter, priority, in_charge, status, date, last_update, event_start, event_end) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+		$date   = date('Y-m-d H:i:s');
+        
+		$params = array(
             $title,
             $type,
             $ref,
@@ -1126,30 +1289,41 @@ class Incident {
             $event_start,
             $event_end
         );
+		
         if ($conn->Execute($query, $params) === false) {
-            die('error inserting incident: ' . $conn->ErrorMsg());
+            die('Error inserting incident: ' . $conn->ErrorMsg());
         }
-        /* get last inserted id */
+        /* Get last inserted id */
         $query = OssimQuery("SELECT LAST_INSERT_ID() as id FROM incident");
-        if (!$rs = & $conn->Execute($query)) {
+        
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
             exit;
         }
         $last_id = $rs->fields["id"];
         // Automatically subscribe incident creator
-        Incident::insert_subscription($conn, $last_id, $user);
+        
+		Incident::insert_subscription($conn, $last_id, $user);
         return $last_id;
     }
-    function insert_alarm($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $backlog_id, $event_id, $alarm_group_id, $in_charge="") {
-        foreach(Incident::get_validations('event') as $var => $rule) {
+    
+	function insert_alarm($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $backlog_id, $event_id, $alarm_group_id, $transferred_user, $transferred_entity) {
+        
+		require_once ('classes/Session.inc');
+		
+		$in_charge = ( $transferred_user != "" )  ? $transferred_user : $transferred_entity;  
+		$in_charge = ( $in_charge != "" )       ? $in_charge : Session::get_session_user(); 
+        
+		foreach(Incident::get_validations('event') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) return false;
         }
-        $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Alarm", $event_start, $event_end, $in_charge);
+        
+		$last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Alarm", $event_start, $event_end, $in_charge);
+		
 		if (ossim_error()) return false;
-        $sql = "INSERT INTO incident_alarm
-                (incident_id, src_ips, dst_ips, src_ports, dst_ports, backlog_id, event_id, alarm_group_id)
-                VALUES (?, ?, ? ,?, ?,?,?,?)";
-        $params = array(
+        $sql = "INSERT INTO incident_alarm (incident_id, src_ips, dst_ips, src_ports, dst_ports, backlog_id, event_id, alarm_group_id) VALUES (?, ?, ? ,?, ?,?,?,?)";
+        
+		$params = array(
             $last_id,
             $src_ips,
             $dst_ips,
@@ -1162,36 +1336,54 @@ class Incident {
         if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         return $last_id;
     }
-    function insert_event($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $in_charge="") {
-        foreach(Incident::get_validations('event') as $var => $rule) {
+	
+    function insert_event($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $transferred_user, $transferred_entity) {
+       
+	    foreach(Incident::get_validations('event') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) return false;
         }
+		
+		require_once ('classes/Session.inc');
+		
+		$in_charge = ( $transferred_user != "" )  ? $transferred_user : $transferred_entity;  
+		$in_charge = ( $in_charge != "" )       ? $in_charge : Session::get_session_user(); 
+		
 
-        $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Event", $event_start, $event_end, $in_charge);
-        if (ossim_error()) return false;
-        $sql = "INSERT INTO incident_event
-                (incident_id, src_ips, dst_ips, src_ports, dst_ports)
-                VALUES (?, ?, ? ,?, ?)";
-        $params = array(
+        $last_id   = Incident::__insert($conn, $title, $type, $submitter, $priority, "Event", $event_start, $event_end, $in_charge);
+        
+		if (ossim_error()) return false;
+        
+		$sql = "INSERT INTO incident_event (incident_id, src_ips, dst_ips, src_ports, dst_ports) VALUES (?, ?, ? ,?, ?)";
+        
+		$params = array(
             $last_id,
             $src_ips,
             $dst_ips,
             $src_ports,
             $dst_ports
         );
-        //$conn->debug = true;
+        
+		//$conn->debug = true;
         if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         return $last_id;
     }
-    function insert_anomaly($conn, $title, $type, $submitter, $priority, $anom_type, $ip, $data_orig, $data_new, $in_charge="") {
+    
+	function insert_anomaly($conn, $title, $type, $submitter, $priority, $anom_type, $ip, $data_orig, $data_new, $transferred_user, $transferred_entity) {
         $s_data_orig = implode(",", $data_orig);
-        $s_data_new = implode(",", $data_new);
-        $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Anomaly", "", "", $in_charge);
-        if (ossim_error()) return false;
-        $sql = "INSERT INTO incident_anomaly
-                (incident_id, anom_type, ip, data_orig, data_new)
-                VALUES (?, ?, ?, ?, ?)";
-        $params = array(
+        $s_data_new  = implode(",", $data_new);
+       
+		require_once ('classes/Session.inc');
+		
+		$in_charge = ( $transferred_user != "" )  ? $transferred_user : $transferred_entity;  
+		$in_charge = ( $in_charge != "" )       ? $in_charge : Session::get_session_user(); 
+		
+	    $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Anomaly", "", "", $in_charge);
+        
+		if (ossim_error()) return false;
+        
+		$sql = "INSERT INTO incident_anomaly (incident_id, anom_type, ip, data_orig, data_new) VALUES (?, ?, ?, ?, ?)";
+        
+		$params = array(
             $last_id,
             $anom_type,
             $ip,
@@ -1202,17 +1394,28 @@ class Incident {
         if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         return $last_id;
     }
-    function insert_vulnerability($conn, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description, $in_charge="") {
-        foreach(Incident::get_validations('vulnerability') as $var => $rule) {
+	
+    function insert_vulnerability($conn, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description, $transferred_user, $transferred_entity) {
+        
+		foreach(Incident::get_validations('vulnerability') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) return false;
         }
-        $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Vulnerability", "", "", $in_charge);
-        if (ossim_error()) return false;
+        
+		require_once ('classes/Session.inc');
+		
+		$in_charge = ( $transferred_user != "" )  ? $transferred_user : $transferred_entity;  
+		$in_charge = ( $in_charge != "" )       ? $in_charge : Session::get_session_user(); 
+		
+		$last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Vulnerability", "", "", $in_charge);
+        
+		if (ossim_error()) return false;
         $sql = "INSERT INTO incident_vulns 
                 (id, incident_id, ip, port, nessus_id, risk, description) 
                 VALUES (?,?, ?, ?, ?, ?, ?)";
-        $vuln_entry_id = $conn->GenID('incident_vulns_seq');
-        $params = array(
+        
+		$vuln_entry_id = $conn->GenID('incident_vulns_seq');
+        
+		$params = array(
             $vuln_entry_id,
             $last_id,
             $ip,
@@ -1221,15 +1424,25 @@ class Incident {
             $risk,
             $description
         );
-        if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
-        return $last_id;
+        
+		if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
+        
+		return $last_id;
     }
-    function insert_custom($conn, $title, $type, $submitter, $priority, $in_charge="", $fields=array()) {
-        foreach($fields as $value) {
-			if ($value["validate"])
+	
+    function insert_custom($conn, $title, $type, $submitter, $priority, $transferred_user, $transferred_entity, $fields=array()) {
+        
+		foreach($fields as $value)
+		{
+			if ( $value["validate"] )
 				if (!ossim_valid($value["content"], OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field"))) 
 					return false;
         }
+		
+		require_once ('classes/Session.inc');
+		
+		$in_charge = ( $transferred_user != "" )  ? $transferred_user : $transferred_entity;  
+		$in_charge = ( $in_charge != "" )       ? $in_charge : Session::get_session_user(); 
 		
         $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Custom", "", "", $in_charge);
         
@@ -1247,17 +1460,25 @@ class Incident {
 	    }
         return $last_id;
     }
-    /*
-    * @static
-    */
-    function insert_metric($conn, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end, $in_charge="") {
-        foreach(Incident::get_validations('metric') as $var => $rule) {
+    
+	
+    function insert_metric($conn, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end, $transferred_user, $transferred_entity) {
+        
+		foreach(Incident::get_validations('metric') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) return false;
         }
-        $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Metric", $event_start, $event_end, $in_charge);
-        if (ossim_error()) return false;
+		
+        require_once ('classes/Session.inc');
+		
+		$in_charge = ( $transferred_user != "" )  ? $transferred_user : $transferred_entity;  
+		$in_charge = ( $in_charge != "" )       ? $in_charge : Session::get_session_user(); 
+		
+		$last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Metric", $event_start, $event_end, $in_charge);
+        
+		if (ossim_error()) return false;
         // XXX move to sequences
-        $sql = "INSERT INTO incident_metric " . "(incident_id, target, metric_type, metric_value) " . "VALUES (?, ?, ?, ?)";
+        
+		$sql = "INSERT INTO incident_metric " . "(incident_id, target, metric_type, metric_value) " . "VALUES (?, ?, ?, ?)";
         $params = array(
             $last_id,
             $target,
@@ -1267,13 +1488,16 @@ class Incident {
         if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         return $last_id;
     }
-    function insert_subscription($conn, $incident_id, $login) {
+   
+	function insert_subscription($conn, $incident_id, $login) {
         ossim_valid($incident_id, OSS_DIGIT, 'illegal:' . _("ID"));
         ossim_valid($login, OSS_USER, 'illegal:' . _("Login"));
-        if (ossim_error()) {
+        
+		if (ossim_error()) {
             die(ossim_error());
         }
-        // Check if he's already subscribed
+        
+		// Check if he's already subscribed
         $sql = "SELECT login FROM incident_subscrip WHERE login=? AND incident_id=?";
         if (!$rs = $conn->Execute($sql, array(
             $login,
@@ -1281,7 +1505,8 @@ class Incident {
         ))) {
             die($conn->ErrorMsg());
         }
-        if (!$rs->EOF) return false;
+        
+		if (!$rs->EOF) return false;
         $sql = "INSERT INTO incident_subscrip VALUES (?, ?)";
         if (!$conn->Execute($sql, array(
             $login,
@@ -1291,25 +1516,35 @@ class Incident {
         }
         return true;
     }
-    function __update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end) {
-        foreach(Incident::get_validations('incident_update') as $var => $rule) {
-            if (!ossim_valid($$var, $rule)) return false;
+    
+	function __update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end, $in_charge){
+        
+		foreach(Incident::get_validations('incident_update') as $var => $rule) {
+            if (!ossim_valid($$var, $rule)) 
+				return false;
         }
-        if (empty($event_start)) $event_start = "now";
-        if (empty($event_end)) $event_end = "now";
-        $event_start = date('Y-m-d H:i:s', strtotime($event_start));
-        $event_end = date('Y-m-d H:i:s', strtotime($event_end));
-        $sql = "UPDATE incident SET " . "title = ?, type_id = ?, submitter = ?, priority = ?, date = date, event_start = ?, event_end = ? " . "WHERE id = ?";
-        $params = array(
+			
+        
+		if (empty($event_start)) $event_start = "now";
+        if (empty($event_end))   $event_end   = "now";
+        
+		$event_start = date('Y-m-d H:i:s', strtotime($event_start));
+        $event_end   = date('Y-m-d H:i:s', strtotime($event_end));
+        
+		$sql = "UPDATE incident SET " . "title = ?, type_id = ?, in_charge = ?, submitter = ?, priority = ?, date = date, event_start = ?, event_end = ? " . "WHERE id = ?";
+        
+		$params = array(
             $title,
             $type,
+			$in_charge,
             $submitter,
             $priority,
             $event_start,
             $event_end,
             $incident_id
         );
-        if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
+        
+		if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         // XXX would be nice to add here a ticket telling that
         // incident fields were updated by someone
         //$infolog = array(
@@ -1317,63 +1552,103 @@ class Incident {
         //);
         //Log_action::log(15, $infolog);
     }
-    function update_alarm($conn, $incident_id, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end) {
-        Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end);
-        if (ossim_error()) return false;
-        foreach(Incident::get_validations('event') as $var => $rule) {
+	
+    function update_alarm($conn, $incident_id, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $transferred_user, $transferred_entity) 
+	{
+        $in_charge = (  $transferred_user != "" ) ? $transferred_user : $transferred_entity;
+		
+		Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end, $in_charge);
+        
+		if ( ossim_error() ) 
+			return false;
+        		
+		foreach(Incident::get_validations('event') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) return false;
         }
-        $sql = "UPDATE incident_alarm " . "SET src_ips = ?, dst_ips = ?, src_ports = ?, dst_ports = ? " . "WHERE incident_id = ?";
-        $params = array(
+        
+		$sql = "UPDATE incident_alarm " . "SET src_ips = ?, dst_ips = ?, src_ports = ?, dst_ports = ? " . "WHERE incident_id = ?";
+        
+		$params = array(
             $src_ips,
             $dst_ips,
             $src_ports,
             $dst_ports,
             $incident_id
         );
-        if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
-        return true;
+        
+		if (!$conn->Execute($sql, $params)) 
+			die($conn->ErrorMsg());
+        
+		return true;
     }
-    function update_event($conn, $incident_id, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end) {
-        Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end);
-        if (ossim_error()) return false;
-        foreach(Incident::get_validations('event') as $var => $rule) {
+	
+    function update_event($conn, $incident_id, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $transferred_user, $transferred_entity) {
+        
+		$in_charge = (  $transferred_user != "" ) ? $transferred_user : $transferred_entity;
+		
+		Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end, $in_charge);
+        
+		if (ossim_error()) return false;
+        
+		foreach(Incident::get_validations('event') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) return false;
         }
-        $sql = "UPDATE incident_event " . "SET src_ips = ?, dst_ips = ?, src_ports = ?, dst_ports = ? " . "WHERE incident_id = ?";
-        $params = array(
+        
+		$sql = "UPDATE incident_event " . "SET src_ips = ?, dst_ips = ?, src_ports = ?, dst_ports = ? " . "WHERE incident_id = ?";
+        
+		$params = array(
             $src_ips,
             $dst_ips,
             $src_ports,
             $dst_ports,
             $incident_id
         );
-        if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
+        
+		if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         return true;
     }
-    function update_metric($conn, $incident_id, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end) {
-        foreach(Incident::get_validations('metric') as $var => $rule) {
+	
+    function update_metric($conn, $incident_id, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end, $transferred_user, $transferred_entity) {
+        
+		foreach(Incident::get_validations('metric') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) return false;
         }
-        Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end);
-        if (ossim_error()) return false;
-        $sql = "UPDATE incident_metric " . "SET target = ?, metric_type = ?, metric_value = ? " . "WHERE incident_id = ?";
-        $params = array(
+        
+		$in_charge = (  $transferred_user != "" ) ? $transferred_user : $transferred_entity;
+		
+		Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end, $in_charge);
+        
+		if (ossim_error()) 
+			return false;
+        
+		$sql = "UPDATE incident_metric " . "SET target = ?, metric_type = ?, metric_value = ? " . "WHERE incident_id = ?";
+        
+		$params = array(
             $target,
             $metric_type,
             $metric_value,
             $incident_id
         );
-        if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
+        
+		if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         return true;
     }
-    function update_anomaly($conn, $incident_id, $title, $type, $submitter, $priority, $anom_type, $ip, $data_orig, $data_new) {
-        $s_data_orig = implode(",", $data_orig);
-        $s_data_new = implode(",", $data_new);
-        Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, "", "");
-        if (ossim_error()) return false;
-        $sql = "UPDATE incident_anomaly " . "SET anom_type = ?, ip = ?, data_orig = ?, data_new = ? " . "WHERE incident_id = ?";
-        $params = array(
+	
+    function update_anomaly($conn, $incident_id, $title, $type, $submitter, $priority, $anom_type, $ip, $data_orig, $data_new, $transferred_user, $transferred_entity) {
+        
+		$s_data_orig = implode(",", $data_orig);
+        $s_data_new  = implode(",", $data_new);
+        
+		$in_charge   = (  $transferred_user != "" ) ? $transferred_user : $transferred_entity;
+		
+		Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, "", "", $in_charge);
+        
+		if (ossim_error()) 
+			return false;
+        
+		$sql = "UPDATE incident_anomaly " . "SET anom_type = ?, ip = ?, data_orig = ?, data_new = ? " . "WHERE incident_id = ?";
+        		
+		$params = array(
             $anom_type,
             $ip,
             $s_data_orig,
@@ -1383,11 +1658,18 @@ class Incident {
         if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         return true;
     }
-    function update_vulnerability($conn, $incident_id, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description) {
-        Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, "", "");
-        if (ossim_error()) return false;
-        $sql = "UPDATE incident_vulns " . "SET ip = ?, port = ?, nessus_id = ?, risk = ?, description = ? " . "WHERE incident_id = ?";
-        $params = array(
+    
+	function update_vulnerability($conn, $incident_id, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description, $transferred_user, $transferred_entity) {
+       
+		$in_charge = (  $transferred_user != "" ) ? $transferred_user : $transferred_entity;
+		
+		Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, "", "", $in_charge);
+        if (ossim_error()) 
+			return false;
+        
+		$sql = "UPDATE incident_vulns " . "SET ip = ?, port = ?, nessus_id = ?, risk = ?, description = ? " . "WHERE incident_id = ?";
+       
+	    $params = array(
             $ip,
             $port,
             $nessus_id,
@@ -1395,13 +1677,15 @@ class Incident {
             $description,
             $incident_id
         );
-        if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
+        
+		if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         
         $infolog = array($incident_id);
         Log_action::log(15, $infolog);
 
         return true;
     }
+	
     function delete($conn, $id) {
         if (!ossim_valid($id, OSS_DIGIT)) {
             die("invalid ID");
@@ -1425,6 +1709,7 @@ class Incident {
         );
         Log_action::log(16, $infolog);
     }
+	
     /*
     * Deletes all the subscriptions associated with an Incident Id.
     * If you supply the $login, only that subscription will be removed
@@ -1444,6 +1729,7 @@ class Incident {
     /*
     * @deprecated
     */
+	
     function incident_search($conn, $query_string) {
         $search_array = array(
             "incident_ticket" => array(
@@ -1515,6 +1801,7 @@ class Incident {
         }
         return $incident_list;
     }
+	
     /*
     incident statistics
     */
@@ -1583,6 +1870,7 @@ class Incident {
         }
         return $list;
     }
+	
     function incidents_by_type_descr($conn) {
         $list = array();
         $type = array();
@@ -1602,6 +1890,7 @@ class Incident {
         }
         return $list;
     }
+	
     function incidents_by_status($conn,$host=null,$instancia=false) {
         $list = array();
         $status = array();
@@ -1674,6 +1963,7 @@ class Incident {
         }
         return $list;
     }
+	
     function incidents_by_user($conn, $open_only = true,$host=null) {
     	$conf = $GLOBALS["CONF"];
 		$version = $conf->get_conf("ossim_server_version", FALSE);
@@ -1750,6 +2040,7 @@ class Incident {
         }
         return $list;
     }
+	
     function chk_status($status) {
         return in_array((string)$status, array(
             'Open',

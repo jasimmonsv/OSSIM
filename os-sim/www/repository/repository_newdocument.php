@@ -63,22 +63,21 @@ function get_my_users_vision($conn, $pro)
 	{
 	
 		if ( !$pro )
-			$where = "";
+			$where = "WHERE login in ('".Session::get_session_user()."')";
 		else
 		{
 			$brothers = Acl::get_brothers($conn);
 			
+			
 			foreach($brothers as $k => $v)
 				$users[] = $v["login"];
+				
+			$users[] = Session::get_session_user();
 			
-			if ( count($brothers) > 0 )	
-				$where = "WHERE login in ('".implode("','",$users)."')";
-			else
-				$where = "WHERE login in ('".Session::get_session_user()."')";
+			$where = "WHERE login in ('".implode("','",$users)."')";
 		}	
 	}	
-		
-
+	
 	return Session::get_list($conn, $where." ORDER BY login ASC");
 }
 

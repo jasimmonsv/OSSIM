@@ -3171,7 +3171,7 @@ function get_my_users_vision($conn, $pro)
 	{
 	
 		if ( !$pro )
-			$where = "";
+			$where = "WHERE login in ('".Session::get_session_user()."')";
 		else
 		{
 			$brothers = Acl::get_brothers($conn);
@@ -3179,10 +3179,9 @@ function get_my_users_vision($conn, $pro)
 			foreach($brothers as $k => $v)
 				$users[] = $v["login"];
 			
-			if ( count($brothers) > 0 )	
-				$where = "WHERE login in ('".implode("','",$users)."')";
-			else
-				$where = "WHERE login in ('".Session::get_session_user()."')";
+			$users[] = Session::get_session_user();
+			
+			$where = "WHERE login in ('".implode("','",$users)."')";
 		}	
 	}	
 		

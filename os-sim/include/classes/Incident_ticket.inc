@@ -186,17 +186,19 @@ class Incident_ticket {
         ossim_valid($description, $vals['description']);
         ossim_valid($action, $vals['action']);
         ossim_valid($transferred, $vals['transferred']);
-        foreach($tags as $tag) {
+        
+		foreach($tags as $tag) {
             ossim_valid($tag, $vals['tag']);
         }
-        if (ossim_error()) return ossim_error();
-        $ticket_id = $conn->GenID('incident_ticket_seq');
+        
+		if (ossim_error()) 
+			return ossim_error();
+        
+		$ticket_id = $conn->GenID('incident_ticket_seq');
         $date = date('Y-m-d H:i:s');
         // Get previous in charge
         $sql = 'SELECT in_charge FROM incident WHERE id=?';
-        $in_charge = $conn->GetOne($sql, array(
-            $incident_id
-        ));
+        $in_charge = $conn->GetOne($sql, array($incident_id));
         if ($in_charge === false) die($conn->ErrorMsg());
         //
         // Insert new ticket
@@ -258,10 +260,12 @@ class Incident_ticket {
         // Finish transaction
         //
         $conn->CompleteTrans();
-        if ($conn->HasFailedTrans()) {
+        
+		if ($conn->HasFailedTrans()) {
             die($conn->ErrorMsg());
         }
-        if ($attachment) {
+        
+		if ($attachment) {
             require_once ('classes/Incident_file.inc');
             Incident_file::insert($conn, $incident_id, $ticket_id, $attachment["name"], $attachment["type"], $attachment["content"]);
         }
@@ -359,20 +363,27 @@ class Incident_ticket {
         }
     }
     function mail_subscription($conn, $ticket_id) {
-        $values = Incident_ticket::get_email_template_values($conn, $ticket_id);
-        $from_name = $values['TICKET_AUTHOR_NAME'];
-        $from_mail = $values['TICKET_AUTHOR_EMAIL'];
+        $values      = Incident_ticket::get_email_template_values($conn, $ticket_id);
+        $from_name   = $values['TICKET_AUTHOR_NAME'];
+        $from_mail   = $values['TICKET_AUTHOR_EMAIL'];
         $incident_id = $values['ID'];
-        if (!$from_mail) $from_mail = "mail_not_set@invalid";
-        $from = "From: \"$from_name\" <$from_mail>";
-        $force_from = "-f{$from_mail}";
-        $subject_tpl = Incident_ticket::get_email_template('subject');
-        $body_tpl = Incident_ticket::get_email_template('body');
-        $subject = Incident_ticket::build_email_template($subject_tpl, $values);
-        $body = Incident_ticket::build_email_template($body_tpl, $values);
-        $users = Incident::get_subscribed_users($conn, $incident_id, $values['IN_CHARGE_LOGIN']);
         
-        $error = '';
+		if (!$from_mail) 
+			$from_mail = "mail_not_set@invalid";
+        
+		$from        = "From: \"$from_name\" <$from_mail>";
+        $force_from  = "-f{$from_mail}";
+        $subject_tpl = Incident_ticket::get_email_template('subject');
+        $body_tpl    = Incident_ticket::get_email_template('body');
+        $subject     = Incident_ticket::build_email_template($subject_tpl, $values);
+        $body        = Incident_ticket::build_email_template($body_tpl, $values);
+        $users       = Incident::get_subscribed_users($conn, $incident_id, $values['IN_CHARGE_LOGIN']);
+        
+		
+				
+		
+		
+		$error = '';
         foreach($users as $user) {
             if (!$user['email']) {
                 continue;
@@ -383,6 +394,7 @@ class Incident_ticket {
         }
         return $error ? ossim_set_error($error) : true;
     }
+	
     function get_email_template_values($conn, $ticket_id) {
         //
         // Ticket data
@@ -463,7 +475,9 @@ class Incident_ticket {
         // Extra incident info
         //
         $info = '';
-        switch ($values['CLASS']) {
+		
+		        
+		switch ($values['CLASS']) {
             case 'Event':
             case 'Alarm':
                 $method = $values['CLASS'] == 'Event' ? 'get_events' : 'get_alarms';
@@ -505,8 +519,28 @@ class Incident_ticket {
                         $info .=_('New') .           ': ' . $obj->get_data_new();
                 }
                 break;
-        }
+			
+			case 'Vulnerability':
+                list($obj) = $incident->get_vulnerabilities($conn);
+                if ($obj) {
+                    if ($obj->get_ip())
+                        $info .= _('IP')          .   ': ' . $obj->get_ip() . "\n";
+                    if ($obj->get_port())
+                        $info .= _('Port')        .   ': ' . strtoupper($obj->get_port()) . "\n";
+					if ($obj->get_nessus_id())
+                        $info .= _('Scanner ID')  .   ': ' . $obj->get_nessus_id() . "\n";
+                    if ($obj->get_risk())
+                        $info .=_('Risk')         .   ': ' . $obj->get_risk() . "\n";
+					if ($obj->get_description())
+                        $info .=_('Description')  .  ': ' . $obj->get_description();
+                }
+                break;
+		}
+		
         $values['EXTRA_INFO'] = $info;
+		
+			
+		
         //
         // In charge details
         //
@@ -575,11 +609,9 @@ TICKET_INVERSE_HISTORY
 ';
         require_once 'ossim_conf.inc';
         $conf = $GLOBALS["CONF"];
-        if (!in_array($type, array(
-            'subject',
-            'body'
-        ))) die("Invalid template type: $type");
-        $tpl = $conf->get_conf('email_' . $type . '_template', false);
+        if (!in_array($type, array('subject','body' ))) die("Invalid template type: $type");
+        
+		$tpl = $conf->get_conf('email_' . $type . '_template', false);
         // There is no such conf option or it's empty
         if (!$tpl && $type == 'subject') {
             $tpl = $default_subject_template;
@@ -616,5 +648,65 @@ TICKET_INVERSE_HISTORY
         $conf->update('email_subject_template', $subject_tpl);
         $conf->update('email_body_template', $body_tpl);
     }
+	
+	
+	//@return true if current user have permissions to delete an incident_ticket
+	
+	function user_tickets_perms($conn, $id, $user=null)
+	{
+		$current_user = ( empty($user) ) ? Session::get_session_user() : $user;
+		
+		//I'm admin
+		if ( Session::am_i_admin() ) 
+			return true;
+		
+				
+		$query = OssimQuery("SELECT users FROM incident_ticket WHERE id = ".$id);
+		
+		if (!$rs = & $conn->Execute($query)) 
+		    return $conn->ErrorMsg();
+        else 
+		{
+            if (!$rs->EOF) 
+			    $creator = $rs->fields["users"];
+		}
+		
+		//I'm the submmiter
+		if ( $creator == $current_user )
+			return true;
+		
+		//I'm pro_admin and some of my users is the creator
+		$conf = $GLOBALS["CONF"];
+						
+		if (!$conf) {
+			require_once 'ossim_db.inc';
+			require_once 'ossim_conf.inc';
+			$conf = new ossim_conf();
+		}
+		
+		$version  = $conf->get_conf("ossim_server_version", FALSE);
+		$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+		
+		if ( $pro && Acl::am_i_proadmin() )
+		{
+			$users_list = Acl::get_my_users($conn, $current_user);
+				
+			if ( is_array($users_list) && !empty($users_list) )
+			{
+				foreach($users_list as $k => $v)
+					$my_users[] = $v["login"];
+					
+				if ( in_array($creator, $my_users) )
+					return true;
+			}
+		
+		}
+		
+		return false;
+	}
+
+	
+	
+	
 }
 ?>

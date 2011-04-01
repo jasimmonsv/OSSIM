@@ -43,10 +43,9 @@ require_once 'classes/Incident.inc';
 require_once 'classes/Incident_type.inc';
 require_once 'classes/Incident_ticket.inc';
 require_once 'classes/Incident_tag.inc';
+
 function die_error($msg = null, $append = null)
- {
-    if ($msg) ossim_set_error($msg);
-		echo ossim_error();
+{
     ?>
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html>
@@ -57,9 +56,17 @@ function die_error($msg = null, $append = null)
         <link rel="stylesheet" type="text/css" href="../style/style.css"/>
     </head>
     <body>
-      <?php
-    echo '<table class="noborder transparent" align="center"><tr><td class="nobborder"><input type="button" value="' . _("Back") . '" class="button" onclick="history.go(-1)"></td></tr></table>';
-    echo $append;
+    <?php
+		if ($msg) 
+			ossim_set_error($msg);
+	
+		echo ossim_error();
+		echo '<table class="noborder transparent" align="center">
+				<tr>
+					<td class="nobborder"><input type="button" value="' . _("Back") . '" class="button" onclick="history.back()"/></td>
+				</tr>
+			  </table>';
+		echo $append;
     ?>
     </body>
     </html>
@@ -67,69 +74,72 @@ function die_error($msg = null, $append = null)
     exit;
 }
 
-if (!count($_GET) && count($_POST)>0) foreach ($_POST as $k => $v) $_GET[$k]=$v;
-//
-$db = new ossim_db();
-$conn = $db->connect();
-$id = GET('incident_id');
+
+$db   	= new ossim_db();
+$conn   = $db->connect();
+
+if ( !count($_GET) && count($_POST)>0 ) 
+{
+	foreach ($_POST as $k => $v) 
+		$_GET[$k]=$v;
+}
 
 
+$id        = GET('incident_id');
 
-
-$action    = ( POST('action' ) == "newincident" )? "newincident":GET('action');
+$action    = ( POST('action' ) == "newincident" )? "newincident": GET('action');
 $from_vuln = ( POST('from_vuln') != "" ) ? POST('from_vuln'):GET('from_vuln');
 $edit      = ( isset($_GET['edit']) || isset($_POST['edit']) ) ? 1 : 0;
 
-ossim_valid($id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("id"));
-ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("action"));
-ossim_valid($from_vuln, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("from_vuln"));
+ossim_valid($id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Id"));
+ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Action"));
+ossim_valid($from_vuln, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("From_vuln"));
 
-if (ossim_error()) {
-    die(ossim_error());
+if ( ossim_error() ) 
+{
+   $error = ossim_get_error();
+   die_error($error);
+
 }
-$user = Session::get_session_user();
-//if ($id != "" && !in_array($user, Incident::get_users_list($conn, $id))) {
-if ($id != "" && !Incident::user_incident_perms($conn, $user, $id)) {
+
+if ($id != "" && !Incident::user_incident_perms($conn, $id, 'show')) {
 	die_error(_("Sorry, you are not allowed to perform this action"));
 }
-/*
-if ($id != "" && !Incident::user_incident_perms($conn, $user, $id)) {
-	die_error(_("You are not allowed to access this page because you are
-                 neither *admin* or the ticket owner"));
-}
-*/
-//
-// Subscriptions management
-//
-if ($action == 'subscrip') {
-    // only admin and ticket owner
-    if (!Incident::user_incident_perms($conn, $user, $id)) {
-        die_error(_("You are not allowed to subscribe a new user because
-                     you are neither *admin* or the ticket owner"));
-    }
-	if (POST('login')) {
-        if (!ossim_valid($id, OSS_DIGIT)) {
+
+/* Subscriptions Management */
+if ($action == 'subscrip') 
+{
+    // Only admin, entity admin and ticket owner
+    if ( !Incident::user_incident_perms($conn, $id, $action) ) 
+        die_error(_("You are not allowed to subscribe a new user because you are neither *admin* or the ticket owner"));
+    
+	if ( POST('login') )
+	{
+        if (!ossim_valid($id, OSS_DIGIT)) 
             die_error("Wrong ID");
-        }
-        if (ossim_valid(POST('login') , OSS_USER)) {
-            if (POST('subscribe')) {
+        
+        if (ossim_valid(POST('login') , OSS_USER)) 
+		{
+            if (POST('subscribe')) 
                 Incident::insert_subscription($conn, $id, $_POST['login']);
-            } elseif (POST('unsubscribe')) {
-                Incident::delete_subscriptions($conn, $id, $_POST['login']);
-            }
-        } else {
-            die_error("Invalid user");
-        }
+           	elseif (POST('unsubscribe')) 
+			    Incident::delete_subscriptions($conn, $id, $_POST['login']);
+        } 
+		else 
+		    die_error("Invalid user");
     }
-    header("Location: incident.php?id=$id&edit=$edit");
+   
+	header("Location: incident.php?id=$id&edit=$edit");
     exit;
 }
-//
-// Ticket new
-//
-if ($action == 'newticket') {
-    if (!ossim_valid($id, OSS_DIGIT)) die_error("Wrong ID");
-    $vals = array(
+
+/* New ticket */
+if ($action == 'newticket') 
+{
+    if (!ossim_valid($id, OSS_DIGIT)) 
+		die_error("Wrong ID");
+    
+	$vals = array(
         'prev_status',
     	'prev_prio',
     	'status',
@@ -141,89 +151,100 @@ if ($action == 'newticket') {
         'transferred_user',
         'transferred_entity'
     );
-    foreach($vals as $var) {
+    
+	
+	foreach($vals as $var) {
         $$var = POST("$var");
     }
-    if($transferred_user!="")   $transferred = $transferred_user;
+    
+		
+	if($transferred_user!="")   $transferred = $transferred_user;
     if($transferred_entity!="") $transferred = $transferred_entity;
-    // only admin and ticket owner can transfer a ticket
-    if ($transferred != "") {
-        if (!Incident::user_incident_perms($conn, $user, $id)) {
-            die_error(_("You are not allowed to transfer this incident because
-                         you are neither *admin* or the ticket owner"));
-        }
-    }
-	if ($priority != $prev_prio) {
-        if (!Incident::user_incident_perms($conn, $user, $id)) {
-            die_error(_("You are not allowed to change priority of this incident because
-                         you are neither *admin* or the ticket owner"));
-        }
-    }
-	if ($status != $prev_status) {
-        if (!Incident::user_incident_perms($conn, $user, $id)) {
-            die_error(_("You are not allowed to change status of this incident because
-                         you are neither *admin* or the ticket owner"));
-        }
-    }
-    if (isset($_FILES['attachment']) && $_FILES['attachment']['tmp_name']) {
-        $attachment = $_FILES['attachment'];
+    
+	// Only admin, entity admin and ticket owner can transfer a ticket
+    
+	if ($transferred != "" && !Incident::user_incident_perms($conn, $id, $action) ) 
+        die_error(_("You are not allowed to transfer this incident because you are neither *admin* or the ticket owner"));
+   
+	
+	if ( $priority != $prev_prio && !Incident::user_incident_perms($conn, $id, $action) ) 
+        die_error(_("You are not allowed to change priority of this incident because you are neither *admin* or the ticket owner"));
+    
+	
+	if ($status != $prev_status && !Incident::user_incident_perms($conn, $id, $action) ) 
+        die_error(_("You are not allowed to change status of this incident because you are neither *admin* or the ticket owner"));
+    
+    
+	if (isset($_FILES['attachment']) && $_FILES['attachment']['tmp_name']) {
+        $attachment            = $_FILES['attachment'];
         $attachment['content'] = file_get_contents($attachment['tmp_name']);
-    } else {
+    } 
+	else 
+	{
         $attachment = null;
     }
-    $user = Session::get_me($conn);
-    $login = $user->get_login();
-    $tags = POST('tags') ? POST('tags') : array();
-    Incident_ticket::insert($conn, $id, $status, $priority, $login, $description, $action, $transferred, $tags, $attachment);
-    // Error should be only at the mail() function in Incident_ticket::mail_susbcription()
-    if (ossim_error()) {
-        die_error(null, "<table class='noborder transparent' align='center'><tr><td class='nobborder'><input type='button' onclick=\"document.location.href='incident.php?id=$id'\" value=" . _("Continue") . ' class="button"></td></tr></table>');
+    
+	
+	$login = Session::get_session_user();
+    $tags  = POST('tags') ? POST('tags') : array();
+    
+	Incident_ticket::insert($conn, $id, $status, $priority, $login, $description, $action, $transferred, $tags, $attachment);
+    
+	// Error should be only at the mail() function in Incident_ticket::mail_susbcription()
+    
+	if (ossim_error()) {
+        die_error();
     }
-    header("Location: incident.php?id=$id");
+		
+	header("Location: incident.php?id=$id&edit=$edit");
     exit;
 }
-//
-// Ticket deletion
-//
-if ($action == 'delticket') {
-    // only admin and ticket owner
-    if (!Incident::user_incident_perms($conn, $user, $id)) {
-        die_error(_("You are not allowed to delete this ticket because
-                     you are neither *admin* or the ticket owner"));
-    }
-	if (!GET('ticket_id')) {
+
+/* Remove a ticket */
+if ($action == 'delticket') 
+{
+    
+	if (!GET('ticket_id')) 
         die("Invalid Ticket ID");
-    }
-    Incident_ticket::delete($conn, GET('ticket_id'));
+	
+	// Only admin, entity admin and ticket owner
+	
+    if (!Incident::user_incident_perms($conn, $id, $action)) 
+        die_error(_("You are not allowed to delete this ticket because you are neither *admin* or the ticket owner"));
+    
+	Incident_ticket::delete($conn, GET('ticket_id'));
     header("Location: incident.php?id=$id&edit=$edit");
     exit;
 }
-//
-// Incident deletion
-//
-if ($action == 'delincident') {
-    // only admin and ticket owner
-    if (!Incident::user_incident_perms($conn, $user, $id)) {
-        die_error(_("You are not allowed to delete this incident because
-                     you are neither *admin* or the ticket owner"));
-    }
+
+/* Remove an incident */
+if ($action == 'delincident') 
+{
+    // Only admin, entity admin and ticket owner
+	
+    if (!Incident::user_incident_perms($conn, $id, $action)) 
+        die_error(_("You are not allowed to delete this incident because you are neither *admin* or the ticket owner"));
+    
 	Incident::delete($conn, $id);
-    header("Location: ./");
-    exit;
+    
+	header("Location: ./");
+    
+	exit;
 }
-//
-// Incident edit
-//
-if ($action == 'editincident') {
-    // only admin and ticket owner
-    if (!Incident::user_incident_perms($conn, $user, $id)) {
-        die_error(_("You are not allowed to edit this incident because
-                     you are neither *admin* or the ticket owner"));
-    }
-	/* update alarm|event incident */
-    if (GET('ref') == 'Alarm' or GET('ref') == 'Event') {
+
+/* Updates Incidents*/
+if ($action == 'editincident') 
+{
+    // Only admin, entity admin and ticket owner
+    if (!Incident::user_incident_perms($conn, $id, $action))
+        die_error(_("You are not allowed to edit this incident because you are neither *admin* or the ticket owner"));
+    
+		
+    if (GET('ref') == 'Alarm' or GET('ref') == 'Event') 
+	{
         $method = GET('ref') == 'Alarm' ? 'update_alarm' : 'update_event';
-        $vars = array(
+        
+		$vars = array(
             'incident_id',
             'title',
             'type',
@@ -234,15 +255,19 @@ if ($action == 'editincident') {
             'src_ports',
             'dst_ports',
             'event_start',
-            'event_end'
+            'event_end',
+			'transferred_user',
+			'transferred_entity',
         );
-        foreach($vars as $v) {
+        
+		foreach($vars as $v) {
             $$v = GET("$v");
         }
-        Incident::$method($conn, $incident_id, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end);
+		
+		Incident::$method($conn, $incident_id, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $transferred_user, $transferred_entity);
     }
-    /* update metric incident */
-    elseif (GET('ref') == 'Metric') {
+    elseif (GET('ref') == 'Metric')
+	{
         $vars = array(
             'incident_id',
             'title',
@@ -253,13 +278,19 @@ if ($action == 'editincident') {
             'metric_type',
             'metric_value',
             'event_start',
-            'event_end'
+            'event_end',
+			'transferred_user',
+			'transferred_entity',
         );
-        foreach($vars as $v) {
+        
+		foreach($vars as $v) {
             $$v = GET("$v");
         }
-        Incident::update_metric($conn, $incident_id, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end);
-    } elseif (GET('ref') == 'Anomaly') {
+		
+		Incident::update_metric($conn, $incident_id, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end, $transferred_user, $transferred_entity);
+    } 
+	elseif (GET('ref') == 'Anomaly') 
+	{
         if (GET('anom_type') == 'mac') {
             $vars = array(
                 'incident_id',
@@ -273,25 +304,33 @@ if ($action == 'editincident') {
                 'a_mac_o',
                 'anom_ip',
                 'a_vend',
-                'a_vend_o'
+                'a_vend_o',
+				'transferred_user',
+				'transferred_entity',
             );
+			
             foreach($vars as $v) {
                 $$v = GET("$v");
             }
-            $anom_data_orig = array(
+			
+			$anom_data_orig = array(
                 $a_sen,
                 $a_date,
                 $a_mac_o,
                 $a_vend_o
             );
+			
             $anom_data_new = array(
                 $a_sen,
                 $a_date,
                 $a_mac,
                 $a_vend
             );
-            Incident::update_anomaly($conn, $incident_id, $title, $type, $submitter, $priority, 'mac', $anom_ip, $anom_data_orig, $anom_data_new);
-        } elseif (GET('anom_type') == 'service') {
+			
+            Incident::update_anomaly($conn, $incident_id, $title, $type, $submitter, $priority, 'mac', $anom_ip, $anom_data_orig, $anom_data_new, $transferred_user, $transferred_entity);
+        } 
+		elseif (GET('anom_type') == 'service')
+		{
             $vars = array(
                 'incident_id',
                 'title',
@@ -305,18 +344,23 @@ if ($action == 'editincident') {
                 'a_prot',
                 'anom_ip',
                 'a_ver',
-                'a_ver_o'
+                'a_ver_o',
+				'transferred_user',
+				'transferred_entity',
             );
+			
             foreach($vars as $v) {
                 $$v = GET("$v");
             }
-            $anom_data_orig = array(
+			
+			$anom_data_orig = array(
                 $a_sen,
                 $a_port,
                 $a_date,
                 $a_prot_o,
                 $a_ver_o
             );
+			
             $anom_data_new = array(
                 $a_sen,
                 $a_port,
@@ -324,8 +368,11 @@ if ($action == 'editincident') {
                 $a_prot,
                 $a_ver
             );
-            Incident::update_anomaly($conn, $incident_id, $title, $type, $submitter, $priority, 'service', $anom_ip, $anom_data_orig, $anom_data_new);
-        } elseif (GET('anom_type') == 'os') {
+			
+            Incident::update_anomaly($conn, $incident_id, $title, $type, $submitter, $priority, 'service', $anom_ip, $anom_data_orig, $anom_data_new, $transferred_user, $transferred_entity);
+        } 
+		elseif (GET('anom_type') == 'os') 
+		{
             $vars = array(
                 'incident_id',
                 'title',
@@ -336,25 +383,32 @@ if ($action == 'editincident') {
                 'a_date',
                 'a_os',
                 'a_os_o',
-                'anom_ip'
+                'anom_ip',
+				'transferred_user',
+				'transferred_entity',
             );
-            foreach($vars as $v) {
+            
+			foreach($vars as $v) {
                 $$v = GET("$v");
             }
-            $anom_data_orig = array(
+            
+			$anom_data_orig = array(
                 $a_sen,
                 $a_date,
                 $a_os_o
             );
+			
             $anom_data_new = array(
                 $a_sen,
                 $a_date,
                 $a_os
             );
-            Incident::update_anomaly($conn, $incident_id, $title, $type, $submitter, $priority, 'os', $anom_ip, $anom_data_orig, $anom_data_new);
-        } /*elseif os*/
-    } /*elseif anomaly*/
-    elseif (GET('ref') == 'Vulnerability') {
+			
+            Incident::update_anomaly($conn, $incident_id, $title, $type, $submitter, $priority, 'os', $anom_ip, $anom_data_orig, $anom_data_new, $transferred_user, $transferred_entity);
+        } 
+    }
+    elseif (GET('ref') == 'Vulnerability') 
+	{
         $vars = array(
             'incident_id',
             'title',
@@ -365,24 +419,34 @@ if ($action == 'editincident') {
             'port',
             'nessus_id',
             'risk',
-            'description'
+            'description',
+			'transferred_user',
+			'transferred_entity',
         );
-        foreach($vars as $v) {
+        
+		foreach($vars as $v) {
             $$v = GET("$v");
         }
-        Incident::update_vulnerability($conn, $incident_id, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description);
-    } /*elseif vulnerability*/
-    if (ossim_error()) die_error();
-    header("Location: incident.php?id=$incident_id&edit=$edit");
+						
+        Incident::update_vulnerability($conn, $incident_id, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description, $transferred_user, $transferred_entity);
+    }
+    
+	if ( ossim_error() ) 
+		die_error();
+	
+	header("Location: incident.php?id=$incident_id&edit=$edit");
     exit;
 }
-//
-// Incident new
-//
-if ($action == 'newincident') {
-    /* insert new alarm|event incident */
-	
-	if (GET('ref') == 'Alarm' or GET('ref') == 'Event') {
+
+
+/*
+	Insert new Incident 
+*/
+
+if ($action == 'newincident') 
+{
+    if (GET('ref') == 'Alarm' or GET('ref') == 'Event') 
+	{
         $method = GET('ref') == 'Alarm' ? 'insert_alarm' : 'insert_event';
         $vars = array(
             'title',
@@ -401,22 +465,21 @@ if ($action == 'newincident') {
             'transferred_user',
             'transferred_entity'
         );
-        foreach($vars as $v) {
+        
+		foreach($vars as $v) {
             $$v = GET("$v");
         }
-        if($transferred_user!="")   $transferred = $transferred_user;  
-        if($transferred_entity!="") $transferred = $transferred_entity;
-        if($transferred=="") $transferred = Session::get_session_user();
-        
+        		        
         if($method == 'insert_alarm')
-            $incident_id = Incident::insert_alarm($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $backlog_id, $event_id, $alarm_group_id, $transferred);
+            $incident_id = Incident::insert_alarm($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $backlog_id, $event_id, $alarm_group_id, $transferred_user, $transferred_entity);
         else
-            $incident_id = Incident::insert_event($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $transferred);
+            $incident_id = Incident::insert_event($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $transferred_user, $transferred_entity);
 
-        }
-    /* insert new metric incident */
-    elseif (GET('ref') == 'Metric') {
-        $vars = array(
+    }
+    elseif (GET('ref') == 'Metric') 
+	{
+        
+		$vars = array(
             'title',
             'type',
             'submitter',
@@ -429,16 +492,18 @@ if ($action == 'newincident') {
             'transferred_user',
             'transferred_entity'
         );
-        foreach($vars as $v) {
+        
+		foreach($vars as $v) {
             $$v = GET("$v");
         }
-        if($transferred_user!="")   $transferred = $transferred_user;
-        if($transferred_entity!="") $transferred = $transferred_entity;
-        if($transferred=="") $transferred = Session::get_session_user();
-        
-        $incident_id = Incident::insert_metric($conn, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end, $transferred);
-    } elseif (GET('ref') == 'Anomaly') {
-        if (GET('anom_type') == 'mac') {
+                
+        $incident_id = Incident::insert_metric($conn, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end, $transferred_user, $transferred_entity);
+    
+	} 
+	elseif (GET('ref') == 'Anomaly') 
+	{
+        if (GET('anom_type') == 'mac') 
+		{
             $vars = array(
                 'title',
                 'type',
@@ -455,15 +520,18 @@ if ($action == 'newincident') {
                 'transferred_user',
                 'transferred_entity'
             );
-            foreach($vars as $v) {
+            
+			foreach($vars as $v) {
                 $$v = GET("$v");
             }
-            $anom_data_orig = array(
+            
+			$anom_data_orig = array(
                 $a_sen,
                 $a_date,
                 $a_mac_o,
                 $a_vend_o
             );
+			
             $anom_data_new = array(
                 $a_sen,
                 $a_date,
@@ -471,12 +539,11 @@ if ($action == 'newincident') {
                 $a_vend
             );
             
-        if($transferred_user!="")   $transferred = $transferred_user;
-        if($transferred_entity!="") $transferred = $transferred_entity;
-        if($transferred=="") $transferred = Session::get_session_user();
-            
-            $incident_id = Incident::insert_anomaly($conn, $title, $type, $submitter, $priority, 'mac', $anom_ip, $anom_data_orig, $anom_data_new, $transferred);
-        } elseif (GET('anom_type') == 'service') {
+         
+            $incident_id = Incident::insert_anomaly($conn, $title, $type, $submitter, $priority, 'mac', $anom_ip, $anom_data_orig, $anom_data_new, $transferred_user, $transferred_entity);
+        } 
+		elseif (GET('anom_type') == 'service') 
+		{
             $vars = array(
                 'title',
                 'type',
@@ -493,9 +560,11 @@ if ($action == 'newincident') {
                 'transferred_user',
                 'transferred_entity'
             );
+			
             foreach($vars as $v) {
                 $$v = GET("$v");
             }
+			
             $anom_data_orig = array(
                 $a_sen,
                 $a_date,
@@ -503,6 +572,7 @@ if ($action == 'newincident') {
                 $a_prot_o,
                 $a_ver_o
             );
+			
             $anom_data_new = array(
                 $a_sen,
                 $a_date,
@@ -511,12 +581,11 @@ if ($action == 'newincident') {
                 $a_ver
             );
             
-            if($transferred_user!="")   $transferred = $transferred_user;
-            if($transferred_entity!="") $transferred = $transferred_entity;
-            if($transferred=="") $transferred = Session::get_session_user();
-            
-            $incident_id = Incident::insert_anomaly($conn, $title, $type, $submitter, $priority, 'service', $anom_ip, $anom_data_orig, $anom_data_new, $transferred);
-        } elseif (GET('anom_type') == 'os') {
+                     
+            $incident_id = Incident::insert_anomaly($conn, $title, $type, $submitter, $priority, 'service', $anom_ip, $anom_data_orig, $anom_data_new, $transferred_user, $transferred_entity);
+        } 
+		elseif (GET('anom_type') == 'os') 
+		{
             $vars = array(
                 'title',
                 'type',
@@ -530,29 +599,29 @@ if ($action == 'newincident') {
                 'transferred_user',
                 'transferred_entity'
             );
+			
             foreach($vars as $v) {
                 $$v = GET("$v");
             }
+			
             $anom_data_orig = array(
                 $a_sen,
                 $a_date,
                 $a_os_o
             );
+			
             $anom_data_new = array(
                 $a_sen,
                 $a_date,
                 $a_os
             );
             
-            if($transferred_user!="")   $transferred = $transferred_user;
-            if($transferred_entity!="") $transferred = $transferred_entity;
-            if($transferred=="") $transferred = Session::get_session_user();
-            
-            $incident_id = Incident::insert_anomaly($conn, $title, $type, $submitter, $priority, 'os', $anom_ip, $anom_data_orig, $anom_data_new, $transferred);
-        } /*elseif os*/
-    } /*elseif anomaly*/
-    /* insert new vulnerability incident */
-    elseif (GET('ref') == 'Vulnerability' || POST('ref') == 'Vulnerability') {
+                       
+            $incident_id = Incident::insert_anomaly($conn, $title, $type, $submitter, $priority, 'os', $anom_ip, $anom_data_orig, $anom_data_new, $transferred_user, $transferred_entity);
+        } 
+    } 
+    elseif (GET('ref') == 'Vulnerability' || POST('ref') == 'Vulnerability') 
+	{
         $vars = array(
             'title',
             'type',
@@ -566,18 +635,16 @@ if ($action == 'newincident') {
             'transferred_user',
             'transferred_entity'
         );
-        foreach($vars as $v) {
+        
+		foreach($vars as $v) {
             $$v = (POST("$v")!="")? POST("$v"):GET("$v"); 
         }
         
-        if($transferred_user!="")   $transferred = $transferred_user;
-        if($transferred_entity!="") $transferred = $transferred_entity;
-        if($transferred=="") $transferred = Session::get_session_user();
-        
-        $incident_id = Incident::insert_vulnerability($conn, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description, $transferred);
-   } /*elseif vulnerability*/
-    /* insert new custom incident */
-    elseif (GET('ref') == 'Custom') {
+               
+        $incident_id = Incident::insert_vulnerability($conn, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description, $transferred_user, $transferred_entity);
+    } 
+    elseif (GET('ref') == 'Custom') 
+	{
         $vars = array(
             'title',
             'type',
@@ -586,49 +653,54 @@ if ($action == 'newincident') {
             'transferred_user',
             'transferred_entity'
         );
-        foreach($vars as $v) {
+        
+		foreach($vars as $v) {
             $$v = GET("$v"); 
         }
 
 		$fields = array();
-        foreach ($_GET as $k => $v) 
-			if (preg_match("/^custom/",$k)) {
+        
+		foreach ($_GET as $k => $v) 
+		{
+			if (preg_match("/^custom/",$k)) 
 			{
-				$k=base64_decode(str_replace("custom_","",$k)); 
-				$item = explode("_####_", $k);
+				$k           = base64_decode(str_replace("custom_","",$k)); 
+				$item        = explode("_####_", $k);
 				$custom_type = ( count($item) >= 2 ) ? $item[1] : "Textbox";
 				//
 				$fields[] =  array ("validate" => 1, "name" => $item[0], "content" => $v, "type"=> $custom_type);
 			}
         }
-        // uploaded "File" type
-        foreach ($_FILES as $k => $v) 
-			if (preg_match("/^custom/",$k)) {
+       
+		// Uploaded "File" type
+        
+		foreach ($_FILES as $k => $v) 
+		{
+			if (preg_match("/^custom/",$k)) 
 			{
 				$content = $v['tmp_name'];
-				$k=base64_decode(str_replace("custom_","",$k)); 
-				$item = explode("_####_", $k);
+				$k       = base64_decode(str_replace("custom_","",$k)); 
+				$item    = explode("_####_", $k);
+				
 				if (is_uploaded_file($v['tmp_name']) && !$v['error'])
 					$content = file_get_contents($v['tmp_name']);
 				else
 					$content = _("Failed uploading file. Error: ".$v['error']);
-				//		
+					
 				$fields[] =  array ("validate" => 0, "name" => $item[0], "content" => $content, "type"=> "File");
 			}
         }
-        //print_r($fields);
-        
-        if($transferred_user!="")   $transferred = $transferred_user;
-        if($transferred_entity!="") $transferred = $transferred_entity;
-        if($transferred=="") $transferred = Session::get_session_user();
-        
-        $incident_id = Incident::insert_custom($conn, $title, $type, $submitter, $priority, $transferred, $fields);
+                       
+        $incident_id = Incident::insert_custom($conn, $title, $type, $submitter, $priority, $transferred_user, $transferred_entity, $fields);
 		
     }
-    if (ossim_error()) {
+	
+    if (ossim_error()) 
+	{
         die_error();
     }
-    if(intval($from_vuln)==1)
+    
+	if( intval($from_vuln) == 1 )
         header("Location: index.php?hmenu=Tickets&smenu=Tickets"); 
     else
         header("Location: incident.php?id=$incident_id&edit=$edit");
