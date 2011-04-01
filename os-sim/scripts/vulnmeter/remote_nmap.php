@@ -46,8 +46,9 @@ if (!preg_match("/\d+\.\d+\.\d+\.\d+/",$net)) die("Incorrect net/host format $ne
 
 if ($remote_sensor != "" && $remote_sensor != "null") {
     $rscan = new RemoteScan($net,"ping",$remote_sensor);
+    $quiet = ($timing_template != "") ? FALSE : TRUE;
     echo "Scanning remote network: $net\n";
-    $rscan->do_scan(TRUE);
+    $rscan->do_scan($quiet);
     if ($rscan->err()=="") {
         $ips=$rscan->get_scan();
     } else {    

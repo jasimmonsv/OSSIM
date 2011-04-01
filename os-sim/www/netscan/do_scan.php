@@ -103,12 +103,14 @@ if (!$only_status && !$only_stop) {
 
 // Scan Status
 $scanning_nets = Scan::scanning_what();
+$is_remote = false;
 if (count($scanning_nets) > 0) {
 	// print html
 	foreach($scanning_nets as $net) {
 		$rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
 		if (($available = $rscan->available_scan()) != "") { // $full_scan!="full" &&
 			echo _("Scanning network") . " ($net), " . _(" with a remote sensor")." [$available], "._("please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'></div><br>\n";
+			$is_remote = true;
 		} else {
 			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
 		}
@@ -118,6 +120,7 @@ if (count($scanning_nets) > 0) {
 	while(Scan::scanning_now()) {
 		foreach($scanning_nets as $net) {
 			$tmp_file = ("/tmp/nmap_root.log") ? "/tmp/nmap_root.log" : "/tmp/nmap_ping.log";
+			if ($remote) $tmp_file = "/tmp/nmap_scanning.log";
        		if (file_exists($tmp_file)) {
 				$lines = file($tmp_file);
 				$perc = 0;
