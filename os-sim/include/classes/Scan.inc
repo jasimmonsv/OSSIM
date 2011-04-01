@@ -445,7 +445,10 @@ class RemoteScan {
 		    if (preg_match("/ackend$/",$out)) break;
 	    }
 		// show results
-        if (!$quiet) $this->print_scan();
+    	if (!$quiet) {
+			$this->print_scan();
+			$this->save_scan();
+		}
 		socket_close($socket);
     }
     
@@ -604,6 +607,9 @@ class RemoteScan {
     }
     function save_scan() {
         $_SESSION["_scan"] = $this->scan;
+        $f = fopen("/tmp/nmap_completed_scan.log","w");
+    	fputs($f,json_encode($this->scan));
+    	fclose($f);
     }
     function get_scan() {
         if (isset($_SESSION["_scan"])) {
