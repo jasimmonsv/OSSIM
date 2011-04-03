@@ -180,7 +180,7 @@ foreach my $file (@files) {
 				LINE: while (<F>) {
 					#next LINE if ($total_lines++<$jumprow);
 					#if (/ date='(\d+)' /i) {
-					if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='([^']+)'(\s+sig='[^']*')?(\s+plugin_sid='[^']*')?/i) {
+					if (/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+(datalen='\d+'\s+)?data='([^']+)'(\s+sig='[^']*')?(\s+plugin_sid='[^']*')?/i) {
 						$id = $1;
 						$currentdate = $3;
 						$plugin_id = $4;
@@ -190,9 +190,9 @@ foreach my $file (@files) {
 						$src_port = $8;
 						$dst_port = $9;
 						$tzone = $10;
-						$data = $11;
-						$sig = $12;
-						$plugin_sid = $13;
+						$data = $12;
+						$sig = $13;
+						$plugin_sid = $14;
 						if ($sig =~ /plugin\_sid/) {
 							$plugin_sid = $sig; $sig = "";
 						}

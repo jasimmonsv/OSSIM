@@ -535,7 +535,7 @@ $alt = 0;
 $htmlResult=true;
 foreach($result as $res=>$event_date) {
     //entry id='2' fdate='2008-09-19 09:29:17' date='1221816557' plugin_id='4004' sensor='192.168.1.99' src_ip='192.168.1.119' dst_ip='192.168.1.119' src_port='0' dst_port='0' data='Sep 19 02:29:17 ossim sshd[2638]: (pam_unix) session opened for user root by root(uid=0)'
-	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+data='(.*)'/", $res, $matches)) {
+	if (preg_match("/entry id='([^']+)'\s+fdate='([^']+)'\s+date='([^']+)'\s+plugin_id='([^']+)'\s+sensor='([^']+)'\s+src_ip='([^']+)'\s+dst_ip='([^']+)'\s+src_port='([^']+)'\s+dst_port='([^']+)'\s+tzone='([^']+)'+\s+(datalen='\d+'\s+)?data='(.*)'/", $res, $matches)) {
 		$lf = explode(";", $res);
 		// added 127.0.0.1 if not exists
     	if (is_numeric($lf[count($lf)-1])) $lf[] = "127.0.0.1";
@@ -554,21 +554,21 @@ foreach($result as $res=>$event_date) {
 	    $res = str_replace("<", "", $res);
 	    $res = str_replace(">", "", $res);
 
-		# Clean data => matches[11] may contains sig and/or plugin_sid
-		$matches[11] = preg_replace("/ plugin_sid=.*/","",$matches[11]);
+		# Clean data => matches[12] may contains sig and/or plugin_sid
+		$matches[12] = preg_replace("/ plugin_sid=.*/","",$matches[12]);
 		$signature = "";
-		if (preg_match("/' sig='(.*)('?)/",$matches[11],$found)) {
+		if (preg_match("/' sig='(.*)('?)/",$matches[12],$found)) {
 			$signature = $found[1];
-			$matches[11] = preg_replace("/' sig=.*/","",$matches[11]);
+			$matches[12] = preg_replace("/' sig=.*/","",$matches[12]);
 		}
 
         # decode if data is stored in base64
-        $data = $matches[11];
-        $matches[11] = base64_decode($matches[11],true);
-        if ($matches[11]==FALSE) $matches[11] = $data;
+        $data = $matches[12];
+        $matches[12] = base64_decode($matches[12],true);
+        if ($matches[12]==FALSE) $matches[12] = $data;
                             
         if($htmlResult){
-            $data = $matches[11];
+            $data = $matches[12];
             //$signature = $matches[13];
             $query = "select name from plugin where id = " . intval($matches[4]);
             if (!$rs = & $conn->Execute($query)) {
@@ -670,7 +670,7 @@ foreach($result as $res=>$event_date) {
                 $alt = 1;
             }
             $verified = - 1;
-            $data = $matches[11];
+            $data = $matches[12];
             if ($signature != '') {
                 $sig_dec = base64_decode($signature);
                 $pub_key = openssl_get_publickey($config["pubkey"]); // openssl_pkey_get_public
@@ -681,21 +681,21 @@ foreach($result as $res=>$event_date) {
             $data = "<td class='nobborder' style='border-right:1px solid #FFFFFF;padding-left:5px;padding-right:5px;'>";
         }
         // para coger
-		$data_out = $matches[11];
+		$data_out = $matches[12];
         // fin para coger
         // change ,\s* or #\s* adding blank space to force html break line
         // para coger
-        $matches[11] = preg_replace("/([\,\#])([^\d;])\s*/", "\\1 \\2", $matches[11]);
+        $matches[12] = preg_replace("/([\,\#])([^\d;])\s*/", "\\1 \\2", $matches[12]);
         // fin para coger
         if($htmlResult){
-                $matches[11] = wordwrap($matches[11], 60, " ", true);
-                $matches[11] = preg_replace("/(;) (&#\d+;)/",";\\1\\2",$matches[11]);
-                $matches[11] = preg_replace("/(&) (#\d+;)/","\\1\\2",$matches[11]);
-                $matches[11] = preg_replace("/(&#) (\d+;)/","\\1\\2",$matches[11]);
-                $matches[11] = preg_replace("/(&#\d+) (\d+;)/","\\1\\2",$matches[11]);
-                $matches[11] = preg_replace("/(&#\d+) (;)/","\\1\\2",$matches[11]);
-                $matches[11] = preg_replace("/(&#\d+;) (&)/","\\1\\2",$matches[11]);
-                foreach(split("[\=\| \t:]", $matches[11]) as $piece) {
+                $matches[12] = wordwrap($matches[12], 60, " ", true);
+                $matches[12] = preg_replace("/(;) (&#\d+;)/",";\\1\\2",$matches[12]);
+                $matches[12] = preg_replace("/(&) (#\d+;)/","\\1\\2",$matches[12]);
+                $matches[12] = preg_replace("/(&#) (\d+;)/","\\1\\2",$matches[12]);
+                $matches[12] = preg_replace("/(&#\d+) (\d+;)/","\\1\\2",$matches[12]);
+                $matches[12] = preg_replace("/(&#\d+) (;)/","\\1\\2",$matches[12]);
+                $matches[12] = preg_replace("/(&#\d+;) (&)/","\\1\\2",$matches[12]);
+                foreach(split("[\=\| \t:]", $matches[12]) as $piece) {
                     $clean_piece = str_replace("(", " ", $piece);
                     $clean_piece = str_replace(")", " ", $clean_piece);
                     $clean_piece = str_replace("[", " ", $clean_piece);
