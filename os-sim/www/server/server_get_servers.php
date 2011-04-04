@@ -84,9 +84,10 @@ function server_get_servers($conn) {
     $in = 'connect id="1" type="web"' . "\n";
     $out = '';
     socket_write($socket, $in, strlen($in));
-    $out = socket_read($socket, 2048, PHP_NORMAL_READ);
+    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
     if (strncmp($out, "ok id=", 4)) {
         $err = "<p><b>" . gettext("Bad response from server") . "</b></p>";
+        $err .= "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
         return array(
             $list,
             $err
