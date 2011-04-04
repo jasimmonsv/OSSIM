@@ -80,12 +80,18 @@
 														    if (in_array($ip, split(',', $from_list))) {
 														        echo "<option value='$ip'>$ip</option>\n";
 														    }
+															if (in_array("!".$ip, split(',', $from_list))) {
+														        echo "<option value='!$ip'>!$ip</option>\n";
+														    }
 														}
 														foreach ($net_list as $net) {
 														    $netname = $net->get_name();
 							   								$ips = $net->get_ips();
 														    if (in_array($ips, split(',', $from_list))) {
 														        echo "<option value='$ips'>$ips</option>\n";
+														    }
+															if (in_array("!".$ips, split(',', $from_list))) {
+														        echo "<option value='!$ips'>!$ips</option>\n";
 														    }
 														}
 														} if(preg_match("/(\!?HOME\_NET)/",$rule->from,$found)) {
@@ -209,12 +215,18 @@
 														    if (in_array($ip, split(',', $to_list))) {
 														        echo "<option value='$ip'>$ip</option>\n";
 														    }
+															if (in_array("!".$ip, split(',', $to_list))) {
+														        echo "<option value='!$ip'>!$ip</option>\n";
+														    }
 														}
 														foreach ($net_list as $net) {
 														    $netname = $net->get_name();
 							   								$ips = $net->get_ips();
 														    if (in_array($ips, split(',', $to_list))) {
 														        echo "<option value='$ips'>$ips</option>\n";
+														    }
+															if (in_array("!".$ips, split(',', $to_list))) {
+														        echo "<option value='!$ips'>!$ips</option>\n";
 														    }
 														}
 														} if(preg_match("/(\!?HOME\_NET)/",$rule->to,$found)) {
