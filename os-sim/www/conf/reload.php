@@ -99,6 +99,7 @@ if (strncmp($out, 'ok id="1"', 9) != 0) {
     // update indicators on top frame
     $OssimWebIndicator->update_display();
     echo gettext("Error connecting to server") . " ...\n";
+    echo "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
     exit;
 }
 $in = 'reload-' . $what . ' id="2"' . "\n";
@@ -107,6 +108,7 @@ socket_write($socket, $in, strlen($in));
 $out = socket_read($socket, 2048);
 if (strncmp($out, 'ok id="2"', 9) != 0) {
     echo gettext("Bad response from server") . " ...\n";
+    echo "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
     exit;
 }
 socket_close($socket);
