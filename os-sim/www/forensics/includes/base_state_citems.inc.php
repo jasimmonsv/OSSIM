@@ -862,7 +862,7 @@ class TimeCriteria extends MultipleElementCriteria {
         	$h = ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") ? $this->criteria[$i][5] : "00";
         	$u = ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") ? $this->criteria[$i][6] : "00";
         	$s = ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") ? $this->criteria[$i][7] : "00";
-        	$time = gmmktime($h,$u,$s,$m,$d,$y)-(3600*$tz);
+        	$time = gmmktime($h,$u,$s,$m,$d,$y)+(3600*$tz);
         	//if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") 
         	$utc_criteria[$i][4] = gmdate("Y",$time);
         	//if ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") 

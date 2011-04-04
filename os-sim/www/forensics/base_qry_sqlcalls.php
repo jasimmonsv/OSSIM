@@ -171,7 +171,7 @@ if ($debug_mode > 0) {
 }
 /* Run the Query again for the actual data (with the LIMIT) */
 //$result = ""; // $qs->ExecuteOutputQuery($sql, $db);
-//echo $sql."<br>".$timetz;
+//echo $sql."<br>".$timetz."=".gmdate("Y-m-d H:i:s",$timetz);
 
 $_SESSION['siem_current_query'] = $sql;
 
