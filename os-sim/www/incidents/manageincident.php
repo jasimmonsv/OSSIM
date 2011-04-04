@@ -136,7 +136,7 @@ if ($action == 'subscrip')
 /* New ticket */
 if ($action == 'newticket') 
 {
-    if (!ossim_valid($id, OSS_DIGIT)) 
+	if ( !ossim_valid($id, OSS_DIGIT) ) 
 		die_error("Wrong ID");
     
 	
@@ -187,7 +187,6 @@ if ($action == 'newticket')
         $attachment = null;
     }
     
-	
 	$login = Session::get_session_user();
     $tags  = POST('tags') ? POST('tags') : array();
     
@@ -197,7 +196,7 @@ if ($action == 'newticket')
     
 	if (ossim_error()) {
         die_error();
-    }
+	}
 		
 	header("Location: incident.php?id=$id&edit=$edit");
     exit;

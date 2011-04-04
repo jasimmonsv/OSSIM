@@ -797,8 +797,13 @@ class Incident {
         } else {
 			$sql = Incident::_build_sql($sql, $where);
         }
+		
+		/*echo "<pre>";
+			print_r($sql);
+		echo "</pre>";
+		*/
         
-        // order by
+		// order by
         if ($order_by == 'life_time') $order_by = "date";
         $order_by = ($order_by!="") ? "\nORDER BY $order_by $order_mode" : "";
         $sql.= $order_by;
@@ -813,7 +818,7 @@ class Incident {
             $tags[$rs->fields["incident_id"]][] = $rs->fields["tag_id"];
             $rs->MoveNext();
         }
-        //printr($sql);
+       		
         //$conn->debug = true;
         if (!$rs = $conn->Execute($sql, $parms)) {
             die($conn->ErrorMsg());
@@ -839,14 +844,16 @@ class Incident {
         return $foundrows;
     }
     function _build_sql($start_sql, $where) {
-        $user_where = "";
-        $user_tmp = array();
+        
+		$user_where = "";
+        $user_tmp   = array();
         require_once ('ossim_conf.inc');
 
-        $conf = $GLOBALS["CONF"];
+        $conf    = $GLOBALS["CONF"];
         $version = $conf->get_conf("ossim_server_version", FALSE);
+		$pro     = ( preg_match("/pro|demo/i",$version) ) ? true : false;
     
-        $w = implode("\nAND ", $where);
+        $w    = implode("\nAND ", $where);
         $from = '';
         // scan needed tables
         if (count($where)) {
@@ -854,56 +861,75 @@ class Incident {
                 $from = implode(', ', array_unique($m[1]));
             }
         }
-        if (!$from) $from = 'incident';
-        $sql = $start_sql . "\nFROM $from";
-        $user = Session::get_session_user();
+        if (!$from) 
+			$from = 'incident';
         
+		$sql             = $start_sql . "\nFROM $from";
+        $user            = Session::get_session_user();
+        $user_tmp[$user] = $user; 
         
-        if(preg_match("/pro|demo/i",$version)) {
-            $dbaux = new ossim_db();
+        if( $pro )
+		{
+            $dbaux  = new ossim_db();
             $dbconn = $dbaux->connect();
-            if (Acl::am_i_proadmin()) {
-                //list($entities_admin,$num) = Acl::get_entities_admin($dbconn,Session::get_session_user());
-                //$user_tmp = array_keys($entities_admin);
             
-                $users = Acl::get_my_users($dbconn, Session::get_session_user());
+			if (Acl::am_i_proadmin()) 
+			{
+                //My users
+				$users = Acl::get_my_users($dbconn, Session::get_session_user());
                 foreach ($users as $us) {
-                    $user_tmp[] = $us["login"];
+                    $user_tmp[$us["login"]] = $us["login"];
                 }
-                $entities = Acl::get_user_entities($user);
-                foreach ($entities as $entity) {
-                    $user_tmp[] = $entity;
-                }                
-            }
-            else {
-                $entities = Acl::get_user_entities($user);
-                foreach ($entities as $entity) {
-                    $user_tmp[] = $entity;
-                }
-                //$brothers = Acl::get_brothers($dbconn,Session::get_session_user());
-                //foreach ($brothers as $brother){
-                //    $user_tmp[] = $brother["login"]; 
-                //}
-            }
-            $dbaux->close($dbconn);
+                
+				//My child entities
+				$user_data   = Acl::get_users($dbconn, $user);
+				$my_entities = $user_data['entities'];
+				
+				foreach ($my_entities as $k => $v)
+				{
+					$user_tmp[$v] = $v;
+					$childs = Acl::get_entity_childs($dbconn,$v);
+					foreach ($childs as $i => $child)
+						$user_tmp[$child] = $child;
+				}
+				
+			}
+            else 
+			{
+                $brothers = Acl::get_brothers($dbconn);
+				
+				foreach($brothers as $k => $v)
+					$user_tmp[$v["login"]] = $v["login"];
+					
+				$user_data = Acl::get_users($dbconn, $user);
+				$my_entities = $user_data['entities'];
+			}
+			
+			$dbaux->close($dbconn);
         }
-        if(!in_array($user, $user_tmp))   $user_tmp[] = $user; 
         
-        $user_where = "'".implode("', '", $user_tmp)."'";
+		$user_where = "'".implode("', '", $user_tmp)."'";
 
-        if (!Session::am_i_admin()) { //  $user != ACL_DEFAULT_OSSIM_ADMIN
+        if (!Session::am_i_admin()) 
+		{ //  $user != ACL_DEFAULT_OSSIM_ADMIN
             if (preg_match("/incident_event/",$w) || preg_match("/incident_alarm/",$w)
                 || preg_match("/incident_metric/",$w) || preg_match("/incident_vulns/",$w) || preg_match("/incident_custom/",$w) ) {
                 $sql .= " LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE incident_subscrip.login in ($user_where)";
-            } else {
+            } 
+			else 
+			{
                 $incident_ticket = (!preg_match("/incident_ticket/",$from)) ? true : false;
                 $sql .= (($incident_ticket) ? " LEFT JOIN incident_ticket ON incident_ticket.incident_id = incident.id" : "")." LEFT JOIN incident_subscrip ON incident_subscrip.incident_id=incident.id WHERE ".((!$incident_ticket) ? "incident_ticket.incident_id=incident.id AND" : "");
                 $sql .= "(incident.in_charge in ($user_where) OR incident_ticket.users in ($user_where) OR incident_ticket.in_charge in ($user_where) OR incident_ticket.transferred in ($user_where) OR incident_subscrip.login in ($user_where))";
             }
-            if (count($where)) $sql.= "\n AND $w";
-        } else {
+            
+			if (count($where)) $sql.= "\n AND $w";
+        } 
+		else 
+		{
             if (count($where)) $sql.= "\n WHERE $w";
         }
+		
         return $sql;
     }
     /*
@@ -986,11 +1012,11 @@ class Incident {
 		
 		//I´m admin
 		if ( Session::am_i_admin() ) 
-			return array($me);
+			return array("$me" => $me);
         
 		//I'm the submmiter or I´m in charge
 		if ( $submitter == $me || $in_charge == $me )
-			return array($me);
+			return array("$me" => $me);
 		elseif ( $pro && preg_match("/^\d+$/",$in_charge) )
 			$list = Acl::get_all_users_by_entity($conn, $in_charge);
 		elseif ( $pro && !preg_match("/^\d+$/",$in_charge) )
@@ -999,17 +1025,29 @@ class Incident {
 			
 			if (is_array($user) && !empty($user) )
 			{
+				$brothers = Acl::get_brothers($conn);
+				
+				foreach($brothers as $k => $v)
+					$list[$v["login"]] = $v["login"];
+					
 				$my_entities = $user['entities'];
 				
 				foreach ($my_entities as $k => $v)
 				{
-					$entity = Acl::get_entity($conn, $v);
-					$list[$entity['admin_user']] = $entity['admin_user'];
+					$entity_p                      = Acl::get_entity($conn, $v);
+					$list[$entity_p['admin_user']] = $entity_p['admin_user'];
+					
+					$parents   = Acl::get_entity_parents($conn,$v);
+					
+					foreach ($parents as $i => $parent)
+					{
+						$entity  = Acl::get_entity($conn, $parent);
+						$list[$entity['admin_user']] = $entity['admin_user'];
+					}
 				}
 			}
 		}
 		
-				
 		$query = OssimQuery("SELECT users, transferred FROM incident_ticket WHERE incident_id = " . $incident_id);
 		
 		if (!$rs = & $conn->Execute($query)) 
