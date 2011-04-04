@@ -993,10 +993,25 @@ class Incident {
 			return array($me);
 		elseif ( $pro && preg_match("/^\d+$/",$in_charge) )
 			$list = Acl::get_all_users_by_entity($conn, $in_charge);
-					
-		
-		$query = OssimQuery("SELECT users, transferred FROM incident_ticket WHERE incident_id = " . $incident_id);
+		elseif ( $pro && !preg_match("/^\d+$/",$in_charge) )
+		{
+			$user = Acl::get_users($conn, $in_charge);
+			
+			if (is_array($user) && !empty($user) )
+			{
+				$my_entities = $user['entities'];
 				
+				foreach ($my_entities as $k => $v)
+				{
+					$entity = Acl::get_entity($conn, $v);
+					$list[$entity['admin_user']] = $entity['admin_user'];
+				}
+			}
+		}
+		
+				
+		$query = OssimQuery("SELECT users, transferred FROM incident_ticket WHERE incident_id = " . $incident_id);
+		
 		if (!$rs = & $conn->Execute($query)) 
 		    die($conn->ErrorMsg());
         else 
@@ -1020,6 +1035,8 @@ class Incident {
 				$rs->MoveNext();
             }
         }
+			
+		
 		
 		$suscrib = Incident::get_subscribed_users($conn, $incident_id);
         
@@ -1165,6 +1182,7 @@ class Incident {
 		if ( ($action == 'show' || $action == 'subscrip' || $action == 'newticket') )
 		{
 			$allowed = Incident::get_users_list($conn, $incident_id, $submitter, $in_charge);
+			
 			if ( !empty($allowed[$me]) )
 				return true;
 		}

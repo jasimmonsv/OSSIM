@@ -102,7 +102,7 @@ if ( ossim_error() )
 
 }
 
-if ($id != "" && !Incident::user_incident_perms($conn, $id, 'show')) {
+if ( $id != "" && !Incident::user_incident_perms($conn, $id, 'show')) {
 	die_error(_("Sorry, you are not allowed to perform this action"));
 }
 
@@ -139,6 +139,9 @@ if ($action == 'newticket')
     if (!ossim_valid($id, OSS_DIGIT)) 
 		die_error("Wrong ID");
     
+	
+	$act = $action;
+	
 	$vals = array(
         'prev_status',
     	'prev_prio',
@@ -157,21 +160,21 @@ if ($action == 'newticket')
         $$var = POST("$var");
     }
     
-		
+	
 	if($transferred_user!="")   $transferred = $transferred_user;
     if($transferred_entity!="") $transferred = $transferred_entity;
     
 	// Only admin, entity admin and ticket owner can transfer a ticket
     
-	if ($transferred != "" && !Incident::user_incident_perms($conn, $id, $action) ) 
+	if ($transferred != "" && !Incident::user_incident_perms($conn, $id, $act) ) 
         die_error(_("You are not allowed to transfer this incident because you are neither *admin* or the ticket owner"));
    
 	
-	if ( $priority != $prev_prio && !Incident::user_incident_perms($conn, $id, $action) ) 
+	if ( $priority != $prev_prio && !Incident::user_incident_perms($conn, $id, $act) ) 
         die_error(_("You are not allowed to change priority of this incident because you are neither *admin* or the ticket owner"));
     
 	
-	if ($status != $prev_status && !Incident::user_incident_perms($conn, $id, $action) ) 
+	if ($status != $prev_status && !Incident::user_incident_perms($conn, $id, $act) ) 
         die_error(_("You are not allowed to change status of this incident because you are neither *admin* or the ticket owner"));
     
     

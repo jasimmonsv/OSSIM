@@ -645,7 +645,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
         $querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=$in_charge";
         $resulte=$conn->execute($querye);
         list($entity_name, $entity_type) = $resulte->fields;
-        $in_charge_name = $in_charge;
+        $in_charge_name = $entity_name." [".$entity_type."]";;
     }
 	else 
 	{
@@ -654,9 +654,29 @@ for ($i = 0; $i < count($tickets_list); $i++)
     	$in_charge_name = format_user($in_charge);
     }
 		
-    
-    $transferred = Session::get_list($conn, "WHERE login='$transferred'");
-    $transferred = count($transferred) == 1 ? $transferred[0] : false;
+	if ( !empty($transferred) )
+	{
+		if (preg_match("/^\d+$/",$transferred))
+		{
+			$querye = "SELECT ae.name as ename, aet.name as etype FROM acl_entities AS ae, acl_entities_types AS aet WHERE ae.type = aet.id AND ae.id=$transferred";
+			$resulte=$conn->execute($querye);
+			list($entity_name, $entity_type) = $resulte->fields;
+			
+			if ( !empty($entity_name) && !empty($entity_type) )
+				$transferred_name = $entity_name." [".$entity_type."]";
+			else
+				$transferred = false;
+		}
+		else
+		{
+			$transferred      = Session::get_list($conn, "WHERE login='$transferred'");
+			$transferred      = count($transferred) == 1 ? $transferred[0] : false;
+			$transferred_name = format_user($transferred);
+		}
+	}
+	else
+		$transferred = false;
+	
     $descrip     = $ticket->get_description();
     $action      = $ticket->get_action();
     $status      = $ticket->get_status();
@@ -744,7 +764,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 					?>
 						<tr>
 							<th><strong><?php echo _("In charge") ?>: </strong></th>
-							<td nowrap='nowrap' style="text-align:left;padding-left:5px;"><?php echo $in_charge_name ?></td>
+							<td nowrap='nowrap' style="text-align:left;padding-left:5px;"><?php echo $in_charge_name; ?></td>
 						</tr>
 					<?php
 					} 
@@ -753,7 +773,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 					?>
 						<tr>
 							<th><strong><?php echo _("Transferred To") ?>: </strong></th>
-							<td nowrap='nowrap' style="text-align:left;padding-left:5px;"><?php echo format_user($transferred) ?></td>
+							<td nowrap='nowrap' style="text-align:left;padding-left:5px;"><?php echo $transferred_name; ?></td>
 						</tr>
 					<?php
 					} ?>
@@ -848,9 +868,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 										</select>
 									</td>
 									<?php if ( !empty($entities) ) { ?>
-									
-									
-									
+																		
 									<td class="format_or"><?php echo _("OR");?></td>
 									<td class='format_entity'><span style='margin-right: 3px;'><?php echo _("Entity:");?></span></td>
 									<td class='nobborder'>
