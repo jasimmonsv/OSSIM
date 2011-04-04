@@ -5229,7 +5229,10 @@ sub in_array {
 sub getassetbyname {
     my $asset_name = $_[0];
     my @result = ();
-    my ($sql, $sthse, $ip, $net, $sql2, $sthse2);
+    my ($sql, $sthse, $ip, $net, $sql2, $sthse2, $asset_ip);
+    
+    $txt_unresolved_names = "";
+    $asset_ip = "";
     
     # check host groups
     $sql = qq{ SELECT host_ip FROM host_group_reference WHERE host_group_name='$asset_name' };
@@ -5243,6 +5246,12 @@ sub getassetbyname {
     $sthse->finish;
     
     if ($#result!=-1) { return (join("\r", @result)); }
+    
+    # check host with dig
+    $asset_ip = `dig +short $asset_name| head -1`;
+    chomp($asset_ip);
+    
+    if($asset_ip ne "" && $asset_ip =~ /\d+\.\d+\.\d+\.\d+/) { return ($asset_ip); }
     
     # check nets
     $sql = qq{ SELECT ips FROM net WHERE name='$asset_name' };
