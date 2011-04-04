@@ -61,15 +61,19 @@ $backlog_id = GET('backlog_id');
 $event_id = GET('event_id');
 $show_all = GET('show_all');
 $hide = GET('hide');
+$from = (GET('from') != "") ? GET('from') : 0;
 ossim_valid($backlog_id, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("backlog_id"));
 ossim_valid($event_id, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("event_id"));
 ossim_valid($show_all, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("show_all"));
 ossim_valid($hide, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("hide"));
+ossim_valid($from, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("from"));
 if (ossim_error()) {
     die(ossim_error());
 }
 $summ_event_count = 0;
 $highest_rule_level = 0;
+$max_events = 50;
+$to = $from + $max_events;
 $conf = $GLOBALS["CONF"];
 $acid_link = $conf->get_conf("acid_link");
 $acid_prefix = $conf->get_conf("event_viewer");
@@ -143,7 +147,11 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 	$count_events = 0;
     $count_alarms = 0;
     foreach($alarm_list as $alarm) {
-        $id = $alarm->get_plugin_id();
+		if (!$alarm->get_alarm() && ($count_events < $from || $count_events >= $to)) {
+			$count_events++;
+			continue;
+		}
+    	$id = $alarm->get_plugin_id();
         $sid = $alarm->get_plugin_sid();
         $backlog_id = $alarm->get_backlog_id();
         $risk = $alarm->get_risk();
@@ -404,15 +412,33 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 <?php
     } /* foreach alarm_list */
 	if ($hide == "") {
-?>
-<tr>
-<td colspan="6" bgcolor="#eeeeee" style="text-align:left;padding-left:5px">
-<a href='events_ajax.php?backlog_id=<?=$backlog_id?>&show_all=2&box=1&hide=directive' class="greybox" title="<?=_("Events detail")?>"><img src="../pixmaps/plus-small.png" align="absmiddle"><?php echo $summary["total_count"] - $summ_event_count; ?></a> <?php echo _("Total events matched after highest rule level, before timeout."); ?>
-</td><td colspan="3" bgcolor="#eeeeee">
-<a href="../directive_editor/index.php?level=1&directive=<?php echo $master_alarm_sid ?>&hmenu=Directives&smenu=Directives" class=""><b><?=_("View")?></b>/<b><?=_("Edit")?></b> <?=_("current directive definition")?></a>
-</td>
-</tr>
-<?php }
+	?>
+	<tr>
+	<td colspan="6" bgcolor="#eeeeee" style="text-align:left;padding-left:5px">
+	<a href='events_ajax.php?backlog_id=<?=$backlog_id?>&show_all=2&box=1&hide=directive' class="greybox" title="<?=_("Events detail")?>"><img src="../pixmaps/plus-small.png" align="absmiddle"><?php echo $summary["total_count"] - $summ_event_count; ?></a> <?php echo _("Total events matched after highest rule level, before timeout."); ?>
+	</td><td colspan="3" bgcolor="#eeeeee">
+	<a href="../directive_editor/index.php?level=1&directive=<?php echo $master_alarm_sid ?>&hmenu=Directives&smenu=Directives" class=""><b><?=_("View")?></b>/<b><?=_("Edit")?></b> <?=_("current directive definition")?></a>
+	</td>
+	</tr>
+	<?php
+	}
+	if ($from > 0 || $count_events > $to) { ?>
+	<tr>
+		<td class="center nobborder" colspan="9">
+			<table align="center" class="transparent">
+				<tr>
+				<?php if ($from > 0) { ?>
+				<td class="nobborder" style="padding-right:10px"><input type="button" class="button" onclick="document.location.href='events_ajax.php?backlog_id=<?php echo $backlog_id ?>&event_id=<?php echo $event_id ?>&show_all=<?php echo $show_all ?>&hide=<?php echo $hide ?>&from=<?php echo $from-$max_events ?>&box=1'" value="<< <?php echo _("Previous") ?> <?php echo $max_events ?> <?php echo _("events") ?>"></td>
+				<?php } ?>
+				<td class="nobborder"><?php echo _("Showing events")." <b>".($from+1)."</b> - <b>".(($to > $count_events) ? $count_events : $to)."</b>" ?></td>
+				<?php if ($count_events > $to) { ?>
+				<td class="nobborder" style="padding-left:10px"><input type="button" class="button" onclick="document.location.href='events_ajax.php?backlog_id=<?php echo $backlog_id ?>&event_id=<?php echo $event_id ?>&show_all=<?php echo $show_all ?>&hide=<?php echo $hide ?>&from=<?php echo $from+$max_events ?>&box=1'" value="<?php echo _("Next") ?> <?php echo $max_events ?> <?php echo _("events") ?> >>"></td>
+				<?php } ?>
+				</tr>
+			</table>
+		</td>
+	</tr> <?php
+	}
 } /* if alarm_list */
 ?>
     </table>
