@@ -42,6 +42,11 @@ require_once 'incident_common.php';
 
 Session::logcheck("MenuIncidents", "IncidentsIncidents");
 
+// Version
+$conf    = $GLOBALS["CONF"];
+$version = $conf->get_conf("ossim_server_version", FALSE);
+$pro     = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+
 
 $id   = GET('id');
 $edit = ( $_GET['edit'] == 1 || $_POST['edit'] == 1 ) ? 1 : 0;
@@ -62,11 +67,6 @@ if (count($incident_list) != 1) {
 
 $incident = $incident_list[0];
 
-$conf     = $GLOBALS["CONF"];
-$version  = $conf->get_conf("ossim_server_version", FALSE);
-$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
-
-
 //Incident data
 $name 				= $incident->get_ticket();
 $title 				= $incident->get_title();
@@ -78,8 +78,9 @@ $updated 			= $incident->get_last_modification();
 $priority 			= $incident->get_priority();
 $incident_status    = $incident->get_status();
 $incident_in_charge = $incident->get_in_charge();
-$users              = get_my_users_vision($conn, $pro);
-$entities           = ( $pro == true  ) ? get_my_entities_vision($conn, $pro) : null;
+$users              = Session::get_users_to_assign($conn);
+$entities           = Session::get_entities_to_assign($conn);
+
 $incident_tags      = $incident->get_tags();
 $incident_tag       = new Incident_tag($conn);
 $taga               = array();
@@ -487,6 +488,8 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 					$has_found = "<a href='../repository/?search_bylink=" . $incident->get_id() . "' style='text-decoration:underline'><strong>$has_linked</strong></a>";
 			}
 			
+			$has_found = ( empty($has_found) ) ? 0 : $has_found;
+			
 			?>
 			<table width="100%">
 				<tr><th height="18"><?php echo _("Documents")?></th></tr>
@@ -564,10 +567,34 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 		</td>
 		
 		<td id='subscribe_section' nowrap='nowrap' colspan='4'>
-			<select name="login">
+					
+				<select name="login">
 				<?php 
+				
 				$current_user = Session:: get_session_user();
 				$number_users = count($users);
+								
+				if( Session::am_i_admin() )
+					$filtered_users = $users;
+				else
+				{
+					foreach($users as $u) 
+					{
+						$login = $u->get_login();
+						
+						if ( !Session::is_admin($conn, $login) )
+						{
+							if ( $pro && !Acl::am_i_proadmin() && !Acl::is_proadmin($conn, $login) > 0 )
+								$filtered_users[] = $u;
+							elseif( $pro && Acl::am_i_proadmin() )
+							{
+								$filtered_users[] = $u;
+							}
+							
+						}
+					}
+				}
+								
 				
 				if ( $number_users == 0 ) 
 				{ 
@@ -576,14 +603,16 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 					<?php 
 				} 
 				
-				foreach($users as $u) 
+				
+				
+				foreach($filtered_users as $u) 
 				{ 
 					?>
 					<option value="<?php echo $u->get_login() ?>"><?php echo format_user($u, false) ?></option>
 					<?php 
 				} 
 				?>
-			</select>
+				</select>
 						
 			<input type="submit" class="button" name="subscribe" value="<?php echo _("Subscribe")?>"/>&nbsp;
 			<input type="submit" class="button" name="unsubscribe" value="<?php echo _("Unsubscribe")?>"/>
@@ -650,9 +679,9 @@ for ($i = 0; $i < count($tickets_list); $i++)
 			<td style="text-align:left; padding-left:3px;">
             <?php
 			
-			/* Allow the ticket creator and the admin delete the last ticket*/
+			/* Check permissions to delete a ticket*/
 			
-			if (($i == count($tickets_list) - 1) && Incident_ticket::user_tickets_perms($conn, $ticket_id, 'delticket') )
+			if ( ($i == count($tickets_list) - 1) && Incident_ticket::user_tickets_perms($conn, $ticket_id) )
 			{
 				?>
 				<input type="button" name="deleteticket" class="lbutton" value="<?php echo _("Delete ticket") ?>"  onclick="delete_comment('<?php echo $ticket_id?>', '<?php echo $id?>')"/>
@@ -797,10 +826,11 @@ for ($i = 0; $i < count($tickets_list); $i++)
 										<select name="transferred_user" id="user" style="width:150px;" onchange="switch_user('user');return false;">
 											<?php
 											$num_users = 0;
+																									
 											foreach( $users as $k => $v )
 											{
 												$login = $v->get_login();
-												if ( $login != $incident_in_charge )
+												if ( $login != $incident_in_charge)
 												{
 													$options .= "<option value='".$login."'>".format_user($v, false)."</option>\n";
 													$num_users++;
@@ -818,13 +848,22 @@ for ($i = 0; $i < count($tickets_list); $i++)
 										</select>
 									</td>
 									<?php if ( !empty($entities) ) { ?>
+									
+									
+									
 									<td class="format_or"><?php echo _("OR");?></td>
 									<td class='format_entity'><span style='margin-right: 3px;'><?php echo _("Entity:");?></span></td>
 									<td class='nobborder'>
-										<?php unset($entities[$incident_in_charge]); ?>					
 										<select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;">
-											<option value="" style='text-align:center !important;'>- <?php echo _("Select one entity") ?> -</option>
-											<?php
+											<?php 
+											unset($entities[$incident_in_charge]);
+											
+											if (count($entities) == 0)
+												echo "<option value='' style='text-align:center !important;'>- "._("No entities found")." -</option>";
+											else
+												echo "<option value='' style='text-align:center !important;'>- "._("Select one entity")." -</option>\n";
+											
+											
 											foreach ( $entities as $k => $v ) 
 												echo "<option value='$k'>$v</option>";
 											?>

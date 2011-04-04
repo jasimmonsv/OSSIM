@@ -386,7 +386,9 @@ $incident_tag = new Incident_tag($conn);
 
 					<tr <?php if ($row++ % 2) echo 'bgcolor="#EFEFEF"'; ?> valign="middle">
 						<td <?php echo $class?>>
-							<input type="checkbox" name="ticket<?php echo $row ?>" value="<?php echo $incident->get_id()."_".$incident->get_priority() ?>" <?php if ($incident->get_in_charge_name($conn) != Session::get_session_user() && !Session::am_i_admin()) echo "disabled='disabled'" ?>/>
+							<?php $enabled = ( Incident::user_incident_perms($conn, $incident->get_id(), 'closed') == false ) ? "disabled='disabled'" : ""; ?>
+							
+							<input type="checkbox" name="ticket<?php echo $row ?>" value="<?php echo $incident->get_id()."_".$incident->get_priority() ?>" <?php $enabled;?>/>
 						</td>
 									
 						<td <?php echo $class?>>

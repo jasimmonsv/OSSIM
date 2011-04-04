@@ -209,7 +209,7 @@ if ($action == 'delticket')
 	
 	// Only admin, entity admin and ticket owner
 	
-    if (!Incident::user_incident_perms($conn, $id, $action)) 
+    if (!Incident_ticket::user_tickets_perms($conn, GET('ticket_id'))) 
         die_error(_("You are not allowed to delete this ticket because you are neither *admin* or the ticket owner"));
     
 	Incident_ticket::delete($conn, GET('ticket_id'));

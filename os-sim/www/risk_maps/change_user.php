@@ -33,99 +33,6 @@
 require_once('ossim_conf.inc');
 require_once('classes/Session.inc');
 
-function get_my_users_vision($conn, $pro)
-{
-	
-	require_once('classes/Session.inc');
-	
-	if  ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin()) )
-	{
-		if ( Session::am_i_admin() )
-			$users_list = Session::get_list($conn, "ORDER BY login");
-		else
-			$users_list = Acl::get_my_users($conn,Session::get_session_user());
-		
-		
-		if ( is_array($users_list) && !empty($users_list) )
-		{
-			foreach($users_list as $k => $v)
-				$users[] = ( is_object($v) )? $v->get_login() : $v["login"];
-			
-			$where = "WHERE login in ('".implode("','",$users)."')";
-		}
-	}
-	else
-	{
-	
-		if ( !$pro )
-			$where = "WHERE login in ('".Session::get_session_user()."')";
-		else
-		{
-			$brothers = Acl::get_brothers($conn);
-			
-			foreach($brothers as $k => $v)
-				$users[] = $v["login"];
-			
-			$users[] = Session::get_session_user();
-			
-			$where = "WHERE login in ('".implode("','",$users)."')";
-		}	
-	}	
-		
-
-	return Session::get_list($conn, $where." ORDER BY login ASC");
-}
-
-//Return array with entities that you can see
-
-function get_my_entities_vision($dbconn, $pro)
-{
-	
-	require_once('classes/Session.inc');
-	$entities_types       = array();
-	$entities_types_aux   = array();
-	$entities             = array();
-	
-	if  ( Session::am_i_admin() )
-	{
-		list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-		$entities_types_aux               = Acl::get_entities_types($dbconn);
-			
-
-		foreach ($entities_types_aux as $etype) { 
-			$entities_types[$etype['id']] = $etype;
-		}
-		
-		foreach ( $entities_all as $entity ) 
-			$entities[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
-		
-	}
-	else if ($pro && Acl::am_i_proadmin())
-	{
-		list($entities_all,$num_entities) = Acl::get_entities($dbconn);
-		list($entities_admin,$num)        = Acl::get_entities_admin($dbconn,Session::get_session_user());
-		
-		$entities_list      = array_keys($entities_admin);
-		$entities_types_aux = Acl::get_entities_types($dbconn);
-	   
-		foreach ($entities_types_aux as $etype) { 
-			$entities_types[$etype['id']] = $etype;
-		}
-		
-		foreach ( $entities_all as $entity ) 
-		{
-			if(	in_array($entity["id"], $entities_list) ) 
-				$entities[$entity["id"]] = $entity["name"]." [".$entities_types[$entity["type"]]["name"]."]";
-		
-		}
-	
-	}
-
-	return $entities;
-}
-
-
-
 $conf    = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 $pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
@@ -251,8 +158,8 @@ while (!$result->EOF) {
 }
 
 
-$users    = get_my_users_vision($dbconn, $pro);
-$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+$users    = Session::get_users_to_assign($dbconn);
+$entities = Session::get_entities_to_assign($dbconn);
 
 if ($pro) 
 {

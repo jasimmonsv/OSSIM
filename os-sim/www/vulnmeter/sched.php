@@ -1328,8 +1328,8 @@ EOT;
 	$version  = $conf->get_conf("ossim_server_version", FALSE);
 	$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 
-	$users    = get_my_users_vision($dbconn, $pro);
-	$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+	$users    = Session::get_users_to_assign($dbconn);
+	$entities = Session::get_entities_to_assign($dbconn);
     
 	$discovery .= "<tr>
 						<td>"._("Make this scan job visible for:")."</td>

@@ -982,7 +982,7 @@ class Incident {
 		$version  = $conf->get_conf("ossim_server_version", FALSE);
 		$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
 		
-		$me = Session::get_session_user();
+		$me       = Session::get_session_user();
 		
 		//I´m admin
 		if ( Session::am_i_admin() ) 
@@ -1162,13 +1162,13 @@ class Incident {
 			return true;
 		
 		
-		if ( $action == 'show' || $action == 'subscrip' || $action == 'newticket' )
+		if ( ($action == 'show' || $action == 'subscrip' || $action == 'newticket') )
 		{
-			$allowed = Acl::get_users_list($conn, $incident_id, $submitter, $in_charge);
+			$allowed = Incident::get_users_list($conn, $incident_id, $submitter, $in_charge);
 			if ( !empty($allowed[$me]) )
 				return true;
 		}
-		elseif ( $action == "delincident" || $action == "editincident" )
+		elseif ( $action == "delincident" || $action == "editincident" || $action == 'closed' )
 		{
 			if ( $pro && preg_match("/^\d+$/",$in_charge) )
 			{
@@ -1176,22 +1176,20 @@ class Incident {
 				
 				if ( $me == $entity['admin_user'] ) 
 					return true;
-					
-			}
-		}
-		elseif ( $action == 'delticket' )
-		{
-			if ( $pro && preg_match("/^\d+$/",$in_charge) )
-			{
-				$entity = Acl::get_entity($conn, $in_charge);
+				else
+				{
+					$entities  = Acl::get_entity_parents($conn, $in_charge);
+					foreach ($entities as $k => $v )
+					{
+						$entity = Acl::get_entity($conn, $v);
 				
-				if ( $me == $entity['admin_user'] ) 
-					return true;
-					
+						if ( $me == $entity['admin_user'] ) 
+							return true;
+					}
+				}
 			}
-						
 		}
-		
+				
 		return false;
 	}
     /*

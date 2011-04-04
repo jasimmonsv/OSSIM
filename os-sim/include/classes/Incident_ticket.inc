@@ -678,7 +678,8 @@ TICKET_INVERSE_HISTORY
 		//I'm pro_admin and some of my users is the creator
 		$conf = $GLOBALS["CONF"];
 						
-		if (!$conf) {
+		if (!$conf) 
+		{
 			require_once 'ossim_db.inc';
 			require_once 'ossim_conf.inc';
 			$conf = new ossim_conf();
@@ -686,6 +687,7 @@ TICKET_INVERSE_HISTORY
 		
 		$version  = $conf->get_conf("ossim_server_version", FALSE);
 		$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+		
 		
 		if ( $pro && Acl::am_i_proadmin() )
 		{
@@ -704,9 +706,5 @@ TICKET_INVERSE_HISTORY
 		
 		return false;
 	}
-
-	
-	
-	
 }
 ?>
