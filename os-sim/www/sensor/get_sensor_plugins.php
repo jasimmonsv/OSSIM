@@ -63,9 +63,10 @@ function server_get_sensor_plugins() {
     $in = 'connect id="1" type="web"' . "\n";
     $out = '';
     socket_write($socket, $in, strlen($in));
-    $out = socket_read($socket, 2048, PHP_NORMAL_READ);
+    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
     if (strncmp($out, "ok id=", 4)) {
         echo "<p><b>" . gettext("Bad response from server") . "</b></p>";
+        echo "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
         return $list;
     }
     /* get sensor plugins from server */
