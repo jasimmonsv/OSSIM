@@ -141,7 +141,8 @@ else if ($key == "net") {
 				$net_title = utf8_encode($net->get_name());
                 $ips = $net->get_ips();
                 $li = "key:'net_$net_key', isLazy:true, url:'$ips', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$ips.")</font>'\n";
-                $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
+                $li_not = "key:'net_!$net_key', isLazy:true, url:'!$ips', icon:'../../pixmaps/theme/net.png', title:'!$net_title <font style=\"font-size:80%\">(".$ips.")</font>'\n";
+                $buffer .= (($j > $from) ? "," : "") . "{ $li },{ $li_not }\n";
             }
             $j++;
         }
@@ -260,6 +261,7 @@ else if (preg_match("/all_(.*)/",$key,$found)){
                 $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
                 $hnane = utf8_encode($hname);
                 $html.= "{ key:'$key.$j', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
+                $html.= "{ key:'$key.$j', url:'!$ip', icon:'../../pixmaps/theme/host.png', title:'!$hname' },\n";
             }
             $i++;
         }
