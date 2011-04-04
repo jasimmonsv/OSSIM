@@ -178,14 +178,14 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 
 //error_log("A1: $a\n",3,"/tmp/fetch");
 // Chanage filter=val1|val2 to filter=val1|filter=val2
-if (preg_match("/ AND /",$a)) {
+//if (preg_match("/ AND /",$a)) {
 	$aa = explode(" AND ",$a);
 	$a = "";
 	foreach ($aa as $aa1) {
 		$aa1 = preg_replace("/(.*?)=(.*)(\|)(.*)/","\\1=\\2\\3\\1=\\4",$aa1);
 		$a .= ($a=="") ? $aa1 : " AND $aa1";
 	}
-}
+//}
 //error_log("A2: $a\n",3,"/tmp/fetch");
 
 // Patch "sensor=A OR sensor=B"
