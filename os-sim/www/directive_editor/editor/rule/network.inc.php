@@ -88,7 +88,10 @@
 														        echo "<option value='$ips'>$ips</option>\n";
 														    }
 														}
-														} ?>
+														} if(preg_match("/HOME\_NET/",$rule->from)) {
+															echo "<option value='".$rule->from."'>".$rule->from."</option>\n";
+														}
+														?>
 														</select>
 														<input type="button" class="lbutton" value=" [X] " onclick="deletefrom('fromselect');"/>
 													</td>
@@ -105,6 +108,7 @@
 														<div id="containerfrom" class='container_ptree'></div>
 													</td>
 												</tr>
+												<tr><td class="left nobborder"><input type="button" value="<?php echo _("Home Net") ?>" onclick="addto('fromselect','HOME_NET','HOME_NET')"> <input type="button" value="!<?php echo _("Home Net") ?>" onclick="addto('fromselect','!HOME_NET','!HOME_NET')"></td></tr>
 												</table>
 											</td>
 										</tr>
@@ -213,6 +217,8 @@
 														        echo "<option value='$ips'>$ips</option>\n";
 														    }
 														}
+														} if(preg_match("/HOME\_NET/",$rule->to)) {
+															echo "<option value='".$rule->to."'>".$rule->to."</option>\n";
 														} ?>
 														</select>
 														<input type="button" class="lbutton" value=" [X] " onclick="deletefrom('toselect');"/>
@@ -230,6 +236,7 @@
 														<div id="containerto" class='container_ptree'></div>
 													</td>
 												</tr>
+												<tr><td class="left nobborder"><input type="button" value="<?php echo _("Home Net") ?>" onclick="addto('toselect','HOME_NET','HOME_NET')"> <input type="button" value="!<?php echo _("Home Net") ?>" onclick="addto('toselect','!HOME_NET','!HOME_NET')"></td></tr>
 												</table>
 											</td>
 										</tr>
