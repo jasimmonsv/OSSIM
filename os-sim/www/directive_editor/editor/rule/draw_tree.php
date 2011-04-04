@@ -43,7 +43,7 @@ $filter = GET('filter');
 $key = GET('key');
 $page = intval(GET('page'));
 ossim_valid($filter, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, OSS_PUNC, 'illegal:' . _("Filter"));
-ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("key"));
+ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, '!', 'illegal:' . _("key"));
 ossim_valid($page, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("page"));
 if (ossim_error()) {
     die(ossim_error());
@@ -155,7 +155,9 @@ else if ($key == "net") {
 }
 else if (preg_match("/net_(.*)/",$key,$found)){
 	$hostin = array();
-	if ($net_list1 = Net::get_list($conn, "name='".base64_decode($found[1])."'")) {
+	$negated = (preg_match("/^\!/",$found[1])) ? true : false;
+	$aux_name = str_replace("!","",$found[1]);
+	if ($net_list1 = Net::get_list($conn, "name='".base64_decode($aux_name)."'")) {
 		require_once("classes/CIDR.inc");
 		foreach($net_list1 as $net) {
 		    $net_name = $net->get_name();
@@ -180,7 +182,11 @@ else if (preg_match("/net_(.*)/",$key,$found)){
     foreach($hostin as $ip => $host_name) {
     	$host_name = utf8_encode($host_name);
         if ($k>=$from && $k<$to) {
-            $html.= "{ key:'$key.$k', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$ip <font style=\"font-size:80%\">($host_name)</font>' },\n";
+            if ($negated) {
+            	$html.= "{ key:'$key.$k', url:'!$ip', icon:'../../pixmaps/theme/host.png', title:'!$ip <font style=\"font-size:80%\">($host_name)</font>' },\n";
+            } else {
+            	$html.= "{ key:'$key.$k', url:'$ip', icon:'../../pixmaps/theme/host.png', title:'$ip <font style=\"font-size:80%\">($host_name)</font>' },\n";
+            }
         }
         $k++;
     }
