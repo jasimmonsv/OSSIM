@@ -154,47 +154,11 @@ if (count($scanning_nets) > 0) {
 	echo "<br>";
 	echo ($has_results) ? _("Scan completed") : _("Scan aborted");
 	echo "<br><br>";
-	if ($has_results) { ?><input type="button" class="button" onclick="parent.document.location.href='index.php#results'" value="<?php echo gettext("View results") ?>"><?php } ?>
+	if ($has_results) { ?><input type="button" class="button" onclick="parent.document.location.href='index.php'" value="<?php echo gettext("View results") ?>"><?php } ?>
 	<script type="text/javascript">$('#loading').html("");$('#stop_div').html("");parent.document.getElementById('scan_button').disabled = false</script><?php
 } else {
 	echo "No nmap process found.";
 }
-
-/*
-$rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
-if ($rscan->available_scan()) { // $full_scan!="full" && 
-	
-	// try remote nmap
-	echo _("Scanning network") . " ($net), " . _(" with a remote sensor, please wait") . "...<br/>\n";
-	$rscan->do_scan(FALSE);
-	if ($rscan->err()!="") 
-		echo _("Failed remote network scan: ") . "<font color=red>".$rscan->err() ."</font><br/>\n";
-	else
-		$rscan->save_scan();
-	
-} else {
-?><script type="text/javascript">parent.document.getElementById('scan_button').disabled = true</script><?php
-	echo _("Unable to launch remote network scan: ") . "<font color=red>".$rscan->err() ."</font><br/>\n"; // if ($full_scan!="full") 
-	echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<br><div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'> <input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
-	?><script type="text/javascript">parent.doIframe();</script><?php
-	// try local nmap
-	$scan = new Scan($net);
-	$scan->append_option($timing_template);
-	// $full_scan can be: null, "fast" or "full"
-	if ($full_scan) {
-	    if ($full_scan == "fast") {
-	        $scan->append_option("-F");
-	        $scan->do_scan(TRUE);
-	    } else {
-	        $scan->do_scan(TRUE);
-	    }
-	} else {
-	    $scan->do_scan(FALSE);
-	}
-	//$scan->save_scan();
-	
-}
-*/
 ?>
 </body>
 </html>
