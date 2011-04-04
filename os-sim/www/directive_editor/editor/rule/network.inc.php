@@ -88,8 +88,8 @@
 														        echo "<option value='$ips'>$ips</option>\n";
 														    }
 														}
-														} if(preg_match("/HOME\_NET/",$rule->from)) {
-															echo "<option value='".$rule->from."'>".$rule->from."</option>\n";
+														} if(preg_match("/(\!?HOME\_NET)/",$rule->from,$found)) {
+															echo "<option value='".$found[1]."'>".$found[1]."</option>\n";
 														}
 														?>
 														</select>
@@ -217,8 +217,8 @@
 														        echo "<option value='$ips'>$ips</option>\n";
 														    }
 														}
-														} if(preg_match("/HOME\_NET/",$rule->to)) {
-															echo "<option value='".$rule->to."'>".$rule->to."</option>\n";
+														} if(preg_match("/(\!?HOME\_NET)/",$rule->to,$found)) {
+															echo "<option value='".$found[1]."'>".$found[1]."</option>\n";
 														} ?>
 														</select>
 														<input type="button" class="lbutton" value=" [X] " onclick="deletefrom('toselect');"/>
