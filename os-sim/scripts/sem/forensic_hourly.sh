@@ -18,18 +18,22 @@ if [ -d $log_dir ];then
 	LOGS=$log_dir
 fi
 
-# indexer
-if [ -e $indexer ]; then
-	YESTERDAY=`date --date='last day' "+%Y/%m/%d/"`
-	TODAY=`date "+%Y/%m/%d/"`
-	$indexer $LOGS$YESTERDAY
-	$indexer $LOGS$TODAY
-fi
 # --force command line option forces recalculation all stats files from last hour new logs
 if [ "$1" != "--force" ];then
+	# alienvault indexer
+	if [ -e $indexer ]; then
+		YESTERDAY=`date --date='last day' "+%Y/%m/%d/"`
+		TODAY=`date "+%Y/%m/%d/"`
+		$indexer $LOGS$YESTERDAY
+		$indexer $LOGS$TODAY
+	fi
     cd /usr/share/ossim/scripts/sem/ && sh /usr/share/ossim/scripts/sem/forensic_stats_last_hour.sh
     cd /usr/share/ossim/scripts/sem/ && perl /usr/share/ossim/scripts/sem/generate_stats.pl $LOGS
 else
+	# alienvault indexer
+	if [ -e $indexer ]; then
+		$indexer -R $LOGS
+	fi
     cd /usr/share/ossim/scripts/sem/ && sh /usr/share/ossim/scripts/sem/forensic_stats_last_hour-force.sh
     cd /usr/share/ossim/scripts/sem/ && perl /usr/share/ossim/scripts/sem/generate_stats.pl $LOGS force
 fi
