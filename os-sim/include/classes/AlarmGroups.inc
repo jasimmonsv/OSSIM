@@ -280,14 +280,14 @@ class AlarmGroups {
 		// Show Options
 		if ($show_options == 2) {
 			$groups_join = ", alarm_groups g";
-			$groups_where = " WHERE CONCAT(sha1( alarm_event.name), sha1( alarm_event.src_ip + alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) )=g.group_id AND g.owner='".$_SESSION['_user']."'";
+			$groups_where = " WHERE CONCAT( sha1( alarm_event.name ) , CONCAT( 'S', alarm_event.src_ip, 'D', alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) )=g.group_id AND g.owner='".$_SESSION['_user']."'";
 		}
 		if ($show_options == 3) {
-			$groups_join = "LEFT JOIN alarm_groups g ON CONCAT(sha1( alarm_event.name), sha1( alarm_event.src_ip + alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) )= g.group_id";
+			$groups_join = "LEFT JOIN alarm_groups g ON CONCAT( sha1( alarm_event.name ) , CONCAT( 'S', alarm_event.src_ip, 'D', alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) )= g.group_id";
 			$groups_where = " WHERE g.owner IS NULL OR g.owner = ''";
 		}
 		if ($show_options == 4) {
-			$groups_join = "LEFT JOIN alarm_groups g ON CONCAT(sha1( alarm_event.name), sha1( alarm_event.src_ip + alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) )= g.group_id";
+			$groups_join = "LEFT JOIN alarm_groups g ON CONCAT( sha1( alarm_event.name ) , CONCAT( 'S', alarm_event.src_ip, 'D', alarm_event.dst_ip + DATE( alarm_event.timestamp ) ) )= g.group_id";
 			$groups_where = " WHERE g.owner IS NULL OR g.owner = '".$_SESSION['_user']."'";
 		}
 		// Date

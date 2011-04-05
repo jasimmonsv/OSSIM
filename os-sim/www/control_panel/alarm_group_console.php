@@ -59,7 +59,7 @@ function build_url($action, $extra) {
 		if (!empty($inf)) $options = $options . "&inf=" . $inf;
 		if (!empty($sup)) $options = $options . "&sup=" . $sup;
 	}
-	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options . "&bypassexpirationupdate=1&group_type=".GET('group_type');
+	$url = $_SERVER["SCRIPT_NAME"] . "?action=" . $action . $extra . $options . "&bypassexpirationupdate=1&group_type=".POST('group_type');
 	return $url;
 }
 
@@ -78,34 +78,34 @@ list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
 //$xajax = new xajax();
 //$xajax->registerFunction("getEvents");
 //$xajax->processRequests();
-$delete = GET('delete');
-$delete_group = GET('delete_group');
-$close = GET('close');
-$delete_day = GET('delete_day');
-$order = GET('order');
-$src_ip = GET('src_ip');
-$dst_ip = GET('dst_ip');
-$backup_inf = $inf = GET('inf');
-$sup = GET('sup');
-$hide_closed = GET('hide_closed');
-$date_from = GET('date_from');
-$date_to = GET('date_to');
-$num_alarms_page = GET('num_alarms_page');
-$disp = GET('disp'); // Telefonica disponibilidad hack
-$group = GET('group'); // Alarm group for change descr
-$new_descr = GET('descr');
-$action = GET('action');
-$show_options = GET('show_options');
-$refresh_time = GET('refresh_time');
-$autorefresh = GET('autorefresh');
-$alarm = GET('alarm');
-$param_unique_id = GET('unique_id');
-$group_type = GET('group_type') ? GET('group_type') : "all";
-$query = (GET('query') != "") ? GET('query') : "";
-$directive_id = GET('directive_id');
-$sensor_query = GET('sensor_query');
-$num_events = GET('num_events');
-$num_events_op = GET('num_events_op');
+$delete = POST('delete');
+$delete_group = POST('delete_group');
+$close = POST('close');
+$delete_day = POST('delete_day');
+$order = POST('order');
+$src_ip = POST('src_ip');
+$dst_ip = POST('dst_ip');
+$backup_inf = $inf = POST('inf');
+$sup = POST('sup');
+$hide_closed = POST('hide_closed');
+$date_from = POST('date_from');
+$date_to = POST('date_to');
+$num_alarms_page = POST('num_alarms_page');
+$disp = POST('disp'); // Telefonica disponibilidad hack
+$group = POST('group'); // Alarm group for change descr
+$new_descr = POST('descr');
+$action = POST('action');
+$show_options = POST('show_options');
+$refresh_time = POST('refresh_time');
+$autorefresh = POST('autorefresh');
+$alarm = POST('alarm');
+$param_unique_id = POST('unique_id');
+$group_type = POST('group_type') ? POST('group_type') : "all";
+$query = (POST('query') != "") ? POST('query') : "";
+$directive_id = POST('directive_id');
+$sensor_query = POST('sensor_query');
+$num_events = POST('num_events');
+$num_events_op = POST('num_events_op');
 
 ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($disp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("disp"));
@@ -169,8 +169,8 @@ if (!$sup) $sup = $ROWS;
 if (empty($show_options) || ($show_options < 1 || $show_options > 4)) {
     $show_options = 1;
 }
-if (empty($refresh_time) || ($refresh_time != 30 && $refresh_time != 60 && $refresh_time != 180 && $refresh_time != 600)) {
-    $refresh_time = 60;
+if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 && $refresh_time != 180000 && $refresh_time != 600000)) {
+    $refresh_time = 60000;
 }
 //Options
 $selected1 = $selected2 = $selected3 = $selected4 = "";
@@ -184,19 +184,19 @@ if ($hide_closed) {
     $hide_check = "";
 }
 $refresh_sel1 = $refresh_sel2 = $refresh_sel3 = $refresh_sel4 = "";
-if ($refresh_time == 30) $refresh_sel1 = 'selected="true"';
-if ($refresh_time == 60) $refresh_sel2 = 'selected="true"';
-if ($refresh_time == 180) $refresh_sel3 = 'selected="true"';
-if ($refresh_time == 600) $refresh_sel4 = 'selected="true"';
+if ($refresh_time == 30000) $refresh_sel1 = 'selected="true"';
+if ($refresh_time == 60000) $refresh_sel2 = 'selected="true"';
+if ($refresh_time == 180000) $refresh_sel3 = 'selected="true"';
+if ($refresh_time == 600000) $refresh_sel4 = 'selected="true"';
 
-if (GET('take') != "") {
-	if (!ossim_valid(GET('take'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("take"))) exit;
-	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::take_group ($conn, GET('take'), $_SESSION["_user"]);
+if (POST('take') != "") {
+	if (!ossim_valid(POST('take'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("take"))) exit;
+	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::take_group ($conn, POST('take'), $_SESSION["_user"]);
 	else die(ossim_error("Can't do this action for security reasons."));
 }
-if (GET('release') != "") {
-	if (!ossim_valid(GET('release'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("release"))) exit;
-	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::release_group ($conn, GET('release'));
+if (POST('release') != "") {
+	if (!ossim_valid(POST('release'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("release"))) exit;
+	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::release_group ($conn, POST('release'));
 	else die(ossim_error("Can't do this action for security reasons."));
 }
 if ($new_descr != "" && $group != "") {
@@ -204,35 +204,35 @@ if ($new_descr != "" && $group != "") {
 	if (!ossim_valid($group, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("group"))) exit;
 	AlarmGroups::change_descr ($conn, $new_descr, $group);
 }
-if (GET('close_group') != "") {
-	if (!ossim_valid(GET('close_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("close_group"))) exit;
-	$group_ids = split(',', GET('close_group'));
+if (POST('close_group') != "") {
+	if (!ossim_valid(POST('close_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("close_group"))) exit;
+	$group_ids = split(',', POST('close_group'));
     if (check_uniqueid($prev_unique_id,$param_unique_id)) {
 	foreach($group_ids as $group_id) AlarmGroups::change_status ($conn, $group_id, "closed");
     } else die(ossim_error("Can't do this action for security reasons."));
 }
-if (GET('open_group') != "") {
-	if (!ossim_valid(GET('open_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("open_group"))) exit;
-	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::change_status ($conn, GET('open_group'), "open");
+if (POST('open_group') != "") {
+	if (!ossim_valid(POST('open_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("open_group"))) exit;
+	if (check_uniqueid($prev_unique_id,$param_unique_id)) AlarmGroups::change_status ($conn, POST('open_group'), "open");
 	else die(ossim_error("Can't do this action for security reasons."));
 }
-if (GET('delete_group') != "") {
-	if (!ossim_valid(GET('delete_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("delete_group"))) exit;
-	$group_ids = split(',', GET('delete_group'));
+if (POST('delete_group') != "") {
+	if (!ossim_valid(POST('delete_group'), OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_SQL, 'illegal:' . _("delete_group"))) exit;
+	$group_ids = split(',', POST('delete_group'));
     if (check_uniqueid($prev_unique_id,$param_unique_id)) {
 	foreach($group_ids as $group_id) AlarmGroups::delete_group ($conn, $group_id, $_SESSION["_user"]);
     } else die(ossim_error("Can't do this action for security reasons."));
 }
-if (GET('action') == "open_alarm") {
-	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::open($conn, GET('alarm'));
+if (POST('action') == "open_alarm") {
+	if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::open($conn, POST('alarm'));
 	else die(ossim_error("Can't do this action for security reasons."));
 }
-if (GET('action') == "close_alarm") {
-    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::close($conn, GET('alarm'));
+if (POST('action') == "close_alarm") {
+    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::close($conn, POST('alarm'));
     else die(ossim_error("Can't do this action for security reasons."));
 }
-if (GET('action') == "delete_alarm") {
-    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete($conn, GET('alarm'));
+if (POST('action') == "delete_alarm") {
+    if (check_uniqueid($prev_unique_id,$param_unique_id)) Alarm::delete($conn, POST('alarm'));
     else die(ossim_error("Can't do this action for security reasons."));
 }
 
@@ -249,11 +249,6 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 <html>
 <head>
   <title> <?=_("Control Panel")?> </title>
-  <?php
-    if ($autorefresh) {
-        print '<meta http-equiv="refresh" content="' . $refresh_time . ';url=' . build_url("", "") . '"/>';
-    }
-?>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <!--  <link rel="StyleSheet" href="dtree.css" type="text/css" />-->
   <link rel="stylesheet" href="../style/style.css"/>
@@ -274,7 +269,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 	document.getElementById(group_id+from).innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	$.ajax({
 		type: "GET",
-		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>&date_from=<?php echo GET('date_from') ?>&date_to=<?php echo GET('date_to') ?>",
+		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>&date_from=<?php echo POST('date_from') ?>&date_to=<?php echo POST('date_to') ?>",
 		data: "",
 		success: function(msg){
 			//alert (msg);
@@ -337,8 +332,11 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 	{
 		var descr;
 		descr = document.getElementsByName(objname); 
-		descr = descr[0];	
-		location.href= "alarm_group_console.php?group_type=<?php echo $group_type ?>&group=" + objname.replace("input","") + "&descr=" + descr.value;
+		descr = descr[0];
+		document.getElementById('group').value = objname.replace("input","");
+		document.getElementById('descr').value = descr.value;
+		form_submit();
+		//location.href= "alarm_group_console.php?group_type=<?php echo $group_type ?>&group=" + objname.replace("input","") + "&descr=" + descr.value;
 	}
 
 	function send_descr(obj ,e) 
@@ -359,7 +357,6 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 		}
 		if (key == 13) 
 		{
-			location.href="<?php print $_SERVER["SCRIPT_NAME"] ?>"+"?action=change_descr&group=" + obj.name + "&descr=" + obj.value;
 			change_descr(obj.name);
 		}
 	}
@@ -438,11 +435,11 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 							data: "",
 							success: function(msg){
 								//alert (msg);
-								location.href="<?php print build_url("", "") ?>";
+								form_submit();
 							}
 						});
 					}
-					location.href="<?php print build_url("", "") ?>";
+					form_submit();
 				}
 			});
 		} else {
@@ -451,7 +448,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 				url: "alarm_group_response.php?only_close="+index+selected_group,
 				data: "",
 				success: function(msg){
-					location.href="<?php print build_url("", "") ?>";
+					form_submit();
 				}
 			});
 		}
@@ -569,11 +566,11 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 							data: "",
 							success: function(msg){
 								//alert (msg);
-								document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&group_type=<?php echo $group_type ?>';
+								form_submit();
 							}
 						});
 					}
-					document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&group_type=<?php echo $group_type ?>';
+					form_submit();
 				}
 			});
 		} else {
@@ -583,10 +580,14 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 				data: "",
 				success: function(msg){
 					//alert (msg);
-					document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+					form_submit();
 				}
 			});
 		}
+	}
+
+	function form_submit() {
+		document.filters.submit();
 	}
   </script>
 </head>
@@ -600,9 +601,18 @@ $tree_count = 0;
 if (GET('withoutmenu') != "1") include ("../hmenu.php");
 /* Filter & Action Console */
 ?>
-<form name="filters" id="queryform" method="GET">
+<form name="filters" id="queryform" method="POST">
+<input type="hidden" name="unique_id" id="unique_id" value="<?php echo $unique_id ?>">
 <input type="hidden" name="date_from" id="date_from"  value="<?php echo $date_from ?>">
 <input type="hidden" name="date_to" id="date_to" value="<?php echo $date_to ?>">
+<input type="hidden" name="group" id="group" value="">
+<input type="hidden" name="release" id="release" value="">
+<input type="hidden" name="take" id="take" value="">
+<input type="hidden" name="action" id="action" value="">
+<input type="hidden" name="descr" id="descr" value="">
+<input type="hidden" name="inf" id="inf" value="">
+<input type="hidden" name="sup" id="sup" value="">
+<input type="hidden" name="alarm" id="alarm" value="">
 
 <table width="90%" align="center" class="transparent">
 	<tr><td class="nobborder left"><a href="javascript:;" onclick="tooglebtn()"><img src="../pixmaps/sem/toggle.gif" border="0" id="timg" title="Toggle"> <small><font color="black"><?php echo _("Filters, Actions and Options") ?></font></small></a></td></tr>
@@ -662,7 +672,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 					<div id="widget" style="display:inline">
 						<a href="javascript:;"><img src="../pixmaps/calendar.png" id="imgcalendar" border="0"></a>
 						<div id="widgetCalendar"></div>
-					</div><?php if ($date_from != "" && $date_to != "") { ?><a href="<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&date_from=&date_to=&refresh_time=<?php echo GET('refresh_time') ?>&autorefresh=<?php echo GET('autorefresh') ?>">[<?php echo $date_from ?> - <?php echo $date_to ?>]</a><?php } ?>
+					</div><?php if ($date_from != "" && $date_to != "") { ?><a href="" onclick="document.getElementById('date_from').value='';document.getElementById('date_to').value='';form_submit();return false">[<?php echo $date_from ?> - <?php echo $date_to ?>]</a><?php } ?>
 					</td>
 				</tr>
 			</table>
@@ -683,11 +693,11 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 			<input type="checkbox" name="hide_closed" <?php echo $hide_check ?> /><?php echo gettext("Hide closed alarms") ?><br/>
 			<input type="checkbox" name="autorefresh" onclick="javascript:document.filters.refresh_time.disabled=!document.filters.refresh_time.disabled;" <?php echo ($autorefresh) ? "checked='true'" : "" ?> /><?php echo gettext("Autorefresh") ?>&nbsp;
 			<select name="refresh_time" <?php echo (!$autorefresh) ? "disabled='true'" : "" ?>>
-				<option value="30" <?php echo $refresh_sel1 ?>><?php echo _("30 sec") ?></options>
-				<option value="60" <?php echo $refresh_sel2 ?>><?php echo _("1 min") ?></options>
-				<option value="180" <?php echo $refresh_sel3 ?>><?php echo _("3 min")?></options>
-				<option value="600" <?php echo $refresh_sel4 ?>><?php echo _("10 min") ?></options>
-			</select>&nbsp;<a href="<?php echo build_url("", "") ?>" >[<?php echo _("Refresh") ?>]</a>
+				<option value="30000" <?php echo $refresh_sel1 ?>><?php echo _("30 sec") ?></options>
+				<option value="60000" <?php echo $refresh_sel2 ?>><?php echo _("1 min") ?></options>
+				<option value="180000" <?php echo $refresh_sel3 ?>><?php echo _("3 min")?></options>
+				<option value="600000" <?php echo $refresh_sel4 ?>><?php echo _("10 min") ?></options>
+			</select>&nbsp;<a href="" onclick="form_submit();return false">[<?php echo _("Refresh") ?>]</a>
 		</td>
 	</tr>
 
@@ -710,25 +720,20 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 				// OPTIMIZADO con SQL_CALC_FOUND_ROWS (5 junio 2009 Granada)
 				//$alarm_group = AlarmGroup::get_list($conn, $src_ip, $dst_ip, $hide_closed, "ORDER BY $order", null, null, $date_from, $date_to, $disp, $show_options);
 				//$count = count($alarm_group);
+				/*
 				$first_link = build_url("change_page", "&inf=0" . "&sup=" . $ROWS);
 				$last_link = build_url("change_page", "&inf=" . ($count - $ROWS) . "&sup=" . $count);
 				$inf_link = build_url("change_page", "&inf=" . ($inf - $ROWS) . "&sup=" . ($sup - $ROWS));
 				$sup_link = build_url("change_page", "&inf=" . ($inf + $ROWS) . "&sup=" . ($sup + $ROWS));
-				if ($inf >= $ROWS) {
-					echo "<a href=\"" . $first_link . "\" >&lt;"._("First")."&nbsp;</a>";
-					echo "<a href=\"$inf_link\">&lt;-";
-					printf(gettext("Prev %d") , $ROWS);
-					echo "</a>";
-				}
-				if ($sup < $count) {
-					echo "&nbsp;&nbsp;(";
-					printf(gettext("%d-%d of %d") , $inf, $sup, $count);
-					echo ")&nbsp;&nbsp;";
-					echo "<a href=\"$sup_link\">";
-					printf(gettext("Next %d") , $ROWS);
-					echo " -&gt;</a>";
-					echo "<a href=\"" . $last_link . "\" >&nbsp;"._("Last")."&gt;</a>";
-				} else {
+				*/
+				if ($inf >= $ROWS) { ?>
+					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=0;document.getElementById('sup').value=<?php echo $ROWS ?>;form_submit();return false">&lt;<?php echo _("First") ?>&nbsp;</a>
+					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($inf - $ROWS) ?>;document.getElementById('sup').value=<?php echo ($sup - $ROWS) ?>;form_submit();return false">&lt;-<?php printf(gettext("Prev %d") , $ROWS) ?></a>
+				<?php } if ($sup < $count) { ?>
+					&nbsp;&nbsp;(<?php printf(gettext("%d-%d of %d") , $inf, $sup, $count) ?>)&nbsp;&nbsp;
+					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($inf + $ROWS) ?>;document.getElementById('sup').value=<?php echo ($sup + $ROWS) ?>;form_submit();return false"><?php printf(gettext("Next %d") , $ROWS) ?> -&gt;</a>
+					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($count - $ROWS) ?>;document.getElementById('sup').value=<?php echo $count ?>;form_submit();return false">&nbsp;<?php echo _("Last") ?> &gt;</a>
+				<?php } else {
 					echo "&nbsp;&nbsp;(";
 					printf(gettext("%d-%d of %d") , $inf, $count, $count);
 					echo ")&nbsp;&nbsp;";
@@ -792,14 +797,16 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
         } else {
             $ocurrence_text = strtolower(gettext("Alarm"));
         }
-		$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>" : "<a href='alarm_group_console.php?group_type=$group_type&take=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Take")."</a>";
+		//$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>" : "<a href='alarm_group_console.php?group_type=$group_type&take=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Take")."</a>";
+		$owner = ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) ? "<a href='' onclick=\"document.getElementById('release').value=$group_id;form_submit();return false\">"._("Release")."</a>" : "<a href='' onclick=\"document.getElementById('take').value='$group_id';form_submit();return false\">"._("Take")."</a>";
 		
 		if ($db_groups[$group_id]['owner'] != "")
 			if ($db_groups[$group_id]['owner'] == $_SESSION["_user"]) {
 				$owner_take = 1;
 				$background = '#A7D7DF;';
 				if ($status == 'open') {
-					$owner = "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>";
+					//$owner = "<a href='alarm_group_console.php?group_type=$group_type&release=$group_id&inf=$inf&sup=$sup&unique_id=$unique_id'>"._("Release")."</a>";
+					$owner = "<a href='' onclick=\"document.getElementById('release').value='$group_id';form_submit();return false\">"._("Release")."</a>";
 				}
 				$group_box = "<input type='checkbox' id='check_" . $group_id . "' name='group' value='" . $group_id . "' >";
 				$incident_link = '<a class=greybox2 title=\''._("New ticket for Group ID") . $group_id . '\' href=\'../incidents/newincident.php?nohmenu=1&' . "ref=Alarm&" . "title=" . urlencode($alarm_name) . "&" . "priority=$s_risk&" . "src_ips=$src_ip&" . "event_start=$since&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . '\'>' . '<img border=0 src=\'../pixmaps/script--pencil.png\' alt=\''._("ticket").'\' border=\'0\'/>' . '</a>';
@@ -851,25 +858,20 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 			<table class="noborder" align="center">
 			<?
 				print "<tr><td class='nobborder' style='text-align:center'>\n";
+				/*
 				$first_link = build_url("change_page", "&inf=0" . "&sup=" . $ROWS);
 				$last_link = build_url("change_page", "&inf=" . ($count - $ROWS) . "&sup=" . $count);
 				$inf_link = build_url("change_page", "&inf=" . ($inf - $ROWS) . "&sup=" . ($sup - $ROWS));
 				$sup_link = build_url("change_page", "&inf=" . ($inf + $ROWS) . "&sup=" . ($sup + $ROWS));
-				if ($inf >= $ROWS) {
-					echo "<a href=\"" . $first_link . "\" >&lt;"._("First")."&nbsp;</a>";
-					echo "<a href=\"$inf_link\">&lt;-";
-					printf(gettext("Prev %d") , $ROWS);
-					echo "</a>";
-				}
-				if ($sup < $count) {
-					echo "&nbsp;&nbsp;(";
-					printf(gettext("%d-%d of %d") , $inf, $sup, $count);
-					echo ")&nbsp;&nbsp;";
-					echo "<a href=\"$sup_link\">";
-					printf(gettext("Next %d") , $ROWS);
-					echo " -&gt;</a>";
-					echo "<a href=\"" . $last_link . "\" >&nbsp;"._("Last")."&gt;</a>";
-				} else {
+				*/
+				if ($inf >= $ROWS) { ?>
+					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=0;document.getElementById('sup').value=<?php echo $ROWS ?>;form_submit();return false">&lt;<?php echo _("First") ?>&nbsp;</a>
+					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($inf - $ROWS) ?>;document.getElementById('sup').value=<?php echo ($sup - $ROWS) ?>;form_submit();return false">&lt;-<?php printf(gettext("Prev %d") , $ROWS) ?></a>
+				<?php } if ($sup < $count) { ?>
+					&nbsp;&nbsp;(<?php printf(gettext("%d-%d of %d") , $inf, $sup, $count) ?>)&nbsp;&nbsp;
+					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($inf + $ROWS) ?>;document.getElementById('sup').value=<?php echo ($sup + $ROWS) ?>;form_submit();return false"><?php printf(gettext("Next %d") , $ROWS) ?> -&gt;</a>
+					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($count - $ROWS) ?>;document.getElementById('sup').value=<?php echo $count ?>;form_submit();return false">&nbsp;<?php echo _("Last") ?> &gt;</a>
+				<?php } else {
 					echo "&nbsp;&nbsp;(";
 					printf(gettext("%d-%d of %d") , $inf, $count, $count);
 					echo ")&nbsp;&nbsp;";
@@ -908,6 +910,9 @@ $(document).ready(function(){
 	});
 	<?php if ($date_from != "" || $query != "" || $sensor_query != "" || $directive_id != "" || $num_events > 0) { ?>
 	tooglebtn();
+	<?php } ?>
+	<?php if ($autorefresh) { ?>
+	setTimeout("form_submit()",<?php echo $refresh_time ?>);
 	<?php } ?>
 });
 </script>

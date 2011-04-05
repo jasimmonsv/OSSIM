@@ -295,7 +295,7 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	"<img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;' />" . "</a>";
 	}
 	}*/
-	$s_delete_link = ($s_status == 'open') ? "<a href='" . build_url("close_alarm", "&alarm=" . $s_event_id . "&unique_id=$unique_id") . "' title='" . gettext("Click here to close alarm") . "'><img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;'></a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'>";
+	$s_delete_link = ($s_status == 'open') ? "<a href='' onclick=\"document.getElementById('action').value='close_alarm';document.getElementById('alarm').value='$s_event_id';form_submit();return false\" title='" . gettext("Click here to close alarm") . "'><img border=0 src='../pixmaps/cross-circle-frame.png' style='visibility: visible;'></a>" : "<img border=0 src='../pixmaps/cross-circle-frame-gray.png'>";
 	/* Checkbox */
 	if ($owner == $_SESSION["_user"] || $owner == "") {
 		$checkbox = "<input type='checkbox' name='check_".$s_backlog_id."_".$s_event_id."' class='alarm_check' value='1'>";
@@ -303,11 +303,12 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	if ($s_status == 'open') {
-		$status_link = "<a href='alarm_group_console.php?action=close_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Open") . "</a>";
+		$status_link = "<a href='' onclick=\"document.getElementById('action').value='close_alarm';document.getElementById('alarm').value='$s_event_id';form_submit();return false\" style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Open") . "</a>";
 		//$status_link = "<a href='" . build_url("close_alarm", "&alarm=" . $s_backlog_id . "-" . $s_event_id) . "' title='" . gettext("Click here to close alarm") ."'>" . gettext("Open") . "</a>";
 		
 	} else {
-		$status_link = "<a href='alarm_group_console.php?action=open_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
+		$status_link = "<a href='' onclick=\"document.getElementById('action').value='open_alarm';document.getElementById('alarm').value='$s_event_id';form_submit();return false\" style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
+		//$status_link = "<a href='alarm_group_console.php?action=open_alarm&alarm=" . $s_event_id . "&unique_id=$unique_id' style='color:" . (($s_status == "open") ? "#923E3A" : "#4C7F41") . "'>" . gettext("Closed") . "</a>";
 		$checkbox = "<input type='checkbox' name='alarm_checkbox' disabled='true' value='" . $s_backlog_id . "-" . $s_event_id . "'>";
 	}
 	/* Expand button */
