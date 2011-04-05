@@ -29,7 +29,7 @@ $current_user  = Session::get_session_user();
 
 if ( $opensource || $current_user != ACL_DEFAULT_OSSIM_ADMIN ) 
 {
-	ossim_set_error(_("You're don´t have permissions to see this page"));
+	ossim_set_error(_("You don't have permissions to see this page"));
 	ossim_error();
 	exit();
 }
