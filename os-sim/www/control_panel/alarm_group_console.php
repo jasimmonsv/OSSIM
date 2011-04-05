@@ -662,7 +662,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 					<div id="widget" style="display:inline">
 						<a href="javascript:;"><img src="../pixmaps/calendar.png" id="imgcalendar" border="0"></a>
 						<div id="widgetCalendar"></div>
-					</div><?php if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; } ?>
+					</div><?php if ($date_from != "" && $date_to != "") { ?><a href="<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&date_from=&date_to=&refresh_time=<?php echo GET('refresh_time') ?>&autorefresh=<?php echo GET('autorefresh') ?>">[<?php echo $date_from ?> - <?php echo $date_to ?>]</a><?php } ?>
 					</td>
 				</tr>
 			</table>

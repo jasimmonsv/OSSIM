@@ -447,7 +447,7 @@ if (!isset($_GET["hide_search"])) {
 					<div id="widget" style="display:inline">
 						<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
 						<div id="widgetCalendar"></div>
-					</div><?php if ($date_from != "" && $date_to != "") { echo " [".$date_from." - ".$date_to."]"; } ?>
+					</div><?php if ($date_from != "" && $date_to != "") { ?><a href="<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=&date_to=&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>&refresh_time=<?php echo GET('refresh_time') ?>&autorefresh=<?php echo GET('autorefresh') ?>">[<?php echo $date_from ?> - <?php echo $date_to ?>]</a><?php } ?>
 			    </td>
 			</tr>
 		</table>
