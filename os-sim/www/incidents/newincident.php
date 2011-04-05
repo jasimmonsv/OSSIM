@@ -203,7 +203,7 @@ else
     ossim_valid($backlog_id, OSS_DIGIT, OSS_NULLABLE,                      'illegal:' . _("Backlog_id"));
     ossim_valid($event_id, OSS_DIGIT, OSS_NULLABLE,                        'illegal:' . _("Event_id"));
     ossim_valid($alarm_gid, OSS_DIGIT, OSS_NULLABLE,                       'illegal:' . _("Alarm_gid"));
-    ossim_valid($target, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE,                'illegal:' . _("Farget"));
+    ossim_valid($target, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE,                'illegal:' . _("Target"));
     ossim_valid($event_start, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE,           'illegal:' . _("Event_start"));
     ossim_valid($event_end, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE,             'illegal:' . _("Event_end"));
     ossim_valid($metric_type, OSS_PUNC, OSS_ALPHA, OSS_NULLABLE,           'illegal:' . _("Metric_type"));
