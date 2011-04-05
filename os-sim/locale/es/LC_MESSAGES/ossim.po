@@ -96,7 +96,7 @@ msgstr ""
 #: www/forensics/includes/base_state_query.inc.php:206
 #, php-format
 msgid " <b>%s</b> total events in database."
-msgstr ""
+msgstr " <b>%s</b> eventos en total en base de datos"
 
 #: www/sem/process.php:465 www/sem/process.php:773
 msgid " <b>first</b> events"
@@ -239,7 +239,7 @@ msgstr ""
 
 #: www/netscan/do_scan.php:112
 msgid " with a remote sensor"
-msgstr ""
+msgstr " con un sensor remoto"
 
 #: www/wireless/ap_extra_data.php:65 www/wireless/ap.php:75
 #: www/wireless/networks_pdf.php:75 www/wireless/aps_pdf.php:114
@@ -1007,7 +1007,7 @@ msgstr "Un valor de"
 
 #: www/conf/main.php:727
 msgid "ACL phpGACL configuration"
-msgstr ""
+msgstr "Configuraci&oacute;n ACL phpGACL"
 
 #: www/forensics/languages/english.lang.php:217
 #: www/forensics/includes/base_action.inc.php:133
@@ -1364,15 +1364,15 @@ msgstr "Acciones"
 
 #: www/session/detect.php:157
 msgid "Activate selected plugins"
-msgstr ""
+msgstr "Activar plugins seleccionados"
 
 #: www/session/detect.php:103
 msgid "Activating Data Source"
-msgstr ""
+msgstr "Activando origen de datos"
 
 #: www/session/detect.php:100
 msgid "Activating Data Sources. Finishing configuration"
-msgstr ""
+msgstr "Activando or&iacute;genes de datos. Finalizando configuraci&oacute;n"
 
 #: www/scan/scan.php:89 www/report/host_report_inventory.php:308
 #: www/policy/modifypolicy.php:87 www/policy/newpolicy.php:85
@@ -1499,7 +1499,7 @@ msgstr "A&ntilde;adir agente"
 
 #: www/policy/modifyplugingroupsform.php:213
 msgid "Add another data source defore delete this"
-msgstr ""
+msgstr "A&ntilde;adir otro origen de datos antes de eliminar este"
 
 #: www/vulnmeter/scheduler.php:263
 msgid "Add another schedule"
@@ -1592,7 +1592,7 @@ msgstr "A&ntilde;adido informe"
 
 #: www/ossec/al_modifyform.php:200 www/ossec/al_newform.php:245
 msgid "Adding Monitoring entry... "
-msgstr ""
+msgstr "A&ntilde;adiendo entrada de monitorizaci&oacute;n... "
 
 #: www/ossec/agent.php:75
 msgid "Adding agent... "
@@ -1706,7 +1706,7 @@ msgstr "Agentes"
 
 #: www/ossec/status.php:345
 msgid "Agents List"
-msgstr ""
+msgstr "Lista de agentes"
 
 #: www/nfsen/details.php:1428
 msgid "Aggregate"
@@ -1757,7 +1757,7 @@ msgstr "Visor de Alarmas"
 
 #: www/incidents/newincident.php:205
 msgid "Alarm_gid"
-msgstr ""
+msgstr "Alarm_gid"
 
 #: www/inventorysearch/functions.php:354 www/statusbar/status_bar.php:88
 #: www/statusbar/mobile.php:338 www/statusbar/mobile.php:685
@@ -1813,7 +1813,7 @@ msgstr "Alerta Info"
 #: www/ossec/ajax/save_config_tab.php:283
 #: www/ossec/ajax/load_config_tab.php:216
 msgid "Alert new files"
-msgstr ""
+msgstr "Alerta de nuevos archivos"
 
 #: www/nfsen/navigator.php:46
 msgid "Alerts"
@@ -1843,7 +1843,7 @@ msgstr "AlienVault -"
 
 #: www/upgrade/index.php:129
 msgid "Alienvault SIEM Version Detected"
-msgstr ""
+msgstr "Versi&oacute;n Alienvault SIEM detectada"
 
 #: www/event_viewer/configure_event_viewer.php:260
 msgid "Align"
@@ -1869,7 +1869,7 @@ msgstr "Todos los activos"
 
 #: www/backup/index.php:172
 msgid "All Entities"
-msgstr ""
+msgstr "Todas las entidades"
 
 #: www/policy/modifyplugingroupsform.php:225
 msgid ""
@@ -1894,11 +1894,11 @@ msgstr "Todos los equipos"
 
 #: www/nfsen/details.php:1304
 msgid "All Sources"
-msgstr "Todas las fuentes"
+msgstr "Todos los or&iacute;genes"
 
 #: www/backup/index.php:164
 msgid "All Users"
-msgstr ""
+msgstr "Todos los usuarios"
 
 #: www/report/entities_tree_users.php:618 www/policy/entities_tree.php:641
 msgid "All assets"
@@ -2032,11 +2032,11 @@ msgstr "Analizar activos"
 
 #: www/incidents/newincident.php:212
 msgid "Anom_ip"
-msgstr ""
+msgstr "Anom_ip"
 
 #: www/incidents/newincident.php:211
 msgid "Anom_type"
-msgstr ""
+msgstr "Anom_type"
 
 #: www/inventorysearch/functions.php:241 www/inventorysearch/functions.php:356
 #: www/incidents/index.php:526 www/report/menu.php:192 www/report/top.php:92
@@ -2056,7 +2056,7 @@ msgstr "Anomal&iacute;a"
 
 #: www/incidents/newincident.php:214
 msgid "Anomaly date"
-msgstr ""
+msgstr "Fecha anomal&iacute;a"
 
 #: www/report/host_report_inventory.php:318
 msgid "Anomaly detection"
@@ -2064,19 +2064,19 @@ msgstr "Detecci&oacute;n de anomal&iacute;as"
 
 #: www/incidents/newincident.php:223
 msgid "Anomaly os"
-msgstr ""
+msgstr "Anomal&iacute;a so"
 
 #: www/incidents/newincident.php:219
 msgid "Anomaly port"
-msgstr ""
+msgstr "Anomal&iacute;a puerto"
 
 #: www/incidents/newincident.php:221
 msgid "Anomaly proto"
-msgstr ""
+msgstr "Anomal&iacute;a proto"
 
 #: www/incidents/newincident.php:213
 msgid "Anomaly sensor"
-msgstr ""
+msgstr "Anomal&iacute;a sensor"
 
 #: www/incidents/newincident.php:589
 msgid "Anomaly type"
@@ -2084,7 +2084,7 @@ msgstr "Tipo de anomal&iacute;a"
 
 #: www/incidents/newincident.php:218
 msgid "Anomaly version"
-msgstr ""
+msgstr "Versi&oacute;n anomal&iacute;a"
 
 #: www/business_processes/asset_list.php:189
 msgid "Any"
@@ -2222,7 +2222,7 @@ msgstr "&iquest;Est&aacute; seguro de eliminar este propiedades"
 
 #: www/ossec/agent.php:80 www/ossec/config.php:101
 msgid "Are you sure to delete this row"
-msgstr ""
+msgstr "Está seguro de borrar esta fila"
 
 #: www/directive_editor/main.php:283
 msgid "Are you sure you want to clone this directive ?"
@@ -2337,7 +2337,7 @@ msgstr ""
 
 #: www/report/wizard_scheduler.php:81
 msgid "Assests"
-msgstr ""
+msgstr "Activos"
 
 #: www/forensics/base_qry_alert.php:465 www/directives/directive.php:678
 #: www/directives/directive.php:682 www/netscan/scan_db.php:216
@@ -2372,7 +2372,7 @@ msgstr "Descubrimiento de activos"
 #: www/business_processes/bp_list.php:277
 #: www/business_processes/asset_list.php:126
 msgid "Asset Name"
-msgstr "Nombre del Activo"
+msgstr "Nombre del activo"
 
 #: www/host/host.php:70 www/net/activedirectory.php:83 www/net/net.php:71
 #: www/net/nedi.php:119 www/report/jasper_simple.php:419
@@ -2386,15 +2386,15 @@ msgstr "B&uacute;squeda de activos"
 
 #: www/policy/entities.php:221
 msgid "Asset Structure"
-msgstr "Estructura de Activos"
+msgstr "Estructura de activos"
 
 #: www/report/wizard.php:337 www/report/wizard.php:369
 msgid "Asset Type"
-msgstr ""
+msgstr "Tipo activo"
 
 #: www/inventorysearch/functions.php:266
 msgid "Asset Unknown"
-msgstr ""
+msgstr "Activo desconocido"
 
 #: www/policy/asset_by_property_tree.php:88
 #: www/policy/asset_by_property_tree_wl.php:131
@@ -2403,12 +2403,12 @@ msgstr "Activos por propiedad"
 
 #: www/report/host_report.php:54 www/report/host_report.php:59
 msgid "Asset not found"
-msgstr ""
+msgstr "Activo no encontrado"
 
 #: www/report/wizard_custom_run.php:56 www/report/wizard_custom_run.php:620
 #: www/report/wizard.php:1585
 msgid "Asset type"
-msgstr "Tipo de activos"
+msgstr "Tipo de activo"
 
 #: www/host/import_hosts.php:219 www/host/modifyhostform.php:992
 #: www/host/newhostform.php:349 www/host/newhost.php:72 www/host/host.php:286
@@ -2580,7 +2580,7 @@ msgstr "Autenticaci&oacute;n fall&iacute;da"
 
 #: www/session/detect.php:89
 msgid "Authorized Collection Source IP"
-msgstr ""
+msgstr "Autorizada recolección de IP de origen"
 
 #: www/session/customize.php:595
 msgid "Authorized Collection Sources"
@@ -2589,15 +2589,15 @@ msgstr "Autorizado Fuentes Colecci&oacute;n"
 #: www/ossec/ajax/save_config_tab.php:282
 #: www/ossec/ajax/load_config_tab.php:201
 msgid "Auto ignore"
-msgstr ""
+msgstr "Auto ignorar"
 
 #: www/conf/plugin.php:81
 msgid "Auto-detect Data Sources"
-msgstr ""
+msgstr "Auto-detectar origenes de datos"
 
 #: www/session/detect.php:122
 msgid "Auto-detecting  Data Sources, please wait a few seconds"
-msgstr ""
+msgstr "Auto-detecci&oacute;n de origenes de datos, por favor, espere unos segundos"
 
 #: www/vulnmeter/settings.php:428 www/vulnmeter/settings.php:697
 msgid "Autoenable by category"
@@ -2821,7 +2821,7 @@ msgstr "Backlog"
 
 #: www/incidents/newincident.php:203
 msgid "Backlog_id"
-msgstr ""
+msgstr "Backlog_id"
 
 #: www/conf/main.php:861 www/backup/launch.php:75 www/backup/index.php:106
 #: www/menu_options.php:1091
@@ -2904,7 +2904,7 @@ msgstr "Inicio"
 
 #: www/policy/newpolicyform.php:464
 msgid "Begin can't set after End"
-msgstr ""
+msgstr "Inicio no se puede establecer despu&eacute;s de final"
 
 #: www/policy/modifypolicy.php:80 www/policy/newpolicy.php:78
 msgid "Begin day"
@@ -3251,7 +3251,7 @@ msgstr "Cambio de reglas"
 
 #: www/session/users.php:71
 msgid "Change_enabled"
-msgstr ""
+msgstr "Change_enabled"
 
 #: www/wireless/ap_extra_data.php:67 www/wireless/ap.php:76
 #: www/wireless/aps_pdf.php:116 www/nfsen/alerting.php:95
@@ -3372,7 +3372,7 @@ msgstr "Limpiar"
 
 #: www/session/modifyuserform.php:475 www/session/newuserform.php:371
 msgid "Clean All Nets"
-msgstr ""
+msgstr "Limpiar todas las redes"
 
 #: www/host/hostcredentialsform.php:316
 msgid "Clean Credentials"
@@ -3468,7 +3468,7 @@ msgstr "Haga clic aqu&iacute; para crear"
 
 #: www/compliance/mod_scripts.php:73
 msgid "Click here to launch now the compliance scripts"
-msgstr ""
+msgstr "Haga clic aqu&iacute; para lanzar los scripts de compliance"
 
 #: www/control_panel/alarm_console.php:979
 msgid "Click here to open alarm"
@@ -3493,7 +3493,7 @@ msgstr "Haga clic aqu&iacute; para ver u ocultar este tipo de directivas."
 
 #: www/ossec/ajax/get_tree.php:51 www/ossec/index.php:97
 msgid "Click on a brach to display a node"
-msgstr ""
+msgstr "Haga clic en una rama para ver un nodo"
 
 #: www/ossec/index.php:140
 msgid "Click on a brach to edit a node"
@@ -3592,7 +3592,7 @@ msgstr "Haga clic para mostrar el gr&aacute;fico principal"
 
 #: www/report/wizard_common.php:712
 msgid "Click to view"
-msgstr ""
+msgstr "Haga clic para ver"
 
 #: www/wireless/clients_gb.php:98 www/wireless/clients_pdf.php:75
 #: www/wireless/clients.php:90
@@ -3923,11 +3923,11 @@ msgstr "Configuraci&oacute;n aplicada"
 
 #: www/ossec/agent.php:78
 msgid "Configuration error at"
-msgstr ""
+msgstr "Error de configuraci&oacute;n en"
 
 #: www/ossec/config.php:99 www/ossec/index.php:54 www/ossec/index.php:143
 msgid "Configuration error in file"
-msgstr ""
+msgstr "Error de configuraci&oacute;n en fichero"
 
 #: www/sensor/interfaces.php:512
 msgid "Configuration help"
@@ -3935,7 +3935,7 @@ msgstr "Ayuda configuraci&oacute;n"
 
 #: www/ossec/ajax/load_config_tab.php:172
 msgid "Configuration parameters"
-msgstr ""
+msgstr "Configuraci&oacute;n de par&aacute;metros"
 
 #: www/report/event_stats.php:66
 msgid "Configuration->Main"
@@ -3943,7 +3943,7 @@ msgstr "Configuraci&oacute;n-&amp;gt; Principal"
 
 #: www/host_report_menu.php:116
 msgid "Configure Asset"
-msgstr ""
+msgstr "Configurar activo"
 
 #: www/event_viewer/index.php:199
 msgid "Configure Event Tabs"
@@ -4177,7 +4177,7 @@ msgstr "Crear nuevo perfil"
 
 #: www/forensics/includes/base_output_html.inc.php:116
 msgid "Create New Report"
-msgstr ""
+msgstr "Crear nuevo informe"
 
 #: www/forensics/includes/base_output_html.inc.php:93
 #: www/forensics/includes/base_output_html.inc.php:176
@@ -4209,7 +4209,7 @@ msgstr "Crear nueva vista personalizada"
 
 #: www/forensics/includes/base_output_html.inc.php:116
 msgid "Create new report"
-msgstr ""
+msgstr "Crear nuevo informe"
 
 #: www/report/wizard_subreports.php:242
 msgid "Create new report from this modules"
@@ -4237,7 +4237,7 @@ msgstr "Fecha de creaci&oacute;n"
 
 #: www/report/wizard.php:335 www/report/wizard.php:367
 msgid "Creation date"
-msgstr ""
+msgstr "Fecha creaci&oacute;n"
 
 #: www/report/wizard_custom_reports.php:412
 msgid "Creation date:"
@@ -4261,7 +4261,7 @@ msgstr "Criterios de advertencia:"
 
 #: www/inventorysearch/build_search.php:394
 msgid "Criterias"
-msgstr ""
+msgstr "Criterios"
 
 #: www/server/server.php:270 www/policy/policy.php:109
 #: www/policy/policy.php:415
@@ -4350,7 +4350,7 @@ msgstr "Umbral actual de riesgo:"
 
 #: www/inventorysearch/build_search.php:163
 msgid "Current search successfully saved as"
-msgstr ""
+msgstr "B&uacute;squeda actual guardada con &eacute;xito como"
 
 #: www/report/wizard_custom_reports.php:491
 #: www/report/wizard_scheduler.php:1037 www/report/wizard_run.php:430
@@ -4454,12 +4454,12 @@ msgstr "Rango personalizado"
 
 #: www/conf/solera.php:112
 msgid "Custom submit"
-msgstr ""
+msgstr "Submit personalizado"
 
 #: www/session/customize.php:329 www/session/customize.php:516
 #: www/menu_options.php:916
 msgid "Customization Wizard"
-msgstr ""
+msgstr "Wizard para personalizar"
 
 #: www/menu_options.php:449 www/menu_options.php:513
 msgid "Customize"
@@ -4531,21 +4531,21 @@ msgstr "ABAJO o DESHABILITADO"
 #: www/forensics/includes/base_state_citems.inc.php:728
 #: www/policy/policy.php:373
 msgid "DS Group"
-msgstr "DS Grupo"
+msgstr "Grupo OD"
 
 #: www/policy/modifypolicy.php:221
 msgid "DS Group ID"
-msgstr "Grupo de DS ID"
+msgstr "ID Grupo de OD"
 
 #: www/policy/plugingroups.php:102
 msgid "DS Group Name"
-msgstr "DS Nombre del grupo"
+msgstr "Nombre del grupo OD"
 
 #: www/forensics/base_hdr2.php:424 www/menu_options.php:1024
 #: www/policy/policy.php:279 www/policy/newpolicyform.php:748
 #: www/policy/newpolicyform.php:873 www/policy/newpolicyform.php:1322
 msgid "DS Groups"
-msgstr "DS Grupos"
+msgstr "Grupos OD"
 
 #: www/report/wizard_scheduler.php:1100 www/vulnmeter/sched.php:1166
 #: www/vulnmeter/manage_jobs.php:459
@@ -4568,7 +4568,7 @@ msgstr "Matriz de Datos"
 
 #: www/menu_options.php:1124 www/top.php:328 www/top.php:330
 msgid "Data Snapshot"
-msgstr ""
+msgstr "Instant&aacute;nea de datos"
 
 #: www/forensics/base_stat_plugins.php:122
 #: www/forensics/includes/base_state_citems.inc.php:663
@@ -4594,26 +4594,26 @@ msgstr "Descripci&oacute;n del origen de datos / eventos tipos"
 #: www/policy/modifycollectors.php:139 www/policy/collectors.php:139
 #: www/policy/collector_rules.php:221
 msgid "Data Source ID"
-msgstr ""
+msgstr "Id origen de datos"
 
 #: www/forensics/base_graph_form.php:151
 msgid "Data Source ID:"
-msgstr ""
+msgstr "Id origen de datos:"
 
 #: www/forensics/base_qry_alert.php:389 www/forensics/vars_session.php:252
 #: www/policy/modifycollectors.php:120 www/policy/allplugins.php:71
 #: www/policy/plugingroups.php:138 www/policy/pluginsidsearch.php:53
 #: www/policy/modifyplugingroupsform.php:189
 msgid "Data Source Name"
-msgstr "Nombre de origen de los datos"
+msgstr "Nombre de origen de datos"
 
 #: www/policy/collector_rules.php:251 www/policy/collector_rules.php:430
 msgid "Data Source Sub-ID"
-msgstr ""
+msgstr "Sub-Id origen de datos"
 
 #: www/forensics/languages/english.lang.php:443
 msgid "Data Source:"
-msgstr "Fuente de datos:"
+msgstr "Origen de datos:"
 
 #: www/forensics/base_hdr2.php:309 www/menu_options.php:1016
 #: www/compliance/iso27001.php:149 www/compliance/pci-dss.php:170
@@ -4641,7 +4641,7 @@ msgstr "Base de datos de servidores"
 
 #: www/upgrade/index.php:137
 msgid "Database Type Detected"
-msgstr ""
+msgstr "Tipo BD detectado"
 
 #: www/server/deletedbs.php:57 www/server/getdbsicon.php:48
 msgid "Database server name"
@@ -5020,7 +5020,7 @@ msgstr "Eliminar regla"
 
 #: www/vulnmeter/manage_jobs.php:519
 msgid "Delete Scheduled"
-msgstr ""
+msgstr "Borrar programado"
 
 #: www/host/modifyhostform.php:1215 www/forensics/base_stat_iplink.php:32
 #: www/forensics/base_ag_main.php:31 www/forensics/base_ag_main.php:94
@@ -5212,7 +5212,7 @@ msgstr "Eliminar o actualizar"
 
 #: www/sensor/interfaces.php:289
 msgid "Deleted successfully"
-msgstr ""
+msgstr "Borrado con &eacute;xito"
 
 #: www/forensics/includes/base_action.inc.php:464
 #: www/forensics/includes/base_action.inc.php:467
@@ -5454,7 +5454,7 @@ msgstr "Destino"
 
 #: www/forensics/base_qry_alert.php:462
 msgid "Destination Address"
-msgstr ""
+msgstr "Direcci&oacute;n destino"
 
 #: www/forensics/base_stat_iplink.php:108
 #: www/forensics/languages/english.lang.php:611
@@ -5642,11 +5642,11 @@ msgstr ""
 
 #: www/ossec/ajax/save_config_tab.php:314
 msgid "Directory/File ignored"
-msgstr ""
+msgstr "Directorio/archivo ignorado"
 
 #: www/ossec/ajax/save_config_tab.php:313
 msgid "Directory/File monitored"
-msgstr ""
+msgstr "Directorio/archivo monitorizado"
 
 #: www/ossec/ossec_control.php:375 www/ossec/ossec_control.php:378
 #: www/ossec/ossec_control.php:382 www/ossec/ossec_control.php:387
@@ -5751,6 +5751,7 @@ msgstr ""
 #, php-format
 msgid "Displaying events %d-%d of <b>%s</b> matching your selection."
 msgstr ""
+"Mostrando eventos %d-%d de <b>%s</b> coincidentes con su selecci&oacute;n."
 
 #: www/forensics/languages/english.lang.php:341
 #, php-format
@@ -5765,6 +5766,7 @@ msgstr ""
 #, php-format
 msgid "Displaying sensors %d-%d of <b>%s</b> matching your selection."
 msgstr ""
+"Mostrando sensores %d-%d de <b>%s</b> coincidentes con su selecci&oacute;n."
 
 #: www/forensics/languages/english.lang.php:342
 #, php-format
@@ -6455,7 +6457,7 @@ msgstr "Enviado para"
 
 #: www/policy/modifyplugingroupsform.php:76
 msgid "Empty DS Group ID"
-msgstr "Vac&iacute;o DS Grupo ID"
+msgstr "ID Grupo OD vac&iacute;o"
 
 #: include/ossim_error.inc:390
 msgid "Empty a required field"
@@ -8250,7 +8252,7 @@ msgstr "Ir a config"
 
 #: www/event_viewer/configure_event_viewer.php:339
 msgid "Go to DS Groups configuration page"
-msgstr "Ir a la p&aacute;gina de configuraci&oacute;n de grupos de DS"
+msgstr "Ir a la p&aacute;gina de configuraci&oacute;n de grupos de OD"
 
 #: www/ossec/al_applyconf.php:245
 msgid "Go to Edit Rules"
@@ -9414,7 +9416,7 @@ msgstr "Insertar nueva regla de correlaci&oacute;n cruzada"
 
 #: www/policy/newpolicyform.php:874
 msgid "Insert new DS Group?"
-msgstr "Inserte DS nuevo grupo?"
+msgstr "Insertar nuevo grupo OD?"
 
 #: www/rrd_conf/rrd_conf.php:113
 msgid "Insert new RRD profile"
@@ -12574,11 +12576,11 @@ msgstr "No se encontraron activos"
 
 #: www/policy/modifypolicy.php:229
 msgid "No DS Group selected"
-msgstr "No grupos DS seleccionados"
+msgstr "No grupos OD seleccionados"
 
 #: www/event_viewer/configure_event_viewer.php:343
 msgid "No DS Groups found"
-msgstr "No se encontraron grupos DS"
+msgstr "No se encontraron grupos OD"
 
 #: www/report/incidentreport.php:104
 msgid "No Data Available"
@@ -14565,7 +14567,7 @@ msgstr "Por favor configure valores para el grupo"
 
 #: www/policy/modifyplugingroupsform.php:150
 msgid "Please enter a DS Group name:"
-msgstr "Por favor, introduzca un nombre de DS Grupo:"
+msgstr "Por favor, introduzca un nombre de grupo OD:"
 
 #: include/ossim_error.inc:237
 msgid "Please enter a valid username"
@@ -21371,11 +21373,11 @@ msgstr "Ver archivo de configuraci&oacute;n"
 
 #: www/policy/newpolicyform.php:894
 msgid "View DS Group"
-msgstr "Ver Grupo DS"
+msgstr "Ver Grupo OD"
 
 #: www/policy/policy.php:100
 msgid "View DS Groups"
-msgstr "Ver Grupos DS"
+msgstr "Ver Grupos OD"
 
 #: www/forensics/base_ag_main.php:107 www/forensics/base_ag_main.php:288
 #: www/forensics/languages/english.lang.php:150
@@ -21397,7 +21399,7 @@ msgstr "Ver alerta"
 
 #: www/policy/newpolicyform.php:875
 msgid "View all DS Groups"
-msgstr "Ver todos los Grupos de DS"
+msgstr "Ver todos los grupos de OD"
 
 #: www/forensics/base_qry_common.php:427
 msgid "View entire current search criteria"
@@ -22399,7 +22401,7 @@ msgstr "Debe seleccionar un directorio activo"
 
 #: www/policy/modifyplugingroupsform.php:155
 msgid "You must select a DS Group"
-msgstr "Debe seleccionar un grupo de DS"
+msgstr "Debe seleccionar un grupo de OD"
 
 #: www/action/action.php:149 www/action/action.php:153
 msgid "You must select a action"
@@ -24350,7 +24352,7 @@ msgstr "sin per&iacute;odo de"
 
 #: www/backup/launch.php:56
 msgid "nomerge"
-msgstr ""
+msgstr "no-mezcla"
 
 #: www/forensics/base_qry_form.php:235 www/forensics/base_qry_common.php:390
 #: www/forensics/base_qry_common.php:391 www/forensics/base_qry_alert.php:493
