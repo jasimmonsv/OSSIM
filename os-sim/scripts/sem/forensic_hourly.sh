@@ -20,7 +20,10 @@ fi
 
 # indexer
 if [ -e $indexer ]; then
-	$indexer $LOGS
+	YESTERDAY=`date --date='last day' "+%Y/%m/%d/"`
+	TODAY=`date "+%Y/%m/%d/"`
+	$indexer $LOGS$YESTERDAY
+	$indexer $LOGS$TODAY
 fi
 # --force command line option forces recalculation all stats files from last hour new logs
 if [ "$1" != "--force" ];then
