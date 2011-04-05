@@ -38,6 +38,7 @@ require_once ('ossim_conf.inc');
 
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
+$cloud_instance = ($conf->get_conf("cloud_instance", FALSE) == 1) ? true : false;
 $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
 $prodemo = (preg_match("/demo/i",$version)) ? true : false;
 require_once 'classes/Upgrade.inc';
@@ -494,31 +495,33 @@ if ($opensource) {
             "target" => "main",
             "url" => "report/wizard_scheduler.php",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:scheduler','Help');"
-        );        
-        $hmenu["Reporting Server"][] = array(
-           "name" => gettext("FOSS Reports"),
-           "id" => "OSReports",
-           "target" => "main",
-           "ghost" => true,
-           "url" => "report/jasper.php?mode=simple",
-           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:reports','Help');"
         );
-        // "url" => "../report/jasper.php?mode=advanced&link=".urlencode($reporting_link)
-        $rmenu["Reporting Server"][] = array(
-           "name" => gettext("FOSS Reports"),
-           "target" => "main",
-           "url" => "../report/jasper.php?mode=simple"
-        );        
-        $rmenu["OSReports"][] = array(
-           "name" => gettext("Customize"),
-           "target" => "main",
-           "url" => "../report/jasper.php?mode=config"
-        );
-        $rmenu["OSReports"][] = array(
-           "name" => gettext("Manager"),
-           "target" => "main",
-           "url" => "../report/jasper.php?mode=advanced"
-        );
+        if (!$cloud_instance) {        
+	        $hmenu["Reporting Server"][] = array(
+	           "name" => gettext("FOSS Reports"),
+	           "id" => "OSReports",
+	           "target" => "main",
+	           "ghost" => true,
+	           "url" => "report/jasper.php?mode=simple",
+	           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:reports','Help');"
+	        );
+	        // "url" => "../report/jasper.php?mode=advanced&link=".urlencode($reporting_link)
+	        $rmenu["Reporting Server"][] = array(
+	           "name" => gettext("FOSS Reports"),
+	           "target" => "main",
+	           "url" => "../report/jasper.php?mode=simple"
+	        );        
+	        $rmenu["OSReports"][] = array(
+	           "name" => gettext("Customize"),
+	           "target" => "main",
+	           "url" => "../report/jasper.php?mode=config"
+	        );
+	        $rmenu["OSReports"][] = array(
+	           "name" => gettext("Manager"),
+	           "target" => "main",
+	           "url" => "../report/jasper.php?mode=advanced"
+	        );
+	    }
 	}
 }
 
@@ -811,7 +814,7 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $c
 
 /* Monitors */
 $monitors = 0;
-if (Session::menu_perms("MenuMonitors", "MonitorsNetflows")) { $monitors = 1;
+if (Session::menu_perms("MenuMonitors", "MonitorsNetflows") && !$cloud_instance) { $monitors = 1;
 	$menu["Situational Awareness"][] = array(
         "name" => gettext("Network") ,
         "id" => "Network",
@@ -855,7 +858,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsNetflows")) { $monitors = 1;
     );
 }
 
-if (Session::menu_perms("MenuMonitors", "MonitorsAvailability")) { $monitors = 1;
+if (Session::menu_perms("MenuMonitors", "MonitorsAvailability") && !$cloud_instance) { $monitors = 1;
     $menu["Situational Awareness"][] = array(
         "name" => gettext("Availability") ,
         "id" => "Availability",
@@ -876,7 +879,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsAvailability")) { $monitors = 1
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:availability','Help');"
     );
 }
-if ($prodemo) { $monitors = 1;
+if ($prodemo && !$cloud_instance) { $monitors = 1;
 	$menu["Situational Awareness"][] = array(
 	    "name" => gettext("Inventory") ,
 	    "id" => "Inventory",

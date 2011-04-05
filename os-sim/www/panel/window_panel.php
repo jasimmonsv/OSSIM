@@ -38,7 +38,7 @@ require_once 'classes/Security.inc';
 require_once 'classes/Session.inc';
 require_once 'panel/Ajax_Panel.php';
 require_once 'classes/Util.inc';
-function gettabsavt($configs_dir) {
+function gettabsavt($configs_dir,$cloud_instance=false) {
 	$user = Session::get_session_user();
 	$tabsavt = array();
 	if (is_dir($configs_dir)) {
@@ -46,7 +46,8 @@ function gettabsavt($configs_dir) {
 			while (($file = readdir($dh)) !== false) {
 				if (preg_match("/^$user.*\.avt/",$file)) {
 					list($avt_id,$avt_values) = getavt($file,$configs_dir);
-					$tabsavt[$avt_id] = $avt_values;
+					if (!$cloud_instance || ($cloud_instance && $avt_id!=1004)) // if cloud disable Compliance Tab
+						$tabsavt[$avt_id] = $avt_values;
 				}
 			}
 			closedir($dh);
@@ -445,7 +446,8 @@ div.hd:hover { cursor:-moz-grab; cursor:url(../pixmaps/theme/grab.cur),auto); }
 <body onload="ajax_show(false, 'output')">
 <?php
 $configs_dir = $conf->get_conf('panel_configs_dir');
-$tabsavt = gettabsavt($configs_dir);
+$cloud_instance = ($conf->get_conf("cloud_instance", FALSE) == 1) ? true : false;
+$tabsavt = gettabsavt($configs_dir,$cloud_instance);
 $tabs = Window_Panel_Ajax::getPanelTabs();
 include ("tabs.php");
 ?>

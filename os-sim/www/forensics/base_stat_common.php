@@ -40,6 +40,9 @@
 ** Built upon work by Roman Danyliw <rdd@cert.org>, <roman@danyliw.com>
 ** Built upon work by the BASE Project Team <kjohnson@secureideas.net>
 */
+require_once("ossim_conf.inc");
+$conf = $GLOBALS["CONF"];
+$cloud_instance = ($conf->get_conf("cloud_instance", FALSE) == 1) ? true : false;
 defined('_BASE_INC') or die('Accessing this file directly is not allowed.');
 include_once ("$BASE_path/includes/base_constants.inc.php");
 function SensorCnt($db, $join = "", $where = "") {
@@ -263,7 +266,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
     GLOBAL $events_report_type, $sensors_report_type, $unique_events_report_type, $unique_plugins_report_type;
     GLOBAL $unique_addr_report_type, $src_port_report_type, $dst_port_report_type, $unique_iplinks_report_type;
     GLOBAL $unique_country_events_report_type;
-    GLOBAL $siem_events_title;
+    GLOBAL $siem_events_title, $cloud_instance;
     if ($show_stats == 1) {
         $sensor_cnt = SensorCnt($db, $join, $where);
         $sensor_total = SensorTotal($db);
@@ -371,7 +374,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 		<td nowrap align="center" style="border-right:1px solid #CACACA" bgcolor="<?=$color?>">
 			<a style="color:<?=$fontcolor?>;font-weight:bold" href='base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1'>
 				<?=_("Events")?>
-                <? if ($fontcolor=="white") { ?>
+                <? if ($fontcolor=="white" && !$cloud_instance) { ?>
                 <!-- <a href="pdf.php?name=<?=urlencode($siem_events_title)?>" target="_blank"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a> -->
                 <a href="javascript:;" onclick="javascript:report_launcher('Events_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
                 <a href="javascript:;" onclick="javascript:report_launcher('Events_Report','<?=$events_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
@@ -389,7 +392,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 ?>
 			<td nowrap align="center" style="border-right:1px solid #CACACA" bgcolor="<?php echo $color
 ?>"><?php echo $unique_alert_cnt_info[1] . gettext("Unique Events") . $unique_alert_cnt_info[2] ?> <a href="base_stat_alerts_graph.php?sort_order=occur_d"><img src="images/ico_graph.gif" align="absmiddle" border=0></a>
-                <? if ($color=="#28BC04" && preg_match("/base_stat_alerts\.php/", $_SERVER['SCRIPT_NAME'])) { ?>
+                <? if ($color=="#28BC04" && !$cloud_instance && preg_match("/base_stat_alerts\.php/", $_SERVER['SCRIPT_NAME'])) { ?>
                 <a href="javascript:;" onclick="javascript:report_launcher('UniqueEvents_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
                 <a href="javascript:;" onclick="javascript:report_launcher('UniqueEvents_Report','<?=$unique_events_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
                 <? } ?>
@@ -406,7 +409,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 ?>
 			<td nowrap align="center" style="border-right:1px solid #CACACA" bgcolor="<?php echo $color
 ?>"><?php echo $sensor_cnt_info[1] . gettext("Sensors") . $sensor_cnt_info[2] ?>
-            <? if ($color=="#28BC04") { ?>
+            <? if ($color=="#28BC04" && !$cloud_instance) { ?>
             <a href="javascript:;" onclick="javascript:report_launcher('Sensors_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
             <a  href="javascript:;" onclick="javascript:report_launcher('Sensors_Report','<?=$sensors_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
             <? } ?>
@@ -423,7 +426,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 ?>
 			<td nowrap align="center" bgcolor="<?php echo $color
 ?>"><?php echo $unique_plugin_cnt_info[1] . gettext("Unique Data Sources") . $unique_plugin_cnt_info[2] ?>
-                <? if ($color=="#28BC04") { ?>
+                <? if ($color=="#28BC04" && !$cloud_instance) { ?>
                 <a href="javascript:;" onclick="javascript:report_launcher('UniquePlugin_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
                 <a href="javascript:;" onclick="javascript:report_launcher('UniquePlugin_Report','<?=$unique_plugins_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
                 <? } ?>
@@ -442,8 +445,10 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
         if ($color == "#28BC04") { $unique_src_ip_cnt_info[1] = str_replace(":black",":white",$unique_src_ip_cnt_info[1]);
                                     $unique_dst_ip_cnt_info[1] = str_replace(":black",":white",$unique_dst_ip_cnt_info[1]);
                                     $unique_ip_cnt_info[1] = str_replace(":black",":white",$unique_ip_cnt_info[1]);
-                                    $pdf = "&nbsp;<a href=\"javascript:;\" onclick=\"javascript:report_launcher('UniqueAddress_Report".intval($_GET['addr_type'])."','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">&nbsp;";
-                                    $csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('UniqueAddress_Report".intval($_GET['addr_type'])."','$unique_addr_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a>&nbsp;";
+                                    if (!$cloud_instance) {
+                                    	$pdf = "&nbsp;<a href=\"javascript:;\" onclick=\"javascript:report_launcher('UniqueAddress_Report".intval($_GET['addr_type'])."','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">&nbsp;";
+                                    	$csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('UniqueAddress_Report".intval($_GET['addr_type'])."','$unique_addr_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a>&nbsp;";
+                                   } else  { $pdf = ""; $csv="";} 
                                    if ($_GET['addr_type'] == '1') $unique_src_ip_cnt_info[2] .= $pdf . $csv;
                                    if ($_GET['addr_type'] == '2') $unique_dst_ip_cnt_info[2] .= $pdf . $csv;                                   
                                   }
@@ -464,9 +469,11 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
         if ($color == "#28BC04") { $unique_src_port_cnt_info[1] = str_replace(":black",":white",$unique_src_port_cnt_info[1]);
 									$unique_tcp_src_port_cnt_info[1] = str_replace(":black",":white",$unique_tcp_src_port_cnt_info[1]);
 									$unique_udp_src_port_cnt_info[1] = str_replace(":black",":white",$unique_udp_src_port_cnt_info[1]);
-                                    $pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
-                                    $csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report$report_type','$src_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
-                                    } else { $pdf = "<br>"; $csv="";}
+                                    if (!$cloud_instance) {
+                                    	$pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
+                                    	$csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('SourcePort_Report$report_type','$src_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
+                                    } else  { $pdf = "<br>"; $csv="";} 
+        } else { $pdf = "<br>"; $csv="";}
 		//echo "<li$li_style>".$unique_src_port_cnt_info[1].gettext("Source")." ".$unique_src_port_cnt_info[2].gettext("Port").": ".
         //       $unique_tcp_src_port_cnt_info[1]." TCP</a> | ".
         //       $unique_tcp_src_port_cnt_info[1]." TCP</a> | ".
@@ -488,8 +495,10 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 		if ($color == "#28BC04") { $unique_dst_port_cnt_info[1] = str_replace(":black",":white",$unique_dst_port_cnt_info[1]);
 									$unique_tcp_dst_port_cnt_info[1] = str_replace(":black",":white",$unique_tcp_dst_port_cnt_info[1]);
 									$unique_udp_dst_port_cnt_info[1] = str_replace(":black",":white",$unique_udp_dst_port_cnt_info[1]);
-                                    $pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('DestinationPort_Report$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
-                                    $csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('DestinationPort_Report$report_type','$dst_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
+                                    if (!$cloud_instance) {
+                                    	$pdf = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('DestinationPort_Report$report_type','pdf');return false\"><img src=\"images/pdf-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Launch PDF Report")."\">";
+                                    	$csv = "<a href=\"javascript:;\" onclick=\"javascript:report_launcher('DestinationPort_Report$report_type','$dst_port_report_type');return false\"><img src=\"images/csv-icon.png\" border=\"0\" align=\"absmiddle\" title=\""._("Download data in csv format")."\"></a><br>";
+                                    } else  { $pdf = "<br>"; $csv="";} 
         } else { $pdf = "<br>"; $csv = "";}
 ?>
 			<td align="center" style='border-right:1px solid #CACACA;border-top:1px solid #CACACA;<? if ($color == "#28BC04") echo "color:white" ?>' bgcolor="<?php echo $color
@@ -506,12 +515,12 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 ?>
 			<td nowrap align="center" style='border-top:1px solid #CACACA;' bgcolor="<?php echo $color
 ?>"><?php echo $unique_links_info[1] . $unique_links_info[0] . $unique_links_info[2]. $unique_links_fqdn ?>
-            <? if ($color=="#28BC04" && preg_match("/base_stat_iplink\.php/", $_SERVER['SCRIPT_NAME']) && GET('fqdn')=='no') { ?>
+            <? if ($color=="#28BC04" && !$cloud_instance && preg_match("/base_stat_iplink\.php/", $_SERVER['SCRIPT_NAME']) && GET('fqdn')=='no') { ?>
             <a href="javascript:;" onclick="javascript:report_launcher('UniqueIPLinks_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
             <a href="javascript:;" onclick="javascript:report_launcher('UniqueIPLinks_Report','<?=$unique_iplinks_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
             <? } ?>
 <br><a style='color:<?=($color == "#28BC04") ? "white" : "black"?>;font-weight:bold' href="base_stat_country.php"><?=_("Unique Country Events")?></a>
-            <? if ($color=="#28BC04" && preg_match("/base_stat_country\.php/", $_SERVER['SCRIPT_NAME'])) { ?>
+            <? if ($color=="#28BC04" && !$cloud_instance && preg_match("/base_stat_country\.php/", $_SERVER['SCRIPT_NAME'])) { ?>
             <a href="javascript:;" onclick="javascript:report_launcher('UniqueCountryEvents_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
             <a href="javascript:;" onclick="javascript:report_launcher('UniqueCountryEvents_Report','<?=$unique_country_events_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
             <? } ?>

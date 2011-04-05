@@ -48,7 +48,7 @@ require_once 'panel/Ajax_Panel.php';
 require_once 'classes/Util.inc';
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
-function gettabsavt($configs_dir) {
+function gettabsavt($configs_dir,$cloud_instance=false) {
 	$user = Session::get_session_user();
 	$tabsavt = array();
 	if (is_dir($configs_dir)) {
@@ -56,7 +56,8 @@ function gettabsavt($configs_dir) {
 			while (($file = readdir($dh)) !== false) {
 				if (preg_match("/^$user.*\.avt/",$file)) {
 					list($avt_id,$avt_values) = getavt($file,$configs_dir);
-					$tabsavt[$avt_id] = $avt_values;
+					if (!$cloud_instance || ($cloud_instance && $avt_id!=1004)) // if cloud disable Compliance Tab
+						$tabsavt[$avt_id] = $avt_values;					
 				}
 			}
 			closedir($dh);
@@ -93,7 +94,8 @@ function swapavt($file1,$file2) {
 }
 
 $configs_dir = $conf->get_conf('panel_configs_dir');
-$tabsavt = gettabsavt($configs_dir);
+$cloud_instance = ($conf->get_conf("cloud_instance", FALSE) == 1) ? true : false;
+$tabsavt = gettabsavt($configs_dir,$cloud_instance);
 
 $avt_icons = array(
 	"1001" => "../pixmaps/panel/executive.png",
@@ -278,7 +280,7 @@ if (GET('edit_tabs') == 1 && $show_edit) {
 			// Disable
 			rename($configs_dir."/".$file, $configs_dir."/".str_replace(".avt","_disabled.avt",$file));
 		}
-		$tabsavt = gettabsavt($configs_dir);
+		$tabsavt = gettabsavt($configs_dir,$cloud_instance);
 	}
 	if (GET('avtchangename') != "") {
 		$file = GET('avtchangename');
@@ -296,7 +298,7 @@ if (GET('edit_tabs') == 1 && $show_edit) {
 		$newfile = preg_replace("/([^\_]+)\_[^\_]+\_(\d+)/","\\1_".base64_encode($newname)."_\\2",$file);
 		rename($configs_dir."/".$file, $configs_dir."/".$newfile);
 		
-		$tabsavt = gettabsavt($configs_dir);
+		$tabsavt = gettabsavt($configs_dir,$cloud_instance);
 	}
 	if (GET('tabdefault') != "") {
 		$newtabdefault = GET('tabdefault');

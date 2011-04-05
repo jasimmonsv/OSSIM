@@ -34,10 +34,9 @@
 * Function list:
 * Classes list:
 */
-
 if (!isset($_SESSION["_user"])) {
-    require_once("ossim_conf.inc");
-    $conf = $GLOBALS["CONF"];
+	require_once("ossim_conf.inc");
+	$conf = $GLOBALS["CONF"];
 	$ossim_link = $conf->get_conf("ossim_link", FALSE);
     $login_location = $ossim_link . '/session/login.php';
 	header("Location: $login_location");
