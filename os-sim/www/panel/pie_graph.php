@@ -300,7 +300,6 @@ $db->close($conn);
 					renderer:$.jqplot.PieRenderer,
 					rendererOptions: {
 						showDataLabels: true,
-						lineLabels: true,
 						dataLabelFormatString: '%d',
 						dataLabels: "value"
 					}				
