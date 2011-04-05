@@ -34,7 +34,7 @@
 * Function list:
 * Classes list:
 */
-$protocols = split(',', $rule->protocol)
+$protocols = split(',', $rule->protocol);
 ?>
 
 <!-- #################### protocol ##################### -->

@@ -116,6 +116,14 @@ echo $js_dir_directive . '/directive.js'; ?>"></script>
 var wizard_current = 0;
 function wizard_next() {
 	wizard_current++;
+	<?php if (GET('xml_file') != "" && GET('xml_file') != "generic.xml") { ?>
+	if (wizard_current == 1) {
+		document.getElementById('wizard_'+wizard_current).style.display = "none";
+		wizard_current++;
+		document.getElementById('category').value='<?php echo GET('xml_file') ?>';
+		onChangeCategory(<?php echo $directive->id; ?>);
+	}
+	<?php } ?>
 	if (wizard_current >= 3) {
 		document.getElementById('fdirective').submit();
 	} else {

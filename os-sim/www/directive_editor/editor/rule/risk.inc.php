@@ -137,7 +137,7 @@ if ($rule->time_out != "None" && !in_array($rule->time_out, $timeout_list)) {
 		</tr>
 		<tr><td colspan="2" class="nobborder">&middot; <i>Risk = (priority * reliability * asset_value) / 25.</i></td></tr>
 		<?php
-		$value = intval(strtr($rule->reliability, '+', ''));
+		$value = ($rule->is_new()) ? 5 : intval(strtr($rule->reliability, '+', ''));
 		$first = $rule->reliability{0};
 		$selected_plus = selectIf($first != "+");
 		for ($i = 0; $i <= 10; $i++) {
