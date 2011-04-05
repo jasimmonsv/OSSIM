@@ -559,8 +559,7 @@ function ossim_error($error_msg = null, $error_type='ERROR', $error_code=null) {
 	
 	if (!$error_msg) {
         return false;
-    }
-	
+    }	
 	   
     return $ossim_eclass->get($error_code, array( $error_msg ));
 }

@@ -803,7 +803,7 @@ class Incident {
 		echo "</pre>";
 		*/
         
-		// order by
+		// Order by
         if ($order_by == 'life_time') $order_by = "date";
         $order_by = ($order_by!="") ? "\nORDER BY $order_by $order_mode" : "";
         $sql.= $order_by;
@@ -1925,7 +1925,8 @@ class Incident {
         return $list;
     }
 	
-    function incidents_by_type_descr($conn) {
+    function incidents_by_type_descr($conn) 
+	{
         $list = array();
         $type = array();
         if ($incident_list = Incident::get_list_type_descr($conn)) {
@@ -1946,14 +1947,15 @@ class Incident {
     }
 	
     function incidents_by_status($conn,$host=null,$instancia=false) {
-        $list = array();
+        $list   = array();
         $status = array();
-        if(is_null($host)){
-            // sin buscar por host o redes
-            if ($incident_list = Incident::get_list($conn)) {
+        if(is_null($host))
+		{
+           
+            if ($incident_list = Incident::get_list($conn)) 
+			{
                 if($instancia){
-                   // si queremos devolver istancias en vez de un array
-                    return $incident_list;
+                   return $incident_list;
                 }
                 foreach($incident_list as $incident) {
                     $tmp = $incident->get_status($conn);
@@ -1961,50 +1963,53 @@ class Incident {
                     else $status[$tmp] = 1;
                 }
             }
-        }else{
-            // buscando en host o redes
-             if(is_array($host)){
-                //es una red
+        }
+		else
+		{
+            //Searching by host or net
+            if(is_array($host))
+			{
+                //It´s a net
                 $incident_list=array();
                 foreach($host as $value){
                     unset($listTemp);
                     $listTemp=Incident::get_list_filter_ips($conn,$value, "ORDER BY status DESC");
                     $incident_list[]=$listTemp;
                 }
-            }else{
-                //es un host
+            }
+			else
+			{
+                //It´s a host
                 $incident_list[0] = Incident::get_list_filter_ips($conn,$host, "ORDER BY status DESC");
             }
 
             if($instancia){
-               // si queremos devolver istancias en vez de un array
                 return $incident_list;
             }
 
-            // Parseamos el resultado
-            // sumando y ordenando los type
+          
             $arrayContenedor=array();
 
             foreach($incident_list as $value){
                 foreach($value as $value2){
-                    if (array_key_exists($value2->get_status(), $arrayContenedor)) {
-                        // Ya tenemos el estatus en el array a devolver
-                        // le sumamos una unidad
+                    if (array_key_exists($value2->get_status(), $arrayContenedor)) 
+					{
+                        
                         $arrayContenedor[$value2->get_status()]++;
-                    }else{
-                        // No tenemos el estatus en el array a devolver
-                        // lo creamos y le añadimos una unidad
-                        $arrayContenedor[$value2->get_status()]=1;
+                    }
+					else
+					{
+						$arrayContenedor[$value2->get_status()]=1;
                     }
                 }
             }
 
             $arrayReturn=array();
-            // inicialmente la aplicación obtiene los datos sin indice textual, 0 es key 1 es valor
+           
             foreach($arrayContenedor as $key => $value){
                 $arrayReturn[]=array(0=>$key,1=>$value);
             }
-            //
+            
 
             return $arrayReturn;
         }
@@ -2025,8 +2030,8 @@ class Incident {
         $status = array();
         $args = "";
         if ($open_only) $args = "WHERE status = \"Open\"";
-        if(is_null($host)){
-            // sin buscar por host o redes
+        if(is_null($host))
+		{
             if ($incident_list = Incident::get_list($conn, $args)) {
                 foreach($incident_list as $incident) {
                     $tmp = $incident->get_in_charge($conn);
@@ -2034,41 +2039,43 @@ class Incident {
                     else $status[$tmp] = 1;
                 }
             }
-        }else{
-            // buscando en host o redes
-             if(is_array($host)){
-                //es una red
+        }
+		else
+		{
+			//Searching by host
+             if(is_array($host))
+			 {
+                //It´s a net
                 $incident_list=array();
                 foreach($host as $value){
                     unset($listTemp);
                     $listTemp=Incident::get_list_filter_ips($conn,$value, "ORDER BY status DESC");
                     $incident_list[]=$listTemp;
                 }
-            }else{
-                //es un host
+            }
+			else
+			{
+                //It´s a host
                 $incident_list[0] = Incident::get_list_filter_ips($conn,$host, "ORDER BY status DESC");
             }
 
-            // Parseamos el resultado
-            // sumando y ordenando los type
             $arrayContenedor=array();
 
             foreach($incident_list as $value){
                 foreach($value as $value2){
-                    if (array_key_exists($value2->get_in_charge(), $arrayContenedor)) {
-                        // Ya tenemos el estatus en el array a devolver
-                        // le sumamos una unidad
-                        $arrayContenedor[$value2->get_in_charge()]++;
-                    }else{
-                        // No tenemos el estatus en el array a devolver
-                        // lo creamos y le añadimos una unidad
-                        $arrayContenedor[$value2->get_in_charge()]=1;
+                    if (array_key_exists($value2->get_in_charge(), $arrayContenedor)) 
+					{
+						$arrayContenedor[$value2->get_in_charge()]++;
+                    }
+					else
+					{
+						$arrayContenedor[$value2->get_in_charge()]=1;
                     }
                 }
             }
 
             $arrayReturn=array();
-            // inicialmente la aplicación obtiene los datos sin indice textual, 0 es key 1 es valor
+            
             foreach($arrayContenedor as $key => $value){
 	        	if (preg_match("/pro|demo/i",$version) && preg_match("/^\d+$/",$key)) {
 		           list($entity_name, $entity_type) = Acl::get_entity_name_type($conn,$key);
@@ -2076,8 +2083,7 @@ class Incident {
 		        }
                 if ($key!=" []") $arrayReturn[]=array(0=>$key,1=>$value);
             }
-            //
-
+           
             return $arrayReturn;
         }
 

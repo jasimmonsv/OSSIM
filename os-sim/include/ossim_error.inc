@@ -92,23 +92,27 @@ class OssimMainError {
 		$this->action         = "/* no action */";
     }
 			
-    public function display($error_code, $extrainfo = NULL, $option = "") {
-        print $this->get($extrainfo);
+    public function display($error_code = NULL, $extrainfo = NULL, $option = "") {
+        print $this->get($error_code, $extrainfo);
         if ($option == "noback") {
         	$this->action = "die();";
         }
         eval($this->action);
     }
     
-	function get($error_code, $extrainfo = NULL) {
+	function get($error_code = NULL, $extrainfo = NULL) {
         
 		$error_code = ( empty($this->errors[$error_code]) ) ? "DEFAULT" : $error_code;
 		        
 		$msg = "<div style='".$this->current_style."'>\n";
         $msg.= "<strong>" . $this->errors["$error_code"]["short_descr"] . "</strong><br/>";
-        $msg.= $this->errors["$error_code"]["long_descr"];
         
-		if (count($extrainfo))
+		$msg.= $this->errors["$error_code"]["long_descr"];
+        
+		if ( $error_code == "DEFAULT" && count($extrainfo) == 0 )
+			$extrainfo = array("");
+				
+		if ( count($extrainfo) > 0 )
 		{
             $n = 1;
             foreach($extrainfo as $info)
@@ -117,14 +121,15 @@ class OssimMainError {
                 $n = $n + 1;
             }
         }
+				
         $msg.= "</div><br/>\n";
         return $msg;
     }
 }
 class OssimError extends OssimMainError {
-    function OssimError($error_msg) {
+    function OssimError($error_msg=null) {
         
-        parent::__construct($error_msg, $style='ossim_error', $error_type = 'ERROR');
+		parent::__construct($error_msg=null, $style='ossim_error', $error_type = 'ERROR');
 		
 		/* action after display error */
         $this->action = 'echo "<br/><center><a style=\"color: #000000;\" href=\"javascript:history.back();\"><b>' . gettext("Back") . '</b></a></center>"; die();';
@@ -133,232 +138,225 @@ class OssimError extends OssimMainError {
         
 		$this->errors["DEFAULT"] = array(
 			"short_descr" => gettext("Error!") ,
-			"long_descr" => "%1%"
+			"long_descr"  => "%1%"
         );
 		
 		$this->errors["ADODB_PATH"] = array(
             "short_descr" => gettext("Unable to load ADODB library") ,
-            "long_descr" => gettext("
-                Make sure that adodb_path is pointing to the right path") ,
+            "long_descr"  => gettext("Make sure that adodb_path is pointing to the right path") ,
         );
         /* PHP-domxml extension */
         $this->errors["PHP_DOMXML"] = array(
             "short_descr" => gettext("PHP-domxml  not loaded") ,
-            "long_descr" => gettext("
-                Make sure that php-domxml is installed and loaded") ,
+            "long_descr"  => gettext("Make sure that php-domxml is installed and loaded") ,
         );
         /* NMAP not found */
         $this->errors["NMAP_PATH"] = array(
             "short_descr" => gettext("NMAP not found") ,
-            "long_descr" => gettext("
-                Make sure that nmap is installed and nmap_path is pointing to
+            "long_descr"  => gettext("Make sure that nmap is installed and nmap_path is pointing to
                 the right path") ,
         );
         /* fpdf */
         $this->errors["FPDF_PATH"] = array(
             "short_descr" => gettext("Unable to load FPDF library") ,
-            "long_descr" => gettext("
-                Make sure that fpdf_path is pointing to the right path") ,
+            "long_descr"  => gettext("Make sure that fpdf_path is pointing to the right path") ,
         );
         /* jpgraph */
         $this->errors["JPGRAPH_PATH"] = array(
             "short_descr" => gettext("Unable to load Jpgraph library") ,
-            "long_descr" => gettext("
-                Make sure that jpgraph_path is pointing to the right path") ,
+            "long_descr"  => gettext("Make sure that jpgraph_path is pointing to the right path") ,
         );
         /* Form fill error */
         $this->errors["FORM_MISSING_FIELDS"] = array(
             "short_descr" => gettext("There are missing fields") ,
-            "long_descr" => gettext("Please, fill all the fields") ,
+            "long_descr"  => gettext("Please, fill all the fields") ,
         );
         /* action_id required */
         $this->errors["ACTIONID_REQ"] = array(
             "short_descr" => gettext("There are missing parameters") ,
-            "long_descr" => gettext("action_id is required") ,
+            "long_descr"  => gettext("action_id is required") ,
         );
         /* action_id not found */
         $this->errors["ACTIONID_UNK"] = array(
             "short_descr" => gettext("Action id not found") ,
-            "long_descr" => gettext("action_id %1% not found") ,
+            "long_descr"  => gettext("action_id %1% not found") ,
         );
         /* not numeric var */
         $this->errors["NOT_NUMERIC"] = array(
             "short_descr" => gettext("Error processing") ,
-            "long_descr" => gettext("<b> %1% </b> must be numeric") ,
+            "long_descr"  => gettext("<b> %1% </b> must be numeric") ,
         );
         /* Plugin id not valid */
         $this->errors["NOT_PLUGINID"] = array(
             "short_descr" => gettext("Plugin id is not valid") ,
-            "long_descr" => gettext("plugin_id %1%") ,
+            "long_descr"  => gettext("plugin_id %1%") ,
         );
         /* Not values for priority or reliability */
         $this->errors["NOT_PRIORREA"] = array(
             "short_descr" => gettext("Missing parameters") ,
-            "long_descr" => gettext("Not values for priority or reliability") ,
+            "long_descr"  => gettext("Not values for priority or reliability") ,
         );
         /* Priority must be between 0 and 10 */
         $this->errors["NOT_VALIDPRIO"] = array(
             "short_descr" => gettext("Not valid priority") ,
-            "long_descr" => gettext("Priority must be between 0 and 10") ,
+            "long_descr"  => gettext("Priority must be between 0 and 10") ,
         );
         /* Reliability myst be between 0 and 5 */
         $this->errors["NOT_VALIDREL"] = array(
             "short_descr" => gettext("Not valid reliability") ,
-            "long_descr" => gettext("Reliability must be between 0 and 5") ,
+            "long_descr"  => gettext("Reliability must be between 0 and 5") ,
         );
         /* Unknown action */
         $this->errors["UNK_ACTION"] = array(
             "short_descr" => gettext("Scan not started") ,
-            "long_descr" => gettext("Unknown action") ,
+            "long_descr"  => gettext("Unknown action") ,
         );
         /* Error creating socket */
         $this->errors["CRE_SOCKET"] = array(
             "short_descr" => gettext("Socket_create() failed: reason") ,
-            "long_descr" => gettext("%1%") ,
+            "long_descr"  => gettext("%1%") ,
         );
         /* Socket error: Framework running? */
         $this->errors["FRAMW_NOTRUN"] = array(
             "short_descr" => gettext("Socket error") ,
-            "long_descr" => gettext("Is Ossim framework running at %1% ?") ,
+            "long_descr"  => gettext("Is Ossim framework running at %1% ?") ,
         );
         /* Error creating socket */
         $this->errors["INVALID_SIG"] = array(
             "short_descr" => gettext("Invalid Signature") ,
-            "long_descr" => gettext("Wrong signature name") ,
+            "long_descr"  => gettext("Wrong signature name") ,
         );
         /* Socket error: Framework running? */
         $this->errors["FRAMW_NOTRUN"] = array(
             "short_descr" => gettext("Socket error") ,
-            "long_descr" => gettext("Is Ossim framework running at %1% ?") ,
+            "long_descr"  => gettext("Is Ossim framework running at %1% ?") ,
         );
         /* Wrong user */
         $this->errors["WRONG_USER"] = array(
             "short_descr" => gettext("Wrong user") ,
-            "long_descr" => gettext("Please enter a valid username") ,
+            "long_descr"  => gettext("Please enter a valid username") ,
         );
         /* Old password not correct */
         $this->errors["BAD_OLD_PASSWORD"] = array(
             "short_descr" => gettext("Password saving failure") ,
-            "long_descr" => gettext("Old password is not correct") ,
+            "long_descr"  => gettext("Old password is not correct") ,
         );
         /* Admin password not correct */
         $this->errors["BAD_ADMIN_PASSWORD"] = array(
             "short_descr" => gettext("Password saving failure") ,
-            "long_descr" => gettext("Admin password is not correct") ,
+            "long_descr"  => gettext("Admin password is not correct") ,
         );
         /* Password mismatch */
         $this->errors["PASSWORDS_MISMATCH"] = array(
             "short_descr" => gettext("Authentication failure") ,
-            "long_descr" => gettext("Passwords mismatch") ,
+            "long_descr"  => gettext("Passwords mismatch") ,
         );
         /* Password lenght */
         $this->errors["PASSWORD_SIZE"] = array(
             "short_descr" => gettext("Password saving failure") ,
-            "long_descr" => gettext("Password is long enough. Check the password policy configuration for more details") ,
+            "long_descr"  => gettext("Password is long enough. Check the password policy configuration for more details") ,
         );
         $this->errors["PASSWORD_SIZE_MAX"] = array(
             "short_descr" => gettext("Password saving failure") ,
-            "long_descr" => gettext("Password is too long. Check the password policy configuration for more details") ,
+            "long_descr"  => gettext("Password is too long. Check the password policy configuration for more details") ,
         );
         /* Password lenght */
         $this->errors["PASSWORD_ALPHANUM"] = array(
             "short_descr" => gettext("Password saving failure") ,
-            "long_descr" => gettext("Password is not strong enough. Check the password policy configuration for more details") ,
+            "long_descr"  => gettext("Password is not strong enough. Check the password policy configuration for more details") ,
         );
         $this->errors["PASSWORD_EXPIRE_MIN"] = array(
             "short_descr" => gettext("Password saving failure") ,
-            "long_descr" => gettext("Password lifetime is too short to allow change. Wait a few minutes...") ,
+            "long_descr"  => gettext("Password lifetime is too short to allow change. Wait a few minutes...") ,
         );
         /* Password recent */
         $this->errors["PASSWORD_RECENT"] = array(
             "short_descr" => gettext("Password saving failure") ,
-            "long_descr" => gettext("This password is recently used. Try another") ,
+            "long_descr"  => gettext("This password is recently used. Try another") ,
         );
         /* Only admin can do that */
         $this->errors["ONLY_ADMIN"] = array(
             "short_descr" => gettext("Permission error") ,
-            "long_descr" => gettext("Only admin can do that") ,
+            "long_descr"  => gettext("Only admin can do that") ,
         );
         /* A user can not remove himself */
         $this->errors["USER_CANT_REMOVE"] = array(
             "short_descr" => gettext("Permission error") ,
-            "long_descr" => gettext("A user can not remove himself") ,
+            "long_descr"  => gettext("A user can not remove himself") ,
         );
         /* Wrong ip */
         $this->errors["WRONG_IP"] = array(
             "short_descr" => gettext("Wrong IP") ,
-            "long_descr" => gettext("Please introduce a valid ip") ,
+            "long_descr"  => gettext("Please introduce a valid ip") ,
         );
         /* Wrong profile */
         $this->errors["WRONG_PROFILE"] = array(
             "short_descr" => gettext("Wrong profile") ,
-            "long_descr" => gettext("Please introduce a valid profile") ,
+            "long_descr"  => gettext("Please introduce a valid profile") ,
         );
         /* Wrong policy id */
         $this->errors["WRONG_POLICY_ID"] = array(
             "short_descr" => gettext("Wrong policy id") ,
-            "long_descr" => gettext("Please introduce a valid policy id") ,
+            "long_descr"  => gettext("Please introduce a valid policy id") ,
         );
         /* Wrong incident id */
         $this->errors["WRONG_INCIDENT_ID"] = array(
             "short_descr" => gettext("Wrong incident id") ,
-            "long_descr" => gettext("Please introduce a valid incident id") ,
+            "long_descr"  => gettext("Please introduce a valid incident id") ,
         );
         /* Wrong incident type id */
         $this->errors["WRONG_INCIDENT_TYPE"] = array(
             "short_descr" => gettext("Wrong incident type id") ,
-            "long_descr" => gettext("Please introduce a valid incident type id") ,
+            "long_descr"  => gettext("Please introduce a valid incident type id") ,
         );
         /* Wrong port name */
         $this->errors["WRONG_PROFILE"] = array(
             "short_descr" => gettext("Wrong port name") ,
-            "long_descr" => gettext("Please introduce a valid port name") ,
+            "long_descr"  => gettext("Please introduce a valid port name") ,
         );
         /* Wrong sensor */
         $this->errors["WRONG_SENSOR"] = array(
             "short_descr" => gettext("Wrong sensor") ,
-            "long_descr" => gettext("Please introduce a valid sensor") ,
+            "long_descr"  => gettext("Please introduce a valid sensor") ,
         );
         /* Wrong net */
         $this->errors["WRONG_NET"] = array(
             "short_descr" => gettext("Wrong net") ,
-            "long_descr" => gettext("Please introduce the net argument in nmap
+            "long_descr"  => gettext("Please introduce the net argument in nmap
             format example: ?net=192.168.1.1-255") ,
         );
         /* Wrong backlog id */
         $this->errors["WRONG_BACKLOG_ID"] = array(
             "short_descr" => gettext("Wrong backlog id") ,
-            "long_descr" => gettext("Please introduce a valid backlog id") ,
+            "long_descr"  => gettext("Please introduce a valid backlog id") ,
         );
         /* Wrong rule name */
         $this->errors["WRONG_RULE_NAME"] = array(
             "short_descr" => gettext("Wrong rule name") ,
-            "long_descr" => gettext("Please introduce a valid rule name") ,
+            "long_descr"  => gettext("Please introduce a valid rule name") ,
         );
         /* Incorrect date range */
         $this->errors["INCORRECT_DATE_RANGE"] = array(
             "short_descr" => gettext("Wrong parameter") ,
-            "long_descr" => gettext("Incorrect date range") ,
+            "long_descr"  => gettext("Incorrect date range") ,
         );
         /* response id required*/
         $this->errors["RESPONSEID_REQUIRED"] = array(
             "short_descr" => gettext("Parameters missing") ,
-            "long_descr" => gettext("Response id is required") ,
+            "long_descr"  => gettext("Response id is required") ,
         );
         /* rules not found*/
         $this->errors["RULES_NOT_FOUND"] = array(
             "short_descr" => gettext("Rules not found") ,
-            "long_descr" => gettext("Snort rules where not found at: %1%") ,
+            "long_descr"  => gettext("Snort rules where not found at: %1%") ,
         );
     }
 }
 class OssimWarn extends OssimMainError {
-    public function __construct($error_msg) {
+    public function __construct($error_msg=null) {
         /* warn - yellow colors */
        
-        /* call to main error class */
-        
-		parent::__construct($error_msg, $style='ossim_alert', $error_type = 'WARNING');
+        parent::__construct($error_msg, $style='ossim_alert', $error_type = 'WARNING');
 		
 		$this->current_style =( !empty($style) ) ? OssimMainError::$base_style.OssimMainError::$styles[$style] : $this->current_style;
 		
@@ -369,14 +367,14 @@ class OssimWarn extends OssimMainError {
 		
 		$this->errors["DEFAULT"] = array(
                 "short_descr" => gettext("Warning!") ,
-                "long_descr" => "%1%"
+                "long_descr"  => "%1%"
         );
 		
 		
     }
 }
 class OssimNotice extends OssimMainError {
-    public function __construct($error_msg) {
+    public function __construct($error_msg=null) {
         /* Notice - blue colors */
         parent::__construct($error_msg, $style='ossim_info', $error_type = 'NOTICE');
         
