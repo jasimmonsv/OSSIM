@@ -413,7 +413,7 @@ class Rule {
                 print '</td>';
                 //copy button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=copy_rule&id=" . $this->id . "\" TITLE=\"" . gettext("Copy this rule") . "\"><img src='../../pixmaps/copy-small.png' border='0'></img></a>";
+                if ($id_father != 0) { print "<a TARGET=\"right\" href=\"../include/utils.php?query=copy_rule&id=" . $this->id . "\" TITLE=\"" . gettext("Copy this rule") . "\"><img src='../../pixmaps/copy-small.png' border='0'></img></a>"; }
                 print '</td>';
                 //left button
                 print '<td>';
