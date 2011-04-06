@@ -640,7 +640,8 @@ elseif ($query == "copy_rule") {
     $old_rule = $tab_rules[$id_rule];
     $new_rule = $old_rule->rule->clone_node(true);
     $new_rule->set_attribute("name", "Copy of " . $new_rule->get_attribute("name"));
-    $parent = $old_rule->rule->parent_node();
+    // Can not copy the root rule at same level => copy as a child
+    $parent = ($id_father > 0) ? $old_rule->rule->parent_node() : $old_rule->rule;
     $parent->append_child($new_rule);
     $dom->dump_file($XML_FILE);
     release_file($XML_FILE);
