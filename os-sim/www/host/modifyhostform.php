@@ -1189,7 +1189,7 @@ if ( empty( $ip ) ) {
 			
                 <tr><th style="padding:5px"><?php echo _("Inventory") ?> 
                 <?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
-                <?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services'><?php echo _("Scan now") ?></a> ] <?php } ?>
+                <?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services'><?php echo _("Local Scan now") ?></a> ] <?php } ?>
                 </th></tr>
 				
 				<tr>
@@ -1332,7 +1332,7 @@ if ( empty( $ip ) ) {
 								<th style="padding:5px">
 									<?php echo _("Services Availability Monitoring") ?> 
 									<?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
-                					<?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services'><?php echo _("Scan now") ?></a> ] <?php } ?>
+                					<?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services'><?php echo _("Local Scan now") ?></a> ] <?php } ?>
 								</th>
 							</tr>
 						
