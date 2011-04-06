@@ -608,6 +608,7 @@ function SetSearch(content)
 	window.scrollTo(0,0);
 	//$('#tip_msg').show();
 	//setTimeout("$('#tip_msg').fadeOut('slow');",2000);
+	document.getElementById('offset').value = '0';
 	MakeRequest();
 }
 

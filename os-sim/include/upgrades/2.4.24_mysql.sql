@@ -2,6 +2,8 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+REPLACE INTO config (conf, value) VALUES ('server_logger_if_priority', '0');
+
 -- WARNING! Keep this at the end of this file
 -- ATENCION! Keep this at the end of this file
 use ossim;

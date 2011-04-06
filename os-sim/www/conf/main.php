@@ -226,7 +226,7 @@ $CONFIG = array(
             		"4" => 4,
             		"5" => 5
                 ) ,
-                "help" => gettext("Store in SIEM if priority <= this value") ,
+                "help" => gettext("Store in SIEM if priority >= this value")."<br>".gettext("Requires /etc/init.d/ossim-server restart") ,
                 "desc" => gettext("SIEM process priority threshold") ,
                 "advanced" => 1,
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
@@ -243,7 +243,7 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable Solera integration") ,
                 "advanced" => 1
             ),
@@ -292,25 +292,25 @@ $CONFIG = array(
             ) ,
             "jpgraph_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("JPGraph Path") ,
                 "advanced" => 1
             ) ,
             "fpdf_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("FreePDF Path") ,
                 "advanced" => 1
             ) ,
             "xajax_php_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("XAJAX PHP Path") ,
                 "advanced" => 1
             ) ,
             "xajax_js_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("XAJAX JS Path") ,
                 "advanced" => 1
             ) ,
@@ -319,7 +319,7 @@ $CONFIG = array(
                     "images" => gettext("Images (php jpgraph)") ,
                     "applets" => gettext("Applets (jfreechart)")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Graph Type") ,
                 "advanced" => 1
             ) ,
@@ -328,7 +328,7 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes (Need SVG plugin)")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Use SVG Graphics") ,
                 "advanced" => 1
             ) ,*/
@@ -337,49 +337,49 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Resolve IPs") ,
                 "advanced" => 1
             ) ,
             "ntop_link" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Default Ntop Link") ,
                 "advanced" => 1
             ) ,
             "nagios_link" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Default Nagios Link") ,
                 "advanced" => 1
             ) ,
             "nagios_cfgs" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Nagios Configuration file Path") ,
                 "advanced" => 1
             ) ,
             "nagios_reload_cmd" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Nagios reload command") ,
                 "advanced" => 1
             ) ,
             /*"glpi_link" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("GLPI Link") ,
                 "advanced" => 1
             ) ,*/
             "ocs_link" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OCS Link") ,
                 "advanced" => 1
             ) ,
             /*"ovcp_link" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OVCP Link") ,
                 "advanced" => 1
             ) ,*/
@@ -388,7 +388,7 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Apache-rewrite ntop") ,
                 "advanced" => 1
             ) ,
@@ -397,19 +397,19 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable Munin") ,
                 "advanced" => 1
             ) ,
             /*"munin_link" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Munin Link") ,
                 "advanced" => 1
             ) ,*/
             "md5_salt" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("MD5 salt for passwords") ,
                 "advanced" => 1
             )
@@ -422,19 +422,19 @@ $CONFIG = array(
         "conf" => array(
             "frameworkd_address" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OSSIM Frameworkd") ,
                 "advanced" => 1
             ) ,
             "frameworkd_port" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Frameworkd Port") ,
                 "advanced" => 1
             ) ,
             "frameworkd_dir" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Frameworkd Directory") ,
                 "advanced" => 1
             ) ,
@@ -443,7 +443,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable ControlPanelRRD") ,
                 "advanced" => 1
             ) ,/*
@@ -452,7 +452,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable AcidCache") ,
                 "advanced" => 1
             ) ,*/
@@ -461,7 +461,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable DoNagios") ,
                 "advanced" => 1
             ) ,
@@ -470,7 +470,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable AlarmTicketGeneration") ,
                 "advanced" => 1
             ) ,
@@ -479,7 +479,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable DB Optimizations") ,
                 "advanced" => 1
             ) ,
@@ -488,7 +488,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable Listener") ,
                 "advanced" => 1
             ) ,
@@ -497,7 +497,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable Scheduler") ,
                 "advanced" => 1
             ) ,/*
@@ -506,7 +506,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable SOC functionality") ,
                 "advanced" => 1
             ) ,*/
@@ -515,7 +515,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable BusinesProcesses") ,
                 "advanced" => 1
             ) ,
@@ -524,7 +524,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable EventStats") ,
                 "advanced" => 1
             ) ,
@@ -533,7 +533,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable Backups") ,
                 "advanced" => 1
             ) ,
@@ -542,7 +542,7 @@ $CONFIG = array(
                     "0" => gettext("Disabled") ,
                     "1" => gettext("Enabled")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable Alarm Grouping") ,
                 "advanced" => 1
             )
@@ -555,49 +555,49 @@ $CONFIG = array(
         "conf" => array(
             "snort_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Snort location") ,
                 "advanced" => 1
             ) ,
             "snort_rules_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Snort rule location") ,
                 "advanced" => 1
             ) ,
             "snort_type" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Snort DB Type") ,
                 "advanced" => 1
             ) ,
             "snort_base" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Snort DB Name") ,
                 "advanced" => 1
             ) ,
             "snort_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Snort DB User") ,
                 "advanced" => 1
             ) ,
             "snort_pass" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Snort DB Password") ,
                 "advanced" => 1
             ) ,
             "snort_host" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Snort DB Host") ,
                 "advanced" => 1
             ) ,
             "snort_port" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Snort DB Port") ,
                 "advanced" => 1
             )
@@ -610,31 +610,31 @@ $CONFIG = array(
         "conf" => array(
             "osvdb_type" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OSVDB DB Type") ,
                 "advanced" => 1
             ) ,
             "osvdb_base" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OSVDB DB Name") ,
                 "advanced" => 1
             ) ,
             "osvdb_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OSVDB DB User") ,
                 "advanced" => 1
             ) ,
             "osvdb_pass" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OSVDB DB Password") ,
                 "advanced" => 1
             ) ,
             "osvdb_host" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OSVDB DB Host") ,
                 "advanced" => 1
             )
@@ -647,13 +647,13 @@ $CONFIG = array(
         "conf" => array(
             "recovery" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Recovery Ratio") ,
                 "advanced" => 0
             ) ,
             "threshold" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Global Threshold") ,
                 "advanced" => 0
             )
@@ -711,13 +711,13 @@ $CONFIG = array(
         "conf" => array(
             "panel_plugins_dir" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Executive Panel plugin Directory") ,
                 "advanced" => 1
             ) ,
             "panel_configs_dir" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Executive Panel Config Directory") ,
                 "advanced" => 1
             )
@@ -730,37 +730,37 @@ $CONFIG = array(
         "conf" => array(
             "phpgacl_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("PHPGacl Path") ,
                 "advanced" => 1
             ) ,
             "phpgacl_type" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("PHPGacl DB Type") ,
                 "advanced" => 1
             ) ,
             "phpgacl_host" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("PHPGacl DB Host") ,
                 "advanced" => 1
             ) ,
             "phpgacl_base" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("PHPGacl DB Name") ,
                 "advanced" => 1
             ) ,
             "phpgacl_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("PHPGacl DB User") ,
                 "advanced" => 1
             ) ,
             "phpgacl_pass" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("PHPGacl DB Password") ,
                 "advanced" => 1
             )
@@ -773,19 +773,19 @@ $CONFIG = array(
         "conf" => array(
             "graph_link" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("RRD Draw graph link") ,
                 "advanced" => 1
             ) ,
             "rrdtool_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("RRDTool Path") ,
                 "advanced" => 1
             ) ,
             "rrdtool_lib_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("RRDTool Lib Path") ,
                 "advanced" => 1
             ) ,
@@ -797,37 +797,37 @@ $CONFIG = array(
             ) ,
             "mrtg_rrd_files_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("MRTG RRD Files") ,
                 "advanced" => 1
             ) ,
             "rrdpath_host" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Host Qualification RRD Path") ,
                 "advanced" => 1
             ) ,
             "rrdpath_net" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Net Qualification RRD Path") ,
                 "advanced" => 1
             ) ,
             "rrdpath_global" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Global Qualification RRD Path") ,
                 "advanced" => 1
             ) ,
             "rrdpath_level" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Service level RRD Path") ,
                 "advanced" => 1
             ) ,
             "rrdpath_incidents" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Ticket trend RRD Path") ,
                 "advanced" => 1
             ) ,
@@ -851,7 +851,7 @@ $CONFIG = array(
             ) ,
             "font_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("TTF Location") ,
                 "advanced" => 1
             )
@@ -864,37 +864,37 @@ $CONFIG = array(
         "conf" => array(
             "backup_type" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Backup DB Type") ,
                 "advanced" => 1
             ) ,
             "backup_base" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Backup DB Name") ,
                 "advanced" => 1
             ) ,
             "backup_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Backup DB User") ,
                 "advanced" => 1
             ) ,
             "backup_pass" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Backup DB Password") ,
                 "advanced" => 1
             ) ,
             "backup_host" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Backup DB Host") ,
                 "advanced" => 1
             ) ,
             "backup_port" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Backup DB Port") ,
                 "advanced" => 1
             ) ,
@@ -938,13 +938,13 @@ $CONFIG = array(
             ) ,
             "nessus_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Scanner Login") ,
                 "advanced" => 1
             ) ,
             "nessus_pass" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Scanner Password") , 
                 "advanced" => 1
             ) ,
@@ -962,13 +962,13 @@ $CONFIG = array(
             ) ,
             "nessus_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Scanner Binary location") ,
                 "advanced" => 1
             ) ,
             "nessus_updater_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Scanner Updater location") , 
                 "advanced" => 1
             ) ,
@@ -1038,37 +1038,37 @@ $CONFIG = array(
             ) ,
             "acid_link" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Event viewer link") ,
                 "advanced" => 1
             ) ,
             "acid_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Event viewer php path") ,
                 "advanced" => 1
             ) ,
             "acid_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Frontend login for event viewer") ,
                 "advanced" => 1
             ) ,
             "acid_pass" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Frontend password for event viewer") ,
                 "advanced" => 1
             ) ,
             "ossim_web_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OSSIM Web user") ,
                 "advanced" => 1
             ) ,
             "ossim_web_pass" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("OSSIM Web Password") ,
                 "advanced" => 1
             )
@@ -1081,37 +1081,37 @@ $CONFIG = array(
         "conf" => array(
             "nmap_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("NMap Binary Path") ,
                 "advanced" => 1
             ) ,/*
             "p0f_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("P0f Binary Path") ,
                 "advanced" => 1
             ) ,
             "arpwatch_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Arpwatch Binary Path") ,
                 "advanced" => 1
             ) ,
             "mail_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Mail Binary Path") ,
                 "advanced" => 1
             ) ,
             "touch_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("'touch' Binary Path") ,
                 "advanced" => 1
             ) ,
             "wget_path" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Wget Binary Path") ,
                 "advanced" => 1
             ) ,*/
@@ -1120,7 +1120,7 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Use Scanmap 3D") ,
                 "advanced" => 0
             )
@@ -1142,7 +1142,7 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Enable User Log") ,
                 "advanced" => 0
             ) ,
@@ -1151,7 +1151,7 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Log to syslog") ,
                 "advanced" => 0
             )
@@ -1165,7 +1165,7 @@ $CONFIG = array(
         "conf" => array(
             "max_event_tmp" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Event limit for real time event viewer") ,
                 "advanced" => 1
             )
@@ -1315,7 +1315,7 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Use proxy for auto update-checking") ,
                 "advanced" => 1
             ) ,
@@ -1327,19 +1327,19 @@ $CONFIG = array(
             ) ,
             "proxy_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Proxy User") ,
                 "advanced" => 1
             ) ,
             "proxy_password" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Proxy Password") ,
                 "advanced" => 1
             ) ,
             "last_update" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Last update timestamp") ,
                 "advanced" => 1
             ) ,
@@ -1361,7 +1361,7 @@ $CONFIG = array(
             ) ,
             "tickets_max_days" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "" ,
                 "desc" => gettext("Maximum days for email notification") ,
                 "advanced" => 0
             ),
@@ -1618,6 +1618,8 @@ if (REQUEST("reset"))
     header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word'));
     exit;
 }
+
+$default_open = intval(GET('open'));
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -1745,8 +1747,13 @@ if (REQUEST("reset"))
 			 });
 
 			<?	if (intval(GET('passpolicy'))==1)  { ?>
-			$('#test15-header').click(); 
+			$('#test14-header').click(); 
 			<?  }  ?>
+			
+			<?	if ($default_open>0)  { ?>
+			$('#test<?=$default_open?>-header').click(); 
+			<?  }  ?>
+			
 		});
 		
 		function tsim(val)
@@ -2014,7 +2021,7 @@ if (REQUEST("reset"))
 										</td>
 					
 										<td align="left">
-											<a href="javascript:;" onmouseover="ticketon('<?php echo str_replace("'", "\'", $var) ?>','<?php echo str_replace("'", "\'", $type["help"]) ?>')"  onmouseout="ticketoff();">
+											<a href="javascript:;" onmouseover="ticketon('<?php echo str_replace("'", "\'", $var) ?>','<?php echo str_replace("\n"," ",str_replace("'", "\'", $type["help"])) ?>')"  onmouseout="ticketoff();">
 												<img src="../pixmaps/help.png" width="16" border='0'/>
 											</a>
 										</td>
@@ -2051,5 +2058,6 @@ if (REQUEST("reset"))
 		</tr>
 	</table>
 </form>
+<a name="end"></a>
 </body>
 </html>

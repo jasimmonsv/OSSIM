@@ -555,7 +555,7 @@ foreach($result as $res=>$event_date) {
 	    $res = str_replace(">", "", $res);
 
 		# Clean data => matches[12] may contains sig and/or plugin_sid
-		$matches[12] = preg_replace("/ plugin_sid=.*/","",$matches[12]);
+		$matches[12] = preg_replace("/' plugin_sid=.*/","",$matches[12]);
 		$signature = "";
 		if (preg_match("/' sig='(.*)('?)/",$matches[12],$found)) {
 			$signature = $found[1];
@@ -563,9 +563,9 @@ foreach($result as $res=>$event_date) {
 		}
 
         # decode if data is stored in base64
-        $data = $matches[12];
-        $matches[12] = base64_decode($matches[12],true);
-        if ($matches[12]==FALSE) $matches[12] = $data;
+        #$data = $matches[12];
+        #$matches[12] = base64_decode($matches[12],true);
+        #if ($matches[12]==FALSE) $matches[12] = $data;
                             
         if($htmlResult){
             $data = $matches[12];

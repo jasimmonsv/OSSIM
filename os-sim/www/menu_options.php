@@ -921,14 +921,6 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) { //if (file_
 	        "url" => "session/customize.php",
 	        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:customize','Help');"
 	    );
-        if (file_exists("/usr/local/bin/vagent_server.py")) 
-        	$hmenu["Main"][] = array(
-		        "name" => gettext("Demo Events") ,
-		        "id" => "Demo Events",
-		        "url" => "sensor/events.php",
-		        "help" => "javascript:;','Help');"
-		    );
-
     }
 }
 
@@ -1056,6 +1048,14 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session:
             "url" => "downloads/index.php",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:downloads','Help');"
         );
+
+        if (file_exists("/usr/local/bin/vagent_server.py")) 
+        	$hmenu["Plugins"][] = array(
+		        "name" => gettext("Demo Events") ,
+		        "id" => "Demo Events",
+		        "url" => "sensor/events.php",
+		        "help" => "javascript:;','Help');"
+		    );        
 }
 
 if(Session::menu_perms("MenuConfiguration", "NetworkDiscovery")) { $configuration = 1;
