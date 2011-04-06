@@ -1,7 +1,10 @@
-@charset "UTF-8";
-@media all
-{  
-    .table1{
-		width: 80%;
-	}
+
+.table1{
+	width: 80% !important;
+}
+
+.report_notes{
+	width: 100%;
+	margin-top: 5px;
+	margin-bottom: 5px;	
 }

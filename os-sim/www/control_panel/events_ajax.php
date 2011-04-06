@@ -70,6 +70,7 @@ ossim_valid($from, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("from"));
 if (ossim_error()) {
     die(ossim_error());
 }
+$no_resolv = ($_SESSION["_no_resolv"]==1) ? true : false;
 $summ_event_count = 0;
 $highest_rule_level = 0;
 $max_events = 50;
@@ -311,8 +312,8 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
         $src_title = _("Src Asset").": <b>$asset_src</b><br>"._("IP").": <b>$src_ip</b>";
         $dst_link = "../report/host_report.php?host=$dst_ip";
         $dst_title = _("Dst Asset").": <b>$asset_dst</b><br>"._("IP").": <b>$dst_ip</b>";
-        $src_name = ($host_names[$src_ip] != "") ? $host_names[$src_ip] : $src_ip;
-        $dst_name = ($host_names[$dst_ip] != "") ? $host_names[$dst_ip] : $dst_ip;
+        $src_name = ($host_names[$src_ip] != "" && !$no_resolv) ? $host_names[$src_ip] : $src_ip;
+        $dst_name = ($host_names[$dst_ip] != "" && !$no_resolv) ? $host_names[$dst_ip] : $dst_ip;
         $src_img = Host_os::get_os_pixmap($conn, $src_ip);
         $dst_img = Host_os::get_os_pixmap($conn, $dst_ip);
 		$src_country = strtolower(geoip_country_code_by_addr($gi, $src_ip));

@@ -72,6 +72,7 @@ $dst_ip = GET('dst_ip');
 $backup_inf = $inf = GET('inf');
 $sup = GET('sup');
 $hide_closed = GET('hide_closed');
+$no_resolv = intval(GET('no_resolv'));
 $refresh_time = GET('refresh_time');
 $autorefresh = GET('autorefresh');
 $query = (GET('query') != "") ? GET('query') : "";
@@ -80,7 +81,7 @@ $sensor_query = GET('sensor_query');
 $tag = GET('tag');
 $num_events = GET('num_events');
 $num_events_op = GET('num_events_op');
-$params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&sensor_query=$sensor_query&tag=$tag";
+$params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&no_resolv=$no_resolv&sensor_query=$sensor_query&tag=$tag";
 
 $sensors = $hosts = $ossim_servers = array();
 list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
@@ -123,6 +124,8 @@ ossim_valid($num_events_op, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("num_events_
 if (ossim_error()) {
     die(ossim_error());
 }
+$_SESSION["_no_resolv"] = $no_resolv;
+
 if ($autorefresh == 'on') {
     $autorefresh = 1;
 } else {
@@ -143,7 +146,7 @@ if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 &&
   <link rel="stylesheet" type="text/css" href="../style/jquery.autocomplete.css">
   <?php if ($autorefresh) { ?>
   <script type="text/javascript">
-	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>&refresh_time=<?php echo GET('refresh_time') ?>&autorefresh=<?php echo GET('autorefresh') ?>&bypassexpirationupdate=1'",<?php echo $refresh_time ?>);
+	setInterval("document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&no_resolv=<?=GET('no_resolv')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>&refresh_time=<?php echo GET('refresh_time') ?>&autorefresh=<?php echo GET('autorefresh') ?>&bypassexpirationupdate=1'",<?php echo $refresh_time ?>);
   </script>
   <?php } ?>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
@@ -282,7 +285,7 @@ if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 &&
 			data: "background=1&unique_id=<?php echo $unique_id ?>"+params,
 			success: function(msg){
 				$('#loading_div').html("");
-				document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
+				document.location.href='<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&no_resolv=<?=GET('no_resolv')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>';
 			}
 		});
 	}
@@ -447,7 +450,7 @@ if (!isset($_GET["hide_search"])) {
 					<div id="widget" style="display:inline">
 						<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0"></a>
 						<div id="widgetCalendar"></div>
-					</div><?php if ($date_from != "" && $date_to != "") { ?><a href="<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=&date_to=&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>&refresh_time=<?php echo GET('refresh_time') ?>&autorefresh=<?php echo GET('autorefresh') ?>">[<?php echo $date_from ?> - <?php echo $date_to ?>]</a><?php } ?>
+					</div><?php if ($date_from != "" && $date_to != "") { ?><a href="<?=$_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&no_resolv=<?=GET('no_resolv')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=&date_to=&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>&refresh_time=<?php echo GET('refresh_time') ?>&autorefresh=<?php echo GET('autorefresh') ?>">[<?php echo $date_from ?> - <?php echo $date_to ?>]</a><?php } ?>
 			    </td>
 			</tr>
 		</table>
@@ -478,7 +481,7 @@ if (!isset($_GET["hide_search"])) {
 								<td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by label") ?></a></td>
 								<td class="nobborder" nowrap>
 								<?php if ($tag != "") { ?>
-								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>&tag=">Remove filter</a></td></tr></table>
+								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&no_resolv=$no_resolv&num_events=$num_events&num_events_op=$num_events_op" ?>&tag=">Remove filter</a></td></tr></table>
 								<?php } ?>
 								</td>
 							</tr>
@@ -496,11 +499,11 @@ if (!isset($_GET["hide_search"])) {
 									<? foreach ($tags as $tg) { ?>
 									<tr>
 										<td class="nobborder">
-											<table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
+											<table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.location='<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>&tag=<?php echo $tg->get_id() ?>'" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
 										</td>
 										<td class="nobborder">
 										<?php if ($tag == $tg->get_id()) { ?>
-										<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>&tag="><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Remove filter") ?>" title="<?php echo _("Remove filter") ?>"></img></a>
+										<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>&tag="><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Remove filter") ?>" title="<?php echo _("Remove filter") ?>"></img></a>
 										<?php } ?>
 										</td>
 									</tr>
@@ -522,16 +525,24 @@ if (!isset($_GET["hide_search"])) {
 			<tr>
 				<td style="text-align: left; border-width: 0px">
 				<?php
-    $hide_closed == 1 ? 1 : 0;
-    $not_hide_closed = !$hide_closed;
-?>
+				    $hide_closed == 1 ? 1 : 0;
+				    $not_hide_closed = !$hide_closed;
+				    $not_no_resolv = !$no_resolv;
+				?>
+			    <input style="border:none" name="no_resolv" type="checkbox" value="1" 
+			        onClick="document.location='<?php
+    echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&no_resolv=$not_no_resolv&num_events_op=$num_events_op" ?>'"
+			        <?php if ($no_resolv) echo " checked " ?> 
+			    /> <?php echo gettext("Do not resolv ip names"); ?>
+				</td>
+			</tr>		
+			<tr>
+				<td style="text-align: left; border-width: 0px">
 			    <input style="border:none" name="hide_closed" type="checkbox" value="1" 
 			        onClick="document.location='<?php
-    echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>'"
-			        <?php
-    if ($hide_closed) echo " checked " ?> 
-			    /> <?php
-    echo gettext("Hide closed alarms"); ?>
+    echo $_SERVER["SCRIPT_NAME"] . "?order=$order&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip" . "&hide_closed=$not_hide_closed&num_alarms_page=$num_alarms_page&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&no_resolv=$no_resolv&num_events_op=$num_events_op" ?>'"
+			        <?php if ($hide_closed) echo " checked " ?> 
+			    /> <?php echo gettext("Hide closed alarms"); ?>
 				</td>
 			</tr>
 			<tr>
@@ -550,7 +561,7 @@ if (!isset($_GET["hide_search"])) {
 			        $disable_autorefresh = 'disabled="true"';
 			    }
     			?>
-				<input type="checkbox" name="autorefresh" onclick="javascript:document.filters.refresh_time.disabled=!document.filters.refresh_time.disabled;" <?php echo $hide_autorefresh ?> /><?php echo gettext("Autorefresh") ?>&nbsp;<select name="refresh_time" <?php echo $disable_autorefresh ?> ><option value="30000" <?php echo $refresh_sel1 ?> ><?php echo _("30 sec") ?></options><option value="60000" <?php echo $refresh_sel2 ?>><?php echo _("1 min") ?></options><option value="180000" <?php echo $refresh_sel3 ?>><?php echo _("3 min") ?></options><option value="600000" <?php echo $refresh_sel4 ?>><?php echo _("10 min") ?></options></select>&nbsp;<a href="<? echo $_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>" >[<?php echo _("Refresh") ?>]</a>
+				<input type="checkbox" name="autorefresh" onclick="javascript:document.filters.refresh_time.disabled=!document.filters.refresh_time.disabled;" <?php echo $hide_autorefresh ?> /><?php echo gettext("Autorefresh") ?>&nbsp;<select name="refresh_time" <?php echo $disable_autorefresh ?> ><option value="30000" <?php echo $refresh_sel1 ?> ><?php echo _("30 sec") ?></options><option value="60000" <?php echo $refresh_sel2 ?>><?php echo _("1 min") ?></options><option value="180000" <?php echo $refresh_sel3 ?>><?php echo _("3 min") ?></options><option value="600000" <?php echo $refresh_sel4 ?>><?php echo _("10 min") ?></options></select>&nbsp;<a href="<? echo $_SERVER['SCRIPT_NAME']?>?query=<?=GET('query')?>&directive_id=<?=GET('directive_id')?>&inf=<?=GET('inf')?>&sup=<?=GET('sup')?>&hide_closed=<?=GET('hide_closed')?>&order=<?=GET('order')?>&src_ip=<?=GET('src_ip')?>&dst_ip=<?=GET('dst_ip')?>&num_alarms_page=<?=GET('num_alarms_page')?>&num_alarms_page=<?=GET('num_alarms_page')?>&date_from=<?=urlencode(GET('date_from'))?>&date_to=<?=urlencode(GET('date_to'))?>&sensor_query=<?=GET('sensor_query')?>&tag=<?php echo GET('tag') ?>&no_resolv=<?=GET('no_resolv')?>&num_events=<?php echo GET('num_events') ?>&num_events_op=<?php echo GET('num_events_op') ?>" >[<?php echo _("Refresh") ?>]</a>
 				</td>
 			</tr>
 		</table>
@@ -600,10 +611,10 @@ if (!isset($_GET["hide_search"])) {
 /*
 * prev and next buttons
 */
-$inf_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($sup - $ROWS) . "&inf=" . ($inf - $ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
-$sup_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($sup + $ROWS) . "&inf=" . ($inf + $ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
-$first_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($ROWS) . "&inf=0&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
-$last_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($count) . "&inf=" . ((floor($count/$ROWS))*$ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
+$inf_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($sup - $ROWS) . "&inf=" . ($inf - $ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&no_resolv=$no_resolv&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
+$sup_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($sup + $ROWS) . "&inf=" . ($inf + $ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&no_resolv=$no_resolv&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
+$first_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($ROWS) . "&inf=0&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&sensor_query=$sensor_query&no_resolv=$no_resolv&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
+$last_link = $_SERVER["SCRIPT_NAME"] . "?order=$order" . "&sup=" . ($count) . "&inf=" . ((floor($count/$ROWS))*$ROWS) . "&hide_closed=$hide_closed&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&no_resolv=$no_resolv&norefresh=$norefresh&sensor_query=$sensor_query&tag=$tag&num_events=$num_events&num_events_op=$num_events_op";
 if ($src_ip) {
 	$inf_link.= "&src_ip=$src_ip";
     $sup_link.= "&src_ip=$src_ip";
@@ -678,39 +689,39 @@ if ($sup < $count) {
 		<td style="background-color:#9DD131;font-weight:bold">#</td>
         <td width="25%" style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("plugin_sid", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
+echo ossim_db::get_order("plugin_sid", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Alarm"); ?> </a></td>
         <td style="background-color:#9DD131;padding-left:3px;padding-right:3px;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("risk", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
+echo ossim_db::get_order("risk", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Risk"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("sensor", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
+echo ossim_db::get_order("sensor", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Sensor"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"> <?php
 echo gettext("Since")."<br>".Util::timezone($tz); ?> </td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("timestamp", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>"> 
+echo ossim_db::get_order("timestamp", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op" ?>"> 
             <?php
 echo gettext("Last")."<br>".Util::timezone($tz); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("src_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
+echo ossim_db::get_order("src_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Source"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("dst_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
+echo ossim_db::get_order("dst_ip", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Destination"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("status", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
+echo ossim_db::get_order("status", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Status"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"> <?php
@@ -718,6 +729,7 @@ echo gettext("Action"); ?> </td>
       </tr>
 	  <form name="fchecks" action="alarms_check_delete.php" method="post">
 	  <input type="hidden" name="hide_closed" value="<?=$hide_closed?>">
+	  <input type="hidden" name="no_resolv" value="<?=$no_resolv?>">
 	  <input type="hidden" name="only_close" value="">
 	  <input type="hidden" name="move_tag" value="">
 	  <input type="hidden" name="tag" value="<?php echo $tag ?>">
@@ -901,7 +913,7 @@ if ($count > 0) {
           <a href="../sensor/sensor_plugins.php?hmenu=Sensors&smenu=Sensors&sensor=<?php
             echo $sensor ?>"
             ><?php
-            echo Host::ip2hostname($conn, $sensor) ?></a>  
+            echo ($no_resolv) ? $sensor : Host::ip2hostname($conn, $sensor) ?></a>  
 <?php
         }
         if (!count($sensors)) {
@@ -935,8 +947,8 @@ if ($count > 0) {
 <?php
         $src_link = "../forensics/base_stat_ipaddr.php?clear_allcriteria=1&ip=$src_ip&hmenu=Forensics&smenu=Forensics";
         $dst_link = "../forensics/base_stat_ipaddr.php?clear_allcriteria=1&ip=$dst_ip&hmenu=Forensics&smenu=Forensics";
-        $src_name = Host::ip2hostname($conn, $src_ip);
-        $dst_name = Host::ip2hostname($conn, $dst_ip);
+        $src_name = ($no_resolv) ? $src_ip : Host::ip2hostname($conn, $src_ip);
+        $dst_name = ($no_resolv) ? $dst_ip : Host::ip2hostname($conn, $dst_ip);
         $src_img = Host_os::get_os_pixmap($conn, $src_ip);
         $dst_img = Host_os::get_os_pixmap($conn, $dst_ip);
         $src_country = strtolower(geoip_country_code_by_addr($gi, $src_ip));
