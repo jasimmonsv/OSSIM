@@ -409,27 +409,27 @@ class Rule {
                 print '</td>';
                 //removeRule button
                 print '<td>';
-                print "<a onclick=\"javascript:if (confirm('" . gettext("Are you sure you want to delete this rule ?") . "')) { window.open('../include/utils.php?query=del_rule&id=" . $this->id . "','right'); }\" style=\"marging-left:20px; cursor:pointer\" TITLE=\"" . gettext("Delete this rule") . "\"><img src='../../pixmaps/delete-small.gif' border='0'></img></a>";
+                if ($this->level > 1) { print "<a onclick=\"javascript:if (confirm('" . gettext("Are you sure you want to delete this rule ?") . "')) { window.open('../include/utils.php?query=del_rule&id=" . $this->id . "','right'); }\" style=\"marging-left:20px; cursor:pointer\" TITLE=\"" . gettext("Delete this rule") . "\"><img src='../../pixmaps/delete-small.gif' border='0'></img></a>"; }
                 print '</td>';
                 //copy button
                 print '<td>';
-                if ($id_father != 0) { print "<a TARGET=\"right\" href=\"../include/utils.php?query=copy_rule&id=" . $this->id . "\" TITLE=\"" . gettext("Copy this rule") . "\"><img src='../../pixmaps/copy-small.png' border='0'></img></a>"; }
+                if ($this->level > 1) { print "<a TARGET=\"right\" href=\"../include/utils.php?query=copy_rule&id=" . $this->id . "\" TITLE=\"" . gettext("Copy this rule") . "\"><img src='../../pixmaps/copy-small.png' border='0'></img></a>"; }
                 print '</td>';
                 //left button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=left&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule left (previous correlation level)") . "\"><img src='../../pixmaps/arrow-180-small.png' border='0'></img></a>";
+                if ($this->level > 2) { print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=left&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule left (previous correlation level)") . "\"><img src='../../pixmaps/arrow-180-small.png' border='0'></img></a>"; }
                 print '</td>';
                 //right button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=right&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule right (next correlation level)") . "\"><img src='../../pixmaps/arrow-000-small.png' border='0'></img></a>";
+                if ($this->level > 1) { print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=right&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule right (next correlation level)") . "\"><img src='../../pixmaps/arrow-000-small.png' border='0'></img></a>"; }
                 print '</td>';
                 //up button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=up&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule up (same correlation level)") . "\"><img src='../../pixmaps/arrow-090-small.png' border='0'></img></a>";
+                if ($this->level > 1) { print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=up&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule up (same correlation level)") . "\"><img src='../../pixmaps/arrow-090-small.png' border='0'></img></a>"; }
                 print '</td>';
                 //down button
                 print '<td>';
-                print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=down&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule down (same correlation level)") . "\"><img src='../../pixmaps/arrow-270-small.png' border='0'></img></a>";
+                if ($this->level > 1) { print "<a TARGET=\"right\" href=\"../include/utils.php?query=move&direction=down&id=" . $this->id . "\" TITLE=\"" . gettext("Move rule down (same correlation level)") . "\"><img src='../../pixmaps/arrow-270-small.png' border='0'></img></a>"; }
                 print '</td>';
             } else {
                 print '<td>&nbsp&nbsp&nbsp&nbsp&nbsp</td>';
