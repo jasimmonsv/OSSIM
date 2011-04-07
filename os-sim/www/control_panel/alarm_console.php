@@ -375,9 +375,14 @@ if (!$sup) $sup = $ROWS;
 
 //if ($sensor_query != "") $sensor_query_ip = (preg_match("/\d+\.\d+\.\d+\.\d+/",$sensor_query)) ? $sensor_query : Sensor::$sensor_query;
 $sensors_str = "";
+$hosts_str = "";
 foreach ($sensors as $s_ip=>$s_name) {
 	if ($s_name!=$s_ip) $sensors_str .= '{ txt:"'.$s_ip.' ['.$s_name.']", id: "'.$s_ip.'" },';
     else $sensors_str .= '{ txt:"'.$s_ip.'", id: "'.$s_ip.'" },';
+}
+foreach ($hosts as $h_ip=>$h_name) {
+	if ($h_name!=$h_ip) $hosts_str .= '{ txt:"'.$h_ip.' ['.$h_name.']", id: "'.$h_ip.'" },';
+    else $hosts_str .= '{ txt:"'.$h_ip.'", id: "'.$h_ip.'" },';
 }
 
 // Eficiencia mejorada (Granada, junio 2009)
@@ -424,8 +429,8 @@ if (!isset($_GET["hide_search"])) {
 			        <b><?php echo _("IP Address") ?></b>:
 			    </td>
 			    <td style="text-align: left; border-width: 0px" nowrap>    
-			        <?php echo _("source") ?>: <input type="text" size="15" name="src_ip" value="<?php echo $src_ip ?>">&nbsp;&nbsp;
-			        <?php echo _("destination") ?>: <input type="text" size="15" name="dst_ip" value="<?php echo $dst_ip ?>">
+			        <?php echo _("source") ?>: <input type="text" size="15" name="src_ip" id="src_ip" value="<?php echo $src_ip ?>">&nbsp;&nbsp;
+			        <?php echo _("destination") ?>: <input type="text" size="15" name="dst_ip" id="dst_ip" value="<?php echo $dst_ip ?>">
 			    </td>
 			</tr>
 			<tr>
@@ -1086,6 +1091,29 @@ $(document).ready(function(){
 		}
 	}).result(function(event, item) {
 		$("#sensors").val(item.id);
+	});
+	var hosts = [<?=preg_replace("/\,$/","",$hosts_str)?>];
+	$("#src_ip").autocomplete(hosts, {
+		minChars: 0,
+		width: 225,
+		matchContains: "word",
+		autoFill: true,
+		formatItem: function(row, i, max) {
+			return row.txt;
+		}
+	}).result(function(event, item) {
+		$("#src_ip").val(item.id);
+	});
+	$("#dst_ip").autocomplete(hosts, {
+		minChars: 0,
+		width: 225,
+		matchContains: "word",
+		autoFill: true,
+		formatItem: function(row, i, max) {
+			return row.txt;
+		}
+	}).result(function(event, item) {
+		$("#dst_ip").val(item.id);
 	});
 	<?php if ($date_from != "" || $query != "" || $sensor_query != "" || $directive_id != "" || $num_events > 0) { ?>
 	tooglebtn();
