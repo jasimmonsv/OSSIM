@@ -148,7 +148,7 @@ if ($alarm_list = Alarm::get_events($conn, $backlog_id, $show_all, $event_id)) {
 	$count_events = 0;
     $count_alarms = 0;
     foreach($alarm_list as $alarm) {
-		if (!$alarm->get_alarm() && ($count_events < $from || $count_events >= $to)) {
+		if ($show_all > 1 && ($count_events < $from || $count_events >= $to)) {
 			$count_events++;
 			continue;
 		}
