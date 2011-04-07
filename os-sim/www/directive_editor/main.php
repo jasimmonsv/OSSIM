@@ -56,10 +56,12 @@ function xml_backdata($file) {
 $action        = GET('action');
 $category_file = GET('xml_file');
 $category_name = GET('name');
+$query = POST('query');
 
 ossim_valid($action, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("action"));
 ossim_valid($category_file, OSS_ALPHA, OSS_DOT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("xml_file"));
 ossim_valid($category_name, OSS_LETTER, OSS_DIGIT, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("name"));
+ossim_valid($query, OSS_TEXT, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("query"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -99,6 +101,17 @@ $cannotedit = array(
 	"webattack.xml" => 1,
 	"worms.xml" => 1
 );
+
+$categories = unserialize($_SESSION['categories']);
+$tab = $xml->get_elements_by_tagname('directive');
+
+$search_results = array();
+foreach($tab as $lign) {
+	$field = $lign->get_attribute('name');
+	if (preg_match("/$query/i",$field)) {
+		$search_results[$lign->get_attribute('id')] = $lign;
+	}
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -209,7 +222,6 @@ function background_clone(id,xml_file,mini) {
 					<!-- <h1 align="center" style="margin-top:5px">Directive List</h1> -->
 					<table width="100%" style="border:0px;background-color:transparent;">
 				
-					<?php $categories = unserialize($_SESSION['categories']); ?>
 						<tr>
 							<th style="font-size:14px">
 								<?php echo _("Current Categories");?>
@@ -217,9 +229,32 @@ function background_clone(id,xml_file,mini) {
 							</th>
 						</tr>
 						
+						<tr>
+							<td class="nobborder">
+								<form method="post">
+								<table class="transparent">
+									<tr>
+										<td class="nobborder"><?php echo _("Directive name") ?>:</td>
+										<td class="nobborder"><input type="text" name="query" id="query" value="<?php echo $query ?>"></td>
+										<td class="nobborder"><input type="submit" value="<?php echo _("Search") ?>"></td>
+									</tr>
+								</table>
+								</form>
+							</td>
+						</tr>
+						
+						<?php if ($query != "") { ?>
+						<tr>
+							<td class="nobborder">
+								<table class="transparent" width="100%">
+									<tr><th><?php echo count($search_results)." "._("directives found") ?></th></tr>
+								</table>
+							</td>
+						</tr>
+						<?php } ?>
+						
 						<tr><td style="border:0px">
 						<?php
-							$tab = $xml->get_elements_by_tagname('directive');
 							$total = 0;
 							foreach($categories as $category) {
 								$xmldata = xml_backdata($category->xml_file);
@@ -230,6 +265,9 @@ function background_clone(id,xml_file,mini) {
 										$tab_this_category[$lign->get_attribute('id') ] = $lign;
 									}
 									*/
+									if ($query != "" && !isset($search_results[$lign->get_attribute('id')])) {
+										continue;
+									}
 									if ($xmldata[$lign->get_attribute('id')]) {
 										$tab_this_category[$lign->get_attribute('id') ] = $lign;
 									}
@@ -254,7 +292,11 @@ function background_clone(id,xml_file,mini) {
 												 <img id="img_<?php echo $id_div; ?>" 
 												 align="left"
 												 border="0"
+												 <?php if ($query != "" && count($tab_this_category) > 0) { ?>
+												 src="viewer/img/flechebf<?php if (!$category->active || count($tab_this_category) < 1) echo "_gray" ?>.gif"
+												 <?php } else { ?>
 												 src="viewer/img/flechedf<?php if (!$category->active || count($tab_this_category) < 1) echo "_gray" ?>.gif"
+												 <?php } ?>
 												 <?php if ($category->active && count($tab_this_category) > 0) { ?>
 												 onclick="Menus('<?php echo $id_div; ?>',this)" 
 												 <?php } ?> 
@@ -289,7 +331,7 @@ function background_clone(id,xml_file,mini) {
 									</th>
 								</tr>
 							</table>
-					<div id="<?php echo $id_div; ?>" style="display:none">
+					<div id="<?php echo $id_div; ?>" <?php if ($query == "" || count($tab_this_category) < 1) { ?>style="display:none"<?php } ?>>
 						<table width="100%">
 							<tr>
 								<td class="nobborder"></td>
@@ -335,7 +377,7 @@ function background_clone(id,xml_file,mini) {
 	</tr>
 	
 	<tr>
-		<td class="nobborder center" style="font-size:18px;padding-top:20px;color:#333333"><?php echo "<b>".$total."</b> "._("directives found in the system.") ?></td>
+		<td class="nobborder center" style="font-size:18px;padding-top:20px;color:#333333"><?php echo "<b>".$total."</b> "._("directives found"); echo ($query == "") ? _(" in the system") : _(" matching your search criteria"); ?>.</td>
 	</tr>
 	
 	<tr>
