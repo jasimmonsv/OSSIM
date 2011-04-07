@@ -310,7 +310,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 	document.getElementById(td_id).innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	$.ajax({
 		type: "GET",
-		url: "events_ajax.php?backlog_id="+backlog_id+"&show_all=2",
+		url: "events_ajax.php?backlog_id="+backlog_id,
 		data: "",
 		success: function(msg){
 			//alert (msg);
