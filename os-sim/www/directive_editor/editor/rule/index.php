@@ -157,7 +157,7 @@ echo $js_dir . '/editableSelectBox.js'; ?>"></script>
 echo $js_dir_rule . '/rule.js'; ?>"></script>
 			
     <script type="text/javascript" language="javascript">
-    var wizard_current = <?php echo ($add) ? "0" : "1" ?>;
+    var wizard_current = 1;
 
     var is_monitor = <?php echo ($plugin_type == "2") ? "true" : "false" ?>;
     var current_plugin_id = <?php echo ($rule->plugin_id != "") ? $rule->plugin_id : '""' ?>;
@@ -195,6 +195,9 @@ echo $js_dir_rule . '/rule.js'; ?>"></script>
     		<?php if (!$rule->level || $rule->level <= 1) { ?>
 			if (wizard_current == 8 || wizard_current == 7) {
 				wizard_current = 9;
+			}
+			if (wizard_current == 13 || wizard_current == 14) {
+				wizard_current = 15;
 			}
     		<?php } ?>
     		document.getElementById('wizard_'+(wizard_current)).style.display = "block";
@@ -505,7 +508,7 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
   <form method="POST" id="frule" name="frule" action="../../include/utils.php?query=save_rule">
 	<table class="transparent" width="100%">
 		<tr>
-			<td class="nobborder" id="steps" style="border-bottom:1px solid #EEEEEE<?php if ($add) echo ";display:none" ?>">
+			<td class="nobborder" id="steps" style="border-bottom:1px solid #EEEEEE">
 				<table class="transparent">
 					<?php
 					$display = ($rule->plugin_id > 0) ? "" : ";display:none";
@@ -525,8 +528,8 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_10" nowrap> > <a href='' onclick='wizard_goto(10);return false;' class="normal" id="link_10"><?php echo _("Monitor") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_11" nowrap> > <a href='' onclick='wizard_goto(11);return false;' class="normal" id="link_11"><?php echo _("Monitor intv") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo ($plugin_type == "2") ? $display : ";display:none" ?>" id="step_12" nowrap> > <a href='' onclick='wizard_goto(12);return false;' class="normal" id="link_12"><?php echo _("Monitor abs") ?></a></td>
-						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_13" nowrap> > <a href='' onclick='wizard_goto(13);return false;' class="normal" id="link_13"><?php echo _("Sticky") ?></a></td>
-						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_14" nowrap> > <a href='' onclick='wizard_goto(14);return false;' class="normal" id="link_14"><?php echo _("Sticky diff") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($rule->level > 1) ? $display : ";display:none" ?>" id="step_13" nowrap> > <a href='' onclick='wizard_goto(13);return false;' class="normal" id="link_13"><?php echo _("Sticky") ?></a></td>
+						<td class="nobborder" style="font-size:11px<?php echo ($rule->level > 1) ? $display : ";display:none" ?>" id="step_14" nowrap> > <a href='' onclick='wizard_goto(14);return false;' class="normal" id="link_14"><?php echo _("Sticky diff") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_15" nowrap> > <a href='' onclick='wizard_goto(15);return false;' class="normal" id="link_15"><?php echo _("Other") ?></a></td>
 						<td class="nobborder" style="font-size:11px<?php echo $display ?>" id="step_16" nowrap> > <a href='' onclick='wizard_goto(16);return false;' class="normal" id="link_16"><?php echo _("User data") ?></a></td>
 					</tr>
@@ -542,20 +545,6 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 				<td class="container" style="vertical-align: top">
 				<table class="transparent" width="100%">
 				<tr><td class="nobborder">
-				<div id="wizard_0"<?php if (!$add) echo " style='display:none'"?>>
-				<table class="transparent">
-					<tr>
-						<th style="white-space: nowrap; padding: 5px;font-size:12px"><?php echo _("Do you want to define a new rule now") ?>?</th>
-					</tr>
-					<tr>
-						<td class="center nobborder" style="padding-top:10px">
-							<input type="button" value="Yes" onclick="wizard_next()" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important"></input>
-							<input type="button" value="Later" onclick="onClickCancel(<?php echo $directive . ',' . $new_level; ?>)"></input>
-						</td>
-					</tr>
-				</table>
-				</div>
-				
 				<?php
 			include ("global.inc.php"); ?>
 				
@@ -612,7 +601,7 @@ echo isList($rule->sensor) ? $rule->sensor : ''; ?>'
 					<input type="hidden" name="id" value="<?php echo $id; ?>" />
 					<input type="hidden" name="xml_file" value="<?php echo $xml_file; ?>" />
 					<input type="hidden" name="type" id="type" value="<?php echo getPluginType($rule->plugin_id); ?>" />
-					<input type="button" style="width: <?php echo ($rule->plugin_id) ? "80" : "130" ?>px; cursor:pointer;" value="<?php echo ($rule->plugin_id) ? _("Cancel") : gettext('Back to directives'); ?>" onclick="onClickCancel(<?php echo $directive . ',' . $new_level; ?>)"/>
+					<?php if (!$add) { ?><input type="button" style="width: <?php echo ($rule->plugin_id) ? "80" : "130" ?>px; cursor:pointer;" value="<?php echo ($rule->plugin_id) ? _("Cancel") : gettext('Back to directives'); ?>" onclick="onClickCancel(<?php echo $directive . ',' . $new_level; ?>)"/><?php } ?>
 					<?php if ($rule->plugin_id) { ?>
 					&nbsp;<input type="button" style="background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" value="<?php echo _("Save and finish") ?>" onclick="save_all();document.getElementById('frule').submit()">
 					<?php } ?>

@@ -80,6 +80,29 @@ foreach($groups as $group) {
     }
     $list = trim($list);
 }
+// Edit Disallowed categories
+$cannotedit = array(
+	"alienvault-attacks.xml" => 1,
+	"alienvault-bruteforce.xml" => 1,
+	"alienvault-dos.xml" => 1,
+	"alienvault-malware.xml" => 1,
+	"alienvault-misc.xml" => 1,
+	"alienvault-network.xml" => 1,
+	"alienvault-policy.xml" => 1,
+	"alienvault-scada.xml" => 1,
+	"alienvault-scan.xml" => 1,
+	"alienvault-worms.xml" => 1,
+	"abnormal.xml" => 1,
+	"attacks.xml" => 1,
+	"dos.xml" => 1,
+	"generic.xml" => 1,
+	"misc.xml" => 1,
+	"network.xml" => 1,
+	"scan.xml" => 1,
+	"trojans.xml" => 1,
+	"webattack.xml" => 1,
+	"worms.xml" => 1
+);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"

@@ -36,7 +36,7 @@
 */
 ?>
 <div id="wizard_13" style="display:none">
-<input type="hidden" name="sticky" id="sticky" value="<?php echo $rule->sticky ?>"></input>
+<input type="hidden" name="sticky" id="sticky" value="<?php if ($rule->level > 1) echo $rule->sticky ?>"></input>
 	<table class="transparent" width="100%">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px">

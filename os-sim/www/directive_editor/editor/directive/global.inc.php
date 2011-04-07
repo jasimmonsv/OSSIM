@@ -85,7 +85,7 @@ if ($directive_xml == "") {
 				<?php echo gettext("Category"); ?>
 			</th>
 		</tr>
-		<?php foreach ($categories as $category) { ?>
+		<?php foreach ($categories as $category) if (!isset($cannotedit[$category->xml_file])) { ?>
 		<tr><td class="center nobborder"><input type="button" style="width:100%<?php echo ($category->xml_file == $directive_xml) ? ";background: url(../../../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important" : "";?>" value="<?php echo $category->name ?>" onclick="document.getElementById('category').value='<?php echo $category->xml_file ?>';onChangeCategory(<?php echo $directive->id; ?>);wizard_next();"></input></td></tr>
 		<?php } ?>
 		</table>

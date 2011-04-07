@@ -36,7 +36,7 @@
 * Classes list:
 */
 ?>
-<div id="wizard_1"<?php if ($add) echo " style='display:none'"?>>
+<div id="wizard_1">
 <table width="400" class="transparent">
 		<tr>
 			<th style="white-space: nowrap; padding: 5px;font-size:12px" colspan="2">
@@ -98,9 +98,11 @@ $none_checked = 'true';
 						<?php
 						$i = 0;
 						foreach($plugin_list as $plugin) {
-						    $color = ($i%2==0) ? "#FFFFFF" : "#F2F2F2";
-							$i++;
 						    $plugin_type = $plugin->get_type();
+						    // Skip monitor plugins for root rule
+						    if ($plugin_type != '1' && (!$rule->level || $rule->level <= 1)) { continue; }
+							$color = ($i%2==0) ? "#FFFFFF" : "#F2F2F2";
+							$i++;
 						    if ($plugin_type == '1') $type_name = 'Detector (1)';
 						    elseif ($plugin_type == '2') $type_name = 'Monitor (2)';
 						    else $type_name = 'Other (' . $plugin_type . ')';

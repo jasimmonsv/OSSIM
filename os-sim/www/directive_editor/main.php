@@ -75,6 +75,30 @@ init_categories();
 $conf = $GLOBALS["CONF"];
 $XML_FILE = '/etc/ossim/server/directives.xml';
 $xml = domxml_open_file($XML_FILE, DOMXML_LOAD_SUBSTITUTE_ENTITIES);
+
+// Edit Disallowed categories
+$cannotedit = array(
+	"alienvault-attacks.xml" => 1,
+	"alienvault-bruteforce.xml" => 1,
+	"alienvault-dos.xml" => 1,
+	"alienvault-malware.xml" => 1,
+	"alienvault-misc.xml" => 1,
+	"alienvault-network.xml" => 1,
+	"alienvault-policy.xml" => 1,
+	"alienvault-scada.xml" => 1,
+	"alienvault-scan.xml" => 1,
+	"alienvault-worms.xml" => 1,
+	"abnormal.xml" => 1,
+	"attacks.xml" => 1,
+	"dos.xml" => 1,
+	"generic.xml" => 1,
+	"misc.xml" => 1,
+	"network.xml" => 1,
+	"scan.xml" => 1,
+	"trojans.xml" => 1,
+	"webattack.xml" => 1,
+	"worms.xml" => 1
+);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -240,14 +264,8 @@ function background_clone(id,xml_file,mini) {
 												 style="cursor:pointer"/>
 											</td>
 											<td style="text-align:left;border:0px;font-size:12px"><?php echo gettext(ucwords($name_div)); ?><?php if (count($tab_this_category) > 0) { ?> <font style="color:#666666;font-size:10px">[<?php echo count($tab_this_category) ?> <?php echo _("directive"); if (count($tab_this_category) > 1) echo "s"; ?>]</font><?php } ?></td>
-											<td width='40' align="right" style="border:0px;">
-											  <?php if ($category->active) { ?>
-											  <a href="main.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px;" title="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Disable this category"); ?>" title="<?php echo gettext("Disable this category"); ?>"/></a>
-											  <?php } else { ?>
-											  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px; " title="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Enable this category"); ?>" title="<?php echo gettext("Enable this category"); ?>"/></a>
-											  <?php } ?>
-											</td>
-											<td width="40" align="right" style="border:0px">
+											<td width="20" align="right">&nbsp;
+											<?php if (!isset($cannotedit[$category->xml_file])) { ?>
 											<span id="add_dir" name="add_dir"><a href="index.php?action=add_directive&xml_file=<?php echo $category->xml_file?>&id=<?php
 											  echo $category->id . $onlydir; ?>" style="marging-left:20px;" title="<?php
 											  echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
@@ -257,6 +275,14 @@ function background_clone(id,xml_file,mini) {
 											  <img src="../pixmaps/theme/any.png" border="0" style="opacity:.30;filter:Alpha(Opacity=30);"/></a>
 											  <?php } ?>
 											  </span>
+											<?php } ?>
+											</td>
+											<td width="20" align="right">
+											  <?php if ($category->active) { ?>
+											  <a href="main.php?action=disable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px;" title="<?php echo gettext("Disable this category"); ?>"><img src="../pixmaps/tick.png" border="0" alt="<?php echo gettext("Disable this category"); ?>" title="<?php echo gettext("Disable this category"); ?>"/></a>
+											  <?php } else { ?>
+											  <a href="main.php?action=enable_category&xml_file=<?php echo $category->xml_file?>&name=<?php echo $category->name ?>" style="margin-left:20px; " title="<?php echo gettext("Enable this category"); ?>"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo gettext("Enable this category"); ?>" title="<?php echo gettext("Enable this category"); ?>"/></a>
+											  <?php } ?>
 											</td>
 										</tr>
 									</table>
