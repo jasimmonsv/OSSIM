@@ -22,14 +22,11 @@ function GB_show_post(caption, form, height, width) {
   GB_HEIGHT = height || 400;
   GB_WIDTH = width || 400;
   if(!GB_DONE) {
-	$('meta[http-equiv=refresh').remove(); // bypass meta content auto-refresh
-	$(document.body)
-      .append("<div id='GB_overlay" + GB_TYPE + "'></div><div id='GB_window'><div id='GB_head'><div id='GB_caption'></div>"
-        + "<div id='GB_table'><table><tr><td><img src='/ossim/pixmaps/theme/close.png' id='GB_closeimg' alt='Close' title='Close'></td></tr></table></div></div></div>");
-    $("#GB_closeimg").click(GB_hide);
-    $("#GB_overlay" + GB_TYPE).click(GB_hide);
-    $(window).resize(GB_position);
-    GB_DONE = true;
+	$(document.body).append("<div id='GB_overlay" + GB_TYPE + "'></div><div id='GB_window'><div id='GB_head'><div id='GB_caption'></div><div id='GB_table'><table><tr><td><img src='/ossim/pixmaps/theme/close.png' id='GB_closeimg' alt='Close' title='Close'></td></tr></table></div></div></div>");
+	$("#GB_closeimg").click(GB_hide);
+	$("#GB_overlay" + GB_TYPE).click(GB_hide);
+	$(window).resize(GB_position);
+	GB_DONE = true;
   }
 
   $("#GB_frame").remove();
@@ -43,6 +40,7 @@ function GB_show_post(caption, form, height, width) {
   if (GB_SLEEP>0) sleep(GB_SLEEP);
   $("#GB_window").append("<iframe id='GB_frame' name='GB_frame'></iframe>");
   if (GB_SLEEP>0) sleep(GB_SLEEP);
+
   $(form).attr('target','GB_frame');
   $(form).submit();
 }
@@ -68,16 +66,13 @@ function GB_position() {
   if (self.innerWidth > w) w = self.innerWidth;
   if (de && de.clientWidth > w) w = de.clientWidth;
   if (document.body.clientWidth > w) w = document.body.clientWidth;
-  
     
   // total document height
   var h = document.body.scrollHeight
   if ((self.innerHeight+window.scrollMaxY) > h) h = self.innerHeight+window.scrollMaxY;
   if (de && de.clientHeight > h) h = de.clientHeight;
   if (document.body.clientHeight > h) h = document.body.clientHeight;
-  //alert(h+';'+document.body.scrollHeight+';'+self.innerHeight+';'+de.clientHeight+';'+document.body.clientHeight+';'+window.scrollMaxY)
-  //
-  //$('body').removeClass("autoscroll").addClass("noscroll");
+
   $("#GB_overlay" + GB_TYPE).css({width:(w)+"px",height:(h)+"px"});
   var sy = document.documentElement.scrollTop || document.body.scrollTop;
   var ww = (typeof(GB_WIDTH) == "string" && GB_WIDTH.match(/\%/)) ? GB_WIDTH : GB_WIDTH+"px";

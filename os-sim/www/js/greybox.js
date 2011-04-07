@@ -22,27 +22,16 @@ function GB_show(caption, url, height, width) {
   GB_HEIGHT = height || 400;
   GB_WIDTH = width || 400;
   GB_URL_AUX = url;
-  
+
   if(!GB_DONE) {
-    /* Maximize Button
-	$(document.body)
-      .append("<div id='GB_overlay" + GB_TYPE + "'></div><div id='GB_window'><div id='GB_head'><div id='GB_caption'></div>"
-        + "<div id='GB_table'><table><tr><td><img src='../pixmaps/theme/maximize.gif' id='GB_maximg' alt='Maximize' title='Maximize'></td><td><img src='../pixmaps/theme/close.png' id='GB_closeimg' alt='Close' title='Close'></td></tr></table></div></div></div>");
-	*/
-	$('meta[http-equiv=refresh').remove(); // bypass meta content auto-refresh
-	$(document.body)
-      .append("<div id='GB_overlay" + GB_TYPE + "'></div><div id='GB_window'><div id='GB_head'><div id='GB_caption'></div>"
-        + "<div id='GB_table'><table><tr><td><img src='/ossim/pixmaps/theme/close.png' id='GB_closeimg' alt='Close' title='Close'></td></tr></table></div></div></div>");
-    $("#GB_closeimg").click(GB_hide);
+	$(document.body).append("<div id='GB_overlay" + GB_TYPE + "'></div><div id='GB_window'><div id='GB_head'><div id='GB_caption'></div><div id='GB_table'><table><tr><td><img src='/ossim/pixmaps/theme/close.png' id='GB_closeimg' alt='Close' title='Close'></td></tr></table></div></div></div>");
+	$("#GB_closeimg").click(GB_hide);
 	$("#GB_maximg").click(GB_maximize);
-    $("#GB_overlay" + GB_TYPE).click(GB_hide);
-    $(window).resize(GB_position);
-    GB_DONE = true;
+	$("#GB_overlay" + GB_TYPE).click(GB_hide);
+	$(window).resize(GB_position);
+	GB_DONE = true;
   }
-
   $("#GB_frame").remove();
-  //$("#GB_window").append("<iframe id='GB_frame' name='GB_frame' src='"+url+"'></iframe>");
-
   $("#GB_caption").html(caption);
   $("#GB_overlay" + GB_TYPE).show();
   GB_position();
@@ -63,13 +52,11 @@ function sleep(milliseconds) {
 }
 
 function GB_hide() {
-  //$('body').removeClass("noscroll").addClass("autoscroll");
   $("#GB_window,#GB_overlay" + GB_TYPE).hide();
   if (typeof(GB_onclose) == "function") GB_onclose(GB_URL_AUX);
 }
 
 function GB_maximize() {
-  //$('body').removeClass("noscroll").addClass("autoscroll");
   $("#GB_window,#GB_overlay" + GB_TYPE).hide();
   if (typeof(GB_onclose) == "function") GB_onclose(GB_URL_AUX);
   window.open(GB_URL_AUX, '', 'fullscreen=yes,scrollbars=yes');
@@ -89,9 +76,7 @@ function GB_position() {
   if ((self.innerHeight+window.scrollMaxY) > h) h = self.innerHeight+window.scrollMaxY;
   if (de && de.clientHeight > h) h = de.clientHeight;
   if (document.body.clientHeight > h) h = document.body.clientHeight;
-  //alert(h+';'+document.body.scrollHeight+';'+self.innerHeight+';'+de.clientHeight+';'+document.body.clientHeight+';'+window.scrollMaxY)
   //
-  //$('body').removeClass("autoscroll").addClass("noscroll");
   $("#GB_overlay" + GB_TYPE).css({width:(w)+"px",height:(h)+"px"});
   var sy = document.documentElement.scrollTop || document.body.scrollTop;
   var ww = (typeof(GB_WIDTH) == "string" && GB_WIDTH.match(/\%/)) ? GB_WIDTH : GB_WIDTH+"px";
@@ -100,7 +85,6 @@ function GB_position() {
   var hw = (typeof(GB_HEIGHT) == "string" && GB_HEIGHT.match(/\%/)) ? GB_HEIGHT : GB_HEIGHT+"px";
   var hy = (typeof(GB_HEIGHT) == "string" && GB_HEIGHT.match(/\%/)) ? (document.body.clientHeight-document.body.clientHeight*(GB_HEIGHT.replace(/\%/,''))/100)/2 : 32;
   
-  $("#GB_window").css({ width: ww, height: hw,
-    left: ((w - wp)/2)+"px", top: (sy+hy)+"px" });
+  $("#GB_window").css({ width: ww, height: hw, left: ((w - wp)/2)+"px", top: (sy+hy)+"px" });
   $("#GB_frame").css("height",hw);
 }
