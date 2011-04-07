@@ -156,7 +156,7 @@ class Net {
     /*
     function get_list($conn, $args = "") {
         $list = array();
-        $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $args) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $query = OssimQuery("SELECT $select FROM net $args");
         if (!$rs = & $conn->Execute($query)) {
@@ -228,7 +228,7 @@ class Net {
     	}
     	$main_where = ($filter != "") ? "WHERE $filter" : "WHERE 1";
     	
-    	$iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
+    	$iffoundrows = preg_match("/LIMIT/i", $limit) ? true : false;
     	
         $query = OssimQuery("SELECT DISTINCT SQL_CALC_FOUND_ROWS net.* FROM net $main_where$sensor_where$nets_where $limit");
         //echo $query."<br>";exit;

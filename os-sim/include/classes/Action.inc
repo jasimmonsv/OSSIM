@@ -120,7 +120,7 @@ class Action {
         }
     }
     function get_list($conn, $args = "") {
-        $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $args) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $query = OssimQuery("SELECT $select FROM action $args");
         if (!$rs = & $conn->Execute($query)) {

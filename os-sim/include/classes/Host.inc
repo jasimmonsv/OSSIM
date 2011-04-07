@@ -200,7 +200,7 @@ class Host {
 		
 		mysql_escape_string($where);
         mysql_escape_string($order);
-        $iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $order) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS h.*" : "h.*";
         
 		$query = OssimQuery("SELECT $select FROM host h $where $order");
@@ -278,7 +278,7 @@ class Host {
 		
 		mysql_escape_string($where);
         mysql_escape_string($order);
-        $iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $order) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS h.*" : "h.*";
         
 		$query = OssimQuery("SELECT $select FROM host h $where $order");

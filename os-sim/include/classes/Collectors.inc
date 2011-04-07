@@ -134,7 +134,7 @@ class Collectors {
     */
     function get_list($conn, $where = '') {
         mysql_escape_string($where);
-        $iffoundrows = preg_match("/LIMIT/", $where) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $where) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $query = OssimQuery("SELECT $select FROM custom_collectors $where");
 		//echo $query;
@@ -405,7 +405,7 @@ class CollectorRule {
     */
     function get_list($conn, $where = '') {
         mysql_escape_string($where);
-        $iffoundrows = preg_match("/LIMIT/", $where) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $where) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $query = OssimQuery("SELECT $select FROM custom_collector_rules $where");
 		//echo $query;

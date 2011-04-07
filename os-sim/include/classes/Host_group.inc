@@ -109,7 +109,7 @@ class Host_group {
     }
     /*
     function get_list($conn, $args = "") {
-        $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $args) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS host_group.*" : "host_group.*";
         $query = OssimQuery("SELECT DISTINCT $select FROM host_group $args");
 

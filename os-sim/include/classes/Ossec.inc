@@ -97,7 +97,7 @@ class Agentless {
 	function get_list($conn, $extra = "") {
         mysql_escape_string($extra);
         
-        $iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $order) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $query = OssimQuery("SELECT $select FROM host_agentless $extra");
 		
@@ -128,7 +128,7 @@ class Agentless {
 	public function get_list_pag ($conn, $extra = "")
 	{
 		mysql_escape_string($extra);
-        $iffoundrows = preg_match("/LIMIT/", $extra) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $extra) ? true : false;
         
 		$select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $query = OssimQuery("SELECT $select FROM host_agentless $extra");

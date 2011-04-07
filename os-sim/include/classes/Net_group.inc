@@ -107,7 +107,7 @@ class Net_group {
     }
     /*
     function get_list($conn, $args = "") {
-        $iffoundrows = preg_match("/LIMIT/", $args) ? true : false;
+        $iffoundrows = preg_match("/LIMIT/i", $args) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
         $query = OssimQuery("SELECT $select FROM net_group $args");
         if (!$rs = & $conn->Execute($query)) {
@@ -131,7 +131,7 @@ class Net_group {
     */
 	function get_list($conn, $args = "", $order = "ORDER BY name") {
         $args = preg_replace("/^\s*where /i","",$args);
-		$iffoundrows = preg_match("/LIMIT/", $order) ? true : false;
+		$iffoundrows = preg_match("/LIMIT/i", $order) ? true : false;
         $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS g.*" : "g.*";
         $networks = "";
         $all_nets = Net::get_list($conn);
