@@ -80,9 +80,9 @@ $downloads = array(
         "Description" => "Open Computer and Software Inventory Next Generation is an application designed to help a network or system administrator keep track of the computers configuration and software that are installed on the network. Third party contributed agents for MacosX, BSD, Solaris, AIX, HP-UX"
     ) ,
     array(
-        "Name" => "OSSEC Agent for windows",
-        "Version" => "2.0",
-        "URL" => "ossec-agent-win32-2.0.exe",
+        "Name" => "OSSEC Agent for Windows",
+        "Version" => "2.5.1",
+        "URL" => "ossec-agent-win32-2.5.1.exe",
         "Homepage" => "http://www.ossec.net",
         "Description" => "OSSEC is an Open Source Host-based Intrusion Detection System. It performs log analysis, integrity checking, Windows registry monitoring, rootkit detection, real-time alerting and active response."
     ) ,

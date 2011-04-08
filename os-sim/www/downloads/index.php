@@ -46,6 +46,14 @@ echo gettext("OSSIM Framework"); ?> </title>
   <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+  <style type="text/css">
+  	li a { font-weight: bold; font-size:12px }
+  	li { padding:5px;
+  		background:#f2f2f2; border:1px solid #dddddd; 
+  		border-radius: 6px; -moz-border-radius: 6px; -webkit-border-radius: 6px; 
+  		}
+  	li p { text-align:left; margin:5px 15px 5px 15px}
+  </style>
 </head>
 <body>
 
@@ -58,10 +66,10 @@ require_once ('classes/Downloads.inc');
 <dl>
 <?php
 foreach($downloads as $download) {
-    print "<li><a href=\"" . $download["URL"] . "\">" . _($download["Name"]) . "</a> (" . $download["Version"] . ")</li>\n";
-    print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"" . $download["Homepage"] . "\"><small>" . $download["Homepage"] . "</small></a><br/>\n";
-    print "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>" . _($download["Description"]) . "</small><br/>\n";
-    print "<br/>&nbsp;";
+    print "<li><a href=\"" . $download["URL"] . "\">" . _($download["Name"]) . "</a> (" . $download["Version"] . ")\n";
+    print "<p><a href=\"" . $download["Homepage"] . "\"><small>" . $download["Homepage"] . "</small></a><br/>\n";
+    print "<small>" . _($download["Description"]) . "</small><br/>\n";
+    print "</li></p>";
 }
 ?>
 </dl>
