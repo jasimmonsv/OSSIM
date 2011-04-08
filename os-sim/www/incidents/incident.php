@@ -567,7 +567,7 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 		</td>
 		
 		<td id='subscribe_section' nowrap='nowrap' colspan='4'>
-					
+				
 				<select name="login">
 				<?php 
 				
@@ -590,7 +590,6 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 							{
 								$filtered_users[] = $u;
 							}
-							
 						}
 					}
 				}

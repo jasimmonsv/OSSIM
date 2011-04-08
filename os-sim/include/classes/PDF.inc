@@ -288,12 +288,12 @@ class PDF extends FPDF {
                 $incident_list=array();
                 foreach($host as $value){
                     unset($listTemp);
-                    $listTemp=Incident::get_list_filter_ips($conn,$value, " and ref = '$ref' and  $priority $fil");
+                    $listTemp=Incident::get_list_filtered($conn,$value, " and ref = '$ref' and  $priority $fil");
                     $incident_list[]=$listTemp;
                 }
             }else{
                 //es un host
-                $incident_list[0] = Incident::get_list_filter_ips($conn,$host, " and ref = '$ref' and  $priority $fil");
+                $incident_list[0] = Incident::get_list_filtered($conn,$host, " and ref = '$ref' and  $priority $fil");
             }
         }
         if (is_array($incident_list)) {
@@ -387,12 +387,12 @@ class PDF extends FPDF {
                 $incident_list=array();
                 foreach($host as $value){
                     unset($listTemp);
-                    $listTemp=Incident::get_list_filter_ips($conn,$value, " and ref = '$ref' and  $priority $fil");
+                    $listTemp=Incident::get_list_filtered($conn,$value, " and ref = '$ref' and  $priority $fil");
                     $incident_list[]=$listTemp;
                 }
             }else{
                 //es un host
-                $incident_list[0] = Incident::get_list_filter_ips($conn,$host, " and ref = '$ref' and  $priority $fil");
+                $incident_list[0] = Incident::get_list_filtered($conn,$host, " and ref = '$ref' and  $priority $fil");
             }
             
         }

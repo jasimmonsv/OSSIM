@@ -330,7 +330,7 @@ $incident_tag = new Incident_tag($conn);
 		$rows_per_page   = 50;
 		$incident_list   = Incident::search($conn, $criteria, $order_by, $order_mode, $page, $rows_per_page);
 		$total_incidents = Incident::search_count($conn);
-
+		
 		if ( count($incident_list)>=$total_incidents ) 
 		{
 			$total_incidents = count($incident_list);
@@ -513,7 +513,7 @@ $incident_tag = new Incident_tag($conn);
 					<table valign="absmiddle" align="center" class="noborder">
 						<tr>
 							<td class="noborder" valign="middle" align="center">
-							   <span><?php echo _("Create new ticket of type: ")?></span>
+							   <span><?php echo _("Create new ticket of class: ")?></span>
 							</td>
 							<td class="noborder" valign="middle" align="center">
 								<select id="selectnewincident">

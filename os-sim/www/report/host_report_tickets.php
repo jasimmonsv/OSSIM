@@ -29,11 +29,11 @@
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
 if($host!='any'){
-	//$incident_list2 = Incident::get_list_filter_ips($conn, $host, "AND status='open' ORDER BY date DESC");
-	$tick_num = count(Incident::get_list_filter_ips($conn, $host, "AND status='open' ORDER BY date DESC"));
-	$incident_list2 = Incident::get_list_filter_ips($conn, $host, "ORDER BY date DESC");
+	//$incident_list2 = Incident::get_list_filtered($conn, $host, "AND status='open' ORDER BY date DESC");
+	$tick_num = count(Incident::get_list_filtered($conn, $host, "AND status='open' ORDER BY date DESC"));
+	$incident_list2 = Incident::get_list_filtered($conn, $host, "ORDER BY date DESC");
 }else{
-	$tick_num = count(Incident::get_list_filter_ips($conn, '', "AND status='open' ORDER BY date DESC"));
+	$tick_num = count(Incident::get_list_filtered($conn, '', "AND status='open' ORDER BY date DESC"));
 	//$incident_list2 = Incident::search($conn, array('status'=>'open'), "priority", "DESC", 1, 6);
 	$incident_list2 = Incident::search($conn, array(), "priority", "DESC", 1, 6);
 }

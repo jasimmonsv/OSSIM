@@ -2,6 +2,7 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
+require_once ('classes/Incident.inc');
 require_once ('sensor_filter.php');
 Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 
@@ -14,238 +15,146 @@ if (ossim_error()) {
 
 $data  = null;
 $links = ''; 
-$h     = 250;  // Graph Height
+$h     = ( !empty($_GET['height']) ) ? GET('height') : 250;  // Graph Height
 
 $db    = new ossim_db();
 $conn  = $db->connect();
 
 $user  = Session::get_session_user();
 
-//Users that I can see
-$users = Session::get_users_to_assign($conn);
-			
-foreach ($users as $k => $v)
-	$my_users[$v->get_login()] = ( strlen($v->get_login()) > 28 ) ? substr($v->get_login(), 0, 25)."[...]" : $v->get_login();
-
-	
-//Entities that I can see
-$entities = Session::get_entities_to_assign($conn);
-
-foreach ($entities as $k => $v)
-{
-	$my_entities_keys[$k]  = $k;
-	$my_entities_names[$k] =  ( strlen($v) > 28 ) ? substr($v, 0, 25)."[...]" : $v;
-}
-
-
 // Types
 switch($type){
 	case 'ticketStatus':
 		
 		$type_graph = 'pie';
-		$user       = Session::get_session_user();
+		$legend     = ( empty($_GET['legend']) ) ? "w" : GET('legend');
+				
+		$ticket_status = Incident::incidents_by_status($conn);
 		
-		if ( !Session::am_i_admin() )
+		if( is_array($ticket_status) && !empty($ticket_status) )
 		{
-			
-			$entities_and_users = array_merge($my_users, $my_entities_keys);
-			$admin_where = ( !empty($entities_and_users) ) ?"IN ('".implode("','", $entities_and_users)."')" : "IN('0')";
-						
-			$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* 
-					  FROM incident 
-					  LEFT JOIN incident_ticket ON incident_ticket.incident_id = incident.id, users, incident_subscrip 
-					  WHERE incident_subscrip.incident_id=incident.id 
-					  AND users.login = incident_subscrip.login 
-					  AND (
-						incident_ticket.users $admin_where 
-						OR incident_ticket.in_charge $admin_where 
-						OR incident_ticket.transferred $admin_where 
-						OR users.login $admin_where
-					)
-					ORDER BY date";
+			foreach($ticket_status as $type => $ocurrences)
+			{
+				$data[] = "['".$type."',".$ocurrences."]";
+				$sum = $sum + $ocurrences;
+			}
+				
+			$data   = implode(",", $data);
+			$links  = "'../incidents/index.php?&status=open&hmenu=Tickets&smenu=Tickets','../incidents/index.php?&status=closed&hmenu=Tickets&smenu=Tickets'";
+			$colors = '"#E9967A","#9BC3CF"';
 		}
 		else
-			$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* FROM incident ";
+		{
+			$data   = "['"._("No tickets")."',0]";
+			$colors = '"#E9967A"';
+		}
+			
 		
 				
-		$rs     = &$conn->Execute($query);
-		$status = array("Open" => 0,"Closed" => 0);
-		while (!$rs->EOF)
-		{
-			$status[$rs->fields['status']]++;
-			$rs->MoveNext();
-		}
-		
-		if(!empty($status))
-		{
-			foreach($status as $value => $key){
-				$data[] = "['".$value."',".$key."]";
-			}
-			
-			$links = "'../incidents/index.php?&status=open&hmenu=Tickets&smenu=Tickets','../incidents/index.php?&status=closed&hmenu=Tickets&smenu=Tickets'";
-		}
-		else
-			$data[] = "['Open',0],['Closed',0]";
-			
-		if ( is_array($data) )
-			$data = implode(",", $data);
-			
-			
-		$colors = '"#E9967A","#9BC3CF"';
-		
-		
-		break;
+	break;
 	
 	case 'ticketTypes':
 		
 		$type_graph = 'pie';
+		$legend     = ( empty($_GET['legend']) ) ? "w" : GET('legend');
 		
-		if ( !Session::am_i_admin() )
+		$ticket_by_type = Incident::incidents_by_type($conn);
+		$i = 0;
+		
+		if( is_array($ticket_by_type) && !empty($ticket_by_type) )
 		{
-			$entities_and_users = array_merge($my_users, $my_entities_keys);
-			$admin_where_1      = ( !empty($entities_and_users) ) ? " WHERE i.in_charge IN ('".implode("','", $entities_and_users)."')" : "IN('0')";
-			$admin_where_2      = ( !empty($entities_and_users) ) ? "AND t.in_charge IN ('".implode("','", $entities_and_users)."')" : "IN('0')";
+			if ( $i < 10 )
+			{
+				foreach($ticket_by_type as $type => $ocurrences)
+				{
+					$type = ( strlen($type) > 28 ) ? substr($type, 0, 25)." [...]" : $type;
+					$data[] = "['".$type."',".$ocurrences."]";
+				}
+			}
+			else
+				break;
+				
+			$data  = implode(",", $data);
 		}
 		else
-			$admin_where_1 = $admin_where_2 = "";	
-		
-		
-		
-		$query = "	SELECT u.ref, count(*) as num 
-						FROM(
-						(
-							SELECT i.id,i.ref 
-							FROM incident i 
-							$admin_where_1
-						)
-						UNION(
-							SELECT i.id,i.ref 
-							FROM incident i, incident_ticket t 
-							WHERE i.id=t.incident_id $admin_where_2
-							)
-						) u 
-					GROUP BY u.ref ORDER by num desc";
-		
-		if (!$rs = &$conn->Execute($query)) 
 		{
-			print $conn->ErrorMsg();
-			exit();
+			$data   = "['"._("No tickets")."',0]";
+			$colors = '"#E9967A"';
 		}
 		
-		while (!$rs->EOF)
-		{
-			$data.="['".$rs->fields["ref"]."',".$rs->fields["num"]."],";
-			$rs->MoveNext();
-		}
-		
-		break;
+	break;
 	
+	case 'ticketsByClass':
+		
+		$type_graph = 'pie';
+		$legend     = ( empty($_GET['legend']) ) ? "w" : GET('legend');
+		
+		$ticket_by_class = Incident::incidents_by_class($conn);
+		
+		if( is_array($ticket_by_class) && !empty($ticket_by_class) )
+		{
+			foreach($ticket_by_class as $class => $ocurrences)
+			{
+				$data[] = "['".$class."',".$ocurrences."]";
+			}
+				
+			$data  = implode(",", $data);
+		}
+		else
+		{
+			$data   = "['"._("No tickets")."',0]";
+			$colors = '"#E9967A"';
+		}
+		
+	break;
+		
 	case 'openedTicketsByUser':
 		
 		$type_graph  = 'pie';
+		$legend      = ( empty($_GET['legend']) ) ? "w" : GET('legend');
 		
-		if ( !Session::am_i_admin() )
+		$ticket_by_user = Incident::incidents_by_user($conn);
+		$i = 0;
+				
+		if( is_array($ticket_by_user) && !empty($ticket_by_user) )
 		{
-			$entities_and_users = array_merge($my_users, $my_entities_keys);
-			$admin_where = " AND in_charge IN ('".implode("','", $entities_and_users)."')";
+			foreach($ticket_by_user as $user => $ocurrences)
+			{
+				if ( $i < 10 )
+				{
+					$user = ( strlen($user) > 28 ) ? substr($user, 0, 25)." [...]" : $user;
+					$data[] = "['".$user."',".$ocurrences."]";
+				}
+				else
+					break;
+				
+				$i++;
+			}
+				
+			$data  = implode(",", $data);
 		}
 		else
-			$admin_where = "";	
-		
-		$query  = "SELECT in_charge, count(*) as num FROM incident where status='Open'$admin_where GROUP BY in_charge ORDER BY num desc";
-			
-		if ( !$rs = &$conn->Execute($query) ) 
 		{
-			print $conn->ErrorMsg();
-			exit();
+			$data   = "['"._("No tickets")."',0]";
+			$colors = '"#E9967A"';
 		}
-		
-		$conf    = $GLOBALS["CONF"];
-		$version = $conf->get_conf("ossim_server_version", FALSE);
-		$pro     = preg_match("/pro|demo/i",$version);
-
-		while (!$rs->EOF)
-		{
-			if( $pro && preg_match("/^\d+$/",$rs->fields["in_charge"])) 
-				$data[] = "['".$my_entities_names[$rs->fields["in_charge"]]."',".$rs->fields["num"]."]";
-			else 
-				$data[] = "['".$rs->fields["in_charge"]."',".$rs->fields["num"]."]";
-			
-			$rs->MoveNext();
-		}
-		
-		if ( is_array($data) )
-			$data = implode(",", $data);
-			
+						
 		break;
 	
 	case 'ticketResolutionTime':
 		
-		require_once ('classes/Incident.inc');
-		
 		$ttl_groups = array();
 		
 		$type_graph = 'bar';
+		$legend     = ( empty($_GET['legend']) ) ? "s" : GET('legend');
 				
-		// Gets tags
-        $tags    = array();
-        $t_sql   = "SELECT incident_tag.tag_id, incident_tag.incident_id FROM incident_tag";
-        
-		if (!$rs = $conn->Execute($t_sql)) 
-			die($conn->ErrorMsg());
-        while (!$rs->EOF) 
-		{
-            $tags[$rs->fields["incident_id"]][] = $rs->fields["tag_id"];
-            $rs->MoveNext();
-        }
-		
-		if ( !Session::am_i_admin() )
-		{
-			$entities_and_users = array_merge($my_users, $my_entities_keys);
-			$admin_where = ( !empty($entities_and_users) ) ?"IN ('".implode("','", $entities_and_users)."')" : "IN('0')";
-			
-			
-			$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* 
-					  FROM incident 
-					  LEFT JOIN incident_ticket ON incident_ticket.incident_id = incident.id, users, incident_subscrip 
-					  WHERE incident_subscrip.incident_id=incident.id
-					  AND incident.status = 'Closed'					  
-					  AND users.login = incident_subscrip.login 
-					  AND (
-						incident_ticket.users $admin_where 
-						OR incident_ticket.in_charge $admin_where 
-						OR incident_ticket.transferred $admin_where 
-						OR users.login $admin_where
-					)
-					ORDER BY date";
-			
-		}
-		else
-			$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* FROM incident WHERE incident.status = 'Closed' ";
-		
-		
-		if ( !$rs = &$conn->Execute($query) ) 
-		{
-			print $conn->ErrorMsg();
-			exit();
-		}
-			
-		
-		while (!$rs->EOF) {
-           
-            $life_time_diff = strtotime($rs->fields["date"]) - strtotime($rs->fields["last_update"]);
-            $itags          = (isset($tags[$rs->fields["id"]])) ? $tags[$rs->fields["id"]] : array();
-            $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type_id"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], $itags, $life_time_diff, $rs->fields["event_start"], $rs->fields["event_end"]);
-            $rs->MoveNext();
-        }
-				
+		$list       = Incident::incidents_by_resolution_time($conn);
 		
 		$ttl_groups = array("1"=>0, "2"=>0, "3"=>0, "4"=>0, "5"=>0, "6"=>0);
 		
 		$total_days = 0;
-		$day_count;
-		
-		
+		$day_count  = null;
+				
 		foreach ($list as $incident) 
 		{
 				$ttl_secs = $incident->get_life_time('s');
@@ -260,119 +169,38 @@ switch($type){
 		$datay  = array_values($ttl_groups);
 
 		$labelx = array( _("1 Day"), _("2 Days"), _("3 Days"), _("4 Days"), _("5 Days"), _("6+ Days"));
-		break;
+	
+	break;
 	
 	case 'ticketsClosedByMonth':
 		
 		$type_graph = 'barCumulative';
-		$query      = array();
+		$legend     = ( empty($_GET['legend']) ) ? "ne" : GET('legend');
 		
-		if ( !Session::am_i_admin() )
+		$final_values = array();						
+				
+		$ticket_closed_by_month = Incident::incidents_closed_by_month($conn);
+				
+		if( is_array($ticket_closed_by_month) && !empty($ticket_closed_by_month) )
 		{
-			$entities_and_users = array_merge($my_users, $my_entities_keys);
-			$user_where         = ( !empty($entities_and_users) ) ?"AND status='Closed' AND in_charge IN ('".implode("','", $entities_and_users)."')" : "IN('0')";
-		}
-		else
-			$user_where         = " AND status='Closed'";
-		
-		
-		$year  = date("Y");
-		
-		$query = 'SELECT * FROM
-			(SELECT count(*) as "Jan" FROM incident where date > "'.$year.'-01-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-02-01 00:00:00"'.$user_where.') as enero,
-			(SELECT count(*) as "Feb" FROM incident where date > "'.$year.'-02-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-03-01 00:00:00"'.$user_where.') as febrero,
-			(SELECT count(*) as "Mar" FROM incident where date > "'.$year.'-03-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-04-01 00:00:00"'.$user_where.') as marzo,
-			(SELECT count(*) as "Apr" FROM incident where date > "'.$year.'-04-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-05-01 00:00:00"'.$user_where.') as abril,
-			(SELECT count(*) as "May" FROM incident where date > "'.$year.'-05-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-06-01 00:00:00"'.$user_where.') as mayo,
-			(SELECT count(*) as "Jun" FROM incident where date > "'.$year.'-06-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-07-01 00:00:00"'.$user_where.') as junio,
-			(SELECT count(*) as "Jul" FROM incident where date > "'.$year.'-07-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-08-01 00:00:00"'.$user_where.') as julio,
-			(SELECT count(*) as "Aug" FROM incident where date > "'.$year.'-08-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-09-01 00:00:00"'.$user_where.') as agosto,
-			(SELECT count(*) as "Sep" FROM incident where date > "'.$year.'-09-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-10-01 00:00:00"'.$user_where.') as septiembre,
-			(SELECT count(*) as "Oct" FROM incident where date > "'.$year.'-10-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-11-01 00:00:00"'.$user_where.') as octubre,
-			(SELECT count(*) as "Nov" FROM incident where date > "'.$year.'-11-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-12-01 00:00:00"'.$user_where.') as noviembre,
-			(SELECT count(*) as "Dec" FROM incident where date > "'.$year.'-12-01 00:00:00" and ref="%event_type%" and date < "'.$year.'-12-31 23:59:59"'.$user_where.') as diciembre;';
-
-	
-						
-		$legend       = array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
-		$event_types  = array("Alarm","Alert","Event","Metric","Anomaly","Vulnerability");
-		$final_values = array();
-		
-		foreach($event_types as $event_type)
-		{
-			$values           = array();
-					
-			$query_to_execute = preg_replace("/%event_type%/", $event_type, $query);
-			
-			if ( !$rs = &$conn->Execute($query_to_execute) ) 
+			foreach($ticket_closed_by_month as $event_type => $months)
 			{
-				print $conn->ErrorMsg();
-				exit();
+				$label[] = "{label: '".$event_type."'}";
+				$final_values[$event_type] = implode(",", $months);
 			}
 			
-			while (!$rs->EOF)
-			{
-				
-				$values = array (   $rs->fields["Jan"],
-									$rs->fields["Feb"],
-									$rs->fields["Mar"],
-									$rs->fields["Apr"],
-									$rs->fields["May"],
-									$rs->fields["Jun"],
-									$rs->fields["Jul"],
-									$rs->fields["Aug"],
-									$rs->fields["Sep"],
-									$rs->fields["Oct"],
-									$rs->fields["Nov"],	
-									$rs->fields["Dec"]													
-								);
-				$rs->MoveNext();
-			}
-			
-			$final_values[$event_type] = implode(",", $values);
-			$label[] = "{label: '".$event_type."'}";
-			
+			$event_types = array_keys($ticket_closed_by_month);
+			$legend_text = array_keys($ticket_closed_by_month[$event_types[0]]);
 		}
-				
+								
 		break;
 	
 	case 'ticketsByPriority':
 		
 		$type_graph  = 'pie';
-				
-		if ( !Session::am_i_admin() )
-		{
-			$entities_and_users = array_merge($my_users, $my_entities_keys);
-			$admin_where = ( !empty($entities_and_users) ) ?" IN ('".implode("','", $entities_and_users)."')" : "IN('0')";
+		$colors      = null;
+		$legend      = ( empty($_GET['legend']) ) ? "w" : GET('legend');
 			
-			$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS incident.* 
-					  FROM incident 
-					  LEFT JOIN incident_ticket ON incident_ticket.incident_id = incident.id, users, incident_subscrip 
-					  WHERE incident_subscrip.incident_id=incident.id
-					  AND incident.status = 'Open'					  
-					  AND users.login = incident_subscrip.login 
-					  AND (
-						incident_ticket.users $admin_where 
-						OR incident_ticket.in_charge $admin_where 
-						OR incident_ticket.transferred $admin_where 
-						OR users.login $admin_where
-					)
-					GROUP BY incident.priority;";
-				
-		}
-		else
-			$query = "SELECT in_charge, priority, count(*) as num FROM incident where status='Open' GROUP BY priority;";
-			
-			
-		if (!$rs = &$conn->Execute($query)) 
-		{
-			print $conn->ErrorMsg();
-			exit();
-		}
-		
-		$conf    = $GLOBALS["CONF"];
-		$version = $conf->get_conf("ossim_server_version", FALSE);
-		
 		$temp_colors = array(   "0"  => "#FFFEAF",
 								"1"  => "#FFFD00",
 								"2"  => "#FFE200",
@@ -386,20 +214,33 @@ switch($type){
 								"10" => "#8B0000",								
 		
 							);
-							
-		while (!$rs->EOF)
+		
+		$list       = Incident::incidents_by_priority($conn);
+				
+		
+		
+		if ( is_array($list) && !empty($list) )	
 		{
-			$priority = $rs->fields["priority"];
-			$data[]   = "['"._("Priority")." ".$rs->fields["priority"]."',".$rs->fields["num"]."]";
-			$colors[$temp_colors[$priority]] = $temp_colors[$priority];
+			foreach ($list as $priority => $v) 
+			{
+				if ( $v > 0 )
+				{
+					$data[]                          = "['"._("Priority")." ".$priority."',".$v."]";	
+					$colors[$temp_colors[$priority]] = $temp_colors[$priority];
+				}
+			}
 			
-			$rs->MoveNext();
+			if ( is_array($data) )
+			{
+				$data   = implode(",", $data);
+				$colors = "'".implode("','", $colors)."'";
+			}
 		}
-		
-		$colors = "'".implode("','", $colors)."'";
-		
-		if ( is_array($data) )
-			$data = implode(",", $data);
+		else
+		{
+			$data   = "['"._("No tickets")."',0]";
+			$colors = '"#E9967A"';
+		}
 		
 		
 		break;
@@ -443,8 +284,11 @@ switch($type){
 		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.categoryAxisRenderer.js"></script>
 		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
 		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.barRenderer.js"></script>
-		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.pointLabels.js"></script>
+		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.pointLabels.min.js"></script>
 		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.enhancedLegendRenderer.js"></script>
+		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.canvasTextRenderer.js"></script>
+		<script language="javascript" type="text/javascript" src="../js/jqplot/plugins/jqplot.canvasAxisTickRenderer.js"></script>
+		
 		<?php 
 	} 
 	?> 
@@ -482,7 +326,7 @@ switch($type){
 	        	if (neighbor.pointIndex!=isShowing) 
 				{
 					var class_name = $('#chart').attr('class');
-					var          k =( class_name.match('barCumulative') ) ? 1 : 0;
+					var          k =( class_name.match('bar') ) ? 1 : 0;
 														
 					$('#myToolTip').html(neighbor.data[k]).css({left:gridpos.x, top:gridpos.y-5}).show();
 	            	isShowing = neighbor.pointIndex
@@ -516,6 +360,7 @@ switch($type){
                     padding:14,
 					renderer:$.jqplot.PieRenderer,
 					rendererOptions: {
+						diameter: '170',
 						showDataLabels: true,
 						dataLabels: "value",
 						dataLabelFormatString: '%d'
@@ -527,7 +372,7 @@ switch($type){
 					rendererOptions: {
 						numberCols: 2
 					},
-					location: 'w'
+					location:'<?php echo $legend; ?>'
 				}
 			}); 
 		<?php }elseif( $type_graph == 'bar' ) {
@@ -562,7 +407,7 @@ switch($type){
 		<?php }elseif( $type_graph=='barCumulative' ){ 
 				
 				
-					$ticksValue = "'".implode("','", $legend)."'";
+					$ticksValue = "'".implode("','", $legend_text)."'";
 					$label      = implode(",", $label);
 							
 					foreach($final_values as $key => $value)
@@ -583,7 +428,7 @@ switch($type){
 						numberColumns: 3
 					},
 					show:true, 
-					location:'ne',
+					location:'<?php echo $legend; ?>',
 					yoffset: 0
 					},
 				
@@ -595,11 +440,17 @@ switch($type){
 				series: [
 					    <?php echo $label;?>],
 			    grid: { background: '#F5F5F5', shadow: false },
+				axesDefaults: {
+				      tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
+				      tickOptions: {
+				           fontSize: '10px'
+				      }
+				},
 			    axes:{
-					xaxis:{
-						renderer:$.jqplot.CategoryAxisRenderer,
+			        xaxis:{
+			        	renderer:$.jqplot.CategoryAxisRenderer,
 			        	ticks:[<?php echo $ticksValue; ?>]
-					},
+			        },
 					yaxis:{min:0}
 			    }
 			});

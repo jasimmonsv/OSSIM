@@ -525,7 +525,7 @@ document.fnew.tab_id.value = '<?=$last_tab_id + 1?>';
         }
 	}
 ?>
-<tr><td class="nobborder" colspan="2">* <i><?php echo _("You can choose only names, only icons or both") ?></i></td></tr>
+<tr><td class="nobborder" colspan="5">* <i><?php echo _("You can choose only names, only icons or both") ?></i></td></tr>
 </table>
 </body></html>
 
