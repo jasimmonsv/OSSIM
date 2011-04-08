@@ -475,7 +475,7 @@ class Rule {
                 $plugin_id = $this->plugin_id;
                 if ($plugin_list = Plugin::get_list($conn, "WHERE id = $plugin_id")) {
                     $name = $plugin_list[0]->get_name();
-                    echo "<a href=\"../../conf/pluginsid.php?id=$plugin_id&" . "name=$name\">$name</a> ($plugin_id)";
+                    echo "<a href=\"../../conf/pluginsid.php?id=$plugin_id&" . "name=$name\" target=\"main\">$name</a> ($plugin_id)";
                 }
             }
 ?>
