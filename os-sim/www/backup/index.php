@@ -233,6 +233,12 @@ echo gettext("Percent"); ?></th>
 <?php
 $db1 = new ossim_db();
 $conn1 = $db1->connect();
+$cmd = "ps ax | grep restore_db.pl | grep -v grep";
+$output = explode("\n",`$cmd`);
+if (count($output) == 1 && $output[0] == "") {
+	// Posibily failed
+	$conn1->Execute("UPDATE restoredb_log SET status=-1 WHERE status=1");
+}
 $query = OssimQuery("SELECT * FROM restoredb_log ORDER BY id DESC LIMIT 10");
 if (!$rs1 = $conn1->Execute($query)) {
     print 'error: ' . $conn1->ErrorMsg() . '<BR>';
@@ -260,6 +266,10 @@ foreach ($results as $rs1) {
 				<td><font color="orange"><b><?php
         echo gettext("Running"); ?></b></font></td>
 	<?php
+    } elseif ($rs1['status'] == -1) { ?>
+    			<td><font color="red"><b><?php
+        echo gettext("Failed"); ?></b></font></td>
+    <?php
     } else { ?>
 				<td><font color="green"><b><?php
         echo gettext("Done"); ?></b></font></td>
