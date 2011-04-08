@@ -72,6 +72,9 @@
 require_once('ossim_conf.inc');
 require_once ('classes/Session.inc');
 
+ini_set('memory_limit', '1500M');
+ini_set("max_execution_time","720");
+
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
 ?>

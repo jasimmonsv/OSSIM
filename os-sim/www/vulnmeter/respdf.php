@@ -70,7 +70,8 @@
 /***********************************************************/
 
 #error_reporting(E_ALL);
-ini_set('memory_limit', '768M');
+ini_set('memory_limit', '1500M');
+ini_set("max_execution_time","720");
 
 define('FPDF_FONTPATH','inc/font/');
 require('inc/pdf.php');
@@ -242,8 +243,6 @@ if ( $critical ) {
 if ( $filterip ) {
     $query_host = "AND t1.hostIP='$filterip'";
 }
-
-ini_set("max_execution_time","360");
 
 if ($scansubmit!="") {
    $query = "SELECT r.report_id FROM vuln_nessus_reports r,vuln_jobs j WHERE r.report_id=j.report_id AND j.scan_SUBMIT='$scansubmit'

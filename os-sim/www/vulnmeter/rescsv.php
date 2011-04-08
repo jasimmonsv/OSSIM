@@ -74,6 +74,8 @@ require_once('functions.inc');
 require_once('classes/Session.inc');
 require_once('ossim_conf.inc');
 
+ini_set('memory_limit', '1500M');
+ini_set("max_execution_time","720");
 
 //require_once('auth.php');
 //include ('permissions.inc.php');
@@ -231,9 +233,6 @@ else {
 
 //Generated date
 $gendate = date("Y-m-d H:i:s");
-
-
-ini_set("max_execution_time","360");
 
 if ( ! $report_id ) {
     //logAccess( "ATTEMPT TO ACCESS INVALID NESSUS REPORT" );
