@@ -127,6 +127,7 @@ class Port {
     }
     function port2service($conn, $port, $protocol = "tcp") {
         if (($protocol != "tcp") and ($protocol != "udp")) return $port;
+        if (isset($_SESSION['_port2service'][$port][$protocol])) return $_SESSION['_port2service'][$port][$protocol];
         /* first look at ossim.port table */
         $sql = "SELECT service FROM port WHERE port_number = ? AND protocol_name = ?";
         $params = array(
@@ -149,9 +150,11 @@ class Port {
             if ($conn->Execute($sql, $params) === false) {
                 print 'error inserting port info: ' . $conn->ErrorMsg() . '<BR>';
             }
+            $_SESSION['_port2service'][$port][$protocol] = $service;
             return $service;
         }
         /* getservbyport failed */
+        $_SESSION['_port2service'][$port][$protocol] = $port;
         return $port;
     }
 }
