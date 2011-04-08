@@ -69,14 +69,14 @@ if ($socket < 0) {
     printf(gettext("socket_create() failed: reason: %s\n") , socket_strerror($socket));
 }
 /* connect */
-$result = socket_connect($socket, $address, $port);
+$result = @socket_connect($socket, $address, $port);
 if ($result < 0) {
     printf(gettext("socket_connect() failed: reason: %s %s\n") , $result, socket_strerror($result));
 }
 $in = 'connect id="1" type="web"' . "\n";
 $out = '';
-socket_write($socket, $in, strlen($in));
-$out = socket_read($socket, 2048);
+@socket_write($socket, $in, strlen($in));
+$out = @socket_read($socket, 2048);
 if (strncmp($out, 'ok id="1"', 9) != 0) {
     // If the server is down / unavailable, clear the need to reload
     // Switch off web indicator
