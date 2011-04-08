@@ -15359,7 +15359,7 @@ INSERT INTO `custom_report_types` (`id`, `name`, `type`, `file`, `inputs`, `sql`
 (409, 'Page break', 'Page break', 'Common/pagebreak.php', '', '', 1),
 (410, 'Page break', 'Page break', 'Common/pagebreak.php', '', '', 1),
 (420, 'Summary of filters applied', 'Summary of filters applied', 'Common/summary.php', '', '', 1),
-(440, 'Title Page', 'Title Page', 'Common/titlepage.php', 'Logo:logo:FILE:OSS_NULLABLE::;I.T. Security:it_security:text:OSS_TEXT.OSS_PUNC_EXT::35;Address:address:text:OSS_TEXT.OSS_PUNC_EXT::35;Tel:tlfn:text:OSS_TEXT.OSS_PUNC_EXT::;Date:date:text:OSS_TEXT.OSS_PUNC_EXT::', '', 1),
+(440, 'Title Page', 'Title Page', 'Common/titlepage.php', 'Logo:logo:FILE:OSS_NULLABLE::;I.T. Security:it_security:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Address:address:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Tel:tlfn:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::;Date:date:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::', '', 1),
 (460, 'Networks', 'PCI - Wireless', 'Various/Wireless_networks.php', 'Wireless location:location:select:OSS_ALPHA.OSS_SPACE:LOCATION:', '', 1),
 (461, 'Cloaked Networks having uncloaked APs', 'PCI - Wireless', 'Various/Wireless_aps.php', 'Wireless location:location:select:OSS_ALPHA.OSS_SPACE:LOCATION:', '', 1),
 (462, 'Encrypted Networks having unencrypted APs', 'PCI - Wireless', 'Various/Wireless_aps.php', 'Wireless location:location:select:OSS_ALPHA.OSS_SPACE:LOCATION:', '', 1),

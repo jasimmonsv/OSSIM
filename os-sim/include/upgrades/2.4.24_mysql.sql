@@ -2,6 +2,7 @@ use ossim;
 SET AUTOCOMMIT=0;
 BEGIN;
 
+UPDATE custom_report_types SET inputs = 'Logo:logo:FILE:OSS_NULLABLE::;I.T. Security:it_security:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Address:address:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Tel:tlfn:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::;Date:date:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::' WHERE id=440;
 REPLACE INTO config (conf, value) VALUES ('server_logger_if_priority', '0');
 
 -- WARNING! Keep this at the end of this file

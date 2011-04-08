@@ -3,7 +3,7 @@ SET AUTOCOMMIT=0;
 BEGIN;
 
 UPDATE custom_report_types SET inputs = 'Status:status:select:OSS_LETTER:Open,Closed,All' WHERE id in (320,321,322,323,324);
-UPDATE custom_report_types SET inputs = 'Logo:logo:FILE:OSS_NULLABLE::;I.T. Security:it_security:text:OSS_TEXT.OSS_PUNC_EXT::35;Address:address:text:OSS_TEXT.OSS_PUNC_EXT::35;Tel:tlfn:text:OSS_TEXT.OSS_PUNC_EXT::;Date:date:text:OSS_TEXT.OSS_PUNC_EXT::' WHERE id=440;
+UPDATE custom_report_types SET inputs = 'Logo:logo:FILE:OSS_NULLABLE::;I.T. Security:it_security:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Address:address:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::35;Tel:tlfn:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::;Date:date:text:OSS_TEXT.OSS_PUNC_EXT.OSS_NULLABLE::' WHERE id=440;
 REPLACE INTO config (conf, value) VALUES ('nessus_pre_scan_locally', '1');
 REPLACE INTO config (conf, value) VALUES ('server_logger_if_priority', '1');
 
