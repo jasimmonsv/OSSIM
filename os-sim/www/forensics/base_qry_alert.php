@@ -436,7 +436,7 @@ $hosts_ips = array_keys($hosts);
 // Source
 $country = strtolower(geoip_country_code_by_addr($gi, $current_sip));
 $country_name = geoip_country_name_by_addr($gi, $current_sip);
-$country_img = ($country) ? " <img src=\"../pixmaps/flags/" . $country . ".png\" alt=\"$country_name\" title=\"$country_name\">" : "";
+$country_img = ($country) ? " <img src=\"../pixmaps/flags/" . $country . ".png\" border='0' alt=\"$country_name\" title=\"$country_name\">" : "";
 $sip_aux = ($sensors[$current_sip] != "") ? $sensors[$current_sip] : (($hosts[$current_sip] != "") ? $hosts[$current_sip] : $current_sip);
 if ($sip_aux!=$current_sip)
 	$sip_aux = "[$sip_aux] $current_sip";
@@ -445,7 +445,7 @@ $ip_src_data = '<A HREF="base_stat_ipaddr.php?ip=' . $current_sip . '&amp;netmas
 // Destionation
 $country = strtolower(geoip_country_code_by_addr($gi, $current_dip));
 $country_name = geoip_country_name_by_addr($gi, $current_dip);
-$country_img = ($country) ? " <img src=\"../pixmaps/flags/" . $country . ".png\" alt=\"$country_name\" title=\"$country_name\">" : "";
+$country_img = ($country) ? " <img src=\"../pixmaps/flags/" . $country . ".png\" border='0' alt=\"$country_name\" title=\"$country_name\">" : "";
 $dip_aux = ($sensors[$current_dip] != "") ? $sensors[$current_dip] : (($hosts[$current_dip] != "") ? $hosts[$current_dip] : $current_dip);
 if ($dip_aux!=$current_dip)
 	$dip_aux = "[$dip_aux] $current_dip";
