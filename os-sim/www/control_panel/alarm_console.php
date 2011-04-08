@@ -838,7 +838,11 @@ if ($count > 0) {
         $alarm_name_orig = $alarm_name;
         if ($backlog_id && $id==1505) {
             $events_link = "events.php?backlog_id=$backlog_id";
-            $alarm_name = "<a href=\"\"  onclick=\"show_alarm('" . $backlog_id . "','" . ($inf) . "');return false;\">$alarm_name</a>";
+            if ($event_count_label > 0) {
+            	$alarm_name = "<a href=\"\"  onclick=\"show_alarm('" . $backlog_id . "','" . ($inf) . "');return false;\">$alarm_name</a>";
+            } else {
+            	$alarm_name = "<a href=\"\"  onclick=\"return false;\">$alarm_name</a>";
+            }
         } else {
             $events_link = $_SERVER["SCRIPT_NAME"];
             /*$alarm_link = Util::get_acid_pair_link($date, $alarm->get_src_ip() , $alarm->get_dst_ip());*/
