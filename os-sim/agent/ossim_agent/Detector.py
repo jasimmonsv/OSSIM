@@ -151,7 +151,7 @@ class Detector(threading.Thread):
 
 
     def _plugin_defaults(self, event):
-
+        ipv4_reg = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         # get default values from config
         #
         if self._conf.has_section("plugin-defaults"):
@@ -166,7 +166,7 @@ class Detector(threading.Thread):
 
         # 2) sensor
             default_sensor = self._conf.get("plugin-defaults", "sensor")
-            if event["sensor"] is None and default_sensor and \
+            if event["sensor"] is None  and default_sensor and \
                'sensor' in event.EVENT_ATTRS:
                 event["sensor"] = default_sensor
 
@@ -194,6 +194,24 @@ class Detector(threading.Thread):
             if event["src_ip"] in ('127.0.0.1', '127.0.1.1'):
                 event["src_ip"] = default_sensor
 
+            #Check if valid ip, if not we put 0.0.0.0 in sensor field
+            if not re.match(ipv4_reg, event['src_ip']):
+                data = event['src_ip']
+                event['src_ip'] = '0.0.0.0'
+                logger.warning("Event's field src_ip is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata8")
+                event['userdata8'] = data
+            #Check if valid ip, if not we put 0.0.0.0 in sensor field
+            if not re.match(ipv4_reg, event['dst_ip']):
+                data = event['dst_ip']
+                logger.warning("Event's field dst_ip is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata9")
+                event['dst_ip'] = '0.0.0.0'
+                event['userdata9'] = data
+            #Check if valid ip, if not we put 0.0.0.0 in sensor field
+            if not re.match(ipv4_reg, event['sensor']):
+                data = event['sensor']
+                logger.warning("Event's field sensor is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata7")
+                event['sensor'] = '0.0.0.0'
+                event['userdata7'] = data
 
         # the type of this event should always be 'detector'
         if event["type"] is None and 'type' in event.EVENT_ATTRS:
@@ -203,43 +221,6 @@ class Detector(threading.Thread):
 
         return event
 
-#    def normalizeToUTCDate(self, event):
-#        plugin_date_str = event["fdate"]
-#        #2011-02-01 17:00:16
-#        matchgroup1 = self.patternISO_date.match(event["fdate"])
-#        plugin_dt = datetime(year=int(matchgroup1.group("year")), month=int(matchgroup1.group("month")), day=int(matchgroup1.group("day")), hour=int(matchgroup1.group("hour")), minute=int(matchgroup1.group("minute")), second=int(matchgroup1.group("second")))
-#        used_tzone = strftime("%z", gmtime())
-#        if self._timezone in all_timezones:
-#            used_tzone = self._timezone
-#            logger.debug("Using custom plugin tzone data: %s" % used_tzone)
-#        elif self._agenttimezone in all_timezones:
-#            used_tzone = self._agenttimezone
-#            logger.info("Warning: Invalid plugin tzone information. Using agent tzone: %s" % used_tzone)
-#        else:
-#            logger.info("Warning: Invalid plugin tzone and invalid agent tzone, using system tzone: %s" % systemtzone)
-#        logger.debug("Plugin localtime date: %s", plugin_dt)
-#        plugin_tz = timezone(used_tzone)
-#        logger.debug("Plugin tzone: %s" % plugin_tz.zone)
-#        plugin_localized_date = plugin_tz.localize(plugin_dt)
-#        logger.debug("Plugin localized time: %s" % plugin_localized_date)
-#        matchgroup2 = self.patternUTClocalized.match(str(plugin_localized_date))
-#        tzone_symbol = matchgroup2.group("tzone_symbol")
-#        tzone_hour = matchgroup2.group("tzone_hour")
-#        tzone_min = matchgroup2.group("tzone_min")
-#        tzone_float = (float(tzone_hour) * 60 + float(tzone_min)) / 60
-#        
-#        if tzone_symbol == "-":
-#            tzone_float = -1 * tzone_float
-#        logger.debug("Calculated float timezone: %s" % tzone_float)
-#        utc_tz = pytz.utc
-#        plugin_utc_dt = plugin_localized_date.astimezone(utc_tz)
-#        logger.debug("Plugin UTC Date: %s", plugin_utc_dt)
-#        dateformat = "%Y-%m-%d %H:%M:%S"
-#        logger.debug("Plugin UTC ISO Normalized date: %s" % plugin_utc_dt.strftime(dateformat))
-#        event['tzone'] = tzone_float
-#        if 'fdate' in event.EVENT_ATTRS:
-#            event["date"] = int(mktime(plugin_utc_dt.timetuple()))
-#            event["fdate"] = plugin_utc_dt.strftime(dateformat)
 
     def send_message(self, event):
 
