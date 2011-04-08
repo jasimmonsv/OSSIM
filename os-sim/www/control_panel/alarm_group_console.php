@@ -734,12 +734,12 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=0;document.getElementById('sup').value=<?php echo $ROWS ?>;form_submit();return false">&lt;<?php echo _("First") ?>&nbsp;</a>
 					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($inf - $ROWS) ?>;document.getElementById('sup').value=<?php echo ($sup - $ROWS) ?>;form_submit();return false">&lt;-<?php printf(gettext("Prev %d") , $ROWS) ?></a>
 				<?php } if ($sup < $count) { ?>
-					&nbsp;&nbsp;(<?php printf(gettext("%d-%d of %d") , $inf, $sup, $count) ?>)&nbsp;&nbsp;
+					&nbsp;&nbsp;(<?php printf(gettext("%d-%d of %d") , $inf+1, $sup, $count) ?>)&nbsp;&nbsp;
 					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($inf + $ROWS) ?>;document.getElementById('sup').value=<?php echo ($sup + $ROWS) ?>;form_submit();return false"><?php printf(gettext("Next %d") , $ROWS) ?> -&gt;</a>
 					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($count - $ROWS) ?>;document.getElementById('sup').value=<?php echo $count ?>;form_submit();return false">&nbsp;<?php echo _("Last") ?> &gt;</a>
 				<?php } else {
 					echo "&nbsp;&nbsp;(";
-					printf(gettext("%d-%d of %d") , $inf, $count, $count);
+					printf(gettext("%d-%d of %d") , $inf+1, $count, $count);
 					echo ")&nbsp;&nbsp;";
 				}
 				?>
@@ -872,12 +872,12 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=0;document.getElementById('sup').value=<?php echo $ROWS ?>;form_submit();return false">&lt;<?php echo _("First") ?>&nbsp;</a>
 					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($inf - $ROWS) ?>;document.getElementById('sup').value=<?php echo ($sup - $ROWS) ?>;form_submit();return false">&lt;-<?php printf(gettext("Prev %d") , $ROWS) ?></a>
 				<?php } if ($sup < $count) { ?>
-					&nbsp;&nbsp;(<?php printf(gettext("%d-%d of %d") , $inf, $sup, $count) ?>)&nbsp;&nbsp;
+					&nbsp;&nbsp;(<?php printf(gettext("%d-%d of %d") , $inf+1, $sup, $count) ?>)&nbsp;&nbsp;
 					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($inf + $ROWS) ?>;document.getElementById('sup').value=<?php echo ($sup + $ROWS) ?>;form_submit();return false"><?php printf(gettext("Next %d") , $ROWS) ?> -&gt;</a>
 					<a href="" onclick="document.getElementById('action').value='change_page';document.getElementById('inf').value=<?php echo ($count - $ROWS) ?>;document.getElementById('sup').value=<?php echo $count ?>;form_submit();return false">&nbsp;<?php echo _("Last") ?> &gt;</a>
 				<?php } else {
 					echo "&nbsp;&nbsp;(";
-					printf(gettext("%d-%d of %d") , $inf, $count, $count);
+					printf(gettext("%d-%d of %d") , $inf+1, $count, $count);
 					echo ")&nbsp;&nbsp;";
 				}
 				print "</td></tr>";

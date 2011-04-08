@@ -657,7 +657,7 @@ if ($inf >= $ROWS) {
 }
 if ($sup < $count) {
     echo "&nbsp;&nbsp;(";
-    printf(gettext("%d-%d of %d") , $inf, $sup, $count);
+    printf(gettext("%d-%d of %d") , $inf+1, $sup, $count);
     echo ")&nbsp;&nbsp;";
     echo "<a href=\"$sup_link\">";
     printf(gettext("Next %d") , $ROWS);
@@ -667,7 +667,7 @@ if ($sup < $count) {
     echo " -&gt;&gt;</a>";
 } else {
     echo "&nbsp;&nbsp;(";
-    printf(gettext("%d-%d of %d") , $inf, $count, $count);
+    printf(gettext("%d-%d of %d") , $inf+1, $count, $count);
     echo ")&nbsp;&nbsp;";
 }
 ?>
@@ -1040,14 +1040,14 @@ $tmp_eid = $alarm->get_event_id();
     }
     if ($sup < $count) {
         echo "&nbsp;&nbsp;(";
-        printf(gettext("%d-%d of %d") , $backup_inf, $sup, $count);
+        printf(gettext("%d-%d of %d") , $backup_inf+1, $sup, $count);
         echo ")&nbsp;&nbsp;";
         echo "<a href=\"$sup_link\">";
         printf(gettext("Next %d") , $ROWS);
         echo " -&gt;</a>";
     } else {
         echo "&nbsp;&nbsp;(";
-        printf(gettext("%d-%d of %d") , $backup_inf, $count, $count);
+        printf(gettext("%d-%d of %d") , $backup_inf+1, $count, $count);
         echo ")&nbsp;&nbsp;";
     }
 ?>
