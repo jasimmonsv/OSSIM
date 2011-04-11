@@ -60,6 +60,15 @@ if (!isset($row_num)) {
 if (!isset($_SESSION['plugins_to_show'])) $_SESSION['plugins_to_show'] = array();
 // responder js
 if (GET('modo') == "responder") {
+    // Timezone correction
+    $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+	if (preg_match("/(.*)\.(.*)/","$tz",$fnd)) {
+		$fnd[0] = ($fnd[0]>0) ? "+".$fnd[0] : $fnd[0];
+		$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
+        $tzc = $fnd[0].":".$fnd[1];
+	} else {
+        $tzc = ($tz>0) ? "+$tz:00" : "$tz:00";	
+	}
     $plugins = "";
     $plgs = explode(",",GET('plugins'));
     foreach ($plgs as $encoded) $plugins .= ",".base64_decode($encoded);
@@ -72,7 +81,7 @@ if (GET('modo') == "responder") {
 		$firstlimit = (Session::allowedSensors() != "") ? " limit 99999" : " limit $max_rows";
         $key_index = ($plugins != "") ? "" : str_replace("IND","timestamp",$key_index);
         //$sql = 'select "0" as plugin_id,"0" as plugin_sid, unix_timestamp(timestamp) as id, sid, signature.sig_name as plugin_sid_name, inet_ntoa(ip_src) as aux_src_ip, inet_ntoa(ip_dst) as aux_dst_ip, timestamp, ossim_risk_a as risk_a, ossim_risk_c as risk_c, (select substring_index(substring_index(hostname,":",1),"-",1) from sensor where sensor.sid = acid_event.sid) as sensor, layer4_sport as src_port, layer4_dport as dst_port, ossim_priority as priority, ossim_reliability as reliability, ossim_asset_src as asset_src, ossim_asset_dst as asset_dst, ip_proto as protocol, (select interface from sensor where sensor.sid = acid_event.sid) as interface from acid_event force index(' . $index . '), signature WHERE signature.sig_id=acid_event.signature ' . $where . ' order by timestamp desc'.$firstlimit;
-        $sql = "select $acid_table.plugin_id, $acid_table.plugin_sid, unix_timestamp(timestamp) as id, $acid_table.sid, plugin_sid.name as plugin_sid_name, inet_ntoa(ip_src) as aux_src_ip, inet_ntoa(ip_dst) as aux_dst_ip, timestamp, ossim_risk_a as risk_a, ossim_risk_c as risk_c, (select substring_index(substring_index(hostname,':',1),'-',1) from sensor where sensor.sid = $acid_table.sid) as sensor, layer4_sport as src_port, layer4_dport as dst_port, ossim_priority as priority, ossim_reliability as reliability, ossim_asset_src as asset_src, ossim_asset_dst as asset_dst, ip_proto as protocol, (select interface from sensor where sensor.sid = $acid_table.sid) as interface from $acid_table $key_index LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=$acid_table.plugin_id AND plugin_sid.sid=$acid_table.plugin_sid WHERE 1=1 " . $where . " order by timestamp desc".$firstlimit;
+        $sql = "select $acid_table.plugin_id, $acid_table.plugin_sid, unix_timestamp(timestamp) as id, $acid_table.sid, plugin_sid.name as plugin_sid_name, inet_ntoa(ip_src) as aux_src_ip, inet_ntoa(ip_dst) as aux_dst_ip, convert_tz(timestamp,'+00:00','$tzc') as timestamp, ossim_risk_a as risk_a, ossim_risk_c as risk_c, (select substring_index(substring_index(hostname,':',1),'-',1) from sensor where sensor.sid = $acid_table.sid) as sensor, layer4_sport as src_port, layer4_dport as dst_port, ossim_priority as priority, ossim_reliability as reliability, ossim_asset_src as asset_src, ossim_asset_dst as asset_dst, ip_proto as protocol, (select interface from sensor where sensor.sid = $acid_table.sid) as interface from $acid_table $key_index LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=$acid_table.plugin_id AND plugin_sid.sid=$acid_table.plugin_sid WHERE 1=1 " . $where . " order by timestamp desc".$firstlimit;
 		
 		// Reselect when SENSOR is specified (better than join tables)
 		if (Session::allowedSensors() != "") {
