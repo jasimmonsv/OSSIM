@@ -411,6 +411,7 @@ class Host {
     }
 	
 	function update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="", $fqdns="") {
+		$old_hostname=Host::ip2hostname($conn, $ip);
         settype($fqdns, "string");  
 		settype($asset, "int");
         settype($threshold_c, "int");
@@ -477,6 +478,19 @@ class Host {
                 $conn->Execute($sql, $params);
             }
         }
+		// Agent update
+    	$frcon = new Frameworkd_socket();
+        if (!$frcon->status) {
+            echo gettext("Can't connect to frameworkd...<br>");
+        }
+        else {
+        	$error_code = $frcon->write('remove_asset hostname='.$old_hostname);
+        	$error_code1 = $frcon->write('add_asset hostname='.$hostname.' ip='.$ip);
+        	if (!$error_code || !$error_code1) {
+        		echo _("An error has been found updating the Agent cache...<br>");
+        	}
+        }
+        
         $infolog = array(
             $hostname,
             "[" . $ip . "]"
@@ -486,6 +500,7 @@ class Host {
         WebIndicator::set_on("ReloadPolicy");
     }
     function delete($conn, $ip) {
+    	$hostname=Host::ip2hostname($conn, $ip);
 		Host_sensor_reference::delete($conn, $ip);
         Host_qualification::delete($conn, $ip);
         Host_services::delete($conn, $ip);
