@@ -44,7 +44,7 @@ from Logger import Logger
 from Output import Output
 from Stats import Stats
 from Threshold import EventConsolidation
-#import re
+import re
 #from datetime import datetime, timedelta
 from pytz import timezone, all_timezones
 #import pytz
@@ -195,23 +195,26 @@ class Detector(threading.Thread):
                 event["src_ip"] = default_sensor
 
             #Check if valid ip, if not we put 0.0.0.0 in sensor field
-            if not re.match(ipv4_reg, event['src_ip']):
-                data = event['src_ip']
-                event['src_ip'] = '0.0.0.0'
-                logger.warning("Event's field src_ip is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata8")
-                event['userdata8'] = data
+            if event['src_ip'] is not None:
+                if not re.match(ipv4_reg, event['src_ip']):
+                    data = event['src_ip']
+                    event['src_ip'] = '0.0.0.0'
+                    logger.warning("Event's field src_ip is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata8")
+                    event['userdata8'] = data
             #Check if valid ip, if not we put 0.0.0.0 in sensor field
-            if not re.match(ipv4_reg, event['dst_ip']):
-                data = event['dst_ip']
-                logger.warning("Event's field dst_ip is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata9")
-                event['dst_ip'] = '0.0.0.0'
-                event['userdata9'] = data
+            if event['dst_ip'] is not None:
+                if not re.match(ipv4_reg, event['dst_ip']):
+                    data = event['dst_ip']
+                    logger.warning("Event's field dst_ip is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata9")
+                    event['dst_ip'] = '0.0.0.0'
+                    event['userdata9'] = data
             #Check if valid ip, if not we put 0.0.0.0 in sensor field
-            if not re.match(ipv4_reg, event['sensor']):
-                data = event['sensor']
-                logger.warning("Event's field sensor is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata7")
-                event['sensor'] = '0.0.0.0'
-                event['userdata7'] = data
+            if event['sensor'] is not None:
+                if not re.match(ipv4_reg, event['sensor']):
+                    data = event['sensor']
+                    logger.warning("Event's field sensor is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata7")
+                    event['sensor'] = '0.0.0.0'
+                    event['userdata7'] = data
 
         # the type of this event should always be 'detector'
         if event["type"] is None and 'type' in event.EVENT_ATTRS:
