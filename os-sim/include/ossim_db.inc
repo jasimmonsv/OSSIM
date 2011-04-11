@@ -84,18 +84,25 @@ class ossim_db {
         return $this->nconnect();
     }
     function pconnect() {
+    	ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($this->conf->get_conf("ossim_type"));
-        $this->conn->PConnect($this->conf->get_conf("ossim_host") , $this->conf->get_conf("ossim_user") , $this->conf->get_conf("ossim_pass") , $this->conf->get_conf("ossim_base"));
+        $err = $this->conn->PConnect($this->conf->get_conf("ossim_host") , $this->conf->get_conf("ossim_user") , $this->conf->get_conf("ossim_pass") , $this->conf->get_conf("ossim_base"));
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
+        ini_set("display_errors", "1");
         return $this->conn;
     }
     function nconnect() {
+    	ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($this->conf->get_conf("ossim_type"));
-        $this->conn->NConnect($this->conf->get_conf("ossim_host") , $this->conf->get_conf("ossim_user") , $this->conf->get_conf("ossim_pass") , $this->conf->get_conf("ossim_base"));
+        $err = $this->conn->NConnect($this->conf->get_conf("ossim_host") , $this->conf->get_conf("ossim_user") , $this->conf->get_conf("ossim_pass") , $this->conf->get_conf("ossim_base"));
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
+        ini_set("display_errors", "1");
         return $this->conn;
     }
     function custom_connect($host,$user,$pass) {
+    	ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($this->conf->get_conf("ossim_type"));
-        $this->conn->NConnect($host, $user, $pass, $this->conf->get_conf("ossim_base"));
+        $err = $this->conn->NConnect($host, $user, $pass, $this->conf->get_conf("ossim_base"));
         return $this->conn;
     }
     function snort_connect() {
@@ -105,8 +112,11 @@ class ossim_db {
         $pass = $conf->get_conf("snort_pass");
         $host = $conf->get_conf("snort_host");
         $type = $conf->get_conf("snort_type");
+        ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
-        $this->conn->NConnect($host, $user, $pass, $base);
+        $err = $this->conn->NConnect($host, $user, $pass, $base);
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
+        ini_set("display_errors", "1");
         return $this->conn;
     }
 	function snort_custom_connect($base) {
@@ -115,8 +125,11 @@ class ossim_db {
         $pass = $conf->get_conf("snort_pass");
         $host = $conf->get_conf("snort_host");
         $type = $conf->get_conf("snort_type");
+        ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
-        $this->conn->NConnect($host, $user, $pass, $base);
+        $err = $this->conn->NConnect($host, $user, $pass, $base);
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
+        ini_set("display_errors", "1");
         return $this->conn;
     }
     function opennms_connect() {
@@ -126,8 +139,11 @@ class ossim_db {
         $pass = $conf->get_conf("opennms_pass");
         $host = $conf->get_conf("opennms_host");
         $type = $conf->get_conf("opennms_type");
+        ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
-        $this->conn->NConnect($host, $user, $pass, $base);
+        $err = $this->conn->NConnect($host, $user, $pass, $base);
+        if (!$err) die(ossim_error(_("Unable to connect to BBDD")));
+        ini_set("display_errors", "1");
         return $this->conn;
     }
     function phpgacl_connect() {
@@ -137,9 +153,16 @@ class ossim_db {
         $pass = $conf->get_conf("phpgacl_pass");
         $host = $conf->get_conf("phpgacl_host");
         $type = $conf->get_conf("phpgacl_type");
+        ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
-        if ($this->conn->NConnect($host, $user, $pass, $base)) return $this->conn;
-        else return NULL;
+        if ($this->conn->NConnect($host, $user, $pass, $base)) {
+        	ini_set("display_errors", "1");
+        	return $this->conn;
+        }
+        else {
+        	die(ossim_error(_("Unable to connect to BBDD")));
+        	return NULL;
+        }
     }
     function osvdb_connect() {
         $conf = $GLOBALS["CONF"];
@@ -148,9 +171,16 @@ class ossim_db {
         $pass = $conf->get_conf("osvdb_pass");
         $host = $conf->get_conf("osvdb_host");
         $type = $conf->get_conf("osvdb_type");
+        ini_set("display_errors", "0");
         $this->conn = & ADONewConnection($type);
-        if ($this->conn->NConnect($host, $user, $pass, $base)) return $this->conn;
-        else return NULL;
+        if ($this->conn->NConnect($host, $user, $pass, $base)) {
+        	ini_set("display_errors", "1");
+        	return $this->conn;
+        }
+        else {
+        	die(ossim_error(_("Unable to connect to BBDD")));
+        	return NULL;
+        }
     }
     function close($conn) {
         $conn->Close();
