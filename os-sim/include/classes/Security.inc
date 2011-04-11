@@ -265,7 +265,7 @@ define('OSS_DOT', '\.');
 define('OSS_MIDDLEDOT', '\Â·');
 define('OSS_COLON', ':');
 define('OSS_AT', '@');
-define('OSS_MAC', 'a-fA-F0-9:');
+define('OSS_MAC', 'func:valid_mac');
 define('OSS_BRACKET', '\[\]\{\}');
 define('OSS_PUNC_EXT', '\'"\.\!#\$%\^&\*_\-\=\+\:;,@\[\]\{\}\|\?\\\(\)\/ºª·' . OSS_SPACE);
 // Temporary fix, need to check out each and every OSS_PUNC use throughout the code
@@ -735,6 +735,18 @@ function valid_ipcidr($ip) {
     ossim_set_error(_("Invalid IP/CIDR address. Format allowed: nnn.nnn.nnn.nnn/nn?") . "<br/>Entered ip: '<b>$ip</b>'");
     return false;
 }
+
+
+function valid_mac($mac)
+{
+	if ( preg_match('/^[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}$/i',$mac) )
+		return true;
+		
+	ossim_set_error(_("Invalid MAC address. Format allowed: nn:nn:nn:nn:nn:nn, n=[a-f0-9]") . "<br/>Entered MAC: '<b>$mac</b>'");
+    return false;
+}
+
+
 
 function valid_fqdns($fqdns)
 {

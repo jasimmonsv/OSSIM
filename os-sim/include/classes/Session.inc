@@ -1472,9 +1472,15 @@ class DBA_shared {
 	function get($key) {
 		$value = "";
 		if ($f = @dba_open($this->dbfile, "rl", "db4")) {
-			if (dba_exists($key,$f)) $value = dba_fetch($key,$f);
-			dba_close($f);
-			return ($this->is_serialized($value)) ? unserialize($value) : $value;
+		
+		if (dba_exists($key,$f)) 
+		{
+			$value = dba_fetch($key,$f);
+			$aux   = @unserialize($value);
+			return ( $aux == false ) ? $value : unserialize($value);
+		}
+		dba_close($f);
+			
 		}
 		return $value;
 	}
@@ -1489,13 +1495,6 @@ class DBA_shared {
 
 	function dbfile() {
 		return $this->dbfile;
-	}
-
-	private function is_serialized($val){ 
-	    if (!is_string($val)) { return false; } 
-	    if (trim($val) == "") { return false; }  
-	    if (preg_match("/^(i|s|a|o|d):(.*);/si",$val) !== false) { return true; } 
-	    return false; 
 	}
 
 }

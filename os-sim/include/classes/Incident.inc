@@ -354,18 +354,12 @@ class Incident {
         
 		$event = array(
             'src_ips' => array(
-                OSS_LETTER,
-                OSS_DIGIT,
-                OSS_PUNC,
-                OSS_SPACE,
+                OSS_IP_ADDRCIDR,
                 OSS_NULLABLE,
                 'illegal:' . _("Source Ips")
             ) ,
             'dst_ips' => array(
-                OSS_LETTER,
-                OSS_DIGIT,
-                OSS_PUNC,
-                OSS_SPACE,
+                OSS_IP_ADDRCIDR,
                 OSS_NULLABLE,
                 'illegal:' . _("Dest Ips")
             ) ,
@@ -389,9 +383,7 @@ class Incident {
 		
         $metric = array(
             'target' => array(
-                OSS_PUNC,
-                OSS_ALPHA,
-                OSS_SPACE,
+                OSS_IP_ADDRCIDR,
                 OSS_NULLABLE,
                 'illegal:' . _("Target")
             ) ,
@@ -409,12 +401,10 @@ class Incident {
                 'illegal:' . _("Metric value")
             )
         );
-        $vulnerability = array(
+        
+		$vulnerability = array(
             'ip' => array(
-                OSS_LETTER,
-                OSS_DIGIT,
-                OSS_PUNC,
-                OSS_SPACE,
+                OSS_IP_ADDRCIDR,
                 OSS_NULLABLE,
                 'illegal:' . _("Ip")
             ) ,
@@ -444,11 +434,86 @@ class Incident {
             )
         );
 		
+		$anomaly = array(
+            'ip' => array(
+                OSS_IP_ADDR,
+                OSS_NULLABLE,
+                'illegal:' . _("Host")
+            ),
+			
+			'sensor' => array(
+                OSS_IP_ADDR,
+                OSS_NULLABLE,
+                'illegal:' . _("Sensor")
+            ),
+			'port' => array(
+                OSS_LETTER,
+                OSS_DIGIT,
+                OSS_PUNC,
+                OSS_SPACE,
+                OSS_NULLABLE,
+                'illegal:' . _("Port")
+            ),
+			'new_mac'  => array(
+                OSS_MAC,
+                OSS_NULLABLE,
+                'illegal:' . _("New MAC")
+            ),
+			'old_mac'  => array(
+                OSS_MAC,
+                OSS_NULLABLE,
+                'illegal:' . _("Old MAC")
+            ),
+			'new_vendor'  => array(
+                OSS_ALPHA,
+				OSS_PUNC_EXT,
+				OSS_NULLABLE,
+                'illegal:' . _("New Vendor")
+            ),
+			'old_vendor'  => array(
+                OSS_ALPHA,
+				OSS_PUNC_EXT,
+				OSS_NULLABLE,
+                'illegal:' . _("Old Vendor")
+            ),
+			'new_version'  => array(
+                OSS_ALPHA,
+				OSS_PUNC_EXT,
+				OSS_NULLABLE,
+                'illegal:' . _("New Version")
+            ),
+			'old_version'  => array(
+                OSS_ALPHA,
+				OSS_PUNC_EXT,
+				OSS_NULLABLE,
+                'illegal:' . _("Old Version")
+            ),
+			'new_protocol'  => array(
+                OSS_ALPHA,
+				OSS_PUNC_EXT,
+				OSS_NULLABLE,
+                'illegal:' . _("New Prococol")
+            ),
+			'old_protocol'  => array(
+                OSS_ALPHA,
+				OSS_PUNC_EXT,
+				OSS_NULLABLE,
+                'illegal:' . _("Old Prococol")
+            ),
+			'when'  => array(
+                OSS_ALPHA,
+				OSS_PUNC_EXT,
+				OSS_NULLABLE,
+                'illegal:' . _("When")
+            )
+        );
+		
         if ($type == 'incident_insert') return array_merge($incident, $incident_insert);
         if ($type == 'incident_update') return array_merge($incident, $incident_update);
         if ($type == 'event')           return $event;
         if ($type == 'metric')          return $metric;
         if ($type == 'vulnerability')   return $vulnerability;
+		if ($type == 'anomaly')         return $anomaly;
     }
 	
     function colorize_status($status,$returnEcho=false) {
@@ -561,16 +626,9 @@ class Incident {
         require_once ('classes/Session.inc');
         require_once ('classes/CIDR.inc');
         
-		if ( empty($user) && empty($assets) ) // admin
-		{
-			$args = " WHERE 1=1 ". $args; 
-			$list = Incident::get_list($conn, $args);
-			return $list;
-		}
-		
 		if ( $user != '' )
 		{
-			$args = " WHERE 1=1 ". $args;
+			$args = " WHERE 1=1 ". $args; 
 			$list = Incident::get_list($conn, $args, $user);
 			return $list;
 		}
@@ -641,7 +699,7 @@ class Incident {
                  WHERE i.id=a.incident_id AND ($host_where_3) $args)
                 ";
        	
-		print_r($sql);
+		//print_r($sql);
 		
 		if (!$rs = $conn->Execute(OssimQuery($sql))) 
             die($conn->ErrorMsg());
@@ -1124,7 +1182,7 @@ class Incident {
 			
 			if (is_array($user) && !empty($user) )
 			{
-				$brothers = Acl::get_brothers($conn,$me);
+				$brothers = Acl::get_brothers($conn,$in_charge);
 				
 				foreach($brothers as $k => $v)
 					$list[$v["login"]] = $v["login"];
@@ -1439,7 +1497,7 @@ class Incident {
 		$in_charge = ( $in_charge != "" )       ? $in_charge : Session::get_session_user(); 
         
 		foreach(Incident::get_validations('event') as $var => $rule) {
-            if (!ossim_valid($$var, $rule)) return false;
+           	if (!ossim_valid($$var, $rule)) return false;
         }
         
 		$last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Alarm", $event_start, $event_end, $in_charge);
@@ -1463,7 +1521,7 @@ class Incident {
 	
     function insert_event($conn, $title, $type, $submitter, $priority, $src_ips, $dst_ips, $src_ports, $dst_ports, $event_start, $event_end, $transferred_user, $transferred_entity) {
        
-	    foreach(Incident::get_validations('event') as $var => $rule) {
+	   	foreach(Incident::get_validations('event') as $var => $rule) {
             if (!ossim_valid($$var, $rule)) return false;
         }
 		
@@ -1493,13 +1551,43 @@ class Incident {
     }
     
 	function insert_anomaly($conn, $title, $type, $submitter, $priority, $anom_type, $ip, $data_orig, $data_new, $transferred_user, $transferred_entity) {
-        $s_data_orig = implode(",", $data_orig);
+        
+		$sensor  = $data_orig[0];
+		$when    = $data_orig[1];
+		
+		if ($anom_type == "mac" )
+		{
+			$old_mac    = $data_orig[2];
+			$new_mac    = $data_new[2];
+			$old_vendor = $data_orig[3];
+			$new_vendor = $data_new[3];
+		}
+		else if ($anom_type == "os" )
+		{
+			$old_os  = $data_orig[2];
+			$new_os  = $data_new[2];
+		}
+		else if ($anom_type == "services" )
+		{
+			$port            = $data_orig[2];
+			$old_protocol    = $data_orig[3];
+			$new_protocol    = $data_new[3];
+			$old_version     = $data_orig[4];
+			$new_version     = $data_new[4];
+		}
+		
+		foreach(Incident::get_validations('anomaly') as $var => $rule) {
+			if (!ossim_valid($$var, $rule)) return false;
+		}
+			
+		$s_data_orig = implode(",", $data_orig);
         $s_data_new  = implode(",", $data_new);
-       
+		
+		
 		require_once ('classes/Session.inc');
 		
 		$in_charge = ( $transferred_user != "" )  ? $transferred_user : $transferred_entity;  
-		$in_charge = ( $in_charge != "" )       ? $in_charge : Session::get_session_user(); 
+		$in_charge = ( $in_charge != "" )         ? $in_charge : Session::get_session_user(); 
 		
 	    $last_id = Incident::__insert($conn, $title, $type, $submitter, $priority, "Anomaly", "", "", $in_charge);
         
@@ -1932,7 +2020,7 @@ class Incident {
         
         $tp_accumulated = array();
 		
-		$incident_list  = Incident::get_list_filtered($conn, $assets, "ORDER BY status DESC", $user);
+		$incident_list  = Incident::get_list_filtered($conn, $assets, "AND status=\"Open\" ORDER BY status DESC", $user);
 
 		if (  is_array($incident_list) && !empty($incident_list) )
 		{

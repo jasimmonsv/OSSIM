@@ -29,7 +29,7 @@ switch($type){
 		$type_graph = 'pie';
 		$legend     = ( empty($_GET['legend']) ) ? "w" : GET('legend');
 				
-		$ticket_status = Incident::incidents_by_status($conn);
+		$ticket_status = Incident::incidents_by_status($conn, null, $user);
 		
 		if( is_array($ticket_status) && !empty($ticket_status) )
 		{
@@ -58,7 +58,7 @@ switch($type){
 		$type_graph = 'pie';
 		$legend     = ( empty($_GET['legend']) ) ? "w" : GET('legend');
 		
-		$ticket_by_type = Incident::incidents_by_type($conn);
+		$ticket_by_type = Incident::incidents_by_type($conn, null, $user);
 		$i = 0;
 		
 		if( is_array($ticket_by_type) && !empty($ticket_by_type) )
@@ -89,7 +89,7 @@ switch($type){
 		$type_graph = 'pie';
 		$legend     = ( empty($_GET['legend']) ) ? "w" : GET('legend');
 		
-		$ticket_by_class = Incident::incidents_by_class($conn);
+		$ticket_by_class = Incident::incidents_by_class($conn, null, $user);
 		
 		if( is_array($ticket_by_class) && !empty($ticket_by_class) )
 		{
@@ -113,7 +113,7 @@ switch($type){
 		$type_graph  = 'pie';
 		$legend      = ( empty($_GET['legend']) ) ? "w" : GET('legend');
 		
-		$ticket_by_user = Incident::incidents_by_user($conn);
+		$ticket_by_user = Incident::incidents_by_user($conn, true, null, $user);
 		$i = 0;
 				
 		if( is_array($ticket_by_user) && !empty($ticket_by_user) )
@@ -148,7 +148,7 @@ switch($type){
 		$type_graph = 'bar';
 		$legend     = ( empty($_GET['legend']) ) ? "s" : GET('legend');
 				
-		$list       = Incident::incidents_by_resolution_time($conn);
+		$list       = Incident::incidents_by_resolution_time($conn, null, $user);
 		
 		$ttl_groups = array("1"=>0, "2"=>0, "3"=>0, "4"=>0, "5"=>0, "6"=>0);
 		
@@ -158,7 +158,7 @@ switch($type){
 		foreach ($list as $incident) 
 		{
 				$ttl_secs = $incident->get_life_time('s');
-				$days = round($ttl_secs/60/60/24);
+				$days     = round($ttl_secs/60/60/24);
 				$total_days += $days;
 				$day_count++;
 				if ($days < 1) $days = 1;
@@ -179,7 +179,7 @@ switch($type){
 		
 		$final_values = array();						
 				
-		$ticket_closed_by_month = Incident::incidents_closed_by_month($conn);
+		$ticket_closed_by_month = Incident::incidents_closed_by_month($conn, null, $user);
 				
 		if( is_array($ticket_closed_by_month) && !empty($ticket_closed_by_month) )
 		{

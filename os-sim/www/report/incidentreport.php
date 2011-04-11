@@ -46,15 +46,16 @@ Session::logcheck("MenuIncidents", "IncidentsReport");
 $db   =  new ossim_db();
 $conn =  $db->connect();
 
+$user =  Session::get_session_user();
 
-$tickets_by_status    = Incident::incidents_by_status($conn);
-$tickets_by_type      = Incident::incidents_by_type($conn);
-$tickets_by_user      = Incident::incidents_by_user($conn); 
+
+$tickets_by_status    = Incident::incidents_by_status($conn, null, $user);
+$tickets_by_type      = Incident::incidents_by_type($conn, null, $user);
+$tickets_by_user      = Incident::incidents_by_user($conn, true, null, $user); 
 
 /*echo "<pre>";
-	print_r($tickets_by_type);
-echo "</pre>";
-*/
+	print_r($tickets_by_status);
+echo "</pre>";*/
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

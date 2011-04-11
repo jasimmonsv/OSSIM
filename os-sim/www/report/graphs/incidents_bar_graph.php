@@ -71,7 +71,6 @@ $conn    = $db->connect();
 
 $shared  = new DBA_shared(GET('shared'));
 
-
 if ($by == "ticketsClosedByMonth")
 {
      
@@ -82,10 +81,10 @@ if ($by == "ticketsClosedByMonth")
 	
 	$user         = $shared->get("TicketsStatus4_user");
 	$assets       = $shared->get("TicketsStatus4_assets");
-	
+		
 		
 	$ticket_closed_by_month = Incident::incidents_closed_by_month($conn, $assets, $user);
-			
+				
 	if( is_array($ticket_closed_by_month) && !empty($ticket_closed_by_month) )
 	{
 		foreach($ticket_closed_by_month as $event_type => $months)
@@ -95,9 +94,11 @@ if ($by == "ticketsClosedByMonth")
 		}
 	}
 	
+	
+	
 	$labelx = array_keys($data);
 	$datay  = array_values($data);
-	   
+	
 } 
 elseif ($by == "resolution_time") 
 {
