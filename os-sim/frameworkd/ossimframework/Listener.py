@@ -67,14 +67,12 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
         self.__id = None
 
         logger.debug("Request from: %s:%i" % (self.client_address))
-
         while 1:
             try:
                 line = self.rfile.readline().rstrip('\n')
 
                 if len(line) > 0:
                     command = line.split()[0]
-
                     # set sane default response
                     response = ""
 
@@ -95,13 +93,49 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
 
                     elif command == "nagios":
                         if self.__nagiosmanager == None:
-                            self.__nagiosmanager = NagiosManager( OssimConf(Const.CONFIG_FILE) )
+                            self.__nagiosmanager = NagiosManager(OssimConf(Const.CONFIG_FILE))
 
                         response = self.__nagiosmanager.process(line)
 
                     elif command == "ping":
                         response = "pong\n"
 
+                    elif command == "add_asset":
+                        #To all agents:
+                        #add_asset hostname=crg ip=192.168.2.15 id=all
+                        linebk = line
+                        pattern = "add_asset\s+hostname=(?P<hostname>\w+)\s+ip=(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})"
+                        reg_comp = re.compile(pattern)
+                        res = reg_comp.match(line)
+                        if res is not None:
+                            hostname = res.group('hostname')
+                            ip = res.group('ip')
+                            if hostname is not None and ip is not None:
+                                newcommand = 'action="%s" hostname="%s" ip="%s" id=all' % (command, hostname, ip)
+                                if controlmanager == None:
+                                    controlmanager = ControlManager()
+                                response = controlmanager.process(self, command, newcommand)
+                            else:
+                                logger.debug("Invalid add_asset command:%s", linebk)
+                    elif command == "remove_asset":
+                        linebk = line
+                        pattern = "remove_asset\s+hostname=(?P<hostname>\w+)\s+ip=(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})"
+                        reg_comp = re.compile(pattern)
+                        res = reg_comp.match(line)
+                        if res is not None:
+                            hostname = res.group('hostname')
+                            ip = res.group('ip')
+                            if hostname is not None and ip is not None:
+                                newcommand = 'action="%s" hostname="%s" ip="%s" id=all' % (command, hostname, ip)
+                                if controlmanager == None:
+                                    controlmanager = ControlManager()
+                                response = controlmanager.process(self, command, line)
+                    elif command == "refresh_asset_list":
+                        line = line + ' id=all'
+                        line = 'action="%s"' % command + line
+                        if controlmanager == None:
+                            controlmanager = ControlManager()
+                        response = controlmanager.process(self, command, line)
                     else:
                         a = Action.Action(line)
                         a.start()
@@ -112,6 +146,7 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
 
                     # return the response as appropriate
                     if len(response) > 0:
+                        logger.info("CRG --- Response: %s" % response)
                         self.wfile.write(response)
 
                     line = ""
@@ -154,7 +189,7 @@ class FrameworkBaseServer(SocketServer.ThreadingTCPServer):
     def serve_forever(self):
         while True:
             self.handle_request()
-   
+
         return
 
 

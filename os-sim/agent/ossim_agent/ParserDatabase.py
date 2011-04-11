@@ -195,7 +195,7 @@ class ParserDatabase(Detector):
                 opennedCursor = True
             except:
                 logger.info("Can't connect to MS-SQL database")
-        elif atabase_type == "oracle":
+        elif database_type == "oracle":
             try:
                 self.__myDataBaseCursor = self.connectOracle()
 #                logger.info("Connection OK")
@@ -205,7 +205,7 @@ class ParserDatabase(Detector):
         elif database_type == "db2":
             try:
                 self.__myDataBaseCursor = self.connectDB2()
-                if cursor:
+                if self.__myDataBaseCursor:
 #                    logger.info("Connection OK")
                     opennedCursor = True
                 else:

@@ -57,10 +57,10 @@ class ServerConn:
 
     __conn = None
 
-    MSG_CONNECT         = 'connect id="%s" ' +\
-                          'type="sensor" '   +\
-                          'version="'+__version__+'"\n'
-    MSG_APPEND_PLUGIN   = 'session-append-plugin id="%s" ' +\
+    MSG_CONNECT = 'connect id="%s" ' + \
+                          'type="sensor" ' + \
+                          'version="' + __version__ + '"\n'
+    MSG_APPEND_PLUGIN = 'session-append-plugin id="%s" ' + \
                           'plugin_id="%s" enabled="%s" state="%s"\n'
 
     def __init__(self, conf, plugins):
@@ -77,7 +77,7 @@ class ServerConn:
     # connect to server
     #  attempts == 0 means that agent try to connect forever
     #  waittime = seconds between attempts
-    def connect(self, attempts = 3, waittime = 10.0):
+    def connect(self, attempts=3, waittime=10.0):
 
         self.sequence = 1
         count = 1
@@ -95,7 +95,7 @@ class ServerConn:
                     break
 
                 else:
-                    logger.info("Can't connect to server, " +\
+                    logger.info("Can't connect to server, " + \
                                 "retrying in %d seconds" % (waittime))
                     time.sleep(waittime)
 
@@ -119,7 +119,7 @@ class ServerConn:
 
 
     # Reset the current connection by closing and reopening it
-    def reconnect(self, attempts = 0, waittime = 10.0):
+    def reconnect(self, attempts=0, waittime=10.0):
 
         self.close()
         time.sleep(1)
@@ -215,9 +215,9 @@ class ServerConn:
         ####### watch-rule test #######
         if (0):
             time.sleep(1)
-            data = 'watch-rule plugin_id="2005" ' +\
-               'plugin_sid="246" condition="gt" value="1" ' +\
-               'from="127.0.0.1" to="127.0.0.1" ' +\
+            data = 'watch-rule plugin_id="2005" ' + \
+               'plugin_sid="246" condition="gt" value="1" ' + \
+               'from="127.0.0.1" to="127.0.0.1" ' + \
                'port_from="4566" port_to="22"'
             self.__control_monitors(data)
         ###############################
@@ -296,9 +296,9 @@ class ServerConn:
                plugin.get("config", "type").lower() == 'monitor':
 
                 self.monitor_scheduler.\
-                    new_monitor(type = plugin.get("config", "source"),
-                                plugin = plugin,
-                                watch_rule = watch_rule)
+                    new_monitor(type=plugin.get("config", "source"),
+                                plugin=plugin,
+                                watch_rule=watch_rule)
                 break
 
 
@@ -331,7 +331,7 @@ class FrameworkConn():
     # connect to framework daemon
     #  attempts == 0 means that agent try to connect forever
     #  waittime = seconds between attempts
-    def connect(self, attempts = 0, waittime = 10.0):
+    def connect(self, attempts=0, waittime=10.0):
 
         # connection attempt counter
         count = 0
@@ -371,7 +371,7 @@ class FrameworkConn():
 
 
     # Reset the current connection by closing and reopening it
-    def reconnect(self, attempts = 0, waittime = 10.0):
+    def reconnect(self, attempts=0, waittime=10.0):
 
         self.close()
         time.sleep(2)
@@ -472,6 +472,7 @@ class FrameworkConn():
                 data = self.__recv_line().rstrip('\n')
 
                 try:
+                    logger.info("Received control message from the framework: %s" % data)
                     response = self.__controlmanager.process(self.__conn, data)
 
                     # send out all items in the response queue
