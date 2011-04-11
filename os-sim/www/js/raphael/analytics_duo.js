@@ -242,12 +242,14 @@ window.onload = function () {
             	var h = lbl.replace(/h$/,'');
             	if (h<10) h='0'+h;
                 if (clickNear(event,dot,12)) {
-                    url = logger_url.replace(/HH/,h).replace(/HH/,h);
+                	refurl = (h>h_now) ? logger_url_y : logger_url;
+                    url = refurl.replace(/HH/,h).replace(/HH/,h);
                     //console.log(url);
                     if (url!='') top.frames['main'].location.href = url;
                 }
                 if (clickNear(event,dot1,12)) {
-                    url = siem_url.replace(/HH/,h).replace(/HH/,h);
+                	refurl = (h>h_now) ? siem_url_y : siem_url;
+                    url = refurl.replace(/HH/,h).replace(/HH/,h);
                     //console.log(url);
                     if (url!='') top.frames['main'].location.href = url;
                 }
