@@ -38,6 +38,8 @@ require_once ('classes/Session.inc');
 require_once ("classes/Session.inc");
 require_once ("classes/Security.inc");
 require_once ("classes/Util.inc");
+require_once ("classes/Host.inc");
+require_once ('classes/Frameworkd_socket.inc');
 $what = GET('what');
 $back = GET('back');
 ossim_valid($what, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("What"));
@@ -132,6 +134,27 @@ if (!WebIndicator::is_on("Reload_policies") && !WebIndicator::is_on("Reload_host
 // update indicators on top frame
 $OssimWebIndicator->update_display();
 Util::clean_json_cache_files();
+// Frameworkd, to refresh host list only for what==hosts
+if ($what=="hosts") {
+	$frcon = new Frameworkd_socket();
+	if (!$frcon->status) {
+	    echo gettext("Can't connect to frameworkd...<br>");
+	}
+	else {
+		require_once "ossim_db.inc";
+        $db = new ossim_db();
+        $conn = $db->connect();
+ 		list($sensors,$all_hosts) = Host::get_ips_and_hostname($conn);
+ 		$refresh = "refresh_asset_list list={";
+ 		foreach ($all_hosts as $ip => $hostname) $refresh .= "$hostname=$ip,";
+ 		$refresh = preg_replace("/,$/","}",$refresh);
+		$error_code = $frcon->write($refresh);
+		if (!$error_code) {
+			echo _("An error has been found updating the Agent cache...<br>");
+		}
+        $db->close($conn);
+	}
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
