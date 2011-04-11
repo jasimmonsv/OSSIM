@@ -76,20 +76,21 @@ class Policy_time {
     function get_list($conn, $policy_id) {
         $list = array();
         $policy_id = intval($policy_id);
-        $query = OssimQuery("SELECT * FROM policy_time 
-                    WHERE policy_id = $policy_id");
+        $query = OssimQuery("SELECT * FROM policy_time WHERE policy_id = $policy_id");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
             $list = array();
             while (!$rs->EOF) {
-                $list = new Policy_time($rs->fields["policy_id"], $rs->fields["begin_hour"], $rs->fields["end_hour"], $rs->fields["begin_day"], $rs->fields["end_day"]);
+            	list ($begin_hour, $end_hour, $begin_day, $end_day) = Policy_time::from_utc($rs->fields["begin_hour"], $rs->fields["end_hour"], $rs->fields["begin_day"], $rs->fields["end_day"]);
+                $list = new Policy_time($rs->fields["policy_id"], $begin_hour, $end_hour, $begin_day, $end_day);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
     function insert($conn, $begin_hour, $end_hour, $begin_day, $end_day, $policy_id) {
+    	list ($begin_hour, $end_hour, $begin_day, $end_day) = Policy_time::to_utc($begin_hour, $end_hour, $begin_day, $end_day);
         $sql = "INSERT INTO policy_time VALUES (?, ?, ?, ?, ?)";
         $params = array(
             $policy_id,
@@ -113,5 +114,34 @@ class Policy_time {
             exit;
         }
     }
+    function to_utc ($begin_hour, $end_hour, $begin_day, $end_day) {
+    	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    	$begin_hour -= $tz;
+ 		if ($begin_hour<0) { $begin_hour+=24; $begin_day--; }
+		elseif ($begin_hour>23) { $begin_hour-=24; $begin_day++; }
+    	$end_hour -= $tz;
+ 		if ($end_hour<0) { $end_hour+=24; $end_day--; }
+		elseif ($end_hour>23) { $end_hour-=24; $end_day++; }
+		if ($begin_day>7) $begin_day-=7;
+		if ($begin_day<1) $begin_day+=7;
+		if ($end_day>7) $end_day-=7;
+		if ($end_day<1) $end_day+=7;
+    	return array($begin_hour, $end_hour, $begin_day, $end_day);
+    }
+    function from_utc ($begin_hour, $end_hour, $begin_day, $end_day) {
+    	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+    	$begin_hour += $tz;
+ 		if ($begin_hour<0) { $begin_hour+=24; $begin_day--; }
+		elseif ($begin_hour>23) { $begin_hour-=24; $begin_day++; }
+    	$end_hour += $tz;
+ 		if ($end_hour<0) { $end_hour+=24; $end_day--; }
+		elseif ($end_hour>23) { $end_hour-=24; $end_day++; }
+		if ($begin_day>7) $begin_day-=7;
+		if ($begin_day<1) $begin_day+=7;
+		if ($end_day>7) $end_day-=7;
+		if ($end_day<1) $end_day+=7;
+    	return array($begin_hour, $end_hour, $begin_day, $end_day);
+    }
+
 }
 ?>

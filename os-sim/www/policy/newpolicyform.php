@@ -460,9 +460,9 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 			b=1*(document.fop.begin_day.options[document.fop.begin_day.selectedIndex].value+((b<10) ? "0" : "")+b);			
 			var e=document.fop.end_hour.options[document.fop.end_hour.selectedIndex].value;
 			e=1*(document.fop.end_day.options[document.fop.end_day.selectedIndex].value+((e<10) ? "0" : "")+e);	
-			if (e < b) {
-				txt = txt + "<p class='red'><?=_("Begin can't set after End")?></p>";
-			}
+			//if (e < b) {
+			//	txt = txt + "<p class='red'><?=_("Begin can't set after End")?></p>";
+			//}
 			putit("#tdtime",txt);
 			//
 			txt = "<?=_('Policy Group')?>: <b> " + document.fop.group.options[document.fop.group.selectedIndex].text + "</b><br>";
