@@ -15,7 +15,7 @@ function SIEM_trends($h=24) {
 	$dbconn = $db->snort_connect();
 	$sensor_where = make_sensor_filter($dbconn);
 	$sqlgraph = "SELECT COUNT(acid_event.sid) as num_events, hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, day(convert_tz(timestamp,'+00:00','$tzc')) as suf FROM acid_event WHERE timestamp BETWEEN '".gmdate("Y-m-d H:i:s",gmdate("U")-(3600*$h))."' AND '".gmdate("Y-m-d H:i:s")."' $sensor_where GROUP BY suf,intervalo";
-	//print_r($timetz); print_r($sqlgraph);
+	//print_r($sqlgraph);
 	if (!$rg = & $dbconn->Execute($sqlgraph)) {
 	    print $dbconn->ErrorMsg();
 	} else {
@@ -24,7 +24,7 @@ function SIEM_trends($h=24) {
 	    	//if ($tzhour<0) $tzhour+=24;
 	    	//elseif ($tzhour>23) $tzhour-=24;
 	        //$data[$tzhour."h"] = $rg->fields["num_events"];
-	        $data[$rg->fields["intervalo"]."h"] = $rg->fields["num_events"];
+	        $data[$rg->fields["suf"]." ".$rg->fields["intervalo"]."h"] = $rg->fields["num_events"];
 	        $rg->MoveNext();
 	    }
 	}
@@ -65,13 +65,17 @@ function Logger_trends() {
 	require_once("forensics_stats.inc");
 	global $tz;
 	$data = array();
+	$today = gmdate("j");
+	$yesterday = gmdate("j",strtotime("-1 day"));
+	$tomorrow = gmdate("j",strtotime("+1 day"));
 	$csv = get_day_csv(gmdate("Y"),gmdate("m"),gmdate("d"));
 	//print_r($csv);
 	foreach ($csv as $key => $value) {
 		$tzhour = $key + $tz;
-		if ($tzhour<0) $tzhour+=24;
-		elseif ($tzhour>23) $tzhour-=24;
-		$data[$tzhour."h"] = $value;
+		$day = $today;
+		if ($tzhour<0) { $tzhour+=24; $day=$yesterday; }
+		elseif ($tzhour>23) { $tzhour-=24; $day=$tomorrow; }
+		$data[$day." ".$tzhour."h"] = $value;
 	}
 	return $data;
 }
@@ -98,8 +102,8 @@ if (GET("type")=="siemday") {
     }
     $max = count($hours);*/
     for ($i=$max-1; $i>=0; $i--) {
-    	$h = gmdate("G",$timetz-(3600*$i))."h";
-    	$hours[] = $h;
+    	$h = gmdate("j G",$timetz-(3600*$i))."h";
+    	$hours[] = preg_replace("/\d+ /","",$h);
     	$trend[] = ($data[$h]!="") ? $data[$h] : 0;
     }    
     $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz)."&time[0][3]=".gmdate("d",$timetz)."&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".gmdate("m",$timetz)."&time[1][3]=".gmdate("d",$timetz)."&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
@@ -138,12 +142,13 @@ if (GET("type")=="siemday") {
     $data = SIEM_trends();
     $data2 = Logger_trends();
     for ($i=$max-1; $i>=0; $i--) {
-    	$h = gmdate("G",$timetz-(3600*$i))."h";
-    	$hours[] = $h;
+    	$h = gmdate("j G",$timetz-(3600*$i))."h";
+    	$hours[] = preg_replace("/^\d+ /","",$h);
     	$trend[] = ($data[$h]!="") ? $data[$h] : 0;
     	$trend2[] = ($data2[$h]!="") ? $data2[$h] : 0;
     }
     $siem_url = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz)."&time[0][3]=".gmdate("d",$timetz)."&time[0][4]=".gmdate("Y",$timetz)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".gmdate("m",$timetz)."&time[1][3]=".gmdate("d",$timetz)."&time[1][4]=".gmdate("Y",$timetz)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
+    $siem_url_y = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=day&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz-86400)."&time[0][3]=".gmdate("d",$timetz-86400)."&time[0][4]=".gmdate("Y",$timetz-86400)."&time[0][5]=HH&time[0][6]=00&time[0][7]=00&time[0][8]=+&time[0][9]=AND&time[1][0]=+&time[1][1]=<%3D&time[1][2]=".gmdate("m",$timetz-86400)."&time[1][3]=".gmdate("d",$timetz-86400)."&time[1][4]=".gmdate("Y",$timetz-86400)."&time[1][5]=HH&time[1][6]=59&time[1][7]=59&time[1][8]=+&time[1][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=2&sort_order=time_d&hmenu=Forensics&smenu=Forensics";    
 }
 //
 $empty = true;
@@ -185,8 +190,11 @@ $empty = true;
 	
     <script language="javascript">
     	<?php if ($empty) echo "var max_aux=100;\n"; ?>    	
-        logger_url = '../sem/index.php?start=<?=urlencode(date("Y-m-d",$timetz)." HH:00:00")?>&end=<?=urlencode(date("Y-m-d",$timetz)." HH:59:59")?>';
+        logger_url = '../sem/index.php?start=<?=urlencode(gmdate("Y-m-d",$timetz)." HH:00:00")?>&end=<?=urlencode(gmdate("Y-m-d",$timetz)." HH:59:59")?>';
+        logger_url_y = '../sem/index.php?start=<?=urlencode(gmdate("Y-m-d",$timetz-86400)." HH:00:00")?>&end=<?=urlencode(gmdate("Y-m-d",$timetz-86400)." HH:59:59")?>';        
         siem_url = '<?=$siem_url?>';
+        siem_url_y = '<?=$siem_url_y?>';        
+        h_now = '<?=gmdate("h",$timetz)?>'
     </script>
     
     <?php if (!empty($hours)) { ?>

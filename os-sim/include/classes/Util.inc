@@ -835,6 +835,33 @@ class Util {
         return $unix;
 	}
 	
+    // Convert date to UTC using mysql
+	function get_utc_from_date($conn,$date,$tz) {
+		$utc = $date;
+		// convert timezone to mysql format first
+		if (preg_match("/(.*)\.(.*)/","$tz",$fnd)) {
+			$fnd[0] = ($fnd[0]>0) ? "+".$fnd[0] : $fnd[0];
+			$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
+	        $tz = $fnd[0].":".$fnd[1];
+		} else {
+	        $tz = ($tz>0) ? "+$tz:00" : "$tz:00";	
+		}
+        if (method_exists($conn,"baseExecute")) { // called from forensics
+        	if ($rs = &$conn->baseExecute("select convert_tz('$date','$tz','+00:00')"))
+            	if ($row = $rs->baseFetchRow())
+            		$utc = $row[0];        
+        }
+        else { // called from other interface section
+        	if ($rs = &$conn->Execute("select convert_tz('$date','$tz','+00:00')"))
+            	if (!$rs->EOF)
+            		$utc = $rs->fields[0];
+        }
+        $time = preg_split("/[\s\-\:]/",$utc);
+        $time[] = $utc;
+        // return $y,$m,$d,$h,$u,$s,$utc
+        return $time;
+	}
+		
 	// Get current ossim complete url
 	function get_ossim_url() {
 		require_once ('ossim_conf.inc');

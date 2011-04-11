@@ -157,6 +157,21 @@ class Plugin {
 		}
 		return $list;
 	}
-	
+	function get_categories($conn) {
+		$categories = array();
+		$subcategories = array();
+		$temp_sql = OssimQuery("SELECT c.id,c.name,sc.id as sid,sc.name as sname FROM category c, subcategory sc WHERE sc.cat_id=c.id");
+		if (!$rs = & $conn->Execute($temp_sql)) {
+			print $conn->ErrorMsg();
+			return array();
+		} else {
+			while (!$rs->EOF) {
+				$categories[$rs->fields["id"]] = $rs->fields["name"];
+				$subcategories[$rs->fields["id"]][$rs->fields["sid"]] = $rs->fields["sname"];
+				$rs->MoveNext();
+			}
+		}
+		return array($categories,$subcategories);
+	}
 }
 ?>

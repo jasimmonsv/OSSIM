@@ -325,7 +325,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $cell_align['CID'] = "center";
     $cell_data['PLUGIN_ID'] = $myrow["plugin_id"];
     $cell_align['PLUGIN_ID'] = "center";
-    $cell_data['PLUGIN_SID'] = $myrow["plugin_sid"];
+    $cell_data['PLUGIN_SID'] = '<a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$myrow["plugin_id"].'&sid='.$myrow["plugin_sid"].'\',200,400)">'.$myrow["plugin_sid"].'</a>';
     $cell_align['PLUGIN_SID'] = "center";
     if (in_array("PLUGIN_NAME",$_SESSION['views'][$_SESSION['current_cview']]['cols']) || in_array("PLUGIN_DESC",$_SESSION['views'][$_SESSION['current_cview']]['cols'])) {
         list($cell_data['PLUGIN_NAME'],$cell_data['PLUGIN_DESC']) = GetPluginNameDesc($myrow["plugin_id"], $db);

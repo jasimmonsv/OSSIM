@@ -36,6 +36,7 @@
 */
 require_once ('classes/Session.inc');
 require_once ('classes/Server.inc');
+require_once ('classes/Plugin.inc');
 require_once 'ossim_db.inc';
 include("lib/xmlrpc.inc");
 Session::useractive("../session/login.php");
@@ -107,7 +108,7 @@ if (GET("refresh")==1) {
 	# vagent_server.py => listen in port 8000
 	# methods:
 	#   ping() =>  Check if XMLRPC connection is active. Return True if it's OK.
-	#   do(n_agents, n_eps, server[:port], [local_src, local_dst], [random payload], [plugin:list]) => Create/add virtual sensors
+	#   do(n_agents, n_eps, server[:port], [local_src, local_dst], [random payload], [category:subcategory]) => Create/add virtual sensors
 	#   status() => Return an array with status of the virtual agents
 	#   stop([id]) => Stop all agents if not id or id < 0, or stop one agent of the status array (start with 0)
 	#
@@ -120,8 +121,9 @@ if (GET("refresh")==1) {
 		$server = GET('server');
 		$src = intval(GET('src'));
 		$dst = intval(GET('dst'));
-		$payload = intval(GET('payload'));
-		$msg=new xmlrpcmsg('do',array(new xmlrpcval("$agents,$eps,$server,$src,$dst", "string")));
+		$payload = 0;
+		$tax = GET('tax');
+		$msg=new xmlrpcmsg('do',array(new xmlrpcval("$agents,$eps,$server,$src,$dst,$payload,$tax", "string")));
 		$status = $client->send($msg);
 		echo _("Agents launched successfully!")." "._("Please refresh status").".<br>";
 	}
@@ -139,21 +141,32 @@ if (GET("refresh")==1) {
 	$db = new ossim_db();
 	$conn = $db->connect();	
 	$servers = Server::get_list($conn, "");
+	list ($categories,$subcategories) = Plugin::get_categories($conn);
 	$db->close($conn);
 ?>
 <table width="100%">
 <th colspan="2"><?php echo _("Agent Emulator")?> &nbsp;&nbsp;=>&nbsp;&nbsp; <?=_("Server Status")?>: <?= ($online) ? "<span class=g>"._("UP")."</span>" : "<span class=r>"._("DOWN")."</span>" ?> </th>
 <tr>
-	<td valign="top" width="200" class="left noborder" style="padding-left:20px">
+	<td valign="top" width="200" class="left noborder" style="padding-left:20px" nowrap>
 		<form action="events.php">
 		<input type="hidden" name="action" value="launch">
 		<?=_("Agents")?>: <input type="text" name="agents" value="10" size="4"><br>
 		<?=_("EPS")?>: <input type="text" name="eps" value="20" size="4"><br>
-		<?=_("Server")?>: <select name="server"><option value='127.0.0.1:40001'>127.0.0.1</option>
+		<?=_("Server")?>: <select name="server" style="width:180px"><option value='127.0.0.1:40001'>127.0.0.1</option>
 		<? foreach ($servers as $server) echo "<option value='".$server->get_ip().":".$server->get_port()."'>".Util::htmlentities($server->get_name())."-".$server->get_ip()."</option>"; ?>
 		</select><br>
 		<?=_("Local Src")?>: <select name="src"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
 		<?=_("Local Dst")?>: <select name="dst"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
+		<?=_("Taxonomy")?>: <select name="tax" style="width:180px"><option value='0:0'>ANY</option>
+		<?php
+			foreach ($categories as $id => $name) {
+				echo "<option value='$id:0'>$name</option>\n";
+				foreach ($subcategories[$id] as $sid => $sname) {
+					echo "<option value='$id:$sid'>$name - $sname</option>\n";
+				}
+			}
+		?>
+		</select><br>
 		<input type="submit" class="button" value="<?=_("Launch")?>">
 		</form>
 	</td>

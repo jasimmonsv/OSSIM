@@ -853,6 +853,7 @@ class TimeCriteria extends MultipleElementCriteria {
     */
     function GetUTC() {
     	/* convert to UTC time for sql */
+    	require_once("classes/Util.inc");
     	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
     	$utc_criteria = $this->criteria;
         for ($i = 0; $i < $this->criteria_cnt; $i++) if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") {
@@ -862,19 +863,16 @@ class TimeCriteria extends MultipleElementCriteria {
         	$h = ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") ? $this->criteria[$i][5] : "00";
         	$u = ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") ? $this->criteria[$i][6] : "00";
         	$s = ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") ? $this->criteria[$i][7] : "00";
-        	$time = gmmktime($h,$u,$s,$m,$d,$y)+(3600*$tz);
-        	//if ($this->criteria[$i][4] != " " && $this->criteria[$i][4] != "") 
-        	$utc_criteria[$i][4] = gmdate("Y",$time);
-        	//if ($this->criteria[$i][2] != " " && $this->criteria[$i][2] != "") 
-        	$utc_criteria[$i][2] = gmdate("m",$time);
-        	//if ($this->criteria[$i][3] != " " && $this->criteria[$i][3] != "") 
-        	$utc_criteria[$i][3] = gmdate("d",$time);
-        	//if ($this->criteria[$i][5] != " " && $this->criteria[$i][5] != "") 
-        	$utc_criteria[$i][5] = gmdate("H",$time);
-        	//if ($this->criteria[$i][6] != " " && $this->criteria[$i][6] != "") 
-        	$utc_criteria[$i][6] = gmdate("i",$time);
-        	//if ($this->criteria[$i][7] != " " && $this->criteria[$i][7] != "") 
-        	$utc_criteria[$i][7] = gmdate("s",$time);
+        	///$time = gmmktime($h,$u,$s,$m,$d,$y)+(3600*$tz);
+        	//echo "$y-$m-$d $h:$u:$s =";
+        	list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($this->db,"$y-$m-$d $h:$u:$s",$tz);
+        	//echo "$y-$m-$d $h:$u:$s == $time\n<br>";
+        	$utc_criteria[$i][4] = $y;
+        	$utc_criteria[$i][2] = $m;
+        	$utc_criteria[$i][3] = $d;
+        	$utc_criteria[$i][5] = $h;
+        	$utc_criteria[$i][6] = $u;
+        	$utc_criteria[$i][7] = $s;        	
         }
         return $utc_criteria;
     }
