@@ -59,7 +59,7 @@ class ControlManager:
 
     def process(self, requestor, command, line):
         logger.debug("Processing: %s" % line)
-
+        logger.info ("CRG: Recibido en control %s,%s" % (command, line))
         response = ""
         action = Util.get_var("action=\"([^\"]+)\"", line)
 
@@ -122,7 +122,6 @@ class ControlManager:
 
                 if id == "" or id == "all":
                     logger.debug("Broadcasting to all ...");
-
                     if len(self.control_agents) == 0:
                         response = line + ' errno="-1" error="No agents available." ackend\n'
 

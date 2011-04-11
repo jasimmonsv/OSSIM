@@ -48,27 +48,63 @@ from NetScreenMap import *
 #
 HOST_RESOLV_CACHE = {}
 
+# Dynamic host-ip cache. 
+HOST_RESOLV_DYNAMIC_CACHE = {}
+
 PROTO_TABLE = {
     '1':    'icmp',
     '6':    'tcp',
     '17':   'udp',
 }
 
-"""Set of functions to be used in plugin configuration."""
+def addHostToDynamic_cache(data):
+    print " CRG: adding host... %s " % data
+    pattern = "action=\"add_asset\"\s+hostname=\"(?P<hostname>\w+)\"\s+ip=\"(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\""
+    reg_comp = re.compile(pattern)
+    res = reg_comp.match(data)
+    hostname = res.group('hostname')
+    ip = res.group('ip')
+    if hostname is not None and ip is not None:
+        if HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
+            print "updating cache..."
+            HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
+        else:
+            print "Adding new host.."
+            HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
+    print "DYNAMIC CACHE--.-"
+    for hostname, ip in HOST_RESOLV_DYNAMIC_CACHE.items():
+        print "hostname:%s - ip:%s" % (hostname, ip)
+
+def removeHostToDynamic_cache(data):
+    """Set of functions to be used in plugin configuration."""
+    print "removing asset from dynamic cache"
+    pattern = "action=\"remove_asset\"\s+hostname=\"(?P<hostname>\w+)\"\s+ip=\"(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\""
+    reg_comp = re.compile(pattern)
+    res = reg_comp.match(data)
+    hostname = res.group('hostname')
+    ip = res.group('ip')
+    if hostname is not None and ip is not None:
+        if HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
+            print "updating cache..."
+            del HOST_RESOLV_DYNAMIC_CACHE[hostname]
+
+    print "DYNAMIC CACHE--.-"
+    for hostname, ip in HOST_RESOLV_DYNAMIC_CACHE.items():
+        print "hostname:%s - ip:%s" % (hostname, ip)
 
 def resolv(host):
     """Translate a host name to IPv4 address."""
-
     if HOST_RESOLV_CACHE.has_key(host):
         return HOST_RESOLV_CACHE[host]
+    #check if we have the host in my interna cache.
+    if HOST_RESOLV_DYNAMIC_CACHE.has_key(host):
+        return HOST_RESOLV_DYNAMIC_CACHE[host]
 
     try:
         addr = socket.gethostbyname(host)
         HOST_RESOLV_CACHE[host] = addr
-
     except socket.gaierror:
         return host
-
     return addr
 
 
@@ -101,7 +137,7 @@ def resolv_iface(iface):
 
     if re.match("(ext|wan1).*", iface):
         iface = "ext"
-    elif re.match("(int|port|dmz|wan).*",iface):
+    elif re.match("(int|port|dmz|wan).*", iface):
         iface = "int"
     return iface
 
@@ -300,7 +336,7 @@ def hextoint(string):
 
     except ValueError:
         pass
-        
+
 def intrushield_sid(mcafee_sid, mcafee_name):
     # All McAfee Intrushield id are divisible by 256, and this length doesn't fit in OSSIM's table
     mcafee_sid = hextoint(mcafee_sid) / 256
@@ -312,8 +348,8 @@ def intrushield_sid(mcafee_sid, mcafee_name):
     # Ugly method to avoid duplicated sids
     mcafee_hash2 = 0
 
-    for i in range(0,len(mcafee_name)):
-        mcafee_hash2 = mcafee_hash2 + ord( mcafee_name[i] )
+    for i in range(0, len(mcafee_name)):
+        mcafee_hash2 = mcafee_hash2 + ord(mcafee_name[i])
 
     ossim_sid = int(str(mcafee_hash2)[-1:] + str(int(str(mcafee_subsid)[-7:]) + mcafee_sid))
 

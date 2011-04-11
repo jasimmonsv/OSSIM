@@ -40,6 +40,7 @@ import ControlError
 from ControlNmap import NmapManager
 from ControlVAScanner import VAScannerManager
 import ControlUtil
+import ParserUtil
 from Logger import Logger
 import Utils
 logger = Logger.logger
@@ -75,6 +76,9 @@ class ControlManager():
                      'va_report_delete': "Delete a previously generated report.", \
                      'va_report_get': "Get a formatted response from a previously generated report.", \
                      'va_report_raw_get': "Get the raw NBE from a previously generated VA report.", \
+                     'refresh_asset_list':"Refresh the assets list for dns resolv", \
+                     'remove_asset':"Remove one asset from asset list to resolv function", \
+                     'add_asset':"Add new asset to asset list for resolv function",
     }
 
     __file_cache = {}
@@ -122,7 +126,13 @@ class ControlManager():
                 self.__response.append(message + ' command="%s" description="%s"\n' % (k, self.__command_set[k]))
 
             self.__response.append(message + ' %s ackend\n' % ControlError.get(0))
-
+        elif action == "refresh_asset_list":
+            logger.info("Hemos recibido una nueva lista de assets...")
+        elif action == "add_asset":
+            ParserUtil.addHostToDynamic_cache(data)
+        elif action == "remove_asset":
+            ParserUtil.removeHostToDynamic_cache(data)
+        # report basic OS statistics
         # report basic OS statistics
         elif action == "os_info":
             # push and close transaction (ie. ackend)
@@ -165,9 +175,9 @@ class ControlManager():
             # only valid paths should get through
             if path != "":
                 backup_files = self.__get_backup_file_list(path)
-                   
+
                 for p in backup_files:
-                    message += ' timestamp="%s"' % p[p.rfind(".")+1:]
+                    message += ' timestamp="%s"' % p[p.rfind(".") + 1:]
 
                 self.__response.append(message + ' count="%i" %s ackend\n' % (len(backup_files), ControlError.get(0)))
 
@@ -183,7 +193,7 @@ class ControlManager():
             if path != "":
                 timestamp = Utils.get_var("timestamp=\"(\d+)\"", data)
                 type = Utils.get_var("type=\"(overwrite|overwrite_pop+)\"", data)
-                
+
                 backup_file = self.__get_backup_file(path, timestamp)
 
                 # grab the appropriate backup file
@@ -221,7 +231,7 @@ class ControlManager():
                     response = ControlUtil.get_file(path, message)
                     self.__response.extend(response)
                     self.__response.append(message + ' %s ackend\n' % ControlError.get(0))
-    
+
                 except Exception, e:
                     logger.warning('Unexpected exception reading file: ' + str(e))
                     self.__response.append(message + ' length="-1" line="" %s ackend\n' % ControlError.get(1, str(e)))
@@ -254,7 +264,7 @@ class ControlManager():
 
                         else:
                             self.__response.append(message + ' %s ackend\n' % ControlError.get(1005))
-                        
+
                     else:
                         self.__response.append(message + ' %s ackend\n' % ControlError.get(1004))
 
@@ -276,7 +286,7 @@ class ControlManager():
 
                     except Exception, e:
                         self.__response.append(message + ' %s ackend\n' % ControlError.get(1, str(e)))
-                    
+
             else:
                 self.__response.append(message + ' %s ackend\n' % ControlError.get(1003))
 
@@ -285,7 +295,7 @@ class ControlManager():
             if self.__nmap == None:
                 logger.debug("Starting a new NMAP because I don't have once started, apparently.")
                 self.__nmap = NmapManager(self.__conf)
-            
+
             nmap_response = self.__nmap.process(data, message)
             self.__response.extend(nmap_response)
 
@@ -299,14 +309,14 @@ class ControlManager():
             self.__response.extend(vascanner_response)
 
         return self.__response
-                        
+
 
     def __get_backup_file_list(self, path):
         dir = os.path.dirname(path)
         filter = re.compile(os.path.basename(path) + "\.(\d+)$")
         files = [f for f in os.listdir(dir) if filter.search(f)]
         files.sort()
-       
+
         return files
 
 
@@ -322,10 +332,41 @@ class ControlManager():
                 # check our requested backup file exists
                 if backup_file in backup_files:
                     return backup_file
-                
+
             # return the most recent
             else:
                 return backup_files[-1]
-        
-        return ""
 
+        return ""
+#
+#    def __printDinamycAssetList(self):
+#        for hostname, ip in HOST_RESOLV_DYNAMIC_CACHE.iteritems():
+#            print "HOSTNAME: %s -- IP: %s" % (hostname, ip)
+#
+#    def __refreshAssetList(self, data):
+#        """
+#            "refresh_asset_list list={pc1=192.168.1.2,pc2=192.168.1.3,pc3=192.168.1.4}"
+#            "add_asset hostname=penganito ip=192.168.2.3"
+#            "remove_asset hostanme=penganito"
+#        """
+#        print "Refrescar lista de assets."
+#        #Clean the assets list
+#        HOST_RESOLV_DYNAMIC_CACHE.clear()
+#        self.__printDinamycAssetList()
+#
+#    def __addHostToAssetList(self, data):
+#        """
+#            "refresh_asset_list list={pc1=192.168.1.2,pc2=192.168.1.3,pc3=192.168.1.4}"
+#            "add_asset hostname=penganito ip=192.168.2.3"
+#            "remove_asset hostanme=penganito"
+#        """
+#        print "Add host to assets list"
+#        self.__printDinamycAssetList()
+#    def __removeHostFromAssetsList(self, data):
+#        """
+#            "refresh_asset_list list={pc1=192.168.1.2,pc2=192.168.1.3,pc3=192.168.1.4}"
+#            "add_asset hostname=penganito ip=192.168.2.3"
+#            "remove_asset hostanme=penganito"
+#        """
+#        print "remove hosts .. from assets list"
+#        self.__printDinamycAssetList()
