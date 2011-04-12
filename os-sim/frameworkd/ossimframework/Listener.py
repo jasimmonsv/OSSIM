@@ -119,23 +119,30 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
                                 logger.debug("Invalid add_asset command:%s", linebk)
                     elif command == "remove_asset":
                         linebk = line
-                        pattern = "remove_asset\s+hostname=(?P<hostname>\w+)\s+ip=(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})"
+                        pattern = "remove_asset\s+hostname=(?P<hostname>\w+)"
                         reg_comp = re.compile(pattern)
                         res = reg_comp.match(line)
                         if res is not None:
                             hostname = res.group('hostname')
-                            ip = res.group('ip')
-                            if hostname is not None and ip is not None:
-                                newcommand = 'action="%s" hostname="%s" ip="%s" id=all' % (command, hostname, ip)
+                            if hostname is not None:
+                                newcommand = 'action="%s" hostname="%s" id=all' % (command, hostname)
                                 if controlmanager == None:
                                     controlmanager = ControlManager()
-                                response = controlmanager.process(self, command, line)
+                                response = controlmanager.process(self, command, newcommand)
                     elif command == "refresh_asset_list":
-                        line = line + ' id=all'
-                        line = 'action="%s"' % command + line
-                        if controlmanager == None:
-                            controlmanager = ControlManager()
-                        response = controlmanager.process(self, command, line)
+                        linebk = line
+                        pattern = "refresh_asset_list list={(?P<list>.*)}"
+                        reg_comp = re.compile(pattern)
+                        res = reg_comp.match(line)
+                        if res is not None:
+                            host_list = res.group('list')
+                            if host_list is not None:
+                                newcommand = 'action="%s" list={%s} id=all' % (command, host_list)
+                                if controlmanager == None:
+                                    controlmanager = ControlManager()
+                                response = controlmanager.process(self, command, newcommand)
+                            else:
+                                logger.debug("Invalid add_asset command:%s", linebk)
                     else:
                         a = Action.Action(line)
                         a.start()
@@ -146,7 +153,6 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
 
                     # return the response as appropriate
                     if len(response) > 0:
-                        logger.info("CRG --- Response: %s" % response)
                         self.wfile.write(response)
 
                     line = ""

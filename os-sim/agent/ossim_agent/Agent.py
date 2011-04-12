@@ -56,6 +56,7 @@ from ParserDatabase import ParserDatabase
 from ParserWMI import ParserWMI
 from ParserSDEE import ParserSDEE
 from ParserRemote import ParserRemote
+from ParserUtil import HostResolv
 import codecs
 import pdb
 #
@@ -123,6 +124,7 @@ class Agent:
             else:
                 logger.error("Unable to read plugin configuration (%s) at (%s)" % (name, path))
 
+        HostResolv.loadHostCache()
         # server connection (only available if output-server is enabled)
         self.conn = None
 

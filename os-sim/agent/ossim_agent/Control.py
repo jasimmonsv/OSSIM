@@ -40,7 +40,7 @@ import ControlError
 from ControlNmap import NmapManager
 from ControlVAScanner import VAScannerManager
 import ControlUtil
-import ParserUtil
+from ParserUtil import HostResolv
 from Logger import Logger
 import Utils
 logger = Logger.logger
@@ -127,11 +127,11 @@ class ControlManager():
 
             self.__response.append(message + ' %s ackend\n' % ControlError.get(0))
         elif action == "refresh_asset_list":
-            logger.info("Hemos recibido una nueva lista de assets...")
+            HostResolv.refreshCache(data)
         elif action == "add_asset":
-            ParserUtil.addHostToDynamic_cache(data)
+            HostResolv.add_asset(data)
         elif action == "remove_asset":
-            ParserUtil.removeHostToDynamic_cache(data)
+            HostResolv.remove_asset(data)
         # report basic OS statistics
         # report basic OS statistics
         elif action == "os_info":
