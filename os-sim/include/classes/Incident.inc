@@ -622,36 +622,52 @@ class Incident {
         return $list;
     }
 	
-    function get_list_filtered($conn, $host_ip, $args = "", $user = "") {
+    function get_list_filtered($conn, $assets, $args = "", $user = "") {
         require_once ('classes/Session.inc');
         require_once ('classes/CIDR.inc');
         
-		if ( $user != '' )
+				
+		if ( $user != '' || empty($host_ip) )
 		{
 			$args = " WHERE 1=1 ". $args; 
 			$list = Incident::get_list($conn, $args, $user);
 			return $list;
 		}
+			
 		
 		// Network or Host filter
 		$list = array();
-		
-		if (!is_array($host_ip))
-			if ($host_ip=="") $assets = array();
-			else $assets[]=$host_ip;
+						
+		if ( is_array($host_ip) )
+		{
+			if ( $host_ip == "" ) 
+				$assets   = array();
+			else
+			{	
+				foreach ($host_ip as $k => $v)
+					$assets[] = $k;
+			}
+		}
 		else
-			$assets = $host_ip;
+		{
+			if ( $host_ip == "" ) 
+				$assets   = array();
+			else 
+				$assets[] = $host_ip;
+		}	
 		
 		$host_where = $host_where_2 = $host_where_3 = "";
 		
-		foreach ($assets as $range => $asst) 
+		
+		foreach ($assets as $k => $v) 
 		{
-			if (preg_match("/,/",$range)) 
+			if (preg_match("/,/",$v)) 
 			{
-				$range = explode(",",$range);
-				$host_where .= " OR (INET_ATON(a.src_ips) >= ".$range[0]." AND INET_ATON(a.src_ips) <= ".$range[1].") OR (INET_ATON(a.dst_ips) >= ".$range[0]." AND INET_ATON(a.dst_ips) <= ".$range[1].")";
-				$host_where_2 = " OR (INET_ATON(a.ip) >= ".$range[0]." AND INET_ATON(a.ip) <= ".$range[1].")";
-				$host_where_3 = " OR (INET_ATON(a.target) >= ".$range[0]." AND INET_ATON(a.target) <= ".$range[1].")";
+							
+				$range        = explode(",",$v);
+				$host_where  .= " OR (INET_ATON(SUBSTRING_INDEX(a.src_ips, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.src_ips, ',', 1)) <= ".$range[1].") OR (INET_ATON(SUBSTRING_INDEX(a.dst_ips, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.dst_ips, ',', 1)) <= ".$range[1].")";
+				$host_where_2 = " OR (INET_ATON(SUBSTRING_INDEX(a.ip, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.ip, ',', 1)) <= ".$range[1].")";
+				$host_where_3 = " OR (INET_ATON(SUBSTRING_INDEX(a.target, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.target, ',', 1)) <= ".$range[1].")";
 				
 				#$host_where   = "a.src_ips LIKE '$host_ip%' OR a.dst_ips LIKE '$host_ip%' OR a.src_ips LIKE ',$host_ip%' OR a.dst_ips LIKE ',$host_ip%'";
 	            #$host_where_2 = "a.ip LIKE '$host_ip%'";
@@ -659,9 +675,9 @@ class Incident {
 			} 
 			else 
 			{
-				$host_where .= " OR a.src_ips = '$asst' OR a.dst_ips = '$asst'";
-				$host_where_2 .= " OR a.ip = '$asst'";
-				$host_where_3 .= " OR a.target = '$asst'";
+				$host_where   .= " OR INET_ATON(SUBSTRING_INDEX(a.src_ips, ',', 1)) = '$v' OR INET_ATON(SUBSTRING_INDEX(a.dst_ips, ',', 1)) = '$v'";
+				$host_where_2 .= " OR INET_ATON(SUBSTRING_INDEX(a.ip,',', 1)) = '$v'";
+				$host_where_3 .= " OR INET_ATON(SUBSTRING_INDEX(a.target, ',', 1)) = '$v'";
 							
 				#$host_where = "a.src_ips LIKE '%$host_ip%' OR a.dst_ips LIKE '%$host_ip%'";
 				#$host_where_2 = "a.ip LIKE '%$host_ip%'";
@@ -701,6 +717,8 @@ class Incident {
        	
 		//print_r($sql);
 		
+		$user = Session::get_session_user();
+		
 		if (!$rs = $conn->Execute(OssimQuery($sql))) 
             die($conn->ErrorMsg());
         else 
@@ -709,6 +727,8 @@ class Incident {
 			{
                 
                 $allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"]);
+				
+				
                 				
 				if ( !empty($allowed[$user]) )  
                     $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"], $rs->fields["event_end"], $rs->fields['src_ips']);

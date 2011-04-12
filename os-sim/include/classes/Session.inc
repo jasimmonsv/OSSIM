@@ -499,21 +499,29 @@ else {
 			$gacl = $GLOBALS['ACL'];
 			if (array_key_exists('user', $_POST)) $user = $_POST["user"];
 			if (array_key_exists('pass', $_POST)) $pass = $_POST["pass"];
-			if (isset($user) && isset($pass)) {
+			
+			if ( isset($user) && isset($pass) ) 
+			{
 				$sess = new Session($user, $pass, "");
 				$sess->login();
 			}
-			if (!$login_location) {
-				$conf = $GLOBALS['CONF'];
-				$ossim_link = $conf->get_conf("ossim_link", FALSE);
+			
+			if (!$login_location) 
+			{
+				$conf           = $GLOBALS['CONF'];
+				$ossim_link     = $conf->get_conf("ossim_link", FALSE);
 				$login_location = $ossim_link . '/session/login.php';
 			}
+			
 			if (!isset($_SESSION["_user"])) {
 				header("Location: $login_location");
 				exit;
 			}
-			if (!Session::am_i_admin()) {
-				if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
+			
+			if (!Session::am_i_admin())
+			{
+				if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) 
+				{
 					if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
 						echo "<p align=\"center\">
 							<b>You don't have permission to see this page</b></p>";
@@ -524,6 +532,11 @@ else {
 					}
 				}
 			}
+		}
+		
+		function unallowed_section($user)
+		{
+		
 		}
 		
 		function logcheck_ext($menu, $submenu, $axo_sec, $axo_val, $login_location = "../session/login.php") {
@@ -1104,30 +1117,32 @@ else {
 		}
 		
 		//Return array with users that you can see
-		function get_users_to_assign($conn){
+		function get_users_to_assign($conn, $user=null){
 			
-			if  ( Session::am_i_admin() )
+			$user = ( empty($user) ) ?  Session::get_session_user() : $user;
+			
+			if  ( Session::is_admin($conn, $user) )
 			{
 				$users_list = Session::get_list($conn, "ORDER BY login");
 							
 				if ( is_array($users_list) && !empty($users_list) )
 				{
 					foreach($users_list as $k => $v)
-						$users[] = $v->get_login();
+						$users[$v->get_login()] = $v->get_login();
 					
 					$where = "WHERE login in ('".implode("','",$users)."')";
 				}
 			}
 			else
 			{
-				$where = "WHERE login in ('".Session::get_session_user()."')";
+				$where = "WHERE login in ('".$user."')";
 			}	
 			
 			return Session::get_list($conn, $where." ORDER BY login ASC");
 		}
 		
 		//Return array with entities that you can see
-		function get_entities_to_assign($conn){
+		function get_entities_to_assign($conn, $user=null){
 			return array();
 		}
 	}

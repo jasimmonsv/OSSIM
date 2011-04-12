@@ -575,20 +575,27 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 				$number_users = count($users);
 								
 				if( Session::am_i_admin() )
+				{
 					$filtered_users = $users;
+				}
 				else
 				{
 					foreach($users as $u) 
 					{
 						$login = $u->get_login();
 						
-						if ( !Session::is_admin($conn, $login) )
+						if ( $login == $current_user )
+							$filtered_users[] = $u;
+						else
 						{
-							if ( $pro && !Acl::am_i_proadmin() && !Acl::is_proadmin($conn, $login) > 0 )
-								$filtered_users[] = $u;
-							elseif( $pro && Acl::am_i_proadmin() )
+							if ( !Session::is_admin($conn, $login) )
 							{
-								$filtered_users[] = $u;
+								if ( $pro && !Acl::am_i_proadmin() && !Acl::is_proadmin($conn, $login) > 0 )
+									$filtered_users[] = $u;
+								elseif( $pro && Acl::am_i_proadmin() )
+								{
+									$filtered_users[] = $u;
+								}
 							}
 						}
 					}

@@ -33,8 +33,8 @@
 * Class and Function List:
 * Function list:
 * - format_user()
-* - get_my_users_vision()
-* - get_my_entities_vision()
+* - format_charge_name
+* - get_params_field
 */
 
 //Format user data

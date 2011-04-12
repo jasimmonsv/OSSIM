@@ -4,7 +4,15 @@ require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
 require_once ('classes/Incident.inc');
 require_once ('sensor_filter.php');
-Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
+
+
+$allowed_section = ( Session::menu_perms("MenuControlPanel", "ControlPanelExecutive") || Session::menu_perms("MenuIncidents", "IncidentsIncidents") );
+
+if ( $allowed_section == false )
+{
+	$user = Session::get_session_user();
+	Session::unallowed_section($user);
+}
 
 $type = GET("type");
 ossim_valid($type, 'ticketsByPriority','ticketsClosedByMonth','ticketResolutionTime','openedTicketsByUser','ticketStatus','ticketTypes', 'illegal:' . _("type"));

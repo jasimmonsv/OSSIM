@@ -610,8 +610,8 @@ EOT;
    <td><input type="text" name="sdescription" value="'.html_entity_decode($sdescription).'" size=50/></td>
 </tr>';
 
-$users    = get_my_users_vision($dbconn, $pro);
-$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? get_my_entities_vision($dbconn, $pro) : null;
+$users    = Session::get_users_to_assign($dbconn);
+$entities = ( Session::am_i_admin() || ($pro && Acl::am_i_proadmin())  ) ? Session::get_entities_to_assign($dbconn) : null;
 ?>
 	<tr>
         <th><?php echo _("Make this profile available for");?>:</th>
