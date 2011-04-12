@@ -36,10 +36,12 @@ import md5
 import re
 import socket
 import time
-
+import pickle
+import os
 #
 # LOCAL IMPORTS
 #
+
 from SiteProtectorMap import *
 from NetScreenMap import *
 
@@ -48,8 +50,8 @@ from NetScreenMap import *
 #
 HOST_RESOLV_CACHE = {}
 
-# Dynamic host-ip cache. 
-HOST_RESOLV_DYNAMIC_CACHE = {}
+
+
 
 PROTO_TABLE = {
     '1':    'icmp',
@@ -57,48 +59,14 @@ PROTO_TABLE = {
     '17':   'udp',
 }
 
-def addHostToDynamic_cache(data):
-    print " CRG: adding host... %s " % data
-    pattern = "action=\"add_asset\"\s+hostname=\"(?P<hostname>\w+)\"\s+ip=\"(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\""
-    reg_comp = re.compile(pattern)
-    res = reg_comp.match(data)
-    hostname = res.group('hostname')
-    ip = res.group('ip')
-    if hostname is not None and ip is not None:
-        if HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
-            print "updating cache..."
-            HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
-        else:
-            print "Adding new host.."
-            HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
-    print "DYNAMIC CACHE--.-"
-    for hostname, ip in HOST_RESOLV_DYNAMIC_CACHE.items():
-        print "hostname:%s - ip:%s" % (hostname, ip)
-
-def removeHostToDynamic_cache(data):
-    """Set of functions to be used in plugin configuration."""
-    print "removing asset from dynamic cache"
-    pattern = "action=\"remove_asset\"\s+hostname=\"(?P<hostname>\w+)\"\s+ip=\"(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\""
-    reg_comp = re.compile(pattern)
-    res = reg_comp.match(data)
-    hostname = res.group('hostname')
-    ip = res.group('ip')
-    if hostname is not None and ip is not None:
-        if HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
-            print "updating cache..."
-            del HOST_RESOLV_DYNAMIC_CACHE[hostname]
-
-    print "DYNAMIC CACHE--.-"
-    for hostname, ip in HOST_RESOLV_DYNAMIC_CACHE.items():
-        print "hostname:%s - ip:%s" % (hostname, ip)
 
 def resolv(host):
     """Translate a host name to IPv4 address."""
     if HOST_RESOLV_CACHE.has_key(host):
         return HOST_RESOLV_CACHE[host]
     #check if we have the host in my interna cache.
-    if HOST_RESOLV_DYNAMIC_CACHE.has_key(host):
-        return HOST_RESOLV_DYNAMIC_CACHE[host]
+    if HostResolv.HOST_RESOLV_DYNAMIC_CACHE.has_key(host):
+        return HostResolv.HOST_RESOLV_DYNAMIC_CACHE[host]
 
     try:
         addr = socket.gethostbyname(host)
@@ -858,3 +826,81 @@ def translate_wsaea_IDs(string):
 			string_translated = string_translated + text + ", "
 
 	return string_translated
+
+
+class HostResolv():
+    HOST_RESOLV_DYNAMIC_CACHE = {}
+    # Dynamic host-ip cache. 
+    def add_asset(data):
+        """ Add an asset to the dynamic agent host cache"""
+        pattern = "action=\"add_asset\"\s+hostname=\"(?P<hostname>\w+)\"\s+ip=\"(?P<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\""
+        reg_comp = re.compile(pattern)
+        res = reg_comp.match(data)
+        if res is not None:
+            hostname = res.group('hostname')
+            ip = res.group('ip')
+        if hostname is not None and ip is not None:
+            if HostResolv.HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
+                print "updating cache..."
+                HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
+            else:
+                print "Adding new host.."
+                HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
+        HostResolv.saveHostCache()
+        HostResolv.printCache()
+    add_asset = staticmethod(add_asset)
+    def remove_asset(data):
+        """Remove an asset from dynamic agent cache."""
+        print "removing asset from dynamic cache"
+        pattern = "action=\"remove_asset\"\s+hostname=\"(?P<hostname>\w+)\""
+        reg_comp = re.compile(pattern)
+        res = reg_comp.match(data)
+        if res is not None:
+            hostname = res.group('hostname')
+        if hostname is not None:
+            if HostResolv.HOST_RESOLV_DYNAMIC_CACHE.has_key(hostname):
+                print "updating cache..."
+                del HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname]
+        HostResolv.saveHostCache()
+        HostResolv.printCache()
+    remove_asset = staticmethod(remove_asset)
+
+    def refreshCache(data):
+        ''' Refresh the HOST dynamic cache'''
+        #action="refresh_asset_list" list={ossim-unstable-pro=192.168.2.18,crosa=192.168.2.130} id=all transaction="50653"
+        HostResolv.HOST_RESOLV_DYNAMIC_CACHE.clear()
+        pattern = "action=\"refresh_asset_list\"\s+list={(?P<list>.*)}"
+        ipv4_reg = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+        hostname_valid = "(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])"
+        reg_comp = re.compile(pattern)
+        res = reg_comp.match(data)
+        host_list = []
+        if res is not None:
+            tmp_list = res.group('list')
+            if tmp_list is not None:
+                host_list = tmp_list.split(',')
+                for asset in host_list:
+                    hostname, ip = asset.split('=')
+                    if re.match(ipv4_reg, ip) and re.match(hostname_valid, hostname):
+                        HostResolv.HOST_RESOLV_DYNAMIC_CACHE[hostname] = ip
+        HostResolv.printCache()
+        HostResolv.saveHostCache()
+    refreshCache = staticmethod(refreshCache)
+
+
+    def saveHostCache():
+        pickle.dump(HostResolv.HOST_RESOLV_DYNAMIC_CACHE, open("/etc/ossim/agent/host_cache.dic", "wb"))
+    saveHostCache = staticmethod(saveHostCache)
+
+    def loadHostCache():
+        if os.path.isfile("/etc/ossim/agent/host_cache.dic"):
+            HostResolv.HOST_RESOLV_DYNAMIC_CACHE = pickle.load(open("/etc/ossim/agent/host_cache.dic"))
+            HostResolv.printCache()
+    loadHostCache = staticmethod(loadHostCache)
+
+    def printCache():
+        print "------------------ Dynamic cache ---------------------"
+        for host, ip in HostResolv.HOST_RESOLV_DYNAMIC_CACHE.items():
+            print "%s  -------->> %s" % (host, ip)
+        print "------------------------------------------------------"
+    printCache = staticmethod(printCache)

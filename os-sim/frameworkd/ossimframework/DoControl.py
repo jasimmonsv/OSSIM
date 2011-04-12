@@ -39,7 +39,9 @@ import random, threading, time
 #
 from Logger import Logger
 import Util
-
+from OssimDB import OssimDB
+from OssimDB import OssimDB
+from OssimConf import OssimConf
 #
 # GLOBAL VARIABLES
 #
@@ -52,14 +54,12 @@ class ControlManager:
         self.control_agents = {}
         self.transaction_map = {}
         self.__transaction_timeout = 60
-
         self.__control = DoControl(self)
         self.__control.start()
 
 
     def process(self, requestor, command, line):
         logger.debug("Processing: %s" % line)
-        logger.info ("CRG: Recibido en control %s,%s" % (command, line))
         response = ""
         action = Util.get_var("action=\"([^\"]+)\"", line)
 
