@@ -126,7 +126,7 @@ $delete_perm = $_GET["delete"];
 
 ossim_valid($id_map, OSS_DIGIT, OSS_ALPHA, OSS_DOT, 'illegal:' . _("ID Map"));
 ossim_valid($entity, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, 'illegal:' . _("Entity"));
-ossim_valid($user, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("User"));
+ossim_valid($user, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, '\.', 'illegal:' . _("User"));
 ossim_valid($delete_perm, OSS_SCORE, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("Delete Perm"));
 
 if (ossim_error()) {
