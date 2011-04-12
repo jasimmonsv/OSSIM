@@ -338,35 +338,3 @@ class ControlManager():
                 return backup_files[-1]
 
         return ""
-#
-#    def __printDinamycAssetList(self):
-#        for hostname, ip in HOST_RESOLV_DYNAMIC_CACHE.iteritems():
-#            print "HOSTNAME: %s -- IP: %s" % (hostname, ip)
-#
-#    def __refreshAssetList(self, data):
-#        """
-#            "refresh_asset_list list={pc1=192.168.1.2,pc2=192.168.1.3,pc3=192.168.1.4}"
-#            "add_asset hostname=penganito ip=192.168.2.3"
-#            "remove_asset hostanme=penganito"
-#        """
-#        print "Refrescar lista de assets."
-#        #Clean the assets list
-#        HOST_RESOLV_DYNAMIC_CACHE.clear()
-#        self.__printDinamycAssetList()
-#
-#    def __addHostToAssetList(self, data):
-#        """
-#            "refresh_asset_list list={pc1=192.168.1.2,pc2=192.168.1.3,pc3=192.168.1.4}"
-#            "add_asset hostname=penganito ip=192.168.2.3"
-#            "remove_asset hostanme=penganito"
-#        """
-#        print "Add host to assets list"
-#        self.__printDinamycAssetList()
-#    def __removeHostFromAssetsList(self, data):
-#        """
-#            "refresh_asset_list list={pc1=192.168.1.2,pc2=192.168.1.3,pc3=192.168.1.4}"
-#            "add_asset hostname=penganito ip=192.168.2.3"
-#            "remove_asset hostanme=penganito"
-#        """
-#        print "remove hosts .. from assets list"
-#        self.__printDinamycAssetList()

@@ -39,9 +39,7 @@ import random, threading, time
 #
 from Logger import Logger
 import Util
-from OssimDB import OssimDB
-from OssimDB import OssimDB
-from OssimConf import OssimConf
+
 #
 # GLOBAL VARIABLES
 #

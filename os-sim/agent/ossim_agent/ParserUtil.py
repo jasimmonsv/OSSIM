@@ -59,6 +59,7 @@ PROTO_TABLE = {
     '17':   'udp',
 }
 
+"""Set of functions to be used in plugin configuration."""
 
 def resolv(host):
     """Translate a host name to IPv4 address."""
@@ -305,6 +306,7 @@ def hextoint(string):
     except ValueError:
         pass
 
+        
 def intrushield_sid(mcafee_sid, mcafee_name):
     # All McAfee Intrushield id are divisible by 256, and this length doesn't fit in OSSIM's table
     mcafee_sid = hextoint(mcafee_sid) / 256
