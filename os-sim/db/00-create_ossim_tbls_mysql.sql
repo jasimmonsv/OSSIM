@@ -1230,7 +1230,7 @@ CREATE TABLE users (
 --
 -- Data: User
 --
-INSERT INTO users (login, name, pass) VALUES ('admin', 'OSSIM admin', '21232f297a57a5a743894a0e4a801fc3');
+INSERT INTO users (login, name, pass) VALUES ('admin', 'AlienVault admin', '21232f297a57a5a743894a0e4a801fc3');
 
 DROP TABLE IF EXISTS pass_history;
 CREATE TABLE pass_history (
