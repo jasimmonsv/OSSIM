@@ -128,7 +128,7 @@ if (POST('insert')) {
     $source_net_groups = array();
     $sources = POST('sources');
     foreach($sources as $source) {
-        $src = explode(":", trim($source));
+        $src = explode(":", trim($source), 2);
         ossim_valid($src[1], OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_AT, OSS_NULLABLE, 'illegal:' . _($src[1]));
         if (ossim_error()) {
             die(ossim_error());
@@ -167,7 +167,7 @@ if (POST('insert')) {
         $dest_net_groups = array();
         $dests = POST('dests');
         foreach($dests as $dest) {
-            $src = explode(":", trim($dest));
+            $src = explode(":", trim($dest), 2);
             ossim_valid($src[1], OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_AT, OSS_NULLABLE, 'illegal:' . _($src[1]));
             if (ossim_error()) {
                 die(ossim_error());
