@@ -297,7 +297,7 @@ if (ossim_error()) {
 }
 
 ossim_set_error(false);
-ossim_valid($user, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("User"));
+ossim_valid($user, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, '\.', 'illegal:' . _("User"));
 if (ossim_error()) {
     $error_message .= _("Invalid user")."<br/>";
 }

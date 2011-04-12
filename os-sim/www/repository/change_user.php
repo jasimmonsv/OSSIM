@@ -101,7 +101,7 @@ $user        = $_GET["user"];
 
 ossim_valid($id_document, OSS_DIGIT, 'illegal:' . _("Document id"));
 ossim_valid($entity, OSS_NULLABLE, OSS_DIGIT, OSS_ALPHA, 'illegal:' . _("Entity"));
-ossim_valid($user, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("User"));
+ossim_valid($user, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, '\.', 'illegal:' . _("User"));
 
 if (ossim_error()) {
     die(ossim_error());
