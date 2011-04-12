@@ -43,13 +43,13 @@ $report_name = POST('report_name');
 $delete      = GET('delete');
 $assignto    = (POST('transferred_user')!="")? POST('transferred_user'):POST('transferred_entity');
 
-ossim_valid($value, OSS_TEXT, OSS_NULLABLE, 'illegal: value');  
-ossim_valid($type, OSS_ALPHA, OSS_NULLABLE, 'illegal: type');
-ossim_valid($report_name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal:' . _("Report name"));
-ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal: delete');
-ossim_valid($assignto, OSS_DIGIT, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal: delete');
+ossim_valid($value, OSS_TEXT, OSS_NULLABLE, 'illegal: '. _("value"));  
+ossim_valid($type, OSS_ALPHA, OSS_NULLABLE, 'illegal: '. _("type"));
+ossim_valid($report_name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illegal: '. _("report name"));
+ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal: '. _("delete"));
+ossim_valid($assignto, OSS_DIGIT, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE,'\-\.', 'illegal: '._("assign to"));
 
-if( $assignto == "" ) $assignto = Session::get_session_user();
+if( $assignto == -1 || $assignto == "") $assignto = Session::get_session_user();
 
 if (ossim_error()) {
     die(ossim_error());
@@ -921,7 +921,7 @@ echo "</table>";
 					
 						<select name="transferred_entity" id="entity" onchange="switch_user('entity');return false;" style="width:160px">
 																												
-							<option value="-1" style='text-align:center !important;'>- <?php echo _("No entity assigned") ?> -</option>
+							<option value="" style='text-align:center !important;'>- <?php echo _("Select one entity") ?> -</option>
 							<?php
 							foreach ( $entities as $k => $v ) 
 							{
