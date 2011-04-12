@@ -49,21 +49,23 @@ if (GET("refresh")==1) {
 	//print_r($status->val->me);
 	if (count($status->val->me['array'])>0) {
 		echo '<table width="100%">
-				<th>Running</th>
-				<th>Connected</th>
+				<th>Run</th>
+				<th>Conn</th>
 				<th>Agent IP</th>
 				<th>Server</th>
 				<th>EPS</th>
 				<th>Count</th>
-				<th>Global Cnt</th>
 				<th>Seconds</th>
-				<th>Local Src</th>
-				<th>Local Dst</th>
+				<th>Real EPS</th>
+				<th>Lc Src</th>
+				<th>Lc Dst</th>
+				<th>Cat</th>
+                <th>SCat</th>
 				<th></th>
 		';
 		foreach ($status->val->me['array'] as $id => $res) {
-			echo "<tr>\n";
-			preg_match("/Running=(\d+) Connected=(\d+) AgentIP=(.*?) Server=(.*?) EPS=(\d+) Count=(\d+) GlobalCount=(\d+) Seconds=(\d+) LocalSrc=(\d+) LocalDst=(\d+)/",$res->me['string'],$fnd);
+			echo "<tr>\n"; //echo $res->me['string'];
+			preg_match("/Running=(\d+) Connected=(\d+) AgentIP=(.*?) Server=(.*?) EPS=(\d+) Count=(\d+) Seconds=(\d+\.\d\d)\d* RealEPS=(0|\d+\.\d\d\d)\d* LocalSrc=(\d+) LocalDst=(\d+) RndPayload=\d+ Category=(\d+) Subcategory=(\d+)/i",$res->me['string'],$fnd);
 			for($i=1;$i<count($fnd);$i++) echo "<td>".$fnd[$i]."</td>";
 			echo '<td><a target="main" href="events.php?stop='.$id.'" style="text-decoration:none" class="button">STOP</a></td>';
 			echo "</tr>\n";
@@ -122,8 +124,10 @@ if (GET("refresh")==1) {
 		$src = intval(GET('src'));
 		$dst = intval(GET('dst'));
 		$payload = 0;
-		$tax = GET('tax');
-		$msg=new xmlrpcmsg('do',array(new xmlrpcval("$agents,$eps,$server,$src,$dst,$payload,$tax", "string")));
+		$tax = "";
+        if (GET('tax')!='0' && GET('tax')!='') $tax = ",".GET('tax');
+        $str = "$agents,$eps,$server,$src,$dst,$payload".$tax;
+		$msg=new xmlrpcmsg('do',array(new xmlrpcval($str, "string")));
 		$status = $client->send($msg);
 		echo _("Agents launched successfully!")." "._("Please refresh status").".<br>";
 	}
@@ -157,10 +161,10 @@ if (GET("refresh")==1) {
 		</select><br>
 		<?=_("Local Src")?>: <select name="src"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
 		<?=_("Local Dst")?>: <select name="dst"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
-		<?=_("Taxonomy")?>: <select name="tax" style="width:180px"><option value='0:0'>ANY</option>
+		<?=_("Taxonomy")." (Cat/SubCat)"?>: <select name="tax" style="width:180px"><option value='0'>ANY</option>
 		<?php
 			foreach ($categories as $id => $name) {
-				echo "<option value='$id:0'>$name</option>\n";
+				echo "<option value='$id'>$name</option>\n";
 				foreach ($subcategories[$id] as $sid => $sname) {
 					echo "<option value='$id:$sid'>$name - $sname</option>\n";
 				}
