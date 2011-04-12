@@ -80,7 +80,7 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
                     if command == "control":
                         # spawn our control timer
                         if controlmanager == None:
-                            controlmanager = ControlManager()
+                            controlmanager = ControlManager(OssimConf(Const.CONFIG_FILE))
 
                         response = controlmanager.process(self, command, line)
 
@@ -113,7 +113,7 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
                             if hostname is not None and ip is not None:
                                 newcommand = 'action="%s" hostname="%s" ip="%s" id=all' % (command, hostname, ip)
                                 if controlmanager == None:
-                                    controlmanager = ControlManager()
+                                    controlmanager = ControlManager(OssimConf(Const.CONFIG_FILE))
                                 response = controlmanager.process(self, command, newcommand)
                             else:
                                 logger.debug("Invalid add_asset command:%s", linebk)
@@ -127,7 +127,7 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
                             if hostname is not None:
                                 newcommand = 'action="%s" hostname="%s" id=all' % (command, hostname)
                                 if controlmanager == None:
-                                    controlmanager = ControlManager()
+                                    controlmanager = ControlManager(OssimConf(Const.CONFIG_FILE))
                                 response = controlmanager.process(self, command, newcommand)
                     elif command == "refresh_asset_list":
                         linebk = line
@@ -139,7 +139,7 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
                             if host_list is not None:
                                 newcommand = 'action="%s" list={%s} id=all' % (command, host_list)
                                 if controlmanager == None:
-                                    controlmanager = ControlManager()
+                                    controlmanager = ControlManager(OssimConf(Const.CONFIG_FILE))
                                 response = controlmanager.process(self, command, newcommand)
                             else:
                                 logger.debug("Invalid add_asset command:%s", linebk)
@@ -196,7 +196,7 @@ class FrameworkBaseServer(SocketServer.ThreadingTCPServer):
         while True:
             self.handle_request()
 
-   
+
         return
 
 

@@ -33,28 +33,54 @@
 # GLOBAL IMPORTS
 #
 import random, threading, time
-
+from threading import Timer
 #
 # LOCAL IMPORTS
 #
 from Logger import Logger
 import Util
+from OssimDB import OssimDB
+from OssimConf import OssimConf
 
-#
 # GLOBAL VARIABLES
 #
 logger = Logger.logger
 
 class ControlManager:
-    def __init__(self):
+    def __init__(self, conf):
         logger.debug("Initialising ControlManager...")
 
         self.control_agents = {}
         self.transaction_map = {}
+        self.__myDB = OssimDB()
+        self.__myDB_connected = False
+        self.__myconf = conf
         self.__transaction_timeout = 60
         self.__control = DoControl(self)
         self.__control.start()
 
+
+    def refreshAgentCache(self, requestor, agent_id):
+        if not self.__myDB_connected:
+            self.__myDB.connect (self.__myconf["ossim_host"],
+            self.__myconf["ossim_base"],
+            self.__myconf["ossim_user"],
+            self.__myconf["ossim_pass"])
+            self.__myDB_connected = True
+        #read host list
+        query = 'select hostname,ip from host'
+        tmp = self.__myDB.exec_query(query)
+        new_command = 'action="refresh_asset_list" list={'
+        for host in tmp:
+            new_command += '%s=%s,' % (host['hostname'], host['ip'])
+        new_command = new_command[0:len(new_command) - 1]
+        new_command += '}'
+        # add this connection to the transaction map
+        transaction = self.__transaction_id_get()
+        self.transaction_map[transaction] = {'socket':requestor, 'time':time.time()}
+        # append the transaction to the message for tracking
+        self.control_agents[agent_id].wfile.write(new_command + ' transaction="%s"\n' % transaction)
+        logger.info("Updating asset list to agent: %s" % agent_id)
 
     def process(self, requestor, command, line):
         logger.debug("Processing: %s" % line)
@@ -74,8 +100,12 @@ class ControlManager:
             # add this connection to our control agent collection
             self.control_agents[id] = requestor
 
+
             # indicate we're good to go
             response = 'ok id="%s"\n' % id
+            timer = Timer(5.0, self.refreshAgentCache, (requestor, id,))
+            timer.start()
+
 
         elif action == "getconnectedagents":
 
