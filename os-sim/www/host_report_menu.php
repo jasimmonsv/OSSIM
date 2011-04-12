@@ -83,7 +83,7 @@
 					} else if (action=='whois') {
 						var aux = $(el).attr('id').split(/;/);
 						var ip = aux[0];
-						url = "http://www.dnsstuff.com/tools/whois/?ip="+ip;
+						url = "http://whois.domaintools.com/"+ip;
 						var wnd = window.open(url,'whois_'+ip,'scrollbars=yes,location=no,toolbar=no,status=no,directories=no');
 					}
 				}
