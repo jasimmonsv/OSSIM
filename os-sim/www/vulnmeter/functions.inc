@@ -758,7 +758,7 @@ function stats_severity_services($type, $filter="") {
     $result = $dbconn->Execute($query);
     
     while ( !$result->EOF ) {
-        if(Session::hostAllowed($dbconn, $result->fields["hostIP"], $user))
+        if(Session::hostAllowed($dbconn, $result->fields["hostIP"]))
         {
             if($result->fields["risk"]==7){
                 $severity["Info"]=$result->fields["total"];
@@ -807,7 +807,7 @@ function stats_severity_services($type, $filter="") {
     //echo $query;
     $result = $dbconn->Execute($query);
     while ( !$result->EOF ) {
-        if(Session::hostAllowed($dbconn, $result->fields["hostIP"], $user)) {
+        if(Session::hostAllowed($dbconn, $result->fields["hostIP"])) {
             $services[$result->fields['app']." (".$result->fields['protocol']."/".$result->fields['port'].")"] = $result->fields['total'];
         }
     $result->MoveNext();
@@ -1211,7 +1211,7 @@ div.legend td { text-align:left; font-size:11px }
 		//});
 		$.plot($("#hosts_pie"), [
 		<? 
-		$i=0;foreach ($top10h as $host => $val) if ($i<10 && Session::hostAllowed($dbconn, $host, $_SESSION['_user'])) {
+		$i=0;foreach ($top10h as $host => $val) if ($i<10 && Session::hostAllowed($dbconn, $host)) {
 		$query = "select hostname from host where ip='$host'";
         $resname = $dbconn->Execute($query);
         if(!$resname->EOF && $host!=$resname->fields[0]) $name = $resname->fields[0];
