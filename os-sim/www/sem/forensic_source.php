@@ -363,8 +363,10 @@ a:hover { text-decoration: underline; }
                 if (previousPoint != item.datapoint) {
                     previousPoint = item.datapoint;
                     $("#tooltip").remove();
+                    //console.log(item)
                     var x = item.datapoint[0].toFixed(0), y = item.datapoint[1].toFixed(0);
-                    showTooltip(item.pageX, item.pageY, x, y, formatNmb(y)+" "+item.series.label);
+                    if (item.datapoint[2].toFixed(0)>=0) y = y - item.datapoint[2].toFixed(0);
+                    showTooltip(item.pageX, item.pageY, x, y, formatNmb(y+'')+' '+item.series.label);
                 }
             }
             else {

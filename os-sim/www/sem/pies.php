@@ -315,7 +315,7 @@ $(document).ready(function(){
 	
 	<? if (count($sensors) > 0) { ?>
 	$.plot($("#sensors_pie"), [
-	<? $i=0;foreach ($sensors as $key => $value){ ?>
+	<? $i=0;foreach ($sensors as $key => $value) if ($i<10) { ?>
 		<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=preg_replace("/\s+\(.*|\s+\[.*/","",$key)?>','','sensor')\"><?=$key?></a>",  data: <?=$value?>}
 	<? } ?>
 	], 
@@ -348,7 +348,7 @@ $(document).ready(function(){
 	<? } ?>
 	<? if (count($event_type) > 0) { ?>
 		$.plot($("#event_type_pie"), [
-	<? $i=0;foreach ($event_type as $key => $value){ ?>
+	<? $i=0;foreach ($event_type as $key => $value) if ($i<10) { ?>
 		<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=preg_replace("/\s+\[.*/","",$key)?>','','plugin')\"><?=$key?></a>",  data: <?=$value?>}
 	<? } ?>
 	], 
@@ -381,7 +381,7 @@ $(document).ready(function(){
 	<? } ?>
 	<? if (count($ips_src) > 0) { ?>
 		$.plot($("#sources_pie"), [
-	<? $i=0;foreach ($ips_src as $key => $value){ preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
+	<? $i=0;foreach ($ips_src as $key => $value) if ($i<10) { preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
 		<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','src')\"><?=$key?></a>",  data: <?=$value?>}
 	<? } ?>
 	], 
@@ -414,7 +414,7 @@ $(document).ready(function(){
 	<? } ?>
 	<? if (count($ips_dst) > 0) { ?>
 		$.plot($("#destinations_pie"), [
-	<? $i=0;foreach ($ips_dst as $key => $value){ preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
+	<? $i=0;foreach ($ips_dst as $key => $value) if ($i<10) { preg_match("/(\d+\.\d+\.\d+\.\d+)/",$key,$found); ?>
 		<?=($i++==0) ? "" : ","?>{ label: "<a href=\"javascript:parent.display_info('','','','<?=$found[1]?>','','dst')\"><?=$key?></a>",  data: <?=$value?>}
 	<? } ?>
 	], 
