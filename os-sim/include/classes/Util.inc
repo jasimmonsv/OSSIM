@@ -764,7 +764,7 @@ class Util {
         return (Util::is_utf8($string)) ? utf8_decode($string) : $string;
 	}
 	
-	function htmlentities($string, $flag=ENT_COMPAT, $charset='') {
+	function htmlentities($string, $flag=ENT_QUOTES, $charset='') {
         
 		$string = ( empty($charset) ) ? @htmlentities($string, $flag) : htmlentities($string, $flag, $charset);
 		
