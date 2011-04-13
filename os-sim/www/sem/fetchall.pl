@@ -1,7 +1,10 @@
 #!/usr/bin/perl
 $|=1;
 use Time::Local;
-#use Data::Dumper;
+use DBI;
+require "filters.pm";
+
+use Data::Dumper;
 
 if(!$ARGV[6]){
 print "Expecting: start_date end_date query start_line num_lines order_by operation cache_file\n";
@@ -14,7 +17,7 @@ $loc_db = $ini{'main'}{'locate_db'};
 $loc_db = "/var/ossim/logs/locate.index" if ($loc_db eq "");
 
 $debug="";
-
+	
 $start = $ARGV[0];
 $end = $ARGV[1];
 $query = $ARGV[2];
@@ -65,11 +68,14 @@ if ($end =~ /(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/) {
 #print L "QUERY: $query\n";
 #close L;
 		
-if($operation eq "logs" && $idsesion ne "NOINDEX" && $query !~ /taxonomy|plugingroup|dsgroup/ && -f $ini{'main'}{'searcher'} && -f $ini{'main'}{'indexer'})
+if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'} && -f $ini{'main'}{'indexer'})
 {
 	# Filter traslate
 	$filtertr{'plugin_id'} = "plugin_id";
 	$filtertr{'plugin_sid'} = "plugin_sid";
+	$filtertr{'taxonomy'} = "taxonomy";
+	$filtertr{'plugingroup'} = "plugingroup";
+	$filtertr{'dsgroup'} = "plugingroup";
 	$filtertr{'sensor'} = "sensor";
 	$filtertr{'src_ip'} = "ip_src"; $filtertr{'src'} = "ip_src";
 	$filtertr{'dst_ip'} = "ip_dst"; $filtertr{'dst'} = "ip_dst";
@@ -81,8 +87,8 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && $query !~ /taxonomy|pluging
 	# filters
 	if ($query ne "") {
 		# get different filters
-		@filters = split(/ AND /i,$query);
-		foreach $ff (@filters) {
+		@filtrs = split(/ AND /i,$query);
+		foreach $ff (@filtrs) {
 			@ors = split(/#| OR /i,$ff);
 			$filter = "";
 			foreach $f1 (@ors) {
@@ -102,20 +108,27 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && $query !~ /taxonomy|pluging
 				$allowed_sensors =~ s/[\s\n\r]*$//g;
 				$filter = ($allowed_sensors eq "") ? "" : "sensor=$allowed_sensors";
 			}
+			elsif ($filter =~ /^taxonomy=(.*)/i) { # taxonomy preprocess
+				$filter = "taxonomy=".get_taxonomy_filter($1);
+			}
+			elsif ($filter =~ /^plugingroup=(.*)/i) { # plugin group preprocess
+				$filter = "taxonomy=".get_plugingroup_filter($1);
+			}
 			$param .= ",$filter" if ($filter ne "");
 		}
 	}
+	#print "$param\n"; die;
 	# limits and order
 	$param .= ",count=$num_lines,first=$start_line";
 	$param .= ($order_by eq "date") ? ",order_first" : ",order_last";
 	$param =~ s/\"/\\"/g;
 	$cmd = 'echo "'.$param.'" | '.$ini{'main'}{'searcher'}.' -p '.$ini{'main'}{'log_dir'};
-	if ($debug ne "") {
-		#open (L,">>/tmp/fetch");
-		open (L,">>$debug");
+	#if ($debug ne "") {
+		open (L,">>/tmp/fetch");
+		#open (L,">>$debug");
 		print L "FETCHALL.pl: $cmd\n";
 		close L;
-	}	
+	#}	
 	system($cmd);
 }
 
@@ -173,24 +186,4 @@ else
 	}
 
 
-}
-
-# functions
-sub read_ini {
-	my ($hash,$section,$keyword,$value);
-    open (INI, "everything.ini") || die "Can't open everything.ini: $!\n";
-    while (<INI>) {
-        chomp;
-        if (/^\s*\[(\w+)\].*/) {
-            $section = $1;
-        }
-        if (/^\W*(.+?)=(.+?)\W*(#.*)?$/) {
-            $keyword = $1;
-            $value = $2 ;
-            # put them into hash
-            $hash{$section}{$keyword} = $value;
-        }
-    }
-    close INI;
-    return %hash;
 }
