@@ -622,18 +622,17 @@ class Incident {
         return $list;
     }
 	
-    function get_list_filtered($conn, $assets, $args = "", $user = "") {
+    function get_list_filtered($conn,  $host_ip,  $args = "", $user = "") {
         require_once ('classes/Session.inc');
         require_once ('classes/CIDR.inc');
         
-				
 		if ( $user != '' || empty($host_ip) )
 		{
 			$args = " WHERE 1=1 ". $args; 
 			$list = Incident::get_list($conn, $args, $user);
 			return $list;
 		}
-			
+		
 		
 		// Network or Host filter
 		$list = array();
@@ -727,9 +726,7 @@ class Incident {
 			{
                 
                 $allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"]);
-				
-				
-                				
+				                				
 				if ( !empty($allowed[$user]) )  
                     $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"], $rs->fields["event_end"], $rs->fields['src_ips']);
                 
@@ -999,7 +996,7 @@ class Incident {
             } else {
                 $life_time_diff = strtotime($rs->fields["date"]) - strtotime($rs->fields["last_update"]);
             }
-            $itags = (isset($tags[$rs->fields["id"]])) ? $tags[$rs->fields["id"]] : array();
+            $itags  = (isset($tags[$rs->fields["id"]])) ? $tags[$rs->fields["id"]] : array();
             $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type_id"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], $itags, $life_time_diff, $rs->fields["event_start"], $rs->fields["event_end"]);
             $rs->MoveNext();
         }
@@ -1123,40 +1120,51 @@ class Incident {
         require_once ('classes/Incident_ticket.inc');
         return Incident_ticket::get_list($conn, "WHERE incident_id = " . $this->id . " ORDER BY date");
     }
+	
     function get_alarms($conn) {
         require_once ('classes/Incident_alarm.inc');
         return Incident_alarm::get_list($conn, "WHERE incident_id = " . $this->id . " ORDER BY id");
     }
+	
     function get_events($conn) {
         require_once ('classes/Incident_event.inc');
         return Incident_event::get_list($conn, "WHERE incident_id = " . $this->id . " ORDER BY id");
     }
+	
     function get_metrics($conn) {
         require_once ('classes/Incident_metric.inc');
         return Incident_metric::get_list($conn, "WHERE incident_id = " . $this->id . " ORDER BY id");
     }
+	
     function get_anomalies($conn) {
         require_once ('classes/Incident_anomaly.inc');
         return Incident_anomaly::get_list($conn, "WHERE incident_id = " . $this->id . " ORDER BY id");
     }
+	
     function get_vulnerabilities($conn) {
         require_once ('classes/Incident_vulnerability.inc');
         return Incident_vulnerability::get_list($conn, "WHERE incident_id = " . $this->id . " ORDER BY id");
     }
-    function get_custom($conn) {
+	
+    function get_custom($conn)
+	{
 		$list = array();
         $query = OssimQuery("SELECT * FROM incident_custom WHERE incident_id=? ORDER BY id ASC");
         if (!$rs = & $conn->Execute($query,array($this->id))) {
             print $conn->ErrorMsg();
-        } else {
-            while (!$rs->EOF) {
-               	$list[] = array($rs->fields["name"],$rs->fields["content"],$rs->fields["type"],$rs->fields["id"]);
+        } 
+		else 
+		{
+            while (!$rs->EOF) 
+			{
+               	$list[$rs->fields["id"]] = array($rs->fields["name"],$rs->fields["content"],$rs->fields["type"],$rs->fields["id"]);
                 $rs->MoveNext();
             }
         }
         return $list;
     }   
-    function get_custom_content($conn,$id,$incident_id) {
+    
+	function get_custom_content($conn,$id,$incident_id) {
         $query = OssimQuery("SELECT name,content FROM incident_custom WHERE id=? and incident_id=?");
         if (!$rs = & $conn->Execute($query,array($id,$incident_id))) {
             print $conn->ErrorMsg();
@@ -1165,7 +1173,8 @@ class Incident {
         }
         return array();
     } 
-    /* get users that are part of an incident (the main Admin included)
+    
+	/* get users that are part of an incident (the main Admin included)
     * (user, in_charge, transferred and subscribed to incidents)
     */
     
@@ -1666,9 +1675,10 @@ class Incident {
         
 		foreach($fields as $value)
 		{
-			if ( $value["validate"] )
-				if (!ossim_valid($value["content"], OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field"))) 
-					return false;
+			if ( $value["validate"] && !ossim_valid($value["content"], OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field")) )
+			{
+				return false;
+			}	
         }
 		
 		require_once ('classes/Session.inc');
@@ -1692,7 +1702,7 @@ class Incident {
 	    }
         return $last_id;
     }
-    
+	
 	
     function insert_metric($conn, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end, $transferred_user, $transferred_entity) {
         
@@ -1838,6 +1848,42 @@ class Incident {
         
 		if (!$conn->Execute($sql, $params)) die($conn->ErrorMsg());
         return true;
+    }
+	
+	function update_custom($conn, $incident_id, $title, $type, $submitter, $priority, $transferred_user, $transferred_entity, $fields=array()) {
+        
+		$fields = ( empty($fields) ) ? array() : $fields;
+		
+		foreach($fields as $value)
+		{
+			if ( $value["validate"] && !ossim_valid($value["content"], OSS_TEXT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Custom field")) )
+			{
+				return false;
+			}
+				
+        }
+		
+		$in_charge = (  $transferred_user != "" ) ? $transferred_user : $transferred_entity;
+				
+		Incident::__update($conn, $incident_id, $title, $type, $submitter, $priority, $event_start, $event_end, $in_charge);
+        
+		if (ossim_error()) 
+		{
+			return false;
+		}
+        
+		foreach ($fields as $value)
+		{
+	        $sql     = "UPDATE incident_custom set content = ? WHERE name = ?";
+			$content = ( is_array($value["content"]) ) ? serialize($value["content"]) : $value["content"];
+			
+	        $params = array( $content, $value["name"] );
+	        
+			if (!$conn->Execute($sql, $params)) 
+				die($conn->ErrorMsg());
+	    }
+        return true;
+		
     }
 	
     function update_metric($conn, $incident_id, $title, $type, $submitter, $priority, $target, $metric_type, $metric_value, $event_start, $event_end, $transferred_user, $transferred_entity) {
@@ -2286,7 +2332,15 @@ class Incident {
 			break;
 			
 			case "File":
-				$field  = "<a href='incident_download_content.php?id=$id&incident_id=$incident_id'>"._("Download content")."</a>";
+								
+				if ( empty($value) )
+					$field = null;
+				else
+					$field  = ( preg_match("/Error/", $value) ) ? "<div style='color:red;'>$value</div>" : "<a href='incident_download_content.php?id=$id&incident_id=$incident_id'>"._("Download content")."</a>";
+			break;
+			
+			case "Checkbox":
+				$field = ( unserialize($value) == false ) ? $value : implode(", ", unserialize($value));
 			break;
 						
 			default:

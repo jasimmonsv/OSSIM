@@ -28,25 +28,46 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
+
+
+if( $host!='any' ) 
+	$temp_url= "../vulnmeter/index.php?value=".urlencode($host)."&type=hn";
+else
+	$temp_url="../vulnmeter/index.php?type=hn";
+
 ?>
 <table class="bordered" height="100%">
 	<tr>
-		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=2&soption=2&url=<?php if($host!='any'){ $temp_url="vulnmeter/index.php?value=$host&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities"; }else{ $temp_url="vulnmeter/index.php?type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities"; } echo urlencode($temp_url)?>" target='topmenu'><?=gettext("Latest Vulnerabilities")?></a></td>
+		<td class="headerpr" height="20"><a style="color:black" href="<?php echo $temp_url?>"><?php echo _("Latest Vulnerabilities")?></a></td>
 	</tr>
-	<? if (count($vul_events) < 1) { ?>
-	<tr><td><?=gettext("No Vulnerabilities Found for")?> <i><?=$host?></i></td></tr>
-	<? } else { ?>
+	<?php
+	if (count($vul_events) < 1) 
+	{ 
+		?>
+		<tr><td><?=gettext("No Vulnerabilities Found for")?> <i><?php echo $host?></i></td></tr>
+		<?php 
+	} 
+	else 
+	{ 
+	?>
 	<tr>
 		<td valign="top">
 			<table>
 				<tr>
-					<th><?=gettext("Name")?></th>
-					<th><?=gettext("Risk")?></th>
+					<th><?php echo _("Name")?></th>
+					<th><?php echo _("Risk")?></th>
 					<?php if ($network||$host=='any') { ?><th>IP</th><? } ?>
 				</tr>
-			<? $i = 0; foreach ($vul_events as $vul_event) { if ($i > 4) continue; $color = (($i+1)%2==0) ? "#E1EFE0" : "#FFFFFF"; ?>
+				<?php 
+				
+				$i = 0; 
+				foreach ($vul_events as $vul_event) 
+				{ 
+					if ($i > 4) continue; 
+					$color = (($i+1)%2==0) ? "#E1EFE0" : "#FFFFFF"; 
+					?>
 				<tr>
-					<td bgcolor="<?=$color?>" style="text-align:left;color: #17457c;font-size:10px"><b><?=$vul_event['name']?></b></td>
+					<td bgcolor="<?=$color?>" style="text-align:left;color: #17457c;font-size:10px"><b><?php echo $vul_event['name']?></b></td>
 					<td bgcolor="<?=$color?>">
 					<?php
 					switch($vul_event['risk']){
@@ -84,19 +105,22 @@
 					?>
 						<table align="center" bgcolor="#<?php echo $bgcolor; ?>" fgcolor="#<?php echo $fgcolor; ?>" class="transparent" width="20">
 							<tr>
-							  <td bgcolor="#<?php echo $bgcolor; ?>" fgcolor="#<?php echo $fgcolor; ?>" style="border-width: 0px;" width="20">
+								<td bgcolor="#<?php echo $bgcolor; ?>" fgcolor="#<?php echo $fgcolor; ?>" style="border-width: 0px;" width="20">
 								&nbsp;<font color="#<?php echo $fgcolor; ?>"><?php echo _($name_risk);?></font>&nbsp;
-							  </td>
+								</td>
 							</tr>
-						  </table>
-			  </td>
+						</table>
+					</td>
 					<?php if ($network|$host=='any') { ?><td bgcolor="<?=$color?>"><a href="host_report.php?host=<?=$vul_event['ip']?>" class="HostReportMenu" id="<?=$vul_event['ip']?>;<?=$vul_event['ip']?>"><?=$vul_event['ip']?></a></td><? } ?>
 				</tr>
-			<? $i++; } ?>
+				<?php
+					$i++; 
+				} 
+			?>
 			</table>
 		</td>
 	</tr>
-	<tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=2&soption=2&url=<?php if($host!='any'){ $temp_url="vulnmeter/index.php?value=$host&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities"; }else{ $temp_url="vulnmeter/index.php?type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities"; } echo urlencode($temp_url)?>" target='topmenu'><b><?=gettext("More")?> >></b></a></td></tr>
+	<tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="<?php echo $temp_url?>"><strong><?=gettext("More")?> >></strong></a></td></tr>
 	<? } ?>
 	<tr><td></td></tr>
 </table>

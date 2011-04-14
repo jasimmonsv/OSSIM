@@ -289,7 +289,7 @@ $custom_fields = array();
 if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) {
     $inctype = $inctype_list[0];
     $custom = (preg_match("/custom/",$inctype->get_keywords())) ? 1 : 0;
-    $custom_fields = Incident_type::get_custom_list($conn,$inctype_id);
+    $custom_fields = Incident_custom::get_custom_types($conn,$inctype_id);
 }
 
 ?>

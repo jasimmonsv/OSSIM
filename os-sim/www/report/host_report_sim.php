@@ -248,7 +248,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 
 <table align="center" width="100%" class="bordered">
 	<tr>
-		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target="topmenu"><?php echo gettext("SIEM Events"); ?></a></td>
+		<td class="headerpr"><a style="color:black" href="../forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=<?php echo urlencode($host)?>&date_range=week"><?php echo gettext("SIEM Events"); ?></a></td>
 	</tr>
 	<?php
 	// GRAPH
@@ -306,7 +306,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 								$tmp_rowid = "#1-(" . $ev['sid'] . "-" . $ev['cid'] . ")";
 							?>
 							<tr>
-								<td bgcolor="<?=$color?>"><a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_alert.php?submit=".rawurlencode($tmp_rowid)."&hmenu=Forensics&smenu=Forensics")?>" style="text-align:left;color: #17457c;font-size:10px" target="topmenu"><b><?=$ev['sig_name']?></b></a></td>
+								<td bgcolor="<?=$color?>"><a href="../forensics/base_qry_alert.php?submit=<?php echo rawurlencode($tmp_rowid)?>" style="text-align:left;color: #17457c;font-size:10px"><strong><?php echo $ev['sig_name']?></strong></a></td>
 								<td bgcolor="<?=$color?>"><?=Util::number_format_locale($ev['sig_cnt'],0)?></td>
 								<? if ($network) { ?><td bgcolor="<?=$color?>"><?=long2ip($ev['ip_s'])?></td><? } ?>
 								<? if ($network) { ?><td bgcolor="<?=$color?>"><?=long2ip($ev['ip_d'])?></td><? } ?>
@@ -451,7 +451,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 								<? foreach ($sim_ports as $port=>$port_val) { if ($port == 0) continue; 
 									$size = $min_font_size + ($port_val - $minimum_count) * ($max_font_size - $min_font_size) / $spread;
 								?>
-								<a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?")."tcp_port%5B0%5D%5B0%5D=+&tcp_port%5B0%5D%5B1%5D=layer4_dport&tcp_port%5B0%5D%5B2%5D=%3D&tcp_port%5B0%5D%5B3%5D=$port&tcp_port%5B0%5D%5B4%5D=+&tcp_port%5B0%5D%5B5%5D=+&tcp_flags%5B0%5D=+&layer4=TCP&num_result_rows=-1&current_view=-1&submit=QUERYDBP&sort_order=sig_a&clear_allcriteria=1&clear_criteria=time&hmenu=Forensics&smenu=Forensics"?>" target="topmenu" style="font-size:<?=$size?>px" class="tag_cloud"><?=$port?></a>&nbsp;
+								<a href="../forensics/base_qry_main.php?tcp_port%5B0%5D%5B0%5D=+&tcp_port%5B0%5D%5B1%5D=layer4_dport&tcp_port%5B0%5D%5B2%5D=%3D&tcp_port%5B0%5D%5B3%5D=<?php echo $port?>&tcp_port%5B0%5D%5B4%5D=+&tcp_port%5B0%5D%5B5%5D=+&tcp_flags%5B0%5D=+&layer4=TCP&num_result_rows=-1&current_view=-1&submit=QUERYDBP&sort_order=sig_a&clear_allcriteria=1&clear_criteria=time" style="font-size:<?=$size?>px" class="tag_cloud"><?=$port?></a>&nbsp;
 								<? } ?>
 								</td>
 							</tr>
@@ -474,7 +474,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 								<td bgcolor="#f2f2f2" style="border:1px solid #DDDDDD">
 								<? foreach ($sim_ipsrc as $ip=>$ip_val) { if ($ip == $host) continue; 
 									$size = $min_font_size + ($ip_val - $minimum_count) * ($max_font_size - $min_font_size) / $spread;?>
-								<a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$ip&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target='topmenu' style="font-size:<?=$size?>px" class="tag_cloud"><?=$ip?></a>&nbsp;&nbsp;
+								<a href="../forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=<?php echo urlencode($ip)?>&date_range=week" style="font-size:<?=$size?>px" class="tag_cloud"><?php echo $ip?></a>&nbsp;&nbsp;
 								<? } ?>
 								</td>
 							</tr>
@@ -497,7 +497,7 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 								<td bgcolor="#f2f2f2" style="border:1px solid #DDDDDD">
 								<? foreach ($sim_ipdst as $ip=>$ip_val) { if ($ip == $host) continue; 
 									$size = $min_font_size + ($ip_val - $minimum_count) * ($max_font_size - $min_font_size) / $spread;?>
-								<a href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$ip&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target='topmenu' style="font-size:<?=$size?>px" class="tag_cloud"><?=$ip?></a>&nbsp;&nbsp;
+								<a href="../forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=<?php echo urlencode($ip)?>&date_range=week" style="font-size:<?=$size?>px" class="tag_cloud"><?=$ip?></a>&nbsp;&nbsp;
 								<? } ?>
 								</td>
 							</tr>
@@ -508,5 +508,5 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom',$date_range);
 			</table>
 		</td>
 	</tr>
-	<tr><td><table><tr><?php /*<td style="text-align:left;font-size:10px"><?=gettext("Time range")?>: <b><?=gettext("Last Week")?></b></td>*/ ?><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=2&soption=0&url=<?=urlencode("forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=$host&date_range=week&hmenu=Forensics&smenu=Forensics")?>" target='topmenu'><b><?=gettext("More")?> >></b></a></td></tr></table></td></tr>
+	<tr><td><table><tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="../forensics/base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=<?php echo urlencode($host)?>&date_range=week"><strong><?php echo gettext("More")?> >></strong></a></td></tr></table></td></tr>
 </table>

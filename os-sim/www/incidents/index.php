@@ -431,7 +431,7 @@ $incident_tag = new Incident_tag($conn);
 							  }
 							?>
 						<td <?php echo $class?>><?php echo $in_charge_name ?></td>
-						<td <?php echo $class?>><?php echo $incident->get_submitter() ?>&nbsp</td>
+						<td <?php echo $class?>><?php echo $incident->get_submitter()?>&nbsp;</td>
 						<td <?php echo $class?>><?php echo $incident->get_type() ?></td>
 						<td <?php echo $class?>><?php Incident::colorize_status($incident->get_status()) ?></td>
 						<td <?php echo $class?>>

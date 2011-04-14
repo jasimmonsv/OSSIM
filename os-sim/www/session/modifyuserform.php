@@ -146,7 +146,9 @@ $pass_length_max = ( $pass_length_max < $pass_length_min || $pass_length_max < 1
 
 		function formsubmit() {
 			if (checkpasslength() && checkpass() && checkemail()) {
-				selectall('nets');
+				
+				if ( document.getElementById('nets') != null )
+					selectall('nets');
 				document.fmodify.submit();
 			}
 		}

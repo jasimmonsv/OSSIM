@@ -65,7 +65,7 @@ if (ossim_error()) {
 	die(ossim_error());
 }
 
-if ($edit) 
+if ( $edit ) 
 {
     if (!ossim_valid(GET('incident_id') , OSS_DIGIT, 'illegal:' . _("Incidend id")) ) 
 	{
@@ -149,7 +149,13 @@ if ($edit)
             $nessus_id 				= $vulnerability->get_nessus_id();
             $risk 					= $vulnerability->get_risk();
             $description 			= $vulnerability->get_description();
-            break;
+        break;
+		
+		case 'Custom':
+			$custom_values          = Incident_custom::get_list($conn, "WHERE incident_custom.incident_id=$incident_id");
+		
+		break;
+		
     }
 } 
 else 
@@ -344,8 +350,14 @@ else
 				$("#crt").submit();
 				return true;
 			}
-			
-		}	
+		}
+
+		function delete_file(id)
+		{
+			$('#delfile_'+id).remove();
+			$('#'+id+"_del").val("1");
+		}
+
 	</script>
 	
 	<style type='text/css'>
@@ -388,6 +400,7 @@ else
 
 <form id='crt' method="POST" action="manageincident.php" enctype="multipart/form-data">
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />
+<input type="hidden" name="edit" value="<?php echo $edit ?>" />
 <input type="hidden" name="ref" value="<?php echo $ref ?>" />
 <input type="hidden" name="incident_id" value="<?php echo $incident_id ?>" />
 <input type="hidden" name="submitter" value="<?php echo $submitter ?>" />
@@ -761,45 +774,80 @@ $entities   = Session::get_entities_to_assign($conn);
 <?php
 } elseif ($ref == "Custom") {
 	
-	$fields       = Incident_type::get_custom_list($conn,$type);
+	$fields       = Incident_custom::get_custom_types($conn,$type);
 	$form_builder = new Form_builder();
 	$params       = array();
 	$cont         = 1;
-	
-	foreach ($fields as $field)
-	{
-		echo "<tr id='item_".$cont."'><th id='name_".$cont."' class='thr'><span>".utf8_decode($field['name'])."</span></th>";
-    	
-		echo "<td style='border-width: 0px;text-align:left'>";
-		$params = get_params_field($field, $map_key);
-		$form_builder->set_attributes($params);
-		
-		$wf1_types = array ('Select box', 'Date','Date Range', 'Checkbox', 'Radio button');
-		
-		if ( in_array($field['type'], $wf1_types) )
-			$class_wf = array('wfl1', 'wfr1');
-		else
-			$class_wf =  array('wfl2', 'wfr2');
-		
-		echo "<div class='".$class_wf[0]."'>";
-			echo $form_builder->draw_element($field['type']);
-		echo "</div>";
-		
-		$req_f_inherent = array('Check True/False', 'Check Yes/No', 'Asset', 'Slider');
-		
-		$mandatory = ( $field['required'] == 1 && !in_array($field['type'], $req_f_inherent) ) ? "<span>(*)</span>" : "";
 			
-		echo "<div class='".$class_wf[1]."'>".$mandatory."</div>";
-		echo "</td>";
+	if ( empty($fields) )
+	{
+		echo "<tr><td class='nobborder' colspan='2'>";
+			$error = new OssimNotice();
+			$info  = array(_("You don't have added any custom types or your custom types have been deleted"));
+			$error->display(_("DEFAULT"), $info, false);
+		echo "</td></tr>";
+	}
+	else
+	{
+		foreach ($fields as $field)
+		{
+			echo "<tr id='item_".$cont."'><th id='name_".$cont."' class='thr'><span>".utf8_decode($field['name'])."</span></th>";
+			
+			echo "<td style='border-width: 0px;text-align:left'>";
+			$params = get_params_field($field, $map_key);
+			$form_builder->set_attributes($params);
+			
+			if ( is_object($custom_values[$field['name']]) )		
+			{
+				$default_value = $custom_values[$field['name']]->get_content();
+				$type          = $custom_values[$field['name']]->get_type();
+				$id            = $custom_values[$field['name']]->get_id();
+			
+			}
+			else
+				$default_value = null;
 					
-    	echo"</tr>\n";
-		$cont++;
+			
+			$wf1_types = array ('Select box', 'Date','Date Range', 'Checkbox', 'Radio button');
+			
+			if ( in_array($field['type'], $wf1_types) )
+				$class_wf = array('wfl1', 'wfr1');
+			else
+				$class_wf =  array('wfl2', 'wfr2');
+			
+			echo "<div class='".$class_wf[0]."'>";
+				
+				if ( !empty($default_value) && $type == 'File' )
+				{	
+					echo "<div style='padding-bottom: 3px; text-align: left' id='delfile_".$params['id']."'>";
+						echo Incident::format_custom_field($id, $incident_id, '', $type);
+						echo "<span style='margin-left: 3px'>
+								<a style='cursor:pointer' onclick=\"delete_file('".$params['id']."')\"><img src='../pixmaps/delete.gif' align='absmiddle' title='"._("Delete File")."'/></a>
+							  </span>";		
+					echo "</div>";
+					echo "<input type='hidden' name='".$params['name']."_del' id='".$params['id']."_del' value='0'/>";
+				}
+				
+				echo $form_builder->draw_element($field['type'], $default_value);
+			
+			echo "</div>";
+			
+			$req_f_inherent = array('Check True/False', 'Check Yes/No', 'Asset', 'Slider');
+			
+			$mandatory = ( $field['required'] == 1 && !in_array($field['type'], $req_f_inherent) ) ? "<span>(*)</span>" : "";
+				
+			echo "<div class='".$class_wf[1]."'>".$mandatory."</div>";
+			echo "</td>";
+						
+			echo"</tr>\n";
+			$cont++;
+		}
 	}
 }
 ?>
 
 	<tr>
-		<td colspan="2" class="noborder" style='height:30px;'><input type="button" style='width:40px;' value="<?=_("OK")?>" class="button" onclick="send_form();"/></td>
+		<td colspan="2" class="noborder" style='height:30px;'><input type="button" style='width:40px;' value="<?php echo _("OK")?>" class="button" onclick="send_form();"/></td>
 	</tr>
 </table>
 

@@ -561,7 +561,7 @@ function ossim_error($error_msg = null, $error_type='ERROR', $error_code=null) {
         return false;
     }	
 	   
-    return $ossim_eclass->get($error_code, array( $error_msg ));
+    return "<div style='width:95%; margin:auto;'>".$ossim_eclass->get($error_code, array( $error_msg ))."</div>";
 }
 
 function validate_form_fields($type, $validate)

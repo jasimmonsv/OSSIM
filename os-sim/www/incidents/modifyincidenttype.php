@@ -56,10 +56,10 @@ require_once 'classes/Security.inc';
 $options = array ("Checkbox", "Select box", "Radio button", "Slider");
 
 
-$inctype_id = POST('id');
+$inctype_id    = POST('id');
 $inctype_descr = POST('descr');
-$action = POST('modify');
-$custom = intval(POST('custom'));
+$action        = POST('modify');
+$custom        = intval(POST('custom'));
 
 $custom_name       = POST('custom_namef');
 $custom_old_name   = POST('old_name');
@@ -95,14 +95,18 @@ ossim_valid($action, OSS_ALPHA, OSS_SCORE, 'illegal:' . _("action"));
 if (ossim_error()) {
     die(ossim_error());
 }
-if (!Session::am_i_admin()) {
+
+if (!Session::am_i_admin()) 
+{
     require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("ONLY_ADMIN");
 }
+
 require_once ('ossim_db.inc');
 require_once ('classes/Incident_type.inc');
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
 
 $custom_name     = Util::htmlentities($custom_name, ENT_QUOTES);
@@ -115,27 +119,27 @@ if ( $action=="modify" )
 } 
 elseif ( $action=="modify_ct" ) 
 {
-	Incident_type::update_custom($conn, $custom_name, $custom_type, $custom_options, $custom_required, $inctype_id, $custom_old_name);
+	Incident_custom::update_custom($conn, $custom_name, $custom_type, $custom_options, $custom_required, $inctype_id, $custom_old_name);
 	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
 }
 elseif ( $action=="modify_pos" ) 
 {
-	Incident_type::update_ord($conn, $custom_oldpos, $custom_newpos, $inctype_id, $custom_old_name);
+	Incident_custom::update_ord($conn, $custom_oldpos, $custom_newpos, $inctype_id, $custom_old_name);
 	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
 }
 elseif ($action=="add" && trim($custom_name)!="" && trim($custom_type)!="") 
 {
 	if ( (in_array($custom_type, $options) && $custom_options !='' ) || !in_array($custom_type, $options) )
 	{
-		$next_ord = Incident_type::get_next_ord($conn, $inctype_id);
-		$params = array($inctype_id, $custom_name, $custom_type, $custom_options, $custom_required, $next_ord);
-		Incident_type::insert_custom($conn, $params);
+		$next_ord  = Incident_custom::get_next_ord($conn, $inctype_id);
+		$params    = array($inctype_id, $custom_name, $custom_type, $custom_options, $custom_required, $next_ord);
+		Incident_custom::insert_custom($conn, $params);
 		$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
 	}
 } 
 elseif ($action=="delete" && trim($custom_name)!="") 
 {
-	Incident_type::delete_custom($conn, $inctype_id, $custom_name);
+	Incident_custom::delete_custom($conn, $inctype_id, $custom_name);
 	$location = "modifyincidenttypeform.php?id=".urlencode($inctype_id);
 }
 

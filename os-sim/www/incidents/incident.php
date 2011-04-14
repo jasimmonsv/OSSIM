@@ -67,6 +67,7 @@ if (count($incident_list) != 1) {
 
 $incident = $incident_list[0];
 
+
 //Incident data
 $name 				= $incident->get_ticket();
 $title 				= $incident->get_title();
@@ -107,7 +108,7 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 	<script type="text/javascript">
 				
 		var geocoder;
-			var map;
+		var map;
 					
 		function codeAddress(map, address) {
 			geocoder.geocode( { 'address': address}, function(results, status) {
@@ -530,7 +531,7 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 						<?php
 							if ( Incident::user_incident_perms($conn, $id, 'delincident') )
 							{
-								$edit_action = "<a href='newincident.php?action=edit&ref=$ref&incident_id=$id'>
+								$edit_action = "<a href='newincident.php?action=edit&ref=$ref&incident_id=$id&edit=1'>
 									<img src='../vulnmeter/images/pencil.png' border='0' align='absmiddle' title='"._("Edit ticket")."'></a>";
 									
 								$delete_action = "<a onClick=\"delete_ticket('$id');\"><img src='../pixmaps/delete.gif' border='0' align='absmiddle' title='"._("Delete ticket")."'></a>";

@@ -52,6 +52,7 @@
 * - useractive()
 * - logcheck()
 * - logcheck_ext()
+* - unallowed_section()
 * - getValue()
 * - allowedNets()
 * - allowedSensors()
@@ -523,20 +524,10 @@ else {
 				if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) 
 				{
 					if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
-						echo "<p align=\"center\">
-							<b>You don't have permission to see this page</b></p>";
-						echo "<p align=\"center\">[ User: " . $_SESSION["_user"] . "]</p>";
-						echo "<p align=\"center\">[ <a href=\"/ossim/session/login.php?action=logout\"
-							  title=\"Logout\"><font color=\"black\">Logout</font></a> ]</p>";
-						exit;
+						Session::unallowed_section();
 					}
 				}
 			}
-		}
-		
-		function unallowed_section($user)
-		{
-		
 		}
 		
 		function logcheck_ext($menu, $submenu, $axo_sec, $axo_val, $login_location = "../session/login.php") {
@@ -553,13 +544,91 @@ else {
 			}
 			if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"], $axo_sec, $axo_val)) {
 				if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
-					echo "<p align=\"center\">
-						<b>You don't have permission to do this action</b></p>";
-					echo "<p align=\"center\">[ User: " . $_SESSION["_user"] . "]";
-					exit;
+					Session::unallowed_section(false);
 				}
 			}
 		}
+		
+		
+		function unallowed_section($link = null, $action='noback')
+		{
+			require_once ("ossim_error.inc");
+			
+			if ( $link === false )
+				$link = null;
+			else
+			{
+				$link = ( empty($link) ) ? "<a class='color: #00529B !important' href='/ossim/session/login.php?action=logout' title='"._("Logout")."'><span class='notice_link'>[ "._("Logout")." ]</span></a>" : $link;
+			}
+			
+			$error = new OssimNotice();
+			
+			//CSS styles
+			
+			echo "<style type='text/css'>
+					
+					a {text-decoration:none !important; outline: none !important;}
+					
+					.notice_link, .notice_link:link, .notice_link:hover, .notice_link:active, .notice_link:visited  { color: #00529B !important; font-weight: bold; margin-left: 5px;}
+															
+					.button {
+						border-width: 0px !important;
+						#border-left-color:#C9C9C9 !important;
+						#border-top-color:#C9C9C9 !important;
+						#border-right-color:#B3B3B3 !important;
+						#border-bottom-color:#B3B3B3 !important;
+						color: #FFFFFF !important;
+						height:24px !important;
+						background-color: transparent !important;
+						background: url(../pixmaps/theme/bg_button2.gif) 50% 50% repeat-x !important;
+						padding:2px 5px !important;
+						font-family: arial,verdana,helvetica,sans-serif !important;
+						font-size: 12px !important;
+						font-weight:bold !important;
+					}
+							
+					input.button:hover
+					{
+						color:white !important;
+						background: url(../pixmaps/theme/bg_button_on2.gif) 50% 50% repeat-x !important;
+						padding-bottom:2px !important;
+					}
+					
+					input {
+						border: solid;
+						border-style: solid;
+						border-width: 1px;
+						color: #222;
+						border-color: #888;
+						background: #fdfdfd;
+						font-family: verdana,arial,helvetica,sans-serif;
+						font-size:  8pt;
+					}
+
+					.button
+					{
+					   background: #cccccc url(../pixmaps/theme/bg_button.png) 50% 50% repeat-x; font-size: 11px; color: #222222; text-align: center;
+					}
+					
+					input[type=\"button\"]:hover, .button:hover
+					{
+					   border:1px solid #02A705;
+					   background: #4AC600 url(../pixmaps/theme/bg_button_on.png) 50% 50% repeat-x; color: #FFFFFF;
+					}
+					
+					input{
+						border-radius: 3px;
+						-moz-border-radius: 3px;
+						-webkit-border-radius: 3px;
+					}
+					
+				</style>";
+			
+			echo "<div style='width: 95%; font-size: 11px; margin: auto;'>";
+				$error->display(_("LOGOUT"), array($link), false);
+			echo "</div>";
+		}
+				
 		
 		/*
 		* Backwards compatibility with allowedNets function

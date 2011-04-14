@@ -39,7 +39,8 @@
 * - insert()
 * - update()
 * - delete()
-* - get_custom_list()
+* - get_list()
+* - get_custom_types()
 * - insert_custom()
 * - update_custom()
 * - delete_custom()
@@ -47,6 +48,7 @@
 * - get_next_ord()
 * Classes list:
 * - Incident_type
+* - Incident_custom
 */
 require_once ('classes/Incident.inc');
 require_once 'classes/Log_action.inc';
@@ -140,20 +142,56 @@ class Incident_type {
         $infolog = array($id);
         Log_action::log(54, $infolog);
     }
-    //
-    // CUSTOM TYPES
-    //
-    function insert_custom($conn, $params) {
-        $sql = "INSERT IGNORE into incident_custom_types ( id, name, type, options, required, ord) VALUES (?, ?, ?, ?, ?, ?)";
-        
-		if ($conn->Execute($sql, $params) == false) {
-            print '<div id="info_error" class="ct_error" style="display: block">Error inserting: ' . $conn->ErrorMsg() . '<br/></div>';
-            exit;
+}
+
+/* Incident custom*/
+	
+class Incident_custom {
+	    
+	public $id;
+	public $incident_id;
+	public $name;
+	public $type;
+	public $content;
+	
+	function get_id()          { return $this->id; }
+    function get_incident_id() { return $this->incident_id; }
+    function get_name()        { return $this->name; }
+	function get_type()        { return $this->type; }
+    function get_content()     { return $this->content; }	
+	
+	public function __construct($id, $incident_id, $name, $type, $content){
+		$this->id          = $id;
+		$this->incident_id = $incident_id;
+		$this->name        = $name;
+		$this->type        = $type;
+		$this->content     = $content;
+	;}	
+	
+	function get_list($conn, $args) { 	
+	
+		$list = array();
+        $query = OssimQuery("SELECT * FROM incident_custom $args");
+						
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } 
+		else 
+		{
+            while (!$rs->EOF) 
+			{
+                $list[$rs->fields["name"]] = new Incident_custom($rs->fields["id"], $rs->fields["incident_id"], $rs->fields["name"], $rs->fields["type"], $rs->fields["content"]);
+                $rs->MoveNext();
+            }
         }
-    }
-    function get_custom_list($conn, $id) {
+        return $list;
+	
+	}	
+	
+    function get_custom_types($conn, $id) {
         $list = array();
         $query = OssimQuery("SELECT * FROM incident_custom_types WHERE id=? ORDER BY ord ASC");
+						
         if (!$rs = & $conn->Execute($query,array($id))) {
             print $conn->ErrorMsg();
         } else {
@@ -168,7 +206,17 @@ class Incident_type {
             }
         }
         return $list;
-    }    
+    }  
+	
+	function insert_custom($conn, $params) {
+        $sql = "INSERT IGNORE into incident_custom_types ( id, name, type, options, required, ord) VALUES (?, ?, ?, ?, ?, ?)";
+        
+		if ($conn->Execute($sql, $params) == false) {
+            print '<div id="info_error" class="ct_error" style="display: block">Error inserting: ' . $conn->ErrorMsg() . '<br/></div>';
+            exit;
+        }
+    }
+	
     function delete_custom($conn, $id, $name) {
         $sql = "DELETE FROM incident_custom_types WHERE id=? AND name=?";
         $params = array(
@@ -180,6 +228,7 @@ class Incident_type {
             exit;
         }
     }
+	
 	function update_custom($conn, $custom_name, $custom_type, $custom_options, $custom_required,  $inctype_id, $custom_old_name) {
     	
         $sql = "UPDATE incident_custom_types SET name= ?, type= ?, options= ?, required=? WHERE id = ? and name = ?";
@@ -199,6 +248,7 @@ class Incident_type {
             exit;
         }
     }
+	
 	function update_ord($conn, $oldpos, $newpos, $inctype_id) {
     	
     	if ($oldpos<0) $oldpos=0; // safe check
@@ -219,6 +269,7 @@ class Incident_type {
             exit;
         }        
     }
+	
 	function get_next_ord($conn, $inctype_id) {
     	
 		$query = OssimQuery("SELECT max(ord) as max FROM incident_custom_types WHERE id = ?");

@@ -35,7 +35,8 @@
 * Classes list:
 */
 require_once 'classes/Session.inc';
-if(!Session::am_i_admin()) { exit; }
+if( !Session::am_i_admin() ) 
+	Session::unallowed_section(false);
 
 require_once 'ossim_db.inc';
 require_once 'classes/Incident_type.inc';
@@ -64,7 +65,10 @@ $conn = $db->connect();
     <!-- main table -->
     <table align="center">
 <?php 
-	if ($inctype_list = Incident_type::get_list($conn, "")) { ?>
+	$inctype_list = Incident_type::get_list($conn, "");
+	
+	
+	if ( $inctype_list ) { ?>
 		<tr>
 			<th class='pad3'><?php echo gettext("Ticket type");?></th>
 			<th class='pad3'><?php echo gettext("Description");?></th>
@@ -76,7 +80,7 @@ $conn = $db->connect();
 			foreach($inctype_list as $inctype)
 			{
 				$custom = (preg_match("/custom/",$inctype->get_keywords())) ? "tick.png" : "cross.png";
-				$custom_fields = Incident_type::get_custom_list($conn,$inctype->get_id());
+				$custom_fields = Incident_custom::get_custom_types($conn,$inctype->get_id());
 				$alt = (preg_match("/custom/",$inctype->get_keywords())) ? implode(",",$custom_fields) : "";
 		?>
 				<tr>
@@ -102,21 +106,34 @@ $conn = $db->connect();
 					
 		?>
 				</tr>
+				
+				
+				
 		<?php
 			}
+			?>
+			<tr>
+				<td colspan="4" align="center" style="height:30px" class='noborder'>
+					<a href="newincidenttypeform.php" class="buttonlink"><?php echo gettext("Add new type"); ?></a>
+				</td>
+			</tr>
+		</table>
+		<?php		
+			
+			
 
 	} 
 	else 
-		echo "error";
+	{
+		$error = _("Error to connect to the database.  Please, try again.");
+		ossim_set_error($error);
+		echo "<div style='width:80%; margin:auto;'>".ossim_error()."</div>";
+	}
 	
 ?>
-		<tr>
-			<td colspan="4" align="center" style="height:30px" class='noborder'>
-				<a href="newincidenttypeform.php" class="buttonlink"><?php echo gettext("Add new type"); ?></a>
-			</td>
-		</tr>
+		
     
-	</table>
+	
 
 </body>
 </html>

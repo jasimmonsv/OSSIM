@@ -71,23 +71,28 @@ $greybox  = 0;
 if($host!='any'){
 	ossim_valid($host, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("Host"));
 }
+
 ossim_valid($hostname, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Hostname"));
 ossim_valid($greybox, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("greybox"));
 
 $date_from=GET('star_date');
 ossim_valid($date_from, OSS_DIGIT, OSS_NULLABLE, '-', 'illegal:' . _("Date from"));
+
 $date_to=GET('end_date');
 ossim_valid($date_to, OSS_DIGIT, OSS_NULLABLE, '-', 'illegal:' . _("Date to"));
+
 if($date_from==''||$date_to==''){
 	// For default week
 	$date_from=date('Y-m-d', strtotime("-1 week")); 
 	$date_to=date('Y-m-d', time()); 
 }
+
 if (ossim_error()) {
     die(ossim_error());
 }
 
 $date_range=array('date_from'=>$date_from,'date_to'=>$date_to);
+
 if($date_from==date('Y-m-d', strtotime("-1 week"))&&$date_to==date('Y-m-d', time())){
 	$type_active='lastWeek';
 }elseif($date_from==date('Y-m-d', strtotime("-1 month"))&&$date_to==date('Y-m-d', time())){
@@ -100,9 +105,10 @@ if($date_from==date('Y-m-d', strtotime("-1 week"))&&$date_to==date('Y-m-d', time
 //
 require_once 'ossim_db.inc';
 require_once 'ossim_conf.inc';
+
 // Database Object
-$db = new ossim_db();
-$conn = $db->connect();
+$db         = new ossim_db();
+$conn       = $db->connect();
 $conn_snort = $db->snort_connect();
 
 if( $host==$hostname && preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $host) ) {
@@ -120,6 +126,7 @@ $hostname = "Host";
 $_SESSION['host_report'] = $host;
 
 $network = 0;
+
 if (preg_match("/\/\d+/",$host)) {
 	$network = 1;
 }
@@ -158,8 +165,8 @@ if ($network) {
 	$title_graph = preg_replace ("/Host Report: /","",$title);
 }
 
-$user = Session::get_session_user();
-$conf = $GLOBALS['CONF'];
+$user    = Session::get_session_user();
+$conf    = $GLOBALS['CONF'];
 $map_key = $conf->get_conf("google_maps_key", FALSE);
 if ($map_key=="") $map_key="ABQIAAAAbnvDoAoYOSW2iqoXiGTpYBTIx7cuHpcaq3fYV4NM0BaZl8OxDxS9pQpgJkMv0RxjVl6cDGhDNERjaQ";
 include ("geoip.inc");
@@ -484,143 +491,170 @@ a {
 </head>
 <body style="margin:0px">
 <?php if($host=='any') include("../hmenu.php"); ?>
-<? if (!Session::hostAllowed($conn, $host)) { ?>
-<h1>HOST <?=$host?> <?=gettext("not allowed")?></h1>
-</body>
-</html>
-<? exit; } ?>
-<? if ($notfound) { ?>
-<h1>NETWORK <?=$host?> <?=gettext("not found")?></h1>
-</body>
-</html>
-<? exit; } ?>
-<form><input type="hidden" name="cursor"></form>
-<? //include("../hmenu.php") ?>
-<?php /*if (1==2) { ?><h1 style="height:23px;padding-top:5px;font-size:16px;margin:0px"><?=$title?></h1><? }*/ ?>
-<div id="loading" style="position:absolute;top:40%;left:40%">
-	<table class="noborder" style="background-color:white">
-		<tr>
-			<td class="nobborder" style="text-align:center">
-				<span class="progressBar" id="pbar"></span>
-			</td>
-		</tr>
-		<tr>
-			<td class="nobborder" id="progressText" style="text-align:center"><?php echo gettext("Loading Report. Please, wait a few seconds...")?></td>
-		</tr>
-	</table>
-</div>
-<script type="text/javascript">
-	$("#pbar").progressBar();
-	$("#pbar").progressBar(10);
-	$("#progressText").html('<?php echo gettext("Loading <b>Report</b>. <br>Please, wait a few seconds...")?>');
-</script>
-<?
-ob_flush();
-flush();
-usleep(500000);
+
+<?php 
+
+if (!Session::hostAllowed($conn, $host)) 
+{ 
+	?>
+	<h1>HOST <?=$host?> <?=gettext("not allowed")?></h1>
+	</body>
+	</html>
+	<?php 
+	exit; 
+} 
 ?>
-<div id="host_report<? if ($greybox) echo "_mini" ?>" style="display:none">
-<table class="noborder" cellpadding="2" cellspacing="5" width="100%" height="100%">
-	<tr>
-		<td>
-			<table style="background-color:#617F57" height="100%" cellpadding="5">
-				<tr>
-					<td <?php if ($network) { ?>colspan="2"<?php } ?> style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?php echo gettext("General Data"); ?><?php if($host!='any'){?>: <?=preg_replace("/\(/","<font style='font-size:14px'><i> - (",preg_replace("/\)/",")</i></font>",$title_graph))?><?php } ?></td>
-					<td id="cont_date">
-						<table class="noborder" cellpadding="0" cellspacing="0" width="100%" style="background:none !important">
-							<tr>
-								<td style="color:#fff;text-align:left">
-									<?php if($host!='any') { ?>
-									<div id="widget" style="display: inline;margin-right: 7px;">
-										<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0" /></a>
-										<div id="widgetCalendar"></div>
-									</div>
-									<?php echo gettext("From:"); ?> <input readonly="readonly" type="text" name="date_from" id="date_from"  value="<?php echo $date_from; ?>" style="width:80px;"/>
-									<?php echo gettext("to:"); ?> <input readonly="readonly" type="text" name="date_to" id="date_to" value="<?php echo $date_to; ?>" style="width:80px;"/>
-									<? } ?>
-								</td>
-								<td style="color:#fff;text-align:right">
-									<?php if($type_active=='lastWeek'){?><strong><?php } ?><a href="javascript:executeRange('lastWeek');"><?php echo gettext("Last week"); ?></a><?php if($type_active=='lastWeek'){?></strong><?php } ?> | <?php if($type_active=='lastMonth'){?><strong><?php } ?><a href="javascript:executeRange('lastMonth');"><?php echo gettext("Last month"); ?></a><?php if($type_active=='lastMonth'){?></strong><?php } ?> | <?php if($type_active=='lastYear'){?><strong><?php } ?><a href="javascript:executeRange('lastYear');"><?php echo gettext("Last year"); ?></a><?php if($type_active=='lastYear'){?></strong><?php } ?>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td class="nobborder" valign="top" width="50%"><? include ("host_report_status.php") ?></td>
-					<td valign="top" class="nobborder" width="<?=($network) ? "20%" : "50%"?>">
-					<?php
-						if($host!='any'){
-							if ($network){
-								include ("net_report_inventory.php");
-							}else{
-								include ("host_report_inventory.php");
-							}
-						}else{
-						?>
-							<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
-								<tr>
-									<td class="headerpr" height="20"><?php echo _("Inventory")?></td>
-								</tr>
-								<tr>
-									<td class="nobborder">
-										<div id="aptree" style="font-size:15px;text-align:left;width:98%;padding:8px"></div>
-									</td>
-								</tr>
-							</table>
-					<?php
-						}
-					?>
-					</td>
-					<? if ($network) { ?><td valign="top" class="nobborder"><? include ("net_report_network.php") ?></td><? } ?>
-				</tr>
-			</table>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<table style="background-color:#727385" height="100%" cellpadding="5">
-				<tr><td colspan="3" style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px">SIEM</td></tr>
-				<tr>
-					<td class="nobborder" valign="top" width="33%"><? include ("host_report_tickets.php") ?></td>
-					<td class="nobborder" valign="top" width="33%"><? include ("host_report_alarms.php") ?></td>
-					<td class="nobborder" valign="top" width="33%"><? include ("host_report_vul.php") ?></td>
-				</tr>
-				<tr><td colspan="3" class="nobborder"><?php include ("host_report_sim.php") ?></td></tr>
-			</table>
-		</td>
-	</tr>
-	<script type="text/javascript">$("#pbar").progressBar(90);$("#progressText").html('<b><?=gettext("Generating Report")?></b>...');</script><?php
-	ob_flush();
-	flush();
-	usleep(500000);
-	?><script type="text/javascript">$("#pbar").progressBar(95);</script><?
+
+<?php 
+	if ($notfound) 
+	{ 
+		?>
+		<h1>NETWORK <?=$host?> <?=gettext("not found")?></h1>
+		</body>
+		</html>
+		<?php 
+		exit; 
+	} 
+?>
+
+<form>
+	<input type="hidden" name="cursor"></form>
+	<?php /*if (1==2) { ?><h1 style="height:23px;padding-top:5px;font-size:16px;margin:0px"><?=$title?></h1><? }*/ ?>
+	<div id="loading" style="position:absolute;top:40%;left:40%">
+		<table class="noborder" style="background-color:white">
+			<tr>
+				<td class="nobborder" style="text-align:center">
+					<span class="progressBar" id="pbar"></span>
+				</td>
+			</tr>
+			<tr>
+				<td class="nobborder" id="progressText" style="text-align:center"><?php echo gettext("Loading Report. Please, wait a few seconds...")?></td>
+			</tr>
+		</table>
+	</div>
+	
+	<script type="text/javascript">
+		$("#pbar").progressBar();
+		$("#pbar").progressBar(10);
+		$("#progressText").html('<?php echo gettext("Loading <b>Report</b>. <br>Please, wait a few seconds...")?>');
+	</script>
+
+	<?php
 	ob_flush();
 	flush();
 	usleep(500000);
 	?>
-	<tr>
-		<td>
-			<table style="background-color:#8F6259" height="100%" cellpadding="5">
-				<tr><td style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?php echo gettext("Logger"); ?></td></tr>
-				<tr><td class="nobborder"><? include ("host_report_sem.php") ?></td></tr>
-				<script type="text/javascript">$("#pbar").progressBar(99);$("#progressText").html('<b><?=gettext("Finishing")?></b>...');</script>
-				<?
-ob_flush();
-flush();
-usleep(500000);
-?>
-			</table>
-		</td>
-	</tr>
-</table>
-</div>
+
+	<div id="host_report<? if ($greybox) echo "_mini" ?>" style="display:none">
+		<table class="noborder" cellpadding="2" cellspacing="5" width="100%" height="100%">
+			<tr>
+				<td>
+					<table style="background-color:#617F57" height="100%" cellpadding="5">
+						<tr>
+							<td <?php if ($network) { ?>colspan="2"<?php } ?> style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?php echo gettext("General Data"); ?><?php if($host!='any'){?>: <?=preg_replace("/\(/","<font style='font-size:14px'><i> - (",preg_replace("/\)/",")</i></font>",$title_graph))?><?php } ?></td>
+							<td id="cont_date">
+								<table class="noborder" cellpadding="0" cellspacing="0" width="100%" style="background:none !important">
+									<tr>
+										<td style="color:#fff;text-align:left">
+											<?php if($host!='any') { ?>
+											<div id="widget" style="display: inline;margin-right: 7px;">
+												<a href="javascript:;"><img src="../pixmaps/calendar.png" id='imgcalendar' border="0" /></a>
+												<div id="widgetCalendar"></div>
+											</div>
+											<?php echo gettext("From:"); ?> <input readonly="readonly" type="text" name="date_from" id="date_from"  value="<?php echo $date_from; ?>" style="width:80px;"/>
+											<?php echo gettext("to:"); ?> <input readonly="readonly" type="text" name="date_to" id="date_to" value="<?php echo $date_to; ?>" style="width:80px;"/>
+											<? } ?>
+										</td>
+										<td style="color:#fff;text-align:right">
+											<?php if($type_active=='lastWeek'){?><strong><?php } ?><a href="javascript:executeRange('lastWeek');"><?php echo gettext("Last week"); ?></a><?php if($type_active=='lastWeek'){?></strong><?php } ?> | <?php if($type_active=='lastMonth'){?><strong><?php } ?><a href="javascript:executeRange('lastMonth');"><?php echo gettext("Last month"); ?></a><?php if($type_active=='lastMonth'){?></strong><?php } ?> | <?php if($type_active=='lastYear'){?><strong><?php } ?><a href="javascript:executeRange('lastYear');"><?php echo gettext("Last year"); ?></a><?php if($type_active=='lastYear'){?></strong><?php } ?>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td class="nobborder" valign="top" width="50%"><? include ("host_report_status.php") ?></td>
+							<td valign="top" class="nobborder" width="<?=($network) ? "20%" : "50%"?>">
+							<?php
+								if($host!='any'){
+									if ($network){
+										include ("net_report_inventory.php");
+									}else{
+										include ("host_report_inventory.php");
+									}
+								}else{
+								?>
+									<table border="0" width="100%" align="center" cellspacing="0" cellpadding="0">
+										<tr>
+											<td class="headerpr" height="20"><?php echo _("Inventory")?></td>
+										</tr>
+										<tr>
+											<td class="nobborder">
+												<div id="aptree" style="font-size:15px;text-align:left;width:98%;padding:8px"></div>
+											</td>
+										</tr>
+									</table>
+							<?php
+								}
+							?>
+							</td>
+							<? if ($network) { ?><td valign="top" class="nobborder"><? include ("net_report_network.php") ?></td><? } ?>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<tr>
+				<td>
+					<table style="background-color:#727385" height="100%" cellpadding="5">
+						<tr><td colspan="3" style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px">SIEM</td></tr>
+						<tr>
+							<td class="nobborder" valign="top" width="33%"><? include ("host_report_tickets.php") ?></td>
+							<td class="nobborder" valign="top" width="33%"><? include ("host_report_alarms.php") ?></td>
+							<td class="nobborder" valign="top" width="33%"><? include ("host_report_vul.php") ?></td>
+						</tr>
+						<tr><td colspan="3" class="nobborder"><?php include ("host_report_sim.php") ?></td></tr>
+					</table>
+				</td>
+			</tr>
+			
+			<script type="text/javascript">$("#pbar").progressBar(90);$("#progressText").html('<b><?=gettext("Generating Report")?></b>...');</script>
+			
+			<?php
+				ob_flush();
+				flush();
+				usleep(500000);
+			?>
+			
+			<script type="text/javascript">$("#pbar").progressBar(95);</script>
+			
+			<?php
+				ob_flush();
+				flush();
+				usleep(500000);
+			?>
+			
+			<tr>
+				<td>
+					<table style="background-color:#8F6259" height="100%" cellpadding="5">
+						<tr><td style="font-size:18px;font-weight:bold;color:#EEEEEE;text-align:left;padding-left:10px"><?php echo gettext("Logger"); ?></td></tr>
+						<tr><td class="nobborder"><? include ("host_report_sem.php") ?></td></tr>
+						<script type="text/javascript">$("#pbar").progressBar(99);$("#progressText").html('<b><?=gettext("Finishing")?></b>...');</script>
+				<?php
+				ob_flush();
+				flush();
+				usleep(500000);
+				?>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
 </body>
-<?
+</html>
+
+<?php
 $db->close($conn);
 $db->close($conn_snort);
-?>
-</html>
-<?
 ob_end_flush();
 ?>

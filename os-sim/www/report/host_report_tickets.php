@@ -28,96 +28,129 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
-if($host!='any'){
-	//$incident_list2 = Incident::get_list_filtered($conn, $host, "AND status='open' ORDER BY date DESC");
-	$tick_num = count(Incident::get_list_filtered($conn, $host, "AND status='open' ORDER BY date DESC"));
-	$incident_list2 = Incident::get_list_filtered($conn, $host, "ORDER BY date DESC");
-}else{
-	$tick_num = count(Incident::get_list_filtered($conn, '', "AND status='open' ORDER BY date DESC"));
-	//$incident_list2 = Incident::search($conn, array('status'=>'open'), "priority", "DESC", 1, 6);
+
+require_once('classes/Host.inc');
+
+if( $host != 'any' )
+{
+	$host_ip2ulong  = Host::ip2ulong($host);
+	$tick_num       = count(Incident::get_list_filtered($conn, $host_ip2ulong, "AND status='open' ORDER BY date DESC"));
+	$incident_list2 = Incident::get_list_filtered($conn, $host_ip2ulong, "ORDER BY date DESC");
+}
+else
+{
+	$tick_num       = count(Incident::get_list_filtered($conn, '', "AND status='open' ORDER BY date DESC"));
 	$incident_list2 = Incident::search($conn, array(), "priority", "DESC", 1, 6);
 }
-$i_date = "-";
-$i_maxprio = 0;
+
+$i_date       = "-";
+$i_maxprio    = 0;
 $i_maxprio_id = 1;
-?><script type="text/javascript">$("#pbar").progressBar(75);$("#progressText").html('<?=gettext("Loading")?> <b><?=gettext("Tickets")?></b>...');</script><?
+?>
+
+<script type="text/javascript">$("#pbar").progressBar(75);$("#progressText").html('<?php echo gettext("Loading")?> <strong><?php echo gettext("Tickets")?></strong>...');</script>
+
+<?
 ob_flush();
 flush();
 usleep(500000);
 
 ?>
 <script type="text/javascript">
-document.getElementById('tickets_num').innerHTML = '<a href="../top.php?option=1&soption=1&url=<?php echo urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets") ?>" target="topmenu" class="whitepn"><?=Util::number_format_locale((int)$tick_num,0)?></a>';
+	document.getElementById('tickets_num').innerHTML = '<a href="../incidents/index.php?status=Open" class="whitepn"><?=Util::number_format_locale((int)$tick_num,0)?></a>';
 </script>
+
 <table align="center" width="100%" height="100%" class="bordered">
 	<tr>
-		<td class="headerpr" height="20"><a style="color:black" href="../top.php?option=1&soption=1&url=<?=urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets&with_text=$host")?>" target='topmenu'><?php echo gettext("Tickets"); ?></a></td>
+		<td class="headerpr" height="20"><a style="color:black" href="../incidents/index.php?status=Open&with_text=<?php echo urlencode("$host")?>"><?php echo gettext("Tickets"); ?></a></td>
 	</tr>
-	<? if (count($incident_list2) < 1) { ?>
-	<tr><td><?=gettext("No Tickets Found for")?> <i><?=$host?></i></td></tr>
-	<? } else { ?>
+	<?php 
+	if (count($incident_list2) < 1) 
+	{ 
+		?>
+		<tr><td><?php echo gettext("No Tickets Found for")?> <i><?php echo $host?></i></td></tr>
+		<?php 
+	} 
+	else 
+	{ 
+	?>
 	<tr>
 		<td class="nobborder" valign="top">
 			<table class="noborder">
 				<tr>
-					<th><?=gettext("Ticket")?></th>
-					<th><?=gettext("Title")?></th>
-					<? if ($network == 9) { ?><th>IP</th><? } ?>
-					<th><?=gettext("Priority")?></th>
-					<th><?=gettext("Status")?></th>
+					<th><?php echo _("Ticket")?></th>
+					<th><?php echo _("Title")?></th>
+					<? if ($network == 9) { ?><th>IP</th><?php } ?>
+					<th><?php echo _("Priority")?></th>
+					<th><?php echo _("Status")?></th>
 				</tr>
-			<? $i = 0; foreach ($incident_list2 as $incident) { if ($i > 5) continue;
-				if ($i_date == "-") { 
-					$i_date = $incident->get_date();
+				
+				<?php 
+				$i = 0; 
+				foreach ($incident_list2 as $incident) 
+				{ 
+					if ($i > 5) continue;
+					
+					if ($i_date == "-") 
+					{ 
+						$i_date = $incident->get_date();
+						?>
+						<script type="text/javascript">
+							document.getElementById('tickets_date').innerHTML = "<?php echo $i_date?>";
+						</script>
+						<?
+					}
 					?>
-					<script type="text/javascript">
-					document.getElementById('tickets_date').innerHTML = "<?=$i_date?>";
-					</script>
-					<?
-				}
-			?>
-				<tr <?php
-					if ($row++ % 2) echo 'bgcolor="#E1EFE0"'; ?> valign="center">
-					<td>
-					<a href="../incidents/incident.php?id=<?php echo $incident->get_id() ?>"<? if ($greybox) echo " target='main'" ?>>
-					<?php echo $incident->get_ticket(); ?></a>
-					</td>
-					<td><b>
-					<a href="../incidents/incident.php?id=<?php echo $incident->get_id() ?>"<? if ($greybox) echo " target='main'" ?>>
-
-						<?php echo $incident->get_title(); ?></a></b>
-					<?php
-					if ($incident->get_ref() == "Vulnerability") {
-						$vulnerability_list = $incident->get_vulnerabilities($conn);
-						// Only use first index, there shouldn't be more
-						if (!empty($vulnerability_list)) {
-							echo " <font color=\"grey\" size=\"1\">(" . $vulnerability_list[0]->get_ip() . ":" . $vulnerability_list[0]->get_port() . ")</font>";
+					<tr <?php if ($row++ % 2) echo 'bgcolor="#E1EFE0"'; ?> valign="center">
+						<td>
+							<a href="../incidents/incident.php?id=<?php echo $incident->get_id() ?>"<? if ($greybox) echo " target='main'" ?>>
+							<?php echo $incident->get_ticket(); ?></a>
+						</td>
+						<td>
+							<strong>
+								<a href="../incidents/incident.php?id=<?php echo $incident->get_id() ?>"<? if ($greybox) echo " target='main'" ?>>
+								<?php echo $incident->get_title(); ?></a>
+							</strong>
+							<?php
+							if ($incident->get_ref() == "Vulnerability") {
+								$vulnerability_list = $incident->get_vulnerabilities($conn);
+								// Only use first index, there shouldn't be more
+								if (!empty($vulnerability_list)) {
+									echo " <font color=\"grey\" size=\"1\">(" . $vulnerability_list[0]->get_ip() . ":" . $vulnerability_list[0]->get_port() . ")</font>";
+								}
+							}
+							?>
+						</td>
+						<?php if ($network == 9) { ?><td><? echo $incident->get_src_ips()?></td><? } ?>
+						<?php
+						$priority = $incident->get_priority();
+						if ($priority > $i_maxprio) {
+							$i_maxprio = $priority;
+							$i_maxprio_id = $incident->get_id();
 						}
-					}
-					?>
-					</td>
-					<? if ($network == 9) { ?><td><? echo $incident->get_src_ips()?></td><? } ?>
-					<?php
-					$priority = $incident->get_priority();
-					if ($priority > $i_maxprio) {
-						$i_maxprio = $priority;
-						$i_maxprio_id = $incident->get_id();
-					}
-					?>
-					<td><?php echo Incident::get_priority_in_html($priority) ?></td>
-					<td><?php
-					Incident::colorize_status($incident->get_status()) ?></td>
-				</tr>
-			<? $i++; } ?>
-			<script type="text/javascript">
-			document.getElementById('statusbar_incident_max_priority').innerHTML = '<?=preg_replace("/\n|\r/","",Incident::get_priority_in_html($i_maxprio))?>';
-			document.getElementById('statusbar_incident_max_priority').href = '../top.php?option=1&soption=1&url=<?php echo urlencode("incidents/incident.php?id=$i_maxprio_id&hmenu=Tickets&smenu=Tickets") ?>';
-			document.getElementById('statusbar_incident_max_priority_txt').href = '../top.php?option=1&soption=1&url=<?php echo urlencode("incidents/incident.php?id=$i_maxprio_id&hmenu=Tickets&smenu=Tickets") ?>';
-			</script>
+						?>
+						<td><?php echo Incident::get_priority_in_html($priority) ?></td>
+						<td><?php
+						Incident::colorize_status($incident->get_status()) ?></td>
+					</tr>
+					
+					<?php 
+						$i++; 
+				} 
+				?>
+					
+					<script type="text/javascript">
+						document.getElementById('statusbar_incident_max_priority').innerHTML = '<?php echo preg_replace("/\n|\r/","",Incident::get_priority_in_html($i_maxprio))?>';
+						document.getElementById('statusbar_incident_max_priority').href      = "../incidents/incident.php?id=<?php echo $i_maxprio_id?>";
+						document.getElementById('statusbar_incident_max_priority_txt').href  = '../incidents/incident.php?id=<?php echo $i_maxprio_id?>';
+					</script>
 			</table>
 		</td>
 	</tr>
-	<tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="../top.php?option=1&soption=1&url=<?=urlencode("incidents/index.php?status=Open&hmenu=Tickets&smenu=Tickets&with_text=$host")?>" target='topmenu'><b><?=gettext("More")?> >></b></a></td></tr>
+	<tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="../incidents/index.php?status=Open&with_text=<?php echo urlencode("$host")?>"><strong><?php echo _("More")?> >></strong></a></td></tr>
 	<tr><td></td></tr>
-	<? } ?>
+	
+	<?php
+		} 
+	?>
 </table>

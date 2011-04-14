@@ -11,8 +11,9 @@ $allowed_section = ( Session::menu_perms("MenuControlPanel", "ControlPanelExecut
 if ( $allowed_section == false )
 {
 	$user = Session::get_session_user();
-	Session::unallowed_section($user);
+	Session::unallowed_section(false);
 }
+
 
 $type = GET("type");
 ossim_valid($type, 'ticketsByPriority','ticketsClosedByMonth','ticketResolutionTime','openedTicketsByUser','ticketStatus','ticketTypes', 'illegal:' . _("type"));

@@ -91,55 +91,55 @@ private static $types = array("Asset", "Check Yes/No", "Check True/False", "Chec
 	
 	}	
 			
-	public function draw_element($type){ 
+	public function draw_element($type, $default_value=null){ 
 		switch ($type){
 			case "Asset":
-				$element= $this->draw_asset();
+				$element= $this->draw_asset($default_value);
 			break;
 			
 			case "Check Yes/No":
-				$element= $this->draw_radioexc("y/n");
+				$element= $this->draw_radioexc("y/n",$default_value);
 				
 			break;
 			
 			case "Check True/False":
-				$element= $this->draw_radioexc("t/f");
+				$element= $this->draw_radioexc("t/f",$default_value);
 			break;
 			
 			case "Checkbox":
-				$element= $this->draw_checkbox();
+				$element= $this->draw_checkbox($default_value);
 			break;
 			
 			case "Date":
-				$element= $this->draw_date();
+				$element= $this->draw_date($default_value);
 			break;
 			
 			case "Date Range":
-				$element= $this->draw_daterange();
+				$element= $this->draw_daterange($default_value);
 			break;
 			
 			case "Map";
-				$element= $this->draw_map();
+				$element= $this->draw_map($default_value);
 			break;
 			
 			case "Radio button";
-				$element= $this->draw_radiob();	
+				$element= $this->draw_radiob($default_value);	
 			break;
 			
 			case "Select box":
-				$element= $this->draw_selectbox();
+				$element= $this->draw_selectbox($default_value);
 			break;
 			
 			case "Slider":
-				$element= $this->draw_slider();
+				$element= $this->draw_slider($default_value);
 			break;
 						
 			case "Textarea":
-				$element= $this->draw_textarea();
+				$element= $this->draw_textarea($default_value);
 			break;
 			
 			case "Textbox":
-				$element= $this->draw_textbox();
+				$element= $this->draw_textbox($default_value);
 			break;
 			
 			case "File":
@@ -153,20 +153,28 @@ private static $types = array("Asset", "Check Yes/No", "Check True/False", "Chec
 		
 	}
 	
-public function draw_asset(){
+public function draw_asset($default_value){
 		
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 	
-	if($assetst == '' || $assetst=='ALL_ASSETS')
-		$txt_asset =  "All Assets";  
+	$asset = $default_value;
+	
+	if( $asset == '' || $asset== 'ALL_ASSETS' )
+	{
+		$txt_asset   =  "All Assets";  
+		$asset       =  "ALL_ASSETS";  
+	}
 	else
-		$txt_asset = "</span>";
+	{
+		$txt_asset = $asset;
+		$asset = $default_value;
+	}
 	
 	$element .= "<div class='ct_assets field_fix'><b>"._('Selected:')."</b>&nbsp;<span id='dassets_".$this->params["id"]."' style='background-color:#EFEBDE;padding:2px 5px 2px 5px;border:1px dotted #cccccc;font-size:12px'>\n";
-	$element .= "All Assets</span>";
+	$element .= "$txt_asset</span>";
 	$element .= "<div id='tree_".$this->params["id"]."' style='text-align:left;padding:5px 0px 0px 0px;'></div>\n";
-	$element .= "<input type='hidden' $attributes value='All Assets'/>\n";
+	$element .= "<input type='hidden' $attributes value='$asset'/>\n";
 	$element .= "</div>\n";
 	
 	
@@ -200,7 +208,7 @@ public function draw_asset(){
 	return $element;
 }
 
-public function draw_radioexc($subtype){
+public function draw_radioexc($subtype, $default_value){
 	
 	if ($subtype == "y/n")
 		$values = array( _("Yes"), _("No") );
@@ -215,65 +223,73 @@ public function draw_radioexc($subtype){
 			$aux .= "$k=\"$v\" ";
 	}
 	
-	$element  = $aux." id='".$this->params["id"]."_1' value='".$values[0]."'/><span>".$values[0]."</span></div>\n";
-	$element .= $aux." id='".$this->params["id"]."_2' value='".$values[1]."' checked='checked'/><span>".$values[1]."</span></div>\n";
+	$checked_1 = ( $default_value ==  $values[0] )  ? "checked='checked'": ""; 
+	$checked_2 = ( $default_value ==  $values[1] )  ? "checked='checked'": ""; 
+	
+	
+	$element  = $aux." id='".$this->params["id"]."_1' value='".$values[0]."' $checked_1/><span>".$values[0]."</span></div>\n";
+	$element .= $aux." id='".$this->params["id"]."_2' value='".$values[1]."' $checked_2/><span>".$values[1]."</span></div>\n";
 			
 	return $element;
 }
 
 
-public function draw_checkbox(){
+public function draw_checkbox($default_value){
 	
 	$element = '';
 	
+	$default_value = ( unserialize($default_value) != false ) ? unserialize($default_value) : array($default_value);
+	$default_value = ( empty($default_value) ) ? array() : $default_value;
+	
+		
 	foreach ( $this->params as $k => $v)
 	{
 		if ($k != "id" && $k != "name" && $k != "values")
 			$attributes .= "$k=\"$v\" ";
-	}
-	
+	}	
 	
 	if ( is_array($this->params['values']) )
 	{
 		foreach ( $this->params['values'] as $k => $v )
 		{
-			$v = trim($v);
-			$value = explode(":", $v);
+			$v         = trim($v);
+			$value     = explode(":", $v);
 			$num_value = count($value);
+			
+			$checked   = ( in_array($value[0], $default_value) || ( $default_value == '' && $num_value > 2) ) ? "checked='checked'": ""; 
 		
 			if ( !empty ($v) )
 			{
 				if ($num_value == 1)
-					$values []= "value='".Util::htmlentities($value[0])."'/><span style='padding-left: 5px;'>".Util::htmlentities($value[0])."</span>\n ";
+					$values []= "value='".Util::htmlentities($value[0])."' $checked/><span style='padding-left: 5px;'>".Util::htmlentities($value[0])."</span>\n ";
 				else if ($num_value == 2)
-					$values []= "value='".Util::htmlentities($value[0])."'/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span>\n ";
+					$values []= "value='".Util::htmlentities($value[0])."' $checked/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span>\n ";
 				else 
 				{
 					if ($num_value > 2)
-						$values []= "value='".Util::htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span>\n ";
+						$values []= "value='".Util::htmlentities($value[0])."' $checked/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span>\n ";
 				}
-				
-				
 			}
 		}	
 		
 		
 		for ($i=0; $i<count($values); $i++)
-			$element .= "<div><input type='checkbox' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i]."</div>\n";
+			$element .= "<div><input type='checkbox' name='".$this->params['name']."[]' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i]."</div>\n";
+		
 	}
 	else
-		$element .= "<div style='padding: 5px 0px 0px 5px;'><span style='color: #D8000C; font-weight: bold;'>Error: Not option introduced</span></div>\n";
+		$element .= "<div style='padding: 5px 0px 0px 5px;'><span style='color: #D8000C; font-weight: bold;'>"._("Error: Not option introduced")."</span></div>\n";
 	
 	return $element;
 }
 
-public function draw_date(){
+public function draw_date($default_value){
 
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
-
+	
 	$element = "<div id='cont_".$this->params['id']."'>\n
-			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>\n
+			<input type='text' ".$attributes." readonly='readonly' style='width:150px;' value='$default_value'/>\n
 			<div class='ct_widget' style='display:inline; padding-left: 3px;'>\n
 				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>\n
 				<div class='ct_widgetCalendar' style='width:200px;'></div>\n
@@ -307,20 +323,44 @@ public function draw_date(){
 	if ( $this->exists_def_func('create_date') == false)
 	{
 		$def_func = "
-			function create_date(id)
+			
+			function create_date(id, date)
 			{
-				var id_cont= '#cont_'+id;
-				var id = '#'+id;
-				
-				var date = new Date() 
-				
-				var day   = date.getDate();
-				var month = date.getMonth();
-				var year  = date.getFullYear();
-				var hours = date.getHours();
-				var minutes = date.getMinutes();
+				var id_cont  = '#cont_'+id;
+				var id       = '#'+id;
+				var date_ok  = false;
+								
+				if (date != '')
+				{
+					var d     = date.split('-') 
+					
+					if (d.length == 3)
+					{
+						var dh = d[2].split(' ');
+											
+						var day   = dh[0];
+						var month = (( d[1]-1 ) == 0) ? 11 : d[1]-1;
 						
-				date = new Date(year, month, day);
+						var year  = d[0];
+						var h = dh[1].split(':');
+						var hours = h[0];
+						var minutes = h[1];
+						var date_ok = true;
+					}
+				}	
+				
+				if ( date == '' || date_ok == false )
+				{
+					var date = new Date() 
+				
+					var day   = date.getDate();
+					var month = date.getMonth();
+					var year  = date.getFullYear();
+					var hours = date.getHours();
+					var minutes = date.getMinutes();
+				}				
+				
+				date = new Date(year, month, day);				
 				
 				$(id_cont + ' .ct_widgetCalendar').DatePicker({
 					flat: true,
@@ -346,22 +386,21 @@ public function draw_date(){
 		$this->add_def_func("create_date", $def_func);
 	}
     
-	$script = "create_date('".$this->params['id']."');";
+	$script = "create_date('".$this->params['id']."', '$default_value');";
 	$this->add_script($script);
 	
 	return $element;	
 
 }
 
-public function draw_daterange(){
+public function draw_daterange($default_value){
 
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
-		
-		
+			
 		
 	$element = "<div id='cont_".$this->params['id']."'>\n
-			<input type='text' ".$attributes." value='' readonly='readonly' style='width:150px;'/>\n
+			<input type='text' ".$attributes." readonly='readonly' style='width:150px;' value='$default_value'/>\n
 			<div class='ct_widget' style='display:inline; padding-left: 3px;'>\n
 				<a style='cursor:pointer'><img src='../pixmaps/calendar.png' class='imgcalendar' border='0' align='absmiddle' style='padding-bottom:1px'/></a>\n
 				<div class='ct_widgetCalendar' style='width:395px;'></div>\n
@@ -373,7 +412,6 @@ public function draw_daterange(){
 		$def_func = "	
 			function toogle_calendar(id_cont)
 			{
-						
 				if ( $(id_cont).attr('class').length >= 1 ) 
 				{
 					$('.ct_widgetCalendar').stop().animate({height: 0}, 500);
@@ -396,20 +434,45 @@ public function draw_daterange(){
 	if ( $this->exists_def_func('create_daterange') == false)
 	{
 		$def_func = "
-			function create_daterange(id)
+						
+			function create_daterange(id, date_range)
 			{
-				var id_cont= '#cont_'+id;
-				var id = '#'+id;
+				var id_cont  = '#cont_'+id;
+				var id       = '#'+id;
+				var date_ok  = false;
+											
+				if ( date_range != '' )
+				{
+					var d      = date_range.split(',')   
+					
+					var d1     = d[0].replace(/^\s+|\s+$/g, '').split('-');
+					var d2     = d[1].replace(/^\s+|\s+$/g, '').split('-');
+					
+					var day    = d1[2];
+					var month  = d1[1]-1;
+					var year   = d1[0];
+					
+					var day2   = d2[2];
+					var month2 = d2[1]-1;
+					var year2  = d2[0];
+					
+					date_ok = true;
+				}
 				
-				var date   = new Date() 
-				var day    = date.getDate();
-				var month  = date.getMonth();
-				var month2 = (month == 0) ? 11 : date.getMonth()-1;
-				var year   = date.getFullYear();				
-
+				
+				if ( date_range == '' || date_ok == false )
+				{
+					var date   = new Date() 
+					var day    = date.getDate();
+					var day2   = day;
+					var month  = ( date.getMonth() - 1 < 0 ) ? 11 : date.getMonth() - 1;
+					var month2 = date.getMonth();
+					var year   = ( date.getMonth() - 1 < 0 ) ? date.getFullYear() - 1 : date.getFullYear() ;
+					var year2  = date.getFullYear();					
+				}
 								
 				var datefrom = new Date(year, month, day);
-				var dateto = new Date(year, month2, day);
+				var dateto   = new Date(year2, month2, day2);
 				
 				$(id_cont + ' .ct_widgetCalendar').DatePicker({
 					flat: true,
@@ -450,13 +513,13 @@ public function draw_daterange(){
 		$this->add_def_func('create_daterange', $def_func);
 	}
 	
-	$script = "create_daterange('".$this->params['id']."');";
+	$script = "create_daterange('".$this->params['id']."', '$default_value');";
 	$this->add_script($script);
 	
 	return $element;	
 }	
 
-public function draw_map(){
+public function draw_map($default_value){
 	
 	foreach ( $this->params as $k => $v)
 	{
@@ -466,7 +529,7 @@ public function draw_map(){
 	
 	$element .= "<div style='float: left; width:15%; font-weight: bold; padding: 15px 0px 10px 6px;'><span>Location:</span></div>";
 	$element .= "<div style='float: right; width:82%; font-weight: bold; padding: 10px 0px 10px 0px;'>";
-	$element .= "<input type='text' ".$attributes."/></div>";
+	$element .= "<input type='text' ".$attributes." value='$default_value'/></div>";
 	$element .= "<div id='map_".$this->params["id"]."' class='field_fix' style='height:300px; display: none; clear: both; margin-left: 6px;'></div>";
 	
 	$map_key = ($this->params["values"][0] != '' ) ? $map_key : "ABQIAAAAbnvDoAoYOSW2iqoXiGTpYBTIx7cuHpcaq3fYV4NM0BaZl8OxDxS9pQpgJkMv0RxjVl6cDGhDNERjaQ";
@@ -474,7 +537,7 @@ public function draw_map(){
 	$script = "	
 						
 		var gmap_".$this->params["id"].";
-						
+								
 		$('#".$this->params["id"]."').geo_autocomplete(new google.maps.Geocoder, {
 			mapkey: '".$map_key."', 
 			selectFirst: false,
@@ -514,7 +577,7 @@ public function draw_map(){
 	return $element;
 }	
 
-public function draw_radiob(){
+public function draw_radiob($default_value){
 	
 	$element    = '';
 	$attributes = '';
@@ -535,15 +598,17 @@ public function draw_radiob(){
 			$value = explode(":", $v);
 			$num_value = count($value);
 			
+			$checked   = ( $value[0] == $default_value || ($default_value == '' && $num_value > 2) ) ? "checked='checked'": ""; 
+			
 			if ( !empty ($v) )
 			{
 				if ($num_value == 1)
-					$values []= "value='".Util::htmlentities($value[0])."'/><span style='padding-left: 5px;'>".Util::htmlentities($value[0])."</span> ";
+					$values []= "value='".Util::htmlentities($value[0])."' $checked/><span style='padding-left: 5px;'>".Util::htmlentities($value[0])."</span> ";
 				else if ($num_value == 2)
-					$values []= "value='".Util::htmlentities($value[0])."'/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span> ";
+					$values []= "value='".Util::htmlentities($value[0])."' $checked/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span> ";
 				else {
 					if ($num_value > 2)
-						$values []= "value='".Util::htmlentities($value[0])."' checked='checked'/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span> ";
+						$values []= "value='".Util::htmlentities($value[0])."' $checked/><span style='padding-left: 5px;'>".Util::htmlentities($value[1])."</span> ";
 				}
 			}
 		}	
@@ -552,12 +617,12 @@ public function draw_radiob(){
 			$element .= "<div><input type='radio' name='".$this->params['name']."' id='".$this->params['id'][$i]."' ".$attributes." ".$values[$i]."</div>\n";
 	}
 	else
-		$element .= "<div style='padding: 5px 0px 0px 5px;'><span style='color: #D8000C; font-weight: bold;'>Error: Not option introduced</span></div>\n";
+		$element .= "<div style='padding: 5px 0px 0px 5px;'><span style='color: #D8000C; font-weight: bold;'>"._("Error: Not option introduced")."</span></div>\n";
 	
 	return $element;
 }	
 
-public function draw_selectbox(){
+public function draw_selectbox($default_value){
 		
 	$attributes = '';
 	$element = '';
@@ -572,20 +637,22 @@ public function draw_selectbox(){
 	{
 		foreach ( $values as $k => $v )
 		{
-			$v = trim($v);
-			$value = explode(":", $v);
+			$v         = trim($v);
+			$value     = explode(":", $v);
 			$num_value = count($v);
+			
+			$selected   = ( $value[0] == $default_value ) ? "selected='selected'": ""; 
 						
 			if ( !empty ($v) )
 			{
 				if ($num_value == 1)
-					$options.= "<option value='".Util::htmlentities($value[0])."'>".Util::htmlentities($value[0])."</option>\n";
+					$options.= "<option value='".Util::htmlentities($value[0])."' $selected>".Util::htmlentities($value[0])."</option>\n";
 				else if ($num_value == 2)
-					$options.= "<option value='".Util::htmlentities($value[0])."'>".Util::htmlentities($value[1])."</option>\n";
+					$options.= "<option value='".Util::htmlentities($value[0])."' $selected>".Util::htmlentities($value[1])."</option>\n";
 				else 
 				{
 					if ($num_value > 2)
-						$options.= "<option value='".Util::htmlentities($value[0])."' selected='selected'>".Util::htmlentities($value[1])."</option>\n";
+						$options.= "<option value='".Util::htmlentities($value[0])."' $selected>".Util::htmlentities($value[1])."</option>\n";
 				}
 			}	
 		}
@@ -600,7 +667,7 @@ public function draw_selectbox(){
 	return $element;
 }
 
-public function draw_slider(){
+public function draw_slider($default_value){
 
 	$values = $this->params['values'];
 	unset($this->params['values']);
@@ -612,21 +679,23 @@ public function draw_slider(){
 	$max_value = ( is_numeric($values[1]) ) ? $values[1] : "10";
 	$step      = ( is_numeric($values[2]) ) ? $values[2] : "1";
 	
+	$default_value = ( $default_value != '' ) ? $default_value : $min_value;
+	
 	$element="  <div style='float:left; padding-top: 3px; width:30px; heigth: 25px;'>
-					<span id='dial_".$this->params['id']."' style='font-weight: bold; padding: 0px 6px'>".$min_value."</span>
+					<span id='dial_".$this->params['id']."' style='font-weight: bold; padding: 0px 6px'>".$default_value."</span>
 				</div>
 				<div class='ct_slider'>
 					<div id='cont_".$this->params['id']."' style='width:100%; height:3px;'></div>
 				</div>
 				
-				<input type='hidden' ".$attributes." value='".$min_value."'/>";
+				<input type='hidden' ".$attributes." value='".$default_value."'/>";
 	
 
 	$script = "
 		$('#cont_".$this->params['id']."').slider({
 			animate: true,
 			range: 'min',
-			value: $min_value,
+			value: $default_value,
 			min: $min_value,
 			max: $max_value,
 			step: $step,
@@ -641,27 +710,27 @@ public function draw_slider(){
 	return $element;
 }
 
-public function draw_textarea(){
+public function draw_textarea($default_value){
 	
 	$attributes = '';
 
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 	
-	$element = "<textarea $attributes></textarea>";
+	$element = "<textarea $attributes>$default_value</textarea>";
 	
 	return $element;
 
 }
 
-public function draw_textbox(){
+public function draw_textbox($default_value){
 	
 	$attributes = '';
 
 	foreach ( $this->params as $k => $v)
 		$attributes .= "$k=\"$v\" ";
 	
-	$element = "<input type='text' $attributes/>";
+	$element = "<input type='text' $attributes value='$default_value'/>";
 	
 	return $element;
 

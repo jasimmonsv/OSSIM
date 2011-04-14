@@ -75,6 +75,16 @@ function die_error($msg = null, $append = null)
 }
 
 
+
+if ( empty($_GET) && empty($_POST) )
+{
+	$ossim_error = new OssimError(null, null);
+	
+	echo "<div style='width:95%; margin:auto;'>";	
+		$ossim_error -> display(_("DEFAULT"), array(_("Error processing form")), $ossim_error->action);
+	echo "</div>";
+}
+
 $db   	= new ossim_db();
 $conn   = $db->connect();
 
@@ -85,22 +95,26 @@ if ( !count($_GET) && count($_POST)>0 )
 }
 
 
+
 $id        = GET('incident_id');
 
 $action    = ( POST('action' ) == "newincident" )? "newincident": GET('action');
 $from_vuln = ( POST('from_vuln') != "" ) ? POST('from_vuln'):GET('from_vuln');
+
 $edit      = ( isset($_GET['edit']) || isset($_POST['edit']) ) ? 1 : 0;
 
 ossim_valid($id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Id"));
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Action"));
 ossim_valid($from_vuln, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("From_vuln"));
 
+
+
 if ( ossim_error() ) 
 {
    $error = ossim_get_error();
    die_error($error);
-
 }
+
 
 if ( $id != "" && !Incident::user_incident_perms($conn, $id, 'show')) {
 	die_error(_("Sorry, you are not allowed to perform this action"));
@@ -432,10 +446,77 @@ if ($action == 'editincident')
 						
         Incident::update_vulnerability($conn, $incident_id, $title, $type, $submitter, $priority, $ip, $port, $nessus_id, $risk, $description, $transferred_user, $transferred_entity);
     }
+	elseif (GET('ref') == 'Custom')
+	{
+		$vars = array(
+            'incident_id',
+            'title',
+            'type',
+            'submitter',
+            'priority',
+            'description',
+			'transferred_user',
+			'transferred_entity',
+        );
+        
+		foreach($vars as $v) {
+            $$v = GET("$v");
+		}
+		
+		foreach ($_GET as $k => $v) 
+		{
+			$key = $k;
+			
+			if (preg_match("/^custom/",$k)) 
+			{
+				$k           = base64_decode(str_replace("custom_","",$k)); 
+				$item        = explode("_####_", $k);
+				$custom_type = ( count($item) >= 2 ) ? $item[1] : "Textbox";
+				
+				if ( $custom_type == "File" )
+				{
+					if ( $_GET[$key] == 1 )
+						$v = null;
+					else
+						continue;
+				}
+				
+				$fields[$item[0]] =  array ("validate" => 1, "name" => $item[0], "content" => $v, "type"=> $custom_type);
+			}
+        }
+		
+					  
+		// Uploaded "File" type
+		
+			
+		
+		foreach ($_FILES as $k => $v) 
+		{
+			if (preg_match("/^custom/",$k)) 
+			{
+				$content = $v['tmp_name'];
+				$k       = base64_decode(str_replace("custom_","",$k)); 
+				$item    = explode("_####_", $k);
+												
+				if (is_uploaded_file($v['tmp_name']) && !$v['error'])
+					$content = file_get_contents($v['tmp_name']);
+				else
+				{
+					if ($v['tmp_name'] != "" && $v['size']> 0 )
+						$content = _("File not uploaded. Error: ".$v['error']);
+				}
+								
+				if ( !empty($content) )
+						$fields[$item[0]] =  array ("validate" => 0, "name" => $item[0], "content" => $content, "type"=> "File");
+			}
+        }
+		
+		
+		Incident::update_custom($conn, $incident_id, $title, $type, $submitter, $priority, $transferred_user, $transferred_entity, $fields);
+		
+		
+	}	
     
-	if ( ossim_error() ) 
-		die_error();
-	
 	header("Location: incident.php?id=$incident_id&edit=$edit");
     exit;
 }
@@ -664,18 +745,29 @@ if ($action == 'newincident')
         
 		foreach ($_GET as $k => $v) 
 		{
+			$key = $k;
+			
 			if (preg_match("/^custom/",$k)) 
 			{
 				$k           = base64_decode(str_replace("custom_","",$k)); 
 				$item        = explode("_####_", $k);
 				$custom_type = ( count($item) >= 2 ) ? $item[1] : "Textbox";
-				//
-				$fields[] =  array ("validate" => 1, "name" => $item[0], "content" => $v, "type"=> $custom_type);
+				
+				if ( $custom_type == "File" )
+				{
+					if ( $_GET[$key] == 1 )
+						$v = null;
+					else
+						continue;
+				}
+				
+				$fields[$item[0]] =  array ("validate" => 1, "name" => $item[0], "content" => $v, "type"=> $custom_type);
 			}
         }
-       
+		
+					  
 		// Uploaded "File" type
-        
+				
 		foreach ($_FILES as $k => $v) 
 		{
 			if (preg_match("/^custom/",$k)) 
@@ -683,13 +775,17 @@ if ($action == 'newincident')
 				$content = $v['tmp_name'];
 				$k       = base64_decode(str_replace("custom_","",$k)); 
 				$item    = explode("_####_", $k);
-				
+												
 				if (is_uploaded_file($v['tmp_name']) && !$v['error'])
 					$content = file_get_contents($v['tmp_name']);
 				else
-					$content = _("Failed uploading file. Error: ".$v['error']);
-					
-				$fields[] =  array ("validate" => 0, "name" => $item[0], "content" => $content, "type"=> "File");
+				{
+					if ($v['tmp_name'] != "" && $v['size']> 0 )
+						$content = _("File not uploaded. Error: ".$v['error']);
+				}
+								
+				if ( !empty($content) )
+						$fields[$item[0]] =  array ("validate" => 0, "name" => $item[0], "content" => $content, "type"=> "File");
 			}
         }
                        
