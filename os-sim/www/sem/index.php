@@ -627,6 +627,7 @@ function SetSearch(content)
 	for (i = 0; i < atoms.length; i++) {
 		var value = atoms[i];
 		value = value.replace(/^\s+/g,'').replace(/\s+$/g,'').replace(/\n/g,'');
+		value = value.replace(/SPACESCAPE/g,' ');
 		if (value != "" && value != "data=") {
 			AddAtom(value);
 		}
