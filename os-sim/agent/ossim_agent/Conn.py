@@ -472,9 +472,7 @@ class FrameworkConn():
                 data = self.__recv_line().rstrip('\n')
 
                 try:
-                    logger.info("Received control message from the framework: %s" % data)
                     response = self.__controlmanager.process(self.__conn, data)
-
                     # send out all items in the response queue
                     while len(response) > 0:
                         self.send(response.pop(0))

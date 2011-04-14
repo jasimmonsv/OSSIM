@@ -108,7 +108,7 @@ class ControlManager():
             raise ValueError('Incorrectly formatted control message.')
             return self.__response
 
-        logger.info("Received message from the control framework: %s" % data)
+        logger.debug(" Received message from the control framework: %s" % data)
         # construct base message
         message = 'control %s transaction="%s" id="%s"' % (action, transaction, str(self.__framework_id))
 

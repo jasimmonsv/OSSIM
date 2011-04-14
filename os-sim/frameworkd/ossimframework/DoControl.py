@@ -42,6 +42,7 @@ import Util
 from OssimDB import OssimDB
 from OssimConf import OssimConf
 
+#
 # GLOBAL VARIABLES
 #
 logger = Logger.logger
@@ -79,8 +80,9 @@ class ControlManager:
         transaction = self.__transaction_id_get()
         self.transaction_map[transaction] = {'socket':requestor, 'time':time.time()}
         # append the transaction to the message for tracking
-        self.control_agents[agent_id].wfile.write(new_command + ' transaction="%s"\n' % transaction)
-        logger.info("Updating asset list to agent: %s" % agent_id)
+        if self.control_agents.has_key(agent_id):
+            self.control_agents[agent_id].wfile.write(new_command + ' transaction="%s"\n' % transaction)
+            logger.info("Updating asset list to agent: %s --- transaction:%s" % (agent_id, transaction))
 
     def process(self, requestor, command, line):
         logger.debug("Processing: %s" % line)
@@ -130,19 +132,18 @@ class ControlManager:
         else:
             # check if we are a transaction
             transaction = Util.get_var("transaction=\"([^\"]+)\"", line)
-
             if transaction != "":
                 if transaction not in self.transaction_map:
-                    logger.error("Transaction has no apparent originator!")
+                    logger.error("Transaction %s has no apparent originator!", transaction)
 
                 else:
-                    # respond to the original requester
-                    self.transaction_map[transaction]["socket"].wfile.write(line + "\n")
-
                     # remove from map if end of transaction
                     if Util.get_var("(ackend)", line) != "":
                         logger.debug("Closing transaction: %s" % transaction)
                         del self.transaction_map[transaction]
+                    else:
+                        # respond to the original requester
+                        self.transaction_map[transaction]["socket"].wfile.write(line + "\n")
 
             # assume we are a command request to an agent
             else:
@@ -164,7 +165,7 @@ class ControlManager:
                             # append the transaction to the message for tracking
 
                             self.control_agents[key].wfile.write(line + ' transaction="%s"\n' % transaction)
-
+                            logger.info("Sendign command %s to agents: %s" % ((line + ' transaction="%s"\n' % transaction), key))
                 elif id in self.control_agents:
                     logger.debug("Broadcasting to %s ..." % id);
 
@@ -174,7 +175,7 @@ class ControlManager:
 
                     # append the transaction to the message for tracking
                     self.control_agents[id].wfile.write(line + ' transaction="%s"\n' % transaction)
-
+                    logger.info("Sendign command to all agents: %s" % (line + ' transaction="%s"\n' % transaction))
                 else:
                     response = line + ' errno="-1" error="Agent not available." ackend\n'
                     logger.warning('Agent "%s" is not connected! %s' % (id, message));
@@ -219,8 +220,10 @@ class ControlManager:
                 # return a timeout response and close the transaction as required
                 if delta > self.__transaction_timeout:
                     response = 'control transaction="%s" errno="-1" error="Transaction timed out due to inactivity for at least %d seconds." ackend\n' % (t, delta)
-                    self.transaction_map[t]["socket"].wfile.write(response)
-                    del self.transaction_map[t]
+                    if self.transaction_map.has_key(t):
+                        if self.transaction_map[t]["socket"] is not None:
+                            self.transaction_map[t]["socket"].wfile.write(response)
+                            del self.transaction_map[t]
 
 
 
