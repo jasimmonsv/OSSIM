@@ -97,6 +97,12 @@ include ("../hmenu.php"); ?>
 			if (typeof(items[0]) != 'undefined') document.location.href = 'newpluginsidform.php?plugin='+urlencode(items[0].id.substr(3));
 			else alert('<?php echo _("You must select a data source")?>');
 		}
+        else if (com=='<?php echo _("Edit") ?>') {
+        	if (typeof(items[0]) != 'undefined')
+            	document.location.href = 'pluginsid.php?id='+urlencode(items[0].id.substr(3));
+            else
+              alert('<?php echo _('You must select a data source')?>');
+        }
 	}
     function linked_to(rowid) {
         document.location.href = 'pluginsid.php?id='+urlencode(rowid);
@@ -163,7 +169,9 @@ echo "$colModel\n";
 				],
             buttons : [
                 {name: '<?=_("Insert new event type")?>', bclass: 'add', onpress : action},
-                {separator: true}
+                {separator: true},
+                {name: '<?=_("Edit")?>', bclass: 'modify', onpress : action},
+				{separator: true}
             ],
 			searchitems : [
 				{display: 'Name', name : 'name', isdefault: true},
