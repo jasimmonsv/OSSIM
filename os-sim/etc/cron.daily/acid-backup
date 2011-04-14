@@ -6,10 +6,9 @@ if ($ret>1) {
   exit(0);
 }
 
-# Script 
+# 
+# Backup all snort BBDD into files
 #
-# 2004-02-11 Fabio Ospitia Trujillo <fot@ossim.net>
-# 2008-05-19 jmalbarracin
 $|=1;
 
 use lib "/usr/share/ossim/include";
@@ -64,6 +63,10 @@ $ac_table_names{"ac_srcaddr_sid"} = 1;
 my $backup_dir = $ossim_conf::ossim_data->{"backup_dir"};
 #my $backup_dir = "/root/pruebas_backup";
 my $backup_day = $ossim_conf::ossim_data->{"backup_day"};
+my $backup_events = $ossim_conf::ossim_data->{"backup_events"};
+$backup_events = 0 if ($backup_events eq "");
+my $backup_store = $ossim_conf::ossim_data->{"backup_store"};
+$backup_store = 1 if ($backup_store eq "");
 
 # Data Source 
 my $snort_type = $ossim_conf::ossim_data->{"snort_type"};
@@ -104,7 +107,7 @@ $snort_conn->disconnect;
 
 
 # MAIN
-backup_to_file ($cmdlinedump);
+backup_to_file ($cmdlinedump) if ($backup_store);
 delete_outframe ($cmdline);
 
 # FUNCTIONS
@@ -124,9 +127,10 @@ sub backup_to_file {
     unless ($row->[0] =~ m/^(\d+)-(\d+)-(\d+)*/) {
 		return;
     }
-    $stm->finish;
+    $stm->finish; 
     $snort_conn->disconnect;
     
+    # date calc
     my $pdate = convertTime("$3-$2-$1 00:00:00");
     my $mindate = DateCalc(ParseDate("today"),"-30 days");
     $mindate =~  s/^(....)(..)(..)/$1-$2-$3 /;
@@ -152,9 +156,6 @@ sub backup_to_file {
 		
 		open (D,">$file_delete");
 		print D "set autocommit=0;\n";
-		#my $fd_insert = POSIX::open($file_insert, &POSIX::O_CREAT | &POSIX::O_WRONLY | &POSIX::O_TRUNC, 0640) or die "Can't open file log $file_insert";
-		#my $fd_delete = POSIX::open($file_delete, &POSIX::O_CREAT | &POSIX::O_WRONLY | &POSIX::O_TRUNC, 0640) or die "Can't open file log $file_delete";
-
 		#my $where = "WHERE event.timestamp >= '$date 00:00:00' AND event.timestamp <= '$date 23:59:59'";
 		#my $where = "timestamp like '$date%'";
 		
@@ -229,20 +230,6 @@ sub backup_to_file {
 			}
 		}
 		$snort_conn->disconnect;
-		
-		#backup_event ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_icmphdr ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_iphdr ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_udphdr ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_tcphdr ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_opt ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_data ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_extra_data ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_ossim_event ($snort_conn, $where, $fd_insert, $fd_delete);
-		#backup_acid_event ($snort_conn, $where, $fd_insert, $fd_delete);
-
-		#POSIX::close($fd_insert);
-		#POSIX::close($fd_delete);
 
 		# If file is empty
 		if (-z "$file_insert") {
@@ -251,17 +238,6 @@ sub backup_to_file {
 		    $sec += $sec_1day;
 		    next;
 		}
-
-		# Gzip the files
-		#backup_gzip("$file_insert", "$file_insert.gz");
-		#backup_gzip("$file_delete", "$file_delete.gz");
-
-		# Delete data
-		#backup_execute_file($snort_conn, $file_delete);
-
-		# Remove files
-		#unlink ($file_insert);
-		#unlink ($file_delete);
 		
 		# AC Tables
 		# INSERT
@@ -280,6 +256,7 @@ sub backup_to_file {
 		print D "commit;\n";
 		close D;
 		
+		# Gzip
 		system ("gzip -f $file_insert");
 		system ("gzip -f $file_delete");
 		print "OK\n";
@@ -291,13 +268,32 @@ sub backup_to_file {
 sub delete_outframe {
 	my $cmd = shift;
 	my $date_frame = POSIX::strftime ("%Y-%m-%d", localtime($sec_backup));
+	my $orig_date_frame = $date_frame;
 	my $file_outframe = "$backup_dir/delete_outframe-".$date_frame.".sql";
 	open (DF,">$file_outframe");
 	#print DF "set autocommit=0;\n";
+	# delete range
+	my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
+	my $sth = $snort_conn->prepare("select count(*) from acid_event where timestamp >= '$date_frame 00:00:00'");
+	$sth->execute();
+	$sth->bind_columns(\$events);
+	$sth->fetch();
+	$sth->finish;
+	if ($events > $backup_events && $backup_events > 0) {
+		# determine new cut-date
+		my $sth = $snort_conn->prepare("select timestamp from acid_event order by timestamp desc limit $backup_events,1");
+		$sth->execute();
+		$sth->bind_columns(\$date_frame);
+		$sth->fetch();
+		print "Previos cut-Date:$orig_date_frame, New cut-Date:$date_frame\n";
+		$sth->finish;
+	} else {
+		$date_frame = "$date_frame 00:00:00";
+	}
+	print "Delete events:$events, Backup events:$backup_events\n";
 	# Get sid,cid from day
 	my %sidcid = ();
-	my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
-	$sql = "select sid,max(cid) as maxcid,min(cid) as mincid from acid_event where timestamp < '$date_frame 00:00:00' group by sid";
+	$sql = "select sid,max(cid) as maxcid,min(cid) as mincid from acid_event where timestamp < '$date_frame' group by sid";
 	my $sth = $snort_conn->prepare($sql);
 	$sth->execute();
 	$sth->bind_columns(\$sid,\$maxcid,\$mincid);
@@ -322,7 +318,7 @@ sub delete_outframe {
 	# Create event timestamp dump
 	# DELETE
 	my $table_name = join (" ",keys %timestamp_table_names);
-	my $where = "timestamp < '$date_frame 00:00:00'";
+	my $where = "timestamp < '$date_frame'";
 	my $snort_conn = DBI->connect($snort_dsn, $snort_user, $snort_pass) or die "Can't connect to Database\n";
 	foreach $t (keys %timestamp_table_names) {
 		my $sth = $snort_conn->prepare("SELECT COUNT(*) as totalevents FROM $t WHERE $where");
@@ -350,7 +346,9 @@ sub delete_outframe {
 	}
 	
 	# AC Tables
-	my $where = "day < '".$date_frame."'";
+        $date_frame_day = $date_frame;
+	$date_frame_day =~ s/ \d\d:\d\d:\d\d//; # needed complete day
+	my $where = "day < '".$date_frame_day."'";
 	# DELETE
 	foreach my $t (keys %ac_table_names) {
 		$delstr = "DELETE FROM $t WHERE $where;\n";
@@ -360,7 +358,7 @@ sub delete_outframe {
 	foreach $t (keys %ac_table_names) {
 		$delstr = "OPTIMIZE TABLE $t;\n";
 		print DF $delstr;
-	}	
+	}
 	#print DF "commit;\n";
 	close DF;
 	print "DELETING < $date_frame\n";

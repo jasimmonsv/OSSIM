@@ -898,6 +898,15 @@ $CONFIG = array(
                 "desc" => gettext("Backup DB Port") ,
                 "advanced" => 1
             ) ,
+            "backup_store" => array(
+                "type" => array(
+                    "0" => gettext("No") ,
+                    "1" => gettext("Yes")
+                ) ,
+                "help" => gettext("Save SIEM Events backup in files to restore") ,
+                "desc" => gettext("Store backups in files") ,
+                "advanced" => 1
+            ) ,
             "backup_dir" => array(
                 "type" => "text",
                 "help" => gettext("Defaults to /var/lib/ossim/backup/") ,
@@ -907,9 +916,15 @@ $CONFIG = array(
             "backup_day" => array(
                 "type" => "text",
                 "help" => gettext("How many days in the past do you want to keep Events in forensics?") ,
-                "desc" => gettext("Forensics Active Event Window") ,
+                "desc" => gettext("Active Event Window (days)") ,
                 "advanced" => 0
             ) ,
+            "backup_events" => array(
+                "type" => "text",
+                "help" => gettext("Maximum number of events stored in SQL Database") ,
+                "desc" => gettext("Active Event Window (events)") ,
+                "advanced" => 0
+            ) ,            
             "backup_netflow" => array(
                 "type" => "text",
                 "help" => gettext("How many days in the past do you want to keep Flows in Netflows?") ,
