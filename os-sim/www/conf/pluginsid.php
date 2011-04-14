@@ -139,8 +139,12 @@ echo gettext("Event types"); ?> </title>
 				document.location.href = url;
 			}
 			else alert('<?=_('You must select a event type')?>');
-		}
-        else if (com=='<?=("Insert new event type")?>') {
+		} else if (com=='<?=_("Delete selected")?>') {
+         	if (typeof(items[0]) != 'undefined')
+                 document.location.href = 'delete_pluginsid.php?id=<?php echo $id; ?>&sid='+urlencode(items[0].id.substr(3));
+             else
+               alert('<?php echo _('You must select a event type')?>');
+        } else if (com=='<?=("Insert new event type")?>') {
 			document.location.href = 'newpluginsidform.php?plugin=<?php echo $id ?>';
 		}
 	}
@@ -162,6 +166,11 @@ echo gettext("Event types"); ?> </title>
             if (com=='modify') {
                 if (typeof(plugin_id) != 'undefined')
                     document.location.href = 'modifypluginsid.php?id=<?php echo $id; ?>&sid='+plugin_id;
+                else
+                  alert('<?php echo _('You must select a event type')?>');
+            } else if (com=='delete') {
+            	if (typeof(plugin_id) != 'undefined')
+                    document.location.href = 'delete_pluginsid.php?id=<?php echo $id; ?>&sid='+plugin_id;
                 else
                   alert('<?php echo _('You must select a event type')?>');
             }		
@@ -238,6 +247,8 @@ echo "$colModel\n";
                 {name: '<?=_("Insert new event type")?>', bclass: 'add', onpress : action},
                 {separator: true},
 				{name: '<?=_("Edit")?>', bclass: 'modify', onpress : action},
+				{separator: true},
+				{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
 				{separator: true}
 				],
 			searchitems : [
