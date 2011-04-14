@@ -466,8 +466,9 @@ function MssqlKludgeValue($text) {
     return $mssql_kludge;
 }
 function RepairDBTables($db) {
-    /* This function was completely commented in original....
-    I will be searching to see where it was called from if at all */
+    // Launch schema directly
+    $schema = "/usr/share/ossim/www/forensics/scripts/schema.sql";
+    if (file_exists($schema)) system("/usr/bin/ossim-db snort < $schema > /tmp/repair_snort_schema_log 2>&1");
 }
 function ClearDataTables($db) {
     $db->baseExecute("TRUNCATE acid_event");

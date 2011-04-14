@@ -942,7 +942,7 @@ function SIEM_trends_hids($agent_ip)
 	require_once 'classes/Plugin.inc';
 	require_once 'ossim_db.inc';
 	
-	$tzc     = ($tz>=0) ? "+$tz:00" : "$tz:00";
+	$tzc     = Util::get_tzc($tz);
 	$data    = array();
 	$plugins = $plugins_sql = "";
 	

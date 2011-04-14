@@ -39,6 +39,7 @@ Session::logcheck("MenuEvents", "EventsRT");
 require_once 'classes/Host.inc';
 require_once 'classes/Protocol.inc';
 require_once 'classes/Plugin.inc';
+require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 header('Cache-Control: no-cache');
 $db = new ossim_db();
@@ -62,13 +63,7 @@ if (!isset($_SESSION['plugins_to_show'])) $_SESSION['plugins_to_show'] = array()
 if (GET('modo') == "responder") {
     // Timezone correction
     $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
-	if (preg_match("/(.*)\.(.*)/","$tz",$fnd)) {
-		$fnd[0] = ($fnd[0]>0) ? "+".$fnd[0] : $fnd[0];
-		$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
-        $tzc = $fnd[0].":".$fnd[1];
-	} else {
-        $tzc = ($tz>0) ? "+$tz:00" : "$tz:00";	
-	}
+	$tzc = Util::get_tzc($tz);	
     $plugins = "";
     $plgs = explode(",",GET('plugins'));
     foreach ($plgs as $encoded) $plugins .= ",".base64_decode($encoded);

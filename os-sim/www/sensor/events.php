@@ -65,7 +65,7 @@ if (GET("refresh")==1) {
 		';
 		foreach ($status->val->me['array'] as $id => $res) {
 			echo "<tr>\n"; //echo $res->me['string'];
-			preg_match("/Running=(\d+) Connected=(\d+) AgentIP=(.*?) Server=(.*?) EPS=(\d+) Count=(\d+) Seconds=(\d+\.\d\d)\d* RealEPS=(0|\d+\.\d\d\d)\d* LocalSrc=(\d+) LocalDst=(\d+) RndPayload=\d+ Category=(\d+) Subcategory=(\d+)/i",$res->me['string'],$fnd);
+			preg_match("/Running=(\d+) Connected=(\d+) AgentIP=(.*?) Server=(.*?) EPS=(\d+) Count=(\d+) Seconds=(\d+\.\d\d)\d* RealEPS=(0.0|\d+\.\d\d\d)\d* LocalSrc=(\d+) LocalDst=(\d+) RndPayload=\d+ Category=(\d+) Subcategory=(\d+)/i",$res->me['string'],$fnd);
 			for($i=1;$i<count($fnd);$i++) echo "<td>".$fnd[$i]."</td>";
 			echo '<td><a target="main" href="events.php?stop='.$id.'" style="text-decoration:none" class="button">STOP</a></td>';
 			echo "</tr>\n";

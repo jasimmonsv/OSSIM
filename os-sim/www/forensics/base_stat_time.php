@@ -70,7 +70,7 @@ function GetTimeProfile2($start_date, $end_date, $time_sep, $join, $where) {
     GLOBAL $db, $cnt, $label_lst, $value_lst, $value_POST_lst, $debug_mode;
     // Timezone
 	$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
-	$tzc = ($tz>=0) ? "+$tz:00" : "$tz:00";
+	$tzc = Util::get_tzc($tz);
     $precision = $time_sep[0];
     // group by date_format(timestamp, "%Y%m%d %H")
     switch ($precision) {

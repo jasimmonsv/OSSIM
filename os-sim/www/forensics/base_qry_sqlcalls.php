@@ -238,7 +238,7 @@ if ($tr=="range") {
     else $tr = "day";
     $trdata = array ($desde,$hasta,"range");
 }
-$tzc = ($tz>=0) ? "+$tz:00" : "$tz:00";
+$tzc = Util::get_tzc($tz);
 switch ($tr) {
     case "today":
         $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, 'h' as suf";
@@ -325,7 +325,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $cell_align['CID'] = "center";
     $cell_data['PLUGIN_ID'] = $myrow["plugin_id"];
     $cell_align['PLUGIN_ID'] = "center";
-    $cell_data['PLUGIN_SID'] = '<a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$myrow["plugin_id"].'&sid='.$myrow["plugin_sid"].'\',200,400)">'.$myrow["plugin_sid"].'</a>';
+    $cell_data['PLUGIN_SID'] = $myrow["plugin_sid"];
     $cell_align['PLUGIN_SID'] = "center";
     if (in_array("PLUGIN_NAME",$_SESSION['views'][$_SESSION['current_cview']]['cols']) || in_array("PLUGIN_DESC",$_SESSION['views'][$_SESSION['current_cview']]['cols'])) {
         list($cell_data['PLUGIN_NAME'],$cell_data['PLUGIN_DESC']) = GetPluginNameDesc($myrow["plugin_id"], $db);
@@ -564,7 +564,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 
     // 8- Priority
     //qroPrintEntry("<img src=\"bar2.php?value=" . $current_oprio . "&max=5\" border='0' align='absmiddle' title='$current_oprio'>&nbsp;");
-	$cell_data['PRIORITY'] = "<img src=\"bar2.php?value=" . $current_oprio . "&max=5\" border='0' align='absmiddle' title='$current_oprio'>&nbsp;";
+	$cell_data['PRIORITY'] = '<a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$myrow["plugin_id"].'&sid='.$myrow["plugin_sid"].'\',200,400)">'."<img src=\"bar2.php?value=" . $current_oprio . "&max=5\" border='0' align='absmiddle' title='$current_oprio'></a>";
 	$cell_pdfdata['PRIORITY'] = "<img src='".$current_url."/forensics/bar2.php?value=" . $current_oprio . "&max=5' border='0' align='absmiddle' style='width:10mm'>";
     $cell_align['PRIORITY'] = "center";
     //if ($current_oprio != "")
@@ -574,7 +574,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 
     // 10- Rel
     //qroPrintEntry("<img src=\"bar2.php?value=" . $current_oreli . "&max=9\" border='0' align='absmiddle' title='$current_oreli'>&nbsp;");
-	$cell_data['RELIABILITY'] = "<img src=\"bar2.php?value=" . $current_oreli . "&max=9\" border='0' align='absmiddle' title='$current_oreli'>&nbsp;";
+	$cell_data['RELIABILITY'] = '<a href="javascript:;" onclick="GB_show(\''._("Modify Rel/Prio").'\',\'modify_relprio.php?id='.$myrow["plugin_id"].'&sid='.$myrow["plugin_sid"].'\',200,400)">'."<img src=\"bar2.php?value=" . $current_oreli . "&max=9\" border='0' align='absmiddle' title='$current_oreli'></a>";
 	$cell_pdfdata['RELIABILITY'] = "<img src='".$current_url."/forensics/bar2.php?value=" . $current_oreli . "&max=9' border='0' align='absmiddle' style='width:10mm'>";
     $cell_align['RELIABILITY'] = "center";
     //if ($current_oreli != "")
@@ -584,7 +584,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 
     // 9- Risk
     //qroPrintEntry("<img src=\"bar2.php?value=" . $current_oriskc . "&value2=" . $current_oriska . "&max=9&range=1\" border='0' align='absmiddle' title='$current_oriskc -> $current_oriska'>&nbsp;");
-	$cell_data['RISK'] = "<img src=\"bar2.php?value=" . $current_oriskc . "&value2=" . $current_oriska . "&max=9&range=1\" border='0' align='absmiddle' title='$current_oriskc -> $current_oriska'>&nbsp;";
+	$cell_data['RISK'] = "<img src=\"bar2.php?value=" . $current_oriskc . "&value2=" . $current_oriska . "&max=9&range=1\" border='0' align='absmiddle' title='$current_oriskc -> $current_oriska'>";
 	$cell_pdfdata['RISK'] = "<img src='".$current_url."/forensics/bar2.php?value=" . $current_oriskc . "&value2=" . $current_oriska . "&max=9&range=1' border='0' align='absmiddle' style='width:10mm'>";
     $cell_align['RISK'] = "center";
     /*if ($current_otype == 2) {

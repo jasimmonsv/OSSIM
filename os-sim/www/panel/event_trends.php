@@ -8,13 +8,7 @@ session_write_close();
 
 function SIEM_trends($h=24) {
 	global $tz;
-	if (preg_match("/(.*)\.(.*)/","$tz",$fnd)) {
-		$fnd[0] = ($fnd[0]>0) ? "+".$fnd[0] : $fnd[0];
-		$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
-        $tzc = $fnd[0].":".$fnd[1];
-	} else {
-        $tzc = ($tz>0) ? "+$tz:00" : "$tz:00";	
-	}
+	$tzc = Util::get_tzc($tz);
 	$data = array();
 	require_once 'ossim_db.inc';
 	$db = new ossim_db();
@@ -40,13 +34,7 @@ function SIEM_trends($h=24) {
 
 function SIEM_trends_week($param="") {
 	global $tz;
-	if (preg_match("/(.*)\.(.*)/","$tz",$fnd)) {
-		$fnd[0] = ($fnd[0]>0) ? "+".$fnd[0] : $fnd[0];
-		$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
-        $tzc = $fnd[0].":".$fnd[1];
-	} else {
-        $tzc = ($tz>0) ? "+$tz:00" : "$tz:00";	
-	}
+	$tzc = Util::get_tzc($tz);
 	$data = array();
 	$plugins = $plugins_sql = "";
 	require_once 'ossim_db.inc';
