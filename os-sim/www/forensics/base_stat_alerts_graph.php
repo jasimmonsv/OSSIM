@@ -74,6 +74,7 @@ $from = " FROM acid_event  " . $criteria_clauses[0];
 $where = ($criteria_clauses[1] != "") ? " WHERE " . $criteria_clauses[1] : " ";
 // use accumulate tables only with timestamp criteria
 $use_ac = (preg_match("/AND/", preg_replace("/AND \( timestamp/", "", $criteria_clauses[1]))) ? false : true;
+if (preg_match("/ \d\d:\d\d:\d\d/",$criteria_clauses[1])) $use_ac = false;
 //$use_ac = false;
 if (preg_match("/^(.*)AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)\s+AND\s+\(\s+timestamp\s+[^']+'([^']+)'\s+\)(.*)$/", $where, $matches)) {
     if ($matches[2] != $matches[3]) {
@@ -155,7 +156,7 @@ if ($tr=="range") {
     $trdata = array ($desde,$hasta,"range");
 }
 list($x, $y, $xticks, $xlabels) = range_graphic($trdata);
-$tzc = ($tz>=0) ? "+$tz:00" : "$tz:00";
+$tzc = Util::get_tzc($tz);
 switch ($tr) {
     case "today":
         $interval = "hour(convert_tz(timestamp,'+00:00','$tzc')) as intervalo, 'h' as suf";

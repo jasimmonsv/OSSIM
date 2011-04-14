@@ -201,6 +201,24 @@ $help_entries["date_frame"] = _("Choose between various pre-defined dates to que
 <script type="text/javascript" src="../js/jquery.simpletip.js"></script>
 <script type="text/javascript" src="../js/urlencode.js"></script>
 
+<style type="text/css">
+.etooltip { 
+	text-align:left;
+	position: absolute;
+	padding: 5px;
+	z-index: 10;
+
+	color: #303030;
+	background-color: #f5f5b5;
+	border: 1px solid #FFE38F;
+
+	font-family: arial;
+	font-size: 12px;
+	text-decoration: none !important;	
+	width:650px; white-space:normal; 
+}
+</style>
+
 <? include ("../host_report_menu.php") ?>
 
 <script type="text/javascript">
@@ -333,7 +351,15 @@ function SetFromIframe(content,str,start,end,sort) {
             onBeforeShow: function() {
                     this.update(this.getParent().attr('txt'));
             }
-    });    
+    }); 
+    $(".eventinfo").simpletip({
+            position: 'bottom',
+            offset: [300,5],
+            baseClass: 'etooltip',
+            onBeforeShow: function() {
+                    this.update(this.getParent().attr('txt'));
+            }
+    }); 
 }
 
 function GetSearchString() {
@@ -601,6 +627,7 @@ function SetSearch(content)
 	for (i = 0; i < atoms.length; i++) {
 		var value = atoms[i];
 		value = value.replace(/^\s+/g,'').replace(/\s+$/g,'').replace(/\n/g,'');
+		value = value.replace(/SPACESCAPE/g,' ');
 		if (value != "" && value != "data=") {
 			AddAtom(value);
 		}

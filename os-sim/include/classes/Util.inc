@@ -764,7 +764,7 @@ class Util {
         return (Util::is_utf8($string)) ? utf8_decode($string) : $string;
 	}
 	
-	function htmlentities($string, $flag=ENT_COMPAT, $charset='') {
+	function htmlentities($string, $flag=ENT_QUOTES, $charset='') {
         
 		$string = ( empty($charset) ) ? @htmlentities($string, $flag) : htmlentities($string, $flag, $charset);
 		
@@ -806,6 +806,7 @@ class Util {
     	return html_entity_decode(preg_replace('/&#(\d{4,5});/','&amp;#$1;',mb_convert_encoding($str,'HTML-ENTITIES','UTF-8')));
     }
     
+    // TIMEZONE FUNCTIONS
     function timezone($tz) {
         $arr = array( "-12" => "GMT-12:00", "-11" => "GMT-11:00", "-10" => "GMT-10:00",
                 "-9.5" => "GMT-9:30", "-9" => "GMT-9:00", "-8" => "GMT-8:00",
@@ -820,6 +821,18 @@ class Util {
                 "11" => "GMT+11:00", "11.5" => "GMT+11:30", "12" => "GMT+12:00",
                 "12.75" => "GMT+12:45", "13" => "GMT+13:00", "14" => "GMT+14:00");
         return $arr[$tz];
+    }
+    
+    // Get +TZ.NN variable from timezone for MySQL
+    function get_tzc ($tz) {
+		if (preg_match("/(.*)\.(.*)/","$tz",$fnd)) {
+			$fnd[0] = ($fnd[0]>0) ? "+".$fnd[0] : $fnd[0];
+			$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
+	        $tzc = $fnd[0].":".$fnd[1];
+		} else {
+	        $tzc = ($tz>0) ? "+$tz:00" : "$tz:00";	
+		}
+		return $tzc;
     }
     
     // Convert date to UTC unixtime using mysql
@@ -839,13 +852,7 @@ class Util {
 	function get_utc_from_date($conn,$date,$tz) {
 		$utc = $date;
 		// convert timezone to mysql format first
-		if (preg_match("/(.*)\.(.*)/","$tz",$fnd)) {
-			$fnd[0] = ($fnd[0]>0) ? "+".$fnd[0] : $fnd[0];
-			$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
-	        $tz = $fnd[0].":".$fnd[1];
-		} else {
-	        $tz = ($tz>0) ? "+$tz:00" : "$tz:00";	
-		}
+		$tz = Util::get_tzc($tz);
         if (method_exists($conn,"baseExecute")) { // called from forensics
         	if ($rs = &$conn->baseExecute("select convert_tz('$date','$tz','+00:00')"))
             	if ($row = $rs->baseFetchRow())

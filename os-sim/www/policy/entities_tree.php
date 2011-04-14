@@ -33,9 +33,13 @@
 * Function list:
 * Classes list:
 */
+ob_implicit_flush();
+ini_set("max_execution_time","300");
+
 require_once ('classes/Session.inc');
 require_once ('classes/Sensor.inc');
 require_once ('classes/Net_group.inc');
+require_once ('classes/Util.inc');
 require_once ('ossim_db.inc');
 
 $key = GET('key');
@@ -54,21 +58,21 @@ $to = $page * $maxresults;
 $from = $to - $maxresults;
 $nextpage = $page + 1;
 
-$withusers = ($_SESSION["_with_users"]==1) ? true : false;
-$withsiemcomponents = ($_SESSION["_with_siem_components"]==1) ? true : false;
+$withusers          = ( $_SESSION["_with_users"]==1 )           ? true : false;
+$withsiemcomponents = ( $_SESSION["_with_siem_components"]==1 ) ? true : false;
 
 
-/* connect to db */
-$db = new ossim_db();
+/* Connect to db */
+$db   = new ossim_db();
 $conn = $db->connect();
 
-/* load hosts and nets */
-$ossim_hosts = array();
-$total_hosts = 0;
-$ossim_nets = array();
+/* Load hosts and nets */
+$ossim_hosts      = array();
+$total_hosts      = 0;
+$ossim_nets       = array();
 $all_cclass_hosts = array();
-$buffer = "";
-$where_host = "";
+$buffer           = "";
+$where_host       = "";
 
 if(preg_match("/host_(.*)/",$key,$found)) {
     $where_host = ", host_sensor_reference hsr WHERE h.ip=hsr.host_ip AND hsr.sensor_name='".$found[1]."'";
@@ -105,7 +109,7 @@ if ($key == "hostgroup") {
             if($j>=$from && $j<$to) {
                 $hg_name  = $hg->get_name();
 				$hg_key   = base64_encode($hg->get_name());
-				$hg_title = utf8_encode($hg->get_name());
+				$hg_title = Util::htmlentities(utf8_encode($hg->get_name()));
                 $li = "key:'hostgroup_$hg_key', isLazy:true , url:'../host/newhostgroupform.php?name=".urlencode($hg_name)."', icon:'../../pixmaps/theme/host_group.png', title:'$hg_title'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
             }
@@ -148,7 +152,7 @@ else if (preg_match("/shostgroup_(.*)/",$key,$found)) {
     
     foreach($sensor_assets["hgroup"] as $hg_name => $v) {
         $hg_key   = base64_encode($hg_name);
-        $hg_title = utf8_encode($hg_name);
+        $hg_title = Util::htmlentities(utf8_encode($hg_name));
         $li[]= "{ key:'hostgroup_$hg_key', isLazy:true , url:'../host/newhostgroupform.php?name=".urlencode($hg_name)."', icon:'../../pixmaps/theme/host_group.png', title:'$hg_title' }";
     }
     
@@ -167,7 +171,7 @@ else if (preg_match("/snetgroup_(.*)/",$key,$found)) {
     
     foreach($sensor_assets["ngroup"] as $net_group_name => $v) {
         $ng_key         = base64_encode($net_group_name);
-        $ng_title       = utf8_encode($net_group_name);
+        $ng_title       = Util::htmlentities(utf8_encode($net_group_name));
         $li[] = "{ key:'netgroup_$ng_key', isLazy:true , url:'../net/newnetgroupform.php?name=".urlencode($net_group_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$ng_title' }";
     }
     
@@ -206,16 +210,18 @@ else if (preg_match("/hostgroup_(.*)/",$key,$found)) {
 else if ($key == "net") {
 	
 	$wherenet = ($filter!="") ? "ips like '%$filter%'" : "";
+	
 	$net_list = Net::get_list($conn, $wherenet);
     
-    if (count($net_list)>0) {
+    if (count($net_list)>0) 
+	{
         $buffer .= "[";
         $j = 0;
         foreach($net_list as $net) {
             if ($j>=$from && $j<$to) {
                 $net_name  = $net->get_name();
 				$net_key   = base64_encode($net->get_name());
-				$net_title = utf8_encode($net->get_name());
+				$net_title = Util::htmlentities(utf8_encode($net_name));
                 $ips = $net->get_ips();
                 $li = "key:'net_$net_key', isLazy:true, url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$ips.")</font>'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
@@ -228,6 +234,7 @@ else if ($key == "net") {
         }
         $buffer .= "]";
     }
+	
     if ($buffer=="" || $buffer=="[]")
         $buffer = "[{title:'"._("No Assets Found")."'}]";
     echo $buffer;
@@ -261,7 +268,7 @@ else if (preg_match("/net_(.*)/",$key,$found)){
     $html = "";
     foreach($hostin as $ip => $host_name) {
         if ($k>=$from && $k<$to) {
-            $host_title = utf8_encode($host_name);
+            $host_title = Util::htmlentities(utf8_encode($host_name));
 			$html.= "{ key:'$key.$k', url:'../host/modifyhostform.php?ip=$ip', icon:'../../pixmaps/theme/host.png', title:'$ip <font style=\"font-size:80%\">($host_title)</font>' },\n";
         }
         $k++;
@@ -285,7 +292,7 @@ else if ($key=="netgroup") {
             if ($j>=$from && $j<$to) {
                 $net_group_name = $net_group->get_name();
 				$ng_key         = base64_encode($net_group_name);
-				$ng_title       = utf8_encode($net_group_name);
+				$ng_title       = Util::htmlentities(utf8_encode($net_group_name));
                 //$nets           = $net_group->get_networks($conn, $net_group_name);
                 $li = "key:'netgroup_$ng_key', isLazy:true , url:'../net/newnetgroupform.php?name=".urlencode($net_group_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$ng_title'\n";
                 $buffer .= (($j > $from) ? "," : "") . "{ $li }\n";
@@ -311,7 +318,7 @@ else if (preg_match("/netgroup_(.*)/",$key,$found)){
     $j = 0;
     foreach($nets as $net) {
         $net_name  = $net->get_net_name();
-		$net_title = utf8_encode($net_name);
+		$net_title = Util::htmlentities(utf8_encode($net_name));
 
         if ($j>=$from && $j<$to) {
             $html.= "{ key:'$key.$k', url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$net_title' },\n";
@@ -361,7 +368,7 @@ else if (preg_match("/all_(.*)/",$key,$found)) {
         foreach($hg as $ip) {
                 if ($i>=$from && $i<$to) {
                     $hname = ($ip == $ossim_hosts[$ip]) ? $ossim_hosts[$ip] : "$ip <font style=\"font-size:80%\">(" . $ossim_hosts[$ip] . ")</font>";
-                    $hname = utf8_encode($hname);
+                    $hname = Util::htmlentities(utf8_encode($hname));
                     $html.= "{ key:'$key.$j', url:'../host/modifyhostform.php?ip=$ip', icon:'../../pixmaps/theme/host.png', title:'$hname' },\n";
                 }
             $i++;
@@ -386,7 +393,7 @@ else if(preg_match("/u_(.*)_netgroup/",$key,$found)){
     $j = 0;
     foreach($netgroup_list as $netgroup) if (Session::groupAllowed($conn, $netgroup->get_name(), $found[1])) {
         $netgroup_name = $netgroup->get_name();
-        $netgroup_title = utf8_encode($netgroup_name);
+        $netgroup_title = Util::htmlentities(utf8_encode($netgroup_name));
         $li = "url:'../net/newnetgroupform.php?name=".urlencode($netgroup_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$netgroup_title'\n";
         $buffer .= (($j > 0) ? "," : "") . "{ $li }";
         $j++;
@@ -397,16 +404,18 @@ else if(preg_match("/u_(.*)_netgroup/",$key,$found)){
 }
 else if(preg_match("/u_(.*)_net/",$key,$found)){
     $net_list = Net::get_list($conn);
-    $allowedNets = explode(",",Session::allowedNets($found[1]));
-    $nets_allowed = explode(",",$allowedNets);
+    $allowedNets = Session::allowedNets($found[1]);
+    $nets_allowed = array_fill_keys(explode(",",$allowedNets),1);
+    
     $buffer .= "[";
     $j = 0;
     foreach($net_list as $net) {
     	$cidrs = explode(",",$net->get_ips());
-    	if (array_intersect($cidrs,$nets_allowed)===$cidrs || $allowedNets=="") {
+    	if ($allowedNets=="" || Acl::cidrs_allowed($cidrs,$nets_allowed)) {
 	        $net_name = $net->get_name();
+	        $net_title = Util::htmlentities(utf8_encode($net_name));
 	        $ips = $net->get_ips();
-	        $li = "url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$net_name <font style=\"font-size:80%\">(".$ips.")</font>'\n";
+	        $li = "url:'../net/newnetform.php?name=".urlencode($net_name)."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$ips.")</font>'\n";
 	        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
 	        $j++;
 	    }
@@ -418,12 +427,13 @@ else if(preg_match("/u_(.*)_net/",$key,$found)){
 else if(preg_match("/u_(.*)_sensor/",$key,$found)){
     $sensor_list = Sensor::get_list($conn);
     $allowedSensors = Session::allowedSensors($found[1]);
-    $sensors_allowed = explode(",",$allowedSensors);
+    $sensors_allowed = array_fill_keys(explode(",",$allowedSensors),1);
+    
     $buffer .= "[";
     $j = 0;
-    foreach($sensor_list as $sensor) if (in_array($sensor->get_ip(), $sensors_allowed) || $allowedSensors=="") {
-        $sensor_name = $sensor->get_name();
-        $sensor_title = utf8_encode($sensor_name);
+    foreach($sensor_list as $sensor) if ($allowedSensors=="" || $sensors_allowed[$sensor->get_ip()]) {
+    	$sensor_name = $sensor->get_name();
+        $sensor_title = Util::htmlentities(utf8_encode($sensor_name));
         $li = "url:'../sensor/interfaces.php?sensor=".$sensor->get_ip()."&name=".urlencode($sensor_name)."', icon:'../../pixmaps/theme/server.png', title:'$sensor_title'\n";
         $buffer .= (($j > 0) ? "," : "") . "{ $li }";
         $j++;
@@ -441,15 +451,16 @@ else if(preg_match("/u_(.*)/",$key,$found)){
 }
 else if(preg_match("/e_(.*)_netgroup/",$key,$found)){
     $entityPerms = Acl::entityPerms($conn,$found[1]);
+    $all = count($entityPerms["assets"]);
     $nets_allowed = array_keys($entityPerms["assets"]);
     $net_groups = Net_group::get_list($conn);
     $netgroup_list = array();
     foreach($net_groups as $net_group) {
-        $allowed=1;
+        $allowed=0;
         $nets = $net_group->get_networks($conn, $net_group->get_name());
         foreach($nets as $net) {
             $net_ips = explode(",",$net->get_net_ips($conn));
-            foreach ($net_ips as $cidr) if (!in_array($cidr,$nets_allowed) && count($nets_allowed)>0) $allowed=0;
+            if (!$all || Acl::cidrs_allowed($net_ips,$entityPerms["assets"])) $allowed=1;
         }
         if ($allowed) $netgroup_list[] = $net_group->get_name();
     }
@@ -457,7 +468,7 @@ else if(preg_match("/e_(.*)_netgroup/",$key,$found)){
     $buffer .= "[";
     $j = 0;
     foreach($netgroup_list as $netgroup_name) {
-    	$netgroup_title = utf8_encode($netgroup_name);
+    	$netgroup_title = Util::htmlentities(utf8_encode($netgroup_name));
         $li = "url:'../net/newnetgroupform.php?name=".urlencode($netgroup_name)."', icon:'../../pixmaps/theme/net_group.png', title:'$netgroup_title'\n";
         $buffer .= (($j > 0) ? "," : "") . "{ $li }";
         $j++;
@@ -466,17 +477,19 @@ else if(preg_match("/e_(.*)_netgroup/",$key,$found)){
     if ($buffer=="[]")  $buffer = "[{title:'"._("No Net Groups Found")."'}]";
     echo $buffer;
 }
-else if(preg_match("/e_(.*)_net/",$key,$found)){
-    $entityPerms = Acl::entityPerms($conn,$found[1]);
-    $nets = Net::get_all($conn);
-    $allowed_nets = array_keys($entityPerms["assets"]);
+else if(preg_match("/e_(.*)_net/",$key,$found))
+{
+	$entityPerms = Acl::entityPerms($conn,$found[1]);
+	$all = count($entityPerms["assets"]);
+	$nets = Net::get_all($conn);
+
     $buffer .= "[";
     $j = 0;
     foreach($nets as $net) {
     	$cidrs = explode(",",$net->get_ips());
-    	if (array_intersect($cidrs,$allowed_nets)===$cidrs || !count($allowed_nets)) {
-	        $net_title  = utf8_encode($net->get_name());
-			$li = "url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'".$net_title." <font style=\"font-size:80%\">(".$net->get_ips().")</font>'\n";
+    	if (!$all || Acl::cidrs_allowed($cidrs,$entityPerms["assets"])) {
+	        $net_title  = Util::htmlentities(utf8_encode($net->get_name()));
+			$li = "url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$net->get_ips().")</font>'\n";
 	        $buffer .= (($j > 0) ? "," : "") . "{ $li }";
 	        $j++;
 	    }
@@ -485,14 +498,16 @@ else if(preg_match("/e_(.*)_net/",$key,$found)){
     if ($buffer=="[]")  $buffer = "[{title:'"._("No Nets Found")."'}]";
     echo $buffer;
 }
+
 else if(preg_match("/e_(.*)_sensor/",$key,$found)){
     $entityPerms = Acl::entityPerms($conn,$found[1]);
+    $all = count($entityPerms["sensors"]);
     $sensors = Sensor::get_all($conn);
-    $allowed_sensors = array_keys($entityPerms["sensors"]);
+    
     $buffer .= "[";
     $j = 0;
-    foreach($sensors as $sensor) if (in_array($sensor->get_ip(),$allowed_sensors) || !count($allowed_sensors)) {
-        $sensor_title  = utf8_encode($sensor->get_name());
+    foreach($sensors as $sensor) if (!$all || $entityPerms["sensors"][$sensor->get_ip()]) {
+        $sensor_title  = Util::htmlentities(utf8_encode($sensor->get_name()));
 		$li = "url:'../sensor/interfaces.php?sensor=".$sensor->get_ip()."&name=".urlencode($sensor->get_name())."', icon:'../../pixmaps/theme/server.png', title:'".$sensor_title."'\n";
         $buffer .= (($j > 0) ? "," : "") . "{ $li }";
         $j++;
@@ -531,6 +546,9 @@ else if(preg_match("/ue_(.*)/",$key,$found)){
         }
     }
     $buffer .= "]";
+    
+    if ($buffer=="[]")  $buffer = "[{title:'"._("No Users found")."'}]";
+    
     echo $buffer;
 }
 else if(preg_match("/ou/",$key)) {
@@ -546,6 +564,9 @@ else if(preg_match("/ou/",$key)) {
         }
     }
     $buffer .= "]";
+    
+    if ($buffer=="[]")  $buffer = "[{title:'"._("No Users found")."'}]";
+    
     echo $buffer;
 }
 else if(preg_match("/servers/",$key)) {
@@ -697,9 +718,10 @@ else {
         $e_key = (Acl::entityAllowed($entity['id']) == 2) ? $entity['id'] : "";
         $e_style = "font-weight:bold";
         echo "{title:'<font style=\"$e_style\">".utf8_encode($entity['name'])."</font> <font style=\"color:gray\">[".$entities_types[$entity['type']]['name']."]</font>', key:'e_".$e_key."', icon:'$icon', expand:true, name:'".$entity['name']."'";
-        if (count($children[$entity['id']]) > 0) {
+        
+		//if (count($children[$entity['id']]) > 0) {
             echochildrens($entities,$children,$children[$entity['id']],$entities_types,$entity['id'],$withusers);
-        }
+       //}
         echo "}";
     }
     if ($withusers && Session::am_i_admin()) echo "]},{title:'<font style=\"font-weight:normal\">"._("Others users")."</font>', isFolder:true, icon:'../../pixmaps/menu/assets.gif', isLazy:true, key:'ou'}";
@@ -709,10 +731,18 @@ else {
 function echochildrens($entities,$children,$childs,$entities_types,$parent_id,$withusers) {
     echo ",children:[";
     //$flag = false;
-    if($parent_id!="") {
+    if( $parent_id != "" ) 
+	{
         echo "{title:'<font style=\"font-weight:normal\">"._("All Assets")."</font>', key:'ae_".$parent_id."', icon:'../../pixmaps/menu/assets.gif', isFolder:true, isLazy:true}";
         if ($withusers) echo ",{title:'<font style=\"font-weight:normal\">"._("Assets by user")."</font>', key:'ue_".$parent_id."', icon:'../../pixmaps/menu/assets.gif', isFolder:true, isLazy:true}";
     }
+	
+	if ( !is_array($childs) )
+	{
+		 echo "]";
+		 return;
+	}
+	
     foreach ($childs as $child_id) {
         $child = $entities[$child_id];
         if ($child['type'] < 0) continue;
@@ -745,6 +775,8 @@ function echochildrens($entities,$children,$childs,$entities_types,$parent_id,$w
         if(!($child['type'] == 0 || $child['isadmin'][$parent_id])) 
             echo "}";
     }
+	
+	
     echo "]";
 }
 ?>

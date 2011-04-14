@@ -72,8 +72,8 @@ if ($submit == "Update Alert Cache") {
     DropWhoisCache($db);
     UpdateWhoisCache($db);
 } else if ($submit == "Repair Tables") {
-    //$repair_output = RepairDBTables($db);
-    CreateBASEAG($db);
+    RepairDBTables($db);
+    //CreateBASEAG($db); old function
 } else if ($submit == "Clear Data Tables") {
     ClearDataTables($db);
 } else if ($submit == "Clean Unused Sensors") {

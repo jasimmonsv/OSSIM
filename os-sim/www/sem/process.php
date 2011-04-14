@@ -143,7 +143,7 @@ ossim_valid($start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("
 ossim_valid($end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, 'illegal:' . _("end date"));
 ossim_valid($offset, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("offset"));
 ossim_valid($top, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("top"));
-ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, "\!\|", 'illegal:' . _("a"));
+ossim_valid($a, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, "\!\|\%", 'illegal:' . _("a"));
 ossim_valid($sort_order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("sort order"));
 ossim_valid($uniqueid, OSS_ALPHA, OSS_DIGIT, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("uniqueid"));
 if (ossim_error()) {
@@ -563,24 +563,25 @@ foreach($result as $res=>$event_date) {
 		}
 
         # decode if data is stored in base64
+        $data = $matches[12];
         #$data = $matches[12];
         #$matches[12] = base64_decode($matches[12],true);
         #if ($matches[12]==FALSE) $matches[12] = $data;
                             
         if($htmlResult){
-            $data = $matches[12];
-            //$signature = $matches[13];
-            $query = "select name from plugin where id = " . intval($matches[4]);
-            if (!$rs = & $conn->Execute($query)) {
-                print $conn->ErrorMsg();
-            }
-	        // para coger
-	        $plugin = Util::htmlentities($rs->fields["name"]);            
+        	if ($_SESSION["_plugins"][$matches[4]]!="") {
+        		$plugin = $_SESSION["_plugins"][$matches[4]];
+        	} else {
+	            $query = "select name from plugin where id = " . intval($matches[4]);
+	            if (!$rs = & $conn->Execute($query)) {
+	                print $conn->ErrorMsg();
+	            }
+		        // para coger
+		        $plugin = Util::htmlentities($rs->fields["name"]);            
+		        if ($plugin == "") $plugin = intval($matches[4]);
+		        $_SESSION["_plugins"][$matches[4]] = $plugin;
+		    }
         }
-        if ($plugin == "") {
-            $plugin = intval($matches[4]);
-        }
-        // fin para coger
         if($htmlResult){
             $red = 0;
             $color = "black";
@@ -637,13 +638,17 @@ foreach($result as $res=>$event_date) {
 
                     $src_div = "<div id=\"$src_ip;$src_ip_name\" class=\"HostReportMenu\" style=\"display:inline\">";
                     $dst_div = "<div id=\"$dst_ip;$dst_ip_name\" class=\"HostReportMenu\" style=\"display:inline\">";
+                    
+            // Event info tooltip
+            $event_info = "<a href='javascript:;' style='text-decoration:none' class='eventinfo' txt='".wordwrap(Util::htmlentities($matches[12],ENT_QUOTES),170," ",true)."'>$total_counter</a>";
+                    
             // Solera DeepSee API
             $solera = "";
             if ($_SESSION["_solera"]) {
                 $solera = "<a href=\"javascript:;\" onclick=\"solera_deepsee('$start','$end','$src_ip','$src_port','$dst_ip','$dst_port','tcp')\"><img src='../pixmaps/solera.png' border='0' align='absmiddle'></a>";
             }
             $line = "<tr".(($colort%2==0) ? " style=\"background-color: #F2F2F2\"" : "").">
-            <td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . $warning . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_start=$date&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "&hmenu=Tickets&smenu=Tickets\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\" align='absmiddle'/></a> $total_counter $solera</td>";
+            <td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;' nowrap>" . $warning . "<a href=\"../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($plugin . " Event") . "&" . "priority=1&" . "src_ips=$src_ip&" . "event_start=$date&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port" . "&hmenu=Tickets&smenu=Tickets\">" . "<img src=\"../pixmaps/incident.png\" width=\"12\" alt=\"i\" border=\"0\" align='absmiddle'/></a> $event_info $solera</td>";
             if ($from_remote) {
             	$line .= "<td class='nobborder' style='border-right:1px solid #FFFFFF;text-align:center;' nowrap><table class='transparent' align='center'><tr><td class='nobborder' style='padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:#".$_SESSION['logger_colors'][$current_server]['bcolor'].";color:#".$_SESSION['logger_colors'][$current_server]['fcolor']."'>$current_server</td></tr></table></td>";
             }
@@ -695,7 +700,7 @@ foreach($result as $res=>$event_date) {
                 $matches[12] = preg_replace("/(&#\d+) (\d+;)/","\\1\\2",$matches[12]);
                 $matches[12] = preg_replace("/(&#\d+) (;)/","\\1\\2",$matches[12]);
                 $matches[12] = preg_replace("/(&#\d+;) (&)/","\\1\\2",$matches[12]);
-                foreach(split("[\=\| \t:]", $matches[12]) as $piece) {
+                foreach(split("[\=\| \t:\,\"\']", $matches[12]) as $piece) {
                     $clean_piece = str_replace("(", " ", $piece);
                     $clean_piece = str_replace(")", " ", $clean_piece);
                     $clean_piece = str_replace("[", " ", $clean_piece);
@@ -708,10 +713,17 @@ foreach($result as $res=>$event_date) {
                             break;
                         }
                     }
-                    if ($red) {
-                        $data.= "<font color=\"red\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('<b>data</b>=" . $clean_piece . "')\">" . $clean_piece . " </span>";
+                    if (preg_match("/(&gt;)|(&lt;)/",$clean_piece)) {
+                    	$onclick = (preg_match("/(&gt;)|(&lt;)/",$clean_piece)) ? ";" : "SetSearch('<b>data</b>=" . $clean_piece . "')";
+                    	$cursor = "not-allowed";
                     } else {
-                        $data.= "<font color=\"$color\"><span onmouseover=\"this.style.color = 'green';this.style.cursor='pointer';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:SetSearch('<b>data</b>=" . $clean_piece . "')\"\">" . $clean_piece . " </span>";
+                    	$onclick = (preg_match("/(&gt;)|(&lt;)/",$clean_piece)) ? ";" : "SetSearch('<b>data</b>=" . $clean_piece . "')";
+                    	$cursor = "pointer";
+                    }
+                    if ($red) {
+                        $data.= "<span style=\"color:red\" onmouseover=\"this.style.color = 'green';this.style.cursor='$cursor';\" onmouseout=\"this.style.color = 'red';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:" . $onclick . "\">" . $clean_piece . " </span>";
+                    } else {
+                        $data.= "<span style=\"color:$color\" onmouseover=\"this.style.color = 'green';this.style.cursor='$cursor';\" onmouseout=\"this.style.color = '$color';this.style.cursor = document.getElementById('cursor').value;\" onclick=\"javascript:" . $onclick . "\">" . $clean_piece . " </span>";
                     }
                 }
                 if ($verified >= 0) {
@@ -765,7 +777,11 @@ if (is_dir($config["searches_dir"]) && isset($export) && $export != "noExport") 
 } // FROM: if (has_results()) {
 
 if (!has_results($num_lines)) {
-    print "<center><font style='color:red;font-size:14px'><br>"._("No Data Found Matching Your Criteria")."</font></center>";
+    echo '<table align="center" width="100%" style="background:transparent"><tr>
+    	<td class="noborder" style="color:red;font-size:14px">'._("No Data Found Matching Your Criteria").'</td>
+		<td width="150px" class="nobborder" style="text-align:right;" nowrap>'._("Parsing time").': <b>'.$totaltime.'</b> '._("seconds").'</td>
+		</tr>
+		</table>';
 } else {
 ?>
 <center>

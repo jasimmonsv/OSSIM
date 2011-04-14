@@ -43,13 +43,13 @@ if (preg_match("/\/(\d+)/",$host,$found)) {
     if ($found[1] >= 24) $hst = preg_replace("/\.\d+\/.*/","",$host);
     elseif ($found[1] >= 16) $hst = preg_replace("/\.\d+\.\d+\/.*/","",$host);
     elseif ($found[1] >= 8) $hst = preg_replace("/\.\d+\.\d+\.\d+\/.*/","",$host);
-    $lnk = "net=$hst";
+    $lnk = (GET('netname') != "") ? str_replace(" ","SPACESCAPE",GET('netname')) : $hst;
 }
-else $lnk = "ip=$host";
+else $lnk = "$host";
 ?>
 <table width="100%" class="bordered">
 	<tr>
-		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=src_ip=$host OR dst_ip=$host")?>" target="topmenu"><?php echo gettext("Logger Events"); ?></a></td>
+		<td class="headerpr"><a style="color:black" href="../top.php?option=2&soption=1&url=<?=urlencode("sem/index.php?hmenu=SEM&smenu=SEM&query=$lnk")?>" target="topmenu"><?php echo gettext("Logger Events"); ?></a></td>
 	</tr>
 	<? if (count($sem_events_week) > 0) { ?>
 	<?

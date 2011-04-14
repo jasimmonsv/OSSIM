@@ -51,7 +51,7 @@ RegisterGlobalState();
 /* Initialize the history */
 /*OSSIM*/
 /* Save OSSIM login data before intializing the history*/
-if (isset($_SESSION["_user"])) {
+/*if (isset($_SESSION["_user"])) {
     $user_ossim_tmp = $_SESSION["_user"];
 }
 if (isset($_SESSION["acid_sig_names"])) {
@@ -69,7 +69,7 @@ if (isset($tmp_signatures)) {
 }
 if (isset($tmp_sig_refs)) {
     $_SESSION["acid_sig_refs"] = $tmp_sig_refs;
-}
+}*/
 InitArray($_SESSION['back_list'], 1, 3, "");
 $_SESSION['back_list_cnt'] = 0;
 PushHistory();
