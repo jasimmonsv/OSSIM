@@ -187,5 +187,21 @@ class Plugin_sid {
             exit;
         }
     }
+	function delete($conn, $plugin, $sid) {
+        settype($plugin, "int");
+        settype($sid, "int");
+        
+        $sql = "DELETE FROM plugin_sid WHERE plugin_id=? AND sid=?";
+        
+        $params = array(
+            $plugin,
+            $sid
+        );
+
+        if ($conn->Execute($sql, $params) === false) {
+            print 'error deleting sid: ' . $conn->ErrorMsg() . '<BR>';
+            exit;
+        }
+    }
 }
 ?>
