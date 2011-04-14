@@ -69,7 +69,7 @@ if (ossim_error()) {
     die(ossim_error());
 }
 if (empty($order)) $order = "sid";
-$where = "WHERE plugin_id = $id";
+$where = "WHERE sid <> 20000000 AND sid <> 2000000000 AND plugin_id = $id";
 if (!empty($search) && !empty($field)) $where.= " AND $field like '%" . $search . "%'";
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
