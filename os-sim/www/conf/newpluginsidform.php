@@ -102,8 +102,11 @@ $list_categories=Category::get_list($conn);
 if($name!="" && $sid!=""){
     if (in_array($sid, Plugin_sid::get_sids_by_id($conn, $plugin))){
         pluginsid_inputs_error("Event type $sid already exists");
-    }
-    else {
+    } elseif ($sid < 1) {
+	    echo "<p align=\"center\"> " . gettext("Sid must be a valid number higher than 0") . " </p>";
+	    echo "<p align=\"center\"><a href=\"pluginsid.php?id=$plugin\"> " . gettext("Back") . " </a></p>";
+	    exit();
+	} else {
 		//
 		if($category=='NULL'){
 			$category=NULL;
