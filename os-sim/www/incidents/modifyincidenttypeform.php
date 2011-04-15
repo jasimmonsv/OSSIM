@@ -507,9 +507,9 @@ if ($inctype_list = Incident_type::get_list($conn, "WHERE id = '$inctype_id'")) 
 		
 		<?php } ?>
 		<tr>
-			<td colspan="2" style="text-align:center; height: 30px;" class="nobborder">
+			<td class='nobborder'>&nbsp;</td>
+			<td style="text-align:center; height: 30px;" class="nobborder">
 				<input type="button" value="<?php echo _("Update")?>" class="button" onclick="modify_ticket();"/>
-				<input type="reset" value="<?php echo _("Clear form")?>" class="button"/>
 			</td>
 		</tr>
 	</table>

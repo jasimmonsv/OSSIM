@@ -473,24 +473,25 @@ if ($action == 'editincident')
 				$item        = explode("_####_", $k);
 				$custom_type = ( count($item) >= 2 ) ? $item[1] : "Textbox";
 				
-				if ( $custom_type == "File" )
-				{
-					if ( $_GET[$key] == 1 )
-						$v = null;
-					else
-						continue;
-				}
-				
 				$fields[$item[0]] =  array ("validate" => 1, "name" => $item[0], "content" => $v, "type"=> $custom_type);
+			}
+			elseif ( preg_match("/^del_custom/",$k) ) 
+			{
+				if ( $_GET[$key] == 1 )
+				{	
+					$k           = base64_decode(str_replace("del_custom_","",$k)); 
+					$item        = explode("_####_", $k);
+					$custom_type = $item[1]; 
+					
+					$v = null;
+					$fields[$item[0]] =  array ("validate" => 1, "name" => $item[0], "content" => $v, "type"=> $custom_type);
+				}
 			}
         }
 		
 					  
 		// Uploaded "File" type
-		
-	
-			
-		
+				
 		foreach ($_FILES as $k => $v) 
 		{
 			if (preg_match("/^custom/",$k)) 

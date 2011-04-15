@@ -355,7 +355,7 @@ else
 		function delete_file(id)
 		{
 			$('#delfile_'+id).remove();
-			$('#'+id+"_del").val("1");
+			$('#del_'+id).val("1");
 		}
 
 	</script>
@@ -824,7 +824,7 @@ $entities   = Session::get_entities_to_assign($conn);
 								<a style='cursor:pointer' onclick=\"delete_file('".$params['id']."')\"><img src='../pixmaps/delete.gif' align='absmiddle' title='"._("Delete File")."'/></a>
 							  </span>";		
 					echo "</div>";
-					echo "<input type='hidden' name='".$params['name']."_del' id='".$params['id']."_del' value='0'/>";
+					echo "<input type='hidden' name='del_".$params['name']."' id='del_".$params['id']."' value='0'/>";
 				}
 				
 				echo $form_builder->draw_element($field['type'], $default_value);
