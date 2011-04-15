@@ -1217,7 +1217,7 @@ if ($insert != "") {
 							<div class='cont_elem'>
 								<input type="radio" name="sem" onchange="tsem(1)" value="1" <?php echo ($sem == 1) ? "checked='checked'" : "" ?> <?= ($opensource) ? "disabled='disabled'" : "" ?>/> <?php echo _("Yes"); ?>
 								<input type="radio" name="sem" onchange="tsem(0)" value="0" <?php echo ($sem == 0) ? "checked='checked'" : "" ?> <?= ($opensource) ? "disabled='disabled'" : "" ?>/> <?php echo _("No"); ?>
-								<?= ($opensource) ? "&nbsp;<a href='../sem' style='size:11px;color:gray'>\""._("Only available in Professional SIEM")."\"</a>" : "" ?>
+								<?= ($opensource) ? "&nbsp;<a href='../sem' style='size:11px;color:gray'>\""._("Only available in Unified SIEM")."\"</a>" : "" ?>
 							</div>
 							<span style="padding-left: 8px;">*</span>
 						</td>
@@ -1248,7 +1248,7 @@ if ($insert != "") {
 							<div class='cont_elem'>	
 								<input type="radio" name="resend_alarms" value="1" <?php echo ($resend_alarm == 1) ? "checked='checked'" : "" ?> <?= ($opensource || ($sim == 0 && $sem == 0)) ? "disabled='disabled'" : "" ?>/> <?php echo _("Yes"); ?>
 								<input type="radio" name="resend_alarms" value="0" <?php echo ($resend_alarm == 0) ? "checked='checked'" : "" ?> <?= ($opensource || ($sim == 0 && $sem == 0)) ? "disabled='disabled'" : "" ?>/> <?php echo _("No"); ?>
-								<?= ($opensource) ? "&nbsp;<a href='../sem' style='size:11px;color:gray'>\""._("Only available in Professional SIEM")."\"</a>" : "" ?>
+								<?= ($opensource) ? "&nbsp;<a href='../sem' style='size:11px;color:gray'>\""._("Only available in Unified SIEM")."\"</a>" : "" ?>
 							</div>
 							<span style="padding-left: 8px;">*</span>
 						</td>
@@ -1260,7 +1260,7 @@ if ($insert != "") {
 							<div class='cont_elem'>	
 								<input type="radio" name="resend_events" value="1" <?php echo ($resend_event == 1) ? "checked='checked'" : "" ?> <?= ($opensource || ($sim == 0 && $sem == 0)) ? "disabled='disabled'" : "" ?>/> <?php echo _("Yes"); ?>
 								<input type="radio" name="resend_events" value="0" <?php echo ($resend_event == 0) ? "checked='checked'" : "" ?> <?= ($opensource || ($sim == 0 && $sem == 0)) ? "disabled='disabled'" : "" ?>/> <?php echo _("No"); ?>
-								<?= ($opensource) ? "&nbsp;<a href='../sem' style='size:11px;color:gray'>\""._("Only available in Professional SIEM")."\"</a>" : "" ?>
+								<?= ($opensource) ? "&nbsp;<a href='../sem' style='size:11px;color:gray'>\""._("Only available in Unified SIEM")."\"</a>" : "" ?>
 							</div>
 							<span style="padding-left: 8px;">*</span>
 						</td>
