@@ -528,22 +528,29 @@ class Html{
     }
 
     public function newTitle($title,$date_from="",$date_to="",$notes="",$host=""){
-        if ($host != "") {
+        
+		if ($host != "") {
 			$html = '<table class="tableTitleF"><tr><td style="width:15%">&nbsp;</td><td style="width:70%"><b>'.$title.'</b></td>
             <td style="width:15%">'.$host.'</td>
             </tr></table>';
-		} elseif ($date_from!="" && $date_to!="") {
+		} 
+		elseif ($date_from!="" && $date_to!="") 
+		{
             $html = '<table class="tableTitleF"><tr><td style="width:74%"><b>'.$title.'</b></td>
             <td style="width:13%;font-size:12px">'._("from").': '.date("Y-m-d",strtotime($date_from)).'</td>
             <td style="width:13%;font-size:12px">'._("to").': '.date("Y-m-d",strtotime($date_to)).'</td>
             </tr></table>';
-        } else {
+        } 
+		else 
+		{
             $html='<table class="tableTitle"><tr><td><b>'.$title.'</b></td></tr></table>';
         }
-        if ($notes!="") {
+        
+		if ($notes!="") {
         	$html .= '<table class="w100" cellpadding=0 cellspacing=0><tr><td style="padding:3px 0px 1px 0px;font-size:12px" valign="top">'.$notes.'</td></tr></table>';
         }
-        return $html;
+        
+		return $html;
     }
     
     public function newStyle(){
