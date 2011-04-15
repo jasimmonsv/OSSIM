@@ -802,7 +802,6 @@ $entities   = Session::get_entities_to_assign($conn);
 				$default_value = $custom_values[$field['name']]->get_content();
 				$type          = $custom_values[$field['name']]->get_type();
 				$id            = $custom_values[$field['name']]->get_id();
-			
 			}
 			else
 				$default_value = null;
@@ -820,7 +819,7 @@ $entities   = Session::get_entities_to_assign($conn);
 				if ( !empty($default_value) && $type == 'File' )
 				{	
 					echo "<div style='padding-bottom: 3px; text-align: left' id='delfile_".$params['id']."'>";
-						echo Incident::format_custom_field($id, $incident_id, '', $type);
+						echo Incident::format_custom_field($id, $incident_id, $default_value, $type);
 						echo "<span style='margin-left: 3px'>
 								<a style='cursor:pointer' onclick=\"delete_file('".$params['id']."')\"><img src='../pixmaps/delete.gif' align='absmiddle' title='"._("Delete File")."'/></a>
 							  </span>";		

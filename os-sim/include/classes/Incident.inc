@@ -2336,7 +2336,7 @@ class Incident {
 				if ( empty($value) )
 					$field = null;
 				else
-					$field  = ( preg_match("/Error/", $value) ) ? "<div style='color:red;'>$value</div>" : "<a href='incident_download_content.php?id=$id&incident_id=$incident_id'>"._("Download content")."</a>";
+					$field  = ( preg_match('/^File not uploaded. Error:/', $value) ) ? "<span style='color:red;'>$value</span>" : "<a href='incident_download_content.php?id=$id&incident_id=$incident_id'>"._("Download content")."</a>";
 			break;
 			
 			case "Checkbox":

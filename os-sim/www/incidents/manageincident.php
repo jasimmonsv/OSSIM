@@ -488,6 +488,7 @@ if ($action == 'editincident')
 					  
 		// Uploaded "File" type
 		
+	
 			
 		
 		foreach ($_FILES as $k => $v) 
@@ -502,19 +503,20 @@ if ($action == 'editincident')
 					$content = file_get_contents($v['tmp_name']);
 				else
 				{
-					if ($v['tmp_name'] != "" && $v['size']> 0 )
+					if ( $v['name'] != "" )
 						$content = _("File not uploaded. Error: ".$v['error']);
 				}
-								
+				
 				if ( !empty($content) )
-						$fields[$item[0]] =  array ("validate" => 0, "name" => $item[0], "content" => $content, "type"=> "File");
+					$fields[$item[0]] =  array ("validate" => 0, "name" => $item[0], "content" => $content, "type"=> "File");
+				
 			}
         }
 		
+							
 		
 		Incident::update_custom($conn, $incident_id, $title, $type, $submitter, $priority, $transferred_user, $transferred_entity, $fields);
-		
-		
+			
 	}	
     
 	header("Location: incident.php?id=$incident_id&edit=$edit");
@@ -780,7 +782,7 @@ if ($action == 'newincident')
 					$content = file_get_contents($v['tmp_name']);
 				else
 				{
-					if ($v['tmp_name'] != "" && $v['size']> 0 )
+					if ( $v['name'] != "" )
 						$content = _("File not uploaded. Error: ".$v['error']);
 				}
 								
