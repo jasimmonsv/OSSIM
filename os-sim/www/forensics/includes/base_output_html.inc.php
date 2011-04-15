@@ -124,8 +124,10 @@ function PrintReportView() {
 
 function PrintPredefinedViews() {
    GLOBAL $opensource;
-	?>
-
+   if ($_SESSION['current_cview'] != "default" && $_SESSION['current_cview'] != "") {
+   	echo "[<i>".$_SESSION['current_cview']."</i>]";
+   }
+?>
    <a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#views').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Custom Views")?></a>
    <div style="position:relative">
 		<div id="views" style="position:absolute;right:0;top:0;display:none">
