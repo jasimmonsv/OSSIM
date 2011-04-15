@@ -5,40 +5,50 @@
         margin:0px; padding:0px;
         border: none;
     }
+	
     th,.th {
         font-weight: bold;
         padding:3px;
     }
+	
     td {
         padding:3px; margin:0px;
     }
-    .tableTitle {
+	
+		
+    .tableTitle, .tableTitleF {
         width: 100%;
         margin:0px; padding:0px;
         border: none;
     }
+	
     .tableTitle td{
         width: 100%;
         text-align:center;
         padding:3px 0px 3px 0px;
         font-size:14px;
     }
-    .tableTitleF {
-        width: 100%;
-        margin:0px; padding:0px;
-        border: none;
-    }
+	    	
     .tableTitleF td{
         text-align:center;
         padding:3px 0px 3px 0px;
         font-size:14px;
     }
+	
     .w100 { width:100%; }
     .w50  { width:50%; }
-    .center { text-align:center; }
+    
+	.center { text-align:center; }
     .left { text-align:left; }
     .right { text-align:right; }
-    .par { background:#f2f2f2; }
+    
+	.par { background:#f2f2f2; }
     .title { font-size: 20px; font-weight: bold; padding: 35 22 0 0; }
     .siem { padding:5px 3px 5px 3px; }
+	
+	.fs6 {font-size: 6pt;}
+	.fs7 {font-size: 7pt;}
+	.fs8 {font-size: 8pt;}
+	.fs9 {font-size: 9pt;}
+		
 }
