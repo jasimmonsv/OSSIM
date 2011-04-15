@@ -393,7 +393,25 @@ if ($query == 'get_plugin_name') {
 	$mini = $_GET['mini'];
     echo new_directive_id_by_directive_file($category_file,$mini);
 } elseif ($query == "restart") {
-    exec('sudo /etc/init.d/ossim-server restart');
+    //exec('sudo /etc/init.d/ossim-server restart');
+	require_once ('ossim_conf.inc');
+    $ossim_conf = $GLOBALS["CONF"];
+    $address = $ossim_conf->get_conf("server_address");
+    $port = $ossim_conf->get_conf("server_port");
+    $socket = socket_create(AF_INET, SOCK_STREAM, 0);
+    if ($socket < 0) {
+        echo _("socket_create() failed: reason: ") . socket_strerror($socket) . "\n";
+        exit();
+    }
+    $result = socket_connect($socket, $address, $port);
+    if ($result < 0) {
+        echo _("socket_connect() failed.\nReason:")." ($result) " . socket_strerror($result) . "\n\n";
+        exit();
+    }
+    /* send reload-directives message to server */
+    $msg = "reload-directives\n";
+    socket_write($socket, $msg, strlen($msg));
+    socket_close($socket);
 }
 /* Test if the directive id is free */
 elseif ($query == 'is_free') {
