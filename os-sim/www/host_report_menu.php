@@ -14,6 +14,16 @@
 						var ip = aux[0];
 						url = "../forensics/base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_both&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D="+ip+"&ip_addr%5B0%5D%5B8%5D=+";
 						document.location.href = url;
+					} else if (action=='filter_src') {
+						var aux = $(el).attr('id').split(/;/);
+						var ip = aux[0];
+						url = "../forensics/base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_src&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D="+ip+"&ip_addr%5B0%5D%5B8%5D=+";
+						document.location.href = url;
+					} else if (action=='filter_dst') {
+						var aux = $(el).attr('id').split(/;/);
+						var ip = aux[0];
+						url = "../forensics/base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_dst&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D="+ip+"&ip_addr%5B0%5D%5B8%5D=+";
+						document.location.href = url;
 					} else if (action=='edit') {
 						var aux = $(el).attr('id').split(/;/);
 						var ip = aux[0];
@@ -23,6 +33,11 @@
 						var aux = $(el).attr('id').split(/;/);
 						var ip = aux[0];
 						url = "../forensics/base_stat_alerts.php?clear_allcriteria=1&sort_order=occur_d&hmenu=Forensics&smenu=Forensics&ip_addr_cnt=1&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_both&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D="+ip+"&ip_addr%5B0%5D%5B8%5D=+";
+						top.frames['main'].document.location.href = url;
+					} else if (action=='info') {
+						var aux = $(el).attr('id').split(/;/);
+						var ip = aux[0];
+						url = "../forensics/base_stat_ipaddr.php?ip="+ip+"&netmask=32";
 						top.frames['main'].document.location.href = url;
 					} else if (action=='tickets') {
 						var aux = $(el).attr('id').split(/;/);
@@ -111,6 +126,13 @@
 </script>
 <? } ?>
 <ul id="myMenu" class="contextMenu">
+<? if ($ipsearch) { ?>
+<li class="search"><a href="#filter"><?=_("All events from this host")?></a></li>
+<li class="search"><a href="#filter_src"><?=_("Events as source")?></a></li>
+<li class="search"><a href="#filter_dst"><?=_("Events as destination")?></a></li>
+<li class="info"><a href="#info"><?=_("Stats and Info")?></a></li>
+<li class="search"><a href="#unique"><?=_("Analyze Asset")?></a></li>
+<?php } ?>
 <li class="report"><a href="#report"><?=_("Asset Report")?></a></li>
 <li class="assetsearch"><a href="#search"><?=_("Asset Search")?></a></li>
 <li class="edit"><a href="#edit"><?=_("Configure Asset")?></a></li>
@@ -127,10 +149,7 @@ $opensource = (!preg_match("/.*pro.*/i",$version) && !preg_match("/.*demo.*/i",$
 if (!$opensource) { ?>
 <li class="sem"><a href="#sem"><?=_("Logger")?></a></li>
 <? } ?>
-<? if ($ipsearch) { ?>
-<li class="search"><a href="#filter"><?=_("Filter by IP")?></a></li>
-<li class="search"><a href="#unique"><?=_("Analyze Asset")?></a></li>
-<? } else { ?>
+<? if (!$ipsearch) { ?>
 <li class="sim"><a href="#filter"><?=_("SIEM Events")?></a></li>
 <? } ?>
 <li class="vulns"><a href="#vulns"><?=_("Vulnerabilities")?></a></li>
