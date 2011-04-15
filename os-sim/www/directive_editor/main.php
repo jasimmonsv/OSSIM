@@ -308,12 +308,12 @@ function background_clone(id,xml_file,mini) {
 											<td style="text-align:left;border:0px;font-size:12px"><?php echo gettext(ucwords($name_div)); ?><?php if (count($tab_this_category) > 0) { ?> <font style="color:#666666;font-size:10px">[<?php echo count($tab_this_category) ?> <?php echo _("directive"); if (count($tab_this_category) > 1) echo "s"; ?>]</font><?php } ?></td>
 											<td width="20" align="right">&nbsp;
 											<?php if (!isset($cannotedit[$category->xml_file])) { ?>
-											<span id="add_dir" name="add_dir"><a href="index.php?action=add_directive&xml_file=<?php echo $category->xml_file?>&id=<?php
-											  echo $category->id . $onlydir; ?>" style="marging-left:20px;" title="<?php
-											  echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
+											<span id="add_dir" name="add_dir">
 											  <?php if ($category->active) { ?>
+											  <a href="index.php?action=add_directive&xml_file=<?php echo $category->xml_file?>&id=<?php echo $category->id . $onlydir; ?>" style="marging-left:20px;" title="<?php echo gettext("Add a directive in this category"); ?>"><img src="../pixmaps/plus-small.png" border="0" alt="<?php echo gettext("Add a directive in this category"); ?>" title="<?php echo gettext("Add a directive in this category"); ?>"></img></a>
 											  <a href="editxml.php?xml_file=<?php echo $category->xml_file?>" style="marging-left:20px;" title="<?php echo gettext("Edit XML directive file"); ?>"><img src="../pixmaps/theme/any.png" border="0" alt="<?php echo gettext("Edit XML directive file"); ?>" title="<?php echo gettext("Edit XML directive file"); ?>"/></a>
 											  <?php } else { ?>
+											  <img src="../pixmaps/plus-small-gray.png" border="0" style="opacity:.30;filter:Alpha(Opacity=30);"/></a>
 											  <img src="../pixmaps/theme/any.png" border="0" style="opacity:.30;filter:Alpha(Opacity=30);"/></a>
 											  <?php } ?>
 											  </span>
