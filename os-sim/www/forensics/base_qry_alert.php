@@ -467,9 +467,9 @@ echo '  <TR>
                        <TD class="header">' . gettext("Reliability") . '</TD>
                        <TD class="header">' . gettext("Risk") . '</TD>
                   </TR>
-                  <TR><TD class="plfield" nowrap>' . $ip_src_data . '</TD>
+                  <TR><TD class="plfield" nowrap><div id="'.$current_sip.';" class="HostReportMenu">' . $ip_src_data . '</div></TD>
                       <TD class="plfield" nowrap>' . $layer4_sport . '</TD>
-                      <TD class="plfield" nowrap>' . $ip_dst_data . '</TD>
+                      <TD class="plfield" nowrap><div id="'.$current_dip.';" class="HostReportMenu">' . $ip_dst_data . '</div></TD>
                       <TD class="plfield" nowrap>' . $layer4_dport . '</TD>
                       <TD class="plfield" nowrap>' . IPProto2str($ip_proto) . '</TD>
                       <TD class="plfield" nowrap><img src="bar2.php?value=' . $ossim_asset_src . '&value2=' . $ossim_asset_dst . '&max=5" border="0" align="absmiddle" title="'.$ossim_asset_src -> $ossim_asset_dst.'"></TD>
@@ -598,10 +598,10 @@ if ($myrow2 = $result2->baseFetchRow()) {
                             <TD class="header">TTL</TD>
                             <TD class="header">chksum</TD></TR>';
         }
-        echo '             <TR><TD class="plfield">
-                           <A HREF="base_stat_ipaddr.php?ip=' . baseLong2IP($myrow2[0]) . '&amp;netmask=32">' . baseLong2IP($myrow2[0]) . '</A></TD>';
-        echo '                 <TD class="plfield">
-                             <A HREF="base_stat_ipaddr.php?ip=' . baseLong2IP($myrow2[1]) . '&amp;netmask=32">' . baseLong2IP($myrow2[1]) . '</A></TD>';
+        echo '             <TR><TD class="plfield"><div id="'.baseLong2IP($myrow2[0]).';" class="HostReportMenu">
+                           <A HREF="base_stat_ipaddr.php?ip=' . baseLong2IP($myrow2[0]) . '&amp;netmask=32">' . baseLong2IP($myrow2[0]) . '</A></div></TD>';
+        echo '                 <TD class="plfield"><div id="'.baseLong2IP($myrow2[1]).';" class="HostReportMenu">
+                             <A HREF="base_stat_ipaddr.php?ip=' . baseLong2IP($myrow2[1]) . '&amp;netmask=32">' . baseLong2IP($myrow2[1]) . '</A></div></TD>';
         if (in_array($plugin_id, $snort_ids)) {
             echo '                 <TD class="plfield">' . htmlspecialchars($myrow2[2]) . '</TD>';
             echo '                 <TD class="plfield">' . ($myrow2[3] << 2) . '</TD>'; /* ihl is in 32 bit words, must be multiplied by 4 to show in bytes */
