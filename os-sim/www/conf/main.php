@@ -181,7 +181,7 @@ $CONFIG = array(
                     "no" => _("No")
                 ) ,
 				"id" => "alarms_to_syslog_select",
-                "help" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? gettext("Alarms to syslog") : _("Only Available when using Alienvault Professional SIEM"),
+                "help" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? gettext("Alarms to syslog") : _("Only Available when using Alienvault Unified SIEM"),
                 "desc" => gettext("Alarms to syslog") ,
                 "advanced" => 1,
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
@@ -191,7 +191,7 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? gettext("Remote Logger") : _("Only Available when using Alienvault Professional SIEM"),
+                "help" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? gettext("Remote Logger") : _("Only Available when using Alienvault Unified SIEM"),
                 "desc" => gettext("Remote Logger") ,
                 "advanced" => 1,
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1

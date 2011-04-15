@@ -50,7 +50,7 @@ $demo = (preg_match("/demo/i",$version)) ? true : false;
 	<tr>
 	<!--<table cellpadding='0' cellspacing='0' border='0' height="24" width="100%" style="background:#5B5B5B url(pixmaps/top/bg_darkgray.gif) bottom left repeat-x;"><tr>-->
 	<!--<td width="12" align="left"><img src="pixmaps/statusbar/toggle.gif" border='0'></td><td style="font-size:6px">&nbsp;</td><td width="12" align="right"><img src="pixmaps/statusbar/toggle.gif" border='0'></td>-->
-	<td style="padding-left:10px;" width="20"><img src="pixmaps/statusbar/logo_siem_small.png" border='0'></td><td style="color:black;text-align:left;font-size:11px;font-family:verdana;font-weight:bold"><?php echo gettext("AlienVault - ".($opensource ? "Open Source SIEM" : ($demo ? "Professional SIEM Demo" : "Professional SIEM"))); ?></td>
+	<td style="padding-left:10px;" width="20"><img src="pixmaps/statusbar/logo_siem_small.png" border='0'></td><td style="color:black;text-align:left;font-size:11px;font-family:verdana;font-weight:bold"><?php echo gettext("AlienVault - ".($opensource ? "Open Source SIEM" : ($demo ? "Unified SIEM Demo" : "Unified SIEM"))); ?></td>
 	<!--<td width="12" align="right" valign="top">
 	<img src="pixmaps/statusbar/toggle.gif" border='0'>
 	</td>-->

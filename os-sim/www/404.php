@@ -47,7 +47,7 @@ $demo = (preg_match("/.*demo.*/i",$version)) ? true : false;
 ?>
 <html>
 <head>
-<title> <?php echo gettext("AlienVault - ".($opensource ? "Open Source SIEM" : ($demo ? "Professional SIEM Demo" : "Professional SIEM"))); ?> </title>
+<title> <?php echo gettext("AlienVault - ".($opensource ? "Open Source SIEM" : ($demo ? "Unified SIEM Demo" : "Unified SIEM"))); ?> </title>
 <link rel="Shortcut Icon" type="image/x-icon" href="favicon.ico">
 <link rel="stylesheet" type="text/css" href="/ossim/style/style.css"/>
 <script>
