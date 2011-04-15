@@ -84,10 +84,10 @@ if (Session::allowedSensors() != "") {
 	}
 	// SENSOR Filter mysql layer (not implemented)
 	//$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt, (select count(distinct(ip_src)) from ac_sensor_ipsrc where ac_sensor_sid.sid=ac_sensor_ipsrc.sid and ac_sensor_sid.day=ac_sensor_ipsrc.day) as saddr_cnt, (select count(distinct(ip_dst)) from ac_sensor_ipdst where ac_sensor_sid.sid=ac_sensor_ipdst.sid and ac_sensor_sid.day=ac_sensor_ipdst.day) as daddr_cnt, min(ac_sensor_sid.first_timestamp) as first_timestamp, max(ac_sensor_sid.last_timestamp) as last_timestamp FROM ac_sensor_sid FORCE INDEX(primary) GROUP BY ac_sensor_sid.sid ORDER BY event_cnt DESC LIMIT 10";
-	$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt FROM ac_sensor_sid GROUP BY ac_sensor_sid.sid ORDER BY event_cnt DESC LIMIT 10";
+	$query = "SELECT DISTINCT sid, sum(cid) as event_cnt FROM ac_sensor_sid GROUP BY sid ORDER BY event_cnt DESC LIMIT 20";
 }
 else
-	$query = "SELECT DISTINCT ac_sensor_sid.sid, sum(ac_sensor_sid.cid) as event_cnt, (select count(distinct plugin_id, plugin_sid) from ac_sensor_signature where ac_sensor_signature.sid=ac_sensor_sid.sid and ac_sensor_sid.day=ac_sensor_signature.day) as sig_cnt FROM ac_sensor_sid GROUP BY ac_sensor_sid.sid ORDER BY event_cnt DESC LIMIT 10";
+	$query = "SELECT DISTINCT sid, sum(cid) as event_cnt FROM ac_sensor_sid GROUP BY sid ORDER BY event_cnt DESC LIMIT 20";
 
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();

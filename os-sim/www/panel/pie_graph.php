@@ -19,7 +19,10 @@ $h             = 250; // Graph Height
 $forensic_link = "../forensics/base_qry_main.php?clear_allcriteria=1&time_range=week&time[0][0]=+&time[0][1]=>%3D&time[0][2]=".gmdate("m",$timetz-$range)."&time[0][3]=".gmdate("d",$timetz-$range)."&time[0][4]=".gmdate("Y",$timetz-$range)."&time[0][5]=&time[0][6]=&time[0][7]=&time[0][8]=+&time[0][9]=+&submit=Query+DB&num_result_rows=-1&time_cnt=1&sort_order=time_d&hmenu=Forensics&smenu=Forensics";
 
 $sensor_where  = make_sensor_filter($conn,"a");
-$query         = "SELECT count(a.sid) as num_events,c.cat_id,c.id,c.name FROM snort.acid_event a,ossim.plugin_sid p,ossim.subcategory c WHERE c.id=p.subcategory_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' $sensor_where TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
+if ($sensor_where!="")
+	$query     = "SELECT count(a.sid) as num_events,c.cat_id,c.id,c.name FROM snort.acid_event a,ossim.plugin_sid p,ossim.subcategory c WHERE c.id=p.subcategory_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' $sensor_where TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
+else
+	$query     = "SELECT sum(sig_cnt) as num_events,c.cat_id,c.id,c.name FROM snort.ac_alerts_signature a,ossim.plugin_sid p,ossim.subcategory c WHERE c.id=p.subcategory_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".gmdate("Y-m-d",gmdate("U")-$range)."' AND '".gmdate("Y-m-d")."' TAXONOMY group by c.id,c.name order by num_events desc LIMIT 10";
 
 switch(GET("type")) {
 
@@ -37,7 +40,10 @@ switch(GET("type")) {
 		    }
 		}
 		
-		$sqlgraph = "SELECT count(sid) as num_events,plugin_id FROM snort.acid_event where timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' group by plugin_id";
+		if ($sensor_where!="") 
+			$sqlgraph = "SELECT count(a.sid) as num_events,a.plugin_id FROM snort.acid_event a where a.timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' $sensor_where group by a.plugin_id";
+		else
+			$sqlgraph = "SELECT sum(sig_cnt) as num_events,plugin_id FROM snort.ac_alerts_signature where day BETWEEN '".gmdate("Y-m-d",gmdate("U")-$range)."' AND '".gmdate("Y-m-d")."' group by plugin_id";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -59,7 +65,10 @@ switch(GET("type")) {
 		
 	// Top 10 Event Categories - Last Week
 	case "category":
-		$sqlgraph = "SELECT count(a.sid) as num_events,p.category_id,c.name FROM snort.acid_event a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' $sensor_where group by p.category_id order by num_events desc LIMIT 10";
+		if ($sensor_where!="")
+			$sqlgraph = "SELECT count(a.sid) as num_events,p.category_id,c.name FROM snort.acid_event a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".gmdate("Y-m-d",gmdate("U")-$range)."' AND '".gmdate("Y-m-d")."' $sensor_where group by p.category_id order by num_events desc LIMIT 10";
+		else
+			$sqlgraph = "SELECT sum(a.sig_cnt) as num_events,p.category_id,c.name FROM snort.ac_alerts_signature a,ossim.plugin_sid p,ossim.category c WHERE c.id=p.category_id AND p.plugin_id=a.plugin_id AND p.sid=a.plugin_sid AND a.day BETWEEN '".gmdate("Y-m-d",gmdate("U")-$range)."' AND '".gmdate("Y-m-d")."' group by p.category_id order by num_events desc LIMIT 10";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
@@ -78,7 +87,10 @@ switch(GET("type")) {
 		require_once("classes/Plugin.inc");
 		$oss_p_id_name = Plugin::get_id_and_name($conn, "WHERE name LIKE 'ossec%'");
 		$plugins = implode(",",array_flip ($oss_p_id_name));
-		$sqlgraph = "SELECT count(a.sid) as num_events,p.id,p.name FROM snort.acid_event a,ossim.plugin p WHERE p.id=a.plugin_id AND a.timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' AND a.plugin_id in ($plugins) $sensor_where group by p.name order by num_events desc LIMIT 8";
+		if ($sensor_where!="")
+			$sqlgraph = "SELECT count(a.sid) as num_events,p.id,p.name FROM snort.acid_event a,ossim.plugin p WHERE p.id=a.plugin_id AND a.timestamp BETWEEN '".gmdate("Y-m-d 00:00:00",gmdate("U")-$range)."' AND '".gmdate("Y-m-d 23:59:59")."' AND a.plugin_id in ($plugins) $sensor_where group by p.name order by num_events desc LIMIT 8";
+		else
+			$sqlgraph = "SELECT sum(sig_cnt) as num_events,p.id,p.name FROM snort.ac_alerts_signature a,ossim.plugin p WHERE p.id=a.plugin_id AND a.day BETWEEN '".gmdate("Y-m-d",gmdate("U")-$range)."' AND '".gmdate("Y-m-d")."' AND a.plugin_id in ($plugins) group by p.name order by num_events desc LIMIT 8";
 		if (!$rg = & $conn->Execute($sqlgraph)) {
 		    print $conn->ErrorMsg();
 		} else {
