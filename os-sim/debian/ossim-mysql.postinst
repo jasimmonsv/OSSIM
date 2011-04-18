@@ -8,9 +8,15 @@ if [ -f "/etc/ossim/ossim_setup.conf" ]; then
 	find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname *.sql.gz -printf 'INSERT %f \n' -exec sh -c 'zcat {}| ossim-db' \; || true
 fi
 
+srdpi="/var/lib/dpkg/info/snort-rules-default.postinst"
+if [ -f "$srdpi" ]; then
+#        echo -e "\nsnort-rules-default found (updating)..."
+            /bin/bash "$srdpi"
+fi
+
 otpi="/var/lib/dpkg/info/ossim-taxonomy.postinst"
 if [ -f "$otpi" ]; then
-#        echo -e "\nTaxonomy found (Updating)..."
+#        echo -e "\nossim--taxonomy found (updating)..."
             /bin/bash "$otpi"
 fi
 

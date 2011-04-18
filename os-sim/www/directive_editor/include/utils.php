@@ -393,25 +393,7 @@ if ($query == 'get_plugin_name') {
 	$mini = $_GET['mini'];
     echo new_directive_id_by_directive_file($category_file,$mini);
 } elseif ($query == "restart") {
-    //exec('sudo /etc/init.d/ossim-server restart');
-	require_once ('ossim_conf.inc');
-    $ossim_conf = $GLOBALS["CONF"];
-    $address = $ossim_conf->get_conf("server_address");
-    $port = $ossim_conf->get_conf("server_port");
-    $socket = socket_create(AF_INET, SOCK_STREAM, 0);
-    if ($socket < 0) {
-        echo _("socket_create() failed: reason: ") . socket_strerror($socket) . "\n";
-        exit();
-    }
-    $result = socket_connect($socket, $address, $port);
-    if ($result < 0) {
-        echo _("socket_connect() failed.\nReason:")." ($result) " . socket_strerror($result) . "\n\n";
-        exit();
-    }
-    /* send reload-directives message to server */
-    $msg = "reload-directives\n";
-    socket_write($socket, $msg, strlen($msg));
-    socket_close($socket);
+    exec('sudo /etc/init.d/ossim-server restart');
 }
 /* Test if the directive id is free */
 elseif ($query == 'is_free') {
@@ -840,7 +822,7 @@ elseif ($query == "copy_directive") {
     $dom->dump_file($file);
     release_file($file);
     sleep(0.5);
-    echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_id . "&action=copy_directive&id=" . $new_id . "'\"></body></html>";
+    echo "<html><body onload=\"top.frames['main'].document.location.href='../index.php?directive=" . $new_id . "&action=copy_directive&id=" . $new_id . "&xml_file=" . $_GET['directive_xml'] . "'\"></body></html>";
     //echo "<html><body><a href=\"../index.php?directive=".$new_id."&action=copy_directive&id=".$new_id."\">test</a></body></html>";
     
 }
