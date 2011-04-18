@@ -81,7 +81,8 @@ if ($_GET['directive'] != '' || $_GET['action'] == "add_directive") {
     }
     elseif ($action == 'copy_directive') {
         $id = $_GET['id'];
-        $right = "right.php?directive=$id&level=1&action=edit_dir&id=$id";
+        $xml_file = $_GET['xml_file'];
+        $right = "right.php?directive=$id&level=1&action=edit_dir&id=$id&xml_file=$xml_file";
         $scroll = "no";
     } else {
         $directive = $_GET['directive'];
