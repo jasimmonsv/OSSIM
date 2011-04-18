@@ -66,17 +66,27 @@ function Logger_trends() {
 	global $tz;
 	$data = array();
 	$today = gmdate("j");
+	$beforeyesterday = gmdate("j",strtotime("-2 day"));
 	$yesterday = gmdate("j",strtotime("-1 day"));
 	$tomorrow = gmdate("j",strtotime("+1 day"));
+	$csy = get_day_csv(gmdate("Y",strtotime("-1 day")),gmdate("m",strtotime("-1 day")),gmdate("d",strtotime("-1 day")));
 	$csv = get_day_csv(gmdate("Y"),gmdate("m"),gmdate("d"));
-	//print_r($csv);
+	//print_r($csy); print_r($csv);
+	foreach ($csy as $key => $value) {
+		$tzhour = $key + $tz;
+		$day = $yesterday;
+		if ($tzhour<0) { $tzhour+=24; $day=$beforeyesterday; }
+		elseif ($tzhour>23) { $tzhour-=24; $day=$today; }
+		$data[$day." ".$tzhour."h"] = $value;
+	}	
 	foreach ($csv as $key => $value) {
 		$tzhour = $key + $tz;
 		$day = $today;
 		if ($tzhour<0) { $tzhour+=24; $day=$yesterday; }
 		elseif ($tzhour>23) { $tzhour-=24; $day=$tomorrow; }
 		$data[$day." ".$tzhour."h"] = $value;
-	}
+	}	
+	//print_r($data);
 	return $data;
 }
 ?>
