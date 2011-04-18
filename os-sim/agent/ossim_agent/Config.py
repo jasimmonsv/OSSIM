@@ -137,7 +137,7 @@ class Conf(ConfigParser):
     # very useful for debug purposes
     def __repr__(self):
         conf_str = '<sensor-config>\n'
-        for section in self.sections():
+        for section in sorted(self.sections()):
             conf_str += '  <section name="%s">\n' % (section)
             for i in self.items(section):
                 conf_str += '    <item name="%s" value="%s" />\n' % (i[0], i[1])
@@ -166,7 +166,7 @@ class Plugin(Conf):
 
     def rules(self):
         rules = {}
-        for section in self.sections():
+        for section in sorted(self.sections()):
             if section.lower() not in Plugin.SECTIONS_NOT_RULES :
                 rules[section] = self.hitems(section)
 
@@ -277,7 +277,7 @@ class Plugin(Conf):
     # and replace this with value found in global config file 
     def replace_config(self, conf):
         unicode = self.getboolean("config", "unicode_support")
-        for section in self.sections():
+        for section in sorted(self.sections()):
             for option in self.options(section):
                 regexp = self.get(section, option)
                 if not unicode:
