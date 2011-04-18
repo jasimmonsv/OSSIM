@@ -100,7 +100,8 @@ if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::men
             "id" => "Metrics",
             "target" => "main",
             "url" => "control_panel/global_score.php?range=day",
-            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboards:risk:risk_metrics','DashboardHelp');"
+            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboards:risk:risk_metrics','DashboardHelp');",
+        	"config" => "metrics"
         );
     }
 }
@@ -120,7 +121,8 @@ if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { $incidents = 1
         "id" => "Alarms",
         "target" => "main",
         "url" => "control_panel/alarm_console.php?hide_closed=1",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:alarms:alarms','Help');"
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:alarms:alarms','Help');",
+    	"config" => "alarms"
     );
     if (Session::menu_perms("MenuIncidents", "ReportsAlarmReport")) $hmenu["Alarms"][] = array(
         "name" => gettext("Report") ,
@@ -144,7 +146,8 @@ if (Session::menu_perms("MenuIncidents", "IncidentsIncidents")) { $incidents = 1
         "name" => gettext("Tickets") ,
         "id" => "Tickets",
         "url" => "incidents/index.php?status=$status",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:tickets','Help');"
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:tickets','Help');",
+        "config" => "tickets"
     );
 }
 if (Session::menu_perms("MenuIncidents", "IncidentsTypes") && Session::am_i_admin()) { $incidents = 1; $rmenu["Tickets"][] = array(
@@ -207,7 +210,8 @@ if (Session::menu_perms("MenuEvents", "EventsForensics")) { $events = 1;
         "id" => "Forensics",
         //"url" => $conf->get_conf("acid_link", FALSE) . "/" . $conf->get_conf("event_viewer", FALSE) . "_qry_main.php?&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d"
         "url" => "forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:SIEM','EventHelp')"
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:SIEM','EventHelp')",
+    	"config" => "siem"
     );
 }
 
@@ -238,7 +242,8 @@ if (is_dir("/var/ossim/")) {
             "name" => gettext("Logs") ,
             "id" => "SEM",
             "url" => "sem/index.php",
-            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:logger','EventHelp')"
+            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:logger','EventHelp')",
+        	"config" => "logger"
         );
     }
 }
@@ -253,7 +258,8 @@ if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { $events = 1;
         "name" => gettext("Vulnerabilities") ,
         "id" => "Vulnerabilities",
         "url" => "vulnmeter/index.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:vulnerabilities','EventHelp')"
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:vulnerabilities','EventHelp')",
+    	"config" => "vulnerabilities"
     );
     $hmenu["Vulnerabilities"][] = array(
         "name" => gettext("Reports") ,
@@ -743,7 +749,8 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationDirectives")) { $correla
         "id" => "Directives",
         "target" => "main",
         "url" => "directive_editor/main.php",
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:correlation_directives:directives','Help');"
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:correlation_directives:directives','Help');",
+    	"config" => "directives"
     );
     $rmenu["Directives"][] = array(
         "name" => gettext("Numbering and Groups"),
