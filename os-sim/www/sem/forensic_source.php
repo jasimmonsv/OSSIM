@@ -89,18 +89,18 @@ if ($_GET['ips'] != "") {
 // LOCAL GRAPH DATA
 } else {
 	if ($gt == "last_year") {
-		$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 365));
-		$date_to = date("Y-m-d");
+		$date_from = gmdate("Y-m-d H:i:s", gmdate("U") - ((24 * 60 * 60) * 365));
+		$date_to = gmdate("Y-m-d");
 		$range = "month";
 	}
 	if ($gt == "last_month") {
-		$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 31));
-		$date_to = date("Y-m-d");
+		$date_from = gmdate("Y-m-d H:i:s", gmdate("U") - ((24 * 60 * 60) * 31));
+		$date_to = gmdate("Y-m-d");
 		$range = "day";
 	}
 	if ($gt == "last_week") {
-		$date_from = strftime("%Y-%m-%d %H:%M:%S", time() - ((24 * 60 * 60) * 7));
-		$date_to = date("Y-m-d");
+		$date_from = gmdate("Y-m-d H:i:s", gmdate("U") - ((24 * 60 * 60) * 7));
+		$date_to = gmdate("Y-m-d");
 		$range = "day";
 	}
 	//if(!preg_match("/all|month|year|day/",$cat))
@@ -125,7 +125,7 @@ if ($_GET['ips'] != "") {
 	        if ($t_day<10) $t_day="0".$t_day;
 	        break;
 	}
-	$t_month = date('m', strtotime("01 " . $t_month . " 2000"));
+	$t_month = gmdate('m', strtotime($t_month . " 5, 2000"));
 	//echo "year: $t_year, month: $t_month, day: $t_day";
 	//Target allYears by default
 	if ($gt == "") $gt = "allYears";
@@ -142,9 +142,9 @@ if ($_GET['ips'] != "") {
 	} else {
 		if ($gt == "all") $allYears = get_all_csv();
 		if ($gt == "year") $years = get_year_csv($t_year);
-		else $years = get_year_csv(date("Y"));
+		else $years = get_year_csv(gmdate("Y"));
 		if ($gt == "month") $months = get_month_csv($t_year, $t_month);
-		else $months = get_month_csv(date("Y") , date("m"));
+		else $months = get_month_csv(gmdate("Y") , gmdate("m"));
 		if ($gt == "day") $days = get_day_csv($t_year, $t_month, $t_day);
 	}
 	$general = array();

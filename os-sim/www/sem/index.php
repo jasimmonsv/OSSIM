@@ -67,7 +67,7 @@ $param_end = GET("end") ? GET("end") : gmdate("Y-m-d H:i:s", $timetz);
 
 // Default GRAPH RANGE [day|last_month]";
 $_SESSION['graph_type'] = "day";
-$_SESSION['cat'] = date("M j, Y",$timetz);
+$_SESSION['cat'] = gmdate("M j, Y");
 
 $framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
@@ -693,6 +693,7 @@ function setFixed(start, end, gtype, datef)
 	document.getElementById('start_aaa').value = start;
 	document.getElementById('end').value = end;
 	document.getElementById('end_aaa').value = end;
+	document.getElementById('tzone').value = "<?=$tz?>";
       
 	if (gtype != '' && datef != '') {
 		UpdateByDate("forensic.php?graph_type="+gtype+"&cat="+datef);
@@ -720,6 +721,7 @@ function setFixed2()
 
 	document.getElementById('start').value = document.getElementById('start_aaa').value + start_pad;
 	document.getElementById('end').value = document.getElementById('end_aaa').value + end_pad;
+	document.getElementById('tzone').value = "<?=$tz?>";
 	RequestLines();
 	MakeRequest();
 }
@@ -805,6 +807,7 @@ function graph_by_date( col ,row ,value, category, series, t_year, t_month, t_da
     document.getElementById('searchbox').value = "";
     document.getElementById('offset').value = "0";
     document.getElementById('sort').value = "none";
+    document.getElementById('tzone').value = "0";
   switch(row)
   {
     case 1:
@@ -865,6 +868,8 @@ function graph_by_date( col ,row ,value, category, series, t_year, t_month, t_da
       RequestLines(); 
       MakeRequest();
       bold_dates();
+      document.getElementById('start_aaa').value = document.getElementById('start').value = from_day+" 00:00:00";
+      document.getElementById('end_aaa').value = document.getElementById('end').value = to_day+ " 23:59:59";
       return;
     break;
   }
@@ -957,6 +962,7 @@ function doQuery(tipoExport) {
 	}
   //hideLayer("by_date");
   document.getElementById('txtexport').value=tipoExport;
+  document.getElementById('tzone').value = "<?=$tz?>";
   SubmitForm();
 }
 
