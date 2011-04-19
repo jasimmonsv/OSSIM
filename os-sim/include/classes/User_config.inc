@@ -204,7 +204,9 @@ class User_config {
         if ($handle = opendir($configs_dir)) {
             while (false !== ($file = readdir($handle))) {
                 if (preg_match($regexp, $file, $results)) {
-                    copy("$configs_dir/$from" . "_" . $results[1], "$configs_dir/$to" . "_" . $results[1]);
+                    if (file_exists("$configs_dir/$from" . "_" . $results[1])) {
+                		copy("$configs_dir/$from" . "_" . $results[1], "$configs_dir/$to" . "_" . $results[1]);
+                    }
                 }
             }
         }
