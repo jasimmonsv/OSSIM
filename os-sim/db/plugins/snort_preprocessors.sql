@@ -314,8 +314,8 @@ INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALU
 INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 405, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet with bad frag bits (Both MF and DF set)');
 INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 406, NULL, NULL, ' snort_decoder: WARNING: Invalid IPv6 UDP packet, checksum zero');
 INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 407, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet frag offset + length exceed maximum');
-INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 408, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet from 'current net' source address');
-INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 409, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet to 'current net' dest address');
+INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 408, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet from \'current net\' source address');
+INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 409, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet to \'current net\' dest address');
 INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 410, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet from multicast source address');
 INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 411, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet from reserved source address');
 INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, class_id, name) VALUES (1116, 412, NULL, NULL, ' snort_decoder: WARNING: IPV4 packet to reserved dest address');

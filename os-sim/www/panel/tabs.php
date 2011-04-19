@@ -206,6 +206,7 @@
 								<tr>
 									<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl.gif" border='0'></td>
 									<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding-right:4px" nowrap='nowrap'>
+										<a href="../conf/main.php?section=panel"><img align="absmiddle" src="../pixmaps/menu/configuration.gif" border="0" title="<?=_("Configure")?>"></b></a>
 										<a href="javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboard:dashboard','DashboardHelp');" sltyle="color:black;text-decoration:none"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" alt="<?=_("Help")?>"></a>
 									</td>
 								</tr>

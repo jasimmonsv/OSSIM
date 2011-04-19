@@ -196,11 +196,12 @@ function get_day_csv($year, $month, $day) {
 			if (strlen($csv) > 0) $lines = explode("\n", $csv);
 			if (count($lines) > 1) foreach($lines as $line) {
 				$val = explode(",", trim($line));
-				if ($val[0] >= 1) $days[sprintf("%d", $val[0]) ] += $val[1];
+				if ($val[0]!="") $days[sprintf("%d", $val[0]) ] += $val[1];
 			}
 		}
 	} else {
 		$file = $config['log_dir'] . "$year/$month/" . sprintf("%02d", $day) . "/.csv_total_events";
+		//print_r($file);
 		if (file_exists($file)) $csv = file_get_contents($file);
 		else $csv = array();
 		$days = array();
@@ -208,7 +209,7 @@ function get_day_csv($year, $month, $day) {
 		if (strlen($csv) > 0) $lines = explode("\n", $csv);
 		if (count($lines) > 1) foreach($lines as $line) {
 			$val = explode(",", trim($line));
-			if ($val[0] >= 1) $days[sprintf("%d", $val[0]) ] = $val[1];
+			if ($val[0]!="") $days[sprintf("%d", $val[0])] = $val[1];
 		}
 	}
     return array_reverse($days);

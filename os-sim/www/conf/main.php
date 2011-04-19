@@ -68,6 +68,7 @@ $CONFIG = array(
         "title" => gettext("Ossim Server") ,
         "desc" => gettext("Configure the server's listening address") ,
         "advanced" => 1,
+    	"section" => "alarms,siem,logger",
         "conf" => array(
             "server_address" => array(
                 "type" => "text",
@@ -89,7 +90,8 @@ $CONFIG = array(
 				"onchange" => "tsim(this.value)" ,
                 "help" => gettext("SIEM") ,
                 "desc" => "<font style='text-decoration:underline'>".gettext("SIEM")."</font>" ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "siem"
             ) ,
 			"server_qualify" => array(
                 "type" => array(
@@ -109,7 +111,8 @@ $CONFIG = array(
 				"id" => "correlate_select",
                 "help" => gettext("Correlation") ,
                 "desc" => gettext("Correlation") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "directives"
             ) ,
 			"server_cross_correlate" => array(
                 "type" => array(
@@ -119,7 +122,8 @@ $CONFIG = array(
 				"id" => "cross_correlate_select",
                 "help" => gettext("Cross-correlation") ,
                 "desc" => gettext("Cross-correlation") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "directives"
             ) ,
 			"server_store" => array(
                 "type" => array(
@@ -140,6 +144,7 @@ $CONFIG = array(
                 "help" => gettext("Logger") ,
                 "desc" => "<font style='text-decoration:underline'>".gettext("Logger")."</font>" ,
                 "advanced" => 1,
+                "section" => "logger",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
 			"server_sign" => array(
@@ -162,6 +167,7 @@ $CONFIG = array(
                 "help" => gettext("Alarm forwarding") ,
                 "desc" => gettext("Alarm forwarding") ,
                 "advanced" => 1,
+                "section" => "alarms",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
 			"server_forward_event" => array(
@@ -194,6 +200,7 @@ $CONFIG = array(
                 "help" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? gettext("Remote Logger") : _("Only Available when using Alienvault Unified SIEM"),
                 "desc" => gettext("Remote Logger") ,
                 "advanced" => 1,
+                "section" => "logger",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
 			"server_remote_logger_user" => array(
@@ -201,6 +208,7 @@ $CONFIG = array(
                 "help" => gettext("Remote OSSIM Logger user") ,
                 "desc" => gettext("Remote Logger user") ,
                 "advanced" => 1,
+            	"section" => "logger",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
 			"server_remote_logger_pass" => array(
@@ -208,6 +216,7 @@ $CONFIG = array(
                 "help" => gettext("Remote OSSIM Logger password") ,
                 "desc" => gettext("Remote Logger password") ,
                 "advanced" => 1,
+            	"section" => "logger",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
 			"server_remote_logger_ossim_url" => array(
@@ -215,6 +224,7 @@ $CONFIG = array(
                 "help" => gettext("Remote Logger Url") ,
                 "desc" => gettext("Remote Logger OSSIM Url") ,
                 "advanced" => 1,
+            	"section" => "logger",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
             "server_logger_if_priority" => array(
@@ -229,6 +239,7 @@ $CONFIG = array(
                 "help" => gettext("Store in SIEM if priority >= this value")."<br>".gettext("Requires /etc/init.d/ossim-server restart") ,
                 "desc" => gettext("SIEM process priority threshold") ,
                 "advanced" => 1,
+                "section" => "logger",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             )
         )
@@ -644,18 +655,21 @@ $CONFIG = array(
         "title" => gettext("Metrics") ,
         "desc" => gettext("Configure metric settings") ,
         "advanced" => 0,
+    	"section" => "metrics",
         "conf" => array(
             "recovery" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Recovery Ratio") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+    			"section" => "metrics"
             ) ,
             "threshold" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Global Threshold") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+            	"section" => "metrics"
             )
         )
     ) ,/*
@@ -708,18 +722,21 @@ $CONFIG = array(
         "title" => gettext("Executive Panel") ,
         "desc" => gettext("Configure panel settings") ,
         "advanced" => 1,
+    	"section" => "panel",
         "conf" => array(
             "panel_plugins_dir" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Executive Panel plugin Directory") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+    			"section" => "panel"
             ) ,
             "panel_configs_dir" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Executive Panel Config Directory") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+            	"section" => "panel"
             )
         )
     ) ,
@@ -937,6 +954,7 @@ $CONFIG = array(
         "title" => gettext("Vulnerability Scanner") ,
         "desc" => gettext("Vulnerability Scanner configuration") ,
         "advanced" => 0,
+    	"section" => "vulnerabilities",
         "conf" => array(
             "scanner_type" => array(
                 "type" => array(
@@ -949,49 +967,57 @@ $CONFIG = array(
                 ) ,
                 "help" => gettext("Vulnerability scanner used. OpenVAS is used by default.") ,
                 "desc" => gettext("Vulnerability Scanner") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "vulnerabilities"
             ) ,
             "nessus_user" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Scanner Login") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+            	"section" => "vulnerabilities"
             ) ,
             "nessus_pass" => array(
                 "type" => "password",
                 "help" => "" ,
                 "desc" => gettext("Scanner Password") , 
-                "advanced" => 1
+                "advanced" => 1 ,
+            	"section" => "vulnerabilities"
             ) ,
             "nessus_host" => array(
                 "type" => "text",
                 "help" => gettext("Only for non distributed scans") ,
                 "desc" => gettext("Scanner host") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+            	"section" => "vulnerabilities"
             ) ,
             "nessus_port" => array(
                 "type" => "text",
                 "help" => gettext("Defaults to port 1241 on Nessus, 9390 on OpenVAS") ,
                 "desc" => gettext("Scanner port") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+            	"section" => "vulnerabilities"
             ) ,
             "nessus_path" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Scanner Binary location") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+            	"section" => "vulnerabilities"
             ) ,
             "nessus_updater_path" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Scanner Updater location") , 
-                "advanced" => 1
+                "advanced" => 1 ,
+            	"section" => "vulnerabilities"
             ) ,
             "nessus_rpt_path" => array(
                 "type" => "text",
                 "help" => gettext("Where will scanning results be located") ,
                 "desc" => gettext("Scan output path") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+            	"section" => "vulnerabilities"
             ) ,
             /*"nessusrc_path" => array(
                 "type" => "text",
@@ -1006,7 +1032,8 @@ $CONFIG = array(
                 ) ,
                 "help" => gettext("Obsolete, distributed is very recommended even if you only got one sensor.") ,
                 "desc" => gettext("Distributed Scanning") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "vulnerabilities"
             ) ,
             "nessus_pre_scan_locally" => array(
                 "type" => array(
@@ -1015,7 +1042,8 @@ $CONFIG = array(
                 ) ,
                 "help" => gettext("do not pre-scan from scanning sensor") ,
                 "desc" => gettext("Enable Pre-Scan locally") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "vulnerabilities"
             ) ,
             "vulnerability_incident_threshold" => array(
                 "type" => array(
@@ -1033,7 +1061,8 @@ $CONFIG = array(
                 ) ,
                 "help" => gettext("Any vulnerability with a higher risk level than this value will get inserted automatically into DB.") ,
                 "desc" => gettext("Vulnerability Ticket Threshold") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "vulnerabilities"
             )
         )
     ) ,/*
@@ -1364,6 +1393,7 @@ $CONFIG = array(
         "title" => gettext("Tickets") ,
         "desc" => gettext("Tickets parameters") ,
         "advanced" => 0,
+    	"section" => "tickets",
         "conf" => array(
             "alarms_generate_incidents" => array(
                 "type" => array(
@@ -1372,13 +1402,15 @@ $CONFIG = array(
                 ) ,
                 "help" => gettext("Enabling this option will lead to automatic ticket generation upong arrival of alarms.") ,
                 "desc" => gettext("Open Tickets for new alarms automatically?") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "tickets"
             ) ,
             "tickets_max_days" => array(
                 "type" => "text",
                 "help" => "" ,
                 "desc" => gettext("Maximum days for email notification") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+            	"section" => "tickets"
             ),
             "google_maps_key" => array(
                 "type" => "textarea",
@@ -1630,7 +1662,7 @@ if (REQUEST("reset"))
     require_once 'classes/Config.inc';
     $config = new Config();
     $config->reset();
-    header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word'));
+    header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word') . "&section=" . POST('section'));
     exit;
 }
 
@@ -1744,7 +1776,9 @@ $default_open = intval(GET('open'));
 		}
 	
 		$(document).ready(function(){	
+			<?php if (GET('section') == "" && POST('section') == "") { ?>
 			new Accordian('basic-accordian',5,'header_highlight');
+			<?php } ?>
 			// enable/disable by default
 			$('input:hidden').each(function(){
 				if ($(this).val()=='server_sim') {
@@ -1869,6 +1903,7 @@ $default_open = intval(GET('open'));
 	<div id="numeroDiv" style="position:absolute; z-index:999; left:0px; top:0px; height:80px; visibility:hidden; display:none"></div>
 	<?php
 	$advanced = (POST('adv') == "1") ? true : ((GET('adv') == "1") ? true : false);
+	$section = (POST('section')) ? POST('section') : GET('section');
 	//$links = ($advanced) ? "<a href='main.php' style='color:#cccccc'>simple</a> | <b>advanced</b>" : "<b>simple</b> | <a href='main.php?adv=1' style='color:#cccccc'>advanced</a>";
 	//$title = ($advanced) ? "Advanced" : "Main";
 	include ("../hmenu.php");
@@ -1890,14 +1925,14 @@ $default_open = intval(GET('open'));
 				$arr    = array();
 												
 				foreach($CONFIG as $key => $val) 
-					if ($advanced || (!$advanced && $val["advanced"] == 0))
+					if ($advanced || ($section == "" && !$advanced && $val["advanced"] == 0) || ($section != "" && preg_match("/$section/",$val['section'])))
 					{
 						$s = (POST('word') != "") ? POST('word') : ((GET('word') != "") ? GET('word') : "");
 						
 						if ($s != "")
 						{
 							foreach($val["conf"] as $conf => $type) 
-								if ($advanced || (!$advanced && $type["advanced"] == 0))
+								if ($advanced || ($section == "" && !$advanced && $type["advanced"] == 0) || ($section != "" && preg_match("/$section/",$type['section'])))
 								{
 									if (preg_match("/$s/i", $conf))
 									{
@@ -1951,10 +1986,9 @@ $default_open = intval(GET('open'));
 								</tr>
 								<?php
 							}
-																					
 							foreach($val["conf"] as $conf => $type) 
 							{
-								if ($advanced || (!$advanced && $type["advanced"] == 0))
+								if ($advanced || ($section == "" && !$advanced && $type["advanced"] == 0) || ($section != "" && preg_match("/$section/",$type['section'])))
 								{
 									//var_dump($type["type"]);
 									$conf_value = $ossim_conf->get_conf($conf,false);
@@ -2067,6 +2101,7 @@ $default_open = intval(GET('open'));
 				<?php echo _("Find word:");?><input type="text" name="word" value="<?php echo $s ?>"/>
 				<br/><br/>
 				<input type='hidden' name="adv" value="<?php echo ($advanced) ? "1" : "" ?>"/>
+				<input type='hidden' name="section" value="<?php echo $section ?>"/>
 				<input type="submit" value="<?=_('search')?>" class="button"/>
 				<input type="hidden" name="nconfs" value="<?php echo $count ?>"/>
 			</td>
