@@ -224,7 +224,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         $despues = $tmpsig[1];
     } else {
         $antes = "";
-        $despues = $current_sig;
+        $despues = $signame;
     }
     qroPrintEntry("$antes <a href='$siglink'>".trim($despues)."</a>" , "left");
     //if ($db->baseGetDBversion() >= 103) qroPrintEntry(GetSigClassName(GetSigClassID($sig_id, $db) , $db));

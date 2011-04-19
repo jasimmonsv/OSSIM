@@ -268,7 +268,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         $despues = $tmpsig[1];
     } else {
         $antes = "";
-        $despues = $current_sig;
+        $despues = $signame;
     }
     qroPrintEntry("$antes <a href='$siglink'>".trim($despues)."</a>" , "left", "", "style='vertical-align:middle'");
 

@@ -327,15 +327,23 @@ $encoding = $myrow4["encoding"];
 $detail = $myrow4["detail"];
 $payload = "";
 /* Get plugin id & sid */
-//$sql5 = "select ossim_event.plugin_id, ossim_event.plugin_sid, ossim.plugin.name, ossim.plugin_sid.name, extra_data.filename, extra_data.username, extra_data.password, extra_data.userdata1, extra_data.userdata2, extra_data.userdata3, extra_data.userdata4, extra_data.userdata5, extra_data.userdata6, extra_data.userdata7, extra_data.userdata8, extra_data.userdata9 from ossim_event, ossim.plugin, ossim.plugin_sid join extra_data on extra_data.sid = '" . intval($sid) . "' and extra_data.cid = '" . intval($cid) . "' where ossim.plugin_sid.plugin_id = ossim.plugin.id and ossim.plugin_sid.sid = ossim_event.plugin_sid and ossim_event.plugin_id = ossim.plugin.id and ossim_event.sid = '" . intval($sid) . "' and ossim_event.cid = '" . intval($cid) . "'";
-$sql5 = "select ossim.plugin.name, ossim.plugin_sid.name from ossim.plugin, ossim.plugin_sid where ossim.plugin_sid.plugin_id = ossim.plugin.id and ossim.plugin_sid.sid = $plugin_sid and ossim.plugin.id = $plugin_id";
-//echo $sql5;
+$sql5 = "SELECT ossim.plugin.name, ossim.plugin_sid.name FROM ossim.plugin LEFT JOIN ossim.plugin_sid ON ossim.plugin_sid.plugin_id = ossim.plugin.id WHERE ossim.plugin_sid.sid = $plugin_sid and ossim.plugin.id = $plugin_id";
 $result5 = $db->baseExecute($sql5);
 if ($myrow5 = $result5->baseFetchRow()) {
     $plugin_name = $myrow5[0];
     $plugin_sid_name = $myrow5[1];
     $result5->baseFreeRows();
 }
+// empty plugin name...search only plugin name
+if ($plugin_name=="") {
+	$sql5 = "SELECT name FROM ossim.plugin WHERE plugin.id = $plugin_id";
+	$result5 = $db->baseExecute($sql5);
+	if ($myrow5 = $result5->baseFetchRow()) {
+	    $plugin_name = $myrow5[0];
+	    $result5->baseFreeRows();
+	}
+}
+
 // extra_data
 $filename = $username = $password = $userdata1 = $userdata2 = $userdata3 = $userdata4 = $userdata5 = $userdata6 = $userdata7 = $userdata8 = $userdata9 = "(null)";
 $context = 0;
