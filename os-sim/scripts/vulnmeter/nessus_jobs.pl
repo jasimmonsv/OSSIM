@@ -252,7 +252,7 @@ my $no_results = FALSE;
 my $scan_timeout = FALSE;
 my $omp_scan_timeout = FALSE;
 
-my $delete_task = FALSE; # delete task after scan
+my $delete_task = TRUE; # delete task after scan to check configs in use
 
 my $exclude_hosts = "";
 my @vuln_nessus_plugins;
@@ -5087,10 +5087,21 @@ sub get_results_from_xml {
     logwriter("Get reports for report_id: $report_id",4);
     $xml = execute_omp_command("<get_reports report_id='$report_id'/>");
     
-    if (ref($xml->{'report'}{'results'}->{'result'}) eq 'ARRAY') {
-        @items = @{$xml->{'report'}{'results'}->{'result'}}; 
-    } else {
-        push(@items,$xml->{'report'}{'results'}->{'result'});
+    # reports format depends on OpenVAS version 
+    
+    if(defined($xml->{'report'}{'report'}{'results'}->{'result'})) { # OpenVAS 4
+        if (ref($xml->{'report'}{'report'}{'results'}->{'result'}) eq 'ARRAY') {
+            @items = @{$xml->{'report'}{'report'}{'results'}->{'result'}}; 
+        } else {
+            push(@items,$xml->{'report'}{'report'}{'results'}->{'result'});
+        }
+    }
+    else { # OpenVAS 3
+        if (ref($xml->{'report'}{'results'}->{'result'}) eq 'ARRAY') {
+            @items = @{$xml->{'report'}{'results'}->{'result'}}; 
+        } else {
+            push(@items,$xml->{'report'}{'results'}->{'result'});
+        }
     }
     
     foreach my $result (@items) {

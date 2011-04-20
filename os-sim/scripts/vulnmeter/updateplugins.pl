@@ -182,15 +182,6 @@ my %loginfo;         # plot information hash
 my $debug            = 0;
 my $log_level        = 4;
 
-#don't delete this configs with migrate option
-
-my @openvas_manager_configs = ( );
-push(@openvas_manager_configs, "Full and fast-All NVT's; optimized by using previously collected information.");
-push(@openvas_manager_configs, "Full and fast ultimate-All NVT's including those that can stop services/hosts; optimized by using previously collected information."); 
-push(@openvas_manager_configs, "Full and very deep-All NVT's; don't trust previously collected information; slow."); 
-push(@openvas_manager_configs, "Full and very deep ultimate-All NVT's including those that can stop services/hosts; don't trust previously collected information; slow.");
-push(@openvas_manager_configs, "empty-Empty and static configuration template.");
-
 my @disabled_plugins = ("11219", "10335", "14663", "11840", "14272", "14274", "10796", "80000", "80009", "80001", "80002", "80112");
 
 
@@ -287,7 +278,7 @@ sub main {
         $sth_sel->execute;
         
         if ($nessus =~ /omp\s*$/) {
-            delete_configs(\@openvas_manager_configs);
+            delete_configs();
         }
     }
     else {
@@ -387,17 +378,17 @@ sub dump_plugins {
         
         my $imp = system ( $cmd );
 
-        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Dump Plugins", 2 ); }
+        if ( $imp != 0 ) { logwriter( "updateplugins: Failed Dump Plugins", 2 ); }
         
         my $xml = eval {XMLin($omp_plugins, keyattr => [])};
         
         #print Dumper($xml);
         
-        if ($@ ne "") { die "Cant' read XML $omp_plugins"; }
+        if ($@ ne "") { logwriter( "Cant' read XML $omp_plugins" ); }
         if ($xml->{'status'} !~ /20\d/) {
             my $status = $xml->{'status'};
             my $status_text = $xml->{'status_text'};
-            die "Error: status = $status, status_text = '$status_text' ($omp_plugins)";
+            logwriter( "Error: status = $status, status_text = '$status_text' ($omp_plugins)", 2 );
         }
     }
     else {
@@ -412,7 +403,7 @@ sub dump_plugins {
         logwriter( "$cmd", 5 );
         my $imp = system ( $cmd );
 
-        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Dump Plugins", 2 ); }
+        if ( $imp != 0 ) { logwriter( "updateplugins: Failed Dump Plugins", 2 ); }
         
     }
     
@@ -440,11 +431,11 @@ sub import_plugins {
         
         #print Dumper($xml);
         
-        if ($@ ne "") { die "Cant' read XML $omp_plugins"; }
+        if ($@ ne "") {  logwriter( "Cant' read XML $omp_plugins", 2); }
         if ($xml->{'status'} !~ /20\d/) {
             my $status = $xml->{'status'};
             my $status_text = $xml->{'status_text'};
-            die "Error: status = $status, status_text = '$status_text' ($omp_plugins)";
+             logwriter( "Error: status = $status, status_text = '$status_text' ($omp_plugins)", 2);
         }
         
         
@@ -505,7 +496,7 @@ sub import_plugins {
         my $cmd = "$mysqlpath --force --user=$CONFIG{'DATABASEUSER'} --password=$CONFIG{'DATABASEPASSWORD'} --host=$CONFIG{'DATABASEHOST'} $CONFIG{'DATABASENAME'} < $openvas_nessus_plugins";
         logwriter( "$cmd", 5 );
         my $imp = system ( $cmd );
-        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Import Plugins", 2 ); }
+        if ( $imp != 0 ) { logwriter( "updateplugins: Failed Import Plugins", 2 ); }
     
     }
     $sql = qq{ UPDATE vuln_plugins SET family='Others' WHERE family=''};
@@ -904,14 +895,14 @@ sub update_settings_plugins {
                         
                         $xml = eval {XMLin($xml_output, keyattr => [])};
                     
-                        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+                        if ($@ ne "") {  logwriter( "Cant' read XML $xml_output", 2); }
                         if ($xml->{'status'} !~ /20\d/) {
                             my $status = $xml->{'status'};
                             my $status_text = $xml->{'status_text'};
-                            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+                             logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
                         }
                     
-                        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' disable family '$om_family' for config '$name'", 2 ); }
+                        if ( $imp != 0 ) { logwriter( "updateplugins: Cant' disable family '$om_family' for config '$name'", 2 ); }
                     
                     }
                 
@@ -951,14 +942,14 @@ sub update_settings_plugins {
                 
                         $xml = eval {XMLin($xml_output, keyattr => [])};
                 
-                        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+                        if ($@ ne "") {  logwriter( "Cant' read XML $xml_output", 2); }
                         if ($xml->{'status'} !~ /20\d/) {
                             my $status = $xml->{'status'};
                             my $status_text = $xml->{'status_text'};
-                            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+                             logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
                         }
                 
-                        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
+                        if ( $imp != 0 ) { logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
                     }
                 }
             }
@@ -1022,17 +1013,17 @@ CREATE TABLE `vuln_nessus_preferences_defaults` (
         
         my $imp = system ( $cmd );
 
-        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Preferences", 2 ); }
+        if ( $imp != 0 ) { logwriter( "updateplugins: Failed Get Preferences", 2 ); }
         
         my $xml = eval {XMLin($xml_output, keyattr => [])};
         
         
         
-        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+        if ($@ ne "") {  logwriter( "Cant' read XML $xml_output", 2); }
         if ($xml->{'status'} !~ /20\d/) {
             my $status = $xml->{'status'};
             my $status_text = $xml->{'status_text'};
-            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+            logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
         }
         
         if (ref($xml->{'preference'}) eq 'ARRAY') {
@@ -1316,7 +1307,7 @@ sub logwriter {
 
         $message = "$now $loginfo{$specified_level} $message";
 
-        if ( $debug || $log_level ge $specified_level )  { print $message ."\n"; }
+        if ( $debug || $log_level ge $specified_level )  { print "\n".$message; }
     
     }
     else {  print ".";  }
@@ -1353,14 +1344,22 @@ sub generate_profiles {
         my @tmp = split(/\|/,$nd);
         my @values = split(/\|/,$profiles{$nd});
 
-        $sql = qq{SELECT id from vuln_nessus_settings where name like '$tmp[0]'};
+        $sql = qq{SELECT id from vuln_nessus_settings where name like '$tmp[0]' and owner like '$tmp[3]'};
         $sth_sel = $dbh->prepare($sql);
         $sth_sel->execute();
         my ($id) = $sth_sel->fetchrow_array;
         $sth_sel->finish;
 
         if ($id eq "") {
-            print "Creating profile $tmp[0]...\n";
+            if($tmp[0] eq 'Default' && $tmp[3] eq '0' && $nessus =~ /omp\s*$/) { # Default profile for user 0 is the "full and fast" in OpenVAS manager
+                # get config from OpenVas manager
+                $tmp[2] = 'F';
+                my $config_families = get_config_families('Full and fast');
+                
+                @values = ();
+                @values = split(/\|/,$config_families);
+            }
+            print "Creating $tmp[0] profile...\n";
             $sql = qq{INSERT INTO vuln_nessus_settings (name, description, autoenable, owner, auto_cat_status, auto_fam_status)
                     values('$tmp[0]', '$tmp[1]', '$tmp[2]', '$tmp[3]', '$tmp[4]', '$tmp[5]')};
             $sth_sel = $dbh->prepare($sql);
@@ -1502,10 +1501,15 @@ sub generate_profiles {
                 fill_preferences($idprofile, $id_ff);
             }
             
-            print "\nProfile $tmp[0] inserted\n";
+            # update plugins to clone OpenVAS config
+            if($tmp[0] eq 'Default' && $tmp[3] eq '0'  && $nessus =~ /omp\s*$/) { # Default profile for user 0 is the "full and fast" in OpenVAS manager
+                clone_settings_plugins($idprofile, "Full and fast");
+            }
+            
+            print "\n$tmp[0] profile for user $tmp[3] inserted\n";
         }
         else {
-            print "Profile $tmp[0] already exists\n";
+            print "\n$tmp[0] profile for user $tmp[3] already exists\n";
         }
     }   # end foreach
 }
@@ -1535,63 +1539,57 @@ sub create_profile {
     my $id_ff;
     
     
-    $result_search = get_config_id($name, $user);
+    $cmd = "$openvas_manager_common \"<get_configs />\" > $xml_output";
     
-    if ($result_search eq "") {
+    logwriter( "$cmd", 4 );
+    my $imp = system ( $cmd );
+
+    if ( $imp != 0 ) { logwriter( "updateplugins: Failed Get Configs", 2 ); }
+
+    my $xml = eval {XMLin($xml_output, keyattr => [])};
     
-        $cmd = "$openvas_manager_common \"<get_configs />\" > $xml_output";
-        
-        logwriter( "$cmd", 4 );
-        my $imp = system ( $cmd );
-
-        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Configs", 2 ); }
-
-        my $xml = eval {XMLin($xml_output, keyattr => [])};
-        
-        #print Dumper($xml);
-        
-        if ($@ ne "") { die "Cant' read XML $xml_output"; }
-        if ($xml->{'status'} !~ /20\d/) {
-            my $status = $xml->{'status'};
-            my $status_text = $xml->{'status_text'};
-            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
-        }
-        
-        if (ref($xml->{'config'}) eq 'ARRAY') {
-            @items = @{$xml->{'config'}};
-        } else {
-            push(@items,$xml->{'config'});
-        }
-        
-        foreach my $profile (@items) {
-            if ($profile->{'name'} eq "Full and fast") {
-                $id_ff = $profile->{'id'};
-            }
-        }
-        
-        #### copy config ####
-        
-        $cmd = "$openvas_manager_common \"<create_config><copy>$id_ff</copy><name>$name</name><comment>$user</comment></create_config>\" > $xml_output";
-
-        logwriter( "$cmd", 4 );
-        $imp = system ( $cmd );
-
-        $xml = eval {XMLin($xml_output, keyattr => [])};
-        
-        if ($@ ne "") { die "Cant' read XML $xml_output"; }
-        if ($xml->{'status'} !~ /20\d/) {
-            my $status = $xml->{'status'};
-            my $status_text = $xml->{'status_text'};
-            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
-        }
-
-        $new_config_id = $xml->{'id'}; # new config id
-
-        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Create Config $name", 2 ); }
+    #print Dumper($xml);
     
+    if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
+    if ($xml->{'status'} !~ /20\d/) {
+        my $status = $xml->{'status'};
+        my $status_text = $xml->{'status_text'};
+        logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
     }
     
-    else {  $new_config_id = $result_search; }
+    if (ref($xml->{'config'}) eq 'ARRAY') {
+        @items = @{$xml->{'config'}};
+    } else {
+        push(@items,$xml->{'config'});
+    }
+    
+    foreach my $profile (@items) {
+        if ($profile->{'name'} eq "Full and fast") {
+            $id_ff = $profile->{'id'};
+        }
+    }
+    
+    #### copy config ####
+    
+    $cmd = "$openvas_manager_common \"<create_config><copy>$id_ff</copy><name>$name</name><comment>$user</comment></create_config>\" > $xml_output";
+
+    logwriter( "$cmd", 4 );
+    $imp = system ( $cmd );
+
+    $xml = eval {XMLin($xml_output, keyattr => [])};
+    
+    if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
+    if ($xml->{'status'} !~ /20\d/) {
+        my $status = $xml->{'status'};
+        my $status_text = $xml->{'status_text'};
+        logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
+    }
+
+    $new_config_id = $xml->{'id'}; # new config id
+
+    if ( $imp != 0 ) { logwriter( "updateplugins: Failed Create Config $name", 2 ); }
+    
+    if($name eq "Default" && $user eq "0") { return $id_ff; }   # Default and "Full and fast" are the same config
     
     #### modify config ####
     
@@ -1605,14 +1603,14 @@ sub create_profile {
         
         $xml = eval {XMLin($xml_output, keyattr => [])};
     
-        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+        if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
         if ($xml->{'status'} !~ /20\d/) {
             my $status = $xml->{'status'};
             my $status_text = $xml->{'status_text'};
-            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+            logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
         }
     
-        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' disable family '$om_family' for config '$name'", 2 ); }
+        if ( $imp != 0 ) { logwriter( "updateplugins: Cant' disable family '$om_family' for config '$name'", 2 ); }
     
     }
     
@@ -1633,14 +1631,14 @@ sub create_profile {
         
         $xml = eval {XMLin($xml_output, keyattr => [])};
     
-        if ($@ ne "") { die "Cant' read XML $xml_output"; }
+        if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
         if ($xml->{'status'} !~ /20\d/) {
             my $status = $xml->{'status'};
             my $status_text = $xml->{'status_text'};
-            die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+            logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
         }
     
-        if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
+        if ( $imp != 0 ) { logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
     
         my %familyHash;
         
@@ -1664,7 +1662,7 @@ sub create_profile {
     
         foreach my $family ( keys %familyHash ) {
             $cmd = "$openvas_manager_common \"<modify_config config_id='$new_config_id'><nvt_selection><family>$family</family>";
-            logwriter("Updating family '$family'...", 4);
+            logwriter("Updating family error '$family'...", 4);
             $i = 0;
             foreach my $oid ( keys %{$familyHash{$family}} ) {
                 $cmd .= "<nvt oid='$oid'/>";
@@ -1678,14 +1676,14 @@ sub create_profile {
     
             $xml = eval {XMLin($xml_output, keyattr => [])};
     
-            if ($@ ne "") { die "Cant' read XML $xml_output"; }
+            if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
             if ($xml->{'status'} !~ /20\d/) {
                 my $status = $xml->{'status'};
                 my $status_text = $xml->{'status_text'};
-                die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+                logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
             }
     
-            if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
+            if ( $imp != 0 )  { logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
         }
     }
     else { # Categories
@@ -1724,19 +1722,17 @@ sub create_profile {
     
             $xml = eval {XMLin($xml_output, keyattr => [])};
     
-            if ($@ ne "") { die "Cant' read XML $xml_output"; }
+            if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
             if ($xml->{'status'} !~ /20\d/) {
                 my $status = $xml->{'status'};
                 my $status_text = $xml->{'status_text'};
-                die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+                logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
             }
     
-            if ( $imp != 0 ) { die "". logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
+            if ( $imp != 0 ) { logwriter( "updateplugins: Cant' modify Config $name", 2 ); }
         }
     }
-    
     return $id_ff;
-    
 }
 
 sub get_config_id {
@@ -1751,17 +1747,17 @@ sub get_config_id {
     #logwriter( "$cmd", 4 );
     my $imp = system ( $cmd );
 
-    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Configs", 2 ); }
+    if ( $imp != 0 ) { logwriter( "updateplugins: Failed Get Configs", 2 ); }
 
     my $xml = eval {XMLin($xml_output, keyattr => [])};
     
     #print Dumper($xml);
     
-    if ($@ ne "") { die "Cant' read XML $xml_output"; }
+    if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
     if ($xml->{'status'} !~ /20\d/) {
         my $status = $xml->{'status'};
         my $status_text = $xml->{'status_text'};
-        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+        logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
     }
     
     if (ref($xml->{'config'}) eq 'ARRAY') {
@@ -1772,6 +1768,9 @@ sub get_config_id {
     
     foreach my $profile (@items) {
         if ($profile->{'name'} eq $name && $profile->{'comment'} eq $user) {
+            $result = $profile->{'id'};
+        } 
+        elsif ($profile->{'name'} eq $name && $profile->{'in_use'} eq "1") { # to search in OpenVas configs
             $result = $profile->{'id'};
         }
     }
@@ -1792,16 +1791,16 @@ sub fill_preferences {
     
     my $imp = system ( $cmd );
 
-    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Preferences", 2 ); }
+    if ( $imp != 0 ) { logwriter( "updateplugins: Failed Get Preferences", 2 ); }
     
     my $xml = eval {XMLin($xml_output, keyattr => [])};
     
     
-    if ($@ ne "") { die "Cant' read XML $xml_output"; }
+    if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
     if ($xml->{'status'} !~ /20\d/) {
         my $status = $xml->{'status'};
         my $status_text = $xml->{'status_text'};
-        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+        logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
     }
     
     if (ref($xml->{'preference'}) eq 'ARRAY') {
@@ -1859,24 +1858,23 @@ sub fill_preferences {
 }
 
 sub delete_configs {
-    my (@openvas_manager_configs) = @{$_[0]};
     
     my $cmd = "$openvas_manager_common \"<get_configs />\" > $xml_output";
     
     #logwriter( "$cmd", 4 );
     my $imp = system ( $cmd );
 
-    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Configs", 2 ); }
+    if ( $imp != 0 ) { logwriter( "updateplugins: Failed Get Configs", 2 ); }
 
     my $xml = eval {XMLin($xml_output, keyattr => [])};
     
     #print Dumper($xml);
     
-    if ($@ ne "") { die "Cant' read XML $xml_output"; }
+    if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
     if ($xml->{'status'} !~ /20\d/) {
         my $status = $xml->{'status'};
         my $status_text = $xml->{'status_text'};
-        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+        logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
     }
     
     if (ref($xml->{'config'}) eq 'ARRAY') {
@@ -1886,7 +1884,7 @@ sub delete_configs {
     }
     
     foreach my $profile (@items) {                                         
-        if (!in_array(\@openvas_manager_configs,$profile->{'name'}."-".$profile->{'comment'})) {
+        if ($profile->{'in_use'} eq "0") {
             my $id_delete = $profile->{'id'};
             my $cmd = "$openvas_manager_common \"<delete_config config_id='$id_delete' />\" > $xml_output";
             #print $profile->{'name'};
@@ -1895,15 +1893,15 @@ sub delete_configs {
             #logwriter( "$cmd", 4 );
             my $imp = system ( $cmd );
 
-            if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Delete Config ".$profile->{'name'}." (".$profile->{'comment'}.")", 2 ); }
+            if ( $imp != 0 ) { logwriter( "updateplugins: Failed Delete Config ".$profile->{'name'}." (".$profile->{'comment'}.")", 2 ); }
 
             my $xml = eval {XMLin($xml_output, keyattr => [])};
             
-            if ($@ ne "") { die "Cant' read XML $xml_output"; }
+            if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
             if ($xml->{'status'} !~ /20\d/) {
                 my $status = $xml->{'status'};
                 my $status_text = $xml->{'status_text'};
-                die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+                logwriter( "Warning: deleting profile $id_delete status = $status, status_text = '$status_text' ($xml_output)", 2);
             }
         }
     }
@@ -1919,17 +1917,17 @@ sub get_openvas_manager_families {
     #logwriter( "$cmd", 4 );
     my $imp = system ( $cmd );
 
-    if ( $imp != 0 ) { die "". logwriter( "updateplugins: Failed Get Families", 2 ); }
+    if ( $imp != 0 ) { logwriter( "updateplugins: Failed Get Families", 2 ); }
 
     my $xml = eval {XMLin($xml_output, keyattr => [])};
     
     #print Dumper($xml);
     
-    if ($@ ne "") { die "Cant' read XML $xml_output"; }
+    if ($@ ne "") { logwriter( "Cant' read XML $xml_output", 2); }
     if ($xml->{'status'} !~ /20\d/) {
         my $status = $xml->{'status'};
         my $status_text = $xml->{'status_text'};
-        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
+        logwriter( "Error: status = $status, status_text = '$status_text' ($xml_output)", 2);
     }
     
     if (ref($xml->{'families'}->{'family'}) eq 'ARRAY') {
@@ -1973,39 +1971,67 @@ sub execute_omp_command {
 
     my $imp = system ("$openvas_manager_common \"$cmd\" > $xml_output 2>&1");
     
-    #if ( $imp != 0 ) { die "". logwriter( "nessus_jobs: Failed execute omp command", 2 ); }
+    if ( $imp != 0 ) { logwriter( "Failed execute omp command: $openvas_manager_common \"$cmd\"", 2 ); }
 
     my $xml = eval {XMLin($xml_output, keyattr => [])};
     
-
-    if ($@ ne "") {
-    
-        open(INFO, $xml_output);         # Open the file
-        my @log_lines = <INFO>;          # Read it into an array
-        close(INFO);                     # Close the file
-    
-        my $error = join(" ", @log_lines);
-        if($job_id_to_log ne "") {
-            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='$error', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
-            safe_db_write ( $sql, 1 );
-        }
-
-        die "Cant' read XML $xml_output: $error";
-    }
-    
-    if ($xml->{'status'} !~ /20\d/) {
-        my $status = $xml->{'status'};
-        my $status_text = $xml->{'status_text'};
-        
-        if($job_id_to_log ne "") {
-            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='status_text', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
-            safe_db_write ( $sql, 1 );
-        }
-        
-        die "Error: status = $status, status_text = '$status_text' ($xml_output)";
-    }
-    
     unlink $xml_output if -e $xml_output;
     
-    return $xml; 
+    return $xml;
+}
+sub get_config_families {
+    my $config = shift;
+    my @fn     = ();
+    
+    my $config_id = get_config_id($config,"");
+    my $xml = execute_omp_command("<get_configs config_id='$config_id' families='1'/>");
+
+    if (ref($xml->{'config'}{'families'}{'family'}) eq 'ARRAY') {
+        @items = @{$xml->{'config'}{'families'}{'family'}};
+    } else {
+        push(@items,$xml->{'config'}{'families'}{'family'});
+    }
+
+    foreach my $family (@items) {
+       if($family->{'name'} ne "") {
+            push(@fn, $family->{'name'});
+       }
+    }
+    return join('|',@fn);
+}
+
+sub clone_settings_plugins {
+    my $ossim_profile = $_[0];
+    my $omp_profile   = $_[1];
+    
+    my $config_id = get_config_id($omp_profile,"");
+    my $xml = execute_omp_command("<get_configs config_id='$config_id' families='1'/>");
+
+    if (ref($xml->{'config'}{'families'}{'family'}) eq 'ARRAY') {
+        @items = @{$xml->{'config'}{'families'}{'family'}};
+    } else {
+        push(@items,$xml->{'config'}{'families'}{'family'});
+    }
+
+    foreach my $family (@items) {
+       if($family->{'nvt_count'} ne $family->{'max_nvt_count'}) {
+            $fname = $family->{'name'};
+            my $sql = qq{ UPDATE vuln_nessus_settings_plugins SET enabled='N' WHERE family in (SELECT id FROM vuln_nessus_family WHERE name LIKE '$fname') AND sid=$ossim_profile; };
+            safe_db_write( $sql, 4 );
+            my $xml = execute_omp_command("<get_nvts family='$fname' config_id='$config_id' />");
+
+            if (ref($xml->{'nvt'}) eq 'ARRAY') {
+                @nitems = @{$xml->{'nvt'}};
+            } else {
+                push(@nitems,$xml->{'nvt'});
+            }
+            foreach my $nvt (@nitems) {
+                $nvt->{'oid'} =~ s/.*\.//;
+                $id = $nvt->{'oid'};
+                $sql = qq{ UPDATE vuln_nessus_settings_plugins SET enabled='Y' WHERE id=$id AND sid=$ossim_profile; };
+                safe_db_write( $sql, 4 );
+            }
+        }
+    }
+
 }
