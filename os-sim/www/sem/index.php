@@ -123,6 +123,7 @@ ossim_valid(GET('del_export'), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, '=', 'illegal
 if (ossim_error()) {
     die(ossim_error());
 }
+
 $config = parse_ini_file("everything.ini");
 
 if($config["debug"]==1){
@@ -1132,7 +1133,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "Poli
 			</div>
 		</td>
 	</tr>
-	<input type="hidden" name="num_servers" value="<?php echo $i ?>"></input>
+	<input type="hidden" name="num_servers" value="<?php echo $i ?>">
 	<input type="hidden" name="current_search" value="">
 	</form>
 <?php
