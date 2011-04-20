@@ -1174,12 +1174,14 @@ $CONFIG = array(
         "title" => gettext("User activity") ,
         "desc" => gettext("User action logging") ,
         "advanced" => 0,
+    	"section" => "userlog",
         "conf" => array(
             "session_timeout" => array(
                 "type" => "text",
                 "help" => gettext("Expired timeout for current session in minutes. (0=unlimited)") ,
                 "desc" => gettext("Session Timeout") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+    			"section" => "userlog"
             ),
             "user_action_log" => array(
                 "type" => array(
@@ -1188,7 +1190,8 @@ $CONFIG = array(
                 ) ,
                 "help" => "" ,
                 "desc" => gettext("Enable User Log") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "userlog"
             ) ,
             "log_syslog" => array(
                 "type" => array(
@@ -1197,7 +1200,8 @@ $CONFIG = array(
                 ) ,
                 "help" => "" ,
                 "desc" => gettext("Log to syslog") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "userlog"
             )
         )
     ) ,

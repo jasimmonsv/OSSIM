@@ -967,7 +967,8 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUserActionLog")) { $c
     "name" => gettext("User activity") ,
     "id" => "User action logs",
     "url" => "conf/userlog.php",
-    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:user_activity','Help');"
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:user_activity','Help');",
+	"config" => "userlog"
 );
 }
 if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_perms("MenuConfiguration", "PolicySensors")) { $assets = 1;
