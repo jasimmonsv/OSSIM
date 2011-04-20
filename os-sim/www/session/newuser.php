@@ -79,7 +79,7 @@ ossim_valid($company, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _(
 ossim_valid($department, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Department"));
 ossim_valid($language, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Language"));
 ossim_valid($first_login, OSS_DIGIT, 'illegal:' . _("First Login"));
-ossim_valid($tzone, OSS_DIGIT, '-', '+', '.', 'illegal:' . _("tzone"));
+ossim_valid($tzone, OSS_ALPHA, OSS_SCORE, '\/', 'illegal:' . _("tzone"));
 if (ossim_error()) {
     die(ossim_error());
 }
