@@ -29,13 +29,12 @@
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
 
-
 if( $host!='any' ) 
 	$temp_url= "../vulnmeter/index.php?value=".urlencode($host)."&type=hn";
 else
 	$temp_url="../vulnmeter/index.php?type=hn";
-
 ?>
+
 <table class="bordered" height="100%">
 	<tr>
 		<td class="headerpr" height="20"><a style="color:black" href="<?php echo $temp_url?>"><?php echo _("Latest Vulnerabilities")?></a></td>
@@ -43,8 +42,9 @@ else
 	<?php
 	if (count($vul_events) < 1) 
 	{ 
+		$host_txt = ( $host == 'any') ? _("No Vulnerabilities found in the System") : _("No Vulnerabilities found for")."<i>".$host."</i>"; 
 		?>
-		<tr><td><?=gettext("No Vulnerabilities Found for")?> <i><?php echo $host?></i></td></tr>
+		<tr><td><?php echo $host_txt?></td></tr>
 		<?php 
 	} 
 	else 
@@ -56,7 +56,7 @@ else
 				<tr>
 					<th><?php echo _("Name")?></th>
 					<th><?php echo _("Risk")?></th>
-					<?php if ($network||$host=='any') { ?><th>IP</th><? } ?>
+					<?php if ($network || $host=='any') { ?><th>IP</th><? } ?>
 				</tr>
 				<?php 
 				
@@ -111,7 +111,7 @@ else
 							</tr>
 						</table>
 					</td>
-					<?php if ($network|$host=='any') { ?><td bgcolor="<?=$color?>"><a href="host_report.php?host=<?=$vul_event['ip']?>" class="HostReportMenu" id="<?=$vul_event['ip']?>;<?=$vul_event['ip']?>"><?=$vul_event['ip']?></a></td><? } ?>
+					<?php if ( $network || $host=='any') { ?><td bgcolor="<?=$color?>"><a href="host_report.php?host=<?=$vul_event['ip']?>" class="HostReportMenu" id="<?=$vul_event['ip']?>;<?=$vul_event['ip']?>"><?=$vul_event['ip']?></a></td><? } ?>
 				</tr>
 				<?php
 					$i++; 

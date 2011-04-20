@@ -38,46 +38,37 @@ flush();
 usleep(500000);
 
 require_once ('classes/Session.inc');
-//Session::logcheck("MenuIncidents", "ControlPanelAlarms");
 $hide_closed = 1; 
-$date_from   = $date_sup = "";
 
 if($host!='any')
-{
 	list($alarm_list, $count) = Alarm::get_list3($conn, $host, $host, $hide_closed, "ORDER BY a.timestamp DESC", 0, 5, $date_from, $date_to, "");
-}
 else
-{
 	list($alarm_list, $count) = Alarm::get_list3($conn, '', '', $hide_closed, "ORDER BY a.timestamp DESC", 0, 5, $date_from, $date_to, "");
-}
 
 if ($network)
 {
 	list($host_start, $host_end) = Util::cidr_conv($host);
 	$retfields = Alarm::get_max_byfield($conn,"risk","WHERE (inet_aton('$host_start') <= a.src_ip AND inet_aton('$host_end') >= a.src_ip) OR (inet_aton('$host_start') <= a.dst_ip AND inet_aton('$host_end') >= a.dst_ip)");
 } 
-else 
+else
 {
-	if($host!='any')
-	{
+	if( $host!='any' )
 		$retfields = Alarm::get_max_byfield($conn,"risk","WHERE a.src_ip=INET_ATON('$host') OR a.dst_ip=INET_ATON('$host')");
-	}
 	else
-	{
 		$retfields = Alarm::get_max_byfield($conn,"risk");
-	}
 }
+
 $a_maxrisk  = $retfields[0];
 $backlog_id = $retfields[1];
 $alarm_link = "../control_panel/events.php?backlog_id=$backlog_id";
-$a_date = "-";
-
+$a_date     = "-";
 
  
 if($host!='any')
 	$temp_url="../control_panel/alarm_console.php?&hide_closed=1&src_ip=".urlencode($host)."&dst_ip=".urlencode($host);
 else
-	$temp_url="../control_panel/alarm_console.php?&hide_closed=1"; 	
+	$temp_url="../control_panel/alarm_console.php?&hide_closed=1";  
+ 
 ?>
 
 <table align="center" width="100%" height="100%" class="bordered">
@@ -88,8 +79,15 @@ else
 	<?php 
 		if (count($alarm_list) < 1) 
 		{ 
+			$host_txt = ( $host == 'any') ? _("No Alarms found in the System") : _("No Alarms found for")."<i>".$host."</i>"; 
 			?>
-			<tr><td><?=gettext("No Alarms Found for")?> <i><?=$host?></i></td></tr>
+			<tr><td><?php echo $host_txt;?></td></tr>
+			
+			<script type="text/javascript">
+				document.getElementById('statusbar_unresolved_alarms').innerHTML = '<?php echo Util::number_format_locale((int)0,0)?>';
+				document.getElementById('statusbar_alarm_max_risk').innerHTML = '<?php echo preg_replace("/\n|\r/","",Incident::get_priority_in_html("-"))?>';
+			</script>
+			
 			<?php 
 		} 
 		else 
@@ -185,15 +183,8 @@ else
 						
 						<tr>
 							<td bgcolor="<?=$bgcolor?>" style="text-align:left">
-							<?php
-														
-								if($host!='any')
-									$temp_url="../control_panel/alarm_console.php?&hide_closed=1&src_ip=".urlencode($host)."&dst_ip=".urlencode($host); 
-								else
-									$temp_url="../control_panel/alarm_console.php?&hide_closed=1"; 
-								
-							?>
-							<a href="<?php echo $temp_url?>"><?= "<strong>".$alarm_name."</strong>".$event_count_label ?></a></td>
+								<a href="<?php echo $temp_url?>"><?= "<strong>".$alarm_name."</strong>".$event_count_label ?></a>
+							</td>
 							<td style="text-align:center;background-color:<?=$bg?>;color:<?=$color?>"><strong><?= $risk ?></strong></td>
 							
 							<td style="background-color:<?=$bgcolor?>;padding-left:2px;padding-right:2px;text-align:center">
@@ -222,7 +213,13 @@ else
 					</table>
 				</td>
 			</tr>
-	
+							
+			<tr>
+				<td style="text-align:right;padding-right:20px">
+					<a style="color:black" href="<?php echo $temp_url?>"><strong>More >></strong></a>
+				</td>
+			</tr>
+			
 			<script type="text/javascript">
 				document.getElementById('statusbar_unresolved_alarms').innerHTML = '<?php echo Util::number_format_locale((int)$count,0)?>';
 				document.getElementById('statusbar_alarm_max_risk').innerHTML = '<?php echo preg_replace("/\n|\r/","",Incident::get_priority_in_html($a_maxrisk))?>';
@@ -230,17 +227,10 @@ else
 				document.getElementById('statusbar_alarm_max_risk_txt').href = '<?php echo $alarm_link?>';
 			</script>
 			
-			<tr>
-				<td style="text-align:right;padding-right:20px">
-				<?php
-					if($host!='any')
-						$temp_url="../control_panel/alarm_console.php?&hide_closed=1&src_ip=".urlencode($host)."&dst_ip=".urlencode($host); 
-					else
-						$temp_url="../control_panel/alarm_console.php?&hide_closed=1"; 
-				?>
-				<a style="color:black" href="<?php echo $temp_url?>"><strong>More >></strong></a></td></tr>
 			<?php 
 		} 
-	?>
+		
+		?>
+
 	<tr><td></td></tr>
 </table>

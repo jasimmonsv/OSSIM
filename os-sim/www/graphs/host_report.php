@@ -61,7 +61,7 @@ if (!$rs = & $conn_ossim->Execute($query1)) {
     exit();
 }
 while (!$rs->EOF) {
-    $plugins[$rs->fields["id"]] = $rs->fields["name"];
+    $plugins[$rs->fields["id"]] = preg_replace("/ossec-.*/", "ossec", $rs->fields["name"]);
     $rs->MoveNext();
 }
 
