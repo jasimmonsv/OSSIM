@@ -372,10 +372,9 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
 		$fontcolor = (preg_match("/base_qry_main\.php/", $_SERVER['SCRIPT_NAME'])) ? "white" : "black";
 ?>
 		<td nowrap align="center" style="border-right:1px solid #CACACA" bgcolor="<?=$color?>">
-			<a style="color:<?=$fontcolor?>;font-weight:bold" href='base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1'>
+			<a style="color:<?=$fontcolor?>;font-weight:bold" href='base_qry_main.php?num_result_rows=-1&submit=Query+DB&current_view=-1'></a>
 				<?=_("Events")?>
                 <? if ($fontcolor=="white" && !$cloud_instance) { ?>
-                <!-- <a href="pdf.php?name=<?=urlencode($siem_events_title)?>" target="_blank"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a> -->
                 <a href="javascript:;" onclick="javascript:report_launcher('Events_Report','pdf');return false"><img src="images/pdf-icon.png" border="0" align="absmiddle" title="<?=_("Launch PDF Report")?>"></a>
                 <a href="javascript:;" onclick="javascript:report_launcher('Events_Report','<?=$events_report_type?>');return false"><img src="images/csv-icon.png" border="0" align="absmiddle" title="<?=_("Download data in csv format")?>"></a>
                 <? } ?>
