@@ -45,6 +45,9 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 
 $error = false;
 
+if (GET('cidr')!="") $_GET["cidr"] = str_replace(" ","",GET('cidr'));
+if (POST('cidr')!="") $_POST["cidr"] = str_replace(" ","",POST('cidr'));
+
 $net_name     = POST('netname');
 $cidr         = POST('cidr');
 $descr        = POST('descr');

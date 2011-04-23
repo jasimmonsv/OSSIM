@@ -45,6 +45,9 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 
 $error = false;
 
+if (GET('ip')!="") $_GET["ip"] = str_replace(" ","",GET('ip'));
+if (POST('ip')!="") $_POST["ip"] = str_replace(" ","",POST('ip'));
+
 $hostname     = POST('hostname');
 $old_hostname = POST('old_hostname');
 $ip           = POST('ip');

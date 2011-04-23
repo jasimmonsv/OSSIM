@@ -642,7 +642,8 @@ function valid_cidr($cidrs)
 	
 	foreach ($array_cidr as $k => $v)
 	{
-		if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', trim($v), $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) 
+		$v = trim($v);
+		if (!preg_match("/^0.0.0.0/",$v) && preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $v, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] > 0 && $m[5] <= 32) 
 			continue;
 		else
 		{
@@ -701,7 +702,7 @@ function valid_ip($ip) {
     
 	if ( !is_array($ip) )
 	{
-		if ( preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )
+		if ($ip!="0.0.0.0" && preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )
 			return true;
 		
 		ossim_set_error(_("Invalid IP address. Format allowed: nnn.nnn.nnn.nnn") . "<br/>Entered ip: '<b>$ip</b>'");
@@ -711,7 +712,7 @@ function valid_ip($ip) {
 	{
 		foreach ($ip as $k => $v)
 		{
-			if ( preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $v, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )
+			if ($v!="0.0.0.0" && preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $v, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 )
 				continue;
 			else
 			{
@@ -725,10 +726,10 @@ function valid_ip($ip) {
 
 function valid_ipcidr($ip) {
    	
-	if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] <= 32) {
+	if (!preg_match("/^0.0.0.0/",$ip) && preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)\/(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255 && $m[5] > 0 && $m[5] <= 32) {
         return true;
     }
-    else if (preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
+    else if ($ip!="0.0.0.0" && preg_match('/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/', $ip, $m) && $m[1] <= 255 && $m[2] <= 255 && $m[3] <= 255 && $m[4] <= 255) {
         return true;
     }
     
