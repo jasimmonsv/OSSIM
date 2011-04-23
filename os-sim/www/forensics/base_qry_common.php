@@ -495,6 +495,9 @@ function QueryOssimSignature($q, $cmd, $cmp) {
         $q = str_replace(" AND ",$and_str,$q);
     }
     $op = ($cmd == "=") ? "plugin_sid.name = '$q'" : "plugin_sid.name LIKE '%" . $q . "%'";
+    // apply ! operator
+    $op = str_replace(" = '!"," != '",$op);
+    $op = str_replace(" LIKE '%!"," NOT LIKE '%",$op);
     return $op;
     /*
     $sql = "SELECT plugin_id,sid FROM ossim.plugin_sid WHERE $op";

@@ -61,10 +61,10 @@
 */
 include ("base_conf.php");
 include ("vars_session.php");
+$_SESSION['norefresh'] = 1;
 include ("$BASE_path/includes/base_constants.inc.php");
 include ("$BASE_path/includes/base_include.inc.php");
 include_once ("$BASE_path/includes/base_action.inc.php");
-
 
 
 include_once ("$BASE_path/base_db_common.php");

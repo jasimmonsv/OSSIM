@@ -277,7 +277,7 @@ if ($opensource) {
 		<?php } else {?>
 		<?=_("View Name")?>: <input type="text" name="name" style="width:100px" value="<? if ($edit) echo $_SESSION['current_cview'] ?>" <? if ($edit) { ?>onkeyup="$('#saveasbutton').attr('disabled','');$('#saveasbutton').removeClass('lbuttonoff').addClass('lbutton')"<?php }?>>
 		<?php }?>&nbsp;
-		<input type="button" class="button" onclick="document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=($edit) ? _("Update View") : _("Create")?>">&nbsp;
+		<input type="button" class="button" onclick="document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=($edit) ? _("Save") : _("Create")?>">&nbsp;
         <? if ($_SESSION['current_cview'] == "default") {?> <input type="button" class="lbutton" onclick="$('#action').val('<?=_("Default view")?>');document.fcols.submit()" value="<?=_("Restore Default")?>"> <? } ?>  
 		<? if ($edit && $_SESSION['current_cview'] != "default") { ?> <input type="button" class="lbuttonoff" onclick="document.fcols.save.value='insert';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?php echo _("Save As")?>" id="saveasbutton" style="color:gray" disabled> <input type="button" class="lbutton" onclick="if(confirm('<?=_("Are you sure?")?>')) { document.fcols.save.value='delete';document.fcols.submit() }" value="<?=_("Delete")?>"><? } ?>
 		<?php if (Session::am_i_admin() && $edit && !$opensource) { ?> <input type="button"  class="lbutton" onclick="document.fcols.save.value='report';document.fcols.selected_cols.value=getselectedcombovalue('cols');document.fcols.submit()" value="<?=_("Save as Report")?>"><?php } ?>
