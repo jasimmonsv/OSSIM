@@ -1182,6 +1182,9 @@ sim_event_to_string(SimEvent *event)
   struct tm *now_tm = localtime(&now_timet);
   gchar fdate_str[20];
   gchar tzone_str[6];
+	gchar * base64;
+	gint    base64_len;
+
   //gets tzone:
   strftime(tzone_str, 6, "%z", now_tm);
   strftime(fdate_str, 20, "%Y-%m-%d %H:%M:%S", gmtime(&now_timet));
@@ -1326,27 +1329,25 @@ sim_event_to_string(SimEvent *event)
 
   //  if (event->data)
   //    g_string_append_printf(str, "data=\"%s\" ", event->data);
-
-  if (event->log)
-    {
-      gchar *base64;
-      base64 = g_base64_encode(event->log, strlen(event->log));
-      assert (base64!=NULL);
-      g_string_append_printf(str, "log=\"%s\" ", base64);
-      g_free(base64);
-    }
+	if (event->log && (base64_len = strlen(event->log)))
+	{
+		base64 = g_base64_encode(event->log, base64_len);
+		assert (base64!=NULL);
+		g_string_append_printf(str, "log=\"%s\" ", base64);
+		g_free(base64);
+	}
   //g_string_append_printf(str, "log=\"%s\" ", event->log);
   for (i = 0; i < N_TEXT_FIELDS; i++)
-    {
-      if (event->textfields[i] != NULL)
-        {
-          gchar *base64;
-          base64 = g_base64_encode( event->textfields[i], strlen( event->textfields[i]));
-          g_string_append_printf(str, "%s=\"%s\" ", sim_text_field_get_name(i),
-              base64);
-          g_free(base64);
-        }
-    }
+	{
+		if ((event->textfields[i] != NULL) && (base64_len = strlen(event->textfields[i])))
+		{
+			base64 = g_base64_encode (event->textfields[i], base64_len);
+			assert (base64!=NULL);
+			g_string_append_printf(str, "%s=\"%s\" ", sim_text_field_get_name(i),
+														 base64);
+			g_free(base64);
+		}
+	}
 
   if (!uuid_is_null(event->uuid))
     {
