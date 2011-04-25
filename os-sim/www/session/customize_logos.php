@@ -19,8 +19,7 @@ $demo          = (preg_match("/.*demo.*/i",$version)) ? true : false;
 $current_user  = Session::get_session_user();
 
 
-
-if ($opensource || $current_user != ACL_DEFAULT_OSSIM_ADMIN) {
+if ($opensource || !Session::am_i_admin()) {
 	exit;
 }
 
