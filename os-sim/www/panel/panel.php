@@ -647,7 +647,10 @@ if (GET('interface') == 'ajax') {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
 <script src="../js/prototype.js" type="text/javascript"></script>
+<script src="../js/jquery-1.3.1.js" type="text/javascript"></script>
+<script src="../js/greybox_noconflict.js" type="text/javascript"></script>
 <script src="../js/scriptaculous/scriptaculous.js" type="text/javascript"></script>
 <script src="./panel.js" type="text/javascript"></script>
 <script>
