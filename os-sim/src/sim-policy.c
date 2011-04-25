@@ -241,8 +241,9 @@ sim_policy_new_from_dm (GdaDataModel  *dm,
   value = (GdaValue *) gda_data_model_get_value_at (dm, 6, row);
   policy->_priv->end_day = gda_value_get_smallint (value);
 
-	policy->_priv->begin_dayhour = (policy->_priv->begin_day - 1) * 24 + policy->_priv->begin_hour;
-	policy->_priv->end_dayhour =  (policy->_priv->end_day - 1) * 24 + policy->_priv->end_hour;
+	// Sunday 0 -> Saturday 6
+	policy->_priv->begin_dayhour = (policy->_priv->begin_day % 7) * 24 + policy->_priv->begin_hour;
+	policy->_priv->end_dayhour =  (policy->_priv->end_day % 7) * 24 + policy->_priv->end_hour;
 
   return policy;
 }
@@ -1056,13 +1057,22 @@ sim_policy_match (SimPolicy        *policy,
 	}
   if (!found) return FALSE;
 
-  if ((policy->_priv->begin_dayhour > date) || (policy->_priv->end_dayhour < date))
+  if(policy->_priv->begin_dayhour <= policy->_priv->end_dayhour)
 	{
-		g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_policy_match: Not match: BAD DATE");
-    return FALSE;
+    if ((policy->_priv->begin_dayhour > date) || (policy->_priv->end_dayhour < date))
+	  {
+		  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_policy_match: Not match: BAD DATE");
+      return FALSE;
+	  }
 	}
-//	else
-//	  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "DATE OK");
+	else
+	{
+		if ((policy->_priv->begin_dayhour > date) && (policy->_priv->end_dayhour < date))
+		{
+			g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_policy_match: Not match: BAD DATE");
+    	return FALSE;
+		}
+	}
 			
 	
   /* Find source ip*/
@@ -1090,8 +1100,11 @@ sim_policy_match (SimPolicy        *policy,
 		if (sim_inet_has_inet(cmp, src))  //check if src belongs to cmp.
 		{
 			found=TRUE;
+			g_object_unref (src); //------
 			break;
 		}
+		else
+			g_object_unref (src); //------
 
     list = list->next;
   }
