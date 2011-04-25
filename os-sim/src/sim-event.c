@@ -477,8 +477,7 @@ sim_event_print(SimEvent *event)
     timestamp = event->time_str;
   else if (event->time)
     //strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime ((time_t *) &event->time));
-    strftime(timestamp, TIMEBUF_SIZE, "%F %T", localtime(
-        (time_t *) &event->time));
+    strftime(timestamp, TIMEBUF_SIZE, "%F %T", gmtime((time_t *) &event->time));
 
   g_print(" alarm=\"%d\"", event->alarm);
 
@@ -638,7 +637,7 @@ sim_event_get_insert_clause(SimEvent *event)
   else if (a > 10)
     a = 10;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
   if (!uuid_is_null(event->uuid))
     {
@@ -855,7 +854,7 @@ sim_event_get_update_clause(SimEvent *event)
   else if (a > 10)
     a = 10;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
 
   query = g_strdup_printf(
@@ -942,7 +941,7 @@ sim_event_get_replace_clause(SimEvent *event)
   else if (a > 10)
     a = 10;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
   uuid_unparse_upper(event->uuid, uuidtext);
   values = sim_event_get_text_escape_fields_values(event);
@@ -1003,7 +1002,7 @@ sim_event_get_alarm_insert_clause(SimEvent *event)
   c = rint(event->risk_c);
   a = rint(event->risk_a);
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
   uuid_unparse_upper(event->uuid, uuidtext);
   uuid_unparse_upper(event->uuid_backlog, uuidtext_backlog);
@@ -1050,7 +1049,7 @@ sim_event_get_msg(SimEvent *event)
 
   if (event->time)
     {
-      strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+      strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
           (time_t *) &event->time));
       g_string_append_printf(str, "DATE\t\t= %s\n", timestamp);
     }
@@ -1450,7 +1449,7 @@ sim_event_get_insert_into_event_tmp_clause(SimEvent *event)
   else if (a > 10)
     a = 10;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
   if (!uuid_is_null(event->uuid))
     {
