@@ -760,7 +760,7 @@ function range_graphic($trdata) {
             $hasta = $trdata[1];
             // time_range calc
             $diff = $hasta - $desde; 
-            if ($diff > 2592000) { // more than 1 month
+            if ($diff > 2678400) { // more than 1 month
                 $suf = "";
                 $jump = 0;
                 $noprint = 2;
