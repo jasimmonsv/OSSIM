@@ -27,7 +27,7 @@ $from_menu     = ( GET('smenu')== "Customize" || $_SESSION["menu_sopc"] == "Cust
 
 $current_user  = Session::get_session_user();
 
-if ( $opensource || $current_user != ACL_DEFAULT_OSSIM_ADMIN ) 
+if ( $opensource || !Session::am_i_admin() ) 
 {
 	ossim_set_error(_("You don't have permissions to see this page"));
 	ossim_error();
