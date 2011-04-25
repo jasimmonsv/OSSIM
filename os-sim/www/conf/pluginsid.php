@@ -257,7 +257,7 @@ echo "$colModel\n";
 			sortname: "<?php echo $sortname ?>",
 			sortorder: "<?php echo $sortorder ?>",
 			usepager: true,
-			title: 'EVENT TYPES (<?php echo $id ?>, <?php echo Plugin::get_name_by_id($conn, $id)?>) &nbsp;&nbsp; <a href="javascript:history.go(-1)" style="text-decoration:underline;color:black"><< <?=_('back to Data Source')?></a>',
+			title: 'EVENT TYPES (<?php echo $id ?>, <?php echo Plugin::get_name_by_id($conn, $id)?>) &nbsp;&nbsp; <a href="plugin.php?hmenu=Plugins&smenu=Data Sources" style="text-decoration:underline;color:black"><< <?=_('back to Data Source')?></a>',
 			pagestat: '<?=_('Displaying {from} to {to} of {total} event types')?>',
 			nomsg: '<?=_('No event types')?>',
 			useRp: true,
