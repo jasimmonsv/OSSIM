@@ -66,11 +66,13 @@ require_once 'classes/SecurityReport.inc';
 require_once 'classes/Log_action.inc';
 require_once 'classes/Incident.inc';
 require_once 'classes/Host.inc';
+
 $path_conf = $GLOBALS["CONF"];
 $fpdf_path = $path_conf->get_conf("fpdf_path");
 define('FPDF_FONTPATH', 'font/');
 define('DEFAULT_LINE_HEIGTH', 6);
 require ($fpdf_path . '/fpdf.php');
+
 class PDF extends FPDF {
     var $ossim_conn;
     var $snort_conn;
@@ -112,6 +114,7 @@ class PDF extends FPDF {
         /* Log pdf created */
         Log_action::log(19, NULL);
     }
+	
     function Header() {
         $www_base = $this->conf->get_conf("base_dir");
         $this->Image($www_base . '/pixmaps/logo3.jpg', 0, 0, 30);
@@ -120,12 +123,14 @@ class PDF extends FPDF {
         $this->Cell(0, 6, $this->title, 'B', 0, 'R');
         $this->Ln(20);
     }
+	
     function Footer() {
         $this->SetY(-15);
         $this->SetFont('Arial', 'I', 8);
         $this->Cell(0, 10, strftime("%d-%b-%Y", time()) , 0, 0, 'L');
         $this->Cell(0, 10, 'Page ' . $this->PageNo() . '/{nb}', 0, 0, 'R');
     }
+	
     function __WriteBold($text, $color = "") {
         $this->SetFont('Arial', 'B', 12);
         if ($color == "red") $this->SetTextColor(130, 15, 15);
@@ -135,6 +140,7 @@ class PDF extends FPDF {
         $this->SetFont('Arial', '', 12);
         $this->SetTextColor(0);
     }
+	
     function __WriteTitle($title, $color = "blue") {
         $this->SetFont('Arial', 'B', 14);
         if ($color == "blue") $this->SetTextColor(102, 102, 153);
@@ -211,6 +217,7 @@ class PDF extends FPDF {
         }
         $this->Ln(5);
     }
+	
     function __AttackHosts($title, $ip_target, $limit = 10, $color = "blue", $type = "event", $date_from, $date_to) {
         $content[] = array(
             "Host",
@@ -226,12 +233,15 @@ class PDF extends FPDF {
         $content = array_merge($content, $attack);
         $this->__WriteTable($title, $length, $content, 1, $color);
     }
+	
     function AttackedHosts($limit = 10, $type = "event", $date_from, $date_to) {
         $this->__AttackHosts("Top $limit Attacked Hosts", "ip_dst", $limit, "red", $type, $date_from, $date_to);
     }
+	
     function AttackerHosts($limit = 10, $type = "event", $date_from, $date_to) {
         $this->__AttackHosts("Top $limit Attacker Hosts", "ip_src", $limit, "blue", $type, $date_from, $date_to);
     }
+	
     function Events($limit = 10, $type = "event", $date_from, $date_to) {
         $content[] = array(
             "Event",
@@ -244,6 +254,7 @@ class PDF extends FPDF {
         $content = array_merge($content, $this->security_report->Events($limit, $type, $date_from, $date_to));
         $this->__WriteTable("Top $limit Events", $length, $content, 1);
     }
+	
     function Ports($limit = 10, $type = "event", $date_from, $date_to) {
         $content[] = array(
             "Port",
@@ -258,6 +269,7 @@ class PDF extends FPDF {
         $content = array_merge($content, $this->security_report->Ports($limit, $type, $date_from, $date_to));
         $this->__WriteTable("Top $limit Destination Ports", $length, $content, 1, "orange");
     }
+	
     function EventsByRisk($limit = 10, $type = "event", $date_from, $date_to) {
         $content[] = array(
             "Event",
@@ -270,56 +282,48 @@ class PDF extends FPDF {
         $content = array_merge($content, $this->security_report->EventsByRisk($limit, $type, $date_from, $date_to));
         $this->__WriteTable("Top $limit Events by risk", $length, $content, 1);
     }
+	
     /*
     * INCIDENTS
     */
-    function __get_ids($ref, $priority, $fil, $host=null, $conn=null) {
-        if ($ref != "Metric" && $ref != "Alarm" && $ref != "Event" && $ref != "Anomaly" && $ref != "Vulnerability") return NULL;
-        $ids = array();
-        //$incident_list = Incident::get_list($this->ossim_conn, "WHERE ref = '$ref' and $priority $fil ORDER BY priority DESC");
-        if(is_null($host)){
-            // sin buscar por host o redes
-            $priority=str_replace('i.priority','priority',  $priority);
-            $incident_list[0] = Incident::get_list($this->ossim_conn, "WHERE ref = '$ref' and $priority $fil ORDER BY priority DESC");
-        }else{
-            // buscando en host o redes
-             if(is_array($host)){
-                //es una red
-                $incident_list=array();
-                foreach($host as $value){
-                    unset($listTemp);
-                    $listTemp=Incident::get_list_filtered($conn,$value, " and ref = '$ref' and  $priority $fil");
-                    $incident_list[]=$listTemp;
-                }
-            }else{
-                //es un host
-                $incident_list[0] = Incident::get_list_filtered($conn,$host, " and ref = '$ref' and  $priority $fil");
-            }
-        }
-        if (is_array($incident_list)) {
-            foreach($incident_list as $value){
-                foreach($value as $incident) {
-                    $ids[] = $incident->get_id();
-                }
-            }
-        }
-        return $ids;
+    function __get_ids($ref, $priority, $fil, $user=null, $host=null, $conn=null) {
+        
+		$ids = array();
+		
+		if ($ref != "Metric" && $ref != "Alarm" && $ref != "Event" && $ref != "Anomaly" && $ref != "Vulnerability") 
+			return NULL;
+        
+		$args = " AND ref = '$ref' AND  $priority $fil ORDER BY priority DESC";
+		
+		$incident_list = Incident::get_list_filtered($conn, $host, $args, $user);
+        		
+		foreach ($incident_list as $incident)
+		    $ids[$incident->get_id()] = $incident->get_id();
+        
+		
+		return $ids;
     }
-    function get_metric_ids($priority, $fil, $host=null, $conn=null) {
-        return $this->__get_ids("Metric", $priority, $fil, $host, $conn);
+	
+    function get_metric_ids($priority, $fil, $user=null, $host=null, $conn=null) {
+        return $this->__get_ids("Metric", $priority, $fil, $user=null, $host, $conn);
     }
-    function get_alarm_ids($priority, $fil, $host=null, $conn=null) {
-        return $this->__get_ids("Alarm", $priority, $fil, $host, $conn);
+	
+    function get_alarm_ids($priority, $fil, $user=null, $host=null, $conn=null) {
+        return $this->__get_ids("Alarm", $priority, $fil, $user=null, $host, $conn);
     }
-    function get_event_ids($priority, $fil, $host=null, $conn=null) {
-        return $this->__get_ids("Event", $priority, $fil, $host, $conn);
+	
+    function get_event_ids($priority, $fil, $user=null, $host=null, $conn=null) {
+        return $this->__get_ids("Event", $priority, $fil, $user=null, $host, $conn);
     }
-    function get_anomaly_ids($priority, $fil, $host=null, $conn=null) {
-        return $this->__get_ids("Anomaly", $priority, $fil, $host, $conn);
+	
+    function get_anomaly_ids($priority, $fil, $user=null, $host=null, $conn=null) {
+        return $this->__get_ids("Anomaly", $priority, $fil, $user=null, $host, $conn);
     }
-    function get_vulnerability_ids($priority, $fil, $host=null, $conn=null) {
-        return $this->__get_ids("Vulnerability", $priority, $fil, $host, $conn);
+	
+    function get_vulnerability_ids($priority, $fil, $user=null, $host=null, $conn=null) {
+        return $this->__get_ids("Vulnerability", $priority, $fil, $user=null, $host, $conn);
     }
+	
     function IncidentGeneralData($title, $date) {
         $this->__WriteTitle(gettext("GENERAL DATA"));
         $this->SetFont('Arial', '', 12);
@@ -330,6 +334,7 @@ class PDF extends FPDF {
         $this->Write(DEFAULT_LINE_HEIGTH, $date);
         $this->Ln(DEFAULT_LINE_HEIGTH * 2);
     }
+	
     function IncidentSummary($title, $ref, $summary, $priority, $fil) {
         $ids = array();
         $this->__WriteTitle($title);
@@ -361,11 +366,12 @@ class PDF extends FPDF {
         $this->Ln(10);
         return $ids;
     }
-    function IncidentSummaryNoPDF($title, $ref, $summary, $priority, $fil, $host=null, $conn=null) {
+	
+	function IncidentSummaryNoPDF($title, $ref, $summary, $priority, $fil, $assets=null, $conn=null, $user=null) {
         $ids = array();
-        /**/
+      
         $returnContent = array();
-        /**/
+       
         $this->__WriteTitle($title);
         $this->SetFont('Arial', '', 12);
         /* Summary */
@@ -373,69 +379,50 @@ class PDF extends FPDF {
         $this->Ln(DEFAULT_LINE_HEIGTH * 2);
         //$this->Write(DEFAULT_LINE_HEIGTH, gettext("List of $ref" . "s:"));
         $this->Ln(DEFAULT_LINE_HEIGTH);
-        //$incident_list = Incident::get_list($this->ossim_conn, "WHERE ref = '$ref' and $priority $fil ORDER BY priority DESC");
-
-        if(is_null($host)){
-            // sin buscar por host o redes
-            $priority=str_replace('i.priority','priority',  $priority);
-            $incident_list[0] = Incident::get_list($this->ossim_conn, "WHERE ref = '$ref' and $priority $fil ORDER BY priority DESC");
-        }else{
-            
-            // buscando en host o redes
-             if(is_array($host)){
-                //es una red
-                $incident_list=array();
-                foreach($host as $value){
-                    unset($listTemp);
-                    $listTemp=Incident::get_list_filtered($conn,$value, " and ref = '$ref' and  $priority $fil");
-                    $incident_list[]=$listTemp;
-                }
-            }else{
-                //es un host
-                $incident_list[0] = Incident::get_list_filtered($conn,$host, " and ref = '$ref' and  $priority $fil");
-            }
-            
+		
+		       
+		$incident_list = Incident::get_list_filtered($conn, $assets, "AND ref = '$ref' AND $priority $fil", $user);
+		
+		
+		foreach($incident_list as $incident)
+		{
+        	$content = array();
+			
+			$priority = $incident->get_priority($this->ossim_conn);
+			$color    = $incident->get_priority_bgcolor($priority);
+			
+			/* date */
+			//$this->Write(DEFAULT_LINE_HEIGTH, $incident->get_date() . "  ");
+			$content[] = $incident->get_date() . "  ";
+			/* title */
+			//$this->__WriteBold($incident->get_title() , $color);
+			$content[] = $incident->get_title();
+			$content[] = $color;
+			$this->Ln();
+			
+			/* 
+			Priority 
+			
+			$this->Write(DEFAULT_LINE_HEIGTH, "Priority: ");
+			$this->__WriteBold($priority, $color);
+			$this->Ln();
+			*/
+			
+			$ids[] = $incident->get_id();
+			
+			$TipoIncidente = $incident->get_ref();
+			
+			$returnContent[] = $content;
         }
-
-
-
-        if (is_array($incident_list)) {
-            foreach($incident_list as $value){
-                foreach($value as $incident) {
-                    /**/
-                    $content = array();
-                    /**/
-                    $priority = $incident->get_priority($this->ossim_conn);
-                    $color = $incident->get_priority_bgcolor($priority);
-                    /* date */
-                    //$this->Write(DEFAULT_LINE_HEIGTH, $incident->get_date() . "  ");
-                    $content[]=$incident->get_date() . "  ";
-                    /* title */
-                    //$this->__WriteBold($incident->get_title() , $color);
-                    $content[]=$incident->get_title();
-                    $content[]=$color;
-                    $this->Ln();
-                    /* priority */
-                    /*
-                    $this->Write(DEFAULT_LINE_HEIGTH, "Priority: ");
-                    $this->__WriteBold($priority, $color);
-                    $this->Ln();
-                    */
-                    $ids[] = $incident->get_id();
-                    /**/
-                    $TipoIncidente=$incident->get_ref();
-                    /**/
-                    $returnContent[]=$content;
-                }
-            }
-        }
-        
+            
+                
         $this->Ln(10);
         //return $ids;
         $returnContent["TipoIncidente"]="ListSummaryIncident";
 
         return $returnContent;
     }
+	
     function Incident($incident_id) {
         $incident_list = Incident::get_list($this->ossim_conn, "WHERE incident.id = $incident_id");
         $incident = $incident_list[0];
