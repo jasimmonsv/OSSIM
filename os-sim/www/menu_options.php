@@ -886,7 +886,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsAvailability") && !$cloud_insta
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:availability','Help');"
     );
 }
-if (!$opensource && !$cloud_instance) { $monitors = 1;
+if (!$opensource && !$cloud_instance && Session::menu_perms("MenuMonitors", "MonitorsInventory")) { $monitors = 1;
 	$menu["Situational Awareness"][] = array(
 	    "name" => gettext("Inventory") ,
 	    "id" => "Inventory",
