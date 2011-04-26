@@ -1620,7 +1620,7 @@ function DisplayProcessing() {
                 $db = new ossim_db();
                 $conn = $db->connect();
                 $sensors = $hosts = $ossim_servers = array();
-                list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
+                list($sensors, $hosts, $icons) = Host::get_ips_and_hostname($conn);
                 /*$networks = "";
                 $_nets = Net::get_all($conn);
                 $_nets_ips = $_host_ips = $_host = array();
@@ -1695,7 +1695,7 @@ function DisplayProcessing() {
                                 $ip = $fnd[1];
                                 $port = $fnd[2];
                                 $name = ($sensors[$ip]!="") ? $sensors[$ip] : (($hosts[$ip]!="") ? $hosts[$ip] : $ip);
-                                $homelan = (Net::is_ip_in_cache_cidr($conn, $ip) || in_array($ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+                                $homelan = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $ip)) || in_array($ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip'><img src=\"".Host::get_homelan_icon($ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
                                 $country = strtolower(geoip_country_code_by_addr($gi, $ip));
                                 $country_name = geoip_country_name_by_addr($gi, $ip);
                                 if ($country) {

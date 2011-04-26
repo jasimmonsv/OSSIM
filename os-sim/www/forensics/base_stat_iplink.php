@@ -166,7 +166,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         echo "<td></td>";
         $s_country = strtolower(geoip_country_code_by_addr($gi, $ip_sip));
         $s_country_name = geoip_country_name_by_addr($gi, $ip_sip);
-        $homelan_sip = (Net::is_ip_in_cache_cidr($_conn, $ip_sip) || in_array($ip_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
+        $homelan_sip = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $ip_sip)) || in_array($ip_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip_sip'><img src=\"".Host::get_homelan_icon($ip_sip,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
         if ($s_country) {
             $s_country_img = " <img src=\"/ossim/pixmaps/flags/" . $s_country . ".png\" title=\"" . $s_country_name . "\">";
             $slnk = $current_url."/pixmaps/flags/".$s_country.".png";
@@ -176,7 +176,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         }
         $d_country = strtolower(geoip_country_code_by_addr($gi, $ip_dip));
         $d_country_name = geoip_country_name_by_addr($gi, $ip_dip);
-        $homelan_dip = (Net::is_ip_in_cache_cidr($conn, $ip_dip) || in_array($ip_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
+        $homelan_dip = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $ip_dip)) || in_array($ip_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$ip_dip'><img src=\"".Host::get_homelan_icon($ip_dip,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
         if ($d_country) {
             $d_country_img = " <img src=\"/ossim/pixmaps/flags/" . $d_country . ".png\" title=\"" . $d_country_name . "\">";
             $dlnk = $current_url."/pixmaps/flags/".$d_country.".png";

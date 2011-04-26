@@ -47,7 +47,7 @@ else
 	$conn = $dbo->connect();
 require_once ("$BASE_path/includes/SnortHost.inc");
 $sensors = $hosts = $ossim_servers = array();
-list($sensors, $hosts) = SnortHost::get_ips_and_hostname($conn);
+list($sensors, $hosts, $icons) = SnortHost::get_ips_and_hostname($conn);
 //$ossim_servers = OServer::get_list($conn);
 //$plugins = SnortHost::get_plugin_list($conn);
 require_once ("classes/Net.inc");

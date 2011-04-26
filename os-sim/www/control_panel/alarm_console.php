@@ -84,7 +84,7 @@ $num_events_op = GET('num_events_op');
 $params_string = "order=$order&src_ip=$src_ip&dst_ip=$dst_ip&inf=$inf&sup=$sup&hide_closed=$hide_closed&query=$query&directive_id=$directive_id&date_from=$date_from&date_to=$date_to&no_resolv=$no_resolv&sensor_query=$sensor_query&tag=$tag";
 
 $sensors = $hosts = $ossim_servers = array();
-list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
+list($sensors, $hosts, $icons) = Host::get_ips_and_hostname($conn,true);
 /*$networks = "";
 $_nets = Net::get_all($conn);
 $_nets_ips = $_host_ips = $_host = array();
@@ -462,16 +462,18 @@ if (!isset($_GET["hide_search"])) {
 	</td>
 	<td class="nobborder" style="text-align:center">
 		<table class="noborder">
-			<tr><td class="nobborder">
+			<tr><td class="nobborder" style="padding-bottom:5px">
 				<a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>" onclick="if(!confirm('<?php echo _("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?") ?>')) return false;"><?php
     echo gettext("Delete ALL alarms"); ?></a> <br><br>
 				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
 				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="lbutton">
-				<br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
+				<?php
+				/* UNUSED VIA WEB <br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
 				<div id="divadvanced" style="display:none"><a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?purge=1&unique_id=<?=$unique_id?>"><?php
-    echo gettext("Remove events without an associated alarm"); ?></a></div>
+    echo gettext("Remove events without an associated alarm"); ?></a></div> */
+    			?>
     			
 			</td></tr>
 			<tr>
@@ -971,7 +973,7 @@ if ($count > 0) {
 		<td nowrap style="text-align:center;padding-left:3px;padding-right:3px" class="nobborder">
         <div id="<?php echo $src_ip; ?>;<?php echo $src_name; ?>" class="HostReportMenu">
 		<?php
-        $homelan = (Net::is_ip_in_cache_cidr($conn, $src_ip) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+        $homelan = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $src_ip)) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"".Host::get_homelan_icon($src_ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
 		if ($src_country) {
             echo "<a href=\"$src_link\">$src_name</a>:$src_port $src_img $src_country_img $homelan";
         } else {
@@ -981,7 +983,7 @@ if ($count > 0) {
 		<td nowrap style="text-align:center;padding-left:3px;padding-right:3px" class="nobborder">
 		<div id="<?php echo $dst_ip; ?>;<?php echo $dst_name; ?>" class="HostReportMenu">
 		<?php
-        $homelan = (Net::is_ip_in_cache_cidr($conn, $dst_ip) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+        $homelan = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $dst_ip)) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"".Host::get_homelan_icon($dst_ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
 		if ($dst_country) {
             echo "<a href=\"$dst_link\">$dst_name</a>:$dst_port $dst_img $dst_country_img $homelan";
         } else {

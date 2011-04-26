@@ -127,8 +127,8 @@ class SnortHost {
             $sensors[$rs->fields["ip"]] = $rs->fields["name"];
             $rs->MoveNext();
         }
-        $hosts = array();
-        $sql = "SELECT ip,hostname FROM host";
+        $hosts = $icons = array();
+        $sql = "SELECT ip,hostname,icon FROM host";
         if (!$rs = $conn->Execute($sql)) {
             print 'error: ' . $conn->ErrorMsg() . '<BR>';
             exit;
@@ -136,11 +136,13 @@ class SnortHost {
         // get hash with ip-name
         while (!$rs->EOF) {
             $hosts[$rs->fields["ip"]] = $rs->fields["hostname"];
+            $icons[$rs->fields["ip"]] = $rs->fields["icon"];
             $rs->MoveNext();
         }
         return array(
             $sensors,
-            $hosts
+            $hosts,
+            $icons
         );
     }
     // Plugin list

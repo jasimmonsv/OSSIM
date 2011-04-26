@@ -95,8 +95,9 @@ class Host {
     var $nat;
     var $descr;
     var $frcon;
+    var $icon;
 
-    function Host($ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $descr, $foundrows = 0, $lat = "", $lon = "", $fqdns="") {
+    function Host($ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $descr, $foundrows = 0, $lat = "", $lon = "", $fqdns="", $icon="") {
         $this->ip = Util::htmlentities($ip);
         $this->hostname = Util::htmlentities($hostname);
 		$this->fqdns = Util::htmlentities($fqdns);
@@ -113,6 +114,7 @@ class Host {
 		$lz = explode(";",$lon);
 		$this->lon = $lz[0];
 		$this->zoom = ($lz[1]!="") ? $lz[1] : 2;
+		$this->icon = $icon;
     }
     function get_ip() {
         return $this->ip;
@@ -156,6 +158,13 @@ class Host {
     }
     function get_foundrows() {
         return $this->foundrows;
+    }
+    function get_icon() {
+        return $this->icon;
+    }
+    function get_imgtag() {
+    	if ($this->icon=="") return "";
+        return "<img src='data:image/png;base64,".base64_encode($this->icon)."' border='0' align='absbottom'>";
     }
     function get_os($conn) {
         if ($os = Host_os::get_ip_data($conn, $this->ip)) {
@@ -213,7 +222,7 @@ class Host {
                 else $foundrows = $rf->fields["total"];
             }
             while (!$rs->EOF) {
-                $list[] = new Host($rs->fields["ip"], $rs->fields["hostname"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["nat"], $rs->fields["descr"], $foundrows, $rs->fields["lat"], $rs->fields["lon"], $rs->fields["fqdns"]);
+                $list[] = new Host($rs->fields["ip"], $rs->fields["hostname"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["nat"], $rs->fields["descr"], $foundrows, $rs->fields["lat"], $rs->fields["lon"], $rs->fields["fqdns"], $rs->fields["icon"]);
                 $rs->MoveNext();
             }
         }
@@ -322,7 +331,7 @@ class Host {
         return $list;
     }	
 	
-    function insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="", $fqdns="") {
+    function insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="", $fqdns="", $icon="") {
 
         settype($fqdns, "string");  
 		settype($asset, "int");  
@@ -331,7 +340,7 @@ class Host {
         settype($alert, "int");
         settype($persistence, "int");
         $sql = "INSERT INTO host (ip, hostname, fqdns, asset, threshold_c, threshold_a, rrd_profile, 
-                alert, persistence, nat, descr, lat, lon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                alert, persistence, nat, descr, lat, lon".($icon!="" ? ", icon" : "").") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?".($icon!="" ? ", ?" : "").")";
         $params = array(
             $ip,
             $hostname,
@@ -347,6 +356,7 @@ class Host {
 			$lat, 
 			$lon
         );
+        if ($icon!="") $params[]=$icon;
 		
 		if ($conn->Execute($sql, $params) === false) {
             print 'Error inserting host: ' . $conn->ErrorMsg() . '<br/>';
@@ -414,7 +424,7 @@ class Host {
         WebIndicator::set_on("ReloadPolicy");
     }
 	
-	function update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="", $fqdns="") {
+	function update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os = "Unknown", $mac = "", $mac_vendor = "", $lat="", $lon="", $fqdns="", $icon="") {
 		$old_hostname=Host::ip2hostname($conn, $ip);
         settype($fqdns, "string");  
 		settype($asset, "int");
@@ -424,8 +434,7 @@ class Host {
         settype($persistence, "int");
         $sql = "UPDATE host SET hostname = ?, fqdns = ?, ip = ?, asset = ?, threshold_c = ?,
                 threshold_a = ?, rrd_profile = ?, alert = ?, persistence = ?, nat = ?,
-                descr = ?, lat = ?, lon = ? WHERE ip = ?";
-       		
+                descr = ?, lat = ?, lon = ? ".($icon!="" ? ",icon = ?" : "")." WHERE ip = ?";
         $conn->Debug = 1;
         $params = array(
             $hostname,
@@ -440,9 +449,10 @@ class Host {
             $nat,
             $descr,
 			$lat,
-			$lon,
-            $ip
+			$lon
         );
+        if ($icon!="") $params[]=$icon;
+        $params[]=$ip;
 		
 		if ($conn->Execute($sql, $params) === false) {
             print 'Error updating: ' . $conn->ErrorMsg() . '<br/>';
@@ -574,42 +584,63 @@ class Host {
 	}
     // get lists of sensors/hosts 
     function get_ips_and_hostname($conn,$checkperm=false) {
-    	if (Session::am_i_admin()) { $checkperm = false; }
-    	$allowed_sensors = array();
-        $asensors_str = Session::allowedSensors();
-		if ($checkperm && $asensors_str != "") $allowed_sensors = explode(",",$asensors_str);
-		$sensors = array();
-        $sql = "SELECT ip,name FROM sensor";
-        if (!$rs = $conn->Execute($sql)) {
-            print 'error: ' . $conn->ErrorMsg() . '<BR>';
-            exit;
-        }
-        // get hash with ip-name
-        while (!$rs->EOF) {
-            if (!$checkperm || ($checkperm && (empty($allowed_sensors) || in_array($rs->fields["ip"],$allowed_sensors))))
-                $sensors[$rs->fields["ip"]] = $rs->fields["name"];
-            $rs->MoveNext();
-        }
-        $hosts = array();
-        $checkperm = true;
-        if ($checkperm) {
-        	$host_where = Host::get_sensor_where($conn);
-        }
-        $where = ($host_where != "") ? " WHERE $host_where" : "";
-        $sql = "SELECT ip,hostname FROM host h$where";
-        if (!$rs = $conn->Execute($sql)) {
-            print 'error: ' . $conn->ErrorMsg() . '<BR>';
-            exit;
-        }
-        // get hash with ip-name
-        while (!$rs->EOF) {
-            //if (!$checkperm || ($checkperm && Session::hostAllowed($conn, $rs->fields["ip"])))
-                $hosts[$rs->fields["ip"]] = $rs->fields["hostname"];
-            $rs->MoveNext();
-        }
+    	if (Session::am_i_admin()) $checkperm = false;
+    	
+    	if ($checkperm)
+    	{
+    		// Return only allowed sensors and hosts
+    		$sensors = explode(",",Session::allowedSensors());
+    		if (empty($sensors)) { // return all sensors
+		        $sql = "SELECT ip,name FROM sensor";
+		        if (!$rs = $conn->Execute($sql)) {
+		            print 'error: ' . $conn->ErrorMsg() . '<BR>';
+		            exit;
+		        }
+		        // get hash with ip-name
+		        while (!$rs->EOF) {
+		        	$sensors[$rs->fields["ip"]] = $rs->fields["name"];
+		            $rs->MoveNext();
+		        }
+    		}
+	        $hosts = $icons = array();
+    		$hlist = Host::get_list($conn);
+	        foreach ($hlist as $h) {
+	            $hosts[$h->get_ip()] = $h->get_name();
+	            $icons[$h->get_ip()] = $h->get_icon();
+	        }
+    	}
+    	else
+    	{
+    		// Return all sensors and hosts
+			$sensors = array();
+	        $sql = "SELECT ip,name FROM sensor";
+	        if (!$rs = $conn->Execute($sql)) {
+	            print 'error: ' . $conn->ErrorMsg() . '<BR>';
+	            exit;
+	        }
+	        // get hash with ip-name
+	        while (!$rs->EOF) {
+	        	$sensors[$rs->fields["ip"]] = $rs->fields["name"];
+	            $rs->MoveNext();
+	        }
+	        $hosts = $icons = array();
+	        $sql = "SELECT ip,hostname,icon FROM host";
+	        if (!$rs = $conn->Execute($sql)) {
+	            print 'error: ' . $conn->ErrorMsg() . '<BR>';
+	            exit;
+	        }
+	        // get hash with ip-name
+	        while (!$rs->EOF) {
+	            $hosts[$rs->fields["ip"]] = $rs->fields["hostname"];
+	            $icons[$rs->fields["ip"]] = $rs->fields["icon"];
+	            $rs->MoveNext();
+	        }
+    	}
+    	
         return array(
             $sensors,
-            $hosts
+            $hosts,
+            $icons
         );
     }
     function ip2hostname($conn, $ip, $is_sensor = false, $force_no_dns = false) {
@@ -799,6 +830,20 @@ class Host {
            	}
         }
         return $apps;
+    }
+    // Get asset icon
+    function get_homelan_icon($ip,$icons,$cidr="",$conn=null) {
+    	if ($icons[$ip]!="")
+    		return "data:image/png;base64,".base64_encode($icons[$ip]);
+    		
+    	if ($cidr!="") { // include net icon if exits
+    		require_once("classes/Net.inc");
+    		list ($netname,$icon) = Net::get_name_by_ip($conn,$cidr,true);
+    		if ($icon!="") 
+    			return "data:image/png;base64,".base64_encode($icon);
+    	}
+    	// default home icon
+    	return "../forensics/images/homelan.png";
     }
 	
 	//

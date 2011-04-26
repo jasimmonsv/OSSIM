@@ -67,6 +67,10 @@ $latitude     = POST('latitude');
 $longitude    = POST('longitude');
 $zoom         = intval(POST('zoom'));
 
+$icon = "";
+if (is_uploaded_file($HTTP_POST_FILES['icon']['tmp_name']))
+   $icon = file_get_contents($HTTP_POST_FILES['icon']['tmp_name']);
+
 $num_sensors = count($sensors);
 
 
@@ -114,6 +118,16 @@ else
 			
 		if( $num_sensors == 0)
 			$message_error[] = _("You Need to select at least one Sensor");
+		
+		if ($icon!="") { // validating icon format and size
+			$image = @imagecreatefromstring($icon);
+			$valid_icon = false;
+			if ($image && imagesx($image)<=16 && imagesy($image)<=16)
+				$valid_icon = true;
+				
+			if (!$valid_icon)
+				$message_error[] = _("Image format is not allowed. Allowed only 16x16 PNG images");
+		}
 		
 		if ( is_array($validation_errors) && !empty($validation_errors) )
 			$message_error = array_merge($message_error, $validation_errors);
@@ -195,7 +209,7 @@ if ( POST('insert') && !empty($ip) )
 	$db = new ossim_db();
     $conn = $db->connect();
     
-	Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, "$longitude;$zoom", $fqdns);
+	Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, "$longitude;$zoom", $fqdns, $icon);
     
 	if ( $hostname != $old_hostname ) {
     	$query = "UPDATE risk_indicators SET type_name=? WHERE type='host' AND type_name=?";

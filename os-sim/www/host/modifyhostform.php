@@ -201,6 +201,8 @@ else
 		$longitude       = $coordinates['lon'];
 		$zoom            = $coordinates['zoom'];
 		
+		$icon            = $host->get_imgtag();
+		
 		if ( empty($latitude) || empty($longitude) )
 		{
 			$gi     = geoip_open("/usr/share/geoip/GeoLiteCity.dat", GEOIP_STANDARD);
@@ -948,7 +950,7 @@ if ( empty( $ip ) ) {
 		<tr>
 			<td class="nobborder" valign="top">
 				<table id='table_container'>
-					<form method="post" id='formhost' name='formhost' action="modifyhost.php">
+					<form method="post" id='formhost' name='formhost' action="modifyhost.php" enctype="multipart/form-data">
 					<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 					<input type="hidden" name="insert" value="insert"/>
 					<input type="hidden" name="old_hostname" id="old_hostname" value="<?php echo $old_hostname; ?>"/>
@@ -1045,6 +1047,14 @@ if ( empty( $ip ) ) {
 								}
 							}
 							?>
+						</td>
+					</tr>
+
+					<tr>
+						<th><label for='icon'><?php echo gettext("Icon")."&nbsp;".$icon; ?></label></th>
+						<td class="left" style="color:gray">
+							<input type="file" class='vfield' name="icon" id="icon"><br/>
+							<?php echo "* "._("Allowed format").": 16x16 "._("png image") ?>
 						</td>
 					</tr>
 

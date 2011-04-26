@@ -116,7 +116,7 @@ $xml.= "<total>$total</total>\n";
 foreach($host_list as $host) {
     $ip = $host->get_ip();
     $xml.= "<row id='$ip'>";
-	$name = "<a style='font-weight:bold;' href=\"./modifyhostform.php?ip=".urlencode($ip)."\">" .$host->get_hostname() . "</a>" . Host_os::get_os_pixmap($conn, $ip);
+	$name = $host->get_imgtag()."&nbsp;<a style='font-weight:bold;' href=\"./modifyhostform.php?ip=".urlencode($ip)."\">" .$host->get_hostname() . "</a>&nbsp;" . Host_os::get_os_pixmap($conn, $ip);
     $xml.= "<cell><![CDATA[" . $name . "]]></cell>";
 	$xml.= "<cell><![CDATA[" . $ip . "]]></cell>";
     $fqdns= $host->get_fqdns();

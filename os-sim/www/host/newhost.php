@@ -65,6 +65,10 @@ $mac_vendor  = POST('mac_vendor');
 $latitude    = POST('latitude');
 $longitude   = POST('longitude');
 
+$icon = "";
+if (is_uploaded_file($HTTP_POST_FILES['icon']['tmp_name']))
+   $icon = file_get_contents($HTTP_POST_FILES['icon']['tmp_name']);
+
 $num_sensors = count($sensors);
 
 $validate = array (
@@ -111,6 +115,16 @@ else
 		if( $num_sensors == 0)
 			$message_error [] = _("You Need to select at least one Sensor");
 			
+		if ($icon!="") { // validating icon format and size
+			$image = @imagecreatefromstring($icon);
+			$valid_icon = false;
+			if ($image && imagesx($image)<=16 && imagesy($image)<=16)
+				$valid_icon = true;
+				
+			if (!$valid_icon)
+				$message_error[] = _("Image format is not allowed. Allowed only 16x16 PNG images");
+		}
+					
 		if ( is_array($validation_errors) && !empty($validation_errors) )
 			$message_error = array_merge($message_error, $validation_errors);
 		else
@@ -191,9 +205,9 @@ if (POST('insert'))
     $conn = $db->connect();
 	
 	if (!Host::in_host($conn, $ip)) 
-        Host::insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
+        Host::insert($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns, $icon);
     else
-		Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns);
+		Host::update($conn, $ip, $hostname, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $nat, $sensors, $descr, $os, $mac, $mac_vendor, $latitude, $longitude, $fqdns, $icon);
 		
 	//if (!empty($nessus)) Host_scan::insert($conn, $ip, 3001, 0);
    

@@ -105,6 +105,7 @@ else
 			$asset 		 = $net->get_asset();
 			$threshold_a = $net->get_threshold_a();
 			$threshold_c = $net->get_threshold_c();
+			$icon        = $net->get_imgtag();
 			$nagios      =  ( Net_scan::in_net_scan($conn, $net_name, 2007)) ? "1" : ''; 
 			
 			$rrd_profile = $net->get_rrd_profile();
@@ -212,7 +213,7 @@ if (GET('withoutmenu') != "1")
 <div id='success_message' class='ossim_success' <?php echo $style_success ?>><?php echo $success_message;?></div>
 <div id='info_error' class='ossim_error' style='display: none;'></div>
 
-<form method="post" name='formnet' id='formnet' action="<?php echo $action?>">
+<form method="post" name='formnet' id='formnet' action="<?php echo $action?>" enctype="multipart/form-data">
 	<table align="center" id='table_form'>
 	<input type="hidden" name="insert" value="insert"/>
 	<input type="hidden" name="clone" value="<?php echo $clone?>"/>
@@ -307,6 +308,14 @@ if (GET('withoutmenu') != "1")
 	</tr>
 
 	<tr>
+		<th><label for='icon'><?php echo gettext("Icon")."&nbsp;".$icon; ?></label></th>
+		<td class="left" style="color:gray">
+			<input type="file" class='vfield' name="icon" id="icon"><br/>
+			<?php echo "* "._("Allowed format").": 16x16 "._("png image") ?>
+		</td>
+	</tr>
+	
+	<tr>
 		<td style="text-align: left; border:none; padding-top:3px;">
 			<a onclick="$('.advanced').toggle()" style="cursor:pointer;">
 			<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif"/><?php echo _("Advanced");?></a>
@@ -320,8 +329,7 @@ if (GET('withoutmenu') != "1")
 			<input type="checkbox" class='vfield' name="nagios" id="nagios" value="1" <?php echo $checked;?>/> <?php echo gettext("Enable nagios"); ?>
 		</td>
 	</tr>
-
-  
+					  
 	<tr class="advanced" style="display:none;">
 		<th> 
 			<label for='rrd_profile'><?php echo gettext("RRD Profile"); ?></label><br/>

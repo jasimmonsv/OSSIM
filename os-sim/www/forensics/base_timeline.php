@@ -223,7 +223,7 @@ while ($myrow = $result->baseFetchRow()) {
         $sip_aux = ($sensors[$current_sip] != "") ? $sensors[$current_sip] : (($hosts[$current_sip] != "") ? $hosts[$current_sip] : $current_sip);
         $div = '<div id="'.$current_sip.';'.$ip_aux.'" class="HostReportMenu">';
 		$bdiv = '</div>';
-		$homelan = (Net::is_ip_in_cache_cidr($_conn, $current_sip) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
+		$homelan = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $current_sip)) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"".Host::get_homelan_icon($current_sip,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
         if ($homelan!="") {
         	$slnk = "<img src='images/homelan.png' align='absmiddle' border=0 style='width:3mm'>"; 
         	$slnkrd = $current_url."/forensics/images/homelan.png";
@@ -244,7 +244,7 @@ while ($myrow = $result->baseFetchRow()) {
         $dip_aux = ($sensors[$current_dip] != "") ? $sensors[$current_dip] : (($hosts[$current_dip] != "") ? $hosts[$current_dip] : $current_dip);
         $div = '<div id="'.$current_dip.';'.$ip_aux.'" class="HostReportMenu">';
 		$bdiv = '</div>';
-		$homelan = (Net::is_ip_in_cache_cidr($_conn, $current_dip) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
+		$homelan = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $current_dip)) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"".Host::get_homelan_icon($current_dip,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
         if ($homelan!="") {
         	$dlnk = "<img src='images/homelan.png' align='absmiddle' border=0 style='width:3mm'>"; 
         	$dlnkrd = $current_url."/forensics/images/homelan.png";

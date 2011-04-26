@@ -162,7 +162,7 @@ if ($tzone!=0) {
 }	
 
 $sensors = $hosts = $logger_servers = array(); $hostnames = array(); $sensornames = array();
-list($sensors, $hosts) = Host::get_ips_and_hostname($conn);
+list($sensors, $hosts, $icons) = Host::get_ips_and_hostname($conn);
 //$networks = "";
 $_nets = Net::get_all($conn);
 $_nets_ips = $_host_ips = $_host = array(); $netnames = array();
@@ -626,8 +626,8 @@ foreach($result as $res=>$event_date) {
                 $country_img_dst = "";
             }
 
-                    $homelan_src = (Net::is_ip_in_cache_cidr($conn, $src_ip) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
-                    $homelan_dst = (Net::is_ip_in_cache_cidr($conn, $dst_ip) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+                    $homelan_src = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $src_ip)) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"".Host::get_homelan_icon($src_ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
+                    $homelan_dst = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $dst_ip)) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"".Host::get_homelan_icon($dst_ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
 
             $src_port = $matches[8];
             $dst_port = $matches[9];

@@ -34,7 +34,8 @@ $db = new ossim_db();
 $conn = $db->connect();
 $netname = Net::GetClosestNet($conn, $ip);
 if ($netname != false) {
-	$ips = Net::get_ips_by_name($conn,$netname);
+	list($ips,$icon) = Net::get_ips_by_name($conn,$netname,true);
+	if ($icon!="") echo "<img src='data:image/png;base64,".base64_encode($icon)."' border='0'> ";
 	echo "<b>$netname</b> ($ips)";
 }
 else echo "<b>$ip</b> not found in home networks";

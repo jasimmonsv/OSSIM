@@ -30,8 +30,9 @@ CREATE TABLE host (
   nat               varchar(15),
   rrd_profile       varchar(64),
   descr             varchar(255),
-  lat                varchar(255) DEFAULT 0,
-  lon                varchar(255) DEFAULT 0,
+  lat               varchar(255) DEFAULT 0,
+  lon               varchar(255) DEFAULT 0,
+  icon              MEDIUMBLOB NULL,
   PRIMARY KEY       (ip),
   KEY `search` (hostname,fqdns)
 );
@@ -113,6 +114,7 @@ CREATE TABLE net (
   persistence       int NOT NULL,
   rrd_profile       varchar(64),
   descr             varchar(255),
+  icon              MEDIUMBLOB NULL,  
   PRIMARY KEY       (name)
 );
 

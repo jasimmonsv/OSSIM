@@ -293,7 +293,7 @@ if ( !empty ($scan) )
    
 <div id='info_error' class='ossim_error' style='display: none;'></div>
    
-<form method="POST" name="form_host" id="form_host" action="<?php echo $action ?>">
+<form method="POST" name="form_host" id="form_host" action="<?php echo $action ?>" enctype="multipart/form-data">
 
 <input type="hidden" name="insert" value="insert"/>
 <input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
@@ -404,7 +404,14 @@ if ( !empty ($scan) )
 		</td>
 	</tr>
   
-  
+	<tr>
+		<th><label for='icon'><?php echo gettext("Icon"); ?></label></th>
+		<td class="left" style="color:gray">
+			<input type="file" class='vfield' name="icon" id="icon"><br/>
+			<?php echo "* "._("Allowed format").": 16x16 "._("png image") ?>
+		</td>
+	</tr>
+					 
 	<tr>
 		<td style="text-align: left; border:none; padding-top:3px;">
 			<a onclick="$('.advanced').toggle();">

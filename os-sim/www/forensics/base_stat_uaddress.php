@@ -224,7 +224,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     else {
         $country = strtolower(geoip_country_code_by_addr($gi, $currentIP));
         $country_name = geoip_country_name_by_addr($gi, $currentIP);
-        $homelan = (Net::is_ip_in_cache_cidr($_conn, $currentIP) || in_array($currentIP, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$currentIP'><img src=\"images/homelan.png\" border=0></a>" : "";
+        $homelan = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $currentIP)) || in_array($currentIP, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$currentIP'><img src=\"".Host::get_homelan_icon($currentIP,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
         if ($country) {
             $country_img = " <img src=\"/ossim/pixmaps/flags/" . $country . ".png\" title=\"" . $country_name . "\">";
             $slnk = $current_url."/pixmaps/flags/".$country.".png";

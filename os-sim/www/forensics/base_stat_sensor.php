@@ -179,7 +179,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	}    
     $sname = GetSensorName($sensor_id, $db);
 	$sensor_ip = preg_replace("/\-.*/","",$sname);
-	$homelan = (Net::is_ip_in_cache_cidr($_conn, $sensor_ip) || in_array($sensor_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$sensor_ip'><img src=\"images/homelan.png\" border=0></a>" : "";
+	$homelan = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $sensor_ip)) || in_array($sensor_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$sensor_ip'><img src=\"".Host::get_homelan_icon($sensor_sip,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
 	$country = strtolower(geoip_country_code_by_addr($gi, $sensor_ip));
 	$country_name = geoip_country_name_by_addr($gi, $sensor_ip);
 	if ($country) {

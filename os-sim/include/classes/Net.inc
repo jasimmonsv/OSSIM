@@ -88,7 +88,9 @@ class Net {
     var $alert;
     var $persistence;
     var $descr;
-    function Net($name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $descr, $foundrows = 0) {
+    var $icon;
+    
+    function Net($name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $descr, $foundrows = 0,$icon = "") {
         $this->name = $name;
         $this->ips = $ips;
         $this->asset = $asset;
@@ -99,6 +101,7 @@ class Net {
         $this->persistence = $persistence;
         $this->descr = $descr;
         $this->foundrows = $foundrows;
+		$this->icon = $icon;        
     }
     function get_name() {
         return $this->name;
@@ -127,31 +130,51 @@ class Net {
     function get_descr() {
         return $this->descr;
     }
+    function get_icon() {
+        return $this->icon;
+    }
+    function get_imgtag() {
+    	if ($this->icon=="") return "";
+        return "<img src='data:image/png;base64,".base64_encode($this->icon)."' border='0' align='absbottom'>";
+    }    
     function get_foundrows() {
         return $this->foundrows;
     }
     function get_sensors($conn) {
         return Net_sensor_reference::get_list($conn, $this->name);
     }
-	function get_name_by_ip($conn,$ip) {
-		$name = $ip;
-		$query = OssimQuery("SELECT name FROM net WHERE ips like '%$ip%'");
+	function get_name_by_ip($conn,$ip,$withicon=false) {
+		$name = $ip; 
+		$icon = "";
+		$query = OssimQuery("SELECT name,icon FROM net WHERE ips like '%$ip%'");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
-        } else {
+        } elseif (!$rs->EOF) {
 			$name = $rs->fields["name"];
+			$icon = $rs->fields["icon"];
 		}
-		return $name;
+		return ($withicon) ? array($name,$icon) : $name;
 	}
-	function get_ips_by_name($conn,$name) {
-		$ips = "";
-		$query = OssimQuery("SELECT ips FROM net WHERE name='$name'");
+	function get_ips_by_name($conn,$name,$withicon=false) {
+		$ips = $icon = "";
+		$query = OssimQuery("SELECT ips,icon FROM net WHERE name='$name'");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
-        } else {
+        } elseif (!$rs->EOF) {
 			$ips = $rs->fields["ips"];
+			$icon = $rs->fields["icon"];
 		}
-		return $ips;
+		return ($withicon) ? array($ips,$icon) : $ips;
+	}
+	function get_icon_by_name($conn,$name) {
+		$icon = "";
+		$query = OssimQuery("SELECT icon FROM net WHERE name='$name'");
+        if (!$rs = & $conn->Execute($query)) {
+            print $conn->ErrorMsg();
+        } elseif (!$rs->EOF) {
+			$icon = $rs->fields["icon"];
+		}
+		return $icon;
 	}
     /*
     function get_list($conn, $args = "") {
@@ -241,7 +264,7 @@ class Net {
                 else $foundrows = $rf->fields["total"];
             }
             while (!$rs->EOF) {
-                $list[] = new Net($rs->fields["name"], $rs->fields["ips"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["descr"], $foundrows);
+                $list[] = new Net($rs->fields["name"], $rs->fields["ips"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["descr"], $foundrows, $rs->fields["icon"]);
                 $rs->MoveNext();
             }
         }
@@ -257,12 +280,12 @@ class Net {
             die($conn->ErrorMsg());
         }
         while (!$rs->EOF) {
-            $list[] = new Net($rs->fields["name"], $rs->fields["ips"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["descr"]);
+            $list[] = new Net($rs->fields["name"], $rs->fields["ips"], $rs->fields["asset"], $rs->fields["threshold_c"], $rs->fields["threshold_a"], $rs->fields["rrd_profile"], $rs->fields["alert"], $rs->fields["persistence"], $rs->fields["descr"], 0, $rs->fields["icon"]);
             $rs->MoveNext();
         }
         return $list;
     }
-    function insert($conn, $name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr) {
+    function insert($conn, $name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr, $icon="") {
         settype($asset, "int");
         settype($threshold_c, "int");
         settype($threshold_a, "int");
@@ -272,8 +295,7 @@ class Net {
         $persistence = Util::htmlentities($persistence);
         $name = str_replace(" ", "_", $name);
         $ips = str_replace(" ", "", $ips);
-        $sql = "INSERT INTO net (name, ips, asset, threshold_c, threshold_a, rrd_profile, alert, persistence, descr) VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO net (name, ips, asset, threshold_c, threshold_a, rrd_profile, alert, persistence, descr".($icon!="" ? ", icon" : "").") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?".($icon!="" ? ", ?" : "").")";
         $params = array(
             $name,
             $ips,
@@ -285,6 +307,8 @@ class Net {
             $persistence,
             $descr
         );
+        if ($icon!="") $params[]=$icon;
+                
         if ($conn->Execute($sql, $params) === false) {
             print 'error inserting: ' . $conn->ErrorMsg() . '<BR>';
             exit;
@@ -300,10 +324,11 @@ class Net {
         WebIndicator::set_on("Reload_nets");
         WebIndicator::set_on("ReloadPolicy");
     }
-    function update($conn, $name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr) {
+    function update($conn, $name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr, $icon) {
+    	if ($icon=="") $icon = Net::get_icon_by_name($conn, $name); // recover icon from previous registry
         $skip_group_update = 1;
         Net::delete($conn, $name, $skip_group_update, 1);
-        Net::insert($conn, $name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr);
+        Net::insert($conn, $name, $ips, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr, $icon);
         $infolog = array(
             $name
         );
@@ -620,9 +645,10 @@ class Net {
         if (!$rs = & $conn->Execute($sql, $params)) {
             print $conn->ErrorMsg();
         } else {
-             if (!$rs->EOF) return true;
+             if (!$rs->EOF)
+             	return $rs->fields["cidr"];
         }
-        return false;
+        return "";
     }
     function get_cidrs_summary($conn, $net_name) {
         $sql = "SELECT ips FROM net

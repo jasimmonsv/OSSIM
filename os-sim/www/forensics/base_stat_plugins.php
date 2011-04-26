@@ -177,8 +177,8 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
 	$submit = "#" . (($qs->GetCurrentView() * $show_rows) + $i) . "-(" . $sig_id . "-" . $max_cid . ")";
 	$current_sip = long2ip($last['ip_src']);
 	$current_dip = long2ip($last['ip_dst']);
-	$homelan_sip = (Net::is_ip_in_cache_cidr($_conn, $current_sip) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
-	$homelan_dip = (Net::is_ip_in_cache_cidr($_conn, $current_dip) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
+	$homelan_sip = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $current_sip)) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"".Host::get_homelan_icon($current_sip,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
+	$homelan_dip = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $current_dip)) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"".Host::get_homelan_icon($current_dip,$icons,$match_cidr,$_conn)."\" border=0></a>" : "";
 	
     /* Print out (Colored Version) -- Alejandro */
     //qroPrintEntryHeader((($colored_alerts == 1) ? GetSignaturePriority($sig_id, $db) : $i) , $colored_alerts);

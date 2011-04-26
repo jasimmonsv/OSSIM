@@ -448,7 +448,7 @@ $country_img = ($country) ? " <img src=\"../pixmaps/flags/" . $country . ".png\"
 $sip_aux = ($sensors[$current_sip] != "") ? $sensors[$current_sip] : (($hosts[$current_sip] != "") ? $hosts[$current_sip] : $current_sip);
 if ($sip_aux!=$current_sip)
 	$sip_aux = "[$sip_aux] $current_sip";
-$homelan = (Net::is_ip_in_cache_cidr($_conn, $current_sip) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"images/homelan.png\" border=0></a>" : "";
+$homelan = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $current_sip)) || in_array($current_sip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_sip'><img src=\"".Host::get_homelan_icon($current_sip,$icons,$match_cidr,$_conn)."\" border=0 align=absmiddle></a>" : "";
 $ip_src_data = '<A HREF="base_stat_ipaddr.php?ip=' . $current_sip . '&amp;netmask=32">' . $sip_aux . $country_img . $homelan;
 // Destionation
 $country = strtolower(geoip_country_code_by_addr($gi, $current_dip));
@@ -457,7 +457,7 @@ $country_img = ($country) ? " <img src=\"../pixmaps/flags/" . $country . ".png\"
 $dip_aux = ($sensors[$current_dip] != "") ? $sensors[$current_dip] : (($hosts[$current_dip] != "") ? $hosts[$current_dip] : $current_dip);
 if ($dip_aux!=$current_dip)
 	$dip_aux = "[$dip_aux] $current_dip";
-$homelan = (Net::is_ip_in_cache_cidr($_conn, $current_dip) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"images/homelan.png\" border=0></a>" : "";
+$homelan = (($match_cidr = Net::is_ip_in_cache_cidr($_conn, $current_dip)) || in_array($current_dip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$current_dip'><img src=\"".Host::get_homelan_icon($current_dip,$icons,$match_cidr,$_conn)."\" border=0 align=absmiddle></a>" : "";
 $ip_dst_data = '<A HREF="base_stat_ipaddr.php?ip=' . $current_dip . '&amp;netmask=32">' . $dip_aux . $country_img . $homelan;
 geoip_close($gi);
 $dbo->close($_conn);

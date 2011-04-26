@@ -125,7 +125,7 @@ $xml.= "<total>$total</total>\n";
 foreach($net_list as $net) {
     $name = $net->get_name();
     $xml.= "<row id='".htmlspecialchars(utf8_encode($name))."'>";
-    $link_modify = "<a style='font-weight:bold;' href=\"./newnetform.php?name=".urlencode($name)."\">" . Util::htmlentities($name) . "</a>";
+    $link_modify = $net->get_imgtag()."&nbsp;<a style='font-weight:bold;' href=\"./newnetform.php?name=".urlencode($name)."\">" . Util::htmlentities($name) . "</a>";
     $xml.= "<cell><![CDATA[" . $link_modify . "]]></cell>";
     $xml.= "<cell><![CDATA[" . $net->get_ips() . "]]></cell>";
 

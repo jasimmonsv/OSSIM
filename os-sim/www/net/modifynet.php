@@ -59,6 +59,10 @@ $rrd_profile  = POST('rrd_profile');
 $nagios       = POST('nagios');
 $clone        = POST('clone');
 
+$icon = "";
+if (is_uploaded_file($HTTP_POST_FILES['icon']['tmp_name']))
+   $icon = file_get_contents($HTTP_POST_FILES['icon']['tmp_name']);
+
 $num_sensors = count($sensors);
 
 $validate = array (
@@ -98,6 +102,16 @@ else
 		if( $num_sensors == 0)
 			$message_error [] = _("You Need to select at least one Sensor");
 			
+		if ($icon!="") { // validating icon format and size
+			$image = @imagecreatefromstring($icon);
+			$valid_icon = false;
+			if ($image && imagesx($image)<=16 && imagesy($image)<=16)
+				$valid_icon = true;
+				
+			if (!$valid_icon)
+				$message_error[] = _("Image format is not allowed. Allowed only 16x16 PNG images");
+		}
+					
 		if ( is_array($validation_errors) && !empty($validation_errors) )
 			$message_error = array_merge($message_error, $validation_errors);
 		else
@@ -166,7 +180,7 @@ if ( POST('insert') && !empty($net_name) )
     $db = new ossim_db();
     $conn = $db->connect();
 
-    Net::update($conn, $net_name, $cidr, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr);
+    Net::update($conn, $net_name, $cidr, $asset, $threshold_c, $threshold_a, $rrd_profile, $alert, $persistence, $sensors, $descr, $icon);
     
 	Net_scan::delete($conn, $net_name, 3001);
     

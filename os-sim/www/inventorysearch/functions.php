@@ -201,7 +201,7 @@ function isSerialized($str) {
     return ($str == serialize(false) || @unserialize($str) !== false);
 }
 
-function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips) {
+function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips,$icons=array()) {
 	$ip = $host->get_ip();
 	$gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 	$country = strtolower(geoip_country_code_by_addr($gi, $ip));
@@ -212,7 +212,7 @@ function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips) {
 	} else {
 		$country_img = "";
 	}
-	$homelan = (Net::is_ip_in_cache_cidr($conn, $ip, $networks) || in_array($ip, $hosts_ips)) ? " <a href=\"javascript:;\" class=\"scriptinfo\" style=\"text-decoration:none\" ip=\"".$ip."\"><img src=\"../forensics/images/homelan.png\" border=0></a>" : "";
+	$homelan = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $ip, $networks)) || in_array($ip, $hosts_ips)) ? " <a href=\"javascript:;\" class=\"scriptinfo\" style=\"text-decoration:none\" ip=\"".$ip."\"><img src=\"".Host::get_homelan_icon($ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
 	$os = Host_os::get_os_pixmap($conn, $ip);
 	$row = '
 	<tr>

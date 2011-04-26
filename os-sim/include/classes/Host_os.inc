@@ -435,66 +435,66 @@ class Host_os {
         if ($os_data = Host_os::get_ip_data($conn, $host)) {
             $os = $os_data["os"];
         if (preg_match('/win/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/win.png" : "<img src=\"$pixmap_dir/os/win.png\" alt=\"Windows\" />";
+            return ($imgonly) ? "$pixmap_dir/os/win.png" : "<img src=\"$pixmap_dir/os/win.png\" alt=\"Windows\" align=\"absbottom\" />";
         } elseif (preg_match('/linux/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/linux.png" : "<img src=\"$pixmap_dir/os/linux.png\" alt=\"Linux\" />";
+            return ($imgonly) ? "$pixmap_dir/os/linux.png" : "<img src=\"$pixmap_dir/os/linux.png\" alt=\"Linux\" align=\"absbottom\" />";
         } elseif (preg_match('/openbsd/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/openbsd.png" : "<img src=\"$pixmap_dir/os/openbsd.png\" alt=\"OpenBSD\" />";
+            return ($imgonly) ? "$pixmap_dir/os/openbsd.png" : "<img src=\"$pixmap_dir/os/openbsd.png\" alt=\"OpenBSD\" align=\"absbottom\" />";
         } elseif (preg_match('/netbsd/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/netbsd.png" : "<img src=\"$pixmap_dir/os/netbsd.png\" alt=\"NetBSD\" />";
+            return ($imgonly) ? "$pixmap_dir/os/netbsd.png" : "<img src=\"$pixmap_dir/os/netbsd.png\" alt=\"NetBSD\" align=\"absbottom\" />";
         } elseif (preg_match('/bsd/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/bsd.png" : "<img src=\"$pixmap_dir/os/bsd.png\" alt=\"BSD\" />";
+            return ($imgonly) ? "$pixmap_dir/os/bsd.png" : "<img src=\"$pixmap_dir/os/bsd.png\" alt=\"BSD\" align=\"absbottom\" />";
         } elseif (preg_match('/mac/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/mac.png" : "<img src=\"$pixmap_dir/os/mac.png\" alt=\"MacOS\" />";
+            return ($imgonly) ? "$pixmap_dir/os/mac.png" : "<img src=\"$pixmap_dir/os/mac.png\" alt=\"MacOS\" align=\"absbottom\" />";
         } elseif (preg_match('/sun/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/sunos.png" : "<img src=\"$pixmap_dir/os/sunos.png\" alt=\"SunOS\" />";
+            return ($imgonly) ? "$pixmap_dir/os/sunos.png" : "<img src=\"$pixmap_dir/os/sunos.png\" alt=\"SunOS\" align=\"absbottom\" />";
         } elseif (preg_match('/solaris/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/solaris.png" : "<img src=\"$pixmap_dir/os/solaris.png\" alt=\"Solaris\" />";
+            return ($imgonly) ? "$pixmap_dir/os/solaris.png" : "<img src=\"$pixmap_dir/os/solaris.png\" alt=\"Solaris\" align=\"absbottom\" />";
         } elseif (preg_match('/iphone/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/iphone.png" : "<img src=\"$pixmap_dir/os/iphone.png\" alt=\"IPhone\" />";
+            return ($imgonly) ? "$pixmap_dir/os/iphone.png" : "<img src=\"$pixmap_dir/os/iphone.png\" alt=\"IPhone\" align=\"absbottom\" />";
         } elseif (preg_match('/cisco/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/cisco.png" : "<img src=\"$pixmap_dir/os/cisco.png\" alt=\"Cisco\" />";
+            return ($imgonly) ? "$pixmap_dir/os/cisco.png" : "<img src=\"$pixmap_dir/os/cisco.png\" alt=\"Cisco\" align=\"absbottom\" />";
         } elseif (preg_match('/hp-ux/i', $os)) {
-           return ($imgonly) ? "$pixmap_dir/os/hp-ux.png" : "<img src=\"$pixmap_dir/os/hp-ux.png\" alt=\"HP-UX\" />";
+           return ($imgonly) ? "$pixmap_dir/os/hp-ux.png" : "<img src=\"$pixmap_dir/os/hp-ux.png\" alt=\"HP-UX\" align=\"absbottom\" />";
         } elseif (preg_match('/aix/i', $os)) {
-           return ($imgonly) ? "$pixmap_dir/os/ibm-aix.png" : "<img src=\"$pixmap_dir/os/ibm-aix.png\" alt=\"IBM AIX\" />";
+           return ($imgonly) ? "$pixmap_dir/os/ibm-aix.png" : "<img src=\"$pixmap_dir/os/ibm-aix.png\" alt=\"IBM AIX\" align=\"absbottom\" />";
         } elseif (preg_match('/irix/i', $os)) {
-           return ($imgonly) ? "$pixmap_dir/os/irix.png" : "<img src=\"$pixmap_dir/os/irix.png\" alt=\"SGI IRIX\" />";
+           return ($imgonly) ? "$pixmap_dir/os/irix.png" : "<img src=\"$pixmap_dir/os/irix.png\" alt=\"SGI IRIX\" align=\"absbottom\" />";
         } elseif (preg_match('/(tru64)|(plan9)/i', $os)) {
-           return ($imgonly) ? "$pixmap_dir/os/unknown.png" : "<img src=\"$pixmap_dir/os/unknown.png\" alt=\"UNKNOWN\" />";
+           return ($imgonly) ? "$pixmap_dir/os/unknown.png" : "<img src=\"$pixmap_dir/os/unknown.png\" alt=\"UNKNOWN\" align=\"absbottom\" />";
         }
         }
         return "";
     }
     function get_os_pixmap_nodb($os, $pixmap_dir = '../pixmaps/', $imgonly = false) {
         if (preg_match('/win/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/win.png" : "<img src=\"$pixmap_dir/os/win.png\" alt=\"Windows\" />";
+            return ($imgonly) ? "$pixmap_dir/os/win.png" : "<img src=\"$pixmap_dir/os/win.png\" alt=\"Windows\" align=\"absbottom\" />";
         } elseif (preg_match('/linux/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/linux.png" : "<img src=\"$pixmap_dir/os/linux.png\" alt=\"Linux\" />";
+            return ($imgonly) ? "$pixmap_dir/os/linux.png" : "<img src=\"$pixmap_dir/os/linux.png\" alt=\"Linux\" align=\"absbottom\" />";
         } elseif (preg_match('/openbsd/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/openbsd.png" : "<img src=\"$pixmap_dir/os/openbsd.png\" alt=\"OpenBSD\" />";
+            return ($imgonly) ? "$pixmap_dir/os/openbsd.png" : "<img src=\"$pixmap_dir/os/openbsd.png\" alt=\"OpenBSD\" align=\"absbottom\" />";
         } elseif (preg_match('/netbsd/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/netbsd.png" : "<img src=\"$pixmap_dir/os/netbsd.png\" alt=\"NetBSD\" />";
+            return ($imgonly) ? "$pixmap_dir/os/netbsd.png" : "<img src=\"$pixmap_dir/os/netbsd.png\" alt=\"NetBSD\" align=\"absbottom\" />";
         } elseif (preg_match('/bsd/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/bsd.png" : "<img src=\"$pixmap_dir/os/bsd.png\" alt=\"BSD\" />";
+            return ($imgonly) ? "$pixmap_dir/os/bsd.png" : "<img src=\"$pixmap_dir/os/bsd.png\" alt=\"BSD\" align=\"absbottom\" />";
         } elseif (preg_match('/mac/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/mac.png" : "<img src=\"$pixmap_dir/os/mac.png\" alt=\"MacOS\" />";
+            return ($imgonly) ? "$pixmap_dir/os/mac.png" : "<img src=\"$pixmap_dir/os/mac.png\" alt=\"MacOS\" align=\"absbottom\" />";
         } elseif (preg_match('/sun/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/sunos.png" : "<img src=\"$pixmap_dir/os/sunos.png\" alt=\"SunOS\" />";
+            return ($imgonly) ? "$pixmap_dir/os/sunos.png" : "<img src=\"$pixmap_dir/os/sunos.png\" alt=\"SunOS\" align=\"absbottom\" />";
         } elseif (preg_match('/solaris/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/solaris.png" : "<img src=\"$pixmap_dir/os/solaris.png\" alt=\"Solaris\" />";
+            return ($imgonly) ? "$pixmap_dir/os/solaris.png" : "<img src=\"$pixmap_dir/os/solaris.png\" alt=\"Solaris\" align=\"absbottom\" />";
         } elseif (preg_match('/iphone/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/iphone.png" : "<img src=\"$pixmap_dir/os/iphone.png\" alt=\"IPhone\" />";
+            return ($imgonly) ? "$pixmap_dir/os/iphone.png" : "<img src=\"$pixmap_dir/os/iphone.png\" alt=\"IPhone\" align=\"absbottom\" />";
         } elseif (preg_match('/cisco/i', $os)) {
-            return ($imgonly) ? "$pixmap_dir/os/cisco.png" : "<img src=\"$pixmap_dir/os/cisco.png\" alt=\"Cisco\" />";
+            return ($imgonly) ? "$pixmap_dir/os/cisco.png" : "<img src=\"$pixmap_dir/os/cisco.png\" alt=\"Cisco\" align=\"absbottom\" />";
         } elseif (preg_match('/hp-ux/i', $os)) {
-           return ($imgonly) ? "$pixmap_dir/os/hp-ux.png" : "<img src=\"$pixmap_dir/os/hp-ux.png\" alt=\"HP-UX\" />";
+           return ($imgonly) ? "$pixmap_dir/os/hp-ux.png" : "<img src=\"$pixmap_dir/os/hp-ux.png\" alt=\"HP-UX\" align=\"absbottom\" />";
         } elseif (preg_match('/aix/i', $os)) {
-           return ($imgonly) ? "$pixmap_dir/os/ibm-aix.png" : "<img src=\"$pixmap_dir/os/ibm-aix.png\" alt=\"IBM AIX\" />";
+           return ($imgonly) ? "$pixmap_dir/os/ibm-aix.png" : "<img src=\"$pixmap_dir/os/ibm-aix.png\" alt=\"IBM AIX\" align=\"absbottom\" />";
         } elseif (preg_match('/irix/i', $os)) {
-           return ($imgonly) ? "$pixmap_dir/os/irix.png" : "<img src=\"$pixmap_dir/os/irix.png\" alt=\"SGI IRIX\" />";
+           return ($imgonly) ? "$pixmap_dir/os/irix.png" : "<img src=\"$pixmap_dir/os/irix.png\" alt=\"SGI IRIX\" align=\"absbottom\" />";
         } elseif (preg_match('/(tru64)|(plan9)/i', $os)) {
-           return ($imgonly) ? "$pixmap_dir/os/unknown.png" : "<img src=\"$pixmap_dir/os/unknown.png\" alt=\"UNKNOWN\" />";
+           return ($imgonly) ? "$pixmap_dir/os/unknown.png" : "<img src=\"$pixmap_dir/os/unknown.png\" alt=\"UNKNOWN\" align=\"absbottom\" />";
         }
         return "";
     }
