@@ -385,7 +385,7 @@ if (is_array($_SESSION['logger_servers']) && (count($_SESSION['logger_servers'])
 	$from_remote = 0;
 	$num_servers = 1;
 	$fp = popen("$cmd '$user' '".$_GET['debug_log']."' 2>>/tmp/popen", "r");
-	error_log("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null\n",3,"/tmp/fetch");
+	//error_log("$cmd '$user' '".$_GET['debug_log']."' 2>>/dev/null\n",3,"/tmp/fetch");
 }
 $perc = array();
 $ndays = dateDiff($start,$end);
@@ -452,14 +452,14 @@ if ($from_remote) {
 fclose($fp);
 $time2 = microtime(true);
 $totaltime = round($time2 - $time1, 2);
-$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+$tz=(GET("tzone")!="") ? $tzone : ( (isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100 );
 $txtzone = Util::timezone($tz);
 ?>
 <div id="processcontent" style="display:none">
 <?php if (has_results($num_lines)) { ?>
 <table width="100%" class="noborder" style="background-color:transparent;">
 	<tr>
-		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif" align="absmiddle"><?php print _("Time Range").": <b>$start_query <-> $end_query</b>" ?></td>
+		<td width="20%" class="nobborder" nowrap><img src="../pixmaps/arrow_green.gif" align="absmiddle"><?php print _("Time Range").": <b>$start_query <-> $end_query</b> $txtzone" ?></td>
 		<td class="center nobborder">
 			<?php if ($from_remote) { ?>
 			<?php echo _("Showing ")."<b>".($offset+1)."</b> - <b>".($offset+$top)."</b>"._(" <b>first</b> events")._(" for <b>each server</b>")." (<b>".(($offset*$num_servers)+1)."</b> - <b>".(($offset*$num_servers)+count($result))."</b> total)" ?>.&nbsp;

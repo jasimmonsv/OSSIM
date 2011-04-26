@@ -152,8 +152,7 @@ sim_connect_send_alarm(gpointer data)
           g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
               "sim_connect_send_alarm: event->time %d", event->time);
           timestamp = g_new0(gchar, 26);
-          strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
-              (time_t *) &event->time));
+    strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime ((time_t *) &event->time));
         }
 
       if (event->src_ia)

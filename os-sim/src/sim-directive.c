@@ -1282,7 +1282,7 @@ sim_directive_backlog_get_insert_clause (SimDirective *directive)
   g_return_val_if_fail (SIM_IS_DIRECTIVE (directive), NULL);
 
   time = (time_t) (directive->_priv->time / G_USEC_PER_SEC);
-  strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime (&time));
+  strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime (&time));
 	/* XXX Corregir esto. No acceder a campos privados*/
 	uuid_unparse_upper(directive->_priv->uuid,uuidtext);
   query = g_strdup_printf ("INSERT INTO backlog "

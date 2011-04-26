@@ -4334,7 +4334,7 @@ sim_rule_to_string (SimRule      *rule)
   g_return_val_if_fail (rule, NULL);
   g_return_val_if_fail (SIM_IS_RULE (rule), NULL);
 
-  strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime ((time_t *) &rule->_priv->time_last));
+  strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime ((time_t *) &rule->_priv->time_last));
 
   src_name = (rule->_priv->src_ia) ? gnet_inetaddr_get_canonical_name (rule->_priv->src_ia) : NULL;
   dst_name = (rule->_priv->dst_ia) ? gnet_inetaddr_get_canonical_name (rule->_priv->dst_ia) : NULL;

@@ -413,8 +413,8 @@ sim_organizer_get_policy(SimOrganizer *organizer, SimEvent *event)
    */
 
   curtime = time(NULL);
-  loctime = localtime(&curtime);
-  date = ((loctime->tm_wday - 1) * 24) + loctime->tm_hour;
+  loctime = gmtime (&curtime);
+  date = (loctime->tm_wday * 24) + loctime->tm_hour;
 
   //get the port/protocol used to obtain the policy that matches.
   pp = sim_port_protocol_new(event->dst_port, event->protocol);
@@ -2058,7 +2058,7 @@ sim_organizer_snort_event_sidcid_insert(SimDatabase *db_snort, SimEvent *event,
   gchar timestamp[TIMEBUF_SIZE];
   gchar *query;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
 
   query
@@ -2102,7 +2102,7 @@ sim_organizer_snort_event_update_acid_event(SimDatabase *db_snort,
    layer4_dport        INT UNSIGNED,
    */
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
 
   query
@@ -2603,7 +2603,7 @@ sim_organizer_snort_event_get_cid_from_event(SimDatabase *db_snort,
   g_return_if_fail(SIM_IS_EVENT (event));
   g_return_if_fail(sid > 0);
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
 
   select
@@ -2949,7 +2949,7 @@ sim_organizer_snort(SimOrganizer *organizer, SimEvent *event)
         {
 
       case SIM_EVENT_HOST_MAC_EVENT: //arpwatch
-        strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+        strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
             (time_t *) &event->time));
 
         if ((event->plugin_sid == EVENT_NEW) || (event->plugin_sid
@@ -2964,7 +2964,7 @@ sim_organizer_snort(SimOrganizer *organizer, SimEvent *event)
         break;
 
       case SIM_EVENT_HOST_OS_EVENT: //P0f, OS event
-        strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+        strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
             (time_t *) &event->time));
         if ((event->plugin_sid == EVENT_NEW) || (event->plugin_sid
             == EVENT_CHANGE))
@@ -2977,7 +2977,7 @@ sim_organizer_snort(SimOrganizer *organizer, SimEvent *event)
         break;
 
       case SIM_EVENT_HOST_SERVICE_EVENT: //pads, service event
-        strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+        strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
             (time_t *) &event->time));
         if ((event->plugin_sid == EVENT_NEW) || (event->plugin_sid
             == EVENT_CHANGE))
@@ -3004,7 +3004,7 @@ sim_organizer_snort(SimOrganizer *organizer, SimEvent *event)
       case SIM_EVENT_HOST_IDS_EVENT: //prelude, HIDS event
         if (event->data_storage)
           {
-            strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+            strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
                 (time_t *) &event->time));
             sim_container_db_insert_host_ids_event_ul(ossim.container,
                 ossim.dbossim, ossim.dbsnort, event, timestamp, sid, //cid & sid needed for extra_data (username, userdata1.....)
@@ -3056,7 +3056,7 @@ sim_organizer_rrd(SimOrganizer *organizer, SimEvent *event)
       return;
     }
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
 
   name = gnet_inetaddr_get_canonical_name(event->src_ia);

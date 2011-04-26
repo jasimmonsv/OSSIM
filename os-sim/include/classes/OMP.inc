@@ -41,6 +41,7 @@ class OMP{
     private $tmpfile;
     private $db;
     private $conn;
+    private $error;
     
     public function __construct($path="", $host="", $port="", $user="", $pass="", $tmpfile="") {
 
@@ -67,6 +68,8 @@ class OMP{
         
         if($pass=="") { $this->password = $conf->get_conf("nessus_pass", FALSE); }
         else { $this->password = $pass; }
+        
+        $this->error = FALSE;
 
         $this->tmpfile = "/usr/share/ossim/www/tmp/omp".substr(preg_replace("/\D/", "", uniqid(md5(rand()), true)),0,15).".xml"; 
     
@@ -74,7 +77,8 @@ class OMP{
     
     function __destruct(){
         $this->db->close($this->conn);
-        unlink($this->tmpfile);
+        if(file_exists($this->tmpfile) && !$this->error)
+            unlink($this->tmpfile);
     }
     
     // ------  private functions ------
@@ -95,6 +99,7 @@ class OMP{
         $xml = @simplexml_load_string($data);
 
         if (!is_object($xml)) {
+            $this->error = TRUE;
             if (preg_match("/^Failed/i", $data)) {
                 echo "OMP: ".$data."<br>";
             }
@@ -126,8 +131,9 @@ class OMP{
         if ($xml==FALSE) { return $config_id; }
 
         foreach ($xml->config as $config) {
-            if( ($cname ==(string)$config->name) && ($cuser==(string)$config->comment) )
-            $config_id = (string)$config->attributes()->id;
+            if( ($cname ==(string)$config->name) && ($cuser==(string)$config->comment) ){
+                $config_id = (string)$config->attributes()->id;
+            }
         }
         return $config_id;
     }
@@ -151,41 +157,19 @@ class OMP{
     private function get_allowed_users() {
         require_once ('classes/Session.inc');
     
-        $session_user = Session::get_session_user();
+        $users    = Session::get_users_to_assign($this->conn);
         
-        $allowed_users = array();
+        $entities = Session::get_entities_to_assign($this->conn);
         
-        $conf = $GLOBALS["CONF"];
-        $version = $conf->get_conf("ossim_server_version", FALSE);
+        $allowed_users_entities = array();
         
-        if(preg_match("/pro|demo/i",$version)){
-            if (Acl::am_i_proadmin()) {
-                $pro_users = array();
-                $entities_list = array();
-
-                $entities_list = Acl::get_user_entities($session_user);
+        foreach ($users as $user)
+            $allowed_users_entities[] = $user->get_login();
             
-                $users = Acl::get_my_users($dbconn, $session_user);
-                foreach ($users as $us) {
-                    $pro_users[] = $us["login"];
-                }
-                $allowed_users = array_merge($entities_list,$pro_users);
-            }
-            else {
-                $tmp = array();
-                $entities = Acl::get_user_entities($session_user);
-                foreach ($entities as $entity) {
-                    $tmp[] = $entity;
-                }
-                if (count($tmp) > 0) $allowed_users = array_merge($session_user, $tmp);
-                else $allowed_users[] = $session_user;
-            }
-        }
-        else {
-            $allowed_users[] = $session_user;
-        }
-        
-        return $allowed_users;
+        foreach ($entities as $entity_id => $data)
+            $allowed_users_entities[] = $entity_id;
+          
+        return $allowed_users_entities;
     }
     
     
@@ -205,7 +189,10 @@ class OMP{
         
         if ($xml==FALSE) return 0;
         
-        foreach ($xml->report->results->result as $result) {
+        if(gettype($xml->report->report->results->result) == "object") $results = $xml->report->report->results->result; // OpenVAS 4
+        else $results = $xml->report->results->result; // OpenVAS 3
+        
+        foreach ($results as $result) {
         
             if ((string)$result->threat != "") { $risk_factor = (string)$result->threat; }
             else if ((string)$result->nvt->risk_factor != "") { $risk_factor = (string)$result->nvt->risk_factor; }
@@ -668,5 +655,9 @@ class OMP{
         $tasks_info .= "</table>";
         return $tasks_info;
     }
-    
+    public function delete_config($sid) {
+        $config_id = $this->get_config_id_by_sid($sid);
+        $this->delete_tasks_by_config_id($config_id);
+        $this->execute_command ("<delete_config config_id='$config_id' />");
+    }
 }

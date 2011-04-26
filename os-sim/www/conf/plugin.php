@@ -41,6 +41,7 @@ require_once ('../conf/layout.php');
 $category = "conf";
 $name_layout = "plugin_layout";
 $layout = load_layout($name_layout, $category);
+$gheight = 200;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -56,8 +57,7 @@ echo gettext("Priority and Reliability configuration"); ?> </title>
 </head>
 <body>
 
-	<?php
-include ("../hmenu.php"); ?>
+	<?php include ("../hmenu.php"); ?>
 	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
 
 	<style>
@@ -78,7 +78,11 @@ include ("../hmenu.php"); ?>
 			padding:0px; margin:0px;
 		}
 	</style>
+	
+	<?php if ($cloud_instance) {  $gheight=250; ?>
 	<p style="text-align:center"><a href="../session/detect.php" style="text-decoration:none"><span class="buttonlink"><img src="../pixmaps/wand--plus.png" border="0" align="absmiddle" style="padding-bottom:2px;padding-right:8px"><?=_("Auto-detect Data Sources")?></span></a></p>
+	<?php } ?>
+	
 	<table id="flextable" style="display:none"></table>
 	<script>
 	function get_width(id) {
@@ -88,7 +92,7 @@ include ("../hmenu.php"); ?>
 			return 700;
 	}
 	function get_height() {
-	   return parseInt($(document).height()) - 250;
+	   return parseInt($(document).height()) - <?=$gheight?>;
 	}
     
 	function action(com,grid) {

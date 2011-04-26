@@ -28,14 +28,18 @@ if [ "$1" != "--force" ];then
 		$indexer $LOGS$TODAY
 	fi
     cd /usr/share/ossim/scripts/sem/ && sh /usr/share/ossim/scripts/sem/forensic_stats_last_hour.sh
-    cd /usr/share/ossim/scripts/sem/ && perl /usr/share/ossim/scripts/sem/generate_stats.pl $LOGS
+    if [ ! -e $indexer ]; then
+    	cd /usr/share/ossim/scripts/sem/ && perl /usr/share/ossim/scripts/sem/generate_stats.pl $LOGS
+    fi
 else
 	# alienvault indexer
 	if [ -e $indexer ]; then
 		$indexer -R $LOGS
 	fi
     cd /usr/share/ossim/scripts/sem/ && sh /usr/share/ossim/scripts/sem/forensic_stats_last_hour-force.sh
-    cd /usr/share/ossim/scripts/sem/ && perl /usr/share/ossim/scripts/sem/generate_stats.pl $LOGS force
+    if [ ! -e $indexer ]; then
+    	cd /usr/share/ossim/scripts/sem/ && perl /usr/share/ossim/scripts/sem/generate_stats.pl $LOGS force
+    fi
 fi
 
 # generate totals by sensors

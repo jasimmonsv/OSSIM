@@ -477,8 +477,7 @@ sim_event_print(SimEvent *event)
     timestamp = event->time_str;
   else if (event->time)
     //strftime (timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime ((time_t *) &event->time));
-    strftime(timestamp, TIMEBUF_SIZE, "%F %T", localtime(
-        (time_t *) &event->time));
+    strftime(timestamp, TIMEBUF_SIZE, "%F %T", gmtime((time_t *) &event->time));
 
   g_print(" alarm=\"%d\"", event->alarm);
 
@@ -638,7 +637,7 @@ sim_event_get_insert_clause(SimEvent *event)
   else if (a > 10)
     a = 10;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
   if (!uuid_is_null(event->uuid))
     {
@@ -855,7 +854,7 @@ sim_event_get_update_clause(SimEvent *event)
   else if (a > 10)
     a = 10;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
 
   query = g_strdup_printf(
@@ -942,7 +941,7 @@ sim_event_get_replace_clause(SimEvent *event)
   else if (a > 10)
     a = 10;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
   uuid_unparse_upper(event->uuid, uuidtext);
   values = sim_event_get_text_escape_fields_values(event);
@@ -1003,7 +1002,7 @@ sim_event_get_alarm_insert_clause(SimEvent *event)
   c = rint(event->risk_c);
   a = rint(event->risk_a);
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
   uuid_unparse_upper(event->uuid, uuidtext);
   uuid_unparse_upper(event->uuid_backlog, uuidtext_backlog);
@@ -1050,7 +1049,7 @@ sim_event_get_msg(SimEvent *event)
 
   if (event->time)
     {
-      strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+      strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
           (time_t *) &event->time));
       g_string_append_printf(str, "DATE\t\t= %s\n", timestamp);
     }
@@ -1182,6 +1181,9 @@ sim_event_to_string(SimEvent *event)
   struct tm *now_tm = localtime(&now_timet);
   gchar fdate_str[20];
   gchar tzone_str[6];
+	gchar * base64;
+	gint    base64_len;
+
   //gets tzone:
   strftime(tzone_str, 6, "%z", now_tm);
   strftime(fdate_str, 20, "%Y-%m-%d %H:%M:%S", gmtime(&now_timet));
@@ -1326,27 +1328,25 @@ sim_event_to_string(SimEvent *event)
 
   //  if (event->data)
   //    g_string_append_printf(str, "data=\"%s\" ", event->data);
-
-  if (event->log)
-    {
-      gchar *base64;
-      base64 = g_base64_encode(event->log, strlen(event->log));
-      assert (base64!=NULL);
-      g_string_append_printf(str, "log=\"%s\" ", base64);
-      g_free(base64);
-    }
+	if (event->log && (base64_len = strlen(event->log)))
+	{
+		base64 = g_base64_encode(event->log, base64_len);
+		assert (base64!=NULL);
+		g_string_append_printf(str, "log=\"%s\" ", base64);
+		g_free(base64);
+	}
   //g_string_append_printf(str, "log=\"%s\" ", event->log);
   for (i = 0; i < N_TEXT_FIELDS; i++)
-    {
-      if (event->textfields[i] != NULL)
-        {
-          gchar *base64;
-          base64 = g_base64_encode( event->textfields[i], strlen( event->textfields[i]));
-          g_string_append_printf(str, "%s=\"%s\" ", sim_text_field_get_name(i),
-              base64);
-          g_free(base64);
-        }
-    }
+	{
+		if ((event->textfields[i] != NULL) && (base64_len = strlen(event->textfields[i])))
+		{
+			base64 = g_base64_encode (event->textfields[i], base64_len);
+			assert (base64!=NULL);
+			g_string_append_printf(str, "%s=\"%s\" ", sim_text_field_get_name(i),
+														 base64);
+			g_free(base64);
+		}
+	}
 
   if (!uuid_is_null(event->uuid))
     {
@@ -1449,7 +1449,7 @@ sim_event_get_insert_into_event_tmp_clause(SimEvent *event)
   else if (a > 10)
     a = 10;
 
-  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", localtime(
+  strftime(timestamp, TIMEBUF_SIZE, "%Y-%m-%d %H:%M:%S", gmtime(
       (time_t *) &event->time));
   if (!uuid_is_null(event->uuid))
     {

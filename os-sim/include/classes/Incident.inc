@@ -202,7 +202,7 @@ class Incident {
         return $this->src_ips;
     }
     function get_in_charge_name($conn) {
-        $in_charge_login = Incident::get_in_charge($conn);
+        $in_charge_login = Incident::get_in_charge();
         $sql = "SELECT name FROM users WHERE login = ?";
         $params = array(
             $in_charge_login
@@ -296,9 +296,10 @@ class Incident {
     function get_priority_in_html($priority,$link="") {
         $bgcolor = Incident::get_priority_bgcolor($priority);
         $fgcolor = Incident::get_priority_fgcolor($priority);
-        if ($link != "")
+		
+		if ($link != "")
 			$html = '
-			  <table align="center" bgcolor="' . $bgcolor . '" fgcolor="' . $fgcolor . '" class="transparent" width="20">
+				<table align="center" bgcolor="' . $bgcolor . '" fgcolor="' . $fgcolor . '" class="transparent" width="20">
 				<tr>
 				  <td bgcolor="' . $bgcolor . '" fgcolor="' . $fgcolor . '" style="border-width: 0px;" width="20">
 					<b>&nbsp;<a href="'.$link.'" style="color:' . $fgcolor . '" target="topmenu">' . $priority . '</a>&nbsp;</b>
@@ -307,7 +308,7 @@ class Incident {
 			  </table>';
 		else
 			$html = '
-			  <table align="center" bgcolor="' . $bgcolor . '" fgcolor="' . $fgcolor . '" class="transparent" width="20">
+				<table align="center" bgcolor="' . $bgcolor . '" fgcolor="' . $fgcolor . '" class="transparent" width="20">
 				<tr>
 				  <td bgcolor="' . $bgcolor . '" fgcolor="' . $fgcolor . '" style="border-width: 0px;" width="20">
 					<b>&nbsp;<font color="' . $fgcolor . '">' . $priority . '</font>&nbsp;</b>
@@ -524,7 +525,7 @@ class Incident {
             if ($status == 'Open') $returnHtml= "<font style=\"color:#FF0000\"><b>" . _("Open") . "</b></font>";
             elseif ($status == 'Closed') $returnHtml= "<font style=\"color:#0000FF\"><b>" . _("Closed") . "</b></font>";
             elseif ($status == 'False') $returnHtml= "<b>" . _("Closed (False)") . "</b>";
-            else $returnHtml= "<b>$status</b>";
+            else $returnHtml = "<b>$status</b>";
 
             return $returnHtml;
         }
@@ -540,8 +541,22 @@ class Incident {
     function get_list($conn, $args = "", $user = "") {
         
 		require_once ('classes/Session.inc');
-        $list  = array();
-				
+        
+		$list  = array();
+		$users = array();
+		
+		$conf = $GLOBALS["CONF"];
+		
+		if (!$conf) 
+		{
+			require_once 'ossim_db.inc';
+			require_once 'ossim_conf.inc';
+			$conf = new ossim_conf();
+		}
+						
+		$version  = $conf->get_conf("ossim_server_version", FALSE);
+		$pro      = ( preg_match("/pro|demo/i",$version) ) ? true : false;
+		
 		if ( $user == "" ) 
 			$user = Session::get_session_user();
 		else
@@ -551,34 +566,41 @@ class Incident {
 				if ( !$pro )
 					return $list;
 				else
-					$users = Acl::get_all_users_by_entity($conn, $user);
+				{
+					$users              = Acl::get_all_users_by_entity($conn, $user);
+					$my_entities_childs = Acl::get_entity_childs($conn, $user);
+					
+					if ( is_array($my_entities_childs) )
+					{
+						foreach ($my_entities_childs as $entity_id)
+							$users[$entity_id] = $entity_id;
+					}
+					
+					$users[$user] = $user;
+					
+				}
 			}
 			
 		}
-        		
-        $sql   = "SELECT incident.id, incident.title, incident.date, incident.ref, 
+		
+		$sql   = "SELECT incident.id, incident.title, incident.date, incident.ref, 
 						 incident.type_id as type, incident.submitter as submitter, 
 						 incident.priority, incident.in_charge, incident.status, 
 						 incident.last_update, incident.event_start, incident.event_end 
 				  FROM incident $args";
 		
-		
 		//echo $sql;
-		
+				
 		if ( !$rs = & $conn->Execute(OssimQuery($sql)) ) 
 		    return $conn->ErrorMsg();
 			
       
-		while (!$rs->EOF) {
-			
+		while (!$rs->EOF) 
+		{
 			//Users allowed to see this ticket
 			
 			$allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"], $user);
 			
-			/*var_dump($user);
-			echo "<pre>";
-			print_r($allowed);
-			echo "</pre>";*/
 			
 			if ( is_array($users) && !empty($users) ) 
 			{
@@ -590,7 +612,6 @@ class Incident {
 						break;
 					}
 				}
-				
 			} 
 			else 
 			{
@@ -632,8 +653,7 @@ class Incident {
 			$list = Incident::get_list($conn, $args, $user);
 			return $list;
 		}
-		
-		
+				
 		// Network or Host filter
 		$list = array();
 						
@@ -657,7 +677,7 @@ class Incident {
 		
 		$host_where = $host_where_2 = $host_where_3 = "";
 		
-		
+			
 		foreach ($assets as $k => $v) 
 		{
 			if (preg_match("/,/",$v)) 
@@ -714,33 +734,32 @@ class Incident {
                  WHERE i.id=a.incident_id AND ($host_where_3) $args)
                 ";
        	
-		//print_r($sql);
-		
-		$user = Session::get_session_user();
-		
+		//echo $sql;
+				
 		if (!$rs = $conn->Execute(OssimQuery($sql))) 
             die($conn->ErrorMsg());
         else 
 		{
             while (!$rs->EOF) 
 			{
-                
                 $allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"]);
-				                				
-				if ( !empty($allowed[$user]) )  
+				
+				$me = Session::get_session_user();
+				              				
+				if ( !empty($allowed[$me]) )  
                     $list[] = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"], $rs->fields["event_end"], $rs->fields['src_ips']);
                 
                 $rs->MoveNext();
             }
         }
-		
+				
 		return $list;
     }
 	
     function get_list_type_descr($conn, $args = "") {
         require_once ('classes/Session.inc');
         
-		$user = Session::get_session_user();
+		$me   = Session::get_session_user();
         $list = array();
         $sql  = "SELECT incident.id, incident.title, incident.date, incident.ref, incident.type_id as type, incident.submitter as submitter, incident.priority, incident.in_charge,
 						incident.status, incident.last_update, incident.event_start, incident.event_end, incident_type.descr FROM incident LEFT JOIN incident_type ON (incident.type_id = incident_type.id) $args";
@@ -753,7 +772,7 @@ class Incident {
 			{
                 $allowed = Incident::get_users_list($conn, $rs->fields["id"], $rs->fields["submitter"], $rs->fields["in_charge"]);
 				
-				if ( !empty($allowed[$user]) )  
+				if ( !empty($allowed[$me]) )  
 				{
                     $my_incident = new Incident($rs->fields["id"], $rs->fields["title"], $rs->fields["date"], $rs->fields["ref"], $rs->fields["type"], $rs->fields["submitter"], $rs->fields["priority"], $rs->fields["in_charge"], $rs->fields["status"], $rs->fields["last_update"], array() , null, $rs->fields["event_start"], $rs->fields["event_end"]);
                     $my_incident->set_type_descr($rs->fields["descr"]);
@@ -1180,7 +1199,6 @@ class Incident {
     
 	function get_users_list($conn, $incident_id, $submitter, $in_charge, $user=null) {
     	
-    	
 		$list = array();
 		$conf = $GLOBALS["CONF"];
 		
@@ -1203,21 +1221,30 @@ class Incident {
 		if ( $submitter == $me || $in_charge == $me )
 			return array("$me" => $me);
 		
+				
 		if ( $pro && preg_match("/^\d+$/",$in_charge) )
-			$list = Acl::get_all_users_by_entity($conn, $in_charge);
+		{
+			$list    = Acl::get_users_by_entity($conn, $in_charge);
+			$parents = Acl::get_entity_parents($conn, $in_charge);
+			
+			foreach ($parents as $i => $parent)
+			{
+				$entity  = Acl::get_entity($conn, $parent);
+				$list[$entity['admin_user']] = $entity['admin_user'];
+			}
+		}
 		elseif ( $pro && !preg_match("/^\d+$/",$in_charge) )
 		{
-			$user = Acl::get_users($conn, $in_charge);
+			$brothers = Acl::get_brothers($conn,$in_charge);
 			
-			if (is_array($user) && !empty($user) )
-			{
-				$brothers = Acl::get_brothers($conn,$in_charge);
-				
-				foreach($brothers as $k => $v)
+			foreach($brothers as $k => $v)
 					$list[$v["login"]] = $v["login"];
-					
-				$my_entities = $user['entities'];
-				
+			
+			$users       = Acl::get_users($conn, $in_charge);
+			$my_entities = $users['entities'];						
+			
+			if (is_array($my_entities) && !empty($my_entities) )
+			{
 				foreach ($my_entities as $k => $v)
 				{
 					$entity_p                      = Acl::get_entity($conn, $v);
@@ -1234,6 +1261,7 @@ class Incident {
 			}
 		}
 		
+				
 		$query = OssimQuery("SELECT users, transferred FROM incident_ticket WHERE incident_id = " . $incident_id);
 		
 		if (!$rs = & $conn->Execute($query)) 
@@ -1242,11 +1270,11 @@ class Incident {
 		{
             while (!$rs->EOF) 
 			{
-                $users       =  $rs->fields["users"];
-				$transferred =  $rs->fields["transferred"];
+                $users_it     =  $rs->fields["users"];
+				$transferred  =  $rs->fields["transferred"];
 				
-				if ( !empty($users) ) 
-					$list[$users] = $users;
+				if ( !empty($users_it) ) 
+					$list[$users_it] = $users_it;
                 
 				if ( !empty($transferred) )
 				{
@@ -1259,14 +1287,12 @@ class Incident {
 				$rs->MoveNext();
             }
         }
-			
-		
-		
+				
 		$suscrib = Incident::get_subscribed_users($conn, $incident_id);
         
 		foreach($suscrib as $s)
             $list[$s['login']] = $s['login'];
-        
+		
 		return $list;
     }
 	
@@ -1965,27 +1991,34 @@ class Incident {
     }
 	
     function delete($conn, $id) {
-        if (!ossim_valid($id, OSS_DIGIT)) {
+        
+		if (!ossim_valid($id, OSS_DIGIT)) 
             die("invalid ID");
-        }
-        $conn->StartTrans();
-        $conn->Execute("DELETE FROM incident_ticket WHERE incident_id=$id");
-        $conn->Execute("DELETE FROM incident_alarm  WHERE incident_id=$id");
-        $conn->Execute("DELETE FROM incident_event  WHERE incident_id=$id");
-        $conn->Execute("DELETE FROM incident_file   WHERE incident_id=$id");
+                
+		$conn->StartTrans();
+        
+        $conn->Execute("DELETE FROM incident_alarm     WHERE incident_id=$id");
+		$conn->Execute("DELETE FROM incident_anomaly   WHERE incident_id=$id");
+		$conn->Execute("DELETE FROM incident_custom    WHERE incident_id=$id");
+		$conn->Execute("DELETE FROM incident_event     WHERE incident_id=$id");
+        $conn->Execute("DELETE FROM incident_file      WHERE incident_id=$id");
+		$conn->Execute("DELETE FROM incident_metric    WHERE incident_id=$id");
         $conn->Execute("DELETE FROM incident_subscrip  WHERE incident_id=$id");
-        $conn->Execute("DELETE FROM incident_tag    WHERE incident_id=$id");
-        $conn->Execute("DELETE FROM incident_vulns  WHERE incident_id=$id");
-        $conn->Execute("DELETE FROM incident_custom  WHERE incident_id=$id");
-        $conn->Execute("DELETE FROM incident WHERE id=$id");
+        $conn->Execute("DELETE FROM incident_tag       WHERE incident_id=$id");
+        $conn->Execute("DELETE FROM incident_vulns     WHERE incident_id=$id");
+       	$conn->Execute("DELETE FROM incident_ticket    WHERE incident_id=$id");
+        $conn->Execute("DELETE FROM incident           WHERE id=$id");
         $conn->CompleteTrans();
-        if ($conn->HasFailedTrans()) {
-            die('error deleting: ' . $conn->ErrorMsg());
+        
+		if ($conn->HasFailedTrans()) {
+            die('Error deleting: ' . $conn->ErrorMsg());
         }
-        $infolog = array(
+        
+		$infolog = array(
             $id
         );
-        Log_action::log(16, $infolog);
+        
+		Log_action::log(16, $infolog);
     }
 	
     /*
@@ -2051,7 +2084,9 @@ class Incident {
             )
         );
         $qs = $query_string; //shorter
-        foreach(array_keys($search_array) as $table) {
+        
+		foreach(array_keys($search_array) as $table) 
+		{
             $query = "SELECT " . $search_array[$table]["return_column"] . " FROM " . $table . " WHERE ";
             foreach($search_array[$table]["check_columns"] as $column) {
                 $query.= $column . " LIKE \"%" . $qs . "%\" OR ";
@@ -2067,7 +2102,8 @@ class Incident {
                 }
             }
         }
-        if (is_array($list)) {
+        
+		if (is_array($list)) {
             // Avoid duplicates, nice trick found on the array_unique() manual
             // page
             $list = array_flip(array_flip($list));
@@ -2077,16 +2113,19 @@ class Incident {
             }
             $incident_list = Incident::get_list($conn, $where);
         }
-        return $incident_list;
+        
+		return $incident_list;
     }
 	
     /* Incident statistics */
 	
-    function incidents_by_type($conn, $assets="", $user="") {
+    function incidents_by_type($conn, $assets="", $user="", $args=null) {
         
         $tp_accumulated = array();
 		
-		$incident_list  = Incident::get_list_filtered($conn, $assets, "AND status=\"Open\" ORDER BY status DESC", $user);
+		$args =  $args." AND status='Open' ORDER BY status DESC";
+		
+		$incident_list  = Incident::get_list_filtered($conn, $assets, $args, $user);
 
 		if (  is_array($incident_list) && !empty($incident_list) )
 		{
@@ -2100,11 +2139,13 @@ class Incident {
 	    return $tp_accumulated;
     }
 	
-	function incidents_by_class($conn, $assets="", $user="") {
+	function incidents_by_class($conn, $assets="", $user="", $args=null) {
         
 		$class_accumulated  = array();
+		
+		$args =  $args." ORDER BY status DESC";
 	            
-		$incident_list      = Incident::get_list_filtered($conn, $assets, "ORDER BY status DESC", $user);
+		$incident_list      = Incident::get_list_filtered($conn, $assets, $args, $user);
 
 		if (  is_array($incident_list) && !empty($incident_list) )
 		{
@@ -2118,7 +2159,7 @@ class Incident {
 	    return $class_accumulated;
     }
 	
-	function incidents_by_resolution_time($conn, $assets="", $user="") {
+	function incidents_by_resolution_time($conn, $assets="", $user="", $args=null) {
         
 		// Gets tags
         $tags    = array();
@@ -2132,7 +2173,9 @@ class Incident {
             $rs->MoveNext();
         }
 		
-		$incident_list = Incident::get_list_filtered($conn, $assets, "AND status = \"Closed\"", $user);
+		$args =  $args. " AND status='Closed' ORDER BY status DESC";
+		
+		$incident_list = Incident::get_list_filtered($conn, $assets, $args, $user);
 
 		if (  is_array($incident_list) && !empty($incident_list) )
 		{
@@ -2147,11 +2190,11 @@ class Incident {
     }
 	
 	
-    function incidents_by_type_descr($conn) 
+    function incidents_by_type_descr($conn, $args=null) 
 	{
         $tdescr_accumulated = array();
         
-		$incident_list      = Incident::get_list_type_descr($conn);
+		$incident_list      = Incident::get_list_type_descr($conn, $args);
 		
 		if (  is_array($incident_list) && !empty($incident_list) )
 		{
@@ -2167,11 +2210,13 @@ class Incident {
         return $tdescr_accumulated;
     }
 	
-    function incidents_by_status($conn, $assets="", $user="") {
+    function incidents_by_status($conn, $assets="", $user="", $args=null) {
         		
 		$st_accumulated = array();
 		
-		$incident_list  = Incident::get_list_filtered($conn, $assets, "ORDER BY status DESC", $user);
+		$args =  $args. " ORDER BY status DESC";
+		
+		$incident_list  = Incident::get_list_filtered($conn, $assets, $args, $user);
 			
 		if ( is_array($incident_list) && !empty($incident_list) )
 		{
@@ -2188,17 +2233,16 @@ class Incident {
  
     }
 	
-    function incidents_by_user($conn, $open_only=true, $assets="", $user="") {
+    function incidents_by_user($conn, $open_only=true, $assets="", $user="", $args=null) {
     	
         $user_list       = array();
-        $args            = "";
-		
+       		
 		$conf            = $GLOBALS["CONF"];
 		$version         = $conf->get_conf("ossim_server_version", FALSE);
 		$pro             = ( preg_match("/pro|demo/i",$version) ) ? true : false;
         
 		if ( $open_only )  
-			$args = "AND status = \"Open\"";
+			$args = $args." AND status = 'Open'";
         
 		$args .= " ORDER BY status DESC";
         
@@ -2208,14 +2252,15 @@ class Incident {
 		{
 			foreach($incident_list as $incident) 
 			{
-				$in_charge  = $incident->get_in_charge($conn);
+				$in_charge  = $incident->get_in_charge();
+				
 				if ( $pro && preg_match("/^\d+$/",$in_charge)) 
 				{
 					   list($entity_name, $entity_type) = Acl::get_entity_name_type($conn, $in_charge);
 					   $in_charge                       = $entity_name." [".$entity_type."]";
 				}
 				
-				$user_list[$in_charge] = ( array_key_exists($in_charge, $user_list) ) ? $user_list[$in_charge]++ : 1;
+				$user_list[$in_charge] = ( !empty($user_list[$in_charge]) ) ? $user_list[$in_charge] + 1 : 1;
 			}
 		}
 		
@@ -2224,11 +2269,13 @@ class Incident {
         return $user_list;
     }
 	
-	function incidents_by_priority($conn, $assets="", $user="") {
+	function incidents_by_priority($conn, $assets="", $user="", $args=null) {
     	
 		$prio_accumulated = array();
+		
+		$args =  $args. " AND status='Open' ORDER BY status DESC";
 
-		$incident_list = Incident::get_list_filtered($conn, $assets, "AND status = \"Open\" ORDER BY status DESC", $user);
+		$incident_list = Incident::get_list_filtered($conn, $assets, $args, $user);
 		
 		if (  is_array($incident_list) && !empty($incident_list) )
 		{

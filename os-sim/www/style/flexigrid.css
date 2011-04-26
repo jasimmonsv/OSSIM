@@ -845,10 +845,9 @@ div.rowCopy {
 div.pGroup {
 	float: left;
 	background: none;
-	height: 24px;
-	margin: 0px 5px;
-	vertical-align:middle;
+	margin: 0px 4px;
 	}
+div.pGroup select { margin-top:3px; }
 
 .flexigrid div.pDiv .pPageStat, .flexigrid div.pDiv .pcontrol {
 	position: relative;

@@ -1174,12 +1174,14 @@ $CONFIG = array(
         "title" => gettext("User activity") ,
         "desc" => gettext("User action logging") ,
         "advanced" => 0,
+    	"section" => "userlog",
         "conf" => array(
             "session_timeout" => array(
                 "type" => "text",
                 "help" => gettext("Expired timeout for current session in minutes. (0=unlimited)") ,
                 "desc" => gettext("Session Timeout") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+    			"section" => "userlog"
             ),
             "user_action_log" => array(
                 "type" => array(
@@ -1188,7 +1190,8 @@ $CONFIG = array(
                 ) ,
                 "help" => "" ,
                 "desc" => gettext("Enable User Log") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "userlog"
             ) ,
             "log_syslog" => array(
                 "type" => array(
@@ -1197,7 +1200,8 @@ $CONFIG = array(
                 ) ,
                 "help" => "" ,
                 "desc" => gettext("Log to syslog") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "userlog"
             )
         )
     ) ,
@@ -1219,6 +1223,7 @@ $CONFIG = array(
         "title" => gettext("Login methods/options") ,
         "desc" => gettext("Setup main login methods/options") ,
         "advanced" => 0,
+    	"section" => "users",
         "conf" => array(
             "first_login" => array(
                 "type" => array(
@@ -1227,7 +1232,8 @@ $CONFIG = array(
                 ) ,
                 "help" => _("") ,
                 "desc" => gettext("Show welcome message at next login") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "users"
             ) ,
             "customize_wizard" => array(
                 "type" => array(
@@ -1236,7 +1242,8 @@ $CONFIG = array(
                 ) ,
                 "help" => _("") ,
                 "desc" => gettext("Show Customization Wizard after admin login") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "users"
             ) ,            
             "login_enforce_existing_user" => array(
                 "type" => array(
@@ -1245,7 +1252,8 @@ $CONFIG = array(
                 ) ,
                 "help" => _("") ,
                 "desc" => gettext("Require a valid ossim user for login") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "users"
             ) ,
             "login_enable_ldap" => array(
                 "type" => array(
@@ -1254,31 +1262,36 @@ $CONFIG = array(
                 ) ,
                 "help" => _("") ,
                 "desc" => gettext("Enable LDAP for login") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "users"
             ) ,
             "login_ldap_server" => array(
                 "type" => "text",
                 "help" => _("") ,
                 "desc" => gettext("Ldap server address") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "users"
             ) ,
             "login_ldap_cn" => array(
                 "type" => "text",
                 "help" => _("") ,
                 "desc" => gettext("LDAP CN") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "users"
             ) ,
             "login_ldap_o" => array(
                 "type" => "text",
                 "help" => _("") ,
                 "desc" => gettext("LDAP O") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "users"
             ) ,
             "login_ldap_ou" => array(
                 "type" => "text",
                 "help" => _(""),
                 "desc" => gettext("LDAP OU") ,
-                "advanced" => 0
+                "advanced" => 0 ,
+                "section" => "users"
             )
         )
     ) ,
@@ -1286,24 +1299,28 @@ $CONFIG = array(
         "title" => gettext("Password policy") ,
         "desc" => gettext("Setup login password policy options") ,
         "advanced" => 1,
+        "section" => "users",
         "conf" => array(
 			"pass_length_min" => array(
                 "type" => "text",
                 "help" => _("Number (default = 7)") ,
                 "desc" => gettext("Minimum password lenght") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "users"
             ),
             "pass_length_max" => array(
                 "type" => "text",
                 "help" => _("Number (default = 32)") ,
                 "desc" => gettext("Maximum password lenght") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "users"
             ),
             "pass_history" => array(
                 "type" => "text",
                 "help" => _("Number (default = 0) -> 0 disable") ,
                 "desc" => gettext("Password history") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "users"
             ),
             "pass_complex" => array(
                 "type" => array(
@@ -1312,31 +1329,36 @@ $CONFIG = array(
                 ) ,
                 "help" => _("3 of these group of characters -> lowercase, uppercase, numbers, special characters") ,
                 "desc" => gettext("Complexity") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "users"
             ),
         	"pass_expire_min" => array(
                 "type" => "text",
                 "help" => _("The minimum password lifetime prevents users from circumventing<br> the requirement to change passwords by doing five password changes<br> in a minute to return to the currently expiring password. (0 to disable) (default 0)") ,
                 "desc" => gettext("Minimum password lifetime in minutes") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "users"
             ),
         	"pass_expire" => array(
                 "type" => "text",
                 "help" => _("After these days the login ask for new password. (0 to disable) (default 0)") ,
                 "desc" => gettext("Maximum password lifetime in days") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "users"
             ),
 			"failed_retries" => array(
                 "type" => "text",
                 "help" => _("Number of failed attempts prior to lockout") ,
                 "desc" => gettext("Failed logon attempts") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "users"
             ),
 			"unlock_user_interval" => array(
                 "type" => "text",
                 "help" => _("Account lockout duration in minutes (0 = never auto-unlock)") ,
                 "desc" => gettext("Account lockout duration") ,
-                "advanced" => 1
+                "advanced" => 1 ,
+                "section" => "users"
             )
         )
     ) ,
@@ -1642,7 +1664,7 @@ if (POST('update'))
         $_SESSION['_user']
     );
     Log_action::log(7, $infolog);*/
-    header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word'));
+    header("Location: " . $_SERVER['SCRIPT_NAME'] . "?adv=" . POST('adv') . "&word=" . POST('word') . "&section=" . POST('section'));
     exit;
 }
 
@@ -1903,10 +1925,12 @@ $default_open = intval(GET('open'));
 	<div id="numeroDiv" style="position:absolute; z-index:999; left:0px; top:0px; height:80px; visibility:hidden; display:none"></div>
 	<?php
 	$advanced = (POST('adv') == "1") ? true : ((GET('adv') == "1") ? true : false);
-	$section = (POST('section')) ? POST('section') : GET('section');
+	$section = (POST('section') != "") ? POST('section') : GET('section');
 	//$links = ($advanced) ? "<a href='main.php' style='color:#cccccc'>simple</a> | <b>advanced</b>" : "<b>simple</b> | <a href='main.php?adv=1' style='color:#cccccc'>advanced</a>";
 	//$title = ($advanced) ? "Advanced" : "Main";
-	include ("../hmenu.php");
+	if ($section == "") {
+		include ("../hmenu.php");
+	}
 
 	$onsubmit = ( GET('adv') == '1' ) ? "onsubmit='enableall();'" : "";
 	?>

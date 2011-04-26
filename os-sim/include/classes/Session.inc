@@ -153,9 +153,14 @@ else {
 		function get_is_admin() {
 			return $this->is_admin;
 		}
-		function get_timezone() {
-			return $this->timezone;
-		}
+	    function get_timezone($tz="") {
+	    	if ($tz=='') return $this->timezone;
+	    	if (is_numeric($tz)) return $tz; // old numeric stored format
+	    	$this_tz = new DateTimeZone($tz);
+			$offset = $this_tz->getOffset(new DateTime("now", $this_tz));
+			if ($offset!=0) $offset /= 3600;
+			return $offset;
+	    }
 		function get_last_pass_change() {
 			return $this->last_pass_change;
 		}
@@ -303,7 +308,7 @@ else {
 				$db->close($conn);
 				$_SESSION['_user_language'] = $rs->fields['language'];
 				$_SESSION['_is_admin'] = $rs->fields['is_admin'];
-				$_SESSION['_timezone'] = $rs->fields['timezone'];
+				$_SESSION['_timezone'] = Session::get_timezone($rs->fields['timezone']);
 				$_SESSION['_secureid'] = $rs->fields['uuid'];
 				ossim_set_lang($rs->fields['language']);
 				return true;

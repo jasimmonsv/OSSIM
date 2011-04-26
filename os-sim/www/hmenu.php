@@ -257,7 +257,7 @@ if ($menu_opc == "dashboards" && $menu_sopc == "dashboards") {
 								<tr>
 									<td width="16" class="nobborder"><img src="../pixmaps/menu/tsl.gif" border='0'></td>
 									<td class="nobborder" style="background:url(../pixmaps/menu/bgts.gif) repeat-x bottom left;padding-right:4px" nowrap='nowrap'>
-										<?php if ($hmenu[$menu_opc][$help]["config"] != "") { ?><a href="../conf/main.php?section=<?php echo $hmenu[$menu_opc][$help]["config"] ?>"><img align="absmiddle" src="../pixmaps/menu/configuration.gif" border="0" title="<?=_("Configure")?>"></b></a><?php } ?>
+										<?php if ($hmenu[$menu_opc][$help]["config"] != "") { ?><a href="" onclick="GB_show('<?php echo _('Configuration');?>','../conf/main.php?section=<?php echo $hmenu[$menu_opc][$help]["config"] ?>' ,480,'80%');return false"><img align="absmiddle" src="../pixmaps/menu/configuration.gif" border="0" title="<?=_("Configure")?>"></b></a><?php } ?>
 										<a href="<?=$hmenu[$menu_opc][$help]["help"]?>"><img align="absmiddle" src="../pixmaps/help_icon.gif" border="0" title="<?=_("Help")?>"></b></a>
 									</td>
 									<!--<td width="16" class="nobborder"><img src="../pixmaps/menu/tsr<?php echo ($j == $tabs) ? "2" : "" ?>.gif" border='0'></td>-->

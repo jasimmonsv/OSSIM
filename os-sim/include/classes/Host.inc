@@ -184,17 +184,15 @@ class Host {
 		// User NETWORK filtering
 		$network_where = Host::get_network_where($conn);
 		
-		$perms_where = $sensor_where;
-		if ($network_where != "") {
-			$perms_where .= ($sensor_where != "") ? " AND ".$network_where : $network_where;
-		}
+		$perms_where = ($sensor_where != "") ? " AND ".$sensor_where : "";
+		$perms_where .= ($network_where != "") ? " AND (".$network_where.")" : "";
 		
 		if ($perms_where != "") {
 			if (preg_match ("/where/i",$where)) {
-				$where = preg_replace("/where/i","where ".$perms_where." AND ",$where);
+				$where = preg_replace("/where/i","where 1=1".$perms_where." AND ",$where);
 			}
 			else {
-				$where = "where ".$perms_where;
+				$where = "where 1=1".$perms_where;
 			}
 		}
 		
@@ -221,37 +219,43 @@ class Host {
         }
         return $list;
     }
-    function get_sensor_where($conn) {
+    // Sensor filter in where clause
+    function get_sensor_where($conn,$ntoa=false,$alias="h") {
     	$sensor_where = "";
 		if (Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
 			$sensor_str = "";
-			foreach ($user_sensors as $user_sensor) if ($user_sensor != "")
-				$sensor_str .= (($sensor_str != "") ? "," : "")."'".$user_sensor."'";
-			//if ($sensor_str == "") $sensor_str = "AND 0";
-			$sensor_where = "h.ip in (select hs.host_ip FROM host_sensor_reference hs,sensor s WHERE hs.sensor_name=s.name AND s.ip in(" . $sensor_str . "))";
+			foreach ($user_sensors as $user_sensor) {
+				if ($user_sensor != "")
+					$sensor_str .= (($sensor_str != "") ? "," : "")."'".$user_sensor."'";
+			}
+			$sensor_where = ($ntoa ? "inet_ntoa($alias.ip)" : "$alias.ip")." in (select hs.host_ip FROM host_sensor_reference hs,sensor s WHERE hs.sensor_name=s.name AND s.ip in (" . $sensor_str . "))";
 		}
 		return $sensor_where;
     }
-    function get_network_where($conn) {
+    // Network filter in where clause
+    function get_network_where($conn,$aton=true,$alias="h") {
    		$network_where = "";
-    	if (($allowedNets = Session::allowedNets()) != "") {
-			$query = OssimQuery("SELECT ip FROM host");
-			$hosts = "";
-	        if (!$rs = & $conn->Execute($query)) {
-	            print $conn->ErrorMsg();
-	        } else {
-	            while (!$rs->EOF) {
-	                if (Net::is_ip_in_cache_cidr($conn, $rs->fields["ip"], $allowedNets)) {
-	                	$hosts .= ",'".$rs->fields["ip"]."'";
-	                }
-	                $rs->MoveNext();
-	            }
-	            $hosts = preg_replace("/^\,/","",$hosts);
-	            if ($hosts != "") {
-	            	$network_where = "h.ip in ($hosts)";
-	            }
-	        }
+   		$allowedNets = explode(",",Session::allowedNets());
+    	if (!empty($allowedNets)) {
+    		foreach ($allowedNets as $cidr) {
+				$query = OssimQuery("SELECT * FROM net_cidrs WHERE cidr='$cidr'");
+		        if (!$rs = & $conn->Execute($query)) {
+		            print $conn->ErrorMsg();
+		        } else {
+		            if (!$rs->EOF) {
+		            	if ($aton)
+		            		$network_where .= " OR (inet_aton($alias.ip) >= ".$rs->fields["begin"]." AND inet_aton($alias.ip) <= ".$rs->fields["end"].")"; 
+		            	else
+		            		$network_where .= " OR ($alias.ip >= ".$rs->fields["begin"]." AND $alias.ip <= ".$rs->fields["end"].")"; 
+		            }
+		        }
+    		}
+    		// sensor exceptions as host
+    		if (Session::allowedSensors()!="") {
+    			$network_where .= " OR $alias.ip in ('".str_replace(",","','",Session::allowedSensors())."')";
+    		}
+            $network_where = preg_replace("/^ OR /","",$network_where);
 		}
 		return $network_where;
     }
@@ -759,14 +763,12 @@ class Host {
         /* read from NET table only it host isn't in inventory */
         if (count($sensor)==0 && $net_list = Net::get_list($conn)) {
             foreach($net_list as $net) {
-                $net_name = $net->get_name();
-                $ips = $net->get_ips();
-                if (Net::isIpInNet($ip, $ips)) {
+                if (Net::is_ip_in_cache_cidr($conn, $ip, $net->get_ips())) { // Net::isIpInNet($ip, $ips))
                     $sql = "SELECT sensor.ip AS sensor 
                         FROM sensor, net_sensor_reference
                         WHERE name = sensor_name AND net_name = ?";
                     $params = array(
-                        $net_name
+                        $net->get_name()
                     );
                     if (!$rs = & $conn->Execute($sql, $params)) {
                         print $conn->ErrorMsg();
@@ -995,32 +997,46 @@ class Host {
 	}
 	
 	function get_property_values($conn, $id) {
+        // User SENSOR filtering
+		$sensor_where = Host::get_sensor_where($conn);
+		// User NETWORK filtering
+		$network_where = Host::get_network_where($conn);
+		
+		$perms_where = ($sensor_where != "") ? " AND ".$sensor_where : "";
+		$perms_where .= ($network_where != "") ? " AND (".$network_where.")" : "";
+		
         $list = array();
-        if($id==7) {
+        if($id==7) { // Mac
             $sql = "SELECT COUNT(DISTINCT ip ) AS total, vendor
                     FROM (
-                    SELECT hp.ip AS ip, hmv.vendor AS vendor
-                    FROM host_properties AS hp
-                    LEFT JOIN host_mac_vendors AS hmv ON SUBSTRING( hp.value, 1, 8 ) = hmv.mac
-                    WHERE hp.property_ref = ?
+                    SELECT h.ip, hmv.vendor AS vendor
+                    FROM host_properties AS h
+                    LEFT JOIN host_mac_vendors AS hmv ON SUBSTRING( h.value, 1, 8 ) = hmv.mac
+                    WHERE h.property_ref = ? $perms_where 
                     ) AS result GROUP BY vendor";
         }
         elseif($id==8) { // Services
-            $sql = "SELECT COUNT(DISTINCT ip ) AS total , value FROM host_properties
-                    WHERE property_ref = ? GROUP BY value
+        	$perms_where = str_replace("inet_aton(h.ip)","tt.ip",$perms_where);
+        	$perms_where = str_replace("h.ip","inet_ntoa(h.ip)",$perms_where);
+        	$perms_where = str_replace("tt.ip","h.ip",$perms_where);
+            $sql = "(SELECT COUNT(DISTINCT ip) AS total, value FROM host_properties h
+                    WHERE h.property_ref = ? $perms_where GROUP BY value)
                     UNION
-                    SELECT COUNT(DISTINCT hs.ip) AS total , CONCAT(hs.service,' (',hs.port,'/',LCASE(p.alias),')') as value
-                    FROM host_services hs LEFT JOIN protocol p ON p.id=hs.protocol GROUP BY value";
+                    (SELECT COUNT(DISTINCT h.ip) AS total , CONCAT(h.service,' (',h.port,'/',LCASE(p.alias),')') as value
+                    FROM host_services h LEFT JOIN protocol p ON p.id=h.protocol
+                    WHERE 1=1 $perms_where
+                    GROUP BY value)";
         }
         else {
-            $sql = "SELECT COUNT(DISTINCT ip ) AS total , value FROM host_properties
-                    WHERE property_ref = ? GROUP BY value";
+            $sql = "SELECT COUNT(DISTINCT ip ) AS total, value FROM host_properties h
+                    WHERE h.property_ref = ? $perms_where GROUP BY value";
         }
+        //print_r("<pre>$sql</pre>");
         if (!$rs = & $conn->Execute($sql,array($id))){
             print $conn->ErrorMsg();
             exit();
         } else {
-            while (!$rs->EOF){
+            while (!$rs->EOF) {
                 $list[] = $rs->fields;
                 $rs->MoveNext();
             }

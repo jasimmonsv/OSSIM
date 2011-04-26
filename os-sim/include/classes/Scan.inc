@@ -281,7 +281,7 @@ class RemoteScan {
 	    /* get the port and IP address of the frameworkd */
 	    $this->address = $ossim_conf->get_conf("frameworkd_address");
 	    $this->port = $ossim_conf->get_conf("frameworkd_port");
-	    $this->timeout = array('sec' => 15, 'usec' => 0);
+	    $this->timeout = array('sec' => 5, 'usec' => 0);
     }
     
     function available_scan() {
@@ -293,18 +293,18 @@ class RemoteScan {
 	        return "";
 	    }
 	    /* connect */
+	    socket_set_block($socket);	    
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
 	        return "";
 	    }
-	    socket_set_block($socket);
-		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    /* first send a connect message to server */
 	    $in = 'control action="getconnectedagents"' . "\n";
 	    $out = '';
 	    socket_write($socket, $in, strlen($in));
-	    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
+	    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
 	    if (!preg_match("/ack(end)?$/",$out)) {
 	        $this->errmsg = _("Bad response from frameworkd").": $out";
 	        return "";
@@ -343,7 +343,7 @@ class RemoteScan {
 	    $this->allids = $names;
 	    $db->close($conn);
 	    //
-		return $names[$sensors[0]];
+		return $this->id;
     }
     
     function do_scan($quiet=TRUE) {
@@ -356,6 +356,8 @@ class RemoteScan {
 	        return false;
 	    }
 	    /* connect */
+	    socket_set_block($socket);
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -364,12 +366,10 @@ class RemoteScan {
 	    //
 	    // launch nmap
 	    //
-	    socket_set_block($socket);
-		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    $in = 'control action="nmap_scan" id="'.$this->id.'" type="'.$this->type.'" target="'.$this->network.'"' . "\n";
 	    $out = '';
 	    socket_write($socket, $in, strlen($in));
-	    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
+	    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
 	    if (!preg_match("/ack(end)?$/",$out)) {
 	        $this->errmsg = _("Bad response from frameworkd").": $in >> $out";
 	        return false;
@@ -382,7 +382,7 @@ class RemoteScan {
 	    while ($status>0) {
 	    	if (!$quiet) echo _(" .");
 		    socket_write($socket, $in, strlen($in));
-		    $out = socket_read($socket, 2048, PHP_NORMAL_READ);
+		    $out = socket_read($socket, 2048, PHP_BINARY_READ);
 		    if (!preg_match("/ack(end)?$/",$out)) {
 		        $this->errmsg = _("Bad response from frameworkd").": $out";
 		        return false;
@@ -394,7 +394,7 @@ class RemoteScan {
 	    $in = 'control action="nmap_report_list" id="'.$this->id.'"' . "\n";
 	    $out = '';
 	    socket_write($socket, $in, strlen($in));
-	    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
+	    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
 	    if (!preg_match("/ack(end)?$/",$out)) {
 	        $this->errmsg = _("Bad response from frameworkd").": $out";
 	        return false;
@@ -411,7 +411,7 @@ class RemoteScan {
 	    $in = 'control action="nmap_report_get" id="'.$this->id.'" path="'.$report.'"' . "\n";
 	    $out = '';
 	    socket_write($socket, $in, strlen($in));
-	    while (($out = @socket_read($socket, 2048, PHP_NORMAL_READ)) !== false) {
+	    while (($out = @socket_read($socket, 2048, PHP_BINARY_READ)) !== false) {
 	            $out = trim($out);
 		    if (!preg_match("/ack(end)?$/",$out)) {
 		        $this->errmsg = _("Bad response from frameworkd").": $out";
@@ -460,20 +460,20 @@ class RemoteScan {
 	        return false;
 	    }
 	    /* connect */
+		socket_set_block($socket);
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
 	        return false;
 	    }
-	    socket_set_block($socket);
-		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    /* send nmap_report_list for each id */
 	    $reports = array();
 	    foreach ($this->allids as $idip => $id) if (trim($id)!="") {
 		    $in = 'control action="nmap_report_list" id="'.$id.'"' . "\n";
 		    $out = '';
 		    socket_write($socket, $in, strlen($in));
-		    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
+		    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
 		    if (!preg_match("/ack(end)?$/",$out)) {
 		        $this->errmsg = _("Bad response from frameworkd").": $out";
 		        return false;
@@ -494,18 +494,18 @@ class RemoteScan {
 	        return false;
 	    }
 	    /* connect */
+	    socket_set_block($socket);
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
 	        return false;
 	    }
-	    socket_set_block($socket);
-		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 		// request report results
 	    $in = 'control action="nmap_report_get" id="'.$this->id.'" path="'.$report.'"' . "\n";
 	    $out = '';
 	    socket_write($socket, $in, strlen($in));
-	    while (($out = @socket_read($socket, 2048, PHP_NORMAL_READ)) !== false) {
+	    while (($out = @socket_read($socket, 2048, PHP_BINARY_READ)) !== false) {
 	            $out = trim($out);
 		    if (!preg_match("/ack(end)?$/",$out)) {
 		        $this->errmsg = _("Bad response from frameworkd").": $out";
@@ -551,18 +551,18 @@ class RemoteScan {
 	        return false;
 	    }
 	    /* connect */
+		socket_set_block($socket);	    
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
 	        return false;
 	    }
-	    socket_set_block($socket);
-		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
 	    /* first send nmap_report_list */
 	    $in = 'control action="nmap_report_delete" id="'.$this->id.'" path="'.$report.'"' . "\n";
 	    $out = '';
 	    socket_write($socket, $in, strlen($in));
-	    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
+	    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
 	    if (!preg_match("/ack(end)?$/",$out)) {
 	        $this->errmsg = _("Bad response from frameworkd").": $out";
 	        return false;

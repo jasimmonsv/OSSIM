@@ -68,9 +68,9 @@ $conn = $db->connect();
 
 if(preg_match("/cclass_(\d+)_(.+)/",$key) || preg_match("/all_\d+\.\d+\.\d+_(\d+)_(.+)/",$key) ||  preg_match("/all/",$key) || preg_match("/all_\d+\.\d+\.\d+/",$key)) {
     $all_cclass_hosts = array();
-    $host_list = array();
 
     if(preg_match("/cclass_(\d+)_(.+)/",$key, $found) || preg_match("/all_\d+\.\d+\.\d+_(\d+)_(.+)/",$key, $found)) {
+    
         if($found[1]==7) { // MAC
             if($found[2]=="Unknown") { // doesn't exit mac in host_mac_vendors
                 $sql = "SELECT hp.ip, h.hostname
@@ -114,14 +114,13 @@ if(preg_match("/cclass_(\d+)_(.+)/",$key) || preg_match("/all_\d+\.\d+\.\d+_(\d+
     }
     else
     {
-        while (!$rs->EOF){
-            $host_list[$rs->fields['ip']] = $rs->fields['hostname'];
-            $rs->MoveNext();
+        while (!$rs->EOF) {
+        	if (Session::hostAllowed($conn,$rs->fields['ip'])) {
+	    		$cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $rs->fields['ip']);
+	    		$all_cclass_hosts[$cclass][] = array($rs->fields['ip'], $rs->fields['hostname']);
+	    	}
+        	$rs->MoveNext();
         }
-    }
-    foreach($host_list as $hostip => $hostname) {
-        $cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $hostip);
-        $all_cclass_hosts[$cclass][] = array($hostip, $hostname);
     }
 }
 

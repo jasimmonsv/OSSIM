@@ -541,7 +541,7 @@ echo "</table></center>";
 }
 
 function delete_profile($sid, $confirm){
-   global $enableDelProtect, $username, $dbconn;
+   global $enableDelProtect, $username, $dbconn, $nessus_path;
 
 
       if ( $enableDelProtect ) {
@@ -551,6 +551,12 @@ function delete_profile($sid, $confirm){
          $result=$dbconn->execute($query);
       } else {
          # ALLOW TO REALLY DELETE RECORD
+         
+        if (preg_match("/omp\s*$/i", $nessus_path)) {
+             $omp = new OMP();
+             $omp->delete_config($sid);
+        }
+
          $query = "delete from vuln_nessus_settings where id=$sid";
          $result=$dbconn->execute($query);
 
@@ -565,7 +571,8 @@ function delete_profile($sid, $confirm){
          $query = "delete from vuln_nessus_settings_category 
                 where sid=$sid";
          $result=$dbconn->execute($query);
-   }
+         
+        }
       echo "Profile has been deleted<BR>";
       select_profile();
 //logAccess( "User [ $username ] DELETED Profile $sid" );

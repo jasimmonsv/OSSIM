@@ -2355,6 +2355,8 @@ sim_session_cmd_host_os_event(SimSession *session, SimCommand *command)
       event->textfields[SimTextFieldUserdata1] = g_strdup(
           command->data.host_os_event.os); //needed for correlation
 
+      event->tzone = command->data.host_os_event.tzone;
+
       sim_container_push_event(ossim.container, event);
       sim_container_set_sensor_event_number(ossim.container,
           SIM_EVENT_HOST_OS_EVENT, sensor);
@@ -2516,6 +2518,8 @@ sim_session_cmd_host_mac_event(SimSession *session, SimCommand *command)
         //event->userdata2 = g_strdup (command->data.host_mac_event.vendor);
         event->textfields[SimTextFieldUserdata2] = g_strdup(
             command->data.host_mac_event.vendor);
+
+      event->tzone = command->data.host_mac_event.tzone;
 
       sim_container_push_event(ossim.container, event);
       sim_container_set_sensor_event_number(ossim.container,
@@ -2715,6 +2719,8 @@ sim_session_cmd_host_service_event(SimSession *session, SimCommand *command)
           event->buffer = g_strdup(command->buffer); //we need this to resend data to other servers, or to send
           //events that matched with policy to frameworkd (future implementation)
 
+          event->tzone = command->data.host_service_event.tzone;          
+
           //event->userdata1 = g_strdup (command->data.host_service_event.application);	//may be needed in correlation
           event->textfields[SimTextFieldUserdata1] = g_strdup(
               command->data.host_service_event.application); //may be needed in correlation
@@ -2898,6 +2904,8 @@ sim_session_cmd_host_ids_event(SimSession *session, SimCommand *command)
 
       event->buffer = g_strdup(command->buffer); //we need this to resend data to other servers, or to send
       //events that matched with policy to frameworkd (future implementation)
+
+      event->tzone = command->data.host_ids_event.tzone;
 
       sim_container_push_event(ossim.container, event);
       sim_container_set_sensor_event_number(ossim.container,

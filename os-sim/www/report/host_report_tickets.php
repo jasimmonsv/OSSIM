@@ -31,17 +31,30 @@
 
 require_once('classes/Host.inc');
 
+
 if( $host != 'any' )
 {
 	$host_ip2ulong  = Host::ip2ulong($host);
-	$tick_num       = count(Incident::get_list_filtered($conn, $host_ip2ulong, "AND status='open' ORDER BY date DESC"));
-	$incident_list2 = Incident::get_list_filtered($conn, $host_ip2ulong, "ORDER BY date DESC");
+	
+	if ($date_from != '' && $date_to != '')
+	{
+		$date_from   = ( preg_match("/^\d+\-\d+\-\d+$/",$date_from) ) ?  $date_from." 00:00:00" : $date_from;
+		$date_to     = ( preg_match("/^\d+\-\d+\-\d+$/",$date_to) ) ?  $date_to." 23:59:59" : $date_to;
+		$date_filter = "AND ( date BETWEEN '$date_from' AND '$date_to')";
+	}
+	
+	$where          = "AND status='open' $date_filter ORDER BY date DESC";
+	$incident_list2 =  Incident::get_list_filtered($conn, $host_ip2ulong, $where);
+	$tick_num       = count($incident_list2);
+	
 }
 else
 {
-	$tick_num       = count(Incident::get_list_filtered($conn, '', "AND status='open' ORDER BY date DESC"));
+	$where          = "AND status='open' ORDER BY date DESC";
 	$incident_list2 = Incident::search($conn, array(), "priority", "DESC", 1, 6);
+	$tick_num       = count($incident_list2);
 }
+
 
 $i_date       = "-";
 $i_maxprio    = 0;
@@ -67,8 +80,16 @@ usleep(500000);
 	<?php 
 	if (count($incident_list2) < 1) 
 	{ 
+		$host_txt = ( $host == 'any') ? _("No Tickets found in the System") : _("No Tickets found for")."<i>".$host."</i>"; 
 		?>
-		<tr><td><?php echo gettext("No Tickets Found for")?> <i><?php echo $host?></i></td></tr>
+		<tr><td><?php echo $host_txt;?></td></tr>
+		
+		<script type="text/javascript">
+			document.getElementById('statusbar_incident_max_priority').innerHTML = '<?php echo preg_replace("/\n|\r/","",Incident::get_priority_in_html("-"))?>';
+			document.getElementById('statusbar_incident_max_priority').href      = "";
+			document.getElementById('statusbar_incident_max_priority_txt').href  = "";
+		</script>
+		
 		<?php 
 	} 
 	else 
@@ -80,7 +101,7 @@ usleep(500000);
 				<tr>
 					<th><?php echo _("Ticket")?></th>
 					<th><?php echo _("Title")?></th>
-					<? if ($network == 9) { ?><th>IP</th><?php } ?>
+					<?php if ($network == 9) { ?><th>IP</th><?php } ?>
 					<th><?php echo _("Priority")?></th>
 					<th><?php echo _("Status")?></th>
 				</tr>
@@ -98,7 +119,7 @@ usleep(500000);
 						<script type="text/javascript">
 							document.getElementById('tickets_date').innerHTML = "<?php echo $i_date?>";
 						</script>
-						<?
+						<?php
 					}
 					?>
 					<tr <?php if ($row++ % 2) echo 'bgcolor="#E1EFE0"'; ?> valign="center">

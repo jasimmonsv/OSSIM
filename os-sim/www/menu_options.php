@@ -942,7 +942,8 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUsers")) { $configura
         "name" => gettext("Configuration") ,
         "id" => "Users",
         "url" => $users_path,
-        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:users','Help');"
+        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:users','Help');",
+    	"config" => "users"
     );
 	if (!$opensource && (Session::am_i_admin() || Acl::am_i_proadmin())) {
 	$rmenu["Users"][] = array(
@@ -966,7 +967,8 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationUserActionLog")) { $c
     "name" => gettext("User activity") ,
     "id" => "User action logs",
     "url" => "conf/userlog.php",
-    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:user_activity','Help');"
+    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:user_activity','Help');",
+	"config" => "userlog"
 );
 }
 if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_perms("MenuConfiguration", "PolicySensors")) { $assets = 1;

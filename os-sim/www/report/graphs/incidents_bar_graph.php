@@ -103,10 +103,11 @@ if ($by == "ticketsClosedByMonth")
 elseif ($by == "resolution_time") 
 {
 	
-	$user         = $shared->get("TicketsStatus5_user");
-	$assets       = $shared->get("TicketsStatus5_assets");
+	$user   = $shared->get("TicketsStatus5_user");
+	$assets = $shared->get("TicketsStatus5_assets");
+	$args   = $shared->get("TicketsStatus5_args");
 	
-	$list   = Incident::incidents_by_resolution_time($conn, $assets, $user);
+	$list   = Incident::incidents_by_resolution_time($conn, $assets, $user, $args);
     		
 	$ttl_groups = array("1"=>0, "2"=>0, "3"=>0, "4"=>0, "5"=>0, "6"=>0);
 	

@@ -62,12 +62,13 @@ $tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(da
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
 
 $param_query = GET("query") ? GET("query") : "";
+$current_search = urldecode(GET("current_search"));
 $param_start = GET("start") ? GET("start") : gmdate("Y-m-d H:i:s", $timetz - (24 * 60 * 60));
 $param_end = GET("end") ? GET("end") : gmdate("Y-m-d H:i:s", $timetz);
 
 // Default GRAPH RANGE [day|last_month]";
 $_SESSION['graph_type'] = "day";
-$_SESSION['cat'] = date("M j, Y",$timetz);
+$_SESSION['cat'] = gmdate("M j, Y");
 
 $framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
@@ -114,6 +115,7 @@ $from_remote = ($ip_list != "") ? 1 : 0;
 $_SESSION['logger_servers'] = $logger_servers;
 
 ossim_valid($param_query, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, 'illegal:' . _("query"));
+ossim_valid($current_search, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, OSS_PUNC, '%', 'illegal:' . _("current_search"));
 ossim_valid($param_start, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("start date"));
 ossim_valid($param_end, OSS_DIGIT, OSS_COLON, OSS_SCORE, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("end date"));
 ossim_valid($num_servers, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_servers"));
@@ -121,6 +123,7 @@ ossim_valid(GET('del_export'), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, '=', 'illegal
 if (ossim_error()) {
     die(ossim_error());
 }
+
 $config = parse_ini_file("everything.ini");
 
 if($config["debug"]==1){
@@ -287,7 +290,9 @@ $(document).ready(function(){
 	// LAUNCH LOGGER FETCH
 	RequestLines();
 	// From GET query
-	<? if (trim($_GET['query'])!="") { ?>
+	<? if ($current_search != "") { ?>
+	SetSearch("<?php echo $current_search ?>");
+	<? } elseif (trim($_GET['query'])!="") { ?>
 	SetSearch("src=<?php echo $_GET['query'] ?> OR dst=<?php echo $_GET['query'] ?>");
 	// Default load
 	<? } else { ?>
@@ -628,7 +633,7 @@ function SetSearch(content)
 		var value = atoms[i];
 		value = value.replace(/^\s+/g,'').replace(/\s+$/g,'').replace(/\n/g,'');
 		value = value.replace(/SPACESCAPE/g,' ');
-		if (value != "" && value != "data=") {
+		if (value != "" && value != "data=" && value != "and" && value != "AND") {
 			AddAtom(value);
 		}
 	}
@@ -693,6 +698,7 @@ function setFixed(start, end, gtype, datef)
 	document.getElementById('start_aaa').value = start;
 	document.getElementById('end').value = end;
 	document.getElementById('end_aaa').value = end;
+	document.getElementById('tzone').value = "<?=$tz?>";
       
 	if (gtype != '' && datef != '') {
 		UpdateByDate("forensic.php?graph_type="+gtype+"&cat="+datef);
@@ -720,6 +726,7 @@ function setFixed2()
 
 	document.getElementById('start').value = document.getElementById('start_aaa').value + start_pad;
 	document.getElementById('end').value = document.getElementById('end_aaa').value + end_pad;
+	document.getElementById('tzone').value = "<?=$tz?>";
 	RequestLines();
 	MakeRequest();
 }
@@ -805,6 +812,7 @@ function graph_by_date( col ,row ,value, category, series, t_year, t_month, t_da
     document.getElementById('searchbox').value = "";
     document.getElementById('offset').value = "0";
     document.getElementById('sort').value = "none";
+    document.getElementById('tzone').value = "0";
   switch(row)
   {
     case 1:
@@ -865,6 +873,8 @@ function graph_by_date( col ,row ,value, category, series, t_year, t_month, t_da
       RequestLines(); 
       MakeRequest();
       bold_dates();
+      document.getElementById('start_aaa').value = document.getElementById('start').value = from_day+" 00:00:00";
+      document.getElementById('end_aaa').value = document.getElementById('end').value = to_day+ " 23:59:59";
       return;
     break;
   }
@@ -957,6 +967,7 @@ function doQuery(tipoExport) {
 	}
   //hideLayer("by_date");
   document.getElementById('txtexport').value=tipoExport;
+  document.getElementById('tzone').value = "<?=$tz?>";
   SubmitForm();
 }
 
@@ -1079,6 +1090,9 @@ function reload_export() {
         }
 	});
 }
+function save_current_search() {
+	document.serverform.current_search.value = GetSearchString();
+}
 </script>
 </head>
 <body>
@@ -1109,7 +1123,7 @@ if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "Poli
 					$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i];
 					?>
 					<tr bgcolor='#EEEEEE'>
-						<td class="nobborder"><input type="checkbox" id="check_<?php echo $name ?>" onclick="document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; } if ($logger_error[$name]) { echo " disabled"; } ?>></input></td>
+						<td class="nobborder"><input type="checkbox" id="check_<?php echo $name ?>" onclick="save_current_search();document.serverform.submit()" name="<?php echo $name ?>" value="<?php echo $name ?>" <?php if ($logger_servers[$name]) { echo "checked"; } if ($logger_error[$name]) { echo " disabled"; } ?>></input></td>
 						<td class="nobborder"></td>
 						<td class="nobborder"><table class="transparent"><tr><td class="nobborder" style="padding-left:5px;padding-right:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$bcolors[$i]?>;color:<?php echo '#'.$fcolors[$i]?>"><?php echo $name ?></td></tr></table></td>
 					</tr>
@@ -1119,7 +1133,8 @@ if (count($database_servers)>0 && Session::menu_perms("MenuConfiguration", "Poli
 			</div>
 		</td>
 	</tr>
-	<input type="hidden" name="num_servers" value="<?php echo $i ?>"></input>
+	<input type="hidden" name="num_servers" value="<?php echo $i ?>">
+	<input type="hidden" name="current_search" value="">
 	</form>
 <?php
 }

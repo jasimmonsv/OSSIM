@@ -1,6 +1,3 @@
-<HTML>
-<BODY bgcolor="#FFFFFF">
-
 <?php
 /*****************************************************************************
 *
@@ -38,14 +35,26 @@
 * Classes list:
 */
 //include charts.php to access the InsertChart function
-include "charts.php";
-if (isset($_GET['width']) && is_numeric($_GET['width'])) $width = $_GET['width'];
-else $width = "450";
-if (isset($_GET['height']) && is_numeric($_GET['height'])) $height = $_GET['height'];
-else $height = "300";
-if (preg_match("/^[a-zA-Z0-9]+[a-zA-Z0-9_\-\.]+\.php$/", $_GET['source_graph'])) echo InsertChart("charts.swf?timeout=120", "charts_library", $_GET['source_graph'] . "?" . $_SERVER['QUERY_STRING']."&bypassexpirationupdate=1", $width, $height, "#FFF");
-else echo "<br>Invalid source file!! (It should be a php generating xml for chart.swf).<br>";
+
 ?>
 
-</BODY>
-</HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<body bgcolor="#FFFFFF">
+
+<?php
+
+
+include "charts.php";
+
+$width  = ( isset($_GET['width'])  && is_numeric($_GET['width'])) ? $_GET['width'] : "450";
+$height = ( isset($_GET['height']) && is_numeric($_GET['height']))? $_GET['height'] : "300";
+
+if (preg_match("/^[a-zA-Z0-9]+[a-zA-Z0-9_\-\.]+\.php$/", $_GET['source_graph'])) 
+	echo InsertChart("charts.swf?timeout=120", "charts_library", $_GET['source_graph'] . "?" . $_SERVER['QUERY_STRING']."&bypassexpirationupdate=1", $width, $height, "#FFF");
+else
+	echo "<br/>Invalid source file!! (It should be a php generating xml for chart.swf).<br>";
+?>
+
+</body>
+</html>

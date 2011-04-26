@@ -53,7 +53,7 @@ else $lnk = "ip=$host";
 
 <table width="100%" class="bordered">
 	<tr>
-		<td class="headerpr"><a style="color:black" href="../sem/index.php?src_ip=<?php urlencode("$host")?> OR dst_ip=<?php urlencode("$host")?>"><?php echo gettext("Logger Events"); ?></a></td>
+		<td class="headerpr"><a style="color:black" href="../sem/index.php?src_ip=<?php echo urlencode("$host")?> OR dst_ip=<?php echo urlencode("$host")?>"><?php echo gettext("Logger Events"); ?></a></td>
 	</tr>
 	<?php 
 	if (count($sem_events_week) > 0) 
@@ -63,7 +63,7 @@ else $lnk = "ip=$host";
 		list($x, $y, $xticks, $xlabels) = Status::range_graphic("week");
 		//include ("host_report_sem_graph.php");
 		$graph = '<div id="plotareasem" class="plot"></div>';
-		$xticks = $sem_wplot_x;
+		$xticks  = $sem_wplot_x;
 		$xlabels = array();
 		foreach ($xticks as $tick=>$val) {
 			$xlabels[$tick] = $tick;
@@ -227,17 +227,26 @@ else $lnk = "ip=$host";
 		</td>
 	</tr>
 	
-	<tr><td><table><tr><td style="text-align:left"><b><?=$sem_foundrows_week?></b> <?=gettext("Logger total events")?> <?=_("in")?> <b><?=_("week range")?></b></td><td style="text-align:right;padding-right:20px"><a style="color:black" href="../sem/index.php?hmenu=SEM&smenu=SEM&query=<?php urlencode($lnk)?>"><strong><?=gettext("Logger Events")?> >></strong></a></td></tr></table></td></tr>
+	<tr><td><table><tr><td style="text-align:left"><b><?=$sem_foundrows_week?></b> <?=gettext("Logger total events")?> <?=_("in")?> <b><?=_("week range")?></b></td><td style="text-align:right;padding-right:20px"><a style="color:black" href="../sem/index.php?hmenu=SEM&smenu=SEM&query=<?php echo urlencode($lnk)?>"><strong><?=gettext("Logger Events")?> >></strong></a></td></tr></table></td></tr>
 	<?php
 	} 
 	else 
 	{ 
+		$host_txt = ( $host == 'any') ? _("No Logger events found in the System") : _("No Logger events found for")."<i>".$host."</i>"; 
 		?>
-	<tr>
-		<td class="nobborder" style="text-align:center"><?=gettext("No Logger Events found for")?> <i><?=$host?></i></td>
-	</tr>
-	
-	<tr><td><table><tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="sem/index.php?query<?php echo urlencode($lnk)?>"><strong><?php echo gettext("More")?> >></strong></a></td></tr></table></td></tr>
+		<tr><td valign='middle'><?php echo $host_txt;?></td></tr>
+		
+		<tr>
+			<td>
+				<table>
+					<tr>
+						<td style="text-align:right;padding-right:20px">
+							<a style="color:black" href="../sem/index.php?query=<?php echo urlencode($lnk)?>"><strong><?php echo gettext("More")?> >></strong></a>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
 		<?php
 	} 
 	?>
