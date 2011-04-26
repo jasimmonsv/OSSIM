@@ -70,11 +70,19 @@ if (Session::menu_perms("MenuControlPanel", "ControlPanelExecutive")) { $dashboa
 );
 }
 if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::menu_perms("MenuControlPanel", "ControlPanelMetrics")) { $dashboards = 1;
-    $menu["Dashboards"][] = array(
-      "name" => gettext("Risk") ,
-      "id" => "Risk",
-      "url" => "risk_maps/riskmaps.php?view=1"
-    );
+    if (Session::menu_perms("MenuControlPanel", "BusinessProcesses")) {
+		$menu["Dashboards"][] = array(
+	      "name" => gettext("Risk") ,
+	      "id" => "Risk",
+	      "url" => "risk_maps/riskmaps.php?view=1"
+	    );
+    } else {
+    	$menu["Dashboards"][] = array(
+	      "name" => gettext("Risk") ,
+	      "id" => "Risk",
+	      "url" => "control_panel/global_score.php?range=day"
+	    );
+    }
     if (Session::menu_perms("MenuControlPanel", "BusinessProcesses")) {
         $hmenu["Risk"][] = array(
           "name" => gettext("Risk Maps"),
@@ -97,7 +105,7 @@ if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::men
     if (Session::menu_perms("MenuControlPanel", "ControlPanelMetrics")) {
         $hmenu["Risk"][] = array(
             "name" => gettext("Risk Metrics") ,
-            "id" => "Metrics",
+            "id" => (Session::menu_perms("MenuControlPanel", "BusinessProcesses")) ? "Metrics" : "Risk",
             "target" => "main",
             "url" => "control_panel/global_score.php?range=day",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboards:risk:risk_metrics','DashboardHelp');",
