@@ -348,6 +348,8 @@ if (!empty($delete_day)) {
 			die(ossim_error("Can't do this action for security reasons."));
 	}
 }
+/*
+// OBSOLETE. DO NOT USE FROM ALARM CONSOLE
 if (GET('purge')) {
 	if (!Session::menu_perms("MenuIncidents", "ControlPanelAlarmsDelete"))
 		die(ossim_error("You don't have required permissions to delete Alarms"));
@@ -356,6 +358,7 @@ if (GET('purge')) {
 		else die(ossim_error("Can't do this action for security reasons."));
 	}
 }
+*/
 if (empty($order)) $order = " a.timestamp DESC";
 if ((!empty($src_ip)) && (!empty($dst_ip))) {
     $where = "WHERE inet_ntoa(src_ip) = '$src_ip' 
@@ -469,7 +472,7 @@ if (!isset($_GET["hide_search"])) {
 				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
 				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="lbutton">
 				<?php
-				/* UNUSED VIA WEB <br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
+				/* OBSOLETE. DO NOT USE FROM ALARM CONSOLE <br><br><a href="" onclick="$('#divadvanced').toggle();return false;"><img src="../pixmaps/plus-small.png" border="0" align="absmiddle"> <?=_("Advanced")?></a>
 				<div id="divadvanced" style="display:none"><a href="<?php
     echo $_SERVER["SCRIPT_NAME"] ?>?purge=1&unique_id=<?=$unique_id?>"><?php
     echo gettext("Remove events without an associated alarm"); ?></a></div> */

@@ -919,12 +919,9 @@ class Alarm {
             }
         }
     }
+    /*
     function purge($conn) {
-        /* TODO: very heavy query!! */
-        // Optimized 09/06/2009 Granada. From OSSIM forum user gherees (USA)
-        /*$sql = "SELECT event.id AS event_id, backlog_event.backlog_id AS
-        backlog_id FROM event LEFT JOIN backlog_event ON
-        backlog_event.event_id = event.id WHERE backlog_id IS NULL";*/
+    	// OBSOLETE. DO NOT USE FROM ALARM CONSOLE
         $sql = "SELECT event.id AS event_id FROM event WHERE event.id IN
                (SELECT backlog_event.event_id FROM backlog_event WHERE backlog_event.backlog_id IS NULL)";
         if (!$rs = & $conn->Execute($sql)) {
@@ -952,6 +949,7 @@ class Alarm {
         $conn->Execute("DELETE FROM backlog_event WHERE event_id NOT IN (SELECT event_id FROM alarm)");
         $conn->Execute("DELETE FROM event WHERE id NOT IN (SELECT event_id FROM backlog_event)");
     }
+    */
     // extra userdata fields from event table
     function get_event_data($conn,$key="username") {
     	if (empty($this->event_data)) {

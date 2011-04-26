@@ -59,8 +59,9 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 $db    = new ossim_db();
 $conn  = $db->connect();
 
-$ip      = GET('ip');
-$update  = intval(GET('update'));
+$ip         = GET('ip');
+$update     = intval(GET('update'));
+$removeicon = intval(GET('removeicon'));
 
 $style = $style_success = "style='display: none;'";
 
@@ -137,6 +138,7 @@ if($protocol_list = Protocol::get_list($conn)) {
     }
 }
 
+if ($removeicon) Host::clean_icon($conn,$ip);
 
 if ( isset($_SESSION['_host']) )
 {
@@ -1051,8 +1053,9 @@ if ( empty( $ip ) ) {
 					</tr>
 
 					<tr>
-						<th><label for='icon'><?php echo gettext("Icon")."&nbsp;".$icon; ?></label></th>
+						<th><label for='icon'><?php echo gettext("Icon"); ?></label></th>
 						<td class="left" style="color:gray">
+							<?php if ($icon!="") echo $icon." &nbsp; <a href='modifyhostform.php?ip=".urlencode($ip)."&removeicon=1'>Remove icon</a><br>"; ?>
 							<input type="file" class='vfield' name="icon" id="icon"><br/>
 							<?php echo "* "._("Allowed format").": 16x16 "._("png image") ?>
 						</td>

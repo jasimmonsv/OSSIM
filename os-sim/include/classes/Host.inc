@@ -845,7 +845,11 @@ class Host {
     	// default home icon
     	return "../forensics/images/homelan.png";
     }
-	
+    // Clean asset icon
+    function clean_icon($conn,$ip) {
+    	$conn->Execute("UPDATE host SET icon = NULL WHERE ip = ?",array($ip));
+    }
+    	
 	//
 	// Host Credentials
 	//

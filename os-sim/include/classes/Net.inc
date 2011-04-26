@@ -157,8 +157,8 @@ class Net {
 	}
 	function get_ips_by_name($conn,$name,$withicon=false) {
 		$ips = $icon = "";
-		$query = OssimQuery("SELECT ips,icon FROM net WHERE name='$name'");
-        if (!$rs = & $conn->Execute($query)) {
+		$query = OssimQuery("SELECT ips,icon FROM net WHERE name=?");
+        if (!$rs = & $conn->Execute($query,array($name))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) {
 			$ips = $rs->fields["ips"];
@@ -166,16 +166,21 @@ class Net {
 		}
 		return ($withicon) ? array($ips,$icon) : $ips;
 	}
+	// Get asset icon
 	function get_icon_by_name($conn,$name) {
 		$icon = "";
-		$query = OssimQuery("SELECT icon FROM net WHERE name='$name'");
-        if (!$rs = & $conn->Execute($query)) {
+		$query = OssimQuery("SELECT icon FROM net WHERE name=?");
+        if (!$rs = & $conn->Execute($query,array($name))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) {
 			$icon = $rs->fields["icon"];
 		}
 		return $icon;
 	}
+    // Clean asset icon
+    function clean_icon($conn,$name) {
+    	$conn->Execute("UPDATE net SET icon = NULL WHERE name = ?",array($name));
+    }	
     /*
     function get_list($conn, $args = "") {
         $list = array();

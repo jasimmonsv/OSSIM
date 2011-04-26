@@ -50,9 +50,10 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 $db = new ossim_db();
 $conn = $db->connect();
 
-$net_name  =  GET('name');
-$update    =  intval(GET('update'));
-$clone     =  ( GET('clone') == 1 ) ? 1 : 0;
+$net_name   =  GET('name');
+$update     =  intval(GET('update'));
+$removeicon =  intval(GET('removeicon'));
+$clone      =  ( GET('clone') == 1 ) ? 1 : 0;
 
 $style_success = "style='display: none;'";
 
@@ -68,6 +69,7 @@ $info_CIDR = "<div style='font-weight:normal; width: 170px;'>
 				<div><span class='bold'>CIDR:</span> xxx.xxx.xxx.xxx/xx</div>
 			</div>";
 		
+if ($removeicon) Net::clean_icon($conn,$net_name);
 	
 if ( isset($_SESSION['_net']) )
 {
@@ -308,8 +310,9 @@ if (GET('withoutmenu') != "1")
 	</tr>
 
 	<tr>
-		<th><label for='icon'><?php echo gettext("Icon")."&nbsp;".$icon; ?></label></th>
+		<th><label for='icon'><?php echo gettext("Icon"); ?></label></th>
 		<td class="left" style="color:gray">
+			<?php if ($icon!="") echo $icon." &nbsp; <a href='newnetform.php?name=".urlencode($net_name)."&removeicon=1'>Remove icon</a><br>"; ?>	
 			<input type="file" class='vfield' name="icon" id="icon"><br/>
 			<?php echo "* "._("Allowed format").": 16x16 "._("png image") ?>
 		</td>
