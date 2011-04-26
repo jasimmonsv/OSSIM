@@ -2521,7 +2521,8 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (77, 'MENU', 'MenuIncidents', 'IncidentsDelete', 'Incidents -> Tickets -> Delete', 0, 0, 1, '02.05'),
 (78, 'MENU', 'MenuEvents', 'EventsNids', 'Analysis -> Detection -> NIDS', 1, 1, 1, '03.10'),
 (79, 'MENU', 'MenuEvents', 'EventsHids', 'Analysis -> Detection -> HIDS', 1, 1, 1, '03.11'),
-(80, 'MENU', 'MenuConfiguration', 'NetworkDiscovery', 'Configuration -> Network Discovery', 0, 0, 1, '08.11');
+(80, 'MENU', 'MenuConfiguration', 'NetworkDiscovery', 'Configuration -> Network Discovery', 0, 0, 1, '08.11'),
+(81, 'MENU', 'MenuMonitors', 'MonitorsInventory', 'Situational Awareness -> Inventory', 0, 0, 1, '07.04');
 
 DROP TABLE IF EXISTS `acl_templates`;
 CREATE TABLE IF NOT EXISTS `acl_templates` (

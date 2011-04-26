@@ -269,6 +269,7 @@ class ossec_rule_handler(pxml.ContentHandler):
     def __init__(self):
         self._ossecdata = ossec_data()
         self._tmpRule = None
+	self._tmpRuleDescription = ''
         self._readingDecodeAsValue = False
         self._readingDescriptionValue = False
         self._readingifsidValue = False
@@ -290,6 +291,7 @@ class ossec_rule_handler(pxml.ContentHandler):
                 #print "Parent group: %s" % self._parentGroup
         if name == ossec_rule_handler.GROUP_NODE_RULE_NODE:
             self.__inside_rule_node = True
+	    self._tmpRuleDescription = ''
             self._tmpRule = rule()
             #print "Setting parent group: %s " % self._parentGroup
             self._tmpRule.set_group(self._parentGroup)
@@ -325,7 +327,7 @@ class ossec_rule_handler(pxml.ContentHandler):
         if self._readingDecodeAsValue:
             self._tmpRule.set_decode(data)
         if self._readingDescriptionValue:
-            self._tmpRule.set_description (data)
+            self._tmpRuleDescription += data
         if self._readingifsidValue:
             self._tmpRule.set_ifsid (data)
         if self._readingmatchValue:
@@ -339,6 +341,8 @@ class ossec_rule_handler(pxml.ContentHandler):
         if name == ossec_rule_handler.GROUP_NODE:
            pass
         if name == ossec_rule_handler.GROUP_NODE_RULE_NODE:
+            print "Adding rule description :%s" % self._tmpRuleDescription
+            self._tmpRule.set_description(self._tmpRuleDescription)
             self._ossecdata.addrule(self._tmpRule)
             self.__inside_rule_node = False
 
