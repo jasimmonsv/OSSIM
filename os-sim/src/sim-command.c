@@ -3718,15 +3718,12 @@ sim_command_event_scan_base64(SimCommand *command, GScanner *scanner)
             command->type = SIM_COMMAND_TYPE_NONE;
             break;
           }
-        if (sim_string_is_number(scanner->value.v_string, 1))
-          command->data.event.tzone = g_ascii_strtod(scanner->value.v_string,
-              (gchar**) NULL);
-        else
-          {
-            g_message(
-                "Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s",
-                scanner->value.v_string);
-            return FALSE;
+            if (sim_string_is_number (scanner->value.v_string, TRUE))
+              command->data.event.tzone = g_ascii_strtod(scanner->value.v_string, (gchar**)NULL);
+            else
+            {
+              g_message(" %s: Error: Please check the tzone value: %s. Assumed tzone = 0.", __func__, scanner->value.v_string);
+              //return FALSE;
           }
         break;
 
@@ -4489,15 +4486,13 @@ sim_command_event_scan(SimCommand *command, GScanner *scanner)
             command->type = SIM_COMMAND_TYPE_NONE;
             break;
           }
-        if (sim_string_is_number(scanner->value.v_string, 1))
-          command->data.event.tzone = g_ascii_strtod(scanner->value.v_string,
-              (gchar**) NULL);
-        else
-          {
-            g_message(
-                "Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s",
-                scanner->value.v_string);
-            return FALSE;
+            //g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_command_event_scan: event tzone  %s", scanner->value.v_string);
+            if (sim_string_is_number (scanner->value.v_string, TRUE))
+		  				command->data.event.tzone = g_ascii_strtod(scanner->value.v_string, (gchar**)NULL);
+						else
+						{
+            	g_message(" %s: Error: Please check the tzone value: %s. Assumed tzone = 0.", __func__, scanner->value.v_string);
+              //return FALSE;
           }
         break;
 
@@ -5658,20 +5653,18 @@ sim_command_host_os_event_scan(SimCommand *command, GScanner *scanner)
         g_scanner_get_next_token(scanner); /* value */
 
         if (scanner->token != G_TOKEN_STRING)
-          {
-            command->type = SIM_COMMAND_TYPE_NONE;
-            break;
-          }
-        if (sim_string_is_number(scanner->value.v_string, 1))
-          command->data.host_os_event.tzone = g_ascii_strtod(
-              scanner->value.v_string, (gchar**) NULL);
-        else
-          {
-            g_message(
-                "Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s",
-                scanner->value.v_string);
-            return FALSE;
-          }
+        {
+          command->type = SIM_COMMAND_TYPE_NONE;
+          break;
+        }
+        if (sim_string_is_number (scanner->value.v_string, TRUE))
+		  		command->data.host_os_event.tzone = g_ascii_strtod(scanner->value.v_string, (gchar**)NULL);
+				else
+				{
+          g_message(" %s: Error: Please check the tzone value: %s. Assumed tzone = 0.", __func__, scanner->value.v_string);
+					//g_message("Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s", scanner->value.v_string);
+          //return FALSE;
+        }
         break;
 
       case SIM_COMMAND_SYMBOL_ID:
@@ -5903,19 +5896,17 @@ sim_command_host_mac_event_scan(SimCommand *command, GScanner *scanner)
         g_scanner_get_next_token(scanner); /* value */
 
         if (scanner->token != G_TOKEN_STRING)
-          {
-            command->type = SIM_COMMAND_TYPE_NONE;
-            break;
-          }
-        if (sim_string_is_number(scanner->value.v_string, 1))
-          command->data.host_mac_event.tzone = g_ascii_strtod(
-              scanner->value.v_string, (gchar**) NULL);
+        {
+          command->type = SIM_COMMAND_TYPE_NONE;
+          break;
+        }
+            if (sim_string_is_number (scanner->value.v_string, TRUE))
+		  				command->data.host_mac_event.tzone = g_ascii_strtod(scanner->value.v_string, (gchar**)NULL);
         else
           {
-            g_message(
-                "Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s",
-                scanner->value.v_string);
-            return FALSE;
+              g_message(" %s: Error: Please check the tzone value: %s. Assumed tzone = 0.", __func__, scanner->value.v_string);
+							//g_message("Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s", scanner->value.v_string);
+              //return FALSE;
           }
         break;
 
@@ -6164,20 +6155,18 @@ sim_command_host_service_event_scan(SimCommand *command, GScanner *scanner)
         g_scanner_get_next_token(scanner); /* value */
 
         if (scanner->token != G_TOKEN_STRING)
-          {
-            command->type = SIM_COMMAND_TYPE_NONE;
-            break;
-          }
-        if (sim_string_is_number(scanner->value.v_string, 1))
-          command->data.host_service_event.tzone = g_ascii_strtod(
-              scanner->value.v_string, (gchar**) NULL);
+        {
+          command->type = SIM_COMMAND_TYPE_NONE;
+          break;
+        }
+            if (sim_string_is_number (scanner->value.v_string, TRUE))
+		  				command->data.host_service_event.tzone = g_ascii_strtod(scanner->value.v_string, (gchar**)NULL);
         else
-          {
-            g_message(
-                "Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s",
-                scanner->value.v_string);
-            return FALSE;
-          }
+        {
+          g_message(" %s: Error: Please check the tzone value: %s. Assumed tzone = 0.", __func__, scanner->value.v_string);
+				  //g_message("Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s", scanner->value.v_string);
+          //return FALSE;
+        }
         break;
 
       case SIM_COMMAND_SYMBOL_ID:
@@ -6484,20 +6473,18 @@ sim_command_host_ids_event_scan(SimCommand *command, GScanner *scanner)
         g_scanner_get_next_token(scanner); /* value */
 
         if (scanner->token != G_TOKEN_STRING)
-          {
-            command->type = SIM_COMMAND_TYPE_NONE;
-            break;
-          }
-        if (sim_string_is_number(scanner->value.v_string, 1))
-          command->data.host_ids_event.tzone = g_ascii_strtod(
-              scanner->value.v_string, (gchar**) NULL);
-        else
-          {
-            g_message(
-                "Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s",
-                scanner->value.v_string);
-            return FALSE;
-          }
+        {
+          command->type = SIM_COMMAND_TYPE_NONE;
+          break;
+        }
+        if (sim_string_is_number (scanner->value.v_string, TRUE))
+		  		command->data.host_ids_event.tzone = g_ascii_strtod(scanner->value.v_string, (gchar**)NULL);
+				else
+				{
+          g_message(" %s: Error: Please check the tzone value: %s. Assumed tzone = 0.", __func__, scanner->value.v_string);
+					//g_message("Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s", scanner->value.v_string);
+          //return FALSE;
+        }
         break;
 
       case SIM_COMMAND_SYMBOL_ID:

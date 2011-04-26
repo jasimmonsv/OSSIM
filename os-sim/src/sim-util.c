@@ -710,24 +710,35 @@ sim_string_is_number (gchar *string,
 	gboolean ok = FALSE;
   int count = 0;
 
-	if (!string)
+	if (!string || !strcmp(string,"."))
 		return FALSE;
 
-	for (n=0; n < strlen(string); n++)
-	{
-	  if (g_ascii_isdigit (string[n]))
-	    ok=TRUE;
+	if (g_str_has_prefix (string, "-") || g_str_has_prefix (string, "+"))
+		n = 1;
+		//g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_string_is_number: has prefix");
 	  else
-    if (may_be_float)
+		n = 0;
+
+  //g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_string_is_number string: %s", string);
+
+	for (; n < strlen(string); n++)
     { 
-      if ((string[n] == '.') && (count == 0))
+    //g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_string_is_number: %c", string[n]);
+	  if (g_ascii_isdigit (string[n]))
+		{
+	    ok=TRUE;
+    	//g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_string_is_number: OK 1");
+		}
+	  else
+    if (may_be_float && count == 0 && (string[n] == '.' || string[n]==','))
       {
         count++;
         ok = TRUE;
-      }			
+      //g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_string_is_number: OK 2");
     }
     else
 	  {
+    	//g_log (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "sim_string_is_number: FALSE");
 	    ok = FALSE;
 	    break;
 	  }

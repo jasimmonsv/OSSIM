@@ -1491,12 +1491,10 @@ sim_command_snort_event_scan(SimCommand *command, GScanner *scanner)
           command->data.event.tzone = g_ascii_strtod(scanner->value.v_string,
               (gchar**) NULL);
         else
-          {
-            g_message(
-                "Error: date zone is not right. event incorrect. Please check the date tzone issued from the agent: %s",
-                scanner->value.v_string);
-            return FALSE;
-          }
+				{
+					g_message("%s: Error: Please check the tzone value: %s. Assumed tzone = 0.", __func__, scanner->value.v_string);
+          command->data.event.tzone = 0;
+				}        
         break;
 
       case SIM_COMMAND_SYMBOL_SNORT_EVENT_IF:
