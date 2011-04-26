@@ -12,7 +12,7 @@
 */
 require_once ('classes/Session.inc');
 require_once ('ossim_conf.inc');
-
+Session::logcheck("MenuMonitors", "MonitorsInventory");
 $conf = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 $opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
