@@ -96,8 +96,12 @@ class OssimMainError {
        
 		if ($option == "noback")
 			$this->action = "die();";
-        else if ( !empty($option) && $option !== false )
+		else if ( !empty($option) && $option !== false)
+			$this->action = $option;
+		
+		if ($this->action) 
 			eval($this->action);
+		
     }
     
 	function get($error_code = NULL, $extrainfo = NULL) {
@@ -385,7 +389,7 @@ class OssimWarn extends OssimMainError {
                 "short_descr" => gettext("Warning!") ,
                 "long_descr"  => "%1%"
         );
-		
+						
 	}
 }
 class OssimNotice extends OssimMainError {

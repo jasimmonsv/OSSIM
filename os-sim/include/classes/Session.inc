@@ -564,7 +564,7 @@ else {
 				$link = ( empty($link) ) ? "<a class='color: #00529B !important' href='/ossim/session/login.php?action=logout' title='"._("Logout")."'><span class='notice_link'>[ "._("Logout")." ]</span></a>" : $link;
 			}
 			
-			$error = new OssimNotice();
+			$error = new OssimNotice(null, $action);
 			
 			//CSS styles
 			
