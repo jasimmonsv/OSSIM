@@ -253,17 +253,15 @@ else {
 			}
 			}
 			*/
-			// Always enabled
 			$mysql_login = Session::login_mysql($login, $password);
-			if ($mysql_login == false) return false;
-			elseif ($mysql_login == true) {
+			if ($mysql_login == true) {
 				session_regenerate_id(); // generate a new session identifier
 				$_SESSION["_user"] = $login;
 				Session_activity::insert($conn);
 				$db->close($conn);
 				return true;
 			}
-			if ($conf->get_conf("login_enable_ldap", FALSE) == "yes" && Session::login_ldap($login, $password)) {
+			elseif ($conf->get_conf("login_enable_ldap", FALSE) == "yes" && Session::login_ldap($login, $password)) {
 				session_regenerate_id(); // generate a new session identifier
 				$_SESSION["_user"] = $login;
 				Session_activity::insert($conn);
