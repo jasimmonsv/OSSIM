@@ -605,7 +605,7 @@ class Host {
 	        $hosts = $icons = array();
     		$hlist = Host::get_list($conn);
 	        foreach ($hlist as $h) {
-	            $hosts[$h->get_ip()] = $h->get_name();
+	            $hosts[$h->get_ip()] = $h->get_hostname();
 	            $icons[$h->get_ip()] = $h->get_icon();
 	        }
     	}

@@ -140,7 +140,7 @@ if (isset($_GET['refresh']) && is_numeric($_GET['refresh'])) $refresh = $_GET['r
 else $refresh = 2;
 $db = new ossim_db();
 $conn = $db->connect();
-$query = "select * from host_qualification order by (compromise+attack)/2 desc limit $numhosts;";
+$query = "select * from host_qualification order by (compromise+attack)/2 desc";
 if (!$rs = & $conn->Execute($query)) {
     print $conn->ErrorMsg();
     exit();
@@ -152,12 +152,12 @@ $i = 0;
 $addresses[$i] = "Hosts";
 $compromise[$i] = "Compromise";
 $attack[$i] = "Attack";
-for ($j = 1; $j < $numhosts + 1; $j++) {
+for ($j = 1; $j <= $numhosts; $j++) {
     $addresses[$j] = "no data";
     $compromise[$j] = "0";
     $attack[$j] = "0";
 }
-while (!$rs->EOF) {
+while (!$rs->EOF) if ($i<$numhosts) {
     if (Session::hostAllowed($conn,$rs->fields['host_ip'])) {
 		$i++;
 		$addresses[$i] = $rs->fields["host_ip"];

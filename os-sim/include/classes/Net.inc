@@ -357,9 +357,9 @@ class Net {
         if ($skip_group_update != 1) {
             Net_group_reference::check_orphan($conn, $name);
         }
-        if (!$skip_template) {
-            Acl::remove_cidrs_from_templates($conn, explode(",",$ips));
-        }
+        //if (!$skip_template) {
+        //    Acl::remove_cidrs_from_templates($conn, explode(",",$ips));
+        //}
         Net_sensor_reference::delete($conn, $name);
         Net::cache_delete_cidr($conn, $ips);
         $infolog = array(
