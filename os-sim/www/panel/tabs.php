@@ -186,7 +186,7 @@
 								<?php
 								} else if ($show_edit && $can_edit) { ?>
 									<a style="color:#FFFFFF" href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?edit=0&panel_id=<?php echo $panel_id ?>"><?php
-									echo gettext("No Edit"); ?></a>
+									echo gettext("Save"); ?></a>
 									|
 							<?php } ?>
 								<? //}
