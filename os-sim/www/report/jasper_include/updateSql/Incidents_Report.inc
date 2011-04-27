@@ -39,6 +39,7 @@
 /*
  */
 $NoData=false;
+
 $_GET['report_type']='incident';
 $_GET['hmenu']='PDF+Report';
 $_GET['smenu']='PDF+Report';
@@ -81,19 +82,38 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsForensics");
 require_once 'classes/Security.inc';
 require_once 'classes/PDF.inc';
-/**/
 require_once ('ossim_db.inc');
-/**/
+
+
 session_cache_limiter('private');
+
 $pathtographs = dirname($_SERVER['REQUEST_URI']);
-$proto = "http";
-$date_from = (POST('date_from') != "") ? POST('date_from') : strftime("%d/%m/%Y %H:%M:%S", time() - (24 * 60 * 60));
-$date_to = (POST('date_to') != "") ? POST('date_to') : strftime("%d/%m/%Y %H:%M:%S", time());
+$proto        = "http";
+
+$db    = new ossim_db();
+$conn  = $db->connect();
+
+
+if ( POST('date_from') != "" && POST('date_to') != "" )
+{
+	$date_from   = POST('date_from')." 00:00:00";
+	$date_to     = POST('date_to')." 23:59:59";
+}
+else
+{
+	$date_from = strftime("%d/%m/%Y 00:00:00", time() - (24 * 60 * 60));
+	$date_to   = strftime("%d/%m/%Y 23:59:59", time());
+}
+
+
+
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") $proto = "https";
 $datapath = "$proto://" . $_SERVER['SERVER_ADDR'] . ":" . $_SERVER['SERVER_PORT'] . "$pathtographs/graphs";
+
 //This is used to give the name to the created pdf
 $date_gen = date("d-m-y");
-function clean_tmp_files() {
+function clean_tmp_files() 
+{
     if (isset($GLOBALS['tmp_files'])) {
         foreach($GLOBALS['tmp_files'] as $file) {
             unlink($file);
@@ -126,7 +146,7 @@ function sql_report_data($sql=NULL, $report_data_type){
         $db = new ossim_db();
         $temp_conn = $db->connect();
         $temp_conn->Execute('use datawarehouse');
-        $temp_conn->Execute('delete from report_data where id_report_data_type='.$report_data_type.' AND user="'.$_SESSION['_user'].'"');
+        $temp_conn->Execute('DELETE FROM report_data WHERE id_report_data_type='.$report_data_type.' AND user="'.$_SESSION['_user'].'"');
 
         foreach($sql as $value){
             foreach($value as $value2){
@@ -231,111 +251,134 @@ function CreateSql($array, $type, &$NoData){
 }
 /* END - Jasper Functions */
 
-    $alarm = POST('Alarm');
-    $event = POST('Event');
-    $metric = POST('Metric');
-    $anomaly = POST('Anomaly');
+    $alarm         = POST('Alarm');
+    $event         = POST('Event');
+    $metric        = POST('Metric');
+    $anomaly       = POST('Anomaly');
     $vulnerability = POST('Vulnerability');
-    $type = POST('Type');
-    $in_charge = POST('In_Charge');
-    $title = POST('Title');
-    $date = POST('Date');
-    $status = POST('Status');
-    ossim_valid($type, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("type"));
+    $type          = POST('Type');
+    $in_charge     = POST('In_Charge');
+    $title         = POST('Title');
+    $date          = POST('Date');
+    $status        = POST('Status');
+    
+	ossim_valid($type, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("type"));
     ossim_valid($status, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("status"));
     ossim_valid($in_charge, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC, 'illegal:' . _("in_charge"));
-    if (ossim_error()) {
+	
+	if (ossim_error()) {
         die(ossim_error());
     }
-    $pdf = new PDF("OSSIM Tickets Report", "P", "mm", "A4");
+    
+	$pdf = new PDF("OSSIM Tickets Report", "P", "mm", "A4");
     $pdf->IncidentGeneralData($title, $date);
     $priority = 0;
-    if (POST('High')) {
+    
+	if (POST('High')) 
+	{
         $priority = " (priority > 7";
         if (POST('Medium')) $priority.= " or ( priority > 4 and priority <= 7 )";
         if (POST('Low')) $priority.= " or ( priority > 0 and priority <= 4 )";
         $priority.= ")";
-    } elseif (POST('Medium')) {
+    } 
+	elseif (POST('Medium')) 
+	{
         $priority = " (priority > 4 and priority =< 7";
         if (isset($_POST["Low"])) $priority.= " or ( priority > 0 and priority <= 4 )";
         $priority.= ")";
-    } elseif (POST('Low')) $priority = " ( priority > 0 and priority <= 4 )";
-    $fil = "";
-    if ($type != "ALL") $fil.= " and type_id = '$type'";
-    if ($status != "ALL") $fil.= " and status = '$status'";
-    if ($in_charge != "") $fil.= " and in_charge = '$in_charge'";
-    /* metrics */
+    } 
+	elseif (POST('Low')) $priority = " ( priority > 0 and priority <= 4 )";
+    
+	$fil = "";
+    
+	if ($type != "ALL") $fil.= " and type_id = '$type'";
+    
+	if ($status != "ALL") $fil.= " and status = '$status'";
+    
+	if ($in_charge != "") $fil.= " and in_charge = '$in_charge'";
+   
+   /* metrics */
     if (POST('Metric')) {
-        /**/
+       
         $query_temp=new ArrayObject();
-        /**/
-        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("METRICS") , "Metric", $metrics_notes, $priority, $fil),30,&$NoData);
-        $ids = $pdf->get_metric_ids($priority, $fil);
-        foreach($ids as $incident_id) {
+       
+        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("METRICS") , "Metric", $metrics_notes, $priority, $fil, null, $conn, null),30,&$NoData);
+        $ids = $pdf->get_metric_ids($priority, $fil, null, null, $conn);
+       
+		foreach($ids as $incident_id) {
             $query_temp[]=CreateSql($pdf->IncidentNoPDF($incident_id),30,&$NoData);
         }
-        /**/
+        
         sql_report_data($query_temp, 30);
-        /**/
+        
     }
+	
     /* alarms */
-    if (POST('Alarm')) {
-        /**/
+    if (POST('Alarm')) 
+	{
         $query_temp=new ArrayObject();
-        /**/
-        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("ALARMS") , "Alarm", $alarms_notes, $priority, $fil),28,&$NoData);
-        $ids = $pdf->get_alarm_ids($priority, $fil);
-        foreach($ids as $incident_id) {
+       
+        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("ALARMS") , "Alarm", $alarms_notes, $priority, $fil, null, $conn, null),28,&$NoData);
+        $ids = $pdf->get_alarm_ids($priority, $fil, null, null, $conn);
+       
+	    foreach($ids as $incident_id) {
             $query_temp[]=CreateSql($pdf->IncidentNoPDF($incident_id),28,&$NoData);
         }
-        /**/
+        
         sql_report_data($query_temp, 28);
-        /**/
+        
     }
+	
     /* events */
-    if (POST('Event')) {
-        /**/
+    if (POST('Event')) 
+	{
         $query_temp=new ArrayObject();
-        /**/
-        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("ALERTS") , "Event", $events_notes, $priority, $fil),29,&$NoData);
-        $ids = $pdf->get_event_ids($priority, $fil);
+        
+        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("ALERTS") , "Event", $events_notes, $priority, $fil, null, $conn, null),29,&$NoData);
+        $ids = $pdf->get_event_ids($priority, $fil, null, null, $conn);
         foreach($ids as $incident_id) {
             $query_temp[]=CreateSql($pdf->IncidentNoPDF($incident_id),29,&$NoData);
         }
-        /**/
+        
         sql_report_data($query_temp, 29);
-        /**/
+        
     }
+	
     /* anomalies */
-    if (POST('Anomaly')) {
-        /**/
+    if (POST('Anomaly'))
+	{
         $query_temp=new ArrayObject();
-        /**/
-        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("ANOMALIES") , "Anomaly", $events_notes, $priority, $fil),31,&$NoData);
-        $ids = $pdf->get_anomaly_ids($priority, $fil);
-        foreach($ids as $incident_id) {
+        
+        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("ANOMALIES") , "Anomaly", $events_notes, $priority, $fil, null, $conn, null),31,&$NoData);
+        $ids = $pdf->get_anomaly_ids($priority, $fil, null, null, $conn);
+        
+		foreach($ids as $incident_id) {
             $query_temp[]=CreateSql($pdf->IncidentNoPDF($incident_id),31,&$NoData);
         }
-        /**/
+        
         sql_report_data($query_temp, 31);
-        /**/
+        
     }
+	
     /* vulnerabilities */
-    if (POST('Vulnerability')) {
-        /**/
+    if (POST('Vulnerability'))
+	{
         $query_temp=new ArrayObject();
-        /**/
-        $query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("VULNERABILITIES") , "Vulnerability", $vulnerabilities_notes, $priority, $fil),32,&$NoData);
-        $ids = $pdf->get_vulnerability_ids($priority, $fil);
-        foreach($ids as $incident_id) {
+                
+		$query_temp[]=CreateSql($pdf->IncidentSummaryNoPDF(gettext("VULNERABILITIES") , "Vulnerability", $vulnerabilities_notes, $priority, $fil, null, $conn, null),32,&$NoData);
+        
+		$ids = $pdf->get_vulnerability_ids($priority, $fil, null, null, $conn);
+        
+		foreach($ids as $incident_id) {
             $query_temp[]=CreateSql($pdf->IncidentNoPDF($incident_id),32,&$NoData);
         }
-        /**/
+       
         sql_report_data($query_temp, 32);
-        /**/
+       
     }
-    //die();
-    if(!$NoData){
+    
+    
+	if(!$NoData){
         die(_('No data'));
     }
     //$pdf->Output("OSSIM-" . $date_gen . ".pdf", "I");

@@ -300,7 +300,6 @@ class PDF extends FPDF {
 		foreach ($incident_list as $incident)
 		    $ids[$incident->get_id()] = $incident->get_id();
         
-		
 		return $ids;
     }
 	
@@ -369,8 +368,8 @@ class PDF extends FPDF {
 	
 	function IncidentSummaryNoPDF($title, $ref, $summary, $priority, $fil, $assets=null, $conn=null, $user=null) {
         $ids = array();
-      
-        $returnContent = array();
+        
+		$returnContent = array();
        
         $this->__WriteTitle($title);
         $this->SetFont('Arial', '', 12);

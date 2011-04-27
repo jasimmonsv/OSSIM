@@ -34,6 +34,7 @@
 * Function list:
 * Classes list:
 */
+
 require_once ('classes/Session.inc');
 require_once ('classes/JasperReport.inc');
 require_once ('classes/Log_config.inc');
@@ -124,6 +125,7 @@ $db->close($conn);
             var pre="#pre_"+id;
             var btn="#btn_"+id;
             var parameter=getParameters(id);
+						
             $.ajax({
                 type: "GET",
                 url: 'jasper_execute_report.php',
