@@ -646,6 +646,8 @@ class Incident {
     function get_list_filtered($conn,  $host_ip,  $args = "", $user = "") {
         require_once ('classes/Session.inc');
         require_once ('classes/CIDR.inc');
+		require_once ('classes/Net.inc');
+		require_once ('classes/Host.inc');
         
 		if ( $user != '' || empty($host_ip) )
 		{
@@ -656,38 +658,44 @@ class Incident {
 				
 		// Network or Host filter
 		$list = array();
-						
-		if ( is_array($host_ip) )
-		{
-			if ( $host_ip == "" ) 
-				$assets   = array();
-			else
-			{	
-				foreach ($host_ip as $k => $v)
-					$assets[] = $k;
-			}
-		}
+		
+		if ( empty($host_ip) )
+			$assets   = array();
 		else
 		{
-			if ( $host_ip == "" ) 
-				$assets   = array();
-			else 
-				$assets[] = $host_ip;
-		}	
-		
+			if ( is_array($host_ip) )
+			{
+				foreach ($host_ip as $k => $v)
+				{
+					$index          = ( preg_match("/,/",$k) ) ? Net::get_ips_by_name($conn,$v) : long2ip($k);
+					$assets[$index] = $k;
+				}
+			}
+			else
+			{
+				$index          = ( preg_match("/,/",$k) ) ? Net::get_ips_by_name($conn,$v) : long2ip($k);
+				$assets[$index] = $k;
+			}	
+		}
+					
 		$host_where = $host_where_2 = $host_where_3 = "";
 		
-			
+		/*
+		echo "<pre>";
+			print_r($assets);
+		echo "</pre>";
+		*/
+		
 		foreach ($assets as $k => $v) 
 		{
 			if (preg_match("/,/",$v)) 
 			{
 							
-				$range        = explode(",",$v);
-				$host_where  .= " OR (INET_ATON(SUBSTRING_INDEX(a.src_ips, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.src_ips, ',', 1)) <= ".$range[1].") OR (INET_ATON(SUBSTRING_INDEX(a.dst_ips, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.dst_ips, ',', 1)) <= ".$range[1].")";
-				$host_where_2 = " OR (INET_ATON(SUBSTRING_INDEX(a.ip, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.ip, ',', 1)) <= ".$range[1].")";
-				$host_where_3 = " OR (INET_ATON(SUBSTRING_INDEX(a.target, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.target, ',', 1)) <= ".$range[1].")";
-				
+				$range         = explode(",",$v);
+				$host_where   .= " OR (INET_ATON(SUBSTRING_INDEX(a.src_ips, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.src_ips, ',', 1)) <= ".$range[1].") OR (INET_ATON(SUBSTRING_INDEX(a.dst_ips, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.dst_ips, ',', 1)) <= ".$range[1].")";
+				$host_where_2 .= " OR (INET_ATON(SUBSTRING_INDEX(a.ip, ',', 1)) >= ".$range[0]." AND INET_ATON(SUBSTRING_INDEX(a.ip, ',', 1)) <= ".$range[1].")";
+				$host_where_3 .= " OR a.target LIKE '%$k%'";
+								
 				#$host_where   = "a.src_ips LIKE '$host_ip%' OR a.dst_ips LIKE '$host_ip%' OR a.src_ips LIKE ',$host_ip%' OR a.dst_ips LIKE ',$host_ip%'";
 	            #$host_where_2 = "a.ip LIKE '$host_ip%'";
 	            #$host_where_3 = "a.target LIKE '$host_ip%'";
@@ -695,10 +703,10 @@ class Incident {
 			else 
 			{
 				$host_where   .= " OR INET_ATON(SUBSTRING_INDEX(a.src_ips, ',', 1)) = '$v' OR INET_ATON(SUBSTRING_INDEX(a.dst_ips, ',', 1)) = '$v'";
-				$host_where_2 .= " OR INET_ATON(SUBSTRING_INDEX(a.ip,',', 1)) = '$v'";
-				$host_where_3 .= " OR INET_ATON(SUBSTRING_INDEX(a.target, ',', 1)) = '$v'";
+				$host_where_2 .= " OR INET_ATON(SUBSTRING_INDEX(a.ip, ',', 1)) = '$v'";
+				$host_where_3 .= " OR a.target LIKE '%$k%'";
 							
-				#$host_where = "a.src_ips LIKE '%$host_ip%' OR a.dst_ips LIKE '%$host_ip%'";
+				#$host_where   = "a.src_ips LIKE '%$host_ip%' OR a.dst_ips LIKE '%$host_ip%'";
 				#$host_where_2 = "a.ip LIKE '%$host_ip%'";
 				#$host_where_3 = "a.target LIKE '%$host_ip%'"; 
 			}
@@ -708,16 +716,16 @@ class Incident {
 		$host_where_2 = preg_replace("/^ OR /","",$host_where_2);
 		$host_where_3 = preg_replace("/^ OR /","",$host_where_3);
 		
-		if ($host_where=="")   $host_where="1=1";
-		if ($host_where_2=="") $host_where_2="1=1";
-		if ($host_where_3=="") $host_where_3="1=1";
+		if ($host_where   == "" ) $host_where  ="1=1";
+		if ($host_where_2 == "" ) $host_where_2="1=1";
+		if ($host_where_3 == "" ) $host_where_3="1=1";
 		
 		        
 		$sql = "(SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.src_ips 
 				 FROM incident i,incident_alarm a 
                  WHERE i.id=a.incident_id AND ($host_where) $args)
                 UNION
-                ( SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.ip as src_ips 
+                (SELECT i.id, i.title, i.date, i.ref, i.type_id as type, i.submitter as submitter, i.priority, i.in_charge, i.status, i.last_update, i.event_start, i.event_end,a.ip as src_ips 
 				  FROM incident i,incident_vulns a 
                   WHERE i.id=a.incident_id AND ($host_where_2) $args)
                 UNION
