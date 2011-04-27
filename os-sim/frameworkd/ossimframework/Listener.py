@@ -67,12 +67,14 @@ class FrameworkBaseRequestHandler(SocketServer.StreamRequestHandler):
         self.__id = None
 
         logger.debug("Request from: %s:%i" % (self.client_address))
+
         while 1:
             try:
                 line = self.rfile.readline().rstrip('\n')
 
                 if len(line) > 0:
                     command = line.split()[0]
+
                     # set sane default response
                     response = ""
 
@@ -195,8 +197,6 @@ class FrameworkBaseServer(SocketServer.ThreadingTCPServer):
     def serve_forever(self):
         while True:
             self.handle_request()
-
-
    
         return
 

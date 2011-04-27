@@ -33,6 +33,7 @@
 # GLOBAL IMPORTS
 #
 import random, threading, time
+
 from threading import Timer
 #
 # LOCAL IMPORTS
@@ -57,6 +58,7 @@ class ControlManager:
         self.__myDB_connected = False
         self.__myconf = conf
         self.__transaction_timeout = 60
+
         self.__control = DoControl(self)
         self.__control.start()
 
@@ -77,15 +79,15 @@ class ControlManager:
         new_command = new_command[0:len(new_command) - 1]
         new_command += '}'
         # add this connection to the transaction map
-        transaction = self.__transaction_id_get()
-        self.transaction_map[transaction] = {'socket':requestor, 'time':time.time()}
+        #transaction = self.__transaction_id_get()
+        #self.transaction_map[transaction] = {'socket':requestor, 'time':time.time()}
         # append the transaction to the message for tracking
         if self.control_agents.has_key(agent_id):
-            self.control_agents[agent_id].wfile.write(new_command + ' transaction="%s"\n' % transaction)
-            logger.info("Updating asset list to agent: %s --- transaction:%s" % (agent_id, transaction))
-
+            self.control_agents[agent_id].wfile.write(new_command + ' transaction="NA"\n')
+            logger.info("Updating asset list to agent: %s " % (agent_id))
     def process(self, requestor, command, line):
         logger.debug("Processing: %s" % line)
+
         response = ""
         action = Util.get_var("action=\"([^\"]+)\"", line)
 
@@ -102,12 +104,10 @@ class ControlManager:
             # add this connection to our control agent collection
             self.control_agents[id] = requestor
 
-
             # indicate we're good to go
             response = 'ok id="%s"\n' % id
             timer = Timer(5.0, self.refreshAgentCache, (requestor, id,))
             timer.start()
-
 
         elif action == "getconnectedagents":
 
@@ -132,18 +132,19 @@ class ControlManager:
         else:
             # check if we are a transaction
             transaction = Util.get_var("transaction=\"([^\"]+)\"", line)
+
             if transaction != "":
                 if transaction not in self.transaction_map:
                     logger.error("Transaction %s has no apparent originator!", transaction)
 
                 else:
+                    # respond to the original requester
+                    self.transaction_map[transaction]["socket"].wfile.write(line + "\n")
+
                     # remove from map if end of transaction
                     if Util.get_var("(ackend)", line) != "":
                         logger.debug("Closing transaction: %s" % transaction)
                         del self.transaction_map[transaction]
-                    else:
-                        # respond to the original requester
-                        self.transaction_map[transaction]["socket"].wfile.write(line + "\n")
 
             # assume we are a command request to an agent
             else:
@@ -151,6 +152,7 @@ class ControlManager:
 
                 if id == "" or id == "all":
                     logger.debug("Broadcasting to all ...");
+
                     if len(self.control_agents) == 0:
                         response = line + ' errno="-1" error="No agents available." ackend\n'
 
