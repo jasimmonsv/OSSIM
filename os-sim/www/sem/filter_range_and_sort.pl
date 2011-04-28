@@ -147,6 +147,10 @@ foreach my $file (@files) {
 			#
 			my $pre_filter = $filter;
             if ( $pre_filter !~ /^[^ ]*\!=]*/ && $pre_filter !~ /taxonomy/ && $pre_filter !~ /plugingroup/ && $pre_filter !~ /dsgroup/) {
+                $pre_filter =~ s/\[/\\\[/g;
+                $pre_filter =~ s/\]/\\\]/g;
+                $pre_filter =~ s/\(/\\\(/g;
+                $pre_filter =~ s/\)/\\\)/g;
                 $pre_filter =~ s/^[^ ]*= AND //g; # remove broken entries like: data= AND data="string"; This should actually be fixed where $filer is set first, to apply both here and in the set_filter function.
                 $pre_filter =~ s/^[^ ]*\!=[^ ]*//g;
                 $pre_filter =~ s/ .*//; # keep just the first filter expression
@@ -282,6 +286,10 @@ sub pass_filters {
                 $pass_filter = 1 if ($type eq "src_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($src_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($src_ip));
                 $pass_filter = 1 if ($type eq "dst_net" && $filters{$key1}{$key2}{$type}{'from'} <= ip2long($dst_ip) && $filters{$key1}{$key2}{$type}{'to'} >= ip2long($dst_ip));
                 $match = $filters{$key1}{$key2}{$type};
+                $match =~ s/\[/\[/g;
+		$match =~ s/\]/\]/g;
+		$match =~ s/\(/\(/g;
+		$match =~ s/\)/\)/g;                                                                
                 $pass_filter = 1 if ($type eq "data" && $data =~ /$match/i);
                 
                 if (defined $neg_filters{$key1}{$key2}) {

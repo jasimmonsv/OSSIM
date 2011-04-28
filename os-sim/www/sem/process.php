@@ -703,8 +703,8 @@ foreach($result as $res=>$event_date) {
                 foreach(split("[\=\| \t:\,\"\']", $matches[12]) as $piece) {
                     $clean_piece = str_replace("(", " ", $piece);
                     $clean_piece = str_replace(")", " ", $clean_piece);
-                    $clean_piece = str_replace("[", " ", $clean_piece);
-                    $clean_piece = str_replace("]", " ", $clean_piece);
+                    //$clean_piece = str_replace("[", " ", $clean_piece);
+                    //$clean_piece = str_replace("]", " ", $clean_piece);
                     $clean_piece = Util::htmlentities($clean_piece);
                     $red = 0;
                     foreach($color_words as $word) {
