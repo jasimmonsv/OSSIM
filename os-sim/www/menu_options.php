@@ -35,55 +35,75 @@
 * Classes list:
 */
 require_once ('ossim_conf.inc');
+require_once ('classes/Upgrade.inc');
+require_once ('classes/Session.inc');
 
-$conf = $GLOBALS["CONF"];
-$version = $conf->get_conf("ossim_server_version", FALSE);
+$conf           = $GLOBALS["CONF"];
+$version        = $conf->get_conf("ossim_server_version", FALSE);
 $cloud_instance = ($conf->get_conf("cloud_instance", FALSE) == 1) ? true : false;
-$opensource = (!preg_match("/pro|demo/i",$version)) ? true : false;
-$prodemo = (preg_match("/demo/i",$version)) ? true : false;
-require_once 'classes/Upgrade.inc';
+$opensource     = (!preg_match("/pro|demo/i",$version)) ? true : false;
+$prodemo        = (preg_match("/demo/i",$version)) ? true : false;
+
 $upgrade = new Upgrade();
-if (Session::am_i_admin() && $upgrade->needs_upgrade()) {
-    $menu["Upgrade"][] = array(
+
+if ( Session::am_i_admin() && $upgrade->needs_upgrade() ) 
+{
+    
+	$menu["Upgrade"][] = array(
         "name" => gettext("System Upgrade Needed") ,
         "id" => "Upgrade",
         "url" => "upgrade/index.php"
     );
-    $hmenu["Upgrade"][] = array(
+    
+	$hmenu["Upgrade"][] = array(
         "name" => gettext("Software Upgrade") ,
         "id" => "Upgrade",
         "url" => "upgrade/"
     );
-    $hmenu["Upgrade"][] = array(
+    
+	$hmenu["Upgrade"][] = array(
         "name" => gettext("Update Notification") ,
         "id" => "Updates",
         "url" => "updates/index.php"
     );
-    $GLOBALS['ossim_last_error'] = false;
+    
+	$GLOBALS['ossim_last_error'] = false;
 }
 /* Dashboards */
 $dashboards = 0;
-if (Session::menu_perms("MenuControlPanel", "ControlPanelExecutive")) { $dashboards = 1; $menu["Dashboards"][] = array(
-    "name" => gettext("Dashboards") ,
-    "id" => "Executive Panel",
-    "url" => "panel/"
-);
+if (Session::menu_perms("MenuControlPanel", "ControlPanelExecutive"))
+{ 
+	$dashboards = 1; 
+	$menu["Dashboards"][] = array(
+		"name" => gettext("Dashboards") ,
+		"id" => "Executive Panel",
+		"url" => "panel/"
+	);
 }
-if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::menu_perms("MenuControlPanel", "ControlPanelMetrics")) { $dashboards = 1;
-    if (Session::menu_perms("MenuControlPanel", "BusinessProcesses")) {
+
+if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::menu_perms("MenuControlPanel", "ControlPanelMetrics")) 
+{ 
+	$dashboards = 1;
+	
+    if (Session::menu_perms("MenuControlPanel", "BusinessProcesses")) 
+	{
 		$menu["Dashboards"][] = array(
 	      "name" => gettext("Risk") ,
 	      "id" => "Risk",
 	      "url" => "risk_maps/riskmaps.php?view=1"
 	    );
-    } else {
+    } 
+	else 
+	{
     	$menu["Dashboards"][] = array(
 	      "name" => gettext("Risk") ,
 	      "id" => "Risk",
 	      "url" => "control_panel/global_score.php?range=day"
 	    );
     }
-    if (Session::menu_perms("MenuControlPanel", "BusinessProcesses")) {
+    
+	if (Session::menu_perms("MenuControlPanel", "BusinessProcesses")) 
+	{
         $hmenu["Risk"][] = array(
           "name" => gettext("Risk Maps"),
           "id" => "Risk",
@@ -91,17 +111,20 @@ if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::men
           "url" => "risk_maps/riskmaps.php?view=1",
           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:dashboards:risk:risk_maps','DashboardHelp');"
         );
-        $rmenu["Risk"][] = array(
+        
+		$rmenu["Risk"][] = array(
           "name" => gettext("Set Indicators"),
           "target" => "main",
           "url" => "../risk_maps/riskmaps.php"
         );
-        $rmenu["Risk"][] = array(
+        
+		$rmenu["Risk"][] = array(
           "name" => gettext("Manage maps"),
           "target" => "main",
           "url" => "../risk_maps/riskmaps.php?view=2"
         );
     }
+	
     if (Session::menu_perms("MenuControlPanel", "ControlPanelMetrics")) {
         $hmenu["Risk"][] = array(
             "name" => gettext("Risk Metrics") ,
@@ -116,15 +139,19 @@ if (Session::menu_perms("MenuControlPanel", "BusinessProcesses") || Session::men
 
 /* Incidents */
 $incidents = 0;
-if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { $incidents = 1;
-    $menu["Incidents"][] = array(
+
+if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { 
+	$incidents = 1;
+    
+	$menu["Incidents"][] = array(
         "name" => gettext("Alarms") ,
         "id" => "Alarms",
         "url" => "control_panel/alarm_console.php?&hide_closed=1"
         //"url" => "control_panel/alarm_group_console.php"
         
     );
-    $hmenu["Alarms"][] = array(
+    
+	$hmenu["Alarms"][] = array(
         "name" => gettext("Alarms") ,
         "id" => "Alarms",
         "target" => "main",
@@ -132,7 +159,8 @@ if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { $incidents = 1
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:alarms:alarms','Help');",
     	"config" => "alarms"
     );
-    if (Session::menu_perms("MenuIncidents", "ReportsAlarmReport")) $hmenu["Alarms"][] = array(
+    
+	if (Session::menu_perms("MenuIncidents", "ReportsAlarmReport")) $hmenu["Alarms"][] = array(
         "name" => gettext("Report") ,
         "id" => "Report",
         "url" => "report/sec_report.php?section=all&type=alarm",
@@ -144,8 +172,12 @@ if (Session::menu_perms("MenuIncidents", "ControlPanelAlarms")) { $incidents = 1
           "url" => "tags_edit.php"
         );
 }
-if (Session::menu_perms("MenuIncidents", "IncidentsIncidents")) { $incidents = 1;
-    $menu["Incidents"][] = array(
+
+if (Session::menu_perms("MenuIncidents", "IncidentsIncidents")) { 
+	
+	$incidents = 1;
+    
+	$menu["Incidents"][] = array(
         "name" => gettext("Tickets") ,
         "id" => "Tickets",
         "url" => "incidents/index.php?status=$status"
@@ -158,26 +190,42 @@ if (Session::menu_perms("MenuIncidents", "IncidentsIncidents")) { $incidents = 1
         "config" => "tickets"
     );
 }
-if (Session::menu_perms("MenuIncidents", "IncidentsTypes") && Session::am_i_admin()) { $incidents = 1; $rmenu["Tickets"][] = array(
-    "name" => gettext("Types") ,
-    "id" => "Types",
-    "url" => "../incidents/incidenttype.php"
-);
+
+if (Session::menu_perms("MenuIncidents", "IncidentsTypes") && Session::am_i_admin()) 
+{ 
+	$incidents = 1; 
+	
+	$rmenu["Tickets"][] = array(
+		"name" => gettext("Types") ,
+		"id" => "Types",
+		"url" => "../incidents/incidenttype.php"
+	);
 }
-if (Session::menu_perms("MenuIncidents", "IncidentsTags") && Session::am_i_admin()) { $incidents = 1; $rmenu["Tickets"][] = array(
-    "name" => gettext("Tags") ,
-    "id" => "Tags",
-    "url" => "../incidents/incidenttag.php"
-);
+
+if (Session::menu_perms("MenuIncidents", "IncidentsTags") && Session::am_i_admin()) 
+{ 
+	$incidents = 1; 
+	$rmenu["Tickets"][] = array(
+		"name" => gettext("Tags") ,
+		"id" => "Tags",
+		"url" => "../incidents/incidenttag.php"
+	);
 }
-if (Session::menu_perms("MenuIncidents", "IncidentsReport")) { $incidents = 1; $hmenu["Tickets"][] = array(
-    "name" => gettext("Report") ,
-    "id" => "Report",
-    "url" => "report/incidentreport.php",
-    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:report','Help');"
-);
+
+if (Session::menu_perms("MenuIncidents", "IncidentsReport")) 
+{ 
+	$incidents = 1; 
+	$hmenu["Tickets"][] = array(
+		"name" => gettext("Report") ,
+		"id" => "Report",
+		"url" => "report/incidentreport.php",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:incidents:report','Help');"
+	);
 }
-if (Session::menu_perms("MenuIncidents", "ConfigurationEmailTemplate") && Session::am_i_admin()) { $incidents = 1;
+
+if (Session::menu_perms("MenuIncidents", "ConfigurationEmailTemplate") && Session::am_i_admin()) 
+{ 
+	$incidents = 1;
     $rmenu["Tickets"][] = array(
         "name" => gettext("Email Template") ,
         "id" => "Incidents Email Template",
@@ -185,14 +233,17 @@ if (Session::menu_perms("MenuIncidents", "ConfigurationEmailTemplate") && Sessio
     );
 }
 
-if (Session::menu_perms("MenuIncidents", "Osvdb")) { // if (file_exists($version_file)) {
+if (Session::menu_perms("MenuIncidents", "Osvdb")) 
+{ 
     $incidents = 1;
+	
 	$menu["Incidents"][] = array(
         "name" => gettext("Knowledge DB") ,
         "id" => "Repository",
         "url" => "repository/index.php"
     );
-    $hmenu["Repository"][] = array(
+    
+	$hmenu["Repository"][] = array(
         "name" => gettext("Knowledge DB") ,
         "id" => "Repository",
         "url" => "repository/index.php",
@@ -202,18 +253,24 @@ if (Session::menu_perms("MenuIncidents", "Osvdb")) { // if (file_exists($version
 
 /* Events */
 $events = 0;
-if (Session::menu_perms("MenuEvents", "EventsForensics")) { $events = 1;
+
+if ( Session::menu_perms("MenuEvents", "EventsForensics") ) 
+{ 
+	$events = 1;
+	
 	$tmp_month = date("m");
-	$tmp_day = date("d");
-	$tmp_year = date("Y");
+	$tmp_day   = date("d");
+	$tmp_year  = date("Y");
 	$today = '&time%5B0%5D%5B0%5D=+&time%5B0%5D%5B1%5D=%3E%3D&time%5B0%5D%5B2%5D=' . $tmp_month . '&time%5B0%5D%5B3%5D=' . $tmp_day . '&time%5B0%5D%5B4%5D=' . $tmp_year . '&time%5B0%5D%5B5%5D=&time%5B0%5D%5B6%5D=&time%5B0%5D%5B7%5D=&time%5B0%5D%5B8%5D=+&time%5B0%5D%5B9%5D=+&time_range=today';
-    $menu["Analysis"][] = array(
+    
+	$menu["Analysis"][] = array(
         "name" => gettext("SIEM") ,
         "id" => "Forensics",
         //"url" => $conf->get_conf("acid_link", FALSE) . "/" . $conf->get_conf("event_viewer", FALSE) . "_qry_main.php?&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d"
         "url" => "forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d".$today
     );
-    $hmenu["Forensics"][] = array(
+    
+	$hmenu["Forensics"][] = array(
         "name" => gettext("SIEM") ,
         "id" => "Forensics",
         //"url" => $conf->get_conf("acid_link", FALSE) . "/" . $conf->get_conf("event_viewer", FALSE) . "_qry_main.php?&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d"
@@ -221,32 +278,37 @@ if (Session::menu_perms("MenuEvents", "EventsForensics")) { $events = 1;
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:SIEM','EventHelp')",
     	"config" => "siem"
     );
-}
-
-if (Session::menu_perms("MenuEvents", "EventsForensics")) { $events = 1;
+	
 	$hmenu["Forensics"][] = array(
 	    "name" => gettext("Statistics") ,
 	    "id" => "Events Stats",
 	    "url" => "report/event_stats.php",
 	    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:statistics','EventHelp')"
 	);
+	
+	$rmenu["Forensics"][] = array(
+	  "name" => gettext("Manage References"),
+	  "target" => "main",
+	  "url" => "../forensics/manage_references.php"
+	);
 }
 
-$rmenu["Forensics"][] = array(
-  "name" => gettext("Manage References"),
-  "target" => "main",
-  "url" => "../forensics/manage_references.php"
-);
 
-if (is_dir("/var/ossim/")) {
+
+if (is_dir("/var/ossim/")) 
+{
     // Only show SEM menu if SEM is available
-    if (Session::menu_perms("MenuEvents", "ControlPanelSEM")) { $events = 1;
-        $menu["Analysis"][] = array(
+    if (Session::menu_perms("MenuEvents", "ControlPanelSEM")) 
+	{ 
+		$events = 1;
+        
+		$menu["Analysis"][] = array(
             "name" => gettext("Logger") ,
             "id" => "SEM",
             "url" => ($conf->get_conf("server_remote_logger", FALSE)=="yes") ? "sem/remote_index.php" : "sem/index.php"
         );
-        $hmenu["SEM"][] = array(
+        
+		$hmenu["SEM"][] = array(
             "name" => gettext("Logs") ,
             "id" => "SEM",
             "url" => "sem/index.php",
@@ -256,58 +318,70 @@ if (is_dir("/var/ossim/")) {
     }
 }
 
-if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { $events = 1;
-    $menu["Analysis"][] = array(
+if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { 
+	$events = 1;
+    
+	$menu["Analysis"][] = array(
         "name" => gettext("Vulnerabilities") ,
         "id" => "Vulnerabilities",
         "url" => "vulnmeter/index.php"
     );
-    $hmenu["Vulnerabilities"][] = array(
+    
+	$hmenu["Vulnerabilities"][] = array(
         "name" => gettext("Vulnerabilities") ,
         "id" => "Vulnerabilities",
         "url" => "vulnmeter/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:vulnerabilities','EventHelp')",
     	"config" => "vulnerabilities"
     );
-    $hmenu["Vulnerabilities"][] = array(
+    
+	$hmenu["Vulnerabilities"][] = array(
         "name" => gettext("Reports") ,
         "id" => "Reports",
         "url" => "vulnmeter/reports.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:reports','EventHelp')"
     );
-    $hmenu["Vulnerabilities"][] = array(
+    
+	$hmenu["Vulnerabilities"][] = array(
         "name" => gettext("Scan Jobs") ,
         "id" => "Jobs",
         "url" => "vulnmeter/manage_jobs.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:jobs','EventHelp')"
     );
-    $rmenu["Vulnerabilities"][] = array(
+    
+	$rmenu["Vulnerabilities"][] = array(
         "name" => gettext("Profiles") ,
         "id" => "ScanProfiles",
         "url" => "../vulnmeter/settings.php"
     );
-    $rmenu["Reports"][] = array(
+    
+	$rmenu["Reports"][] = array(
         "name" => gettext("Profiles") ,
         "id" => "ScanProfiles",
         "url" => "../vulnmeter/settings.php"
     );
-    $rmenu["Jobs"][] = array(
+    
+	$rmenu["Jobs"][] = array(
         "name" => gettext("Profiles") ,
         "id" => "ScanProfiles",
         "url" => "../vulnmeter/settings.php"
     );
-    $rmenu["Database"][] = array(
+    
+	$rmenu["Database"][] = array(
         "name" => gettext("Profiles") ,
         "id" => "ScanProfiles",
         "url" => "../vulnmeter/settings.php"
     );
-    $hmenu["Vulnerabilities"][] = array(
+    
+	$hmenu["Vulnerabilities"][] = array(
         "name" => gettext("Threats Database") ,
         "id" => "Database",
         "url" => "vulnmeter/threats-db.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:vulnerabilities:threats_database','EventHelp')"
     );
-    if($_SESSION["_user"]=="admin") {
+    
+	if( Session::am_i_admin() ) 
+	{
         $rmenu["Vulnerabilities"][] = array(
            "name" => gettext("Settings") ,
            "id" => "Settings",
@@ -333,75 +407,115 @@ if (Session::menu_perms("MenuEvents", "EventsVulnerabilities")) { $events = 1;
 
 // Detection
 $detection = 0;
-if (Session::menu_perms("MenuEvents", "EventsForensics") ||
-    Session::menu_perms("MenuEvents", "ReportsWireless") ||
-    Session::menu_perms("MenuEvents", "EventsAnomalies")) { $events = 1;
-    if (Session::menu_perms("MenuEvents", "EventsNids")) {
-        $detection = 1;
-        $menu["Analysis"][] = array(
+
+$report_wireless    = Session::menu_perms("MenuEvents", "ReportsWireless");
+$events_anomalies   = Session::menu_perms("MenuEvents", "EventsAnomalies");
+$events_nids        = Session::menu_perms("MenuEvents", "EventsNids");
+$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
+$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
+
+if ( $report_wireless || $events_anomalies || $events_nids || $events_hids || $events_hids_config ) 
+{ 
+	$events = 1;
+    
+	if ( $events_nids || $events_hids || $events_hids_config ) {
+        
+		$detection = 1;
+        
+		$menu["Analysis"][] = array(
             "name" => gettext("Detection") ,
             "id" => "Detection",
             "url" => "panel/nids.php"
         );
-        $hmenu["Detection"][] = array(
-            "name" => gettext("NIDS") ,
-            "id" => "Detection",
-            "url" => "panel/nids.php",
-            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:NIDS','Help');"
-        );
+		
+		if ( $events_nids )
+		{
+			$hmenu["Detection"][] = array(
+				"name" => gettext("NIDS") ,
+				"id" => "Detection",
+				"url" => "panel/nids.php",
+				"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:NIDS','Help');"
+			);
+		}
+		
+		if ( $events_hids || $events_hids_config ) 
+		{
+			$hmenu["Detection"][] = array(
+				"name" => gettext("HIDS") ,
+				"id" => "HIDS",
+				"url" => "ossec/status.php",
+				"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
+			);	
+						
+			if ( $events_hids_config ) 
+			{
+				$rmenu["HIDS"][] = array(
+					   "name" => gettext("Edit Rules") ,
+					   "url" => "index.php"
+				);
+				
+				$rmenu["HIDS"][] = array(
+					   "name" => gettext("Config") ,
+					   "url" => "config.php"
+				);
+			}
+			
+			if ( $events_hids  || $events_hids_config ) 
+			{
+				$rmenu["HIDS"][] = array(
+					   "name" => gettext("Agents") ,
+					   "url" => "agent.php"
+				);
+				$rmenu["HIDS"][] = array(
+					   "name" => gettext("Agentless") ,
+					   "url" => "agentless.php"
+				);
+			}
+		
+			if ( $events_hids_config ) 
+			{
+				$rmenu["HIDS"][] = array(
+					   "name" => gettext("Ossec Control") ,
+					   "url" => "ossec_control.php"
+				);
+			}
+		}
     }
-    if (Session::menu_perms("MenuEvents", "EventsHids")) {
-            $hmenu["Detection"][] = array(
-                "name" => gettext("HIDS") ,
-                "id" => "HIDS",
-                "url" => "ossec/status.php",
-                "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
-            );	
-            $rmenu["HIDS"][] = array(
-                   "name" => gettext("Edit Rules") ,
-                   "url" => "index.php"
-            );
-            $rmenu["HIDS"][] = array(
-                   "name" => gettext("Config") ,
-                   "url" => "config.php"
-            );
-            $rmenu["HIDS"][] = array(
-                   "name" => gettext("Agents") ,
-                   "url" => "agent.php"
-            );
-            $rmenu["HIDS"][] = array(
-                   "name" => gettext("Agentless") ,
-                   "url" => "agentless.php"
-            );
-            $rmenu["HIDS"][] = array(
-                   "name" => gettext("Ossec Control") ,
-                   "url" => "ossec_control.php"
-            );
-    }
-    if (Session::menu_perms("MenuEvents", "ReportsWireless")) {
+		
+    if ( $report_wireless ) 
+	{
         $ids = "Wireless";
-        if (!$detection) {
-            $detection = 1; $ids = "Detection";
-            $menu["Analysis"][] = array(
+        
+		if (!$detection) 
+		{
+            $detection = 1; 
+			$ids = "Detection";
+            
+			$menu["Analysis"][] = array(
                 "name" => gettext("Detection") ,
                 "id" => "Detection",
                 "url" => "wireless/"
             );
         }
-        $hmenu["Detection"][] = array(
+        
+		$hmenu["Detection"][] = array(
            "name" => gettext("Wireless IDS") ,
            "id" => $ids,
            "url" => "wireless/",
            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:wireless','EventHelp')"
         );
-        $rmenu["Wireless"][] = array(
+        
+		$rmenu["Wireless"][] = array(
            "name" => gettext("Setup"),
            "url" => "../wireless/setup.php"
         );
     };   
-    if (Session::menu_perms("MenuEvents", "EventsAnomalies")) {
+	
+    if ( $events_anomalies ) 
+	{
         $ids = "Anomalies";
-        if (!$detection) {
+        
+		if (!$detection) {
             $ids = "Detection";
             $menu["Analysis"][] = array(
                 "name" => gettext("Detection") ,
@@ -409,7 +523,8 @@ if (Session::menu_perms("MenuEvents", "EventsForensics") ||
                 "url" => "control_panel/anomalies.php"
             );
         }    
-        $hmenu["Detection"][] = array(
+        
+		$hmenu["Detection"][] = array(
             "name" => gettext("Anomalies") ,
             "id" => $ids,
             "url" => "control_panel/anomalies.php",
@@ -420,6 +535,7 @@ if (Session::menu_perms("MenuEvents", "EventsForensics") ||
 
 /* Reports */
 $reports = 0;
+
 if (Session::menu_perms("MenuReports", "ReportsGLPI") && $conf->get_conf("glpi_link", FALSE) != "") { $reports = 1;
 	$menu["Reports"][] = array(
 	    "name" => gettext("GLPI") ,
@@ -429,8 +545,9 @@ if (Session::menu_perms("MenuReports", "ReportsGLPI") && $conf->get_conf("glpi_l
 }
 
 // Report Manager
-if ($opensource) {
-	if (Session::menu_perms("MenuReports", "ReportsReportServer")
+if ($opensource) 
+{
+	if ( Session::menu_perms("MenuReports", "ReportsReportServer" )
 		/*|| Session::menu_perms("MenuReports", "ReportsHostReport")
 		|| Session::menu_perms("MenuEvents", "EventsForensics")
 		|| Session::menu_perms("MenuEvents", "ControlPanelSEM")
@@ -439,78 +556,96 @@ if ($opensource) {
 		|| Session::menu_perms("MenuEvents", "EventsAnomalies")
 		|| Session::menu_perms("MenuIncidents", "IncidentsIncidents")
 		|| Session::menu_perms("MenuControlPanel", "ControlPanelMetrics")*/
-		) { $reports = 1;
-	    $menu["Reports"][] = array(
+		) { 
+		
+		$reports = 1;
+	    
+		$menu["Reports"][] = array(
 	       "name" => gettext("Reports") ,
 	       "id" => "Reporting Server",
 	       "target" => "main",
 	       "url" => "report/jasper.php?mode=simple"
 	    );
-	    $hmenu["Reporting Server"][] = array(
+	    
+		$hmenu["Reporting Server"][] = array(
 	       "name" => gettext("Reports") ,
 	       "id" => "Reporting Server",
 	       "target" => "main",
 	       "url" => "report/jasper.php?mode=simple",
 	       "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:reports','Help');"
 	    );
-	    //if (Session::menu_perms("MenuReports", "ReportsReportServer")) {
+	    
+		//if (Session::menu_perms("MenuReports", "ReportsReportServer")) {
         $rmenu["Reporting Server"][] = array(
            "name" => gettext("Manager"),
            "target" => "main",
            "url" => "../report/jasper.php?mode=advanced"
         );
         // "url" => "../report/jasper.php?mode=advanced&link=".urlencode($reporting_link)
-        $hmenu["Reporting Server"][] = array(
+        
+		$hmenu["Reporting Server"][] = array(
            "name" => gettext("Customize") ,
            "id" => "Parameters",
            "target" => "main",
            "url" => "report/jasper.php?mode=config",
            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:customize','Help');"
         );
-        $rmenu["Parameters"][] = array(
+        
+		$rmenu["Parameters"][] = array(
            "name" => gettext("Manager"),
            "target" => "main",
            "url" => "../report/jasper.php?mode=advanced"
         );
 	}
-} else {
+} 
+else 
+{
 	// pro-version
-	if (Session::menu_perms("MenuReports", "ReportsReportServer")) { $reports = 1;
-	    $menu["Reports"][] = array(
+	if (Session::menu_perms("MenuReports", "ReportsReportServer")) 
+	{ 
+		$reports = 1;
+	    
+		$menu["Reports"][] = array(
 	       "name" => gettext("Reports") ,
 	       "id" => "Reporting Server",
 	       "target" => "main",
 	       "url" => "report/wizard_custom_reports.php?hmenu=Reporting+Server&smenu=Reporting+Server"
 	    );
-	    $hmenu["Reporting Server"][] = array(
+	    
+		$hmenu["Reporting Server"][] = array(
 	       "name" => gettext("Reports") ,
 	       "id" => "Reporting Server",
 	       "target" => "main",
 	       "url" => "report/wizard_custom_reports.php",
 	       "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:custom+reports','Help');"
 	    );
-        if (Session::am_i_admin()) $hmenu["Reporting Server"][] = array(
+        
+		if (Session::am_i_admin()) $hmenu["Reporting Server"][] = array(
            "name" => gettext("Modules") ,
            "id" => "Subreports",
            "target" => "main",
            "url" => "report/wizard_subreports.php",
            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:subreports','Help');"
         );
-        $hmenu["Reporting Server"][] = array(
+        
+		$hmenu["Reporting Server"][] = array(
            "name" => gettext("Layouts"),
            "id" => "Parameters",
            "target" => "main",
            "url" => "report/wizard_profiles.php",
            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:layouts','Help');"
         );
-        $hmenu["Reporting Server"][] = array(
+        
+		$hmenu["Reporting Server"][] = array(
             "name" => gettext("Scheduler"),
             "id" => "Scheduler",
             "target" => "main",
             "url" => "report/wizard_scheduler.php",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:scheduler','Help');"
         );
-        if (!$cloud_instance) {        
+        
+		if (!$cloud_instance) 
+		{        
 	        $hmenu["Reporting Server"][] = array(
 	           "name" => gettext("FOSS Reports"),
 	           "id" => "OSReports",
@@ -520,17 +655,20 @@ if ($opensource) {
 	           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:reports:reports','Help');"
 	        );
 	        // "url" => "../report/jasper.php?mode=advanced&link=".urlencode($reporting_link)
-	        $rmenu["Reporting Server"][] = array(
+	        
+			$rmenu["Reporting Server"][] = array(
 	           "name" => gettext("FOSS Reports"),
 	           "target" => "main",
 	           "url" => "../report/jasper.php?mode=simple"
 	        );        
-	        $rmenu["OSReports"][] = array(
+	        
+			$rmenu["OSReports"][] = array(
 	           "name" => gettext("Customize"),
 	           "target" => "main",
 	           "url" => "../report/jasper.php?mode=config"
 	        );
-	        $rmenu["OSReports"][] = array(
+	        
+			$rmenu["OSReports"][] = array(
 	           "name" => gettext("Manager"),
 	           "target" => "main",
 	           "url" => "../report/jasper.php?mode=advanced"
@@ -542,19 +680,24 @@ if ($opensource) {
 /* Policy => Assets */
 $assets = 0;
 
-if (!$opensource && Session::menu_perms("MenuPolicy", "PolicyHosts") && Session::menu_perms("MenuPolicy", "PolicyNetworks")) { $assets = 1;
-    $menu["Assets"][] = array(
+if (!$opensource && Session::menu_perms("MenuPolicy", "PolicyHosts") && Session::menu_perms("MenuPolicy", "PolicyNetworks")) 
+{ 
+	$assets = 1;
+    
+	$menu["Assets"][] = array(
       "name" => gettext("Assets") ,
       "id" => "Assets",
       "url" => "policy/entities.php"
     );
-    $hmenu["Assets"][] = array(
+    
+	$hmenu["Assets"][] = array(
       "name" => gettext("Structure"),
       "id" => "Assets",
       "url" => "policy/entities.php",
       "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:structure','Help');"
     );
-    if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+    
+	if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
 	   $rmenu["Assets"][] = array(
 		"name" => gettext("OCS Inventory") ,
 		"target" => "main",
@@ -562,9 +705,10 @@ if (!$opensource && Session::menu_perms("MenuPolicy", "PolicyHosts") && Session:
 		);
 }
 
-if (Session::menu_perms("MenuPolicy", "PolicyHosts") || Session::menu_perms("MenuPolicy", "PolicyNetworks")
-|| Session::menu_perms("MenuPolicy", "PolicyPorts")) { 
-    if (Session::menu_perms("MenuPolicy", "PolicyHosts") && !$assets) {
+if (Session::menu_perms("MenuPolicy", "PolicyHosts") || Session::menu_perms("MenuPolicy", "PolicyNetworks") || Session::menu_perms("MenuPolicy", "PolicyPorts")) 
+{ 
+    
+	if (Session::menu_perms("MenuPolicy", "PolicyHosts") && !$assets) {
         $menu["Assets"][] = array(
           "name" => gettext("Assets") ,
           "id" => "Assets",
@@ -584,76 +728,108 @@ if (Session::menu_perms("MenuPolicy", "PolicyHosts") || Session::menu_perms("Men
           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:ports','Help');"
         );
     }
-    $assets = 1;
-    if (Session::menu_perms("MenuPolicy", "PolicyHosts")) {
-       $id_h = (!preg_match("/entities/",$menu["Assets"][0]["url"]) && (preg_match("/host/",$menu["Assets"][0]["url"]) || preg_match("/host/",$menu["Assets"][1]["url"]))) ? "Assets" : "Hosts";
-       $hmenu["Assets"][] = array(
-          "name" => gettext("Hosts"),
-          "id" => $id_h,
-          "url" => "host/host.php",
-          "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:host','Help');"
-       );
-       if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
-		   $rmenu[$id_h][] = array(
+    
+	$assets = 1;
+    
+	if (Session::menu_perms("MenuPolicy", "PolicyHosts")) 
+	{
+		$id_h = (!preg_match("/entities/",$menu["Assets"][0]["url"]) && (preg_match("/host/",$menu["Assets"][0]["url"]) || preg_match("/host/",$menu["Assets"][1]["url"]))) ? "Assets" : "Hosts";
+       
+		$hmenu["Assets"][] = array(
+		  "name" => gettext("Hosts"),
+		  "id" => $id_h,
+		  "url" => "host/host.php",
+		  "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:host','Help');"
+		);
+       
+		if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+		{
+			$rmenu[$id_h][] = array(
 			"name" => gettext("OCS Inventory") ,
 			"target" => "main",
 			"url" => "../policy/ocs_index.php?hmenu=Assets&smenu=Inventory"
 			);
-       $hmenu["Assets"][] = array(
-          "name" => gettext("Host groups") ,
-          "id" => "Host groups",
-          "url" => "host/hostgroup.php",
-          "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:host','Help');"
-        );
-       if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
-		   $rmenu["Host groups"][] = array(
-			"name" => gettext("OCS Inventory") ,
-			"target" => "main",
-			"url" => "../policy/ocs_index.php?hmenu=Assets&smenu=Inventory"
+		}
+	   
+			$hmenu["Assets"][] = array(
+				"name" => gettext("Host groups") ,
+				"id" => "Host groups",
+				"url" => "host/hostgroup.php",
+				"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:host','Help');"
 			);
+       
+			if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+			{
+			   $rmenu["Host groups"][] = array(
+				"name" => gettext("OCS Inventory") ,
+				"target" => "main",
+				"url" => "../policy/ocs_index.php?hmenu=Assets&smenu=Inventory"
+				);
+			}
     }
-    if (Session::menu_perms("MenuPolicy", "PolicyNetworks")) { $assets = 1;
-        $id_n = (!preg_match("/entities/",$menu["Assets"][0]["url"]) && (preg_match("/net/",$menu["Assets"][0]["url"]) || preg_match("/net/",$menu["Assets"][1]["url"]))) ? "Assets" : "Networks";
-        $hmenu["Assets"][] = array(
+    
+	if (Session::menu_perms("MenuPolicy", "PolicyNetworks")) 
+	{ 
+		$assets = 1;
+        
+		$id_n = (!preg_match("/entities/",$menu["Assets"][0]["url"]) && (preg_match("/net/",$menu["Assets"][0]["url"]) || preg_match("/net/",$menu["Assets"][1]["url"]))) ? "Assets" : "Networks";
+        
+		$hmenu["Assets"][] = array(
           "name" => gettext("Networks") ,
           "id" => $id_n,
           "url" => "net/net.php",
           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:networks','Help');"
         );
-       if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+		
+		if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+		{
 		   $rmenu[$id_n][] = array(
 			"name" => gettext("OCS Inventory") ,
 			"target" => "main",
 			"url" => "../policy/ocs_index.php?hmenu=Assets&smenu=Inventory"
 			);
-        $hmenu["Assets"][] = array(
+        }
+		
+		$hmenu["Assets"][] = array(
           "name" => gettext("Network groups") ,
           "id" => "Network groups",
           "url" => "net/netgroup.php",
           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:networks','Help');"
         );
-       if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+        
+		if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+		{   
 		   $rmenu["Network groups"][] = array(
 			"name" => gettext("OCS Inventory") ,
 			"target" => "main",
 			"url" => "../policy/ocs_index.php?hmenu=Assets&smenu=Inventory"
 			);
+		}
     }
-    if (Session::menu_perms("MenuPolicy", "PolicyPorts")) { $assets = 1;
-    	$id_p = (!preg_match("/entities/",$menu["Assets"][0]["url"]) && (preg_match("/port/",$menu["Assets"][0]["url"]) || preg_match("/port/",$menu["Assets"][1]["url"]))) ? "Assets" : "Ports";
-        $hmenu["Assets"][] = array(
+    
+	if (Session::menu_perms("MenuPolicy", "PolicyPorts")) 
+	{ 
+		$assets = 1;
+    	
+		$id_p = (!preg_match("/entities/",$menu["Assets"][0]["url"]) && (preg_match("/port/",$menu["Assets"][0]["url"]) || preg_match("/port/",$menu["Assets"][1]["url"]))) ? "Assets" : "Ports";
+        
+		$hmenu["Assets"][] = array(
             "name" => gettext("Ports"),
             "id" => $id_p,
             "url" => "port/port.php",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:assets:ports','Help');"
         );
-        if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+        
+		if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "")
+		{   
 		   $rmenu[$id_p][] = array(
 			"name" => gettext("OCS Inventory") ,
 			"target" => "main",
 			"url" => "../policy/ocs_index.php?hmenu=Assets&smenu=Inventory"
 			);
+		}
     }
+	
 	if (Session::menu_perms("MenuPolicy", "ReportsOCSInventory") && $conf->get_conf("ocs_link", FALSE) != "") { $assets = 1;
 		$hmenu["Assets"][] = array(
 		"name" => gettext("OCS Inventory") ,
@@ -666,18 +842,23 @@ if (Session::menu_perms("MenuPolicy", "PolicyHosts") || Session::menu_perms("Men
 	}
 }
 
-if (Session::menu_perms("MenuPolicy", "5DSearch")) { $assets = 1;
-    $menu["Assets"][] = array(
+if (Session::menu_perms("MenuPolicy", "5DSearch")) 
+{ 
+	$assets = 1;
+    
+	$menu["Assets"][] = array(
         "name" => gettext("Asset Search") ,
         "id" => "Asset Search",
         "url" => "inventorysearch/userfriendly.php"
     );
-    $hmenu["Asset Search"][] = array(
+    
+	$hmenu["Asset Search"][] = array(
         "id" => "Asset Search",
         "name" => gettext("Simple") ,
         "url" => "inventorysearch/userfriendly.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_search','Help');"
     );
+	
 	$hmenu["Asset Search"][] = array(
         "name" => gettext("Advanced") ,
         "id" => "Advanced",
@@ -688,19 +869,22 @@ if (Session::menu_perms("MenuPolicy", "5DSearch")) { $assets = 1;
 }
 
 
-if(Session::am_i_admin()) {
+if(Session::am_i_admin()) 
+{
     $menu["Assets"][] = array(
         "name" => gettext("Asset Discovery") ,
         "id" => "Asset Discovery",
         "url" => "netscan/index.php"
     );
-    $hmenu["Asset Discovery"][] = array(
+    
+	$hmenu["Asset Discovery"][] = array(
         "name" => gettext("Instant Scan") ,
         "id" => "Asset Discovery",
         "url" => "netscan/index.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
     );    
-    if (Session::am_i_admin()) {
+    
+	if (Session::am_i_admin()) {
 	    $rmenu["Asset Discovery"][] = array(
 	        "name" => gettext("Configuration") ,
 	        "target" => "main",
@@ -711,8 +895,11 @@ if(Session::am_i_admin()) {
 
 /* Correlation => Intelligence */
 $correlation = 0;
-if (Session::menu_perms("MenuIntelligence", "PolicyPolicy") || Session::menu_perms("MenuIntelligence", "PolicyActions")) { $correlation = 1;
-    if (Session::menu_perms("MenuIntelligence", "PolicyPolicy")) {
+
+if (Session::menu_perms("MenuIntelligence", "PolicyPolicy") || Session::menu_perms("MenuIntelligence", "PolicyActions")) { 
+	$correlation = 1;
+    
+	if (Session::menu_perms("MenuIntelligence", "PolicyPolicy")) {
         $menu["Intelligence"][] = array(
           "name" => gettext("Policy & Actions") ,
           "id" => "Policy",
@@ -725,7 +912,8 @@ if (Session::menu_perms("MenuIntelligence", "PolicyPolicy") || Session::menu_per
           "url" => "action/action.php"
         );
     }
-    if (Session::menu_perms("MenuIntelligence", "PolicyPolicy")) {
+    
+	if (Session::menu_perms("MenuIntelligence", "PolicyPolicy")) {
         $hmenu["Policy"][] = array(
            "name" => gettext("Policy") ,
            "id" => "Policy",
@@ -737,7 +925,8 @@ if (Session::menu_perms("MenuIntelligence", "PolicyPolicy") || Session::menu_per
            "url" => "../policy/policygroup.php"
         );
     }
-    if (Session::menu_perms("MenuIntelligence", "PolicyActions")) {
+    
+	if (Session::menu_perms("MenuIntelligence", "PolicyActions")) {
         $hmenu["Policy"][] = array(
             "name" => gettext("Actions") ,
             "id" => "Actions",
@@ -746,13 +935,18 @@ if (Session::menu_perms("MenuIntelligence", "PolicyPolicy") || Session::menu_per
         );
     }
 }
-if (Session::menu_perms("MenuIntelligence", "CorrelationDirectives")) { $correlation = 1;
-    $menu["Intelligence"][] = array(
+
+if (Session::menu_perms("MenuIntelligence", "CorrelationDirectives")) { 
+	
+	$correlation = 1;
+    
+	$menu["Intelligence"][] = array(
         "name" => gettext("Correlation Directives") ,
         "id" => "Directives",
         "url" => "directive_editor/main.php"
     );
-    $hmenu["Directives"][] = array(
+    
+	$hmenu["Directives"][] = array(
         "name" => gettext("Directives") ,
         "id" => "Directives",
         "target" => "main",
@@ -760,12 +954,14 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationDirectives")) { $correla
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:correlation_directives:directives','Help');",
     	"config" => "directives"
     );
-    $rmenu["Directives"][] = array(
+    
+	$rmenu["Directives"][] = array(
         "name" => gettext("Numbering and Groups"),
         "target" => "main",
         "url" => "numbering.php"
     );
-    if (Session::menu_perms("MenuIntelligence", "ComplianceMapping")) {
+    
+	if (Session::menu_perms("MenuIntelligence", "ComplianceMapping")) {
         $hmenu["Directives"][] = array(
            "name" => gettext("Properties") ,
            "id" => "Compliance",
@@ -774,7 +970,8 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationDirectives")) { $correla
            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:correlation_directives:properties','Help');"
         );
     }
-    if (Session::menu_perms("MenuIntelligence", "CorrelationBacklog")) {
+    
+	if (Session::menu_perms("MenuIntelligence", "CorrelationBacklog")) {
         $hmenu["Directives"][] = array(
             "name" => gettext("Backlog") ,
             "id" => "Backlog",
@@ -785,41 +982,50 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationDirectives")) { $correla
     }
 }
 
-if (Session::menu_perms("MenuIntelligence", "ComplianceMapping")) { $correlation = 1;
-    $menu["Intelligence"][] = array(
+if (Session::menu_perms("MenuIntelligence", "ComplianceMapping")) { 
+	$correlation = 1;
+    
+	$menu["Intelligence"][] = array(
        "name" => gettext("Compliance Mapping") ,
        "id" => "Compliance",
        "url" => "compliance/iso27001.php"
     );
-    $hmenu["Compliance"][] = array(
+    
+	$hmenu["Compliance"][] = array(
        "name" => gettext("ISO 27001") ,
        "id" => "Compliance",
        "url" => "compliance/iso27001.php",
        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:compliance_mapping:iso_27001','Help');"
     );
-    $hmenu["Compliance"][] = array(
+    
+	$hmenu["Compliance"][] = array(
        "name" => gettext("PCI DSS 2.0") ,
        "id" => "PCIDSS",
        "url" => "compliance/pci-dss.php",
        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:compliance_mapping:pci_dss','Help');"
     );
-    $rmenu["Compliance"][] = array(
+    
+	$rmenu["Compliance"][] = array(
        "name" => gettext("Launch compliance scripts") ,
        "url" => "../compliance/mod_scripts.php"
     );
-    $rmenu["PCIDSS"][] = array(
+    
+	$rmenu["PCIDSS"][] = array(
        "name" => gettext("Launch compliance scripts") ,
        "url" => "../compliance/mod_scripts.php"
     );
 }
 
-if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $correlation = 1;
-    $menu["Intelligence"][] = array(
+if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { 
+	$correlation = 1;
+    
+	$menu["Intelligence"][] = array(
         "name" => gettext("Cross Correlation") ,
         "id" => "Cross Correlation",
         "url" => "conf/pluginref2.php"
     );
-    $hmenu["Cross Correlation"][] = array(
+    
+	$hmenu["Cross Correlation"][] = array(
         "name" => gettext("Rules") ,
         "id" => "Cross Correlation",
         "url" => "conf/pluginref2.php",
@@ -829,13 +1035,16 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) { $c
 
 /* Monitors */
 $monitors = 0;
-if (Session::menu_perms("MenuMonitors", "MonitorsNetflows") && !$cloud_instance) { $monitors = 1;
+if (Session::menu_perms("MenuMonitors", "MonitorsNetflows") && !$cloud_instance) { 
+	$monitors = 1;
+	
 	$menu["Situational Awareness"][] = array(
         "name" => gettext("Network") ,
         "id" => "Network",
         "url" => "nfsen/index.php?tab=2",
 		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors','Help');"
     );
+	
 	$hmenu["Network"][] = array(
         "name" => gettext("Traffic") ,
         "id" => "Network",
@@ -843,6 +1052,7 @@ if (Session::menu_perms("MenuMonitors", "MonitorsNetflows") && !$cloud_instance)
         "url" => "nfsen/index.php?tab=2",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:network:traffic','Help');"
     );
+	
 	$hmenu["Network"][] = array(
         "name" => gettext("Profiles") ,
         "id" => "Profiles",
@@ -851,21 +1061,25 @@ if (Session::menu_perms("MenuMonitors", "MonitorsNetflows") && !$cloud_instance)
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:network:profiles','Help');",
 		"nFrame" => ""
     );
+	
 	$rmenu["Profiles"][] = array(
        "name" => gettext("Services"),
 	   "target" => "main",
        "url" => "../ntop/index.php?opc=services&sensor=" . $sensor_ntop["host"]
     );
+	
 	$rmenu["Profiles"][] = array(
        "name" => gettext("Global"),
 	   "target" => "main",
        "url" => "../ntop/index.php?sensor=" . $sensor_ntop["host"]
     );
+	
 	$rmenu["Profiles"][] = array(
        "name" => gettext("Throughput"),
 	   "target" => "main",
        "url" => "../ntop/index.php?opc=throughput&sensor=" . $sensor_ntop["host"]
     );
+	
 	$rmenu["Profiles"][] = array(
        "name" => gettext("Matrix"),
 	   "target" => "main",
@@ -873,20 +1087,24 @@ if (Session::menu_perms("MenuMonitors", "MonitorsNetflows") && !$cloud_instance)
     );
 }
 
-if (Session::menu_perms("MenuMonitors", "MonitorsAvailability") && !$cloud_instance) { $monitors = 1;
-    $menu["Situational Awareness"][] = array(
+if (Session::menu_perms("MenuMonitors", "MonitorsAvailability") && !$cloud_instance) { 
+	$monitors = 1;
+    
+	$menu["Situational Awareness"][] = array(
         "name" => gettext("Availability") ,
         "id" => "Availability",
         "url" => "nagios/index.php?sensor=" . $sensor_nagios["host"]
     );
-    $hmenu["Availability"][] = array(
+    
+	$hmenu["Availability"][] = array(
         "name" => gettext("Monitoring") ,
         "id" => "Availability",
         "target" => "main",
         "url" => "nagios/index.php?sensor=" . $sensor_nagios["host"],
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:availability','Help');"
     );
-    $hmenu["Availability"][] = array(
+    
+	$hmenu["Availability"][] = array(
         "name" => gettext("Reporting") ,
         "id" => "Reporting",
         "target" => "main",
@@ -894,12 +1112,16 @@ if (Session::menu_perms("MenuMonitors", "MonitorsAvailability") && !$cloud_insta
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:availability','Help');"
     );
 }
-if (!$opensource && !$cloud_instance && Session::menu_perms("MenuMonitors", "MonitorsInventory")) { $monitors = 1;
+
+if (!$opensource && !$cloud_instance && Session::menu_perms("MenuMonitors", "MonitorsInventory")) { 
+	$monitors = 1;
+	
 	$menu["Situational Awareness"][] = array(
 	    "name" => gettext("Inventory") ,
 	    "id" => "Inventory",
 	    "url" => "policy/entities.php?onlyinventory=1",
 	);
+	
 	$hmenu["Inventory"][] = array(
 	    "name" => gettext("Inventory") ,
 	    "id" => "Inventory",
@@ -908,28 +1130,33 @@ if (!$opensource && !$cloud_instance && Session::menu_perms("MenuMonitors", "Mon
 	    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors','Help');"
 	);
 }
+
 /* Configuration */
 $configuration = 0;
-if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) { //if (file_exists($version_file)) {
+if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) { 
     $configuration = 1;
+	
 	$menu["Configuration"][] = array(
         "name" => gettext("Main") ,
         "id" => "Main",
         "url" => "conf/main.php"
     );
-    $hmenu["Main"][] = array(
+    
+	$hmenu["Main"][] = array(
         "name" => gettext("Simple") ,
         "id" => "Main",
         "url" => "conf/main.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:configuration','Help');"
     );
-    $hmenu["Main"][] = array(
+    
+	$hmenu["Main"][] = array(
         "name" => gettext("Advanced") ,
         "id" => "Advanced",
         "url" => "conf/main.php?adv=1",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:configuration','Help');"
     );
-    if (Session::am_i_admin()) {
+    
+	if (Session::am_i_admin()) {
         $hmenu["Main"][] = array(
 	        "name" => gettext("Customization Wizard") ,
 	        "id" => "Customize",
@@ -939,48 +1166,60 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) { //if (file_
     }
 }
 
-if (Session::menu_perms("MenuConfiguration", "ConfigurationUsers")) { $configuration = 1;
-    $users_path = ($opensource) ? "session/users.php" : "acl/users.php";
+if (Session::menu_perms("MenuConfiguration", "ConfigurationUsers")) { 
+	$configuration = 1;
+    
+	$users_path = ($opensource) ? "session/users.php" : "acl/users.php";
+	
 	$menu["Configuration"][] = array(
         "name" => gettext("Users") ,
         "id" => "Users",
         "url" => $users_path
     );
-    $hmenu["Users"][] = array(
+    
+	$hmenu["Users"][] = array(
         "name" => gettext("Configuration") ,
         "id" => "Users",
         "url" => $users_path,
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:users','Help');",
     	"config" => "users"
     );
-	if (!$opensource && (Session::am_i_admin() || Acl::am_i_proadmin())) {
-	$rmenu["Users"][] = array(
-          "name" => gettext("Entities"),
-          "target" => "main",
-          "url" => "../acl/entities.php"
-        );
-	$rmenu["Users"][] = array(
-          "name" => gettext("Templates"),
-          "target" => "main",
-          "url" => "../acl/templates.php"
-        );
-	$rmenu["Users"][] = array(
-          "name" => gettext("Password Policy"),
-          "target" => "main",
-          "url" => "../conf/main.php?adv=1&passpolicy=1&hmenu=Main&smenu=Advanced"
-        );        
+	
+	if (!$opensource && (Session::am_i_admin() || Acl::am_i_proadmin())) 
+	{
+		$rmenu["Users"][] = array(
+			  "name" => gettext("Entities"),
+			  "target" => "main",
+			  "url" => "../acl/entities.php"
+			);
+		$rmenu["Users"][] = array(
+			  "name" => gettext("Templates"),
+			  "target" => "main",
+			  "url" => "../acl/templates.php"
+			);
+		$rmenu["Users"][] = array(
+			  "name" => gettext("Password Policy"),
+			  "target" => "main",
+			  "url" => "../conf/main.php?adv=1&passpolicy=1&hmenu=Main&smenu=Advanced"
+			);        
 	}
 }
-if (Session::menu_perms("MenuConfiguration", "ConfigurationUserActionLog")) { $configuration = 1; $hmenu["Users"][] = array(
-    "name" => gettext("User activity") ,
-    "id" => "User action logs",
-    "url" => "conf/userlog.php",
-    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:user_activity','Help');",
-	"config" => "userlog"
-);
+
+if (Session::menu_perms("MenuConfiguration", "ConfigurationUserActionLog")) { 
+	$configuration = 1; 
+	$hmenu["Users"][] = array(
+		"name" => gettext("User activity") ,
+		"id" => "User action logs",
+		"url" => "conf/userlog.php",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:users:user_activity','Help');",
+		"config" => "userlog"
+	);
 }
-if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_perms("MenuConfiguration", "PolicySensors")) { $assets = 1;
-    if (Session::menu_perms("MenuConfiguration", "PolicySensors")) {
+
+if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_perms("MenuConfiguration", "PolicySensors")) { 
+	$assets = 1;
+    
+	if (Session::menu_perms("MenuConfiguration", "PolicySensors")) {
         $menu["Configuration"][] = array(
           "name" => gettext("SIEM Components") ,
           "id" => "SIEM Components",
@@ -993,7 +1232,8 @@ if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_p
           "url" => "server/server.php"
         );
     }
-    if (Session::menu_perms("MenuConfiguration", "PolicySensors")) {
+    
+	if (Session::menu_perms("MenuConfiguration", "PolicySensors")) {
         $hmenu["SIEM Components"][] = array(
           "name" => gettext("Sensors") ,
           "id" => (preg_match("/sensor/",$menu["Configuration"][0]["url"]) || preg_match("/sensor/",$menu["Configuration"][1]["url"]) || preg_match("/sensor/",$menu["Configuration"][2]["url"]) || preg_match("/sensor/",$menu["Configuration"][3]["url"])) ? "SIEM Components" : "Sensors",
@@ -1001,7 +1241,8 @@ if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_p
           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:siem_components:sensors','Help');"
         );
     }
-    if (Session::menu_perms("MenuConfiguration", "PolicyServers") && !$opensource) {
+    
+	if (Session::menu_perms("MenuConfiguration", "PolicyServers") && !$opensource) {
         $hmenu["SIEM Components"][] = array(
             "name" => gettext("Servers") ,
             "id" => (preg_match("/server/",$menu["Configuration"][0]["url"]) || preg_match("/server/",$menu["Configuration"][1]["url"]) || preg_match("/server/",$menu["Configuration"][2]["url"]) || preg_match("/server/",$menu["Configuration"][3]["url"])) ? "SIEM Components" : "Servers",
@@ -1016,13 +1257,17 @@ if (Session::menu_perms("MenuConfiguration", "PolicyServers") || Session::menu_p
         );
     }
 }
-if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session::menu_perms("MenuConfiguration", "MonitorsSensors") || Session::menu_perms("MenuConfiguration", "PluginGroups")) { $configuration = 1;
-    $menu["Configuration"][] = array(
+
+if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session::menu_perms("MenuConfiguration", "MonitorsSensors") || Session::menu_perms("MenuConfiguration", "PluginGroups")) { 
+	$configuration = 1;
+    
+	$menu["Configuration"][] = array(
         "name" => gettext("Collection") ,
         "id" => "Plugins",
         "url" => "sensor/sensor_plugins.php"
     );
-    if (Session::menu_perms("MenuConfiguration", "MonitorsSensors")) {
+    
+	if (Session::menu_perms("MenuConfiguration", "MonitorsSensors")) {
 	    $hmenu["Plugins"][] = array(
 	        "name" => gettext("Sensors") ,
 	        "id" => "Plugins",
@@ -1031,6 +1276,7 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session:
 	        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
 	    );
 	}
+	
 	if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins")) {
 	    $hmenu["Plugins"][] = array(
 	        "name" => gettext("Data Sources") ,
@@ -1039,7 +1285,8 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session:
 	        "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugins','Help');"
 	    );
 	}
-    if (Session::menu_perms("MenuConfiguration", "PluginGroups")) {
+    
+	if (Session::menu_perms("MenuConfiguration", "PluginGroups")) {
 		$hmenu["Plugins"][] = array(
 			"name" => gettext("DS Groups") ,
 			"id" => "Plugin Groups",
@@ -1047,53 +1294,61 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationPlugins") || Session:
 			"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:plugin_groups','Help');"
 		);
 	}
-        $hmenu["Plugins"][] = array(
-		"name" => gettext("Custom Collectors") ,
-		"id" => "Custom Collectors",
-		"url" => "policy/collectors.php",
-		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:custom_collectors','Help');"
-        );
-		$hmenu["Plugins"][] = array(
-           "name" => gettext("Taxonomy"),
-           "id" => "Taxonomy",
-           "url" => "conf/category.php",
-           "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:manage_taxonomy','Help');"
-        );
-        $hmenu["Plugins"][] = array(
-            "name" => gettext("Downloads") ,
-            "id" => "Downloads",
-            "url" => "downloads/index.php",
-            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:downloads','Help');"
-        );
+	
+	$hmenu["Plugins"][] = array(
+	"name" => gettext("Custom Collectors") ,
+	"id" => "Custom Collectors",
+	"url" => "policy/collectors.php",
+	"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:custom_collectors','Help');"
+	);
+	
+	$hmenu["Plugins"][] = array(
+	   "name" => gettext("Taxonomy"),
+	   "id" => "Taxonomy",
+	   "url" => "conf/category.php",
+	   "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:collection:manage_taxonomy','Help');"
+	);
+	
+	$hmenu["Plugins"][] = array(
+		"name" => gettext("Downloads") ,
+		"id" => "Downloads",
+		"url" => "downloads/index.php",
+		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:downloads','Help');"
+	);
 
-        if (file_exists("/usr/local/bin/vagent_server.py")) 
-        	$hmenu["Plugins"][] = array(
-		        "name" => gettext("Demo Events") ,
-		        "id" => "Demo Events",
-		        "url" => "sensor/events.php",
-		        "help" => "javascript:;','Help');"
-		    );        
+	if (file_exists("/usr/local/bin/vagent_server.py")) 
+		$hmenu["Plugins"][] = array(
+			"name" => gettext("Demo Events") ,
+			"id" => "Demo Events",
+			"url" => "sensor/events.php",
+			"help" => "javascript:;','Help');"
+		);        
 }
 
-if(Session::menu_perms("MenuConfiguration", "NetworkDiscovery")) { $configuration = 1;
-    $menu["Configuration"][] = array(
+if(Session::menu_perms("MenuConfiguration", "NetworkDiscovery")) { 
+	$configuration = 1;
+    
+	$menu["Configuration"][] = array(
         "name" => gettext("Network Discovery") ,
         "id" => "Network Discovery",
         "url" => "net/assetdiscovery.php"
     );    
-    $hmenu["Network Discovery"][] = array(
+    
+	$hmenu["Network Discovery"][] = array(
         "id" => "Network Discovery",
         "name" => gettext("Passive Network Discovery") ,
         "url" => "net/assetdiscovery.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
     );
-    $hmenu["Network Discovery"][] = array(
+    
+	$hmenu["Network Discovery"][] = array(
         "id" => "Nedi",
         "name" => gettext("Nedi") ,
         "url" => "net/nedi.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:assets:asset_discovery','Help');"
     );
-    $hmenu["Network Discovery"][] = array(
+    
+	$hmenu["Network Discovery"][] = array(
         "id" => "Active Directory",
         "name" => gettext("Active Directory") ,
         "url" => "net/activedirectory.php",
@@ -1101,20 +1356,26 @@ if(Session::menu_perms("MenuConfiguration", "NetworkDiscovery")) { $configuratio
     );
 }
 
-if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session::am_i_admin()) { $configuration = 1;
-    $menu["Configuration"][] = array(
+if (Session::menu_perms("MenuConfiguration", "ConfigurationUpgrade") && Session::am_i_admin()) 
+{ 
+	$configuration = 1;
+    
+	$menu["Configuration"][] = array(
         "name" => gettext("Software Upgrade") ,
         "id" => "Update",
         "url" => "updates/"
     );
-    $hmenu["Update"][] = array(
+    
+	$hmenu["Update"][] = array(
         "name" => gettext("Update Notification") ,
         "id" => "Update",
         "url" => "updates/",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:update_notification','Help');"
     );
 }
-if (Session::menu_perms("MenuConfiguration", "ToolsBackup")) {
+
+if (Session::menu_perms("MenuConfiguration", "ToolsBackup")) 
+{
     $menu["Configuration"][] = array(
         "name" => gettext("Backup") ,
         "id" => "Backup",
@@ -1147,6 +1408,7 @@ if (Session::menu_perms("MenuConfiguration", "ToolsBackup")) {
 
 // Status (next to profile link)
 $sstatus = 0;
+
 if (Session::menu_perms("MenuReports", "ReportsHostReport")) {
     $hmenu["Sysinfo"][] = array(
         "name" => gettext("Data Snapshot") ,
@@ -1167,6 +1429,7 @@ if (Session::menu_perms("MenuConfiguration", "MonitorsSensors")) {
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:sensors','Help');"
       );
 }
+
 if (Session::menu_perms("MenuConfiguration", "ToolsUserLog")) {
 	$hmenu["Sysinfo"][] = array(
 		"name" => gettext("User Activity") ,
@@ -1176,6 +1439,7 @@ if (Session::menu_perms("MenuConfiguration", "ToolsUserLog")) {
 		"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:system:user_activity','Help');"
 	);
 }
+
 if (Session::am_i_admin()) {
 	$hmenu["Sysinfo"][] = array(
 	    "name" => gettext("Hardware Info") ,
@@ -1185,6 +1449,7 @@ if (Session::am_i_admin()) {
 	    "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:sysinfo','Help');"
 	);
 }
+
 $hmenu["Sysinfo"][] = array(
     "name" => gettext("Current Sessions") ,
     "id" => ($sstatus) ? "Sessions" : "Sysinfo",

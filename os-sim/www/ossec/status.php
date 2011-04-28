@@ -38,7 +38,13 @@
 
 require_once ('classes/Session.inc');
 require_once ('utils.php');
-Session::logcheck("MenuEvents", "EventsHids");
+
+$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
+$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
+
+if ( !$events_hids && !$events_hids_config )
+	Session::unallowed_section(null, 'noback',"MenuEvents", "EventsHids");
+
 
 $tz     =(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correction
@@ -389,7 +395,24 @@ function plot_graphic($id, $height, $width, $xaxis, $yaxis, $xticks, $xlabel, $d
 						
 						//Agents trends
 					    $trend = array();
-					    $data  = SIEM_trends_hids($agent[2]);
+						
+						if ( $agent[2] == "127.0.0.1" )
+						{
+							require_once ('classes/Sensor.inc');
+							
+							$db     = new ossim_db();
+							$dbconn = $db->connect();
+	
+							$name   = trim(str_replace("(server)", "", $agent[1]));
+							
+							$sensor = Sensor::get_list($dbconn, "WHERE name = '$name'");
+							
+							$ip = ( empty($sensor) ) ? $agent[2] : $sensor[0]->get_ip(); 
+						}
+						else
+							$ip = $agent[2];
+						
+					    $data  = SIEM_trends_hids($ip);
 						
 						if ( is_array($data) )
 					    {
@@ -495,13 +518,14 @@ function plot_graphic($id, $height, $width, $xaxis, $yaxis, $xticks, $xlabel, $d
 		</table>
 	</div>
 	
+	<!--
 	<div class='status_sec'>
 
-	<p style="width:92%;text-align:left;margin-top:0px;margin-bottom:5px">
-		<a onclick="$('#ossec_header,#ossc_result').toggle();">
-			<img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Ossec Status");?> 
-		</a>
-	</p>
+		<p style="width:92%;text-align:left;margin-top:0px;margin-bottom:5px">
+			<a onclick="$('#ossec_header,#ossc_result').toggle();">
+				<img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/><?php echo _("Ossec Status");?> 
+			</a>
+		</p>
 
 		<?php
 		
@@ -519,6 +543,7 @@ function plot_graphic($id, $height, $width, $xaxis, $yaxis, $xticks, $xlabel, $d
 		</div>
 	
 	</div>
+	-->
 
 </div>
 

@@ -38,7 +38,11 @@
 
 require_once ('classes/Session.inc');
 require_once ('classes/Plugin.inc');
-Session::logcheck("MenuEvents", "EventsHids");
+
+$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
+
+if ( !$events_hids_config)
+	Session::unallowed_section(null, 'noback', "MenuEvents", "EventsHidsConfig");
 
 ?>
 
@@ -275,7 +279,7 @@ Session::logcheck("MenuEvents", "EventsHids");
 			overflow:auto;
 		}
 		
-		#ossc_result,#alerts_result,#logs_result {
+		#ossc_result,#alerts_result,#logs_result, #table_ossc_buttons_actions {
 			margin: auto; 
 			width: 100%; 
 			border: 1px solid #D3D3D3;
@@ -294,13 +298,15 @@ Session::logcheck("MenuEvents", "EventsHids");
 					
 		html ul.oss_tabs li.active a:hover  {cursor:pointer !important;}
 		
-		#ossc_actions {display: none; padding-bottom: 20px;}
+		#ossc_actions {padding-bottom: 20px;}
 				
 		.text_ossc_actions {padding: 10px 0px; text-align:left; border: none !important;}
 		
 		#table_ossc_actions { width: 100%;}
 		#table_ossc_actions th {width: 120px;}
 		
+		#table_ossc_buttons_actions td { padding-bottom: 15px;}
+						
 		.noborder {border: none !important;}
 		
 		.pad10 {padding-top: 10px;}
@@ -394,9 +400,9 @@ $debug_action     = ( count($match_dbg[0]) < 1 ) ? "<span class='not_running'>De
 			<tr>
 				<td id='oss_mcontainer'>
 					<ul class='oss_tabs'>
-						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?=_("Ossec Control")?></a></li>
-						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?=_("Ossec Log")?></a></li>
-						<li id='litem_tab3'><a href="#tab3" id='link_tab3'><?=_("Alerts Log")?></a></li>
+						<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?php echo _("Ossec Control")?></a></li>
+						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?php echo _("Ossec Log")?></a></li>
+						<li id='litem_tab3'><a href="#tab3" id='link_tab3'><?php echo _("Alerts Log")?></a></li>
 					</ul>
 				</td>
 			</tr>
@@ -409,7 +415,7 @@ $debug_action     = ( count($match_dbg[0]) < 1 ) ? "<span class='not_running'>De
 						
 						<div class='text_ossc_actions'>
 							<img border="0" align="absmiddle" src="../pixmaps/arrow_green.gif">
-							<a id='show_actions' class='hide'><span class='bold'><?php echo _("Show actions")?></span></a>
+							<a id='show_actions' class='show'><span class='bold'><?php echo _("Hide actions")?></span></a>
 						</div>
 						
 						<div id='ossc_actions'>
@@ -419,13 +425,16 @@ $debug_action     = ( count($match_dbg[0]) < 1 ) ? "<span class='not_running'>De
 									<th class='headerpr' colspan='5'><?php echo _("Actions")?></th>
 								</tr>
 								<tr id='ossc_buttons_actions'>
-									<td class='noborder center pad10' id='cont_db_action'><?php echo $database_action ?></td>
-									<td class='noborder center pad10' id='cont_cs_action'><?php echo $syslog_action ?></td>
-									<td class='noborder center pad10' id='cont_al_action'><?php echo $agentless_action ?></td>
-									<td class='noborder center pad10' id='cont_dbg_action'><?php echo $debug_action ?></td>
-									<td class='noborder center pad10' id='cont_system_action'><?php echo $system_action ?></td>
+									<td>
+										<table id='table_ossc_buttons_actions'>
+											<td class='noborder center pad10' id='cont_db_action'><?php echo $database_action ?></td>
+											<td class='noborder center pad10' id='cont_cs_action'><?php echo $syslog_action ?></td>
+											<td class='noborder center pad10' id='cont_al_action'><?php echo $agentless_action ?></td>
+											<td class='noborder center pad10' id='cont_dbg_action'><?php echo $debug_action ?></td>
+											<td class='noborder center pad10' id='cont_system_action'><?php echo $system_action ?></td>
+										</table>
+									</td>
 								</tr>
-															
 							</table>
 						</div>
 												

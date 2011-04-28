@@ -32,7 +32,13 @@
 
 require_once ('classes/Session.inc');
 require_once ('utils.php');
-Session::logcheck("MenuEvents", "EventsHids");
+
+$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
+$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
+
+if ( !$events_hids && !$events_hids_config)
+	Session::unallowed_section(null,'noback', "MenuEvents", "EventsHids");
+
 
 $info_error = null;
 $retval     = null;

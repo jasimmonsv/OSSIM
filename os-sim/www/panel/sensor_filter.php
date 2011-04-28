@@ -5,6 +5,7 @@ $timetz = gmdate("U")+(3600*$tz); // time to generate dates with timezone correc
 
 // Sensor sid allowed (snort bbdd)
 function GetSnortSensorSids($conn2) {
+	$ret = array();
 	$query = "SELECT * FROM snort.sensor";
 	if (!$rs = & $conn2->Execute($query)) {
 		print $conn2->ErrorMsg();
@@ -12,7 +13,7 @@ function GetSnortSensorSids($conn2) {
 	}
 	while (!$rs->EOF) {
 		$sname = ($rs->fields['sensor']!="") ? $rs->fields['sensor'] : preg_replace("/-.*/","",preg_replace("/.*\]\s*/","",$rs->fields['hostname']));
-		$ret[$sname][] = $rs->fields['sid'];
+		if ($sname!="") $ret[$sname][] = $rs->fields['sid'];
 		$rs->MoveNext();
 	}
 	return $ret;
