@@ -830,7 +830,7 @@ class Util {
 			$fnd[1] = ($fnd[1]>9) ? $fnd[1] : $fnd[1]."0";
 	        $tzc = $fnd[0].":".$fnd[1];
 		} else {
-	        $tzc = ($tz>0) ? "+$tz:00" : "$tz:00";	
+	        $tzc = ($tz>=0) ? "+$tz:00" : "$tz:00";	
 		}
 		return $tzc;
     }

@@ -2,10 +2,24 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
-require_once 'sensor_filter.php';
-Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
+require_once ('sensor_filter.php');
+require_once ('ossim_db.inc');
+$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
+$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
+$panel_executive    = Session::menu_perms("MenuControlPanel", "ControlPanelExecutive");
 
-require_once 'ossim_db.inc';
+if ( $_SESSION['menu_opc'] == 'Detection' && $_SESSION['menu_sopc'] == 'HIDS' )	
+{
+	if ( !$events_hids && !$events_hids_config )
+		Session::unallowed_section(null, 'noback', "MenuEvents", "EventsHids");
+}
+else
+{
+	if ( !$panel_executive)
+		Session::unallowed_section(null, 'noback', "MenuControlPanel", "ControlPanelExecutive");
+}
+
+
 $db   = new ossim_db();
 $conn = $db->connect();
 session_write_close();

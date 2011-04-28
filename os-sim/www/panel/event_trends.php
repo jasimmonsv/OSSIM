@@ -1,9 +1,24 @@
 <?php
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
-require_once 'classes/Util.inc';
-require_once 'sensor_filter.php';
-Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
+require_once ('classes/Util.inc');
+require_once ('sensor_filter.php');
+
+$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
+$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
+$panel_executive    = Session::menu_perms("MenuControlPanel", "ControlPanelExecutive");
+
+if ( $_SESSION['menu_opc'] == 'Detection' && $_SESSION['menu_sopc'] == 'HIDS' )	
+{
+	if ( !$events_hids && !$events_hids_config )
+		Session::unallowed_section(null, 'noback', "MenuEvents", "EventsHids");
+}
+else
+{
+	if ( !$panel_executive)
+		Session::unallowed_section(null, 'noback', "MenuControlPanel", "ControlPanelExecutive");
+}
+
 session_write_close();
 
 function SIEM_trends($h=24) {
