@@ -456,7 +456,7 @@ usleep(500000);
 					</td>
 					<td class="blackp" style="font-size:8px" align="center" nowrap='nowrap'><?=$anm_date?></td>
 					<td class="blackp" nowrap='nowrap' style="text-align:right"><?php echo _("Last")?> <strong><?php echo _("week")?></strong>:</td>
-					<td class="blackp" style="text-align:left"><a href="../control_panel/anomalies.php" class="blackp"><strong><?=Util::number_format_locale((int)$anm_foundrows_week,0)?></strong> <i><?php echo _("events")?></i></a></td>
+					<td class="blackp" style="text-align:left"><a href="../control_panel/anomalies.php" class="blackp"><strong><?php echo Util::number_format_locale((int)$anm_foundrows_week,0)?></strong> <i><?php echo _("events")?></i></a></td>
 				</tr>
 				<!-- AVAILABILITY -->
 				<tr bgcolor="#E1EFE0">
@@ -466,7 +466,7 @@ usleep(500000);
 						<table class="noborder" cellpadding="0" cellspacing="0">
 							<tr>
 								<td class="theme_i"></td>
-								<td class="theme_b"><a href="../forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=<?php echo urlencode($host)?>&date_range=All" class="whitepn"><?=Util::number_format_locale((int)$ava_foundrows,0)?></a></td>
+								<td class="theme_b"><a href="../forensics/base_qry_main.php?clear_allcriteria=1&num_result_rows=-1&submit=Query+DB&current_view=-1&sort_order=time_d&ip=<?php echo urlencode($host)?>&date_range=All" class="whitepn"><?php echo Util::number_format_locale((int)$ava_foundrows,0)?></a></td>
 								<td class="theme_d"></td>
 							</tr>
 						</table>					

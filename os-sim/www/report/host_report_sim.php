@@ -338,8 +338,8 @@ list($x, $y, $xticks, $xlabels) = Status::range_graphic('custom', $date_range);
 							<tr>
 								<td bgcolor="<?php echo $color?>"><a href="../forensics/base_qry_alert.php?submit=<?php echo rawurlencode($tmp_rowid)?>" style="text-align:left;color: #17457c;font-size:10px"><strong><?php echo $ev['sig_name']?></strong></a></td>
 								<td bgcolor="<?php echo $color?>"><?php echo Util::number_format_locale($ev['sig_cnt'],0)?></td>
-								<? if ($network) { ?><td bgcolor="<?php echo $color?>"><?php echolong2ip($ev['ip_s'])?></td><? } ?>
-								<? if ($network) { ?><td bgcolor="<?php echo $color?>"><?php echolong2ip($ev['ip_d'])?></td><? } ?>
+								<? if ($network) { ?><td bgcolor="<?php echo $color?>"><?php echo long2ip($ev['ip_s'])?></td><? } ?>
+								<? if ($network) { ?><td bgcolor="<?php echo $color?>"><?php echo long2ip($ev['ip_d'])?></td><? } ?>
 								<td bgcolor="<?php echo $color?>"><?php echo $ev['num_sensors']?></td>
 								<td bgcolor="<?php echo $color?>"><?php echo $ev['ip_src']?>/<?php echo $ev['ip_dst']?></td>
 								<td class='center'><?php echo $graph.$plot?></td>

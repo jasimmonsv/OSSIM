@@ -415,7 +415,7 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 							return false;
 						});
 					}
-					else document.getElementById('graph2').innerHTML = '<table align="center" class="noborder"><tr><td class="nobborder" style="text-align:center"><?=gettext("No data Available")?></td></tr></table>';
+					else document.getElementById('graph2').innerHTML = '<table align="center" class="noborder"><tr><td class="nobborder" style="text-align:center"><?php echo _("No data Available")?></td></tr></table>';
 					graphs++;
 				}
 			});

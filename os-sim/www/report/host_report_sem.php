@@ -227,7 +227,7 @@ else $lnk = "ip=$host";
 		</td>
 	</tr>
 	
-	<tr><td><table><tr><td style="text-align:left"><b><?=$sem_foundrows_week?></b> <?=gettext("Logger total events")?> <?=_("in")?> <b><?=_("week range")?></b></td><td style="text-align:right;padding-right:20px"><a style="color:black" href="../sem/index.php?hmenu=SEM&smenu=SEM&query=<?php echo urlencode($lnk)?>"><strong><?=gettext("Logger Events")?> >></strong></a></td></tr></table></td></tr>
+	<tr><td><table><tr><td style="text-align:left"><b><?=$sem_foundrows_week?></b> <?=gettext("Logger total events")?> <?=_("in")?> <b><?=_("week range")?></b></td><td style="text-align:right;padding-right:20px"><a style="color:black" href="../sem/index.php?hmenu=SEM&smenu=SEM&query=<?php echo urlencode($lnk)?>"><strong><?php echo _("Logger Events")?> >></strong></a></td></tr></table></td></tr>
 	<?php
 	} 
 	else 

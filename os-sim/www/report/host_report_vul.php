@@ -121,6 +121,6 @@ else
 		</td>
 	</tr>
 	<tr><td style="text-align:right;padding-right:20px"><a style="color:black" href="<?php echo $temp_url?>"><strong><?=gettext("More")?> >></strong></a></td></tr>
-	<? } ?>
+	<?php } ?>
 	<tr><td></td></tr>
 </table>
