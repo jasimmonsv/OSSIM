@@ -362,6 +362,21 @@ class Status {
 		return array($ports,$ip_sources,$ip_dest);
 	}
 	
+	function get_unknown_sid_name($db,$plugin_id,$plugin_sid) {
+		$plugin_name = "";
+		if (!$rs = $db->Execute("SELECT name FROM ossim.plugin WHERE id=$plugin_id")) 
+            print $db->ErrorMsg();
+        elseif (!$rs->EOF) {
+        	$plugin_name = $rs->fields['name'];
+        }
+        if ($plugin_name!="" && $plugin_sid=2000000000)
+            return "$plugin_name: ".gettext("Generic event");
+        elseif ($plugin_name!="" && $plugin_sid!=2000000000)
+            return "$plugin_name: ".gettext("Unknown event");
+        else
+            return gettext("SigName unknown");		
+	}
+	
 	function get_SIM_Unique ($ip_src="",$ip_dst="",$date_from="",$date_to="",$limit) {
 		require_once ('ossim_db.inc');
 		$dbsock = new ossim_db();
@@ -394,7 +409,7 @@ class Status {
 		list($ip_where,$ip_where_src,$ip_where_dst) = Status::get_sim_ip_filter($ip_src,$ip_dst);
 		
 		// Unique Events
-		$sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT acid_event.sid,acid_event.cid,acid_event.plugin_id,acid_event.plugin_sid, count(plugin_sid) as sig_cnt, min(timestamp), max(timestamp), plugin_sid.name as sig_name, count(DISTINCT(acid_event.sid)), count(DISTINCT(ip_src)), count(DISTINCT(ip_dst)), ip_src, ip_dst FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 $sensor_where$ip_where AND (timestamp BETWEEN '$date_from' AND '$date_to') GROUP BY sig_name ORDER BY sig_cnt DESC LIMIT $limit";
+		$sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT acid_event.sid,acid_event.cid,acid_event.plugin_id,acid_event.plugin_sid, count(plugin_sid) as sig_cnt, min(timestamp), max(timestamp), plugin_sid.name as sig_name, count(DISTINCT(acid_event.sid)), count(DISTINCT(ip_src)), count(DISTINCT(ip_dst)), ip_src, ip_dst FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid WHERE 1 $sensor_where$ip_where AND (timestamp BETWEEN '$date_from' AND '$date_to') GROUP BY acid_event.plugin_id, acid_event.plugin_sid ORDER BY sig_cnt DESC LIMIT $limit";
 		
 		
 		$events = array();
@@ -407,6 +422,10 @@ class Status {
             else $numevents = $rf->fields["total"];
         	while (!$rs->EOF) 
 			{
+				$rs->fields['sig_name'] = trim($rs->fields['sig_name']);
+                if ($rs->fields['sig_name']=="")
+                	 $rs->fields['sig_name'] = Status::get_unknown_sid_name($db,$rs->fields['plugin_id'],$rs->fields['plugin_sid']);
+                	 
 				$events[] = array("plugin_id"=>$rs->fields['plugin_id'],"plugin_sid"=>$rs->fields['plugin_sid'],"sig_cnt"=>$rs->fields['sig_cnt'],"min(timestamp)"=>$rs->fields['min(timestamp)'],"max(timestamp)"=>$rs->fields['max(timestamp)'],"sig_name"=>$rs->fields['sig_name'],"ip_src"=>$rs->fields['count(DISTINCT(ip_src))'],"ip_dst"=>$rs->fields['count(DISTINCT(ip_dst))'],"num_sensors"=>$rs->fields['count(DISTINCT(acid_event.sid))'],"ip_s"=>$rs->fields['ip_src'],"ip_d"=>$rs->fields['ip_dst'],"sid"=>$rs->fields['sid'],"cid"=>$rs->fields['cid']);
 				$rs->MoveNext();
             }
