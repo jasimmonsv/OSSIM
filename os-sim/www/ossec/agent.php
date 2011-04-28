@@ -29,12 +29,7 @@
 *
 * Otherwise you can read it here: http://www.gnu.org/licenses/gpl-2.0.txt
 ****************************************************************************/
-/**
-* Class and Function List:
-* Function list:
-* - match_os()
-* Classes list:
-*/
+
 
 require_once ('classes/Session.inc');
 require_once ('conf/_conf.php');
@@ -95,7 +90,7 @@ if ( !file_exists($agent_conf) )
 		$(document).ready(function() {
 			
 			var error = '<?php echo $error;?>';
-								
+														
 			if (error == false)
 			{			
 				//On Click Event
@@ -112,20 +107,38 @@ if ( !file_exists($agent_conf) )
 			}
 			else
 			{
-				$("ul.oss_tabs #litem_tab2").addClass("active");
 				$('#link_tab1').addClass("dis_tab");
 				
-				$("#litem_tab2").click(function(event) { 
-					event.preventDefault(); 
-					var tab = $("#litem_tab2");
-					show_tab_content(tab);
-					load_agent_tab("#tab2");
-				});
-								
-				load_agent_tab("#tab2");
+				<?php 
+					if ( $events_hids_config ) 
+					{ 
+						?>
+						$("ul.oss_tabs #litem_tab2").addClass("active");
+										
+						$("#litem_tab2").click(function(event) { 
+							event.preventDefault(); 
+							var tab = $("#litem_tab2");
+							show_tab_content(tab);
+							load_agent_tab("#tab2");
+						});
+										
+						load_agent_tab("#tab2");
+						
+						var tab = $("#litem_tab2");
+						show_tab_content(tab);
 				
-				var tab = $("#litem_tab2");
-				show_tab_content(tab);
+						<?php 
+					}
+					else
+					{
+						?>
+							var msg = "<div class='ossim_error'>"+messages[3]+"</div>";
+							$("#cnf_message").html(msg);
+							$("#cnf_message").css('padding', '15px 0px');
+						
+						<?php
+					}	
+					?>
 			}
 			
 							
@@ -182,8 +195,18 @@ if ( !file_exists($agent_conf) )
 		<tr>
 			<td id='oss_mcontainer'>
 				<ul class='oss_tabs'>
+				
 					<li id='litem_tab1'><a href="#tab1" id='link_tab1'><?php echo _("Agent Control")?></a></li>
-					<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?php echo ucfirst(basename($agent_conf))?></a></li>
+					<?php 
+										
+					if ( $events_hids_config ) 
+					{
+						?>
+						<li id='litem_tab2'><a href="#tab2" id='link_tab2'><?php echo ucfirst(basename($agent_conf))?></a></li>
+						<?php 
+					} 
+					?>
+				
 				</ul>
 			</td>
 		</tr>
@@ -197,13 +220,20 @@ if ( !file_exists($agent_conf) )
 				<div id='cnf_message'></div>
 				
 				<div id="tab1" class="tab_content"></div>
-					
-				<div id="tab2" class="tab_content" style='display:none;'>
-					<div id='container_code'><textarea id="code"></textarea></div>
-					<div class='buttons_box'>
-						<div><input type='button' class='save' id='send' value='<?php echo _("Update")?>'/></div>				
+				
+				<?php 
+				if ( $events_hids_config ) 
+				{
+					?>	
+					<div id="tab2" class="tab_content" style='display:none;'>
+						<div id='container_code'><textarea id="code"></textarea></div>
+						<div class='buttons_box'>
+							<div><input type='button' class='save' id='send' value='<?php echo _("Update")?>'/></div>				
+						</div>
 					</div>
-				</div>
+					<?php 
+				} 
+				?>
 			</td>
 		</tr>
 	

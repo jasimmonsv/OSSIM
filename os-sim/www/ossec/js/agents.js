@@ -159,13 +159,14 @@ function send_action(id, action)
 function load_agent_tab(tab)
 {
 	//Add Load img
+		
 	if ($('#cnf_load').length < 1)
 	{
-		$(tab+" div").css('display', 'none');
+		$(tab+" div").hide();
 		var load ="<div id='cnf_load'>"+messages[2]+"</div>";
 		$(tab).append(load);
 	}
-													
+	
 	//Remove error message
 							
 	if ($('#cnf_message').length >= 1)
@@ -196,7 +197,7 @@ function load_agent_tab(tab)
 					{
 						
 						$(tab).html(status[1]);
-													
+						
 						$('#show_agent').bind('click', function() { show_agent("cont_add_agent") });
 						$('#send').bind('click', function() { add_agent() });
 						

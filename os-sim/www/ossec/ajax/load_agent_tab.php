@@ -37,6 +37,9 @@ require_once ('../conf/_conf.php');
 require_once ('../utils.php');
 require_once ('classes/Xml_parser.inc');
 
+$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
+$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
+
 $tab         = POST('tab');
 $error       = false;
 
@@ -48,6 +51,7 @@ if($tab == "#tab1")
 {
 	echo "1###";
 	?>
+	<div>
 	<table id='agent_table'>
 		<tr>
 			<th style='width: 100px;'><?php echo _("ID")?></th>
@@ -88,7 +92,8 @@ if($tab == "#tab1")
 				exec ( "sudo /var/ossec/bin/agent_control -i ".$agent[0]." -s", $more_info, $ret);
 				$more_info     = ( $ret !== 0 ) ? _("Information from agent not available") : explode(",",$more_info[0]);
 				$agent_name    = "<a class='agent_id'><img src='../pixmaps/plus-small.png' alt='More info' align='absmiddle'/>".$agent[0]."</a>";
-				$agent_actions = get_actions($agent);
+				
+				$agent_actions = ( $events_hids_config ) ? get_actions($agent) : "  --  ";
 				$agent_type    = 1;
 			}	
 			
@@ -167,16 +172,18 @@ if($tab == "#tab1")
 	<?php 
 	if ($error !== true) 
 	{ 
-	?> 
-		<table id='agent_actions'>
-			<tr>
-				<td id='cont_commom_ac'>
-					<div class='commom_ac'>
-						<a id='show_agent'><img src='../pixmaps/user--plus.png' alt='Arrow' align='absmiddle'/><span><?php echo _("Add agent")?></span></a>
-					</div>
-				</td>
-				<td class='info'></td>
-			</tr>
+		if( $events_hids_config ) 
+		{
+			?> 
+			<table id='agent_actions'>
+				<tr>
+					<td id='cont_commom_ac'>
+						<div class='commom_ac'>
+							<a id='show_agent'><img src='../pixmaps/user--plus.png' alt='Arrow' align='absmiddle'/><span><?php echo _("Add agent")?></span></a>
+						</div>
+					</td>
+					<td class='info'></td>
+				</tr>
 			
 			<tr>
 				<td colspan='2'>
@@ -206,10 +213,12 @@ if($tab == "#tab1")
 					</div>
 				</td>
 			</tr>
-					
+						
 		</table>
-				
-	<?php } 
+		</div>
+		<?php 
+		}
+	}		
 		
 }
 else if ($tab == '#tab2')

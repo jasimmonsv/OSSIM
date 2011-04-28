@@ -268,8 +268,10 @@ if ($error != true)
 					{display: "<?php echo _("User")?>", name : 'user'},
 					{display: "<?php echo _("Status")?>", name : 'status'}
 				],
+			
 				
 				buttons : [
+					<?php if ( $events_hids_config ) { ?>
 					{name: '<?php echo _("New")?>', bclass: 'add', onpress : action},
 					{separator: true},
 					{name: '<?php echo _("Modify")?>',    bclass: 'modify', onpress : action},
@@ -281,7 +283,11 @@ if ($error != true)
 					{name: '<?php echo _("Apply Configuration")?>', bclass: '<?php echo $apply_status?>', onpress : action},
 					{separator: true},
 					{name: '<a href="ossec_control.php"><?php echo _("Agentless Status")?></a>: <?php echo $status[1] ?>', bclass: '<?php echo $status[0] ?>', iclass: 'ibutton'}
+					<?php } else { ?>
+					{name: '<span style="color:#17457C; padding:0px;"><?php echo _("Agentless Status")?></span>: <?php echo $status[1] ?>', bclass: '<?php echo $status[0] ?>', iclass: 'ibutton'}
+					<?php } ?>
 				],
+				
 				sortname: "<?php echo $sortname ?>",
 				sortorder: "<?php echo $sortorder ?>",
 				usepager: true,
@@ -290,14 +296,18 @@ if ($error != true)
 				nomsg: '<?=_("No Agenteless Host")?>',
 				useRp: true,
 				rp: 20,
+				<?php if ( $events_hids_config ) { ?>
 				contextMenu: 'myMenu',
 				onContextMenuClick: menu_action,
+				<?php } ?>
 				showTableToggleBtn: true,
 				singleSelect: true,
 				width: get_width('headerh1'),
 				height: get_height(),
 				onColumnChange: save_layout,
+				<?php if ( $events_hids_config ) { ?>
 				onDblClick: linked_to,
+				<?php } ?>
 				onEndResize: save_layout
 			});
 		});
