@@ -168,7 +168,7 @@ foreach($host_list as $host) {
 	$assets[$host->get_ip() ] = $host->get_asset();
 }
 list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_closed,"",$from,$top,$from_date,$to_date,$name);
-
+$tz=(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
 ?>
 <table class="transparent" width="100%">
 	<?php if ($from < 1) { ?>
@@ -177,8 +177,9 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		<td class="nobborder"></td>
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Alarm Name")?></td>
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Risk")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Since Date")?></td>
-		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Date")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Sensor")?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Since")."<br>".Util::timezone($tz)?></td>
+		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Last")."<br>".Util::timezone($tz)?></td>
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Source")?></td>
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Destination")?></td>
 		<td style='text-align: center; background-color:#9DD131;font-weight:bold'><?=gettext("Status")?></td>
@@ -190,6 +191,7 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		<td class="nobborder"></td>
 		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Alarm Name")?></td>
 		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Risk")?></td>
+		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Sensor")?></td>
 		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Since Date")?></td>
 		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Date")?></td>
 		<td style='text-align: center; background-color:transparent;font-weight:bold;color:transparent;border-bottom:0px'><?=gettext("Source")?></td>
@@ -209,6 +211,7 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	$s_dst_port = $s_alarm->get_dst_port();
 	$s_dst_ip = $s_alarm->get_dst_ip();
 	$s_status = $s_alarm->get_status();
+	$sensors = $s_alarm->get_sensors();
 	$s_asset_src = array_key_exists($s_src_ip, $assets) ? $assets[$s_src_ip] : $default_asset;
 	$s_asset_dst = array_key_exists($s_dst_ip, $assets) ? $assets[$s_dst_ip] : $default_asset;
 	/*
@@ -322,6 +325,23 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center'><?=$checkbox?></td>
 		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: left; padding-left:10px' width='30%'><strong><?=$balloon_name?></strong></td>
 		<?=$risk_field?>
+		<!-- sensor -->
+        <td class="nobborder" style="background-color:<?php echo $bgcolor ?>;text-align:center">
+<?php
+        foreach($sensors as $sensor) {
+?>
+          <a href="../sensor/sensor_plugins.php?hmenu=Sensors&smenu=Sensors&sensor=<?php
+            echo $sensor ?>"
+            ><?php
+            echo ($no_resolv) ? $sensor : Host::ip2hostname($conn, $sensor) ?></a>  
+<?php
+        }
+        if (!count($sensors)) {
+            echo "&nbsp;";
+        }
+?>
+        </td>
+        <!-- end sensor -->
 		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center' width='12%'><?=$s_since?></td>
 		<td class="nobborder" style='background-color:<?php echo $bgcolor ?>;text-align: center' width='12%'><?=$s_date?></td>
 		<td class="nobborder" nowrap style='background-color:<?php echo $bgcolor ?>;text-align: center;'><?=$source_balloon?></td>
