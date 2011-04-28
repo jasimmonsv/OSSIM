@@ -106,6 +106,7 @@ $directive_id = POST('directive_id');
 $sensor_query = POST('sensor_query');
 $num_events = POST('num_events');
 $num_events_op = POST('num_events_op');
+$no_resolv = intval(POST('no_resolv'));
 
 ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($disp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("disp"));
@@ -133,6 +134,7 @@ ossim_valid($query, OSS_ALPHA, OSS_PUNC_EXT, OSS_SPACE, OSS_NULLABLE, 'illegal:'
 ossim_valid($directive_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive_id"));
 ossim_valid($num_events, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_events"));
 ossim_valid($num_events_op, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("num_events_op"));
+ossim_valid($no_resolv, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("no_resolv"));
 //action=change_descr
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("action"));
 if (ossim_error()) {
@@ -273,7 +275,7 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 	document.getElementById(group_id+from).innerHTML = "<img src='../pixmaps/loading.gif' width='16'>";
 	$.ajax({
 		type: "GET",
-		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>&date_from=<?php echo POST('date_from') ?>&date_to=<?php echo POST('date_to') ?>",
+		url: "alarm_group_response.php?from="+from+"&group_id="+group_id+"&unique_id=<?php echo $unique_id ?>&name="+group_id+"&ip_src="+ip_src+"&ip_dst="+ip_dst+"&timestamp="+time+"&hide_closed=<?=$hide_closed?>&date_from=<?php echo POST('date_from') ?>&date_to=<?php echo POST('date_to') ?>&no_resolv=<?php echo $no_resolv ?>",
 		data: "",
 		success: function(msg){
 			//alert (msg);
@@ -694,7 +696,8 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 				<option value="4" <?php echo $selected4 ?>><?php echo _("My Groups & Without Owner") ?></option>
 			</select>
 			<br/>
-			<input type="checkbox" name="hide_closed" <?php echo $hide_check ?> /><?php echo gettext("Hide closed alarms") ?><br/>
+			<input style="border:none" name="no_resolv" type="checkbox" onclick="document.filters.submit()" value="1" <?php if ($no_resolv) echo " checked " ?> /><?php echo gettext("Do not resolv ip names"); ?><br />
+			<input type="checkbox" name="hide_closed" onclick="document.filters.submit()" <?php echo $hide_check ?> /><?php echo gettext("Hide closed alarms") ?><br/>
 			<input type="checkbox" name="autorefresh" onclick="javascript:document.filters.refresh_time.disabled=!document.filters.refresh_time.disabled;" <?php echo ($autorefresh) ? "checked='true'" : "" ?> /><?php echo gettext("Autorefresh") ?>&nbsp;
 			<select name="refresh_time" <?php echo (!$autorefresh) ? "disabled='true'" : "" ?>>
 				<option value="30000" <?php echo $refresh_sel1 ?>><?php echo _("30 sec") ?></options>

@@ -80,6 +80,7 @@ $only_delete = GET('only_delete'); // Number of groups to delete
 $only_close = GET('only_close'); // Number of groups to close
 $only_open = GET('only_open'); // Number of groups to open
 $unique_id = GET('unique_id');
+$no_resolv = intval(GET('no_resolv'));
 $top = (GET('top') != "") ? GET('top') : 100;
 $from = (GET('from') != "") ? GET('from') : 0;
 $top += $from;
@@ -98,6 +99,7 @@ ossim_valid($only_close, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_close"));
 ossim_valid($only_open, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only_open"));
 ossim_valid($unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($group_id, OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, OSS_SCORE, 'illegal:' . _("group_id"));
+ossim_valid($no_resolv, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("no_resolv"));
 if (ossim_error()) {
     die(ossim_error());
 }
@@ -218,8 +220,8 @@ list ($list,$num_rows) = AlarmGroups::get_alarms ($conn,$src_ip,$dst_ip,$hide_cl
 	$src_title = gettext("Src Asset:")." <b>$s_asset_src</b><br>IP: <b>$s_src_ip</b>";
 	$s_dst_link = "../report/index.php?host=$s_dst_ip&section=events";
 	$dst_title = gettext("Dst Asset:")." <b>$s_asset_dst</b><br>IP: <b>$s_dst_ip</b>";
-	$s_src_name = Host::ip2hostname($conn, $s_src_ip);
-	$s_dst_name = Host::ip2hostname($conn, $s_dst_ip);
+	$s_src_name = ($no_resolv) ? $s_src_ip : Host::ip2hostname($conn, $s_src_ip);
+	$s_dst_name = ($no_resolv) ? $s_dst_ip : Host::ip2hostname($conn, $s_dst_ip);
 	// $s_src_name = $s_src_ip;
 	// $s_dst_name = $s_dst_ip;
 	$s_src_img = str_replace("\"", "'", Host_os::get_os_pixmap($conn, $s_src_ip));
