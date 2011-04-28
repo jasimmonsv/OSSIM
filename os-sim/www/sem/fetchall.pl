@@ -123,12 +123,12 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 	$param .= ($order_by eq "date") ? ",order_first" : ",order_last";
 	$param =~ s/\"/\\"/g;
 	$cmd = 'echo "'.$param.'" | '.$ini{'main'}{'searcher'}.' -p '.$ini{'main'}{'log_dir'};
-	#if ($debug ne "") {
-		open (L,">>/tmp/fetch");
-		#open (L,">>$debug");
+	if ($debug ne "") {
+		#open (L,">>/tmp/fetch");
+		open (L,">>$debug");
 		print L "FETCHALL.pl: $cmd\n";
 		close L;
-	#}	
+	}	
 	system($cmd);
 }
 

@@ -28,7 +28,7 @@ if ($end !~ /^\d+\-\d+\-\d+\s+\d+\:\d+\:\d+$/) {
 	print "Parameters error in end date\n";
 	exit;
 }
-if ($query ne "" && $query !~ /^[a-zA-Z0-9#\r\n\.,:@\_\-\/\?&\=\s\[\]\)\(\'"]+$/) {
+if ($query ne "" && $query !~ /^[a-zA-Z0-9#\r\n\.,:@\_\-\/\?&\!\=\s\[\]\)\(\'"]+$/) {
 	print "Parameters error in query\n";
 	exit;
 }
@@ -52,8 +52,8 @@ if ($cache_file ne "" && $cache_file ne "none" && $cache_file !~ /^[a-zA-Z0-9\_\
 	print "Parameters error in cache file\n";
 	exit;
 }
-if ($idsesion !~ /^[A-Za-z0-9]+\.\d+$/) {
-	print "Parameters error\n";
+if ($idsesion !~ /^[A-Za-z0-9]+\.\d+$/ && $idsesion !~ /^NOINDEX$/) {
+	print "Parameters idsession error\n";
 	exit;
 }
 if ($user !~ /^[a-zA-Z]+$/) {

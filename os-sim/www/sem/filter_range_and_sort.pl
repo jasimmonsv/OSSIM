@@ -106,7 +106,7 @@ foreach my $file (@files) {
 			$hourday = $fields[4].$fields[5].$fields[6].$fields[7];
 			$searchingdate1 = $fields[4].$fields[5].$fields[6];
 			if ($searchingdate1 ne $searchingdate2) {
-				print "Searching in $searchingdate1 from $server\n";
+				print "###I Searching $searchingdate1 in $server\n";
 				$searchingdate2 = $searchingdate1;
 			}
 			$lastdate = $currentdate; # last selected event date

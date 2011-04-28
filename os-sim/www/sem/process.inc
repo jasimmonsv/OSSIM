@@ -37,7 +37,7 @@
 * Classes list:
 */
 require_once 'classes/Session.inc';
-if (!$skip_logcheck) Session::logcheck("MenuEvents", "ControlPanelSEM");
+//if (!$skip_logcheck) Session::logcheck("MenuEvents", "ControlPanelSEM");
 function get_lines($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17 00:00:02", $offset = 0, $sort_order = "date", $what = "logs", $uniqueid = "0000000000") {
     $cmd = "";
     $a = escapeshellarg($a);
@@ -188,6 +188,7 @@ function get_lines($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-
     return $result[0];
 }
 function process($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17 00:00:02", $offset = 0, $sort_order = "date", $what = "logs", $uniqueid = "0000000000", $forced_max=51, $mute=0) {
+    //error_log("filtro: [$a]\n",3,"/tmp/process_inc.log");
     $forced_max++;
     $tope = $forced_max;
 	if ($offset == -1) { $tope = 50000; $offset = 0; }

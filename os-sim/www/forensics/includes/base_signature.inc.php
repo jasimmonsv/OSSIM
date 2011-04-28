@@ -288,6 +288,8 @@ function BuildSigByPlugin($plugin_id, $plugin_sid, $db) {
         }
         if ($plugin_name!="" && $plugin_sid=2000000000)
             return "$plugin_name: ".gettext("Generic event");
+        elseif ($plugin_name!="" && $plugin_sid!=2000000000)
+            return "$plugin_name: ".gettext("Unknown event");            
         else
             return gettext("SigName unknown"); //return "($plugin_id,$plugin_sid) " . gettext("SigName unknown");
     }

@@ -34,8 +34,8 @@
 * Function list:
 * Classes list:
 */
+set_time_limit(3600);
 ob_implicit_flush();
-set_time_limit(300);
 require_once ('classes/Security.inc');
 require_once ("classes/Session.inc");
 Session::logcheck("MenuEvents", "ControlPanelSEM");
@@ -176,7 +176,6 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 	$a = "data='".$a."'";
 }
 
-//error_log("A1: $a\n",3,"/tmp/fetch");
 // Chanage filter=val1|val2 to filter=val1|filter=val2
 //if (preg_match("/ AND /",$a)) {
 	$aa = explode(" AND ",$a);
@@ -186,7 +185,6 @@ if ($a != "" && !preg_match("/\=/",$a)) { // Search in data field
 		$a .= ($a=="") ? $aa1 : " AND $aa1";
 	}
 //}
-//error_log("A2: $a\n",3,"/tmp/fetch");
 
 // Patch "sensor=A OR sensor=B"
 $a = preg_replace("/SPACESCAPEORSPACESCAPE([a-zA-Z\_]+)\=/"," or \\1=",$a);
@@ -258,6 +256,9 @@ foreach ($atoms as $atom) {
 		$a = str_replace($matches[1].$matches[2].$matches[3],$field.$op.$resolv,$a);
 	}
 }
+// Do not use indexer with != queries
+if (preg_match("/\!\=/",$a)) $uniqueid = "NOINDEX";
+//error_log("Q: $a\n",3,"/tmp/fetch");
 
 $_SESSION["forensic_query"] = $a;
 $_SESSION["forensic_start"] = $start;
@@ -276,7 +277,6 @@ if($export=='exportEntireQuery') {
 }
 
 if($export=='exportEntireQueryNow') {
-    set_time_limit(3600);
     $save = $_SESSION;
     session_write_close();
     $_SESSION = $save;
@@ -323,7 +323,7 @@ $cmd = process($a, $start, $end, $offset, $sort_order, "logs", $uniqueid, $top, 
 
 //$status = exec($cmd, $result);
 $result = array();
-//echo "$cmd $user";exit;
+//error_log ("$cmd $user\n",3,"/tmp/fetch");
 
 if($debug_log!=""){
 	$handle = fopen($debug_log, "a+");
@@ -408,7 +408,8 @@ while (!feof($fp)) {
     }
     */
 	// Searching message
-    if (preg_match("/^(###.\s*)?Searching in (\d\d\d\d)\/?(\d\d)\/?(\d\d) from (\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
+    if (preg_match("/^Searching (\d\d\d\d)(\d\d)(\d\d) in (\d+\.\d+\.\d+\.\d+)/i",$line,$found) ||
+    	preg_match("/^Searching (\d\d\d\d)\/(\d\d)\/(\d\d) in (\d+\.\d+\.\d+\.\d+)/i",$line,$found) ) {
     	ob_flush();
 		flush();
 		$sdate = date("d F Y",strtotime($found[2].$found[3].$found[4]));
@@ -576,8 +577,7 @@ foreach($result as $res=>$event_date) {
 	            if (!$rs = & $conn->Execute($query)) {
 	                print $conn->ErrorMsg();
 	            }
-		        // para coger
-		        $plugin = Util::htmlentities($rs->fields["name"]);            
+		        if (!$rs->EOF) $plugin = Util::htmlentities($rs->fields["name"]);            
 		        if ($plugin == "") $plugin = intval($matches[4]);
 		        $_SESSION["_plugins"][$matches[4]] = $plugin;
 		    }

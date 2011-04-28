@@ -100,7 +100,7 @@ function PrintCustomViews() {
 
 function PrintReportView() {
 	?>
-	<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#report').toggle()"><img src="../pixmaps/menu/reports.gif" align="absmiddle" border="0"/> <?php echo _("Report this view")?></a>
+	<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#report').toggle()"><img src="../pixmaps/menu/reports.png" align="absmiddle" border="0"/> <?php echo _("Report this view")?></a>
    	<div style="position:relative">
 		<div id="report" style="position:absolute;right:0;top:0;display:none">
 			<table cellpadding='0' cellspacing='0' align="center" >
