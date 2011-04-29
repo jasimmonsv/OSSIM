@@ -38,6 +38,7 @@ require_once ("classes/Util.inc");
 require_once ('classes/Session.inc');
 require_once ('classes/Security.inc');
 require_once ('classes/User_config.inc');
+include("process.inc");
 include("classes/Server.inc");
 Session::logcheck("MenuEvents", "ControlPanelSEM");
 require_once ('../graphs/charts.php');
@@ -70,49 +71,8 @@ $param_end = GET("end") ? GET("end") : gmdate("Y-m-d H:i:s", $timetz);
 $_SESSION['graph_type'] = "day";
 $_SESSION['cat'] = gmdate("M j, Y");
 
-$framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
-$ip_to_name = array();
-foreach ($database_servers as $db) {
-	$name = $db->get_name();
-	$ip = $db->get_ip();
-	$ip_to_name[$ip] = $name;
-}
-if (count($ip_to_name)==0) $ip_to_name[$framework_ip] = "Local";
-$fcolors = array("2c3816","dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
-$bcolors = array("addf53","5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
-$logger_servers = array();
-$logger_error = array();
-$ip_list = "";
-if (count($database_servers) > 1) {
-	$num_servers = count($database_servers);
-	foreach ($database_servers as $db) {
-		$name = $db->get_name();
-		$ip = $db->get_ip();
-		if ($ip == $_SERVER['SERVER_ADDR']) $ip = "127.0.0.1";
-		ossim_valid(GET($name), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal: server '.$name);
-		if ((GET($name) != "" && GET("num_servers") != "") || GET("num_servers") == "") {
-			$cmd = 'sudo ./test_remote_ssh.pl '.$ip;
-			$res = explode("\n",`$cmd`);
-			if ($res[0] == "OK") {
-				$logger_servers[$name] = $ip;
-				if ($ip_list != "") $ip_list .= ",";
-				$ip_list .= $ip;
-			} else {
-				$logger_error[$name] = $ip;
-			}
-		}
-	}
-	if (count($logger_servers) == 1 && reset($logger_servers) == "127.0.0.1") $ip_list = "";
-}
-if (count($logger_servers) == 0) {
-	$num_servers = 1;
-	$framework_ip = $conf->get_conf("frameworkd_address", FALSE);
-	if (!$ip_to_name[$framework_ip]) $ip_to_name[$framework_ip] = $framework_ip;
-	$logger_servers[$ip_to_name[$framework_ip]] = "127.0.0.1";
-}
-$from_remote = ($ip_list != "") ? 1 : 0;
-$_SESSION['logger_servers'] = $logger_servers;
+list($logger_servers, $ip_to_name, $ip_list, $fcolors, $bcolors, $from_remote) = get_logger_servers($conn_aux);
 
 ossim_valid($param_query, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, 'illegal:' . _("query"));
 ossim_valid($current_search, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, OSS_PUNC, '%', 'illegal:' . _("current_search"));
