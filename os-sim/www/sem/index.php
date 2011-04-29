@@ -72,7 +72,7 @@ $_SESSION['graph_type'] = "day";
 $_SESSION['cat'] = gmdate("M j, Y");
 
 $database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
-list($logger_servers, $ip_to_name, $ip_list, $fcolors, $bcolors, $from_remote) = get_logger_servers($conn_aux);
+list($logger_servers, $ip_to_name, $ip_list, $fcolors, $bcolors, $from_remote, $logger_colors) = get_logger_servers($conn_aux);
 
 ossim_valid($param_query, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, 'illegal:' . _("query"));
 ossim_valid($current_search, OSS_TEXT, OSS_NULLABLE, OSS_BRACKET, OSS_PUNC, '%', 'illegal:' . _("current_search"));

@@ -37,7 +37,7 @@
 * Classes list:
 */
 require_once 'classes/Session.inc';
-if (!$skip_logcheck) Session::logcheck("MenuEvents", "ControlPanelSEM");
+//if (!$skip_logcheck) Session::logcheck("MenuEvents", "ControlPanelSEM");
 function get_lines($a = "root", $start = "2008-10-16 00:00:01", $end = "2008-09-17 00:00:02", $offset = 0, $sort_order = "date", $what = "logs", $uniqueid = "0000000000") {
     $cmd = "";
     $a = escapeshellarg($a);
@@ -370,23 +370,26 @@ function get_logger_servers($conn_aux) {
 	$framework_ip = $conf->get_conf("frameworkd_address", FALSE);
 	$database_servers = Server::get_list($conn_aux,",server_role WHERE server.name=server_role.name AND server_role.sem=1");
 	$ip_to_name = array();
+	$logger_colors = array();
+	$fcolors = array("2c3816","dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
+	$bcolors = array("addf53","5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
+	$c=0;
 	foreach ($database_servers as $db) {
 		$name = $db->get_name();
 		$ip = $db->get_ip();
 		$ip_to_name[$ip] = $name;
+		$logger_colors[$name]['bcolor'] = $bcolors[$c];
+		$logger_colors[$name]['fcolor'] = $fcolors[$c];
+		$c++;
 	}
 	if (count($ip_to_name)==0) $ip_to_name[$framework_ip] = "Local";
-	$fcolors = array("2c3816","dee5f2","f8f4f0","e0ecff","fadcb3","dfe2ff","f3e7b3","e0d5f9","ffffd4","fde9f4","f9ffef","ffe3e3","f1f5ec");
-	$bcolors = array("addf53","5a6986","ec7000","206cff","b36d00","0000cc","ab8b00","5229a3","636330","854f61","64992c","cc0000","006633");
 	$logger_servers = array();
 	$logger_error = array();
 	$ip_list = "";
 	if (count($database_servers) > 1) {
 		$num_servers = count($database_servers);
 		foreach ($database_servers as $db) {
-			$name = $db->get_name();
-			$_SESSION['logger_colors'][$name]['bcolor'] = $bcolors[$i];
-			$_SESSION['logger_colors'][$name]['fcolor'] = $fcolors[$i];
+			$name = $db->get_name();		
 			$ip = $db->get_ip();
 			if ($ip == $_SERVER['SERVER_ADDR']) $ip = "127.0.0.1";
 			ossim_valid(GET($name), OSS_DIGIT, OSS_ALPHA, OSS_NULLABLE, 'illegal: server '.$name);
@@ -413,6 +416,6 @@ function get_logger_servers($conn_aux) {
 	$from_remote = ($ip_list != "") ? 1 : 0;
 	$_SESSION['logger_servers'] = $logger_servers;
 
-	return array($logger_servers, $ip_to_name, $ip_list, $fcolors, $bcolors, $from_remote);
+	return array($logger_servers, $ip_to_name, $ip_list, $fcolors, $bcolors, $from_remote, $logger_colors);
 }
 ?>
