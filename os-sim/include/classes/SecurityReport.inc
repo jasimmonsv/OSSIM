@@ -275,7 +275,8 @@ class SecurityReport {
                 //
                 list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_dst;ip_src",$assets,$sourcetype,$category,$subcategory,1);
                 //
-                if($ips) {
+                if($ips) 
+				{
                     $query = "SELECT count(plugin_sid) AS occurrences, plugin_sid.name as sig_name, INET_NTOA(ip_src) as nip_src, INET_NTOA(ip_dst) as nip_dst, acid_event.plugin_id, acid_event.plugin_sid
                                 FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid $join2
                                 WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59'$sensor_str_event
@@ -284,7 +285,8 @@ class SecurityReport {
                                 ORDER BY occurrences
                                 DESC LIMIT $limit";
                 }
-                else {
+                else 
+				{
                     $query = "SELECT count(plugin_sid) AS occurrences, plugin_sid.name as sig_name, acid_event.plugin_id, acid_event.plugin_sid
                                 FROM acid_event LEFT JOIN ossim.plugin_sid ON plugin_sid.plugin_id=acid_event.plugin_id AND plugin_sid.sid=acid_event.plugin_sid $join2
                                 WHERE timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59'$sensor_str_event
