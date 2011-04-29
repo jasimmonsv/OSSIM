@@ -31,7 +31,7 @@
 ****************************************************************************/
 /**
 * Class and Function List:
-* Function list:
+* Function list: display_errors()
 * Classes list:
 */
 /*
@@ -46,158 +46,228 @@
 * mod2step: Values validation and update db
 *
 */
+
+function display_errors($info_error)
+{
+	$errors       = implode ("</div><div style='padding-top: 3px;'>", $info_error);
+	$error_msg    = "<div>"._("We found the following errors:")."</div><div style='padding-left: 15px;'><div>$errors</div></div>";
+							
+	return "<div class='ossim_error'>$error_msg</div>";
+}
+
 require_once 'classes/Session.inc';
-if(!Session::am_i_admin()) { exit; }
-require_once 'classes/Security.inc';
+
+if( !Session::am_i_admin() )  
+	exit; 
+
+	require_once 'classes/Security.inc';
+
 Session::logcheck("MenuIncidents", "IncidentsTags");
+
 require_once 'ossim_db.inc';
 require_once 'classes/Incident_tag.inc';
+
 // Avoid the browser resubmit POST data stuff
-if (GET('redirect')) {
+
+if (GET('redirect')) 
+{
     header('Location: ' . $_SERVER['SCRIPT_NAME']);
     exit;
 }
-$db = new ossim_db();
-$conn = $db->connect();
-$tag = new Incident_tag($conn);
-$vals = array(
-    'id' => array(
-        OSS_DIGIT,
-        OSS_NULLABLE,
-        'error:' . _("ID not valid")
-    ) ,
-    'name' => array(
-        OSS_LETTER,
-        OSS_PUNC,
-        OSS_NULLABLE,
-        'error:' . _("<b>Name</b> required, should be only letters and underscores")
-    ) ,
-    'descr' => array(
-        OSS_TEXT,
-        OSS_NULLABLE,
-        'error:' . _("<b>Description</b> required and should contain valid characters")
-    )
-);
-$action = GET('action') ? GET('action') : 'list';
-$id = GET('id');
-$name = POST('name');
-$descr = POST('descr');
-ossim_valid($id, $vals['id']);
-ossim_valid($name, $vals['name']);
-ossim_valid($descr, $vals['descr']);
-ossim_valid($action, $vals['action']);
-if (ossim_error()) {
-    die(ossim_error());
+
+$db   		= new ossim_db();
+$conn 		= $db->connect();
+$tag  		= new Incident_tag($conn);
+$parameters = null;
+$info_error = null;
+$error      = false;
+
+$action 	= $parameters['action'] = GET('action') ? GET('action') : 'list';
+$id     	= $parameters['id']     = GET('id');
+
+
+if ( $action == 'mod1step' && is_numeric($id) ) 
+{
+	$f      = $tag->get_list("WHERE td.id = $id");
+	$name   = $f[0]['name'];
+	$descr  = $f[0]['descr'];
 }
-if (in_array($action, array(
-    'new2step',
-    'delete',
-    'mod2step'
-))) {
-    switch ($action) {
-        case 'new2step':
-            $tag->insert($name, $descr);
-            break;
+elseif ($action == 'new2step' || $action == 'mod2step')
+{
+	$name   = $parameters['name']   = POST('name');
+	$descr  = $parameters['descr']  = POST('descr');
 
-        case 'delete':
-            $tag->delete($id);
-            break;
+	$validate  = array (
+		"id"      => array("validation" => "OSS_DIGIT,OSS_NULLABLE"  , "e_message" => 'illegal:' . _("ID")),
+		"name"    => array("validation" => "OSS_LETTER,OSS_PUNC"     , "e_message" => 'illegal:' . _("Name")),
+		"descr"   => array("validation" => "OSS_TEXT,OSS_NULLABLE"   , "e_message" => 'illegal:' . _("Description")),
+		"action"  => array("validation" => "OSS_TEXT"                , "e_message" => 'illegal:' . _("Action")),
+	);
 
-        case 'mod2step':
-            $tag->update($id, $name, $descr);
-            break;
+	foreach ($parameters as $k => $v )
+	{
+		eval("ossim_valid(\$v, ".$validate[$k]['validation'].", '".$validate[$k]['e_message']."');");
 
-        default:
-            header('Location: ' . $_SERVER['SCRIPT_NAME'] . '?redirect=1');
-            exit;
-    }
+		if ( ossim_error() )
+		{
+			$info_error[] = ossim_get_error();
+			ossim_clean_error();
+			$error  = true;
+		}
+	}
+		
+	if ( $error == false )
+	{
+		if ( $action == 'new2step' )
+			$tag->insert($name, $descr);
+		
+		if ( $action == 'mod2step' )
+			$tag->update($id, $name, $descr);
+		
+		header('Location: ' . $_SERVER['SCRIPT_NAME']);
+	}
 }
+elseif ( $action == 'delete' )
+{
+	
+	ossim_valid($id, OSS_DIGIT, 'illegal:' . _("ID"));
+	if (ossim_error()) 
+	{
+		$error = true;
+		$info_error[] = ossim_last_error();
+		ossim_clean_error();
+	}
+	else
+	{
+		$tag->delete($id);
+		header('Location: ' . $_SERVER['SCRIPT_NAME']);
+	}
+}
+	
+if ( $error == true )
+	$action = str_replace('2', '1', $action);
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+	<script type='text/javascript'>
+		function delete_tag(num)
+		{
+			var msg =  '<?php echo _("There are")?> ' + num + ' <?php echo _("incidents using this tag. Do you really want to delete it?")?>';
+			if ( num >= 1 )
+				return confirm(msg); 
+		}
+		
+		$(document).ready(function() {
+			$('#descr').elastic();
+			$('#name').focus();
+		});
+	</script>
+	
+	<style type='text/css'>
+		.pad3 { padding: 3px;}
+	</style>
+	
 </head>
+
 <body>
-<?php
-include ("../hmenu.php"); ?>
-<?php
+<?php 
+	include ("../hmenu.php"); 
+	
 /*
-* FORM FOR NEW/EDIT TAG
-*/
-if ($action == 'new1step' || $action == 'mod1step') {
-    if ($action == 'mod1step' && !ossim_error() && ossim_valid($id, $vals['id'])) {
-        $f = $tag->get_list("WHERE td.id = $id");
-        $name = $f[0]['name'];
-        $descr = $f[0]['descr'];
-    }
-?>
-<form method="post" action="?action=<?php echo str_replace('1', '2', $action) ?>&id=<?php echo $id ?>" name="f">
-<table align="center" width="50%">
-    <tr>
-        <th><?php echo _("Name") ?></th>
-        <td class="left"><input type="input" name="name" size="37" value="<?php echo $name ?>"></td>
-    </tr>
-    <tr>
-        <th><?php echo _("Description") ?></th>
-        <td class="left"><textarea name="descr" cols="35" rows="15"><?php echo $descr ?></textarea></td>
-    </tr>
-    <tr><th colspan="2" align="center">
-        <input type="submit" value="<?=_("OK")?>" class="button">&nbsp;
-        <input type="button" class="button" onClick="document.location = '<?php echo $_SERVER['SCRIPT_NAME'] ?>'" value="<?php echo _("Cancel") ?>">
-    </th></tr>
-</table>    
-</form>
-<script>document.f.name.focus();</script>
-<?php
+ * FORM FOR NEW/EDIT TAG
+ */
+if ( $action == 'new1step' || $action == 'mod1step' ) 
+{
+    if ( $error == true )
+		echo display_errors($info_error);
+	
+	$action = str_replace('1', '2', $action);
+	
+	?>
+	<form method="post" action="?action=<?php echo $action ?>&id=<?php echo $id ?>" name="f">
+		<table align="center" width="50%">
+			<tr>
+				<th><?php echo _("Name") ?></th>
+				<td class="left">
+					<input type="input" name="name" size="55" value="<?php echo $name ?>"/>
+					<span style="padding-left: 3px;">*</span>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo _("Description") ?></th>
+				<td class="left"><textarea id='descr' name="descr" cols="55" rows="5"><?php echo $descr ?></textarea></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="nobborder center" style='padding:10px 0px;'>
+					<input type="submit" value="<?php echo _("OK")?>" class="button"/>&nbsp;
+					<input type="button" class="button" onClick="document.location = '<?php echo $_SERVER['SCRIPT_NAME'] ?>'" value="<?php echo _("Cancel") ?>"/>
+				</td>
+			</tr>
+		</table> 
+		
+		<table  align="center" class="noborder transparent" width="50%">
+			<tr>
+				<td class='noborder center' style='padding:10px 0px;'><span style="font-style: italic;"><?php echo gettext("Values marked with (*) are mandatory"); ?></span></td>
+			</tr>
+		</table>
+			
+	</form>
+
+	<?php
     /*
     * LIST TAGS
     */
-    //} elseif ($action == 'list') {
+} 
+else 
+{
+	?>
+	<table align="center" width="70%">
+		<tr>
+			<th class='pad3'><?php echo _("Id") ?></th>
+			<th class='pad3'><?php echo _("Name") ?></th>
+			<th class='pad3'><?php echo _("Description") ?></th>
+			<th class='pad3'><?php echo _("Actions") ?></th>
+		</tr>
+	<?php
+		
+	foreach($tag->get_list() as $f) 
+	{ 
+		?>
+        <tr>
+			<td valign="top"><strong><?php echo $f['id'] ?></strong></td>
+			<td valign="top" style="text-align: left;" nowrap='nowrap'><?php echo htm($f['name']) ?></td>
+			<td valign="top" style="text-align: left;"><?php echo htm($f['descr']) ?></td>
+			<td nowrap='nowrap'> 
+			<?php
+				if (($f['id'] != '65001') && ($f['id'] != '65002')) 
+				{ 
+					?>
+					<a href="?action=mod1step&id=<?php echo $f['id'] ?>"><img border="0" align="absmiddle" title="<?php echo _("Edit tag")?>" src="../vulnmeter/images/pencil.png"/></a>&nbsp;
+					<a href="?action=delete&id=<?php echo $f['id'] ?>" onclick="delete_tag(<?php echo $f['num']?>)"><img border="0" align="absmiddle" title="<?php echo _("Delete tag")?>" src="../pixmaps/delete.gif"/></a>
+					<?php
+				} 
+			?>
+				&nbsp;
+			</td>
+		</tr>
+		<?php
+    } 
+	
+	?>
     
-} else {
-?>
-<table align="center" width="70%">
-    <tr>
-        <th><?php echo _("Id") ?></th>
-        <th><?php echo _("Name") ?></th>
-        <th><?php echo _("Description") ?></th>
-        <th><?php echo _("Actions") ?></th>
-    </tr>
-<?php
-    foreach($tag->get_list() as $f) { ?>
-    <?php //printr($f); exit;
-         ?>
-    <tr>
-        <td valign="top"><b><?php echo $f['id'] ?></b></td>
-        <td valign="top" style="text-align: left;" NOWRAP><?php echo htm($f['name']) ?></td>
-        <td valign="top" style="text-align: left;"><?php echo htm($f['descr']) ?></td>
-        <td NOWRAP> 
-<?php
-        if (($f['id'] != '65001') && ($f['id'] != '65002')) { ?>
-	    [<a href="?action=mod1step&id=<?php echo $f['id'] ?>"><?=_("Modify")?></a>]&nbsp;
-            [<a href="?action=delete&id=<?php echo $f['id'] ?>"
-              <?php
-            if ($f['num'] >= 1) { ?>
-              onClick="return confirm('<?php
-                printf(_("There are %d incidents using this tag. Do you really want to delete it?") , $f['num']) ?>');" 
-              <?php
-            } ?>
-             ><?=_("Delete")?></a>]
-	   <?php
-        } ?>
-	   &nbsp;
-        </td>
-    </tr>
-<?php
-    } ?>
-    <tr><th colspan="4" align="center">
-        <a href="?action=new1step"><?php echo _("Add new tag") ?></a>
-    </th></tr>
+	<tr>
+		<td colspan="4" class="nobborder center" style='padding:10px 0px;'>
+			<input type="button" class="button" onClick="document.location = '<?php echo $_SERVER['SCRIPT_NAME'] ?>?action=new1step'" value="<?php echo _("Add new tag") ?>"/>
+		</td>
+	</tr>
 </table>
 
 <?php
