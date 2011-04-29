@@ -39,11 +39,12 @@
 require_once ('classes/Session.inc');
 require_once ('utils.php');
 
-$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
-$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
 
-if ( !$events_hids && !$events_hids_config )
-	Session::unallowed_section(null, 'noback',"MenuEvents", "EventsHids");
+$m_perms  = array ("MenuEvents", "MenuEvents");
+$sm_perms = array ("EventsHids", "EventsHidsConfig");
+
+if ( !Session::menu_perms($m_perms, $sm_perms) )
+	Session::unallowed_section(null, 'noback',$m_perms[0], $sm_perms[0]);
 
 
 $tz     =(isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;

@@ -39,9 +39,7 @@
 require_once ('classes/Session.inc');
 require_once ('classes/Plugin.inc');
 
-$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
-
-if ( !$events_hids_config)
+if ( !$Session::menu_perms("MenuEvents", "EventsHidsConfig") )
 	Session::unallowed_section(null, 'noback', "MenuEvents", "EventsHidsConfig");
 
 ?>

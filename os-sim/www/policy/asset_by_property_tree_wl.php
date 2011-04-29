@@ -43,7 +43,14 @@ require_once ('classes/Host_mac.inc');
 require_once ('classes/Util.inc');
 require_once ('ossim_db.inc');
 
-Session::logcheck("MenuPolicy", "PolicyHosts");
+if ( !Session::menu_perms("MenuPolicy", "PolicyHosts") )
+{
+	$msg = _("You don\'t have permission to see this tree")." [Assets -> Assets -> Hosts menu permission]";
+	
+	echo "{title:'<span>"._("Asset by Property")."</span>', icon:'../../pixmaps/theme/any.png', addClass:'size11n', isFolder:'true', expand:true, key:'-1', 
+			children:[{title: '<span>".$msg."</span>', icon:'../../pixmaps/theme/ltError.gif', addClass:'size10_red', expand:true, key:'-2'}]}";
+	exit;
+}
 
 $key = GET('key');
 $page = intval(GET('page')); 

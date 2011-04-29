@@ -70,7 +70,7 @@ $hostname = GET('hostname');
 $greybox  = GET('greybox');
 $greybox  = 0;
 
-if($host!='any')
+if( $host!='any' )
 	ossim_valid($host, OSS_IP_ADDRCIDR, OSS_NULLABLE, 'illegal:' . _("Host"));
 
 
@@ -514,26 +514,27 @@ $gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 <?php 
 	if($host == 'any') 
 		include("../hmenu.php"); 
-
-if (!Session::hostAllowed($conn, $host)) 
-{ 
-	?>
-	<h1>HOST <?=$host?> <?=gettext("not allowed")?></h1>
-	</body>
-	</html>
-	<?php 
-	exit; 
-} 
-
-if ($notfound) 
-{ 
-	?>
-	<h1>NETWORK <?=$host?> <?=gettext("not found")?></h1>
-	</body>
-	</html>
-	<?php 
-	exit; 
-} 
+		
+	
+	if (!Session::hostAllowed($conn, $host) ) 
+	{ 
+		?>
+		<div class='ossim_error center'> <?php echo _("Host")?><span style='font-style:italic; font-weight: bold;'> <?php echo $host?> </span><?php echo _("not allowed")?></div>
+		</body>
+		</html>
+		<?php 
+		exit; 
+	} 
+	
+	if ( $notfound ) 
+	{ 
+		?>
+		<div class='ossim_error center'> <?php echo _("Network")?><span style='font-style:italic; font-weight: bold;'> <?php echo $host?> </span><?php echo _("not found")?></div>
+		</body>
+		</html>
+		<?php 
+		exit; 
+	} 
 ?>
 
 <form>
@@ -595,7 +596,7 @@ if ($notfound)
 							<td class="nobborder" valign="top" width="50%"><?php  include ("host_report_status.php") ?></td>
 							<td valign="top" class="nobborder" width="<?=($network) ? "20%" : "50%"?>">
 							<?php
-								if($host!='any')
+								if( $host !='any' )
 								{
 									if ($network)
 										include ("net_report_inventory.php");
@@ -619,7 +620,7 @@ if ($notfound)
 								}
 								?>
 							</td>
-							<? if ($network) { ?><td valign="top" class="nobborder"><? include ("net_report_network.php") ?></td><? } ?>
+							<?php if ($network) { ?><td valign="top" class="nobborder"><? include ("net_report_network.php") ?></td><? } ?>
 						</tr>
 					</table>
 				</td>

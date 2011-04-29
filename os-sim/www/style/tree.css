@@ -262,9 +262,12 @@ span.custom1 a
 }
 
 .size10 { font-size: 10px; font-weight: normal;}
-
 .size10 span { font-weight: bold;}
+.size10n { font-size: 10px !important; font-weight: bold !important; }
+.size10_red span { font-size: 10px; font-weight: normal; color:red;}
 
+.size11  span{ font-size: 11px; font-weight: normal;}
+.size11n  span{ font-size: 11px !important; font-weight: bold !important;}
 .size12 span { font-size: 12px; font-weight: bold;}
 
 .size12ig  { font-size: 12px; font-style: italic; font-weight: normal !important; color:gray !important;}
@@ -275,7 +278,8 @@ span.custom1 a
 .size12b { font-size: 12px; font-weight: bold;}
 .ml3 { margin-left: 3px;}
 
-.size10n { font-size: 10px !important; font-weight: normal !important; }
+
+
 
 span.ui-dynatree-selected a  .nagios
 {

@@ -4,18 +4,20 @@ require_once ('classes/Security.inc');
 require_once ('classes/Util.inc');
 require_once ('sensor_filter.php');
 require_once ('ossim_db.inc');
-$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
-$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
-$panel_executive    = Session::menu_perms("MenuControlPanel", "ControlPanelExecutive");
+
+
 
 if ( $_SESSION['menu_opc'] == 'Detection' && $_SESSION['menu_sopc'] == 'HIDS' )	
 {
-	if ( !$events_hids && !$events_hids_config )
-		Session::unallowed_section(null, 'noback', "MenuEvents", "EventsHids");
+	$m_perms  = array ("MenuEvents", "MenuEvents");
+	$sm_perms = array ("EventsHids", "EventsHidsConfig");
+
+	if ( !Session::menu_perms($m_perms, $sm_perms) )
+		Session::unallowed_section(null, 'noback',$m_perms[0], $sm_perms[0]);
 }
 else
 {
-	if ( !$panel_executive)
+	if ( !Session::menu_perms("MenuControlPanel", "ControlPanelExecutive") )
 		Session::unallowed_section(null, 'noback', "MenuControlPanel", "ControlPanelExecutive");
 }
 

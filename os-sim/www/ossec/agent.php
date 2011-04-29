@@ -36,11 +36,11 @@ require_once ('conf/_conf.php');
 require_once ('utils.php');
 
 
-$events_hids        = Session::menu_perms("MenuEvents", "EventsHids");
-$events_hids_config = Session::menu_perms("MenuEvents", "EventsHidsConfig");
+$m_perms  = array ("MenuEvents", "MenuEvents");
+$sm_perms = array ("EventsHids", "EventsHidsConfig");
 
-if ( !$events_hids && !$events_hids_config)
-	Session::unallowed_section(null, 'noback', "MenuEvents", "EventsHids");
+if ( !Session::menu_perms($m_perms, $sm_perms) )
+	Session::unallowed_section(null, 'noback',$m_perms[0], $sm_perms[0]);
 
 $error = false;
 

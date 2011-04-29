@@ -465,19 +465,44 @@ else {
 		}
 		
 		function menu_perms($menu, $submenu) {
-			// perms only for pro version => allways return true
-			if ($menu=='MenuEvents' && $submenu=='EventsForensicsDelete') return true;
-			if ($menu=='MenuIncidents' && $submenu=='ControlPanelAlarmsDelete') return true;
-			//
+						
 			$gacl = $GLOBALS['ACL'];
 			if (!isset($_SESSION["_user"])) return true;
-			if (Session::am_i_admin()) return true;
-			if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
-				if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
-					return false;
+			if (Session::am_i_admin())      return true;
+			
+			if ( !is_array($menu) && !is_array($submenu) )
+			{
+				// Perms only for pro version => always return true
+				if ($menu == 'MenuEvents'    && $submenu == 'EventsForensicsDelete')    return true;
+				if ($menu == 'MenuIncidents' && $submenu == 'ControlPanelAlarmsDelete') return true;
+				
+				if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) 
+				{
+					if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) 
+						return false;
 				}
+				
+				return true;
 			}
-			return true;
+			else
+			{
+				$i = 0; 
+				foreach ($menu as $v)
+				{
+					if ($menu[$i] == 'MenuEvents'    && $submenu[$i] == 'EventsForensicsDelete')    return true;
+					if ($menu[$i] == 'MenuIncidents' && $submenu[$i] == 'ControlPanelAlarmsDelete') return true;
+					
+					if ($gacl->acl_check($menu[$i], $submenu[$i], ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) 
+					{
+						if ($gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) 
+							return true;
+					}
+					
+					$i++;
+				}
+				
+				return false;
+			}
 		}
 		
 		function useractive($login_location = false) {
@@ -522,15 +547,8 @@ else {
 				exit;
 			}
 			
-			if (!Session::am_i_admin())
-			{
-				if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) 
-				{
-					if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
-						Session::unallowed_section();
-					}
-				}
-			}
+			if ( Session::menu_perms($menu, $submenu) == false )
+				Session::unallowed_section();
 		}
 		
 		function logcheck_ext($menu, $submenu, $axo_sec, $axo_val, $login_location = "../session/login.php") {
@@ -545,11 +563,9 @@ else {
 				header("Location: $login_location");
 				exit;
 			}
-			if (!$gacl->acl_check($menu, $submenu, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"], $axo_sec, $axo_val)) {
-				if (!$gacl->acl_check(ACL_DEFAULT_DOMAIN_SECTION, ACL_DEFAULT_DOMAIN_ALL, ACL_DEFAULT_USER_SECTION, $_SESSION["_user"])) {
-					Session::unallowed_section(false);
-				}
-			}
+			
+			if ( Session::menu_perms($menu, $submenu) == false )
+				Session::unallowed_section(false);
 		}
 		
 		
@@ -675,6 +691,9 @@ else {
 		
 		function hostAllowed($conn, $host = "ANY", $user = "") {
 			static $hostAllowedCache;
+			
+			$host = strtoupper($host);
+			
 			if (!is_object($conn)) {
 				echo "Missing database connection object.";
 				exit();

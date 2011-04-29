@@ -77,10 +77,7 @@ if ( $edit )
 	$list        = Incident::get_list($conn, "WHERE incident.id=$incident_id");
     
 	if (count($list) != 1) 
-	{
-		ossim_set_error(_("You don't have permission to see this page"));
-		die(ossim_error());
-	}
+		die(ossim_error(_("You don't have permission to see this page"), "NOTICE"));
 		
     		
 	$incident    = $list[0];

@@ -35,13 +35,12 @@
 */
 
 function orderArray($x, $y){
-	if ( $x['date'] == $y['date'] ){
+	if ( $x['date'] == $y['date'] )
 		return 0;
-	}else if ( $x['date'] > $y['date'] ){
+	else if ( $x['date'] > $y['date'] )
 		return -1;
-	}else{
+	else
 		return 1;
-	}
 }
 
 require_once 'classes/Host.inc';
@@ -119,13 +118,13 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 		<td valign="top">
 			<table>
 				<tr>
-					<td colspan="2" class="headerpr" height="20"><?=gettext("Inventory")?></td>
+					<td colspan="2" class="headerpr" height="20"><?php echo _("Inventory")?></td>
 				</tr>
 				
 				<tr>
 					<td width="50%" class="nobborder" valign="top">
 						<table align="center" class="noborder" width="100%">
-							<tr><th class="headergr"  colspan="2"> <?php echo gettext("Host Info"); ?> </th></tr>
+							<tr><th class="headergr"  colspan="2"> <?php echo _("Host Info"); ?> </th></tr>
 						<?php
 						$sensor_list = array();
                         $coordinates = array(0,0,2);
@@ -137,7 +136,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 							$sensor_list = $host_aux->get_sensors($conn);
 							?>
 							<tr>
-								<th> <?php echo gettext("Name"); ?> </th>
+								<th> <?php echo _("Name"); ?> </th>
 								<td><?php  echo $host_aux->hostname ?></td>
 							</tr>
 							<?php
@@ -153,7 +152,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 						{
 							?>
 							<tr>
-								<th><?php echo gettext("OS"); ?> </th>
+								<th><?php echo _("OS"); ?> </th>
 								<td><?php echo $os["os"].Host_os::get_os_pixmap($conn, $host);?></td>
 							</tr>
 							<?php
@@ -175,12 +174,12 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 							$netbios = $netbios_list[0];
 							?>
 							<tr>
-								<th> <?php echo gettext("Netbios Name"); ?> </th>
+								<th> <?php echo _("Netbios Name"); ?> </th>
 								<td><?php echo $netbios->name ?></td>
 							</tr>
 							
 							<tr>
-								<th> <?php echo gettext("Netbios Work Group"); ?> </th>
+								<th> <?php echo _("Netbios Work Group"); ?> </th>
 								<td><?php  echo $netbios->wgroup ?></td>
 							</tr>
 							<?php
@@ -191,7 +190,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 					
 					<td valign="top" width="50%" class="nobborder">
 						<table class="noborder" width="100%">
-							<tr><th class="headergr"  colspan="2"><?php	echo gettext("Host belongs to:"); ?></th></tr>
+							<tr><th class="headergr"  colspan="2"><?php	echo _("Host belongs to:"); ?></th></tr>
 
 							<?php
 							if ($net_list = Net::get_list($conn)) 
@@ -202,7 +201,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 									{
 									?>
 									<tr>
-										<th><?php echo gettext("Net"); ?></th>
+										<th><?php echo _("Net"); ?></th>
 										<td><?php echo $net->get_name() ?></td>
 									</tr>
 									<?php
@@ -217,7 +216,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 									$sensor_name = $sensor->get_sensor_name();
 									?>
 									<tr>
-										<th><?=gettext("Sensor")?></th>
+										<th><?php echo _("Sensor")?></th>
 										<td><?php echo $sensor_name ?></td>
 									</tr>
 									<?php
@@ -226,7 +225,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 							?>
 					
 							<tr><td colspan="2">&nbsp;</td></tr>
-							<tr><th colspan="2" style="padding:1px"><a href="javascript:;" onclick="return false;" class="scriptinfo" ip="<?=$host?>" class="scriptinfo"><?php echo gettext("Who is?"); ?></a></td></tr>
+							<tr><th colspan="2" style="padding:1px"><a href="javascript:;" onclick="return false;" class="scriptinfo" ip="<?php echo $host?>" class="scriptinfo"><?php echo _("Who is?"); ?></a></td></tr>
 						</table>
 					</td>
 				</tr>
@@ -238,9 +237,9 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 					<td colspan="2" class="nobborder">
 						<div id='map' style='height:200px; width:425px'></div>
 						<script>
-							var latitude = '<?php echo $coordinates['lat']?>';
+							var latitude  = '<?php echo $coordinates['lat']?>';
 							var longitude = '<?php echo $coordinates['lon']?>';
-							var zoom = <?php echo $coordinates['zoom']?>;
+							var zoom      = <?php echo $coordinates['zoom']?>;
 							$(document).ready(function(){ 
 								initialize();
 							});
@@ -286,9 +285,9 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 					
 					<table id="tableServicesTit" class="noborder">
 						<tr>
-							<th class="tableServices_t1"> <?php echo gettext("Property"); ?> </th>
-							<th class="tableServices_t2"> <?php echo gettext("Version"); ?> </th>
-							<th class="tableServices_t3"> <?php echo gettext("Date"); ?> </th>
+							<th class="tableServices_t1"> <?php echo _("Property"); ?> </th>
+							<th class="tableServices_t2"> <?php echo _("Version"); ?> </th>
+							<th class="tableServices_t3"> <?php echo _("Date"); ?> </th>
 						</tr>
 					</table>
 				  
@@ -342,7 +341,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 											?>
 										</td>
 										
-										<td class="tableServices_t2" bgcolor="<?=$bgcolor?>">
+										<td class="tableServices_t2" bgcolor="<?php echo $bgcolor?>">
 											<?php if(!empty($services['sensor'])){ ?><?php echo _('Sensor').': '.$services['sensor']; ?><br /><?php } ?>
 											<?php echo $services['value']; ?><br />
 											<?php if(!empty($services['extra'])){ ?>
@@ -368,7 +367,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 								$bgcolor = ($i%2==0) ? "#E1EFE0" : "#FFFFFF";
 						?>
 						  <tr>
-							<td bgcolor="<?=$bgcolor?>"><?php
+							<td bgcolor="<?php echo $bgcolor?>"><?php
 								$servname = ($services['service'] != "unknown") ? $services['service'] : getservbyport($services['port'],getprotobynumber($services['protocol']));
 								if ($servname == "") $servname = "unknown";
 								echo ($servname) . " (" . $services['port'] . "/" . getprotobynumber($services['protocol']) . ")" ?></td>
@@ -389,8 +388,8 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 				  <td colspan="2" class="nobborder">
 					<table class="noborder" width="100%">
 					  <tr>
-						<th> <?php echo gettext("Property"); ?> </th>
-						<th> <?php echo gettext("Value"); ?> </th>
+						<th> <?php echo _("Property"); ?> </th>
+						<th> <?php echo _("Value"); ?> </th>
 					  </tr>
 				<?php
 				if ($property_list = Host::get_host_properties($conn, $host)) {				
@@ -399,13 +398,13 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 						$bgcolor = ($i%2==0) ? "#E1EFE0" : "#FFFFFF";
 				?>
 				  <tr>
-					<td bgcolor="<?=$bgcolor?>">
+					<td bgcolor="<?php echo $bgcolor?>">
 						<?php
 							$propertyName=Host::get_properties_types($conn, $properties['property_ref']);
 							echo $propertyName [0]['name'];
 						?>
 					</td>
-					<td bgcolor="<?=$bgcolor?>">
+					<td bgcolor="<?php echo $bgcolor?>">
 						<?php
 						echo $properties['value'];
 						if(!empty($properties['extra'])){
@@ -428,7 +427,7 @@ if (GET('origin') == 'active' && GET('update') == 'services')
 	<td valign="top">
 			<table height="100%">
 				<tr>
-					<td colspan="2" class="headerpr" height="20"><?php echo gettext("Network Usage"); ?></td>
+					<td colspan="2" class="headerpr" height="20"><?php echo _("Network Usage"); ?></td>
 				</tr>
 				<!--
 				<tr>

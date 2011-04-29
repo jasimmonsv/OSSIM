@@ -260,11 +260,11 @@ class SecurityReport {
                 list($join2,$where2) = SecurityReport::make_join_where("a.","src_ip;dst_ip",$assets,$sourcetype,$category,$subcategory);
                 //
                 if (!preg_match("/plugin_sid/",$join2)) $join2 .= ", plugin_sid";
-                $query = "SELECT count(*) AS occurrences, plugin_sid.name as sig_name, alarm.plugin_id, alarm.plugin_sid
+                $query = "SELECT count(*) AS occurrences, plugin_sid.name as sig_name, a.plugin_id, a.plugin_sid
                             FROM alarm a $join2 $sensor_join
                             WHERE plugin_sid.plugin_id = a.plugin_id AND a.timestamp >= '$from_date 00:00:00' AND a.timestamp <= '$to_date 23:59:59'
                                   AND plugin_sid.sid = a.plugin_sid$sensor_str_alarm $where2
-                            $sql_plugin_groups GROUP BY alarm.plugin_id, alarm.plugin_sid
+                            $sql_plugin_groups GROUP BY a.plugin_id, a.plugin_sid
                             ORDER BY occurrences 
                             DESC LIMIT $limit";
                 $temp_conn = $this->ossim_conn;
