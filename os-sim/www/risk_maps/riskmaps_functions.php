@@ -31,6 +31,7 @@
 ****************************************************************************/
 /**
 */
+
 function indicatorAllowed($conn,$type,$type_name,$hosts,$sensors,$nets) {
 	$has_perm = 0;
 	if ($type == "host") {
@@ -45,6 +46,7 @@ function indicatorAllowed($conn,$type,$type_name,$hosts,$sensors,$nets) {
 	
 	return $has_perm;
 }
+
 // convert risk value into risk semaphore
 function get_value_by_digit($digit) {
 	if (intval($digit) > 7) {
@@ -59,6 +61,7 @@ function get_value_by_digit($digit) {
     	return 'b';
     }
 }
+
 // asset value in BBDD?
 function is_in_assets($conn,$name,$type) {
 	if ($type == "host") {
@@ -73,6 +76,7 @@ function is_in_assets($conn,$name,$type) {
 	$result = $conn->Execute($sql);
 	return (!$result->EOF) ? 1 : 0;
 }
+
 // get asset name, value and sensor
 function get_assets($conn,$name,$type,$host_types) {
 	// in_assets first
@@ -126,6 +130,7 @@ function get_assets($conn,$name,$type,$host_types) {
 
 	return array($name,$sensor,$type,$ips,$what,$in_assets);
 }
+
 // get asset risk values
 function get_values($conn,$host_types,$type,$name,$ips,$only_values = false) {
 	if ($only_values) {
@@ -195,6 +200,7 @@ function get_values($conn,$host_types,$type,$name,$ips,$only_values = false) {
     }
     return array($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$r_ip);
 }
+
 // get risk values for linked map (recursive)
 function get_map_values($conn,$map,$name,$type,$host_types) {
 	$query = "select * from risk_indicators where name <> 'rect' AND map= ?";
@@ -230,64 +236,127 @@ function get_map_values($conn,$map,$name,$type,$host_types) {
 	$AvailValue = get_value_by_digit($AvailValue_max);
 	return array($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$name,$sensor,$type,$ips,$what,$in_assets);
 }
+
 // print risk indicator table 
 function print_indicator_content($conn,$rs) {
 
     $host_types = array("host", "server", "sensor");
         
     // Linked to another map: loop by this map indicators
-    if (preg_match("/view\.php\?map\=(\d+)/",$rs->fields['url'],$found)) {
+    if (preg_match("/view\.php\?map\=(\d+)/",$rs->fields['url'],$found)) 
+	{
 		list ($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$name,$sensor,$type,$ips,$what,$in_assets) = get_map_values($conn,$found[1],$rs->fields["type_name"],$rs->fields["type"],$host_types);
-    } else {
+    } 
+	else 
+	{
     	// Asset Values
     	list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$rs->fields["type_name"],$rs->fields["type"],$host_types);
     	list ($RiskValue,$VulnValue,$AvailValue,$v_ip,$a_ip,$r_ip) = get_values($conn,$host_types,$type,$name,$ips,false);
     }
     
     $gtype = ($type=="net") ? "net" : "host";
-    $ips = ($type=="net") ? $ips : $name;
+    $ips   = ($type=="net") ? $ips : $name;
     $r_url = "../control_panel/show_image.php?ip=".urlencode(($type == "host_group") ? $r_ip : $name)."&range=week&what=compromise&start=N-1Y&end=N&type=$gtype&zoom=1&hmenu=Risk&smenu=Metrics";
     $v_url = "../vulnmeter/index.php?value=".urlencode(($type == "host_group") ? $v_ip : $ips)."&type=hn&hmenu=Vulnerabilities&smenu=Vulnerabilities";
     $a_url = "../nagios/index.php?sensor=".urlencode($sensor)."&hmenu=Availability&smenu=Availability&nagios_link=".urlencode("/cgi-bin/status.cgi?host=all");
 
     $size = ($rs->fields["size"] > 0) ? $rs->fields["size"] : '';
 	$icon = $rs->fields["icon"];
-	if (preg_match("/\#/",$icon)) {
+	
+	if (preg_match("/\#/",$icon)) 
+	{
 		$aux = explode("#",$icon);
 		$icon = $aux[0]; $bgcolor = $aux[1];
-	} else {
+	} 
+	else
 		$bgcolor = "transparent";
-	}
+	
+	
 	$url = ($rs->fields["url"] == "REPORT") ? "../report/index.php?host=".$ips : (($rs->fields["url"] != "") ? $rs->fields["url"] : "javascript:;");
+	
 	if (!$in_assets) {
 		$icon = "../pixmaps/marker--exclamation.png";
 		$size = "16";
 	}
-	?><table width="100%" border=0 cellspacing=0 cellpadding=1 style="background-color:<?php echo $bgcolor ?>"><tr><td colspan=2 align=center><a href="<?php echo $url ?>" class="ne"><i><?php echo $rs->fields["name"] ?></i></a></td></tr><tr><td><a href="<?php echo $url ?>"><img src="<?php echo $icon ?>" width="<?php echo $size ?>" border=0></a></td><td><table border=0 cellspacing=0 cellpadding=1><tr><td><a class="ne11" target="main" href="<?php echo $r_url ?>">R</a></td><td><a class="ne11" target="main" href="<?php echo $v_url ?>">V</a></td><td><a class="ne11" target="main" href="<?php echo $a_url ?>">A</a></td></tr><tr><td><img src="images/<?php echo $RiskValue ?>.gif" border=0></td><td><img src="images/<?php echo $VulnValue ?>.gif" border=0></td><td><img src="images/<?php echo $AvailValue ?>.gif" border=0></td></tr></table></td></tr></table><?php
+	
+	$name = (mb_detect_encoding($rs->fields["name"]." ",'UTF-8,ISO-8859-1') == 'UTF-8') ?  $rs->fields["name"] : mb_convert_encoding($rs->fields["name"], 'UTF-8', 'ISO-8859-1');
+
+	?>
+		
+		<table width="100%" border='0' cellspacing='0' cellpadding='1' style="background-color:<?php echo $bgcolor ?>">
+		<tr>
+			<td colspan='2' align='center'>
+				<a href="<?php echo $url ?>" class="ne"><i><?php echo $name?></i></a>
+			</td>
+		</tr>
+		
+		<tr>
+			<td>
+				<a href="<?php echo $url ?>"><img src="<?php echo $icon ?>" width="<?php echo $size ?>" border='0'/></a>
+			</td>
+			<td>
+				<table border='0' cellspacing='0' cellpadding='1'>
+					<tr>
+						<td><a class="ne11" target="main" href="<?php echo $r_url ?>">R</a></td>
+						<td><a class="ne11" target="main" href="<?php echo $v_url ?>">V</a></td>
+						<td><a class="ne11" target="main" href="<?php echo $a_url ?>">A</a></td>
+					</tr>
+					<tr>
+						<td><img src="images/<?php echo $RiskValue ?>.gif" border='0'/></td>
+						<td><img src="images/<?php echo $VulnValue ?>.gif" border='0'/></td>
+						<td><img src="images/<?php echo $AvailValue ?>.gif" border='0'/></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	
+	<?php
 }
+
 function print_rectangle_content($conn,$print_inputs) {
-	if ($print_inputs) { ?><div class="itcanberesized" style='position:absolute;bottom:0px;right:0px;cursor:nw-resize'><img src='../pixmaps/resize.gif' border=0></div><?php } ?>
-	<table border=0 cellspacing=0 cellpadding=0 width="100%" height="100%" style="border:0px"><tr><td style="border:1px dotted black">&nbsp;</td></tr></table><?php
+	if ($print_inputs) 
+	{ 
+		?>
+		<div class="itcanberesized" style='position:absolute;bottom:0px;right:0px;cursor:nw-resize'>
+			<img src='../pixmaps/resize.gif' border='0'/></div>
+		<?php 
+	} 
+	?>
+	
+	<table border='0' cellspacing='0' cellpadding='0' width="100%" height="100%" style="border:0px">
+		<tr><td style="border:1px dotted black">&nbsp;</td></tr>
+	</table>
+	
+	<?php
 }
+
 function print_indicators($map, $print_inputs = false) {
 	require_once 'classes/Host.inc';
 	require_once 'classes/Net.inc';
 	require_once 'ossim_db.inc';
-	$db = new ossim_db();
+	$db   = new ossim_db();
 	$conn = $db->connect();
 	list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
 	$nets = Net::get_list($conn);
 	$query = "select * from risk_indicators where name <> 'rect' AND map= ?";
 	$params = array($map);
-	if (!$rs = &$conn->Execute($query, $params)) {
+	
+	if (!$rs = &$conn->Execute($query, $params)) 
 		print $conn->ErrorMsg();
-	} else {
-		while (!$rs->EOF) {
+	else 
+	{
+		while (!$rs->EOF) 
+		{
 			$has_perm = indicatorAllowed($conn,$rs->fields['type'],$rs->fields['type_name'],$hosts,$sensors,$nets);
 			if (Session::am_i_admin()) $has_perm = 1;
-			if ($has_perm) {
-				if ($print_inputs) {
-					echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
+			if ($has_perm) 
+			{
+				if ($print_inputs) 
+				{
+					$name = (mb_detect_encoding($rs->fields["name"]." ",'UTF-8,ISO-8859-1') == 'UTF-8') ?  $rs->fields["name"] : mb_convert_encoding($rs->fields["name"], 'UTF-8', 'ISO-8859-1');
+					
+					echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$name."\">\n";
 					echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
 					echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
 					echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";

@@ -57,131 +57,130 @@ if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/tree.css" />
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/tree.css" />
   
-<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="../js/jquery.checkboxes.js"></script>
-<script type="text/javascript" src="../js/jquery.pstrength.js"></script>
-<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
-<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
-<script type="text/javascript" src="../js/combos.js"></script>
-<script type="text/javascript">
-	var checks = new Array;
-	checks['nets'] = 0;
-	checks['sensor'] = 0;
-	checks['perms'] = 0;
-	
-	function checkall(col) {
-		if (checks[col]) {
-			$("#fnewuser").unCheckCheckboxes("."+col, true)
-			checks[col] = 0;
-		} else {
-			$("#fnewuser").checkCheckboxes("."+col, true)
-			checks[col] = 1;
-		}
-	}
-
-	function checkpasscomplex(pass) {
-		<?php if ($conf->get_conf("pass_complex", FALSE) == "yes") { ?>
-		var counter = 0;
-		if (pass.match(/[a-z]/)) { counter++; }
-		if (pass.match(/[A-Z]/)) { counter++; }
-		if (pass.match(/[0-9]/)) { counter++; }
-		if (pass.match(/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬\.\,\?\=\-\_\<\>]/)) { counter++; }
-		return (counter < 3) ? 0 : 1;
-		<?php } else { ?>
-		return 1;
-		<?php } ?>
-	}
-	
-	function checkpasslength() {
-		if ($('#pass1').val().length < <?php echo $pass_length_min ?>) {
-			alert("<?=_("Minimum password size is ").$pass_length_min._(" characters")?>");
-			return 0;
-		} else if ($('#pass1').val().length > <?php echo $pass_length_max ?>) {
-			alert("<?=_("Maximum password size is ").$pass_length_max._(" characters")?>");
-			return 0;
-		} else return 1;
-	}
-
-	function checkpass() {
-		if (document.fnewuser.pass1.value != "" && !checkpasscomplex(document.fnewuser.pass1.value)) {
-			alert("<?=_("Password is not strong enough. Check the password policy configuration for more details")?>");
-			return 0;
-		}
-		else if (document.fnewuser.pass1.value != document.fnewuser.pass2.value) {
-			alert("<?=_("Mismatches in passwords")?>");
-			return 0;
-		} else return 1;
-	}
-
-	function checklogin() {
-		var str = document.getElementById('1').value;
-		if (str.match(/ /)) {
-			document.getElementById('msg_login').style.display = "inline";
-			return 0;
-		} else {
-			document.getElementById('msg_login').style.display = "none";
-			return 1;
-		}
-	}
-
-	function checkemail() {
-		var str = document.getElementById('3').value;
-		if (str == "" || str.match(/.+\@.+\..+/)) {
-			document.getElementById('msg_email').style.display = "none";
-			return 1;
-		} else {
-			document.getElementById('msg_email').style.display = "inline";
-			return 0;
-		}
-	}
-	
-	function formsubmit() {
-		if (checkpasslength() && checkpass() && checklogin() && checkemail()) {
-			selectall('nets');
-			document.fnewuser.submit();
-		}
-	}
-
-	function load_tree(filter, entity) {
-		combo = 'nets';
-
-		$("#nets_tree").remove();
-		$('#td_nets').append('<div id="nets_tree" style="width:100%"></div>');
-
-		$("#nets_tree").dynatree({
-			initAjax: { url: "../net/draw_nets.php", data: {filter: filter, entity: entity} },
-			clickFolderMode: 2,
-			onActivate: function(dtnode) {
-					if (!dtnode.hasChildren()) {
-						// add from a final node
-						addto(combo,dtnode.data.title,dtnode.data.key)
-					} else {
-						// simulate expand and load
-						addnodes = true;
-						dtnode.toggleExpand();
-					}
-			},
-			onDeactivate: function(dtnode) {},
-			onLazyRead: function(dtnode){
-				dtnode.appendAjax({
-					url: "../net/draw_nets.php",
-					data: {key: dtnode.data.key, filter:filter, entity: entity}
-				});
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.checkboxes.js"></script>
+	<script type="text/javascript" src="../js/jquery.pstrength.js"></script>
+	<script type="text/javascript" src="../js/jquery-ui-1.7.custom.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.dynatree.js"></script>
+	<script type="text/javascript" src="../js/combos.js"></script>
+	<script type="text/javascript">
+		var checks = new Array;
+			checks['nets']   = 0;
+			checks['sensor'] = 0;
+			checks['perms']  = 0;
+		
+		function checkall(col) {
+			if (checks[col]) {
+				$("#fnewuser").unCheckCheckboxes("."+col, true)
+				checks[col] = 0;
+			} else {
+				$("#fnewuser").checkCheckboxes("."+col, true)
+				checks[col] = 1;
 			}
-		});
-	}
+		}
 
-	$(document).ready(function(){
-		$('#pass1').pstrength();
-		load_tree('','');
-	});
+		function checkpasscomplex(pass) {
+			<?php if ($conf->get_conf("pass_complex", FALSE) == "yes") { ?>
+			var counter = 0;
+			if (pass.match(/[a-z]/)) { counter++; }
+			if (pass.match(/[A-Z]/)) { counter++; }
+			if (pass.match(/[0-9]/)) { counter++; }
+			if (pass.match(/[\!\"\·\$\%\&\/\(\)\|\#\~\€\¬\.\,\?\=\-\_\<\>]/)) { counter++; }
+			return (counter < 3) ? 0 : 1;
+			<?php } else { ?>
+			return 1;
+			<?php } ?>
+		}
+	
+		function checkpasslength() {
+			if ($('#pass1').val().length < <?php echo $pass_length_min ?>) {
+				alert("<?=_("Minimum password size is ").$pass_length_min._(" characters")?>");
+				return 0;
+			} else if ($('#pass1').val().length > <?php echo $pass_length_max ?>) {
+				alert("<?=_("Maximum password size is ").$pass_length_max._(" characters")?>");
+				return 0;
+			} else return 1;
+		}
+
+		function checkpass() {
+			if (document.fnewuser.pass1.value != "" && !checkpasscomplex(document.fnewuser.pass1.value)) {
+				alert("<?=_("Password is not strong enough. Check the password policy configuration for more details")?>");
+				return 0;
+			}
+			else if (document.fnewuser.pass1.value != document.fnewuser.pass2.value) {
+				alert("<?=_("Mismatches in passwords")?>");
+				return 0;
+			} else return 1;
+		}
+
+		function checklogin() {
+			var str = document.getElementById('1').value;
+			if (str.match(/ /)) {
+				document.getElementById('msg_login').style.display = "inline";
+				return 0;
+			} else {
+				document.getElementById('msg_login').style.display = "none";
+				return 1;
+			}
+		}
+
+		function checkemail() {
+			var str = document.getElementById('3').value;
+			if (str == "" || str.match(/.+\@.+\..+/)) {
+				document.getElementById('msg_email').style.display = "none";
+				return 1;
+			} else {
+				document.getElementById('msg_email').style.display = "inline";
+				return 0;
+			}
+		}
+	
+		function formsubmit() {
+			if (checkpasslength() && checkpass() && checklogin() && checkemail()) {
+				selectall('nets');
+				document.fnewuser.submit();
+			}
+		}
+
+		function load_tree(filter, entity) {
+			combo = 'nets';
+
+			$("#nets_tree").remove();
+			$('#td_nets').append('<div id="nets_tree" style="width:100%"></div>');
+
+			$("#nets_tree").dynatree({
+				initAjax: { url: "../net/draw_nets.php", data: {filter: filter, entity: entity} },
+				clickFolderMode: 2,
+				onActivate: function(dtnode) {
+						if (!dtnode.hasChildren()) {
+							// add from a final node
+							addto(combo,dtnode.data.title,dtnode.data.key)
+						} else {
+							// simulate expand and load
+							addnodes = true;
+							dtnode.toggleExpand();
+						}
+				},
+				onDeactivate: function(dtnode) {},
+				onLazyRead: function(dtnode){
+					dtnode.appendAjax({
+						url: "../net/draw_nets.php",
+						data: {key: dtnode.data.key, filter:filter, entity: entity}
+					});
+				}
+			});
+		}
+
+		$(document).ready(function(){
+			$('#pass1').pstrength();
+			load_tree('','');
+		});
 </script>
 </head>
 <body>
