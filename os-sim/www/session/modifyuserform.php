@@ -275,12 +275,12 @@ include ("../hmenu.php");
 					<input type="hidden" name="insert" value="insert" />
 					<input type="hidden" name="user" value="<?php echo $user->get_login() ?>" />
 					<tr>
-						<th> <?php echo gettext("User login"); ?> </th>
+						<th> <?php echo gettext("User login") . required(); ?> </th>
 						<td class="left"><strong><?php echo $user->get_login(); ?></strong></td>
 					</tr>
 					
 					<tr>
-						<th> <?php echo gettext("User name"); ?> </th>
+						<th> <?php echo gettext("User name"). required(); ?> </th>
 						<td class="left"><input type="text" name="name" value="<?php echo $user->get_name(); ?>" /></td>
 					</tr>
 					
@@ -309,7 +309,7 @@ include ("../hmenu.php");
 					</tr>
 		
 					<tr>
-						<th><?=_("Timezone:")?></th>
+						<th><?php echo _("Timezone")?></th>
 						<? 
 							$tzlist = timezone_identifiers_list();
 							sort($tzlist); $utz = $user->get_timezone();
@@ -425,14 +425,17 @@ include ("../hmenu.php");
 							<select style="width:100%;height:90%" multiple="multiple" size="19" name="nets[]" id="nets">
                             <?php
                             /* ===== Networks ==== */
-                            foreach($net_list as $net) {
+                            foreach($net_list as $net) 
+							{
                             	$net_name = $net->get_name();
                                 $net_ips  = $net->get_ips();
-                                $cidrs = explode(",",$net_ips);
+                                $cidrs    = explode(",",$net_ips);
                                 foreach($cidrs as $cidr)
+								{
                                 	if (false !== strpos(Session::allowedNets($user->get_login()) , $net_ips)) {
                                 			echo "<option value='$net_name'>$net_name ($net_ips)</option>";
                                 	}
+								}
                             }
                             ?>
                             </select>
@@ -453,7 +456,7 @@ include ("../hmenu.php");
                         <td class="left nobborder" style="padding-top:10px;">
                             <div>
                                 <div style="float:left">
-                                    <?=_("Filter")?>: <input type="text" id="filtern" name="filtern" style="height: 18px;width: 170px;" />
+                                    <?php echo _("Filter")?>: <input type="text" id="filtern" name="filtern" style="height: 18px;width: 170px;" />
                                 </div>
                                 <div style="float:right">
                                     <input type="button" style="margin-right:0px;" class="lbutton" value="<?=_("Apply")?>" onclick="load_tree(document.fmodify.filtern.value,'<?php echo $current_entity ?>')" /> 

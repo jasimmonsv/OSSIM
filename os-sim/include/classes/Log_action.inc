@@ -47,6 +47,7 @@
 * - get_count()
 * - log_action_replace()
 * - get_loginfo()
+* - get_last_pass()
 * Classes list:
 * - log_action
 */
@@ -174,10 +175,12 @@ OFFSET $inf");
             print $conn->ErrorMsg();
             return array();
         }
-        while (!$rs->EOF) {
+        while (!$rs->EOF) 
+		{
             $list[] = $rs->fields["pass"];
             $rs->MoveNext();
         }
+		
         return $list;
     }
     function get_count($conn, $cfilter) {
