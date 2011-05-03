@@ -1156,7 +1156,7 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) {
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:configuration','Help');"
     );
     
-	if (Session::am_i_admin()) {
+	if ($prodemo && Session::am_i_admin()) {
         $hmenu["Main"][] = array(
 	        "name" => gettext("Customization Wizard") ,
 	        "id" => "Customize",
