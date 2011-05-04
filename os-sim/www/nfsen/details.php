@@ -1285,7 +1285,7 @@ function DisplayProcessing() {
 
 <TR>
 	<TD style='vertical-align:top;border:none'>
-		<SELECT name="srcselector[]" id=SourceSelector size="6" style="width: 100%" multiple>
+		<SELECT name="srcselector[]" id='SourceSelector' size="6" style="width: 100%" multiple>
 <?php
 		foreach ( $process_form['srcselector'] as $selected_channel ) {
 			$_tmp[$selected_channel] = 1;
@@ -1304,7 +1304,7 @@ function DisplayProcessing() {
 		<INPUT class="lbutton" TYPE="button" NAME="JSbutton2" Value="<?=_("All Sources")?>" onClick="SelectAllSources()">
 	</TD>
 	<td style="vertical-align:top;border:none">
-		<textarea name="filter" id="filter" multiline="true" wrap="phisical" rows="6" cols="50" maxlength="50"><?php
+		<textarea name="filter" id="filter" multiline="true" wrap="phisical" rows="6" cols="50"><?php
 			if (is_array($process_form))
 				$display_filter = array_key_exists('editfilter', $process_form) ? $process_form['editfilter'] : $process_form['filter'];
 			else $display_filter = array();
