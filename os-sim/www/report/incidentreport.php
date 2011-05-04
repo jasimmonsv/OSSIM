@@ -181,7 +181,7 @@ function incidents_by_status_table($tickets_by_status)
 				<tr>
 					<td colspan="2" class="nobborder">
 						<!--<iframe src="graphs/incidents_pie_graph.php?by=status" frameborder="0" style="width:99%;height:400px;"></iframe>-->
-						<iframe src="../panel/tickets.php?type=ticketStatus&legend=s&height=300" frameborder="0" style="width:99%;height:400px;"></iframe>
+						<iframe src="../panel/tickets.php?type=ticketStatus&legend=s&height=470" frameborder="0" style="width:99%;height:470px;"></iframe>
 				    </td>
 				</tr>
 			<?php	
@@ -218,12 +218,13 @@ function incidents_by_type_table($tickets_by_type) {
 					</tr>
 					<?php
 				}
+				
 				?>
 				
 				<tr>
 					<td colspan="2" class="nobborder">
 						<!--<iframe src="graphs/incidents_pie_graph.php?by=type" frameborder="0" style="width:99%;height:400px;"></iframe>-->
-						<iframe src="../panel/tickets.php?type=ticketTypes&legend=s&height=330" frameborder="0" style="width:99%;height:400px;"></iframe>
+						<iframe src="../panel/tickets.php?type=ticketTypes&legend=s&height=470" frameborder="0" style="width:99%;height:470px;"></iframe>
         			</td>
 				</tr>
 				
@@ -264,12 +265,13 @@ function incidents_by_user_table($tickets_by_user) {
 				</tr>
 				<?php
 			}
+			
 			?>
 			
 			<tr>
 				<td colspan="2" class="nobborder">
 					<!--<iframe src="graphs/incidents_pie_graph.php?by=user" frameborder="0" style="width:99%;height:400px;"></iframe>-->
-					<iframe src="../panel/tickets.php?type=openedTicketsByUser&legend=s&height=450" frameborder="0" style="width:99%;height:450px;"></iframe>
+					<iframe src="../panel/tickets.php?type=openedTicketsByUser&legend=s&height=470" frameborder="0" style="width:99%;height:470px;"></iframe>
 				</td>
 			</tr>
 			
