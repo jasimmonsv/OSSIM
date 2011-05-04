@@ -35,154 +35,220 @@
 * Classes list:
 */
 require_once ("classes/Repository.inc");
-require_once("classes/Plugin.inc");
-require_once("classes/Plugin_sid.inc");
-// menu authentication
-require_once ('classes/Session.inc');
+require_once ("classes/Plugin.inc");
+require_once ("classes/Plugin_sid.inc");
+require_once ("classes/Session.inc");
+require_once ("ossim_conf.inc");
+require_once ("ossim_db.inc");
+
 Session::logcheck("MenuIncidents", "Osvdb");
 $user = $_SESSION["_user"];
-// get upload dir from ossim config file
-require_once 'ossim_conf.inc';
-$conf = $GLOBALS["CONF"];
-$link_type = (GET('linktype') != "") ? GET('linktype') : "host";
+
+// Get upload dir from ossim config file
+
+$conf        = $GLOBALS["CONF"];
+$link_type   = (GET('linktype') != "") ? GET('linktype') : "host";
 $id_document = (GET('id_document') != "") ? GET('id_document') : ((POST('id_document') != "") ? POST('id_document') : "");
+
 if (!ossim_valid($id_document, OSS_DIGIT, 'illegal:' . _("id_document"))) exit;
 // DB connect
-require_once ("ossim_db.inc");
-$db = new ossim_db();
+
+
+$db   = new ossim_db();
 $conn = $db->connect();
-$pid = intval(GET('pid'));
+$pid  = intval(GET('pid'));
+
 // New link on relationships
-if (GET('newlinkname') != "" && GET('insert') == "1") {
-    if ($link_type=="directive") {
+if (GET('newlinkname') != "" && GET('insert') == "1") 
+{
+    if ($link_type=="directive") 
+	{
         $idd = intval(GET('newlinkname'));
         Repository::insert_relationships($conn, $id_document, $idd, $link_type, $idd);
-    } else {
+    } 
+	else 
+	{
         $aux = explode("####", GET('newlinkname'));
         Repository::insert_relationships($conn, $id_document, $aux[0], $link_type, $aux[1]);
         if ($link_type == "plugin_sid")  Repository::insert_snort_references($conn, $id_document, $aux[1], $aux[0]);
     }
 }
+
 // Delete link on relationships
-if (GET('key_delete') != "") {
-    Repository::delete_relationships($conn, $id_document, GET('key_delete'));
-    if ($link_type == "plugin_sid")  Repository::delete_snort_references($conn, $id_document);
+if (GET('key_delete') != "") 
+{
+    $key = mb_convert_encoding(urldecode(GET('key_delete')), 'HTML-ENTITIES', 'UTF-8');
+						
+	Repository::delete_relationships($conn, $id_document, $key);
+    if ($link_type == "plugin_sid") 
+		Repository::delete_snort_references($conn, $id_document);
 }
+
 $document = Repository::get_document($conn, $id_document);
 $rel_list = Repository::get_relationships($conn, $id_document);
 if ($link_type != "directive" && $link_type != "plugin_sid")
     list($hostnet_list, $num_rows) = Repository::get_hostnet($conn, $link_type);
 ?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<style type='text/css'>
+				
+		.ossim_error, .ossim_success { width: auto;}
+		
+		body { margin: 0px;}
+		
+		.action{
+			margin: auto;
+			text-align: center;
+			paddding: 5px 0px;
+			width: 50px;
+		}
+		
+		.t_style {
+			margin-top: 10px;
+			width: 100%;
+			margin: auto;
+			text-align: center;
+		}
+		
+	</style>
 </head>
 
-<body style="margin:0">
-<table width="100%" class="transparent">
+<body>
+<table width="90%" class="transparent" align='center'>
 	<?php
-if (count($rel_list) > 0) { ?>
+if (count($rel_list) > 0) 
+{ 
+	?>
 	<tr>
-		<td>
-			<table class="noborder" align="center">
+		<td class='nobborder'>
+			<table class="noborder transparent t_style" align="center">
 				<tr>
-					<td class="kdb"><?php echo gettext("Linked to")?></td>
-					<td class="kdb"><?php echo gettext("Type")?></td>
-					<td class="kdb"><?php echo gettext("Action")?></td>
+					<th style='paddding: 5px 0px;'><?php echo _("Linked to")?></th>
+					<th style='paddding: 5px 0px;'><?php echo _("Type")?></th>
+					<th class='action'><?php echo _("Action")?></th>
 				</tr>
 				<?php
-    foreach($rel_list as $rel) {
-        if ($rel['type'] == "host") $page = "../report/index.php?host=" . $rel['key'];
-        if ($rel['type'] == "net") $page = "../net/net.php";
-        if ($rel['type'] == "host_group") $page = "../host/hostgroup.php";
-        if ($rel['type'] == "net_group") $page = "../net/netgroup.php";
-        if ($rel['type'] == "incident") $page = "../incidents/incident.php?id=" . $rel['key'];
-        if ($rel['type'] == "directive") $page = "../directive_editor/index.php?hmenu=Directives&smenu=Directives&level=1&directive=" . $rel['key'];
-        if ($rel['type'] == "plugin_sid") $page = "../forensics/base_qry_main.php?clear_allcriteria=1&search=1&sensor=&sip=&plugin=&ossim_risk_a=+&hmenu=Forensics&smenu=Forensics&submit=Signature&search_str=" . urlencode(Plugin_sid::get_name_by_idsid($conn,$rel['key'],$rel['name']));
-?>
+				
+			foreach($rel_list as $rel) 
+			{
+				if ($rel['type'] == "host")           $page = "../report/index.php?host=" . $rel['key'];
+				elseif ($rel['type'] == "net")        $page = "../net/net.php";
+				elseif ($rel['type'] == "host_group") $page = "../host/hostgroup.php";
+				elseif ($rel['type'] == "net_group")  $page = "../net/netgroup.php";
+				elseif ($rel['type'] == "incident")   $page = "../incidents/incident.php?id=" . $rel['key'];
+				elseif ($rel['type'] == "directive")  $page = "../directive_editor/index.php?hmenu=Directives&smenu=Directives&level=1&directive=" . $rel['key'];
+				elseif ($rel['type'] == "plugin_sid") $page = "../forensics/base_qry_main.php?clear_allcriteria=1&search=1&sensor=&sip=&plugin=&ossim_risk_a=+&hmenu=Forensics&smenu=Forensics&submit=Signature&search_str=" . urlencode(Plugin_sid::get_name_by_idsid($conn,$rel['key'],$rel['name']));
+			?>
 				<tr>
-					<td class="nobborder"><a href="<?php echo $page ?>" target="main"><?php echo ($rel['type'] == "plugin_sid") ? $rel['key']." (".$rel['name'].")" : $rel['name'] ?></a></td>
-					<td class="nobborder"><?php echo ($rel['type'] == "incident") ? "ticket" : $rel['type'] ?></td>
-					<td class="noborder"><a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?id_document=<?php echo $id_document ?>&key_delete=<?php echo $rel['key'] ?>&linktype=<?=urlencode($rel['type'])?>"><img src="images/del.gif" border="0"></a></td>
+					<td class="left nobborder"><a href="<?php echo $page ?>" target="main"><?php echo ($rel['type'] == "plugin_sid") ? $rel['key']." (".$rel['name'].")" : $rel['name'] ?></a></td>
+					<td class="left nobborder"><?php echo ($rel['type'] == "incident") ? "ticket" : $rel['type'] ?></td>
+					<td class="action noborder">
+						<a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?id_document=<?php echo $id_document ?>&key_delete=<?php echo urlencode($rel['key'])?>&linktype=<?=urlencode($rel['type'])?>">
+						<img src="images/del.gif" border="0"/></a>
+					</td>
 				</tr>
 				<?php
-    } ?>
+			} ?>
 			</table>
 		</td>
 	</tr>
 	<?php
-} ?>
+} 
+?>
+
 <form name="flinks" method="GET">
-<input type="hidden" name="id_document" value="<?php echo $id_document ?>">
-<input type="hidden" name="insert" value="0">
+<input type="hidden" name="id_document" value="<?php echo $id_document ?>"/>
+<input type="hidden" name="insert" value="0"/>
 	<tr>
-		<td>
-			<table class="noborder" align="center">
+		<td class='nobborder'>
+			<table class="noborder transparent t_style" align="center">
 				<tr>
-					<td class="kdb"><?=_("Link Type")?></td>
-					<td class="kdb"><?=_("Value")?></td>
-					<td></td>
+					<th style='paddding: 5px 0px;'><?php echo _("Link Type")?></th>
+					<th style='paddding: 5px 0px;'><?php echo _("Value")?></th>
+					<th class='action'><?php echo _("Action")?></th>
 				</tr>
 				<tr>
 					<td valign="top" class="nobborder">
 						<select name="linktype" onchange="document.flinks.submit();">
-						<option value="directive"<?php
-if ($link_type == "directive") echo " selected" ?>><?=_("Directive")?>
-						<option value="host"<?php
-if ($link_type == "host") echo " selected" ?>><?=_("Host")?>
-						<option value="host_group"<?php
-if ($link_type == "host_group") echo " selected" ?>><?=_("Host Group")?>
-						<option value="incident"<?php
-if ($link_type == "incident") echo " selected" ?>><?=_("Ticket")?>
-						<option value="net"<?php
-if ($link_type == "net") echo " selected" ?>><?=_("Net")?>
-						<option value="net_group"<?php
-if ($link_type == "net_group") echo " selected" ?>><?=_("Net Group")?>
-						<option value="plugin_sid"<?php
-if ($link_type == "plugin_sid") echo " selected" ?>><?=_("Plugin sid")?>
+						<?php
+							$link_types = array(
+								"directive"  => "Directive",
+								"host"       => "Host",
+								"host_group" => "Host Group",
+								"incident"   => "Incident",
+								"net"        => "Net",
+								"net_group"  => "Net Group",
+								"plugin_sid" => "Plugin sid",
+							);
+							
+							foreach ($link_types as $k => $v)
+							{
+								$selected = ( $k == $link_type ) ? "selected='selected'" : "";
+								echo "<option value='$k' $selected>$v</option>";
+							}
+						?>
 						</select>
 					</td>
+					
 					<td valign="top" class="nobborder">
-					<?php if ($link_type == "directive") { ?>
-						<input type="text" name="newlinkname">
-					<?php } elseif ($link_type == "plugin_sid") { 
-                            $plugins = Plugin::get_list($conn,"order by name");
-                            echo "<select name='pid' onchange='document.flinks.submit()'><option value='0'> "._("Select a plugin");
-                            foreach ($plugins as $plugin) {
-                                $sel = ($plugin->get_id()==$pid) ? "selected" : "";
+					<?php 
+						if ($link_type == "directive") 
+						{ 
+							?>
+							<input type="text" name="newlinkname" style='width:99%'/>
+							<?php 
+						} 
+						elseif ($link_type == "plugin_sid") 
+						{ 
+                            $plugins = Plugin::get_list($conn,"ORDER BY name");
+                            echo "<select name='pid' onchange='document.flinks.submit()'>";
+                            foreach ($plugins as $plugin) 
+							{
+                                $sel = ( $plugin->get_id()==$pid ) ? "selected='selected'" : "";
                                 echo "<option value='".$plugin->get_id()."' $sel>".$plugin->get_name();
                             }
                             echo "</select><br>";
-                            if ($pid!="" && $pid!="0") {
+                            
+							if ( $pid !="" && $pid !="0" ) 
+							{
                                 $sids = Plugin_sid::get_list($conn,"where plugin_id=$pid");
-                                echo "<select name='newlinkname' style='width:200px'>";
-                                foreach ($sids as $sid) {
+                                echo "<select name='newlinkname' style='width:200px; margin-top:5px;'>";
+                                
+								foreach ($sids as $sid) {
                                     echo "<option value='".$sid->get_sid()."####$pid'>".$sid->get_name();
                                 }
                                 echo "</select>";
                             }
-					   } else { ?>
-						<select name="newlinkname" style="width:300px">
-						<?php foreach($hostnet_list as $hostnet) { ?>
-						<option value="<?php echo $hostnet['name'] ?>####<?php echo $hostnet['key'] ?>"><?php echo $hostnet['name'] ?>
-						<?php } ?>
-						</select>
-                    <? } ?>
+						} 
+						else 
+						{ 
+							?>
+							<select name="newlinkname" style="width:300px">
+								<?php 
+								foreach($hostnet_list as $hostnet) { ?>
+									<option value="<?php echo $hostnet['name'] ?>####<?php echo $hostnet['key'] ?>"><?php echo $hostnet['name'] ?>
+								<?php } ?>
+							</select>
+							<?php 
+						} 
+						?>
 					</td>
-					<td valign="top" class="nobborder"><input class="btn" type="button" value="<?=_("Link")?>" onclick="document.flinks.insert.value='1';document.flinks.submit();"></td>
+					<td valign="top" class="nobborder center"><input class="lbutton" type="button" value="<?php echo _("Link")?>" onclick="document.flinks.insert.value='1';document.flinks.submit();"></td>
 				</tr>
 			</table>
 		</td>
 	</tr>
-	<tr><td align="center"><input class="btn" type="button" onclick="parent.document.location.href='index.php'" value="<?=_("Finish")?>"></td></tr>
+	<tr><td class="nobborder center"><input class="button" type="button" onclick="parent.document.location.href='index.php'" value="<?php echo _("Finish")?>"></td></tr>
 </table>
 </form>
+
 </body>
 </html>
-<?php
-$db->close($conn);
-?>
+<?php $db->close($conn); ?>

@@ -35,39 +35,51 @@
 * Classes list:
 */
 require_once ("classes/Repository.inc");
-require_once("classes/Plugin_sid.inc");
-// menu authentication
-require_once ('classes/Session.inc');
+require_once ("classes/Plugin_sid.inc");
+require_once ("classes/Session.inc");
 Session::logcheck("MenuIncidents", "Osvdb");
-$user = $_SESSION["_user"];
+$user        = $_SESSION["_user"];
 $id_document = (GET('id_document') != "") ? GET('id_document') : ((POST('id_document') != "") ? POST('id_document') : "");
+
 if (!ossim_valid($id_document, OSS_DIGIT, 'illegal:' . _("id_document"))) exit;
+
 $maximized = (GET('maximized') != "") ? 1 : 0;
 // DB Connection
+
 require_once ("ossim_db.inc");
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
-$document = Repository::get_document($conn, $id_document);
+$document  = Repository::get_document($conn, $id_document);
 $atch_list = Repository::get_attachments($conn, $id_document);
-$rel_list = Repository::get_relationships($conn, $id_document);
+$rel_list  = Repository::get_relationships($conn, $id_document);
 ?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<style type='text/css'>
+		body { margin: 0px;}
+		.main_table {
+			width: 98%;
+			text-align: center;
+			margin: 10px auto 5px auto;
+			border: none;
+		}
+	</style>
 </head>
 
-<body style="margin:0">
-<table cellpadding=0 cellspacing=2 border=0 width="100%" class="transparent">
+<body>
+<table cellpadding='0' cellspacing='2' class="transparent main_table">
 	<!--
 	<tr>
 		<?php
 if (!$maximized) { ?>
 		<td style="padding:3px"><a href="repository_document.php?id_document=<?php echo $id_document
-?>&maximized=1" target="_parent"><img src="images/max.gif" align="absmiddle" border=0><?=_("Maximize")?></a></td>
+?>&maximized=1" target="_parent"><img src="images/max.gif" align="absmiddle" border=0><?php echo _("Maximize")?></a></td>
 		<?php
 } else { ?>
 		<td style="padding:3px"><a href="index.php?pag=<?php echo GET('pag') ?>&search_bylink=<?php echo GET('search_bylink') ?>"><?php echo _("Back to main") ?></a></td>
@@ -76,77 +88,77 @@ if (!$maximized) { ?>
 	</tr>-->
 	<tr>
 		<td class="nobborder">
-			<table cellpadding=0 cellspacing=0 border=0 class="noborder">
+			<table cellpadding='0' cellspacing='0' border='0' width='100%'>
 				<tr>
-					<td class="nobborder" valign="top" width="250" style="padding-right:20px">
-						<table cellpadding=0 cellspacing=2 border=0 width="100%">
-							<tr><th class="kdb"><?=_("Date")?></th></tr>
-							<tr>
-								<td class="center" style="padding-left:5px"><?php echo $document['date'] ?></td>
-							</tr>
-							<tr><th class="kdb"><?=_("User")?></th></tr>
-							<tr>
-								<td class="center" style="padding-left:5px"><?php echo $document['user'] ?></td>
-							</tr>
-							<tr><th class="kdb"><?=_("Keywords")?></th></tr>
-							<tr>
-								<td class="center" style="padding-left:5px"><?php echo $document['keywords'] ?></td>
-							</tr>
-							
-							<tr><th class="kdb"><?=_("Attachments")?></th></tr>
+					<td class="nobborder" valign="top" width="250px" style="padding-right:10px">
+						<table cellpadding='0' cellspacing='2' border='0' width="100%" class='noborder'>
+							<tr><th class="kdb"><?php echo _("Date")?></th></tr>
+							<tr><td class="center" style="padding-left:5px"><?php echo $document['date'] ?></td></tr>
+							<tr><th class="kdb"><?php echo _("User")?></th></tr>
+							<tr><td class="center" style="padding-left:5px"><?php echo $document['user'] ?></td></tr>
+							<tr><th class="kdb"><?php echo _("Keywords")?></th></tr>
+							<tr><td class="center" style="padding-left:5px"><?php echo ( !empty($document['keywords']) ) ? $document['keywords'] : " <span style='color:#696969;'>"._("No Keywords defined")."</span> " ?></td></tr>
+							<tr><th class="kdb"><?php echo _("Attachments")?></th></tr>
 							<!-- Attachments -->
 							<tr>
-								<td>
+								<td class='nobborder center'>
 									<table class="noborder" align="center">
 										<?php
-foreach($atch_list as $f) {
-    $type = ($f['type'] != "") ? $f['type'] : "unkformat";
-    $img = (file_exists("images/$type.gif")) ? "images/$type.gif" : "images/unkformat.gif";
-    $filepath = "../uploads/$id_document/" . $f['id_document'] . "_" . $f['id'] . "." . $f['type'];
-?>
-										<tr>
-											<td align=center class="nobborder"><img src="<?php echo $img
-?>"></td>
-											<td class="nobborder"><a href="view.php?id=<?php echo $f['id_document'] ?>_<?php echo $f['id'] ?>"><?php echo $f['name'] ?></a></td>
-											<td class="nobborder"><a href="download.php?id=<?php echo $f['id_document'] ?>_<?php echo $f['id'] ?>"><img src="images/download.gif" border="0"></a></td>
-										</tr>
-										<?php
-} ?>
+										if ( count($atch_list) > 0 )
+										{
+											foreach($atch_list as $f) 
+											{
+												$type     = ($f['type'] != "") ? $f['type'] : "unkformat";
+												$img      = (file_exists("images/$type.gif")) ? "images/$type.gif" : "images/unkformat.gif";
+												$filepath = "../uploads/$id_document/" . $f['id_document'] . "_" . $f['id'] . "." . $f['type'];
+											?>
+											<tr>
+												<td align='center' class="nobborder"><img src="<?php echo $img?>"/></td>
+												<td class="nobborder"><a href="view.php?id=<?php echo $f['id_document'] ?>_<?php echo $f['id'] ?>"><?php echo $f['name'] ?></a></td>
+												<td class="nobborder"><a href="download.php?id=<?php echo $f['id_document'] ?>_<?php echo $f['id'] ?>"><img src="images/download.gif" border="0"></a></td>
+											</tr>
+											<?php
+											}
+										}
+										else
+											echo "<span style='color:#696969;'>"._("No files attached")."</span>";
+										
+										?>
 									</table>
 								</td>
 							</tr>
-							
-							<tr><th><?=_("Links")?></th></tr>
+							<tr><th class="kdb"><?php echo _("Links")?></th></tr>
 							<!-- Relationships -->
 							<tr>
 								<td class="nobborder">
 									<table class="noborder" align="center">
 										<?php
-foreach($rel_list as $rel) {
-    if ($rel['type'] == "host") $page = "../report/index.php?host=" . $rel['key'];
-    if ($rel['type'] == "net") $page = "../net/net.php";
-    if ($rel['type'] == "host_group") $page = "../host/hostgroup.php";
-    if ($rel['type'] == "net_group") $page = "../net/netgroup.php";
-    if ($rel['type'] == "incident") $page = "../incidents/incident.php?id=" . $rel['key'];
-    if ($rel['type'] == "directive") $page = "../directive_editor/index.php?hmenu=Directives&smenu=Directives&level=1&directive=" . $rel['key'];
-    if ($rel['type'] == "plugin_sid") $page = "../forensics/base_qry_main.php?clear_allcriteria=1&search=1&sensor=&sip=&plugin=&ossim_risk_a=+&hmenu=Forensics&smenu=Forensics&submit=Signature&search_str=" . urlencode(Plugin_sid::get_name_by_idsid($conn,$rel['key'],$rel['name']));
-?>
-										<tr>
-											<td class="nobborder"><a href="<?php echo $page
-?>" target="main"><?php echo ($rel['type'] == "plugin_sid") ? $rel['key']." (".$rel['name'].")" : $rel['name'] ?></a></td>
-											<td class="nobborder"><?php echo ($rel['type'] == "incident") ? "ticket" : $rel['type'] ?></td>
-										</tr>
-										<?php
-} ?>
+										foreach($rel_list as $rel) 
+										{
+											if ($rel['type'] == "host")       $page = "../report/index.php?host=" . $rel['key'];
+											if ($rel['type'] == "net")        $page = "../net/net.php";
+											if ($rel['type'] == "host_group") $page = "../host/hostgroup.php";
+											if ($rel['type'] == "net_group")  $page = "../net/netgroup.php";
+											if ($rel['type'] == "incident")   $page = "../incidents/incident.php?id=" . $rel['key'];
+											if ($rel['type'] == "directive")  $page = "../directive_editor/index.php?hmenu=Directives&smenu=Directives&level=1&directive=" . $rel['key'];
+											if ($rel['type'] == "plugin_sid") $page = "../forensics/base_qry_main.php?clear_allcriteria=1&search=1&sensor=&sip=&plugin=&ossim_risk_a=+&hmenu=Forensics&smenu=Forensics&submit=Signature&search_str=" . urlencode(Plugin_sid::get_name_by_idsid($conn,$rel['key'],$rel['name']));
+											?>
+											<tr>
+												<td class="nobborder"><a href="<?php echo $page?>" target="main"><?php echo ($rel['type'] == "plugin_sid") ? $rel['key']." (".$rel['name'].")" : $rel['name'] ?></a></td>
+												<td class="nobborder"><?php echo ($rel['type'] == "incident") ? "ticket" : $rel['type'] ?></td>
+											</tr>
+											<?php
+										} 
+										?>
 									</table>
 								</td>
 							</tr>
 						</table>
 					</td>
-					<td valign="top" class="nobborder">
-						<table cellpadding=0 cellspacing=2 border=0 class="noborder">
+					<td valign="top" class="noborder" style='border-left: solid 1px #CCCCCC;'>
+						<table cellpadding='0' cellspacing='2' border='0' width='100%' class="noborder">
 							<tr>
-								<td class="nobborder" style="padding-left:5px">
+								<td class="noborder left" style="padding-left:5px;">
 									<?php echo $document['text'] ?>
 								</td>
 							</tr>
@@ -157,7 +169,7 @@ foreach($rel_list as $rel) {
 		</td>
 	</tr>
 </table>
-<?php
-$db->close($conn); ?>
+
+<?php $db->close($conn); ?>
 </body>
 </html>
