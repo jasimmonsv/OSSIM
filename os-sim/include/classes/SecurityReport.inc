@@ -121,13 +121,14 @@ class SecurityReport {
 			$sql_where .= $sensor_str;
 		} else $sensor_join = "";
 		
-		if (!strcmp($ip_target, "ip_src")) {
+		/*if (!strcmp($ip_target, "ip_src")) {
             if ($type == "alarm") $target = "src_ip";
             $title = "Attacker hosts";
         } elseif (!strcmp($ip_target, "ip_dst")) {
             if ($type == "alarm") $target = "dst_ip";
             $title = "Attacked hosts";
-        }
+        }*/
+        
         switch ($type) {
             case "alarm":
                 if (!strcmp($ip_target, "ip_src")) {
@@ -577,6 +578,212 @@ class SecurityReport {
 		if ($type == "event") $db->close($temp_conn);
         return $list;
     }
+    function PromiscuousHost($conn, $limit = 10, $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
+        require_once ('classes/Host.inc');
+        require_once ('classes/Net.inc');
+        require_once ('classes/Session.inc');
+		require_once ('classes/Event_viewer.inc');
+		require_once ('classes/Plugingroup.inc');
+        $list = array();
+        $temp_conn = $this->snort_conn;
+        
+		$from_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$from_date);
+		$to_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$to_date);
+		
+		// User sensor filtering
+		$sensor_str_alarm = "";
+		$sensor_str_event = "";
+		if (Session::allowedSensors() != "" || count($sensors)>0) {
+			//$user_sensors = explode(",",Session::allowedSensors());
+			$user_sensors = (Session::allowedSensors()=="" || !count($sensors)) ? array_merge(explode(",",Session::allowedSensors()),$sensors) : array_intersect(explode(",",Session::allowedSensors()), $sensors);
+			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
+				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
+			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
+			$sensor_str_alarm = " AND ($sensor_str) AND e.id=a.event_id";
+			// snort
+			$snortsensors = Event_viewer::GetSensorSids($temp_conn);
+			$sensor_str = "";
+			foreach ($user_sensors as $user_sensor)
+				if (count($snortsensors[$user_sensor]) > 0) $sensor_str .= ($sensor_str != "") ? ",".implode(",",$snortsensors[$user_sensor]) : implode(",",$snortsensors[$user_sensor]);
+			if ($sensor_str == "") $sensor_str = "0";
+			$sensor_str_event = " AND acid_event.sid in (" . $sensor_str . ")";
+		}
+		
+		// plugin groups filter
+		$sql_plugin_groups='';
+					
+		if($plugin_groups!=null){
+			$groups = Plugingroup::get_list($conn,'plugin_group.group_id='.$plugin_groups);
+			
+			switch ($type) {
+				case "alarm":
+					$nameTable='a';
+					break;
+				case "event":
+				default:
+					$nameTable='acid_event';
+			}
+			
+			foreach($groups as $group) {
+				$sql_plugin_groups.='AND (';
+				$i=1;
+				foreach($group->get_plugins() as $p) {	
+					if($i!==1){
+						$sql_plugin_groups.=' OR ';
+					}
+					if($p['sids']=='0'||$p['sids']=='ANY'){
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].')';
+					}else{
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].' AND '.$nameTable.'.plugin_sid in ('.$p['sids'].'))';
+					}
+					$i++;
+				}
+				$sql_plugin_groups.=')';
+			}
+		}
+		//
+		
+		if ($sensor_str != "") {
+			$sensor_join = " ,event e";
+			$sql_where .= $sensor_str;
+		} else $sensor_join = "";
+
+        list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_src",$assets,$sourcetype,$category,$subcategory);
+        //            
+        $query = OssimQuery("select count(distinct(ip_dst)) as occurrences,INET_NTOA(ip_src) as ip from snort.acid_event WHERE timestamp BETWEEN '$from_date 00:00:00' AND '$to_date 23:59:59' $sensor_str_event $where2
+          $sql_plugin_groups GROUP BY ip ORDER BY occurrences DESC LIMIT $limit");
+			
+		//print_r($query);
+		
+		if ($rs = & $temp_conn->Execute($query))
+		{
+			$i = 0;
+			
+            while (!$rs->EOF) {
+				// sensor filter in query
+				//if (Session::hostAllowed($conn, $rs->fields["ip"])) {
+				if ($rs->fields['ip'] == 0) { $rs->MoveNext(); continue; }
+				$ip_address = (is_numeric($rs->fields["ip"]))? long2ip($rs->fields["ip"]) : $rs->fields["ip"];
+				$tmp_array = array(
+					$ip_address,
+					$rs->fields["occurrences"]
+				);
+				array_push($list, $tmp_array);
+				$i+= 1;
+                //}
+                $rs->MoveNext();
+                /* check limit */
+                if ($i >= $limit) {
+                    $rs->EOF = true;
+                }
+            }
+        }
+		
+        return $list;
+    }   
+    function MultipleEventsHost($conn, $limit = 10, $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
+        require_once ('classes/Host.inc');
+        require_once ('classes/Net.inc');
+        require_once ('classes/Session.inc');
+		require_once ('classes/Event_viewer.inc');
+		require_once ('classes/Plugingroup.inc');
+        $list = array();
+        $temp_conn = $this->snort_conn;
+        
+		$from_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$from_date);
+		$to_date = preg_replace ("/(\d\d)\/(\d\d)\/(\d\d\d\d)/","\\3-\\2-\\1",$to_date);
+		
+		// User sensor filtering
+		$sensor_str_alarm = "";
+		$sensor_str_event = "";
+		if (Session::allowedSensors() != "" || count($sensors)>0) {
+			//$user_sensors = explode(",",Session::allowedSensors());
+			$user_sensors = (Session::allowedSensors()=="" || !count($sensors)) ? array_merge(explode(",",Session::allowedSensors()),$sensors) : array_intersect(explode(",",Session::allowedSensors()), $sensors);
+			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
+				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
+			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
+			$sensor_str_alarm = " AND ($sensor_str) AND e.id=a.event_id";
+			// snort
+			$snortsensors = Event_viewer::GetSensorSids($temp_conn);
+			$sensor_str = "";
+			foreach ($user_sensors as $user_sensor)
+				if (count($snortsensors[$user_sensor]) > 0) $sensor_str .= ($sensor_str != "") ? ",".implode(",",$snortsensors[$user_sensor]) : implode(",",$snortsensors[$user_sensor]);
+			if ($sensor_str == "") $sensor_str = "0";
+			$sensor_str_event = " AND acid_event.sid in (" . $sensor_str . ")";
+		}
+		
+		// plugin groups filter
+		$sql_plugin_groups='';
+					
+		if($plugin_groups!=null){
+			$groups = Plugingroup::get_list($conn,'plugin_group.group_id='.$plugin_groups);
+			
+			switch ($type) {
+				case "alarm":
+					$nameTable='a';
+					break;
+				case "event":
+				default:
+					$nameTable='acid_event';
+			}
+			
+			foreach($groups as $group) {
+				$sql_plugin_groups.='AND (';
+				$i=1;
+				foreach($group->get_plugins() as $p) {	
+					if($i!==1){
+						$sql_plugin_groups.=' OR ';
+					}
+					if($p['sids']=='0'||$p['sids']=='ANY'){
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].')';
+					}else{
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].' AND '.$nameTable.'.plugin_sid in ('.$p['sids'].'))';
+					}
+					$i++;
+				}
+				$sql_plugin_groups.=')';
+			}
+		}
+		//
+		
+		if ($sensor_str != "") {
+			$sensor_join = " ,event e";
+			$sql_where .= $sensor_str;
+		} else $sensor_join = "";
+
+        list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_src",$assets,$sourcetype,$category,$subcategory);
+        //            
+        $query = OssimQuery("select count(distinct plugin_id,plugin_sid) as occurrences,INET_NTOA(ip_src) as ip from snort.acid_event WHERE timestamp BETWEEN '$from_date 00:00:00' AND '$to_date 23:59:59' $sensor_str_event $where2
+          $sql_plugin_groups GROUP BY ip ORDER BY occurrences DESC LIMIT $limit");
+			
+		//print_r($query);
+		
+		if ($rs = & $temp_conn->Execute($query))
+		{
+			$i = 0;
+			
+            while (!$rs->EOF) {
+				// sensor filter in query
+				//if (Session::hostAllowed($conn, $rs->fields["ip"])) {
+				if ($rs->fields['ip'] == 0) { $rs->MoveNext(); continue; }
+				$ip_address = (is_numeric($rs->fields["ip"]))? long2ip($rs->fields["ip"]) : $rs->fields["ip"];
+				$tmp_array = array(
+					$ip_address,
+					$rs->fields["occurrences"]
+				);
+				array_push($list, $tmp_array);
+				$i+= 1;
+                //}
+                $rs->MoveNext();
+                /* check limit */
+                if ($i >= $limit) {
+                    $rs->EOF = true;
+                }
+            }
+        }
+		
+        return $list;
+    }  
     function Truncate($str, $length = 10, $trailing = '...') {
         // take off chars for the trailing
         $length-= strlen($trailing);
@@ -623,6 +830,7 @@ class SecurityReport {
     		$where .= " AND plugin_sid.category_id=$category";
     		if ($subcategory!=0) $where .= " AND plugin_sid.subcategory_id=$subcategory";
     	}
+    	if ($prefix=="acid_event.") $where .= " AND ".$prefix."plugin_id<>1505"; // without directive_event plugin
     	return array($join,$where);
     }
 }
