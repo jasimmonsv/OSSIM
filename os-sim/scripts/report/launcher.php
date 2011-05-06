@@ -352,8 +352,11 @@ foreach ( $report_list as $value)
 		}
 	
         // Set name
-        $pdfName = time();
-		
+		$str_to_replace = array(" ", ":", ".", "&");
+		$pdfNameEmail  = str_replace($str_to_replace, "_", $value['name_report'])."_".str_replace($str_to_replace, "_", $value['assets']);
+		$subject_email = $value['name_report']." [".$value['assets']."]";
+		$pdfName       = $pdfNameEmail."_".time();
+				
 		$text     = _('Save to').':';
 		$to_text .= sprintf("\t%-20s", $text);
 		$to_text .= $dirUserPdf.$pdfName.".pdf\n";		
@@ -363,12 +366,15 @@ foreach ( $report_list as $value)
         $params  ='save=1&assets='.$value['assets'];
         $params .= ( empty($value['date_range']) ) ? '&date_from='.$value['date_from'].'&date_to='.$value['date_to'].'&date_range=custom' : '&date_range='.$value['date_range'];
         
-		        
+				        
         $step2 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_custom_run.php?run='.$value['id_report'].'&'.$params.'" -O -');
 
+		
+				
         // Run Report
         $step3 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'" -O -');
-
+		
+		
         // Generate PDF
 		$text = _('Generating PDF').'...';
 		$to_text .= sprintf("\n\t%s", $text);
@@ -392,7 +398,7 @@ foreach ( $report_list as $value)
 			
 			foreach($listEmails as $value2)
 			{
-				$step5  = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$value['name_report'].'" -O -',$output);
+				$step5  = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'&subject='.$subject_email.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$pdfNameEmail.'" -O -',$output);
 				
 				$result = searchString($output,$info_text[1]);
 				
