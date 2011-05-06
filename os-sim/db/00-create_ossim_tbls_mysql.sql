@@ -2472,7 +2472,7 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (24, 'MENU', 'MenuIncidents', 'IncidentsReport', 'Incidents -> Tickets -> Report', 1, 0, 1, '02.06'),
 (25, 'MENU', 'MenuIncidents', 'IncidentsTags', 'Incidents -> Tickets -> Tags', 0, 0, 1, '02.08'),
 (26, 'MENU', 'MenuMonitors', 'MonitorsSession', '', 0, 0, 0, '0'),
-(27, 'MENU', 'MenuMonitors', 'MonitorsNetwork', 'Situational Awareness -> Network -> Profiles', 1, 0, 1, '07.02'),
+(27, 'MENU', 'MenuMonitors', 'MonitorsNetwork', 'Situational Awareness -> Network -> Profiles', 1, 0, 1, '07.03'),
 (28, 'MENU', 'MenuMonitors', 'MonitorsAvailability', 'Situational Awareness -> Availability', 0, 0, 1, '07.03'),
 (29, 'MENU', 'MenuConfiguration', 'MonitorsSensors', 'Configuration -> Collection -> Sensors', 1, 0, 1, '08.09'),
 (30, 'MENU', 'MenuControlPanel', 'MonitorsRiskmeter', 'Dashboard -> Metrics -> Riskmeter', 1, 1, 1, '01.07'),
@@ -2525,7 +2525,8 @@ INSERT INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granulari
 (79, 'MENU', 'MenuEvents', 'EventsHids', 'Analysis -> Detection -> HIDS -> View', 1, 0, 1, '03.11'),
 (80, 'MENU', 'MenuConfiguration', 'NetworkDiscovery', 'Configuration -> Network Discovery', 0, 0, 1, '08.11'),
 (81, 'MENU', 'MenuMonitors', 'MonitorsInventory', 'Situational Awareness -> Inventory', 0, 0, 1, '07.04'),
-(82, 'MENU', 'MenuEvents', 'EventsHidsConfig', 'Analysis -> Detection -> HIDS -> Config', 1, 0, 1, '03.12');
+(82, 'MENU', 'MenuEvents', 'EventsHidsConfig', 'Analysis -> Detection -> HIDS -> Config', 1, 0, 1, '03.12'),
+(83, 'MENU', 'MenuMonitors', 'MonitorsNetflows', 'Situational Awareness -> Network -> Traffic Capture', 0, 0, 1, '07.02');
 
 DROP TABLE IF EXISTS `acl_templates`;
 CREATE TABLE IF NOT EXISTS `acl_templates` (

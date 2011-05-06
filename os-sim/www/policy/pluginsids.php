@@ -148,7 +148,7 @@ $conn = $db->connect();
     }
     ?>
     </select><br><span id="msg"></span><br><br>
-    <input type="button" onclick="makesel()" value="Submit selection">
+    <input type="button" class="button" onclick="makesel()" value="Submit selection">
     </form>
 </body>
 </html>

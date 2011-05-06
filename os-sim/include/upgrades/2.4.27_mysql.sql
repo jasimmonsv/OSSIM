@@ -3,10 +3,12 @@ SET AUTOCOMMIT=0;
 BEGIN;
 
 REPLACE INTO `acl_perm` (`id`, `type`, `name`, `value`, `description`, `granularity_sensor`, `granularity_net`, `enabled`, `ord`) VALUES
+(27, 'MENU', 'MenuMonitors', 'MonitorsNetwork', 'Situational Awareness -> Network -> Profiles', 1, 0, 1, '07.03'),
 (50, 'MENU', 'MenuEvents', 'EventsAnomalies', 'Analysis -> Detection -> Anomalies', 1, 1, 1, '03.14'),
 (62, 'MENU', 'MenuEvents', 'ReportsWireless', 'Analysis -> Detection -> Wireless', 1, 0, 1, '03.13'),
 (79, 'MENU', 'MenuEvents', 'EventsHids', 'Analysis -> Detection -> HIDS -> View', 1, 0, 1, '03.11'),
-(82, 'MENU', 'MenuEvents', 'EventsHidsConfig', 'Analysis -> Detection -> HIDS -> Config', 1, 0, 1, '03.12');
+(82, 'MENU', 'MenuEvents', 'EventsHidsConfig', 'Analysis -> Detection -> HIDS -> Config', 1, 0, 1, '03.12'),
+(83, 'MENU', 'MenuMonitors', 'MonitorsNetflows', 'Situational Awareness -> Network -> Traffic Capture', 0, 0, 1, '07.02');
 
 UPDATE custom_report_types SET inputs=CONCAT(inputs,';Order by:orderby:select:OSS_ALPHA.OSS_NULLABLE:ORDERBY:') WHERE type="Unique Signatures by" AND inputs not like '%orderby%';
 
