@@ -501,26 +501,36 @@ class Sensor {
     *  2nd) net table
     *  3rd) /etc/ossim.conf
     */
-    function get_sensor_interface($conn, $host_ip) {
+    function get_sensor_interface($conn, $host_ip, $strict=false, $all_interfaces=false) {
         require_once "classes/Net.inc";
         require_once "ossim_conf.inc";
         $conf = $GLOBALS["CONF"];
+        
+        if(!$all_interfaces)    $hm = "AND sensor_interfaces.main = 1 ORDER BY sensor.priority DESC LIMIT 1";
+        else                    $hm = "ORDER BY sensor.priority DESC";
+        
         $sensor_interface_name = '';
         /* read from host table */
         $query = "SELECT sensor_interfaces.interface
                   FROM host_sensor_reference, sensor, sensor_interfaces
                   WHERE host_sensor_reference.host_ip = ? AND 
-                        sensor.name = host_sensor_reference.sensor_name AND
-                        sensor_interfaces.main = 1
-                  ORDER BY sensor.priority DESC LIMIT 1";
+                        sensor.name = host_sensor_reference.sensor_name $hm";
         if (!$rs = & $conn->Execute($query, array(
             $host_ip
         ))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) {
-            $sensor_interface_name = $rs->fields["interface"];
+            while (!$rs->EOF) {
+                if($sensor_interface_name=="")    $sensor_interface_name = $rs->fields["interface"];
+                else    $sensor_interface_name .= ",".$rs->fields["interface"];
+                $rs->MoveNext();
+            }
             return $sensor_interface_name;
         }
+
+        if(!$all_interfaces)    $hm = "AND sensor_interfaces.main = 1";
+        else                    $hm = "";
+        
         /* read from network table */
         if ($net_list = Net::get_list($conn)) {
             foreach($net_list as $net) {
@@ -528,21 +538,24 @@ class Sensor {
                     $query = "SELECT sensor_interfaces.interface
                               FROM sensor, net_sensor_reference, sensor_interfaces
                               WHERE sensor_interfaces.name = sensor.name AND
-                                    net_name = ? AND
-                                    sensor_interfaces.main = 1";
+                                    net_name = ? $hm";
                     if (!$rs = & $conn->Execute($query, array(
                         $net->get_name()
                     ))) {
                         print $conn->ErrorMsg();
                     } elseif (!$rs->EOF) {
-                        $sensor_interface_name = $rs->fields["interface"];
+                        while (!$rs->EOF) {
+                            if($sensor_interface_name=="")    $sensor_interface_name = $rs->fields["interface"];
+                            else    $sensor_interface_name .= ",".$rs->fields["interface"];
+                            $rs->MoveNext();
+                        }
                         return $sensor_interface_name;
                     }
                 }
             }
         }
         /* read from /etc/ossim.conf */
-        if ($sensor_interface_name == '') {
+        if ($sensor_interface_name == '' && !$strict) {
             $sensor_interface_name = $conf->get_conf("ossim_interface");
         }
         return $sensor_interface_name;
@@ -570,7 +583,6 @@ class Sensor {
                 if (!$rs = & $conn->Execute($query,array($ip))) {
             print $conn->ErrorMsg();
         } elseif (!$rs->EOF) {
-            error_log($rs->fields["name"],3,"/tmp/kk.log");
             return $rs->fields["name"];
         }
         return $ip;

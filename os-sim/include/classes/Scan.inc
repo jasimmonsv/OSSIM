@@ -111,9 +111,9 @@ class Scan {
 	    if (preg_match("/^kill \-9\s+[\d\s]+$/",$cmd)) {
 	    	system($cmd);
 	    }
-	    if (file_exists("/tmp/nmap_scanning.log")) unlink("/tmp/nmap_scanning.log");
-	    if (file_exists("/tmp/nmap_ping.log")) unlink("/tmp/nmap_ping.log");
-	    if (file_exists("/tmp/nmap_root.log")) unlink("/tmp/nmap_root.log");
+	    if (file_exists("/tmp/nmap_scanning.log")) @unlink("/tmp/nmap_scanning.log");
+	    if (file_exists("/tmp/nmap_ping.log")) @unlink("/tmp/nmap_ping.log");
+	    if (file_exists("/tmp/nmap_root.log")) @unlink("/tmp/nmap_root.log");
 	}
     
     function append_option($options) {
@@ -222,7 +222,7 @@ class Scan {
     	if ($logfile != "") {
     		system(escapeshellcmd($cmd)." > ".$logfile);
     		$output = file($logfile);
-    		unlink($logfile);
+    		@unlink($logfile);
     		return $output;
     	} else {
     		$output = shell_exec(escapeshellcmd($cmd));
@@ -254,11 +254,13 @@ class Scan {
     }
     function del_scan() {
     	if (file_exists("/tmp/nmap_completed_scan.log")) {
-    		unlink("/tmp/nmap_completed_scan.log");
+    		@unlink("/tmp/nmap_completed_scan.log");
     	}
     }
 }
-
+//
+// RemoteScan
+//
 class RemoteScan {
     private $network;
     private $type;
@@ -624,4 +626,364 @@ class RemoteScan {
         }
     }
 }
+
+//
+// Traffic (Tshark, pcap remote scans)
+//
+class TrafficScan {
+    private $id;
+    private $errmsg;
+    private $address;
+    private $port;
+    private $scan;
+    private $allids;
+    private $timeout;
+    
+    function __construct($id="") {
+    	$this->src = array();
+    	$this->dst = array();
+        if ($id!="") $this->id=$id;
+        $this->errmsg = "";
+        require_once ('ossim_conf.inc');
+	    $ossim_conf = $GLOBALS["CONF"];
+	    /* get the port and IP address of the frameworkd */
+	    $this->address = $ossim_conf->get_conf("frameworkd_address");
+	    $this->port = $ossim_conf->get_conf("frameworkd_port");
+	    $this->timeout = array('sec' => 5, 'usec' => 0);
+	    $this->get_available_sensors();
+    }
+    
+    function get_available_sensors() {
+        $this->allids = array();
+    	// try to connect with frameworkd and "getconnectedagents"
+	    $socket = socket_create(AF_INET, SOCK_STREAM, 0);
+	    if ($socket < 0) {
+	        $this->errmsg = _("Can't connect with frameworkd").": ". socket_strerror($socket);
+	        return "";
+	    }
+	    /* connect */
+	    socket_set_block($socket);	    
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
+	    $result = @socket_connect($socket, $this->address, $this->port);
+	    if (!$result) {
+	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
+	        return "";
+	    }
+	    /* first send a connect message to server */
+	    $in = 'control action="getconnectedagents"' . "\n";
+	    $out = '';
+	    socket_write($socket, $in, strlen($in));
+	    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
+	    if (!preg_match("/ack(end)?$/",$out)) {
+	        $this->errmsg = _("Bad response from frameworkd").": $out";
+	        return "";
+	    }
+		preg_match("/names=\"(.*?)\"/",$out,$found);
+		if (count($found)<2) {
+	        $this->errmsg = _("Bad response from frameworkd").": $out";
+	        return "";
+	    }
+	    $found[1] = explode("|",$found[1]);
+	    socket_close($socket);
+	    //print_r($out."<br>");print_r($found);
+	    // Get sensor info
+	    require_once("ossim_db.inc");
+	    require_once("classes/Sensor.inc");
+		$db = new ossim_db();
+		$conn = $db->connect();
+		// save all names and check $network perms
+	    $names = array();
+	    for ($i=0;$i<count($found[1]);$i++) {
+	    	$sensor_ip = Sensor::get_sensor_ip($conn,$found[1][$i]);
+	    	$names[$sensor_ip] = array($found[1][$i], Sensor::get_sensor_interface($conn, $sensor_ip, true, true));
+	    }
+	    $this->allids = $names;
+	    $db->close($conn);
+    }
+    
+    function get_sensors() { return $this->allids; }
+    
+    function launch_scan($srcs,$dsts,$id,$interface,$duration) {
+    	session_write_close();
+    	$this->scan = array();
+    	// prepare to launch nmap
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+	    if ($socket < 0) {
+	        $this->errmsg = _("Can't connect with frameworkd").": ". socket_strerror($socket);
+	        return false;
+	    }
+	    /* connect */
+	    socket_set_block($socket);
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
+	    $result = @socket_connect($socket, $this->address, $this->port);
+	    if (!$result) {
+	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
+	        return false;
+	    }
+	    //
+	    // launch scan
+	    // control action="net_scan" scan_name="net_scan_user_pepito.pcap" eth="eth0" src_hosts="192.168.2.19,192.168.2.130" dst_hosts="192.168.2.19,192.168.2.130" src_nets="192.168.2.0/24" dst_nets="192.168.2.0/24" id="pepito" timeout="60"
+	    //
+	    $src_host = $src_nets = array();
+	    foreach ($srcs as $src) {
+	    	if (preg_match("/\d+\/\d+/",$src)) $src_nets[] = $src;
+	    	else                               $src_host[] = $src;
+	    }
+	    $dst_host = $dst_nets = array();
+	    foreach ($dsts as $dst) {
+	    	if (preg_match("/\d+\/\d+/",$dst)) $dst_nets[] = $dst;
+	    	else                               $dst_host[] = $dst;	    	
+	    }
+        // Get sensor info
+	    require_once("ossim_db.inc");
+	    require_once("classes/Sensor.inc");
+		$db = new ossim_db();
+		$conn = $db->connect();
+        $sensor_name = Sensor::get_sensor_name($conn, $id);
+	    $db->close($conn);
+        
+        $in = 'control action="net_scan" scan_name="netscan_'.Session::get_session_user().'_'.gmdate("U").'_'.$duration.'_'.$id.'.pcap" eth="'.$interface.'" src_hosts="'.implode(",",$src_host).'"  src_nets="'.implode(",",$src_nets).'" dst_hosts="'.implode(",",$dst_host).'" dst_nets="'.implode(",",$dst_nets).'" id="'.$sensor_name.'" timeout="'.$duration.'"'. "\n";
+        //error_log("command to launch: $in",3, "/tmp/launch_scan.log");
+        $out = '';
+	    socket_write($socket, $in, strlen($in));
+	    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
+	    if (!preg_match("/ack(end)?$/",$out)) {
+	        $this->errmsg = _("Bad response from frameworkd").": $in >> $out";
+	        return false;
+	    }
+		socket_close($socket);
+		return true;
+    }
+    
+    function get_scans() {
+    	// prepare to launch nmap
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+	    if ($socket < 0) {
+	        $this->errmsg = _("Can't connect with frameworkd").": ". socket_strerror($socket);
+	        return false;
+	    }
+	    /* connect */
+		socket_set_block($socket);
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
+	    $result = @socket_connect($socket, $this->address, $this->port);
+	    if (!$result) {
+	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
+	        return false;
+	    }
+	    /* send nmap_report_list for each id */
+	    $reports = array();
+	    foreach ($this->allids as $idip => $id) if (trim($id[0])!="") {
+		    $in = 'control action="net_scan_capture_list" id="'.$id[0].'"' . "\n";
+		     // capture="net_scan_eth0_20110428170400.pcap"
+		    $out = '';
+		    socket_write($socket, $in, strlen($in));
+		    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
+		    if (!preg_match("/ack(end)?$/",$out)) {
+		        $this->errmsg = _("Bad response from frameworkd").": $out";
+		        return false;
+		    }
+		    preg_match_all("/capture=\"(.*?)\"/",$out,$found);
+		    $reports["$id[0]"] = $found[1];
+		}
+		socket_close($socket);
+	    return $reports;
+    }
+
+    function get_status() {
+    	// prepare to launch nmap
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+	    if ($socket < 0) {
+	        $this->errmsg = _("Can't connect with frameworkd").": ". socket_strerror($socket);
+	        return false;
+	    }
+	    /* connect */
+		socket_set_block($socket);
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
+	    $result = @socket_connect($socket, $this->address, $this->port);
+	    if (!$result) {
+	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
+	        return false;
+	    }
+	    /* send nmap_report_list for each id */
+	    $status = array();
+	    foreach ($this->allids as $idip => $id) if (trim($id[0])!="") {
+		    $in = 'control action="net_scan_status" id="'.$id[0].'"' . "\n";
+		     // capture="net_scan_eth0_20110428170400.pcap"
+		    $out = '';
+		    socket_write($socket, $in, strlen($in));
+		    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
+		    if (!preg_match("/ack(end)?$/",$out)) {
+		        $this->errmsg = _("Bad response from frameworkd").": $out";
+		        return false;
+		    }
+		    preg_match_all("/status=\"(.*?)\"/",$out,$found);
+		    $status["$id[0]"] = $found[1]; // 1 - Running, 0 - Stop/Finished
+		}
+		socket_close($socket);
+	    return $status;
+    }
+    
+    function get_pcap_encoded($name,$id) {
+    	// prepare to launch nmap
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+	    if ($socket < 0) {
+	        $this->errmsg = _("Can't connect with frameworkd").": ". socket_strerror($socket);
+	        return false;
+	    }
+	    /* connect */
+		socket_set_block($socket);	    
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
+	    $result = @socket_connect($socket, $this->address, $this->port);
+	    if (!$result) {
+	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
+	        return false;
+	    }
+	    /* first send nmap_report_list */
+	    $in = 'control action="net_scan_capture_get" id="'.$id.'" path="'.$name.'"' . "\n";
+	    $out = '';
+	    socket_write($socket, $in, strlen($in));
+	    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
+	    if (!preg_match("/ack(end)?$/",$out)) {
+	        $this->errmsg = _("Bad response from frameworkd").": $out";
+	        return false;
+	    }
+	    preg_match("/data=\"(.*?)\" datalen/",$out,$found);
+		socket_close($socket);
+	    return $found[1];
+    }
+    
+    function get_pcap_file($name,$id) {
+        require_once("classes/Util.inc");
+    	// prepare to launch nmap
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+	    if ($socket < 0) {
+	        $this->errmsg = _("Can't connect with frameworkd").": ". socket_strerror($socket);
+	        return false;
+	    }
+	    /* connect */
+		socket_set_block($socket);	    
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
+	    $result = @socket_connect($socket, $this->address, $this->port);
+	    if (!$result) {
+	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
+	        return false;
+	    }
+	    /* first send nmap_report_list */
+	    $in = 'control action="net_scan_capture_get" id="'.$id.'" path="'.$name.'"' . "\n";
+	    $out = '';
+	    socket_write($socket, $in, strlen($in));
+        
+        $fout = "";
+        do {
+            $out = @socket_read($socket, 150000, PHP_BINARY_READ);
+            $fout .= $out;
+        }while($out!="");
+        
+        $out = $fout;
+
+	    if (!preg_match("/ack(end)?$/",$out)) {
+	        $this->errmsg = _("Bad response from frameworkd").": $out";
+	        return false;
+	    }
+   
+		socket_close($socket);
+        
+        $b = strpos( $out, "data=\"");
+        $e = strpos( $out, "\" datalen=\"");
+        $data = substr ( $out , $b+6 , $e-$b-6);
+
+        $data_bin=Util::hex2bin($data);
+        
+        $data =gzuncompress($data_bin);
+        
+        $pcap_file = '/tmp/dfile_'.Session::get_session_user().'_'.gmdate("U").'.pcap';
+        $fh = fopen($pcap_file, 'w');
+        fwrite($fh, $data);
+        fclose($fh);
+        
+        return $pcap_file;
+    }
+    
+    function delete_scan($name,$id) {
+    	// prepare to launch nmap
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+	    if ($socket < 0) {
+	        $this->errmsg = _("Can't connect with frameworkd").": ". socket_strerror($socket);
+	        return false;
+	    }
+	    /* connect */
+		socket_set_block($socket);	    
+		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
+	    $result = @socket_connect($socket, $this->address, $this->port);
+	    if (!$result) {
+	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
+	        return false;
+	    }
+	    /* first send nmap_report_list */
+	    $in = 'control action="net_scan_capture_delete" id="'.$id.'" path="'.$name.'"' . "\n";
+	    $out = '';
+	    socket_write($socket, $in, strlen($in));
+	    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
+	    if (!preg_match("/ack(end)?$/",$out)) {
+	        $this->errmsg = _("Bad response from frameworkd").": $out";
+	        return false;
+	    }
+		socket_close($socket);
+    }
+    
+	function print_scan() {
+        foreach($this->scan as $host) {
+            $ip = $host["ip"];
+            if (trim($ip)=="") continue;
+            $resolv_ip = gethostbyaddr($ip);
+            echo "<img src='../pixmaps/arrow-315-small.png' align='absmiddle'/>";
+            echo "<b>$ip";
+            if ($ip != $resolv_ip) echo " ($resolv_ip)";
+            echo "</b>.. <br/>\n";
+	        if ($this->scan[$ip]["os"]) {
+	            echo "&nbsp;&nbsp;&nbsp;&nbsp;";
+	            echo "OS: " . $this->scan[$ip]["os"];
+	            echo "<br/>";
+	        }
+	
+	        if ($this->scan[$ip]["mac"]) {
+	            echo "&nbsp;&nbsp;&nbsp;&nbsp;";
+	            echo "MAC: " . $this->scan[$ip]["mac"]." ".($this->scan[$ip]["mac_vendor"]);
+	            echo "<br/>";
+	        }
+	        if ($this->scan[$ip]["services"]) {
+	            echo "&nbsp;&nbsp;&nbsp;&nbsp;";
+	            echo "Services: ";
+	            foreach ($this->scan[$ip]["services"] as $k => $service) {
+	                echo $k . "&nbsp;";
+	            }
+	            echo "<br/>";
+	        }
+	        echo "<hr/>";
+        }
+	}
+	
+    function err() { 
+    	return $this->errmsg;
+    }
+    function save_scan() {
+        $_SESSION["_scan"] = $this->scan;
+        $f = fopen("/tmp/nmap_completed_scan.log","w");
+    	fputs($f,json_encode($this->scan));
+    	fclose($f);
+    }
+    function get_scan() {
+        if (isset($_SESSION["_scan"])) {
+            return $_SESSION["_scan"];
+        } else {
+            return $this->scan;
+        }
+    }
+    function del_scan() {
+        if (isset($_SESSION["_scan"])) {
+            unset($_SESSION["_scan"]);
+        }
+    }
+}
+
 ?>

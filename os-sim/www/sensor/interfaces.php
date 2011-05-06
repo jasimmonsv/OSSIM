@@ -343,6 +343,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 					foreach($sensor_interface_list as $s_int) { 
 				?>
 				<form method="GET" name='formsensor' id='formsensor' action="interfaces.php">
+                        <input type="hidden" name="withoutmenu" value="<?php echo GET('withoutmenu') ?>"/>
 						<input type="hidden" name="sensor" value="<?php echo $sensor; ?>"/>
 						<input type="hidden" name="name" value="<?php echo $name; ?>"/>
 						<input type="hidden" name="interface" value="<?php echo $s_int->get_interface(); ?>"/>
@@ -376,6 +377,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 			<? } ?>
 			
 				<form method="GET" action="interfaces.php">
+                    <input type="hidden" name="withoutmenu" value="<?php echo GET('withoutmenu') ?>"/>
 					<input type="hidden" name="sensor" value="<?php echo $sensor; ?>"/>
 					<input type="hidden" name="name" value="<?php echo $name; ?>"/>
 					
@@ -400,6 +402,7 @@ if ($sensor_interface_list = Sensor_interfaces::get_list($conn, $sensor))
 	<td class="noborder" style="padding-top:20px">
 	<table align="center" width="100%">
 		<form method="GET" action="interfaces.php" name="finterfaces">
+        <input type="hidden" name="withoutmenu" value="<?php echo GET('withoutmenu') ?>"/>
 		<input type="hidden" name="name" value="<?php echo $name; ?>"/>
 		<input type="hidden" name="sensor" value="<?php echo $sensor; ?>">
 		<tr>
