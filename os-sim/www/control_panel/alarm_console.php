@@ -296,7 +296,11 @@ if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 &&
 	  function set_pointer_cursor() {
 		document.body.style.cursor = 'default';
 	  }
-	  	  
+    function delete_all_alarms(id) {
+        if(confirm('<?php echo _("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?") ?>')) {
+            document.location.href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id='+id;
+        }
+    }
   </script>
 
 </head>
@@ -466,8 +470,7 @@ if (!isset($_GET["hide_search"])) {
 	<td class="nobborder" style="text-align:center">
 		<table class="noborder">
 			<tr><td class="nobborder" style="padding-bottom:5px">
-				<a href="<?php
-    echo $_SERVER["SCRIPT_NAME"] ?>?delete_backlog=all&unique_id=<?=$unique_id?>" onclick="if(!confirm('<?php echo _("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?") ?>')) return false;"><?php
+				<a href="javascript:;" onclick="delete_all_alarms('<?php echo $unique_id?>');"><?php
     echo gettext("Delete ALL alarms"); ?></a> <br><br>
 				<input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
 				<br><br><input type="button" value="<?=_("Close selected")?>" onclick="document.fchecks.only_close.value='1';document.fchecks.submit();" class="lbutton">
