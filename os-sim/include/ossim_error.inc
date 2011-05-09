@@ -93,16 +93,15 @@ class OssimMainError {
 			
     public function display($error_code = NULL, $extrainfo = NULL, $option = "") {
         print $this->get(_($error_code), $extrainfo);
-       
-		if ($option == "noback")
+		
+		if ($option == "noback" || $option === false)
 			$this->action = "die();";
 		else if ( !empty($option) && $option !== false)
 			$this->action = $option;
 		
 		if ($this->action) 
 			eval($this->action);
-		
-    }
+	}
     
 	function get($error_code = NULL, $extrainfo = NULL) {
         

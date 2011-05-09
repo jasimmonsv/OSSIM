@@ -93,9 +93,7 @@ $user = GET('user');
 ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
 
 if ( ossim_error() )
-{
     die(ossim_error());
-}
 
 
 if (!Session::am_i_admin()) 
@@ -108,7 +106,7 @@ if (!Session::am_i_admin())
 if (!GET('confirm'))
 {
 ?>
-    <p> <?php echo gettext("Are you sure"); ?> </p>
+    <p> <?php echo gettext("Are you sure"); ?>?</p>
     <p>
 		<a href="<?php echo $_SERVER["SCRIPT_NAME"] . "?user=$user&confirm=yes"; ?>"><?php echo gettext("Yes"); ?> </a> &nbsp;&nbsp;&nbsp;
 		<a href="users.php"> <?php  echo gettext("No"); ?> </a>

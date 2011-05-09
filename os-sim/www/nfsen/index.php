@@ -844,7 +844,7 @@ CloseLogFile();
 <input type="hidden" name="dst_port">
 <input type="hidden" name="proto">
 </form>
-<script>
+<script type='text/javascript'>
     function solera_deepsee (from,to,src_ip,src_port,dst_ip,dst_port,proto) {
         $('#solera_form input[name=from]').val(from);
         $('#solera_form input[name=to]').val(to);

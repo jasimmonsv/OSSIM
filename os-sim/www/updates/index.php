@@ -62,7 +62,7 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => gettext("") ,
+                "help" => "",
                 "desc" => gettext("Use proxy for auto update-checking") ,
                 "advanced" => 1
             ) ,
@@ -75,21 +75,21 @@ $CONFIG = array(
             ) ,
             "proxy_user" => array(
                 "type" => "text",
-                "help" => gettext("") ,
+                "help" => "",
                 "desc" => gettext("Proxy User") ,
                 "class" => "proxy",
                 "advanced" => 1
             ) ,
             "proxy_password" => array(
                 "type" => "password",
-                "help" => gettext("") ,
+                "help" => "",
                 "desc" => gettext("Proxy Password") ,
                 "class" => "proxy",
                 "advanced" => 1
             ) ,
             "last_update" => array(
                 "type" => "hidden",
-                "help" => gettext("") ,
+                "help" => "",
                 "desc" => gettext("Last update timestamp") ,
                 "advanced" => 1
             ) ,

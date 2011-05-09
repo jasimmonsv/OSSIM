@@ -363,34 +363,38 @@ class Repository {
     function attach($conn, $id_document, $filename) {
         // Check if exists
         $sql = "SELECT * FROM repository_attachments WHERE name='$filename'";
-        if ($rs = & $conn->Execute($sql)) {
-            if ($rs->numrows() > 0) {
-                print _('Error inserting: File exists in Database').'<BR>';
-                exit;
-            }
+        if ($rs = & $conn->Execute($sql)) 
+		{
+            if ($rs->numrows() > 0) 
+				return array (false, _('Error inserting: File exists in Database'));
         }
-        $type = preg_replace("/.*\.(..?.?)$/", "\\1", $filename);
+        
+		$type = preg_replace("/.*\.(..?.?)$/", "\\1", $filename);
         $sql = "INSERT into repository_attachments ( id_document, name, type ) VALUES   (?,?,?)";
-        $params = array(
+        
+		$params = array(
             $id_document,
             $filename,
             $type
         );
-        if ($conn->Execute($sql, $params) == false) {
-            print _('Error inserting: ') . $conn->ErrorMsg() . '<BR>';
-            exit;
-        }
+        
+		if ($conn->Execute($sql, $params) == false)
+            return array (false, _('Error inserting: ') . $conn->ErrorMsg());
+        
         $infolog = array(
             $filename,
             $id_document
         );
-        Log_action::log(60, $infolog);
         
-        // get lastid
+		Log_action::log(60, $infolog);
+        
+        // Get lastid
         $res = $conn->query("SELECT LAST_INSERT_ID() as lastid");
-        if ($rw = $res->fetchRow()) $id_file = $rw["lastid"];
-        return $id_document . "_" . $id_file . "." . $type;
+        
+		if ($rw = $res->fetchRow()) $id_file = $rw["lastid"];
+			return array (true, $id_document . "_" . $id_file . "." . $type);
     }
+	
     // Get a list with files linked to a document by id
     function get_attachments($conn, $id_document) {
         $filelist = array();
@@ -588,9 +592,9 @@ class Repository {
                 // For each directory entry
                 foreach($dir_content as $entry) {
                     if ($entry == "." || $entry == "..") continue;
-                    unlink("/tmp/ossim/$id_document/$entry");
+                    @unlink("/tmp/ossim/$id_document/$entry");
                 }
-                rmdir("/tmp/ossim/$id_document");
+                @rmdir("/tmp/ossim/$id_document");
             }
         }
         // Delete document
@@ -615,7 +619,7 @@ class Repository {
                 // Del filesystem file
                 $disk_file = $rs->fields['id_document'] . "_" . $id . "." . $rs->fields['type'];
                 //system ("sudo rm -f $uploads_dir/$disk_file");
-                unlink("$uploads_dir/" . $rs->fields['id_document'] . "/$disk_file");
+                @unlink("$uploads_dir/" . $rs->fields['id_document'] . "/$disk_file");
                 // Del database row
                 $sql = "DELETE FROM repository_attachments WHERE id = ?";
                 $params = array(
@@ -638,20 +642,25 @@ class Repository {
 
         $sql = "SELECT SQL_CALC_FOUND_ROWS * FROM $table";
 		
-		if($table=='host'){
+		if($table=='host')
 			$sql .= " ORDER BY hostname";
-		}elseif($table=='host_group'||$table=='net'||$table=='net_group'){
+		elseif($table=='host_group'||$table=='net'||$table=='net_group')
 			$sql .= " ORDER BY name";
-		}		
+				
 		
 		if (!$rs = & $conn->Execute($sql)) {
             print $conn->ErrorMsg();
             return array();
         }
-        $resall = & $conn->Execute("SELECT FOUND_ROWS() as contador");
-        if ($rw = $resall->fetchRow()) $num_rows = $rw["contador"];
+        
+		$resall = & $conn->Execute("SELECT FOUND_ROWS() as contador");
+        
+		if ($rw = $resall->fetchRow()) $num_rows = $rw["contador"];
+		
 		if ($table == "host" || $table == "host_group" || $table == "net" || $table == "net_group") $num_rows = 0;
-		while (!$rs->EOF) {
+		
+		while (!$rs->EOF) 
+		{
 			// Special case: host table
 			if ($table == "host") {
 				// User sensor filtering
@@ -691,19 +700,23 @@ class Repository {
 				}
 			}
             // Special case: incidents table
-            elseif ($table == "incident") {
+            elseif ($table == "incident") 
+			{
 				require_once ('classes/Session.inc');
 				require_once ('classes/Incident.inc');
-				$user = Session::get_session_user();
-				$allowed = Incident::get_users_list($conn, $rs->fields["id"]);
-				if (in_array($user, $allowed)) {
+				$user    = Session::get_session_user();
+				
+				$allowed = Incident::get_users_list($conn, $rs->fields["submitter"], $rs->fields["in_charge"], $rs->fields["id"], $user);
+				
+				if (in_array($user, $allowed)) 
+				{
 					$name_temp=strtoupper(substr($rs->fields["ref"], 0, 3));
-					if($rs->fields["id"]>=10){
-						$name_temp.=$rs->fields["id"];
-					}else{
-						$name_temp.='0'.$rs->fields["id"];
-					}
 					
+					if($rs->fields["id"]>=10)
+						$name_temp.=$rs->fields["id"];
+					else
+						$name_temp.='0'.$rs->fields["id"];
+										
 					$ret[] = array(
 						"key" => $rs->fields["id"],
 						"name" => $name_temp.' - '.$rs->fields["title"]

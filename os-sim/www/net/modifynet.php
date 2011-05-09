@@ -102,16 +102,6 @@ else
 		if( $num_sensors == 0)
 			$message_error [] = _("You Need to select at least one Sensor");
 			
-		if ($icon!="") { // validating icon format and size
-			$image = @imagecreatefromstring($icon);
-			$valid_icon = false;
-			if ($image && imagesx($image)<=16 && imagesy($image)<=16)
-				$valid_icon = true;
-				
-			if (!$valid_icon)
-				$message_error[] = _("Image format is not allowed. Allowed only 16x16 PNG images");
-		}
-					
 		if ( is_array($validation_errors) && !empty($validation_errors) )
 			$message_error = array_merge($message_error, $validation_errors);
 		else
@@ -120,7 +110,17 @@ else
 				$message_error [] = _("Invalid send method");
 		}	
 	}
-	
+
+	if ($icon!="") { // validating icon format and size
+		$image = @imagecreatefromstring($icon);
+		$error = true;
+		if ($image && imagesx($image)<=16 && imagesy($image)<=16)
+			$error = false;
+			
+		if ($error)
+			$message_error[] = _("Image format is not allowed. Allowed only 16x16 PNG images");
+	}
+		
 	if ( POST('ajax_validation_all') == true )
 	{
 		if ( is_array($message_error) && !empty($message_error) )

@@ -55,8 +55,8 @@ foreach($ips as $country => $val) {
 
 $total = array_sum($data);
 $labels = array();
-
 $tlabels = array();
+
 $zero=$one=$two=0;
 
 foreach($data as $value) {
@@ -113,7 +113,10 @@ $graph->title->SetFont(FF_FONT1, FS_BOLD);
 $p1 = new PiePlot3d($data);
 $p1->SetHeight(12);
 $p1->SetSize(0.5);
-$p1->SetCenter(0.5,0.25);
+if (count($labels)>1)
+	$p1->SetCenter(0.5,0.25);
+else
+	$p1->SetCenter(0.57,0.25);
 $p1->SetLegends($legend);
 $p1->SetLabels($labels);
 $p1->SetLabelPos(1);

@@ -37,7 +37,6 @@ require_once ("ossim_db.inc");
 Session::logcheck("MenuIncidents", "Osvdb");
 
 $user       = Session::get_session_user();
-$full       = intval(GET('full'));
 
 $db         = new ossim_db();
 $conn       = $db->connect();
@@ -90,21 +89,25 @@ if ( POST('title') != "" && POST('doctext') != "" && $error == false)
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 		<META http-equiv="Pragma" content="no-cache">
 		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+		<style type='text/css'>
+			body { margin: 0px;}
+			.ossim_success {width: auto;}
+			table { margin:auto; width: 98%; text-align: center;}
+		</style>
 	</head>
 
-	<body style="margin:0">
+	<body>
 	
-	<table cellpadding='0' cellspacing='2' border='0' width="100%" class="transparent">
-		<?php
-		if ( $full!=1 ) { 
-			?>
-			<tr><th><?php echo _("NEW DOCUMENT")?></th></tr>
-			<?php
-		} 
-		?>
-		<tr><td class="center"><?php echo _("Document inserted with id")?>: <?php echo $id_inserted ?></td></tr>
+	<table cellpadding='0' cellspacing='2' border='0' class="transparent">
 		<tr>
-			<td class="center"><?php echo _("Do you want to attach a document file?")?> 
+			<td class="center">
+				<div class='ossim_success'>
+					<?php echo _("Document inserted with id")?>: <?php echo $id_inserted ?>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td class="center" style='padding-top: 30px;'><?php echo _("Do you want to attach a document file?")?> 
 				<input type="button" class="button" onclick="document.location.href='repository_attachment.php?id_document=<?php echo $id_inserted ?>'" value="<?php echo _("YES")?>">&nbsp;
 				<input class="button" type="button" onclick="parent.document.location.href='index.php'" value="<?php echo _("NO")?>"/>
 			</td>
@@ -151,27 +154,26 @@ else
 				text-align:left;
 			}
 			
+			body { margin:0px;}
+			
+			.pad_title{ padding:3px 0px 0px 5px; }
+			
+			.ossim_error {width: auto;}
+			
 		</style>
 	</head>
 
-<body style="margin:0px">
-	<table cellpadding='0' cellspacing='2' border='0' width="100%" <? if ($full==1) echo "class='transparent'" ?>>
+<body>
+	<table cellpadding='0' cellspacing='2' border='0' width="99%" class='transparent'>
 		<?php 
-		if ( $full !=1 ) 
-		{ 
-			?>
-			<tr>
-				<th class="kdb"><?php echo _("NEW DOCUMENT")?></th>
-			</tr>
-			<?php
-		} 
+		
 		if ( $error == true ) 
 		{ 
 			$info_error = implode($info_error, "</div><div class='error_item'>");
 			?>
 			<tr>
 				<td>
-					<div class='ossim_error' style='width: 80%;'>
+					<div class='ossim_error'>
 						<div class='error_item' style='padding-left: 5px;'><?php echo _("We found the following errors")?>:</div>
 						<div class='error_item'><?php echo $info_error?></div>
 					</div>
@@ -183,34 +185,34 @@ else
 		<tr>
 			<td class="nobborder">
 				<!-- repository insert form -->
-				<form name="repository_insert_form?full=<?=$full?>" method="POST" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" enctype="multipart/form-data">
+				<form name="repository_insert_form" method="POST" action="<?php echo $_SERVER['SCRIPT_NAME'] ?>" enctype="multipart/form-data">
 				
-				<table cellpadding='0' cellspacing='2' border='0' class="noborder" width="100%">
+				<table cellpadding='0' cellspacing='2' border='0' class="noborder transparent" width="99%">
 					<tr>
-						<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Title")?>:</strong></td>
+						<td class="nobborder pad_title"><strong><?php echo _("Title")?>:</strong></td>
 					</tr>
 					
 					<tr>
-						<td class="nobborder" style="padding-left:5px"><input type="text" name="title" style="width:<?= ($full==1) ? "98%" : "473px" ?>" value="<?php echo POST('title') ?>"></td>
+						<td class="nobborder pad_title"><input type="text" name="title" style="width:473px" value="<?php echo POST('title') ?>"></td>
 					</tr>
 					
 					<tr>
-						<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Text") ?>:</strong></td>
+						<td class="nobborder pad_title"><strong><?php echo _("Text") ?>:</strong></td>
 					</tr>
 					
 					<tr>
 						<td class="nobborder" style="padding-left:5px">
-							<textarea id="textarea" name="doctext" rows="4" style="width:<?= ($full==1) ? "98%" : "460px" ?>"><?php echo POST('doctext') ?></textarea>
+							<textarea id="textarea" name="doctext" rows="4" style="width:460px"><?php echo POST('doctext') ?></textarea>
 						</td>
 					</tr>
 					
 					<tr>
-						<td class="nobborder" style="padding-left:5px"><strong><?php echo _("Keywords") ?>:</strong></td>
+						<td class="nobborder pad_title"><strong><?php echo _("Keywords") ?>:</strong></td>
 					</tr>
 					
 					<tr>
-						<td class="nobborder" style="padding-left:5px">
-							<textarea name="keywords"  style="width:<?= ($full==1) ? "98%" : "473px" ?>"><?php echo POST('keywords') ?></textarea>
+						<td class="nobborder pad_title">
+							<textarea name="keywords" style="width: 473px"><?php echo POST('keywords') ?></textarea>
 						</td>
 					</tr>
 					<?php
@@ -237,8 +239,8 @@ else
 											foreach( $users as $k => $v )
 											{
 												$login = $v->get_login();
-												
-												$options .= "<option value='".$login."'>$login</option>\n";
+												$selected = ( $_POST['user'] == $login ) ? "selected='selected'" : "";
+												$options .= "<option value='".$login."' $selected>$login</option>\n";
 												$num_users++;
 											}
 											
@@ -265,7 +267,8 @@ else
 											<?php
 											foreach ( $entities as $k => $v ) 
 											{
-												echo "<option value='$k'>$v</option>";
+												$selected = ( $_POST['entity'] == $k ) ? "selected='selected'" : "";
+												echo "<option value='$k' $selected>$v</option>";
 											}
 											?>
 										</select>

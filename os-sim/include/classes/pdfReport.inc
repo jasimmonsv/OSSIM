@@ -36,28 +36,125 @@
 * - Html
 */
 class PdfReport{
-    private $ruta='../tmp/';
-    private $rutaHtml;
-    private $rutaDirResourcesHtml;
+    private $path='../tmp/';
+    private $pathHtml;
+    private $pathDirResourcesHtml;
     private $namePdf;
     private $nameTemp;
     private $orientation;
     private $paperformat;
     private $name;
+	private $errors;
+	private $extra_data;
 
-    public function __construct($name,$orientation="P",$paperformat="A4") {
-        $user=Session::get_session_user();
-        $uniqueid=Session::get_uniqueid($user);
-        $this->ruta = "../tmp/$uniqueid/";
-        if (!is_dir($this->ruta)) mkdir($this->ruta, 0755, true);
-        $this->setName($name);
-        $this->setNameTemp($name);  // $name.'-'.$user
-        $this->setRutaHtml($this->getNameTemp());
-        $this->setRutaDirResourcesHtml($this->getNameTemp());
-        $this->setNamePdf($this->getNameTemp());
-        $this->orientation = $orientation;
-        $this->paperformat = $paperformat;
-    }
+    public function __construct($name,$orientation="P",$paperformat="A4", $user = null, $data=array()) {
+        
+		require_once ('classes/Session.inc');
+		$db          = new ossim_db();
+		$dbconn      = $db->connect();
+		
+		$this->errors = array();
+		
+		if ( !empty($name) )
+		{
+			$this->setName($name);
+			$this->setNameTemp($name);  
+			$this->setNamePdf($this->getNameTemp());
+			
+			$user   = ( empty($user) ) ? Session::get_session_user() : $user;
+        
+			$this->path = "../tmp/".$this->get_report_uuid($user)."/".$this->getName()."/";
+			
+			if ( !is_dir($this->path) ) 
+				mkdir($this->path, 0755, true);
+			
+			if ( !empty($data) && is_array($data) )
+			{
+				
+				if ( preg_match("/ENTITY\:(\d+)/", $data['assets'], $fnd)) 
+				{
+					$entity              = Acl::get_entity($dbconn, $fnd[1]);
+					$data['assets_text'] = "ENTITY: ".$entity['name'];
+				}
+				else
+					$data['assets_text'] = $data['assets'];
+				
+				$data_s           = serialize($data);
+				$this->extra_data = $data;
+				$res              = file_put_contents($this->path."/data_".$name.".ini", $data_s);
+				
+				if ( $res === false )
+					$this->errors["file_error"] = _("File Error: Could not create file ").$this->path;
+				else
+				{
+					$str_to_replace = array(" ", ":", ".", "#", "&");
+					$this->setNamePdf(str_replace($str_to_replace, "_", $this->getNameTemp())."_".str_replace($str_to_replace, "_", $this->extra_data['assets_text']));
+				}
+			}
+			else
+			{
+				if ($data == true)
+				{
+					$path = $this->path."/data_".$name.".ini";
+					if ( @file_exists($path) )
+					{
+						$data_s = @file_get_contents($path);
+						$data   = @unserialize($data_s);
+						$this->extra_data = ( is_array($data) ) ? $data : null;
+					}
+				}
+				
+				
+				if ( $data == false || empty($data) )
+					$this->extra_data = null;
+				else
+				{
+					$str_to_replace = array(" ", ":", ".", "#", "&");
+					$this->setNamePdf(str_replace($str_to_replace, "_", $this->getNameTemp())."_".str_replace($str_to_replace, "_", $this->extra_data['assets_text']));
+				}
+			}
+					
+			
+			$this->setpathHtml($this->path."/".$this->getName().".html");
+			$this->setpathDirResourcesHtml($this->path);
+			
+			$this->orientation = $orientation;
+			$this->paperformat = $paperformat;
+		}
+		else
+			$this->errors["empty_name"] = _("File Error: Name is empty ");
+	}
+	
+	
+	private function get_report_uuid($user)
+	{
+		require_once ('classes/Session.inc');
+		
+		$uuid     = Session::get_secure_id();
+		$url      = null;
+		
+		if ( empty($uuid) )
+		{
+			$db     = new ossim_db();
+			$dbconn = $db->connect();
+			
+			$user   = ( empty($user) ) ? Session::get_session_user() : $user;
+			
+			$query  = 'SELECT * FROM `users` WHERE login="'.$user.'"';
+			$result = $dbconn->Execute($query);
+			
+			if ( is_array($result->fields) && !empty($result->fields) )
+			{
+				$pass = $result->fields["pass"];
+				$uuid = sha1($user."#".$pass);
+			}
+			else
+				$uuid = false;
+			
+		}
+		
+		return $uuid;
+	}
 
     public function setName($name){
         $this->name=$name;
@@ -74,79 +171,96 @@ class PdfReport{
     public function getNameTemp(){
         return $this->nameTemp;
     }
-
-    private function setRutaHtml($url){
-        $this->rutaHtml=$this->ruta.$url.'.html';
-    }
-
-    private function setRutaDirResourcesHtml($url){
-        $this->rutaDirResourcesHtml=$this->ruta.$url.'/';
-    }
-
-    private function setNamePdf($name){
+	
+	public function setNamePdf($name){
         $this->namePdf=$this->getActualDate().'-'.$name.'.pdf';
     }
+	
+	public function getNamePdf(){
+        return $this->namePdf;
+    }
 
-    public function getRutaHtml(){
-        return $this->rutaHtml;
+    private function setpathHtml($url){
+        $this->pathHtml=$url;
+    }
+
+    private function setpathDirResourcesHtml($url){
+        $this->pathDirResourcesHtml=$url;
+    }
+
+    public function getpathHtml(){
+        return $this->pathHtml;
     }
 
     private function existHtml(){
-            if (file_exists($this->rutaHtml)) {
-                return true;
-            }else{
-                return false;
-            }
-    }
+		if (file_exists($this->pathHtml))
+			return true;
+		else
+			return false;
+	}
 
     private function getActualDate(){
         $date=getdate();
 
         return $date['year'].$date['yday'].$date['hours'].$date['minutes'].$date['seconds'];
     }
+	
+	public function getExtraData($key)
+	{
+		return ( $key == '' ) ? $this->extra_data : $this->extra_data[$key];
+	}
+	
+	public function setExtraData($data)
+	{
+		return $this->extra_data = $data;
+	}
 
     private function convertEntities(){
-    	$file = @file($this->rutaHtml);
+    	$file = @file($this->pathHtml);
     	for ($i=0; $i<count($file); $i++) {
     		if (preg_match('/&#(\d{4,5});/',$file[$i]) && !preg_match('/\/image/',$file[$i]))
     			$file[$i] = mb_convert_encoding($file[$i],'UTF-8','HTML-ENTITIES');
     		else
     			$file[$i] = mb_convert_encoding($file[$i],'UTF-8','ISO-8859-1');
     	}
-		file_put_contents($this->rutaHtml,$file);
+		file_put_contents($this->pathHtml,$file);
 		unset($file);
     }
     
-    public function getPdf($output='navegador'){
-        if($this->existHtml()){
+    public function getPdf($output='navigator'){
+       
+		if( $this->existHtml() )
+		{
         	session_write_close();
         	$this->convertEntities();
             require_once("classes/html2pdf/html2pdf.class.php");
             $html2pdf = new HTML2PDF($this->orientation,$this->paperformat,'en', true, 'UTF-8',array(0,0,0,0));
             $html2pdf->pdf->SetDisplayMode('real');
             $html2pdf->setTestTdInOnePage(false);
-            $html2pdf->WriteHTML(file_get_contents($this->rutaHtml));
-            if($output=='navegador'){
-                $html2pdf->Output($this->namePdf,'D');
-            }elseif($output=='servidor'){
-                $html2pdf->Output($this->rutaDirResourcesHtml.$this->namePdf, 'F');
-
-                return $this->rutaDirResourcesHtml.$this->namePdf;
+            $html2pdf->WriteHTML(file_get_contents($this->pathHtml));
+            
+			if( $output=='navigator' )
+			    $html2pdf->Output($this->namePdf,'D');
+            elseif($output=='server')
+			{
+                $html2pdf->Output($this->pathDirResourcesHtml.$this->namePdf, 'F');
+                return $this->pathDirResourcesHtml.$this->namePdf;
             }
-        }else{
-            echo _('No data available');
         }
+		else
+            echo "<div class='ossim_error' style='width:80%; text-align:center;'>"._('No data available')."</div>";
+        
     }
 
     public function sendPdfEmail($title,$email,$pdfName=null,$dirUser=null){
         /**/
-        $conf = $GLOBALS["CONF"];
-        $from=$conf->get_conf("from");
-        $fromName=$conf->get_conf("from");
-        $to=$email;
-        $toName=$email;
-        $subject=_('Report (')._($title)._(') - OSSIM');
-        $body=$body='<html>
+        $conf     = $GLOBALS["CONF"];
+        $from     = $conf->get_conf("from");
+        $fromName = $conf->get_conf("from");
+        $to       = $email;
+        $toName   = $email;
+        $subject  = _('Report (')._($title)._(') - OSSIM');
+        $body     = $body='<html>
                     <head>
                     <title>'.$subject.'</title>
                     </head>
@@ -154,73 +268,88 @@ class PdfReport{
                     </body>
                     </html>
                     ';
-        $fileName=$this->getNameTemp();
-        /**/
-        if($pdfName==null){
-            try{
+        $fileName = $this->getNamePdf();
+        
+		/**/
+        if($pdfName==null)
+		{
+            try
+			{
                 // obtenemos el pdf
-                $attachment=$this->getPdf('servidor');
-            } catch (Exception $e) {
-              echo $e->getMessage(); //Boring error messages from anything else!
+                $attachment=$this->getPdf('server');
+            } 
+			catch (Exception $e) 
+			{
+				echo $e->getMessage(); //Boring error messages from anything else!
             }
-        }else{
+        }
+		else
+		{
             // el pdf ya estaba generado
             $attachment='/usr/share/ossim/www/tmp/scheduler/'.$dirUser.'/'.$pdfName.'.pdf';
-
-        }
+		}
+        
         require_once('classes/PHPMailer.inc');
         include("classes/PHPMailerSMTP.inc");  // optional, gets called from within class.phpmailer.php if not already loaded
 
         $mail = new PHPMailer(true); // the true param means it will throw exceptions on errors, which we need to catch
 
         $mail->IsSMTP(); // telling the class to use SMTP
-        try {
-          if($conf->get_conf("use_ssl")=='yes'){ $mailHost='ssl://'; }else{ $mailHost=''; }
-          $mailHost.=$conf->get_conf("smtp_server_address");
-          $mail->Host       = $mailHost;// SMTP server
-          $mail->SMTPDebug  = 1;                     // enables SMTP debug information (for testing)
-          $mailSMTPUser=$conf->get_conf("smtp_user");
-          if(!empty($mailSMTPUser)){
-              $mailSMTPAuth=true;
-              $mailUsername=$conf->get_conf("smtp_user");
-              $mailPassword=$conf->get_conf("smtp_pass");
-          }else{
-			  $mailSMTPAuth=false;
-              $mailUsername='';
-              $mailPassword='';
-          }
-          $mail->SMTPAuth   = $mailSMTPAuth;                  // enable SMTP authentication
-          $mail->Port       = $conf->get_conf("smtp_port");                    // set the SMTP port for the GMAIL server (26)
-          $mail->Username   = $mailUsername; // SMTP account username
-          $mail->Password   = $mailPassword;        // SMTP account password
-          $mail->AddAddress($to,$toName);
-          $mail->SetFrom($from,$fromName);
-          $mail->Subject = $subject;
-          $mail->AddAttachment($attachment, $fileName.'_'.date('Ymj-Hms').'.pdf');
-          $mail->AltBody = _("To view the message, please use an HTML compatible email viewer!"); // optional - MsgHTML will create an alternate automatically
-          $mail->MsgHTML($body);
-          $mail->Send();
-          return true;
-        } catch (phpmailerException $e) {
-          echo $e->errorMessage(); //Pretty error messages from PHPMailer
-        } catch (Exception $e) {
-          echo $e->getMessage(); //Boring error messages from anything else!
+        
+		try {
+			if($conf->get_conf("use_ssl")=='yes'){ $mailHost='ssl://'; }else{ $mailHost=''; }
+			
+			$mailHost.=$conf->get_conf("smtp_server_address");
+			$mail->Host       = $mailHost;// SMTP server
+			$mail->SMTPDebug  = 1;                     // enables SMTP debug information (for testing)
+			$mailSMTPUser=$conf->get_conf("smtp_user");
+			if(!empty($mailSMTPUser))
+			{
+				$mailSMTPAuth=true;
+				$mailUsername=$conf->get_conf("smtp_user");
+				$mailPassword=$conf->get_conf("smtp_pass");
+			}
+			else
+			{
+				$mailSMTPAuth=false;
+				$mailUsername='';
+				$mailPassword='';
+			}
+			
+			$mail->SMTPAuth   = $mailSMTPAuth;                  // enable SMTP authentication
+			$mail->Port       = $conf->get_conf("smtp_port");                    // set the SMTP port for the GMAIL server (26)
+			$mail->Username   = $mailUsername; // SMTP account username
+			$mail->Password   = $mailPassword;        // SMTP account password
+			$mail->AddAddress($to,$toName);
+			$mail->SetFrom($from,$fromName);
+			$mail->Subject = $subject;
+			
+			$mail->AddAttachment($attachment, $fileName);
+			$mail->AltBody = _("To view the message, please use an HTML compatible email viewer!"); // optional - MsgHTML will create an alternate automatically
+			$mail->MsgHTML($body);
+			$mail->Send();
+			return true;
+        }
+		catch (phpmailerException $e) {
+			//Pretty error messages from PHPMailer
+			echo $e->errorMessage(); 
+		} 
+		catch (Exception $e) {
+			echo $e->getMessage(); //Boring error messages from anything else!
         }
     }
 
-    private function getUrlActual(){
-        $url=$_SERVER[SCRIPT_NAME].'?pdf=true&'.$_SERVER[QUERY_STRING];
-
-        return $url;
-    }
-
-    public function getLinkPdf(){
-        $html='
+    
+    public function getLinkPdf($extra_data=false){
+        
+		$current_url = $_SERVER[SCRIPT_NAME].'?pdf=true&extra_data=true&'.$_SERVER[QUERY_STRING];
+		
+		$html='
             <script language="javascript">
                 function exportReport(){
                     var idForm="#email_form";
-                    $(idForm).attr("action","wizard_email.php?format=email&run='.$this->getName().'");
-                    $(idForm).attr("target","GB_frame");
+                    $(idForm).attr("action","wizard_email.php?format=email&extra_data='.$extra_data.'&name='.base64_encode($this->getName()).'");
+                 	$(idForm).attr("target","GB_frame");
                     $(idForm).submit();
                 }
                 function emailValidate(id)
@@ -238,7 +367,7 @@ class PdfReport{
                         }
                     }
                function openGreyBox(tittle) {
-                    GB_show(tittle,"wizard_email.php","50%","50%");
+                    GB_show(tittle,"wizard_email.php","350","600");
                     return false;
                 }
                 function toggleDivEmail(){
@@ -249,7 +378,7 @@ class PdfReport{
                <table width="100%" class="transparent" align="center" cellspacing="0" cellpadding="0">
                     <tr>
                         <td width="50%" class="nobborder" style="text-align:right;" nowrap>
-                        <a class="sbutton" href="'.$this->getUrlActual().'" target="_blank" title="'._("Generate PDF").'">
+                        <a class="sbutton" href="'.$current_url.'" target="_blank" title="'._("Generate PDF").'">
                             <img src="../pixmaps/pdf_button.png" align="absmiddle"> '._("Download PDF").'
                         </a>
                         </td>
@@ -260,10 +389,10 @@ class PdfReport{
                </table>
                <div id="iemail" style="display:none;">
                <form method="POST" action="#" id="email_form">
-                   <div style="margin-top:5px">
+                    <div style="margin-top:5px">
                         <input id="email" name="email" type="text" style="width:120px">
                         <input type="button" class="vsbutton" onclick="emailValidate(\'#email\');" value="'._("Send").'"\>
-                        </div>
+					</div>
                 </form>
                 </div>
             ';
@@ -272,13 +401,14 @@ class PdfReport{
     }
 
     public function setHtml($html){
-        file_put_contents($this->rutaHtml,$html);
+       	
+		file_put_contents($this->pathHtml, $html);
     }
 }
 
 class Html{
     private $html;
-    private $ruta='../tmp/';
+    private $path='../tmp/';
     private $backTop='30mm';
     private $backBottom='15mm';
     private $backLeft='7mm';
@@ -350,8 +480,8 @@ class Html{
         $this->setFooterContent($footerContent);
         $this->setName($name);
         $this->setUser();
-        $uniqueid=Session::get_uniqueid($this->getUser());
-        $this->ruta = "../tmp/$uniqueid/";
+        $uuid = $this->get_report_uuid(Session::get_session_user());
+        $this->path = "../tmp/$uuid/";
         $this->setDirTemp();
         $this->newDirTemp();
         $this->setImagenHeader($imagenHeader);
@@ -364,6 +494,38 @@ class Html{
         $this->set($this->page);
         $this->setTitle($title);
     }
+	
+	
+	private function get_report_uuid($user)
+	{
+		require_once ('classes/Session.inc');
+		
+		$uuid     = Session::get_secure_id();
+		$url      = null;
+		
+		if ( empty($uuid) )
+		{
+			$db     = new ossim_db();
+			$dbconn = $db->connect();
+			
+			$user   = ( empty($user) ) ? Session::get_session_user() : $user;
+			
+			$query  = 'SELECT * FROM `users` WHERE login="'.$user.'"';
+			$result = $dbconn->Execute($query);
+			
+			if ( is_array($result->fields) && !empty($result->fields) )
+			{
+				$pass = $result->fields["pass"];
+				$uuid = sha1($user."#".$pass);
+			}
+			else
+				$uuid = false;
+			
+		}
+		
+		return $uuid;
+	}
+	
 
     private function setFooterContent($footerContent){
         $this->footerContent=$footerContent;
@@ -379,7 +541,7 @@ class Html{
     }
 
     public function setDirTemp(){
-        $this->dirTemp=$this->ruta.$this->name; // $this->name.'-'.$this->user;
+        $this->dirTemp=$this->path.$this->name; // $this->name.'-'.$this->user;
     }
 
     public function newDirTemp(){
@@ -435,7 +597,7 @@ class Html{
     }
 
     private function setBackImg(){
-        $this->backImg=$this->ruta.'../headers/'.$this->imgHeader;
+        $this->backImg=$this->path.'../headers/'.$this->imgHeader;
     }
 
     public function setPage($style){
@@ -501,12 +663,12 @@ class Html{
         session_write_close();
         //$file_1x1=@file_get_contents($this->getMainUrl()."pixmaps/1x1.png");
         $file_1x1=file_get_contents("/usr/share/ossim/www/pixmaps/1x1.png");
-        foreach ($this->imagesArr as $ruta => $url) {
+        foreach ($this->imagesArr as $path => $url) {
         	$file_temp=@file_get_contents($url);
         	if ($file_temp!="" && @imagecreatefromstring($file_temp)!==false)
-        		file_put_contents($ruta,$file_temp);
+        		file_put_contents($path,$file_temp);
         	else
-        		file_put_contents($ruta,$file_1x1);
+        		file_put_contents($path,$file_1x1);
 		}
     }
     
@@ -521,10 +683,10 @@ class Html{
         if($session){
             $url .= "&".session_name()."=".session_id();
         }
-        $ruta=$this->dirTemp.'/image'.$this->getResourceId().'.'.$format;
-        $this->imagesArr[$ruta] = $url;
+        $path=$this->dirTemp.'/image'.$this->getResourceId().'.'.$format;
+        $this->imagesArr[$path] = $url;
 
-        return $ruta;
+        return $path;
     }
 
     public function newTitle($title,$date_from="",$date_to="",$notes="",$host=""){

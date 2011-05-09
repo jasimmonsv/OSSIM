@@ -884,5 +884,13 @@ class Util {
 		$current_url = $proto."://".$_SERVER["SERVER_ADDR"].$port.$ossim_link;
 		return preg_replace("/\/$/","",$current_url);
 	}
+    // Convert hex to bin
+    function hex2bin($h)
+    {
+      if (!is_string($h)) return null;
+      $r='';
+      for ($a=0; $a<strlen($h); $a+=2) { $r.=chr(hexdec($h{$a}.$h{($a+1)})); }
+      return $r;
+    }
 }
 ?>

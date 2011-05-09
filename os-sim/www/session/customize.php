@@ -28,11 +28,8 @@ $from_menu     = ( GET('smenu')== "Customize" || $_SESSION["menu_sopc"] == "Cust
 $current_user  = Session::get_session_user();
 
 if ( $opensource || !Session::am_i_admin() ) 
-{
-	ossim_set_error(_("You don't have permissions to see this page"));
-	ossim_error();
-	exit();
-}
+	Session::unallowed_section(null, false);
+
 
 $step               = ( !empty($_GET['step']) ) ? GET('step') : 1;
 $customize_wizard   = (int)$conf->get_conf("customize_wizard", FALSE);

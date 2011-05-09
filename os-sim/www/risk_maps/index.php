@@ -38,41 +38,46 @@
 require_once 'classes/Session.inc';
 require_once 'ossim_conf.inc';
 include("riskmaps_functions.php");
-$conf = $GLOBALS["CONF"];
+
+$conf    = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
 Session::logcheck("MenuControlPanel", "BusinessProcesses");
 
-if (!Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit")) {
-print _("You don't have permissions to edit risk indicators");
-exit();
+if (!Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit") ) 
+{
+	Session::unallowed_section();
+	exit();
 }
 
-function mapAllowed($perms_arr,$version) {
+function mapAllowed($perms_arr,$version)
+{
 	if (Session::am_i_admin()) return true;
 	$ret = false;
 	foreach ($perms_arr as $perm=>$val) {
 		// ENTITY 
-		if (preg_match("/^\d+$/",$perm)) {
-			if (preg_match("/pro|demo/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) {
+		if (preg_match("/^\d+$/",$perm))
+		{
+			if (preg_match("/pro|demo/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) 
 				$ret = true;
-			}
+			
 		// USER
-		} elseif (Session::get_session_user() == $perm) {
+		} 
+		elseif (Session::get_session_user() == $perm) 
 			$ret = true;
-		}
+		
 	}
 	return $ret;
 }
 
 function check_writable_relative($dir){
-$uid = posix_getuid();
-$gid = posix_getgid();
-$user_info = posix_getpwuid($uid);
-$user = $user_info['name'];
-$group_info = posix_getgrgid($gid);
-$group = $group_info['name'];
-$fix_cmd = '. '._("To fix that, execute following commands as root").':<br><br>'.
+$uid         = posix_getuid();
+$gid         = posix_getgid();
+$user_info   = posix_getpwuid($uid);
+$user        = $user_info['name'];
+$group_info  = posix_getgrgid($gid);
+$group       = $group_info['name'];
+$fix_cmd     = '. '._("To fix that, execute following commands as root").':<br><br>'.
 		   "cd " . getcwd() . "<br>".
                    "mkdir -p $dir<br>".
                    "chown $user:$group $dir<br>".
@@ -81,6 +86,7 @@ if (!is_dir($dir)) {
      die(_("Required directory " . getcwd() . "$dir does not exist").$fix_cmd);
 }
 $fix_cmd .= $fix_extra;
+
 
 if (!$stat = stat($dir)) {
 	die(_("Could not stat configs dir").$fix_cmd);
@@ -132,45 +138,55 @@ if (ossim_error()) {
 
 // Cleanup a bit
 
-$name = str_replace("..","",$name);
+$name 		   = str_replace("..","",$name);
 $erase_element = str_replace("..","",$erase_element);
 
 $uploaded_icon = false;
 
-if (is_uploaded_file($HTTP_POST_FILES['fichero']['tmp_name'])) {
- if (exif_imagetype ($HTTP_POST_FILES['fichero']['tmp_name']) == IMAGETYPE_JPEG || exif_imagetype ($HTTP_POST_FILES['fichero']['tmp_name']) == IMAGETYPE_GIF ) {
-    $size = getimagesize($HTTP_POST_FILES['fichero']['tmp_name']);
-        if ($size[0] < 400 && $size[1] < 400) {
+if (is_uploaded_file($HTTP_POST_FILES['fichero']['tmp_name'])) 
+{
+	if (exif_imagetype ($HTTP_POST_FILES['fichero']['tmp_name']) == IMAGETYPE_JPEG || exif_imagetype ($HTTP_POST_FILES['fichero']['tmp_name']) == IMAGETYPE_GIF ) 
+	{
+		$size = getimagesize($HTTP_POST_FILES['fichero']['tmp_name']);
+        if ($size[0] < 400 && $size[1] < 400)
+		{
                 $uploaded_icon = true;
                 $filename = "pixmaps/uploaded/" . $name . ".jpg";
                 move_uploaded_file($HTTP_POST_FILES['fichero']['tmp_name'], $filename);
-        } else {
+        } 
+		else 
             echo _("<span style='color:#FF0000;'>The file uploaded is too big (Max image size 400x400 px).</span>");
-        }
-    } else {
-        echo _("<span style='color:#FF0000;'>The image format should be .jpg or .gif.</span>");
+        
     }
+	else
+        echo _("<span style='color:#FF0000;'>The image format should be .jpg or .gif.</span>");
+    
 }
-if (is_uploaded_file($HTTP_POST_FILES['ficheromap']['tmp_name'])) {
+
+if (is_uploaded_file($HTTP_POST_FILES['ficheromap']['tmp_name'])) 
+{
 	$filename = "maps/" . $name . ".jpg";
+	
 	if(getimagesize($HTTP_POST_FILES['ficheromap']['tmp_name'])){
 		move_uploaded_file($HTTP_POST_FILES['ficheromap']['tmp_name'], $filename);
 	}
 }
-if ($erase_element != "") {
-	switch($erase_type){
+
+if ($erase_element != "") 
+{
+	switch($erase_type)
+	{
 		case "map":
-			if(getimagesize("maps/" . $erase_element)){
-			unlink("maps/" . $erase_element);
-			}
+			if(getimagesize("maps/" . $erase_element))
+				unlink("maps/" . $erase_element);
 		break;
+		
 		case "icon":
-			if(getimagesize("pixmaps/uploaded/" . $erase_element)){
-			unlink("pixmaps/uploaded/" . $erase_element);
-			}
-			break;
-		default:
+			if(getimagesize("pixmaps/uploaded/" . $erase_element))
+				unlink("pixmaps/uploaded/" . $erase_element);
+			
 		break;
+		
 	}
 }
 
@@ -181,14 +197,16 @@ $conn = $db->connect();
 $perms = array();
 
 $query = "SELECT map,perm FROM risk_maps";
-if ($result = $conn->Execute($query)) {
-  while (!$result->EOF) {
-    $perms[$result->fields['map']][$result->fields['perm']]++;
-    $result->MoveNext();
-  }
+if ($result = $conn->Execute($query)) 
+{
+	while (!$result->EOF) {
+		$perms[$result->fields['map']][$result->fields['perm']]++;
+		$result->MoveNext();
+	}
 }
-if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
-	echo "<br><br><center>"._("You don't have permission to see this Map.")."</center>";
+if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) 
+{
+	Session::unallowed_section();
 	exit;
 }
 
@@ -257,14 +275,18 @@ foreach ($types as $htype) {
 }
 
 
-if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
+if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) 
+{ 
+	?>
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<? } ?>
+	<?php 
+} 
+?>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-	<title><?= _("Risk Maps") ?>  - <?= _("Edit") ?></title>
+	<title><?php echo  _("Risk Maps") ?>  - <?php echo  _("Edit") ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link rel="stylesheet" type="text/css" href="custom_style.css">
 	<link rel="stylesheet" href="lytebox.css" type="text/css" media="screen" />
@@ -282,18 +304,20 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 
 		function GB_onclose() {}
 
-		function loadLytebox(){
+		function loadLytebox()
+		{
 			var cat = document.getElementById('category').value;
 			var id = cat + "-0";
 			myLytebox.start(document.getElementById(id));
 		}
 
-		function choose_icon(icon){
-		var cat   = document.getElementById('category').value;
-		var timg = document.getElementById('chosen_icon');
-		timg.src = icon
-		changed = 1;
-		document.getElementById('save_button').className = "lbutton_unsaved";
+		function choose_icon(icon)
+		{
+			var cat   = document.getElementById('category').value;
+			var timg = document.getElementById('chosen_icon');
+			timg.src = icon
+			changed = 1;
+			document.getElementById('save_button').className = "lbutton_unsaved";
 		}
 
 		function toggleLayer( whichLayer )
@@ -315,12 +339,12 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		function findPos(obj) {
 			var curleft = curtop = 0;
 			if (obj.offsetParent) {
-			do {
-				curleft += obj.offsetLeft;
-				curtop += obj.offsetTop;
-			} while (obj = obj.offsetParent);
-			return [curleft,curtop];
-		}
+				do {
+					curleft += obj.offsetLeft;
+					curtop += obj.offsetTop;
+				} while (obj = obj.offsetParent);
+				return [curleft,curtop];
+			}
 		}
 
 		var moz = document.getElementById && !document.all;
@@ -335,7 +359,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				y = moz ? e.clientY : event.clientY;
 				sx = (typeof(window.scrollX) != 'undefined') ? window.scrollX : ((typeof(document.body.scrollLeft) != 'undefined') ? document.body.scrollLeft : 0);
 				sy = (typeof(window.scrollY) != 'undefined') ? window.scrollY : ((typeof(document.body.scrollTop) != 'undefined') ? document.body.scrollTop : 0);
-				document.getElementById('state').innerHTML = "<?= _("moving...") ?>";
+				document.getElementById('state').innerHTML = "<?php echo  _("moving...") ?>";
 				document.f.posx.value = x + sx
 				document.f.posy.value = y + sy
 				dobj.style.left = x + sx - parseInt(dobj.style.width.replace('px',''))/2;
@@ -357,7 +381,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				sy = (typeof(window.scrollY) != 'undefined') ? window.scrollY : ((typeof(document.body.scrollTop) != 'undefined') ? document.body.scrollTop : 0);
 				x = moz ? e.clientX+10+ sx : event.clientX+10+ sx;
 				y = moz ? e.clientY+10+ sy : event.clientY+10+ sy;
-				document.getElementById('state').innerHTML = "<?= _("resizing...") ?>";
+				document.getElementById('state').innerHTML = "<?php echo  _("resizing...") ?>";
 				document.f.posx.value = x + sx;
 				document.f.posy.value = y + sy;
 				xx = parseInt(dobj.style.left.replace('px','')) + 5;
@@ -370,7 +394,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				document.getElementById('save_button').className = "lbutton_unsaved";
 				return false;
 			}
-    }
+		}
 	
 		function releasing(e) {
 			moving = false;
@@ -384,10 +408,10 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		function reset_values() {
 			// Reset form values
 			$('.itcanbemoved').css("border","1px solid transparent");
-			document.f.url.value = "";
-			document.f.alarm_id.value = "";
+			document.f.url.value        = "";
+			document.f.alarm_id.value   = "";
 			document.f.alarm_name.value = "";
-			document.f.type.value = "";
+			document.f.type.value       = "";
 			document.getElementById('check_report').checked = false;
 			document.getElementById('elem').value = "";
 			document.getElementById('selected_msg').innerHTML = "";
@@ -452,7 +476,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		}
 		
 		document.onmousedown = pushing;
-		document.onmouseup = releasing;
+		document.onmouseup   = releasing;
 		document.onmousemove = dragging;
 		
 		function urlencode(str) { return escape(str).replace('+','%2B').replace('%20','+').replace('*','%2A').replace('/','%2F').replace('@','%40'); }
@@ -488,7 +512,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataiconsize' + id + '" id="dataiconsize' + id + '" value="' + size + '">\n';
 			document.getElementById('tdnuevo').innerHTML += '<input type="hidden" name="dataiconbg' + id + '" id="dataiconbg' + id + '" value="' + iconbg + '">\n';
 			
-			document.getElementById('state').innerHTML = "<?= _("New") ?>"
+			document.getElementById('state').innerHTML = "<?php echo  _("New") ?>"
 		}
 
 		function initDiv () {
@@ -540,23 +564,32 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				initAjax: { url: "type_tree.php", data: {filter: filter} },
 				clickFolderMode: 2,
 				onActivate: function(dtnode) {
-                    if (dtnode.data.key.indexOf(';')!=-1) {
+                    if (dtnode.data.key.indexOf(';')!=-1) 
+					{
                         var keys = dtnode.data.key.split(/\;/);
-                        document.getElementById('type').value = keys[0];
+                        
+						document.getElementById('type').value = keys[0];
                         document.getElementById('elem').value = keys[1];
-                        if (keys[0] == "host" || keys[0] == "net" || keys[0] == "sensor") document.getElementById('check_report').checked = true;
-                        else document.getElementById('check_report').checked = false;
-                        document.getElementById('selected_msg').innerHTML = "<b><?=_("Selected type")?></b>:"+document.f.type.value+" - "+document.f.elem.value;
-                        if (document.f.type.value == "host_group" || document.f.type.value == "server") {
+                        
+						if (keys[0] == "host" || keys[0] == "net" || keys[0] == "sensor") 
+							document.getElementById('check_report').checked = true;
+                        else 
+							document.getElementById('check_report').checked = false;
+                        
+						var style = 'background-color:#EFEBDE; padding:2px 5px 2px 5px; border:1px dotted #cccccc; font-size:11px; width: 90%';
+						
+						document.getElementById('selected_msg').innerHTML = "<div style='"+style+"'<strong><?php echo _("Selected type")?></strong>: "+document.f.type.value+" - "+document.f.elem.value+"</div>";
+                       
+					    if (document.f.type.value == "host_group" || document.f.type.value == "server") 
                             document.getElementById('linktoreport').style.display = 'none';
-                        }
-                        else {
+                        
+                        else 
                             document.getElementById('linktoreport').style.display = '';
-                        }
+                        
                     }
-                    else {
+                    else 
                         dtnode.toggleExpand();
-                    }
+                    
 				},
 				onDeactivate: function(dtnode) {},
 				onLazyRead: function(dtnode){
@@ -570,22 +603,24 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			i=i+1
 		}
 		
-		function get_echars(data){
+		/*function get_echars(data){
 			var echars='';
 			//alert(data);
 			//alert(data.match(/&#(\d{4,5});/));
 			alert(data.match(/^[a-zA-Z]*$/));
-			//if(){
-			
+						
 			//var echars = ( preg_match_all('/&#(\d{4,5});/', $data, $match) != false ) ? $match[1] : array();
-			
 			return echars;
-		}
+		}*/
 		
 		function addnew(map,type) {
+			
 			document.f.alarm_id.value = ''
-			if (type == 'alarm') {
-				if (document.f.alarm_name.value != '') {
+			
+			if (type == 'alarm') 
+			{
+				if (document.f.alarm_name.value != '') 
+				{
 					var txt = '';
 					var robj = document.getElementById("chosen_icon").src;
 					robj = robj.replace(/.*\/ossim\/risk\_maps\//,"");
@@ -610,29 +645,33 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					   success: function(msg){
 							eval(msg);
 							refresh_indicators();
-							document.getElementById('state').innerHTML = '<?= _("New Indicator created") ?>';
+							document.getElementById('state').innerHTML = '<?php echo  _("New Indicator created") ?>';
 					   }
 					});	
 				} else {
-					alert("<?= _("Indicator name can't be void") ?>")
+					alert("<?php echo  _("Indicator name can't be void") ?>")
 				}	
-			} else {
+			} 
+			else 
+			{
 				document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20'>";
 				$.ajax({
 				   type: "GET",
 				   url: 'responder.php?map=' + map + '&type=rect&url=' + urlencode(document.f.url.value),
 				   success: function(msg){
 					   	eval(msg);
-					   	document.getElementById('state').innerHTML = '<?= _("New Rectangle created") ?>';
+					   	document.getElementById('state').innerHTML = '<?php echo  _("New Rectangle created") ?>';
 						refresh_indicators();
 				   }
 				});	
 			}
+			
 			changed = 1;
 			document.getElementById('save_button').className = "lbutton_unsaved";
 		}
 
-		function drawRect (id,x,y,w,h) {
+		function drawRect (id,x,y,w,h)
+		{
 			var el = document.createElement('div');
 			var the_map= document.getElementById("map_img")
 			var map_pos = [];
@@ -647,7 +686,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			el.innerHTML = "<div style='position:absolute;bottom:0px;right:0px'><img src='../pixmaps/resize.gif' border=0></div>";
 			el.style.visibility = 'visible'
 			document.body.appendChild(el);
-			document.getElementById('state').innerHTML = "<?= _("New") ?>"
+			document.getElementById('state').innerHTML = "<?php echo  _("New") ?>"
 			changed = 1;
 			document.getElementById('save_button').className = "lbutton_unsaved";
 		}
@@ -662,8 +701,10 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				y += obj.offsetTop;
 				obj = obj.offsetParent;
 			} while (obj);
+			
 			var objs = document.getElementsByTagName("div");
 			var txt = ''
+			
 			for (var i=0; i < objs.length; i++) {
 				if (objs[i].className == "itcanbemoved" && objs[i].style.visibility != "hidden") {
 					xx = objs[i].style.left.replace('px','');
@@ -671,11 +712,13 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					txt = txt + objs[i].id + ',' + (xx-x) + ',' + (yy-y) + ',' + objs[i].style.width + ',' + objs[i].style.height + ';';
 				}
 			}
+			
 			var id_type = 'elem_'+document.f.type.value;
 			var url_aux = urlencode(document.f.url.value);
 			if (document.f.type.value == "host" || document.f.type.value == "net" || document.f.type.value == "sensor") {
 				url_aux = (document.getElementById('check_report').checked) ? "REPORT" : "";
 			}
+			
 			var icon_aux = urlencode(document.getElementById("chosen_icon").src);
 			url_aux = url_aux.replace(/\//g,"url_slash");
 			url_aux = url_aux.replace(/\%3F/g,"url_quest");
@@ -683,39 +726,51 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			icon_aux = icon_aux.replace(/\//g,"url_slash");
 			icon_aux = icon_aux.replace(/\%3F/g,"url_quest");
 			icon_aux = icon_aux.replace(/\%3D/g,"url_equal");
-			urlsave = 'save.php?type=' +urlencode(document.f.type.value)+'&type_name='+ urlencode(document.getElementById('elem').value) +'&map=' + map + '&id=' + document.f.alarm_id.value + '&name=' + urlencode(document.f.alarm_name.value) + '&url=' + url_aux + '&icon=' + icon_aux + '&data=' + txt + '&iconbg=' + document.f.iconbg.value + '&iconsize=' + document.f.iconsize.value;
+						
+			var type        = $("#type").serialize()
+			var type_name   = $("#elem").serialize()
+			var id          = document.f.alarm_id.value;
+			var alarm_name  = $("#alarm_name").serialize()
+			var iconbg      = document.f.iconbg.value;
+			var iconsize    = document.f.iconsize.value; 
+			
+			urlsave = 'save.php?'+ type +'&'+ type_name +'&map=' + map + '&id=' + id + '&' + alarm_name + '&url=' + url_aux + '&icon=' + icon_aux + '&data=' + txt + '&iconbg=' + iconbg + '&iconsize=' + iconsize;
+
 			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20' align='absmiddle'> <?php echo _("Saving changes") ?>...";
 			$.ajax({
 			   	type: "GET",
 			   	url: urlsave,
 			   	success: function(msg){
-			   		document.getElementById('state').innerHTML = "<?= _("Indicators saved.") ?>";
+			   		document.getElementById('state').innerHTML = "<?php echo _("Indicators saved.") ?>";
 			   		changed = 0;
 			   		document.getElementById('save_button').className = "lbutton";
 			   		refresh_indicators();
-			   		document.getElementById('type_name'+document.f.alarm_id.value).value = document.getElementById('elem').value;
-			   		document.getElementById('datatype'+document.f.alarm_id.value).value = document.f.type.value;
-			   		document.getElementById('datanurl'+document.f.alarm_id.value).value = document.f.url.value;
-			   		document.getElementById('dataicon'+document.f.alarm_id.value).value = document.getElementById("chosen_icon").src;
-			   		document.getElementById('dataiconsize'+document.f.alarm_id.value).value = document.f.iconsize.value;
-			   		document.getElementById('dataiconbg'+document.f.alarm_id.value).value = document.f.iconbg.value;
+			   							
+					$('#type_name'+id).value    = document.getElementById('elem').value;
+			   		$('#datatype'+id).value     = document.f.type.value;
+					$('#datanurl'+id).value     = document.f.url.value;
+			   		$('#dataicon'+id).value     = $("#chosen_icon").attr("src");
+			   		$('#dataiconsize'+id).value = document.f.iconsize.value;
+			   		$('#dataiconbg'+id).value   = document.f.iconbg.value;
 				}
 			});
 		}
 
-		function refresh_indicators() {
-			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20' align='absmiddle'> <?php echo _("Refreshing indicators") ?>...";
+		function refresh_indicators() 
+		{
+			document.getElementById('state').innerHTML = "<img src='../pixmaps/loading.gif' width='20' align='absmiddle'/> <?php echo _("Refreshing indicators") ?>...";
 			$.ajax({
 			   type: "GET",
 			   url: "get_indicators.php?map=<?php echo $map ?>&print_inputs=1",
 			   success: function(msg){
 				// Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
 				   var indicators = msg.split("@@@@");
-				   for (i = 0; i < indicators.length; i++) if (indicators[i].match(/\#\#\#\#/)) {
+				   for (i = 0; i < indicators.length; i++) if (indicators[i].match(/\#\#\#\#/)) 
+				   {
 						var data = indicators[i].split("####");
-						if (data[0] != null) {
+						if (data[0] != null) 
 							document.getElementById(data[0]).innerHTML = data[1];
-						}
+						
 				   }
 				   document.getElementById('state').innerHTML = "";
 			   }
@@ -734,7 +789,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		
 		function change_select()
 		{
-			document.getElementById('selected_msg').innerHTML = "<b><?=_("Selected type")?></b>:"+document.f.type.value+" - "+document.f.elem.value;
+			var style = 'background-color:#EFEBDE; padding:2px 5px 2px 5px; border:1px dotted #cccccc; font-size:11px; width: 90%';
+			document.getElementById('selected_msg').innerHTML = "<div style='"+style+"'><strong><?php echo _("Selected type")?></strong>: "+document.f.type.value+" - "+document.f.elem.value+"</div>";
+			
 			if (document.f.type.value == "host_group") {
 				document.getElementById('linktoreport').style.display = 'none';
 			}
@@ -775,7 +832,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 			if(changed)
 			{
 				//(if(0){
-				var x=window.confirm("<?= _("Unsaved changes, want to save them before exiting?"); ?>");
+				var x=window.confirm("<?php echo  _("Unsaved changes, want to save them before exiting?"); ?>");
 				if(x)
 				{
 					save('<? echo $map ?>');
@@ -797,7 +854,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 	<?php
 		$maps = explode("\n",`ls -1 'maps'`);
 		$i=0; $n=0; $linkmaps = "";
-		foreach ($maps as $ico) if (trim($ico)!="") {
+		foreach ($maps as $ico) if (trim($ico)!="") 
+		{
 				if(is_dir("maps/" . $ico) || !getimagesize("maps/" . $ico)){ continue;}
 				$n = str_replace("map","",str_replace(".jpg","",$ico));
 				$linkmaps .= "<td><a href='javascript:;' onclick='document.f.url.value=\"view.php?map=$n\"'><img src='maps/$ico' border=0 width=50 height=50 style='border:1px solid #cccccc' alt='$ico' title='$ico'></a></td>";
@@ -825,17 +883,21 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 									<input type='hidden' value="<? echo $map ?>" name='map'>
 								</td>
 							</tr>
-							<tr><td class='cont_submit' colspan='2'><input type='submit' value="<?= _("Upload") ?>" class="lbutton"/></td></tr>
+							<tr><td class='cont_submit' colspan='2'><input type='submit' value="<?php echo  _("Upload") ?>" class="lbutton"/></td></tr>
 						</table>
 					</form>
 				</td>
 			</tr>
-			<form name="f" action="modify.php">
-			<tr><td>
-			<div style="display:none">
-			<input type='hidden' name="alarm_id" value=""/> x <input type='text' size='1' name='posx'/> y <input type='text' size='1' name='posy'/>
-			</div>
-			</td></tr>
+			
+		<form name="f" action="modify.php">
+			<tr>
+				<td>
+					<div style="display:none">
+						<input type='hidden' name="alarm_id" value=""/> x <input type='text' size='1' name='posx'/> y <input type='text' size='1' name='posy'/>
+					</div>
+				</td>
+			</tr>
+			
 			<tr>
 				<td>
 				<?php
@@ -868,64 +930,70 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				</td>
 			
 				<td rowspan="2" align="center" valign="middle" width="40%">
-					<img src="<?=(($uploaded_icon) ? $filename : "pixmaps/standard/default.png")?>" name="chosen_icon" id="chosen_icon"/>
+					<img src="<?php echo (($uploaded_icon) ? $filename : "pixmaps/standard/default.png")?>" name="chosen_icon" id="chosen_icon"/>
 				</td>
 			</tr>
 		
 			<tr>
 				<td align="left">
-					<a href="chooser.php" title="Icon browser" class="greybox" style="font-size:12px"><?=_("Browse all")?></a>
+					<a href="chooser.php" title="Icon browser" class="greybox" style="font-size:12px"><?php echo _("Browse all")?></a>
 					<span> / </span>
-					<a href="javascript:loadLytebox()" id="lytebox_misc" title="Icon chooser" style="font-size:12px" rev="width: 400px; height: 300px;scrolling: no;"><?=_("Choose from list")?></a>
+					<a href="javascript:loadLytebox()" id="lytebox_misc" title="Icon chooser" style="font-size:12px" rev="width: 400px; height: 300px;scrolling: no;"><?php echo _("Choose from list")?></a>
 					<span> / </span>
-					<a onclick="$('#uploadform').show();return false" style="font-size:12px"><?=_("Upload your own icon")?></a><br/>
+					<a onclick="$('#uploadform').show();return false" style="font-size:12px"><?php echo _("Upload your own icon")?></a><br/>
 				</td>
 			</tr>
 			<tr>
-				<td colspan="2" class='bold'><?=_("Background")?>: 
+				<td colspan="2" class='bold'><?php echo _("Background")?>: 
 					<select name="iconbg" id="iconbg" onchange="set_changed()">
-						<option value=""><?=_("Transparent")?></option>
-						<option value="white"><?=_("White")?></option>
+						<option value=""><?php echo _("Transparent")?></option>
+						<option value="white"><?php echo _("White")?></option>
 					</select>
 				</td>
 			</tr>
 			
 			<tr>
-				<td colspan="2" class='bold'><?=_("Size")?>: 
+				<td colspan="2" class='bold'><?php echo _("Size")?>: 
 					<select name="iconsize" id="iconsize" onchange="set_changed()">
-						<option value="0"><?=_("Default")?></option>
-						<option value="30"><?=_("Small")?></option>
-						<option value="40"><?=_("Medium")?></option>
-						<option value="50"><?=_("Big")?></option>
+						<option value="0"><?php echo _("Default")?></option>
+						<option value="30"><?php echo _("Small")?></option>
+						<option value="40"><?php echo _("Medium")?></option>
+						<option value="50"><?php echo _("Big")?></option>
 					</select>
 				</td>
 			</tr>
 		</table>
+	
 	<?php
-	if(0){
-	?>
-	 <table>
-	 <!-- iconos -->
-	 <tr><td class='ne1' colspan='2'>
-		<table><tr>
-		<?
-			$ico_std = explode("\n",`ls -1 'pixmaps/standard'`);
-			$i=0;
-			foreach ($ico_std as $ico) if (trim($ico)!="") {
-					if(is_dir("pixmaps/standard/" . $ico) || !getimagesize("pixmaps/standard/" . $ico)){ continue;}
-				echo "<td><img src='pixmaps/standard/$ico' border=0></td><td align=center><input type=radio name=icon value='pixmaps/standard/$ico'".(($i==0) ? " checked" : "")."></td>";
-				$i++; if ($i % 6 == 0) echo "</tr><tr>";
-			}
-			$ico_std = explode("\n",`ls -1 'pixmaps/uploaded'`);
-			foreach ($ico_std as $ico) if (trim($ico)!="") {
-					if(is_dir("pixmaps/uploaded/" . $ico) || !getimagesize("pixmaps/uploaded/" . $ico)){ continue;}
-				echo "<td><img src='pixmaps/uploaded/$ico' border=0></td><td align=center><input type=radio name=icon value='pixmaps/uploaded/$ico'><br><a href='$SCRIPT_NAME?map=$map&delete_type=icon&delete=".urlencode("$ico")."'><img src='images/delete.png' border=0></a><a href=\"pixmaps/uploaded/$ico\" rel=\"lytebox[test]\" title=\"&lt;a href='javascript:alert(&quot;placeholder&quot;);'&gt;Click HERE!&lt;/a&gt;\">AAAAA</a></td>";
-				$i++; if ($i % 6 == 0) echo "</tr><tr>";
-			}		
+	if(0)
+	{
 		?>
-		</tr></table>
-	 </td></tr>
-	 <?
+		<table>
+		<!-- iconos -->
+		<tr>
+			<td class='ne1' colspan='2'>
+				<table>
+					<tr>
+					<?php
+						$ico_std = explode("\n",`ls -1 'pixmaps/standard'`);
+						$i=0;
+						foreach ($ico_std as $ico) if (trim($ico)!="") {
+								if(is_dir("pixmaps/standard/" . $ico) || !getimagesize("pixmaps/standard/" . $ico)){ continue;}
+							echo "<td><img src='pixmaps/standard/$ico' border=0></td><td align=center><input type=radio name=icon value='pixmaps/standard/$ico'".(($i==0) ? " checked" : "")."></td>";
+							$i++; if ($i % 6 == 0) echo "</tr><tr>";
+						}
+						$ico_std = explode("\n",`ls -1 'pixmaps/uploaded'`);
+						foreach ($ico_std as $ico) if (trim($ico)!="") {
+								if(is_dir("pixmaps/uploaded/" . $ico) || !getimagesize("pixmaps/uploaded/" . $ico)){ continue;}
+							echo "<td><img src='pixmaps/uploaded/$ico' border=0></td><td align=center><input type=radio name=icon value='pixmaps/uploaded/$ico'><br><a href='$SCRIPT_NAME?map=$map&delete_type=icon&delete=".urlencode("$ico")."'><img src='images/delete.png' border=0></a><a href=\"pixmaps/uploaded/$ico\" rel=\"lytebox[test]\" title=\"&lt;a href='javascript:alert(&quot;placeholder&quot;);'&gt;Click HERE!&lt;/a&gt;\">AAAAA</a></td>";
+							$i++; if ($i % 6 == 0) echo "</tr><tr>";
+						}		
+					?>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	 <?php
 	 } // end if(0)
 	 ?>
  
@@ -940,13 +1008,13 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 		<td class='ne1'>
 			<table width="100%" class="noborder">
 				<tr>
-					<th class='rm_tit_section' style="font-size:12px" nowrap><?= _("Indicator Name"); ?></th>
-					<td><input type='text' size='30' name="alarm_name" class='ne1'/></td>
+					<th class='rm_tit_section' style="font-size:12px" nowrap='nowrap'><?php echo  _("Indicator Name"); ?></th>
+					<td><input type='text' size='30' name="alarm_name" id='alarm_name' class='ne1'/></td>
 				</tr>
 				<tr><td colspan="2" id="selected_msg"></td></tr>
 				
 				<tr>
-					<td colspan="2" class='ne1'><input type="radio" onclick="show_assetlink()" name="link_option" id="link_option_asset" value="asset" checked></input><?php echo _("Link to Asset") ?></td>
+					<td colspan="2" class='ne1'><input type="radio" onclick="show_assetlink()" name="link_option" id="link_option_asset" value="asset" checked='checked'></input><?php echo _("Link to Asset") ?></td>
 				</tr>
 				
 				<tr>
@@ -957,7 +1025,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 								<td class="nobborder">
 									<table style="border:0px"><tr>
 										<td><input type="checkbox" id="check_report"/></td>
-										<td class='ne1' nowrap='nowrap'><i><?= _("Link to Asset Report"); ?></i></td>
+										<td class='ne1' nowrap='nowrap'><i><?php echo  _("Link to Asset Report"); ?></i></td>
 										</tr>
 									</table>
 								</td>
@@ -973,11 +1041,11 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 					<td colspan="2">
 						<table id="link_map" style="display:none">
 						<tr id="linktomapurl">
-							<td class='ne11'> <?= _("URL"); ?> </td>
+							<td class='ne11'> <?php echo  _("URL"); ?> </td>
 							<td><input type='text' size='30' name="url" class='ne1'/></td>
 						</tr>
 						<tr id="linktomapmaps">
-							<td class='ne1 bold'><i> <?= _("Choose map to link") ?> </i></td>
+							<td class='ne1 bold'><i> <?php echo  _("Choose map to link") ?> </i></td>
 							<td><table><tr><? echo $linkmaps ?></tr></table></td>
 						</tr>
 						</table>
@@ -986,9 +1054,9 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 				<tr><td colspan="2" id="state" class="ne" height="30">&nbsp;</td></tr>
 				<tr>
 					<td colspan="2" nowrap='nowrap'>
-						<input type='button' value="<?= _("New Indicator") ?>" onclick="addnew('<? echo $map ?>','alarm')" class="lbutton" /> 
-						<input type='button' value="<?= _("New Rect") ?>" onclick="addnew('<? echo $map ?>','rect')" class="lbutton"/> 
-						<input id="save_button" type='button' value="<?= _("Save Changes") ?>" onclick="save('<? echo $map ?>')" class="lbutton"/>
+						<input type='button' value="<?php echo  _("New Indicator") ?>" onclick="addnew('<? echo $map ?>','alarm')" class="lbutton" /> 
+						<input type='button' value="<?php echo  _("New Rect") ?>" onclick="addnew('<? echo $map ?>','rect')" class="lbutton"/> 
+						<input id="save_button" type='button' value="<?php echo  _("Save Changes") ?>" onclick="save('<?php echo $map ?>')" class="lbutton"/>
 					</td>
 				</tr>	
 			</table>
@@ -997,63 +1065,81 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT'])) { ?>
 	
 	<tr><td id="tdnuevo"></td></tr>
 </table>
-<?
+
+
+<?php
 // *************** Print Indicators DIVs (print_inputs = true) ******************
 print_indicators($map,true);
 
 $conn->close();
 
-$uploaded_dir = "pixmaps/uploaded/";
+$uploaded_dir  = "pixmaps/uploaded/";
 $uploaded_link = "pixmaps/uploaded/";
 
 $icons = explode("\n",`ls -1 '$uploaded_dir'`);
 print "<div style=\"display:none;\">";
-$i = 0;
-foreach($icons as $ico){
-if(!$ico)continue;
-if(is_dir($uploaded_dir . "/" .  $ico) || !getimagesize($uploaded_dir . "/" . $ico)){ continue;}
-print "<a href=\"$uploaded_link/$ico\" id=\"custom-$i\" rel=\"lytebox[custom]\" title=\"&lt;a href='javascript:choose_icon(&quot;$uploaded_link/$ico&quot;);'&gt;" . htmlspecialchars(_("Choose this one")) . ".&lt;/a&gt;\">custom</a>";
-$i++;
+$i     = 0;
+
+foreach($icons as $ico)
+{
+	if(!$ico)
+		continue;
+	if(is_dir($uploaded_dir . "/" .  $ico) || !getimagesize($uploaded_dir . "/" . $ico)) 
+		continue;
+			
+	print "<a href=\"$uploaded_link/$ico\" id=\"custom-$i\" rel=\"lytebox[custom]\" title=\"&lt;a href='javascript:choose_icon(&quot;$uploaded_link/$ico&quot;);'&gt;" . htmlspecialchars(_("Choose this one")) . ".&lt;/a&gt;\">custom</a>";
+	$i++;
 }
 
-$uploaded_dir = "pixmaps/flags/";
+$uploaded_dir  = "pixmaps/flags/";
 $uploaded_link = "pixmaps/flags/";
 
 $icons = explode("\n",`ls -1 '$uploaded_dir'`);
 print "<div style=\"display:none;\">";
+
 $i = 0;
-foreach($icons as $ico){
-if(!$ico)continue;
-if(is_dir($uploaded_dir . "/" .  $ico) || !getimagesize($uploaded_dir . "/" . $ico)){ continue;}
-print "<a href=\"$uploaded_link/$ico\" id=\"flags-$i\" rel=\"lytebox[flags]\" title=\"&lt;a href='javascript:choose_icon(&quot;$uploaded_link/$ico&quot;);'&gt;" . htmlspecialchars(_("Choose this one")) . ".&lt;/a&gt;\">flags</a>";
-$i++;
+foreach($icons as $ico)
+{
+	if(!$ico)
+		continue;
+		if(is_dir($uploaded_dir . "/" .  $ico) || !getimagesize($uploaded_dir . "/" . $ico))
+			continue;
+	print "<a href=\"$uploaded_link/$ico\" id=\"flags-$i\" rel=\"lytebox[flags]\" title=\"&lt;a href='javascript:choose_icon(&quot;$uploaded_link/$ico&quot;);'&gt;" . htmlspecialchars(_("Choose this one")) . ".&lt;/a&gt;\">flags</a>";
+	$i++;
 }
 
 
-$standard_dir = "pixmaps/standard/";
+$standard_dir  = "pixmaps/standard/";
 $standard_link = "pixmaps/standard/";
 
 $icons = explode("\n",`ls -1 '$standard_dir'`);
 print "<div style=\"display:none;\">";
+
 $i = 0;
-foreach($icons as $ico){
-if(!$ico)continue;
-if(is_dir($standard_dir . "/" . $ico) || !getimagesize($standard_dir . "/" . $ico)){ continue;}
-print "<a href=\"$standard_link/$ico\" id=\"standard-$i\" rel=\"lytebox[standard]\" title=\"&lt;a href='javascript:choose_icon(&quot;$standard_link/$ico&quot;);'&gt;" . htmlspecialchars(_("Choose this one")) . ".&lt;/a&gt;\">standard</a>";
-$i++;
+
+foreach($icons as $ico)
+{
+	if(!$ico)
+		continue;
+	if(is_dir($standard_dir . "/" . $ico) || !getimagesize($standard_dir . "/" . $ico))
+		continue;
+
+		print "<a href=\"$standard_link/$ico\" id=\"standard-$i\" rel=\"lytebox[standard]\" title=\"&lt;a href='javascript:choose_icon(&quot;$standard_link/$ico&quot;);'&gt;" . htmlspecialchars(_("Choose this one")) . ".&lt;/a&gt;\">standard</a>";
+
+	$i++;
 }
 
 print "</div>\n";
 ?>
-		</form>
-	</td>
-	<td width="48" valign='top'>
-		<img src='images/wastebin.gif' id="wastebin" border='0'/>
-	</td>
-	<td valign='top' id="map">
-		<img src="maps/map<? echo $map ?>.jpg" id="map_img" onclick="reset_values()" border='0'/>
-	</td>
-</tr>
+	</form>
+		</td>
+		<td width="48" valign='top'>
+			<img src='images/wastebin.gif' id="wastebin" border='0'/>
+		</td>
+		<td valign='top' id="map">
+			<img src="maps/map<? echo $map ?>.jpg" id="map_img" onclick="reset_values()" border='0'/>
+		</td>
+	</tr>
 </table>
 </body>
 </html>

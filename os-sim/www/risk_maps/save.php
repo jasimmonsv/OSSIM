@@ -46,41 +46,45 @@ Session::logcheck("MenuControlPanel", "BusinessProcesses");
 $infolog = array("Indicator Risk Maps");
 Log_action::log(49, $infolog);
 
-if (!Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit")) {
-print _("You don't have permissions to edit risk indicators");
-exit();
-
+if (!Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit")) 
+{
+	print _("You don't have permissions to edit risk indicators");
+	exit();
 }
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
-$map = GET("map");
+
+
+
+$map  = GET("map");
 $data = GET("data");
-$name = GET("name");
+$name = GET("alarm_name");
 $icon = GET("icon");
-$url = GET("url");
-$ida = GET("id");
-$type = GET("type");
-$type_name = GET("type_name");
-$iconbg = GET('iconbg');
-$iconsize = (GET('iconsize') != "") ? GET('iconsize') : 0;
+$url  = GET("url");
+$ida  = GET("id");
+$type      = GET("type");
+$type_name = GET("elem");
+$iconbg    = GET('iconbg');
+$iconsize  = (GET('iconsize') != "") ? GET('iconsize') : 0;
+
 
 $icon = str_replace("url_slash","/",$icon);
 $icon = str_replace("url_quest","?",$icon);
 $icon = str_replace("url_equal","=",$icon);
-$url = str_replace("url_slash","/",$url);
-$url = str_replace("url_quest","?",$url);
-$url = str_replace("url_equal","=",$url);
+$url  = str_replace("url_slash","/",$url);
+$url  = str_replace("url_quest","?",$url);
+$url  = str_replace("url_equal","=",$url);
 
-ossim_valid($map, OSS_DIGIT,'illegal:'._("map"));
-ossim_valid($ida, OSS_DIGIT, OSS_NULLABLE, 'illegal:'._("map"));
-ossim_valid($data, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, ";,.", 'illegal:'._("data"));
-ossim_valid($url, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("data"));
-ossim_valid($name, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("name"));
-ossim_valid($icon, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("icon"));
-ossim_valid($type, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("type"));
-ossim_valid($type_name, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("type_name"));
+ossim_valid($map, OSS_DIGIT,'illegal:'._("Map"));
+ossim_valid($ida, OSS_DIGIT, OSS_NULLABLE, 'illegal:'._("Map"));
+ossim_valid($data, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_DIGIT, ";,.", 'illegal:'._("Data"));
+ossim_valid($url, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("Data"));
+ossim_valid($name, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("Name"));
+ossim_valid($icon, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("Icon"));
+ossim_valid($type, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("Type"));
+ossim_valid($type_name, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, OSS_SPACE, ";,.:\/\?=&()%&", 'illegal:'._("Type_name"));
 ossim_valid($iconbg, OSS_ALPHA, OSS_NULLABLE, 'illegal:'._("iconbg"));
 ossim_valid($iconsize, OSS_DIGIT, 'illegal:'._("iconsize"));
 //var_dump($type);
@@ -112,7 +116,7 @@ die(ossim_error());
     }
 
     $active = array_keys($indicators);
-    $query = "select id, type, type_name from risk_indicators where map=?";
+    $query  = "SELECT id, type, type_name from risk_indicators where map=?";
     $params = array($map);
         if (!$rs = &$conn->Execute($query, $params)) {
             $log = $conn->ErrorMsg();
@@ -120,7 +124,7 @@ die(ossim_error());
             while (!$rs->EOF) {
                 if (in_array($rs->fields["id"],$active)) {
                     $pos = $indicators[$rs->fields["id"]];
-                    $query = "update risk_indicators set x= ?,y= ?, w= ?, h= ? where id= ?";
+                    $query = "UPDATE risk_indicators SET x= ?,y= ?, w= ?, h= ? WHERE id= ?";
                     $params = array($pos["x"],$pos["y"],$pos["w"],$pos["h"], $rs->fields["id"]);
                     $conn->Execute($query, $params);
                 } else {
@@ -129,35 +133,45 @@ die(ossim_error());
             $rs->MoveNext();
         }
     }
-    if($icon != "") {
-        if ($ida !="" && $name !="") {
+	
+	$name = (mb_detect_encoding($name." ",'UTF-8,ISO-8859-1') == 'UTF-8') ?  mb_convert_encoding($name, 'ISO-8859-1', 'UTF-8') : $name;
+		
+    if($icon != "") 
+	{
+        if ($ida !="" && $name !="") 
+		{
             $icon = ($iconbg != "" && $iconbg != "transparent") ? $icon."#".$iconbg : $icon;
-			$query = "update risk_indicators set icon= ?, name= ?, url= ?, type= ?, type_name= ?, size= ? where id= ?";
+			$query = "UPDATE risk_indicators set icon= ?, name= ?, url= ?, type= ?, type_name= ?, size= ? WHERE id= ?";
             $params = array($icon, $name, $url, $type, $type_name, $iconsize, $ida);
             $conn->Execute($query,$params);
             echo "refresh_indicators();\n";
         }
-    } else {
-        if ($ida !="" && $name !="") {
-            $query = "update risk_indicators set  name= ?, url= ?, type= ?, type_name= ?, size= ? where id= ?";
+    } 
+	else 
+	{
+        if ($ida !="" && $name !="") 
+		{
+            $query = "UPDATE risk_indicators set  name= ?, url= ?, type= ?, type_name= ?, size= ? where id= ?";
             $params = array($name, $url, $type, $type_name, $iconsize, $ida);
             $conn->Execute($query,$params);
             echo "refresh_indicators();\n";
         }
     }
-    foreach ($delete_list as $idb) {
+    
+	foreach ($delete_list as $idb) {
         $host_types = array("host", "server", "sensor");
 
         list ($name,$sensor,$type,$ips,$what,$in_assets) = get_assets($conn,$idb[2],$idb[1],$host_types);
         
         if($type=="sensor" || $type=="server")      $type="host";
         
-        $query = "delete from bp_asset_member where asset_id=0 and member=? and member_type=?";
+        $query = "DELETE FROM bp_asset_member WHERE asset_id=0 AND member=? AND member_type=?";
         $params = array($name,$type);
         $conn->Execute($query, $params);
         
-        $query = "delete from risk_indicators where id= ?";
+        $query = "DELETE FROM risk_indicators WHERE id= ?";
         $conn->Execute($query, array($idb[0]));
     }
+	
     $conn->close();
 ?>

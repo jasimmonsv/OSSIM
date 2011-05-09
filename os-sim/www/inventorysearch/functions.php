@@ -28,7 +28,8 @@ $basic_search[1] = array(
 	"type"=>"Network",
 	"subtype"=>"Network is like",
 	"match"=>"LIKE",
-	"query"=>"SELECT ip FROM host WHERE INET_ATON(ip) BETWEEN ?",
+	//"query"=>"SELECT ip FROM host WHERE INET_ATON(ip) BETWEEN ?",
+	"query"=>"SELECT ip from (SELECT DISTINCT INET_NTOA(ip_dst) AS ip FROM snort.ac_dstaddr_ipsrc WHERE INET_NTOA(ip_src) > 0 UNION SELECT DISTINCT INET_NTOA(dst_ip) as ip FROM alarm WHERE INET_NTOA(src_ip) > 0 UNION SELECT DISTINCT INET_NTOA(ip_src) AS ip FROM snort.ac_srcaddr_ipdst WHERE INET_NTOA(ip_dst) > 0 UNION SELECT DISTINCT INET_NTOA(src_ip) as ip FROM alarm WHERE INET_NTOA(dst_ip) > 0) as n WHERE INET_ATON(ip) BETWEEN ?",	
 	"query_match"=>"network");
 
 // Inventory
@@ -201,7 +202,7 @@ function isSerialized($str) {
     return ($str == serialize(false) || @unserialize($str) !== false);
 }
 
-function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips,$icons=array()) {
+function host_row ($host,$conn,$criterias,$has_criterias,$networks,$hosts_ips,$icons) {
 	$ip = $host->get_ip();
 	$gi = geoip_open("/usr/share/geoip/GeoIP.dat", GEOIP_STANDARD);
 	$country = strtolower(geoip_country_code_by_addr($gi, $ip));

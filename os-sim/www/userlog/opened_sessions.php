@@ -330,7 +330,7 @@ $allowed_users = Session_activity::get_list($dbconn, $where." ORDER BY activity 
 									<td class='ops_user' $me><img class='user_icon' src='".get_user_icon($user->get_login(), $pro)."' alt='"._("User icon")."' title='"._("User icon")."' align='absmiddle'/> ".$user->get_login()."</td>
 									<td class='ops_ip'>".$user->get_ip()."</td>
 									<td class='ops_host'>".Host::ip2hostname($dbconn, $user->get_ip()).$flag."</td>
-									<td class='ops_agent'><a txt='".$agent[1]."' class='info_agent'>".$agent[0]."</a></td>
+									<td class='ops_agent'><a txt='".htmlentities($agent[1])."' class='info_agent'>".htmlentities($agent[0])."</a></td>
 									<td class='ops_id'>".$user->get_id()." $expired</td>
 									<td class='ops_logon'>".$user->get_logon_date()."</td>							
 									<td class='ops_activity'>"._(TimeAgo(strtotime($user->get_activity())))."</td>

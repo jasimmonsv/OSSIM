@@ -172,8 +172,7 @@ function DisplayFilterTable($alert, $readonly) {
 		</select>
 	</td>
 	<td>
-		<textarea name="filter" id="filter" multiline="true" wrap="phisical" rows="4" cols="70" 
-			maxlength="50" style="width:100%" <?php echo $disabled?>><?php
+		<textarea name="filter" id="filter" multiline="true" wrap="phisical" rows="4" cols="70" style="width:100%" <?php echo $disabled?>><?php
 			foreach ( $alert['filter'] as $line ) {
 				print htmlspecialchars(stripslashes($line)) . "\n";
 			}

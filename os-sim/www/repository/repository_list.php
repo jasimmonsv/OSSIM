@@ -34,62 +34,76 @@
 * Function list:
 * Classes list:
 */
-require_once 'classes/Security.inc';
+require_once ('classes/Security.inc');
 require_once ("classes/Repository.inc");
-// DB Connection
 require_once ("ossim_db.inc");
-$db = new ossim_db();
-$conn = $db->connect();
-$repository_list = Repository::get_repository_linked($conn, GET('keyname') , GET('type'));
-if (count($repository_list) > 0) { ?>
-<html>
-<head>
-  <title> <?php
-    echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-</head>
 
-<body onload="parent.window.document.getElementById('addcontent').height = document.body.offsetHeight+25">
-<table width="100%">
-	<tr><td class="nobborder"><h1 style="margin-bottom: 5px">Linked Documents from Repository</h1></td></tr>
-	<?php
-    foreach($repository_list as $repository) { ?>
-	<tr><td height="2" class="noborder"></td></tr>
+$db              = new ossim_db();
+$conn            = $db->connect();
+$repository_list = Repository::get_repository_linked($conn, GET('keyname') , GET('type'));
+
+if ( count($repository_list) > 0 ) 
+{ 
+	?>
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	<html>
+	<head>
+		<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+		<meta http-equiv="Pragma" CONTENT="no-cache"/>
+		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+		<style type='text/css'>
+			body { margin: 0px;}
+		</style>
+	</head>
+
+	<body onload="parent.window.document.getElementById('addcontent').height = document.body.offsetHeight+25">
 	
-	<tr>
-		<th><a target="topmenu" href="../top.php?option=8&soption=5&url=repository/repository_document.php?id_document=<?php echo $repository['id'] ?>"><?php echo $repository['title'] ?></a></th>
-	</tr>
-	<tr>
-		<td class="nobborder" colspan="2" height="100">
-			<div style="overflow:auto;width:300px;height:100px">
-			<?php echo $repository['text'] ?>
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<td class="nobborder">
-			<table class="noborder" width="100%" cellspacing=0>
-				<tr>
-					<td class="left" bgcolor="#CBCBCB"><b><?php echo $repository['user'] ?></b> - <i><?php echo $repository['date'] ?></i></td>
-					<?php
-        if ($repository['num_atch'] > 0) { ?>
-					<td class="nobborder" bgcolor="#CBCBCB" width="10">(<?php echo $repository['num_atch'] ?>)</td>
-					<td class="nobborder" bgcolor="#CBCBCB"><a target="topmenu" href="../top.php?option=8&soption=5&url=repository/repository_document.php?id_document=<?php echo $repository['id'] ?>"><img src="../pixmaps/attachment_icon_small.gif" alt="" border="0"></a></td>
-					<?php
-        } ?>
-				</tr>
-			</table>
-		</td>
-	</tr>
+		<table width="100%">
+		<tr>
+			<td class="nobborder"><h1 style="margin-bottom: 5px"><?php echo _("Linked Documents from Repository")?></h1></td>
+		</tr>
+		<?php
+		foreach($repository_list as $repository) 
+		{ 
+		?>
+			<tr><td height="2" class="noborder"></td></tr>
+		
+			<tr>
+				<th><a target="_blank" href="./repository_document.php?id_document=<?php echo $repository['id'] ?>"><?php echo $repository['title'] ?></a></th>
+			</tr>
+			
+			<tr>
+				<td class="nobborder" colspan="2" height="100">
+					<div style="overflow:auto;width:300px;height:100px">
+					<?php echo $repository['text'] ?>
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="nobborder">
+					<table class="noborder" width="100%" cellspacing='0'>
+						<tr>
+							<td class="left" bgcolor="#CBCBCB"><strong><?php echo $repository['user'] ?></strong> - <i><?php echo $repository['date'] ?></i></td>
+							<?php if ($repository['num_atch'] > 0) { ?>
+								<td class="nobborder" bgcolor="#CBCBCB" width="10">(<?php echo $repository['num_atch'] ?>)</td>
+								<td class="nobborder" bgcolor="#CBCBCB"><a target="topmenu" href="./repository_document.php?id_document=<?php echo $repository['id'] ?>"><img src="../pixmaps/attachment_icon_small.gif" alt="" border="0"/></a></td>
+							<?php } ?>
+						</tr>
+					</table>
+				</td>
+			</tr>
 	
-	<tr><td class="noborder">&nbsp;</td></tr>
-	<?php
-    } ?>
-</table>
+			<tr><td class="noborder">&nbsp;</td></tr>
+			<?php
+		}	
+		?>
+	</table>
+	
 </body>
 </html>
+
 <?php
 }
 $db->close($conn);

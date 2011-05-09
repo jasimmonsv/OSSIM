@@ -38,89 +38,102 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuConfiguration", "ConfigurationUsers");
 ?>
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
+  <title> <?php echo gettext("OSSIM Framework"); ?> </title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+  <meta http-equiv="Pragma" content="no-cache"/>
   <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 <body>
 
-  <h1> <?php
-echo gettext("New User"); ?> </h1>
+  <h1> <?php echo gettext("New User"); ?> </h1>
 
 <?php
 require_once ('classes/Security.inc');
 require_once ('classes/User_config.inc');
-$user = POST('user');
-$pass1 = POST('pass1');
-$pass2 = POST('pass2');
-$name = POST('name');
-$email = POST('email');
-$nnets = POST('nnets');
-$nsensors = POST('nsensors');
-$company = POST('company');
-$department = POST('department');
-$language = POST('language');
+
+$user 		 = POST('user');
+$pass1 		 = POST('pass1');
+$pass2 		 = POST('pass2');
+$name 		 = POST('name');
+$email 		 = POST('email');
+$nnets       = POST('nnets');
+$nsensors    = POST('nsensors');
+$company     = POST('company');
+$department  = POST('department');
+$language    = POST('language');
 $first_login = POST('first_login');
-$tzone = POST('tzone');
+$tzone 		 = POST('tzone');
+
 //$copy_panels = POST('copy_panels');
 //ossim_valid($copy_panels, OSS_DIGIT, 'illegal:' . _("Copy Panels"));
+
 ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_SPACE, 'illegal:' . _("Name"));
-ossim_valid($pass1, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass1"));
-ossim_valid($pass2, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass2"));
-ossim_valid($email, OSS_MAIL_ADDR, OSS_NULLABLE, 'illegal:' . _("e-mail"));
-ossim_valid($nnets, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nnets"));
-ossim_valid($nsensors, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nsensors"));
+ossim_valid($pass1, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, 'illegal:' . _("Pass1"));
+ossim_valid($pass2, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, 'illegal:' . _("Pass2"));
+ossim_valid($email, OSS_MAIL_ADDR, OSS_NULLABLE, 'illegal:' . _("E-mail"));
+ossim_valid($nnets, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Nets"));
+ossim_valid($nsensors, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Sensors"));
 ossim_valid($company, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Company"));
 ossim_valid($department, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Department"));
 ossim_valid($language, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Language"));
 ossim_valid($first_login, OSS_DIGIT, 'illegal:' . _("First Login"));
-ossim_valid($tzone, OSS_ALPHA, OSS_SCORE, '\/', 'illegal:' . _("tzone"));
+ossim_valid($tzone, OSS_ALPHA, OSS_SCORE, '\/', '\+', 'illegal:' . _("Timezone"));
 if (ossim_error()) {
     die(ossim_error());
 }
 require_once ('ossim_db.inc');
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
 $recent_pass = Log_action::get_last_pass($conn);
 $pass_length_min = ($conf->get_conf("pass_length_min", FALSE)) ? $conf->get_conf("pass_length_min", FALSE) : 7;
 $pass_length_max = ($conf->get_conf("pass_length_max", FALSE)) ? $conf->get_conf("pass_length_max", FALSE) : 255;
 if ($pass_length_max < $pass_length_min || $pass_length_max < 1) { $pass_length_max = 255; }
 
-if (!Session::am_i_admin()) {
+if (!Session::am_i_admin()) 
+{
     require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("ONLY_ADMIN");
 }
 /* check passwords */
-elseif (0 != strcmp($pass1, $pass2)) {
+elseif (0 != strcmp($pass1, $pass2)) 
+{
     require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORDS_MISMATCH");
-} elseif (strlen($pass1) < $pass_length_min) {
+} 
+elseif (strlen($pass1) < $pass_length_min)
+ {
 	require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORD_SIZE");
-} elseif (strlen($pass1) > $pass_length_max) {
+} 
+elseif (strlen($pass1) > $pass_length_max) 
+{
 	require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORD_SIZE_MAX");
-} elseif (!Session::pass_check_complexity($pass1)) {
+} 
+elseif (!Session::pass_check_complexity($pass1)) 
+{
 	require_once ("ossim_error.inc");
     $error = new OssimError();
     $error->display("PASSWORD_ALPHANUM");
 }
 /* check OK, insert into DB */
-elseif (POST("insert")) {
+elseif (POST("insert")) 
+{
     require_once ('ossim_acl.inc');
     require_once ('classes/Session.inc');
     require_once ('classes/Net.inc');
     $perms = Array();
-    foreach($ACL_MAIN_MENU as $menus) {
+    
+	foreach($ACL_MAIN_MENU as $menus) {
         foreach($menus as $key => $menu) {
             if (POST($key) == "on") $perms[$key] = true;
             else $perms[$key] = false;
@@ -156,23 +169,18 @@ elseif (POST("insert")) {
         if ($sensors == "") $sensors = POST("sensor$i");
         else $sensors.= "," . POST("sensor$i");
     }
-    Session::insert($conn, $user, $pass1, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $first_login, $tzone);
+    
+	Session::insert($conn, $user, $pass1, $name, $email, $perms, $nets, $sensors, $company, $department, $language, $first_login, $tzone);
     Session::log_pass_history($user,md5($pass1));
     $db->close($conn);
+
 ?>
-    <p> <?php
-    echo gettext("User succesfully inserted"); ?> </p>
+    <p> <?php echo _("User succesfully inserted"); ?> </p>
 <?php
     $location = "users.php";
     sleep(2);
-    echo "<script>
-///history.go(-1);
-window.location='$location';
-</script>
-";
-?>
+    echo "<script>window.location='$location';</script>";
 
-<?php
 }
 ?>
 

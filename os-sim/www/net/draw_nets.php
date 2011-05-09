@@ -116,7 +116,7 @@ foreach ($all_nets as $net) {
 ksort($nets);
 
 if ($key=="") {
-    $buffer .= "[ {title: '"._("Networks")."', key:'keyn', url:'networks', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";
+    $buffer .= "[ {title: '"._("Networks")."', key:'all_networks', icon:'../../pixmaps/theme/any.png', isFolder:false, expand:true, children:[\n";
     if(count($bclasses) <= $low_limit ) {
         foreach($cclasses as $cclass => $v) {
             $buffer .= "{ key:'cclass_$cclass', icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--', expand:true, children:[\n";
@@ -137,6 +137,9 @@ if ($key=="") {
     }
     $buffer = preg_replace("/,$/", "", $buffer);
     $buffer .= "] } ]";
+	
+	if (preg_match("/children:\[\n\] \} \]$/", $buffer) ) 
+		$buffer = "[{title:'<span>"._("No Networks Found")."<span>', key:'_no_nets_', icon:'../../pixmaps/theme/any.png', addClass:'grey_12'}]";
 }
 else if(preg_match("/aclass_(\d+)/",$key,$found)){
 
@@ -166,7 +169,7 @@ else if(preg_match("/cclass_(\d+\.\d+\.\d+)/",$key,$found)){
 }
 
 if ($buffer=="" || $buffer=="[]")
-    $buffer = "[{title:'"._("No Nets Found")."'}]";
+    $buffer = "[{title:'<span>"._("No Networks Found")."<span>', key:'_no_nets_', icon:'../../pixmaps/theme/any.png', addClass:'grey_12'}]";
 
 $db->close($conn);
 echo $buffer;

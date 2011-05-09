@@ -1344,7 +1344,9 @@ class PHPMailer {
   public function AddAttachment($path, $name = '', $encoding = 'base64', $type = 'application/octet-stream') {
     try {
       if ( !@is_file($path) ) {
-        throw new phpmailerException($this->Lang('file_access') . $path, self::STOP_CONTINUE);
+        $info = ( empty($path) ) ? $name : $path;
+		$info = ( empty($info) ) ? _("Unknown file") : $info;
+		throw new phpmailerException($this->Lang('file_access') . $info, self::STOP_CONTINUE);
       }
       $filename = basename($path);
       if ( $name == '' ) {
@@ -1458,8 +1460,10 @@ class PHPMailer {
    */
   private function EncodeFile($path, $encoding = 'base64') {
     try {
-      if (!is_readable($path)) {
-        throw new phpmailerException($this->Lang('file_open') . $path, self::STOP_CONTINUE);
+      if (!is_readable($path)) 
+	  {
+		$info = ( empty($path) ) ? _("Unknown path") : $path;
+		throw new phpmailerException($this->Lang('file_open') . $info, self::STOP_CONTINUE);
       }
       if (function_exists('get_magic_quotes')) {
         function get_magic_quotes() {
@@ -1782,10 +1786,14 @@ class PHPMailer {
    */
   public function AddEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = 'application/octet-stream') {
 
-    if ( !@is_file($path) ) {
-      $this->SetError($this->Lang('file_access') . $path);
+    if ( !@is_file($path) ) 
+	{
+      $info = ( empty($path) ) ? $name : $path;
+	  $info = ( empty($info) ) ? _("Unknown file") : $info;
+	  $this->SetError($this->Lang('file_access') . $info);
       return false;
     }
+		 
 
     $filename = basename($path);
     if ( $name == '' ) {
@@ -2313,7 +2321,7 @@ class PHPMailer {
 
 class phpmailerException extends Exception {
   public function errorMessage() {
-    $errorMsg = '<strong>' . $this->getMessage() . "</strong><br />\n";
+    $errorMsg = '<div style="text-align:center; font-weight:bold;">' . $this->getMessage() . "</div><br/>\n";
     return $errorMsg;
   }
 }

@@ -272,7 +272,8 @@ span.custom1 a
 
 .size12ig  { font-size: 12px; font-style: italic; font-weight: normal !important; color:gray !important;}
 
-.bold_red span {color: #D8000C; font-size: 12px; font-weight: bold;}
+.bold_red  span {color: #D8000C; font-size: 12px; font-weight: bold;}
+.grey_12 span {color: #8E8E8E; font-size: 12px; font-weight: normal;}
 
 .size12n { font-size: 12px; font-weight: normal !important;}
 .size12b { font-size: 12px; font-weight: bold;}

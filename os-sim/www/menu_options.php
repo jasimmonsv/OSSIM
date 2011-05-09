@@ -42,7 +42,7 @@ $conf           = $GLOBALS["CONF"];
 $version        = $conf->get_conf("ossim_server_version", FALSE);
 $cloud_instance = ($conf->get_conf("cloud_instance", FALSE) == 1) ? true : false;
 $opensource     = (!preg_match("/pro|demo/i",$version)) ? true : false;
-$prodemo        = (preg_match("/demo/i",$version)) ? true : false;
+$prodemo        = (preg_match("/pro|demo/i",$version)) ? true : false;
 
 $upgrade = new Upgrade();
 
@@ -1061,6 +1061,16 @@ if (Session::menu_perms("MenuMonitors", "MonitorsNetflows") && !$cloud_instance)
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:network:profiles','Help');",
 		"nFrame" => ""
     );
+    if($prodemo) {
+        $hmenu["Network"][] = array(
+            "name" => gettext("Traffic capture") ,
+            "id" => "Traffic capture",
+            "target" => "main",
+            "url" => "pcap/index.php",
+            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:monitors:network:traffic_capture','Help');",
+            "nFrame" => ""
+        );
+    }
 	
 	$rmenu["Profiles"][] = array(
        "name" => gettext("Services"),
@@ -1155,8 +1165,8 @@ if (Session::menu_perms("MenuConfiguration", "ConfigurationMain")) {
         "url" => "conf/main.php?adv=1",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:configuration:configuration','Help');"
     );
-    
-	if (Session::am_i_admin()) {
+     
+	if ($prodemo && Session::am_i_admin()) {
         $hmenu["Main"][] = array(
 	        "name" => gettext("Customization Wizard") ,
 	        "id" => "Customize",

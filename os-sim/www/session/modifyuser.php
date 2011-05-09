@@ -67,20 +67,20 @@ $last_pass_change   = POST('last_pass_change');
 
 ossim_valid($user, OSS_USER, 'illegal:' . _("User name"));
 ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_SPACE, 'illegal:' . _("Name"));
-ossim_valid($pass1, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass1"));
-ossim_valid($pass2, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("pass2"));
-ossim_valid($oldpass, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("oldpass"));
-ossim_valid($email, OSS_NULLABLE, OSS_MAIL_ADDR, 'illegal:' . _("e-mail"));
-ossim_valid($nnets, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nnets"));
-ossim_valid($nsensors, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("nsensors"));
+ossim_valid($pass1, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Pass1"));
+ossim_valid($pass2, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Pass2"));
+ossim_valid($oldpass, OSS_ALPHA, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Old pass"));
+ossim_valid($email, OSS_NULLABLE, OSS_MAIL_ADDR, 'illegal:' . _("E-mail"));
+ossim_valid($nnets, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Nets"));
+ossim_valid($nsensors, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Sensors"));
 ossim_valid($company, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Company"));
 ossim_valid($department, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Department"));
 ossim_valid($language, OSS_ALPHA, OSS_PUNC, OSS_AT, OSS_NULLABLE, 'illegal:' . _("Language"));
-ossim_valid($frommenu, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("frommenu"));
+ossim_valid($frommenu, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Frommenu"));
 ossim_valid($first_login, OSS_DIGIT, 'illegal:' . _("First Login"));
-ossim_valid($is_admin, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("is admin"));
-ossim_valid($tzone, OSS_ALPHA, OSS_SCORE, '\/', 'illegal:' . _("tzone"));
-ossim_valid($last_pass_change, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("last pass change"));
+ossim_valid($is_admin, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Is admin"));
+ossim_valid($tzone, OSS_ALPHA, OSS_SCORE, '\/', '\+', 'illegal:' . _("Timezone"));
+ossim_valid($last_pass_change, OSS_DIGIT, OSS_PUNC_EXT, OSS_NULLABLE, 'illegal:' . _("Last pass change"));
 
 $kdbperms = "";
 $langchanged = 0;
@@ -170,6 +170,7 @@ elseif (POST("insert"))
 		ossim_set_lang($language);
 		$langchanged = 1;
 	}
+	
 	if ($user == Session::get_session_user() && $_SESSION['_timezone'] != $tzone) {
 		$_SESSION['_timezone'] = $tzone;
 	}

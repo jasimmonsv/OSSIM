@@ -498,78 +498,83 @@ uasort($ext_hosts, 'order_by_risk');
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title> <?php
-echo gettext("Control Panel"); ?> </title>
-  <!-- <meta http-equiv="refresh" content="150"> -->
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" href="../style/style.css"/>
-  <? include ("../host_report_menu.php") ?>
-  <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-  <script type="text/javascript" src="../js/greybox.js"></script>
-  <script language="javascript">
-	var reload = true;
-	function refresh() {
-		if (reload == true) document.location.reload();
-	}
-	function postload() {
-        GB_TYPE = 'w';
-        $("a.greybox").click(function(){
-        	reload = false;
-            var t = this.title || $(this).text() || this.href;
-            GB_show(t,this.href,'80%','75%');
-            return false;
-        });
-        $("area.greybox").click(function(){
-			reload = false;
-            var t = this.title || $(this).text() || this.href;
-            GB_show(t,this.href,400,'650');
-            return false;
-        });
-        setTimeout('refresh()',90000);
-    }
-    function GB_onclose() {
-        document.location.reload();
-    }
-    function toggle(type, start_id, end_id, link_id)
-    {
-        if ($("#"+link_id+'_c').html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
-			for (i=0; i < end_id; i++) {
-				id = start_id + i;
-                tr_id = type + '_' + id;
-                $("#"+tr_id+'_c').show();
-                $("#"+tr_id+'_a').show();
-            }
-            $("#"+link_id+'_c').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
-            $("#"+link_id+'_a').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
-        } else {
-            for (i=0; i < end_id; i++) {
-                id = start_id + i;
-                tr_id = type + '_' + id;
-                $("#"+tr_id+'_c').hide();
-                $("#"+tr_id+'_a').hide();
-            }
-            $("#"+link_id+'_c').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
-            $("#"+link_id+'_a').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
-        }
-    }
-    function toggle_group(group_name,link_id,ac) {
-    	if ($("#"+link_id+'_'+ac).html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
-			$("#group_"+link_id+'_'+ac).html("<img src='../pixmaps/loading.gif' width='20'>");
-	    	$.ajax({
-	    		type: "GET",
-	    		url: "global_score_ajax.php?group_name="+group_name+"&ac="+ac+"&range=<?php echo $range ?>",
-	    		data: "",
-	    		success: function(msg){
-	    			$("#"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
-	            	$("#group_"+link_id+'_'+ac).html(msg);
-	    		}
-	    	});
-    	} else {
-        	$("#group_"+link_id+'_'+ac).html("");
-    		$("#"+link_id+'_'+ac).html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
-    	}
-    }
+	<title> <?php echo gettext("Control Panel"); ?> </title>
+	<!-- <meta http-equiv="refresh" content="150"> -->
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" href="../style/style.css"/>
+	<?php include ("../host_report_menu.php") ?>
+	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+	<script type="text/javascript" src="../js/greybox.js"></script>
+	<script language="javascript">
+		var reload = true;
+		
+		function refresh() {
+			if (reload == true) document.location.reload();
+		}
+	
+		function postload() {
+			GB_TYPE = 'w';
+			$("a.greybox").click(function(){
+				reload = false;
+				var t = this.title || $(this).text() || this.href;
+				GB_show(t,this.href,'80%','75%');
+				return false;
+			});
+			$("area.greybox").click(function(){
+				reload = false;
+				var t = this.title || $(this).text() || this.href;
+				GB_show(t,this.href,400,'650');
+				return false;
+			});
+			setTimeout('refresh()',90000);
+		}
+    
+	function GB_onclose() {
+			document.location.reload();
+		}
+		
+		function toggle(type, start_id, end_id, link_id)
+		{
+			if ($("#"+link_id+'_c').html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
+				for (i=0; i < end_id; i++) {
+					id = start_id + i;
+					tr_id = type + '_' + id;
+					$("#"+tr_id+'_c').show();
+					$("#"+tr_id+'_a').show();
+				}
+				$("#"+link_id+'_c').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
+				$("#"+link_id+'_a').html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
+			} else {
+				for (i=0; i < end_id; i++) {
+					id = start_id + i;
+					tr_id = type + '_' + id;
+					$("#"+tr_id+'_c').hide();
+					$("#"+tr_id+'_a').hide();
+				}
+				$("#"+link_id+'_c').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
+				$("#"+link_id+'_a').html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
+			}
+		}
+		
+		function toggle_group(group_name,link_id,ac) {
+			if ($("#"+link_id+'_'+ac).html() == '<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">') {
+				$("#group_"+link_id+'_'+ac).html("<img src='../pixmaps/loading.gif' width='20'>");
+				$.ajax({
+					type: "GET",
+					url: "global_score_ajax.php?group_name="+group_name+"&ac="+ac+"&range=<?php echo $range ?>",
+					data: "",
+					success: function(msg){
+						$("#"+link_id+'_'+ac).html('<img src="../pixmaps/minus-small.png" align="absmiddle" border="0">');
+						$("#group_"+link_id+'_'+ac).html(msg);
+					}
+				});
+			} else {
+				$("#group_"+link_id+'_'+ac).html("");
+				$("#"+link_id+'_'+ac).html('<img src="../pixmaps/plus-small.png" align="absmiddle" border="0">');
+			}
+		}
   </script>
+  
   <style type="text/css">
 
   body.score {
@@ -581,409 +586,417 @@ echo gettext("Control Panel"); ?> </title>
   
   
 </head>
+
 <body class="score">
-<?php
-include ("../hmenu.php"); ?>
-<table width="100%" align="center" style="border: 0px;">
-<tr>
-<td class="noborder" colspan="2">
-<!--
 
-Page Header (links, riskmeter, rrd)
-
--->
-    <table width="100%" align="center" style="border: 0px;">
-    <tr>
-    <td colspan="2" class="noborder" style="padding-bottom:5px">
-    <?php
-foreach(array(
-    'day' => _("Last day") ,
-    'week' => _("Last week") ,
-    'month' => _("Last month") ,
-    'year' => _("Last year")
-) as $r => $text) {
-    if ($r == $range) echo '<b>';
-?>
-       <a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?range=<?php echo $r ?>"><?php echo $text ?></a> 
-    <?php
-    if ($r == $range) echo '</b>';
-    if ($r!="year") echo " | ";
-} ?>
-    </td>
-    </tr>
-    <tr>
-    <td class="noborder">
-    <map id="riskmap" name="riskmap">
-    <?php
-define("GRAPH_HEIGHT", 100);
-define("GRAPH_WIDTH", 400);
-define("GRAPH_BORDER_HEIGHT", 42);
-define("GRAPH_BORDER_WIDTH", 50);
-define("GRAPH_ZOOM", "0.85");
-$time_range = time();
-switch ($range) {
-    case 'day':
-        $nmapitems = 4 * 6;
-        $basetime = 60 * 60;
-        $deltax0_percent = ($basetime - (intval(date("i")) * 60 + intval(date("s")))) / $basetime;
-        break;
-
-    case 'week':
-        $nmapitems = 7 * 4;
-        $basetime = 6 * 60 * 60;
-        $deltax0_percent = ($basetime - ((intval(date("G")) % 6) * 3600 + intval(date("i")) * 60 + intval(date("s")))) / $basetime;
-        break;
-
-    case 'month':
-        $nmapitems = 4 * 7;
-        $basetime = 24 * 60 * 60;
-        $deltax0_percent = ($basetime - (intval(date("G")) * 3600 + intval(date("i")) * 60 + intval(date("s")))) / $basetime;
-        break;
-
-    case 'year':
-        $nmapitems = 12;
-        $basetime = intval(date("t")) * 24 * 60 * 60;
-        $deltax0_percent = ($basetime - (intval(date("j")) * 24 * 3600 + intval(date("G")) * 3600 + intval(date("i")) * 60 + intval(date("s")))) / $basetime;
-        break;
-
-    default:
-        die(ossim_error('Invalid range'));
-}
-$zoom = floatval(GRAPH_ZOOM);
-$xcanvas = 0;
-$ycanvas = 0;
-$wcanvas = GRAPH_WIDTH * $zoom;
-$hcanvas = GRAPH_HEIGHT * $zoom;
-$deltax = $wcanvas / $nmapitems;
-$deltay = $hcanvas;
-$deltax0 = $deltax0_percent * $deltax;
-$cx = $xcanvas + (GRAPH_BORDER_WIDTH * $zoom);
-$cy = $ycanvas + (GRAPH_BORDER_HEIGHT * $zoom);
-$i = 0;
-if ($deltax0 > 0) {
-    $start_epoch = $time_range - ($nmapitems * $basetime);
-    $start_acid = date("Y-m-d H:i:s", $start_epoch);
-    $end_epoch = $time_range - ($nmapitems * $basetime) + $deltax0_percent * $basetime;
-    $end_acid = date("Y-m-d H:i:s", $end_epoch);
-    //        echo "<area shape=\"rect\" target=\"_blank\" href=\"".Util::get_acid_events_link($start_acid,$end_acid)."\" title=\"$start_acid -> $end_acid\" coords=\"".round($cx).",".round($cy).",".round($cx+$deltax0).",".round($cy+$deltay)."\">\n";
-    echo "<area class=\"greybox\" shape=\"rect\" target=\"_blank\" href=\"find_peaks.php?start=" . $start_epoch . "&end=" . $end_epoch . "&type=" . "host" . "&range=" . $range . "\" title=\"$start_acid -> $end_acid\" coords=\"" . round($cx) . "," . round($cy) . "," . round($cx + $deltax0) . "," . round($cy + $deltay) . "\">\n";
-    $cx = $cx + $deltax0;
-    $i++;
-    $nmapitems++;
-}
-
-for (; $i < $nmapitems; $i++) {
-    $start_epoch = $time_range + $deltax0_percent * $basetime - (($nmapitems - $i) * $basetime);
-    $start_acid = date("Y-m-d H:i:s", $start_epoch);
-    $end_epoch = $time_range + $deltax0_percent * $basetime - (($nmapitems - $i) * $basetime) + $basetime;
-    $end_acid = date("Y-m-d H:i:s", $end_epoch);
-    //        echo "<area shape=\"rect\" target=\"_blank\" href=\"".Util::get_acid_events_link($start_acid,$end_acid)."\" title=\"$start_acid -> $end_acid\" coords=\"".round($cx).",".round($cy).",".round($cx+$deltax).",".round($cy+$deltay)."\">\n";
-    echo "<area class=\"greybox\" shape=\"rect\" target=\"_blank\" href=\"find_peaks.php?start=" . $start_epoch . "&end=" . $end_epoch . "&type=" . "host" . "&range=" . $range . "\" title=\"$start_acid -> $end_acid\" coords=\"" . round($cx) . "," . round($cy) . "," . round($cx + $deltax) . "," . round($cy + $deltay) . "\">\n";
-    $cx = $cx + $deltax;
-}
-
-
-?>
-    </map>
-    <img usemap="#riskmap" border=0 src="../report/graphs/draw_rrd.php?ip=global_<?php echo $user
-?>&what=compromise&start=<?php echo $rrd_start
-?>&end=N&type=global&zoom=<?php echo GRAPH_ZOOM
-?>">
-    </td>
-    <td class="noborder">
-    <table>
+	<?php include ("../hmenu.php"); ?>
+	<table width="100%" align="center" class='transparent'>
 		<tr>
-          <? if (Session::menu_perms("MenuControlPanel", "MonitorsRiskmeter")) { ?>
-		  <th><?php echo _("Riskmeter") ?></th>
-		  <? } ?>
-          <th><?php echo _("Service Level") ?>&nbsp;</th>
-        </tr>
-		
-		<tr>
-			<? if (Session::menu_perms("MenuControlPanel", "MonitorsRiskmeter")) { ?>
-			<td class="noborder">
-				<a class="greybox" href="../riskmeter/index.php" title='<?=_("Riskmeter")?>'><img border="0" src="../pixmaps/riskmeter.png"/></a>
+			<td class="noborder" colspan="2">
+				<!--
+				Page Header (links, riskmeter, rrd)
+				-->
+				
+				<table width="100%" align="center" class='transparent'>
+					<tr>
+						<td colspan="2" class="noborder" style="padding-bottom:5px">
+						<?php
+						foreach(array('day' => _("Last day"), 'week' => _("Last week"), 'month' => _("Last month"), 'year' => _("Last year") ) as $r => $text) 
+						{
+							if ($r == $range) echo '<b>';
+							?>
+								<a href="<?php echo $_SERVER['SCRIPT_NAME'] ?>?range=<?php echo $r ?>"><?php echo $text ?></a> 
+							<?php
+							if ($r == $range) echo '</b>';
+							if ($r!="year") echo " | ";
+						} 
+						?>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="noborder">
+							<map id="riskmap" name="riskmap">
+							<?php
+							define("GRAPH_HEIGHT", 100);
+							define("GRAPH_WIDTH", 400);
+							define("GRAPH_BORDER_HEIGHT", 42);
+							define("GRAPH_BORDER_WIDTH", 50);
+							define("GRAPH_ZOOM", "0.85");
+							
+							$time_range = time();
+							switch ($range) {
+								case 'day':
+									$nmapitems = 4 * 6;
+									$basetime = 60 * 60;
+									$deltax0_percent = ($basetime - (intval(date("i")) * 60 + intval(date("s")))) / $basetime;
+									break;
+
+								case 'week':
+									$nmapitems = 7 * 4;
+									$basetime = 6 * 60 * 60;
+									$deltax0_percent = ($basetime - ((intval(date("G")) % 6) * 3600 + intval(date("i")) * 60 + intval(date("s")))) / $basetime;
+									break;
+
+								case 'month':
+									$nmapitems = 4 * 7;
+									$basetime = 24 * 60 * 60;
+									$deltax0_percent = ($basetime - (intval(date("G")) * 3600 + intval(date("i")) * 60 + intval(date("s")))) / $basetime;
+									break;
+
+								case 'year':
+									$nmapitems = 12;
+									$basetime = intval(date("t")) * 24 * 60 * 60;
+									$deltax0_percent = ($basetime - (intval(date("j")) * 24 * 3600 + intval(date("G")) * 3600 + intval(date("i")) * 60 + intval(date("s")))) / $basetime;
+									break;
+
+								default:
+									die(ossim_error('Invalid range'));
+							}
+							
+							$zoom    = floatval(GRAPH_ZOOM);
+							$xcanvas = 0;
+							$ycanvas = 0;
+							$wcanvas = GRAPH_WIDTH * $zoom;
+							$hcanvas = GRAPH_HEIGHT * $zoom;
+							$deltax = $wcanvas / $nmapitems;
+							$deltay = $hcanvas;
+							$deltax0 = $deltax0_percent * $deltax;
+							$cx = $xcanvas + (GRAPH_BORDER_WIDTH * $zoom);
+							$cy = $ycanvas + (GRAPH_BORDER_HEIGHT * $zoom);
+							$i = 0;
+							
+							if ($deltax0 > 0) {
+								$start_epoch = $time_range - ($nmapitems * $basetime);
+								$start_acid = date("Y-m-d H:i:s", $start_epoch);
+								$end_epoch = $time_range - ($nmapitems * $basetime) + $deltax0_percent * $basetime;
+								$end_acid = date("Y-m-d H:i:s", $end_epoch);
+								//        echo "<area shape=\"rect\" target=\"_blank\" href=\"".Util::get_acid_events_link($start_acid,$end_acid)."\" title=\"$start_acid -> $end_acid\" coords=\"".round($cx).",".round($cy).",".round($cx+$deltax0).",".round($cy+$deltay)."\">\n";
+								echo "<area class=\"greybox\" shape=\"rect\" target=\"_blank\" href=\"find_peaks.php?start=" . $start_epoch . "&end=" . $end_epoch . "&type=" . "host" . "&range=" . $range . "\" title=\"$start_acid -> $end_acid\" coords=\"" . round($cx) . "," . round($cy) . "," . round($cx + $deltax0) . "," . round($cy + $deltay) . "\">\n";
+								$cx = $cx + $deltax0;
+								$i++;
+								$nmapitems++;
+							}
+
+							for (; $i < $nmapitems; $i++) {
+								$start_epoch = $time_range + $deltax0_percent * $basetime - (($nmapitems - $i) * $basetime);
+								$start_acid = date("Y-m-d H:i:s", $start_epoch);
+								$end_epoch = $time_range + $deltax0_percent * $basetime - (($nmapitems - $i) * $basetime) + $basetime;
+								$end_acid = date("Y-m-d H:i:s", $end_epoch);
+								//        echo "<area shape=\"rect\" target=\"_blank\" href=\"".Util::get_acid_events_link($start_acid,$end_acid)."\" title=\"$start_acid -> $end_acid\" coords=\"".round($cx).",".round($cy).",".round($cx+$deltax).",".round($cy+$deltay)."\">\n";
+								echo "<area class=\"greybox\" shape=\"rect\" target=\"_blank\" href=\"find_peaks.php?start=" . $start_epoch . "&end=" . $end_epoch . "&type=" . "host" . "&range=" . $range . "\" title=\"$start_acid -> $end_acid\" coords=\"" . round($cx) . "," . round($cy) . "," . round($cx + $deltax) . "," . round($cy + $deltay) . "\">\n";
+								$cx = $cx + $deltax;
+							}
+
+
+							?>
+							</map>
+							<img usemap="#riskmap" border=0 src="../report/graphs/draw_rrd.php?ip=global_<?php echo $user?>&what=compromise&start=<?php echo $rrd_start?>&end=N&type=global&zoom=<?php echo GRAPH_ZOOM?>"/>
+						</td>
+						
+						<td class="noborder">
+							<table>
+								<tr>
+								  <?php if (Session::menu_perms("MenuControlPanel", "MonitorsRiskmeter")) { ?>
+								  <th><?php echo _("Riskmeter") ?></th>
+								  <? } ?>
+								  <th><?php echo _("Service Level") ?>&nbsp;</th>
+								</tr>
+								
+								<tr>
+									<?php if (Session::menu_perms("MenuControlPanel", "MonitorsRiskmeter")) { ?>
+									<td class="noborder">
+										<a class="greybox" href="../riskmeter/index.php" title='<?=_("Riskmeter")?>'><img border="0" src="../pixmaps/riskmeter.png"/></a>
+									</td>
+									<? } ?>
+									<?php echo html_service_level() ?>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
 			</td>
-			<? } ?>
-			<?php echo html_service_level() ?>
-        </tr>
-    </table>
-    </td>
-    </tr>
-    </table>
-</td>
-</tr>
-<tr>
-<?php
-foreach(array(
-    'compromise',
-    'attack'
-) as $metric_type) {
-    $a = 1;
-    $net = $host = 0;
-    if ($metric_type == 'compromise') {
-        $title = _("C O M P R O M I S E");
-        $ac = 'c';
-    } else {
-        $title = _("A T T A C K");
-        $ac = 'a';
-    }
-?>
-<td width="50%" class="noborder" valign="top">
-    <table width="100%" align="center">
-    <tr><td colspan="6"><center><b><?php echo $title
-?></b></center></td></tr>
-    <tr>
-        <th colspan="6" class="noborder"><?php echo _("Global") ?></th>
-    </tr>
-<!--
+		</tr>
+	
+		<tr>
+		<?php
+		foreach(array('compromise', 'attack') as $metric_type) 
+		{
+			$a = 1;
+			$net = $host = 0;
+			if ($metric_type == 'compromise') {
+				$title = _("C O M P R O M I S E");
+				$ac = 'c';
+			} else {
+				$title = _("A T T A C K");
+				$ac = 'a';
+			}
+			?>
+			<td width="50%" class="noborder" valign="top">
+				<table width="100%" align="center">
+					<tr><td colspan="6"><center><strong><?php echo $title?></strong></center></td></tr>
+					<tr>
+						<th colspan="6" class="noborder"><?php echo _("Global") ?></th>
+					</tr>
+					<!--
+					Global
+					-->
+					<tr>
+						<th colspan="3"><?php echo _("Global") ?></th>
+						<th><?php echo _("Max Date") ?></th>
+						<th><?php echo _("Max") ?></th>
+						<th><?php echo _("Current") ?></th>
+					</tr>
+					
+					<tr>
+						<td colspan="2"><b><?php echo _("GLOBAL SCORE") ?><b></td>
+						<?php
+						html_set_values("global_$user", 'global', $global["max_$ac"], $global["max_{$ac}_date"], $global["current_$ac"], $global["threshold_$ac"], $ac);
+						html_set_values_session("global_$user", 'global', $global["max_$ac"], $global["max_{$ac}_date"], $global["current_$ac"], $global["threshold_$ac"], $ac);
+						?>
+						<td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+						<td nowrap='nowrap'><?php echo html_date() ?></td>
+						<?php echo html_max() ?>
+						<?php echo html_current() ?>
+					</tr>
+					
+					<tr>
+						<td colspan="6" class="noborder">&nbsp;</td>
+					</tr>
+					<!--
+					Network Groups
+					-->
+				<?php
+				if (count($groups)) 
+				{ 
+				?>
+					<tr>
+						<th colspan="6" class="noborder"><?php echo _("Network Groups") ?></th>
+					</tr>
+						
+					<tr>
+						<th colspan="3"><?php echo _("Group") ?></th>
+						<th><?php echo _("Max Date") ?></th>
+						<th><?php echo _("Max") ?></th>
+						<th><?php echo _("Current") ?></th>
+					</tr>
+					
+					<?php
+					foreach($groups as $group_name => $group_data) 
+					{
+						$num_nets = count($group_data['nets']);
+						?>
+						<tr>
+							<td class="noborder">
+								<?php if (round($group_data["max_$ac"] / $group_data["threshold_$ac"] * 100) > 100) { ?>
+								<a id="a_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','a_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
+								<?php } ?>
+							</td>
+							
+							<td style="text-align: left"><b><?php echo $group_name ?></b></td>
+							<?php html_set_values('group_' . $group_name, 'net', $group_data["max_$ac"], $group_data["max_{$ac}_date"], $group_data["current_$ac"], $group_data["threshold_$ac"], $ac); ?>
+							
+							<td nowrap='nowrap'>
+								<a href="<?php echo Util::graph_image_link('group_' . $group_name, 'net', $metric_type, $rrd_start, "N", 1, $range) ?>"><img src="../pixmaps/graph.gif" border="0"/></a>&nbsp;
+								<a href="../incidents/newincident.php?ref=Metric&title=<?php echo urlencode(_("Metric Threshold: ".strtoupper($ac)." level exceeded")." (Net: group_$group_name)") ?>&priority=<?php echo $group_data["max_$ac"]/$group_data["threshold_$ac"] ?>&target=<?php echo urlencode("Net: group_$group_name") ?>&metric_type=<?php echo $metric_type ?>&metric_value=<?php echo $metric_type ?>&event_start=<?php echo $group_data["max_{$ac}_date"] ?>&event_end=<?php echo $group_data["max_{$ac}_date"] ?>"><img src="../pixmaps/incident.png" width="12" alt="i" border="0"/></a>
+							</td>
+							
+							<td nowrap='nowrap'><?php echo ($group_data["max_{$ac}_date"] == 0 || strtotime($group_data["max_{$ac}_date"]) == 0) ? _('n/a') : $group_data["max_{$ac}_date"] ?></td>
+							<?php
+							// Group MAX
+							$link_aux = ($group_data["max_{$ac}_date"] == 0) ? "#" : Util::get_acid_date_link($group_data["max_{$ac}_date"]);
+							echo _html_metric($group_data["max_$ac"], $group_data["threshold_$ac"], $link_aux);
+							
+							// Group CURRENT
+							echo _html_metric($group_data["current_$ac"], $group_data["threshold_$ac"], $link);
+							?>
+						</tr>
+						
+						<tr>
+							<td colspan="6" class="nobborder"><div id="group_a_<?php echo $a ?>_<?php echo $ac ?>"></div></td>
+						</tr>
+					<?php
+					} 
+				} 	
+				?>
+					
+				<!--
+				Network outside groups
+				-->
 
-Global
+				<?php
+				if (count($networks)) 
+				{ 
+					?>
+					<tr>
+						<th colspan="6" class="noborder"><?php echo _("Networks outside groups") ?></th>
+					</tr>
+					<tr>
+						<th colspan="3"><?php echo _("Network") ?></th>
+						<th><?php echo _("Max Date") ?></th>
+						<th><?php echo _("Max") ?></th>
+						<th><?php echo _("Current") ?></th>
+					</tr>
+				
+					<?php
+					$i = 0;
+					foreach($networks as $net_name => $net_data) 
+					{
+						$num_hosts = isset($net_data['hosts']) ? count($net_data['hosts']) : 0;
+						?>
+						<tr>
+							<td colspan="2" style="text-align: left">
+							<?php
+							if ($num_hosts) 
+							{ 
+								?>
+								<a id="a_<?php echo ++$a?>_<?php echo $ac?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
+								<?php
+							} ?>
+							<a href="../report/host_report.php?host=<?=$net_data['address']?>" id="<?=$net_data['address']?>;<?=$net_name?>" class="NetReportMenu"><b><?php echo $net_name?></b></a>
+						</td>
+						
+						<?php html_set_values($net_name, 'net', $net_data["max_$ac"], $net_data["max_{$ac}_date"], $net_data["current_$ac"], $net_data["threshold_$ac"], $ac); ?>
+						
+						<td nowrap='nowrap'><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+						<td nowrap='nowrap'><?php echo html_date() ?></td>
+						<?php echo html_max() ?>
+						<?php echo html_current() ?>
+						</tr>
+						
+						<?php
+						if ($num_hosts) 
+						{
+							uasort($net_data['hosts'], 'order_by_risk');
+							foreach($net_data['hosts'] as $host_ip => $host_data) 
+							{
+								$host++;
+								?>
+								<tr id="host_<?php echo $host?>_<?php echo $ac?>" style="display: none">
+									<td width="3%" style="border: 0px;">&nbsp;</td>
+									<td style="text-align: left">&nbsp;&nbsp;
+										<?php echo html_host_report($host_ip, $host_data['name']) ?>
+									</td>
+									<?php html_set_values($host_ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac);?>
+									<td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+									<td><?php echo html_date() ?></td>
+									<?php echo html_max() ?>
+									<?php echo html_current() ?>
+								</tr>   
+								<?php
+							} 
+						} 
+					} 
+				} 
+			?>
+			
+			<!--
+			Hosts
+			-->
+			
+			<?php
+			if (count($hosts)) 
+			{ 
+			?>
+				<tr>
+					<th colspan="6" class="noborder"><?php echo _("Hosts") ?></th>
+				</tr>
+				
+				<tr>
+					<th colspan="3"><?php echo _("Host Address") ?></th>
+					<th><?php echo _("Max Date") ?></th>
+					<th><?php echo _("Max") ?></th>
+					<th><?php echo _("Current") ?></th>
+				</tr>
+				<?php
+				$i = 0;
+				foreach($hosts as $ip => $host_data) 
+				{
+					$group = $host_data['group'] ? " - " . $host_data['group'] : '';
+					?>
+					<tr>
+						<td nowrap='nowrap' colspan="2" style="text-align: left">
+						  <?php echo html_host_report($ip, $host_data['name'], $host_data['network'] . $group) ?>
+						</td>
+						
+						<?php html_set_values($ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac);?>
+						
+						<td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+						<td nowrap='nowrap'><?php echo html_date() ?></td>
+						<?php echo html_max() ?>
+						<?php echo html_current() ?>
+					</tr>
+					<?php
+				} 
+			} 
+		
+			?>
+			
+			<!--
+			Hosts outside networks
+			-->
+			
+			<?php
+			if (count($ext_hosts)) 
+			{ 
+				?>
+				<tr>
+					<th colspan="6" class="noborder"><?php echo _("Hosts outside defined networks") ?></th>
+				</tr>
+				<tr>
+					<th colspan="3"><?php echo _("Host Address") ?></th>
+					<th><?php echo _("Max Date") ?></th>
+					<th><?php echo _("Max") ?></th>
+					<th><?php echo _("Current") ?></th>
+				</tr>
+				<?php
+				$i = 0;
+				foreach($ext_hosts as $ip => $host_data) 
+				{
+					?>
+					<tr>
+						<td colspan="2" style="text-align: left">
+							<?php echo html_host_report($ip, $ip) ?>
+						</td>
+						<?php html_set_values($ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac); ?>
+						<td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
+						<td nowrap='nowrap'><?php echo html_date() ?></td>
+						<?php echo html_max() ?>
+						<?php echo html_current() ?>
+					</tr>
+				<?php
+				} 
+			} 
+			?>
+			</table>
+		</td>
+			<?php
+		} 
+		?>
 
--->
-    <tr>
-        <th colspan="3"><?php echo _("Global") ?></th>
-        <th><?php echo _("Max Date") ?></th>
-        <th><?php echo _("Max") ?></th>
-        <th><?php echo _("Current") ?></th>
-    </tr>
-    <tr>
-        <td colspan="2"><b><?php echo _("GLOBAL SCORE") ?><b></td>
-        <?php
-    html_set_values("global_$user", 'global', $global["max_$ac"], $global["max_{$ac}_date"], $global["current_$ac"], $global["threshold_$ac"], $ac);
-    html_set_values_session("global_$user", 'global', $global["max_$ac"], $global["max_{$ac}_date"], $global["current_$ac"], $global["threshold_$ac"], $ac);
-?>
-        <td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-        <td nowrap><?php echo html_date() ?></td>
-        <?php echo html_max() ?>
-        <?php echo html_current() ?>
-    </tr>
-    <tr>
-        <td colspan="6" class="noborder">&nbsp;</td>
-    </tr>
-<!--
-
-Network Groups
-
--->
-    <?php
-    if (count($groups)) { ?>
-    <tr>
-        <th colspan="6" class="noborder"><?php echo _("Network Groups") ?></th>
-    </tr>
-    <tr>
-        <th colspan="3"><?php echo _("Group") ?></th>
-        <th><?php echo _("Max Date") ?></th>
-        <th><?php echo _("Max") ?></th>
-        <th><?php echo _("Current") ?></th>
-    </tr>
-        <?php
-        foreach($groups as $group_name => $group_data) {
-            $num_nets = count($group_data['nets']);
-?>
-            <tr>
-            <td class="noborder">
-                <?php if (round($group_data["max_$ac"] / $group_data["threshold_$ac"] * 100) > 100) { ?>
-                <a id="a_<?php echo ++$a ?>_<?php echo $ac ?>" href="javascript: toggle_group('<?php echo $group_name ?>','a_<?php echo $a ?>','<?php echo $ac ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></img></a>
-                <?php } ?>
-            </td>
-            <td style="text-align: left"><b><?php echo $group_name ?></b></td>
-            <?php
-            html_set_values('group_' . $group_name, 'net', $group_data["max_$ac"], $group_data["max_{$ac}_date"], $group_data["current_$ac"], $group_data["threshold_$ac"], $ac);
-            // html_rrd, html_incident... functions ignored. Direct print of data:
-?>
-            <td nowrap>
-            	<a href="<?php echo Util::graph_image_link('group_' . $group_name, 'net', $metric_type, $rrd_start, "N", 1, $range) ?>"><img src="../pixmaps/graph.gif" border="0"/></a>&nbsp;
-            	<a href="../incidents/newincident.php?ref=Metric&title=<?php echo urlencode(_("Metric Threshold: ".strtoupper($ac)." level exceeded")." (Net: group_$group_name)") ?>&priority=<?php echo $group_data["max_$ac"]/$group_data["threshold_$ac"] ?>&target=<?php echo urlencode("Net: group_$group_name") ?>&metric_type=<?php echo $metric_type ?>&metric_value=<?php echo $metric_type ?>&event_start=<?php echo $group_data["max_{$ac}_date"] ?>&event_end=<?php echo $group_data["max_{$ac}_date"] ?>"><img src="../pixmaps/incident.png" width="12" alt="i" border="0"/></a>
-            </td>
-            <td nowrap><?php echo ($group_data["max_{$ac}_date"] == 0 || strtotime($group_data["max_{$ac}_date"]) == 0) ? _('n/a') : $group_data["max_{$ac}_date"] ?></td>
-            <?php
-            // Group MAX
-            $link_aux = ($group_data["max_{$ac}_date"] == 0) ? "#" : Util::get_acid_date_link($group_data["max_{$ac}_date"]);
-            echo _html_metric($group_data["max_$ac"], $group_data["threshold_$ac"], $link_aux);
-            
-            // Group CURRENT
-            echo _html_metric($group_data["current_$ac"], $group_data["threshold_$ac"], $link);
-            ?>
-            </tr>
-            <tr>
-            	<td colspan="6" class="nobborder"><div id="group_a_<?php echo $a ?>_<?php echo $ac ?>"></div></td>
-            </tr>
-        <?php
-        } ?>
-    <?php
-    } ?>
-<!--
-
-Network outside groups
-
--->
-    <?php
-    if (count($networks)) { ?>
-    <tr>
-        <th colspan="6" class="noborder"><?php echo _("Networks outside groups") ?></th>
-    </tr>
-    <tr>
-        <th colspan="3"><?php echo _("Network") ?></th>
-        <th><?php echo _("Max Date") ?></th>
-        <th><?php echo _("Max") ?></th>
-        <th><?php echo _("Current") ?></th>
-    </tr>
-        <?php
-        $i = 0;
-        foreach($networks as $net_name => $net_data) {
-			$num_hosts = isset($net_data['hosts']) ? count($net_data['hosts']) : 0;
-?>
-        <tr>
-        <td colspan="2" style="text-align: left">
-            <?php
-            if ($num_hosts) { ?>
-            <a id="a_<?php echo ++$a
-?>_<?php echo $ac
-?>" href="javascript: toggle('host', <?php echo $host + 1 ?>, <?php echo $num_hosts ?>, 'a_<?php echo $a ?>');"><img src="../pixmaps/plus-small.png" align="absmiddle" border="0"></a>&nbsp;
-            <?php
-            } ?>
-            <a href="../report/host_report.php?host=<?=$net_data['address']?>" id="<?=$net_data['address']?>;<?=$net_name?>" class="NetReportMenu"><b><?php echo $net_name
-			?></b></a>
-        </td>
-        <?php
-            html_set_values($net_name, 'net', $net_data["max_$ac"], $net_data["max_{$ac}_date"], $net_data["current_$ac"], $net_data["threshold_$ac"], $ac);
-?>
-        <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-        <td nowrap><?php echo html_date() ?></td>
-        <?php echo html_max() ?>
-        <?php echo html_current() ?>
-        </tr>
-            <?php
-            if ($num_hosts) {
-                uasort($net_data['hosts'], 'order_by_risk');
-                foreach($net_data['hosts'] as $host_ip => $host_data) {
-                    $host++;
-?>
-                    <tr id="host_<?php echo $host
-?>_<?php echo $ac
-?>" style="display: none">
-                        <td width="3%" style="border: 0px;">&nbsp;</td>
-                        <td style="text-align: left">&nbsp;&nbsp;
-                            <?php echo html_host_report($host_ip, $host_data['name']) ?>
-                        </td>
-                        <?php
-                    html_set_values($host_ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac);
-?>
-                        <td nowrap><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-                        <td><?php echo html_date() ?></td>
-                        <?php echo html_max() ?>
-                        <?php echo html_current() ?>
-                    </tr>   
-               <?php
-                } ?>
-           <?php
-            } ?>
-        <?php
-        } ?>
-    <?php
-    } ?>
-<!--
-
-Hosts
-
--->
-    <?php
-    if (count($hosts)) { ?>
-    <tr>
-        <th colspan="6" class="noborder"><?php echo _("Hosts") ?></th>
-    </tr>
-    <tr>
-        <th colspan="3"><?php echo _("Host Address") ?></th>
-        <th><?php echo _("Max Date") ?></th>
-        <th><?php echo _("Max") ?></th>
-        <th><?php echo _("Current") ?></th>
-    </tr>
-        <?php
-        $i = 0;
-        foreach($hosts as $ip => $host_data) {
-            $group = $host_data['group'] ? " - " . $host_data['group'] : '';
-?>
-        <tr>
-        <td nowrap colspan="2" style="text-align: left">
-          <?php echo html_host_report($ip, $host_data['name'], $host_data['network'] . $group) ?>
-        </td>
-        <?php
-            html_set_values($ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac);
-?>
-        <td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-        <td nowrap><?php echo html_date() ?></td>
-        <?php echo html_max() ?>
-        <?php echo html_current() ?>
-        </tr>
-        <?php
-        } ?>
-    <?php
-    } ?>
-<!--
-
-Hosts outside networks
-
--->
-    <?php
-    if (count($ext_hosts)) { ?>
-    <tr>
-        <th colspan="6" class="noborder"><?php echo _("Hosts outside defined networks") ?></th>
-    </tr>
-    <tr>
-        <th colspan="3"><?php echo _("Host Address") ?></th>
-        <th><?php echo _("Max Date") ?></th>
-        <th><?php echo _("Max") ?></th>
-        <th><?php echo _("Current") ?></th>
-    </tr>
-        <?php
-        $i = 0;
-        foreach($ext_hosts as $ip => $host_data) {
-?>
-        <tr>
-        <td colspan="2" style="text-align: left">
-            <?php echo html_host_report($ip, $ip) ?>
-        </td>
-        <?php
-            html_set_values($ip, 'host', $host_data["max_$ac"], $host_data["max_{$ac}_date"], $host_data["current_$ac"], $host_data["threshold_$ac"], $ac);
-?>
-        <td><?php echo html_rrd() ?> <?php echo html_incident() ?></td>
-        <td nowrap><?php echo html_date() ?></td>
-        <?php echo html_max() ?>
-        <?php echo html_current() ?>
-        </tr>
-        <?php
-        } ?>
-    <?php
-    } ?>
-    </table>
-</td>
-<?php
-} ?>
-
-</td>
-</tr>
+		</td>
+	</tr>
 </table>
-<br>
-<b><?php echo _("Legend") ?>:</b><br>
-<table width="30%" align="left">
-<tr>
-    <?php echo _html_metric(0, 100, '#') ?>
-    <td><?php echo _("No appreciable risk") ?></td>
-</tr>
-<tr>
-    <?php echo _html_metric(101, 100, '#') ?>
-    <td><?php echo _("Metric over 100% threshold") ?></td>
-</tr>
-<tr>
-    <?php echo _html_metric(301, 100, '#') ?>
-    <td><?php echo _("Metric over 300% threshold") ?></td>
-</tr>
-<tr>
-    <?php echo _html_metric(501, 100, '#') ?>
-    <td><?php echo _("Metric over 500% threshold") ?></td>
-</tr>
+
+<div style='padding: 10px 0px 5px 5px; font-weight: bold;'><?php echo _("Legend") ?>:</div>
+<table width="30%" align="left" style='margin-left: 10px;'>
+	<tr>
+		<?php echo _html_metric(0, 100, '#') ?>
+		<td><?php echo _("No appreciable risk") ?></td>
+	</tr>
+	<tr>
+		<?php echo _html_metric(101, 100, '#') ?>
+		<td><?php echo _("Metric over 100% threshold") ?></td>
+	</tr>
+	<tr>
+		<?php echo _html_metric(301, 100, '#') ?>
+		<td><?php echo _("Metric over 300% threshold") ?></td>
+	</tr>
+	<tr>
+		<?php echo _html_metric(501, 100, '#') ?>
+		<td class='nobborder center'><?php echo _("Metric over 500% threshold") ?></td>
+	</tr>
 </table>
-<br>
+<br/>
 
 </body></html>

@@ -102,6 +102,7 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 					$filter .= ($filter eq "") ? $filtertr{$fname}."=".$fvalue : "|".$fvalue;
 				}
 			}
+			$filter =~ s/SPACESCAPE/ /g;
 			if ($filter =~ /^sensor=(.*)/i) { # perms filters
 				$requested = $1;  
 				$allowed_sensors = `php get_sensor_filter.php $user $requested`;

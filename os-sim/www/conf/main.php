@@ -1188,7 +1188,7 @@ $CONFIG = array(
                     "0" => gettext("No") ,
                     "1" => gettext("Yes")
                 ) ,
-                "help" => "" ,
+                "help" => "",
                 "desc" => gettext("Enable User Log") ,
                 "advanced" => 0 ,
                 "section" => "userlog"
@@ -1230,7 +1230,7 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Show welcome message at next login") ,
                 "advanced" => 0 ,
                 "section" => "users"
@@ -1240,7 +1240,7 @@ $CONFIG = array(
                     "1" => _("Yes") ,
                     "0" => _("No")
                 ) ,
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Show Customization Wizard after admin login") ,
                 "advanced" => 0 ,
                 "section" => "users"
@@ -1250,7 +1250,7 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Require a valid ossim user for login") ,
                 "advanced" => 0 ,
                 "section" => "users"
@@ -1260,35 +1260,35 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Enable LDAP for login") ,
                 "advanced" => 0 ,
                 "section" => "users"
             ) ,
             "login_ldap_server" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Ldap server address") ,
                 "advanced" => 0 ,
                 "section" => "users"
             ) ,
             "login_ldap_cn" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("LDAP CN") ,
                 "advanced" => 0 ,
                 "section" => "users"
             ) ,
             "login_ldap_o" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("LDAP O") ,
                 "advanced" => 0 ,
                 "section" => "users"
             ) ,
             "login_ldap_ou" => array(
                 "type" => "text",
-                "help" => _(""),
+                "help" => "",
                 "desc" => gettext("LDAP OU") ,
                 "advanced" => 0 ,
                 "section" => "users"
@@ -1334,7 +1334,7 @@ $CONFIG = array(
             ),
         	"pass_expire_min" => array(
                 "type" => "text",
-                "help" => _("The minimum password lifetime prevents users from circumventing<br> the requirement to change passwords by doing five password changes<br> in a minute to return to the currently expiring password. (0 to disable) (default 0)") ,
+                "help" => _("The minimum password lifetime prevents users from circumventing")."<br/>"._("the requirement to change passwords by doing five password changes<br> in a minute to return to the currently expiring password. (0 to disable) (default 0)") ,
                 "desc" => gettext("Minimum password lifetime in minutes") ,
                 "advanced" => 1 ,
                 "section" => "users"
@@ -1372,7 +1372,7 @@ $CONFIG = array(
                     "yes" => _("Yes") ,
                     "no" => _("No")
                 ) ,
-                "help" => gettext("The system will check once a day for updated packages, rules, directives, etc. No system information will be sent, it just gets a file with dates and update messages using wget.") ,
+                "help" => gettext("The system will check once a day for updated packages, rules, directives, etc.")."<br/>"._("No system information will be sent, it just gets a file with dates and update messages using wget.") ,
                 "desc" => gettext("Enable auto update-checking") ,
                 "advanced" => 0
             ) ,
@@ -1450,25 +1450,25 @@ $CONFIG = array(
         "conf" => array(
             "dc_ip" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Domain Controller IP") ,
                 "advanced" => 1
             ) ,
             "dc_acc" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Admin Account") ,
                 "advanced" => 1
             ) ,
             "dc_pass" => array(
                 "type" => "password",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Password") ,
                 "advanced" => 1
             ) ,
             "snmp_comm" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Network SNMP Community") ,
                 "advanced" => 1
             )
@@ -1487,31 +1487,31 @@ $CONFIG = array(
         "conf" => array(
             "from" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("From Address") ,
                 "advanced" => 1
             ) ,
             "smtp_server_address" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("SMTP Server IP Address") ,
                 "advanced" => 1
             ) ,
             "smtp_port" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("SMTP Server port") ,
                 "advanced" => 1
             ) ,
             "smtp_user" => array(
                 "type" => "text",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("SMTP Username") ,
                 "advanced" => 1
             ) ,
             "smtp_pass" => array(
                 "type" => "password",
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("SMTP Password") ,
                 "advanced" => 1
             ) ,
@@ -1520,7 +1520,7 @@ $CONFIG = array(
                     "yes" => _("Yes"),
                     "no" => _("No")
                 ),
-                "help" => _("") ,
+                "help" => "",
                 "desc" => gettext("Use SSL Protocol") ,
                 "advanced" => 1
             )

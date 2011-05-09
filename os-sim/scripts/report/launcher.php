@@ -291,12 +291,14 @@ $to_text .= _('Starting Report Scheduler')."...\n\n";
 // Run reports
 $report_list = getScheduler();
 
+$conn    = connectBdOssim();
+
 foreach ( $report_list as $value)
 {
     
 	// Login
 	$step1 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --save-cookies='.$cookieName.' --post-data="user='.$user.'&pass='.$pass.'" "'.$server.'/session/login.php" -O -',$output);
-
+	
 	$result = searchString($output,$info_text[0]);
 
 	if ( $result == true )
@@ -352,31 +354,46 @@ foreach ( $report_list as $value)
 		}
 	
         // Set name
-        $pdfName = time();
+		$str_to_replace = array(" ", ":", ".", "&");
 		
+		if ( preg_match("/ENTITY\:(\d+)/", $value["assets"], $fnd)) 
+		{
+			$entity  = Acl::get_entity($conn,$fnd[1]);
+			$assets  = "ENTITY: ".$entity['name'];
+		}
+		else
+			$assets  = $value['assets'];
+		
+		
+		$pdfNameEmail  = str_replace($str_to_replace, "_", $value['name_report'])."_".str_replace($str_to_replace, "_", $assets);
+		$subject_email = $value['name_report']." [".$assets."]";
+		$pdfName       = $pdfNameEmail."_".time();
+				
 		$text     = _('Save to').':';
 		$to_text .= sprintf("\t%-20s", $text);
 		$to_text .= $dirUserPdf.$pdfName.".pdf\n";		
 						
 		
         // Customize parameters
-        $params  ='save=1&assets='.$value['assets'];
+        $params  ='scheduler=1&assets='.$value['assets'];
         $params .= ( empty($value['date_range']) ) ? '&date_from='.$value['date_from'].'&date_to='.$value['date_to'].'&date_range=custom' : '&date_range='.$value['date_range'];
         
-		        
-        $step2 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_custom_run.php?run='.$value['id_report'].'&'.$params.'" -O -');
-
+		
+				        
+        //$step2 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_custom_run.php?run='.$value['id_report'].'&'.$params.'" -O -');
+		
+		
         // Run Report
-        $step3 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'" -O -');
-
+        $step2 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?run='.$value['id_report'].'&'.$params.'" -O -');
+		
+		
         // Generate PDF
 		$text = _('Generating PDF').'...';
 		$to_text .= sprintf("\n\t%s", $text);
 		
-        $step4 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&run='.$value['id_report'].'" -O '.$dirUserPdf.$pdfName.'.pdf', $output);
-
-				
-        // Send PDF by email
+		$step3 = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/report/wizard_run.php?pdf=true&extra_data=true&run='.$value['id_report'].'" -O '.$dirUserPdf.$pdfName.'.pdf', $output);
+		
+		// Send PDF by email
 		
 		$listEmails = ( !empty($value['email']) ) ? explode(';',$value['email']) : null;
 		$email_ko   = array();
@@ -392,7 +409,7 @@ foreach ( $report_list as $value)
 			
 			foreach($listEmails as $value2)
 			{
-				$step5  = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$value['name_report'].'" -O -',$output);
+				$step4  = exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' --post-data="email='.$value2.'&pdfName='.$pdfName.'&pdfDir='.$dirUser.'&subject='.$subject_email.'" "'.$server.'/report/wizard_email_scheduler.php?format=email&run='.$pdfNameEmail.'" -O -',$output);
 				
 				$result = searchString($output,$info_text[1]);
 				
@@ -426,7 +443,7 @@ foreach ( $report_list as $value)
 		
 		
 		// Set appropiate permissions 
-		$step6    = exec('chown -R "www-data" '.$dirUserPdf);
+		$step5    = exec('chown -R "www-data" '.$dirUserPdf);
 		
 		$text     = _('Process completed');
 		$to_text .= sprintf("\n\t%s", $text);

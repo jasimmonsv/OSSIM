@@ -65,13 +65,17 @@ $order   = (GET('order') != "") ? GET('order') : "";
 $torder  = (GET('torder')) ? 1 : 0;
 
 // default order (date DESC)
-if ($order == "" && !$torder) { $order = "date"; $torder = 1; }
+if ($order == "" && !$torder) 
+{ 
+	$order = "date"; 
+	$torder = 1; 
+}
 
-ossim_valid($id_document, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("id_document"));
-ossim_valid($pag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("pag"));
-ossim_valid($order, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("order"));
-ossim_valid($torder, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("torder"));
-ossim_valid($search_str, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("searchstr"));
+ossim_valid($id_document, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Id_document"));
+ossim_valid($pag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Pag"));
+ossim_valid($order, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Order"));
+ossim_valid($torder, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Torder"));
+ossim_valid($search_str, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("Searchstr"));
 
 if (ossim_error()) {
     die(ossim_error());
@@ -81,6 +85,7 @@ if ($search_bylink != "")
 	list($repository_list, $total) = Repository::get_list_bylink($conn, $from, $maxrows, $search_bylink);
 else
 	list($repository_list, $total) = Repository::get_list($conn, $from, $maxrows, $search_str, $order, $torder);
+	
 $total_pages = floor(($total - 1) / $maxrows) + 1;
 
 
@@ -101,22 +106,25 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 		function deletesubmit(txt,id) {
 			if (confirm(txt+"\nAre you sure?")) {
 				//document.getElementById('repository_frame').src="repository_delete.php?id_document="+id;
-				GB_show("<?=_("New Document")?>","repository_delete.php?id_document="+id,"80%","80%");
+				GB_show("<?php echo _("New Document")?>","repository_delete.php?id_document="+id,"60%","550");
 			}	
 		}
 		
 		function newdoc(url) {
 			GB_TYPE = 'w';
-			GB_show("<?=_("New Document")?>","repository_newdocument.php?full=1","80%","80%");
+			GB_show("<?php echo _("New Document")?>","repository_newdocument.php","90%","550");
 		}
-  <? if ($id_document == "") { ?>function GB_onclose() { document.location.reload(); }<? } ?>
+	
+	<?php if ($id_document == "") { ?>
+		function GB_onclose() { document.location.reload(); }
+	<?php } ?>
 
-  // GrayBox
+	// GrayBox
 	$(document).ready(function(){
 		GB_TYPE = 'w';
 		$("a.greybox").click(function(){
 			var t = this.title || $(this).text() || this.href;
-			GB_show(t,this.href,'80%',500);
+			GB_show(t,this.href,'80%',550);
 			return false;
 		});
 		
@@ -131,10 +139,10 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 			GB_show(t,this.href,180,400);
 			return false;
 		});
-		<? if ($id_document != "") { ?>
-		var ref = 'repository_document.php?maximized=1&id_document=<?=$id_document?>';
-		GB_show('<?=$search_str?>',ref,400,'80%');
-		<? } ?>
+		<?php if ($id_document != "") { ?>
+		var ref = 'repository_document.php?maximized=1&id_document=<?php echo $id_document?>';
+		GB_show('<?php echo $search_str?>',ref,400,'80%');
+		<?php } ?>
 	});
   
   </script>
@@ -162,7 +170,7 @@ $total_pages = floor(($total - 1) / $maxrows) + 1;
 									</td>
 								</tr>
 							<tr>
-								<td class="center nobborder"><input type="button" class="button" value="<?=_("New Document")?>" onclick="newdoc()"/></td>
+								<td class="center nobborder"><input type="button" class="button" value="<?php echo _("New Document")?>" onclick="newdoc()"/></td>
 							</tr>
 							</form>
 							<!-- end of repository search form -->
