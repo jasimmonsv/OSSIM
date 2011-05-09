@@ -54,28 +54,26 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
-$category = "policy";
+$category    = "policy";
 $name_layout = "nedi_layout";
-$layout = load_layout($name_layout, $category);
+$layout      = load_layout($name_layout, $category);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
-  <script type="text/javascript" src="../js/urlencode.js"></script>
-	
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
+	<script type="text/javascript" src="../js/urlencode.js"></script>
 </head>
 <body>
 
-<?
-$db = new ossim_db();
+<?php
+$db     = new ossim_db();
 $dbconn = $db->connect();
 
 if (intval($update)==1) {
@@ -83,8 +81,7 @@ if (intval($update)==1) {
     $result = $dbconn->Execute($query);
 }
 
-$query = "select value from config
-            where conf='nedi_autodiscovery'";
+$query = "SELECT value FROM config WHERE conf='nedi_autodiscovery'";
 $result = $dbconn->Execute($query);
 
 include ("../hmenu.php");
@@ -105,19 +102,7 @@ echo "</form><br/>";
 ?>
 	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
 	
-	<table class="noborder">
-	<tr><td valign="top">
-		<table id="flextable" style="display:none"></table>
-	</td><tr>
-	<tr><td valign="top" class="noborder" style="padding-top:10px">
-		<IFRAME src="" frameborder="0" name="addcontent" id="addcontent" width="500"></IFRAME>
-	</td></tr>
-	</table>
-
-	<!-- Right Click Menu -->
-	<ul id="myMenu" class="contextMenu" style="width:110px">
-		<li class="hostreport"><a href="#hostreport" class="greybox" style="padding:3px"><img src="../pixmaps/reports.png"> <?=_("Asset Report")?></a></li>
-	</ul>
+	<table id="flextable" style="display:none"></table>
 
 	<style>
 		table, th, tr, td {
@@ -137,47 +122,52 @@ echo "</form><br/>";
 			padding:0px; margin:0px;
 		}
 	</style>
-	<script>
+	
+	<script type='text/javascript'>
 	function get_width(id) {
 		if (typeof(document.getElementById(id).offsetWidth)!='undefined') 
 			return document.getElementById(id).offsetWidth-20;
 		else
 			return 700;
 	}
+	
 	function get_height() {
 	   return parseInt($(document).height()) - 250;
 	}	
+	
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
 		if (com=='<?php echo gettext("Delete selected"); ?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
-				$("#flextable").changeStatus('<?=_("Deleting device")?>...',false);
+				$("#flextable").changeStatus('<?php echo _("Deleting device")?>...',false);
 				$.ajax({
 						type: "GET",
 						url: "deletedevice.php?confirm=yes&ip="+urlencode(items[0].id.substr(3)),
 						data: "",
 						success: function(msg) {
-							if(msg.match("ERROR_CANNOT")) alert("<?=_("Sorry, cannot delete this host because it belongs to a policy")?>");
+							if(msg.match("ERROR_CANNOT")) alert("<?php echo _("Sorry, cannot delete this host because it belongs to a policy")?>");
 							else $("#flextable").flexReload();
 						}
 				});
 			}
-			else alert('<?=_("You must select a device")?>');
+			else alert('<?php echo _("You must select a device")?>');
 		}
-		else if (com=='<?php echo gettext("Modify"); ?>') {
+		else if (com=='<?php echo _("Modify"); ?>') {
 			if (typeof(items[0]) != 'undefined') document.location.href = 'modifydevice.php?ip='+urlencode(items[0].id.substr(3))
-			else alert('<?=_("You must select a device")?>');
+			else alert('<?php echo _("You must select a device")?>');
 		}
-		else if (com=='<?php echo gettext("New"); ?>') {
+		else if (com=='<?php echo _("New"); ?>') {
 			document.location.href = 'newdevice.php'
 		}
 	}
-    function linked_to(rowid) {
+    
+	function linked_to(rowid) {
         document.location.href = 'modifydevice.php?ip='+urlencode(rowid);
     }	
+	
 	function save_layout(clayout) {
-		$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
+		$("#flextable").changeStatus('<?php echo _("Saving column layout")?>...',false);
 		$.ajax({
 				type: "POST",
 				url: "../conf/layout.php",
@@ -187,56 +177,57 @@ echo "</form><br/>";
 				}
 		});
 	}
-    $("#flextable").flexigrid({
+    
+	$("#flextable").flexigrid({
         url: 'getdevice.php',
         dataType: 'xml',
         colModel : [
     <?php
-$default = array(
-    "ip" => array(
-        _("Device Address"),
-        100,
-        'true',
-        'left',
-        false
-    ) ,
-    "community" => array(
-        _("SNMP Community"),
-        100,
-        'true',
-        'center',
-        false
-    ) ,
-    "description" => array(
-        _("Description"),
-        300,
-        'true',
-        'center',
-        false
-    )
-);
-list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "community", "asc", 300);
-echo "$colModel\n";
+		$default = array(
+			"ip" => array(
+				_("Device Address"),
+				100,
+				'true',
+				'left',
+				false
+			) ,
+			"community" => array(
+				_("SNMP Community"),
+				100,
+				'true',
+				'center',
+				false
+			) ,
+			"description" => array(
+				_("Description"),
+				300,
+				'true',
+				'center',
+				false
+			)
+		);
+		list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "community", "asc", 300);
+		echo "$colModel\n";
 ?>
 			],
 		buttons : [
-			{name: '<?=_("New")?>', bclass: 'add', onpress : action},
+			{name: '<?php echo _("New")?>', bclass: 'add', onpress : action},
 			{separator: true},
-			{name: '<?=_("Modify")?>', bclass: 'modify', onpress : action},
+			{name: '<?php echo _("Modify")?>', bclass: 'modify', onpress : action},
 			{separator: true},
-			{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
+			{name: '<?php echo _("Delete selected")?>', bclass: 'delete', onpress : action},
 			{separator: true}
 			],
 		searchitems : [
-			{display: '<?=_("IP")?>', name : 'ip', isdefault: true},
-            {display: '<?=_("Community")?>', name : 'community'}
+			{display: '<?php echo _("IP")?>', name : 'ip', isdefault: true},
+            {display: '<?php echo _("Community")?>', name : 'community'}
 			],
 		sortname: "<?php echo $sortname ?>",
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
-		title: '<?=_("Devices")?>',
-		pagestat: '<?=_("Displaying {from} to {to} of {total} devices")?>',
-		nomsg: '<?=_("No Devices")?>',
+		title: '<?php echo _("Devices")?>',
+		pagestat: '<?php echo _("Displaying {from} to {to} of {total} devices")?>',
+		nomsg: '<?php echo _("No Devices")?>',
 		useRp: true,
 		rp: 25,
 		//contextMenu: 'myMenu',
@@ -253,6 +244,4 @@ echo "$colModel\n";
 
 </body>
 </html>
-<?
-$db->close($dbconn);
-?>
+<?php $db->close($dbconn); ?>

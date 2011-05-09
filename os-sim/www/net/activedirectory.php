@@ -69,25 +69,7 @@ include ("../hmenu.php");
 ?>
 	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
 	
-	<table class="noborder">
-		<tr>
-			<td valign="top">
-				<table id="flextable" style="display:none"></table>
-			</td>
-		<tr>
-		
-		<tr>
-			<td valign="top" class="noborder" style="padding-top:10px">
-				<iframe src="" frameborder="0" name="addcontent" id="addcontent" width="500"></iframe>
-			</td>
-		</tr>
-	
-	</table>
-
-	<!-- Right Click Menu -->
-	<ul id="myMenu" class="contextMenu" style="width:110px">
-		<li class="hostreport"><a href="#hostreport" class="greybox" style="padding:3px"><img src="../pixmaps/reports.png"> <?php echo _("Asset Report")?></a></li>
-	</ul>
+	<table id="flextable" style="display:none"></table>
 
 	<style>
 		table, th, tr, td {
@@ -122,27 +104,27 @@ include ("../hmenu.php");
 	
 		function action(com,grid) {
 			var items = $('.trSelected', grid);
-			if (com=='<?php echo gettext("Delete selected"); ?>') {
+			if (com=='<?php echo _("Delete selected"); ?>') {
 				//Delete host by ajax
 				if (typeof(items[0]) != 'undefined') {
-					$("#flextable").changeStatus('<?=_("Deleting Active directory")?>...',false);
+					$("#flextable").changeStatus('<?php echo _("Deleting Active directory")?>...',false);
 					$.ajax({
 							type: "GET",
 							url: "deleteactivedirectory.php?confirm=yes&id="+urlencode(items[0].id.substr(3)),
 							data: "",
 							success: function(msg) {
-								if(msg.match("ERROR_CANNOT")) alert("<?=_("Sorry, cannot delete this host because it belongs to a policy")?>");
+								if(msg.match("ERROR_CANNOT")) alert("<?php echo _("Sorry, cannot delete this host because it belongs to a policy")?>");
 								else $("#flextable").flexReload();
 							}
 					});
 				}
-				else alert('<?=_("You must select a Active directory")?>');
+				else alert('<?php echo _("You must select a Active directory")?>');
 			}
-			else if (com=='<?php echo gettext("Modify"); ?>') {
+			else if (com=='<?php echo _("Modify"); ?>') {
 				if (typeof(items[0]) != 'undefined') document.location.href = 'modifyactivedirectory.php?id='+urlencode(items[0].id.substr(3))
 				else alert('<?=_("You must select a Active directory")?>');
 			}
-			else if (com=='<?php echo gettext("New"); ?>') {
+			else if (com=='<?php echo _("New"); ?>') {
 				document.location.href = 'newactivedirectory.php'
 			}
 		}
@@ -152,7 +134,7 @@ include ("../hmenu.php");
 		}	
 	
 		function save_layout(clayout) {
-			$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
+			$("#flextable").changeStatus('<?php echo _("Saving column layout")?>...',false);
 			$.ajax({
 					type: "POST",
 					url: "../conf/layout.php",
@@ -204,24 +186,24 @@ include ("../hmenu.php");
 				?>
 			],
 		buttons : [
-			{name: '<?=_("New")?>', bclass: 'add', onpress : action},
+			{name: '<?php echo _("New")?>', bclass: 'add', onpress : action},
 			{separator: true},
-			{name: '<?=_("Modify")?>', bclass: 'modify', onpress : action},
+			{name: '<?php echo _("Modify")?>', bclass: 'modify', onpress : action},
 			{separator: true},
-			{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
+			{name: '<?php echo _("Delete selected")?>', bclass: 'delete', onpress : action},
 			{separator: true}
 			],
 		searchitems : [
-			{display: '<?=_("Server IP")?>', name : 'ip', isdefault: true},
-            {display: '<?=_("Bind DN")?>', name : 'binddn'},
-            {display: '<?=_("Scope")?>', name : 'scope'}
+			{display: '<?php echo _("Server IP")?>', name : 'ip', isdefault: true},
+            {display: '<?php echo _("Bind DN")?>', name : 'binddn'},
+            {display: '<?php echo _("Scope")?>', name : 'scope'}
 			],
 		sortname: "<?php echo $sortname ?>",
 		sortorder: "<?php echo $sortorder ?>",
 		usepager: true,
-		title: '<?=_("Active directory")?>',
-		pagestat: '<?=_("Displaying {from} to {to} of {total} Active directories")?>',
-		nomsg: '<?=_("No Active directories")?>',
+		title: '<?php echo _("Active directory")?>',
+		pagestat: '<?php echo _("Displaying {from} to {to} of {total} Active directories")?>',
+		nomsg: '<?php echo _("No Active directories")?>',
 		useRp: true,
 		rp: 25,
 		//contextMenu: 'myMenu',
