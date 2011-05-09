@@ -56,6 +56,7 @@ $conn_ossim = $db->connect();
 // plugins to resolv
 $plugins = array();
 $query1 = "SELECT id,name from plugin";
+
 if (!$rs = & $conn_ossim->Execute($query1)) {
     print $conn_ossim->ErrorMsg();
     exit();
@@ -65,9 +66,10 @@ while (!$rs->EOF) {
     $rs->MoveNext();
 }
 
-$data = array();
+$data   = array();
 $data[] = "";
-$host = $_SESSION['host_report'];
+$host   = $_SESSION['host_report'];
+
 
 // User sensor filtering
 $sensor_where = "";
@@ -127,11 +129,21 @@ while (!$rs->EOF) {
     $rs->MoveNext();
 }
 
-foreach ($values1 as $key=>$val) { 
-	$values[] = $val;
-	$data[] = $key;
+if ( count($values_1) > 0 )
+{
+	foreach ($values1 as $key=>$val) 
+	{ 
+		$values[] = $val;
+		$data[]   = $key;
+	}
+}
+else
+{
+	$values[] = null;
+	$data[]   = "";
 }
 
+	
 /*
 $header = $events = array();
 $header[] = ""; // first row blank
@@ -248,5 +260,8 @@ $chart['link_data'] = array(
     'url' => "handle.php?target_url=events_sensor&target_var=category",
     'target' => "main"
 );*/
+
+//print_r($chart);
+
 SendChartData($chart);
 ?>
