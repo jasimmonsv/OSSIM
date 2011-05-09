@@ -638,7 +638,7 @@ class Agent:
                 if aliveServers > 0:
                     logger.info("There are %d servers with priority %d alive" % (aliveServers, tmpPrio))
                 if aliveServers == 0 and tmpPrio == 5:
-                    tmpPrio == 0
+                    tmpPrio = 0
                     #sleep 30 seconds before new pool
                     logger.warning("No available servers .... next pool in 30 seconds")
                     time.sleep(poolInterval)
@@ -668,7 +668,7 @@ class Agent:
         try:
             self.__readOuptutServers()
             self.check_pid()
-            #self.createDaemon() 
+            self.createDaemon()
             self.init_stats()
             self.init_logger()
             thread.start_new_thread(self.connect_server, ())
