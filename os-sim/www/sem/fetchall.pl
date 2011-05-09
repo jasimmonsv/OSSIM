@@ -75,6 +75,7 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 	$filtertr{'plugin_sid'} = "plugin_sid";
 	$filtertr{'taxonomy'} = "taxonomy";
 	$filtertr{'plugingroup'} = "plugingroup";
+	$filtertr{'plugin_list'} = "plugin_list";
 	$filtertr{'dsgroup'} = "plugingroup";
 	$filtertr{'sensor'} = "sensor";
 	$filtertr{'src_ip'} = "ip_src"; $filtertr{'src'} = "ip_src";
@@ -114,6 +115,9 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 			}
 			elsif ($filter =~ /^plugingroup=(.*)/i) { # plugin group preprocess
 				$filter = "taxonomy=".get_plugingroup_filter($1);
+			}
+			elsif ($filter =~ /^plugin_list=([\d\|\:]+)/i) { # plugin list preprocess
+				$filter = "taxonomy=".$1;
 			}
 			$param .= ",$filter" if ($filter ne "");
 		}
