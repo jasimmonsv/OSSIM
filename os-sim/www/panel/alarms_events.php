@@ -16,7 +16,6 @@ Session::logcheck("MenuControlPanel", "ControlPanelExecutive");
 	  <!--[if IE]><script language="javascript" type="text/javascript" src="../js/jqplot/excanvas.js"></script><![endif]-->
 	  
 	  <link rel="stylesheet" type="text/css" href="../js/jqplot/jquery.jqplot.css" />
-	  <link rel="stylesheet" type="text/css" href="../js/jqplot/examples/examples.css" />
 		
 	  <!-- BEGIN: load jquery -->
 	  <script language="javascript" type="text/javascript" src="../js/jqplot/jquery-1.4.2.min.js"></script>

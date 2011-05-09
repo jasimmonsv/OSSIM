@@ -38,14 +38,15 @@
 ini_set("max_execution_time","300");
 require_once ('classes/Session.inc');
 Session::logcheck("MenuConfiguration", "PolicySensors");
-?>
 
-<?php
-function server_get_sensor_plugins() {
+function server_get_sensor_plugins($sensor_ip="") {
     require_once ('ossim_conf.inc');
     $ossim_conf = $GLOBALS["CONF"];
     /* get the port and IP address of the server */
-    $address = $ossim_conf->get_conf("server_address");
+    if($sensor_ip=="")
+        $address = $ossim_conf->get_conf("server_address");
+    else
+        $address = $sensor_ip;
     $port = $ossim_conf->get_conf("server_port");
     /* create socket */
     $socket = socket_create(AF_INET, SOCK_STREAM, 0);
@@ -53,7 +54,10 @@ function server_get_sensor_plugins() {
         echo _("socket_create() failed: reason: ") . socket_strerror($socket) . "\n";
     }
     $list = array();
+    $timeout = array('sec' => 5, 'usec' => 0);
     /* connect */
+    socket_set_block($socket);
+    socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$timeout);
     $result = @socket_connect($socket, $address, $port);
     if (!$result) {
         echo "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
@@ -63,7 +67,7 @@ function server_get_sensor_plugins() {
     $in = 'connect id="1" type="web"' . "\n";
     $out = '';
     socket_write($socket, $in, strlen($in));
-    $out = @socket_read($socket, 2048, PHP_NORMAL_READ);
+    $out = @socket_read($socket, 2048, PHP_BINARY_READ);
     if (strncmp($out, "ok id=", 4)) {
         echo "<p><b>" . gettext("Bad response from server") . "</b></p>";
         echo "<p><b>"._("socket error")."</b>: " . gettext("Is OSSIM server running at") . " $address:$port?</p>";
@@ -74,7 +78,7 @@ function server_get_sensor_plugins() {
     $out = '';
     socket_write($socket, $in, strlen($in));
     $pattern = '/sensor="([^"]*)" plugin_id="([^"]*)" ' . 'state="([^"]*)" enabled="([^"]*)"/';
-    while ($out = socket_read($socket, 2048, PHP_NORMAL_READ)) {
+    while ($out = socket_read($socket, 2048, PHP_BINARY_READ)) {
         if (preg_match($pattern, $out, $regs)) {
             $s["sensor"] = $regs[1];
             $s["plugin_id"] = $regs[2];
