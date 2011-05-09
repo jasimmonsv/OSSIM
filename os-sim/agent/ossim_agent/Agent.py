@@ -642,7 +642,8 @@ class Agent:
                     #sleep 30 seconds before new pool
                     logger.warning("No available servers .... next pool in 30 seconds")
                     time.sleep(poolInterval)
-                tmpPrio = tmpPrio + 1
+                else:
+                    tmpPrio = tmpPrio + 1
                 #Some server is alive...
             if tmpPrio - 1 != self.__currentPriority:
                 logger.warning("Current priority server has changed, current priority = %d", tmpPrio - 1)
