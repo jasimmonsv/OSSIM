@@ -319,12 +319,12 @@ class ParserLog(Detector):
                     # stop processing lines if requested
                     if self.stop_processing:
                         break
-
+                    rule_matched = False
                     for rule in self.rules:
                         rules += 1
                         rule.feed(line)
 
-                        if rule.match():
+                        if rule.match() and not rule_matched:
                             matches += 1
                             logger.debug('Match rule: [%s] -> %s' % (rule.name, line))
                             event = rule.generate_event()
@@ -334,7 +334,7 @@ class ParserLog(Detector):
                                 self.send_message(event)
 
                                 # one rule matched, no need to check more
-                                break
+                                rule_matched = True
 
             time.sleep(0.1)
 

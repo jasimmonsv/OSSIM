@@ -180,7 +180,7 @@ class ControlManager:
                     logger.info("Sendign command to all agents: %s" % (line + ' transaction="%s"\n' % transaction))
                 else:
                     response = line + ' errno="-1" error="Agent not available." ackend\n'
-                    logger.warning('Agent "%s" is not connected! %s' % (id, message));
+                    logger.warning('Agent "%s" is not connected! ' % (id));
 
         # send back our response
         return response
