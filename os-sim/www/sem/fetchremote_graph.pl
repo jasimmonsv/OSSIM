@@ -20,7 +20,7 @@ if ($gt !~ /^[a-z]+$/ && $gt !~ /^[a-z]+\_[a-z]+$/) {
 	print "Parameters error\n";
 	exit;
 }
-if ($cat !~ /^[a-zA-Z]+\%2C\+\d\d\d\d$/ && $cat !~ /^[a-zA-Z]+\s+\d+\,\s+\d\d\d\d$/ && $cat !~ /^[a-zA-Z]+\,\s\d\d\d\d/ && $cat !~ /^\d\d\d\d$/ && $cat ne "") {
+if ($cat !~ /^[a-zA-Z]+\%2C\+\d\d\d\d$/ && $cat !~ /^[a-zA-Z]+\s+\d+\,\s+\d\d\d\d$/ && $cat !~ /^[a-zA-Z]+\,\s\d\d\d\d/ && $cat !~ /^\d\d\d\d$/ && $cat !~/[-+]?\d+(\.\d+)?/ && $cat ne "") {
 	print "Parameters error\n";
 	exit;
 }
@@ -29,14 +29,18 @@ my @ips_arr = split(/\,/,$ips);
 print "{";
 $flag = 0;
 foreach $ip (@ips_arr) {
-	if ($ip == "127.0.0.1") {
-		$cmd = "php forensic_source.php '$gt' '$cat'";
+	if ($gt eq "panel") {
+		$cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;php remote_panel_graph.php '$cat'\"";
 	} else {
-		$cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;php forensic_source.php '$gt' '$cat'\"";
+		if ($ip == "127.0.0.1") {
+			$cmd = "php forensic_source.php '$gt' '$cat'";
+		} else {
+			$cmd = "ssh $ip \"cd /usr/share/ossim/www/sem;php forensic_source.php '$gt' '$cat'\"";
+		}
+		print "," if ($flag);
+		print '"'.$ip.'":';
+		$flag = 1;
 	}
-	print "," if ($flag);
-	print '"'.$ip.'":';
 	system($cmd);
-	$flag = 1;
 }
 print "}\n";

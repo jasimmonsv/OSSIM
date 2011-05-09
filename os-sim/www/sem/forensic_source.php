@@ -71,7 +71,7 @@ if ($_GET['ips'] != "") {
 	if (ossim_error()) {
 	    die(ossim_error());
 	}
-	$cmd = "sudo ./fetchremote_graph.pl '$gt' '$cat' $ip_list";
+	$cmd = "sudo /usr/share/ossim/www/sem/fetchremote_graph.pl '$gt' '$cat' $ip_list";
 	//echo $cmd;exit;
 	$aux = explode("\n",`$cmd`);
 	if (count($aux) > 2) {
