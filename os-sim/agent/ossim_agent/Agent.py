@@ -638,7 +638,7 @@ class Agent:
                 if aliveServers > 0:
                     logger.info("There are %d servers with priority %d alive" % (aliveServers, tmpPrio))
                 if aliveServers == 0 and tmpPrio == 5:
-                    tmpPrio == 0
+                    tmpPrio = 0
                     #sleep 30 seconds before new pool
                     logger.warning("No available servers .... next pool in 30 seconds")
                     time.sleep(poolInterval)
