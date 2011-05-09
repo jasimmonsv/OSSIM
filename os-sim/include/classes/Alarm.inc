@@ -436,21 +436,18 @@ class Alarm {
 			$where[] = "a.status = 'closed' ";
 		}
         /* date range filter */
-        if ($from_date) {
+        if ($from_date && $to_date) {
             list($y, $m, $d) = preg_split('#-#', $from_date);
             if (!checkdate($m, $d, $y)) {
                 print _("Invalid date") . ": $from_date";
                 return array();
             }
-            $where[] = "(a.timestamp >= '$from_date')";
-        }
-        if ($to_date) {
             list($y, $m, $d) = preg_split('#-#', $to_date);
             if (!checkdate($m, $d, $y)) {
                 print _("Invalid date") . ": $to_date";
                 return array();
             }
-            $where[] = "(a.timestamp <= '$to_date 23:59:59')";
+            $where[] = "a.timestamp BETWEEN '$from_date 00:00:00' AND '$to_date 23:59:59'";
         }
         /* number of events per page */
         $limit = "";
