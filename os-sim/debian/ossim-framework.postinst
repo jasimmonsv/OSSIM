@@ -257,10 +257,11 @@ fi
 #    cd /usr/share/ossim/scripts/vulnmeter/; /usr/share/ossim/scripts/vulnmeter/updateplugins.pl
 #fi
 
-if [ ! -L /usr/share/ossim/www/vulnmeter/last ]; then
-	rm -rf /usr/share/ossim/www/vulnmeter/last
-	ln -s /usr/share/ossim/www/vulnmeter/first/ /usr/share/ossim/www/vulnmeter/last
-fi
+# dir "first" and symlink "last" not neccesary now, so i'm disabling next lines:
+#if [ ! -L /usr/share/ossim/www/vulnmeter/last ]; then
+#	rm -rf /usr/share/ossim/www/vulnmeter/last
+#	ln -s /usr/share/ossim/www/vulnmeter/first/ /usr/share/ossim/www/vulnmeter/last
+#fi
 
 #if [ ! -e /usr/share/ossim/www/vulnmeter/last ]; then
 #	ln -s /usr/share/ossim/www/vulnmeter/first/ /usr/share/ossim/www/vulnmeter/last
