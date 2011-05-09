@@ -199,20 +199,20 @@ class Detector(threading.Thread):
                 if not re.match(ipv4_reg, event['src_ip']):
                     data = event['src_ip']
                     event['src_ip'] = '0.0.0.0'
-                    logger.warning("Event's field src_ip is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata8")
+                    logger.warning("Event's field src_ip (%s) is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata8" % data)
                     event['userdata8'] = data
             #Check if valid ip, if not we put 0.0.0.0 in sensor field
             if event['dst_ip'] is not None:
                 if not re.match(ipv4_reg, event['dst_ip']):
                     data = event['dst_ip']
-                    logger.warning("Event's field dst_ip is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata9")
+                    logger.warning("Event's field dst_ip (%s) is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata9" % data)
                     event['dst_ip'] = '0.0.0.0'
                     event['userdata9'] = data
             #Check if valid ip, if not we put 0.0.0.0 in sensor field
             if event['sensor'] is not None:
                 if not re.match(ipv4_reg, event['sensor']):
                     data = event['sensor']
-                    logger.warning("Event's field sensor is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata7")
+                    logger.warning("Event's field sensor (%s) is not a valid IP.v4 address, set it to default ip 0.0.0.0 and real data on userdata7" % data)
                     event['sensor'] = '0.0.0.0'
                     event['userdata7'] = data
 

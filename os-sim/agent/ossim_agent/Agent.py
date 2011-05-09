@@ -38,6 +38,8 @@ import time
 import signal
 import string
 import thread
+import re
+import threading
 
 #
 # LOCAL IMPORTS
@@ -48,7 +50,7 @@ from Watchdog import Watchdog
 from Logger import Logger
 from Output import Output
 from Stats import Stats
-from Conn import ServerConn, FrameworkConn
+from Conn import ServerConn, FrameworkConn, ServerData
 from ConnPro import ServerConnPro
 from Exceptions import AgentCritical
 from ParserUnifiedSnort import ParserUnifiedSnort
@@ -72,7 +74,6 @@ class Agent:
 
         # parse command line options
         self.options = CommandLineOptions().get_options()
-
         # read configuration
         self.conf = Conf()
         if self.options.config_file:
@@ -137,12 +138,25 @@ class Agent:
         self.detector_objs = []
         self.watchdog = None
         self.shutdown_running = False;
+        #output server list.
+        self.__outputServerList = []
+        self.__outputServerConnecitonList = []
+        self.__frameworkConnecitonList = []
+        self.__connect_to_server_end = False
+        self.__keep_working = True
+        self.__currentPriority = 0
+        self.__checkThread = None
+        self.__stop_server_counter_array = {}
+        self.__output_dic = {}
+
 
     def setShutDownRunning(self, value):
         self.shutdown_running = value
 
+
     def getShutDownRunning(self):
         return self.shutdown_running
+
 
     def init_logger(self):
         """Initiate the logger. """
@@ -171,7 +185,9 @@ class Agent:
 
 
     def init_stats(self):
-
+        '''
+            Initialize Stats 
+        '''
         Stats.startup()
 
         if self.conf.has_section("log"):
@@ -180,6 +196,16 @@ class Agent:
 
 
     def init_output(self):
+        '''
+            Initialize Outputs
+        '''
+
+        printEvents = True
+
+        if self.conf.has_section("output-properties"):
+            printEvents = self.conf.getboolean("output-properties", "printEvents")
+        Output.print_ouput_events(printEvents)
+
 
         if self.conf.has_section("output-plain"):
             if self.conf.getboolean("output-plain", "enable"):
@@ -195,63 +221,51 @@ class Agent:
         if self.conf.has_section("output-db"):
             if self.conf.getboolean("output-db", "enable"):
                 Output.add_db_output(self.conf)
+        Output.set_priority(0)
+        self.__currentPriority = 0
 
 
     def connect_framework(self):
-
-        if self.conf.has_section("control-framework"):
-            if self.conf.getboolean("control-framework", "enable"):
-                # connect the control agent
-                self.conn_framework = FrameworkConn(self.conf)
-
-                if self.conn_framework.connect(attempts=3, waittime=30):
-                    logger.debug("Control framework connection is now enabled!")
-                    self.conn_framework.control_messages()
-
-                else:
-                    self.conn_framework = None
-                    logger.error("Control framework connection is now disabled!")
-
+        '''
+            Request each server connection for its framework data and try to connect it.
+        '''
+        logger.info("----------------------------------- FRAMEWORK CONNECITONS ----------------------------")
+        for server_conn in self.__outputServerConnecitonList:
+            if server_conn.get_allow_frmk_data() and server_conn.get_priority() <= self.__currentPriority and server_conn.get_is_alive():
+                frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port = server_conn.get_framework_data()
+                tmpFrameworkConn = FrameworkConn(self.conf, frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port)
+                if tmpFrameworkConn.connect(attempts=3, waittime=30):
+                    logger.debug("Control Framework (%s:%s) is now enabled!" % (frmk_tmp_ip, frmk_tmp_port))
+                    tmpFrameworkConn.control_messages()
+                    self.__frameworkConnecitonList.append(tmpFrameworkConn)
+        logger.info("----------------------------------- FRAMEWORK CONNECITONS ENDS------------------------")
 
     def connect_server(self):
+        '''
+            Try to connect to configured servers.
+        '''
+        logger.debug("----------------------------------- SERVER CONNECITONS -------------------------------")
+        #If our output server list is not empty we have to connect to the server into the list.
+        tmpPrioConnectedServer = -1
+        if len(self.__outputServerList) > 0:
+            for serverdata in self.__outputServerList:
+                if serverdata.get_priority() > tmpPrioConnectedServer and tmpPrioConnectedServer > 0:
+                    #we can continue loading plugins etc..
+                    self.__connect_to_server_end = True
 
-        if self.conf.has_section("output-server"):
-            if self.conf.getboolean("output-server", "enable"):
-                self.conn = ServerConn(self.conf, self.plugins)
-                if self.conn.connect(attempts=0, waittime=30):
-                    self.conn.control_messages()
+                if serverdata.get_send_events():
+                    tmpConnection = ServerConn(serverdata.get_ip(), serverdata.get_port(), serverdata.get_priority(), \
+                                               serverdata.get_allow_frmk_data(), serverdata.get_send_events(), self.plugins)
+                    if tmpConnection.connect(attempts=3, waittime=30):
+                        tmpConnection.control_messages()
+                        tmpPrioConnectedServer = serverdata.get_priority()
+                        Output.add_server_output(tmpConnection, serverdata.get_priority(), serverdata.get_send_events())
+                        self.__output_dic[serverdata.get_ip()] = 1
+                        self.__connect_to_server_end = True
+                    self.__outputServerConnecitonList.append(tmpConnection)
 
-                    # init server output
-                    if self.conf.has_section("output-server"):
-                        if self.conf.getboolean("output-server", "enable"):
-                            if self.conn is not None:
-                                Output.add_server_output(self.conn)
-
-                else:
-                    self.conn = None
-                    logger.error("Server connection is now disabled!")
-
-
-    def connect_server_pro(self, id):
-
-        if self.conf.has_section("output-server-pro"):
-            if self.conf.getboolean("output-server-pro", "enable"):
-                if not id in self.conn_plugin_set:
-                    SCPro = ServerConnPro(self.conf, id)
-                    self.conn_plugin_set.append(id)
-
-                    if SCPro.connect(attempts=0, waittime=30):
-                        self.conn_plugins[id] = SCPro.get_conn()
-
-                        # init server output
-                        if self.conf.has_section("output-server-pro"):
-                            if self.conf.getboolean("output-server-pro", "enable"):
-                                if self.conn_plugins[id] is not None:
-                                    Output.add_server_output_pro(self.conn_plugins[id])
-
-                    else:
-                        self.conn_plugins[id] = None
-                        logger.error("Server connection for plugin %s is now disabled!" % id)
+        logger.debug("----------------------------------- SERVER CONNECITONS ENDS---------------------------")
+        self.__connect_to_server_end = True
 
 
     def check_pid(self):
@@ -351,15 +365,6 @@ class Agent:
             return(0)
 
 
-    def init_plugin_conns(self):
-
-        for plugin in self.plugins:
-            id = plugin.get("DEFAULT", "plugin_id")
-
-            if id > 0:
-                thread.start_new_thread(self.connect_server_pro, (id,))
-
-
     def init_plugins(self):
 
         for plugin in self.plugins:
@@ -435,12 +440,18 @@ class Agent:
 
 
     def init_watchdog(self):
+        '''
+            Starts Watchdog thread
+        '''
         if self.conf.getboolean("watchdog", "enable"):
             self.watchdog = Watchdog(self.conf, self.plugins)
             self.watchdog.start()
 
 
     def terminate(self, sig, params):
+        '''
+            Handle terminate signal
+        '''
         if self.getShutDownRunning() == False:
            logger.info("WARNING: Shutdown received! - Processing it ...!")
            self.shutdown()
@@ -449,10 +460,15 @@ class Agent:
 
 
     def shutdown(self):
+        '''
+            Handles shutdown signal. Stop all threads, plugist, closes connections...
+        '''
         #Disable Ctrl+C signal.
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         logger.warning("Kill signal received, exiting...")
         self.setShutDownRunning(True)
+        Watchdog.setShutdownRunning(True)
+        self.__keep_working = False
 
         # Remove the pid file
         pidfile = self.conf.get("daemon", "pid")
@@ -475,18 +491,22 @@ class Agent:
             if hasattr(parser, 'stop'):
                 parser.stop()
 
-        # Watchdog
-        if self.watchdog:
-            self.watchdog.shutdown()
-
         # output plugins
         Output.shutdown()
-
-        # execution statistics
+        # close framework connections
+        for frmk_conn in self.__frameworkConnecitonList:
+            frmk_conn.close()
+        # kill checktrhead
+        logger.info("Waiting for check thread..")
+        if self.__checkThread is not None:
+            self.__checkThread.join()
+        # execution statistics        
         Stats.shutdown()
         if Stats.dates['startup']:
             Stats.stats()
-
+        # Watchdog
+        if self.watchdog:
+            self.watchdog.shutdown()
         # kill program
         pid = os.getpid()
 
@@ -500,6 +520,9 @@ class Agent:
 
     # Wait for a Control-C and kill all threads
     def waitforever(self):
+        '''
+            Wait forever agent loop
+        '''
         timer = 0
 
         while 1:
@@ -511,22 +534,154 @@ class Agent:
                 timer = 0
 
 
+    def __getServerConn_byIP(self, ip):
+        '''
+            Read the interal serverconnection list and returns the server with the ip,
+            passed as an argument
+        '''
+        for server in self.__outputServerConnecitonList:
+            if server.get_server_ip() == ip:
+                return server
+
+
+    def __readOuptutServers(self):
+        ''' Read the ouptput server list, if exists'''
+
+        if self.conf.has_section("output-server"):
+            if self.conf.getboolean("output-server", "enable"):
+                primarySever = ServerData("primary", self.conf.get("output-server", "ip"), \
+                                          self.conf.get("output-server", "port"), 0, True, True)
+                self.__outputServerList.append(primarySever)
+                Stats.add_server(primarySever.get_ip())
+        #Regular expression to parse the readed line
+        data_reg_expr = "(?P<server_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}));(?P<server_port>[0-9]{1,5});(?P<send_events>True|False|Yes|No);(?P<allow_frmk_data>True|False|Yes|No);(?P<server_priority>[0-5])"
+        pattern = re.compile(data_reg_expr)
+        if self.conf.has_section("output-server-list"):
+            logger.debug("ouptut-server-list section founded! Reading it!")
+            for hostname, data in self.conf.hitems("output-server-list").iteritems():
+                value_groups = pattern.match(data)
+                if value_groups is not None:
+                    server_ip = value_groups.group('server_ip')
+                    server_port = int(value_groups.group('server_port'))
+                    server_send_events = value_groups.group('send_events')
+                    allow_frmk_data = value_groups.group('allow_frmk_data')
+                    server_priority = int(value_groups.group('server_priority'))
+                    logger.debug("Server -> IP: %s , PORT: %s , SEND_EVENTS: %s , ALLOW_FRMK_DATA: %s, PRIORITY:%s" % (server_ip, server_port, server_send_events, allow_frmk_data, server_priority))
+                    self.__outputServerList.append(ServerData(hostname, server_ip, server_port, server_priority, server_send_events, allow_frmk_data))
+                    Stats.add_server(server_ip)
+                else:
+                    logger.warning("Invalid server output (%s = %s),please check your configuration file" % (hostname, data))
+        self.__outputServerList.sort(cmp=lambda x, y: cmp(x.get_priority(), y.get_priority()))
+        for server in self.__outputServerList:
+            logger.info("-------> %s" % server)
+            #set stop counter for every server to 0
+            self.__stop_server_counter_array[server.get_ip()] = 0
+
+
+    def __changePriority(self):
+        '''
+            Change current server output priority
+        '''
+        Output.set_priority(self.__currentPriority)
+        for frmk_conn in self.__frameworkConnecitonList:
+            frmk_conn.close()
+        self.connect_framework()
+
+
+    def __check_servers_by_priority(self, prio):
+        '''
+            Check servers by priority
+        '''
+
+        aliveServers = 0
+        for server_conn in self.__outputServerConnecitonList:
+            if server_conn.get_priority () == prio:
+                if server_conn.get_is_alive():
+                    aliveServers += 1
+                    self.__stop_server_counter_array[ server_conn.get_server_ip()] = 0
+                    if not self.__output_dic.has_key(server_conn.get_server_ip()):
+                        self.__output_dic[server_conn.get_server_ip()] = 1
+                        logger.info("Adding new output: %s:%s" % (server_conn.get_server_ip(), server_conn.get_server_port()))
+                        Output.add_server_output(server_conn, server_conn.get_priority(), server_conn.get_send_events())
+                else:
+                    #increases stop counter
+                    self.__stop_server_counter_array[ server_conn.get_server_ip()] += 1
+        return aliveServers
+
+
+    def __check_server_status(self):
+        '''
+            Check if there is any server, with the max priority (temporal priority),  alive.
+            If yes and the temporal priority  is greater than current priority, we've to change the priority, if no, we do nothing
+        '''
+        reconnect_try = False
+        priority_changed = False
+        #Default values
+        timeBeetweenChecks = 60.0
+        maxStopCounter = 5.0
+        poolInterval = 30.0
+        if self.conf.has_section("output-properties"):
+            timeBeetweenChecks = float(self.conf.get("output-properties", "timeBeetweenChecks"))
+            maxStopCounter = float(self.conf.get("output-properties", "maxStopCounter"))
+            poolInterval = float(self.conf.get("output-properties", "poolInterval"))
+        logger.info("Check status configuration: Time between checks: %s - max stop counter: %s pool interval: %s" % (timeBeetweenChecks, maxStopCounter, poolInterval))
+        while self.__keep_working:
+            reconnect_try = False
+            priority_changed = False
+            tmpPrio = 0
+            aliveServers = 0
+            while aliveServers == 0:
+                logger.info("Checking server with priority %d" % tmpPrio)
+                aliveServers = self.__check_servers_by_priority(tmpPrio)
+                if aliveServers == 0:
+                    logger.info("No server with priority %d alive" % tmpPrio)
+                if aliveServers > 0:
+                    logger.info("There are %d servers with priority %d alive" % (aliveServers, tmpPrio))
+                if aliveServers == 0 and tmpPrio == 5:
+                    tmpPrio == 0
+                    #sleep 30 seconds before new pool
+                    logger.warning("No available servers .... next pool in 30 seconds")
+                    time.sleep(poolInterval)
+                tmpPrio = tmpPrio + 1
+                #Some server is alive...
+            if tmpPrio - 1 != self.__currentPriority:
+                logger.warning("Current priority server has changed, current priority = %d", tmpPrio - 1)
+                self.__currentPriority = tmpPrio - 1
+                self.__changePriority()
+                priority_changed = True
+            #check stop counter, if a server reaches five stops, we retry to connect
+            for server_ip, stop_counter in self.__stop_server_counter_array.items():
+                logger.info("Server:%s - stopCounter:%s" % (server_ip, stop_counter))
+                if stop_counter == maxStopCounter:
+                    serverconn = self.__getServerConn_byIP(server_ip)
+                    logger.info("Server %s:%s has reached five stops, trying to reconnect!" % (serverconn.get_server_ip(), serverconn.get_server_port()))
+                    serverconn.connect(attempts=3, waittime=10)
+                    Stats.server_reconnect(serverconn.get_server_ip())
+                    self.__stop_server_counter_array[server_ip] = 0
+                    reconnect_try = True
+                    time.sleep(2)
+            if self.__keep_working and not reconnect_try and not priority_changed:
+                time.sleep(timeBeetweenChecks)
+
+
     def main(self):
         try:
+            self.__readOuptutServers()
             self.check_pid()
-            self.createDaemon()
+            #self.createDaemon() 
             self.init_stats()
             self.init_logger()
-
             thread.start_new_thread(self.connect_server, ())
-
+            while not self.__connect_to_server_end:
+                logger.info("Waiting to server connections available...")
+                time.sleep(5)
             self.connect_framework()
-
-            self.init_plugin_conns()
             self.init_output()
             time.sleep(1)
             self.init_plugins()
             self.init_watchdog()
+            self.__checkThread = threading.Thread(target=self.__check_server_status, args=())
+            self.__checkThread.start()
             self.waitforever()
 
         except KeyboardInterrupt:

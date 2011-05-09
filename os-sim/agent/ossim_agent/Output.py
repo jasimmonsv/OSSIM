@@ -120,32 +120,19 @@ class OutputPlain(OutputPlugins):
 
 class OutputServer(OutputPlugins):
 
-    def __init__(self, conn):
-        logger.info("Added Server output")
+    def __init__(self, conn, priority, sendEvents):
+        logger.info("Added Server output (%s:%s)" % (conn.get_server_ip(), conn.get_server_port()))
         self.conn = conn
         self.activated = True
-        self.send_events = False
-        self.conf = Conf()
+        self.send_events = sendEvents
+        self.__mypriority = priority
         self.options = CommandLineOptions().get_options()
 
-        if self.options.config_file:
-            conffile = self.options.config_file
 
-        else:
-            conffile = self.conf.DEFAULT_CONFIG_FILE
-
-        self.conf.read([conffile], False)
-
-        if self.conf.has_section("output-server"):
-            if self.conf.getboolean("output-server", "send_events"):
-                self.send_events = True
-
-
-    def event(self, e):
-        if self.activated and self.send_events:
+    def event(self, e, priority):
+        if self.activated and self.send_events and self.__mypriority <= priority:
             try:
                 self.conn.send(str(e))
-
             except:
                 return
 
@@ -162,39 +149,6 @@ class OutputServer(OutputPlugins):
     def shutdown(self):
         self.conn.close()
         self.activated = False
-
-
-
-class OutputServerPro(OutputPlugins):
-
-    def __init__(self, conn):
-        logger.info("Added Pro Server output")
-        self.conn = conn
-        self.activated = True
-
-
-    def match_event(self, e):
-        return True
-        regexp = ".*plugin_id=\"" + self.conn.get_id() + "\".*"
-
-        if re.match(regexp, str(e)) is not None:
-            return True
-        else:
-            return False
-
-
-    def event(self, e):
-        if self.match_event(e) and self.activated:
-            try:
-                self.conn.send(str(e))
-
-            except:
-                return
-
-
-    def shutdown(self):
-        self.activated = False
-
 
 
 class OutputCSV(OutputPlugins):
@@ -238,7 +192,7 @@ class OutputCSV(OutputPlugins):
         self.csv.flush()
 
 
-    def event(self, e):
+    def event(self, e, priority=0):
 
         if self.activated:
             if e["event_type"] == "event":
@@ -274,7 +228,7 @@ class OutputDB(OutputPlugins):
         self.activated = True
 
 
-    def event(self, e):
+    def event(self, e, priority=0):
 
         if self.conn is not None and e["event_type"] == "event" \
            and self.activated:
@@ -320,6 +274,20 @@ class Output:
 
     _outputs = []
     plain_output = server_output = server_output_pro = csv_output = db_output = False
+    _priority = 0
+    _printEvents = True
+    def print_ouput_events(value):
+        logger.debug("Setting printEvents to %s" % value)
+        Output._printEvents = value
+    print_ouput_events = staticmethod(print_ouput_events)
+    def set_priority(priority):
+        Output._priority = priority
+    set_priority = staticmethod(set_priority)
+
+    def get_current_priority():
+        return Output._priority
+    get_current_priority = staticmethod(get_current_priority)
+
 
     def add_plain_output(conf):
         if Output.plain_output is False:
@@ -329,19 +297,10 @@ class Output:
     add_plain_output = staticmethod(add_plain_output)
 
 
-    def add_server_output(conn):
-        if Output.server_output is False:
-            Output._outputs.append(OutputServer(conn))
-            Output.server_output = True
+    def add_server_output(conn, priority, sendEvents):
+        Output._outputs.append(OutputServer(conn, priority, sendEvents))
 
     add_server_output = staticmethod(add_server_output)
-
-
-    def add_server_output_pro(conn):
-        Output._outputs.append(OutputServerPro(conn))
-        Output.server_output_pro = True
-
-    add_server_output_pro = staticmethod(add_server_output_pro)
 
 
     def add_csv_output(conf):
@@ -361,10 +320,10 @@ class Output:
 
 
     def event(e):
-        logger.info(str(e).rstrip())
-
+        if Output._printEvents:
+            logger.info(str(e).rstrip())
         for output in Output._outputs:
-            output.event(e)
+            output.event(e, Output.get_current_priority())
 
     event = staticmethod(event)
 

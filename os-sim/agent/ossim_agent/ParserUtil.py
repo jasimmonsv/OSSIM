@@ -41,7 +41,8 @@ import os
 #
 # LOCAL IMPORTS
 #
-
+from Logger import Logger
+logger = Logger.logger
 from SiteProtectorMap import *
 from NetScreenMap import *
 
@@ -306,7 +307,7 @@ def hextoint(string):
     except ValueError:
         pass
 
-        
+
 def intrushield_sid(mcafee_sid, mcafee_name):
     # All McAfee Intrushield id are divisible by 256, and this length doesn't fit in OSSIM's table
     mcafee_sid = hextoint(mcafee_sid) / 256
@@ -870,6 +871,7 @@ class HostResolv():
     def refreshCache(data):
         ''' Refresh the HOST dynamic cache'''
         #action="refresh_asset_list" list={ossim-unstable-pro=192.168.2.18,crosa=192.168.2.130} id=all transaction="50653"
+        logger.debug("Updating dynamic host cache... ")
         HostResolv.HOST_RESOLV_DYNAMIC_CACHE.clear()
         pattern = "action=\"refresh_asset_list\"\s+list={(?P<list>.*)}"
         ipv4_reg = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
@@ -891,18 +893,20 @@ class HostResolv():
 
 
     def saveHostCache():
+        logger.debug("Savin dynamic host cache in /etc/ossim/agent/host_cache.dic")
         pickle.dump(HostResolv.HOST_RESOLV_DYNAMIC_CACHE, open("/etc/ossim/agent/host_cache.dic", "wb"))
     saveHostCache = staticmethod(saveHostCache)
 
     def loadHostCache():
         if os.path.isfile("/etc/ossim/agent/host_cache.dic"):
+            logger.debug("Loading dynamic host cache from '/etc/ossim/agent/host_cache.dic'")
             HostResolv.HOST_RESOLV_DYNAMIC_CACHE = pickle.load(open("/etc/ossim/agent/host_cache.dic"))
             HostResolv.printCache()
     loadHostCache = staticmethod(loadHostCache)
 
     def printCache():
-        print "------------------ Dynamic cache ---------------------"
+        logger.debug("------------------ Dynamic cache ---------------------")
         for host, ip in HostResolv.HOST_RESOLV_DYNAMIC_CACHE.items():
-            print "%s  -------->> %s" % (host, ip)
-        print "------------------------------------------------------"
+            logger.debug("%s  -------->> %s" % (host, ip))
+        logger.debug ("------------------------------------------------------")
     printCache = staticmethod(printCache)

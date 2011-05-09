@@ -44,12 +44,18 @@ ERROR_CODE_MAP = {
     2001: "Scan is already in progress.", \
     2002: "Unable to find the target parameter.", \
     2003: "Unable to generate report.", \
-    2004: "Unable to find the requested report."
+    2004: "Unable to find the requested report.", \
+    2005: "The requested report is that we are working now", \
+    3001: "Net scan is already in progress", \
+    3002: "Invalid device parameter", \
+    3003: "Unable to generate pcap file", \
+    3004: "Unable to find the requested pcap.", \
+    3005: "The requested pcap is that we are working now", \
 }
 
 
 
-def get(id, message = ""):
+def get(id, message=""):
     """
     Generate a formatted return message based on the supplied id, and optional
     message.

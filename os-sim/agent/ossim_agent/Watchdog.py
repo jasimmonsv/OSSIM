@@ -72,16 +72,20 @@ class Watchdog(threading.Thread):
     # sensor info
     AGENT_DATE = "agent-date agent_date=\"%s\" tzone=\"%s\"\n"
 
-
+    __shutdown_running = False
     def __init__(self, conf, plugins):
 
         self.conf = conf
         self.plugins = plugins
         self.interval = self.conf.getfloat("watchdog", "interval") or 3600.0
         self.patternlocalized = re.compile('(?P<tzone_symbol>[-|+])(?P<tzone_hour>\d{2})(?P<tzone_min>\d{2})')
+
         threading.Thread.__init__(self)
 
 
+    def setShutdownRunning(value):
+        Watchdog.__shutdown_running = value
+    setShutdownRunning = staticmethod(setShutdownRunning)
     # find the process ID of a running program
     def pidof(program, program_aux=""):
 
@@ -103,7 +107,7 @@ class Watchdog(threading.Thread):
                 if data == "":
                     logger.debug(cmd)
                     return None
-        
+
             else:
                 return None
 
@@ -225,7 +229,7 @@ class Watchdog(threading.Thread):
         if not plugin.has_option("config", "restart") or \
            not plugin.has_option("config", "enable"):
             return
-            
+
         if plugin.getboolean("config", "restart") and \
            plugin.getboolean("config", "enable"):
 
@@ -252,8 +256,8 @@ class Watchdog(threading.Thread):
 
         first_run = True
 
-        while 1:
-            
+        while not Watchdog.__shutdown_running:
+
             tzone = str(self.conf.get("plugin-defaults", "tzone"))
             if tzone in all_timezones:
                 agent_tz = timezone(tzone)
@@ -270,9 +274,9 @@ class Watchdog(threading.Thread):
                 else:
                     tzone = 0
                     logger.info("Warning: TimeZone doesn't match: %s --set to 0" % tzone)
-                    
 
-                
+
+
             else:
                 logger.info("Warning: Agent invalid agent tzone: %s --set to 0" % tzone)
                 tzone = 0

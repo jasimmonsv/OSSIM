@@ -50,8 +50,97 @@ from __init__ import __version__
 # GLOBAL VARIABLES
 #
 logger = Logger.logger
+MAX_TRIES = 3
+class ServerData:
+    '''
+        Server data from ouptut-server-list section
+    '''
+    def __init__(self, hostname, \
+                 ip, \
+                 port, \
+                 priority, \
+                 sendEvents, \
+                 allow_frmk_data):
+        self.__ip = ip
+        self.__hostname = hostname
+        self.__port = port
+        self.__priority = priority
+        self.__sendEvents = sendEvents
+        self.__allow_frmk_data = allow_frmk_data
+
+    def get_ip(self):
+        return self.__ip
 
 
+    def get_hostname(self):
+        return self.__hostname
+
+
+    def get_port(self):
+        return self.__port
+
+
+    def get_priority(self):
+        return self.__priority
+
+
+    def get_send_events(self):
+        return self.__sendEvents
+
+
+    def get_allow_frmk_data(self):
+        return self.__allow_frmk_data
+
+
+    def set_ip(self, value):
+        self.__ip = value
+
+
+    def set_hostname(self, value):
+        self.__hostname = value
+
+
+    def set_port(self, value):
+        self.__port = value
+
+
+    def set_priority(self, value):
+        self.__priority = value
+
+
+    def set_send_events(self, value):
+        self.__sendEvents = value
+
+
+    def set_allow_frmk_data(self, value):
+        self.__allow_frmk_data = value
+
+
+    def del_ip(self):
+        del self.__ip
+
+
+    def del_hostname(self):
+        del self.__hostname
+
+
+    def del_port(self):
+        del self.__port
+
+
+    def del_priority(self):
+        del self.__priority
+
+
+    def del_send_events(self):
+        del self.__sendEvents
+
+
+    def del_allow_frmk_data(self):
+        del self.__allow_frmk_data
+
+    def __repr__(self):
+        return "HN:%s |IP:%s |PORT: %s | PRIO: %s | SE:%s | AFD:%s " % (self.__hostname, self.__ip, self.__port, self.__priority, self.__sendEvents, self.__allow_frmk_data)
 
 class ServerConn:
 
@@ -62,23 +151,31 @@ class ServerConn:
                           'version="' + __version__ + '"\n'
     MSG_APPEND_PLUGIN = 'session-append-plugin id="%s" ' + \
                           'plugin_id="%s" enabled="%s" state="%s"\n'
-
-    def __init__(self, conf, plugins):
-        self.conf = conf
-        self.server_ip = self.conf.get("output-server", "ip")
-        self.server_port = self.conf.get("output-server", "port")
+    MSG_GET_FRAMEWORK = 'server-get-framework\n'
+    def __init__(self, server_ip, server_port, priority, allow_frmk_data, sendEvents, plugins):
+        #self.conf = conf
         self.plugins = plugins
         self.sequence = 0
-
+        self.server_ip = server_ip
+        self.server_port = server_port
+        self.allow_frmk_data = allow_frmk_data
         self.monitor_scheduler = MonitorScheduler()
         self.monitor_scheduler.start()
-
+        self.__patternFrmkMessageResponse = re.compile("server_ip=\"(?P<srv_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}))\" server_name=\"(?P<srv_name>([^\"]+))\" server_port=\"(?P<srv_port>\d+)\" framework_ip=\"(?P<frmk_ip>(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3}))\" framework_name=\"(?P<frmk_name>([^\"]+))\" framework_port=\"(?P<frmk_port>\d+)\"")
+        self.frmk_hostname = ''
+        self.frmk_ip = ''
+        self.frmk_port = ''
+        self.priority = priority
+        self.__isAlive = False
+        self.__stopped = False
+        self.__sendEvents = sendEvents
+        self.__keep_working = True
 
     # connect to server
     #  attempts == 0 means that agent try to connect forever
     #  waittime = seconds between attempts
     def connect(self, attempts=3, waittime=10.0):
-
+        self.__keep_working = True
         self.sequence = 1
         count = 1
 
@@ -87,11 +184,17 @@ class ServerConn:
             logger.info("Connecting to server (%s, %s).." \
                 % (self.server_ip, self.server_port))
 
-            while 1:
+            while self.__keep_working:
 
                 self.__connect_to_server()
                 if self.__conn is not None:
+                    self.__isAlive = True
                     self.__append_plugins()
+                    if self.allow_frmk_data:
+                        self.frmk_hostname, self.frmk_ip, self.frmk_port = self.__get_framework_connection_data()
+                        logger.debug("Server (%s:%s) Framework Connnection Data FRMK_HN:%s, FRMK_IP:%s, FRMK_PORT:%s" % (self.server_ip, self.server_port, self.frmk_hostname, self.frmk_ip, self.frmk_port))
+                    else:
+                        logger.info("This server (%s:%s) doesn't support framework data connection" % (self.server_ip, self.server_port))
                     break
 
                 else:
@@ -116,6 +219,8 @@ class ServerConn:
         if self.__conn is not None:
             self.__conn.close()
             self.__conn = None
+            self.__isAlive = False
+            self.__keep_working = False
 
 
     # Reset the current connection by closing and reopening it
@@ -123,17 +228,23 @@ class ServerConn:
 
         self.close()
         time.sleep(1)
-        Stats.server_reconnect()
-        while 1:
+        Stats.server_reconnect(self.server_ip)
+        tmptries = 0
+        while tmptries < MAX_TRIES:
             if self.connect(attempts, waittime) is not None:
                 break
+            tmptries += 1
+        if tmptries == MAX_TRIES:
+            self.__stopped = True
+            self.__keep_working = False
 
 
     def send(self, msg):
 
-        while 1:
+        while self.__keep_working:
             try:
-                self.__conn.send(msg)
+                if self.__isAlive:
+                    self.__conn.send(msg)
             except socket.error, e:
                 logger.error(e)
                 self.reconnect()
@@ -157,12 +268,16 @@ class ServerConn:
             logger.error(ERROR_CONNECTING_TO_SERVER \
                 % (self.server_ip, str(self.server_port)) + ": " + str(e))
             self.__conn = None
+            self.__isAlive = False
         else:
             if data == 'ok id="' + str(self.sequence) + '"\n':
-                logger.info("Connected to server!")
+                logger.info("Connected to server %s:%s!" % (self.server_ip, self.server_port))
+                self.__stopped = False
+                self.__keep_working = True
             else:
                 logger.error("Bad response from server: %s" % (str(data)))
                 self.__conn = None
+                self.__isAlive = False
 
         return self.__conn
 
@@ -191,7 +306,7 @@ class ServerConn:
 
         char = data = ''
 
-        while 1:
+        while self.__keep_working:
             try:
                 char = self.__conn.recv(1)
                 data += char
@@ -222,7 +337,7 @@ class ServerConn:
             self.__control_monitors(data)
         ###############################
 
-        while 1:
+        while self.__keep_working:
 
             try:
                 # receive message from server (line by line)
@@ -307,23 +422,67 @@ class ServerConn:
         thread.start_new_thread(self.__recv_control_messages, ())
 
 
+    def get_allow_frmk_data(self):
+        return self.allow_frmk_data
 
+    def get_is_alive(self):
+        return self.__isAlive
+    def get_server_ip(self):
+        return self.server_ip
+    def get_server_port(self):
+        return self.server_port
+    def get_send_events(self):
+        return self.__sendEvents
+
+    def __get_framework_connection_data(self):
+        frmk_ip = ""
+        frmk_port = ""
+        frmk_hostname = ""
+        if self.__conn is not None:
+            try:
+                logger.info("Waiting for framework connection data from %s:%s" % (self.server_ip, self.server_port))
+                self.__conn.send(ServerConn.MSG_GET_FRAMEWORK)
+                data = self.__conn.recv(1024)
+                time.sleep(1)
+            except socket.error, e:
+                logger.error("Socket (%s:%s) is down. Error_str: %s" % (self.server_ip, self.server_port, str(e)))
+                self.__conn = None
+            if not data:
+                logger.error("No reponse for 'server-get-framework' request")
+            else:
+                response_data = self.__patternFrmkMessageResponse.match(data)
+                if response_data is not None:
+                    frmk_ip = response_data.group('frmk_ip')
+                    frmk_hostname = response_data.group('frmk_name')
+                    frmk_port = response_data.group('frmk_port')
+                else:
+                    logger.error("Bad reponse for 'server-get-framework' request")
+        else:
+            self.__logFunctionPtr("I'm not connected!", LogMsg.ERROR)
+        return frmk_hostname, frmk_ip, frmk_port
+
+    def get_framework_data(self):
+        return self.frmk_hostname, self.frmk_ip, self.frmk_port
+    def get_priority(self):
+        return self.priority
+    def get_is_stopped(self):
+        return self.__stopped
 
 class FrameworkConn():
 
     __conn = None
     __controlmanager = None
-    __do_processing = True
+
 
     MSG_CONNECT = 'control id="%s" action="connect" version="' + __version__ + '"\n'
 
 
-    def __init__(self, conf):
-        self._framework_id = conf.get("control-framework", "id")
-        self._framework_ip = conf.get("control-framework", "ip")
-        self._framework_port = conf.get("control-framework", "port")
+    def __init__(self, conf, frmk_id, frmk_ip, frmk_port):
+        self._framework_id = frmk_id #conf.get("control-framework", "id")
+        self._framework_ip = frmk_ip#conf.get("control-framework", "ip")
+        self._framework_port = frmk_port #conf.get("control-framework", "port")
         self._framework_ping = True
-
+        self.__keep_processing = True
         # instatiate the control manager
         self.__controlmanager = ControlManager(conf)
 
@@ -350,8 +509,10 @@ class FrameworkConn():
                 else:
                     logger.info("Can't connect to control framework, " + \
                                 "retrying in %d seconds" % (waittime))
-
-                    time.sleep(waittime)
+                    if self.__keep_processing:
+                        time.sleep(waittime)
+                    else:
+                        count = attempts
 
                 count += 1
 
@@ -368,6 +529,9 @@ class FrameworkConn():
         if self.__conn is not None:
             self.__conn.close()
             self.__conn = None
+        self.__keep_processing = False
+        self.__controlmanager.stopProcess()
+
 
 
     # Reset the current connection by closing and reopening it
@@ -376,13 +540,13 @@ class FrameworkConn():
         self.close()
         time.sleep(2)
 
-        while self.__do_processing:
+        while self.__keep_processing:
             if self.connect(attempts, waittime) is not None:
                 break
 
 
     def send(self, msg):
-        while self.__do_processing:
+        while self.__keep_processing:
             try:
                 self.__conn.send(msg)
 
@@ -400,9 +564,8 @@ class FrameworkConn():
 
     def __connect_to_server(self):
         self.__conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # establish a 2 minute timeout on the socket
-        self.__conn.settimeout(120)
+        # establish a 15 minute timeout on the socket
+        self.__conn.settimeout(15)
 
         data = ""
 
@@ -424,7 +587,7 @@ class FrameworkConn():
 
         else:
             if data == 'ok id="' + str(self._framework_id) + '"\n':
-                logger.info("Connected to the control framework!")
+                logger.info("Connected to the control framework (%s:%s) !" % (self._framework_ip, self._framework_port))
 
             else:
                 logger.error("Bad response from the control framework: %s" % (str(data)))
@@ -435,7 +598,7 @@ class FrameworkConn():
 
         char = data = ''
 
-        while self.__do_processing:
+        while self.__keep_processing:
             try:
                 char = self.__conn.recv(1)
 
@@ -466,7 +629,7 @@ class FrameworkConn():
     # receive control messages from the framework daemon
     def __recv_control_messages(self):
 
-        while self.__do_processing:
+        while self.__keep_processing:
             try:
                 # receive message from server (line by line)
                 data = self.__recv_line().rstrip('\n')
@@ -486,7 +649,7 @@ class FrameworkConn():
 
 
     def __ping(self):
-        while self.__do_processing:
+        while self.__keep_processing:
             self.send("ping\n")
             time.sleep(60)
 
