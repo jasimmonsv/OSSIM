@@ -100,6 +100,29 @@ sub set_plugingroup_filters {
 	}
 }
 
+# plugin_list=id:sid,sid,sid;id:0;id:sid,sid...
+sub set_pluginlist_filters {
+	my $filter = shift;
+	my $and_num = shift;
+	my $or_num = shift;
+	my @plugin_ids = ();
+	if ($filter =~ /plugin_list\=?(.+)/) {
+		my @criterias = split(/\;/,$1);
+		foreach my $criteria (@criterias) {
+			if ($criteria =~ /(\d+)\:(.+)/) {
+				my $plugin_id = $1;
+				my @sids = split(/\|/,$2);
+				foreach my $sid (@sids) {
+					$filters{$and_num}{$or_num}{'plugin_id_sid'}{$plugin_id}{$sid}++;
+				}
+			} elsif ($criteria =~ /^(\d+)$/) {
+				my $plugin_id = $1;
+				$filters{$and_num}{$or_num}{'plugin_id'}{$plugin_id}++;
+			}
+		}
+	}
+}
+
 # use from fetchall and indexd
 sub get_taxonomy_filter {
 	my $filter = shift;

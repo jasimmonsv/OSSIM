@@ -78,8 +78,25 @@ function SIEM_trends_week($param="") {
 
 function Logger_trends() {
 	require_once("forensics_stats.inc");
+	require_once("../sem/process.inc");
+	require_once 'ossim_db.inc';
 	global $tz;
 	$data = array();
+	
+	$db = new ossim_db();
+	$dbconn = $db->connect();	
+	// Get remote logger servers
+	list($logger_servers, $ip_to_name, $ip_list, $fcolors, $bcolors, $from_remote, $logger_colors) = get_logger_servers($dbconn);
+	$db->close($dbconn);
+	foreach ($logger_servers as $ip) if ($ip!="127.0.0.1") {
+		$cmd = "sudo /usr/share/ossim/www/sem/fetchremote_graph.pl panel $tz $ip"; //echo $cmd;
+		exec($cmd, $aux);
+		foreach ($aux as $line) if (preg_match("/(.*);(.*)\=(.*)/",$line,$fnd)) {
+			// 9 12h;192.168.10.1=703
+			if (Session::sensorAllowed($fnd[2])) $data[$fnd[1]] = trim($fnd[3]);
+		}
+	}
+	// local server
 	$today = gmdate("j");
 	$beforeyesterday = gmdate("j",strtotime("-2 day"));
 	$yesterday = gmdate("j",strtotime("-1 day"));
@@ -92,14 +109,14 @@ function Logger_trends() {
 		$day = $yesterday;
 		if ($tzhour<0) { $tzhour+=24; $day=$beforeyesterday; }
 		elseif ($tzhour>23) { $tzhour-=24; $day=$today; }
-		$data[$day." ".$tzhour."h"] = $value;
+		$data[$day." ".$tzhour."h"] += $value;
 	}	
 	foreach ($csv as $key => $value) {
 		$tzhour = $key + $tz;
 		$day = $today;
 		if ($tzhour<0) { $tzhour+=24; $day=$yesterday; }
 		elseif ($tzhour>23) { $tzhour-=24; $day=$tomorrow; }
-		$data[$day." ".$tzhour."h"] = $value;
+		$data[$day." ".$tzhour."h"] += $value;
 	}	
 	//print_r($data);
 	return $data;

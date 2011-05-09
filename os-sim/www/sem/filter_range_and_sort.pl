@@ -340,6 +340,9 @@ sub set_filters {
 				elsif ($atom =~ /plugingroup\!?\=/ || $atom =~ /dsgroup\!?\=/) {
 					set_plugingroup_filters($atom,$and_num,$or_num);
 				}
+				elsif ($atom =~ /plugin_list\=/) {
+					set_pluginlist_filters($atom,$and_num,$or_num);
+				}
 				# Some fields filter
 				elsif ($1 eq "id" || $1 eq "fdate" || $1 eq "date" || $1 eq "plugin_id" || $1 eq "sensor" || $1 eq "src_ip" || $1 eq "dst_ip" || $1 eq "ip_src" || $1 eq "ip_dst" || $1 eq "src_port" || $1 eq "dst_port" || $1 eq "tzone"|| $1 eq "data"){
 					$aux = $2;
