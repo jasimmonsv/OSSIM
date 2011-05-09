@@ -257,13 +257,14 @@ fi
 #    cd /usr/share/ossim/scripts/vulnmeter/; /usr/share/ossim/scripts/vulnmeter/updateplugins.pl
 #fi
 
-if [ ! -h /usr/share/ossim/www/vulnmeter/last ]; then
+if [ ! -L /usr/share/ossim/www/vulnmeter/last ]; then
 	rm -rf /usr/share/ossim/www/vulnmeter/last
-fi
-
-if [ ! -e /usr/share/ossim/www/vulnmeter/last ]; then
 	ln -s /usr/share/ossim/www/vulnmeter/first/ /usr/share/ossim/www/vulnmeter/last
 fi
+
+#if [ ! -e /usr/share/ossim/www/vulnmeter/last ]; then
+#	ln -s /usr/share/ossim/www/vulnmeter/first/ /usr/share/ossim/www/vulnmeter/last
+#fi
 
 # Fix risk maps perms
 for dir in "/usr/share/ossim/www/risk_maps/maps" "/usr/share/ossim/www/risk_maps/pixmaps/uploaded"; do
