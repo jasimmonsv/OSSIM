@@ -49,6 +49,10 @@ class PdfReport{
 
     public function __construct($name,$orientation="P",$paperformat="A4", $user = null, $data=array()) {
         
+		require_once ('classes/Session.inc');
+		$db          = new ossim_db();
+		$dbconn      = $db->connect();
+		
 		$this->errors = array();
 		
 		if ( !empty($name) )
@@ -66,6 +70,15 @@ class PdfReport{
 			
 			if ( !empty($data) && is_array($data) )
 			{
+				
+				if ( preg_match("/ENTITY\:(\d+)/", $data['assets'], $fnd)) 
+				{
+					$entity              = Acl::get_entity($dbconn, $fnd[1]);
+					$data['assets_text'] = "ENTITY: ".$entity['name'];
+				}
+				else
+					$data['assets_text'] = $data['assets'];
+				
 				$data_s           = serialize($data);
 				$this->extra_data = $data;
 				$res              = file_put_contents($this->path."/data_".$name.".ini", $data_s);
@@ -75,7 +88,7 @@ class PdfReport{
 				else
 				{
 					$str_to_replace = array(" ", ":", ".", "#", "&");
-					$this->setNamePdf(str_replace($str_to_replace, "_", $this->getNameTemp())."_".str_replace($str_to_replace, "_", $this->extra_data['assets']));
+					$this->setNamePdf(str_replace($str_to_replace, "_", $this->getNameTemp())."_".str_replace($str_to_replace, "_", $this->extra_data['assets_text']));
 				}
 			}
 			else
@@ -97,7 +110,7 @@ class PdfReport{
 				else
 				{
 					$str_to_replace = array(" ", ":", ".", "#", "&");
-					$this->setNamePdf(str_replace($str_to_replace, "_", $this->getNameTemp())."_".str_replace($str_to_replace, "_", $this->extra_data['assets']));
+					$this->setNamePdf(str_replace($str_to_replace, "_", $this->getNameTemp())."_".str_replace($str_to_replace, "_", $this->extra_data['assets_text']));
 				}
 			}
 					
