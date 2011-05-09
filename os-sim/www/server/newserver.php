@@ -44,7 +44,7 @@ Session::logcheck("MenuConfiguration", "PolicyServers");
 
 $error = false;
 
-$name            =  POST('name');
+$sname           =  POST('sname');
 $ip              =  POST('ip');
 $port            =  POST('port');
 $descr           =  POST('descr');
@@ -61,10 +61,10 @@ $sim             = (POST('sim')) ? 1 : 0;
 
 
 $validate = array (
-	"name"  	      => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Server name")),
+	"sname"  	      => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_NOTNULL", "e_message" => 'illegal:' . _("Server name")),
 	"ip"        	  => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip")),
 	"port"      	  => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
-	"descr"     	  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
+	"descr"     	  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
 	"correlate"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Correlation")),
 	"cross_correlate" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Cross Correlation")),
 	"store" 		  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE", "e_message" => 'illegal:' . _("Store")),
@@ -122,7 +122,7 @@ else
 
 if ( $error == true )
 {
-	$_SESSION['_server']['name']            = $name;
+	$_SESSION['_server']['sname']           = $sname;
 	$_SESSION['_server']['ip']              = $ip;
 	$_SESSION['_server']['port']            = $port;
 	$_SESSION['_server']['descr']           = $descr;
@@ -181,7 +181,7 @@ if (POST('insert'))
     if(!isset( $resend_alarms) ) $resend_alarms = 0;
     if(!isset( $resend_events) ) $resend_events = 0;
     
-    Server::insert($conn, $name, $ip, $port, $descr, $correlate, $cross_correlate, $store, $qualify, $resend_alarms, $resend_events, $sign, $sem, $sim);
+    Server::insert($conn, $sname, $ip, $port, $descr, $correlate, $cross_correlate, $store, $qualify, $resend_alarms, $resend_events, $sign, $sem, $sim);
     $db->close($conn);
 }
 

@@ -885,8 +885,7 @@ if ( $error_message != null )
 		label {border: none; cursor: default;}
 		a {cursor:pointer;}
 		.bold {font-weight: bold;}
-		table { background: transparent;}
-		
+				
 		#form_right { min-width: 400px;}
 		div.bold {line-height: 18px;}
 		.red {color: #E54D4D; font-weight: bold; text-align: center;}
@@ -915,6 +914,7 @@ if ( $error_message != null )
 						   -moz-border-radius: 0px;
 						   -webkit-border-radius: 0px;
 						   padding: 0px 10px;
+						   background: transparent;
 		}
 		
 		#cont_sam {display: none;}
@@ -948,7 +948,7 @@ if ( empty( $ip ) ) {
 	
 	<div id='host_container'>
 	
-	<table align="center" class='noborder'>
+	<table align="center" class='noborder transparent'>
 		<tr>
 			<td class="nobborder" valign="top">
 				<table id='table_container'>
@@ -1198,7 +1198,7 @@ if ( empty( $ip ) ) {
 		<td valign="top" class="nobborder" id='form_right'>
 						
 			<!-- INVENTORY -->
-			<table class='noborder' width="100%" cellspacing="0" cellpadding="0">
+			<table class='noborder transparent' width="100%" cellspacing="0" cellpadding="0">
 			
                 <tr><th style="padding:5px"><?php echo _("Inventory") ?> 
                 <?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
@@ -1339,19 +1339,29 @@ if ( empty( $ip ) ) {
 				
 				<tr>
 					<td class='noborder'>
-						<table width='100%' class='noborder' id='cont_sam'>
+						<table width='100%' class='noborder transparent' id='cont_sam'>
 						
 							<tr>
 								<th style="padding:5px">
-									<?php echo _("Services Availability Monitoring") ?> 
-									<?php if ($scanning) { ?>[ <?php echo _("Now Scanning") ?> ]
-                					<?php } else { ?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services' alt="<?php echo _("The scan will run in frameworkd machine") ?>" title="<?php echo _("The scan will run in frameworkd machine") ?>"><?php echo _("Local Scan now") ?></a> ] <?php } ?>
+									<?php echo _("Services Availability Monitoring"); 
+									 
+									if ( $scanning ) 
+									{ 
+										?>
+										[ <?php echo _("Now Scanning") ?> ]
+										<?php 
+									} 
+									else 
+									{ 
+										?>[ <a class='scan' href='<?php echo $_SERVER["SCRIPT_NAME"] ?>?ip=<?php echo $ip ?>&update=services' alt="<?php echo _("The scan will run in frameworkd machine") ?>" title="<?php echo _("The scan will run in frameworkd machine") ?>"><?php echo _("Local Scan now") ?></a> ] <?php 
+									} 
+									?>
 								</th>
 							</tr>
 						
 							<tr>
 								<td class='noborder'>
-									<table id='table_services' class='noborder' width='100%'>
+									<table id='table_services' class='noborder transparent' width='100%'>
 										<tr><td class="nobborder"><div id='tree_container_2'></div></td></tr>
 							
 										<tr>
@@ -1367,7 +1377,7 @@ if ( empty( $ip ) ) {
 				</tr>
 				
 				<?php if ($scanning) { ?>
-				<tr><td class="nobborder"><IFRAME src="nmap_process.php?ip=<?php echo $ip ?>" frameborder="0"></IFRAME></td></tr>
+				<tr><td class="nobborder"><iframe src="nmap_process.php?ip=<?php echo $ip ?>" frameborder="0"></iframe></td></tr>
 				<?php } ?>
 			</table>
 		</td>

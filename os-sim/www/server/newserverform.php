@@ -43,11 +43,11 @@ $db = new ossim_db();
 $conn = $db->connect();
 
 $ip       = GET('ip');
-$name     = GET('name');
+$sname    = GET('name');
 
 
 ossim_valid($ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Server IP"));
-ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Server Name"));
+ossim_valid($sname, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Server Name"));
 
 if (ossim_error())
     die(ossim_error());
@@ -56,7 +56,7 @@ $action = 'newserver.php';
 
 if ( isset($_SESSION['_server']) )
 {
-	$name            =  $_SESSION['_server']['name'];
+	$sname           =  $_SESSION['_server']['sname'];
 	$ip              =  $_SESSION['_server']['ip'];
 	$descr           =  $_SESSION['_server']['descr'];
 	$port            =  $_SESSION['_server']['port'];
@@ -76,16 +76,16 @@ if ( isset($_SESSION['_server']) )
 }
 else
 {
-	if ( !empty($name) )
+	if ( !empty($sname) )
 	{
-		$server_list = Server::get_list($conn, "WHERE name = '$name'");
-		$role_list = Role::get_list($conn, $name);
+		$server_list = Server::get_list($conn, "WHERE name = '$sname'");
+		$role_list   = Role::get_list($conn, $sname);
 		
 		if ( !empty($server_list) && !empty($role_list) ) 
 		{
 			$server = $server_list[0];
 			$role = $role_list[0];
-			$name            =  $server->get_name();
+			$sname           =  $server->get_name();
 			$ip              =  $server->get_ip();
 			$port            =  $server->get_port();
 			$descr           =  $server->get_descr();
@@ -173,7 +173,7 @@ else
 			$('textarea').elastic();
 			
 			$('.vfield').bind('blur', function() {
-			     validate_field($(this).attr("id"), "newserver.php");
+			 	validate_field($(this).attr("id"), "<?php echo ( GET('name') != "") ? "modifyserver.php" : "newserver.php" ?>");
 			});
 
 		});
@@ -192,12 +192,12 @@ else
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-			echo "#table_form {background: transparent; width: 400px;}";
+			echo "#table_form {width: 400px;}";
 		    echo "#table_form th {width: 130px;}";
 		}
 		else
 		{
-			echo "#table_form {background: transparent; width: 450px;}";
+			echo "#table_form {width: 450px;}";
 		    echo "#table_form th {width: 150px;}";
 		}
 		?>
@@ -349,18 +349,18 @@ if (GET('withoutmenu') != "1")
 	<input type="hidden" name="withoutmenu" id='withoutmenu' value="<?php echo GET('withoutmenu')?>"/>
 	 
 	<tr>
-		<th><label for='name'><?php echo gettext("Name"); ?></label></th>
+		<th><label for='sname'><?php echo gettext("Name"); ?></label></th>
 		<td class="left">
 			<?php 
-			if ( empty($name) ) 
+			if ( empty($sname) ) 
 			{
-				echo "<input type='text' class='req_field vfield' name='name' id='name' value='$name'/>";
-				echo "<span style='padding-left: 3px;'>*</span>";
+				echo "<input type='text' class='req_field vfield' name='sname' id='sname' value='$sname'/>";
+				echo "<span style='padding-left: 6px;'>*</span>";
 			}
 			else
 			{
-				echo "<input type='hidden' class='req_field vfield' name='name' id='name' value='$name'/>";
-				echo "<div class='bold'>$name</div>";
+				echo "<input type='hidden' class='req_field vfield' name='sname' id='sname' value='$sname'/>";
+				echo "<div class='bold'>$sname</div>";
 			}
 			?>
 			

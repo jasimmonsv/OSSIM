@@ -70,7 +70,7 @@ else
 {
 	if ($name != '')
 	{
-		ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Sensor name"));
+		ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Sensor name"));
 
 		if (ossim_error()) 
 			die(ossim_error());
@@ -134,12 +134,12 @@ $tz=$tzone;
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-			echo "#table_form {background: transparent; width: 400px;}";
+			echo "#table_form {width: 400px;}";
 		    echo "#table_form th {width: 130px;}";
 		}
 		else
 		{
-			echo "#table_form {background: transparent; width: 500px;}";
+			echo "#table_form {width: 500px;}";
 		    echo "#table_form th {width: 150px;}";
 		}
 		?>

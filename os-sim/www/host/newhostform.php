@@ -51,21 +51,21 @@ $array_assets = array ('0'=>'0', "1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5
 
 $array_os = array ( "Unknown" => "",
 					"Microsoft Windows" => "Microsoft Windows",
-					"Linux"   => "Linux",
-					"FreeBSD" => "FreeBSD",
-					"NetBSD"  => "NetBSD",
-					"OpenBSD" => "OpenBSD",
-					"Apple MacOSX"   => "Apple MacOSX",
-					"SUN Solaris" => "SUN Solaris",
-					"Cisco IOS"   => "Cisco IOS",
-					"IBM AIX"     => "IBM AIX",
-					"HP-UX"   => "HP-UX",
-					"Compaq Tru64"   => "Compaq Tru64",
-					"SGI IRIX"    => "SGI IRIX",
-					"BSD\/OS"  => "BSD/OS",
-					"SunOS"   => "SunOS",
-					"Plan9"   => "Plan9",
-					"IPhone"  => "IPhone");
+					"Linux"   			=> "Linux",
+					"FreeBSD" 			=> "FreeBSD",
+					"NetBSD"  			=> "NetBSD",
+					"OpenBSD" 			=> "OpenBSD",
+					"Apple MacOSX"   	=> "Apple MacOSX",
+					"SUN Solaris"		=> "SUN Solaris",
+					"Cisco IOS"   		=> "Cisco IOS",
+					"IBM AIX"     		=> "IBM AIX",
+					"HP-UX"   			=> "HP-UX",
+					"Compaq Tru64"   	=> "Compaq Tru64",
+					"SGI IRIX"    		=> "SGI IRIX",
+					"BSD\/OS"  			=> "BSD/OS",
+					"SunOS"   			=> "SunOS",
+					"Plan9"   			=> "Plan9",
+					"IPhone"  			=> "IPhone");
 					
 $sensors     = array();
 $conf        = $GLOBALS["CONF"];
@@ -258,12 +258,12 @@ else
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-			echo "#table_form {background: transparent; width: 400px;}";
+			echo "#table_form {width: 400px;}";
 		    echo "#table_form th {width: 120px;}";
 		}
 		else
 		{
-			echo "#table_form {background: transparent; width: 500px;}";
+			echo "#table_form {width: 500px;}";
 		    echo "#table_form th {width: 150px;}";
 		}
 		?>

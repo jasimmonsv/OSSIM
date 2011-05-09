@@ -56,32 +56,32 @@ $pass_ct2  = POST('pass_ct2');
 $extra     = POST('extra');
 
 $validate = array (
-    "hostname"  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Hostname")),
+    "hostname"  => array("validation"=>"OSS_ALPHA, OSS_SPACE", "e_message" => 'illegal:' . _("Hostname")),
     "ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip address")),
     "type"      => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Type")),
     "user_ct"   => array("validation"=>"OSS_ALPHA, OSS_USER", "e_message" => 'illegal:' . _("Username")),
     "pass_ct"   => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
-    "pass_ct2"  => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Repeat Password")),
+    "pass_ct2"  => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Rep. Password")),
     "extra"     => array("validation"=>"OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Extra")));
 
 
 if ($action ==  "edit")
 {
-    $txt_start = "Update Host Credentials";
-    $txt_end = "Host Credentials succesfully updated";
+    $txt_start = _("Update Host Credentials");
+    $txt_end   = _("Host Credentials succesfully updated");
 }
 else if ($action == "delete")
 {
     
-    $txt_start = "Delete Host Credential";
-    $txt_end = "Host Credential succesfully deleted";
+    $txt_start = _("Delete Host Credential");
+    $txt_end   = _("Host Credential succesfully deleted");
     
     $validate = array();
 }
 else
 {
     $error = true;
-    $message_error [] = "Illegal action";
+    $message_error [] = _("Illegal action");
 }
 
                         
@@ -105,7 +105,7 @@ else
     ossim_valid($id, OSS_NULLABLE, OSS_DIGIT, 'illegal:'. _("Id"));
     
     if ( ossim_error() ) {
-        $validation_errors[] = ossim_set_error(_("Invalid credential id") . "<br/>Entered id: '<b>$id</b>'");
+        $validation_errors[] = ossim_set_error(_("Invalid credential id") . "<br/>Entered id: '<strong>$id</strong>'");
     }
     
     if ( ( $validation_errors == 1 ) ||  (is_array($validation_errors) && !empty($validation_errors)) || $pass_ct != $pass_ct2 )
@@ -199,7 +199,7 @@ if ( $action == 'edit' || $action == 'delete' )
 }
 
 
-    echo "<p>"._($txt_end)."</p>";
+    echo "<p>".$txt_end."</p>";
 
     echo "<script type='text/javascript'>document.location.href=\"hostcredentialsform.php?ip=$ip\"</script>";
 

@@ -43,7 +43,7 @@ Session::logcheck("MenuConfiguration", "PolicyServers");
 
 $error = false;
 
-$name  =  POST('name');
+$sname =  POST('sname');
 $ip    =  POST('ip');
 $port  =  POST('port');
 $user  =  POST('user');
@@ -51,12 +51,12 @@ $pass  =  POST('pass');
 $pass2 =  POST('pass2');
 
 $validate = array (
-	"name"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Server Name")),
-	"ip"     => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip address")),
-	"port"   => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
-	"user"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("User")),
-	"pass"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Password")),
-    "pass2"  => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Repeat Password"))
+	"sname"  => array("validation"=>"OSS_ALPHA, OSS_PUNC" , "e_message" => 'illegal:' . _("Server name")),
+	"ip"     => array("validation"=>"OSS_IP_ADDR"         , "e_message" => 'illegal:' . _("Ip address")),
+	"port"   => array("validation"=>"OSS_PORT"            , "e_message" => 'illegal:' . _("Port number")),
+	"user"   => array("validation"=>"OSS_USER"            , "e_message" => 'illegal:' . _("User")),
+	"pass"   => array("validation"=>"OSS_ALPHA, OSS_PUNC" , "e_message" => 'illegal:' . _("Password")),
+    "pass2"  => array("validation"=>"OSS_ALPHA, OSS_PUNC" , "e_message" => 'illegal:' . _("Rep. Password"))
     );
 
 if ( GET('ajax_validation') == true )
@@ -109,12 +109,12 @@ else
 
 if ( $error == true )
 {
-	$_SESSION['_dbs']['name']  = $name;
+	$_SESSION['_dbs']['sname'] = $sname;
 	$_SESSION['_dbs']['ip']    = $ip;
 	$_SESSION['_dbs']['port']  = $port;
 	$_SESSION['_dbs']['user']  = $user;
 	$_SESSION['_dbs']['pass']  = $pass;
-    $_SESSION['_dbs']['pass2']  = $pass2;
+    $_SESSION['_dbs']['pass2'] = $pass2;
 }
 
 
@@ -134,17 +134,17 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
 {
 	include ("../hmenu.php"); 
-	$get_param = "name=$name";	
+	$get_param = "name=$sname";	
 }
 else
-	$get_param = "name=$name&withoutmenu=1";	
+	$get_param = "name=$sname&withoutmenu=1";	
 ?>
                                                                                 
 <h1> <?php echo gettext("Update Database Server"); ?> </h1>
 
 <?php
 
-if ( POST('insert') && !empty($name) )
+if ( POST('insert') && !empty($sname) )
 {
     if ( $error == true)
 	{
@@ -162,7 +162,7 @@ if ( POST('insert') && !empty($name) )
 	if (is_uploaded_file($HTTP_POST_FILES['icon']['tmp_name']))
        $icon = file_get_contents($HTTP_POST_FILES['icon']['tmp_name']);
    
-    Databases::update($conn, $name, $ip, $port, $user, $pass, $icon);
+    Databases::update($conn, $sname, $ip, $port, $user, $pass, $icon);
 	
 	$db->close($conn);
 }
