@@ -668,7 +668,7 @@ class Agent:
         try:
             self.__readOuptutServers()
             self.check_pid()
-            #self.createDaemon() 
+            self.createDaemon()
             self.init_stats()
             self.init_logger()
             thread.start_new_thread(self.connect_server, ())
