@@ -67,71 +67,89 @@ if ( !empty($search) )
 
 $field = POST('qtype');
 $page  = POST('page');
+
 if (empty($page)) 
 	$page = 1;
-$rp = POST('rp');
-if (empty($rp)) 
-	$rp = 25;
+
+$rp = (!empty($rp)) ? POST('rp') : 25;	
 	
 $lsearch = $search;
+
 if (!empty($search))
+
 // The CIDR validation is not working...
-if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\/(3[0-2]|[1-2][0-9]|[0-9])\s*$/", $search)) {
+if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\/(3[0-2]|[1-2][0-9]|[0-9])\s*$/", $search)) 
+{
     $ip_range = CIDR::expand_CIDR($search, "SHORT", "IP");
     ossim_valid($ip_range[0], OSS_IP_ADDR, 'illegal:' . _("search cidr"));
     ossim_valid($ip_range[1], OSS_IP_ADDR, 'illegal:' . _("search cidr"));
-} else {
+} 
+else 
+{
     if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\s*$/", $search)) $by_ip = true;
     else ossim_valid($search, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_DOT, OSS_DIGIT, 'illegal:' . _("search"));
 }
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
-ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("field"));
+ossim_valid($field, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("field"));
 ossim_valid($order, "()", OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_DIGIT, 'illegal:' . _("order"));
 
 if (ossim_error()) {
     die(ossim_error());
 }
 
-if (empty($order)) $order = "hostname";
-if (!empty($ip_range)) $search = 'WHERE inet_aton(ip) >= inet_aton("' . $ip_range[0] . '") and inet_aton(ip) <= inet_aton("' . $ip_range[1] . '")';
+if (empty($order))      $order = "hostname";
+if (!empty($ip_range))  $search = 'WHERE inet_aton(ip) >= inet_aton("' . $ip_range[0] . '") and inet_aton(ip) <= inet_aton("' . $ip_range[1] . '")';
 elseif (!empty($by_ip)) $search = "WHERE ip like '%$search%'";
 elseif (!empty($search) && !empty($field)) $search = "WHERE $field like '%$search%'";
 elseif (!empty($search)) $search = "WHERE ip like '%$search%' OR hostname like '%$search%'";
+
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
-$xml = "";
+$xml  = "";
 
 $host_list = Host::get_list($conn, "$search", "ORDER BY $order $limit");
 
-if ($host_list[0]) {
+if ($host_list[0]) 
+{
     $total = $host_list[0]->get_foundrows();
     if ($total == 0) $total = count($host_list);
-} else $total = 0;
+} 
+else 
+	$total = 0;
+	
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
-foreach($host_list as $host) {
-    $ip = $host->get_ip();
-    $xml.= "<row id='$ip'>";
+foreach($host_list as $host) 
+{
+    $ip   = $host->get_ip();
+    $xml .= "<row id='$ip'>";
 	$name = $host->get_imgtag()."&nbsp;<a style='font-weight:bold;' href=\"./modifyhostform.php?ip=".urlencode($ip)."\">" .$host->get_hostname() . "</a>&nbsp;" . Host_os::get_os_pixmap($conn, $ip);
-    $xml.= "<cell><![CDATA[" . $name . "]]></cell>";
-	$xml.= "<cell><![CDATA[" . $ip . "]]></cell>";
+    $xml .= "<cell><![CDATA[" . $name . "]]></cell>";
+	$xml .= "<cell><![CDATA[" . $ip . "]]></cell>";
     $fqdns= $host->get_fqdns();
     if ($fqdns == "") $fqdns = "&nbsp;";
+	
 	$xml.= "<cell><![CDATA[" . utf8_encode($fqdns) . "]]></cell>";
+	
 	$desc = $host->get_descr();
     if ($desc == "") $desc = "&nbsp;";
 	$xml.= "<cell><![CDATA[" . utf8_encode($desc) . "]]></cell>";
-    $xml.= "<cell><![CDATA[" . $host->get_asset() . "]]></cell>";
-    $sensors = "";
+    
+	$xml.= "<cell><![CDATA[" . $host->get_asset() . "]]></cell>";
+    
+	$sensors = "";
     if ($sensor_list = $host->get_sensors($conn))
-       foreach($sensor_list as $sensor) {
-          $sensors.= ($sensors == "" ? '':', ') . $sensor->get_sensor_name();
-       }
-    $xml.= "<cell><![CDATA[" . utf8_encode($sensors) . "]]></cell>";
+	{
+		foreach($sensor_list as $sensor)
+			$sensors.= ($sensors == "" ? '':', ') . $sensor->get_sensor_name();
+    }
+    
+	$xml.= "<cell><![CDATA[" . utf8_encode($sensors) . "]]></cell>";
     $scantype = "<img src='../pixmaps/tables/cross.png'>";
     if ($scan_list = Host_scan::get_list($conn, "WHERE host_ip = inet_aton('$ip')")) {
           foreach($scan_list as $scan) {
@@ -178,5 +196,3 @@ $xml.= "</rows>\n";
 echo $xml;
 $db->close($conn);
 ?>
-
-

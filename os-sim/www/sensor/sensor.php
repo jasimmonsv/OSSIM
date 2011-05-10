@@ -222,7 +222,9 @@ if ($diff_arr) {
                 if (com=='delete') {
                     //Delete host by ajax
                     if (typeof(ip) != 'undefined') {
-                      document.location.href = 'deletesensor.php?confirm=yes&name='+urlencode(hostname)
+                        if(confirm('<?php echo _("Do you want to delete this sensor?") ?>')) {
+                            document.location.href = 'deletesensor.php?confirm=yes&name='+urlencode(hostname)
+                        }
                     }
                     else alert('<?=_("Sensor unselected")?>');
 		}

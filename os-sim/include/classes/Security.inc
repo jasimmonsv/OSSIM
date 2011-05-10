@@ -115,18 +115,22 @@ function ids(){
 		$init->config['General']['scan_keys'] = true;
 		$ids = new IDS_Monitor($request, $init);
 		$result = $ids->run();
-		if (!$result->isEmpty()) {
-//			require_once 'IDS/Log/Database.php';
+		
+		if (!$result->isEmpty()) 
+		{
+			//require_once 'IDS/Log/Database.php';
 			require_once 'IDS/Log/Composite.php';
 			require_once 'IDS/Log/File.php';
 
 			$compositeLog = new IDS_Log_Composite();
-	//		$compositeLog->addLogger(IDS_Log_Database::getInstance($init));
+			//$compositeLog->addLogger(IDS_Log_Database::getInstance($init));
 			$compositeLog->addLogger(IDS_Log_File::getInstance($init));
 			$compositeLog->execute($result);
-			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br/>".$result, "ossim_alert"));
+			die(ossim_error("Sorry, operation was not completed due to security reasons. An attack attempt has been logged to the system.<br/>".utf8_encode($result), "ossim_alert"));
 		}
-	} catch (Exception $e) {
+	} 
+	catch (Exception $e) 
+	{
 		printf('An error occured: %s',$e->getMessage());
 	}
 }
@@ -626,7 +630,7 @@ function validate_form_fields($type, $validate)
 
 function valid_cidr($cidrs)
 {
-	$valid_sep = array (",", "\n", );
+	$valid_sep   = array (",", "\n", );
 	$current_sep = '';
 	
 	foreach ( $valid_sep as $k => $v )

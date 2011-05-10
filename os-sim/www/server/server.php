@@ -166,7 +166,9 @@ $db->close($conn);
 		if (com=='<?php echo _('Delete selected')?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
-				document.location.href = 'deleteserver.php?confirm=yes&name='+urlencode(items[0].id.substr(3))
+                if(confirm('<?php echo _("Do you want to delete this server?") ?>')) {
+                    document.location.href = 'deleteserver.php?confirm=yes&name='+urlencode(items[0].id.substr(3))
+                }
 			}
 			else alert('<?=_("You must select a server")?>');
 		}
@@ -211,7 +213,9 @@ $db->close($conn);
             if (com=='<?php echo _('delete')?>') {
                 //Delete host by ajax
                 if (typeof(hostname) != 'undefined') {
+                    if(confirm('<?php echo _("Do you want to delete this server?") ?>')) {
                         document.location.href = 'deleteserver.php?confirm=yes&name='+urlencode(hostname)
+                    }
                 }
                 else alert('<?=_("Server unselected")?>');
             }

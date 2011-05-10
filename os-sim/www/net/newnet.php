@@ -45,8 +45,8 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
                                            
 $error = false;
 
-if (GET('cidr')!="") $_GET["cidr"] = str_replace(" ","",GET('cidr'));
-if (POST('cidr')!="") $_POST["cidr"] = str_replace(" ","",POST('cidr'));
+if (GET('cidr')!="")  $_GET["cidr"]  = str_replace(" ", "", GET('cidr'));
+if (POST('cidr')!="") $_POST["cidr"] = str_replace(" ", "", POST('cidr'));
 
 $net_name     = POST('netname');
 $cidr         = POST('cidr');
@@ -109,14 +109,15 @@ else
 		}	
 	}
 
-	if ($icon!="") { // validating icon format and size
+	if ($icon!="") 
+	{ // validating icon format and size
 		$image = @imagecreatefromstring($icon);
 		$error = true;
 		if ($image && imagesx($image)<=16 && imagesy($image)<=16)
 			$error = false;
 			
 		if ($error)
-			$message_error[] = _("Image format is not allowed. Allowed only 16x16 PNG images");
+			$message_error[] = _("Image format not allowed. Allowed only 16x16 PNG images");
 	}
 	
 	if ( POST('ajax_validation_all') == true )
