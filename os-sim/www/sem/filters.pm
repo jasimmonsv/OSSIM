@@ -111,7 +111,7 @@ sub set_pluginlist_filters {
 		foreach my $criteria (@criterias) {
 			if ($criteria =~ /(\d+)\:(.+)/) {
 				my $plugin_id = $1;
-				my @sids = split(/\|/,$2);
+				my @sids = split(/\,/,$2);
 				foreach my $sid (@sids) {
 					$filters{$and_num}{$or_num}{'plugin_id_sid'}{$plugin_id}{$sid}++;
 				}
