@@ -53,9 +53,9 @@ $num_act_ports = count($actives_ports);
 
 
 $validate = array (
-	"pgname"    => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SCORE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Port Group Name")),
-	"act_ports" => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Pair Port - Protocol")),
-	"descr"     => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")));
+	"pgname"    => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Port Group Name")),
+	"act_ports" => array("validation"=>"OSS_PORT",                                     "e_message" => 'illegal:' . _("Pair Port - Protocol")),
+	"descr"     => array("validation"=>"OSS_NULLABLE, OSS_AT, OSS_TEXT",               "e_message" => 'illegal:' . _("Description")));
 	
 if ( GET('ajax_validation') == true )
 {
@@ -152,15 +152,21 @@ if ( isset($_SESSION['_portgroup']) )
 
 $db->close($conn);
 
-    if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) { ?>
-        <p> <?php echo gettext("Port Group succesfully inserted"); ?> </p>
-        <script>document.location.href="port.php"</script><?
-    }
-    else {?>
-        <script>document.location.href="newportform.php?<?php echo $get_param; ?>&update=1"</script>
-    <?php
-    }?>
+if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) 
+{ 
+	?>
+	<p> <?php echo gettext("Port Group succesfully inserted"); ?> </p>
+	<script type='text/javascript'>document.location.href="port.php"</script>
+	<?
+}
+else 
+{
+	?>
+	<script type='text/javascript'>document.location.href="newportform.php?<?php echo $get_param; ?>&update=1"</script>
+	<?php
+}
+?>
 
-</body>
+	</body>
 </html>
 

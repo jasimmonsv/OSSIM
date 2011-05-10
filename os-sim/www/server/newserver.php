@@ -189,9 +189,20 @@ if ( isset($_SESSION['_server']) )
 	unset($_SESSION['_server']);
 
 
+if ( $_SESSION["menu_sopc"]=="Servers" && POST('withoutmenu') != "1" ) 
+{
+	?>
+		<p> <?php echo _("Server succesfully inserted"); ?> </p>
+		<script type='text/javascript'>document.location.href="server.php"</script>
+	<?php
+}
+else 
+{
+	?>
+	<script type='text/javascript'>document.location.href="newserverform.php?<?php echo $get_param; ?>&update=1&name=<?php echo $sname;?>";</script>
+	<?php
+}
 ?>
-    <p> <?php echo gettext("Server succesfully inserted"); ?> </p>
-    <? if ($_SESSION["menu_sopc"]=="Servers" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="server.php"</script><? } ?>
-	
+
 </body>
 </html>

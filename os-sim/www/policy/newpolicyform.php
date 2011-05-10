@@ -39,15 +39,16 @@ require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "PolicyPolicy");
 require_once ('ossim_conf.inc');
 
-$conf = $GLOBALS["CONF"];
+$conf       = $GLOBALS["CONF"];
 $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version", FALSE))) ? true : false;
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title><?=_("OSSIM Framework")?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-	<meta http-equiv=""Pragma" CONTENT="no-cache"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css" />
 	<link rel="stylesheet" type="text/css" href="../style/jquery-ui-1.7.custom.css" />
 	<link rel="stylesheet" type="text/css" href="../style/tree.css" />
@@ -197,7 +198,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 						$('#plugins').html(msg);
 						$("a.greybox").click(function(){
 							var t = this.title || $(this).text() || this.href;
-							GB_show(t,this.href,490,"92%");
+							GB_show(t,this.href,490,"98%");
 							return false
 						});
 					}
@@ -270,7 +271,7 @@ $opensource = (!preg_match("/pro|demo/i",$conf->get_conf("ossim_server_version",
 			// graybox
 			$("a.greybox").click(function(){
 			   var t = this.title || $(this).text() || this.href;
-			   GB_show(t,this.href,490,"92%");
+			   GB_show(t,this.href,580,"92%");
 			   return false;
 			});
 			drawpolicy();
@@ -981,7 +982,7 @@ if ($insert != "") {
 					foreach($server_list as $server)
 					{
 						$server_name = $server->get_name();
-						$server_ip = $server->get_ip();
+						$server_ip   = $server->get_ip();
 						if ($i == 1) 
 							echo "<input type='hidden' name='targetserver' value='".count($server_list)."'/>";
 						

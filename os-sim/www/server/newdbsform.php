@@ -97,11 +97,11 @@ Session::logcheck("MenuConfiguration", "PolicyServers");
 $db    = new ossim_db();
 $conn  = $db->connect();
 
-$sname = GET('name');
+$dbs_name = GET('name');
 
 if ( isset($_SESSION['_dbs']) )
 {
-	$sname     = $_SESSION['_dbs']['sname'];
+	$dbs_name  = $_SESSION['_dbs']['dbs_name'];
 	$ip        = $_SESSION['_dbs']['ip'];
 	$port      = $_SESSION['_dbs']['port'];
 	$user      = $_SESSION['_dbs']['user'];
@@ -116,17 +116,17 @@ else
 	$ip    = $user = $pass = "";
 	$port  = "3306";
 		
-	if ($sname != '')
+	if ($dbs_name != '')
 	{
-		ossim_valid($sname, OSS_ALPHA, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Database Server Name"));
+		ossim_valid($dbs_name, OSS_ALPHA, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Database Server Name"));
 	
 		if (ossim_error()) 
 			die(ossim_error());
 			
-		if ($server_list = Databases::get_list($conn, "WHERE name = '$sname'"))
+		if ($server_list = Databases::get_list($conn, "WHERE name = '$dbs_name'"))
 		{
 			$server    = $server_list[0];
-			$sname     = $server->get_name();
+			$dbs_name  = $server->get_name();
 			$ip        = $server->get_ip();
 			$port      = $server->get_port();
 			$user      = $server->get_user();
@@ -155,17 +155,17 @@ if (GET('withoutmenu') != "1")
 <table align="center" id='table_form'>
 	  
 	<tr>
-		<th><label for='name'><?php echo gettext("Name"); ?></label></th>
+		<th><label for='dbs_name'><?php echo gettext("Name"); ?></label></th>
 		<td class="left">
 			<?php 
 			if ( GET('name') != '' ) 
 			{
-				echo "<input type='hidden' class='req_field vfield' name='sname' id='sname' value='$sname'/>";
-				echo "<div class='bold'>$sname</div>";
+				echo "<input type='hidden' class='req_field vfield' name='dbs_name' id='dbs_name' value='".$dbs_name."'/>";
+				echo "<div class='bold'>$dbs_name</div>";
 			}
 			else
 			{
-				echo "<input type='text' class='req_field vfield' name='sname' id='sname' value='$sname'/>";
+				echo "<input type='text' class='req_field vfield' name='dbs_name' id='dbs_name' value='".$dbs_name."'/>";
 				echo "<span style='padding-left: 6px;'>*</span>";
 			}
 			?>

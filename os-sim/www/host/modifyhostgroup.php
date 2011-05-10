@@ -61,11 +61,11 @@ $num_sensors  = count($sensors);
 $num_hosts    = count($hosts);
 
 $validate = array (
-	"hgname"      => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Host Group Name")),
-	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
+	"hgname"      => array("validation"=>"OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Host Group Name")),
+	"descr"       => array("validation"=>"OSS_NULLABLE, OSS_AT, OSS_TEXT", "e_message" => 'illegal:' . _("Description")),
 	"ips"         => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Hosts")),
 	"sboxs"       => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Sensors")),
-	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
+	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
 	"threshold_a" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold A")),
 	"threshold_c" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),
 	"nagios"      => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" => 'illegal:' . _("Nagios")));
@@ -233,17 +233,18 @@ if ( POST('insert') && !empty($hgname) )
 if ( isset($_SESSION['_hostgroup']) )
 	unset($_SESSION['_hostgroup']);
 
+if ( $_SESSION["menu_sopc"]=="Host groups" && POST('withoutmenu') != "1" ) 
+{
+	?>
+	<p><?php echo gettext("Host group succesfully updated"); ?></p>
+	<script type='text/javascript'>document.location.href="hostgroup.php"</script>
+	<?php
+}
+else 
+{
+	?><script type='text/javascript'>document.location.href="newhostgroupform.php?<?php echo $get_param; ?>&update=1"</script><?php
+}
 ?>
-    <? if ( $_SESSION["menu_sopc"]=="Host groups" && POST('withoutmenu') != "1" ) {
-        ?>
-        <p><?php echo gettext("Host group succesfully updated"); ?></p>
-        <script>document.location.href="hostgroup.php"</script><?
-    }
-    else {
-        ?><script>document.location.href="newhostgroupform.php?<?php echo $get_param; ?>&update=1"</script>
-    <?php
-    }
-    ?>
 	</body>
 </html>
 

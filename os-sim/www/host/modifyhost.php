@@ -76,20 +76,20 @@ $num_sensors = count($sensors);
 
 $validate = array (
 	"hostname"     => array("validation"=>"OSS_NOECHARS, OSS_SCORE, OSS_LETTER, OSS_DIGIT, OSS_DOT", "e_message" => 'illegal:' . _("Host name")),
-	"old_hostname" => array("validation"=>"OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Old host name")),
+	"old_hostname" => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Old host name")),
 	"ip"           => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("IP")),
 	"fqdns"        => array("validation"=>"OSS_FQDNS, OSS_NULLABLE", "e_message" => 'illegal:' . _("FQDN/Aliases")),
-	"descr"        => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
+	"descr"        => array("validation"=>"OSS_TEXT, OSS_NULLABLE, OSS_AT", "e_message" => 'illegal:' . _("Description")),
 	"asset"        => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Asset value")),
 	"nat"          => array("validation"=>"OSS_NULLABLE, OSS_IP_ADDR", "e_message" => 'illegal:' . _("Nat")),
 	"sboxs"        => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Sensors")),
-	"rrd_profile"  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
+	"rrd_profile"  => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
 	"threshold_a"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold A")),
 	"threshold_c"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),
 	"nagios"       => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" => 'illegal:' . _("Nagios")),
-	"os"           => array("validation"=>"OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Os")),
+	"os"           => array("validation"=>"OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Os")),
 	"mac"          => array("validation"=>"OSS_NOECHARS, OSS_NULLABLE, OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Mac Address")),
-	"mac_vendor"   => array("validation"=>"OSS_NOECHARS, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, \"(\", \")\"", "e_message" => 'illegal:' . _("Mac Vendor")),
+	"mac_vendor"   => array("validation"=>"OSS_NOECHARS, OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_AT, \"(\", \")\"", "e_message" => 'illegal:' . _("Mac Vendor")),
 	"latitude"     => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Latitude")),
 	"longitude"    => array("validation"=>"OSS_NULLABLE, OSS_DIGIT, OSS_SCORE, OSS_PUNC", "e_message" => 'illegal:' . _("Longitude"))
 );
@@ -246,18 +246,19 @@ if ( POST('insert') && !empty($ip) )
 if ( isset($_SESSION['_host']) )
 	unset($_SESSION['_host']);
 
-?>
-    <?php
 		
-    if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1") { ?>
-        <p><?php echo _("Host succesfully updated") ?></p>    
-        <script>document.location.href="host.php"</script><?
-    }
-    else {
-		 ?><script>document.location.href="modifyhostform.php?<?php echo $get_param; ?>&update=1"</script>
-    <?php
-    }
-    ?>
+if ( ($_SESSION["menu_sopc"]=="Hosts" || $_SESSION["menu_sopc"]=="Assets") && POST('withoutmenu') != "1") 
+{ 
+	?>
+		<p><?php echo _("Host succesfully updated") ?></p>    
+		<script type='text/javascript'>document.location.href="host.php"</script>
+	<?php
+}
+else 
+{
+	?><script type='text/javascript'>document.location.href="modifyhostform.php?<?php echo $get_param; ?>&update=1"</script><?php
+}
+?>
         
     </body>
 </html>

@@ -44,6 +44,18 @@ $conn = $db->connect();
 
 $ip       = GET('ip');
 $sname    = GET('name');
+$update   = intval(GET('update'));
+
+$style       = "display: none;";
+$class_msg   = "ossim_error";
+$success_msg = "";
+
+if ( $update == 1 ) 
+{
+    $success_msg = _("Server succesfully updated");
+    $style       = "display: block;text-align:center;"; 
+	$class_msg   = "ossim_success";
+}
 
 
 ossim_valid($ip, OSS_IP_ADDR, OSS_NULLABLE, 'illegal:' . _("Server IP"));
@@ -73,6 +85,9 @@ if ( isset($_SESSION['_server']) )
 	
 	unset($_SESSION['_server']);
 	
+	if ( !empty($_GET['name']) )
+		$action = 'modifyserver.php';
+	
 }
 else
 {
@@ -83,8 +98,8 @@ else
 		
 		if ( !empty($server_list) && !empty($role_list) ) 
 		{
-			$server = $server_list[0];
-			$role = $role_list[0];
+			$server          =  $server_list[0];
+			$role            =  $role_list[0];
 			$sname           =  $server->get_name();
 			$ip              =  $server->get_ip();
 			$port            =  $server->get_port();
@@ -100,7 +115,6 @@ else
 			$sim             =  $role->get_sim();
 						
 			$action = 'modifyserver.php';
-			
 		}
 	}
 	else
@@ -160,7 +174,7 @@ else
 <head>
 	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-	<meta http-equiv="Pragma" CONTENT="no-cache"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/ajax_validator.js"></script>
@@ -340,7 +354,7 @@ if (GET('withoutmenu') != "1")
 ?>
 
 
-<div id='info_error' class='ossim_error' style='display: none;'></div>
+<div id='info_error' class='<?php echo $class_msg?>' style='<?php echo $style?>'><?php echo $success_msg?></div>
 
 <form method="post" name='form_server' id='form_server' action="<?php echo $action;?>">
 

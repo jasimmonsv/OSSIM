@@ -158,10 +158,10 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
 {
 	include ("../hmenu.php"); 
-	$get_param = "name=$sname";	
+	$get_param = "name=".urlencode($sname);	
 }
 else
-	$get_param = "name=$sname&withoutmenu=1";	
+	$get_param = "name=".urlencode($sname)."&withoutmenu=1";	
 ?>
 
 <h1><?php echo gettext("Update Server"); ?></h1>
@@ -196,9 +196,25 @@ if ( isset($_SESSION['_server']) )
 	unset($_SESSION['_server']);
 
 ?>
-    <p> <?php echo gettext("Server succesfully updated"); ?> </p>
-    <? if ($_SESSION["menu_sopc"]=="Servers" && POST('withoutmenu') != "1") { ?><script>document.location.href="server.php"</script><? } ?>
+
+
+<?php
+if ( $_SESSION["menu_sopc"]=="Servers" && POST('withoutmenu') != "1" ) 
+{
+	?>
+	<p> <?php echo gettext("Server succesfully updated"); ?> </p>
+	<script type='text/javascript'>document.location.href="server.php"</script>
+	<?php 
+}
+else 
+{
+	?>
+	<script type='text/javascript'>document.location.href="newserverform.php?<?php echo $get_param; ?>&update=1";</script>
+	<?php
+}
+
+?>
 	
-</body>
+	</body>
 </html>
 

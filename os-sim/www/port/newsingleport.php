@@ -54,10 +54,10 @@ $descr    = POST('descr');
 
 
 $validate = array (
-	"port"     => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port")),
-	"protocol" => array("validation"=>"OSS_PROTOCOL", "e_message" => 'illegal:' . _("Protocol")),
-	"service"  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Service")),
-	"descr"    => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")));
+	"port"     => array("validation"=>"OSS_PORT",                       "e_message" => 'illegal:' . _("Port")),
+	"protocol" => array("validation"=>"OSS_PROTOCOL",                   "e_message" => 'illegal:' . _("Protocol")),
+	"service"  => array("validation"=>"OSS_ALPHA, OSS_PUNC",            "e_message" => 'illegal:' . _("Service")),
+	"descr"    => array("validation"=>"OSS_NULLABLE, OSS_AT, OSS_TEXT", "e_message" => 'illegal:' . _("Description")));
 	
 if ( GET('ajax_validation') == true )
 {
@@ -127,7 +127,7 @@ if ( $error == true )
 <head>
 	  <title> <?php echo gettext("OSSIM Framework"); ?> </title>
 	  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-	  <meta http-equiv="Pragma" CONTENT="no-cache"/>
+	  <meta http-equiv="Pragma" content="no-cache"/>
 	  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
 </head>
 
@@ -162,7 +162,12 @@ $db->close($conn);
 
 ?>
     <p> <?php echo gettext("Port succesfully inserted"); ?> </p>
-    <? if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="port.php"</script><? } ?>
+    <?php 
+	if ( $_SESSION["menu_sopc"]=="Ports" && POST('withoutmenu') != "1" ) 
+	{ 
+		?><script type='text/javascript'>document.location.href="port.php"</script><?php 
+	} 
+?>
 
 </body>
 </html>

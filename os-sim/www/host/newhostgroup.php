@@ -195,17 +195,18 @@ if (POST('insert')) {
 if ( isset($_SESSION['_hostgroup']) )
     unset($_SESSION['_hostgroup']);
 
+if ( $_SESSION["menu_sopc"]=="Host groups" && POST('withoutmenu') != "1" ) 
+{ 
+	?>
+        <p> <?php echo _("Host group succesfully inserted"); ?> </p>
+        <script type='text/javascript'>document.location.href="hostgroup.php"</script>
+    <?php 
+}
+else 
+{    
+	?><script type='text/javascript'>document.location.href="newhostgroupform.php?<?php echo $get_param; ?>&update=1"</script><?php
+}
 ?>
-    
-    <? if ( $_SESSION["menu_sopc"]=="Host groups" && POST('withoutmenu') != "1" ) { ?>
-        <p> <?php echo gettext("Host group succesfully inserted"); ?> </p>
-        <script>document.location.href="hostgroup.php"</script>
-    <? }
-       else {    ?>
-            <script>document.location.href="newhostgroupform.php?<?php echo $get_param; ?>&update=1"</script>
-        <?php
-        }
-    ?>
 	</body>
 </html>
 

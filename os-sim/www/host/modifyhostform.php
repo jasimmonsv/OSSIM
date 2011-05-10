@@ -65,7 +65,8 @@ $removeicon = intval(GET('removeicon'));
 
 $style = $style_success = "style='display: none;'";
 
-if ($update==1) {
+if ($update==1) 
+{
     $success_message = gettext("Host succesfully updated");
     $style_success   = "style='display: block;text-align:center;'"; 
 }
