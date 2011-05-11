@@ -116,10 +116,11 @@
  |      1633 | Motorola-Firewall  | detector |
  |      1634 | ElJefe             | detector |
  |      1635 | netscreen-igs      | detector |
- |	1636 | cisco-asa	  | detector |
+ |      1636 | cisco-asa          | detector |
  |      1637 | openvpn            | detector |
  |      1638 | proftpd            | detector |
  |      1639 | knockd             | detector |
+ |      1640 | usbudev            | detector |
  +-----------+--------------------+----------+
  |      1801 | forensics-db-1     | detector |
  +-----------+--------------------+----------+
