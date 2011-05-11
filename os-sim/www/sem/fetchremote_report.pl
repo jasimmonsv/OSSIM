@@ -15,7 +15,7 @@ if ($logger_source !~ /^(\d+\.\d+\.\d+\.\d+)+$/) {
 	print "Parameters error\n";
 	exit;
 }
-if ($script_name ne "AttackedHosts" && $script_name ne "AttackerHosts") {
+if ($script_name ne "AttackedHosts" && $script_name ne "AttackerHosts" && $script_name ne "UsedPorts" && $script_name ne "CollectionSources" && $script_name ne "EventsTrend") {
 	print "Parameters error\n";
 	exit;
 }
