@@ -97,7 +97,7 @@ if (!$only_status && !$only_stop) {
 		$remote_sensor = "null";
 	}
 	$cmd = "/usr/bin/php /usr/share/ossim/scripts/vulnmeter/remote_nmap.php $net $remote_sensor '$timing_template' '$full_scan' > /tmp/nmap_scanning.log 2>&1 &";
-	if (file_exists("/tmp/nmap_completed_scan.log")) unlink("/tmp/nmap_completed_scan.log");
+	if (file_exists("/tmp/nmap_completed_scan.log")) @unlink("/tmp/nmap_completed_scan.log");
 	system($cmd);
 }
 
