@@ -48,6 +48,11 @@ then
         echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_validate.pl" >> /etc/sudoers
 fi
 
+if ! [ `grep -c "fetchremote_report.pl" /etc/sudoers` -ne 0 ]
+then
+        echo "www-data ALL=NOPASSWD: /usr/share/ossim/www/sem/fetchremote_report.pl" >> /etc/sudoers
+fi
+
 if ! [ `grep -c "agent_control" /etc/sudoers` -ne 0 ]
 then
         echo "www-data ALL=NOPASSWD: /var/ossec/bin/agent_control" >> /etc/sudoers
@@ -173,13 +178,14 @@ fi
 chown www-data:www-data /usr/share/ossim/www/report/jasper_include/temp/
 
 
-# php-ids log file
+# php-ids log file and default_filter.cache
 if [ ! -e "/var/log/php-ids.log" ]; then
 	touch "/var/log/php-ids.log"
 	chown www-data "/var/log/php-ids.log"
 fi
 touch "/tmp/default_filter.cache"
 chown www-data.www-data "/tmp/default_filter.cache"
+
 
 #This is to fix people with an old version, where /var/ossim/sessions was a file
 if [ -f /var/ossim/sessions ]; then
@@ -258,11 +264,10 @@ fi
 #fi
 
 # dir "first" and symlink "last" not neccesary now, so i'm disabling next lines:
-#if [ ! -L /usr/share/ossim/www/vulnmeter/last ]; then
+#if [ ! -h /usr/share/ossim/www/vulnmeter/last ]; then
 #	rm -rf /usr/share/ossim/www/vulnmeter/last
-#	ln -s /usr/share/ossim/www/vulnmeter/first/ /usr/share/ossim/www/vulnmeter/last
 #fi
-
+#
 #if [ ! -e /usr/share/ossim/www/vulnmeter/last ]; then
 #	ln -s /usr/share/ossim/www/vulnmeter/first/ /usr/share/ossim/www/vulnmeter/last
 #fi
