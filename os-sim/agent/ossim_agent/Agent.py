@@ -426,6 +426,7 @@ class Agent:
 
                     else:
                         parser = ParserSDEE(self.conf, plugin, None)
+                    parser.start()
                 elif plugin.get("config", "source") == "remote-log":
                    if plugin_id in self.conn_plugins:
                         parser = ParserRemote(self.conf, plugin, self.conn_plugins[plugin_id])

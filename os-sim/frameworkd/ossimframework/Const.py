@@ -15,7 +15,7 @@ SLEEP = 300
 CONFIG_FILE = "/etc/ossim/framework/ossim.conf"
 
 # Default asset
-ASSET= 2
+ASSET = 2
 
 # Default frameworkd path
 FRAMEWORKD_DIR = "/usr/share/ossim-framework/ossimframework/"
@@ -38,7 +38,7 @@ LISTENER_PORT = 40003
 # default listener ip address. Defaults to loopback only
 # overriden with -l option
 # Specify 0.0.0.0 for "any"
-LISTENER_ADDRESS = "127.0.0.1"
+LISTENER_ADDRESS = "0.0.0.0"
 
 
 
