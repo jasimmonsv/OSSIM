@@ -34,6 +34,7 @@
 * Function list:
 * Classes list:
 */
+ob_implicit_flush();
 require_once ('classes/Session.inc');
 require_once 'ossim_conf.inc';
 require_once 'ossim_db.inc';
