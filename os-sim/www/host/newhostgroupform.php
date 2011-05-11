@@ -177,15 +177,16 @@ Session::logcheck("MenuPolicy", "PolicyHosts");
 
 <?php
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
-$hgname = GET('name');
+$hgname  = GET('name');
 $update  = intval(GET('update'));
 
 $style_success = "style='display: none;'";
 
-if($update==1) {
+if( $update==1 ) 
+{
     $success_message = gettext("Host group succesfully updated");
     $style_success   = "style='display: block;text-align:center;'";
 }

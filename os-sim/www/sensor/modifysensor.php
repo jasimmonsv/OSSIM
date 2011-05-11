@@ -44,7 +44,7 @@ Session::logcheck("MenuConfiguration", "PolicySensors");
 
 $error = false;
 
-$name        = POST('name');
+$sname       = POST('sname');
 $ip          = POST('ip');
 $priority    = POST('priority');
 $descr	     = POST('descr');
@@ -52,12 +52,12 @@ $port	     = POST('port');
 $tzone	     = POST('tzone');
 
 $validate = array (
-	"name"      => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Sensor Name")),
-	"ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip")),
-	"priority"  => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Priority")),
-	"port"      => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
-	"tzone"     => array("validation"=>"OSS_DIGIT, OSS_SCORE, OSS_DOT", "e_message" => 'illegal:' . _("Timezone")),
-	"descr"     => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")));
+	"sname"     => array("validation"=>"OSS_ALPHA, OSS_PUNC",                 "e_message" => 'illegal:' . _("Sensor Name")),
+	"ip"        => array("validation"=>"OSS_IP_ADDR",                         "e_message" => 'illegal:' . _("Ip")),
+	"priority"  => array("validation"=>"OSS_DIGIT",                           "e_message" => 'illegal:' . _("Priority")),
+	"port"      => array("validation"=>"OSS_PORT",                            "e_message" => 'illegal:' . _("Port number")),
+	"tzone"     => array("validation"=>"OSS_DIGIT, OSS_SCORE, OSS_DOT, '\+'", "e_message" => 'illegal:' . _("Timezone")),
+	"descr"     => array("validation"=>"OSS_NULLABLE, OSS_AT, OSS_TEXT",      "e_message" => 'illegal:' . _("Description")));
 	
 if ( GET('ajax_validation') == true )
 {
@@ -100,14 +100,11 @@ else
 		
 		exit();
 	}
-		
-	
-	
 }
 
 if ( $error == true )
 {
-	$_SESSION['_sensor']['name']     = $name;
+	$_SESSION['_sensor']['sname']    = $sname;
 	$_SESSION['_sensor']['ip']       = $ip;
 	$_SESSION['_sensor']['descr']    = $descr;
 	$_SESSION['_sensor']['priority'] = $priority;
@@ -133,26 +130,26 @@ if ( $error == true )
 if (POST('withoutmenu') != "1") 
 {
     include ("../hmenu.php");
-    $get_param = "name=".urlencode($name);
+    $get_param = "ip=$ip&name=".urlencode($sname);
 }
-else {
-    $get_param = "name=".urlencode($name)."&withoutmenu=1";
-}
+else 
+    $get_param = "ip=$ip&name=".urlencode($sname)."&withoutmenu=1";
 
-if ( POST('insert') && !empty($name) )
+
+if ( POST('insert') && !empty($sname) )
 {
     if ( $error == true)
 	{
 		$txt_error = "<div>"._("We Found the following errors").":</div><div style='padding:10px;'>".implode( "<br/>", $message_error)."</div>";			
 		Util::print_error($txt_error);	
-		Util::make_form("POST", "modifysensorform.php?name=$name&withoutmenu=1");
+		Util::make_form("POST", "modifysensorform.php?".$get_param);
 		die();
 	}
 		
     $db = new ossim_db();
     $conn = $db->connect();
 	
-    Sensor::update($conn, $name, $ip, $priority, $port, $tzone, $descr);
+    Sensor::update($conn, $sname, $ip, $priority, $port, $tzone, $descr);
    
 	$db->close($conn);
     
@@ -163,7 +160,7 @@ if ( isset($_SESSION['_sensor']) )
     unset($_SESSION['_sensor']);
     
     ?>
-    <script>document.location.href="modifysensorform.php?<?php echo $get_param; ?>&update=1"</script>
+    <script type='text/javascript'>document.location.href="modifysensorform.php?<?php echo $get_param; ?>&update=1"</script>
 
 </body>
 </html>

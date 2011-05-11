@@ -50,59 +50,82 @@ require_once 'classes/Plugin.inc';
 require_once 'classes/Security.inc';
 require_once ("classes/Repository.inc");
 $order = GET('sortname');
-if (empty($order)) $order = POST('sortname');
+
+if (empty($order))  $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
+
 $search = GET('query');
-if (empty($search)) $search = POST('query');
+if (empty($search)) 
+	$search = POST('query');
+
+if ( !empty($search) )
+	$search = (mb_detect_encoding($search." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($search) : $search;
+
 $field = POST('qtype');
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+$page  = POST('page');
+
+if (empty($page)) 
+	$page = 1;
+	
+$rp = (!empty($rp)) ? POST('rp') : 25;
+
 $nessus_action  = GET('nessus_action');
 $net_group_name = GET('net_group_name');
 
 if ( !empty($search) )
 	$search = (mb_detect_encoding($search." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($search) : $search;
 
-ossim_valid($nessus_action, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("Nessus action"));
-ossim_valid($net_group_name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Net group name"));
-ossim_valid($order, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_NULLABLE, 'illegal:' . _("Order"));
-ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
-ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
-ossim_valid($search, OSS_TEXT, OSS_NULLABLE, 'illegal:' . _("search"));
-ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("field"));
+ossim_valid($nessus_action, OSS_ALPHA, OSS_NULLABLE,            'illegal:' . _("Nessus action"));
+ossim_valid($net_group_name, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Net group name"));
+ossim_valid($order, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE,          'illegal:' . _("Order"));
+ossim_valid($page, OSS_DIGIT, OSS_NULLABLE,                     'illegal:' . _("page"));
+ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE,                       'illegal:' . _("rp"));
+ossim_valid($search, OSS_TEXT, OSS_NULLABLE,                    'illegal:' . _("search"));
+ossim_valid($field, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE,          'illegal:' . _("field"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
-if ((!empty($nessus_action)) AND (!empty($net_group_name))) {
-    if ($nessus_action == "toggle") {
+if ((!empty($nessus_action)) AND (!empty($net_group_name))) 
+{
+    if ($nessus_action == "toggle")
         $nessus_action = ($scan_list = Net_group_scan::get_list($conn, "WHERE net_group_name = '$net_group_name' AND plugin_id = 3001")) ? "disable" : "enable";
-    }
-    if ($nessus_action == "enable") {
+    
+    if ($nessus_action == "enable")
         Net_group::enable_nessus($conn, $net_group_name);
-    } elseif ($nessus_action = "disable") {
+    elseif ($nessus_action = "disable")
         Net_group::disable_nessus($conn, $net_group_name);
-    }
+    
 }
+
 if (empty($order)) $order = "name";
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
+
 $where = "";
-if (!empty($search) && !empty($field)) $where = "name LIKE '%$search%'";
+if (!empty($search) && !empty($field)) 
+	$where = "name LIKE '%$search%'";
 $xml = "";
+
 $net_group_list = Net_group::get_list($conn, $where, "ORDER BY $order $limit");
-if ($net_group_list[0]) {
+if ($net_group_list[0]) 
+{
     $total = $net_group_list[0]->get_foundrows();
-    if ($total == 0) $total = count($net_group_list);
-} else $total = 0;
+    if ($total == 0) 
+		$total = count($net_group_list);
+} 
+else 
+	$total = 0;
 
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
-foreach($net_group_list as $net_group) {
+
+foreach($net_group_list as $net_group) 
+{
     $name = $net_group->get_name();
 	$xml.= "<row id='".htmlspecialchars(utf8_encode($name))."'>";
     $link_modify = "<a style='font-weight:bold;' href=\"./newnetgroupform.php?name=".urlencode($name)."\">" . Util::htmlentities($name) . "</a>";
@@ -125,7 +148,7 @@ foreach($net_group_list as $net_group) {
     $xml.= "<cell><![CDATA[" . $scan_types . "]]></cell>"; */
     $desc = $net_group->get_descr();
     if ($desc == "") $desc = "&nbsp;";
-    $xml.= "<cell><![CDATA[" . $desc . "]]></cell>";
+    $xml.= "<cell><![CDATA[" . utf8_encode($desc) . "]]></cell>";
     $rep = "";
     if ($linkedocs = Repository::have_linked_documents($conn, $name, 'net_group')) $rep.= "<a href=\"../repository/repository_list.php?keyname=" . urlencode($name) . "&type=net_group\" target=\"addcontent\" class=\"blue\">[" . $linkedocs . "]</a>&nbsp;";
     $rep.= "<a href=\"../repository/index.php?hmenu=Repository&smenu=Repository\"><img src=\"../pixmaps/tables/table_edit.png\" title=\"Edit KDB\" alt=\"Edit KDB\" border=0 align=\"absmiddle\"></a>";
@@ -136,5 +159,3 @@ $xml.= "</rows>\n";
 echo $xml;
 $db->close($conn);
 ?>
-
-

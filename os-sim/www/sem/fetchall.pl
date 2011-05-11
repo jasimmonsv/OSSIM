@@ -93,7 +93,7 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 			@ors = split(/#| OR /i,$ff);
 			$filter = "";
 			foreach $f1 (@ors) {
-				$f1 =~ /(.*?)=(.*)/i;
+				$f1 =~ /\s*(.*?)=(.*)/i;
 				$fname = $1; $fvalue = $2;
 				if ($fname eq "data") {
 					$fvalue = "'$fvalue'" if ($fvalue !~ /^\'/);
@@ -116,13 +116,15 @@ if($operation eq "logs" && $idsesion ne "NOINDEX" && -f $ini{'main'}{'searcher'}
 			elsif ($filter =~ /^plugingroup=(.*)/i) { # plugin group preprocess
 				$filter = "taxonomy=".get_plugingroup_filter($1);
 			}
-			elsif ($filter =~ /^plugin_list=([\d\|\:]+)/i) { # plugin list preprocess
-				$filter = "taxonomy=".$1;
+			elsif ($filter =~ /^plugin_list=([\d\|\:\,]+)/i) { # plugin list preprocess
+				$idsids = $1;
+				$idsids =~ s/\,/|/g;
+				$filter = "taxonomy=".$idsids;
 			}
 			$param .= ",$filter" if ($filter ne "");
 		}
 	}
-	#print "$param\n"; die;
+	# print "$param\n"; die;
 	# limits and order
 	$param .= ",count=$num_lines,first=$start_line";
 	$param .= ($order_by eq "date") ? ",order_first" : ",order_last";

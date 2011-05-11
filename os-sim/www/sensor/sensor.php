@@ -177,8 +177,10 @@ if ($diff_arr) {
 		if (com=='<?php echo _("Delete selected")?>') {
 			//Delete host by ajax
 			if (typeof(items[0]) != 'undefined') {
-				var sdata = items[0].id.substr(3).split('###');
-				document.location.href = 'deletesensor.php?confirm=yes&name='+urlencode(sdata[0])
+                if(confirm('<?php echo _("Do you want to delete this sensor?") ?>')) {
+                    var sdata = items[0].id.substr(3).split('###');
+                    document.location.href = 'deletesensor.php?confirm=yes&name='+urlencode(sdata[0])
+                }
 			}
 			else alert('<?=_("You must select a sensor")?>');
 		}
@@ -220,7 +222,9 @@ if ($diff_arr) {
                 if (com=='delete') {
                     //Delete host by ajax
                     if (typeof(ip) != 'undefined') {
-                      document.location.href = 'deletesensor.php?confirm=yes&name='+urlencode(hostname)
+                        if(confirm('<?php echo _("Do you want to delete this sensor?") ?>')) {
+                            document.location.href = 'deletesensor.php?confirm=yes&name='+urlencode(hostname)
+                        }
                     }
                     else alert('<?=_("Sensor unselected")?>');
 		}

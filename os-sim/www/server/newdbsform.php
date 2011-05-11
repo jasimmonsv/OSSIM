@@ -71,12 +71,12 @@ Session::logcheck("MenuConfiguration", "PolicyServers");
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-			echo "#table_form {background: transparent; width: 500px;}";
+			echo "#table_form {width: 500px;}";
 		    echo "#table_form th {width: 150px;}";
 		}
 		else
 		{
-			echo "#table_form {background: transparent; width: 500px;}";
+			echo "#table_form {width: 500px;}";
 		    echo "#table_form th {width: 150px;}";
 		}
 		?>
@@ -94,14 +94,14 @@ Session::logcheck("MenuConfiguration", "PolicyServers");
                                                                                 
 <?php 
 
-$db = new ossim_db();
-$conn = $db->connect();
+$db    = new ossim_db();
+$conn  = $db->connect();
 
-$name = GET('name');
+$dbs_name = GET('name');
 
 if ( isset($_SESSION['_dbs']) )
 {
-	$name      = $_SESSION['_dbs']['name'];
+	$dbs_name  = $_SESSION['_dbs']['dbs_name'];
 	$ip        = $_SESSION['_dbs']['ip'];
 	$port      = $_SESSION['_dbs']['port'];
 	$user      = $_SESSION['_dbs']['user'];
@@ -116,23 +116,23 @@ else
 	$ip    = $user = $pass = "";
 	$port  = "3306";
 		
-	if ($name != '')
+	if ($dbs_name != '')
 	{
-		ossim_valid($name, OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SCORE, 'illegal:' . _("Database Server Name"));
+		ossim_valid($dbs_name, OSS_ALPHA, OSS_PUNC, OSS_SCORE, 'illegal:' . _("Database Server Name"));
 	
 		if (ossim_error()) 
 			die(ossim_error());
 			
-		if ($server_list = Databases::get_list($conn, "WHERE name = '$name'"))
+		if ($server_list = Databases::get_list($conn, "WHERE name = '$dbs_name'"))
 		{
 			$server    = $server_list[0];
-			$name      = $server->get_name();
+			$dbs_name  = $server->get_name();
 			$ip        = $server->get_ip();
 			$port      = $server->get_port();
 			$user      = $server->get_user();
 			$pass      = $server->get_pass();
 			$icon      = $server->get_name();
-            $pass2 = $pass;
+            $pass2     = $pass;
         }
 	}
 	
@@ -155,18 +155,18 @@ if (GET('withoutmenu') != "1")
 <table align="center" id='table_form'>
 	  
 	<tr>
-		<th><label for='name'><?php echo gettext("Name"); ?></label></th>
+		<th><label for='dbs_name'><?php echo gettext("Name"); ?></label></th>
 		<td class="left">
 			<?php 
 			if ( GET('name') != '' ) 
 			{
-				echo "<input type='hidden' class='req_field vfield' name='name' id='name' value='$name'/>";
-				echo "<div class='bold'>$name</div>";
+				echo "<input type='hidden' class='req_field vfield' name='dbs_name' id='dbs_name' value='".$dbs_name."'/>";
+				echo "<div class='bold'>$dbs_name</div>";
 			}
 			else
 			{
-				echo "<input type='text' class='req_field vfield' name='name' id='name' value='$name'/>";
-				echo "<span style='padding-left: 5px;'>*</span>";
+				echo "<input type='text' class='req_field vfield' name='dbs_name' id='dbs_name' value='".$dbs_name."'/>";
+				echo "<span style='padding-left: 6px;'>*</span>";
 			}
 			?>
 		</td>

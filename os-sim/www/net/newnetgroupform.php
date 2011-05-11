@@ -113,12 +113,12 @@ Session::logcheck("MenuPolicy", "PolicyNetworks");
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-			echo "#table_form {background: transparent; width: 500px;}";
+			echo "#table_form {width: 500px;}";
 		    echo "#table_form th {width: 185px;}";
 		}
 		else
 		{
-			echo "#table_form {background: transparent; width: 460px;}";
+			echo "#table_form {width: 460px;}";
 		    echo "#table_form th {width: 150px;}";
 		}
 		?>

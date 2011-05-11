@@ -43,20 +43,20 @@ Session::logcheck("MenuConfiguration", "PolicyServers");
 
 $error = false;
 
-$name  =  POST('name');
-$ip    =  POST('ip');
-$port  =  POST('port');
-$user  =  POST('user');
-$pass  =  POST('pass');
-$pass2 =  POST('pass2');
+$dbs_name =  POST('dbs_name');
+$ip       =  POST('ip');
+$port     =  POST('port');
+$user     =  POST('user');
+$pass     =  POST('pass');
+$pass2    =  POST('pass2');
 
 $validate = array (
-	"name"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Server Name")),
-	"ip"     => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip address")),
-	"port"   => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
-	"user"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("User")),
-	"pass"   => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Password")),
-    "pass2"  => array("validation"=>"OSS_ALPHA, OSS_PUNC, OSS_SPACE", "e_message" => 'illegal:' . _("Password"))
+	"dbs_name"  => array("validation"=>"OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Server Name")),
+	"ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip address")),
+	"port"      => array("validation"=>"OSS_PORT", "e_message" => 'illegal:' . _("Port number")),
+	"user"      => array("validation"=>"OSS_USER", "e_message" => 'illegal:' . _("User")),
+	"pass"      => array("validation"=>"OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Password")),
+    "pass2"     => array("validation"=>"OSS_ALPHA, OSS_PUNC", "e_message" => 'illegal:' . _("Repeat Password"))
     );
 
 if ( GET('ajax_validation') == true )
@@ -108,12 +108,12 @@ else
 
 if ( $error == true )
 {
-	$_SESSION['_dbs']['name']   = $name;
-	$_SESSION['_dbs']['ip']     = $ip;
-	$_SESSION['_dbs']['port']   = $port;
-	$_SESSION['_dbs']['user']   = $user;
-	$_SESSION['_dbs']['pass']   = $pass;
-    $_SESSION['_dbs']['pass2']  = $pass2;
+	$_SESSION['_dbs']['dbs_name']  = $dbs_name;
+	$_SESSION['_dbs']['ip']        = $ip;
+	$_SESSION['_dbs']['port']      = $port;
+	$_SESSION['_dbs']['user']      = $user;
+	$_SESSION['_dbs']['pass']      = $pass;
+    $_SESSION['_dbs']['pass2']     = $pass2;
 }
 
 
@@ -158,7 +158,7 @@ if (POST('insert'))
 	if (is_uploaded_file($HTTP_POST_FILES['icon']['tmp_name']))
        $icon = file_get_contents($HTTP_POST_FILES['icon']['tmp_name']);
    
-    Databases::insert($conn, $name, $ip, $port, $user, $pass, $icon);
+    Databases::insert($conn, $dbs_name, $ip, $port, $user, $pass, $icon);
     
 	$db->close($conn);
 	
@@ -167,7 +167,14 @@ if (POST('insert'))
 }
 ?>
     <p> <?php echo gettext("Database server succesfully inserted"); ?> </p>
-    <? if ( $_SESSION["menu_sopc"]=="DBs" && POST('withoutmenu') != "1" ) { ?><script>document.location.href="dbs.php"</script><? } ?>
+    
+	<?php 
+	if ( $_SESSION["menu_sopc"]=="DBs" && POST('withoutmenu') != "1" ) 
+	{ 
+		?><script type='text/javascript'>document.location.href="dbs.php";</script><?php 
+	} 
+	?>
 
 </body>
+
 </html>

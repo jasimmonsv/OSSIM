@@ -49,27 +49,28 @@ require_once ('classes/Server.inc');
 require_once ('classes/Sensor.inc');
 require_once ('classes/Action.inc');
 require_once ('ossim_db.inc');
-$db = new ossim_db();
-$conn = $db->connect();
-$tab = GET('tab');
+
+$db    = new ossim_db();
+$conn  = $db->connect();
+$tab   = GET('tab');
 ossim_valid($tab, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("tab"));
-$id = (GET('id') != "") ? GET('id') : "";
+$id    = (GET('id') != "") ? GET('id') : "";
 
 // default vars
-$priority = -1;
-$correlate = 1;
+$priority        = -1;
+$correlate       = 1;
 $cross_correlate = 1;
-$store = 1;
-$qualify = 1;
-$active = 1;
-$order = 0;
-$resend_alarm = 1;
-$resend_event = 1;
-$sign = 0;
-$sem = 0;
-$sim = 1;
+$store           = 1;
+$qualify         = 1;
+$active          = 1;
+$order           = 0;
+$resend_alarm    = 1;
+$resend_event    = 1;
+$sign            = 0;
+$sem             = 0;
+$sim             = 1;
 if ($group == "") $group = 1;
-$desc = "";
+$desc    = "";
 $sources = $dests = $ports = $plugingroups = $sensors = $targets = $actions = array();
 $timearr = array(
     1,
@@ -80,13 +81,14 @@ $timearr = array(
 
 if ($id != "") {
     settype($id, "int");
-    if ($policies = Policy::get_list($conn, "WHERE policy.order=$id")) {
-        $policy = $policies[0];
-        $id = $policy->get_id();
+    if ($policies = Policy::get_list($conn, "WHERE policy.order=$id")) 
+	{
+        $policy   = $policies[0];
+        $id       = $policy->get_id();
         $priority = $policy->get_priority();
-        $active = $policy->get_active();
-        $group = $policy->get_group();
-        $order = $policy->get_order();
+        $active   = $policy->get_active();
+        $group    = $policy->get_group();
+        $order    = $policy->get_order();
         if ($source_host_list = $policy->get_hosts($conn, 'source')) foreach($source_host_list as $source_host) {
             //$host = Host::ip2hostname($conn, $source_host->get_host_ip());
             $sources[] = ($host == "any") ? "ANY" : "HOST:" . $source_host->get_host_ip();
@@ -154,8 +156,9 @@ if ($id != "") {
             }
         }
     }
-} else {
-    $ports[] = "ANY";
+} else 
+{
+    $ports[]   = "ANY";
     $targets[] = "any";
     $sensors[] = "any";
 }
@@ -164,39 +167,48 @@ ossim_valid($id, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("i
 if (ossim_error()) {
     die(ossim_error());
 }
-if ($tab == "ports") {
+if ($tab == "ports") 
+{
     if ($port_group_list = Port_group::get_list($conn, "ORDER BY name")) {
         $i = 1;
-        foreach($port_group_list as $port_group) {
+        foreach($port_group_list as $port_group) 
+		{
             $port_group_name = $port_group->get_name();
-?>
-        <option value="<?php echo $port_group_name
-?>"> <?php echo $port_group_name . "<br>\n"; ?>
-<?php
+			?>
+			<option value="<?php echo $port_group_name?>"> <?php echo $port_group_name . "<br>\n"; ?>
+			<?php
             $i++;
         }
     }
-} elseif ($tab == "plugins") {
-    foreach(Plugingroup::get_list($conn) as $g) {
-?>
-    <input type="checkbox" id="plugin_<?php echo $g->get_name() ?>" onclick="drawpolicy()" name="plugins[<?php echo $g->get_id() ?>]" <?php echo (in_array($g->get_id() , $plugingroups)) ? "checked='checked'" : "" ?>> <a href="../policy/modifyplugingroupsform.php?action=edit&id=<?php echo $g->get_id() ?>&withoutmenu=1" class="greybox" title="<?=_('View plugin group')?>"><?php echo $g->get_name() ?></a><br/>
-<?php
+} 
+elseif ($tab == "plugins") 
+{
+    foreach(Plugingroup::get_list($conn) as $g) 
+	{
+		?>
+		<input type="checkbox" id="plugin_<?php echo $g->get_name() ?>" onclick="drawpolicy()" name="plugins[<?php echo $g->get_id() ?>]" <?php echo (in_array($g->get_id() , $plugingroups)) ? "checked='checked'" : "" ?>> <a href="../policy/modifyplugingroupsform.php?action=edit&id=<?php echo $g->get_id() ?>&withoutmenu=1" class="greybox" title="<?=_('View plugin group')?>"><?php echo $g->get_name() ?></a><br/>
+		<?php
     }
-} elseif ($tab == "sensors") {
-    if ($sensor_list = Sensor::get_list($conn, "ORDER BY name")) {
+} 
+elseif ($tab == "sensors") 
+{
+    if ($sensor_list = Sensor::get_list($conn, "ORDER BY name")) 
+	{
         $i = 1;
-        foreach($sensor_list as $sensor) {
+        foreach($sensor_list as $sensor) 
+		{
             $sensor_name = $sensor->get_name();
-            $sensor_ip = $sensor->get_ip();
-?>
-        <option value="<?php echo $sensor_name
-?>"> <?php echo $sensor_ip . " (" . $sensor_name . ")<br>"; ?>
-<?php
+            $sensor_ip   = $sensor->get_ip();
+			?>
+			<option value="<?php echo $sensor_name?>"> <?php echo $sensor_ip . " (" . $sensor_name . ")<br/>"; ?>
+			<?php
             $i++;
         }
         echo "<option value=\"any\">ANY";
     }
-} elseif ($tab == "targets") {
+} 
+elseif ($tab == "targets") 
+{
     /*
 	$i = 1;
     if ($sensor_list = Sensor::get_list($conn, "ORDER BY name")) {
@@ -215,47 +227,55 @@ if ($tab == "ports") {
         }
     }*/
     $i = 1;
-    if ($server_list = Server::get_list($conn, "ORDER BY name")) {
-        foreach($server_list as $server) {
-            $server_name = $server->get_name();
-            $server_ip = $server->get_ip();
-            if ($i == 1) {
-?>
-        <input type="hidden" name="<?php echo "targetserver"; ?>" value="<?php echo count($server_list); ?>">
-<?php
+    if ($server_list = Server::get_list($conn, "ORDER BY name")) 
+	{
+        foreach($server_list as $server) 
+		{
+            $server_name = utf8_encode($server->get_name());
+            $server_ip   = $server->get_ip();
+            if ($i == 1) 
+			{
+				?>
+				<input type="hidden" name="<?php echo "targetserver"; ?>" value="<?php echo count($server_list); ?>">
+				<?php
             }
-?>
-        <input type="checkbox" name="<?php echo $name; ?>" value="<?php echo $server_name; ?>"> <?php echo $server_ip . " (" . $server_name . ")<br>"; ?>
+			?>
+			
+			<input type="checkbox" name="<?php echo $name; ?>" value="<?php echo $server_name; ?>"> <?php echo $server_ip . " (" . $server_name . ")<br>"; ?>
 
-<?php
+			<?php
             $i++;
         }
     }
-?>
-    <input type="checkbox" name="target_any" value="any">&nbsp;<b><?php echo _("ANY") ?></b>
-<?php
-} elseif ($tab == "groups") {
-    if ($policygroups = Policy_group::get_list($conn, "ORDER BY name")) {
+	?><input type="checkbox" name="target_any" value="any">&nbsp;<b><?php echo _("ANY") ?></b><?php
+} 
+elseif ($tab == "groups") 
+{
+    if ($policygroups = Policy_group::get_list($conn, "ORDER BY name")) 
+	{
         $i = 0;
-        foreach($policygroups as $policygrp) {
+        foreach($policygroups as $policygrp) 
+		{
             $name = $policygrp->get_name();
             $id = $policygrp->get_group_id();
-?>
-        <option value="<?php echo $id
-?>" <?php echo ($i++ == 0) ? "selected" : "" ?>> <?php echo $name ?>
-<?php
+			?>
+			<option value="<?php echo $id?>" <?php echo ($i++ == 0) ? "selected='selected'" : "" ?>> <?php echo $name ?>
+			<?php
         }
     }
-} elseif ($tab == "responses") {
-    if ($action_list = Action::get_list($conn)) {
+}
+elseif ($tab == "responses") 
+{
+    if ($action_list = Action::get_list($conn)) 
+	{
         $i = 0;
-        foreach($action_list as $action) {
+        foreach($action_list as $action) 
+		{
             $name = $action->get_descr();
             $id = $action->get_id();
-?>
-        <option value="<?php echo $id
-?>"> <?php echo $name ?>
-<?php
+			?>
+			<option value="<?php echo $id?>"> <?php echo $name ?>
+			<?php
         }
     }
 }

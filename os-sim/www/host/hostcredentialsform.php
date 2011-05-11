@@ -54,7 +54,7 @@ ossim_valid($id, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("Id"));
 if (ossim_error()) 
 	die(ossim_error());
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
 $credential_type = Host::get_credentials_type($conn);
@@ -151,17 +151,16 @@ else
 <style type='text/css'>
 
     <?php
-    if ( GET('withoutmenu') == "1" )
+	
+	if ( GET('withoutmenu') == "1" )
     {
-        echo "#table_form {background: transparent; width: 400px;}";
+        echo "#table_form {width: 400px;}";
         echo "#table_form th {width: 120px;}";
-    }
+	}
     else
     {
-        echo "#table_form {background: transparent; width: 850px;}";
-        echo "#table_form th {width: 250px;}";
-        echo "#table_form td.ipname {width: 70px;text-align:right}";
-        
+        echo "#table_form { width: 750px;}";
+        echo "#table_form th {width: 200px;}";
         echo "#table_data th.extra {width: 340px;}";
         echo "#table_data th.action {width: 70px;}";
     }
@@ -173,14 +172,18 @@ else
     .bold {font-weight: bold;}
     div.bold {line-height: 18px;}
     a {cursor:pointer;}
-
+	#table_form td.ipname {width: 55px; text-align:left;}
+	#table_data { width: 80%; margin: auto; text-align: center;}
+	
 </style>
 <body>
 
 <?php
 if (GET('withoutmenu') != "1") 
 	include ("../hmenu.php");
-    ?>
+
+?>
+
 
 
 <div id='info_error' class='ossim_error' style='display: none;'></div>
@@ -189,29 +192,34 @@ if (GET('withoutmenu') != "1")
 
 <input type="hidden" name="action" id='action'/>
 
-<?php
-$ucredentials = array();
-?>
+<?php $ucredentials = array(); ?>
 <table id='table_form' align='center'>
     <tr>
-        <td class='ipname nobborder'><label for='hostname'><div class='bold'><?php echo gettext("Hostname:"); ?></div></label></td>
-        <td class="left nobborder">
-            <input type="hidden" class='req_field vfield' name="hostname" id="hostname" value="<?php echo $hostname;?>"/>
-            <?php echo $hostname?>
-        </td>
-    </tr>
-    <tr>
-        <td class='ipname nobborder'><label for='ip'><div class='bold'><?php echo gettext("Ip:"); ?></div></label></td>
-        <td class="left nobborder">
-            <input type="hidden" class='req_field vfield' name="ip" id="ip" value="<?php echo $ip;?>"/>
-            <?php echo $ip?>
-        </td>
-    </tr>
+		<td colspan="2" class='nobborder'>
+			<table class="transparent" style='width: 300px;'>
+				<tr>
+					<td class='ipname nobborder'><label for='hostname'><div class='bold'><?php echo gettext("Hostname:"); ?></div></label></td>
+					<td class="left nobborder">
+						<input type="hidden" class='req_field vfield' name="hostname" id="hostname" value="<?php echo $hostname;?>"/>
+						<?php echo $hostname?>
+					</td>
+				</tr>
+				<tr>
+					<td class='ipname nobborder'><label for='ip'><div class='bold'><?php echo gettext("Ip:"); ?></div></label></td>
+					<td class="left nobborder">
+						<input type="hidden" class='req_field vfield' name="ip" id="ip" value="<?php echo $ip;?>"/>
+						<?php echo $ip?>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	
     <?php
     if(count($credentials)!=0) {
     ?>
     <tr>
-        <td colspan="2" style="padding-top:5px;" class="nobborder" nowrap>
+        <td colspan="2" style="padding-top:5px;" class="nobborder" nowrap='nowrap'>
             <table class="transparent" id='table_data'>
             <tr>
                 <th><?php echo gettext("Type"); ?></th>
@@ -268,7 +276,7 @@ $ucredentials = array();
         ?>
         <tr>
         <td colspan="2" style="padding:10px 0px 10px 0px;" class="nobborder" nowrap>
-        <table align='center' class="transparent">
+        <table align='center' class="transparent" id="table_data">
             <tr>
                 <th><label for='type'><?php echo gettext("Type"); ?></label></th>
                 <td class="left nobborder">

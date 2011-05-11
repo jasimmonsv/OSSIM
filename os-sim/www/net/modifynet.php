@@ -67,11 +67,11 @@ $num_sensors = count($sensors);
 
 $validate = array (
 	"netname"     => array("validation"=>"OSS_NET_NAME", "e_message" => 'illegal:' . _("Network Name")),
-	"cidr"        => array("validation"=>"OSS_IP_CIDR", "e_message" => 'illegal:' . _("CIDR")),
-	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
+	"cidr"        => array("validation"=>"OSS_IP_CIDR",  "e_message" => 'illegal:' . _("CIDR")),
+	"descr"       => array("validation"=>"OSS_NULLABLE, OSS_AT, OSS_TEXT", "e_message" => 'illegal:' . _("Description")),
 	"asset"       => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Asset value")),
 	"sboxs"       => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Sensors")),
-	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
+	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
 	"threshold_a" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold A")),
 	"threshold_c" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")));
 
@@ -198,15 +198,21 @@ if ( POST('insert') && !empty($net_name) )
 
 if ( isset($_SESSION['_net']) )     unset($_SESSION['_net']);
 
-    if ( $_SESSION["menu_sopc"]=="Networks" && POST('withoutmenu') != "1" ) { ?>
+    if ( $_SESSION["menu_sopc"]=="Networks" && POST('withoutmenu') != "1" ) 
+	{ 
+		?>
         <p> <?php echo gettext("Network succesfully updated"); ?> </p>
-        <script>document.location.href="net.php"</script><? 
+        <script type='text/javascript'>document.location.href="net.php"</script>
+		<?php 
     }
-    else {?>
-        <script>document.location.href="newnetform.php?<?php echo $get_param; ?>&update=1"</script>
-    <?php
+    else 
+	{
+		?>
+        <script type='text/javascript'>document.location.href="newnetform.php?<?php echo $get_param; ?>&update=1"</script>
+		<?php
     }
-    ?>
+?>
+
     </body>
 </html>
 

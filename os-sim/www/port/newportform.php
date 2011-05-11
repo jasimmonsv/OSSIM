@@ -218,22 +218,23 @@ $db->close($conn);
 		<?php
 		if ( GET('withoutmenu') == "1" )
 		{
-		?>
-			 #table_form {background: transparent; width: 400px;}
+			?>
+			 #table_form {width: 400px;}
 		     #table_form th {width: 130px;}
 			 #ports_name{
 				width: 90px !important;
 			 }
-		<?php
+			<?php
 		}
 		else
 		{
-		?>
-			#table_form {background: transparent; width: 500px;}
+			?>
+			#table_form {width: 500px;}
 		    #table_form th {width: 150px;}
-	<?php
+			<?php
 		}
 		?>
+		
 		input[type='text'], select, textarea {width: 90%; height: 18px;}
 		textarea { height: 45px;}
 		label {border: none; cursor: default;}

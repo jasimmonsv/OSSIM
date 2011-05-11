@@ -56,13 +56,13 @@ $networks    = ( isset($_POST['nets'] ) && !empty ( $_POST['nets']) ) ? Util::cl
 $num_networks = count($networks);
 
 $validate = array (
-	"ngname"      => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Network Group Name")),
-	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
-	"nets"       => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Networks")),
-	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
-	"threshold_a" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold A")),
-	"threshold_c" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),
-	"nagios"      => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" => 'illegal:' . _("Nagios")));
+	"ngname"      => array("validation"=>"OSS_NOECHARS, OSS_ALPHA, OSS_PUNC",      "e_message" => 'illegal:' . _("Network Group Name")),
+	"descr"       => array("validation"=>"OSS_NULLABLE, OSS_AT, OSS_TEXT",         "e_message" => 'illegal:' . _("Description")),
+	"nets"        => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Networks")),
+	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_PUNC",      "e_message" => 'illegal:' . _("RRD Profile")),
+	"threshold_a" => array("validation"=>"OSS_DIGIT",                              "e_message" => 'illegal:' . _("Threshold A")),
+	"threshold_c" => array("validation"=>"OSS_DIGIT",                              "e_message" => 'illegal:' . _("Threshold C")),
+	"nagios"      => array("validation"=>"OSS_NULLABLE, OSS_DIGIT",                "e_message" => 'illegal:' . _("Nagios")));
 	
 if ( GET('ajax_validation') == true )
 {
@@ -170,15 +170,21 @@ if (POST('insert'))
 if ( isset($_SESSION['_netgroup']) )
 	unset($_SESSION['_netgroup']);
 
-    if ( $_SESSION["menu_sopc"]=="Network groups" && POST('withoutmenu') != "1" ) {
-        ?>
-        <p> <?php echo gettext("Network Group succesfully inserted"); ?> </p>
-        <script>document.location.href="netgroup.php"</script><?
-    }
-    else {?>
-        <script>document.location.href="newnetgroupform.php?<?php echo $get_param; ?>&update=1"</script>
-    <?php
-    }?>
+if ( $_SESSION["menu_sopc"]=="Network groups" && POST('withoutmenu') != "1" ) 
+{
+	?>
+	<p> <?php echo gettext("Network Group succesfully inserted"); ?> </p>
+	<script type='text/javascript'>document.location.href="netgroup.php"</script>
+	<?php
+}
+else 
+{
+	?>
+	<script type='text/javascript'>document.location.href="newnetgroupform.php?<?php echo $get_param; ?>&update=1"</script>
+	<?php
+}
+
+?>
 
 	</body>
 </html>
