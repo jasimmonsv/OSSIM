@@ -645,6 +645,16 @@ class Agent:
                     time.sleep(poolInterval)
                 else:
                     tmpPrio = tmpPrio + 1
+                for server_ip, stop_counter in self.__stop_server_counter_array.items():
+                    logger.info("Server:%s - stopCounter:%s" % (server_ip, stop_counter))
+                    if stop_counter == maxStopCounter:
+                        serverconn = self.__getServerConn_byIP(server_ip)
+                        logger.info("Server %s:%s has reached five stops, trying to reconnect!" % (serverconn.get_server_ip(), serverconn.get_server_port()))
+                        serverconn.connect(attempts=3, waittime=10)
+                        Stats.server_reconnect(serverconn.get_server_ip())
+                        self.__stop_server_counter_array[server_ip] = 0
+                        reconnect_try = True
+                        time.sleep(2)
                 #Some server is alive...
             if tmpPrio - 1 != self.__currentPriority:
                 logger.warning("Current priority server has changed, current priority = %d", tmpPrio - 1)
@@ -652,16 +662,7 @@ class Agent:
                 self.__changePriority()
                 priority_changed = True
             #check stop counter, if a server reaches five stops, we retry to connect
-            for server_ip, stop_counter in self.__stop_server_counter_array.items():
-                logger.info("Server:%s - stopCounter:%s" % (server_ip, stop_counter))
-                if stop_counter == maxStopCounter:
-                    serverconn = self.__getServerConn_byIP(server_ip)
-                    logger.info("Server %s:%s has reached five stops, trying to reconnect!" % (serverconn.get_server_ip(), serverconn.get_server_port()))
-                    serverconn.connect(attempts=3, waittime=10)
-                    Stats.server_reconnect(serverconn.get_server_ip())
-                    self.__stop_server_counter_array[server_ip] = 0
-                    reconnect_try = True
-                    time.sleep(2)
+
             if self.__keep_working and not reconnect_try and not priority_changed:
                 time.sleep(timeBeetweenChecks)
 
