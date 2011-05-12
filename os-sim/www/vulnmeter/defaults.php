@@ -172,7 +172,7 @@ case "POST" :
         $result=$dbconn->execute($sql);
         $counter = 0;
 
-        if ($submit=="save") {
+        if ($submit==_("save")) {
 	    logAccess( "Save default profile" );
             while(!$result->EOF) {
                 $counter++;
@@ -330,7 +330,7 @@ case "POST" :
 //        echo "<A href=\"defaults.php?prefs=1\">Preferences</A> |
 //        <A href=\"defaults.php?prefs=3\">Plugins</A> | <A href=\"defaults.php?prefs=4\">View Configuration File</a>";
 
-        if ($submit=="submit") {
+        if ($submit==_("save")) {
       //logAccess( "Save default plugins list" );
             reset ($_POST);   // if form method="post"
 
@@ -346,11 +346,11 @@ case "POST" :
                 }
             }
         }
-        if ($AllPlugins=="Enable All") {
+        if ($AllPlugins==_("Enable All")) {
       //logAccess( "Selected enable all plugins" );
             $result=$dbconn->Execute("Update vuln_nessus_plugins set enabled='Y'"); }
 
-        if ($NonDOS=="Enable Non DOS") {
+        if ($NonDOS==_("Enable Non DOS")) {
       //logAccess( "Selected enable all non dos plugins" );
             $result=$dbconn->Execute("Update vuln_nessus_plugins set enabled='N'");
 
@@ -361,7 +361,7 @@ case "POST" :
                 $result->MoveNext();
             }
         }
-	if ($DisableAll=="Disable All") {
+	if ($DisableAll==_("Disable All")) {
 	    $query="update vuln_nessus_plugins set enabled='N'";
 	    $result=$dbconn->execute($query);
 	}
