@@ -71,7 +71,7 @@ class ControlManager:
             self.__myconf["ossim_pass"])
             self.__myDB_connected = True
         #read host list
-        query = 'select hostname,ip from host where ip in  (select host_ip from  host_sensor_reference where sensor_name="%s")' % agent_id
+        query = 'select hostname,ip from host where ip in  (select host_ip from  host_sensor_reference where sensor_name="%s");' % agent_id
         tmp = self.__myDB.exec_query(query)
         new_command = 'action="refresh_asset_list" list={'
         for host in tmp:
