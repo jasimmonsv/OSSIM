@@ -68,7 +68,7 @@ $CONFIG = array(
         "title" => gettext("Ossim Server") ,
         "desc" => gettext("Configure the server's listening address") ,
         "advanced" => 1,
-    	"section" => "alarms,siem,logger",
+    	"section" => "siem,logger",
         "conf" => array(
             "server_address" => array(
                 "type" => "text",
@@ -90,8 +90,7 @@ $CONFIG = array(
 				"onchange" => "tsim(this.value)" ,
                 "help" => gettext("SIEM") ,
                 "desc" => "<font style='text-decoration:underline'>".gettext("SIEM")."</font>" ,
-                "advanced" => 1 ,
-                "section" => "siem"
+                "advanced" => 1
             ) ,
 			"server_qualify" => array(
                 "type" => array(
@@ -167,7 +166,6 @@ $CONFIG = array(
                 "help" => gettext("Alarm forwarding") ,
                 "desc" => gettext("Alarm forwarding") ,
                 "advanced" => 1,
-                "section" => "alarms",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             ) ,
 			"server_forward_event" => array(
@@ -239,7 +237,7 @@ $CONFIG = array(
                 "help" => gettext("Store in SIEM if priority >= this value")."<br>".gettext("Requires /etc/init.d/ossim-server restart") ,
                 "desc" => gettext("SIEM process priority threshold") ,
                 "advanced" => 1,
-                "section" => "logger",
+                "section" => "logger,siem",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             )
         )
@@ -288,6 +286,7 @@ $CONFIG = array(
         "title" => gettext("Ossim Framework") ,
         "desc" => gettext("PHP Configuration (graphs, acls, database api) and links to other applications") ,
         "advanced" => 1,
+    	"section" => "alarms",
         "conf" => array(
             /*"ossim_link" => array(
                 "type" => "text",
@@ -350,6 +349,7 @@ $CONFIG = array(
                 ) ,
                 "help" => "" ,
                 "desc" => gettext("Resolve IPs") ,
+                "section" => "alarms",
                 "advanced" => 1
             ) ,
             "ntop_link" => array(
@@ -717,7 +717,7 @@ $CONFIG = array(
                 "advanced" => 1
             )
         )
-    ) ,*/
+    ) ,
     "Executive Panel" => array(
         "title" => gettext("Executive Panel") ,
         "desc" => gettext("Configure panel settings") ,
@@ -739,7 +739,7 @@ $CONFIG = array(
             	"section" => "panel"
             )
         )
-    ) ,
+    ) ,*/
     "ACLs" => array(
         "title" => gettext("ACL phpGACL configuration") ,
         "desc" => gettext("Access control list database configuration") ,
@@ -878,6 +878,7 @@ $CONFIG = array(
         "title" => gettext("Backup") ,
         "desc" => gettext("Backup configuration: backup database, directory, interval") ,
         "advanced" => 0,
+    	"section" => "siem",
         "conf" => array(
             "backup_type" => array(
                 "type" => "text",
@@ -934,12 +935,14 @@ $CONFIG = array(
                 "type" => "text",
                 "help" => gettext("How many days in the past do you want to keep Events in forensics?") ,
                 "desc" => gettext("Active Event Window (days)") ,
+            	"section" => "siem",
                 "advanced" => 0
             ) ,
             "backup_events" => array(
                 "type" => "text",
                 "help" => gettext("Maximum number of events stored in SQL Database") ,
                 "desc" => gettext("Active Event Window (events)") ,
+            	"section" => "siem",
                 "advanced" => 0
             ) ,            
             "backup_netflow" => array(
@@ -1415,7 +1418,7 @@ $CONFIG = array(
         "title" => gettext("Tickets") ,
         "desc" => gettext("Tickets parameters") ,
         "advanced" => 0,
-    	"section" => "tickets",
+    	"section" => "tickets,alarms",
         "conf" => array(
             "alarms_generate_incidents" => array(
                 "type" => array(
@@ -1424,8 +1427,8 @@ $CONFIG = array(
                 ) ,
                 "help" => gettext("Enabling this option will lead to automatic ticket generation upong arrival of alarms.") ,
                 "desc" => gettext("Open Tickets for new alarms automatically?") ,
-                "advanced" => 0 ,
-                "section" => "tickets"
+                "section" => "tickets,alarms",
+                "advanced" => 0
             ) ,
             "tickets_max_days" => array(
                 "type" => "text",
@@ -1438,6 +1441,7 @@ $CONFIG = array(
                 "type" => "textarea",
                 "help" => gettext("http://code.google.com/apis/maps/signup.html") ,
                 "desc" => gettext("Google Maps API Key") ,
+            	"section" => "tickets",
                 "advanced" => 0
             )            
         )
