@@ -47,15 +47,18 @@
  * Classes list:
  * - Scan
  */
-define('NMAP_PING_SCAN_COMMAND', "%s -d1 -sP -n %s");
-define('NMAP_ROOT_SCAN_COMMAND', "%s -d1 -sS -O -sV -n %s %s");
-define('NMAP_PING_TMP_FILE', "/tmp/nmap_ping.log");
-define('NMAP_ROOT_TMP_FILE', "/tmp/nmap_root.log");
-define('NMAP_PING_SCAN_REGEXP', "/^Host (\d+\.\d+\.\d+\.\d+) appears to be up/");
-define('NMAP_MAC_ADDRESS_REGEXP', "/^MAC Address: (\w{2}:\w{2}:\w{2}:\w{2}:\w{2}:\w{2}) (\(.*\))?$/");
-define('NMAP_OS_REGEXP', "/^Running: (.*)$/");
-define('NMAP_SERVICE_REGEXP', "/^(\d+)\/(\w+)\s+(open|filtered|unfiltered)\s+(\S+)\s+(.*)$/");
-define('NMAP_SERVICE_NOVER_REGEXP', "/^(\d+)\/(\w+)\s+(open|filtered|unfiltered)\s+(\S+)$/");
+#define('NMAP_PING_SCAN_COMMAND', "%s -d1 -sP -n %s");
+define('NMAP_PING_SCAN_COMMAND', "%s -sP -n -oX - %s");
+#define('NMAP_ROOT_SCAN_COMMAND', "%s -d1 -sS -O -sV -n %s");
+define('NMAP_ROOT_SCAN_COMMAND', "%s -A -sS -O -n -oX - %s %s");
+define('NMAP_PING_TMP_FILE', "/tmp/nmap_ping.xml");
+define('NMAP_ROOT_TMP_FILE', "/tmp/nmap_root.xml");
+#define('NMAP_PING_SCAN_REGEXP', "/^Host (\d+\.\d+\.\d+\.\d+) appears to be up/");
+#define('NMAP_PING_SCAN_REGEXP', "/Host: (\d+\.\d+\.\d+\.\d+) .*Status: Up/");
+#define('NMAP_MAC_ADDRESS_REGEXP', "/^MAC Address: (\w{2}:\w{2}:\w{2}:\w{2}:\w{2}:\w{2}) (\(.*\))?$/");
+#define('NMAP_OS_REGEXP', "/^Running: (.*)$/");
+#define('NMAP_SERVICE_REGEXP', "/^(\d+)\/(\w+)\s+(open|filtered|unfiltered)\s+(\S+)\s+(.*)$/");
+#define('NMAP_SERVICE_NOVER_REGEXP', "/^(\d+)\/(\w+)\s+(open|filtered|unfiltered)\s+(\S+)$/");
 require_once ('ossim_conf.inc');
 require_once ('classes/Log_action.inc');
 class Scan {
@@ -132,7 +135,7 @@ class Scan {
             echo "<img src='../pixmaps/arrow-315-small.png'/>";
             echo "<b>$ip";
             if ($ip != $resolv_ip) echo " ($resolv_ip)";
-            echo "</b>.. <br/>";
+            echo "</b>...<br/>";
             flush();
             if ($full_scan) {
                 $this->root_scan($ip);
@@ -147,16 +150,14 @@ class Scan {
         $this->__ping_scan_process_output($this->__get_command_output($command, NMAP_PING_TMP_FILE));
     }
     function __ping_scan_process_output($output) {
-    	foreach($output as $line) {
-            if (preg_match(NMAP_PING_SCAN_REGEXP, $line, $regs)) {
-                $this->scan[$regs[1]] = array(
-                    "ip" => $regs[1],
+        foreach ($output->host as $host) {
+            if(preg_match("/up/i",(string)$host->status->attributes()->state))
+                    $this->scan[(string)$host->address->attributes()->addr] = array(
+                    "ip" => (string)$host->address->attributes()->addr,
                     "mac" => "",
                     "mac_vendor" => "",
                     "os" => "",
-                    "services" => array()
-                );
-            }
+                    "services" => array());
         }
     }
     function root_scan($ip) {
@@ -166,16 +167,16 @@ class Scan {
                            $ip);
         $this->__root_scan_process_output($this->__get_command_output($command, NMAP_ROOT_TMP_FILE) , $ip);
     }
-    function __root_scan_process_output($output, $ip) {
-        foreach($output as $line) {
-            /* mac */
+    function __root_scan_process_output($xml, $hip) {
+        /*foreach($output as $line) {
+            // mac
             if (preg_match(NMAP_MAC_ADDRESS_REGEXP, $line, $regs)) {
                 $this->scan[$ip]["mac"] = strtoupper($regs[1]);
                 $this->scan[$ip]["mac_vendor"] = $regs[2];
-            /* os */
+            // os
             } elseif (preg_match(NMAP_OS_REGEXP, $line, $regs)) {
                 $this->scan[$ip]["os"] = $regs[1];
-            /* services */
+            // services
             } elseif (preg_match(NMAP_SERVICE_REGEXP, $line, $regs)) {
                 $this->scan[$ip]["services"][$regs[1] . "/" . $regs[2]] = array(
                     "port" => $regs[1],
@@ -193,24 +194,87 @@ class Scan {
                     "version" => "unknown"
                 );
             }
+        }*/
+        if($xml) {
+            foreach ($xml->host as $host) if(!$out){
+                // search host ip
+                foreach($host->address as $address){
+                    if(preg_match("/ipv4/i",(string)$address->attributes()->addrtype)) {
+                        $ip = (string)$address->attributes()->addr;
+                    }
+                }
+                if($ip==$hip) {
+                    // MAC
+                    foreach($host->address as $address){
+                        if(preg_match("/mac/i",(string)$address->attributes()->addrtype)){
+                            $this->scan[$ip]["mac"] = (string)$address->attributes()->addr;
+                            $this->scan[$ip]["mac_vendor"] = (string)$address->attributes()->vendor;
+                        }
+                    }
+                    // SO
+                    $i=0;
+                    $tos = array();
+                    foreach($host->os->osclass as $so) {
+                        if($i==0)   $max_accuracy = intval($so->attributes()->accuracy);
+                        if(intval($so->attributes()->accuracy)==$max_accuracy) {
+                            $tos[(string)$so->attributes()->osfamily][]= (string)$so->attributes()->osgen;
+                        }
+                        $i++;
+                    }
+                    if(count($tos)>0) {
+                        $pieces = array();
+                        foreach($tos as $k => $value){
+                            $pieces [] = $k." ".implode("/",$value);
+                        }
+                        $this->scan[$ip]["os"]=implode(", ", $pieces);
+                    }
+                    // Services
+                    foreach($host->ports->port as $port) {
+                        $service_details = array();
+                        $portid             = (string)$port->attributes()->portid;
+                        $protocol           = (string)$port->attributes()->protocol;
+                        $state              = (string)$port->state->attributes()->state;
+                        $service            = (string)$port->service->attributes()->name;
+                        $service_details[]  = (string)$port->service->attributes()->product;
+                        $service_details[]  = (string)$port->service->attributes()->version;
+                        $service_details[]  = (string)$port->service->attributes()->extrainfo;
+
+                        if($service_details[0] =="" && $service_details[1] =="" && $service_details[2] =="") {
+                            $service_info = "unknown";
+                        }
+                        else{
+                            if($service_details[0] == "")     unset($service_details[0]);
+                            if($service_details[1] == "")     unset($service_details[1]);
+                            if($service_details[2] == "")     unset($service_details[2]);
+                            
+                            $service_info = implode(" ", $service_details);
+                        }
+                        $this->scan[$ip]["services"]["$portid/$protocol"] = array("port"    => $portid,
+                                                                              "proto"   => $protocol,
+                                                                              "state"   => $state,
+                                                                              "service" => $service,
+                                                                              "version" => $service_info);
+                    }
+                }
+            }
         }
 
         /* show realtime results */
-        if ($this->scan[$ip]["os"]) {
+        if ($this->scan[$hip]["os"]) {
             echo "&nbsp;&nbsp;&nbsp;&nbsp;";
-            echo "OS: " . $this->scan[$ip]["os"];
+            echo "OS: " . $this->scan[$hip]["os"];
             echo "<br/>";
         }
 
-        if ($this->scan[$ip]["mac"]) {
+        if ($this->scan[$hip]["mac"]) {
             echo "&nbsp;&nbsp;&nbsp;&nbsp;";
-            echo "MAC: " . $this->scan[$ip]["mac"]." ".($this->scan[$ip]["mac_vendor"]);
+            echo "MAC: " . $this->scan[$hip]["mac"]." ".($this->scan[$hip]["mac_vendor"]);
             echo "<br/>";
         }
-        if ($this->scan[$ip]["services"]) {
+        if ($this->scan[$hip]["services"]) {
             echo "&nbsp;&nbsp;&nbsp;&nbsp;";
             echo "Services: ";
-            foreach ($this->scan[$ip]["services"] as $service) {
+            foreach ($this->scan[$hip]["services"] as $service) {
                 echo $service["service"] . "&nbsp;";
             }
             echo "<br/>";
@@ -219,7 +283,7 @@ class Scan {
         flush();
     }
     function __get_command_output($cmd,$logfile="") {
-    	if ($logfile != "") {
+    /*	if ($logfile != "") {
     		system(escapeshellcmd($cmd)." > ".$logfile);
     		$output = file($logfile);
     		@unlink($logfile);
@@ -227,7 +291,26 @@ class Scan {
     	} else {
     		$output = shell_exec(escapeshellcmd($cmd));
         	return split("\n", $output);
-    	}
+    	}*/
+        
+    /*system(escapeshellcmd("'sudo $cmd'")." > $logfile 2>&1");
+        echo "sudo $cmd<br />";
+        $data = @file_get_contents($logfile);
+        $xml = @simplexml_load_string($data);
+        @unlink($logfile);*/
+
+        $output = "";
+        $fp = popen(escapeshellcmd("sudo $cmd")." 2>&1", "r");
+        //echo "sudo $cmd";
+	    while (!feof($fp)) {
+	        $line = trim(fgets($fp));
+	        $output .= $line."\n";
+	    }
+	    fclose($fp);
+        
+        $xml = @simplexml_load_string($output);
+        
+        return $xml;
     }
     function __get_nmap_output($tmp_file) {
     	return (file_exists($tmp_file)) ? file($tmp_file) : array();

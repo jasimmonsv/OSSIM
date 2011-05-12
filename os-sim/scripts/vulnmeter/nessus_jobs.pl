@@ -4885,7 +4885,7 @@ sub scan_discover {
     while(<NMAP>){
         chomp;
         logwriter("nmap scan line: $_", 4);
-        if(/^Host (\d+\.\d+\.\d+\.\d+) appears to be up/i){
+        if(/Host (\d+\.\d+\.\d+\.\d+) appears to be up/i){
             if ($hosts_alive[0] eq "") {
                 undef @hosts_alive;
             }
