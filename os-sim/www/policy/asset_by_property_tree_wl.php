@@ -52,7 +52,7 @@ if ( !Session::menu_perms("MenuPolicy", "PolicyHosts") )
 	exit;
 }
 
-$key = GET('key');
+$key  = GET('key');
 $page = intval(GET('page')); 
 
 ossim_valid($key, OSS_NULLABLE, OSS_TEXT, OSS_PUNC, 'illegal:' . _("key"));
@@ -62,37 +62,43 @@ if (ossim_error()) {
     die(ossim_error());
 }
 
-if ($page == "" || $page<=0) $page = 1;
+if ($page == "" || $page<=0)
+	$page = 1;
+	
 $maxresults = 50;
-$to = $page * $maxresults;
-$from = $to - $maxresults;
-$nextpage = $page + 1;
+$to         = $page * $maxresults;
+$from       = $to - $maxresults;
+$nextpage   = $page + 1;
 
 $buffer = "";
 
 $db = new ossim_db(); 
 $conn = $db->connect();
 
-if(preg_match("/cclass_(\d+)_(.+)/",$key) || preg_match("/all_\d+\.\d+\.\d+_(\d+)_(.+)/",$key) ||  preg_match("/all/",$key) || preg_match("/all_\d+\.\d+\.\d+/",$key)) {
+if(preg_match("/cclass_(\d+)_(.+)/",$key) || preg_match("/all_\d+\.\d+\.\d+_(\d+)_(.+)/",$key) ||  preg_match("/all/",$key) || preg_match("/all_\d+\.\d+\.\d+/",$key)) 
+{
     $all_cclass_hosts = array();
-
-    if(preg_match("/cclass_(\d+)_(.+)/",$key, $found) || preg_match("/all_\d+\.\d+\.\d+_(\d+)_(.+)/",$key, $found)) {
-    
-        if($found[1]==7) { // MAC
-            if($found[2]=="Unknown") { // doesn't exit mac in host_mac_vendors
-                $sql = "SELECT hp.ip, h.hostname
+	
+	if(preg_match("/cclass_(\d+)_(.+)/",$key, $found) || preg_match("/all_\d+\.\d+\.\d+_(\d+)_(.+)/",$key, $found)) 
+	{
+        if($found[1]==7) 
+		{ // MAC
+            if($found[2]=="Unknown") 
+			{ // doesn't exit mac in host_mac_vendors
+                $sql = "SELECT DISTINCT (hp.ip), h.hostname
                                 FROM host_properties AS hp LEFT JOIN host AS h ON hp.ip = h.ip
                                 WHERE hp.property_ref=".$found[1]." AND SUBSTRING(hp.value, 1, 8 ) NOT IN (SELECT DISTINCT  mac FROM host_mac_vendors) ORDER BY hp.ip";
             }
             else {
-                $sql = "SELECT hp.ip, h.hostname
+                $sql = "SELECT DISTINCT (hp.ip), h.hostname
                         FROM host_properties AS hp LEFT JOIN host AS h ON hp.ip = h.ip,
                         host_mac_vendors AS hmv
                         WHERE hp.property_ref=".$found[1]." AND SUBSTRING( hp.value, 1, 8 )=hmv.mac AND MD5(hmv.vendor)='".$found[2]."' ORDER BY hp.ip";
             }
         }
-        elseif($found[1]==8) { // Services
-            $sql = "SELECT hp.ip, h.hostname
+        elseif($found[1]==8) 
+		{ // Services
+            $sql = "SELECT DISTINCT (hp.ip), h.hostname
                    FROM host_properties AS hp LEFT JOIN host AS h
                    ON hp.ip = h.ip
                    WHERE hp.property_ref=".$found[1]." AND MD5(hp.value)='".$found[2]."' 
@@ -102,26 +108,32 @@ if(preg_match("/cclass_(\d+)_(.+)/",$key) || preg_match("/all_\d+\.\d+\.\d+_(\d+
                    WHERE MD5(CONCAT(hs.service,' (',hs.port,'/',LCASE(p.alias),')'))='".$found[2]."'
                    ORDER BY ip";
         }
-        else {
-            $sql = "SELECT hp.ip, h.hostname
-                   FROM host_properties AS hp LEFT JOIN host AS h
-                   ON hp.ip = h.ip
-                   WHERE hp.property_ref=".$found[1]." AND MD5(hp.value)='".$found[2]."' ORDER BY hp.ip";
-        }
+        else 
+		{
+			
+			$sql = "SELECT DISTINCT (hp.ip), h.hostname
+                    FROM host_properties AS hp LEFT JOIN host AS h
+                    ON hp.ip = h.ip
+                    WHERE hp.property_ref=".$found[1]." AND MD5(hp.value)='".$found[2]."' ORDER BY hp.ip";
+				   
+		}
     }
-    else {
-        $sql = "SELECT hp.ip, h.hostname
-           FROM host_properties AS hp LEFT JOIN host AS h
-           ON hp.ip = h.ip";
+    else 
+	{
+        $sql = "SELECT DISTINCT (hp.ip), h.hostname 
+				FROM host_properties AS hp 
+				LEFT JOIN host AS h ON hp.ip = h.ip";
     }
-    //print_r($sql);
+    
+	//print_r($sql);
     if (!$rs = & $conn->Execute($sql)){ 
         print $conn->ErrorMsg();
         exit();
     }
     else
     {
-        while (!$rs->EOF) {
+        while (!$rs->EOF) 
+		{
         	if (Session::hostAllowed($conn,$rs->fields['ip'])) {
 	    		$cclass = preg_replace("/(\d+\.)(\d+\.)(\d+)\.\d+/", "\\1\\2\\3", $rs->fields['ip']);
 	    		$all_cclass_hosts[$cclass][] = array($rs->fields['ip'], $rs->fields['hostname']);
@@ -132,10 +144,13 @@ if(preg_match("/cclass_(\d+)_(.+)/",$key) || preg_match("/all_\d+\.\d+\.\d+_(\d+
 }
 
 
-if($key=="") {
+if( $key=="" ) 
+{
     $props = Host::get_properties_types($conn);
     $buffer .= "[ {title: '"._("Asset by Property")."', isFolder: true, key:'main', icon:'../../pixmaps/theme/any.png', expand:true, children:[\n";
-    foreach ($props as $prop) {
+    
+	foreach ($props as $prop) 
+	{
         switch (strtolower($prop["name"])) {
             case "software": $png = "software";
             break;
@@ -162,42 +177,50 @@ if($key=="") {
             case "route": $png = "route";
             break;
         }
-        if(count(Host::get_property_values($conn, $prop["id"]))>0) {
+		
+        if(count(Host::get_property_values($conn, $prop["id"]))>0) 
             $buffer .= "{ key:'p".$prop["id"]."', isFolder:true, isLazy:true, expand:false, icon:'../../pixmaps/theme/$png.png', title:'"._($prop["description"])."' },\n";
-        }
-        else {
+        else 
             $buffer .= "{ icon:'../../pixmaps/theme/$png.png', title:'"._($prop["name"])."' },\n";
-        }
+        
     }
+	
     $buffer .= "{ key:'all', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("All Hosts")."' }\n";
     $buffer .= "] } ]";
 }
-else if(preg_match("/p(.*)/",$key,$found)) {
-        $value_list = Host::get_property_values($conn, $found[1]);
+else if(preg_match("/p(.*)/",$key,$found)) 
+{
+    $value_list = Host::get_property_values($conn, $found[1]);
         
-        $j = 0;
-        if(intval($found[1])!=7) {
+    $j = 0;
+    
+	if(intval($found[1])!=7) 
+	{
             foreach($value_list as $v) {
                 if($j>=$from && $j<$to) {
                     $buffer .= "{ key:'cclass_".$found[1]."_".md5($v["value"])."', isLazy:true , title:'".$v["value"]." <font style=\"font-weight:normal;font-size:80%\">(" . $v["total"] . ")</font>', isFolder:true},";
                 }
                 $j++;
             }
-        }
-        else {
-            foreach($value_list as $v) {
-                if($j>=$from && $j<$to) {
-                    $buffer .= "{ icon:'../../pixmaps/theme/mac.png', key:'cclass_".$found[1]."_".(($v["vendor"]=="") ? "Unknown" : md5($v["vendor"]))."', isLazy:true , title:'".(($v["vendor"]=="") ? _("Unknown") : $v["vendor"])." <font style=\"font-weight:normal;font-size:80%\">(" . $v["total"] . ")</font>', isFolder:true},";
-                }
-                $j++;
-            }
-        }
-        if ($j>$to) {
-            $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults '},";
-        }
-        $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
+	}
+	else 
+	{
+		foreach($value_list as $v) {
+			if($j>=$from && $j<$to) {
+				$buffer .= "{ icon:'../../pixmaps/theme/mac.png', key:'cclass_".$found[1]."_".(($v["vendor"]=="") ? "Unknown" : md5($v["vendor"]))."', isLazy:true , title:'".(($v["vendor"]=="") ? _("Unknown") : $v["vendor"])." <font style=\"font-weight:normal;font-size:80%\">(" . $v["total"] . ")</font>', isFolder:true},";
+			}
+			$j++;
+		}
+	}
+	
+	if ($j>$to) {
+		$buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults '},";
+	}
+    
+	$buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
-else if(preg_match("/cclass_(\d+)_(.*)/",$key,$found)) {
+else if(preg_match("/cclass_(\d+)_(.*)/",$key,$found)) 
+{
     $j = 0;
     foreach($all_cclass_hosts as $cclass => $hg) {
         if($j>=$from && $j<$to) {
@@ -211,24 +234,29 @@ else if(preg_match("/cclass_(\d+)_(.*)/",$key,$found)) {
 
     $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
-else if(preg_match("/all_(\d+\.\d+\.\d+)_(\d+)_(.*)/",$key,$found)) {
-    foreach($all_cclass_hosts as $cclass => $host_list) if($cclass==$found[1]) {
-        $j = 0;
-        foreach ($host_list as $host_data) {
-            if($j>=$from && $j<$to) {
-                $host_name = "";
-                if($host_data[1]!="") {
-                    $host_name = "<font style=\"font-size:80%\">(" . $host_data[1] . ")</font>";
-                    $url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
-                }
-                else {
-                    $url = "url:'../host/newhostform.php?ip=".$host_data[0]."',";
-                }
-                $buffer.= "{ ".$url." icon:'../../pixmaps/theme/host.png', title:'".$host_data[0]." ".$host_name."' },";
-            }
-            $j++;
-        }
-    }
+else if(preg_match("/all_(\d+\.\d+\.\d+)_(\d+)_(.*)/",$key,$found)) 
+{
+    foreach($all_cclass_hosts as $cclass => $host_list)
+	{	
+		if($cclass==$found[1]) 
+		{
+			$j = 0;
+			foreach ($host_list as $host_data) {
+				if($j>=$from && $j<$to) {
+					$host_name = "";
+					if($host_data[1]!="") {
+						$host_name = "<font style=\"font-size:80%\">(" . $host_data[1] . ")</font>";
+						$url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
+					}
+					else {
+						$url = "url:'../host/newhostform.php?ip=".$host_data[0]."',";
+					}
+					$buffer.= "{ ".$url." icon:'../../pixmaps/theme/host.png', title:'".$host_data[0]." ".$host_name."' },";
+				}
+				$j++;
+			}
+		}
+	}
     
     if ($j>$to) {
         $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("hosts")."'},";
@@ -236,37 +264,47 @@ else if(preg_match("/all_(\d+\.\d+\.\d+)_(\d+)_(.*)/",$key,$found)) {
     
     $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
-else if($key=="all") {
+else if($key=="all") 
+{
     $j = 0;
-    foreach($all_cclass_hosts as $cclass => $hg) {
+    foreach($all_cclass_hosts as $cclass => $hg) 
+	{
         if($j>=$from && $j<$to) {
             $buffer .= "{ key:'all_$cclass', isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'$cclass <font style=\"font-weight:normal;font-size:80%\">(" . count($hg) . " "._("hosts").")</font>'\n},";
         }
         $j++;
     }
-    if ($j>$to) {
+    
+	if ($j>$to) {
         $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("cclass")."'},";
     }
-    $buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
+    
+	$buffer = "[ ".preg_replace("/,$/","",$buffer)." ]";
 }
-else if(preg_match("/all_(\d+\.\d+\.\d+)/",$key,$found)) {
-    foreach($all_cclass_hosts as $cclass => $host_list) if($cclass==$found[1]) {
-        $j = 0;
-        foreach ($host_list as $host_data) {
-            if($j>=$from && $j<$to) {
-                $host_name = "";
-                if($host_data[1]!="") {
-                    $host_name = "<font style=\"font-size:80%\">(" . $host_data[1] . ")</font>";
-                    $url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
-                }
-                else {
-                    $url = "url:'../host/newhostform.php?ip=".$host_data[0]."',";
-                }
-                $buffer.= "{ ".$url." icon:'../../pixmaps/theme/host.png', title:'".$host_data[0]." ".$host_name."' },";
-            }
-            $j++;
-        }
-    }
+else if(preg_match("/all_(\d+\.\d+\.\d+)/",$key,$found)) 
+{
+    foreach($all_cclass_hosts as $cclass => $host_list) 
+	{
+		if($cclass==$found[1]) 
+		{
+			$j = 0;
+			foreach ($host_list as $host_data) 
+			{
+				if($j>=$from && $j<$to) {
+					$host_name = "";
+					if($host_data[1]!="") {
+						$host_name = "<font style=\"font-size:80%\">(" . $host_data[1] . ")</font>";
+						$url = "url:'../host/modifyhostform.php?ip=".$host_data[0]."',";
+					}
+					else {
+						$url = "url:'../host/newhostform.php?ip=".$host_data[0]."',";
+					}
+					$buffer.= "{ ".$url." icon:'../../pixmaps/theme/host.png', title:'".$host_data[0]." ".$host_name."' },";
+				}
+				$j++;
+			}
+		}
+	}
 
     if ($j>$to) {
         $buffer .= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/host_add.png', title:'"._("next")." $maxresults "._("hosts")."'},";
@@ -280,4 +318,5 @@ if ($buffer=="" || $buffer=="[  ]")
     
 echo $buffer;
 $db->close($conn);
+
 ?>

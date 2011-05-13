@@ -62,7 +62,7 @@ $high_limit = 100;
 require_once ('classes/Net.inc');
 require_once ('ossim_db.inc');
 
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
 
 $current_entity_perms = array();
@@ -71,9 +71,8 @@ if($entity!="") {
     require_once ('classes/Acl.inc');
     $current_entity_perms = Acl::entityPerms($conn,$entity);
 }
-else {
+else 
     $entity = 0;
-}
 
 $filter = str_replace ( "/" , "\/" , $filter);
 
@@ -82,11 +81,15 @@ $bclasses = array();
 $cclasses = array();
 $nets     = array();
 
-if($filter!="") {
-    if(preg_match("/\d+\./",$filter))   $condition = "ips LIKE '".$filter."%'";
-    else                                   $condition = "name LIKE '%".$filter."%'";
+if( $filter!="" ) 
+{
+    if(preg_match("/\d+\./",$filter))   
+		$condition = "ips LIKE '".$filter."%'";
+    else                                 
+		$condition = "name LIKE '%".$filter."%'";
 
-    if($key!="")   $condition = " AND ".$condition;
+    if($key!="")   
+		$condition = " AND ".$condition;
 }
 
 if($key=="")    
@@ -96,8 +99,11 @@ else {
     $all_nets = Net::get_list($conn,"(ips LIKE '".$found[1].".%' OR ips LIKE '%,".$found[1].".%')" . $condition);
 }
 
-foreach ($all_nets as $net) {
-    if (($entity > 0 && $current_entity_perms['assets'][$net->get_ips()]) || $entity==0) {
+
+foreach ($all_nets as $net) 
+{
+	if ( ($entity > 0 && $current_entity_perms['assets'][$net->get_ips()] || empty($current_entity_perms['assets']) ) || $entity == 0 ) 
+	{
         $cidrs = trim($net->get_ips());
         $acidrs = explode(",", $cidrs);
         foreach($acidrs as $cidr) {
@@ -117,7 +123,8 @@ ksort($nets);
 
 if ($key=="") {
     $buffer .= "[ {title: '"._("Networks")."', key:'all_networks', icon:'../../pixmaps/theme/any.png', isFolder:false, expand:true, children:[\n";
-    if(count($bclasses) <= $low_limit ) {
+    
+	if(count($bclasses) <= $low_limit ) {
         foreach($cclasses as $cclass => $v) {
             $buffer .= "{ key:'cclass_$cclass', icon:'../../pixmaps/theme/net.png', title:'$cclass.---/--', expand:true, children:[\n";
             foreach($nets as $net_name => $net_cidrs) if(preg_match("/$cclass\..*/",$net_cidrs)) {
@@ -135,7 +142,8 @@ if ($key=="") {
         foreach($aclasses as $aclass => $v)
             $buffer .= "{ key:'aclass_$aclass', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'$aclass.---.---.---/--'},";
     }
-    $buffer = preg_replace("/,$/", "", $buffer);
+    
+	$buffer = preg_replace("/,$/", "", $buffer);
     $buffer .= "] } ]";
 	
 	if (preg_match("/children:\[\n\] \} \]$/", $buffer) ) 
