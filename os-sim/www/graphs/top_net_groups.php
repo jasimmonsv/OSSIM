@@ -144,14 +144,10 @@ $conn = $db->connect();
 
 // net groups
 $netgroups = array();
-$query = "select * from net_group_reference";
-if (!$rs = & $conn->Execute($query)) {
-    print $conn->ErrorMsg();
-    exit();
-}
-while (!$rs->EOF) {
-    $netgroups[$rs->fields["net_group_name"]][] = $rs->fields["net_name"];
-    $rs->MoveNext();
+$ngs = Net_group::get_list($conn,"",""); // get only allowed net_groups
+foreach ($ngs as $ng) {
+	$rns = $ng->get_networks($conn);
+	foreach ($rns as $rn) $netgroups[$rn->get_net_group_name()][] = $rn->get_net_name();
 }
 //
 $nets_where = "";
