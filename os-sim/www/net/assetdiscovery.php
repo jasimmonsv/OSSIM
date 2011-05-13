@@ -45,7 +45,7 @@ require_once 'ossim_conf.inc';
 </head>
 <body style="margin:0px">
 <?
-include ("../hmenu.php");
+if (GET('nohmenu') == "") { include ("../hmenu.php"); }
 
 $network_auto_discovery = intval($_GET["network_auto_discovery"]);
 ossim_valid($network_auto_discovery, OSS_NULLABLE, OSS_DIGIT, 'illegal:' . _("network auto discovery"));
@@ -72,6 +72,7 @@ $result = $dbconn->Execute($query);
 
 echo "<form action=\"assetdiscovery.php\" method=\"get\">";
 echo "<input type=\"hidden\" name=\"update\" value=\"1\"/>";
+echo "<input type=\"hidden\" name=\"nohmenu\" value=\"".GET('nohmenu')."\"/>";
 echo "<table width=\"100%\" class=\"transparent\">";
 echo "<tr>";
 echo "      <td class=\"nobborder\" style=\"text-align:center;padding-top:10px;\">";

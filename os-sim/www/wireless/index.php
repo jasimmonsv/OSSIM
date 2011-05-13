@@ -202,7 +202,7 @@ $ossim_sensors = Sensor::get_list($conn,"s, sensor_properties p WHERE s.ip=p.ip 
 	$sensors_list = array();
 	$max = count($locations);
     if ($max==0){
-        echo _("No locations defined available.")."<br>"._("Please click <a href='setup.php'>Setup</a> to define locations.");
+        echo _("No locations defined available.")."<br>"._("Please click configure icon at upper-right to define locations.");
     }
 	foreach ($ossim_sensors as $sensor) $sensors_list[] = $sensor->get_ip();
 	#

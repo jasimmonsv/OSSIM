@@ -35,6 +35,15 @@
 * - valid_value()
 * - submit()
 */
+if ($_GET["section"] == "vulnerabilities") {
+	header("Location:../vulnmeter/webconfig.php?nohmenu=1");
+} elseif ($_GET["section"] == "hids") {
+	header("Location:../ossec/config.php?nohmenu=1");
+} elseif ($_GET["section"] == "wids") {
+	header("Location:../wireless/setup.php?nohmenu=1");
+} elseif ($_GET["section"] == "assetdiscovery") {
+	header("Location:../net/assetdiscovery.php?nohmenu=1");
+}
 require_once 'classes/Session.inc';
 Session::logcheck("MenuConfiguration", "ConfigurationMain");
 require_once 'ossim_conf.inc';
@@ -1459,29 +1468,34 @@ $CONFIG = array(
         "title" => gettext("Action Responses") ,
         "desc" => gettext("Setup action responses") ,
         "advanced" => 1,
+    	"section" => "actions",
         "conf" => array(
             "dc_ip" => array(
                 "type" => "text",
                 "help" => "",
                 "desc" => gettext("Domain Controller IP") ,
+    			"section" => "actions" ,
                 "advanced" => 1
             ) ,
             "dc_acc" => array(
                 "type" => "text",
                 "help" => "",
                 "desc" => gettext("Admin Account") ,
+            	"section" => "actions" ,
                 "advanced" => 1
             ) ,
             "dc_pass" => array(
                 "type" => "password",
                 "help" => "",
                 "desc" => gettext("Password") ,
+            	"section" => "actions" ,
                 "advanced" => 1
             ) ,
             "snmp_comm" => array(
                 "type" => "text",
                 "help" => "",
                 "desc" => gettext("Network SNMP Community") ,
+            	"section" => "actions" ,
                 "advanced" => 1
             )
 		)

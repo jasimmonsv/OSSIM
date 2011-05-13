@@ -444,6 +444,7 @@ if ( $report_wireless || $events_anomalies || $events_nids || $events_hids || $e
 				"name" => gettext("HIDS") ,
 				"id" => "HIDS",
 				"url" => "ossec/status.php",
+				"config" => "hids",
 				"help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:HIDS:ossec','Help');"
 			);	
 						
@@ -502,12 +503,8 @@ if ( $report_wireless || $events_anomalies || $events_nids || $events_hids || $e
            "name" => gettext("Wireless IDS") ,
            "id" => $ids,
            "url" => "wireless/",
+		   "config" => "wids",
            "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:analysis:wireless','EventHelp')"
-        );
-        
-		$rmenu["Wireless"][] = array(
-           "name" => gettext("Setup"),
-           "url" => "../wireless/setup.php"
         );
     };   
 	
@@ -881,16 +878,9 @@ if(Session::am_i_admin())
         "name" => gettext("Instant Scan") ,
         "id" => "Asset Discovery",
         "url" => "netscan/index.php",
+		"config" => (Session::am_i_admin()) ? "assetdiscovery" : "",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:tools:net_discovery','Help');"
-    );    
-    
-	if (Session::am_i_admin()) {
-	    $rmenu["Asset Discovery"][] = array(
-	        "name" => gettext("Configuration") ,
-	        "target" => "main",
-	        "url" => "../net/assetdiscovery.php?hmenu=Network+Discovery&smenu=Network+Discovery"
-	    );    
-	}
+    );
 }
 
 /* Correlation => Intelligence */
@@ -931,6 +921,7 @@ if (Session::menu_perms("MenuIntelligence", "PolicyPolicy") || Session::menu_per
             "name" => gettext("Actions") ,
             "id" => "Actions",
             "url" => "action/action.php",
+        	"config" => "actions",
             "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:policy_actions:actions','Help');"
         );
     }
