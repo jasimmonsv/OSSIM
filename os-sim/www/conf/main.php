@@ -239,6 +239,14 @@ $CONFIG = array(
                 "advanced" => 1,
                 "section" => "logger,siem",
 				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
+            ) ,
+            "databases_link" => array(
+            	"type" => "link",
+            	"help" => gettext("Define databases") ,
+                "desc" => "<a target='".(($section != "") ? "_parent" : "main")."' href='../server/dbs.php?hmenu=SIEM+Components&smenu=DBs'>".gettext("Define SIEM databases")."</a>" ,
+                "advanced" => 1,
+                "section" => "siem,logger",
+				"disabled" => (preg_match("/pro|demo/",$conf->get_conf("ossim_server_version", FALSE))) ? 0 : 1
             )
         )
     ) ,
@@ -2080,6 +2088,11 @@ $default_open = intval(GET('open'));
 											elseif ($type["type"]=="textarea")
 											{
 												$input.= "<textarea rows='2' cols='28' name=\"value_$count\" $disabled>$conf_value</textarea>";
+											}
+											/* link */
+											elseif ($type["type"]=="link")
+											{
+												$input.= "";
 											}
 											/* input */
 											else
