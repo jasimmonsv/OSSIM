@@ -161,7 +161,6 @@ class SecurityReport {
 				//$temp_conn = $this->snort_conn;
         }
 		
-			
 		if ($rs = & $temp_conn->Execute($query))
 		{
 			$i = 0;
@@ -783,7 +782,28 @@ class SecurityReport {
         }
 		
         return $list;
-    }  
+    }
+    function AttackerCountries($gi, $limit = 5, $from_date, $to_date, $ip) {
+    	$total = 0;
+    	$temp_conn = $this->snort_conn;
+    	$query = "SELECT INET_NTOA(ip_src) as ip_src, count(ip_src) as occurrences FROM acid_event where ossim_risk_c >= 0 AND timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND ossim_risk_a >= 0 AND acid_event.plugin_id<>1505 AND ip_dst='$ip' GROUP BY ip_src ORDER BY occurrences DESC";
+    	if ($rs = & $temp_conn->Execute($query))
+		{
+            while (!$rs->EOF && count($list) < $limit) {
+				$ip_src = $rs->fields['ip_src'];
+            	$s_country = strtolower(geoip_country_code_by_addr($gi, $ip_src));
+            	if ($s_country == "") { $s_country = "unknown"; }
+            	$list[$s_country] += $rs->fields['occurrences'];
+            	$total += $rs->fields['occurrences'];
+                $rs->MoveNext();
+            }
+        }
+        // Percents
+        foreach ($list as $c=>$val) {
+        	$list[$c] = number_format($val*100/$total,2);
+        }
+        return $list;
+    }
     function Truncate($str, $length = 10, $trailing = '...') {
         // take off chars for the trailing
         $length-= strlen($trailing);
