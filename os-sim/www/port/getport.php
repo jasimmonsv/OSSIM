@@ -45,31 +45,38 @@ Session::logcheck("MenuPolicy", "PolicyPorts");
 require_once 'ossim_db.inc';
 require_once 'classes/Port_group.inc';
 require_once 'classes/Security.inc';
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
+
 $order = GET('sortname');
+
 if (empty($order)) $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
 if (empty($order)) $order = "name";
+
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db = new ossim_db();
+$db   = new ossim_db();
 $conn = $db->connect();
-$xml = "";
+$xml  = "";
 $port_list = Port_group::get_list($conn, "ORDER BY $order $limit");
 
-if ($port_list[0]) {
+if ($port_list[0]) 
+{
     $total = $port_list[0]->get_foundrows();
     if ($total == 0) $total = count($port_list);
-} else $total = 0;
+} 
+else 
+	$total = 0;
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";

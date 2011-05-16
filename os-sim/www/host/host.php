@@ -38,9 +38,10 @@
 require_once ('classes/Session.inc');
 require_once ('classes/CIDR.inc');
 Session::logcheck("MenuPolicy", "PolicyHosts");
-// load column layout
+
+// Load column layout
 require_once ('../conf/layout.php');
-$category = "policy";
+$category    = "policy";
 $name_layout = "host_layout";
 $layout = load_layout($name_layout, $category);
 ?>
@@ -126,7 +127,7 @@ $layout = load_layout($name_layout, $category);
 				//Delete host by ajax
 				if (typeof(items[0]) != 'undefined') {
 					for (i=0;i<items.length;i++) {
-						$("#flextable").changeStatus('<?=_("Deleting host")?>...',false);
+						$("#flextable").changeStatus('<?php echo _("Deleting host")?>...',false);
 						$.ajax({
 								type: "GET",
 								url: "deletehost.php?confirm=yes&ip="+urlencode(items[i].id.substr(3)),

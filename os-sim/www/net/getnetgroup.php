@@ -64,10 +64,8 @@ if ( !empty($search) )
 $field = POST('qtype');
 $page  = POST('page');
 
-if (empty($page)) 
-	$page = 1;
-	
-$rp = (!empty($rp)) ? POST('rp') : 25;
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
 
 $nessus_action  = GET('nessus_action');
 $net_group_name = GET('net_group_name');

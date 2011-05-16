@@ -246,7 +246,7 @@ echo "$colModel\n";
 		nomsg: '<?=_("No database servers")?>',
 		useRp: true,
 		rp: 20,
-                contextMenu: 'myMenu',
+        contextMenu: 'myMenu',
 		onContextMenuClick: menu_action,
 		showTableToggleBtn: true,
 		singleSelect: true,
