@@ -193,6 +193,18 @@ function import_assets_csv($filename){
 		return $response;
 	}
 	
+	$allowed_sensors = Session::allowedSensors();
+		
+	if ( !empty($allowed_sensors) )
+		$my_allowed_sensors = explode(',', $allowed_sensors);
+	else
+	{
+		$response ['file_errors'] = _("You need at least one sensor assigned");
+		$response ['status'] = false;
+		return $response;
+	}
+	
+	
 	foreach ($data as $k => $v)
 	{
 		$response ['status'] = true;
@@ -283,34 +295,32 @@ function import_assets_csv($filename){
 		}
 		
 		//Sensors
+		$sensors = array();
+		
 		if ( !empty ($param[6]) )
 		{
 			$sensor_name = array();
-			$sensor_list = explode(",", $param[6]);
+			$list = explode(",", $param[6]);
 			
-			foreach ($sensor_list as $k => $sensor)
+			$sensors_list = array_intersect($list, $my_allowed_sensors);
+			
+			if ( !empty($sensors_list) )
 			{
-				$sensor = trim($sensor);
-				if ( !ossim_valid($sensor, OSS_IP_ADDR, 'illegal:' . _("Sensor")) )
-				{
-					$response ['line_errors'][$cont][] = array("Sensors", ossim_get_error_clean());
-					$response ['status'] = false;
-					ossim_clean_error();
-				}
-				else
-				{
-					if ( Sensor::sensor_exists($conn, $sensor) == false )
-					{
-						$response ['line_errors'][$cont][] = array("Sensors", "IP $sensor "._("isn't a sensor"));
-						$response ['status'] = false;
-						ossim_clean_error();
-					}
-					else
-					   $sensor_name[] = Sensor::get_sensor_name($conn, $sensor);
-					
-				}
+				foreach ($sensors_list as $sensor)
+					$sensors[] = Sensor::get_sensor_name($conn, $sensor);
 			}
-				
+			else
+			{
+				$response ['line_errors'][$cont][] = array("Sensors", _("You need at least one allowed Sensor"));
+				$response ['status'] = false;
+				ossim_clean_error();
+			}
+		}
+		else
+		{
+			$response ['line_errors'][$cont][] = array("Sensors", _("Column Sensors is empty"));
+			$response ['status'] = false;
+			ossim_clean_error();
 		}
 		
 					
@@ -333,7 +343,6 @@ function import_assets_csv($filename){
 			$alert       = 0;
 			$persistence = 0;
 			$nat         = $param[5];
-			$sensors     = $sensor_name;
 			$descr       = $param[3];
           	$os          = $param[7];
           	$fqdns       = $param[2];
@@ -350,9 +359,12 @@ function import_assets_csv($filename){
 	}
 	
 	$response ['read_line'] = $cont;
-	return $response;
+	return $response; 
 	
 }
+
+	
+	
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

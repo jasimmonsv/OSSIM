@@ -56,7 +56,6 @@
 */
 require_once 'classes/Net_sensor_reference.inc';
 require_once 'classes/Host_sensor_reference.inc';
-require_once 'classes/Sensor.inc';
 require_once 'classes/Session.inc';
 require_once 'classes/Net.inc';
 require_once 'classes/Log_action.inc';
