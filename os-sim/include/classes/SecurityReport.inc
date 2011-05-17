@@ -853,6 +853,7 @@ class SecurityReport {
             	if ($s_country == "") { $s_country = "unknown"; }
             	$list[$s_country] += $rs->fields['occurrences'];
             	$list_ret[$s_country]['name'] = ($country_name != "") ? $country_name : _("Unknown Country");
+            	$list_ret[$s_country]['ips']++;
             	$total += $rs->fields['occurrences'];
                 $rs->MoveNext();
             }
