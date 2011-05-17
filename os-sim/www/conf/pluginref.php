@@ -147,28 +147,28 @@ $layout      = load_layout($name_layout, $category);
 					"name" => array(
 						_('Plugin Name'),
 						100,
-						'true',
+						'false',
 						'center',
 						false
 					) ,
 					"sid name" => array(
 						_('Plugin Sid Name'),
 						150,
-						'true',
+						'false',
 						'center',
 						false
 					) ,
 					"ref name" => array(
 						_('Ref Name'),
 						100,
-						'true',
+						'false',
 						'left',
 						false
 					) ,
 					"ref sid name" => array(
 						_('Ref Sid Name'),
 						120,
-						'true',
+						'false',
 						'left',
 						false
 					)
