@@ -1013,13 +1013,13 @@ if (Session::menu_perms("MenuIntelligence", "CorrelationCrossCorrelation")) {
 	$menu["Intelligence"][] = array(
         "name" => gettext("Cross Correlation") ,
         "id" => "Cross Correlation",
-        "url" => "conf/pluginref2.php"
+        "url" => "conf/pluginref.php"
     );
     
 	$hmenu["Cross Correlation"][] = array(
         "name" => gettext("Rules") ,
         "id" => "Cross Correlation",
-        "url" => "conf/pluginref2.php",
+        "url" => "conf/pluginref.php",
         "help" => "javascript:top.topmenu.new_wind('http://ossim.net/dokuwiki/doku.php?id=user_manual:intelligence:cross_correlation','Help');"
     );
 }

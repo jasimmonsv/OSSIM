@@ -6,7 +6,6 @@ report_DATA = index.php \
 	incidentreport.php \
 	menu.php \
 	metrics.php \
-	report.php \
 	pdfreport.php \
 	pdfreportform.php \
 	sec_report.php \

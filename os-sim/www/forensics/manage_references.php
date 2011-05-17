@@ -123,7 +123,7 @@ while ($myrow = $result->baseFetchRow()) {
 			data: "",
 			success: function(msg){
 				if (msg != "0" && msg != "") {
-					if (confirm("<?=_("This reference type is linked in some events (at least ")?>"+msg+"<?=_("). Are you sure to delete?")?>")) {
+					if (confirm("<?php echo _("This reference type is linked in some events (at least ")?>"+msg+"<?=_("). Are you sure to delete?")?>")) {
 						document.fdelete.deleteref.value = id;
 						document.fdelete.submit();
 					}
@@ -137,7 +137,7 @@ while ($myrow = $result->baseFetchRow()) {
 
 	function ref_delete_plugin (plugin_id,plugin_sid,ref_id)
 	{
-		if (confirm("<?=_("Are you sure to delete reference for plugin_sid ")?>"+plugin_sid+"?")) {
+		if (confirm("<?php echo _("Are you sure to delete reference for plugin_sid ")?>"+plugin_sid+"?")) {
 			$.ajax({
 				type: "GET",
 				url: "manage_references_getrefs.php",
@@ -152,7 +152,7 @@ while ($myrow = $result->baseFetchRow()) {
 
 	function load_sid (id)
 	{
-		$("#sid1").html("<img src='../pixmaps/loading.gif' width='20' alt='Loading'>Loading");
+		$("#sid1").html("<img src='../pixmaps/loading.gif' width='20' alt='<?php echo _("Loading")?>' align='absmiddle'/><span style='margin-left:5px'><?php echo _("Loading")?>...</span>");
 		$.ajax({
 			type: "GET",
 			url: "../conf/pluginrefrules_ajax.php",
@@ -165,7 +165,7 @@ while ($myrow = $result->baseFetchRow()) {
 	}
 
 	function load_refs () {
-		plugin_id = document.getElementById('plugin_id1').value;
+		plugin_id  = document.getElementById('plugin_id1').value;
 		plugin_sid = document.getElementById('sidajax1').value;
 		$.ajax({
 			type: "GET",
