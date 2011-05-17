@@ -838,6 +838,7 @@ class SecurityReport {
 		
     	$total = 0;
     	$list = array();
+    	$list_ret = array();
     	$temp_conn = $this->snort_conn;
     	//
         list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_src",$assets,$sourcetype,$category,$subcategory);
@@ -848,17 +849,21 @@ class SecurityReport {
             while (!$rs->EOF && count($list) < $limit) {
 				$ip_src = $rs->fields['ip_src'];
             	$s_country = strtolower(geoip_country_code_by_addr($gi, $ip_src));
+            	$country_name = geoip_country_name_by_addr($gi, $ip_src);
             	if ($s_country == "") { $s_country = "unknown"; }
             	$list[$s_country] += $rs->fields['occurrences'];
+            	$list_ret[$s_country]['name'] = ($country_name != "") ? $country_name : _("Unknown Country");
             	$total += $rs->fields['occurrences'];
                 $rs->MoveNext();
             }
         }
         // Percents
         foreach ($list as $c=>$val) {
-        	$list[$c] = number_format($val*100/$total,2);
+        	$list_ret[$c]['perc'] = number_format($val*100/$total,2);
+        	$list_ret[$c]['val'] = $val;
+        	$list_ret[$c]['width'] = intval(($val*150)/$total)+1;
         }
-        return $list;
+        return $list_ret;
     }
     function Truncate($str, $length = 10, $trailing = '...') {
         // take off chars for the trailing
