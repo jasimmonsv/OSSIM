@@ -45,17 +45,19 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 require_once 'ossim_db.inc';
 require_once 'classes/Device.inc';
 require_once 'classes/Security.inc';
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
-$order = GET('sortname');
-$field = ((POST('qtype')!="")? POST('qtype'):GET('qtype'));
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
+
+$order  = GET('sortname');
+$field  = ((POST('qtype')!="")? POST('qtype'):GET('qtype'));
 $search = GET('query');
+
 if (empty($search)) $search = POST('query');
-if (empty($order)) $order = POST('sortname');
+if (empty($order))  $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 if (!empty($search) && !empty($field)) $filter = "WHERE $field like '%$search%'";
+
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));

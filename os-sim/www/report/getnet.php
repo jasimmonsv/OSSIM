@@ -61,19 +61,22 @@ if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 $search = GET('query');
 if (empty($search)) $search = POST('query');
 $field = POST('qtype');
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
+
 $lsearch = $search;
 ossim_valid($search, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_ALPHA, 'illegal:' . _("search"));
 if (!empty($search))
 // The CIDR validation is not working...
-if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\/(3[0-2]|[1-2][0-9]|[0-9])\s*$/", $search)) {
+if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\/(3[0-2]|[1-2][0-9]|[0-9])\s*$/", $search)) 
+{
     $ip_range = CIDR::expand_CIDR($search, "SHORT", "IP");
     ossim_valid($ip_range[0], OSS_IP_ADDR, 'illegal:' . _("search cidr"));
     ossim_valid($ip_range[1], OSS_IP_ADDR, 'illegal:' . _("search cidr"));
-} else {
+}
+else 
+{
     if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\s*$/", $search)) $by_ip = true;
     else ossim_valid($search, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_DOT, OSS_DIGIT, 'illegal:' . _("search"));
 }
@@ -89,15 +92,20 @@ $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
 $where = "";
 if (!empty($search) && !empty($field)) $where = "name LIKE '%$search%'";
-$db = new ossim_db();
+
+$db   = new ossim_db();
 $conn = $db->connect();
 
 $xml = "";
 $net_list = Net::get_list($conn, "$where", "ORDER BY $order");
-if ($net_list[0]) {
+if ($net_list[0]) 
+{
     $total = $net_list[0]->get_foundrows();
     if ($total == 0) $total = count($net_list);
-} else $total = 0;
+} 
+else 
+	$total = 0;
+
 $xml.= "<rows>\n";
 $xml.= "<page>$page</page>\n";
 $xml.= "<total>$total</total>\n";
@@ -143,5 +151,3 @@ $xml.= "</rows>\n";
 echo $xml;
 $db->close($conn);
 ?>
-
-

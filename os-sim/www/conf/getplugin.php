@@ -45,16 +45,17 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 Session::logcheck("MenuConfiguration", "ConfigurationPlugins");
 require_once 'ossim_db.inc';
 require_once 'classes/Plugin.inc';
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 30;
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 50;
+
 $order = GET('sortname');
-if (empty($order)) $order = POST('sortname');
+if (empty($order))  $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 $search = GET('query');
 if (empty($search)) $search = POST('query');
 $field = POST('qtype');
+
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
@@ -63,14 +64,16 @@ ossim_valid($field, OSS_ALPHA, OSS_SPACE, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _
 if (ossim_error()) {
     die(ossim_error());
 }
+
 if (empty($order)) $order = "id";
 $where = "WHERE id<>1505";
 if (!empty($search) && !empty($field)) $where.= " AND $field like '%" . $search . "%'";
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db = new ossim_db();
-$conn = $db->connect();
-$xml = "<rows>\n";
+$db    = new ossim_db();
+$conn  = $db->connect();
+$xml   = "<rows>\n";
+
 if ($plugin_list = Plugin::get_list($conn, "$where ORDER BY $order $limit")) {
     $total = $plugin_list[0]->get_foundrows();
     if ($total == 0) $total = count($plugin_list);
@@ -105,5 +108,3 @@ $xml.= "</rows>\n";
 echo $xml;
 $db->close($conn);
 ?>
-
-

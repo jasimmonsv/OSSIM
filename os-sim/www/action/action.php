@@ -36,28 +36,47 @@
 */
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "PolicyActions");
+
 // load column layout
 require_once ('../conf/layout.php');
-$category = "policy";
+$category    = "policy";
 $name_layout = "actions_layout";
-$layout = load_layout($name_layout, $category);
+$layout      = load_layout($name_layout, $category);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <meta http-equiv="X-UA-Compatible" content="IE=7" />
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
-  <script type="text/javascript" src="../js/urlencode.js"></script>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=7" />
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
+	<script type="text/javascript" src="../js/urlencode.js"></script>
+  
+  	<style type='text/css'>
+		table, th, tr, td {
+			background:transparent;
+			border-radius: 0px;
+			-moz-border-radius: 0px;
+			-webkit-border-radius: 0px;
+			border:none;
+			padding:0px; margin:0px;
+		}
+		input, select {
+			border-radius: 0px;
+			-moz-border-radius: 0px;
+			-webkit-border-radius: 0px;
+			border: 1px solid #8F8FC6;
+			font-size:12px; font-family:arial; vertical-align:middle;
+			padding:0px; margin:0px;
+		}
+	</style>
 </head>
 <body>
-<script>
+<script type='text/javascript'>
 function menu_action(com,id,fg,fp) {
         if (com=='modify') {
             if (typeof(id) != 'undefined')
@@ -95,42 +114,29 @@ include ("../hmenu.php"); ?>
     </ul>
 
 	<table class="noborder">
-	<tr><td valign="top">
-		<table id="flextable" style="display:none"></table>
-	</td><tr>
+		<tr>
+			<td valign="top">
+				<table id="flextable" style="display:none"></table>
+			</td>
+		<tr>
 	</table>
-	<style>
-		table, th, tr, td {
-			background:transparent;
-			border-radius: 0px;
-			-moz-border-radius: 0px;
-			-webkit-border-radius: 0px;
-			border:none;
-			padding:0px; margin:0px;
-		}
-		input, select {
-			border-radius: 0px;
-			-moz-border-radius: 0px;
-			-webkit-border-radius: 0px;
-			border: 1px solid #8F8FC6;
-			font-size:12px; font-family:arial; vertical-align:middle;
-			padding:0px; margin:0px;
-		}
-	</style>
-	<script>
+	
+	<script type='text/javascript'>
 	function get_width(id) {
 		if (typeof(document.getElementById(id).offsetWidth)!='undefined') 
 			return document.getElementById(id).offsetWidth-5;
 		else
 			return 700;
 	}
-        function get_height()
-        {
+	
+    function get_height(){
 		return parseInt($(document).height()) - 200;
 	}
+	
     function linked_to(rowid) {
         document.location.href = 'actionform.php?id='+urlencode(rowid);
     }	
+	
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
 		if (com=='<?php echo _("Delete selected");?>') {
@@ -156,43 +162,43 @@ include ("../hmenu.php"); ?>
 			document.location.href = 'actionform.php'
 		}
 	}
+	
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
 		$.ajax({
 				type: "POST",
 				url: "../conf/layout.php",
-				data: { name:"<?php echo $name_layout
-?>", category:"<?php echo $category
-?>", layout:serialize(clayout) },
+				data: { name:"<?php echo $name_layout?>", category:"<?php echo $category?>", layout:serialize(clayout) },
 				success: function(msg) {
 					$("#flextable").changeStatus(msg,true);
 				}
 		});
 	}
+	
 	$("#flextable").flexigrid({
 		url: 'getaction.php',
 		dataType: 'xml',
 		colModel : [
-		<?php
-$default = array(
-    "descr" => array(
-        _('Description'),
-        700,
-        'true',
-        'left',
-        false
-    ) ,
-    "type" => array(
-        _('Type'),
-        100,
-        'true',
-        'left',
-        false
-    ) ,
-);
-list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "descr", "asc", 300);
-echo "$colModel\n";
-?>
+			<?php
+			$default = array(
+				"descr" => array(
+					_('Description'),
+					700,
+					'true',
+					'left',
+					false
+				) ,
+				"type" => array(
+					_('Type'),
+					100,
+					'true',
+					'left',
+					false
+				) ,
+			);
+			list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "descr", "asc", 300);
+			echo "$colModel\n";
+			?>
 			],
 		buttons : [
 			{name: '<?=_("New")?>', bclass: 'add', onpress : action},
@@ -202,10 +208,8 @@ echo "$colModel\n";
 			{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
 			{separator: true}
 			],
-		sortname: "<?php echo $sortname
-?>",
-		sortorder: "<?php echo $sortorder
-?>",
+		sortname: "<?php echo $sortname?>",
+		sortorder: "<?php echo $sortorder?>",
 		usepager: true,
 		title: '<?=_("Actions")?>',
 		pagestat: '<?=_("Displaying {from} to {to} of {total} Actions")?>',

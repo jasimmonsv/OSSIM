@@ -69,6 +69,24 @@ $layout      = load_layout($name_layout, $category);
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
 	<script type="text/javascript" src="../js/urlencode.js"></script>
+	<style type='text/css'>
+		table, th, tr, td {
+			background:transparent;
+			border-radius: 0px;
+			-moz-border-radius: 0px;
+			-webkit-border-radius: 0px;
+			border:none;
+			padding:0px; margin:0px;
+		}
+		input[type=text], select {
+			border-radius: 0px;
+			-moz-border-radius: 0px;
+			-webkit-border-radius: 0px;
+			border: 1px solid #8F8FC6;
+			font-size:12px; font-family:arial; vertical-align:middle;
+			padding:0px; margin:0px;
+		}
+	</style>
 </head>
 <body>
 
@@ -104,24 +122,6 @@ echo "</form><br/>";
 	
 	<table id="flextable" style="display:none"></table>
 
-	<style>
-		table, th, tr, td {
-			background:transparent;
-			border-radius: 0px;
-			-moz-border-radius: 0px;
-			-webkit-border-radius: 0px;
-			border:none;
-			padding:0px; margin:0px;
-		}
-		input[type=text], select {
-			border-radius: 0px;
-			-moz-border-radius: 0px;
-			-webkit-border-radius: 0px;
-			border: 1px solid #8F8FC6;
-			font-size:12px; font-family:arial; vertical-align:middle;
-			padding:0px; margin:0px;
-		}
-	</style>
 	
 	<script type='text/javascript'>
 	function get_width(id) {
@@ -182,33 +182,33 @@ echo "</form><br/>";
         url: 'getdevice.php',
         dataType: 'xml',
         colModel : [
-    <?php
-		$default = array(
-			"ip" => array(
-				_("Device Address"),
-				100,
-				'true',
-				'left',
-				false
-			) ,
-			"community" => array(
-				_("SNMP Community"),
-				100,
-				'true',
-				'center',
-				false
-			) ,
-			"description" => array(
-				_("Description"),
-				300,
-				'true',
-				'center',
-				false
-			)
-		);
-		list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "community", "asc", 300);
-		echo "$colModel\n";
-?>
+			<?php
+				$default = array(
+					"ip" => array(
+						_("Device Address"),
+						100,
+						'true',
+						'left',
+						false
+					) ,
+					"community" => array(
+						_("SNMP Community"),
+						100,
+						'true',
+						'center',
+						false
+					) ,
+					"description" => array(
+						_("Description"),
+						300,
+						'true',
+						'center',
+						false
+					)
+				);
+				list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "community", "asc", 300);
+				echo "$colModel\n";
+			?>
 			],
 		buttons : [
 			{name: '<?php echo _("New")?>', bclass: 'add', onpress : action},
@@ -229,7 +229,7 @@ echo "</form><br/>";
 		pagestat: '<?php echo _("Displaying {from} to {to} of {total} devices")?>',
 		nomsg: '<?php echo _("No Devices")?>',
 		useRp: true,
-		rp: 25,
+		rp: 20,
 		//contextMenu: 'myMenu',
 		showTableToggleBtn: true,
 		singleSelect: true,

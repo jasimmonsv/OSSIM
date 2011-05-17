@@ -47,39 +47,15 @@ $layout = load_layout($name_layout, $category);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
-  <script type="text/javascript" src="../js/urlencode.js"></script>
-	
-</head>
-<body>
-
-
-	<?php
-include ("../hmenu.php"); ?>
-	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
-	
-	<table class="noborder">
-	<tr><td valign="top">
-		<table id="flextable" style="display:none"></table>
-	</td><tr>
-	<tr><td valign="top" class="noborder" style="padding-top:10px">
-		<IFRAME src="" frameborder="0" name="addcontent" id="addcontent" width="500"></IFRAME>
-	</td></tr>
-	</table>
-
-	<!-- Right Click Menu -->
-	<ul id="myMenu" class="contextMenu">
-		<li class="hostreport"><a href="#hostreport" class="greybox"><img src="../pixmaps/reports.png"> Network Report</a></li>
-	</ul>
-
-	<style>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
+	<script type="text/javascript" src="../js/urlencode.js"></script>
+	<style type='text/css'>
 		table, th, tr, td {
 			background:transparent;
 			border-radius: 0px;
@@ -97,19 +73,48 @@ include ("../hmenu.php"); ?>
 			padding:0px; margin:0px;
 		}
 	</style>
-	<script>
+</head>
+<body>
+
+
+	<?php include ("../hmenu.php"); ?>
+	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
+	
+	<table class="noborder">
+		<tr>
+			<td valign="top">
+				<table id="flextable" style="display:none"></table>
+			</td>
+		<tr>
+		<tr>
+			<td valign="top" class="noborder" style="padding-top:10px">
+				<iframe src="" frameborder="0" name="addcontent" id="addcontent" width="500"></iframe>
+			</td>
+		</tr>
+	</table>
+
+	<!-- Right Click Menu -->
+	<ul id="myMenu" class="contextMenu">
+		<li class="hostreport"><a href="#hostreport" class="greybox"><img src="../pixmaps/reports.png"> Network Report</a></li>
+	</ul>
+
+
+	<script type='text/javascript'>
+	
 	function get_width(id) {
 		if (typeof(document.getElementById(id).offsetWidth)!='undefined') 
 			return document.getElementById(id).offsetWidth-20;
 		else
 			return 700;
 	}
+	
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
 		if (com=='Reload') {
 			document.location.href = '../conf/reload.php?what=hosts&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>'
 		}
 	}
+	
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('Saving column layout...',false);
 		$.ajax({
@@ -121,6 +126,7 @@ include ("../hmenu.php"); ?>
 				}
 		});
 	}
+	
 	function menu_action(com,id,fg,fp) {
 		if (com=='hostreport') {
 			var ip = id;
@@ -139,60 +145,60 @@ include ("../hmenu.php"); ?>
 		dataType: 'xml',
 		colModel : [
 		<?php
-$default = array(
-    "name" => array(
-        'Network Name',
-        100,
-        'true',
-        'left',
-        false
-    ) ,
-    "ips" => array(
-        'IPs',
-        100,
-        'true',
-        'center',
-        false
-    ) ,
-    "asset" => array(
-        'Asset',
-        40,
-        'true',
-        'center',
-        false
-    ) ,
-	"nessus" => array(
-        'Nessus',
-        40,
-        'true',
-        'center',
-        false
-    ) ,
-    "nagios" => array(
-        'Nagios',
-        40,
-        'true',
-        'center',
-        false
-    ) ,
-    "sensors" => array(
-        'Sensors',
-        100,
-        'false',
-        'center',
-        false
-    ) ,
-    "desc" => array(
-        'Description',
-        160,
-        'false',
-        'left',
-        false
-    )
-);
-list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "name", "asc", 300);
-echo "$colModel\n";
-?>
+			$default = array(
+				"name" => array(
+					'Network Name',
+					100,
+					'true',
+					'left',
+					false
+				) ,
+				"ips" => array(
+					'IPs',
+					100,
+					'true',
+					'center',
+					false
+				) ,
+				"asset" => array(
+					'Asset',
+					40,
+					'true',
+					'center',
+					false
+				) ,
+				"nessus" => array(
+					'Nessus',
+					40,
+					'true',
+					'center',
+					false
+				) ,
+				"nagios" => array(
+					'Nagios',
+					40,
+					'true',
+					'center',
+					false
+				) ,
+				"sensors" => array(
+					'Sensors',
+					100,
+					'false',
+					'center',
+					false
+				) ,
+				"desc" => array(
+					'Description',
+					160,
+					'false',
+					'left',
+					false
+				)
+			);
+			list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "name", "asc", 300);
+			echo "$colModel\n";
+			?>
 			],
 		searchitems : [
 			{display: 'Network Name', name : 'net_name', isdefault: true}
@@ -204,7 +210,7 @@ echo "$colModel\n";
 		pagestat: 'Displaying {from} to {to} of {total} networks',
 		nomsg: 'No networks',
 		useRp: true,
-		rp: 25,
+		rp: 20,
 		contextMenu: 'myMenu',
 		onContextMenuClick: menu_action,
 		showTableToggleBtn: true,

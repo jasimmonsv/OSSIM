@@ -35,50 +35,59 @@
 */
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "ComplianceMapping");
+
 // load column layout
 require_once ('../conf/layout.php');
-$category = "report";
+$category    = "report";
 $name_layout = "compliance";
-$layout = load_layout($name_layout, $category);
+$layout      = load_layout($name_layout, $category);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php echo gettext("OSSIM Framework"); ?> - Compliance </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
-  <script type="text/javascript" src="../js/urlencode.js"></script>
+	<title> <?php echo gettext("OSSIM Framework"); ?> - Compliance </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
+	<script type="text/javascript" src="../js/urlencode.js"></script>
+  
+	<style type='text/css'>
+	table, th, tr, td {
+		background:transparent;
+		border-radius: 0px;
+		-moz-border-radius: 0px;
+		-webkit-border-radius: 0px;
+		border:none;
+		padding:0px; margin:0px;
+	}
+	input, select {
+		border-radius: 0px;
+		-moz-border-radius: 0px;
+		-webkit-border-radius: 0px;
+		border: 1px solid #8F8FC6;
+		font-size:12px; font-family:arial; vertical-align:middle;
+		padding:0px; margin:0px;
+	}
+	</style>
+  
 </head>
 <body>
 <?php include ("../hmenu.php"); ?>
 <div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
+
 <table class="noborder">
-<tr><td valign="top">
-	<table id="flextable" style="display:none"></table>
-</td><tr>
+	<tr>
+		<td valign="top">
+			<table id="flextable" style="display:none"></table>
+		</td>
+	<tr>
 </table>
-<style>
-		table, th, tr, td {
-			background:transparent;
-			border-radius: 0px;
-			-moz-border-radius: 0px;
-			-webkit-border-radius: 0px;
-			border:none;
-			padding:0px; margin:0px;
-		}
-		input, select {
-			border-radius: 0px;
-			-moz-border-radius: 0px;
-			-webkit-border-radius: 0px;
-			border: 1px solid #8F8FC6;
-			font-size:12px; font-family:arial; vertical-align:middle;
-			padding:0px; margin:0px;
-		}
-	</style>
+
+
+
 <script type="text/javascript">
 	function get_width(id) {
 		if (typeof(document.getElementById(id).offsetWidth)!='undefined') 
@@ -86,9 +95,11 @@ $layout = load_layout($name_layout, $category);
 		else
 			return 700;
 	}
+	
     function linked_to(rowid) {
         document.location.href = 'modifygeneralform.php?sid='+urlencode(rowid);
     }
+	
 	function action(com,grid) {
 		var items = $('.trSelected', grid);
 		if (com=='<?php echo gettext("Delete selected"); ?>') {
@@ -117,6 +128,7 @@ $layout = load_layout($name_layout, $category);
 			document.location.href = '../conf/reload.php?what=hosts&back=<?php echo urlencode($_SERVER["REQUEST_URI"]); ?>'
 		}
 	}
+	
 	function save_layout(clayout) {
 		$("#flextable").changeStatus('<?=_('Saving column layout...')?>',false);
 		$.ajax({
@@ -128,6 +140,7 @@ $layout = load_layout($name_layout, $category);
 				}
 		});
 	}
+	
 	function menu_action(com,id,fg,fp) {
 		
 	}
@@ -141,130 +154,130 @@ $("#flextable").flexigrid({
 		dataType: 'xml',
 		colModel : [
 		<?php
-$default = array(
-    "sid" => array(
-        _('SID'),
-        30,
-        'true',
-        'center',
-        false
-    ) ,
-	"plugin_name" => array(
-        _('Data Source'),
-        250,
-        'true',
-        'left',
-        false
-    ) ,
-    "targeted" => array(
-        _('Targeted'),
-        50,
-        'true',
-        'center',
-        false
-    ) ,
-    "untargeted" => array(
-        _('Untargeted'),
-        60,
-        'true',
-        'center',
-        false
-    ) ,
-    "approach" => array(
-        _('Approach'),
-        50,
-        'false',
-        'center',
-        false
-    ) ,
-    "exploration" => array(
-        _('Exploration'),
-        50,
-        'false',
-        'center',
-        false
-    ) ,
-    "penetration" => array(
-        _('Penetration'),
-        50,
-        'false',
-        'center',
-        false
-    ) ,
-    "generalmalware" => array(
-        _('General Malware'),
-        70,
-        'false',
-        'center',
-        false
-    ) ,
-    "imp_qos" => array(
-        _('Impact: QOS'),
-        40,
-        'false',
-        'center',
-        false
-    ) ,
-    "imp_infleak" => array(
-        _('Impact: Infleak'),
-        50,
-        'false',
-        'center',
-        false
-    ) ,
-    "imp_lawful" => array(
-        _('Impact: Lawful'),
-        60,
-        'false',
-        'center',
-        false
-    ) ,
-    "imp_image" => array(
-        _('Impact: Image'),
-        50,
-        'false',
-        'center',
-        false
-    ) ,
-    "imp_financial" => array(
-        _('Impact: Financial'),
-        60,
-        'false',
-        'center',
-        false
-    ) ,
-    "D" => array(
-        _('Availability'),
-        60,
-        'false',
-        'center',
-        false
-    ) ,
-    "I" => array(
-        _('Integrity'),
-        50,
-        'false',
-        'center',
-        false
-    ) ,
-    "C" => array(
-        _('Confidentiality'),
-        70,
-        'false',
-        'center',
-        false
-    ) ,
-    "net_anomaly" => array(
-        _('Network anomaly'),
-        60,
-        'false',
-        'center',
-        false
-    )
-);
-list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "name", "asc", 300);
-echo "$colModel\n";
-?>
+		$default = array(
+			"sid" => array(
+				_('SID'),
+				30,
+				'true',
+				'center',
+				false
+			) ,
+			"plugin_name" => array(
+				_('Data Source'),
+				250,
+				'true',
+				'left',
+				false
+			) ,
+			"targeted" => array(
+				_('Targeted'),
+				50,
+				'true',
+				'center',
+				false
+			) ,
+			"untargeted" => array(
+				_('Untargeted'),
+				60,
+				'true',
+				'center',
+				false
+			) ,
+			"approach" => array(
+				_('Approach'),
+				50,
+				'false',
+				'center',
+				false
+			) ,
+			"exploration" => array(
+				_('Exploration'),
+				50,
+				'false',
+				'center',
+				false
+			) ,
+			"penetration" => array(
+				_('Penetration'),
+				50,
+				'false',
+				'center',
+				false
+			) ,
+			"generalmalware" => array(
+				_('General Malware'),
+				70,
+				'false',
+				'center',
+				false
+			) ,
+			"imp_qos" => array(
+				_('Impact: QOS'),
+				40,
+				'false',
+				'center',
+				false
+			) ,
+			"imp_infleak" => array(
+				_('Impact: Infleak'),
+				50,
+				'false',
+				'center',
+				false
+			) ,
+			"imp_lawful" => array(
+				_('Impact: Lawful'),
+				60,
+				'false',
+				'center',
+				false
+			) ,
+			"imp_image" => array(
+				_('Impact: Image'),
+				50,
+				'false',
+				'center',
+				false
+			) ,
+			"imp_financial" => array(
+				_('Impact: Financial'),
+				60,
+				'false',
+				'center',
+				false
+			) ,
+			"D" => array(
+				_('Availability'),
+				60,
+				'false',
+				'center',
+				false
+			) ,
+			"I" => array(
+				_('Integrity'),
+				50,
+				'false',
+				'center',
+				false
+			) ,
+			"C" => array(
+				_('Confidentiality'),
+				70,
+				'false',
+				'center',
+				false
+			) ,
+			"net_anomaly" => array(
+				_('Network anomaly'),
+				60,
+				'false',
+				'center',
+				false
+			)
+		);
+		list($colModel, $sortname, $sortorder, $height) = print_layout($layout, $default, "name", "asc", 300);
+		echo "$colModel\n";
+		?>
 			],
 		buttons : [
 			{name: '<?=_('Insert new')?>', bclass: 'add', onpress : action},
@@ -281,7 +294,7 @@ echo "$colModel\n";
 		nomsg: '<?=_('No objects')?>',
 		pagestat: '<?=_("Displaying {from} to {to} of {total}")?>',
 		useRp: true,
-		rp: 25,
+		rp: 20,
 		contextMenu: 'myMenu',
 		onContextMenuClick: menu_action,
 		showTableToggleBtn: true,

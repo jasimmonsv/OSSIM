@@ -47,12 +47,12 @@ require_once 'ossim_db.inc';
 require_once 'classes/Plugin_reference.inc';
 require_once 'classes/Plugin.inc';
 require_once 'classes/Plugin_sid.inc';
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 50;
+
 $order = GET('sortname');
-if (empty($order)) $order = POST('sortname');
+if (empty($order))  $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 $search = GET('query');
 if (empty($search)) $search = POST('query');
@@ -74,9 +74,11 @@ if (!empty($search) && !empty($field))
 	else $where.= ",plugin WHERE plugin.id=plugin_reference.plugin_id AND plugin.name like '%" . $search . "%'";
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db = new ossim_db();
-$conn = $db->connect();
-$xml = "";
+$db    = new ossim_db();
+$conn  = $db->connect();
+$xml   = "";
+
+
 $xml.= "<rows>\n";
 if ($plugin_list = Plugin_reference::get_list2($conn, "$where ORDER BY $order $limit")) {
     $total = Plugin_reference::get_count($conn);
@@ -109,5 +111,3 @@ $xml.= "</rows>\n";
 echo $xml;
 $db->close($conn);
 ?>
-
-

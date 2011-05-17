@@ -46,24 +46,22 @@ $layout = load_layout($name_layout, $category);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php
-echo gettext("Priority and Reliability configuration"); ?> </title>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
-  <script type="text/javascript" src="../js/urlencode.js"></script>
-  <script type="text/javascript" src="../js/greybox.js"></script>
+	<title> <?php echo gettext("Priority and Reliability configuration"); ?> </title>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
+	<script type="text/javascript" src="../js/urlencode.js"></script>
+	<script type="text/javascript" src="../js/greybox.js"></script>
 </head>
 <body>
 
-	<?php
-include ("../hmenu.php"); ?>
+	<?php include ("../hmenu.php"); ?>
 	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
 
-	<style>
+	<style type='text/css'>
 		table, th, tr, td {
 			background:transparent;
 			border-radius: 0px;
@@ -89,124 +87,124 @@ include ("../hmenu.php"); ?>
 	</table>
 	 -->
 	<table id="flextable" style="display:none"></table>
-	<script>
-	function get_width(id) {
-		if (typeof(document.getElementById(id).offsetWidth)!='undefined') 
-			return document.getElementById(id).offsetWidth-20;
-		else
-			return 700;
-	}
-	function action(com,grid) {
-		var items = $('.trSelected', grid);
-		if (com=='<?=_("Delete selected")?>') {
-			//Delete host by ajax
-			if (typeof(items[0]) != 'undefined') {
-				var aux = items[0].id.substr(3);
-				var auxarr = aux.split(/\_/);
-				document.location.href = 'delete_pluginref.php?id='+auxarr[0]+'&sid='+auxarr[1]+'&ref_id='+auxarr[2]+'&ref_sid='+auxarr[3];
-			}
-			else alert('You must select a rule');
+	<script type='text/javascript'>
+	
+		function get_width(id) {
+			if (typeof(document.getElementById(id).offsetWidth)!='undefined') 
+				return document.getElementById(id).offsetWidth-20;
+			else
+				return 700;
 		}
-		else if (com=='<?=_("Modify")?>') {
-			if (typeof(items[0]) != 'undefined') {
-				var aux = items[0].id.substr(3);
-				var auxarr = aux.split(/\_/);
-				document.location.href = 'modify_pluginref.php?id='+auxarr[0]+'&sid='+auxarr[1]+'&ref_id='+auxarr[2]+'&ref_sid='+auxarr[3];
-			}
-			else alert('You must select a rule');
-		}
-		else if (com=='<?=_("New")?>') {
-			document.location.href = 'pluginrefrules.php'
-		}
-	}
-	function save_layout(clayout) {
-		$("#flextable").changeStatus('<?=_('Saving column layout')?>...',false);
-		$.ajax({
-				type: "POST",
-				url: "../conf/layout.php",
-				data: { name:"<?php echo $name_layout
-?>", category:"<?php echo $category
-?>", layout:serialize(clayout) },
-				success: function(msg) {
-					$("#flextable").changeStatus(msg,true);
+		
+		function action(com,grid) {
+			var items = $('.trSelected', grid);
+			if (com=='<?=_("Delete selected")?>') {
+				//Delete host by ajax
+				if (typeof(items[0]) != 'undefined') {
+					var aux = items[0].id.substr(3);
+					var auxarr = aux.split(/\_/);
+					document.location.href = 'delete_pluginref.php?id='+auxarr[0]+'&sid='+auxarr[1]+'&ref_id='+auxarr[2]+'&ref_sid='+auxarr[3];
 				}
+				else alert('You must select a rule');
+			}
+			else if (com=='<?=_("Modify")?>') {
+				if (typeof(items[0]) != 'undefined') {
+					var aux = items[0].id.substr(3);
+					var auxarr = aux.split(/\_/);
+					document.location.href = 'modify_pluginref.php?id='+auxarr[0]+'&sid='+auxarr[1]+'&ref_id='+auxarr[2]+'&ref_sid='+auxarr[3];
+				}
+				else alert('You must select a rule');
+			}
+			else if (com=='<?=_("New")?>') {
+				document.location.href = 'pluginrefrules.php'
+			}
+		}
+	
+		function save_layout(clayout) {
+			$("#flextable").changeStatus('<?=_('Saving column layout')?>...',false);
+			$.ajax({
+					type: "POST",
+					url: "../conf/layout.php",
+					data: { name:"<?php echo $name_layout?>", category:"<?php echo $category?>", layout:serialize(clayout) },
+					success: function(msg) {
+						$("#flextable").changeStatus(msg,true);
+					}
+			});
+		}
+		
+		$(document).ready(function() {
+			$("a.greybox").click(function(){
+				var t = this.title || $(this).text() || this.href;
+				GB_show(t,this.href,300,700);
+				return false;
+			});
+			$("#flextable").flexigrid({
+				url: 'getpluginref.php',
+				dataType: 'xml',
+				colModel : [
+				<?php
+				$default = array(
+					"name" => array(
+						_('Plugin Name'),
+						100,
+						'true',
+						'center',
+						false
+					) ,
+					"sid name" => array(
+						_('Plugin Sid Name'),
+						150,
+						'true',
+						'center',
+						false
+					) ,
+					"ref name" => array(
+						_('Ref Name'),
+						100,
+						'true',
+						'left',
+						false
+					) ,
+					"ref sid name" => array(
+						_('Ref Sid Name'),
+						120,
+						'true',
+						'left',
+						false
+					)
+				);
+				list($colModel, $sortname, $sortorder) = print_layout($layout, $default, "id", "asc");
+				echo "$colModel\n";
+				?>
+					],
+				buttons : [
+					{name: '<?=_("New")?>', bclass: 'add', onpress : action},
+					{separator: true},
+					{name: '<?=_("Modify")?>', bclass: 'modify', onpress : action},
+					{separator: true},
+					{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
+					{separator: true}
+					],
+				searchitems : [
+					{display: '<?=_('Plugin Name')?>', name : 'name', isdefault: true},
+					{display: '<?=_('Plugin Sid Name')?>', name : 'sid name'}
+					],
+				sortname: "<?php echo $sortname	?>",
+				sortorder: "<?php echo $sortorder ?>",
+				usepager: true,
+				title: '<?=_('EDIT RULES')?>',
+				pagestat: '<?=_('Displaying {from} to {to} of {total} rules')?>',
+				nomsg: '<?=_('No rules')?>',
+				useRp: true,
+				rp: 50,
+				showTableToggleBtn: true,
+				singleSelect: true,
+				width: get_width('headerh1'),
+				height: 330,
+				onColumnChange: save_layout,
+				onEndResize: save_layout
+			});   
 		});
-	}
-	$(document).ready(function() {
-		$("a.greybox").click(function(){
-			var t = this.title || $(this).text() || this.href;
-			GB_show(t,this.href,300,700);
-			return false;
-		});
-		$("#flextable").flexigrid({
-			url: 'getpluginref.php',
-			dataType: 'xml',
-			colModel : [
-			<?php
-$default = array(
-    "name" => array(
-        _('Plugin Name'),
-        100,
-        'true',
-        'center',
-        false
-    ) ,
-    "sid name" => array(
-        _('Plugin Sid Name'),
-        150,
-        'true',
-        'center',
-        false
-    ) ,
-    "ref name" => array(
-        _('Ref Name'),
-        100,
-        'true',
-        'left',
-        false
-    ) ,
-	"ref sid name" => array(
-        _('Ref Sid Name'),
-        120,
-        'true',
-        'left',
-        false
-    )
-);
-list($colModel, $sortname, $sortorder) = print_layout($layout, $default, "id", "asc");
-echo "$colModel\n";
-?>
-				],
-			buttons : [
-				{name: '<?=_("New")?>', bclass: 'add', onpress : action},
-				{separator: true},
-				{name: '<?=_("Modify")?>', bclass: 'modify', onpress : action},
-				{separator: true},
-				{name: '<?=_("Delete selected")?>', bclass: 'delete', onpress : action},
-				{separator: true}
-				],
-			searchitems : [
-				{display: '<?=_('Plugin Name')?>', name : 'name', isdefault: true},
-				{display: '<?=_('Plugin Sid Name')?>', name : 'sid name'}
-				],
-			sortname: "<?php echo $sortname
-?>",
-			sortorder: "<?php echo $sortorder
-?>",
-			usepager: true,
-			title: '<?=_('EDIT RULES')?>',
-			pagestat: '<?=_('Displaying {from} to {to} of {total} rules')?>',
-			nomsg: '<?=_('No rules')?>',
-			useRp: true,
-			rp: 50,
-			showTableToggleBtn: true,
-			singleSelect: true,
-			width: get_width('headerh1'),
-			height: 330,
-			onColumnChange: save_layout,
-			onEndResize: save_layout
-		});   
-	});
 	</script>
 
 </body>
