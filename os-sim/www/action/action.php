@@ -188,7 +188,7 @@ include ("../hmenu.php"); ?>
 					'left',
 					false
 				) ,
-				"type" => array(
+				"action_type" => array(
 					_('Type'),
 					100,
 					'true',
