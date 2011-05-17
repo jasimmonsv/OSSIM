@@ -27,7 +27,7 @@ system("date");
 
 $max_processes = 16; # max parallel parser threads
 $maindir = "/var/ossim/kismet/"; # kismet work dir
-$syslog = "/var/log/all.log";
+$syslog = "/var/log/kismet.log";
 $workdir = "$maindir/work";
 $parseddir = "$maindir/parsed";
 #$dbdir = "$maindir/db";
@@ -44,25 +44,25 @@ get_ips_macs($dbh);
 my %aps_macs = ();
 my %clients_macs = ();
 get_aps_macs_and_clients($dbh);
-# sensors
-@log_files = `ls -1t "$workdir/"*.log 2> /dev/null`;
-foreach $file (@log_files) {
-    $file =~ s/\n|\r|\t//g;
-    if ($file =~ /(\d+\.\d+\.\d+\.\d+).*/) {
-        $sensor = $1;
-        print "Syslog:kismet.log => $file\n";
-        system("cat '$file' >> '$syslog'");
-        system("mkdir -p '$parseddir/$sensor';mv '$file' '$parseddir/$sensor'");
-        $sql = qq{ update ossim.wireless_sensors set last_scraped = now() where sensor in (select name from ossim.sensor where ip = '$sensor') };
-        $sth_selm=$dbh->prepare( $sql );
-        $sth_selm->execute;
-        $sth_selm->finish;
-    }
-}
+# sensors => solved by rsyslog
+#@log_files = `ls -1t "$workdir/"*.log 2> /dev/null`;
+#foreach $file (@log_files) {
+#    $file =~ s/\n|\r|\t//g;
+#    if ($file =~ /(\d+\.\d+\.\d+\.\d+).*/) {
+#        $sensor = $1;
+#        print "Syslog:kismet.log => $file\n";
+#        system("cat '$file' >> '$syslog'");
+#        system("mkdir -p '$parseddir/$sensor';mv '$file' '$parseddir/$sensor'");
+#        $sql = qq{ update ossim.wireless_sensors set last_scraped = now() where sensor in (select name from ossim.sensor where ip = '$sensor') };
+#        $sth_selm=$dbh->prepare( $sql );
+#        $sth_selm->execute;
+#        $sth_selm->finish;
+#    }
+#}
 $dbh->disconnect;
 
 $file = "";
-@files = `ls -1t "$workdir/"*.xml 2> /dev/null`;
+@files = `ls -1t $workdir/*/*.xml 2> /dev/null`;
 foreach $file (@files) {
     $file =~ s/\n|\r|\t//g;
     if ($file =~ /(\d+\.\d+\.\d+\.\d+).*/) {
@@ -96,7 +96,7 @@ foreach $file (@files) {
             print "Processing $file (pid:$pid)\n";
         }
     } else {
-        print "Skiping $file: incorrect name format name_XXX.XXX.XXX.XXX_[YYYYMMDD].xml\n";
+        print "Skiping $file: incorrect name format XXX.XXX.XXX.XXX_YYYYMMDD-N.xml\n";
     }
 }
 
@@ -420,7 +420,7 @@ sub insert_sensor {
     if ($sname eq "") {
         # insert sensor
         print "Inserting ossim Sensor_$sensor\n" if ($debug);
-        $sql_update = qq{ insert into sensor values ('Sensor_$sensor','$sensor',5,40002,0,'') };
+        $sql_update = qq{ insert into sensor values ('Sensor_$sensor','$sensor',5,40002,0,'',0) };
         $sth_update = $dbh->prepare( $sql_update );
         $sth_update->execute;
         $sth_update->finish;
