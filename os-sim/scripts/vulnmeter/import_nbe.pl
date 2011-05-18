@@ -40,6 +40,7 @@ use Date::Calc qw( Delta_DHMS Add_Delta_YMD Days_in_Month );
 use Switch;
 use strict;
 use warnings;
+use POSIX qw(strftime);
 
 $| = 1;
 
@@ -52,6 +53,7 @@ use constant FALSE => 0;
 my $file = $ARGV[0];
 my $rdata = decode_base64($ARGV[1]); # report_name;user
 my $asset_insertion = $ARGV[2];
+my $tz = $ARGV[3];
 
 my ($report_name, $user) = split(/;/,$rdata);
 
@@ -107,8 +109,9 @@ main( );
 exit; #end
 
 sub main {
-    my @issues = get_results_from_file($file);
+
     my $dbh = conn_db();
+    my @issues = get_results_from_file($file);
     my %hostHash = pop_hosthash(\@issues);
     process_results(\%hostHash, $report_name, "M", $user, $sid, $scantime, "");
     disconn_db($dbh);
@@ -120,9 +123,12 @@ sub get_results_from_file {
 
     if ( ! -r $outfile ) { $no_results = TRUE; return FALSE; }
     
-    my ($year, $month, $mday, $hour, $min, $sec ) = (localtime(time()))[5,4,3,2,1,0];
-
-    $scantime = $year.$month.$mday.$hour.$min.$sec;
+    #my ($year, $month, $mday, $hour, $min, $sec ) = (localtime(time()))[5,4,3,2,1,0];
+    #$scantime = $year.$month.$mday.$hour.$min.$sec;
+    
+    # default value for scantime
+    
+    $scantime = strftime "%Y%m%d%H%M%S", gmtime;
 
     my @issues;
     #my ($rec_type, $domain, $host, $port, $description, $service, $proto, $scan_id, $risk_type, $app );
@@ -138,7 +144,9 @@ sub get_results_from_file {
         my ($host, $domain, $scan_id, $description, $service, $app, $port, $proto, $rec_type, $risk_type ) = "";
         ( $rec_type, $domain, $host, $service, $scan_id, $risk_type, $description )=split(/\|/,$_);
         
-        if(!defined($service)) { $service = ""; }
+        if(!defined($service))     { $service = "";     }
+        if(!defined($description)) { $description = ""; }
+        
         
         if ($service =~ /scan_end|host_end/) {
            my $date = ParseDate($scan_id);
@@ -146,7 +154,16 @@ sub get_results_from_file {
            #my ($year, $month, $day, $hour, $min, $sec) = UnixDate($date, "%Y", "%m", "%d", "%H", "%i", "%s");
            #$scantime = $year.$month.$day.$hour.$min.$sec;
            $date =~ s/\://g;
-           $scantime = $date;
+           
+           $date =~ /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/;
+           
+           my $udate = get_utc_from_date($dbh, "$1-$2-$3 $4:$5:$6", $tz);
+           
+           $udate =~ s/\-//g;
+           $udate =~ s/\://g;
+           $udate =~ s/\s//g;
+           
+           $scantime = $udate;
         }
 
         if ( $rec_type =~ /results/ ) {
@@ -957,6 +974,11 @@ sub conn_db {
         PrintError => 0,
         RaiseError => 1,
         AutoCommit => 1 } ) or die("Failed to connect : $DBI::errstr\n");
+        
+    $sql = qq{ SET SESSION time_zone='+00:00' };
+
+    safe_db_write ( $sql, 5 );
+    
     return $dbh;
 }
 
@@ -1701,3 +1723,33 @@ sub getassetbyname {
     return "";
 
 }
+sub get_tzc {
+    my $tz  = $_[0];
+    my $tzc = "";
+    
+    if ($tz =~ /(.*)\.(.*)/) {
+        my $fnd0 = ($1 > 0) ? "+$1" : $1;
+        my $fnd1 = ($2 > 9) ? $2 : $2."0";
+        $tzc = "$fnd0:$fnd1";
+    }
+    else {
+        $tzc = ($tz>=0) ? "+$tz:00" : "$tz:00";
+    }
+    return $tzc;
+}
+sub get_utc_from_date {
+    my $conn = $_[0];
+    my $date = $_[1];
+    my $tz   = $_[2];
+    
+    $tz = get_tzc($tz);
+    
+    my $sql = qq{ select convert_tz('$date','$tz','+00:00') };
+    my $sth_sel=$conn->prepare( $sql );
+    $sth_sel->execute;
+    
+    my $value = $sth_sel->fetchrow_array;
+    
+    return $value;
+}
+

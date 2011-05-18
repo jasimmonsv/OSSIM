@@ -49,7 +49,7 @@ ossim_valid($report_name, OSS_SCORE, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE, 'illega
 ossim_valid($delete, OSS_DIGIT, OSS_NULLABLE, 'illegal: '. _("delete"));
 ossim_valid($assignto, OSS_DIGIT, OSS_NULLABLE, OSS_ALPHA, OSS_SPACE,'\-\.', 'illegal: '._("assign to"));
 
-if( $assignto == -1 || $assignto == "") $assignto = Session::get_session_user();
+if( $assignto == "" || $assignto == -1) $assignto = Session::get_session_user();
 
 if (ossim_error()) {
     die(ossim_error());
@@ -214,14 +214,15 @@ if ($_FILES['nbe_file']['tmp_name']!="" && $_FILES['nbe_file']['size']>0) {
             $vuln_host = $result_vuln_host->fields['vulnerability'];
             $dbconn->execute("UPDATE vuln_nessus_latest_reports SET results_sent=$vuln_host WHERE report_id=inet_aton('$ip') AND username='".$assignto."'");
         }*/
+        $tz = Util::get_timezone();
         if(POST('submit')==_("Import & asset insertion")) {
-            system("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 1 > /dev/null");
+            system("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 1 $tz > /dev/null");
         }
         else {
             //error_log("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 0\n",3,"/tmp/import.log");
-            system("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 0 > /dev/null");
+            system("/usr/share/ossim/scripts/vulnmeter/import_nbe.pl $dest ".base64_encode($report_name.";".$assignto)." 0 $tz > /dev/null");
         }
-        unlink($dest); 
+        unlink($dest);
     }
 }
 ?>
@@ -925,7 +926,7 @@ echo "</table>";
 							<?php
 							foreach ( $entities as $k => $v ) 
 							{
-								echo "<option value='$k'>$v</option>";
+								echo "<option value='$k'>$v</option>"; 
 							}
 							?>
 						</select>

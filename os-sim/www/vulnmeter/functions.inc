@@ -35,7 +35,8 @@
  * It keeps the code cleaner
  */
 
-
+require_once ('classes/Util.inc');
+ 
 function hosts_to_insert($dbconn, $report_id) {
     $in_assets = array();
     $ips = array();
@@ -86,6 +87,8 @@ function tooltip_hosts($hosts,$ipsnames){
 
     $list = explode("\n", trim($hosts));
     foreach ($list as $host){
+        $ohost = $host; // to display asset names with !
+        $host = preg_replace('/^\!/', '', $host);
         $host = trim($host);
         
          if(!preg_match("/\d+\.\d+\.\d+\.\d+/",$host)) { 
@@ -105,10 +108,10 @@ function tooltip_hosts($hosts,$ipsnames){
         }
         if( ($ipsnames[$host]!="") && ($host!=$ipsnames[$host]) ){
             if(preg_match("/\d+\.\d+\.\d+\.\d+/",$host)) {
-                $result[] = $host." (".$ipsnames[$host].")";
+                $result[] = $ohost." (".$ipsnames[$host].")";
             }
             else {
-                $result[] = $ipsnames[$host]." (".$host.")";
+                $result[] = $ipsnames[$host]." (".$ohost.")";
             }
         }
         else
@@ -1293,6 +1296,8 @@ div.legend td { text-align:left; font-size:11px }
 function all_jobs($offset, $pageSize, $status=""){
 global $username, $uroles, $dbconn, $hosts;
 
+$tz = Util::get_timezone();
+
 $out = 0;
 $message = "";
 
@@ -1341,7 +1346,6 @@ else {
                WHERE t1.username in ('$user') AND  ".(($status=="")? "t1.status!='R'":"t1.status='R'")."
                ORDER BY t1.id DESC LIMIT $offset,$pageSize";
 }
-
      $result = $dbconn->Execute($query);
      $sInfo .= "<center><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"90%\"><tr><td class=\"headerpr\" style=\"border:0;\">".(($status=="") ? _("All Scans") : _("All Running Scans"))."</td></tr></table>";
 
@@ -1363,9 +1367,26 @@ else {
 
 
      while ( !$result->EOF ) {
-        list ($task_id, $failed_attempts, $meth_Wcheck, $profile, $report_key, $report_id, $scan_next, $meth_TARGET, $id_report, $failed_attempts, $scan_PRIORITY, $scan_PID, $nid, $nname, $nusername, $start_date, $end_date, $submit_date,
-               $nstatus, $nnotify, $shostname) = $result->fields;
+        list ($task_id, $failed_attempts, $meth_Wcheck, $profile, $report_key, $report_id, $scan_next, $meth_TARGET, $id_report, $failed_attempts, $scan_PRIORITY,
+              $scan_PID, $nid, $nname, $nusername, $start_date, $end_date, $submit_date, $nstatus, $nnotify, $shostname) = $result->fields;
                
+        if($tz!=0) {
+            $ustart_date = $start_date; // save start date to display scan time
+        
+            if(!is_null($submit_date)) {
+                $submit_date = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$submit_date)+(3600*$tz));
+            }
+            if(!is_null($start_date)) {
+                $start_date  = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$start_date)+(3600*$tz));
+            }
+            if(!is_null($end_date)) {
+                $end_date    = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$end_date)+(3600*$tz));
+           }
+           if(!is_null($scan_next)) {
+                $scan_next   = gmdate("YmdHis",Util::get_utc_unixtime($dbconn,$scan_next)+(3600*$tz));
+            }
+        }
+        
         if($nnotify!="") $shostname = $nnotify;
         
         if($shostname=="") $shostname = "-";
@@ -1412,7 +1433,9 @@ else {
           } elseif ( $start_date ) {
                $buttons = "";
                $curtime = gen_strtotime("now", "");
-               $nmins = "RUN..>" . datediff("n",  $curtime, $start_date );
+               list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($dbconn,$curtime,$tz);
+               
+               $nmins = "RUN..>" . datediff("n", "$y-$m-$d $h:$u:$s", $ustart_date );
                $nmins .= " mins";
           } elseif ( $submit_date ) {
                $buttons = "<img src=\"images/sched.png\" title=\""._("JobID").": $nid, "._("scan_START").": $start_date, "._("scan_PID").": $scan_PID, "._("scan_PRIORITY").": $scan_PRIORITY, "._("failed_attempts").": $failed_attempts\" alt=\""._("JobID").": $nid, "._("scan_START").": $start_date, "._("scan_PID").": $scan_PID, "._("scan_PRIORITY").": $scan_PRIORITY, "._("failed_attempts").": $failed_attempts\" border=0>";
@@ -1524,7 +1547,6 @@ else {
           $sInfo .= "<td>$submit_date</td>
                <td>$start_date</td>
                <td>$end_date</td>";
-         //if($nmins =="0 mins" || $nstatus!="C")
          if($nmins =="0 mins")
            $sInfo .= "<td>-</td>";
          else
@@ -2981,6 +3003,8 @@ function cellprint ($map, $data, $entry, $color="", $image, $class, $random) {
  //
  global $dbconn;
  
+ $tz = Util::get_timezone();
+ 
  if ($color!="" && $entry["report_type"]!="I")
     echo "<tr bgcolor=\"$color\" class='cell$random'>";
  else if($entry["report_type"]=="I")
@@ -2998,7 +3022,13 @@ function cellprint ($map, $data, $entry, $color="", $image, $class, $random) {
                     echo "<td width=\"130\" style=\"text-align:right;background-color: #fafafa;\" class=\"nobborder\" nowrap>".$entry[$fieldValue['var']].(($image!="")? "<image src=\"../pixmaps/theme/$image\" border=\"0\" align=\"absmiddle\">": "")."</td>";
                 }
                 else if($entry[$fieldValue['var']] != ""){
-                    echo "<td width=\"130\" ".(($image!="")? "style=\"text-align:right;padding-right:2px\" class=\"nobborder\"": "")." nowrap>" . date("Y-m-d H:i:s",strtotime($entry[$fieldValue['var']])) .(($image!="")? "&nbsp;<image src=\"../pixmaps/theme/$image\" border=\"1\" align=\"absmiddle\" value='cell$random' $class>": "")."</td>";
+                    if($tz!=0) {
+                        $entry[$fieldValue['var']] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$entry[$fieldValue['var']])+3600*$tz);
+                    }
+                    else {
+                        $entry[$fieldValue['var']] = date("Y-m-d H:i:s",strtotime($entry[$fieldValue['var']]));
+                    }
+                    echo "<td width=\"130\" ".(($image!="")? "style=\"text-align:right;padding-right:2px\" class=\"nobborder\"": "")." nowrap>". $entry[$fieldValue['var']] .(($image!="")? "&nbsp;<image src=\"../pixmaps/theme/$image\" border=\"1\" align=\"absmiddle\" value='cell$random' $class>": "")."</td>";
                 }
                 else {
                     echo "<td width=\"130\" nowrap>&nbsp;</td>";
@@ -3068,6 +3098,10 @@ function cellprint ($map, $data, $entry, $color="", $image, $class, $random) {
 
 function cellprintlatest ($map, $data, $entry, $color="", $image, $class, $random) {
  //
+ global $dbconn;
+ 
+ $tz = Util::get_timezone();
+ 
  if ($color!="")
     echo "<tr bgcolor=\"$color\" class='cell$random'>";
  else
@@ -3080,7 +3114,13 @@ function cellprintlatest ($map, $data, $entry, $color="", $image, $class, $rando
           if(is_array($fieldValue)) {
             if ($fieldValue['var'] =="scantime"){
                 if($entry[$fieldValue['var']] != ""){
-                    echo "<td width=\"130\" nowrap>" . date("Y-m-d H:i:s",strtotime($entry[$fieldValue['var']])) ."</td>";
+                    if($tz!=0) {
+                        $entry[$fieldValue['var']] = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$entry[$fieldValue['var']])+3600*$tz);
+                    }
+                    else {
+                        $entry[$fieldValue['var']] = date("Y-m-d H:i:s",strtotime($entry[$fieldValue['var']]));
+                    }
+                    echo "<td width=\"130\" nowrap>" . $entry[$fieldValue['var']] ."</td>";
                 }
                 else {
                     echo "<td width=\"130\" nowrap>&nbsp;</td>";

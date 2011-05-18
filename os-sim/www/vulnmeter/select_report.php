@@ -32,6 +32,7 @@
 
 require_once('ossim_conf.inc');
 require_once('classes/Session.inc');
+require_once('classes/Util.inc');
 
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 ?>
@@ -102,9 +103,16 @@ else {
 }
 
 $result = $dbconn->Execute($query);
+
+$tz = Util::get_timezone();
+
 while (!$result->EOF) {
-    $date = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)/i', '$1-$2-$3 $4:$5:$6', $result->fields["scantime"]);
-    
+    if($tz==0) {
+        $date = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)/i', '$1-$2-$3 $4:$5:$6', $result->fields["scantime"]);
+    }
+    else {
+        $date = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$result->fields['scantime'])+3600*$tz);
+    }
     $result->fields["name"] = preg_replace('/\d+\s-\s/', '', $result->fields["name"]);
     
     $reports[$result->fields["report_id"]] = $date . " - ". $result->fields["name"];

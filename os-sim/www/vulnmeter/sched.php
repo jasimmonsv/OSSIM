@@ -70,6 +70,7 @@
 /***********************************************************/
 
 require_once ('classes/Session.inc');
+require_once ('classes/Util.inc');
 require_once ('classes/Log_action.inc');
 require_once ('ossim_conf.inc');
 
@@ -309,14 +310,28 @@ if (ossim_error()) {
 }
 
 $ip_targets = explode("\\r\\n", $ip_list);
+
+$ip_exceptions_list = array();
+$tip_target         = array();
+
 foreach($ip_targets as $ip_target) {
     $ip_target = trim($ip_target);
     ossim_set_error(false);
-    ossim_valid($ip_target, OSS_NULLABLE, OSS_DIGIT, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, '\.\,\/', 'illegal:' . _("Target"));
+    ossim_valid($ip_target, OSS_NULLABLE, OSS_DIGIT, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, '\.\,\/\!', 'illegal:' . _("Target"));
     if (ossim_error()) {
         $error_message .= _("Invalid target").": $ip_target<br/>";
     }
+    if (preg_match("/^\!(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/",$ip_target,$found))
+        $ip_exceptions_list[] = "!".$found[1];
+    else
+        $tip_target[] = str_replace("!","",$ip_target);
 }
+
+$ip_list = implode("\\r\\n", $tip_target);
+
+if (count($tip_target)==0)
+    $error_message .= _("Invalid Targets")."<br/>";
+
 $hosts_alive  = intval($hosts_alive);
 $scan_locally = intval($scan_locally);
 
@@ -896,7 +911,7 @@ EOT;
 
 function tab_discovery () {
      global $component, $uroles, $editdata, $scheduler, $username, $useremail, $dbconn, $disp,
-          $enScanRequestImmediate, $enScanRequestRecur, $timeout, $smethod,$SVRid, $sid, $ip_list,
+          $enScanRequestImmediate, $enScanRequestRecur, $timeout, $smethod,$SVRid, $sid, $ip_list, $ip_exceptions_list,
           $schedule_type, $ROYEAR, $ROday, $ROMONTH, $time_hour, $time_min, $dayofweek, $dayofmonth,
           $sname,$user,$entity,$hosts_alive,$scan_locally,$version,$nthweekday,$semail;
           
@@ -915,6 +930,8 @@ function tab_discovery () {
 
      $timeout_selected = $editdata["meth_TIMEOUT"];
      $ip_list_selected = str_replace("\\r\\n", "\n", str_replace(";;", "\n", $ip_list));
+     if(count($ip_exceptions_list)>0)
+        $ip_list_selected .= "\n".implode("\n",$ip_exceptions_list);
      $ROYEAR_selected = $ROYEAR;
      $ROday_selected = $ROday;
      $ROMONTH_selected = $ROMONTH;
@@ -1637,12 +1654,13 @@ function getCredentialId ( $cred_type, $passstore, $credid, $acc, $domain, $accp
 }
 
 function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $ROYEAR,$ROMONTH, $ROday,
-     $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list,
+     $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list, $ip_exceptions_list,
      $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
      $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
      $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail) {
      
      global $wdaysMap, $daysMap, $allowscan, $uroles, $username, $schedOptions, $adminmail, $mailfrom, $dbk, $dbconn;
+     
      
 
      $notify_email = str_replace( ";", ",", $notify_email );
@@ -1661,7 +1679,8 @@ function submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $RO
      $tmp_target_list="";
      $jobs_names = array();
      $sjobs_names = array();
-
+     
+     $tz = Util::get_timezone();
         
      //$I3crID = getCredentialId ( $cred_type, $passstore, $credid, $acc, $domain, $accpass, $acctype, $passtype );
      $I3crID = "";
@@ -1983,8 +2002,13 @@ EOT;*/
          $arrAudits[$check] = "NULL";
       }
    }
-   $insert_time =  date("YmdHis");   
-
+   if($tz==0) {
+        $insert_time =  date("YmdHis");   
+   }
+   else {
+        list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($dbconn, date("Y-m-d H:i:s"), $tz);
+        $insert_time = $y.$m.$d.$h.$u.$s;
+   }
 //   if ( $need_authorized != "" || !($uroles['nessus']) ) {
 //      $jobType="R";  #REQUEST JOB
 //      #DO not wrap $subnet / $SVRid with ticks '' as 'Null' is not Null
@@ -2071,29 +2095,38 @@ EOT;*/
             }
             
             //var_dump($forced_server);
+            // reorder sensors with load
+            if ($SVRid=="Null")  $sensor = Sensor::reorder_sensors($dbconn, $sensor);
             // select best sensor with available nmap and vulnmeter
-            $selected = "";
+            $selected = array();
+
             foreach ($sensor as $sen) {
                 $properties = Sensor::get_properties($dbconn, $sen);
                 $withnmap = in_array($all_sensors[$sen],$ids) || !$hosts_alive;
                 //echo "$sen:".$all_sensors[$sen].":$withnmap || $scan_locally:".$properties["has_vuln_scanner"]." || $SVRid:$forced_server<br>\n";
-                if ($selected=="" && ($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $SVRid!="Null")) {
-                    $selected = ($SVRid!="Null" && $all_sensors[$sen]!="") ? $all_sensors[$sen] : $sen;
+                if (($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $SVRid!="Null")) {
+                    //$selected = ($SVRid!="Null" && $all_sensors[$sen]!="") ? $all_sensors[$sen] : $sen;
                     //echo "sel:$selected<br>\n";
-                    break;
+                    //break;
+                    $selected[] = $sen;
                 }
             }
-            if ($selected!="") $sgr[$selected][] = $tjobs;
+            if (count($selected)>0) $sgr[implode(",",$selected)][] = $tjobs;
             else $unables[] = $tjobs;
         }
-        
         $query = array();
+        
+        if($tz!=0) {
+            list ($y,$m,$d,$h,$u,$s,$time) = Util::get_utc_from_date($dbconn, $requested_run, $tz);
+            $requested_run = $y.$m.$d.$h.$u.$s;
+        }
 
         if ( $op == "editrecurring" && $sched_id > 0 ) {
             $query[] = "DELETE FROM vuln_job_schedule WHERE id='$sched_id'";
             $i = 1;
             foreach ($sgr as $notify_sensor => $targets) {
                 $target_list = implode("\n",$targets);
+                $target_list .= "\n".implode("\n",$ip_exceptions_list);
                 $query[] = "INSERT INTO vuln_job_schedule ( name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, 
                             time, email, meth_TARGET, meth_CRED, meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, 
                             meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', '".Session::get_session_user()."', '$jobType',
@@ -2108,6 +2141,7 @@ EOT;*/
                 $i = 1;
                 foreach ($sgr as $notify_sensor => $targets) {
                     $target_list = implode("\n",$targets);
+                    $target_list .= "\n".implode("\n",$ip_exceptions_list);
                     $query[] = "INSERT INTO vuln_job_schedule ( name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, 
                                 time, email, meth_TARGET, meth_CRED, meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, 
                                 meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, createdate, enabled  ) VALUES ( '$sname', '$username', '".Session::get_session_user()."', '$jobType',
@@ -2122,6 +2156,7 @@ EOT;*/
                 $i = 1;
                 foreach ($sgr as $notify_sensor => $targets) {
                     $target_list = implode("\n",$targets);
+                    $target_list .= "\n".implode("\n",$ip_exceptions_list);
                     $query[] = "INSERT INTO vuln_jobs ( name, username, fk_name, job_TYPE, meth_SCHED, meth_TARGET,  meth_CRED,
                         meth_VSET, meth_CUSTOM, meth_CPLUGINS, meth_Wcheck, meth_Wfile, meth_Ucheck, meth_TIMEOUT, scan_ASSIGNED,
                         scan_SUBMIT, scan_next, scan_PRIORITY, status, notify, authorized, author_uname ) VALUES ( '$sname',
@@ -2511,7 +2546,7 @@ switch($disp) {
         if($user!="" && $user!="none")    $username  = $user;
     
         submit_scan( $op, $sched_id, $sname, $notify_email, $schedule_type, $ROYEAR,$ROMONTH, $ROday,
-        $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list,
+        $time_hour, $time_min, $dayofweek, $dayofmonth, $timeout, $SVRid, $sid, $tarSel, $ip_list, $ip_exceptions_list,
         $ip_start, $ip_end,  $named_list, $cidr, $subnet, $system, $cred_type, $credid, $acc, $domain,
         $accpass, $acctype, $passtype, $passstore, $wpolicies, $wfpolicies, $upolicies, $custadd_type, $cust_plugins,
         $is_enabled, $hosts_alive, $scan_locally, $nthweekday, $semail);

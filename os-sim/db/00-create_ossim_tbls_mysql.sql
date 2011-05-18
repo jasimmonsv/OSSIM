@@ -2068,7 +2068,7 @@ CREATE TABLE IF NOT EXISTS `vuln_jobs` (
   `scan_PID` int(11) NOT NULL default '0',
   `scan_PRIORITY` tinyint(1) NOT NULL default '3',
   `status` char(1) NOT NULL default 'S',
-  `notify` varchar(255) NOT NULL default '',
+  `notify` TEXT NOT NULL default '',
   `report_id` int(11) NOT NULL default '0',
   `tracker_id` int(11) default NULL,
   `failed_attempts` tinyint(1) NOT NULL default '0',
@@ -2093,7 +2093,7 @@ CREATE TABLE IF NOT EXISTS `vuln_job_schedule` (
   `day_of_week` enum('Su','Mo','Tu','We','Th','Fr','Sa') character set utf8 collate utf8_unicode_ci NOT NULL default 'Mo',
   `day_of_month` int(2) unsigned NOT NULL default '1',
   `time` time NOT NULL default '00:00:00',
-  `email` varchar(100) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `email` TEXT NOT NULL default '',
   `meth_TARGET` text character set utf8 collate utf8_unicode_ci,
   `meth_CRED` int(11) default NULL,
   `meth_VSET` int(11) NOT NULL default '1',
@@ -2546,16 +2546,19 @@ CREATE TABLE IF NOT EXISTS `acl_templates_perms` (
 );
 
 DROP TABLE IF EXISTS `custom_report_profiles`;
-CREATE TABLE IF NOT EXISTS `custom_report_profiles` (
-`name` varchar(64) NOT NULL,
-`header` varchar(64) NOT NULL,
-`lfooter` varchar(64) NOT NULL,
-`rfooter` varchar(64) NOT NULL,
-`color1` varchar(64) NOT NULL,
-`color2` varchar(64) NOT NULL,
-`color3` varchar(64) NOT NULL,
-`color4` varchar(64) NOT NULL,
-PRIMARY KEY (`name`)
+CREATE TABLE `custom_report_profiles` (
+  `id` int(5) NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL,
+  `creator` varchar(64) NOT NULL,
+  `header` varchar(64) NOT NULL,
+  `lfooter` varchar(64) NOT NULL,
+  `rfooter` varchar(64) NOT NULL,
+  `color1` varchar(64) NOT NULL,
+  `color2` varchar(64) NOT NULL,
+  `color3` varchar(64) NOT NULL,
+  `color4` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`,`creator`)
 );
 
 DROP TABLE IF EXISTS `custom_report_types`;

@@ -37,6 +37,7 @@ require_once ('classes/Session.inc');
 require_once('functions.inc');
 require_once ('classes/Host.inc');
 require_once('config.php');
+require_once('classes/Util.inc');
 
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
@@ -165,6 +166,8 @@ $result=$dbconn->Execute($query);
 $sreport_name = preg_replace('/\d+\s-\s/', '', $result->fields["name"]);
 $sreport_scantime = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)/i', '$1-$2-$3 $4:$5:$6', $result->fields["scantime"]);
 
+$tz = Util::get_timezone();
+
 ?>
 <br />
 <table style="margin:auto;" width="95%" class="transparent" cellspacing="0" cellpadding="0">
@@ -172,7 +175,15 @@ $sreport_scantime = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d
         <td class="noborder" width="49%">
             <table style="margin:auto;border: 0pt none;" width="100%" cellspacing="0" cellpadding="0">
             <tr>
-                <td class="headerpr"><?php echo $freport_name; ?><span style="font-size : 9px;"><?php echo " (".$freport_scantime.")";?></span></td>
+            <?php
+            if($tz==0) {
+                $flocaltime = $freport_scantime;
+            }
+            else {
+                $flocaltime = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$freport_scantime)+3600*$tz);
+            }
+            ?>
+                <td class="headerpr"><?php echo $freport_name; ?><span style="font-size : 9px;"><?php echo " (".$flocaltime.")";?></span></td>
             </tr>
             </table>
             <table style="margin:auto;background: transparent;" width="100%" cellspacing="0" cellpadding="0">
@@ -187,7 +198,15 @@ $sreport_scantime = preg_replace('/(\d\d\d\d)(\d+\d+)(\d+\d+)(\d+\d+)(\d+\d+)(\d
         <td class="noborder" width="49%">
             <table style="margin:auto;border: 0pt none;" width="100%" cellspacing="0" cellpadding="0">
             <tr>
-                <td class="headerpr"><?php echo $sreport_name; ?><span style="font-size : 9px;"><?php echo " (".$sreport_scantime.")";?></span></td>
+            <?php
+            if($tz==0) {
+                $slocaltime = $sreport_scantime;
+            }
+            else {
+                $slocaltime = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$sreport_scantime)+3600*$tz);
+            }
+            ?>
+                <td class="headerpr"><?php echo $sreport_name; ?><span style="font-size : 9px;"><?php echo " (".$slocaltime.")";?></span></td>
             </tr>
             </table>
             <table style="margin:auto;background: transparent;" width="100%" cellspacing="0" cellpadding="0">
