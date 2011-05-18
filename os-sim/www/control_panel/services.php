@@ -199,8 +199,8 @@ if ($num != "all") { ?>
 echo urlencode($_SERVER["REQUEST_URI"]); ?>">
 <input class="button" type="submit" class="btn" value=" <?php
 echo gettext("OK"); ?> ">
-<input class="button" type="reset" class="btn" value=" <?php
-echo gettext("reset"); ?> "> </td>
+<?php /*<input class="button" type="reset" class="btn" value=" <?php
+echo gettext("reset"); ?> "> */?></td>
 </tr>
 <tr>
 <th><?php
@@ -342,8 +342,8 @@ $db->close($conn);
 <td align="center" colspan="12">
 <input class="button" type="submit" class="btn" value=" <?php
 echo gettext("OK"); ?> ">
-<input class="button" type="reset" class="btn" value=" <?php
-echo gettext("reset"); ?> "></td>
+<?php /*<input class="button" type="reset" class="btn" value=" <?php
+echo gettext("reset"); ?> ">*/?></td>
 </tr>
 
 <?php

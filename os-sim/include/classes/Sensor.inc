@@ -146,7 +146,7 @@ class Sensor {
     }
     function get_load($conn, $sensor) {
         $result = "";
-        $query = OssimQuery("SELECT ( (current_scans + 1) / (max_scans + 1)) FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
+        $query = OssimQuery("SELECT ( current_scans / max_scans ) FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
         if (!$rs = & $conn->Execute($query)) {
             die($conn->ErrorMsg());
         } 
