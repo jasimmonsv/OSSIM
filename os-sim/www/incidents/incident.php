@@ -100,11 +100,13 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 	<meta http-equiv="Pragma" content="no-cache"/>
 	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 	<link rel="stylesheet" type="text/css" href="../style/greybox.css"/>
-
+	<link rel="stylesheet" type="text/css" href="../style/jquery.wysiwyg.css"/>
+	
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/greybox.js"></script>
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-	<script type="text/javascript" src="../js/jquery.elastic.source.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../js/jquery.wysiwyg.js"></script>
+	<script type="text/javascript" src="../js/utils.js"></script>
 	<script type="text/javascript">
 				
 		var geocoder;
@@ -206,6 +208,32 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 				document.newticket.priority.selectedIndex = 2;
 			}
 		}
+		
+		function submit_ticket()
+		{
+			
+			
+			var desc = $('#description').val();
+				desc = desc.trim();
+				desc = desc.replace(/&nbsp;/gi, "");	
+			
+			
+			if (desc == '')
+			{
+				var msg_error = "<div class='cont_val'>";
+					msg_error +="<div style='z-index:2;' class='val_error_l'></div>";
+					msg_error +="<div style='z-index:1;' class='val_error_r'>";
+					msg_error +="<div style='padding:5px 5px 5px 8px; text-align:left;'><?php echo _("Field 'Description is empty'")?></div></div>";
+					msg_error +="</div>";
+				
+				$('#desc_info span').after(msg_error);	
+				
+				return false;
+			}
+			else
+				$('#newticket').submit();
+		
+		}
 	
 		$(document).ready(function(){
 			
@@ -231,8 +259,64 @@ $taghtm = count($taga) ? implode(' - ', $taga) : _("n/a");
 			
 			chg_prio_str();
 			
-			$('textarea').elastic();
-						
+			$('textarea').wysiwyg({
+				css : { fontSize : '12px'},
+				controls: {
+					bold          : { visible : true },
+					italic        : { visible : true },
+					underline     : { visible : true },
+					strikeThrough : { visible : true },
+					
+					justifyLeft   : { visible : true },
+					justifyCenter : { visible : true },
+					justifyRight  : { visible : true },
+					justifyFull   : { visible : true },
+					
+					indent  : { visible : true },
+					outdent : { visible : true },
+
+					subscript   : { visible : false },
+					superscript : { visible : false },
+					
+					undo : { visible : false },
+					redo : { visible : false },
+					
+					insertOrderedList    : { visible : true },
+					insertUnorderedList  : { visible : true },
+					insertHorizontalRule : { visible : true },
+					
+					createLink  : { visible : false },
+					insertImage : { visible : false },
+					
+					separator06  : { separator : false },
+					
+					h1mozilla: { visible : false },
+					h2mozilla: { visible : false },
+					h3mozilla: { visible : false },
+					
+					h1: { visible : false },
+					h2: { visible : false },
+					h3: { visible : false },
+					
+					separator07  : { separator : false },
+					
+					cut   : { visible : false },
+					copy  : { visible : false },
+					paste : { visible : false },
+					
+					separator08  : { separator : false },
+					
+					html  : { visible: false },
+					increaseFontSize : { visible : true },
+					decreaseFontSize : { visible : true },
+					
+					separator09  : { separator : false },
+					removeFormat :  { visible : false }
+					
+				  },
+			});
+			
+			$('#submit_ticket').bind('click', function()  { submit_ticket(); });			
 		});
 			
 			
@@ -738,11 +822,11 @@ for ($i = 0; $i < count($tickets_list); $i++)
 							} 
 							?>
 							
-							<strong><?php echo _("Description") ?></strong><p class="ticket_body"><?php echo htm($descrip) ?></p>
+							<strong><?php echo _("Description") ?></strong><p class="ticket_body"><?php echo $descrip ?></p>
 							<?php
 							if ($action) { 
 								?>
-									<strong><?php echo _("Action") ?></strong><p class="ticket_body"><?php echo htm($action) ?></p>
+									<strong><?php echo _("Action") ?></strong><p class="ticket_body"><?php echo $action ?></p>
 								<?php
 							} ?>
 						</td>
@@ -802,7 +886,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 
 <!-- form for new ticket -->
   
-<form name="newticket" method="POST" action="manageincident.php?action=newticket&incident_id=<?php echo $id?>" enctype="multipart/form-data">
+<form name="newticket" id="newticket" method="POST" action="manageincident.php?action=newticket&incident_id=<?php echo $id?>" enctype="multipart/form-data">
 	<input type="hidden" name="prev_status" value="<?php echo $incident_status ?>"/>
 	<input type="hidden" name="prev_prio" value="<?php echo $priority ?>"/>
 	<input type="hidden" name="edit" value="<?php echo $edit ?>"/>
@@ -813,7 +897,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 				<table style="text-align: left" id="anchor" align="left" width="1%" class="noborder">
 					<tr>
 						<th><?php echo _("Status") ?></th>
-						<td style="text-align: left">
+						<td style="text-align: left" colspan='2'>
 							<select name="status">
 								<option value="Open" <?php if ($incident_status == 'Open') echo "selected='selected'" ?>><?php echo _("Open") ?></option>
 								<option value="Closed" <?php if ($incident_status == 'Closed') echo "selected='selected'" ?>><?php echo _("Closed") ?></option>
@@ -823,7 +907,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 					
 					<tr>
 						<th><?php echo _("Priority") ?></th>
-						<td style="text-align: left">
+						<td style="text-align: left" colspan='2'>
 							<select id='priority' name="priority">
 								<?php
 								for ($i = 1; $i <= 10; $i++) 
@@ -844,7 +928,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 					
 					<tr>
 						<th><?php echo _("Transfer To")?></th>
-						<td style="text-align: left">
+						<td style="text-align: left" colspan='2'>
 							<table width="85%" cellspacing="0" cellpadding="0" class="transparent">
 							
 								<tr>
@@ -903,33 +987,35 @@ for ($i = 0; $i < count($tickets_list); $i++)
 					
 					<tr>
 						<th><?php echo _("Attachment") ?></th>
-						<td style="text-align: left"><input type="file" name="attachment" size='31'/></td>
+						<td style="text-align: left" colspan='2'><input type="file" name="attachment" size='31'/></td>
 					</tr>
 					
 					<tr>
-						<th ><?php echo _("Description") ?></th>
+						<th><?php echo _("Description") ?></th>
 						<td style="border-width: 0px;">
-						<textarea name="description" rows="5" cols="80" wrap='HARD'></textarea>
-					</td></tr>
+							<textarea name="description" id="description" cols="80"></textarea>
+						</td>
+						<td valign='top' id='desc_info'><span>*</span></td>
+					</tr>
 					
 					<tr>
 						<th><?php echo _("Action") ?></th>
 						<td style="border-width: 0px;">
-						<textarea name="action" rows="5" cols="80" wrap='HARD'></textarea>
-					</td></tr>
+							<textarea name="action" id="action" cols="80"></textarea>
+						</td>
+						<td valign='top'>&nbsp;</td>
+					</tr>
 					
 					<tr>
-						<td>&nbsp;</td>
-						<td align="center" style="text-align: center">
-						<?php 
-							$stext = ( $edit == 1 ) ? _("Update ticket") : _("Add ticket");
-							$sname = ( $edit == 1 ) ? _("update_ticket") : _("add_ticket");
-							
-						?>
-						<input type="submit" class="button" name="<?php echo $sname ?>" value="<?php echo $stext ?>"/>
+						<td align="center" style="text-align: center" colspan='3'>
+							<?php 
+								$stext = ( $edit == 1 ) ? _("Update ticket") : _("Add ticket");
+								$sname = ( $edit == 1 ) ? _("update_ticket") : _("add_ticket");
+								
+							?>
+							<input type="button" class="button" id='submit_ticket' name="<?php echo $sname ?>" value="<?php echo $stext ?>"/>
 						</td>
 					</tr>
-					<tr><td style='height:10px;'>&nbsp;</td><tr/>
 				</table>
 
 			</td>

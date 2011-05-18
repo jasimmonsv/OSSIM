@@ -69,7 +69,13 @@ if ( isset($_POST['title']) || isset($_POST['doctext']) )
 	}
 	
 	if ( $error == false ) 
-		Repository::update($conn, $id_document, POST('title') , POST('doctext') , POST('keywords'));
+	{
+		
+		$title    = strip_tags(POST('title'),'<span><div><a><p><ol><ul><li><hr><br>');
+		$doctext  = strip_tags(POST('doctext'),'<span><div><a><p><ol><ul><li><hr><br>');
+		$keywords = strip_tags(POST('keywords'),'<span><div><a><p><ol><ul><li><hr><br>');
+		Repository::update($conn, $id_document, $title , $doctext , $keywords);
+	}
 }
 
 ?>
