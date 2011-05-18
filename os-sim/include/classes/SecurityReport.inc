@@ -52,7 +52,8 @@ class SecurityReport {
         $this->snort_conn = $db->snort_connect();
     }
     function AttackHost($conn, $ip_target, $limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
-        require_once ('classes/Host.inc');
+        $limit++;
+    	require_once ('classes/Host.inc');
         require_once ('classes/Net.inc');
         require_once ('classes/Session.inc');
 		require_once ('classes/Event_viewer.inc');
@@ -128,7 +129,6 @@ class SecurityReport {
             if ($type == "alarm") $target = "dst_ip";
             $title = "Attacked hosts";
         }*/
-        
         switch ($type) {
             case "alarm":
                 if (!strcmp($ip_target, "ip_src")) {
@@ -160,7 +160,7 @@ class SecurityReport {
 				$temp_conn = $db->snort_connect();
 				//$temp_conn = $this->snort_conn;
         }
-		
+		$limit--;
 		if ($rs = & $temp_conn->Execute($query))
 		{
 			$i = 0;
@@ -170,6 +170,7 @@ class SecurityReport {
 				//if (Session::hostAllowed($conn, $rs->fields["ip"])) {
 				if ($rs->fields['ip'] == 0) { $rs->MoveNext(); continue; }
 				$ip_address = (is_numeric($rs->fields["ip"]))? long2ip($rs->fields["ip"]) : $rs->fields["ip"];
+				if ($ip_address == "253.253.253.253") { $rs->MoveNext(); continue; }
 				$tmp_array = array(
 					$ip_address,
 					$rs->fields["occurrences"]
