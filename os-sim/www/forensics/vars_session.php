@@ -67,7 +67,7 @@ if ($_SESSION['views']['default'] == "") {
 }
 if ($_GET["search_str"]=="search term") unset($_GET["search_str"]); 
 // resolv host2ip if needed
-if ($_GET["search_str"]!="" && preg_match("/.*IP/",$_GET["submit"]) && !preg_match("/^\d+\.\d+(\.\d+\.\d+)?$/",$_GET["search_str"])) {
+if ($_GET["search_str"]!="" && preg_match("/.*IP/",$_GET["submit"]) && !preg_match("/\d+\.\d+(\.\d+\.\d+)?/",$_GET["search_str"])) {
 	include_once("classes/Host.inc");
 	$_GET["search_str"] = Host::hostname2ip($conn_aux,$_GET["search_str"],true);
 }
