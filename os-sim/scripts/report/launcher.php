@@ -7,141 +7,79 @@
 ****************************************************************************/
 
 ob_implicit_flush();
+ini_set('include_path', '/usr/share/ossim/include');
+
+require_once("classes/Util.inc");
+require_once("ossim_db.inc");
 
 // Get user uuid
-function get_report_uuid($user) {
+function get_report_uuid($conn, $user) {
+    $uuid = "";
     
-	$uuid    = false;
-    
-    $conn    = connectBdOssim();
-    $result  = mysql_query("SELECT * FROM users WHERE login='".$user."'", $conn); 
-	
-	if ( !$result ) 
-	{
-		$to_text .= sprintf("\n%s\n\n", mysql_error());
-		echo $to_text;
-		mysql_close($conn);
-		exit();
-	}
-		
-
-    if ( mysql_num_rows($result)> 0 ) 
-	{
-        $rowResult = mysql_fetch_assoc($result);
-		
-		$uuid       = $rowResult['uuid'];
-		
-		if ( $uuid == null )
-			$uuid = sha1($rowResult['login']."#".$rowResult['pass']);
+    if (!$rs = & $conn->Execute("SELECT * FROM users WHERE login='".$user."'")) {
+        print $conn->ErrorMsg();
+        exit();
+    } else {
+         if(!$rs->EOF) {
+            $uuid = $rs->fields["uuid"];
+        }
     }
-	    
-    mysql_close($conn);
-    
-	return $uuid;
+    if ( $uuid == "" ) {
+        $uuid = sha1($rowResult['login']."#".$rowResult['pass']);
+    }
+    return $uuid;
 }
 
-
-function connectBdOssim()
+function getScheduler($conn)
 {
-    $userdb=trim(`grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
-    $passdb=trim(`grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
-    $hostdb=trim(`grep db_ip /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`);
-
-    $conn   = mysql_connect($hostdb, $userdb, $passdb);
-    $dbconn = mysql_select_db('ossim', $conn);
-		
-	if ( !$dbconn ) 
-	{
-		$to_text .= sprintf("\n%s\n\n", _('Not connected').' : ' . mysql_error());
-		echo $to_text;
-		exit();
-	}
-	
-
-    return $conn;
-}
-
-function getScheduler()
-{
-    $conn	  = connectBdOssim();
-    $results  = mysql_query('SELECT * FROM custom_report_scheduler ORDER BY id', $conn);
-
-	if ( !$results ) 
-	{
-		$to_text .= sprintf("\n%s\n\n", mysql_error());
-		echo $to_text;
-		mysql_close($conn);
-		exit();
-	}
-	
     $return  = array();
-
-    if (mysql_num_rows($results)>0) 
-	{
-		while ($rowResults = mysql_fetch_assoc($results) )
-		{
-			$return[]=array(
-					'id'					=>$rowResults['id'],
-					'schedule_type'			=>$rowResults['schedule_type'],
-					'schedule_name'			=>$rowResults['schedule_name'],
-					'schedule'				=>$rowResults['schedule'],
-					'next_launch'			=>$rowResults['next_launch'],
-					'id_report'				=>$rowResults['id_report'],
-					'name_report'			=>$rowResults['name_report'],
-					'user'					=>$rowResults['user'],
-					'email'					=>$rowResults['email'],
-					'date_from'				=>$rowResults['date_from'],
-					'date_to'				=>$rowResults['date_to'],
-					'date_range'			=>$rowResults['date_range'],
-					'assets'				=>$rowResults['assets'],
-					'save_in_repository'    =>$rowResults['save_in_repository']
-			);
-		}
+    
+    if (!$rs = & $conn->Execute("SELECT * FROM custom_report_scheduler ORDER BY id")) {
+        print $conn->ErrorMsg();
+        exit();
+    } else {
+         while (!$rs->EOF) {
+            $return[]=array(
+                    'id'					=>$rs->fields['id'],
+                    'schedule_type'			=>$rs->fields['schedule_type'],
+                    'schedule_name'			=>$rs->fields['schedule_name'],
+                    'schedule'				=>$rs->fields['schedule'],
+                    'next_launch'			=>$rs->fields['next_launch'],
+                    'id_report'				=>$rs->fields['id_report'],
+                    'name_report'			=>$rs->fields['name_report'],
+                    'user'					=>$rs->fields['user'],
+                    'email'					=>$rs->fields['email'],
+                    'date_from'				=>$rs->fields['date_from'],
+                    'date_to'				=>$rs->fields['date_to'],
+                    'date_range'			=>$rs->fields['date_range'],
+                    'assets'				=>$rs->fields['assets'],
+                    'save_in_repository'    =>$rs->fields['save_in_repository']
+            );
+            $rs->MoveNext();
+        }
     }
 
-    mysql_close($conn);
     return $return;
 }
 
-function getUserWeb()
+function getUserWeb($conn)
 {
-    $conn    = connectBdOssim();
-    $result  = mysql_query('SELECT * FROM users WHERE login="admin"', $conn);
-	
-	if ( !$result ) 
-	{
-		$to_text .= sprintf("\n%s\n\n", mysql_error());
-		echo $to_text;
-		mysql_close($conn);
-		exit();
-	}
-	
-    if (mysql_num_rows($result)>0) 
-	{
-		$rowResult = mysql_fetch_assoc($result);
-		$return    = $rowResult['pass'];
-	}
+    $return = "";
+    if (!$rs = & $conn->Execute("SELECT * FROM users WHERE login='admin'")) {
+        print $conn->ErrorMsg();
+        exit();
+    } else {
+         if(!$rs->EOF) {
+            $return = $rs->fields["pass"];
+        }
+    }
     
-    mysql_close($conn);
-    
-	return $return;
+    return $return;
 }
 
 function checkTimeExecute($date)
 {
-    $arrTime = localtime(time(), true);
-	
-	$year    = 1900 + $arrTime["tm_year"];
-	$mon     = 1 + $arrTime["tm_mon"];
-	$mon     = completionDate($mon);
-
-	$mday    = $arrTime["tm_mday"];
-	$mday    = completionDate($mday);
-
-	$wday    =  $arrTime["tm_wday"];
-	$hour    = ( $arrTime["tm_hour"]<10 ) ? "0".$arrTime["tm_hour"] : $arrTime["tm_hour"];
-
-	if( substr($date,0,13) == $year.'-'.$mon.'-'.$mday.' '.$hour )
+	if( substr($date,0,13) == gmdate("Y-m-d H") )
 		return true;
 	else
 		return false;
@@ -210,7 +148,8 @@ function lastDayOfMonth($month = '', $year = ''){
 }
 
 
-function updateNextLaunch($schedule,$id){
+function updateNextLaunch($conn, $schedule,$id){
+
     switch($schedule['type'])
 	{
         case 'O':
@@ -218,31 +157,15 @@ function updateNextLaunch($schedule,$id){
         break;
         
 		case 'D':
-             $next_launch = date("Y-m-d H:i:s", strtotime('+1 day',strtotime($schedule['next_launch'])));
+            $next_launch = Util::get_utc_date_calc($conn, $schedule['next_launch'], "1 DAY");
         break;
         
 		case 'W':
-            $next_launch = date("Y-m-d H:i:s", strtotime('next '.$schedule['data']['dayofweek'],strtotime($schedule['next_launch'])));
-            $next_launch = explode(' ',$next_launch);
-            $next_launch = $next_launch[0].' '.$schedule['data']['time_hour'].':00:00';
+            $next_launch = Util::get_utc_date_calc($conn, $schedule['next_launch'], "1 WEEK");
         break;
         
 		case 'M':
-			$next_launch_explode = explode('-',$schedule['next_launch']);
-
-			$cyear  = $next_launch_explode[0];
-			$cmonth = $next_launch_explode[1];
-			do{
-				$cmonth++;
-				if($cmonth>12){
-					$cmonth=1;
-					$cyear++;
-				}
-			}while($schedule['data']['dayofmonth']>lastDayOfMonth($cmonth,$cyear));
-			
-			$cmonth=completionDate($cmonth);
-			
-			$next_launch = $cyear.'-'.$cmonth.'-'.$schedule['data']['dayofmonth'].' '.$schedule['data']['time_hour'].':00:00';
+            $next_launch = Util::get_utc_date_calc($conn, $schedule['next_launch'], "1 MONTH");
         break;
         
 		default:
@@ -251,22 +174,19 @@ function updateNextLaunch($schedule,$id){
     }
 
     // Update DB
-    $conn     = connectBdOssim();
-    $result   = mysql_query('UPDATE `custom_report_scheduler` SET `next_launch`="'.$next_launch.'" WHERE `id`="'.$id.'"', $conn);
+    if ($conn->Execute("UPDATE custom_report_scheduler SET next_launch='".$next_launch."' WHERE id='".$id."'") === false) {
+            print 'Error updating: ' . $conn->ErrorMsg() . '<br/>';
+            exit;
+        }
     
-	if ( !$result ) 
-	{
-		$to_text .= sprintf("\n%s", mysql_error());
-		echo $to_text;
-		mysql_close($conn);
-		exit();
-	}
-		
-	
-    mysql_close($conn);
     return true;
 }
+// end functions
 
+
+// get database connection
+$db = new ossim_db();
+$conn = $db->connect();
 
 //Errors text
 $info_text  = array( _('Wrong User & Password'), _('Invalid address') );
@@ -278,7 +198,7 @@ $urlPdf  	= '/usr/share/ossim/www/tmp/scheduler';
 
 $server     = 'http'.(($https=="yes") ? "s" : "").'://'.$server.'/ossim';
 $user       = 'admin';
-$pass       = base64_encode(getUserWeb());
+$pass       = base64_encode(getUserWeb($conn));
 $cookieName = date('YmdHis').rand().'.txt';
 
 
@@ -287,11 +207,9 @@ $to_text .= "\n\n"._('Date').': '.date("Y-m-d H:i:s")."\n\n";
 $to_text .= _('Starting Report Scheduler')."...\n\n";
 
 
-
 // Run reports
-$report_list = getScheduler();
+$report_list = getScheduler($conn);
 
-$conn    = connectBdOssim();
 
 foreach ( $report_list as $value)
 {
@@ -318,7 +236,7 @@ foreach ( $report_list as $value)
 		
 	$to_text .= _('Scheduled Report').': '. $value['name_report'].' - Created by: '.$value['user']."\n";	
 	
-	$text     = _('Next Launch').':';
+	$text     = _('Next Launch (UTC)').':';
 	$to_text .= sprintf("\t%-20s", $text);
 	$to_text .= $value['next_launch']."\n";
 	
@@ -337,7 +255,7 @@ foreach ( $report_list as $value)
 	{
 		// Path to save PDF
        
-		$uuid = get_report_uuid($user);
+		$uuid = get_report_uuid($conn, $user);
 		
 		if ($uuid === false)
 			continue;
@@ -436,7 +354,7 @@ foreach ( $report_list as $value)
                 'data'        => unserialize($value['schedule'])
         );
        
-	    updateNextLaunch($schedule,$value['id']);
+	    updateNextLaunch($conn,$schedule,$value['id']);
 		
 		$text     = _('Updating next launch').'...';
 		$to_text .= sprintf("\n\t%s", $text);
@@ -450,18 +368,18 @@ foreach ( $report_list as $value)
 		
     }
 	
-	$to_text .= "\n\n";
+	$to_text .= "\n";
 }
 
 // Logout
 exec('wget -U "AV Report Scheduler" -q --no-check-certificate --cookies=on --keep-session-cookies --load-cookies='.$cookieName.' "'.$server.'/session/login.php?action=logout" -O /dev/null');
 
-
-$to_text .= "\n\n"._('Report Scheduler completed')."\n\n";
+$to_text .= "\n"._('Report Scheduler completed')."\n\n";
 
 echo $to_text;
 
 // End
+$db->close($conn);
 clean($cookieName);
 
 ?>
