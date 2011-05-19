@@ -107,6 +107,7 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
     }
     // targets
     foreach($targets as $target) {
+        if (preg_match("/^!/",$target)) continue;
         if (preg_match("/\//",$target)) { // Net
             $name = Net::get_name_by_ip($conn,$target);
             $perm = Session::netAllowed($conn, $name);

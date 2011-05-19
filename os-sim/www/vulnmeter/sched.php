@@ -2094,9 +2094,8 @@ EOT;*/
                 }
             }
             
-            //var_dump($forced_server);
             // reorder sensors with load
-            if ($SVRid=="Null")  $sensor = Sensor::reorder_sensors($dbconn, $sensor);
+            if ($forced_server!="")  $sensor = Sensor::reorder_sensors($dbconn, $sensor);
             // select best sensor with available nmap and vulnmeter
             $selected = array();
 
@@ -2104,14 +2103,14 @@ EOT;*/
                 $properties = Sensor::get_properties($dbconn, $sen);
                 $withnmap = in_array($all_sensors[$sen],$ids) || !$hosts_alive;
                 //echo "$sen:".$all_sensors[$sen].":$withnmap || $scan_locally:".$properties["has_vuln_scanner"]." || $SVRid:$forced_server<br>\n";
-                if (($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $SVRid!="Null")) {
+                if (($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $forced_server!="")) {
                     //$selected = ($SVRid!="Null" && $all_sensors[$sen]!="") ? $all_sensors[$sen] : $sen;
                     //echo "sel:$selected<br>\n";
                     //break;
-                    $selected[] = $sen;
+                    $selected[] = ($forced_server!="") ? $forced_server : $sen;
                 }
             }
-            if (count($selected)>0) $sgr[implode(",",$selected)][] = $tjobs;
+            if (count($selected)>0) $sgr[implode(",",array_unique($selected))][] = $tjobs;
             else $unables[] = $tjobs;
         }
         $query = array();
@@ -2123,6 +2122,7 @@ EOT;*/
 
         if ( $op == "editrecurring" && $sched_id > 0 ) {
             $query[] = "DELETE FROM vuln_job_schedule WHERE id='$sched_id'";
+           
             $i = 1;
             foreach ($sgr as $notify_sensor => $targets) {
                 $target_list = implode("\n",$targets);
