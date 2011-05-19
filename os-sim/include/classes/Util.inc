@@ -868,6 +868,9 @@ class Util {
         // return $y,$m,$d,$h,$u,$s,$utc
         return $time;
 	}
+    function get_timezone() {
+        return((isset($_SESSION["_timezone"])) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100);
+    }
 		
 	// Get current ossim complete url
 	function get_ossim_url() {

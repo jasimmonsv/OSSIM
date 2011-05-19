@@ -76,6 +76,7 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
         <th><?=_("Sensor Allowed")?></th>
         <th><?=_("Vuln Scanner")?></th>
         <th><?=_("Nmap Scan")?></th>
+        <th><?=_("Load")?></th>
     </tr>
     <?
     // sensors
@@ -106,6 +107,7 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
     }
     // targets
     foreach($targets as $target) {
+        if (preg_match("/^!/",$target)) continue;
         if (preg_match("/\//",$target)) { // Net
             $name = Net::get_name_by_ip($conn,$target);
             $perm = Session::netAllowed($conn, $name);
@@ -125,11 +127,14 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
             }
         }
         if ($scan_server>0 && $hostname!="") $sensors = array_unique(array_merge(array($hostname),$sensors));
-        $sname = $vs = $sperm = $snmap = array();
+        $sname = $vs = $sperm = $snmap = $load = array();
         $selected = false;
+        // reorder sensors with load
+        if (!$scan_server) $sensors = Sensor::reorder_sensors($conn, $sensors);
         // info per each related sensor
         foreach ($sensors as $sensor) {
             $properties = Sensor::get_properties($conn, $sensor);
+            $load[] = Sensor::get_load($conn, $sensor);
             $withnmap = in_array($all_sensors[$sensor],$ids);
             $sensor_name = ($sensor=="Local") ? $sensor : $sensor." [".$all_sensors[$sensor]."]";
             if (!$selected && ($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $scan_server>0)) {
@@ -151,6 +156,7 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
         $sperms = implode("<br>",$sperm);
         $vulns = implode("<br>",$vs);
         $nmaps = implode("<br>",$snmap);
+        $load = implode("<br>",$load);
     ?>
     <tr>
         <td><?=$target?></td>
@@ -159,7 +165,8 @@ $message_force_pre_scan = _("Error: Need to force pre-scan locally");
         <td style="line-height:16px;padding-left:10px;padding-right:10px" nowrap><?=$snames?></td>
         <td><?=$sperms?></td>        
         <td><?=$vulns?></td>
-        <td><?=$nmaps?></td>
+        <td nowrap><?=$nmaps?></td>
+        <td style="line-height:16px;padding-left:10px;padding-right:10px" nowrap><?=$load?></td>
     </tr>
     <?
     }

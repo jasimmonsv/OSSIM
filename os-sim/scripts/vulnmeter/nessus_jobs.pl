@@ -154,6 +154,7 @@ use Getopt::Std;
 use Switch;
 use IO::Socket;
 use Data::Dumper;
+use POSIX qw(strftime);
 
 local $ENV{XML_SIMPLE_PREFERRED_PARSER} = "XML::Parser";
 use XML::Simple;
@@ -222,7 +223,7 @@ $CONFIG{'ROOTDIR'} = $nessus_vars{'nessus_rpt_path'};
 
 
 #GLOBAL VARIABLES
-my $debug              = 1;
+my $debug              = 0;
 my $log_level          = 4;
 my $track_progress     = 0;
 my $time_to_die        = 0;
@@ -358,7 +359,7 @@ sub main {
 
         #READ TIME        
         if ( $options{t} =~ /now/ ) {
-            $qtime = getCurrentDateTime("datetime");
+            $qtime = getCurrentDateTime();
         } elsif ( is_number( $options{t}) ) {
             $qtime = $options{t}
         }
@@ -471,9 +472,10 @@ print "        */1 * * * * /usr/bin/perl /usr/share/ossim/scripts/vulnmeter/ness
 sub select_job {
     my ( $sql, $sth_sel );
 
-    my $now= getCurrentDateTime("datetime");
-    my $curTime = getCurrentDateTime("time");
-    my $today = getCurrentDateTime("today");
+    my $now= getCurrentDateTime();
+    
+    #my $curTime = getCurrentDateTime("time");
+    #my $today = getCurrentDateTime("today");
 
     # get the list of all scanners
     #Select server attributes
@@ -529,7 +531,9 @@ sub select_job {
         # ASSIGNED JOBS OVER UNASSIGNED JOBS 
 
         #logwriter ("Chapu DK, machacando query", 4);
-        $sql = "SELECT t1.id, t1.name, t1.job_TYPE, t1.meth_TARGET, t1.scan_ASSIGNED, t1.scan_PRIORITY, failed_attempts FROM vuln_jobs t1 WHERE t1.status = 'S' $sql_filter AND ( t1.scan_NEXT IS NULL OR t1.scan_NEXT <= '$now' ) ORDER BY t1.scan_PRIORITY, t1.job_TYPE DESC, t1.scan_ASSIGNED DESC LIMIT 1;";
+        $sql = "SELECT t1.id, t1.name, t1.job_TYPE, t1.meth_TARGET, t1.scan_ASSIGNED, t1.scan_PRIORITY, failed_attempts
+                FROM vuln_jobs t1 
+                WHERE t1.status = 'S' $sql_filter AND ( t1.scan_NEXT IS NULL OR t1.scan_NEXT <= '$now' ) ORDER BY t1.scan_PRIORITY, t1.job_TYPE DESC, t1.scan_ASSIGNED DESC LIMIT 1;";
 
         logwriter( $sql, 5 );
 
@@ -583,7 +587,7 @@ sub select_job {
 
                 logwriter( "\tNot available scan slot nextscan=$next_run", 4 );
 
-                $sql = qq{ UPDATE vuln_jobs SET status="S", scan_NEXT='$next_run', meth_Wcheck='Not available scan slots' WHERE id='$job_id' };
+                $sql = qq{ UPDATE vuln_jobs SET status="S", scan_NEXT='$next_run', meth_Wcheck=CONCAT(meth_Wcheck, 'Not available scan slots<br />') WHERE id='$job_id' };
                 safe_db_write ( $sql, 1 );
             }
             else {
@@ -625,11 +629,7 @@ sub run_job {
     #    return;
     #}
 
-    #UPDATE SERVER COUNT OF RUNNING SCANS
-    $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans+$server_slot WHERE id=$serverid };
-    safe_db_write ( $sql, 4 );            #use insert/update routine
-
-    my $startdate = getCurrentDateTime("datetime");
+    my $startdate = getCurrentDateTime();
 
     #$sql = qq{ SELECT name, username, fk_name, job_TYPE, meth_TARGET, meth_VSET, meth_TIMEOUT
     $sql = qq{ SELECT name, username, notify, job_TYPE, meth_TARGET, meth_VSET, meth_TIMEOUT, meth_CRED, authorized 
@@ -731,31 +731,34 @@ sub setup_scan {
         #ATTEMPT TO GET IP'S INCASE USERS SUPPLIED HOSTNAMES
         my @tmp_hostarr = split /\r/, $target;
         foreach my $line (@tmp_hostarr ) {
-            my $isIP = FALSE;
-            my $hostip = "";
-            #VALID IP OR ATTEMPT REVERSE NAME TO IP
-            if ( $line =~ m/^(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)/ ){
-                if($1 <= 255 && $2 <= 255 && $3 <= 255 && $4 <= 255) {
-                    $hostip=$line;
-                    $isIP = TRUE;
+            if($line !~ m/^\!/) {
+                my $isIP = FALSE;
+                my $hostip = "";
+                #VALID IP OR ATTEMPT REVERSE NAME TO IP
+                if ( $line =~ m/^(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)/ ){
+                    if($1 <= 255 && $2 <= 255 && $3 <= 255 && $4 <= 255) {
+                        $hostip=$line;
+                        $isIP = TRUE;
+                    }
                 }
-            }
 
-            # DO THE ATTEMPT TO REVERSE NAME
-            if ( ! $isIP ) {
-                my $resolved_ip = resolve_name2ip ( $line );
-                if ( $resolved_ip eq "" ) { $resolved_ip = $line; }
-                print "translated NAME=[$line] to [$resolved_ip]\n";
-                $hostip = $resolved_ip;            #EITHER WAY WE AT LEAST TRIED
+                # DO THE ATTEMPT TO REVERSE NAME
+                if ( ! $isIP ) {
+                    my $resolved_ip = resolve_name2ip ( $line );
+                    if ( $resolved_ip eq "" ) { $resolved_ip = $line; }
+                    print "translated NAME=[$line] to [$resolved_ip]\n";
+                    $hostip = $resolved_ip;            #EITHER WAY WE AT LEAST TRIED
+                }
+                $targetinfo .= "$hostip\r";
             }
-            $targetinfo .= "$hostip\r";
         }
         
         # check unresolved targets names
         
         if($txt_unresolved_names ne "") {
             $txt_unresolved_names = "Unresolved names:\n".$txt_unresolved_names;
-            $sql = qq{ UPDATE vuln_jobs SET meth_Wcheck='$txt_unresolved_names' WHERE id='$job_id' };
+            
+            $sql = qq{ UPDATE vuln_jobs SET meth_Wcheck=CONCAT(meth_Wcheck, '$txt_unresolved_names<br />') WHERE id='$job_id' };
             safe_db_write ( $sql, 4 );  #use insert/update routine
         }
         else {
@@ -771,6 +774,7 @@ sub setup_scan {
     #MERGE/FILTER Potential \r\n as \r to ensure proper split
     $targetinfo =~ s/\n/\r/g;
     $targetinfo =~ s/\r\r/\r/g;
+    
 
     my @hostarr = split /\r/, $targetinfo;
     my $nessus_pref = get_prefs( $Jvset, $job_id );
@@ -780,10 +784,10 @@ sub setup_scan {
     #if ( $use_scanlite ) {
     #    @results = run_scanlite_nessus($nessus_pref, \@vuln_nessus_plugins, $timeout, $Jname, $juser, \@hostarr, $Jvset, $job_id);
     #} else {
-        @results = run_nessus($nessus_pref, \@vuln_nessus_plugins, $timeout, $Jname, $juser, \@hostarr, $Jvset, $job_id, $Jtype, $fk_name, $meth_CRED, $scan_locally);
+    @results = run_nessus($nessus_pref, \@vuln_nessus_plugins, $timeout, $Jname, $juser, \@hostarr, $Jvset, $job_id, $Jtype, $fk_name, $meth_CRED, $scan_locally);
     #}
 
-    $scantime = getCurrentDateTime("datetime");
+    $scantime = getCurrentDateTime();
 
     if ( check_dbOK() == "0" ) { $dbh = conn_db(); }
     logwriter("No results: $no_results",4);
@@ -818,7 +822,7 @@ sub setup_scan {
     $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans-$server_slot WHERE id=$serverid AND current_scans>=$server_slot};
     safe_db_write ( $sql, 4 );            #use insert/update routine
 
-    if (!$nessusok && !$scan_timeout) {
+    if ((!$nessusok && !$scan_timeout) || $no_results == TRUE) {
         my $retries_allowed = 0;
         if ( $CONFIG{'failedRetries'} ) { $retries_allowed = $CONFIG{'failedRetries'}; }
         if ( $Jtype =~ /c/i ) { $retries_allowed = 0; }
@@ -862,6 +866,11 @@ sub setup_scan {
             } else {
                 logwriter("ATTEMPT [ $failed_count ] TO HANDLE FAILED SCANS",1);
                 reschedule_scan ( $job_id ) if ($whyfailed ne "Timeout expired"); # only if not timeout
+                
+                if (defined($txt_meth_wcheck) && $txt_meth_wcheck ne "") { # Nmap message
+                    $sql = qq{ UPDATE vuln_jobs SET meth_Wcheck=CONCAT(meth_Wcheck, '$txt_meth_wcheck') WHERE id='$job_id' }; #MARK FAILED
+                    safe_db_write ( $sql, 1 );
+                }
             }
 
             exit;
@@ -980,6 +989,44 @@ sub create_profile {
 
 }
 
+sub filter_assets {
+    my ($all_targets, $target, $targets, $ftargets, $job_id);
+    my @filters=();
+    my @result=();
+    
+    $targets = $_[0];
+    $job_id  = $_[1];
+    
+    $sql = qq{ SELECT meth_TARGET FROM vuln_jobs WHERE id='$job_id' };
+    my $sthse=$dbh->prepare( $sql );
+    $sthse->execute;
+    $ftargets = $sthse->fetchrow_array();
+    
+    my @sexceptions = split(/\n/, $ftargets);
+   
+    foreach $target (@sexceptions){
+        if($target =~ m/^\!/) {
+            $target =~ s/^\!//;
+            push(@filters, $target); # in filters all exceptions
+        }
+    }
+    
+    my @test_targets = split(/\n/, $targets);
+
+    #print "filters: "; print Dumper(@filters);print "\n\n";
+    foreach $target (@test_targets){
+
+        if(!in_array(\@filters,$target)) {
+    		#print "target: "; print Dumper($target);print "\n\n";
+            push(@result, $target);
+        }
+    }
+    
+    $sthse->finish;
+
+    return join("\n",@result);
+}
+
 #run scan return issues to setup scan
 sub run_nessus {
     my (%nes_prefs) = %{$_[0]};
@@ -1010,6 +1057,32 @@ sub run_nessus {
     $nessushost = $CONFIG{'NESSUSHOST'};
     
     #my $nessushostip = ($fk_name =~ m/^(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)/) ? $fk_name : $nessushost;
+    #
+    # choose best server with less load
+    #
+    my ($sth_sel, $sql);
+    if ($fk_name ne "") {
+    	$fk_name =~ s/,/','/g;
+	    $sql = qq{ SELECT hostname,id FROM vuln_nessus_servers WHERE enabled=1 AND hostname in ('$fk_name') order by  ( current_scans / max_scans ) asc limit 1 };
+        
+        logwriter("SELECT hostname,id FROM vuln_nessus_servers WHERE enabled=1 AND hostname in ('$fk_name') order by  ( current_scans / max_scans ) asc limit 1", 5);
+        
+	    $sth_sel=$dbh->prepare( $sql );
+	    $sth_sel->execute;
+	    my ($best_server,$best_server_id) = $sth_sel->fetchrow_array;
+	    $sth_sel->finish;
+	    if ($best_server ne "") {
+	    	$fk_name = $best_server;
+	    	$serverid = $best_server_id;
+	        $sql = qq{ UPDATE vuln_jobs SET scan_SERVER='$serverid' WHERE id='$job_id' };
+	        safe_db_write ( $sql, 4 );
+	    }    
+    }
+    
+    #UPDATE SERVER COUNT OF RUNNING SCANS
+    $sql = qq{ UPDATE vuln_nessus_servers SET current_scans=current_scans+$server_slot WHERE id=$serverid };
+    safe_db_write ( $sql, 4 );
+    
     my $nessushostip = $nessushost;
     if ($fk_name =~ /^(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)\.(\d\d?\d?)/) {
     	$nessushostip = $fk_name;
@@ -1041,169 +1114,181 @@ sub run_nessus {
         }
     }
     
+    $targets = filter_assets($targets, $job_id);
+    
     print TARGET "$targets"; 
     close TARGET;
 	logwriter("targets: $targets", 4);
-
     
-    if ($CONFIG{'NESSUSPATH'} !~ /omp\s*$/) {
-        logwriter("Selected sid: $sid", 4);
-        create_profile( \%nes_prefs, \@nes_plugins, $nessus_cfg, $username, $sid ); 
+    if($nessushostip =~ m/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) {
+        $sql = qq{ UPDATE vuln_jobs SET meth_Wcheck=CONCAT(meth_Wcheck, 'Scan Server Selected: $nessushostip<br />') WHERE id='$job_id' };
+        safe_db_write ( $sql, 1 );
+    }
+    
+    if($targets ne "") {
+        if ($CONFIG{'NESSUSPATH'} !~ /omp\s*$/) {
+            logwriter("Selected sid: $sid", 4);
+            create_profile( \%nes_prefs, \@nes_plugins, $nessus_cfg, $username, $sid ); 
 
-        # version test
-        $cmd = `$CONFIG{'NESSUSPATH'} --version|head -1|awk '{print \$3}'`;
-        my $verbose = ($CONFIG{'NESSUSPATH'} =~ /openvas/ && $cmd =~ /^3/) ? "-v" : "-V";
-        $cmd = qq{$CONFIG{'NESSUSPATH'} -qx $nessushostip $nessusport $nessususer $nessuspassword $targetfile $outfile $verbose -T nbe -c $nessus_cfg};
-        logwriter("Run nessus...", 4);
-        logwriter( $cmd, 4 );
+            # version test
+            $cmd = `$CONFIG{'NESSUSPATH'} --version|head -1|awk '{print \$3}'`;
+            my $verbose = ($CONFIG{'NESSUSPATH'} =~ /openvas/ && $cmd =~ /^3/) ? "-v" : "-V";
+            $cmd = qq{$CONFIG{'NESSUSPATH'} -qx $nessushostip $nessusport $nessususer $nessuspassword $targetfile $outfile $verbose -T nbe -c $nessus_cfg};
+            logwriter("Run nessus...", 4);
+            logwriter( $cmd, 4 );
 
-        if ( ! $track_progress ) {
-            #PRESCAN DISCONNECT
+            if ( ! $track_progress ) {
+                #PRESCAN DISCONNECT
                 logwriter( "NO TRACK PROGRESS Disconnect DB until scan completion", 3 );
-            disconn_db($dbh);
+                disconn_db($dbh);
+            }
+
+            $toc=0;
+            eval {
+                local $SIG{ALRM} = sub {
+                    #logwriter( "RECONNECT DB", 3 ); 
+                    #$dbh = conn_db();
+                    #$sql = "UPDATE vuln_jobs SET status='F', meth_Wcheck='Timeout expired', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id';";
+                    #safe_db_write ( $sql, 4 );
+                    #disconn_db($dbh);
+                    $toc=1;
+                    die "NessusTimeout\n"; 
+                }; 
+                local $SIG{CHLD} = sub { if ( $? && $? > 0 ) { die "Program Exited Funny: $?\n"; } };
+                logwriter("Timeout: $timeout", 5);
+                alarm $timeout;
+                open(LOGFILE,">>$workfile");
+                open(PROC,"$cmd 2>&1 |") or die "failed to fork :$!\n";
+                my (@arr);
+                while(<PROC>){
+                    #@arr = split/\|/;
+                    #print LOGFILE "$arr[0]|$arr[1]|$arr[2]|$arr[3]";
+                    print LOGFILE $_;
+                    chomp; s/^ *| *$//g; s/\r//;
+                    if (/.*nessus\s\:.*/ || /.*openvas-client\s\:.*/i){
+                        my @tmp = split /:/;
+                        $tmp[1] =~ s/^ *//g;
+                        $txt_meth_wcheck = $txt_meth_wcheck.$tmp[1]."<br>";
+                    }
+                }
+                close PROC;
+                close LOGFILE;
+                logwriter( "nessus_run: Scan ended\n", 3 );
+                system("chown www-data '$outfile'");
+                alarm 0;
+            };
+        }
+        else {
+            
+            $job_id_to_log = "$job_id";
+            
+            logwriter("get_target_id for targets:$targets", 4);
+            $target_id = get_target_id($targets);
+            
+            logwriter("get_config_id for sid:$sid", 4);
+            $config_id = get_config_id($sid);
+            
+            logwriter("create_task for jobname, config_id, target_id: $jobname, $config_id, $target_id", 4);
+            $task_id = create_task($jobname, $config_id, $target_id);
+            
+            $sql = qq{ UPDATE vuln_jobs SET meth_CPLUGINS='$task_id' WHERE id='$job_id' };
+            safe_db_write ( $sql, 4 );
+
+            logwriter("play_task $task_id", 4);
+            play_task($task_id);
+            
+            $tsleep = 2;
+            
+            $start_time = time;
+            
+            $endScan = 0;
+
+            do {
+                sleep($tsleep);
+                $info_status = get_task_status($task_id); 
+                @arr_status = split /\|/, $info_status;
+                $status = shift(@arr_status);
+                
+                if ($status eq "Pause Requested" || $status eq "Paused") {  $tsleep = 5;  }
+                else {  $tsleep = 2;   }
+                
+                $progress = shift(@arr_status);
+                $progress =~ s/\n|\t|\r|\s+//g;
+                
+                logwriter("task id='$task_id' $status ($progress%)", 4); 
+            
+                $current_time = time;
+                if( $current_time-$start_time>=$timeout ) {
+                    $endScan = 1;
+                }
+                
+            } while (($status eq "Running" || $status eq "Requested" || $status eq "Pause Requested" || $status eq "Paused") && $endScan == 0);
+            
+            if($endScan==1) {
+                $omp_scan_timeout = TRUE;
+                stop_task($task_id);
+                set_job_timeout($job_id);
+            }
         }
 
-        $toc=0;
-        eval {
-            local $SIG{ALRM} = sub {
-                #logwriter( "RECONNECT DB", 3 ); 
-                #$dbh = conn_db();
-                #$sql = "UPDATE vuln_jobs SET status='F', meth_Wcheck='Timeout expired', scan_END=now(), scan_NEXT=NULL WHERE id='$job_id';";
-                #safe_db_write ( $sql, 4 );
-                #disconn_db($dbh);
-                $toc=1;
-                die "NessusTimeout\n"; 
-            }; 
-            local $SIG{CHLD} = sub { if ( $? && $? > 0 ) { die "Program Exited Funny: $?\n"; } };
-            logwriter("Timeout: $timeout", 5);
-            alarm $timeout;
-            open(LOGFILE,">>$workfile");
-            open(PROC,"$cmd 2>&1 |") or die "failed to fork :$!\n";
-            my (@arr);
-            while(<PROC>){
-                #@arr = split/\|/;
-                #print LOGFILE "$arr[0]|$arr[1]|$arr[2]|$arr[3]";
-                print LOGFILE $_;
-                chomp; s/^ *| *$//g; s/\r//;
-                if (/.*nessus\s\:.*/ || /.*openvas-client\s\:.*/i){
-                    my @tmp = split /:/;
-                    $tmp[1] =~ s/^ *//g;
-                    $txt_meth_wcheck = $txt_meth_wcheck.$tmp[1]."<br>";
+        #POST SCAN RECONNECT
+        logwriter( "RECONNECT DB after scan", 3 ); 
+        $dbh = conn_db();
+        #RELOAD CONFIGS IN CASE OF CHANGE
+        load_db_configs ( );
+        
+        if ($CONFIG{'NESSUSPATH'} !~ /omp\s*$/) {
+            if($toc) {
+                logwriter( "Timeout: get results from file $outfile", 4 );
+                my @issues = get_results_from_file( $outfile );
+                if ($no_results){
+                    set_job_timeout($job_id);
+                    logwriter( "Timeout: no results in $outfile", 4 );
+                } else {
+                    my %hostHash = pop_hosthash( \@issues );
+                    my $scantime = getCurrentDateTime();
+                    timeout(\%hostHash, $job_id, $jobname, $Jtype, $username, $sid, $scantime, $fk_name );
                 }
+                #warn "Nessus Scan timed out\n";
+                $no_results = TRUE; # force no process results
+                $scan_timeout = TRUE;
+                return FALSE;
             }
-            close PROC;
-            close LOGFILE;
-            logwriter( "nessus_run: Scan ended\n", 3 );
-            system("chown www-data '$outfile'");
-            alarm 0;
-        };
+            
+            if ($@ ) {
+                if ( $@ eq "NessusTimeout\n" ) { 
+        #            my @issues = get_results_from_file( $outfile );
+        #            if ($no_results){
+        #                set_job_timeout($job_id);
+        #            } else {
+        #                my %hostHash = pop_hosthash( \@issues );
+        #                my $scantime = getCurrentDateTime();
+        #                timeout(\%hostHash, $job_id, $jobname, $Jtype, $username, $sid, $scantime, $fk_name );
+        #            }
+                    warn "Nessus Scan timed out\n";
+                    return FALSE;
+                } elsif ($@ =~ /Program Exited Funny:/ ) {
+                    my $err_code = $@;
+                    $err_code =~ s/Program Exited Funny://;
+                    $err_code =~ s/\n//;
+                    warn "Nessus Scan Server Problem [ serverid=$serverid name=$nessushost err_code=$err_code ]\n";
+                    move_server_offline ( $serverid );
+
+                    return FALSE;
+                }
+            };
+            #logwriter( "\n\nReading the results...\n\n", 4 );
+            @issues = get_results_from_file( $outfile );
+        }
+        else { # get results from OpenVAS Manager
+            @issues = get_results_from_xml( $task_id, $targets);
+        }
     }
     else {
-        
-        $job_id_to_log = "$job_id";
-        
-        logwriter("get_target_id for targets:$targets", 4);
-        $target_id = get_target_id($targets);
-        
-        logwriter("get_config_id for sid:$sid", 4);
-        $config_id = get_config_id($sid);
-        
-        logwriter("create_task for jobname, config_id, target_id: $jobname, $config_id, $target_id", 4);
-        $task_id = create_task($jobname, $config_id, $target_id);
-        
-        $sql = qq{ UPDATE vuln_jobs SET meth_CPLUGINS='$task_id' WHERE id='$job_id' };
-        safe_db_write ( $sql, 4 );
-
-        logwriter("play_task $task_id", 4);
-        play_task($task_id);
-        
-        $tsleep = 2;
-        
-        $start_time = time;
-        
-        $endScan = 0;
-
-        do {
-            sleep($tsleep);
-            $info_status = get_task_status($task_id); 
-            @arr_status = split /\|/, $info_status;
-            $status = shift(@arr_status);
-            
-            if ($status eq "Pause Requested" || $status eq "Paused") {  $tsleep = 5;  }
-            else {  $tsleep = 2;   }
-            
-            $progress = shift(@arr_status);
-            $progress =~ s/\n|\t|\r|\s+//g;
-            
-            logwriter("task id='$task_id' $status ($progress%)", 4); 
-        
-            $current_time = time;
-            if( $current_time-$start_time>=$timeout ) {
-                $endScan = 1;
-            }
-            
-        } while (($status eq "Running" || $status eq "Requested" || $status eq "Pause Requested" || $status eq "Paused") && $endScan == 0);
-        
-        if($endScan==1) {
-            $omp_scan_timeout = TRUE;
-            stop_task($task_id);
-            set_job_timeout($job_id);
-        }
+        $txt_meth_wcheck = "Nmap: No targets found";
+        @issues = ();
+        $no_results = TRUE;
     }
-
-    #POST SCAN RECONNECT
-    logwriter( "RECONNECT DB after scan", 3 ); 
-    $dbh = conn_db();
-    #RELOAD CONFIGS IN CASE OF CHANGE
-    load_db_configs ( );
-    
-    if ($CONFIG{'NESSUSPATH'} !~ /omp\s*$/) {
-        if($toc) {
-            logwriter( "Timeout: get results from file $outfile", 4 );
-            my @issues = get_results_from_file( $outfile );
-            if ($no_results){
-                set_job_timeout($job_id);
-                logwriter( "Timeout: no results in $outfile", 4 );
-            } else {
-                my %hostHash = pop_hosthash( \@issues );
-                my $scantime = getCurrentDateTime("datetime");
-                timeout(\%hostHash, $job_id, $jobname, $Jtype, $username, $sid, $scantime, $fk_name );
-            }
-            #warn "Nessus Scan timed out\n";
-            $no_results = TRUE; # force no process results
-            $scan_timeout = TRUE;
-            return FALSE;
-        }
-        
-        if ($@ ) {
-            if ( $@ eq "NessusTimeout\n" ) { 
-    #            my @issues = get_results_from_file( $outfile );
-    #            if ($no_results){
-    #                set_job_timeout($job_id);
-    #            } else {
-    #                my %hostHash = pop_hosthash( \@issues );
-    #                my $scantime = getCurrentDateTime("datetime");
-    #                timeout(\%hostHash, $job_id, $jobname, $Jtype, $username, $sid, $scantime, $fk_name );
-    #            }
-                warn "Nessus Scan timed out\n";
-                return FALSE;
-            } elsif ($@ =~ /Program Exited Funny:/ ) {
-                my $err_code = $@;
-                $err_code =~ s/Program Exited Funny://;
-                $err_code =~ s/\n//;
-                warn "Nessus Scan Server Problem [ serverid=$serverid name=$nessushost err_code=$err_code ]\n";
-                move_server_offline ( $serverid );
-
-                return FALSE;
-            }
-        };
-        #logwriter( "\n\nReading the results...\n\n", 4 );
-        @issues = get_results_from_file( $outfile );
-    }
-    else { # get results from OpenVAS Manager
-        @issues = get_results_from_xml( $task_id, $targets);
-    }
-
     return (@issues);
 }
 
@@ -1376,7 +1461,7 @@ sub update_stats {
 
     $runtime = datediff( $start_dttm, $end_dttm, "M" );
 
-    my $update_time = getCurrentDateTime("datetime");
+    my $update_time = getCurrentDateTime();
 
     $sql = "INSERT INTO vuln_nessus_report_stats ( report_id, name, iHostCnt, dtLastScanned, iScantime,
         vSerious, vHigh, vMed, vMedLow, vLowMed, vLow, vInfo, trend, dtLastUpdated ) VALUES (
@@ -1832,10 +1917,20 @@ sub update_host_disabled_users {
 sub reschedule_scan {
     my ( $job_id ) = @_;
 
-    my ( $sql, $sth_sel );
-
+    my ( $sql, $sth_sel, $now );
+    
+    $now = getCurrentDateTime();
+    
+    my $year  = substr($now,0,4);
+    my $month = substr($now,4,2);
+    my $day   = substr($now,6,2);
+    
+    my $h     = substr($now,8,2);
+    my $m     = substr($now,10,2);
+    my $s     = substr($now,12,2);
+    
     #RECODED TO ELIMINATE THE NON-SENSE ( NO RESCAN IMMEDIATELY (HOST LIKELY DEAD / OFFLINE )
-    $sql = qq{ select NOW() + INTERVAL 1 HOUR as next_scan  };
+    $sql = qq{ SELECT DATE_ADD( '$year-$month-$day $h:$m:$s', INTERVAL 1 HOUR ) };
 
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute(  );
@@ -1846,9 +1941,10 @@ sub reschedule_scan {
     $next_run  =~ s/\s//g;
 
     logwriter( "\tnextscan=$next_run", 4 );
-
+   
     $sql = qq{ UPDATE vuln_jobs SET scan_SERVER=0, status="S", scan_START=NULL, scan_END=NULL, scan_NEXT='$next_run',
             scan_PID='0', report_id='0', failed_attempts=failed_attempts+1 WHERE id='$job_id' };
+
     safe_db_write ( $sql, 1 );
 
 }
@@ -1927,7 +2023,7 @@ sub manually_import_report {
 
     my @results = get_results_from_file( $outfile );
 
-    my $scantime = getCurrentDateTime("datetime");
+    my $scantime = getCurrentDateTime();
 
     if ( $no_results == FALSE ) {  #SUCCESSFUL NESSUS RUN
         logwriter( "[$job_title] Begin SQL Import", 4 );
@@ -1986,7 +2082,7 @@ sub queueWork {
     }
 
     if ( !defined ( $sql_time ) || $sql_time eq "" ) {
-        $sql_time = getCurrentDateTime("datetime");
+        $sql_time = getCurrentDateTime();
     }
 
     if ( defined ( $LanORG ) && $LanORG ne "" ) { $sql_filter = " AND t1.ORG = '$LanORG'"; } else { $sql_filter = " "; }
@@ -3126,7 +3222,7 @@ sub check_schedule {
 
     my ( $sql, $sth_sel, $sth_sel2, $now );
 
-    $now = getCurrentDateTime("datetime");
+    $now = getCurrentDateTime();
 
     $sql = qq{ SELECT id, name, username, fk_name, job_TYPE, schedule_type, day_of_week, day_of_month, time, email,
         meth_TARGET, meth_CRED, meth_VSET, meth_TIMEOUT, scan_ASSIGNED, next_CHECK, meth_Ucheck
@@ -3169,7 +3265,7 @@ sub check_Kill {
 
     my ( $sql, $sth_sel, $sth_sel2, $now );
 
-    $now = getCurrentDateTime("datetime");
+    $now = getCurrentDateTime();
 
     $sql = qq{ SELECT id, name, scan_PID FROM vuln_jobs WHERE status='P' };
     logwriter( $sql, 5 );
@@ -3226,7 +3322,7 @@ sub get_host_record {
     my ( $sql, $sth_sel );
     my ( $host_id ) = "0";
 
-    my $now = getCurrentDateTime("datetime");
+    my $now = getCurrentDateTime();
     #ENSURE HOST_ID IS LOOKED UP AFTER INSERT OR QUIT 
     #LOOKUP HOST_ID AGAIN FOR UPDATE OF MACS / INCIDENT TRACKER CODE
     $sql = qq{ SELECT id FROM vuln_hosts WHERE hostname = '$hostname' LIMIT 1 };
@@ -3794,26 +3890,7 @@ sub getSubnetID {
 
 #get current date/time
 sub getCurrentDateTime {
-    # VER: 2.0 MODIFIED: 4/03/08 20:35
-    my ( $format ) = @_;
-
-    my @days = qw(Su Mo Tu We Th Fr Sa);
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-    $year+=1900;
-    $mon++;
-
-    if ( $format ) {
-        switch (lc($format)) {
-            case "datetime"        { return sprintf("%04d%02d%02d%02d%02d%02d",$year, $mon, $mday, $hour, $min, $sec); }
-            case "date"                { return sprintf("%04d%02d%02d",$year, $mon, $mday); }
-            case "time"                { return sprintf("%02d%02d%02d", $hour, $min, $sec); }
-            case "today"        { return $days[$wday]; }
-            else                { return sprintf("%04d%02d%02d%02d%02d%02d",$year, $mon, $mday, $hour, $min, $sec); }
-        }
-    } else {
-        return sprintf("%04d%02d%02d%02d%02d%02d",$year, $mon, $mday, $hour, $min, $sec);
-    }
-
+    return strftime "%Y%m%d%H%M%S", gmtime;
 }
 
 #read in data from results file <- returns ( array of hashes ) $issues
@@ -4432,6 +4509,8 @@ sub logwriter {
 
     $message = "$now [$$] $loginfo{$specified_level} $message";
 
+    if(!defined($log_level)) { $log_level = 0; }
+    
     if ( $debug || $log_level ge $specified_level )  { print $message ."\n"; }
 
 
@@ -4445,6 +4524,11 @@ sub conn_db {
         PrintError => 0,
         RaiseError => 1,
         AutoCommit => 1 } ) or die("Failed to connect : $DBI::errstr\n");
+        
+    $sql = qq{ SET SESSION time_zone='+00:00' };
+
+    safe_db_write ( $sql, 5 );
+    
     return $dbh;
 }
 
@@ -4468,7 +4552,7 @@ sub timeout {
     my ($sql, $serverid, $sth_sel);
     logwriter("Function timeout - Job Id=$job_id", 4);
 
-    $sql = qq{ UPDATE vuln_jobs SET status='T', meth_Wcheck=CONCAT(meth_Wcheck, 'Timeout expired'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
+    $sql = qq{ UPDATE vuln_jobs SET status='T', meth_Wcheck=CONCAT(meth_Wcheck, 'Timeout expired<br />'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
     logwriter( $sql, 5 );
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute(  );
@@ -4496,7 +4580,7 @@ sub set_job_timeout {
 	my ($sth_sel, $sql);
     logwriter("Function set_job_timeout - Job Id=$job_id", 4);
 
-    $sql = qq{ UPDATE vuln_jobs SET status='T', meth_Wcheck=CONCAT(meth_Wcheck, 'Timeout expired'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
+    $sql = qq{ UPDATE vuln_jobs SET status='T', meth_Wcheck=CONCAT(meth_Wcheck, 'Timeout expired<br />'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id' };
     logwriter( $sql, 5 );
     $sth_sel = $dbh->prepare( $sql );
     $sth_sel->execute(  );
@@ -5031,7 +5115,7 @@ sub execute_omp_command {
     
         my $error = join(" ", @log_lines);
         if($job_id_to_log ne "") {
-            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck=CONCAT(meth_Wcheck, '$error') , scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck=CONCAT(meth_Wcheck, '$error<br />') , scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
             safe_db_write ( $sql, 1 );
         }
 
@@ -5043,7 +5127,7 @@ sub execute_omp_command {
         my $status_text = $xml->{'status_text'};
         
         if($job_id_to_log ne "") {
-            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck=CONCAT(meth_Wcheck, '$status_text'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck=CONCAT(meth_Wcheck, '$status_text<br />'), scan_END=now(), scan_NEXT=NULL WHERE id='$job_id_to_log' }; #MARK FAILED
             safe_db_write ( $sql, 1 );
         }
         
@@ -5329,9 +5413,10 @@ sub check_running_scans {
     while ( my($id, $scan_pid) = $sthse->fetchrow_array() ) {
         $running =`ps ax | grep $scan_pid | grep nessus_jobs | grep -v "ps ax" | wc -l`;
         if($running==0) {
-            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck='Job task ended prematurely' WHERE id='$id' };
+            $sql = qq{ UPDATE vuln_jobs SET status='F', meth_Wcheck=CONCAT(meth_Wcheck, 'Job task ended prematurely<br />') WHERE id='$id' };
             safe_db_write ( $sql, 4 );
         }
     }
     $sthse->finish;
 }
+

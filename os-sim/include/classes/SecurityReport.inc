@@ -52,7 +52,8 @@ class SecurityReport {
         $this->snort_conn = $db->snort_connect();
     }
     function AttackHost($conn, $ip_target, $limit = 10, $type = "event", $from_date, $to_date, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
-        require_once ('classes/Host.inc');
+        $limit++;
+    	require_once ('classes/Host.inc');
         require_once ('classes/Net.inc');
         require_once ('classes/Session.inc');
 		require_once ('classes/Event_viewer.inc');
@@ -128,7 +129,6 @@ class SecurityReport {
             if ($type == "alarm") $target = "dst_ip";
             $title = "Attacked hosts";
         }*/
-        
         switch ($type) {
             case "alarm":
                 if (!strcmp($ip_target, "ip_src")) {
@@ -160,8 +160,7 @@ class SecurityReport {
 				$temp_conn = $db->snort_connect();
 				//$temp_conn = $this->snort_conn;
         }
-		
-			
+		$limit--;
 		if ($rs = & $temp_conn->Execute($query))
 		{
 			$i = 0;
@@ -171,6 +170,7 @@ class SecurityReport {
 				//if (Session::hostAllowed($conn, $rs->fields["ip"])) {
 				if ($rs->fields['ip'] == 0) { $rs->MoveNext(); continue; }
 				$ip_address = (is_numeric($rs->fields["ip"]))? long2ip($rs->fields["ip"]) : $rs->fields["ip"];
+				if ($ip_address == "253.253.253.253") { $rs->MoveNext(); continue; }
 				$tmp_array = array(
 					$ip_address,
 					$rs->fields["occurrences"]
@@ -783,7 +783,95 @@ class SecurityReport {
         }
 		
         return $list;
-    }  
+    }
+    function AttackerCountries($gi, $limit = 5, $from_date, $to_date, $ip, $assets=array(), $sourcetype='', $category=0, $subcategory=0, $plugin_groups=null, $sensors=array()) {
+		$conn = $this->ossim_conn;
+    	// User sensor filtering
+		$sensor_str_alarm = "";
+		$sensor_str_event = "";
+		if (Session::allowedSensors() != "" || count($sensors)>0) {
+			//$user_sensors = explode(",",Session::allowedSensors());
+			$user_sensors = (Session::allowedSensors()=="" || !count($sensors)) ? array_merge(explode(",",Session::allowedSensors()),$sensors) : array_intersect(explode(",",Session::allowedSensors()), $sensors);
+			foreach ($user_sensors as $user_sensor) if ($user_sensor!="")
+				$sensor_str .= ($sensor_str == "") ? "e.sensor LIKE '".$user_sensor."%'" : " OR e.sensor LIKE '".$user_sensor."%'";
+			//echo "<br><br><br><br>SENSOR:$sensor_str de ".Session::allowedSensors();
+			$sensor_str_alarm = " AND ($sensor_str) AND e.id=a.event_id";
+			// snort
+			$snortsensors = Event_viewer::GetSensorSids($temp_conn);
+			$sensor_str = "";
+			foreach ($user_sensors as $user_sensor)
+				if (count($snortsensors[$user_sensor]) > 0) $sensor_str .= ($sensor_str != "") ? ",".implode(",",$snortsensors[$user_sensor]) : implode(",",$snortsensors[$user_sensor]);
+			if ($sensor_str == "") $sensor_str = "0";
+			$sensor_str_event = " AND acid_event.sid in (" . $sensor_str . ")";
+		}
+		// plugin groups filter
+		$sql_plugin_groups='';
+		
+		if($plugin_groups!=null){
+			$groups = Plugingroup::get_list($conn,'plugin_group.group_id='.$plugin_groups);
+			switch ($type) {
+				case "alarm":
+					$nameTable='a';
+					break;
+				case "event":
+				default:
+					$nameTable='acid_event';
+			}
+			
+			foreach($groups as $group) {
+				$sql_plugin_groups.='AND (';
+				$i=1;
+				foreach($group->get_plugins() as $p) {	
+					if($i!==1){
+						$sql_plugin_groups.=' OR ';
+					}
+					if($p['sids']=='0'||$p['sids']=='ANY'){
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].')';
+					}else{
+						$sql_plugin_groups.='('.$nameTable.'.plugin_id = '.$p['id'].' AND '.$nameTable.'.plugin_sid in ('.$p['sids'].'))';
+					}
+					$i++;
+				}
+				$sql_plugin_groups.=')';
+			}
+		}
+		//
+		
+    	$total = 0;
+    	$list = array();
+    	$list_ret = array();
+    	$cnames = array();
+    	$counts = array();
+    	$temp_conn = $this->snort_conn;
+    	//
+        list($join2,$where2) = SecurityReport::make_join_where("acid_event.","ip_src",$assets,$sourcetype,$category,$subcategory);
+        //
+    	$query = "SELECT INET_NTOA(ip_src) as ip_src, count(ip_src) as occurrences FROM acid_event $join2 where ossim_risk_c >= 0 AND timestamp >= '$from_date 00:00:00' AND timestamp <= '$to_date 23:59:59' AND ossim_risk_a >= 0 AND acid_event.plugin_id<>1505 AND ip_dst='$ip' $sensor_str_event $where2 $sql_plugin_groups GROUP BY ip_src ORDER BY occurrences DESC";
+    	if ($rs = & $temp_conn->Execute($query))
+		{
+            while (!$rs->EOF && count($list) < $limit) {
+				$ip_src = $rs->fields['ip_src'];
+            	$s_country = strtolower(geoip_country_code_by_addr($gi, $ip_src));
+            	$country_name = geoip_country_name_by_addr($gi, $ip_src);
+            	if ($s_country == "") { $s_country = "unknown"; }
+            	$list[$s_country] += $rs->fields['occurrences'];
+            	$cnames[$s_country] = ($country_name != "") ? $country_name : _("Unknown Country");
+            	$counts[$s_country]++;
+            	$total += $rs->fields['occurrences'];
+                $rs->MoveNext();
+            }
+        }
+        arsort($list);
+        // Percents
+        foreach ($list as $c=>$val) {
+        	$list_ret[$c]['perc'] = number_format($val*100/$total,2);
+        	$list_ret[$c]['val'] = $val;
+        	$list_ret[$c]['name'] = $cnames[$c];
+        	$list_ret[$c]['ips'] = $counts[$c];
+        	$list_ret[$c]['width'] = intval(($val*150)/$total)+1;
+        }
+        return $list_ret;
+    }
     function Truncate($str, $length = 10, $trailing = '...') {
         // take off chars for the trailing
         $length-= strlen($trailing);

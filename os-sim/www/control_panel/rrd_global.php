@@ -172,8 +172,8 @@ if ($event_list_global = RRD_anomaly_global::get_list($conn, $where_clause, "ord
 <td align="center" colspan="7" class="noborder">
 <input type="submit" class="button" value=" <?php
 echo gettext("OK"); ?> ">
-<input type="reset" class="button" value=" <?php
-echo gettext("reset"); ?> ">
+<?php /*<input type="reset" class="button" value=" <?php
+echo gettext("reset"); ?> ">*/?>
 </td>
 </tr>
 </form>

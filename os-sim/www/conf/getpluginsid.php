@@ -47,12 +47,12 @@ require_once 'classes/Plugin_sid.inc';
 require_once 'classes/Classification.inc';
 require_once 'classes/Category.inc';
 require_once 'classes/Subcategory.inc';
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 25;
+
 $order = GET('sortname');
-if (empty($order)) $order = POST('sortname');
+if (empty($order))  $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 $search = GET('query');
 if (empty($search)) $search = POST('query');
@@ -71,11 +71,13 @@ if (ossim_error()) {
 if (empty($order)) $order = "sid";
 $where = "WHERE sid <> 20000000 AND sid <> 2000000000 AND plugin_id = $id";
 if (!empty($search) && !empty($field)) $where.= " AND $field like '%" . $search . "%'";
+
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db = new ossim_db();
-$conn = $db->connect();
-$xml = "";
+$db    = new ossim_db();
+$conn  = $db->connect();
+$xml   = "";
+
 if ($plugin_list = Plugin_sid::get_list($conn, "$where ORDER BY $order $limit")) {
     $total = $plugin_list[0]->get_foundrows();
     if ($total == 0) $total = count($plugin_list);

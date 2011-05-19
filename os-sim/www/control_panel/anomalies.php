@@ -282,8 +282,10 @@ anomaly_time desc", "0", "10")) {
 <td style="text-align:center;" class="nobborder" colspan="7">
 <input type="submit" class="button" value=" <?php
 echo gettext("OK"); ?> ">
-<input type="reset" class="button" value=" <?php
-echo gettext("reset"); ?> ">
+<?php
+/*<input type="reset" class="button" value=" <?php
+echo gettext("reset"); ?> ">*/
+?>
 </td>
 </tr>
 </table>
@@ -428,8 +430,10 @@ if ($anom_os_list = Host_os::get_anom_list($conn)) {
 <td style="text-align:center;" colspan="9" class="nobborder">
 <input type="submit" class="button" value=" <?php
 echo gettext("OK"); ?> ">
-<input type="reset" class="button" value=" <?php
-echo gettext("reset"); ?> ">
+<?php
+/*<input type="reset" class="button" value=" <?php
+echo gettext("reset"); ?> ">*/
+?>
 </td>
 </tr>
     </table>
@@ -574,8 +578,10 @@ if ($anom_mac_list = Host_mac::get_anom_list($conn)) {
 <td style="text-align:center;" class="nobborder" colspan="10">
 <input type="submit" class="button" value=" <?php
 echo gettext("OK"); ?> ">
-<input type="reset" class="button" value=" <?php
-echo gettext("reset"); ?> ">
+<?php
+/*<input type="reset" class="button" value=" <?php
+echo gettext("reset"); ?> ">*/
+?>
 </td>
 </tr>
     </table>
@@ -732,8 +738,9 @@ if ($anom_services_list = Host_services::get_anom_list($conn)) {
 <td style="text-align:center" colspan="11" class="nobborder">
 <input type="submit" class="button" value=" <?php
 echo gettext("OK"); ?> ">
-<input type="reset" class="button" value=" <?php
-echo gettext("reset"); ?> ">
+<?php/*<input type="reset" class="button" value=" <?php
+echo gettext("reset"); ?> ">*/
+?>
 </td>
 </tr>
     </table>

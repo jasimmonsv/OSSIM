@@ -244,9 +244,7 @@ echo gettext("OSSIM Framework"); ?> </title>
 		$.ajax({
 				type: "POST",
 				url: "../conf/layout.php",
-				data: { name:"<?php echo $name_layout
-?>", category:"<?php echo $category
-?>", layout:serialize(clayout) },
+				data: { name:"<?php echo $name_layout?>", category:"<?php echo $category?>", layout:serialize(clayout) },
 				success: function(msg) {
 					$("#flextable").changeStatus(msg,true);
 				}

@@ -1,0 +1,40 @@
+CONFIGURATION PROCEDURE
+
+* Install Kismet in a remote host: /etc/kismet/kismet.conf
+
+logexpiry=3600
+logtemplate=/var/log/kismet/%n_%D-%i.%l
+configdir=/var/lib/kismet/
+
+* Launch kismet_server in remote host:
+
+/usr/bin/kismet_server -l xml -t REMOTEHOSTIP -f /etc/kismet/kismet.conf
+/2>&1 | logger -t REMOTEHOSTIP  -p local7.1
+
+* Configure rsyslog in remote host: /etc/rsyslog.conf
+*.*                             @LOCALHOSTIP
+
+* In a local OSSIM ossim host: 
+
+mkdir -p /var/ossim/kismet/work
+mkdir -p /var/ossim/kismet/parsed
+
+* Create /etc/cron.hourly/kismet adding: 
+
+#!/bin/bash
+/usr/bin/perl /usr/share/ossim/www/wireless/fetch_kismet.pl
+
+* Remote host need ssh root public key into authorized_host: 
+In local host:
+ssh-keygen -t rsa
+scp id_rsa.pub REMOTE_IP:/root
+ssh REMOTE_IP
+cat id_rsa.pub >> .ssh/authorized_keys
+
+* Edit /usr/share/ossim/www/wireless/fetch_kismet.pl and edit %site hash:
+$sites{'REMOTE_IP'}='/var/log/kismet';  # Kismet log files location path
+
+* Launch /etc/cron.daily/kismet and then go to
+SIEM->Detection->Wireless IDS and configure a Location adding available
+kismet sensors.
+

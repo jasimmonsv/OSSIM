@@ -112,7 +112,6 @@ if ($action=="del_sensor" && $location!=""  && $sensor!="") {
   </script>
 </head>
 <body>
-<? include("../hmenu.php"); ?>
 
 <table id="data" align="center" width="80%">
 <tr><td colspan=3 style='text-align:left'>

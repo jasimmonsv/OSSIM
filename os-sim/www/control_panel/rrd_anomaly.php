@@ -172,8 +172,8 @@ anomaly_time desc", "0", $count)) {
 <td align="center" colspan="7" class="noborder">
 <input class="button" type="submit" value=" <?php
 echo gettext("OK"); ?> ">
-<input class="button" type="reset" value=" <?php
-echo gettext("reset"); ?> ">
+<?php/*<input class="button" type="reset" value=" <?php
+echo gettext("reset"); ?> ">*/?>
 </td>
 </tr>
 </form>

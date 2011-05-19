@@ -159,12 +159,16 @@ class Incident_ticket {
             'description' => array(
 				OSS_TEXT, 
 				OSS_PUNC_EXT,
+				'>',
+				'<',
                 'error:' . _("Description required")
             ) ,
             'action' => array(
                 OSS_NULLABLE, 
 				OSS_TEXT, 
-				OSS_PUNC_EXT
+				OSS_PUNC_EXT,
+				'>',
+				'<',
             ) ,
             'transferred' => array(
                 OSS_NULLABLE,
@@ -179,7 +183,11 @@ class Incident_ticket {
                 'error:' . _("Invalid TAG ID")
             ) ,
         );
-        ossim_valid($incident_id, $vals['incident_id']);
+		
+		$description = strip_tags($description,'<span><div><p><ol><ul><li><hr><br>');
+		$action      = strip_tags($action,'<span><div><p><ol><ul><li><br>');
+		
+		ossim_valid($incident_id, $vals['incident_id']);
         ossim_valid($status, $vals['status']);
         ossim_valid($priority, $vals['priority']);
         ossim_valid($user, $vals['user']);

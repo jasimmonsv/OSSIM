@@ -213,7 +213,7 @@ $cnf_message = "<div id='cnf_load'><img src='images/loading.gif' border='0' alig
 
 <body>
 
-<?php include ("../hmenu.php"); ?>
+<?php if (GET('nohmenu') == "") { include ("../hmenu.php"); } ?>
 
 	<div id='container_center'>
 	

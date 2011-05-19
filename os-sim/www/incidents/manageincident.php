@@ -63,7 +63,7 @@ function die_error($msg = null, $append = null)
 		echo ossim_error();
 		echo '<table class="noborder transparent" align="center">
 				<tr>
-					<td class="nobborder"><input type="button" value="' . _("Back") . '" class="button" onclick="history.back()"/></td>
+					<td class="nobborder"><input type="button" value="' . _("Back") . '" class="button" onclick="javascript:history.back()"/></td>
 				</tr>
 			  </table>';
 		echo $append;

@@ -587,7 +587,7 @@ function go() {
 <table border=0 cellpadding=0 cellspacing=0 width="120" class="nobborder">
 <tr><td class="nobborder" nowrap>
 <form id="filter" name="filter" style="margin:0 auto">
-	<input type="button" value="reset" onclick="rst()" class="button" style="font-size:12px"><br><br>
+	<?php /*<input type="button" value="reset" onclick="rst()" class="button" style="font-size:12px"><br><br>*/?>
 	<?php
     if ($from_snort == false) { ?>
 	<b>Risk filter:</b><br>

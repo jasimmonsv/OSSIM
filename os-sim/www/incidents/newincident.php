@@ -397,7 +397,6 @@ else
 
 <form id='crt' method="POST" action="manageincident.php" enctype="multipart/form-data">
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />
-<input type="hidden" name="edit" value="<?php echo $edit ?>" />
 <input type="hidden" name="ref" value="<?php echo $ref ?>" />
 <input type="hidden" name="incident_id" value="<?php echo $incident_id ?>" />
 <input type="hidden" name="submitter" value="<?php echo $submitter ?>" />

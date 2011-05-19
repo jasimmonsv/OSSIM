@@ -36,35 +36,22 @@
 */
 require_once ('classes/Session.inc');
 Session::logcheck("MenuIntelligence", "CorrelationCrossCorrelation");
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-<head>
-  <title> <?php
-echo gettext("Plugin reference"); ?> </title>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-</head>
-<body>
 
-<?php
-include ("../hmenu.php");
 require_once 'ossim_db.inc';
 require_once 'classes/Security.inc';
-$plugin_id1 = GET('id');
-$plugin_id2 = GET('sid');
+$plugin_id1  = GET('id');
+$plugin_id2  = GET('sid');
 $plugin_sid1 = GET('ref_id');
 $plugin_sid2 = GET('ref_sid');
-ossim_valid($plugin_id1, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("plugin_id1"));
-ossim_valid($plugin_id2, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("plugin_id2"));
-ossim_valid($plugin_sid1, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("plugin_sid1"));
-ossim_valid($plugin_sid2, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("plugin_sid2"));
+ossim_valid($plugin_id1, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Plugin_id1"));
+ossim_valid($plugin_id2, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Plugin_id2"));
+ossim_valid($plugin_sid1, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Plugin_sid1"));
+ossim_valid($plugin_sid2, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Plugin_sid2"));
+
 if (ossim_error()) {
     die(ossim_error());
 }
-$db = new ossim_db();
+$db  = new ossim_db();
 $conn = $db->connect();
 
 require_once 'classes/Plugin_reference.inc';
@@ -72,29 +59,46 @@ require_once 'classes/Plugin.inc';
 require_once 'classes/Plugin_sid.inc';
 
 ?>
-<table align="center">
-<?php
-$message = _("Can't delete reference");
-if ($plugin_id1!="" && $plugin_id2!="" && $plugin_sid1!="" && $plugin_sid2!="") {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title> <?php echo gettext("Plugin reference"); ?> </title>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+    <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			setTimeout("document.location = 'pluginref.php'",2000);
+		});
+	</script>
+	<style type='text/css'>
+		#message {
+			width: 60%;
+			margin: 10px auto;
+		}
+		
+		.ossim_error, .ossim_success { width: auto; text-align: center;}
+	</style>
+	
+</head>
+<body>
+
+<?php include ("../hmenu.php"); 
+
+
+$message = "<div class='ossim_error'>"._("Can't delete reference")."</div>";
+
+if ( $plugin_id1!="" && $plugin_id2!="" && $plugin_sid1!="" && $plugin_sid2!="" ) 
+{
 	$error = Plugin_reference::delete_rule($conn,$plugin_id1,$plugin_sid1,$plugin_id2,$plugin_sid2);
-	$message = ($error) ? _("Can't delete reference (not found)") : _("Reference deleted");
+	$message = ( $error ) ? "<div class='ossim_error'>"._("Can't delete reference (not found)")."</div>" : "<div class='ossim_success'>"._("Reference deleted")."</div>";
 }
 ?>
-
-	<tr><td class="nobborder" colspan=2 id="message" class="nobborder" style="text-align:center">
-	<?=$message?>
-	</td></tr>
+	<div id='message'><?php echo $message?></div>
 	
-</table>
-
 </body>
 
-<?php
-$db->close($conn);
-?>
-<script type="text/javascript">
-$(document).ready(function(){
-	setTimeout("document.location = 'pluginref2.php'",1000);
-});
+<?php $db->close($conn); ?>
+
 </script>
 </html>

@@ -70,13 +70,12 @@
 /***********************************************************/
 
 require_once('ossim_conf.inc');
-require_once ('classes/Session.inc');
-
-ini_set('memory_limit', '1500M');
-ini_set("max_execution_time","720");
+require_once('classes/Session.inc');
+require_once('classes/Util.inc');
 
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
-
+ini_set('memory_limit', '1500M');
+ini_set("max_execution_time","720");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -632,6 +631,8 @@ function reportsummary( ){   //GENERATE REPORT SUMMARY
    global $user, $border, $report_id, $scantime, $scantype, $fp, $nfp, $output, $filterip, $query_risk, $dbconn, $pluginid;
    global $treport, $sid, $ipl;
    
+   $tz = Util::get_timezone();
+   
    $htmlsummary = "";
    
    if($treport=="latest" || $ipl!="")
@@ -673,10 +674,15 @@ function reportsummary( ){   //GENERATE REPORT SUMMARY
            $job_name = $result_imported_report->fields["name"];
         }
    }
-
+    if($tz==0) {
+        $localtime = gen_strtotime($scantime,"");
+    }
+    else {
+        $localtime = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn,$scantime)+3600*$tz);
+    }
     $htmlsummary .= "<table border=\"5\" width=\"900\"><tr><th class=\"noborder\" valign=\"top\" style=\"text-align:left;font-size:12px;\" nowrap>
          
-         <b>"._("Scan time").":</b></th><td class=\"noborder\" style=\"text-align:left;padding-left:10px;\">". gen_strtotime($scantime,"")."&nbsp;&nbsp;&nbsp;</td>";
+         <b>"._("Scan time").":</b></th><td class=\"noborder\" style=\"text-align:left;padding-left:10px;\">". $localtime ."&nbsp;&nbsp;&nbsp;</td>";
 
     //Generated date
     $gendate = date("Y-m-d H:i:s");

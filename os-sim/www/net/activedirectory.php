@@ -49,29 +49,15 @@ $layout       = load_layout($name_layout, $category);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title> <?php echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta http-equiv="Pragma" content="no-cache"/>
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
-  <script type="text/javascript" src="../js/urlencode.js"></script>
-	
-</head>
-<body>
-
-<?php
-$db = new ossim_db();
-$dbconn = $db->connect();
-
-include ("../hmenu.php");
-?>
-	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
-	
-	<table id="flextable" style="display:none"></table>
-
-	<style>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<link rel="stylesheet" type="text/css" href="../style/flexigrid.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.flexigrid.js"></script>
+	<script type="text/javascript" src="../js/urlencode.js"></script>
+	<style type='text/css'>
 		table, th, tr, td {
 			background:transparent;
 			border-radius: 0px;
@@ -89,6 +75,18 @@ include ("../hmenu.php");
 			padding:0px; margin:0px;
 		}
 	</style>
+</head>
+<body>
+
+<?php
+$db     = new ossim_db();
+$dbconn = $db->connect();
+
+include ("../hmenu.php");
+?>
+	<div  id="headerh1" style="width:100%;height:1px">&nbsp;</div>
+	
+	<table id="flextable" style="display:none"></table>
 	
 	<script type='text/javascript'>
 		function get_width(id) {
@@ -205,7 +203,7 @@ include ("../hmenu.php");
 		pagestat: '<?php echo _("Displaying {from} to {to} of {total} Active directories")?>',
 		nomsg: '<?php echo _("No Active directories")?>',
 		useRp: true,
-		rp: 25,
+		rp: 20,
 		//contextMenu: 'myMenu',
 		showTableToggleBtn: true,
 		singleSelect: true,

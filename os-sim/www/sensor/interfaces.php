@@ -295,7 +295,7 @@ elseif(GET('update')== _("Update"))
 {
     Sensor::set_properties($conn,$sensor,$has_nagios,$has_ntop,$has_vuln_scanner,$has_kismet);
     //if (trim($local_ip)!=$sensor)
-    Sensor::update_vuln_nessus_servers($conn, $sensor, $vuln_user, $vuln_pass, $vuln_port, $vuln_max_scans, $has_vuln_scanner);
+    Sensor::update_vuln_nessus_servers($conn, $sensor, $name, $vuln_user, $vuln_pass, $vuln_port, $vuln_max_scans, $has_vuln_scanner);
 }
 
 $properties = array();

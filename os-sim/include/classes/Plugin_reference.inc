@@ -50,11 +50,12 @@ class Plugin_reference {
     var $plugin_sid;
     var $reference_id;
     var $reference_sid;
-    function Plugin_reference($plugin_id, $plugin_sid, $reference_id, $reference_sid) {
-        $this->plugin_id = $plugin_id;
-        $this->plugin_sid = $plugin_sid;
-        $this->reference_id = $reference_id;
+    function Plugin_reference($plugin_id, $plugin_sid, $reference_id, $reference_sid,  $foundrows=0) {
+        $this->plugin_id     = $plugin_id;
+        $this->plugin_sid    = $plugin_sid;
+        $this->reference_id  = $reference_id;
         $this->reference_sid = $reference_sid;
+		$this->foundrows     = $foundrows;
     }
     function get_plugin_id() {
         return $this->plugin_id;
@@ -68,6 +69,11 @@ class Plugin_reference {
     function get_reference_sid() {
         return $this->reference_sid;
     }
+	
+	function get_foundrows() {
+        return $this->foundrows;
+    }
+	
     function get_count($conn) {
         $sql = "SELECT count(*) FROM plugin_reference";
         if (!$rs = & $conn->Execute($sql)) {
@@ -78,35 +84,74 @@ class Plugin_reference {
     }
     function get_list($conn, $args = "", $inf = 0, $sup = 25) {
         $i = 0;
-        $query = OssimQuery("SELECT * FROM plugin_reference $args");
-        if (!$rs = & $conn->Execute($query)) {
+		$iffoundrows = preg_match("/LIMIT/i", $args) ? true : false;
+        $cfrows      = ( $iffoundrows ) ? "SQL_CALC_FOUND_ROWS " : "";
+		$query       = OssimQuery("SELECT $cfrows * FROM plugin_reference $args");
+        
+		$list        = array();
+		
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
-        } else {
-            $list = array();
-            while (!$rs->EOF) {
-                if (($i++ >= $inf) && ($inf++ <= $sup)) {
-                    $list[] = new Plugin_reference($rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["reference_id"], $rs->fields["reference_sid"]);
-                } elseif ($inf > $sup) {
+        } 
+		else 
+		{
+            $foundrows = 0;
+			
+			if ($iffoundrows) 
+			{
+                if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) 
+					print $conn->ErrorMsg();
+                else 
+					$foundrows = $rf->fields["total"];
+            }			
+			
+            while (!$rs->EOF) 
+			{
+                if ( ($i++ >= $inf) && ($inf++ <= $sup) ) 
+				{
+                    $list[] = new Plugin_reference($rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["reference_id"], $rs->fields["reference_sid"],  $foundrows);
+                } 
+				elseif ($inf > $sup) 
+				{
                     break;
                 }
                 $rs->MoveNext();
             }
         }
+		
         return $list;
     }
+	
+	
 	function get_list2($conn, $args = "") {
-		$query = OssimQuery("SELECT plugin_reference.plugin_id,plugin_reference.plugin_sid,plugin_reference.reference_id,plugin_reference.reference_sid FROM plugin_reference $args");
+		
+		$iffoundrows = preg_match("/LIMIT/i", $args) ? true : false;
+        $cfrows      = ( $iffoundrows ) ? "SQL_CALC_FOUND_ROWS " : "";
+		$query       = OssimQuery("SELECT $cfrows plugin_reference.plugin_id,plugin_reference.plugin_sid,plugin_reference.reference_id,plugin_reference.reference_sid FROM plugin_reference $args");
+		
 		$list = array();
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
-        } else {
+        } 
+		else 
+		{	
+			$foundrows = 0;
+			if ($iffoundrows) 
+			{
+                if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) 
+					print $conn->ErrorMsg();
+                else 
+					$foundrows = $rf->fields["total"];
+            }
+		
             while (!$rs->EOF) {
-                $list[] = new Plugin_reference($rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["reference_id"], $rs->fields["reference_sid"]);
+                $list[] = new Plugin_reference($rs->fields["plugin_id"], $rs->fields["plugin_sid"], $rs->fields["reference_id"], $rs->fields["reference_sid"], $foundrows);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
+			
 	function new_rule($conn, $plugin_id1, $plugin_id2, $plugin_sid1, $plugin_sid2) {
 		$query = OssimQuery("INSERT INTO plugin_reference (plugin_id,plugin_sid,reference_id,reference_sid) VALUES ($plugin_id1,$plugin_sid1,$plugin_id2,$plugin_sid2)");
         if (!$rs = & $conn->Execute($query)) {

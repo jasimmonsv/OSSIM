@@ -44,13 +44,16 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 Session::logcheck("MenuIntelligence", "PolicyActions");
 require_once 'ossim_db.inc';
 require_once ('classes/Action.inc');
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
+
 $order = GET('sortname');
-if (empty($order)) $order = POST('sortname');
+
+if (empty($order))  $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
+
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, 'illegal:' . _("rp"));
@@ -60,18 +63,25 @@ if (ossim_error()) {
 if (empty($order)) $order = "descr";
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db = new ossim_db();
-$conn = $db->connect();
-$xml = "";
-if (is_array($action_list = Action::get_list($conn, "ORDER BY $order $limit"))) {
-    if ($action_list[0]) {
+$db    = new ossim_db();
+$conn  = $db->connect();
+$xml   = "";
+
+if (is_array($action_list = Action::get_list($conn, "ORDER BY $order $limit"))) 
+{
+    if ($action_list[0]) 
+	{
         $total = $action_list[0]->get_foundrows();
         if ($total == 0) $total = count($action_list);
-    } else $total = 0;
+    } 
+	else 
+		$total = 0;
+		
     $xml.= "<rows>\n";
     $xml.= "<page>$page</page>\n";
     $xml.= "<total>$total</total>\n";
-    foreach($action_list as $action) {
+    foreach($action_list as $action) 
+	{
         $xml.= "<row id='" . $action->get_id() . "'>";
         $desc = $action->get_descr();
         if ($desc == "") $desc = "&nbsp;";
@@ -84,5 +94,3 @@ if (is_array($action_list = Action::get_list($conn, "ORDER BY $order $limit"))) 
 echo $xml;
 $db->close($conn);
 ?>
-
-

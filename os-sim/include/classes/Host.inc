@@ -358,13 +358,14 @@ class Host {
         );
         if ($icon!="") $params[]=$icon;
 		
-		if ($conn->Execute($sql, $params) === false) {
+		if ($conn->Execute($sql, $params) === false) 
+		{
             print 'Error inserting host: ' . $conn->ErrorMsg() . '<br/>';
             exit;
-        } else {
-            Host_sensor_reference::insert($conn, $ip, $sensors);
         }
-		
+		else 
+            Host_sensor_reference::insert($conn, $ip, $sensors);
+    			
         require_once 'classes/Sensor.inc';
         $sensor_list = Sensor::get_list($conn);
         if (is_array($sensor_list)) {
@@ -387,6 +388,7 @@ class Host {
                     intval(date("O"))/100
                 );
 				$conn->Execute($sql, $params);
+				
             }
             if ($mac != "") {
                 //$sql = "INSERT INTO host_mac (ip, mac, date, vendor, anom, sensor) 

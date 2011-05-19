@@ -1,1 +1,2 @@
+#!/bin/sh
 /usr/bin/php /usr/share/ossim/scripts/incidents/check_tickets.php

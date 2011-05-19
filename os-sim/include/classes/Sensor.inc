@@ -56,7 +56,6 @@
 */
 require_once 'classes/Net_sensor_reference.inc';
 require_once 'classes/Host_sensor_reference.inc';
-require_once 'classes/Sensor.inc';
 require_once 'classes/Session.inc';
 require_once 'classes/Net.inc';
 require_once 'classes/Log_action.inc';
@@ -145,6 +144,21 @@ class Sensor {
         }
         return $result;
     }
+    function get_load($conn, $sensor) {
+        $result = "";
+        $query = OssimQuery("SELECT ( current_scans / max_scans ) FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
+        if (!$rs = & $conn->Execute($query)) {
+            die($conn->ErrorMsg());
+        } 
+        else {
+            if ((!$rs->EOF) && ($rs->fields[0]!="")) {
+                $result = round($rs->fields[0]*100,1)."%";
+            } else {
+            	$result = "N/A";
+	    	}
+        }
+        return $result;
+    }    
     function get_vuln_scanner_options($conn, $sensor) {
         $result = array();
         $query = OssimQuery("SELECT port, user, PASSWORD, max_scans FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
@@ -160,9 +174,8 @@ class Sensor {
         return $result;
     }
     
-    function update_vuln_nessus_servers($conn, $sensor, $user, $password, $port, $vuln_max_scans, $enabled) {
-        $query = "UPDATE vuln_nessus_servers SET user='$user', PASSWORD='$password', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0
-                          WHERE hostname='$sensor'";
+    function update_vuln_nessus_servers($conn, $sensor, $name, $user, $password, $port, $vuln_max_scans, $enabled) {
+        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD='$password', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         }
@@ -177,16 +190,16 @@ class Sensor {
         } 
         else {
             if ($rs->fields["id"]=="") {
-                $conf  = $GLOBALS["CONF"];
+	            $conf  = $GLOBALS["CONF"];
 				$port  = intval($conf->get_conf("nessus_port", FALSE));
 				$query = OssimQuery("INSERT INTO vuln_nessus_servers (name , description, hostname ,
                                         port, user, PASSWORD, server_nversion, server_feedtype, server_feedversion,
                                         max_scans, current_scans, TYPE, site_code, owner, checkin_time, status , enabled)
                                         VALUES (
                                         '$name', 'RemoteHost', '$sensor', '$port', '', '', '2.2.10', 'GPL only', '200704181215', '5', '0', 'R', '', 'admin', NULL , 'A', '$enabled')");
-            }
-            if (!$rs = & $conn->Execute($query)) {
-                print $conn->ErrorMsg();
+	            if (!$rs = & $conn->Execute($query)) {
+	                print $conn->ErrorMsg();
+	            }
             }
         }
     }
@@ -406,9 +419,9 @@ class Sensor {
         ))) {
             die($conn->ErrorMsg());
         }
-        $sql = "DELETE FROM vuln_nessus_servers WHERE name = ?";
+        $sql = "DELETE FROM vuln_nessus_servers WHERE hostname = ?";
         if (!$conn->Execute($sql, array(
-            $name
+            $ip
         ))) {
             die($conn->ErrorMsg());
         }
@@ -492,6 +505,22 @@ class Sensor {
         }
         
         return $sensor_ip;
+    }
+    function reorder_sensors($conn,$arr) {
+		$sensors = array();
+        $sql = "SELECT name,hostname FROM vuln_nessus_servers WHERE enabled=1 order by ( current_scans / max_scans ) asc";
+        if (!$rs = $conn->Execute($sql)) {
+            die($conn->ErrorMsg());
+        }
+        while (!$rs->EOF) {
+            $ip = $rs->fields["hostname"];
+            if (in_array($ip,$arr)) {
+            	$sensors[] = $ip;
+            }
+            $rs->MoveNext();
+        }    	
+        foreach ($arr as $ip) if (!in_array($ip,$sensors)) $sensors[] = $ip;
+        return $sensors;
     }
     /*
     * Given a host ip, return its main sensor's interface.

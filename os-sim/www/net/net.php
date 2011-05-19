@@ -258,7 +258,7 @@ echo gettext("OSSIM Framework"); ?> </title>
         
 
 	function save_layout(clayout) {
-		$("#flextable").changeStatus('<?=_("Saving column layout")?>...',false);
+		$("#flextable").changeStatus('<?php echo _("Saving column layout")?>...',false);
 		$.ajax({
 				type: "POST",
 				url: "../conf/layout.php",

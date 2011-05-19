@@ -31,6 +31,7 @@
 ****************************************************************************/
 
 require_once ('classes/Session.inc');
+require_once ('classes/Util.inc');
 
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
 
@@ -373,6 +374,7 @@ function set_status ( $schedid, $enabled ) {
 function main_page ( $viewall, $sortby, $sortdir ) {
     global $uroles, $username, $dbconn, $hosts;
     global $arruser, $user;
+    $tz = Util::get_timezone();
 
     if ($sortby == "" ) { $sortby = "id"; }
     if ($sortdir == "" ) { $sortdir = "DESC"; }
@@ -508,10 +510,17 @@ else {
 EOT;
     if ($profile=="") $profile=_("Default");
     echo "<td><a style=\"text-decoration:none;\" href=\"javascript:;\" txt=\"<b>"._("Owner").":</b> $user<br><b>"._("Scheduled Job ID").":</b> $schedid<br><b>"._("Profile").":</b> $profile<br><b>"._("Targets").":</b><br>".tooltip_hosts($targets,$hosts)."\" class=\"scriptinfo\">$schedname</a></td>";
-       echo <<<EOT
-    <td>$stt</td>
-    <td>$time</td>
-    <td>$nextscan</td>
+?>
+    <td><?php echo $stt ?></td>
+    <td><?php echo $time ?></td>
+    <?php
+        if($tz!=0) {
+            $nextscan = gmdate("Y-m-d H:i:s",Util::get_utc_unixtime($dbconn, $nextscan)+(3600*$tz));
+        }
+    ?>
+    <td><?php echo $nextscan ?></td>
+<?php
+    echo <<<EOT
     $txt_enabled
     <td style="padding-top:2px;"><a href="$ilink"><img alt="$itext" src="$isrc" border=0 title="$itext"></a>&nbsp;
 EOT;

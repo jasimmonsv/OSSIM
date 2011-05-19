@@ -66,29 +66,27 @@ if ( !empty($search) )
 
 
 $field = POST('qtype');
-$page  = POST('page');
 
-if (empty($page)) 
-	$page = 1;
 
-$rp = (!empty($rp)) ? POST('rp') : 25;	
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
 	
-$lsearch = $search;
-
 if (!empty($search))
-
-// The CIDR validation is not working...
-if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\/(3[0-2]|[1-2][0-9]|[0-9])\s*$/", $search)) 
 {
-    $ip_range = CIDR::expand_CIDR($search, "SHORT", "IP");
-    ossim_valid($ip_range[0], OSS_IP_ADDR, 'illegal:' . _("search cidr"));
-    ossim_valid($ip_range[1], OSS_IP_ADDR, 'illegal:' . _("search cidr"));
-} 
-else 
-{
-    if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\s*$/", $search)) $by_ip = true;
-    else ossim_valid($search, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_DOT, OSS_DIGIT, 'illegal:' . _("search"));
+	// The CIDR validation is not working...
+	if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\/(3[0-2]|[1-2][0-9]|[0-9])\s*$/", $search)) 
+	{
+		$ip_range = CIDR::expand_CIDR($search, "SHORT", "IP");
+		ossim_valid($ip_range[0], OSS_IP_ADDR, 'illegal:' . _("search cidr"));
+		ossim_valid($ip_range[1], OSS_IP_ADDR, 'illegal:' . _("search cidr"));
+	} 
+	else 
+	{
+		if (preg_match("/^\s*([0-9]{1,3}\.){3}[0-9]{1,3}\s*$/", $search)) $by_ip = true;
+		else ossim_valid($search, OSS_NULLABLE, OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_DOT, OSS_DIGIT, 'illegal:' . _("search"));
+	}
 }
+
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
 ossim_valid($rp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("rp"));
 ossim_valid($field, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("field"));
@@ -107,11 +105,13 @@ elseif (!empty($search)) $search = "WHERE ip like '%$search%' OR hostname like '
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
 
+
 $db   = new ossim_db();
 $conn = $db->connect();
 $xml  = "";
 
-$host_list = Host::get_list($conn, "$search", "ORDER BY $order $limit");
+
+$host_list = Host::get_list($conn, $search, "ORDER BY $order $limit");
 
 if ($host_list[0]) 
 {

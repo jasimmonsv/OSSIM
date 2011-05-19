@@ -47,10 +47,10 @@ require_once 'ossim_conf.inc';
 require_once 'classes/Databases.inc';
 require_once 'classes/Security.inc';
 require_once 'classes/Util.inc';
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
+
 $order = GET('sortname');
 if (empty($order)) $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";

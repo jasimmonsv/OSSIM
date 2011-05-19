@@ -60,13 +60,9 @@ if (empty($search))
 	$search = POST('query');
 	
 $field = POST('qtype');
-$page  = POST('page');
 
-if (empty($page)) 
-	$page = 1;
-	
-$rp = (!empty($rp)) ? POST('rp') : 25;
-
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
 
 if ( !empty($search) )
 	$search = (mb_detect_encoding($search." ",'UTF-8,ISO-8859-1') == 'UTF-8') ? Util::utf8entities($search) : $search;

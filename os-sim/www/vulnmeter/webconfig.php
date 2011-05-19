@@ -37,6 +37,7 @@
 ob_implicit_flush(true);
 require_once ('classes/Session.inc');
 Session::logcheck("MenuEvents", "EventsVulnerabilities");
+$nohmenu = (POST('nohmenu') != "") ? 1 : (GET('nohmenu') != "") ? 1 : 0;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -72,7 +73,7 @@ echo gettext("Vulnmeter"); ?> </title>
 
 <body>
 <?php
-include ("../hmenu.php");
+if (!$nohmenu) { include ("../hmenu.php"); }
 
 $pageTitle = "Settings";
 
@@ -220,6 +221,7 @@ if (!$uroles['admin']) {
    }
    echo "<div>";
    echo "<form method='post' action='" . $_SERVER['SCRIPT_NAME'] . "'>";
+   echo "<input type='hidden' name='nohmenu' value='$nohmenu'>";
    echo "<input type='hidden' name='op' value='save'>";
    echo "<p>" . $settingTabs . "</p>\n";
    echo $settingContent;

@@ -278,8 +278,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
         $unique_tcp_port_cnt = UniqueTCPPortCnt($db, $join, $where);
         $unique_udp_port_cnt = UniqueUDPPortCnt($db, $join, $where);
     }
-    if ($db->baseGetDBversion() >= 103) {
-        /* mstone 20050309 this is an expensive calculation -- let's only do it if we're going to use it */
+    /*if ($db->baseGetDBversion() >= 103) {
         if ($show_stats == 1) {
             $result = $db->baseExecute("SELECT categories FROM event_stats ORDER BY timestamp DESC LIMIT 1");
             $myrow = $result->baseFetchRow();
@@ -289,7 +288,7 @@ function PrintGeneralStats($db, $compact, $show_stats, $join = "", $where = "", 
         $class_cnt_info[0] = " <strong>" . gettext("Categories:") . " </strong>";
         $class_cnt_info[1] = "<a style='color:black;font-weight:bold' href=\"base_stat_class.php?sort_order=class_a\">";
         $class_cnt_info[2] = "</a><a style='color:black;font-weight:bold' href=\"base_stat_class_graph.php?sort_order=class_a\"> <img src=\"images/ico_graph.gif\" align=\"absmiddle\" border=0></a>";
-    }
+    }*/
     $sensor_cnt_info[0] = "<strong>" . gettext("Sensors/Total:") . "</strong>\n";
     $sensor_cnt_info[1] = "<a style='color:black;font-weight:bold' href=\"base_stat_sensor.php?sort_order=occur_d\">";
     $sensor_cnt_info[2] = "</a>";

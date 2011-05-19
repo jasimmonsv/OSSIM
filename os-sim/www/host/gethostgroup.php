@@ -62,11 +62,8 @@ if ( !empty($search) )
 	
 $field = POST('qtype');
 
-$page = POST('page');
-if (empty($page)) $page = 1;
-
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;	
 
 $nagios_action   = GET('nagios_action');
 $nessus_action   = GET('nessus_action');

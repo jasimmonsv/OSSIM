@@ -51,12 +51,12 @@ require_once 'get_sensor_plugins.php';
 require_once 'get_sensors.php';
 require_once 'classes/WebIndicator.inc';
 require_once 'classes/Util.inc';
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
+
 $order = POST('sortname');
-if (empty($order)) $order = GET('sortname');
+if (empty($order))  $order = GET('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, 'illegal:' . _("page"));

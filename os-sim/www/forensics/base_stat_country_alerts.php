@@ -73,7 +73,7 @@ while ($myrow = $result->baseFetchRow()) {
             $country = strtolower(geoip_country_code_by_addr($gi, $currentIP));
             $country_name = geoip_country_name_by_addr($gi, $currentIP);
         }
-        if ($country == "" && !(Net::is_ip_in_cache_cidr($_conn, $currentIP) || in_array($currentIP, $hosts_ips))) $country = 'unknown';
+        if ($country == "" && !(in_array($currentIP, $hosts_ips) || Net::is_ip_in_cache_cidr($_conn, $currentIP))) $country = 'unknown';
         if ($country == $cc) {
         	if ($ip_type=='S') $country_src[] = $currentIP;
         	else $country_dst[] = $currentIP;

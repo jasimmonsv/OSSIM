@@ -47,12 +47,11 @@ require_once 'ossim_conf.inc';
 require_once 'classes/Compliance.inc';
 require_once 'classes/Security.inc';
 
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
+
 $order = GET('sortname');
-if (empty($order)) $order = POST('sortname');
+if (empty($order))  $order = POST('sortname');
 if (!empty($order)) $order.= (POST('sortorder') == "asc") ? "" : " desc";
 ossim_valid($order, OSS_ALPHA, OSS_SPACE, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("order"));
 ossim_valid($page, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("page"));
@@ -62,10 +61,11 @@ if (ossim_error()) {
 }
 if (empty($order)) $order = "sid";
 //if ($order == "ip") $order = "INET_ATON(ip)"; // Numeric ORDER for IP
+
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db = new ossim_db();
-$conn = $db->connect();
+$db    = new ossim_db();
+$conn  = $db->connect();
 
 $xml = "";
 list ($category_list, $total) = Compliance::get_category($conn,"","ORDER BY $order $limit");

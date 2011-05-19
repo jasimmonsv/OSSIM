@@ -72,6 +72,7 @@
 require_once('config.php');
 require_once('functions.inc');
 require_once('classes/Session.inc');
+require_once('classes/Util.inc');
 require_once('ossim_conf.inc');
 
 ini_set('memory_limit', '1500M');
@@ -249,12 +250,21 @@ if ($numofresults<1) {
     die(_("No vulnerabilities recorded"));
 }
 
-$scanyear = substr($scantime, 0, 4);
-$scanmonth = substr($scantime, 4, 2);
-$scanday = substr($scantime, 6, 2);
-$scanhour = substr($scantime, 8, 2);
-$scanmin = substr($scantime, 10, 2);
-$scansec = substr($scantime, 12);
+$tz = Util::get_timezone();
+
+if($tz==0) {
+    $localtime = $scantime;
+}
+else {
+    $localtime = gmdate("YmdHis",Util::get_utc_unixtime($dbconn,$scantime)+3600*$tz);
+}
+
+$scanyear  = substr($localtime, 0, 4);
+$scanmonth = substr($localtime, 4, 2);
+$scanday   = substr($localtime, 6, 2);
+$scanhour  = substr($localtime, 8, 2);
+$scanmin   = substr($localtime, 10, 2);
+$scansec   = substr($localtime, 12);
 
     if ($treport!="" || $ipl!="") {
         $query = "SELECT t1.username, t1.name, t2.name, t2.description, t4.hostname as host_name 

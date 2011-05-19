@@ -46,12 +46,12 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 require_once 'ossim_db.inc';
 require_once 'classes/ActiveDirectory.inc';
 require_once 'classes/Security.inc';
-$page = POST('page');
-if (empty($page)) $page = 1;
-$rp = POST('rp');
-if (empty($rp)) $rp = 25;
-$order = GET('sortname');
-$field = ((POST('qtype')!="")? POST('qtype'):GET('qtype'));
+
+$page = ( !empty($_POST['page']) ) ? POST('page') : 1;
+$rp   = ( !empty($_POST['rp'])   ) ? POST('rp')   : 20;
+
+$order  = GET('sortname');
+$field  = ((POST('qtype')!="")? POST('qtype'):GET('qtype'));
 $search = GET('query');
 if (empty($search)) $search = POST('query');
 if (empty($order)) $order = POST('sortname');
@@ -72,9 +72,10 @@ if (ossim_error()) {
 if (empty($order)) $order = "ip";
 $start = (($page - 1) * $rp);
 $limit = "LIMIT $start, $rp";
-$db = new ossim_db();
-$conn = $db->connect();
-$xml = "";
+$db    = new ossim_db();
+$conn  = $db->connect();
+$xml   = "";
+
 $ad_list = ActiveDirectory::get_list($conn, "$filter ORDER BY $order $limit");
 if ($ad_list[0]) {
     $total = $ad_list[0]->get_foundrows();

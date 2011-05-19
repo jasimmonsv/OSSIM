@@ -101,6 +101,7 @@ function getPluginType($plugin_id) {
     global $conn;
     if ($plugin_id != '') {
         $plugins = Plugin::get_list($conn, 'WHERE id = ' . $plugin_id);
+        if (count($plugins) < 1) return "unknown";
         if ($plugins[0]->get_type() == '1') return 'detector';
         elseif ($plugins[0]->get_type() == '2') return 'monitor';
         return 'other';

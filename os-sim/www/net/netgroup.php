@@ -284,7 +284,7 @@ echo "$colModel\n";
 		nomsg: '<?=_("No network groups")?>',
 		useRp: true,
 		rp: 20,
-                contextMenu: 'myMenu',
+        contextMenu: 'myMenu',
 		onContextMenuClick: menu_action,
 		showTableToggleBtn: true,
 		singleSelect: true,

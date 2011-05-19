@@ -38,6 +38,7 @@
 */
 $start = time();
 require ("base_conf.php");
+include ("vars_session.php");
 include_once ("$BASE_path/includes/base_auth.inc.php");
 include_once ("$BASE_path/includes/base_db.inc.php");
 include_once ("$BASE_path/includes/base_output_html.inc.php");
@@ -97,8 +98,7 @@ function DBLink() {
 }
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
-<!-- <?php
-echo gettext("Forensics Console " . $BASE_installID) . $BASE_VERSION; ?> -->
+<!-- <?php echo gettext("Statistical Overview"); ?> -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php
@@ -112,8 +112,8 @@ echo ('<title>' . gettext("Forensics Console " . $BASE_installID) . $BASE_VERSIO
 ?>
 </head>
 <body>
-  <div class="header">&nbsp;<?php //class ="mainheadertitle"
-echo gettext("Forensics Console " . $BASE_installID) . $archiveDisplay; ?></div>
+<?php include("../hmenu.php"); ?>
+  <div class="header">&nbsp;<?php echo gettext("Statistical Overview"); ?></div>
 <?php
 if ($debug_mode == 1) {
     PrintPageHeader();
