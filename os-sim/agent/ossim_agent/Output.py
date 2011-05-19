@@ -35,7 +35,10 @@ import os
 import re
 import string
 import sys
-
+import threading
+import Queue
+import pickle
+import time
 #
 # LOCAL IMPORTS
 #
@@ -49,6 +52,138 @@ from Logger import Logger
 #
 logger = Logger.logger
 
+
+SIZE_TO_WARNING = 5
+
+
+PATH_TO_STORE_EVENTS = "/var/ossim/agent_events/"
+class StoredEvent:
+    '''
+        Represents a stored Event. 
+    '''
+    def __init__(self, e, priority):
+        self.__event = e
+        self.__priority = priority
+        self.__isSend = False
+
+    def get_event(self):
+        return self.__event
+
+
+    def get_is_send(self):
+        return self.__isSend
+
+
+    def set_event(self, value):
+        self.__event = value
+
+
+    def set_is_send(self, value):
+        self.__isSend = value
+
+
+    def del_event(self):
+        del self.__event
+
+
+    def del_is_send(self):
+        del self.__isSend
+
+    def get_priority(self):
+        return self.__priority
+
+
+    event = property(get_event, set_event, del_event, "event's docstring")
+    isSend = property(get_is_send, set_is_send, del_is_send, "isSend's docstring")
+
+
+class storedEventSenderThread(threading.Thread):
+    '''
+        Thread to send stored events to the server.
+    '''
+    def __init__(self, queue, sendFunctionPtr, sendEvents_event, filename):
+        '''
+        Constructor:
+        queue (Queue.Queue): Queue to receive event to be stored.
+        sendFuntionPtr: Pointer to function used to send events.
+        sendEvents_event (threading.Event()): Indicates that this thread can start to send events.
+        filename: Filename of the file where we store events. 
+        '''
+        threading.Thread.__init__(self)
+        self.__keep_working = True
+        self.__storeQueue = queue
+        self.__eventList = []
+        self.__canSendEvents = sendEvents_event
+        self.__filename = filename
+        self.__sendFunction = sendFunctionPtr
+
+
+    def saveToFile(self):
+        '''
+            Save events to list
+        '''
+        logger.info("Saving events to file.. %s " % self.__filename)
+        pickle.dump(self.__eventList, open(self.__filename, "wb"))
+
+
+    def loadEventsFile(self):
+        if os.path.isfile(self.__filename):
+            logger.info("Loading stored events from '%s'" % Ev)
+            self.__eventList = pickle.load(open(self.__filename))
+            HostResolv.printCache()
+
+
+    def synchrofile(self):
+        '''
+            Synchronized events in store_event_list of those stored on HHDD.
+        '''
+        #Delete send events ..
+        logger.info("Synchronizing evnets to file.... ")
+        tmplist = []
+        if not os.path.exists(PATH_TO_STORE_EVENTS):
+            os.mkdir(PATH_TO_STORE_EVENTS)
+        for ev in self.__eventList:
+            if not ev.get_is_send():
+                tmplist.append(ev)
+        del self.__eventList[:]
+        self.__eventList = tmplist
+        self.saveToFile()
+
+
+    def run(self):
+        '''
+            Main thread function
+        '''
+        logger.info("Running stored thread....")
+        storedEvents = 0
+        while self.__keep_working:
+            while not self.__storeQueue.empty():
+                #recieved event to store
+                ev = self.__storeQueue.get_nowait()
+                self.__eventList.append(ev)
+                logger.info("Getting event from queue... storedEvents: %s" % storedEvents)
+                storedEvents = len(self.__eventList)
+                ismult = storedEvents % 10
+                if ismult == 0:
+                    self.synchrofile()
+                if len(self.__eventList) > SIZE_TO_WARNING:
+                    logger.warning("Event to stored and waiting to be send %d" % len(self.__eventList))
+
+            if self.__canSendEvents.isSet():
+                if len(self.__eventList) > 0:
+                    logger.info("Evento to send..%s " % len(self.__eventList))
+                    for ev in self.__eventList:
+                        if not ev.get_is_send():
+                            self.__sendFunction(ev.get_event(), ev.get_priority())
+                            ev.set_is_send(True)
+                            logger.info("Sending stored event... ")
+                        time.sleep(0.2)#5eps
+                    self.synchrofile()
+
+
+
+    def shutdown(self):
+        self.__keep_working = False
 
 
 class OutputPlugins:
@@ -85,7 +220,6 @@ class OutputPlugins:
 
     def plugin_state(self, msg):
         pass
-
 
 
 class OutputPlain(OutputPlugins):
@@ -127,21 +261,44 @@ class OutputServer(OutputPlugins):
         self.send_events = sendEvents
         self.__mypriority = priority
         self.options = CommandLineOptions().get_options()
+        self.__sendEvents_Event = threading.Event()
+        self.__storeThread = None
+        self.__storeQueue = Queue.Queue()
+        self.__filename = PATH_TO_STORE_EVENTS + "%s.%s" % (conn.get_server_ip(), conn.get_server_port())
+        logger.info("Path to store events: %s" % self.__filename)
+        self.__storeThread = storedEventSenderThread(self.__storeQueue, self.event, self.__sendEvents_Event , self.__filename)
+        self.__storeThread.start()
 
 
     def event(self, e, priority):
         if self.activated and self.send_events and self.__mypriority <= priority:
             try:
-                self.conn.send(str(e))
+                if not self.conn.get_is_alive():
+#                    if re.search("(event\s+.*)", e):
+                    logger.info("Event stored...:%s" % e)
+                    self.__storeEvent(e, priority)
+                    self.__sendEvents_Event.clear()
+                else:
+                    self.conn.send(str(e))
+                    self.__sendEvents_Event.set()
             except:
+#                if re.search("(event\s+.*)", e):
+                logger.info("Event stored...:%s" % e)
+                self.__storeEvent(e, priority)
+                self.__sendEvents_Event.clear()
                 return
+
+
+    def __storeEvent(self, event, priority):
+        stEvent = StoredEvent(event, priority)
+        logger.info("Storing event...:%s" % event)
+        self.__storeQueue.put_nowait(stEvent)
 
 
     def plugin_state(self, msg):
         if self.activated:
             try:
                 self.conn.send(msg)
-
             except:
                 return
 
@@ -149,6 +306,9 @@ class OutputServer(OutputPlugins):
     def shutdown(self):
         self.conn.close()
         self.activated = False
+        if self.__storeThread:
+            self.__storeThread.shutdown()
+            self.__storeThread.join()
 
 
 class OutputCSV(OutputPlugins):
@@ -204,7 +364,6 @@ class OutputCSV(OutputPlugins):
         self.csv.flush()
         self.csv.close()
         self.activated = False
-
 
 
 class OutputDB(OutputPlugins):
@@ -268,7 +427,6 @@ class OutputDB(OutputPlugins):
         self.activated = False
 
 
-
 class Output:
     """Different ways to log ossim events (Event objects)."""
 
@@ -276,6 +434,7 @@ class Output:
     plain_output = server_output = server_output_pro = csv_output = db_output = False
     _priority = 0
     _printEvents = True
+    _shutdown = False
     def print_ouput_events(value):
         logger.debug("Setting printEvents to %s" % value)
         Output._printEvents = value
@@ -320,6 +479,8 @@ class Output:
 
 
     def event(e):
+        if Output._shutdown:
+            return
         if Output._printEvents:
             logger.info(str(e).rstrip())
         for output in Output._outputs:
@@ -338,6 +499,7 @@ class Output:
 
 
     def shutdown():
+        Output._shutdown = True
         for output in Output._outputs:
             output.shutdown()
 

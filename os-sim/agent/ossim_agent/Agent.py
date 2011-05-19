@@ -240,6 +240,7 @@ class Agent:
                     self.__frameworkConnecitonList.append(tmpFrameworkConn)
         logger.info("----------------------------------- FRAMEWORK CONNECITONS ENDS------------------------")
 
+
     def connect_server(self):
         '''
             Try to connect to configured servers.
@@ -265,7 +266,6 @@ class Agent:
                     self.__outputServerConnecitonList.append(tmpConnection)
 
         logger.debug("----------------------------------- SERVER CONNECITONS ENDS---------------------------")
-        self.__connect_to_server_end = True
 
 
     def check_pid(self):
@@ -427,6 +427,7 @@ class Agent:
                     else:
                         parser = ParserSDEE(self.conf, plugin, None)
                     parser.start()
+                    self.detector_objs.append(parser)
                 elif plugin.get("config", "source") == "remote-log":
                    if plugin_id in self.conn_plugins:
                         parser = ParserRemote(self.conf, plugin, self.conn_plugins[plugin_id])
@@ -470,6 +471,9 @@ class Agent:
         self.setShutDownRunning(True)
         Watchdog.setShutdownRunning(True)
         self.__keep_working = False
+        logger.info("Waiting for check thread..")
+        if self.__checkThread is not None:
+            self.__checkThread.join(2)
 
         # Remove the pid file
         pidfile = self.conf.get("daemon", "pid")
@@ -487,20 +491,19 @@ class Agent:
             except OSError, e:
                 logger.warning(e)
 
+
+        # output plugins
+        Output.shutdown()
+
         # parsers
         for parser in self.detector_objs:
             if hasattr(parser, 'stop'):
                 parser.stop()
 
-        # output plugins
-        Output.shutdown()
+
         # close framework connections
         for frmk_conn in self.__frameworkConnecitonList:
             frmk_conn.close()
-        # kill checktrhead
-        logger.info("Waiting for check thread..")
-        if self.__checkThread is not None:
-            self.__checkThread.join()
         # execution statistics        
         Stats.shutdown()
         if Stats.dates['startup']:
@@ -519,7 +522,6 @@ class Agent:
         os.kill(pid, signal.SIGKILL)
 
 
-    # Wait for a Control-C and kill all threads
     def waitforever(self):
         '''
             Wait forever agent loop
@@ -631,7 +633,7 @@ class Agent:
             priority_changed = False
             tmpPrio = 0
             aliveServers = 0
-            while aliveServers == 0:
+            while aliveServers == 0 and self.__keep_working:
                 logger.info("Checking server with priority %d" % tmpPrio)
                 aliveServers = self.__check_servers_by_priority(tmpPrio)
                 if aliveServers == 0:
@@ -655,7 +657,8 @@ class Agent:
                         self.__stop_server_counter_array[server_ip] = 0
                         reconnect_try = True
                         time.sleep(2)
-                #Some server is alive...
+            self.__connect_to_server_end = True
+            #Some server is alive...
             if tmpPrio - 1 != self.__currentPriority:
                 logger.warning("Current priority server has changed, current priority = %d", tmpPrio - 1)
                 self.__currentPriority = tmpPrio - 1
@@ -671,10 +674,12 @@ class Agent:
         try:
             self.__readOuptutServers()
             self.check_pid()
-            self.createDaemon()
+            #self.createDaemon()
             self.init_stats()
             self.init_logger()
             thread.start_new_thread(self.connect_server, ())
+            self.__checkThread = threading.Thread(target=self.__check_server_status, args=())
+            self.__checkThread.start()
             while not self.__connect_to_server_end:
                 logger.info("Waiting to server connections available...")
                 time.sleep(5)
@@ -683,8 +688,7 @@ class Agent:
             time.sleep(1)
             self.init_plugins()
             self.init_watchdog()
-            self.__checkThread = threading.Thread(target=self.__check_server_status, args=())
-            self.__checkThread.start()
+
             self.waitforever()
 
         except KeyboardInterrupt:

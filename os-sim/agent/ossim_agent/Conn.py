@@ -32,7 +32,7 @@
 # GLOBAL IMPORTS
 #
 import os, re, socket, string, sys, thread, time
-
+import threading
 #
 # LOCAL IMPORTS
 #
@@ -51,6 +51,7 @@ from __init__ import __version__
 #
 logger = Logger.logger
 MAX_TRIES = 3
+
 class ServerData:
     '''
         Server data from ouptut-server-list section
@@ -142,6 +143,7 @@ class ServerData:
     def __repr__(self):
         return "HN:%s |IP:%s |PORT: %s | PRIO: %s | SE:%s | AFD:%s " % (self.__hostname, self.__ip, self.__port, self.__priority, self.__sendEvents, self.__allow_frmk_data)
 
+
 class ServerConn:
 
     __conn = None
@@ -170,7 +172,6 @@ class ServerConn:
         self.__stopped = False
         self.__sendEvents = sendEvents
         self.__keep_working = True
-
     # connect to server
     #  attempts == 0 means that agent try to connect forever
     #  waittime = seconds between attempts
@@ -219,8 +220,8 @@ class ServerConn:
         if self.__conn is not None:
             self.__conn.close()
             self.__conn = None
-            self.__isAlive = False
-            self.__keep_working = False
+        self.__isAlive = False
+        self.__keep_working = False
 
 
     # Reset the current connection by closing and reopening it
@@ -324,7 +325,6 @@ class ServerConn:
         return data
 
 
-    # receive control messages from server
     def __recv_control_messages(self):
 
         ####### watch-rule test #######
@@ -394,6 +394,7 @@ class ServerConn:
 
                 break
 
+
     def __control_monitors(self, data):
 
         # build a watch rule, the server request.
@@ -417,22 +418,32 @@ class ServerConn:
                 break
 
 
-    # launch new thread to manage control messages
     def control_messages(self):
+        '''
+        Launch new thread to manage control messages
+        '''
         thread.start_new_thread(self.__recv_control_messages, ())
 
 
     def get_allow_frmk_data(self):
         return self.allow_frmk_data
 
+
     def get_is_alive(self):
         return self.__isAlive
+
+
     def get_server_ip(self):
         return self.server_ip
+
+
     def get_server_port(self):
         return self.server_port
+
+
     def get_send_events(self):
         return self.__sendEvents
+
 
     def __get_framework_connection_data(self):
         frmk_ip = ""
@@ -461,12 +472,18 @@ class ServerConn:
             self.__logFunctionPtr("I'm not connected!", LogMsg.ERROR)
         return frmk_hostname, frmk_ip, frmk_port
 
+
     def get_framework_data(self):
         return self.frmk_hostname, self.frmk_ip, self.frmk_port
+
+
     def get_priority(self):
         return self.priority
+
+
     def get_is_stopped(self):
         return self.__stopped
+
 
 class FrameworkConn():
 
