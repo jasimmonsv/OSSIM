@@ -273,7 +273,7 @@ class AlarmGroups {
     function get_alarm()            { return $this->alarm;          }
     */
     /* deprecated */
-	function get_grouped_alarms($conn, $group_type, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $sensor="", $query="", $directive_id="", $num_events="", $num_events_op="", $limit="LIMIT 0,10") {
+	function get_grouped_alarms($conn, $group_type, $show_options=1, $hide_closed=0, $from_date, $to_date, $ip_src="", $ip_dst="", $sensor="", $query="", $directive_id="", $num_events="", $num_events_op="", $tag="", $limit="LIMIT 0,10") {
 		// CRITERIAS
 		// Hide Closed
 		$closed_where = ($hide_closed) ? " AND status='open'" : "";
@@ -322,6 +322,12 @@ class AlarmGroups {
 			else $num_events_op = "=";
 			$ev_where = " AND a.backlog_id in (select backlog_id from (SELECT count(*) as total_events,backlog_event.backlog_id FROM backlog_event, event WHERE event.id = backlog_event.event_id AND event.plugin_id<>1505 GROUP BY backlog_id having total_events $num_events_op $num_events) as bk)";
 		}
+		// Tags
+		if ($tag != "") {
+			$tag_left_join = "";
+			$tag_join = ",alarm_tags tg";
+			$tag_where = " AND a.backlog_id=tg.id_alarm AND tg.id_tag=$tag";
+		}
 		
 		// User Sensor filter
 		$sensor_where = "";
@@ -351,7 +357,7 @@ class AlarmGroups {
 			sha1( alarm_event.name ) AS group_id,
 			alarm_event.name AS name
 			FROM (
-			(SELECT p.name FROM alarm a, plugin_sid p$sensor_join$directive_join
+			(SELECT p.name FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
@@ -360,7 +366,8 @@ class AlarmGroups {
 			$name_where
 			$directive_where
 			$ev_where
-			$sensor_where)
+			$sensor_where
+			$tag_where)
 			) as alarm_event $groups_where
 			GROUP BY name
 			ORDER BY howmany DESC $limit";
@@ -371,7 +378,7 @@ class AlarmGroups {
 			alarm_event.name AS name,
 			DATE( alarm_event.timestamp ) AS day
 			FROM (
-			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join$directive_join
+			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
@@ -380,7 +387,8 @@ class AlarmGroups {
 			$name_where
 			$directive_where
 			$ev_where
-			$sensor_where)
+			$sensor_where
+			$tag_where)
 			) as alarm_event $groups_join$groups_where
 			GROUP BY name, day
 			ORDER BY alarm_event.timestamp DESC $limit";
@@ -393,7 +401,7 @@ class AlarmGroups {
 			INET_NTOA( alarm_event.dst_ip ) AS dst_ip,
 			DATE( alarm_event.timestamp ) AS day
 			FROM (
-			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join$directive_join
+			(SELECT p.name,a.src_ip,a.dst_ip,a.timestamp FROM alarm a, plugin_sid p$sensor_join$directive_join$tag_join
 			WHERE a.plugin_id = p.plugin_id
 			AND a.plugin_sid = p.sid
 			$closed_where
@@ -402,7 +410,8 @@ class AlarmGroups {
 			$name_where
 			$directive_where
 			$ev_where
-			$sensor_where)
+			$sensor_where
+			$tag_where)
 			) as alarm_event $groups_join$groups_where
 			GROUP BY name, src_ip, dst_ip, day
 			ORDER BY alarm_event.timestamp DESC $limit";
@@ -427,7 +436,8 @@ class AlarmGroups {
 					"name" => $rs->fields['name'],
 					"date" => $rs->fields['day'],
 					"ip_src" => $rs->fields['src_ip'],
-					"ip_dst" => $rs->fields['dst_ip']
+					"ip_dst" => $rs->fields['dst_ip'],
+					"id_tag" => $tag
 				);
 				$rs->MoveNext();
 			}

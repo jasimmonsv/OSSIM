@@ -32,6 +32,7 @@ include ("classes/AlarmGroups.inc");
 require_once 'classes/Session.inc';
 require_once 'classes/Security.inc';
 require_once 'classes/Util.inc';
+require_once ('classes/Tags.inc');
 
 Session::logcheck("MenuIncidents", "ControlPanelAlarms");
 $unique_id = uniqid("alrm_");
@@ -107,6 +108,7 @@ $sensor_query = POST('sensor_query');
 $num_events = POST('num_events');
 $num_events_op = POST('num_events_op');
 $no_resolv = intval(POST('no_resolv'));
+$tag = POST('tag');
 
 ossim_valid($param_unique_id, OSS_ALPHA, OSS_DIGIT, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("unique id"));
 ossim_valid($disp, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("disp"));
@@ -135,11 +137,15 @@ ossim_valid($directive_id, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("directive_id
 ossim_valid($num_events, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("num_events"));
 ossim_valid($num_events_op, OSS_ALPHA, OSS_NULLABLE, 'illegal:' . _("num_events_op"));
 ossim_valid($no_resolv, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("no_resolv"));
+ossim_valid($tag, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("tag"));
 //action=change_descr
 ossim_valid($action, OSS_ALPHA, OSS_NULLABLE, OSS_PUNC, 'illegal:' . _("action"));
 if (ossim_error()) {
     die(ossim_error());
 }
+
+$tags = Tags::get_list($conn);
+$tags_html = Tags::get_list_html($conn);
 
 if (empty($order)) $order = " timestamp DESC";
 if ((!empty($src_ip)) && (!empty($dst_ip))) {
@@ -249,7 +255,7 @@ foreach ($hosts as $h_ip=>$h_name) {
 }
 
 $db_groups = AlarmGroups::get_dbgroups($conn);
-list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, $sensor_query, $query, $directive_id, $num_events, $num_events_op, "LIMIT $inf,$sup");
+list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type, $show_options, $hide_closed, $date_from, $date_to, $src_ip, $dst_ip, $sensor_query, $query, $directive_id, $num_events, $num_events_op, $tag, "LIMIT $inf,$sup");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -595,6 +601,13 @@ list($alarm_group, $count) = AlarmGroups::get_grouped_alarms($conn, $group_type,
 	function form_submit() {
 		document.filters.submit();
 	}
+
+	function set_hand_cursor() {
+		document.body.style.cursor = 'pointer';
+	  }
+	  function set_pointer_cursor() {
+		document.body.style.cursor = 'default';
+	  }
   </script>
 </head>
 <body>
@@ -619,6 +632,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 <input type="hidden" name="inf" id="inf" value="">
 <input type="hidden" name="sup" id="sup" value="">
 <input type="hidden" name="alarm" id="alarm" value="">
+<input type="hidden" name="tag" id="tag" value="<?php echo $tag ?>">
 
 <table width="90%" align="center" class="transparent">
 	<tr><td class="nobborder left"><a href="javascript:;" onclick="tooglebtn()"><img src="../pixmaps/sem/toggle.gif" border="0" id="timg" title="Toggle"> <small><font color="black"><?php echo _("Filters, Actions and Options") ?></font></small></a></td></tr>
@@ -684,8 +698,61 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 			</table>
 		</td>
 		<td style="text-align: left;border-bottom:0px solid white" nowrap>
-			<input type="button" onclick="close_groups()" value="<?php echo _("Close Selected") ?>" class="lbutton">
-			<br><br><input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
+			<table class="noborder">
+				<tr><td class="nobborder" style="padding-bottom:5px"><input type="button" onclick="close_groups()" value="<?php echo _("Close Selected") ?>" class="lbutton">
+					<br><br><input type="button" value="<?=_("Delete selected")?>" onclick="if (confirm('<?=_("Alarms should never be deleted unless they represent a false positive. Do you want to Continue?")?>')) bg_delete();" class="lbutton">
+					</td>
+				</tr>
+				<tr>
+					<td class="nobborder">
+						<table class="transparent">
+							<?php if (count($tags) < 1) { ?>
+							<tr>
+								<td class="nobborder"><?php echo _("No tags found.") ?> <a href="tags_edit.php"><?php echo _("Click here to create") ?></a></td>
+							</tr>
+							<?php } else { ?>
+							<tr>
+								<td class="nobborder"><a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags_filter').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Filter by label") ?></a></td>
+								<td class="nobborder" nowrap>
+								<?php if ($tag != "") { ?>
+								<table class="transparent"><tr><td class="nobborder"><?php echo $tags_html[$tag] ?></td><td class="nobborder"><a href="" onclick="document.filters.tag.value='';document.filters.submit();return false">Remove filter</a></td></tr></table>
+								<?php } ?>
+								</td>
+							</tr>
+							<tr>
+								<td class="nobborder">
+									<div style="position:relative">
+									<div id="tags_filter" style="display:none;border:0px;position:absolute">
+									<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+									<tr>
+										<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
+											<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
+											<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags_filter').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
+										</th>
+									</tr>
+									<? foreach ($tags as $tg) { ?>
+									<tr>
+										<td class="nobborder">
+											<table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.filters.tag.value='<?php echo $tg->get_id() ?>';document.filters.submit()" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table>
+										</td>
+										<td class="nobborder">
+										<?php if ($tag == $tg->get_id()) { ?>
+										<a href="" onclick="document.filters.tag.value='';document.filters.submit();return false"><img src="../pixmaps/cross-small.png" border="0" alt="<?php echo _("Remove filter") ?>" title="<?php echo _("Remove filter") ?>"></img></a>
+										<?php } ?>
+										</td>
+									</tr>
+									<?php } ?>
+									</table>
+									</div>
+									</div>
+								</td>
+								<td class="nobborder"></td>
+							</tr>
+							<?php } ?>
+						</table>
+					</td>
+				</tr>
+			</table>
 		</td>
 		<td style="text-align: left;border-bottom:0px solid white">
 			<strong><?php echo _("Show") ?>:</strong>&nbsp;
@@ -785,6 +852,7 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 		$group_id = $group['group_id'];
 		$_SESSION[$group_id] = $group['name'];
 		$ocurrences = $group['group_count'];
+		$id_tag = $group['id_tag'];
 		if ($group['date'] != $lastday) {
 			$lastday = $group['date'];
 			list($year, $month, $day) = split("-", $group['date']);
@@ -843,7 +911,14 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 	<tr>
 		<td class="nobborder" width="50"><input type='checkbox' id='check_<?=$group_id?>' name='group' value='<?=$group_id?>_<?=$group['ip_src']?>_<?=$group['ip_dst']?>_<?=$group['date']?>' <?if (!$owner_take) echo "disabled"?>></td>
 		<td class="nobborder" id="plus<?=$group['group_id']?>"><a href="javascript:toggle_group('<?=$group['group_id']?>','<?php echo $group['name']?>','<?=$group['ip_src']?>','<?=$group['ip_dst']?>','<? echo ($group_type == "name") ? "" : $group['date'] ?>','');"><strong><img src='../pixmaps/plus-small.png' border=0></strong></a></td>
-		<th style='text-align: left; border-width: 0px; background: <?=$background?>'><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></th>
+		<th style='text-align: left; border-width: 0px; background: <?=$background?>'>
+			<table class="transparent">
+			<tr>
+			<?php if ($tags_html[$id_tag] != "") { ?><td class="nobborder"><?php echo $tags_html[$id_tag]; ?></td><?php } ?>
+			<td class="nobborder"><?=$group['name']?>&nbsp;&nbsp;<span style='font-size:xx-small; text-color: #AAAAAA;'>(<?=$ocurrences?> <?=$ocurrence_text?>)</span></td>
+			</tr>
+			</table>
+		</th>
 		<th width='10%' style='text-align: center; border-width: 0px; background: <?=$background?>'><?=$owner?></th>
 		<th width='20%' style='text-align: center; border-width: 0px; background: <?=$background?>;padding:3px'>
 			<table class='noborder' style='background:$background'>
