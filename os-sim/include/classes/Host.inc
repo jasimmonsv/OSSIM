@@ -776,7 +776,7 @@ class Host {
         return $rs->fields[0];
     }
 
-    function get_related_sensors($conn, $ip) {
+    function get_related_sensors($conn, $ip, $search_in_nets=false) {
         $sensors = array();
         /* read from HOST table */
         $sql = "SELECT sensor.ip AS sensor FROM sensor, host_sensor_reference
@@ -794,7 +794,8 @@ class Host {
             }
         }
         /* read from NET table only it host isn't in inventory */
-        if (count($sensor)==0 && $net_list = Net::get_list($conn)) {
+        if (count($sensor)==0 && $search_in_nets) {
+        	$net_list = Net::get_list($conn);
             foreach($net_list as $net) {
                 if (Net::is_ip_in_cache_cidr($conn, $ip, $net->get_ips())) { // Net::isIpInNet($ip, $ips))
                     $sql = "SELECT sensor.ip AS sensor 

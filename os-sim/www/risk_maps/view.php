@@ -35,12 +35,16 @@
 * - check_writable_relative()
 * Classes list:
 */
+
+ob_implicit_flush();
+
 require_once 'ossim_db.inc';
 require_once 'classes/Session.inc';
 require_once 'classes/User_config.inc';
 require_once 'ossim_conf.inc';
 include("riskmaps_functions.php");
-$conf = $GLOBALS["CONF"];
+
+$conf    = $GLOBALS["CONF"];
 $version = $conf->get_conf("ossim_server_version", FALSE);
 
 Session::logcheck("MenuControlPanel", "BusinessProcesses");
@@ -64,9 +68,9 @@ function mapAllowed($perms_arr,$version) {
 
 $can_edit = false;
 
-if (Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit")) {
-$can_edit = true;
-}
+if (Session::menu_perms("MenuControlPanel", "BusinessProcessesEdit")) 
+	$can_edit = true;
+
 
 
 function check_writable_relative($dir){
@@ -97,28 +101,16 @@ if ($stat[2] != 16832 || $stat[4] !== $uid || $stat[5] !== $gid)
             die(_("Invalid perms for configs dir").$fix_cmd);
         }
 }
+
 check_writable_relative("./maps");
 check_writable_relative("./pixmaps/uploaded");
 
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title><?= _("Alarms") ?> - <?= _("View")?></title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="stylesheet" type="text/css" href="./custom_style.css">
-<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-<style type="text/css">
-	.itcanbemoved { position:absolute; }
-</style>
-</head>
-<? 
 require_once 'classes/Security.inc';
 
-$db = new ossim_db();
-$conn = $db->connect();
-$config = new User_config($conn);
-$login = Session::get_session_user();
+$db          = new ossim_db();
+$conn        = $db->connect();
+$config      = new User_config($conn);
+$login       = Session::get_session_user();
 $default_map = $config->get($login, "riskmap", 'simple', 'main');
 
 if ($default_map == "") $default_map = 1;
@@ -128,121 +120,197 @@ $_SESSION["riskmap"] = $map;
 
 if ($_GET['default'] != "" && $map != "")
 	$config->set($login, "riskmap", $map, 'simple', "main");
-//print_r($opts);
 
-//$hide_others = ($_GET["hide_others"]!="") ? $_GET["hide_others"] : 0;
+	
 $hide_others=1;
 
 ossim_valid($map, OSS_DIGIT, 'illegal:'._("type"));
+
 if (ossim_error()) {
 	die(ossim_error());
 }
 
 $perms = array();
 $query = "SELECT map,perm FROM risk_maps";
-if ($result = $conn->Execute($query)) {
-	while (!$result->EOF) {
+
+if ($result = $conn->Execute($query)) 
+{
+	while (!$result->EOF) 
+	{
 		$perms[$result->fields['map']][$result->fields['perm']]++;
 		$result->MoveNext();
 	}
 }
-if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) {
-	echo "<br><br><center>"._("You don't have permission to see this Map $map.")."</center>";
+
+if ( is_array($perms[$map]) && !mapAllowed($perms[$map],$version) ) 
+{
+	echo ossim_error(_("You don't have permission to see Map $map."), "NOTICE");
 	exit;
 }
+
 ?>
-<script type="text/javascript">
-	function refresh_indicators() {
-		$.ajax({
-		   type: "GET",
-		   url: "get_indicators.php?map=<?php echo $map ?>",
-		   success: function(msg){
-			// Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
-			   var indicators = msg.split("@@@@");
-			   for (i = 0; i < indicators.length; i++) if (indicators[i].match(/\#\#\#\#/)) {
-					var data = indicators[i].split("####");
-					if (data[0] != null) {
-						document.getElementById(data[0]).innerHTML = data[1];
-					}
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title><?php echo  _("Alarms") ?> - <?php echo _("View")?></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" type="text/css" href="./custom_style.css">
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript">
+		function refresh_indicators() {
+			$.ajax({
+			   type: "GET",
+			   url: "get_indicators.php?map=<?php echo $map ?>",
+			   success: function(msg){
+				   //Output format ID_1####DIV_CONTENT_1@@@@ID_2####DIV_CONTENT_2...
+				   var indicators = msg.split("@@@@");
+				   for (i = 0; i < indicators.length; i++) if (indicators[i].match(/\#\#\#\#/)) {
+						var data = indicators[i].split("####");
+						if (data[0] != null) {
+							document.getElementById(data[0]).innerHTML = data[1];
+						}
+				   }
 			   }
-		   }
-		});	
-	}
-	
-	function initDiv () {
-		var x = 0;
-		var y = 0;
-		var el = document.getElementById('map_img');
-		var obj = el;
-		do {
-			x += obj.offsetLeft;
-			y += obj.offsetTop;
-			obj = obj.offsetParent;
-		} while (obj);	
-		var objs = document.getElementsByTagName("div");
-		var txt = ''
-		for (var i=0; i < objs.length; i++) {
-			if (objs[i].className == "itcanbemoved") {
-				xx = parseInt(objs[i].style.left.replace('px',''));
-				objs[i].style.left = xx + x
-				yy = parseInt(objs[i].style.top.replace('px',''));
-				objs[i].style.top = yy + y;
-				objs[i].style.visibility = "visible"
+			});	
+		}
+		
+		function initDiv () {
+			
+			$('#loading').hide();
+			
+			var x   = 0;
+			var y   = 0;
+			var obj = $('#map_img');
+			do {
+				x  += obj.offsetLeft;
+				y  += obj.offsetTop;
+				obj = obj.offsetParent;
+			} while (obj);	
+			
+			var objs = document.getElementsByTagName("div");
+			var txt = ''
+			for (var i=0; i < objs.length; i++) 
+			{
+				if (objs[i].className == "itcanbemoved") 
+				{
+					xx = parseInt(objs[i].style.left.replace('px',''));
+					objs[i].style.left = xx + x
+					yy = parseInt(objs[i].style.top.replace('px',''));
+					objs[i].style.top = yy + y;
+					objs[i].style.visibility = "visible"
+				}
 			}
+			refresh_indicators()
+			setInterval(refresh_indicators,5000);
 		}
-		refresh_indicators()
-		setInterval(refresh_indicators,5000);
-	}
-</script>
-<body leftmargin=5 topmargin=5 class=ne1 onload="initDiv()">
-<table border=0 cellpadding=0 cellspacing=0><tr>
-<td valign=top id="map">
-	<img id="map_img" src="maps/map<? echo $map ?>.jpg" border="0">
-</td>
-<td valign=top class=ne1 style="padding-left:5px">
-<?php
-
-if(!$hide_others){
-?>
-
- <h2><?= _("Maps") ?></h2>
- <?php
- if($can_edit){
-   print "&nbsp;(<a href='riskmaps.php?hmenu=Risk+Maps&smenu=Edit+Risk+Maps' target='_parent'><b>" . _("Edit") . "</b></a>)";
- }
- ?>
- <br>
- <?
-	$maps = explode("\n",`ls -1 'maps' | grep -v CVS`);
-	$i=0; $n=0; $txtmaps = ""; $linkmaps = "";
-	foreach ($maps as $ico) if (trim($ico)!="") {
-	    if(!getimagesize("maps/" . $ico)){ continue;}
-		$n = str_replace("map","",str_replace(".jpg","",$ico));
-		if (is_array($perms[$n]) && !mapAllowed($perms[$n],$version)) continue;
-		$txtmaps .= "<td><a href='$SCRIPT_NAME?map=$n'><img src='maps/$ico' border=".(($map==$n) ? "2" : "0")." width=100 height=100></a></td>";
-		$i++; if ($i % 4 == 0) {
-			$txtmaps .= "</tr><tr>";
-		}
-	}
- ?> 
- <table><tr><? echo $txtmaps ?></tr></table>	
- <br>
-<?
-} // if(!$hide_others)
-
-print_indicators($map);
+		
+		$(document).ready(function() {
+			initDiv();
+		});
+				
+	</script>
 	
-$conn->close();
-?>
-</td>
-</tr>
-<form name="fdefault" method="get" action="view.php">
-<input type="hidden" name="map" value="<?=$_GET['map']?>">
-<input type="hidden" name="default" value="1">
-<tr>
-	<td><input type="submit" value="<?=_("Set as Default")?>" class="button"></td>
-</tr>
-</form>
+	<style type="text/css">
+		.itcanbemoved { position:absolute; }
+		
+		#loading {
+		position: absolute; 
+		width: 99%; 
+		height: 99%; 
+		margin: auto; 
+		text-align: center;
+		background: #FFFFFF;
+		z-index: 10000;
+		}
+		
+		#loading div{
+			position: relative;
+			top: 40%;
+			margin:auto;
+		}
+		
+		#loading div span{
+			margin-left: 5px;
+			font-weight: bold;	
+		}
+		
+		#tree { position: relative;}
+		
+	</style>
+	
+</head>
+
+<body leftmargin='5' topmargin='5' class='ne1'>
+
+<div id='loading'>
+	<div><img src='../pixmaps/loading3.gif' alt='<?php echo _("Loading Maps")?>'/><span><?php echo _("Loading Maps")?>...</span></div>
+</div>
+
+<table border='0' cellpadding='0' cellspacing='0'>
+	<tr>
+		<td valign='top' id="map">
+			<img id="map_img" src="maps/map<?php echo $map ?>.jpg" border="0"/>
+		</td>
+		
+		<td valign='top' class='ne1' style="padding-left:5px">
+			<?php
+			
+			if(!$hide_others)
+			{
+				?>
+				<h2><?php echo  _("Maps") ?></h2>
+				<?php
+				if($can_edit){
+					print "&nbsp;(<a href='riskmaps.php?hmenu=Risk+Maps&smenu=Edit+Risk+Maps' target='_parent'><b>" . _("Edit") . "</b></a>)";
+				}
+				 ?>
+				<br/>
+				<?php
+				
+				$maps = explode("\n",`ls -1 'maps' | grep -v CVS`);
+								
+				$i=0; $n=0; $txtmaps = ""; $linkmaps = "";
+												
+				foreach ($maps as $ico) 
+				{
+					if (trim($ico)!="") 
+					{
+						if(!getimagesize("maps/" . $ico)){ continue;}
+						$n = str_replace("map","",str_replace(".jpg","",$ico));
+						
+						if (is_array($perms[$n]) && !mapAllowed($perms[$n],$version)) 
+							continue;
+						
+						$txtmaps .= "<td><a href='$SCRIPT_NAME?map=$n'><img src='maps/$ico' border=".(($map==$n) ? "2" : "0")." width='100' height='100'></a></td>";
+						$i++; 
+						
+						if ($i % 4 == 0) {
+							$txtmaps .= "</tr><tr>";
+						}
+					}
+				}
+				?> 
+				<table><tr><?php echo $txtmaps ?></tr></table><br/>
+				<?php
+			} // if(!$hide_others)
+								
+			$conn->close();
+			?>
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			<form name="fdefault" method="get" action="view.php">
+				<input type="hidden" name="map" value="<?php echo $_GET['map']?>"/>
+				<input type="hidden" name="default" value="1"/>
+				<input type="submit" value="<?php echo _("Set as Default")?>" class="button"/>
+			</form>
+		</td>
+	</tr>
 </table>
+<?php print_indicators($map);?>
 </body>
 </html>

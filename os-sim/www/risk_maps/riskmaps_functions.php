@@ -34,18 +34,25 @@
 
 function indicatorAllowed($conn,$type,$type_name,$hosts,$sensors,$nets) {
 	$has_perm = 0;
-	if ($type == "host") {
-		foreach ($hosts as $hip=>$hname) if ($hname == $type_name) $has_perm = 1;
-	} elseif ($type == "sensor" || $type == "server") {
-		foreach ($sensors as $sip=>$sname) if ($sname == $type_name) $has_perm = 1;
-	} elseif ($type == "net") {
-		foreach ($nets as $net) if ($net->get_name() == $type_name) $has_perm = 1;
-	} elseif ($type == "host_group") {
-		if (Session::groupHostAllowed($conn,$type_name)) $has_perm = 1;
-	} else $has_perm = 1;
+	
+	if ($type == "host") 
+		$has_perm = ( !empty($hosts[$type_name]) ) ? 1 : 0;
+	elseif ($type == "sensor" || $type == "server") 
+		$has_perm = ( !empty($sensors[$type_name]) ) ? 1 : 0;
+	elseif ($type == "net") 
+		$has_perm = ( !empty($nets[$type_name]) ) ? 1 : 0;
+	elseif ($type == "host_group") 
+	{
+		if (Session::groupHostAllowed($conn,$type_name)) 
+			$has_perm = 1;
+	} 
+	else 
+		$has_perm = 1;
+	
 	
 	return $has_perm;
 }
+
 
 // convert risk value into risk semaphore
 function get_value_by_digit($digit) {
@@ -96,7 +103,7 @@ function get_assets($conn,$name,$type,$host_types) {
         $sensor = $name;
         if ($type == "host") {
             require_once 'classes/Host.inc';
-            $sensors = Host::get_related_sensors($conn,$name);
+            $sensors = Host::get_related_sensors($conn,$name,false);
             $sensor = ($sensors[0]!="") ? $sensors[0] : $name;
         }
     } elseif ($type == "net") {
@@ -337,9 +344,19 @@ function print_indicators($map, $print_inputs = false) {
 	require_once 'ossim_db.inc';
 	$db   = new ossim_db();
 	$conn = $db->connect();
-	list($sensors, $hosts) = Host::get_ips_and_hostname($conn,true);
-	$nets = Net::get_list($conn);
-	$query = "select * from risk_indicators where name <> 'rect' AND map= ?";
+	list($sensors_aux, $hosts_aux) = Host::get_ips_and_hostname($conn,true);
+	$all_nets                      = Net::get_list($conn);
+	
+	$hosts   = array_flip($hosts_aux);
+	$sensors = array_flip($sensors_aux);
+	
+	$nets = array();
+	foreach ($all_nets as $k => $v)
+	{
+		$nets[$v->get_name()] = $v->get_name();
+	}
+	
+	$query  = "SELECT * FROM risk_indicators WHERE name <> 'rect' AND map= ?";
 	$params = array($map);
 	
 	if (!$rs = &$conn->Execute($query, $params)) 
@@ -348,52 +365,126 @@ function print_indicators($map, $print_inputs = false) {
 	{
 		while (!$rs->EOF) 
 		{
-			$has_perm = indicatorAllowed($conn,$rs->fields['type'],$rs->fields['type_name'],$hosts,$sensors,$nets);
-			if (Session::am_i_admin()) $has_perm = 1;
-			if ($has_perm) 
+			if (Session::am_i_admin()) 
+				$has_perm = 1;
+			else
+				$has_perm = indicatorAllowed($conn, $rs->fields['type'], $rs->fields['type_name'], $hosts, $sensors, $nets);
+						
+			if ( $has_perm ) 
 			{
+				$id = $rs->fields["id"];
+				
 				if ($print_inputs) 
 				{
-					$name = (mb_detect_encoding($rs->fields["name"]." ",'UTF-8,ISO-8859-1') == 'UTF-8') ?  $rs->fields["name"] : mb_convert_encoding($rs->fields["name"], 'UTF-8', 'ISO-8859-1');
+					$name      = (mb_detect_encoding($rs->fields["name"]." ",'UTF-8,ISO-8859-1') == 'UTF-8') ?  $rs->fields["name"] : mb_convert_encoding($rs->fields["name"], 'UTF-8', 'ISO-8859-1');
+					$type 	   = $rs->fields["type"];
+					$type_name = $rs->fields["type_name"];
+					$url  	   = $rs->fields["url"];
+					$size 	   = $rs->fields["size"];
+					$icon 	   = preg_replace("/\#.*/","",$rs->fields["icon"]);
+					$val       = ( preg_match("/\#(.+)/", $rs->fields["icon"],$found) ) ? $found[1] : "";
 					
-					echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$name."\">\n";
-					echo "<input type=\"hidden\" name=\"datatype".$rs->fields["id"]."\" id=\"datatype".$rs->fields["id"]."\" value=\"".$rs->fields["type"]."\">\n";
-					echo "<input type=\"hidden\" name=\"type_name".$rs->fields["id"]."\" id=\"type_name".$rs->fields["id"]."\" value=\"".$rs->fields["type_name"]."\">\n";
-					echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
-					echo "<input type=\"hidden\" name=\"dataicon".$rs->fields["id"]."\" id=\"dataicon".$rs->fields["id"]."\" value=\"".preg_replace("/\#.*/","",$rs->fields["icon"])."\">\n";
-					echo "<input type=\"hidden\" name=\"dataiconsize".$rs->fields["id"]."\" id=\"dataiconsize".$rs->fields["id"]."\" value=\"".$rs->fields["size"]."\">\n";
-					echo "<input type=\"hidden\" name=\"dataiconbg".$rs->fields["id"]."\" id=\"dataiconbg".$rs->fields["id"]."\" value=\"".((preg_match("/\#(.+)/",$rs->fields["icon"],$found)) ? $found[1] : "")."\">\n";
+					
+					echo "<input type='hidden' name='dataname".$id."'     id='dataname".$id."'     value='".$name."'/>\n";
+					echo "<input type='hidden' name='datatype".$id."'     id='datatype".$id."'     value='".$type."'/>\n";
+					echo "<input type='hidden' name='type_name".$id."'    id='type_name".$id."'    value='".$type_name."'/>\n";
+					echo "<input type='hidden' name='datanurl".$id."'     id='dataurl".$id."'      value='".$url."'/>\n";
+					echo "<input type='hidden' name='dataicon".$id."'     id='dataicon".$id."'     value='".$icon."'/>\n";
+					echo "<input type='hidden' name='dataiconsize".$id."' id='dataiconsize".$id."' value='".$size."'/>\n";
+					echo "<input type='hidden' name='dataiconbg".$id."'   id='dataiconbg".$id."'   value='".$val."'/>\n";
 				}
-				?><div id="indicator<?php echo $rs->fields["id"] ?>" class="itcanbemoved" style="z-index:10;border:1px solid transparent;cursor:pointer;background:url(../pixmaps/1x1.png);visibility:hidden;position:absolute;left:<?php echo $rs->fields["x"] ?>px;top:<?php echo $rs->fields["y"] ?>px;height:<?php echo $rs->fields["h"] ?>px;width:<?php echo $rs->fields["w"] ?>px"><?php print_indicator_content($conn,$rs) ?></div><?php
+				
+				$style = "z-index:10;
+						  border:1px solid transparent;
+						  cursor:pointer;
+						  background:url(../pixmaps/1x1.png);
+						  visibility:hidden;
+						  position:absolute;
+						  left:".$rs->fields["x"]."px;
+						  top:".$rs->fields["y"]."px;
+						  height:".$rs->fields["h"]."px;
+						  width:".$rs->fields["w"]."px;
+				";
+				
+				?>
+				<div id="indicator<?php echo $id?>" class="itcanbemoved" style="<?php echo $style?>">
+					<?php print_indicator_content($conn,$rs) ?>
+				</div>
+				<?php
 			}
+			
 			$rs->MoveNext();
 		}
+		
+		
 	}
-	$query = "select * from risk_indicators where name='rect' AND map = ?";
+	
+	$query  = "SELECT * FROM risk_indicators WHERE name='rect' AND map = ?";
 	$params = array($map);
 
-	if (!$rs = &$conn->Execute($query, $params)) {            
-	print $conn->ErrorMsg();
-	} else {
-		while (!$rs->EOF) {
-			$has_perm = 0;
-			$in_assets = is_in_assets($conn,$rs->fields['type_name'],$rs->fields['type']);
-			if ($rs->fields['type'] == "host") {
-				foreach ($hosts as $hip=>$hname) if ($hname == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "sensor" || $rs->fields['type'] == "server") {
-				foreach ($sensors as $sip=>$sname) if ($sname == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "net") {
-				foreach ($nets as $net) if ($net->get_name() == $rs->fields['type_name']) $has_perm = 1;
-			} elseif ($rs->fields['type'] == "host_group") {
-				if (Session::groupHostAllowed($conn,$rs->fields['type_name'])) $has_perm = 1;
-			} else $has_perm = 1;
-			if (Session::am_i_admin()) $has_perm = 1;
-			if ($has_perm) {
-				if ($print_inputs) {
-					echo "<input type=\"hidden\" name=\"dataname".$rs->fields["id"]."\" id=\"dataname".$rs->fields["id"]."\" value=\"".$rs->fields["name"]."\">\n";
-					echo "<input type=\"hidden\" name=\"datanurl".$rs->fields["id"]."\" id=\"dataurl".$rs->fields["id"]."\" value=\"".$rs->fields["url"]."\">\n";
+	if (!$rs = &$conn->Execute($query, $params))             
+		print $conn->ErrorMsg();
+	else 
+	{
+		while (!$rs->EOF) 
+		{
+			$has_perm  = 0;
+									
+			if (Session::am_i_admin()) 
+				$has_perm = 1;
+			else
+			{
+				if ($type == "host") 
+				{
+					$has_perm = ( !empty($hosts[$type_name]) ) ? 1 : 0;
+				} 
+				elseif ($type == "sensor" || $type == "server") 
+				{
+					$has_perm = ( !empty($sensors[$type_name]) ) ? 1 : 0;
+				} 
+				elseif ($type == "net") 
+				{
+					$has_perm = ( !empty($nets[$type_name]) ) ? 1 : 0;
+				} 
+				elseif ($type == "host_group") 
+				{
+					if (Session::groupHostAllowed($conn,$type_name)) 
+						$has_perm = 1;
+				} 
+				else 
+				$has_perm = 1;
+			}
+			
+			if ($has_perm) 
+			{
+				$id = $rs->fields["id"];
+				
+				if ($print_inputs) 
+				{
+					$name = $rs->fields["name"];
+					$url  = $rs->fields["url"];
+					
+					echo "<input type='hidden' name='dataname".$id."' id='dataname".$id."' value='".$name."'/>\n";
+					echo "<input type='hidden' name='datanurl".$id."' id='dataurl".$id."' value='".$url."'/>\n";
 				}
-				?><div id="rect<?php echo $rs->fields["id"] ?>" class="itcanbemoved" style="cursor:pointer;position:absolute;background:url(../pixmaps/1x1.png);visibility:visible;left:<?php echo $rs->fields["x"] ?>px;top:<?php echo $rs->fields["y"] ?>px;height:<?php echo $rs->fields["h"] ?>px;width:<?php echo $rs->fields["w"] ?>px"><?php print_rectangle_content($conn,$print_inputs) ?></div><?php
+				
+				$style = "border:1px solid transparent;
+						  cursor:pointer;
+						  background:url(../pixmaps/1x1.png);
+						  visibility:hidden;
+						  position:absolute;
+						  left:".$rs->fields["x"]."px;
+						  top:".$rs->fields["y"]."px;
+						  height:".$rs->fields["h"]."px;
+						  width:".$rs->fields["w"]."px;
+				";
+				
+				?>
+				
+				<div id="rect<?php echo $id?>" class="itcanbemoved" style="<?php echo $style?>">
+					<?php print_rectangle_content($conn, $print_inputs) ?>
+				</div>
+				<?php
 			}
 			$rs->MoveNext();
 		}
