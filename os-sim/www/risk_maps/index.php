@@ -35,6 +35,9 @@
 * - check_writable_relative()
 * Classes list:
 */
+
+ob_implicit_flush();
+
 require_once 'classes/Session.inc';
 require_once 'ossim_conf.inc';
 include("riskmaps_functions.php");
@@ -55,49 +58,48 @@ function mapAllowed($perms_arr,$version)
 	if (Session::am_i_admin()) return true;
 	$ret = false;
 	foreach ($perms_arr as $perm=>$val) {
-		// ENTITY 
+		
 		if (preg_match("/^\d+$/",$perm))
 		{
-			if (preg_match("/pro|demo/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) 
+			if (preg_match("/pro|demo/i",$version) && $_SESSION['_user_vision']['entity'][$perm]) // ENTITY 
 				$ret = true;
-			
-		// USER
 		} 
-		elseif (Session::get_session_user() == $perm) 
-			$ret = true;
-		
+		elseif ( Session::get_session_user() == $perm )  // USER
+			$ret = true;  
 	}
 	return $ret;
 }
 
 function check_writable_relative($dir){
-$uid         = posix_getuid();
-$gid         = posix_getgid();
-$user_info   = posix_getpwuid($uid);
-$user        = $user_info['name'];
-$group_info  = posix_getgrgid($gid);
-$group       = $group_info['name'];
-$fix_cmd     = '. '._("To fix that, execute following commands as root").':<br><br>'.
-		   "cd " . getcwd() . "<br>".
-                   "mkdir -p $dir<br>".
-                   "chown $user:$group $dir<br>".
-                   "chmod 0700 $dir";
-if (!is_dir($dir)) {
-     die(_("Required directory " . getcwd() . "$dir does not exist").$fix_cmd);
-}
-$fix_cmd .= $fix_extra;
+	$uid         = posix_getuid();
+	$gid         = posix_getgid();
+	$user_info   = posix_getpwuid($uid);
+	$user        = $user_info['name'];
+	$group_info  = posix_getgrgid($gid);
+	$group       = $group_info['name'];
+	$fix_cmd     = '. '._("To fix that, execute following commands as root").':<br><br>'.
+			   "cd " . getcwd() . "<br>".
+					   "mkdir -p $dir<br>".
+					   "chown $user:$group $dir<br>".
+					   "chmod 0700 $dir";
+	if (!is_dir($dir)) {
+		 die(_("Required directory " . getcwd() . "$dir does not exist").$fix_cmd);
+	}
+	$fix_cmd .= $fix_extra;
 
 
-if (!$stat = stat($dir)) {
-	die(_("Could not stat configs dir").$fix_cmd);
-}
-        // 2 -> file perms (must be 0700)
-        // 4 -> uid (must be the apache uid)
-        // 5 -> gid (must be the apache gid)
-if ($stat[2] != 16832 || $stat[4] !== $uid || $stat[5] !== $gid)
-        {
-            die(_("Invalid perms for configs dir").$fix_cmd);
-        }
+	if (!$stat = stat($dir)) {
+		die(_("Could not stat configs dir").$fix_cmd);
+	}
+
+	// 2 -> file perms (must be 0700)
+	// 4 -> uid (must be the apache uid)
+	// 5 -> gid (must be the apache gid)
+
+	if ($stat[2] != 16832 || $stat[4] !== $uid || $stat[5] !== $gid)
+	{
+		die(_("Invalid perms for configs dir").$fix_cmd);
+	}
 }
 
 check_writable_relative("./maps");
@@ -143,16 +145,16 @@ $erase_element = str_replace("..","",$erase_element);
 
 $uploaded_icon = false;
 
-if (is_uploaded_file($HTTP_POST_FILES['fichero']['tmp_name'])) 
+if (is_uploaded_file($_FILES['fichero']['tmp_name'])) 
 {
-	if (exif_imagetype ($HTTP_POST_FILES['fichero']['tmp_name']) == IMAGETYPE_JPEG || exif_imagetype ($HTTP_POST_FILES['fichero']['tmp_name']) == IMAGETYPE_GIF ) 
+	if (exif_imagetype ($_FILES['fichero']['tmp_name']) == IMAGETYPE_JPEG || exif_imagetype ($_FILES['fichero']['tmp_name']) == IMAGETYPE_GIF ) 
 	{
-		$size = getimagesize($HTTP_POST_FILES['fichero']['tmp_name']);
+		$size = getimagesize($_FILES['fichero']['tmp_name']);
         if ($size[0] < 400 && $size[1] < 400)
 		{
                 $uploaded_icon = true;
                 $filename = "pixmaps/uploaded/" . $name . ".jpg";
-                move_uploaded_file($HTTP_POST_FILES['fichero']['tmp_name'], $filename);
+                move_uploaded_file($_FILES['fichero']['tmp_name'], $filename);
         } 
 		else 
             echo _("<span style='color:#FF0000;'>The file uploaded is too big (Max image size 400x400 px).</span>");
@@ -163,12 +165,12 @@ if (is_uploaded_file($HTTP_POST_FILES['fichero']['tmp_name']))
     
 }
 
-if (is_uploaded_file($HTTP_POST_FILES['ficheromap']['tmp_name'])) 
+if (is_uploaded_file($_FILES['ficheromap']['tmp_name'])) 
 {
 	$filename = "maps/" . $name . ".jpg";
 	
-	if(getimagesize($HTTP_POST_FILES['ficheromap']['tmp_name'])){
-		move_uploaded_file($HTTP_POST_FILES['ficheromap']['tmp_name'], $filename);
+	if(getimagesize($_FILES['ficheromap']['tmp_name'])){
+		move_uploaded_file($_FILES['ficheromap']['tmp_name'], $filename);
 	}
 }
 
@@ -197,81 +199,20 @@ $conn = $db->connect();
 $perms = array();
 
 $query = "SELECT map,perm FROM risk_maps";
+
 if ($result = $conn->Execute($query)) 
 {
-	while (!$result->EOF) {
+	while (!$result->EOF) 
+	{
 		$perms[$result->fields['map']][$result->fields['perm']]++;
 		$result->MoveNext();
 	}
 }
+
 if (is_array($perms[$map]) && !mapAllowed($perms[$map],$version)) 
 {
 	Session::unallowed_section();
 	exit;
-}
-
-
-// perm check
-$sensor_where = "";
-$sensor_hg = "";
-if (Session::allowedSensors() != "") {
-    $user_sensors = explode(",",Session::allowedSensors());
-    if (count($user_sensors)>0) $sensor_hg = " AND s.ip in ('".str_replace(",","','",Session::allowedSensors())."')";
-    foreach ($user_sensors as $user_sensor)
-        $sensor_where .= ($sensor_where != "") ? " OR ip='".$user_sensor."'" : " WHERE ip='".$user_sensor."'";
-    //if ($sensor_where == "") $sensor_where = "";
-}
-$nets_where = "";
-if (Session::allowedNets() != "") {
-    $user_nets = explode(",",Session::allowedNets());
-    foreach ($user_nets as $user_net)
-        $nets_where .= ($nets_where != "") ? " OR ips='".$user_net."'" : " WHERE ips='".$user_net."'";
-    //if ($nets_where == "") $nets_where = "";
-}
-
-//$types = array("host","net","host_group","net_group","sensor","server");
-if (Session::am_i_admin()) $types = array("host","host_group","net","sensor","server");
-else $types = array("host","host_group","net","sensor");
-
-$data_types = array();
-foreach ($types as $htype) {
-	$data_arr = array();
-	if($htype == "host"){
-		require_once 'classes/Host.inc';
-		//$query = "select hostname as name,ip from $htype h order by hostname";
-		$data_arr = Host::get_list($conn);
-	}
-	elseif ($htype == "sensor") {
-		require_once 'classes/Sensor.inc';
-		//$query = "select name from sensor$sensor_where";
-		$data_arr = Sensor::get_list($conn);
-	}
-	elseif ($htype == "net") {
-		require_once 'classes/Net.inc';
-		//$query = "select name,ips from net$nets_where";
-		$nets_arr = Net::get_list($conn);
-	}
-	elseif ($htype == "host_group") {
-		require_once 'classes/Host_group.inc';
-		//$query = "select distinct t.name from $htype t,host_group_sensor_reference r,sensor s where t.name=r.group_name and r.sensor_name=s.name $sensor_hg order by t.name";
-		$data_arr = Host_group::get_list($conn);
-	}
-	foreach ($data_arr as $element) {
-		$data_types[$htype][] = ($htype == "host") ? $element->get_hostname() : $element->get_name();
-	}
-	/*
-	if (!$rs = &$conn->Execute($query)) {
-		print $conn->ErrorMsg();
-	} else {
-		while (!$rs->EOF){
-	
-			//if ($htype == "host" && !Session::hostAllowed($conn,$rs->fields["ip"])) { $rs->MoveNext(); continue; }
-			//if ($htype == "net" && !Session::netAllowed($conn,$rs->fields["ips"])) { $rs->MoveNext(); continue; }
-			$data_types[$htype][] = $rs->fields["name"];
-			$rs->MoveNext();
-		}
-	}
-	*/
 }
 
 
@@ -359,7 +300,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				y = moz ? e.clientY : event.clientY;
 				sx = (typeof(window.scrollX) != 'undefined') ? window.scrollX : ((typeof(document.body.scrollLeft) != 'undefined') ? document.body.scrollLeft : 0);
 				sy = (typeof(window.scrollY) != 'undefined') ? window.scrollY : ((typeof(document.body.scrollTop) != 'undefined') ? document.body.scrollTop : 0);
-				document.getElementById('state').innerHTML = "<?php echo  _("moving...") ?>";
+				document.getElementById('state').innerHTML = "<?php echo  _("Moving...") ?>";
 				document.f.posx.value = x + sx
 				document.f.posy.value = y + sy
 				dobj.style.left = x + sx - parseInt(dobj.style.width.replace('px',''))/2;
@@ -381,7 +322,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				sy = (typeof(window.scrollY) != 'undefined') ? window.scrollY : ((typeof(document.body.scrollTop) != 'undefined') ? document.body.scrollTop : 0);
 				x = moz ? e.clientX+10+ sx : event.clientX+10+ sx;
 				y = moz ? e.clientY+10+ sy : event.clientY+10+ sy;
-				document.getElementById('state').innerHTML = "<?php echo  _("resizing...") ?>";
+				document.getElementById('state').innerHTML = "<?php echo  _("Resizing...") ?>";
 				document.f.posx.value = x + sx;
 				document.f.posy.value = y + sy;
 				xx = parseInt(dobj.style.left.replace('px','')) + 5;
@@ -516,6 +457,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 		}
 
 		function initDiv () {
+			
+			$('#loading').hide();
 			var x = 0;
 			var y = 0;
 			var el = document.getElementById('map_img');
@@ -544,8 +487,6 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 			   GB_show(t,url,420,"50%");
 			   return false;
 			});
-			// Tree
-			load_tree("");
 		}
 
 		var layer = null;
@@ -559,7 +500,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				$(layer).remove();
 			}
 			layer = '#srctree'+i;
-			$('#tree').append('<div id="srctree'+i+'" style="width:100%"></div>');
+			$('#tree').append('<div id="srctree'+i+'" class="tree_container"></div>');
 			$(layer).dynatree({
 				initAjax: { url: "type_tree.php", data: {filter: filter} },
 				clickFolderMode: 2,
@@ -779,7 +720,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 
 		function chk(fo) {
 			if  (fo.name.value=='') {
-				alert("<?php echo "Icon requires a name!" ?>");
+				alert("<?php echo _("Icon requires a name!") ?>");
 				return false;
 			}
 			return true;
@@ -835,19 +776,66 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				var x=window.confirm("<?php echo  _("Unsaved changes, want to save them before exiting?"); ?>");
 				if(x)
 				{
-					save('<? echo $map ?>');
+					save('<?php echo $map ?>');
 					return true;
 				} 
 				else 
 					return true;
 			}		
 		}
+		
+		$(document).ready(function() {
+			initDiv();
+			
+			// Tree
+			load_tree("");
+		});
 				
 		
 	</script>
+	
+	<style type="text/css">
+				
+		#loading {
+			position: absolute; 
+			width: 99%; 
+			height: 99%; 
+			margin: auto; 
+			text-align: center;
+			background: #FFFFFF;
+			z-index: 10000;
+		}
+		
+		#loading div{
+			position: relative;
+			top: 40%;
+			margin:auto;
+		}
+		
+		#loading div span{
+			margin-left: 5px;
+			font-weight: bold;	
+		}
+		
+		#tree{ position: relative;}
+		
+		.tree_container{
+			width: 300px;
+			postion: absolute;
+			top: 0px;
+			left: 0px;
+			z-index: 100;
+		}
+		
+	</style>
+	
 </head>
 
-<body class='ne1' oncontextmenu="return true;" onload='initDiv();' onunload='checkSaved();'>
+<body class='ne1' oncontextmenu="return true;" onunload='checkSaved();'>
+
+<div id='loading'>
+	<div><img src='../pixmaps/loading3.gif' alt='<?php echo _("Loading")?>'/><span><?php echo _("Loading")?>...</span></div>
+</div>
 
 <table class='noborder' border='0' cellpadding='0' cellspacing='0'>
 	
@@ -856,7 +844,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 		$i=0; $n=0; $linkmaps = "";
 		foreach ($maps as $ico) if (trim($ico)!="") 
 		{
-				if(is_dir("maps/" . $ico) || !getimagesize("maps/" . $ico)){ continue;}
+				if(is_dir("maps/" . $ico) || !getimagesize("maps/" . $ico))
+					continue;
 				$n = str_replace("map","",str_replace(".jpg","",$ico));
 				$linkmaps .= "<td><a href='javascript:;' onclick='document.f.url.value=\"view.php?map=$n\"'><img src='maps/$ico' border=0 width=50 height=50 style='border:1px solid #cccccc' alt='$ico' title='$ico'></a></td>";
 				$i++; if ($i % 3 == 0) $linkmaps .= "</tr><tr>";
@@ -880,7 +869,7 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 								<th><?php echo _("Upload icon file")?>:</th>
 								<td>
 									<input type='file' class='ne1' size='15' name='fichero'/>
-									<input type='hidden' value="<? echo $map ?>" name='map'>
+									<input type='hidden' value="<?php echo $map ?>" name='map'>
 								</td>
 							</tr>
 							<tr><td class='cont_submit' colspan='2'><input type='submit' value="<?php echo  _("Upload") ?>" class="lbutton"/></td></tr>
@@ -977,17 +966,38 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 					<?php
 						$ico_std = explode("\n",`ls -1 'pixmaps/standard'`);
 						$i=0;
-						foreach ($ico_std as $ico) if (trim($ico)!="") {
-								if(is_dir("pixmaps/standard/" . $ico) || !getimagesize("pixmaps/standard/" . $ico)){ continue;}
-							echo "<td><img src='pixmaps/standard/$ico' border=0></td><td align=center><input type=radio name=icon value='pixmaps/standard/$ico'".(($i==0) ? " checked" : "")."></td>";
-							$i++; if ($i % 6 == 0) echo "</tr><tr>";
+						foreach ($ico_std as $ico)
+						{ 
+							if (trim($ico)!="") 
+							{
+								if(is_dir("pixmaps/standard/" . $ico) || !getimagesize("pixmaps/standard/" . $ico)) 
+									continue;
+								
+								echo "<td><img src='pixmaps/standard/$ico' border='0'/></td>
+									  <td align='center'><input type='radio' name='icon' value='pixmaps/standard/$ico'".(($i==0) ? " checked='checked'" : "")."></td>";
+							$i++; 
+							
+							if ($i % 6 == 0) 
+							
+							echo "</tr><tr>";
+							}
+						
 						}
 						$ico_std = explode("\n",`ls -1 'pixmaps/uploaded'`);
-						foreach ($ico_std as $ico) if (trim($ico)!="") {
-								if(is_dir("pixmaps/uploaded/" . $ico) || !getimagesize("pixmaps/uploaded/" . $ico)){ continue;}
-							echo "<td><img src='pixmaps/uploaded/$ico' border=0></td><td align=center><input type=radio name=icon value='pixmaps/uploaded/$ico'><br><a href='$SCRIPT_NAME?map=$map&delete_type=icon&delete=".urlencode("$ico")."'><img src='images/delete.png' border=0></a><a href=\"pixmaps/uploaded/$ico\" rel=\"lytebox[test]\" title=\"&lt;a href='javascript:alert(&quot;placeholder&quot;);'&gt;Click HERE!&lt;/a&gt;\">AAAAA</a></td>";
+						foreach ($ico_std as $ico) 
+						{
+							if (trim($ico)!="") 
+							{
+								if(is_dir("pixmaps/uploaded/" . $ico) || !getimagesize("pixmaps/uploaded/" . $ico))
+									continue;
+								
+								echo "<td><img src='pixmaps/uploaded/$ico' border='0'></td>
+								      <td align='center'><input type='radio' name='icon' value='pixmaps/uploaded/$ico'/>
+									  <br/><a href='$SCRIPT_NAME?map=$map&delete_type=icon&delete=".urlencode("$ico")."'><img src='images/delete.png' border='0'/></a>
+									  <a href=\"pixmaps/uploaded/$ico\" rel=\"lytebox[test]\" title=\"&lt;a href='javascript:alert(&quot;placeholder&quot;);'&gt;Click HERE!&lt;/a&gt;\">AAAAA</a></td>";
 							$i++; if ($i % 6 == 0) echo "</tr><tr>";
-						}		
+						}	
+						}	
 					?>
 					</tr>
 				</table>
@@ -1020,7 +1030,11 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				<tr>
 					<td colspan="2">
 						<table width="100%" id="link_asset" style="display:block;border:0px">
-							<tr><td nowrap='nowrap'><div id="tree"></div></td></tr>
+							<tr>
+								<td class='nobborder'>
+									<div id="tree"></div>
+								</td>
+							</tr>
 							<tr id="linktoreport" style="display:none">
 								<td class="nobborder">
 									<table style="border:0px"><tr>
@@ -1137,7 +1151,7 @@ print "</div>\n";
 			<img src='images/wastebin.gif' id="wastebin" border='0'/>
 		</td>
 		<td valign='top' id="map">
-			<img src="maps/map<? echo $map ?>.jpg" id="map_img" onclick="reset_values()" border='0'/>
+			<img src="maps/map<?php echo $map ?>.jpg" id="map_img" onclick="reset_values()" border='0'/>
 		</td>
 	</tr>
 </table>

@@ -235,11 +235,11 @@ class Host_group {
     }
     
     function get_related_sensors($conn, $name){
-	require_once("classes/Sensor.inc");
+    	require_once("classes/Sensor.inc");
     	$sensors = array();
-	$related = Host_group_sensor_reference::get_list($conn, $name);
+    	$related = Host_group_sensor_reference::get_list($conn, $name);
     	foreach($related as $rl) {
-		$sensors[Sensor::get_sensor_ip($conn,$rl->get_sensor_name())]++;
+			$sensors[Sensor::get_sensor_ip($conn,$rl->get_sensor_name())]++;
     	}
     	return array_keys($sensors);
     }

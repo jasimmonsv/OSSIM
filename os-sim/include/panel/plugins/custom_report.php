@@ -61,7 +61,7 @@ class Plugin_Custom_Report extends Panel {
 		$subreports_ac = array();
 			
 		$sql_search = "";
-		if($search!="")     $sql_search = "AND name like '%$search%'";
+			if( $search!="" )     $sql_search = "AND name like '%$search%'";
 		
 		$result = $dbconn->Execute("SELECT login, name, value FROM user_config where category='custom_report' $sql_search ORDER BY name ASC");
 		
@@ -70,8 +70,8 @@ class Plugin_Custom_Report extends Panel {
 		while ( !$result->EOF ) {
 			$available = false;
 				
-			$unserializedata = unserialize($result->fields["value"]);
-			$available_for_user = $unserializedata["user"];
+			$unserializedata      = unserialize($result->fields["value"]);
+			$available_for_user   = $unserializedata["user"];
 			$available_for_entity = $unserializedata["entity"];
 			
 			// check if this report is available for session user
@@ -85,7 +85,8 @@ class Plugin_Custom_Report extends Panel {
 				$available = true;
 			}
 			else if(preg_match("/pro|demo/i",$version)){
-				if(Acl::am_i_proadmin()){
+				if(Acl::am_i_proadmin())
+				{
 					$entities_list = Acl::get_entities_admin($dbconn,Session::get_session_user());
 					$entities = array_keys($entities_list[0]);
 					$users = Acl::get_my_users($dbconn,Session::get_session_user());
@@ -96,7 +97,8 @@ class Plugin_Custom_Report extends Panel {
 						$available = true;
 					}
 				}
-				else {
+				else 
+				{
 					$entities = Acl::get_user_entities(Session::get_session_user());
 					if(in_array($available_for_entity, $entities)){
 						$available = true;
@@ -112,7 +114,7 @@ class Plugin_Custom_Report extends Panel {
 			if($available) {
 				if ($from <= $hi && $hi < $to)  {$creports[] = $result->fields;}
 				// autocomplete
-				$key = base64_encode($result->fields["name"].";".$result->fields["login"]);
+				$key = base64_encode($result->fields["name"]."###".$result->fields["login"]);
 				$subreports_ac[$key] = trim($result->fields["name"]);
 				$hi++;
 			}
@@ -122,41 +124,39 @@ class Plugin_Custom_Report extends Panel {
 		$dbconn->disconnect();
 		//
         $html = '<table style="margin:0;padding:0;width:100%;font-size:11px">
-				  <tr>
-					<td colspan="2">'._('Properties report').':</td>
-				  </tr>
-				  <tr>
-					<td>'._('Report Name').':</td>
-					<td>
-					<select name="run">';
-					foreach($subreports_ac as $key => $value){
-		$html .= '<option value="'.$key.'"';
-						if($this->get('run')==$key){
-		$html .= ' selected';
-						}
-						$html .= '>'.$value.'</option>';
-					}
-		$html .= '</select>
-					</td>
-				  </tr>
-				  <tr>
-					<td>'._('Refresh report').':</td>
-					<td><input name="refresh" value="false" ';
-					if($this->get('refresh')=='false'){
-		$html .= 'checked="checked" ';
-					}
-		$html .= 'type="radio">'._('No').'
+					<tr>
+						<td colspan="2">'._('Properties report').':</td>
+					</tr>
+					<tr>
+						<td>'._('Report Name').':</td>
+						<td>
+							<select name="run">';
+								foreach($subreports_ac as $key => $value)
+								{
+									$html .= '<option value="'.$key.'"';
+									$html .= ( $this->get('run')==$key ) ?  ' selected="selected"' : "";
+									$html .= '>'.$value.'</option>';
+								}
+			$html .= ' 		</select>
+						</td>
+					</tr>
+					<tr>
+						<td>'._('Refresh report').':</td>
+						<td><input name="refresh" value="false" ';
+					if($this->get('refresh')=='false'){ $html .= 'checked="checked" '; }
+			
+			$html .= 'type="radio">'._('No').'
 					<input name="refresh" value="true" ';
-					if($this->get('refresh')=='true'){
-		$html .= 'checked="checked" ';
-					}
-		$html .= 'type="radio">'._('Yes').'
-		<input style="width:80px" type="text" name="secondRefresh" value="'.$this->get('secondRefresh').'" /> '._('seconds').'</td>
-				  </tr>
+					if($this->get('refresh')=='true'){ $html .= 'checked="checked" '; }
+			
+			$html .= 'type="radio">'._('Yes').'
+						<input style="width:80px" type="text" name="secondRefresh" value="'.$this->get('secondRefresh').'" /> '._('seconds').'</td>
+					</tr>
 				</table>';
 		
         return $html;
     }
+	
     function showSettingsHTML() {
         $html = '<table style="margin:0;padding:0;width:100%;font-size:11px">
 				  <tr>
@@ -174,6 +174,7 @@ class Plugin_Custom_Report extends Panel {
 		
         return $html;
     }
+	
     function showWindowContents() {
 		if (!$this->get('run')) {
             return _("Please configure options at the Sub-category tab");

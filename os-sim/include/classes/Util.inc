@@ -847,6 +847,17 @@ class Util {
         }
         return $unix;
 	}
+    // Get the next UTC date to schedule tasks
+    function get_utc_date_calc($conn,$date,$interval) {
+        $conn->Execute("SET SESSION time_zone='+00:00'");
+        if (!$rs = & $conn->Execute("select DATE_ADD(\"$date\", INTERVAL $interval)")) {
+            return $date;
+        } 
+        else {
+            if (!$rs->EOF) $date = $rs->fields[0];
+        }
+        return $date;
+	}
 	
     // Convert date to UTC using mysql
 	function get_utc_from_date($conn,$date,$tz) {
