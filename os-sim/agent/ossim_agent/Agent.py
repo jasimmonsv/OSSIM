@@ -229,15 +229,20 @@ class Agent:
         '''
             Request each server connection for its framework data and try to connect it.
         '''
+        conn_counter = 0
         logger.info("----------------------------------- FRAMEWORK CONNECITONS ----------------------------")
         for server_conn in self.__outputServerConnecitonList:
-            if server_conn.get_allow_frmk_data() and server_conn.get_priority() <= self.__currentPriority and server_conn.get_is_alive():
+            if server_conn.get_priority() <= self.__currentPriority \
+            and server_conn.get_is_alive() and server_conn.get_has_valid_frmkdata():
                 frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port = server_conn.get_framework_data()
                 tmpFrameworkConn = FrameworkConn(self.conf, frmk_tmp_id, frmk_tmp_ip, frmk_tmp_port)
                 if tmpFrameworkConn.connect(attempts=3, waittime=30):
                     logger.debug("Control Framework (%s:%s) is now enabled!" % (frmk_tmp_ip, frmk_tmp_port))
+                    conn_counter += 1
                     tmpFrameworkConn.control_messages()
                     self.__frameworkConnecitonList.append(tmpFrameworkConn)
+        if conn_counter == 0:
+            logger.warning("No Framework connections available")
         logger.info("----------------------------------- FRAMEWORK CONNECITONS ENDS------------------------")
 
 
@@ -250,13 +255,13 @@ class Agent:
         tmpPrioConnectedServer = -1
         if len(self.__outputServerList) > 0:
             for serverdata in self.__outputServerList:
-                if serverdata.get_priority() > tmpPrioConnectedServer and tmpPrioConnectedServer > 0:
-                    #we can continue loading plugins etc..
-                    self.__connect_to_server_end = True
-
-                if serverdata.get_send_events():
+                if serverdata.get_priority() > tmpPrioConnectedServer and  serverdata.get_send_events():
                     tmpConnection = ServerConn(serverdata.get_ip(), serverdata.get_port(), serverdata.get_priority(), \
                                                serverdata.get_allow_frmk_data(), serverdata.get_send_events(), self.plugins)
+                    if not serverdata.get_allow_frmk_data():
+                        tmpConnection.set_framework_data(serverdata.get_frmk_hostname(), \
+                                                         serverdata.get_frmk_ip(), \
+                                                         serverdata.get_frmk_port())
                     if tmpConnection.connect(attempts=3, waittime=30):
                         tmpConnection.control_messages()
                         tmpPrioConnectedServer = serverdata.get_priority()
@@ -553,7 +558,12 @@ class Agent:
         if self.conf.has_section("output-server"):
             if self.conf.getboolean("output-server", "enable"):
                 primarySever = ServerData("primary", self.conf.get("output-server", "ip"), \
-                                          self.conf.get("output-server", "port"), 0, True, True)
+                                          self.conf.get("output-server", "port"), priority=0, \
+                                          sendEvents=True, allow_frmk_data=False)
+                if self.conf.has_section("control-framework"):
+                    primarySever.set_frmk_data(self.conf.get("control-framework", "id"), \
+                                               self.conf.get("control-framework", "ip"), \
+                                               self.conf.get("control-framework", "port"))
                 self.__outputServerList.append(primarySever)
                 Stats.add_server(primarySever.get_ip())
         #Regular expression to parse the readed line
@@ -659,7 +669,7 @@ class Agent:
                         time.sleep(2)
             self.__connect_to_server_end = True
             #Some server is alive...
-            if tmpPrio - 1 != self.__currentPriority:
+            if (tmpPrio - 1) != self.__currentPriority:
                 logger.warning("Current priority server has changed, current priority = %d", tmpPrio - 1)
                 self.__currentPriority = tmpPrio - 1
                 self.__changePriority()
@@ -674,7 +684,7 @@ class Agent:
         try:
             self.__readOuptutServers()
             self.check_pid()
-            #self.createDaemon()
+            self.createDaemon()
             self.init_stats()
             self.init_logger()
             thread.start_new_thread(self.connect_server, ())

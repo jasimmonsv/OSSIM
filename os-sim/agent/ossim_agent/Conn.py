@@ -68,6 +68,12 @@ class ServerData:
         self.__priority = priority
         self.__sendEvents = sendEvents
         self.__allow_frmk_data = allow_frmk_data
+        #if allow framework data is false, the agent must fill this fields.
+        self.__frmk_hostname = ''
+        self.__frmk_ip = ''
+        self.__frmk_port = 0
+        self.__configuredFramework = False
+
 
     def get_ip(self):
         return self.__ip
@@ -115,6 +121,21 @@ class ServerData:
 
     def set_allow_frmk_data(self, value):
         self.__allow_frmk_data = value
+
+    def set_frmk_data (self, hostname, ip, port):
+        self.__configuredFramework = True
+        self.__frmk_hostname = hostname
+        self.__frmk_ip = ip
+        self.__frmk_port = port
+
+    def get_configured_framework(self):
+        return self.__configuredFramework
+    def get_frmk_hostname(self):
+        return self.__frmk_hostname
+    def get_frmk_ip(self):
+        return self.__frmk_ip
+    def get_frmk_port(self):
+        return self.__frmk_port
 
 
     def del_ip(self):
@@ -172,6 +193,8 @@ class ServerConn:
         self.__stopped = False
         self.__sendEvents = sendEvents
         self.__keep_working = True
+        self.__validFrmkData = False
+
     # connect to server
     #  attempts == 0 means that agent try to connect forever
     #  waittime = seconds between attempts
@@ -185,7 +208,7 @@ class ServerConn:
             logger.info("Connecting to server (%s, %s).." \
                 % (self.server_ip, self.server_port))
 
-            while self.__keep_working:
+            while self.__keep_working and not self.__isAlive:
 
                 self.__connect_to_server()
                 if self.__conn is not None:
@@ -193,8 +216,8 @@ class ServerConn:
                     self.__append_plugins()
                     if self.allow_frmk_data:
                         self.frmk_hostname, self.frmk_ip, self.frmk_port = self.__get_framework_connection_data()
-                        logger.debug("Server (%s:%s) Framework Connnection Data FRMK_HN:%s, FRMK_IP:%s, FRMK_PORT:%s" % (self.server_ip, self.server_port, self.frmk_hostname, self.frmk_ip, self.frmk_port))
-                    else:
+                        logger.info("Server (%s:%s) Framework Connnection Data FRMK_HN:%s, FRMK_IP:%s, FRMK_PORT:%s" % (self.server_ip, self.server_port, self.frmk_hostname, self.frmk_ip, self.frmk_port))
+                    elif not self.__validFrmkData :
                         logger.info("This server (%s:%s) doesn't support framework data connection" % (self.server_ip, self.server_port))
                     break
 
@@ -250,6 +273,7 @@ class ServerConn:
                 logger.error(e)
                 self.reconnect()
             except AttributeError: # self.__conn == None
+                logger.error("Atributte Error, %s" % str(e))
                 self.reconnect()
             else:
                 logger.debug(msg.rstrip())
@@ -258,8 +282,8 @@ class ServerConn:
 
     def __connect_to_server(self):
 
-        self.__conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         data = ""
+        self.__conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.__conn.connect((self.server_ip, int(self.server_port)))
             self.__conn.send(self.MSG_CONNECT % (self.sequence))
@@ -275,6 +299,7 @@ class ServerConn:
                 logger.info("Connected to server %s:%s!" % (self.server_ip, self.server_port))
                 self.__stopped = False
                 self.__keep_working = True
+                self.__isAlive = True
             else:
                 logger.error("Bad response from server: %s" % (str(data)))
                 self.__conn = None
@@ -445,10 +470,15 @@ class ServerConn:
         return self.__sendEvents
 
 
+    def get_has_valid_frmkdata(self):
+        return self.__validFrmkData
+
+
     def __get_framework_connection_data(self):
         frmk_ip = ""
         frmk_port = ""
         frmk_hostname = ""
+        data = ""
         if self.__conn is not None:
             try:
                 logger.info("Waiting for framework connection data from %s:%s" % (self.server_ip, self.server_port))
@@ -460,16 +490,21 @@ class ServerConn:
                 self.__conn = None
             if not data:
                 logger.error("No reponse for 'server-get-framework' request")
+
             else:
                 response_data = self.__patternFrmkMessageResponse.match(data)
                 if response_data is not None:
                     frmk_ip = response_data.group('frmk_ip')
                     frmk_hostname = response_data.group('frmk_name')
                     frmk_port = response_data.group('frmk_port')
+                    self.__validFrmkData = True
                 else:
                     logger.error("Bad reponse for 'server-get-framework' request")
         else:
             self.__logFunctionPtr("I'm not connected!", LogMsg.ERROR)
+        self.frmk_hostname = frmk_hostname
+        self.frmk_ip = frmk_ip
+        self.frmk_port = frmk_port
         return frmk_hostname, frmk_ip, frmk_port
 
 
@@ -483,6 +518,12 @@ class ServerConn:
 
     def get_is_stopped(self):
         return self.__stopped
+
+    def set_framework_data(self, hostname, ip, port):
+        self.__validFrmkData = True
+        self.frmk_hostname = hostname
+        self.frmk_ip = ip
+        self.frmk_port = port
 
 
 class FrameworkConn():
@@ -571,7 +612,7 @@ class FrameworkConn():
                 logger.error(e)
                 self.reconnect()
 
-            except AttributeError: # self.__conn == None
+            except AttributeError, e: # self.__conn == None
                 self.reconnect()
 
             else:
