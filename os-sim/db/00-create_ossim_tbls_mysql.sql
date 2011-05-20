@@ -1043,25 +1043,25 @@ CREATE TABLE event_tmp_filter (
 
 DROP TABLE IF EXISTS event_seq;
 CREATE TABLE event_seq (
-         id INTEGER UNSIGNED NOT NULL
+         id BIGINT( 20 ) NOT NULL
 );
 INSERT INTO event_seq VALUES (0);
 
 DROP TABLE IF EXISTS backlog_seq;
 CREATE TABLE backlog_seq (
-         id INTEGER UNSIGNED NOT NULL
+         id BIGINT( 20 ) NOT NULL
 );
 INSERT INTO backlog_seq VALUES (0);
 
 DROP TABLE IF EXISTS backlog_event_seq;
 CREATE TABLE backlog_event_seq (
-         id INTEGER UNSIGNED NOT NULL
+         id BIGINT( 20 ) NOT NULL
 );
 INSERT INTO backlog_event_seq VALUES (0);
 
 DROP TABLE IF EXISTS event_tmp_seq;
 CREATE TABLE event_tmp_seq (
-         id INTEGER UNSIGNED NOT NULL
+         id BIGINT( 20 ) NOT NULL
 );
 INSERT INTO event_tmp_seq (id) VALUES (0);
 
