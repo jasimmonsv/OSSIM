@@ -34,6 +34,7 @@
 * Function list:
 * Classes list:
 */
+ob_implicit_flush();
 require_once ('classes/Session.inc');
 require_once ('classes/Server.inc');
 require_once ('classes/Plugin.inc');
@@ -48,6 +49,7 @@ if (GET("refresh")==1) {
 	echo '<a href="javascript:refresh()"><img src="../pixmaps/refresh.png" border="0"></a><br>';
 	//print_r($status->val->me);
 	if (count($status->val->me['array'])>0) {
+		$stops = array();
 		echo '<table width="100%">
 				<th>Run</th>
 				<th>Conn</th>
@@ -67,10 +69,12 @@ if (GET("refresh")==1) {
 			echo "<tr>\n"; //echo $res->me['string'];
 			preg_match("/Running=(\d+) Connected=(\d+) AgentIP=(.*?) Server=(.*?) EPS=(\d+) Count=(\d+) Seconds=(\d+\.\d\d)\d* RealEPS=(0.0|\d+\.\d\d\d)\d* LocalSrc=(\d+) LocalDst=(\d+) RndPayload=\d+ Category=(\d+) Subcategory=(\d+)/i",$res->me['string'],$fnd);
 			for($i=1;$i<count($fnd);$i++) echo "<td>".$fnd[$i]."</td>";
+			$stops[] = $id;
 			echo '<td><a target="main" href="events.php?stop='.$id.'" style="text-decoration:none" class="button">STOP</a></td>';
 			echo "</tr>\n";
 		}
 		echo "</table>\n";
+		echo '<a target="main" href="events.php?stop='.urlencode(implode(",",$stops)).'" style="text-decoration:none" class="button">STOP ALL</a>';
 	} else {
 		echo _("No agents running.");
 	}
@@ -132,10 +136,12 @@ if (GET("refresh")==1) {
 		echo _("Agents launched successfully!")." "._("Please refresh status").".<br>";
 	}
 	if (GET('stop')!="") {
-		$agent = intval(GET('stop'));
-		$msg=new xmlrpcmsg('stop',array(new xmlrpcval($agent, "int")));
-		$status = $client->send($msg);
-		echo _("Agent [$agent] Stopped successfully!")." "._("Please refresh status").".<br>";
+		$agents = explode(",",GET('stop'));
+		foreach ($agents as $agent) {
+			$msg=new xmlrpcmsg('stop',array(new xmlrpcval(0, "int")));
+			$status = $client->send($msg);
+			echo _("Agent [$agent] Stopped successfully!")." "._("Please refresh status").".<br>";	
+		}
 	}	
 	# Ping status
 	$msg=new xmlrpcmsg('ping',array());
