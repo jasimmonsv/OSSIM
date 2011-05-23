@@ -1605,6 +1605,12 @@ function DisplayProcessing() {
 			ClearMessages();
 			$cmd_opts['args'] = "-T $run";
 			$cmd_opts['filter'] = $filter;
+			$titcol = "";
+			if (preg_match("/ srcip/",$run)) $titcol = _("Src IP");
+			elseif (preg_match("/ dstip/",$run)) $titcol = _("Dst IP");
+			elseif (preg_match("/ srcport/",$run)) $titcol = _("Src Port");
+			elseif (preg_match("/ dstport/",$run)) $titcol = _("Dst Port");
+			
 			$cmd_out = nfsend_query("run-nfdump", $cmd_opts);
 			if ( !is_array($cmd_out) ) {
 				ShowMessages();
@@ -1665,7 +1671,7 @@ function DisplayProcessing() {
                     <th>"._("Date flow seen")."</th>
                     <th>"._("Duration")."</th>
                     <th>"._("Proto")."</th>
-                    <th>&nbsp;</th>
+                    <th>".$titcol."</th>
                     <th>"._("Flows")."</th>
                     <th>"._("Packets")."</th>
                     <th>"._("Bytes")."</th>
@@ -1683,7 +1689,7 @@ function DisplayProcessing() {
                     if (preg_match("/ error /i",$line,$found)) $errors[] = $line;                   
                     # print results
                     $line = preg_replace("/\(\s(\d)/","(\\1",$line); // Patch for ( 0.3)
-                    $line = preg_replace("/(\d)\sM/","\\1M",$line); // Patch for 1.2 M(99.6) 
+                    $line = preg_replace("/(\d)\s([KMGT])/","\\1\\2",$line); // Patch for 1.2 M(99.6) 
                     $start = $end = $proto = "";
                     $ips = $ports = array();
                     if (preg_match($regex,preg_replace('/\s*/', ' ', $line),$found)) {
