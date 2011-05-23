@@ -422,11 +422,11 @@ EOT;
 
 // modified by hsh to return all scan schedules
 if (in_array("admin", $arruser)){
-    $query = "SELECT t2.name as profile, t1.meth_TARGET, t1.time, t1.id, t1.name, t1.schedule_type, t1.meth_VSET, t1.meth_TIMEOUT, t1.username, t1.enabled, t1.next_CHECK 
+    $query = "SELECT t2.name as profile, t1.meth_TARGET, t1.time, t1.id, t1.name, t1.schedule_type, t1.meth_VSET, t1.meth_TIMEOUT, t1.username, t1.enabled, t1.next_CHECK, t1.email
               FROM vuln_job_schedule t1 LEFT JOIN vuln_nessus_settings t2 ON t1.meth_VSET=t2.id ";
 }
 else {
-    $query = "SELECT t2.name as profile, t1.meth_TARGET, t1.time, t1.id, t1.name, t1.schedule_type, t1.meth_VSET, t1.meth_TIMEOUT, t1.username, t1.enabled, t1.next_CHECK
+    $query = "SELECT t2.name as profile, t1.meth_TARGET, t1.time, t1.id, t1.name, t1.schedule_type, t1.meth_VSET, t1.meth_TIMEOUT, t1.username, t1.enabled, t1.next_CHECK, t1.email
               FROM vuln_job_schedule t1 LEFT JOIN vuln_nessus_settings t2 ON t1.meth_VSET=t2.id WHERE username in ('$user') ";
 }
 //    if($viewall == 1) { // list all schedules
@@ -448,7 +448,7 @@ else {
         echo "<th>"._("Action")."</th></tr>";
     }
     while (!$result->EOF) {
-       list ($profile, $targets, $time, $schedid, $schedname, $schedtype, $sid, $timeout, $user, $schedstatus, $nextscan )=$result->fields;
+       list ($profile, $targets, $time, $schedid, $schedname, $schedtype, $sid, $timeout, $user, $schedstatus, $nextscan, $servers )=$result->fields;
 
        switch ($schedtype) {
        case "N":
@@ -509,7 +509,7 @@ else {
 <tr>
 EOT;
     if ($profile=="") $profile=_("Default");
-    echo "<td><a style=\"text-decoration:none;\" href=\"javascript:;\" txt=\"<b>"._("Owner").":</b> $user<br><b>"._("Scheduled Job ID").":</b> $schedid<br><b>"._("Profile").":</b> $profile<br><b>"._("Targets").":</b><br>".tooltip_hosts($targets,$hosts)."\" class=\"scriptinfo\">$schedname</a></td>";
+    echo "<td><a style=\"text-decoration:none;\" href=\"javascript:;\" txt=\"<b>"._("Owner").":</b> $user<br><b>"._("Server").":</b> $servers<br /><b>"._("Scheduled Job ID").":</b> $schedid<br><b>"._("Profile").":</b> $profile<br><b>"._("Targets").":</b><br>".tooltip_hosts($targets,$hosts)."\" class=\"scriptinfo\">$schedname</a></td>";
 ?>
     <td><?php echo $stt ?></td>
     <td><?php echo $time ?></td>
