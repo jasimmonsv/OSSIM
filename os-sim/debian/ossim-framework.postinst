@@ -221,7 +221,9 @@ if [ -f "/var/ossec/etc/shared/agent.conf" ]; then
 fi
 
 chmod u+w            /var/ossec/rules/local_rules.xml
-chown www-data:ossec /var/ossec/rules/local_rules.xml 
+chown www-data:ossec /var/ossec/rules/local_rules.xml
+
+chmod u+w            /var/ossec/agentless
 chown www-data:ossec /var/ossec/agentless
 
 if [ -f "/var/ossec/agentless/.passlist" ]; then

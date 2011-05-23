@@ -61,6 +61,7 @@ require_once 'classes/Net.inc';
 require_once 'classes/Log_action.inc';
 require_once 'ossim_db.inc';
 require_once 'classes/WebIndicator.inc';
+require_once 'classes/Util.inc';
 class Sensor {
     var $name;
     var $ip;
@@ -175,7 +176,10 @@ class Sensor {
     }
     
     function update_vuln_nessus_servers($conn, $sensor, $name, $user, $password, $port, $vuln_max_scans, $enabled) {
-        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD='$password', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";
+    	if (Util::is_fake_pass($password))
+	        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";
+	    else
+	        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD='$password', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";    
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         }

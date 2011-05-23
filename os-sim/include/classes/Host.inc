@@ -910,11 +910,11 @@ class Host {
         else
         {
             if (!$rs->EOF){
-                $result = array("id" => $rs->fields['id'],
-                                "type" => $rs->fields['type'],
+                $result = array("id"       => $rs->fields['id'],
+                                "type"     => $rs->fields['type'],
                                 "username" => $rs->fields['username'],
                                 "password" => $rs->fields['password'],
-                                "extra" => $rs->fields['extra']
+                                "extra"    => $rs->fields['extra']
                                 );
             }
         }
@@ -934,11 +934,19 @@ class Host {
 		{
 			$id = $rs->fields["id"];
 
-			if ($id!="")
+			if ( $id!="" )
 			{
+				if ( Util::is_fake_pass($password) )
+				{
+					$params = array ($type, $username, $extra, $id);
+					$sql    = "UPDATE credentials SET type = ?, username = ?, extra = ? WHERE id = ?";
+				}
+				else
+				{
+					$params = array ($type, $username, $password, $extra, $id);
+					$sql    = "UPDATE credentials SET type = ?, username = ?, password = ?, extra = ? WHERE id = ?";
+				}
 				
-				$params = array ($type, $username, $password, $extra, $id);
-				$sql = "UPDATE credentials SET type = ?, username = ?, password = ?, extra = ? WHERE id = ?";
 				if (!$rs = & $conn->Execute($sql, $params)){ 
 					print $conn->ErrorMsg();
 					exit();
@@ -947,7 +955,8 @@ class Host {
 			else
 			{
 				$params = array ($ip, $type, $username, $password, $extra );
-				$sql = "INSERT INTO credentials(ip, type, username, password, extra) values (?, ?, ?, ?, ?)";
+				$sql    = "INSERT INTO credentials(ip, type, username, password, extra) values (?, ?, ?, ?, ?)";
+								
 				if (!$rs = & $conn->Execute($sql, $params)){ 
 					print $conn->ErrorMsg();
 					exit();

@@ -52,6 +52,8 @@
 * - pager_get_data()
 * - pager_draw()
 * - ossim_http_request()
+* - fake_pass
+* - is_fake_pass
 * Classes list:
 * - Util
 */
@@ -801,9 +803,20 @@ class Util {
         }
         return true;*/
     } 
-    
+   
     function utf8entities($str) {
     	return html_entity_decode(preg_replace('/&#(\d{4,5});/','&amp;#$1;',mb_convert_encoding($str,'HTML-ENTITIES','UTF-8')));
+    }
+    
+    // FAKE PASSWORD FUNCTIONS
+    function fake_pass($pass) {
+    	$fakepass="";
+    	for($i=0;$i<strlen($pass);$i++) $fakepass .= "?";
+    	return $fakepass;
+    }
+
+    function is_fake_pass($fakepass) {
+    	return preg_match("/^\?+$/",$fakepass);
     }
     
     // TIMEZONE FUNCTIONS

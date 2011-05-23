@@ -44,6 +44,8 @@
 */
 require_once ('classes/Log_action.inc');
 require_once ("ossim_db.inc");
+require_once ('classes/Util.inc');
+
 class ActiveDirectory {
     var $id;
     var $server;
@@ -110,14 +112,29 @@ class ActiveDirectory {
         }
     }
     function update($conn, $id, $server, $binddn, $password, $scope) {
-        $sql = "UPDATE ldap SET ip=inet_aton(?),binddn=?,password=?,scope=? WHERE id=?";
-        $params = array(
-            $server,
-            $binddn,
-            $password,
-            $scope,
-            $id
-        );        
+        if ( Util::is_fake_pass($password) )
+		{
+			$sql = "UPDATE ldap SET ip=inet_aton(?),binddn=?,scope=? WHERE id=?";
+			$params = array(
+				$server,
+				$binddn,
+				$scope,
+				$id
+			);  
+		
+		}
+		else
+		{
+			$sql = "UPDATE ldap SET ip=inet_aton(?),binddn=?,password=?,scope=? WHERE id=?";
+			$params = array(
+				$server,
+				$binddn,
+				$password,
+				$scope,
+				$id
+			);   
+		}
+		
         if ($conn->Execute($sql,$params) === false) {
             print 'error updating: ' . $conn->ErrorMsg() . '<BR>';
             exit;

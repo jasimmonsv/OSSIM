@@ -304,18 +304,27 @@ class Agentless {
 	
 	public function modify_host_data ($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status)
 	{
-		$sql = "UPDATE host_agentless SET hostname=?, user=?, pass=?, ppass=?, descr=?, status=? WHERE ip=?;";
-        $params = array(
-            $hostname,
-			$user,
-			$pass,
-            $ppass,
-            Util::utf8_decode2($descr),
-			$status,
-			$ip
-        );
 		
-				
+		$field_pass  = ( Util::is_fake_pass($pass) )  ? "" : 'pass=?,';
+		$field_ppass = ( Util::is_fake_pass($ppass) ) ? "" : 'ppass=?,';
+		
+		$sql   = "UPDATE host_agentless SET hostname=?, user=?, ".$field_pass." ".$field_ppass." descr=?, status=? WHERE ip=?;";
+		
+		
+		
+		$params[] = $hostname;
+		$params[] = $user;
+		
+		if ( !Util::is_fake_pass($pass) )
+			$params[] = $pass;
+		
+		if ( !Util::is_fake_pass($ppass) )
+			$params[] = $ppass;
+		
+		$params[] = Util::utf8_decode2($descr);
+		$params[] = $status;
+		$params[] = $ip;
+		
 		if ($conn->Execute($sql, $params) === false)
 		{
             //print 'Error Updating Monitorig Host Data: ' . $conn->ErrorMsg() . '<br/>';
@@ -455,13 +464,14 @@ class Agentless {
 	public function get_list_ossec($conn)
 	{
 		$list = array();
-		
-		$available_hosts = file('/var/ossec/agentless/.passlist', FILE_IGNORE_NEW_LINES);
-						
-		if ( !is_array($available_hosts) )
-			return false;
+				
+		if ( file_exists('/var/ossec/agentless/.passlist') )
+			$available_hosts = file('/var/ossec/agentless/.passlist', FILE_IGNORE_NEW_LINES);
 		else
-			$num_host = count($available_hosts);
+			return array();
+						
+		
+		$num_host = count($available_hosts);
 		
 		foreach ($available_hosts as $k => $v)
 		{

@@ -94,14 +94,31 @@ class Databases {
         return $list;
     }
     function insert($conn, $name, $ip, $port, $user, $pass, $icon) {
-        $sql = "INSERT INTO `databases` (name, ip, port, user, pass, icon)
-                VALUES (?, ?, ?, ?, ?, ?)";
-        $params = array(
-            $name,
-            $ip,
-            $port,
-            $user,$pass,$icon
-        );
+        
+		if ( Util::is_fake_pass($pass) )
+		{
+			$sql = "INSERT INTO `databases` (name, ip, port, user, icon) VALUES (?, ?, ?, ?, ?)";
+			$params = array(
+				$name,
+				$ip,
+				$port,
+				$user,
+				$icon
+			);
+		}
+		else
+		{
+			$sql = "INSERT INTO `databases` (name, ip, port, user, pass, icon) VALUES (?, ?, ?, ?, ?, ?)";
+			$params = array(
+				$name,
+				$ip,
+				$port,
+				$user,
+				$pass,
+				$icon
+			);
+		
+		}
         if (!$conn->Execute($sql, $params)) {
             die($conn->ErrorMsg());
         }
@@ -112,17 +129,35 @@ class Databases {
         Log_action::log(79, $infolog);
     }
     function update($conn, $name, $ip, $port, $user, $pass, $icon) {
-        $sql = "UPDATE `databases` SET name = ?, ip = ?, 
-                port = ?, user = ?, pass = ?, icon = ?
-                WHERE name = ?";
-        $params = array(
-            $name,
-            $ip,
-            $port,
-            $user,$pass,$icon,
-            $name
-        );
-        if (!$conn->Execute($sql, $params)) {
+        if ( Util::is_fake_pass($pass) )
+		{
+			$sql = "UPDATE `databases` SET name = ?, ip = ?, port = ?, user = ?, icon = ?
+					WHERE name = ?";
+			$params = array(
+				$name,
+				$ip,
+				$port,
+				$user,
+				$icon,
+				$name
+			);
+		}
+		else
+		{
+			$sql = "UPDATE `databases` SET name = ?, ip = ?, port = ?, user = ?, pass = ?, icon = ?
+					WHERE name = ?";
+			$params = array(
+				$name,
+				$ip,
+				$port,
+				$user,
+				$pass,
+				$icon,
+				$name
+			);
+		}
+        
+		if (!$conn->Execute($sql, $params)) {
             die($conn->ErrorMsg());
         }
         $infolog = array(
