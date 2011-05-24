@@ -30,6 +30,25 @@ a.selected {
     background: transparent;
     text-decoration: underline;
 }
+
+.white { color:white; }
+
+a.white {
+    color:white;
+    font-size:11px;
+}
+
+a.whiteN {
+    color:white;
+    font-size:11px;
+    font-weight:bold;
+}
+
+a.white :hover {
+    color:white;
+}
+
+
 .bold {
     font-weight: bold;
 }

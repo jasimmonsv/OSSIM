@@ -164,6 +164,7 @@ require_once('functions.inc');
 
 $getParams = array( "disp", "item", "page", "delete", "prefs", "uid", "sid",
            "op", "confirm", "preenable", "bEnable" );
+
 $postParams = array( "disp", "saveplugins", "page", "delete", "prefs", "uid", "sid",
            "op", "sname", "sdescription", "sautoenable", "item",
            "AllPlugins", "NonDoS", "DisableAll", "submit", "fam",
@@ -173,13 +174,15 @@ $postParams = array( "disp", "saveplugins", "page", "delete", "prefs", "uid", "s
 switch ($_SERVER['REQUEST_METHOD'])
 {
 	case "GET" :
-	   foreach ($getParams as $gp) {
-		  if (isset($_GET[$gp])) {
-			 $$gp=Util::htmlentities(mysql_real_escape_string(trim($_GET[$gp])), ENT_QUOTES);
-		  } else {
-			 $$gp="";
-		  }
+	    foreach ($getParams as $gp) 
+	    {
+			if (isset($_GET[$gp])) 
+				$$gp=Util::htmlentities(mysql_real_escape_string(trim($_GET[$gp])), ENT_QUOTES);
+			else 
+				$$gp="";
+		  
 	   }
+	   
 	   $submit      = "";
 	   $AllPlugins  = "";
 	   $NonDOS      = "";
@@ -188,20 +191,23 @@ switch ($_SERVER['REQUEST_METHOD'])
    break;
 
    case "POST" :
-	   foreach ($postParams as $pp) {
-		  if (isset($_POST[$pp])) {
-			 $$pp=Util::htmlentities(mysql_real_escape_string(trim($_POST[$pp])), ENT_QUOTES);
-		  } else {
-			 $$pp="";
-		  }
+		foreach ($postParams as $pp) 
+		{
+			if (isset($_POST[$pp]))
+				$$pp=Util::htmlentities(mysql_real_escape_string(trim($_POST[$pp])), ENT_QUOTES);
+			else 
+				$$pp="";
+		  
 	   }
    break;
 }
+
 
 ossim_valid($sid, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("sid"));
 if (ossim_error()) {
     die(_("Invalid Parameter Sid"));
 }
+
 
 if(isset($_POST['authorized_users'])) {
    foreach($_POST['authorized_users'] as $user) {
@@ -260,9 +266,9 @@ echo "<input type=button onclick=\"document.location.href='settings.php?disp=vie
 echo "</form>";
 ?>
 <div id="div_updateautoenable" style="display:none">
-<br>
-<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
-&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
+	<br>
+	<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
+	&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
 </div>
 <?php
    }
@@ -1013,7 +1019,7 @@ function edit_serverprefs($sid) {
    global $dbconn;
 
     navbar( $sid );
-
+	
    // get the profile prefs for use later
      /* $sql = "SELECT t.nessusgroup, t.nessus_id, t.field, 
        t.type, d.value, n.value, t.category
@@ -1024,24 +1030,26 @@ function edit_serverprefs($sid) {
              ON t.nessus_id = n.nessus_id
                 and n.sid = $sid
        order by category desc, nessusgroup, nessus_id";*/
-   $sql = "SELECT t.nessusgroup, t.nessus_id, t.field, 
-       t.type, t.value, n.value, t.category
-       FROM vuln_nessus_preferences_defaults t
-          LEFT JOIN vuln_nessus_settings_preferences n
-             ON t.nessus_id = n.nessus_id
-                and n.sid = $sid
-       order by category desc, nessusgroup, nessus_id";
+	$sql = "SELECT t.nessusgroup, t.nessus_id, t.field, t.type, t.value, n.value, t.category
+			FROM vuln_nessus_preferences_defaults t
+			LEFT JOIN vuln_nessus_settings_preferences n
+			ON t.nessus_id = n.nessus_id and n.sid = $sid
+			ORDER BY category desc, nessusgroup, nessus_id";
        
-   $result=$dbconn->execute($sql);
-   if($result === false) { // SQL error
-      echo _("Error").": "._("There was an error with the DB lookup").": ".
-      $dbconn->ErrorMsg() . "<br>";
-   }
-   $counter = 0;
+	$result=$dbconn->execute($sql);
+   
+	if($result === false) 
+	{ 
+		// SQL error
+		echo _("Error").": "._("There was an error with the DB lookup").": ".
+		$dbconn->ErrorMsg() . "<br>";
+	}
+   
+	$counter = 0;
 
 
-   // display the settings form
-   $lastvalue = "";
+    // display the settings form
+    $lastvalue = "";
 
 echo "<center><form method=\"post\" action=\"settings.php\">";
 echo "<input type=\"hidden\" name=\"disp\" value=\"saveprefs\">";
@@ -1049,25 +1057,33 @@ echo "<input type=\"hidden\" name=\"sid\" value=\"$sid\">";
 
 ?>
 <div id="div_saveprefs" style="display:none;padding-bottom:8px;">
-<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
-&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
+	<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
+	&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
 </div>
 <?php
 print "<table>";
-   while(!$result->EOF) {
-      $counter++;
-      list ($nessusgroup, $nessus_id, $field, $type, $default, $value, $category) = $result->fields;
-      if ($nessusgroup != $lastvalue) {
-         print "<tr><th colspan=2><b>$nessusgroup</b></th></tr>";
-         $lastvalue = $nessusgroup;
-      }
-      $vname = "form".$counter;
-      print formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn);
-      $result->MoveNext();
+   
+  while(!$result->EOF) 
+  {
+		$counter++;
+		list ($nessusgroup, $nessus_id, $field, $type, $default, $value, $category) = $result->fields;
+		
+		if ($nessusgroup != $lastvalue) 
+		{
+			print "<tr><th colspan='2'><strong>$nessusgroup</strong></th></tr>";
+			$lastvalue = $nessusgroup;
+		}
+		
+		$vname = "form".$counter;
+		
+		print formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn);
+		
+		$result->MoveNext();
    }
+   
    echo "</table>";
-   echo "<BR><INPUT type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button saveprefs\">
-                    </form></center><BR>";
+       
+   echo "<br/><input type=\"submit\" name=\"submit\" value=\""._("save")."\" class=\"button saveprefs\"></form></center><br/>";
 
 }
 
@@ -1509,49 +1525,62 @@ function saveprefs( $sid ) {
 //      die();
 //   }
 
-   while(!$result->EOF) {
-      $counter++;
-      $vname="form".$counter;
-      if (isset($_POST[$vname])) {
-         $$vname=Util::htmlentities(mysql_real_escape_string(
-         trim($_POST[$vname])), ENT_QUOTES);
-      } elseif (isset($_GET[$vname])) {
-         $logh->log("$username : " . $_SERVER['SCRIPT_NAME'] .
-            " : GET instead of POST method used - 
-              failed to save", PEAR_LOG_NOTICE);
-         echo "Please use the settings.php form to submit your changes.";
-         require_once('footer.php');
-         die();
-      } else {
-         $$vname="";
-      }
-      list ($nessusgroup, $nessus_id, $field, $type, $default, $value, $category) = $result->fields;
-/*    if (strstr($nessus_id, "[password]")) { // password field
-         if ($$vname!="" && !strstr($$vname,'ENC{')) {  // not encrypted
-            $enc = new Crypt_CBC($dbk, $cipher);
-            $encrypted_val = $enc->encrypt($$vname);
-            $$vname = "ENC{" . base64_encode($encrypted_val) . "}";
-         }
-      }
-*/
-      updatedb($nessus_id, $$vname, $dbconn, $type, $category, $sid);
-      $result->MoveNext();
-   } // end while loop
+	while(!$result->EOF) 
+	{
+		$counter++;
+		$vname="form".$counter;
+		
+		if (isset($_POST[$vname])) 
+		{
+			$$vname=Util::htmlentities(mysql_real_escape_string(
+			trim($_POST[$vname])), ENT_QUOTES);
+		} 
+		elseif (isset($_GET[$vname])) 
+		{
+			$logh->log("$username : " . $_SERVER['SCRIPT_NAME'] . " : GET instead of POST method used - failed to save", PEAR_LOG_NOTICE);
+			echo "Please use the settings.php form to submit your changes.";
+			require_once('footer.php');
+			die();
+		} 
+		else 
+		{
+			$$vname="";
+		}
+		
+		list ($nessusgroup, $nessus_id, $field, $type, $default, $value, $category) = $result->fields;
+		
+		/*    if (strstr($nessus_id, "[password]")) { // password field
+				 if ($$vname!="" && !strstr($$vname,'ENC{')) {  // not encrypted
+					$enc = new Crypt_CBC($dbk, $cipher);
+					$encrypted_val = $enc->encrypt($$vname);
+					$$vname = "ENC{" . base64_encode($encrypted_val) . "}";
+				 }
+			  }
+		*/
+		
+		
+		
+		updatedb($nessus_id, $$vname, $dbconn, $type, $category, $sid);
+		$result->MoveNext();
+	} // end while loop
 
+	
    /*
    * find all records in the vuln_nessus_settings_preferences table that
    * have no matching value in vuln_nessus_preferences_defaults
    * and delete them from vuln_nessus_preferences
    */
 
-   $sql = "select n.nessus_id 
-      from vuln_nessus_settings_preferences n
-      left join vuln_nessus_preferences_defaults t
-         on n.nessus_id = t.nessus_id
-         where t.nessus_id is null";
-   $result=$dbconn->execute($sql);
+    $sql = "select n.nessus_id 
+		   from vuln_nessus_settings_preferences n
+		   left join vuln_nessus_preferences_defaults t
+           on n.nessus_id = t.nessus_id
+           where t.nessus_id is null";
+   
+    $result=$dbconn->execute($sql);
 
-   while(!$result->EOF) {
+   while(!$result->EOF) 
+   {
       list ($pleasedeleteme) = $result->fields;
       $sql2 = "delete from vuln_nessus_settings_preferences
           where nessus_id = \"$pleasedeleteme\"";
@@ -2061,28 +2090,30 @@ function updatedbold($fieldname, $fieldvalue, $dbconn, $type, $sid) {
 }
 
 function updatedb($nessus_id, $fieldvalue, $dbconn, $type, $category, $sid) {
-    if ($type=="C" and $fieldvalue=="") {
+    
+	if ($type=="C" and $fieldvalue=="") {
         $fieldvalue="no";
     }
 
-    $sql = "select count(*) 
-            from vuln_nessus_settings_preferences 
-            where sid = $sid and nessus_id = \"$nessus_id\"";
+    $sql = "select count(*) from vuln_nessus_settings_preferences where sid = $sid and nessus_id = \"$nessus_id\"";
     $result=$dbconn->execute($sql);
 
     list($existing)=$result->fields;
-    if ($existing == 0) {
-      # Do an insert statement
-        $sql = "insert vuln_nessus_settings_preferences 
-       set nessus_id = \"$nessus_id\", value=\"$fieldvalue\", 
-         type=\"$type\", category=\"$category\", sid=$sid";
-    } else {
-        $sql = "update vuln_nessus_settings_preferences 
-       set value=\"$fieldvalue\", type=\"$type\", 
-         category=\"$category\" 
-       where nessus_id = \"$nessus_id\" and sid = $sid";
+    
+	if ($existing == 0) 
+	{
+		# Do an insert statement
+        $sql = "insert vuln_nessus_settings_preferences set nessus_id = \"$nessus_id\", value=\"$fieldvalue\", type=\"$type\", category=\"$category\", sid=$sid";
+    } 
+	else 
+	{
+		if ($type == "P" && Util::is_fake_pass($fieldvalue) )
+			$sql = "update vuln_nessus_settings_preferences set type=\"$type\", category=\"$category\"  where nessus_id = \"$nessus_id\" and sid = $sid";
+		else
+			$sql = "update vuln_nessus_settings_preferences set value=\"$fieldvalue\", type=\"$type\", category=\"$category\"  where nessus_id = \"$nessus_id\" and sid = $sid";
     }
-    $result=$dbconn->execute($sql);
+    
+	$result=$dbconn->execute($sql);
 }
 
 function fieldlink($fieldname, $dbconn) {
@@ -2137,6 +2168,7 @@ function formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn)
    # The pseudocode below will load a default value for an undefined field
    # to help make it easier for new fields to be added into the structure
    #
+		
     $retstr = "";
     if ( is_null($value) || $value=="") {
         if ($type == "R") {
@@ -2170,7 +2202,9 @@ function formprint($nessus_id, $field, $vname, $type, $default, $value, $dbconn)
     elseif ($type == "P") {
       # Password code here
         #$retstr="$nessus_id $field <INPUT type=\"password\" name=\"$vname\" value=\"$value\"><BR>";
-        $retstr="<tr><td style='text-align:left;width:65%'>$field</td><td><INPUT type=\"password\" name=\"$vname\" value=\"$value\"></td></tr>";
+		
+		$value  =  Util::fake_pass($value);
+        $retstr = "<tr><td style='text-align:left;width:65%'>$field</td><td><input type=\"password\" name=\"$vname\" value=\"$value\"></td></tr>";
     }
     else {
       # Assume it is a text box

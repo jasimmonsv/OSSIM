@@ -189,10 +189,11 @@ class Compliance {
         $sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT category.*,plugin_sid.name as plugin_name
         		FROM datawarehouse.category 
                 LEFT JOIN ossim.plugin_sid ON category.sid=plugin_sid.sid
-                WHERE plugin_sid.plugin_id=1505 AND plugin_sid.name<>'' $where $order";
+                WHERE plugin_sid.plugin_id=1505 AND plugin_sid.name <> '' $where $order";
                         
         //echo $sql; 
-        $ret = array();
+        
+		$ret = array();
         if (!$rs = & $conn->Execute($sql)) {
             print $conn->ErrorMsg();
             exit;

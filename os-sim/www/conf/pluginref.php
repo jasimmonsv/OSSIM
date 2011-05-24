@@ -132,6 +132,12 @@ $layout      = load_layout($name_layout, $category);
 			});
 		}
 		
+		function linked_to(rowid) {
+			var auxarr = rowid.split(/\_/);
+			document.location.href = 'modify_pluginref.php?id='+auxarr[0]+'&sid='+auxarr[1]+'&ref_id='+auxarr[2]+'&ref_sid='+auxarr[3];
+		}
+		
+		
 		$(document).ready(function() {
 			$("a.greybox").click(function(){
 				var t = this.title || $(this).text() || this.href;
@@ -202,6 +208,7 @@ $layout      = load_layout($name_layout, $category);
 				width: get_width('headerh1'),
 				height: 330,
 				onColumnChange: save_layout,
+				onDblClick: linked_to,
 				onEndResize: save_layout
 			});   
 		});
