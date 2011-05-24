@@ -595,9 +595,8 @@ if (!isset($_GET["hide_search"])) {
 					<td width="150" class="nobborder">
 						<table class="transparent">
 							<tr>
-								<td class="nobborder" nowrap><?=_("Ungrouped")?></td>
-								<td class="nobborder"> | </td>
-								<td class="nobborder"><a href="alarm_group_console.php"><b><?=_("Grouped")?></b></a></td>
+								<td class="nobborder" nowrap><input type="button" value="<?=_("Ungrouped")?>" class="buttonon" disabled></td>
+								<td class="nobborder"><input type="button" onclick="document.location.href='alarm_group_console.php'" value="<?=_("Grouped")?>" class="button"></td>
 							</tr>
 						</table>
 					</td>
