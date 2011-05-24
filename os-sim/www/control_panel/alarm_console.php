@@ -707,7 +707,7 @@ echo ossim_db::get_order("plugin_sid", $order) . "&inf=$inf&sup=$sup&src_ip=$src
 echo gettext("Alarm"); ?> </a></td>
         <td style="background-color:#9DD131;padding-left:3px;padding-right:3px;font-weight:bold"><a href="<?php
 echo $_SERVER["SCRIPT_NAME"] ?>?order=<?php
-echo ossim_db::get_order("risk", $order) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
+echo ossim_db::get_aorder("risk", str_replace(" DESC","",$order)) . "&inf=$inf&sup=$sup&src_ip=$src_ip&dst_ip=$dst_ip&num_alarms_page=$num_alarms_page&date_from=$date_from&date_to=$date_to&hide_closed=$hide_closed&norefresh=$norefresh&query=$query&directive_id=$directive_id&no_resolv=$no_resolv&sensor_query=$sensor_query&num_events=$num_events&num_events_op=$num_events_op"
 ?>"> <?php
 echo gettext("Risk"); ?> </a></td>
         <td style="background-color:#9DD131;font-weight:bold"><a href="<?php
