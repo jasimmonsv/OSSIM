@@ -592,32 +592,14 @@ if (!isset($_GET["hide_search"])) {
         <td colspan="11" style="border-bottom:0px solid white" nowrap>
 			<table class="transparent" width="100%">
 				<tr>
-					<td width="200" class="nobborder">
-						<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Apply label to selected alarms") ?></a> 
-				   <div style="position:relative"> 
-						<div id="tags" style="position:absolute;right:0;top:0;display:none">
-						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
+					<td width="150" class="nobborder">
+						<table class="transparent">
 							<tr>
-								<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
-									<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
-									<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
-								</th>
+								<td class="nobborder" nowrap><?=_("Ungrouped")?></td>
+								<td class="nobborder"> | </td>
+								<td class="nobborder"><a href="alarm_group_console.php"><b><?=_("Grouped")?></b></a></td>
 							</tr>
-							<?php if (count($tags) < 1) { ?>
-							<tr><td><?php echo _("No tags found.") ?></td></tr>
-							<?php } else { ?>
-							<? foreach ($tags as $tg) { ?>
-							<tr>
-								<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
-							</tr>
-							<?php } ?>
-							<tr>
-								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td class="nobborder"><a href="" onclick="document.fchecks.move_tag.value='0';document.fchecks.submit();return false"><?php echo _("Remove selected") ?></a></td></tr></table></td>
-							</tr>
-							<?php } ?>
 						</table>
-						</div>
-					</div>
 					</td>
 					<td class="nobborder center">
 <?php
@@ -680,14 +662,32 @@ if ($sup < $count) {
 }
 ?>
 					</td>
-					<td width="150" class="nobborder right">
-						<table class="transparent">
+					<td width="200" class="nobborder right">
+						<a style='cursor:pointer; font-weight:bold;' class='ndc' onclick="$('#tags').toggle()"><img src="../pixmaps/arrow_green.gif" align="absmiddle" border="0"/>&nbsp;<?php echo _("Apply label to selected alarms") ?></a> 
+				   <div style="position:relative"> 
+						<div id="tags" style="position:absolute;right:0;top:0;display:none">
+						<table cellpadding='0' cellspacing='0' align="center" style="border-radius:0">
 							<tr>
-								<td class="nobborder" nowrap><?=_("Ungrouped")?></td>
-								<td class="nobborder"> | </td>
-								<td class="nobborder"><a href="alarm_group_console.php"><b><?=_("Grouped")?></b></a></td>
+								<th style="padding-right:3px;border-radius:0px;border-top:0px;border-right:0px;border-left:0px">
+									<div style='float:left; width:60%; text-align: right;padding:3px'><?php echo _("Labels")?></div>
+									<div style='float:right; width:18%; padding: 3px; text-align: right;'><a style="cursor:pointer; text-align: right;" onclick="$('#tags').toggle()"><img src="../pixmaps/cross-circle-frame.png" alt="<?php echo _("Close"); ?>" title="<?php echo _("Close"); ?>" border="0" align='absmiddle'/></a></div>
+								</th>
 							</tr>
+							<?php if (count($tags) < 1) { ?>
+							<tr><td><?php echo _("No tags found.") ?></td></tr>
+							<?php } else { ?>
+							<? foreach ($tags as $tg) { ?>
+							<tr>
+								<td class="nobborder"><table class="transparent" cellpadding="4"><tr><td onmouseover="set_hand_cursor()" onmouseout="set_pointer_cursor()" onclick="document.fchecks.move_tag.value='<?php echo $tg->get_id() ?>';document.fchecks.submit();" style="border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;border:0px;background-color:<?php echo '#'.$tg->get_bgcolor()?>;color:<?php echo '#'.$tg->get_fgcolor()?>;font-weight:<?php echo ($tg->get_bold()) ? "bold" : "normal" ?>;font-style:<?php echo ($tg->get_italic()) ? "italic" : "none" ?>"><?php echo $tg->get_name()?></td></tr></table></td>
+							</tr>
+							<?php } ?>
+							<tr>
+								<td class="nobborder"><table class="transparent" cellpadding="2"><tr><td class="nobborder"><a href="" onclick="document.fchecks.move_tag.value='0';document.fchecks.submit();return false"><?php echo _("Remove selected") ?></a></td></tr></table></td>
+							</tr>
+							<?php } ?>
 						</table>
+						</div>
+					</div>
 					</td>
 				  </tr>
 				</table>
