@@ -42,6 +42,13 @@ require_once 'ossim_db.inc';
 include("lib/xmlrpc.inc");
 Session::useractive("../session/login.php");
 //
+$db = new ossim_db();
+$conn = $db->connect();	
+$servers = Server::get_list($conn, "");
+list ($categories,$subcategories) = Plugin::get_categories($conn);
+$csclist = array("0:0" => "ANY"); foreach ($categories as $id => $name) foreach ($subcategories[$id] as $sid => $sname) $csclist["$id:$sid"] = "$name - $sname";
+$db->close($conn);
+//
 if (GET("refresh")==1) {
 	$client=new xmlrpc_client("http://127.0.0.1:8000");
 	$msg=new xmlrpcmsg('status',array());
@@ -61,14 +68,18 @@ if (GET("refresh")==1) {
 				<th>Real EPS</th>
 				<th>Lc Src</th>
 				<th>Lc Dst</th>
-				<th>Cat</th>
-                <th>SCat</th>
+				<th>Taxonomy</th>
 				<th></th>
 		';
 		foreach ($status->val->me['array'] as $id => $res) {
 			echo "<tr>\n"; //echo $res->me['string'];
 			preg_match("/Running=(\d+) Connected=(\d+) AgentIP=(.*?) Server=(.*?) EPS=(\d+) Count=(\d+) Seconds=(\d+\.\d\d)\d* RealEPS=(0.0|\d+\.\d\d\d)\d* LocalSrc=(\d+) LocalDst=(\d+) RndPayload=\d+ Category=(\d+) Subcategory=(\d+)/i",$res->me['string'],$fnd);
-			for($i=1;$i<count($fnd);$i++) echo "<td>".$fnd[$i]."</td>";
+			for($i=1;$i<count($fnd);$i++) {
+				if ($i<count($fnd)-2)
+					echo "<td>".$fnd[$i]."</td>";
+				if ($i==count($fnd)-1)
+					echo "<td>".$csclist[$fnd[$i-1].":".$fnd[$i]]."</td>";
+			}
 			$stops[] = $id;
 			echo '<td><a target="main" href="events.php?stop='.$id.'" style="text-decoration:none" class="button">STOP</a></td>';
 			echo "</tr>\n";
@@ -147,12 +158,6 @@ if (GET("refresh")==1) {
 	$msg=new xmlrpcmsg('ping',array());
 	$status = $client->send($msg);
 	$online = ($status->val->me['boolean']==1) ? true : false;
-	//
-	$db = new ossim_db();
-	$conn = $db->connect();	
-	$servers = Server::get_list($conn, "");
-	list ($categories,$subcategories) = Plugin::get_categories($conn);
-	$db->close($conn);
 ?>
 <table width="100%">
 <th colspan="2"><?php echo _("Agent Emulator")?> &nbsp;&nbsp;=>&nbsp;&nbsp; <?=_("Server Status")?>: <?= ($online) ? "<span class=g>"._("UP")."</span>" : "<span class=r>"._("DOWN")."</span>" ?> </th>
@@ -167,13 +172,11 @@ if (GET("refresh")==1) {
 		</select><br>
 		<?=_("Local Src")?>: <select name="src"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
 		<?=_("Local Dst")?>: <select name="dst"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
-		<?=_("Taxonomy")." (Cat/SubCat)"?>: <select name="tax" style="width:180px"><option value='0'>ANY</option>
+		<?=_("Taxonomy")." (Cat/SubCat)"?>: <select name="tax" style="width:180px">
 		<?php
-			foreach ($categories as $id => $name) {
+			foreach ($csclist as $id => $name) {
+				if ($id=="0:0") $id="0";
 				echo "<option value='$id'>$name</option>\n";
-				foreach ($subcategories[$id] as $sid => $sname) {
-					echo "<option value='$id:$sid'>$name - $sname</option>\n";
-				}
 			}
 		?>
 		</select><br>
