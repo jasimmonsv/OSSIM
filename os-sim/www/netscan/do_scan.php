@@ -35,131 +35,333 @@
 * Classes list:
 */
 // menu authentication
+
+ob_implicit_flush();
+
+
 require_once ('classes/Session.inc');
 Session::logcheck("MenuPolicy", "ToolsScan");
 ini_set("max_execution_time","1200");
-ob_implicit_flush();
-?>
 
-<html>
-<head>
-  <title> <?php
-echo gettext("OSSIM Framework"); ?> </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-  <link rel="stylesheet" type="text/css" href="../style/style.css"/>
-  <script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript">
-	function stop_nmap(asset) {
-		$.ajax({
-			type: "POST",
-			url: "do_scan.php?only_stop=1&net="+asset,
-			success: function(msg){
-				$('#loading').html("");
-			}
-		});
-	}
-  </script>
-</head>
-<body style="background-color:#FAFAFA">
-
-<?php
 require_once 'classes/Security.inc';
-$net = GET('net');
-$full_scan = GET('full_scan');
+
+
+$assets          = GET('assets');
+$full_scan       = GET('full_scan');
 $timing_template = GET('timing_template');
-$only_stop = GET('only_stop');
-$only_status = GET('only_status');
-ossim_valid($net, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Net"));
-ossim_valid($full_scan, OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("full scan"));
-ossim_valid($timing_template, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("timing_template"));
-ossim_valid($only_stop, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only stop"));
-ossim_valid($only_status, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("only status"));
-if (ossim_error()) {
-    die(ossim_error());
+$only_stop       = GET('only_stop');
+$only_status     = GET('only_status');
+
+ossim_valid($full_scan,       OSS_ALPHA, OSS_SCORE, OSS_NULLABLE, 'illegal:' . _("Full scan"));
+ossim_valid($timing_template, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE, 'illegal:' . _("Timing_template"));
+ossim_valid($only_stop,       OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Only stop"));
+ossim_valid($only_status,     OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Only status"));
+
+if (ossim_error()) 
+{
+    echo ossim_error();
+	?>
+		<script type="text/javascript">
+			parent.$('#scan_button').attr('disabled', '');
+			parent.$('#scan_button').removeClass();
+			parent.$('#scan_button').addClass('button');
+		</script>
+	<?php
+		
+	exit();
 }
+else
+{
+	$assets_string = array();
+	$assets_aux    = ( !empty($assets) ) ? explode(" ", $assets) : array();
+
+	foreach ($assets_aux as $k => $v)
+	{
+		ossim_valid($v, OSS_IP_CIDR, 'illegal:' . _("Assets"));
+		
+		if ( ossim_error() )
+		{
+			ossim_clean_error();
+			ossim_valid($v, OSS_IP_ADDR, 'illegal:' . _("Assets"));
+			
+			if ( ossim_error() )
+			{
+				echo ossim_error();
+				?>
+					<script type="text/javascript">
+						parent.$('#scan_button').attr('disabled', '');
+						parent.$('#scan_button').removeClass();
+						parent.$('#scan_button').addClass('button');
+					</script>
+				<?php
+				exit();
+			}
+			else
+				$v.="/32";
+		}
+		
+		$assets_string[] = trim($v);
+		
+	}
+}
+
+$assets   = implode(" ", $assets_string);
+
+
+$scan_path_log = "/tmp/nmap_scanning_".md5(Session::get_secure_id()).".log";
+
 require_once ('classes/Scan.inc');
 
 // Only Stop
-if ($only_stop) {
-	$scan = new Scan($net);
+if ($only_stop) 
+{
+	$scan = new Scan($assets);
 	$scan->stop_nmap();
 	exit;
 }
 
-// Launch Scan
 session_write_close();
-if (!$only_status && !$only_stop) {
-	$rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
-	if (($available = $rscan->available_scan()) != "") {
+
+if (!$only_status && !$only_stop) 
+{
+	$rscan = new RemoteScan($assets,($full_scan=="full") ? "root" : "ping");
+	
+	if (($available = $rscan->available_scan()) != "") 
 		$remote_sensor = $available;
-	} else {
+	else 
 		$remote_sensor = "null";
-	}
-	$cmd = "/usr/bin/php /usr/share/ossim/scripts/vulnmeter/remote_nmap.php $net $remote_sensor '$timing_template' '$full_scan' > /tmp/nmap_scanning.log 2>&1 &";
-	if (file_exists("/tmp/nmap_completed_scan.log")) @unlink("/tmp/nmap_completed_scan.log");
+	
+	$cmd = "/usr/bin/php /usr/share/ossim/scripts/vulnmeter/remote_nmap.php '$assets' '$remote_sensor' '$timing_template' '$full_scan' '".$rscan->nmap_completed_scan."' > $scan_path_log 2>&1 &";
+	
+	if ( file_exists($rscan->nmap_completed_scan) ) 
+		@unlink($rscan->nmap_completed_scan);
+	
 	system($cmd);
 }
+?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title> <?php echo gettext("OSSIM Framework"); ?> </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<link rel="stylesheet" type="text/css" href="../style/style.css"/>
+	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript">
+		function stop_nmap(asset) {
+			
+			parent.$('#stop_scan').attr('value', '<?php echo _("Stopping scan...")?>');
+			
+			$.ajax({
+				type: "POST",
+				url: "do_scan.php?only_stop=1&assets="+asset,
+				success: function(msg){
+					$('#res_container').remove();
+					parent.$('#scan_button').attr('disabled', '');
+					parent.$('#scan_button').removeClass();
+					parent.$('#scan_button').addClass('button');
+					parent.$('#process_div').hide();
+				}
+			});
+		}
+		
+		function setIframeHeight(id)
+		{
+			var elem = parent.document.getElementById(id);
+					
+			if(elem.contentDocument)
+				var height = elem.contentDocument.body.offsetHeight + 15;
+			else 
+				var height = elem.contentWindow.document.body.scrollHeight + 15;
+				
+			if (height > 200)
+				parent.$('#'+id).css('height', height+'px');
+		}
+		
+	</script>
+	
+	<style type='text/css'>
+		body { background: transparent; }
+		a {cursor: pointer;}
+		
+		.loading_nmap {
+			width: 99%; 
+			height: 99%; 
+			background: transparent;
+			padding-bottom: 10px;
+			text-align: left;
+			
+		}
+		
+		.loading_nmap span{
+			margin-right: 5px;
+		}
+		
+		.loading_nmap img { margin-right: 5px;}
+		
+		.ossim_error { width: auto;}
+				
+	</style>
+	
+</head>
+
+<body>
+
+<div id='res_container'>
+
+<?php
 
 // Scan Status
-$scanning_nets = Scan::scanning_what();
-$is_remote = false;
-if (count($scanning_nets) > 0) {
-	// print html
-	foreach($scanning_nets as $net) {
-		$rscan = new RemoteScan($net,($full_scan=="full") ? "root" : "ping");
-		if (($available = $rscan->available_scan()) != "") { // $full_scan!="full" &&
-			echo _("Scanning network") . " ($net), " . _(" with a remote sensor")." [$available], "._("please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'></div><br>\n";
+$scanning_assets = Scan::scanning_what();
+$is_remote       = false;
+
+//print_r($scanning_assets);
+
+if (count($scanning_assets) > 0) 
+{
+	foreach($scanning_assets as $sc_asset) 
+	{
+		$rscan = new RemoteScan($sc_asset,($full_scan=="full") ? "root" : "ping");
+		
+		//Full Scan
+			
+		if (($available = $rscan->available_scan()) != "") 
+		{ 
+			$id = md5($sc_asset);
+						
+			echo "<div class='loading_nmap remote' id='assets_".$id."'>\n
+					<img class='img_loading' id='img_".$id."' src='../pixmaps/loading3.gif' align='absmiddle' alt='"._("Loading")."'/>\n
+					<span id='text_".$id."'>"._("Scanning network"). " ($sc_asset) ". _("with a remote sensor")." [$available], "._("please wait")."...</span>\n
+				  </div>\n";
+			
 			$is_remote = true;
-		} else {
-			echo _("Scanning network") . " ($net), " . _(" locally, please wait") . "...<div id='loading'><img src='../pixmaps/loading.gif' align='absmiddle' width='16'></div> <div id='stop_div'><input type='button' class='button' onclick='stop_nmap(\"$net\")' value='"._("Stop Scan")."'></div><br>\n";
+		} 
+		else 
+		{
+			
+			$id = md5($sc_asset);
+					
+			echo "<div class='loading_nmap local' id='assets_".$id."'>\n
+					<img class='img_loading' id='img_".$id."' src='../pixmaps/loading3.gif' align='absmiddle' alt='"._("Loading")."'/>\n
+					<span id='text_".$id."'>"._("Scanning local network"). " ($sc_asset) "._("please wait")."...</span>\n
+					<input type='button' class='lbuttond stop_scan' onclick='stop_nmap(\"".$sc_asset."\")' value='"._("Stop Scan")."'/>\n
+				  </div>\n";
 		}
+		
+		?>
+		<script type="text/javascript">setIframeHeight('process');</script>
+		<?php
+		
 	}
-	?><script type="text/javascript">parent.doIframe();</script><?php
-	// change status
-	while(Scan::scanning_now()) {
-		foreach($scanning_nets as $net) {
+				
+		
+	/*
+	while( Scan::scanning_now() ) 
+	{
+		foreach($scanning_assets as $sc_asset) 
+		{
 			$tmp_file = ("/tmp/nmap_root.log") ? "/tmp/nmap_root.log" : "/tmp/nmap_ping.log";
-			if ($remote) $tmp_file = "/tmp/nmap_scanning.log";
-       		if (file_exists($tmp_file)) {
+			
+			if ($remote) 
+				$tmp_file = $scan_path_log;
+       		
+			if (file_exists($tmp_file)) 
+			{
 				$lines = file($tmp_file);
-				$perc = 0;
-				$ip = "";
-				foreach ($lines as $line) {
+				$perc  = 0;
+				$ip    = "";
+				
+				foreach ($lines as $line) 
+				{
 					if (preg_match("/^Scanning\s+(\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
 						$ip = $found[1];
 					}
+					
 					if (preg_match("/About\s+(\d+\.\d+)\%/",$line,$found)) {
 						$perc = $found[1];
 					}
 				}
-				if ($perc > 0) {
-					?><script type="text/javascript">document.getElementById('loading').innerHTML = "Scan<?php if ($ip != "") echo " [$ip]" ?>: <?php echo $found[1] ?>%";</script><?php
+
+				if ($perc > 0) 
+				{
+					$id = md5($sc_asset);
+					?>
+					<script type="text/javascript">
+						setIframeHeight('process');
+						$('#asset_<?php echo $id?>').html("Scan<?php if ($ip != "") echo " [$ip]\n" ?>: <?php echo $found[1] ?>%\n");
+					</script>
+					<?php
 				}
 			}
-        }
+			
+		}
+        sleep(3);
+	} */
+
+	while( Scan::scanning_now() ) 
+	{
         sleep(3);
 	}
+	
 	$has_results = false;
-	if (file_exists("/tmp/nmap_scanning.log")) {
+	
+	if ( file_exists($scan_path_log) ) 
+	{
 		$has_results = true;
-		$output = file("/tmp/nmap_scanning.log");
-		foreach ($output as $line) {
+		$output = file($scan_path_log);
+		
+		foreach ($output as $line) 
+		{
 			if (!preg_match("/appears to be up/",$line)) {
-				echo $line;
+				echo $line."\n";
 			}
 		}
-		unlink("/tmp/nmap_scanning.log");
+		
+		@unlink($scan_path_log);
 	}
-	echo "<br>";
-	echo ($has_results) ? _("Scan completed") : _("Scan aborted");
-	echo "<br><br>";
-	if ($has_results) { ?><input type="button" class="button" onclick="parent.document.location.href='index.php'" value="<?php echo gettext("View results") ?>"><?php } ?>
-	<script type="text/javascript">$('#loading').html("");$('#stop_div').html("");parent.document.getElementById('scan_button').disabled = false</script><?php
-} else {
-	echo "No nmap process found.";
+	
+	echo "<br/>";
+	
+	if ( $has_results ) 
+	{
+		echo "<div style='margin:auto; text-align: center;'>
+				<span style='font-weight: bold;'>"._("Scan completed")."</span><a onclick=\"parent.document.location.href='index.php'\"> [ "._("Click here to view the results")."]</a>
+			  </div>\n";
+	}
+	else
+	{
+		"<div style='color:red; margin:auto; text-align: center;'>"._("Scan aborted")."</div>\n";
+	}
+	
+	echo "<br/><br/>";
+
+	?>
+	
+	<script type="text/javascript">
+		setIframeHeight('process');
+		$('.loading_nmap').remove();
+	</script>
+	
+	<?php
+} 
+else 
+{
+	echo "<div class='ossim_info' style='width: auto'>";
+		echo "<div>"._("Format not allowed")."</div>"; 
+		echo "<div style='padding-left: 10px;'>"._("Correct format").": CIDR[,CIDR,....] CIDR <br/>CIDR: xxx.xxx.xxx.xxx/xx</div>";
+	echo "</div>";
 }
 ?>
+
+	<script type="text/javascript">
+		parent.$('#scan_button').attr('disabled', '');
+		parent.$('#scan_button').removeClass();
+		parent.$('#scan_button').addClass('button');
+	</script>
+
+</div>
+
 </body>
 </html>
 

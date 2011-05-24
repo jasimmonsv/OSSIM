@@ -55,7 +55,7 @@ function update_db($global_info, $scan)
     $db   = new ossim_db();
     $conn = $db->connect();
 	
-	$array_os = array ( "win" => "1",  "linux"   => "2",      "cisco" => "3",  "freebsd" => "5",
+	$array_os = array ( "win"     => "1",  "linux"   => "2",  "cisco" => "3",  "freebsd" => "5",
 						"netbsd"  => "6",  "openbsd" => "7",  "hp-ux" => "8",  "solaris" => "9",
 						"macos"   => "10", "plan9"   => "11", "sco"   => "12", "aix"     => "13",
 						"unix"    => "14");
@@ -78,8 +78,8 @@ function update_db($global_info, $scan)
 		if ( !empty($ip) )
 		{
             $hosts[] = $ip; //gethostbyaddr($ip);
-			$os    = $scan[$ip]["os"];
-			$os_id = 0;
+			$os      = $scan[$ip]["os"];
+			$os_id   = 0;
 			foreach ($array_os as $k => $v)
 			{
 				if ( preg_match("/$k/i", $os) ) 
@@ -91,7 +91,7 @@ function update_db($global_info, $scan)
 			
             if (Host::in_host($conn, $ip))
 			{
-                echo "* " . gettext("Updating ") . "$ip..<br/>";
+                echo "* " . gettext("Updating") . " $ip..<br/>";
                 Host::update($conn, $ip, gethostbyaddr($ip) , $global_info["asset"], $global_info["threshold_c"], $global_info["threshold_a"], $global_info["rrd_profile"], 0, 0, $global_info["nat"], $sensors, $global_info["descr"], $scan["$ip"]["os"], $scan["$ip"]["mac"], $scan["$ip"]["mac_vendor"]);
                
                 Host_scan::delete($conn, $ip, 3001);
@@ -101,7 +101,7 @@ function update_db($global_info, $scan)
 			else
 			{
                 echo "<span style='color='blue'>\n";
-                echo "* " . gettext("Inserting ") . " $ip..<br/>\n";
+                echo "* " . gettext("Inserting") . " $ip..<br/>\n";
                 echo "</span>\n";
                 
 				Host::insert($conn, $ip, gethostbyaddr($ip) , $global_info["asset"], $global_info["threshold_c"], $global_info["threshold_a"], $global_info["rrd_profile"], 0, 0, $global_info["nat"], $sensors, $global_info["descr"], $scan[$ip]["os"], $scan[$ip]["mac"], $scan[$ip]["mac_vendor"]);
@@ -165,6 +165,7 @@ function update_db($global_info, $scan)
     $db->close($conn);
 }
 
+
 $error         = false;
 $invalid_hosts = false;
 $message_error = array();
@@ -181,6 +182,7 @@ $nagios        = POST('nagios');
 $rrd_profile   = POST('rrd_profile'); 
 $threshold_a   = POST('threshold_a');
 $threshold_c   = POST('threshold_c');
+
 
 if ( is_numeric($ips) )
 {
@@ -210,16 +212,16 @@ if ( is_numeric($ips) )
 $num_sensors = count($sensors);
 
 $validate = array (
-	"ips"         => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Hosts")),
-	"groupname"   => array("validation"=>"OSS_SPACE, OSS_SCORE, OSS_ALPHA, OSS_PUNC, OSS_NULLABLE", "e_message" => 'illegal:' . _("Group name")),
-	"descr"       => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Description")),
-	"asset"       => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Asset")),
-	"nat"         => array("validation"=>"OSS_NULLABLE, OSS_IP_ADDR", "e_message" => 'illegal:' . _("Nat")),
-	"sboxs"       => array("validation"=>"OSS_ALPHA, OSS_SCORE, OSS_PUNC, OSS_AT", "e_message" => 'illegal:' . _("Sensors")),
-	"rrd_profile" => array("validation"=>"OSS_ALPHA, OSS_NULLABLE, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("RRD Profile")),
-	"threshold_a" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold A")),
-	"threshold_c" => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Threshold C")),
-	"nagios"      => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" => 'illegal:' . _("Nagios")));
+	"ips"         => array("validation"=>"OSS_DIGIT", "e_message"                           => 'illegal:' . _("Hosts")),
+	"groupname"   => array("validation"=>"OSS_SCORE, OSS_INPUT, OSS_NULLABLE", "e_message"  => 'illegal:' . _("Group name")),
+	"descr"       => array("validation"=>"OSS_TEXT, OSS_NULLABLE, OSS_AT", "e_message" 		=> 'illegal:' . _("Description")),
+	"asset"       => array("validation"=>"OSS_DIGIT", "e_message" 							=> 'illegal:' . _("Asset")),
+	"nat"         => array("validation"=>"OSS_NULLABLE, OSS_IP_ADDR", "e_message" 			=> 'illegal:' . _("Nat")),
+	"sboxs"       => array("validation"=>"OSS_SCORE, OSS_INPUT, OSS_AT", "e_message" 		=> 'illegal:' . _("Sensors")),
+	"rrd_profile" => array("validation"=>"OSS_INPUT, OSS_NULLABLE", "e_message" 			=> 'illegal:' . _("RRD Profile")),
+	"threshold_a" => array("validation"=>"OSS_DIGIT", "e_message" 							=> 'illegal:' . _("Threshold A")),
+	"threshold_c" => array("validation"=>"OSS_DIGIT", "e_message" 							=> 'illegal:' . _("Threshold C")),
+	"nagios"      => array("validation"=>"OSS_NULLABLE, OSS_DIGIT", "e_message" 			=> 'illegal:' . _("Nagios")));
 
 if ( GET('ajax_validation') == true )
 {
@@ -291,7 +293,6 @@ if ( $error == true )
 	}
 }
 
-
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -328,14 +329,27 @@ if ( $error == true)
 	die();
 }
 
+
+/*
+echo "<pre>";
+	print_r($_SESSION["_scan"]);
+echo "</pre>";
+*/
+
 if ( isset($_SESSION["_scan"]) )
 {
     $scan = $_SESSION["_scan"];
     update_db($_POST, $scan);
-    echo "<br/><a href=\"../netscan/index.php\">" . gettext("Return to Scan Results page") . "</a><br/>";
+    echo "<br/><a href=\"../netscan/index.php\">"._("Return to Scan Results page")."</a><br/>";
+	echo "<br/><a href=\"../host/host.php?hmenu=Assets&smenu=Hosts\">"._("Return to host's policy")."</a>";
+}
+else
+{
+	echo ossim_error(_("Error to update database values"));
+	Util::make_form("POST", "../netscan/index.php");
 }
 
-echo "<br/><a href=\"../host/host.php?hmenu=Assets&smenu=Hosts\">" . gettext("Return to host's policy") . "</a>";
+
 
 
 ?>
