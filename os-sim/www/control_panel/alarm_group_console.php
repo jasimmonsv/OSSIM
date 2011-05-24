@@ -788,9 +788,8 @@ if (GET('withoutmenu') != "1") include ("../hmenu.php");
 					<td width="200" class="nobborder">
 						<table class="transparent">
 							<tr>
-								<td class="nobborder" nowrap><a href="alarm_console.php?hide_closed=1"><b><?=_("Ungrouped")?></b></a></td>
-								<td class="nobborder"> | </td>
-								<td class="nobborder" nowrap><?=_("Grouped by")?>: </td>
+								<td class="nobborder" nowrap><input type="button" onclick="document.location.href='alarm_console.php?hide_closed=1'" value="<?=_("Ungrouped")?>" class="button"><a href="alarm_console.php?hide_closed=1"></td>
+								<td class="nobborder" nowrap><input type="button" value="<?=_("Grouped")?>" class="buttonon" disabled> by:</td>
 								<td class="nobborder">
 									<select name="group_type" onchange="document.filters.submit()">
 										<option value="all" <?php if ($group_type == "all") echo "selected" ?>>Alarm name, Src/Dst, Date</option>
