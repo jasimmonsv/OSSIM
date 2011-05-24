@@ -147,9 +147,12 @@ class Net {
 		$name = $ip; 
 		$icon = "";
 		$query = OssimQuery("SELECT name,icon FROM net WHERE ips like '%$ip%'");
-        if (!$rs = & $conn->Execute($query)) {
+		
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
-        } elseif (!$rs->EOF) {
+        } 
+		elseif (!$rs->EOF) 
+		{
 			$name = $rs->fields["name"];
 			$icon = $rs->fields["icon"];
 		}

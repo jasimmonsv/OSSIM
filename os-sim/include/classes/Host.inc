@@ -1133,7 +1133,7 @@ class Host {
 		if ( Session::hostAllowed($conn, $ip) )
 		{
 			$sql = "DELETE FROM host_properties WHERE id=?";
-			
+						
 			if (!$rs = & $conn->Execute($sql,array($id)))
 				return $conn->ErrorMsg();
             else 

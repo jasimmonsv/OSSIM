@@ -630,7 +630,7 @@ function validate_form_fields($type, $validate)
 
 function valid_cidr($cidrs)
 {
-	$valid_sep   = array (",", "\n", );
+	$valid_sep   = array (",", "\n", " ");
 	$current_sep = '';
 	
 	foreach ( $valid_sep as $k => $v )
