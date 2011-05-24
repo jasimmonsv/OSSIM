@@ -252,10 +252,10 @@ class Sensor {
         return $list;
     }
     // use in session/newuserform and when required independency of Host/Net
-    function get_all($conn, $order = "ORDER BY name ASC") {
+    function get_all($conn, $order = "ORDER BY name ASC", $checkperms=true) {
         // User sensor filtering
 		$sensor_where = "";
-		if (Session::allowedSensors() != "") {
+		if ($checkperms && Session::allowedSensors() != "") {
 			$user_sensors = explode(",",Session::allowedSensors());
 			$sensor_str = "";
 			foreach ($user_sensors as $user_sensor) if ($user_sensor != "")
@@ -512,7 +512,7 @@ class Sensor {
     }
     function reorder_sensors($conn,$arr) {
 		$sensors = array();
-        $sql = "SELECT name,hostname FROM vuln_nessus_servers WHERE enabled=1 order by ( current_scans / max_scans ) asc";
+        $sql = "SELECT v.name,v.hostname FROM vuln_nessus_servers v,sensor s WHERE s.ip=v.hostname AND v.enabled=1 order by ( v.current_scans / v.max_scans ) ASC,s.priority DESC";
         if (!$rs = $conn->Execute($sql)) {
             die($conn->ErrorMsg());
         }

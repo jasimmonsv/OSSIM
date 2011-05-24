@@ -172,12 +172,14 @@ if (GET("refresh")==1) {
 		</select><br>
 		<?=_("Local Src")?>: <select name="src"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
 		<?=_("Local Dst")?>: <select name="dst"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
-		<?=_("Taxonomy")." (Cat/SubCat)"?>: <select name="tax" style="width:180px">
+		<?=_("Taxonomy")." (Cat/SubCat)"?>: <select name="tax" style="width:180px"><option value='0'>ANY</option>
 		<?php
-			foreach ($csclist as $id => $name) {
-				if ($id=="0:0") $id="0";
+			foreach ($categories as $id => $name) {
 				echo "<option value='$id'>$name</option>\n";
-			}
+				foreach ($subcategories[$id] as $sid => $sname) {
+                    echo "<option value='$id:$sid'>$name - $sname</option>\n"; 
+            	}
+    		}
 		?>
 		</select><br>
 		<input type="submit" class="button" value="<?=_("Launch")?>">

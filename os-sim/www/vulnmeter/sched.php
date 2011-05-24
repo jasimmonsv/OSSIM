@@ -102,7 +102,18 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
                 dtnode.data.url = html_entity_decode(dtnode.data.url);
 				var ln = ($('#ip_list').val()!='') ? '\n' : '';
 				var inside = 0;
-				if (dtnode.data.url.match(/NODES/)) {
+				if(dtnode.data.url.match(/AllAssets/)) {
+                    $.ajax({
+                        type: "GET",
+                        url: "draw_tree.php",
+                        data: { key: dtnode.data.key },
+                        success: function(msg) {
+							var ln = ($('#ip_list').val()!='') ? '\n' : '';
+							$('#ip_list').val($('#ip_list').val() + ln + msg)
+                        }
+                    });
+                }
+                else if (dtnode.data.url.match(/NODES/)) {
 					// add childrens if is a C class
 					var children = dtnode.tree.getAllNodes(dtnode.data.key.replace('.','\\.')+'\\.');
 					for (c=0;c<children.length; c++) {
@@ -2060,7 +2071,7 @@ EOT;*/
             list($forced_server) = $result->fields;
         }
         $all_sensors = array();
-        $sensor_list = Sensor::get_all($dbconn);
+        $sensor_list = Sensor::get_all($dbconn,"",false);
         foreach ($sensor_list as $s) $all_sensors[$s->get_ip()] = $s->get_name();
         // remote nmap
         $rscan = new RemoteScan("","");
@@ -2103,7 +2114,7 @@ EOT;*/
                 $properties = Sensor::get_properties($dbconn, $sen);
                 $withnmap = in_array($all_sensors[$sen],$ids) || !$hosts_alive;
                 //echo "$sen:".$all_sensors[$sen].":$withnmap || $scan_locally:".$properties["has_vuln_scanner"]." || $SVRid:$forced_server<br>\n";
-                if (($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $forced_server!="")) {
+                if ((Session::sensorAllowed($sen) || $forced_server!="") && ($withnmap || $scan_locally) && ($properties["has_vuln_scanner"] || $forced_server!="")) {
                     //$selected = ($SVRid!="Null" && $all_sensors[$sen]!="") ? $all_sensors[$sen] : $sen;
                     //echo "sel:$selected<br>\n";
                     //break;
