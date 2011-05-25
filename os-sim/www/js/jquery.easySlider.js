@@ -34,13 +34,12 @@
 		// default configuration properties
 		var defaults = {
 			prevId: 		'prevBtn',
-			prevText: 		'Previous',
+			prevText: 		'<< Previous&nbsp;',
 			nextId: 		'nextBtn',	
-			nextText: 		'Next',
+			nextText: 		'&nbsp;Next >>',
 			orientation:	'', //  'vertical' is optional;
 			speed: 			800			
 		}; 
-		
 		var options = $.extend(defaults, options);  
 		
 		return this.each(function() {  
@@ -53,7 +52,7 @@
 			var vertical = (options.orientation == 'vertical');
 			$("ul", obj).css('width',s*w);			
 			if(!vertical) $("li", obj).css('float','left');
-			$(obj).after('<span id="'+ options.prevId +'"><a href=\"javascript:void(0);\">'+ options.prevText +'</a></span> <span id="'+ options.nextId +'"><a href=\"javascript:void(0);\">'+ options.nextText +'</a></span>');		
+			$(obj).after('<span id="'+ options.prevId +'" style="padding-right:5px"><a href=\"javascript:void(0);\">'+ options.prevText +'</a></span> <span id="'+ options.nextId +'" style="padding-left:5px"><a href=\"javascript:void(0);\">'+ options.nextText +'</a></span>');		
 			$("a","#"+options.prevId).hide();
 			$("a","#"+options.nextId).hide();
 			$("a","#"+options.nextId).click(function(){		
