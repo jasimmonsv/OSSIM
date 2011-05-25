@@ -56,13 +56,13 @@ $pass_ct2  = POST('pass_ct2');
 $extra     = POST('extra');
 
 $validate = array (
-    "hostname"  => array("validation"=>"OSS_ALPHA, OSS_SPACE", "e_message" => 'illegal:' . _("Hostname")),
+    "hostname"  => array("validation"=>"OSS_ALPHA, OSS_SPACE, OSS_PUNC", "e_message" => 'illegal:' . _("Hostname")),
     "ip"        => array("validation"=>"OSS_IP_ADDR", "e_message" => 'illegal:' . _("Ip address")),
     "type"      => array("validation"=>"OSS_DIGIT", "e_message" => 'illegal:' . _("Type")),
     "user_ct"   => array("validation"=>"OSS_ALPHA, OSS_USER", "e_message" => 'illegal:' . _("Username")),
     "pass_ct"   => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Password")),
     "pass_ct2"  => array("validation"=>"OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT", "e_message" => 'illegal:' . _("Rep. Password")),
-    "extra"     => array("validation"=>"OSS_NULLABLE, OSS_SCORE, OSS_ALPHA, OSS_PUNC_EXT, OSS_AT, OSS_NL", "e_message" => 'illegal:' . _("Extra")));
+    "extra"     => array("validation"=>"OSS_NULLABLE, OSS_SCORE, OSS_TEXT, OSS_PUNC_EXT, OSS_AT", "e_message" => 'illegal:' . _("Extra")));
 
 
 if ($action ==  "edit")
