@@ -495,7 +495,7 @@ function go() {
 </head>
 <body onload="go()">
 <?php
-    include ("../hmenu.php"); ?>
+    if (GET('withoutmenu')!="1") include ("../hmenu.php"); ?>
 
 <table border=0 cellpadding=0 cellspacing=0 class="nobborder"><tr><td class="nobborder">
 	<form name="controls" onsubmit="return false" style="margin:0 auto">

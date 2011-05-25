@@ -46,7 +46,11 @@ $db = new ossim_db();
 $conn = $db->connect();	
 $servers = Server::get_list($conn, "");
 list ($categories,$subcategories) = Plugin::get_categories($conn);
-$csclist = array("0:0" => "ANY"); foreach ($categories as $id => $name) foreach ($subcategories[$id] as $sid => $sname) $csclist["$id:$sid"] = "$name - $sname";
+$csclist = array("0:0" => "ANY"); 
+foreach ($categories as $id => $name) {
+	$csclist["$id:0"] = $name;
+	foreach ($subcategories[$id] as $sid => $sname) $csclist["$id:$sid"] = "$name - $sname";
+}
 $db->close($conn);
 //
 if (GET("refresh")==1) {
@@ -86,6 +90,7 @@ if (GET("refresh")==1) {
 		}
 		echo "</table>\n";
 		echo '<a target="main" href="events.php?stop='.urlencode(implode(",",$stops)).'" style="text-decoration:none" class="button">STOP ALL</a>';
+		echo '&nbsp;&nbsp;<a target="realtime" href="../control_panel/event_panel.php?withoutmenu=1" onclick="$(\'#realtime\').show()" style="text-decoration:none" class="button">REAL TIME</a><br><br>';
 	} else {
 		echo _("No agents running.");
 	}
@@ -114,8 +119,8 @@ if (GET("refresh")==1) {
                 $('#content').html(msg);
             }
         });
-  	 }
-  	 $(document).ready(function(){ refresh(); });
+  	 } 	 
+  	 $(document).ready(function(){ refresh(); }); 	 
   </script>
 </head>
 <body><br>
@@ -148,8 +153,9 @@ if (GET("refresh")==1) {
 	}
 	if (GET('stop')!="") {
 		$agents = explode(",",GET('stop'));
+		$all = (count($agents)>1) ? true : false;
 		foreach ($agents as $agent) {
-			$msg=new xmlrpcmsg('stop',array(new xmlrpcval(0, "int")));
+			$msg=new xmlrpcmsg('stop',array(new xmlrpcval(($all==true) ? 0 : $agent, "int")));
 			$status = $client->send($msg);
 			echo _("Agent [$agent] Stopped successfully!")." "._("Please refresh status").".<br>";	
 		}
@@ -171,7 +177,7 @@ if (GET("refresh")==1) {
 		<? foreach ($servers as $server) echo "<option value='".$server->get_ip().":".$server->get_port()."'>".Util::htmlentities($server->get_name())."-".$server->get_ip()."</option>"; ?>
 		</select><br>
 		<?=_("Local Src")?>: <select name="src"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
-		<?=_("Local Dst")?>: <select name="dst"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
+		<?=_("Local Dst")?>: <select name="dst"><option value="0"><?=_("No")?></option><option value="1" checked><?=_("Yes")?></option></select><br>
 		<?=_("Taxonomy")." (Cat/SubCat)"?>: <select name="tax" style="width:180px"><option value='0'>ANY</option>
 		<?php
 			foreach ($categories as $id => $name) {
@@ -192,6 +198,9 @@ if (GET("refresh")==1) {
 
 </tr>
 </table>
+<!-- REAL TIME -->
+<br>
+<iframe id="realtime" name="realtime" scrolling="no" frameborder="0" style="display:none;width:100%;height:1200px"></iframe>
 </body>
 </html>
 
