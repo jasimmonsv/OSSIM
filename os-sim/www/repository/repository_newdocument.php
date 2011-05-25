@@ -80,12 +80,12 @@ if ( POST('title') != "" && POST('doctext') != "" && $error == false)
     if($vuser != "")   $user = $vuser;
     if($ventity != "") $user = $ventity;
 	
-	$title    = strip_tags(POST('title'),'<span><div><a><p><ol><ul><li><hr><br>');
-	$doctext  = strip_tags(POST('doctext'),'<span><div><a><p><ol><ul><li><hr><br>');
-	$keywords = strip_tags(POST('keywords'),'<span><div><a><p><ol><ul><li><hr><br>');
+	$title    = POST('title');
+	$doctext  = strip_tags(POST('doctext'),'<big><span><div><a><p><ol><ul><li><hr><br>');
+	$keywords = POST('keywords');
 	
    
-    $id_inserted             = Repository::insert($conn, $title , $doctext , $keywords , $user);
+    $id_inserted = Repository::insert($conn, $title , $doctext , $keywords , $user);
 	?>
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	<html>
