@@ -115,15 +115,20 @@ else
 			<?php
 			$reports = $rscan->get_scans();
 			
+			
+			
 			if ( count($reports)==0 ) 
 			{
 				echo "<tr><td colspan='3' style='height: 30px' class='nobborder center'><i>"._("No remote agents connected")."</i></td>";
 			}
 			else
 			{
+				$i = 0;
 				foreach ($reports as $id => $scans) 
 				{
-					echo "<tr><td valing='middle' rowspan='".count($scans)."' class='left row'><img src='../pixmaps/arrow-315-small.png' align='absmiddle'/>&nbsp;<strong>$id</strong></td>";
+					if ( !empty($scans) )
+					{
+						echo "<tr><td valing='middle' rowspan='".count($scans)."' class='left row'><img src='../pixmaps/arrow-315-small.png' align='absmiddle'/>&nbsp;<strong>$id</strong></td>";
 					
 						foreach ($scans as $scan) 
 						{
@@ -136,6 +141,13 @@ else
 							</tr>
 							<?php
 						}
+						$i++;
+					}
+				}
+				
+				if ($i == 0)
+				{
+					echo "<tr><td colspan='3' style='height: 30px' class='center'><i>"._("No remote scan jobs availables")."</i></td></tr>";
 				}
 			}
 			?>

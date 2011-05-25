@@ -35,9 +35,7 @@
 * Classes list:
 */
 // menu authentication
-
 ob_implicit_flush();
-
 
 require_once ('classes/Session.inc');
 Session::logcheck("MenuPolicy", "ToolsScan");
@@ -225,37 +223,33 @@ if (count($scanning_assets) > 0)
 		$rscan = new RemoteScan($sc_asset,($full_scan=="full") ? "root" : "ping");
 		
 		//Full Scan
-			
 		if (($available = $rscan->available_scan()) != "") 
 		{ 
-			$id = md5($sc_asset);
+			$id        = md5($sc_asset);
+			$is_remote = true;		
 						
-			echo "<div class='loading_nmap remote' id='assets_".$id."'>\n
-					<img class='img_loading' id='img_".$id."' src='../pixmaps/loading3.gif' align='absmiddle' alt='"._("Loading")."'/>\n
-					<span id='text_".$id."'>"._("Scanning network"). " ($sc_asset) ". _("with a remote sensor")." [$available], "._("please wait")."...</span>\n
+			echo "<div class='loading_nmap remote' id='assets_".$id."'>
+					<img class='img_loading' id='img_".$id."' src='../pixmaps/loading3.gif' align='absmiddle' alt='"._("Loading")."'/>
+					<span id='text_".$id."'>"._("Scanning network"). " ($sc_asset) ". _("with a remote sensor")." [$available], "._("please wait")."...</span>
 				  </div>\n";
-			
-			$is_remote = true;
 		} 
 		else 
 		{
-			
-			$id = md5($sc_asset);
 					
-			echo "<div class='loading_nmap local' id='assets_".$id."'>\n
-					<img class='img_loading' id='img_".$id."' src='../pixmaps/loading3.gif' align='absmiddle' alt='"._("Loading")."'/>\n
-					<span id='text_".$id."'>"._("Scanning local network"). " ($sc_asset) "._("please wait")."...</span>\n
-					<input type='button' class='lbuttond stop_scan' onclick='stop_nmap(\"".$sc_asset."\")' value='"._("Stop Scan")."'/>\n
-				  </div>\n";
+			echo "<div class='loading_nmap local' id='assets_".$id."'>
+					<img class='img_loading' id='img_".$id."' src='../pixmaps/loading3.gif' align='absmiddle' alt='"._("Loading")."'/>
+					<span id='text_".$id."'>"._("Scanning local network"). " ($sc_asset) "._("please wait")."...</span>
+					<input type='button' class='lbuttond stop_scan' onclick='stop_nmap(\"".$sc_asset."\")' value='"._("Stop Scan")."'/>
+				</div>\n";
 		}
-		
+
+				
 		?>
 		<script type="text/javascript">setIframeHeight('process');</script>
 		<?php
 		
 	}
-				
-		
+	
 	/*
 	while( Scan::scanning_now() ) 
 	{
@@ -301,7 +295,7 @@ if (count($scanning_assets) > 0)
 
 	while( Scan::scanning_now() ) 
 	{
-        sleep(3);
+  		sleep(3);
 	}
 	
 	$has_results = false;
@@ -325,7 +319,7 @@ if (count($scanning_assets) > 0)
 	
 	if ( $has_results ) 
 	{
-		echo "<div style='margin:auto; text-align: center;'>
+		echo "<div style='margin:auto; text-align: center; padding: 5px 0px'>
 				<span style='font-weight: bold;'>"._("Scan completed")."</span><a onclick=\"parent.document.location.href='index.php'\"> [ "._("Click here to view the results")."]</a>
 			  </div>\n";
 	}
