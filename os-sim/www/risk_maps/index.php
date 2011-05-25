@@ -487,6 +487,12 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 			   GB_show(t,url,420,"50%");
 			   return false;
 			});
+			$("a.greybox2").click(function(){
+			   var t = this.title || $(this).text() || this.href;
+			   var url = this.href + "&dir=" + document.getElementById('category').value;
+			   GB_show(t,url,200,200);
+			   return false;
+			});
 		}
 
 		var layer = null;
@@ -927,7 +933,8 @@ if (preg_match("/MSIE/",$_SERVER['HTTP_USER_AGENT']))
 				<td align="left">
 					<a href="chooser.php" title="Icon browser" class="greybox" style="font-size:12px"><?php echo _("Browse all")?></a>
 					<span> / </span>
-					<a href="javascript:loadLytebox()" id="lytebox_misc" title="Icon chooser" style="font-size:12px" rev="width: 400px; height: 300px;scrolling: no;"><?php echo _("Choose from list")?></a>
+					<!-- <a href="javascript:loadLytebox()" id="lytebox_misc" title="Icon chooser" style="font-size:12px" rev="width: 400px; height: 300px;scrolling: no;"><?php echo _("Choose from list")?></a> -->
+					<a href="chooser.php?mode=slider" title="Icon chooser" class="greybox2" style="font-size:12px"><?php echo _("Choose from list")?></a>
 					<span> / </span>
 					<a onclick="$('#uploadform').show();return false" style="font-size:12px"><?php echo _("Upload your own icon")?></a><br/>
 				</td>
