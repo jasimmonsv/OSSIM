@@ -540,7 +540,7 @@ else if ($key=="entities") {
             $e_style     = "font-weight:bold";
             $entity_name = $entity['name'];
                     
-            echo "{title:'<font style=\"$e_style\">".Util::htmlentities($entity_name)."</font> <font style=\"color:gray\">[".$entity['type_name']."]</font>', key:'e_".$e_key."', icon:'$icon', expand:true,  url:'ENTITY:".$e_key."', name:'".utf8_encode($entity_name)."'";
+            echo "{title:'<font style=\"$e_style\">".Util::htmlentities($entity_name)."</font> <font style=\"color:gray\">[".$entity['type_name']."]</font>', key:'e_".$e_key."', icon:'$icon', isFolder:true ,expand:true, name:'".utf8_encode($entity_name)."'";
                     echochildrens($entities, $entity['id']);
             echo "}";
         }
@@ -598,7 +598,7 @@ function echochildrens($entities,$parent_id ) {
 			
 			if ( $child['parent_id'] == $parent_id )
 			{
-				echo ",{title:'<font style=\"$style\">".Util::htmlentities($child['name'])."</font> <font style=\"color:gray\">[".$child['type_name']."]</font>', url:'ENTITY:".$child_key."', key:'e_".$child_key."', icon:'$icon', expand:true, name:'".utf8_encode($child['name'])."'";
+				echo ",{title:'<font style=\"$style\">".Util::htmlentities($child['name'])."</font> <font style=\"color:gray\">[".$child['type_name']."]</font>', isFolder:true, key:'e_".$child_key."', icon:'$icon', expand:true, name:'".utf8_encode($child['name'])."'";
 					echochildrens($entities, $child_key );
 				echo "}";
 			}	
