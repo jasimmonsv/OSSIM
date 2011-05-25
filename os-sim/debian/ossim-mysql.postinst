@@ -1,11 +1,32 @@
 #!/bin/sh -e
 
-. /usr/share/debconf/confmodule
+#. /usr/share/debconf/confmodule
+
+
+prof=`cat /etc/ossim/ossim_setup.conf  | grep -v "profile=server" | grep profile | cut -d= -f2`
+profiles="$(echo $prof | tr ',' ' ')"
+SERVER="0"
+DATABASE="0"
+FRAMEWORK="0"
+SENSOR="0"
+for p in $profiles ; do
+	if [ "$p" == "Server" ]; then
+		SERVER="1"
+	elif [ "$p" == "Database" ]; then
+		DATABASE="1"
+	elif [ "$p" == "Framework" ]; then
+		FRAMEWORK="1"
+	elif [ "$p" == "Sensor" ]; then
+		SENSOR="1"
+	else
+		echo -e "No profiles found.\nDid you install from AV OSSIM installer?"
+	fi
+done
 
 # Rebuild plugin info on database
 if [ -f "/etc/ossim/ossim_setup.conf" ]; then
-	find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname *.sql -printf 'INSERT %f \n' -exec sh -c 'cat {}| ossim-db' \; || true
-	find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname *.sql.gz -printf 'INSERT %f \n' -exec sh -c 'zcat {}| ossim-db' \; || true
+	find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname \*.sql -printf 'INSERT %f \n' -exec sh -c 'cat {}| ossim-db' \; || true
+	find /usr/share/doc/ossim-mysql/contrib/plugins/ -type f -iname \*.sql.gz -printf 'INSERT %f \n' -exec sh -c 'zcat {}| ossim-db' \; || true
 fi
 
 srdpi="/var/lib/dpkg/info/snort-rules-default.postinst"
@@ -16,7 +37,18 @@ fi
 
 otpi="/var/lib/dpkg/info/ossim-taxonomy.postinst"
 if [ -f "$otpi" ]; then
-#        echo -e "\nossim--taxonomy found (updating)..."
+#        echo -e "\nossim-taxonomy found (updating)..."
             /bin/bash "$otpi"
 fi
+
+if [ "$SERVER" == "1" ]; then
+	if [ -x /etc/init.d/ossim-server ]; then
+		/etc/init.d/ossim-server restart || true
+	else
+		echo -e "/etc/init.d/ossim-server not found or not executable.\nDid you install from AV OSSIM installer?"
+	fi
+fi
+
+
+exit 0
 
