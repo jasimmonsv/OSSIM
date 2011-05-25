@@ -103,13 +103,15 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 				var ln = ($('#ip_list').val()!='') ? '\n' : '';
 				var inside = 0;
 				if(dtnode.data.url.match(/AllAssets/)) {
-                    $.ajax({
+                    $('#lassets').show();
+                     $.ajax({
                         type: "GET",
                         url: "draw_tree.php",
                         data: { key: dtnode.data.key },
                         success: function(msg) {
 							var ln = ($('#ip_list').val()!='') ? '\n' : '';
 							$('#ip_list').val($('#ip_list').val() + ln + msg)
+                            $('#lassets').hide();
                         }
                     });
                 }
@@ -1452,9 +1454,21 @@ EOT;
             </tr>
             <tr>
 			<td valign="top" class="noborder">
+            <table class="transparent" width="100%">
+                <tr>
+                    <td class='nobborder'>
 EOT;
             $discovery .="<textarea name=\"ip_list\" id=\"ip_list\" cols=\"32\" rows=\"8\">".(($ip_list_selected=="") ? "$editdata[meth_TARGET]":"$ip_list_selected")."</textarea>";
+            $discovery .="</td></tr>";
+            $discovery .="<tr><td style='text-align:left;' class='nobborder'>";
+            $discovery .="<div id='lassets' style='display:none'>";
+            $discovery .="<img width=\"16\" align=\"absmiddle\" src=\"./images/loading.gif\" border=\"0\" alt=\""._("Loading assets...")."\" title=\""._("Loading assets...")."\">";
+            $discovery .="<span style='margin-left:4px;'>"._("Loading assets, please wait few seconds...")."</span>";
             $discovery .= <<<EOT
+                        </div>
+                <td>
+                </tr>
+            </table>
 			</td>
 			<td valign="top" style="text-align:left" class="noborder">
 				<div id="htree" style="width:300px"></div>

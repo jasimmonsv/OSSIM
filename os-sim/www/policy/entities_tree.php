@@ -550,14 +550,11 @@ else if(preg_match("/e_(.*)_net$/",$key,$found))
             if($p>=$from && $p<$to) {
                 $net_title  = Util::htmlentities(utf8_encode($net->get_name()));
                 $html .= "{url:'../net/newnetform.php?name=".urlencode($net->get_name())."', icon:'../../pixmaps/theme/net.png', title:'$net_title <font style=\"font-size:80%\">(".$net->get_ips().")</font>'},";
-                $p++;
             }
-            else if($p<=$maxresults) {
-                $p++;
-            }
+            $p++;
         }
     }
-    if ($p>$maxresults) {
+    if ($p>$to) {
         $html.= "{ key:'$key', page:'$nextpage', isFolder:true, isLazy:true, icon:'../../pixmaps/theme/net.png', title:'"._("next")." $maxresults "._("nets")."' }";
     }
     if ($html != "") $buffer .= preg_replace("/,$/", "", $html); 
