@@ -1676,9 +1676,7 @@ if ( POST('update') )
 		if (ossim_error()) {
            die(ossim_error()); 
         }
-        
-		
-		
+        				
 		if (valid_value(POST("conf_$i") , POST("value_$i"), $numeric_values))
 		{
 		    
@@ -1689,7 +1687,6 @@ if ( POST('update') )
 				else
 				{
 					$before_value = $ossim_conf->get_conf(POST("conf_$i"),false); 
-					
 					$config->update(POST("conf_$i") , POST("value_$i"));
 					
 					if (POST("value_$i") != $before_value) 
@@ -1699,8 +1696,7 @@ if ( POST('update') )
             }
 		}
 	}
-	
-	
+		
     
     // check valid pass lenght max
     if(intval($pass_length_max) < intval($pass_length_min) || intval($pass_length_max) < 1 || intval($pass_length_max) > 255 )
@@ -2140,6 +2136,7 @@ $default_open = intval(GET('open'));
 											else
 											{
 												$conf_value = ( $type["type"]=="password" ) ? Util::fake_pass($conf_value) : $conf_value;
+												
 												$input.= "<input type='" . $type["type"] . "' size='30' name='value_$count' value='$conf_value' $disabled/>";
 											}
 											

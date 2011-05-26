@@ -443,8 +443,7 @@ class RemoteScan {
 	    /* connect */
 	    socket_set_block($socket);	    
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
-	    $result = @socket_connect($socket, $this->address, $this->port);	    
+	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
 	        return "";
@@ -518,7 +517,6 @@ class RemoteScan {
 	    /* connect */
 	    socket_set_block($socket);
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);		
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -630,7 +628,6 @@ class RemoteScan {
 	    /* connect */
 		socket_set_block($socket);
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -665,7 +662,6 @@ class RemoteScan {
 	    /* connect */
 	    socket_set_block($socket);
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -723,7 +719,6 @@ class RemoteScan {
 	    /* connect */
 		socket_set_block($socket);	    
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -839,7 +834,6 @@ class TrafficScan {
 	    /* connect */
 	    socket_set_block($socket);	    
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -891,7 +885,6 @@ class TrafficScan {
 	    /* connect */
 	    socket_set_block($socket);
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -942,7 +935,6 @@ class TrafficScan {
 	    /* connect */
 		socket_set_block($socket);
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -977,7 +969,6 @@ class TrafficScan {
 	    /* connect */
 		socket_set_block($socket);
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -1012,7 +1003,6 @@ class TrafficScan {
 	    /* connect */
 		socket_set_block($socket);	    
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -1043,7 +1033,6 @@ class TrafficScan {
 	    /* connect */
 		socket_set_block($socket);	    
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";
@@ -1095,7 +1084,6 @@ class TrafficScan {
 	    /* connect */
 		socket_set_block($socket);	    
 		socket_set_option($socket,SOL_SOCKET,SO_RCVTIMEO,$this->timeout);
-		socket_set_option($socket,SOL_SOCKET,SO_SNDTIMEO,$this->timeout);
 	    $result = @socket_connect($socket, $this->address, $this->port);
 	    if (!$result) {
 	        $this->errmsg = _("Can't connect with frameworkd")." ($this->address:$this->port)";

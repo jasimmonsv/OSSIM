@@ -92,7 +92,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 	<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="../js/jquery.simpletip.js"></script>
 	<script type="text/javascript" src="../js/vulnmeter.js"></script>
-	<?php include ("../host_report_menu.php") ?>
+	<? include ("../host_report_menu.php") ?>
 	<script type="text/javascript">
 		function postload() {
 			$(".scriptinfo").simpletip({
@@ -148,7 +148,7 @@ Session::logcheck("MenuEvents", "EventsVulnerabilities");
 				$('#user').val('0'); 
 			}
 		}
-	</script>
+  </script>
 </head>
 
 <body>
@@ -162,7 +162,7 @@ require_once('functions.inc');
 //require_once('header2.php');
 //require_once('permissions.inc.php');
 
-$getParams  = array( "disp", "item", "page", "delete", "prefs", "uid", "sid",
+$getParams = array( "disp", "item", "page", "delete", "prefs", "uid", "sid",
            "op", "confirm", "preenable", "bEnable" );
 
 $postParams = array( "disp", "saveplugins", "page", "delete", "prefs", "uid", "sid",
@@ -187,10 +187,10 @@ switch ($_SERVER['REQUEST_METHOD'])
 	   $AllPlugins  = "";
 	   $NonDOS      = "";
 	   $DisableAll  = "";
-	   $saveplugins = "";
-	break;
+	   $saveplugins ="";
+   break;
 
-	case "POST" :
+   case "POST" :
 		foreach ($postParams as $pp) 
 		{
 			if (isset($_POST[$pp]))
@@ -199,22 +199,20 @@ switch ($_SERVER['REQUEST_METHOD'])
 				$$pp="";
 		  
 	   }
-	break;
+   break;
 }
 
 
-ossim_valid($sid, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("Sid"));
-
+ossim_valid($sid, OSS_DIGIT, OSS_NULLABLE, 'illegal:' . _("sid"));
 if (ossim_error()) {
     die(_("Invalid Parameter Sid"));
 }
 
 
-if(isset($_POST['authorized_users'])) 
-{
-	foreach($_POST['authorized_users'] as $user) {
-		$users[] = Util::htmlentities(mysql_real_escape_string(trim($user)), ENT_QUOTES); 
-	}
+if(isset($_POST['authorized_users'])) {
+   foreach($_POST['authorized_users'] as $user) {
+      $users[] = Util::htmlentities(mysql_real_escape_string(trim($user)), ENT_QUOTES); 
+   }
 }
 
 //if (!($uroles['profile'] || $uroles['admin'])) {
@@ -227,58 +225,55 @@ if(isset($_POST['authorized_users']))
 $db     = new ossim_db();
 $dbconn = $db->connect();
 
-$query              = "SELECT count(*) FROM vuln_nessus_plugins";
-$result             = $dbconn->execute($query);
-list($pluginscount) = $result->fields;
+$query  = "SELECT count(*) FROM vuln_nessus_plugins";
+$result = $dbconn->execute($query);
+list($pluginscount)=$result->fields;
 
 if ($pluginscount==0) {
    die ("<h2>"._("Please run updateplugins.pl script first before using web interface.")."</h2>");
 }
 
 function navbar( $sid ) {
-	global $profilename, $dbconn;
-	//<h3>Manage Nessus Scan Profiles</h3>
+   global $profilename, $dbconn;
+//<h3>Manage Nessus Scan Profiles</h3>
 
-	echo "<center>";
-	
-	if ($sid) 
-	{
-		$query  = "SELECT name FROM vuln_nessus_settings WHERE id='$sid'";
-		$result = $dbconn->execute($query);
-		list($profilename) = $result->fields;
+echo "<center>";
+   if ($sid) {
+      $query = "SELECT name FROM vuln_nessus_settings WHERE id='$sid'";
+      $result = $dbconn->execute($query);
+      list($profilename) = $result->fields;
 
-		echo "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"800\" class=\"noborder\">";
-		echo "<tr class=\"noborder\" style=\"background-color:white\"><td class=\"headerpr\">";
-		echo "    <table width=\"100%\" class=\"noborder\" style=\"background-color:transparent\">";
-		echo "        <tr class=\"noborder\" style=\"background-color:transparent\"><td width=\"20\" class=\"noborder\">";
-		echo "        <a href=\"settings.php\"><img src=\"./images/back.png\" border=\"0\" alt=\"Back\" title=\"Back\"></a>";
-		echo "        </td><td width=\"780\">";
-		echo "        <span style=\"font-weight:normal;\">"._("EDIT PROFILE").":</span> <font color=black><b>".html_entity_decode($profilename)."<b></font>";
-		echo "        </td></tr>";
-		echo "    </table>";
-		echo "</td></tr>";
-		echo "<tr><td class=\"nobborder\">";
-		echo "       <table width=\"100%\"><tr><td class=\"nobborder\" style=\"text-align:center;padding-top:5px;padding-bottom:5px;\">";
-		echo "<form>";
-		echo "<input type=button onclick=\"document.location.href='settings.php?disp=editauto&amp;sid=$sid'\" class=\"".(($_GET['disp']=="editauto"||$_GET['disp']=='edit')? "buttonon":"button")."\" value=\""._("AUTOENABLE")."\">&nbsp;&nbsp;&nbsp;";
-		echo "<input type=button onclick=\"document.location.href='settings.php?disp=editplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editplugins')? "buttonon":"button")."\" value=\""._("PLUGINS")."\">&nbsp;&nbsp;&nbsp;";
-		echo "<input type=button onclick=\"document.location.href='settings.php?disp=linkplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='linkplugins')? "buttonon":"button")."\" style=\"display:none;\" value=\""._("ImPLUGINS")."\">";
-		echo "<input type=button onclick=\"document.location.href='settings.php?disp=editprefs&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editprefs')? "buttonon":"button")."\" value=\""._("PREFS")."\">&nbsp;&nbsp;&nbsp;";
+echo "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"800\" class=\"noborder\">";
+echo "<tr class=\"noborder\" style=\"background-color:white\"><td class=\"headerpr\">";
+echo "    <table width=\"100%\" class=\"noborder\" style=\"background-color:transparent\">";
+echo "        <tr class=\"noborder\" style=\"background-color:transparent\"><td width=\"20\" class=\"noborder\">";
+echo "        <a href=\"settings.php\"><img src=\"./images/back.png\" border=\"0\" alt=\"Back\" title=\"Back\"></a>";
+echo "        </td><td width=\"780\">";
+echo "        <span style=\"font-weight:normal;\">"._("EDIT PROFILE").":</span> <font color=black><b>".html_entity_decode($profilename)."<b></font>";
+echo "        </td></tr>";
+echo "    </table>";
+echo "</td></tr>";
+echo "<tr><td class=\"nobborder\">";
+echo "       <table width=\"100%\"><tr><td class=\"nobborder\" style=\"text-align:center;padding-top:5px;padding-bottom:5px;\">";
+echo "<form>";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=editauto&amp;sid=$sid'\" class=\"".(($_GET['disp']=="editauto"||$_GET['disp']=='edit')? "buttonon":"button")."\" value=\""._("AUTOENABLE")."\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=editplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editplugins')? "buttonon":"button")."\" value=\""._("PLUGINS")."\">&nbsp;&nbsp;&nbsp;";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=linkplugins&amp;sid=$sid'\" class=\"".(($_GET['disp']=='linkplugins')? "buttonon":"button")."\" style=\"display:none;\" value=\""._("ImPLUGINS")."\">";
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=editprefs&amp;sid=$sid'\" class=\"".(($_GET['disp']=='editprefs')? "buttonon":"button")."\" value=\""._("PREFS")."\">&nbsp;&nbsp;&nbsp;";
 
-		//<input type=button onclick="document.location.href='settings.php?disp=editusers&amp;sid=$sid'" class="button" value="USERS">&nbsp;&nbsp;&nbsp;
-		echo "<input type=button onclick=\"document.location.href='settings.php?disp=viewconfig&amp;sid=$sid'\" class=\"".(($_GET['disp']=='viewconfig')? "buttonon":"button")."\" value=\""._("VIEW CONFIG")."\">&nbsp;&nbsp;&nbsp;";
-		echo "</form>";
-		?>
-		
-		<div id="div_updateautoenable" style="display:none">
-			<br/>
-			<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
-			&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
-		</div>
-		<?php
-	}
-	
-	echo "</center><br>";
+//<input type=button onclick="document.location.href='settings.php?disp=editusers&amp;sid=$sid'" class="button" value="USERS">&nbsp;&nbsp;&nbsp;
+echo "<input type=button onclick=\"document.location.href='settings.php?disp=viewconfig&amp;sid=$sid'\" class=\"".(($_GET['disp']=='viewconfig')? "buttonon":"button")."\" value=\""._("VIEW CONFIG")."\">&nbsp;&nbsp;&nbsp;";
+echo "</form>";
+?>
+<div id="div_updateautoenable" style="display:none">
+	<br>
+	<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
+	&nbsp;<?php echo _("Applying changes, please wait few seconds...") ?>
+</div>
+<?php
+   }
+   echo "</center><br>";
+
 }
 
 function new_profile() {
@@ -302,14 +297,13 @@ function new_profile() {
     echo "<tr><td style=\"padding-top:5px;\" class=\"nobborder\">";
     // build pulldown of existing scan policies/profiles in case user
     // wants to clone an existing policy instead of starting from scratch
-    $query  = "SELECT id, name, description FROM vuln_nessus_settings";
+    $query = "SELECT id, name, description
+       FROM vuln_nessus_settings";
     $result = $dbconn->GetArray($query);
-    
-	$allpolicies  = "<select name='cloneid'>\n";
+    $allpolicies = "<select name='cloneid'>\n";
     $allpolicies .= "<option value=''>"._("None")."</option>\n";
 
-    if($result) 
-	{
+    if($result) {
        foreach($result as $sp) {
           if($sp['description']!="") {
             $allpolicies .= "<option value='".$sp['id']."'>".$sp['name']." - ".$sp['description']."</option>\n";
@@ -319,10 +313,8 @@ function new_profile() {
           }
        }
     }
-    
-	$allpolicies .= "</select>";
-    
-	echo <<<EOT
+    $allpolicies .= "</select>";
+    echo <<<EOT
 <CENTER>
 <form method="post" action="settings.php">
 <input type="hidden" name="disp" value="create">
@@ -331,10 +323,10 @@ function new_profile() {
 EOT;
 ?>
 <div id="div_createprofile" style="display:none;padding-bottom:8px;">
-	<br/>
-	<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
-	&nbsp;<?php echo _("Creating the profile, please wait few seconds...") ?>
-	<br/>
+<br>
+<img width="16" align="absmiddle" src="./images/loading.gif" border="0" alt="<?php echo _("Applying changes...")?>" title="<?php echo _("Applying changes...")?>">
+&nbsp;<?php echo _("Creating the profile, please wait few seconds...") ?>
+<br>
 </div>
 
 <?php
@@ -1038,14 +1030,13 @@ function edit_serverprefs($sid) {
              ON t.nessus_id = n.nessus_id
                 and n.sid = $sid
        order by category desc, nessusgroup, nessus_id";*/
-	$uuid = Util::get_system_uuid();
-	$sql  = "SELECT t.nessusgroup, t.nessus_id, t.field, t.type, t.value AS def_value, AES_DECRYPT(t.value,'$uuid') AS def_value_decrypt, n.value, AES_DECRYPT(n.value,'$uuid') AS value_decrypt, t.category
+	$sql = "SELECT t.nessusgroup, t.nessus_id, t.field, t.type, t.value, n.value, t.category
 			FROM vuln_nessus_preferences_defaults t
 			LEFT JOIN vuln_nessus_settings_preferences n
 			ON t.nessus_id = n.nessus_id and n.sid = $sid
 			ORDER BY category desc, nessusgroup, nessus_id";
-			
-	$result = $dbconn->execute($sql);
+       
+	$result=$dbconn->execute($sql);
    
 	if($result === false) 
 	{ 
@@ -1075,14 +1066,7 @@ print "<table>";
   while(!$result->EOF) 
   {
 		$counter++;
-		
-		$nessusgroup = $result->fields['nessusgroup'];
-		$nessus_id   = $result->fields['nessus_id'];
-		$field       = $result->fields['field'];
-		$type        = $result->fields['type'];
-		$default     = ( $result->fields['type'] != 'P' || ( $result->fields['type'] == 'P' && empty($result->fields['def_value_decrypt']) ) ) ? $result->fields['def_value']  : $result->fields['def_value_decrypt'];
-		$value       = ( $result->fields['type'] != 'P' || ( $result->fields['type'] == 'P' && empty($result->fields['value_decrypt']) ) ) ? $result->fields['value']  : $result->fields['value_decrypt'];
-		$category    = $result->fields['category'];
+		list ($nessusgroup, $nessus_id, $field, $type, $default, $value, $category) = $result->fields;
 		
 		if ($nessusgroup != $lastvalue) 
 		{
@@ -1108,7 +1092,7 @@ function edit_profile($sid) {
 
    navbar( $sid );
 
-   $query  = "SELECT name, description from vuln_nessus_settings WHERE id=$sid";
+   $query = "select name, description from vuln_nessus_settings where id=$sid";
    $result = $dbconn->execute($query);
    list($sname, $sdescription) = $result->fields;
 //   echo <<<EOT
@@ -1123,8 +1107,8 @@ function manage_profile_users($sid) {
 
    navbar( $sid );
 
-   $query       = "SELECT name FROM vuln_nessus_settings WHERE id=$sid";
-   $result      = $dbconn->execute($query);
+   $query = "select name from vuln_nessus_settings where id=$sid";
+   $result = $dbconn->execute($query);
    list($nname) = $result->fields;
 
 
@@ -1143,7 +1127,7 @@ function manage_profile_users($sid) {
 <TD valign=top align='center'>Authorized Users<br>
       <input type="hidden" name="disp" value="updateusers">
       <input type="hidden" name="sid" value="$sid">
-	  <select name="authorized_users[]" id="authorized" style="WIDTH: 187px; HEIGHT: 200px" multiple="multiple" size=20>
+    <select name="authorized_users[]" id="authorized" style="WIDTH: 187px; HEIGHT: 200px" multiple="multiple" size=20>
 EOT;
 
    //$query = "SELECT t1.username FROM vuln_nessus_settings_users t1
@@ -1152,19 +1136,17 @@ EOT;
    //$result = $dbconn->execute($query);
 
    while( list($uname) = $result->fields ) {
-      echo "<option value=\"$uname\">$uname</option>\n";
+      echo "<OPTION value=\"$uname\">$uname</OPTION>\n";
       $result->MoveNext();
    }
 
 
      echo <<<EOT
 
-       </select>
-	</td>
-    <td>
-	   <input type='button' value='<< Add' onclick="move2(this.form.unauthorized,this.form.authorized )" class="button"><br/><br>
-       <input type='button' value='Remove >>' onclick="move2(this.form.authorized,this.form.unauthorized)" class="button"></td>
-       <td valign=top align="left">
+</SELECT></td>
+<td><input type='button' value='<< Add' onclick="move2(this.form.unauthorized,this.form.authorized )" class="button"><br/><br>
+<input type='button' value='Remove >>' onclick="move2(this.form.authorized,this.form.unauthorized)" class="button"></td>
+     <td valign=top align="left">
           <select name="unauth_users[]" id="unauthorized" style="WIDTH: 187px; HEIGHT: 200px" multiple="multiple" size=20>\n";
 EOT;
 
@@ -1176,7 +1158,7 @@ EOT;
    $result = $dbconn->execute($query);
 
    while( list($nname) = $result->fields ) {
-      echo "<option value=\"$nname\" >$nname</option>\n";
+      echo "<OPTION value=\"$nname\" >$nname</OPTION>\n";
       $result->MoveNext();
 
    }
@@ -2113,7 +2095,7 @@ function updatedb($nessus_id, $fieldvalue, $dbconn, $type, $category, $sid) {
         $fieldvalue="no";
     }
 
-    $sql = "SELECT count(*) FROM vuln_nessus_settings_preferences WHERE sid = $sid AND nessus_id = \"$nessus_id\"";
+    $sql = "select count(*) from vuln_nessus_settings_preferences where sid = $sid and nessus_id = \"$nessus_id\"";
     $result=$dbconn->execute($sql);
 
     list($existing)=$result->fields;
@@ -2121,21 +2103,14 @@ function updatedb($nessus_id, $fieldvalue, $dbconn, $type, $category, $sid) {
 	if ($existing == 0) 
 	{
 		# Do an insert statement
-		$uuid            = Util::get_system_uuid();
-		$sql_field_value = ( $type == "P" ) ? "AES_ENCRYPT('$fieldvalue','$uuid')" : "'$fieldvalue'";
-        
-		$sql = "INSERT vuln_nessus_settings_preferences SET nessus_id = '$nessus_id', value=$sql_field_value, type='$type', category='$category', sid=$sid";
+        $sql = "insert vuln_nessus_settings_preferences set nessus_id = \"$nessus_id\", value=\"$fieldvalue\", type=\"$type\", category=\"$category\", sid=$sid";
     } 
 	else 
 	{
 		if ($type == "P" && Util::is_fake_pass($fieldvalue) )
-			$sql = "UPDATE vuln_nessus_settings_preferences SET type='$type', category='$category'  WHERE nessus_id = '$nessus_id' AND sid = $sid";
+			$sql = "update vuln_nessus_settings_preferences set type=\"$type\", category=\"$category\"  where nessus_id = \"$nessus_id\" and sid = $sid";
 		else
-		{
-			$uuid            = Util::get_system_uuid();
-			$sql_field_value = ( $type == "P" ) ? "AES_ENCRYPT('$fieldvalue','$uuid')" : "'$fieldvalue'";
-			$sql  = "UPDATE vuln_nessus_settings_preferences SET value=$sql_field_value, type='$type', category='$category' WHERE nessus_id = '$nessus_id' AND sid = $sid";
-		}
+			$sql = "update vuln_nessus_settings_preferences set value=\"$fieldvalue\", type=\"$type\", category=\"$category\"  where nessus_id = \"$nessus_id\" and sid = $sid";
     }
     
 	$result=$dbconn->execute($sql);

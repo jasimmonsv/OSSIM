@@ -47,47 +47,35 @@
 * - Config
 */
 require_once 'classes/Security.inc';
-require_once 'classes/Util.inc';
 require_once 'ossim_db.inc';
 require_once 'ossim_sql.inc';
-
 class Config {
     var $confs = array();
     var $conn = null;
-    function Config() 
-	{
-        $ossimdb    = new ossim_db();
+    function Config() {
+        $ossimdb = new ossim_db();
         $this->conn = $ossimdb->Nconnect();
-        $uuid       = Util::get_system_uuid();
-		$sql        = "SELECT *, AES_DECRYPT(value,'$uuid') as value_decrypt from config";
-        
-		if (!$rs = & $this->conn->Execute($sql)) {
+        $sql = "SELECT * FROM config";
+        if (!$rs = & $this->conn->Execute($sql)) {
             print $this->conn->ErrorMsg();
-        } 
-		else 
-		{
-            while (!$rs->EOF) 
-			{
-                $key   = $rs->fields["conf"];
-                $value = ( empty($rs->fields["value_decrypt"]) ) ? $rs->fields["value"] : $rs->fields["value_decrypt"];
+        } else {
+            while (!$rs->EOF) {
+                $key = $rs->fields["conf"];
+                $value = $rs->fields["value"];
                 $this->confs[$key] = $value;
                 $rs->MoveNext();
             }
         }
     }
-    
-	function has_conf($key) {
+    function has_conf($key) {
         return array_key_exists($key, $this->confs);
     }
-    
-	function get_conf($key) {
+    function get_conf($key) {
         return $this->confs[$key];
     }
-    
-	function get_list() {
+    function get_list() {
         return $this->confs;
     }
-	
     function insert($key, $value) {
         ossim_valid($key, array(
             OSS_LETTER,
@@ -97,69 +85,41 @@ class Config {
         ossim_valid($value, array(
             OSS_NULLABLE
         ));
-        
-		if ( ossim_error() ) 
-			die(ossim_error());
-      
-		if ( preg_match('/_pass$/', $key) ) 
-		{
-			$uuid  = Util::get_system_uuid();
-			$sql   = "INSERT INTO config (conf, value) VALUES (?, AES_ENCRYPT(?,'$uuid'))";
-			
-		}
-		else
-			$sql   = "INSERT INTO config (conf, value) VALUES (?, ?)";
-		
-		
-		$params = array(
-			$key,
-			$value
-		);
-		
-		if (!$this->conn->Execute($sql, $params)) 
-			die($this->conn->ErrorMsg());
-		
+        if (ossim_error()) die(ossim_error());
+        $sql = "INSERT INTO config (conf, value) VALUES (?, ?)";
+        $params = array(
+            $key,
+            $value
+        );
+        if (!$this->conn->Execute($sql, $params)) die($this->conn->ErrorMsg());
     }
-	
     function update($key, $value) {
         ossim_valid($key, array(
             OSS_LETTER,
             OSS_SCORE,
             OSS_DIGIT
         )); // insert() uses that too
-        if (ossim_error()) 
-			die(ossim_error());
+        if (ossim_error()) die(ossim_error());
         $sql = "DELETE FROM config WHERE conf = ?";
-        
-		if (!$this->conn->Execute($sql, array(
+        if (!$this->conn->Execute($sql, array(
             $key
-        ))) 
-		
-		die($this->conn->ErrorMsg());
-        
-		Config::insert($key, $value);
+        ))) die($this->conn->ErrorMsg());
+        Config::insert($key, $value);
     }
-    
-	/*  Reset default values */
+    /*  Reset default values */
     function reset() {
         require_once ('classes/Log_action.inc');
         Log_action::log(8, NULL);
         $sql = "DELETE FROM config";
-        
-		if ($this->conn->Execute($sql) === false) {
+        if ($this->conn->Execute($sql) === false) {
             print 'error deleting: ' . $this->conn->ErrorMsg() . '<BR>';
             exit;
         }
-		
         Config::common_reset();
-        if (preg_match("/debian/i", $_SERVER["SERVER_SOFTWARE"])) 
-			Config::debian_reset();
-        elseif (preg_match("/redhat|fedora/i", $_SERVER["SERVER_SOFTWARE"])) 
-			Config::fedora_reset();
-        else 
-			Config::default_reset();
+        if (preg_match("/debian/i", $_SERVER["SERVER_SOFTWARE"])) Config::debian_reset();
+        elseif (preg_match("/redhat|fedora/i", $_SERVER["SERVER_SOFTWARE"])) Config::fedora_reset();
+        else Config::default_reset();
     }
-	
     /* Common values */
     function common_reset() {
         /* Snort: Snort database and paths configuration */

@@ -40,6 +40,7 @@
 * - get_password_type()
 * - get_descr()
 * - get_list()
+* - get_list_pag()
 * - get_list_m_entries()
 * - add_monitoring_entry()
 * - delete_monitoring_entry()
@@ -95,17 +96,12 @@ class Agentless {
 	
 	function get_list($conn, $extra = "") {
         mysql_escape_string($extra);
-        $iffoundrows = preg_match("/LIMIT/i", $order) ? true : false;
-		$uuid        = Util::get_system_uuid();
         
-		if ( $iffoundrows )
-			$select = "SQL_CALC_FOUND_ROWS *, AES_DECRYPT(pass,'$uuid') AS pass_decrypt, AES_DECRYPT(ppass,'$uuid') AS ppass_decrypt";
-		else
-			$select = "*, AES_DECRYPT(pass,'$uuid') AS pass_decrypt, AES_DECRYPT(ppass,'$uuid') AS ppass_decrypt";
+        $iffoundrows = preg_match("/LIMIT/i", $order) ? true : false;
+        $select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
+        $query = OssimQuery("SELECT $select FROM host_agentless $extra");
 		
-		$query = OssimQuery("SELECT $select FROM host_agentless $extra");
-		
-		$list  = array();
+		$list = array();
         
 		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
@@ -121,29 +117,55 @@ class Agentless {
             }
             while (!$rs->EOF)
 			{
-                $list[$rs->fields["ip"]] = new Agentless( $rs->fields["ip"],     
-														  $rs->fields["hostname"],  
-														  $rs->fields["user"], 
-														  ( empty($rs->fields['pass_decrypt']) ) ? $rs->fields['pass'] : $rs->fields['pass_decrypt'], 
-														  $rs->fields["descr"],  
-														  $foundrows, 
-														  $rs->fields["status"],  
-														  ( empty($rs->fields['ppass_decrypt']) ) ? $rs->fields['ppass'] : $rs->fields['ppass_decrypt']);
+                $list[$rs->fields["ip"]] = new Agentless( $rs->fields["ip"],     $rs->fields["hostname"],  $rs->fields["user"], 
+								    $rs->fields["pass"],  $rs->fields["descr"],  $foundrows, $rs->fields["status"],  $rs->fields["ppass"]);
                 $rs->MoveNext();
             }
         }
         return $list;
     }
+
+	public function get_list_pag ($conn, $extra = "")
+	{
+		mysql_escape_string($extra);
+        $iffoundrows = preg_match("/LIMIT/i", $extra) ? true : false;
+        
+		$select = ($iffoundrows) ? "SQL_CALC_FOUND_ROWS *" : "*";
+        $query = OssimQuery("SELECT $select FROM host_agentless $extra");
+						
+		$list = array();
+        
+		if (!$rs = & $conn->Execute($query))
+		    print $conn->ErrorMsg();
+        else
+		{
+            $foundrows = 0;
+            if ($iffoundrows) {
+                if (!$rf = & $conn->Execute("SELECT FOUND_ROWS() as total")) 
+					print $conn->ErrorMsg();
+                else 
+					$foundrows = $rf->fields["total"];
+            }
+            while (!$rs->EOF)
+			{
+                $list[$rs->fields["ip"]] = new Agentless( $rs->fields["ip"],     $rs->fields["hostname"],  $rs->fields["user"], 
+								    $rs->fields["pass"],  $rs->fields["descr"],  $foundrows, $rs->fields["status"],  $rs->fields["ppass"]);
+                $rs->MoveNext();
+            }
+        }
+		
+        return $list;
+	}
 	
 	public function get_list_m_entries ($conn, $extra = "")
 	{
 		
-		$array_types = array ("ssh_integrity_check_bsd"    => "Integrity Check BSD",
-							  "ssh_integrity_check_linux"  => "Integrity Check Linux",
-							  "ssh_generic_diff" 		   => "Generic Command Diff",
-							  "ssh_pixconfig_diff"  	   => "Cisco Config Check",
-							  "ssh_foundry_diff" 		   => "Foundry Config Check ",
-							  "ssh_asa-fwsmconfig_diff "   => "ASA FWSMconfig Check");
+		$array_types = array ("ssh_integrity_check_bsd" => "Integrity Check BSD",
+						"ssh_integrity_check_linux"   => "Integrity Check Linux",
+						"ssh_generic_diff" 			  => "Generic Command Diff",
+						"ssh_pixconfig_diff"  		  => "Cisco Config Check",
+						"ssh_foundry_diff" 			  => "Foundry Config Check ",
+						"ssh_asa-fwsmconfig_diff "    => "ASA FWSMconfig Check");
 						
 		mysql_escape_string($extra);
        
@@ -256,10 +278,8 @@ class Agentless {
 	
 	public function add_host_data($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status=1)
 	{
-		$uuid  = Util::get_system_uuid();
-		$sql   = "INSERT INTO host_agentless (ip, hostname, user, pass, ppass, descr, status) VALUES (?, ?, ?, AES_ENCRYPT(?,'$uuid'), AES_ENCRYPT(?,'$uuid'), ?, ?)";
-        
-		$params = array(
+		$sql = "INSERT INTO host_agentless (ip, hostname, user, pass, ppass, descr, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $params = array(
             $ip,
             $hostname,
 			$user,
@@ -284,12 +304,13 @@ class Agentless {
 	
 	public function modify_host_data ($conn, $ip, $hostname, $user, $pass, $ppass, $descr, $status)
 	{
-		$uuid        = Util::get_system_uuid();
-		$field_pass  = ( Util::is_fake_pass($pass) )  ? "" : "pass = AES_ENCRYPT(?,'$uuid'),";
-		$field_ppass = ( Util::is_fake_pass($ppass) ) ? "" : "ppass= AES_ENCRYPT(?,'$uuid'),";
+		
+		$field_pass  = ( Util::is_fake_pass($pass) )  ? "" : 'pass=?,';
+		$field_ppass = ( Util::is_fake_pass($ppass) ) ? "" : 'ppass=?,';
 		
 		$sql   = "UPDATE host_agentless SET hostname=?, user=?, ".$field_pass." ".$field_ppass." descr=?, status=? WHERE ip=?;";
-			
+		
+		
 		
 		$params[] = $hostname;
 		$params[] = $user;
@@ -457,7 +478,6 @@ class Agentless {
 			$add  = true;
 			
 			$data = explode("|", $v);
-			
 			$user_host = explode("@", $data[0]);
 			$user      = $user_host[0];
 			$pass      = $data[1];

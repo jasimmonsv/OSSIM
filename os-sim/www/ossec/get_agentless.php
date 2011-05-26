@@ -183,7 +183,7 @@ $agentless_list = null;
 
 $extra = ( !empty($search) ) ? $search." ORDER BY $order $limit" : "ORDER BY $order $limit";
 
-$agentless_list = Agentless::get_list($conn, $extra);
+$agentless_list = Agentless::get_list_pag($conn, $extra);
 
 
 if ( !empty($agentless_list) )
