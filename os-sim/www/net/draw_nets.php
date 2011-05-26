@@ -65,7 +65,8 @@ require_once ('ossim_db.inc');
 $db   = new ossim_db();
 $conn = $db->connect();
 
-$current_entity_perms = array();
+$current_entity_perms['sensors'] = array();
+$current_entity_perms['assets'] = array();
 
 if($entity!="") {
     require_once ('classes/Acl.inc');
@@ -93,10 +94,10 @@ if( $filter!="" )
 }
 
 if($key=="")    
-    $all_nets = Net::get_list($conn, $condition);
+    $all_nets = Net::get_list($conn, $condition, "", array_keys($current_entity_perms['sensors']));
 else {
     preg_match("/.class_(.*)/",$key,$found);
-    $all_nets = Net::get_list($conn,"(ips LIKE '".$found[1].".%' OR ips LIKE '%,".$found[1].".%')" . $condition);
+    $all_nets = Net::get_list($conn,"(ips LIKE '".$found[1].".%' OR ips LIKE '%,".$found[1].".%')" . $condition, "", array_keys($current_entity_perms['sensors']));
 }
 
 

@@ -234,7 +234,7 @@ class Net {
         return array($list,$i);
     }
 	*/
-    function get_list($conn, $filter = "", $limit = "ORDER BY name ASC") {
+    function get_list($conn, $filter = "", $limit = "ORDER BY name ASC", $sensors=array()) {
     	$filter = preg_replace("/^\s*where /i","",$filter); // Clean filter
     	$list = array();
     	$allowed_nets = Session::allowedNets();
@@ -249,13 +249,12 @@ class Net {
     	}
     	$allowed_sensors = Session::allowedSensors();
     	$sensor_where = "";
-    	if ($allowed_sensors != "") {
-    		$aux = explode(",",$allowed_sensors);
-    		$sensors = "";
-    		foreach ($aux as $sensor) {
-    			$sensors .= ($sensors != "") ? ",'".$sensor."'" : "'".$sensor."'";
-    		}
-    		$sensor_where = " AND name in (SELECT net_name FROM net_sensor_reference WHERE sensor_name in (SELECT name FROM sensor WHERE ip in ($sensors)))";
+    	if ($allowed_sensors != "" || count($sensors)>0) {
+    		$aux = ($allowed_sensors=="" || !count($sensors)) ? array_merge(explode(",",$allowed_sensors),$sensors) : array_intersect(explode(",",$allowed_sensors), $sensors);
+    		$sensor_str = "";
+    		foreach ($aux as $sensor) if (trim($sensor)!="")
+    			$sensor_str .= ($sensor_str != "") ? ",'".$sensor."'" : "'".$sensor."'";
+    		$sensor_where = " AND name in (SELECT net_name FROM net_sensor_reference WHERE sensor_name in (SELECT name FROM sensor WHERE ip in ($sensor_str)))";
     	}
     	$main_where = ($filter != "") ? "WHERE $filter" : "WHERE 1";
     	
@@ -263,6 +262,7 @@ class Net {
     	
         $query = OssimQuery("SELECT DISTINCT SQL_CALC_FOUND_ROWS net.* FROM net $main_where$sensor_where$nets_where $limit");
         //echo $query."<br>";exit;
+        error_log(implode(",",$sensors).":$query\n",3,"/tmp/log");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {

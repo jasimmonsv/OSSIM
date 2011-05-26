@@ -83,12 +83,14 @@ if (GET("refresh")==1) {
 					echo "<td>".$fnd[$i]."</td>";
 				if ($i==count($fnd)-1)
 					echo "<td>".$csclist[$fnd[$i-1].":".$fnd[$i]]."</td>";
+				if ($i==8) $eps+=floatval($fnd[$i]);
 			}
 			$stops[] = $id;
 			echo '<td><a target="main" href="events.php?stop='.$id.'" style="text-decoration:none" class="button">STOP</a></td>';
 			echo "</tr>\n";
 		}
-		echo "</table>\n";
+		echo "<tr><td colspan=7 class='noborder'></td><td class='noborder'>$eps</td><td colspan=4 class='noborder'></td></tr>";
+		echo "</table><br>\n";
 		echo '<a target="main" href="events.php?stop='.urlencode(implode(",",$stops)).'" style="text-decoration:none" class="button">STOP ALL</a>';
 		echo '&nbsp;&nbsp;<a target="realtime" href="../control_panel/event_panel.php?withoutmenu=1" onclick="$(\'#realtime\').show()" style="text-decoration:none" class="button">REAL TIME</a><br><br>';
 	} else {
@@ -177,7 +179,7 @@ if (GET("refresh")==1) {
 		<? foreach ($servers as $server) echo "<option value='".$server->get_ip().":".$server->get_port()."'>".Util::htmlentities($server->get_name())."-".$server->get_ip()."</option>"; ?>
 		</select><br>
 		<?=_("Local Src")?>: <select name="src"><option value="0"><?=_("No")?></option><option value="1"><?=_("Yes")?></option></select><br>
-		<?=_("Local Dst")?>: <select name="dst"><option value="0"><?=_("No")?></option><option value="1" checked><?=_("Yes")?></option></select><br>
+		<?=_("Local Dst")?>: <select name="dst"><option value="0"><?=_("No")?></option><option value="1" selected><?=_("Yes")?></option></select><br>
 		<?=_("Taxonomy")." (Cat/SubCat)"?>: <select name="tax" style="width:180px"><option value='0'>ANY</option>
 		<?php
 			foreach ($categories as $id => $name) {
