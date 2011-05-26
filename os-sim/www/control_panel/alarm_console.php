@@ -980,9 +980,9 @@ if ($count > 0) {
 		<?php
         $homelan = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $src_ip)) || in_array($src_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$src_ip'><img src=\"".Host::get_homelan_icon($src_ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
 		if ($src_country) {
-            echo "<a href=\"$src_link\">$src_name</a>:$src_port $src_img $src_country_img $homelan";
+            echo "<a href=\"$src_link\" alt=\"$src_ip\" title=\"$src_ip\">$src_name</a>:$src_port $src_img $src_country_img $homelan";
         } else {
-            echo "<a href=\"$src_link\">$src_name</a>:$src_port $src_img $homelan";
+            echo "<a href=\"$src_link\" alt=\"$src_ip\" title=\"$src_ip\">$src_name</a>:$src_port $src_img $homelan";
         }
 ?></div></td>
 		<td nowrap style="text-align:center;padding-left:3px;padding-right:3px" class="nobborder">
@@ -990,9 +990,9 @@ if ($count > 0) {
 		<?php
         $homelan = (($match_cidr = Net::is_ip_in_cache_cidr($conn, $dst_ip)) || in_array($dst_ip, $hosts_ips)) ? " <a href='javascript:;' class='scriptinfo' style='text-decoration:none' ip='$dst_ip'><img src=\"".Host::get_homelan_icon($dst_ip,$icons,$match_cidr,$conn)."\" border=0></a>" : "";
 		if ($dst_country) {
-            echo "<a href=\"$dst_link\">$dst_name</a>:$dst_port $dst_img $dst_country_img $homelan";
+            echo "<a href=\"$dst_link\" alt=\"$dst_ip\" title=\"$dst_ip\">$dst_name</a>:$dst_port $dst_img $dst_country_img $homelan";
         } else {
-            echo "<a href=\"$dst_link\">$dst_name</a>:$dst_port $dst_img $homelan";
+            echo "<a href=\"$dst_link\" alt=\"$dst_ip\" title=\"$dst_ip\">$dst_name</a>:$dst_port $dst_img $homelan";
         }
 ?></div></td>
         <!-- end src & dst hosts -->
