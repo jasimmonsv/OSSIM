@@ -1328,6 +1328,18 @@ private static $style = 'font-family:Arial, Helvetica, sans-serif;
 		return $ip;
 	}
 	
+	public function getExtIpAddr()
+	{
+		$ip = "";
+		$output = file("http://cualesmiip.com");
+		foreach ($output as $line) {
+			if (preg_match("/Tu IP real es (\d+\.\d+\.\d+\.\d+)/",$line,$found)) {
+				$ip = $found[1];
+			}
+		}
+		return $ip;
+	}
+	
 	private function get_ua()
 	{
 		require_once('classes/Browser.inc');
