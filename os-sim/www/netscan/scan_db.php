@@ -339,7 +339,8 @@ echo "</pre>";
 if ( isset($_SESSION["_scan"]) )
 {
     $scan = $_SESSION["_scan"];
-    update_db($_POST, $scan);
+	
+	update_db($_POST, $scan);
     echo "<br/><a href=\"../netscan/index.php\">"._("Return to Scan Results page")."</a><br/>";
 	echo "<br/><a href=\"../host/host.php?hmenu=Assets&smenu=Hosts\">"._("Return to host's policy")."</a>";
 }

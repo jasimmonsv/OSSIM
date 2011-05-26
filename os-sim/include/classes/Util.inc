@@ -926,7 +926,7 @@ class Util {
 	
 	function get_system_uuid() {
 		$uuid = `sudo dmidecode -s system-uuid`;
-		return $uuid;
+		return trim($uuid);
 	}
 }
 ?>

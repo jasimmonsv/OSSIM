@@ -98,6 +98,10 @@ if ( POST('title') != "" && POST('doctext') != "" && $error == false)
 			body { margin: 0px;}
 			.ossim_success {width: auto;}
 			table { margin:auto; width: 98%; text-align: center;}
+						
+			#user {width: 160px;}
+			#entity { width: 200px;}
+			
 		</style>
 	</head>
 
@@ -131,7 +135,7 @@ else
 		<meta http-equiv="Pragma" content="no-cache"/>
 		<link rel="stylesheet" type="text/css" href="../style/style.css"/>
 		<link rel="stylesheet" type="text/css" href="../style/jquery.wysiwyg.css"/>
-		<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+		<script type="text/javascript" src="../js/jquery-1.4.2.min.js"></script>
 		<script type="text/javascript" src="../js/jquery.wysiwyg.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
@@ -164,6 +168,10 @@ else
 			.pad_title{ padding:3px 0px 0px 5px; }
 			
 			.ossim_error {width: auto;}
+			
+			
+			#user {width: 160px;}
+			#entity { width: 230px;}
 			
 		</style>
 	</head>
