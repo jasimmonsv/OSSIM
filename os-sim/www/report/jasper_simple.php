@@ -124,7 +124,7 @@ $db->close($conn);
             var idDiv="#ajax_"+id;
             var pre="#pre_"+id;
             var btn="#btn_"+id;
-            var parameter=getParameters(id);
+            var parameter = getParameters(id);
 						
             $.ajax({
                 type: "GET",
@@ -135,7 +135,7 @@ $db->close($conn);
                       style: "visibility:visible;"
                     });
                     $(btn).attr({
-                      value: "Generating"
+                      value: "Generating..."
                     });
                 },
                 success: function(msg) {
@@ -149,17 +149,17 @@ $db->close($conn);
                 }
             });
         }
+		
         function getParameters(id){
-          var data='';
-          $(':input[type=text],:select').each(function(){
-               var re = new RegExp(id,"i");
-                if (re.exec($(this).attr('id'))) {
-                  data+='&'+$(this).attr('name')+"="+$(this).val();
-                }
-           });
-           
-          return data;
+			var data='';
+			
+			$('input[id^="_'+id+'"], select[id^="_'+id+'"]').each(function(){
+				data+='&'+$(this).attr('name')+"="+$(this).val();
+			});
+			
+			return data;
         }
+		
         function exportReport(id,format){
             var idForm="#"+id;
             $(idForm).attr('action','jasper_export.php?format='+format);
@@ -173,6 +173,7 @@ $db->close($conn);
             $(idForm).submit();
         }
         GB_TYPE = 'w';
+		
 		function open_userlog(url,tit){
 			url += "?user="+document.forms['logfilter'].user.value+"&code="+document.forms['logfilter'].code.value;
 			GB_show(tit,url,'80%','80%');
@@ -185,111 +186,118 @@ $db->close($conn);
                 }
         $(document).ready(function() {
             // CALENDAR
-	<?
-	$y = strftime("%Y", time() - ((24 * 60 * 60) * 30));
-	$m = strftime("%m", time() - ((24 * 60 * 60) * 30));
-	$d = strftime("%d", time() - ((24 * 60 * 60) * 30));
-	?>
-        $('input[name!=Month][name!=Year]').parent().children('.widgetCalendar').DatePicker({
-		flat: true,
-		format: 'Y-m-d',
-		date: '<?php echo date("Y") ?>-<?php echo date("m") ?>-<?php echo date("d") ?>',
-                current: '<?php echo date("Y") ?>-<?php echo date("m") ?>-<?php echo date("d") ?>',
-		calendars: 1,
-		mode: 'single',
-                position: 'bottom',
-                starts: 1,
-                onChange: function(formated){
-                    $(this).parent().parent().find('input').attr('value',formated);
-                    //$(this).parent().DatePickerHide();
-		},
-                onShow: function(){
-                    $(this).DatePickerSetDate($(this).parent().parent().find('input').attr('value'),1);
-                }
-	});
-        $('input[name=Month]').parent().children('.widgetCalendar').DatePicker({
-            flat: true,
-            format: 'm',
-            date: '<?php echo date("Y") ?>-<?php echo date("m") ?>-<?php echo date("d") ?>',
-            calendars: 1,
-            view: 'moths',
-            mode: 'single',
-            position: 'bottom',
-            select: 'm',
-            starts: 1,
-            onChange: function(formated){
-                    $(this).parent().parent().find('input').attr('value',formated);
-                    //$(this).parent().DatePickerHide();
-            },
-            onShow: function(){
-                $(this).DatePickerSetDate($(this).parent().parent().find('input').attr('value'),1);
-            }
-        });
-        $('input[name=Year]').parent().children('.widgetCalendar').DatePicker({
-            flat: true,
-            format: 'Y',
-            date: '<?php echo date("Y") ?>-<?php echo date("m") ?>-<?php echo date("d") ?>',
-            calendars: 1,
-            view: 'years',
-            mode: 'single',
-            position: 'bottom',
-            select: 'y',
-            starts: 1,
-            onChange: function(formated,dates){
-                    //$(this).parent().parent().find('input').attr('value',formated);
-                    var ob=$(this).parent().parent().find('input').val(formated);
-                    for(var i in ob){
-                         //alert('propiedad: '+i+' valor: '+ob[i]);
-                    }
-                    //alert($('#closeOnSelect input').attr('class'));
-                    //alert($(this).parent().fillValue);
-                    if ($('#closeOnSelect input').attr('checked')) {
-			$(this).parent().DatePickerHide();
-                    }
-            },
-            onBeforeShow: function(){
-                $(this).DatePickerSetDate($(this).parent().parent().find('input').attr('value'),true);
-            }
-        });
-        $(this).find('.widget input').bind('click', function(){
+			<?php
+			$y = strftime("%Y", time() - ((24 * 60 * 60) * 30));
+			$m = strftime("%m", time() - ((24 * 60 * 60) * 30));
+			$d = strftime("%d", time() - ((24 * 60 * 60) * 30));
+			?>
+			$('input[name!=Month][name!=Year]').parent().children('.widgetCalendar').DatePicker({
+				flat: true,
+				format: 'Y-m-d',
+				date: '<?php echo date("Y") ?>-<?php echo date("m") ?>-<?php echo date("d") ?>',
+				current: '<?php echo date("Y") ?>-<?php echo date("m") ?>-<?php echo date("d") ?>',
+				calendars: 1,
+				mode: 'single',
+				position: 'bottom',
+				starts: 1,
+				onChange: function(formated){
+					$(this).parent().parent().find('input').attr('value',formated);
+					//$(this).parent().DatePickerHide();
+				},
+				onShow: function(){
+					$(this).DatePickerSetDate($(this).parent().parent().find('input').attr('value'),1);
+				}
+			});
+		
+			$('input[name=Month]').parent().children('.widgetCalendar').DatePicker({
+				flat: true,
+				format: 'm',
+				date: '<?php echo date("Y") ?>-<?php echo date("m") ?>-<?php echo date("d") ?>',
+				calendars: 1,
+				view: 'months',
+				mode: 'single',
+				position: 'bottom',
+				select: 'm',
+				starts: 1,
+				onChange: function(formated){
+						$(this).parent().parent().find('input').attr('value',formated);
+						//$(this).parent().DatePickerHide();
+				},
+				onShow: function(){
+					$(this).DatePickerSetDate($(this).parent().parent().find('input').attr('value'),1);
+				}
+			});
+		
+			$('input[name=Year]').parent().children('.widgetCalendar').DatePicker({
+				flat: true,
+				format: 'Y',
+				date: '<?php echo date("Y") ?>-<?php echo date("m") ?>-<?php echo date("d")?> <?php echo date("H")?>:<?php echo date("i")?>:<?php echo date("s")?>',
+				calendars: 1,
+				view: 'years',
+				mode: 'single',
+				position: 'bottom',
+				select: 'y',
+				starts: 1,
+				onChange: function(formated,dates){
+						//$(this).parent().parent().find('input').attr('value',formated);
+						var ob=$(this).parent().parent().find('input').val(formated);
+						for(var i in ob){
+							 //alert('propiedad: '+i+' valor: '+ob[i]);
+						}
+						//alert($('#closeOnSelect input').attr('class'));
+						//alert($(this).parent().fillValue);
+						if ($('#closeOnSelect input').attr('checked')) {
+				$(this).parent().DatePickerHide();
+						}
+				},
+				onBeforeShow: function(){
+					$(this).DatePickerSetDate($(this).parent().parent().find('input').attr('value'),true);
+				}
+			});
+		
+			$(this).find('.widget input').bind('click', function(){
                 $('#'+$(this).next().attr('id')).DatePickerShow();
-		return false;
-	});
-        $('.widgetCalendar div.datepicker').css('position', 'absolute');
-        $('.widgetCalendar div.datepicker').css('z-index', '89');
-        $('.widgetCalendar').DatePickerHide();
-            var hosts = [
-                <?= $hosts ?>
-                <?= preg_replace("/,$/","",$networks); ?>
-            ];
-            $("#hosts").autocomplete(hosts, {
-                minChars: 0,
-                width: 225,
-                matchContains: "word",
-                autoFill: true,
-                formatItem: function(row, i, max) {
-                    return row.txt;
-                }
-            }).result(function(event, item) {
-                $("#hosts").val(item.id);
-            });
+				return false;
+			});
+			
+			$('.widgetCalendar div.datepicker').css('position', 'absolute');
+			$('.widgetCalendar div.datepicker').css('z-index', '89');
+			$('.widgetCalendar').DatePickerHide();
+			
+			var hosts = [
+				<?= $hosts ?>
+				<?= preg_replace("/,$/","",$networks); ?>
+			];
+			
+			$("#hosts").autocomplete(hosts, {
+				minChars: 0,
+				width: 225,
+				matchContains: "word",
+				autoFill: true,
+				formatItem: function(row, i, max) {
+					return row.txt;
+				}
+			}).result(function(event, item) {
+				$("#hosts").val(item.id);
+			});
 
-            var plugins = [
-                <?php echo $plugins; ?>
-                <?= preg_replace("/,$/","",$plugins); ?>
-            ];
-            $("#_SEM_Report_plugin").autocomplete(plugins, {
-                minChars: 0,
-                width: 225,
-                matchContains: "word",
-                autoFill: true,
-                formatItem: function(row, i, max) {
-                    return row.txt;
-                }
-            }).result(function(event, item) {
-                $("#_SEM_Report_plugin").val(item.id);
-                $("#_SEM_Report_pluginName").val(item.txt);
-            });
+			var plugins = [
+				<?php echo $plugins; ?>
+				<?= preg_replace("/,$/","",$plugins); ?>
+			];
+			
+			$("#_SEM_Report_plugin").autocomplete(plugins, {
+				minChars: 0,
+				width: 225,
+				matchContains: "word",
+				autoFill: true,
+				formatItem: function(row, i, max) {
+					return row.txt;
+				}
+			}).result(function(event, item) {
+				$("#_SEM_Report_plugin").val(item.id);
+				$("#_SEM_Report_pluginName").val(item.txt);
+			});
 
         });
         function showhide(layer,img){
@@ -307,6 +315,9 @@ $db->close($conn);
 		parent.location.href=url;
 	}
   </script>
+  <style type='text/css'>
+	.datepickerHour {display:none;}
+  </style>
 </head>
 <body>
     <table border="0" class="noborder" id="reportTable" width="90%" align="center">
@@ -385,11 +396,11 @@ $db->close($conn);
                                     <tr>
                                         <td>
                                  <div>
-                                     <div id="pre_'.$report['name'].'" style="visibility:hidden;" class="left">
+                                    <input id="btn_'.$report['name'].'" class="button left" type="button" value="'._('Generate').'" onclick="javascript:executeReport(\''.$report['name'].'\')" />
+									 <div id="pre_'.$report['name'].'" style="visibility:hidden; padding-left:5px;" class="left">
                                          <img src="../pixmaps/loading.gif" width="16" height="16" />
-                                     </div>
-                                     <input id="btn_'.$report['name'].'" class="button left" type="button" value="'._('Generate').'" onclick="javascript:executeReport(\''.$report['name'].'\')" />
-                                 </div>
+                                     </div>	
+								 </div>
                                         </td>
                                     </tr>
                                     <tr>

@@ -1,11 +1,12 @@
 <?php
 require_once ('classes/Session.inc');
-require_once 'classes/Security.inc';
+require_once ('classes/Security.inc');
 require_once ('classes/JasperReport.inc');
 Session::useractive();
 
 $GETReportUnit=GET('report_unit');
-if(!isset($GETReportUnit)){
+if( !isset($GETReportUnit) )
+{
     $reportOrd[$report['name']] .= '
         <table width="100%"><tr>
             <td>
@@ -33,25 +34,32 @@ if(!isset($GETReportUnit)){
         </tr></table>
     ';
 
-}else{
+}
+else
+{
 
     $GETConsolidateData=GET('consolidate_data');
-    if(!isset($GETConsolidateData)){
-            JasperClient::getPermission($GETReportUnit);
-            $updateSql = new UpdateSql($GETReportUnit);
-            $result=$updateSql->update();
-?>
-          <script type='text/javascript'>
-            //<![CDATA[
-                $(document).ready(function(){
-                    $id="<?php echo $GETReportUnit; ?>";
-                    $idDiv="#ajax_"+$id;
-                    $($idDiv).load('jasper_execute_report.php?report_unit='+$id+'&consolidate_data=1');
-                });
-           //]]>
-          </script>
-
-<?php }else{ ?>
+    
+	if( !isset($GETConsolidateData) )
+	{
+        JasperClient::getPermission($GETReportUnit);
+        $updateSql = new UpdateSql($GETReportUnit);
+        $result=$updateSql->update();
+		?>
+		<script type='text/javascript'>
+		//<![CDATA[
+			$(document).ready(function(){
+				var id="<?php echo $GETReportUnit; ?>";
+				var idDiv="#ajax_"+id;
+				$(idDiv).load('jasper_execute_report.php?report_unit='+id+'&consolidate_data=1');
+			});
+		//]]>
+		</script>
+		<?php 
+	}
+	else
+	{ 
+		?>
     <table width="100%">
     <tr>
         <td>

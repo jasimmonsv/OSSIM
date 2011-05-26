@@ -262,7 +262,7 @@ class Net {
     	
         $query = OssimQuery("SELECT DISTINCT SQL_CALC_FOUND_ROWS net.* FROM net $main_where$sensor_where$nets_where $limit");
         //echo $query."<br>";exit;
-        error_log(implode(",",$sensors).":$query\n",3,"/tmp/log");
+        //error_log(implode(",",$sensors).":$query\n",3,"/tmp/log");
         if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } else {
