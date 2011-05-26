@@ -318,7 +318,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $cell_align['SID'] = "center";
     $cell_data['SENSOR'] = ($sensornames[$myrow["sid"]] != "") ? $sensornames[$myrow["sid"]] : gettext("unknown");
     if (preg_match("/\d+\.\d+\.\d+\.\d+/",$cell_data['SENSOR'])) {
-    	$cell_data['SENSOR'] = '<A HREF="base_stat_ipaddr.php?ip=' . $cell_data['SENSOR'] . '&amp;netmask=32">'.Host::ip2hostname($_conn,$cell_data['SENSOR'],true).'</A>';
+    	$cell_data['SENSOR'] = '<A alt="'.$cell_data['SENSOR'].'" title="'.$cell_data['SENSOR'].'" HREF="base_stat_ipaddr.php?ip=' . $cell_data['SENSOR'] . '&amp;netmask=32">'.Host::ip2hostname($_conn,$cell_data['SENSOR'],true).'</A>';
     }
     $cell_align['SENSOR'] = "center";
     $cell_data['CID'] = $myrow["cid"];
@@ -473,7 +473,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         	$slnk = "<img src='images/homelan.png' align='absmiddle' border=0 style='width:3mm'>"; 
         	$slnkrd = $current_url."/forensics/images/homelan.png";
         }
-		$cell_data['IP_PORTSRC'] = $div.'<A HREF="base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_src&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D='.$current_sip.'&ip_addr%5B0%5D%5B8%5D=+">' . $sip_aux . '</A><FONT SIZE="-1">' . $current_sport . '</FONT>' . $country_img . $homelan . $bdiv;
+		$cell_data['IP_PORTSRC'] = $div.'<A alt="'.$current_sip.'" title="'.$current_sip.'" HREF="base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_src&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D='.$current_sip.'&ip_addr%5B0%5D%5B8%5D=+">' . $sip_aux . '</A><FONT SIZE="-1">' . $current_sport . '</FONT>' . $country_img . $homelan . $bdiv;
         $cell_pdfdata['IP_PORTSRC'] = $sip_aux.$current_sport.$slnk;
 		$cell_data['IP_SRC'] = $current_sip . $country_img . $homelan;
 		$cell_data['PORT_SRC'] = str_replace(":","",$current_sport);
@@ -528,7 +528,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
         	$dlnk = "<img src='images/homelan.png' align='absmiddle' border=0 style='width:3mm'>"; 
         	$dlnkrd = $current_url."/forensics/images/homelan.png";
         }
-		$cell_data['IP_PORTDST'] = $div.'<A HREF="base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_dst&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D='.$current_dip.'&ip_addr%5B0%5D%5B8%5D=+">' . $dip_aux . '</A><FONT SIZE="-1">' . $current_dport . '</FONT>' . $country_img . $homelan . $bdiv;
+		$cell_data['IP_PORTDST'] = $div.'<A alt="'.$current_dip.'" title="'.$current_dip.'" HREF="base_qry_main.php?new=2&hmenu=Forensics&smenu=Forensics&num_result_rows=-1&submit=Query+DB&current_view=-1&ip_addr_cnt=1&sort_order=time_d&ip_addr%5B0%5D%5B0%5D=+&ip_addr%5B0%5D%5B1%5D=ip_dst&ip_addr%5B0%5D%5B2%5D=%3D&ip_addr%5B0%5D%5B3%5D='.$current_dip.'&ip_addr%5B0%5D%5B8%5D=+">' . $dip_aux . '</A><FONT SIZE="-1">' . $current_dport . '</FONT>' . $country_img . $homelan . $bdiv;
         $cell_pdfdata['IP_PORTDST'] = $dip_aux.$current_dport.$dlnk;
 		$cell_data['IP_DST'] = $current_dip . $country_img . $homelan;
 		$cell_data['PORT_DST'] = str_replace(":","",$current_dport);

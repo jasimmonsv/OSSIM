@@ -210,7 +210,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $srcip = $ip_aux.$current_sport;
 	$div = '<div id="'.$current_sip.';'.$ip_aux.'" class="HostReportMenu">';
 	$bdiv = '</div>';
-	qroPrintEntry($div.'<A HREF="base_stat_ipaddr.php?ip=' . $current_sip . '&amp;netmask=32">' . $ip_aux . '</A><FONT SIZE="-1">' . $current_sport . '</FONT>' . $country_img . $homelan_sip . $bdiv, 'center', 'top', 'nowrap', $bgcolor);
+	qroPrintEntry($div.'<A alt="'.$current_sip.'" title="'.$current_sip.'" HREF="base_stat_ipaddr.php?ip=' . $current_sip . '&amp;netmask=32">' . $ip_aux . '</A><FONT SIZE="-1">' . $current_sport . '</FONT>' . $country_img . $homelan_sip . $bdiv, 'center', 'top', 'nowrap', $bgcolor);
 	// Dest IP
 	$country = strtolower(geoip_country_code_by_addr($gi, $current_dip));
 	$country_name = geoip_country_name_by_addr($gi, $current_dip);
@@ -225,7 +225,7 @@ while (($myrow = $result->baseFetchRow()) && ($i < $qs->GetDisplayRowCnt())) {
     $dstip = $ip_aux.$current_sport;
 	$div = '<div id="'.$current_dip.';'.$ip_aux.'" class="HostReportMenu">';
 	$bdiv = '</div>';
-	qroPrintEntry($div.'<A HREF="base_stat_ipaddr.php?ip=' . $current_dip . '&amp;netmask32">' . $ip_aux . '</A><FONT SIZE="-1">' . $current_dport . '</FONT>' . $country_img . $homelan_dip . $bdiv, 'center', 'top', 'nowrap', $bgcolor);
+	qroPrintEntry($div.'<A alt="'.$current_dip.'" title="'.$current_dip.'" HREF="base_stat_ipaddr.php?ip=' . $current_dip . '&amp;netmask32">' . $ip_aux . '</A><FONT SIZE="-1">' . $current_dport . '</FONT>' . $country_img . $homelan_dip . $bdiv, 'center', 'top', 'nowrap', $bgcolor);
 	
     qroPrintEntry($timestamp,"","","nowrap",$bgcolor);
     qroPrintEntryFooter();
