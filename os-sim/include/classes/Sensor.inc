@@ -162,14 +162,20 @@ class Sensor {
     }    
     function get_vuln_scanner_options($conn, $sensor) {
         $result = array();
-        $query = OssimQuery("SELECT port, user, PASSWORD, max_scans FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
-        if (!$rs = & $conn->Execute($query)) {
+		$uuid   = Util::get_system_uuid();
+        $query  = OssimQuery("SELECT port, user, PASSWORD, AES_DECRYPT(PASSWORD,'$uuid') AS pass_decrypt, max_scans FROM vuln_nessus_servers WHERE hostname='".$sensor."'");
+        
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         } 
-        else {
-            if (!$rs->EOF) {
-                $result = $rs->fields;
-            }
+        else 
+		{
+            if (!$rs->EOF) 
+			{
+                $result             = $rs->fields;
+				$result[2]          = ( empty($rs->fields['pass_decrypt']) ) ? $rs->fields['PASSWORD'] : $rs->fields['pass_decrypt'];
+				$result['PASSWORD'] = $result[2];
+			}
         }
 			
         return $result;
@@ -179,12 +185,17 @@ class Sensor {
     	if (Util::is_fake_pass($password))
 	        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";
 	    else
-	        $query = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD='$password', port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'";    
-        if (!$rs = & $conn->Execute($query)) {
+		{
+	        $uuid   = Util::get_system_uuid();
+			$query  = "UPDATE vuln_nessus_servers SET name='$name', user='$user', PASSWORD=AES_ENCRYPT('$password','$uuid'), port = '$port', max_scans= $vuln_max_scans, enabled = '$enabled', current_scans = 0 WHERE hostname='$sensor'"; 
+		}
+		
+		if (!$rs = & $conn->Execute($query)) {
             print $conn->ErrorMsg();
         }
         
     }
+	
     function insert_vuln_nessus_servers($conn, $sensor, $name, $enabled) {
 
         $query = OssimQuery("SELECT id FROM vuln_nessus_servers WHERE hostname='".$sensor."'");

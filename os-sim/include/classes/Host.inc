@@ -876,8 +876,9 @@ class Host {
     }   
 	
 	function get_credentials_ip($conn, $ip) {
-        $list = array();
-        $sql = "SELECT id,type,username,password,extra FROM credentials WHERE ip = ?";
+        $list   = array();
+		$uuid   = Util::get_system_uuid();
+        $sql    = "SELECT id, type, username, password, AES_DECRYPT(password,'$uuid') AS pass_decrypt, extra FROM credentials WHERE ip = ?";
         $params = array ($ip);
                 
         if (!$rs = & $conn->Execute($sql, $params)){ 
@@ -887,11 +888,11 @@ class Host {
         else
         {
             while (!$rs->EOF){
-                $list[] = array("id" => $rs->fields['id'],
-                                "type" => $rs->fields['type'],
+                $list[] = array("id"       => $rs->fields['id'],
+                                "type"     => $rs->fields['type'],
                                 "username" => $rs->fields['username'],
-                                "password" => $rs->fields['password'],
-                                "extra" => $rs->fields['extra']
+                                "password" => ( empty($rs->fields['pass_decrypt']) ) ? $rs->fields['password'] : $rs->fields['pass_decrypt'],
+                                "extra"    => $rs->fields['extra']
                                 );
                 $rs->MoveNext();
             }
@@ -900,8 +901,9 @@ class Host {
     }
 	function get_credentials_id($conn, $id) {
         $result = array();
-        $sql = "SELECT id,type,username,password,extra FROM credentials WHERE id = ?";
-        $params = array ($id);
+		$uuid   = Util::get_system_uuid();
+        $sql    = "SELECT id,type, username, password, AES_DECRYPT(password,'$uuid') AS pass_decrypt, extra FROM credentials WHERE id = ?";
+		$params = array ($id);
                 
         if (!$rs = & $conn->Execute($sql, $params)){ 
             print $conn->ErrorMsg();
@@ -913,7 +915,7 @@ class Host {
                 $result = array("id"       => $rs->fields['id'],
                                 "type"     => $rs->fields['type'],
                                 "username" => $rs->fields['username'],
-                                "password" => $rs->fields['password'],
+                                "password" => ( empty($rs->fields['pass_decrypt']) ) ? $rs->fields['password'] : $rs->fields['pass_decrypt'],
                                 "extra"    => $rs->fields['extra']
                                 );
             }
@@ -943,19 +945,22 @@ class Host {
 				}
 				else
 				{
+					$uuid   = Util::get_system_uuid();
 					$params = array ($type, $username, $password, $extra, $id);
-					$sql    = "UPDATE credentials SET type = ?, username = ?, password = ?, extra = ? WHERE id = ?";
+					$sql    = "UPDATE credentials SET type = ?, username = ?, password = AES_ENCRYPT(?,'$uuid'), extra = ? WHERE id = ?";
 				}
 				
-				if (!$rs = & $conn->Execute($sql, $params)){ 
+				if (!$rs = & $conn->Execute($sql, $params))
+				{ 
 					print $conn->ErrorMsg();
 					exit();
 				}
 			}
 			else
 			{
+				$uuid   = Util::get_system_uuid();
 				$params = array ($ip, $type, $username, $password, $extra );
-				$sql    = "INSERT INTO credentials(ip, type, username, password, extra) values (?, ?, ?, ?, ?)";
+				$sql    = "INSERT INTO credentials(ip, type, username, password, extra) values (?, ?, ?, AES_ENCRYPT(?,'$uuid'), ?)";
 								
 				if (!$rs = & $conn->Execute($sql, $params)){ 
 					print $conn->ErrorMsg();

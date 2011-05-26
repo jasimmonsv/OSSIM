@@ -51,12 +51,15 @@ class Socket {
     var $status;
     var $msg_r;
     var $msg_w;
+	
+	
     function Socket($host, $port) {
         $this->address = $host;
         $this->port = $port;
         $this->status = $this->connect();
-        return $this->status;
+		return $this->status;
     }
+	
     function connect() {
         $this->socket = socket_create(AF_INET, SOCK_STREAM, 0);
         if ($this->socket < 0) {
@@ -68,16 +71,17 @@ class Socket {
             $this->status = 0;
             return 0;
         } else {
-            $d_s_t = ini_get("default_socket_timeout");
-            ini_set("default_socket_timeout", "15");
-            $result = @socket_connect($this->socket, $this->address, $this->port);
-            ini_set("default_socket_timeout", $d_s_t);
+            //$d_s_t = ini_get("default_socket_timeout");
+            //ini_set("default_socket_timeout", "15");
+			socket_set_block($this->socket);	    
+			@socket_set_option($this->socket,SOL_SOCKET,SO_RCVTIMEO,array('sec' => 5, 'usec' => 0));
+			@socket_set_option($this->socket,SOL_SOCKET,SO_SNDTIMEO,array('sec' => 5, 'usec' => 0));
+			$result = @socket_connect($this->socket, $this->address, $this->port);
+            //ini_set("default_socket_timeout", $d_s_t);
             if (!$result) {
                 require_once ("ossim_error.inc");
                 $error = new OssimError();
-                $error->display("FRAMW_NOTRUN", array(
-                    $this->address . ":" . $this->port
-                ));
+                $error->display("FRAMW_NOTRUN", array($this->address . ":" . $this->port));
                 $this->status = 0;
                 return 0;
             } else {
@@ -87,13 +91,13 @@ class Socket {
         }
     }
     function write($msg) {
-        $this->len_w = socket_write($this->socket, $msg, strlen($msg));
+        $this->len_w = @socket_write($this->socket, $msg, strlen($msg));
         $this->msg_w = $msg;
         if (strlen($msg) == $this->len_w) return 1;
         else return 0;
     }
     function read($bytes = 512) {
-        $this->msg_r = socket_read($this->socket, $bytes);
+        $this->msg_r = @socket_read($this->socket, $bytes, PHP_BINARY_READ);
         $this->len_r = strlen($this->msg_r);
         if ($this->len_r > 0) {
             $this->status = 1;

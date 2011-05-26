@@ -169,9 +169,9 @@ if (!$only_status && !$only_stop)
 			var elem = parent.document.getElementById(id);
 					
 			if(elem.contentDocument)
-				var height = elem.contentDocument.body.offsetHeight + 15;
+				var height = elem.contentDocument.body.offsetHeight + 35;
 			else 
-				var height = elem.contentWindow.document.body.scrollHeight + 15;
+				var height = elem.contentWindow.document.body.scrollHeight + 35;
 				
 			if (height > 200)
 				parent.$('#'+id).css('height', height+'px');

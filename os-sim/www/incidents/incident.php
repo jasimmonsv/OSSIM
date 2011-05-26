@@ -993,7 +993,7 @@ for ($i = 0; $i < count($tickets_list); $i++)
 					<tr>
 						<th><?php echo _("Description") ?></th>
 						<td style="border-width: 0px;">
-							<textarea name="description" id="description" cols="80"></textarea>
+							<textarea name="description" id="description" rows='5' cols="80"></textarea>
 						</td>
 						<td valign='top' id='desc_info'><span>*</span></td>
 					</tr>
