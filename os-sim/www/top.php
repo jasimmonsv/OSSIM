@@ -317,15 +317,15 @@ $keys = array_keys($menu);
 			<span class="jx-separator-right"></span>
 			<ul class="jx-bar-button-right">
 			<?php if(Session::am_i_admin()) { ?>
-				<li title="<?php echo _("System Status")?>"><a href="sysinfo/index.php?hmenu=Sysinfo&smenu=Hardware+Info" target="main"><img src="pixmaps/hardware.png"></a></li>
+				<li title="<?php echo _("System Status")?>"><a href="sysinfo/index.php?hmenu=Sysinfo&smenu=Hardware+Info" target="main"><img src="pixmaps/status.png"></a>&nbsp;</li>
 			<?php } else { ?>
-				<li title="<?php echo _("System Status")?>"><img src="pixmaps/status_gray.png"></li>
+				<li title="<?php echo _("System Status")?>"><img src="pixmaps/status_gray.png">&nbsp;</li>
 			</ul>
 			<?php } ?>
 			
 			<ul class="jx-bar-button-right">
 			<?php if(Session::menu_perms("MenuReports", "ReportsHostReport") || Session::am_i_admin()) { ?>
-				<li title="<?php echo _("Data Snapshot")?>"><a href="<?php echo "report/host_report.php?hmenu=Sysinfo&smenu=Sysinfo&host=any&star_date=".gmdate("Y-m-d",$timetz-604800)."&end_date=".gmdate("Y-m-d",$timetz) ?>" target="main"><img src="pixmaps/status.png"></a></li>
+				<li title="<?php echo _("Data Snapshot")?>"><a href="<?php echo "report/host_report.php?hmenu=Sysinfo&smenu=Sysinfo&host=any&star_date=".gmdate("Y-m-d",$timetz-604800)."&end_date=".gmdate("Y-m-d",$timetz) ?>" target="main"><img src="pixmaps/compass.png"></a></li>
 			<?php } else { ?>
 				<li title="<?php echo _("Data Snapshot")?>"><img src="pixmaps/status_gray.png"></li>
 			<?php } ?>

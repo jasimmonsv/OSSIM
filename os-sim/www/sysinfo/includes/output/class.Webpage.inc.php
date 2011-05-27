@@ -201,7 +201,10 @@ class Webpage extends Output implements PSI_Interface_Output
         echo "        <span id=\"title\">\n";
         echo "          <span id=\"lang_001\">System information</span>\n";
         echo "          :&nbsp;<span id=\"s_hostname_title\"></span>\n";
-        echo "          <span id=\"s_ip_title\"></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href='/munin/' style='text-decoration:none;text-transform:none;color:black'><img src='../pixmaps/chart_bar.png' border='0' align='absmiddle'> Resources</a> \n";
+        //echo "          <span id=\"s_ip_title\"></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href='/munin/' style='text-decoration:none;text-transform:none;color:black'><img src='../pixmaps/chart_bar.png' border='0' align='absmiddle'> Resources</a> \n";
+        $tz     =( isset($_SESSION["_timezone"]) ) ? intval($_SESSION["_timezone"]) : intval(date("O"))/100;
+		$timetz = gmdate("U")+(3600*$tz);
+        echo "          <span id=\"s_ip_title\"></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a target='main' href='/ossim/report/host_report.php?hmenu=Sysinfo&smenu=Sysinfo&host=any&star_date=".gmdate("Y-m-d",$timetz-604800)."&end_date=".gmdate("Y-m-d",$timetz)."' style='text-decoration:none;text-transform:none;color:black'><img src='../pixmaps/chart_bar.png' border='0' align='absmiddle'> Resources</a> \n";
         echo "        </span>\n";
         echo "      </h1>\n";
         /*echo "      <div id=\"select\">\n"; 
