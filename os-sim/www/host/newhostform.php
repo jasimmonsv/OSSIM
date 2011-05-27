@@ -71,7 +71,7 @@ $sensors     = array();
 $conf        = $GLOBALS["CONF"];
 $threshold_a = $threshold_c = $conf->get_conf("threshold");
 $hostname    = $fqdns = $descr = $nat = $nagios = $os = $mac = $mac_vendor = $latitude = $longitude = "";
-$asset       = 2;
+$asset		 = ($conf->get_conf("def_asset") != "") ? $conf->get_conf("def_asset") : "2";
 $rrd_profile = "None";
 
 $scan         = REQUEST('scan');
@@ -350,8 +350,9 @@ if ( !empty ($scan) )
 		<td class="left">
 			<select name="asset" id="asset" class='req_field vfield'>
 			<?php 
-				if ( !in_array($asset, $array_assets) )
-					$asset = "2";
+				if ( !in_array($asset, $array_assets) ) {
+					$asset = ($conf->get_conf("def_asset") != "") ? $conf->get_conf("def_asset") : "2";
+				}
 				
 				foreach ($array_assets as $v)
 				{

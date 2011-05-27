@@ -689,6 +689,13 @@ $CONFIG = array(
                 "desc" => gettext("Global Threshold") ,
                 "advanced" => 0 ,
             	"section" => "metrics"
+            ) ,
+            "def_asset" => array(
+                "type" => "text",
+                "help" => "" ,
+                "desc" => gettext("Default Asset value") ,
+                "advanced" => 0 ,
+            	"section" => "metrics"
             )
         )
     ) ,/*
