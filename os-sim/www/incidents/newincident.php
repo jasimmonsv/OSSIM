@@ -391,9 +391,12 @@ else
 </head>
 
 <body>
-<?php if (GET('nohmenu') == "") include ("../hmenu.php"); ?>
-
-<h1><?php echo " "._($ref)." " . _("Ticket") ?></h1>
+<?php
+	if (GET('nohmenu') == "") {
+		include ("../hmenu.php");
+		echo "<h1>"._($ref)." " . _("Ticket")."</h1>\n";
+	} else echo "<br>";
+?>
 
 <form id='crt' method="POST" action="manageincident.php" enctype="multipart/form-data">
 <input type="hidden" name="action" value="<?php echo ($edit) ? 'editincident' : 'newincident' ?>" />

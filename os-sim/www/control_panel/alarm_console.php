@@ -176,7 +176,7 @@ if (empty($refresh_time) || ($refresh_time != 30000 && $refresh_time != 60000 &&
 			plus = "plus"+tr_id;
 			document.getElementById(plus).innerHTML = "<a href='' onclick=\"hide_alarm('"+id+"','"+tr_id+"');return false\"><img align='absmiddle' src='../pixmaps/minus-small.png' border='0'></a>"+tr_id;
 
-			// GrayBox
+			// GreyBox
 			$(document).ready(function(){
 				GB_TYPE = 'w';
 				$("a.greybox").click(function(){
@@ -1026,9 +1026,9 @@ if ($count > 0) {
 $tmp_bid = $alarm->get_backlog_id();
 $tmp_eid = $alarm->get_event_id();
 ?>
-        <a class="greybox" title="New ticket for Alert ID<?php echo $aid
+        <a class="greybox2" title="New ticket for Alert ID<?php echo $aid
 ?>" href="<?php
-        echo "../incidents/newincident.php?" . "ref=Alarm&" . "title=" . urlencode($alarm_name_orig) . "&" . "priority=$risk&" . "src_ips=$src_ip&" . "event_start=$since&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port&" . "backlog_id=$tmp_bid&" . "event_id=$tmp_eid&" . "alarm_gid=$tmp_agid" ?>"><img src="../pixmaps/script--pencil.png" alt="<?=_("ticket")?>" title="<?=_("ticket")?>" border="0"/></a>
+        echo "../incidents/newincident.php?nohmenu=1&" . "ref=Alarm&" . "title=" . urlencode($alarm_name_orig) . "&" . "priority=$risk&" . "src_ips=$src_ip&" . "event_start=$since&" . "event_end=$date&" . "src_ports=$src_port&" . "dst_ips=$dst_ip&" . "dst_ports=$dst_port&" . "backlog_id=$tmp_bid&" . "event_id=$tmp_eid&" . "alarm_gid=$tmp_agid" ?>"><img src="../pixmaps/script--pencil.png" alt="<?=_("ticket")?>" title="<?=_("ticket")?>" border="0"/></a>
         </td>
       </tr>
 	  
@@ -1077,7 +1077,7 @@ $(document).ready(function(){
 	GB_TYPE = 'w';
 	$("a.greybox2").click(function(){
 		var t = this.title || $(this).text() || this.href;
-		GB_show(t,this.href,450,'90%');
+		GB_show(t,this.href,490,'90%');
 		return false;
 	});
 	

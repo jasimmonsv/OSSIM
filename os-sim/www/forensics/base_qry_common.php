@@ -592,7 +592,7 @@ function GetPluginListByCategory($category,$byidsid=false) {
 function ProcessCriteria() {
     GLOBAL $db, $join_sql, $where_sql, $criteria_sql, $sql, $debug_mode, $caller, $DBtype;
     /* XXX-SEC */
-    GLOBAL $cs;
+    GLOBAL $cs,$timetz;
 
     /* the JOIN criteria */
     $ip_join_sql = " LEFT JOIN iphdr ON acid_event.sid=iphdr.sid AND acid_event.cid=iphdr.cid ";
@@ -613,7 +613,7 @@ function ProcessCriteria() {
     //$where_sql = "";
     // $criteria_sql = " acid_event.sid > 0";
     // Initially show last 24hours events
-    if ($_GET['time_range'] == "") $criteria_sql = " ( timestamp >='" . date("Y-m-d") . "' ) ";
+    if ($_GET['time_range'] == "") $criteria_sql = " ( timestamp >='" . gmdate("Y-m-d",$timetz) . "' ) ";
     else $criteria_sql = " 1 ";
     //$criteria_sql = " ( timestamp <= CURDATE() ) ";
     //$criteria_sql = " 1 ";

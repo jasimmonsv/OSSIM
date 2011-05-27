@@ -291,7 +291,7 @@ $keys = array_keys($menu);
 				<img src="pixmaps/menu/maximizep.png" border=0 align="absmiddle"> &nbsp; <a href="#" onClick="fullwin()"><font color="black"><?php echo _("Maximize")?></font></a>
 		</td></tr>
 			<?php
-			if(Session::am_i_admin()){
+			if(Session::am_i_admin()) {
 			?>
 				<tr><td height="26" class="outmenu">
 					<img src="pixmaps/menu/gear.png" border=0 align="absmiddle"> &nbsp; <a href="sysinfo/index.php" target="main"><font color="black"><?php echo _("System Status")?></font></a>
@@ -315,11 +315,12 @@ $keys = array_keys($menu);
 			</ul>
 			
 			<span class="jx-separator-right"></span>
+			
 			<ul class="jx-bar-button-right">
 			<?php if(Session::am_i_admin()) { ?>
-				<li title="<?php echo _("System Status")?>"><a href="sysinfo/index.php?hmenu=Sysinfo&smenu=Hardware+Info" target="main"><img src="pixmaps/status.png"></a>&nbsp;</li>
+				<li title="<?php echo _("System<br>Status")?>"><a href="sysinfo/index.php?hmenu=Sysinfo&smenu=Hardware+Info" target="main"><img src="pixmaps/status.png"></a>&nbsp;</li>
 			<?php } else { ?>
-				<li title="<?php echo _("System Status")?>"><img src="pixmaps/status_gray.png">&nbsp;</li>
+				<li title="<?php echo _("System<br>Status")?>"><img src="pixmaps/status_gray.png"></li>
 			</ul>
 			<?php } ?>
 			
