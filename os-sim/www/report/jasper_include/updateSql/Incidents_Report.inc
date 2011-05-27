@@ -299,6 +299,13 @@ function CreateSql($array, $type, &$NoData){
 	if ($status != "ALL") $fil.= " and status = '$status'";
     
 	if ($in_charge != "") $fil.= " and in_charge = '$in_charge'";
+    
+    if ($date_from != "" && $date_to !="" ) {
+        require_once ('classes/Util.inc');
+        
+        $tzc = Util::get_tzc();
+        $fil .= " and convert_tz(date,'+00:00','$tzc') BETWEEN '".str_replace("/", "-",$date_from). "' AND '".str_replace("/", "-",$date_to). "'";
+    }
    
    /* metrics */
     if (POST('Metric')) {
