@@ -64,6 +64,8 @@ $dbhost = "localhost" if ($dbhost eq "");
 my $dbuser = `grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbuser);
 my $dbpass = `grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbpass);
 
+my $uuid = `dmidecode -s system-uuid`; chomp($uuid);
+
 $CONFIG{'DATABASENAME'} = "ossim";
 $CONFIG{'DATABASEHOST'} = $dbhost;
 $CONFIG{'UPDATEPLUGINS'} = 0;
@@ -92,11 +94,11 @@ my %loginfo;                     #LOGWRITER RISK VALUES - PREDECLARED FOR EXTENS
 my ( $dbh, $sth_sel, $sql );   #DATABASE HANDLE TO BE USED THROUGHOUT PROGRAM
 my %nessus_vars = ();
 $dbh = conn_db();
-$sql = qq{ select * from config where conf = 'vulnerability_incident_threshold' or conf = 'use_resolv'};
+$sql = qq{ select *,AES_DECRYPT(value,'$uuid') as dvalue from config where conf = 'vulnerability_incident_threshold' or conf = 'use_resolv'};
 $sth_sel=$dbh->prepare( $sql );
 $sth_sel->execute;
-while ( my ($conf, $value) = $sth_sel->fetchrow_array ) {
-   $nessus_vars{$conf} = $value;
+while ( my ($conf, $value, $dvalue) = $sth_sel->fetchrow_array ) {
+   $nessus_vars{$conf} = ($dvalue ne "") ? $dvalue : $value;
 }
 disconn_db($dbh);
 

@@ -116,6 +116,8 @@ $dbhost = "localhost" if ($dbhost eq "");
 my $dbuser = `grep user /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbuser);
 my $dbpass = `grep pass /etc/ossim/ossim_setup.conf | cut -f 2 -d "="`; chomp($dbpass);
 
+my $uuid = `dmidecode -s system-uuid`; chomp($uuid);
+
 $CONFIG{'DATABASENAME'} = "ossim";
 $CONFIG{'DATABASEHOST'} = $dbhost;
 $CONFIG{'UPDATEPLUGINS'} = ($ARGV[0] eq "update") ? 1 : 0;
@@ -128,11 +130,11 @@ $CONFIG{'DATABASEPASSWORD'} = $dbpass;
 my ( $dbh, $sth_sel, $sql );   #DATABASE HANDLE TO BE USED THROUGHOUT PROGRAM
 my %nessus_vars = ();
 $dbh = conn_db();
-$sql = qq{ select * from config where conf like 'nessus%' };
+$sql = qq{ select *,AES_DECRYPT(value,'$uuid') as dvalue from config where conf like 'nessus%' };
 $sth_sel=$dbh->prepare( $sql );
 $sth_sel->execute;
-while ( my ($conf, $value) = $sth_sel->fetchrow_array ) {
-   $nessus_vars{$conf} = $value;
+while ( my ($conf, $value, $dvalue) = $sth_sel->fetchrow_array ) {
+   $nessus_vars{$conf} = ($dvalue ne "") ? $dvalue : $value;
 }
 
 # Quick and dirty test to see if this should run
@@ -217,11 +219,6 @@ sub main {
     
     #load_db_configs ( );
 
-    #$serverid = get_server_credentialsA( $CONFIG{'SERVERID'} );  #GET THE SERVER ID'S FOR WORK PROCESSING
-    #if ($serverid == 0 ) {  #CHECK FOR VALID SERVER ID)
-    #    logwriter( "[$$]\tWARNING: ServerID is Invalid --CAN NOT CONTINUE", 1 );
-    #    exit;
-    #}
     logwriter( "host=$nessushost, port=$nessusport, user=$nessususer, pass=$nessuspassword", 5 );
 
     if ($nessus =~ /omp\s*$/) { delete_all_tasks(); }
@@ -1150,23 +1147,6 @@ CREATE TABLE `vuln_nessus_preferences_defaults` (
     my $time_run = time() - $time_start;
     print "\n";
     logwriter( "FINISH - UPDATE NESSUS_PREFERENCES [ Process took $time_run seconds ]", 4 );
-
-}
-
-sub get_server_credentialsA {
-    # VER: 1.1 MODIFIED: 4/23/08 12:33
-    my ( $select_id ) = @_;
-  
-    my ($sql, $sth_sel, $tmpserverid);
-
-    $sql = qq{ SELECT id, hostname, port, user, password FROM vuln_nessus_servers WHERE id=$select_id };
-    logwriter( $sql, 5 );
-
-    $sth_sel = $dbh->prepare( $sql );
-    $sth_sel->execute;
-    ($tmp_serverid, $nessushost, $nessusport, $nessususer, $nessuspassword)=$sth_sel->fetchrow_array;
-    $sth_sel->finish;
-    return $tmp_serverid;
 
 }
 

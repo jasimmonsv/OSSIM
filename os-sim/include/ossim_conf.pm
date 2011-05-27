@@ -40,13 +40,15 @@ BEGIN {
                             $ossim_conf::ossim_data->{"ossim_pass"}) 
         or die "Can't connect to Database\n";
 
-    my $query = "SELECT * FROM config";
+	my $uuid = `dmidecode -s system-uuid`; chomp($uuid);
+    my $query = "SELECT *,AES_DECRYPT(value,'$uuid') as dvalue FROM config";
     my $stm = $conn->prepare($query);
     $stm->execute();
     
     while (my $row = $stm->fetchrow_hashref) {
         if (!$ossim_conf::ossim_data->{$row->{"conf"}}) {
-            $ossim_conf::ossim_data->{$row->{"conf"}} = $row->{"value"};
+        	my $value = ($row->{"dvalue"} ne "") ? $row->{"dvalue"} : $row->{"value"};
+            $ossim_conf::ossim_data->{$row->{"conf"}} = $value;
         }
     }
     $stm->finish();

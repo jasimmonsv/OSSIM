@@ -36,7 +36,12 @@
 */
 // This file describes sample downloads available to the user.
 // This could be useful for snare, osiris, openvpn and other clients for windows hosts, for example
+require_once 'ossim_conf.inc';
+$config = $GLOBALS["CONF"];
+$use_resolv = $config->get_conf("use_resolv");
+
 $downloads = array(
+    array() ,
     array(
         "Name" => "Putty (ssh client) for Windows",
         "Version" => "0.60",
@@ -136,4 +141,14 @@ $downloads = array(
         "Description" => "Osiris is a Host Integrity Monitoring System that periodically monitors one or more hosts for change. It maintains detailed logs of changes to the file system, user and group lists, resident kernel modules, and more."
     )
 );
+
+if ($conf->get_conf("cloud_instance", FALSE) == 1) {
+    $downloads[0] = array(
+        "Name" => "AlienVault OSSEC HIDS Windows Autoinstaller",
+        "Version" => "0.01",
+        "URL" => "ossec-generator.php",
+        "Homepage" => "http://www.alienvault.com/",
+        "Description" => "AlienVault OSSEC HIDS Windows autoinstaller."
+    );
+} else { unset($downloads[0]); }
 ?>
